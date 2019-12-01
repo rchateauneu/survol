@@ -2369,22 +2369,22 @@ class BatchLetCore:
         self.m_resumedBatch = None # If this is an matched batch.
 
         # sys.stdout.write("self=%d\n" % id(self) )
-        return
+        #### return
 
     # tracer = "strace|ltrace"
-    def ParseLine( self, oneLine, tracer ):
+    def ParseLine(self, oneLine, tracer):
         # sys.stdout.write("%s oneLine1=%s" % (id(self),oneLine ) )
         self.m_tracer = tracer
 
-        if oneLine.startswith( "[pid" ):
+        if oneLine.startswith("[pid"):
             idxAfterPid = oneLine.find("]")
 
-            pidParsed = int( oneLine[ 4:idxAfterPid ] )
+            pidParsed = int(oneLine[4:idxAfterPid])
 
             # This is a sub-process.
             self.m_pid = pidParsed
 
-            self.InitAfterPid(oneLine, idxAfterPid + 2 )
+            self.InitAfterPid(oneLine, idxAfterPid + 2)
         else:
             # This is the main process, but at this stage we do not have its pid.
             self.m_pid = G_topProcessId
@@ -2435,15 +2435,15 @@ class BatchLetCore:
             # store their prefix and use this to correctly suffix them or not.
 
         else:
-            raise Exception("SetFunction tracer %s unsupported"%self.m_trace)
+            raise Exception("SetFunction tracer %s unsupported" % self.m_trace)
 
     def SetDefaultOnError(self):
-        self.SetFunction( "" )
+        self.SetFunction("")
         self.m_parsedArgs = []
         self.m_retValue = None
 
     # This parsing is specific to strace and ltrace.
-    def InitAfterPid(self,oneLine, idxStart):
+    def InitAfterPid(self, oneLine, idxStart):
         # "07:54:54.206113"
         aTimeStamp = oneLine[idxStart:idxStart+15]
 
@@ -2452,11 +2452,11 @@ class BatchLetCore:
         theCall = oneLine[idxStart+16:]
 
         # "--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=19332, si_uid=1000, si_status=1, si_utime=0, si_stime=0} ---"
-        if theCall.startswith( "--- " ):
+        if theCall.startswith("--- "):
             raise ExceptionIsExit()
 
         # "+++ exited with 1 +++ ['+++ exited with 1 +++']"
-        if theCall.startswith( "+++ " ):
+        if theCall.startswith("+++ "):
             raise ExceptionIsSignal()
 
 
@@ -2479,7 +2479,7 @@ class BatchLetCore:
 
         idxGT = theCall.rfind(">")
         # sys.stdout.write("idxGT=%d\n" % idxGT )
-        idxLT = theCall.rfind("<",0,idxGT)
+        idxLT = theCall.rfind("<", 0, idxGT)
         # sys.stdout.write("idxLT=%d\n" % idxLT )
         self.m_status = BatchStatus.plain
         if idxLT >= 0 :
@@ -2488,7 +2488,8 @@ class BatchLetCore:
                 self.m_execTim = ""
                 self.m_status = BatchStatus.unfinished
             else:
-                self.m_execTim = theCall[idxLT+1:idxGT]
+                ### ????? self.m_execTim = theCall[idxLT+1:idxGT]
+                self.m_execTim = exeTm
         else:
             self.m_execTim = ""
 
@@ -2502,7 +2503,7 @@ class BatchLetCore:
             self.m_status = BatchStatus.resumed
             # TODO: Should check if this is the correct function name.
             funcNameResumed = matchResume.group(1)
-            self.SetFunction( funcNameResumed )
+            self.SetFunction(funcNameResumed)
 
             # ") = 0 <0.000069>"
             # ", { 0x5612836832c0, <>, 0, nil }) = 0 <0.000361>"
@@ -2517,28 +2518,28 @@ class BatchLetCore:
             if idxPar <= 0 :
                 # With ltrace only, wrong detection: https://github.com/dkogan/ltrace/blob/master/TODO
                 # oneLine='error: maximum array length seems negative, "\236\245\v", 8192) = -21'
-                if (self.m_tracer == "ltrace"):
+                if self.m_tracer == "ltrace":
                     if oneLine.startswith("error:"):
-                        sys.stdout.write("Warning ltrace:%s\n"%oneLine)
+                        sys.stdout.write("Warning ltrace:%s\n" % oneLine)
                         self.SetDefaultOnError()
                         return
 
                 # Exception: No function in:22:50:11.879132 <... exit resumed>) = ?
                 # Special case, when it is leaving:
-                elif (self.m_tracer == "strace"):
-                    if ( oneLine.find("<... exit resumed>) = ?") >= 0 ):
+                elif self.m_tracer == "strace":
+                    if oneLine.find("<... exit resumed>) = ?") >= 0:
                         sys.stdout.write("Warning strace exit:%s"%oneLine)
                         self.SetDefaultOnError()
                         return
 
-                    if ( oneLine.find("<... exit_group resumed>) = ?") >= 0 ):
+                    if oneLine.find("<... exit_group resumed>) = ?") >= 0:
                         sys.stdout.write("Warning strace exit_group:%s\n"%oneLine)
                         self.SetDefaultOnError()
                         return
 
                 raise Exception("No function in:%s"%oneLine)
 
-            self.SetFunction( theCall[:idxPar] )
+            self.SetFunction(theCall[:idxPar])
 
         self.m_parsedArgs, idxLastPar = ParseCallArguments(theCall,idxPar+1)
 
@@ -2550,34 +2551,34 @@ class BatchLetCore:
             if idxLastPar < 0:
                 # The parameters list might be broken, with strings containing an embedded double-quote.
                 # So the closing parenthesis could not be found.
-                idxEq = theCall.rfind( "=", 0, idxLT )
+                idxEq = theCall.rfind("=", 0, idxLT)
                 if idxEq < 0:
-                    raise Exception("No = from end: idxLT=%d. theCall=%s"%(idxLT,theCall))
+                    raise Exception("No = from end: idxLT=%d. theCall=%s" % (idxLT, theCall))
             else:
                 # Normal case where the '=' equal sign comes after the clolsing parenthese of the args list.
-                idxEq = theCall.find( "=", idxLastPar )
+                idxEq = theCall.find("=", idxLastPar)
                 if idxEq < 0:
                     # This is acceptable in this circumstance only.
                     if not theCall.endswith("<no return ...>\n") and not theCall.endswith("<detached ...>"):
                         if self.m_tracer != "ltrace":
                         # This can happen with ltrace which does not escape double-quotes. Example:
                         # read@SYS(8, "\003\363\r\n"|\314Vc", 4096) = 765 <0.000049>
-                            raise Exception("No = from parenthesis: idxLastPar=%d. theCall=%s. Len=%d"%(idxLT,theCall,len(theCall)))
+                            raise Exception("No = from parenthesis: idxLastPar=%d. theCall=%s. Len=%d" % (idxLT, theCall, len(theCall)))
 
-            self.m_retValue = theCall[ idxEq + 1 : idxLT ].strip()
+            self.m_retValue = theCall[idxEq + 1:idxLT].strip()
             # sys.stdout.write("idxEq=%d idxLastPar=%d idxLT=%d retValue=%s\n"%(idxEq,idxLastPar,idxLT,self.m_retValue))
 
     def AsStr(self):
         return "%s %s s=%s" % (
             str(self.m_parsedArgs),
             self.m_retValue,
-            BatchStatus.chrDisplayCodes[ self.m_status ] )
+            BatchStatus.chrDisplayCodes[self.m_status])
 
 def CreateBatchCore(oneLine,tracer):
 
     try:
         batchCore = BatchLetCore()
-        batchCore.ParseLine( oneLine, tracer )
+        batchCore.ParseLine(oneLine, tracer)
         return batchCore
     except ExceptionIsExit:
         return None
@@ -2627,7 +2628,7 @@ G_ignoredSyscalls = [
 # Derived classes of BatchLetBase self-register thanks to the metaclass.
 # At init time, this map contains the systems calls which should be ignored.
 
-G_batchModels = { sysCll + "@SYS" : None for sysCll in G_ignoredSyscalls }
+G_batchModels = {sysCll + "@SYS": None for sysCll in G_ignoredSyscalls}
 
 # This metaclass allows derived class of BatchLetBase to self-register their function name.
 # So, the name of a system call is used to lookup the class which represents it.
@@ -2648,12 +2649,12 @@ class BatchMeta(type):
         if name.startswith(btchSysPrefix):
             syscallName = name[len(btchSysPrefix):] + "@SYS"
             # sys.stdout.write("Registering sys function:%s\n"%syscallName)
-            G_batchModels[ syscallName ] = cls
+            G_batchModels[syscallName] = cls
         elif name.startswith(btchLibPrefix):
             syscallName = name[len(btchLibPrefix):]
             # sys.stdout.write("Registering lib function:%s\n"%syscallName)
-            G_batchModels[ syscallName ] = cls
-        elif name not in ["NewBase","BatchLetBase","BatchLetSequence"]:
+            G_batchModels[syscallName] = cls
+        elif name not in ["NewBase", "BatchLetBase", "BatchLetSequence"]:
             # Enumerate the list of legal base classes, for safety only.
             raise Exception("Invalid class name:%s"%name)
 
@@ -2665,11 +2666,11 @@ def my_with_metaclass(meta, *bases):
     return meta("NewBase", bases, {})
 
 # All class modeling a system call inherit from this.
-class BatchLetBase(my_with_metaclass(BatchMeta) ):
+class BatchLetBase(my_with_metaclass(BatchMeta)):
 
     # The style tells if this is a native call or an aggregate of function
     # calls, made with some style: Factorization etc...
-    def __init__(self,batchCore,style="Orig"):
+    def __init__(self, batchCore,style="Orig"):
         self.m_core = batchCore
         self.m_occurrences = 1
         self.m_style = style
@@ -2692,15 +2693,15 @@ class BatchLetBase(my_with_metaclass(BatchMeta) ):
             # This is costly so we calculate it once only.
             return self.m_signatureWithArgs
         except AttributeError:
-            self.m_signatureWithArgs = self.m_core.m_funcNam + ":" + "&".join( map( str, self.m_significantArgs ) )
+            self.m_signatureWithArgs = self.m_core.m_funcNam + ":" + "&".join(map(str, self.m_significantArgs))
             return self.m_signatureWithArgs
 
     # This is very often used.
-    def StreamName(self,idx=0):
-        aFil = self.STraceStreamToFile( self.m_core.m_parsedArgs[idx] )
-        return [ aFil ]
+    def StreamName(self, idx=0):
+        aFil = self.STraceStreamToFile(self.m_core.m_parsedArgs[idx])
+        return [aFil]
 
-    def SameCall(self,anotherBatch):
+    def SameCall(self, anotherBatch):
         if self.m_core.m_funcNam != anotherBatch.m_core.m_funcNam:
             return False
 
@@ -2708,7 +2709,7 @@ class BatchLetBase(my_with_metaclass(BatchMeta) ):
 
     # This assumes that the function calls are the same.
     # It compares the arguments one by one.
-    def SameArguments(self,anotherBatch):
+    def SameArguments(self, anotherBatch):
         args1 = self.SignificantArgs()
         args2 = anotherBatch.SignificantArgs()
 
@@ -2731,11 +2732,11 @@ class BatchLetBase(my_with_metaclass(BatchMeta) ):
 
     # Returns the file associated to this path, and creates it if needed.
     # It also associates this file to the process.
-    def ToObjectPath_Accessed_CIM_DataFile(self,pathName):
-        return ToObjectPath_CIM_DataFile(pathName,self.m_core.m_pid)
+    def ToObjectPath_Accessed_CIM_DataFile(self, pathName):
+        return ToObjectPath_CIM_DataFile(pathName, self.m_core.m_pid)
 
-    def STraceStreamToFile(self,strmStr):
-        return ToObjectPath_CIM_DataFile( STraceStreamToPathname(strmStr), self.m_core.m_pid )
+    def STraceStreamToFile(self, strmStr):
+        return ToObjectPath_CIM_DataFile(STraceStreamToPathname(strmStr), self.m_core.m_pid )
 
 
 
@@ -2759,7 +2760,7 @@ class BatchDumperBase:
         return
 
 class BatchDumperTXT(BatchDumperBase):
-    def __init__(self,strm):
+    def __init__(self, strm):
         self.m_strm = strm
 
     def DumpBatch(self,batchLet):
@@ -2767,7 +2768,7 @@ class BatchDumperTXT(BatchDumperBase):
             batchLet.m_core.m_pid,
             batchLet.m_occurrences,
             batchLet.m_style,
-            BatchStatus.chrDisplayCodes[ batchLet.m_core.m_status ],
+            BatchStatus.chrDisplayCodes[batchLet.m_core.m_status],
             batchLet.m_core.m_funcNam,
             batchLet.SignificantArgs(),
             batchLet.m_core.m_retValue,
@@ -2775,7 +2776,7 @@ class BatchDumperTXT(BatchDumperBase):
             FmtTim(batchLet.m_core.m_timeEnd) ) )
 
 class BatchDumperCSV(BatchDumperBase):
-    def __init__(self,strm):
+    def __init__(self, strm):
         self.m_strm = strm
 
     def Header(self, extra_header):
@@ -2783,8 +2784,8 @@ class BatchDumperCSV(BatchDumperBase):
             self.m_strm.write("%s\n" % extra_header)
         self.m_strm.write("Pid,Occurrences,Style,Function,Arguments,Return,Start,End\n")
 
-    def DumpBatch(self,batchLet):
-        self.m_strm.write("%d,%d,%s,%s,%s,%s,%s,%s,%s\n" %(
+    def DumpBatch(self, batchLet):
+        self.m_strm.write("%d,%d,%s,%s,%s,%s,%s,%s,%s\n" % (
             batchLet.m_core.m_pid,
             batchLet.m_occurrences,
             batchLet.m_style,
@@ -2793,26 +2794,26 @@ class BatchDumperCSV(BatchDumperBase):
             batchLet.SignificantArgs(),
             batchLet.m_core.m_retValue,
             FmtTim(batchLet.m_core.m_timeStart),
-            FmtTim(batchLet.m_core.m_timeEnd) ) )
+            FmtTim(batchLet.m_core.m_timeEnd)))
 
 # TODO: Must use json package.
 class BatchDumperJSON(BatchDumperBase):
-    def __init__(self,strm):
+    def __init__(self, strm):
         self.m_strm = strm
 
     def DocumentStart(self):
-        self.m_strm.write( '[\n' )
+        self.m_strm.write('[\n')
         self.m_top_delimiter = ""
 
     def DocumentEnd(self):
-        self.m_strm.write( ']\n' )
+        self.m_strm.write(']\n')
 
     def Header(self, extra_header):
-        self.m_strm.write( self.m_top_delimiter + '[\n' )
+        self.m_strm.write(self.m_top_delimiter + '[\n')
         self.m_delimiter = ""
         self.m_top_delimiter = ","
 
-    def DumpBatch(self,batchLet):
+    def DumpBatch(self, batchLet):
         self.m_strm.write(
             self.m_delimiter + '{\n'
             '   "pid" : %d,\n'
@@ -2830,31 +2831,31 @@ class BatchDumperJSON(BatchDumperBase):
             batchLet.m_style,
             batchLet.m_core.m_status,
             batchLet.m_core.m_funcNam,
-            json.dumps( [ str(arg) for arg in batchLet.SignificantArgs()]),
-            json.dumps( batchLet.m_core.m_retValue ), # It may contain double-quotes
+            json.dumps([str(arg) for arg in batchLet.SignificantArgs()]),
+            json.dumps(batchLet.m_core.m_retValue), # It may contain double-quotes
             FmtTim(batchLet.m_core.m_timeStart),
-            FmtTim(batchLet.m_core.m_timeEnd) ) )
+            FmtTim(batchLet.m_core.m_timeEnd)))
         self.m_delimiter = ","
 
     def Footer(self):
-        self.m_strm.write( ']\n' )
+        self.m_strm.write(']\n')
 
 ################################################################################
 
 # Some Linux functions return a file descriptor which can be invalid:
 # This is not shown the same way depending on the tracer: strace or ltrace.
 # On Linux, ENOENT = 2.
-def InvalidReturnedFileDescriptor(fileDes,tracer):
+def InvalidReturnedFileDescriptor(fileDes, tracer):
     if tracer == "strace":
         # 09:18:26.452764 open("/usr/lib/python2.7/numbersmodule.so", O_RDONLY|O_LARGEFILE) = -1 ENOENT (No such file or directory) <0.000012>
-        if fileDes.find("ENOENT") >= 0 :
+        if fileDes.find("ENOENT") >= 0:
             return True
     elif tracer == "ltrace":
         # [pid 4784] 16:42:12.033450 open@SYS("/usr/lib64/python2.7/numbersmodule.so", 0, 0666) = -2 <0.000195>
         if fileDes.find("-2") >= 0 :
             return True
     else:
-        raise Exception("Tracer %s not supported yet"%tracer)
+        raise Exception("Tracer %s not supported yet" % tracer)
     return False
 
 ################################################################################
@@ -2863,13 +2864,13 @@ def InvalidReturnedFileDescriptor(fileDes,tracer):
 # giving a full path from the root of the directory tree to the named file (or symlink)
 def ToAbsPath( dirPath, filNam ):
     # This does not apply to pseudo-files such as: "pipe:", "TCPv6:" etc...
-    if re.match("^[0-9a-zA-Z_]+:",filNam):
+    if re.match("^[0-9a-zA-Z_]+:", filNam):
         return filNam
 
-    if filNam in ["stdout","stdin","stderr"]:
+    if filNam in ["stdout", "stdin", "stderr"]:
         return filNam
 
-    join_path = os.path.join( dirPath, filNam )
+    join_path = os.path.join(dirPath, filNam)
     norm_path = os.path.realpath(join_path)
     return norm_path
 
@@ -2878,14 +2879,14 @@ def ToAbsPath( dirPath, filNam ):
 ##### File descriptor system calls.
 
 # Must be a new-style class.
-class BatchLetSys_open(BatchLetBase,object):
-    def __init__(self,batchCore):
+class BatchLetSys_open(BatchLetBase, object):
+    def __init__(self, batchCore):
         global G_mapFilDesToPathName
 
         # TODO: If the open is not successful, maybe it should be rejected.
         if InvalidReturnedFileDescriptor(batchCore.m_retValue,batchCore.m_tracer):
             return
-        super( BatchLetSys_open,self).__init__(batchCore)
+        super(BatchLetSys_open, self).__init__(batchCore)
 
         if batchCore.m_tracer == "strace":
             # strace has the "-y" option which writes the complete path each time,
@@ -2896,7 +2897,7 @@ class BatchLetSys_open(BatchLetBase,object):
             # open("/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libc-2.25.so>
             # Therefore the returned file should be SignificantArgs(),
             # not the input file.
-            filObj = self.STraceStreamToFile( self.m_core.m_retValue )
+            filObj = self.STraceStreamToFile(self.m_core.m_retValue)
         elif batchCore.m_tracer == "ltrace":
             # The option "-y" which writes the complete path after the file descriptor,
             # is not available for ltrace.
@@ -2908,26 +2909,26 @@ class BatchLetSys_open(BatchLetBase,object):
             filDes = self.m_core.m_retValue
 
             # TODO: Should be cleaned up when closing ?
-            G_mapFilDesToPathName[ filDes ] = pathName
-            filObj = self.ToObjectPath_Accessed_CIM_DataFile( pathName )
+            G_mapFilDesToPathName[filDes] = pathName
+            filObj = self.ToObjectPath_Accessed_CIM_DataFile(pathName)
         else:
-            raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
+            raise Exception("Tracer %s not supported yet" % batchCore.m_tracer)
 
-        self.m_significantArgs = [ filObj ]
+        self.m_significantArgs = [filObj]
         aFilAcc = self.m_core.m_objectProcess.GetFileAccess(filObj)
         aFilAcc.SetOpenTime(self.m_core.m_timeStart)
 
 # The important file descriptor is the returned value.
 # openat(AT_FDCWD, "../list_machines_in_domain.py", O_RDONLY|O_NOCTTY) = 3</home/rchateau/survol/Experimental/list_machines_in_domain.py> <0.000019>
-class BatchLetSys_openat(BatchLetBase,object):
-    def __init__(self,batchCore):
+class BatchLetSys_openat(BatchLetBase, object):
+    def __init__(self, batchCore):
         global G_mapFilDesToPathName
 
-        super( BatchLetSys_openat,self).__init__(batchCore)
+        super(BatchLetSys_openat, self).__init__(batchCore)
 
         # Same logic as for open().
         if batchCore.m_tracer == "strace":
-            filObj = self.STraceStreamToFile( self.m_core.m_retValue )
+            filObj = self.STraceStreamToFile(self.m_core.m_retValue)
         elif batchCore.m_tracer == "ltrace":
             dirNam = self.m_core.m_parsedArgs[0]
         
@@ -2936,39 +2937,39 @@ class BatchLetSys_openat(BatchLetBase,object):
                 # referred to by the file descriptor passed as first parameter.
                 dirPath = self.m_core.m_objectProcess.GetProcessCurrentDir()
             else:
-                dirPath = self.STraceStreamToFile( dirNam )
+                dirPath = self.STraceStreamToFile(dirNam)
         
             filNam = self.m_core.m_parsedArgs[1]
 
-            pathName = ToAbsPath( dirPath, filNam )
+            pathName = ToAbsPath(dirPath, filNam)
 
             filDes = self.m_core.m_retValue
 
             # TODO: Should be cleaned up when closing ?
-            G_mapFilDesToPathName[ filDes ] = pathName
-            filObj = self.ToObjectPath_Accessed_CIM_DataFile( pathName )
+            G_mapFilDesToPathName[filDes] = pathName
+            filObj = self.ToObjectPath_Accessed_CIM_DataFile(pathName)
         else:
             raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
 
-        self.m_significantArgs = [ filObj ]
+        self.m_significantArgs = [filObj]
         aFilAcc = self.m_core.m_objectProcess.GetFileAccess(filObj)
         aFilAcc.SetOpenTime(self.m_core.m_timeStart)
 
-class BatchLetSys_close(BatchLetBase,object):
-    def __init__(self,batchCore):
+class BatchLetSys_close(BatchLetBase, object):
+    def __init__(self, batchCore):
         # Maybe no need to record it if close is unsuccessful.
         # [pid 10624] 14:09:55.350002 close(2902) = -1 EBADF (Bad file descriptor) <0.000006>
         if batchCore.m_retValue.find("EBADF") >= 0:
             return
 
-        super( BatchLetSys_close,self).__init__(batchCore)
+        super(BatchLetSys_close, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
         aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
         aFilAcc.SetCloseTime(self.m_core.m_timeEnd)
 
-class BatchLetSys_read(BatchLetBase,object):
-    def __init__(self,batchCore):
+class BatchLetSys_read(BatchLetBase, object):
+    def __init__(self, batchCore):
         try:
             bytesRead = int(batchCore.m_retValue)
         except ValueError:
@@ -2984,10 +2985,10 @@ class BatchLetSys_read(BatchLetBase,object):
             # TODO: Should be processed specifically.
             # This happens if the buffer contains a double-quote. Example:
             # Error parsing retValue=read@SYS(8, "\003\363\r\n"|\314Vc", 4096)                                                  = 765
-            sys.stdout.write("Error parsing retValue=%s\n" % ( batchCore.m_retValue) )
+            sys.stdout.write("Error parsing retValue=%s\n" % (batchCore.m_retValue))
             return
 
-        super( BatchLetSys_read,self).__init__(batchCore)
+        super(BatchLetSys_read, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
         aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
@@ -2999,16 +3000,16 @@ class BatchLetSys_read(BatchLetBase,object):
 # Example: pread@SYS(256, 0x255a200, 0x4000, 0) = 0x4000
 def ConvertBatchCoreRetValue(batchCore):
     if batchCore.m_tracer == "ltrace":
-        return int(batchCore.m_retValue,16)
+        return int(batchCore.m_retValue, 16)
     elif batchCore.m_tracer == "strace":
         return int(batchCore.m_retValue)
     else:
         raise Exception("Invalid tracer")
 
 # Pread() is like read() but reads from the specified position in the file without modifying the file pointer.
-class BatchLetSys_preadx(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_preadx,self).__init__(batchCore)
+class BatchLetSys_preadx(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_preadx, self).__init__(batchCore)
 
         bytesRead = ConvertBatchCoreRetValue(batchCore)
 
@@ -3016,9 +3017,9 @@ class BatchLetSys_preadx(BatchLetBase,object):
         aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
         aFilAcc.SetRead(bytesRead)
 
-class BatchLetSys_pread64x(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_pread64x,self).__init__(batchCore)
+class BatchLetSys_pread64x(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_pread64x, self).__init__(batchCore)
 
         bytesRead = ConvertBatchCoreRetValue(batchCore)
 
@@ -3026,23 +3027,23 @@ class BatchLetSys_pread64x(BatchLetBase,object):
         aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
         aFilAcc.SetRead(bytesRead,self.m_core.m_parsedArgs[1])
 
-class BatchLetSys_write(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_write,self).__init__(batchCore)
+class BatchLetSys_write(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_write, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
         aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
 
         try:
             bytesWritten = int(self.m_core.m_retValue)
-            aFilAcc.SetWritten(bytesWritten,self.m_core.m_parsedArgs[1])
+            aFilAcc.SetWritten(bytesWritten, self.m_core.m_parsedArgs[1])
         except ValueError:
             # Probably a race condition: invalid literal for int() with base 10: 'write@SYS(28, "\\372", 1'
             pass
 
-class BatchLetSys_writev(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_writev,self).__init__(batchCore)
+class BatchLetSys_writev(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_writev, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
         aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
@@ -3050,36 +3051,36 @@ class BatchLetSys_writev(BatchLetBase,object):
         try:
             bytesWritten = int(self.m_core.m_retValue)
             # The content is not processed yet.
-            aFilAcc.SetWritten(bytesWritten,None)
+            aFilAcc.SetWritten(bytesWritten, None)
         except ValueError:
             # Probably a race condition: invalid literal for int() with base 10: 'write@SYS(28, "\\372", 1'
             pass
 
-class BatchLetSys_ioctl(BatchLetBase,object):
-    def __init__(self,batchCore):
+class BatchLetSys_ioctl(BatchLetBase, object):
+    def __init__(self, batchCore):
         # With strace: "ioctl(-1, TIOCGPGRP, 0x7ffc3b5287f4) = -1 EBADF (Bad file descriptor)"
         # TODO: Could use the parameter TIOCSPGRP to get the process id: ioctl(255</dev/pts/2>, TIOCSPGRP, [26531])
 
         if batchCore.m_retValue.find("EBADF") >= 0 :
             return
-        super( BatchLetSys_ioctl,self).__init__(batchCore)
+        super(BatchLetSys_ioctl, self).__init__(batchCore)
 
-        self.m_significantArgs = [ self.STraceStreamToFile( self.m_core.m_parsedArgs[0] ) ] + self.m_core.m_parsedArgs[1:0]
+        self.m_significantArgs = [ self.STraceStreamToFile(self.m_core.m_parsedArgs[0])] + self.m_core.m_parsedArgs[1:0]
 
-class BatchLetSys_stat(BatchLetBase,object):
-    def __init__(self,batchCore):
+class BatchLetSys_stat(BatchLetBase, object):
+    def __init__(self, batchCore):
         # TODO: If the stat is not successful, maybe it should be rejected.
         if InvalidReturnedFileDescriptor(batchCore.m_retValue,batchCore.m_tracer):
             return
-        super( BatchLetSys_stat,self).__init__(batchCore)
+        super(BatchLetSys_stat, self).__init__(batchCore)
 
-        self.m_significantArgs = [ self.ToObjectPath_Accessed_CIM_DataFile( self.m_core.m_parsedArgs[0] ) ]
+        self.m_significantArgs = [self.ToObjectPath_Accessed_CIM_DataFile(self.m_core.m_parsedArgs[0])]
 
-class BatchLetSys_lstat(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_lstat,self).__init__(batchCore)
+class BatchLetSys_lstat(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_lstat, self).__init__(batchCore)
 
-        self.m_significantArgs = [ self.ToObjectPath_Accessed_CIM_DataFile( self.m_core.m_parsedArgs[0] ) ]
+        self.m_significantArgs = [self.ToObjectPath_Accessed_CIM_DataFile(self.m_core.m_parsedArgs[0])]
 
 # With ltrace:
 # lstat@SYS("./UnitTests/mineit_wget_hotmail.strace.866.xml", 0x55fd19026230) = 0
@@ -3089,32 +3090,32 @@ class BatchLetSys_lstat(BatchLetBase,object):
 
 
 
-class BatchLetSys_access(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_access,self).__init__(batchCore)
+class BatchLetSys_access(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_access, self).__init__(batchCore)
 
-        self.m_significantArgs = [ self.ToObjectPath_Accessed_CIM_DataFile( self.m_core.m_parsedArgs[0] ) ]
+        self.m_significantArgs = [self.ToObjectPath_Accessed_CIM_DataFile(self.m_core.m_parsedArgs[0])]
 
-class BatchLetSys_dup(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_dup,self).__init__(batchCore)
+class BatchLetSys_dup(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_dup, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
 
-        self.m_significantArgs.append( self.STraceStreamToFile( self.m_core.m_retValue ) )
+        self.m_significantArgs.append(self.STraceStreamToFile(self.m_core.m_retValue))
         # TODO: BEWARE, DUPLICATED ELEMENTS IN THE ARGUMENTS: SHOULD sort()+uniq()
 
-class BatchLetSys_dup2(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_dup2,self).__init__(batchCore)
+class BatchLetSys_dup2(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_dup2, self).__init__(batchCore)
 
         # TODO: After that, the second file descriptor points to the first one.
         self.m_significantArgs = self.StreamName()
 
 ##### Memory system calls.
 
-class BatchLetSys_mmap(BatchLetBase,object):
-    def __init__(self,batchCore):
+class BatchLetSys_mmap(BatchLetBase, object):
+    def __init__(self, batchCore):
         # Not interested by anonymous map because there is no side effect.
         if batchCore.m_parsedArgs[3].find("MAP_ANONYMOUS") >= 0:
             return
@@ -3122,24 +3123,24 @@ class BatchLetSys_mmap(BatchLetBase,object):
         fdArg = batchCore.m_parsedArgs[4]
         if fdArg == "-1":
             return
-        super( BatchLetSys_mmap,self).__init__(batchCore)
+        super(BatchLetSys_mmap, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName(4)
 
-class BatchLetSys_munmap(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_munmap,self).__init__(batchCore)
+class BatchLetSys_munmap(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_munmap, self).__init__(batchCore)
 
         # The parameter is only an address and we cannot do much with it.
         self.m_significantArgs = []
 
 # 'mmap2' ['NULL', '4096', 'PROT_READ|PROT_WRITE', 'MAP_PRIVATE|MAP_ANONYMOUS', '-1', '0'] ==>> 0xf7b21000 (09:18:26,09:18:26)
-class BatchLetSys_mmap2(BatchLetBase,object):
-    def __init__(self,batchCore):
+class BatchLetSys_mmap2(BatchLetBase, object):
+    def __init__(self, batchCore):
         # Not interested by anonymous map because there is no side effect.
         if batchCore.m_parsedArgs[3].find("MAP_ANONYMOUS") >= 0:
             return
-        super( BatchLetSys_mmap2,self).__init__(batchCore)
+        super(BatchLetSys_mmap2, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName(4)
 
@@ -3147,75 +3148,75 @@ class BatchLetSys_mmap2(BatchLetBase,object):
 
 ##### File system calls.
 
-class BatchLetSys_fstat(BatchLetBase,object):
-    def __init__(self,batchCore):
+class BatchLetSys_fstat(BatchLetBase, object):
+    def __init__(self, batchCore):
         # With strace: "fstat(-1, 0x7fff57630980) = -1 EBADF (Bad file descriptor)"
         if batchCore.m_retValue.find("EBADF") >= 0 :
             return
-        super( BatchLetSys_fstat,self).__init__(batchCore)
+        super(BatchLetSys_fstat, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
 
-class BatchLetSys_fstat64(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_fstat64,self).__init__(batchCore)
+class BatchLetSys_fstat64(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_fstat64, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
 
-class BatchLetSys_fstatfs(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_fstatfs,self).__init__(batchCore)
+class BatchLetSys_fstatfs(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_fstatfs, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
 
-class BatchLetSys_fadvise64(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_fadvise64,self).__init__(batchCore)
+class BatchLetSys_fadvise64(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_fadvise64, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
 
-class BatchLetSys_fchdir(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_fchdir,self).__init__(batchCore)
+class BatchLetSys_fchdir(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_fchdir, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
 
         # This also stores the new current directory in the process.
         self.m_core.m_objectProcess.SetProcessCurrentDir(self.m_significantArgs[0])
 
-class BatchLetSys_fcntl(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_fcntl,self).__init__(batchCore)
+class BatchLetSys_fcntl(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_fcntl, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
 
-class BatchLetSys_fcntl64(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_fcntl64,self).__init__(batchCore)
+class BatchLetSys_fcntl64(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_fcntl64, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
 
-class BatchLetSys_fchown(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_fchown,self).__init__(batchCore)
+class BatchLetSys_fchown(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_fchown, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
 
-class BatchLetSys_ftruncate(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_ftruncate,self).__init__(batchCore)
+class BatchLetSys_ftruncate(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_ftruncate, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
 
-class BatchLetSys_fsync(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_fsync,self).__init__(batchCore)
+class BatchLetSys_fsync(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_fsync, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
 
-class BatchLetSys_fchmod(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_fchmod,self).__init__(batchCore)
+class BatchLetSys_fchmod(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_fchmod, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
 
@@ -3248,9 +3249,9 @@ class BatchLetSys_fchmod(BatchLetBase,object):
 # CLONE_UNTRACED a tracing process cannot force CLONE_PTRACE on this child process.
 # CLONE_VFORK the execution of the calling process is suspended until the child releases its virtual memory resources via a call to execve(2) or _exit(2).
 # CLONE_VM the calling process and the child process run in the same memory space.
-class BatchLetSys_clone(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_clone,self).__init__(batchCore)
+class BatchLetSys_clone(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_clone, self).__init__(batchCore)
 
         # The process id is the return value but does not have the same format
         # with ltrace (hexadecimal) and strace (decimal).
@@ -3278,7 +3279,7 @@ class BatchLetSys_clone(BatchLetBase,object):
         if isThread:
             objNewProcess.SetThread()
 
-        self.m_significantArgs = [ objNewProcess ]
+        self.m_significantArgs = [objNewProcess]
 
         objNewProcess.AddParentProcess(self.m_core.m_timeStart,self.m_core.m_objectProcess)
 
@@ -3288,12 +3289,12 @@ class BatchLetSys_clone(BatchLetBase,object):
 
 # It does not matter if the first "unfinished" cannot be found because only
 # the "resumed" part is important as it constains the sub-PID/
-class BatchLetSys_vfork(BatchLetBase,object):
+class BatchLetSys_vfork(BatchLetBase, object):
 
     Incomplete_ResumedWithoutUnfinishedIsOk = True
 
-    def __init__(self,batchCore):
-        super( BatchLetSys_vfork,self).__init__(batchCore)
+    def __init__(self, batchCore):
+        super(BatchLetSys_vfork, self).__init__(batchCore)
 
         # The process id is the return value but does not have the same format
         # with ltrace (hexadecimal) and strace (decimal).
@@ -3306,7 +3307,7 @@ class BatchLetSys_vfork(BatchLetBase,object):
 
         # This is the created process.
         objNewProcess = ToObjectPath_CIM_Process( aPid )
-        self.m_significantArgs = [ objNewProcess ]
+        self.m_significantArgs = [objNewProcess]
 
         objNewProcess.AddParentProcess(self.m_core.m_timeStart,self.m_core.m_objectProcess)
 
@@ -3322,8 +3323,8 @@ class BatchLetSys_vfork(BatchLetBase,object):
 # execve@SYS("/usr/bin/as", 0xd1a138, 0xd1a2b0 <no return ...>
 # execve@SYS("/usr/bin/wc", 0x55e291ac8950, 0x55e291ac8f00 <unfinished ...>
 
-class BatchLetSys_execve(BatchLetBase,object):
-    def __init__(self,batchCore):
+class BatchLetSys_execve(BatchLetBase, object):
+    def __init__(self, batchCore):
 
         # strace:
         # ['/usr/lib64/qt-3.3/bin/grep', '[grep, toto, ..]'] ==>> -1 ENOENT (No such file or directory)
@@ -3332,7 +3333,7 @@ class BatchLetSys_execve(BatchLetBase,object):
         # If the executable could not be started, no point creating a batch node.
         if batchCore.m_retValue.find("ENOENT") >= 0 :
             return
-        super( BatchLetSys_execve,self).__init__(batchCore)
+        super(BatchLetSys_execve, self).__init__(batchCore)
 
         # The first argument is the executable file name,
         # while the second is an array of command-line parameters.
@@ -3357,18 +3358,18 @@ class BatchLetSys_execve(BatchLetBase,object):
         # TODO: Specifically filter the creation of a new process.
 
     # Process creations or setup are not aggregated.
-    def SameCall(self,anotherBatch):
+    def SameCall(self, anotherBatch):
         return False
 
 # This is detected by ltrace.
 # __libc_start_main([ "python", "TestProgs/mineit_mysql_select.py" ] <unfinished ...>
 # It does not matter if it is not technically finished: We only need the executable.
 # BEWARE: See difference with BatchLetSys_xxx classes.
-class BatchLetLib___libc_start_main(BatchLetBase,object):
+class BatchLetLib___libc_start_main(BatchLetBase, object):
     Incomplete_UnfinishedIsOk = True
 
-    def __init__(self,batchCore):
-        super( BatchLetLib___libc_start_main,self).__init__(batchCore)
+    def __init__(self, batchCore):
+        super( BatchLetLib___libc_start_main, self).__init__(batchCore)
 
         # TODO: Take the path of the executable name.
         commandLine = self.m_core.m_parsedArgs[0]
@@ -3376,18 +3377,18 @@ class BatchLetLib___libc_start_main(BatchLetBase,object):
         objNewDataFile = self.ToObjectPath_Accessed_CIM_DataFile(execName)
         self.m_significantArgs = [
             objNewDataFile,
-            commandLine ]
-        self.m_core.m_objectProcess.SetExecutable( objNewDataFile )
-        self.m_core.m_objectProcess.SetCommandLine( commandLine )
+            commandLine]
+        self.m_core.m_objectProcess.SetExecutable(objNewDataFile)
+        self.m_core.m_objectProcess.SetCommandLine(commandLine)
         objNewDataFile.SetIsExecuted()
 
     # Process creations or setup are not aggregated.
     def SameCall(self,anotherBatch):
         return False
 
-class BatchLetSys_wait4(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_wait4,self).__init__(batchCore)
+class BatchLetSys_wait4(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_wait4, self).__init__(batchCore)
 
         # sys.stdout.write("CLONE %s %s PID=%d\n" % ( batchCore.m_tracer, self.m_core.m_retValue, aPid) )
 
@@ -3420,21 +3421,21 @@ class BatchLetSys_wait4(BatchLetBase,object):
         if aPid:
             # sys.stdout.write("WAIT=%d\n" % aPid )
             waitedProcess = ToObjectPath_CIM_Process( aPid )
-            self.m_significantArgs = [ waitedProcess ]
+            self.m_significantArgs = [waitedProcess]
             waitedProcess.WaitProcessEnd(self.m_core.m_timeStart, self.m_core.m_objectProcess)
 
-class BatchLetSys_exit_group(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_exit_group,self).__init__(batchCore)
+class BatchLetSys_exit_group(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_exit_group, self).__init__(batchCore)
 
         self.m_significantArgs = []
 
 #####
 
 # int fstatat(int dirfd, const char *pathname, struct stat *statbuf, int flags);
-class BatchLetSys_newfstatat(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_newfstatat,self).__init__(batchCore)
+class BatchLetSys_newfstatat(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_newfstatat, self).__init__(batchCore)
 
         dirNam = self.m_core.m_parsedArgs[0]
 
@@ -3451,64 +3452,64 @@ class BatchLetSys_newfstatat(BatchLetBase,object):
 
         self.m_significantArgs = [ self.ToObjectPath_Accessed_CIM_DataFile(pathName) ]
 
-class BatchLetSys_getdents(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_getdents,self).__init__(batchCore)
+class BatchLetSys_getdents(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_getdents, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
 
-class BatchLetSys_getdents64(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_getdents64,self).__init__(batchCore)
+class BatchLetSys_getdents64(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_getdents64, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
 
 ##### Sockets system calls.
 
-class BatchLetSys_sendmsg(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_sendmsg,self).__init__(batchCore)
+class BatchLetSys_sendmsg(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_sendmsg, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
 
 # sendmmsg(3<socket:[535040600]>, {{{msg_name(0)=NULL, msg_iov(1)=[{"\270\32\1\0\0\1\0\0
-class BatchLetSys_sendmmsg(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_sendmmsg,self).__init__(batchCore)
+class BatchLetSys_sendmmsg(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_sendmmsg, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
 
-class BatchLetSys_recvmsg(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_recvmsg,self).__init__(batchCore)
+class BatchLetSys_recvmsg(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_recvmsg, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
 
 # recvfrom(3<socket:[535040600]>, "\270\32\201\203\0\1\0\0\0\1\0\0\
-class BatchLetSys_recvfrom(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_recvfrom,self).__init__(batchCore)
+class BatchLetSys_recvfrom(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_recvfrom, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
 
 # getsockname(1<TCPv6:[::ffff:54.36.162.150:21->::ffff:82.45.12.63:63703]>, {sa_family=AF_INET6, sin6_port=htons(21), inet_pton(AF_INET6, "::ffff:54.36.162.150", &sin6_addr), sin6_flowinfo=htonl(0), sin6_scope_id=0}, [28]) = 0 <0.000008>
-class BatchLetSys_getsockname(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_getsockname,self).__init__(batchCore)
+class BatchLetSys_getsockname(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_getsockname, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
 
 # getpeername(1<TCPv6:[::ffff:54.36.162.150:21->::ffff:82.45.12.63:63703]>, {sa_family=AF_INET6, sin6_port=htons(63703), inet_pton(AF_INET6, "::ffff:82.45.12.63", &sin6_addr), sin6_flowinfo=htonl(0), sin6_scope_id=0}, [28]) = 0 <0.000007>
-class BatchLetSys_getpeername(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_getpeername,self).__init__(batchCore)
+class BatchLetSys_getpeername(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_getpeername, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
 
 # ['[{fd=5<UNIX:[73470->73473]>, events=POLLIN}]', '1', '25000'] ==>> 1 ([{fd=5, revents=POLLIN}])
-class BatchLetSys_poll(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_poll,self).__init__(batchCore)
+class BatchLetSys_poll(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_poll, self).__init__(batchCore)
 
         arrStrms = self.m_core.m_parsedArgs[0]
 
@@ -3543,9 +3544,9 @@ class BatchLetSys_poll(BatchLetBase,object):
 #
 # If ltrace and kill -9 the process:
 # "select@SYS(1, 0x7ffd06327760, 0x7ffd063277e0, 0x7ffd06327860 <no return ...>"
-class BatchLetSys_select(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_select,self).__init__(batchCore)
+class BatchLetSys_select(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_select, self).__init__(batchCore)
 
         if batchCore.m_tracer == "strace":
             def ArrFdNameToArrString(arrStrms):
@@ -3577,25 +3578,25 @@ class BatchLetSys_select(BatchLetBase,object):
         else:
             raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
 
-class BatchLetSys_setsockopt(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_setsockopt,self).__init__(batchCore)
+class BatchLetSys_setsockopt(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_setsockopt, self).__init__(batchCore)
 
         self.m_significantArgs = [ self.m_core.m_retValue ]
 
 # socket(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC|SOCK_NONBLOCK, 0) = 6<UNIX:[2038057]>
-class BatchLetSys_socket(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_socket,self).__init__(batchCore)
+class BatchLetSys_socket(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_socket, self).__init__(batchCore)
 
         self.m_significantArgs = [ self.STraceStreamToFile(self.m_core.m_retValue) ]
 
 # Different output depending on the tracer:
 # strace: connect(6<UNIX:[2038057]>, {sa_family=AF_UNIX, sun_path="/var/run/nscd/socket"}, 110)
 # ltrace: connect@SYS(3, 0x25779f0, 16, 0x1999999999999999)
-class BatchLetSys_connect(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_connect,self).__init__(batchCore)
+class BatchLetSys_connect(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_connect, self).__init__(batchCore)
         objPath = self.STraceStreamToFile(self.m_core.m_parsedArgs[0])
 
         if batchCore.m_tracer == "strace":
@@ -3616,9 +3617,9 @@ class BatchLetSys_connect(BatchLetBase,object):
             raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
 
         self.m_significantArgs = [ objPath ]
-class BatchLetSys_bind(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_bind,self).__init__(batchCore)
+class BatchLetSys_bind(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_bind, self).__init__(batchCore)
         objPath = self.STraceStreamToFile(self.m_core.m_parsedArgs[0])
         if batchCore.m_tracer == "strace":
             # bind(4<NETLINK:[7274795]>, {sa_family=AF_NETLINK, pid=0, groups=00000000}, 12) = 0
@@ -3632,17 +3633,17 @@ class BatchLetSys_bind(BatchLetBase,object):
         self.m_significantArgs = [ objPath ]
 
 # sendto(7<UNIX:[2038065->2038073]>, "\24\0\0", 16, MSG_NOSIGNAL, NULL, 0) = 16
-class BatchLetSys_sendto(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_sendto,self).__init__(batchCore)
+class BatchLetSys_sendto(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_sendto, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
 
 # TODO: If the return value is not zero, maybe reject.
 # pipe([3<pipe:[255278]>, 4<pipe:[255278]>]) = 0
-class BatchLetSys_pipe(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_pipe,self).__init__(batchCore)
+class BatchLetSys_pipe(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_pipe, self).__init__(batchCore)
 
         arrPipes = self.m_core.m_parsedArgs[0]
         arrFil0 = self.STraceStreamToFile(arrPipes[0])
@@ -3652,9 +3653,9 @@ class BatchLetSys_pipe(BatchLetBase,object):
 
 # TODO: If the return value is not zero, maybe reject.
 # pipe([3<pipe:[255278]>, 4<pipe:[255278]>]) = 0
-class BatchLetSys_pipe2(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_pipe2,self).__init__(batchCore)
+class BatchLetSys_pipe2(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_pipe2, self).__init__(batchCore)
 
         arrPipes = self.m_core.m_parsedArgs[0]
         arrFil0 = self.STraceStreamToFile(arrPipes[0])
@@ -3663,9 +3664,9 @@ class BatchLetSys_pipe2(BatchLetBase,object):
         self.m_significantArgs = [ arrFil0, arrFil1 ]
 
 
-class BatchLetSys_shutdown(BatchLetBase,object):
-    def __init__(self,batchCore):
-        super( BatchLetSys_shutdown,self).__init__(batchCore)
+class BatchLetSys_shutdown(BatchLetBase, object):
+    def __init__(self, batchCore):
+        super(BatchLetSys_shutdown, self).__init__(batchCore)
 
         self.m_significantArgs = self.StreamName()
 
@@ -3681,16 +3682,16 @@ class BatchLetSys_shutdown(BatchLetBase,object):
 #
 # This assumes that all shared libraries instianting a function with this same
 # are actually doing the same thing. This might be wrong.
-class BatchLetLib_getenv(BatchLetBase,object):
+class BatchLetLib_getenv(BatchLetBase, object):
 
-    def __init__(self,batchCore):
+    def __init__(self, batchCore):
         # We could also take the environment variables of each process but
         # It does not tell which ones are actually useful.
         global G_EnvironmentVariables
 
         # The base class is never created because we do not need it.
         # We just need to intercept the environment variables reading.
-        # super( BatchLetLib_getenv,self).__init__(batchCore)
+        # super( BatchLetLib_getenv, self).__init__(batchCore)
 
         envNam = batchCore.m_parsedArgs[0]
         envVal = batchCore.m_retValue
@@ -3933,7 +3934,7 @@ def BatchLetFactory(batchCore):
 # There can be several way to "reuse" a sequence, depending on other similar
 # sequences.
 #
-class BatchLetSequence(BatchLetBase,object):
+class BatchLetSequence(BatchLetBase, object):
     def __init__(self,arrBatch,style):
         batchCore = BatchLetCore()
 
