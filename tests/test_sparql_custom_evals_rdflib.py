@@ -19,6 +19,8 @@ update_test_path()
 
 ################################################################################
 
+# This displays the correc tcase for a filename. This is necessary bevause
+# the variable sys.executable is not correctly cased with pytest on Windows.
 # "c:\python27\python.exe" into "C:\Python27\python.exe"
 def get_actual_filename(name):
     if is_platform_linux:
@@ -341,7 +343,7 @@ class Sparql_CIM_DataFile(Sparql_CIM_Object):
                 associator_instance.m_properties[predicate_Name] = dir_path_variable
 
             if isinstance(dir_path_variable, rdflib.term.Variable):
-                returned_variables[(associator_instance,dir_path_variable)] = [(associator_instance_url, dir_file_path_node)]
+                returned_variables[(associator_instance.m_variable, dir_path_variable)] = [(associator_instance_url, dir_file_path_node)]
             else:
                 returned_variables[associator_instance.m_variable] = [associator_instance_url]
             graph.add((associator_instance_url, predicate_Name, dir_file_path_node))
@@ -585,7 +587,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
 
             if isinstance(dir_path_variable, rdflib.term.Variable):
                 assert (associated_instance, dir_path_variable) not in returned_variables
-                returned_variables[(associated_instance, dir_path_variable)] = [
+                returned_variables[(associated_instance.m_variable, dir_path_variable)] = [
                     (associated_instance_url, executable_path_node)]
             else:
                 assert associated_instance.m_variable not in returned_variables
@@ -678,7 +680,6 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
         for values_tuple in url_nodes_list:
             assert len(values_tuple) == len(properties_tuple)
             properties_dict = dict(zip(properties_tuple, values_tuple))
-            print("Before CreateURIRef properties_dict=", properties_dict)
             node_uri_ref = self.CreateURIRef(graph, "CIM_Process", class_CIM_Process, properties_dict)
             node_uri_refs_list.append(node_uri_ref)
 
@@ -742,7 +743,10 @@ def part_triples_to_instances_dict_function(part):
     return instances_dict
 
 # The input is a set of {variable: list-of-values.
-# It returns a set of {variable: value}
+# It returns a set of {variable: value}, which is the set of combinations
+#of all possible values for each variable.
+# A variable can also be a tuple of rdflib variables.
+# In this case, the values must also be tuples.
 def product_variables_lists(returned_variables, iter_keys = None):
     try:
         if not iter_keys:
@@ -756,9 +760,14 @@ def product_variables_lists(returned_variables, iter_keys = None):
                 if isinstance(key, tuple):
                     # Maybe, several correlated variables.
                     assert isinstance(one_value, tuple) and len(key) == len(one_value)
+                    # Each key is a tuple of variable matched by each of the tuples of the list of values.
+                    assert all((isinstance(single_key, rdflib.term.Variable) for single_key in key))
+                    assert all((isinstance(single_value, (rdflib.term.Literal, rdflib.term.URIRef)) for single_value in one_value))
                     sub_dict = dict(zip(key, one_value))
                     new_dict.update(sub_dict)
                 else:
+                    assert isinstance(key, rdflib.term.Variable)
+                    assert isinstance(one_value, (rdflib.term.Literal, rdflib.term.URIRef))
                     new_dict[key] = one_value
                 yield new_dict
     except StopIteration:
@@ -891,19 +900,34 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         if 'custom_eval_function' in rdflib.plugins.sparql.CUSTOM_EVALS:
             del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_function']
 
-    @staticmethod
-    def one_return_tst(return_variables):
+    def one_return_tst(self, num_results_expected, return_variables):
         # https://docs.python.org/3/library/itertools.html#itertools.combinations
         # itertools.product
-        results = product_variables_lists(return_variables)
+
+        def make_var(input_var):
+            return_dict = {}
+            for variable_name, values_list in input_var.items():
+                var_node = rdflib.term.Variable(variable_name)
+                values_nodes = [rdflib.term.Literal(one_value) for one_value in values_list]
+                return_dict[var_node] = values_nodes
+            return return_dict
+
+        input_as_variables = make_var(return_variables)
+        results_iter = product_variables_lists(input_as_variables)
         print("return_variables=", return_variables)
-        for one_resu in results:
+        results_list = list(results_iter)
+        for one_resu in results_list:
             print("one_resu=", one_resu)
 
-    @unittest.skip("Should use variables")
+        num_results_actual = len(results_list)
+        self.assertTrue(num_results_actual == num_results_expected)
+
     def test_prod_variables(self):
-        Rdflib_CUSTOM_EVALS_Test.one_return_tst({ 'a':['a1'],'b':['b1'],'c':['c1'], })
-        Rdflib_CUSTOM_EVALS_Test.one_return_tst({ 'a':['a1'],'b':['b1','b2'],'c':['c1'], })
+        self.one_return_tst(1, { 'a':['a1'],'b':['b1'],'c':['c1'], })
+        self.one_return_tst(2, { 'a':['a1'],'b':['b1','b2'],'c':['c1'], })
+        self.one_return_tst(6, { 'a':['a1'],'b':['b1','b2'],'c':['c1', 'c2', 'c3'], })
+        self.one_return_tst(2, { ('a','aa'):[('a1','aa1')],'b':['b1','b2'],'c':['c1'], })
+        self.one_return_tst(4, { ('a','aa'):[('a1','aa1'), ('a2','aa2')],'b':['b1','b2'],'c':['c1'], })
 
     def test_sparql_parent(self):
         rdflib_graph = CreateGraph()
