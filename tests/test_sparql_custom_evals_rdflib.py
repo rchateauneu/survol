@@ -17,6 +17,36 @@ from init import *
 
 update_test_path()
 
+################################################################################
+
+# "c:\python27\python.exe" into "C:\Python27\python.exe"
+def get_actual_filename(name):
+    if is_platform_linux:
+        return name
+
+    import glob
+    dirs = name.split('\\')
+    # disk letter
+    test_name = [dirs[0].upper()]
+    for d in dirs[1:]:
+        test_name += ["%s[%s]" % (d[:-1], d[-1])]
+    res = glob.glob('\\'.join(test_name))
+    if not res:
+        #File not found
+        return None
+    return res[0]
+
+sys_executable_case = get_actual_filename(sys.executable)
+
+def equal_paths(path_a, path_b):
+    # print("process_executable=", process_executable, "executable_path=", executable_path)
+    # With pytest as a command line: "c:\python27\python.exe" != "C:\Python27\python.exe"
+    if is_platform_linux:
+        return path_a == path_b
+    elif is_platform_windows:
+        return path_a.upper() == path_b.upper()
+    else:
+        raise Exception("Invalid platform")
 
 ################################################################################
 # TODO: If the class is not statically defined, use WMI or WBEM,
@@ -390,7 +420,7 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                 print("Sparql_CIM_Directory.FetchAllVariables Created dummy variable:", variable_name)
 
             def add_sub_node(sub_node_str, cim_class, sub_path_name):
-                print("Sparql_CIM_Directory.FetchAllVariables add_sub_node ", sub_node_str, "sub_path_name=", sub_path_name)
+                #print("Sparql_CIM_Directory.FetchAllVariables add_sub_node ", sub_node_str, "sub_path_name=", sub_path_name)
                 assert cim_class in (class_CIM_Directory, class_CIM_DataFile)
                 sub_node_uri_ref = rdflib.term.URIRef(sub_node_str)
                 graph.add((sub_node_uri_ref, rdflib.namespace.RDF.type, cim_class))
@@ -404,7 +434,7 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                 else:
                     return_values_list.append(sub_node_uri_ref)
                     assert isinstance(dir_path_variable, rdflib.term.Literal)
-                    print("Associated object Name is literal:", dir_path_variable)
+                    #print("Associated object Name is literal:", dir_path_variable)
 
             print("Sparql_CIM_Directory.FetchAllVariables file_path=", file_path)
             for root_dir, dir_lists, files_list in os.walk(file_path):
@@ -564,7 +594,8 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
 
     # Given a file name, it returns all processes executing it.
     def GetProcessesFromExecutable(self, graph, variables_context):
-        print("Sparql_CIM_Process.GetProcessesFromExecutable")
+
+        print("Sparql_CIM_Process.GetProcessesFromExecutable pid=", current_pid, sys.executable)
         associated_instance = self.m_associators[associator_CIM_ProcessExecutable]
         assert isinstance(associated_instance, Sparql_CIM_DataFile)
         assert isinstance(associated_instance.m_variable, rdflib.term.Variable)
@@ -589,7 +620,8 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
                 print("GetProcessesFromExecutable Caught:", exc)
                 continue
             # print("process_executable=", process_executable, "executable_path=", executable_path)
-            if executable_path == process_executable:
+            # With pytest as a command line: "c:\python27\python.exe" != "C:\Python27\python.exe"
+            if equal_paths(executable_path, process_executable):
                 process_url = self.CreateURIRef(
                     graph, "CIM_Process", class_CIM_Process,
                     {predicate_Handle: rdflib.term.Literal(one_process.pid)})
@@ -1311,7 +1343,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         datafile_name = [str(one_value[0]) for one_value in query_result][0]
         print("datafile_name=", datafile_name)
         print("sys.executable=", sys.executable)
-        self.assertTrue(datafile_name == sys.executable)
+        self.assertTrue(datafile_name == sys_executable_case)
 
     def test_sparql_processes_executing_python(self):
         """All processes running the current executable, i.e. Python"""
@@ -1369,7 +1401,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         directory_name = [str(one_value[0]) for one_value in query_result][0]
         print("directory_name=", directory_name)
         print("sys.executable=", sys.executable)
-        self.assertTrue(directory_name == os.path.dirname(sys.executable))
+        self.assertTrue(directory_name == os.path.dirname(sys_executable_case))
 
     def test_sparql_files_in_executable_process_dir(self):
         """Display the files in the directory of the current process'executable."""
@@ -1398,11 +1430,11 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         files_names_result = sorted(files_names_result)
         print("files_names_result=", files_names_result)
         print("sys.executable=", sys.executable)
-        self.assertTrue(sys.executable in files_names_result)
+        self.assertTrue(sys_executable_case in files_names_result)
 
         # Compare with the list of the files the directory of the executable.
         path_names_set = []
-        for root_dir, dir_lists, files_list in os.walk(os.path.dirname(sys.executable)):
+        for root_dir, dir_lists, files_list in os.walk(os.path.dirname(sys_executable_case)):
             for one_file_name in files_list:
                 sub_path_name = os.path.join(root_dir, one_file_name)
                 path_names_set.append(sub_path_name)
@@ -1438,7 +1470,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         directory_name = [str(one_value[0]) for one_value in query_result][0]
         print("directory_name=", directory_name)
         print("sys.executable=", sys.executable)
-        self.assertTrue(directory_name == os.path.dirname((os.path.dirname(sys.executable))))
+        self.assertTrue(directory_name == os.path.dirname((os.path.dirname(sys_executable_case))))
 
     def test_sparql_executable_parent_process(self):
         """Executable of the parent process."""
