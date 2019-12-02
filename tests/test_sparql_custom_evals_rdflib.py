@@ -1588,10 +1588,12 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
         # Modified Python path so it can find the special module to create a chain of subprocesses.
         my_env = os.environ.copy()
+        # So Python can find the module create_process_chain which is in the current directory.
         my_env["PYTHONPATH"] = dir_path
+        # Consider the option bufsize=0.
         proc = subprocess.Popen([sys.executable, '-m', 'create_process_chain',
                                  str(depth)], env=my_env,
-                                stdout = subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+                                 stdout = subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
 
         print("create_process_tree_popen ", proc.pid)
         sys.stdout.flush()
@@ -1600,7 +1602,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
             one_line = proc.stdout.readline()
             print("one_line=", one_line)
             sys.stdout.flush()
-            one_depth, one_pid = map(int, one_line.split(" "))
+            one_depth, one_pid = map(int, one_line.split(b" "))
             return_dict[one_depth] = one_pid
 
         return proc, return_dict
@@ -1610,7 +1612,8 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         proc, return_dict = self.create_process_tree_popen(depth_processes)
         print("test_processes_chain_creation ", return_dict)
         print("proc.pid=", proc.pid)
-        self.assertTrue(psutil.Process(return_dict[depth_processes]).ppid() == proc.pid)
+        # Because Shell=False when creating the subprocess.
+        self.assertTrue(return_dict[depth_processes] == proc.pid)
         for ix in range(depth_processes):
             self.assertTrue(psutil.Process(return_dict[ix]).ppid() == return_dict[ix+1])
         time.sleep(1)
