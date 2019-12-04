@@ -6,7 +6,7 @@ import os
 import sys
 import json
 import collections
-import multiprocessing
+import subprocess
 import tempfile
 import rdflib
 import rdflib.plugins.memory
@@ -1554,35 +1554,8 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         print("sibling_pids=", sibling_pids)
         self.assertTrue(current_pid in sibling_pids)
 
-    def create_process_tree_aux(self, depth, pids_queue, must_wait = False):
-        if depth > 0:
-            one_subprocess = multiprocessing.Process(target = self.create_process_tree_aux, args=(depth-1, pids_queue, True))
-            one_subprocess.start()
-            print("create_process_tree_aux: Created intermediary pid:", one_subprocess.pid)
-            pids_queue.put((depth, one_subprocess.pid))
-            if must_wait:
-                # It must wait long enough so the Sparql query can be executed
-                time.sleep(10)
-        else:
-            print("create_process_tree_aux: Created leaf pid:", os.getpid())
-            time.sleep(10)
-
-    def create_process_tree(self, depth):
-        """This returns a list of processes, subprocess etc..."""
-        pids_queue = multiprocessing.Queue()
-        self.create_process_tree_aux(depth, pids_queue, False)
-        pids_dict = dict([pids_queue.get() for index in range(depth)])
-        print("pids_dict=", pids_dict)
-        pids_list = [pids_dict[one_depth] for one_depth in sorted(pids_dict.keys(), reverse = True)]
-        print("pids_list=", pids_list)
-        for pid_index, pid in enumerate(pids_list):
-            if pid_index > 0:
-                assert psutil.Process(pid).parent().pid == pids_list[pid_index-1]
-        return pids_list
-
+    # It also returns the process object, so it can be terminated.
     def create_process_tree_popen(self, depth):
-        import subprocess
-
         dir_path = os.path.dirname(__file__)
         sys.path.append(dir_path)
 
@@ -1604,14 +1577,12 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
             sys.stdout.flush()
             one_depth, one_pid = map(int, one_line.split(b" "))
             return_dict[one_depth] = one_pid
-
         return proc, return_dict
 
     def test_processes_chain_creation(self):
         depth_processes = 5
         proc, return_dict = self.create_process_tree_popen(depth_processes)
-        print("test_processes_chain_creation ", return_dict)
-        print("proc.pid=", proc.pid)
+        print("test_processes_chain_creation ", return_dict, "proc.pid=", proc.pid)
         # Because Shell=False when creating the subprocess.
         self.assertTrue(return_dict[depth_processes] == proc.pid)
         for ix in range(depth_processes):
@@ -1619,12 +1590,18 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         time.sleep(1)
         proc.terminate()
 
+    # This is a helper because the processes dictionary is not needed.
+    def create_process_chain(self, depth_processes):
+        processes_list_first, pids_dict = self.create_process_tree_popen(depth_processes)
+        pids_list = [ pids_dict[index] for index in range(depth_processes, 0, -1)]
+        return processes_list_first, pids_list
 
-    @unittest.skipIf(is_platform_linux, "Different implementation of processes. Test skipped.")
+
+    #@unittest.skipIf(is_platform_linux, "Different implementation of processes. Test skipped.")
     def test_sparql_sub_sub_processes(self):
         rdflib_graph = CreateGraph()
 
-        pids_list = self.create_process_tree(2)
+        processes_list_first, pids_list = self.create_process_chain(2)
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -1651,12 +1628,13 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         print("pids_list=", pids_list)
         print("actual_pids_list=", actual_pids_list)
         self.assertTrue(pids_list in actual_pids_list)
+        processes_list_first.terminate()
 
-    @unittest.skipIf(is_platform_linux, "Different implementation of processes. Test skipped.")
+    #@unittest.skipIf(is_platform_linux, "Different implementation of processes. Test skipped.")
     def test_sparql_sub_sub_sub_processes(self):
         rdflib_graph = CreateGraph()
 
-        pids_list = self.create_process_tree(3)
+        processes_list_first, pids_list = self.create_process_chain(3)
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -1686,12 +1664,13 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         print("pids_list=", pids_list)
         print("actual_pids_list=", actual_pids_list)
         self.assertTrue(pids_list in actual_pids_list)
+        processes_list_first.terminate()
 
-    @unittest.skipIf(is_platform_linux, "Different implementation of processes. Test skipped.")
+    #@unittest.skipIf(is_platform_linux, "Different implementation of processes. Test skipped.")
     def test_sparql_sub_sub_sub_sub_processes(self):
         rdflib_graph = CreateGraph()
 
-        pids_list = self.create_process_tree(4)
+        processes_list_first, pids_list = self.create_process_chain(4)
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -1724,6 +1703,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         print("pids_list=", pids_list)
         print("actual_pids_list=", actual_pids_list)
         self.assertTrue(pids_list in actual_pids_list)
+        processes_list_first.terminate()
 
 
 if __name__ == '__main__':
