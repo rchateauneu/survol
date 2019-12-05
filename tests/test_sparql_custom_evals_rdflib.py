@@ -56,6 +56,14 @@ def equal_paths(path_a, path_b):
     else:
         raise Exception("Invalid platform")
 
+def is_usable_file(file_path):
+    if os.path.isfile(file_path):
+        return True
+    if is_platform_linux:
+        if os.path.islink(file_path):
+            return True
+    return False
+
 ################################################################################
 # TODO: If the class is not statically defined, use WMI or WBEM,
 # without using SeeAlso.
@@ -428,7 +436,8 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                 print("Sparql_CIM_Directory.FetchAllVariables Created dummy variable:", variable_name)
 
             def add_sub_node(sub_node_str, cim_class, sub_path_name):
-                #print("Sparql_CIM_Directory.FetchAllVariables add_sub_node ", sub_node_str, "sub_path_name=", sub_path_name)
+                print("Sparql_CIM_Directory.FetchAllVariables add_sub_node ", sub_node_str, "sub_path_name=", sub_path_name)
+                WARNING("Sparql_CIM_Directory.FetchAllVariables add_sub_node %s / path=%s" % (sub_node_str, sub_path_name))
                 assert cim_class in (class_CIM_Directory, class_CIM_DataFile)
                 sub_node_uri_ref = rdflib.term.URIRef(sub_node_str)
                 graph.add((sub_node_uri_ref, rdflib.namespace.RDF.type, cim_class))
@@ -457,8 +466,11 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                     for one_file_name in files_list:
                         sub_path_name = os.path.join(root_dir, one_file_name)
                         print("sub_path_name=", sub_path_name)
-                        # This must be a file, possibly unreadable due to access rights.
-                        assert os.path.isfile(sub_path_name)
+                        # This must be a file, possibly unreadable due to access rights, or a symbolic link.
+                        assert is_usable_file(sub_path_name)
+
+
+
                         sub_node_str = "Machine:CIM_DataFile?Name=" + sub_path_name
                         add_sub_node(sub_node_str, class_CIM_DataFile, sub_path_name)
                 else:
