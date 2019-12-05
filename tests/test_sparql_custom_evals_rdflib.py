@@ -40,6 +40,12 @@ def get_actual_filename(name):
 
 sys_executable_case = get_actual_filename(sys.executable)
 
+# This could be a symbolic link: /usr/bin/python3 -> python3.6
+if is_platform_linux:
+    sys_executable_case = os.path.realpath(sys_executable_case)
+    print("Executable: %s => %s" % (sys.executable, sys_executable_case) )
+
+
 def equal_paths(path_a, path_b):
     # print("process_executable=", process_executable, "executable_path=", executable_path)
     # With pytest as a command line: "c:\python27\python.exe" != "C:\Python27\python.exe"
@@ -597,7 +603,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
     # Given a file name, it returns all processes executing it.
     def GetProcessesFromExecutable(self, graph, variables_context):
 
-        print("Sparql_CIM_Process.GetProcessesFromExecutable pid=", current_pid, sys.executable)
+        print("Sparql_CIM_Process.GetProcessesFromExecutable current_pid=", current_pid, sys.executable)
         associated_instance = self.m_associators[associator_CIM_ProcessExecutable]
         assert isinstance(associated_instance, Sparql_CIM_DataFile)
         assert isinstance(associated_instance.m_variable, rdflib.term.Variable)
@@ -610,9 +616,12 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
         executable_node = associated_instance.GetNodeValue(predicate_Name, variables_context)
         assert isinstance(executable_node, rdflib.term.Literal)
         executable_path = str(executable_node)
+
         # Because of backslashes transformed into slashes, which is necessary because of Sparql.
         executable_path = os.path.normpath(executable_path)
-        print("executable_path=", executable_path)
+        if is_platform_linux:
+            executable_path = os.path.realpath(executable_path)
+            print("executable_path=", executable_path)
 
         process_urls_list = []
         for one_process in psutil.process_iter():
@@ -623,6 +632,8 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
                 continue
             # print("process_executable=", process_executable, "executable_path=", executable_path)
             # With pytest as a command line: "c:\python27\python.exe" != "C:\Python27\python.exe"
+
+            # On Linux, it might be a symbolic link: /usr/bin/python3 and /usr/bin/python3.6
             if equal_paths(executable_path, process_executable):
                 process_url = self.CreateURIRef(
                     graph, "CIM_Process", class_CIM_Process,
@@ -1598,7 +1609,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         return processes_list_first, pids_list
 
 
-    #@unittest.skipIf(is_platform_linux, "Different implementation of processes. Test skipped.")
+    @unittest.skipIf(is_travis_machine(), "Different implementation of processes. Test skipped.")
     def test_sparql_sub_sub_processes(self):
         rdflib_graph = CreateGraph()
 
@@ -1632,7 +1643,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         processes_list_first.terminate()
         processes_list_first.wait()
 
-    #@unittest.skipIf(is_platform_linux, "Different implementation of processes. Test skipped.")
+    @unittest.skipIf(is_travis_machine(), "Different implementation of processes. Test skipped.")
     def test_sparql_sub_sub_sub_processes(self):
         rdflib_graph = CreateGraph()
 
@@ -1669,7 +1680,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         processes_list_first.terminate()
         processes_list_first.wait()
 
-    #@unittest.skipIf(is_platform_linux, "Different implementation of processes. Test skipped.")
+    @unittest.skipIf(is_travis_machine(), "Different implementation of processes. Test skipped.")
     def test_sparql_sub_sub_sub_sub_processes(self):
         rdflib_graph = CreateGraph()
 
