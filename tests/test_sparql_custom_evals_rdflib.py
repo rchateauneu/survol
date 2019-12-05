@@ -1589,6 +1589,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
             self.assertTrue(psutil.Process(return_dict[ix]).ppid() == return_dict[ix+1])
         time.sleep(1)
         proc.terminate()
+        proc.wait()
 
     # This is a helper because the processes dictionary is not needed.
     def create_process_chain(self, depth_processes):
@@ -1629,6 +1630,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         print("actual_pids_list=", actual_pids_list)
         self.assertTrue(pids_list in actual_pids_list)
         processes_list_first.terminate()
+        processes_list_first.wait()
 
     #@unittest.skipIf(is_platform_linux, "Different implementation of processes. Test skipped.")
     def test_sparql_sub_sub_sub_processes(self):
@@ -1665,6 +1667,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         print("actual_pids_list=", actual_pids_list)
         self.assertTrue(pids_list in actual_pids_list)
         processes_list_first.terminate()
+        processes_list_first.wait()
 
     #@unittest.skipIf(is_platform_linux, "Different implementation of processes. Test skipped.")
     def test_sparql_sub_sub_sub_sub_processes(self):
@@ -1704,6 +1707,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         print("actual_pids_list=", actual_pids_list)
         self.assertTrue(pids_list in actual_pids_list)
         processes_list_first.terminate()
+        processes_list_first.wait()
 
 
 if __name__ == '__main__':
