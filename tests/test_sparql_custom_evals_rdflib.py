@@ -436,8 +436,8 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                 print("Sparql_CIM_Directory.FetchAllVariables Created dummy variable:", variable_name)
 
             def add_sub_node(sub_node_str, cim_class, sub_path_name):
-                print("Sparql_CIM_Directory.FetchAllVariables add_sub_node ", sub_node_str, "sub_path_name=", sub_path_name)
-                WARNING("Sparql_CIM_Directory.FetchAllVariables add_sub_node %s / path=%s" % (sub_node_str, sub_path_name))
+                # print("Sparql_CIM_Directory.FetchAllVariables add_sub_node ", sub_node_str, "sub_path_name=", sub_path_name)
+                # WARNING("Sparql_CIM_Directory.FetchAllVariables add_sub_node %s / path=%s" % (sub_node_str, sub_path_name))
                 assert cim_class in (class_CIM_Directory, class_CIM_DataFile)
                 sub_node_uri_ref = rdflib.term.URIRef(sub_node_str)
                 graph.add((sub_node_uri_ref, rdflib.namespace.RDF.type, cim_class))
@@ -929,9 +929,9 @@ def custom_eval_function(ctx, part):
 
         recursive_instantiation(0)
 
-        print("Graph after recursive_instantiation")
-        for s,p,o in ctx.graph:
-            print("   ", s, p, o)
+        INFO("Graph after recursive_instantiation: %d triples", len(ctx.graph))
+        # for s,p,o in ctx.graph:
+        #     print("   ", s, p, o)
 
         # <type 'generator'>
         ret_BGP = rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
