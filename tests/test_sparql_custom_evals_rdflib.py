@@ -817,11 +817,13 @@ def visit_all_nodes(instances_dict):
         one_instance.m_visited = False
 
     visited_instances = []
+    unvisited_instances = set([one_instance for one_instance in instances_dict.values()])
 
     def instance_recursive_visit(one_instance):
         assert isinstance(one_instance, Sparql_CIM_Object)
         one_instance.m_visited = True
         visited_instances.append(one_instance)
+        unvisited_instances.remove(one_instance)
         for sub_instance in one_instance.m_associators.values():
             if not sub_instance.m_visited:
                 instance_recursive_visit(sub_instance)
@@ -840,10 +842,35 @@ def visit_all_nodes(instances_dict):
 
     instance_recursive_visit(start_instance)
 
-    for instance_key, one_instance in instances_dict.items():
-        if not one_instance.m_visited:
-            visited_instances.append(one_instance)
+    def get_property_variables_list(one_instance):
+        return set([property_value
+                    for property_value in one_instance.m_properties.values()
+                    if isinstance(property_value, rdflib.term.Variable)])
 
+    assert len(visited_instances) + len(unvisited_instances) == len(instances_dict)
+    all_properties_set = set.union(*[get_property_variables_list(one_instance) for one_instance in visited_instances])
+
+    while True:
+        closest_properties_set = None
+        biggest_intersection_num = 0
+        best_instance = None
+        for sub_instance in unvisited_instances:
+            sub_property_variables = get_property_variables_list(sub_instance)
+            properties_intersection = all_properties_set.intersection(sub_property_variables)
+            num_intersection = len(properties_intersection)
+            if num_intersection >= biggest_intersection_num:
+                biggest_intersection_num = num_intersection
+                best_instance = sub_instance
+                closest_properties_set = sub_property_variables
+        if not best_instance:
+            break
+        all_properties_set.update(closest_properties_set)
+        instance_recursive_visit(best_instance)
+
+    if len(unvisited_instances) > 0:
+        visited_instances += unvisited_instances
+        WARNING("visit_all_nodes len(unvisited_instances)=%d", len(unvisited_instances))
+    assert len(visited_instances) == len(instances_dict)
     return visited_instances
 
 
