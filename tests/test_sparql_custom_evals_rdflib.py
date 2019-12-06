@@ -1649,7 +1649,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
 
     @unittest.skipIf(is_travis_machine(), "Different implementation of processes. Test skipped.")
-    def test_sparql_sub_sub_processes(self):
+    def test_sparql_sub2_processes(self):
         rdflib_graph = CreateGraph()
 
         processes_list_first, pids_list = self.create_process_chain(2)
@@ -1683,7 +1683,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         processes_list_first.wait()
 
     @unittest.skipIf(is_travis_machine(), "Different implementation of processes. Test skipped.")
-    def test_sparql_sub_sub_sub_processes(self):
+    def test_sparql_sub3_processes(self):
         rdflib_graph = CreateGraph()
 
         processes_list_first, pids_list = self.create_process_chain(3)
@@ -1720,7 +1720,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         processes_list_first.wait()
 
     @unittest.skipIf(is_travis_machine(), "Different implementation of processes. Test skipped.")
-    def test_sparql_sub_sub_sub_sub_processes(self):
+    def test_sparql_sub4_processes(self):
         rdflib_graph = CreateGraph()
 
         processes_list_first, pids_list = self.create_process_chain(4)
@@ -1759,6 +1759,53 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         processes_list_first.terminate()
         processes_list_first.wait()
 
+    @unittest.skipIf(is_travis_machine(), "Different implementation of processes. Test skipped.")
+    def test_sparql_sub5_processes(self):
+        rdflib_graph = CreateGraph()
+
+        processes_list_first, pids_list = self.create_process_chain(5)
+
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?pid_1 ?pid_2 ?pid_3 ?pid_4 ?pid_5
+            WHERE
+            {
+              ?url_proc_1 survol:Handle ?pid_1 .
+              ?url_proc_1 survol:ParentProcessId %d .
+              ?url_proc_1 a survol:CIM_Process .
+              ?url_proc_2 survol:Handle ?pid_2 .
+              ?url_proc_2 survol:ParentProcessId ?pid_1  .
+              ?url_proc_2 a survol:CIM_Process .
+              ?url_proc_3 survol:Handle ?pid_3 .
+              ?url_proc_3 survol:ParentProcessId ?pid_2  .
+              ?url_proc_3 a survol:CIM_Process .
+              ?url_proc_4 survol:Handle ?pid_4 .
+              ?url_proc_4 survol:ParentProcessId ?pid_3  .
+              ?url_proc_4 a survol:CIM_Process .
+              ?url_proc_5 survol:Handle ?pid_5 .
+              ?url_proc_5 survol:ParentProcessId ?pid_4  .
+              ?url_proc_5 a survol:CIM_Process .
+            }
+        """ % (survol_namespace, current_pid)
+
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("query_result=", query_result)
+
+        print("Subprocesses start")
+        print_subprocesses(current_pid)
+        print("Subprocesses end")
+
+        actual_pids_list = [[int(one_pid[0]), int(one_pid[1]), int(one_pid[2]), int(one_pid[3]), int(one_pid[4])] for one_pid in query_result]
+        print("pids_list=", pids_list)
+        print("actual_pids_list=", actual_pids_list)
+        self.assertTrue(pids_list in actual_pids_list)
+        processes_list_first.terminate()
+        processes_list_first.wait()
+
+
+# 5 niveaux.
+
+# Et les users id.
 
 if __name__ == '__main__':
     unittest.main()
