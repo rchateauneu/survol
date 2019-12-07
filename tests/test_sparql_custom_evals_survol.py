@@ -1057,11 +1057,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         processes_list_first.wait()
 
 
-# Et les users id.
-#for group in c.Win32_Group():
-#  for user in group.associators(wmi_result_class="Win32_UserAccount"):
-#  for user in group.associators("Win32_GroupUser"):
-
 if __name__ == '__main__':
     unittest.main()
 
