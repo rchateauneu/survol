@@ -554,7 +554,6 @@ def CreateSparql_CIM_Object(class_name, the_subject):
 # There might be several instances of the same class.
 def part_triples_to_instances_dict_function(part):
     instances_dict = dict()
-    #print("Triples Bubble")
     for part_subject, part_predicate, part_object in part.triples:
         #print("    ", part_subject, part_predicate, part_object)
         if part_predicate == rdflib.namespace.RDF.type:
