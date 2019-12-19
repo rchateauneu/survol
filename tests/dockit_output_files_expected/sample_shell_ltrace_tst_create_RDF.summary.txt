@@ -1,0 +1,3620 @@
+Processes:
+Process id:18316
+    Start time:2018-05-20 09:00:22.529684
+    End time:2018-05-20 09:00:23.657686
+Process id:18317
+    Executable:C:\usr\bin\ls
+    Start time:2018-05-20 09:00:22.557771
+    End time:2018-05-20 09:00:23.657686
+    Parent:18316
+Process id:18318
+    Start time:2018-05-20 09:00:22.598022
+    End time:2018-05-20 09:00:23.657686
+    Parent:18316
+Process id:18319
+    Start time:2018-05-20 09:00:22.599853
+    End time:2018-05-20 09:00:23.631763
+    Parent:18316
+Process id:18320
+    Executable:C:\usr\bin\cat
+    Start time:2018-05-20 09:00:23.641969
+    End time:2018-05-20 09:00:23.657686
+    Parent:18316
+
+Files:
+
+** Connected TCP sockets
+
+** Kernel file systems
+
+** Other TCP/IP sockets
+
+** Other libraries
+
+** Others
+Path:C:\dev\null
+Path:C:\dev\pts
+Path:C:\dev\pts\0
+Path:C:\dev\pts\1
+Path:C:\dev\pts\2
+Path:C:\dev\tty
+  Open:2018-05-20 09:00:22.539352
+  Open times:1
+  Close:2018-05-20 09:00:22.539676
+Path:C:\dev\tty1
+Path:C:\dev\tty2
+Path:C:\etc\ld.so.cache
+  Open:2018-05-20 09:00:22.530417
+  Open times:1
+  Close:2018-05-20 09:00:22.530727
+  Open:2018-05-20 09:00:22.561511
+  Open times:1
+  Close:2018-05-20 09:00:22.562587
+  Open:2018-05-20 09:00:22.606343
+  Open times:1
+  Close:2018-05-20 09:00:22.606924
+  Open:2018-05-20 09:00:22.614159
+  Open times:1
+  Close:2018-05-20 09:00:22.614480
+  Close:2018-05-20 09:00:22.614212
+  Open:2018-05-20 09:00:22.705275
+  Open times:1
+  Close:2018-05-20 09:00:22.705686
+  Open:2018-05-20 09:00:23.647610
+  Open times:1
+  Close:2018-05-20 09:00:23.647970
+Path:C:\etc\ld.so.preload
+Path:C:\etc\localtime
+  Open:2018-05-20 09:00:22.730572
+  Open times:1
+  Close:2018-05-20 09:00:22.731728
+Path:C:\etc\nsswitch.conf
+  Open:2018-05-20 09:00:22.702586
+  Open times:1
+  Close:2018-05-20 09:00:22.705051
+Path:C:\etc\passwd
+  Open:2018-05-20 09:00:22.724126
+  Open times:1
+  Close:2018-05-20 09:00:22.728198
+  Open:2018-05-20 09:00:23.079557
+  Open times:1
+  Close:2018-05-20 09:00:23.082448
+  Open:2018-05-20 09:00:23.091997
+  Open times:1
+  Close:2018-05-20 09:00:23.094867
+  Open:2018-05-20 09:00:23.099650
+  Open times:1
+  Close:2018-05-20 09:00:23.102530
+  Open:2018-05-20 09:00:23.109741
+  Open times:1
+  Close:2018-05-20 09:00:23.112631
+  Open:2018-05-20 09:00:23.122144
+  Open times:1
+  Close:2018-05-20 09:00:23.125023
+  Open:2018-05-20 09:00:23.153405
+  Open times:1
+  Close:2018-05-20 09:00:23.156305
+  Open:2018-05-20 09:00:23.161181
+  Open times:1
+  Close:2018-05-20 09:00:23.164035
+  Open:2018-05-20 09:00:23.166504
+  Open times:1
+  Close:2018-05-20 09:00:23.169401
+  Open:2018-05-20 09:00:23.176610
+  Open times:1
+  Close:2018-05-20 09:00:23.179509
+  Open:2018-05-20 09:00:23.184305
+  Open times:1
+  Close:2018-05-20 09:00:23.187205
+  Open:2018-05-20 09:00:23.271560
+  Open times:1
+  Close:2018-05-20 09:00:23.274456
+  Open:2018-05-20 09:00:23.281829
+  Open times:1
+  Close:2018-05-20 09:00:23.284737
+  Open:2018-05-20 09:00:23.308092
+  Open times:1
+  Close:2018-05-20 09:00:23.311009
+Path:C:\etc\selinux\config
+Path:C:\etc\system-fips
+Path:C:\home\rchateau\rdfmon-code\Experimental\RetroBatch
+  Open:2018-05-20 09:00:22.594794
+  Open times:1
+  Close:2018-05-20 09:00:22.595183
+  Close:2018-05-20 09:00:22.600065
+  Close:2018-05-20 09:00:22.600810
+  Close:2018-05-20 09:00:22.604014
+Path:C:\home\rchateau\rdfmon-code\Experimental\RetroBatch\TestProgs\sample_shell.sh
+  Open:2018-05-20 09:00:22.551473
+  Open times:1
+  Close:2018-05-20 09:00:22.552533
+  Open:2018-05-20 09:00:23.654027
+  Open times:1
+  Close:2018-05-20 09:00:23.656477
+Path:C:\lib64\libacl.so.1
+  Open:2018-05-20 09:00:22.567074
+  Open times:1
+  Close:2018-05-20 09:00:22.568457
+Path:C:\lib64\libattr.so.1
+  Open:2018-05-20 09:00:22.573289
+  Open times:1
+  Close:2018-05-20 09:00:22.574539
+  Open:2018-05-20 09:00:22.633907
+  Open times:1
+  Close:2018-05-20 09:00:22.634644
+Path:C:\lib64\libbz2.so.1
+  Open:2018-05-20 09:00:22.639684
+  Open times:1
+  Close:2018-05-20 09:00:22.640423
+Path:C:\lib64\libc.so.6
+  Open:2018-05-20 09:00:22.531979
+  Open times:1
+  Close:2018-05-20 09:00:22.532651
+  Open:2018-05-20 09:00:22.568667
+  Open times:1
+  Close:2018-05-20 09:00:22.569994
+  Open:2018-05-20 09:00:22.607375
+  Open times:1
+  Close:2018-05-20 09:00:22.608705
+  Open:2018-05-20 09:00:22.622597
+  Open times:1
+  Close:2018-05-20 09:00:22.623558
+  Open:2018-05-20 09:00:23.648121
+  Open times:1
+  Close:2018-05-20 09:00:23.649252
+Path:C:\lib64\libcap.so.2
+  Open:2018-05-20 09:00:22.565346
+  Open times:1
+  Close:2018-05-20 09:00:22.566931
+  Open:2018-05-20 09:00:22.623655
+  Open times:1
+  Close:2018-05-20 09:00:22.624482
+Path:C:\lib64\libdl.so.2
+  Open:2018-05-20 09:00:22.531399
+  Open times:1
+  Close:2018-05-20 09:00:22.531921
+  Open:2018-05-20 09:00:22.571609
+  Open times:1
+  Close:2018-05-20 09:00:22.573142
+  Open:2018-05-20 09:00:22.621233
+  Open times:1
+  Close:2018-05-20 09:00:22.622498
+Path:C:\lib64\libdw.so.1
+  Open:2018-05-20 09:00:22.631296
+  Open times:1
+  Close:2018-05-20 09:00:22.632029
+Path:C:\lib64\libelf.so.1
+  Open:2018-05-20 09:00:22.637374
+  Open times:1
+  Close:2018-05-20 09:00:22.638269
+Path:C:\lib64\libgcc_s.so.1
+  Open:2018-05-20 09:00:22.632141
+  Open times:1
+  Close:2018-05-20 09:00:22.632776
+Path:C:\lib64\libgcrypt.so.20
+  Open:2018-05-20 09:00:22.628666
+  Open times:1
+  Close:2018-05-20 09:00:22.629365
+Path:C:\lib64\libgpg-error.so.0
+  Open:2018-05-20 09:00:22.629440
+  Open times:1
+  Close:2018-05-20 09:00:22.630278
+Path:C:\lib64\liblzma.so.5
+  Open:2018-05-20 09:00:22.627628
+  Open times:1
+  Close:2018-05-20 09:00:22.628594
+Path:C:\lib64\libm.so.6
+  Open:2018-05-20 09:00:22.624574
+  Open times:1
+  Close:2018-05-20 09:00:22.625540
+Path:C:\lib64\libnss_files.so.2
+  Open:2018-05-20 09:00:22.705782
+  Open times:1
+  Close:2018-05-20 09:00:22.706880
+Path:C:\lib64\libpcre.so.1
+  Open:2018-05-20 09:00:22.570141
+  Open times:1
+  Close:2018-05-20 09:00:22.571483
+  Open:2018-05-20 09:00:22.634711
+  Open times:1
+  Close:2018-05-20 09:00:22.635521
+Path:C:\lib64\libprocps.so.4
+  Open:2018-05-20 09:00:22.614960
+  Open times:1
+  Close:2018-05-20 09:00:22.618896
+  Close:2018-05-20 09:00:22.617677
+Path:C:\lib64\libpthread.so.0
+  Open:2018-05-20 09:00:22.574646
+  Open times:1
+  Close:2018-05-20 09:00:22.576080
+  Open:2018-05-20 09:00:22.632867
+  Open times:1
+  Close:2018-05-20 09:00:22.633747
+Path:C:\lib64\libresolv.so.2
+  Open:2018-05-20 09:00:22.630375
+  Open times:1
+  Close:2018-05-20 09:00:22.631225
+Path:C:\lib64\librt.so.1
+  Open:2018-05-20 09:00:22.625638
+  Open times:1
+  Close:2018-05-20 09:00:22.626417
+Path:C:\lib64\libselinux.so.1
+  Open:2018-05-20 09:00:22.562791
+  Open times:1
+  Close:2018-05-20 09:00:22.565102
+  Open:2018-05-20 09:00:22.626509
+  Open times:1
+  Close:2018-05-20 09:00:22.627517
+Path:C:\lib64\libsystemd.so.0
+  Open:2018-05-20 09:00:22.619432
+  Open times:1
+  Close:2018-05-20 09:00:22.621125
+Path:C:\lib64\libtinfo.so.5
+  Open:2018-05-20 09:00:22.530810
+  Open times:1
+  Close:2018-05-20 09:00:22.531332
+Path:C:\lib64\libz.so.1
+  Open:2018-05-20 09:00:22.638574
+  Open times:1
+  Close:2018-05-20 09:00:22.639404
+Path:C:\proc
+  Open:2018-05-20 09:00:22.698237
+  Open times:1
+  Close:2018-05-20 09:00:23.630003
+Path:C:\proc\1
+Path:C:\proc\10
+Path:C:\proc\100
+Path:C:\proc\100\cmdline
+  Open:2018-05-20 09:00:22.911873
+  Open times:1
+  Close:2018-05-20 09:00:22.912526
+Path:C:\proc\100\stat
+  Open:2018-05-20 09:00:22.909120
+  Open times:1
+  Close:2018-05-20 09:00:22.909931
+Path:C:\proc\100\status
+  Open:2018-05-20 09:00:22.910131
+  Open times:1
+  Close:2018-05-20 09:00:22.911657
+Path:C:\proc\10\cmdline
+  Open:2018-05-20 09:00:22.757048
+  Open times:1
+  Close:2018-05-20 09:00:22.757267
+Path:C:\proc\10\stat
+  Open:2018-05-20 09:00:22.754402
+  Open times:1
+  Close:2018-05-20 09:00:22.755147
+Path:C:\proc\10\status
+  Open:2018-05-20 09:00:22.755358
+  Open times:1
+  Close:2018-05-20 09:00:22.756950
+Path:C:\proc\11
+Path:C:\proc\1190
+Path:C:\proc\1190\cmdline
+  Open:2018-05-20 09:00:23.132242
+  Open times:1
+  Close:2018-05-20 09:00:23.132478
+Path:C:\proc\1190\stat
+  Open:2018-05-20 09:00:23.130455
+  Open times:1
+  Close:2018-05-20 09:00:23.130936
+Path:C:\proc\1190\status
+  Open:2018-05-20 09:00:23.130988
+  Open times:1
+  Close:2018-05-20 09:00:23.132191
+Path:C:\proc\11982
+Path:C:\proc\11982\cmdline
+  Open:2018-05-20 09:00:23.514401
+  Open times:1
+  Close:2018-05-20 09:00:23.515417
+Path:C:\proc\11982\stat
+  Open:2018-05-20 09:00:23.510931
+  Open times:1
+  Close:2018-05-20 09:00:23.512094
+Path:C:\proc\11982\status
+  Open:2018-05-20 09:00:23.512311
+  Open times:1
+  Close:2018-05-20 09:00:23.514173
+Path:C:\proc\11\cmdline
+  Open:2018-05-20 09:00:22.759744
+  Open times:1
+  Close:2018-05-20 09:00:22.760008
+Path:C:\proc\11\stat
+  Open:2018-05-20 09:00:22.757758
+  Open times:1
+  Close:2018-05-20 09:00:22.758353
+Path:C:\proc\11\status
+  Open:2018-05-20 09:00:22.758442
+  Open times:1
+  Close:2018-05-20 09:00:22.759662
+Path:C:\proc\12
+Path:C:\proc\12140
+Path:C:\proc\12140\cmdline
+  Open:2018-05-20 09:00:23.521386
+  Open times:1
+  Close:2018-05-20 09:00:23.522753
+Path:C:\proc\12140\stat
+  Open:2018-05-20 09:00:23.517352
+  Open times:1
+  Close:2018-05-20 09:00:23.518660
+Path:C:\proc\12140\status
+  Open:2018-05-20 09:00:23.518924
+  Open times:1
+  Close:2018-05-20 09:00:23.521162
+Path:C:\proc\1232
+Path:C:\proc\1232\cmdline
+  Open:2018-05-20 09:00:23.134610
+  Open times:1
+  Close:2018-05-20 09:00:23.134862
+Path:C:\proc\1232\stat
+  Open:2018-05-20 09:00:23.132815
+  Open times:1
+  Close:2018-05-20 09:00:23.133317
+Path:C:\proc\1232\status
+  Open:2018-05-20 09:00:23.133369
+  Open times:1
+  Close:2018-05-20 09:00:23.134561
+Path:C:\proc\1237
+Path:C:\proc\1237\cmdline
+  Open:2018-05-20 09:00:23.137009
+  Open times:1
+  Close:2018-05-20 09:00:23.137250
+Path:C:\proc\1237\stat
+  Open:2018-05-20 09:00:23.135176
+  Open times:1
+  Close:2018-05-20 09:00:23.135701
+Path:C:\proc\1237\status
+  Open:2018-05-20 09:00:23.135753
+  Open times:1
+  Close:2018-05-20 09:00:23.136959
+Path:C:\proc\1240
+Path:C:\proc\1240\cmdline
+  Open:2018-05-20 09:00:23.139346
+  Open times:1
+  Close:2018-05-20 09:00:23.139591
+Path:C:\proc\1240\stat
+  Open:2018-05-20 09:00:23.137566
+  Open times:1
+  Close:2018-05-20 09:00:23.138046
+Path:C:\proc\1240\status
+  Open:2018-05-20 09:00:23.138098
+  Open times:1
+  Close:2018-05-20 09:00:23.139296
+Path:C:\proc\1252
+Path:C:\proc\1252\cmdline
+  Open:2018-05-20 09:00:23.141674
+  Open times:1
+  Close:2018-05-20 09:00:23.141915
+Path:C:\proc\1252\stat
+  Open:2018-05-20 09:00:23.139912
+  Open times:1
+  Close:2018-05-20 09:00:23.140378
+Path:C:\proc\1252\status
+  Open:2018-05-20 09:00:23.140430
+  Open times:1
+  Close:2018-05-20 09:00:23.141624
+Path:C:\proc\1263
+Path:C:\proc\1263\cmdline
+  Open:2018-05-20 09:00:23.144018
+  Open times:1
+  Close:2018-05-20 09:00:23.144262
+Path:C:\proc\1263\stat
+  Open:2018-05-20 09:00:23.142230
+  Open times:1
+  Close:2018-05-20 09:00:23.142718
+Path:C:\proc\1263\status
+  Open:2018-05-20 09:00:23.142770
+  Open times:1
+  Close:2018-05-20 09:00:23.143968
+Path:C:\proc\1266
+Path:C:\proc\1266\cmdline
+  Open:2018-05-20 09:00:23.146396
+  Open times:1
+  Close:2018-05-20 09:00:23.146634
+Path:C:\proc\1266\stat
+  Open:2018-05-20 09:00:23.144580
+  Open times:1
+  Close:2018-05-20 09:00:23.145084
+Path:C:\proc\1266\status
+  Open:2018-05-20 09:00:23.145137
+  Open times:1
+  Close:2018-05-20 09:00:23.146347
+Path:C:\proc\1275
+Path:C:\proc\1275\cmdline
+  Open:2018-05-20 09:00:23.148724
+  Open times:1
+  Close:2018-05-20 09:00:23.148965
+Path:C:\proc\1275\stat
+  Open:2018-05-20 09:00:23.146956
+  Open times:1
+  Close:2018-05-20 09:00:23.147420
+Path:C:\proc\1275\status
+  Open:2018-05-20 09:00:23.147472
+  Open times:1
+  Close:2018-05-20 09:00:23.148674
+Path:C:\proc\1277
+Path:C:\proc\1277\cmdline
+  Open:2018-05-20 09:00:23.151062
+  Open times:1
+  Close:2018-05-20 09:00:23.151296
+Path:C:\proc\1277\stat
+  Open:2018-05-20 09:00:23.149280
+  Open times:1
+  Close:2018-05-20 09:00:23.149762
+Path:C:\proc\1277\status
+  Open:2018-05-20 09:00:23.149821
+  Open times:1
+  Close:2018-05-20 09:00:23.151012
+Path:C:\proc\1281
+Path:C:\proc\1281\cmdline
+  Open:2018-05-20 09:00:23.156404
+  Open times:1
+  Close:2018-05-20 09:00:23.156641
+Path:C:\proc\1281\stat
+  Open:2018-05-20 09:00:23.151611
+  Open times:1
+  Close:2018-05-20 09:00:23.152092
+Path:C:\proc\1281\status
+  Open:2018-05-20 09:00:23.152144
+  Open times:1
+  Close:2018-05-20 09:00:23.153353
+Path:C:\proc\12\cmdline
+  Open:2018-05-20 09:00:22.763002
+  Open times:1
+  Close:2018-05-20 09:00:22.763209
+Path:C:\proc\12\stat
+  Open:2018-05-20 09:00:22.761044
+  Open times:1
+  Close:2018-05-20 09:00:22.761642
+Path:C:\proc\12\status
+  Open:2018-05-20 09:00:22.761738
+  Open times:1
+  Close:2018-05-20 09:00:22.762908
+Path:C:\proc\13
+Path:C:\proc\1310
+Path:C:\proc\1310\cmdline
+  Open:2018-05-20 09:00:23.158769
+  Open times:1
+  Close:2018-05-20 09:00:23.159073
+Path:C:\proc\1310\stat
+  Open:2018-05-20 09:00:23.156964
+  Open times:1
+  Close:2018-05-20 09:00:23.157459
+Path:C:\proc\1310\status
+  Open:2018-05-20 09:00:23.157511
+  Open times:1
+  Close:2018-05-20 09:00:23.158718
+Path:C:\proc\1329
+Path:C:\proc\1329\cmdline
+  Open:2018-05-20 09:00:23.164132
+  Open times:1
+  Close:2018-05-20 09:00:23.164370
+Path:C:\proc\1329\stat
+  Open:2018-05-20 09:00:23.159392
+  Open times:1
+  Close:2018-05-20 09:00:23.159864
+Path:C:\proc\1329\status
+  Open:2018-05-20 09:00:23.159916
+  Open times:1
+  Close:2018-05-20 09:00:23.161130
+Path:C:\proc\13416
+Path:C:\proc\13416\cmdline
+  Open:2018-05-20 09:00:23.528474
+  Open times:1
+  Close:2018-05-20 09:00:23.529684
+Path:C:\proc\13416\stat
+  Open:2018-05-20 09:00:23.524575
+  Open times:1
+  Close:2018-05-20 09:00:23.525967
+Path:C:\proc\13416\status
+  Open:2018-05-20 09:00:23.526185
+  Open times:1
+  Close:2018-05-20 09:00:23.528230
+Path:C:\proc\1377
+Path:C:\proc\1377\cmdline
+  Open:2018-05-20 09:00:23.169502
+  Open times:1
+  Close:2018-05-20 09:00:23.169733
+Path:C:\proc\1377\stat
+  Open:2018-05-20 09:00:23.164695
+  Open times:1
+  Close:2018-05-20 09:00:23.165195
+Path:C:\proc\1377\status
+  Open:2018-05-20 09:00:23.165248
+  Open times:1
+  Close:2018-05-20 09:00:23.166453
+Path:C:\proc\1394
+Path:C:\proc\1394\cmdline
+  Open:2018-05-20 09:00:23.171871
+  Open times:1
+  Close:2018-05-20 09:00:23.172128
+Path:C:\proc\1394\stat
+  Open:2018-05-20 09:00:23.170061
+  Open times:1
+  Close:2018-05-20 09:00:23.170558
+Path:C:\proc\1394\status
+  Open:2018-05-20 09:00:23.170610
+  Open times:1
+  Close:2018-05-20 09:00:23.171821
+Path:C:\proc\13\cmdline
+  Open:2018-05-20 09:00:22.765778
+  Open times:1
+  Close:2018-05-20 09:00:22.766030
+Path:C:\proc\13\stat
+  Open:2018-05-20 09:00:22.763933
+  Open times:1
+  Close:2018-05-20 09:00:22.764502
+Path:C:\proc\13\status
+  Open:2018-05-20 09:00:22.764597
+  Open times:1
+  Close:2018-05-20 09:00:22.765687
+Path:C:\proc\14
+Path:C:\proc\141
+Path:C:\proc\1415
+Path:C:\proc\1415\cmdline
+  Open:2018-05-20 09:00:23.174240
+  Open times:1
+  Close:2018-05-20 09:00:23.174508
+Path:C:\proc\1415\stat
+  Open:2018-05-20 09:00:23.172441
+  Open times:1
+  Close:2018-05-20 09:00:23.172928
+Path:C:\proc\1415\status
+  Open:2018-05-20 09:00:23.172979
+  Open times:1
+  Close:2018-05-20 09:00:23.174190
+Path:C:\proc\141\cmdline
+  Open:2018-05-20 09:00:22.916711
+  Open times:1
+  Close:2018-05-20 09:00:22.917271
+Path:C:\proc\141\stat
+  Open:2018-05-20 09:00:22.913842
+  Open times:1
+  Close:2018-05-20 09:00:22.914851
+Path:C:\proc\141\status
+  Open:2018-05-20 09:00:22.915070
+  Open times:1
+  Close:2018-05-20 09:00:22.916496
+Path:C:\proc\1443
+Path:C:\proc\1443\cmdline
+  Open:2018-05-20 09:00:23.179606
+  Open times:1
+  Close:2018-05-20 09:00:23.179873
+Path:C:\proc\1443\stat
+  Open:2018-05-20 09:00:23.174831
+  Open times:1
+  Close:2018-05-20 09:00:23.175312
+Path:C:\proc\1443\status
+  Open:2018-05-20 09:00:23.175364
+  Open times:1
+  Close:2018-05-20 09:00:23.176558
+Path:C:\proc\1447
+Path:C:\proc\1447\cmdline
+  Open:2018-05-20 09:00:23.181993
+  Open times:1
+  Close:2018-05-20 09:00:23.182220
+Path:C:\proc\1447\stat
+  Open:2018-05-20 09:00:23.180189
+  Open times:1
+  Close:2018-05-20 09:00:23.180671
+Path:C:\proc\1447\status
+  Open:2018-05-20 09:00:23.180724
+  Open times:1
+  Close:2018-05-20 09:00:23.181943
+Path:C:\proc\1455
+Path:C:\proc\1455\cmdline
+  Open:2018-05-20 09:00:23.187301
+  Open times:1
+  Close:2018-05-20 09:00:23.187539
+Path:C:\proc\1455\stat
+  Open:2018-05-20 09:00:23.182538
+  Open times:1
+  Close:2018-05-20 09:00:23.183011
+Path:C:\proc\1455\status
+  Open:2018-05-20 09:00:23.183063
+  Open times:1
+  Close:2018-05-20 09:00:23.184254
+Path:C:\proc\1456
+Path:C:\proc\1456\cmdline
+  Open:2018-05-20 09:00:23.196735
+  Open times:1
+  Close:2018-05-20 09:00:23.196979
+Path:C:\proc\1456\stat
+  Open:2018-05-20 09:00:23.194966
+  Open times:1
+  Close:2018-05-20 09:00:23.195436
+Path:C:\proc\1456\status
+  Open:2018-05-20 09:00:23.195491
+  Open times:1
+  Close:2018-05-20 09:00:23.196684
+Path:C:\proc\1458
+Path:C:\proc\1458\cmdline
+  Open:2018-05-20 09:00:23.199563
+  Open times:1
+  Close:2018-05-20 09:00:23.199936
+Path:C:\proc\1458\stat
+  Open:2018-05-20 09:00:23.197311
+  Open times:1
+  Close:2018-05-20 09:00:23.197827
+Path:C:\proc\1458\status
+  Open:2018-05-20 09:00:23.197898
+  Open times:1
+  Close:2018-05-20 09:00:23.199496
+Path:C:\proc\1460
+Path:C:\proc\1460\cmdline
+  Open:2018-05-20 09:00:23.204091
+  Open times:1
+  Close:2018-05-20 09:00:23.204399
+Path:C:\proc\1460\stat
+  Open:2018-05-20 09:00:23.201640
+  Open times:1
+  Close:2018-05-20 09:00:23.202305
+Path:C:\proc\1460\status
+  Open:2018-05-20 09:00:23.202375
+  Open times:1
+  Close:2018-05-20 09:00:23.204023
+Path:C:\proc\1461
+Path:C:\proc\1461\cmdline
+  Open:2018-05-20 09:00:23.207381
+  Open times:1
+  Close:2018-05-20 09:00:23.207717
+Path:C:\proc\1461\stat
+  Open:2018-05-20 09:00:23.204940
+  Open times:1
+  Close:2018-05-20 09:00:23.205606
+Path:C:\proc\1461\status
+  Open:2018-05-20 09:00:23.205675
+  Open times:1
+  Close:2018-05-20 09:00:23.207314
+Path:C:\proc\14\cmdline
+  Open:2018-05-20 09:00:22.769255
+  Open times:1
+  Close:2018-05-20 09:00:22.769464
+Path:C:\proc\14\stat
+  Open:2018-05-20 09:00:22.767366
+  Open times:1
+  Close:2018-05-20 09:00:22.767972
+Path:C:\proc\14\status
+  Open:2018-05-20 09:00:22.768056
+  Open times:1
+  Close:2018-05-20 09:00:22.769174
+Path:C:\proc\15
+Path:C:\proc\1555
+Path:C:\proc\1555\cmdline
+  Open:2018-05-20 09:00:23.210046
+  Open times:1
+  Close:2018-05-20 09:00:23.210279
+Path:C:\proc\1555\stat
+  Open:2018-05-20 09:00:23.208180
+  Open times:1
+  Close:2018-05-20 09:00:23.208713
+Path:C:\proc\1555\status
+  Open:2018-05-20 09:00:23.208765
+  Open times:1
+  Close:2018-05-20 09:00:23.209996
+Path:C:\proc\1597
+Path:C:\proc\1597\cmdline
+  Open:2018-05-20 09:00:23.212505
+  Open times:1
+  Close:2018-05-20 09:00:23.212753
+Path:C:\proc\1597\stat
+  Open:2018-05-20 09:00:23.210671
+  Open times:1
+  Close:2018-05-20 09:00:23.211199
+Path:C:\proc\1597\status
+  Open:2018-05-20 09:00:23.211252
+  Open times:1
+  Close:2018-05-20 09:00:23.212455
+Path:C:\proc\15\cmdline
+  Open:2018-05-20 09:00:22.771952
+  Open times:1
+  Close:2018-05-20 09:00:22.772190
+Path:C:\proc\15\stat
+  Open:2018-05-20 09:00:22.769966
+  Open times:1
+  Close:2018-05-20 09:00:22.770570
+Path:C:\proc\15\status
+  Open:2018-05-20 09:00:22.770668
+  Open times:1
+  Close:2018-05-20 09:00:22.771856
+Path:C:\proc\1616
+Path:C:\proc\1616\cmdline
+  Open:2018-05-20 09:00:23.214868
+  Open times:1
+  Close:2018-05-20 09:00:23.215123
+Path:C:\proc\1616\stat
+  Open:2018-05-20 09:00:23.213089
+  Open times:1
+  Close:2018-05-20 09:00:23.213555
+Path:C:\proc\1616\status
+  Open:2018-05-20 09:00:23.213609
+  Open times:1
+  Close:2018-05-20 09:00:23.214814
+Path:C:\proc\1699
+Path:C:\proc\1699\cmdline
+  Open:2018-05-20 09:00:23.217236
+  Open times:1
+  Close:2018-05-20 09:00:23.217484
+Path:C:\proc\1699\stat
+  Open:2018-05-20 09:00:23.215441
+  Open times:1
+  Close:2018-05-20 09:00:23.215926
+Path:C:\proc\1699\status
+  Open:2018-05-20 09:00:23.215978
+  Open times:1
+  Close:2018-05-20 09:00:23.217186
+Path:C:\proc\17
+Path:C:\proc\1718
+Path:C:\proc\1718\cmdline
+  Open:2018-05-20 09:00:23.219694
+  Open times:1
+  Close:2018-05-20 09:00:23.219958
+Path:C:\proc\1718\stat
+  Open:2018-05-20 09:00:23.217887
+  Open times:1
+  Close:2018-05-20 09:00:23.218379
+Path:C:\proc\1718\status
+  Open:2018-05-20 09:00:23.218431
+  Open times:1
+  Close:2018-05-20 09:00:23.219644
+Path:C:\proc\1721
+Path:C:\proc\1721\cmdline
+  Open:2018-05-20 09:00:23.222182
+  Open times:1
+  Close:2018-05-20 09:00:23.222426
+Path:C:\proc\1721\stat
+  Open:2018-05-20 09:00:23.220355
+  Open times:1
+  Close:2018-05-20 09:00:23.220870
+Path:C:\proc\1721\status
+  Open:2018-05-20 09:00:23.220922
+  Open times:1
+  Close:2018-05-20 09:00:23.222131
+Path:C:\proc\1733
+Path:C:\proc\1733\cmdline
+  Open:2018-05-20 09:00:23.224628
+  Open times:1
+  Close:2018-05-20 09:00:23.224905
+Path:C:\proc\1733\stat
+  Open:2018-05-20 09:00:23.222826
+  Open times:1
+  Close:2018-05-20 09:00:23.223318
+Path:C:\proc\1733\status
+  Open:2018-05-20 09:00:23.223370
+  Open times:1
+  Close:2018-05-20 09:00:23.224578
+Path:C:\proc\1736
+Path:C:\proc\1736\cmdline
+  Open:2018-05-20 09:00:23.227101
+  Open times:1
+  Close:2018-05-20 09:00:23.227356
+Path:C:\proc\1736\stat
+  Open:2018-05-20 09:00:23.225300
+  Open times:1
+  Close:2018-05-20 09:00:23.225785
+Path:C:\proc\1736\status
+  Open:2018-05-20 09:00:23.225843
+  Open times:1
+  Close:2018-05-20 09:00:23.227051
+Path:C:\proc\1739
+Path:C:\proc\1739\cmdline
+  Open:2018-05-20 09:00:23.229570
+  Open times:1
+  Close:2018-05-20 09:00:23.229844
+Path:C:\proc\1739\stat
+  Open:2018-05-20 09:00:23.227752
+  Open times:1
+  Close:2018-05-20 09:00:23.228269
+Path:C:\proc\1739\status
+  Open:2018-05-20 09:00:23.228321
+  Open times:1
+  Close:2018-05-20 09:00:23.229520
+Path:C:\proc\1746
+Path:C:\proc\1746\cmdline
+  Open:2018-05-20 09:00:23.232034
+  Open times:1
+  Close:2018-05-20 09:00:23.232283
+Path:C:\proc\1746\stat
+  Open:2018-05-20 09:00:23.230240
+  Open times:1
+  Close:2018-05-20 09:00:23.230724
+Path:C:\proc\1746\status
+  Open:2018-05-20 09:00:23.230776
+  Open times:1
+  Close:2018-05-20 09:00:23.231984
+Path:C:\proc\1762
+Path:C:\proc\1762\cmdline
+  Open:2018-05-20 09:00:23.234443
+  Open times:1
+  Close:2018-05-20 09:00:23.234680
+Path:C:\proc\1762\stat
+  Open:2018-05-20 09:00:23.232600
+  Open times:1
+  Close:2018-05-20 09:00:23.233137
+Path:C:\proc\1762\status
+  Open:2018-05-20 09:00:23.233189
+  Open times:1
+  Close:2018-05-20 09:00:23.234393
+Path:C:\proc\1766
+Path:C:\proc\1766\cmdline
+  Open:2018-05-20 09:00:23.236892
+  Open times:1
+  Close:2018-05-20 09:00:23.237145
+Path:C:\proc\1766\stat
+  Open:2018-05-20 09:00:23.235078
+  Open times:1
+  Close:2018-05-20 09:00:23.235566
+Path:C:\proc\1766\status
+  Open:2018-05-20 09:00:23.235618
+  Open times:1
+  Close:2018-05-20 09:00:23.236842
+Path:C:\proc\1768
+Path:C:\proc\1768\cmdline
+  Open:2018-05-20 09:00:23.239365
+  Open times:1
+  Close:2018-05-20 09:00:23.239617
+Path:C:\proc\1768\stat
+  Open:2018-05-20 09:00:23.237541
+  Open times:1
+  Close:2018-05-20 09:00:23.238050
+Path:C:\proc\1768\status
+  Open:2018-05-20 09:00:23.238102
+  Open times:1
+  Close:2018-05-20 09:00:23.239314
+Path:C:\proc\17735
+Path:C:\proc\17735\cmdline
+  Open:2018-05-20 09:00:23.535126
+  Open times:1
+  Close:2018-05-20 09:00:23.536175
+Path:C:\proc\17735\stat
+  Open:2018-05-20 09:00:23.531513
+  Open times:1
+  Close:2018-05-20 09:00:23.532831
+Path:C:\proc\17735\status
+  Open:2018-05-20 09:00:23.533092
+  Open times:1
+  Close:2018-05-20 09:00:23.534884
+Path:C:\proc\1779
+Path:C:\proc\1779\cmdline
+  Open:2018-05-20 09:00:23.241839
+  Open times:1
+  Close:2018-05-20 09:00:23.242101
+Path:C:\proc\1779\stat
+  Open:2018-05-20 09:00:23.240017
+  Open times:1
+  Close:2018-05-20 09:00:23.240518
+Path:C:\proc\1779\status
+  Open:2018-05-20 09:00:23.240570
+  Open times:1
+  Close:2018-05-20 09:00:23.241775
+Path:C:\proc\1783
+Path:C:\proc\1783\cmdline
+  Open:2018-05-20 09:00:23.244262
+  Open times:1
+  Close:2018-05-20 09:00:23.244539
+Path:C:\proc\1783\stat
+  Open:2018-05-20 09:00:23.242427
+  Open times:1
+  Close:2018-05-20 09:00:23.242948
+Path:C:\proc\1783\status
+  Open:2018-05-20 09:00:23.243000
+  Open times:1
+  Close:2018-05-20 09:00:23.244212
+Path:C:\proc\1786
+Path:C:\proc\1786\cmdline
+  Open:2018-05-20 09:00:23.246758
+  Open times:1
+  Close:2018-05-20 09:00:23.247027
+Path:C:\proc\1786\stat
+  Open:2018-05-20 09:00:23.244956
+  Open times:1
+  Close:2018-05-20 09:00:23.245449
+Path:C:\proc\1786\status
+  Open:2018-05-20 09:00:23.245501
+  Open times:1
+  Close:2018-05-20 09:00:23.246707
+Path:C:\proc\17884
+Path:C:\proc\17884\cmdline
+  Open:2018-05-20 09:00:23.541639
+  Open times:1
+  Close:2018-05-20 09:00:23.542747
+Path:C:\proc\17884\stat
+  Open:2018-05-20 09:00:23.538066
+  Open times:1
+  Close:2018-05-20 09:00:23.539371
+Path:C:\proc\17884\status
+  Open:2018-05-20 09:00:23.539594
+  Open times:1
+  Close:2018-05-20 09:00:23.541399
+Path:C:\proc\1792
+Path:C:\proc\1792\cmdline
+  Open:2018-05-20 09:00:23.249168
+  Open times:1
+  Close:2018-05-20 09:00:23.249457
+Path:C:\proc\1792\stat
+  Open:2018-05-20 09:00:23.247341
+  Open times:1
+  Close:2018-05-20 09:00:23.247854
+Path:C:\proc\1792\status
+  Open:2018-05-20 09:00:23.247906
+  Open times:1
+  Close:2018-05-20 09:00:23.249118
+Path:C:\proc\1794
+Path:C:\proc\1794\cmdline
+  Open:2018-05-20 09:00:23.251643
+  Open times:1
+  Close:2018-05-20 09:00:23.251919
+Path:C:\proc\1794\stat
+  Open:2018-05-20 09:00:23.249857
+  Open times:1
+  Close:2018-05-20 09:00:23.250339
+Path:C:\proc\1794\status
+  Open:2018-05-20 09:00:23.250391
+  Open times:1
+  Close:2018-05-20 09:00:23.251593
+Path:C:\proc\17\cmdline
+  Open:2018-05-20 09:00:22.774583
+  Open times:1
+  Close:2018-05-20 09:00:22.774817
+Path:C:\proc\17\stat
+  Open:2018-05-20 09:00:22.772686
+  Open times:1
+  Close:2018-05-20 09:00:22.773335
+Path:C:\proc\17\status
+  Open:2018-05-20 09:00:22.773415
+  Open times:1
+  Close:2018-05-20 09:00:22.774504
+Path:C:\proc\18
+Path:C:\proc\18038
+Path:C:\proc\18038\cmdline
+  Open:2018-05-20 09:00:23.548300
+  Open times:1
+  Close:2018-05-20 09:00:23.549273
+Path:C:\proc\18038\stat
+  Open:2018-05-20 09:00:23.544783
+  Open times:1
+  Close:2018-05-20 09:00:23.546041
+Path:C:\proc\18038\status
+  Open:2018-05-20 09:00:23.546263
+  Open times:1
+  Close:2018-05-20 09:00:23.548076
+Path:C:\proc\1804
+Path:C:\proc\1804\cmdline
+  Open:2018-05-20 09:00:23.254067
+  Open times:1
+  Close:2018-05-20 09:00:23.254348
+Path:C:\proc\1804\stat
+  Open:2018-05-20 09:00:23.252246
+  Open times:1
+  Close:2018-05-20 09:00:23.252748
+Path:C:\proc\1804\status
+  Open:2018-05-20 09:00:23.252808
+  Open times:1
+  Close:2018-05-20 09:00:23.254015
+Path:C:\proc\18057
+Path:C:\proc\18057\cmdline
+  Open:2018-05-20 09:00:23.554719
+  Open times:1
+  Close:2018-05-20 09:00:23.555676
+Path:C:\proc\18057\stat
+  Open:2018-05-20 09:00:23.551096
+  Open times:1
+  Close:2018-05-20 09:00:23.552307
+Path:C:\proc\18057\status
+  Open:2018-05-20 09:00:23.552550
+  Open times:1
+  Close:2018-05-20 09:00:23.554514
+Path:C:\proc\1810
+Path:C:\proc\1810\cmdline
+  Open:2018-05-20 09:00:23.256566
+  Open times:1
+  Close:2018-05-20 09:00:23.256883
+Path:C:\proc\1810\stat
+  Open:2018-05-20 09:00:23.254750
+  Open times:1
+  Close:2018-05-20 09:00:23.255246
+Path:C:\proc\1810\status
+  Open:2018-05-20 09:00:23.255301
+  Open times:1
+  Close:2018-05-20 09:00:23.256513
+Path:C:\proc\18115
+Path:C:\proc\18115\cmdline
+  Open:2018-05-20 09:00:23.560777
+  Open times:1
+  Close:2018-05-20 09:00:23.560953
+Path:C:\proc\18115\stat
+  Open:2018-05-20 09:00:23.557610
+  Open times:1
+  Close:2018-05-20 09:00:23.558866
+Path:C:\proc\18115\status
+  Open:2018-05-20 09:00:23.559083
+  Open times:1
+  Close:2018-05-20 09:00:23.560724
+Path:C:\proc\1813
+Path:C:\proc\1813\cmdline
+  Open:2018-05-20 09:00:23.259117
+  Open times:1
+  Close:2018-05-20 09:00:23.259377
+Path:C:\proc\1813\stat
+  Open:2018-05-20 09:00:23.257287
+  Open times:1
+  Close:2018-05-20 09:00:23.257783
+Path:C:\proc\1813\status
+  Open:2018-05-20 09:00:23.257852
+  Open times:1
+  Close:2018-05-20 09:00:23.259065
+Path:C:\proc\1818
+Path:C:\proc\1818\cmdline
+  Open:2018-05-20 09:00:23.261606
+  Open times:1
+  Close:2018-05-20 09:00:23.261885
+Path:C:\proc\1818\stat
+  Open:2018-05-20 09:00:23.259778
+  Open times:1
+  Close:2018-05-20 09:00:23.260284
+Path:C:\proc\1818\status
+  Open:2018-05-20 09:00:23.260339
+  Open times:1
+  Close:2018-05-20 09:00:23.261553
+Path:C:\proc\18197
+Path:C:\proc\18197\cmdline
+  Open:2018-05-20 09:00:23.562841
+  Open times:1
+  Close:2018-05-20 09:00:23.562994
+Path:C:\proc\18197\stat
+  Open:2018-05-20 09:00:23.561269
+  Open times:1
+  Close:2018-05-20 09:00:23.561740
+Path:C:\proc\18197\status
+  Open:2018-05-20 09:00:23.561792
+  Open times:1
+  Close:2018-05-20 09:00:23.562775
+Path:C:\proc\1822
+Path:C:\proc\1822\cmdline
+  Open:2018-05-20 09:00:23.264095
+  Open times:1
+  Close:2018-05-20 09:00:23.264381
+Path:C:\proc\1822\stat
+  Open:2018-05-20 09:00:23.262279
+  Open times:1
+  Close:2018-05-20 09:00:23.262767
+Path:C:\proc\1822\status
+  Open:2018-05-20 09:00:23.262828
+  Open times:1
+  Close:2018-05-20 09:00:23.264045
+Path:C:\proc\18256
+Path:C:\proc\18256\cmdline
+  Open:2018-05-20 09:00:23.564862
+  Open times:1
+  Close:2018-05-20 09:00:23.565015
+Path:C:\proc\18256\stat
+  Open:2018-05-20 09:00:23.563308
+  Open times:1
+  Close:2018-05-20 09:00:23.563772
+Path:C:\proc\18256\status
+  Open:2018-05-20 09:00:23.563830
+  Open times:1
+  Close:2018-05-20 09:00:23.564796
+Path:C:\proc\18261
+Path:C:\proc\18261\cmdline
+  Open:2018-05-20 09:00:23.566886
+  Open times:1
+  Close:2018-05-20 09:00:23.567039
+Path:C:\proc\18261\stat
+  Open:2018-05-20 09:00:23.565329
+  Open times:1
+  Close:2018-05-20 09:00:23.565787
+Path:C:\proc\18261\status
+  Open:2018-05-20 09:00:23.565844
+  Open times:1
+  Close:2018-05-20 09:00:23.566837
+Path:C:\proc\18266
+Path:C:\proc\18266\cmdline
+  Open:2018-05-20 09:00:23.568908
+  Open times:1
+  Close:2018-05-20 09:00:23.569060
+Path:C:\proc\18266\stat
+  Open:2018-05-20 09:00:23.567352
+  Open times:1
+  Close:2018-05-20 09:00:23.567825
+Path:C:\proc\18266\status
+  Open:2018-05-20 09:00:23.567877
+  Open times:1
+  Close:2018-05-20 09:00:23.568859
+Path:C:\proc\18267
+Path:C:\proc\18267\cmdline
+  Open:2018-05-20 09:00:23.570935
+  Open times:1
+  Close:2018-05-20 09:00:23.571091
+Path:C:\proc\18267\stat
+  Open:2018-05-20 09:00:23.569374
+  Open times:1
+  Close:2018-05-20 09:00:23.569851
+Path:C:\proc\18267\status
+  Open:2018-05-20 09:00:23.569903
+  Open times:1
+  Close:2018-05-20 09:00:23.570883
+Path:C:\proc\18269
+Path:C:\proc\18269\cmdline
+  Open:2018-05-20 09:00:23.572946
+  Open times:1
+  Close:2018-05-20 09:00:23.573098
+Path:C:\proc\18269\stat
+  Open:2018-05-20 09:00:23.571407
+  Open times:1
+  Close:2018-05-20 09:00:23.571874
+Path:C:\proc\18269\status
+  Open:2018-05-20 09:00:23.571926
+  Open times:1
+  Close:2018-05-20 09:00:23.572897
+Path:C:\proc\1830
+Path:C:\proc\1830\cmdline
+  Open:2018-05-20 09:00:23.266578
+  Open times:1
+  Close:2018-05-20 09:00:23.266867
+Path:C:\proc\1830\stat
+  Open:2018-05-20 09:00:23.264772
+  Open times:1
+  Close:2018-05-20 09:00:23.265263
+Path:C:\proc\1830\status
+  Open:2018-05-20 09:00:23.265314
+  Open times:1
+  Close:2018-05-20 09:00:23.266528
+Path:C:\proc\18314
+Path:C:\proc\18314\cmdline
+  Open:2018-05-20 09:00:23.575375
+  Open times:1
+  Close:2018-05-20 09:00:23.575601
+Path:C:\proc\18314\stat
+  Open:2018-05-20 09:00:23.573412
+  Open times:1
+  Close:2018-05-20 09:00:23.574052
+Path:C:\proc\18314\status
+  Open:2018-05-20 09:00:23.574104
+  Open times:1
+  Close:2018-05-20 09:00:23.575325
+Path:C:\proc\18315
+Path:C:\proc\18315\cmdline
+  Open:2018-05-20 09:00:23.578336
+  Open times:1
+  Close:2018-05-20 09:00:23.578555
+Path:C:\proc\18315\stat
+  Open:2018-05-20 09:00:23.576375
+  Open times:1
+  Close:2018-05-20 09:00:23.577000
+Path:C:\proc\18315\status
+  Open:2018-05-20 09:00:23.577053
+  Open times:1
+  Close:2018-05-20 09:00:23.578286
+Path:C:\proc\18316
+Path:C:\proc\18316\cmdline
+  Open:2018-05-20 09:00:23.581207
+  Open times:1
+  Close:2018-05-20 09:00:23.581431
+Path:C:\proc\18316\stat
+  Open:2018-05-20 09:00:23.579231
+  Open times:1
+  Close:2018-05-20 09:00:23.579880
+Path:C:\proc\18316\status
+  Open:2018-05-20 09:00:23.579933
+  Open times:1
+  Close:2018-05-20 09:00:23.581157
+Path:C:\proc\18318
+Path:C:\proc\18318\cmdline
+  Open:2018-05-20 09:00:23.584145
+  Open times:1
+  Close:2018-05-20 09:00:23.584379
+Path:C:\proc\18318\stat
+  Open:2018-05-20 09:00:23.582201
+  Open times:1
+  Close:2018-05-20 09:00:23.582816
+Path:C:\proc\18318\status
+  Open:2018-05-20 09:00:23.582869
+  Open times:1
+  Close:2018-05-20 09:00:23.584094
+Path:C:\proc\18319
+Path:C:\proc\18319\cmdline
+  Open:2018-05-20 09:00:23.587090
+  Open times:1
+  Close:2018-05-20 09:00:23.587307
+Path:C:\proc\18319\stat
+  Open:2018-05-20 09:00:23.585136
+  Open times:1
+  Close:2018-05-20 09:00:23.585750
+Path:C:\proc\18319\status
+  Open:2018-05-20 09:00:23.585820
+  Open times:1
+  Close:2018-05-20 09:00:23.587040
+Path:C:\proc\1870
+Path:C:\proc\1870\cmdline
+  Open:2018-05-20 09:00:23.269104
+  Open times:1
+  Close:2018-05-20 09:00:23.269371
+Path:C:\proc\1870\stat
+  Open:2018-05-20 09:00:23.267257
+  Open times:1
+  Close:2018-05-20 09:00:23.267765
+Path:C:\proc\1870\status
+  Open:2018-05-20 09:00:23.267828
+  Open times:1
+  Close:2018-05-20 09:00:23.269052
+Path:C:\proc\18\cmdline
+  Open:2018-05-20 09:00:22.777423
+  Open times:1
+  Close:2018-05-20 09:00:22.777680
+Path:C:\proc\18\stat
+  Open:2018-05-20 09:00:22.775392
+  Open times:1
+  Close:2018-05-20 09:00:22.776098
+Path:C:\proc\18\status
+  Open:2018-05-20 09:00:22.776214
+  Open times:1
+  Close:2018-05-20 09:00:22.777333
+Path:C:\proc\19
+Path:C:\proc\1927
+Path:C:\proc\1927\cmdline
+  Open:2018-05-20 09:00:23.274555
+  Open times:1
+  Close:2018-05-20 09:00:23.274825
+Path:C:\proc\1927\stat
+  Open:2018-05-20 09:00:23.269776
+  Open times:1
+  Close:2018-05-20 09:00:23.270248
+Path:C:\proc\1927\status
+  Open:2018-05-20 09:00:23.270301
+  Open times:1
+  Close:2018-05-20 09:00:23.271507
+Path:C:\proc\1960
+Path:C:\proc\1960\cmdline
+  Open:2018-05-20 09:00:23.276935
+  Open times:1
+  Close:2018-05-20 09:00:23.277187
+Path:C:\proc\1960\stat
+  Open:2018-05-20 09:00:23.275142
+  Open times:1
+  Close:2018-05-20 09:00:23.275631
+Path:C:\proc\1960\status
+  Open:2018-05-20 09:00:23.275684
+  Open times:1
+  Close:2018-05-20 09:00:23.276884
+Path:C:\proc\1962
+Path:C:\proc\1962\cmdline
+  Open:2018-05-20 09:00:23.279300
+  Open times:1
+  Close:2018-05-20 09:00:23.279550
+Path:C:\proc\1962\stat
+  Open:2018-05-20 09:00:23.277501
+  Open times:1
+  Close:2018-05-20 09:00:23.277998
+Path:C:\proc\1962\status
+  Open:2018-05-20 09:00:23.278050
+  Open times:1
+  Close:2018-05-20 09:00:23.279249
+Path:C:\proc\1964
+Path:C:\proc\1964\cmdline
+  Open:2018-05-20 09:00:23.284842
+  Open times:1
+  Close:2018-05-20 09:00:23.285096
+Path:C:\proc\1964\stat
+  Open:2018-05-20 09:00:23.279873
+  Open times:1
+  Close:2018-05-20 09:00:23.280502
+Path:C:\proc\1964\status
+  Open:2018-05-20 09:00:23.280555
+  Open times:1
+  Close:2018-05-20 09:00:23.281773
+Path:C:\proc\1967
+Path:C:\proc\1967\cmdline
+  Open:2018-05-20 09:00:23.287209
+  Open times:1
+  Close:2018-05-20 09:00:23.287441
+Path:C:\proc\1967\stat
+  Open:2018-05-20 09:00:23.285410
+  Open times:1
+  Close:2018-05-20 09:00:23.285892
+Path:C:\proc\1967\status
+  Open:2018-05-20 09:00:23.285945
+  Open times:1
+  Close:2018-05-20 09:00:23.287159
+Path:C:\proc\1981
+Path:C:\proc\1981\cmdline
+  Open:2018-05-20 09:00:23.289574
+  Open times:1
+  Close:2018-05-20 09:00:23.289834
+Path:C:\proc\1981\stat
+  Open:2018-05-20 09:00:23.287756
+  Open times:1
+  Close:2018-05-20 09:00:23.288254
+Path:C:\proc\1981\status
+  Open:2018-05-20 09:00:23.288307
+  Open times:1
+  Close:2018-05-20 09:00:23.289524
+Path:C:\proc\1993
+Path:C:\proc\1993\cmdline
+  Open:2018-05-20 09:00:23.291950
+  Open times:1
+  Close:2018-05-20 09:00:23.292203
+Path:C:\proc\1993\stat
+  Open:2018-05-20 09:00:23.290148
+  Open times:1
+  Close:2018-05-20 09:00:23.290617
+Path:C:\proc\1993\status
+  Open:2018-05-20 09:00:23.290669
+  Open times:1
+  Close:2018-05-20 09:00:23.291900
+Path:C:\proc\19\cmdline
+  Open:2018-05-20 09:00:22.780173
+  Open times:1
+  Close:2018-05-20 09:00:22.780426
+Path:C:\proc\19\stat
+  Open:2018-05-20 09:00:22.778229
+  Open times:1
+  Close:2018-05-20 09:00:22.778877
+Path:C:\proc\19\status
+  Open:2018-05-20 09:00:22.778971
+  Open times:1
+  Close:2018-05-20 09:00:22.780098
+Path:C:\proc\1\cmdline
+  Open:2018-05-20 09:00:22.728519
+  Open times:1
+  Close:2018-05-20 09:00:22.729188
+Path:C:\proc\1\stat
+  Open:2018-05-20 09:00:22.699515
+  Open times:1
+  Close:2018-05-20 09:00:22.700262
+Path:C:\proc\1\status
+  Open:2018-05-20 09:00:22.700422
+  Open times:1
+  Close:2018-05-20 09:00:22.701761
+  Close:2018-05-20 09:00:22.702198
+  Close:2018-05-20 09:00:22.702485
+Path:C:\proc\2
+Path:C:\proc\20
+Path:C:\proc\2055
+Path:C:\proc\2055\cmdline
+  Open:2018-05-20 09:00:23.294321
+  Open times:1
+  Close:2018-05-20 09:00:23.294590
+Path:C:\proc\2055\stat
+  Open:2018-05-20 09:00:23.292519
+  Open times:1
+  Close:2018-05-20 09:00:23.293003
+Path:C:\proc\2055\status
+  Open:2018-05-20 09:00:23.293055
+  Open times:1
+  Close:2018-05-20 09:00:23.294271
+Path:C:\proc\20\cmdline
+  Open:2018-05-20 09:00:22.782735
+  Open times:1
+  Close:2018-05-20 09:00:22.782981
+Path:C:\proc\20\stat
+  Open:2018-05-20 09:00:22.780889
+  Open times:1
+  Close:2018-05-20 09:00:22.781424
+Path:C:\proc\20\status
+  Open:2018-05-20 09:00:22.781517
+  Open times:1
+  Close:2018-05-20 09:00:22.782642
+Path:C:\proc\21
+Path:C:\proc\2101
+Path:C:\proc\2101\cmdline
+  Open:2018-05-20 09:00:23.296904
+  Open times:1
+  Close:2018-05-20 09:00:23.297124
+Path:C:\proc\2101\stat
+  Open:2018-05-20 09:00:23.294910
+  Open times:1
+  Close:2018-05-20 09:00:23.295562
+Path:C:\proc\2101\status
+  Open:2018-05-20 09:00:23.295615
+  Open times:1
+  Close:2018-05-20 09:00:23.296853
+Path:C:\proc\21\cmdline
+  Open:2018-05-20 09:00:22.785782
+  Open times:1
+  Close:2018-05-20 09:00:22.786069
+Path:C:\proc\21\stat
+  Open:2018-05-20 09:00:22.783950
+  Open times:1
+  Close:2018-05-20 09:00:22.784520
+Path:C:\proc\21\status
+  Open:2018-05-20 09:00:22.784610
+  Open times:1
+  Close:2018-05-20 09:00:22.785711
+Path:C:\proc\22
+Path:C:\proc\2200
+Path:C:\proc\2200\cmdline
+  Open:2018-05-20 09:00:23.299773
+  Open times:1
+  Close:2018-05-20 09:00:23.300015
+Path:C:\proc\2200\stat
+  Open:2018-05-20 09:00:23.297796
+  Open times:1
+  Close:2018-05-20 09:00:23.298443
+Path:C:\proc\2200\status
+  Open:2018-05-20 09:00:23.298496
+  Open times:1
+  Close:2018-05-20 09:00:23.299723
+Path:C:\proc\2201
+Path:C:\proc\2201\cmdline
+  Open:2018-05-20 09:00:23.302730
+  Open times:1
+  Close:2018-05-20 09:00:23.302986
+Path:C:\proc\2201\stat
+  Open:2018-05-20 09:00:23.300758
+  Open times:1
+  Close:2018-05-20 09:00:23.301390
+Path:C:\proc\2201\status
+  Open:2018-05-20 09:00:23.301443
+  Open times:1
+  Close:2018-05-20 09:00:23.302679
+Path:C:\proc\2211
+Path:C:\proc\2211\cmdline
+  Open:2018-05-20 09:00:23.305247
+  Open times:1
+  Close:2018-05-20 09:00:23.305510
+Path:C:\proc\2211\stat
+  Open:2018-05-20 09:00:23.303306
+  Open times:1
+  Close:2018-05-20 09:00:23.303929
+Path:C:\proc\2211\status
+  Open:2018-05-20 09:00:23.303981
+  Open times:1
+  Close:2018-05-20 09:00:23.305197
+Path:C:\proc\22\cmdline
+  Open:2018-05-20 09:00:22.788901
+  Open times:1
+  Close:2018-05-20 09:00:22.789244
+Path:C:\proc\22\stat
+  Open:2018-05-20 09:00:22.786592
+  Open times:1
+  Close:2018-05-20 09:00:22.787254
+Path:C:\proc\22\status
+  Open:2018-05-20 09:00:22.787348
+  Open times:1
+  Close:2018-05-20 09:00:22.788631
+Path:C:\proc\23
+Path:C:\proc\23\cmdline
+  Open:2018-05-20 09:00:22.792729
+  Open times:1
+  Close:2018-05-20 09:00:22.792979
+Path:C:\proc\23\stat
+  Open:2018-05-20 09:00:22.790484
+  Open times:1
+  Close:2018-05-20 09:00:22.791355
+Path:C:\proc\23\status
+  Open:2018-05-20 09:00:22.791527
+  Open times:1
+  Close:2018-05-20 09:00:22.792636
+Path:C:\proc\24
+Path:C:\proc\24\cmdline
+  Open:2018-05-20 09:00:22.795938
+  Open times:1
+  Close:2018-05-20 09:00:22.796210
+Path:C:\proc\24\stat
+  Open:2018-05-20 09:00:22.793989
+  Open times:1
+  Close:2018-05-20 09:00:22.794595
+Path:C:\proc\24\status
+  Open:2018-05-20 09:00:22.794679
+  Open times:1
+  Close:2018-05-20 09:00:22.795767
+Path:C:\proc\25
+Path:C:\proc\25804
+Path:C:\proc\25804\cmdline
+  Open:2018-05-20 09:00:23.589921
+  Open times:1
+  Close:2018-05-20 09:00:23.590173
+Path:C:\proc\25804\stat
+  Open:2018-05-20 09:00:23.588073
+  Open times:1
+  Close:2018-05-20 09:00:23.588588
+Path:C:\proc\25804\status
+  Open:2018-05-20 09:00:23.588641
+  Open times:1
+  Close:2018-05-20 09:00:23.589870
+Path:C:\proc\25806
+Path:C:\proc\25806\cmdline
+  Open:2018-05-20 09:00:23.592294
+  Open times:1
+  Close:2018-05-20 09:00:23.592552
+Path:C:\proc\25806\stat
+  Open:2018-05-20 09:00:23.590491
+  Open times:1
+  Close:2018-05-20 09:00:23.591001
+Path:C:\proc\25806\status
+  Open:2018-05-20 09:00:23.591054
+  Open times:1
+  Close:2018-05-20 09:00:23.592243
+Path:C:\proc\25811
+Path:C:\proc\25811\cmdline
+  Open:2018-05-20 09:00:23.594732
+  Open times:1
+  Close:2018-05-20 09:00:23.594992
+Path:C:\proc\25811\stat
+  Open:2018-05-20 09:00:23.592896
+  Open times:1
+  Close:2018-05-20 09:00:23.593389
+Path:C:\proc\25811\status
+  Open:2018-05-20 09:00:23.593442
+  Open times:1
+  Close:2018-05-20 09:00:23.594682
+Path:C:\proc\25820
+Path:C:\proc\25820\cmdline
+  Open:2018-05-20 09:00:23.597144
+  Open times:1
+  Close:2018-05-20 09:00:23.597395
+Path:C:\proc\25820\stat
+  Open:2018-05-20 09:00:23.595310
+  Open times:1
+  Close:2018-05-20 09:00:23.595795
+Path:C:\proc\25820\status
+  Open:2018-05-20 09:00:23.595865
+  Open times:1
+  Close:2018-05-20 09:00:23.597094
+Path:C:\proc\25872
+Path:C:\proc\25872\cmdline
+  Open:2018-05-20 09:00:23.599551
+  Open times:1
+  Close:2018-05-20 09:00:23.599829
+Path:C:\proc\25872\stat
+  Open:2018-05-20 09:00:23.597712
+  Open times:1
+  Close:2018-05-20 09:00:23.598213
+Path:C:\proc\25872\status
+  Open:2018-05-20 09:00:23.598265
+  Open times:1
+  Close:2018-05-20 09:00:23.599501
+Path:C:\proc\25990
+Path:C:\proc\25990\cmdline
+  Open:2018-05-20 09:00:23.602140
+  Open times:1
+  Close:2018-05-20 09:00:23.602364
+Path:C:\proc\25990\stat
+  Open:2018-05-20 09:00:23.600148
+  Open times:1
+  Close:2018-05-20 09:00:23.600813
+Path:C:\proc\25990\status
+  Open:2018-05-20 09:00:23.600866
+  Open times:1
+  Close:2018-05-20 09:00:23.602090
+Path:C:\proc\25\cmdline
+  Open:2018-05-20 09:00:22.799917
+  Open times:1
+  Close:2018-05-20 09:00:22.800212
+Path:C:\proc\25\stat
+  Open:2018-05-20 09:00:22.797955
+  Open times:1
+  Close:2018-05-20 09:00:22.798600
+Path:C:\proc\25\status
+  Open:2018-05-20 09:00:22.798696
+  Open times:1
+  Close:2018-05-20 09:00:22.799795
+Path:C:\proc\26
+Path:C:\proc\26348
+Path:C:\proc\26348\cmdline
+  Open:2018-05-20 09:00:23.604894
+  Open times:1
+  Close:2018-05-20 09:00:23.605150
+Path:C:\proc\26348\stat
+  Open:2018-05-20 09:00:23.603036
+  Open times:1
+  Close:2018-05-20 09:00:23.603538
+Path:C:\proc\26348\status
+  Open:2018-05-20 09:00:23.603590
+  Open times:1
+  Close:2018-05-20 09:00:23.604841
+Path:C:\proc\26350
+Path:C:\proc\26350\cmdline
+  Open:2018-05-20 09:00:23.607279
+  Open times:1
+  Close:2018-05-20 09:00:23.607533
+Path:C:\proc\26350\stat
+  Open:2018-05-20 09:00:23.605468
+  Open times:1
+  Close:2018-05-20 09:00:23.605979
+Path:C:\proc\26350\status
+  Open:2018-05-20 09:00:23.606031
+  Open times:1
+  Close:2018-05-20 09:00:23.607229
+Path:C:\proc\26355
+Path:C:\proc\26355\cmdline
+  Open:2018-05-20 09:00:23.609697
+  Open times:1
+  Close:2018-05-20 09:00:23.609958
+Path:C:\proc\26355\stat
+  Open:2018-05-20 09:00:23.607866
+  Open times:1
+  Close:2018-05-20 09:00:23.608362
+Path:C:\proc\26355\status
+  Open:2018-05-20 09:00:23.608414
+  Open times:1
+  Close:2018-05-20 09:00:23.609647
+Path:C:\proc\26377
+Path:C:\proc\26377\cmdline
+  Open:2018-05-20 09:00:23.619189
+  Open times:1
+  Close:2018-05-20 09:00:23.619446
+Path:C:\proc\26377\stat
+  Open:2018-05-20 09:00:23.617368
+  Open times:1
+  Close:2018-05-20 09:00:23.617868
+Path:C:\proc\26377\status
+  Open:2018-05-20 09:00:23.617922
+  Open times:1
+  Close:2018-05-20 09:00:23.619139
+Path:C:\proc\26434
+Path:C:\proc\26434\cmdline
+  Open:2018-05-20 09:00:23.622186
+  Open times:1
+  Close:2018-05-20 09:00:23.622556
+Path:C:\proc\26434\stat
+  Open:2018-05-20 09:00:23.619764
+  Open times:1
+  Close:2018-05-20 09:00:23.620409
+Path:C:\proc\26434\status
+  Open:2018-05-20 09:00:23.620478
+  Open times:1
+  Close:2018-05-20 09:00:23.622119
+Path:C:\proc\26531
+Path:C:\proc\26531\cmdline
+  Open:2018-05-20 09:00:23.625689
+  Open times:1
+  Close:2018-05-20 09:00:23.625993
+Path:C:\proc\26531\stat
+  Open:2018-05-20 09:00:23.622998
+  Open times:1
+  Close:2018-05-20 09:00:23.623923
+Path:C:\proc\26531\status
+  Open:2018-05-20 09:00:23.623994
+  Open times:1
+  Close:2018-05-20 09:00:23.625622
+Path:C:\proc\26\cmdline
+  Open:2018-05-20 09:00:22.803133
+  Open times:1
+  Close:2018-05-20 09:00:22.803365
+Path:C:\proc\26\stat
+  Open:2018-05-20 09:00:22.801180
+  Open times:1
+  Close:2018-05-20 09:00:22.801734
+Path:C:\proc\26\status
+  Open:2018-05-20 09:00:22.801841
+  Open times:1
+  Close:2018-05-20 09:00:22.803045
+Path:C:\proc\27
+Path:C:\proc\27\cmdline
+  Open:2018-05-20 09:00:22.807042
+  Open times:1
+  Close:2018-05-20 09:00:22.807902
+Path:C:\proc\27\stat
+  Open:2018-05-20 09:00:22.804075
+  Open times:1
+  Close:2018-05-20 09:00:22.804934
+Path:C:\proc\27\status
+  Open:2018-05-20 09:00:22.805059
+  Open times:1
+  Close:2018-05-20 09:00:22.806796
+Path:C:\proc\28
+Path:C:\proc\28\cmdline
+  Open:2018-05-20 09:00:22.810325
+  Open times:1
+  Close:2018-05-20 09:00:22.810529
+Path:C:\proc\28\stat
+  Open:2018-05-20 09:00:22.808394
+  Open times:1
+  Close:2018-05-20 09:00:22.808985
+Path:C:\proc\28\status
+  Open:2018-05-20 09:00:22.809082
+  Open times:1
+  Close:2018-05-20 09:00:22.810229
+Path:C:\proc\29
+Path:C:\proc\298
+Path:C:\proc\298\cmdline
+  Open:2018-05-20 09:00:22.921387
+  Open times:1
+  Close:2018-05-20 09:00:22.922068
+Path:C:\proc\298\stat
+  Open:2018-05-20 09:00:22.918647
+  Open times:1
+  Close:2018-05-20 09:00:22.919663
+Path:C:\proc\298\status
+  Open:2018-05-20 09:00:22.919855
+  Open times:1
+  Close:2018-05-20 09:00:22.921196
+Path:C:\proc\299
+Path:C:\proc\299\cmdline
+  Open:2018-05-20 09:00:22.926095
+  Open times:1
+  Close:2018-05-20 09:00:22.926767
+Path:C:\proc\299\stat
+  Open:2018-05-20 09:00:22.923288
+  Open times:1
+  Close:2018-05-20 09:00:22.924255
+Path:C:\proc\299\status
+  Open:2018-05-20 09:00:22.924448
+  Open times:1
+  Close:2018-05-20 09:00:22.925874
+Path:C:\proc\29\cmdline
+  Open:2018-05-20 09:00:22.813017
+  Open times:1
+  Close:2018-05-20 09:00:22.813221
+Path:C:\proc\29\stat
+  Open:2018-05-20 09:00:22.811014
+  Open times:1
+  Close:2018-05-20 09:00:22.811591
+Path:C:\proc\29\status
+  Open:2018-05-20 09:00:22.811687
+  Open times:1
+  Close:2018-05-20 09:00:22.812928
+Path:C:\proc\2\cmdline
+  Open:2018-05-20 09:00:22.738623
+  Open times:1
+  Close:2018-05-20 09:00:22.739004
+Path:C:\proc\2\stat
+  Open:2018-05-20 09:00:22.736075
+  Open times:1
+  Close:2018-05-20 09:00:22.737004
+Path:C:\proc\2\status
+  Open:2018-05-20 09:00:22.737140
+  Open times:1
+  Close:2018-05-20 09:00:22.738529
+Path:C:\proc\3
+Path:C:\proc\30
+Path:C:\proc\300
+Path:C:\proc\300\cmdline
+  Open:2018-05-20 09:00:22.931079
+  Open times:1
+  Close:2018-05-20 09:00:22.931765
+Path:C:\proc\300\stat
+  Open:2018-05-20 09:00:22.928189
+  Open times:1
+  Close:2018-05-20 09:00:22.929185
+Path:C:\proc\300\status
+  Open:2018-05-20 09:00:22.929389
+  Open times:1
+  Close:2018-05-20 09:00:22.930877
+Path:C:\proc\301
+Path:C:\proc\301\cmdline
+  Open:2018-05-20 09:00:22.935658
+  Open times:1
+  Close:2018-05-20 09:00:22.936286
+Path:C:\proc\301\stat
+  Open:2018-05-20 09:00:22.932835
+  Open times:1
+  Close:2018-05-20 09:00:22.933793
+Path:C:\proc\301\status
+  Open:2018-05-20 09:00:22.934005
+  Open times:1
+  Close:2018-05-20 09:00:22.935460
+Path:C:\proc\302
+Path:C:\proc\302\cmdline
+  Open:2018-05-20 09:00:22.940299
+  Open times:1
+  Close:2018-05-20 09:00:22.940889
+Path:C:\proc\302\stat
+  Open:2018-05-20 09:00:22.937573
+  Open times:1
+  Close:2018-05-20 09:00:22.938508
+Path:C:\proc\302\status
+  Open:2018-05-20 09:00:22.938704
+  Open times:1
+  Close:2018-05-20 09:00:22.940109
+Path:C:\proc\303
+Path:C:\proc\303\cmdline
+  Open:2018-05-20 09:00:22.944947
+  Open times:1
+  Close:2018-05-20 09:00:22.945598
+Path:C:\proc\303\stat
+  Open:2018-05-20 09:00:22.942202
+  Open times:1
+  Close:2018-05-20 09:00:22.943033
+Path:C:\proc\303\status
+  Open:2018-05-20 09:00:22.943238
+  Open times:1
+  Close:2018-05-20 09:00:22.944729
+Path:C:\proc\30\cmdline
+  Open:2018-05-20 09:00:22.815749
+  Open times:1
+  Close:2018-05-20 09:00:22.816000
+Path:C:\proc\30\stat
+  Open:2018-05-20 09:00:22.813757
+  Open times:1
+  Close:2018-05-20 09:00:22.814359
+Path:C:\proc\30\status
+  Open:2018-05-20 09:00:22.814441
+  Open times:1
+  Close:2018-05-20 09:00:22.815631
+Path:C:\proc\31
+Path:C:\proc\310
+Path:C:\proc\310\cmdline
+  Open:2018-05-20 09:00:22.949924
+  Open times:1
+  Close:2018-05-20 09:00:22.950162
+Path:C:\proc\310\stat
+  Open:2018-05-20 09:00:22.947084
+  Open times:1
+  Close:2018-05-20 09:00:22.948107
+Path:C:\proc\310\status
+  Open:2018-05-20 09:00:22.948282
+  Open times:1
+  Close:2018-05-20 09:00:22.949824
+Path:C:\proc\313
+Path:C:\proc\313\cmdline
+  Open:2018-05-20 09:00:22.952577
+  Open times:1
+  Close:2018-05-20 09:00:22.952860
+Path:C:\proc\313\stat
+  Open:2018-05-20 09:00:22.950667
+  Open times:1
+  Close:2018-05-20 09:00:22.951269
+Path:C:\proc\313\status
+  Open:2018-05-20 09:00:22.951365
+  Open times:1
+  Close:2018-05-20 09:00:22.952486
+Path:C:\proc\31755
+Path:C:\proc\31755\cmdline
+  Open:2018-05-20 09:00:23.629132
+  Open times:1
+  Close:2018-05-20 09:00:23.629357
+Path:C:\proc\31755\stat
+  Open:2018-05-20 09:00:23.626895
+  Open times:1
+  Close:2018-05-20 09:00:23.627727
+Path:C:\proc\31755\status
+  Open:2018-05-20 09:00:23.627799
+  Open times:1
+  Close:2018-05-20 09:00:23.629080
+Path:C:\proc\31\cmdline
+  Open:2018-05-20 09:00:22.818344
+  Open times:1
+  Close:2018-05-20 09:00:22.818560
+Path:C:\proc\31\stat
+  Open:2018-05-20 09:00:22.816485
+  Open times:1
+  Close:2018-05-20 09:00:22.817043
+Path:C:\proc\31\status
+  Open:2018-05-20 09:00:22.817135
+  Open times:1
+  Close:2018-05-20 09:00:22.818253
+Path:C:\proc\32
+Path:C:\proc\32\cmdline
+  Open:2018-05-20 09:00:22.821859
+  Open times:1
+  Close:2018-05-20 09:00:22.822095
+Path:C:\proc\32\stat
+  Open:2018-05-20 09:00:22.819045
+  Open times:1
+  Close:2018-05-20 09:00:22.819890
+Path:C:\proc\32\status
+  Open:2018-05-20 09:00:22.820120
+  Open times:1
+  Close:2018-05-20 09:00:22.821756
+Path:C:\proc\334
+Path:C:\proc\334\cmdline
+  Open:2018-05-20 09:00:22.958147
+  Open times:1
+  Close:2018-05-20 09:00:22.958873
+Path:C:\proc\334\stat
+  Open:2018-05-20 09:00:22.954729
+  Open times:1
+  Close:2018-05-20 09:00:22.955924
+Path:C:\proc\334\status
+  Open:2018-05-20 09:00:22.956181
+  Open times:1
+  Close:2018-05-20 09:00:22.957968
+Path:C:\proc\335
+Path:C:\proc\335\cmdline
+  Open:2018-05-20 09:00:22.963309
+  Open times:1
+  Close:2018-05-20 09:00:22.964247
+Path:C:\proc\335\stat
+  Open:2018-05-20 09:00:22.960308
+  Open times:1
+  Close:2018-05-20 09:00:22.961244
+Path:C:\proc\335\status
+  Open:2018-05-20 09:00:22.961417
+  Open times:1
+  Close:2018-05-20 09:00:22.963094
+Path:C:\proc\336
+Path:C:\proc\336\cmdline
+  Open:2018-05-20 09:00:22.969501
+  Open times:1
+  Close:2018-05-20 09:00:22.970503
+Path:C:\proc\336\stat
+  Open:2018-05-20 09:00:22.966158
+  Open times:1
+  Close:2018-05-20 09:00:22.967345
+Path:C:\proc\336\status
+  Open:2018-05-20 09:00:22.967640
+  Open times:1
+  Close:2018-05-20 09:00:22.969296
+Path:C:\proc\36
+Path:C:\proc\36\cmdline
+  Open:2018-05-20 09:00:22.824725
+  Open times:1
+  Close:2018-05-20 09:00:22.825239
+Path:C:\proc\36\stat
+  Open:2018-05-20 09:00:22.822580
+  Open times:1
+  Close:2018-05-20 09:00:22.823369
+Path:C:\proc\36\status
+  Open:2018-05-20 09:00:22.823460
+  Open times:1
+  Close:2018-05-20 09:00:22.824628
+Path:C:\proc\37
+Path:C:\proc\37\cmdline
+  Open:2018-05-20 09:00:22.828157
+  Open times:1
+  Close:2018-05-20 09:00:22.828491
+Path:C:\proc\37\stat
+  Open:2018-05-20 09:00:22.826156
+  Open times:1
+  Close:2018-05-20 09:00:22.826866
+Path:C:\proc\37\status
+  Open:2018-05-20 09:00:22.826964
+  Open times:1
+  Close:2018-05-20 09:00:22.828076
+Path:C:\proc\38
+Path:C:\proc\387
+Path:C:\proc\387\cmdline
+  Open:2018-05-20 09:00:22.975754
+  Open times:1
+  Close:2018-05-20 09:00:22.976681
+Path:C:\proc\387\stat
+  Open:2018-05-20 09:00:22.972332
+  Open times:1
+  Close:2018-05-20 09:00:22.973456
+Path:C:\proc\387\status
+  Open:2018-05-20 09:00:22.973683
+  Open times:1
+  Close:2018-05-20 09:00:22.975537
+Path:C:\proc\388
+Path:C:\proc\388\cmdline
+  Open:2018-05-20 09:00:22.982069
+  Open times:1
+  Close:2018-05-20 09:00:22.982906
+Path:C:\proc\388\stat
+  Open:2018-05-20 09:00:22.978527
+  Open times:1
+  Close:2018-05-20 09:00:22.979740
+Path:C:\proc\388\status
+  Open:2018-05-20 09:00:22.979958
+  Open times:1
+  Close:2018-05-20 09:00:22.981790
+Path:C:\proc\38\cmdline
+  Open:2018-05-20 09:00:22.831149
+  Open times:1
+  Close:2018-05-20 09:00:22.831352
+Path:C:\proc\38\stat
+  Open:2018-05-20 09:00:22.829250
+  Open times:1
+  Close:2018-05-20 09:00:22.829826
+Path:C:\proc\38\status
+  Open:2018-05-20 09:00:22.829887
+  Open times:1
+  Close:2018-05-20 09:00:22.831057
+Path:C:\proc\3\cmdline
+  Open:2018-05-20 09:00:22.741574
+  Open times:1
+  Close:2018-05-20 09:00:22.741831
+Path:C:\proc\3\stat
+  Open:2018-05-20 09:00:22.739582
+  Open times:1
+  Close:2018-05-20 09:00:22.740212
+Path:C:\proc\3\status
+  Open:2018-05-20 09:00:22.740308
+  Open times:1
+  Close:2018-05-20 09:00:22.741445
+Path:C:\proc\405
+Path:C:\proc\405\cmdline
+  Open:2018-05-20 09:00:22.988309
+  Open times:1
+  Close:2018-05-20 09:00:22.989257
+Path:C:\proc\405\stat
+  Open:2018-05-20 09:00:22.984753
+  Open times:1
+  Close:2018-05-20 09:00:22.986035
+Path:C:\proc\405\status
+  Open:2018-05-20 09:00:22.986313
+  Open times:1
+  Close:2018-05-20 09:00:22.988079
+Path:C:\proc\406
+Path:C:\proc\406\cmdline
+  Open:2018-05-20 09:00:22.994523
+  Open times:1
+  Close:2018-05-20 09:00:22.995400
+Path:C:\proc\406\stat
+  Open:2018-05-20 09:00:22.991069
+  Open times:1
+  Close:2018-05-20 09:00:22.992328
+Path:C:\proc\406\status
+  Open:2018-05-20 09:00:22.992553
+  Open times:1
+  Close:2018-05-20 09:00:22.994296
+Path:C:\proc\463
+Path:C:\proc\463\cmdline
+  Open:2018-05-20 09:00:23.000690
+  Open times:1
+  Close:2018-05-20 09:00:23.001626
+Path:C:\proc\463\stat
+  Open:2018-05-20 09:00:22.997343
+  Open times:1
+  Close:2018-05-20 09:00:22.998488
+Path:C:\proc\463\status
+  Open:2018-05-20 09:00:22.998709
+  Open times:1
+  Close:2018-05-20 09:00:23.000481
+Path:C:\proc\464
+Path:C:\proc\464\cmdline
+  Open:2018-05-20 09:00:23.006988
+  Open times:1
+  Close:2018-05-20 09:00:23.007936
+Path:C:\proc\464\stat
+  Open:2018-05-20 09:00:23.003451
+  Open times:1
+  Close:2018-05-20 09:00:23.004703
+Path:C:\proc\464\status
+  Open:2018-05-20 09:00:23.004930
+  Open times:1
+  Close:2018-05-20 09:00:23.006715
+Path:C:\proc\465
+Path:C:\proc\465\cmdline
+  Open:2018-05-20 09:00:23.013233
+  Open times:1
+  Close:2018-05-20 09:00:23.014171
+Path:C:\proc\465\stat
+  Open:2018-05-20 09:00:23.009738
+  Open times:1
+  Close:2018-05-20 09:00:23.010965
+Path:C:\proc\465\status
+  Open:2018-05-20 09:00:23.011182
+  Open times:1
+  Close:2018-05-20 09:00:23.012911
+Path:C:\proc\466
+Path:C:\proc\466\cmdline
+  Open:2018-05-20 09:00:23.033332
+  Open times:1
+  Close:2018-05-20 09:00:23.034555
+Path:C:\proc\466\stat
+  Open:2018-05-20 09:00:23.028970
+  Open times:1
+  Close:2018-05-20 09:00:23.030221
+Path:C:\proc\466\status
+  Open:2018-05-20 09:00:23.030544
+  Open times:1
+  Close:2018-05-20 09:00:23.033020
+Path:C:\proc\470
+Path:C:\proc\470\cmdline
+  Open:2018-05-20 09:00:23.040687
+  Open times:1
+  Close:2018-05-20 09:00:23.041635
+Path:C:\proc\470\stat
+  Open:2018-05-20 09:00:23.036947
+  Open times:1
+  Close:2018-05-20 09:00:23.038413
+Path:C:\proc\470\status
+  Open:2018-05-20 09:00:23.038629
+  Open times:1
+  Close:2018-05-20 09:00:23.040453
+Path:C:\proc\5
+Path:C:\proc\500
+Path:C:\proc\500\cmdline
+  Open:2018-05-20 09:00:23.047717
+  Open times:1
+  Close:2018-05-20 09:00:23.049091
+Path:C:\proc\500\stat
+  Open:2018-05-20 09:00:23.043624
+  Open times:1
+  Close:2018-05-20 09:00:23.044948
+Path:C:\proc\500\status
+  Open:2018-05-20 09:00:23.045216
+  Open times:1
+  Close:2018-05-20 09:00:23.047503
+Path:C:\proc\531
+Path:C:\proc\531\cmdline
+  Open:2018-05-20 09:00:23.054053
+  Open times:1
+  Close:2018-05-20 09:00:23.054294
+Path:C:\proc\531\stat
+  Open:2018-05-20 09:00:23.050951
+  Open times:1
+  Close:2018-05-20 09:00:23.052270
+Path:C:\proc\531\status
+  Open:2018-05-20 09:00:23.052490
+  Open times:1
+  Close:2018-05-20 09:00:23.054001
+Path:C:\proc\547
+Path:C:\proc\547\cmdline
+  Open:2018-05-20 09:00:23.056136
+  Open times:1
+  Close:2018-05-20 09:00:23.056285
+Path:C:\proc\547\stat
+  Open:2018-05-20 09:00:23.054607
+  Open times:1
+  Close:2018-05-20 09:00:23.055064
+Path:C:\proc\547\status
+  Open:2018-05-20 09:00:23.055116
+  Open times:1
+  Close:2018-05-20 09:00:23.056087
+Path:C:\proc\550
+Path:C:\proc\550\cmdline
+  Open:2018-05-20 09:00:23.058401
+  Open times:1
+  Close:2018-05-20 09:00:23.058662
+Path:C:\proc\550\stat
+  Open:2018-05-20 09:00:23.056595
+  Open times:1
+  Close:2018-05-20 09:00:23.057098
+Path:C:\proc\550\status
+  Open:2018-05-20 09:00:23.057150
+  Open times:1
+  Close:2018-05-20 09:00:23.058350
+Path:C:\proc\5\cmdline
+  Open:2018-05-20 09:00:22.744267
+  Open times:1
+  Close:2018-05-20 09:00:22.744494
+Path:C:\proc\5\stat
+  Open:2018-05-20 09:00:22.742314
+  Open times:1
+  Close:2018-05-20 09:00:22.742924
+Path:C:\proc\5\status
+  Open:2018-05-20 09:00:22.743023
+  Open times:1
+  Close:2018-05-20 09:00:22.744183
+Path:C:\proc\621
+Path:C:\proc\621\cmdline
+  Open:2018-05-20 09:00:23.060490
+  Open times:1
+  Close:2018-05-20 09:00:23.060638
+Path:C:\proc\621\stat
+  Open:2018-05-20 09:00:23.058992
+  Open times:1
+  Close:2018-05-20 09:00:23.059433
+Path:C:\proc\621\status
+  Open:2018-05-20 09:00:23.059484
+  Open times:1
+  Close:2018-05-20 09:00:23.060441
+Path:C:\proc\622
+Path:C:\proc\622\cmdline
+  Open:2018-05-20 09:00:23.062464
+  Open times:1
+  Close:2018-05-20 09:00:23.062612
+Path:C:\proc\622\stat
+  Open:2018-05-20 09:00:23.060954
+  Open times:1
+  Close:2018-05-20 09:00:23.061390
+Path:C:\proc\622\status
+  Open:2018-05-20 09:00:23.061442
+  Open times:1
+  Close:2018-05-20 09:00:23.062415
+Path:C:\proc\652
+Path:C:\proc\652\cmdline
+  Open:2018-05-20 09:00:23.064473
+  Open times:1
+  Close:2018-05-20 09:00:23.064621
+Path:C:\proc\652\stat
+  Open:2018-05-20 09:00:23.062939
+  Open times:1
+  Close:2018-05-20 09:00:23.063396
+Path:C:\proc\652\status
+  Open:2018-05-20 09:00:23.063448
+  Open times:1
+  Close:2018-05-20 09:00:23.064424
+Path:C:\proc\653
+Path:C:\proc\653\cmdline
+  Open:2018-05-20 09:00:23.066470
+  Open times:1
+  Close:2018-05-20 09:00:23.066618
+Path:C:\proc\653\stat
+  Open:2018-05-20 09:00:23.064937
+  Open times:1
+  Close:2018-05-20 09:00:23.065388
+Path:C:\proc\653\status
+  Open:2018-05-20 09:00:23.065440
+  Open times:1
+  Close:2018-05-20 09:00:23.066422
+Path:C:\proc\656
+Path:C:\proc\656\cmdline
+  Open:2018-05-20 09:00:23.068382
+  Open times:1
+  Close:2018-05-20 09:00:23.068503
+Path:C:\proc\656\stat
+  Open:2018-05-20 09:00:23.066949
+  Open times:1
+  Close:2018-05-20 09:00:23.067394
+Path:C:\proc\656\status
+  Open:2018-05-20 09:00:23.067446
+  Open times:1
+  Close:2018-05-20 09:00:23.068340
+Path:C:\proc\657
+Path:C:\proc\657\cmdline
+  Open:2018-05-20 09:00:23.070290
+  Open times:1
+  Close:2018-05-20 09:00:23.070440
+Path:C:\proc\657\stat
+  Open:2018-05-20 09:00:23.068756
+  Open times:1
+  Close:2018-05-20 09:00:23.069208
+Path:C:\proc\657\status
+  Open:2018-05-20 09:00:23.069260
+  Open times:1
+  Close:2018-05-20 09:00:23.070241
+Path:C:\proc\682
+Path:C:\proc\682\cmdline
+  Open:2018-05-20 09:00:23.072548
+  Open times:1
+  Close:2018-05-20 09:00:23.072778
+Path:C:\proc\682\stat
+  Open:2018-05-20 09:00:23.070751
+  Open times:1
+  Close:2018-05-20 09:00:23.071249
+Path:C:\proc\682\status
+  Open:2018-05-20 09:00:23.071302
+  Open times:1
+  Close:2018-05-20 09:00:23.072497
+Path:C:\proc\694
+Path:C:\proc\694\cmdline
+  Open:2018-05-20 09:00:23.074858
+  Open times:1
+  Close:2018-05-20 09:00:23.075099
+Path:C:\proc\694\stat
+  Open:2018-05-20 09:00:23.073099
+  Open times:1
+  Close:2018-05-20 09:00:23.073558
+Path:C:\proc\694\status
+  Open:2018-05-20 09:00:23.073610
+  Open times:1
+  Close:2018-05-20 09:00:23.074807
+Path:C:\proc\697
+Path:C:\proc\697\cmdline
+  Open:2018-05-20 09:00:23.077202
+  Open times:1
+  Close:2018-05-20 09:00:23.077434
+Path:C:\proc\697\stat
+  Open:2018-05-20 09:00:23.075421
+  Open times:1
+  Close:2018-05-20 09:00:23.075914
+Path:C:\proc\697\status
+  Open:2018-05-20 09:00:23.075967
+  Open times:1
+  Close:2018-05-20 09:00:23.077152
+Path:C:\proc\699
+Path:C:\proc\699\cmdline
+  Open:2018-05-20 09:00:23.082550
+  Open times:1
+  Close:2018-05-20 09:00:23.082826
+Path:C:\proc\699\stat
+  Open:2018-05-20 09:00:23.077744
+  Open times:1
+  Close:2018-05-20 09:00:23.078238
+Path:C:\proc\699\status
+  Open:2018-05-20 09:00:23.078290
+  Open times:1
+  Close:2018-05-20 09:00:23.079502
+Path:C:\proc\7
+Path:C:\proc\703
+Path:C:\proc\703\cmdline
+  Open:2018-05-20 09:00:23.084931
+  Open times:1
+  Close:2018-05-20 09:00:23.085169
+Path:C:\proc\703\stat
+  Open:2018-05-20 09:00:23.083141
+  Open times:1
+  Close:2018-05-20 09:00:23.083638
+Path:C:\proc\703\status
+  Open:2018-05-20 09:00:23.083690
+  Open times:1
+  Close:2018-05-20 09:00:23.084881
+Path:C:\proc\709
+Path:C:\proc\709\cmdline
+  Open:2018-05-20 09:00:23.087275
+  Open times:1
+  Close:2018-05-20 09:00:23.087513
+Path:C:\proc\709\stat
+  Open:2018-05-20 09:00:23.085486
+  Open times:1
+  Close:2018-05-20 09:00:23.085988
+Path:C:\proc\709\status
+  Open:2018-05-20 09:00:23.086041
+  Open times:1
+  Close:2018-05-20 09:00:23.087225
+Path:C:\proc\710
+Path:C:\proc\710\cmdline
+  Open:2018-05-20 09:00:23.089623
+  Open times:1
+  Close:2018-05-20 09:00:23.089894
+Path:C:\proc\710\stat
+  Open:2018-05-20 09:00:23.087838
+  Open times:1
+  Close:2018-05-20 09:00:23.088327
+Path:C:\proc\710\status
+  Open:2018-05-20 09:00:23.088379
+  Open times:1
+  Close:2018-05-20 09:00:23.089573
+Path:C:\proc\717
+Path:C:\proc\717\cmdline
+  Open:2018-05-20 09:00:23.094964
+  Open times:1
+  Close:2018-05-20 09:00:23.095206
+Path:C:\proc\717\stat
+  Open:2018-05-20 09:00:23.090214
+  Open times:1
+  Close:2018-05-20 09:00:23.090686
+Path:C:\proc\717\status
+  Open:2018-05-20 09:00:23.090738
+  Open times:1
+  Close:2018-05-20 09:00:23.091946
+Path:C:\proc\718
+Path:C:\proc\718\cmdline
+  Open:2018-05-20 09:00:23.097303
+  Open times:1
+  Close:2018-05-20 09:00:23.097542
+Path:C:\proc\718\stat
+  Open:2018-05-20 09:00:23.095519
+  Open times:1
+  Close:2018-05-20 09:00:23.096000
+Path:C:\proc\718\status
+  Open:2018-05-20 09:00:23.096052
+  Open times:1
+  Close:2018-05-20 09:00:23.097253
+Path:C:\proc\7200
+Path:C:\proc\7200\cmdline
+  Open:2018-05-20 09:00:23.311109
+  Open times:1
+  Close:2018-05-20 09:00:23.311357
+Path:C:\proc\7200\stat
+  Open:2018-05-20 09:00:23.306257
+  Open times:1
+  Close:2018-05-20 09:00:23.306770
+Path:C:\proc\7200\status
+  Open:2018-05-20 09:00:23.306829
+  Open times:1
+  Close:2018-05-20 09:00:23.308040
+Path:C:\proc\7201
+Path:C:\proc\7201\cmdline
+  Open:2018-05-20 09:00:23.321207
+  Open times:1
+  Close:2018-05-20 09:00:23.321525
+Path:C:\proc\7201\stat
+  Open:2018-05-20 09:00:23.318759
+  Open times:1
+  Close:2018-05-20 09:00:23.319451
+Path:C:\proc\7201\status
+  Open:2018-05-20 09:00:23.319525
+  Open times:1
+  Close:2018-05-20 09:00:23.321139
+Path:C:\proc\7203
+Path:C:\proc\7203\cmdline
+  Open:2018-05-20 09:00:23.324382
+  Open times:1
+  Close:2018-05-20 09:00:23.324700
+Path:C:\proc\7203\stat
+  Open:2018-05-20 09:00:23.321953
+  Open times:1
+  Close:2018-05-20 09:00:23.322635
+Path:C:\proc\7203\status
+  Open:2018-05-20 09:00:23.322705
+  Open times:1
+  Close:2018-05-20 09:00:23.324315
+Path:C:\proc\7204
+Path:C:\proc\7204\cmdline
+  Open:2018-05-20 09:00:23.327581
+  Open times:1
+  Close:2018-05-20 09:00:23.327921
+Path:C:\proc\7204\stat
+  Open:2018-05-20 09:00:23.325136
+  Open times:1
+  Close:2018-05-20 09:00:23.325832
+Path:C:\proc\7204\status
+  Open:2018-05-20 09:00:23.325906
+  Open times:1
+  Close:2018-05-20 09:00:23.327513
+Path:C:\proc\7205
+Path:C:\proc\7205\cmdline
+  Open:2018-05-20 09:00:23.330057
+  Open times:1
+  Close:2018-05-20 09:00:23.330302
+Path:C:\proc\7205\stat
+  Open:2018-05-20 09:00:23.328235
+  Open times:1
+  Close:2018-05-20 09:00:23.328749
+Path:C:\proc\7205\status
+  Open:2018-05-20 09:00:23.328807
+  Open times:1
+  Close:2018-05-20 09:00:23.330006
+Path:C:\proc\721
+Path:C:\proc\721\cmdline
+  Open:2018-05-20 09:00:23.102627
+  Open times:1
+  Close:2018-05-20 09:00:23.102917
+Path:C:\proc\721\stat
+  Open:2018-05-20 09:00:23.097874
+  Open times:1
+  Close:2018-05-20 09:00:23.098345
+Path:C:\proc\721\status
+  Open:2018-05-20 09:00:23.098398
+  Open times:1
+  Close:2018-05-20 09:00:23.099599
+Path:C:\proc\723
+Path:C:\proc\723\cmdline
+  Open:2018-05-20 09:00:23.105029
+  Open times:1
+  Close:2018-05-20 09:00:23.105276
+Path:C:\proc\723\stat
+  Open:2018-05-20 09:00:23.103232
+  Open times:1
+  Close:2018-05-20 09:00:23.103729
+Path:C:\proc\723\status
+  Open:2018-05-20 09:00:23.103781
+  Open times:1
+  Close:2018-05-20 09:00:23.104978
+Path:C:\proc\729
+Path:C:\proc\729\cmdline
+  Open:2018-05-20 09:00:23.107362
+  Open times:1
+  Close:2018-05-20 09:00:23.107628
+Path:C:\proc\729\stat
+  Open:2018-05-20 09:00:23.105586
+  Open times:1
+  Close:2018-05-20 09:00:23.106064
+Path:C:\proc\729\status
+  Open:2018-05-20 09:00:23.106116
+  Open times:1
+  Close:2018-05-20 09:00:23.107312
+Path:C:\proc\7305
+Path:C:\proc\7305\cmdline
+  Open:2018-05-20 09:00:23.332470
+  Open times:1
+  Close:2018-05-20 09:00:23.332716
+Path:C:\proc\7305\stat
+  Open:2018-05-20 09:00:23.330624
+  Open times:1
+  Close:2018-05-20 09:00:23.331156
+Path:C:\proc\7305\status
+  Open:2018-05-20 09:00:23.331211
+  Open times:1
+  Close:2018-05-20 09:00:23.332418
+Path:C:\proc\731
+Path:C:\proc\731\cmdline
+  Open:2018-05-20 09:00:23.112728
+  Open times:1
+  Close:2018-05-20 09:00:23.112980
+Path:C:\proc\731\stat
+  Open:2018-05-20 09:00:23.107955
+  Open times:1
+  Close:2018-05-20 09:00:23.108442
+Path:C:\proc\731\status
+  Open:2018-05-20 09:00:23.108494
+  Open times:1
+  Close:2018-05-20 09:00:23.109690
+Path:C:\proc\738
+Path:C:\proc\738\cmdline
+  Open:2018-05-20 09:00:23.115082
+  Open times:1
+  Close:2018-05-20 09:00:23.115354
+Path:C:\proc\738\stat
+  Open:2018-05-20 09:00:23.113299
+  Open times:1
+  Close:2018-05-20 09:00:23.113762
+Path:C:\proc\738\status
+  Open:2018-05-20 09:00:23.113820
+  Open times:1
+  Close:2018-05-20 09:00:23.115031
+Path:C:\proc\739
+Path:C:\proc\739\cmdline
+  Open:2018-05-20 09:00:23.117449
+  Open times:1
+  Close:2018-05-20 09:00:23.117696
+Path:C:\proc\739\stat
+  Open:2018-05-20 09:00:23.115666
+  Open times:1
+  Close:2018-05-20 09:00:23.116143
+Path:C:\proc\739\status
+  Open:2018-05-20 09:00:23.116195
+  Open times:1
+  Close:2018-05-20 09:00:23.117398
+Path:C:\proc\751
+Path:C:\proc\7512
+Path:C:\proc\7512\cmdline
+  Open:2018-05-20 09:00:23.334925
+  Open times:1
+  Close:2018-05-20 09:00:23.335209
+Path:C:\proc\7512\stat
+  Open:2018-05-20 09:00:23.333048
+  Open times:1
+  Close:2018-05-20 09:00:23.333555
+Path:C:\proc\7512\status
+  Open:2018-05-20 09:00:23.333611
+  Open times:1
+  Close:2018-05-20 09:00:23.334872
+Path:C:\proc\751\cmdline
+  Open:2018-05-20 09:00:23.119776
+  Open times:1
+  Close:2018-05-20 09:00:23.120034
+Path:C:\proc\751\stat
+  Open:2018-05-20 09:00:23.118020
+  Open times:1
+  Close:2018-05-20 09:00:23.118473
+Path:C:\proc\751\status
+  Open:2018-05-20 09:00:23.118525
+  Open times:1
+  Close:2018-05-20 09:00:23.119726
+Path:C:\proc\7532
+Path:C:\proc\7532\cmdline
+  Open:2018-05-20 09:00:23.337382
+  Open times:1
+  Close:2018-05-20 09:00:23.337652
+Path:C:\proc\7532\stat
+  Open:2018-05-20 09:00:23.335533
+  Open times:1
+  Close:2018-05-20 09:00:23.336049
+Path:C:\proc\7532\status
+  Open:2018-05-20 09:00:23.336104
+  Open times:1
+  Close:2018-05-20 09:00:23.337329
+Path:C:\proc\7570
+Path:C:\proc\7570\cmdline
+  Open:2018-05-20 09:00:23.339977
+  Open times:1
+  Close:2018-05-20 09:00:23.340241
+Path:C:\proc\7570\stat
+  Open:2018-05-20 09:00:23.337992
+  Open times:1
+  Close:2018-05-20 09:00:23.338635
+Path:C:\proc\7570\status
+  Open:2018-05-20 09:00:23.338690
+  Open times:1
+  Close:2018-05-20 09:00:23.339924
+Path:C:\proc\7573
+Path:C:\proc\7573\cmdline
+  Open:2018-05-20 09:00:23.342608
+  Open times:1
+  Close:2018-05-20 09:00:23.342863
+Path:C:\proc\7573\stat
+  Open:2018-05-20 09:00:23.340637
+  Open times:1
+  Close:2018-05-20 09:00:23.341280
+Path:C:\proc\7573\status
+  Open:2018-05-20 09:00:23.341333
+  Open times:1
+  Close:2018-05-20 09:00:23.342558
+Path:C:\proc\763
+Path:C:\proc\763\cmdline
+  Open:2018-05-20 09:00:23.125122
+  Open times:1
+  Close:2018-05-20 09:00:23.125378
+Path:C:\proc\763\stat
+  Open:2018-05-20 09:00:23.120348
+  Open times:1
+  Close:2018-05-20 09:00:23.120850
+Path:C:\proc\763\status
+  Open:2018-05-20 09:00:23.120902
+  Open times:1
+  Close:2018-05-20 09:00:23.122093
+Path:C:\proc\7667
+Path:C:\proc\7667\cmdline
+  Open:2018-05-20 09:00:23.345243
+  Open times:1
+  Close:2018-05-20 09:00:23.345478
+Path:C:\proc\7667\stat
+  Open:2018-05-20 09:00:23.343264
+  Open times:1
+  Close:2018-05-20 09:00:23.343917
+Path:C:\proc\7667\status
+  Open:2018-05-20 09:00:23.343971
+  Open times:1
+  Close:2018-05-20 09:00:23.345193
+Path:C:\proc\7669
+Path:C:\proc\7669\cmdline
+  Open:2018-05-20 09:00:23.347833
+  Open times:1
+  Close:2018-05-20 09:00:23.348072
+Path:C:\proc\7669\stat
+  Open:2018-05-20 09:00:23.345877
+  Open times:1
+  Close:2018-05-20 09:00:23.346496
+Path:C:\proc\7669\status
+  Open:2018-05-20 09:00:23.346549
+  Open times:1
+  Close:2018-05-20 09:00:23.347771
+Path:C:\proc\7717
+Path:C:\proc\7717\cmdline
+  Open:2018-05-20 09:00:23.350400
+  Open times:1
+  Close:2018-05-20 09:00:23.350673
+Path:C:\proc\7717\stat
+  Open:2018-05-20 09:00:23.348462
+  Open times:1
+  Close:2018-05-20 09:00:23.349085
+Path:C:\proc\7717\status
+  Open:2018-05-20 09:00:23.349137
+  Open times:1
+  Close:2018-05-20 09:00:23.350350
+Path:C:\proc\7720
+Path:C:\proc\7720\cmdline
+  Open:2018-05-20 09:00:23.353041
+  Open times:1
+  Close:2018-05-20 09:00:23.353286
+Path:C:\proc\7720\stat
+  Open:2018-05-20 09:00:23.351075
+  Open times:1
+  Close:2018-05-20 09:00:23.351709
+Path:C:\proc\7720\status
+  Open:2018-05-20 09:00:23.351762
+  Open times:1
+  Close:2018-05-20 09:00:23.352991
+Path:C:\proc\7723
+Path:C:\proc\7723\cmdline
+  Open:2018-05-20 09:00:23.355630
+  Open times:1
+  Close:2018-05-20 09:00:23.355932
+Path:C:\proc\7723\stat
+  Open:2018-05-20 09:00:23.353685
+  Open times:1
+  Close:2018-05-20 09:00:23.354301
+Path:C:\proc\7723\status
+  Open:2018-05-20 09:00:23.354354
+  Open times:1
+  Close:2018-05-20 09:00:23.355580
+Path:C:\proc\7731
+Path:C:\proc\7731\cmdline
+  Open:2018-05-20 09:00:23.358269
+  Open times:1
+  Close:2018-05-20 09:00:23.358520
+Path:C:\proc\7731\stat
+  Open:2018-05-20 09:00:23.356327
+  Open times:1
+  Close:2018-05-20 09:00:23.356938
+Path:C:\proc\7731\status
+  Open:2018-05-20 09:00:23.356990
+  Open times:1
+  Close:2018-05-20 09:00:23.358219
+Path:C:\proc\7735
+Path:C:\proc\7735\cmdline
+  Open:2018-05-20 09:00:23.360849
+  Open times:1
+  Close:2018-05-20 09:00:23.361103
+Path:C:\proc\7735\stat
+  Open:2018-05-20 09:00:23.358915
+  Open times:1
+  Close:2018-05-20 09:00:23.359527
+Path:C:\proc\7735\status
+  Open:2018-05-20 09:00:23.359579
+  Open times:1
+  Close:2018-05-20 09:00:23.360794
+Path:C:\proc\7748
+Path:C:\proc\7748\cmdline
+  Open:2018-05-20 09:00:23.363475
+  Open times:1
+  Close:2018-05-20 09:00:23.363749
+Path:C:\proc\7748\stat
+  Open:2018-05-20 09:00:23.361499
+  Open times:1
+  Close:2018-05-20 09:00:23.362147
+Path:C:\proc\7748\status
+  Open:2018-05-20 09:00:23.362200
+  Open times:1
+  Close:2018-05-20 09:00:23.363425
+Path:C:\proc\7760
+Path:C:\proc\7760\cmdline
+  Open:2018-05-20 09:00:23.366116
+  Open times:1
+  Close:2018-05-20 09:00:23.366364
+Path:C:\proc\7760\stat
+  Open:2018-05-20 09:00:23.364148
+  Open times:1
+  Close:2018-05-20 09:00:23.364781
+Path:C:\proc\7760\status
+  Open:2018-05-20 09:00:23.364839
+  Open times:1
+  Close:2018-05-20 09:00:23.366065
+Path:C:\proc\7774
+Path:C:\proc\7774\cmdline
+  Open:2018-05-20 09:00:23.368463
+  Open times:1
+  Close:2018-05-20 09:00:23.368703
+Path:C:\proc\7774\stat
+  Open:2018-05-20 09:00:23.366682
+  Open times:1
+  Close:2018-05-20 09:00:23.367168
+Path:C:\proc\7774\status
+  Open:2018-05-20 09:00:23.367221
+  Open times:1
+  Close:2018-05-20 09:00:23.368412
+Path:C:\proc\7804
+Path:C:\proc\7804\cmdline
+  Open:2018-05-20 09:00:23.371017
+  Open times:1
+  Close:2018-05-20 09:00:23.371273
+Path:C:\proc\7804\stat
+  Open:2018-05-20 09:00:23.369035
+  Open times:1
+  Close:2018-05-20 09:00:23.369671
+Path:C:\proc\7804\status
+  Open:2018-05-20 09:00:23.369726
+  Open times:1
+  Close:2018-05-20 09:00:23.370966
+Path:C:\proc\7809
+Path:C:\proc\7809\cmdline
+  Open:2018-05-20 09:00:23.373613
+  Open times:1
+  Close:2018-05-20 09:00:23.373878
+Path:C:\proc\7809\stat
+  Open:2018-05-20 09:00:23.371670
+  Open times:1
+  Close:2018-05-20 09:00:23.372279
+Path:C:\proc\7809\status
+  Open:2018-05-20 09:00:23.372332
+  Open times:1
+  Close:2018-05-20 09:00:23.373562
+Path:C:\proc\7819
+Path:C:\proc\7819\cmdline
+  Open:2018-05-20 09:00:23.376208
+  Open times:1
+  Close:2018-05-20 09:00:23.376482
+Path:C:\proc\7819\stat
+  Open:2018-05-20 09:00:23.374269
+  Open times:1
+  Close:2018-05-20 09:00:23.374889
+Path:C:\proc\7819\status
+  Open:2018-05-20 09:00:23.374942
+  Open times:1
+  Close:2018-05-20 09:00:23.376158
+Path:C:\proc\7820
+Path:C:\proc\7820\cmdline
+  Open:2018-05-20 09:00:23.378871
+  Open times:1
+  Close:2018-05-20 09:00:23.379091
+Path:C:\proc\7820\stat
+  Open:2018-05-20 09:00:23.376891
+  Open times:1
+  Close:2018-05-20 09:00:23.377515
+Path:C:\proc\7820\status
+  Open:2018-05-20 09:00:23.377568
+  Open times:1
+  Close:2018-05-20 09:00:23.378820
+Path:C:\proc\7821
+Path:C:\proc\7821\cmdline
+  Open:2018-05-20 09:00:23.381427
+  Open times:1
+  Close:2018-05-20 09:00:23.381685
+Path:C:\proc\7821\stat
+  Open:2018-05-20 09:00:23.379481
+  Open times:1
+  Close:2018-05-20 09:00:23.380105
+Path:C:\proc\7821\status
+  Open:2018-05-20 09:00:23.380160
+  Open times:1
+  Close:2018-05-20 09:00:23.381374
+Path:C:\proc\7833
+Path:C:\proc\7833\cmdline
+  Open:2018-05-20 09:00:23.384037
+  Open times:1
+  Close:2018-05-20 09:00:23.384280
+Path:C:\proc\7833\stat
+  Open:2018-05-20 09:00:23.382082
+  Open times:1
+  Close:2018-05-20 09:00:23.382716
+Path:C:\proc\7833\status
+  Open:2018-05-20 09:00:23.382768
+  Open times:1
+  Close:2018-05-20 09:00:23.383987
+Path:C:\proc\7837
+Path:C:\proc\7837\cmdline
+  Open:2018-05-20 09:00:23.386579
+  Open times:1
+  Close:2018-05-20 09:00:23.386826
+Path:C:\proc\7837\stat
+  Open:2018-05-20 09:00:23.384604
+  Open times:1
+  Close:2018-05-20 09:00:23.385258
+Path:C:\proc\7837\status
+  Open:2018-05-20 09:00:23.385311
+  Open times:1
+  Close:2018-05-20 09:00:23.386529
+Path:C:\proc\7838
+Path:C:\proc\7838\cmdline
+  Open:2018-05-20 09:00:23.389105
+  Open times:1
+  Close:2018-05-20 09:00:23.389348
+Path:C:\proc\7838\stat
+  Open:2018-05-20 09:00:23.387148
+  Open times:1
+  Close:2018-05-20 09:00:23.387783
+Path:C:\proc\7838\status
+  Open:2018-05-20 09:00:23.387851
+  Open times:1
+  Close:2018-05-20 09:00:23.389056
+Path:C:\proc\7848
+Path:C:\proc\7848\cmdline
+  Open:2018-05-20 09:00:23.391632
+  Open times:1
+  Close:2018-05-20 09:00:23.391926
+Path:C:\proc\7848\stat
+  Open:2018-05-20 09:00:23.389688
+  Open times:1
+  Close:2018-05-20 09:00:23.390306
+Path:C:\proc\7848\status
+  Open:2018-05-20 09:00:23.390360
+  Open times:1
+  Close:2018-05-20 09:00:23.391579
+Path:C:\proc\7850
+Path:C:\proc\7850\cmdline
+  Open:2018-05-20 09:00:23.394293
+  Open times:1
+  Close:2018-05-20 09:00:23.394528
+Path:C:\proc\7850\stat
+  Open:2018-05-20 09:00:23.392336
+  Open times:1
+  Close:2018-05-20 09:00:23.392968
+Path:C:\proc\7850\status
+  Open:2018-05-20 09:00:23.393023
+  Open times:1
+  Close:2018-05-20 09:00:23.394241
+Path:C:\proc\7855
+Path:C:\proc\7855\cmdline
+  Open:2018-05-20 09:00:23.396880
+  Open times:1
+  Close:2018-05-20 09:00:23.397141
+Path:C:\proc\7855\stat
+  Open:2018-05-20 09:00:23.394938
+  Open times:1
+  Close:2018-05-20 09:00:23.395547
+Path:C:\proc\7855\status
+  Open:2018-05-20 09:00:23.395602
+  Open times:1
+  Close:2018-05-20 09:00:23.396827
+Path:C:\proc\7857
+Path:C:\proc\7857\cmdline
+  Open:2018-05-20 09:00:23.399508
+  Open times:1
+  Close:2018-05-20 09:00:23.399762
+Path:C:\proc\7857\stat
+  Open:2018-05-20 09:00:23.397543
+  Open times:1
+  Close:2018-05-20 09:00:23.398185
+Path:C:\proc\7857\status
+  Open:2018-05-20 09:00:23.398241
+  Open times:1
+  Close:2018-05-20 09:00:23.399456
+Path:C:\proc\7869
+Path:C:\proc\7869\cmdline
+  Open:2018-05-20 09:00:23.402135
+  Open times:1
+  Close:2018-05-20 09:00:23.402398
+Path:C:\proc\7869\stat
+  Open:2018-05-20 09:00:23.400195
+  Open times:1
+  Close:2018-05-20 09:00:23.400813
+Path:C:\proc\7869\status
+  Open:2018-05-20 09:00:23.400869
+  Open times:1
+  Close:2018-05-20 09:00:23.402082
+Path:C:\proc\7873
+Path:C:\proc\7873\cmdline
+  Open:2018-05-20 09:00:23.404780
+  Open times:1
+  Close:2018-05-20 09:00:23.405074
+Path:C:\proc\7873\stat
+  Open:2018-05-20 09:00:23.402808
+  Open times:1
+  Close:2018-05-20 09:00:23.403444
+Path:C:\proc\7873\status
+  Open:2018-05-20 09:00:23.403500
+  Open times:1
+  Close:2018-05-20 09:00:23.404728
+Path:C:\proc\7898
+Path:C:\proc\7898\cmdline
+  Open:2018-05-20 09:00:23.407441
+  Open times:1
+  Close:2018-05-20 09:00:23.407709
+Path:C:\proc\7898\stat
+  Open:2018-05-20 09:00:23.405480
+  Open times:1
+  Close:2018-05-20 09:00:23.406105
+Path:C:\proc\7898\status
+  Open:2018-05-20 09:00:23.406159
+  Open times:1
+  Close:2018-05-20 09:00:23.407388
+Path:C:\proc\79
+Path:C:\proc\7903
+Path:C:\proc\7903\cmdline
+  Open:2018-05-20 09:00:23.410084
+  Open times:1
+  Close:2018-05-20 09:00:23.410342
+Path:C:\proc\7903\stat
+  Open:2018-05-20 09:00:23.408126
+  Open times:1
+  Close:2018-05-20 09:00:23.408739
+Path:C:\proc\7903\status
+  Open:2018-05-20 09:00:23.408794
+  Open times:1
+  Close:2018-05-20 09:00:23.410031
+Path:C:\proc\7910
+Path:C:\proc\7910\cmdline
+  Open:2018-05-20 09:00:23.412700
+  Open times:1
+  Close:2018-05-20 09:00:23.412997
+Path:C:\proc\7910\stat
+  Open:2018-05-20 09:00:23.410742
+  Open times:1
+  Close:2018-05-20 09:00:23.411363
+Path:C:\proc\7910\status
+  Open:2018-05-20 09:00:23.411418
+  Open times:1
+  Close:2018-05-20 09:00:23.412648
+Path:C:\proc\7926
+Path:C:\proc\7926\cmdline
+  Open:2018-05-20 09:00:23.415341
+  Open times:1
+  Close:2018-05-20 09:00:23.415621
+Path:C:\proc\7926\stat
+  Open:2018-05-20 09:00:23.413399
+  Open times:1
+  Close:2018-05-20 09:00:23.414019
+Path:C:\proc\7926\status
+  Open:2018-05-20 09:00:23.414072
+  Open times:1
+  Close:2018-05-20 09:00:23.415290
+Path:C:\proc\7934
+Path:C:\proc\7934\cmdline
+  Open:2018-05-20 09:00:23.417981
+  Open times:1
+  Close:2018-05-20 09:00:23.418262
+Path:C:\proc\7934\stat
+  Open:2018-05-20 09:00:23.416029
+  Open times:1
+  Close:2018-05-20 09:00:23.416637
+Path:C:\proc\7934\status
+  Open:2018-05-20 09:00:23.416689
+  Open times:1
+  Close:2018-05-20 09:00:23.417930
+Path:C:\proc\7943
+Path:C:\proc\7943\cmdline
+  Open:2018-05-20 09:00:23.420602
+  Open times:1
+  Close:2018-05-20 09:00:23.420896
+Path:C:\proc\7943\stat
+  Open:2018-05-20 09:00:23.418655
+  Open times:1
+  Close:2018-05-20 09:00:23.419274
+Path:C:\proc\7943\status
+  Open:2018-05-20 09:00:23.419326
+  Open times:1
+  Close:2018-05-20 09:00:23.420552
+Path:C:\proc\7950
+Path:C:\proc\7950\cmdline
+  Open:2018-05-20 09:00:23.423232
+  Open times:1
+  Close:2018-05-20 09:00:23.423510
+Path:C:\proc\7950\stat
+  Open:2018-05-20 09:00:23.421288
+  Open times:1
+  Close:2018-05-20 09:00:23.421904
+Path:C:\proc\7950\status
+  Open:2018-05-20 09:00:23.421956
+  Open times:1
+  Close:2018-05-20 09:00:23.423182
+Path:C:\proc\79\cmdline
+  Open:2018-05-20 09:00:22.834768
+  Open times:1
+  Close:2018-05-20 09:00:22.835722
+Path:C:\proc\79\stat
+  Open:2018-05-20 09:00:22.832043
+  Open times:1
+  Close:2018-05-20 09:00:22.832613
+Path:C:\proc\79\status
+  Open:2018-05-20 09:00:22.832799
+  Open times:1
+  Close:2018-05-20 09:00:22.834548
+Path:C:\proc\7\cmdline
+  Open:2018-05-20 09:00:22.746943
+  Open times:1
+  Close:2018-05-20 09:00:22.747151
+Path:C:\proc\7\stat
+  Open:2018-05-20 09:00:22.744943
+  Open times:1
+  Close:2018-05-20 09:00:22.745598
+Path:C:\proc\7\status
+  Open:2018-05-20 09:00:22.745700
+  Open times:1
+  Close:2018-05-20 09:00:22.746853
+Path:C:\proc\8
+Path:C:\proc\80
+Path:C:\proc\8006
+Path:C:\proc\8006\cmdline
+  Open:2018-05-20 09:00:23.425878
+  Open times:1
+  Close:2018-05-20 09:00:23.426173
+Path:C:\proc\8006\stat
+  Open:2018-05-20 09:00:23.423911
+  Open times:1
+  Close:2018-05-20 09:00:23.424537
+Path:C:\proc\8006\status
+  Open:2018-05-20 09:00:23.424590
+  Open times:1
+  Close:2018-05-20 09:00:23.425827
+Path:C:\proc\8007
+Path:C:\proc\8007\cmdline
+  Open:2018-05-20 09:00:23.428513
+  Open times:1
+  Close:2018-05-20 09:00:23.428770
+Path:C:\proc\8007\stat
+  Open:2018-05-20 09:00:23.426566
+  Open times:1
+  Close:2018-05-20 09:00:23.427189
+Path:C:\proc\8007\status
+  Open:2018-05-20 09:00:23.427241
+  Open times:1
+  Close:2018-05-20 09:00:23.428460
+Path:C:\proc\8013
+Path:C:\proc\8013\cmdline
+  Open:2018-05-20 09:00:23.431127
+  Open times:1
+  Close:2018-05-20 09:00:23.431393
+Path:C:\proc\8013\stat
+  Open:2018-05-20 09:00:23.429173
+  Open times:1
+  Close:2018-05-20 09:00:23.429808
+Path:C:\proc\8013\status
+  Open:2018-05-20 09:00:23.429862
+  Open times:1
+  Close:2018-05-20 09:00:23.431077
+Path:C:\proc\8021
+Path:C:\proc\8021\cmdline
+  Open:2018-05-20 09:00:23.433762
+  Open times:1
+  Close:2018-05-20 09:00:23.434044
+Path:C:\proc\8021\stat
+  Open:2018-05-20 09:00:23.431784
+  Open times:1
+  Close:2018-05-20 09:00:23.432408
+Path:C:\proc\8021\status
+  Open:2018-05-20 09:00:23.432461
+  Open times:1
+  Close:2018-05-20 09:00:23.433711
+Path:C:\proc\8023
+Path:C:\proc\8023\cmdline
+  Open:2018-05-20 09:00:23.436403
+  Open times:1
+  Close:2018-05-20 09:00:23.436670
+Path:C:\proc\8023\stat
+  Open:2018-05-20 09:00:23.434436
+  Open times:1
+  Close:2018-05-20 09:00:23.435078
+Path:C:\proc\8023\status
+  Open:2018-05-20 09:00:23.435131
+  Open times:1
+  Close:2018-05-20 09:00:23.436353
+Path:C:\proc\8031
+Path:C:\proc\8031\cmdline
+  Open:2018-05-20 09:00:23.439037
+  Open times:1
+  Close:2018-05-20 09:00:23.439319
+Path:C:\proc\8031\stat
+  Open:2018-05-20 09:00:23.437071
+  Open times:1
+  Close:2018-05-20 09:00:23.437688
+Path:C:\proc\8031\status
+  Open:2018-05-20 09:00:23.437741
+  Open times:1
+  Close:2018-05-20 09:00:23.438987
+Path:C:\proc\8033
+Path:C:\proc\8033\cmdline
+  Open:2018-05-20 09:00:23.448804
+  Open times:1
+  Close:2018-05-20 09:00:23.449115
+Path:C:\proc\8033\stat
+  Open:2018-05-20 09:00:23.446818
+  Open times:1
+  Close:2018-05-20 09:00:23.447455
+Path:C:\proc\8033\status
+  Open:2018-05-20 09:00:23.447511
+  Open times:1
+  Close:2018-05-20 09:00:23.448749
+Path:C:\proc\8036
+Path:C:\proc\8036\cmdline
+  Open:2018-05-20 09:00:23.452251
+  Open times:1
+  Close:2018-05-20 09:00:23.452593
+Path:C:\proc\8036\stat
+  Open:2018-05-20 09:00:23.449635
+  Open times:1
+  Close:2018-05-20 09:00:23.450470
+Path:C:\proc\8036\status
+  Open:2018-05-20 09:00:23.450540
+  Open times:1
+  Close:2018-05-20 09:00:23.452183
+Path:C:\proc\8083
+Path:C:\proc\8083\cmdline
+  Open:2018-05-20 09:00:23.455725
+  Open times:1
+  Close:2018-05-20 09:00:23.456089
+Path:C:\proc\8083\stat
+  Open:2018-05-20 09:00:23.453129
+  Open times:1
+  Close:2018-05-20 09:00:23.453952
+Path:C:\proc\8083\status
+  Open:2018-05-20 09:00:23.454021
+  Open times:1
+  Close:2018-05-20 09:00:23.455659
+Path:C:\proc\809
+Path:C:\proc\8098
+Path:C:\proc\8098\cmdline
+  Open:2018-05-20 09:00:23.459219
+  Open times:1
+  Close:2018-05-20 09:00:23.459564
+Path:C:\proc\8098\stat
+  Open:2018-05-20 09:00:23.456614
+  Open times:1
+  Close:2018-05-20 09:00:23.457433
+Path:C:\proc\8098\status
+  Open:2018-05-20 09:00:23.457502
+  Open times:1
+  Close:2018-05-20 09:00:23.459152
+Path:C:\proc\809\cmdline
+  Open:2018-05-20 09:00:23.127499
+  Open times:1
+  Close:2018-05-20 09:00:23.127768
+Path:C:\proc\809\stat
+  Open:2018-05-20 09:00:23.125695
+  Open times:1
+  Close:2018-05-20 09:00:23.126212
+Path:C:\proc\809\status
+  Open:2018-05-20 09:00:23.126265
+  Open times:1
+  Close:2018-05-20 09:00:23.127447
+Path:C:\proc\80\cmdline
+  Open:2018-05-20 09:00:22.841112
+  Open times:1
+  Close:2018-05-20 09:00:22.842018
+Path:C:\proc\80\stat
+  Open:2018-05-20 09:00:22.837596
+  Open times:1
+  Close:2018-05-20 09:00:22.838778
+Path:C:\proc\80\status
+  Open:2018-05-20 09:00:22.839077
+  Open times:1
+  Close:2018-05-20 09:00:22.840754
+Path:C:\proc\81
+Path:C:\proc\8134
+Path:C:\proc\8134\cmdline
+  Open:2018-05-20 09:00:23.461997
+  Open times:1
+  Close:2018-05-20 09:00:23.462289
+Path:C:\proc\8134\stat
+  Open:2018-05-20 09:00:23.460052
+  Open times:1
+  Close:2018-05-20 09:00:23.460668
+Path:C:\proc\8134\status
+  Open:2018-05-20 09:00:23.460721
+  Open times:1
+  Close:2018-05-20 09:00:23.461947
+Path:C:\proc\814
+Path:C:\proc\814\cmdline
+  Open:2018-05-20 09:00:23.129884
+  Open times:1
+  Close:2018-05-20 09:00:23.130138
+Path:C:\proc\814\stat
+  Open:2018-05-20 09:00:23.128092
+  Open times:1
+  Close:2018-05-20 09:00:23.128587
+Path:C:\proc\814\status
+  Open:2018-05-20 09:00:23.128639
+  Open times:1
+  Close:2018-05-20 09:00:23.129833
+Path:C:\proc\8154
+Path:C:\proc\8154\cmdline
+  Open:2018-05-20 09:00:23.464640
+  Open times:1
+  Close:2018-05-20 09:00:23.464958
+Path:C:\proc\8154\stat
+  Open:2018-05-20 09:00:23.462693
+  Open times:1
+  Close:2018-05-20 09:00:23.463313
+Path:C:\proc\8154\status
+  Open:2018-05-20 09:00:23.463368
+  Open times:1
+  Close:2018-05-20 09:00:23.464589
+Path:C:\proc\8161
+Path:C:\proc\8161\cmdline
+  Open:2018-05-20 09:00:23.467344
+  Open times:1
+  Close:2018-05-20 09:00:23.467651
+Path:C:\proc\8161\stat
+  Open:2018-05-20 09:00:23.465379
+  Open times:1
+  Close:2018-05-20 09:00:23.466007
+Path:C:\proc\8161\status
+  Open:2018-05-20 09:00:23.466062
+  Open times:1
+  Close:2018-05-20 09:00:23.467291
+Path:C:\proc\8165
+Path:C:\proc\8165\cmdline
+  Open:2018-05-20 09:00:23.470044
+  Open times:1
+  Close:2018-05-20 09:00:23.470341
+Path:C:\proc\8165\stat
+  Open:2018-05-20 09:00:23.468083
+  Open times:1
+  Close:2018-05-20 09:00:23.468700
+Path:C:\proc\8165\status
+  Open:2018-05-20 09:00:23.468755
+  Open times:1
+  Close:2018-05-20 09:00:23.469991
+Path:C:\proc\8186
+Path:C:\proc\8186\cmdline
+  Open:2018-05-20 09:00:23.472723
+  Open times:1
+  Close:2018-05-20 09:00:23.475181
+Path:C:\proc\8186\stat
+  Open:2018-05-20 09:00:23.470757
+  Open times:1
+  Close:2018-05-20 09:00:23.471382
+Path:C:\proc\8186\status
+  Open:2018-05-20 09:00:23.471438
+  Open times:1
+  Close:2018-05-20 09:00:23.472670
+Path:C:\proc\81\cmdline
+  Open:2018-05-20 09:00:22.847199
+  Open times:1
+  Close:2018-05-20 09:00:22.848253
+Path:C:\proc\81\stat
+  Open:2018-05-20 09:00:22.843837
+  Open times:1
+  Close:2018-05-20 09:00:22.844964
+Path:C:\proc\81\status
+  Open:2018-05-20 09:00:22.845182
+  Open times:1
+  Close:2018-05-20 09:00:22.846993
+Path:C:\proc\82
+Path:C:\proc\8215
+Path:C:\proc\8215\cmdline
+  Open:2018-05-20 09:00:23.479833
+  Open times:1
+  Close:2018-05-20 09:00:23.481278
+Path:C:\proc\8215\stat
+  Open:2018-05-20 09:00:23.476850
+  Open times:1
+  Close:2018-05-20 09:00:23.477972
+Path:C:\proc\8215\status
+  Open:2018-05-20 09:00:23.478119
+  Open times:1
+  Close:2018-05-20 09:00:23.479572
+Path:C:\proc\8224
+Path:C:\proc\8224\cmdline
+  Open:2018-05-20 09:00:23.487620
+  Open times:1
+  Close:2018-05-20 09:00:23.488744
+Path:C:\proc\8224\stat
+  Open:2018-05-20 09:00:23.483489
+  Open times:1
+  Close:2018-05-20 09:00:23.484917
+Path:C:\proc\8224\status
+  Open:2018-05-20 09:00:23.485184
+  Open times:1
+  Close:2018-05-20 09:00:23.487392
+Path:C:\proc\82\cmdline
+  Open:2018-05-20 09:00:22.854831
+  Open times:1
+  Close:2018-05-20 09:00:22.855698
+Path:C:\proc\82\stat
+  Open:2018-05-20 09:00:22.850829
+  Open times:1
+  Close:2018-05-20 09:00:22.852601
+Path:C:\proc\82\status
+  Open:2018-05-20 09:00:22.852866
+  Open times:1
+  Close:2018-05-20 09:00:22.854603
+Path:C:\proc\83
+Path:C:\proc\8301
+Path:C:\proc\8301\cmdline
+  Open:2018-05-20 09:00:23.492392
+  Open times:1
+  Close:2018-05-20 09:00:23.493324
+Path:C:\proc\8301\stat
+  Open:2018-05-20 09:00:23.489983
+  Open times:1
+  Close:2018-05-20 09:00:23.490772
+Path:C:\proc\8301\status
+  Open:2018-05-20 09:00:23.490916
+  Open times:1
+  Close:2018-05-20 09:00:23.492293
+Path:C:\proc\8361
+Path:C:\proc\8361\cmdline
+  Open:2018-05-20 09:00:23.499930
+  Open times:1
+  Close:2018-05-20 09:00:23.501280
+Path:C:\proc\8361\stat
+  Open:2018-05-20 09:00:23.495780
+  Open times:1
+  Close:2018-05-20 09:00:23.497192
+Path:C:\proc\8361\status
+  Open:2018-05-20 09:00:23.497413
+  Open times:1
+  Close:2018-05-20 09:00:23.499663
+Path:C:\proc\83\cmdline
+  Open:2018-05-20 09:00:22.860215
+  Open times:1
+  Close:2018-05-20 09:00:22.860492
+Path:C:\proc\83\stat
+  Open:2018-05-20 09:00:22.857525
+  Open times:1
+  Close:2018-05-20 09:00:22.858730
+Path:C:\proc\83\status
+  Open:2018-05-20 09:00:22.858934
+  Open times:1
+  Close:2018-05-20 09:00:22.860109
+Path:C:\proc\84
+Path:C:\proc\84\cmdline
+  Open:2018-05-20 09:00:22.863567
+  Open times:1
+  Close:2018-05-20 09:00:22.864298
+Path:C:\proc\84\stat
+  Open:2018-05-20 09:00:22.861327
+  Open times:1
+  Close:2018-05-20 09:00:22.861909
+Path:C:\proc\84\status
+  Open:2018-05-20 09:00:22.862098
+  Open times:1
+  Close:2018-05-20 09:00:22.863339
+Path:C:\proc\85
+Path:C:\proc\85\cmdline
+  Open:2018-05-20 09:00:22.868878
+  Open times:1
+  Close:2018-05-20 09:00:22.869386
+Path:C:\proc\85\stat
+  Open:2018-05-20 09:00:22.865513
+  Open times:1
+  Close:2018-05-20 09:00:22.866405
+Path:C:\proc\85\status
+  Open:2018-05-20 09:00:22.866621
+  Open times:1
+  Close:2018-05-20 09:00:22.868647
+Path:C:\proc\86
+Path:C:\proc\86\cmdline
+  Open:2018-05-20 09:00:22.873437
+  Open times:1
+  Close:2018-05-20 09:00:22.874113
+Path:C:\proc\86\stat
+  Open:2018-05-20 09:00:22.870679
+  Open times:1
+  Close:2018-05-20 09:00:22.871673
+Path:C:\proc\86\status
+  Open:2018-05-20 09:00:22.871871
+  Open times:1
+  Close:2018-05-20 09:00:22.873262
+Path:C:\proc\87
+Path:C:\proc\87\cmdline
+  Open:2018-05-20 09:00:22.878259
+  Open times:1
+  Close:2018-05-20 09:00:22.878937
+Path:C:\proc\87\stat
+  Open:2018-05-20 09:00:22.875350
+  Open times:1
+  Close:2018-05-20 09:00:22.876228
+Path:C:\proc\87\status
+  Open:2018-05-20 09:00:22.876406
+  Open times:1
+  Close:2018-05-20 09:00:22.877938
+Path:C:\proc\88
+Path:C:\proc\88\cmdline
+  Open:2018-05-20 09:00:22.882872
+  Open times:1
+  Close:2018-05-20 09:00:22.883650
+Path:C:\proc\88\stat
+  Open:2018-05-20 09:00:22.880039
+  Open times:1
+  Close:2018-05-20 09:00:22.881039
+Path:C:\proc\88\status
+  Open:2018-05-20 09:00:22.881249
+  Open times:1
+  Close:2018-05-20 09:00:22.882686
+Path:C:\proc\8\cmdline
+  Open:2018-05-20 09:00:22.749864
+  Open times:1
+  Close:2018-05-20 09:00:22.750106
+Path:C:\proc\8\stat
+  Open:2018-05-20 09:00:22.747908
+  Open times:1
+  Close:2018-05-20 09:00:22.748463
+Path:C:\proc\8\status
+  Open:2018-05-20 09:00:22.748561
+  Open times:1
+  Close:2018-05-20 09:00:22.749766
+Path:C:\proc\9
+Path:C:\proc\9128
+Path:C:\proc\9128\cmdline
+  Open:2018-05-20 09:00:23.507480
+  Open times:1
+  Close:2018-05-20 09:00:23.508948
+Path:C:\proc\9128\stat
+  Open:2018-05-20 09:00:23.503588
+  Open times:1
+  Close:2018-05-20 09:00:23.504938
+Path:C:\proc\9128\status
+  Open:2018-05-20 09:00:23.505172
+  Open times:1
+  Close:2018-05-20 09:00:23.507265
+Path:C:\proc\92
+Path:C:\proc\92\cmdline
+  Open:2018-05-20 09:00:22.887945
+  Open times:1
+  Close:2018-05-20 09:00:22.888563
+Path:C:\proc\92\stat
+  Open:2018-05-20 09:00:22.885055
+  Open times:1
+  Close:2018-05-20 09:00:22.886015
+Path:C:\proc\92\status
+  Open:2018-05-20 09:00:22.886190
+  Open times:1
+  Close:2018-05-20 09:00:22.887716
+Path:C:\proc\94
+Path:C:\proc\94\cmdline
+  Open:2018-05-20 09:00:22.892420
+  Open times:1
+  Close:2018-05-20 09:00:22.893212
+Path:C:\proc\94\stat
+  Open:2018-05-20 09:00:22.889683
+  Open times:1
+  Close:2018-05-20 09:00:22.890586
+Path:C:\proc\94\status
+  Open:2018-05-20 09:00:22.890780
+  Open times:1
+  Close:2018-05-20 09:00:22.892256
+Path:C:\proc\95
+Path:C:\proc\95\cmdline
+  Open:2018-05-20 09:00:22.897352
+  Open times:1
+  Close:2018-05-20 09:00:22.898028
+Path:C:\proc\95\stat
+  Open:2018-05-20 09:00:22.894524
+  Open times:1
+  Close:2018-05-20 09:00:22.895521
+Path:C:\proc\95\status
+  Open:2018-05-20 09:00:22.895700
+  Open times:1
+  Close:2018-05-20 09:00:22.897177
+Path:C:\proc\96
+Path:C:\proc\96\cmdline
+  Open:2018-05-20 09:00:22.902236
+  Open times:1
+  Close:2018-05-20 09:00:22.902882
+Path:C:\proc\96\stat
+  Open:2018-05-20 09:00:22.899352
+  Open times:1
+  Close:2018-05-20 09:00:22.900340
+Path:C:\proc\96\status
+  Open:2018-05-20 09:00:22.900554
+  Open times:1
+  Close:2018-05-20 09:00:22.902031
+Path:C:\proc\99
+Path:C:\proc\99\cmdline
+  Open:2018-05-20 09:00:22.906988
+  Open times:1
+  Close:2018-05-20 09:00:22.907752
+Path:C:\proc\99\stat
+  Open:2018-05-20 09:00:22.904102
+  Open times:1
+  Close:2018-05-20 09:00:22.905116
+Path:C:\proc\99\status
+  Open:2018-05-20 09:00:22.905330
+  Open times:1
+  Close:2018-05-20 09:00:22.906783
+Path:C:\proc\9\cmdline
+  Open:2018-05-20 09:00:22.753651
+  Open times:1
+  Close:2018-05-20 09:00:22.753863
+Path:C:\proc\9\stat
+  Open:2018-05-20 09:00:22.751466
+  Open times:1
+  Close:2018-05-20 09:00:22.752370
+Path:C:\proc\9\status
+  Open:2018-05-20 09:00:22.752455
+  Open times:1
+  Close:2018-05-20 09:00:22.753557
+Path:C:\proc\filesystems
+  Open:2018-05-20 09:00:22.580289
+  Open times:1
+  Close:2018-05-20 09:00:22.581549
+  Open:2018-05-20 09:00:22.644750
+  Open times:1
+  Close:2018-05-20 09:00:22.645752
+Path:C:\proc\meminfo
+  Open:2018-05-20 09:00:22.542118
+  Open times:1
+  Close:2018-05-20 09:00:22.543593
+  Open:2018-05-20 09:00:22.696249
+  Open times:1
+Path:C:\proc\self\stat
+  Open:2018-05-20 09:00:22.682089
+  Open times:1
+  Close:2018-05-20 09:00:22.683250
+Path:C:\proc\self\task
+Path:C:\proc\stat
+  Open:2018-05-20 09:00:22.732013
+  Open times:1
+  Close:2018-05-20 09:00:22.735280
+Path:C:\proc\sys\kernel\pid_max
+  Open:2018-05-20 09:00:22.695459
+  Open times:1
+  Close:2018-05-20 09:00:22.695782
+Path:C:\proc\tty\drivers
+  Open:2018-05-20 09:00:23.200264
+  Open times:1
+  Close:2018-05-20 09:00:23.201357
+Path:C:\proc\uptime
+  Open:2018-05-20 09:00:22.688760
+  Open times:1
+Path:C:\sys\devices\system\cpu\online
+  Open:2018-05-20 09:00:22.646250
+  Open times:1
+  Close:2018-05-20 09:00:22.646610
+Path:C:\usr\bin\bash
+Path:C:\usr\bin\ps
+Path:C:\usr\bin\wc
+Path:C:\usr\lib64\elfutils
+Path:C:\usr\lib64\gconv\gconv-modules.cache
+  Open:2018-05-20 09:00:22.545475
+  Open times:1
+  Close:2018-05-20 09:00:22.545994
+  Open:2018-05-20 09:00:22.729321
+  Open times:1
+  Close:2018-05-20 09:00:22.729985
+  Open:2018-05-20 09:00:23.024656
+  Open times:1
+  Close:2018-05-20 09:00:23.028724
+  Close:2018-05-20 09:00:23.632669
+Path:C:\usr\lib\locale\locale-archive
+  Open:2018-05-20 09:00:22.540407
+  Open times:1
+  Close:2018-05-20 09:00:22.541055
+  Open:2018-05-20 09:00:22.591012
+  Open times:1
+  Close:2018-05-20 09:00:22.591406
+  Open:2018-05-20 09:00:22.612789
+  Open times:1
+  Open:2018-05-20 09:00:22.677746
+  Open times:1
+  Close:2018-05-20 09:00:22.678479
+  Open:2018-05-20 09:00:23.653279
+  Open times:1
+  Close:2018-05-20 09:00:23.653746
+Path:C:\usr\share\locale\locale.alias
+  Open:2018-05-20 09:00:22.614793
+  Open times:1
+  Open:2018-05-20 09:00:22.689286
+  Open times:1
+  Close:2018-05-20 09:00:22.692863
+Path:UnknownFileDescr:255
+  Close:2018-05-20 09:00:22.558338
+  Close:2018-05-20 09:00:22.599360
+  Close:2018-05-20 09:00:22.600192
+  Close:2018-05-20 09:00:23.643245
+Path:UnknownFileDescr:4
+  Close:2018-05-20 09:00:22.598491
+  Close:2018-05-20 09:00:22.598598
+  Close:2018-05-20 09:00:22.604181
+Path:UnknownFileDescr:x
+Path:stderr
+  Close:2018-05-20 09:00:22.596220
+  Close:2018-05-20 09:00:23.631510
+  Close:2018-05-20 09:00:23.631881
+  Close:2018-05-20 09:00:23.656694
+Path:stdin
+  Close:2018-05-20 09:00:23.631360
+Path:stdout
+  Close:2018-05-20 09:00:22.595925
+  Close:2018-05-20 09:00:23.631414
+  Close:2018-05-20 09:00:23.656593
+
+** Pipes and terminals
+
+** Shared libraries
+
+** System config files
+
+** System executables
+
+** Temporary files
+
