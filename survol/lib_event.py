@@ -266,5 +266,11 @@ def data_retrieve_all():
                     yield oneTripl
     DEBUG("data_retrieve_all leaving")
 
+def json_triples_to_rdf(json_triples, rdf_file_path):
+    rdflib_graph = lib_kbase.MakeGraph()
+    for tripl in json_triples:
+        rdf_triple = TripleJsonToRdf(tripl)
+        rdflib_graph.add(rdf_triple)
+    rdflib_graph.serialize(destination = rdf_file_path, format='pretty-xml')
 
 
