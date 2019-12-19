@@ -232,10 +232,15 @@ def TimeT_to_DateTime(stTimeT):
 # indexed by a descriptive key.
 BufferScanners = {}
 
-# This creates the SQL queries scanner, it needs Survol code.
 try:
 
     sys.path.append("../..")
+    # Import this now, and not in the destructor, to avoid the error:
+    # "sys.meta_path must be a list of import hooks"
+    # This module is needed for storing the generated data into a RDF file.
+    from survol import lib_event
+
+    # This creates the SQL queries scanner, it needs Survol code.
     from survol import lib_sql
 
     dictRegexSQL = lib_sql.SqlRegularExpressions()
@@ -567,15 +572,32 @@ class FileAccess:
 
 # This objects groups triples to send to the HTTP server,
 # and periodically wakes up to send them.
+# But if the server name is a file, the RDF content is instead stored to this
+ # file by the object destructor.
 class HttpTriplesClient(object):
     def __init__(self):
-        self.m_sharedLock = threading.Lock()
         self.m_listTriples = []
-        aThrd = threading.Thread(target = self.run)
-        # If leaving too early, some data might be lost.
-        aThrd.daemon = True
-        aThrd.start()
-        self.m_valid = True
+        # Tests if this a output RDF file, or rather None or the URL of a Survol agent.
+        self.m_server_is_file = G_UpdateServer and not(
+                G_UpdateServer.lower().startswith("http:")
+                or G_UpdateServer.lower().startswith("https:") )
+        if self.m_server_is_file:
+            return
+        elif G_UpdateServer:
+            self.m_sharedLock = threading.Lock()
+            aThrd = threading.Thread(target = self.run)
+            # If leaving too early, some data might be lost.
+            aThrd.daemon = True
+            aThrd.start()
+            self.m_valid = True
+
+    def Shutdown(self):
+        print("HttpTriplesClient.Shutdown")
+        if self.m_server_is_file:
+            lib_event.json_triples_to_rdf(self.m_listTriples, G_UpdateServer)
+            print("Stored RDF content to", G_UpdateServer)
+        elif G_UpdateServer:
+            print("TODO: Flush data to Survol agent")
 
     def run(self):
         while True:
@@ -619,7 +641,10 @@ class HttpTriplesClient(object):
 
 
     def AddDataToSend(self,jsonTriple):
-        if self.m_valid and G_UpdateServer:
+        if self.m_server_is_file:
+            # Just append the triple, no need to synchronise.
+            self.m_listTriples.append(jsonTriple)
+        elif self.m_valid and G_UpdateServer:
             self.m_sharedLock.acquire()
             self.m_listTriples.append(jsonTriple)
             self.m_sharedLock.release()
@@ -628,7 +653,6 @@ class HttpTriplesClient(object):
 # of CIM objects. These updates can then be displayed in Survol Web clients.
 # It must be a plain Web server to be hosted by Apache or IIS.
 G_UpdateServer = None
-G_httpClient = HttpTriplesClient()
 
 ################################################################################
 
@@ -4674,6 +4698,11 @@ def InitGlobals( withWarning ):
     global G_stackUnfinishedBatches
     G_stackUnfinishedBatches = UnfinishedBatches(withWarning)
 
+    # This object is used to send triples to a Survol server.
+    # It is also used to store the triples in a RDF file, which is created by the destructor.
+    global G_httpClient
+    G_httpClient = HttpTriplesClient()
+
     def InitObjectsCache():
         global G_mapCacheObjects
         G_mapCacheObjects = {}
@@ -4696,7 +4725,14 @@ def InitGlobals( withWarning ):
 
     global G_cacheFileAccesses
     G_cacheFileAccesses = {}
-        
+
+# Called after a run.
+def ExitGlobals():
+    # It is also used to store the triples in a RDF file, which is created by the destructor.
+    global G_httpClient
+    # Flushes the data to a file or possibly a Survol agent.
+    G_httpClient.Shutdown()
+
 # This receives a stream of lines, each of them is a function call,
 # possibily unfinished/resumed/interrupted by a signal.
 def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputFormat):
@@ -4751,6 +4787,7 @@ def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputForma
         if verbose > 0: sys.stdout.write("\n------------------ PID=%d\n"%aPid)
         btchTree.FactorizeOneFlow(verbose,withWarning,outputFormat)
         
+    ExitGlobals()
 
     return mapFlows
 
