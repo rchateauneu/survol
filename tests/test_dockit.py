@@ -33,10 +33,12 @@ sys.path.insert(0,"../survol/scripts")
 sys.path.insert(0,"survol/scripts")
 
 dockit_output_files_path = os.path.join( os.path.dirname(__file__), "dockit_output_files" )
+# This is the expected content of some generated files.
 dockit_output_files_path_expected = os.path.join( os.path.dirname(__file__), "dockit_output_files_expected" )
 
 # Creates the destination file for result if not there, otherwise cleanup.
 # This is needed otherwise pytest would run the Python files in this dir.
+# TODO: Deletes the content, not the directory.
 if os.path.exists(dockit_output_files_path):
     shutil.rmtree(dockit_output_files_path)
 os.makedirs(dockit_output_files_path)
@@ -45,6 +47,7 @@ def path_prefix_output_result(*file_path):
     return os.path.join(dockit_output_files_path, *file_path)
 
 # Check content of the generated files.
+# Depending on the file extension, this tries to load the content of the file.
 def check_file_content(*file_path):
     full_file_path = path_prefix_output_result(*file_path)
     fil_descr = open(full_file_path)
@@ -55,6 +58,12 @@ def check_file_content(*file_path):
     elif file_extension == ".xml":
         # Checks that this xml file can be parsed.
         minidom.parse(full_file_path)
+    elif file_extension == ".rdf":
+        rdflib_graph = rdflib.Graph()
+        rdflib_graph.parse(full_file_path)
+        num_triples = len(rdflib_graph)
+        # There should be at least one triple.
+        assert num_triples > 0
     fil_descr.close()
 
     # Now compare this file with the expected one, if it is here.
@@ -83,7 +92,7 @@ def check_file_content(*file_path):
         fil_descr.close()
 
     except IOError:
-        print("Cannot find:", expected_file_path)
+        print("INFO: No comparison file:", expected_file_path)
 
 
 dock_input_files_path = os.path.join( os.path.dirname(__file__), "dockit_input_test_trace_files" )
@@ -592,19 +601,6 @@ class DockitTraceFilesTest(unittest.TestCase):
                         withDockerfile = True,
                         updateServer = None)
 
-
-
-class DockitMarkovTest(unittest.TestCase):
-    """
-    Test the building blocks of Markov processing.
-    """
-
-    @unittest.skip("Markov not implemented yet.")
-    def test_extract_calls(self):
-        """This extracts, for each thread, the calls."""
-pass
-
-
 class DockitProcessesTest(unittest.TestCase):
     """
     Test the execution of the Dockit script from real processes.
@@ -644,6 +640,29 @@ class DockitProcessesTest(unittest.TestCase):
         check_file_content("result_ls_strace.txt")
 
         check_file_content("result_ls_strace.summary.txt")
+
+class DockitToRDF(unittest.TestCase):
+    """
+    Send events to an RDF file.
+    """
+
+    def test_create_RDF_file(self):
+        dockit.UnitTest(
+            inputLogFile=path_prefix_input_file("sample_shell.ltrace.log"),
+            tracer="ltrace",
+            topPid=0,
+            baseOutName=path_prefix_output_result("sample_shell_ltrace_tst_create_RDF"),
+            outputFormat="JSON",
+            verbose=True,
+            mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summaryFormat="TXT",
+            withWarning=False,
+            withDockerfile=False,
+            updateServer = path_prefix_output_result("sample_shell_ltrace_tst_create_RDF.rdf"))
+
+        check_file_content("sample_shell_ltrace_tst_create_RDF.json")
+        check_file_content("sample_shell_ltrace_tst_create_RDF.summary.txt")
+        check_file_content("sample_shell_ltrace_tst_create_RDF.rdf")
 
 class DockitEventsTest(unittest.TestCase):
     """
