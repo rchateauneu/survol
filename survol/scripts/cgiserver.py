@@ -276,16 +276,14 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
 
         server = HTTPServer((server_name, port_number), handler)
 
-        if 'linux' in sys.platform:
-            # Normally, this value receives socket.gethostname(),
-            # which later gives its value to os.environ["SERVER_NAME"].
-            # But, for this application, this environment variable must have the same value
-            # as the server address, because it is used to build URLs.
-            # Therefore, we are indirectly setting the value of the environment variable "SERVER_NAME".
-            # This is not necessary for Windows (Which apparently copies its env vars).
-            logfil.write(__file__ + " server_name=%s\n" % server_name)
-            logfil.flush()
-            server.server_name = server_name
+        # server.server_name is later stored to os.environ["SERVER_NAME"].
+        # Here, this environment variable must have the same value
+        # as the server address, because it is used to build URLs.
+        # It is not properly set on Linux.
+        # Same for Windows Py2 and an Internet provider ("hostname.broadband")
+        server.server_name = server_name
+
+        sys.stderr.write("server.server_name=%s\n" % server.server_name)
 
         ServerForever(server)
 
