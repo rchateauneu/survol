@@ -565,6 +565,7 @@ class Rdflib_CUSTOM_EVALS_WMI_Test(CUSTOM_EVALS_WMI_Base_Test):
     @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported. test_sparql_Firefox skipped.")
     def test_sparql_Firefox(self):
         sparql_query = """
+            PREFIX survol: <%s>
             SELECT ?url_file
             WHERE
             {
@@ -572,7 +573,7 @@ class Rdflib_CUSTOM_EVALS_WMI_Test(CUSTOM_EVALS_WMI_Base_Test):
               ?url_proc rdf:type survol:CIM_Process .
               ?url_proc survol:CIM_ProcessExecutable ?url_file .
               ?url_file rdf:type survol:CIM_DataFile .
-            }"""
+            }""" % (survol_namespace)
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
@@ -580,7 +581,7 @@ class Rdflib_CUSTOM_EVALS_WMI_Test(CUSTOM_EVALS_WMI_Base_Test):
     @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported. test_server_wmi_more skipped.")
     def test_server_wmi_more_python(self):
         sparql_query = """
-            PREFIX survol:  <http://www.primhillcomputers.com/survol#>
+            PREFIX survol: <%s>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT ?pid
             WHERE
@@ -588,29 +589,29 @@ class Rdflib_CUSTOM_EVALS_WMI_Test(CUSTOM_EVALS_WMI_Base_Test):
                 ?url_proc rdf:type survol:Win32_Process .
                 ?url_proc survol:Description 'python.exe' .
                 ?url_proc survol:Handle ?pid .
-            }"""
+            }""" % (survol_namespace)
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
 
     def test_server_wmi_more_user_account_caption(self):
         sparql_query = """
-                PREFIX survol:  <http://www.primhillcomputers.com/survol#>
-                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-                SELECT ?caption
-                WHERE
-                {
-                    ?url_user rdf:type survol:Win32_UserAccount .
-                    ?url_user survol:Name '%s' .
-                    ?url_user survol:Caption ?caption .
-                }""" % CurrentUsername
+            PREFIX survol: <%s>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT ?caption
+            WHERE
+            {
+                ?url_user rdf:type survol:Win32_UserAccount .
+                ?url_user survol:Name '%s' .
+                ?url_user survol:Caption ?caption .
+            }""" % (survol_namespace, CurrentUsername)
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
 
     def test_server_wmi_more_user_account_domain(self):
         sparql_query = """
-            PREFIX survol:  <http://www.primhillcomputers.com/survol#>
+            PREFIX survol: <%s>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT ?domain ?caption
             WHERE
@@ -619,7 +620,7 @@ class Rdflib_CUSTOM_EVALS_WMI_Test(CUSTOM_EVALS_WMI_Base_Test):
                 ?url_user survol:Name '%s' .
                 ?url_user survol:Caption ?caption .
                 ?url_user survol:Domain ?domain .
-            }""" % CurrentUsername
+            }""" % (survol_namespace, CurrentUsername)
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
