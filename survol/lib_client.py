@@ -1020,7 +1020,7 @@ class Agent:
     def GetInternalData(self):
         # This adds "?xid=" at the end, otherwise it is parsed differently,
         # depending on the path.
-        urlContent = self.ExecHttpScript("/survol/print_internal_data_as_json.py" + lib_util.xidCgiDelimiter)
+        urlContent = self.ExecHttpScript("/print_internal_data_as_json.py" + lib_util.xidCgiDelimiter)
         return json.loads(urlContent)
 
 
