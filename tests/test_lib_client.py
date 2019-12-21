@@ -1176,6 +1176,7 @@ class SurvolLocalGdbTest(unittest.TestCase):
         for oneStr in listRequired:
             assert( oneStr in strInstancesSet )
 
+    @unittest.skipIf(sys.version_info >= (3,), "Python stack for Python 2 only.")
     @decorator_gdb_platform
     def test_display_python_stack(self):
         """Displays the stack of a Python process"""
