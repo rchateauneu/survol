@@ -894,7 +894,7 @@ class SurvolRemoteWbemTest(unittest.TestCase):
         pids_list = [oneInst.Handle for oneInst in instances_list ]
         print("test_wbem_hostname_processes_remote: pids_list:", pids_list)
 
-        remote_url = SurvolServerAgent + "/sources_types/CIM_ComputerSystem/wbem_hostname_processes.py"
+        remote_url = SurvolServerAgent + "/survol/sources_types/CIM_ComputerSystem/wbem_hostname_processes.py"
         print("remote_url=", remote_url)
 
         # Do not check all processes, it would be too slow.
@@ -909,7 +909,7 @@ class SurvolRemoteWbemTest(unittest.TestCase):
 
             print("remote_pid=", remote_pid)
             process_source = lib_client.SourceRemote(
-                SurvolServerAgent + "/sources_types/CIM_Process/wbem_process_info.py",
+                SurvolServerAgent + "/survol/sources_types/CIM_Process/wbem_process_info.py",
                 "CIM_Process",
                 Handle=remote_pid)
             try:
