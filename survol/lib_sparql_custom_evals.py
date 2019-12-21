@@ -8,6 +8,8 @@ import rdflib.plugins.memory
 
 import lib_util
 import lib_common
+import lib_ontology_tools
+import lib_kbase
 
 ################################################################################
 
@@ -560,26 +562,24 @@ def CreateSparql_CIM_Object(class_name, the_subject):
 
 ################################################################################
 
-import lib_ontology_tools
-import lib_wmi
-import lib_kbase
 
 def _wmi_load_ontology():
     # classes_map[class_name] = {"base_class": base_class_name, "class_description": text_descr}
     # map_attributes[prop_obj.name] = { "predicate_type": prop_obj.type,"predicate_domain": class_name}
+    global wmiExecutor
+
+    import lib_wmi
     if _wmi_load_ontology.classes_map is None:
         _wmi_load_ontology.classes_map, _wmi_load_ontology.attributes_map = lib_ontology_tools.ManageLocalOntologyCache(
             "wmi", lib_wmi.ExtractWmiOntologyLocal)
         assert _wmi_load_ontology.classes_map
         assert _wmi_load_ontology.attributes_map
-        #_wmi_ontology.ontology_graph = lib_kbase.CreateRdfsOntology(_wmi_ontology.classes_map, _wmi_ontology.map_attributes, graph=None)
+        wmiExecutor = lib_wmi.WmiSparqlExecutor()
 
-#_wmi_load_ontology.ontology_graph = None
 _wmi_load_ontology.classes_map = None
 _wmi_load_ontology.attributes_map = None
 
-# TODO: Simplify and rename this class.
-wmiExecutor = lib_wmi.WmiSparqlExecutor()
+wmiExecutor = None
 
 class Sparql_WMI_GenericObject(Sparql_CIM_Object):
     def __init__(self, class_name, node):
@@ -803,8 +803,8 @@ def product_variables_lists(returned_variables, iter_keys = None):
                     assert isinstance(one_value, tuple)
                     sys.stderr.write("len(first_key)=%d\n" % len(first_key))
                     sys.stderr.write("len(one_value)=%d\n" % len(one_value))
-                    sys.stderr.write("first_key=%s\n" % first_key)
-                    sys.stderr.write("one_value=%s\n" % one_value)
+                    sys.stderr.write("first_key=%s\n" % str(first_key))
+                    sys.stderr.write("one_value=%s\n" % str(one_value))
                     assert len(first_key) == len(one_value)
                     # Each key is a tuple of variables matched by each of the tuples of the list of values.
                     assert all((isinstance(single_key, rdflib.term.Variable) for single_key in first_key))
