@@ -316,7 +316,7 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
 
             sys.stderr.write("Sparql_CIM_Directory.FetchAll return_values_list=%s\n" % return_values_list)
             if isinstance(dir_path_variable, rdflib.term.Variable):
-                sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables Returning variables pair:%s\n" % associated_instance.m_variable, dir_path_variable)
+                sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables Returning variables pair:%s\n" % associated_instance.m_variable)
                 returned_variables[(associated_instance.m_variable, dir_path_variable)] = return_values_list
             else:
                 sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables Returning variable:%s\n" % associated_instance.m_variable)
