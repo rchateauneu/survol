@@ -514,28 +514,108 @@ def ExtractWmiOntologyLocal():
             except pywintypes.com_error:
                 pass
 
-        map_classes[class_name] = {"base_class": base_class_name, "class_description": text_descr}
+        map_classes[class_name] = {"base_class": base_class_name, "class_description": text_descr, "class_keys_list": []}
 
-        for p in cls_obj.properties:
+        # THIS IS FOR DEBUGGING ONLY.
+        if False and class_name == "Win32_Process":
+            # ('cls_obj=', < _wmi_class: \\RCHATEAU-HP\ROOT\cimv2:Win32_Process >)
+            # ('dir(cls_obj)=',
+            #  ['__call__', '__doc__', '__eq__', '__getattr__', '__hash__', '__init__', '__lt__', '__module__',
+            #   '__repr__', '__setattr__', '__str__', '_associated_classes', '_cached_associated_classes',
+            #   '_cached_methods', '_cached_properties', '_class_name', '_getAttributeNames', '_get_keys', '_instance_of',
+            #   '_keys', '_methods', '_namespace', '_properties', 'associated_classes', 'associators', 'derivation', 'id',
+            #   'instances', 'keys', 'methods', 'new', 'ole_object', 'path', 'properties', 'property_map', 'put',
+            #   'qualifiers', 'query', 'references', 'set', 'watch_for', 'wmi_property'])
+            print("cls_obj=", cls_obj)
+            print("dir(cls_obj)=", dir(cls_obj))
+            print("cls_obj._get_keys()=", cls_obj._get_keys())
+
+            # cls_obj._keys=[u'Handle']
+            print("cls_obj._keys=", cls_obj._keys)
+            # Keys of this class, i.e. subset of properties which uniquely identify an object. cls_obj.keys=[u'Handle']
+            print("cls_obj.keys=", cls_obj.keys)
+
+            # All possible properties of this class: cls_obj.properties=
+            # {u'MaximumWorkingSetSize': None, u'CSName': None, u'SessionId': None, u'CSCreationClassName': None,
+            # u'Priority': None, u'OtherTransferCount': None, u'VirtualSize': None, u'PrivatePageCount': None,
+            # u'Status': None, u'ProcessId': None, u'PeakVirtualSize': None, u'Handle': None, u'Description': None,
+            # u'OSCreationClassName': None, u'HandleCount': None, u'QuotaPeakNonPagedPoolUsage': None,
+            # u'PeakPageFileUsage': None, u'WriteTransferCount': None, u'MinimumWorkingSetSize': None,
+            # u'WindowsVersion': None, u'WorkingSetSize': None, u'WriteOperationCount': None, u'PageFaults': None,
+            # u'Name': None, u'InstallDate': None, u'ParentProcessId': None, u'QuotaPeakPagedPoolUsage': None,
+            # u'OtherOperationCount': None, u'CommandLine': None, u'PeakWorkingSetSize': None, u'Caption': None,
+            # u'QuotaNonPagedPoolUsage': None, u'PageFileUsage': None, u'ReadOperationCount': None,
+            # u'TerminationDate': None, u'KernelModeTime': None, u'QuotaPagedPoolUsage': None, u'ThreadCount': None,
+            # u'CreationDate': None, u'ExecutionState': None, u'OSName': None, u'ReadTransferCount': None,
+            # u'UserModeTime': None, u'CreationClassName': None, u'ExecutablePath': None})
+            print("cls_obj.properties=", cls_obj.properties)
+
+            # cls_obj.property_map={}
+            print("cls_obj.property_map=", cls_obj.property_map)
+
+            # cls_obj.associated_classes=
+            # {u'Win32_ComputerSystem': <_wmi_class: \\RCHATEAU-HP\ROOT\cimv2:Win32_ComputerSystem>,
+            # u'Win32_LogonSession': <_wmi_class: \\RCHATEAU-HP\ROOT\cimv2:Win32_LogonSession>,
+            # u'Win32_NamedJobObject': <_wmi_class: \\RCHATEAU-HP\ROOT\cimv2:Win32_NamedJobObject>})
+            print("cls_obj.associated_classes=", cls_obj.associated_classes)
+
+            # cls_obj.associators()=[]
+            print("cls_obj.associators()=", cls_obj.associators())
+
+        # http://timgolden.me.uk/python/wmi/wmi.html
+        # A WMI object is uniquely defined by a set of properties which constitute its keys.
+        # The function keys() lazily retrieves the keys for this instance or class.
+        # ... whereas cls_obj.properties return the properties, that is any attribute of an object of this class.
+        # for p in cls_obj.properties:
+        for p in cls_obj.keys:
             prop_obj = cls_obj.wmi_property(p)
-            try:
-                map_attributes[prop_obj.name]["predicate_type"]
-                continue
-            except KeyError:
-                pass
+
+            if False and class_name == "Win32_Process":
+                # p= u'MaximumWorkingSetSize'
+                print("p=", p)
+
+                # ('dir(p)=',
+                #  ['__add__', '__class__', '__contains__', '__delattr__', '__doc__', '__eq__', '__format__', '__ge__',
+                #   '__getattribute__', '__getitem__', '__getnewargs__', '__getslice__', '__gt__', '__hash__', '__init__',
+                #   '__le__', '__len__', '__lt__', '__mod__', '__mul__', '__ne__', '__new__', '__reduce__', '__reduce_ex__',
+                #   '__repr__', '__rmod__', '__rmul__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__',
+                #   '_formatter_field_name_split', '_formatter_parser', 'capitalize', 'center', 'count', 'decode', 'encode',
+                #   'endswith', 'expandtabs', 'find', 'format', 'index', 'isalnum', 'isalpha', 'isdecimal', 'isdigit',
+                #   'islower', 'isnumeric', 'isspace', 'istitle', 'isupper', 'join', 'ljust', 'lower', 'lstrip', 'partition',
+                #   'replace', 'rfind', 'rindex', 'rjust', 'rpartition', 'rsplit', 'rstrip', 'split', 'splitlines',
+                #   'startswith', 'strip', 'swapcase', 'title', 'translate', 'upper', 'zfill'])
+                print("dir(p)=", dir(p))
+
+                # prop_obj=<wmi_property: MaximumWorkingSetSize>
+                print("prop_obj=", prop_obj)
+
+                # dir(prop_obj)=['__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattr__',
+                # '__getattribute__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__',
+                # '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', 'name',
+                # 'property', 'qualifiers', 'set', 'type', 'value']
+                print("dir(prop_obj)=", dir(prop_obj))
 
             try:
-                only_read = prop_obj.qualifiers['read']
-            except:
-                only_read = False
-            # if not only_read:
-            if only_read:
-                map_attributes[prop_obj.name] = {
-                    "predicate_type": prop_obj.type,
-                    "predicate_domain": class_name }
+                prop_dict = map_attributes[prop_obj.name]
+            except KeyError:
+                prop_dict = {"predicate_type": prop_obj.type, "predicate_domain": []}
+                map_attributes[prop_obj.name] = prop_dict
+
+            prop_dict["predicate_domain"].append(class_name)
+            map_classes[class_name]["class_keys_list"].append(prop_obj.name)
+
+            # try:
+            #     only_read = prop_obj.qualifiers['read']
+            # except:
+            #     only_read = False
+            # # if not only_read:
+            # if only_read:
+            #     map_attributes[prop_obj.name] = {
+            #         "predicate_type": prop_obj.type,
+            #         "predicate_domain": class_name }
 
         # Second enumeration of properties, different style.
-        if theCls:
+        if False and theCls:
             for propObj in theCls.Properties_:
                 try:
                     map_attributes[propObj.Name]["predicate_description"]
@@ -909,3 +989,89 @@ class WmiSparqlCallbackApi:
             if grph:
                 grph.add((subclass_node, lib_kbase.PredicateSubClassOf, class_node))
             yield subclass_path, dict_key_values
+
+
+class WmiSparqlExecutor:
+    def __init__(self):
+        # Current host and default namespace.
+        self.m_wmi_connection = WmiConnect("","")
+
+    def SelectObjectFromProperties(self, class_name, filtered_where_key_values):
+        INFO("WmiSparqlExecutor.SelectObjectFromProperties class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
+        assert class_name
+
+        # HACK: Temporary hard-code !!
+        if class_name == "CIM_DataFile" and "Name" in filtered_where_key_values:
+            filnam = filtered_where_key_values["Name"]
+            filtered_where_key_values["Name"] = filnam.replace("/","\\")
+            DEBUG("SelectObjectFromProperties REPLACED CIM_DataFile where_key_values=%s", filtered_where_key_values)
+        elif class_name == "CIM_Directory" and "Name" in filtered_where_key_values:
+            filnam = filtered_where_key_values["Name"]
+            filtered_where_key_values["Name"] = filnam.replace("/","\\")
+            DEBUG("SelectObjectFromProperties REPLACED CIM_Directory where_key_values=%s", filtered_where_key_values)
+
+        wmi_query = lib_util.SplitMonikToWQL(filtered_where_key_values, class_name)
+        DEBUG("WmiCallbackSelect wmi_query=%s", wmi_query)
+
+        try:
+            wmi_objects = self.m_wmi_connection.query(wmi_query)
+        except Exception as exc:
+            ERROR("WmiSparqlExecutor.SelectObjectFromProperties wmi_query='%s': Caught:%s" %(wmi_query, exc))
+            raise
+
+        for one_wmi_object in wmi_objects:
+            # The WMI path is not a correct path for Survol: The class could be a derived class of the CIM standard,
+            # and the prefix containing the Windows host, must rather contain a Survol agent.
+            # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
+            object_path = str(one_wmi_object.path())
+            DEBUG("one_wmi_object.path=%s",object_path)
+            list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, class_name )
+            dict_key_values = { node_key: node_value for node_key, node_value in list_key_values}
+
+            # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
+            dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeProp(class_name)
+
+            DEBUG("dict_key_values=%s",dict_key_values)
+            yield ( object_path, dict_key_values )
+
+    # NOT TESTED YET.
+    def SelectAssociatorsFromObject(self, result_class_name, associator_key_name, subject_path):
+        # subject_path = '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="31588"'
+        dummy, colon, wmi_path = subject_path.partition(":")
+        DEBUG("WmiCallbackAssociator wmi_path=%s", wmi_path)
+
+        # HACK: Temporary hard-code !! Same problem as WmiCallbackSelect
+        # TODO: We must quadruple backslashes in Sparql queries.
+        if "CIM_DataFile.Name" in wmi_path:
+            wmi_path = wmi_path.replace("\\\\","\\")
+            DEBUG("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
+        elif "CIM_Directory.Name" in wmi_path:
+            wmi_path = wmi_path.replace("\\\\", "\\")
+            DEBUG("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
+        elif "Win32_Directory.Name" in wmi_path:
+            wmi_path = wmi_path.replace("\\\\","\\")
+            DEBUG("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
+        assert wmi_path
+
+        # 'ASSOCIATORS OF {Win32_Process.Handle="1780"} WHERE AssocClass=CIM_ProcessExecutable ResultClass=CIM_DataFile'
+        # 'ASSOCIATORS OF {CIM_DataFile.Name="c:\\program files\\mozilla firefox\\firefox.exe"} WHERE AssocClass = CIM_ProcessExecutable ResultClass = CIM_Process'
+        wmi_query = "ASSOCIATORS OF {%s} WHERE AssocClass=%s ResultClass=%s" % (wmi_path, associator_key_name, result_class_name)
+
+        DEBUG("WmiCallbackAssociator wmi_query=%s", wmi_query)
+
+        wmi_objects = self.m_wmi_connection.query(wmi_query)
+
+        for one_wmi_object in wmi_objects:
+            # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
+            object_path = str(one_wmi_object.path())
+            DEBUG("WmiCallbackAssociator one_wmi_object.path=%s",object_path)
+            list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, result_class_name )
+            dict_key_values = { node_key:node_value for node_key,node_value in list_key_values}
+
+            # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"
+            # p=http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+            # o=http://primhillcomputers.com/survol/Win32_UserAccount
+            dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeNodeForSparql(result_class_name)
+
+            DEBUG("WmiCallbackAssociator dict_key_values=%s", dict_key_values)
+            yield (object_path, dict_key_values)

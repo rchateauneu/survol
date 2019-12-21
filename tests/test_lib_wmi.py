@@ -41,7 +41,13 @@ class LibWmiTest(unittest.TestCase):
         print(sorted(map_attributes.keys()))
         self.assertTrue("Handle" in map_attributes)
         self.assertTrue("Name" in map_attributes)
-        self.assertTrue("Caption" in map_attributes)
+        # 'Caption' is not a key.
+        self.assertTrue("Caption" not in map_attributes)
+
+        print("Everything about Win32_Process")
+        for property_name, property_dict in map_attributes.items():
+            if "Win32_Process" in property_dict["predicate_domain"]:
+                print("property_dict=", property_dict)
 
 
     @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported.")

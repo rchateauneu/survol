@@ -385,10 +385,10 @@ def DispClassObjectsNoJinja(dictSubjPropObj):
     for aSubj in dictSubjPropObj:
         subj_str = str(aSubj)
         ( subj_title, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(subj_str)
-        #if subj_title[0] == 'Y' and subj_title.find("Boulogne"):
-        #    sys.stderr.write("DispClassObjectsNoJinja subj_str=%s\n" % subj_str)
-        #    sys.stderr.write("DispClassObjectsNoJinja subj_title=%s\n" % subj_title)
-        #    continue
+        if subj_title[0] == 'Y' and subj_title.find("Boulogne"):
+            sys.stderr.write("DispClassObjectsNoJinja subj_str=%s\n" % subj_str)
+            sys.stderr.write("DispClassObjectsNoJinja subj_title=%s\n" % subj_title)
+            continue
         lstTuplesSubjects.append((aSubj, subj_str, subj_title, entity_graphic_class, entity_id))
 
     # Sorted by the title of the subject, which is the third value of the tuple.
@@ -402,11 +402,11 @@ def DispClassObjectsNoJinja(dictSubjPropObj):
     # Now it iterates on the sorted list.
     # This reuses all the intermediate values.
     for aSubj, subj_str, subj_title, entity_graphic_class, entity_id in lstTuplesSubjects:
-        #if aSubj.find("Boulogne") >= 0 or subj_str.find("Boulogne") >= 0 or subj_title.find("Boulogne") >= 0:
-        #    sys.stderr.write("aSubj=%s\n" % aSubj)
-        #    sys.stderr.write("subj_str=%s\n" % subj_str)
-        #    sys.stderr.write("subj_title=%s\n" % subj_title)
-        #    continue
+        if aSubj.find("Boulogne") >= 0 or subj_str.find("Boulogne") >= 0 or subj_title.find("Boulogne") >= 0:
+            sys.stderr.write("aSubj=%s\n" % aSubj)
+            sys.stderr.write("subj_str=%s\n" % subj_str)
+            sys.stderr.write("subj_title=%s\n" % subj_title)
+            continue
 
         dictPred = dictSubjPropObj[aSubj]
 
@@ -441,11 +441,11 @@ def DispClassObjectsNoJinja(dictSubjPropObj):
             lib_util.natural_sort_list(lstTuplesObjs,key=lambda tup: tup[2])
 
             for anObj, obj_str, obj_title in lstTuplesObjs:
-                #if anObj.find("Boulogne") >= 0 or obj_str.find("Boulogne") >= 0 or obj_title.find("Boulogne") >= 0:
-                #    sys.stderr.write("anObj=%s\n"%anObj)
-                #    sys.stderr.write("obj_str=%s\n"%obj_str)
-                #    sys.stderr.write("obj_title=%s\n"%obj_title)
-                #    continue
+                if anObj.find("Boulogne") >= 0 or obj_str.find("Boulogne") >= 0 or obj_title.find("Boulogne") >= 0:
+                    sys.stderr.write("anObj=%s\n"%anObj)
+                    sys.stderr.write("obj_str=%s\n"%obj_str)
+                    sys.stderr.write("obj_title=%s\n"%obj_title)
+                    continue
 
                 yield( '<tr>' )
 
