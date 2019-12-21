@@ -37,7 +37,7 @@ RemoteEventsTestAgent = "http://%s:%d" % (CurrentMachine, RemoteEventsTestPort)
 # "vps516494.localdomain": "http://vps516494.ovh.net/Survol/survol" }[CurrentMachine]
 # Name = "vps516494.ovh.net")
 SurvolServerHostname = "vps516494.ovh.net"
-SurvolServerAgent = "http://vps516494.ovh.net:80/Survol/survol"
+SurvolServerAgent = "http://vps516494.ovh.net:80/Survol"
 SurvolWbemCimom = "http://vps516494.ovh.net:5988"
 
 is_platform_windows = sys.platform.startswith("win")
