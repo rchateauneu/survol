@@ -68,7 +68,7 @@ def EntityArrToAlias(entity_type,entity_ids_arr,force_entity_ip_addr ):
 # entity_id=Dependent=root/cimv2:LMI_StorageExtent.CreationClassName="LMI_StorageExtent",SystemCreationClassName="PG_ComputerSystem" Antecedent=root/cimv2:LMI_DiskDrive.CreationClassName="LMI_DiskDrive",DeviceID="/dev/sda"
 # This is not easy to manage but avoids ambiguities.
 def EntityToLabel(entity_type,entity_ids_concat,force_entity_ip_addr):
-    # sys.stderr.write("EntityToLabel entity_id=%s entity_type=%s\n" % ( entity_ids_concat, entity_type ) )
+    sys.stderr.write("EntityToLabel entity_id=%s entity_type=%s\n" % ( entity_ids_concat, entity_type ) )
 
     # Specific case of objtypes.py
     if not entity_ids_concat:
@@ -81,7 +81,7 @@ def EntityToLabel(entity_type,entity_ids_concat,force_entity_ip_addr):
     ontoKeys = lib_util.OntologyClassKeys(entity_type)
 
     # Default value if key is missing.
-    entity_ids_arr = [ splitKV.get( keyOnto, keyOnto + "?" ) for keyOnto in ontoKeys ]
+    entity_ids_arr = [splitKV.get(keyOnto, keyOnto + "?") for keyOnto in ontoKeys]
 
     if force_entity_ip_addr:
         entity_label = EntityArrToAlias(entity_type,entity_ids_arr,force_entity_ip_addr)
