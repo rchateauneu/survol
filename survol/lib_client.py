@@ -1032,14 +1032,14 @@ def CheckOntologyGraph(ontology_key, survol_agent = None):
     import rdflib
 
     url_script = {
-            "survol": "/survol/ontologies/Survol_RDFS.py",
-            "wmi": "/survol/ontologies/WMI_RDFS.py",
-            "wbem": "/survol/ontologies/WBEM_RDFS.py"}[ontology_key]
+            "survol": "ontologies/Survol_RDFS.py",
+            "wmi": "ontologies/WMI_RDFS.py",
+            "wbem": "ontologies/WBEM_RDFS.py"}[ontology_key]
 
     if survol_agent:
         # TODO: The url syntax differences between SourceLocal and SourceRemote are not convenient.
         # TODO: Remove this leading "/" slash.
-        mySource = SourceRemote(survol_agent + url_script)
+        mySource = SourceRemote(survol_agent + "/survol/" + url_script)
     else:
         mySource = SourceLocal(url_script)
     ontologySurvol = mySource.get_content_moded(None)
