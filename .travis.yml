@@ -12,4 +12,4 @@ install:
   - pip install sqlparse
 script:
   - pwd
-  - pytest --durations=30 tests
+  - pytest -v --durations=30 tests
