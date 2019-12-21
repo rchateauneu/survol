@@ -1155,12 +1155,21 @@ class SurvolLocalGdbTest(unittest.TestCase):
 
         listRequired = [
             'linker_symbol.Name=X19wb2xsX25vY2FuY2Vs,File=/lib64/libc.so.6',
-            'CIM_DataFile.Name=/usr/bin/python2.7',
-            'linker_symbol.Name=cG9sbF9wb2xs,File=/usr/bin/python2.7',
             'CIM_DataFile.Name=/lib64/libc.so.6',
             CurrentUserPath,
             CurrentProcessPath
         ]
+        if sys.version_info >= (3,):
+            listRequired += [
+                'CIM_DataFile.Name=/usr/bin/python3.6',
+                'linker_symbol.Name=cG9sbF9wb2xs,File=/usr/bin/python3.6',
+        ]
+        else:
+            listRequired += [
+                'CIM_DataFile.Name=/usr/bin/python2.7',
+                'CIM_DataFile.Name=/lib64/libc.so.6',
+        ]
+
 
         strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
 
