@@ -223,7 +223,7 @@ def WsgiAgentStart(agent_url, agent_port):
         INFO("current_dir=%s",current_dir)
         INFO("sys.path=%s",str(sys.path))
 
-        atexit.register(ServerDumpContent,scripts.wsgiserver.WsgiServerLogFileName(agent_port))
+        atexit.register(ServerDumpContent,scripts.wsgiserver.WsgiServerLogFileName)
 
         agent_process = multiprocessing.Process(
             target=scripts.wsgiserver.StartWsgiServer,
@@ -237,7 +237,7 @@ def WsgiAgentStart(agent_url, agent_port):
             response = portable_urlopen( local_agent_url, timeout=5)
         except Exception as exc:
             ERROR("Caught:", exc)
-            ServerDumpContent( scripts.wsgiserver.WsgiServerLogFileName(agent_port) )
+            ServerDumpContent( scripts.wsgiserver.WsgiServerLogFileName)
             raise
 
     data = response.read().decode("utf-8")
