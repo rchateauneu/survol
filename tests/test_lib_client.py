@@ -2422,12 +2422,12 @@ class SurvolInternalTest(unittest.TestCase):
         print("RootUri=",mapInternalData["RootUri"])
         print("anAgentStr=",anAgentStr)
 
-        self.assertTrue(mapInternalData["uriRoot"] == anAgentStr)
+        self.assertTrue(mapInternalData["uriRoot"] == anAgentStr + "/survol")
 
         # When the agent is started automatically, "?xid=" is added at the end of the URL.
         # http://rchateau-hp:8000/survol/print_internal_data_as_json.py?xid=
         # This adds lib_util.xidCgiDelimiter at the end.
-        assert(mapInternalData["RootUri"] == anAgentStr + "/print_internal_data_as_json.py" + "?xid=")
+        assert(mapInternalData["RootUri"] == anAgentStr + "/survol/print_internal_data_as_json.py" + "?xid=")
 
     def test_internal_remote(self):
         self.check_internal_values(RemoteTestAgent)
@@ -2441,8 +2441,8 @@ class SurvolInternalTest(unittest.TestCase):
         # The key is the return value of socket.gethostname().lower()
         try:
             RemoteTestApacheAgent = {
-                "rchateau-hp": "http://192.168.1.10:80/Survol/survol",
-                "vps516494.localdomain": SurvolServerAgent }[CurrentMachine]
+                "rchateau-hp": "http://192.168.1.10:80/Survol",
+                "vps516494.localdomain": SurvolServerAgent}[CurrentMachine]
             self.check_internal_values(RemoteTestApacheAgent)
         except KeyError:
             print("test_internal_apache cannot be run on machine:",CurrentMachine)
