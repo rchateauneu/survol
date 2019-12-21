@@ -555,12 +555,16 @@ def ExtractRemoteWbemOntology(wbem_connection):
             # TODO: Do not return all keys !!!
             class_keys = WbemGetClassKeysFromConnection(wbem_name_space, class_name, wbem_connection)
             for key_name in class_keys:
-                # TODO: If there are duplicate attribute names, there could be a filtering
-                # based on the class, or the domain could be replaced by a list ?
-                map_attributes[key_name] = {
-                    "predicate_type": "string",
-                    "predicate_description": "Attribute WBEM %s" % key_name,
-                    "predicate_domain": concat_class_name}
+                # The same key might exist for several classes.
+                try:
+                    key_attributes = map_attributes[key_name]
+                except KeyError:
+                    key_attributes = {
+                        "predicate_type": "string",
+                        "predicate_description": "Attribute WBEM %s" % key_name,
+                        "predicate_domain": []}
+                    map_attributes[key_name] = key_attributes
+                key_attributes["predicate_domain"].append(concat_class_name)
 
     return map_classes, map_attributes
 

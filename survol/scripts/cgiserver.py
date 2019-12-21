@@ -20,6 +20,7 @@ import sys
 import getopt
 import os
 import socket
+import datetime
 
 try:
     from urlparse import urlparse
@@ -195,11 +196,13 @@ def RunCgiServerInternal():
     StartParameters(verbose, server_name, port_number)
 
 # This is used when testing on Travis, when output cannot be read.
-CgiServerLogFileName = "cgiserver.execution.log"
+def CgiServerLogFileName(port_number):
+    return "cgiserver.execution.%d.log" % port_number
 
 # The current directory can be set, this is used when this is called from multiprocessing.
 def StartParameters(verbose, server_name, port_number, current_dir = ""):
-    logfil = open(CgiServerLogFileName, "w")
+    logfil = open(CgiServerLogFileName(port_number), "w")
+    logfil.write(__file__ + " "+ datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "\n")
     logfil.write(__file__ + " startup server_name=%s port_number=%d\n" % (server_name, port_number))
     logfil.flush()
 

@@ -453,19 +453,6 @@ def _parse_query_to_key_value_pairs_list(sparql_query):
     return list_entities_by_variable
 
 ################################################################################
-def QueryHeader(sparql_query):
-    parsed = rdflib.plugins.sparql.parser.parseQuery(sparql_query)
-
-    # parsed = rdflib.plugins.sparql.parser.parseQuery("select ?a ?b where { ?a a ?b . }")
-    # parsed = ([([], {}),
-    #     SelectQuery_{'where': GroupGraphPatternSub_{'part': [TriplesBlock_{'triples': [([rdflib.term.Variable(u'a'), PathAlternative_{'part': [PathSequence_{'part': [PathElt_{'part': rdflib.term.URIRef(u'http://www.w3.org/1999/02/22-rdf-syntax-ns#type')}]}]},
-    # rdflib.term.Variable(u'b')], {})]}]}, 'projection': [vars_{'var': rdflib.term.Variable(u'a')}, vars_{'var': rdflib.term.Variable(u'b')}]}], {})
-
-    list_vars = parsed[1]['projection']
-    list_names = [str(one_var['var']) for one_var in list_vars]
-    return list_names
-
-################################################################################
 
 # This models a variable in a Sparql query.
 class QueryVariable:
@@ -834,7 +821,7 @@ def _run_callback_on_entities(
 # Each result is a dictionary: The keys are some selected variables
 # of the Sparql query, only subject variables (possibly also used as objects).
 # The values are dictionary of key-value pairs which define the variable.
-def QueryEntities(grph, sparql_query, query_callback_object):
+def QueryEntities(grph, sparql_query):
     # This returns a list of ObjectKeyValues
     object_key_values = _parse_query_to_key_value_pairs_list(sparql_query)
 
@@ -842,7 +829,7 @@ def QueryEntities(grph, sparql_query, query_callback_object):
 
     # This is a list of variables representing URLs of objects with key-values, fetched from WQL or Survol scripts.
     input_keys = [ entity_by_variable.m_object_variable_name for entity_by_variable in object_key_values ]
-    for tuple_results in _run_callback_on_entities(grph, object_key_values, query_callback_object):
+    for tuple_results in _run_callback_on_entities(grph, object_key_values):
         yield dict(zip(input_keys,tuple_results))
 
 
@@ -862,15 +849,15 @@ def QueryEntities(grph, sparql_query, query_callback_object):
 #   "associators of {CIM_Process.Handle=1780} where assocclass=CIM_ProcessExecutable"
 
 
-def QuerySeeAlsoEntities(grph, sparql_query, query_callback_object):
-    return QueryEntities(grph, sparql_query, query_callback_object)
+def QuerySeeAlsoEntities(grph, sparql_query):
+    return QueryEntities(grph, sparql_query)
 
 ##################################################################################
 
 # This runs a Sparql callback and transforms the returned objects into RDF triples.
-def QueryToGraph(grph, sparql_query, query_callback_object):
+def QueryToGraph(grph, sparql_query):
 
-    iter_entities_dicts = QueryEntities(grph, sparql_query, query_callback_object)
+    iter_entities_dicts = QueryEntities(grph, sparql_query)
 
     # FIXME: Survol scripts are not able to return objects,
     # FIXME: but they natively create triples which can be fed into the graph:

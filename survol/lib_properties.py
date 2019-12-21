@@ -1,7 +1,7 @@
 import lib_kbase
 
 # This is an RDF prefix.
-primns = "http://primhillcomputers.com/survol"
+primns = "http://www.primhillcomputers.com/survol"
 
 pc = lib_kbase.MakeNamespace(primns)
 

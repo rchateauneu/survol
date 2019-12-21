@@ -44,7 +44,7 @@ class LibWbemTest(unittest.TestCase):
         self.assertTrue("Caption" in map_attributes)
 
     @unittest.skipIf(is_travis_machine(), "Test is too slow for Travis")
-    @unittest.skipIf(not pkgutil.find_loader('pywbem'), "pywbem cannot be imported. test_remote_ontology not executed.")
+    @unittest.skipIf(not has_wbem(), "pywbem cannot be imported. test_remote_ontology not executed.")
     def test_remote_ontology(self):
         """Very slow test: It displays the entire list of classes and their properties."""
         # In contrast to another test which remotely connect to a Survol agent,
@@ -56,7 +56,7 @@ class LibWbemTest(unittest.TestCase):
         self.assertTrue( "CIM_Process" in map_classes)
         self.assertTrue("Handle" in map_attributes)
 
-    @unittest.skipIf(not pkgutil.find_loader('pywbem'), "pywbem cannot be imported. test_remote_ontology not executed.")
+    @unittest.skipIf(not has_wbem(), "pywbem cannot be imported. test_remote_ontology not executed.")
     def test_remote_namespaces(self):
         """At least the defaultnamespace must be there."""
         wbem_connection = lib_wbem.WbemConnection(SurvolWbemCimom)

@@ -13,6 +13,7 @@ import sys
 import json
 import xml.etree.cElementTree as ET
 import logging
+import rdflib
 
 import lib_util
 import lib_common
@@ -20,7 +21,7 @@ import lib_kbase
 import lib_sparql
 import lib_wmi
 import lib_wbem
-import lib_sparql_callback_survol
+import lib_sparql_custom_evals
 
 # For the moment, it just displays the content of the input to standard error,
 # so the SparQL protocol can be analysed.
@@ -31,10 +32,34 @@ import lib_sparql_callback_survol
 
 lib_util.SetLoggingConfig(logging.DEBUG)
 
+
+def __run_sparql_query(sparql_query):
+    grph = lib_kbase.MakeGraph()
+
+    # add function directly, normally we would use setuptools and entry_points
+    rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_function'] = lib_sparql_custom_evals.custom_eval_function
+    query_result = grph.query(sparql_query)
+    if 'custom_eval_function' in rdflib.plugins.sparql.CUSTOM_EVALS:
+        del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_function']
+    return query_result
+
+################################################################################
+def __query_header(sparql_query):
+    parsed = rdflib.plugins.sparql.parser.parseQuery(sparql_query)
+
+    # parsed = rdflib.plugins.sparql.parser.parseQuery("select ?a ?b where { ?a a ?b . }")
+    # parsed = ([([], {}),
+    #     SelectQuery_{'where': GroupGraphPatternSub_{'part': [TriplesBlock_{'triples': [([rdflib.term.Variable(u'a'), PathAlternative_{'part': [PathSequence_{'part': [PathElt_{'part': rdflib.term.URIRef(u'http://www.w3.org/1999/02/22-rdf-syntax-ns#type')}]}]},
+    # rdflib.term.Variable(u'b')], {})]}]}, 'projection': [vars_{'var': rdflib.term.Variable(u'a')}, vars_{'var': rdflib.term.Variable(u'b')}]}], {})
+
+    list_vars = parsed[1]['projection']
+    list_names = [str(one_var['var']) for one_var in list_vars]
+    return list_names
+
+
 # This is a SPARQL server which executes the query with WMI data.
 def Main():
     lib_util.SetLoggingConfig(logging.ERROR)
-    # envSparql = lib_sparql.SparqlEnvironment()
 
     # https://hhs.github.io/meshrdf/sparql-and-uri-requests
 
@@ -117,29 +142,13 @@ def Main():
 
     sys.stderr.write("\n")
 
-    grph = lib_kbase.MakeGraph()
+    query_result = __run_sparql_query(sparql_query)
 
-    prefix_to_callbacks = {
-        "WMI": lib_wmi.WmiSparqlCallbackApi(),
-        "WBEM": lib_wbem.WbemSparqlCallbackApi(),
-        "survol": lib_sparql_callback_survol.SurvolSparqlCallbackApi(),
-    }
-
-    objectUnitTestCallbackApi = lib_sparql.SwitchCallbackApi(prefix_to_callbacks)
-
-    lib_sparql.QueryToGraph(grph, sparql_query, objectUnitTestCallbackApi )
-
-    sys.stderr.write("Before query len(grph)=%d\n" % len(grph))
-    for s,p,o in grph:
-        sys.stderr.write("s=%s p=%s o=%s\n" % (s,p,o))
-
-    sys.stderr.write("sparql_server sparql_query=%s\n" % sparql_query)
-    query_result = grph.query(sparql_query)
     sys.stderr.write("sparql_server After query len(query_result)=%d\n" % len(query_result))
     sys.stderr.write("sparql_server After query query_result=%s\n" % str(query_result))
 
     # TODO: This does not work "select *", so maybe should read the first row.
-    row_header = lib_sparql.QueryHeader(sparql_query)
+    row_header = __query_header(sparql_query)
 
     # https://docs.aws.amazon.com/neptune/latest/userguide/sparql-api-reference-mime.html
 

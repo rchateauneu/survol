@@ -150,7 +150,6 @@ if sys.version_info >= (3,):
 
     six_string_types = str,
     six_integer_types = int,
-    #six_class_types = type
     six_text_type = str
     six_binary_type = bytes
 
@@ -164,12 +163,11 @@ else:
 
     six_string_types = basestring,
     six_integer_types = (int, long)
-    #six_class_types = (type, types.ClassType)
     six_text_type = unicode
     six_binary_type = str
 
 # Add all usual Python types.
-scalar_data_types = six_string_types + ( six_text_type, six_binary_type ) + six_integer_types
+scalar_data_types = six_string_types + ( six_text_type, six_binary_type, float, bool ) + six_integer_types
 
 ################################################################################
 
@@ -1684,11 +1682,14 @@ def AppendPropertySurvolOntology(namePredicate, descriptionPredicate, domainPred
         dataType = "string"
     if not descriptionPredicate:
         descriptionPredicate = "Predicate %s" % namePredicate
-    map_attributes[namePredicate] = {
-        "predicate_type": dataType,
-        "predicate_description": descriptionPredicate,
-        "predicate_domain" : domainPredicate,
-        "predicate_range" : rangePredicate }
+    if namePredicate in map_attributes:
+        map_attributes[namePredicate]["predicate_domain"].append(domainPredicate)
+    else:
+        map_attributes[namePredicate] = {
+            "predicate_type": dataType,
+            "predicate_description": descriptionPredicate,
+            "predicate_domain" : [domainPredicate],
+            "predicate_range" : rangePredicate }
 
 
 # TODO: Should we get classes and properties descriptions from WMI and WBEM ?

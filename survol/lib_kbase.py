@@ -227,12 +227,17 @@ def PropNameToXsdType(prop_type):
 
 # Construct the linked data tools namespace
 # See lib_properties.py: primns = "http://primhillcomputers.com/survol"
+# Beware that this URL is scattered at several places.
 LDT = rdflib.Namespace("http://www.primhillcomputers.com/survol#")
+
+
+def RdfsPropertyNode(property_name):
+    return rdflib.URIRef(LDT[property_name])
 
 # Create the node to add to the Graph
 # Example: "http://www.primhillcomputers.com/survol#CIM_DataFile"
-def RdfsClassNode(className):
-    return rdflib.URIRef(LDT[className])
+def RdfsClassNode(class_name):
+    return rdflib.URIRef(LDT[class_name])
 
 def AddNodeToRdfsClass(grph, nodeObject, className, entity_label):
     nodeClass = RdfsClassNode(className)
@@ -287,11 +292,14 @@ def CreateRdfsOntology(map_classes, map_attributes, graph=None):
     for prop_name in map_attributes:
         prop_dict = map_attributes[prop_name]
         prop_type = prop_dict.get("predicate_type", "")
-        prop_domain = prop_dict.get("predicate_domain", "")
+        # This contains a list of class names.
+        prop_domain = prop_dict.get("predicate_domain", [])
         prop_range = prop_dict.get("predicate_range", "")
         prop_desc = prop_dict.get("predicate_description", "")
 
-        AddPropertyToRdfsOntology(graph, prop_name, prop_type, prop_domain, prop_range, prop_desc)
+        # The same key can exist for several classes.
+        for one_class in prop_domain:
+            AddPropertyToRdfsOntology(graph, prop_name, prop_type, one_class, prop_range, prop_desc)
 
     # Bind the LDT name spaces
     graph.bind("ldt", LDT)

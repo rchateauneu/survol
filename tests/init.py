@@ -3,6 +3,8 @@
 # Confusing and incomplete explanation here:
 # https://stackoverflow.com/questions/41748464/pytest-cannot-import-module-while-python-can
 
+from __future__ import print_function
+
 import os
 import sys
 import socket
@@ -108,7 +110,13 @@ def is_travis_machine():
 
 def is_linux_wbem():
     # WBEM is not available on TravisCI.
-    return is_platform_linux and pkgutil.find_loader('pywbem') and not is_travis_machine()
+    return is_platform_linux and has_wbem() and not is_travis_machine()
+
+def has_wbem():
+    # WBEM is not available on TravisCI.
+    return False
+    # Temporarily disable WBEM because firewall blocks wbem port.
+    return pkgutil.find_loader('pywbem')
 
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
@@ -166,17 +174,18 @@ def CgiAgentStart(agent_url, agent_port):
             target=scripts.cgiserver.StartParameters,
             args=(True, AgentHost, agent_port, current_dir))
 
-        atexit.register(ServerDumpContent, scripts.cgiserver.CgiServerLogFileName )
+        atexit.register(ServerDumpContent, scripts.cgiserver.CgiServerLogFileName(agent_port) )
 
         agent_process.start()
         INFO("CgiAgentStart: Waiting for CGI agent to start")
         time.sleep(3.0)
         local_agent_url = "http://%s:%s/survol/entity.py" % (AgentHost, agent_port)
+        print("CgiAgentStart local_agent_url=", local_agent_url)
         try:
-            response = portable_urlopen( local_agent_url, timeout=5)
+            response = portable_urlopen(local_agent_url, timeout=5)
         except Exception as exc:
             ERROR("Caught:%s", exc)
-            ServerDumpContent(scripts.cgiserver.CgiServerLogFileName)
+            ServerDumpContent(scripts.cgiserver.CgiServerLogFileName(agent_port))
             raise
 
     data = response.read().decode("utf-8")
@@ -214,7 +223,7 @@ def WsgiAgentStart(agent_url, agent_port):
         INFO("current_dir=%s",current_dir)
         INFO("sys.path=%s",str(sys.path))
 
-        atexit.register(ServerDumpContent,scripts.wsgiserver.WsgiServerLogFileName )
+        atexit.register(ServerDumpContent,scripts.wsgiserver.WsgiServerLogFileName(agent_port))
 
         agent_process = multiprocessing.Process(
             target=scripts.wsgiserver.StartWsgiServer,
@@ -228,7 +237,7 @@ def WsgiAgentStart(agent_url, agent_port):
             response = portable_urlopen( local_agent_url, timeout=5)
         except Exception as exc:
             ERROR("Caught:", exc)
-            ServerDumpContent( scripts.wsgiserver.WsgiServerLogFileName )
+            ServerDumpContent( scripts.wsgiserver.WsgiServerLogFileName(agent_port) )
             raise
 
     data = response.read().decode("utf-8")
@@ -270,17 +279,9 @@ def QueriesEntitiesToValuePairs(iter_entities_dicts):
             one_entities_dict_qname[variable_name] = dict_qname_value
         yield one_entities_dict_qname
 
-def QueryKeyValuePairs(sparql_query, sparql_callback):
-    iter_entities_dicts = lib_sparql.QueryEntities(None, sparql_query, sparql_callback)
-    list_entities_dicts = list(iter_entities_dicts)
-    iter_dict_objects = QueriesEntitiesToValuePairs(list_entities_dicts)
-    list_dict_objects = list(iter_dict_objects)
-    return list_dict_objects
-
-
-def QuerySeeAlsoKeyValuePairs(grph, sparql_query, sparql_callback):
+def QuerySeeAlsoKeyValuePairs(grph, sparql_query):
     WARNING("QuerySeeAlsoKeyValuePairs")
-    iter_entities_dicts = lib_sparql.QuerySeeAlsoEntities(grph, sparql_query, sparql_callback)
+    iter_entities_dicts = lib_sparql.QuerySeeAlsoEntities(grph, sparql_query)
     iter_dict_objects = QueriesEntitiesToValuePairs(iter_entities_dicts)
     list_dict_objects = list(iter_dict_objects)
     return list_dict_objects

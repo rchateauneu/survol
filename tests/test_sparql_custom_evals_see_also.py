@@ -49,7 +49,7 @@ class SparqlSeeAlsoPortableTest(unittest.TestCase):
         for sparql_query, one_expected_dict in array_survol_queries:
             print("sparql_query=",sparql_query)
 
-            list_dict_objects = QuerySeeAlsoKeyValuePairs( None, sparql_query, unittestCallback)
+            list_dict_objects = QuerySeeAlsoKeyValuePairs(None, sparql_query)
 
             # The expected object must be a subset of one of the returned objects.
             #print("list_dict_objects=",list_dict_objects)
@@ -191,7 +191,7 @@ class SparqlSeeAlsoPortableTest(unittest.TestCase):
         for sparql_query, one_expected_dict in array_survol_queries:
             print("sparql_query=",sparql_query)
 
-            list_dict_objects = QuerySeeAlsoKeyValuePairs(None, sparql_query, unittestCallback)
+            list_dict_objects = QuerySeeAlsoKeyValuePairs(None, sparql_query)
 
             #print("list_dict_objects=",list_dict_objects)
             #print("GOLD=",one_expected_dict)
