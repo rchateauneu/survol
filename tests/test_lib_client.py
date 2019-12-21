@@ -861,7 +861,7 @@ class SurvolLocalWbemTest(unittest.TestCase):
 class SurvolRemoteWbemTest(unittest.TestCase):
     """These tests do not need a Survol agent"""
 
-    @unittest.skipIf(not pkgutil.find_loader('pywbem'), "pywbem cannot be imported. test_wbem_hostname_processes_remote not executed.")
+    @unittest.skipIf(not has_wbem(), "pywbem cannot be imported. test_wbem_hostname_processes_remote not executed.")
     def test_wbem_hostname_processes_remote(self):
         """Get processes on remote machine"""
 
@@ -873,7 +873,7 @@ class SurvolRemoteWbemTest(unittest.TestCase):
         mySource.GetTriplestore()
 
 
-    @unittest.skipIf(not pkgutil.find_loader('pywbem'), "pywbem cannot be imported. test_wbem_hostname_processes_remote not executed.")
+    @unittest.skipIf(not has_wbem(), "pywbem cannot be imported. test_wbem_hostname_processes_remote not executed.")
     def test_wbem_info_processes_remote(self):
         """Display information about one process on a remote machine"""
 
@@ -931,7 +931,7 @@ class SurvolRemoteWbemTest(unittest.TestCase):
         self.assertTrue(num_exit_processes < 10)
 
     # This test is very slow and should not fail Travis.
-    @unittest.skipIf(not pkgutil.find_loader('pywbem') or is_travis_machine(), "pywbem cannot be imported. test_remote_ontology_wbem not executed.")
+    @unittest.skipIf(not has_wbem() or is_travis_machine(), "pywbem cannot be imported. test_remote_ontology_wbem not executed.")
     def test_remote_ontology_wbem(self):
         missing_triples = lib_client.CheckOntologyGraph("wbem", SurvolServerAgent)
         self.assertTrue(missing_triples == [], "Missing triples:%s" % str(missing_triples))
@@ -2054,8 +2054,11 @@ class SurvolRabbitMQTest(unittest.TestCase):
             "rabbitmq/manager",
             Url=rabbitmqManager)
 
-        # TODO: Which queues should always be present ?
+        # FIXME: Which queues should always be present ?
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+        print("test_rabbitmq_queues strInstancesSet=", strInstancesSet)
+        self.assertTrue('rabbitmq/vhost.Url=localhost:12345,VHost=/' in strInstancesSet)
+        self.assertTrue('rabbitmq/manager.Url=localhost:12345' in strInstancesSet)
 
 
     @decorator_rabbitmq_subscription
@@ -2416,10 +2419,10 @@ class SurvolInternalTest(unittest.TestCase):
         # This breaks on Linux Python 3:
         # "http://localhost:8000/survol"
         # "http://travis-job-051017ff-a582-4258-a817-d9cd836533a6:8000/survol"
-        self.assertTrue(mapInternalData["uriRoot"] == anAgentStr + "/survol")
-
         print("RootUri=",mapInternalData["RootUri"])
         print("anAgentStr=",anAgentStr)
+
+        self.assertTrue(mapInternalData["uriRoot"] == anAgentStr + "/survol")
 
         # When the agent is started automatically, "?xid=" is added at the end of the URL.
         # http://rchateau-hp:8000/survol/print_internal_data_as_json.py?xid=
@@ -2442,7 +2445,7 @@ class SurvolInternalTest(unittest.TestCase):
         # The key is the return value of socket.gethostname().lower()
         try:
             RemoteTestApacheAgent = {
-                "rchateau-hp": "http://192.168.0.14:80/Survol",
+                "rchateau-hp": "http://192.168.1.10:80/Survol",
                 "vps516494.localdomain": SurvolServerAgent }[CurrentMachine]
             self.check_internal_values(RemoteTestApacheAgent)
         except KeyError:
