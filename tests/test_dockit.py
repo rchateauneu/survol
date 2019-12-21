@@ -38,10 +38,16 @@ dockit_output_files_path_expected = os.path.join( os.path.dirname(__file__), "do
 
 # Creates the destination file for result if not there, otherwise cleanup.
 # This is needed otherwise pytest would run the Python files in this dir.
-# TODO: Deletes the content, not the directory.
 if os.path.exists(dockit_output_files_path):
-    shutil.rmtree(dockit_output_files_path)
-os.makedirs(dockit_output_files_path)
+    for file_object in os.listdir(dockit_output_files_path):
+        file_object_path = os.path.join(dockit_output_files_path, file_object)
+        if os.path.isfile(file_object_path) or os.path.islink(file_object_path):
+            os.unlink(file_object_path)
+        else:
+            shutil.rmtree(file_object_path)
+else:
+    # Creates the outdir directory, because it is not there.
+    os.makedirs(dockit_output_files_path)
 
 def path_prefix_output_result(*file_path):
     return os.path.join(dockit_output_files_path, *file_path)
