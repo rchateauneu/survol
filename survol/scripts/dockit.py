@@ -6,7 +6,7 @@
 # Requires Python 2.7 and later.
 
 __author__      = "Remi Chateauneu"
-__copyright__   = "Primhill Computers, 2018"
+__copyright__   = "Primhill Computers, 2018-2020"
 __credits__ = ["","",""]
 __license__ = "GPL"
 __version__ = "0.0.1"
