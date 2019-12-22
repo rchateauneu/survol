@@ -33,6 +33,8 @@ RemoteTestPort = 8000
 RemoteTestAgent = "http://%s:%d" % (CurrentMachine, RemoteTestPort)
 RemoteEventsTestPort = 8001
 RemoteEventsTestAgent = "http://%s:%d" % (CurrentMachine, RemoteEventsTestPort)
+RemoteSparqlServerPort = 8002
+RemoteSparqlServerAgent = "http://%s:%d" % (CurrentMachine, RemoteSparqlServerPort)
 
 # "vps516494.localdomain": "http://vps516494.ovh.net/Survol/survol" }[CurrentMachine]
 # Name = "vps516494.ovh.net")
