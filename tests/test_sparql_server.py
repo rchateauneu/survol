@@ -19,6 +19,18 @@ from init import *
 
 update_test_path()
 
+# If the Survol agent does not exist, this script starts a local one.
+RemoteSparqlServerProcess = None
+
+def setUpModule():
+    global RemoteSparqlServerProcess
+    RemoteSparqlServerProcess = CgiAgentStart(RemoteSparqlServerProcess, RemoteSparqlServerPort)
+
+def tearDownModule():
+    global RemoteSparqlServerProcess
+    CgiAgentStop(RemoteSparqlServerProcess)
+
+
 # <?xml version="1.0" ?>
 # <sparql><head><variable name="caption"/></head>
 #   <results>
@@ -123,7 +135,7 @@ def UrlToSparqlResult(url_rdf, sparql_query, format_str):
 def run_remote_sparql_query(sparql_query, format_str):
     print("run_remote_sparql_query sparql_query=", sparql_query)
 
-    url_sparql = RemoteTestAgent + "/survol/sparql.py"
+    url_sparql = RemoteSparqlServerAgent + "/survol/sparql.py"
 
     sparql_result = UrlToSparqlResult(url_sparql, sparql_query, format_str)
     return sparql_result
