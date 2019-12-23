@@ -184,7 +184,7 @@ def CgiAgentStart(agent_url, agent_port):
         local_agent_url = "http://%s:%s/survol/entity.py" % (AgentHost, agent_port)
         print("CgiAgentStart local_agent_url=", local_agent_url)
         try:
-            response = portable_urlopen(local_agent_url, timeout=5)
+            response = portable_urlopen(local_agent_url, timeout=15)
         except Exception as exc:
             ERROR("Caught:%s", exc)
             ServerDumpContent(scripts.cgiserver.CgiServerLogFileName(agent_port))
