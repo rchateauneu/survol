@@ -801,14 +801,14 @@ def product_variables_lists(returned_variables, iter_keys = None):
                 if isinstance(first_key, tuple):
                     # Maybe, several correlated variables of attributes of the same object.
                     assert isinstance(one_value, tuple)
-                    sys.stderr.write("len(first_key)=%d\n" % len(first_key))
-                    sys.stderr.write("len(one_value)=%d\n" % len(one_value))
+                    #sys.stderr.write("len(first_key)=%d\n" % len(first_key))
+                    #sys.stderr.write("len(one_value)=%d\n" % len(one_value))
                     sys.stderr.write("first_key=%s\n" % str(first_key))
                     sys.stderr.write("one_value=%s\n" % str(one_value))
                     assert len(first_key) == len(one_value)
                     # Each key is a tuple of variables matched by each of the tuples of the list of values.
                     assert all((isinstance(single_key, rdflib.term.Variable) for single_key in first_key))
-                    sys.stderr.write("one_value.types:%s\n" % str([type(single_value) for single_value in one_value]))
+                    #sys.stderr.write("one_value.types:%s\n" % str([type(single_value) for single_value in one_value]))
                     assert all((isinstance(single_value, (rdflib.term.Literal, rdflib.term.URIRef)) for single_value in one_value))
                     sub_dict = dict(zip(first_key, one_value))
                     new_dict.update(sub_dict)
