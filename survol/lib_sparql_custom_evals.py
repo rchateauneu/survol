@@ -795,6 +795,7 @@ def product_variables_lists(returned_variables, iter_keys = None):
         assert isinstance(values_list, list)
 
         for one_dict in product_variables_lists(returned_variables, iter_keys):
+            max_display_count_values = 100
             for one_value in values_list:
                 new_dict = one_dict.copy()
                 # This is one variable, or a tuple of variables of attributes of the same object.
@@ -803,8 +804,15 @@ def product_variables_lists(returned_variables, iter_keys = None):
                     assert isinstance(one_value, tuple)
                     #sys.stderr.write("len(first_key)=%d\n" % len(first_key))
                     #sys.stderr.write("len(one_value)=%d\n" % len(one_value))
-                    sys.stderr.write("first_key=%s\n" % str(first_key))
-                    sys.stderr.write("one_value=%s\n" % str(one_value))
+
+                    # This is to avoid the Travis message:
+                    # "The job exceeded the maximum log length, and has been terminated."
+                    if max_display_count_values > 0:
+                        sys.stderr.write("first_key=%s\n" % str(first_key))
+                        sys.stderr.write("one_value=%s\n" % str(one_value))
+                        max_display_count_values -= 1
+                        if max_display_count_values == 0:
+                            sys.stderr.write("STOP DISPLAYING EXCESSIVE NUMBER OF VALUES\n")
                     assert len(first_key) == len(one_value)
                     # Each key is a tuple of variables matched by each of the tuples of the list of values.
                     assert all((isinstance(single_key, rdflib.term.Variable) for single_key in first_key))
