@@ -103,42 +103,57 @@ def UrlToSparqlResult(url_rdf, sparql_query, format_str):
     sparql_qry_result = sparql_wrapper.query()
     results_http_convert = sparql_qry_result.convert()
 
+    print("AFTER EXECUTION ==================================")
     print("SPARQLWrapper.__version__=", SPARQLWrapper.__version__)
     print("UrlToSparqlResult type(results_convert)=", type(results_http_convert))
     print("UrlToSparqlResult results_convert=", results_http_convert)
+    sys.stdout.flush()
+
+    # xml.dom.minidom.Document
+
     # HTTP header: "Content-Type: application/sparql-results+json; charset=utf-8"
     # Depending on the version, this returns a JSON object or not.
-    if isinstance(results_http_convert, dict):
-        print("UrlToSparqlResult Returning alreay-made JSON object")
-        return results_http_convert
+    if SPARQLWrapper.__version__ <= "1.8.4":
+        if sys.version_info > (3,):
+            assert isinstance(results_http_convert,(bytes, str))
+            results_http_convert = results_http_convert.decode("utf-8")
+        else:
+            assert isinstance(results_http_convert,(str, unicode))
 
-    if sys.version_info > (3,):
-        results_http_convert = results_http_convert.decode("utf-8")
-    print("results_http_convert=", results_http_convert)
-    assert results_http_convert.startswith("Content-Type:")
-    results_conversion_split = results_http_convert.split("\n")
-    #assert results_conversion[0] == '{'
+        print("results_http_convert=", results_http_convert)
+        assert results_http_convert.startswith("Content-Type:")
+        results_conversion_split = results_http_convert.split("\n")
 
+        if format_str == "XML":
+            # Specific conversion of XML Sparql results to JSON, so we can use the same results data.
+            # print("dir(results_conversion)=",dir(results_conversion))
 
-    print("AFTER EXECUTION ==================================")
-    if format_str == "XML":
-        # Specific conversion of XML Sparql results to JSON, so we can use the same results data.
-        # print("dir(results_conversion)=",dir(results_conversion))
-
-        results_xml_as_text = "".join(results_conversion_split[2:])
-        assert results_xml_as_text.startswith("<?xml")
-        print("results_xml_as_text=", results_xml_as_text)
-        assert isinstance( format_str, str )
-        results_chopped_xml_to_json = SparqlResultsXMLToJSON(results_xml_as_text)
-        assert results_chopped_xml_to_json
-        return results_chopped_xml_to_json
-    elif format_str == "JSON":
-        results_json_as_text = results_conversion_split[2]
-        print("UrlToSparqlResult results_json_as_text=", results_json_as_text)
-        results_json = json.loads(results_json_as_text)
-        return results_json
+            results_xml_as_text = "".join(results_conversion_split[2:])
+            assert results_xml_as_text.startswith("<?xml")
+            print("results_xml_as_text=", results_xml_as_text)
+            assert isinstance( format_str, str )
+            results_chopped_xml_to_json = SparqlResultsXMLToJSON(results_xml_as_text)
+            assert results_chopped_xml_to_json
+            return results_chopped_xml_to_json
+        elif format_str == "JSON":
+            results_json_as_text = results_conversion_split[2]
+            print("UrlToSparqlResult results_json_as_text=", results_json_as_text)
+            results_json = json.loads(results_json_as_text)
+            return results_json
+        else:
+            raise Exception("Invalid format:", format_str)
     else:
-        raise Exception("Invalid format:", format_str)
+        print("results_http_convert=", results_http_convert)
+        if format_str == "XML":
+            assert isinstance(results_http_convert, xml.dom.minidom.Document)
+            results_xml_to_json = SparqlResultsXMLToJSON(results_http_convert)
+            assert results_xml_to_json
+            return results_xml_to_json
+        elif format_str == "JSON":
+            print("UrlToSparqlResult Json already made")
+            return results_http_convert
+        else:
+            raise Exception("Invalid format:", format_str)
 
 
 # This executes a query to the Sparql server of the current machine, via TCP/IP.
