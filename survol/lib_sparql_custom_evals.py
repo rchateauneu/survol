@@ -752,11 +752,11 @@ def part_triples_to_instances_dict_function(part, sparql_instance_creator):
         sys.stderr.write("    spo=%s %s %s\n" % (part_subject, part_predicate, part_object))
         if part_predicate == rdflib.namespace.RDF.type:
             if isinstance(part_subject, rdflib.term.Variable):
-                class_as_str = part_object.toPython()
+                class_as_str = str(part_object)
                 sys.stderr.write("class_as_str=%s\n" % class_as_str)
                 sys.stderr.write("survol_url=%s\n" % survol_url)
-                class_short = class_as_str[len(survol_url):]
                 if class_as_str.startswith(survol_url):
+                    class_short = class_as_str[len(survol_url):]
                     sys.stderr.write("Class OK\n")
                     instances_dict[part_subject] = sparql_instance_creator(class_short, part_subject)
 
