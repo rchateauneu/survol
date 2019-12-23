@@ -322,7 +322,7 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                 sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables Returning variable:%s\n" % associated_instance.m_variable)
                 returned_variables[associated_instance.m_variable] = return_values_list
 
-            sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables returned_variables=%s\n", returned_variables)
+            sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables returned_variables=%s\n" % returned_variables)
 
         # TODO: If there are no properties and no directory and no sub-files or sub-directories,
         # TODO: this should return ALL DIRECTORIES OF THE FILE SYSTEM.
