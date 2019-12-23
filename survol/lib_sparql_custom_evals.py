@@ -794,8 +794,8 @@ def product_variables_lists(returned_variables, iter_keys = None):
         first_key, values_list = next(iter_keys)
         assert isinstance(values_list, list)
 
+        max_display_count_values = 100
         for one_dict in product_variables_lists(returned_variables, iter_keys):
-            max_display_count_values = 100
             for one_value in values_list:
                 new_dict = one_dict.copy()
                 # This is one variable, or a tuple of variables of attributes of the same object.
