@@ -127,11 +127,13 @@ def Main():
 
     # 'SERVER_SOFTWARE': 'SimpleHTTP/0.6 Python/2.7.10'
     # 'SERVER_SOFTWARE': 'SimpleHTTP/0.6 Python/3.6.3'
-    sys.stderr.write("SERVER=%s\n" % os.environ['SERVER_SOFTWARE'])
+    sys.stderr.write("SERVER_SOFTWARE=%s\n" % os.environ['SERVER_SOFTWARE'])
     if os.environ['SERVER_SOFTWARE'].startswith("SimpleHTTP"):
-        # Beware, only with Python2.
-        if sys.version_info < (3,):
+        # Beware, only with Python2. Not needed on Linux and Python 3.
+        # Maybe because the Python class processes the CGI arguments like filenames.
+        if sys.version_info < (3,) and lib_util.isPlatformWindows:
             sparql_query = re.sub("([^a-z]*)http:/([^a-z]*)", r"\1http://\2", sparql_query)
+            sys.stderr.write("Substitution 'http://' and 'http:///'\n")
 
     sys.stderr.write("sparql_server sparql_query=%s\n" % sparql_query.replace(" ","="))
 
