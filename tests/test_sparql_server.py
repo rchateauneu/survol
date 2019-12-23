@@ -103,8 +103,12 @@ def UrlToSparqlResult(url_rdf, sparql_query, format_str):
     sparql_qry_result = sparql_wrapper.query()
     results_http_convert = sparql_qry_result.convert()
 
+    print("UrlToSparqlResult type(results_convert)=", type(results_http_convert))
     print("UrlToSparqlResult results_convert=", results_http_convert)
     # HTTP header: "Content-Type: application/sparql-results+json; charset=utf-8"
+    if sys.version_info > (3,):
+        results_http_convert = results_http_convert.decode("utf-8")
+    print("results_http_convert=", results_http_convert)
     assert results_http_convert.startswith("Content-Type:")
     results_conversion_split = results_http_convert.split("\n")
     #assert results_conversion[0] == '{'
