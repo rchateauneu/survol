@@ -119,7 +119,7 @@ class Sparql_CIM_Object(object):
     # If variables are grouped in tuples, it means that they are correlated: For example a file path and its node id,
     # or a process id and its command line.
     def FetchAllVariables(self, graph, variables_context):
-        print("FetchAllVariables not implemented")
+        sys.stderr.write("FetchAllVariables not implemented\n")
         raise NotImplementedError(current_function())
 
     def CalculateVariablesNumber(self):
@@ -165,14 +165,14 @@ class Sparql_CIM_DataFile(Sparql_CIM_Object):
 
 
     def FetchFromDirectory(self, variables_context, file_path, graph, returned_variables, node_uri_ref):
-        print("Sparql_CIM_DataFile.FetchFromDirectory file_path=", file_path)
+        sys.stderr.write("Sparql_CIM_DataFile.FetchFromDirectory file_path=%s\n" % file_path)
         if associator_CIM_DirectoryContainsFile in self.m_associated:
             associator_instance = self.m_associated[associator_CIM_DirectoryContainsFile]
             assert isinstance(associator_instance, Sparql_CIM_Directory)
             assert isinstance(associator_instance.m_variable, rdflib.term.Variable)
 
             if associator_instance.m_variable in variables_context:
-                print("ALREADY DEFINED ??", associator_instance.m_variable)
+                sys.stderr.write("ALREADY DEFINED ?? %s\n" % associator_instance.m_variable)
                 return
 
             dir_file_path = os.path.dirname(file_path)
@@ -322,7 +322,7 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                 sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables Returning variable:%s\n" % associated_instance.m_variable)
                 returned_variables[associated_instance.m_variable] = return_values_list
 
-            print("Sparql_CIM_Directory.FetchAllVariables FetchAllVariables returned_variables=", returned_variables)
+            sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables returned_variables=%s\n", returned_variables)
 
         # TODO: If there are no properties and no directory and no sub-files or sub-directories,
         # TODO: this should return ALL DIRECTORIES OF THE FILE SYSTEM.
@@ -450,7 +450,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
     # Given a file name, it returns all processes executing it.
     def GetProcessesFromExecutable(self, graph, variables_context):
 
-        print("Sparql_CIM_Process.GetProcessesFromExecutable executable=", sys.executable)
+        sys.stderr.write("Sparql_CIM_Process.GetProcessesFromExecutable executable=%s\n" % sys.executable)
         associated_instance = self.m_associators[associator_CIM_ProcessExecutable]
         assert isinstance(associated_instance, Sparql_CIM_DataFile)
         assert isinstance(associated_instance.m_variable, rdflib.term.Variable)
@@ -458,8 +458,8 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
         associated_executable_node = variables_context[associated_instance.m_variable]
         assert isinstance(associated_executable_node, rdflib.term.URIRef)
 
-        print("Sparql_CIM_Process.GetProcessesFromExecutable variables_context=", variables_context)
-        print("associated_instance.m_variable=", associated_instance.m_variable)
+        sys.stderr.write("Sparql_CIM_Process.GetProcessesFromExecutable variables_context=%s\n" % variables_context)
+        sys.stderr.write("associated_instance.m_variable=%s\n" % associated_instance.m_variable)
         executable_node = associated_instance.GetNodeValue(predicate_Name, variables_context)
         assert isinstance(executable_node, rdflib.term.Literal)
         executable_path = str(executable_node)
@@ -468,14 +468,14 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
         executable_path = os.path.normpath(executable_path)
         if is_platform_linux:
             executable_path = os.path.realpath(executable_path)
-            print("executable_path=", executable_path)
+            sys.stderr.write("executable_path=%s\n" % executable_path)
 
         process_urls_list = []
         for one_process in psutil.process_iter():
             try:
                 process_executable = one_process.exe()
             except psutil.AccessDenied as exc:
-                print("GetProcessesFromExecutable Caught:", exc)
+                sys.stderr.write("GetProcessesFromExecutable Caught:%s\n" % str(exc))
                 continue
             # print("process_executable=", process_executable, "executable_path=", executable_path)
             # With pytest as a command line: "c:\python27\python.exe" != "C:\Python27\python.exe"
@@ -485,20 +485,20 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
                 process_url = self.CreateURIRef(
                     graph, "CIM_Process", class_CIM_Process,
                     {predicate_Handle: rdflib.term.Literal(one_process.pid)})
-                print("Adding process ", process_url)
+                sys.stderr.write("Adding process %s\n" % str(process_url))
                 graph.add((process_url, associator_CIM_ProcessExecutable, associated_executable_node))
                 process_urls_list.append(process_url)
         return process_urls_list
-        print("GetProcessesFromExecutable process_urls_list=", process_urls_list)
+        sys.stderr.write("GetProcessesFromExecutable process_urls_list=%\n" % str(process_urls_list))
 
     def FetchAllVariables(self, graph, variables_context):
-        print("Sparql_CIM_Process.FetchAllVariables variables_context=", variables_context)
+        sys.stderr.write("Sparql_CIM_Process.FetchAllVariables variables_context=%s\n" % str(variables_context))
         properties_tuple, url_nodes_list = self.GetListOfOntologyProperties(variables_context)
 
         returned_variables = {}
 
         if isinstance(url_nodes_list, list) and len(url_nodes_list) == 0:
-            print("FetchAllVariables No such process with self.m_properties:", self.m_properties)
+            sys.stderr.write("FetchAllVariables No such process with self.m_properties:%s\n" % str(self.m_properties))
             # No such process.
             return returned_variables
 
@@ -599,7 +599,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         self.m_class_node = lib_kbase.RdfsPropertyNode(class_name)
 
     def IteratorToObjects(self, rdflib_graph, iterator_objects):
-        print("IteratorToObjects")
+        sys.stderr.write("IteratorToObjects\n")
         # yield (object_path, dict_key_values)
 
         # Set by the first row.
@@ -617,7 +617,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
                 # The first object is used to create the list of attributes.
                 list_variables.append(self.m_variable)
                 for wql_key_node, wql_value_dummy in dict_key_values.items():
-                    print("wql_key_node=", wql_key_node)
+                    sys.stderr.write("wql_key_node=%s\n" % wql_key_node)
                     assert isinstance(wql_key_node, rdflib.term.URIRef)
                     #wql_key_name = ToString(wql_key_node)
                     #wql_key_node = self.m_properties_to_nodes_dict[wql_key_name]
@@ -640,10 +640,10 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             # WMI returns object_path = '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="11568"'
             # Survol object URL must be like: http://rchateau-hp:8000/survol/entity.py?xid=CIM_Process.Handle=6936
             # Therefore, the WMI path cannot be used "as is", but instead use the original self.m_class_name.
-            print("object_path=", object_path)
+            sys.stderr.write("object_path=%s\n" % object_path)
             wmi_class_keys = _wmi_load_ontology.classes_map[self.m_class_name]["class_keys_list"]
-            print("wmi_class_keys=", wmi_class_keys)
-            print("dict_key_values.keys()=", dict_key_values.keys())
+            sys.stderr.write("wmi_class_keys=%s\n" % wmi_class_keys)
+            sys.stderr.write("dict_key_values.keys()=%s\n" % dict_key_values.keys())
             uri_key_values = {}
             for one_class_key in wmi_class_keys:
                 assert isinstance(one_class_key, lib_util.six_text_type)
@@ -653,8 +653,8 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
 
 
             # print("dict_key_values.keys()=", dict_key_values.keys())
-            print("list_variables=", list_variables)
-            print("property_names_used=", property_names_used)
+            sys.stderr.write("list_variables=%s\n" % list_variables)
+            sys.stderr.write("property_names_used=%s\n" % property_names_used)
 
             rdflib_graph.add((node_uri_ref, rdflib.namespace.RDF.type, self.m_class_node))
 
@@ -669,25 +669,25 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
                 wql_value_node = rdflib.term.Literal(wql_value)
                 rdflib_graph.add((node_uri_ref, wql_key_node, wql_value_node))
             variable_values_tuple = tuple(variable_values_list)
-            print("variable_values_tuple=", variable_values_tuple)
+            sys.stderr.write("variable_values_tuple=%s\n" % variable_values_tuple)
             list_current_values.append(variable_values_tuple)
 
-        print("list_variables=", list_variables)
+        sys.stderr.write("list_variables=%s\n" % list_variables)
         assert all((isinstance(one_variable, rdflib.term.Variable) for one_variable in list_variables))
         tuple_variables = tuple(list_variables)
         returned_variables = {tuple_variables: list_current_values}
         return returned_variables
 
     def CreateObjectFromProperties(self, graph, variables_context, filtered_where_key_values):
-        print("CreateObjectFromProperties")
+        sys.stderr.write("CreateObjectFromProperties\n")
         # yield (object_path, dict_key_values)
         iterator_objects = wmiExecutor.SelectObjectFromProperties(self.m_class_name, filtered_where_key_values)
         returned_variables = self.IteratorToObjects(graph, iterator_objects)
-        print("CreateObjectFromProperties returned_variables=", returned_variables)
+        sys.stderr.write("CreateObjectFromProperties returned_variables=%s\n" % returned_variables)
         return returned_variables
 
     def CreateAssociatorObjects(self, graph, associator_node, variables_context):
-        print("CreateAssociatorObjects")
+        sys.stderr.write("CreateAssociatorObjects\n")
         associator_variable = self.m_associators[associator_node]
         assert associator_variable in variables_context
         associator_name = str(associator_node)
@@ -697,15 +697,15 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         # yield (object_path, dict_key_values)
         iterator_objects = wmiExecutor.SelectAssociatorsFromObject(self.m_class_name, associator_name, associator_path)
         returned_variables = self.IteratorToObjects(graph, iterator_objects)
-        print("CreateAssociatorObjects returned_variables=", returned_variables)
+        sys.stderr.write("CreateAssociatorObjects returned_variables=%s\n" % returned_variables)
         return returned_variables
 
     def FetchAllVariables(self, graph, variables_context):
         filtered_where_key_values = dict()
 
-        print("FetchAllVariables variables_context.keys()=", variables_context.keys())
-        print("FetchAllVariables self.m_properties_to_nodes_dict.keys()=", self.m_properties_to_nodes_dict.keys())
-        print("FetchAllVariables self.m_properties.keys()=", self.m_properties.keys())
+        sys.stderr.write("FetchAllVariables variables_context.keys()=%s\n" % variables_context.keys())
+        sys.stderr.write("FetchAllVariables self.m_properties_to_nodes_dict.keys()=%s\n" % self.m_properties_to_nodes_dict.keys())
+        sys.stderr.write("FetchAllVariables self.m_properties.keys()=%s\n" % self.m_properties.keys())
         for predicate_name, predicate_node in self.m_properties_to_nodes_dict.items():
             value_node = self.GetNodeValue(predicate_node, variables_context)
             if value_node:
