@@ -49,7 +49,7 @@ is_platform_linux = sys.platform.startswith("linux")
 # Typical situation of symbolic links:
 # /usr/bin/python => python2 => python2.7
 # Several Python scripts return this executable as a node.
-execPath = os.path.realpath( sys.executable )
+execPath = os.path.realpath(sys.executable)
 if is_platform_windows:
     # When running in PyCharm with virtualenv, the path is correct:
     # "C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/venv/Scripts/python.exe"
@@ -68,7 +68,7 @@ if is_platform_windows:
         execPath = execPath[0].upper() + execPath[1:]
     except ImportError:
         # Here we cannot do anything.
-        pass
+        sys.stderr.write(__file__ + " Cannot import win32api to fix sys.executable")
 
 
     execPath = execPath.replace("\\","/"),
