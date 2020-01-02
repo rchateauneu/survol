@@ -16,9 +16,9 @@ matrix:
         # https://travis-ci.community/t/windows-python-pip-module-not-found/5480/4
         - choco install python  --version 3.7.5
         - python -m pip install --upgrade pip
+        - python -m pip install pytest
       env:
         - PATH=/c/Python37:/c/Python37/Scripts:$PATH
-        # - PYTHONPATH=/c/Python37/Lib/site-packages:$PYTHONPATH
 install:
   - pip install psutil
   - pip install rdflib
