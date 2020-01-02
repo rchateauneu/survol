@@ -43,9 +43,6 @@ def setUpModule():
 
 survol_namespace = rdflib.Namespace(lib_sparql_custom_evals.survol_url)
 
-current_pid = os.getpid()
-print("current_pid=", current_pid)
-
 ################################################################################
 
 class CUSTOM_EVALS_WMI_Base_Test(unittest.TestCase):
@@ -90,7 +87,7 @@ class SparqlCallWmiTest(CUSTOM_EVALS_WMI_Base_Test):
             WHERE
             { ?url_dir survol:Name "c:"  .
               ?url_dir rdf:type survol:CIM_Directory .
-            }""" % (survol_namespace)
+            }""" % survol_namespace
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("query_result=", query_result, len(query_result))
@@ -98,20 +95,106 @@ class SparqlCallWmiTest(CUSTOM_EVALS_WMI_Base_Test):
         directory_node = lib_common.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": "c:"})
         self.assertTrue(directory_node == query_result[0][0])
 
-    def test_Win32_LogicalDisk(self):
+    def test_Win32_LogicalDisk_C(self):
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?url_disk
             WHERE
             { ?url_disk rdf:type survol:Win32_LogicalDisk .
               ?url_disk survol:DeviceID "C:" .
-            }""" % (survol_namespace)
+            }""" % survol_namespace
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
         print("query_result=", query_result[0][0])
         directory_node = lib_common.gUriGen.UriMakeFromDict("Win32_LogicalDisk", {"DeviceID": "C:"})
         self.assertTrue(directory_node == query_result[0][0])
+
+    def test_Win32_LogicalDisk_all(self):
+        # Load all disks.
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_disk
+            WHERE
+            { ?url_disk rdf:type survol:Win32_LogicalDisk .
+            }""" % survol_namespace
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+        print("query_result=", query_result[0][0])
+        directory_node = lib_common.gUriGen.UriMakeFromDict("Win32_LogicalDisk", {"DeviceID": "C:"})
+        self.assertTrue(directory_node in [one_query[0] for one_query in query_result])
+
+    def test_wmi_query_user_account_url(self):
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_account
+            WHERE
+            { ?url_account rdf:type survol:Win32_UserAccount .
+            }""" % survol_namespace
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+        # At least two users: "Administrator" and curret user.
+        self.assertTrue(len(query_result) >= 2)
+
+    def test_wmi_query_user_account(self):
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?account_name ?account_domain
+            WHERE
+            { ?url_account rdf:type survol:Win32_UserAccount .
+              ?url_account survol:Name ?account_name .
+              ?url_account survol:Domain ?account_domain .
+            }""" % survol_namespace
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        # Result= [
+        # (rdflib.term.Literal(u'Administrator'), rdflib.term.Literal(u'rchateau-HP')),
+        # (rdflib.term.Literal(u'HomeGroupUser$'), rdflib.term.Literal(u'rchateau-HP')),
+        # (rdflib.term.Literal(u'Guest'), rdflib.term.Literal(u'rchateau-HP')),
+        # (rdflib.term.Literal(u'rchateau'), rdflib.term.Literal(u'rchateau-HP'))]
+        print("Result=", query_result)
+        only_names = [str(one_result[0]) for one_result in query_result]
+        print("only_names=", only_names)
+        self.assertTrue("Administrator" in only_names)
+        self.assertTrue("Guest" in only_names)
+        self.assertTrue(CurrentUsername in only_names)
+
+        for one_result in query_result:
+            self.assertTrue(str(one_result[1]).lower() ==  CurrentMachine.lower())
+
+    def test_CIM_Process_Name(self):
+        sparql_query="""
+            PREFIX survol: <%s>
+            SELECT ?url_proc
+            WHERE
+            { ?url_proc rdf:type survol:CIM_Process .
+              ?url_proc survol:Name "python.exe" .
+            }""" % survol_namespace
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+        # At least one process running Python, i.e. the current process.
+        self.assertTrue(len(query_result) > 0)
+
+    def test_CIM_Process_Name_to_Pid(self):
+        sparql_query="""
+            PREFIX survol: <%s>
+            SELECT ?pid_proc
+            WHERE
+            { ?url_proc rdf:type survol:CIM_Process .
+              ?url_proc survol:Name "python.exe" .
+              ?url_proc survol:Handle ?pid_proc .
+            }""" % survol_namespace
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+        # At least one process running Python, i.e. the current process.
+        self.assertTrue(len(query_result) > 0)
+        only_pids = [str(one_result[0]) for one_result in query_result]
+        print("only_pids=", only_pids)
+        self.assertTrue(str(CurrentPid) in only_pids)
 
     def test_wmi_query_disk_drive(self):
         sparql_query = """
@@ -120,18 +203,7 @@ class SparqlCallWmiTest(CUSTOM_EVALS_WMI_Base_Test):
             WHERE
             { ?url_disk rdf:type survol:CIM_DiskDrive .
             }
-        """ % (survol_namespace)
-        rdflib_graph = rdflib.Graph()
-        query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
-
-    def test_wmi_query_user_account(self):
-        sparql_query = """
-            PREFIX survol: <%s>
-            SELECT ?url_account
-            WHERE
-            { ?url_account rdf:type survol:Win32_UserAccount .
-            }""" % (survol_namespace)
+        """ % survol_namespace
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
@@ -144,19 +216,7 @@ class SparqlCallWmiTest(CUSTOM_EVALS_WMI_Base_Test):
             {
               ?url_file survol:Name "c:/program files/mozilla firefox/firefox.exe" .
               ?url_file rdf:type survol:CIM_DataFile .
-            }""" % (survol_namespace)
-        rdflib_graph = rdflib.Graph()
-        query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
-
-    def test_CIM_Process_Name(self):
-        sparql_query="""
-            PREFIX survol: <%s>
-            SELECT ?url_proc
-            WHERE
-            { ?url_proc rdf:type survol:CIM_Process .
-              ?url_proc survol:Name "python.exe" .
-            }""" % (survol_namespace)
+            }""" % survol_namespace
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
@@ -188,7 +248,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
               ?url_fileA survol:CIM_DirectoryContainsFile ?url_fileB  .
               ?url_fileB survol:Name "C:/Windows/regedit.exe"  .
               ?url_fileB rdf:type survol:CIM_DataFile .
-            }""" % (survol_namespace)
+            }""" % survol_namespace
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
@@ -204,7 +264,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
               ?url_fileC survol:CIM_DirectoryContainsFile ?url_fileB  .
               ?url_fileC survol:Name "C:/Windows/System32/cmd.exe"  .
               ?url_fileC rdf:type survol:CIM_DataFile .
-            }""" % (survol_namespace)
+            }""" % survol_namespace
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
@@ -218,7 +278,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
               ?url_fileB survol:CIM_DirectoryContainsFile ?url_fileA  .
               ?url_fileB survol:Name "C:/Windows/System32/cmd.exe"  .
               ?url_fileB rdf:type survol:CIM_DataFile .
-            }""" % (survol_namespace)
+            }""" % survol_namespace
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
@@ -232,7 +292,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
               ?url_fileB survol:Win32_SubDirectory ?url_fileA  .
               ?url_fileB survol:Name "C:/Windows/System32"  .
               ?url_fileB rdf:type survol:CIM_Directory .
-            }""" % (survol_namespace)
+            }""" % survol_namespace
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
@@ -246,7 +306,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
               ?url_dirA rdf:type survol:CIM_Directory .
               ?url_dirA survol:Win32_SubDirectory ?url_dirB  .
               ?url_dirB rdf:type survol:CIM_Directory .
-            }""" % (survol_namespace)
+            }""" % survol_namespace
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
@@ -260,7 +320,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
               ?url_fileA rdf:type survol:CIM_Directory .
               ?url_fileA survol:CIM_DirectoryContainsFile ?url_fileB  .
               ?url_fileB rdf:type survol:CIM_DataFile .
-            }""" % (survol_namespace)
+            }""" % survol_namespace
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
@@ -290,7 +350,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
               ?url_proc rdf:type survol:CIM_Process .
               ?url_proc survol:CIM_ProcessExecutable ?url_file .
               ?url_file rdf:type survol:CIM_DataFile .
-            }""" % (survol_namespace)
+            }""" % survol_namespace
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
@@ -554,26 +614,10 @@ class Rdflib_CUSTOM_EVALS_WMI_Test(CUSTOM_EVALS_WMI_Base_Test):
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?pid WHERE {
-                ?url_process a survol:test_sparql_Win32_Process .
+                ?url_process a survol:Win32_Process .
                 ?url_process survol:Handle ?pid .
             }
         """ % (survol_namespace)
-        rdflib_graph = rdflib.Graph()
-        query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
-
-    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported. test_sparql_Firefox skipped.")
-    def test_sparql_Firefox(self):
-        sparql_query = """
-            PREFIX survol: <%s>
-            SELECT ?url_file
-            WHERE
-            {
-              ?url_proc survol:Caption "firefox.exe"  .
-              ?url_proc rdf:type survol:CIM_Process .
-              ?url_proc survol:CIM_ProcessExecutable ?url_file .
-              ?url_file rdf:type survol:CIM_DataFile .
-            }""" % (survol_namespace)
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
@@ -641,6 +685,8 @@ class Rdflib_CUSTOM_EVALS_WMI_Test(CUSTOM_EVALS_WMI_Base_Test):
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
+
+
 
 
 # This works: gwmi -Query 'xxxxx'
