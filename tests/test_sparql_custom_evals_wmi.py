@@ -241,18 +241,41 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
 
-    def test_CIM_DataFile(self):
+    def test_CIM_DataFile_Name(self):
+        # FIXME: Very ugly harcode for transforming slashes to back-slashes and return.
+        file_name = "c:/program files/mozilla firefox/firefox.exe"
         sparql_query="""
             PREFIX survol: <%s>
             SELECT ?url_file
             WHERE
             {
-              ?url_file survol:Name "c:/program files/mozilla firefox/firefox.exe" .
+              ?url_file survol:Name "%s" .
               ?url_file rdf:type survol:CIM_DataFile .
-            }""" % survol_namespace
+            }""" % (survol_namespace, file_name)
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
+        self.assertTrue(len(query_result) == 1)
+        datafile_node = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name})
+        self.assertTrue(query_result[0][0] == datafile_node)
+
+    def test_CIM_Directory_Name(self):
+        # FIXME: Very ugly harcode for transforming slashes to back-slashes and return.
+        directory_name = "c:/program files/mozilla firefox"
+        sparql_query="""
+            PREFIX survol: <%s>
+            SELECT ?url_file
+            WHERE
+            {
+              ?url_file survol:Name "%s" .
+              ?url_file rdf:type survol:CIM_Directory .
+            }""" % (survol_namespace, directory_name)
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+        self.assertTrue(len(query_result) == 1)
+        directory_node = lib_common.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": directory_name})
+        self.assertTrue(query_result[0][0] == directory_node)
 
     def test_server_wmi_more_user_account_caption(self):
         sparql_query = """
