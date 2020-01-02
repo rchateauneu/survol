@@ -760,6 +760,7 @@ class SurvolLocalTest(unittest.TestCase):
 
         CheckSubprocessEnd(procOpen)
 
+    @unittest.skipIf(is_travis_machine() and is_platform_windows, "Cannot get users on Travis and Windows.")
     def test_enumerate_users(self):
         """List detectable users. Security might hide some of them"""
 
