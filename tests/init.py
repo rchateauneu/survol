@@ -126,15 +126,21 @@ def update_test_path():
     if sys.path[0] != "../survol":
         sys.path.insert(0,"../survol")
 
-# This defines a file which is present on all platforms.
+# This defines a file and a directory present on all platforms, for testing.
 if is_platform_linux:
     FileAlwaysThere = "/etc/hosts"
     DirAlwaysThere = "/etc"
     AnyLogicalDisk = ""
 else:
-    FileAlwaysThere = "C:\\Windows\\explorer.exe"
-    DirAlwaysThere = "C:\\Windows"
-    AnyLogicalDisk = "D:"
+    if is_travis_machine():
+        # This file is there because it is installed by choco, see .travis.yml
+        FileAlwaysThere = "C:\\Python37\\python.exe"
+        DirAlwaysThere = "C:\\Python37"
+        AnyLogicalDisk = "C:"
+    else:
+        FileAlwaysThere = "C:\\Windows\\explorer.exe"
+        DirAlwaysThere = "C:\\Windows"
+        AnyLogicalDisk = "D:"
 
 # See lib_util.survol_urlopen
 try:
