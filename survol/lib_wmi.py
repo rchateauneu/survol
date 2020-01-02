@@ -678,7 +678,7 @@ def UnitConversion(aFltValue, valUnit):
     return lib_util.AddSIUnit( aFltValue, valUnit )
 
 
-def WmiKeyValues(connWmi, objWmi, displayNoneValues, className ):
+def WmiKeyValues(connWmi, objWmi, displayNoneValues, className):
     """
         Returns the properties and values of a WMI object (Not a class).
     """
@@ -745,7 +745,14 @@ def WmiKeyValues(connWmi, objWmi, displayNoneValues, className ):
             yield( prpProp, nodeGUID )
             continue
 
-        if isinstance( value, lib_util.scalar_data_types):
+        if prpName == "Name" and className in ["CIM_DataFile", "CIM_Directory"]:
+            # sys.stderr.write("WmiKeyValues prpName=%s className=%s value=%s\n" % (prpName, className, value))
+            # FIXME: Needed because Sparql does not seem to accept backslashes,
+            # FIXME: see "CIM_DataFile", "CIM_Directory" and "Name"
+            # TODO: Why not CGI escaping ?
+            valueReplaced = str(value).replace('\\','/')
+            yield prpProp, lib_common.NodeLiteral(valueReplaced)
+        elif isinstance(value, lib_util.scalar_data_types):
             # Special backslash replacement otherwise:
             # "NT AUTHORITY\\\\NetworkService" displayed as "NT AUTHORITYnd_0etworkService"
             # TODO: Why not CGI escaping ?
@@ -1001,16 +1008,13 @@ class WmiSparqlExecutor:
         assert class_name
 
         # HACK: Temporary hard-code !!
-        if class_name == "CIM_DataFile" and "Name" in filtered_where_key_values:
+        if class_name in ["CIM_DataFile", "CIM_Directory"] and "Name" in filtered_where_key_values:
             filnam = filtered_where_key_values["Name"]
             filtered_where_key_values["Name"] = filnam.replace("/","\\")
             DEBUG("SelectObjectFromProperties REPLACED CIM_DataFile where_key_values=%s", filtered_where_key_values)
-        elif class_name == "CIM_Directory" and "Name" in filtered_where_key_values:
-            filnam = filtered_where_key_values["Name"]
-            filtered_where_key_values["Name"] = filnam.replace("/","\\")
-            DEBUG("SelectObjectFromProperties REPLACED CIM_Directory where_key_values=%s", filtered_where_key_values)
 
         wmi_query = lib_util.SplitMonikToWQL(filtered_where_key_values, class_name)
+        sys.stderr.write("SelectObjectFromProperties tp=%s wmi_query=%s\n" % (type(wmi_query),wmi_query))
         DEBUG("WmiCallbackSelect wmi_query=%s", wmi_query)
 
         try:
@@ -1019,6 +1023,7 @@ class WmiSparqlExecutor:
             ERROR("WmiSparqlExecutor.SelectObjectFromProperties wmi_query='%s': Caught:%s" %(wmi_query, exc))
             raise
 
+        sys.stderr.write("SelectObjectFromProperties num=%d\n" % len(wmi_objects))
         for one_wmi_object in wmi_objects:
             # The WMI path is not a correct path for Survol: The class could be a derived class of the CIM standard,
             # and the prefix containing the Windows host, must rather contain a Survol agent.
