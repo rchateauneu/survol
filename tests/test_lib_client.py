@@ -1228,17 +1228,10 @@ class SurvolLocalGdbTest(unittest.TestCase):
 
         CheckSubprocessEnd(procOpen)
 
+@unittest.skipIf(not is_platform_windows, "SurvolLocalWindowsTest runs on Windows only")
 class SurvolLocalWindowsTest(unittest.TestCase):
     """These tests do not need a Survol agent. They apply to Windows machines only"""
 
-    def decorator_windows_platform(test_func):
-
-        if is_platform_windows:
-            return test_func
-        else:
-            return None
-
-    @decorator_windows_platform
     def test_win32_services(self):
         """List of Win32 services"""
 
@@ -1252,7 +1245,6 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         assert('Win32_Service.Name=nsi' in strInstancesSet)
         assert('Win32_Service.Name=LanmanWorkstation' in strInstancesSet)
 
-    @decorator_windows_platform
     @unittest.skipIf(not pkgutil.find_loader('wmi'), "Cannot import wmi. test_wmi_process_info not run.")
     def test_wmi_process_info(self):
         """WMI information about current process"""
@@ -1270,8 +1262,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
             # Checks the parent's presence also. Not for 2.7.10
             assert(CurrentProcessPath in strInstancesSet)
 
-    @decorator_windows_platform
-    @unittest.skipIf(not pkgutil.find_loader('wmi'), "Cannot import wmi. test_win_process_modules not run.")
+    @unittest.skipIf(not pkgutil.find_loader('wmi'), "test_win_process_modules needs wmi to run.")
     def test_win_process_modules(self):
         """Windows process modules"""
 
@@ -1314,7 +1305,6 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         # Detection if a specific bug is fixed.
         assert(not 'CIM_DataFile.Name=' in strInstancesSet)
 
-    @decorator_windows_platform
     def test_win32_products(self):
         lstInstances = ClientObjectInstancesFromScript(
             "sources_types/win32/enumerate_Win32_Product.py")
@@ -1322,7 +1312,6 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         strInstancesLst = [str(oneInst) for oneInst in lstInstances ]
         print("lstInstances=",strInstancesLst[:3])
 
-    @decorator_windows_platform
     def test_win_cdb_callstack(self):
         """win_cdb_callstack Information about current process"""
 
@@ -1340,7 +1329,6 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 
         assert(False)
 
-    @decorator_windows_platform
     def test_win_cdb_modules(self):
         """win_cdb_modules about current process"""
 
@@ -1358,7 +1346,6 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 
         assert(False)
 
-    @decorator_windows_platform
     @unittest.skipIf(is_pytest(), "This msdos test cannot run in pytest.")
     def test_msdos_current_batch(self):
         """Displays information a MSDOS current batch"""
@@ -1382,10 +1369,8 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         for oneStr in listRequired:
             assert( oneStr in strInstancesSet )
 
-
-    @decorator_windows_platform
+    @unittest.skipIf(not pkgutil.find_loader('win32net'), "test_win32_host_local_groups needs win32net.")
     def test_win32_host_local_groups(self):
-        sys.stderr.write("CurrentMachine=%s\n" % CurrentMachine)
         mySourceHostLocalGroups = lib_client.SourceLocal(
             "sources_types/CIM_ComputerSystem/Win32/win32_host_local_groups.py",
             "CIM_ComputerSystem",
