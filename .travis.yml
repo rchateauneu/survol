@@ -13,11 +13,12 @@ matrix:
       language: shell       # 'language: python' is an error on Travis CI Windows
       # python: 3.7         # 'python:' is ignored on Travis CI Windows
       before_install:
-        - choco install python  # this install takes at least 1 min 30 sec
+        # https://travis-ci.community/t/windows-python-pip-module-not-found/5480/4
+        - choco install python  --version 3.7.5
         - python -m pip install --upgrade pip
       env:
         - PATH=/c/Python37:/c/Python37/Scripts:$PATH
-        - PYTHONPATH=/c/Python37/Lib/site-packages:$PYTHONPATH
+        # - PYTHONPATH=/c/Python37/Lib/site-packages:$PYTHONPATH
 install:
   - pip install psutil
   - pip install rdflib
