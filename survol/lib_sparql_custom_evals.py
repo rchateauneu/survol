@@ -669,7 +669,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
                 wql_value_node = rdflib.term.Literal(wql_value)
                 rdflib_graph.add((node_uri_ref, wql_key_node, wql_value_node))
             variable_values_tuple = tuple(variable_values_list)
-            sys.stderr.write("variable_values_tuple=%s\n" % variable_values_tuple)
+            sys.stderr.write("variable_values_tuple=%s\n" % str(variable_values_tuple))
             list_current_values.append(variable_values_tuple)
 
         sys.stderr.write("list_variables=%s\n" % list_variables)
@@ -678,12 +678,12 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         returned_variables = {tuple_variables: list_current_values}
         return returned_variables
 
-    def CreateObjectFromProperties(self, graph, variables_context, filtered_where_key_values):
-        sys.stderr.write("CreateObjectFromProperties\n")
+    def SelectWmiObjectFromProperties(self, graph, variables_context, filtered_where_key_values):
+        sys.stderr.write("SelectWmiObjectFromProperties\n")
         # yield (object_path, dict_key_values)
         iterator_objects = wmiExecutor.SelectObjectFromProperties(self.m_class_name, filtered_where_key_values)
         returned_variables = self.IteratorToObjects(graph, iterator_objects)
-        sys.stderr.write("CreateObjectFromProperties returned_variables=%s\n" % returned_variables)
+        sys.stderr.write("SelectWmiObjectFromProperties returned_variables=%s\n" % returned_variables)
         return returned_variables
 
     def CreateAssociatorObjects(self, graph, associator_node, variables_context):
@@ -706,33 +706,47 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         sys.stderr.write("FetchAllVariables variables_context.keys()=%s\n" % variables_context.keys())
         sys.stderr.write("FetchAllVariables self.m_properties_to_nodes_dict.keys()=%s\n" % self.m_properties_to_nodes_dict.keys())
         sys.stderr.write("FetchAllVariables self.m_properties.keys()=%s\n" % self.m_properties.keys())
-        for predicate_name, predicate_node in self.m_properties_to_nodes_dict.items():
-            value_node = self.GetNodeValue(predicate_node, variables_context)
-            if value_node:
-                filtered_where_key_values[predicate_name] = str(value_node)
 
-        if filtered_where_key_values:
-            returned_variables = self.CreateObjectFromProperties(graph, variables_context, filtered_where_key_values)
+        at_least_all_ontology_properties_defined = True
+        for predicate_name, predicate_node in self.m_properties_to_nodes_dict.items():
+            try:
+                value_node = self.GetNodeValue(predicate_node, variables_context)
+                sys.stderr.write("FetchAllVariables predicate_node=%s\n" % predicate_node)
+                if value_node:
+                    filtered_where_key_values[predicate_name] = str(value_node)
+            except KeyError:
+                sys.stderr.write("FetchAllVariables MISSING predicate_node=%s\n" % predicate_node)
+                at_least_all_ontology_properties_defined = False
+
+        # if filtered_where_key_values:
+        # If at least all the mandatory properties are defined,
+        # or if there is no associators.
+        if at_least_all_ontology_properties_defined or not self.m_associators:
+            returned_variables = self.SelectWmiObjectFromProperties(graph, variables_context, filtered_where_key_values)
             if returned_variables is None:
                 # The object could not be identified, so no new variables values are given.
                 raise Exception("KAPUTT")
-                return dict()
-        else:
-            # On s occupe des associators seulement si leur variable est dans le contexte.
-            # Autrement dit:
-            # - Quand une urlref est sujet d'un triple, c'est forcement un node.self.m_associators
-            # - S'il apparait aussi a droite d'un autre triple, ce triple est un associator.
-            # - Le urlref sujet du triple associator doit apparaitre avant le node associator.
-            # - Quand on cree les urlref d'une instance, on ne cree pas les associators,
-            #   car ca entrainerait une recursion a un second niveau. Tandis que si on cree
-            #   l'associator quand on en a besoin, on utilise le mecanisme normal de recursion.
-            for associator_node, associator_variable in self.m_associators:
-                assert isinstance(associator_node, rdflib.term.URIRef)
+            return returned_variables
 
-                # Because the variable is in the context, it is defined and its path is available.
-                # Therefore, it is possible to fetch its associators only from the path.
-                returned_variables = self.CreateAssociatorObjects(graph, associator_node, variables_context)
-        return returned_variables
+        # Maybe we have associators to find the objects:
+        # On s occupe des associators seulement si leur variable est dans le contexte.
+        # Autrement dit:
+        # - Quand une urlref est sujet d'un triple, c'est forcement un node.self.m_associators
+        # - S'il apparait aussi a droite d'un autre triple, ce triple est un associator.
+        # - Le urlref sujet du triple associator doit apparaitre avant le node associator.
+        # - Quand on cree les urlref d'une instance, on ne cree pas les associators,
+        #   car ca entrainerait une recursion a un second niveau. Tandis que si on cree
+        #   l'associator quand on en a besoin, on utilise le mecanisme normal de recursion.
+        assert self.m_associators
+        for associator_node, associator_variable in self.m_associators:
+            assert isinstance(associator_node, rdflib.term.URIRef)
+
+            # Because the variable is in the context, it is defined and its path is available.
+            # Therefore, it is possible to fetch its associators only from the path.
+            returned_variables = self.CreateAssociatorObjects(graph, associator_node, variables_context)
+            sys.stderr.write("NOT SURE NOT SURE")
+            return returned_variables
+
 
 def CreateSparql_CIM_Object_Wmi(class_name, the_subject):
     the_instance = Sparql_WMI_GenericObject(class_name, the_subject)
