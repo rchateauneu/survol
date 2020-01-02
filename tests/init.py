@@ -66,6 +66,7 @@ if is_platform_windows:
 
         # The drive must be in uppercase too:
         execPath = execPath[0].upper() + execPath[1:]
+        sys.stderr.write(__file__ + " Fixed sys.executable")
     except ImportError:
         # Here we cannot do anything.
         sys.stderr.write(__file__ + " Cannot import win32api to fix sys.executable")
