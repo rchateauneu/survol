@@ -989,6 +989,7 @@ def custom_eval_function_generic(ctx, part, sparql_instance_creator):
         sys.stderr.write("Graph after recursive_instantiation: %d triples\n" % len(ctx.graph))
         for s,p,o in ctx.graph:
             sys.stderr.write("   %s %s %s\n" % (s, p, o))
+        sys.stderr.flush()
 
         # <type 'generator'>
         ret_BGP = rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
