@@ -1,9 +1,21 @@
-language: python
-python:
-  - "2.7"
-  - "3.6"
-os:
-  - linux
+# Big Thank You to https://github.com/cclauss/Travis-CI-Python-on-three-OSes/blob/master/.travis.yml
+language: python            # this works for Linux but is an error on macOS or Windows
+matrix:
+  include:
+    - name: "Python 2.7 Linux"
+      os: linux
+      python: 2.7
+    - name: "Python 3.6 Linux"
+      os: linux
+      python: 3.6
+    - name: "Python 3.7.4 on Windows"
+      os: windows           # Windows 10.0.17134 N/A Build 17134
+      language: shell       # 'language: python' is an error on Travis CI Windows
+      # python: 3.7         # 'python:' is ignored on Travis CI Windows
+      before_install:
+        - choco install python  # this install takes at least 1 min 30 sec
+        - python -m pip install --upgrade pip
+      env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
 install:
   - pip install psutil
   - pip install rdflib
@@ -13,3 +25,19 @@ install:
 script:
   - pwd
   - pytest -v --durations=30 tests
+
+#language: python
+#python:
+#  - "2.7"
+#  - "3.6"
+#os:
+#  - linux
+#install:
+#  - pip install psutil
+#  - pip install rdflib
+#  - pip install SPARQLWrapper
+#  - pip install pywbem
+#  - pip install sqlparse
+#script:
+#  - pwd
+#  - pytest -v --durations=30 tests
