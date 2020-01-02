@@ -93,45 +93,6 @@ if is_platform_linux:
 
 # Other query examples.
 
-"""
-            SELECT *
-            WHERE
-            {
-              ?url_proc survol:Caption "firefox.exe"  .
-              ?url_proc rdf:type survol:CIM_Process .
-              ?url_proc survol:CIM_ProcessExecutable ?url_file .
-              ?url_file rdf:type survol:CIM_DataFile .
-            }"""
-
-"""
-            SELECT *
-            WHERE
-            {
-              ?url_proc survol:Handle %d  .
-              ?url_proc rdf:type survol:CIM_Process .
-              ?url_proc survol:CIM_ProcessExecutable ?url_file .
-              ?url_file survol:Name 'c:/program files/mozilla firefox/firefox.exe' .
-              ?url_file rdf:type survol:CIM_DataFile .
-            }
-            """
-
-
-"""
-            SELECT *
-            WHERE
-            {
-                ?url_user rdf:type survol:Win32_UserAccount .
-            }
-            """
-
-"""
-            SELECT *
-            WHERE
-            { ?url_disk rdf:type survol:Win32_LogicalDisk .
-              ?url_disk survol:DeviceID "C:" .
-            }
-            """
-
 # {'url_proc': {'CSName': 'RCHATEAU-HP', 'Name': 'python.exe', 'ProcessId': str(CurrentPid),
 #               'Handle': str(CurrentPid),
 #               'OSCreationClassName': 'Win32_OperatingSystem',
