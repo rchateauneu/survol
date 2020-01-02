@@ -1843,6 +1843,7 @@ class SurvolRemoteTest(unittest.TestCase):
         # In the merged link, there cannot be more instances than in the input sources.
         self.assertTrue(lenPlus <= lenSource1 + lenSource2 + errorMargin)
 
+    @unittest.skipIf(not pkgutil.find_loader('win32net'), "Cannot import win32net. test_merge_sub_mixed not run.")
     def test_merge_sub_mixed(self):
         mySource1 = lib_client.SourceLocal(
             "entity.py",
