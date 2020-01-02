@@ -1232,6 +1232,7 @@ class SurvolLocalGdbTest(unittest.TestCase):
 class SurvolLocalWindowsTest(unittest.TestCase):
     """These tests do not need a Survol agent. They apply to Windows machines only"""
 
+    @unittest.skipIf(not pkgutil.find_loader('win32service'), "test_win32_services needs win32service to run.")
     def test_win32_services(self):
         """List of Win32 services"""
 
@@ -1245,7 +1246,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         assert('Win32_Service.Name=nsi' in strInstancesSet)
         assert('Win32_Service.Name=LanmanWorkstation' in strInstancesSet)
 
-    @unittest.skipIf(not pkgutil.find_loader('wmi'), "Cannot import wmi. test_wmi_process_info not run.")
+    @unittest.skipIf(not pkgutil.find_loader('wmi'), "test_wmi_process_info needs wmi to run.")
     def test_wmi_process_info(self):
         """WMI information about current process"""
 
