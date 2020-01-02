@@ -58,9 +58,8 @@ class CUSTOM_EVALS_WMI_Base_Test(unittest.TestCase):
 ################################################################################
 
 
-class SparqlCallWmiTest(CUSTOM_EVALS_WMI_Base_Test):
+class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
 
-    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported. test_wmi_query not executed.")
     def test_wmi_query_process(self):
         sparql_query = """
             PREFIX survol: <%s>
@@ -196,6 +195,40 @@ class SparqlCallWmiTest(CUSTOM_EVALS_WMI_Base_Test):
         print("only_pids=", only_pids)
         self.assertTrue(str(CurrentPid) in only_pids)
 
+    def test_Win32_Process_Description_to_Pid(self):
+        sparql_query = """
+            PREFIX survol: <%s>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT ?pid
+            WHERE
+            {
+                ?url_proc rdf:type survol:Win32_Process .
+                ?url_proc survol:Description 'python.exe' .
+                ?url_proc survol:Handle ?pid .
+            }""" % (survol_namespace)
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+        self.assertTrue(len(query_result) > 0)
+        only_pids = [str(one_result[0]) for one_result in query_result]
+        print("only_pids=", only_pids)
+        self.assertTrue(str(CurrentPid) in only_pids)
+
+    def test_Win32_Process_all(self):
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?pid WHERE {
+                ?url_process a survol:Win32_Process .
+                ?url_process survol:Handle ?pid .
+            }
+        """ % (survol_namespace)
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+        only_pids = [str(one_result[0]) for one_result in query_result]
+        print("only_pids=", only_pids)
+        self.assertTrue(str(CurrentPid) in only_pids)
+
     def test_wmi_query_disk_drive(self):
         sparql_query = """
             PREFIX survol: <%s>
@@ -220,6 +253,47 @@ class SparqlCallWmiTest(CUSTOM_EVALS_WMI_Base_Test):
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
+
+    def test_server_wmi_more_user_account_caption(self):
+        sparql_query = """
+            PREFIX survol: <%s>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT ?caption
+            WHERE
+            {
+                ?url_user rdf:type survol:Win32_UserAccount .
+                ?url_user survol:Name '%s' .
+                ?url_user survol:Caption ?caption .
+            }""" % (survol_namespace, CurrentUsername)
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+        self.assertTrue(len(query_result)== 1)
+        account_caption = str(query_result[0][0])
+        self.assertTrue(account_caption.lower() == CurrentMachine.lower() + "\\\\" + CurrentUsername)
+
+    def test_server_wmi_more_user_account_domain(self):
+        sparql_query = """
+            PREFIX survol: <%s>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT ?domain ?caption
+            WHERE
+            {
+                ?url_user rdf:type survol:Win32_UserAccount .
+                ?url_user survol:Name '%s' .
+                ?url_user survol:Caption ?caption .
+                ?url_user survol:Domain ?domain .
+            }""" % (survol_namespace, CurrentUsername)
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        # [(rdflib.term.Literal(u'rchateau-HP'), rdflib.term.Literal(u'rchateau-HP\\\\rchateau'))]
+        print("Result=", query_result)
+        self.assertTrue(len(query_result)== 1)
+        account_domain = str(query_result[0][0])
+        account_caption = str(query_result[0][1])
+        self.assertTrue(account_domain.lower() == CurrentMachine.lower())
+        self.assertTrue(account_caption.lower() == CurrentMachine.lower() + "\\\\" + CurrentUsername)
+
 
 class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
@@ -602,78 +676,6 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
 
-    # Some query examples taken from https://codyburleson.com/sparql-examples-list-classes/
-    # TODO: Test rdfs:range
-
-################################################################################
-
-class Rdflib_CUSTOM_EVALS_WMI_Test(CUSTOM_EVALS_WMI_Base_Test):
-
-    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported. test_sparql_Win32_Process skipped.")
-    def test_sparql_Win32_Process(self):
-        sparql_query = """
-            PREFIX survol: <%s>
-            SELECT ?pid WHERE {
-                ?url_process a survol:Win32_Process .
-                ?url_process survol:Handle ?pid .
-            }
-        """ % (survol_namespace)
-        rdflib_graph = rdflib.Graph()
-        query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
-
-    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported. test_server_wmi_more skipped.")
-    def test_server_wmi_more_python(self):
-        sparql_query = """
-            PREFIX survol: <%s>
-            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-            SELECT ?pid
-            WHERE
-            {
-                ?url_proc rdf:type survol:Win32_Process .
-                ?url_proc survol:Description 'python.exe' .
-                ?url_proc survol:Handle ?pid .
-            }""" % (survol_namespace)
-        rdflib_graph = rdflib.Graph()
-        query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
-
-    def test_server_wmi_more_user_account_caption(self):
-        sparql_query = """
-            PREFIX survol: <%s>
-            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-            SELECT ?caption
-            WHERE
-            {
-                ?url_user rdf:type survol:Win32_UserAccount .
-                ?url_user survol:Name '%s' .
-                ?url_user survol:Caption ?caption .
-            }""" % (survol_namespace, CurrentUsername)
-        rdflib_graph = rdflib.Graph()
-        query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
-
-    def test_server_wmi_more_user_account_domain(self):
-        sparql_query = """
-            PREFIX survol: <%s>
-            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-            SELECT ?domain ?caption
-            WHERE
-            {
-                ?url_user rdf:type survol:Win32_UserAccount .
-                ?url_user survol:Name '%s' .
-                ?url_user survol:Caption ?caption .
-                ?url_user survol:Domain ?domain .
-            }""" % (survol_namespace, CurrentUsername)
-        rdflib_graph = rdflib.Graph()
-        query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
-
-
-    # This tests the ability to extract the WMI classes and their attributes.
-    # Results are converted to lowercase. This is not really an issue.
-    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported. test_server_survol_wmi_meta not executed.")
-    @unittest.skip("Not for the moment")
     def test_server_survol_wmi_meta(self):
         sparql_query = """
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
@@ -686,8 +688,10 @@ class Rdflib_CUSTOM_EVALS_WMI_Test(CUSTOM_EVALS_WMI_Base_Test):
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
 
+    # Some query examples taken from https://codyburleson.com/sparql-examples-list-classes/
+    # TODO: Test rdfs:range
 
-
+################################################################################
 
 # This works: gwmi -Query 'xxxxx'
 # ASSOCIATORS OF {Win32_Process.Handle=1520}
