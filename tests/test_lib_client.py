@@ -1300,7 +1300,9 @@ class SurvolLocalWindowsTest(unittest.TestCase):
             'CIM_DataFile.Name=C:/windows/SYSTEM32/ntdll.dll',
             ]
 
+        print("Actual=", strInstancesSet)
         for oneStr in listRequired + listOption:
+            print("oneStr=", oneStr)
             self.assertTrue( oneStr in strInstancesSet )
 
         # Detection if a specific bug is fixed.
