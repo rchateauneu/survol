@@ -34,6 +34,9 @@ class Impersonate:
 # TODO: BEWARE: Apparently it does not work for remote machines before NetShareEnum. When using it,
 # TODO: with another machine etc... we obtain GetUserName() = "Guest" and of course access denied everywjhere.
 def MakeImpersonate(machineName):
+	if not machineName:
+		return None, None
+
 	currentUserName =  win32api.GetUserName()
 	DEBUG("MakeImpersonate: machineName=%s currentUserName=%s", machineName,  currentUserName )
 
