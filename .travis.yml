@@ -19,6 +19,7 @@ matrix:
         - python -m pip install pytest
         # Note: Cannot install win32api
         - python -m pip install pefile
+        - python -m pip install wmi
       env:
         - PATH=/c/Python37:/c/Python37/Scripts:$PATH
 install:
