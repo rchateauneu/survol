@@ -65,31 +65,31 @@ def Main():
 		# print( "l="+lin+"<br>" )
 		# Normally this is only the first line
 		# session setup failed: NT_STATUS_LOGON_FAILURE
-		mtch_net = re.match( "^.*(NT_STATUS_.*)", lin )
+		mtch_net = re.match(r"^.*(NT_STATUS_.*)", lin)
 		if mtch_net:
 			# print("OK<br>")
 			lib_common.ErrorMessageHtml("Smb failure: " + mtch_net.group(1) + " to smb share:" + nodeSmbShr)
 
-		if re.match("^\sServer\s+Comment", lin):
+		if re.match(r"^\sServer\s+Comment", lin):
 			modeSharedList = False
 			continue
 
-		if re.match("^\sWorkgroup\s+Master", lin):
+		if re.match(r"^\sWorkgroup\s+Master", lin):
 			modeSharedList = False
 			continue
 
-		if re.match("^\sSharename\s+Type\s+Comment", lin):
+		if re.match(r"^\sSharename\s+Type\s+Comment", lin):
 			modeSharedList = True
 			continue
 
-		if re.match ("^\s*----+ +---+ +", lin ):
+		if re.match (r"^\s*----+ +---+ +", lin):
 			continue
 
 		# print("m="+str(modeSharedList))
 		# print("l="+lin)
 		if modeSharedList:
 			# The type can be "Disk", "Printer" or "IPC".
-			mtch_share = re.match( "^\s+([^\s]+)\s+Disk\s+(.*)$", lin )
+			mtch_share = re.match(r"^\s+([^\s]+)\s+Disk\s+(.*)$", lin)
 			if mtch_share:
 				shareName = mtch_share.group(1)
 
