@@ -69,8 +69,13 @@ if is_platform_windows:
         sys.stderr.write(__file__ + " Fixed sys.executable")
     except ImportError:
         # Here we cannot do anything.
-        sys.stderr.write(__file__ + " Cannot import win32api to fix sys.executable")
+        sys.stderr.write(__file__ + " Cannot import win32api to fix sys.executable. Trying _getfinalpathname")
 
+        # https://stackoverflow.com/questions/27465610/how-can-i-get-the-proper-capitalization-for-a-path
+        # This is an undocumented function, for Python 3 only.
+        # os.path._getfinalpathname("c:/python27/python.exe") => '\\\\?\\C:\\Python27\\python.exe'
+        # os.path._getfinalpathname("c:/python27/python.exe").lstrip(r'\?') => 'C:\\Python27\\python.exe'
+        execPath = os.path._getfinalpathname(execPath).lstrip(r'\?')
 
     execPath = execPath.replace("\\","/"),
 
