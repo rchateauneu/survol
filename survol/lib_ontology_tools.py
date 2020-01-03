@@ -29,19 +29,21 @@ def ManageLocalOntologyCache(ontology_name, ontology_extractor):
 
         INFO("ExtractWmiOntology %s: Loaded cached ontology from %s and %s",
              ontology_name, path_classes, path_attributes)
+        return map_classes, map_attributes
     except Exception as exc:
-        WARNING("ManageOntologyCache %s: Caught: %s", ontology_name, exc)
-        map_classes, map_attributes = ontology_extractor()
-        WARNING("ManageOntologyCache %s: Saving ontology to %s and %s",
-            ontology_name, path_classes, path_attributes)
+        INFO("ManageOntologyCache %s: Caught: %s. Creating cache file.", ontology_name, exc)
 
-        fd_classes = open(path_classes, "w")
-        json.dump(map_classes, fd_classes)
-        fd_classes.close()
+    map_classes, map_attributes = ontology_extractor()
+    INFO("ManageOntologyCache %s: Saving ontology to %s and %s",
+        ontology_name, path_classes, path_attributes)
 
-        fd_attributes = open(path_attributes, "w")
-        json.dump(map_attributes, fd_attributes)
-        fd_attributes.close()
+    fd_classes = open(path_classes, "w")
+    json.dump(map_classes, fd_classes)
+    fd_classes.close()
+
+    fd_attributes = open(path_attributes, "w")
+    json.dump(map_attributes, fd_attributes)
+    fd_attributes.close()
 
     return map_classes, map_attributes
 
