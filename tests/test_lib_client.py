@@ -1290,11 +1290,13 @@ class SurvolLocalWindowsTest(unittest.TestCase):
             elif platform.release() == '10':
                 # 'C:\\Users\\rchat\\AppData\\Local\\Programs\\Python\\Python36\\python.exe'
                 # 'C:/Users/rchat/AppData/Local/Programs/Python/Python36/DLLs/_ctypes.pyd'
-                filCTypes = os.path.dirname(CurrentExecutable) + '/DLLs/_ctypes.pyd'
-                listOption = [
-                    'CIM_DataFile.Name=%s' % CurrentExecutable,
-                    'CIM_DataFile.Name=%s' % filCTypes,
-                ]
+                listOption = []
+                if is_travis_machine():
+                    extraFile = os.path.dirname(CurrentExecutable).lower() + '/lib/site-packages/win32/win32api.pyd'
+                    listOption.append('CIM_DataFile.Name=%s' % extraFile)
+                else:
+                    filCTypes = os.path.dirname(CurrentExecutable) + '/DLLs/_ctypes.pyd'
+                    listOption.append('CIM_DataFile.Name=%s' % filCTypes)
         else:
             listOption = [
             'CIM_DataFile.Name=C:/windows/SYSTEM32/ntdll.dll',
