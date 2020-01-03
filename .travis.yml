@@ -20,6 +20,7 @@ matrix:
         # Note: Cannot install win32api
         - python -m pip install pefile
         - python -m pip install wmi
+        - python -m pip install pywin32
       env:
         - PATH=/c/Python37:/c/Python37/Scripts:$PATH
 install:
