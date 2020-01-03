@@ -49,7 +49,7 @@ is_platform_linux = sys.platform.startswith("linux")
 # Typical situation of symbolic links:
 # /usr/bin/python => python2 => python2.7
 # Several Python scripts return this executable as a node.
-execPath = os.path.realpath(sys.executable)
+CurrentExecutable = os.path.realpath(sys.executable)
 if is_platform_windows:
     # When running in PyCharm with virtualenv, the path is correct:
     # "C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/venv/Scripts/python.exe"
@@ -62,10 +62,10 @@ if is_platform_windows:
 
     try:
         import win32api
-        execPath = win32api.GetLongPathName(win32api.GetShortPathName(execPath))
+        CurrentExecutable = win32api.GetLongPathName(win32api.GetShortPathName(CurrentExecutable))
 
         # The drive must be in uppercase too:
-        execPath = execPath[0].upper() + execPath[1:]
+        CurrentExecutable = CurrentExecutable[0].upper() + CurrentExecutable[1:]
         sys.stderr.write(__file__ + " Fixed sys.executable")
     except ImportError:
         # Here we cannot do anything.
@@ -75,11 +75,11 @@ if is_platform_windows:
         # This is an undocumented function, for Python 3 only.
         # os.path._getfinalpathname("c:/python27/python.exe") => '\\\\?\\C:\\Python27\\python.exe'
         # os.path._getfinalpathname("c:/python27/python.exe").lstrip(r'\?') => 'C:\\Python27\\python.exe'
-        execPath = os.path._getfinalpathname(execPath).lstrip(r'\?')
+        CurrentExecutable = os.path._getfinalpathname(CurrentExecutable).lstrip(r'\?')
 
-    execPath = execPath.replace("\\","/"),
+    CurrentExecutable = CurrentExecutable.replace("\\","/"),
 
-CurrentExecutablePath = 'CIM_DataFile.Name=%s' % execPath
+CurrentExecutablePath = 'CIM_DataFile.Name=%s' % CurrentExecutable
 
 # https://stackoverflow.com/questions/46978624/python-multiprocessing-process-to-use-virtualenv
 #print(__file__+" sys.execPath=%s" % execPath)
