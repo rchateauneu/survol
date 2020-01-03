@@ -77,7 +77,7 @@ if is_platform_windows:
         # os.path._getfinalpathname("c:/python27/python.exe").lstrip(r'\?') => 'C:\\Python27\\python.exe'
         CurrentExecutable = os.path._getfinalpathname(CurrentExecutable).lstrip(r'\?')
 
-    CurrentExecutable = CurrentExecutable.replace("\\","/"),
+    CurrentExecutable = CurrentExecutable.replace("\\","/")
 
 CurrentExecutablePath = 'CIM_DataFile.Name=%s' % CurrentExecutable
 
