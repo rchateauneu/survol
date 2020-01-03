@@ -431,6 +431,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
 
+    @unittest.skip("Too slow !!!")
     def test_wmi_associators_pid_to_files(self):
         sparql_query = """
             PREFIX survol: <%s>
