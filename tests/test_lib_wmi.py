@@ -28,8 +28,8 @@ def GetElementAsString(one_dict, property_name):
     # qname_key = lib_properties.PropToQName(key_node)
 
 
+@unittest.skipIf(not pkgutil.find_loader('wmi'), "LibWmiTest needs wmi package.")
 class LibWmiTest(unittest.TestCase):
-    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported.")
     def test_local_ontology(self):
         # This test is very slow because it does not use the cache.
         map_classes, map_attributes = lib_wmi.ExtractWmiOntologyLocal()
@@ -49,8 +49,6 @@ class LibWmiTest(unittest.TestCase):
             if "Win32_Process" in property_dict["predicate_domain"]:
                 print("property_dict=", property_dict)
 
-
-    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported.")
     def test_sparql_callback_select(self):
         # TODO: Beware, this can be incredibly very slow depending on the properties.
         callback_object = lib_wmi.WmiSparqlCallbackApi()
@@ -96,7 +94,6 @@ class LibWmiTest(unittest.TestCase):
         self.assertTrue(GetElementAsString(one_dict, 'Caption') == 'python.exe')
 
     # ASSOCIATORS OF {CIM_Process.Handle=32360} WHERE AssocClass=CIM_ProcessExecutable ResultClass=CIM_DataFile
-    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported.")
     def test_sparql_callback_associator_process(self):
         callback_object = lib_wmi.WmiSparqlCallbackApi()
         grph = lib_kbase.MakeGraph()
@@ -139,9 +136,7 @@ class LibWmiTest(unittest.TestCase):
                 found_kernel32_dll = GetElementAsString(dict_key_values, 'Name').endswith("kernel32.dll")
         self.assertTrue(found_kernel32_dll)
 
-
     # ASSOCIATORS OF {Win32_LogicalDisk.DeviceID="C:"} WHERE AssocClass = Win32_SystemDevices
-    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported.")
     def test_sparql_callback_associator_logical_disk(self):
         callback_object = lib_wmi.WmiSparqlCallbackApi()
         grph = lib_kbase.MakeGraph()
@@ -176,7 +171,6 @@ class LibWmiTest(unittest.TestCase):
             self.assertTrue(GetElementAsString(dict_key_values, 'CreationClassName') == "Win32_ComputerSystem")
             self.assertTrue(GetElementAsString(dict_key_values, 'Name').upper() == CurrentMachine.upper())
 
-    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported.")
     def test_sparql_callback_types(self):
         callback_object = lib_wmi.WmiSparqlCallbackApi()
         grph = lib_kbase.MakeGraph()
