@@ -1278,7 +1278,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         listRequired = [
             CurrentProcessPath,
             CurrentUserPath,
-            'CIM_DataFile.Name=%s' % sys.executable.replace("\\","/"),
+            'CIM_DataFile.Name=%s' % CurrentExecutable,
         ]
 
         # Some nodes are in Py2 or Py3.
@@ -1290,9 +1290,9 @@ class SurvolLocalWindowsTest(unittest.TestCase):
             elif platform.release() == '10':
                 # 'C:\\Users\\rchat\\AppData\\Local\\Programs\\Python\\Python36\\python.exe'
                 # 'C:/Users/rchat/AppData/Local/Programs/Python/Python36/DLLs/_ctypes.pyd'
-                filCTypes = os.path.dirname(sys.executable).replace("\\","/") + '/DLLs/_ctypes.pyd'
+                filCTypes = os.path.dirname(CurrentExecutable) + '/DLLs/_ctypes.pyd'
                 listOption = [
-                    'CIM_DataFile.Name=%s' % sys.executable.replace("\\","/"),
+                    'CIM_DataFile.Name=%s' % CurrentExecutable,
                     'CIM_DataFile.Name=%s' % filCTypes,
                 ]
         else:
