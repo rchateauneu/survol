@@ -294,9 +294,13 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
+        # On Travis: 'PACKER-5D93E860\\\\travis'
         self.assertTrue(len(query_result)== 1)
         account_caption = str(query_result[0][0])
-        self.assertTrue(account_caption.lower() == CurrentMachine.lower() + "\\\\" + CurrentUsername)
+        expected_caption = CurrentMachine.lower() + "\\\\" + CurrentUsername
+        print("account_caption=", account_caption)
+        print("expected_caption=", expected_caption)
+        self.assertTrue(account_caption.lower() == expected_caption)
 
     def test_server_wmi_more_user_account_domain(self):
         sparql_query = """
@@ -588,7 +592,7 @@ class SparqlSeeAlsoTest(CUSTOM_EVALS_WMI_Base_Test):
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
 
-
+@unittest.skip("NOT IMPLEMENTED YET")
 class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
 
     def test_all_classes(self):
