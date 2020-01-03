@@ -369,7 +369,7 @@ def IsLocalAddress(anHostNam):
     # Maybe entity_host="http://192.168.1.83:5988"
     hostOnly = EntHostToIp(anHostNam)
     if hostOnly in [ None, "", "localhost", "127.0.0.1", currentHostname ]:
-        sys.stderr.write("IsLocalAddress %s TRUE\n"%anHostNam)
+        # sys.stderr.write("IsLocalAddress %s TRUE\n"%anHostNam)
         return True
 
     try:
@@ -378,21 +378,21 @@ def IsLocalAddress(anHostNam):
     except Exception:
         # Unknown machine
         exc = sys.exc_info()[1]
-        sys.stderr.write("IsLocalAddress anHostNam=%s:%s FALSE\n" % ( anHostNam, str(exc) ) )
+        # sys.stderr.write("IsLocalAddress anHostNam=%s:%s FALSE\n" % ( anHostNam, str(exc) ) )
         return False
 
     # IsLocalAddress RCHATEAU-HP ipOnly=192.168.0.14 localIP=127.0.0.1 currentHostname=127.0.0.1
-    sys.stderr.write("IsLocalAddress %s ipOnly=%s localIP=%s currentHostname=%s\n"%(anHostNam,ipOnly,localIP,currentHostname))
+    # sys.stderr.write("IsLocalAddress %s ipOnly=%s localIP=%s currentHostname=%s\n"%(anHostNam,ipOnly,localIP,currentHostname))
     if ipOnly in [ "0.0.0.0", "127.0.0.1", localIP ]:
-        sys.stderr.write("IsLocalAddress %s TRUE\n"%anHostNam)
+        # sys.stderr.write("IsLocalAddress %s TRUE\n"%anHostNam)
         return True
 
     # "RCHATEAU-HP" and "rchateau-HP" ??
-    sys.stderr.write("IsLocalAddress %s socket.gethostname()=%s\n"%(anHostNam,socket.gethostname()))
+    # sys.stderr.write("IsLocalAddress %s socket.gethostname()=%s\n"%(anHostNam,socket.gethostname()))
     if anHostNam.lower() == socket.gethostname().lower():
         return True
 
-    sys.stderr.write("IsLocalAddress %s FALSE\n"%anHostNam)
+    # sys.stderr.write("IsLocalAddress %s FALSE\n"%anHostNam)
     return False
 
 # Beware: lib_util.currentHostname="Unknown-30-b5-c2-02-0c-b5-2.home"
