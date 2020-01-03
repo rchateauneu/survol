@@ -498,6 +498,8 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
 
+
+@unittest.skip("NOT IMPLEMENTED YET")
 class SparqlSeeAlsoTest(CUSTOM_EVALS_WMI_Base_Test):
     def test_see_also_data_file(self):
         sparql_query = """
