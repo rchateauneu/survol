@@ -1301,10 +1301,10 @@ class SurvolLocalWindowsTest(unittest.TestCase):
             ]
 
         for oneStr in listRequired + listOption:
-            assert( oneStr in strInstancesSet )
+            self.assertTrue( oneStr in strInstancesSet )
 
         # Detection if a specific bug is fixed.
-        assert(not 'CIM_DataFile.Name=' in strInstancesSet)
+        self.assertTrue(not 'CIM_DataFile.Name=' in strInstancesSet)
 
     def test_win32_products(self):
         lstInstances = ClientObjectInstancesFromScript(
