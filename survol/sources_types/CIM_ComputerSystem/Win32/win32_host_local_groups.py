@@ -24,11 +24,11 @@ def Main():
 	grph = cgiEnv.GetGraph()
 
 	if lib_util.IsLocalAddress(server):
-		servName_or_None = server
-		serverNode = lib_common.gUriGen.HostnameUri(server)
-	else:
 		servName_or_None = None
 		serverNode = lib_common.nodeMachine
+	else:
+		servName_or_None = server
+		serverNode = lib_common.gUriGen.HostnameUri(server)
 
 	# http://www.math.uiuc.edu/~gfrancis/illimath/windows/aszgard_mini/movpy-2.0.0-py2.4.4/movpy/lib/win32/Demos/win32netdemo.py
 	# servName_or_None, imper = lib_win32.MakeImpersonate(server)
