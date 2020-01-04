@@ -233,6 +233,28 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         only_parent_pids = [str(one_result[0]) for one_result in query_result]
         self.assertTrue(str(CurrentParentPid) == only_parent_pids[0])
 
+    def test_Win32_Process_Pid_to_ParentProcess(self):
+        sparql_query = """
+            PREFIX survol: <%s>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT ?parent_description
+            WHERE
+            {
+                ?url_proc rdf:type survol:Win32_Process .
+                ?url_proc survol:ParentProcessId ?parent_pid .
+                ?url_proc survol:Handle '%d' .
+                ?url_parent_proc rdf:type survol:Win32_Process .
+                ?url_parent_proc survol:Description ?parent_description .
+                ?url_parent_proc survol:Handle ?parent_pid .
+            }""" % (survol_namespace, CurrentPid)
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+        self.assertTrue(len(query_result) == 1)
+        only_descriptions = [str(one_result[0]) for one_result in query_result]
+        # Depending on the test framework, Description='pycharm64.exe' for example.
+        print("Description=%s", only_descriptions[0])
+
     def test_Win32_Process_all(self):
         sparql_query = """
             PREFIX survol: <%s>
