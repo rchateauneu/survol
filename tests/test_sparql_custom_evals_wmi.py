@@ -161,7 +161,8 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue(CurrentUsername in only_names)
 
         for one_result in query_result:
-            self.assertTrue(str(one_result[1]).lower() ==  CurrentMachine.lower())
+            # Problem on Travis: Domain = 'PACKER-5D93E860', machine='packer-5d93e860-43ba-c2e7-85d2-3ea0696b8fc8'
+            self.assertTrue(str(one_result[1]).lower() ==  CurrentDomainWin32)
 
     def test_CIM_Process_Name(self):
         sparql_query="""
@@ -297,7 +298,7 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         # On Travis: 'PACKER-5D93E860\\\\travis'
         self.assertTrue(len(query_result)== 1)
         account_caption = str(query_result[0][0])
-        expected_caption = CurrentMachine.lower() + "\\\\" + CurrentUsername
+        expected_caption = CurrentDomainWin32.lower() + "\\\\" + CurrentUsername
         print("account_caption=", account_caption)
         print("expected_caption=", expected_caption)
         self.assertTrue(account_caption.lower() == expected_caption)
@@ -321,8 +322,8 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue(len(query_result)== 1)
         account_domain = str(query_result[0][0])
         account_caption = str(query_result[0][1])
-        self.assertTrue(account_domain.lower() == CurrentMachine.lower())
-        self.assertTrue(account_caption.lower() == CurrentMachine.lower() + "\\\\" + CurrentUsername)
+        self.assertTrue(account_domain.lower() == CurrentDomainWin32)
+        self.assertTrue(account_caption.lower() == CurrentDomainWin32 + "\\\\" + CurrentUsername)
 
 
 class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
@@ -451,6 +452,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
 
+    @unittest.skip("Cannot work yet !!!")
     def test_wmi_associators_executable_to_files(self):
         sparql_query = """
             PREFIX survol: <%s>
