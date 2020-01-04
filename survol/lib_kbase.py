@@ -413,6 +413,7 @@ def triplestore_set_comment(grph, predicate_for_comment):
 
 # The QName is an abbreviation of URI reference with the namespace function for XML, for an edge.
 # Transforms "http://primhillcomputers.com/ontologies/ppid" into "ppid"
+# See lib_sparql_custom_evals.survol_url = "http://www.primhillcomputers.com/survol#"
 # A CGI parameter might be there (CGIPROP)
 # See lib_properties.PropToQName
 def qname(x, grph):
@@ -423,6 +424,4 @@ def qname(x, grph):
         return q[2]
     except:
         return x
-    # Nothing really interesting at the moment, just hardcodes.
-    #return lib_properties.prop_color(prop)
 
