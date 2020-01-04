@@ -10,6 +10,7 @@ import lib_util
 import lib_common
 import lib_ontology_tools
 import lib_kbase
+import lib_properties
 
 ################################################################################
 
@@ -592,10 +593,10 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         #ontology_graph = _wmi_ontology()
         #for wmi_s, wmi_p, wmi_o in ontology_graph.triples((None, RDFS.domain, class_node)):
         #    print "%s is a person" % s
-        self.m_properties_to_nodes_dict = {}
-        for property_name, property_dict in _wmi_load_ontology.attributes_map.items():
-            if class_name in property_dict["predicate_domain"]:
-                self.m_properties_to_nodes_dict[property_name] = lib_kbase.RdfsPropertyNode(property_name)
+        # self._m_properties_to_nodes_dict = {}
+        #        for property_name, property_dict in _wmi_load_ontology.attributes_map.items():
+        #   if class_name in property_dict["predicate_domain"]:
+        #       self._m_properties_to_nodes_dict[property_name] = lib_kbase.RdfsPropertyNode(property_name)
         self.m_class_node = lib_kbase.RdfsPropertyNode(class_name)
 
     def IteratorToObjects(self, rdflib_graph, iterator_objects):
@@ -619,9 +620,6 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
                 for wql_key_node, wql_value_dummy in dict_key_values.items():
                     sys.stderr.write("wql_key_node=%s\n" % wql_key_node)
                     assert isinstance(wql_key_node, rdflib.term.URIRef)
-                    #wql_key_name = ToString(wql_key_node)
-                    #wql_key_node = self.m_properties_to_nodes_dict[wql_key_name]
-                    #assert isinstance(wql_key_node, rdflib.term.URIRef)
                     if wql_key_node not in self.m_properties:
                         continue
                     wql_variable = self.m_properties[wql_key_node]
@@ -664,7 +662,6 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
                 assert isinstance(wql_key_node, rdflib.term.URIRef)
                 wql_value = dict_key_values[wql_key_node]
                 assert isinstance(wql_value, lib_util.scalar_data_types)
-                #wql_node = self.m_properties_to_nodes_dict[wql_key]
                 variable_values_list.append(wql_value)
                 wql_value_node = rdflib.term.Literal(wql_value)
                 rdflib_graph.add((node_uri_ref, wql_key_node, wql_value_node))
@@ -679,8 +676,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         return returned_variables
 
     def SelectWmiObjectFromProperties(self, graph, variables_context, filtered_where_key_values):
-        sys.stderr.write("SelectWmiObjectFromProperties\n")
-        # yield (object_path, dict_key_values)
+        sys.stderr.write("SelectWmiObjectFromProperties filtered_where_key_values=\n" % filtered_where_key_values)
         iterator_objects = wmiExecutor.SelectObjectFromProperties(self.m_class_name, filtered_where_key_values)
         returned_variables = self.IteratorToObjects(graph, iterator_objects)
         sys.stderr.write("SelectWmiObjectFromProperties returned_variables=%s\n" % returned_variables)
@@ -704,28 +700,39 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         filtered_where_key_values = dict()
 
         sys.stderr.write("FetchAllVariables variables_context.keys()=%s\n" % variables_context.keys())
-        sys.stderr.write("FetchAllVariables self.m_properties_to_nodes_dict.keys()=%s\n" % self.m_properties_to_nodes_dict.keys())
+        #sys.stderr.write("FetchAllVariables self._m_properties_to_nodes_dict.keys()=%s\n" % self._m_properties_to_nodes_dict.keys())
         sys.stderr.write("FetchAllVariables self.m_properties.keys()=%s\n" % self.m_properties.keys())
 
-        at_least_all_ontology_properties_defined = True
-        for predicate_name, predicate_node in self.m_properties_to_nodes_dict.items():
-            try:
-                value_node = self.GetNodeValue(predicate_node, variables_context)
-                sys.stderr.write("FetchAllVariables predicate_node=%s\n" % predicate_node)
-                if value_node:
-                    filtered_where_key_values[predicate_name] = str(value_node)
-            except KeyError:
-                sys.stderr.write("FetchAllVariables MISSING predicate_node=%s\n" % predicate_node)
-                at_least_all_ontology_properties_defined = False
+        for predicate_node in self.m_properties:
+            predicate_name = lib_properties.PropToQName(predicate_node)
+            value_node = self.GetNodeValue(predicate_node, variables_context)
+            sys.stderr.write("FetchAllVariables predicate_node=%s\n" % predicate_node)
+            if value_node:
+                filtered_where_key_values[predicate_name] = str(value_node)
+
+        # at_least_all_ontology_properties_defined = True
+        # for predicate_name, predicate_node in self._m_properties_to_nodes_dict.items():
+        #     try:
+        #         value_node = self.GetNodeValue(predicate_node, variables_context)
+        #         sys.stderr.write("FetchAllVariables predicate_node=%s\n" % predicate_node)
+        #         if value_node:
+        #             filtered_where_key_values[predicate_name] = str(value_node)
+        #     except KeyError:
+        #         sys.stderr.write("FetchAllVariables MISSING predicate_node=%s\n" % predicate_node)
+        #         at_least_all_ontology_properties_defined = False
+
 
         # if filtered_where_key_values:
         # If at least all the mandatory properties are defined,
         # or if there is no associators.
-        if at_least_all_ontology_properties_defined or not self.m_associators:
+        # if at_least_all_ontology_properties_defined or not self.m_associators:
+        if filtered_where_key_values:
             returned_variables = self.SelectWmiObjectFromProperties(graph, variables_context, filtered_where_key_values)
-            if returned_variables is None:
-                # The object could not be identified, so no new variables values are given.
-                raise Exception("KAPUTT")
+            return returned_variables
+
+        if not filtered_where_key_values and not self.m_associators:
+            sys.stderr.write("FetchAllVariables BEWARE FULL SELECT\n")
+            returned_variables = self.SelectWmiObjectFromProperties(graph, variables_context, filtered_where_key_values)
             return returned_variables
 
         # Maybe we have associators to find the objects:

@@ -255,6 +255,50 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         # Depending on the test framework, Description='pycharm64.exe' for example.
         print("Description=%s", only_descriptions[0])
 
+    def test_Win32_Process_ParentPid_to_Pid(self):
+        sparql_query = """
+            PREFIX survol: <%s>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT ?pid
+            WHERE
+            {
+                ?url_proc rdf:type survol:Win32_Process .
+                ?url_proc survol:ParentProcessId '%d' .
+                ?url_proc survol:Handle ?pid .
+            }""" % (survol_namespace, CurrentParentPid)
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+        self.assertTrue(len(query_result) >= 1)
+        only_pids = [str(one_result[0]) for one_result in query_result]
+        print("CurrentPid=", CurrentPid)
+        print("only_pids=", only_pids)
+        self.assertTrue(str(CurrentPid) in only_pids)
+
+    def test_Win32_Process_Pid_to_ParentPid_to_Children(self):
+        sparql_query = """
+            PREFIX survol: <%s>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT ?parent_children_pid
+            WHERE
+            {
+                ?url_proc rdf:type survol:Win32_Process .
+                ?url_proc survol:ParentProcessId ?parent_pid .
+                ?url_proc survol:Handle '%d' .
+                ?url_parent_proc rdf:type survol:Win32_Process .
+                ?url_parent_proc survol:Handle ?parent_pid .
+                ?url_parent_proc_children rdf:type survol:Win32_Process .
+                ?url_parent_proc_children survol:ParentProcessId ?parent_pid .
+                ?url_parent_proc_children survol:Handle ?parent_children_pid .
+            }""" % (survol_namespace, CurrentPid)
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+        self.assertTrue(len(query_result) >= 1)
+        only_pids = [str(one_result[0]) for one_result in query_result]
+        print("only_pids=", sorted(only_pids))
+        self.assertTrue(str(CurrentPid) in only_pids)
+
     def test_Win32_Process_all(self):
         sparql_query = """
             PREFIX survol: <%s>
