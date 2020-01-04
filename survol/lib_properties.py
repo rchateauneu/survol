@@ -41,6 +41,7 @@ def MakeProp(*prps,**kvargs):
 MakeNodeForSparql = MakeProp
 
 # See lib_kbase.qname
+# ... and lib_sparql_custom_evals.survol_url = "http://www.primhillcomputers.com/survol#"
 def PropToQName(property_node):
     # property_node is a <class 'rdflib.term.URIRef'>, ex "rdflib.term.URIRef(u'http://primhillcomputers.com/survol/QuotaPagedPoolUsage')"
     # TODO: Should call compute_qname ?
