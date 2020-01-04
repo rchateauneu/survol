@@ -125,6 +125,7 @@ if is_platform_windows:
         # u'RCHATEAU-HP'
         #  wmi.WMI().CIM_ComputerSystem()[0].Workgroup
         # u'WORKGROUP'
+        assert CurrentMachine.lower() == 'packer-5d93e860-43ba-c2e7-85d2-3ea0696b8fc8'
         CurrentDomainWin32 = 'PACKER-5D93E860'.lower() # CurrentMachine.lower()
     else:
         CurrentDomainWin32 = CurrentMachine.lower()
