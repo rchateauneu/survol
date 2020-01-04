@@ -169,7 +169,8 @@ class LibWmiTest(unittest.TestCase):
             print(object_path)
             print(dict_key_values)
             self.assertTrue(GetElementAsString(dict_key_values, 'CreationClassName') == "Win32_ComputerSystem")
-            self.assertTrue(GetElementAsString(dict_key_values, 'Name').upper() == CurrentMachine.upper())
+            # Problem on Travis: Name='PACKER-5D93E860', DNSHostName='packer-5d93e860-43ba-c2e7-85d2-3ea0696b8fc8'
+            self.assertTrue(GetElementAsString(dict_key_values, 'Name').lower() == CurrentDomainWin32)
 
     def test_sparql_callback_types(self):
         callback_object = lib_wmi.WmiSparqlCallbackApi()

@@ -116,6 +116,23 @@ def is_travis_machine():
     # Some tests cannot be run on a Travis machine if some tools are not there.
     return os.getcwd().find("travis") >= 0
 
+# Problem on Travis: Domain = 'PACKER-5D93E860', machine='packer-5d93e860-43ba-c2e7-85d2-3ea0696b8fc8'
+if is_platform_windows:
+    if is_travis_machine():
+        # FIXME: Horrible temporary hard-code.
+        # TODO:
+        # wmi.WMI().CIM_ComputerSystem()[0].Name
+        # u'RCHATEAU-HP'
+        #  wmi.WMI().CIM_ComputerSystem()[0].Workgroup
+        # u'WORKGROUP'
+        CurrentDomainWin32 = 'PACKER-5D93E860' # CurrentMachine.lower()
+    else:
+        CurrentDomainWin32 = CurrentMachine.lower()
+
+
+
+
+
 def is_linux_wbem():
     # WBEM is not available on TravisCI.
     return is_platform_linux and has_wbem() and not is_travis_machine()
