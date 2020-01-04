@@ -215,6 +215,24 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         print("only_pids=", only_pids)
         self.assertTrue(str(CurrentPid) in only_pids)
 
+    def test_Win32_Process_Pid_to_ParentPid(self):
+        sparql_query = """
+            PREFIX survol: <%s>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT ?parent_pid
+            WHERE
+            {
+                ?url_proc rdf:type survol:Win32_Process .
+                ?url_proc survol:ParentProcessId ?parent_pid .
+                ?url_proc survol:Handle '%d' .
+            }""" % (survol_namespace, CurrentPid)
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+        self.assertTrue(len(query_result) == 1)
+        only_parent_pids = [str(one_result[0]) for one_result in query_result]
+        self.assertTrue(str(CurrentParentPid) == only_parent_pids[0])
+
     def test_Win32_Process_all(self):
         sparql_query = """
             PREFIX survol: <%s>
