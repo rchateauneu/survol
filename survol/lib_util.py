@@ -1330,7 +1330,7 @@ def SplitMoniker(xid):
 # whatever the attribute values are, or if it is a Survol object.
 def SplitMonikToWQL(splitMonik,className):
     gblLogger.debug("SplitMonikToWQL splitMonik=[%s]", str(splitMonik) )
-    aQry = 'select * from %s ' % className
+    aQry = 'select * from %s' % className
     qryDelim = "where"
     for qryKey in splitMonik:
         qryVal = splitMonik[qryKey]
