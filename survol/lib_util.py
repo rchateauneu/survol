@@ -236,7 +236,7 @@ def HttpPrefix():
     return prfx
 
 # This is also used in lib_client to differentiate local from remote scripts.
-prefixLocalScript = "/NotRunningAsCgi"
+prefixLocalScript = "/LocalExecution"
 
 def UriRootHelper():
     try:
