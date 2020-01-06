@@ -1040,9 +1040,10 @@ class WmiSparqlExecutor:
             yield ( object_path, dict_key_values )
 
     # NOT TESTED YET.
-    def SelectAssociatorsFromObject(self, result_class_name, associator_key_name, subject_path):
+    def SelectAssociatorsFromObject(self, result_class_name, associator_key_name, wmi_path):
         # subject_path = '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="31588"'
-        dummy, colon, wmi_path = subject_path.partition(":")
+        sys.stderr.write("SelectAssociatorsFromObject subject_path=%s\n" % wmi_path)
+        # dummy, colon, wmi_path = subject_path.partition(":")
         DEBUG("WmiCallbackAssociator wmi_path=%s", wmi_path)
 
         # HACK: Temporary hard-code !! Same problem as WmiCallbackSelect
@@ -1063,6 +1064,7 @@ class WmiSparqlExecutor:
         wmi_query = "ASSOCIATORS OF {%s} WHERE AssocClass=%s ResultClass=%s" % (wmi_path, associator_key_name, result_class_name)
 
         DEBUG("WmiCallbackAssociator wmi_query=%s", wmi_query)
+        sys.stderr.write("SelectAssociatorsFromObject wmi_query=%s\n" % wmi_query)
 
         wmi_objects = self.m_wmi_connection.query(wmi_query)
 
