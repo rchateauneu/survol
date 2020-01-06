@@ -82,6 +82,7 @@ def equal_paths(path_a, path_b):
     else:
         raise Exception("Invalid platform")
 
+# For testing and debugging purpose.
 def is_usable_file(file_path):
     if os.path.isfile(file_path):
         return True
@@ -90,18 +91,22 @@ def is_usable_file(file_path):
             return True
     return False
 
+# For debugging pujrpose.
 def current_function():
     return sys._getframe(1).f_code.co_name
 
 ################################################################################
 
 class Sparql_CIM_Object(object):
-    def __init__(self, class_name, key_variable):
+    def __init__(self, class_name, key_variable, ontology_keys):
         self.m_variable = key_variable
         self.m_class_name = class_name
         self.m_associators = {}
         self.m_associated = {}
         self.m_properties = {}
+        # For example ["Name", "Domain"]
+        self._m_ontology_keys = ontology_keys
+        print("__init__ ontology_keys=", ontology_keys)
 
     def __str__(self):
         def kw_to_str(property, value):
@@ -110,7 +115,12 @@ class Sparql_CIM_Object(object):
             return "%s=%s" % (property_str, value_str)
 
         # print("ka=", self.m_known_attributes.items())
-        kw = ".".join([ kw_to_str(property, value) for property, value in self.m_properties.items()])
+        # This takes only the properties which are part of the ontology keys.
+        kw_pairs_subset = [
+            kw_to_str(property_key, self.m_properties.get(property_key, "UNKNOWN"))
+            for property_key in self._m_ontology_keys]
+
+        kw = ".".join(kw_pairs_subset)
         return "Sparql_CIM_Object:" + self.m_class_name + ":" + self.m_variable + ":" + kw
 
     # The role of this virtual function is to return a dictionary of pairs made of a variable,
@@ -150,7 +160,8 @@ class Sparql_CIM_Object(object):
 
 class Sparql_CIM_DataFile(Sparql_CIM_Object):
     def __init__(self, class_name, node):
-        super(Sparql_CIM_DataFile, self).__init__(class_name, node)
+        # Same key "Name" for its base class CIM_Directory.
+        super(Sparql_CIM_DataFile, self).__init__(class_name, node, ["Name"])
 
     # This returns the node of the filename which uniquely identifies the object. It uses the literal properties,
     # or the variable properties if these variables have a value in the context.
@@ -333,7 +344,7 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
 
 class Sparql_CIM_Process(Sparql_CIM_Object):
     def __init__(self, class_name, node):
-        super(Sparql_CIM_Process, self).__init__(class_name, node)
+        super(Sparql_CIM_Process, self).__init__(class_name, node, ["Handle"])
 
     # Several properties can be used to return one or several objects.
     # TODO: We could use several properties at one: It is difficult to generalise.
@@ -584,9 +595,11 @@ wmiExecutor = None
 
 class Sparql_WMI_GenericObject(Sparql_CIM_Object):
     def __init__(self, class_name, node):
-        super(Sparql_WMI_GenericObject, self).__init__(class_name, node)
-
         _wmi_load_ontology()
+
+        # This contains the leys of the class, for example["Handle"] if Win32_Process.
+        ontology_keys = _wmi_load_ontology.classes_map[class_name]["class_keys_list"]
+        super(Sparql_WMI_GenericObject, self).__init__(class_name, node, ontology_keys)
 
         # We could also use the ontology stored in RDF, but by sticking to the data structure created
         # from WMI, no information is lost, even if the container.
@@ -638,21 +651,18 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             # WMI returns object_path = '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="11568"'
             # Survol object URL must be like: http://rchateau-hp:8000/survol/entity.py?xid=CIM_Process.Handle=6936
             # Therefore, the WMI path cannot be used "as is", but instead use the original self.m_class_name.
-            sys.stderr.write("object_path=%s\n" % object_path)
-            wmi_class_keys = _wmi_load_ontology.classes_map[self.m_class_name]["class_keys_list"]
-            sys.stderr.write("wmi_class_keys=%s\n" % wmi_class_keys)
-            sys.stderr.write("dict_key_values.keys()=%s\n" % dict_key_values.keys())
+            sys.stderr.write("IteratorToObjects object_path=%s\n" % object_path)
+            sys.stderr.write("IteratorToObjects dict_key_values.keys()=%s\n" % dict_key_values.keys())
             uri_key_values = {}
-            for one_class_key in wmi_class_keys:
-                assert isinstance(one_class_key, lib_util.six_text_type)
+            for one_class_key in self.class_keys():
                 one_class_key_node = lib_kbase.RdfsPropertyNode(one_class_key)
                 uri_key_values[one_class_key] = dict_key_values[one_class_key_node]
             node_uri_ref = lib_common.gUriGen.UriMakeFromDict(self.m_class_name, uri_key_values)
 
 
             # print("dict_key_values.keys()=", dict_key_values.keys())
-            sys.stderr.write("list_variables=%s\n" % list_variables)
-            sys.stderr.write("property_names_used=%s\n" % property_names_used)
+            sys.stderr.write("IteratorToObjectslist_variables=%s\n" % list_variables)
+            sys.stderr.write("IteratorToObjects property_names_used=%s\n" % property_names_used)
 
             rdflib_graph.add((node_uri_ref, rdflib.namespace.RDF.type, self.m_class_node))
 
@@ -666,34 +676,104 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
                 wql_value_node = rdflib.term.Literal(wql_value)
                 rdflib_graph.add((node_uri_ref, wql_key_node, wql_value_node))
             variable_values_tuple = tuple(variable_values_list)
-            sys.stderr.write("variable_values_tuple=%s\n" % str(variable_values_tuple))
+            sys.stderr.write("IteratorToObjects variable_values_tuple=%s\n" % str(variable_values_tuple))
             list_current_values.append(variable_values_tuple)
 
-        sys.stderr.write("list_variables=%s\n" % list_variables)
+        sys.stderr.write("IteratorToObjects list_variables=%s\n" % list_variables)
         assert all((isinstance(one_variable, rdflib.term.Variable) for one_variable in list_variables))
         tuple_variables = tuple(list_variables)
         returned_variables = {tuple_variables: list_current_values}
         return returned_variables
 
+
+    def class_keys(self):
+        wmi_class_keys = _wmi_load_ontology.classes_map[self.m_class_name]["class_keys_list"]
+        assert all([isinstance(one_class_key, lib_util.six_text_type) for one_class_key in wmi_class_keys])
+        sys.stderr.write("IteratorToObjects wmi_class_keys=%s\n" % wmi_class_keys)
+        return wmi_class_keys
+
     def SelectWmiObjectFromProperties(self, graph, variables_context, filtered_where_key_values):
         sys.stderr.write("SelectWmiObjectFromProperties filtered_where_key_values=\n" % filtered_where_key_values)
         iterator_objects = wmiExecutor.SelectObjectFromProperties(self.m_class_name, filtered_where_key_values)
         returned_variables = self.IteratorToObjects(graph, iterator_objects)
+        assert isinstance(returned_variables, dict)
         sys.stderr.write("SelectWmiObjectFromProperties returned_variables=%s\n" % returned_variables)
         return returned_variables
 
-    def CreateAssociatorObjects(self, graph, associator_node, variables_context):
-        sys.stderr.write("CreateAssociatorObjects\n")
-        associator_variable = self.m_associators[associator_node]
-        assert associator_variable in variables_context
-        associator_name = str(associator_node)
-        # WMI needs such an object path: '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="11568"'
-        associator_path = str(associator_variable)
+    def BuildWmiPath(self, variables_context):
+        path_delimiter = "."
+        associator_path = self.m_class_name
+        for one_class_key in self.class_keys():
+            one_class_key_node = lib_kbase.RdfsPropertyNode(one_class_key)
 
-        # yield (object_path, dict_key_values)
-        iterator_objects = wmiExecutor.SelectAssociatorsFromObject(self.m_class_name, associator_name, associator_path)
-        returned_variables = self.IteratorToObjects(graph, iterator_objects)
-        sys.stderr.write("CreateAssociatorObjects returned_variables=%s\n" % returned_variables)
+            # The value might be a constant stored in the instance, or it maybe in a variable.
+            key_value = self.GetNodeValue(one_class_key_node, variables_context)
+
+            associator_path += path_delimiter + '%s="%s"' % (one_class_key, key_value)
+            # Next delimiter between key-value paris in a WMI path.
+            path_delimiter = ","
+
+        sys.stderr.write("BuildWmiPath associator_path=%s\n" % associator_path)
+        return associator_path
+
+
+    def CreateAssociatorObjects(self, graph, variables_context):
+        # We might have several associators for one object.
+        associator_urls_set = set()
+        for associator_predicate, associated_instance in self.m_associated.items():
+            sys.stderr.write("FetchAllVariables associator_predicate=%s\n" % associator_predicate)
+            sys.stderr.write("FetchAllVariables associated_instance=%s\n" % associated_instance)
+            assert isinstance(associator_predicate, rdflib.term.URIRef)
+            assert isinstance(associated_instance, Sparql_CIM_Object)
+
+            associated_variable = associated_instance.m_variable
+            sys.stderr.write("FetchAllVariables associated_variable=%s type=%s\n" % (associated_variable, type(associated_variable)))
+            assert associated_variable in variables_context
+
+            associator_name = lib_properties.PropToQName(associator_predicate)
+            sys.stderr.write("FetchAllVariables associator_name=%s\n" % associator_name)
+
+            associated_variable_value = variables_context[associated_variable]
+            sys.stderr.write("FetchAllVariables associated_variable_value=%s\n" % associated_variable_value)
+            assert isinstance(associated_variable_value, rdflib.URIRef)
+
+            associator_path = associated_instance.BuildWmiPath(variables_context)
+
+            iterator_objects = wmiExecutor.SelectAssociatorsFromObject(self.m_class_name, associator_name,
+                                                                       associator_path)
+
+            returned_variables_one = self.IteratorToObjects(graph, iterator_objects)
+            assert len(returned_variables_one) == 1
+            first_key = next(iter(returned_variables_one))
+            sys.stderr.write("first_key=%s\n" % first_key)
+            assert first_key == (self.m_variable,)
+
+            urls_list = returned_variables_one[first_key]
+            sys.stderr.write("FetchAllVariables urls_list=%s\n" % urls_list)
+            assert isinstance(urls_list, list)
+
+            # Now add the triples specifying the associator relation.
+            for one_tuple_url in urls_list:
+                assert isinstance(one_tuple_url, tuple)
+                assert len(one_tuple_url) == 1
+                object_url = one_tuple_url[0]
+                isinstance(object_url, rdflib.URIRef)
+                graph.add((associated_variable_value, associator_predicate, object_url))
+
+            sys.stderr.write("FetchAllVariables returned_variables_one=%s\n" % returned_variables_one)
+
+            if not associator_urls_set:
+                associator_urls_set.update(urls_list)
+            else:
+                associator_urls_set = associator_urls_set.intersection(set(urls_list))
+            sys.stderr.write("FetchAllVariables returned_variables_set=%s\n" % associator_urls_set)
+            # Because the variable is in the context, it is defined and its path is available.
+            # Therefore, it is possible to fetch its associators only from the path.
+
+        sys.stderr.write("associator_urls_set=%s\n" % associator_urls_set)
+        associator_urls_list = list(associator_urls_set)
+        returned_variables = {(self.m_variable,): associator_urls_list}
+        sys.stderr.flush()
         return returned_variables
 
     def FetchAllVariables(self, graph, variables_context):
@@ -710,49 +790,20 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             if value_node:
                 filtered_where_key_values[predicate_name] = str(value_node)
 
-        # at_least_all_ontology_properties_defined = True
-        # for predicate_name, predicate_node in self._m_properties_to_nodes_dict.items():
-        #     try:
-        #         value_node = self.GetNodeValue(predicate_node, variables_context)
-        #         sys.stderr.write("FetchAllVariables predicate_node=%s\n" % predicate_node)
-        #         if value_node:
-        #             filtered_where_key_values[predicate_name] = str(value_node)
-        #     except KeyError:
-        #         sys.stderr.write("FetchAllVariables MISSING predicate_node=%s\n" % predicate_node)
-        #         at_least_all_ontology_properties_defined = False
-
-
-        # if filtered_where_key_values:
-        # If at least all the mandatory properties are defined,
-        # or if there is no associators.
-        # if at_least_all_ontology_properties_defined or not self.m_associators:
         if filtered_where_key_values:
             returned_variables = self.SelectWmiObjectFromProperties(graph, variables_context, filtered_where_key_values)
+            assert isinstance(returned_variables, dict)
             return returned_variables
 
-        if not filtered_where_key_values and not self.m_associators:
+        if not filtered_where_key_values and not self.m_associated:
             sys.stderr.write("FetchAllVariables BEWARE FULL SELECT\n")
             returned_variables = self.SelectWmiObjectFromProperties(graph, variables_context, filtered_where_key_values)
+            assert isinstance(returned_variables, dict)
             return returned_variables
 
-        # Maybe we have associators to find the objects:
-        # On s occupe des associators seulement si leur variable est dans le contexte.
-        # Autrement dit:
-        # - Quand une urlref est sujet d'un triple, c'est forcement un node.self.m_associators
-        # - S'il apparait aussi a droite d'un autre triple, ce triple est un associator.
-        # - Le urlref sujet du triple associator doit apparaitre avant le node associator.
-        # - Quand on cree les urlref d'une instance, on ne cree pas les associators,
-        #   car ca entrainerait une recursion a un second niveau. Tandis que si on cree
-        #   l'associator quand on en a besoin, on utilise le mecanisme normal de recursion.
-        assert self.m_associators
-        for associator_node, associator_variable in self.m_associators:
-            assert isinstance(associator_node, rdflib.term.URIRef)
-
-            # Because the variable is in the context, it is defined and its path is available.
-            # Therefore, it is possible to fetch its associators only from the path.
-            returned_variables = self.CreateAssociatorObjects(graph, associator_node, variables_context)
-            sys.stderr.write("NOT SURE NOT SURE")
-            return returned_variables
+        returned_variables = self.CreateAssociatorObjects(graph, variables_context)
+        assert isinstance(returned_variables, dict)
+        return returned_variables
 
 
 def CreateSparql_CIM_Object_Wmi(class_name, the_subject):
@@ -779,6 +830,7 @@ def part_triples_to_instances_dict_function(part, sparql_instance_creator):
                 if class_as_str.startswith(survol_url):
                     class_short = class_as_str[len(survol_url):]
                     sys.stderr.write("Class OK\n")
+                    # sparql_instance_creator can also tell the difference between an associator and a property
                     instances_dict[part_subject] = sparql_instance_creator(class_short, part_subject)
 
     assert instances_dict
@@ -794,6 +846,10 @@ def part_triples_to_instances_dict_function(part, sparql_instance_creator):
 
         associator_instance = instances_dict.get(part_object, None)
         if associator_instance:
+            # If the variable of the object is also a subject variable defining an instance,
+            # then it can only be an associator. This is why it is necessary to define the class
+            # of a subject in a triplet. This is however necessary to instantiate it
+            # and do any WMY query on it.
             assert isinstance(associator_instance, Sparql_CIM_Object)
             current_instance.m_associators[part_predicate] = associator_instance
             associator_instance.m_associated[part_predicate] = current_instance
@@ -809,6 +865,7 @@ def part_triples_to_instances_dict_function(part, sparql_instance_creator):
 # A variable can also be a tuple of rdflib variables.
 # In this case, the values must also be tuples.
 def product_variables_lists(returned_variables, iter_keys = None):
+    assert isinstance(returned_variables, dict)
     try:
         if not iter_keys:
             iter_keys = iter(returned_variables.items())
@@ -983,6 +1040,7 @@ def custom_eval_function_generic(ctx, part, sparql_instance_creator):
             one_instance = visited_nodes[instance_index]
             sys.stderr.write(margin + "one_instance=%s\n" % one_instance)
             returned_variables = one_instance.FetchAllVariables(ctx.graph, variables_context)
+            assert isinstance(returned_variables, dict)
 
             sys.stderr.write(margin + "returned_variables=%s\n" % str(returned_variables))
 

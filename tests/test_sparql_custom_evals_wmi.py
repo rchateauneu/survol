@@ -45,6 +45,18 @@ survol_namespace = rdflib.Namespace(lib_sparql_custom_evals.survol_url)
 
 ################################################################################
 
+class SparqlWmiBasicTest(unittest.TestCase):
+    def test_wmi_instance(self):
+        the_instance = lib_sparql_custom_evals.Sparql_WMI_GenericObject("CIM_Process", rdflib.Variable("the_var"))
+        the_instance.m_properties["Handle"] = "123"
+        as_str = str(the_instance)
+        self.assertTrue(as_str == "Sparql_CIM_Object:CIM_Process:the_var:=123")
+
+################################################################################
+
+# This sets the CUSTOM_EVALS callback for all derived tests.
+# This callbask abalyses the SPARQL query statements and loads the RDF triples
+# from WMI data, by splitting the SPARQL query into nested WQL queries.
 class CUSTOM_EVALS_WMI_Base_Test(unittest.TestCase):
 
     def setUp(self):
@@ -54,6 +66,8 @@ class CUSTOM_EVALS_WMI_Base_Test(unittest.TestCase):
     def tearDown(self):
         if 'custom_eval_function_wmi' in rdflib.plugins.sparql.CUSTOM_EVALS:
             del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_function_wmi']
+
+
 
 ################################################################################
 
@@ -412,6 +426,56 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
 
 class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
+    # We must anyway give the type of url_file,
+    # otherwise we cannot deduce that it is an associator.
+    def test_associator_Win32_Process_executable_node(self):
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_file
+            WHERE
+            { ?url_proc survol:Handle '%d' .
+              ?url_proc survol:CIM_ProcessExecutable ?url_file .
+              ?url_proc rdf:type survol:Win32_Process .
+              ?url_file rdf:type survol:CIM_DataFile .
+            }""" % (survol_namespace, CurrentPid)
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+
+        file_name_python_exe = sys.executable.lower().replace("\\", "/")
+        file_name_python_node_gdi32 = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name_python_exe})
+        print("file_name_python_node_gdi32=", file_name_python_node_gdi32)
+        self.assertTrue((file_name_python_node_gdi32,) in query_result)
+
+        # u'http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=c:/windows/system32/iphlpapi.dll' etc
+        file_name_gdi32 = "c:/windows/system32/gdi32.dll"
+        datafile_node_gdi32 = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name_gdi32})
+        self.assertTrue((datafile_node_gdi32,) in query_result)
+
+    def test_associator_CIM_Process_executable_node(self):
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_file
+            WHERE
+            { ?url_proc survol:Handle '%d' .
+              ?url_proc survol:CIM_ProcessExecutable ?url_file .
+              ?url_proc rdf:type survol:CIM_Process .
+              ?url_file rdf:type survol:CIM_DataFile .
+            }""" % (survol_namespace, CurrentPid)
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+
+        file_name_python_exe = sys.executable.lower().replace("\\", "/")
+        file_name_python_node_gdi32 = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name_python_exe})
+        print("file_name_python_node_gdi32=", file_name_python_node_gdi32)
+        self.assertTrue((file_name_python_node_gdi32,) in query_result)
+
+        file_name_ntdll = "c:/windows/system32/ntdll.dll"
+        datafile_node_ntdll = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name_ntdll})
+        self.assertTrue((datafile_node_ntdll,) in query_result)
+
+
     @unittest.skip("Too slow !!!")
     def test_associator_process_datafile(self):
         sparql_query = """
@@ -427,6 +491,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
 
+    @unittest.skip("Not really tested !!!")
     def test_associator_file_directories(self):
         """Combinations of directories and files"""
         sparql_query = """
@@ -552,6 +617,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
 
+    @unittest.skip("Cannot work yet !!!")
     def test_wmi_associators_pid_to_exe(self):
         sparql_query = """
             PREFIX survol: <%s>
@@ -569,6 +635,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
 
+    @unittest.skip("Cannot work yet !!!")
     def test_wmi_associators_all_procs_to_firefox(self):
         # TODO: How to have backslashes in SparQL queries ???
         # "C:&#92;Users" 0x5C "C:%5CUsers"
