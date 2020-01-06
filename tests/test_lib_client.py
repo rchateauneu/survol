@@ -1730,7 +1730,7 @@ class SurvolRemoteTest(unittest.TestCase):
     #    time.sleep(0.01)  # sleep time in seconds
 
     def test_InstanceUrlToAgentUrl(selfself):
-        assert( lib_client.InstanceUrlToAgentUrl("http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=addr.Id=127.0.0.1:427") == None )
+        assert( lib_client.InstanceUrlToAgentUrl("http://LOCALHOST:80/LocalExecution/entity.py?xid=addr.Id=127.0.0.1:427") == None )
         assert( lib_client.InstanceUrlToAgentUrl(RemoteTestAgent + "/survol/sources_types/java/java_processes.py") == RemoteTestAgent )
 
     def test_create_source_url(self):
