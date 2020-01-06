@@ -106,7 +106,7 @@ class Sparql_CIM_Object(object):
         self.m_properties = {}
         # For example ["Name", "Domain"]
         self._m_ontology_keys = ontology_keys
-        print("__init__ ontology_keys=", ontology_keys)
+        # print("__init__ ontology_keys=", ontology_keys)
 
     def __str__(self):
         def kw_to_str(property, value):
@@ -745,7 +745,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             returned_variables_one = self.IteratorToObjects(graph, iterator_objects)
             assert len(returned_variables_one) == 1
             first_key = next(iter(returned_variables_one))
-            sys.stderr.write("first_key=%s\n" % first_key)
+            sys.stderr.write("first_key=%s\n" % str(first_key))
             assert first_key == (self.m_variable,)
 
             urls_list = returned_variables_one[first_key]
