@@ -703,7 +703,7 @@ def EntityIdToInstance(agentUrl, class_name, entity_id):
     return newInstance
 
 # This creates an object from an URI.
-# Example input: instanceUrl="http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=CIM_Process.Handle=2092"
+# Example input: instanceUrl="http://LOCALHOST:80/LocalExecution/entity.py?xid=CIM_Process.Handle=2092"
 def UrlToInstance(instanceUrl):
     if instanceUrl.find("entity.py") < 0:
         # So maybe this is not an instance after all.
@@ -721,8 +721,8 @@ def UrlToInstance(instanceUrl):
     return EntityIdToInstance(agentUrl, entity_graphic_class, entity_id)
 
 
-# instanceUrl="http://LOCAL_MODE:80/NotRunningAsCgi/entity.py?xid=Win32_Group.Domain=local_mode,Name=Replicator"
-# instanceUrl=http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=addr.Id=127.0.0.1:427
+# instanceUrl="http://LOCAL_MODE:80/LocalExecution/entity.py?xid=Win32_Group.Domain=local_mode,Name=Replicator"
+# instanceUrl=http://LOCALHOST:80/LocalExecution/entity.py?xid=addr.Id=127.0.0.1:427
 # instanceUrl="http://rchateau-hp:8000/survol/sources_types/memmap/memmap_processes.py?xid=memmap.Id%3DC%3A%2FWindows%2FSystem32%2Fen-US%2Fkernel32.dll.mui"
 def InstanceUrlToAgentUrl(instanceUrl):
     parse_url = lib_util.survol_urlparse(instanceUrl)
@@ -774,10 +774,10 @@ class TripleStore:
     def IsSurvolUrl(self,anUrl):
         strUrl = str(anUrl)
         # anUrl=http://LOCALHOST:80/entity.py?xid=python/package.Id%3Drdflib
-        # anUrl=http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=python/package.Id=sparqlwrapper
+        # anUrl=http://LOCALHOST:80/LocalExecution/entity.py?xid=python/package.Id=sparqlwrapper
         if strUrl.startswith("http://LOCALHOST:80/"):
-            # "http://LOCALHOST:80/NotRunningAsCgi"
-            # lib_util.prefixLocalScript = "/NotRunningAsCgi"
+            # "http://LOCALHOST:80/LocalExecution"
+            # lib_util.prefixLocalScript = "/LocalExecution"
             assert(strUrl.startswith("http://LOCALHOST:80"+lib_util.prefixLocalScript))
 
         # These local scripts are always from Survol.
@@ -888,9 +888,9 @@ class TripleStore:
             predicate_name = lib_properties.PropToQName(source_predicate)
 
             # WARNING("FilterObjectsWithPredicateClass predicate_name=%s",predicate_name)
-            # s=http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=CIM_Process.Handle=2544
+            # s=http://LOCALHOST:80/LocalExecution/entity.py?xid=CIM_Process.Handle=2544
             # p=http://primhillcomputers.com/survol#ppid
-            # o=http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=CIM_Process.Handle=2092
+            # o=http://LOCALHOST:80/LocalExecution/entity.py?xid=CIM_Process.Handle=2092
 
             if predicate_name == associator_key_name:
                 # class_object = source_object
@@ -941,7 +941,7 @@ class TripleStore:
 # This receives an URL, parses it and creates a Source object.
 # It is able to detect if the URL is local or not.
 # Input examples:
-# "http://LOCAL_MODE:80/NotRunningAsCgi/sources_types/Win32_UserAccount/Win32_NetUserGetGroups.py?xid=Win32_UserAccount.Domain%3Drchateau-hp%2CName%3Drchateau"
+# "http://LOCAL_MODE:80/LocalExecution/sources_types/Win32_UserAccount/Win32_NetUserGetGroups.py?xid=Win32_UserAccount.Domain%3Drchateau-hp%2CName%3Drchateau"
 # "http://rchateau-HP:8000/survol/sources_types/CIM_Directory/doxygen_dir.py?xid=CIM_Directory.Name%3DD%3A"
 def ScriptUrlToSource(callingUrl):
 
@@ -957,7 +957,7 @@ def ScriptUrlToSource(callingUrl):
     entity_id_dict = lib_util.SplitMoniker(entity_id)
     # sys.stdout.write("entity_id_dict=%s\n"%str(entity_id_dict))
 
-    # parse_url.path=/NotRunningAsCgi/sources_types/Win32_UserAccount/Win32_NetUserGetInfo.py
+    # parse_url.path=/LocalExecution/sources_types/Win32_UserAccount/Win32_NetUserGetInfo.py
     # This is a very simple method to differentiate local from remote scripts
     if parse_url.path.startswith(lib_util.prefixLocalScript):
         # This also chops the leading slash.
