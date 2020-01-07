@@ -720,6 +720,10 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
     def CreateAssociatorObjects(self, graph, variables_context):
         # We might have several associators for one object.
         associator_urls_set = set()
+
+        # Each associator must give values for all variables of this instance.
+        keys_set_first_associator = None
+
         for associator_predicate, associated_instance in self.m_associated.items():
             sys.stderr.write("FetchAllVariables associator_predicate=%s\n" % associator_predicate)
             sys.stderr.write("FetchAllVariables associated_instance=%s\n" % associated_instance)
@@ -742,11 +746,23 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             iterator_objects = wmiExecutor.SelectAssociatorsFromObject(self.m_class_name, associator_name,
                                                                        associator_path)
 
+            # This returns a map of one element only. The key is a tuple of variables.
+            # The value is a list of tuples of the same size.
             returned_variables_one = self.IteratorToObjects(graph, iterator_objects)
             assert len(returned_variables_one) == 1
             first_key = next(iter(returned_variables_one))
             sys.stderr.write("first_key=%s\n" % str(first_key))
-            assert first_key == (self.m_variable,)
+
+            if keys_set_first_associator:
+                assert keys_set_first_associator == first_key
+            else:
+                keys_set_first_associator = first_key
+
+            # The variable containing the url must be there.
+            index_url_key = first_key.index(self.m_variable)
+            # This is most probably the first key.
+            assert index_url_key == 0
+            assert first_key[index_url_key] == self.m_variable
 
             urls_list = returned_variables_one[first_key]
             sys.stderr.write("FetchAllVariables urls_list=%s\n" % urls_list)
@@ -755,8 +771,8 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             # Now add the triples specifying the associator relation.
             for one_tuple_url in urls_list:
                 assert isinstance(one_tuple_url, tuple)
-                assert len(one_tuple_url) == 1
-                object_url = one_tuple_url[0]
+                assert len(one_tuple_url) >= 1
+                object_url = one_tuple_url[index_url_key]
                 isinstance(object_url, rdflib.URIRef)
                 graph.add((associated_variable_value, associator_predicate, object_url))
 
@@ -772,7 +788,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
 
         sys.stderr.write("associator_urls_set=%s\n" % associator_urls_set)
         associator_urls_list = list(associator_urls_set)
-        returned_variables = {(self.m_variable,): associator_urls_list}
+        returned_variables = {keys_set_first_associator: associator_urls_list}
         sys.stderr.flush()
         return returned_variables
 
