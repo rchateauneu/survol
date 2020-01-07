@@ -499,6 +499,28 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         file_name_ntdll = "c:/windows/system32/ntdll.dll"
         self.assertTrue(file_name_ntdll in filenames_only)
 
+    def test_associator_datafile_base_directory(self):
+        """All the files in a directory."""
+        file_name = FileAlwaysThere.replace("\\", "/").lower()
+        directory_name = DirAlwaysThere.replace("\\", "/").lower()
+        # Otherwise the test would not work.
+        assert file_name.startswith(directory_name)
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_datafile
+            WHERE
+            { ?url_datafile rdf:type survol:CIM_DataFile .
+              ?url_directory rdf:type survol:CIM_Directory .
+              ?url_directory survol:Name "%s" .
+              ?url_directory survol:CIM_DirectoryContainsFile ?url_datafile .
+            }""" % (survol_namespace, directory_name)
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+
+        node_file_name = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name})
+        self.assertTrue((node_file_name,) in query_result)
+
     @unittest.skip("Not really tested !!!")
     def test_associator_file_directories(self):
         """Combinations of directories and files"""

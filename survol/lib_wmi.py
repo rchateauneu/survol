@@ -1049,13 +1049,13 @@ class WmiSparqlExecutor:
         # HACK: Temporary hard-code !! Same problem as WmiCallbackSelect
         # TODO: We must quadruple backslashes in Sparql queries.
         if "CIM_DataFile.Name" in wmi_path:
-            wmi_path = wmi_path.replace("\\\\","\\")
+            wmi_path = wmi_path.replace("\\\\","\\").replace("/","\\")
             DEBUG("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
         elif "CIM_Directory.Name" in wmi_path:
-            wmi_path = wmi_path.replace("\\\\", "\\")
+            wmi_path = wmi_path.replace("\\\\", "\\").replace("/","\\")
             DEBUG("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
         elif "Win32_Directory.Name" in wmi_path:
-            wmi_path = wmi_path.replace("\\\\","\\")
+            wmi_path = wmi_path.replace("\\\\","\\").replace("/","\\")
             DEBUG("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
         assert wmi_path
 
