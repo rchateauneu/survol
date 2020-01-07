@@ -443,9 +443,9 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         print("Result=", query_result)
 
         file_name_python_exe = sys.executable.lower().replace("\\", "/")
-        file_name_python_node_gdi32 = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name_python_exe})
-        print("file_name_python_node_gdi32=", file_name_python_node_gdi32)
-        self.assertTrue((file_name_python_node_gdi32,) in query_result)
+        node_python_exe = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name_python_exe})
+        print("node_python_exe=", node_python_exe)
+        self.assertTrue((node_python_exe,) in query_result)
 
         # u'http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=c:/windows/system32/iphlpapi.dll' etc
         file_name_gdi32 = "c:/windows/system32/gdi32.dll"
@@ -467,29 +467,37 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         print("Result=", query_result)
 
         file_name_python_exe = sys.executable.lower().replace("\\", "/")
-        file_name_python_node_gdi32 = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name_python_exe})
-        print("file_name_python_node_gdi32=", file_name_python_node_gdi32)
-        self.assertTrue((file_name_python_node_gdi32,) in query_result)
+        node_python_exe = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name_python_exe})
+        print("node_python_exe=", node_python_exe)
+        self.assertTrue((node_python_exe,) in query_result)
 
         file_name_ntdll = "c:/windows/system32/ntdll.dll"
         datafile_node_ntdll = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name_ntdll})
         self.assertTrue((datafile_node_ntdll,) in query_result)
 
-
-    @unittest.skip("Too slow !!!")
-    def test_associator_process_datafile(self):
+    def test_associator_CIM_Process_executable_name(self):
         sparql_query = """
             PREFIX survol: <%s>
-            SELECT ?url_proc ?url_file
+            SELECT ?exec_filepath
             WHERE
-            { ?url_proc survol:Handle %d  .
-              ?url_proc survol:CIM_ProcessExecutable ?url_file  .
+            { ?url_proc survol:Handle '%d' .
+              ?url_proc survol:CIM_ProcessExecutable ?url_file .
               ?url_proc rdf:type survol:CIM_Process .
               ?url_file rdf:type survol:CIM_DataFile .
+              ?url_file survol:Name ?exec_filepath.
             }""" % (survol_namespace, CurrentPid)
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
+
+        filenames_only = set([str(one_result[0]) for one_result in query_result])
+        print("filenames_only=", filenames_only)
+
+        file_name_python_exe = sys.executable.lower().replace("\\", "/")
+        self.assertTrue(file_name_python_exe in filenames_only)
+
+        file_name_ntdll = "c:/windows/system32/ntdll.dll"
+        self.assertTrue(file_name_ntdll in filenames_only)
 
     @unittest.skip("Not really tested !!!")
     def test_associator_file_directories(self):
