@@ -796,7 +796,6 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         filtered_where_key_values = dict()
 
         sys.stderr.write("FetchAllVariables variables_context.keys()=%s\n" % variables_context.keys())
-        #sys.stderr.write("FetchAllVariables self._m_properties_to_nodes_dict.keys()=%s\n" % self._m_properties_to_nodes_dict.keys())
         sys.stderr.write("FetchAllVariables self.m_properties.keys()=%s\n" % self.m_properties.keys())
 
         for predicate_node in self.m_properties:
@@ -812,7 +811,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             return returned_variables
 
         if not filtered_where_key_values and not self.m_associated:
-            sys.stderr.write("FetchAllVariables BEWARE FULL SELECT\n")
+            sys.stderr.write("FetchAllVariables BEWARE FULL SELECT: %s\n" % self.m_class_name)
             returned_variables = self.SelectWmiObjectFromProperties(graph, variables_context, filtered_where_key_values)
             assert isinstance(returned_variables, dict)
             return returned_variables
