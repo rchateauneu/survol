@@ -499,7 +499,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         file_name_ntdll = "c:/windows/system32/ntdll.dll"
         self.assertTrue(file_name_ntdll in filenames_only)
 
-    def test_associator_datafile_base_directory(self):
+    def test_associator_directory_to_datafile_nodes(self):
         """All the files in a directory."""
         file_name = FileAlwaysThere.replace("\\", "/").lower()
         directory_name = DirAlwaysThere.replace("\\", "/").lower()
@@ -520,6 +520,35 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
         node_file_name = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name})
         self.assertTrue((node_file_name,) in query_result)
+
+    def test_associator_directory_to_datafile_names(self):
+        """All the files in a directory."""
+        file_name = FileAlwaysThere.replace("\\", "/").lower()
+        directory_name = DirAlwaysThere.replace("\\", "/").lower()
+        # Otherwise the test would not work.
+        assert file_name.startswith(directory_name)
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?name_datafile
+            WHERE
+            { ?url_datafile rdf:type survol:CIM_DataFile .
+              ?url_datafile survol:Name ?name_datafile .
+              ?url_directory rdf:type survol:CIM_Directory .
+              ?url_directory survol:Name "%s" .
+              ?url_directory survol:CIM_DirectoryContainsFile ?url_datafile .
+            }""" % (survol_namespace, directory_name)
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+
+        filenames_only = set([str(one_result[0]) for one_result in query_result])
+
+        self.assertTrue(file_name in filenames_only)
+
+
+    # FAIR E L EXEMPLE INVERSE: https://docs.microsoft.com/en-us/windows/win32/wmisdk/references-of-statement
+    # On utilise les references pour aller du fichier au directory.
+
 
     @unittest.skip("Not really tested !!!")
     def test_associator_file_directories(self):
