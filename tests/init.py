@@ -150,7 +150,10 @@ def update_test_path():
     if sys.path[0] != "../survol":
         sys.path.insert(0,"../survol")
 
+################################################################################
+
 # This defines a file and a directory present on all platforms, for testing.
+# This is deprecated and should be replaced by "always_present_*" constants.
 if is_platform_linux:
     FileAlwaysThere = "/etc/hosts"
     DirAlwaysThere = "/etc"
@@ -165,6 +168,17 @@ else:
         FileAlwaysThere = "C:\\Windows\\explorer.exe"
         DirAlwaysThere = "C:\\Windows"
         AnyLogicalDisk = "D:"
+
+always_present_dir = os.path.join(os.path.dirname(__file__), "SampleDir")
+always_present_file = os.path.join(os.path.dirname(__file__), "SampleDir", "SampleFile.txt")
+always_present_sub_dir = os.path.join(os.path.dirname(__file__), "SampleDir", "SampleSubDir")
+always_present_sub_file = os.path.join(os.path.dirname(__file__), "SampleDir", "SampleSubDir", "SampleSubFile.txt")
+# This is necessary for some tests.
+assert always_present_file.startswith(always_present_dir)
+assert always_present_sub_dir.startswith(always_present_dir)
+assert always_present_sub_file.startswith(always_present_sub_dir)
+
+################################################################################
 
 # See lib_util.survol_urlopen
 try:
