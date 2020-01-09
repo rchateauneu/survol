@@ -1039,29 +1039,45 @@ class WmiSparqlExecutor:
             DEBUG("dict_key_values=%s",dict_key_values)
             yield ( object_path, dict_key_values )
 
-    # NOT TESTED YET.
-    def SelectAssociatorsFromObject(self, result_class_name, associator_key_name, wmi_path):
+    @staticmethod
+    def _cleanup_wmi_path(wmi_path):
+        # HACK: Temporary hard-code !! Same problem as WmiCallbackSelect
+        # TODO: We must quadruple backslashes in Sparql queries.
+        if "CIM_DataFile.Name" in wmi_path:
+            wmi_path = wmi_path.replace("\\\\","\\").replace("/","\\")
+            DEBUG("_cleanup_wmi_path wmi_path=%s REPLACED", wmi_path)
+        elif "CIM_Directory.Name" in wmi_path:
+            wmi_path = wmi_path.replace("\\\\", "\\").replace("/","\\")
+            DEBUG("_cleanup_wmi_path wmi_path=%s REPLACED", wmi_path)
+        elif "Win32_Directory.Name" in wmi_path:
+            wmi_path = wmi_path.replace("\\\\","\\").replace("/","\\")
+            DEBUG("_cleanup_wmi_path wmi_path=%s REPLACED", wmi_path)
+        assert wmi_path
+        return wmi_path
+
+    def SelectBidirectionalAssociatorsFromObject(self, result_class_name, associator_key_name, wmi_path, role_index):
         # subject_path = '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="31588"'
         sys.stderr.write("SelectAssociatorsFromObject subject_path=%s\n" % wmi_path)
         # dummy, colon, wmi_path = subject_path.partition(":")
         DEBUG("WmiCallbackAssociator wmi_path=%s", wmi_path)
 
-        # HACK: Temporary hard-code !! Same problem as WmiCallbackSelect
-        # TODO: We must quadruple backslashes in Sparql queries.
-        if "CIM_DataFile.Name" in wmi_path:
-            wmi_path = wmi_path.replace("\\\\","\\").replace("/","\\")
-            DEBUG("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
-        elif "CIM_Directory.Name" in wmi_path:
-            wmi_path = wmi_path.replace("\\\\", "\\").replace("/","\\")
-            DEBUG("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
-        elif "Win32_Directory.Name" in wmi_path:
-            wmi_path = wmi_path.replace("\\\\","\\").replace("/","\\")
-            DEBUG("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
-        assert wmi_path
+        wmi_path = self._cleanup_wmi_path(wmi_path)
+
+        # 0 if wmi_path is subject, like ASSOCIATOR OF. Otherwise 1.
+        assert role_index in [0, 1]
+
+        wmi_path = self._cleanup_wmi_path(wmi_path)
+
+        reference_class_definition = self.m_wmi_connection._cached_classes(associator_key_name)
+        # If reference_class_name="CIM_DirectoryContainsFile", then ['GroupComponent', 'PartComponent']
+        reference_class_properties = reference_class_definition.properties.keys()
+        sys.stderr.write("reference_class_properties=%s\n" % str(reference_class_properties))
+        chosen_role = reference_class_properties[role_index]
 
         # 'ASSOCIATORS OF {Win32_Process.Handle="1780"} WHERE AssocClass=CIM_ProcessExecutable ResultClass=CIM_DataFile'
         # 'ASSOCIATORS OF {CIM_DataFile.Name="c:\\program files\\mozilla firefox\\firefox.exe"} WHERE AssocClass = CIM_ProcessExecutable ResultClass = CIM_Process'
-        wmi_query = "ASSOCIATORS OF {%s} WHERE AssocClass=%s ResultClass=%s" % (wmi_path, associator_key_name, result_class_name)
+        wmi_query = "ASSOCIATORS OF {%s} WHERE AssocClass=%s ResultClass=%s ResultRole=%s" % (
+            wmi_path, associator_key_name, result_class_name, chosen_role)
 
         DEBUG("WmiCallbackAssociator wmi_query=%s", wmi_query)
         sys.stderr.write("SelectAssociatorsFromObject wmi_query=%s\n" % wmi_query)
