@@ -180,6 +180,95 @@ class LibWmiTest(unittest.TestCase):
             print(object_path)
             print(dict_key_values)
 
+@unittest.skipIf(not pkgutil.find_loader('wmi'), "WmiSparqlExecutorTest needs wmi package.")
+class WmiSparqlExecutorTest(unittest.TestCase):
+    @staticmethod
+    def _object_path_to_path(object_path):
+        # object_path= '\\RCHATEAU-HP\root\cimv2:Win32_Directory.Name="c:\\windows"'
+        return object_path.partition(":")[2].replace("\\", "/").replace("//", "/")
+
+    def test_SelectBidirectionalAssociatorsFromObject_file_to_dir(self):
+        wmiExecutor = lib_wmi.WmiSparqlExecutor()
+
+        file_name = always_present_file.replace("\\", "/").lower()
+        wmi_path_file = 'CIM_DataFile.Name="%s"' % file_name
+
+        directory_name = always_present_dir.replace("\\", "/").lower()
+
+        iter_results = wmiExecutor.SelectBidirectionalAssociatorsFromObject(
+            "CIM_Directory", "CIM_DirectoryContainsFile", wmi_path_file, 0)
+        list_results = list(iter_results)
+        directory_path = 'Win32_Directory.Name="%s"' % directory_name
+        for object_path, dict_key_values in list_results:
+            print("object_path=", object_path)
+            actual_filename_clean = self._object_path_to_path(object_path)
+            print("actual_filename_clean=", actual_filename_clean)
+            print("directory_path=", directory_path)
+            self.assertTrue(actual_filename_clean==directory_path)
+
+    def test_SelectBidirectionalAssociatorsFromObject_dir_to_file(self):
+        wmiExecutor = lib_wmi.WmiSparqlExecutor()
+
+        file_name = always_present_file.replace("\\", "/").lower()
+        directory_name = always_present_dir.replace("\\", "/").lower()
+
+        wmi_path_directory = 'CIM_Directory.Name="%s"' % directory_name
+
+        iter_results = wmiExecutor.SelectBidirectionalAssociatorsFromObject(
+            "CIM_DataFile", "CIM_DirectoryContainsFile", wmi_path_directory, 1)
+        list_results = list(iter_results)
+        paths_list = []
+        for object_path, dict_key_values in list_results:
+            actual_filename_clean = self._object_path_to_path(object_path)
+            paths_list.append(actual_filename_clean)
+        print("paths_list=", paths_list)
+        print("file_name=", file_name)
+        expected_file_path = 'CIM_DataFile.Name="%s"' % file_name
+        print("expected_file_path=", expected_file_path)
+        self.assertTrue(expected_file_path in paths_list)
+
+    def test_SelectBidirectionalAssociatorsFromObject_dir_to_subdir(self):
+        wmiExecutor = lib_wmi.WmiSparqlExecutor()
+
+        sub_dir_name = always_present_sub_dir.replace("\\", "/").lower()
+        directory_name = always_present_dir.replace("\\", "/").lower()
+
+        wmi_path_directory = 'CIM_Directory.Name="%s"' % directory_name
+
+        iter_results = wmiExecutor.SelectBidirectionalAssociatorsFromObject(
+            "Win32_Directory", "Win32_SubDirectory", wmi_path_directory, 1)
+        list_results = list(iter_results)
+        paths_list = []
+        for object_path, dict_key_values in list_results:
+            actual_sub_dir_clean = self._object_path_to_path(object_path)
+            paths_list.append(actual_sub_dir_clean)
+        print("paths_list=", paths_list)
+        print("sub_dir_name=", sub_dir_name)
+        expected_subdir_path = 'Win32_Directory.Name="%s"' % sub_dir_name
+        print("expected_subdir_path=", expected_subdir_path)
+        self.assertTrue(expected_subdir_path in paths_list)
+
+    def test_SelectBidirectionalAssociatorsFromObject_subdir_to_dir(self):
+        wmiExecutor = lib_wmi.WmiSparqlExecutor()
+
+        sub_dir_name = always_present_sub_dir.replace("\\", "/").lower()
+        directory_name = always_present_dir.replace("\\", "/").lower()
+
+        wmi_path_sub_dir = 'CIM_Directory.Name="%s"' % sub_dir_name
+
+        iter_results = wmiExecutor.SelectBidirectionalAssociatorsFromObject(
+            "Win32_Directory", "Win32_SubDirectory", wmi_path_sub_dir, 0)
+        list_results = list(iter_results)
+        paths_list = []
+        for object_path, dict_key_values in list_results:
+            actual_dir_clean = self._object_path_to_path(object_path)
+            paths_list.append(actual_dir_clean)
+        print("paths_list=", paths_list)
+        print("sub_dir_name=", sub_dir_name)
+        expected_dir_path = 'Win32_Directory.Name="%s"' % directory_name
+        print("expected_dir_path=", expected_dir_path)
+        self.assertTrue(expected_dir_path in paths_list)
+
 
 if __name__ == '__main__':
     unittest.main()

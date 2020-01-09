@@ -438,6 +438,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
               ?url_proc rdf:type survol:Win32_Process .
               ?url_file rdf:type survol:CIM_DataFile .
             }""" % (survol_namespace, CurrentPid)
+
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
@@ -462,6 +463,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
               ?url_proc rdf:type survol:CIM_Process .
               ?url_file rdf:type survol:CIM_DataFile .
             }""" % (survol_namespace, CurrentPid)
+
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
@@ -486,6 +488,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
               ?url_file rdf:type survol:CIM_DataFile .
               ?url_file survol:Name ?exec_filepath.
             }""" % (survol_namespace, CurrentPid)
+
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
@@ -499,12 +502,32 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         file_name_ntdll = "c:/windows/system32/ntdll.dll"
         self.assertTrue(file_name_ntdll in filenames_only)
 
+    def test_associator_executable_name_to_process(self):
+        file_name_python_exe = sys.executable.lower().replace("\\", "/")
+        print("file_name_python_exe=", file_name_python_exe)
+
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?process_id
+            WHERE
+            { ?url_proc survol:Handle ?process_id .
+              ?url_proc survol:CIM_ProcessExecutable ?url_file .
+              ?url_proc rdf:type survol:CIM_Process .
+              ?url_file rdf:type survol:CIM_DataFile .
+              ?url_file survol:Name "%s" .
+            }""" % (survol_namespace, file_name_python_exe)
+
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+        pids_only = [int(str(pid_literal_tuple[0])) for pid_literal_tuple in query_result]
+        print("pids_only=", pids_only)
+        self.assertTrue(CurrentPid in pids_only)
+
     def test_associator_directory_to_datafile_nodes(self):
         """All the files in a directory."""
         file_name = FileAlwaysThere.replace("\\", "/").lower()
         directory_name = DirAlwaysThere.replace("\\", "/").lower()
-        # Otherwise the test would not work.
-        assert file_name.startswith(directory_name)
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?url_datafile
@@ -512,21 +535,21 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
             { ?url_datafile rdf:type survol:CIM_DataFile .
               ?url_directory rdf:type survol:CIM_Directory .
               ?url_directory survol:Name "%s" .
-              ?url_directory survol:CIM_DirectoryContainsFile ?url_datafile .
+              ?url_datafile survol:CIM_DirectoryContainsFile ?url_directory .
             }""" % (survol_namespace, directory_name)
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
+
+        # ASSOCIATOR INVERSION !!!!!!!!!!
 
         node_file_name = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name})
         self.assertTrue((node_file_name,) in query_result)
 
     def test_associator_directory_to_datafile_names(self):
         """All the files in a directory."""
-        file_name = FileAlwaysThere.replace("\\", "/").lower()
-        directory_name = DirAlwaysThere.replace("\\", "/").lower()
-        # Otherwise the test would not work.
-        assert file_name.startswith(directory_name)
+        file_name = always_present_file.replace("\\", "/").lower()
+        directory_name = always_present_dir.replace("\\", "/").lower()
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?name_datafile
@@ -535,8 +558,11 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
               ?url_datafile survol:Name ?name_datafile .
               ?url_directory rdf:type survol:CIM_Directory .
               ?url_directory survol:Name "%s" .
-              ?url_directory survol:CIM_DirectoryContainsFile ?url_datafile .
+              ?url_datafile survol:CIM_DirectoryContainsFile ?url_directory .
             }""" % (survol_namespace, directory_name)
+
+        # ASSOCIATOR INVERSION !!!!!!!!!!
+
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
@@ -546,173 +572,97 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue(file_name in filenames_only)
 
 
-    # FAIR E L EXEMPLE INVERSE: https://docs.microsoft.com/en-us/windows/win32/wmisdk/references-of-statement
-    # On utilise les references pour aller du fichier au directory.
-
-
-    @unittest.skip("Not really tested !!!")
-    def test_associator_file_directories(self):
-        """Combinations of directories and files"""
+    def test_associator_datafile_to_directory_node(self):
+        """All the files in a directory."""
+        file_name = always_present_file.replace("\\", "/").lower()
+        directory_name = always_present_dir.replace("\\", "/").lower()
         sparql_query = """
             PREFIX survol: <%s>
-            SELECT ?url_fileA ?url_fileB
+            SELECT ?url_directory
             WHERE
-            { ?url_fileA rdf:type survol:CIM_Directory .
-              ?url_fileA survol:Name "C:/Windows"  .
-              ?url_fileA survol:CIM_DirectoryContainsFile ?url_fileB  .
-              ?url_fileB survol:Name "C:/Windows/regedit.exe"  .
-              ?url_fileB rdf:type survol:CIM_DataFile .
-            }""" % survol_namespace
+            { ?url_datafile rdf:type survol:CIM_DataFile .
+              ?url_directory rdf:type survol:CIM_Directory .
+              ?url_datafile survol:Name "%s" .
+              ?url_datafile survol:CIM_DirectoryContainsFile ?url_directory .
+            }""" % (survol_namespace, file_name)
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
 
-    @unittest.skip("NOT WORKING YET")
-    def test_associator_directory_subdirectory_cmd(self):
+        # ASSOCIATOR INVERSION !!!!!!!!!!
+
+        # The file belongs to one directory.
+        self.assertTrue( len(query_result) == 1)
+        node_directory = lib_common.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": directory_name})
+        self.assertTrue((node_directory,) in query_result)
+
+    def test_associator_directory_to_sub_directory_node(self):
+        """All the files in a directory."""
+        sub_directory_name = always_present_sub_dir.replace("\\", "/").lower()
+        directory_name = always_present_dir.replace("\\", "/").lower()
         sparql_query = """
             PREFIX survol: <%s>
-            SELECT ?url_fileA ?url_fileB ?url_fileC
+            SELECT ?url_directory
             WHERE
-            { ?url_fileA rdf:type survol:CIM_Directory .
-              ?url_fileB survol:Win32_SubDirectory ?url_fileA  .
-              ?url_fileB rdf:type survol:CIM_Directory .
-              ?url_fileC survol:CIM_DirectoryContainsFile ?url_fileB  .
-              ?url_fileC survol:Name "C:/Windows/System32/cmd.exe"  .
-              ?url_fileC rdf:type survol:CIM_DataFile .
-            }""" % survol_namespace
+            { ?url_directory rdf:type survol:CIM_Directory .
+              ?url_directory_of_directory survol:Name "%s" .
+              ?url_directory_of_directory rdf:type survol:CIM_Directory .
+              ?url_directory survol:Win32_SubDirectory ?url_directory_of_directory .
+            }""" % (survol_namespace, directory_name)
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+        node_sub_directory = lib_common.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": sub_directory_name})
+        print("node_sub_directory=", node_sub_directory)
+        self.assertTrue((node_sub_directory,) in query_result)
+
+    def test_associator_sub_directory_to_directory_node(self):
+        """All the files in a directory."""
+        sub_directory_name = always_present_sub_dir.replace("\\", "/").lower()
+        directory_name = always_present_dir.replace("\\", "/").lower()
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_directory
+            WHERE
+            { ?url_sub_directory rdf:type survol:CIM_Directory .
+              ?url_sub_directory survol:Name "%s" .
+              ?url_directory rdf:type survol:CIM_Directory .
+              ?url_sub_directory survol:Win32_SubDirectory ?url_directory .
+            }""" % (survol_namespace, sub_directory_name)
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+        directory_node = lib_common.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": directory_name})
+        print("directory_node=", directory_node)
+        self.assertTrue((directory_node,) in query_result)
+
+    @unittest.skip("SEE BuildWmiPath")
+    def test_associator_datafile_to_directory_of_directory_node(self):
+        """All the files in a directory."""
+        file_name = always_present_sub_file.replace("\\", "/").lower()
+        #directory_name = DirAlwaysThere.replace("\\", "/").lower()
+        directory_of_directory_name = always_present_dir.replace("\\", "/").lower()
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_directory_of_directory
+            WHERE
+            { ?url_datafile rdf:type survol:CIM_DataFile .
+              ?url_datafile survol:Name "%s" .
+              ?url_datafile survol:CIM_DirectoryContainsFile ?url_directory .
+              ?url_directory rdf:type survol:CIM_Directory .
+              ?url_directory_of_directory rdf:type survol:CIM_Directory .
+              ?url_directory survol:Win32_SubDirectory ?url_directory_of_directory .
+            }""" % (survol_namespace, file_name)
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
 
-    @unittest.skip("Too slow !!!")
-    def test_associator_file_cmd(self):
-        sparql_query = """
-            PREFIX survol: <%s>
-            SELECT ?url_fileA ?url_fileB
-            WHERE
-            { ?url_fileA rdf:type survol:CIM_Directory .
-              ?url_fileB survol:CIM_DirectoryContainsFile ?url_fileA  .
-              ?url_fileB survol:Name "C:/Windows/System32/cmd.exe"  .
-              ?url_fileB rdf:type survol:CIM_DataFile .
-            }""" % survol_namespace
-        rdflib_graph = rdflib.Graph()
-        query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
+        # ASSOCIATOR INVERSION !!!!!!!!!!
 
-    @unittest.skip("Too slow !!!")
-    def test_associator_directory_system32(self):
-        sparql_query = """
-            PREFIX survol: <%s>
-            SELECT ?url_fileA ?url_fileB
-            WHERE
-            { ?url_fileA rdf:type survol:CIM_Directory .
-              ?url_fileB survol:Win32_SubDirectory ?url_fileA  .
-              ?url_fileB survol:Name "C:/Windows/System32"  .
-              ?url_fileB rdf:type survol:CIM_Directory .
-            }""" % survol_namespace
-        rdflib_graph = rdflib.Graph()
-        query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
-
-    @unittest.skip("Too slow !!!")
-    def test_associator_windows_directory(self):
-        sparql_query = """
-            PREFIX survol: <%s>
-            SELECT ?url_fileA ?url_fileB
-            WHERE
-            { ?url_dirA survol:Name "C:/Windows"  .
-              ?url_dirA rdf:type survol:CIM_Directory .
-              ?url_dirA survol:Win32_SubDirectory ?url_dirB  .
-              ?url_dirB rdf:type survol:CIM_Directory .
-            }""" % survol_namespace
-        rdflib_graph = rdflib.Graph()
-        query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
-
-    @unittest.skip("Too slow !!!")
-    def test_associator_windows_datafile(self):
-        sparql_query = """
-            PREFIX survol: <%s>
-            SELECT ?url_fileA ?url_fileB
-            WHERE
-            { ?url_fileA survol:Name "C:/Windows"  .
-              ?url_fileA rdf:type survol:CIM_Directory .
-              ?url_fileA survol:CIM_DirectoryContainsFile ?url_fileB  .
-              ?url_fileB rdf:type survol:CIM_DataFile .
-            }""" % survol_namespace
-        rdflib_graph = rdflib.Graph()
-        query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
-
-    @unittest.skip("Too slow !!!")
-    def test_wmi_associators_pid_to_files(self):
-        sparql_query = """
-            PREFIX survol: <%s>
-            SELECT ?url_proc ?url_file
-            WHERE
-            {
-              ?url_proc survol:Handle %d .
-              ?url_proc rdf:type survol:CIM_Process .
-              ?url_proc survol:CIM_ProcessExecutable ?url_file .
-              ?url_file rdf:type survol:CIM_DataFile .
-            }""" % (survol_namespace, CurrentPid)
-        rdflib_graph = rdflib.Graph()
-        query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
-
-    @unittest.skip("Cannot work yet !!!")
-    def test_wmi_associators_executable_to_files(self):
-        sparql_query = """
-            PREFIX survol: <%s>
-            SELECT ?url_proc ?url_file
-            WHERE
-            {
-              ?url_proc survol:Caption "firefox.exe"  .
-              ?url_proc rdf:type survol:CIM_Process .
-              ?url_proc survol:CIM_ProcessExecutable ?url_file .
-              ?url_file rdf:type survol:CIM_DataFile .
-            }""" % survol_namespace
-        rdflib_graph = rdflib.Graph()
-        query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
-
-    @unittest.skip("Cannot work yet !!!")
-    def test_wmi_associators_pid_to_exe(self):
-        sparql_query = """
-            PREFIX survol: <%s>
-            SELECT ?url_proc ?url_file
-            WHERE
-            {
-              ?url_proc survol:Handle %d  .
-              ?url_proc rdf:type survol:CIM_Process .
-              ?url_proc survol:CIM_ProcessExecutable ?url_file .
-              ?url_file survol:Name 'c:/program files/mozilla firefox/firefox.exe' .
-              ?url_file rdf:type survol:CIM_DataFile .
-            }
-            """ % (survol_namespace, CurrentPid)
-        rdflib_graph = rdflib.Graph()
-        query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
-
-    @unittest.skip("Cannot work yet !!!")
-    def test_wmi_associators_all_procs_to_firefox(self):
-        # TODO: How to have backslashes in SparQL queries ???
-        # "C:&#92;Users" 0x5C "C:%5CUsers"
-        sparql_query = """
-            PREFIX survol: <%s>
-            SELECT ?url_proc ?url_file
-            WHERE
-            {
-              ?url_proc survol:Handle ?proc_id  .
-              ?url_proc rdf:type survol:CIM_Process .
-              ?url_file survol:CIM_ProcessExecutable ?url_proc .
-              ?url_file survol:Name '%s' .
-              ?url_file rdf:type survol:CIM_DataFile .
-            }
-            """ % (survol_namespace, r"c:\\program files\\mozilla firefox\\firefox.exe")
-        rdflib_graph = rdflib.Graph()
-        query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
+        # The file belongs to one directory.
+        self.assertTrue( len(query_result) == 1)
+        node_directory_of_directory = lib_common.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": directory_of_directory_name})
+        self.assertTrue((node_directory_of_directory,) in query_result)
 
 
 @unittest.skip("NOT IMPLEMENTED YET")

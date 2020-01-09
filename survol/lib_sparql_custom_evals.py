@@ -145,7 +145,12 @@ class Sparql_CIM_Object(object):
                     self.m_number_literals += 1
 
     def GetNodeValue(self, predicate_node, variables_context):
-        predicate_variable = self.m_properties[predicate_node]
+        try:
+            predicate_variable = self.m_properties[predicate_node]
+        except KeyError:
+            sys.stderr.write("GetNodeValue %s not in %s. variables_context.keys=%s\n"
+                             % (predicate_node, str(self.m_properties), str(variables_context.keys())))
+            raise
         if isinstance(predicate_variable, rdflib.term.Literal):
             node_value = predicate_variable
         elif isinstance(predicate_variable, rdflib.term.Variable):
@@ -700,6 +705,8 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         sys.stderr.write("SelectWmiObjectFromProperties returned_variables=%s\n" % returned_variables)
         return returned_variables
 
+    # uniquement utiliser notre path qui doit suffire et doit etre sensiblement le meme.
+    # Survol path = 'http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_Directory.Name=c:/users/rchateau/developpement/reverseengineeringapps/pythonstyle/tests/sampledir/samplesubdir'
     def BuildWmiPath(self, variables_context):
         path_delimiter = "."
         associator_path = self.m_class_name
@@ -716,35 +723,51 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         sys.stderr.write("BuildWmiPath associator_path=%s\n" % associator_path)
         return associator_path
 
-
     def CreateAssociatorObjects(self, graph, variables_context):
+        if self.m_associated:
+            returned_variables = self.CreateAssociatorObjectsBidirectional(graph, variables_context, self.m_associated, 0)
+            if returned_variables:
+                return returned_variables
+        if self.m_associators:
+            returned_variables = self.CreateAssociatorObjectsBidirectional(graph, variables_context, self.m_associators, 1)
+            if returned_variables:
+                return returned_variables
+        return None
+
+        # FIXME: What if both return values ???
+
+    def CreateAssociatorObjectsBidirectional(self, graph, variables_context, assoc_list, role_index):
+
         # We might have several associators for one object.
         associator_urls_set = set()
 
         # Each associator must give values for all variables of this instance.
         keys_set_first_associator = None
 
-        for associator_predicate, associated_instance in self.m_associated.items():
-            sys.stderr.write("FetchAllVariables associator_predicate=%s\n" % associator_predicate)
-            sys.stderr.write("FetchAllVariables associated_instance=%s\n" % associated_instance)
+        for associator_predicate, associated_instance in assoc_list.items():
+            sys.stderr.write("CreateAssociatorObjectsBidirectional associator_predicate=%s\n" % associator_predicate)
+            sys.stderr.write("CreateAssociatorObjectsBidirectional associated_instance=%s\n" % associated_instance)
             assert isinstance(associator_predicate, rdflib.term.URIRef)
             assert isinstance(associated_instance, Sparql_CIM_Object)
 
             associated_variable = associated_instance.m_variable
-            sys.stderr.write("FetchAllVariables associated_variable=%s type=%s\n" % (associated_variable, type(associated_variable)))
+            sys.stderr.write("CreateAssociatorObjectsBidirectional associated_variable=%s type=%s\n" % (associated_variable, type(associated_variable)))
             assert associated_variable in variables_context
 
             associator_name = lib_properties.PropToQName(associator_predicate)
-            sys.stderr.write("FetchAllVariables associator_name=%s\n" % associator_name)
+            sys.stderr.write("CreateAssociatorObjectsBidirectional associator_name=%s\n" % associator_name)
 
             associated_variable_value = variables_context[associated_variable]
-            sys.stderr.write("FetchAllVariables associated_variable_value=%s\n" % associated_variable_value)
+            sys.stderr.write("CreateAssociatorObjectsBidirectional associated_variable_value=%s\n" % associated_variable_value)
             assert isinstance(associated_variable_value, rdflib.URIRef)
 
-            associator_path = associated_instance.BuildWmiPath(variables_context)
+            try:
+                associator_path = associated_instance.BuildWmiPath(variables_context)
+            except KeyError:
+                sys.stderr.write("Cannot build path of:%s\n" % str(variables_context[associated_instance.m_variable]))
+                raise
 
-            iterator_objects = wmiExecutor.SelectAssociatorsFromObject(self.m_class_name, associator_name,
-                                                                       associator_path)
+            iterator_objects = wmiExecutor.SelectBidirectionalAssociatorsFromObject(self.m_class_name, associator_name, associator_path, role_index)
 
             # This returns a map of one element only. The key is a tuple of variables.
             # The value is a list of tuples of the same size.
@@ -759,13 +782,16 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
                 keys_set_first_associator = first_key
 
             # The variable containing the url must be there.
+            sys.stderr.write("first_key=%s\n" % str(first_key))
+            sys.stderr.write("self.m_variable=%s\n" % self.m_variable)
+            sys.stderr.flush()
             index_url_key = first_key.index(self.m_variable)
             # This is most probably the first key.
             assert index_url_key == 0
             assert first_key[index_url_key] == self.m_variable
 
             urls_list = returned_variables_one[first_key]
-            sys.stderr.write("FetchAllVariables urls_list=%s\n" % urls_list)
+            sys.stderr.write("CreateAssociatorObjectsBidirectional urls_list=%s\n" % urls_list)
             assert isinstance(urls_list, list)
 
             # Now add the triples specifying the associator relation.
@@ -774,15 +800,18 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
                 assert len(one_tuple_url) >= 1
                 object_url = one_tuple_url[index_url_key]
                 isinstance(object_url, rdflib.URIRef)
-                graph.add((associated_variable_value, associator_predicate, object_url))
+                if role_index == 0:
+                    graph.add((associated_variable_value, associator_predicate, object_url))
+                else:
+                    graph.add((object_url, associator_predicate, associated_variable_value))
 
-            sys.stderr.write("FetchAllVariables returned_variables_one=%s\n" % returned_variables_one)
+            sys.stderr.write("CreateAssociatorObjectsBidirectional returned_variables_one=%s\n" % returned_variables_one)
 
             if not associator_urls_set:
                 associator_urls_set.update(urls_list)
             else:
                 associator_urls_set = associator_urls_set.intersection(set(urls_list))
-            sys.stderr.write("FetchAllVariables returned_variables_set=%s\n" % associator_urls_set)
+            sys.stderr.write("CreateAssociatorObjectsBidirectional returned_variables_set=%s\n" % associator_urls_set)
             # Because the variable is in the context, it is defined and its path is available.
             # Therefore, it is possible to fetch its associators only from the path.
 
@@ -810,7 +839,9 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             assert isinstance(returned_variables, dict)
             return returned_variables
 
-        if not filtered_where_key_values and not self.m_associated:
+        sys.stderr.write("associated:%d associators:%d\n" % (len(self.m_associated), len(self.m_associators)))
+
+        if not filtered_where_key_values and not self.m_associated and not self.m_associators:
             sys.stderr.write("FetchAllVariables BEWARE FULL SELECT: %s\n" % self.m_class_name)
             returned_variables = self.SelectWmiObjectFromProperties(graph, variables_context, filtered_where_key_values)
             assert isinstance(returned_variables, dict)
