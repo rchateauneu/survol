@@ -29,5 +29,5 @@ More information is available at `Primhill Computers
 Continuous integration is here: `Survol on Travis CI
 <https://travis-ci.org/rchateauneu/survol>`_
 
-An online demo is `visible here
-http://vps516494.ovh.net/Survol/survol/www/index.htm`_
+An online demo is visible `here
+<http://vps516494.ovh.net/Survol/survol/www/index.htm>`_
