@@ -169,10 +169,12 @@ else:
         DirAlwaysThere = "C:\\Windows"
         AnyLogicalDisk = "D:"
 
-always_present_dir = os.path.join(os.path.dirname(__file__), "SampleDir")
-always_present_file = os.path.join(os.path.dirname(__file__), "SampleDir", "SampleFile.txt")
-always_present_sub_dir = os.path.join(os.path.dirname(__file__), "SampleDir", "SampleSubDir")
-always_present_sub_file = os.path.join(os.path.dirname(__file__), "SampleDir", "SampleSubDir", "SampleSubFile.txt")
+# https://stackoverflow.com/questions/7783308/os-path-dirname-file-returns-empty
+absolute_dir = os.path.dirname(os.path.abspath(__file__))
+always_present_dir = os.path.join(absolute_dir, "SampleDir")
+always_present_file = os.path.join(absolute_dir, "SampleDir", "SampleFile.txt")
+always_present_sub_dir = os.path.join(absolute_dir, "SampleDir", "SampleSubDir")
+always_present_sub_file = os.path.join(absolute_dir, "SampleDir", "SampleSubDir", "SampleSubFile.txt")
 # This is necessary for some tests.
 assert always_present_file.startswith(always_present_dir)
 assert always_present_sub_dir.startswith(always_present_dir)
