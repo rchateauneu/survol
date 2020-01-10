@@ -212,6 +212,9 @@ class WmiSparqlExecutorTest(unittest.TestCase):
         file_name = always_present_file.replace("\\", "/").lower()
         directory_name = always_present_dir.replace("\\", "/").lower()
 
+        print("file_name=", file_name)
+        print("os.getcwd()=", os.getcwd())
+
         wmi_path_directory = 'CIM_Directory.Name="%s"' % directory_name
 
         iter_results = wmiExecutor.SelectBidirectionalAssociatorsFromObject(
