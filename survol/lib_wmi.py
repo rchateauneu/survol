@@ -1070,7 +1070,7 @@ class WmiSparqlExecutor:
 
         reference_class_definition = self.m_wmi_connection._cached_classes(associator_key_name)
         # If reference_class_name="CIM_DirectoryContainsFile", then ['GroupComponent', 'PartComponent']
-        reference_class_properties = reference_class_definition.properties.keys()
+        reference_class_properties = list(reference_class_definition.properties.keys())
         sys.stderr.write("reference_class_properties=%s\n" % str(reference_class_properties))
         chosen_role = reference_class_properties[role_index]
 
