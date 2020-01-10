@@ -24,7 +24,10 @@ Instead, Survol assists an investigation, by letting a user choose the data that
 Survol has several views on the same data: HTML, SVG, D3 JavaScript library and RDF.
 
 More information is available at `Primhill Computers
-<http://primhillcomputers.com/survol.html>`_
+<http://primhillcomputers.com/survol.html>`_ web site.
 
 Continuous integration is here: `Survol on Travis CI
 <https://travis-ci.org/rchateauneu/survol>`_
+
+An online demo is `visible here
+http://vps516494.ovh.net/Survol/survol/www/index.htm`_
