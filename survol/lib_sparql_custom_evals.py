@@ -705,22 +705,22 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         sys.stderr.write("SelectWmiObjectFromProperties returned_variables=%s\n" % returned_variables)
         return returned_variables
 
-    # uniquement utiliser notre path qui doit suffire et doit etre sensiblement le meme.
-    # Survol path = 'http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_Directory.Name=c:/users/rchateau/developpement/reverseengineeringapps/pythonstyle/tests/sampledir/samplesubdir'
-    def BuildWmiPath(self, variables_context):
-        path_delimiter = "."
-        associator_path = self.m_class_name
-        for one_class_key in self.class_keys():
-            one_class_key_node = lib_kbase.RdfsPropertyNode(one_class_key)
+    # This parses the Survol path to build WMI path which is very similar but not completely.
+    def BuildWmiPathFromSurvolPath(self, variables_context):
+        # survol_path = 'http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_Directory.Name=c:/a/b/c.txt'
+        survol_path = variables_context[self.m_variable]
+        _, _, shortened_path = survol_path.partition("?xid=")
+        class_name, _, kw_pairs_as_str = shortened_path.partition(".")
+        assert class_name == self.m_class_name
+        # key-value pairs are separated by commas.
 
-            # The value might be a constant stored in the instance, or it maybe in a variable.
-            key_value = self.GetNodeValue(one_class_key_node, variables_context)
+        entity_id_dict = lib_util.SplitMoniker(kw_pairs_as_str)
 
-            associator_path += path_delimiter + '%s="%s"' % (one_class_key, key_value)
-            # Next delimiter between key-value paris in a WMI path.
-            path_delimiter = ","
+        associator_path = self.m_class_name + "." + ",".join(
+            ('%s="%s"' % (prop_key, prop_value) for prop_key, prop_value in entity_id_dict.items())
+        )
 
-        sys.stderr.write("BuildWmiPath associator_path=%s\n" % associator_path)
+        sys.stderr.write("BuildWmiPathFromSurvolPath associator_path=%s\n" % associator_path)
         return associator_path
 
     def CreateAssociatorObjects(self, graph, variables_context):
@@ -761,11 +761,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             sys.stderr.write("CreateAssociatorObjectsBidirectional associated_variable_value=%s\n" % associated_variable_value)
             assert isinstance(associated_variable_value, rdflib.URIRef)
 
-            try:
-                associator_path = associated_instance.BuildWmiPath(variables_context)
-            except KeyError:
-                sys.stderr.write("Cannot build path of:%s\n" % str(variables_context[associated_instance.m_variable]))
-                raise
+            associator_path = associated_instance.BuildWmiPathFromSurvolPath(variables_context)
 
             iterator_objects = wmiExecutor.SelectBidirectionalAssociatorsFromObject(self.m_class_name, associator_name, associator_path, role_index)
 

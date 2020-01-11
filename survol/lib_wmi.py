@@ -1069,11 +1069,11 @@ class WmiSparqlExecutor:
 
         wmi_path = self._cleanup_wmi_path(wmi_path)
 
-        reference_class_definition = self.m_wmi_connection._cached_classes(associator_key_name)
+        reference_class_properties = self.AssociatorKeys(associator_key_name)
+
         # If reference_class_name="CIM_DirectoryContainsFile", then ['GroupComponent', 'PartComponent']
-        reference_class_properties = list(reference_class_definition.properties.keys())
         sys.stderr.write("reference_class_properties=%s\n" % str(reference_class_properties))
-        chosen_role = reference_class_properties[role_index]
+        chosen_role = reference_class_properties[role_index][1]
 
         # 'ASSOCIATORS OF {Win32_Process.Handle="1780"} WHERE AssocClass=CIM_ProcessExecutable ResultClass=CIM_DataFile'
         # 'ASSOCIATORS OF {CIM_DataFile.Name="c:\\program files\\mozilla firefox\\firefox.exe"} WHERE AssocClass = CIM_ProcessExecutable ResultClass = CIM_Process'

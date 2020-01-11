@@ -503,7 +503,11 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue(file_name_ntdll in filenames_only)
 
     def test_associator_executable_name_to_process(self):
-        file_name_python_exe = sys.executable.lower().replace("\\", "/")
+        # C:/Python27/python.exe
+        file_name_python_exe = CurrentExecutable.lower()
+
+        # C:\Python27\python.exe
+        print("sys.executable=", sys.executable)
         print("file_name_python_exe=", file_name_python_exe)
 
         sparql_query = """
@@ -636,11 +640,9 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         print("directory_node=", directory_node)
         self.assertTrue((directory_node,) in query_result)
 
-    @unittest.skip("SEE BuildWmiPath")
     def test_associator_datafile_to_directory_of_directory_node(self):
         """All the files in a directory."""
         file_name = always_present_sub_file.replace("\\", "/").lower()
-        #directory_name = DirAlwaysThere.replace("\\", "/").lower()
         directory_of_directory_name = always_present_dir.replace("\\", "/").lower()
         sparql_query = """
             PREFIX survol: <%s>

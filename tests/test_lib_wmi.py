@@ -187,7 +187,7 @@ class WmiSparqlExecutorTest(unittest.TestCase):
         # object_path= '\\RCHATEAU-HP\root\cimv2:Win32_Directory.Name="c:\\windows"'
         return object_path.partition(":")[2].replace("\\", "/").replace("//", "/")
 
-    # The output order is always the same for all platforms.
+    # The output order is always the same for all platforms, in alphabetical order.
     def test_AssociatorKeys(self):
         wmiExecutor = lib_wmi.WmiSparqlExecutor()
         lst_CIM_ProcessExecutable = wmiExecutor.AssociatorKeys("CIM_ProcessExecutable")
