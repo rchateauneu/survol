@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import json
 import socket
@@ -1098,3 +1099,17 @@ class WmiSparqlExecutor:
 
             DEBUG("WmiCallbackAssociator dict_key_values=%s", dict_key_values)
             yield (object_path, dict_key_values)
+
+    def AssociatorKeys(self, associator_name):
+        is_associator = getattr(self.m_wmi_connection, associator_name).qualifiers.get('Association', False)
+        assert is_associator
+
+        associator_definition = self.m_wmi_connection._cached_classes(associator_name)
+        associator_as_text = str(associator_definition)
+        list_keys = []
+        for one_line in associator_as_text.split("\n"):
+            # "[read: ToSubClass, key] CIM_DataFile ref Antecedent = NULL;"
+            match_property = re.match(".*\] ([A-Za-z_0-9]+) ref ([A-Za-z_0-9]+) ", one_line)
+            if match_property:
+                list_keys.append((match_property.group(1), match_property.group(2)))
+        return list_keys
