@@ -187,6 +187,21 @@ class WmiSparqlExecutorTest(unittest.TestCase):
         # object_path= '\\RCHATEAU-HP\root\cimv2:Win32_Directory.Name="c:\\windows"'
         return object_path.partition(":")[2].replace("\\", "/").replace("//", "/")
 
+    # The output order is always the same for all platforms.
+    def test_AssociatorKeys(self):
+        wmiExecutor = lib_wmi.WmiSparqlExecutor()
+        lst_CIM_ProcessExecutable = wmiExecutor.AssociatorKeys("CIM_ProcessExecutable")
+        print("lst_CIM_ProcessExecutable=", lst_CIM_ProcessExecutable)
+        self.assertTrue(lst_CIM_ProcessExecutable == [('CIM_DataFile', 'Antecedent'), ('CIM_Process', 'Dependent')])
+
+        lst_CIM_DirectoryContainsFile = wmiExecutor.AssociatorKeys("CIM_DirectoryContainsFile")
+        print("lst_CIM_DirectoryContainsFile=", lst_CIM_DirectoryContainsFile)
+        self.assertTrue(lst_CIM_DirectoryContainsFile == [('CIM_Directory', 'GroupComponent'), ('CIM_DataFile', 'PartComponent')])
+
+        lst_Win32_SubDirectory = wmiExecutor.AssociatorKeys("Win32_SubDirectory")
+        print("lst_Win32_SubDirectory=", lst_Win32_SubDirectory)
+        self.assertTrue(lst_Win32_SubDirectory == [('Win32_Directory', 'GroupComponent'), ('Win32_Directory', 'PartComponent')])
+
     def test_SelectBidirectionalAssociatorsFromObject_file_to_dir(self):
         wmiExecutor = lib_wmi.WmiSparqlExecutor()
 
