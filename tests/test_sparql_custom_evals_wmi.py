@@ -545,7 +545,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
 
-        computer_node = lib_common.gUriGen.UriMakeFromDict("Win32_ComputerSystem", {"Name": CurrentMachine.upper()})
+        computer_node = lib_common.gUriGen.UriMakeFromDict("Win32_ComputerSystem", {"Name": CurrentDomainWin32.upper()})
         print("computer_node=", computer_node)
 
         self.assertTrue(computer_node == query_result[0][0])
@@ -565,7 +565,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
-        self.assertTrue(CurrentMachine.upper() == str(query_result[0][0]))
+        self.assertTrue(CurrentDomainWin32.upper() == str(query_result[0][0]))
 
     def test_associator_executable_name_to_process(self):
         # C:/Python27/python.exe
