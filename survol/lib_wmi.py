@@ -1083,7 +1083,14 @@ class WmiSparqlExecutor:
         DEBUG("WmiCallbackAssociator wmi_query=%s", wmi_query)
         sys.stderr.write("SelectAssociatorsFromObject wmi_query=%s\n" % wmi_query)
 
-        wmi_objects = self.m_wmi_connection.query(wmi_query)
+        try:
+            wmi_objects = self.m_wmi_connection.query(wmi_query)
+        except Exception as exc:
+            # Probably com_error
+            sys.stderr.write("============================================================\n")
+            sys.stderr.write("WmiCallbackAssociator Caught: %s\n" % exc)
+            sys.stderr.write("============================================================\n")
+            return
 
         for one_wmi_object in wmi_objects:
             # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
