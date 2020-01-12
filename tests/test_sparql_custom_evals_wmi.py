@@ -588,6 +588,33 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue(CurrentPid in pids_only)
         self.assertTrue(CurrentParentPid in pids_only)
 
+    def test_associator_computer_name_to_process_executable(self):
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_file
+            WHERE
+            { ?url_proc survol:Win32_SystemProcesses ?url_computer .
+              ?url_proc rdf:type survol:CIM_Process .
+              ?url_proc survol:CIM_ProcessExecutable ?url_file .
+              ?url_file rdf:type survol:CIM_DataFile .
+              ?url_computer rdf:type survol:Win32_ComputerSystem .
+              ?url_computer survol:Name "%s" .
+            }""" % (survol_namespace, CurrentDomainWin32.upper())
+
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+
+        # These files must be there because they are used by the current process.
+        mandatory_file_paths = [
+            sys.executable.lower().replace("\\", "/"),
+            "c:/windows/system32/gdi32.dll"
+        ]
+        for one_path in mandatory_file_paths:
+            node_file = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": one_path})
+            print("one_path=", one_path)
+            self.assertTrue((node_file,) in query_result)
+
     def test_associator_executable_name_to_process(self):
         # C:/Python27/python.exe
         file_name_python_exe = CurrentExecutable.lower()
