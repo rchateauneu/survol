@@ -1015,7 +1015,7 @@ class WmiSparqlExecutor:
             DEBUG("SelectObjectFromProperties REPLACED CIM_DataFile where_key_values=%s", filtered_where_key_values)
 
         wmi_query = lib_util.SplitMonikToWQL(filtered_where_key_values, class_name)
-        sys.stderr.write("SelectObjectFromProperties tp=%s wmi_query=%s\n" % (type(wmi_query),wmi_query))
+        sys.stderr.write("SelectObjectFromProperties wmi_query=%s\n" % wmi_query)
         DEBUG("WmiCallbackSelect wmi_query=%s", wmi_query)
 
         try:
@@ -1109,7 +1109,7 @@ class WmiSparqlExecutor:
         list_keys = []
         for one_line in associator_as_text.split("\n"):
             # "[read: ToSubClass, key] CIM_DataFile ref Antecedent = NULL;"
-            match_property = re.match(".*\] ([A-Za-z_0-9]+) ref ([A-Za-z_0-9]+) ", one_line)
+            match_property = re.match(r".*\] ([A-Za-z_0-9]+) ref ([A-Za-z_0-9]+) ", one_line)
             if match_property:
                 list_keys.append((match_property.group(1), match_property.group(2)))
         return list_keys
