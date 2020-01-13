@@ -66,7 +66,7 @@ class SurvolLocalTest(unittest.TestCase):
         mySourceFileStatLocal = lib_client.SourceLocal(
             "sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
-            Name=FileAlwaysThere)
+            Name=always_present_file)
         print("test_create_source_local_json: query==%s" % mySourceFileStatLocal.UrlQuery())
         the_content_json = mySourceFileStatLocal.content_json()
         print("test_create_source_local_json: Json content=%s ..."%str(the_content_json)[:30])
@@ -75,7 +75,7 @@ class SurvolLocalTest(unittest.TestCase):
         mySourceFileStatLocal = lib_client.SourceLocal(
             "sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
-            Name=FileAlwaysThere)
+            Name=always_present_file)
         print("test_create_source_local_rdf: query=%s" % mySourceFileStatLocal.UrlQuery())
         the_content_rdf = mySourceFileStatLocal.content_rdf()
         print("test_create_source_local_rdf: RDF content=%s ..."%str(the_content_rdf)[:30])
@@ -84,7 +84,7 @@ class SurvolLocalTest(unittest.TestCase):
         mySourceFileStatLocal = lib_client.SourceLocal(
             "sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
-            Name=FileAlwaysThere)
+            Name=always_present_file)
         tripleFileStatLocal = mySourceFileStatLocal.GetTriplestore()
         print("Len triple store local=",len(tripleFileStatLocal.m_triplestore))
 
@@ -92,7 +92,7 @@ class SurvolLocalTest(unittest.TestCase):
         mySourceFileStatLocal = lib_client.SourceLocal(
             "sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
-            Name=FileAlwaysThere)
+            Name=always_present_file)
 
         lib_common.globalErrorMessageEnabled = False
 
@@ -127,7 +127,7 @@ class SurvolLocalTest(unittest.TestCase):
         mySource1 = lib_client.SourceLocal(
             "entity.py",
             "CIM_DataFile",
-            Name=FileAlwaysThere)
+            Name=always_present_file)
         # The current process is always available.
         mySource2 = lib_client.SourceLocal(
             "entity.py",
@@ -1738,7 +1738,7 @@ class SurvolRemoteTest(unittest.TestCase):
         mySourceFileStatRemote = lib_client.SourceRemote(
             RemoteTestAgent + "/survol/sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
-            Name=FileAlwaysThere)
+            Name=always_present_file)
         print("urlFileStatRemote=",mySourceFileStatRemote.Url())
         print("qryFileStatRemote=",mySourceFileStatRemote.UrlQuery())
         print("jsonFileStatRemote=%s  ..." % str(mySourceFileStatRemote.content_json())[:30])
@@ -1753,7 +1753,7 @@ class SurvolRemoteTest(unittest.TestCase):
         mySourceFileStatRemote = lib_client.SourceRemote(
             RemoteTestAgent + "/survol/sources_types/CIM_Directory/file_directory.py",
             "CIM_Directory",
-            Name=DirAlwaysThere)
+            Name=always_present_dir)
         tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
         print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
         # This should not be empty.
