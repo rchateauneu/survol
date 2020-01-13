@@ -337,7 +337,6 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
 
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
         actual_sibling_pids = set([int(str(one_tuple[0])) for one_tuple in query_result])
 
         # Comparaison with the list of sub-processes of the current one.
@@ -515,6 +514,69 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
         file_name_ntdll = "c:/windows/system32/ntdll.dll"
         self.assertTrue(file_name_ntdll in filenames_only)
+
+    # TODO: Fix this.
+    # FIXME: Fix this.
+    @unittest.skip("BROKEN TEST")
+    def test_select_Win32_Process_siblings_executables(self):
+        """Win32_Process.ParentProcessId is defined."""
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?name_execfile_sibling
+            WHERE
+            { ?url_proc_current survol:Handle '%d' .
+              ?url_proc_current rdf:type survol:Win32_Process .
+              ?url_proc_sibling rdf:type survol:Win32_Process .
+              ?url_proc_parent rdf:type survol:Win32_Process .
+              ?url_proc_parent survol:Handle ?parent_pid .
+              ?url_proc_current survol:ParentProcessId ?parent_pid .
+              ?url_proc_sibling survol:ParentProcessId ?parent_pid .
+              ?url_proc_sibling survol:CIM_ProcessExecutable ?url_execfile_sibling .
+              ?url_execfile_sibling rdf:type survol:CIM_DataFile .
+              ?url_execfile_sibling survol:Name ?name_execfile_sibling .
+            }""" % (survol_namespace, CurrentPid)
+
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("query_result=", query_result)
+        actual_sibling_dlls_exes = [str(one_tuple[0]) for one_tuple in query_result]
+        print("actual_sibling_dlls_exes=", actual_sibling_dlls_exes)
+
+        expected_sibling_exes = set([proc.exe() for proc in psutil.Process(CurrentParentPid).children(recursive=False)])
+        print("expected_sibling_exes=", expected_sibling_exes)
+
+        self.assertTrue(expected_sibling_exes.issubset(actual_sibling_dlls_exes))
+
+    # TODO: Fix this.
+    # FIXME: Fix this.
+    @unittest.skip("BROKEN TEST")
+    def test_select_Win32_Process_children_executables(self):
+        """Win32_Process.ParentProcessId is defined."""
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?name_execfile_child
+            WHERE
+            { ?url_proc_parent survol:Handle '%d' .
+              ?url_proc_child rdf:type survol:Win32_Process .
+              ?url_proc_parent rdf:type survol:Win32_Process .
+              ?url_proc_parent survol:Handle ?parent_pid .
+              ?url_proc_child survol:ParentProcessId ?parent_pid .
+              ?url_proc_child survol:CIM_ProcessExecutable ?url_execfile_child .
+              ?url_execfile_child rdf:type survol:CIM_DataFile .
+              ?url_execfile_child survol:Name ?name_execfile_child .
+            }""" % (survol_namespace, CurrentParentPid)
+
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("query_result=", query_result)
+        actual_sibling_dlls_exes = [str(one_tuple[0]) for one_tuple in query_result]
+        print("actual_sibling_dlls_exes=", actual_sibling_dlls_exes)
+
+        expected_sibling_exes = set([proc.exe() for proc in psutil.Process(CurrentParentPid).children(recursive=False)])
+        print("expected_sibling_exes=", expected_sibling_exes)
+
+        self.assertTrue(expected_sibling_exes.issubset(actual_sibling_dlls_exes))
+
 
     # TODO: Fix this.
     # FIXME: Fix this.
