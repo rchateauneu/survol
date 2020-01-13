@@ -933,28 +933,33 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         print("Result=", query_result)
         self.assertTrue(str(query_result[0][0]) == 'Guest')
 
+    def test_associator_computer_to_system_users(self):
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?name_user ?domain_user
+            WHERE
+            {
+                ?url_computer rdf:type survol:Win32_ComputerSystem .
+                ?url_computer survol:Name '%s' .
+                ?url_user survol:Win32_SystemUsers ?url_computer .
+                ?url_user rdf:type survol:Win32_UserAccount .
+                ?url_user survol:Name ?name_user .
+                ?url_user survol:Domain ?domain_user .
+            }""" % (survol_namespace, CurrentDomainWin32.upper())
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+        usernames_only = [str(one_tuple[0]) for one_tuple in query_result]
+        self.assertTrue('Guest' in usernames_only)
+        self.assertTrue('HomeGroupUser$' in usernames_only)
+        self.assertTrue('Administrator' in usernames_only)
+
     # TODO: Test this:
     """
-    >>> import wmi
-    >>> wmi.WMI().query('associators of {Win32_UserAccount.Domain="rchateau-HP",Name="Guest"} where ClassDefsOnly')
-    [<_wmi_object: \\RCHATEAU-HP\ROOT\CIMV2:Win32_ComputerSystem>, <_wmi_object: \\RCHATEAU-HP\ROOT\CIMV2:Win32_Desktop>, <_wmi_object:
-    \\RCHATEAU-HP\ROOT\CIMV2:Win32_Group>, <_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:Win32_SID>]
-    >>>
-    
-    >>> wmi.WMI().query('references of {Win32_UserAccount.Domain="rchateau-HP",Name="Guest"} where ClassDefsOnly')
-    [<_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:Win32_UserDesktop>, <_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:Win32_SystemUsers>, <_wmi_object:
-     \\RCHATEAU-HP\ROOT\cimv2:Win32_AccountSID>, <_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:Win32_GroupUser>]
-    >>>
-    
-    >>> wmi.WMI().query('associators of {Win32_UserAccount.Domain="RCHATEAU-HP",Name="Guest"} where AssocClass=Win32_AccountSID')
+    'associators of {Win32_UserAccount.Domain="RCHATEAU-HP",Name="Guest"} where AssocClass=Win32_AccountSID'
     [<_wmi_object: \\RCHATEAU-HP\root\cimv2:Win32_SID.SID="S-1-5-21-3348735596-448992173-972389567-501">]
-    >>> wmi.WMI().query('associators of {Win32_UserAccount.Domain="RCHATEAU-HP",Name="Guest"} where AssocClass=Win32_UserDesktop')
+    'associators of {Win32_UserAccount.Domain="RCHATEAU-HP",Name="Guest"} where AssocClass=Win32_UserDesktop'
     [<_wmi_object: \\RCHATEAU-HP\root\cimv2:Win32_Desktop.Name=".DEFAULT">]
-    >>> wmi.WMI().query('associators of {Win32_UserAccount.Domain="RCHATEAU-HP",Name="Guest"} where AssocClass=Win32_SystemUsers')
-    [<_wmi_object: \\RCHATEAU-HP\root\cimv2:Win32_ComputerSystem.Name="RCHATEAU-HP">]
-    >>> wmi.WMI().query('associators of {Win32_UserAccount.Domain="RCHATEAU-HP",Name="Administrator"} where AssocClass=Win32_SystemUsers
-    [<_wmi_object: \\RCHATEAU-HP\root\cimv2:Win32_ComputerSystem.Name="RCHATEAU-HP">]
-    
     """
 
 
