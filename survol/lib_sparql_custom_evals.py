@@ -636,7 +636,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
                 # The first object is used to create the list of attributes.
                 list_variables.append(self.m_variable)
                 for wql_key_node, wql_value_dummy in dict_key_values.items():
-                    sys.stderr.write("wql_key_node=%s\n" % wql_key_node)
+                    sys.stderr.write("IteratorToObjects wql_key_node=%s\n" % wql_key_node)
                     assert isinstance(wql_key_node, rdflib.term.URIRef)
                     if wql_key_node not in self.m_properties:
                         continue
@@ -657,16 +657,16 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             # Survol object URL must be like: http://rchateau-hp:8000/survol/entity.py?xid=CIM_Process.Handle=6936
             # Therefore, the WMI path cannot be used "as is", but instead use the original self.m_class_name.
             sys.stderr.write("IteratorToObjects object_path=%s\n" % object_path)
-            sys.stderr.write("IteratorToObjects dict_key_values.keys()=%s\n" % dict_key_values.keys())
+            sys.stderr.write("IteratorToObjects dict_key_values.keys()=%s\n"
+                             % [lib_properties.PropToQName(one_uri_ref) for one_uri_ref in dict_key_values])
             uri_key_values = {}
             for one_class_key in self.class_keys():
                 one_class_key_node = lib_kbase.RdfsPropertyNode(one_class_key)
                 uri_key_values[one_class_key] = dict_key_values[one_class_key_node]
             node_uri_ref = lib_common.gUriGen.UriMakeFromDict(self.m_class_name, uri_key_values)
 
-
             # print("dict_key_values.keys()=", dict_key_values.keys())
-            sys.stderr.write("IteratorToObjectslist_variables=%s\n" % list_variables)
+            sys.stderr.write("IteratorToObjects list_variables=%s\n" % str([str(one_var) for one_var in list_variables]))
             sys.stderr.write("IteratorToObjects property_names_used=%s\n" % property_names_used)
 
             rdflib_graph.add((node_uri_ref, rdflib.namespace.RDF.type, self.m_class_node))
@@ -681,7 +681,8 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
                 wql_value_node = rdflib.term.Literal(wql_value)
                 rdflib_graph.add((node_uri_ref, wql_key_node, wql_value_node))
             variable_values_tuple = tuple(variable_values_list)
-            sys.stderr.write("IteratorToObjects variable_values_tuple=%s\n" % str(variable_values_tuple))
+            sys.stderr.write("IteratorToObjects variable_values_tuple=%s\n"
+                             % str([str(one_uri_ref) for one_uri_ref in variable_values_tuple]))
             list_current_values.append(variable_values_tuple)
 
         sys.stderr.write("IteratorToObjects list_variables=%s\n" % list_variables)
@@ -694,11 +695,10 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
     def class_keys(self):
         wmi_class_keys = _wmi_load_ontology.classes_map[self.m_class_name]["class_keys_list"]
         assert all([isinstance(one_class_key, lib_util.six_text_type) for one_class_key in wmi_class_keys])
-        sys.stderr.write("IteratorToObjects wmi_class_keys=%s\n" % wmi_class_keys)
         return wmi_class_keys
 
     def SelectWmiObjectFromProperties(self, graph, variables_context, filtered_where_key_values):
-        sys.stderr.write("SelectWmiObjectFromProperties filtered_where_key_values=\n" % filtered_where_key_values)
+        sys.stderr.write("SelectWmiObjectFromProperties filtered_where_key_values=%s\n" % str(filtered_where_key_values))
         iterator_objects = wmiExecutor.SelectObjectFromProperties(self.m_class_name, filtered_where_key_values)
         returned_variables = self.IteratorToObjects(graph, iterator_objects)
         assert isinstance(returned_variables, dict)
@@ -751,8 +751,14 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             assert isinstance(associated_instance, Sparql_CIM_Object)
 
             associated_variable = associated_instance.m_variable
-            sys.stderr.write("CreateAssociatorObjectsBidirectional associated_variable=%s type=%s\n" % (associated_variable, type(associated_variable)))
-            assert associated_variable in variables_context
+            assert isinstance(associated_variable, rdflib.term.Variable)
+            sys.stderr.write("CreateAssociatorObjectsBidirectional role_index=%d\n" % role_index)
+            sys.stderr.write("CreateAssociatorObjectsBidirectional associated_variable=%s\n" % associated_variable)
+            sys.stderr.write("CreateAssociatorObjectsBidirectional variables_context.keys()=%s\n" % str(variables_context.keys()))
+
+            if associated_variable not in variables_context:
+                sys.stderr.write("CreateAssociatorObjectsBidirectional Cannot find in content: associated_variable=%s\n" % associated_variable)
+                continue
 
             associator_name = lib_properties.PropToQName(associator_predicate)
             sys.stderr.write("CreateAssociatorObjectsBidirectional associator_name=%s\n" % associator_name)
@@ -771,6 +777,11 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             assert len(returned_variables_one) == 1
             first_key = next(iter(returned_variables_one))
             sys.stderr.write("first_key=%s\n" % str(first_key))
+
+            if not first_key:
+                sys.stderr.write("CreateAssociatorObjectsBidirectional no selection from %s/%s/%s/%s\n"
+                                 % (self.m_class_name, associator_name, associator_path, role_index))
+                continue
 
             if keys_set_first_associator:
                 assert keys_set_first_associator == first_key
@@ -820,8 +831,8 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
     def FetchAllVariables(self, graph, variables_context):
         filtered_where_key_values = dict()
 
-        sys.stderr.write("FetchAllVariables variables_context.keys()=%s\n" % variables_context.keys())
-        sys.stderr.write("FetchAllVariables self.m_properties.keys()=%s\n" % self.m_properties.keys())
+        sys.stderr.write("FetchAllVariables variables_context=%s\n" % " , ".join("%s=%s" % (str(k), str(v)) for k, v in variables_context.items()))
+        sys.stderr.write("FetchAllVariables self.m_properties=%s\n" % " , ".join("%s=%s" % (str(k), str(v)) for k, v in self.m_properties.items()))
 
         for predicate_node in self.m_properties:
             predicate_name = lib_properties.PropToQName(predicate_node)
@@ -916,6 +927,7 @@ def product_variables_lists(returned_variables, iter_keys = None):
 
         max_display_count_values = 100
         for one_dict in product_variables_lists(returned_variables, iter_keys):
+            sys.stderr.write("product_variables_lists len(values_list)=%d\n" % len(values_list))
             for one_value in values_list:
                 new_dict = one_dict.copy()
                 # This is one variable, or a tuple of variables of attributes of the same object.
@@ -928,8 +940,8 @@ def product_variables_lists(returned_variables, iter_keys = None):
                     # This is to avoid the Travis message:
                     # "The job exceeded the maximum log length, and has been terminated."
                     if max_display_count_values > 0:
-                        sys.stderr.write("first_key=%s\n" % str(first_key))
-                        sys.stderr.write("one_value=%s\n" % str(one_value))
+                        sys.stderr.write("product_variables_lists first_key=%s\n" % str(first_key))
+                        sys.stderr.write("product_variables_lists one_value=%s\n" % str(one_value))
                         max_display_count_values -= 1
                         if max_display_count_values == 0:
                             sys.stderr.write("STOP DISPLAYING EXCESSIVE NUMBER OF VALUES\n")
@@ -1056,15 +1068,16 @@ def custom_eval_function_generic(ctx, part, sparql_instance_creator):
 
         sys.stderr.write("Instances:\n")
         instances_dict = part_triples_to_instances_dict_function(part, sparql_instance_creator)
-        sys.stderr.write("Instance before sort:%d\n" % len(instances_dict))
+        sys.stderr.write("Instances before sort:%d\n" % len(instances_dict))
         for instance_key, one_instance in instances_dict.items():
             sys.stderr.write("    Key=%s Instance=%s\n" % (instance_key, one_instance))
 
         visited_nodes = visit_all_nodes(instances_dict)
         assert len(instances_dict) == len(visited_nodes)
-        sys.stderr.write("GRAPH VISIT:%d\n" % len(visited_nodes))
+        sys.stderr.write("Instances after sort:%d\n" % len(visited_nodes))
         for one_instance in visited_nodes:
             sys.stderr.write("    Instance=%s\n" % str(one_instance))
+        assert(sorted(visited_nodes) == sorted(instances_dict.values()))
 
 
         # This is a dictionary of variables.
