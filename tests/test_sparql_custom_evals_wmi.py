@@ -951,7 +951,6 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         print("Result=", query_result)
         usernames_only = [str(one_tuple[0]) for one_tuple in query_result]
         self.assertTrue('Guest' in usernames_only)
-        self.assertTrue('HomeGroupUser$' in usernames_only)
         self.assertTrue('Administrator' in usernames_only)
 
     # TODO: Test this:
