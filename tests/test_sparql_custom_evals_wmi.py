@@ -319,6 +319,33 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         print("only_pids=", only_pids)
         self.assertTrue(str(CurrentPid) in only_pids)
 
+    def test_select_Win32_Process_siblings(self):
+        """Win32_Process.ParentProcessId is defined."""
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?sibling_pid
+            WHERE
+            { ?url_proc_current survol:Handle '%d' .
+              ?url_proc_current rdf:type survol:Win32_Process .
+              ?url_proc_sibling rdf:type survol:Win32_Process .
+              ?url_proc_sibling survol:Handle ?sibling_pid .
+              ?url_proc_parent rdf:type survol:Win32_Process .
+              ?url_proc_parent survol:Handle ?parent_pid .
+              ?url_proc_current survol:ParentProcessId ?parent_pid .
+              ?url_proc_sibling survol:ParentProcessId ?parent_pid .
+            }""" % (survol_namespace, CurrentPid)
+
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+        actual_sibling_pids = set([int(str(one_tuple[0])) for one_tuple in query_result])
+
+        # Comparaison with the list of sub-processes of the current one.
+        expected_sibling_pids = set([proc.pid for proc in psutil.Process(CurrentParentPid).children(recursive=False)])
+        print("expected_sibling_pids=", expected_sibling_pids)
+
+        self.assertTrue(expected_sibling_pids == actual_sibling_pids)
+
     def test_wmi_query_disk_drive(self):
         sparql_query = """
             PREFIX survol: <%s>
