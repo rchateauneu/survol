@@ -1077,8 +1077,6 @@ def custom_eval_function_generic(ctx, part, sparql_instance_creator):
         sys.stderr.write("Instances after sort:%d\n" % len(visited_nodes))
         for one_instance in visited_nodes:
             sys.stderr.write("    Instance=%s\n" % str(one_instance))
-        assert(sorted(visited_nodes) == sorted(instances_dict.values()))
-
 
         # This is a dictionary of variables.
         variables_context = {}
