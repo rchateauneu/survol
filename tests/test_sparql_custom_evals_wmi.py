@@ -345,7 +345,7 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
 
         self.assertTrue(expected_sibling_pids == actual_sibling_pids)
 
-    def test_wmi_query_disk_drive(self):
+    def test_select_CIM_DiskDrive(self):
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?url_disk
@@ -394,10 +394,9 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         directory_node = lib_common.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": directory_name})
         self.assertTrue(query_result[0][0] == directory_node)
 
-    def test_server_wmi_more_user_account_caption(self):
+    def test_Win32_UserAccount_to_caption(self):
         sparql_query = """
             PREFIX survol: <%s>
-            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT ?caption
             WHERE
             {
@@ -416,10 +415,9 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         print("expected_caption=", expected_caption)
         self.assertTrue(account_caption.lower() == expected_caption)
 
-    def test_server_wmi_more_user_account_domain(self):
+    def test_Win32_UserAccount_to_domain_caption(self):
         sparql_query = """
             PREFIX survol: <%s>
-            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             SELECT ?domain ?caption
             WHERE
             {
@@ -437,6 +435,7 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         account_caption = str(query_result[0][1])
         self.assertTrue(account_domain.lower() == CurrentDomainWin32)
         self.assertTrue(account_caption.lower() == CurrentDomainWin32 + "\\\\" + CurrentUsername)
+
 
 
 class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
@@ -898,6 +897,65 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue(len(query_result) == 1)
         self.assertTrue(directory_of_directory_name == str(query_result[0][0]))
 
+    def test_associator_guest_user_to_groups(self):
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?name_group
+            WHERE
+            {
+                ?url_user rdf:type survol:Win32_UserAccount .
+                ?url_user survol:Name 'Guest' .
+                ?url_user survol:Domain ?user_domain .
+                ?url_user survol:Win32_GroupUser ?url_group .
+                ?url_group rdf:type survol:Win32_Group .
+                ?url_group survol:Name ?name_group .
+            }""" % (survol_namespace)
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+        self.assertTrue(str(query_result[0][0]) == 'Guests')
+
+    def test_associator_guests_group_to_user(self):
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?name_user
+            WHERE
+            {
+                ?url_user rdf:type survol:Win32_UserAccount .
+                ?url_user survol:Name ?name_user .
+                ?url_user survol:Domain ?user_domain .
+                ?url_user survol:Win32_GroupUser ?url_group .
+                ?url_group rdf:type survol:Win32_Group .
+                ?url_group survol:Name 'Guests' .
+            }""" % (survol_namespace)
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+        self.assertTrue(str(query_result[0][0]) == 'Guest')
+
+    # TODO: Test this:
+    """
+    >>> import wmi
+    >>> wmi.WMI().query('associators of {Win32_UserAccount.Domain="rchateau-HP",Name="Guest"} where ClassDefsOnly')
+    [<_wmi_object: \\RCHATEAU-HP\ROOT\CIMV2:Win32_ComputerSystem>, <_wmi_object: \\RCHATEAU-HP\ROOT\CIMV2:Win32_Desktop>, <_wmi_object:
+    \\RCHATEAU-HP\ROOT\CIMV2:Win32_Group>, <_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:Win32_SID>]
+    >>>
+    
+    >>> wmi.WMI().query('references of {Win32_UserAccount.Domain="rchateau-HP",Name="Guest"} where ClassDefsOnly')
+    [<_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:Win32_UserDesktop>, <_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:Win32_SystemUsers>, <_wmi_object:
+     \\RCHATEAU-HP\ROOT\cimv2:Win32_AccountSID>, <_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:Win32_GroupUser>]
+    >>>
+    
+    >>> wmi.WMI().query('associators of {Win32_UserAccount.Domain="RCHATEAU-HP",Name="Guest"} where AssocClass=Win32_AccountSID')
+    [<_wmi_object: \\RCHATEAU-HP\root\cimv2:Win32_SID.SID="S-1-5-21-3348735596-448992173-972389567-501">]
+    >>> wmi.WMI().query('associators of {Win32_UserAccount.Domain="RCHATEAU-HP",Name="Guest"} where AssocClass=Win32_UserDesktop')
+    [<_wmi_object: \\RCHATEAU-HP\root\cimv2:Win32_Desktop.Name=".DEFAULT">]
+    >>> wmi.WMI().query('associators of {Win32_UserAccount.Domain="RCHATEAU-HP",Name="Guest"} where AssocClass=Win32_SystemUsers')
+    [<_wmi_object: \\RCHATEAU-HP\root\cimv2:Win32_ComputerSystem.Name="RCHATEAU-HP">]
+    >>> wmi.WMI().query('associators of {Win32_UserAccount.Domain="RCHATEAU-HP",Name="Administrator"} where AssocClass=Win32_SystemUsers
+    [<_wmi_object: \\RCHATEAU-HP\root\cimv2:Win32_ComputerSystem.Name="RCHATEAU-HP">]
+    
+    """
 
 
 @unittest.skip("NOT IMPLEMENTED YET")
