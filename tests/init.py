@@ -155,18 +155,11 @@ def update_test_path():
 # This defines a file and a directory present on all platforms, for testing.
 # This is deprecated and should be replaced by "always_present_*" constants.
 if is_platform_linux:
-    FileAlwaysThere = "/etc/hosts"
-    DirAlwaysThere = "/etc"
     AnyLogicalDisk = ""
 else:
     if is_travis_machine():
-        # This file is there because it is installed by choco, see .travis.yml
-        FileAlwaysThere = "C:\\Python37\\python.exe"
-        DirAlwaysThere = "C:\\Python37"
         AnyLogicalDisk = "C:"
     else:
-        FileAlwaysThere = "C:\\Windows\\explorer.exe"
-        DirAlwaysThere = "C:\\Windows"
         AnyLogicalDisk = "D:"
 
 # https://stackoverflow.com/questions/7783308/os-path-dirname-file-returns-empty
