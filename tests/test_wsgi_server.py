@@ -69,13 +69,13 @@ class WsgiRemoteTest(unittest.TestCase):
         mySourceFileStatRemote = lib_client.SourceRemote(
             RemoteWsgiTestAgent + "/survol/sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
-            Name=FileAlwaysThere)
+            Name=always_present_file)
         print("urlFileStatRemote=",mySourceFileStatRemote.Url())
         print("qryFileStatRemote=",mySourceFileStatRemote.UrlQuery())
         json_content = mySourceFileStatRemote.content_json()
 
-        dirFileAlwaysThere = os.path.basename(os.path.dirname(FileAlwaysThere))
-        baseFileAlwaysThere = os.path.basename(FileAlwaysThere)
+        dirFileAlwaysThere = os.path.basename(always_present_dir)
+        baseFileAlwaysThere = os.path.basename(always_present_file)
 
         # "No doc explorer.exe"
         # "File stat information..."
@@ -96,7 +96,7 @@ class WsgiRemoteTest(unittest.TestCase):
                 # {u'entity_class': u'CIM_Directory', u'name': u'Windows/'}
                 found_dir = one_node['entity_class'] == 'CIM_Directory' and one_node['name'] == dirFileAlwaysThere + "/"
 
-        self.assertTrue(found_file, "Could not find file:" + FileAlwaysThere)
+        self.assertTrue(found_file, "Could not find file:" + always_present_file)
         self.assertTrue(found_dir, "Could not find directory:" + dirFileAlwaysThere)
 
 
@@ -120,10 +120,10 @@ class WsgiRemoteTest(unittest.TestCase):
         mySourceFileStatRemote = lib_client.SourceRemote(
             RemoteWsgiTestAgent + "/survol/sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
-            Name=FileAlwaysThere)
+            Name=always_present_file)
 
-        cleanFileAlwaysThere = FileAlwaysThere.replace("\\","/")
-        dirFileAlwaysThere = os.path.dirname(FileAlwaysThere).replace("\\","/")
+        cleanFileAlwaysThere = always_present_file.replace("\\","/")
+        dirFileAlwaysThere = always_present_dir.replace("\\","/")
 
         print("urlFileStatRemote=",mySourceFileStatRemote.Url())
         print("qryFileStatRemote=",mySourceFileStatRemote.UrlQuery())
@@ -145,13 +145,13 @@ class WsgiRemoteTest(unittest.TestCase):
                 found_file = str(one_instance) == "CIM_DataFile.Name=" + cleanFileAlwaysThere
 
         self.assertTrue(found_dir, "Cannot find directory:" + dirFileAlwaysThere)
-        self.assertTrue(found_file, "Cannot find file:" + FileAlwaysThere)
+        self.assertTrue(found_file, "Cannot find file:" + always_present_file)
 
     def test_wsgi_file_directory(self):
         mySourceFileStatRemote = lib_client.SourceRemote(
             RemoteWsgiTestAgent + "/survol/sources_types/CIM_Directory/file_directory.py",
             "CIM_Directory",
-            Name=DirAlwaysThere)
+            Name=always_present_dir)
         tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
         print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
         # This should not be empty.
