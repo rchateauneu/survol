@@ -274,3 +274,6 @@ def json_triples_to_rdf(json_triples, rdf_file_path):
     rdflib_graph.serialize(destination = rdf_file_path, format='pretty-xml')
 
 
+def compress_events_sequence(input_events_sequence):
+    raise Exception("Not implemented yet")
+    return input_calls_sequence
