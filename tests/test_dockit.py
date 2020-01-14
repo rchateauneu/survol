@@ -747,6 +747,24 @@ class DockitEventsTest(unittest.TestCase):
 
         self.assertTrue(expected_types_list == actual_types_dict)
 
+
+class RepetitionDetectionTest(unittest.TestCase):
+
+    def tst(self, list_input, expected):
+        sys.path.append("../..")
+        # Import this now, and not in the destructor, to avoid the error:
+        # "sys.meta_path must be a list of import hooks"
+        # This module is needed for storing the generated data into a RDF file.
+        from survol import lib_event
+
+        list_output = lib_event.compress_events_sequence(expected)
+        self.assertTrue(list_output == expected)
+
+    @unittest.skip("Not implemented yet.")
+    def test_no_repetition(self):
+        self.tst([], [])
+
+
 if __name__ == '__main__':
     unittest.main()
 
