@@ -580,7 +580,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
     # TODO: Fix this.
     # FIXME: Fix this.
     @unittest.skip("BROKEN TEST")
-    def test_associator_CIM_Process_executable_directory_name(self):
+    def test_associator_CIM_Process_executable_directory_to_name(self):
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?exec_dirpath
@@ -604,6 +604,37 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         print("executable_dirname=", executable_dirname)
 
         self.assertTrue(executable_dirname in dirnames_only)
+
+    def test_associator_CIM_Process_executable_to_directory_node(self):
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_directory
+            WHERE
+            { ?url_proc survol:Handle '%d' .
+              ?url_proc survol:CIM_ProcessExecutable ?url_execfile .
+              ?url_proc rdf:type survol:CIM_Process .
+              ?url_execfile rdf:type survol:CIM_DataFile .
+              ?url_execfile survol:CIM_DirectoryContainsFile ?url_directory .
+              ?url_directory rdf:type survol:CIM_Directory .
+            }""" % (survol_namespace, CurrentPid)
+
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        dirnodes_only = {one_result[0] for one_result in query_result}
+        print("dirnodes_only=", dirnodes_only, "len=", len(dirnodes_only))
+
+        for dir_path in [
+            "c:/python27/dlls",
+            "c:/windows/system32",
+            "c:/python27/lib/site-packages/win32",
+            "c:/python27/lib/site-packages/psutil",
+            "c:/python27",
+            "c:/program files/bonjour",
+            "c:/windows/system32/wbem"]:
+            node_dir = lib_common.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": dir_path})
+            print("Path=", dir_path)
+            print("Node=", node_dir)
+            self.assertTrue(node_dir in dirnodes_only)
 
     def test_associator_CIM_Process_to_computer_node(self):
         sparql_query = """
@@ -952,15 +983,6 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         usernames_only = [str(one_tuple[0]) for one_tuple in query_result]
         self.assertTrue('Guest' in usernames_only)
         self.assertTrue('Administrator' in usernames_only)
-
-    # TODO: Test this:
-    """
-    'associators of {Win32_UserAccount.Domain="RCHATEAU-HP",Name="Guest"} where AssocClass=Win32_AccountSID'
-    [<_wmi_object: \\RCHATEAU-HP\root\cimv2:Win32_SID.SID="S-1-5-21-3348735596-448992173-972389567-501">]
-    'associators of {Win32_UserAccount.Domain="RCHATEAU-HP",Name="Guest"} where AssocClass=Win32_UserDesktop'
-    [<_wmi_object: \\RCHATEAU-HP\root\cimv2:Win32_Desktop.Name=".DEFAULT">]
-    """
-
 
 @unittest.skip("NOT IMPLEMENTED YET")
 class SparqlSeeAlsoTest(CUSTOM_EVALS_WMI_Base_Test):
