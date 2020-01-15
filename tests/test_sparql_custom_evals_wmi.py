@@ -624,12 +624,11 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         print("dirnodes_only=", dirnodes_only, "len=", len(dirnodes_only))
 
         for dir_path in [
-            "c:/python27/dlls",
+            os.path.dirname(CurrentExecutable).lower().replace("\\", "/"),
+            os.path.dirname(CurrentExecutable).lower().replace("\\", "/") + "/lib/site-packages/win32",
+            os.path.dirname(CurrentExecutable).lower().replace("\\", "/") + "/lib/site-packages/psutil",
+            os.path.dirname(CurrentExecutable).lower().replace("\\", "/") + "/dlls",
             "c:/windows/system32",
-            "c:/python27/lib/site-packages/win32",
-            "c:/python27/lib/site-packages/psutil",
-            "c:/python27",
-            "c:/program files/bonjour",
             "c:/windows/system32/wbem"]:
             node_dir = lib_common.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": dir_path})
             print("Path=", dir_path)
