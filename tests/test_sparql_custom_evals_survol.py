@@ -170,9 +170,12 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
         def make_var(input_var):
             return_dict = {}
-            for variable_name, values_list in input_var.items():
-                var_node = rdflib.term.Variable(variable_name)
-                values_nodes = [rdflib.term.Literal(one_value) for one_value in values_list]
+            for variables_tuple, values_list in input_var.items():
+                var_node = tuple(rdflib.term.Variable(variable_name) for variable_name in variables_tuple)
+                values_nodes = [
+                    tuple(rdflib.term.Literal(one_value)
+                    for one_value in one_value_tuple)
+                    for one_value_tuple in values_list]
                 return_dict[var_node] = values_nodes
             return return_dict
 
@@ -187,11 +190,11 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         self.assertTrue(num_results_actual == num_results_expected)
 
     def test_prod_variables(self):
-        self.one_return_tst(1, { 'a':['a1'],'b':['b1'],'c':['c1'], })
-        self.one_return_tst(2, { 'a':['a1'],'b':['b1','b2'],'c':['c1'], })
-        self.one_return_tst(6, { 'a':['a1'],'b':['b1','b2'],'c':['c1', 'c2', 'c3'], })
-        self.one_return_tst(2, { ('a','aa'):[('a1','aa1')],'b':['b1','b2'],'c':['c1'], })
-        self.one_return_tst(4, { ('a','aa'):[('a1','aa1'), ('a2','aa2')],'b':['b1','b2'],'c':['c1'], })
+        self.one_return_tst(1, { ('a',):[('a1',)],('b',):[('b1',)],('c',):[('c1',)], })
+        self.one_return_tst(2, { ('a',):[('a1',)],('b',):[('b1',),('b2',)],('c',):[('c1',)], })
+        self.one_return_tst(6, { ('a',):[('a1',)],('b',):[('b1',),('b2',)],('c',):[('c1',),('c2',),('c3',)], })
+        self.one_return_tst(2, { ('a','aa'):[('a1','aa1')],('b',):[('b1',),('b2',)],('c',):[('c1',)], })
+        self.one_return_tst(4, { ('a','aa'):[('a1','aa1'), ('a2','aa2')],('b',):[('b1',),('b2',)],('c',):[('c1',)], })
 
     def test_sparql_parent(self):
         rdflib_graph = CreateGraph()
