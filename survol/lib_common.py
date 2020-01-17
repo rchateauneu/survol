@@ -314,6 +314,9 @@ def GetCallingModuleDoc():
 			filnamCaller = filnamCaller[htbinIdx + len(modulePrefix):]
 
 			try:
+				# Another try if "survol." is duplicated, possibly for Win10 and Py3.8:
+				if filnamCaller.startswith(modulePrefix):
+					filnamCaller = filnamCaller[len(modulePrefix):]
 				moduleCaller = sys.modules[filnamCaller]
 			except:
 				return filnamCaller + ":No doc"
@@ -339,7 +342,7 @@ def GetCallingModuleDoc():
 				page_title = page_title.strip()
 				return page_title
 			else:
-				return "No doc"
+				return "No __main__ doc"
 		except:
 			exc = sys.exc_info()[1]
 			return "GetCallingModuleDoc (Caught %s)" % str(exc)
