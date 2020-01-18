@@ -279,7 +279,10 @@ def json_triples_to_rdf(json_triples, rdf_file_path):
 # are detected over contiguous sequences of identical symbols.
 # Symbols can be of any type except tuple and list.
 def __squeeze_events_one(symbols_iterator):
-    last_read_symbol = next(symbols_iterator)
+    try:
+        last_read_symbol = next(symbols_iterator)
+    except StopIteration:
+        return
     times_num = 1
     for one_symbol in symbols_iterator:
         if one_symbol == last_read_symbol:
