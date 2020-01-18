@@ -672,16 +672,15 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             # WMI returns object_path = '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="11568"'
             # Survol object URL must be like: http://rchateau-hp:8000/survol/entity.py?xid=CIM_Process.Handle=6936
             # Therefore, the WMI path cannot be used "as is", but instead use the original self.m_class_name.
-            sys.stderr.write("IteratorToObjects object_path=%s\n" % object_path)
-            sys.stderr.write("IteratorToObjects dict_key_values.keys()=%s\n"
-                             % [lib_properties.PropToQName(one_uri_ref) for one_uri_ref in dict_key_values])
+            # sys.stderr.write("IteratorToObjects object_path=%s\n" % object_path)
+            # sys.stderr.write("IteratorToObjects dict_key_values.keys()=%s\n"
+            #                 % [lib_properties.PropToQName(one_uri_ref) for one_uri_ref in dict_key_values])
             uri_key_values = {}
             wmi_class_keys = self.class_keys()
             sys.stderr.write("IteratorToObjects wmi_class_keys=%s\n" % wmi_class_keys)
             for one_class_key in wmi_class_keys:
                 one_class_key_node = lib_kbase.RdfsPropertyNode(one_class_key)
                 uri_key_values[one_class_key] = dict_key_values[one_class_key_node]
-            # Comment ca peut marcher avec les asociators alors que l objet est deja cree ??
             node_uri_ref = lib_common.gUriGen.UriMakeFromDict(self.m_class_name, uri_key_values)
             sys.stderr.write("IteratorToObjects node_uri_ref=%s\n" % node_uri_ref)
 
@@ -1124,10 +1123,6 @@ def custom_eval_function_generic(ctx, part, sparql_instance_creator):
 
         visited_nodes = visit_all_nodes(instances_dict)
         assert len(instances_dict) == len(visited_nodes)
-        sys.stderr.write("Instances after sort:%d\n" % len(visited_nodes))
-        for one_instance in visited_nodes:
-            sys.stderr.write("    Instance=%s\n" % str(one_instance))
-        assert(sorted(visited_nodes) == sorted(instances_dict.values()))
 
         # This is a dictionary of variables.
         variables_context = {}
