@@ -182,6 +182,7 @@ class Sparql_CIM_DataFile(Sparql_CIM_Object):
 
 
     def FetchFromDirectory(self, variables_context, file_path, graph, returned_variables, node_uri_ref):
+        check_returned_variables(returned_variables)
         sys.stderr.write("Sparql_CIM_DataFile.FetchFromDirectory file_path=%s\n" % file_path)
         if associator_CIM_DirectoryContainsFile in self.m_associated:
             associator_instance = self.m_associated[associator_CIM_DirectoryContainsFile]
@@ -213,8 +214,10 @@ class Sparql_CIM_DataFile(Sparql_CIM_Object):
 
             if isinstance(dir_path_variable, rdflib.term.Variable):
                 returned_variables[(associator_instance.m_variable, dir_path_variable)] = [(associator_instance_url, dir_file_path_node)]
+                check_returned_variables(returned_variables)
             else:
                 returned_variables[associator_instance.m_variable] = [associator_instance_url]
+            check_returned_variables(returned_variables)
             graph.add((associator_instance_url, predicate_Name, dir_file_path_node))
 
     def FetchAllVariables(self, graph, variables_context):
@@ -228,7 +231,8 @@ class Sparql_CIM_DataFile(Sparql_CIM_Object):
         node_uri_ref = rdflib.term.URIRef(url_as_str)
         graph.add((node_uri_ref, rdflib.namespace.RDF.type, class_CIM_DataFile))
 
-        returned_variables[self.m_variable] = [node_uri_ref]
+        returned_variables[(self.m_variable,)] = [(node_uri_ref,)]
+        check_returned_variables(returned_variables)
 
         # No need to add node_file_path in the results because,
         # if it is a Variable, it is already in the context.
@@ -242,6 +246,7 @@ class Sparql_CIM_DataFile(Sparql_CIM_Object):
 
         # TODO: If there are no properties and no directory, this should return ALL FILES OF THE FILE SYSTEM.
 
+        check_returned_variables(returned_variables)
         return returned_variables
 
 class Sparql_CIM_Directory(Sparql_CIM_DataFile):
@@ -260,7 +265,8 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
         node_uri_ref = rdflib.term.URIRef(url_as_str)
 
         assert isinstance(self.m_variable, rdflib.term.Variable)
-        returned_variables[self.m_variable] = [node_uri_ref]
+        returned_variables[(self.m_variable,)] = [(node_uri_ref,)]
+        check_returned_variables(returned_variables)
         graph.add((node_uri_ref, rdflib.namespace.RDF.type, class_CIM_Directory))
 
         # No need to add node_file_path in the results=:
@@ -269,6 +275,7 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
         graph.add((node_uri_ref, predicate_Name, node_file_path))
 
         self.FetchFromDirectory(variables_context, file_path, graph, returned_variables, node_uri_ref)
+        check_returned_variables(returned_variables)
 
         if associator_CIM_DirectoryContainsFile in self.m_associators:
             associated_instance = self.m_associators[associator_CIM_DirectoryContainsFile]
@@ -304,7 +311,7 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                 if isinstance(dir_path_variable, rdflib.term.Variable):
                     return_values_list.append((sub_node_uri_ref, sub_path_name_url))
                 else:
-                    return_values_list.append(sub_node_uri_ref)
+                    return_values_list.append((sub_node_uri_ref,))
                     assert isinstance(dir_path_variable, rdflib.term.Literal)
                     #print("Associated object Name is literal:", dir_path_variable)
 
@@ -335,9 +342,11 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
             if isinstance(dir_path_variable, rdflib.term.Variable):
                 sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables Returning variables pair:%s\n" % associated_instance.m_variable)
                 returned_variables[(associated_instance.m_variable, dir_path_variable)] = return_values_list
+                check_returned_variables(returned_variables)
             else:
                 sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables Returning variable:%s\n" % associated_instance.m_variable)
-                returned_variables[associated_instance.m_variable] = return_values_list
+                returned_variables[(associated_instance.m_variable,)] = return_values_list
+                check_returned_variables(returned_variables)
 
             sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables returned_variables=%s\n" % returned_variables)
 
@@ -459,9 +468,11 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
                 assert (associated_instance, dir_path_variable) not in returned_variables
                 returned_variables[(associated_instance.m_variable, dir_path_variable)] = [
                     (associated_instance_url, executable_path_node)]
+                check_returned_variables(returned_variables)
             else:
                 assert associated_instance.m_variable not in returned_variables
                 returned_variables[associated_instance.m_variable] = [associated_instance_url]
+                check_returned_variables(returned_variables)
             graph.add((associated_instance_url, predicate_Name, executable_path_node))
 
     # Given a file name, it returns all processes executing it.
@@ -526,7 +537,8 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
                 if url_nodes_list is not None:
                     raise Exception("BUG: Contradiction with non-empty processes list")
                 node_uri_refs_list = self.GetProcessesFromExecutable(graph, variables_context)
-                returned_variables[self.m_variable] = node_uri_refs_list
+                returned_variables[(self.m_variable,)] = [(node_uri_refs,) for node_uri_refs in node_uri_refs_list]
+                check_returned_variables(returned_variables)
                 return returned_variables
 
         if not url_nodes_list:
@@ -548,6 +560,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
         new_values_list = [tuple(value_tuple[index_property] for index_property in properties_indices) for value_tuple in url_nodes_list]
         if properties_indices:
             returned_variables[new_properties_tuple] = new_values_list
+            check_returned_variables(returned_variables)
 
 
         node_uri_refs_list = []
@@ -556,14 +569,15 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
             assert len(values_tuple) == len(properties_tuple)
             properties_dict = dict(zip(properties_tuple, values_tuple))
             node_uri_ref = self.CreateURIRef(graph, "CIM_Process", class_CIM_Process, properties_dict)
-            node_uri_refs_list.append(node_uri_ref)
+            node_uri_refs_list.append((node_uri_ref,))
 
             process_id = int(properties_dict[predicate_Handle])
             self.DefineExecutableFromProcess(variables_context, process_id, graph, returned_variables, node_uri_ref)
 
         assert isinstance(self.m_variable, rdflib.term.Variable)
         assert self.m_variable not in returned_variables
-        returned_variables[self.m_variable] = node_uri_refs_list
+        returned_variables[(self.m_variable,)] = node_uri_refs_list
+        check_returned_variables(returned_variables)
         return returned_variables
 
 def CreateSparql_CIM_Object(class_name, the_subject):
@@ -630,6 +644,8 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         property_names_used = []
 
         list_current_values = []
+        sys.stderr.write("IteratorToObjects %s self.m_properties.keys()=%s\n" % (str(self.m_variable), str(self.m_properties)))
+
         for object_path, dict_key_values in iterator_objects:
 
             if not list_variables:
@@ -660,10 +676,14 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             sys.stderr.write("IteratorToObjects dict_key_values.keys()=%s\n"
                              % [lib_properties.PropToQName(one_uri_ref) for one_uri_ref in dict_key_values])
             uri_key_values = {}
-            for one_class_key in self.class_keys():
+            wmi_class_keys = self.class_keys()
+            sys.stderr.write("IteratorToObjects wmi_class_keys=%s\n" % wmi_class_keys)
+            for one_class_key in wmi_class_keys:
                 one_class_key_node = lib_kbase.RdfsPropertyNode(one_class_key)
                 uri_key_values[one_class_key] = dict_key_values[one_class_key_node]
+            # Comment ca peut marcher avec les asociators alors que l objet est deja cree ??
             node_uri_ref = lib_common.gUriGen.UriMakeFromDict(self.m_class_name, uri_key_values)
+            sys.stderr.write("IteratorToObjects node_uri_ref=%s\n" % node_uri_ref)
 
             # print("dict_key_values.keys()=", dict_key_values.keys())
             sys.stderr.write("IteratorToObjects list_variables=%s\n" % str([str(one_var) for one_var in list_variables]))
@@ -689,6 +709,8 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         assert all((isinstance(one_variable, rdflib.term.Variable) for one_variable in list_variables))
         tuple_variables = tuple(list_variables)
         returned_variables = {tuple_variables: list_current_values}
+        sys.stderr.write("IteratorToObjects END\n\n")
+        check_returned_variables(returned_variables)
         return returned_variables
 
 
@@ -700,9 +722,11 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
     def SelectWmiObjectFromProperties(self, graph, variables_context, filtered_where_key_values):
         sys.stderr.write("SelectWmiObjectFromProperties filtered_where_key_values=%s\n" % str(filtered_where_key_values))
         iterator_objects = wmiExecutor.SelectObjectFromProperties(self.m_class_name, filtered_where_key_values)
+        #####iterator_objects = list(iterator_objects)
         returned_variables = self.IteratorToObjects(graph, iterator_objects)
-        assert isinstance(returned_variables, dict)
-        sys.stderr.write("SelectWmiObjectFromProperties returned_variables=%s\n" % returned_variables)
+        check_returned_variables(returned_variables)
+        sys.stderr.write("SelectWmiObjectFromProperties returned_variables=:\n")
+        check_returned_variables(returned_variables)
         return returned_variables
 
     # This parses the Survol path to build WMI path which is very similar but not completely.
@@ -727,12 +751,16 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         if self.m_associated:
             returned_variables = self.CreateAssociatorObjectsBidirectional(graph, variables_context, self.m_associated, 0)
             if returned_variables:
+                sys.stderr.write("CreateAssociatorObjects m_associated. returned_variables=%s\n" % returned_variables.keys())
+                check_returned_variables(returned_variables)
                 return returned_variables
         if self.m_associators:
             returned_variables = self.CreateAssociatorObjectsBidirectional(graph, variables_context, self.m_associators, 1)
             if returned_variables:
+                sys.stderr.write("CreateAssociatorObjects m_associators. returned_variables=%s\n" % returned_variables.keys())
+                check_returned_variables(returned_variables)
                 return returned_variables
-        return None
+        return {}
 
         # FIXME: What if both return values ???
 
@@ -745,19 +773,18 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         keys_set_first_associator = None
 
         for associator_predicate, associated_instance in assoc_list.items():
-            sys.stderr.write("CreateAssociatorObjectsBidirectional associator_predicate=%s\n" % associator_predicate)
-            sys.stderr.write("CreateAssociatorObjectsBidirectional associated_instance=%s\n" % associated_instance)
+            sys.stderr.write("CreateAssociatorObjectsBidirectional associator_predicate=%s associated_instance=%s\n"
+                             % (associator_predicate, associated_instance))
             assert isinstance(associator_predicate, rdflib.term.URIRef)
             assert isinstance(associated_instance, Sparql_CIM_Object)
 
             associated_variable = associated_instance.m_variable
             assert isinstance(associated_variable, rdflib.term.Variable)
-            sys.stderr.write("CreateAssociatorObjectsBidirectional role_index=%d\n" % role_index)
-            sys.stderr.write("CreateAssociatorObjectsBidirectional associated_variable=%s\n" % associated_variable)
+            sys.stderr.write("CreateAssociatorObjectsBidirectional role_index=%d associated_variable=%s\n" % (role_index, associated_variable))
             sys.stderr.write("CreateAssociatorObjectsBidirectional variables_context.keys()=%s\n" % str(variables_context.keys()))
 
             if associated_variable not in variables_context:
-                sys.stderr.write("CreateAssociatorObjectsBidirectional Cannot find in content: associated_variable=%s\n" % associated_variable)
+                sys.stderr.write("CreateAssociatorObjectsBidirectional Cannot find in variables_context: associated_variable=%s\n" % associated_variable)
                 continue
 
             associator_name = lib_properties.PropToQName(associator_predicate)
@@ -776,7 +803,8 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             returned_variables_one = self.IteratorToObjects(graph, iterator_objects)
             assert len(returned_variables_one) == 1
             first_key = next(iter(returned_variables_one))
-            sys.stderr.write("first_key=%s\n" % str(first_key))
+            sys.stderr.write("CreateAssociatorObjectsBidirectional first_key=%s\n"
+                             % [str(one_key) for one_key in first_key])
 
             if not first_key:
                 sys.stderr.write("CreateAssociatorObjectsBidirectional no selection from %s/%s/%s/%s\n"
@@ -824,8 +852,12 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
 
         sys.stderr.write("associator_urls_set=%s\n" % associator_urls_set)
         associator_urls_list = list(associator_urls_set)
-        returned_variables = {keys_set_first_associator: associator_urls_list}
-        sys.stderr.flush()
+        if keys_set_first_associator:
+            returned_variables = {keys_set_first_associator: associator_urls_list}
+            check_returned_variables(returned_variables)
+        else:
+            returned_variables = {}
+            sys.stderr.write("Nothing found in associators")
         return returned_variables
 
     def FetchAllVariables(self, graph, variables_context):
@@ -843,7 +875,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
 
         if filtered_where_key_values:
             returned_variables = self.SelectWmiObjectFromProperties(graph, variables_context, filtered_where_key_values)
-            assert isinstance(returned_variables, dict)
+            check_returned_variables(returned_variables)
             return returned_variables
 
         sys.stderr.write("associated:%d associators:%d\n" % (len(self.m_associated), len(self.m_associators)))
@@ -851,11 +883,11 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         if not filtered_where_key_values and not self.m_associated and not self.m_associators:
             sys.stderr.write("FetchAllVariables BEWARE FULL SELECT: %s\n" % self.m_class_name)
             returned_variables = self.SelectWmiObjectFromProperties(graph, variables_context, filtered_where_key_values)
-            assert isinstance(returned_variables, dict)
+            check_returned_variables(returned_variables)
             return returned_variables
 
         returned_variables = self.CreateAssociatorObjects(graph, variables_context)
-        assert isinstance(returned_variables, dict)
+        check_returned_variables(returned_variables)
         return returned_variables
 
 
@@ -912,13 +944,28 @@ def part_triples_to_instances_dict_function(part, sparql_instance_creator):
 
     return instances_dict
 
+# Debugging purpose only.
+# This checks the content of something similar to:
+# {(rdflib.term.Variable(u'url_execfile'),): [(rdflib.term.URIRef(u'http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=c:/windows/system32/urlmon.dll'),), (r...,)]}
+def check_returned_variables(returned_variables):
+    assert isinstance(returned_variables, dict)
+    for first_key, values_list in returned_variables.items():
+        assert isinstance(values_list, list)
+        assert isinstance(first_key, tuple)
+        # Maybe, several correlated variables of attributes of the same object.
+        for one_value_tuple in values_list:
+            assert isinstance(one_value_tuple, tuple)
+            assert len(one_value_tuple) == len(first_key)
+            for one_value in one_value_tuple:
+                assert isinstance(one_value, (rdflib.term.Literal, rdflib.term.URIRef))
+
 # The input is a set of {variable: list-of-values.
 # It returns a set of {variable: value}, which is the set of combinations
 # of all possible values for each variable.
 # A variable can also be a tuple of rdflib variables.
 # In this case, the values must also be tuples.
 def product_variables_lists(returned_variables, iter_keys = None):
-    assert isinstance(returned_variables, dict)
+    check_returned_variables(returned_variables)
     try:
         if not iter_keys:
             iter_keys = iter(returned_variables.items())
@@ -926,37 +973,40 @@ def product_variables_lists(returned_variables, iter_keys = None):
         assert isinstance(values_list, list)
 
         max_display_count_values = 100
+        sys.stderr.write("product_variables_lists LOOP BEFORE\n")
         for one_dict in product_variables_lists(returned_variables, iter_keys):
             sys.stderr.write("product_variables_lists len(values_list)=%d\n" % len(values_list))
             for one_value in values_list:
                 new_dict = one_dict.copy()
                 # This is one variable, or a tuple of variables of attributes of the same object.
-                if isinstance(first_key, tuple):
-                    # Maybe, several correlated variables of attributes of the same object.
-                    assert isinstance(one_value, tuple)
-                    #sys.stderr.write("len(first_key)=%d\n" % len(first_key))
-                    #sys.stderr.write("len(one_value)=%d\n" % len(one_value))
 
-                    # This is to avoid the Travis message:
-                    # "The job exceeded the maximum log length, and has been terminated."
-                    if max_display_count_values > 0:
-                        sys.stderr.write("product_variables_lists first_key=%s\n" % str(first_key))
-                        sys.stderr.write("product_variables_lists one_value=%s\n" % str(one_value))
-                        max_display_count_values -= 1
-                        if max_display_count_values == 0:
-                            sys.stderr.write("STOP DISPLAYING EXCESSIVE NUMBER OF VALUES\n")
-                    assert len(first_key) == len(one_value)
-                    # Each key is a tuple of variables matched by each of the tuples of the list of values.
-                    assert all((isinstance(single_key, rdflib.term.Variable) for single_key in first_key))
-                    #sys.stderr.write("one_value.types:%s\n" % str([type(single_value) for single_value in one_value]))
-                    assert all((isinstance(single_value, (rdflib.term.Literal, rdflib.term.URIRef)) for single_value in one_value))
-                    sub_dict = dict(zip(first_key, one_value))
-                    new_dict.update(sub_dict)
-                else:
-                    assert isinstance(first_key, rdflib.term.Variable)
-                    assert isinstance(one_value, (rdflib.term.Literal, rdflib.term.URIRef))
-                    new_dict[first_key] = one_value
+                # Maybe, several correlated variables of attributes of the same object.
+                assert isinstance(one_value, tuple)
+                assert len(one_value) == len(first_key)
+                #sys.stderr.write("len(first_key)=%d\n" % len(first_key))
+                #sys.stderr.write("len(one_value)=%d\n" % len(one_value))
+
+                # This is to avoid the Travis message:
+                # "The job exceeded the maximum log length, and has been terminated."
+                if max_display_count_values > 0:
+                    #sys.stderr.write("product_variables_lists first_key=%s\n" % ",".join(key_element for key_element in first_key))
+                    #sys.stderr.write("product_variables_lists one_value=%s\n" % ",".join(value_element for value_element in one_value))
+                    max_display_count_values -= 1
+                    if max_display_count_values == 0:
+                        sys.stderr.write("STOP DISPLAYING EXCESSIVE NUMBER OF VALUES\n")
+                assert len(first_key) == len(one_value)
+                # Each key is a tuple of variables matched by each of the tuples of the list of values.
+                assert all((isinstance(single_key, rdflib.term.Variable) for single_key in first_key))
+                #sys.stderr.write("one_value.types:%s\n" % str([type(single_value) for single_value in one_value]))
+                assert all((isinstance(single_value, (rdflib.term.Literal, rdflib.term.URIRef)) for single_value in one_value))
+                sub_dict = dict(zip(first_key, one_value))
+                sys.stderr.write("sub_dict=%s\n" % sub_dict)
+                new_dict.update(sub_dict)
+
+                sys.stderr.write("product_variables_lists first_key=%s tp(one_value)=%s\n" % (first_key, type(one_value)))
+
                 yield new_dict
+        sys.stderr.write("product_variables_lists LOOP AFTER\n")
     except StopIteration:
         yield {}
 
@@ -1077,9 +1127,14 @@ def custom_eval_function_generic(ctx, part, sparql_instance_creator):
         sys.stderr.write("Instances after sort:%d\n" % len(visited_nodes))
         for one_instance in visited_nodes:
             sys.stderr.write("    Instance=%s\n" % str(one_instance))
+        assert(sorted(visited_nodes) == sorted(instances_dict.values()))
 
         # This is a dictionary of variables.
         variables_context = {}
+
+        def display_variables_context(margin):
+            for k, v in variables_context.items():
+                sys.stderr.write("%s k=%s v=%s\n" % (margin, k, v))
 
         def recursive_instantiation(instance_index):
             if instance_index == len(visited_nodes):
@@ -1092,14 +1147,36 @@ def custom_eval_function_generic(ctx, part, sparql_instance_creator):
             # are iterals, or variables whose values are known in the current context.
             one_instance = visited_nodes[instance_index]
             sys.stderr.write(margin + "one_instance=%s\n" % one_instance)
+
+            sys.stderr.write(margin + "variables_context BEFORE\n")
+            display_variables_context(margin)
             returned_variables = one_instance.FetchAllVariables(ctx.graph, variables_context)
-            assert isinstance(returned_variables, dict)
+            sys.stderr.write(margin + "variables_context AFTER\n")
+            display_variables_context(margin)
+            check_returned_variables(returned_variables)
 
             sys.stderr.write(margin + "returned_variables=%s\n" % str(returned_variables))
+            #subset_counter = 0
 
-            for one_subset in product_variables_lists(returned_variables):
+            ## for one_subset in product_variables_lists(returned_variables):
+            # FIXME: USE THE ITERATOR
+            variables_combinations_iter = product_variables_lists(returned_variables)
+            #variables_combinations_iter = list(variables_combinations_iter)
+            #sys.stderr.write("recursive_instantiation len(variables_combinations_iter)=%d\n" % len(variables_combinations_iter))
+            variables_context_backup = variables_context.copy()
+            for one_subset in variables_combinations_iter:
                 variables_context.update(one_subset)
+                sys.stderr.write(margin + "recursive_instantiation instance_index=%d variables_context.keys()=%s\n"
+                                 % (instance_index, ",".join(str(key) for key in variables_context.keys())))
+                #sys.stderr.write(margin + "recursive_instantiation instance_index=%d variables_context_backup.keys()=%s\n"
+                #                 % (instance_index, ",".join(str(key) for key in variables_context_backup.keys())))
+                #sys.stderr.write(margin + "recursive_instantiation instance_index=%d subset_counter=%d\n"
+                #                 % (instance_index, subset_counter))
+                sys.stderr.write(margin + "recursive_instantiation one_subset=%s\n" % str(one_subset))
                 recursive_instantiation(instance_index+1)
+                #subset_counter += 1
+            variables_context.clear()
+            variables_context.update(variables_context_backup)
 
         recursive_instantiation(0)
 
