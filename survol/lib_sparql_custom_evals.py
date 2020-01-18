@@ -622,18 +622,10 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
 
         # We could also use the ontology stored in RDF, but by sticking to the data structure created
         # from WMI, no information is lost, even if the container.
-        #ontology_graph = _wmi_ontology()
-        #for wmi_s, wmi_p, wmi_o in ontology_graph.triples((None, RDFS.domain, class_node)):
-        #    print "%s is a person" % s
-        # self._m_properties_to_nodes_dict = {}
-        #        for property_name, property_dict in _wmi_load_ontology.attributes_map.items():
-        #   if class_name in property_dict["predicate_domain"]:
-        #       self._m_properties_to_nodes_dict[property_name] = lib_kbase.RdfsPropertyNode(property_name)
         self.m_class_node = lib_kbase.RdfsPropertyNode(class_name)
 
     def IteratorToObjects(self, rdflib_graph, iterator_objects):
         sys.stderr.write("IteratorToObjects\n")
-        # yield (object_path, dict_key_values)
 
         # Set by the first row.
         list_variables = []
@@ -652,7 +644,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
                 # The first object is used to create the list of attributes.
                 list_variables.append(self.m_variable)
                 for wql_key_node, wql_value_dummy in dict_key_values.items():
-                    sys.stderr.write("IteratorToObjects wql_key_node=%s\n" % wql_key_node)
+                    #sys.stderr.write("IteratorToObjects wql_key_node=%s\n" % wql_key_node)
                     assert isinstance(wql_key_node, rdflib.term.URIRef)
                     if wql_key_node not in self.m_properties:
                         continue
@@ -677,16 +669,10 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             #                 % [lib_properties.PropToQName(one_uri_ref) for one_uri_ref in dict_key_values])
             uri_key_values = {}
             wmi_class_keys = self.class_keys()
-            sys.stderr.write("IteratorToObjects wmi_class_keys=%s\n" % wmi_class_keys)
             for one_class_key in wmi_class_keys:
                 one_class_key_node = lib_kbase.RdfsPropertyNode(one_class_key)
                 uri_key_values[one_class_key] = dict_key_values[one_class_key_node]
             node_uri_ref = lib_common.gUriGen.UriMakeFromDict(self.m_class_name, uri_key_values)
-            sys.stderr.write("IteratorToObjects node_uri_ref=%s\n" % node_uri_ref)
-
-            # print("dict_key_values.keys()=", dict_key_values.keys())
-            sys.stderr.write("IteratorToObjects list_variables=%s\n" % str([str(one_var) for one_var in list_variables]))
-            sys.stderr.write("IteratorToObjects property_names_used=%s\n" % property_names_used)
 
             rdflib_graph.add((node_uri_ref, rdflib.namespace.RDF.type, self.m_class_node))
 
@@ -700,8 +686,6 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
                 wql_value_node = rdflib.term.Literal(wql_value)
                 rdflib_graph.add((node_uri_ref, wql_key_node, wql_value_node))
             variable_values_tuple = tuple(variable_values_list)
-            sys.stderr.write("IteratorToObjects variable_values_tuple=%s\n"
-                             % str([str(one_uri_ref) for one_uri_ref in variable_values_tuple]))
             list_current_values.append(variable_values_tuple)
 
         sys.stderr.write("IteratorToObjects list_variables=%s\n" % list_variables)
@@ -974,14 +958,13 @@ def product_variables_lists(returned_variables, iter_keys = None):
         max_display_count_values = 100
         sys.stderr.write("product_variables_lists LOOP BEFORE\n")
         for one_dict in product_variables_lists(returned_variables, iter_keys):
-            sys.stderr.write("product_variables_lists len(values_list)=%d\n" % len(values_list))
+            # sys.stderr.write("product_variables_lists len(values_list)=%d\n" % len(values_list))
             for one_value in values_list:
                 new_dict = one_dict.copy()
                 # This is one variable, or a tuple of variables of attributes of the same object.
 
                 # Maybe, several correlated variables of attributes of the same object.
                 assert isinstance(one_value, tuple)
-                assert len(one_value) == len(first_key)
                 #sys.stderr.write("len(first_key)=%d\n" % len(first_key))
                 #sys.stderr.write("len(one_value)=%d\n" % len(one_value))
 
@@ -992,17 +975,16 @@ def product_variables_lists(returned_variables, iter_keys = None):
                     #sys.stderr.write("product_variables_lists one_value=%s\n" % ",".join(value_element for value_element in one_value))
                     max_display_count_values -= 1
                     if max_display_count_values == 0:
-                        sys.stderr.write("STOP DISPLAYING EXCESSIVE NUMBER OF VALUES\n")
+                        sys.stderr.write("product_variables_lists STOP DISPLAYING EXCESSIVE NUMBER OF VALUES\n")
                 assert len(first_key) == len(one_value)
                 # Each key is a tuple of variables matched by each of the tuples of the list of values.
                 assert all((isinstance(single_key, rdflib.term.Variable) for single_key in first_key))
                 #sys.stderr.write("one_value.types:%s\n" % str([type(single_value) for single_value in one_value]))
                 assert all((isinstance(single_value, (rdflib.term.Literal, rdflib.term.URIRef)) for single_value in one_value))
-                sub_dict = dict(zip(first_key, one_value))
-                sys.stderr.write("sub_dict=%s\n" % sub_dict)
-                new_dict.update(sub_dict)
 
-                sys.stderr.write("product_variables_lists first_key=%s tp(one_value)=%s\n" % (first_key, type(one_value)))
+                new_dict.update(zip(first_key, one_value))
+
+                sys.stderr.write("product_variables_lists first_key=%s\n" % str(first_key))
 
                 yield new_dict
         sys.stderr.write("product_variables_lists LOOP AFTER\n")
@@ -1055,15 +1037,6 @@ def visit_all_nodes(instances_dict):
         for sub_instance in one_instance.m_associated.values():
             if not sub_instance.m_visited:
                 instance_recursive_visit(sub_instance)
-
-        # The input instance is known if and only if it is possible
-        # to give a value to all the variables it may contain.
-        # If not all of them are known, too many values might be produced,
-        # the extreme case being to return all possible instances of a class.
-        # TODO: The right thing is to walk the graph is incrementally aggregate
-        # TODO: the list of known variables, choosing as next node, the ones
-        # TODO: using these variables and no other, preferably.
-        # FIXME: If some nodes are not visited, just append them.
 
     instance_recursive_visit(start_instance)
 
@@ -1151,25 +1124,17 @@ def custom_eval_function_generic(ctx, part, sparql_instance_creator):
             check_returned_variables(returned_variables)
 
             sys.stderr.write(margin + "returned_variables=%s\n" % str(returned_variables))
-            #subset_counter = 0
 
-            ## for one_subset in product_variables_lists(returned_variables):
-            # FIXME: USE THE ITERATOR
             variables_combinations_iter = product_variables_lists(returned_variables)
-            #variables_combinations_iter = list(variables_combinations_iter)
-            #sys.stderr.write("recursive_instantiation len(variables_combinations_iter)=%d\n" % len(variables_combinations_iter))
             variables_context_backup = variables_context.copy()
             for one_subset in variables_combinations_iter:
                 variables_context.update(one_subset)
-                sys.stderr.write(margin + "recursive_instantiation instance_index=%d variables_context.keys()=%s\n"
-                                 % (instance_index, ",".join(str(key) for key in variables_context.keys())))
+                #sys.stderr.write(margin + "recursive_instantiation instance_index=%d variables_context.keys()=%s\n"
+                #                 % (instance_index, ",".join(str(key) for key in variables_context.keys())))
                 #sys.stderr.write(margin + "recursive_instantiation instance_index=%d variables_context_backup.keys()=%s\n"
                 #                 % (instance_index, ",".join(str(key) for key in variables_context_backup.keys())))
-                #sys.stderr.write(margin + "recursive_instantiation instance_index=%d subset_counter=%d\n"
-                #                 % (instance_index, subset_counter))
-                sys.stderr.write(margin + "recursive_instantiation one_subset=%s\n" % str(one_subset))
+                #sys.stderr.write(margin + "recursive_instantiation one_subset=%s\n" % str(one_subset))
                 recursive_instantiation(instance_index+1)
-                #subset_counter += 1
             variables_context.clear()
             variables_context.update(variables_context_backup)
 
