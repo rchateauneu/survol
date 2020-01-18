@@ -750,19 +750,50 @@ class DockitEventsTest(unittest.TestCase):
 
 class RepetitionDetectionTest(unittest.TestCase):
 
-    def tst(self, list_input, expected):
+    def tst_full(self, max_size, list_input, list_expected):
+        #sys.path.append("../..")
+        # Import this now, and not in the destructor, to avoid the error:
+        # "sys.meta_path must be a list of import hooks"
+        # This module is needed for storing the generated data into a RDF file.
+        from survol import lib_event
+
+        iter_output = lib_event.squeeze_events_sequence(list_input, max_size)
+        list_output = list(iter_output)
+        iter_inflate = lib_event.inflate_squeezed_sequence(list_output)
+        list_inflate = list(iter_inflate)
+        print("list_input=", list_input)
+        print("list_expected=", list_expected)
+        print("list_output=", list_output)
+        print("list_inflate=", list_inflate)
+        self.assertTrue(list_inflate == list_expected)
+
+    def tst_compress(self, max_size, list_input, list_expected):
         sys.path.append("../..")
         # Import this now, and not in the destructor, to avoid the error:
         # "sys.meta_path must be a list of import hooks"
         # This module is needed for storing the generated data into a RDF file.
         from survol import lib_event
 
-        list_output = lib_event.compress_events_sequence(expected)
-        self.assertTrue(list_output == expected)
+        iter_output = lib_event.squeeze_events_sequence(list_input, max_size)
+        list_output = list(iter_output)
+        print("list_input=", list_input)
+        print("list_expected=", list_expected)
+        print("list_output=", list_output)
+        self.assertTrue(list_output == list_expected)
 
-    @unittest.skip("Not implemented yet.")
     def test_no_repetition(self):
-        self.tst([], [])
+        self.tst_full(5, [], [])
+        self.tst_compress(5, [1], [([([([([([1], 1)], 1)], 1)], 1)], 1)])
+        self.tst_compress(2, [1, 2], [([([1], 1)], 1), ([([2], 1)], 1)])
+        self.tst_compress(2, [1, 2, 3], [([([1], 1)], 1), ([([2], 1)], 1), ([([3], 1)], 1)])
+        self.tst_compress(2, [1, 1, 1], [([([1], 3)], 1)])
+        self.tst_compress(3, [1, 1], [([([([1], 2)], 1)], 1)])
+        self.tst_compress(3, ['1', '1', '1'], [([([(['1'], 3)], 1)], 1)])
+        self.tst_compress(3, [1, 1, 1], [([([([1], 3)], 1)], 1)])
+        self.tst_compress(3, [1, 2, 3], [([([([1], 1)], 1)], 1), ([([([2], 1)], 1)], 1), ([([([3], 1)], 1)], 1)])
+        self.tst_compress(3, ['1', '2', '3', '4'], [([([(['1'], 1)], 1)], 1), ([([(['2'], 1)], 1)], 1), ([([(['3'], 1)], 1)], 1), ([([(['4'], 1)], 1)], 1)])
+        self.tst_compress(3, [1, 2, 3, 4, 5, 6], [([([([1], 1)], 1)], 1), ([([([2], 1)], 1)], 1), ([([([3], 1)], 1)], 1), ([([([4], 1)], 1)], 1), ([([([5], 1)], 1)], 1), ([([([6], 1)], 1)], 1)])
+        self.tst_compress(3, [1, 2, 3, 1, 2, 3], [([([([1], 1)], 1), ([([2], 1)], 1), ([([3], 1)], 1)], 2)])
 
 
 if __name__ == '__main__':
