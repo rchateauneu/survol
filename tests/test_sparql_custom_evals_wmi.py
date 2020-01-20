@@ -107,6 +107,20 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         directory_node = lib_common.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": "c:"})
         self.assertTrue(directory_node == query_result[0][0])
 
+    def test_wmi_query_directory_caption(self):
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?caption_dir
+            WHERE
+            { ?url_dir survol:Name "c:"  .
+              ?url_dir survol:Caption ?caption_dir  .
+              ?url_dir rdf:type survol:CIM_Directory .
+            }""" % survol_namespace
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("query_result=", query_result, len(query_result))
+        self.assertTrue(str(query_result[0][0]) == "c:")
+
     def test_Win32_LogicalDisk_C(self):
         sparql_query = """
             PREFIX survol: <%s>
@@ -514,9 +528,6 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         file_name_ntdll = "c:/windows/system32/ntdll.dll"
         self.assertTrue(file_name_ntdll in filenames_only)
 
-    # TODO: Fix this.
-    # FIXME: Fix this.
-    @unittest.skip("BROKEN TEST")
     def test_select_Win32_Process_siblings_executables(self):
         """Win32_Process.ParentProcessId is defined."""
         sparql_query = """
@@ -541,25 +552,19 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         actual_sibling_dlls_exes = [str(one_tuple[0]) for one_tuple in query_result]
         print("actual_sibling_dlls_exes=", actual_sibling_dlls_exes)
 
-        expected_sibling_exes = set([proc.exe() for proc in psutil.Process(CurrentParentPid).children(recursive=False)])
+        expected_sibling_exes = set([proc.exe().lower().replace("\\","/") for proc in psutil.Process(CurrentParentPid).children(recursive=False)])
         print("expected_sibling_exes=", expected_sibling_exes)
 
         self.assertTrue(expected_sibling_exes.issubset(actual_sibling_dlls_exes))
 
-    # TODO: Fix this.
-    # FIXME: Fix this.
-    @unittest.skip("BROKEN TEST")
-    def test_select_Win32_Process_children_executables(self):
+    def test_select_Win32_Process_children_executables_names(self):
         """Win32_Process.ParentProcessId is defined."""
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?name_execfile_child
             WHERE
-            { ?url_proc_parent survol:Handle '%d' .
-              ?url_proc_child rdf:type survol:Win32_Process .
-              ?url_proc_parent rdf:type survol:Win32_Process .
-              ?url_proc_parent survol:Handle ?parent_pid .
-              ?url_proc_child survol:ParentProcessId ?parent_pid .
+            { ?url_proc_child rdf:type survol:Win32_Process .
+              ?url_proc_child survol:ParentProcessId '%d' .
               ?url_proc_child survol:CIM_ProcessExecutable ?url_execfile_child .
               ?url_execfile_child rdf:type survol:CIM_DataFile .
               ?url_execfile_child survol:Name ?name_execfile_child .
@@ -568,18 +573,42 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("query_result=", query_result)
-        actual_sibling_dlls_exes = [str(one_tuple[0]) for one_tuple in query_result]
+        actual_sibling_dlls_exes = set(str(one_tuple[0]) for one_tuple in query_result)
         print("actual_sibling_dlls_exes=", actual_sibling_dlls_exes)
 
-        expected_sibling_exes = set([proc.exe() for proc in psutil.Process(CurrentParentPid).children(recursive=False)])
+        expected_sibling_exes = set(proc.exe().lower().replace("\\", "/") for proc in psutil.Process(CurrentParentPid).children(recursive=False))
         print("expected_sibling_exes=", expected_sibling_exes)
 
         self.assertTrue(expected_sibling_exes.issubset(actual_sibling_dlls_exes))
 
+    def test_select_Win32_Process_children_executables_nodes(self):
+        """Win32_Process.ParentProcessId is defined."""
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_execfile_child
+            WHERE
+            { ?url_proc_child rdf:type survol:Win32_Process .
+              ?url_proc_child survol:ParentProcessId '%d' .
+              ?url_proc_child survol:CIM_ProcessExecutable ?url_execfile_child .
+              ?url_execfile_child rdf:type survol:CIM_DataFile .
+            }""" % (survol_namespace, CurrentParentPid)
 
-    # TODO: Fix this.
-    # FIXME: Fix this.
-    @unittest.skip("BROKEN TEST")
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("query_result=", query_result)
+
+        expected_sibling_exe_names = [proc.exe() for proc in psutil.Process(CurrentParentPid).children(recursive=False)]
+        print("expected_sibling_exe_names=", expected_sibling_exe_names)
+        expected_sibling_exe_nodes = set(
+            lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": exe_name.lower().replace("\\", "/")})
+            for exe_name in expected_sibling_exe_names)
+        print("expected_sibling_exe_nodes=", expected_sibling_exe_nodes)
+
+        actual_sibling_exe_nodes = set(result_tuple[0] for result_tuple in query_result)
+        print("actual_sibling_exe_nodes  =", actual_sibling_exe_nodes)
+
+        assert expected_sibling_exe_nodes.issubset(actual_sibling_exe_nodes)
+
     def test_associator_CIM_Process_executable_directory_to_name(self):
         sparql_query = """
             PREFIX survol: <%s>
@@ -707,6 +736,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue(CurrentParentPid in pids_only)
 
     def test_associator_computer_name_to_process_executable(self):
+        """This displays the executables of all processes on this machine."""
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?url_file
@@ -726,6 +756,9 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         # These files must be there because they are used by the current process.
         mandatory_file_paths = [
             sys.executable.lower().replace("\\", "/"),
+            "c:/windows/system32/shell32.dll",
+            "c:/windows/system32/ole32.dll",
+            "c:/windows/system32/oleaut32.dll",
             "c:/windows/system32/gdi32.dll"
         ]
         for one_path in mandatory_file_paths:
@@ -758,8 +791,10 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         print("pids_only=", pids_only)
         self.assertTrue(CurrentPid in pids_only)
 
+    ################################################################################
+
     def test_associator_directory_to_datafile_nodes(self):
-        """All the files in a directory."""
+        """All the file nodes in a directory."""
         file_name = always_present_file.replace("\\", "/").lower()
         directory_name = always_present_dir.replace("\\", "/").lower()
         sparql_query = """
@@ -781,7 +816,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue((node_file_name,) in query_result)
 
     def test_associator_directory_to_datafile_names(self):
-        """All the files in a directory."""
+        """All the file names in a directory."""
         directory_name = always_present_dir.replace("\\", "/").lower()
         sparql_query = """
             PREFIX survol: <%s>
@@ -806,7 +841,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue(filenames_only == expected_files)
 
     def test_associator_datafile_to_directory_node(self):
-        """All the files in a directory."""
+        """From a file to the node of its parent directory."""
         file_name = always_present_file.replace("\\", "/").lower()
         directory_name = always_present_dir.replace("\\", "/").lower()
         sparql_query = """
@@ -858,7 +893,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue(actual_dir_nodes == expected_dir_nodes)
 
     def test_associator_sub_directory_to_directory_node(self):
-        """All the files in a directory."""
+        """From a subdirectory to its parent directory."""
         sub_directory_name = always_present_sub_dir.replace("\\", "/").lower()
         directory_name = always_present_dir.replace("\\", "/").lower()
         sparql_query = """
@@ -878,7 +913,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue([(directory_node,)] == query_result)
 
     def test_associator_datafile_to_directory_of_directory_node(self):
-        """All the files in a directory."""
+        """From a file to the node of the parent of its parent directory."""
         file_name = always_present_sub_file.replace("\\", "/").lower()
         directory_of_directory_name = always_present_dir.replace("\\", "/").lower()
         sparql_query = """
@@ -904,7 +939,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue([(node_directory_of_directory,)] == query_result)
 
     def test_associator_datafile_to_directory_of_directory_name(self):
-        """All the files in a directory."""
+        """From a file to the name of the parent of its parent directory."""
         file_name = always_present_sub_file.replace("\\", "/").lower()
         directory_of_directory_name = always_present_dir.replace("\\", "/").lower()
         sparql_query = """
@@ -926,6 +961,77 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         # The directory belongs to one directory only.
         self.assertTrue(len(query_result) == 1)
         self.assertTrue(directory_of_directory_name == str(query_result[0][0]))
+
+    def test_associator_dir_dir_to_sub_sub_datafile_node(self):
+        """From a directory to the files in its subdirectories"""
+        directory_of_directory_name = always_present_dir.replace("\\", "/").lower()
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_datafile
+            WHERE
+            { ?url_datafile rdf:type survol:CIM_DataFile .
+              ?url_datafile survol:CIM_DirectoryContainsFile ?url_directory .
+              ?url_directory rdf:type survol:CIM_Directory .
+              ?url_directory_of_directory survol:Name "%s" .
+              ?url_directory_of_directory rdf:type survol:CIM_Directory .
+              ?url_directory survol:Win32_SubDirectory ?url_directory_of_directory .
+            }""" % (survol_namespace, directory_of_directory_name)
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+
+        expect_filenames = [
+            ["samplesubdir", "samplesubfile.txt"],
+            ["samplesubdir_2", "samplesubfile_2.txt"],
+        ]
+        expect_pathnames = [
+            os.path.join(directory_of_directory_name, *file_name).lower().replace("\\", "/")
+            for file_name in expect_filenames
+        ]
+        expect_nodes = sorted([
+            lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": path_name})
+            for path_name in expect_pathnames
+        ])
+        print("expect_nodes=",expect_nodes)
+
+        actual_nodes = sorted([one_result[0] for one_result in query_result])
+        print("actual_nodes=", actual_nodes)
+        self.assertTrue(expect_nodes == actual_nodes)
+
+    def test_associator_dir_dir_to_sub_sub_datafile_name(self):
+        """From a directory to the files in its subdirectories"""
+        directory_of_directory_name = always_present_dir.replace("\\", "/").lower()
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?name_datafile
+            WHERE
+            { ?url_datafile rdf:type survol:CIM_DataFile .
+              ?url_datafile survol:Name ?name_datafile .
+              ?url_datafile survol:CIM_DirectoryContainsFile ?url_directory .
+              ?url_directory rdf:type survol:CIM_Directory .
+              ?url_directory_of_directory survol:Name "%s" .
+              ?url_directory_of_directory rdf:type survol:CIM_Directory .
+              ?url_directory survol:Win32_SubDirectory ?url_directory_of_directory .
+            }""" % (survol_namespace, directory_of_directory_name)
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        print("Result=", query_result)
+
+        expect_filenames = [
+            ["samplesubdir", "samplesubfile.txt"],
+            ["samplesubdir_2", "samplesubfile_2.txt"],
+        ]
+        expect_pathnames = [
+            os.path.join(directory_of_directory_name, *file_name).lower().replace("\\", "/")
+            for file_name in expect_filenames
+        ]
+        print("expect_pathnames=",expect_pathnames)
+
+        actual_filenames = sorted([str(one_result[0]) for one_result in query_result])
+        print("actual_filenames=", actual_filenames)
+        self.assertTrue(expect_pathnames == actual_filenames)
+
+    ################################################################################
 
     def test_associator_guest_user_to_groups(self):
         sparql_query = """
