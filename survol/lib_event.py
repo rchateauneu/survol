@@ -364,6 +364,17 @@ def squeeze_events_sequence(input_events_sequence, max_len):
 
 
 def inflate_squeezed_sequence(list_output):
-    # Not implemented yet.
-    return list_output
-
+    for symbol_and_times in list_output:
+        if isinstance(symbol_and_times, tuple):
+            sym_sequence, sym_times = symbol_and_times
+            iter_inflated_sequence = inflate_squeezed_sequence(sym_sequence)
+            if sym_times == 1:
+                for sub_symbol_and_times in iter_inflated_sequence:
+                    yield sub_symbol_and_times
+            else:
+                list_inflated_sequence = list(iter_inflated_sequence)
+                for ix in range(sym_times):
+                    for sub_symbol_and_times in list_inflated_sequence:
+                        yield sub_symbol_and_times
+        else:
+            yield symbol_and_times
