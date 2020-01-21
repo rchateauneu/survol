@@ -2,19 +2,15 @@
 
 from __future__ import print_function
 
-import cgitb
-import cgi
 import os
 import re
 import sys
 from xml.dom import minidom
 import json
-import itertools
 import tempfile
 import unittest
 import shutil
 import rdflib
-import datetime
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 # This is needed when running from PyCharm.
@@ -84,15 +80,9 @@ def check_file_content(*file_path):
         fil_descr = open(full_file_path)
         actual_content = expected_fil_descr.readlines()
 
-        # In the expected files, the date is replaced by the keyword TODAY_YYYY_MM_DD,
-        # which is replaced on the fly by today.
-        ########### today_YYYY_MM_DD = datetime.datetime.now().strftime('%Y-%m-%d')
-
         # Each test has an ini file used by the script dockit.ini, to force a given date.
         # So there is not need to replace the date by the current one.
         for expected_line, actual_line in zip(expected_content, actual_content):
-            #expected_line_today = expected_line.replace("TODAY_YYYY_MM_DD", today_YYYY_MM_DD)
-            #assert expected_line_today == actual_line
             assert expected_line == actual_line
         print("Comparison OK with ", full_file_path)
         expected_fil_descr.close()
@@ -674,7 +664,8 @@ class DockitToRDF(unittest.TestCase):
 
 class DockitEventsTest(unittest.TestCase):
     """
-    Send events.
+    This tests the ability to parse a strace log and tranform it into events in Survol,
+    with a Survol agents receiving the events from an url.
     """
 
     def setUp(self):
@@ -748,106 +739,6 @@ class DockitEventsTest(unittest.TestCase):
             num_loops -= 1
 
         self.assertTrue(expected_types_list == actual_types_dict)
-
-
-class RepetitionDetectionTest(unittest.TestCase):
-
-    def aux_restore(self, max_size, list_input):
-        iter_output = lib_event.squeeze_events_sequence(list_input, max_size)
-        list_output = list(iter_output)
-        iter_inflate = lib_event.inflate_squeezed_sequence(list_output)
-        list_inflate = list(iter_inflate)
-        print("list_output=", list_output)
-        self.assertTrue(list_inflate == list_input)
-
-    def aux_squeeze(self, max_size, list_input, list_expected):
-        iter_output = lib_event.squeeze_events_sequence(list_input, max_size)
-        list_output = list(iter_output)
-        print("list_input=", list_input)
-        print("list_expected=", list_expected)
-        print("list_output=", list_output)
-        self.assertTrue(list_output == list_expected)
-
-    def test_squeeze(self):
-        self.aux_squeeze(5, [1], [([([([([([1], 1)], 1)], 1)], 1)], 1)])
-        self.aux_squeeze(2, [1, 2], [([([1], 1)], 1), ([([2], 1)], 1)])
-        self.aux_squeeze(2, [1, 2, 3], [([([1], 1)], 1), ([([2], 1)], 1), ([([3], 1)], 1)])
-        self.aux_squeeze(2, [1, 1, 1], [([([1], 3)], 1)])
-        self.aux_squeeze(3, [1, 1], [([([([1], 2)], 1)], 1)])
-        self.aux_squeeze(3, ['1', '1', '1'], [([([(['1'], 3)], 1)], 1)])
-        self.aux_squeeze(3, [1, 1, 1], [([([([1], 3)], 1)], 1)])
-        self.aux_squeeze(3, [1, 2, 3], [([([([1], 1)], 1)], 1), ([([([2], 1)], 1)], 1), ([([([3], 1)], 1)], 1)])
-        self.aux_squeeze(3, ['1', '2', '3', '4'], [([([(['1'], 1)], 1)], 1), ([([(['2'], 1)], 1)], 1), ([([(['3'], 1)], 1)], 1), ([([(['4'], 1)], 1)], 1)])
-        self.aux_squeeze(3, [1, 2, 3, 4, 5, 6], [([([([1], 1)], 1)], 1), ([([([2], 1)], 1)], 1), ([([([3], 1)], 1)], 1), ([([([4], 1)], 1)], 1), ([([([5], 1)], 1)], 1), ([([([6], 1)], 1)], 1)])
-        self.aux_squeeze(3, [1, 2, 3, 1, 2, 3], [([([([1], 1)], 1), ([([2], 1)], 1), ([([3], 1)], 1)], 2)])
-
-    def test_restore(self):
-        self.aux_restore(6, [1, 2, 3, 4, 5,1, 2, 3, 4, 5,1, 2, 3, 4, 5,1, 2, 3, 4, 5,1, 2, 3, 4, 5, 6])
-
-    def test_restore_combinations(self):
-        for max_len in [3, 7]:
-            for one_input_list in itertools.combinations_with_replacement(['a', 'b', 'c', 'd'], 8):
-                self.aux_restore(max_len, list(one_input_list))
-
-class SplitExecutionStreamsTest(unittest.TestCase):
-    class Iterator:
-        def __init__(self):
-            print("Iterator.__init__")
-
-        def __iter__(self):
-            print("Iterator.__iter__")
-            print("Before yield from")
-            x = yield
-            print("Before yield to")
-            yield x
-            # raise StopIteration
-
-    class FunctionCallsQueue:
-        def __init__(self, thread_identifier):
-            self._thread_identifier = thread_identifier
-            self._iterator = SplitExecutionStreamsTest.Iterator()
-
-            def processing_function():
-                print("In processing_function")
-                lib_event.squeeze_events_sequence(self._iterator, max_len=5)
-
-            self._processing_function = processing_function()
-            self.toto = self._iterator.__iter__()
-            next(self.toto)
-            #next(self._processing_function)
-
-        def push_function_name(self, function_name):
-            print("push_function_name function_name=", function_name)
-            self.toto.send(function_name)
-            #self._processing_function.send(function_name)
-
-    @unittest.skip("Not Implemented yet")
-    def test_split_stream(self):
-        dict_pids = {}
-
-        def batch_callback(one_batch):
-            aCore = one_batch.m_core
-
-            aPid = aCore.m_pid
-            print("aPid=", aPid)
-            print("aCore=", aCore.GetFunction())
-
-            try:
-                function_calls_queue = dict_pids[aPid]
-            except KeyError:
-                # This is the first system call of this process.
-                function_calls_queue = SplitExecutionStreamsTest.FunctionCallsQueue(aPid)
-                dict_pids[aPid] = function_calls_queue
-
-            function_calls_queue.push_function_name(aCore.GetFunction())
-
-        dockit.ParseInstructionsStream(
-            inputLogFile=path_prefix_input_file("sample_shell.ltrace.log"),
-            withWarning = True,
-            tracer="ltrace",
-            topPid=0,
-            verbose=True,
-            batch_callback = batch_callback)
 
 
 
