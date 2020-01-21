@@ -1,3 +1,8 @@
+"""Common code for Survol agent"""
+
+__author__      = "Remi Chateauneu"
+__copyright__   = "Copyright 2020, Primhill Computers"
+__license__     = "GPL"
 
 import socket
 import urllib
