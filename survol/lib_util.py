@@ -3,9 +3,13 @@
 
 
 import cgitb
-cgitb.enable()
 
 import os
+# This library is used by CGI scripts and command-line scripts.
+# Therefore, its behaviour is different in case of error.
+if os.getenv("SERVER_SOFTWARE"):
+    cgitb.enable()
+
 import re
 import sys
 import cgi
