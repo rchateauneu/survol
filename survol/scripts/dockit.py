@@ -69,6 +69,9 @@ def Usage(exitCode = 1, errMsg = None):
     print("                "+" ".join(BuildSTraceCommand(None,"<pid>")))
     print("ltrace command: "+" ".join(BuildLTraceCommand(["<command>"],None)))
     print("                "+" ".join(BuildLTraceCommand(None,"<pid>")))
+    print("")
+    if STraceVersion() < (5,):
+        print("strace version deprecated. Consider upgrading")
 
 # Example to create a new unit test:
 # ./dockit.py -D -l UnitTests/mineit_firefox  -t  ltrace bash firefox
@@ -582,6 +585,7 @@ class HttpTriplesClient(object):
                 G_UpdateServer.lower().startswith("http:")
                 or G_UpdateServer.lower().startswith("https:") )
         if self.m_server_is_file:
+            print("G_UpdateServer=", G_UpdateServer, " IS FILE")
             return
         elif G_UpdateServer:
             self.m_sharedLock = threading.Lock()
@@ -2423,6 +2427,7 @@ class BatchLetCore:
         if self.m_tracer == "strace":
             # strace can only intercept system calls.
             assert not funcFull.endswith("@SYS")
+            assert not funcFull.startswith("SYS_")
             self.m_funcNam = funcFull + "@SYS"
         elif self.m_tracer == "ltrace":
 
@@ -2438,6 +2443,7 @@ class BatchLetCore:
             #[pid 18316] 09:00:22.600426 rt_sigprocmask@SYS(0, 0x7ffea10cd370, 0x7ffea10cd3f0, 8 <unfinished ...>
             #[pid 18316] 09:00:22.600494 <... rt_sigprocmask resumed> ) = 0 <0.000068>
             if self.m_status == BatchStatus.resumed:
+                assert not funcFull.startswith("SYS_")
                 self.m_funcNam = funcFull + "@SYS"
             else:
                 # On RHEL4, the function is prefixed by "SYS_"
@@ -2586,6 +2592,7 @@ class BatchLetCore:
                         # read@SYS(8, "\003\363\r\n"|\314Vc", 4096) = 765 <0.000049>
                             raise Exception("No = from parenthesis: idxLastPar=%d. theCall=%s. Len=%d" % (idxLT, theCall, len(theCall)))
 
+            assert idxEq >= 0 and idxEq < idxLT
             self.m_retValue = theCall[idxEq + 1:idxLT].strip()
             # sys.stdout.write("idxEq=%d idxLastPar=%d idxLT=%d retValue=%s\n"%(idxEq,idxLastPar,idxLT,self.m_retValue))
 
@@ -2751,9 +2758,16 @@ class BatchLetBase(my_with_metaclass(BatchMeta)):
 
         return True
 
+    invalid_hexadecimal_pathnames = set()
+
     # Returns the file associated to this path, and creates it if needed.
     # It also associates this file to the process.
     def ToObjectPath_Accessed_CIM_DataFile(self, pathName):
+        # With lstat and calls like access() or lstat(), the pathname is not given.
+        if pathName.startswith("0x") and not pathName in self.invalid_hexadecimal_pathnames:
+            # Signal the error once only.
+            self.invalid_hexadecimal_pathnames.add(pathName)
+            raise Exception("Invalid hexadecimal pathname:%s" % pathName)
         return ToObjectPath_CIM_DataFile(pathName, self.m_core.m_pid)
 
     def STraceStreamToFile(self, strmStr):
@@ -4233,7 +4247,15 @@ def LogSource(msgSource):
 # It is used to get the return content of strace or ltrace,
 # so it can be parsed.
 def GenerateLinuxStreamFromCommand(raw_command, aPid):
-    aCmd = [str(elt) for elt in raw_command]
+    def quote_argument(elt):
+        # Quotes in command-line arguments must be escaped.
+        elt = str(elt).replace('"', '\\"').replace("'", "\\'")
+        # Quotes the command-line argument if it contains spaces or tabs.
+        if " " in elt or "\t" in elt:
+            elt = '"%s"' % elt
+        return elt
+
+    aCmd = [quote_argument(elt) for elt in raw_command]
     assert isinstance(aPid, int)
     sys.stdout.write("Starting trace command:%s\n" % " ".join(aCmd) )
 
@@ -4370,9 +4392,8 @@ def CreateFlowsFromGenericLinuxLog(verbose,logStream,tracer):
             # This creates a derived class deduced from the system call.
             try:
                 aBatch = BatchLetFactory(batchCore)
-            except:
-                sys.stdout.write("Line:%d Error parsing:%s"%(numLine,oneLine))
-                raise
+            except Exception as exc:
+                sys.stderr.write("Line:%d Error parsing:%s. %s\n" % (numLine, oneLine, exc))
 
             # Some functions calls should simply be forgotten because there are
             # no side effects, so simply forget them.
@@ -4486,13 +4507,21 @@ def CreateFlowsFromLtraceLog(verbose,logStream):
     return CreateFlowsFromGenericLinuxLog(verbose,logStream,"ltrace")
 
 ################################################################################
+def STraceVersion():
+    strace_version_str = subprocess.check_output('strace -V', shell=True).split()[3]
+    return tuple(map(int, strace_version_str.split(b'.')))
+
+def LTraceVersion():
+    ltrace_version_str = subprocess.check_output('strace -V', shell=True).split()[2]
+    return tuple(map(int, ltrace_version_str.split(b'.')))
+
 # The command options generate a specific output file format,
 # and therefore parsing it is specific to these options.
 def BuildSTraceCommand(extCommand,aPid):
     # -f  Trace  child  processes as a result of the fork, vfork and clone.
     aCmd = ["strace", "-q", "-qq", "-f", "-tt", "-T", "-s", G_StringSize]
 
-    if platform.linux_distribution()[2] == 'Santiago':
+    if STraceVersion() < (5,):
         aCmd += [ "-e", "trace=desc,ipc,process,network"]
     else:
         aCmd += [ "-y", "-yy", "-e", "trace=desc,ipc,process,network,memory"]
@@ -4762,20 +4791,15 @@ def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputForma
             btchFlow = BatchFlow()
             mapFlows[ aPid ] = btchFlow
 
-        btchFlow.SendBatch(one_batch)
-
+        btchFlow.SendBatch(oneBatch)
 
     for aPid in sorted(list(mapFlows.keys()), reverse=True):
         btchTree = mapFlows[aPid]
         if verbose > 0: sys.stdout.write("\n------------------ PID=%d\n" % aPid)
         btchTree.FactorizeOneFlow(verbose, outputFormat)
+
+    ExitGlobals()
     return mapFlows
-
-################################################################################
-
-def ParseInstructionsStream(inputLogFile, withWarning, tracer, topPid, verbose, batch_callback):
-    logStream = CreateEventLog([], topPid, inputLogFile, tracer )
-    CreateMapFlowFromStreamCallback( verbose, withWarning, logStream, tracer, batch_callback)
 
 ################################################################################
 
@@ -4843,6 +4867,7 @@ def UnitTest(
     assert isinstance(topPid, int)
     logStream = CreateEventLog([], topPid, inputLogFile, tracer )
     G_UpdateServer = updateServer
+    print("G_UpdateServer=", G_UpdateServer)
 
     # Check if there is a context file, which gives parameters such as the current directory,
     # necessary to reproduce the test in the same conditions.
@@ -4958,18 +4983,17 @@ if __name__ == '__main__':
             iniFd.write('CurrentHostname=%s\n' % socket.gethostname())
             iniFd.write('CurrentOSType=%s\n' % sys.platform)
             iniFd.close()
-    #else:
-    #    outFilNam = None
+    else:
+        fullPrefixNoExt = "dockit_output_" + tracer
 
     def signal_handler(signal, frame):
         print('You pressed Ctrl+C!')
         global G_Interrupt
         G_Interrupt = True
 
-    # When waiting for a process, interrupt with control-C.
-    if aPid > 0:
-        signal.signal(signal.SIGINT, signal_handler)
-        print('Press Ctrl+C to exit cleanly')
+    # Generates output files if interrupt with control-C.
+    signal.signal(signal.SIGINT, signal_handler)
+    print('Press Ctrl+C to exit cleanly')
 
     # In normal usage, the summary output format is the same as the output format for calls.
     FromStreamToFlow(verbose, withWarning, logStream, tracer,outputFormat, fullPrefixNoExt, mapParamsSummary, summaryFormat, withDockerfile )
