@@ -70,7 +70,8 @@ def Usage(exitCode = 1, errMsg = None):
     print("ltrace command: "+" ".join(BuildLTraceCommand(["<command>"],None)))
     print("                "+" ".join(BuildLTraceCommand(None,"<pid>")))
     print("")
-    if STraceVersion() < (5,):
+    if STraceVersion() < (4,21):
+        # It needs the option "-y"
         print("strace version deprecated. Consider upgrading")
 
 # Example to create a new unit test:
@@ -4521,7 +4522,7 @@ def BuildSTraceCommand(extCommand,aPid):
     # -f  Trace  child  processes as a result of the fork, vfork and clone.
     aCmd = ["strace", "-q", "-qq", "-f", "-tt", "-T", "-s", G_StringSize]
 
-    if STraceVersion() < (5,):
+    if STraceVersion() < (4,21):
         aCmd += [ "-e", "trace=desc,ipc,process,network"]
     else:
         aCmd += [ "-y", "-yy", "-e", "trace=desc,ipc,process,network,memory"]
