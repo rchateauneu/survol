@@ -108,8 +108,6 @@ import dockit
 
 from init import *
 
-from survol import lib_event
-
 class DockitParserTest(unittest.TestCase):
     """
     Test parsing of strace output.
