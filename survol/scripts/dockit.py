@@ -65,10 +65,10 @@ def Usage(exitCode = 1, errMsg = None):
     print("  -t,--tracer strace|ltrace|cdb command for generating trace log")
     print("  -S,--server <Url>             Survol url for CIM objects updates. Ex: http://127.0.0.1:80/survol/event_put.py")
     print("")
-    print("strace command: "+BuildSTraceCommand("<command>",None))
-    print("                "+BuildSTraceCommand(None,"<pid>"))
-    print("ltrace command: "+BuildLTraceCommand("<command>",None))
-    print("                "+BuildLTraceCommand(None,"<pid>"))
+    print("strace command: "+" ".join(BuildSTraceCommand(["<command>"],None)))
+    print("                "+" ".join(BuildSTraceCommand(None,"<pid>")))
+    print("ltrace command: "+" ".join(BuildLTraceCommand(["<command>"],None)))
+    print("                "+" ".join(BuildLTraceCommand(None,"<pid>")))
 
 # Example to create a new unit test:
 # ./dockit.py -D -l UnitTests/mineit_firefox  -t  ltrace bash firefox
