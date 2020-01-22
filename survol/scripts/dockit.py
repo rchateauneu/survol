@@ -2389,11 +2389,8 @@ class BatchLetCore:
         self.m_status = BatchStatus.unknown
 
         # Both cannot be set at the same time.
-        self.m_unfinishedBatch = None # If this is an merged batch.
-        self.m_resumedBatch = None # If this is an matched batch.
-
-        # sys.stdout.write("self=%d\n" % id(self) )
-        #### return
+        self.m_unfinishedBatch = None # If this is a merged batch.
+        self.m_resumedBatch = None # If this is a matched batch.
 
     # tracer = "strace|ltrace"
     def ParseLine(self, oneLine, tracer):
@@ -4011,21 +4008,7 @@ class BatchFlow:
         self.m_coroutine = self.AddingCoroutine()
         next(self.m_coroutine)
 
-    def AddBatch(self,btchLet):
-        # sys.stdout.write("AddBatch:%s\n"%btchLet.GetSignature())
-        numBatches = len(self.m_listBatchLets)
-
-        if numBatches > 0:
-            lstBatch = self.m_listBatchLets[-1]
-
-            if lstBatch.SameCall( btchLet ):
-                lstBatch.m_occurrences += 1
-                return
-
-        self.m_listBatchLets.append( btchLet )
-
-    # Does the same AddBatch() but it is possible to process system calls on-the-fly
-    # without intermediate storage.
+    # It processes system calls on-the-fly without intermediate storage.
     def SendBatch(self,btchLet):
         self.m_coroutine.send(btchLet)
 
@@ -4035,13 +4018,14 @@ class BatchFlow:
             btchLet = yield
             
             if lstBatch and lstBatch.SameCall( btchLet ):
+                # This is a compression: Similar and consecutive calls are stored once only.
                 lstBatch.m_occurrences += 1
             else:
                 self.m_listBatchLets.append( btchLet )
             # Intentionally points to the object actually stored in the container,
             # instead of the possibly transient object returned by yield.
             lstBatch = self.m_listBatchLets[-1]
-                
+
         
 
     # This removes matched batches (Formerly unfinished calls which were matched to the resumed part)
@@ -4201,7 +4185,7 @@ class BatchFlow:
     def DumpFlowConstructor(self, batchDump, extra_header = None):
         self.DumpFlowInternal(batchDump)
 
-    def FactorizeOneFlow(self,verbose,withWarning,outputFormat):
+    def FactorizeOneFlow(self, verbose, outputFormat):
 
         if verbose > 1: self.DumpFlowSimple(sys.stdout,outputFormat)
 
@@ -4778,18 +4762,20 @@ def CreateMapFlowFromStream( verbose, withWarning, logStream, tracer,outputForma
             btchFlow = BatchFlow()
             mapFlows[ aPid ] = btchFlow
 
-        if False:
-            btchFlow.AddBatch( oneBatch )
-        else:
-            btchFlow.SendBatch( oneBatch )
-    for aPid in sorted(list(mapFlows.keys()),reverse=True):
-        btchTree = mapFlows[aPid]
-        if verbose > 0: sys.stdout.write("\n------------------ PID=%d\n"%aPid)
-        btchTree.FactorizeOneFlow(verbose,withWarning,outputFormat)
-        
-    ExitGlobals()
+        btchFlow.SendBatch(one_batch)
 
+
+    for aPid in sorted(list(mapFlows.keys()), reverse=True):
+        btchTree = mapFlows[aPid]
+        if verbose > 0: sys.stdout.write("\n------------------ PID=%d\n" % aPid)
+        btchTree.FactorizeOneFlow(verbose, outputFormat)
     return mapFlows
+
+################################################################################
+
+def ParseInstructionsStream(inputLogFile, withWarning, tracer, topPid, verbose, batch_callback):
+    logStream = CreateEventLog([], topPid, inputLogFile, tracer )
+    CreateMapFlowFromStreamCallback( verbose, withWarning, logStream, tracer, batch_callback)
 
 ################################################################################
 
