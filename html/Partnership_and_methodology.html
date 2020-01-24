@@ -278,9 +278,9 @@ href="https://bian.org" title="BIAN">BIAN</a>)</strong></span> establishes a
                           update an ontology, for example <a href="https://webprotege.stanford.edu/">Protégé</a>
                           or <a href="https://www.stardog.com/">Stardog</a>.</p>
                         <p class="text-left"><b> </b></p>
-                        <h2 class="sec-head text-left clearfix"><b><b><span>LEGACY
-                                DOCUMENTATION, SOURCE CODE, "OTHER" SOURCE OF
-                                INFORMATION</span> </b> </b></h2>
+                        <h2 class="sec-head text-left clearfix"><b><span>LEGACY
+                              DOCUMENTATION, SOURCE CODE, "OTHER" SOURCE OF
+                              INFORMATION</span> </b></h2>
                         <div class="about-img"><img src="images/about-line.png"></div>
                         Once the application's formal model is clearly defined,
                         the next step is to fill it by any possible mean: That
@@ -291,213 +291,257 @@ href="https://bian.org" title="BIAN">BIAN</a>)</strong></span> establishes a
                         giving the full picture of the Information System.
                         Possible information sources are:
                         <ul>
-                          <li>
-                            <p>Existing documentation, formalised with RDF</p>
-                          </li>
-                          <li>
-                            <p>Application log files, where technical and
-                              business information can be extracted from. This
-                              approach is similar to <a href="https://en.wikipedia.org/wiki/Process_mining">process
-                                mining</a>.</p>
-                          </li>
-                          <li>
-                            <p>Userspace or system calls monitored with tools
-                              like <a href="https://en.wikipedia.org/wiki/Strace">strace</a>
-                              or <a href="https://en.wikipedia.org/wiki/Ltrace">ltrace</a>.</p>
-                          </li>
-                          <li>
-                            <p>Formulate databases, external data sources ...
-                              based on the terminology previously defined.</p>
-                          </li>
-                          <li>Ad-hoc code analysis with specific tools:, for
+                          <li> Existing documentation, formalised with RDF </li>
+                          <li> Formulate databases, external data sources ...
+                            based on the terminology previously defined. </li>
+                          <li>Static code analysis with specific tools:, for
                             example <a href="https://pypi.org/project/bashlex/">parsing
                               of shell scripts</a>, SQL queries or <a href="https://pypi.org/project/antlr-plsql/">stored
-                              procedures</a>.</li>
-                          <li>
-                            <p>Static analysis tools such as <a href="http://www.doxygen.nl/">Doxygen</a></p>
-                          </li>
-                          <li>
-                            <p>IO analysis (tcpdump, wireshark)</p>
-                          </li>
-                          <li>
-                            <p>Database monitor files, <a href="https://docs.oracle.com/cd/E17952_01/mysql-5.0-en/query-log.html">logging
-                                each and every SQL statement</a> run by clients.</p>
-                          </li>
-                          <li>
-                            <p>Database audits (V$SESSION, ALTER SESSION SET,
-                              SQL Trace_trace and TKPROF).</p>
-                          </li>
+                              procedures</a>. </li>
                           <li>Software API, identifiers of application objects:
                             They provide valid information about the base
                             concepts of the system.</li>
                         </ul>
-                        <p class="text-left"><b> </b></p>
-                        <h2 class="sec-head text-left clearfix"><b><b><span>DISCOVER
-                                INTERFACES</span> </b> </b></h2>
-                        <b> <b>
-                            <div class="about-img"><img src="images/about-line.png"></div>
-                            <div class="par">
-                              <p class="text-left"> </p>
-                              <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"
-                                id="docs-internal-guid-6d72883a-7fff-24ad-7591-fc2c8d1c3194">Based
-                                on the information extracted in the previous
-                                step, define the functional building blocs using
-                                the terminology defined in the first step. The
-                                size and number of these building blocks is not
-                                important as long as they are defined in the
-                                terminology of the application.</p>
-                              <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><br>
-                              </p>
-                              <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;">The
-                                aim of the next step will be to technically
-                                identify these steps in the execution flow,
-                                using:</p>
-                              <ul>
-                                <li>The functional description.</li>
-                                <li>The relations between functional and
-                                  technical objects.</li>
-                              </ul>
-                              <br>
-                              <b><b><b>
-                                    <div class="par">
-                                      <p class="text-left"><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b>
-                                                                  </b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></p>
-                                      <h2 class="sec-head text-left clearfix"><b><b><b><b><span>EXTRACTION
-                                                  ET RECONSTRUCTION</span> </b>
-                                            </b></b></b></h2>
-                                      <b><b> <b>
-                                            <div class="about-img"><img src="images/about-line.png"></div>
-                                            <div class="par">
-                                              <p class="text-left"> </p>
-                                              <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"
-                                                id="docs-internal-guid-e10e5e73-7fff-f563-23b5-fb248f8137bf"><span
-style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">C’est la dernière phase qui utilise les outils cités précédemment et tente d’extraire des informations du SI en cours de fonctionnement. C’est une étape d’investigation cyclique, où les outils vont évoluer. Les informations clefs sont:</span></p>
-                                              <ul style="margin-top:0;margin-bottom:0;">
-                                                <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
-dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span
-style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Programmes et scripts</span></p></li>
-                                                <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
-dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span
-style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">BDDs</span></p></li>
-                                                <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
-dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span
-style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">lignes de commandes.</span></p></li>
-                                                <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
-dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span
-style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Serveurs de données.</span></p></li>
-                                              </ul>
-                                              <br>
-                                              <br>
-                                              <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span
-style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Le modèle de données fonctionnel (modèle métier), créé "à la main",&nbsp; et les autres données statiques sont fusionnées avec les données extraites du fonctionnement "live". Par exemple, on lie les processes en se basant sur leur commande, le programme exécuté etc... (Requêtes dans la </span><span
-style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:italic;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">graph database</span><span
-style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;"> avec Sparql etc…) <br></span></p>
-                                              <p class="text-left"><br>
-                                              </p>
-                                              <p class="text-left"><b><b><b><b><b><b><b><b><b><b><b>
-                                                                  </b></b></b></b></b></b></b></b></b></b></b></p>
-                                              <h2 class="sec-head text-left clearfix"><b><b><b><b><b><b><b><span>OTHER
-                                                                TECHNIQUES</span>
-                                                            </b> </b></b></b></b></b></b></h2>
-                                              <b><b> <b>
-                                                    <div class="about-img"><img
-                                                        src="images/about-line.png"></div>
-                                                    <div class="par">
-                                                      <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"
-                                                        id="docs-internal-guid-f9a73401-7fff-20ec-c27f-ca0d06ad2a0c"><span
-style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Detection de patterns dans la ‘’graph database’’ du SI:</span></p>
-                                                      <ul style="margin-top:0;margin-bottom:0;">
-                                                        <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
-dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span
-style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Artificial Intelligence and the Knowledge Graph </span><a
-href="https://www.ontotext.com/blog/artificial-intelligence-and-the-knowledge-graph/"
-style="text-decoration:none;"><span style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:underline;-webkit-text-decoration-skip:none;text-decoration-skip-ink:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">https://www.ontotext.com/blog/artificial-intelligence-and-the-knowledge-graph/</span></a></p></li>
-                                                      </ul>
-                                                      <ul style="margin-top:0;margin-bottom:0;">
-                                                        <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
-dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span
-style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Artificial Intelligence (AI) powered graph computing and semantic big data </span><a
-href="https://www.profium.com/en/blog/artificial-intelligence-ai-powered-graph-computing-and-semantic-big-data/"
-style="text-decoration:none;"><span style="font-size:11pt;font-family:Arial;color:#1155cc;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:underline;-webkit-text-decoration-skip:none;text-decoration-skip-ink:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">https://www.profium.com/en/blog/artificial-intelligence-ai-powered-graph-computing-and-semantic-big-data/</span></a></p></li>
-                                                        <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
-dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span
-style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Reconstruire les dépendances de données en utilisant les time-stamps.</span></p></li>
-                                                      </ul>
-                                                      <br>
-                                                      <br>
-                                                      <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span
+                        <p class="text-left"></p>
+                        <h2 class="sec-head text-left clearfix"><b><span>DISCOVER
+                              INTERFACES</span> </b></h2>
+                        <b><b> <b> <b>
+                                <div class="about-img"><img src="images/about-line.png"></div>
+                                <div class="par">
+                                  <p class="text-left"> </p>
+                                  <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"
+                                    id="docs-internal-guid-6d72883a-7fff-24ad-7591-fc2c8d1c3194">Based
+                                    on the information extracted in the previous
+                                    step, define the functional building blocs
+                                    using the terminology defined in the first
+                                    step. The size and number of these building
+                                    blocks is not important as long as they are
+                                    defined in the terminology of the
+                                    application.</p>
+                                  <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><br>
+                                  </p>
+                                  <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;">The
+                                    aim of the next step will be to technically
+                                    identify these steps in the execution flow,
+                                    using:</p>
+                                  <ul>
+                                    <li>The functional description.</li>
+                                    <li>The relations between functional and
+                                      technical objects.</li>
+                                  </ul>
+                                  <br>
+                                  <b><b><b>
+                                        <div class="par">
+                                          <p class="text-left"></p>
+                                          <h2 class="sec-head text-left clearfix"><span>EXTRACTING
+                                              DYNAMIC DATA</span> </h2>
+                                          <b><b> <b>
+                                                <div class="about-img"><img src="images/about-line.png"></div>
+                                                <div class="par">
+                                                  <p class="text-left"> </p>
+                                                  <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><br>
+                                                    <b><b><b><b><b><b><b><span style="font-family: Arial;">Last
+                                                                  phase<span style="font-family: &quot;Open Sans&quot;,sans-serif;">:
+                                                                  Extraction of
+                                                                  dynamic data.
+                                                                  Monitoring.</span></span><br>
+                                                                </b></b></b></b></b></b></b></p>
+                                                  <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><b><b><b><b><b><b><b><br>
+                                                                </b></b></b></b></b></b></b></p>
+                                                  <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><b><b><b><b><b><b><b><br>
+                                                                </b></b></b></b></b></b></b></p>
+                                                  tcpdump on some relevant
+                                                  network traffic. packet
+                                                  captures in production</div>
+                                                <div class="par"><b><b>
+                                                      <li>Database monitor
+                                                        files, <a href="https://docs.oracle.com/cd/E17952_01/mysql-5.0-en/query-log.html">logging
+                                                          each and every SQL
+                                                          statement</a> run by
+                                                        clients. </li>
+                                                      <li> Database audits
+                                                        (V$SESSION, ALTER
+                                                        SESSION SET, SQL
+                                                        Trace_trace and TKPROF)</li>
+                                                      <li> Application log
+                                                        files, where technical
+                                                        and business information
+                                                        can be extracted from.
+                                                        This approach is similar
+                                                        to <a href="https://en.wikipedia.org/wiki/Process_mining">process
+                                                          mining</a>. Userspace
+                                                        or system calls
+                                                        monitored with tools
+                                                        like <a href="https://en.wikipedia.org/wiki/Strace">strace</a>
+                                                        or <a href="https://en.wikipedia.org/wiki/Ltrace">ltrace</a>.
+                                                        Detect command lines </li>
+                                                    </b></b>
+                                                  <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span
+style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;"><br></span></p>
+                                                  <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span
+style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;"><br></span></p>
+                                                  <br>
+                                                  <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"
+                                                    role="presentation"><span style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">.</span><b><b><b><b><b><b><b><b><b><b>
+                                                                  </b></b></b></b></b></b></b></b></b></b></p>
+                                                  <h2 class="sec-head text-left clearfix"><b><b><b><span><span
+                                                              style="font-family: Arial;">MERGE
+                                                              DATA</span>,
+                                                            REBUILDING</span> </b></b></b></h2>
+                                                  <b><b><b> <b><b> <b>
+                                                              <div class="about-img"><img
+                                                                  src="images/about-line.png"></div>
+                                                              <div class="par">
+                                                                <p class="text-left">
+                                                                </p>
+                                                                <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><br>
+                                                                  <b><b><b><b><b><b><b><span
+                                                                  style="font-family: Arial;"><span
+                                                                  style="font-family: &quot;Open Sans&quot;,sans-serif;"><span
+                                                                  style="font-family: Arial;">Merge
+                                                                  static and
+                                                                  dynamic data
+                                                                  in a single
+                                                                  RDF
+                                                                  repository.</span></span></span></b></b></b></b></b></b></b></p>
+                                                                <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><b><b><b><b><b><b><b><span
+                                                                  style="font-family: Arial;"><span
+                                                                  style="font-family: &quot;Open Sans&quot;,sans-serif;"><span
+                                                                  style="font-family: Arial;">Sparql</span></span></span></b></b></b></b></b></b></b></p>
+                                                              </div>
+                                                            </b></b></b></b></b></b>
+                                                  <p></p>
+                                                  <br>
+                                                  <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"></p>
+                                                  <p class="text-left"><br>
+                                                  </p>
+                                                  <p class="text-left"></p>
+                                                  <h2 class="sec-head text-left clearfix"><span>OTHER
+                                                      TECHNIQUES</span> </h2>
+                                                  <b><b> <b>
+                                                        <div class="about-img"><img
+                                                            src="images/about-line.png"></div>
+                                                        <div class="par">
+                                                          <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"
+                                                            id="docs-internal-guid-f9a73401-7fff-20ec-c27f-ca0d06ad2a0c"><br>
+                                                            <span style="font-family: Arial;"><span
+                                                                style="font-family: &quot;Open Sans&quot;,sans-serif;"><span
+                                                                  style="font-family: Arial;">Detecting
+                                                                  patterns in
+                                                                  the RDF graph
+                                                                  database:</span></span></span></p>
+                                                          <ul>
+                                                            <li><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><span
+                                                                  style="font-family: Arial;"><span
+                                                                  style="font-family: &quot;Open Sans&quot;,sans-serif;"><span
+                                                                  style="font-family: Arial;"><a
+                                                                  href="https://www.ontotext.com/blog/artificial-intelligence-and-the-knowledge-graph/">AI
+                                                                  and the
+                                                                  knowledge
+                                                                  graph</a>.</span></span></span></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></li>
+                                                            <li><span style="font-family: Arial;"><a
+                                                                  href="https://www.profium.com/en/blog/artificial-intelligence-ai-powered-graph-computing-and-semantic-big-data/">AI-powered
+                                                                  graph
+                                                                  computing and
+                                                                  semantic big
+                                                                  data</a>.</span></li>
+                                                            <li><span style="font-family: Arial;">Rebuild
+                                                                data
+                                                                dependencies by
+                                                                using
+                                                                timestamps.</span></li>
+                                                          </ul>
+                                                          <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span
+style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;"><br></span></p>
+                                                          <span style="font-family: Arial;">Analyse
+                                                            technical
+                                                            documentation with
+                                                            NLP (Natural
+                                                            Language Processing)
+                                                            techniques:</span></div>
+                                                        <div class="par"><span style="font-family: Arial;">qsdf<br>
+                                                          </span></div>
+                                                      </b></b></b><b><b><b>
+                                                        <div class="par">
+                                                          <ul>
+                                                            <span style="font-family: Arial;">Gate</span>
+                                                            <li><br>
+                                                            </li>
+                                                          </ul>
+                                                          <br>
+                                                          <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span
 style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Analyser la documentation technique avec des techniques Natural Language Processing (NLP), technique utilisée dans l'industrie pharmaceutique (...text mining, rich information extraction...):</span></p>
-                                                      <ul style="margin-top:0;margin-bottom:0;">
-                                                        <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
+                                                          <ul style="margin-top:0;margin-bottom:0;">
+                                                            <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
 dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span
 style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Gate </span><a
 href="https://gate.ac.uk/" style="text-decoration:none;"><span style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:underline;-webkit-text-decoration-skip:none;text-decoration-skip-ink:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">https://gate.ac.uk/</span></a></p></li>
-                                                        <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
+                                                            <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
 dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;" role="presentation"><a
 href="https://gate.ac.uk/wiki/gate-user-faq.html#section-4.2" style="text-decoration:none;"><span
 style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:underline;-webkit-text-decoration-skip:none;text-decoration-skip-ink:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">https://gate.ac.uk/wiki/gate-user-faq.html#section-4.2</span></a><span
 style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">.</span></p></li>
-                                                        <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
+                                                            <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
 dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span
 style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3567135/</span></p></li>
-                                                      </ul>
-                                                      <br>
-                                                      <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span
+                                                          </ul>
+                                                          <br>
+                                                          <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span
 style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Process Mining (</span><span
 style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:italic;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Automated Business Process Discovery)</span><span
 style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">:</span></p>
-                                                      <ul style="margin-top:0;margin-bottom:0;">
-                                                        <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
+                                                          <ul style="margin-top:0;margin-bottom:0;">
+                                                            <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
 dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;" role="presentation"><a
 href="https://en.wikipedia.org/wiki/Process_mining" style="text-decoration:none;"><span
 style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:underline;-webkit-text-decoration-skip:none;text-decoration-skip-ink:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">https://en.wikipedia.org/wiki/Process_mining</span></a></p></li>
-                                                        <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
+                                                            <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
 dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;" role="presentation"><a
 href="http://www.processmining.org/" style="text-decoration:none;"><span style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:underline;-webkit-text-decoration-skip:none;text-decoration-skip-ink:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">http://www.processmining.org/</span></a></p></li>
-                                                        <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
+                                                            <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
 dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;" role="presentation"><a
 href="https://research.tue.nl/en/publications/process-mining-overview-and-opportunities"
 style="text-decoration:none;"><span style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:underline;-webkit-text-decoration-skip:none;text-decoration-skip-ink:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">https://research.tue.nl/en/publications/process-mining-overview-and-opportunities</span></a></p></li>
-                                                      </ul>
-                                                      <br>
-                                                      <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span
+                                                          </ul>
+                                                          <br>
+                                                          <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span
 style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Analyse du code (Call-graph, architecture recovery etc…) à l’aide de logiciels de reverse-engineering:</span></p>
-                                                      <ul style="margin-top:0;margin-bottom:0;">
-                                                        <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
+                                                          <ul style="margin-top:0;margin-bottom:0;">
+                                                            <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
 dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span
 style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Radare2 </span><a
 href="https://rada.re/n/" style="text-decoration:none;"><span style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:underline;-webkit-text-decoration-skip:none;text-decoration-skip-ink:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">https://rada.re/n/</span></a></p></li>
-                                                        <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
+                                                            <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
 dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span
-style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Chaînes de Markov pour détecter les traitements répétitifs.</span></p></li>
-                                                        <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
+style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;"><br></span></p><br></li>
+                                                            <li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;"><p
 dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span
 style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">“Data structures clustering, partitioning, agglomerative clustering”. Ancienne technologie toujours applicable: http://www.st.ewi.tudelft.nl/arie/phds/Kuipers.pdf</span></p></li>
-                                                      </ul>
-                                                      <p class="text-left"><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b>
+                                                          </ul>
+                                                          <p class="text-left"><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b>
                                                                   </b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></p>
-                                                      <h2 class="sec-head text-left clearfix"><b><b><b><b><b><b><b><span>PARTNERSHIP</span>
+                                                          <h2 class="sec-head text-left clearfix"><b><b><b><b><b><b><b><span>PARTNERSHIP</span>
                                                                   </b> </b></b></b></b></b></b></h2>
-                                                      <b><b> <b>
-                                                            <div class="about-img"><img
-                                                                src="images/about-line.png"></div>
-                                                            <div class="about-img">qsdfqsdfùq</div>
-                                                          </b></b></b>
-                                                      <p></p>
-                                                    </div>
-                                                  </b></b></b>
-                                              <p></p>
-                                            </div>
-                                          </b></b></b>
-                                      <p></p>
-                                    </div>
-                                  </b></b></b>
-                              <p></p>
-                            </div>
-                          </b></b>
-                        <p></p>
-                        <p></p>
-                      </div>
+                                                          <b><b> <b>
+                                                                <div class="about-img"><img
+                                                                  src="images/about-line.png"></div>
+                                                                <div class="about-img">qsdfqsdfùq</div>
+                                                              </b></b></b>
+                                                          <p></p>
+                                                        </div>
+                                                      </b></b></b>
+                                                  <p></p>
+                                                </div>
+                                              </b></b></b>
+                                          <p></p>
+                                        </div>
+                                      </b></b></b>
+                                  <p></p>
+                                </div>
+                              </b></b>
+                            <p></p>
+                            <p></p>
+                          </b></b></div>
                     </b>
                     <p></p>
                   </div>
