@@ -13,3 +13,15 @@ the package because of this reason.
 
 Hence the choice of porting a ubset of pydbg
 """
+
+import sys
+sys.path.append(".")
+sys.path.append("pydbg")
+
+import pydbg
+
+print(dir(pydbg))
+
+
+from pydbg import pydbg
+tst_pydbg = pydbg(123)
