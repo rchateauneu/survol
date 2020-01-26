@@ -24,13 +24,20 @@
 @organization: www.openrce.org
 '''
 
+from __future__ import print_function
+
 import os.path
 import sys
 import copy
 import signal
 import struct
-#import pydasm
+try:
+    import pydasm
+except ImportError:
+    pass
 import socket
+import ctypes
+from ctypes import wintypes
 
 from my_ctypes  import *
 from defines    import *
@@ -53,6 +60,32 @@ from memory_snapshot_block   import *
 from memory_snapshot_context import *
 from pdx                     import *
 from system_dll              import *
+
+GetCurrentProcess = ctypes.windll.kernel32.GetCurrentProcess
+GetCurrentProcess.restype = wintypes.HANDLE
+OpenProcessToken = ctypes.windll.advapi32.OpenProcessToken
+OpenProcessToken.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE))
+OpenProcessToken.restype = wintypes.BOOL
+
+
+# if not kernel32.GetThreadSelectorEntry(thread_handle, thread_context.SegFs, byref(selector_entry)):
+GetThreadSelectorEntry = ctypes.windll.kernel32.GetThreadSelectorEntry
+
+# GetThreadSelectorEntry.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE))
+GetThreadSelectorEntry.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(LDT_ENTRY))
+
+GetThreadSelectorEntry.restype = wintypes.BOOL
+#BOOL GetThreadSelectorEntry(
+#  HANDLE      hThread,
+#  DWORD       dwSelector,
+#  LPLDT_ENTRY lpSelectorEntry
+#);
+#### ctypes.ArgumentError: argument 3: <type 'exceptions.TypeError'>: expected LP_c_void_p instance instead of pointer to _LDT_ENTRY
+# selector_entry = LDT_ENTRY()
+# if not kernel32.GetThreadSelectorEntry(thread_handle, thread_context.SegFs, byref(selector_entry)):
+
+# GetThreadSelectorEntry
+
 
 class pydbg:
     '''
@@ -215,15 +248,19 @@ class pydbg:
         @return:    Self
         '''
 
+        print("attaching to pid %d" % pid)
         self._log("attaching to pid %d" % pid)
 
         # obtain necessary debug privileges.
         self.get_debug_privileges()
+        print("After get_debug_privileges")
 
         self.pid = pid
         self.open_process(pid)
+        print("After open_process")
 
         self.debug_active_process(pid)
+        print("After debug_active_process pid=", pid)
 
         # allow detaching on systems that support it.
         try:
@@ -237,7 +274,12 @@ class pydbg:
             thread_context = self.get_thread_context(thread_handle)
             selector_entry = LDT_ENTRY()
 
+            print("thread_id=", thread_id)
+            print("thread_context.SegFs=", thread_context.SegFs)
             if not kernel32.GetThreadSelectorEntry(thread_handle, thread_context.SegFs, byref(selector_entry)):
+                print("Error GetThreadSelectorEntry")
+                print("DISABLE ERROR Error GetThreadSelectorEntry")
+                continue
                 self.win32_error("GetThreadSelectorEntry()")
 
             self.close_handle(thread_handle)
@@ -779,14 +821,14 @@ class pydbg:
         # ensure we have an up to date context for the current thread.
         context = self.get_thread_context(self.h_thread)
 
-        print "eip = %08x" % context.Eip
-        print "Dr0 = %08x" % context.Dr0
-        print "Dr1 = %08x" % context.Dr1
-        print "Dr2 = %08x" % context.Dr2
-        print "Dr3 = %08x" % context.Dr3
-        print "Dr7 = %s"   % self.to_binary(context.Dr7)
-        print "      10987654321098765432109876543210"
-        print "      332222222222111111111"
+        print("eip = %08x" % context.Eip)
+        print("Dr0 = %08x" % context.Dr0)
+        print("Dr1 = %08x" % context.Dr1)
+        print("Dr2 = %08x" % context.Dr2)
+        print("Dr3 = %08x" % context.Dr3)
+        print("Dr7 = %s"   % self.to_binary(context.Dr7))
+        print("      10987654321098765432109876543210")
+        print("      332222222222111111111")
 
 
     ####################################################################################################################
@@ -809,7 +851,7 @@ class pydbg:
 
             if mbi.Protect & PAGE_GUARD:
                 address = mbi.BaseAddress
-                print "PAGE GUARD on %08x" % mbi.BaseAddress
+                print("PAGE GUARD on %08x" % mbi.BaseAddress)
 
                 while 1:
                     address += self.page_size
@@ -818,7 +860,7 @@ class pydbg:
                     if not tmp_mbi.Protect & PAGE_GUARD:
                         break
 
-                    print "PAGE GUARD on %08x" % address
+                    print("PAGE GUARD on %08x" % address)
 
             cursor += mbi.RegionSize
 
@@ -1923,6 +1965,26 @@ class pydbg:
 
 
     ####################################################################################################################
+
+    # https://gist.github.com/schlamar/7024668
+    def my_get_process_token_not_used(self):
+        """
+        Get the current process token
+        """
+        #GetCurrentProcess = ctypes.windll.kernel32.GetCurrentProcess
+        #GetCurrentProcess.restype = wintypes.HANDLE
+        #OpenProcessToken = ctypes.windll.advapi32.OpenProcessToken
+        #OpenProcessToken.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE))
+        #OpenProcessToken.restype = wintypes.BOOL
+
+        token = wintypes.HANDLE()
+        TOKEN_ALL_ACCESS = 0xf01ff
+        res = OpenProcessToken(GetCurrentProcess(), TOKEN_ALL_ACCESS, token)
+        if not res > 0:
+            raise RuntimeError("Couldn't get process token")
+        print("my_get_process_token res=", res, "token=", token)
+        return token
+
     def get_debug_privileges (self):
         '''
         Obtain necessary privileges for debugging.
@@ -1935,6 +1997,22 @@ class pydbg:
         token_state = TOKEN_PRIVILEGES()
 
         self._log("get_debug_privileges()")
+
+        #test = kernel32.GetCurrentProcess()
+        #print("test=", dir(test))
+        #print("test=", test)
+
+        #toto_token = self.my_get_process_token()
+
+
+        #if not advapi32.OpenProcessToken(test, TOKEN_ALL_ACCESS, byref(h_token)):
+        #    raise pdx("OpenProcessToken()", True)
+
+        #GetCurrentProcess = ctypes.windll.kernel32.GetCurrentProcess
+        #GetCurrentProcess.restype = wintypes.HANDLE
+        OpenProcessToken = ctypes.windll.advapi32.OpenProcessToken
+        OpenProcessToken.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE))
+        OpenProcessToken.restype = wintypes.BOOL
 
         if not advapi32.OpenProcessToken(kernel32.GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, byref(h_token)):
             raise pdx("OpenProcessToken()", True)
