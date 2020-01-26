@@ -901,26 +901,34 @@ class pydbg:
             self.violation_address = dbg.u.Exception.ExceptionRecord.ExceptionInformation[1]
             self.exception_code    = dbg.u.Exception.ExceptionRecord.ExceptionCode
 
+            print("debug_event_iteration dbg.dwDebugEventCode=", dbg.dwDebugEventCode)
             if dbg.dwDebugEventCode == CREATE_PROCESS_DEBUG_EVENT:
+                print("CREATE_PROCESS_DEBUG_EVENT")
                 continue_status = self.event_handler_create_process()
 
             elif dbg.dwDebugEventCode == CREATE_THREAD_DEBUG_EVENT:
+                print("CREATE_THREAD_DEBUG_EVENT")
                 continue_status = self.event_handler_create_thread()
 
             elif dbg.dwDebugEventCode == EXIT_PROCESS_DEBUG_EVENT:
+                print("EXIT_PROCESS_DEBUG_EVENT")
                 continue_status = self.event_handler_exit_process()
 
             elif dbg.dwDebugEventCode == EXIT_THREAD_DEBUG_EVENT:
+                print("EXIT_THREAD_DEBUG_EVENT")
                 continue_status = self.event_handler_exit_thread()
 
             elif dbg.dwDebugEventCode == LOAD_DLL_DEBUG_EVENT:
+                print("LOAD_DLL_DEBUG_EVENT")
                 continue_status = self.event_handler_load_dll()
 
             elif dbg.dwDebugEventCode == UNLOAD_DLL_DEBUG_EVENT:
+                print("UNLOAD_DLL_DEBUG_EVENT")
                 continue_status = self.event_handler_unload_dll()
 
             # an exception was caught.
             elif dbg.dwDebugEventCode == EXCEPTION_DEBUG_EVENT:
+                print("EXCEPTION_DEBUG_EVENT")
                 ec = dbg.u.Exception.ExceptionRecord.ExceptionCode
 
                 self._log("debug_event_loop() exception: %08x" % ec)
@@ -950,6 +958,7 @@ class pydbg:
 
             # close the opened thread handle and resume executing the thread that triggered the debug event.
             self.close_handle(self.h_thread)
+            print("BEFORE ContinueDebugEvent")
             kernel32.ContinueDebugEvent(dbg.dwProcessId, dbg.dwThreadId, continue_status)
 
 
@@ -1407,8 +1416,13 @@ class pydbg:
         thread_context = self.get_thread_context(thread_handle)
         selector_entry = LDT_ENTRY()
 
-        if not kernel32.GetThreadSelectorEntry(thread_handle, thread_context.SegFs, byref(selector_entry)):
-            self.win32_error("GetThreadSelectorEntry()")
+#        if not kernel32.GetThreadSelectorEntry(thread_handle, thread_context.SegFs, byref(selector_entry)):
+        print("BEFORE GetThreadSelectorEntry")
+        if not GetThreadSelectorEntry(thread_handle, thread_context.SegFs, byref(selector_entry)):
+            print("DISABLE ERROR Error GetThreadSelectorEntry")
+            if False:
+                self.win32_error("GetThreadSelectorEntry()")
+        print("AFTER GetThreadSelectorEntry")
 
         teb  = selector_entry.BaseLow
         teb += (selector_entry.HighWord.Bits.BaseMid << 16) + (selector_entry.HighWord.Bits.BaseHi << 24)
@@ -2269,6 +2283,7 @@ class pydbg:
 
         if not kernel32.GetThreadSelectorEntry(self.h_thread, self.context.SegFs, byref(selector_entry)):
             self.win32_error("GetThreadSelectorEntry()")
+        print("AFTER GetThreadSelectorEntry")
 
         fs_base  = selector_entry.BaseLow
         fs_base += (selector_entry.HighWord.Bits.BaseMid << 16) + (selector_entry.HighWord.Bits.BaseHi << 24)
@@ -2533,6 +2548,7 @@ class pydbg:
 
         if not kernel32.GetThreadSelectorEntry(pi.hThread, thread_context.SegFs, byref(selector_entry)):
             self.win32_error("GetThreadSelectorEntry()")
+        print("AFTER GetThreadSelectorEntry")
 
         teb  = selector_entry.BaseLow
         teb += (selector_entry.HighWord.Bits.BaseMid << 16) + (selector_entry.HighWord.Bits.BaseHi << 24)
@@ -3003,6 +3019,7 @@ class pydbg:
 
         if not kernel32.GetThreadSelectorEntry(self.h_thread, context.SegFs, byref(selector_entry)):
             self.win32_error("GetThreadSelectorEntry()")
+        print("AFTER GetThreadSelectorEntry")
 
         fs_base  = selector_entry.BaseLow
         fs_base += (selector_entry.HighWord.Bits.BaseMid << 16) + (selector_entry.HighWord.Bits.BaseHi << 24)
@@ -3313,6 +3330,7 @@ class pydbg:
 
         if not kernel32.GetThreadSelectorEntry(self.h_thread, context.SegFs, byref(selector_entry)):
             self.win32_error("GetThreadSelectorEntry()")
+        print("AFTER GetThreadSelectorEntry")
 
         fs_base  = selector_entry.BaseLow
         fs_base += (selector_entry.HighWord.Bits.BaseMid << 16) + (selector_entry.HighWord.Bits.BaseHi << 24)

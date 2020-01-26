@@ -40,6 +40,32 @@ from pdx import *
 
 import os
 
+import ctypes
+from ctypes import wintypes
+GetMappedFileNameA = ctypes.windll.psapi.GetMappedFileNameA
+LPSTR = POINTER(CHAR)
+GetMappedFileNameA.argtypes = (wintypes.HANDLE, wintypes.LPVOID, LPSTR, wintypes.DWORD)
+GetMappedFileNameA.restype = wintypes.BOOL
+#  HANDLE hProcess,
+#  LPVOID lpv,
+#  LPSTR  lpFilename,
+#  DWORD  nSize
+
+CreateFileMappingA = ctypes.windll.kernel32.CreateFileMappingA
+LPSTR = POINTER(CHAR)
+CreateFileMappingA.argtypes = (wintypes.HANDLE, wintypes.LPVOID, wintypes.DWORD, wintypes.DWORD, wintypes.DWORD, LPSTR)
+CreateFileMappingA.restype = wintypes.HANDLE
+#HANDLE CreateFileMappingA(
+#  HANDLE                hFile,
+#  LPSECURITY_ATTRIBUTES lpFileMappingAttributes,
+#  DWORD                 flProtect,
+#  DWORD                 dwMaximumSizeHigh,
+#  DWORD                 dwMaximumSizeLow,
+#  LPCSTR                lpName
+#);
+
+
+
 class system_dll:
     '''
     System DLL descriptor object, used to keep track of loaded system DLLs and locations.
@@ -82,7 +108,8 @@ class system_dll:
         self.size    = (file_size_hi.value << 8) + file_size_lo
 
         # create a file mapping from the dll handle.
-        file_map = kernel32.CreateFileMappingA(handle, 0, PAGE_READONLY, 0, 1, 0)
+        # CreateFileMappingA.argtypes = (wintypes.HANDLE, wintypes.LPVOID, wintypes.DWORD, wintypes.DWORD, wintypes.DWORD, LPSTR)
+        file_map = kernel32.CreateFileMappingA(handle, c_void_p(0), c_ulong(PAGE_READONLY), c_ulong(0), c_ulong(1), "")
 
         if file_map:
             # map a single byte of the dll into memory so we can query for the file name.
@@ -92,7 +119,16 @@ class system_dll:
             if file_ptr:
                 # query for the filename of the mapped file.
                 filename = create_string_buffer(2048)
-                psapi.GetMappedFileNameA(kernel32.GetCurrentProcess(), file_ptr, byref(filename), 2048)
+                # ctypes.ArgumentError: argument 1: <type 'exceptions.OverflowError'>: long int too long to convert
+                # psapi.GetMappedFileNameA(kernel32.GetCurrentProcess(), file_ptr, byref(filename), 2048)
+                print("BEFORE GetMappedFileNameA")
+                print("BEFORE GetMappedFileNameA")
+                print("BEFORE GetMappedFileNameA")
+                #psapi.GetMappedFileNameA(kernel32.GetCurrentProcess(), file_ptr, byref(filename), c_ulong(2048))
+                psapi.GetMappedFileNameA(kernel32.GetCurrentProcess(), file_ptr, filename, c_ulong(2048))
+                print("AFTER GetMappedFileNameA")
+                print("AFTER GetMappedFileNameA")
+                print("AFTER GetMappedFileNameA")
 
                 # store the full path. this is kind of ghetto, but i didn't want to mess with QueryDosDevice() etc ...
                 self.path = os.sep + filename.value.split(os.sep, 3)[3]

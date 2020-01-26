@@ -363,10 +363,13 @@ if __name__ == '__main__':
     # "c:/windows/system32/ole32.dll",
     # "c:/windows/system32/oleaut32.dll",
     # "c:/windows/system32/gdi32.dll"
+    # kernel32.dll
+    # user32.dll
 
 
     # Resolve the function address (Just before encryption)
-    hook_address = tst_pydbg.func_resolve_debuggee("nspr4.dll", "PR_Write")
+    # hook_address = tst_pydbg.func_resolve_debuggee("kernel32.dll", "WriteFile")
+    hook_address = tst_pydbg.func_resolve("kernel32.dll", "WriteFile")
 
     # https://gist.github.com/RobinDavid/9213868
 
@@ -376,7 +379,7 @@ if __name__ == '__main__':
 
     print("hook_address=", hook_address)
     hooks.add(tst_pydbg, hook_address, 2, ssl_sniff, None)
-    print("[*] nspr4.PR_Write hooked at: 0x%08x" % hook_address)
+    print("[*] Function hooked at: 0x%08x" % hook_address)
 
     tst_pydbg.run()
 
