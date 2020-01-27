@@ -111,7 +111,7 @@ class system_dll:
 
         # create a file mapping from the dll handle.
         # CreateFileMappingA.argtypes = (wintypes.HANDLE, wintypes.LPVOID, wintypes.DWORD, wintypes.DWORD, wintypes.DWORD, LPSTR)
-        file_map = kernel32.CreateFileMappingA(handle, c_void_p(0), c_ulong(PAGE_READONLY), c_ulong(0), c_ulong(1), "")
+        file_map = kernel32.CreateFileMappingA(handle, c_void_p(0), c_ulong(PAGE_READONLY), c_ulong(0), c_ulong(1), b"")
 
         if file_map:
             # map a single byte of the dll into memory so we can query for the file name.
@@ -130,7 +130,7 @@ class system_dll:
                 print("AFTER GetMappedFileNameA filename=", filename)
 
                 # store the full path. this is kind of ghetto, but i didn't want to mess with QueryDosDevice() etc ...
-                self.path = os.sep + filename.value.split(os.sep, 3)[3]
+                self.path = b"\\" + filename.value.split(b"\\", 3)[3]
                 print("AFTER GetMappedFileNameA self.path=", self.path)
 
                 # store the file name.
