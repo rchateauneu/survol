@@ -194,6 +194,7 @@ class hook:
         @param exit_hook:  (Optional, def=None) Function to call on hooked API exit
         '''
 
+        assert address
         self.address    = address
         self.num_args   = num_args
         self.entry_hook = entry_hook
@@ -213,6 +214,7 @@ class hook:
         @param pydbg: PyDbg Instance
         '''
 
+        assert self.address
         pydbg.bp_set(self.address, restore=True, handler=self.__proxy_on_entry)
 
 
@@ -358,12 +360,13 @@ def ssl_sniff( dbg, args ):
 
 if __name__ == '__main__':
     the_argument = "Hello"
-    sleep_time = 1.0
+    # Py2 tst_pydbg = pydbg()
+    tst_pydbg = pydbg.pydbg()
+    sleep_time = 3.0
     created_process = multiprocessing.Process(target=processing_function, args=(sleep_time,))
     created_process.start()
     print("created_process=", created_process.pid)
     time.sleep(1.0)
-    tst_pydbg = pydbg()
 
     psutil_proc = psutil.Process(created_process.pid)
     print("psutil_proc.ppid=", psutil_proc.ppid(), os.getpid())
@@ -381,7 +384,7 @@ if __name__ == '__main__':
 
     # Resolve the function address (Just before encryption)
     # hook_address = tst_pydbg.func_resolve_debuggee("kernel32.dll", "WriteFile")
-    hook_address = tst_pydbg.func_resolve("kernel32.dll", "WriteFile")
+    hook_address = tst_pydbg.func_resolve(b"kernel32.dll", b"WriteFile")
 
     # https://gist.github.com/RobinDavid/9213868
 
@@ -390,6 +393,7 @@ if __name__ == '__main__':
     # in using an exit callback, so we set it to None.
 
     print("hook_address=%08x" % hook_address)
+    assert hook_address
     hooks.add(tst_pydbg, hook_address, 2, ssl_sniff, None)
     print("[*] Function hooked at: 0x%08x" % hook_address)
 

@@ -3,7 +3,7 @@
 """Monitors living processes and generates a dockerfile And much more."""
 
 # NOTE: For convenience purpose, this script is standalone, and therefore quite big.
-# Requires Python 2.7 and later.
+# Requires Python 2.7 or later.
 
 __author__      = "Remi Chateauneu"
 __copyright__   = "Primhill Computers, 2018-2020"
@@ -2988,13 +2988,13 @@ class BatchLetSys_openat(BatchLetBase, object):
             raise Exception("Tracer %s not supported yet"%batchCore.m_tracer)
 
         self.m_significantArgs = [filObj]
-        aFilAcc = self.m_core.m_objectProcess.GetFileAccess(filObj)
-        aFilAcc.SetOpenTime(self.m_core.m_timeStart)
 
 class BatchLetSys_close(BatchLetBase, object):
     def __init__(self, batchCore):
         # Maybe no need to record it if close is unsuccessful.
         # [pid 10624] 14:09:55.350002 close(2902) = -1 EBADF (Bad file descriptor) <0.000006>
+        aFilAcc = self.m_core.m_objectProcess.GetFileAccess(filObj)
+        aFilAcc.SetOpenTime(self.m_core.m_timeStart)
         if batchCore.m_retValue.find("EBADF") >= 0:
             return
 
