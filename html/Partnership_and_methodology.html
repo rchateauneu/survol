@@ -17,8 +17,7 @@
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>    <![endif]-->
   </head>
-  <body>
-    <!--- top bar -->
+  <body><span style="font-family: Arial;">kkkkkkkkkkkkkkkkkkkkkkkkkComonent</span><!--- top bar -->
     <div class="topbar thetop">
       <div class="container">
         <div class="row">
@@ -116,17 +115,20 @@
             <b>
               <div class="about-img"><img src="images/about-line.png"></div>
               <div class="par">
-                <p class="text-left"> This methodology and the aim to be
-                  achieved is done in two steps:</p>
-                <p class="text-left">A common step of analyzing the business
-                  processes. It does not attempt to supersede existing and
-                  validated methods, but rather adds some steps, abouth the
-                  reformulation of the key concepts of the application, and
-                  their mapping to technical objects detected with software
-                  tools.</p>
-                <p class="text-left">Then, in a second stage, use this
-                  formalization to migrate key components to AC2/XComponent,
-                  Docker or other target platforms.</p>
+                <p class="text-left"> We use an exclusive methodology, which
+                  takes place in four stages:</p>
+                <ul>
+                  <li><b>Define the terminology. This is an ongoing process
+                      which starts with usual software components, and gets more
+                      and more elaborated.</b></li>
+                  <li><b>Gather sources of information and static data.</b></li>
+                  <li><b>Generate dynamic data.</b></li>
+                  <li><b>Refactoring to target platforms such as Docker or
+                      AC2/XComponent.<br>
+                    </b></li>
+                </ul>
+                <p class="text-left"> This approach is cyclic and is refined
+                  from the start to reach a satisfying goal.</p>
                 <p class="text-left">Survol is designed for this analysis and
                   investigation step. Not only as a software tool, but also with
                   the formalization it uses, based on semantic technologies.<br>
@@ -161,24 +163,7 @@
               <div><b>
                   <div class="par">
                     <p class="text-left"><b><b> </b></b></p>
-                    <h2 class="sec-head text-left clearfix"><b><b><b><b><span>FOUR
-                                STAGES</span> </b> </b></b></b></h2>
-                    <b> <b> <b>
-                          <div class="about-img"><img src="images/about-line.png"></div>
-                        </b></b></b>
-                    <p></p>
-                    <p class="text-left"><br>
-                    </p>
-                    <p class="text-left"><b>The analysis stage is made of four
-                        different steps:</b></p>
-                    <ul>
-                      <li><b>Define the terminology. This is an ongoing process
-                          which starts with usual software components, and gets
-                          more and more elaborated.</b></li>
-                      <li><b>Gather sources of information.</b></li>
-                      <li><b>Define functional blocks.</b></li>
-                      <li><b>Extract and rebuild.</b></li>
-                    </ul>
+                    <br>
                     <p class="text-left"></p>
                     <p class="text-left"><br>
                     </p>
@@ -196,9 +181,14 @@
                                   existing terminologies in the semantic web
                                   world. This ultimately allows to store all the
                                   existing information about the information
-                                  system, in a graph datase, where abstract,
+                                  system, in a graph database, where abstract,
                                   business and technical information can
-                                  coexist. <br>
+                                  coexist. Notably, its to role is to associate
+                                  conceptual entities visible to the user, to
+                                  physical entities handled by software. By
+                                  relying on standard models, several distinct
+                                  domains of knowledge can be merged into one
+                                  repository.<br>
                                 </b></b></b></p>
                           <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><b><b><b><br>
                                 </b></b></b></p>
@@ -264,8 +254,6 @@ href="https://bian.org" title="BIAN">BIAN</a>)</strong></span> establishes a
                             has a concrete implementation on most operating
                             systems (<a href="https://en.wikipedia.org/wiki/Windows_Management_Instrumentation">WMI</a>
                             etc...)</p>
-                          <h3><br>
-                          </h3>
                           <h3>Updating models with custom ontologies</h3>
                         </div>
                       </b></b><b>
@@ -278,8 +266,7 @@ href="https://bian.org" title="BIAN">BIAN</a>)</strong></span> establishes a
                           update an ontology, for example <a href="https://webprotege.stanford.edu/">Protégé</a>
                           or <a href="https://www.stardog.com/">Stardog</a>.</p>
                         <p class="text-left"><b> </b></p>
-                        <h2 class="sec-head text-left clearfix"><b><span>LEGACY
-                              DOCUMENTATION, SOURCE CODE, "OTHER" SOURCE OF
+                        <h2 class="sec-head text-left clearfix"><b><span>"STATIC"
                               INFORMATION</span> </b></h2>
                         <div class="about-img"><img src="images/about-line.png"></div>
                         Once the application's formal model is clearly defined,
@@ -291,68 +278,67 @@ href="https://bian.org" title="BIAN">BIAN</a>)</strong></span> establishes a
                         giving the full picture of the Information System.
                         Possible information sources are:
                         <ul>
-                          <li> Existing documentation, formalised with RDF </li>
-                          <li> Formulate databases, external data sources ...
-                            based on the terminology previously defined. </li>
+                          <li> Existing legacy documentation, formalized with
+                            RDF </li>
+                          <li>Database design</li>
                           <li>Static code analysis with specific tools:, for
                             example <a href="https://pypi.org/project/bashlex/">parsing
                               of shell scripts</a>, SQL queries or <a href="https://pypi.org/project/antlr-plsql/">stored
-                              procedures</a>. </li>
+                              procedures</a>, Doxygen </li>
                           <li>Software API, identifiers of application objects:
                             They provide valid information about the base
                             concepts of the system.</li>
                         </ul>
+                        <p>Information must be formalized based on this
+                          terminology defined in the previous step. At this
+                          stage,this information is by nature mostly conceptual
+                          and addresses business concepts, but this is not an
+                          aim: The resulting semantic repository created here
+                          should also expresses relationships with technical
+                          entities. </p>
+                        <p>Some technical objects will have a non-ambiguous
+                          definitions: This database, that server etc... but
+                          quite probably are defined with their attributes,
+                          defined in the terminology:</p>
+                        <ul>
+                          <li>"The process running this concrete application".</li>
+                          <li>"The database row modelling that object"</li>
+                        </ul>
+                        <p>These attributes will be added when merging
+                          "physical" data.</p>
+                        <p>This work is by nature incomplete and is cyclically
+                          enhanced.</p>
+                        <ul>
+                        </ul>
                         <p class="text-left"></p>
-                        <h2 class="sec-head text-left clearfix"><b><span>DISCOVER
-                              INTERFACES</span> </b></h2>
-                        <b><b> <b> <b>
-                                <div class="about-img"><img src="images/about-line.png"></div>
-                                <div class="par">
-                                  <p class="text-left"> </p>
-                                  <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"
-                                    id="docs-internal-guid-6d72883a-7fff-24ad-7591-fc2c8d1c3194">Based
-                                    on the information extracted in the previous
-                                    step, define the functional building blocs
-                                    using the terminology defined in the first
-                                    step. The size and number of these building
-                                    blocks is not important as long as they are
-                                    defined in the terminology of the
-                                    application.</p>
-                                  <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><br>
-                                  </p>
-                                  <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;">The
-                                    aim of the next step will be to technically
-                                    identify these steps in the execution flow,
-                                    using:</p>
-                                  <ul>
-                                    <li>The functional description.</li>
-                                    <li>The relations between functional and
-                                      technical objects.</li>
-                                  </ul>
-                                  <b><b><b>
+                        <br>
+                        <b><b><b></b></b></b><b><b><b><b>
+                                <div class="par"><b><b><b>
                                         <div class="par">
                                           <p class="text-left"></p>
-                                          <h2 class="sec-head text-left clearfix"><span>EXTRACTING
-                                              DYNAMIC DATA</span> </h2>
+                                          <h2 class="sec-head text-left clearfix"><span>MERGE
+                                              DYNAMIC DATA TO COMMON REPOSITORY</span>
+                                          </h2>
                                           <b><b> <b>
                                                 <div class="about-img"><img src="images/about-line.png"></div>
                                                 <div class="par">
                                                   <p class="text-left"> </p>
                                                   <br>
-                                                  <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;">
-                                                    <b><b><b><b><b><b><b><span style="font-family: Arial;">Last
-                                                                  phase<span style="font-family: &quot;Open Sans&quot;,sans-serif;">:
-                                                                  Extraction of
-                                                                  dynamic data.
-                                                                  Monitoring.</span></span><br>
-                                                                </b></b></b></b></b></b></b></p>
-                                                  <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><b><b><b><b><b><b><b><br>
-                                                                </b></b></b></b></b></b></b></p>
-                                                  <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><b><b><b><b><b><b><b><br>
-                                                                </b></b></b></b></b></b></b></p>
-                                                  tcpdump on some relevant
-                                                  network traffic. packet
-                                                  captures in production</div>
+                                                  <span style="font-family: Arial;">Creation
+                                                    of dynamic data generated by
+                                                    the IS, with development
+                                                    tools. These technical data
+                                                    are merged to the semantic
+                                                    repository.</span></div>
+                                                <div class="par"><span style="font-family: Arial;">This
+                                                    merge creates valuable
+                                                    relations because there are
+                                                    relations between functional
+                                                    and technical objects. These
+                                                    dynamic data might have to
+                                                    be completed with attributes
+                                                    to associate them with
+                                                    static information.</span></div>
                                                 <div class="par"><b><b>
                                                       <li>Database monitor
                                                         files, <a href="https://docs.oracle.com/cd/E17952_01/mysql-5.0-en/query-log.html">logging
@@ -375,57 +361,35 @@ href="https://bian.org" title="BIAN">BIAN</a>)</strong></span> establishes a
                                                         like <a href="https://en.wikipedia.org/wiki/Strace">strace</a>
                                                         or <a href="https://en.wikipedia.org/wiki/Ltrace">ltrace</a>.
                                                         Detect command lines </li>
+                                                      <li><b><b><b><b><b><b><b><b><b><b><b><b><b>tcpdump
+                                                                  on some
+                                                                  relevant
+                                                                  network
+                                                                  traffic.
+                                                                  packet
+                                                                  captures in
+                                                                  production</b></b></b></b></b></b></b></b></b></b></b></b></b></li>
                                                     </b></b>
                                                   <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span
 style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;"><br></span></p>
-                                                  <h2 class="sec-head text-left clearfix"><b><b><b><span><span
-                                                              style="font-family: Arial;">MERGE
-                                                              DATA</span>,
-                                                            REBUILDING</span> </b></b></b></h2>
-                                                  <b><b><b> <b><b> <b>
-                                                              <div class="about-img"><img
-                                                                  src="images/about-line.png"></div>
-                                                              <div class="par">
-                                                                <p class="text-left">
-                                                                </p>
-                                                                <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><br>
-                                                                  <b><b><b><b><b><b><b><span
+                                                  <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><br>
+                                                    <b><b><b><b><b><b><b><b><b><b><b><b><b>
+                                                                  <h3 class="text-left">Other
+                                                                  techniques<br>
+                                                                  </h3>
+                                                                  <p class="text-left"></p>
+                                                                  <b><b><b>
+                                                                  <div class="par">
+                                                                  <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"
+                                                                  id="docs-internal-guid-f9a73401-7fff-20ec-c27f-ca0d06ad2a0c"><span
                                                                   style="font-family: Arial;"><span
                                                                   style="font-family: &quot;Open Sans&quot;,sans-serif;"><span
-                                                                  style="font-family: Arial;">Merge
-                                                                  static and
-                                                                  dynamic data
-                                                                  in a single
-                                                                  RDF
-                                                                  repository.</span></span></span></b></b></b></b></b></b></b></p>
-                                                                <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><b><b><b><b><b><b><b><span
-                                                                  style="font-family: Arial;"><span
-                                                                  style="font-family: &quot;Open Sans&quot;,sans-serif;"><span
-                                                                  style="font-family: Arial;">Sparql</span></span></span></b></b></b></b></b></b></b></p>
-                                                              </div>
-                                                            </b></b></b></b></b></b>
-                                                  <p></p>
-                                                  <br>
-                                                  <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"></p>
-                                                  <p class="text-left"><br>
-                                                  </p>
-                                                  <p class="text-left"></p>
-                                                  <h2 class="sec-head text-left clearfix"><span>OTHER
-                                                      TECHNIQUES</span> </h2>
-                                                  <b><b> <b>
-                                                        <div class="about-img"><img
-                                                            src="images/about-line.png"></div>
-                                                        <div class="par">
-                                                          <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"
-                                                            id="docs-internal-guid-f9a73401-7fff-20ec-c27f-ca0d06ad2a0c"><br>
-                                                            <span style="font-family: Arial;"><span
-                                                                style="font-family: &quot;Open Sans&quot;,sans-serif;"><span
                                                                   style="font-family: Arial;">Detecting
                                                                   patterns in
                                                                   the RDF graph
                                                                   database:</span></span></span></p>
-                                                          <ul>
-                                                            <li><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><span
+                                                                  <ul>
+                                                                  <li><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><span
                                                                   style="font-family: Arial;"><span
                                                                   style="font-family: &quot;Open Sans&quot;,sans-serif;"><span
                                                                   style="font-family: Arial;"><a
@@ -433,49 +397,106 @@ style="font-size:11pt;font-family:Arial;color:#000000;background-color:transpare
                                                                   and the
                                                                   knowledge
                                                                   graph</a>.</span></span></span></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></li>
-                                                            <li><span style="font-family: Arial;"><a
+                                                                  <li><span style="font-family: Arial;"><a
                                                                   href="https://www.profium.com/en/blog/artificial-intelligence-ai-powered-graph-computing-and-semantic-big-data/">AI-powered
                                                                   graph
                                                                   computing and
                                                                   semantic big
                                                                   data</a>.</span></li>
-                                                            <li><span style="font-family: Arial;">Rebuild
-                                                                data
-                                                                dependencies by
-                                                                using
-                                                                timestamps.</span></li>
-                                                          </ul>
-                                                          <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span
+                                                                  <li><span style="font-family: Arial;">Rebuild
+                                                                  data
+                                                                  dependencies
+                                                                  by using
+                                                                  timestamps.</span></li>
+                                                                  </ul>
+                                                                  <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><span
 style="font-size:11pt;font-family:Arial;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;"><br></span></p>
-                                                          <span style="font-family: Arial;">Analyse
-                                                            technical
-                                                            documentation with
-                                                            NLP (Natural
-                                                            Language Processing)
-                                                            techniques. This
-                                                            technology is used
-                                                            in the </span><br>
-                                                          <span class="ILfuVd"><span
-                                                              class="e24Kjd"><b>pharmaceutical
-                                                                industry.</b></span></span><span
-                                                            style="font-family: Arial;"><a
-                                                              href="https://gate.ac.uk/">
-                                                              Gate</a> is the
-                                                            tool of choice for
-                                                            parsing free-form
-                                                            text and extracting
-                                                            semantic data.</span></div>
-                                                        <div class="par"><span style="font-family: Arial;">Process
-                                                            mining: Automated
-                                                            business process
-                                                            discovery.</span></div>
-                                                        <div class="par"><span style="font-family: Arial;">Reverse-engineering:
-                                                            <a href="https://rada.re/n/">Radare2</a>
-                                                            etc...</span></div>
-                                                      </b></b></b><b><b><b>
+                                                                  <span style="font-family: Arial;">Analyse
+                                                                  technical
+                                                                  documentation
+                                                                  with NLP
+                                                                  (Natural
+                                                                  Language
+                                                                  Processing)
+                                                                  techniques.
+                                                                  This
+                                                                  technology is
+                                                                  used in the </span><br>
+                                                                  <span class="ILfuVd"><span
+                                                                  class="e24Kjd"><b>pharmaceutical
+                                                                  industry.</b></span></span><span
+                                                                  style="font-family: Arial;"><a
+                                                                  href="https://gate.ac.uk/">
+                                                                  Gate</a> is
+                                                                  the tool of
+                                                                  choice for
+                                                                  parsing
+                                                                  free-form text
+                                                                  and extracting
+                                                                  semantic data.</span></div>
+                                                                  <div class="par"><span
+                                                                  style="font-family: Arial;">Process
+                                                                  mining:
+                                                                  Automated
+                                                                  business
+                                                                  process
+                                                                  discovery.</span></div>
+                                                                  <div class="par"><span
+                                                                  style="font-family: Arial;">Reverse-engineering:
+                                                                  <a href="https://rada.re/n/">Radare2</a>
+                                                                  etc...</span></div>
+                                                                  </b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></p>
+                                                  <p></p>
+                                                  <br>
+                                                  <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"></p>
+                                                  <p class="text-left"><b><b><b><b><b><b><b><b><b><b><b><b><b>
+                                                                  <h2 class="sec-head text-left clearfix"><b><b><b><span><span
+                                                                  style="font-family: Arial;">REFACTORING</span></span></b></b></b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b>
+                                                                  <div class="about-img"><img
+                                                                  src="images/about-line.png"></div>
+                                                                  </b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></h2>
+                                                                  </b></b></b></b></b></b></b></b></b></b></b></b></b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b>
+                                                                  </b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b>
+                                                                  </b></b></b></b></b></b>
+                                                                  <p></p>
+                                                                  </b></b></b></b></b></b></b></b></b></b></b></b></b></p>
+                                                  <p class="text-left"><br>
+                                                  </p>
+                                                  <p class="text-left"><b><b><b><b><b></b></b></b></b></b><b><b><b><b><b>
+                                                              <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"
+                                                                id="docs-internal-guid-6d72883a-7fff-24ad-7591-fc2c8d1c3194">Based
+                                                                on the
+                                                                information
+                                                                extracted in the
+                                                                previous step,
+                                                                define the
+                                                                functional
+                                                                building blocs
+                                                                using the
+                                                                terminology
+                                                                defined in the
+                                                                first step. The
+                                                                size and number
+                                                                of these
+                                                                building blocks
+                                                                is not important
+                                                                as long as they
+                                                                are defined in
+                                                                the terminology
+                                                                of the
+                                                                application.
+                                                                This is a common
+                                                                stage for all
+                                                                refactoring
+                                                                tasks.</p>
+                                                              <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><br>
+                                                              </p>
+                                                            </b></b></b></b></b></p>
+                                                  <p class="text-left">The
+                                                    target system can be
+                                                    XComponent, Docker etc...</p>
+                                                  <b><b><b>
                                                         <div class="par">
-                                                          <p class="text-left"><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b>
-                                                                  </b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></p>
                                                           <h2 class="sec-head text-left clearfix"><b><b><b><b><b><b><b><span><span
                                                                   style="font-family: Arial;">OUR
                                                                   PARTNER<br>
