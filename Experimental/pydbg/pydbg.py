@@ -175,7 +175,8 @@ class pydbg:
         self.op3                      = None      # pydasm decoded 3rd operand, propagated by self.disasm()
 
         # control debug/error logging.
-        self._log = lambda msg: None #sys.stderr.write("PDBG_LOG> " + msg + "\n")
+        # self._log = lambda msg: None #sys.stderr.write("PDBG_LOG> " + msg + "\n")
+        self._log = lambda msg: sys.stderr.write("PDBG_LOG> " + msg + "\n")
         self._err = lambda msg: sys.stderr.write("PDBG_ERR> " + msg + "\n")
 
         # determine the system page size.
@@ -248,19 +249,18 @@ class pydbg:
         @return:    Self
         '''
 
-        print("attaching to pid %d" % pid)
         self._log("attaching to pid %d" % pid)
 
         # obtain necessary debug privileges.
         self.get_debug_privileges()
-        print("After get_debug_privileges")
+        self._log("After get_debug_privileges")
 
         self.pid = pid
         self.open_process(pid)
-        print("After open_process")
+        self._log("After open_process")
 
         self.debug_active_process(pid)
-        print("After debug_active_process pid=", pid)
+        self._log("After debug_active_process pid=%d" % pid)
 
         # allow detaching on systems that support it.
         try:
@@ -274,11 +274,11 @@ class pydbg:
             thread_context = self.get_thread_context(thread_handle)
             selector_entry = LDT_ENTRY()
 
-            print("thread_id=", thread_id)
-            print("thread_context.SegFs=", thread_context.SegFs)
+            self._log("thread_id=%s" % str(thread_id))
+            self._log("thread_context.SegFs=%s" % str(thread_context.SegFs))
             if not kernel32.GetThreadSelectorEntry(thread_handle, thread_context.SegFs, byref(selector_entry)):
-                print("Error GetThreadSelectorEntry")
-                print("DISABLE ERROR Error GetThreadSelectorEntry")
+                self._log("Error GetThreadSelectorEntry")
+                self._log("DISABLE ERROR Error GetThreadSelectorEntry")
                 continue
                 self.win32_error("GetThreadSelectorEntry()")
 
@@ -606,8 +606,8 @@ class pydbg:
 
                 # add the breakpoint to the internal list.
                 self.breakpoints[address] = breakpoint(address, original_byte, description, restore, handler)
-            except:
-                raise pdx("Failed setting breakpoint at %08x" % address)
+            except Exception as exc:
+                raise pdx("Failed setting breakpoint at %08x : %s" % (address, exc))
 
         return self.ret_self()
 
@@ -901,34 +901,34 @@ class pydbg:
             self.violation_address = dbg.u.Exception.ExceptionRecord.ExceptionInformation[1]
             self.exception_code    = dbg.u.Exception.ExceptionRecord.ExceptionCode
 
-            print("debug_event_iteration dbg.dwDebugEventCode=", dbg.dwDebugEventCode)
+            self._log("debug_event_iteration dbg.dwDebugEventCode=%d" % dbg.dwDebugEventCode)
             if dbg.dwDebugEventCode == CREATE_PROCESS_DEBUG_EVENT:
-                print("CREATE_PROCESS_DEBUG_EVENT")
+                self._log("CREATE_PROCESS_DEBUG_EVENT")
                 continue_status = self.event_handler_create_process()
 
             elif dbg.dwDebugEventCode == CREATE_THREAD_DEBUG_EVENT:
-                print("CREATE_THREAD_DEBUG_EVENT")
+                self._log("CREATE_THREAD_DEBUG_EVENT")
                 continue_status = self.event_handler_create_thread()
 
             elif dbg.dwDebugEventCode == EXIT_PROCESS_DEBUG_EVENT:
-                print("EXIT_PROCESS_DEBUG_EVENT")
+                self._log("EXIT_PROCESS_DEBUG_EVENT")
                 continue_status = self.event_handler_exit_process()
 
             elif dbg.dwDebugEventCode == EXIT_THREAD_DEBUG_EVENT:
-                print("EXIT_THREAD_DEBUG_EVENT")
+                self._log("EXIT_THREAD_DEBUG_EVENT")
                 continue_status = self.event_handler_exit_thread()
 
             elif dbg.dwDebugEventCode == LOAD_DLL_DEBUG_EVENT:
-                print("LOAD_DLL_DEBUG_EVENT")
+                self._log("LOAD_DLL_DEBUG_EVENT")
                 continue_status = self.event_handler_load_dll()
 
             elif dbg.dwDebugEventCode == UNLOAD_DLL_DEBUG_EVENT:
-                print("UNLOAD_DLL_DEBUG_EVENT")
+                self._log("UNLOAD_DLL_DEBUG_EVENT")
                 continue_status = self.event_handler_unload_dll()
 
             # an exception was caught.
             elif dbg.dwDebugEventCode == EXCEPTION_DEBUG_EVENT:
-                print("EXCEPTION_DEBUG_EVENT")
+                self._log("EXCEPTION_DEBUG_EVENT")
                 ec = dbg.u.Exception.ExceptionRecord.ExceptionCode
 
                 self._log("debug_event_loop() exception: %08x" % ec)
@@ -958,8 +958,9 @@ class pydbg:
 
             # close the opened thread handle and resume executing the thread that triggered the debug event.
             self.close_handle(self.h_thread)
-            print("BEFORE ContinueDebugEvent")
+            self._log("BEFORE ContinueDebugEvent")
             kernel32.ContinueDebugEvent(dbg.dwProcessId, dbg.dwThreadId, continue_status)
+            self._log("AFTER ContinueDebugEvent")
 
 
     ####################################################################################################################
@@ -976,6 +977,7 @@ class pydbg:
         '''
 
         while self.debugger_active:
+            self._log("In loop on debugger_active")
             # don't let the user interrupt us in the midst of handling a debug event.
             try:
                 def_sigint_handler = None
@@ -991,6 +993,7 @@ class pydbg:
 
             # iterate through a debug event.
             self.debug_event_iteration()
+            self._log("Returning from debug_event_iteration")
 
             # resume keyboard interruptability.
             if def_sigint_handler:
@@ -1417,12 +1420,12 @@ class pydbg:
         selector_entry = LDT_ENTRY()
 
 #        if not kernel32.GetThreadSelectorEntry(thread_handle, thread_context.SegFs, byref(selector_entry)):
-        print("BEFORE GetThreadSelectorEntry")
+        self._log("BEFORE GetThreadSelectorEntry")
         if not GetThreadSelectorEntry(thread_handle, thread_context.SegFs, byref(selector_entry)):
-            print("DISABLE ERROR Error GetThreadSelectorEntry")
+            self._log("DISABLE ERROR Error GetThreadSelectorEntry")
             if False:
                 self.win32_error("GetThreadSelectorEntry()")
-        print("AFTER GetThreadSelectorEntry")
+        self._log("AFTER GetThreadSelectorEntry")
 
         teb  = selector_entry.BaseLow
         teb += (selector_entry.HighWord.Bits.BaseMid << 16) + (selector_entry.HighWord.Bits.BaseHi << 24)
@@ -1951,6 +1954,7 @@ class pydbg:
         if not context:
             context = self.context
 
+        self._log("get_arg index=%d context.Esp=%08x" % (index, context.Esp))
         arg_val = self.read_process_memory(context.Esp + index * 4, 4)
         arg_val = self.flip_endian_dword(arg_val)
 
@@ -1996,7 +2000,7 @@ class pydbg:
         res = OpenProcessToken(GetCurrentProcess(), TOKEN_ALL_ACCESS, token)
         if not res > 0:
             raise RuntimeError("Couldn't get process token")
-        print("my_get_process_token res=", res, "token=", token)
+        self._log("my_get_process_token res=%d token=%d" % (res, token))
         return token
 
     def get_debug_privileges (self):
@@ -2283,7 +2287,7 @@ class pydbg:
 
         if not kernel32.GetThreadSelectorEntry(self.h_thread, self.context.SegFs, byref(selector_entry)):
             self.win32_error("GetThreadSelectorEntry()")
-        print("AFTER GetThreadSelectorEntry")
+        self._log("AFTER GetThreadSelectorEntry")
 
         fs_base  = selector_entry.BaseLow
         fs_base += (selector_entry.HighWord.Bits.BaseMid << 16) + (selector_entry.HighWord.Bits.BaseHi << 24)
@@ -2548,7 +2552,7 @@ class pydbg:
 
         if not kernel32.GetThreadSelectorEntry(pi.hThread, thread_context.SegFs, byref(selector_entry)):
             self.win32_error("GetThreadSelectorEntry()")
-        print("AFTER GetThreadSelectorEntry")
+        self._log("AFTER GetThreadSelectorEntry")
 
         teb  = selector_entry.BaseLow
         teb += (selector_entry.HighWord.Bits.BaseMid << 16) + (selector_entry.HighWord.Bits.BaseHi << 24)
@@ -2889,6 +2893,7 @@ class pydbg:
         @rtype:     Raw
         @return:    Read data.
         '''
+        self._log("read_process_memory address=%08x length=%d" % (address, length))
 
         data         = ""
         read_buf     = create_string_buffer(length)
@@ -3019,7 +3024,7 @@ class pydbg:
 
         if not kernel32.GetThreadSelectorEntry(self.h_thread, context.SegFs, byref(selector_entry)):
             self.win32_error("GetThreadSelectorEntry()")
-        print("AFTER GetThreadSelectorEntry")
+        self._log("AFTER GetThreadSelectorEntry")
 
         fs_base  = selector_entry.BaseLow
         fs_base += (selector_entry.HighWord.Bits.BaseMid << 16) + (selector_entry.HighWord.Bits.BaseHi << 24)
@@ -3330,7 +3335,7 @@ class pydbg:
 
         if not kernel32.GetThreadSelectorEntry(self.h_thread, context.SegFs, byref(selector_entry)):
             self.win32_error("GetThreadSelectorEntry()")
-        print("AFTER GetThreadSelectorEntry")
+        self._log("AFTER GetThreadSelectorEntry")
 
         fs_base  = selector_entry.BaseLow
         fs_base += (selector_entry.HighWord.Bits.BaseMid << 16) + (selector_entry.HighWord.Bits.BaseHi << 24)

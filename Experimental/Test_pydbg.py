@@ -255,9 +255,17 @@ class hook:
         #     - thread two enters API, overwrites arguments
         #     - thread one exists API and uses arguments from thread two
         tid = pydbg.dbg.dwThreadId
+        print("__proxy_on_entry tid=", tid)
+        print("__proxy_on_entry self.num_args=", self.num_args)
         self.arguments[tid] = []
 
+        if self.exit_hook:
+            function_exit = pydbg.get_arg(0)
+            print("dir(function_exit)=", dir(function_exit))
+
+
         for i in xrange(1, self.num_args + 1):
+            print("BEFORE get_arg", i)
             self.arguments[tid].append(pydbg.get_arg(i))
 
         # if an entry point callback was specified, call it and grab the return value.
@@ -323,13 +331,17 @@ class hook:
 
 
 def processing_function(one_argument):
-    print('Subprocess hello. Sleeping ', one_argument)
-    time.sleep(one_argument)
-    print('Subprocess leaving after sleep=', one_argument)
+    while True:
+        print('Subprocess hello. Sleeping ', one_argument)
+        time.sleep(one_argument)
+        print('Subprocess leaving after sleep=', one_argument)
 
 
 # This is our entry hook callback function
 def ssl_sniff( dbg, args ):
+    print("ssl_sniff")
+    print("ssl_sniff")
+    print("ssl_sniff")
     # we reach a NULL byte
     buffer  = ""
     offset  = 0
@@ -346,7 +358,7 @@ def ssl_sniff( dbg, args ):
 
 if __name__ == '__main__':
     the_argument = "Hello"
-    sleep_time = 3.0
+    sleep_time = 1.0
     created_process = multiprocessing.Process(target=processing_function, args=(sleep_time,))
     created_process.start()
     print("created_process=", created_process.pid)
@@ -377,7 +389,7 @@ if __name__ == '__main__':
     # Add the hook to the container. We aren't interested
     # in using an exit callback, so we set it to None.
 
-    print("hook_address=", hook_address)
+    print("hook_address=%08x" % hook_address)
     hooks.add(tst_pydbg, hook_address, 2, ssl_sniff, None)
     print("[*] Function hooked at: 0x%08x" % hook_address)
 
