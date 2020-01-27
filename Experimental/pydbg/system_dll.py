@@ -22,6 +22,8 @@
 @organization: www.openrce.org
 '''
 
+from __future__ import print_function
+
 import os.path
 
 from my_ctypes import *
@@ -122,16 +124,14 @@ class system_dll:
                 # ctypes.ArgumentError: argument 1: <type 'exceptions.OverflowError'>: long int too long to convert
                 # psapi.GetMappedFileNameA(kernel32.GetCurrentProcess(), file_ptr, byref(filename), 2048)
                 print("BEFORE GetMappedFileNameA")
-                print("BEFORE GetMappedFileNameA")
-                print("BEFORE GetMappedFileNameA")
                 #psapi.GetMappedFileNameA(kernel32.GetCurrentProcess(), file_ptr, byref(filename), c_ulong(2048))
                 psapi.GetMappedFileNameA(kernel32.GetCurrentProcess(), file_ptr, filename, c_ulong(2048))
                 print("AFTER GetMappedFileNameA")
-                print("AFTER GetMappedFileNameA")
-                print("AFTER GetMappedFileNameA")
+                print("AFTER GetMappedFileNameA filename=", filename)
 
                 # store the full path. this is kind of ghetto, but i didn't want to mess with QueryDosDevice() etc ...
                 self.path = os.sep + filename.value.split(os.sep, 3)[3]
+                print("AFTER GetMappedFileNameA self.path=", self.path)
 
                 # store the file name.
                 # XXX - this really shouldn't be failing. but i've seen it happen.
