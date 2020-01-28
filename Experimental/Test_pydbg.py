@@ -342,26 +342,29 @@ def processing_function(one_argument):
 # This is our entry hook callback function
 def ssl_sniff( dbg, args ):
     print("ssl_sniff")
-    print("ssl_sniff")
-    print("ssl_sniff")
     # we reach a NULL byte
     buffer  = ""
     offset  = 0
-    while 1:
-        byte = dbg.read_process_memory( args[1] + offset, 1 )
-        if byte != "\x00":
-            buffer  += byte
-            offset  += 1
-            continue
-        else:
-            break
-    print("buffer: %s" % buffer)
+    try:
+        while 1:
+            byte = dbg.read_process_memory( args[1] + offset, 1 )
+            if byte != "\x00":
+                buffer  += byte
+                offset  += 1
+                continue
+            else:
+                break
+        print("buffer: %s" % buffer)
+    except Exception as exc:
+        print("Caught:", exc)
     return DBG_CONTINUE
 
 if __name__ == '__main__':
     the_argument = "Hello"
-    # Py2 tst_pydbg = pydbg()
-    tst_pydbg = pydbg.pydbg()
+    if sys.version_info < (3,):
+        tst_pydbg = pydbg()
+    else:
+        tst_pydbg = pydbg.pydbg()
     sleep_time = 3.0
     created_process = multiprocessing.Process(target=processing_function, args=(sleep_time,))
     created_process.start()
