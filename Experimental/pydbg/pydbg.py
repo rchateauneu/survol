@@ -1618,8 +1618,12 @@ class pydbg:
 
             # before we can continue, we have to correct the value of EIP. the reason for this is that the 1-byte INT 3
             # we inserted causes EIP to "slide" + 1 into the original instruction and must be reset.
-            self.set_register("EIP", self.exception_address)
-            self.context.Eip -= 1
+            if is_64bits:
+                self.set_register("RIP", self.exception_address)
+                self.context.Rip -= 1
+            else:
+                self.set_register("EIP", self.exception_address)
+                self.context.Eip -= 1
 
             # if there is a specific handler registered for this bp, pass control to it.
             if self.breakpoints[self.exception_address].handler:
@@ -1953,8 +1957,12 @@ class pydbg:
         if not context:
             context = self.context
 
-        self._log("get_arg index=%d context.Esp=%08x" % (index, context.Esp))
-        arg_val = self.read_process_memory(context.Esp + index * 4, 4)
+        if is_64bits:
+            self._log("get_arg index=%d context.Rsp=%08x" % (index, context.Rsp))
+            arg_val = self.read_process_memory(context.Rsp + index * 4, 4)
+        else:
+            self._log("get_arg index=%d context.Esp=%08x" % (index, context.Esp))
+            arg_val = self.read_process_memory(context.Esp + index * 4, 4)
         arg_val = self.flip_endian_dword(arg_val)
 
         return arg_val
@@ -2146,12 +2154,50 @@ class pydbg:
         return dll
 
 
-    ####################################################################################################################
-
-    # https://stackoverflow.com/questions/17504174/win-64bit-getthreadcontext-returns-zeroed-out-registers-or-0x57-errorcode
 
     ####################################################################################################################
     def get_thread_context (self, thread_handle=None, thread_id=0):
+        # This depends on the target process. At the moment,
+        # only 32 bits or 64 bits.
+        # https://stackoverflow.com/questions/17504174/win-64bit-getthreadcontext-returns-zeroed-out-registers-or-0x57-errorcode
+        if is_64bits:
+            return self.get_thread_context64(thread_handle, thread_id)
+        else:
+            return self.get_thread_context32(thread_handle, thread_id)
+
+    ####################################################################################################################
+    def get_thread_context64 (self, thread_handle=None, thread_id=0):
+        self._log("get_thread_context thread_id=%d" % thread_id)
+
+        context = CONTEXT64()
+
+        context.ContextFlags = CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS
+
+        # if a thread handle was not specified, get one from the thread id.
+        if not thread_handle:
+            h_thread = self.open_thread(thread_id)
+        else:
+            h_thread = thread_handle
+
+        if not kernel32.GetThreadContext(h_thread, byref(context)):
+            raise pdx("GetThreadContext()", True)
+
+        # if we had to resolve the thread handle, close it.
+        if not thread_handle:
+            self.close_handle(h_thread)
+
+        if False:
+            for register_name, register_type in context._fields_:
+                try:
+                    self._log("Register:%s Value= %08x" % (register_name, getattr(context, register_name)))
+                except TypeError:
+                    self._log("Register:%s Not a number" % (register_name))
+
+
+        return context
+
+    ####################################################################################################################
+    def get_thread_context32 (self, thread_handle=None, thread_id=0):
         '''
         Convenience wrapper around GetThreadContext(). Can obtain a thread context via a handle or thread id.
 
@@ -2184,89 +2230,7 @@ class pydbg:
         if not thread_handle:
             self.close_handle(h_thread)
 
-        registers_list = ("Eax", "Ebx", "Ecx", "Edx", "Esi", "Edi", "Esp", "Ebp", "Eip")
-
-        # ['__class__', '__ctypes_from_outparam__', '__delattr__', '__doc__', '__format__', '__getattribute__', '__hash__', '__init__',
-        # '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__setstate__', '__sizeof__', '__str__', '__subclasshook__',
-        # '_b_base_', '_b_needsfree_', '_objects']
-        print("dir(ctypes.Structure)=", dir(ctypes.Structure))
-
-        # dir(context)= [
-        # 'ContextFlags', 'Dr0', 'Dr1', 'Dr2', 'Dr3', 'Dr6', 'Dr7', 'EFlags', 'Eax', 'Ebp', 'Ebx', 'Ecx', 'Edi', 'Edx', 'Eip', 'Esi', 'Esp',
-        # 'ExtendedRegisters', 'FloatSave', 'SegCs', 'SegDs', 'SegEs', 'SegFs', 'SegGs', 'SegSs',
-        # '__class__', '__ctypes_from_outparam__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__',
-        # '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__',
-        # '__setstate__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_b_base_', '_b_needsfree_', '_fields_', '_objects']
-
-        # C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\SDK\ScopeCppSDK\SDK\include\um\winnt.h
-        # typedef struct _CONTEXT
-        # {
-        # DWORD ContextFlags;
-        # DWORD   Dr0;
-        # DWORD   Dr1;
-        # DWORD   Dr2;
-        # DWORD   Dr3;
-        # DWORD   Dr6;
-        # DWORD   Dr7;
-        # FLOATING_SAVE_AREA FloatSave;
-        # DWORD   SegGs;
-        # DWORD   SegFs;
-        # DWORD   SegEs;
-        # DWORD   SegDs;
-        # DWORD   Edi;
-        # DWORD   Esi;
-        # DWORD   Ebx;
-        # DWORD   Edx;
-        # DWORD   Ecx;
-        # DWORD   Eax;
-        # DWORD   Ebp;
-        # DWORD   Eip;
-        # DWORD   SegCs; // MUST BE SANITIZED
-        # DWORD   EFlags; // MUST BE SANITIZED
-        # DWORD   Esp;
-        # DWORD   SegSs;
-        # BYTE    ExtendedRegisters[MAXIMUM_SUPPORTED_EXTENSION];
-        # }
-
-        print("dir(context)=", dir(context))
-
-        print("ContextFlags:", context.ContextFlags)
-        print("Dr0:", context.Dr0)
-        print("Dr1:", context.Dr1)
-        print("Dr2:", context.Dr2)
-        print("Dr3:", context.Dr3)
-        print("Dr6:", context.Dr6)
-        print("Dr7:", context.Dr7)
-        print("FloatSave:", context.FloatSave)
-        print("SegGs:", context.SegGs)
-        print("SegFs:", context.SegFs)
-        print("SegEs:", context.SegEs)
-        print("SegDs:", context.SegDs)
-        print("Edi:", context.Edi)
-        print("Esi:", context.Esi)
-        print("Ebx:", context.Ebx)
-        print("Edx:", context.Edx)
-        print("Ecx:", context.Ecx)
-        print("Eax:", context.Eax)
-        print("Ebp:", context.Ebp)
-        print("Eip:", context.Eip)
-        print("SegCs:", context.SegCs)
-        print("EFlags:", context.EFlags)
-        print("Esp:", context.Esp)
-        print("SegSs:", context.SegSs)
-
-        for one_register in registers_list:
-            self._log("Register:%s Value= %08x" % (one_register, getattr(context, one_register)))
-
-            # the_offset = ctypes.addressof(Esp) - ctypes.addressof(context)
-            #the_offset = context.offsetof(Esp)
-            #self._log("            Offset= %s" % str(the_offset))
-
         return context
-
-
-    # Possibly WOW64_CONTEXT
-    # https://stackoverflow.com/questions/17504174/win-64bit-getthreadcontext-returns-zeroed-out-registers-or-0x57-errorcode
 
     ####################################################################################################################
     def get_unicode_string (self, data):
@@ -2975,7 +2939,9 @@ class pydbg:
         @rtype:     Raw
         @return:    Read data.
         '''
+        print("read_process_memory address=%08x length=%d" % (address, length))
         self._log("read_process_memory address=%08x length=%d" % (address, length))
+        assert address
 
         data         = b""
         read_buf     = create_string_buffer(length)
@@ -2993,6 +2959,7 @@ class pydbg:
             pass
 
         while length:
+            self._log("read_process_memory length=%d" % (length))
             if not kernel32.ReadProcessMemory(self.h_process, address, read_buf, length, byref(count)):
                 if not len(data):
                     raise pdx("ReadProcessMemory(%08x, %d, read=%d)" % (address, length, count.value), True)
@@ -3194,6 +3161,32 @@ class pydbg:
 
     ####################################################################################################################
     def set_register (self, register, value):
+        if is_64bits:
+            self.set_register64(register, value)
+        else:
+            self.set_register32(register, value)
+
+    ####################################################################################################################
+    def set_register64(self, register, value):
+        self._log("setting %s to %08x in thread id %d" % (register, value, self.dbg.dwThreadId))
+
+        #register = register.upper()
+        register = register[0].upper() + register[1:].lower()
+        if register not in (register_name for register_name, register_type in CONTEXT64._fields_):
+            raise pdx("invalid register specified:%s" % register)
+
+        # ensure we have an up to date thread context.
+        context = self.get_thread_context(self.h_thread)
+
+        setattr(context, register, value)
+
+        self.set_thread_context(context)
+
+        return self.ret_self()
+
+    ####################################################################################################################
+    def set_register32(self, register, value):
+
         '''
         Set the value of a register in the debuggee within the context of the self.h_thread.
 

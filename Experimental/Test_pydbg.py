@@ -269,6 +269,7 @@ class hook:
         for i in xrange(1, self.num_args + 1):
             print("BEFORE get_arg", i)
             self.arguments[tid].append(pydbg.get_arg(i))
+            print("AFTER get_arg", i, self.arguments[tid][-1])
 
         # if an entry point callback was specified, call it and grab the return value.
         if self.entry_hook:
@@ -342,11 +343,14 @@ def processing_function(one_argument):
 # This is our entry hook callback function
 def ssl_sniff( dbg, args ):
     print("ssl_sniff")
+    print("ssl_sniff args=", args)
+    assert args[1]
     # we reach a NULL byte
     buffer  = ""
     offset  = 0
     try:
         while 1:
+            print("ssl_sniff offset=", offset)
             byte = dbg.read_process_memory( args[1] + offset, 1 )
             if byte != "\x00":
                 buffer  += byte
@@ -357,6 +361,7 @@ def ssl_sniff( dbg, args ):
         print("buffer: %s" % buffer)
     except Exception as exc:
         print("Caught:", exc)
+        raise
     return DBG_CONTINUE
 
 if __name__ == '__main__':
