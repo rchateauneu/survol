@@ -102,6 +102,8 @@ class system_dll:
         self.path   = None
         self.pe     = None
         self.size   = 0
+        # self._log = lambda msg: None #sys.stderr.write("PDBG_LOG> " + msg + "\n")
+        self._log = lambda msg: sys.stderr.write("PDBG_LOG> " + msg + "\n")
 
         # calculate the file size of the
         file_size_hi = c_ulong(0)
@@ -121,17 +123,11 @@ class system_dll:
             if file_ptr:
                 # query for the filename of the mapped file.
                 filename = create_string_buffer(2048)
-                # ctypes.ArgumentError: argument 1: <type 'exceptions.OverflowError'>: long int too long to convert
-                # psapi.GetMappedFileNameA(kernel32.GetCurrentProcess(), file_ptr, byref(filename), 2048)
-                print("BEFORE GetMappedFileNameA")
-                #psapi.GetMappedFileNameA(kernel32.GetCurrentProcess(), file_ptr, byref(filename), c_ulong(2048))
                 psapi.GetMappedFileNameA(kernel32.GetCurrentProcess(), file_ptr, filename, c_ulong(2048))
-                print("AFTER GetMappedFileNameA")
-                print("AFTER GetMappedFileNameA filename=", filename)
 
                 # store the full path. this is kind of ghetto, but i didn't want to mess with QueryDosDevice() etc ...
                 self.path = b"\\" + filename.value.split(b"\\", 3)[3]
-                print("AFTER GetMappedFileNameA self.path=", self.path)
+                self._log("__init__ GetMappedFileNameA self.path=%s" % self.path)
 
                 # store the file name.
                 # XXX - this really shouldn't be failing. but i've seen it happen.
@@ -144,6 +140,7 @@ class system_dll:
 
             kernel32.CloseHandle(file_map)
 
+        self._log("__init__ leaving")
 
     ####################################################################################################################
     def __del__ (self):
