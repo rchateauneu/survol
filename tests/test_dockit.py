@@ -736,6 +736,8 @@ class DockitEventsTest(unittest.TestCase):
             time.sleep(2.0)
             num_loops -= 1
 
+        print("expected_types_list=", expected_types_list)
+        print("actual_types_dict=", actual_types_dict)
         self.assertTrue(expected_types_list == actual_types_dict)
 
 
