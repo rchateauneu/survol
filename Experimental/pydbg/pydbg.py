@@ -253,14 +253,14 @@ class pydbg:
 
         # obtain necessary debug privileges.
         self.get_debug_privileges()
-        self._log("After get_debug_privileges")
+        # self._log("After get_debug_privileges")
 
         self.pid = pid
         self.open_process(pid)
-        self._log("After open_process")
+        self._log("attach After open_process")
 
         self.debug_active_process(pid)
-        self._log("After debug_active_process pid=%d" % pid)
+        self._log("attach After debug_active_process pid=%d" % pid)
 
         # allow detaching on systems that support it.
         try:
@@ -274,11 +274,9 @@ class pydbg:
             thread_context = self.get_thread_context(thread_handle)
             selector_entry = LDT_ENTRY()
 
-            self._log("thread_id=%s" % str(thread_id))
-            self._log("thread_context.SegFs=%s" % str(thread_context.SegFs))
+            self._log("attach thread_id=%s thread_context.SegFs=%s" % (str(thread_id), str(thread_context.SegFs)))
             if not kernel32.GetThreadSelectorEntry(thread_handle, thread_context.SegFs, byref(selector_entry)):
-                self._log("Error GetThreadSelectorEntry")
-                self._log("DISABLE ERROR Error GetThreadSelectorEntry")
+                self._log("attach DISABLE ERROR Error GetThreadSelectorEntry")
                 continue
                 self.win32_error("GetThreadSelectorEntry()")
 
@@ -901,34 +899,34 @@ class pydbg:
             self.violation_address = dbg.u.Exception.ExceptionRecord.ExceptionInformation[1]
             self.exception_code    = dbg.u.Exception.ExceptionRecord.ExceptionCode
 
-            self._log("debug_event_iteration dbg.dwDebugEventCode=%d" % dbg.dwDebugEventCode)
+            #self._log("debug_event_iteration dbg.dwDebugEventCode=%d" % dbg.dwDebugEventCode)
             if dbg.dwDebugEventCode == CREATE_PROCESS_DEBUG_EVENT:
-                self._log("CREATE_PROCESS_DEBUG_EVENT")
+                self._log("debug_event_iteration CREATE_PROCESS_DEBUG_EVENT")
                 continue_status = self.event_handler_create_process()
 
             elif dbg.dwDebugEventCode == CREATE_THREAD_DEBUG_EVENT:
-                self._log("CREATE_THREAD_DEBUG_EVENT")
+                self._log("debug_event_iteration CREATE_THREAD_DEBUG_EVENT")
                 continue_status = self.event_handler_create_thread()
 
             elif dbg.dwDebugEventCode == EXIT_PROCESS_DEBUG_EVENT:
-                self._log("EXIT_PROCESS_DEBUG_EVENT")
+                self._log("debug_event_iteration EXIT_PROCESS_DEBUG_EVENT")
                 continue_status = self.event_handler_exit_process()
 
             elif dbg.dwDebugEventCode == EXIT_THREAD_DEBUG_EVENT:
-                self._log("EXIT_THREAD_DEBUG_EVENT")
+                self._log("debug_event_iteration EXIT_THREAD_DEBUG_EVENT")
                 continue_status = self.event_handler_exit_thread()
 
             elif dbg.dwDebugEventCode == LOAD_DLL_DEBUG_EVENT:
-                self._log("LOAD_DLL_DEBUG_EVENT")
+                self._log("debug_event_iteration LOAD_DLL_DEBUG_EVENT")
                 continue_status = self.event_handler_load_dll()
 
             elif dbg.dwDebugEventCode == UNLOAD_DLL_DEBUG_EVENT:
-                self._log("UNLOAD_DLL_DEBUG_EVENT")
+                self._log("debug_event_iteration UNLOAD_DLL_DEBUG_EVENT")
                 continue_status = self.event_handler_unload_dll()
 
             # an exception was caught.
             elif dbg.dwDebugEventCode == EXCEPTION_DEBUG_EVENT:
-                self._log("EXCEPTION_DEBUG_EVENT")
+                self._log("debug_event_iteration EXCEPTION_DEBUG_EVENT")
                 ec = dbg.u.Exception.ExceptionRecord.ExceptionCode
 
                 self._log("debug_event_loop() exception: %08x" % ec)
@@ -947,7 +945,7 @@ class pydbg:
                     continue_status = self.callbacks[ec](self)
                 # unhandled exception.
                 else:
-                    self._log("TID:%04x caused an unhandled exception (%08x) at %08x" % (self.dbg.dwThreadId, ec, self.exception_address))
+                    self._log("debug_event_iteration TID:%04x caused an unhandled exception (%08x) at %08x" % (self.dbg.dwThreadId, ec, self.exception_address))
                     continue_status = DBG_EXCEPTION_NOT_HANDLED
 
             # if the memory space of the debuggee was tainted, flush the instruction cache.
@@ -958,7 +956,7 @@ class pydbg:
 
             # close the opened thread handle and resume executing the thread that triggered the debug event.
             self.close_handle(self.h_thread)
-            self._log("BEFORE ContinueDebugEvent dbg.dwProcessId=%d" % (dbg.dwProcessId))
+            self._log("debug_event_iteration BEFORE ContinueDebugEvent dbg.dwProcessId=%d" % (dbg.dwProcessId))
             kernel32.ContinueDebugEvent(dbg.dwProcessId, dbg.dwThreadId, continue_status)
 
 
@@ -976,7 +974,7 @@ class pydbg:
         '''
 
         while self.debugger_active:
-            self._log("In loop on debugger_active")
+            self._log("debug_event_loop In loop on debugger_active")
             # don't let the user interrupt us in the midst of handling a debug event.
             try:
                 def_sigint_handler = None
@@ -992,7 +990,7 @@ class pydbg:
 
             # iterate through a debug event.
             self.debug_event_iteration()
-            self._log("Returning from debug_event_iteration")
+            self._log("debug_event_loop Returning from debug_event_iteration")
 
             # resume keyboard interruptability.
             if def_sigint_handler:
@@ -1001,6 +999,7 @@ class pydbg:
         # close the global process handle.
         self.close_handle(self.h_process)
 
+        self._log("debug_event_loop leaving")
 
     ####################################################################################################################
     def debug_set_process_kill_on_exit (self, kill_on_exit):
@@ -1027,7 +1026,7 @@ class pydbg:
         @return:    Self
         '''
 
-        self._log("detaching from debuggee")
+        self._log("detach detaching from debuggee")
 
         # remove all software, memory and hardware breakpoints.
         self.bp_del_all()
@@ -1037,6 +1036,7 @@ class pydbg:
         # try to detach from the target process if the API is available on the current platform.
         kernel32.DebugActiveProcessStop(self.pid)
 
+        self._log("detach reset debugger_active")
         self.set_debugger_active(False)
         return self.ret_self()
 
@@ -1421,7 +1421,7 @@ class pydbg:
 #        if not kernel32.GetThreadSelectorEntry(thread_handle, thread_context.SegFs, byref(selector_entry)):
         self._log("BEFORE GetThreadSelectorEntry")
         if not GetThreadSelectorEntry(thread_handle, thread_context.SegFs, byref(selector_entry)):
-            self._log("DISABLE ERROR Error GetThreadSelectorEntry")
+            self._log("event_handler_create_thread DISABLE ERROR Error GetThreadSelectorEntry")
             if False:
                 self.win32_error("GetThreadSelectorEntry()")
         self._log("AFTER GetThreadSelectorEntry")
@@ -2167,7 +2167,7 @@ class pydbg:
 
     ####################################################################################################################
     def get_thread_context64 (self, thread_handle=None, thread_id=0):
-        self._log("get_thread_context thread_id=%d" % thread_id)
+        self._log("get_thread_context64 thread_id=%d" % thread_id)
 
         context = CONTEXT64()
 
@@ -2180,6 +2180,7 @@ class pydbg:
             h_thread = thread_handle
 
         if not kernel32.GetThreadContext(h_thread, byref(context)):
+            self._log("get_thread_context64 error GetThreadContext")
             raise pdx("GetThreadContext()", True)
 
         # if we had to resolve the thread handle, close it.
@@ -2193,7 +2194,7 @@ class pydbg:
                 except TypeError:
                     self._log("Register:%s Not a number" % (register_name))
 
-
+        self._log("get_thread_context64 leaving")
         return context
 
     ####################################################################################################################
@@ -2211,7 +2212,7 @@ class pydbg:
         @return:    Thread CONTEXT on success.
         '''
 
-        self._log("get_thread_context thread_id=%d" % thread_id)
+        self._log("get_thread_context32 thread_id=%d" % thread_id)
 
         context = CONTEXT()
 
