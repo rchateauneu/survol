@@ -17,7 +17,7 @@
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>    <![endif]-->
   </head>
-  <body><span style="font-family: Arial;">kkkkkkkkkkkkkkkkkkkkkkkkkComonent</span><!--- top bar -->
+  <body><span style="font-family: Arial;"></span><!--- top bar -->
     <div class="topbar thetop">
       <div class="container">
         <div class="row">
@@ -124,14 +124,15 @@
                   <li><b>Gather sources of information and static data.</b></li>
                   <li><b>Generate dynamic data.</b></li>
                   <li><b>Refactoring to target platforms such as Docker or
-                      AC2/XComponent.<br>
+                      Kubernetes.<br>
                     </b></li>
                 </ul>
                 <p class="text-left"> This approach is cyclic and is refined
                   from the start to reach a satisfying goal.</p>
-                <p class="text-left">Survol is designed for this analysis and
-                  investigation step. Not only as a software tool, but also with
-                  the formalization it uses, based on semantic technologies.<br>
+                <p class="text-left">Survol is designed to assist this analysis
+                  and investigation step. Not only as a software tool, but also
+                  with the formalization it uses, based on semantic
+                  technologies.<br>
                 </p>
                 <p class="text-left"><br>
                 </p>
@@ -177,35 +178,34 @@
                           <p><br>
                           </p>
                           <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><b><b><b>The
-                                  aim is to build a model mostly based on
-                                  existing terminologies in the semantic web
-                                  world. This ultimately allows to store all the
-                                  existing information about the information
-                                  system, in a graph database, where abstract,
-                                  business and technical information can
-                                  coexist. Notably, its to role is to associate
-                                  conceptual entities visible to the user, to
-                                  physical entities handled by software. By
-                                  relying on standard models, several distinct
-                                  domains of knowledge can be merged into one
-                                  repository.<br>
+                                  aim is to build a model based on existing
+                                  terminologies in the semantic web world. This
+                                  ultimately allows to store all knowledge about
+                                  the information system, in a graph database,
+                                  where abstract, business and technical
+                                  information can coexist. Notably, its role is
+                                  to associate conceptual and user-side
+                                  entities, to physical entities handled by
+                                  software. By relying on standard models,
+                                  several distinct domains of knowledge can be
+                                  merged into one repository.<br>
                                 </b></b></b></p>
                           <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><b><b><b><br>
                                 </b></b></b></p>
                           <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><b><b><b>This
                                   approach is fundamentally different of
-                                  defining different levels of abstraction, the
-                                  most concrete at the bottom and the most
-                                  abstract at the top. Contrary to this vision,
-                                  we assert that the notion of abstraction can
-                                  be equally applied to all objects in an
-                                  Information System, that this notion of
-                                  abstraction is purely subjective and does not
-                                  bring any information, especially in an legacy
-                                  system where concepts and objects are already
-                                  implemented and all have a concrete life
-                                  cycle. Defining all objects in the same level
-                                  allow to express very precise and clear
+                                  defining a stack of different levels of
+                                  abstraction, from the most concrete to the
+                                  most abstract. Contrary to this vision, we
+                                  assert that the notion of abstraction can be
+                                  equally applied to all objects in an
+                                  Information System, that this abstraction and
+                                  concreteness are purely subjective and do not
+                                  contain any information, especially in an
+                                  legacy system where concepts and objects are
+                                  already implemented and all have a concrete
+                                  life cycle. Defining all objects in the same
+                                  level allows to express very precise and clear
                                   relations describing a concrete
                                   implementation.</b></b></b></p>
                           <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><b><b><b>
@@ -248,11 +248,10 @@ href="https://bian.org" title="BIAN">BIAN</a>)</strong></span> establishes a
                           </ul>
                           <p>Last but not least: <a href="https://en.wikipedia.org/wiki/Common_Information_Model_%28computing%29">Common
                               Information Model</a>&nbsp; is an open standard
-                            which represents the representation of IT elements
-                            and their relationships. Although it is far from
-                            covering all aspects of an information system, it
-                            has a concrete implementation on most operating
-                            systems (<a href="https://en.wikipedia.org/wiki/Windows_Management_Instrumentation">WMI</a>
+                            which represents IT elements and their
+                            relationships. Although it is far from covering all
+                            aspects of an information system, it has a concrete
+                            implementation on most operating systems (<a href="https://en.wikipedia.org/wiki/Windows_Management_Instrumentation">WMI</a>
                             etc...)</p>
                           <h3>Updating models with custom ontologies</h3>
                         </div>
@@ -284,18 +283,18 @@ href="https://bian.org" title="BIAN">BIAN</a>)</strong></span> establishes a
                           <li>Static code analysis with specific tools:, for
                             example <a href="https://pypi.org/project/bashlex/">parsing
                               of shell scripts</a>, SQL queries or <a href="https://pypi.org/project/antlr-plsql/">stored
-                              procedures</a>, Doxygen </li>
+                              procedures</a>, <a href="http://www.doxygen.nl/">Doxygen</a>
+                            etc.</li>
                           <li>Software API, identifiers of application objects:
                             They provide valid information about the base
                             concepts of the system.</li>
                         </ul>
                         <p>Information must be formalized based on this
                           terminology defined in the previous step. At this
-                          stage,this information is by nature mostly conceptual
-                          and addresses business concepts, but this is not an
-                          aim: The resulting semantic repository created here
-                          should also expresses relationships with technical
-                          entities. </p>
+                          stage, this information only addresses business
+                          concepts; this is not sufficient: The resulting
+                          semantic repository created here should also expresses
+                          relationships with technical entities. </p>
                         <p>Some technical objects will have a non-ambiguous
                           definitions: This database, that server etc... but
                           quite probably are defined with their attributes,
@@ -311,7 +310,6 @@ href="https://bian.org" title="BIAN">BIAN</a>)</strong></span> establishes a
                         <ul>
                         </ul>
                         <p class="text-left"></p>
-                        <br>
                         <b><b><b></b></b></b><b><b><b><b>
                                 <div class="par"><b><b><b>
                                         <div class="par">
@@ -323,7 +321,6 @@ href="https://bian.org" title="BIAN">BIAN</a>)</strong></span> establishes a
                                                 <div class="about-img"><img src="images/about-line.png"></div>
                                                 <div class="par">
                                                   <p class="text-left"> </p>
-                                                  <br>
                                                   <span style="font-family: Arial;">Creation
                                                     of dynamic data generated by
                                                     the IS, with development
@@ -360,7 +357,7 @@ href="https://bian.org" title="BIAN">BIAN</a>)</strong></span> establishes a
                                                         monitored with tools
                                                         like <a href="https://en.wikipedia.org/wiki/Strace">strace</a>
                                                         or <a href="https://en.wikipedia.org/wiki/Ltrace">ltrace</a>.
-                                                        Detect command lines </li>
+                                                        Detect command lines.</li>
                                                       <li><b><b><b><b><b><b><b><b><b><b><b><b><b>tcpdump
                                                                   on some
                                                                   relevant
@@ -460,53 +457,48 @@ style="font-size:11pt;font-family:Arial;color:#000000;background-color:transpare
                                                                   </b></b></b></b></b></b>
                                                                   <p></p>
                                                                   </b></b></b></b></b></b></b></b></b></b></b></b></b></p>
-                                                  <p class="text-left"><br>
-                                                  </p>
-                                                  <p class="text-left"><b><b><b><b><b></b></b></b></b></b><b><b><b><b><b>
-                                                              <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"
-                                                                id="docs-internal-guid-6d72883a-7fff-24ad-7591-fc2c8d1c3194">Based
-                                                                on the
-                                                                information
-                                                                extracted in the
-                                                                previous step,
-                                                                define the
-                                                                functional
-                                                                building blocs
-                                                                using the
-                                                                terminology
-                                                                defined in the
-                                                                first step. The
-                                                                size and number
-                                                                of these
-                                                                building blocks
-                                                                is not important
-                                                                as long as they
-                                                                are defined in
-                                                                the terminology
-                                                                of the
-                                                                application.
-                                                                This is a common
-                                                                stage for all
-                                                                refactoring
-                                                                tasks.</p>
-                                                              <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"><br>
-                                                              </p>
+                                                  <p dir="ltr" style="line-height:1.38;margin-top:0pt;margin-bottom:0pt;"
+                                                    id="docs-internal-guid-6d72883a-7fff-24ad-7591-fc2c8d1c3194">Based
+                                                    on the information extracted
+                                                    in the previous step, define
+                                                    the functional building
+                                                    blocs using the terminology
+                                                    defined in the first step.
+                                                    The size and number of these
+                                                    building blocks is not
+                                                    important as long as they
+                                                    are defined in the
+                                                    terminology of the
+                                                    application. This is a
+                                                    common stage for all
+                                                    refactoring tasks.</p>
+                                                  <p class="text-left"><b><b><b><b><b>
                                                             </b></b></b></b></b></p>
-                                                  <p class="text-left">The
-                                                    target system can be
-                                                    XComponent, Docker etc...</p>
                                                   <b><b><b>
                                                         <div class="par">
                                                           <h2 class="sec-head text-left clearfix"><b><b><b><b><b><b><b><span><span
-                                                                  style="font-family: Arial;">OUR
-                                                                  PARTNER<br>
+                                                                  style="font-family: Arial;">PARTNERSHIP<br>
                                                                   </span></span></b></b></b></b></b></b></b></h2>
                                                           <b><b> <b>
                                                                 <div class="about-img"><img
                                                                   src="images/about-line.png"></div>
                                                                 <div class="about-img"><br>
                                                                 </div>
-                                                                <div class="about-img">Invivoo.</div>
+                                                                <div class="about-img">This
+                                                                  approach is
+                                                                  well-suited to
+                                                                  merge
+                                                                  knowledge
+                                                                  brought by
+                                                                  several teams
+                                                                  with different
+                                                                  skills, and
+                                                                  also in
+                                                                  partnership
+                                                                  with different
+                                                                  companies with
+                                                                  distinct
+                                                                  skills. </div>
                                                                 <div class="about-img"><br>
                                                                 </div>
                                                                 <div class="about-img"><br>
