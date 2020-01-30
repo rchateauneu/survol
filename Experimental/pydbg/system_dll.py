@@ -107,7 +107,7 @@ class system_dll:
 
         # calculate the file size of the
         file_size_hi = c_ulong(0)
-        file_size_lo = 0
+        #file_size_lo = 0
         file_size_lo = kernel32.GetFileSize(handle, byref(file_size_hi))
         self.size    = (file_size_hi.value << 8) + file_size_lo
 
@@ -127,7 +127,7 @@ class system_dll:
 
                 # store the full path. this is kind of ghetto, but i didn't want to mess with QueryDosDevice() etc ...
                 self.path = b"\\" + filename.value.split(b"\\", 3)[3]
-                self._log("__init__ GetMappedFileNameA self.path=%s" % self.path)
+                self._log("system_dll __init__ GetMappedFileNameA self.path=%s size=%d" % (self.path, self.size))
 
                 # store the file name.
                 # XXX - this really shouldn't be failing. but i've seen it happen.
@@ -140,7 +140,7 @@ class system_dll:
 
             kernel32.CloseHandle(file_map)
 
-        self._log("__init__ leaving")
+        # self._log("system_dll __init__ leaving")
 
     ####################################################################################################################
     def __del__ (self):
