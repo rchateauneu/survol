@@ -1,0 +1,80 @@
+/*
+TODO: Use the same font and colors as in SVG (Graphviz) mode.
+Conversely, the DOT generation should pick its parameters from here.
+*/
+
+
+body {
+    background-color: white;
+    font-family: Dejavu Sans;
+}
+
+h1 {
+    color: navy;
+    margin-left: 5px;
+}
+
+h2 {
+    color: navy;
+	border-bottom: 1px solid #8c8b8b;
+}
+
+h3 {
+    color: navy;
+    margin-left: 0px;
+}
+
+/*
+td {
+    color: white;
+    margin-left: 20px;
+}
+*/
+
+table.other_urls {
+    background-color: #eeeeee;
+}
+
+td.other_urls {
+    background-color: #eeeeee;
+}
+
+table.table_script_information {
+    color: black;
+    background-color: white;
+    border-collapse: collapse;
+}
+
+table.table_script_parameters {
+    color: navy;
+    background-color: white;
+    border-collapse: collapse;
+    border:1px solid #004993;
+}
+
+table.other_urls {
+    color: blue;
+}
+
+table.class_objects {
+    color: navy;
+}
+
+table.table_scripts_titles {
+    color: black;
+    border-collapse: collapse;
+    background-color: #eeeeee;
+}
+
+table.table_scripts_links {
+    color: black;
+    background-color: #eeeeee;
+}
+
+.list_of_merged_scripts {
+    color: navy;
+    /* background-color: #eeeeee; */
+    border-collapse: collapse;
+    font-size: 150%;
+}
+

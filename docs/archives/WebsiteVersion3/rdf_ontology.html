@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Object model and RDF ontology</title>
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700"
+      rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>    <![endif]-->
+    <meta name="description" content="Software architecture of Survol">
+    <meta name="keywords" content="Legacy Reverse Engineering WBEM WMI RDF">
+  </head>
+  <body class="arcitecture">
+    <!-- ===== header start == -->
+    <!--- top bar -->
+    <div class="topbar thetop">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6 col-sm-8 col-xs-12 left-part"> <span class="phone"><i
+                class="fa fa-phone"></i> <a href="tel:+447769516770" class="no-deco">+44
+                77 6951 6770</a></span> <span class="email"><i class="fa fa-envelope"></i>
+              <a href="mailto:contact@primhillcomputers.com" class="no-deco">contact@primhillcomputers.com</a></span>
+          </div>
+          <div class="col-md-6 col-sm-4 col-xs-12 right-part">
+            <ul class="hrlist social-icons">
+              <li><a href="javascript:void()"><i class="fa fa-facebook"></i></a><br>
+              </li>
+              <li><a href="javascript:void()"><i class="fa fa-twitter"></i></a><br>
+              </li>
+              <li><a href="javascript:void()"><i class="fa fa-google-plus"></i></a><br>
+              </li>
+              <li><a href="http://www.linkedin.com/company/primhill-computers/"><i
+                    class="fa fa-linkedin"></i></a><br>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- End -->
+    <!--- navigation -->
+    <div class="container">
+      <nav class="navbar navbar-default nav-def">
+        <!-- Brand and toggle get grouped for better mobile display --> <a href="index.html"
+          class="nav-logo"><img src="images/logo.png" class="img-responsive"></a>
+        <div class="navbar-header"> <button type="button" data-target="#navbarCollapse"
+            data-toggle="collapse" class="navbar-toggle"> <span class="sr-only">Toggle
+              navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span>
+            <span class="icon-bar"></span> </button> </div>
+        <!-- Collection of nav links and other content for toggling -->
+        <div id="navbarCollapse" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav navbar-right pad-nav">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="solutions.html">Solutions</a></li>
+            <li class="dropdown active"> <a href="#" data-toggle="dropdown" class="dropdown-toggle">Survol
+                <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li> <a href="survol.html">Survol</a> </li>
+                <li class="divider"><br>
+                </li>
+                <li> <a href="faq.html">Frequently asked questions</a> </li>
+                <li> <a href="architecture.html">Architecture</a> </li>
+                <li> <a href="intended_audience.html">Intended audience</a> </li>
+                <li> <a href="installation.html">Installation</a> </li>
+                <li> <a href="usecase.html">Use Cases</a> </li>
+                <li class="active"> <a href="rdf_ontology.html">Object model,
+                    RDFS ontology</a> </li>
+              </ul>
+            </li>
+            <li> <a href="dock_it.html">DockIT</a></li>
+            <li> <a href="jobs.html">Jobs</a></li>
+            <li> <a href="events.html">Events</a></li>
+            <li> <a href="links.html">Links</a></li>
+            <li><a href="contact.php">Contact Us</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+    <!-- End -->
+    <!-- breadcrum section -->
+    <div class="breadcrum-sec">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-6 col-md-8 col-sm-12 col-xs-12">
+            <h1 class="page-title">Object model and RDF ontology</h1>
+          </div>
+          <div class="col-lg-6 col-md-4 col-sm-12 col-xs-12">
+            <ul class="breadcrumb">
+              <li><a href="index.html">Home</a></li>
+              <li class="active">Object model and RDF ontology</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <section class="architecture grey-sec">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <p>This document describes in detail, Survol internal data model,
+              how it can be mapped to RDF, and how these data can be imported
+              and used in other tools.</p>
+            <p>It starts by a short reminder of the architecture, especially
+              details about CIM.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="architecture grey-sec">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12 col-xs-12">
+            <h2 class="text-left clearfix"><b>COMMON INFORMATION MODEL</b></h2>
+            <p><b>Common Information Model</b> (<b>CIM</b>) is an <a href="https://en.wikipedia.org/wiki/Open_standard"
+                title="Open standard">open standard</a> that defines how managed
+              elements in an <a href="https://en.wikipedia.org/wiki/Information_technology"
+                title="Information technology">IT environment</a> are
+              represented as a common set of <a href="https://en.wikipedia.org/wiki/Object_%28computer_science%29"
+                title="Object (computer science)">objects</a> and relationships
+              between them. </p>
+            <p>It is implemented by <a href="https://docs.microsoft.com/en-us/windows/desktop/wmisdk/wmi-start-page"
+                title="WMI">WMI</a> on Windows operating system, and by <a href="https://www.itprotoday.com/compute-engines/what-wbem"
+                title="WBEM">WBEM</a> on all platforms.</p>
+            <p>Survol proposes its own very lightweight implementation:</p>
+            <p><br>
+            </p>
+            <ul class="datalist">
+              <li>Written in Pure Python, very light and portable.</li>
+              <li>Providers are much easier to write, just Python script. Our
+                ontology has a subset 100% compatible with CIM. It adds many
+                classes, based on software objects, proprietary and open-source.</li>
+              <li>It is very restricted because it does not have to be exposed.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="architecture grey-sec">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12 col-xs-12">
+            <h2 class="text-left clearfix"><b>RDF: Resource Description
+                Framework</b></h2>
+            <p> </p>
+            <p><b>Resource Description Framework</b> (<b>RDF</b>) is a&nbsp; <a
+                href="https://en.wikipedia.org/wiki/World_Wide_Web_Consortium" title="World Wide Web Consortium">World
+                Wide Web Consortium</a> (W3C) <a href="https://en.wikipedia.org/wiki/Specification"
+                class="mw-redirect" title="Specification">specification</a>
+              designed as a <a href="https://en.wikipedia.org/wiki/Metadata" title="Metadata">metadata</a>
+              <a href="https://en.wikipedia.org/wiki/Data_model" title="Data model">data
+                model</a>. It is based on the concept <a href="https://en.wikipedia.org/wiki/Statement_%28programming%29"
+                class="mw-redirect" title="Statement (programming)">statements</a>
+              about <a href="https://en.wikipedia.org/wiki/Resource_%28computer_science%29"
+                class="mw-redirect" title="Resource (computer science)">resources</a>&nbsp;
+              in expressions of the form <var>subject</var>–<var>predicate</var>–<var>object</var>,
+              known as <i><a href="https://en.wikipedia.org/wiki/Semantic_triple"
+                  title="Semantic triple">triples</a></i>. <span class="ILfuVd"><b>RDF</b>
+                is primarily <b>used</b> to provide information or metadata for
+                data of any type, present on multiple machines. </span>An RDF
+              ontology describes the concepts and relationships representing an
+              area of concern. </p>
+            <span class="ILfuVd">RDF is the reference language to export
+              Semantic Web data to software such as Protégé or Apache Jena, or
+              graph databases like <a href="https://neo4j.com/" title="Neo4J">Neo4J</a>,
+              <a href="http://graphdb.ontotext.com/" title="GraphDB">GraphDB</a>,
+              <a href="https://www.tigergraph.com/" title="TigerGraph">Tigergraph</a>
+              etc...</span> </div>
+        </div>
+      </div>
+    </section>
+    <section class="architecture grey-sec">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12 col-xs-12">
+            <h2 class="text-left clearfix"><b>Mapping CIM model into an ontology</b></h2>
+            <p>Because RDF can describe any type of information in a minimally
+              structured way, it is perfectly suited to represent Survol
+              internal data, which exposes information from multiple sources,
+              about object of multiple types, hosted by different machines.
+              Therefore, a RDF ontology is needed to describe CIM classes and
+              properties and export these data to external tools.<br>
+            </p>
+            <p>As CIM and RDF are well-established standards, there have been
+              several projects to create this mapping, some more ambitious than
+              others:</p>
+            <ul class="datalist">
+              <li><a href="%20https://link.springer.com/chapter/10.1007/978-3-540-30481-4_2"
+                  title="Toward a Formal Common Information Model Ontology">Toward
+                  a Formal Common Information Model Ontology</a>, <a data-test="ConfSeriesLink"
+                  href="https://link.springer.com/conference/wise" data-track="click"
+                  data-track-action="Conference series" data-track-label=""><span
+                    data-test="ConfSeriesName">International Conference on Web
+                    Information Systems Engineering</span></a>, </li>
+              <li><a href="https://www.semanticscholar.org/paper/Translation-of-Common-Information-Model-to-Web-Majewska-Kryza/5396e0c90b06d2d7643a7cd22c254796c55b0bae">Translation
+                  of Common Information Model to Web Ontology Language</a> , <span
+                  data-selenium-selector="venue-metadata"><span class=""><span>International
+                      Conference on Computational Science</span></span></span>,
+                <span data-selenium-selector="paper-year"><span class=""><span>2007</span></span></span></li>
+              <li><a href="https://www.researchgate.net/publication/228742137_DMTF-CIM_to_OWL_A_case_study_in_ontology_conversion">DMTF-CIM
+                  to OWL: A case study in ontology conversion</a>, University of
+                Colorado </li>
+              <li><a href="http://www.semantic-web-journal.net/system/files/swj580.pdf">Future
+                  Internet Ontologies:<span style="font-family: sans-serif;"> </span>The
+                  NOVI Experience</a>, University of Amsterdam </li>
+              <li><a href="https://web.dit.upm.es/%7Ejlopez/publicaciones/hsnmc04.pdf">Benefits
+                  of Using Ontologies in the Management of High Speed Networks</a>,
+                Universidad Politécnica de Madrid</li>
+              <li><a href="https://waset.org/publications/5774/semantic-modeling-of-management-information-enabling-automatic-reasoning-on-dmtf-cim">Semantic
+                  Modeling of Management Information:<span style="font-family: serif;">
+                  </span>Enabling Automatic Reasoning on DMTF-CIM</a>&nbsp; </li>
+            </ul>
+            <p>They all succeed to unambiguously define a one-to-one mapping
+              between CIM and RDF properties and objects, which is all than
+              Survol needs. Although several ontology languages exist,
+              RDF-Schema (RDFS) is the simplest and most common one, and more
+              appropriate than OWL because Survol does not constraint data
+              created by its very diverse data providers. Survol data providers
+              are simple Python scripts which can create a very rich graph of
+              data on all sorts of objects classes and relationships. These
+              Python scripts, which are typically a customization for a specific
+              purpose, are a-priori trusted.</p>
+            <p>CIM presents a view of logical and physical objects, using an
+              object-oriented construct called a class. A CIM class can include
+              properties to describe data and methods to describe behavior. Each
+              instance of this class is uniquely identified by a subset of these
+              properties, but they can optionally have more properties. CIM also
+              defines associations of objects. </p>
+            <p><br>
+            </p>
+            <p>Examples:</p>
+            <ul class="datalist">
+              <li>A CIM_DataFile instance is practically defined by its name (Or
+                the inode on Unix-like operating systems), and its has other
+                attributes such as the size, the protection mask etc...</li>
+              <li>A CIM_Process instance is uniquely defined by its process
+                identifier, but also has a user, a priority etc...</li>
+            </ul>
+            <p><br>
+            </p>
+            <p>The RDF ontology and data model is created on-the-fly by
+              examining attributes of CIM objects and associations and creating
+              the RDFS triples where properties and associations definitions are
+              mapped to predicates, which ensures that no information is ever
+              lost without enforcing any structural constraint on the data
+              providers.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="architecture grey-sec">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12 col-xs-12">
+            <h2 class="text-left clearfix"><b>IMPORTING RDF DATA INTO PROTEGE</b></h2>
+            <div class="txtwithimg">
+              <div class="text-box">
+                <p class="infotxt"><img src="images/Prot%C3%A9g%C3%A9_Logo.gif"
+                    alt="Protégé logo" title="Protégé logo"> Protégé is a free,
+                  open source ontology editor and a knowledge management system.
+                  Protégé provides a graphic user interface to define
+                  ontologies. Protégé offers the features of <a href="http://protegeproject.github.io/protege/menus/">importing
+                    RDF ontologies</a> from a text file or located on the Web by
+                  specifying the http:// URL (address) of the ontology document.
+                  This section demonstrates how this can be done with any Survol
+                  RDF endpoint. </p>
+                <p class="infotxt"><br>
+                </p>
+                <p class="infotxt"><img src="images/Protege_Open_from_URL.JPG" alt="Protégé: Enter URL"
+                    title="Protégé: Enter URL" style="float: left; padding-right: 5px;">The
+                  first step is to open the Protégé "File" menu for opening or
+                  saving ontologies. One of these options, "Open from URL"
+                  expects a HTTP link. Survol uses the RDFS ontology, as it is
+                  far more flexible than OWL and does not enforce any constraint
+                  on the Python providers scripts.</p>
+                <p class="infotxt">Provider scripts are specialized for a
+                  specific set of data describing the state, structure,
+                  architecture of a running machine. It can be the files in a
+                  specific directory, the TCP/IP sockets of a process, the DLL
+                  (shared library) linked to an executable etc... Survol comes
+                  with many different providers, but there is no limit on the
+                  number and types of provider scripts, and they are very easy
+                  to create.</p>
+                <p class="infotxt">When Protégé loads an RDF URL from Survol, it
+                  executes a provider script which dynamically creates a
+                  triple-store: This is therefore a data snapshot. Each time
+                  this URL is loaded, its content might be different.</p>
+                <p class="infotxt"><br>
+                </p>
+                <p class="infotxt"><img src="images/Protege_enter_or_select_URI.png"
+                    alt="Entering a RDF URL" title="Entering a RDF URL" style="float: left; padding-right: 5px;">The
+                  HTTP link to enter is an ontology URL defined by Survol. Any
+                  Survol URL can provide RDF triples: RDF is one of the many
+                  output files Survol can automatically convert its data too. A
+                  simple hint is to append to any URL, the CGI key-value pair:
+                  "&amp;mode=rdf".</p>
+                <p class="infotxt">Survol comes with its own model describing
+                  software ( and also&nbsp; hardware objects). This model is
+                  based on CIM, which is a defacto standard&nbsp; that defines
+                  how managed elements in an IT environment are represented as a
+                  common set of objects and relationships between them. There is
+                  no standard mapping of CIM into a semantic web ontology.
+                  However, this translation is straightforward into RDFS: Both
+                  models manipulate classes and properties, with no added
+                  constraints. Survol does this translation on-the-fly, and
+                  represents only the CIM classes which are instantiated in the
+                  RDF triple-store. The reason for this restriction is the huge
+                  amount of CIM classes (Several hundreds) which are not needed
+                  if they bring no instance. On top of CIM classes, Survol
+                  models other objects which do not have an official CIM
+                  definition yet.&nbsp; It is very simple to create a new class
+                  in the Survol model, which is handy when adding objects of a
+                  niche software or not-yet-widely-known application. Survol is
+                  therefore well suited to describe an application or an IT
+                  system based on very heterogeneous software objects.</p>
+                <br>
+                <br>
+                <p class="infotxt"><img src="images/Protege_Ontology_metrics.png"
+                    alt="Ontology metrics" title="Ontology metrics" style="float: left; padding-right: 5px;">
+                  One the data are loaded; they are visible in the "<a href="http://protegeproject.github.io/protege/views/ontology-metrics/"
+                    title="Ontology metrics">Ontology metrics</a>" view which
+                  displays various for the axioms in the active ontology and its
+                  imports closure. These counts can be for example the combined
+                  logical and non-logical axiom count, the number of logical
+                  axioms, the number of classes, object properties, data
+                  properties and individuals in the signature of the imports
+                  closure of the active ontology. </p>
+                <p class="infotxt">Several scripts can be merged, possibly from
+                  different Survol agents. Their classes instances and
+                  properties will be transparently merged as if coming from a
+                  single URL.</p>
+                <p class="infotxt">The resources <span style="font-family: Courier New,Courier,monospace;">rdfs:seeAlso</span>
+                  and <span style="font-family: Courier New,Courier,monospace;">rdfs:isDefinedBy</span>
+                  can be plain HTTP URLS, but most of times, they will be RDF
+                  Survol URLs providing more RDF data. For example, if an object
+                  is present in the RDF triplestore, it will come with different
+                  resources pointing to provider scripts, each of them returning
+                  a triplestore related to the object.</p>
+                <br>
+                <br>
+                <p class="infotxt">After loading, all objects created by Survol
+                  are now visible in Protégé with their properties: The
+                  mandatory properties which are part of its URL, and any
+                  predicate generated by the Survol script. All classes and
+                  properties are defined in RDFS ontology.&nbsp; <br>
+                </p>
+                <p class="infotxt"><img src="images/Protege_Annotations.png" alt="Annotations"
+                    title="Annotations"></p>
+                <br>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="architecture grey-sec">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12 col-xs-12">
+            <h2 class="text-left clearfix"><b>IMPORTING RDF DATA INTO GRAPHDB</b></h2>
+            <div class="txtwithimg">
+              <div class="text-box">
+                <p class="infotxt"><a href="http://graphdb.ontotext.com/">GraphDB</a>
+                  is an enterprise ready Semantic Graph Database, i.e. RDF
+                  triplestores, compliant with W3C Standards. </p>
+                <p class="infotxt">The "<a href="http://graphdb.ontotext.com/documentation/free/loading-data-using-the-workbench.html">Upload
+                    RDF files</a>" menu allows to select, configure and <span class="highlighted">import</span>
+                  data from various formats. One can <span class="highlighted">import</span>
+                  from a URL with RDF data. Each endpoint that returns RDF data
+                  may be used. This is first step is similar to Protégé RDF
+                  import: Most of Survol URL can output their data in RDF
+                  format.</p>
+                <p class="infotxt"><br>
+                </p>
+                <p class="infotxt">The "Import" view loads triplestores from RDF
+                  URLs. <br>
+                </p>
+                <img src="images/GraphDB_Import.png" alt="GraphDB: Importing RDF"
+                  title="GraphDB: Importing RDF" style="width: 942px; height: 380px;">
+                <br>
+                <p class="infotxt">This view displays the classes of the
+                  instances loaded from the RDF URL.<br>
+                </p>
+                <img src="images/GraphDB_Class_Hierarchy.png" alt="GraphDB class hierarchy"
+                  title="GraphDB class hierarchy" style="width: 920px; height: 490px;">
+                <br>
+                <br>
+                <p class="infotxt">Each individual resource can be displayed
+                  with its predicates and objects.</p>
+                <img src="images/GraphDB_cgroup_cpuacct.png" alt="Description of Linux cgroup cpuacct"
+                  title="Description of Linux cgroup cpuacct" style="width: 986px; height: 525px;">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!--SERVICES DISCOVERY-->
+    <!-- ==== section end ==== -->
+    <!-- ==== Footer ==== -->
+    <section class="footer">
+      <div class="container">
+        <div class="col-md-4 col-sm-4 col-xs-12">
+          <div class="footer-logo"><img src="images/footer-logo.png" class="img-responsive"></div>
+        </div>
+        <div class="col-md-4 col-sm-4 col-xs-12">
+          <div class="useful">Useful links</div>
+          <div class="row">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="useful-link">
+                <ul>
+                  <li> <a href="index.html"><i class="fa fa-angle-right"></i>
+                      Home</a> </li>
+                  <li> <a href="solutions.html"><i class="fa fa-angle-right"></i>
+                      Solutions</a> </li>
+                  <li> <a href="survol.html"><i class="fa fa-angle-right"></i>
+                      Survol</a> </li>
+                  <li> <a href="faq.html"><i class="fa fa-angle-right"></i> FAQ</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+              <div class="useful-link">
+                <ul>
+                  <li> <a href="architecture.html"><i class="fa fa-angle-right"></i>
+                      Architecture</a> </li>
+                  <li> <a href="intended_audience.html"><i class="fa fa-angle-right"></i>
+                      Audience</a> </li>
+                  <li> <a href="survol.html"><i class="fa fa-angle-right"></i>
+                      Use cases</a> </li>
+                  <li> <a href="contact.php"><i class="fa fa-angle-right"></i>
+                      Contact Us</a> </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 col-sm-4 col-xs-12">
+          <div class="contact-us">Contact us</div>
+          <div class="address-map"> <i class="fa fa-map-marker"></i> Primhill
+            Computers: 275, Boston Manor Road, TW8 9LG Brentford, United Kingdom</div>
+          <div class="address-map"> <i class="fa fa-envelope"></i> Email : <a
+              href="mailto:contact@primhillcomputers.com" class="a-link">contact@primhillcomputers.com</a></div>
+          <div class="address-map"> <i class="fa fa-phone"></i> Phone Number :
+            <a href="tel:+447769516770" class="a-link">+44 77 6951 6770</a></div>
+        </div>
+      </div>
+    </section>
+    <!-- End -->
+    <!-- End -->
+    <div class="bottotop">
+      <div class="scrolltop">
+        <div class="scroll icon"><i class="fa fa-arrow-up"></i></div>
+      </div>
+    </div>
+    <section class="footer-bottom">
+      <div class="copyright">Copyright 2018-2019 All rights reserved | <b>Primhill
+          Computers</b></div>
+    </section>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    <script>
+    $(window).scroll(function() {
+    if ($(this).scrollTop() > 50 ) {
+        $('.scrolltop:hidden').stop(true, true).fadeIn();
+    } else {
+        $('.scrolltop').stop(true, true).fadeOut();
+    }
+});
+$(function(){$(".scroll").click(function(){$("html,body").animate({scrollTop:$(".thetop").offset().top},"1000");return false})})
+    </script>
+  </body>
+</html>

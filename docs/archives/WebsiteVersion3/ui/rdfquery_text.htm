@@ -1,0 +1,257 @@
+<html>
+	<head>
+	<header>
+	<title>Display RDF as text, with Javascript</title>
+	</header>
+	    <style type="text/css">
+            .style1 {
+                width: 100%;
+            }
+            .style2
+            {
+                width: 330px;
+            }
+            .style3
+            {
+                width: 237px;
+            }
+        </style>
+		<script src="jquery.js"></script>
+		<script src="jquery.rdfquery.rules-1.0.js"></script>
+		<script src="revjslib.js"></script>    </head>
+	<body>
+		<p>
+            &nbsp;</p>
+        <table class="style1" width="100%">
+            <tr>
+                <td class="style2"  valign="top">
+		Drag and drop RDF URL: They are loaded in the browser with RDFQuery, as RDF Mime documents.<br>
+		<form name="MyFormName" >
+        <table>
+        <tr>
+			<td colspan="4" width="400"><input type="text" name="CopyPasteUrl" value=""></td>
+		</tr>
+        <tr>
+			<td><input type="button" value="Load RDF url" onClick="LocalLoadRdfUrl(true);" /></td>
+			<td><input type="button" value="Reset" onClick="ResetInput();" /></td>
+			<td><input type="button" value="Clear RDF database" onClick="ClearRdfPrompt();" /></td>
+			<td><input type="button" value="Home" onClick="LoadHome();" /></td>
+		</tr>
+</table>
+		</form>
+
+                </td>
+                <td class="style3" valign="top">
+                    	<form name="MyFormFilterPredicates" >
+        <table id="CheckBoxesPredicates">
+        </table>
+        </form></td>
+                <td class="style3" valign="top">
+                Not implemented yet.
+                    			<form name="MyFormEntityTypes" >
+        <table>
+        <tr><td><input type="checkbox" name="process" checked>Processes</td></tr>
+        <tr><td><input type="checkbox" name="file" >Files</td></tr>
+        </table>
+        </form>
+</td>
+                <td valign="top">
+	<table border="1" id="LoadedUrls">
+		<tr><td>Loaded URLs</td><td><div id="TotalCount">0</td></tr>
+	</table>
+                </td>
+            </tr>
+    </table>
+        <br />
+    <div id="DivErrorMessage"></div>
+        <br />
+
+	<table border="1" id="DataQueried" width="100%">
+    <tr><td width="40%">Subject</td><td>Predicates</td><td width="40%">Object</td></tr>
+    </table>
+
+	<script language="javascript">
+
+	// TEMP URL FOR TESTING.
+	// On Linux, still for testing.
+	/*
+	Il faut pouvoir proposer un lien par defaut: On cherche
+	si on est lancé locallement.
+	On essaye quelques adresses IP dont l'adresse locale, en fait, des pings.
+	C est a dire qu on peut afficher une partie des bookmarks.
+	C est la ou on pourrait avoir SLP.
+	*/
+
+	function ResetInput()
+	{
+		document.MyFormName.CopyPasteUrl.value = "";
+		$('#DivErrorMessage').empty();
+	}
+
+	function LoadHome()
+	{
+		ClearRdf();
+
+		// Only one should work otherwise we have a problem.
+		var bookpages = [
+			"http://primhillcomputers.ddns.net/Survol/",
+			"http://127.0.0.1:8000/" ];
+
+		loadedOne = false;
+		// At first call, init the stuff.
+		for( var idx = 0; idx < bookpages.length; ++idx )
+		{
+			the_url = bookpages[idx] + "survol/entity.py?mode=rdf";
+			document.MyFormName.CopyPasteUrl.value = the_url;
+
+			loadedOne = LocalLoadRdfUrl(false);
+			if( loadedOne ) {
+				break;
+			}
+		}
+		if( loadedOne == false )
+		{
+			alert("Could not load a home page");
+		}
+	}
+
+	LoadHome();
+
+	var rdfDataBank = jQuery.rdf.databank();
+
+	function SetTotal(cnt) {
+	    $('#TotalCount').empty();
+	    $('#TotalCount').append('<b>' + cnt + '</b>');
+	}
+
+	// Removes everything except the header.
+	function ClearTable(tableName) {
+	    // This would also remove the header.
+	    // $('#DataQueried').empty();
+	    var table = document.getElementById(tableName);
+	    //or use :  var table = document.all.DataQueried;
+	    for (var i = table.rows.length - 1; i > 0; i--) {
+	        table.deleteRow(i);
+	    }
+    }
+
+	// http://stackoverflow.com/questions/20293680/how-to-empty-div-before-append
+	function ClearRdfPrompt() {
+		if( confirm("Are you sure you want to clear everything ?") )
+		{
+			ClearRdf()
+		}
+	}
+
+	function ClearRdf() {
+		ResetInput();
+		ClearTable("LoadedUrls");
+		ClearTable("DataQueried");
+		$('#CheckBoxesPredicates').empty();
+		SetTotal(0);
+
+		rdfDataBank = jQuery.rdf.databank();
+	}
+
+	var nbLoadedUrls = 0;
+
+	// TODO: Nettoyer le titre.
+	// TODO: Amenager l'URL.
+       	// ... Mais enfin, pour le moment ca fonctionne.
+	function UpdateUrlsList(the_url, newRdfDb)
+       	{
+		var newLength = newRdfDb.size();
+		title_id = "url_title_" + nbLoadedUrls;
+		nbLoadedUrls = nbLoadedUrls + 1;
+		// The title is by default the url, but try to update it.
+		title = '<div id="' + title_id + '">' + the_url + '</div>';
+
+		the_url_info = CheckMode( the_url, "info" );
+		$('#LoadedUrls').append(
+               	'<tr>'
+               	+ '<td><a href="' + the_url + '">' + title + '</a></td>'
+               	+ '<td>' + newLength + '</td>'
+		+ '</tr>');
+
+		// Information about the URL is sent in JSON format.
+		SetIdWithUrlInfo(the_url_info,title_id);
+	}
+
+	// Display the triples as result of a databank selection.
+	// Here they are displayed in a HTML table.
+	function DisplayRdfQueryText(dbBindings) {
+		ClearTable("DataQueried");
+
+		var histogramPredicates = {};
+
+		//alert("Display nb="+dbBindings.length);
+		for (var i = 0; i < dbBindings.length; i++)
+		{
+			var subj = dbBindings[i].subj;
+			nodeSubj = new RdfNodeToHRef(subj);
+
+			var rdf_obj = dbBindings[i].obj;
+			nodeObj = new RdfNodeToHRef(rdf_obj);
+
+			var rdf_pred_val = dbBindings[i].pred.value;
+			var shortPred = PredShorten(rdf_pred_val)
+
+			if (shortPred == "information") {
+				continue;
+			}
+
+			if(rdf_pred_val in histogramPredicates)
+				++histogramPredicates[rdf_pred_val];
+			else {
+				histogramPredicates[rdf_pred_val] = 1;
+			}
+
+			var newLine = '<tr><td>' + nodeSubj.label + '</td><td>' + shortPred + '</td><td>' + nodeObj.label + '</td></tr>';
+			$('#DataQueried').append(newLine);
+		}
+		// So we can easily see if the loop is properly finished.
+		$('#DataQueried').append("<tr><td colspan='3'>Finished</td></tr>");
+
+		return histogramPredicates;
+        }
+
+	// Called when loading an URL.
+	function ProcessDatabank(the_url, newRdfDb)
+	{
+		document.MyFormName.CopyPasteUrl.value = "";
+
+		UpdateUrlsList(the_url, newRdfDb);
+
+		MergeDatabanks( rdfDataBank, newRdfDb );
+		SetTotal(rdfDataBank.size());
+
+		var dataBankQuery = $.rdf({ databank: rdfDataBank }).where('?subj ?pred ?obj');
+
+		var dbBindings = dataBankQuery.select();
+		var histogramPredicates = DisplayRdfQueryText(dbBindings);
+		RefreshPredicates('CheckBoxesPredicates', 'DisplayRdfQueryText',histogramPredicates );
+	}
+
+	function LocalLoadRdfUrl( showErr ) {
+		var the_url_nomode = document.MyFormName.CopyPasteUrl.value;
+		// alert("Local u="+the_url_nomode);
+		$('#DivErrorMessage').empty();
+		if( the_url_nomode == "" ) return;
+		DoLoadRdfUrl( the_url_nomode, ProcessDatabank, showErr, "DivErrorMessage" );
+	}
+
+	/*
+	Most browsers (except Firefox, as far as I know) don t support loading local XML files 
+	stored on your computer (i.e. files that are not provided using a web server)
+	with AJAX due to security reasons.
+	So if you tested your script locally (using file:///) in Chrome, it will not work.
+
+	http://jsfiddle.net/shivkumarganesh/ajNDP/
+	*/
+
+	</script>
+
+
+	</body>
+</html>
+

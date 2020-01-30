@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <style type="text/css">
+    #dropbox {
+    border: 3px dashed black;
+    width: 200px;
+    height: 100px;
+}
+img{
+    padding:20px;
+    display:inline;
+}
+p{
+    display:inline;
+    margin-left:-76px;
+}
+#some_more_elements{
+     display:inline;
+}
+  </style>
+
+    <meta charset="UTF-8">
+    <title>Experimentation: Embed SVG document generated in Python, in a DIV tag</title>
+
+
+</head>
+<body>
+
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+
+<script>
+// Does it work ? We want to resize the iframe.
+$(function() {
+$( "#demo" ).resizable();
+});
+</script>
+
+<iframe src="survol/entity.py" width="100%" height="1000" id="entity_iframe" onload="PrintContent()">
+     <p>Your browser does not support iframes.</p>
+</iframe>
+
+
+
+
+<br>
+<a href="index_technical.htm">Technical URLs etc...</a><br>
+<a href="survol/entity.py">Raw SVG display without frame</a><br>
+Display report on SVG document:<input type="checkbox" id="CheckDisplayReportOnSvg"><br>
+
+<table>
+	<tr>
+		<td width=500"><div id="OurComments"></div></td>
+		<td valign="top">
+<div id="MergedUrl"></div>
+			<table id="myTable" border="1" width="400">
+    <thead><tr><th colspan="3">RDF links</th></tr></thead>
+    <tbody></tbody>
+</table>
+			<br><input type="button" onClick="GotoMerge();" value="Go">&nbsp;<input type="button" onClick="DelSelectedUrls();" value="Del">
+		</td>
+	</tr>
+</table>
+
+
+
+
+<script src="revjslib.js"></script>
+
+<script>
+// When click on a node, display the url and merge the content.
+function ProcessClickNode(theTxt,theUrl)
+{
+	var tableRef = document.getElementById('myTable').getElementsByTagName('tbody')[0];
+
+	// Insert a row in the table at the last row
+	var newRow = tableRef.insertRow(tableRef.rows.length);
+
+	var checkbox = document.createElement('input');
+	checkbox.type = "checkbox";
+	checkbox.name = "name";
+	checkbox.value = "value";
+	checkbox.id = "id";
+	newRow.insertCell(0).appendChild(checkbox);
+
+	// Append a text node to the cell
+	var newText = document.createTextNode(theTxt);
+	newRow.insertCell(1).appendChild(newText);
+
+	var newText = document.createTextNode(theUrl);
+	newRow.insertCell(2).appendChild(newText);
+}
+
+function UpdateMergeUrl()
+{
+	var divMergedUrl = document.getElementById('MergedUrl');
+	divMergedUrl.innerHTML = RvgsToSvg();
+	var delim = "?url=";
+
+	var tableRef = document.getElementById('myTable').getElementsByTagName('tbody')[0];
+	for( var ixRow = 0; ixRow < tableRef.rows.length; ixRow++ )
+	{
+		rowUrl = tableRef.rows[ixRow].cells[2].innerHTML ;
+		/* http://stackoverflow.com/questions/332872/encode-url-in-javascript
+		If you want to pass a URL into a GET parameter of other page, use escape or encodeURIComponent, but not encodeURI.
+		*/
+		rowUrlEncoded = encodeURIComponent(rowUrl);
+		divMergedUrl.innerHTML += delim + rowUrlEncoded ;
+		delim = "&url=";
+	}
+}
+
+// Delete selected rows.
+function DelSelectedUrls()
+{
+	var tableRef = document.getElementById('myTable').getElementsByTagName('tbody')[0];
+	for( var ixRow = tableRef.rows.length - 1; ixRow >= 0; ixRow-- )
+	{
+		refRow = tableRef.rows[ixRow];
+		refClick = refRow.cells[0].childNodes[0];
+		if( refClick.checked )
+		{
+			tableRef.deleteRow(ixRow);
+		}
+	}
+	UpdateMergeUrl();
+}
+
+function GotoMerge()
+{
+	var divMergedUrl = document.getElementById('MergedUrl');
+	// alert("R=("+divMergedUrl.innerHTML+")");
+	var iframe = document.getElementById('entity_iframe');
+	// location.replace( divMergedUrl.innerHTML );
+	iframe.src = divMergedUrl.innerHTML ;
+}
+
+function onDrop(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+    var imageUrl = evt.dataTransfer.getData("URL");
+
+	// TODO: Get the title of the document.
+    ProcessClickNode("Tralala",imageUrl)
+    UpdateMergeUrl();
+
+    // alert(imageUrl);
+};
+
+function onDragOver(evt)
+{
+    evt.preventDefault(); // Otherwise drag-and-drop does not work.
+}
+
+// This analyses the content of the SVG document being loaded.
+function PrintContent()
+{
+	var tickDispSvgRep = document.getElementById('CheckDisplayReportOnSvg');
+	var divComments = document.getElementById('OurComments');
+	divComments.innerHTML = ""
+
+	if(tickDispSvgRep.checked)
+	{
+		PrintReportOnSvgDocument(divComments);
+	}
+	else
+	{
+		divComments.innerHTML += "No report displayed<br>";
+	}
+
+	// Done only after the content is loaded.
+	var myfram = document.getElementById('entity_iframe');
+	myfram.contentWindow.document.addEventListener('drop', onDrop);
+	myfram.contentWindow.document.addEventListener("dragover", onDragOver, true);
+}
+
+// Actually display info about the SVG document when it is loaded.
+// This just counts nodes and edges and displays their names, mostly for testing.
+function PrintReportOnSvgDocument(divComments)
+{
+	divComments.innerHTML += "Conclusion:<br>";
+
+	var iframe = document.getElementById('entity_iframe');
+	divComments.innerHTML += "type iframe="+iframe.contentDocument.contentType + "<br>";
+
+	// The document we are pointing to. Depends on the browser.
+	var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+
+	var listNodes = iframeDocument.getElementsByClassName('node');
+	divComments.innerHTML += "Nodes:" + listNodes.length + "<br>";
+	for( var ixNode = 0; ixNode < listNodes.length; ixNode++ )
+	{
+		var node = listNodes[ixNode]
+		var title = node.getElementsByTagName("title")[0].textContent;
+
+		divComments.innerHTML += ixNode + "= " + node.id + " " + title + "<br>";
+
+		// Now looks for the subnode which contains the string and the url.
+		var listSubNodes = node.getElementsByTagName("g");
+		for( var ixSubNode = 0; ixSubNode < listSubNodes.length; ixSubNode++ )
+		{
+			var subNode = listSubNodes[ixSubNode];
+			// <g id="a_node30_31"><
+
+			// var text = subNode.getElementsByTagName("text");
+
+			if (subNode.id)
+			{
+				/*
+				5= node22 nd_30
+				1= a_node22_7 : RpcEptMapper
+				*/
+   				var textNode = subNode.getElementsByTagName("text")[0]; // .textContent;
+
+				if( textNode )
+				{
+					var hrefUrl = subNode.getElementsByTagName("a")[0].getAttribute("xlink:href");
+					var txtContent = textNode.textContent;
+					divComments.innerHTML += "&nbsp;&nbsp;&nbsp;" + ixSubNode + "= " + subNode.id + " : " + txtContent + "<br>";
+
+					// Click specifiquement sur le texte
+					textNode.param_Text = txtContent;
+					textNode.param_Url = hrefUrl;
+
+					myFunc = function (evt)
+					{
+						ProcessClickNode(evt.target.param_Text,evt.target.param_Url);
+						// Otherwise it is called several times.
+						evt.stopPropagation ? evt.stopPropagation() : (evt.cancelBubble=true);
+						UpdateMergeUrl();
+					};
+					textNode.addEventListener("click", myFunc);
+				}
+			}
+		}
+
+		node.setAttribute("onmouseover", "evt.target.setAttribute('opacity', '0.5');");
+		node.setAttribute("onmouseout", "evt.target.setAttribute('opacity', '1');");
+	}
+	
+	divComments.innerHTML += "<br><br>";
+
+	var listEdges = iframeDocument.getElementsByClassName('edge');
+	divComments.innerHTML += "Edges:" + listEdges.length + "<br>";
+	for( var ixEdge = 0; ixEdge < listEdges.length; ixEdge++ )
+	{
+		var edge = listEdges[ixEdge];
+
+		var title = edge.getElementsByTagName("title")[0].textContent;
+
+		// 19= edge17 nd_19->nd_11
+		divComments.innerHTML += ixEdge + "= " + edge.id + "  " + title + "<br>";
+	}
+
+	divComments.innerHTML += "<br><br>";
+}
+
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,73 @@
+/* The standard CSS for doxygen 1.8.11 */
+
+body, table, div, p, dl {
+	font: 400 14px/22px DejaVu Sans,sans-serif;
+}
+
+.title {
+	font: 100 10px/12px DejaVu Sans,sans-serif;
+	font-size: 150%;
+	font-weight: bold;
+	margin: 10px 2px;
+}
+
+
+table.directory {
+    font: 400 14px DejaVu Sans,sans-serif;
+}
+
+/* @end */
+
+
+
+#projectname
+{ 
+	XXXfont: 300% DejaVu Sans, Arial,sans-serif;
+	XXXfont-weight: bold;
+	XXX font: bold 12px/1.2 DejaVu Sans,sans-serif;
+	font: bold 32px/1.2 DejaVu Sans,sans-serif;
+	XXXfont: 200% DejaVu Sans, Arial,sans-serif;
+	margin: 0px;
+	xxxpadding: 2px 0px;
+	padding: 10px 100px;
+}
+    
+#projectbrief
+{
+	font: 120% DejaVu Sans, Arial,sans-serif;
+	margin: 0px;
+	padding: 0px;
+}
+
+#projectnumber
+{
+	font: 50% DejaVu Sans, Arial,sans-serif;
+	margin: 0px;
+	padding: 0px;
+}
+
+
+
+div.toc li {
+        background: url("bdwn.png") no-repeat scroll 0 5px transparent;
+        font: 10px/1.2 DejaVu Sans,Geneva,sans-serif;
+        margin-top: 5px;
+        padding-left: 10px;
+        padding-top: 2px;
+}
+
+div.toc h3 {
+        font: bold 12px/1.2 DejaVu Sans,FreeSans,sans-serif;
+	color: #4665A2;
+        border-bottom: 0 none;
+        margin: 0;
+}
+
+
+
+#powerTip div {
+        margin: 0px;
+        padding: 0px;
+        font: 12px/16px DejaVu Sans,sans-serif;
+}
+

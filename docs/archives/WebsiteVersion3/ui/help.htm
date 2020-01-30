@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+    
+<title>Survol help</title><link rel="stylesheet" type="text/css" href="css/html_exports.css"></head>
+<body><h2>SURVOL</h2><i>Unearthing LegacyWare. Based on CIM/WMI/WBEM, with a web ui.</i><br><b><br>Survol</b> is a Python agent and a web interface which aim to help
+understanding a legacy application.
+A set of machines, processes, databases, programs etc .... all
+communicating with each other,
+manipulating your data, and whose software architecture has become, as
+time passes, complicated, intricated, difficult to understand, and
+undocumented.<br><br>
+Survol allows to display any software entity or resources running on a
+computer. Simply said, it is a library of Python scripts, each of them
+displaying a particular facet of an information system.
+This scripts are run on Survol agents, these agents running on a
+machine of the user application network.
+The web interface then displays and summarizes all the information
+coming from the agents.
+It is not necessary to have an agent on all machines because many
+scripts can get information from other machines than the one they
+are running on. Strictly said, it is possible to run without
+an&nbsp;agent at all.<br><br>The
+data model of Survol is based on classes, each of them defining a type
+of computer resources: Processes, machines, files etc...
+Its borrows extensively its ontology and terminology from <a href="https://en.wikipedia.org/wiki/Common_Information_Model_%28computing%29">Common Information Model</a>, CIM, an existing industrial standard. Therefore, it interacts freely with CIM implementations such as <a href="https://msdn.microsoft.com/en-us/library/aa394582%28v=vs.85%29.aspx">Microsoft WMI</a>,
+<a href="http://www.openlmi.org/">OpenLMI</a>, <a href="http://www.opengroup.org/subjectareas/management/openpegasus">OpenPegasus</a>,
+<a href="https://www.dmtf.org/standards/wbem">WBEM</a> and any other software based on this standard.<br><br>It
+is very easy to add new scripts, to display a specific kind of
+information, only your application defines. When resources types are
+not defined by CIM, Survol adds its own resource classes, in a very
+simply way.
+If a user application defines its resources classes, it is very easy to
+add ones, along with associated scripts, in open or proprietary source
+code, without complicated setup. Just create a directory and add a new
+script at the right place, that's it.<br><br>The
+data model built by Survol, from one or several of its agents, is a set
+of triples: Subject, relation, object, the core data type found in the <a href="https://en.wikipedia.org/wiki/Semantic_Web">Semantic web</a>, another standard.&nbsp;Survol has several display modes, for the same&nbsp;set of triples:<br><ul><li>Interactive mode, fully interactive, designed for investigating, browsing, drilling into applications internals. It uses <a href="https://d3js.org/">D3</a>, a nice JavaScript library for manipulating graphs.</li><li>Print
+mode, where the rendered view cannot be modified but is designed to be
+nicely printed for reporting or presentations. The appearance is very
+close to the interactive one, but the layout is much more stable. Its
+uses <a href="http://www.graphviz.org/">Graphviz</a>, an&nbsp;open source graph visualization software.</li><li>The HTML mode, convenient to generate reports in plain text, reports which can be saved, and compared.</li></ul>Installation:
+Agents can be installed a number of ways. Basically, each agent is a
+HTTP server. Therefore, it can be run by Apache, IIS etc... Also,
+Survol comes with its own simple HTTP server, if necessary. As of
+technical prerequisites, the host machine needs to run Python, any
+recent version (2 or 3). If a script needs a Python module which is
+missing, only this script will not run, the rest will be allright. For
+the interface, it is a set of HTML pages, so you can copy them wherever
+you want.<br><br>
+
+        <a href="index_technical.htm">Test links</a><br><br><i>© <a href="http://www.primhillcomputers.com/">Primhill Computers</a> 2017</i>
+
+	<br>
+	<table width="100%"><tr>
+	<td><a href="%s">Survol home</a></td>
+	<td><a href="edit_credentials.py">Credentials</a></td>
+	<td><a href="edit_configuration.py">Configuration</a></td>
+	<td align="right">&copy; <a href="http://www.primhillcomputers.com">Primhill Computers</a> 2017</i></td>
+	</tr></table>
+
+
+</body></html>
