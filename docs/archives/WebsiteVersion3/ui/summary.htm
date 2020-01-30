@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<html>
+<head>
+
+    <link rel='stylesheet' type='text/css' href=css/html_exports.css>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="js/base64.js"></script>
+    <script src="js/revjslib.js"></script>
+
+
+    <script type="text/javascript">
+
+
+function PostMessageChangeRate(ixLoaded,value)
+{
+    console.log("PostMessageChangeRate ixLoaded="+ixLoaded+" value="+value);
+    self.opener.postMessage( ['ChangeRate',ixLoaded,value], '*');
+}
+
+/* Deletes the URL whose index is passed as parameter.
+When this is done, the main window sends an update message,
+so this window is consequently updated. */
+function PostMessageDelScript(ixLoaded)
+{
+    // This array is sent as a message to the main window which delete the URL.
+    console.log("PostMessageDelScript ixLoaded="+ixLoaded);
+    self.opener.postMessage( ['DelScript',ixLoaded] ,'*');
+}
+
+/* Deletes the select URL.
+When this is done, the main window sends an update message,
+so this window is consequently updated. */
+function PostMessageDelSelected()
+{
+    // This array is sent as a message to the main window which delete the URL.
+    console.log("PostMessageDelScript ixLoaded="+ixLoaded);
+    self.opener.postMessage( ['DelScript',ixLoaded] ,'*');
+}
+
+/* This is called when a URL is loaded. It updates the little Summary window. */
+function SummaryRefreshSummaryWindow(lstLoadedUrls)
+{
+    // TODO: Fix the relative URL
+    function HrefTarget(url,title) {
+        if( url.substring(0,4) != "http" ) {
+            // TODO: Replace by the script name.
+            posHtbin = window.location.href.indexOf("summary.htm");
+            if(posHtbin==-1) {
+                console.log("HrefTarget: "+window.location.href);
+                return "Error HrefTarget: "+window.location.href;
+            }
+            hrefPrefix = window.location.href.substring(0,posHtbin);
+            // hrefPrefix = "http://127.0.0.1/Survol/" for example.
+            url = hrefPrefix + url;
+        }
+
+        return '<td><a href="' + url + '" target="'
+            + gblWindowName
+            + '">'
+            + title
+            + '</a></td>';
+    } // HrefTarget
+
+    console.log("SummaryRefreshSummaryWindow lstLoadedUrls.array_urls.length="+lstLoadedUrls.array_urls.length);
+
+    var urlsHtml = "";
+
+    urlsHtml += "<table border='1' width='100%'>";
+
+    urlsHtml += [
+        "<tr>",
+        "<td id='UrlsMerge'><b>Print layout</b></td>",
+        "<td><b>Nodes</b></td>",
+        "<td><b>Links</b></td>",
+        "<td><b>Rate/mn</b></td>",
+        "<td><b>Operations</b></td>",
+        "</tr>"
+    ].join("\n");
+
+    for( var ixLoaded = 0; ixLoaded < lstLoadedUrls.array_urls.length; ixLoaded++ )
+    {
+        var objLoadedUrl = lstLoadedUrls.array_urls[ixLoaded];
+        console.log("m_loaded_title="+ objLoadedUrl.m_loaded_title +" m_loaded_url="+objLoadedUrl.m_loaded_url);
+
+        // This is sent to the main window, to update the refresh rate of this URL.
+        var funcOnChange = "PostMessageChangeRate(" + ixLoaded + ", this.value);";
+
+        var funcOnClk = "PostMessageDelScript(" + ixLoaded + ");";
+
+        // Current value of the refresh rate.
+        var rateValue = 0;
+        if( objLoadedUrl.m_refresh_rate != undefined ) {
+            rateValue = objLoadedUrl.m_refresh_rate;
+        }
+
+        cellTdOper = '<td valign=top>'
+        cellTdOper += '<button onclick="' + funcOnClk + '">Del</button>'
+        isMergeUrl = objLoadedUrl.m_loaded_url.indexOf("merge_scripts.py") >= 0
+        if (isMergeUrl) {
+            cellTdOper += '<button onclick="' + funcOnClk + '">Explode</button>'
+            }
+        cellTdOper += '</td>'
+
+        // https://stackoverflow.com/questions/22709792/html-input-type-number-wont-resize
+        urlsHtml += [
+            "<tr>",
+            HrefTarget(objLoadedUrl.m_loaded_url,objLoadedUrl.m_loaded_title),
+            "<td valign=top align='right'>" + objLoadedUrl.m_loaded_nodes_length + "</td>",
+            "<td valign=top align='right'>" + objLoadedUrl.m_loaded_links_length + "</td>",
+            '<td valign=top><input type="number" min="0" style="width: 5em" onchange="'+  funcOnChange + '" value="' + rateValue + '"></td>',
+            cellTdOper,
+            "</tr>"
+        ].join("\n");
+    }
+
+    // This creates a single URL which merges all the individual ones.
+    var urlMerge = ConcatenateMergeUrl(lstLoadedUrls,"");
+
+    // Displays the various totals of the merged urls.
+    urlsHtml += [
+        "<tr>",
+        HrefTarget(urlMerge,"Merge into SVG display"),
+        "<td align='right'><b>" + lstLoadedUrls.number_nodes + "</b></td>",
+        "<td align='right'><b>" + lstLoadedUrls.number_links + "</b></td>",
+        "<td></td>",
+        "<td></td>",
+        "</tr>"
+    ].join("\n");
+
+    urlsHtml += "</table>";
+
+    // Now, this adds a little table do display the specific color of each agent.
+    urlsHtml += "<table>";
+    for (var keyHost in lstLoadedUrls.dict_hosts) {
+        // check if the property/key is defined in the object itself, not in parent.
+        // Cannot see why it would happen, but better be sure.
+        if (lstLoadedUrls.dict_hosts.hasOwnProperty(keyHost)) {
+            urlsHtml += "<tr>";
+            objHost = lstLoadedUrls.dict_hosts[keyHost];
+            colHost = objHost.m_host_color;
+            urlsHtml += "<td bgcolor='" + colHost + "'>" + keyHost + "</td>";
+            urlsHtml += "</tr>";
+        }
+    }
+
+    urlsHtml += "</table>";
+
+    // Changes the HTML content of the whole summary table.
+	$(SummaryTable).html( urlsHtml );
+
+	console.log("urlsHtml.length="+urlsHtml.length);
+
+} // SummaryRefreshSummaryWindow
+
+function ProcessIncomingMessage(event)
+{
+    // event={"isTrusted":false}
+    // "DelScript:0"
+    msgSent = event.data;
+    // "http://192.168.1.83"
+    msgOrig = event.origin;
+    console.log("ProcessIncomingMessage msgSent="+msgSent+" msgOrig="+msgOrig+" event="+JSON.stringify(event));
+
+    SummaryRefreshSummaryWindow(msgSent);
+}
+
+function SummaryInit()
+{
+    window.addEventListener("message", ProcessIncomingMessage, false);
+    console.log("SummaryInit done");
+    document.title = "Survol summary " + NiceHostname();
+}
+
+// Call function after page load: http://stackoverflow.com/questions/890090/jquery-call-function-after-load
+$(SummaryInit);
+
+// TODO: Maybe this should go in the SummaryInit ??
+window.addEventListener("message", ProcessIncomingMessage, false);
+
+    </script>
+
+    <title>Survol tools</title>
+    </head>
+</head>
+<body>
+Loaded scripts. &copy; <a href="http://www.primhillcomputers.com">Primhill Computers</a> 2017 <br/>
+<div id="SummaryTable"></div>
+</body>
+</html>
