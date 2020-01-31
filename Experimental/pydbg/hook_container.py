@@ -22,6 +22,8 @@
 
 from __future__ import print_function
 
+import six
+
 from defines import *
 
 ########################################################################################################################
@@ -234,11 +236,13 @@ class hook:
             function_exit = pydbg.get_arg(0)
             print("dir(function_exit)=", dir(function_exit))
 
-
-        for i in xrange(1, self.num_args + 1):
-            print("__proxy_on_entry BEFORE get_arg", i)
+        for i in range(1, self.num_args + 1):
             self.arguments[tid].append(pydbg.get_arg(i))
-            print("__proxy_on_entry AFTER get_arg", i, self.arguments[tid][-1])
+
+        big_val = pydbg.read_process_memory(pydbg.context.Rsp, 64)
+        assert isinstance(big_val, six.binary_type)
+        print("type(big_val)=", type(big_val))
+        print("big_val=", ''.join('{:02x}'.format(ord(x)) for x in big_val))
 
         # if an entry point callback was specified, call it and grab the return value.
         if self.entry_hook:
