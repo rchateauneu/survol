@@ -23,13 +23,12 @@ sys.path.append("pydbg")
 import pydbg
 
 from pydbg import pydbg
+from pydbg import defines
 from pydbg import hook_container
 
 import os
 import time
 import multiprocessing
-import psutil
-
 
 def processing_function(one_argument):
     while True:
@@ -46,7 +45,7 @@ def hook_function( dbg, args ):
 
     if not args[1]:
         print("hook_function args ZERO")
-        return pydbg.DBG_CONTINUE
+        return defines.DBG_CONTINUE
     # we reach a NULL byte
     buffer  = ""
     offset  = 0
@@ -64,7 +63,7 @@ def hook_function( dbg, args ):
     except Exception as exc:
         print("Caught:", exc)
         raise
-    return pydbg.DBG_CONTINUE
+    return defines.DBG_CONTINUE
 
 if __name__ == '__main__':
     the_argument = "Hello"
@@ -78,8 +77,7 @@ if __name__ == '__main__':
     print("created_process=", created_process.pid)
     time.sleep(1.0)
 
-    psutil_proc = psutil.Process(created_process.pid)
-    print("psutil_proc.ppid=", psutil_proc.ppid(), os.getpid())
+    print("getpid=", os.getpid())
     print("Attaching")
     tst_pydbg.attach(created_process.pid)
 
