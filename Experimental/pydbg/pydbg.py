@@ -28,6 +28,7 @@ from __future__ import print_function
 
 import os.path
 import sys
+import six
 import copy
 import signal
 import struct
@@ -176,8 +177,8 @@ class pydbg:
 
         # control debug/error logging.
         # self._log = lambda msg: None #sys.stderr.write("PDBG_LOG> " + msg + "\n")
-        self._log = lambda msg: sys.stderr.write("PDBG_LOG> " + msg + "\n")
-        self._err = lambda msg: sys.stderr.write("PDBG_ERR> " + msg + "\n")
+        self._log = lambda msg: sys.stdout.write("PDBG_LOG> " + msg + "\n")
+        self._err = lambda msg: sys.stdout.write("PDBG_ERR> " + msg + "\n")
 
         # determine the system page size.
         system_info = SYSTEM_INFO()
@@ -888,6 +889,7 @@ class pydbg:
         continue_status = DBG_CONTINUE
         dbg             = DEBUG_EVENT()
 
+        self._log("debug_event_iteration before WaitForDebugEvent")
         # wait for a debug event.
         if kernel32.WaitForDebugEvent(byref(dbg), 100):
             # grab various information with regards to the current exception.
@@ -978,15 +980,20 @@ class pydbg:
             # don't let the user interrupt us in the midst of handling a debug event.
             try:
                 def_sigint_handler = None
+                self._log("debug_event_loop In loop on debugger_active A")
                 def_sigint_handler = signal.signal(signal.SIGINT, self.sigint_handler)
+                self._log("debug_event_loop In loop on debugger_active A1")
             except:
                 pass
 
             # if a user callback was specified, call it.
+            self._log("debug_event_loop In loop on debugger_active A2")
             if USER_CALLBACK_DEBUG_EVENT in self.callbacks:
                 # user callbacks do not / should not access debugger or contextual information.
+                self._log("debug_event_loop In loop on debugger_active B")
                 self.dbg = self.context = None
                 self.callbacks[USER_CALLBACK_DEBUG_EVENT](self)
+                self._log("debug_event_loop In loop on debugger_active C")
 
             # iterate through a debug event.
             self.debug_event_iteration()
@@ -995,6 +1002,7 @@ class pydbg:
             # resume keyboard interruptability.
             if def_sigint_handler:
                 signal.signal(signal.SIGINT, def_sigint_handler)
+        self._log("debug_event_loop END loop on debugger_active")
 
         # close the global process handle.
         self.close_handle(self.h_process)
@@ -1467,6 +1475,7 @@ class pydbg:
         @raise pdx: An exception is raised to denote process exit.
         '''
 
+        self._log("event_handler_exit_process reset debugger_active")
         self.set_debugger_active(False)
 
         if EXIT_PROCESS_DEBUG_EVENT in self.callbacks:
@@ -1963,7 +1972,12 @@ class pydbg:
         else:
             self._log("get_arg index=%d context.Esp=%08x" % (index, context.Esp))
             arg_val = self.read_process_memory(context.Esp + index * 4, 4)
+        print("arg_val=", arg_val, type(arg_val))
+        print("arg_val=", ''.join('{:02x}'.format(ord(x)) for x in arg_val))
+        assert isinstance(arg_val, six.binary_type)
         arg_val = self.flip_endian_dword(arg_val)
+        print("arg_val= %08x %s" % (arg_val, type(arg_val)))
+        assert isinstance(arg_val, int)
 
         return arg_val
 
@@ -2194,7 +2208,7 @@ class pydbg:
                 except TypeError:
                     self._log("Register:%s Not a number" % (register_name))
 
-        self._log("get_thread_context64 leaving")
+        #self._log("get_thread_context64 leaving")
         return context
 
     ####################################################################################################################
@@ -2523,7 +2537,8 @@ class pydbg:
         @rtype:  DWORD
         @return: Converted DWORD.
         '''
-
+        # Little-endian, and unsigned long (4 bytes)
+        assert isinstance(bytes, six.binary_type)
         return struct.unpack("<L", bytes)[0]
 
 
@@ -2940,7 +2955,6 @@ class pydbg:
         @rtype:     Raw
         @return:    Read data.
         '''
-        print("read_process_memory address=%08x length=%d" % (address, length))
         self._log("read_process_memory address=%08x length=%d" % (address, length))
         assert address
 
@@ -2960,7 +2974,7 @@ class pydbg:
             pass
 
         while length:
-            self._log("read_process_memory length=%d" % (length))
+            #self._log("read_process_memory length=%d" % (length))
             if not kernel32.ReadProcessMemory(self.h_process, address, read_buf, length, byref(count)):
                 if not len(data):
                     raise pdx("ReadProcessMemory(%08x, %d, read=%d)" % (address, length, count.value), True)
@@ -3156,7 +3170,7 @@ class pydbg:
         @param enable: Flag controlling the main debug event loop.
         '''
 
-        self._log("setting debug event loop flag to %s" % enable)
+        self._log("set_debugger_active setting debug event loop flag to %s" % enable)
         self.debugger_active = enable
 
 
@@ -3276,6 +3290,7 @@ class pydbg:
         @param stack_frame:
         '''
 
+        self._log("sigint_handler reset debugger_active")
         self.set_debugger_active(False)
 
 
