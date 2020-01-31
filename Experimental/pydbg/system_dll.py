@@ -103,7 +103,7 @@ class system_dll:
         self.pe     = None
         self.size   = 0
         # self._log = lambda msg: None #sys.stderr.write("PDBG_LOG> " + msg + "\n")
-        self._log = lambda msg: sys.stderr.write("PDBG_LOG> " + msg + "\n")
+        self._log = lambda msg: sys.stdout.write("PDBG_LOG> " + msg + "\n")
 
         # calculate the file size of the
         file_size_hi = c_ulong(0)
