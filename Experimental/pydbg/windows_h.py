@@ -361,31 +361,48 @@ class N12_DEBUG_EVENT4DOLLAR_39E(Union):
 class _EXCEPTION_DEBUG_INFO(Structure):
     pass
 # C:/PROGRA~1/gccxml/bin/Vc6/Include/winnt.h 3101
-class _EXCEPTION_RECORD(Structure):
+class _EXCEPTION_RECORD32(Structure):
     pass
-_EXCEPTION_RECORD._fields_ = [
+_EXCEPTION_RECORD32._fields_ = [
     # C:/PROGRA~1/gccxml/bin/Vc6/Include/winnt.h 3101
     ('ExceptionCode', DWORD),
     ('ExceptionFlags', DWORD),
-    ('ExceptionRecord', POINTER(_EXCEPTION_RECORD)),
+    ('ExceptionRecord', POINTER(_EXCEPTION_RECORD32)),
     ('ExceptionAddress', PVOID),
     ('NumberParameters', DWORD),
     ('ExceptionInformation', UINT_PTR * 15),
 ]
+class _EXCEPTION_RECORD64(Structure):
+    pass
+_EXCEPTION_RECORD64._fields_ = [
+    # C:/PROGRA~1/gccxml/bin/Vc6/Include/winnt.h 3101
+    ('ExceptionCode', DWORD),
+    ('ExceptionFlags', DWORD),
+    ('ExceptionRecord', POINTER(_EXCEPTION_RECORD64)), # == DWORD64
+    ('ExceptionAddress', PVOID), # == DWORD64
+    ('NumberParameters', DWORD),
+    ( 'UnusedAlignment', DWORD),
+    ('ExceptionInformation', DWORD64 * 15),
+]
+
+# https://docs.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-exception_record
 if is_64bits:
-    assert sizeof(_EXCEPTION_RECORD) == 88, sizeof(_EXCEPTION_RECORD)
-    assert alignment(_EXCEPTION_RECORD) == 8, alignment(_EXCEPTION_RECORD)
+    EXCEPTION_RECORD = _EXCEPTION_RECORD64
+    assert sizeof(_EXCEPTION_RECORD64) == 152, sizeof(_EXCEPTION_RECORD64)
+    assert alignment(_EXCEPTION_RECORD64) == 8, alignment(_EXCEPTION_RECORD64)
 else:
-    assert sizeof(_EXCEPTION_RECORD) == 80, sizeof(_EXCEPTION_RECORD)
-    assert alignment(_EXCEPTION_RECORD) == 4, alignment(_EXCEPTION_RECORD)
-EXCEPTION_RECORD = _EXCEPTION_RECORD
+    EXCEPTION_RECORD = _EXCEPTION_RECORD32
+    assert sizeof(_EXCEPTION_RECORD32) == 80, sizeof(_EXCEPTION_RECORD32)
+    assert alignment(_EXCEPTION_RECORD32) == 4, alignment(_EXCEPTION_RECORD32)
+
+
 _EXCEPTION_DEBUG_INFO._fields_ = [
     # C:/PROGRA~1/MICROS~2/VC98/Include/winbase.h 640
     ('ExceptionRecord', EXCEPTION_RECORD),
     ('dwFirstChance', DWORD),
 ]
 if is_64bits:
-    assert sizeof(_EXCEPTION_DEBUG_INFO) == 96, sizeof(_EXCEPTION_DEBUG_INFO)
+    assert sizeof(_EXCEPTION_DEBUG_INFO) == 160, sizeof(_EXCEPTION_DEBUG_INFO)
     assert alignment(_EXCEPTION_DEBUG_INFO) == 8, alignment(_EXCEPTION_DEBUG_INFO)
 else:
     assert sizeof(_EXCEPTION_DEBUG_INFO) == 84, sizeof(_EXCEPTION_DEBUG_INFO)
@@ -531,7 +548,7 @@ N12_DEBUG_EVENT4DOLLAR_39E._fields_ = [
     ('RipInfo', RIP_INFO),
 ]
 if is_64bits:
-    assert sizeof(N12_DEBUG_EVENT4DOLLAR_39E) == 96, sizeof(N12_DEBUG_EVENT4DOLLAR_39E)
+    assert sizeof(N12_DEBUG_EVENT4DOLLAR_39E) == 160, sizeof(N12_DEBUG_EVENT4DOLLAR_39E)
     assert alignment(N12_DEBUG_EVENT4DOLLAR_39E) == 8, alignment(N12_DEBUG_EVENT4DOLLAR_39E)
 else:
     assert sizeof(N12_DEBUG_EVENT4DOLLAR_39E) == 84, sizeof(N12_DEBUG_EVENT4DOLLAR_39E)
@@ -544,7 +561,7 @@ _DEBUG_EVENT._fields_ = [
     ('u', N12_DEBUG_EVENT4DOLLAR_39E),
 ]
 if is_64bits:
-    assert sizeof(_DEBUG_EVENT) == 112, sizeof(_DEBUG_EVENT)
+    assert sizeof(_DEBUG_EVENT) == 176, sizeof(_DEBUG_EVENT)
     assert alignment(_DEBUG_EVENT) == 8, alignment(_DEBUG_EVENT)
 else:
     assert sizeof(_DEBUG_EVENT) == 96, sizeof(_DEBUG_EVENT)
