@@ -901,22 +901,14 @@ class pydbg:
             self._log("WaitForDebugEvent AFTER")
             # grab various information with regards to the current exception.
             self.h_thread          = self.open_thread(dbg.dwThreadId)
-            self._log("WaitForDebugEvent a")
             self.context           = self.get_thread_context(self.h_thread)
-            self._log("WaitForDebugEvent z")
-
 
             self.dbg               = dbg
-            self._log("WaitForDebugEvent e")
             self.exception_address = dbg.u.Exception.ExceptionRecord.ExceptionAddress
-            self._log("WaitForDebugEvent r")
             self.write_violation   = dbg.u.Exception.ExceptionRecord.ExceptionInformation[0]
-            self._log("WaitForDebugEvent t")
             self.violation_address = dbg.u.Exception.ExceptionRecord.ExceptionInformation[1]
-            self._log("WaitForDebugEvent y")
             self.exception_code    = dbg.u.Exception.ExceptionRecord.ExceptionCode
 
-            self._log("WaitForDebugEvent 123456")
             #self._log("debug_event_iteration dbg.dwDebugEventCode=%d" % dbg.dwDebugEventCode)
             if dbg.dwDebugEventCode == CREATE_PROCESS_DEBUG_EVENT:
                 self._log("debug_event_iteration CREATE_PROCESS_DEBUG_EVENT")
