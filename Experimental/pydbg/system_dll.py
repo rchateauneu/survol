@@ -127,7 +127,7 @@ class system_dll:
 
                 # store the full path. this is kind of ghetto, but i didn't want to mess with QueryDosDevice() etc ...
                 self.path = b"\\" + filename.value.split(b"\\", 3)[3]
-                self._log("system_dll __init__ GetMappedFileNameA self.path=%s size=%d" % (self.path, self.size))
+                #self._log("system_dll __init__ GetMappedFileNameA self.path=%s size=%d" % (self.path, self.size))
 
                 # store the file name.
                 # XXX - this really shouldn't be failing. but i've seen it happen.

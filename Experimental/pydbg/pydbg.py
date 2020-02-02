@@ -68,14 +68,13 @@ OpenProcessToken = ctypes.windll.advapi32.OpenProcessToken
 OpenProcessToken.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE))
 OpenProcessToken.restype = wintypes.BOOL
 
-
 # if not kernel32.GetThreadSelectorEntry(thread_handle, thread_context.SegFs, byref(selector_entry)):
-GetThreadSelectorEntry = ctypes.windll.kernel32.GetThreadSelectorEntry
+#GetThreadSelectorEntry = ctypes.windll.kernel32.GetThreadSelectorEntry
 
 # GetThreadSelectorEntry.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE))
-GetThreadSelectorEntry.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(LDT_ENTRY))
+#GetThreadSelectorEntry.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(LDT_ENTRY))
 
-GetThreadSelectorEntry.restype = wintypes.BOOL
+#GetThreadSelectorEntry.restype = wintypes.BOOL
 #BOOL GetThreadSelectorEntry(
 #  HANDLE      hThread,
 #  DWORD       dwSelector,
@@ -269,12 +268,18 @@ class pydbg:
         except:
             pass
 
-        # enumerate the TEBs and add them to the internal dictionary.
+        if not is_64bits:
+            self.attach32_end()
+
+        return self.ret_self()
+
+    def attach32_end(self):
         for thread_id in self.enumerate_threads():
             thread_handle  = self.open_thread(thread_id)
             thread_context = self.get_thread_context(thread_handle)
             selector_entry = LDT_ENTRY()
 
+            assert not is_64bits
             self._log("attach thread_id=%s thread_context.SegFs=%s" % (str(thread_id), str(thread_context.SegFs)))
             if not kernel32.GetThreadSelectorEntry(thread_handle, thread_context.SegFs, byref(selector_entry)):
                 self._log("attach DISABLE ERROR Error GetThreadSelectorEntry")
@@ -293,8 +298,6 @@ class pydbg:
             if not self.peb:
                 self.peb = self.read_process_memory(teb + 0x30, 4)
                 self.peb = struct.unpack("<L", self.peb)[0]
-
-        return self.ret_self()
 
 
     ####################################################################################################################
@@ -805,6 +808,7 @@ class pydbg:
         @return: Return value from CloseHandle().
         '''
 
+        self._log("CloseHandle")
         return kernel32.CloseHandle(handle)
 
 
@@ -876,6 +880,7 @@ class pydbg:
         @raise pdx: An exception is raised on failure.
         '''
 
+        print("debug_active_process pid=", pid)
         if not kernel32.DebugActiveProcess(pid):
             raise pdx("DebugActiveProcess(%d)" % pid, True)
 
@@ -889,18 +894,33 @@ class pydbg:
         continue_status = DBG_CONTINUE
         dbg             = DEBUG_EVENT()
 
-        self._log("debug_event_iteration before WaitForDebugEvent")
+        #self._log("debug_event_iteration before WaitForDebugEvent")
         # wait for a debug event.
+        self._log("WaitForDebugEvent")
         if kernel32.WaitForDebugEvent(byref(dbg), 100):
+            self._log("WaitForDebugEvent AFTER")
             # grab various information with regards to the current exception.
             self.h_thread          = self.open_thread(dbg.dwThreadId)
+            self._log("WaitForDebugEvent a")
             self.context           = self.get_thread_context(self.h_thread)
+            self._log("WaitForDebugEvent z")
+            self.fbg = None
+            self._log("WaitForDebugEvent z2")
+            toto = dbg
+            self._log("WaitForDebugEvent z3")
+            self.dbg               = toto
+            self._log("WaitForDebugEvent z4")
             self.dbg               = dbg
+            self._log("WaitForDebugEvent e")
             self.exception_address = dbg.u.Exception.ExceptionRecord.ExceptionAddress
+            self._log("WaitForDebugEvent r")
             self.write_violation   = dbg.u.Exception.ExceptionRecord.ExceptionInformation[0]
+            self._log("WaitForDebugEvent t")
             self.violation_address = dbg.u.Exception.ExceptionRecord.ExceptionInformation[1]
+            self._log("WaitForDebugEvent y")
             self.exception_code    = dbg.u.Exception.ExceptionRecord.ExceptionCode
 
+            self._log("WaitForDebugEvent 123456")
             #self._log("debug_event_iteration dbg.dwDebugEventCode=%d" % dbg.dwDebugEventCode)
             if dbg.dwDebugEventCode == CREATE_PROCESS_DEBUG_EVENT:
                 self._log("debug_event_iteration CREATE_PROCESS_DEBUG_EVENT")
@@ -919,7 +939,7 @@ class pydbg:
                 continue_status = self.event_handler_exit_thread()
 
             elif dbg.dwDebugEventCode == LOAD_DLL_DEBUG_EVENT:
-                self._log("debug_event_iteration LOAD_DLL_DEBUG_EVENT")
+                #self._log("debug_event_iteration LOAD_DLL_DEBUG_EVENT")
                 continue_status = self.event_handler_load_dll()
 
             elif dbg.dwDebugEventCode == UNLOAD_DLL_DEBUG_EVENT:
@@ -931,6 +951,7 @@ class pydbg:
                 self._log("debug_event_iteration EXCEPTION_DEBUG_EVENT")
                 ec = dbg.u.Exception.ExceptionRecord.ExceptionCode
 
+                # 0x80000003  EXCEPTION_BREAKPOINT
                 self._log("debug_event_loop() exception: %08x" % ec)
 
                 # call the internal handler for the exception event that just occured.
@@ -954,13 +975,15 @@ class pydbg:
             # from MSDN: Applications should call FlushInstructionCache if they generate or modify code in memory.
             #            The CPU cannot detect the change, and may execute the old code it cached.
             if self.dirty:
+                self._log("FlushInstructionCache")
                 kernel32.FlushInstructionCache(self.h_process, 0, 0)
 
             # close the opened thread handle and resume executing the thread that triggered the debug event.
             self.close_handle(self.h_thread)
-            self._log("debug_event_iteration BEFORE ContinueDebugEvent dbg.dwProcessId=%d" % (dbg.dwProcessId))
-            kernel32.ContinueDebugEvent(dbg.dwProcessId, dbg.dwThreadId, continue_status)
-
+            #self._log("debug_event_iteration BEFORE ContinueDebugEvent dbg.dwProcessId=%d" % (dbg.dwProcessId))
+            self._log("ContinueDebugEvent")
+            if not kernel32.ContinueDebugEvent(dbg.dwProcessId, dbg.dwThreadId, continue_status):
+                raise pdx("ContinueDebugEvent(%d)" % dbg.dwThreadId, True)
 
     ####################################################################################################################
     def debug_event_loop (self):
@@ -976,33 +999,33 @@ class pydbg:
         '''
 
         while self.debugger_active:
-            self._log("debug_event_loop In loop on debugger_active")
+            #self._log("debug_event_loop In loop on debugger_active")
             # don't let the user interrupt us in the midst of handling a debug event.
             try:
                 def_sigint_handler = None
-                self._log("debug_event_loop In loop on debugger_active A")
+                #self._log("debug_event_loop In loop on debugger_active A")
                 def_sigint_handler = signal.signal(signal.SIGINT, self.sigint_handler)
-                self._log("debug_event_loop In loop on debugger_active A1")
+                #self._log("debug_event_loop In loop on debugger_active A1")
             except:
                 pass
 
             # if a user callback was specified, call it.
-            self._log("debug_event_loop In loop on debugger_active A2")
+            #self._log("debug_event_loop In loop on debugger_active A2")
             if USER_CALLBACK_DEBUG_EVENT in self.callbacks:
                 # user callbacks do not / should not access debugger or contextual information.
-                self._log("debug_event_loop In loop on debugger_active B")
+                #self._log("debug_event_loop In loop on debugger_active B")
                 self.dbg = self.context = None
                 self.callbacks[USER_CALLBACK_DEBUG_EVENT](self)
-                self._log("debug_event_loop In loop on debugger_active C")
+                #self._log("debug_event_loop In loop on debugger_active C")
 
             # iterate through a debug event.
             self.debug_event_iteration()
-            self._log("debug_event_loop Returning from debug_event_iteration")
+            #self._log("debug_event_loop Returning from debug_event_iteration")
 
             # resume keyboard interruptability.
             if def_sigint_handler:
                 signal.signal(signal.SIGINT, def_sigint_handler)
-        self._log("debug_event_loop END loop on debugger_active")
+        #self._log("debug_event_loop END loop on debugger_active")
 
         # close the global process handle.
         self.close_handle(self.h_process)
@@ -1020,6 +1043,7 @@ class pydbg:
         @raise pdx: An exception is raised on failure.
         '''
 
+        self._log("DebugSetProcessKillOnExit")
         if not kernel32.DebugSetProcessKillOnExit(kill_on_exit):
             raise pdx("DebugActiveProcess(%s)" % kill_on_exit, True)
 
@@ -1042,6 +1066,7 @@ class pydbg:
         self.bp_del_hw_all()
 
         # try to detach from the target process if the API is available on the current platform.
+        self._log("DebugActiveProcessStop")
         kernel32.DebugActiveProcessStop(self.pid)
 
         self._log("detach reset debugger_active")
@@ -1286,6 +1311,7 @@ class pydbg:
 
         module      = MODULEENTRY32()
         module_list = []
+        self._log("CreateToolhelp32Snapshot")
         snapshot    = kernel32.CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, self.pid)
 
         if snapshot == INVALID_HANDLE_VALUE:
@@ -1294,10 +1320,12 @@ class pydbg:
         # we *must* set the size of the structure prior to using it, otherwise Module32First() will fail.
         module.dwSize = sizeof(module)
 
+        self._log("Module32First")
         found_mod = kernel32.Module32First(snapshot, byref(module))
 
         while found_mod:
             module_list.append((module.szModule, module.modBaseAddr))
+            self._log("Module32Next")
             found_mod = kernel32.Module32Next(snapshot, byref(module))
 
         self.close_handle(snapshot)
@@ -1328,6 +1356,7 @@ class pydbg:
 
         pe           = PROCESSENTRY32()
         process_list = []
+        self._log("CreateToolhelp32Snapshot")
         snapshot     = kernel32.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)
 
         if snapshot == INVALID_HANDLE_VALUE:
@@ -1336,10 +1365,12 @@ class pydbg:
         # we *must* set the size of the structure prior to using it, otherwise Process32First() will fail.
         pe.dwSize = sizeof(PROCESSENTRY32)
 
+        self._log("Process32First")
         found_proc = kernel32.Process32First(snapshot, byref(pe))
 
         while found_proc:
             process_list.append((pe.th32ProcessID, pe.szExeFile))
+            self._log("Process32Next")
             found_proc = kernel32.Process32Next(snapshot, byref(pe))
 
         self.close_handle(snapshot)
@@ -1366,6 +1397,7 @@ class pydbg:
 
         thread_entry     = THREADENTRY32()
         debuggee_threads = []
+        self._log("CreateToolhelp32Snapshot")
         snapshot         = kernel32.CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, self.pid)
 
         if snapshot == INVALID_HANDLE_VALUE:
@@ -1374,12 +1406,14 @@ class pydbg:
         # we *must* set the size of the structure prior to using it, otherwise Thread32First() will fail.
         thread_entry.dwSize = sizeof(thread_entry)
 
+        self._log("Thread32First")
         success = kernel32.Thread32First(snapshot, byref(thread_entry))
 
         while success:
             if thread_entry.th32OwnerProcessID == self.pid:
                 debuggee_threads.append(thread_entry.th32ThreadID)
 
+            self._log("Thread32Next")
             success = kernel32.Thread32Next(snapshot, byref(thread_entry))
 
         self.close_handle(snapshot)
@@ -1410,7 +1444,7 @@ class pydbg:
 
 
     ####################################################################################################################
-    def event_handler_create_thread (self):
+    def event_handler_create_thread32 (self):
         '''
         This is the default CREATE_THREAD_DEBUG_EVENT handler.
 
@@ -1418,21 +1452,15 @@ class pydbg:
         @return: Debug event continue status.
         '''
 
-        self._log("event_handler_create_thread(%d)" % self.dbg.dwThreadId)
-
         # resolve the newly created threads TEB and add it to the internal dictionary.
         thread_id      = self.dbg.dwThreadId
         thread_handle  = self.dbg.u.CreateThread.hThread
         thread_context = self.get_thread_context(thread_handle)
         selector_entry = LDT_ENTRY()
 
-#        if not kernel32.GetThreadSelectorEntry(thread_handle, thread_context.SegFs, byref(selector_entry)):
-        self._log("BEFORE GetThreadSelectorEntry")
+        assert not is_64bits
         if not GetThreadSelectorEntry(thread_handle, thread_context.SegFs, byref(selector_entry)):
-            self._log("event_handler_create_thread DISABLE ERROR Error GetThreadSelectorEntry")
-            if False:
-                self.win32_error("GetThreadSelectorEntry()")
-        self._log("AFTER GetThreadSelectorEntry")
+            self.win32_error("GetThreadSelectorEntry()")
 
         teb  = selector_entry.BaseLow
         teb += (selector_entry.HighWord.Bits.BaseMid << 16) + (selector_entry.HighWord.Bits.BaseHi << 24)
@@ -1460,12 +1488,21 @@ class pydbg:
             # set the thread context.
             self.set_thread_context(thread_context, thread_id=thread_id)
 
+    def event_handler_create_thread64(self):
+        pass
+
+    def event_handler_create_thread(self):
+        # https://stackoverflow.com/questions/54953185/getthreadselectorentry-throwing-error-not-supported-for-x64-app
+        if is_64bits:
+            self.event_handler_create_thread64()
+        else:
+            self.event_handler_create_thread32()
+
         # pass control to user defined callback.
         if CREATE_THREAD_DEBUG_EVENT in self.callbacks:
             return self.callbacks[CREATE_THREAD_DEBUG_EVENT](self)
         else:
             return DBG_CONTINUE
-
 
     ####################################################################################################################
     def event_handler_exit_process (self):
@@ -1656,6 +1693,7 @@ class pydbg:
 
                 self.bp_del(self.exception_address)
 
+        #self._log("leaving exception_handler_breakpoint")
         return continue_status
 
 
@@ -1819,9 +1857,12 @@ class pydbg:
         @return: Address
         '''
 
+        self._log("LoadLibraryA")
         handle  = kernel32.LoadLibraryA(dll)
+        self._log("GetProcAddress")
         address = kernel32.GetProcAddress(handle, function)
 
+        self._log("FreeLibrary")
         kernel32.FreeLibrary(handle)
 
         return address
@@ -2044,6 +2085,7 @@ class pydbg:
 
         #GetCurrentProcess = ctypes.windll.kernel32.GetCurrentProcess
         #GetCurrentProcess.restype = wintypes.HANDLE
+        self._log("OpenProcessToken")
         OpenProcessToken = ctypes.windll.advapi32.OpenProcessToken
         OpenProcessToken.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE))
         OpenProcessToken.restype = wintypes.BOOL
@@ -2181,7 +2223,7 @@ class pydbg:
 
     ####################################################################################################################
     def get_thread_context64 (self, thread_handle=None, thread_id=0):
-        self._log("get_thread_context64 thread_id=%d" % thread_id)
+        #self._log("get_thread_context64 thread_id=%d" % thread_id)
 
         context = CONTEXT64()
 
@@ -2346,6 +2388,7 @@ class pydbg:
         if not self.context:
             raise pdx("hide_debugger(): a thread context is required. Call me from a breakpoint handler.")
 
+        assert not is_64bits
         if not kernel32.GetThreadSelectorEntry(self.h_thread, self.context.SegFs, byref(selector_entry)):
             self.win32_error("GetThreadSelectorEntry()")
         self._log("AFTER GetThreadSelectorEntry")
@@ -2612,6 +2655,7 @@ class pydbg:
         selector_entry = LDT_ENTRY()
         thread_context = self.get_thread_context(pi.hThread)
 
+        assert not is_64bits
         if not kernel32.GetThreadSelectorEntry(pi.hThread, thread_context.SegFs, byref(selector_entry)):
             self.win32_error("GetThreadSelectorEntry()")
         self._log("AFTER GetThreadSelectorEntry")
@@ -3086,6 +3130,7 @@ class pydbg:
         if not context:
             context = self.context
 
+        assert not is_64bits
         if not kernel32.GetThreadSelectorEntry(self.h_thread, context.SegFs, byref(selector_entry)):
             self.win32_error("GetThreadSelectorEntry()")
         self._log("AFTER GetThreadSelectorEntry")
@@ -3424,6 +3469,7 @@ class pydbg:
         if not context:
             context = self.context
 
+        assert not is_64bits
         if not kernel32.GetThreadSelectorEntry(self.h_thread, context.SegFs, byref(selector_entry)):
             self.win32_error("GetThreadSelectorEntry()")
         self._log("AFTER GetThreadSelectorEntry")
