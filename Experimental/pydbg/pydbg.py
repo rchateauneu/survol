@@ -896,7 +896,7 @@ class pydbg:
 
         #self._log("debug_event_iteration before WaitForDebugEvent")
         # wait for a debug event.
-        self._log("WaitForDebugEvent")
+        self._log("WaitForDebugEvent DEBUT")
         if kernel32.WaitForDebugEvent(byref(dbg), 100):
             self._log("WaitForDebugEvent AFTER")
             # grab various information with regards to the current exception.
@@ -904,12 +904,8 @@ class pydbg:
             self._log("WaitForDebugEvent a")
             self.context           = self.get_thread_context(self.h_thread)
             self._log("WaitForDebugEvent z")
-            self.fbg = None
-            self._log("WaitForDebugEvent z2")
-            toto = dbg
-            self._log("WaitForDebugEvent z3")
-            self.dbg               = toto
-            self._log("WaitForDebugEvent z4")
+
+
             self.dbg               = dbg
             self._log("WaitForDebugEvent e")
             self.exception_address = dbg.u.Exception.ExceptionRecord.ExceptionAddress
@@ -949,6 +945,13 @@ class pydbg:
             # an exception was caught.
             elif dbg.dwDebugEventCode == EXCEPTION_DEBUG_EVENT:
                 self._log("debug_event_iteration EXCEPTION_DEBUG_EVENT")
+                # https://stackoverflow.com/questions/3799294/im-having-problems-with-waitfordebugevent-exception-debug-event
+                # Windows will send one EXCEPTION_BREAKPOINT (INT3) when it first loads.
+                # You must DEBUG_CONTINUE this first breakpoint exception...
+                # if you DBG_EXCEPTION_NOT_HANDLED you will get the popup message box:
+                # The application failed to initialize properly (0x80000003).
+
+
                 ec = dbg.u.Exception.ExceptionRecord.ExceptionCode
 
                 # 0x80000003  EXCEPTION_BREAKPOINT
@@ -956,12 +959,19 @@ class pydbg:
 
                 # call the internal handler for the exception event that just occured.
                 if ec == EXCEPTION_ACCESS_VIOLATION:
+                    print("EXCEPTION_ACCESS_VIOLATION")
                     continue_status = self.exception_handler_access_violation()
                 elif ec == EXCEPTION_BREAKPOINT:
+                    print("EXCEPTION_BREAKPOINT")
                     continue_status = self.exception_handler_breakpoint()
+                    self._log("debug_event_loop() continue_status: %08x DBG_CONTINUE: %08x"
+                              % (continue_status, DBG_CONTINUE) )
+                    assert continue_status == DBG_CONTINUE
                 elif ec == EXCEPTION_GUARD_PAGE:
+                    print("EXCEPTION_GUARD_PAGE")
                     continue_status = self.exception_handler_guard_page()
                 elif ec == EXCEPTION_SINGLE_STEP:
+                    print("EXCEPTION_SINGLE_STEP")
                     continue_status = self.exception_handler_single_step()
                 # generic callback support.
                 elif ec in self.callbacks:
@@ -981,9 +991,12 @@ class pydbg:
             # close the opened thread handle and resume executing the thread that triggered the debug event.
             self.close_handle(self.h_thread)
             #self._log("debug_event_iteration BEFORE ContinueDebugEvent dbg.dwProcessId=%d" % (dbg.dwProcessId))
-            self._log("ContinueDebugEvent")
+            self._log("ContinueDebugEvent DBG_CONTINUE=%08x" % DBG_CONTINUE)
             if not kernel32.ContinueDebugEvent(dbg.dwProcessId, dbg.dwThreadId, continue_status):
                 raise pdx("ContinueDebugEvent(%d)" % dbg.dwThreadId, True)
+
+        else:
+            self._log("WaitForDebugEvent RIEN")
 
     ####################################################################################################################
     def debug_event_loop (self):
