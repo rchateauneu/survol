@@ -2,6 +2,8 @@
 # API Hooking Abstraction Helper
 # Copyright (C) 2006 Pedram Amini <pedram.amini@gmail.com>
 #
+# $Id: hooking.py 193 2007-04-05 13:30:01Z cameron $
+#
 # This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
 # License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later
 # version.
@@ -20,17 +22,13 @@
 @organization: www.openrce.org
 '''
 
-from __future__ import print_function
-
-import six
-
-from defines import *
+from pydbg.defines import *
 
 ########################################################################################################################
 class hook_container:
     '''
     The purpose of this class is to provide an easy interface for hooking the entry and return points of arbitrary
-    API calls. The hooking of one or both of the points is optional. Example usage:
+    API calls. The hooking of one or both of the points is optional. Example usage::
 
         def CreateFileA_on_entry (dbg, args):
             pass
@@ -55,11 +53,11 @@ class hook_container:
     def add (self, pydbg, address, num_args, entry_hook=None, exit_hook=None):
         '''
         Add a new hook on the specified API which accepts the specified number of arguments. Optionally specify callback
-        functions for hooked API entry / exit events. The entry / exit callback prototypes are:
+        functions for hooked API entry / exit events. The entry / exit callback prototypes are::
 
             entry(dbg, args)
 
-        Where entry receives the active PyDbg instance as well as a list of the arguments passed to the hooked routine.
+        Where entry receives the active PyDbg instance as well as a list of the arguments passed to the hooked routine::
 
             exit (dbg, args, return_value)
 
@@ -165,7 +163,6 @@ class hook:
         @param exit_hook:  (Optional, def=None) Function to call on hooked API exit
         '''
 
-        assert address
         self.address    = address
         self.num_args   = num_args
         self.entry_hook = entry_hook
@@ -185,7 +182,6 @@ class hook:
         @param pydbg: PyDbg Instance
         '''
 
-        assert self.address
         pydbg.bp_set(self.address, restore=True, handler=self.__proxy_on_entry)
 
 
@@ -228,21 +224,10 @@ class hook:
         #     - thread two enters API, overwrites arguments
         #     - thread one exists API and uses arguments from thread two
         tid = pydbg.dbg.dwThreadId
-        print("__proxy_on_entry tid=", tid)
-        print("__proxy_on_entry self.num_args=", self.num_args)
         self.arguments[tid] = []
 
-        if self.exit_hook:
-            function_exit = pydbg.get_arg(0)
-            print("dir(function_exit)=", dir(function_exit))
-
-        for i in range(1, self.num_args + 1):
+        for i in xrange(1, self.num_args + 1):
             self.arguments[tid].append(pydbg.get_arg(i))
-
-        big_val = pydbg.read_process_memory(pydbg.context.Rsp, 64)
-        assert isinstance(big_val, six.binary_type)
-        print("type(big_val)=", type(big_val))
-        print("big_val=", ''.join('{:02x}'.format(ord(x)) for x in big_val))
 
         # if an entry point callback was specified, call it and grab the return value.
         if self.entry_hook:
@@ -303,5 +288,3 @@ class hook:
             continue_status = DBG_CONTINUE
 
         return continue_status
-
-

@@ -17,57 +17,198 @@ Hence the choice of porting a ubset of pydbg
 from __future__ import print_function
 
 import sys
-sys.path.append(".")
-sys.path.append("pydbg")
-
-import pydbg
-
-from pydbg import pydbg
-from pydbg import defines
-from pydbg import hook_container
-
+import six
+import platform
 import os
 import time
 import multiprocessing
 
+sys.path.append(".")
+sys.path.append("pydbg")
+
+import pydbg
+from pydbg import pydbg
+from pydbg import defines
+import pydbg.tests.utils
+
+class HookManager:
+    def __init__(self):
+        self.hooks = pydbg.tests.utils.hook_container()
+
+    def define_function(self, api_definition):
+        return
+        function_name = b"WriteFile"
+        hook_address = tst_pydbg.func_resolve(b"kernel32.dll", function_name)
+        assert hook_address
+
+        def hook_function():
+            pass
+        self.hooks.add(tst_pydbg, hook_address, 5, hook_function, None)
+
+
+hooks_manager = HookManager()
+
+hooks_manager.define_function("""
+BOOL WriteFile(
+HANDLE       hFile,
+LPCVOID      lpBuffer,
+DWORD        nNumberOfBytesToWrite,
+LPDWORD      lpNumberOfBytesWritten,
+LPOVERLAPPED lpOverlapped
+);""")
+hooks_manager.define_function("""
+BOOL WriteFileEx(
+"HANDLE                          hFile,
+"LPCVOID                         lpBuffer,
+"DWORD                           nNumberOfBytesToWrite,
+"LPOVERLAPPED                    lpOverlapped,
+"LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
+);""")
+hooks_manager.define_function("""
+BOOL WriteFileGather(
+  HANDLE                  hFile,
+  FILE_SEGMENT_ELEMENT [] aSegmentArray,
+  DWORD                   nNumberOfBytesToWrite,
+  LPDWORD                 lpReserved,
+  LPOVERLAPPED            lpOverlapped
+);""")
+hooks_manager.define_function("""
+BOOL ReadFile(
+  HANDLE       hFile,
+  LPVOID       lpBuffer,
+  DWORD        nNumberOfBytesToRead,
+  LPDWORD      lpNumberOfBytesRead,
+  LPOVERLAPPED lpOverlapped
+);""")
+hooks_manager.define_function("""
+BOOL ReadFileEx(
+  HANDLE                          hFile,
+  LPVOID                          lpBuffer,
+  DWORD                           nNumberOfBytesToRead,
+  LPOVERLAPPED                    lpOverlapped,
+  LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
+);""")
+hooks_manager.define_function("""
+BOOL ReadFileScatter(
+  HANDLE                  hFile,
+  FILE_SEGMENT_ELEMENT [] aSegmentArray,
+  DWORD                   nNumberOfBytesToRead,
+  LPDWORD                 lpReserved,
+  LPOVERLAPPED            lpOverlapped
+);""")
+hooks_manager.define_function("""
+BOOL CreateDirectoryA(
+  LPCSTR                lpPathName,
+  LPSECURITY_ATTRIBUTES lpSecurityAttributes
+);""")
+hooks_manager.define_function("""
+BOOL RemoveDirectoryA(
+  LPCSTR lpPathName
+);""")
+hooks_manager.define_function("""
+BOOL RemoveDirectoryW(
+  LPCWSTR lpPathName
+);""")
+hooks_manager.define_function("""
+HANDLE CreateFileA(
+  LPCSTR                lpFileName,
+  DWORD                 dwDesiredAccess,
+  DWORD                 dwShareMode,
+  LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+  DWORD                 dwCreationDisposition,
+  DWORD                 dwFlagsAndAttributes,
+  HANDLE                hTemplateFile
+);""")
+hooks_manager.define_function("""
+HANDLE CreateFileW(
+  LPCWSTR               lpFileName,
+  DWORD                 dwDesiredAccess,
+  DWORD                 dwShareMode,
+  LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+  DWORD                 dwCreationDisposition,
+  DWORD                 dwFlagsAndAttributes,
+  HANDLE                hTemplateFile
+);""")
+hooks_manager.define_function("""
+BOOL DeleteFileA(
+  LPCSTR lpFileName
+);""")
+hooks_manager.define_function("""
+BOOL DeleteFileW(
+  LPCWSTR lpFileName
+);""")
+hooks_manager.define_function("""
+HANDLE CreateFile2(
+  LPCWSTR                           lpFileName,
+  DWORD                             dwDesiredAccess,
+  DWORD                             dwShareMode,
+  DWORD                             dwCreationDisposition,
+  LPCREATEFILE2_EXTENDED_PARAMETERS pCreateExParams
+);""")
+
+def hook_function_WriteFile(dbg, args):
+    print("hook_function_WriteFile args=", args)
+
+    big_val = dbg.read_process_memory(dbg.context.Rsp, 48)
+    assert isinstance(big_val, six.binary_type)
+    print("type(big_val)=", type(big_val))
+    print("big_val=", ''.join('{:02x}'.format(ord(x)) for x in big_val))
+
+    # big_val=
+    # 41174873 00000000 HANDLE       hFile
+    # 10373100 00000000 LPCVOID      lpBuffer
+    # 30023100 00000000 DWORD        nNumberOfBytesToWrite
+    # 00000000 61007000 LPDWORD      lpNumberOfBytesWritten
+    # 01000000 44004c00 LPOVERLAPPED lpOverlapped
+    # 00000000 00000000
+    # 00010000 00000000
+    # 20d62100 00000000
+
+    return defines.DBG_CONTINUE
+
+
+
+def hook_function_Sleep(dbg, args ):
+    print("hook_function_Sleep args=", args)
+
+    big_val = dbg.read_process_memory(dbg.context.Rsp, 16)
+    assert isinstance(big_val, six.binary_type)
+    print("type(big_val)=", type(big_val))
+    print("big_val=", ''.join('{:02x}'.format(ord(x)) for x in big_val))
+    return defines.DBG_CONTINUE
+
+def hook_function_RemoveDirectoryA(dbg, args ):
+    print("hook_function_RemoveDirectoryA args=", args)
+    big_val = dbg.read_process_memory(dbg.context.Rsp, 16)
+    assert isinstance(big_val, six.binary_type)
+    print("type(big_val)=", type(big_val))
+    print("big_val=", ''.join('{:02x}'.format(ord(x)) for x in big_val))
+
+    # big_val=
+    # df32051e 00000000
+    # 480e6a02 00000000
+
+    return defines.DBG_CONTINUE
+
+
 def processing_function(one_argument):
+    # Le crash ne vient pas d'un effet de bord avec le sous-process.
+    # De toute facon c est pas le meme espace memoire.
+    time.sleep(10000)
+    print('processing_function START.')
     while True:
         print('Subprocess hello. Sleeping ', one_argument)
         time.sleep(one_argument)
-        print('Subprocess leaving after sleep=', one_argument)
-
-
-# This is our entry hook callback function
-def hook_function( dbg, args ):
-    print("hook_function")
-    print("hook_function type(dbg)", type(dbg))
-    print("hook_function args=", args)
-
-    if not args[1]:
-        print("hook_function args ZERO")
-        return defines.DBG_CONTINUE
-    # we reach a NULL byte
-    buffer  = ""
-    offset  = 0
-    try:
-        while 1:
-            print("hook_function offset=", offset)
-            byte = dbg.read_process_memory( args[1] + offset, 1 )
-            if byte != "\x00":
-                buffer  += byte
-                offset  += 1
-                continue
-            else:
-                break
-        print("buffer: %s" % buffer)
-    except Exception as exc:
-        print("Caught:", exc)
-        raise
-    return defines.DBG_CONTINUE
+        #os.rmdir("Tralala")
 
 if __name__ == '__main__':
-    the_argument = "Hello"
-    if sys.version_info < (3,):
+    architecture = platform.architecture()
+    print("Architecture:", architecture)
+    assert architecture[0] == '64bit'
+
+    time.sleep(1)
+
+    if sys.version_info >= (3,):
         tst_pydbg = pydbg()
     else:
         tst_pydbg = pydbg.pydbg()
@@ -81,37 +222,23 @@ if __name__ == '__main__':
     print("Attaching")
     tst_pydbg.attach(created_process.pid)
 
-    # Common DLLs in Python
-    # "c:/windows/system32/shell32.dll",
-    # "c:/windows/system32/ole32.dll",
-    # "c:/windows/system32/oleaut32.dll",
-    # "c:/windows/system32/gdi32.dll"
-    # kernel32.dll
-    # user32.dll
+    hooks = pydbg.tests.utils.hook_container()
+    if False:
+        hook_address_WriteFile = tst_pydbg.func_resolve(b"kernel32.dll", b"WriteFile")
+        assert hook_address_WriteFile
+        hooks.add(tst_pydbg, hook_address_WriteFile, 5, hook_function_WriteFile, None)
 
-    # Resolve the function address.
+        hook_address_Sleep = tst_pydbg.func_resolve(b"kernel32.dll", b"Sleep")
+        assert hook_address_Sleep
+        hooks.add(tst_pydbg, hook_address_Sleep, 1, hook_function_Sleep, None)
 
-    """
-    BOOL WriteFile(
-      HANDLE       hFile,
-      LPCVOID      lpBuffer,
-      DWORD        nNumberOfBytesToWrite,
-      LPDWORD      lpNumberOfBytesWritten,
-      LPOVERLAPPED lpOverlapped
-    );
-    """
-    hook_address = tst_pydbg.func_resolve(b"kernel32.dll", b"WriteFile")
+        hook_address_RemoveDirectoryA = tst_pydbg.func_resolve(b"kernel32.dll", b"RemoveDirectoryA")
+        assert hook_address_RemoveDirectoryA
+        hooks.add(tst_pydbg, hook_address_RemoveDirectoryA, 1, hook_function_RemoveDirectoryA, None)
 
-    # https://gist.github.com/RobinDavid/9213868
-
-    hooks = hook_container.hook_container()
-    # Add the hook to the container. We aren't interested
-    # in using an exit callback, so we set it to None.
-
-    print("hook_address=%08x" % hook_address)
-    assert hook_address
-    hooks.add(tst_pydbg, hook_address, 5, hook_function, None)
-    print("[*] Function hooked at: 0x%08x" % hook_address)
+        hook_address_RemoveDirectoryA = tst_pydbg.func_resolve(b"kernel32.dll", b"RemoveDirectoryW")
+        assert hook_address_RemoveDirectoryA
+        hooks.add(tst_pydbg, hook_address_RemoveDirectoryA, 1, hook_function_RemoveDirectoryA, None)
 
     tst_pydbg.run()
 
