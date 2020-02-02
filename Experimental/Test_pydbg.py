@@ -223,22 +223,21 @@ if __name__ == '__main__':
     tst_pydbg.attach(created_process.pid)
 
     hooks = pydbg.tests.utils.hook_container()
-    if False:
-        hook_address_WriteFile = tst_pydbg.func_resolve(b"kernel32.dll", b"WriteFile")
-        assert hook_address_WriteFile
-        hooks.add(tst_pydbg, hook_address_WriteFile, 5, hook_function_WriteFile, None)
+    hook_address_WriteFile = tst_pydbg.func_resolve(b"kernel32.dll", b"WriteFile")
+    assert hook_address_WriteFile
+    hooks.add(tst_pydbg, hook_address_WriteFile, 5, hook_function_WriteFile, None)
 
-        hook_address_Sleep = tst_pydbg.func_resolve(b"kernel32.dll", b"Sleep")
-        assert hook_address_Sleep
-        hooks.add(tst_pydbg, hook_address_Sleep, 1, hook_function_Sleep, None)
+    hook_address_Sleep = tst_pydbg.func_resolve(b"kernel32.dll", b"Sleep")
+    assert hook_address_Sleep
+    hooks.add(tst_pydbg, hook_address_Sleep, 1, hook_function_Sleep, None)
 
-        hook_address_RemoveDirectoryA = tst_pydbg.func_resolve(b"kernel32.dll", b"RemoveDirectoryA")
-        assert hook_address_RemoveDirectoryA
-        hooks.add(tst_pydbg, hook_address_RemoveDirectoryA, 1, hook_function_RemoveDirectoryA, None)
+    hook_address_RemoveDirectoryA = tst_pydbg.func_resolve(b"kernel32.dll", b"RemoveDirectoryA")
+    assert hook_address_RemoveDirectoryA
+    hooks.add(tst_pydbg, hook_address_RemoveDirectoryA, 1, hook_function_RemoveDirectoryA, None)
 
-        hook_address_RemoveDirectoryA = tst_pydbg.func_resolve(b"kernel32.dll", b"RemoveDirectoryW")
-        assert hook_address_RemoveDirectoryA
-        hooks.add(tst_pydbg, hook_address_RemoveDirectoryA, 1, hook_function_RemoveDirectoryA, None)
+    hook_address_RemoveDirectoryA = tst_pydbg.func_resolve(b"kernel32.dll", b"RemoveDirectoryW")
+    assert hook_address_RemoveDirectoryA
+    hooks.add(tst_pydbg, hook_address_RemoveDirectoryA, 1, hook_function_RemoveDirectoryA, None)
 
     tst_pydbg.run()
 
