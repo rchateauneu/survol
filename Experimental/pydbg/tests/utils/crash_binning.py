@@ -102,7 +102,7 @@ class crash_binning:
         crash.extra               = extra
 
         # add module names to the stack unwind.
-        for i in xrange(len(crash.stack_unwind)):
+        for i in range(len(crash.stack_unwind)):
             addr   = crash.stack_unwind[i]
             module = pydbg.addr_to_module(addr)
 
@@ -115,7 +115,7 @@ class crash_binning:
 
 
         # add module names to the SEH unwind.
-        for i in xrange(len(crash.seh_unwind)):
+        for i in range(len(crash.seh_unwind)):
             (addr, handler) = crash.seh_unwind[i]
 
             module = pydbg.addr_to_module(handler)
