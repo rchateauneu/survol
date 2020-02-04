@@ -1,0 +1,33 @@
+
+// SFCB Provider registration for PG_UnixProcess
+[PG_UnixProcess]
+   provider: PG_UnixProcess
+   location: pyCmpiProvider
+   type: instance
+   namespace: root/cimv2 // TODO
+
+// Pegasus Provider registration for PG_UnixProcess
+instance of PG_ProviderModule
+{
+    Name = "pyCmpiProvider_PG_UnixProcess";
+    InterfaceType = "CMPI";
+    InterfaceVersion = "2.0.0";
+    Location = "pyCmpiProvider";
+    UserContext = 2; // Requestor
+    Vendor = "TODO"; // TODO
+    Version = "1.0";
+};
+instance of PG_Provider
+{
+    Name = "PG_UnixProcess";
+    ProviderModuleName = "pyCmpiProvider_PG_UnixProcess";
+};
+instance of PG_ProviderCapabilities
+{
+    CapabilityID = "PG_UnixProcess";
+    ProviderModuleName = "pyCmpiProvider_PG_UnixProcess";
+    ProviderName = "PG_UnixProcess";
+    ClassName = "PG_UnixProcess";
+    Namespaces = {"root/cimv2"}; // TODO
+    ProviderType = {2}; // Instance
+};
