@@ -323,7 +323,7 @@ class pydbg:
 
             return self.ret_self()
 
-        self._log("bp_del(0x%08x)" % address)
+        #self._log("bp_del(0x%08x)" % address)
 
         # ensure a breakpoint exists at the target address.
         if address in self.breakpoints:
@@ -594,7 +594,7 @@ class pydbg:
 
             return self.ret_self()
 
-        self._log("bp_set(0x%08x)" % address)
+        #self._log("bp_set(0x%08x)" % address)
         assert address
         # ensure a breakpoint doesn't already exist at the target address.
         if not address in self.breakpoints:
@@ -808,7 +808,6 @@ class pydbg:
         @return: Return value from CloseHandle().
         '''
 
-        self._log("CloseHandle")
         return kernel32.CloseHandle(handle)
 
 
@@ -897,8 +896,8 @@ class pydbg:
         #self._log("debug_event_iteration before WaitForDebugEvent")
         # wait for a debug event.
         self._log("WaitForDebugEvent DEBUT")
-        if kernel32.WaitForDebugEvent(byref(dbg), 100):
-            self._log("WaitForDebugEvent AFTER")
+        if kernel32.WaitForDebugEvent(byref(dbg), 5000):
+            #self._log("WaitForDebugEvent AFTER")
             # grab various information with regards to the current exception.
             self.h_thread          = self.open_thread(dbg.dwThreadId)
             self.context           = self.get_thread_context(self.h_thread)
@@ -977,7 +976,7 @@ class pydbg:
             # from MSDN: Applications should call FlushInstructionCache if they generate or modify code in memory.
             #            The CPU cannot detect the change, and may execute the old code it cached.
             if self.dirty:
-                self._log("FlushInstructionCache")
+                #self._log("FlushInstructionCache")
                 kernel32.FlushInstructionCache(self.h_process, 0, 0)
 
             # close the opened thread handle and resume executing the thread that triggered the debug event.
@@ -989,6 +988,8 @@ class pydbg:
 
         else:
             self._log("WaitForDebugEvent RIEN")
+            # "The semaphore timeout period has expired."
+            # self.win32_error("WaitForDebugEvent")
 
     ####################################################################################################################
     def debug_event_loop (self):
@@ -2013,17 +2014,19 @@ class pydbg:
             context = self.context
 
         if is_64bits:
-            self._log("get_arg index=%d context.Rsp=%08x" % (index, context.Rsp))
-            arg_val = self.read_process_memory(context.Rsp + index * 4, 4)
+            self._log("get_arg index=%d context.Rsp=%016x" % (index, context.Rsp))
+            arg_val = self.read_process_memory(context.Rsp + index * 8, 8)
         else:
             self._log("get_arg index=%d context.Esp=%08x" % (index, context.Esp))
             arg_val = self.read_process_memory(context.Esp + index * 4, 4)
-        print("arg_val=", arg_val, type(arg_val))
         print("arg_val=", ''.join('{:02x}'.format(ord(x)) for x in arg_val))
         assert isinstance(arg_val, six.binary_type)
         arg_val = self.flip_endian_dword(arg_val)
-        print("arg_val= %08x %s" % (arg_val, type(arg_val)))
-        assert isinstance(arg_val, int)
+        assert isinstance(arg_val, long)
+        if is_64bits:
+            print("arg_val= %0168x %s" % (arg_val, type(arg_val)))
+        else:
+            print("arg_val= %08x %s" % (arg_val, type(arg_val)))
 
         return arg_val
 
@@ -2242,7 +2245,7 @@ class pydbg:
 
         if not kernel32.GetThreadContext(h_thread, byref(context)):
             self._log("get_thread_context64 error GetThreadContext")
-            raise pdx("GetThreadContext()", True)
+            raise pdx("GetThreadContext() thread_id=%s" % (str(thread_id)), True)
 
         # if we had to resolve the thread handle, close it.
         if not thread_handle:
@@ -2587,8 +2590,10 @@ class pydbg:
         '''
         # Little-endian, and unsigned long (4 bytes)
         assert isinstance(bytes, six.binary_type)
-        return struct.unpack("<L", bytes)[0]
-
+        if is_64bits:
+            return long(struct.unpack("<Q", bytes)[0])
+        else:
+            return long(struct.unpack("<L", bytes)[0])
 
     ####################################################################################################################
     def load (self, path_to_file, command_line=None, create_new_console=False, show_window=True):
@@ -3004,16 +3009,19 @@ class pydbg:
         @rtype:     Raw
         @return:    Read data.
         '''
-        self._log("read_process_memory address=%08x length=%d" % (address, length))
+        if is_64bits:
+            self._log("read_process_memory address=%016x length=%d" % (address, length))
+        else:
+            self._log("read_process_memory address=%08x length=%d" % (address, length))
         assert address
 
         data         = b""
         read_buf     = create_string_buffer(length)
-        count        = c_ulong(0)
+        count        = c_size_t(0)
         orig_length  = length
         orig_address = address
 
-        # ensure we can read from the requested memory space.
+        # ensure we can read from the requested memory space.WaitForDebugEvent
         _address = address
         _length  = length
 
@@ -3024,6 +3032,8 @@ class pydbg:
 
         while length:
             #self._log("read_process_memory length=%d" % (length))
+            # TODO: Apparently there are default arguments.
+            kernel32.ReadProcessMemory.argtypes = [HANDLE, LPVOID, LPVOID, c_size_t, POINTER(c_size_t)]
             if not kernel32.ReadProcessMemory(self.h_process, address, read_buf, length, byref(count)):
                 if not len(data):
                     raise pdx("ReadProcessMemory(%08x, %d, read=%d)" % (address, length, count.value), True)
@@ -3041,7 +3051,6 @@ class pydbg:
             pass
 
         return data
-
 
     ####################################################################################################################
     def resume_all_threads (self):

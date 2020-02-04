@@ -148,74 +148,55 @@ HANDLE CreateFile2(
 
 def hook_function_WriteFile(dbg, args):
     print("hook_function_WriteFile args=", args)
-
     big_val = dbg.read_process_memory(dbg.context.Rsp, 48)
     assert isinstance(big_val, six.binary_type)
-    print("type(big_val)=", type(big_val))
-    print("big_val=", ''.join('{:02x}'.format(ord(x)) for x in big_val))
-
-    # big_val=
-    # 41174873 00000000 HANDLE       hFile
-    # 10373100 00000000 LPCVOID      lpBuffer
-    # 30023100 00000000 DWORD        nNumberOfBytesToWrite
-    # 00000000 61007000 LPDWORD      lpNumberOfBytesWritten
-    # 01000000 44004c00 LPOVERLAPPED lpOverlapped
-    # 00000000 00000000
-    # 00010000 00000000
-    # 20d62100 00000000
-
-    return defines.DBG_CONTINUE
-
-
-
-def hook_function_Sleep(dbg, args ):
-    print("hook_function_Sleep args=", args)
-
-    big_val = dbg.read_process_memory(dbg.context.Rsp, 16)
-    assert isinstance(big_val, six.binary_type)
-    print("type(big_val)=", type(big_val))
-    print("big_val=", ''.join('{:02x}'.format(ord(x)) for x in big_val))
+    print("hook_function_WriteFile big_val=", ''.join('{:02x}'.format(ord(x)) for x in big_val))
     return defines.DBG_CONTINUE
 
 def hook_function_RemoveDirectoryA(dbg, args ):
     print("hook_function_RemoveDirectoryA args=", args)
     big_val = dbg.read_process_memory(dbg.context.Rsp, 16)
     assert isinstance(big_val, six.binary_type)
-    print("type(big_val)=", type(big_val))
-    print("big_val=", ''.join('{:02x}'.format(ord(x)) for x in big_val))
+    print("hook_function_RemoveDirectoryA big_val=", ''.join('{:02x}'.format(ord(x)) for x in big_val))
+    return defines.DBG_CONTINUE
 
-    # big_val=
-    # df32051e 00000000
-    # 480e6a02 00000000
-
+def hook_function_RemoveDirectoryW(dbg, args ):
+    print("hook_function_RemoveDirectoryW args=", args)
+    big_val = dbg.read_process_memory(dbg.context.Rsp, 16)
+    assert isinstance(big_val, six.binary_type)
+    print("hook_function_RemoveDirectoryW big_val=", ''.join('{:02x}'.format(ord(x)) for x in big_val))
     return defines.DBG_CONTINUE
 
 
 def processing_function(one_argument):
-    # Le crash ne vient pas d'un effet de bord avec le sous-process.
-    # De toute facon c est pas le meme espace memoire.
-    time.sleep(10000)
     print('processing_function START.')
     while True:
         print('Subprocess hello. Sleeping ', one_argument)
         time.sleep(one_argument)
-        #os.rmdir("Tralala")
+        #continue
+        try:
+            os.rmdir("Tralala")
+        except:
+            pass
 
 if __name__ == '__main__':
     architecture = platform.architecture()
     print("Architecture:", architecture)
     assert architecture[0] == '64bit'
 
-    time.sleep(1)
-
-    if sys.version_info >= (3,):
-        tst_pydbg = pydbg()
-    else:
-        tst_pydbg = pydbg.pydbg()
     sleep_time = 3.0
     created_process = multiprocessing.Process(target=processing_function, args=(sleep_time,))
     created_process.start()
     print("created_process=", created_process.pid)
+
+    time.sleep(1)
+
+    if sys.version_info < (3,):
+        tst_pydbg = pydbg.pydbg()
+    elif sys.version_info < (3, 7):
+        tst_pydbg = pydbg
+    else:
+        tst_pydbg = pydbg.pydbg.pydbg()
     time.sleep(1.0)
 
     print("getpid=", os.getpid())
@@ -227,17 +208,13 @@ if __name__ == '__main__':
     assert hook_address_WriteFile
     hooks.add(tst_pydbg, hook_address_WriteFile, 5, hook_function_WriteFile, None)
 
-    hook_address_Sleep = tst_pydbg.func_resolve(b"kernel32.dll", b"Sleep")
-    assert hook_address_Sleep
-    hooks.add(tst_pydbg, hook_address_Sleep, 1, hook_function_Sleep, None)
-
     hook_address_RemoveDirectoryA = tst_pydbg.func_resolve(b"kernel32.dll", b"RemoveDirectoryA")
     assert hook_address_RemoveDirectoryA
     hooks.add(tst_pydbg, hook_address_RemoveDirectoryA, 1, hook_function_RemoveDirectoryA, None)
 
-    hook_address_RemoveDirectoryA = tst_pydbg.func_resolve(b"kernel32.dll", b"RemoveDirectoryW")
-    assert hook_address_RemoveDirectoryA
-    hooks.add(tst_pydbg, hook_address_RemoveDirectoryA, 1, hook_function_RemoveDirectoryA, None)
+    hook_address_RemoveDirectoryW = tst_pydbg.func_resolve(b"kernel32.dll", b"RemoveDirectoryW")
+    assert hook_address_RemoveDirectoryW
+    hooks.add(tst_pydbg, hook_address_RemoveDirectoryW, 1, hook_function_RemoveDirectoryW, None)
 
     tst_pydbg.run()
 
