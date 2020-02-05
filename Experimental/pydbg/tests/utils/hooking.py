@@ -226,7 +226,7 @@ class hook:
         tid = pydbg.dbg.dwThreadId
         self.arguments[tid] = []
 
-        for i in xrange(1, self.num_args + 1):
+        for i in range(1, self.num_args + 1):
             self.arguments[tid].append(pydbg.get_arg(i))
 
         # if an entry point callback was specified, call it and grab the return value.
