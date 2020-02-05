@@ -4,6 +4,7 @@ body{
 	font-family: 'Open Sans', sans-serif;
 	color:#000;
 }
+
 @media only screen and (max-width: 767px)
 {
 .nav-logo
@@ -11,7 +12,36 @@ body{
 	width:70% !important;
 	height:auto;
 }
+.dockit p
+	{
+		margin-top: 20px !important;
+	}
+	.par-1 {
+    padding: 15px 15px !important;
 }
+.dockit img.doc
+{
+	width: 100%;
+}
+.secnarios p.once
+{
+    text-align: left !important;	
+}
+.about-survol h2.meth
+{
+	margin-top: 20px;
+}
+.about-survol h2
+{
+	line-height: 45px;
+}
+.about-survol p
+{
+	text-align: justify;
+}
+
+}
+
 .pad-nav
 {
 	padding-top:11px;
@@ -1074,3 +1104,76 @@ p.infotxt.big {
     font-size: 14px;
 }
 }
+/*---- fixing ----*/
+
+.dockit h2
+{
+       font-family: 'Open Sans', sans-serif;
+    font-size: 35px;
+    font-weight: 700;
+    text-transform: uppercase;
+	}
+	
+.dockit p
+{
+	line-height: 22px;
+    text-align: justify;
+    font-size: 14px;
+}
+.dockit p a
+{
+	    color: #f15922;
+}
+.dockit img.doc
+{
+	border: 1px solid #ddd;
+	    margin-top: 12px;
+}
+.dock-it p
+{
+	margin-top: 15px;
+}
+ p.sub-head
+{
+	    font-size: 16px;
+    line-height: 26px;
+    color: #1e196a;
+    font-weight: bold;
+}
+.secnarios ul li a
+{
+    color: #f15922;
+}
+.secnarios p.once
+{
+	margin-top: 40px;
+}
+
+/*-partnerhsip-*/
+.about-survol img {
+    outline: 1px solid #fff;
+    outline-offset: -22px;
+}
+.about-survol h2
+{
+	    margin-top: 0;
+		 font-family: 'Open Sans', sans-serif;
+    font-size: 35px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.about-survol.line
+{
+	    margin-top: 10px;
+}
+.about-survol p
+{
+	    margin-top: 18px;
+}
+.Business p a
+{
+	  color: #f15922;
+}
+
+
+  
