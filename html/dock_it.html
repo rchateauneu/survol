@@ -31,6 +31,7 @@
                 77 6951 6770</a></span> <span class="email"><i class="fa fa-envelope"></i>
               <a href="mailto:contact@primhillcomputers.com" class="no-deco">contact@primhillcomputers.com</a></span>
           </div>
+          
           <div class="col-md-6 col-sm-4 col-xs-12 right-part">
             <ul class="hrlist social-icons">
               <li><a href="javascript:void()"><i class="fa fa-facebook"></i></a><br>
@@ -108,60 +109,43 @@
     <!-- about US -->
     <section class="dockit">
       <div class="container">
-        <div class="row">
-          <div class="col-md-12 col-sm-12 col-xs-12">
-            <div class="par">
-              <div style="text-align: left;">
-                <h2>Docker and Dockerization</h2>
-                <a href="https://www.docker.com/"> </a></div>
-              <div style="text-align: left;"><a href="https://www.docker.com/"><br>
-                </a></div>
-              <div style="text-align: left;"><a href="https://www.docker.com/"><img
-
-                    src="images/Docker_official_logo_vertical.png" alt="Docker official logo"
-
-                    title="Docker official logo" style="float: left; padding-right: 10px; width: 265px; height: 220px;">Docker®</a>
-                is a tool to creates lightweight, portable and self-sufficient
-                containers for applications, allowing them to run on another
-                infrastructure, such as a cloud. <em>Dockerizing</em> an
-                application, or an entire information system, means converting
-                it into a docker container image, to run within a Docker
-                container. A <em> docker container image</em> is a stand-alone
-                package of a software including everything needed to run its
-                application: code, run-time, tools, libraries, settings.</div>
-              <br>
-              <em>Dockerization</em> is modeled by a <a href="https://docs.docker.com/engine/reference/builder/">Dockerfile</a>,
-              a Docker specification text document that contains all the
-              commands needed to assemble a docker container image. To deploy
-              the application on another infrastructure, only the image is
-              needed.<br>
-              <br>
-              Dockerizing needs knowledge of the internal structure of the
-              application, or the set of applications to dockerize. It needs to
-              why which programs are running, their data files, various
-              connections etc. But, a strategic application may have a long
-              technical history, made of many different technologies,
-              undocumented details and complex features. Therefore, estimating
-              the cost of dockerization is difficult because it needs expert
-              knowledge in many technical domains.<br>
-            </div>
-            <h2>DockIT</h2>
-            DockIT &nbsp;is Primhill Computer open source tool to help
-            converting legacy applications into docker container images. It is a
-            <a href="https://www.python.org/">Python</a> command line tool which
-            monitors running applications and their inputs/outputs, and
-            generates a Dockerfile, containing all the commands need by Docker,
-            to build the container image of these applications.<br>
-            <br>
-            DockIT does not need the source code. Tt can work with any binary
-            program, whatever its programming language. It detects all
-            resources, languages, libraries created or accessed by an
-            application and any of its sub-components, during execution of a
-            command, or when attaching to a running batch, without stopping it.<br>
-            <br>
-            The kind of resources detected are for example:<br>
-            <ul>
-              <li> Files: It is able to classify log files and give a hint of
+        	<div class="row">
+            	<div class="col-md-12">
+                	<div class="par">
+                    	<h2>Docker and Dockerization</h2>
+                        	<img src="images/about-line.png" class="img-responsive">
+                    	</div>
+                	</div>
+            	</div>
+                
+                <div class="row">
+                	<div class="col-md-3">
+                    	<a href="https://www.docker.com/">
+                        
+                    	<img src="images/Docker_official_logo_vertical.png" class="img-responsive doc">
+                        </a>
+                    	</div>
+                        
+                        <div class="col-md-9">
+                        	<p><a href="https://www.docker.com/">Docker®</a> is a tool to creates lightweight, portable and self-sufficient containers for applications, allowing them to run on another infrastructure, such as a cloud. Dockerizing an application, or an entire information system, means converting it into a docker container image, to run within a Docker container. A docker container image is a stand-alone package of a software including everything needed to run its application: code, run-time, tools, libraries, settings.</p>
+                            
+                            <p> Dockerization is modeled by a <a href="https://docs.docker.com/engine/reference/builder/">Dockerfile</a>, a Docker specification text document that contains all the commands needed to assemble a docker container image. To deploy the application on another infrastructure, only the image is needed.</p>
+                            
+                            <p> Dockerizing needs knowledge of the internal structure of the application, or the set of applications to dockerize. It needs to why which programs are running, their data files, various connections etc. But, a strategic application may have a long technical history, made of many different technologies, undocumented details and complex features. Therefore, estimating the cost of dockerization is difficult because it needs expert knowledge in many technical domains.</p>
+                        	</div>
+                	</div>
+                     
+                     <div class="row dock-it">
+                     	<div class="par par-1">
+                    	<h2>Dock It</h2>
+                        	<img src="images/about-line.png" class="img-responsive">
+                            <p> DockIT  is Primhill Computer open source tool to help converting legacy applications into docker container images. It is a <a href="https://www.python.org/">Python</a> command line tool which monitors running applications and their inputs/outputs, and generates a Dockerfile, containing all the commands need by Docker, to build the container image of these applications.</p>
+                            
+                            <p>DockIT does not need the source code. Tt can work with any binary program, whatever its programming language. It detects all resources, languages, libraries created or accessed by an application and any of its sub-components, during execution of a command, or when attaching to a running batch, without stopping it.</p>
+                            
+                            <p class="sub-head"><b>The kind of resources detected are for example:</b></p>
+                            <ul class="datalist">
+              <li>  It is able to classify log files and give a hint of
                 where they should be moved. Same possibility for stdout and
                 stderr.</li>
               <li>Concurrent access to the same files by several processes.</li>
@@ -175,225 +159,155 @@
               <li>Content of IO buffers. For example, DockIT can detect and
                 parse SQL queries sent to database servers.</li>
             </ul>
-          </div>
-          <div class="col-md-12 col-sm-12 col-xs-12">
-            <h2>Benefits of using DockIT</h2>
-          </div>
-          <div class="col-md-12 col-sm-12 col-xs-12">Documentation or technical
-            expertise are no longer necessary to have an accurate description of
-            all IT resources needed by the target application. This result is a
-            standard and documented Dockerfile, with extra information added as
-            comments. This file can be updated to adjust to specific needs.<br>
-            <br>
-            You do not have to spend days studying an application, to know what
-            is needed to dockerize it: You just need to briefly monitor it with
-            DockIT:<br>
-            <ul>
-              <li> Many tedious tasks are done automatically: Enumerating
-                libraries, modules etc... are all done in one go. One can then
-                focus on the really difficult tasks of dockerizing an
-                application.</li>
-              <li>DockIT analyses what the code actually does, not only what a
-                static analysis suggests. Therefore, it lists only the
-                required&nbsp;libraries and code modules:&nbsp;The Docker images
-                can therefore be much smaller.</li>
-              <li>It is no longer necessary to be skilled in all technologies
-                used by the application: DockIT can examine programs written in
-                any language, because it only relies on system calls.
-                Proprietary libraries without source code are not an obstacle
-                for reverse-engineering.</li>
-              <li>DockIt can formalize the behavior of hidden scripts, than
-                cannot be detected with static code inspection. Scripts started
-                dynamically from a sub-process are inspected with their
-                resources.</li>
+                    	</div>
+                     	</div>
+                        
+                         <div class="row dock-it">
+                     	<div class="par par-1">
+                    	<h2>Benefits of using DockIT</h2>
+                        	<img src="images/about-line.png" class="img-responsive">
+                            <p> Documentation or technical expertise are no longer necessary to have an accurate description of all IT resources needed by the target application. This result is a standard and documented Dockerfile, with extra information added as comments. This file can be updated to adjust to specific needs.</p>
+                            
+                            <p>You do not have to spend days studying an application, to know what is needed to dockerize it: You just need to briefly monitor it with DockIT:</p>
+                            
+                            <p class="sub-head"><b>The kind of resources detected are for example:</b></p>
+                            <ul class="datalist">
+              <li>  Many tedious tasks are done automatically: Enumerating libraries, modules etc... are all done in one go. One can then focus on the really difficult tasks of dockerizing an application.</li>
+              <li>DockIT analyses what the code actually does, not only what a static analysis suggests. Therefore, it lists only the required libraries and code modules: The Docker images can therefore be much smaller.</li>
+              <li>It is no longer necessary to be skilled in all technologies used by the application: DockIT can examine programs written in any language, because it only relies on system calls. Proprietary libraries without source code are not an obstacle for reverse-engineering.</li>
+              <li>DockIt can formalize the behavior of hidden scripts, than cannot be detected with static code inspection. Scripts started dynamically from a sub-process are inspected with their resources.</li>
+              
+              
+             
             </ul>
-          </div>
-          <div class="col-md-12 col-sm-12 col-xs-12"> <br>
-            When an user is discovering a legacy application, DockIT gives the
-            significant advantage of understanding the overall scenario of its
-            execution. This makes software design recovery much simpler.<br>
-            <h2>Scenarios</h2>
-            DockIT is a command-line tool, which can be used two scenarios:<br>
-            <ul>
-              <li> Executing a command: It then inspects each and every call to
-                a system function, from the started process and any of its
-                sub-processes. It stops when the command naturally ends.</li>
-              <li>Or it can attach to a running process, and have the same
-                behavior. It quits when the key Control-C is typed from the
-                console.</li>
+            	            
+                             <p>When an user is discovering a legacy application, DockIT gives the significant advantage of understanding the overall scenario of its execution. This makes software design recovery much simpler.</p>
+                    	</div>
+                     	</div>
+                        
+                        <div class="row dock-it secnarios">
+                     	<div class="par par-1">
+                    	<h2>Scenarios</h2>
+                        	<img src="images/about-line.png" class="img-responsive">
+                            <p> DockIT is a command-line tool, which can be used two scenarios:</p>
+                             <p class="sub-head"><b>The kind of resources detected are for example:</b></p>
+                             <ul class="datalist">
+              <li>  Executing a command: It then inspects each and every call to a system function, from the started process and any of its sub-processes. It stops when the command naturally ends.</li>
+              <li>Or it can attach to a running process, and have the same behavior. It quits when the key Control-C is typed from the console.</li>
+             
+              
+              
+             
             </ul>
-            Although DockIT brings a&nbsp;noticeable slow-down to the target
-            process execution, it is still usable in production context, because
-            only some system calls are monitored.<br>
-            <br>
-            There are many command-line options:<br>
-            <br>
-            <span style="font-family: Courier New,Courier,monospace;">&nbsp;
-              -h,--help&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-This
-              message.</span><br style="font-family: Courier New,Courier,monospace;">
-            <span style="font-family: Courier New,Courier,monospace;">&nbsp;
-              -v,--verbose&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Verbose
-              mode (Cumulative).</span><br style="font-family: Courier New,Courier,monospace;">
-            <span style="font-family: Courier New,Courier,monospace;">&nbsp;
-              -w,--warning&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Display
-              warnings (Cumulative).</span><br style="font-family: Courier New,Courier,monospace;">
-            <span style="font-family: Courier New,Courier,monospace;">&nbsp;
-              -s,--summary &lt;CIM class&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              Prints a summary at the end: Start end end time stamps, executable
-              name,</span><br style="font-family: Courier New,Courier,monospace;">
-            <span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-loaded
-              libraries, read/written/created files and timestamps, subprocesses
-              tree.</span><br style="font-family: Courier New,Courier,monospace;">
-            <span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Examples:
-              -s 'Win32_LogicalDisk.DeviceID="C:",Prop1="Value1",Prop2="Value2"'</span><br
-
-              style="font-family: Courier New,Courier,monospace;">
-            <span style="font-family: Courier New,Courier,monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
--s
-              'CIM_DataFile:Category=["Others","Shared libraries"]'</span><br style="font-family: Courier New,Courier,monospace;">
-            <span style="font-family: Courier New,Courier,monospace;">&nbsp;
-              -D,--dockerfile&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Generates
-              a dockerfile.</span><br style="font-family: Courier New,Courier,monospace;">
-            <span style="font-family: Courier New,Courier,monospace;">&nbsp;
-              -p,--pid
-              &lt;pid&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Monitors
-              a running process instead of starting an executable.</span><br style="font-family: Courier New,Courier,monospace;">
-            <span style="font-family: Courier New,Courier,monospace;">&nbsp;
-              -f,--format TXT|CSV|JSON&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Output
-              format. Default is TXT.</span><br style="font-family: Courier New,Courier,monospace;">
-            <span style="font-family: Courier New,Courier,monospace;">&nbsp;
-              -F,--summary-format TXT|XML&nbsp;&nbsp; Summary output format.
-              Default is XML.</span><br style="font-family: Courier New,Courier,monospace;">
-            <span style="font-family: Courier New,Courier,monospace;">&nbsp;
-              -i,--input &lt;file
-              name&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; trace command
-              input file.</span><br style="font-family: Courier New,Courier,monospace;">
-            <span style="font-family: Courier New,Courier,monospace;">&nbsp;
-              -l,--log &lt;filename prefix&gt;&nbsp;&nbsp;&nbsp; trace command
-              log output file.</span><br style="font-family: Courier New,Courier,monospace;">
-            <span style="font-family: Courier New,Courier,monospace;">&nbsp;
-              -t,--tracer strace|ltrace|cdb command for generating trace log</span><br
-
-              style="font-family: Courier New,Courier,monospace;">
-            <span style="font-family: Courier New,Courier,monospace;">&nbsp;
-              -S,--server
-              &lt;Url&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Survol
-              url for CIM objects updates. Ex:
-              http://127.0.0.1:80/survol/event_put.py</span><br>
-            <br>
-            The execution outputs are:<br>
-            <ul>
-              <li> A Dockerfile plus all files needed to build a Docker image.</li>
+                             <p>Although DockIT brings a noticeable slow-down to the target process execution, it is still usable in production context, because only some system calls are monitored.</p>
+                             <p><b>There are many command-line options:</b></p>
+                             <code class="pre">
+  -h,--help                     This message.
+  -v,--verbose                  Verbose mode (Cumulative).
+  -w,--warning                  Display warnings (Cumulative).
+  -s,--summary &lt;CIM class&gt;      Prints a summary at the end: Start end end time stamps, executable name,
+                                loaded libraries, read/written/created files and timestamps, subprocesses tree.
+                                Examples: -s 'Win32_LogicalDisk.DeviceID="C:",Prop1="Value1",Prop2="Value2"'
+                                          -s 'CIM_DataFile:Category=["Others","Shared libraries"]'
+  -D,--dockerfile               Generates a dockerfile.
+  -p,--pid &lt;pid&gt;                Monitors a running process instead of starting an executable.
+  -f,--format TXT|CSV|JSON      Output format. Default is TXT.
+  -F,--summary-format TXT|XML   Summary output format. Default is XML.
+  -i,--input &lt;file name&gt;        trace command input file.
+  -l,--log &lt;filename prefix&gt;    trace command log output file.
+  -t,--tracer strace|ltrace|cdb command for generating trace log
+  -S,--server &lt;Url&gt;             Survol url for CIM objects updates. Ex: http://127.0.0.1:80/survol/event_put.py    
+                         </code>
+                         
+                         <p><b>The execution outputs are:</b></p>
+                         <ul class="datalist">
+              <li>  A Dockerfile plus all files needed to build a Docker image.</li>
               <li>A log file allowing to reproduce the target process execution.</li>
-              <li>An <a href="https://en.wikipedia.org/wiki/XML">XML</a>&nbsp;file
-                describing all IT resources and their relations: Which process
-                created which file, when etc...</li>
+              <li>An <a href="https://en.wikipedia.org/wiki/XML">XML</a> file describing all IT resources and their relations: Which process created which file, when etc...</li>
               <li>A text file summarizing the execution blocks.</li>
               <li>Events sent to a Survol server, for real-time visualisation.</li>
+              
+             
+              
+              
+             
             </ul>
-            <h2>Dockerfile generation</h2>
-            DockIT is able to generate a Dockerfile skeleton out of any
-            execution of a process. Depending on the target batch or process,
-            this skeleton can be just a draft or a complete enumeration of the
-            resources to dockerize. It enumerates all used resources at the
-            lowest possible level, and cannot miss one. On the other hand, it
-            might misinterpret some resources usage: one of the reason is that
-            it does not have the source code. Despite this, this exhaustive list
-            of resources, properly catalogued in a Dockerfile, makes
-            dockerization much easier and reliable. For example, DockIT
-            provides:<br>
-            <br>
-            <ul>
-              <li> Enumerating <a href="https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers">TCP/IP
-                  port numbers</a>.</li>
-              <li>Enumerating files: It is able to classify log files and give a
-                hint of where they should be moved. It is also able to detect
-                which files are used by several processes. For examples, log
-                files are detected as such.</li>
-              <li>Used libraries and only these ones</li>
+                    	</div>
+                     	</div>
+                        
+                        <div class="row dock-it secnarios">
+                     	<div class="par par-1">
+                    	<h2>Dockerfile generation</h2>
+                        	<img src="images/about-line.png" class="img-responsive">
+                            <p> DockIT is able to generate a Dockerfile skeleton out of any execution of a process. Depending on the target batch or process, this skeleton can be just a draft or a complete enumeration of the resources to dockerize. It enumerates all used resources at the lowest possible level, and cannot miss one. On the other hand, it might misinterpret some resources usage: one of the reason is that it does not have the source code. Despite this, this exhaustive list of resources, properly catalogued in a Dockerfile, makes dockerization much easier and reliable. For example, DockIT provides:</p>
+                             <ul class="datalist">
+              <li>  Enumerating <a href="https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers">TCP/IP port numbers.</a></li>
+              <li>Enumerating files: It is able to classify log files and give a hint of where they should be moved. It is also able to detect which files are used by several processes. For examples, log files are detected as such.</li>
+              <li>Used libraries and only these ones.</li>
               <li>Subprocesses created.</li>
               <li>Environment variables internally used.</li>
+              </ul>
+              
+                             <p class="once sub-head">Once resources are properly identified, some manual adjustments to another infrastructure, such as a grid, are possible. For example:</p>
+                             
+                             
+                         
+                         
+                         <ul class="datalist">
+              <li>  Because log files are identified as such, the right strategy to handle logs can be applied: Inside /  outside the container, centralized logging system etc.</li>
+              <li> <a href="https://en.wikipedia.org/wiki/SQL">SQL </a>queries are identified, hinting SQL database connections which have to be redirected</li>
+              <li>File accesses are displaced to a file server. Files statistics (Accesses vs volume) help choosing the right storage hardware such as SSD.</li>
+              <li>Parallelism is exposed, helping hardware deployment.</li>
+              
+              
+             
+              
+              
+             
             </ul>
-            <br>
-            Once resources are properly identified, some manual adjustments to
-            another infrastructure, such as a grid, are possible. For example:</div>
-          <div class="col-md-12 col-sm-12 col-xs-12">
-            <ul>
-              <li>Because log files are identified as such, the right strategy
-                to handle logs can be applied: Inside / &nbsp;outside the
-                container, centralized logging system etc.</li>
-              <li><a href="https://en.wikipedia.org/wiki/SQL">SQL</a> queries
-                are identified, hinting SQL database connections which have to
-                be redirected</li>
-              <li>File accesses are displaced to a file server. Files statistics
-                (Accesses vs volume) help choosing the right storage hardware
-                such as <a href="https://en.wikipedia.org/wiki/Solid-state_drive">
-                  SSD</a>.</li>
-              <li>Parallelism is exposed, helping hardware deployment.<br>
-              </li>
-            </ul>
-            <h2>No competition</h2>
-          </div>
-          <div class="col-md-12 col-sm-12 col-xs-12">Dockerization of
-            application is not an exact science. There are several tools which
-            share the same purpose. They all have their pro and cons, and their
-            own specific technologies:</div>
-          <div class="col-md-12 col-sm-12 col-xs-12"><br>
-          </div>
-          <div class="col-md-12 col-sm-12 col-xs-12">
-            <ul>
-              <li> Static code analysis of the target software.</li>
+                    	</div>
+                     	</div>
+                        
+                        
+                        <div class="row dock-it secnarios">
+                     	<div class="par par-1">
+                    	<h2>No competition</h2>
+                        	<img src="images/about-line.png" class="img-responsive">
+                            <p> Dockerization of application is not an exact science. There are several tools which share the same purpose. They all have their pro and cons, and their own specific technologies:</p>
+                             <ul class="datalist">
+              <li>  Static code analysis of the target software.</li>
               <li>Specific programming languages</li>
-              <li>Specific software framework or services types, such as
-                databases.</li>
-            </ul>
-          </div>
-          <div class="col-md-12 col-sm-12 col-xs-12"><br>
-          </div>
-          <div class="col-md-12 col-sm-12 col-xs-12">None of them brings a
-            general solution because the problem is extremely complicated and
-            relies on many arbitrary choices.</div>
-          <div class="col-md-12 col-sm-12 col-xs-12">Because DockIT analyse is
-            as close as possible to the operating system, it provides results
-            that cannot be obtained with other tools, and it always provides
-            them. This unique perspective - analyzing system calls on the fly -
-            are complementary with other Dockerfile parameters.</div>
-          <div class="col-md-12 col-sm-12 col-xs-12"><br>
-          </div>
-          <div class="col-md-12 col-sm-12 col-xs-12">This is why it has an
-            option to edit an existing Dockerfile, adding what is missing and
-            was not detected before.<br>
-            <h2>Platform</h2>
-            At the moment, DockIT runs on Linux®, and is being ported to
-            Windows®. It can be ported to other platforms as long as system
-            calls can be intercepted, for example by some hooking feature of the
-            &nbsp;target operating system
-            <h2>And Survol ?</h2>
-            DockIT&nbsp;is a distinct tool from Survol. Internally, they handle
-            the same type of objects and resources as described by the <a href="https://en.wikipedia.org/wiki/Common_Information_Model_%28computing%29">CIM</a>
-            industrial standard. Survol and&nbsp;DockIT are two orthogonal
-            technologies, based on the same concepts, to address and understand
-            the behavior of running applications in-situ and in-vivo.</div>
-          <div class="col-md-12 col-sm-12 col-xs-12"><br>
-          </div>
-          <div class="col-md-12 col-sm-12 col-xs-12">Survol displays snapshots,
-            whereas DockIT traces a temporal behaviour on a time scale: DockIT,
-            during its execution, reports the life-cycle of detected objects:
-            Their creation, how they are used by system calls, and their
-            destruction.<br>
-            <br>
-          </div>
-        </div>
-      </div>
-    </section>
+              <li>Specific software framework or services types, such as databases.</li>
+            
+              
+              </ul> 
+              
+              <p>None of them brings a general solution because the problem is extremely complicated and relies on many arbitrary choices.Because DockIT analyse is as close as possible to the operating system, it provides results that cannot be obtained with other tools, and it always provides them. This unique perspective - analyzing system calls on the fly - are complementary with other Dockerfile parameters.</p>
+              
+              <p>This is why it has an option to edit an existing Dockerfile, adding what is missing and was not detected before.</p>
+ </div>
+                     	</div>
+                        
+                        <div class="row dock-it secnarios">
+                     	    <div class="par par-1">
+                    	       <h2>Platform</h2>
+                        	<img src="images/about-line.png" class="img-responsive">
+                            <p> At the moment, DockIT runs on Linux®, and is being ported to Windows®. It can be ported to other platforms as long as system                             calls can be intercepted, for example by some hooking feature of the  target operating system</p>
+                          </div>
+                     	</div>
+                        
+                        <div class="row dock-it secnarios">
+                     	    <div class="par par-1">
+                    	       <h2>And Survol ?</h2>
+                        	<img src="images/about-line.png" class="img-responsive">
+                            <p> DockIT is a distinct tool from Survol. Internally, they handle the same type of objects and resources as described by the CIM industrial standard. Survol and DockIT are two orthogonal technologies, based on the same concepts, to address and understand the behavior of running applications in-situ and in-vivo.</p>
+                            <p> Survol displays snapshots, whereas DockIT traces a temporal behaviour on a time scale: DockIT, during its execution, reports the life-cycle of detected objects: Their creation, how they are used by system calls, and their destruction.
+</p>
+                          </div>
+                     	</div>
+                     </div>
+                     </section>
+                
     <!-- end -->
     <!-- ==== Footer ==== -->
     <section class="footer">
@@ -470,3 +384,4 @@ Survol
     })
 </script> </body>
 </html>
+
