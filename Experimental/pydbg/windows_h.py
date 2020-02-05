@@ -180,33 +180,6 @@ assert alignment(_CONTEXT) == 4, alignment(_CONTEXT)
 DWORD64 = c_ulonglong
 
 
-# PROBLEM: IT DOES NOT MATCH
-"""
-    union {
-        XMM_SAVE_AREA32 FltSave;
-        struct {
-            M128A Header[2];
-            M128A Legacy[8];
-            M128A Xmm0;
-            M128A Xmm1;
-            M128A Xmm2;
-            M128A Xmm3;
-            M128A Xmm4;
-            M128A Xmm5;
-            M128A Xmm6;
-            M128A Xmm7;
-            M128A Xmm8;
-            M128A Xmm9;
-            M128A Xmm10;
-            M128A Xmm11;
-            M128A Xmm12;
-            M128A Xmm13;
-            M128A Xmm14;
-            M128A Xmm15;
-        } DUMMYSTRUCTNAME;
-    } DUMMYUNIONNAME;
-"""
-
 # Define 128-bit 16-byte aligned xmm register type.
 class M128A(Structure):
     _pack_ = 16
@@ -215,6 +188,85 @@ class M128A(Structure):
         ("High", DWORD64),
         ]
 
+class DUMMYSTRUCTNAME(Structure):
+    _fields_ = [
+        ("Header", M128A * 2),
+        ("Legacy", M128A * 8),
+        ("Xmm0", M128A),
+        ("Xmm1", M128A),
+        ("Xmm2", M128A),
+        ("Xmm3", M128A),
+        ("Xmm4", M128A),
+        ("Xmm5", M128A),
+        ("Xmm6", M128A),
+        ("Xmm7", M128A),
+        ("Xmm8", M128A),
+        ("Xmm9", M128A),
+        ("Xmm10", M128A),
+        ("Xmm11", M128A),
+        ("Xmm12", M128A),
+        ("Xmm13", M128A),
+        ("Xmm14", M128A),
+        ("Xmm15", M128A),
+    ]
+
+class _XSAVE_FORMAT32(Structure):
+    # align 16
+    _fields_ = [
+        ("ControlWord", WORD),
+        ("StatusWord",WORD),
+        ("TagWord",BYTE),
+        ("Reserved1",BYTE),
+        ("ErrorOpcode",WORD),
+        ("ErrorOffset",DWORD),
+        ("ErrorSelector",WORD),
+        ("Reserved2",WORD),
+        ("DataOffset",DWORD),
+        ("DataSelector",WORD),
+        ("Reserved3",WORD),
+        ("MxCsr",DWORD),
+        ("MxCsr_Mask",DWORD),
+        ("FloatRegisters",M128A*8),
+
+        ("XmmRegisters",M128A*8),
+        ("Reserved4",BYTE*192),
+        ("StackControl", DWORD*7),   # KERNEL_STACK_CONTROL structure actualy
+        ("Cr0NpxState",DWORD),
+        ]
+
+class _XSAVE_FORMAT64(Structure):
+    # align 16
+    _fields_ = [
+        ("ControlWord", WORD),
+        ("StatusWord",WORD),
+        ("TagWord",BYTE),
+        ("Reserved1",BYTE),
+        ("ErrorOpcode",WORD),
+        ("ErrorOffset",DWORD),
+        ("ErrorSelector",WORD),
+        ("Reserved2",WORD),
+        ("DataOffset",DWORD),
+        ("DataSelector",WORD),
+        ("Reserved3",WORD),
+        ("MxCsr",DWORD),
+        ("MxCsr_Mask",DWORD),
+        ("FloatRegisters",M128A*8),
+
+        ("XmmRegisters",M128A*16),
+        ("Reserved4",BYTE*96),
+        ]
+
+if is_64bits:
+    XSAVE_FORMAT = _XSAVE_FORMAT64
+else:
+    XSAVE_FORMAT = _XSAVE_FORMAT32
+XMM_SAVE_AREA32 = XSAVE_FORMAT
+
+class DUMMYUNIONNAME(Union):
+    _fields_ = [
+        ("FltSave", XMM_SAVE_AREA32),
+        ("DummyStructName", DUMMYSTRUCTNAME)
+    ]
 
 class _CONTEXT64(Structure):
     _pack_ = 16
@@ -268,17 +320,20 @@ class _CONTEXT64(Structure):
         ("LastExceptionToRip", DWORD64),
         ("LastExceptionFromRip", DWORD64),
 
-        ### ("DUMMYUNIONNAME", DUMMYUNIONNAME),
+        ("DUMMYUNIONNAME", DUMMYUNIONNAME),
 
         ("VectorRegister", M128A * 26),
         ("VectorControl", DWORD64),
 
-        ("FillerAlign1", DWORD),
-        ("FillerAlign2", DWORD),
+        ("DebugControl", DWORD),
+        ("LastBranchToRip", DWORD),
+        ("LastBranchFromRip", DWORD),
+        ("LastExceptionToRip", DWORD),
+        ("LastExceptionFromRip", DWORD)
 ]
 ####### TODO: BROKEN
 ###############assert alignment(_CONTEXT64) == 16, alignment(_CONTEXT64)
-assert sizeof(_CONTEXT64) == 728, sizeof(_CONTEXT64)
+assert sizeof(_CONTEXT64) == 1256, sizeof(_CONTEXT64)
 CONTEXT64 = _CONTEXT64
 
 # C:/PROGRA~1/MICROS~2/VC98/Include/winbase.h 498
