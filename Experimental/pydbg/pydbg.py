@@ -378,7 +378,7 @@ class pydbg:
         if address == slot == None:
             raise pdx("hw bp address or slot # must be specified.")
 
-        if not address and slot not in xrange(4):
+        if not address and slot not in range(4):
             raise pdx("invalid hw bp slot: %d. valid range is 0 through 3" % slot)
 
         # de-activate the hardware breakpoint for all active threads.
@@ -685,7 +685,7 @@ class pydbg:
         # we could programatically search for an open slot in a given thread context with the following code:
         #
         #    available = None
-        #    for slot in xrange(4):
+        #    for slot in range(4):
         #        if context.Dr7 & (1 << (slot * 2)) == 0:
         #            available = slot
         #            break
@@ -853,7 +853,7 @@ class pydbg:
 
             if mbi.Protect & PAGE_GUARD:
                 address = mbi.BaseAddress
-                print("PAGE GUARD on %08x" % mbi.BaseAddress)
+                self._log("PAGE GUARD on %08x" % mbi.BaseAddress)
 
                 while 1:
                     address += self.page_size
@@ -862,7 +862,7 @@ class pydbg:
                     if not tmp_mbi.Protect & PAGE_GUARD:
                         break
 
-                    print("PAGE GUARD on %08x" % address)
+                    self._log("PAGE GUARD on %08x" % address)
 
             cursor += mbi.RegionSize
 
@@ -879,7 +879,7 @@ class pydbg:
         @raise pdx: An exception is raised on failure.
         '''
 
-        print("debug_active_process pid=", pid)
+        self._log("debug_active_process pid=%d" % pid)
         if not kernel32.DebugActiveProcess(pid):
             raise pdx("DebugActiveProcess(%d)" % pid, True)
 
@@ -950,19 +950,19 @@ class pydbg:
 
                 # call the internal handler for the exception event that just occured.
                 if ec == EXCEPTION_ACCESS_VIOLATION:
-                    print("EXCEPTION_ACCESS_VIOLATION")
+                    self._log("EXCEPTION_ACCESS_VIOLATION")
                     continue_status = self.exception_handler_access_violation()
                 elif ec == EXCEPTION_BREAKPOINT:
-                    print("EXCEPTION_BREAKPOINT")
+                    self._log("EXCEPTION_BREAKPOINT")
                     continue_status = self.exception_handler_breakpoint()
                     self._log("debug_event_loop() continue_status: %08x DBG_CONTINUE: %08x"
                               % (continue_status, DBG_CONTINUE) )
                     assert continue_status == DBG_CONTINUE
                 elif ec == EXCEPTION_GUARD_PAGE:
-                    print("EXCEPTION_GUARD_PAGE")
+                    self._log("EXCEPTION_GUARD_PAGE")
                     continue_status = self.exception_handler_guard_page()
                 elif ec == EXCEPTION_SINGLE_STEP:
-                    print("EXCEPTION_SINGLE_STEP")
+                    self._log("EXCEPTION_SINGLE_STEP")
                     continue_status = self.exception_handler_single_step()
                 # generic callback support.
                 elif ec in self.callbacks:
@@ -1235,7 +1235,7 @@ class pydbg:
         context_dump += "  EBP: %08x (%10d) -> %s\n" % (context.Ebp, context.Ebp, context_list["ebp"])
         context_dump += "  ESP: %08x (%10d) -> %s\n" % (context.Esp, context.Esp, context_list["esp"])
 
-        for offset in xrange(0, stack_depth + 1):
+        for offset in range(0, stack_depth + 1):
             context_dump += "  +%02x: %08x (%10d) -> %s\n" %    \
             (                                                   \
                 offset * 4,                                     \
@@ -1286,7 +1286,7 @@ class pydbg:
         context_list["ebp"] = self.smart_dereference(context.Ebp, print_dots, hex_dump)
         context_list["esp"] = self.smart_dereference(context.Esp, print_dots, hex_dump)
 
-        for offset in xrange(0, stack_depth + 1):
+        for offset in range(0, stack_depth + 1):
             try:
                 esp = self.flip_endian_dword(self.read_process_memory(context.Esp + offset * 4, 4))
 
@@ -1670,6 +1670,7 @@ class pydbg:
 
             # before we can continue, we have to correct the value of EIP. the reason for this is that the 1-byte INT 3
             # we inserted causes EIP to "slide" + 1 into the original instruction and must be reset.
+            # IP = Instruction pointer, jumps to next instruction after interrupt=03
             if is_64bits:
                 self.set_register("RIP", self.exception_address)
                 self.context.Rip -= 1
@@ -1765,7 +1766,7 @@ class pydbg:
         @return: Debug event continue status.
         '''
 
-        self._log("pydbg.exception_handler_single_step()")
+        #self._log("pydbg.exception_handler_single_step()")
 
         # if there is a breakpoint to restore.
         if self._restore_breakpoint:
@@ -2019,14 +2020,14 @@ class pydbg:
         else:
             self._log("get_arg index=%d context.Esp=%08x" % (index, context.Esp))
             arg_val = self.read_process_memory(context.Esp + index * 4, 4)
-        print("arg_val=", ''.join('{:02x}'.format(ord(x)) for x in arg_val))
+        # self._log("arg_val=", ''.join('{:02x}'.format(ord(x)) for x in arg_val))
         assert isinstance(arg_val, six.binary_type)
         arg_val = self.flip_endian_dword(arg_val)
         assert isinstance(arg_val, long)
         if is_64bits:
-            print("arg_val= %0168x %s" % (arg_val, type(arg_val)))
+            self._log("arg_val= %016x %s" % (arg_val, type(arg_val)))
         else:
-            print("arg_val= %08x %s" % (arg_val, type(arg_val)))
+            self._log("arg_val= %08x %s" % (arg_val, type(arg_val)))
 
         return arg_val
 
@@ -2081,18 +2082,6 @@ class pydbg:
 
         self._log("get_debug_privileges()")
 
-        #test = kernel32.GetCurrentProcess()
-        #print("test=", dir(test))
-        #print("test=", test)
-
-        #toto_token = self.my_get_process_token()
-
-
-        #if not advapi32.OpenProcessToken(test, TOKEN_ALL_ACCESS, byref(h_token)):
-        #    raise pdx("OpenProcessToken()", True)
-
-        #GetCurrentProcess = ctypes.windll.kernel32.GetCurrentProcess
-        #GetCurrentProcess.restype = wintypes.HANDLE
         self._log("OpenProcessToken")
         OpenProcessToken = ctypes.windll.advapi32.OpenProcessToken
         OpenProcessToken.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE))
@@ -2578,7 +2567,7 @@ class pydbg:
 
 
     ####################################################################################################################
-    def flip_endian_dword (self, bytes):
+    def flip_endian_dword (self, array_bytes):
         '''
         Utility function to flip the endianess of a given set of raw bytes into a DWORD.
 
@@ -2589,11 +2578,11 @@ class pydbg:
         @return: Converted DWORD.
         '''
         # Little-endian, and unsigned long (4 bytes)
-        assert isinstance(bytes, six.binary_type)
+        assert isinstance(array_bytes, six.binary_type)
         if is_64bits:
-            return long(struct.unpack("<Q", bytes)[0])
+            return long(struct.unpack("<Q", array_bytes)[0])
         else:
-            return long(struct.unpack("<L", bytes)[0])
+            return long(struct.unpack("<L", array_bytes)[0])
 
     ####################################################################################################################
     def load (self, path_to_file, command_line=None, create_new_console=False, show_window=True):
@@ -2820,7 +2809,7 @@ class pydbg:
 
         # step through the entries. we only want ports that have the listening flag set. snag the port, address and
         # protocol tuple and add it to port_list.
-        for i in xrange(tcp_table.dwNumEntries):
+        for i in range(tcp_table.dwNumEntries):
             if tcp_table.table[i].dwOwningPid == pid:
                 if tcp_table.table[i].dwState == MIB_TCP_STATE_LISTEN:
                     listening_port = "%d" % socket.ntohs(tcp_table.table[i].dwLocalPort)
@@ -3368,7 +3357,7 @@ class pydbg:
         @return:    Self
         '''
 
-        self._log("single_step(%s)" % enable)
+        #self._log("single_step(%s)" % enable)
 
         if not thread_handle:
             thread_handle = self.h_thread
