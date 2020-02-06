@@ -895,7 +895,7 @@ class pydbg:
 
         #self._log("debug_event_iteration before WaitForDebugEvent")
         # wait for a debug event.
-        self._log("WaitForDebugEvent DEBUT")
+        #self._log("WaitForDebugEvent DEBUT")
         if kernel32.WaitForDebugEvent(byref(dbg), 5000):
             #self._log("WaitForDebugEvent AFTER")
             # grab various information with regards to the current exception.
@@ -982,7 +982,7 @@ class pydbg:
             # close the opened thread handle and resume executing the thread that triggered the debug event.
             self.close_handle(self.h_thread)
             #self._log("debug_event_iteration BEFORE ContinueDebugEvent dbg.dwProcessId=%d" % (dbg.dwProcessId))
-            self._log("ContinueDebugEvent DBG_CONTINUE=%08x" % DBG_CONTINUE)
+            #self._log("ContinueDebugEvent DBG_CONTINUE=%08x" % DBG_CONTINUE)
             if not kernel32.ContinueDebugEvent(dbg.dwProcessId, dbg.dwThreadId, continue_status):
                 raise pdx("ContinueDebugEvent(%d)" % dbg.dwThreadId, True)
 
