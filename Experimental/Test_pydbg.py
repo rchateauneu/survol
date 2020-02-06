@@ -31,133 +31,35 @@ from pydbg import pydbg
 from pydbg import defines
 import pydbg.tests.utils
 
-class HookManager:
-    def __init__(self):
-        self.hooks = pydbg.tests.utils.hook_container()
-
-    def define_function(self, api_definition):
-        return
-        function_name = b"WriteFile"
-        hook_address = tst_pydbg.func_resolve(b"kernel32.dll", function_name)
-        assert hook_address
-
-        def hook_function():
-            pass
-        self.hooks.add(tst_pydbg, hook_address, 5, hook_function, None)
-
-
-hooks_manager = HookManager()
-
-hooks_manager.define_function("""
-BOOL WriteFile(
-HANDLE       hFile,
-LPCVOID      lpBuffer,
-DWORD        nNumberOfBytesToWrite,
-LPDWORD      lpNumberOfBytesWritten,
-LPOVERLAPPED lpOverlapped
-);""")
-hooks_manager.define_function("""
-BOOL WriteFileEx(
-"HANDLE                          hFile,
-"LPCVOID                         lpBuffer,
-"DWORD                           nNumberOfBytesToWrite,
-"LPOVERLAPPED                    lpOverlapped,
-"LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
-);""")
-hooks_manager.define_function("""
-BOOL WriteFileGather(
-  HANDLE                  hFile,
-  FILE_SEGMENT_ELEMENT [] aSegmentArray,
-  DWORD                   nNumberOfBytesToWrite,
-  LPDWORD                 lpReserved,
-  LPOVERLAPPED            lpOverlapped
-);""")
-hooks_manager.define_function("""
-BOOL ReadFile(
-  HANDLE       hFile,
-  LPVOID       lpBuffer,
-  DWORD        nNumberOfBytesToRead,
-  LPDWORD      lpNumberOfBytesRead,
-  LPOVERLAPPED lpOverlapped
-);""")
-hooks_manager.define_function("""
-BOOL ReadFileEx(
-  HANDLE                          hFile,
-  LPVOID                          lpBuffer,
-  DWORD                           nNumberOfBytesToRead,
-  LPOVERLAPPED                    lpOverlapped,
-  LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
-);""")
-hooks_manager.define_function("""
-BOOL ReadFileScatter(
-  HANDLE                  hFile,
-  FILE_SEGMENT_ELEMENT [] aSegmentArray,
-  DWORD                   nNumberOfBytesToRead,
-  LPDWORD                 lpReserved,
-  LPOVERLAPPED            lpOverlapped
-);""")
-hooks_manager.define_function("""
-BOOL CreateDirectoryA(
-  LPCSTR                lpPathName,
-  LPSECURITY_ATTRIBUTES lpSecurityAttributes
-);""")
-hooks_manager.define_function("""
-BOOL RemoveDirectoryA(
-  LPCSTR lpPathName
-);""")
-hooks_manager.define_function("""
-BOOL RemoveDirectoryW(
-  LPCWSTR lpPathName
-);""")
-hooks_manager.define_function("""
-HANDLE CreateFileA(
-  LPCSTR                lpFileName,
-  DWORD                 dwDesiredAccess,
-  DWORD                 dwShareMode,
-  LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-  DWORD                 dwCreationDisposition,
-  DWORD                 dwFlagsAndAttributes,
-  HANDLE                hTemplateFile
-);""")
-hooks_manager.define_function("""
-HANDLE CreateFileW(
-  LPCWSTR               lpFileName,
-  DWORD                 dwDesiredAccess,
-  DWORD                 dwShareMode,
-  LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-  DWORD                 dwCreationDisposition,
-  DWORD                 dwFlagsAndAttributes,
-  HANDLE                hTemplateFile
-);""")
-hooks_manager.define_function("""
-BOOL DeleteFileA(
-  LPCSTR lpFileName
-);""")
-hooks_manager.define_function("""
-BOOL DeleteFileW(
-  LPCWSTR lpFileName
-);""")
-hooks_manager.define_function("""
-HANDLE CreateFile2(
-  LPCWSTR                           lpFileName,
-  DWORD                             dwDesiredAccess,
-  DWORD                             dwShareMode,
-  DWORD                             dwCreationDisposition,
-  LPCREATEFILE2_EXTENDED_PARAMETERS pCreateExParams
-);""")
+import struct
 
 def hook_function_WriteFile(dbg, args):
     print("hook_function_WriteFile args=", args)
+
+    def get_long(address):
+        ret_bytes = dbg.read_process_memory(address, 4)
+        assert len(ret_bytes) == 4
+        assert isinstance(ret_bytes, six.binary_type)
+        return long(struct.unpack("<L", ret_bytes)[0])
+
+    def get_longlong(address):
+        ret_bytes = dbg.read_process_memory(address, 8)
+        assert len(ret_bytes) == 8
+        assert isinstance(ret_bytes, six.binary_type)
+        return long(struct.unpack("<Q", ret_bytes)[0])
+
+    address_start = dbg.context.Rsp + 8
+    hFile = get_longlong(address_start)
+    lpBuffer = get_longlong(address_start+8)
+    nNumberOfBytesToWrite = get_long(address_start+8+8)
+    lpNumberOfBytesWritten = get_longlong(address_start+8+8+4)
+    lpOverlapped = get_longlong(address_start+8+8+4+8)
+    print("Args=", hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped)
+
+
     big_val = dbg.read_process_memory(dbg.context.Rsp, 48)
     assert isinstance(big_val, six.binary_type)
     print("hook_function_WriteFile big_val=", ''.join('{:02x}'.format(ord(x)) for x in big_val))
-    return defines.DBG_CONTINUE
-
-def hook_function_RemoveDirectoryA(dbg, args ):
-    print("hook_function_RemoveDirectoryA args=", args)
-    big_val = dbg.read_process_memory(dbg.context.Rsp, 16)
-    assert isinstance(big_val, six.binary_type)
-    print("hook_function_RemoveDirectoryA big_val=", ''.join('{:02x}'.format(ord(x)) for x in big_val))
     return defines.DBG_CONTINUE
 
 def hook_function_RemoveDirectoryW(dbg, args ):
@@ -165,6 +67,29 @@ def hook_function_RemoveDirectoryW(dbg, args ):
     big_val = dbg.read_process_memory(dbg.context.Rsp, 16)
     assert isinstance(big_val, six.binary_type)
     print("hook_function_RemoveDirectoryW big_val=", ''.join('{:02x}'.format(ord(x)) for x in big_val))
+    return defines.DBG_CONTINUE
+
+def hook_function_MulDiv(dbg, args ):
+    print("hook_function_MulDiv args=", args)
+    assert args[0] == 20
+    assert args[1] == 30
+    assert args[2] == 6
+    big_val = dbg.read_process_memory(dbg.context.Rsp, 16)
+    assert isinstance(big_val, six.binary_type)
+    print("hook_function_MulDiv big_val=", ''.join('{:02x}'.format(ord(x)) for x in big_val))
+    return defines.DBG_CONTINUE
+
+
+# DWORD GetEnvironmentVariable(
+#   LPCTSTR lpName,
+#   LPTSTR  lpBuffer,
+#   DWORD   nSize
+# );
+def hook_function_GetEnvironmentVariableW(dbg, args ):
+    print("hook_function_GetEnvironmentVariableW args=", args)
+    big_val = dbg.read_process_memory(dbg.context.Rsp, 16)
+    assert isinstance(big_val, six.binary_type)
+    print("hook_function_GetEnvironmentVariableW big_val=", ''.join('{:02x}'.format(ord(x)) for x in big_val))
     return defines.DBG_CONTINUE
 
 
@@ -178,11 +103,32 @@ def processing_function(one_argument):
             os.rmdir("Tralala")
         except:
             pass
+        resu = ctypes.windll.kernel32.MulDiv(20, 30, 6)
+        print("resu=%d" % resu)
+
+
+import ctypes
 
 if __name__ == '__main__':
     architecture = platform.architecture()
     print("Architecture:", architecture)
     assert architecture[0] == '64bit'
+
+    print("ctypes.windll.kernel32.MulDiv.argtypes=", ctypes.windll.kernel32.MulDiv.argtypes) # None
+    resu = ctypes.windll.kernel32.MulDiv(20, 30, 6)
+    assert resu == 100
+
+    buflen = 200
+    read_buf = ctypes.create_string_buffer(buflen)
+    expected_environment_value = os.environ["USERNAME"]
+    resu = ctypes.windll.kernel32.GetEnvironmentVariableA(b"USERNAME", read_buf, ctypes.c_size_t(buflen))
+    print("resu=", resu, expected_environment_value)
+    assert resu == len(expected_environment_value)
+    print("read_buf.raw=", read_buf.raw)
+    assert len(read_buf.raw) == buflen
+    assert read_buf.raw[:resu] == expected_environment_value
+    print("read_buf.value=", read_buf.value)
+    assert read_buf.value == expected_environment_value
 
     sleep_time = 3.0
     created_process = multiprocessing.Process(target=processing_function, args=(sleep_time,))
@@ -208,13 +154,17 @@ if __name__ == '__main__':
     assert hook_address_WriteFile
     hooks.add(tst_pydbg, hook_address_WriteFile, 5, hook_function_WriteFile, None)
 
-    hook_address_RemoveDirectoryA = tst_pydbg.func_resolve(b"kernel32.dll", b"RemoveDirectoryA")
-    assert hook_address_RemoveDirectoryA
-    hooks.add(tst_pydbg, hook_address_RemoveDirectoryA, 1, hook_function_RemoveDirectoryA, None)
-
     hook_address_RemoveDirectoryW = tst_pydbg.func_resolve(b"kernel32.dll", b"RemoveDirectoryW")
     assert hook_address_RemoveDirectoryW
     hooks.add(tst_pydbg, hook_address_RemoveDirectoryW, 1, hook_function_RemoveDirectoryW, None)
+
+    hook_address_MulDiv = tst_pydbg.func_resolve(b"kernel32.dll", b"MulDiv")
+    assert hook_address_MulDiv
+    hooks.add(tst_pydbg, hook_address_MulDiv, 3, hook_function_MulDiv, None)
+
+    hook_address_GetEnvironmentVariableW = tst_pydbg.func_resolve(b"kernel32.dll", b"GetEnvironmentVariableW")
+    assert hook_address_GetEnvironmentVariableW
+    hooks.add(tst_pydbg, hook_address_GetEnvironmentVariableW, 1, hook_function_GetEnvironmentVariableW, None)
 
     tst_pydbg.run()
 
