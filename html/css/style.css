@@ -1176,4 +1176,19 @@ p.infotxt.big {
 }
 
 
+
+ p.aim
+{
+	text-align:justify;
+	line-height: 24px;
+}
+.breadcrum-sec h1.page-title.global
+{
+	font-size: 30px;
+}
+.aim a {
+    color: #f15922;
+}
+
+
   
