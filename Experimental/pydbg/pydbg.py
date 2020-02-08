@@ -935,7 +935,7 @@ class pydbg:
 
             # an exception was caught.
             elif dbg.dwDebugEventCode == EXCEPTION_DEBUG_EVENT:
-                self._log("debug_event_iteration EXCEPTION_DEBUG_EVENT")
+                #self._log("debug_event_iteration EXCEPTION_DEBUG_EVENT")
                 # https://stackoverflow.com/questions/3799294/im-having-problems-with-waitfordebugevent-exception-debug-event
                 # Windows will send one EXCEPTION_BREAKPOINT (INT3) when it first loads.
                 # You must DEBUG_CONTINUE this first breakpoint exception...
@@ -946,7 +946,7 @@ class pydbg:
                 ec = dbg.u.Exception.ExceptionRecord.ExceptionCode
 
                 # 0x80000003  EXCEPTION_BREAKPOINT
-                self._log("debug_event_loop() exception: %08x" % ec)
+                #self._log("debug_event_loop() exception: %08x" % ec)
 
                 # call the internal handler for the exception event that just occured.
                 if ec == EXCEPTION_ACCESS_VIOLATION:
@@ -955,14 +955,13 @@ class pydbg:
                 elif ec == EXCEPTION_BREAKPOINT:
                     self._log("EXCEPTION_BREAKPOINT")
                     continue_status = self.exception_handler_breakpoint()
-                    self._log("debug_event_loop() continue_status: %08x DBG_CONTINUE: %08x"
-                              % (continue_status, DBG_CONTINUE) )
+                    #self._log("debug_event_loop() continue_status: %08x DBG_CONTINUE: %08x" % (continue_status, DBG_CONTINUE) )
                     assert continue_status == DBG_CONTINUE
                 elif ec == EXCEPTION_GUARD_PAGE:
                     self._log("EXCEPTION_GUARD_PAGE")
                     continue_status = self.exception_handler_guard_page()
                 elif ec == EXCEPTION_SINGLE_STEP:
-                    self._log("EXCEPTION_SINGLE_STEP")
+                    #self._log("EXCEPTION_SINGLE_STEP")
                     continue_status = self.exception_handler_single_step()
                 # generic callback support.
                 elif ec in self.callbacks:
@@ -1664,7 +1663,7 @@ class pydbg:
         # breakpoints we did set.
         else:
             # restore the original byte at the breakpoint address.
-            self._log("restoring original byte at %08x: %s" % (self.exception_address, self.breakpoints[self.exception_address].original_byte))
+            #self._log("restoring original byte at %08x: %s" % (self.exception_address, self.breakpoints[self.exception_address].original_byte))
             self.write_process_memory(self.exception_address, self.breakpoints[self.exception_address].original_byte)
             self.set_attr("dirty", True)
 
@@ -1774,7 +1773,7 @@ class pydbg:
 
             # restore a soft breakpoint.
             if isinstance(bp, breakpoint):
-                self._log("restoring breakpoint at 0x%08x" % bp.address)
+                #self._log("restoring breakpoint at 0x%08x" % bp.address)
                 self.bp_set(bp.address, bp.description, bp.restore, bp.handler)
 
             # restore PAGE_GUARD for a memory breakpoint (make sure guards are not temporarily suspended).
@@ -1864,12 +1863,12 @@ class pydbg:
         @return: Address
         '''
 
-        self._log("LoadLibraryA")
+        #self._log("LoadLibraryA")
         handle  = kernel32.LoadLibraryA(dll)
-        self._log("GetProcAddress")
+        #self._log("GetProcAddress")
         address = kernel32.GetProcAddress(handle, function)
 
-        self._log("FreeLibrary")
+        #self._log("FreeLibrary")
         kernel32.FreeLibrary(handle)
 
         return address
@@ -2014,21 +2013,39 @@ class pydbg:
         if not context:
             context = self.context
 
-        if is_64bits:
-            self._log("get_arg index=%d context.Rsp=%016x" % (index, context.Rsp))
-            arg_val = self.read_process_memory(context.Rsp + index * 8, 8)
-        else:
-            self._log("get_arg index=%d context.Esp=%08x" % (index, context.Esp))
-            arg_val = self.read_process_memory(context.Esp + index * 4, 4)
-        # self._log("arg_val=", ''.join('{:02x}'.format(ord(x)) for x in arg_val))
-        assert isinstance(arg_val, six.binary_type)
-        arg_val = self.flip_endian_dword(arg_val)
-        assert isinstance(arg_val, long)
-        if is_64bits:
-            self._log("arg_val= %016x %s" % (arg_val, type(arg_val)))
-        else:
-            self._log("arg_val= %08x %s" % (arg_val, type(arg_val)))
 
+        if is_64bits:
+            # https://docs.microsoft.com/en-us/cpp/build/x64-calling-convention?view=vs-2019
+            # The first four integer arguments are passed in registers.
+            # Integer values are passed in left-to-right order in RCX, RDX, R8, and R9, respectively.
+            # Arguments five and higher are passed on the stack.
+            # All arguments are right-justified in registers,
+            # so the callee can ignore the upper bits of the register and access only the portion of the register necessary.
+            # BEWARE: Different logic for floats and doubles.
+            if index == 1:
+                arg_val = context.Rcx
+            elif index == 2:
+                arg_val = context.Rdx
+            elif index == 3:
+                arg_val = context.R8
+            elif index == 4:
+                arg_val = context.R9
+            else:
+                arg_val = self.read_process_memory(context.Rsp + index * 8, 8)
+                assert isinstance(arg_val, six.binary_type)
+                arg_val = self.flip_endian_dword(arg_val)
+            self._log("get_arg index=%d Rsp=%016x Rbp=%016x Rcx=%016x Rdx=%016x arg_val= %016x"
+                      % (index, context.Rsp, context.Rbp, context.Rcx, context.Rdx, arg_val))
+        else:
+            arg_val = self.read_process_memory(context.Esp + index * 4, 4)
+            # self._log("arg_val=", ''.join('{:02x}'.format(ord(x)) for x in arg_val))
+            assert isinstance(arg_val, six.binary_type)
+            arg_val = self.flip_endian_dword(arg_val)
+            assert isinstance(arg_val, long)
+
+            self._log("get_arg index=%d Esp=%08x Ebp=%08x arg_val= %08x" % (index, context.Esp, context.Ebp, arg_val))
+
+        assert isinstance(arg_val, long)
         return arg_val
 
 
@@ -2159,7 +2176,7 @@ class pydbg:
         @return:    Value of specified register.
         '''
 
-        self._log("getting %s in thread id %d" % (register, self.dbg.dwThreadId))
+        #self._log("getting %s in thread id %d" % (register, self.dbg.dwThreadId))
 
         register = register.upper()
         if register not in ("EAX", "EBX", "ECX", "EDX", "ESI", "EDI", "ESP", "EBP", "EIP"):
@@ -2998,10 +3015,11 @@ class pydbg:
         @rtype:     Raw
         @return:    Read data.
         '''
-        if is_64bits:
-            self._log("read_process_memory address=%016x length=%d" % (address, length))
-        else:
-            self._log("read_process_memory address=%08x length=%d" % (address, length))
+        if False:
+            if is_64bits:
+                self._log("read_process_memory address=%016x length=%d" % (address, length))
+            else:
+                self._log("read_process_memory address=%08x length=%d" % (address, length))
         assert address
 
         data         = b""
@@ -3231,7 +3249,7 @@ class pydbg:
 
     ####################################################################################################################
     def set_register64(self, register, value):
-        self._log("setting %s to %08x in thread id %d" % (register, value, self.dbg.dwThreadId))
+        #self._log("setting %s to %08x in thread id %d" % (register, value, self.dbg.dwThreadId))
 
         #register = register.upper()
         register = register[0].upper() + register[1:].lower()
@@ -3263,7 +3281,7 @@ class pydbg:
         @return:    Self
         '''
 
-        self._log("setting %s to %08x in thread id %d" % (register, value, self.dbg.dwThreadId))
+        #self._log("setting %s to %08x in thread id %d" % (register, value, self.dbg.dwThreadId))
 
         register = register.upper()
         if register not in ("EAX", "EBX", "ECX", "EDX", "ESI", "EDI", "ESP", "EBP", "EIP"):
