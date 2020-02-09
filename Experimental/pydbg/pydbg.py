@@ -953,7 +953,7 @@ class pydbg:
                     self._log("EXCEPTION_ACCESS_VIOLATION")
                     continue_status = self.exception_handler_access_violation()
                 elif ec == EXCEPTION_BREAKPOINT:
-                    self._log("EXCEPTION_BREAKPOINT")
+                    #self._log("EXCEPTION_BREAKPOINT")
                     continue_status = self.exception_handler_breakpoint()
                     #self._log("debug_event_loop() continue_status: %08x DBG_CONTINUE: %08x" % (continue_status, DBG_CONTINUE) )
                     assert continue_status == DBG_CONTINUE
@@ -2034,8 +2034,8 @@ class pydbg:
                 arg_val = self.read_process_memory(context.Rsp + index * 8, 8)
                 assert isinstance(arg_val, six.binary_type)
                 arg_val = self.flip_endian_dword(arg_val)
-            self._log("get_arg index=%d Rsp=%016x Rbp=%016x Rcx=%016x Rdx=%016x arg_val= %016x"
-                      % (index, context.Rsp, context.Rbp, context.Rcx, context.Rdx, arg_val))
+            #self._log("get_arg index=%d Rsp=%016x Rbp=%016x Rcx=%016x Rdx=%016x arg_val= %016x"
+            #          % (index, context.Rsp, context.Rbp, context.Rcx, context.Rdx, arg_val))
         else:
             arg_val = self.read_process_memory(context.Esp + index * 4, 4)
             # self._log("arg_val=", ''.join('{:02x}'.format(ord(x)) for x in arg_val))
@@ -3901,3 +3901,50 @@ class pydbg:
             self.virtual_protect(_address, _length, old_protect)
         except:
             pass
+
+
+    def get_string(self, address):
+        buffer  = b""
+        offset  = 0
+        while 1:
+            byte = self.read_process_memory(address + offset, 1 )
+            if byte != b"\x00":
+                buffer  += byte
+                offset  += 1
+                continue
+            else:
+                break
+        assert offset == len(buffer)
+        return buffer
+
+    def get_string_size(self, address, number_bytes):
+        buffer = self.read_process_memory(address, number_bytes )
+        return buffer
+
+    # Windows UTF-16 string.
+    def get_wstring(self, address):
+        # TRANSFORM INTO ASCII, FOR THE MOMENT.
+        buffer  = b""
+        offset  = 0
+        while 1:
+            byte = self.read_process_memory(address + offset, 2 )
+            if byte != b"\x00\x00":
+                buffer  += byte[0]
+                offset  += 2
+                continue
+            else:
+                break
+        return buffer
+
+    def get_long(self, address):
+        ret_bytes = self.read_process_memory(address, 4)
+        assert len(ret_bytes) == 4
+        assert isinstance(ret_bytes, six.binary_type)
+        return long(struct.unpack("<L", ret_bytes)[0])
+
+    def get_longlong(self, address):
+        ret_bytes = self.read_process_memory(address, 8)
+        assert len(ret_bytes) == 8
+        assert isinstance(ret_bytes, six.binary_type)
+        return long(struct.unpack("<Q", ret_bytes)[0])
+
