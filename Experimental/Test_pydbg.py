@@ -31,40 +31,7 @@ import pydbg
 from pydbg import pydbg
 from pydbg import defines
 import pydbg.tests.utils
-
-
-def hook_function_WriteFile(dbg, args):
-    print("hook_function_WriteFile args=", args)
-
-    lpBuffer = args[1]
-    nNumberOfBytesToWrite = args[2]
-    #print("lpBuffer=", lpBuffer, "nNumberOfBytesToWrite=", nNumberOfBytesToWrite)
-    buffer = dbg.get_string_size(lpBuffer, nNumberOfBytesToWrite)
-    print("Buffer=", buffer)
-    #assert buffer == b"This is a nice message"
-
-    return defines.DBG_CONTINUE
-
-def hook_function_RemoveDirectoryA(dbg, args ):
-    print("hook_function_RemoveDirectoryA args=", args)
-    dirname = dbg.get_string(args[0])
-    print("hook_function_RemoveDirectoryA dirname=", dirname)
-    assert dirname == b"NonExistentDirBinary"
-    return defines.DBG_CONTINUE
-
-def hook_function_RemoveDirectoryW(dbg, args):
-    print("hook_function_RemoveDirectoryW args=", args)
-    dirname = dbg.get_wstring(args[0])
-    print("hook_function_RemoveDirectoryW dirname=", dirname)
-    assert dirname == b"NonExistentDirUnicode"
-    return defines.DBG_CONTINUE
-
-def hook_function_MulDiv(dbg, args):
-    print("hook_function_MulDiv args=", args)
-    assert args[0] == 20
-    assert args[1] == 30
-    assert args[2] == 6
-    return defines.DBG_CONTINUE
+from pydbg.tests.utils import win32_api_definition
 
 def create_pydbg():
     if sys.version_info < (3,):
@@ -75,58 +42,7 @@ def create_pydbg():
         tst_pydbg = pydbg.pydbg.pydbg()
     return tst_pydbg
 
-
-class MetaStuff(object):
-    object_pydbg = None
-    object_hooks = None
-
-    def _parse_text_definition(self, api_definition):
-        match_one = re.match("\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*\((.*)\)\s*;", api_definition, re.DOTALL)
-        self.return_type = match_one.group(1)
-        self.function_name = match_one.group(2)
-
-        # '\nHANDLE hFile,\nLPCVOID lpBuffer,\nDWORD nNumberOfBytesToWrite,\nLPDWORD lpNumberOfBytesWritten,\nLPOVERLAPPED lpOverlapped\n'
-        self.args_list = []
-        for one_arg_pair in match_one.group(3).split(","):
-            match_pair = re.match("\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*", one_arg_pair)
-            self.args_list.append((match_pair.group(1), match_pair.group(2)))
-
-        # function_name = b"WriteFile"
-        self.hook_address = MetaStuff.object_pydbg.func_resolve(b"kernel32.dll", self.function_name)
-        assert self.hook_address
-
-    def __init__(self, api_definition):
-        self._parse_text_definition(api_definition)
-        self.hook_address = tst_pydbg.func_resolve(b"kernel32.dll", self.function_name)
-        assert self.hook_address
-
-        def hook_function_adapter(object_pydbg, args):
-            self.hook_function_core(args)
-            return defines.DBG_CONTINUE
-
-        MetaStuff.object_hooks.add(MetaStuff.object_pydbg, self.hook_address, len(self.args_list), hook_function_adapter, None)
-
-    def report_cim_object(self, class_name, **cim_arguments):
-        print("report_cim_object", class_name, cim_arguments)
-        exit(0)
-
-class StuffCreateFileA(MetaStuff):
-    def __init__(self):
-        super(StuffCreateFileA, self).__init__("""
-        HANDLE CreateFileA(
-          LPCSTR                lpFileName,
-          DWORD                 dwDesiredAccess,
-          DWORD                 dwShareMode,
-          LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-          DWORD                 dwCreationDisposition,
-          DWORD                 dwFlagsAndAttributes,
-          HANDLE                hTemplateFile
-        );""")
-
-    def hook_function_core(self, args):
-        dirname = MetaStuff.object_pydbg.get_string(args[0])
-        self.report_cim_object("CIM_DataFile", Name=dirname)
-
+################################################################################
 
 
 def processing_function(one_argument):
@@ -182,7 +98,7 @@ if __name__ == '__main__':
     time.sleep(1)
 
     tst_pydbg = create_pydbg()
-    MetaStuff.object_pydbg = tst_pydbg
+    win32_api_definition.Win32HookBaseClass.object_pydbg = tst_pydbg
     time.sleep(1.0)
 
     print("getpid=", os.getpid())
@@ -190,25 +106,13 @@ if __name__ == '__main__':
     tst_pydbg.attach(created_process.pid)
 
     hooks = pydbg.tests.utils.hook_container()
-    MetaStuff.object_hooks = hooks
+    win32_api_definition.Win32HookBaseClass.object_hooks = hooks
 
-    hook_address_WriteFile = tst_pydbg.func_resolve(b"kernel32.dll", b"WriteFile")
-    assert hook_address_WriteFile
-    hooks.add(tst_pydbg, hook_address_WriteFile, 5, hook_function_WriteFile, None)
-
-    hook_address_RemoveDirectoryA = tst_pydbg.func_resolve(b"kernel32.dll", b"RemoveDirectoryA")
-    assert hook_address_RemoveDirectoryA
-    hooks.add(tst_pydbg, hook_address_RemoveDirectoryA, 1, hook_function_RemoveDirectoryA, None)
-
-    hook_address_RemoveDirectoryW = tst_pydbg.func_resolve(b"kernel32.dll", b"RemoveDirectoryW")
-    assert hook_address_RemoveDirectoryW
-    hooks.add(tst_pydbg, hook_address_RemoveDirectoryW, 1, hook_function_RemoveDirectoryW, None)
-
-    hook_address_MulDiv = tst_pydbg.func_resolve(b"kernel32.dll", b"MulDiv")
-    assert hook_address_MulDiv
-    hooks.add(tst_pydbg, hook_address_MulDiv, 3, hook_function_MulDiv, None)
-
-    #one_stuff_StuffCreateFileA = StuffCreateFileA()
+    one_win32hook_Win32HookWriteFile = win32_api_definition.Win32HookWriteFile()
+    one_win32hook_Win32HookRemoveDirectoryA = win32_api_definition.Win32HookRemoveDirectoryA()
+    one_win32hook_Win32HookRemoveDirectoryW = win32_api_definition.Win32HookRemoveDirectoryW()
+    one_win32hook_Win32HookMulDiv = win32_api_definition.Win32HookMulDiv()
+    one_win32hook_Win32HookCreateFileA = win32_api_definition.Win32HookCreateFileA()
 
     tst_pydbg.run()
 
