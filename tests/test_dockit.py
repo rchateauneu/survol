@@ -706,7 +706,7 @@ class DockitEventsTest(unittest.TestCase):
         expected_types_list = {
             'CIM_Process': 1,
             'CIM_NetworkAdapter': 1,
-            'CIM_DataFile': 292,
+            'CIM_DataFile': 291,
             'CIM_ComputerSystem': 1,
             'Property': properties_number,
             'Class': 4 }
