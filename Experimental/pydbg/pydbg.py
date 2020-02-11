@@ -3961,3 +3961,9 @@ class pydbg:
         assert isinstance(ret_bytes, six.binary_type)
         return long(struct.unpack("<Q", ret_bytes)[0])
 
+    def get_pointer(self, address):
+        ret_bytes = self.read_process_memory(address, sizeof(PVOID))
+        assert len(ret_bytes) == sizeof(PVOID)
+        assert isinstance(ret_bytes, six.binary_type)
+        return long(struct.unpack("<Q", ret_bytes)[0])
+
