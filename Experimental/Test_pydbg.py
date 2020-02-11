@@ -30,8 +30,8 @@ sys.path.append("pydbg")
 import pydbg
 from pydbg import pydbg
 from pydbg import defines
-import pydbg.tests.utils
-from pydbg.tests.utils import win32_api_definition
+import pydbg.utils
+from pydbg.utils import win32_api_definition
 
 def create_pydbg():
     if sys.version_info < (3,):
@@ -143,7 +143,7 @@ if __name__ == '__main__':
     print("Attaching")
     tst_pydbg.attach(created_process.pid)
 
-    hooks = pydbg.tests.utils.hook_container()
+    hooks = pydbg.utils.hook_container()
     win32_api_definition.Win32Hook_BaseClass.object_hooks = hooks
 
     #def cim_object_callback(*args):
