@@ -1639,7 +1639,7 @@ class pydbg:
         @return: Debug event continue status.
         '''
 
-        self._log("pydbg.exception_handler_breakpoint() at %08x from thread id %d" % (self.exception_address, self.dbg.dwThreadId))
+        #self._log("pydbg.exception_handler_breakpoint() at %08x from thread id %d" % (self.exception_address, self.dbg.dwThreadId))
 
         # breakpoints we did not set.
         if not self.bp_is_ours(self.exception_address):
@@ -1679,7 +1679,7 @@ class pydbg:
 
             # if there is a specific handler registered for this bp, pass control to it.
             if self.breakpoints[self.exception_address].handler:
-                self._log("calling user handler")
+                #self._log("calling user handler")
                 continue_status = self.breakpoints[self.exception_address].handler(self)
 
             # pass control to default user registered call back handler, if it is specified.
@@ -1702,6 +1702,19 @@ class pydbg:
         #self._log("leaving exception_handler_breakpoint")
         return continue_status
 
+    ####################################################################################################################
+    def returned_value(self):
+        if is_64bits:
+            return self.context.Rax
+        else:
+            return self.context.Eax
+
+    ####################################################################################################################
+    def return_address(self):
+        if is_64bits:
+            return self.context.Rip
+        else:
+            return self.context.Eip
 
     ####################################################################################################################
     def exception_handler_guard_page (self):
