@@ -44,7 +44,10 @@ def create_pydbg():
 
 ################################################################################
 
+nonexistent_file = "NonExistentFile.xyz"
 
+# This procedure calls various win32 systems functions,
+# which are hooked then tested: Arguments, return values etc...
 def processing_function(one_argument):
     print('processing_function START.')
     while True:
@@ -67,6 +70,36 @@ def processing_function(one_argument):
         resu = ctypes.windll.kernel32.MulDiv(20, 30, 6)
         assert resu == 100
 
+        # This checks the opening of a file.
+        try:
+            opfil = open(nonexistent_file)
+        except Exception as exc:
+            pass
+
+        try:
+            # os.system("ThisCommandDoesNotWork")
+            os.system("dir")
+        except Exception as exc:
+            pass
+
+
+def cim_object_callback(calling_class_instance, cim_class_name, cim_arguments):
+    print("cim_object_callback", calling_class_instance.__class__.__name__, cim_class_name, cim_arguments)
+    function_name = calling_class_instance.function_name
+    if function_name == "RemoveDirectoryA":
+        assert cim_arguments["Name"] == "NonExistentDirBinary"
+    elif function_name == "RemoveDirectoryW":
+        assert cim_arguments["Name"] == "NonExistentDirUnicode"
+    elif function_name == "CreateFileA":
+        assert cim_arguments["Name"] in [
+            nonexistent_file,
+            "C:\\Python27\\lib\\encodings\\unicode_escape.pyd",
+            "C:\\Python27\\lib\\encodings\\unicode_escape.pyc",
+            "C:\\Python27\\lib\\encodings\\unicode_escape.py"]
+    elif function_name == "CreateFileW":
+        assert cim_arguments["Name"] == "NonExistentDirUnicode"
+    else:
+        raise Exception("Unexpected API function:", function_name)
 
 
 if __name__ == '__main__':
@@ -98,7 +131,7 @@ if __name__ == '__main__':
     time.sleep(1)
 
     tst_pydbg = create_pydbg()
-    win32_api_definition.Win32HookBaseClass.object_pydbg = tst_pydbg
+    win32_api_definition.Win32Hook_BaseClass.object_pydbg = tst_pydbg
     time.sleep(1.0)
 
     print("getpid=", os.getpid())
@@ -106,13 +139,17 @@ if __name__ == '__main__':
     tst_pydbg.attach(created_process.pid)
 
     hooks = pydbg.tests.utils.hook_container()
-    win32_api_definition.Win32HookBaseClass.object_hooks = hooks
+    win32_api_definition.Win32Hook_BaseClass.object_hooks = hooks
 
-    one_win32hook_Win32HookWriteFile = win32_api_definition.Win32HookWriteFile()
-    one_win32hook_Win32HookRemoveDirectoryA = win32_api_definition.Win32HookRemoveDirectoryA()
-    one_win32hook_Win32HookRemoveDirectoryW = win32_api_definition.Win32HookRemoveDirectoryW()
-    one_win32hook_Win32HookMulDiv = win32_api_definition.Win32HookMulDiv()
-    one_win32hook_Win32HookCreateFileA = win32_api_definition.Win32HookCreateFileA()
+    #def cim_object_callback(*args):
+    #    print("report_cim_object", args)
+    win32_api_definition.Win32Hook_BaseClass.object_report_callback = cim_object_callback
+
+    one_win32Hook__Win32Hook_WriteFile = win32_api_definition.Win32Hook_WriteFile()
+    one_win32Hook__Win32Hook_RemoveDirectoryA = win32_api_definition.Win32Hook_RemoveDirectoryA()
+    one_win32Hook__Win32Hook_RemoveDirectoryW = win32_api_definition.Win32Hook_RemoveDirectoryW()
+    one_win32Hook__Win32Hook_MulDiv = win32_api_definition.Win32Hook_MulDiv()
+    one_win32Hook__Win32Hook_CreateFileA = win32_api_definition.Win32Hook_CreateFileA()
 
     tst_pydbg.run()
 
