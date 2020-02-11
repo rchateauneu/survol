@@ -78,12 +78,15 @@ def processing_function(one_argument):
 
         try:
             # os.system("ThisCommandDoesNotWork")
-            os.system("dir")
+            os.system("dir nothing_at_all")
         except Exception as exc:
             pass
 
+def syscall_creation_callback(one_syscall):
+    print("syscall=", one_syscall.function_name)
 
-def cim_object_callback(calling_class_instance, cim_class_name, cim_arguments):
+
+def cim_object_callback(calling_class_instance, cim_class_name, **cim_arguments):
     print("cim_object_callback", calling_class_instance.__class__.__name__, cim_class_name, cim_arguments)
     function_name = calling_class_instance.function_name
     if function_name == "RemoveDirectoryA":
@@ -98,6 +101,8 @@ def cim_object_callback(calling_class_instance, cim_class_name, cim_arguments):
             "C:\\Python27\\lib\\encodings\\unicode_escape.py"]
     elif function_name == "CreateFileW":
         assert cim_arguments["Name"] == "NonExistentDirUnicode"
+    elif function_name == "CreateProcessA":
+        print("cim_arguments=", cim_arguments)
     else:
         raise Exception("Unexpected API function:", function_name)
 
@@ -143,13 +148,21 @@ if __name__ == '__main__':
 
     #def cim_object_callback(*args):
     #    print("report_cim_object", args)
-    win32_api_definition.Win32Hook_BaseClass.object_report_callback = cim_object_callback
 
-    one_win32Hook__Win32Hook_WriteFile = win32_api_definition.Win32Hook_WriteFile()
-    one_win32Hook__Win32Hook_RemoveDirectoryA = win32_api_definition.Win32Hook_RemoveDirectoryA()
-    one_win32Hook__Win32Hook_RemoveDirectoryW = win32_api_definition.Win32Hook_RemoveDirectoryW()
-    one_win32Hook__Win32Hook_MulDiv = win32_api_definition.Win32Hook_MulDiv()
-    one_win32Hook__Win32Hook_CreateFileA = win32_api_definition.Win32Hook_CreateFileA()
+    win32_api_definition.Win32Hook_BaseClass.callback_create_call = syscall_creation_callback
+    win32_api_definition.Win32Hook_BaseClass.callback_create_object = cim_object_callback
+
+
+
+    for subclass_definition in [
+        win32_api_definition.Win32Hook_CreateProcessA,
+        win32_api_definition.Win32Hook_CreateProcessW,
+        win32_api_definition.Win32Hook_WriteFile,
+        win32_api_definition.Win32Hook_RemoveDirectoryA,
+        win32_api_definition.Win32Hook_RemoveDirectoryW,
+        win32_api_definition.Win32Hook_MulDiv,
+        win32_api_definition.Win32Hook_CreateFileA ]:
+        win32_api_definition.Win32Hook_BaseClass.add_subclass(subclass_definition)
 
     tst_pydbg.run()
 
@@ -159,3 +172,44 @@ if __name__ == '__main__':
     created_process.join()
     time.sleep(2.0)
     print("Finished")
+
+
+
+
+"""
+
+Ne pas s'encombrer a utiliser le code Linux mais faire quelque chose de mieux au niveau de la generation des objets.
+Et c'est le script Linux qui l utilisera ensuite.
+Generer les objets dans une queue pour ne pas les stocker.
+On va les chercher dans le While du debugger.
+
+On n utilise pas BatchLetSequence, et meme il faut le separer du code Linux (Et a terme le virer,
+Ou le changer: On ne s'en sert pas actuellement).
+
+BatchFlow: execution flow, associated to a process / thread.
+On n'a pas besoin de BatchFlow. FilterMatchedBatches
+
+On a vraiment besoin de:
+- Generation dockerfile.
+- Generation summary.
+Donc il faut arrive a les extraire: lib_dockerfile_generation.py dans le directory des scripts (Par defaut dans sys.path).
+On peut convenir que l'interface est un ensemble d'objets CIM:
+
+GenerateDockerFile.WriteProcessTree():
+        for oneProc in CIM_Process.GetTopProcesses():
+            WriteOneProcessSubTree( oneProc, 1 )
+
+Extraire les definitions d'objets CIM ainsi que CIM_XmlMarshaller dans scripts/lib_cim_objects_definitions:
+class CIM_ComputerSystem (CIM_XmlMarshaller,object): etc...
+Ca doit etre completement separe de "BatchFlow" et autres.
+
+Peut etre aussi FileAccess
+Est-ce que "report_cim" va remplir G_mapCacheObjects[CIM_Process.__name__] ?
+
+HttpTriplesClient
+
+
+Donc:
+BatchLinux et DebugWin32 ecrivent dans cim_objects
+Docker et summary vont lire dans cim_objects.
+"""
