@@ -274,14 +274,16 @@ class hook:
         if pydbg.dbg.dwThreadId not in self.arguments.keys():
             return
 
-        continue_status = self.exit_hook(pydbg, self.arguments[pydbg.dbg.dwThreadId], pydbg.context.Eax)
+        continue_status = self.exit_hook(pydbg, self.arguments[pydbg.dbg.dwThreadId], pydbg.returned_value())
+
+        eip_register = pydbg.return_address()
 
         # reduce the break count
-        self.exit_bps[pydbg.context.Eip] -= 1
+        self.exit_bps[eip_register] -= 1
 
         # if the break count is 0, remove the bp from the exit point.
-        if self.exit_bps[pydbg.context.Eip] == 0:
-            pydbg.bp_del(pydbg.context.Eip)
+        if self.exit_bps[eip_register] == 0:
+            pydbg.bp_del(eip_register)
 
         # if a return value was not explicitly specified, default to DBG_CONTINUE.
         if continue_status == None:
