@@ -353,7 +353,7 @@ def InternalUnitTests_ParseSTraceObject():
         # The input string theoretically starts and ends with parenthesis,
         # but the closing one might not be there.
         # Therefore it should be tested with and without the closing parenthesis.
-        resu,idx = dockit.ParseCallArguments(tupl[0])
+        resu,idx = linux_api_definitions.ParseCallArguments(tupl[0])
         if resu != tupl[1]:
             raise Exception("\n     Fail:%s\nSHOULD BE:%s" % ( str(resu),str(tupl[1])  ) )
 
