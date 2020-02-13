@@ -1690,3 +1690,37 @@ class UnfinishedBatches:
 # might appear in one process, and the resumed part in another. Therefore this container
 # is global for all processes. The "withWarning" flag allows to hide detection of unmatched calls.
 G_stackUnfinishedBatches = None
+
+################################################################################
+# These libc calls can be detected by ltrace but must be filtered
+# because they do not bring information we want (And there are loads of them))
+# G_ignoredCallLTrace = [
+#     "strncmp",
+#     "strlen",
+#     "malloc",
+#     "strcmp",
+#     "memcmp",
+#     "memcpy",
+#     "calloc",
+#     "malloc",
+#     "free",
+#     "memset",
+#     "strcasecmp",
+#     "__strdup",
+#     "strchr",
+#     "sprintf",
+#     "__errno_location",
+#     "bfd*",
+#     "fopen",
+# ]
+
+# Many libc calls are created by several libraries because they are static.
+# For example:
+#    gcc->getenv("GNUTARGET") = nil <0.000182>
+#    liblto_plugin.so.0->getenv("COLLECT_GCC_OPTIONS") = "'-mtune=generic' '-march=x86-64'" <0.000321>
+# Note that the results are visible.
+#
+# Also, there are many libc calls, and in general, we do not know how to process
+# their arguments.
+# So we filter them additively.
+################################################################################
