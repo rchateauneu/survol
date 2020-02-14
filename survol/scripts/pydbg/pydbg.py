@@ -66,23 +66,10 @@ OpenProcessToken = ctypes.windll.advapi32.OpenProcessToken
 OpenProcessToken.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE))
 OpenProcessToken.restype = wintypes.BOOL
 
-# if not kernel32.GetThreadSelectorEntry(thread_handle, thread_context.SegFs, byref(selector_entry)):
-#GetThreadSelectorEntry = ctypes.windll.kernel32.GetThreadSelectorEntry
-
-# GetThreadSelectorEntry.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE))
-#GetThreadSelectorEntry.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(LDT_ENTRY))
-
-#GetThreadSelectorEntry.restype = wintypes.BOOL
-#BOOL GetThreadSelectorEntry(
-#  HANDLE      hThread,
-#  DWORD       dwSelector,
-#  LPLDT_ENTRY lpSelectorEntry
-#);
-#### ctypes.ArgumentError: argument 3: <type 'exceptions.TypeError'>: expected LP_c_void_p instance instead of pointer to _LDT_ENTRY
-# selector_entry = LDT_ENTRY()
-# if not kernel32.GetThreadSelectorEntry(thread_handle, thread_context.SegFs, byref(selector_entry)):
-
-# GetThreadSelectorEntry
+if sys.version_info < (3,):
+    big_integer_type = long
+else:
+    big_integer_type = int
 
 
 class pydbg:
@@ -2052,11 +2039,9 @@ class pydbg:
             # self._log("arg_val=", ''.join('{:02x}'.format(ord(x)) for x in arg_val))
             assert isinstance(arg_val, six.binary_type)
             arg_val = self.flip_endian_dword(arg_val)
-            assert isinstance(arg_val, long)
 
             self._log("get_arg index=%d Esp=%08x Ebp=%08x arg_val= %08x" % (index, context.Esp, context.Ebp, arg_val))
 
-        assert isinstance(arg_val, long)
         return arg_val
 
 
@@ -2608,9 +2593,10 @@ class pydbg:
         # Little-endian, and unsigned long (4 bytes)
         assert isinstance(array_bytes, six.binary_type)
         if is_64bits:
-            return long(struct.unpack("<Q", array_bytes)[0])
+            word_result = big_integer_type(struct.unpack("<Q", array_bytes)[0])
         else:
-            return long(struct.unpack("<L", array_bytes)[0])
+            word_result = big_integer_type(struct.unpack("<L", array_bytes)[0])
+        return word_result
 
     ####################################################################################################################
     def load (self, path_to_file, command_line=None, create_new_console=False, show_window=True):
@@ -3929,7 +3915,7 @@ class pydbg:
         return buffer
 
     def get_string_size(self, address, number_bytes):
-        buffer = self.read_process_memory(address, number_bytes )
+        buffer = self.read_process_memory(address, number_bytes)
         return buffer
 
     # Windows UTF-16 string.
@@ -3938,9 +3924,14 @@ class pydbg:
         buffer  = b""
         offset  = 0
         while 1:
-            byte = self.read_process_memory(address + offset, 2 )
+            byte = self.read_process_memory(address + offset, 2)
+            assert isinstance(byte, six.binary_type)
             if byte != b"\x00\x00":
-                buffer  += byte[0]
+                if sys.version_info < (3,):
+                    byte_0 = byte[0]
+                else:
+                    byte_0 = struct.pack("B", byte[0])
+                buffer  += byte_0
                 offset  += 2
                 continue
             else:
