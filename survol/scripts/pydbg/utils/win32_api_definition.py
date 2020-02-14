@@ -31,17 +31,17 @@ class Win32Hook_BaseClass(object):
     # The API signature is taken "as is" from Microsoft web site.
     @staticmethod
     def _parse_text_definition(the_class):
-        match_one = re.match("\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*\((.*)\)\s*;", the_class.api_definition, re.DOTALL)
+        match_one = re.match(b"\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*\((.*)\)\s*;", the_class.api_definition, re.DOTALL)
         the_class.return_type = match_one.group(1)
         the_class.function_name = match_one.group(2)
 
         # '\nHANDLE hFile,\nLPCVOID lpBuffer,\nDWORD nNumberOfBytesToWrite,\nLPDWORD lpNumberOfBytesWritten,\nLPOVERLAPPED lpOverlapped\n'
         the_class.args_list = []
-        for one_arg_pair in match_one.group(3).split(","):
-            match_pair = re.match("\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*", one_arg_pair)
+        for one_arg_pair in match_one.group(3).split(b","):
+            match_pair = re.match(b"\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*", one_arg_pair)
             the_class.args_list.append((match_pair.group(1), match_pair.group(2)))
 
-        assert isinstance(the_class.function_name, six.binary_type )
+        assert isinstance(the_class.function_name, six.binary_type)
         the_class.hook_address = Win32Hook_BaseClass.object_pydbg.func_resolve(b"kernel32.dll", the_class.function_name)
         assert the_class.hook_address
 
@@ -54,10 +54,6 @@ class Win32Hook_BaseClass(object):
     @classmethod
     def add_subclass(the_class, the_subclass):
         Win32Hook_BaseClass._parse_text_definition(the_subclass)
-        #Win32Hook_BaseClass.subclass_dict[the_subclass.function_name] = the_subclass
-
-        #def hook_function_adapter_entry(object_pydbg, args):
-        #    return defines.DBG_CONTINUE
 
         def hook_function_adapter_exit(object_pydbg, args, function_result):
             subclass_instance = the_subclass()
@@ -79,7 +75,7 @@ class Win32Hook_BaseClass(object):
 
 
 class Win32Hook_CreateProcessA(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         BOOL CreateProcessA(
             LPCSTR                lpApplicationName,
             LPSTR                 lpCommandLine,
@@ -114,7 +110,7 @@ class Win32Hook_CreateProcessA(Win32Hook_BaseClass):
 
 
 class Win32Hook_CreateProcessAsUserA(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         BOOL CreateProcessAsUserA(
             HANDLE                hToken,
             LPCSTR                lpApplicationName,
@@ -130,7 +126,7 @@ class Win32Hook_CreateProcessAsUserA(Win32Hook_BaseClass):
         );"""
 
 class Win32Hook_CreateProcessAsUserW(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         BOOL CreateProcessAsUserW(
             HANDLE                hToken,
             LPCWSTR               lpApplicationName,
@@ -146,7 +142,7 @@ class Win32Hook_CreateProcessAsUserW(Win32Hook_BaseClass):
         );"""
 
 class Win32Hook_CreateProcessW(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         BOOL CreateProcessW(
             LPCWSTR               lpApplicationName,
             LPWSTR                lpCommandLine,
@@ -161,13 +157,13 @@ class Win32Hook_CreateProcessW(Win32Hook_BaseClass):
         );"""
 
 class Win32Hook_ExitProcess(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         void ExitProcess(
             UINT uExitCode
         );"""
 
 class Win32Hook_CreateThread(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         HANDLE CreateThread(
             LPSECURITY_ATTRIBUTES   lpThreadAttributes,
             SIZE_T                  dwStackSize,
@@ -178,7 +174,7 @@ class Win32Hook_CreateThread(Win32Hook_BaseClass):
         );"""
 
 class Win32Hook_CreateRemoteThread(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         HANDLE CreateRemoteThread(
             HANDLE                 hProcess,
             LPSECURITY_ATTRIBUTES  lpThreadAttributes,
@@ -190,7 +186,7 @@ class Win32Hook_CreateRemoteThread(Win32Hook_BaseClass):
         );"""
 
 class Win32Hook_CreateRemoteThreadEx(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         HANDLE CreateRemoteThreadEx(
             HANDLE                       hProcess,
             LPSECURITY_ATTRIBUTES        lpThreadAttributes,
@@ -203,35 +199,35 @@ class Win32Hook_CreateRemoteThreadEx(Win32Hook_BaseClass):
         );"""
 
 class Win32Hook_TerminateProcess(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
             BOOL TerminateProcess(
                 HANDLE hProcess,
                 UINT   uExitCode
             );"""
 
 class Win32Hook_TerminateThread(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         BOOL TerminateThread(
             HANDLE hThread,
             DWORD  dwExitCode
         );"""
 
 class Win32Hook_CreateDirectoryA(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         BOOL CreateDirectoryA(
             LPCWSTR               lpPathName,
             LPSECURITY_ATTRIBUTES lpSecurityAttributes
         );"""
 
 class Win32Hook_CreateDirectoryW(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         BOOL CreateDirectoryW(
             LPCWSTR               lpPathName,
             LPSECURITY_ATTRIBUTES lpSecurityAttributes
         );"""
 
 class Win32Hook_RemoveDirectoryA(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         BOOL RemoveDirectoryA(
             LPCSTR lpPathName
         );"""
@@ -242,7 +238,7 @@ class Win32Hook_RemoveDirectoryA(Win32Hook_BaseClass):
         self.callback_create_object("CIM_Directory", Name=dirname)
 
 class Win32Hook_RemoveDirectoryW(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         BOOL RemoveDirectoryW(
             LPCWSTR lpPathName
         );"""
@@ -253,7 +249,7 @@ class Win32Hook_RemoveDirectoryW(Win32Hook_BaseClass):
         self.callback_create_object("CIM_Directory", Name=dirname)
 
 class Win32Hook_CreateFileA(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         HANDLE CreateFileA(
             LPCSTR                lpFileName,
             DWORD                 dwDesiredAccess,
@@ -268,7 +264,7 @@ class Win32Hook_CreateFileA(Win32Hook_BaseClass):
         self.callback_create_object("CIM_DataFile", Name=dirname)
 
 class Win32Hook_CreateFileW(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         HANDLE CreateFileW(
             LPCWSTR               lpFileName,
             DWORD                 dwDesiredAccess,
@@ -283,7 +279,7 @@ class Win32Hook_CreateFileW(Win32Hook_BaseClass):
         self.callback_create_object("CIM_DataFile", Name=dirname)
 
 class Win32Hook_CreateFile2(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         HANDLE CreateFile2(
             LPCWSTR                           lpFileName,
             DWORD                             dwDesiredAccess,
@@ -293,19 +289,19 @@ class Win32Hook_CreateFile2(Win32Hook_BaseClass):
         );"""
 
 class Win32Hook_DeleteFileA(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         BOOL DeleteFileA(
             LPCSTR lpFileName
         );"""
 
 class Win32Hook_DeleteFileW(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         BOOL DeleteFileW(
             LPCWSTR lpFileName
         );"""
 
 class Win32Hook_WriteFile(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         BOOL WriteFile(
             HANDLE       hFile,
             LPCVOID      lpBuffer,
@@ -324,7 +320,7 @@ class Win32Hook_WriteFile(Win32Hook_BaseClass):
 
 
 class Win32Hook_WriteFileEx(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         BOOL WriteFileEx(
             HANDLE                          hFile,
             LPCVOID                         lpBuffer,
@@ -334,7 +330,7 @@ class Win32Hook_WriteFileEx(Win32Hook_BaseClass):
         );"""
 
 class Win32Hook_WriteFileGather(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         BOOL WriteFileGather(
             HANDLE                  hFile,
             FILE_SEGMENT_ELEMENT [] aSegmentArray,
@@ -344,7 +340,7 @@ class Win32Hook_WriteFileGather(Win32Hook_BaseClass):
         );"""
 
 class Win32Hook_ReadFile(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         BOOL ReadFile(
             HANDLE       hFile,
             LPVOID       lpBuffer,
@@ -354,7 +350,7 @@ class Win32Hook_ReadFile(Win32Hook_BaseClass):
         );"""
 
 class Win32Hook_ReadFileEx(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         BOOL ReadFileEx(
             HANDLE                          hFile,
             LPVOID                          lpBuffer,
@@ -364,7 +360,7 @@ class Win32Hook_ReadFileEx(Win32Hook_BaseClass):
         );"""
 
 class Win32Hook_ReadFileScatter(Win32Hook_BaseClass):
-    api_definition = """
+    api_definition = b"""
         BOOL ReadFileScatter(
             HANDLE                  hFile,
             FILE_SEGMENT_ELEMENT [] aSegmentArray,
