@@ -33,8 +33,7 @@
 @organization: www.openrce.org
 '''
 
-from my_ctypes import *
-from windows_h import *
+from .windows_h import *
 
 ###
 ### manually declare entities from Tlhelp32.h since i was unable to import using h2xml.py.

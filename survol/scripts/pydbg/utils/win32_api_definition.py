@@ -372,20 +372,3 @@ class Win32Hook_ReadFileScatter(Win32Hook_BaseClass):
             LPDWORD                 lpReserved,
             LPOVERLAPPED            lpOverlapped
         );"""
-
-
-############### JUST FOR TESTING
-
-class Win32Hook_MulDiv(Win32Hook_BaseClass):
-    api_definition = """
-        int MulDiv(
-            int nNumber,
-            int nNumerator,
-            int nDenominator 
-        );"""
-    def process_arguments(self):
-        print("hook_function_MulDiv args=", self.m_parsedArgs)
-        assert self.m_parsedArgs[0] == 20
-        assert self.m_parsedArgs[1] == 30
-        assert self.m_parsedArgs[2] == 6
-

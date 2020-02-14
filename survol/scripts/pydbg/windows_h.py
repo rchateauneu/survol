@@ -8,8 +8,7 @@
 # flags 'windows.xml -s DEBUG_EVENT -s CONTEXT -s MEMORY_BASIC_INFORMATION -s LDT_ENTRY -s PROCESS_INFORMATION -s STARTUPINFO -s SYSTEM_INFO -s TOKEN_PRIVILEGES -s LUID -s HANDLE -o windows_h.py'
 
 # PEDRAM - line swap ... have to patch in our own __reduce__ definition to each ctype.
-#from ctypes import *
-from my_ctypes import *
+from .my_ctypes import *
 
 import sys
 is_64bits = sys.maxsize > 2**32

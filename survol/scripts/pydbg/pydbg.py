@@ -40,9 +40,7 @@ import socket
 import ctypes
 from ctypes import wintypes
 
-from my_ctypes  import *
-from defines    import *
-from windows_h  import *
+from .windows_h  import *
 
 # macos compatability.
 try:
@@ -54,13 +52,13 @@ except:
     kernel32 = CDLL(os.path.join(os.path.dirname(__file__), "libmacdll.dylib"))
     advapi32 = kernel32
 
-from breakpoint              import *
-from hardware_breakpoint     import *
-from memory_breakpoint       import *
-from memory_snapshot_block   import *
-from memory_snapshot_context import *
-from pdx                     import *
-from system_dll              import *
+from .breakpoint              import *
+from .hardware_breakpoint     import *
+from .memory_breakpoint       import *
+from .memory_snapshot_block   import *
+from .memory_snapshot_context import *
+from .pdx                     import *
+from .system_dll              import *
 
 GetCurrentProcess = ctypes.windll.kernel32.GetCurrentProcess
 GetCurrentProcess.restype = wintypes.HANDLE
