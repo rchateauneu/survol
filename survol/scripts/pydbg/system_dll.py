@@ -26,9 +26,7 @@ from __future__ import print_function
 
 import os.path
 
-from my_ctypes import *
-from defines   import *
-from windows_h import *
+from .windows_h import *
 
 # macos compatability.
 try:
@@ -38,7 +36,7 @@ except:
     kernel32 = CDLL(os.path.join(os.path.dirname(__file__), "libmacdll.dylib"))
     psapi    = kernel32
 
-from pdx import *
+from .pdx import *
 
 import os
 
