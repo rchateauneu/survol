@@ -41,7 +41,7 @@ if not is_platform_linux:
     def create_pydbg():
         if sys.version_info < (3,):
             tst_pydbg = pydbg.pydbg()
-        elif sys.version_info < (3, 7):
+        elif sys.version_info < (3, 8):
             tst_pydbg = pydbg.pydbg()
         else:
             tst_pydbg = pydbg.pydbg.pydbg()
