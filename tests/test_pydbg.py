@@ -33,18 +33,19 @@ print("cwd=%s" % os.getcwd())
 
 from init import *
 
-from pydbg import pydbg
-import pydbg.utils
-from pydbg.utils import win32_api_definition
+if not is_platform_linux:
+    from pydbg import pydbg
+    import pydbg.utils
+    from pydbg.utils import win32_api_definition
 
-def create_pydbg():
-    if sys.version_info < (3,):
-        tst_pydbg = pydbg.pydbg()
-    elif sys.version_info < (3, 7):
-        tst_pydbg = pydbg.pydbg()
-    else:
-        tst_pydbg = pydbg.pydbg.pydbg()
-    return tst_pydbg
+    def create_pydbg():
+        if sys.version_info < (3,):
+            tst_pydbg = pydbg.pydbg()
+        elif sys.version_info < (3, 7):
+            tst_pydbg = pydbg.pydbg()
+        else:
+            tst_pydbg = pydbg.pydbg.pydbg()
+        return tst_pydbg
 
 ################################################################################
 
@@ -109,7 +110,7 @@ def cim_object_callback(calling_class_instance, cim_class_name, **cim_arguments)
 
 ################################################################################
 
-@unittest.skipIf(is_platform_linux or is_travis_machine(), "Windows only. IN PROGRESS.")
+@unittest.skipIf(is_platform_linux, "Windows only.")
 class PydbgBasicTest(unittest.TestCase):
     """
     Test pydbg.
@@ -138,7 +139,7 @@ class PydbgBasicTest(unittest.TestCase):
             else:
                 assert str_exc == "[WinError 2] The system cannot find the file specified: b'NonExistentDirBinary'"
 
-@unittest.skipIf(is_platform_linux or is_travis_machine(), "Windows only. IN PROGRESS.")
+@unittest.skipIf(is_platform_linux, "Windows only.")
 class PydbgAttachTest(unittest.TestCase):
     """
     Test pydbg.
