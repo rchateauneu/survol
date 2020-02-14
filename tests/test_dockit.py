@@ -105,6 +105,7 @@ print("path=",sys.path)
 print("getcwd=",os.getcwd())
 
 import dockit
+import linux_api_definitions
 
 from init import *
 
@@ -203,7 +204,7 @@ class DockitParserTest(unittest.TestCase):
             # The input string theoretically starts and ends with parenthesis,
             # but the closing one might not be there.
             # Therefore it should be tested with and without the closing parenthesis.
-            resu,idx = dockit.ParseCallArguments(tupl[0])
+            resu,idx = linux_api_definitions.ParseCallArguments(tupl[0])
             if resu != tupl[1]:
                 raise Exception("\n     Fail:%s\nSHOULD BE:%s" % ( str(resu),str(tupl[1])  ) )
 
@@ -706,7 +707,7 @@ class DockitEventsTest(unittest.TestCase):
         expected_types_list = {
             'CIM_Process': 1,
             'CIM_NetworkAdapter': 1,
-            'CIM_DataFile': 291,
+            'CIM_DataFile': 292,
             'CIM_ComputerSystem': 1,
             'Property': properties_number,
             'Class': 4 }
@@ -740,10 +741,6 @@ class DockitEventsTest(unittest.TestCase):
         print("actual_types_dict=", actual_types_dict)
         self.assertTrue(expected_types_list == actual_types_dict)
 
-
-
 if __name__ == '__main__':
     unittest.main()
-
-
 
