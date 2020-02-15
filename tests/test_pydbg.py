@@ -152,6 +152,13 @@ class PydbgAttachTest(unittest.TestCase):
         created_process.start()
         print("created_process=", created_process.pid)
 
+        print("pefile start:%s" % sys.executable)
+        import pefile
+        pe = pefile.PE(sys.executable)
+        for entry in pe.DIRECTORY_ENTRY_IMPORT:
+            print("dlls=%s" % entry.dll)
+        print("pefile end")
+
         time.sleep(1)
 
         tst_pydbg = create_pydbg()
