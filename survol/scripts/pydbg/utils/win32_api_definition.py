@@ -31,19 +31,20 @@ class Win32Hook_BaseClass(object):
     # The API signature is taken "as is" from Microsoft web site.
     @staticmethod
     def _parse_text_definition(the_class):
-        match_one = re.match(b"\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*\((.*)\)\s*;", the_class.api_definition, re.DOTALL)
+        match_one = re.match(br"\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*\((.*)\)\s*;", the_class.api_definition, re.DOTALL)
         the_class.return_type = match_one.group(1)
         the_class.function_name = match_one.group(2)
 
         # '\nHANDLE hFile,\nLPCVOID lpBuffer,\nDWORD nNumberOfBytesToWrite,\nLPDWORD lpNumberOfBytesWritten,\nLPOVERLAPPED lpOverlapped\n'
         the_class.args_list = []
         for one_arg_pair in match_one.group(3).split(b","):
-            match_pair = re.match(b"\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*", one_arg_pair)
+            match_pair = re.match(br"\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*", one_arg_pair)
             the_class.args_list.append((match_pair.group(1), match_pair.group(2)))
 
         assert isinstance(the_class.function_name, six.binary_type)
         the_class.hook_address = Win32Hook_BaseClass.object_pydbg.func_resolve(b"kernel32.dll", the_class.function_name)
-        assert the_class.hook_address
+        if not the_class.hook_address:
+            raise Exception("Cannot find address of %s" % the_class.function_name)
 
     #subclass_dict = {}
 
@@ -155,6 +156,19 @@ class Win32Hook_CreateProcessW(Win32Hook_BaseClass):
             LPSTARTUPINFOW        lpStartupInfo,
             LPPROCESS_INFORMATION lpProcessInformation
         );"""
+
+    def process_arguments(self):
+        lpApplicationName = Win32Hook_BaseClass.object_pydbg.get_wstring(self.m_parsedArgs[0])
+        lpCommandLine = Win32Hook_BaseClass.object_pydbg.get_wstring(self.m_parsedArgs[1])
+        lpProcessInformation = self.m_parsedArgs[9]
+        offset_dwProcessId = windows_h.sizeof(windows_h.HANDLE) + windows_h.sizeof(windows_h.HANDLE)
+        dwProcessId = Win32Hook_BaseClass.object_pydbg.get_long(lpProcessInformation + offset_dwProcessId)
+
+        print("Win32Hook_CreateProcessW m_parsedArgs=", self.m_parsedArgs)
+        print("Win32Hook_CreateProcessW m_retValue=", self.m_retValue)
+        print("Win32Hook_CreateProcessW Handle=", dwProcessId)
+        self.callback_create_object("CIM_Process", Handle=dwProcessId)
+
 
 class Win32Hook_ExitProcess(Win32Hook_BaseClass):
     api_definition = b"""
