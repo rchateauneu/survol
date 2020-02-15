@@ -171,7 +171,11 @@ class pydbg:
 
         # determine the system DbgBreakPoint address. this is the address at which initial and forced breaks happen.
         # XXX - need to look into fixing this for pydbg client/server.
-        self.system_break = self.func_resolve(b"ntdll.dll", b"DbgBreakPoint")
+        try:
+            self.system_break = self.func_resolve(b"ntdll.dll", b"DbgBreakPoint")
+        except Exception as exc:
+            self.system_break = None
+            sys.stderr.write("Cannot get DbgBreakPoint address. Continue")
 
         self._log("system page size is %d" % self.page_size)
 
