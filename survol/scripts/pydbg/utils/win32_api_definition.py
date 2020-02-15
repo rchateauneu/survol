@@ -43,7 +43,9 @@ class Win32Hook_BaseClass(object):
 
         assert isinstance(the_class.function_name, six.binary_type)
         # Beware: Uppercase because of Travis.
-        the_class.hook_address = Win32Hook_BaseClass.object_pydbg.func_resolve(b"KERNEL32.dll", the_class.function_name)
+        # the_class.hook_address = Win32Hook_BaseClass.object_pydbg.func_resolve(b"KERNEL32.dll", the_class.function_name)
+        # It does not work without the directory.
+        the_class.hook_address = Win32Hook_BaseClass.object_pydbg.func_resolve(br'c:\windows\System32\KERNEL32.dll', the_class.function_name)
         if not the_class.hook_address:
             raise Exception("Cannot find address of %s" % the_class.function_name)
 
