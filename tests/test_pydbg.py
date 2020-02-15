@@ -158,7 +158,16 @@ class PydbgAttachTest(unittest.TestCase):
         for entry in pe.DIRECTORY_ENTRY_IMPORT:
             print("dlls=%s" % entry.dll)
         print("pefile end")
-
+        """
+        dlls=b'python37.dll'
+        dlls=b'VCRUNTIME140.dll'
+        dlls=b'api-ms-win-crt-runtime-l1-1-0.dll'
+        dlls=b'api-ms-win-crt-math-l1-1-0.dll'
+        dlls=b'api-ms-win-crt-stdio-l1-1-0.dll'
+        dlls=b'api-ms-win-crt-locale-l1-1-0.dll'
+        dlls=b'api-ms-win-crt-heap-l1-1-0.dll'
+        dlls=b'KERNEL32.dll'
+        """
         time.sleep(1)
 
         tst_pydbg = create_pydbg()
