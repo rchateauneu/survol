@@ -1861,13 +1861,18 @@ class pydbg:
         @return: Address
         '''
 
+        assert isinstance(function, six.binary_type)
         #self._log("LoadLibraryA")
         handle  = kernel32.LoadLibraryA(dll)
-        #self._log("GetProcAddress")
+        if not handle:
+            self.win32_error("LoadLibraryA %s" % dll)
+
         address = kernel32.GetProcAddress(handle, function)
 
-        #self._log("FreeLibrary")
         kernel32.FreeLibrary(handle)
+
+        if not address:
+            self.win32_error("GetProcAddress %s %s" % (dll, function))
 
         return address
 
