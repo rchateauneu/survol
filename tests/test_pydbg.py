@@ -154,10 +154,18 @@ class PydbgAttachTest(unittest.TestCase):
 
         print("pefile start:%s" % sys.executable)
         import pefile
-        pe = pefile.PE(sys.executable)
-        for entry in pe.DIRECTORY_ENTRY_IMPORT:
-            print("dlls=%s" % entry.dll)
-        print("pefile end")
+        pe1 = pefile.PE(sys.executable)
+        for entry1 in pe1.DIRECTORY_ENTRY_IMPORT:
+            print("dlls=%s" % entry1.dll)
+            print("dlls=%s" % dir(entry1))
+            for imp in entry1.imports:
+                print("    name=%s" % imp.name)
+        print("pefile end1")
+        print("pefile start2")
+        pe2 = pefile.PE(br'c:\windows\System32\KERNEL32.dll')
+        for entry2 in pe2.DIRECTORY_ENTRY_EXPORT.symbols:
+            print("    name=", entry2.ordinal, entry2.name)
+        print("pefile end2")
         """
         dlls=b'python37.dll'
         dlls=b'VCRUNTIME140.dll'
