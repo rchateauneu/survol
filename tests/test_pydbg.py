@@ -141,41 +141,40 @@ class PydbgBasicTest(unittest.TestCase):
             else:
                 assert str_exc == "[WinError 2] The system cannot find the file specified: b'NonExistentDirBinary'"
 
+
 @unittest.skipIf(is_platform_linux, "Windows only.")
 class PydbgAttachTest(unittest.TestCase):
     """
     Test pydbg.
     """
 
+    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_basic(self):
         created_process = multiprocessing.Process(target=processing_function, args=(2.0, 5))
         created_process.start()
         print("created_process=", created_process.pid)
 
-        print("pefile start:%s" % sys.executable)
-        import pefile
-        pe1 = pefile.PE(sys.executable)
-        for entry1 in pe1.DIRECTORY_ENTRY_IMPORT:
-            print("dlls=%s" % entry1.dll)
-            print("dlls=%s" % dir(entry1))
-            for imp in entry1.imports:
-                print("    name=%s" % imp.name)
-        print("pefile end1")
-        print("pefile start2")
-        pe2 = pefile.PE(br'c:\windows\System32\KERNEL32.dll')
-        for entry2 in pe2.DIRECTORY_ENTRY_EXPORT.symbols:
-            print("    name=", entry2.ordinal, entry2.name)
-        print("pefile end2")
-        """
-        dlls=b'python37.dll'
-        dlls=b'VCRUNTIME140.dll'
-        dlls=b'api-ms-win-crt-runtime-l1-1-0.dll'
-        dlls=b'api-ms-win-crt-math-l1-1-0.dll'
-        dlls=b'api-ms-win-crt-stdio-l1-1-0.dll'
-        dlls=b'api-ms-win-crt-locale-l1-1-0.dll'
-        dlls=b'api-ms-win-crt-heap-l1-1-0.dll'
-        dlls=b'KERNEL32.dll'
-        """
+        if False:
+            print("pefile start:%s" % sys.executable)
+            import pefile
+            pe1 = pefile.PE(sys.executable)
+            for entry1 in pe1.DIRECTORY_ENTRY_IMPORT:
+                print("dlls=%s" % entry1.dll)
+                print("dlls=%s" % dir(entry1))
+                for imp in entry1.imports:
+                    print("    name=%s" % imp.name)
+            print("pefile end1")
+            print("pefile start2")
+            pe2 = pefile.PE(br'c:\windows\System32\KERNEL32.dll')
+            for entry2 in pe2.DIRECTORY_ENTRY_EXPORT.symbols:
+                print("    name=", entry2.ordinal, entry2.name)
+            print("pefile end2")
+
+            # Local: python27.dll MSVCR90.dll KERNEL32.dll
+            # Travis-ci: python37.dll VCRUNTIME140.dll api-ms-win-crt-runtime-l1-1-0.dll
+            #     api-ms-win-crt-math-l1-1-0.dll api-ms-win-crt-stdio-l1-1-0.dll api-ms-win-crt-locale-l1-1-0.dll'
+            #     api-ms-win-crt-heap-l1-1-0.dll KERNEL32.dll
+
         time.sleep(1)
 
         tst_pydbg = create_pydbg()

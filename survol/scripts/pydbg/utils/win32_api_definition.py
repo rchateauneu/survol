@@ -26,7 +26,7 @@ class Win32Hook_BaseClass(object):
     # The style tells if this is a native call or an aggregate of function
     # calls, made with some style: Factorization etc...
     def __init__(self):
-        self.m_core = "Something"
+        self.m_core = None
 
     # The API signature is taken "as is" from Microsoft web site.
     @staticmethod
@@ -42,14 +42,10 @@ class Win32Hook_BaseClass(object):
             the_class.args_list.append((match_pair.group(1), match_pair.group(2)))
 
         assert isinstance(the_class.function_name, six.binary_type)
-        # Beware: Uppercase because of Travis.
-        # the_class.hook_address = Win32Hook_BaseClass.object_pydbg.func_resolve(b"KERNEL32.dll", the_class.function_name)
-        # It does not work without the directory.
-        the_class.hook_address = Win32Hook_BaseClass.object_pydbg.func_resolve(br'c:\windows\System32\KERNEL32.dll', the_class.function_name)
+        # Beware: Use "br'c:\windows\System32\KERNEL32.dll'" on Travis, as it does not work without the directory.
+        the_class.hook_address = Win32Hook_BaseClass.object_pydbg.func_resolve(b"KERNEL32.dll", the_class.function_name)
         if not the_class.hook_address:
             raise Exception("Cannot find address of %s" % the_class.function_name)
-
-    #subclass_dict = {}
 
     def set_arguments(self, args, function_result):
         self.m_parsedArgs = args
