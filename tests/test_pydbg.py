@@ -105,6 +105,8 @@ def cim_object_callback(calling_class_instance, cim_class_name, **cim_arguments)
         assert cim_arguments["Name"] == "NonExistentDirUnicode"
     elif function_name == b"CreateProcessA":
         print("cim_arguments=", cim_arguments)
+    elif function_name == b"CreateProcessW":
+        print("cim_arguments=", cim_arguments)
     else:
         raise Exception("Unexpected API function:", function_name)
 

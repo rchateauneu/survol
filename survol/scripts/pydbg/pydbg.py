@@ -594,7 +594,7 @@ class pydbg:
                 # add the breakpoint to the internal list.
                 self.breakpoints[address] = breakpoint(address, original_byte, description, restore, handler)
             except Exception as exc:
-                raise pdx("Failed setting breakpoint at %08x : %s" % (address, exc))
+                raise pdx("Failed setting breakpoint at %016x : %s" % (address, exc))
 
         return self.ret_self()
 
@@ -3870,7 +3870,10 @@ class pydbg:
         @raise pdx: An exception is raised on failure.
         '''
 
-        count = c_ulong(0)
+        if is_64bits:
+            count = c_ulonglong(0)
+        else:
+            count = c_ulong(0)
 
         # if the optional data length parameter was omitted, calculate the length ourselves.
         if not length:
@@ -3887,8 +3890,9 @@ class pydbg:
         while length:
             c_data = c_char_p(data[count.value:])
 
+            kernel32.WriteProcessMemory.argtypes = [HANDLE, LPVOID, LPVOID, c_size_t, POINTER(c_size_t)]
             if not kernel32.WriteProcessMemory(self.h_process, address, c_data, length, byref(count)):
-                raise pdx("WriteProcessMemory(%08x, ..., %d)" % (address, length), True)
+                raise pdx("WriteProcessMemory(%016x, ..., %d)" % (address, length), True)
 
             length  -= count.value
             address += count.value
@@ -3942,17 +3946,17 @@ class pydbg:
         ret_bytes = self.read_process_memory(address, 4)
         assert len(ret_bytes) == 4
         assert isinstance(ret_bytes, six.binary_type)
-        return long(struct.unpack("<L", ret_bytes)[0])
+        return big_integer_type(struct.unpack("<L", ret_bytes)[0])
 
     def get_longlong(self, address):
         ret_bytes = self.read_process_memory(address, 8)
         assert len(ret_bytes) == 8
         assert isinstance(ret_bytes, six.binary_type)
-        return long(struct.unpack("<Q", ret_bytes)[0])
+        return big_integer_type(struct.unpack("<Q", ret_bytes)[0])
 
     def get_pointer(self, address):
         ret_bytes = self.read_process_memory(address, sizeof(PVOID))
         assert len(ret_bytes) == sizeof(PVOID)
         assert isinstance(ret_bytes, six.binary_type)
-        return long(struct.unpack("<Q", ret_bytes)[0])
+        return big_integer_type(struct.unpack("<Q", ret_bytes)[0])
 
