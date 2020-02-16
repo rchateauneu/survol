@@ -14,12 +14,13 @@ import six
 import pydbg
 from pydbg import defines
 from pydbg import windows_h
+from pydbg import utils
 
 ################################################################################
 
 class Win32Hook_BaseClass(object):
     object_pydbg = None
-    object_hooks = None
+    object_hooks = pydbg.utils.hook_container()
     callback_create_call = None
     callback_create_object = None
 
