@@ -36,11 +36,12 @@ nonexistent_file = "NonExistentFile.xyz"
 # It has to be global otherwise it fails with the error message:
 # PicklingError: Can't pickle <function processing_function at ...>: it's not found as test_pydbg.processing_function
 def processing_function(one_argument, num_loops):
+    time.sleep(one_argument)
     print('processing_function START.')
     while num_loops:
+        time.sleep(one_argument)
         num_loops -= 1
         print("This is a nice message")
-        time.sleep(one_argument)
         dir_binary = six.b("NonExistentDirBinary")
         dir_unicode = six.u("NonExistentDirUnicode")
 
@@ -55,7 +56,7 @@ def processing_function(one_argument, num_loops):
             print("=============== CAUGHT:", exc)
             pass
 
-        # This checks the opening of a file.
+        # This opens a non-existent, which must be detected.
         try:
             opfil = open(nonexistent_file)
         except Exception as exc:
@@ -77,8 +78,12 @@ class PydbgAttachTest(unittest.TestCase):
 
     # This function is called for each hooked function.
     @staticmethod
-    def syscall_creation_callback(one_syscall):
+    def syscall_creation_callback(one_syscall, object_pydbg):
         print("syscall=%s" % one_syscall.function_name)
+        try:
+            object_pydbg.calls_counter[one_syscall.function_name] += 1
+        except KeyError:
+            object_pydbg.calls_counter[one_syscall.function_name] = 1
 
     # This is called when creating a CIM object.
     @staticmethod
@@ -105,31 +110,11 @@ class PydbgAttachTest(unittest.TestCase):
             raise Exception("Unexpected API function:", function_name)
 
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
-    def test_pydbg_basic(self):
-        created_process = multiprocessing.Process(target=processing_function, args=(2.0, 5))
+    def test_callbacks_basic(self):
+        num_loops = 3
+        created_process = multiprocessing.Process(target=processing_function, args=(1.0, num_loops))
         created_process.start()
         print("created_process=", created_process.pid)
-
-        if False:
-            print("pefile start:%s" % sys.executable)
-            import pefile
-            pe1 = pefile.PE(sys.executable)
-            for entry1 in pe1.DIRECTORY_ENTRY_IMPORT:
-                print("dlls=%s" % entry1.dll)
-                print("dlls=%s" % dir(entry1))
-                for imp in entry1.imports:
-                    print("    name=%s" % imp.name)
-            print("pefile end1")
-            print("pefile start2")
-            pe2 = pefile.PE(br'c:\windows\System32\KERNEL32.dll')
-            for entry2 in pe2.DIRECTORY_ENTRY_EXPORT.symbols:
-                print("    name=", entry2.ordinal, entry2.name)
-            print("pefile end2")
-
-            # Local: python27.dll MSVCR90.dll KERNEL32.dll
-            # Travis-ci: python37.dll VCRUNTIME140.dll api-ms-win-crt-runtime-l1-1-0.dll
-            #     api-ms-win-crt-math-l1-1-0.dll api-ms-win-crt-stdio-l1-1-0.dll api-ms-win-crt-locale-l1-1-0.dll'
-            #     api-ms-win-crt-heap-l1-1-0.dll KERNEL32.dll
 
         time.sleep(1)
 
@@ -140,20 +125,19 @@ class PydbgAttachTest(unittest.TestCase):
         print("Attaching. getpid=%d" % os.getpid())
         tst_pydbg.attach(created_process.pid)
 
-        #hooks = pydbg.utils.hook_container()
-        #win32_api_definition.Win32Hook_BaseClass.object_hooks = hooks
-
         win32_api_definition.Win32Hook_BaseClass.callback_create_call = PydbgAttachTest.syscall_creation_callback
         win32_api_definition.Win32Hook_BaseClass.callback_create_object = PydbgAttachTest.cim_object_callback
 
         for subclass_definition in [
             win32_api_definition.Win32Hook_CreateProcessA,
             win32_api_definition.Win32Hook_CreateProcessW,
-            win32_api_definition.Win32Hook_WriteFile,
             win32_api_definition.Win32Hook_RemoveDirectoryA,
             win32_api_definition.Win32Hook_RemoveDirectoryW,
             win32_api_definition.Win32Hook_CreateFileA]:
             win32_api_definition.Win32Hook_BaseClass.add_subclass(subclass_definition)
+
+        # Use thi object to count how many times functions are called.
+        tst_pydbg.calls_counter = {}
 
         tst_pydbg.run()
 
@@ -161,7 +145,13 @@ class PydbgAttachTest(unittest.TestCase):
 ######        tst_pydbg.detach()
         created_process.terminate()
         created_process.join()
-        print("Finished")
+
+        print("Finished:", tst_pydbg.calls_counter)
+
+        self.assertTrue(tst_pydbg.calls_counter == {
+            'CreateFileA': num_loops + 3,
+            'RemoveDirectoryW': 2 * num_loops,
+            'CreateProcessA': num_loops} )
 
 if __name__ == '__main__':
     unittest.main()
