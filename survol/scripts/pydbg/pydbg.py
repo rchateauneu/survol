@@ -875,7 +875,7 @@ class pydbg:
 
 
     ####################################################################################################################
-    def debug_event_iteration (self):
+    def debug_event_iteration (self, loop_delay = 5000):
         '''
         Check for and process a debug event.
         '''
@@ -886,7 +886,7 @@ class pydbg:
         #self._log("debug_event_iteration before WaitForDebugEvent")
         # wait for a debug event.
         #self._log("WaitForDebugEvent DEBUT")
-        if kernel32.WaitForDebugEvent(byref(dbg), 5000):
+        if kernel32.WaitForDebugEvent(byref(dbg), loop_delay):
             #self._log("WaitForDebugEvent AFTER")
             # grab various information with regards to the current exception.
             self.h_thread          = self.open_thread(dbg.dwThreadId)
@@ -976,7 +976,7 @@ class pydbg:
                 raise pdx("ContinueDebugEvent(%d)" % dbg.dwThreadId, True)
 
         else:
-            self._log("WaitForDebugEvent RIEN")
+            self._log("WaitForDebugEvent delay=%d ms" % loop_delay)
             # "The semaphore timeout period has expired."
             # self.win32_error("WaitForDebugEvent")
 
