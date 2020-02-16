@@ -60,7 +60,7 @@ class Win32Hook_BaseClass(object):
             subclass_instance = the_subclass()
             subclass_instance.set_arguments(args, function_result)
             subclass_instance.process_arguments()
-            Win32Hook_BaseClass.callback_create_call(subclass_instance)
+            Win32Hook_BaseClass.callback_create_call(subclass_instance, object_pydbg)
             return defines.DBG_CONTINUE
 
         Win32Hook_BaseClass.object_hooks.add(
