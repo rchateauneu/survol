@@ -956,7 +956,7 @@ def product_variables_lists(returned_variables, iter_keys = None):
         assert isinstance(values_list, list)
 
         max_display_count_values = 100
-        sys.stderr.write("product_variables_lists LOOP BEFORE\n")
+        #sys.stderr.write("product_variables_lists LOOP BEFORE\n")
         for one_dict in product_variables_lists(returned_variables, iter_keys):
             # sys.stderr.write("product_variables_lists len(values_list)=%d\n" % len(values_list))
             for one_value in values_list:
@@ -984,10 +984,10 @@ def product_variables_lists(returned_variables, iter_keys = None):
 
                 new_dict.update(zip(first_key, one_value))
 
-                sys.stderr.write("product_variables_lists first_key=%s\n" % str(first_key))
+                #sys.stderr.write("product_variables_lists first_key=%s\n" % str(first_key))
 
                 yield new_dict
-        sys.stderr.write("product_variables_lists LOOP AFTER\n")
+        #sys.stderr.write("product_variables_lists LOOP AFTER\n")
     except StopIteration:
         yield {}
 
@@ -1141,7 +1141,7 @@ def custom_eval_function_generic(ctx, part, sparql_instance_creator):
         recursive_instantiation(0)
 
         INFO("Graph after recursive_instantiation: %d triples", len(ctx.graph))
-        sys.stderr.write("Graph after recursive_instantiation: %d triples\n" % len(ctx.graph))
+        #sys.stderr.write("Graph after recursive_instantiation: %d triples\n" % len(ctx.graph))
         for s,p,o in ctx.graph:
             sys.stderr.write("   %s %s %s\n" % (s, p, o))
         sys.stderr.flush()
