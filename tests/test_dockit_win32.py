@@ -5,6 +5,7 @@ from __future__ import print_function
 import os
 import sys
 import unittest
+import subprocess
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 # This is needed when running from PyCharm.
@@ -16,17 +17,11 @@ from init import *
 
 if not is_platform_linux:
     from pydbg import pydbg
-    import win32_api_definition
-
-
-    def create_pydbg():
-        if sys.version_info < (3, 8):
-            tst_pydbg = pydbg.pydbg()
-        else:
-            tst_pydbg = pydbg.pydbg.pydbg()
-        return tst_pydbg
+    import win32_api_definitions
 
 ################################################################################
+
+import dockit
 
 @unittest.skipIf(is_platform_linux, "Windows only.")
 class PydbgDirTest(unittest.TestCase):
@@ -35,11 +30,13 @@ class PydbgDirTest(unittest.TestCase):
     """
 
     # This function is called for each hooked function.
+    # Not relevant here.
     @staticmethod
-    def syscall_creation_callback(one_syscall):
+    def syscall_creation_callback(one_syscall, object_pydbg, task_id):
         print("syscall=%s" % one_syscall.function_name)
 
     # This is called when creating a CIM object.
+    # This must inject the objects into dockit.
     @staticmethod
     def cim_object_callback(calling_class_instance, cim_class_name, **cim_arguments):
         print("cim_object_callback", calling_class_instance.__class__.__name__, cim_class_name, cim_arguments)
@@ -47,11 +44,11 @@ class PydbgDirTest(unittest.TestCase):
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_basic(self):
 
-        tst_pydbg = create_pydbg()
+        tst_pydbg = win32_api_definition.create_pydbg()
         win32_api_definition.Win32Hook_BaseClass.object_pydbg = tst_pydbg
         time.sleep(1.0)
 
-        created_process = POPen("dir something&")
+        created_process = subprocess.Popen("dir something", shell=True)
 
         print("Attaching. getpid=%d" % os.getpid())
         tst_pydbg.attach(created_process.pid)
