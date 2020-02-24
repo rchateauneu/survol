@@ -16,6 +16,7 @@ import re
 import os
 import sys
 import getopt
+import logging
 import tempfile
 from xml.dom import minidom
 
@@ -416,12 +417,12 @@ def DoTheTests(verbose,mapParamsSummary,withWarning,withDockerfile,updateServer)
         #else:
         #    aPid = -1
 
-        dockit.LogSource("Input %s"%inputLogFile)
+        logging.info("Input %s"%inputLogFile)
     
         tracer = dockit.DefaultTracer(inputLogFile)
     
         for outFilNam in mapFiles[baseName]:
-            dockit.LogSource("Destination %s"%outFilNam)
+            logging.info("Destination %s"%outFilNam)
     
             baseOutName, filOutExt = os.path.splitext(outFilNam)
 
