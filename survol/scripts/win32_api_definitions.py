@@ -10,11 +10,28 @@ __email__ = "contact@primhillcomputers.com"
 __status__ = "Development"
 
 import re
+import sys
 import six
+import time
+import logging
+
+if sys.version_info < (3,):
+    import Queue as queue
+else:
+    import queue
+
 import pydbg
 from pydbg import defines
 from pydbg import windows_h
 from pydbg import utils
+
+################################################################################
+def create_pydbg():
+    if sys.version_info < (3, 8):
+        tst_pydbg = pydbg.pydbg()
+    else:
+        tst_pydbg = pydbg()
+    return tst_pydbg
 
 ################################################################################
 
@@ -60,7 +77,8 @@ class Win32Hook_BaseClass(object):
             subclass_instance = the_subclass()
             subclass_instance.set_arguments(args, function_result)
             subclass_instance.process_arguments()
-            Win32Hook_BaseClass.callback_create_call(subclass_instance, object_pydbg)
+            task_id = None
+            Win32Hook_BaseClass.callback_create_call(subclass_instance, object_pydbg, task_id)
             return defines.DBG_CONTINUE
 
         Win32Hook_BaseClass.object_hooks.add(
@@ -382,3 +400,91 @@ class Win32Hook_ReadFileScatter(Win32Hook_BaseClass):
             LPDWORD                 lpReserved,
             LPOVERLAPPED            lpOverlapped
         );"""
+
+################################################################################
+
+class Win32BatchCore:
+    def __init__(self, task_id, function_name):
+        self._task_id = task_id
+        self._function_name = function_name
+
+class Win32Tracer:
+    def LogFileStream(self, extCommand, aPid):
+        if not aPid:
+            raise Exception("LogFileStream: process id should not be None")
+        if extCommand:
+            raise Exception("LogFileStream: command should not None")
+
+        self._root_pid = aPid
+
+        Win32Tracer._queue = queue.Queue()
+
+        self._pydbg = create_pydbg()
+        Win32Hook_BaseClass.object_pydbg = self._pydbg
+        time.sleep(1.0)
+
+        for subclass_definition in [
+            Win32Hook_CreateProcessA,
+            Win32Hook_CreateProcessW,
+            Win32Hook_RemoveDirectoryA,
+            Win32Hook_RemoveDirectoryW,
+            Win32Hook_CreateFileA]:
+            Win32Hook_BaseClass.add_subclass(subclass_definition)
+
+
+
+        def _win32_tracer_syscall_creation_callback(one_syscall, object_pydbg, task_id):
+            print("syscall=%s" % one_syscall.function_name)
+            # Different logic of objects creation.
+            # COMMENT ON VA FAIRE DOCKERFILE ?
+
+
+            Dans hooking.py pydbg.dbg.dwThreadId
+
+
+            batch_core = Win32BatchCore(task_id, one_syscall.function_name)
+
+            Win32Tracer._queue.put(batch_core)
+
+        def _win32_tracer_cim_object_callback(calling_class_instance, cim_class_name, **cim_arguments):
+            print("win32_tracer_cim_object_callback", calling_class_instance.__class__.__name__, cim_class_name,
+                  cim_arguments)
+            function_name = calling_class_instance.function_name
+
+        Win32Hook_BaseClass.callback_create_call = _win32_tracer_syscall_creation_callback
+        Win32Hook_BaseClass.callback_create_object = _win32_tracer_cim_object_callback
+
+        return (self._root_pid, self._queue)
+
+    def CreateFlowsFromLogger(self, verbose, logStream):
+
+        assert isinstance(logStream, queue.Queue)
+
+        queue_timeout = 10.0 # Seconds.
+
+        def thread_function():
+            self._pydbg.attach(aPid)
+            self._pydbg.run()
+            #         On veut se mettre a la place de pydbg.debug_event_loop equivalent a run())
+            #         qui appelle debug_event_iteration qui appelle WaitForDebugEvent
+            ######        self._pydbg.detach()
+            self._pydbg.terminate()
+
+        start_thread(thread_function)
+
+        while True:
+            try:
+                # We could use the queue to signal the end of the loop.
+                batch_core = logStream.get(True, timeout = queue_timeout)
+            except queue.Empty:
+                logging.info("Win32Tracer.CreateFlowsFromLogger timeout. Waiting.")
+                continue
+
+            assert isinstance(batch_core, Win32BatchCore)
+
+            yield batch_core
+
+
+
+    def Version(self):
+        return str("pydbg " + str(pydbg.__version__))
