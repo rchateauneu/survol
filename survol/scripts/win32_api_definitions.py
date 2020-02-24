@@ -439,7 +439,10 @@ class Win32Tracer:
             # COMMENT ON VA FAIRE DOCKERFILE ?
 
 
-            Dans hooking.py pydbg.dbg.dwThreadId
+            # See in hooking.py pydbg.dbg.dwThreadId
+            # See in hooking.py pydbg.dbg.dwThreadId
+            # See in hooking.py pydbg.dbg.dwThreadId
+            # See in hooking.py pydbg.dbg.dwThreadId
 
 
             batch_core = Win32BatchCore(task_id, one_syscall.function_name)
@@ -470,6 +473,7 @@ class Win32Tracer:
             ######        self._pydbg.detach()
             self._pydbg.terminate()
 
+        # Not finished yet.
         start_thread(thread_function)
 
         while True:
@@ -483,8 +487,6 @@ class Win32Tracer:
             assert isinstance(batch_core, Win32BatchCore)
 
             yield batch_core
-
-
 
     def Version(self):
         return str("pydbg " + str(pydbg.__version__))
