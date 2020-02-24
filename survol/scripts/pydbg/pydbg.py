@@ -3932,25 +3932,17 @@ class pydbg:
         buffer = self.read_process_memory(address, number_bytes)
         return buffer
 
-    # Windows UTF-16 string.
+    # The input buffer is a Windows UTF-16 string.
     def get_wstring(self, address):
-        # TRANSFORM INTO ASCII, FOR THE MOMENT.
-        buffer  = b""
-        offset  = 0
+        buffer = b""
+        offset = 0
         while 1:
             byte = self.read_process_memory(address + offset, 2)
             assert isinstance(byte, six.binary_type)
-            if byte != b"\x00\x00":
-                if sys.version_info < (3,):
-                    byte_0 = byte[0]
-                else:
-                    byte_0 = struct.pack("B", byte[0])
-                buffer  += byte_0
-                offset  += 2
-                continue
-            else:
-                break
-        return buffer
+            if byte == b"\x00\x00":
+                return buffer.decode("utf-16")
+            buffer += byte
+            offset += 2
 
     def get_long(self, address):
         ret_bytes = self.read_process_memory(address, 4)
