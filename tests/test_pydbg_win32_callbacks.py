@@ -19,13 +19,6 @@ if not is_platform_linux:
     from pydbg import pydbg
     import win32_api_definition
 
-    def create_pydbg():
-        if sys.version_info < (3, 8):
-            tst_pydbg = pydbg()
-        else:
-            tst_pydbg = pydbg.pydbg.pydbg()
-        return tst_pydbg
-
 ################################################################################
 
 nonexistent_file = "NonExistentFile.xyz"
@@ -78,7 +71,7 @@ class PydbgAttachTest(unittest.TestCase):
 
     # This function is called for each hooked function.
     @staticmethod
-    def syscall_creation_callback(one_syscall, object_pydbg):
+    def syscall_creation_callback(one_syscall, object_pydbg, task_id):
         print("syscall=%s" % one_syscall.function_name)
         try:
             object_pydbg.calls_counter[one_syscall.function_name] += 1
@@ -118,7 +111,7 @@ class PydbgAttachTest(unittest.TestCase):
 
         time.sleep(1)
 
-        tst_pydbg = create_pydbg()
+        tst_pydbg = win32_api_definition.create_pydbg()
         win32_api_definition.Win32Hook_BaseClass.object_pydbg = tst_pydbg
         time.sleep(1.0)
 
