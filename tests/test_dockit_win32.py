@@ -16,7 +16,10 @@ print("cwd=%s" % os.getcwd())
 from init import *
 
 if not is_platform_linux:
+    import pydbg
+    import pydbg.utils
     from pydbg import pydbg
+    #from pydbg import utils
     import win32_api_definitions
 
 ################################################################################
@@ -24,7 +27,7 @@ if not is_platform_linux:
 import dockit
 
 @unittest.skipIf(is_platform_linux, "Windows only.")
-class PydbgDirTest(unittest.TestCase):
+class PydbgDockitTest(unittest.TestCase):
     """
     Test pydbg.
     """
@@ -42,10 +45,12 @@ class PydbgDirTest(unittest.TestCase):
         print("cim_object_callback", calling_class_instance.__class__.__name__, cim_class_name, cim_arguments)
 
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
-    def test_pydbg_basic(self):
+    def test_basic_dir(self):
+        import pydbg
+        import win32_api_definitions
 
-        tst_pydbg = win32_api_definition.create_pydbg()
-        win32_api_definition.Win32Hook_BaseClass.object_pydbg = tst_pydbg
+        tst_pydbg = win32_api_definitions.create_pydbg()
+        win32_api_definitions.Win32Hook_BaseClass.object_pydbg = tst_pydbg
         time.sleep(1.0)
 
         created_process = subprocess.Popen("dir something", shell=True)
@@ -54,14 +59,14 @@ class PydbgDirTest(unittest.TestCase):
         tst_pydbg.attach(created_process.pid)
 
         hooks = pydbg.utils.hook_container()
-        win32_api_definition.Win32Hook_BaseClass.object_hooks = hooks
+        win32_api_definitions.Win32Hook_BaseClass.object_hooks = hooks
 
-        win32_api_definition.Win32Hook_BaseClass.callback_create_call = PydbgDirTest.syscall_creation_callback
-        win32_api_definition.Win32Hook_BaseClass.callback_create_object = PydbgDirTest.cim_object_callback
+        win32_api_definitions.Win32Hook_BaseClass.callback_create_call = PydbgDockitTest.syscall_creation_callback
+        win32_api_definitions.Win32Hook_BaseClass.callback_create_object = PydbgDockitTest.cim_object_callback
 
         for subclass_definition in [
-            win32_api_definition.Win32Hook_CreateFileA]:
-            win32_api_definition.Win32Hook_BaseClass.add_subclass(subclass_definition)
+            win32_api_definitions.Win32Hook_CreateFileA]:
+            win32_api_definitions.Win32Hook_BaseClass.add_subclass(subclass_definition)
 
         tst_pydbg.run()
 
