@@ -369,9 +369,9 @@ class PydbgBasicTest(unittest.TestCase):
 
         # This attempts several times to remove a non-existent dir.
         # This is detected by the hook.
-        python_command = "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 1.2.3.4 & echo %%A & nslookup any.thing.com )" % num_loops
+        nslookup_command = "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 1.2.3.4 & echo %%A & nslookup any.thing.com )" % num_loops
 
-        created_process = subprocess.Popen(python_command, shell=True)
+        created_process = subprocess.Popen(nslookup_command, shell=True)
         print("Created process:%d" % created_process.pid)
 
         # A bit of delay so the process can start.
