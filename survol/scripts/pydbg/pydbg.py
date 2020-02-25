@@ -1881,6 +1881,22 @@ class pydbg:
 
         return address
 
+    # https://stackoverflow.com/questions/33779657/python-getmodulehandlew-oserror-winerror-126-the-specified-module-could-not-b/33780664#33780664
+    # https://stackoverflow.com/questions/35849546/getprocaddress-not-working-on-x64-python
+    # This might be the reason why we cannot get the address of some functions in some DLLs.
+    def func_resolve_experimental(self, dll, function):
+        assert isinstance(dll, six.text_type)
+        assert isinstance(function, six.binary_type)
+
+        dll_module = ctypes.WinDLL(dll, use_last_error=True)
+
+        dll_kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
+        dll_kernel32.GetProcAddress.restype = ctypes.c_void_p
+        dll_kernel32.GetProcAddress.argtypes = (wintypes.HMODULE, wintypes.LPCSTR)
+
+        function_address = dll_kernel32.GetProcAddress(dll_module._handle, function)
+        assert function_address
+        return function_address
 
     ####################################################################################################################
     def func_resolve_debuggee (self, dll_name, func_name):

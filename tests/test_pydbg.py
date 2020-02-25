@@ -357,7 +357,7 @@ class PydbgBasicTest(unittest.TestCase):
 
 
 
-    @unittest.skipIf(True or is_travis_machine(), "Does not work on Travis.")
+    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_DOS_socket(self):
         import pydbg
         from pydbg import defines
@@ -369,7 +369,7 @@ class PydbgBasicTest(unittest.TestCase):
 
         # This attempts several times to remove a non-existent dir.
         # This is detected by the hook.
-        python_command = "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 1.2.3.4 & echo %%A )" % num_loops
+        python_command = "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 1.2.3.4 & echo %%A & nslookup any.thing.com )" % num_loops
 
         created_process = subprocess.Popen(python_command, shell=True)
         print("Created process:%d" % created_process.pid)
@@ -382,7 +382,7 @@ class PydbgBasicTest(unittest.TestCase):
 
         object_hooks = pydbg.utils.hook_container()
 
-        hook_address_socket = tst_pydbg.func_resolve(b"Ws2_32.dll.dll", b"socket")
+        hook_address_socket = tst_pydbg.func_resolve_experimental(u"Ws2_32.dll", b"socket")
 
         tst_pydbg.count_entry = 0
         tst_pydbg.count_exit = 0
