@@ -946,7 +946,7 @@ class pydbg:
                     #self._log("EXCEPTION_BREAKPOINT")
                     continue_status = self.exception_handler_breakpoint()
                     #self._log("debug_event_loop() continue_status: %08x DBG_CONTINUE: %08x" % (continue_status, DBG_CONTINUE) )
-                    assert continue_status == DBG_CONTINUE
+                    ############ assert continue_status == DBG_CONTINUE
                 elif ec == EXCEPTION_GUARD_PAGE:
                     self._log("EXCEPTION_GUARD_PAGE")
                     continue_status = self.exception_handler_guard_page()
@@ -1647,7 +1647,7 @@ class pydbg:
 
             # ignore all other breakpoints we didn't explicitly set.
             else:
-                self._log("breakpoint not ours %08x" % self.exception_address)
+                self._log("breakpoint not ours %016x" % self.exception_address)
                 continue_status = DBG_EXCEPTION_NOT_HANDLED
 
         # breakpoints we did set.
@@ -1730,12 +1730,12 @@ class pydbg:
 
         # grab the actual memory breakpoint object, for the hit breakpoint.
         if self.memory_breakpoint_hit:
-            self._log("direct hit on memory breakpoint at %08x" % self.memory_breakpoint_hit)
+            self._log("direct hit on memory breakpoint at %016x" % self.memory_breakpoint_hit)
 
         if self.write_violation:
-            self._log("write violation from %08x on %08x of mem bp" % (self.exception_address, self.violation_address))
+            self._log("write violation from %016x on %016x of mem bp" % (self.exception_address, self.violation_address))
         else:
-            self._log("read violation from %08x on %08x of mem bp" % (self.exception_address, self.violation_address))
+            self._log("read violation from %016x on %016x of mem bp" % (self.exception_address, self.violation_address))
 
         # if there is a specific handler registered for this bp, pass control to it.
         if self.memory_breakpoint_hit and self.memory_breakpoints[self.memory_breakpoint_hit].handler:
