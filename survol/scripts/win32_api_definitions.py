@@ -419,8 +419,6 @@ class Win32Tracer:
 
         Win32Tracer._queue = queue.Queue()
 
-        self._pydbg = create_pydbg()
-        Win32Hook_BaseClass.object_pydbg = self._pydbg
         time.sleep(1.0)
 
         for subclass_definition in [
@@ -466,12 +464,12 @@ class Win32Tracer:
         queue_timeout = 10.0 # Seconds.
 
         def thread_function():
-            self._pydbg.attach(aPid)
-            self._pydbg.run()
+            Win32Hook_BaseClass.object_pydbg.attach(aPid)
+            Win32Hook_BaseClass.object_pydbg.run()
             #         On veut se mettre a la place de pydbg.debug_event_loop equivalent a run())
             #         qui appelle debug_event_iteration qui appelle WaitForDebugEvent
             ######        self._pydbg.detach()
-            self._pydbg.terminate()
+            Win32Hook_BaseClass.object_pydbg.terminate()
 
         # Not finished yet.
         start_thread(thread_function)
