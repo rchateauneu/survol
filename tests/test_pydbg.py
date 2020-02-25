@@ -14,6 +14,8 @@ sys.path.append("../survol/scripts")
 sys.path.append("survol/scripts")
 print("cwd=%s" % os.getcwd())
 
+root_process_id = os.getpid()
+
 from init import *
 
 if not is_platform_linux:
@@ -44,20 +46,20 @@ class PydbgBasicTest(unittest.TestCase):
 
         tst_pydbg = create_pydbg()
 
-        num_loops = 5
+        num_loops = 4
         non_existent_dir = "NonExistentDir"
 
         # This attempts several times to remove a non-existent dir.
         # This is detected by the hook.
-        dos_command = "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 127.0.0.1 >NUL & echo %%A & rmdir %s )" % (num_loops, non_existent_dir)
+        rmdir_command = "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 127.0.0.1 >NUL & echo %%A & rmdir %s )" % (num_loops, non_existent_dir)
 
-        created_process = subprocess.Popen(dos_command, shell=True)
+        created_process = subprocess.Popen(rmdir_command, shell=True)
         print("Created process:%d" % created_process.pid)
 
         # A bit of delay so the process can start.
         time.sleep(1.0)
 
-        print("Attaching. Root pid=%d" % os.getpid())
+        print("Attaching. Root pid=%d" % root_process_id)
         tst_pydbg.attach(created_process.pid)
 
         object_hooks = pydbg.utils.hook_container()
@@ -72,6 +74,11 @@ class PydbgBasicTest(unittest.TestCase):
             dir_name = object_pydbg.get_wstring(args[0])
             print("callback_RemoveDirectoryW_entry dir_name=", dir_name)
             self.assertTrue(dir_name == non_existent_dir)
+
+            # object_pydbg.dbg is a LPDEBUG_EVENT, pointer to DEBUG_EVENT.
+            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId, type(object_pydbg.dbg.dwProcessId))
+            self.assertTrue(object_pydbg.dbg.dwProcessId == created_process.pid)
+
             return defines.DBG_CONTINUE
 
         def callback_RemoveDirectoryW_exit(object_pydbg, args, function_result):
@@ -80,6 +87,10 @@ class PydbgBasicTest(unittest.TestCase):
             print("callback_RemoveDirectoryW_exit dir_name=", dir_name, function_result)
             self.assertTrue(dir_name == non_existent_dir)
             self.assertTrue(function_result == 0)
+
+            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId, type(object_pydbg.dbg.dwProcessId))
+            self.assertTrue(object_pydbg.dbg.dwProcessId == created_process.pid)
+
             return defines.DBG_CONTINUE
 
         object_hooks.add(
@@ -109,15 +120,15 @@ class PydbgBasicTest(unittest.TestCase):
 
         # This attempts several times to remove a non-existent dir.
         # This is detected by the hook.
-        python_command = "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 127.0.0.1 & echo %%A & type %s )" % (num_loops, non_existent_file)
+        type_command = "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 127.0.0.1 & echo %%A & type %s )" % (num_loops, non_existent_file)
 
-        created_process = subprocess.Popen(python_command, shell=True)
+        created_process = subprocess.Popen(type_command, shell=True)
         print("Created process:%d" % created_process.pid)
 
         # A bit of delay so the process can start.
         time.sleep(1.0)
 
-        print("Attaching. Root pid=%d" % os.getpid())
+        print("Attaching. Root pid=%d" % root_process_id)
         tst_pydbg.attach(created_process.pid)
 
         object_hooks = pydbg.utils.hook_container()
@@ -165,19 +176,19 @@ class PydbgBasicTest(unittest.TestCase):
 
         tst_pydbg = create_pydbg()
 
-        num_loops = 5
+        num_loops = 3
 
         # Each loop creates a sub-process which immediately exists.
         # This is detected by the hook.
-        python_command = "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 127.0.0.1& echo %%A )" % num_loops
+        ping_echo_command = "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 127.0.0.1& echo %%A )" % num_loops
 
-        created_process = subprocess.Popen(python_command, shell=True)
+        created_process = subprocess.Popen(ping_echo_command, shell=True)
         print("Created process:%d" % created_process.pid)
 
         # A bit of delay so the process can start.
         time.sleep(1.0)
 
-        print("Attaching. Root pid=%d" % os.getpid())
+        print("Attaching. Root pid=%d" % root_process_id)
         tst_pydbg.attach(created_process.pid)
 
         object_hooks = pydbg.utils.hook_container()
@@ -187,7 +198,7 @@ class PydbgBasicTest(unittest.TestCase):
         tst_pydbg.count_entry = 0
         tst_pydbg.count_exit = 0
 
-#         BOOL CreateProcessW(
+        #         BOOL CreateProcessW(
         #             LPCWSTR               lpApplicationName,
         #             LPWSTR                lpCommandLine,
         #             LPSECURITY_ATTRIBUTES lpProcessAttributes,
@@ -207,6 +218,10 @@ class PydbgBasicTest(unittest.TestCase):
             lpCommandLine = object_pydbg.get_wstring(args[1])
             print("callback_CreateProcessW_entry lpCommandLine=%s." % lpCommandLine)
             assert lpCommandLine == "ping  -n 2 127.0.0.1"
+
+            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId, type(object_pydbg.dbg.dwProcessId))
+            self.assertTrue(object_pydbg.dbg.dwProcessId == created_process.pid)
+
             return pydbg.defines.DBG_CONTINUE
 
         def callback_CreateProcessW_exit(object_pydbg, args, function_result):
@@ -217,6 +232,10 @@ class PydbgBasicTest(unittest.TestCase):
             lpCommandLine = object_pydbg.get_wstring(args[1])
             print("callback_CreateProcessW_entry lpCommandLine=%s." % lpCommandLine)
             assert lpCommandLine == "ping  -n 2 127.0.0.1"
+
+            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId, type(object_pydbg.dbg.dwProcessId))
+            self.assertTrue(object_pydbg.dbg.dwProcessId == created_process.pid)
+
             return pydbg.defines.DBG_CONTINUE
 
         object_hooks.add(
@@ -233,6 +252,96 @@ class PydbgBasicTest(unittest.TestCase):
         self.assertTrue(tst_pydbg.count_entry == num_loops - 1)
         self.assertTrue(tst_pydbg.count_exit == num_loops - 1)
 
+    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    def test_pydbg_DOS_process_information(self):
+        import pydbg
+        from pydbg import utils
+        from pydbg import windows_h
+
+        tst_pydbg = create_pydbg()
+
+        num_loops = 3
+
+        # Each loop creates a sub-process which immediately exists.
+        # This is detected by the hook.
+        ping_command = "FOR /L %%A IN (1,1,%d) DO (ping -n 2 127.0.0.1)" % num_loops
+
+        created_process = subprocess.Popen(ping_command, shell=True)
+        print("Created process:%d" % created_process.pid)
+
+        # A bit of delay so the process can start.
+        time.sleep(1.0)
+
+        print("Attaching. Root pid=%d" % root_process_id)
+        tst_pydbg.attach(created_process.pid)
+
+        object_hooks = pydbg.utils.hook_container()
+
+        hook_address_process_information = tst_pydbg.func_resolve(b"KERNEL32.dll", b"CreateProcessW")
+
+        tst_pydbg.count_entry = 0
+        tst_pydbg.count_exit = 0
+
+        def callback_process_information_entry(object_pydbg, args):
+            object_pydbg.count_entry += 1
+            lpApplicationName = object_pydbg.get_wstring(args[0])
+            print("callback_process_information_entry lpApplicationName=", lpApplicationName)
+            assert lpApplicationName == r"C:\windows\system32\PING.EXE"
+            lpCommandLine = object_pydbg.get_wstring(args[1])
+            print("callback_process_information_entry lpCommandLine=%s." % lpCommandLine)
+            assert lpCommandLine == "ping  -n 2 127.0.0.1"
+
+            lpProcessInformation = args[9]
+
+            # _PROCESS_INFORMATION {
+            #   HANDLE hProcess;
+            #   HANDLE hThread;
+            #   DWORD  dwProcessId;
+            #   DWORD  dwThreadId;
+            # }
+            offset_dwProcessId = windows_h.sizeof(windows_h.HANDLE) + windows_h.sizeof(windows_h.HANDLE)
+            dwProcessId = object_pydbg.get_long(lpProcessInformation + offset_dwProcessId)
+            print("callback_process_information_entry Handle=", dwProcessId)
+
+            offset_dwThreadId = windows_h.sizeof(windows_h.HANDLE) + windows_h.sizeof(windows_h.HANDLE) + windows_h.sizeof(windows_h.DWORD)
+            dwThreadId = object_pydbg.get_long(lpProcessInformation + offset_dwThreadId)
+            print("callback_process_information_entry dwThreadId=", dwThreadId)
+
+            # object_pydbg.dbg is a LPDEBUG_EVENT, pointer to DEBUG_EVENT.
+            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId, type(object_pydbg.dbg.dwProcessId))
+            print("object_pydbg.dbg.dwThreadId=", object_pydbg.dbg.dwThreadId)
+            ### assert object_pydbg.dbg.dwProcessId == long(root_process_id)
+
+            self.assertTrue(object_pydbg.dbg.dwProcessId == created_process.pid)
+
+            return pydbg.defines.DBG_CONTINUE
+
+        def callback_process_information_exit(object_pydbg, args, function_result):
+            object_pydbg.count_exit += 1
+            lpApplicationName = object_pydbg.get_wstring(args[0])
+            print("callback_process_information_exit lpApplicationName=", lpApplicationName)
+            assert lpApplicationName == r"C:\windows\system32\PING.EXE"
+            lpCommandLine = object_pydbg.get_wstring(args[1])
+            print("callback_process_information_exit lpCommandLine=%s." % lpCommandLine)
+            assert lpCommandLine == "ping  -n 2 127.0.0.1"
+
+            self.assertTrue(object_pydbg.dbg.dwProcessId == created_process.pid)
+
+            return pydbg.defines.DBG_CONTINUE
+
+        object_hooks.add(
+            tst_pydbg,
+            hook_address_process_information,
+            10,
+            callback_process_information_entry,
+            callback_process_information_exit)
+
+        tst_pydbg.run()
+
+        print("END", tst_pydbg.count_entry, tst_pydbg.count_exit)
+        # The first call is missed.
+        self.assertTrue(tst_pydbg.count_entry == num_loops - 1)
+        self.assertTrue(tst_pydbg.count_exit == num_loops - 1)
 
     # https://github.com/OpenRCE/pydbg/issues/5
     # from pydbg import *
@@ -268,7 +377,7 @@ class PydbgBasicTest(unittest.TestCase):
         # A bit of delay so the process can start.
         time.sleep(1.0)
 
-        print("Attaching. Root pid=%d" % os.getpid())
+        print("Attaching. Root pid=%d" % root_process_id)
         tst_pydbg.attach(created_process.pid)
 
         object_hooks = pydbg.utils.hook_container()
