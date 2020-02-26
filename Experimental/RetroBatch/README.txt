@@ -1,1 +1,0 @@
-These are all the tests and experimentations for Dockit.
