@@ -109,7 +109,7 @@ import linux_api_definitions
 
 from init import *
 
-class DockitParserTest(unittest.TestCase):
+class DockitComponentsTest(unittest.TestCase):
     """
     Test parsing of strace output.
     """
@@ -217,7 +217,17 @@ class DockitParserTest(unittest.TestCase):
                     if tupl[0][idx-2] != ')':
                         raise Exception("Fail idx2: len=%d %d SHOULD BE:%d; S=%s / '%s'" % ( len(tupl[0]), idx, tupl[2], tupl[0], tupl[0][idx-2:] ) )
 
+    @unittest.skip("Disabled for the moment.")
+    def test_usage(self):
+        # Conventional value so this function does not exit.
+        dockit.Usage(999)
 
+    @unittest.skip("Not implemented yet")
+    def test_InitAfterPid(self):
+        batch_core = linux_api_definitions.BatchLetCore()
+        oneLine = ""
+        idxStart = 0
+        batch_core.InitAfterPid(oneLine, idxStart)
 
 class DockitSummaryXMLTest(unittest.TestCase):
     @staticmethod
