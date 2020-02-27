@@ -9,6 +9,9 @@ __status__ = "Development"
 
 import re
 import sys
+import logging
+import signal
+import subprocess
 import cim_objects_definitions
 
 ################################################################################
@@ -819,7 +822,7 @@ class BatchLetSys_read(BatchLetBase, object):
             # Or: "read(0</dev/pts/2>,  <detached ...>"
             # TODO: Should be processed specifically.
             # This happens if the buffer contains a double-quote. Example:
-            # Error parsing retValue=read@SYS(8, "\003\363\r\n"|\314Vc", 4096)                                                  = 765
+            # Error parsing retValue=read@SYS(8, "\003\363\r\n"|\314Vc", 4096) = 765
             sys.stdout.write("Error parsing retValue=%s\n" % (batchCore.m_retValue))
             return
 
@@ -1724,3 +1727,309 @@ G_stackUnfinishedBatches = None
 # their arguments.
 # So we filter them additively.
 ################################################################################
+
+# This executes a Linux command and returns the stderr pipe.
+# It is used to get the return content of strace or ltrace,
+# so it can be parsed.
+def _GenerateLinuxStreamFromCommand(raw_command, aPid):
+    def quote_argument(elt):
+        # Quotes in command-line arguments must be escaped.
+        elt = str(elt).replace('"', '\\"').replace("'", "\\'")
+        # Quotes the command-line argument if it contains spaces or tabs.
+        if " " in elt or "\t" in elt:
+            elt = '"%s"' % elt
+        return elt
+
+    aCmd = [quote_argument(elt) for elt in raw_command]
+    assert isinstance(aPid, int)
+    sys.stdout.write("Starting trace command:%s\n" % " ".join(aCmd) )
+
+    # If shell=True, the command must be passed as a single line.
+    kwargs = {"bufsize":100000, "shell":False,
+        "stdin":sys.stdin, "stdout":subprocess.PIPE, "stderr":subprocess.PIPE}
+    if sys.version_info >= (3,):
+        kwargs["encoding"] = "utf-8"
+    pipPOpen = subprocess.Popen(aCmd, **kwargs)
+
+    # If shell argument is True, this is the process ID of the spawned shell.
+    if aPid > 0:
+        # The process already exists and strace/ltrace attaches to it.
+        thePid = aPid
+    else:
+        # We want the pid of the process created by strace/ltrace.
+        # ltrace always prefixes each line with the pid, so no ambiguity.
+        # strace does not always prefixes the top process calls with the pid.
+        thePid = int(pipPOpen.pid)
+
+    return ( thePid, pipPOpen.stderr )
+
+################################################################################
+# This is set by a signal handler when a control-C is typed.
+# It then triggers a clean exit, and creation of output results.
+# This allows to monitor a running process, just for a given time
+# without stopping it.
+G_Interrupt = False
+
+def signal_handler(signal, frame):
+    print('You pressed Ctrl+C!')
+    global G_Interrupt
+    G_Interrupt = True
+
+# This applies to strace and ltrace.
+# It isolates single lines describing an individual function or system call.
+def _CreateFlowsFromGenericLinuxLog(verbose, logStream, tracer):
+    # Generates output files if interrupt with control-C.
+    original_sigint_handler = signal.getsignal(signal.SIGINT)
+    signal.signal(signal.SIGINT, signal_handler)
+    logging.info('Press Ctrl+C to exit cleanly')
+
+    # "[pid 18196] 08:26:47.199313 close(255</tmp/shell.sh> <unfinished ...>"
+    # "08:26:47.197164 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18194 <0.011216>"
+    # This test is not reliable because we cannot really control what a spurious output can be:
+    def IsLogEnding(aLin):
+        if aLin.endswith(">\n"):
+            ixLT = aLin.rfind("<")
+            if ixLT >= 0:
+                strBrack = aLin[ixLT+1:-2]
+                try:
+                    flt = float(strBrack)
+                    return True
+                except:
+                    pass
+
+                if strBrack == "unfinished ...":
+                    return True
+
+                # This value occurs exclusively with ltrace. Examples:
+                # exit_group@SYS(0 <no return ...>
+                # execve@SYS("/usr/bin/as", 0xd1a138, 0xd1a2b0 <no return ...>
+                if strBrack == "no return ...":
+                    return True
+        else:
+            # "[pid 18194] 08:26:47.197005 exit_group(0) = ?"
+            # Not reliable because this could be a plain string ending like this.
+            if aLin.startswith("[pid ") and aLin.endswith(" = ?\n"):
+                return True
+
+            # "08:26:47.197304 --- SIGCHLD {si_signo=SIGCHLD, si_status=0, si_utime=0, si_stime=0} ---"
+            # Not reliable because this could be a plain string ending like this.
+            if aLin.endswith(" ---\n"):
+                return True
+
+        return False
+
+
+    # This is parsed from each line corresponding to a syztem call.
+    batchCore = None
+
+    lastTimeStamp = 0
+
+    numLine = 0
+    oneLine = ""
+    while True:
+        prevLine = oneLine
+        oneLine = ""
+
+        # There are several cases of line ending with strace.
+        # If a function has a string parameter which contain a carriage-return,
+        # this is not filtered and this string is split on multiple lines.
+        # We cannot reliably count the double-quotes.
+        # FIXME: Problem if several processes.
+        while not G_Interrupt:
+            # sys.stdout.write("000:\n")
+            tmpLine = logStream.readline()
+            # sys.stdout.write("AAA:%s"%tmpLine)
+            numLine += 1
+            # sys.stdout.write("tmpLine after read=%s"%tmpLine)
+            if not tmpLine:
+                break
+
+            # "[pid 18196] 08:26:47.199313 close(255</tmp/shell.sh> <unfinished ...>"
+            # "08:26:47.197164 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18194 <0.011216>"
+            # This test is not reliable because we cannot really control what a spurious output can be:
+            if IsLogEnding( tmpLine ):
+                # TODO: The most common case is that the call is on one line only.
+                oneLine += tmpLine
+                break
+
+            # If the call is split on several lines, maybe because a write() contains a "\n".
+            oneLine += tmpLine[:-1]
+
+        if not oneLine:
+            # If this is the last line and therefore the last call.
+            sys.stdout.write("Last line=%s\n"%prevLine)
+
+            # This is the terminate date of the last process still running.
+            if lastTimeStamp:
+                cim_objects_definitions.CIM_Process.GlobalTerminationDate(lastTimeStamp)
+
+            break
+
+        # This parses the line into the basic parameters of a function call.
+        try:
+            batchCore = CreateBatchCore(oneLine,tracer)
+        except Exception as exc:
+            if numLine == 2:
+                # If the command does not exist:
+                # "strace: Can't stat 'qklsjhdflksd': No such file or directory"
+                # "Can't open qklsjhdflksd: No such file or directory"
+                if oneLine.find("No such file or directory") >= 0:
+                    raise Exception("Invalid command: %s: %s" % (oneLine, exc))
+
+                # If the pid is invalid, the scond contains "No such process"
+                # "strace: attach: ptrace(PTRACE_SEIZE, 11111): No such process"
+                # "Cannot attach to pid 11111: No such process"
+                if oneLine.find("No such process") >= 0:
+                    raise Exception("Invalid process id: %s" % (oneLine, exc))
+
+            sys.stderr.write("Caught invalid line %d:%s: %s\n"%(numLine, oneLine, exc) )
+            # raise
+
+        # Maybe the line cannot be parsed.
+        if batchCore:
+
+            lastTimeStamp = batchCore.m_timeEnd
+
+            # This creates a derived class deduced from the system call.
+            #aBatch = linux_api_definitions.BatchLetFactory(batchCore)
+            try:
+                aBatch = BatchLetFactory(batchCore)
+            except Exception as exc:
+                sys.stderr.write("Line:%d Error parsing:%s. %s\n" % (numLine, oneLine, exc))
+
+            # Some functions calls should simply be forgotten because there are
+            # no side effects, so simply forget them.
+            if aBatch:
+                yield aBatch
+
+    logging.info("Restoring SIGINT handler")
+    signal.signal(signal.SIGINT, original_sigint_handler)
+
+################################################################################
+
+#
+# 22:41:05.094710 rt_sigaction(SIGRTMIN, {0x7f18d70feb20, [], SA_RESTORER|SA_SIGINFO, 0x7f18d7109430}, NULL, 8) = 0 <0.000008>
+# 22:41:05.094841 rt_sigaction(SIGRT_1, {0x7f18d70febb0, [], SA_RESTORER|SA_RESTART|SA_SIGINFO, 0x7f18d7109430}, NULL, 8) = 0 <0.000018>
+# 22:41:05.094965 rt_sigprocmask(SIG_UNBLOCK, [RTMIN RT_1], NULL, 8) = 0 <0.000007>
+# 22:41:05.095113 getrlimit(RLIMIT_STACK, {rlim_cur=8192*1024, rlim_max=RLIM64_INFINITY}) = 0 <0.000008>
+# 22:41:05.095350 statfs("/sys/fs/selinux", 0x7ffd5a97f9e0) = -1 ENOENT (No such file or directory) <0.000019>
+#
+# The command parameters and the parsing are specific to strace.
+# It returns a data structure which is generic.
+
+################################################################################
+
+# Max bytes number when strace or ltrace display read() and write() calls.
+G_StringSize = "500"
+
+class STraceTracer:
+    # The command options generate a specific output file format,
+    # and therefore parsing it is specific to these options.
+    def BuildCommand(self, extCommand, aPid):
+        # -f  Trace  child  processes as a result of the fork, vfork and clone.
+        aCmd = ["strace", "-q", "-qq", "-f", "-tt", "-T", "-s", G_StringSize]
+
+        if STraceTracer().Version() < (4, 21):
+            aCmd += ["-e", "trace=desc,ipc,process,network"]
+        else:
+            aCmd += ["-y", "-yy", "-e", "trace=desc,ipc,process,network,memory"]
+
+        if extCommand:
+            # Run tracer process as a detached grandchild, not as parent of the tracee. This reduces the visible
+            # effect of strace by keeping the tracee a direct child of the calling process.
+            aCmd += ["-D"]
+            aCmd += extCommand
+        else:
+            aCmd += ["-p", aPid]
+        return aCmd
+
+    def LogFileStream(self, extCommand, aPid):
+        aCmd = self.BuildCommand(extCommand, aPid)
+        if extCommand:
+            logging.info("Command " + " ".join(extCommand))
+        else:
+            logging.info("Process %s\n" % aPid)
+        return _GenerateLinuxStreamFromCommand(aCmd, aPid)
+
+    def CreateFlowsFromLogger(self, verbose, logStream):
+        return _CreateFlowsFromGenericLinuxLog(verbose, logStream, "strace")
+
+    def Version(self):
+        strace_version_str = subprocess.check_output('strace -V', shell=True).split()[3]
+        return tuple(map(int, strace_version_str.split(b'.')))
+
+
+class LTraceTracer:
+    # The command options generate a specific output file format,
+    # and therefore parsing it is specific to these options.
+    def BuildCommand(self, extCommand, aPid):
+
+        # This selects:
+        # libpython2.7.so.1.0->getenv, cx_Oracle.so->getenv, libclntsh.so.11.1->getenv, libresolv.so.2->getenv etc...
+        strMandatoryLibc = "-*+getenv+*@SYS"
+
+        # TODO: Consider filtering read.
+        # -S  Display system calls as well as library calls
+        # -f  Trace  child  processes as a result of the fork, vfork and clone.
+        # This needs long strings because path names are truncated like normal strings.
+        aCmd = ["ltrace",
+                "-tt", "-T", "-f", "-S", "-s", G_StringSize,
+                "-e", strMandatoryLibc
+                ]
+
+        # Example of log: This can be filtered with: "-e -realpath"
+        # gcc->realpath(0x2abfbe0, 0x7ffd739d8310, 0x2ac0930, 0 <unfinished ...>
+        # lstat@SYS("/usr", 0x7ffd739d8240)                    = 0 <0.000167>
+        # lstat@SYS("/usr/local", 0x7ffd739d8240)              = 0 <0.000118>
+        # lstat@SYS("/usr/local/include", 0x7ffd739d8240)      = 0 <0.000162>
+        # lstat@SYS("/usr/local/include/bits", 0x7ffd739d8240) = -2 <0.000177>
+        # <... realpath resumed> )                             = 0 <0.001261>
+
+        if extCommand:
+            aCmd += extCommand
+        else:
+            aCmd += ["-p", aPid]
+
+        return aCmd
+
+    def LogFileStream(self, extCommand, aPid):
+        aCmd = self.BuildCommand(extCommand, aPid)
+        if extCommand:
+            logging.info("Command " + " ".join(extCommand))
+        else:
+            logging.info("Process %s\n" % aPid)
+        return _GenerateLinuxStreamFromCommand(aCmd, aPid)
+
+    # The output log format of ltrace is very similar to strace's, except that:
+    # - The system calls are suffixed with "@SYS" or prefixed with "SYS_"
+    # - Entering and leaving a shared library is surrounded by the lines:
+    # ...  Py_Main(...  <unfinished ...>
+    # ...  <... Py_Main resumed> )
+    # - It does not print the path of file descriptors.
+
+    # [pid 28696] 08:50:25.573022 rt_sigaction@SYS(33, 0x7ffcbdb8f840, 0, 8) = 0 <0.000032>
+    # [pid 28696] 08:50:25.573070 rt_sigprocmask@SYS(1, 0x7ffcbdb8f9b8, 0, 8) = 0 <0.000033>
+    # [pid 28696] 08:50:25.573127 getrlimit@SYS(3, 0x7ffcbdb8f9a0) = 0 <0.000028>
+    # [pid 28696] 08:50:25.576494 __libc_start_main([ "python", "TestProgs/mineit_mysql_select.py"... ] <unfinished ...>
+    # [pid 28696] 08:50:25.577718 Py_Main(2, 0x7ffcbdb8faf8, 0x7ffcbdb8fb10, 0 <unfinished ...>
+    # [pid 28696] 08:50:25.578559 ioctl@SYS(0, 0x5401, 0x7ffcbdb8f860, 653) = 0 <0.000037>
+    # [pid 28696] 08:50:25.578649 brk@SYS(nil)         = 0x21aa000 <0.000019>
+    # [pid 28696] 08:50:25.578682 brk@SYS(0x21cb000)   = 0x21cb000 <0.000021>
+    # ...
+    # [pid 28735] 08:51:40.608641 rt_sigaction@SYS(2, 0x7ffeaa2e6870, 0x7ffeaa2e6910, 8)                                = 0 <0.000109>
+    # [pid 28735] 08:51:40.611613 sendto@SYS(3, 0x19a7fd8, 5, 0)                                                        = 5 <0.000445>
+    # [pid 28735] 08:51:40.612230 shutdown@SYS(3, 2, 0, 0)                                                              = 0 <0.000119>
+    # [pid 28735] 08:51:40.612451 close@SYS(3)                                                                          = 0 <0.000156>
+    # [pid 28735] 08:51:40.615726 close@SYS(7)                                                                          = 0 <0.000305>
+    # [pid 28735] 08:51:40.616610 <... Py_Main resumed> )                                                               = 0 <1.092079>
+    # [pid 28735] 08:51:40.616913 exit_group@SYS(0 <no return ...>
+
+    def CreateFlowsFromLogger(self, verbose, logStream):
+        # The output format of the command ltrace seems very similar to strace
+        # so for the moment, no reason not to use it.
+        return _CreateFlowsFromGenericLinuxLog(verbose, logStream, "ltrace")
+
+    def Version(self):
+        ltrace_version_str = subprocess.check_output('strace -V', shell=True).split()[2]
+        return tuple(map(int, ltrace_version_str.split(b'.')))
+
