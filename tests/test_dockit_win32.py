@@ -19,7 +19,6 @@ if not is_platform_linux:
     import pydbg
     import pydbg.utils
     from pydbg import pydbg
-    #from pydbg import utils
     import win32_api_definitions
 
 ################################################################################
@@ -50,30 +49,35 @@ class PydbgDockitTest(unittest.TestCase):
         import win32_api_definitions
 
         tst_pydbg = win32_api_definitions.create_pydbg()
+
         win32_api_definitions.Win32Hook_BaseClass.object_pydbg = tst_pydbg
+
+        assert isinstance(dockit.G_traceToTracer["pydbg"], win32_api_definitions.Win32Tracer)
         time.sleep(1.0)
 
-        created_process = subprocess.Popen("dir something", shell=True)
+        num_loops = 3
+
+        dir_command = "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 1.2.3.4 & dir something )" % num_loops
+
+        created_process = subprocess.Popen(dir_command, shell=True)
 
         print("Attaching. getpid=%d" % os.getpid())
         tst_pydbg.attach(created_process.pid)
 
-        hooks = pydbg.utils.hook_container()
-        win32_api_definitions.Win32Hook_BaseClass.object_hooks = hooks
-
+        # TEMP ONLY !!
         win32_api_definitions.Win32Hook_BaseClass.callback_create_call = PydbgDockitTest.syscall_creation_callback
         win32_api_definitions.Win32Hook_BaseClass.callback_create_object = PydbgDockitTest.cim_object_callback
 
         for subclass_definition in [
-            win32_api_definitions.Win32Hook_CreateFileA]:
+            win32_api_definitions.Win32Hook_CreateFileW]:
             win32_api_definitions.Win32Hook_BaseClass.add_subclass(subclass_definition)
 
         tst_pydbg.run()
 
-        print("Detaching")
-######        tst_pydbg.detach()
+        print("TODO: Should detaching")
+        ## tst_pydbg.detach()
         created_process.terminate()
-        created_process.join()
+        ## created_process.join()
         print("Finished")
 
 if __name__ == '__main__':

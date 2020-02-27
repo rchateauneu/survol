@@ -319,7 +319,19 @@ class DockitSummaryXMLTest(unittest.TestCase):
         tmpFilSTrace.write(tstLogFileSTrace)
         tmpFilSTrace.close()
 
-        outputSummaryFile = dockit.UnitTest(tmpFilSTrace.name,"strace",19351,None,None,False,dockit.fullMapParamsSummary,"XML",False,False,None)
+        outputSummaryFile = dockit.UnitTest(
+            inputLogFile=tmpFilSTrace.name,
+            tracer="strace",
+            topPid=19351,
+            baseOutName=None,
+            outputFormat=None,
+            verbose=False,
+            mapParamsSummary=dockit.fullMapParamsSummary,
+            summaryFormat="XML",
+            withWarning=False,
+            withDockerfile=False,
+            updateServer=None,
+            aggregators=[])
 
         procTree = DockitSummaryXMLTest.RebuildProcessTree(outputSummaryFile)
 
@@ -380,17 +392,18 @@ class DockitSummaryXMLTest(unittest.TestCase):
         tmpFilSTrace.close()
 
         outputSummaryFile = dockit.UnitTest(
-            tmpFilSTrace.name,
-            "strace",
-            22029,
-            None,
-            None,
-            False,
-            dockit.fullMapParamsSummary,
-            "XML",
-            False,
-            False,
-            None)
+            inputLogFile=tmpFilSTrace.name,
+            tracer="strace",
+            topPid=22029,
+            baseOutName=None,
+            outputFormat=None,
+            verbose=False,
+            mapParamsSummary=dockit.fullMapParamsSummary,
+            summaryFormat="XML",
+            withWarning=False,
+            withDockerfile=False,
+            updateServer = None,
+            aggregators=None)
 
         sys.stdout.write("\nRebuilding tree\n")
         procTree = DockitSummaryXMLTest.RebuildProcessTree(outputSummaryFile)
@@ -455,17 +468,18 @@ class DockitSummaryXMLTest(unittest.TestCase):
         tmpFilSTrace.close()
 
         outputSummaryFile = dockit.UnitTest(
-            inputLogFile = tmpFilSTrace.name,
-            tracer = "ltrace",
-            topPid = 21256,
-            baseOutName = None,
-            outputFormat = None,
-            verbose = False,
-            mapParamsSummary = dockit.fullMapParamsSummary,
-            summaryFormat = "XML",
-            withWarning = False,
-            withDockerfile = False,
-            updateServer = None)
+            inputLogFile=tmpFilSTrace.name,
+            tracer="ltrace",
+            topPid=21256,
+            baseOutName=None,
+            outputFormat=None,
+            verbose=False,
+            mapParamsSummary=dockit.fullMapParamsSummary,
+            summaryFormat="XML",
+            withWarning=False,
+            withDockerfile=False,
+            updateServer=None,
+            aggregators=None)
 
         sys.stdout.write("\nRebuilding tree\n")
         procTree = DockitSummaryXMLTest.RebuildProcessTree(outputSummaryFile)
@@ -486,17 +500,18 @@ class DockitTraceFilesTest(unittest.TestCase):
 
     def test_file_strace_txt(self):
         dockit.UnitTest(
-            inputLogFile = path_prefix_input_file("sample_shell.strace.log"),
-            tracer = "strace",
-            topPid = 0,
-            baseOutName = path_prefix_output_result("sample_shell_strace_tst_txt"),
-            outputFormat = "TXT",
-            verbose = True,
-            mapParamsSummary = ["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"],
-            summaryFormat = "TXT",
-            withWarning = False,
-            withDockerfile = False,
-            updateServer = None)
+            inputLogFile=path_prefix_input_file("sample_shell.strace.log"),
+            tracer="strace",
+            topPid=0,
+            baseOutName=path_prefix_output_result("sample_shell_strace_tst_txt"),
+            outputFormat="TXT",
+            verbose=True,
+            mapParamsSummary=["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"],
+            summaryFormat="TXT",
+            withWarning=False,
+            withDockerfile=False,
+            updateServer=None,
+            aggregators=["clusterize"])
 
         check_file_content("sample_shell_strace_tst_txt.txt")
 
@@ -504,17 +519,18 @@ class DockitTraceFilesTest(unittest.TestCase):
 
     def test_file_strace_csv_docker(self):
         dockit.UnitTest(
-            inputLogFile = path_prefix_input_file("sample_shell.strace.log"),
-            tracer = "strace",
-            topPid = 0,
-            baseOutName = path_prefix_output_result("sample_shell_strace_tst_csv" ),
-            outputFormat = "CSV",
-            verbose = True,
-            mapParamsSummary = ["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"],
-            summaryFormat = "XML",
-            withWarning = False,
-            withDockerfile = True,
-            updateServer = None)
+            inputLogFile=path_prefix_input_file("sample_shell.strace.log"),
+            tracer="strace",
+            topPid=0,
+            baseOutName=path_prefix_output_result("sample_shell_strace_tst_csv" ),
+            outputFormat="CSV",
+            verbose=True,
+            mapParamsSummary=["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"],
+            summaryFormat="XML",
+            withWarning=False,
+            withDockerfile=True,
+            updateServer=None,
+            aggregators=["clusterize"])
 
         check_file_content("sample_shell_strace_tst_csv.csv")
 
@@ -525,17 +541,18 @@ class DockitTraceFilesTest(unittest.TestCase):
     def test_file_strace_json(self):
 
         dockit.UnitTest(
-            inputLogFile = path_prefix_input_file("sample_shell.strace.log"),
-            tracer = "strace",
-            topPid = 0,
-            baseOutName = path_prefix_output_result("sample_shell_strace_tst_json"),
-            outputFormat = "JSON",
-            verbose = True,
-            mapParamsSummary = ["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"],
-            summaryFormat = "TXT",
-            withWarning = False,
-            withDockerfile = False,
-            updateServer = None)
+            inputLogFile=path_prefix_input_file("sample_shell.strace.log"),
+            tracer="strace",
+            topPid=0,
+            baseOutName=path_prefix_output_result("sample_shell_strace_tst_json"),
+            outputFormat="JSON",
+            verbose=True,
+            mapParamsSummary=["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"],
+            summaryFormat="TXT",
+            withWarning=False,
+            withDockerfile=False,
+            updateServer=None,
+            aggregators=["clusterize"])
 
         check_file_content("sample_shell_strace_tst_json.json")
 
@@ -554,7 +571,8 @@ class DockitTraceFilesTest(unittest.TestCase):
             summaryFormat="TXT",
             withWarning=False,
             withDockerfile=True,
-            updateServer=None)
+            updateServer=None,
+            aggregators=["clusterize"])
 
         check_file_content("sample_shell_ltrace_tst_docker.json")
 
@@ -596,17 +614,18 @@ class DockitTraceFilesTest(unittest.TestCase):
                 for outputFormat in ["JSON"]:
                     # In tests, the summary output format is always XML.
                     dockit.UnitTest(
-                        inputLogFile = inputLogFile,
-                        tracer = tracer,
-                        topPid = -1,
-                        baseOutName = path_prefix_output_result( baseName ),
-                        outputFormat = outputFormat,
-                        verbose = False,
-                        mapParamsSummary = dockit.fullMapParamsSummary,
-                        summaryFormat = "TXT",
-                        withWarning = False,
-                        withDockerfile = True,
-                        updateServer = None)
+                        inputLogFile=inputLogFile,
+                        tracer=tracer,
+                        topPid=-1,
+                        baseOutName=path_prefix_output_result( baseName ),
+                        outputFormat=outputFormat,
+                        verbose=False,
+                        mapParamsSummary=dockit.fullMapParamsSummary,
+                        summaryFormat="TXT",
+                        withWarning=False,
+                        withDockerfile=True,
+                        updateServer=None,
+                        aggregators=["clusterize"])
 
 class DockitProcessesTest(unittest.TestCase):
     """
@@ -639,7 +658,8 @@ class DockitProcessesTest(unittest.TestCase):
             summaryFormat="TXT",
             withWarning=False,
             withDockerfile=False,
-            updateServer=None)
+            updateServer=None,
+            aggregators=["clusterize"])
 
         sub_proc.communicate()
         self.assertTrue(sub_proc.returncode == 0)
@@ -665,7 +685,8 @@ class DockitToRDF(unittest.TestCase):
             summaryFormat="TXT",
             withWarning=False,
             withDockerfile=False,
-            updateServer = path_prefix_output_result("sample_shell_ltrace_tst_create_RDF.rdf"))
+            updateServer = path_prefix_output_result("sample_shell_ltrace_tst_create_RDF.rdf"),
+            aggregators=["clusterize"])
 
         check_file_content("sample_shell_ltrace_tst_create_RDF.json")
         check_file_content("sample_shell_ltrace_tst_create_RDF.summary.txt")
@@ -698,7 +719,8 @@ class DockitEventsTest(unittest.TestCase):
             summaryFormat="TXT",
             withWarning=False,
             withDockerfile=False,
-            updateServer=RemoteEventsTestAgent + "/survol/event_put.py")
+            updateServer=RemoteEventsTestAgent + "/survol/event_put.py",
+            aggregators=["clusterize"])
 
         check_file_content("dockit_ps_ef.strace.json")
 
