@@ -135,6 +135,7 @@ class BatchStatus:
     matched    = 4 # After the unfinished has found its resumed half.
     merged     = 5 # After the resumed has found its unfinished half.
     sequence   = 6
+    no_return  = 7
     chrDisplayCodes = "? URmM "
 
 # Read from a real process or from the log file name when replaying a session.
@@ -207,15 +208,18 @@ class BatchLetCore:
             #[pid 18316] 09:00:22.600426 rt_sigprocmask@SYS(0, 0x7ffea10cd370, 0x7ffea10cd3f0, 8 <unfinished ...>
             #[pid 18316] 09:00:22.600494 <... rt_sigprocmask resumed> ) = 0 <0.000068>
             if self.m_status == BatchStatus.resumed:
-                assert not funcFull.startswith("SYS_")
+                if funcFull.startswith("SYS_"):
+                    raise Exception("Wrong prefix:%s" % funcFull)
                 self.m_funcNam = funcFull + "@SYS"
             else:
                 # On RHEL4, the function is prefixed by "SYS_"
                 if funcFull.startswith("SYS_"):
-                    assert not funcFull.endswith("@SYS")
+                    if funcFull.endswith("@SYS"):
+                        raise Exception("Wrong suffix:%s" % funcFull)
                     self.m_funcNam = funcFull[4:] + "@SYS"
                 else:
-                    assert funcFull.endswith("@SYS")
+                    if not funcFull.endswith("@SYS"):
+                        raise Exception("Missing suffix:%s" % funcFull)
                     self.m_funcNam = funcFull
 
             # It does not work with this:
@@ -278,6 +282,10 @@ class BatchLetCore:
             if exeTm == "unfinished ...":
                 self.m_execTim = ""
                 self.m_status = BatchStatus.unfinished
+            elif exeTm == "no return ...":
+                # 18:10:13.109143 SYS_execve("/bin/sh", 0x9202d50, 0xff861d28 <no return ...>
+                self.m_execTim = ""
+                self.m_status = BatchStatus.no_return
             else:
                 ### ????? self.m_execTim = theCall[idxLT+1:idxGT]
                 self.m_execTim = exeTm
@@ -337,6 +345,10 @@ class BatchLetCore:
         if self.m_status == BatchStatus.unfinished:
             # 18:46:10.920748 execve("/usr/bin/ps", ["ps", "-ef"], [/* 33 vars */] <unfinished ...>
             self.m_retValue = None
+        elif self.m_status == BatchStatus.no_return:
+            # ltrace version 4.5
+            # 18:46:45.766007 SYS_execve("/python/bin/python3-config", 0x941aff8, 0xfff25bf8 <no return ...>
+            self.m_retValue = None
         else:
             # The parameters list might be broken, with strings containing an embedded double-quote.
             if idxLastPar < 0:
@@ -356,7 +368,8 @@ class BatchLetCore:
                         # read@SYS(8, "\003\363\r\n"|\314Vc", 4096) = 765 <0.000049>
                             raise Exception("No = from parenthesis: idxLastPar=%d. theCall=%s. Len=%d" % (idxLT, theCall, len(theCall)))
 
-            assert idxEq >= 0 and idxEq < idxLT
+            if not(idxEq >= 0 and idxEq < idxLT):
+                raise Exception("idxEq=%d idxLT=%d theCall=%s" % (idxEq, idxLT, theCall.strip()))
             self.m_retValue = theCall[idxEq + 1:idxLT].strip()
             # sys.stdout.write("idxEq=%d idxLastPar=%d idxLT=%d retValue=%s\n"%(idxEq,idxLastPar,idxLT,self.m_retValue))
 
@@ -642,7 +655,7 @@ def BatchLetFactory(batchCore):
             try:
                 btchLetDrv = aModel(batchCoreMerged)
             except:
-                sys.stdout.write(
+                sys.stderr.write(
                     "Cannot create derived class %s from args:%s\n" % (aModel.__name__, str(batchCore.m_parsedArgs)))
                 raise
         else:
@@ -1187,11 +1200,12 @@ class BatchLetSys_execve(BatchLetBase, object):
     def __init__(self, batchCore):
 
         # strace:
-        # ['/usr/lib64/qt-3.3/bin/grep', '[grep, toto, ..]'] ==>> -1 ENOENT (No such file or directory)
+        #   ['/usr/lib64/qt-3.3/bin/grep', '[grep, toto, ..]'] ==>> -1 ENOENT (No such file or directory)
         # ltrace:
-        # execve@SYS("/usr/bin/ls", 0x55e291ac9bd0, 0x55e291ac8830 <no return ...>
+        #   execve@SYS("/usr/bin/ls", 0x55e291ac9bd0, 0x55e291ac8830 <no return ...>
+        #   In this case, m_retValue is None.
         # If the executable could not be started, no point creating a batch node.
-        if batchCore.m_retValue.find("ENOENT") >= 0:
+        if batchCore.m_retValue and batchCore.m_retValue.find("ENOENT") >= 0:
             return
         super(BatchLetSys_execve, self).__init__(batchCore)
 
@@ -1882,20 +1896,17 @@ def _CreateFlowsFromGenericLinuxLog(verbose, logStream, tracer):
                 if oneLine.find("No such process") >= 0:
                     raise Exception("Invalid process id: %s" % (oneLine, exc))
 
-            sys.stderr.write("Caught invalid line %d:%s: %s\n"%(numLine, oneLine, exc) )
-            # raise
+            sys.stderr.write("ERROR '%s' Caught invalid line %d:%s" % (exc, numLine, oneLine))
 
         # Maybe the line cannot be parsed.
         if batchCore:
-
             lastTimeStamp = batchCore.m_timeEnd
 
             # This creates a derived class deduced from the system call.
-            #aBatch = linux_api_definitions.BatchLetFactory(batchCore)
             try:
                 aBatch = BatchLetFactory(batchCore)
             except Exception as exc:
-                sys.stderr.write("Line:%d Error parsing:%s. %s\n" % (numLine, oneLine, exc))
+                sys.stderr.write("ERROR '%s' Line:%d Error parsing:%s" % (exc, numLine, oneLine))
 
             # Some functions calls should simply be forgotten because there are
             # no side effects, so simply forget them.
