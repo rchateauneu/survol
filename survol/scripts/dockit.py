@@ -35,20 +35,18 @@ import cim_objects_definitions
 
 ################################################################################
 
-# This contains th definitions of Linux system calls.
+G_traceToTracer = {}
+
+# This contains th definitions of Linux system calls, and other things.
+# TODO: Should be done on Linux only.
 import linux_api_definitions
+G_traceToTracer["strace"] = linux_api_definitions.STraceTracer()
+G_traceToTracer["ltrace"] = linux_api_definitions.LTraceTracer()
 
-G_traceToTracer = {
-    "strace"  : ( linux_api_definitions.STraceTracer() ),
-    "ltrace"  : ( linux_api_definitions.LTraceTracer() )
-    }
-
-try:
+if sys.platform.startswith("win"):
     # Definitions of Win32 systems calls to monitor.
     import win32_api_definitions
     G_traceToTracer["pydbg"] = win32_api_definitions.Win32Tracer()
-except ImportError:
-    pass
 
 ################################################################################
 
