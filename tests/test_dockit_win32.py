@@ -26,7 +26,7 @@ if not is_platform_linux:
 import dockit
 
 @unittest.skipIf(is_platform_linux, "Windows only.")
-class PydbgDockitTest(unittest.TestCase):
+class PydbgDockitBasicTest(unittest.TestCase):
     """
     Test pydbg.
     """
@@ -52,21 +52,22 @@ class PydbgDockitTest(unittest.TestCase):
 
         win32_api_definitions.Win32Hook_BaseClass.object_pydbg = tst_pydbg
 
-        assert isinstance(dockit.G_traceToTracer["pydbg"], win32_api_definitions.Win32Tracer)
-        time.sleep(1.0)
+        time.sleep(0.5)
 
         num_loops = 3
 
-        dir_command = "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 1.2.3.4 & dir something )" % num_loops
+        dir_command = "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 1.2.3.4 & type something.xyz )" % num_loops
 
         created_process = subprocess.Popen(dir_command, shell=True)
+
+        time.sleep(0.5)
 
         print("Attaching. getpid=%d" % os.getpid())
         tst_pydbg.attach(created_process.pid)
 
         # TEMP ONLY !!
-        win32_api_definitions.Win32Hook_BaseClass.callback_create_call = PydbgDockitTest.syscall_creation_callback
-        win32_api_definitions.Win32Hook_BaseClass.callback_create_object = PydbgDockitTest.cim_object_callback
+        win32_api_definitions.Win32Hook_BaseClass.callback_create_call = PydbgDockitBasicTest.syscall_creation_callback
+        win32_api_definitions.Win32Hook_BaseClass.callback_create_object = PydbgDockitBasicTest.cim_object_callback
 
         for subclass_definition in [
             win32_api_definitions.Win32Hook_CreateFileW]:
@@ -79,6 +80,17 @@ class PydbgDockitTest(unittest.TestCase):
         created_process.terminate()
         ## created_process.join()
         print("Finished")
+
+# TODO: Add test of win32_api_definitions.Win32Tracer
+@unittest.skipIf(is_platform_linux, "Windows only.")
+class PydbgDockitWin32TracerTest(unittest.TestCase):
+    """
+    Test Win32Tracer.
+    """
+
+    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    def test_basic(self):
+        self.assertTrue(isinstance(dockit.G_traceToTracer["pydbg"], win32_api_definitions.Win32Tracer))
 
 if __name__ == '__main__':
     unittest.main()
