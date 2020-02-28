@@ -584,7 +584,7 @@ class pydbg:
 
             return self.ret_self()
 
-        #self._log("bp_set(0x%08x)" % address)
+        #self._log("bp_set(0x%016x)" % address)
         assert address
         # ensure a breakpoint doesn't already exist at the target address.
         if not address in self.breakpoints:
@@ -1642,7 +1642,7 @@ class pydbg:
                     continue_status = DBG_CONTINUE
 
                 if self.first_breakpoint:
-                    self._log("first windows driven system breakpoint at %08x" % self.exception_address)
+                    self._log("first windows driven system breakpoint at %016x" % self.exception_address)
                     self.first_breakpoint = False
 
             # ignore all other breakpoints we didn't explicitly set.
