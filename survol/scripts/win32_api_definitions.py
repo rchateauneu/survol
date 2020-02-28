@@ -52,6 +52,7 @@ class Win32Hook_BaseClass(object):
         match_one = re.match(br"\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*\((.*)\)\s*;", the_class.api_definition, re.DOTALL)
         the_class.return_type = match_one.group(1)
         the_class.function_name = match_one.group(2)
+        logging.debug("_parse_text_definition %s %s" % (the_class.__name__, the_class.function_name))
 
         # '\nHANDLE hFile,\nLPCVOID lpBuffer,\nDWORD nNumberOfBytesToWrite,\nLPDWORD lpNumberOfBytesWritten,\nLPOVERLAPPED lpOverlapped\n'
         the_class.args_list = []
@@ -71,9 +72,16 @@ class Win32Hook_BaseClass(object):
 
     @classmethod
     def add_subclass(the_class, the_subclass):
+        logging.debug("add_subclass:%s" % (the_subclass.__name__))
         Win32Hook_BaseClass._parse_text_definition(the_subclass)
+        logging.debug("add_subclass:%s" % (the_subclass.function_name))
+        logging.debug("add_subclass:%016x" % (the_subclass.hook_address))
+
+        def hook_function_adapter_entry(object_pydbg, args):
+            logging.debug("hook_function_adapter_entry", args)
 
         def hook_function_adapter_exit(object_pydbg, args, function_result):
+            logging.debug("hook_function_adapter_exit", args, function_result)
             subclass_instance = the_subclass()
             subclass_instance.set_arguments(args, function_result)
             subclass_instance.process_arguments()
@@ -85,11 +93,11 @@ class Win32Hook_BaseClass(object):
             Win32Hook_BaseClass.object_pydbg,
             the_subclass.hook_address,
             len(the_subclass.args_list),
-            None,
+            hook_function_adapter_entry,
             hook_function_adapter_exit)
 
     def report_cim_object(self, cim_class_name, **cim_arguments):
-        print("report_cim_object", self.__class__.__name__, cim_class_name, cim_arguments)
+        logging.debug("report_cim_object", self.__class__.__name__, cim_class_name, cim_arguments)
         self.callback_create_object(cim_class_name, cim_arguments)
 
 
@@ -122,9 +130,9 @@ class Win32Hook_CreateProcessA(Win32Hook_BaseClass):
         offset_dwProcessId = windows_h.sizeof(windows_h.HANDLE) + windows_h.sizeof(windows_h.HANDLE)
         dwProcessId = Win32Hook_BaseClass.object_pydbg.get_long(lpProcessInformation + offset_dwProcessId)
 
-        print("Win32Hook_CreateProcessA m_parsedArgs=", self.m_parsedArgs)
-        print("Win32Hook_CreateProcessA m_retValue=", self.m_retValue)
-        print("Win32Hook_CreateProcessA Handle=", dwProcessId)
+        logging.debug("Win32Hook_CreateProcessA m_parsedArgs=", self.m_parsedArgs)
+        logging.debug("Win32Hook_CreateProcessA m_retValue=", self.m_retValue)
+        logging.debug("Win32Hook_CreateProcessA Handle=", dwProcessId)
         self.callback_create_object("CIM_Process", Handle=dwProcessId)
 
 
@@ -182,9 +190,9 @@ class Win32Hook_CreateProcessW(Win32Hook_BaseClass):
         offset_dwProcessId = windows_h.sizeof(windows_h.HANDLE) + windows_h.sizeof(windows_h.HANDLE)
         dwProcessId = Win32Hook_BaseClass.object_pydbg.get_long(lpProcessInformation + offset_dwProcessId)
 
-        print("Win32Hook_CreateProcessW m_parsedArgs=", self.m_parsedArgs)
-        print("Win32Hook_CreateProcessW m_retValue=", self.m_retValue)
-        print("Win32Hook_CreateProcessW Handle=", dwProcessId)
+        logging.debug("Win32Hook_CreateProcessW m_parsedArgs=", self.m_parsedArgs)
+        logging.debug("Win32Hook_CreateProcessW m_retValue=", self.m_retValue)
+        logging.debug("Win32Hook_CreateProcessW Handle=", dwProcessId)
         self.callback_create_object("CIM_Process", Handle=dwProcessId)
 
 
@@ -264,9 +272,9 @@ class Win32Hook_RemoveDirectoryA(Win32Hook_BaseClass):
             LPCSTR lpPathName
         );"""
     def process_arguments(self):
-        print("hook_function_RemoveDirectoryA args=", self.m_parsedArgs)
+        logging.debug("hook_function_RemoveDirectoryA args=", self.m_parsedArgs)
         dirname = Win32Hook_BaseClass.object_pydbg.get_string(self.m_parsedArgs[0])
-        print("hook_function_RemoveDirectoryA dirname=", dirname)
+        logging.debug("hook_function_RemoveDirectoryA dirname=", dirname)
         self.callback_create_object("CIM_Directory", Name=dirname)
 
 class Win32Hook_RemoveDirectoryW(Win32Hook_BaseClass):
@@ -275,9 +283,9 @@ class Win32Hook_RemoveDirectoryW(Win32Hook_BaseClass):
             LPCWSTR lpPathName
         );"""
     def process_arguments(self):
-        print("hook_function_RemoveDirectoryW args=", self.m_parsedArgs)
+        logging.debug("hook_function_RemoveDirectoryW args=", self.m_parsedArgs)
         dirname = Win32Hook_BaseClass.object_pydbg.get_wstring(self.m_parsedArgs[0])
-        print("hook_function_RemoveDirectoryW dirname=", dirname)
+        logging.debug("hook_function_RemoveDirectoryW dirname=", dirname)
         self.callback_create_object("CIM_Directory", Name=dirname)
 
 class Win32Hook_CreateFileA(Win32Hook_BaseClass):
@@ -307,7 +315,7 @@ class Win32Hook_CreateFileW(Win32Hook_BaseClass):
             HANDLE                hTemplateFile
         );"""
     def process_arguments(self):
-        dirname = Win32Hook_BaseClass.object_pydbg.get_string(self.m_parsedArgs[0])
+        dirname = Win32Hook_BaseClass.object_pydbg.get_wstring(self.m_parsedArgs[0])
         self.callback_create_object("CIM_DataFile", Name=dirname)
 
 class Win32Hook_CreateFile2(Win32Hook_BaseClass):
@@ -342,13 +350,13 @@ class Win32Hook_WriteFile(Win32Hook_BaseClass):
             LPOVERLAPPED lpOverlapped
         );"""
     def process_arguments(self):
-        print("hook_function_WriteFile args=", self.m_parsedArgs)
+        logging.debug("hook_function_WriteFile args=", self.m_parsedArgs)
 
         lpBuffer = self.m_parsedArgs[1]
         nNumberOfBytesToWrite = self.m_parsedArgs[2]
-        # print("lpBuffer=", lpBuffer, "nNumberOfBytesToWrite=", nNumberOfBytesToWrite)
+        # logging.debug("lpBuffer=", lpBuffer, "nNumberOfBytesToWrite=", nNumberOfBytesToWrite)
         buffer = Win32Hook_BaseClass.object_pydbg.get_string_size(lpBuffer, nNumberOfBytesToWrite)
-        print("Buffer=", buffer)
+        logging.debug("Buffer=", buffer)
 
 
 class Win32Hook_WriteFileEx(Win32Hook_BaseClass):
@@ -432,7 +440,7 @@ class Win32Tracer:
 
 
         def _win32_tracer_syscall_creation_callback(one_syscall, object_pydbg, task_id):
-            print("syscall=%s" % one_syscall.function_name)
+            logging.info("syscall=%s" % one_syscall.function_name)
             # Different logic of objects creation.
             # COMMENT ON VA FAIRE DOCKERFILE ?
 
@@ -448,7 +456,7 @@ class Win32Tracer:
             Win32Tracer._queue.put(batch_core)
 
         def _win32_tracer_cim_object_callback(calling_class_instance, cim_class_name, **cim_arguments):
-            print("win32_tracer_cim_object_callback", calling_class_instance.__class__.__name__, cim_class_name,
+            logging.debug("win32_tracer_cim_object_callback", calling_class_instance.__class__.__name__, cim_class_name,
                   cim_arguments)
             function_name = calling_class_instance.function_name
 
