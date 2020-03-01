@@ -106,6 +106,75 @@ class PydbgBasicTest(unittest.TestCase):
         self.assertTrue(tst_pydbg.count_entry == num_loops)
         self.assertTrue(tst_pydbg.count_exit == num_loops)
 
+    # It starts a DOS process which attempts to remove a directory.
+    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    def test_pydbg_DOS_DeleteFileW(self):
+        import pydbg
+        from pydbg import defines
+        from pydbg import utils
+
+        tst_pydbg = create_pydbg()
+
+        num_loops = 3
+        temp_file = "Temporary.xyz"
+
+        # This creates a file then removes it, several times.
+        # This is detected by the hook.
+        del_file_command = "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 127.0.0.1 >%s & echo %%A & del %s )" % (num_loops, temp_file, temp_file)
+
+        created_process = subprocess.Popen(del_file_command, shell=True)
+        print("Created process:%d" % created_process.pid)
+
+        # A bit of delay so the process can start.
+        time.sleep(1.0)
+
+        print("Attaching. Root pid=%d" % root_process_id)
+        tst_pydbg.attach(created_process.pid)
+
+        object_hooks = pydbg.utils.hook_container()
+
+        hook_address_DeleteFileW = tst_pydbg.func_resolve(b"KERNEL32.dll", b"DeleteFileW")
+
+        tst_pydbg.count_entry = 0
+        tst_pydbg.count_exit = 0
+
+        def callback_DeleteFileW_entry(object_pydbg, args):
+            object_pydbg.count_entry += 1
+            file_name = object_pydbg.get_wstring(args[0])
+            print("callback_DeleteFileW_entry file_name=", file_name)
+            print("callback_DeleteFileW_entry getcwd=", os.getcwd())
+            self.assertTrue(file_name == os.path.join(os.getcwd(), temp_file) )
+
+            # object_pydbg.dbg is a LPDEBUG_EVENT, pointer to DEBUG_EVENT.
+            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId, type(object_pydbg.dbg.dwProcessId))
+            self.assertTrue(object_pydbg.dbg.dwProcessId == created_process.pid)
+
+            return defines.DBG_CONTINUE
+
+        def callback_DeleteFileW_exit(object_pydbg, args, function_result):
+            object_pydbg.count_exit += 1
+            file_name = object_pydbg.get_wstring(args[0])
+            print("callback_DeleteFileW_exit file_name=", file_name, function_result)
+            self.assertTrue(file_name == os.path.join(os.getcwd(), temp_file) )
+
+            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId, type(object_pydbg.dbg.dwProcessId))
+            self.assertTrue(object_pydbg.dbg.dwProcessId == created_process.pid)
+
+            return defines.DBG_CONTINUE
+
+        object_hooks.add(
+            tst_pydbg,
+            hook_address_DeleteFileW,
+            1,
+            callback_DeleteFileW_entry,
+            callback_DeleteFileW_exit)
+
+        tst_pydbg.run()
+
+        print("END", tst_pydbg.count_entry, tst_pydbg.count_exit)
+        self.assertTrue(tst_pydbg.count_entry == num_loops)
+        self.assertTrue(tst_pydbg.count_exit == num_loops)
+
     # This starts a separate Python process which attempts several times to open a non-existent file.
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_DOS_CreateFileW(self):
