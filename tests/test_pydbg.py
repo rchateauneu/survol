@@ -4,9 +4,10 @@ from __future__ import print_function
 
 import os
 import sys
-import unittest
 import six
 import subprocess
+import tempfile
+import unittest
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 # This is needed when running from PyCharm.
@@ -116,11 +117,12 @@ class PydbgBasicTest(unittest.TestCase):
         tst_pydbg = create_pydbg()
 
         num_loops = 3
-        temp_file = "Temporary.xyz"
+        temp_file = "Temporary_%d_%d.xyz" % (os.getpid(), int(time.time()))
+        temp_path = os.path.join( tempfile.gettempdir(), temp_file)
 
         # This creates a file then removes it, several times.
         # This is detected by the hook.
-        del_file_command = "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 127.0.0.1 >%s & echo %%A & del %s )" % (num_loops, temp_file, temp_file)
+        del_file_command = "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 127.0.0.1 >%s & echo %%A & del %s )" % (num_loops, temp_path, temp_path)
 
         created_process = subprocess.Popen(del_file_command, shell=True)
         print("Created process:%d" % created_process.pid)
@@ -143,7 +145,7 @@ class PydbgBasicTest(unittest.TestCase):
             file_name = object_pydbg.get_wstring(args[0])
             print("callback_DeleteFileW_entry file_name=", file_name)
             print("callback_DeleteFileW_entry getcwd=", os.getcwd())
-            self.assertTrue(file_name == os.path.join(os.getcwd(), temp_file) )
+            self.assertTrue(file_name == temp_path)
 
             # object_pydbg.dbg is a LPDEBUG_EVENT, pointer to DEBUG_EVENT.
             print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId, type(object_pydbg.dbg.dwProcessId))
@@ -155,7 +157,7 @@ class PydbgBasicTest(unittest.TestCase):
             object_pydbg.count_exit += 1
             file_name = object_pydbg.get_wstring(args[0])
             print("callback_DeleteFileW_exit file_name=", file_name, function_result)
-            self.assertTrue(file_name == os.path.join(os.getcwd(), temp_file) )
+            self.assertTrue(file_name == temp_path)
 
             print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId, type(object_pydbg.dbg.dwProcessId))
             self.assertTrue(object_pydbg.dbg.dwProcessId == created_process.pid)
