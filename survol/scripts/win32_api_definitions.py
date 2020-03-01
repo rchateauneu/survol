@@ -333,12 +333,18 @@ class Win32Hook_DeleteFileA(Win32Hook_BaseClass):
         BOOL DeleteFileA(
             LPCSTR lpFileName
         );"""
+    def process_arguments(self):
+        dirname = Win32Hook_BaseClass.object_pydbg.get_string(self.m_parsedArgs[0])
+        self.callback_create_object("CIM_DataFile", Name=dirname)
 
 class Win32Hook_DeleteFileW(Win32Hook_BaseClass):
     api_definition = b"""
         BOOL DeleteFileW(
             LPCWSTR lpFileName
         );"""
+    def process_arguments(self):
+        dirname = Win32Hook_BaseClass.object_pydbg.get_wstring(self.m_parsedArgs[0])
+        self.callback_create_object("CIM_DataFile", Name=dirname)
 
 class Win32Hook_WriteFile(Win32Hook_BaseClass):
     api_definition = b"""
@@ -416,6 +422,18 @@ class Win32BatchCore:
         self._task_id = task_id
         self._function_name = function_name
 
+def hook_functions():
+    for subclass_definition in [
+        Win32Hook_CreateProcessA,
+        Win32Hook_CreateProcessW,
+        Win32Hook_RemoveDirectoryA,
+        Win32Hook_RemoveDirectoryW,
+        Win32Hook_CreateFileA,
+        Win32Hook_CreateFileW,
+        Win32Hook_DeleteFileA,
+        Win32Hook_DeleteFileW]:
+        Win32Hook_BaseClass.add_subclass(subclass_definition)
+
 class Win32Tracer:
     def LogFileStream(self, extCommand, aPid):
         if not aPid:
@@ -429,15 +447,7 @@ class Win32Tracer:
 
         time.sleep(1.0)
 
-        for subclass_definition in [
-            Win32Hook_CreateProcessA,
-            Win32Hook_CreateProcessW,
-            Win32Hook_RemoveDirectoryA,
-            Win32Hook_RemoveDirectoryW,
-            Win32Hook_CreateFileA]:
-            Win32Hook_BaseClass.add_subclass(subclass_definition)
-
-
+        hook_functions()
 
         def _win32_tracer_syscall_creation_callback(one_syscall, object_pydbg, task_id):
             logging.info("syscall=%s" % one_syscall.function_name)
