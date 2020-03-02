@@ -1,3 +1,7 @@
+# This recursive main program creates a chain of subprocesses and keep them hanging
+# about ten seconds before leaving. This is used to test the reconstruction
+# of a tree of subprocesses.
+
 import os
 import sys
 import time
@@ -8,11 +12,11 @@ try:
 except IndexError:
     depth = 3
 
-sys.stdout.write("%d %d\n" % (depth, os.getpid()))
+sys.stdout.write("create_process_chain %d %d\n" % (depth, os.getpid()))
 sys.stdout.flush()
 
 if depth > 0:
-    sys.stderr.write("About to start depth=%d\n" % depth)
+    sys.stderr.write("create_process_chain About to start depth=%d\n" % depth)
     sys.stderr.flush()
     proc = subprocess.call([sys.executable, '-c', 'import create_process_chain', str(depth - 1)])
 else:
