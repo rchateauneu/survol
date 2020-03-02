@@ -12,7 +12,8 @@ try:
 except IndexError:
     depth = 3
 
-sys.stdout.write("create_process_chain %d %d\n" % (depth, os.getpid()))
+# This line is read by the calling program and has a specific format.
+sys.stdout.write("%d %d\n" % (depth, os.getpid()))
 sys.stdout.flush()
 
 if depth > 0:
