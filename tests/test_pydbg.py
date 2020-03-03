@@ -32,9 +32,12 @@ if not is_platform_linux:
 ################################################################################
 
 @unittest.skipIf(is_platform_linux, "Windows only.")
-class PydbgBasicTest(unittest.TestCase):
+class PydbgDosCmdHooksTest(unittest.TestCase):
     """
-    Test pydbg.
+    Test pydbg with DOS CMD processes.
+    These tests hook specific Win32 API functions and start DOC CMD processes
+    doing things which should trigger calls to these system functions.
+    Calls to these funcitons are then detected and reported.
     """
 
     # This tests the callbacks which are used for good in other tests.
@@ -349,6 +352,8 @@ class PydbgBasicTest(unittest.TestCase):
         object_hooks = pydbg.utils.hook_container()
 
         hook_address_process_information = tst_pydbg.func_resolve(b"KERNEL32.dll", b"CreateProcessW")
+        # hook_address_process_information=0000000076ed05e0
+        print("hook_address_process_information=%016x" % hook_address_process_information)
 
         tst_pydbg.count_entry = 0
         tst_pydbg.count_exit = 0
@@ -446,14 +451,30 @@ class PydbgBasicTest(unittest.TestCase):
         print("Created process:%d" % created_process.pid)
 
         # A bit of delay so the process can start.
-        time.sleep(1.0)
+        time.sleep(0.5)
 
         print("Attaching. Root pid=%d" % root_process_id)
         tst_pydbg.attach(created_process.pid)
 
         object_hooks = pydbg.utils.hook_container()
 
-        hook_address_socket = tst_pydbg.func_resolve_experimental(u"Ws2_32.dll", b"socket")
+        import socket
+
+
+        # "C:\Windows\System32\ws2_32.dll"
+        # Windows Socket 2.0 32-Bit DLL
+        # Dump of file C:\Windows\System32\ws2_32.dll
+        #             8664 machine (x64)
+
+        # "C:\Windows\System32\kernel32.dll"
+        # Windows NT BASE API Client DLL
+
+        # hook_address_socket = tst_pydbg.func_resolve_experimental(u"Ws2_32.dll", b"socket")
+        hook_address_socket = tst_pydbg.func_resolve_experimental(ur"C:\Windows\System32\ws2_32.dll", b"socket")
+        assert hook_address_socket
+        print("hook_address_socket=%016x" % hook_address_socket)
+        # hook_address_process_information=0000000076ed05e0 OK
+        # hook_address_socket             =000007feff0ed910 Broken.
 
         tst_pydbg.count_entry = 0
         tst_pydbg.count_exit = 0
@@ -471,6 +492,8 @@ class PydbgBasicTest(unittest.TestCase):
             self.assertTrue(is_invalid_handle)
             return defines.DBG_CONTINUE
 
+        # pdx: Failed setting breakpoint at 000007feff0ed910 : [299] ReadProcessMemory(7feff0ed910, 1, read=0):
+        # Only part of a ReadProcessMemory or WriteProcessMemory request was completed.
         object_hooks.add(
             tst_pydbg,
             hook_address_socket,
@@ -484,6 +507,188 @@ class PydbgBasicTest(unittest.TestCase):
         # The first call might be missed.
         self.assertTrue(tst_pydbg.count_entry == num_loops)
         self.assertTrue(tst_pydbg.count_exit == num_loops)
+
+@unittest.skipIf(is_platform_linux, "Windows only.")
+class PydbgPythonHooksTest(unittest.TestCase):
+    """
+    Test pydbg from Python processes.
+    These tests hook specific Win32 API functions and start Python processes
+    doing things which should trigger calls to these system functions.
+    Calls to these funcitons are then detected and reported.
+    """
+
+
+    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    def test_pydbg_Python_WriteFile(self):
+        import pydbg
+        from pydbg import defines
+        from pydbg import utils
+        from pydbg import windows_h
+
+        tst_pydbg = create_pydbg()
+
+        dir_path = os.path.dirname(__file__)
+        sys.path.append(dir_path)
+
+        my_env = os.environ.copy()
+        tree_depth = 10
+
+        creation_file_process = subprocess.Popen(
+            [sys.executable, '-c', 'import time;time.sleep(5.0);f=open(u"tmp.txt", "w");f.close()'],
+            stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = False)
+
+        print("creation_file_process ", creation_file_process.pid)
+        sys.stdout.flush()
+
+        # A bit of delay so the process can start.
+        time.sleep(0.5)
+
+        print("Root pid=%d" % root_process_id)
+        print("Attaching to pid=%d" % creation_file_process.pid)
+        tst_pydbg.attach(creation_file_process.pid)
+
+        object_hooks = pydbg.utils.hook_container()
+
+        hook_address_create_file_w = tst_pydbg.func_resolve(b"KERNEL32.dll", b"CreateFileW")
+        print("hook_address_create_file_w=%016x" % hook_address_create_file_w)
+
+        def callback_create_file_entry(object_pydbg, args):
+            print("callback_create_file_entry")
+            print("callback_create_file_entry")
+            print("callback_create_file_entry")
+            print("callback_create_file_entry")
+            print("callback_create_file_entry")
+            return pydbg.defines.DBG_CONTINUE
+
+        def callback_create_file_exit(object_pydbg, args, function_result):
+            print("callback_create_file_exit")
+            print("callback_create_file_exit")
+            print("callback_create_file_exit")
+            print("callback_create_file_exit")
+            print("callback_create_file_exit")
+            print("callback_create_file_exit")
+            return pydbg.defines.DBG_CONTINUE
+
+        object_hooks.add(
+            tst_pydbg,
+            hook_address_create_file_w,
+            10,
+            callback_create_file_entry,
+            callback_create_file_exit)
+
+        print("About to run subprocess")
+        tst_pydbg.run()
+
+        print("Finished")
+
+
+
+
+
+
+
+    # Modified Python path so it can find the special module to create a chain of subprocesses.
+    @unittest.skip("Does not work")
+    def test_pydbg_Python_Subprocesses(self):
+        import pydbg
+        from pydbg import defines
+        from pydbg import utils
+        from pydbg import windows_h
+
+        tst_pydbg = create_pydbg()
+
+        dir_path = os.path.dirname(__file__)
+        sys.path.append(dir_path)
+
+        my_env = os.environ.copy()
+        tree_depth = 10
+
+        top_created_process = subprocess.Popen([sys.executable, '-m', 'create_process_chain', str(tree_depth)],
+                                                env = my_env,
+                                                stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = False)
+
+        print("create_process_tree_popen ", top_created_process.pid)
+        sys.stdout.flush()
+
+        # A bit of delay so the process can start.
+        time.sleep(1.0)
+
+        print("Root pid=%d" % root_process_id)
+        print("Attaching to pid=%d" % top_created_process.pid)
+        tst_pydbg.attach(top_created_process.pid)
+
+        object_hooks = pydbg.utils.hook_container()
+
+        hook_address_create_process_w = tst_pydbg.func_resolve(b"KERNEL32.dll", b"CreateProcessW")
+        print("hook_address_create_process_w=%016x" % hook_address_create_process_w)
+
+        def callback_processes_tree_entry(object_pydbg, args):
+            lpApplicationName = object_pydbg.get_wstring(args[0])
+            print("callback_processes_tree_entry lpApplicationName=", lpApplicationName)
+            lpCommandLine = object_pydbg.get_wstring(args[1])
+            print("callback_processes_tree_entry lpCommandLine=%s." % lpCommandLine)
+
+            lpProcessInformation = args[9]
+
+            # _PROCESS_INFORMATION {
+            #   HANDLE hProcess;
+            #   HANDLE hThread;
+            #   DWORD  dwProcessId;
+            #   DWORD  dwThreadId;
+            # }
+            offset_dwProcessId = windows_h.sizeof(windows_h.HANDLE) + windows_h.sizeof(windows_h.HANDLE)
+            dwProcessId = object_pydbg.get_long(lpProcessInformation + offset_dwProcessId)
+            print("callback_processes_tree_entry Handle=", dwProcessId)
+
+            offset_dwThreadId = windows_h.sizeof(windows_h.HANDLE) + windows_h.sizeof(windows_h.HANDLE) + windows_h.sizeof(windows_h.DWORD)
+            dwThreadId = object_pydbg.get_long(lpProcessInformation + offset_dwThreadId)
+            print("callback_processes_tree_entry dwThreadId=", dwThreadId)
+
+            # object_pydbg.dbg is a LPDEBUG_EVENT, pointer to DEBUG_EVENT.
+            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId, type(object_pydbg.dbg.dwProcessId))
+            print("object_pydbg.dbg.dwThreadId=", object_pydbg.dbg.dwThreadId)
+            ### assert object_pydbg.dbg.dwProcessId == long(root_process_id)
+
+            self.assertTrue(object_pydbg.dbg.dwProcessId == top_created_process.pid)
+
+            return pydbg.defines.DBG_CONTINUE
+
+        def callback_processes_tree_exit(object_pydbg, args, function_result):
+            lpApplicationName = object_pydbg.get_wstring(args[0])
+            print("callback_processes_tree_exit lpApplicationName=", lpApplicationName)
+            lpCommandLine = object_pydbg.get_wstring(args[1])
+            print("callback_processes_tree_exit lpCommandLine=%s." % lpCommandLine)
+
+            self.assertTrue(object_pydbg.dbg.dwProcessId == top_created_process.pid)
+
+            return pydbg.defines.DBG_CONTINUE
+
+        object_hooks.add(
+            tst_pydbg,
+            hook_address_create_process_w,
+            10,
+            callback_processes_tree_entry,
+            callback_processes_tree_exit)
+
+        print("About to run subprocess")
+        tst_pydbg.run()
+
+
+        return_dict = {}
+        for ix in range(tree_depth+1):
+            one_line = top_created_process.stdout.readline()
+            print("one_line=", one_line)
+            sys.stdout.flush()
+            one_depth, one_pid = map(int, one_line.split(b" "))
+            return_dict[one_depth] = one_pid
+        print("return_dict=", return_dict)
+
+
+
+
+        print("Finished")
+
+
 
 
 if __name__ == '__main__':
