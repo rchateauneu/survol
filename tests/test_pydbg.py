@@ -470,7 +470,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         # Windows NT BASE API Client DLL
 
         # hook_address_socket = tst_pydbg.func_resolve_experimental(u"Ws2_32.dll", b"socket")
-        hook_address_socket = tst_pydbg.func_resolve_experimental(ur"C:\Windows\System32\ws2_32.dll", b"socket")
+        hook_address_socket = tst_pydbg.func_resolve_experimental(u"C:\\Windows\\System32\\ws2_32.dll", b"socket")
         assert hook_address_socket
         print("hook_address_socket=%016x" % hook_address_socket)
         # hook_address_process_information=0000000076ed05e0 OK
