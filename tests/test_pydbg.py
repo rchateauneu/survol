@@ -533,8 +533,10 @@ class PydbgPythonHooksTest(unittest.TestCase):
         my_env = os.environ.copy()
         tree_depth = 10
 
+        temp_file_name = "tmp.txt"
+        python_command = 'import time;time.sleep(5.0);f=open(u"%s", "w");f.close()' % temp_file_name
         creation_file_process = subprocess.Popen(
-            [sys.executable, '-c', 'import time;time.sleep(5.0);f=open(u"tmp.txt", "w");f.close()'],
+            [sys.executable, '-c', python_command],
             stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = False)
 
         print("creation_file_process ", creation_file_process.pid)
@@ -553,20 +555,15 @@ class PydbgPythonHooksTest(unittest.TestCase):
         print("hook_address_create_file_w=%016x" % hook_address_create_file_w)
 
         def callback_create_file_entry(object_pydbg, args):
-            print("callback_create_file_entry")
-            print("callback_create_file_entry")
-            print("callback_create_file_entry")
-            print("callback_create_file_entry")
-            print("callback_create_file_entry")
-            return pydbg.defines.DBG_CONTINUE
+            file_name = object_pydbg.get_wstring(args[0])
+            print("callback_create_file_entry file_name=", file_name)
+            self.assertTrue(file_name == temp_file_name)
+            return defines.DBG_CONTINUE
 
         def callback_create_file_exit(object_pydbg, args, function_result):
-            print("callback_create_file_exit")
-            print("callback_create_file_exit")
-            print("callback_create_file_exit")
-            print("callback_create_file_exit")
-            print("callback_create_file_exit")
-            print("callback_create_file_exit")
+            file_name = object_pydbg.get_wstring(args[0])
+            print("callback_create_file_exit file_name=", file_name)
+            self.assertTrue(file_name == temp_file_name)
             return pydbg.defines.DBG_CONTINUE
 
         object_hooks.add(
@@ -580,10 +577,6 @@ class PydbgPythonHooksTest(unittest.TestCase):
         tst_pydbg.run()
 
         print("Finished")
-
-
-
-
 
 
 
