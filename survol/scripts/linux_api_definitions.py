@@ -1894,7 +1894,7 @@ def _CreateFlowsFromGenericLinuxLog(verbose, logStream, tracer):
                 # "strace: attach: ptrace(PTRACE_SEIZE, 11111): No such process"
                 # "Cannot attach to pid 11111: No such process"
                 if oneLine.find("No such process") >= 0:
-                    raise Exception("Invalid process id: %s" % (oneLine, exc))
+                    raise Exception("Invalid process id: %s" % exc)
 
             sys.stderr.write("ERROR '%s' Caught invalid line %d:%s" % (exc, numLine, oneLine))
 

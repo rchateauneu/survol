@@ -566,6 +566,9 @@ def BatchFlowModelFactory(aggregators):
             def Factory():
                 return BatchFlowVoid()
 
+            def DumpFlowConstructor(self, batchDump, header_string):
+                pass
+
         return BatchFlowVoid
 
     # This is temporary.
@@ -754,7 +757,7 @@ if __name__ == '__main__':
         elif anOpt in ("-D", "--dockerfile"):
             withDockerfile = True
         elif anOpt in ("-p", "--pid"):
-            aPid = aVal
+            aPid = int(aVal)
         elif anOpt in ("-f", "--format"):
             outputFormat = aVal.upper()
         elif anOpt in ("-F", "--summary_format"):
