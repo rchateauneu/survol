@@ -139,7 +139,7 @@ def GenerateSummaryTXT(mapParamsSummary, fdSummaryFile):
         classObj = getattr(cim_objects_definitions, cimClassName)
         classObj.DisplaySummary(fdSummaryFile,cimKeyValuePairs)
 
-# Thsi stores various data related to the execution.
+# This stores various data related to the execution.
 def GenerateSummaryXML(mapParamsSummary,fdSummaryFile):
     fdSummaryFile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
     fdSummaryFile.write('<Dockit>\n')
@@ -638,10 +638,13 @@ def FromStreamToFlow(
     else:
         outputSummaryFile = None
 
-    try:
-        batchConstructor = BatchDumpersDictionary[outputFormat]
-    except KeyError:
-        raise Exception("Invalid output format:" + outputFormat)
+    if outputFormat:
+        try:
+            batchConstructor = BatchDumpersDictionary[outputFormat]
+        except KeyError:
+            raise Exception("Invalid output format:" + str(outputFormat))
+    else:
+        batchConstructor = None
 
     mapFlows = CreateMapFlowFromStream(verbose, withWarning, logStream, tracer, batchConstructor, aggregator)
 
@@ -663,7 +666,7 @@ def FromStreamToFlow(
 
         if verbose: sys.stdout.write("\n")
 
-    # Generating a docker file needs some data calculated withthe summaries.
+    # Generating a docker file needs some data calculated with the summaries.
     if withDockerfile:
         mapParamsSummary = fullMapParamsSummary
 

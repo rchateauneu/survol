@@ -1,10 +1,14 @@
-# This is optional.
+# This optional module aggregates function calls into bigger sequences.
+# It is not necessary for Docker files.
+# All functions calls and all objects are processed identically.
+# It just detects repetitions of identical parameters.
 
 import sys
 import datetime
+# TODO: It should not depend on this package.
 import linux_api_definitions
 
-def SignatureForRepetitions(batchRange):
+def _SignatureForRepetitions(batchRange):
     return "+".join( [ aBtch.GetSignatureWithArgs() for aBtch in batchRange ] )
 
 # This groups several contiguous BatchLet which form a logical operation.
@@ -136,7 +140,7 @@ class BatchFlow:
         while idxBatch < maxIdx:
             batchRange = self.m_listBatchLets[idxBatch: idxBatch + 2]
 
-            keyRange = SignatureForRepetitions(batchRange)
+            keyRange = _SignatureForRepetitions(batchRange)
 
             try:
                 mapOccurences[keyRange] += 1
@@ -160,7 +164,7 @@ class BatchFlow:
         while idxBatch < maxIdx:
 
             batchRange = self.m_listBatchLets[idxBatch: idxBatch + 2]
-            keyRange = SignatureForRepetitions(batchRange)
+            keyRange = _SignatureForRepetitions(batchRange)
             numOccur = mapOccurences.get(keyRange, 0)
 
             # Five occurences for example, as representative of a repetition.
