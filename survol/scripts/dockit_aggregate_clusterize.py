@@ -58,14 +58,14 @@ class BatchFlow:
     def __init__(self):
 
         self.m_listBatchLets = []
-        self.m_coroutine = self.AddingCoroutine()
+        self.m_coroutine = self.__AddingCoroutine()
         next(self.m_coroutine)
 
     # It processes system calls on-the-fly without intermediate storage.
     def SendBatch(self, btchLet):
         self.m_coroutine.send(btchLet)
 
-    def AddingCoroutine(self):
+    def __AddingCoroutine(self):
         lstBatch = None
         while True:
             btchLet = yield
@@ -81,7 +81,7 @@ class BatchFlow:
 
     # This removes matched batches (Formerly unfinished calls which were matched to the resumed part)
     # when the merged batches (The resumed calls) comes immediately after.
-    def FilterMatchedBatches(self):
+    def __FilterMatchedBatches(self):
         lenBatch = len(self.m_listBatchLets)
 
         numSubst = 0
@@ -125,7 +125,7 @@ class BatchFlow:
     # Used to replace these common pairs by an aggregate call.
     # See https://en.wikipedia.org/wiki/N-gram about bigrams.
     # About statistics: https://books.google.com/ngrams/info
-    def StatisticsBigrams(self):
+    def __StatisticsBigrams(self):
 
         lenBatch = len(self.m_listBatchLets)
 
@@ -148,10 +148,10 @@ class BatchFlow:
 
     # This examines pairs of consecutive calls with their arguments, and if a pair
     # occurs often enough, it is replaced by a single BatchLetSequence which represents it.
-    def ClusterizeBigrams(self):
+    def __ClusterizeBigrams(self):
         lenBatch = len(self.m_listBatchLets)
 
-        mapOccurences = self.StatisticsBigrams()
+        mapOccurences = self.__StatisticsBigrams()
 
         numSubst = 0
         idxBatch = 0
@@ -162,8 +162,6 @@ class BatchFlow:
             batchRange = self.m_listBatchLets[idxBatch: idxBatch + 2]
             keyRange = SignatureForRepetitions(batchRange)
             numOccur = mapOccurences.get(keyRange, 0)
-
-            # sys.stdout.write("ClusterizeBigrams keyRange=%s numOccur=%d\n" % (keyRange, numOccur) )
 
             # Five occurences for example, as representative of a repetition.
             if numOccur > 5:
@@ -189,7 +187,7 @@ class BatchFlow:
         return numSubst
 
     # Successive calls which have the same arguments are clusterized into logical entities.
-    def ClusterizeBatchesByArguments(self):
+    def __ClusterizeBatchesByArguments(self):
         lenBatch = len(self.m_listBatchLets)
 
         numSubst = 0
@@ -222,59 +220,54 @@ class BatchFlow:
             idxBatch = idxLast + 1
         return numSubst
 
-    def DumpFlowInternal(self, batchDump, extra_header=None):
+    def __DumpFlowInternal(self, batchDump, extra_header=None):
         batchDump.Header(extra_header)
         for aBtch in self.m_listBatchLets:
             batchDump.DumpBatch(aBtch)
         batchDump.Footer()
 
-    def DumpFlowSimple(self, strm, batchConstructor):
-        # batchConstructor = BatchDumpersDictionary[outputFormat]
+    def __DumpFlowSimple(self, strm, batchConstructor):
         batchDump = batchConstructor(strm)
-        self.DumpFlowInternal(batchDump)
+        self.__DumpFlowInternal(batchDump)
 
     def DumpFlowConstructor(self, batchDump, extra_header=None):
-        self.DumpFlowInternal(batchDump)
+        self.__DumpFlowInternal(batchDump)
 
     def FactorizeOneFlow(self, verbose, batchConstructor):
 
-        if verbose > 1: self.DumpFlowSimple(sys.stdout, batchConstructor)
+        if verbose > 1: self.__DumpFlowSimple(sys.stdout, batchConstructor)
 
         if verbose > 0:
             sys.stdout.write("\n")
-            sys.stdout.write("FilterMatchedBatches lenBatch=%d\n" % (len(self.m_listBatchLets)))
-        numSubst = self.FilterMatchedBatches()
+            sys.stdout.write("FactorizeOneFlow lenBatch=%d\n" % (len(self.m_listBatchLets)))
+        numSubst = self.__FilterMatchedBatches()
         if verbose > 0:
-            sys.stdout.write("FilterMatchedBatches numSubst=%d lenBatch=%d\n" % (numSubst, len(self.m_listBatchLets)))
+            sys.stdout.write("FactorizeOneFlow numSubst=%d lenBatch=%d\n" % (numSubst, len(self.m_listBatchLets)))
 
         idxLoops = 0
         while True:
             if verbose > 1:
-                self.DumpFlowSimple(sys.stdout, batchConstructor)
+                self.__DumpFlowSimple(sys.stdout, batchConstructor)
 
             if verbose > 0:
                 sys.stdout.write("\n")
-                sys.stdout.write("ClusterizeBigrams lenBatch=%d\n" % (len(self.m_listBatchLets)))
-            numSubst = self.ClusterizeBigrams()
+                sys.stdout.write("FactorizeOneFlow lenBatch=%d\n" % (len(self.m_listBatchLets)))
+            numSubst = self.__ClusterizeBigrams()
             if verbose > 0:
-                sys.stdout.write("ClusterizeBigrams numSubst=%d lenBatch=%d\n" % (numSubst, len(self.m_listBatchLets)))
+                sys.stdout.write("FactorizeOneFlow numSubst=%d lenBatch=%d\n" % (numSubst, len(self.m_listBatchLets)))
             if numSubst == 0:
                 break
             idxLoops += 1
 
-        if verbose > 1: self.DumpFlowSimple(sys.stdout, batchConstructor)
+        if verbose > 1: self.__DumpFlowSimple(sys.stdout, batchConstructor)
 
         if verbose > 0:
             sys.stdout.write("\n")
-            sys.stdout.write("ClusterizeBatchesByArguments lenBatch=%d\n" % (len(self.m_listBatchLets)))
-        numSubst = self.ClusterizeBatchesByArguments()
+            sys.stdout.write("FactorizeOneFlow lenBatch=%d\n" % (len(self.m_listBatchLets)))
+        numSubst = self.__ClusterizeBatchesByArguments()
         if verbose > 0:
             sys.stdout.write(
-                "ClusterizeBatchesByArguments numSubst=%d lenBatch=%d\n" % (numSubst, len(self.m_listBatchLets)))
+                "FactorizeOneFlow numSubst=%d lenBatch=%d\n" % (numSubst, len(self.m_listBatchLets)))
 
-        if verbose > 1: self.DumpFlowSimple(sys.stdout, batchConstructor)
+        if verbose > 1: self.__DumpFlowSimple(sys.stdout, batchConstructor)
 
-
-    @staticmethod
-    def Factory():
-        return BatchFlow()

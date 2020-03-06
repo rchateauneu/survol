@@ -331,7 +331,7 @@ class DockitSummaryXMLTest(unittest.TestCase):
             withWarning=False,
             withDockerfile=False,
             updateServer=None,
-            aggregators=[])
+            aggregator=None)
 
         procTree = DockitSummaryXMLTest.RebuildProcessTree(outputSummaryFile)
 
@@ -403,7 +403,7 @@ class DockitSummaryXMLTest(unittest.TestCase):
             withWarning=False,
             withDockerfile=False,
             updateServer = None,
-            aggregators=None)
+            aggregator=None)
 
         sys.stdout.write("\nRebuilding tree\n")
         procTree = DockitSummaryXMLTest.RebuildProcessTree(outputSummaryFile)
@@ -479,7 +479,7 @@ class DockitSummaryXMLTest(unittest.TestCase):
             withWarning=False,
             withDockerfile=False,
             updateServer=None,
-            aggregators=None)
+            aggregator=None)
 
         sys.stdout.write("\nRebuilding tree\n")
         procTree = DockitSummaryXMLTest.RebuildProcessTree(outputSummaryFile)
@@ -511,7 +511,7 @@ class DockitTraceFilesTest(unittest.TestCase):
             withWarning=False,
             withDockerfile=False,
             updateServer=None,
-            aggregators=["clusterize"])
+            aggregator="clusterize")
 
         check_file_content("sample_shell_strace_tst_txt.txt")
 
@@ -530,7 +530,7 @@ class DockitTraceFilesTest(unittest.TestCase):
             withWarning=False,
             withDockerfile=True,
             updateServer=None,
-            aggregators=["clusterize"])
+            aggregator="clusterize")
 
         check_file_content("sample_shell_strace_tst_csv.csv")
 
@@ -552,7 +552,7 @@ class DockitTraceFilesTest(unittest.TestCase):
             withWarning=False,
             withDockerfile=False,
             updateServer=None,
-            aggregators=["clusterize"])
+            aggregator="clusterize")
 
         check_file_content("sample_shell_strace_tst_json.json")
 
@@ -572,7 +572,7 @@ class DockitTraceFilesTest(unittest.TestCase):
             withWarning=False,
             withDockerfile=True,
             updateServer=None,
-            aggregators=["clusterize"])
+            aggregator="clusterize")
 
         check_file_content("sample_shell_ltrace_tst_docker.json")
 
@@ -625,7 +625,7 @@ class DockitTraceFilesTest(unittest.TestCase):
                         withWarning=False,
                         withDockerfile=True,
                         updateServer=None,
-                        aggregators=["clusterize"])
+                        aggregator="clusterize")
 
 class DockitProcessesTest(unittest.TestCase):
     """
@@ -659,7 +659,7 @@ class DockitProcessesTest(unittest.TestCase):
             withWarning=False,
             withDockerfile=False,
             updateServer=None,
-            aggregators=["clusterize"])
+            aggregator="clusterize")
 
         sub_proc.communicate()
         self.assertTrue(sub_proc.returncode == 0)
@@ -686,7 +686,7 @@ class DockitToRDF(unittest.TestCase):
             withWarning=False,
             withDockerfile=False,
             updateServer = path_prefix_output_result("sample_shell_ltrace_tst_create_RDF.rdf"),
-            aggregators=["clusterize"])
+            aggregator="clusterize")
 
         check_file_content("sample_shell_ltrace_tst_create_RDF.json")
         check_file_content("sample_shell_ltrace_tst_create_RDF.summary.txt")
@@ -720,7 +720,7 @@ class DockitEventsTest(unittest.TestCase):
             withWarning=False,
             withDockerfile=False,
             updateServer=RemoteEventsTestAgent + "/survol/event_put.py",
-            aggregators=["clusterize"])
+            aggregator="clusterize")
 
         check_file_content("dockit_ps_ef.strace.json")
 
