@@ -72,6 +72,8 @@ def Usage(exitCode = 1, errMsg = None):
     print("  -l,--log <filename prefix>      trace command log output file.\n")
     print("  -t,--tracer strace|ltrace|pydbg command for generating trace log")
     print("  -S,--server <Url>               Survol url for CIM objects updates. Ex: http://127.0.0.1:80/survol/event_put.py")
+    print("  -a,--aggregator <aggregator>    Aggregation method, e.g. clusterize etc...")
+
     print("")
 
     if sys.platform.startswith("lin"):
@@ -134,8 +136,6 @@ def ParseFilterCIM(rgxObjectPath):
 def GenerateSummaryTXT(mapParamsSummary, fdSummaryFile):
     for rgxObjectPath in mapParamsSummary:
         ( cimClassName, cimKeyValuePairs ) = ParseFilterCIM(rgxObjectPath)
-        #print([k for k in globals() if k.find("Computer") > 0])
-        #classObj = globals()[ cimClassName ]
         classObj = getattr(cim_objects_definitions, cimClassName)
         classObj.DisplaySummary(fdSummaryFile,cimKeyValuePairs)
 
@@ -146,7 +146,6 @@ def GenerateSummaryXML(mapParamsSummary,fdSummaryFile):
     if mapParamsSummary:
         for rgxObjectPath in mapParamsSummary:
             ( cimClassName, cimKeyValuePairs ) = ParseFilterCIM(rgxObjectPath)
-            #classObj = globals()[ cimClassName ]
             classObj = getattr(cim_objects_definitions, cimClassName)
             classObj.XMLSummary(fdSummaryFile,cimKeyValuePairs)
     fdSummaryFile.write('</Dockit>\n')
@@ -406,14 +405,11 @@ class BatchDumperJSON(BatchDumperBase):
 
 ################################################################################
 
-
-
 BatchDumpersDictionary = {
     "TXT": BatchDumperTXT,
     "CSV": BatchDumperCSV,
     "JSON": BatchDumperJSON
 }
-
 
 ################################################################################
 # These global variables allow to better simulate the execution context
@@ -547,46 +543,40 @@ def ExitGlobals():
 
 # The role of an aggregator is to receive each function call and store it or not.
 # It can aggregate the calls or process them in anyway, on the fly or at the end.
-# There is one such object for each execution flow, which is a process
-# or a thread.
-def BatchFlowModelFactory(aggregators):
-    if not aggregators:
+# There is one object for each execution flow, which is a process or a thread.
+# This method returns a class.
+def CallsFlowClassFactory(aggregator):
+    if not aggregator:
         # This is the required interface for aggregators.
+        # The default base class does minimal statistics.
         class BatchFlowVoid(object):
             # For each function call.
             def SendBatch(self, oneBatch):
-                return None
+                pass
 
             # At the end.
             def FactorizeOneFlow(self, verbose, batchConstructor):
                 pass
 
-            # This factory must create such an object.
-            @staticmethod
-            def Factory():
-                return BatchFlowVoid()
-
-            def DumpFlowConstructor(self, batchDump, header_string):
-                pass
+            def DumpFlowConstructor(self, batchDump, extra_header=None):
+                batchDump.Header(extra_header)
+                batchDump.Footer()
 
         return BatchFlowVoid
 
-    # This is temporary.
-    if aggregators == ["clusterize"]:
+    # This is temporary. Do this for each aggregator.
+    if aggregator == "clusterize":
         import dockit_aggregate_clusterize
         return dockit_aggregate_clusterize.BatchFlow
 
-    # If there are several aggregators, import all of them and create a wrapper
-    # with the right interface and runs the wrapper methods in a loop.
-
-    raise Exception("Invalid aggregators:", aggregators)
+    raise Exception("Invalid aggregator:%s", aggregator)
 
 ################################################################################
 
 
 # This receives a stream of lines, each of them is a function call,
-# possibily unfinished/resumed/interrupted by a signal.
-def CreateMapFlowFromStream(verbose, withWarning, logStream, tracer, batchConstructor, aggregators):
+# possibly unfinished/resumed/interrupted by a signal.
+def CreateMapFlowFromStream(verbose, withWarning, logStream, tracer, batchConstructor, aggregator):
     # Here, we have an event log as a stream, which comes from a file (if testing),
     # the output of strace or anything else.
 
@@ -594,8 +584,7 @@ def CreateMapFlowFromStream(verbose, withWarning, logStream, tracer, batchConstr
 
     mapFlows = {}
 
-    batchFlowFactory = BatchFlowModelFactory(aggregators).Factory
-    #batchConstructor = BatchDumpersDictionary[outputFormat]
+    CallsFlowClass = CallsFlowClassFactory(aggregator)
 
     # This generator creates individual BatchLet objects on-the-fly.
     # At this stage, "resumed" calls are matched with the previously received "unfinished"
@@ -606,31 +595,24 @@ def CreateMapFlowFromStream(verbose, withWarning, logStream, tracer, batchConstr
 
     # Maybe, some system calls are unfinished, i.e. the "resumed" part of the call
     # is never seen. They might be matched later.
-    for oneBatch in mapFlowsGenerator:
-        aCore = oneBatch.m_core
+    for one_function_call in mapFlowsGenerator:
+        aCore = one_function_call.m_core
 
-
-### NO: We must create immediately the derived objects so we can fill the caches in the right order.
-### For example in the case where one file descriptor is created in a thread and used in another.
-### In other words:
-### - Loop on the incoming lines.
-### - For each new pid ... or new burst of activity, create a coroutine:
-###   This coroutine "is yielded" with new BatchCore objects.
-
-        aPid = aCore.m_pid
+        the_pid = aCore.m_pid
         try:
-            btchFlow = mapFlows[ aPid ]
+            calls_flow = mapFlows[the_pid]
         except KeyError:
             # This is the first system call of this process.
-            btchFlow = batchFlowFactory()
-            mapFlows[ aPid ] = btchFlow
+            calls_flow = CallsFlowClass()
+            mapFlows[the_pid] = calls_flow
 
-        btchFlow.SendBatch(oneBatch)
+        calls_flow.SendBatch(one_function_call)
 
-    for aPid in sorted(list(mapFlows.keys()), reverse=True):
-        btchTree = mapFlows[aPid]
-        if verbose > 0: sys.stdout.write("\n------------------ PID=%d\n" % aPid)
-        btchTree.FactorizeOneFlow(verbose, batchConstructor)
+    for the_pid in sorted(list(mapFlows.keys()), reverse=True):
+        calls_flow = mapFlows[the_pid]
+        assert isinstance(calls_flow, CallsFlowClass)
+        if verbose > 0: sys.stdout.write("\n------------------ PID=%d\n" % the_pid)
+        calls_flow.FactorizeOneFlow(verbose, batchConstructor)
 
     ExitGlobals()
     return mapFlows
@@ -639,11 +621,16 @@ def CreateMapFlowFromStream(verbose, withWarning, logStream, tracer, batchConstr
 
 # All possible summaries. Data created for the summaries are also needed
 # to generate a docker file. So, summaries are calculated if Dockerfile is asked.
-fullMapParamsSummary = ["CIM_ComputerSystem","CIM_OperatingSystem","CIM_NetworkAdapter","CIM_Process","CIM_DataFile"]
+fullMapParamsSummary = [
+    "CIM_ComputerSystem",
+    "CIM_OperatingSystem",
+    "CIM_NetworkAdapter",
+    "CIM_Process",
+    "CIM_DataFile"]
 
 def FromStreamToFlow(
         verbose, withWarning, logStream, tracer, outputFormat,
-        baseOutName, mapParamsSummary, summaryFormat, withDockerfile, aggregators):
+        baseOutName, mapParamsSummary, summaryFormat, withDockerfile, aggregator):
     if not baseOutName:
         baseOutName = "results"
     if summaryFormat:
@@ -656,7 +643,7 @@ def FromStreamToFlow(
     except KeyError:
         batchConstructor = None
 
-    mapFlows = CreateMapFlowFromStream(verbose, withWarning, logStream, tracer, batchConstructor, aggregators)
+    mapFlows = CreateMapFlowFromStream(verbose, withWarning, logStream, tracer, batchConstructor, aggregator)
 
     linux_api_definitions.G_stackUnfinishedBatches.PrintUnfinished(sys.stdout)
 
@@ -701,7 +688,7 @@ def FromStreamToFlow(
 # Function called for unit tests by unittest.py
 def UnitTest(
         inputLogFile, tracer, topPid, baseOutName, outputFormat, verbose, mapParamsSummary,
-        summaryFormat, withWarning, withDockerfile, updateServer, aggregators):
+        summaryFormat, withWarning, withDockerfile, updateServer, aggregator):
     assert isinstance(topPid, int)
     logStream = CreateEventLog([], topPid, inputLogFile, tracer )
     cim_objects_definitions.G_UpdateServer = updateServer
@@ -711,7 +698,7 @@ def UnitTest(
 
     outputSummaryFile = FromStreamToFlow(
         verbose, withWarning, logStream, tracer, outputFormat, baseOutName,
-        mapParamsSummary, summaryFormat, withDockerfile, aggregators)
+        mapParamsSummary, summaryFormat, withDockerfile, aggregator)
     return outputSummaryFile
 
 if __name__ == '__main__':
@@ -745,7 +732,7 @@ if __name__ == '__main__':
     summaryFormat = None
     outputLogFilePrefix = None
     tracer = None
-    aggregators = []
+    aggregator = None
 
     for anOpt, aVal in optsCmd:
         if anOpt in ("-v", "--verbose"):
@@ -774,7 +761,7 @@ if __name__ == '__main__':
         elif anOpt in ("-S", "--server"):
             cim_objects_definitions.G_UpdateServer = aVal
         elif anOpt in ("-a", "--aggregator"):
-            aggregators.append(aVal)
+            aggregator = aVal
         elif anOpt in ("-h", "--help"):
             Usage(0)
         else:
@@ -837,7 +824,7 @@ if __name__ == '__main__':
         mapParamsSummary,
         summaryFormat,
         withDockerfile,
-        aggregators)
+        aggregator)
 
 ################################################################################
 # The End.
