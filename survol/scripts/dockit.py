@@ -641,7 +641,7 @@ def FromStreamToFlow(
     try:
         batchConstructor = BatchDumpersDictionary[outputFormat]
     except KeyError:
-        batchConstructor = None
+        raise Exception("Invalid output format:" + outputFormat)
 
     mapFlows = CreateMapFlowFromStream(verbose, withWarning, logStream, tracer, batchConstructor, aggregator)
 
@@ -658,6 +658,7 @@ def FromStreamToFlow(
             btchTree = mapFlows[aPid]
             btchTree.DumpFlowConstructor(batchDump, "================== PID=%d"%aPid)
         batchDump.DocumentEnd()
+        sys.stdout.write("Closing flow file:%s\n" % outFile)
         outFd.close()
 
         if verbose: sys.stdout.write("\n")
