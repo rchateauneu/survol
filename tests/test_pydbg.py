@@ -4,9 +4,9 @@ from __future__ import print_function
 
 import os
 import sys
-import six
 import subprocess
 import tempfile
+import platform
 import unittest
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
@@ -28,6 +28,54 @@ if not is_platform_linux:
         else:
             tst_pydbg = pydbg.pydbg.pydbg()
         return tst_pydbg
+
+################################################################################
+
+@unittest.skipIf(is_platform_linux, "Windows only.")
+class PydbgBasicTest(unittest.TestCase):
+    """
+    Test basic features
+    """
+
+    # This tests the callbacks which are used for good in other tests.
+    # It starts a DOS process which attempts to remove a directory.
+    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    @unittest.skipIf(platform.architecture()[0] != '64bit', "Only on 64 bits machines.")
+    def test_pydbg_Wow64_Self(self):
+        import pydbg
+
+        is_wow64 = pydbg.process_is_wow64(pid=None)
+        print("is_wow64=", is_wow64)
+        print("platform.architecture()=", platform.architecture())
+
+        if sys.maxsize > 2 ** 32:
+            self.assertTrue(is_wow64 == False)
+        else:
+            self.assertTrue(is_wow64 == True)
+
+    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    @unittest.skipIf(platform.architecture()[0] != '64bit', "Only on 64 bits machines.")
+    def test_pydbg_Wow64_Other(self):
+        """This starts a 32 bits process on a 64 bits platform"""
+        import pydbg
+
+        tst_pydbg = create_pydbg()
+
+        cmd32_command = r"C:\Windows\SysWOW64\cmd.exe"
+
+        created_process = subprocess.Popen(cmd32_command, shell=False)
+        print("Created process:%d" % created_process.pid)
+
+        time.sleep(0.5)
+
+        print("Attaching to created_process.pid=%d" % created_process.pid)
+        tst_pydbg.attach(created_process.pid)
+
+        is_wow64 = pydbg.process_is_wow64(pid=created_process.pid)
+        print("is_wow64=", is_wow64)
+
+        self.assertTrue(is_wow64 == True)
+
 
 ################################################################################
 
@@ -216,7 +264,10 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
             object_pydbg.count_entry += 1
             file_name = object_pydbg.get_wstring(args[0])
             print("callback_CreateFileW_entry file_name=", file_name)
-            self.assertTrue(file_name == non_existent_file)
+            if object_pydbg.is_wow64:
+                self.assertTrue(file_name == non_existent_file)
+            else:
+                self.assertTrue(file_name in [non_existent_file, r"C:\Windows\SysWOW64\cmd.exe"])
             return defines.DBG_CONTINUE
 
         def callback_CreateFileW_exit(object_pydbg, args, function_result):
@@ -256,6 +307,9 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         # This is detected by the hook.
         ping_echo_command = "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 127.0.0.1& echo %%A )" % num_loops
 
+        # This is converted to lower-case because of different behaviour of Windows versions.
+        ping_program_path = r"C:\windows\system32\PING.EXE"
+
         created_process = subprocess.Popen(ping_echo_command, shell=True)
         print("Created process:%d" % created_process.pid)
 
@@ -288,7 +342,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
             object_pydbg.count_entry += 1
             lpApplicationName = object_pydbg.get_wstring(args[0])
             print("callback_CreateProcessW_entry lpApplicationName=", lpApplicationName)
-            assert lpApplicationName == r"C:\windows\system32\PING.EXE"
+            assert lpApplicationName.lower() == ping_program_path.lower()
             lpCommandLine = object_pydbg.get_wstring(args[1])
             print("callback_CreateProcessW_entry lpCommandLine=%s." % lpCommandLine)
             assert lpCommandLine == "ping  -n 2 127.0.0.1"
@@ -302,7 +356,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
             object_pydbg.count_exit += 1
             lpApplicationName = object_pydbg.get_wstring(args[0])
             print("callback_CreateProcessW_entry lpApplicationName=", lpApplicationName)
-            assert lpApplicationName == r"C:\windows\system32\PING.EXE"
+            assert lpApplicationName.lower() == ping_program_path.lower()
             lpCommandLine = object_pydbg.get_wstring(args[1])
             print("callback_CreateProcessW_entry lpCommandLine=%s." % lpCommandLine)
             assert lpCommandLine == "ping  -n 2 127.0.0.1"

@@ -42,8 +42,12 @@ import os
 
 import ctypes
 from ctypes import wintypes
-GetMappedFileNameA = ctypes.windll.psapi.GetMappedFileNameA
+
+####################################################################################################################
+
 LPSTR = POINTER(CHAR)
+
+GetMappedFileNameA = ctypes.windll.psapi.GetMappedFileNameA
 GetMappedFileNameA.argtypes = (wintypes.HANDLE, wintypes.LPVOID, LPSTR, wintypes.DWORD)
 GetMappedFileNameA.restype = wintypes.BOOL
 #  HANDLE hProcess,
@@ -52,7 +56,6 @@ GetMappedFileNameA.restype = wintypes.BOOL
 #  DWORD  nSize
 
 CreateFileMappingA = ctypes.windll.kernel32.CreateFileMappingA
-LPSTR = POINTER(CHAR)
 CreateFileMappingA.argtypes = (wintypes.HANDLE, wintypes.LPVOID, wintypes.DWORD, wintypes.DWORD, wintypes.DWORD, LPSTR)
 CreateFileMappingA.restype = wintypes.HANDLE
 #HANDLE CreateFileMappingA(
@@ -64,7 +67,26 @@ CreateFileMappingA.restype = wintypes.HANDLE
 #  LPCSTR                lpName
 #);
 
+GetCurrentProcess = ctypes.windll.kernel32.GetCurrentProcess
+GetCurrentProcess.restype = wintypes.HANDLE
 
+OpenProcessToken = ctypes.windll.advapi32.OpenProcessToken
+OpenProcessToken.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE))
+OpenProcessToken.restype = wintypes.BOOL
+
+IsWow64Process = ctypes.windll.kernel32.IsWow64Process
+IsWow64Process.argtypes = [wintypes.HANDLE, ctypes.POINTER(wintypes.BOOL)]
+IsWow64Process.restype = wintypes.BOOL
+
+GetCurrentProcess = ctypes.windll.kernel32.GetCurrentProcess
+GetCurrentProcess.argtypes = []
+GetCurrentProcess.restype = wintypes.BOOL
+
+OpenProcessToken = ctypes.windll.advapi32.OpenProcessToken
+OpenProcessToken.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE))
+OpenProcessToken.restype = wintypes.BOOL
+
+####################################################################################################################
 
 class system_dll:
     '''
