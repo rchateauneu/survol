@@ -60,17 +60,23 @@ from .memory_snapshot_context import *
 from .pdx                     import *
 from .system_dll              import *
 
-GetCurrentProcess = ctypes.windll.kernel32.GetCurrentProcess
-GetCurrentProcess.restype = wintypes.HANDLE
-OpenProcessToken = ctypes.windll.advapi32.OpenProcessToken
-OpenProcessToken.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE))
-OpenProcessToken.restype = wintypes.BOOL
-
 if sys.version_info < (3,):
     big_integer_type = long
 else:
     big_integer_type = int
 
+def process_is_wow64(pid=None):
+    if pid:
+        process_handle = kernel32.OpenProcess(PROCESS_ALL_ACCESS, False, pid)
+    else:
+        process_handle = GetCurrentProcess()
+
+    temp_is_wow64 = wintypes.BOOL()
+    a_bool = IsWow64Process(process_handle, byref(temp_is_wow64))
+
+    assert a_bool
+    print("temp_is_wow64=", temp_is_wow64)
+    return True if temp_is_wow64 else False
 
 class pydbg:
     '''
@@ -1454,7 +1460,7 @@ class pydbg:
         selector_entry = LDT_ENTRY()
 
         assert not is_64bits
-        if not GetThreadSelectorEntry(thread_handle, thread_context.SegFs, byref(selector_entry)):
+        if not kernel32.GetThreadSelectorEntry(thread_handle, thread_context.SegFs, byref(selector_entry)):
             self.win32_error("GetThreadSelectorEntry()")
 
         teb  = selector_entry.BaseLow
@@ -1879,6 +1885,7 @@ class pydbg:
         if not address:
             self.win32_error("GetProcAddress %s %s" % (dll, function))
 
+        assert address == self.func_resolve_experimental(dll.decode("utf-8", errors="ignore"), function)
         return address
 
     # https://stackoverflow.com/questions/33779657/python-getmodulehandlew-oserror-winerror-126-the-specified-module-could-not-b/33780664#33780664
@@ -2122,9 +2129,6 @@ class pydbg:
         self._log("get_debug_privileges()")
 
         self._log("OpenProcessToken")
-        OpenProcessToken = ctypes.windll.advapi32.OpenProcessToken
-        OpenProcessToken.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE))
-        OpenProcessToken.restype = wintypes.BOOL
 
         if not advapi32.OpenProcessToken(kernel32.GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, byref(h_token)):
             raise pdx("OpenProcessToken()", True)
@@ -2730,6 +2734,14 @@ class pydbg:
 
         if not self.h_process:
             raise pdx("OpenProcess(%d)" % pid, True)
+
+        self.is_wow64 = wintypes.BOOL()
+        a_bool = IsWow64Process(self.h_process, byref(self.is_wow64))
+
+        assert a_bool
+        print("self.is_wow64=", self.is_wow64)
+
+        self._log("open_process pid=%d self.is_wow64=%d" % (pid, 1 if self.is_wow64 else 0))
 
         return self.h_process
 
