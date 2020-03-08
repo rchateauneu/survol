@@ -3067,18 +3067,14 @@ class pydbg:
         _address = address
         _length  = length
 
-        try:
-            old_protect = self.virtual_protect(_address, _length, PAGE_EXECUTE_READWRITE)
-        except:
-            pass
+        old_protect = self.virtual_protect(_address, _length, PAGE_EXECUTE_READWRITE)
 
         while length:
-            #self._log("read_process_memory length=%d" % (length))
+            self._log("read_process_memory address=%016x length=%d" % (address, length))
             # TODO: Apparently there are default arguments.
-            kernel32.ReadProcessMemory.argtypes = [HANDLE, LPVOID, LPVOID, c_size_t, POINTER(c_size_t)]
             if not kernel32.ReadProcessMemory(self.h_process, address, read_buf, length, byref(count)):
                 if not len(data):
-                    raise pdx("ReadProcessMemory(%08x, %d, read=%d)" % (address, length, count.value), True)
+                    raise pdx("ReadProcessMemory(%016x, %d, read=%d)" % (address, length, count.value), True)
                 else:
                     return data
 
@@ -3794,7 +3790,10 @@ class pydbg:
         old_protect = c_ulong(0)
 
         if not kernel32.VirtualProtectEx(self.h_process, base_address, size, protection, byref(old_protect)):
-            raise pdx("VirtualProtectEx(%08x, %d, %08x)" % (base_address, size, protection), True)
+            # The reason for this error "Attempt to access invalid address." could be:
+            #  "a very obvious candidate to be your anti-malware software,"
+            # https://exceptionshub.com/virtualprotect-and-kernel32-dll-attempt-to-access-invalid-address.html
+            raise pdx("VirtualProtectEx(%016x, %d, %08x)" % (base_address, size, protection), True)
 
         return old_protect.value
 
@@ -3920,10 +3919,7 @@ class pydbg:
         # ensure we can write to the requested memory space.
         _address = address
         _length  = length
-        try:
-            old_protect = self.virtual_protect(_address, _length, PAGE_EXECUTE_READWRITE)
-        except:
-            pass
+        old_protect = self.virtual_protect(_address, _length, PAGE_EXECUTE_READWRITE)
 
         while length:
             c_data = c_char_p(data[count.value:])
@@ -3936,10 +3932,7 @@ class pydbg:
             address += count.value
 
         # restore the original page permissions on the target memory region.
-        try:
-            self.virtual_protect(_address, _length, old_protect)
-        except:
-            pass
+        self.virtual_protect(_address, _length, old_protect)
 
 
     def get_string(self, address):
