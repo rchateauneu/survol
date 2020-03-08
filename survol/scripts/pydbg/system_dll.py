@@ -82,6 +82,20 @@ GetCurrentProcess = ctypes.windll.kernel32.GetCurrentProcess
 GetCurrentProcess.argtypes = []
 GetCurrentProcess.restype = wintypes.BOOL
 
+ReadProcessMemory = ctypes.windll.kernel32.ReadProcessMemory
+ReadProcessMemory.argtypes = [HANDLE, LPVOID, LPVOID, c_size_t, POINTER(c_size_t)]
+
+VirtualProtectEx = ctypes.windll.kernel32.VirtualProtectEx
+VirtualProtectEx.argtypes = [wintypes.HANDLE, LPVOID, c_size_t, wintypes.DWORD, POINTER(wintypes.DWORD)]
+VirtualProtectEx.restype = wintypes.BOOL
+# BOOL VirtualProtectEx(
+#   HANDLE hProcess,
+#   LPVOID lpAddress,
+#   SIZE_T dwSize,
+#   DWORD  flNewProtect,
+#   PDWORD lpflOldProtect
+# );
+
 OpenProcessToken = ctypes.windll.advapi32.OpenProcessToken
 OpenProcessToken.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE))
 OpenProcessToken.restype = wintypes.BOOL

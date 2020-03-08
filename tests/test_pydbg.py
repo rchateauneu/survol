@@ -473,19 +473,6 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         self.assertTrue(tst_pydbg.count_entry == num_loops - 1)
         self.assertTrue(tst_pydbg.count_exit == num_loops - 1)
 
-    # https://github.com/OpenRCE/pydbg/issues/5
-    # from pydbg import *
-    # from pydbg.defines import *
-    # import pefile
-    #
-    # dbg = pydbg()
-    # dbg.load("c:\windows\system32\notepad.exe")
-    # pe = pefile.PE("C:\Windows\System32\notepad.exe")
-    # entrypoint = pe.OPTIONAL_HEADER.ImageBase + pe.OPTIONAL_HEADER.AddressOfEntryPoint
-    # dbg.bp_set(entrypoint)
-    # pydbg.debug_event_loop(dbg)
-
-
 
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_DOS_socket(self):
@@ -523,8 +510,20 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         # "C:\Windows\System32\kernel32.dll"
         # Windows NT BASE API Client DLL
 
+        # Same error messages with these functions:
+        # "Only part of a ReadProcessMemory or WriteProcessMemory request was completed"
+        # socket, WSAConnectByNameA, WSAConnectByNameW, WSAStringToAddressA
         # hook_address_socket = tst_pydbg.func_resolve_experimental(u"Ws2_32.dll", b"socket")
-        hook_address_socket = tst_pydbg.func_resolve_experimental(u"C:\\Windows\\System32\\ws2_32.dll", b"socket")
+        # hook_address_socket = tst_pydbg.func_resolve_experimental(u"C:\\Windows\\System32\\ws2_32.dll", b"socket")
+        #
+        # This is a x64 library:
+        #
+        # hook_address_socket = tst_pydbg.func_resolve_experimental(u"C:\\Windows\\System32\\ws2_32.dll", b"WSAStringToAddressA")
+        hook_address_socket = tst_pydbg.func_resolve_experimental(u"ws2_32.dll", b"WSAStringToAddressA")
+
+        # The specified module could not be found
+        # hook_address_socket = tst_pydbg.func_resolve("ws2_32.dll", b"WSAStringToAddressA")
+        #
         assert hook_address_socket
         print("hook_address_socket=%016x" % hook_address_socket)
         # hook_address_process_information=0000000076ed05e0 OK
@@ -577,15 +576,11 @@ class PydbgPythonHooksTest(unittest.TestCase):
         import pydbg
         from pydbg import defines
         from pydbg import utils
-        from pydbg import windows_h
 
         tst_pydbg = create_pydbg()
 
         dir_path = os.path.dirname(__file__)
         sys.path.append(dir_path)
-
-        my_env = os.environ.copy()
-        tree_depth = 10
 
         temp_file_name = "tmp.txt"
         python_command = 'import time;time.sleep(5.0);f=open(u"%s", "w");f.close()' % temp_file_name
@@ -627,12 +622,8 @@ class PydbgPythonHooksTest(unittest.TestCase):
             callback_create_file_entry,
             callback_create_file_exit)
 
-        print("About to run subprocess")
         tst_pydbg.run()
-
         print("Finished")
-
-
 
     # Modified Python path so it can find the special module to create a chain of subprocesses.
     @unittest.skip("Does not work")
@@ -677,12 +668,6 @@ class PydbgPythonHooksTest(unittest.TestCase):
 
             lpProcessInformation = args[9]
 
-            # _PROCESS_INFORMATION {
-            #   HANDLE hProcess;
-            #   HANDLE hThread;
-            #   DWORD  dwProcessId;
-            #   DWORD  dwThreadId;
-            # }
             offset_dwProcessId = windows_h.sizeof(windows_h.HANDLE) + windows_h.sizeof(windows_h.HANDLE)
             dwProcessId = object_pydbg.get_long(lpProcessInformation + offset_dwProcessId)
             print("callback_processes_tree_entry Handle=", dwProcessId)
@@ -720,7 +705,6 @@ class PydbgPythonHooksTest(unittest.TestCase):
         print("About to run subprocess")
         tst_pydbg.run()
 
-
         return_dict = {}
         for ix in range(tree_depth+1):
             one_line = top_created_process.stdout.readline()
@@ -731,10 +715,90 @@ class PydbgPythonHooksTest(unittest.TestCase):
         print("return_dict=", return_dict)
 
 
+    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    def test_pydbg_Python_socket(self):
+        import pydbg
+        from pydbg import defines
+        from pydbg import utils
 
+        tst_pydbg = create_pydbg()
 
-        print("Finished")
+        dir_path = os.path.dirname(__file__)
+        sys.path.append(dir_path)
 
+        python_command = "import time;time.sleep(2.0);"
+        python_command += "import urllib2;response = urllib2.urlopen('http://python.org/');html = response.read();print(html)"
+        url_process = subprocess.Popen(
+            [sys.executable, '-c', python_command],
+            stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = False)
+
+        print("creation_file_process ", url_process.pid)
+        sys.stdout.flush()
+
+        # A bit of delay so the process can start.
+        time.sleep(0.5)
+
+        print("Root pid=%d" % root_process_id)
+        print("Attaching to pid=%d" % url_process.pid)
+        tst_pydbg.attach(url_process.pid)
+
+        object_hooks = pydbg.utils.hook_container()
+
+        # "C:\Windows\System32\ws2_32.dll"
+        # Windows Socket 2.0 32-Bit DLL
+        # Dump of file C:\Windows\System32\ws2_32.dll
+        #             8664 machine (x64)
+
+        # "C:\Windows\System32\kernel32.dll"
+        # Windows NT BASE API Client DLL
+
+        # Same error messages with these functions:
+        # "Only part of a ReadProcessMemory or WriteProcessMemory request was completed"
+        # socket, WSAConnectByNameA, WSAConnectByNameW, WSAStringToAddressA
+        # hook_address_socket = tst_pydbg.func_resolve_experimental(u"Ws2_32.dll", b"socket")
+        # hook_address_socket = tst_pydbg.func_resolve_experimental(u"C:\\Windows\\System32\\ws2_32.dll", b"socket")
+        #
+        # This is a x64 library:
+        #
+        # hook_address_socket = tst_pydbg.func_resolve_experimental(u"C:\\Windows\\System32\\ws2_32.dll", b"WSAStringToAddressA")
+        # hook_address = tst_pydbg.func_resolve_experimental(u"kernel32.dll", b"CreateProcessW")
+        hook_address = tst_pydbg.func_resolve_experimental(u"ws2_32.dll", b"WSAStringToAddressA")
+
+        # The specified module could not be found
+        # hook_address_socket = tst_pydbg.func_resolve("ws2_32.dll", b"WSAStringToAddressA")
+        #
+        assert hook_address
+        print("hook_address_socket=%016x" % hook_address)
+        # hook_address_process_information=0000000076ed05e0 OK
+        # hook_address_socket             =000007feff0ed910 Broken.
+
+        tst_pydbg.count_entry = 0
+        tst_pydbg.count_exit = 0
+
+        def callback_entry(object_pydbg, args):
+            object_pydbg.count_entry += 1
+            print("callback_entry args=", args)
+            return defines.DBG_CONTINUE
+
+        def callback_exit(object_pydbg, args, function_result):
+            object_pydbg.count_exit += 1
+            print("callback_exit args=", args, function_result)
+
+            is_invalid_handle = function_result % (1 + defines.INVALID_HANDLE_VALUE) == defines.INVALID_HANDLE_VALUE
+            self.assertTrue(is_invalid_handle)
+            return defines.DBG_CONTINUE
+
+        object_hooks.add(
+            tst_pydbg,
+            hook_address,
+            3,
+            callback_entry,
+            callback_exit)
+
+        tst_pydbg.run()
+
+        print("END", tst_pydbg.count_entry, tst_pydbg.count_exit)
+        # The first call might be missed.
 
 
 
