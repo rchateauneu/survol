@@ -76,6 +76,148 @@ class PydbgBasicTest(unittest.TestCase):
 
         self.assertTrue(is_wow64 == True)
 
+    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    def test_listdlls(self):
+        # This is just for debugging.
+        os.system('listdlls %d' % os.getpid())
+
+    # 0x000000001d000000  0xb000    C:\Python27\python.exe
+    # 0x0000000076fd0000  0x1aa000  C:\windows\SYSTEM32\ntdll.dll
+    # 0x0000000076eb0000  0x11f000  C:\windows\system32\kernel32.dll
+    # 0x00000000fcf20000  0x6a000   C:\windows\system32\KERNELBASE.dll
+    # 0x000000001e000000  0x2f3000  C:\windows\system32\python27.dll
+    # 0x0000000076db0000  0xfa000   C:\windows\system32\USER32.dll
+    # 0x00000000fd080000  0x67000   C:\windows\system32\GDI32.dll
+    # 0x00000000fea90000  0xe000    C:\windows\system32\LPK.dll
+    # 0x00000000feca0000  0xcb000   C:\windows\system32\USP10.dll
+    # 0x00000000fe8f0000  0x9f000   C:\windows\system32\msvcrt.dll
+    # 0x00000000fe760000  0xdb000   C:\windows\system32\ADVAPI32.dll
+    # 0x00000000ff210000  0x1f000   C:\windows\SYSTEM32\sechost.dll
+    # 0x00000000fe1f0000  0x12d000  C:\windows\system32\RPCRT4.dll
+    # 0x00000000fd0f0000  0xd8a000  C:\windows\system32\SHELL32.dll
+    # 0x00000000fe9f0000  0x71000   C:\windows\system32\SHLWAPI.dll
+    # 0x0000000072e90000  0xa3000   C:\windows\WinSxS\amd64_microsoft.vc90.crt_1fc8b3b9a1e18e3b_9.0.30729.6161_none_08e61857a83bc251\MSVCR90.dll
+    # 0x00000000fe8c0000  0x2e000   C:\windows\system32\IMM32.DLL
+    # 0x00000000fe650000  0x109000  C:\windows\system32\MSCTF.dll
+    # 0x0000000080000000  0x184000  C:\Python27\DLLs\_hashlib.pyd
+    # 0x00000000fc4b0000  0x18000   C:\windows\system32\CRYPTSP.dll
+    # 0x00000000fc1b0000  0x47000   C:\windows\system32\rsaenh.dll
+    # 0x00000000fcac0000  0xf000    C:\windows\system32\CRYPTBASE.dll
+    # 0x00000000003f0000  0xf000    C:\Python27\DLLs\_socket.pyd
+    # 0x00000000ff0e0000  0x4d000   C:\windows\system32\WS2_32.dll
+    # 0x00000000ff2d0000  0x8000    C:\windows\system32\NSI.dll
+    # 0x0000000002b50000  0x225000  C:\Python27\DLLs\_ssl.pyd
+    # 0x00000000fcd50000  0x16d000  C:\windows\system32\CRYPT32.dll
+    # 0x00000000fccc0000  0xf000    C:\windows\system32\MSASN1.dll
+    # 0x0000000001d60000  0x11000   C:\Python27\lib\site-packages\psutil\_psutil_windows.pyd
+    # 0x00000000771a0000  0x7000    C:\windows\system32\PSAPI.DLL
+    # 0x00000000f9fb0000  0x27000   C:\windows\system32\IPHLPAPI.DLL
+    # 0x00000000f9fa0000  0xb000    C:\windows\system32\WINNSI.DLL
+    # 0x00000000facb0000  0x11000   C:\windows\system32\WTSAPI32.dll
+    # 0x00000000fb160000  0x2c000   C:\windows\system32\POWRPROF.dll
+    # 0x00000000fef00000  0x1d7000  C:\windows\system32\SETUPAPI.dll
+    # 0x00000000fcec0000  0x36000   C:\windows\system32\CFGMGR32.dll
+    # 0x00000000ff130000  0xda000   C:\windows\system32\OLEAUT32.dll
+    # 0x00000000feaa0000  0x1fc000  C:\windows\system32\ole32.dll
+    # 0x00000000fcd30000  0x1a000   C:\windows\system32\DEVOBJ.dll
+    # 0x00000000fa620000  0x15000   C:\windows\system32\NLAapi.dll
+    # 0x00000000f6f50000  0x15000   C:\windows\system32\napinsp.dll
+    # 0x00000000f6e50000  0x19000   C:\windows\system32\pnrpnsp.dll
+    # 0x00000000fc450000  0x55000   C:\windows\System32\mswsock.dll
+    # 0x00000000fc2d0000  0x5b000   C:\windows\system32\DNSAPI.dll
+    # 0x00000000f6e40000  0xb000    C:\windows\System32\winrnr.dll
+    # 0x0000000072d90000  0x26000   C:\Program Files\Bonjour\mdnsNSP.dll
+    # 0x00000000f6e30000  0x10000   C:\windows\system32\wshbth.dll
+    # 0x000000001e8c0000  0x24000   C:\Python27\lib\site-packages\win32\win32api.pyd
+    # 0x00000000fbda0000  0xc000    C:\windows\system32\VERSION.dll
+    # 0x000000001e7a0000  0x26000   C:\windows\system32\pywintypes27.dll
+    # 0x00000000fca60000  0xb000    C:\windows\system32\secur32.dll
+    # 0x00000000fca90000  0x25000   C:\windows\system32\SSPICLI.DLL
+    # 0x000000001d100000  0x2c000   C:\Python27\DLLs\_elementtree.pyd
+    # 0x0000000002a30000  0x2c000   C:\Python27\DLLs\pyexpat.pyd
+    # 0x000000001d1a0000  0x1f000   C:\Python27\DLLs\_ctypes.pyd
+    # 0x0000000003930000  0xab000   C:\Python27\DLLs\unicodedata.pyd
+    # 0x00000000f9e40000  0x53000   C:\windows\System32\fwpuclnt.dll
+    # 0x00000000f7900000  0x8000    C:\windows\system32\rasadhlp.dll
+    # 0x00000000fc440000  0x7000    C:\windows\System32\wship6.dll
+    # 0x00000000fbe70000  0x7000    C:\windows\System32\wshtcpip.dll
+    # 0x00000000fcb70000  0x57000   C:\windows\system32\apphelp.dll
+
+    # C:\windows\system32\WS2_32.dll is loaded but maybe not at the same address than in the subprocess.
+
+
+    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    def test_psutil_memory_maps(self):
+        # This is just for debugging.
+        import psutil
+        p = psutil.Process(os.getpid())
+        for dll in p.memory_maps():
+            print(dll.path)
+
+    # C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\tests\init.pyc Fixed sys.executableC:\Windows\System32\wshbth.dll
+    # C:\Windows\System32\oleaut32.dll
+    # C:\Windows\System32\devobj.dll
+    # C:\Windows\System32\secur32.dll
+    # C:\Windows\System32\advapi32.dll
+    # C:\Windows\System32\msvcrt.dll
+    # C:\Windows\System32\ws2_32.dll
+    # C:\Windows\System32\en-US\KernelBase.dll.mui
+    # C:\Windows\winsxs\amd64_microsoft.vc90.crt_1fc8b3b9a1e18e3b_9.0.30729.6161_none_08e61857a83bc251\msvcr90.dll
+    # C:\Windows\System32\python27.dll
+    # C:\Windows\System32\winnsi.dll
+    # C:\Windows\System32\sspicli.dll
+    # C:\Windows\System32\locale.nls
+    # C:\Windows\System32\pywintypes27.dll
+    # C:\Windows\System32\cryptsp.dll
+    # C:\Windows\System32\nlaapi.dll
+    # C:\Windows\System32\shlwapi.dll
+    # C:\Python27\DLLs\_ssl.pyd
+    # C:\Windows\System32\winrnr.dll
+    # C:\Windows\System32\IPHLPAPI.DLL
+    # C:\Windows\System32\setupapi.dll
+    # C:\Python27\python.exe
+    # C:\Windows\System32\wtsapi32.dll
+    # C:\Python27\DLLs\_elementtree.pyd
+    # C:\Windows\System32\version.dll
+    # C:\Windows\System32\pnrpnsp.dll
+    # C:\Windows\System32\ole32.dll
+    # C:\Python27\DLLs\unicodedata.pyd
+    # C:\Windows\System32\imm32.dll
+    # C:\Windows\System32\NapiNSP.dll
+    # C:\Windows\System32\powrprof.dll
+    # C:\Windows\System32\usp10.dll
+    # C:\Windows\System32\user32.dll
+    # C:\Python27\DLLs\_hashlib.pyd
+    # C:\Windows\System32\shell32.dll
+    # C:\Windows\System32\ntdll.dll
+    # C:\Windows\System32\psapi.dll
+    # C:\Python27\DLLs\_socket.pyd
+    # C:\Windows\System32\rasadhlp.dll
+    # C:\Windows\System32\rpcrt4.dll
+    # C:\Windows\System32\apisetschema.dll
+    # C:\Windows\System32\lpk.dll
+    # C:\Python27\DLLs\_ctypes.pyd
+    # C:\Windows\System32\crypt32.dll
+    # C:\Windows\System32\dnsapi.dll
+    # C:\Windows\System32\mswsock.dll
+    # C:\Python27\Lib\site-packages\win32\win32api.pyd
+    # C:\Windows\System32\WSHTCPIP.DLL
+    # C:\Program Files\Bonjour\mdnsNSP.dll
+    # C:\Windows\System32\wship6.dll
+    # C:\Windows\System32\FWPUCLNT.DLL
+    # C:\Windows\System32\cryptbase.dll
+    # C:\Windows\System32\sechost.dll
+    # C:\Windows\System32\gdi32.dll
+    # C:\Python27\DLLs\pyexpat.pyd
+    # C:\Python27\Lib\site-packages\psutil\_psutil_windows.pyd
+    # C:\Windows\Globalization\Sorting\SortDefault.nls
+    # C:\Windows\System32\msctf.dll
+    # C:\Windows\System32\nsi.dll
+    # C:\Windows\System32\msasn1.dll
+    # C:\Windows\System32\rsaenh.dll
+    # C:\Windows\System32\kernel32.dll
+    # C:\Windows\System32\cfgmgr32.dll
+    # C:\Windows\System32\KernelBase.dll
 
 ################################################################################
 
@@ -769,8 +911,27 @@ class PydbgPythonHooksTest(unittest.TestCase):
         #
         assert hook_address
         print("hook_address_socket=%016x" % hook_address)
-        # hook_address_process_information=0000000076ed05e0 OK
-        # hook_address_socket             =000007feff0ed910 Broken.
+
+
+        # 0x0000000076eb0000  0x11f000  C:\windows\system32\kernel32.dll
+        # CreateProcessW=0000000076ed05e0 OK
+        print("CreateProcessW=%016x" % tst_pydbg.func_resolve_experimental(u"kernel32.dll", b"CreateProcessW"))
+
+        # 0x00000000ff0e0000  0x4d000   C:\windows\system32\WS2_32.dll
+        # WSAStringToAddressA             =000007feff109360 Broken.
+        print("WSAStringToAddressA=%016x" % tst_pydbg.func_resolve_experimental(u"ws2_32.dll", b"WSAStringToAddressA"))
+        # socket                          =000007feff0ed910
+        print("socket=%016x" % tst_pydbg.func_resolve_experimental(u"ws2_32.dll", b"socket"))
+
+        # ws2_32 are not correct.
+
+        # WHY 7fe ????? Is it always the same value ?
+        # Is this the address in the debugged process???
+        # Maybe using func_resolve_debuggee ?
+        # Try with other DLLs ?
+        # Try masking the address ?
+
+
 
         tst_pydbg.count_entry = 0
         tst_pydbg.count_exit = 0
