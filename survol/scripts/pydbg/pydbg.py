@@ -1856,7 +1856,7 @@ class pydbg:
 
 
     ####################################################################################################################
-    def func_resolve (self, dll, function):
+    def func_resolve_win7 (self, dll, function):
         '''
         Utility function that resolves the address of a given module / function name pair under the context of the
         debugger.
@@ -1885,13 +1885,12 @@ class pydbg:
         if not address:
             self.win32_error("GetProcAddress %s %s" % (dll, function))
 
-        assert address == self.func_resolve_experimental(dll.decode("utf-8", errors="ignore"), function)
         return address
 
     # https://stackoverflow.com/questions/33779657/python-getmodulehandlew-oserror-winerror-126-the-specified-module-could-not-b/33780664#33780664
     # https://stackoverflow.com/questions/35849546/getprocaddress-not-working-on-x64-python
     # This might be the reason why we cannot get the address of some functions in some DLLs.
-    def func_resolve_experimental(self, dll, function):
+    def func_resolve_new(self, dll, function):
         assert isinstance(dll, six.text_type)
         assert isinstance(function, six.binary_type)
 
@@ -1904,6 +1903,20 @@ class pydbg:
         function_address = dll_kernel32.GetProcAddress(dll_module._handle, function)
         assert function_address
         return function_address
+
+    def func_resolve (self, dll, function):
+        import platform
+        print("Winver=", platform.win32_ver())
+        assert isinstance(dll, six.binary_type)
+        dll_utf8 = dll.decode("utf-8", errors="ignore")
+        if platform.win32_ver()[0] == '10':
+            return self.func_resolve_new(dll_utf8, function)
+        else:
+            address = self.func_resolve_new(dll_utf8, function)
+            address_win7 = self.func_resolve_win7(dll, function)
+            assert address == address_win7
+            return address
+
 
     ####################################################################################################################
     def func_resolve_debuggee (self, dll_name, func_name):
