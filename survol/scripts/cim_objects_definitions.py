@@ -1,3 +1,9 @@
+# This contains the definitions of CIM objects and their containers.
+# These containers are filled when functiosn calls detect the creation
+# or handling of such an object.
+# This modules contaisn specilized containers for thsee objects,
+# which are later used to create a Dockerfile.
+
 import os
 import re
 import sys
@@ -1113,7 +1119,7 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
             self.FileName = basNa.split(".")[0]
         except:
             pass
-        self.Category = PathCategory(pathName)
+        self.Category = _PathCategory(pathName)
 
         self.m_DataFileFileAccesses = []
 
@@ -1566,7 +1572,7 @@ G_lstFilters = [
     ( "Others" , [] ),
 ]
 
-def PathCategory(pathName):
+def _PathCategory(pathName):
     """This match the path name againt the set of regular expressions
     defining broad categories of files: Sockets, libraries, temporary files...
     These categories are not technical but based on application best practices,

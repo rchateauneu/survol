@@ -17,14 +17,7 @@ from init import *
 
 if not is_platform_linux:
     from pydbg import pydbg
-    import win32_api_definition
-
-    def create_pydbg():
-        if sys.version_info < (3, 8):
-            tst_pydbg = pydbg()
-        else:
-            tst_pydbg = pydbg.pydbg.pydbg()
-        return tst_pydbg
+    import win32_api_definitions
 
 ################################################################################
 
@@ -78,7 +71,7 @@ class PydbgAttachTest(unittest.TestCase):
 
     # This function is called for each hooked function.
     @staticmethod
-    def syscall_creation_callback(one_syscall, object_pydbg):
+    def syscall_creation_callback(one_syscall, object_pydbg, task_id):
         print("syscall=%s" % one_syscall.function_name)
         try:
             object_pydbg.calls_counter[one_syscall.function_name] += 1
@@ -118,23 +111,23 @@ class PydbgAttachTest(unittest.TestCase):
 
         time.sleep(1)
 
-        tst_pydbg = create_pydbg()
-        win32_api_definition.Win32Hook_BaseClass.object_pydbg = tst_pydbg
+        tst_pydbg = win32_api_definitions.create_pydbg()
+        win32_api_definitions.Win32Hook_BaseClass.object_pydbg = tst_pydbg
         time.sleep(1.0)
 
         print("Attaching. getpid=%d" % os.getpid())
         tst_pydbg.attach(created_process.pid)
 
-        win32_api_definition.Win32Hook_BaseClass.callback_create_call = PydbgAttachTest.syscall_creation_callback
-        win32_api_definition.Win32Hook_BaseClass.callback_create_object = PydbgAttachTest.cim_object_callback
+        win32_api_definitions.Win32Hook_BaseClass.callback_create_call = PydbgAttachTest.syscall_creation_callback
+        win32_api_definitions.Win32Hook_BaseClass.callback_create_object = PydbgAttachTest.cim_object_callback
 
         for subclass_definition in [
-            win32_api_definition.Win32Hook_CreateProcessA,
-            win32_api_definition.Win32Hook_CreateProcessW,
-            win32_api_definition.Win32Hook_RemoveDirectoryA,
-            win32_api_definition.Win32Hook_RemoveDirectoryW,
-            win32_api_definition.Win32Hook_CreateFileA]:
-            win32_api_definition.Win32Hook_BaseClass.add_subclass(subclass_definition)
+            win32_api_definitions.Win32Hook_CreateProcessA,
+            win32_api_definitions.Win32Hook_CreateProcessW,
+            win32_api_definitions.Win32Hook_RemoveDirectoryA,
+            win32_api_definitions.Win32Hook_RemoveDirectoryW,
+            win32_api_definitions.Win32Hook_CreateFileA]:
+            win32_api_definitions.Win32Hook_BaseClass.add_subclass(subclass_definition)
 
         # Use thi object to count how many times functions are called.
         tst_pydbg.calls_counter = {}

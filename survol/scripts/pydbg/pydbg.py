@@ -60,17 +60,23 @@ from .memory_snapshot_context import *
 from .pdx                     import *
 from .system_dll              import *
 
-GetCurrentProcess = ctypes.windll.kernel32.GetCurrentProcess
-GetCurrentProcess.restype = wintypes.HANDLE
-OpenProcessToken = ctypes.windll.advapi32.OpenProcessToken
-OpenProcessToken.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE))
-OpenProcessToken.restype = wintypes.BOOL
-
 if sys.version_info < (3,):
     big_integer_type = long
 else:
     big_integer_type = int
 
+def process_is_wow64(pid=None):
+    if pid:
+        process_handle = kernel32.OpenProcess(PROCESS_ALL_ACCESS, False, pid)
+    else:
+        process_handle = GetCurrentProcess()
+
+    temp_is_wow64 = wintypes.BOOL()
+    a_bool = IsWow64Process(process_handle, byref(temp_is_wow64))
+
+    assert a_bool
+    print("temp_is_wow64=", temp_is_wow64)
+    return True if temp_is_wow64 else False
 
 class pydbg:
     '''
@@ -584,7 +590,7 @@ class pydbg:
 
             return self.ret_self()
 
-        #self._log("bp_set(0x%08x)" % address)
+        #self._log("bp_set(0x%016x)" % address)
         assert address
         # ensure a breakpoint doesn't already exist at the target address.
         if not address in self.breakpoints:
@@ -946,7 +952,7 @@ class pydbg:
                     #self._log("EXCEPTION_BREAKPOINT")
                     continue_status = self.exception_handler_breakpoint()
                     #self._log("debug_event_loop() continue_status: %08x DBG_CONTINUE: %08x" % (continue_status, DBG_CONTINUE) )
-                    assert continue_status == DBG_CONTINUE
+                    ############ assert continue_status == DBG_CONTINUE
                 elif ec == EXCEPTION_GUARD_PAGE:
                     self._log("EXCEPTION_GUARD_PAGE")
                     continue_status = self.exception_handler_guard_page()
@@ -1454,7 +1460,7 @@ class pydbg:
         selector_entry = LDT_ENTRY()
 
         assert not is_64bits
-        if not GetThreadSelectorEntry(thread_handle, thread_context.SegFs, byref(selector_entry)):
+        if not kernel32.GetThreadSelectorEntry(thread_handle, thread_context.SegFs, byref(selector_entry)):
             self.win32_error("GetThreadSelectorEntry()")
 
         teb  = selector_entry.BaseLow
@@ -1642,12 +1648,12 @@ class pydbg:
                     continue_status = DBG_CONTINUE
 
                 if self.first_breakpoint:
-                    self._log("first windows driven system breakpoint at %08x" % self.exception_address)
+                    self._log("first windows driven system breakpoint at %016x" % self.exception_address)
                     self.first_breakpoint = False
 
             # ignore all other breakpoints we didn't explicitly set.
             else:
-                self._log("breakpoint not ours %08x" % self.exception_address)
+                self._log("breakpoint not ours %016x" % self.exception_address)
                 continue_status = DBG_EXCEPTION_NOT_HANDLED
 
         # breakpoints we did set.
@@ -1730,12 +1736,12 @@ class pydbg:
 
         # grab the actual memory breakpoint object, for the hit breakpoint.
         if self.memory_breakpoint_hit:
-            self._log("direct hit on memory breakpoint at %08x" % self.memory_breakpoint_hit)
+            self._log("direct hit on memory breakpoint at %016x" % self.memory_breakpoint_hit)
 
         if self.write_violation:
-            self._log("write violation from %08x on %08x of mem bp" % (self.exception_address, self.violation_address))
+            self._log("write violation from %016x on %016x of mem bp" % (self.exception_address, self.violation_address))
         else:
-            self._log("read violation from %08x on %08x of mem bp" % (self.exception_address, self.violation_address))
+            self._log("read violation from %016x on %016x of mem bp" % (self.exception_address, self.violation_address))
 
         # if there is a specific handler registered for this bp, pass control to it.
         if self.memory_breakpoint_hit and self.memory_breakpoints[self.memory_breakpoint_hit].handler:
@@ -1879,8 +1885,25 @@ class pydbg:
         if not address:
             self.win32_error("GetProcAddress %s %s" % (dll, function))
 
+        assert address == self.func_resolve_experimental(dll.decode("utf-8", errors="ignore"), function)
         return address
 
+    # https://stackoverflow.com/questions/33779657/python-getmodulehandlew-oserror-winerror-126-the-specified-module-could-not-b/33780664#33780664
+    # https://stackoverflow.com/questions/35849546/getprocaddress-not-working-on-x64-python
+    # This might be the reason why we cannot get the address of some functions in some DLLs.
+    def func_resolve_experimental(self, dll, function):
+        assert isinstance(dll, six.text_type)
+        assert isinstance(function, six.binary_type)
+
+        dll_module = ctypes.WinDLL(dll, use_last_error=True)
+
+        dll_kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
+        dll_kernel32.GetProcAddress.restype = ctypes.c_void_p
+        dll_kernel32.GetProcAddress.argtypes = (wintypes.HMODULE, wintypes.LPCSTR)
+
+        function_address = dll_kernel32.GetProcAddress(dll_module._handle, function)
+        assert function_address
+        return function_address
 
     ####################################################################################################################
     def func_resolve_debuggee (self, dll_name, func_name):
@@ -2106,9 +2129,6 @@ class pydbg:
         self._log("get_debug_privileges()")
 
         self._log("OpenProcessToken")
-        OpenProcessToken = ctypes.windll.advapi32.OpenProcessToken
-        OpenProcessToken.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE))
-        OpenProcessToken.restype = wintypes.BOOL
 
         if not advapi32.OpenProcessToken(kernel32.GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, byref(h_token)):
             raise pdx("OpenProcessToken()", True)
@@ -2715,6 +2735,14 @@ class pydbg:
         if not self.h_process:
             raise pdx("OpenProcess(%d)" % pid, True)
 
+        self.is_wow64 = wintypes.BOOL()
+        a_bool = IsWow64Process(self.h_process, byref(self.is_wow64))
+
+        assert a_bool
+        print("self.is_wow64=", self.is_wow64)
+
+        self._log("open_process pid=%d self.is_wow64=%d" % (pid, 1 if self.is_wow64 else 0))
+
         return self.h_process
 
 
@@ -3039,18 +3067,14 @@ class pydbg:
         _address = address
         _length  = length
 
-        try:
-            old_protect = self.virtual_protect(_address, _length, PAGE_EXECUTE_READWRITE)
-        except:
-            pass
+        old_protect = self.virtual_protect(_address, _length, PAGE_EXECUTE_READWRITE)
 
         while length:
-            #self._log("read_process_memory length=%d" % (length))
+            self._log("read_process_memory address=%016x length=%d" % (address, length))
             # TODO: Apparently there are default arguments.
-            kernel32.ReadProcessMemory.argtypes = [HANDLE, LPVOID, LPVOID, c_size_t, POINTER(c_size_t)]
             if not kernel32.ReadProcessMemory(self.h_process, address, read_buf, length, byref(count)):
                 if not len(data):
-                    raise pdx("ReadProcessMemory(%08x, %d, read=%d)" % (address, length, count.value), True)
+                    raise pdx("ReadProcessMemory(%016x, %d, read=%d)" % (address, length, count.value), True)
                 else:
                     return data
 
@@ -3766,7 +3790,10 @@ class pydbg:
         old_protect = c_ulong(0)
 
         if not kernel32.VirtualProtectEx(self.h_process, base_address, size, protection, byref(old_protect)):
-            raise pdx("VirtualProtectEx(%08x, %d, %08x)" % (base_address, size, protection), True)
+            # The reason for this error "Attempt to access invalid address." could be:
+            #  "a very obvious candidate to be your anti-malware software,"
+            # https://exceptionshub.com/virtualprotect-and-kernel32-dll-attempt-to-access-invalid-address.html
+            raise pdx("VirtualProtectEx(%016x, %d, %08x)" % (base_address, size, protection), True)
 
         return old_protect.value
 
@@ -3892,10 +3919,7 @@ class pydbg:
         # ensure we can write to the requested memory space.
         _address = address
         _length  = length
-        try:
-            old_protect = self.virtual_protect(_address, _length, PAGE_EXECUTE_READWRITE)
-        except:
-            pass
+        old_protect = self.virtual_protect(_address, _length, PAGE_EXECUTE_READWRITE)
 
         while length:
             c_data = c_char_p(data[count.value:])
@@ -3908,10 +3932,7 @@ class pydbg:
             address += count.value
 
         # restore the original page permissions on the target memory region.
-        try:
-            self.virtual_protect(_address, _length, old_protect)
-        except:
-            pass
+        self.virtual_protect(_address, _length, old_protect)
 
 
     def get_string(self, address):
@@ -3932,25 +3953,17 @@ class pydbg:
         buffer = self.read_process_memory(address, number_bytes)
         return buffer
 
-    # Windows UTF-16 string.
+    # The input buffer is a Windows UTF-16 string.
     def get_wstring(self, address):
-        # TRANSFORM INTO ASCII, FOR THE MOMENT.
-        buffer  = b""
-        offset  = 0
+        buffer = b""
+        offset = 0
         while 1:
             byte = self.read_process_memory(address + offset, 2)
             assert isinstance(byte, six.binary_type)
-            if byte != b"\x00\x00":
-                if sys.version_info < (3,):
-                    byte_0 = byte[0]
-                else:
-                    byte_0 = struct.pack("B", byte[0])
-                buffer  += byte_0
-                offset  += 2
-                continue
-            else:
-                break
-        return buffer
+            if byte == b"\x00\x00":
+                return buffer.decode("utf-16")
+            buffer += byte
+            offset += 2
 
     def get_long(self, address):
         ret_bytes = self.read_process_memory(address, 4)
