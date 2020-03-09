@@ -827,7 +827,7 @@ class PydbgPythonHooksTest(unittest.TestCase):
         self.assertTrue(Context.file_name_exit == temp_file_name)
 
     # Modified Python path so it can find the special module to create a chain of subprocesses.
-    @unittest.skip("Does not work")
+    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_Python_Subprocesses(self):
         import pydbg
         from pydbg import defines
