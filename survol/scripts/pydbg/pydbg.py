@@ -1906,7 +1906,7 @@ class pydbg:
 
     def func_resolve (self, dll, function):
         import platform
-        print("Winver=", platform.win32_ver())
+        self._log("Winver=%s" % str(platform.win32_ver()))
         assert isinstance(dll, six.binary_type)
         dll_utf8 = dll.decode("utf-8", errors="ignore")
         if platform.win32_ver()[0] == '10':
