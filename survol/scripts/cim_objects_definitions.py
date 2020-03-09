@@ -394,6 +394,7 @@ sys.path.append("../..")
 # "sys.meta_path must be a list of import hooks"
 # This module is needed for storing the generated data into a RDF file.
 try:
+    sys.path.append("../survol")
     from survol import lib_event
 except ImportError:
     lib_event = None
