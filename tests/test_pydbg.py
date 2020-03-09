@@ -660,7 +660,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         # This is a x64 library:
         #
         # hook_address_socket = tst_pydbg.func_resolve_experimental(u"C:\\Windows\\System32\\ws2_32.dll", b"WSAStringToAddressA")
-        hook_address_socket = tst_pydbg.func_resolve(u"ws2_32.dll", b"WSAStringToAddressA")
+        hook_address_socket = tst_pydbg.func_resolve(b"ws2_32.dll", b"WSAStringToAddressA")
 
         # The specified module could not be found
         # hook_address_socket = tst_pydbg.func_resolve("ws2_32.dll", b"WSAStringToAddressA")
@@ -711,9 +711,8 @@ class PydbgPythonHooksTest(unittest.TestCase):
     Calls to these funcitons are then detected and reported.
     """
 
-
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
-    def test_pydbg_Python_WriteFile(self):
+    def test_pydbg_Python_CreateFile(self):
         import pydbg
         from pydbg import defines
         from pydbg import utils
@@ -727,10 +726,14 @@ class PydbgPythonHooksTest(unittest.TestCase):
         python_command = 'import time;time.sleep(5.0);f=open(u"%s", "w");f.close()' % temp_file_name
         creation_file_process = subprocess.Popen(
             [sys.executable, '-c', python_command],
-            stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = False)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
 
         print("creation_file_process ", creation_file_process.pid)
         sys.stdout.flush()
+
+        class Context:
+            file_name_entry = None
+            file_name_exit = None
 
         # A bit of delay so the process can start.
         time.sleep(0.5)
@@ -745,15 +748,14 @@ class PydbgPythonHooksTest(unittest.TestCase):
         print("hook_address_create_file_w=%016x" % hook_address_create_file_w)
 
         def callback_create_file_entry(object_pydbg, args):
-            file_name = object_pydbg.get_wstring(args[0])
-            print("callback_create_file_entry file_name=", file_name)
-            self.assertTrue(file_name == temp_file_name)
+            Context.file_name_entry = object_pydbg.get_wstring(args[0])
+            print("callback_create_file_entry file_name_entry=", Context.file_name_entry)
+            self.assertTrue(Context.file_name_entry == temp_file_name)
             return defines.DBG_CONTINUE
 
         def callback_create_file_exit(object_pydbg, args, function_result):
-            file_name = object_pydbg.get_wstring(args[0])
-            print("callback_create_file_exit file_name=", file_name)
-            self.assertTrue(file_name == temp_file_name)
+            Context.file_name_exit = object_pydbg.get_wstring(args[0])
+            print("callback_create_file_exit m=", Context.file_name_exit)
             return pydbg.defines.DBG_CONTINUE
 
         object_hooks.add(
@@ -764,7 +766,65 @@ class PydbgPythonHooksTest(unittest.TestCase):
             callback_create_file_exit)
 
         tst_pydbg.run()
-        print("Finished")
+        self.assertTrue(Context.file_name_entry == temp_file_name)
+        self.assertTrue(Context.file_name_exit == temp_file_name)
+
+    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    def test_pydbg_Python_DeleteFile(self):
+        import pydbg
+        from pydbg import defines
+        from pydbg import utils
+
+        tst_pydbg = create_pydbg()
+
+        dir_path = os.path.dirname(__file__)
+        sys.path.append(dir_path)
+
+        temp_file_name = "tmp.txt"
+        python_command = 'import time;time.sleep(5.0);f=open(u"%s", "w");f.close();os.remove(u"%s")' % (temp_file_name, temp_file_name)
+        deletion_file_process = subprocess.Popen(
+            [sys.executable, '-c', python_command],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+
+        print("deletion_file_process ", deletion_file_process.pid)
+        sys.stdout.flush()
+
+        class Context:
+            file_name_entry = None
+            file_name_exit = None
+
+        # A bit of delay so the process can start.
+        time.sleep(0.5)
+
+        print("Root pid=%d" % root_process_id)
+        print("Attaching to pid=%d" % deletion_file_process.pid)
+        tst_pydbg.attach(deletion_file_process.pid)
+
+        object_hooks = pydbg.utils.hook_container()
+
+        hook_address_delete_file_w = tst_pydbg.func_resolve(b"KERNEL32.dll", b"DeleteFileW")
+        print("hook_address_delete_file_w=%016x" % hook_address_delete_file_w)
+
+        def callback_delete_file_entry(object_pydbg, args):
+            Context.file_name_entry = object_pydbg.get_wstring(args[0])
+            print("callback_delete_file_entry file_name_entry=", Context.file_name_entry)
+            return defines.DBG_CONTINUE
+
+        def callback_delete_file_exit(object_pydbg, args, function_result):
+            Context.file_name_exit = object_pydbg.get_wstring(args[0])
+            print("callback_delete_file_exit file_name_exit=", Context.file_name_exit)
+            return pydbg.defines.DBGContext._CONTINUE
+
+        object_hooks.add(
+            tst_pydbg,
+            hook_address_delete_file_w,
+            1,
+            callback_delete_file_entry,
+            callback_delete_file_exit)
+
+        tst_pydbg.run()
+        self.assertTrue(Context.file_name_entry == temp_file_name)
+        self.assertTrue(Context.file_name_exit == temp_file_name)
 
     # Modified Python path so it can find the special module to create a chain of subprocesses.
     @unittest.skip("Does not work")
@@ -914,7 +974,7 @@ class PydbgPythonHooksTest(unittest.TestCase):
 
         # 0x0000000076eb0000  0x11f000  C:\windows\system32\kernel32.dll
         # CreateProcessW=0000000076ed05e0 OK
-        print("CreateProcessW=%016x" % tst_pydbg.func_resolve(u"kernel32.dll", b"CreateProcessW"))
+        print("CreateProcessW=%016x" % tst_pydbg.func_resolve(b"kernel32.dll", b"CreateProcessW"))
 
         # 0x00000000ff0e0000  0x4d000   C:\windows\system32\WS2_32.dll
         # WSAStringToAddressA             =000007feff109360 Broken.
