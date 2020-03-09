@@ -551,11 +551,13 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         tst_pydbg.count_entry = 0
         tst_pydbg.count_exit = 0
 
+        ping_binary_lower = r"C:\windows\system32\PING.EXE".lower()
+
         def callback_process_information_entry(object_pydbg, args):
             object_pydbg.count_entry += 1
             lpApplicationName = object_pydbg.get_wstring(args[0])
             print("callback_process_information_entry lpApplicationName=", lpApplicationName)
-            assert lpApplicationName == r"C:\windows\system32\PING.EXE"
+            assert lpApplicationName.lower() == ping_binary_lower
             lpCommandLine = object_pydbg.get_wstring(args[1])
             print("callback_process_information_entry lpCommandLine=%s." % lpCommandLine)
             assert lpCommandLine == "ping  -n 2 127.0.0.1"
@@ -589,7 +591,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
             object_pydbg.count_exit += 1
             lpApplicationName = object_pydbg.get_wstring(args[0])
             print("callback_process_information_exit lpApplicationName=", lpApplicationName)
-            assert lpApplicationName == r"C:\windows\system32\PING.EXE"
+            assert lpApplicationName.lower() == ping_binary_lower
             lpCommandLine = object_pydbg.get_wstring(args[1])
             print("callback_process_information_exit lpCommandLine=%s." % lpCommandLine)
             assert lpCommandLine == "ping  -n 2 127.0.0.1"
@@ -658,7 +660,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         # This is a x64 library:
         #
         # hook_address_socket = tst_pydbg.func_resolve_experimental(u"C:\\Windows\\System32\\ws2_32.dll", b"WSAStringToAddressA")
-        hook_address_socket = tst_pydbg.func_resolve_experimental(u"ws2_32.dll", b"WSAStringToAddressA")
+        hook_address_socket = tst_pydbg.func_resolve(u"ws2_32.dll", b"WSAStringToAddressA")
 
         # The specified module could not be found
         # hook_address_socket = tst_pydbg.func_resolve("ws2_32.dll", b"WSAStringToAddressA")
@@ -901,7 +903,7 @@ class PydbgPythonHooksTest(unittest.TestCase):
         #
         # hook_address_socket = tst_pydbg.func_resolve_experimental(u"C:\\Windows\\System32\\ws2_32.dll", b"WSAStringToAddressA")
         # hook_address = tst_pydbg.func_resolve_experimental(u"kernel32.dll", b"CreateProcessW")
-        hook_address = tst_pydbg.func_resolve_experimental(u"ws2_32.dll", b"WSAStringToAddressA")
+        hook_address = tst_pydbg.func_resolve(b"ws2_32.dll", b"WSAStringToAddressA")
 
         # The specified module could not be found
         # hook_address_socket = tst_pydbg.func_resolve("ws2_32.dll", b"WSAStringToAddressA")
@@ -912,13 +914,13 @@ class PydbgPythonHooksTest(unittest.TestCase):
 
         # 0x0000000076eb0000  0x11f000  C:\windows\system32\kernel32.dll
         # CreateProcessW=0000000076ed05e0 OK
-        print("CreateProcessW=%016x" % tst_pydbg.func_resolve_experimental(u"kernel32.dll", b"CreateProcessW"))
+        print("CreateProcessW=%016x" % tst_pydbg.func_resolve(u"kernel32.dll", b"CreateProcessW"))
 
         # 0x00000000ff0e0000  0x4d000   C:\windows\system32\WS2_32.dll
         # WSAStringToAddressA             =000007feff109360 Broken.
-        print("WSAStringToAddressA=%016x" % tst_pydbg.func_resolve_experimental(u"ws2_32.dll", b"WSAStringToAddressA"))
+        print("WSAStringToAddressA=%016x" % tst_pydbg.func_resolve(u"ws2_32.dll", b"WSAStringToAddressA"))
         # socket                          =000007feff0ed910
-        print("socket=%016x" % tst_pydbg.func_resolve_experimental(u"ws2_32.dll", b"socket"))
+        print("socket=%016x" % tst_pydbg.func_resolve(u"ws2_32.dll", b"socket"))
 
         # ws2_32 are not correct.
 
