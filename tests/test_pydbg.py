@@ -756,7 +756,7 @@ class PydbgPythonHooksTest(unittest.TestCase):
         def callback_create_file_exit(object_pydbg, args, function_result):
             Context.file_name_exit = object_pydbg.get_wstring(args[0])
             print("callback_create_file_exit m=", Context.file_name_exit)
-            return pydbg.defines.DBG_CONTINUE
+            return defines.DBG_CONTINUE
 
         object_hooks.add(
             tst_pydbg,
@@ -781,7 +781,7 @@ class PydbgPythonHooksTest(unittest.TestCase):
         sys.path.append(dir_path)
 
         temp_file_name = "tmp.txt"
-        python_command = 'import time;time.sleep(5.0);f=open(u"%s", "w");f.close();os.remove(u"%s")' % (temp_file_name, temp_file_name)
+        python_command = 'import time;import os;time.sleep(5.0);f=open(u"%s", "w");f.close();os.remove(u"%s")' % (temp_file_name, temp_file_name)
         deletion_file_process = subprocess.Popen(
             [sys.executable, '-c', python_command],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
@@ -813,7 +813,7 @@ class PydbgPythonHooksTest(unittest.TestCase):
         def callback_delete_file_exit(object_pydbg, args, function_result):
             Context.file_name_exit = object_pydbg.get_wstring(args[0])
             print("callback_delete_file_exit file_name_exit=", Context.file_name_exit)
-            return pydbg.defines.DBGContext._CONTINUE
+            return defines.DBG_CONTINUE
 
         object_hooks.add(
             tst_pydbg,
