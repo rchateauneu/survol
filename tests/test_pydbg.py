@@ -722,7 +722,9 @@ class PydbgPythonHooksTest(unittest.TestCase):
         dir_path = os.path.dirname(__file__)
         sys.path.append(dir_path)
 
-        temp_file_name = "tmp.txt"
+        temp_file_name = "tmp_create.txt"
+        # Remove the file to ensure it will be created.
+        # python_command = 'import time;import os;fina=u"%s";if os.path.exists(fina):os.remove(fina);time.sleep(5.0);f=open(fina, "w");f.close()' % temp_file_name
         python_command = 'import time;time.sleep(5.0);f=open(u"%s", "w");f.close()' % temp_file_name
         creation_file_process = subprocess.Popen(
             [sys.executable, '-c', python_command],
@@ -780,7 +782,7 @@ class PydbgPythonHooksTest(unittest.TestCase):
         dir_path = os.path.dirname(__file__)
         sys.path.append(dir_path)
 
-        temp_file_name = "tmp.txt"
+        temp_file_name = "tmp_delete.txt"
         python_command = 'import time;import os;time.sleep(5.0);f=open(u"%s", "w");f.close();os.remove(u"%s")' % (temp_file_name, temp_file_name)
         deletion_file_process = subprocess.Popen(
             [sys.executable, '-c', python_command],
