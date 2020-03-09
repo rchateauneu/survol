@@ -858,8 +858,9 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         proc.terminate()
         proc.wait()
 
-    # This is a helper because the processes dictionary is not needed.
-    def create_process_chain(self, depth_processes):
+    # This helper function creates a chain of subprocesses which is used
+    # to check the detection of processes trees.
+    def process_chain_creation(self, depth_processes):
         processes_list_first, pids_dict = self.create_process_tree_popen(depth_processes)
         pids_list = [ pids_dict[index] for index in range(depth_processes, 0, -1)]
         return processes_list_first, pids_list
@@ -869,7 +870,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
     def test_sparql_sub2_processes(self):
         rdflib_graph = CreateGraph()
 
-        processes_list_first, pids_list = self.create_process_chain(2)
+        processes_list_first, pids_list = self.process_chain_creation(2)
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -903,7 +904,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
     def test_sparql_sub3_processes(self):
         rdflib_graph = CreateGraph()
 
-        processes_list_first, pids_list = self.create_process_chain(3)
+        processes_list_first, pids_list = self.process_chain_creation(3)
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -940,7 +941,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
     def test_sparql_sub4_processes(self):
         rdflib_graph = CreateGraph()
 
-        processes_list_first, pids_list = self.create_process_chain(4)
+        processes_list_first, pids_list = self.process_chain_creation(4)
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -980,7 +981,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
     def test_sparql_sub5_processes(self):
         rdflib_graph = CreateGraph()
 
-        processes_list_first, pids_list = self.create_process_chain(5)
+        processes_list_first, pids_list = self.process_chain_creation(5)
 
         sparql_query = """
             PREFIX survol: <%s>
