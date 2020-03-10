@@ -728,7 +728,9 @@ class PydbgPythonHooksTest(unittest.TestCase):
         dir_path = os.path.dirname(__file__)
         sys.path.append(dir_path)
 
-        temp_file_name = "tmp.txt"
+        temp_file_name = "tmp_create.txt"
+        # Remove the file to ensure it will be created.
+        # python_command = 'import time;import os;fina=u"%s";if os.path.exists(fina):os.remove(fina);time.sleep(5.0);f=open(fina, "w");f.close()' % temp_file_name
         python_command = 'import time;time.sleep(5.0);f=open(u"%s", "w");f.close()' % temp_file_name
         creation_file_process = subprocess.Popen(
             [sys.executable, '-c', python_command],
@@ -762,7 +764,7 @@ class PydbgPythonHooksTest(unittest.TestCase):
         def callback_create_file_exit(object_pydbg, args, function_result):
             Context.file_name_exit = object_pydbg.get_wstring(args[0])
             print("callback_create_file_exit m=", Context.file_name_exit)
-            return pydbg.defines.DBG_CONTINUE
+            return defines.DBG_CONTINUE
 
         object_hooks.add(
             tst_pydbg,
@@ -786,8 +788,8 @@ class PydbgPythonHooksTest(unittest.TestCase):
         dir_path = os.path.dirname(__file__)
         sys.path.append(dir_path)
 
-        temp_file_name = "tmp.txt"
-        python_command = 'import time;time.sleep(5.0);f=open(u"%s", "w");f.close();os.remove(u"%s")' % (temp_file_name, temp_file_name)
+        temp_file_name = "tmp_delete.txt"
+        python_command = 'import time;import os;time.sleep(5.0);f=open(u"%s", "w");f.close();os.remove(u"%s")' % (temp_file_name, temp_file_name)
         deletion_file_process = subprocess.Popen(
             [sys.executable, '-c', python_command],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
@@ -819,7 +821,7 @@ class PydbgPythonHooksTest(unittest.TestCase):
         def callback_delete_file_exit(object_pydbg, args, function_result):
             Context.file_name_exit = object_pydbg.get_wstring(args[0])
             print("callback_delete_file_exit file_name_exit=", Context.file_name_exit)
-            return pydbg.defines.DBGContext._CONTINUE
+            return defines.DBG_CONTINUE
 
         object_hooks.add(
             tst_pydbg,
@@ -833,7 +835,7 @@ class PydbgPythonHooksTest(unittest.TestCase):
         self.assertTrue(Context.file_name_exit == temp_file_name)
 
     # Modified Python path so it can find the special module to create a chain of subprocesses.
-    @unittest.skip("Does not work")
+    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_Python_Subprocesses(self):
         import pydbg
         from pydbg import defines
