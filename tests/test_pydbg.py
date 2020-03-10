@@ -394,6 +394,12 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
         object_hooks = pydbg.utils.hook_container()
 
+        # b"CreateFileA"
+        # b"CreateFileW"
+        # b"CreateFile2"
+        # b"CreateFileTransactedA"
+        # b"CreateFileTransactedW"
+
         hook_address_CreateFileW = tst_pydbg.func_resolve(b"KERNEL32.dll", b"CreateFileW")
 
         tst_pydbg.count_entry = 0
