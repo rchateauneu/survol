@@ -1436,6 +1436,7 @@ class pydbg:
         self.close_handle(self.dbg.u.CreateProcessInfo.hFile)
 
         if not self.follow_forks:
+            self._log("Do not follow forks")
             return DBG_CONTINUE
 
         if CREATE_PROCESS_DEBUG_EVENT in self.callbacks:
@@ -1490,7 +1491,9 @@ class pydbg:
             self.set_thread_context(thread_context, thread_id=thread_id)
 
     def event_handler_create_thread64(self):
-        pass
+        self._log("event_handler_create_thread64")
+        self._log("event_handler_create_thread64 dbg.dwProcessId=%d" % self.dbg.dwProcessId)
+        self._log("event_handler_create_thread64 dbg.dwThreadId=%d" % self.dbg.dwThreadId)
 
     def event_handler_create_thread(self):
         # https://stackoverflow.com/questions/54953185/getthreadselectorentry-throwing-error-not-supported-for-x64-app
@@ -1876,7 +1879,7 @@ class pydbg:
         @return: Address
         '''
 
-        assert isinstance(dll, six.text_type)
+        assert isinstance(dll, six.binary_type)
         assert isinstance(function, six.binary_type)
 
         dll_module = ctypes.WinDLL(dll, use_last_error=True)
@@ -2723,8 +2726,6 @@ class pydbg:
         a_bool = IsWow64Process(self.h_process, byref(self.is_wow64))
 
         assert a_bool
-        print("self.is_wow64=", self.is_wow64)
-
         self._log("open_process pid=%d self.is_wow64=%d" % (pid, 1 if self.is_wow64 else 0))
 
         return self.h_process
