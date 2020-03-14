@@ -220,7 +220,7 @@ class DockitComponentsTest(unittest.TestCase):
     @unittest.skip("Disabled for the moment.")
     def test_usage(self):
         # Conventional value so this function does not exit.
-        dockit.Usage(999)
+        dockit.print_dockit_usage(999)
 
     @unittest.skip("Not implemented yet")
     def test_InitAfterPid(self):

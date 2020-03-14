@@ -50,7 +50,7 @@ if sys.platform.startswith("win"):
 
 ################################################################################
 
-def Usage(exitCode = 1, errMsg = None):
+def print_dockit_usage(exitCode = 1, errMsg = None):
     if errMsg:
         print(errMsg)
 
@@ -474,15 +474,15 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
     # A command or a pid or an input log file, only one possibility.
     if argsCmd != []:
         if aPid > 0 or inputLogFile:
-            Usage(1,"When providing command, must not specify process id or input log file")
+            print_dockit_usage(1,"When providing command, must not specify process id or input log file")
     elif aPid> 0 :
         if argsCmd != []:
-            Usage(1,"When providing process id, must not specify command or input log file")
+            print_dockit_usage(1,"When providing process id, must not specify command or input log file")
     elif inputLogFile:
         if argsCmd != []:
-            Usage(1,"When providing input file, must not specify command or process id")
+            print_dockit_usage(1,"When providing input file, must not specify command or process id")
     else:
-        Usage(1,"Must provide command, pid or input file")
+        print_dockit_usage(1,"Must provide command, pid or input file")
 
     dateTodayRun = time.strftime("%Y-%m-%d")
     theHostNam = socket.gethostname()
@@ -714,7 +714,7 @@ if __name__ == '__main__':
                  "log","tracer","server","aggregator"])
     except getopt.GetoptError as err:
         # print help information and exit:
-        Usage(2,err) # will print something like "option -a not recognized"
+        print_dockit_usage(2,err) # will print something like "option -a not recognized"
 
     verbose = 0
     withWarning = 0
@@ -767,7 +767,7 @@ if __name__ == '__main__':
         elif anOpt in ("-a", "--aggregator"):
             aggregator = aVal
         elif anOpt in ("-h", "--help"):
-            Usage(0)
+            print_dockit_usage(0)
         else:
             assert False, "Unhandled option"
 
