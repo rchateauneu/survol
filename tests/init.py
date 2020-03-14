@@ -215,10 +215,10 @@ def CgiAgentStart(agent_url, agent_port):
         # TODO: A better solution would be to override server_bind()
         time.sleep(2.0)
         agent_process = multiprocessing.Process(
-            target=scripts.cgiserver.StartParameters,
+            target=scripts.cgiserver.start_server_as_function,
             args=(True, AgentHost, agent_port, current_dir))
 
-        atexit.register(ServerDumpContent, scripts.cgiserver.CgiServerLogFileName(agent_port) )
+        atexit.register(ServerDumpContent, scripts.cgiserver.cgi_server_logfile_name(agent_port) )
 
         agent_process.start()
         INFO("CgiAgentStart: Waiting for CGI agent to start")
@@ -229,7 +229,7 @@ def CgiAgentStart(agent_url, agent_port):
             response = portable_urlopen(local_agent_url, timeout=15)
         except Exception as exc:
             ERROR("Caught:%s", exc)
-            ServerDumpContent(scripts.cgiserver.CgiServerLogFileName(agent_port))
+            ServerDumpContent(scripts.cgiserver.cgi_server_logfile_name(agent_port))
             raise
 
     data = response.read().decode("utf-8")
