@@ -39,7 +39,7 @@ class SurvolSparqlCallbackApi:
 
             my_source = lib_client.SourceLocal(script_name, class_name, **filtered_where_key_values)
             DEBUG("SurvolCallbackSelect my_source=%s", my_source)
-            my_triplestore = my_source.GetTriplestore()
+            my_triplestore = my_source.get_triplestore()
 
             # This is returned anyway, as a triplestore that rdflib Sparql can work on.
             my_triplestore.CopyToGraph(grph)
@@ -135,10 +135,10 @@ class SurvolSparqlCallbackApi:
         list_sources = cim_object.GetScripts()
 
         for my_source in list_sources:
-            if my_source.IsVerySlow():
+            if my_source.is_very_slow():
                 continue
             try:
-                my_triplestore = my_source.GetTriplestore()
+                my_triplestore = my_source.get_triplestore()
             except Exception as ex:
                 # We have no idea about the script, because we run every possible script,
                 # so it is not an issue it it fails.

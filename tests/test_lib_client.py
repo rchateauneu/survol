@@ -40,7 +40,7 @@ isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 # We could as well delete all modules except sys.
 allModules = [ modu for modu in sys.modules if modu.startswith("survol") or modu.startswith("lib_")]
 
-ClientObjectInstancesFromScript = lib_client.SourceLocal.GetObjectInstancesFromScript
+ClientObjectInstancesFromScript = lib_client.SourceLocal.get_object_instances_from_script
 
 # Otherwise, Python callstack would be displayed in HTML.
 cgitb.enable(format="txt")
@@ -67,7 +67,7 @@ class SurvolLocalTest(unittest.TestCase):
             "sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
             Name=always_present_file)
-        print("test_create_source_local_json: query==%s" % mySourceFileStatLocal.UrlQuery())
+        print("test_create_source_local_json: query==%s" % mySourceFileStatLocal.create_url_query())
         the_content_json = mySourceFileStatLocal.content_json()
         print("test_create_source_local_json: Json content=%s ..."%str(the_content_json)[:30])
 
@@ -76,7 +76,7 @@ class SurvolLocalTest(unittest.TestCase):
             "sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
             Name=always_present_file)
-        print("test_create_source_local_rdf: query=%s" % mySourceFileStatLocal.UrlQuery())
+        print("test_create_source_local_rdf: query=%s" % mySourceFileStatLocal.create_url_query())
         the_content_rdf = mySourceFileStatLocal.content_rdf()
         print("test_create_source_local_rdf: RDF content=%s ..."%str(the_content_rdf)[:30])
 
@@ -85,7 +85,7 @@ class SurvolLocalTest(unittest.TestCase):
             "sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
             Name=always_present_file)
-        tripleFileStatLocal = mySourceFileStatLocal.GetTriplestore()
+        tripleFileStatLocal = mySourceFileStatLocal.get_triplestore()
         print("Len triple store local=",len(tripleFileStatLocal.m_triplestore))
 
     def test_local_instances(self):
@@ -96,7 +96,7 @@ class SurvolLocalTest(unittest.TestCase):
 
         lib_common.globalErrorMessageEnabled = False
 
-        tripleFileStatLocal = mySourceFileStatLocal.GetTriplestore()
+        tripleFileStatLocal = mySourceFileStatLocal.get_triplestore()
         print("Len tripleFileStatLocal=",len(tripleFileStatLocal))
 
         # Typical output:
@@ -135,11 +135,11 @@ class SurvolLocalTest(unittest.TestCase):
             Handle=CurrentPid)
 
         mySrcMergePlus = mySource1 + mySource2
-        triplePlus = mySrcMergePlus.GetTriplestore()
+        triplePlus = mySrcMergePlus.get_triplestore()
         print("Len triplePlus:",len(triplePlus))
 
-        lenSource1 = len(mySource1.GetTriplestore().GetInstances())
-        lenSource2 = len(mySource2.GetTriplestore().GetInstances())
+        lenSource1 = len(mySource1.get_triplestore().GetInstances())
+        lenSource2 = len(mySource2.get_triplestore().GetInstances())
         lenPlus = len(triplePlus.GetInstances())
         # In the merged link, there cannot be more instances than in the input sources.
         self.assertTrue(lenPlus <= lenSource1 + lenSource2)
@@ -155,10 +155,10 @@ class SurvolLocalTest(unittest.TestCase):
 
         mySrcMergeMinus = mySource1 - mySource2
         print("Merge Minus:",str(mySrcMergeMinus.content_rdf())[:30])
-        tripleMinus = mySrcMergeMinus.GetTriplestore()
+        tripleMinus = mySrcMergeMinus.get_triplestore()
         print("Len tripleMinus:",len(tripleMinus))
 
-        lenSource1 = len(mySource1.GetTriplestore().GetInstances())
+        lenSource1 = len(mySource1.get_triplestore().GetInstances())
         lenMinus = len(tripleMinus.GetInstances())
         # There cannot be more instances after removal.
         self.assertTrue(lenMinus <= lenSource1 )
@@ -170,17 +170,17 @@ class SurvolLocalTest(unittest.TestCase):
             "Win32_UserAccount",
             Domain=CurrentMachine,
             Name=CurrentUsername)
-        tripleDupl = mySourceDupl.GetTriplestore()
+        tripleDupl = mySourceDupl.get_triplestore()
         print("Len tripleDupl=",len(tripleDupl.GetInstances()))
 
         mySrcMergePlus = mySourceDupl + mySourceDupl
-        triplePlus = mySrcMergePlus.GetTriplestore()
+        triplePlus = mySrcMergePlus.get_triplestore()
         print("Len triplePlus=",len(triplePlus.GetInstances()))
         # No added node.
         self.assertEqual(len(triplePlus.GetInstances()), len(tripleDupl.GetInstances()))
 
         mySrcMergeMinus = mySourceDupl - mySourceDupl
-        tripleMinus = mySrcMergeMinus.GetTriplestore()
+        tripleMinus = mySrcMergeMinus.get_triplestore()
         print("Len tripleMinus=",len(tripleMinus.GetInstances()))
         self.assertEqual(len(tripleMinus.GetInstances()), 0)
 
@@ -193,7 +193,7 @@ class SurvolLocalTest(unittest.TestCase):
             "xxx/yyy/zzz.py",
             "this-will-raise-an-exception")
         try:
-            tripleBad = mySourceBad.GetTriplestore()
+            tripleBad = mySourceBad.get_triplestore()
         except Exception as exc:
             print("Error detected:",exc)
 
@@ -201,7 +201,7 @@ class SurvolLocalTest(unittest.TestCase):
             RemoteTestAgent + "/xxx/yyy/zzz/ttt.py",
             "wwwww")
         try:
-            tripleBroken = mySourceBroken.GetTriplestore()
+            tripleBroken = mySourceBroken.get_triplestore()
             excRaised = False
         except Exception as exc:
             excRaised = True
@@ -260,7 +260,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_DataFile",
             Name=sampleFile)
 
-        tripleGrep = mySourceGrep.GetTriplestore()
+        tripleGrep = mySourceGrep.get_triplestore()
 
         matchingTriples = tripleGrep.GetMatchingStringsTriples("[Pp]ellentesque")
 
@@ -276,7 +276,7 @@ class SurvolLocalTest(unittest.TestCase):
         mySourceTopLevelLocal = lib_client.SourceLocal(
             "sources_types/win32/win32_local_groups.py")
 
-        tripleTopLevelLocal = mySourceTopLevelLocal.GetTriplestore()
+        tripleTopLevelLocal = mySourceTopLevelLocal.get_triplestore()
         instancesTopLevelLocal = tripleTopLevelLocal.GetInstances()
 
         if isVerbose:
@@ -303,7 +303,7 @@ class SurvolLocalTest(unittest.TestCase):
         # There should be at least a couple of scripts.
         self.assertTrue(len(listScripts) > 0)
         # TODO: Maybe this script will not come first in the future.
-        assert(listScripts[0].UrlQuery() == "xid=Win32_Service.Name=PlugPlay")
+        assert(listScripts[0].create_url_query() == "xid=Win32_Service.Name=PlugPlay")
         assert(listScripts[0].m_script == "sources_types/Win32_Service/service_dependencies.py")
 
     def test_instances_cache(self):
@@ -332,7 +332,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_DataFile",
             Name=sqlPathName)
 
-        tripleSqlQueries = mySourceSqlQueries.GetTriplestore()
+        tripleSqlQueries = mySourceSqlQueries.get_triplestore()
         if isVerbose:
             print("Len tripleSqlQueries=",len(tripleSqlQueries.m_triplestore))
 
@@ -382,7 +382,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=procOpen.pid)
 
-        tripleSqlQueries = mySourceSqlQueries.GetTriplestore()
+        tripleSqlQueries = mySourceSqlQueries.get_triplestore()
         print(len(tripleSqlQueries))
         assert(len(tripleSqlQueries.m_triplestore)==190)
 
@@ -428,7 +428,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=procOpen.pid)
 
-        tripleSqlQueries = mySourceSqlQueries.GetTriplestore()
+        tripleSqlQueries = mySourceSqlQueries.get_triplestore()
         print("len(tripleSqlQueries)=",len(tripleSqlQueries))
 
         matchingTriples = list(tripleSqlQueries.GetAllStringsTriples())
@@ -458,7 +458,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=procOpen.pid)
 
-        tripleSqlQueries = mySourceSqlQueries.GetTriplestore()
+        tripleSqlQueries = mySourceSqlQueries.get_triplestore()
         print("len(tripleSqlQueries)=",len(tripleSqlQueries))
 
         matchingTriples = list(tripleSqlQueries.GetAllStringsTriples())
@@ -481,7 +481,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=procOpen.pid)
 
-        tripleSqlQueries = mySourceSqlQueries.GetTriplestore()
+        tripleSqlQueries = mySourceSqlQueries.get_triplestore()
 
         # Some instances are required.
         lstMandatoryInstances = [
@@ -513,7 +513,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=procOpen.pid)
 
-        tripleProcesses = mySourceProcesses.GetTriplestore()
+        tripleProcesses = mySourceProcesses.get_triplestore()
 
         lstInstances = tripleProcesses.GetInstances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
@@ -552,7 +552,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=procOpen.pid)
 
-        tripleMemMaps = mySourceMemMaps.GetTriplestore()
+        tripleMemMaps = mySourceMemMaps.get_triplestore()
 
         lstInstances = tripleMemMaps.GetInstances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
@@ -632,7 +632,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=process_id)
 
-        tripleEnvVars = mySourceEnvVars.GetTriplestore()
+        tripleEnvVars = mySourceEnvVars.get_triplestore()
 
         print("tripleEnvVars:",tripleEnvVars)
 
@@ -692,7 +692,7 @@ class SurvolLocalTest(unittest.TestCase):
             "python/package",
             Id="rdflib")
 
-        triplePythonPackage = mySourcePythonPackage.GetTriplestore()
+        triplePythonPackage = mySourcePythonPackage.get_triplestore()
 
         lstInstances = triplePythonPackage.GetInstances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
@@ -740,7 +740,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=procOpen.pid)
 
-        triplePyScript = mySourcePyScript.GetTriplestore()
+        triplePyScript = mySourcePyScript.get_triplestore()
 
         lstInstances = triplePyScript.GetInstances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
@@ -768,7 +768,7 @@ class SurvolLocalTest(unittest.TestCase):
         mySourceUsers = lib_client.SourceLocal(
             "sources_types/enumerate_user.py")
 
-        tripleUsers = mySourceUsers.GetTriplestore()
+        tripleUsers = mySourceUsers.get_triplestore()
         instancesUsers = tripleUsers.GetInstances()
         strInstancesSet = set([str(oneInst) for oneInst in instancesUsers ])
 
@@ -785,7 +785,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=CurrentPid)
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().GetInstances() ])
 
         # The result is empty but the script worked.
         print(strInstancesSet)
@@ -799,7 +799,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=CurrentPid)
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().GetInstances() ])
 
         # The result is empty but the script worked.
         print("Connections=",strInstancesSet)
@@ -813,7 +813,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=CurrentPid)
 
-        strInstancesSet = set( [str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+        strInstancesSet = set( [str(oneInst) for oneInst in mySource.get_triplestore().GetInstances() ])
         print("test_process_cwd: strInstancesSet:", strInstancesSet)
 
         print("test_process_cwd: CurrentExecutablePath:", CurrentExecutablePath)
@@ -840,7 +840,7 @@ class SurvolLocalWbemTest(unittest.TestCase):
             "CIM_Process",
             Handle=CurrentPid)
 
-        triple_store = mySource.GetTriplestore()
+        triple_store = mySource.get_triplestore()
         instances_list = triple_store.GetInstances()
         strInstancesSet = set( [str(oneInst) for oneInst in instances_list ])
         print("test_wbem_process_info: strInstancesSet:", strInstancesSet)
@@ -854,7 +854,7 @@ class SurvolLocalWbemTest(unittest.TestCase):
             "CIM_ComputerSystem",
             Name=CurrentMachine)
 
-        triple_store = mySource.GetTriplestore()
+        triple_store = mySource.get_triplestore()
         instances_list = triple_store.GetInstances()
         strInstancesSet = set( [str(oneInst) for oneInst in instances_list ])
         print("test_wbem_hostname_processes_local: strInstancesSet:", strInstancesSet)
@@ -871,7 +871,7 @@ class SurvolRemoteWbemTest(unittest.TestCase):
             "CIM_ComputerSystem",
             Name=SurvolServerHostname)
 
-        mySource.GetTriplestore()
+        mySource.get_triplestore()
 
 
     @unittest.skipIf(not has_wbem(), "pywbem cannot be imported. test_wbem_hostname_processes_remote not executed.")
@@ -883,7 +883,7 @@ class SurvolRemoteWbemTest(unittest.TestCase):
             "CIM_ComputerSystem",
             Name=SurvolServerHostname)
 
-        computer_triple_store = computer_source.GetTriplestore()
+        computer_triple_store = computer_source.get_triplestore()
         instances_list = computer_triple_store.GetInstances()
         strInstancesSet = set( [str(oneInst) for oneInst in instances_list ])
 
@@ -914,7 +914,7 @@ class SurvolRemoteWbemTest(unittest.TestCase):
                 "CIM_Process",
                 Handle=remote_pid)
             try:
-                process_triple_store = process_source.GetTriplestore()
+                process_triple_store = process_source.get_triplestore()
             except Exception as exc:
                 print("pid=", remote_pid, " exc=", exc)
                 continue
@@ -981,7 +981,7 @@ class SurvolLocalJavaTest(unittest.TestCase):
         ]:
             listRequired.append( instPrefix + instJavaName )
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().GetInstances() ])
         print("test_java_mbeans strInstancesSet=", strInstancesSet)
 
         for oneStr in listRequired:
@@ -1024,7 +1024,7 @@ class SurvolLocalJavaTest(unittest.TestCase):
 
         listRequired.append( CurrentProcessPath )
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().GetInstances() ])
         print("test_java_system_properties strInstancesSet=", strInstancesSet)
 
         print("listRequired=",listRequired)
@@ -1045,7 +1045,7 @@ class SurvolLocalJavaTest(unittest.TestCase):
 
         # Start a Java process.
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().GetInstances() ])
 
         assert(strInstancesSet == set())
 
@@ -1131,7 +1131,7 @@ class SurvolLocalLinuxTest(unittest.TestCase):
             'Linux/cgroup.Name=cpuset',
         ]
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().GetInstances() ])
 
         for oneStr in listRequired:
             assert( oneStr in strInstancesSet )
@@ -1172,7 +1172,7 @@ class SurvolLocalGdbTest(unittest.TestCase):
         ]
 
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().GetInstances() ])
 
         for oneStr in listRequired:
             assert( oneStr in strInstancesSet )
@@ -1200,7 +1200,7 @@ class SurvolLocalGdbTest(unittest.TestCase):
             "CIM_Process",
             Handle=procOpen.pid)
 
-        triplePyStack = mySourcePyStack.GetTriplestore()
+        triplePyStack = mySourcePyStack.get_triplestore()
 
         lstInstances = triplePyStack.GetInstances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
@@ -1327,7 +1327,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 
         try:
             # Should throw "Exception: ErrorMessageHtml raised:Cannot debug current process"
-            mySource.GetTriplestore()
+            mySource.get_triplestore()
         except Exception as exc:
             print("Success: Exception received, because cannot debug current process")
             return
@@ -1344,7 +1344,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 
         try:
             # Should throw "Exception: ErrorMessageHtml raised:Cannot debug current process"
-            mySource.GetTriplestore()
+            mySource.get_triplestore()
         except Exception as exc:
             print("Success: Exception received, because cannot debug current process")
             return
@@ -1381,8 +1381,8 @@ class SurvolLocalWindowsTest(unittest.TestCase):
             "CIM_ComputerSystem",
             Name = CurrentMachine)
 
-        sys.stderr.write("CurrentMachine=%s before GetTriplestore\n" % CurrentMachine)
-        tripleHostLocalGroups = mySourceHostLocalGroups.GetTriplestore()
+        sys.stderr.write("CurrentMachine=%s before get_triplestore\n" % CurrentMachine)
+        tripleHostLocalGroups = mySourceHostLocalGroups.get_triplestore()
         sys.stderr.write("CurrentMachine=%s before GetInstances\n" % CurrentMachine)
         instancesHostLocalGroups = tripleHostLocalGroups.GetInstances()
 
@@ -1740,7 +1740,7 @@ class SurvolRemoteTest(unittest.TestCase):
             "CIM_DataFile",
             Name=always_present_file)
         print("urlFileStatRemote=",mySourceFileStatRemote.Url())
-        print("qryFileStatRemote=",mySourceFileStatRemote.UrlQuery())
+        print("qryFileStatRemote=",mySourceFileStatRemote.create_url_query())
         print("jsonFileStatRemote=%s  ..." % str(mySourceFileStatRemote.content_json())[:30])
         print("rdfFileStatRemote=%s ..." % str(mySourceFileStatRemote.content_rdf())[:30])
 
@@ -1754,7 +1754,7 @@ class SurvolRemoteTest(unittest.TestCase):
             RemoteTestAgent + "/survol/sources_types/CIM_Directory/file_directory.py",
             "CIM_Directory",
             Name=always_present_dir)
-        tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
+        tripleFileStatRemote = mySourceFileStatRemote.get_triplestore()
         print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
         # This should not be empty.
         self.assertTrue(len(tripleFileStatRemote)>=1)
@@ -1780,7 +1780,7 @@ class SurvolRemoteTest(unittest.TestCase):
             RemoteTestAgent + "/survol/entity.py",
             "python/package",
             Id="rdflib")
-        triplePythonPackageRemote = mySourcePythonPackageRemote.GetTriplestore()
+        triplePythonPackageRemote = mySourcePythonPackageRemote.get_triplestore()
 
         instancesPythonPackageRemote = triplePythonPackageRemote.GetInstances()
         lenInstances = len(instancesPythonPackageRemote)
@@ -1792,7 +1792,7 @@ class SurvolRemoteTest(unittest.TestCase):
         """Loads Java processes. There is at least one Java process, the one doing the test"""
         mySourceJavaRemote = lib_client.SourceRemote(
             RemoteTestAgent + "/survol/sources_types/java/java_processes.py")
-        tripleJavaRemote = mySourceJavaRemote.GetTriplestore()
+        tripleJavaRemote = mySourceJavaRemote.get_triplestore()
         print("Len tripleJavaRemote=",len(tripleJavaRemote))
 
         instancesJavaRemote = tripleJavaRemote.GetInstances()
@@ -1811,7 +1811,7 @@ class SurvolRemoteTest(unittest.TestCase):
 
         mySourceArpRemote = lib_client.SourceRemote(
             RemoteTestAgent + "/survol/sources_types/neighborhood/cgi_arp_async.py")
-        tripleArpRemote = mySourceArpRemote.GetTriplestore()
+        tripleArpRemote = mySourceArpRemote.get_triplestore()
         print("Len tripleArpRemote=",len(tripleArpRemote))
 
         instancesArpRemote = tripleArpRemote.GetInstances()
@@ -1836,11 +1836,11 @@ class SurvolRemoteTest(unittest.TestCase):
 
         mySrcMergePlus = mySource1 + mySource2
         print("Merge plus:",str(mySrcMergePlus.content_rdf())[:30])
-        triplePlus = mySrcMergePlus.GetTriplestore()
+        triplePlus = mySrcMergePlus.get_triplestore()
         print("Len triplePlus:",len(triplePlus))
 
-        lenSource1 = len(mySource1.GetTriplestore().GetInstances())
-        lenSource2 = len(mySource2.GetTriplestore().GetInstances())
+        lenSource1 = len(mySource1.get_triplestore().GetInstances())
+        lenSource2 = len(mySource2.get_triplestore().GetInstances())
         lenPlus = len(triplePlus.GetInstances())
         # There is a margin because some instances could be created in the mean time.
         errorMargin = 20
@@ -1860,10 +1860,10 @@ class SurvolRemoteTest(unittest.TestCase):
 
         mySrcMergeMinus = mySource1 - mySource2
         print("Merge Minus:",str(mySrcMergeMinus.content_rdf())[:30])
-        tripleMinus = mySrcMergeMinus.GetTriplestore()
+        tripleMinus = mySrcMergeMinus.get_triplestore()
         print("Len tripleMinus:",len(tripleMinus))
 
-        lenSource1 = len(mySource1.GetTriplestore().GetInstances())
+        lenSource1 = len(mySource1.get_triplestore().GetInstances())
         lenMinus = len(tripleMinus.GetInstances())
         # There cannot be more instances after removal.
         self.assertTrue(lenMinus <= lenSource1 )

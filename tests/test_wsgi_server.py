@@ -33,7 +33,7 @@ isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 
 import lib_client
 
-ClientObjectInstancesFromScript = lib_client.SourceLocal.GetObjectInstancesFromScript
+ClientObjectInstancesFromScript = lib_client.SourceLocal.get_object_instances_from_script
 
 # Otherwise, Python callstack would be displayed in HTML.
 cgitb.enable(format="txt")
@@ -52,7 +52,7 @@ class WsgiRemoteTest(unittest.TestCase):
             "CIM_DataFile",
             Name=always_present_file)
         print("urlFileStatRemote=",mySourceFileStatRemote.Url())
-        print("qryFileStatRemote=",mySourceFileStatRemote.UrlQuery())
+        print("qryFileStatRemote=",mySourceFileStatRemote.create_url_query())
         json_content = mySourceFileStatRemote.content_json()
 
         dirFileAlwaysThere = os.path.basename(always_present_dir)
@@ -107,8 +107,8 @@ class WsgiRemoteTest(unittest.TestCase):
         dirFileAlwaysThere = always_present_dir.replace("\\","/")
 
         print("urlFileStatRemote=",mySourceFileStatRemote.Url())
-        print("qryFileStatRemote=",mySourceFileStatRemote.UrlQuery())
-        data_triplestore = mySourceFileStatRemote.GetTriplestore()
+        print("qryFileStatRemote=",mySourceFileStatRemote.create_url_query())
+        data_triplestore = mySourceFileStatRemote.get_triplestore()
 
         # CIM_Directory.Name=C:/Windows
         # CIM_DataFile.Name=C:/Windows/explorer.exe
@@ -133,7 +133,7 @@ class WsgiRemoteTest(unittest.TestCase):
             RemoteWsgiTestAgent + "/survol/sources_types/CIM_Directory/file_directory.py",
             "CIM_Directory",
             Name=always_present_dir)
-        tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
+        tripleFileStatRemote = mySourceFileStatRemote.get_triplestore()
         print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
         # This should not be empty.
         self.assertTrue(len(tripleFileStatRemote)>=1)
@@ -144,7 +144,7 @@ class WsgiLinuxRemoteTest(unittest.TestCase):
     def test_etc_group(self):
         mySourceFileStatRemote = lib_client.SourceRemote(
             RemoteWsgiTestAgent + "/survol/sources_types/Linux/etc_group.py")
-        tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
+        tripleFileStatRemote = mySourceFileStatRemote.get_triplestore()
         print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
         # This should not be empty.
         self.assertTrue(len(tripleFileStatRemote)>=1)
@@ -153,7 +153,7 @@ class WsgiLinuxRemoteTest(unittest.TestCase):
     def test_enumerate_user(self):
         mySourceFileStatRemote = lib_client.SourceRemote(
             RemoteWsgiTestAgent + "/survol/sources_types/Linux/enumerate_user.py")
-        tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
+        tripleFileStatRemote = mySourceFileStatRemote.get_triplestore()
         print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
         # This should not be empty.
         self.assertTrue(len(tripleFileStatRemote)>=1)
@@ -162,7 +162,7 @@ class WsgiLinuxRemoteTest(unittest.TestCase):
     def test_etc_mtab(self):
         mySourceFileStatRemote = lib_client.SourceRemote(
             RemoteWsgiTestAgent + "/survol/sources_types/Linux/etc_mtab.py")
-        tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
+        tripleFileStatRemote = mySourceFileStatRemote.get_triplestore()
         print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
         # This should not be empty.
         self.assertTrue(len(tripleFileStatRemote)>=1)
@@ -171,7 +171,7 @@ class WsgiLinuxRemoteTest(unittest.TestCase):
     def test_etc_passwd(self):
         mySourceFileStatRemote = lib_client.SourceRemote(
             RemoteWsgiTestAgent + "/survol/sources_types/Linux/etc_passwd.py")
-        tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
+        tripleFileStatRemote = mySourceFileStatRemote.get_triplestore()
         print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
         # This should not be empty.
         self.assertTrue(len(tripleFileStatRemote)>=1)
@@ -180,7 +180,7 @@ class WsgiLinuxRemoteTest(unittest.TestCase):
     def test_installed_rpm_packages(self):
         mySourceFileStatRemote = lib_client.SourceRemote(
             RemoteWsgiTestAgent + "/survol/sources_types/Linux/installed_rpm_packages.py")
-        tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
+        tripleFileStatRemote = mySourceFileStatRemote.get_triplestore()
         print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
         # This should not be empty.
         self.assertTrue(len(tripleFileStatRemote)>=1)
@@ -189,7 +189,7 @@ class WsgiLinuxRemoteTest(unittest.TestCase):
     def test_modules_dependencies(self):
         mySourceFileStatRemote = lib_client.SourceRemote(
             RemoteWsgiTestAgent + "/survol/sources_types/Linux/modules_dependencies.py")
-        tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
+        tripleFileStatRemote = mySourceFileStatRemote.get_triplestore()
         print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
         # This should not be empty.
         self.assertTrue(len(tripleFileStatRemote)>=1)
@@ -198,7 +198,7 @@ class WsgiLinuxRemoteTest(unittest.TestCase):
     def test_proc_cgroup(self):
         mySourceFileStatRemote = lib_client.SourceRemote(
             RemoteWsgiTestAgent + "/survol/sources_types/Linux/proc_cgroup.py")
-        tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
+        tripleFileStatRemote = mySourceFileStatRemote.get_triplestore()
         print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
         # This should not be empty.
         self.assertTrue(len(tripleFileStatRemote)>=1)
@@ -207,7 +207,7 @@ class WsgiLinuxRemoteTest(unittest.TestCase):
     def test_tcp_sockets(self):
         mySourceFileStatRemote = lib_client.SourceRemote(
             RemoteWsgiTestAgent + "/survol/sources_types/Linux/tcp_sockets.py")
-        tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
+        tripleFileStatRemote = mySourceFileStatRemote.get_triplestore()
         print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
         # This should not be empty.
         self.assertTrue(len(tripleFileStatRemote)>=1)
@@ -216,7 +216,7 @@ class WsgiLinuxRemoteTest(unittest.TestCase):
     def test_unix_domain_sockets(self):
         mySourceFileStatRemote = lib_client.SourceRemote(
             RemoteWsgiTestAgent + "/survol/sources_types/Linux/unix_domain_sockets.py")
-        tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
+        tripleFileStatRemote = mySourceFileStatRemote.get_triplestore()
         print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
         # This should not be empty.
         self.assertTrue(len(tripleFileStatRemote)>=1)
