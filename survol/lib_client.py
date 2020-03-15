@@ -274,7 +274,7 @@ class SourceLocal (SourceCgi):
     def get_object_instances_from_script(script_name,class_name = None,**kwargs_ontology):
         my_source = SourceLocal(script_name, class_name, **kwargs_ontology)
         my_triplestore = my_source.get_triplestore()
-        list_instances = my_triplestore.GetInstances()
+        list_instances = my_triplestore.get_instances()
         return list_instances
 
     def is_very_slow(self):
@@ -710,7 +710,7 @@ def url_to_instance(instanceUrl):
     ( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(instanceUrl)
     # Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
     # BEWARE: Some arguments should be decoded.
-    #DEBUG("GetInstances instanceUrl=%s entity_graphic_class=%s entity_id=%s",instanceUrl,entity_graphic_class,entity_id)
+    #DEBUG("get_instances instanceUrl=%s entity_graphic_class=%s entity_id=%s",instanceUrl,entity_graphic_class,entity_id)
 
     return entity_id_to_instance(agentUrl, entity_graphic_class, entity_id)
 
@@ -783,8 +783,8 @@ class TripleStore:
     # If needed, the CIM class is created on-the-fly.
     # TODO: Is is really useful to build objects, given that the edges are lost ??
     # TODO: And what about connected objects ? Can a value be an object ?
-    def GetInstances(self):
-        DEBUG("GetInstances")
+    def get_instances(self):
+        DEBUG("get_instances")
         objsSet = self.enumerate_urls()
         lstInstances = []
         for instanceUrl in objsSet:
@@ -794,7 +794,7 @@ class TripleStore:
             ( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(instanceUrl)
             # Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
             # BEWARE: Some arguments should be decoded.
-            #DEBUG("GetInstances instanceUrl=%s entity_graphic_class=%s entity_id=%s",instanceUrl,entity_graphic_class,entity_id)
+            #DEBUG("get_instances instanceUrl=%s entity_graphic_class=%s entity_id=%s",instanceUrl,entity_graphic_class,entity_id)
 
             xidDict = { sp[0]:sp[2] for sp in [ ss.partition("=") for ss in entity_id.split(",") ] }
 

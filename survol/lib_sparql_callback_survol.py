@@ -44,7 +44,7 @@ class SurvolSparqlCallbackApi:
             # This is returned anyway, as a triplestore that rdflib Sparql can work on.
             my_triplestore.copy_to_graph(grph)
 
-            list_instances = my_triplestore.GetInstances()
+            list_instances = my_triplestore.get_instances()
 
             # TODO: We filter only the objects of the right type,
             # TODO: ... but we lose all the other objects which could be stored in the output triplestore !!...
