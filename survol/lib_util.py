@@ -1417,7 +1417,7 @@ paramkeyShowAll = "Show all scripts"
 
 # Default destination for the RDF, HTML or SVG output.
 gblcnt = 10
-def DfltOutDest():
+def get_default_output_destination():
     return globalOutMach.OutStream()
 
 def DfltOutMach():
@@ -1456,7 +1456,7 @@ def is_apache_server():
 # - CGI output.
 # FIXME: Should always send bytes (Py3) or str (Py2)
 def WrtAsUtf(aStr):
-    gblOutStrm = DfltOutDest()
+    gblOutStrm = get_default_output_destination()
     try:
         gblOutStrm.write(aStr)
     except:

@@ -233,7 +233,7 @@ def Grph2Svg( page_title, error_msg, isSubServer, parameters, grph, parameterize
 	os.fsync( rdfoutfil.fileno() )
 	rdfoutfil.close()
 
-	out_dest = lib_util.DfltOutDest()
+	out_dest = lib_util.get_default_output_destination()
 
 	Dot2Svg( dot_filnam_after, logfil, dot_layout, out_dest )
 	logfil.write( TimeStamp()+" closing log file\n" )
@@ -853,7 +853,7 @@ globalErrorMessageEnabled = True
 
 # Used when merging several scripts, otherwise there is no way to find
 # which scripts produced an error.
-def ErrorMessageEnable(flag):
+def enable_error_message(flag):
 	global globalErrorMessageEnabled
 	globalErrorMessageEnabled = flag
 

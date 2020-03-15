@@ -25,6 +25,7 @@ try:
 except ImportError:
     from urllib.parse import parse_qs
 
+
 ################################################################################
 
 # A SourceBase is a Survol URL or a script which returns a graph of urls
@@ -75,6 +76,7 @@ class SourceBase (object):
     # because they do not have CGI arguments.
     def is_cgi_complete(self):
         return True
+
 
 ################################################################################
 # If it has a class, then it has CGI arguments.
@@ -151,9 +153,11 @@ class SourceRemote (SourceCgi):
         assert isinstance(data, lib_util.six_binary_type)
         return data
 
+
 def create_string_stream():
     from io import BytesIO
     return BytesIO()
+
 
 class SourceLocal (SourceCgi):
     def __init__(self,aScript,className = None,**kwargsOntology):
@@ -175,7 +179,6 @@ class SourceLocal (SourceCgi):
         urlFilNam = os.path.basename(self.m_script)
 
         return lib_util.GetScriptModule(moduNam, urlFilNam)
-
 
     # This executes the script and return the data in the right format.
     def __execute_script_with_mode(self,mode):
@@ -213,20 +216,20 @@ class SourceLocal (SourceCgi):
         lib_util.SetGlobalOutMach(outmachString)
 
         # If there is an error, it will not exit but send a nice exception/
-        lib_common.ErrorMessageEnable(False)
+        lib_common.enable_error_message(False)
         try:
             # TODO: If some arguments are missing, it might display an HTML form.
             modu.Main()
         except Exception as ex:
             # https://www.stefaanlippens.net/python-traceback-in-catch/
             ERROR("__execute_script_with_mode with module=%s: Caught:%s",modu.__name__,ex, exc_info=True)
-            lib_common.ErrorMessageEnable(True)
+            lib_common.enable_error_message(True)
 
             # Restores the original stream.
             lib_util.globalOutMach = originalOutMach
             raise
 
-        lib_common.ErrorMessageEnable(True)
+        lib_common.enable_error_message(True)
 
         # Restores the original stream.
         lib_util.globalOutMach = originalOutMach
@@ -256,7 +259,6 @@ class SourceLocal (SourceCgi):
             # There is not much information we can return: Just the module name.
             return set(modu.__name__)
 
-
     # TODO: At the moment, this serializes an rdflib triplestore into a XML-RDF buffer,
     # TODO: which is parsed again by rdflib into a triplestore,
     # TODO: and then this triplestore is looped on, to extract the instances.
@@ -268,7 +270,6 @@ class SourceLocal (SourceCgi):
         # If the string is empty, it throws "<unknown>:1:0:"
         grphKBase = lib_kbase.triplestore_from_rdf_xml(docXmlRdf)
         return TripleStore(grphKBase)
-
 
     @staticmethod
     def get_object_instances_from_script(script_name,class_name = None,**kwargs_ontology):
@@ -330,9 +331,11 @@ class SourceMerge (SourceBase):
 
         raise Exception("get_content_moded: Cannot yet convert to %s"%mode)
 
+
 class SourceMergePlus (SourceMerge):
     def __init__(self,srcA,srcB):
         super(SourceMergePlus, self).__init__(srcA,srcB,TripleStore.__add__)
+
 
 class SourceMergeMinus (SourceMerge):
     def __init__(self,srcA,srcB):
@@ -589,7 +592,7 @@ class BaseCIMClass(object):
 
             if currDepth <= maxDepth:
                 INFO("bestEdge.m_url_script=%s bestEdge.m_node_instance=%s",bestEdge.m_url_script,bestEdge.m_node_instance)
-                lib_common.ErrorMessageEnable(False)
+                lib_common.enable_error_message(False)
 
                 # TODO: Use filterPredicates
                 try:
@@ -620,7 +623,7 @@ class BaseCIMClass(object):
                     ERROR("find_string_from_neighbour: %s",ex)
                     raise
                     continue
-                lib_common.ErrorMessageEnable(True)
+                lib_common.enable_error_message(True)
                 for oneInstance in lstInstances:
                     if filterInstances and oneInstance in filterInstances:
                         INFO("Avoiding instance:%s",oneInstance)
@@ -643,7 +646,7 @@ class BaseCIMClass(object):
 
 
 
-def CIMClassFactoryNoCache(className):
+def CIM_class_factory_no_cache(className):
     def Derived__init__(self, agentUrl, className, **kwargsOntology):
         """This function will be used as a constructor for the new class."""
         for key, value in kwargsOntology.items():
@@ -666,12 +669,12 @@ def CIMClassFactoryNoCache(className):
 # Classes are the same for all agents, therefore the agent is not needed in the key.
 cacheCIMClasses = {}
 
-def CreateCIMClass(agentUrl,className,**kwargsOntology):
+def create_CIM_class(agentUrl,className,**kwargsOntology):
     global cacheCIMClasses
     entity_id = lib_util.KWArgsToEntityId(className,**kwargsOntology)
 
     # No need to use the class in the key, because the cache is class-specific.
-    DEBUG("CreateCIMClass agentUrl=%s className=%s entity_id=%s",agentUrl,className,entity_id)
+    DEBUG("create_CIM_class agentUrl=%s className=%s entity_id=%s",agentUrl,className,entity_id)
 
     try:
         newCIMClass = cacheCIMClasses[className]
@@ -679,7 +682,7 @@ def CreateCIMClass(agentUrl,className,**kwargsOntology):
     except KeyError:
         # This class is not yet created.
         # TODO: If entity_label contains slashes, submodules must be imported.
-        newCIMClass = CIMClassFactoryNoCache(className)
+        newCIMClass = CIM_class_factory_no_cache(className)
 
         cacheCIMClasses[className] = newCIMClass
 
@@ -693,7 +696,7 @@ def CreateCIMClass(agentUrl,className,**kwargsOntology):
 def entity_id_to_instance(agentUrl, class_name, entity_id):
     xidDict = { sp[0]:sp[2] for sp in [ ss.partition("=") for ss in entity_id.split(",") ] }
 
-    newInstance = CreateCIMClass(agentUrl, class_name, **xidDict)
+    newInstance = create_CIM_class(agentUrl, class_name, **xidDict)
     return newInstance
 
 # This creates an object from an URI.
@@ -802,7 +805,7 @@ class TripleStore:
             # and therefore have the form "http://.../entity.py?xid=...",
             agentUrl = instance_url_to_agent_url(instanceUrl)
 
-            newInstance = CreateCIMClass(agentUrl,entity_graphic_class, **xidDict)
+            newInstance = create_CIM_class(agentUrl,entity_graphic_class, **xidDict)
             lstInstances.append(newInstance)
         return lstInstances
 
@@ -984,7 +987,7 @@ class Agent:
             def __call__(self, *argsCall, **kwargsCall):
                 #sys.stdout.write("CallDispatcher.__call__ class=%s url=%s\n"%(self.m_name,str(type(self.m_agent_url))))
                 #sys.stdout.flush()
-                newInstance = CreateCIMClass(self.m_agent_url, self.m_name, **kwargsCall)
+                newInstance = create_CIM_class(self.m_agent_url, self.m_name, **kwargsCall)
                 return newInstance
 
             def __getattr__(self, attribute_name):

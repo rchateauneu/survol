@@ -20,7 +20,7 @@ def FlushOrSaveRdfGraph(grph, output_rdf_filename):
         INFO("FlushOrSaveRdfGraph to stream")
         lib_util.WrtHeader('text/html')
 
-        out_dest = lib_util.DfltOutDest()
+        out_dest = lib_util.get_default_output_destination()
         lib_kbase.triplestore_to_stream_xml(grph,out_dest,'pretty-xml')
 
     except KeyError:
@@ -169,7 +169,7 @@ def Grph2Rdf(grph):
     #lib_util.WrtHeader('application/xml+rdf') # Creates a file.
     lib_util.WrtHeader('application/xml')
 
-    out_dest = lib_util.DfltOutDest()
+    out_dest = lib_util.get_default_output_destination()
 
     lib_kbase.triplestore_to_stream_xml(new_grph, out_dest, 'xml')
     DEBUG("Grph2Rdf leaving")
