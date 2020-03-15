@@ -4,13 +4,6 @@ from __future__ import print_function
 
 import cgitb
 import unittest
-import sys
-import os
-import re
-import time
-import socket
-import json
-import atexit
 
 # This starts a local WSGI server and runs several queries and tests that the results are the same.
 
@@ -44,18 +37,6 @@ ClientObjectInstancesFromScript = lib_client.SourceLocal.GetObjectInstancesFromS
 
 # Otherwise, Python callstack would be displayed in HTML.
 cgitb.enable(format="txt")
-
-# Many tests start a subprocess: Its termination must be checked.
-def CheckSubprocessEnd(procOpen):
-    ( child_stdout_content, child_stderr_content ) = procOpen.communicate()
-
-    if sys.platform.startswith("win"):
-        # This ensures that the suprocess is correctly started.
-        assert(child_stdout_content.startswith(b"Starting subprocess"))
-
-        print("procOpen.returncode=",procOpen.returncode)
-        assert(procOpen.returncode == 123)
-
 
 # TODO: Prefix of url samples should be a parameter.
 
