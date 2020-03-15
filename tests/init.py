@@ -86,7 +86,7 @@ CurrentExecutablePath = 'CIM_DataFile.Name=%s' % CurrentExecutable
 #print(__file__+" sys.executable=%s" % sys.executable)
 #print(__file__+" sys.exec_prefix=%s" % sys.exec_prefix)
 
-def ServerDumpContent(log_filename):
+def __dump_server_content(log_filename):
     sys.stdout.write("Agent log file: %s\n" % log_filename)
     try:
         agent_stream = open(log_filename)
@@ -218,7 +218,7 @@ def CgiAgentStart(agent_url, agent_port):
             target=scripts.cgiserver.start_server_as_function,
             args=(True, AgentHost, agent_port, current_dir))
 
-        atexit.register(ServerDumpContent, scripts.cgiserver.cgi_server_logfile_name(agent_port) )
+        atexit.register(__dump_server_content, scripts.cgiserver.cgi_server_logfile_name(agent_port) )
 
         agent_process.start()
         INFO("CgiAgentStart: Waiting for CGI agent to start")
@@ -229,7 +229,7 @@ def CgiAgentStart(agent_url, agent_port):
             response = portable_urlopen(local_agent_url, timeout=15)
         except Exception as exc:
             ERROR("Caught:%s", exc)
-            ServerDumpContent(scripts.cgiserver.cgi_server_logfile_name(agent_port))
+            __dump_server_content(scripts.cgiserver.cgi_server_logfile_name(agent_port))
             raise
 
     data = response.read().decode("utf-8")
@@ -267,7 +267,7 @@ def WsgiAgentStart(agent_url, agent_port):
         INFO("current_dir=%s",current_dir)
         INFO("sys.path=%s",str(sys.path))
 
-        atexit.register(ServerDumpContent,scripts.wsgiserver.WsgiServerLogFileName)
+        atexit.register(__dump_server_content,scripts.wsgiserver.WsgiServerLogFileName)
 
         agent_process = multiprocessing.Process(
             target=scripts.wsgiserver.StartWsgiServer,
@@ -281,7 +281,7 @@ def WsgiAgentStart(agent_url, agent_port):
             response = portable_urlopen( local_agent_url, timeout=5)
         except Exception as exc:
             ERROR("Caught:", exc)
-            ServerDumpContent( scripts.wsgiserver.WsgiServerLogFileName)
+            __dump_server_content( scripts.wsgiserver.WsgiServerLogFileName)
             raise
 
     data = response.read().decode("utf-8")
