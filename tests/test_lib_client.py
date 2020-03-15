@@ -309,7 +309,7 @@ class SurvolLocalTest(unittest.TestCase):
     def test_instances_cache(self):
         instanceA = lib_client.Agent().CIM_Directory( Name="C:/Windows")
         instanceB = lib_client.Agent().CIM_Directory( Name="C:/Windows")
-        instanceC = lib_client.CreateCIMClass(None,"CIM_Directory",Name="C:/Windows")
+        instanceC = lib_client.create_CIM_class(None,"CIM_Directory",Name="C:/Windows")
         if isVerbose:
             sys.stdout.write("Class=%s\n"%instanceC.__class__.__name__)
             sys.stdout.write("Module=%s\n"%instanceC.__module__)
