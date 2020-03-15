@@ -12,7 +12,7 @@ from lib_properties import pc
 def AddExtraInformationtoProcess(grph,node_process,proc_obj):
 	CIM_Process.AddInfo( grph, node_process, [ str(proc_obj.pid) ] )
 
-	usrNam = lib_common.FormatUser( CIM_Process.PsutilProcToUser( proc_obj ) )
+	usrNam = lib_common.format_username( CIM_Process.PsutilProcToUser( proc_obj ) )
 	userNode = lib_common.gUriGen.UserUri(usrNam)
 	grph.add( ( userNode, pc.property_owner, node_process ) )
 

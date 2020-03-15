@@ -1066,26 +1066,6 @@ def MeaninglessFile(path, removeSharedLibs, removeFontsFile ):
 
 
 ################################################################################
-def KillProc(pid):
-	sys.stderr.write("About to kill pid=" + str(pid) )
-	try:
-		# SIGQUIT apparently not defined on Windows.
-		if lib_util.isPlatformLinux:
-			os.kill( pid, signal.SIGQUIT )
-		else:
-			# On Linux, it raises: KeyboardInterrupt
-			os.kill( pid, signal.SIGINT )
-
-	except AttributeError:
-		exc = sys.exc_info()[1]
-		# 'module' object has no attribute 'SIGQUIT'
-		sys.stderr.write("Caught:"+str(exc)+" when killing pid=" + str(pid) )
-	except Exception:
-		# For example: [Errno 3] No such process.
-		exc = sys.exc_info()[1]
-		sys.stderr.write("Unknown exception " + str(exc) + " when killing pid=" + str(pid) )
-
-################################################################################
 # Reformat the username because in psutil.users() it is "Remi",
 # but from process.username(), it is "PCVERO\Remi"
 #
@@ -1100,7 +1080,7 @@ def KillProc(pid):
 # Some say that: UserName@DOMAIN also works.
 # 
 # http://serverfault.com/questions/371150/any-difference-between-domain-username-and-usernamedomain-local
-def FormatUser(usrnam):
+def format_username(usrnam):
 	# BEWARE: WE ARE LOSING THE DOMAIN NAME.
 	shortnam = usrnam.split('\\')[-1]
 

@@ -34,7 +34,7 @@ def Main():
 		lib_common.ErrorMessageHtml("Function users() not available")
 
 	for user in users_list:
-		usrNam = lib_common.FormatUser( user.name )
+		usrNam = lib_common.format_username( user.name )
 		userNode = lib_common.gUriGen.UserUri( usrNam )
 
 		grph.add( ( lib_common.nodeMachine, pc.property_user, userNode ) )
