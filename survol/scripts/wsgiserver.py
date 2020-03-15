@@ -12,7 +12,7 @@ import wsgiref.simple_server as server
 
 # See lib_client.py with similar code which cannot be imported here.
 # This expects bytes (Py3) or str (Py2).
-def CreateStringStream():
+def create_string_stream():
     from io import BytesIO
     return BytesIO()
 
@@ -27,7 +27,7 @@ class OutputMachineWsgi:
         # FIXME: then converted to a string, then written to the socket.
         # FIXME: Ideally, this should be written in one go from for example lib_common.CopyToOut,
         # FIXME: to the output socket.
-        self.m_output = CreateStringStream()
+        self.m_output = create_string_stream()
         self.m_start_response = start_response
         self.m_header_called = False
 

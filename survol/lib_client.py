@@ -58,7 +58,7 @@ class SourceBase (object):
 
     # In the general case, it gets the content in RDF format and converts it
     # again to a triplestore. This always works if this is a remote host.
-    def GetTriplestore(self):
+    def get_triplestore(self):
         docXmlRdf = self.get_content_moded("rdf")
 
         grphKBase = lib_kbase.triplestore_from_rdf_xml(docXmlRdf)
@@ -66,26 +66,25 @@ class SourceBase (object):
 
     # This is a hack when mapping Sparql to Survol.
     # This helps avoiding scripts which are very slow and not usable in a loop.
-    def IsVerySlow(self):
+    def is_very_slow(self):
         return False
 
     # If it does not have the necessary CGI args,
     # then loop on the existing objects of this class.
     # It is always True for merged sources,
     # because they do not have CGI arguments.
-    def IsCgiComplete(self):
-        #print("SourceCgi.IsCgiComplete")
+    def is_cgi_complete(self):
         return True
 
 ################################################################################
 # If it has a class, then it has CGI arguments.
-class SourceCgi (SourceBase):
+class SourceCgi(SourceBase):
     def __init__(self,className = None,**kwargs):
         self.m_className = className
         self.m_kwargs = kwargs
         super(SourceCgi, self).__init__()
 
-    def UrlQuery(self,mode=None):
+    def create_url_query(self, mode=None):
         # suffix = ",".join( [ "%s=%s" % (k,v) for k,v in self.m_kwargs.items() ])
         # v might be an integer, a double, a string.
         suffix = ",".join( [ "%s=%s" % (k,lib_util.urllib_quote(str(v))) for k,v in self.m_kwargs.items() ])
@@ -94,7 +93,6 @@ class SourceCgi (SourceBase):
         else:
             restQry = suffix
         quotedRest = restQry
-        #quotedRest = lib_util.urllib_quote(restQry)
 
         # TODO: See lib_util.xidCgiDelimiter = "?xid="
         qryArgs = "xid=" + quotedRest
@@ -103,29 +101,28 @@ class SourceCgi (SourceBase):
 
         return qryArgs
 
-    def UrlQueryWithQuestionMark(self,mode=None):
-        urlQry = self.UrlQuery(mode)
+    def create_url_query_with_question_mark(self,mode=None):
+        urlQry = self.create_url_query(mode)
         if urlQry:
             return "?" + urlQry
         else:
             return ""
 
     # TODO: For the moment, this assumes that all CGI arguments are there.
-    def IsCgiComplete(self):
-        #print("SourceCgi.IsCgiComplete")
+    def is_cgi_complete(self):
         return True
 
-    def GetScriptBagOfWords(self):
+    def get_script_bag_of_words(self):
         raise Exception("GetScriptBag Not implemented yet")
 
 
-def LoadModedUrl(urlModed):
-    DEBUG("LoadModedUrl urlModed=%s",urlModed)
+def load_moded_urls(urlModed):
+    DEBUG("load_moded_urls urlModed=%s",urlModed)
     try:
         # Very long timeout to read WBEM ontology.
         response = lib_util.survol_urlopen(urlModed, timeout=120)
     except Exception as exc:
-        ERROR("LoadModedUrl urlModed=%s. Caught:%s", urlModed, str(exc))
+        ERROR("load_moded_urls urlModed=%s. Caught:%s", urlModed, str(exc))
         raise
     data = response.read()
     assert isinstance(data, lib_util.six_binary_type)
@@ -143,18 +140,18 @@ class SourceRemote (SourceCgi):
         return "URL=" + self.Url()
 
     def Url(self):
-        return self.m_url + self.UrlQueryWithQuestionMark()
+        return self.m_url + self.create_url_query_with_question_mark()
 
     def __url_with_mode(self,mode):
-        return self.m_url + self.UrlQueryWithQuestionMark(mode)
+        return self.m_url + self.create_url_query_with_question_mark(mode)
 
     def get_content_moded(self,mode):
         the_url = self.__url_with_mode(mode)
-        data = LoadModedUrl(the_url)
+        data = load_moded_urls(the_url)
         assert isinstance(data, lib_util.six_binary_type)
         return data
 
-def CreateStringStream():
+def create_string_stream():
     from io import BytesIO
     return BytesIO()
 
@@ -164,7 +161,7 @@ class SourceLocal (SourceCgi):
         super(SourceLocal, self).__init__(className,**kwargsOntology)
 
     def __str__(self):
-        return self.m_script + self.UrlQueryWithQuestionMark()
+        return self.m_script + self.create_url_query_with_question_mark()
 
     def __get_local_module(self):
         # Sets an environment variable then imports the script and execute it.
@@ -189,12 +186,12 @@ class SourceLocal (SourceCgi):
         # SCRIPT_NAME=/survol/print_environment_variables.py
         os.environ["SCRIPT_NAME"] = lib_util.prefixLocalScript + "/" + self.m_script
         # QUERY_STRING=xid=class.k=v
-        os.environ["QUERY_STRING"] = self.UrlQuery(mode)
+        os.environ["QUERY_STRING"] = self.create_url_query(mode)
 
         # This technique of replacing the output object is also used by WSGI
         class OutputMachineString:
             def __init__(self):
-                self.m_output = CreateStringStream()
+                self.m_output = create_string_stream()
 
             # Do not write the header: This just wants the content.
             def HeaderWriter(self,mimeType,extraArgs= None):
@@ -251,7 +248,7 @@ class SourceLocal (SourceCgi):
     # TODO: Add the classes and predicates returns by this script when executed.
     # TODO: Estimate the cost of calling this script.
     # TODO: Store it in the object.
-    def GetScriptBagOfWords(self):
+    def get_script_bag_of_words(self):
         modu = self.__get_local_module()
         if modu.__doc__:
             return set( [ wrd.strip() for wrd in modu.__doc__.split() ])
@@ -264,7 +261,7 @@ class SourceLocal (SourceCgi):
     # TODO: which is parsed again by rdflib into a triplestore,
     # TODO: and then this triplestore is looped on, to extract the instances.
     # TODO: It would be much faster to avoid this useless serialization/deserialization.
-    def GetTriplestore(self):
+    def get_triplestore(self):
         docXmlRdf = self.get_content_moded("rdf")
         if not docXmlRdf:
             return None
@@ -274,13 +271,13 @@ class SourceLocal (SourceCgi):
 
 
     @staticmethod
-    def GetObjectInstancesFromScript(script_name,class_name = None,**kwargs_ontology):
+    def get_object_instances_from_script(script_name,class_name = None,**kwargs_ontology):
         my_source = SourceLocal(script_name, class_name, **kwargs_ontology)
-        my_triplestore = my_source.GetTriplestore()
+        my_triplestore = my_source.get_triplestore()
         list_instances = my_triplestore.GetInstances()
         return list_instances
 
-    def IsVerySlow(self):
+    def is_very_slow(self):
         modu = self.__get_local_module()
         try:
             return modu.SlowScript
@@ -290,7 +287,7 @@ class SourceLocal (SourceCgi):
 
 class SourceMerge (SourceBase):
     def __init__(self,srcA,srcB,operatorTripleStore):
-        if not srcA.IsCgiComplete():
+        if not srcA.is_cgi_complete():
             raise Exception("Left-hand-side URL must be complete")
         self.m_srcA = srcA
         self.m_srcB = srcB
@@ -298,10 +295,10 @@ class SourceMerge (SourceBase):
         self.m_operatorTripleStore = operatorTripleStore
         super(SourceMerge, self).__init__()
 
-    def GetTriplestore(self):
-        triplestoreA = self.m_srcA.GetTriplestore()
-        if self.IsCgiComplete():
-            triplestoreB = self.m_srcB.GetTriplestore()
+    def get_triplestore(self):
+        triplestoreA = self.m_srcA.get_triplestore()
+        if self.is_cgi_complete():
+            triplestoreB = self.m_srcB.get_triplestore()
 
             return self.m_operatorTripleStore(triplestoreA,triplestoreB)
 
@@ -317,14 +314,14 @@ class SourceMerge (SourceBase):
                 if entity_label == self.m_srcB.m_class:
                     urlDerived = UrlToInstance(instanceUrl)
                     # urlDerived = self.m_srcB.DeriveUrl(instanceUrl)
-                    triplestoreB = urlDerived.GetTriplestore()
+                    triplestoreB = urlDerived.get_triplestore()
                     triplestoreA = self.m_operatorTripleStore(triplestoreA,triplestoreB)
             return TripleStore(triplestoreA)
 
     def get_content_moded(self,mode):
-        tripstore = self.GetTriplestore()
+        tripstore = self.get_triplestore()
         if mode == "rdf":
-            strStrm = CreateStringStream()
+            strStrm = create_string_stream()
             tripstore.ToStreamXml(strStrm)
             strResult = strStrm.getvalue()
             strStrm.close()
@@ -428,7 +425,7 @@ class BaseCIMClass(object):
         #         "url": "http://rchateau-HP:8000/survol/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name%3DD%3A"
         #     }
         # }
-        dataJsonStr = LoadModedUrl(urlScripts)
+        dataJsonStr = load_moded_urls(urlScripts)
         dataJson = json.loads(dataJsonStr)
 
         # The scripts urls are the keys of the Json object.
@@ -564,7 +561,7 @@ class BaseCIMClass(object):
 
             #DEBUG("nodeInstance=%s type(nodeInstance)=%s",nodeInstance,str(type(nodeInstance)))
             for oneScript in lstScripts:
-                scriptBagOfWords = oneScript.GetScriptBagOfWords()
+                scriptBagOfWords = oneScript.get_script_bag_of_words()
                 commonBagOfWords = set.union(instanceBagOfWords, scriptBagOfWords)
                 anEdge = AStarEdge(nodeInstance, oneScript, currDistance, currDepth, commonBagOfWords)
                 heapq.heappush( priorityQueue, anEdge)
@@ -599,7 +596,7 @@ class BaseCIMClass(object):
 
                 # TODO: Use filterPredicates
                 try:
-                    tripleStore = bestEdge.m_url_script.GetTriplestore()
+                    tripleStore = bestEdge.m_url_script.get_triplestore()
                 except Exception as exc:
                     WARNING("FindStringFromNeighbour:%s",str(exc))
                     continue
@@ -1012,7 +1009,7 @@ class Agent:
         if self.m_agent_url:
             anUrl = self.m_agent_url + aScript
             DEBUG("GetInternalData anUrl=%s"%anUrl)
-            urlContent = LoadModedUrl(anUrl)
+            urlContent = load_moded_urls(anUrl)
             return urlContent
         else:
             raise Exception("ExecHttpScript: Feature not implemenetd yet")
