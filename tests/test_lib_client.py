@@ -46,7 +46,7 @@ ClientObjectInstancesFromScript = lib_client.SourceLocal.GetObjectInstancesFromS
 cgitb.enable(format="txt")
 
 # Many tests start a subprocess: Its termination must be checked.
-def __check_subprocess_end(procOpen):
+def check_subprocess_end(procOpen):
     ( child_stdout_content, child_stderr_content ) = procOpen.communicate()
 
     if is_platform_windows:
@@ -434,7 +434,7 @@ class SurvolLocalTest(unittest.TestCase):
         matchingTriples = list(tripleSqlQueries.GetAllStringsTriples())
         print("mmm=",matchingTriples)
 
-        __check_subprocess_end(procOpen)
+        check_subprocess_end(procOpen)
 
     # This searches the content of a process memory which contains a SQL memory.
     def test_regex_sql_query_from_perl_process(self):
@@ -464,7 +464,7 @@ class SurvolLocalTest(unittest.TestCase):
         matchingTriples = list(tripleSqlQueries.GetAllStringsTriples())
         print("mmm=",matchingTriples)
 
-        __check_subprocess_end(procOpen)
+        check_subprocess_end(procOpen)
 
     def test_open_files_from_python_process(self):
         """Files open by a Python process"""
@@ -496,7 +496,7 @@ class SurvolLocalTest(unittest.TestCase):
         for oneStr in lstMandatoryInstances:
             assert( oneStr in lstMandatoryInstances)
 
-        __check_subprocess_end(procOpen)
+        check_subprocess_end(procOpen)
 
     def test_sub_parent_from_python_process(self):
         """Sub and parent processes a Python process"""
@@ -532,7 +532,7 @@ class SurvolLocalTest(unittest.TestCase):
         for oneStr in lstMandatoryInstances:
             assert( oneStr in strInstancesSet)
 
-        __check_subprocess_end(procOpen)
+        check_subprocess_end(procOpen)
 
     def test_memory_maps_from_python_process(self):
         """Sub and parent processes a Python process"""
@@ -623,7 +623,7 @@ class SurvolLocalTest(unittest.TestCase):
                     WARNING("Cannot find regex %s in %s", oneRegex, str(strInstancesSet))
                 assert result is not None
 
-        __check_subprocess_end(procOpen)
+        check_subprocess_end(procOpen)
 
     @staticmethod
     def check_environment_variables(process_id):
@@ -758,7 +758,7 @@ class SurvolLocalTest(unittest.TestCase):
         for oneStr in listRequired:
             assert( oneStr in strInstancesSet )
 
-        __check_subprocess_end(procOpen)
+        check_subprocess_end(procOpen)
 
     @unittest.skipIf(is_travis_machine() and is_platform_windows, "Cannot get users on Travis and Windows.")
     def test_enumerate_users(self):
@@ -1226,7 +1226,7 @@ class SurvolLocalGdbTest(unittest.TestCase):
             print(oneStr)
             assert( oneStr in strInstancesSet )
 
-        __check_subprocess_end(procOpen)
+        check_subprocess_end(procOpen)
 
 @unittest.skipIf(not is_platform_windows, "SurvolLocalWindowsTest runs on Windows only")
 class SurvolLocalWindowsTest(unittest.TestCase):
