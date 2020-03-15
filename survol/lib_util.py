@@ -680,7 +680,7 @@ def ParseXid(xid ):
 # MUST BE VERY FAST.
 # '\\\\RCHATEAU-HP\\root\\cimv2:Win32_Process.Handle="0"'  => "root\\cimv2:Win32_Process"
 # https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"  => ""
-def ParseNamespaceType(ns_entity_type):
+def parse_namespace_type(ns_entity_type):
     # sys.stderr.write("ParseEntityType entity_type=%s\n" % ns_entity_type )
     nsSplit = ns_entity_type.split(":")
     if len(nsSplit) == 1:
@@ -1273,7 +1273,7 @@ def GuessDisplayMode():
         if modeReferer != "":
             if modeReferer == "edit":
                 # TODO: Should restore the original edit mode.
-                # EditionMode
+                # enter_edition_mode
                 return ""
             else:
                 return modeReferer

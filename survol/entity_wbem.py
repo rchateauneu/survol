@@ -122,7 +122,7 @@ def Main():
 	# Just the path, shorter than cgiEnv.GetParameters("xid")
 	cimomUrl = cgiEnv.GetHost()
 
-	( nameSpace, className, entity_namespace_type ) = cgiEnv.GetNamespaceType()
+	( nameSpace, className, entity_namespace_type ) = cgiEnv.get_namespace_type()
 	DEBUG("entity_wbem.py cimomUrl=%s nameSpace=%s className=%s", cimomUrl,nameSpace,className)
 
 	if nameSpace == "":
