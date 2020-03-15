@@ -133,7 +133,7 @@ setup(
     # include_package_data=True,
 
     entry_points = { 'console_scripts': [
-        'survol_cgiserver = survol.scripts.cgiserver:RunCgiServer',
+        'survol_cgiserver = survol.scripts.cgiserver:start_server_forever',
         'survol_wsgiserver = survol.scripts.wsgiserver:RunWsgiServer',
         'survol_cgiscript = survol.scripts.survolcgi:SurvolCgi',
     ]},

@@ -27,11 +27,11 @@ RemoteAgentProcess = None
 
 def setUpModule():
     global RemoteAgentProcess
-    RemoteAgentProcess = CgiAgentStart(RemoteTestAgent, RemoteTestPort)
+    RemoteAgentProcess = start_cgiserver(RemoteTestAgent, RemoteTestPort)
 
 def tearDownModule():
     global RemoteAgentProcess
-    CgiAgentStop(RemoteAgentProcess)
+    stop_cgiserver(RemoteAgentProcess)
 
 isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 

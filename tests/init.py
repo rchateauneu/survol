@@ -133,10 +133,6 @@ if is_platform_windows:
     else:
         CurrentDomainWin32 = CurrentMachine.lower()
 
-
-
-
-
 def is_linux_wbem():
     # WBEM is not available on TravisCI.
     return is_platform_linux and has_wbem() and not is_travis_machine()
@@ -187,16 +183,16 @@ except ImportError:
     from urllib2 import urlopen as portable_urlopen
 
 
-def CgiAgentStart(agent_url, agent_port):
-    INFO("CgiAgentStart agent_url=%s agent_port=%d", agent_url, agent_port)
+def start_cgiserver(agent_url, agent_port):
+    INFO("start_cgiserver agent_url=%s agent_port=%d", agent_url, agent_port)
 
     try:
         agent_process = None
         response = portable_urlopen(agent_url + "/survol/entity.py", timeout=5)
-        INFO("CgiAgentStart: Using existing CGI Survol agent")
+        INFO("start_cgiserver: Using existing CGI Survol agent")
     except:
         import multiprocessing
-        INFO("CgiAgentStart: agent_url=%s agent_port=%d hostname=%s", agent_url, agent_port, socket.gethostname())
+        INFO("start_cgiserver: agent_url=%s agent_port=%d hostname=%s", agent_url, agent_port, socket.gethostname())
 
         import scripts.cgiserver
         # cwd = "PythonStyle/tests", must be "PythonStyle".
@@ -208,23 +204,22 @@ def CgiAgentStart(agent_url, agent_port):
             current_dir = ".."
         except KeyError:
             current_dir = ""
-        INFO("CgiAgentStart: current_dir=%s", current_dir)
-        #print("sys.path=",sys.path)
+        INFO("start_cgiserver: current_dir=%s", current_dir)
 
         # This delay to allow the reuse of the socket.
         # TODO: A better solution would be to override server_bind()
         time.sleep(2.0)
         agent_process = multiprocessing.Process(
-            target=scripts.cgiserver.start_server_as_function,
+            target=scripts.cgiserver.start_server_forever,
             args=(True, AgentHost, agent_port, current_dir))
 
         atexit.register(__dump_server_content, scripts.cgiserver.cgi_server_logfile_name(agent_port) )
 
         agent_process.start()
-        INFO("CgiAgentStart: Waiting for CGI agent to start")
+        INFO("start_cgiserver: Waiting for CGI agent to start")
         time.sleep(3.0)
         local_agent_url = "http://%s:%s/survol/entity.py" % (AgentHost, agent_port)
-        print("CgiAgentStart local_agent_url=", local_agent_url)
+        print("start_cgiserver local_agent_url=", local_agent_url)
         try:
             response = portable_urlopen(local_agent_url, timeout=15)
         except Exception as exc:
@@ -237,19 +232,19 @@ def CgiAgentStart(agent_url, agent_port):
     return agent_process
 
 
-def CgiAgentStop(agent_process):
+def stop_cgiserver(agent_process):
     print("tearDownModule")
     if agent_process:
         agent_process.terminate()
         agent_process.join()
 
-def WsgiAgentStart(agent_url, agent_port):
+def start_wsgiserver(agent_url, agent_port):
     print("setUpModule")
     try:
         # No SVG because Travis might not have dot/Graphviz. Also, the script must be compatible with WSGI.
         agent_process = None
         response = portable_urlopen(agent_url + "/survol/entity.py?mode=json", timeout=5)
-        INFO("WsgiAgentStart: Using existing WSGI Survol agent")
+        INFO("start_wsgiserver: Using existing WSGI Survol agent")
     except:
         import multiprocessing
         INFO("Starting test survol agent_url=%s hostnqme=%s", agent_url, socket.gethostname())
@@ -288,7 +283,7 @@ def WsgiAgentStart(agent_url, agent_port):
     print("WSGI Survol agent OK")
     return agent_process
 
-def WsgiAgentStop(agent_process):
+def stop_wsgiserver(agent_process):
     print("tearDownModule")
     if agent_process:
         agent_process.terminate()
@@ -307,12 +302,12 @@ import lib_properties
 # This is not very convenient to test.
 # Therefore, for tests, this is a helper function which returns dict of strings,
 # which are easier to compare.
-def QueriesEntitiesToValuePairs(iter_entities_dicts):
+def __queries_entities_to_value_pairs(iter_entities_dicts):
     for one_entities_dict in iter_entities_dicts:
 
         one_entities_dict_qname = {}
         for variable_name, one_entity in one_entities_dict.items():
-            #print("QueriesEntitiesToValuePairs one_entity=", one_entity)
+            #print("__queries_entities_to_value_pairs one_entity=", one_entity)
 
             # Special attribute for debugging.
             dict_qname_value = {"__class__": one_entity.m_entity_class_name}
@@ -323,25 +318,25 @@ def QueriesEntitiesToValuePairs(iter_entities_dicts):
             one_entities_dict_qname[variable_name] = dict_qname_value
         yield one_entities_dict_qname
 
-def QuerySeeAlsoKeyValuePairs(grph, sparql_query):
-    WARNING("QuerySeeAlsoKeyValuePairs")
+def query_see_also_key_value_pairs(grph, sparql_query):
+    WARNING("query_see_also_key_value_pairs")
     iter_entities_dicts = lib_sparql.QuerySeeAlsoEntities(grph, sparql_query)
-    iter_dict_objects = QueriesEntitiesToValuePairs(iter_entities_dicts)
+    iter_dict_objects = __queries_entities_to_value_pairs(iter_entities_dicts)
     list_dict_objects = list(iter_dict_objects)
     return list_dict_objects
 
 
-def UrlToRdf(url_rdf):
-    print("url_rdf=",url_rdf)
-
-    response = lib_util.survol_urlopen(url_rdf)
-    doc_xml_rdf = response.read().decode("utf-8")
-
-    print("doc_xml_rdf=",doc_xml_rdf)
-
-    # We could use lib_client GetTripleStore because we just need to deserialize XML into RDF.
-    # On the other hand, this would imply that a SparQL endpoint works just like that, and this is not sure.
-    grphKBase = lib_kbase.triplestore_from_rdf_xml(doc_xml_rdf)
-    return grphKBase
+# def UrlToRdf(url_rdf):
+#     print("url_rdf=",url_rdf)
+#
+#     response = lib_util.survol_urlopen(url_rdf)
+#     doc_xml_rdf = response.read().decode("utf-8")
+#
+#     print("doc_xml_rdf=",doc_xml_rdf)
+#
+#     # We could use lib_client GetTripleStore because we just need to deserialize XML into RDF.
+#     # On the other hand, this would imply that a SparQL endpoint works just like that, and this is not sure.
+#     grphKBase = lib_kbase.triplestore_from_rdf_xml(doc_xml_rdf)
+#     return grphKBase
 
 ################################################################################

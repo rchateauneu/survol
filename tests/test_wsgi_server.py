@@ -28,12 +28,12 @@ RemoteWsgiAgentProcess = None
 
 def setUpModule():
     global RemoteWsgiAgentProcess
-    RemoteWsgiAgentProcess = WsgiAgentStart(RemoteWsgiTestAgent, RemoteWsgiTestPort)
+    RemoteWsgiAgentProcess = start_wsgiserver(RemoteWsgiTestAgent, RemoteWsgiTestPort)
 
 
 def tearDownModule():
     global RemoteWsgiAgentProcess
-    WsgiAgentStop(RemoteWsgiAgentProcess)
+    stop_wsgiserver(RemoteWsgiAgentProcess)
 
 
 isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)

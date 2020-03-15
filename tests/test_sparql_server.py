@@ -24,11 +24,11 @@ RemoteSparqlServerProcess = None
 
 def setUpModule():
     global RemoteSparqlServerProcess
-    RemoteSparqlServerProcess = CgiAgentStart(RemoteSparqlServerProcess, RemoteSparqlServerPort)
+    RemoteSparqlServerProcess = start_cgiserver(RemoteSparqlServerProcess, RemoteSparqlServerPort)
 
 def tearDownModule():
     global RemoteSparqlServerProcess
-    CgiAgentStop(RemoteSparqlServerProcess)
+    stop_cgiserver(RemoteSparqlServerProcess)
 
 
 # <?xml version="1.0" ?>

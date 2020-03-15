@@ -193,14 +193,14 @@ def __run_cgi_server_internal():
     print("Server address:%s" % server_addr)
     print("Opening %s:%d" % (server_name,port_number))
 
-    start_server_as_function(verbose, server_name, port_number)
+    start_server_forever(verbose, server_name, port_number)
 
 # This is used when testing on Travis, when output cannot be read.
 def cgi_server_logfile_name(port_number):
     return "cgiserver.execution.%d.log" % port_number
 
 # The current directory can be set, this is used when this is called from multiprocessing.
-def start_server_as_function(verbose, server_name, port_number, current_dir = ""):
+def start_server_forever(verbose, server_name, port_number, current_dir = ""):
     logfil = open(cgi_server_logfile_name(port_number), "w")
     logfil.write(__file__ + " "+ datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "\n")
     logfil.write(__file__ + " startup server_name=%s port_number=%d\n" % (server_name, port_number))
@@ -209,10 +209,10 @@ def start_server_as_function(verbose, server_name, port_number, current_dir = ""
     os.environ["SERVER_SOFTWARE"] = "CGIServerPython"
 
     if verbose:
-        sys.stderr.write("start_server_as_function server_name=%s port_number=%d\n" % (server_name, port_number) )
-        sys.stderr.write("start_server_as_function sys.executable=%s\n" % sys.executable)
-        sys.stderr.write("start_server_as_function sys.exec_prefix=%s\n" % sys.exec_prefix)
-        sys.stderr.write("start_server_as_function getpid=%d\n" % os.getpid())
+        sys.stderr.write("server_name=%s port_number=%d\n" % (server_name, port_number) )
+        sys.stderr.write("sys.executable=%s\n" % sys.executable)
+        sys.stderr.write("sys.exec_prefix=%s\n" % sys.exec_prefix)
+        sys.stderr.write("getpid=%d\n" % os.getpid())
     envPYTHONPATH = "PYTHONPATH"
     if 'win' in sys.platform:
         # This is necessary for lib_util which is otherwise not found.
@@ -235,13 +235,13 @@ def start_server_as_function(verbose, server_name, port_number, current_dir = ""
 
     # print("sys.path=%s"% str(sys.path))
     try:
-        sys.stderr.write("start_server_as_function os.environ['%s']=%s\n"% (envPYTHONPATH,os.environ[envPYTHONPATH]))
+        sys.stderr.write("os.environ['%s']=%s\n"% (envPYTHONPATH,os.environ[envPYTHONPATH]))
     except KeyError:
         print("os.environ['%s']=%s"% (envPYTHONPATH,"Not defined"))
 
     if current_dir:
         os.chdir(current_dir)
-        sys.stderr.write("start_server_as_function getcwd=%s\n" % os.getcwd() )
+        sys.stderr.write("getcwd=%s\n" % os.getcwd() )
     if sys.version_info[0] < 3:
         import CGIHTTPServer
         import BaseHTTPServer
@@ -252,8 +252,8 @@ def start_server_as_function(verbose, server_name, port_number, current_dir = ""
                 # self.path = "/survol/entity.py?xid=odbc/table.Dsn=DSN~MyNativeSqlServerDataSrc,Table=VIEWS"
                 collapsed_path = _url_collapse_path(self.path)
                 if verbose:
-                    sys.stderr.write("start_server_as_function.is_cgi getpid=%d\n" % os.getpid())
-                    sys.stderr.write("start_server_as_function.is_cgi collapsed_path=%s getcwd=%s\n" % (collapsed_path, os.getcwd()))
+                    sys.stderr.write("is_cgi getpid=%d\n" % os.getpid())
+                    sys.stderr.write("is_cgi collapsed_path=%s getcwd=%s\n" % (collapsed_path, os.getcwd()))
 
                 uprs = urlparse(collapsed_path)
                 pathOnly = uprs.path
