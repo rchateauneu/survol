@@ -242,7 +242,7 @@ class SurvolLocalTest(unittest.TestCase):
             Domain=CurrentMachine,
             Name=CurrentUsername)
 
-        listScripts = myInstancesLocal.GetScripts()
+        listScripts = myInstancesLocal.get_scripts()
         if isVerbose:
             sys.stdout.write("Scripts:\n")
             for oneScr in listScripts:
@@ -282,7 +282,7 @@ class SurvolLocalTest(unittest.TestCase):
         if isVerbose:
             for oneInst in instancesTopLevelLocal:
                 sys.stdout.write("    Scripts: %s\n"%str(oneInst))
-                listScripts = oneInst.GetScripts()
+                listScripts = oneInst.get_scripts()
                 for oneScr in listScripts:
                     sys.stdout.write("        %s\n"%oneScr)
 
@@ -294,7 +294,7 @@ class SurvolLocalTest(unittest.TestCase):
         myInstanceLocal = lib_client.Agent().Win32_Service(
             Name="PlugPlay")
 
-        listScripts = myInstanceLocal.GetScripts()
+        listScripts = myInstanceLocal.get_scripts()
 
         if isVerbose:
             sys.stdout.write("Scripts:\n")
@@ -1410,7 +1410,7 @@ class SurvolPyODBCTest(unittest.TestCase):
         instanceLocalODBC = lib_client.Agent().odbc.dsn(
             Dsn="DSN~MS%20Access%20Database")
 
-        listScripts = instanceLocalODBC.GetScripts()
+        listScripts = instanceLocalODBC.get_scripts()
         if isVerbose:
             sys.stdout.write("Scripts:\n")
             for oneScr in listScripts:
@@ -1730,8 +1730,8 @@ class SurvolRemoteTest(unittest.TestCase):
     #    time.sleep(0.01)  # sleep time in seconds
 
     def test_InstanceUrlToAgentUrl(selfself):
-        assert( lib_client.InstanceUrlToAgentUrl("http://LOCALHOST:80/LocalExecution/entity.py?xid=addr.Id=127.0.0.1:427") == None )
-        assert( lib_client.InstanceUrlToAgentUrl(RemoteTestAgent + "/survol/sources_types/java/java_processes.py") == RemoteTestAgent )
+        assert( lib_client.instance_url_to_agent_url("http://LOCALHOST:80/LocalExecution/entity.py?xid=addr.Id=127.0.0.1:427") == None )
+        assert( lib_client.instance_url_to_agent_url(RemoteTestAgent + "/survol/sources_types/java/java_processes.py") == RemoteTestAgent )
 
     def test_create_source_url(self):
         # http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
@@ -1765,7 +1765,7 @@ class SurvolRemoteTest(unittest.TestCase):
 
         try:
             mySourceInvalid = myAgent.CIM_LogicalDisk(WrongProperty=AnyLogicalDisk)
-            scriptsInvalid = mySourceInvalid.GetScripts()
+            scriptsInvalid = mySourceInvalid.get_scripts()
             excRaised = False
             print("No exception is raised (This is a problem)")
         except Exception as exc:
@@ -1872,7 +1872,7 @@ class SurvolRemoteTest(unittest.TestCase):
         myAgent = lib_client.Agent(RemoteTestAgent)
 
         myInstancesRemoteDisk = myAgent.CIM_LogicalDisk(DeviceID=AnyLogicalDisk)
-        listScriptsDisk = myInstancesRemoteDisk.GetScripts()
+        listScriptsDisk = myInstancesRemoteDisk.get_scripts()
         # No scripts yet.
         self.assertTrue(len(listScriptsDisk) == 0)
 
@@ -1880,7 +1880,7 @@ class SurvolRemoteTest(unittest.TestCase):
         myAgent = lib_client.Agent(RemoteTestAgent)
 
         myInstancesRemoteDir = myAgent.CIM_Directory(Name=AnyLogicalDisk)
-        listScriptsDir = myInstancesRemoteDir.GetScripts()
+        listScriptsDir = myInstancesRemoteDir.get_scripts()
 
         if isVerbose:
             for keyScript in listScriptsDir:
@@ -2322,7 +2322,7 @@ class SurvolSearchTest(unittest.TestCase):
         sampleFile = os.path.join( os.path.dirname(__file__), "SampleDir", "SampleFile.txt" )
         instanceOrigin = lib_client.Agent().CIM_DataFile(Name=sampleFile)
 
-        searchTripleStore = instanceOrigin.FindStringFromNeighbour(searchString="Maecenas",maxDepth=1,filterInstances=None,filterPredicates=None)
+        searchTripleStore = instanceOrigin.find_string_from_neighbour(searchString="Maecenas",maxDepth=1,filterInstances=None,filterPredicates=None)
 
         results = list(searchTripleStore)
 
@@ -2342,7 +2342,7 @@ class SurvolSearchTest(unittest.TestCase):
 
         mustFind = "Drivers"
 
-        searchTripleStore = instanceOrigin.FindStringFromNeighbour(searchString="Curabitur",maxDepth=2,filterInstances=None,filterPredicates=None)
+        searchTripleStore = instanceOrigin.find_string_from_neighbour(searchString="Curabitur",maxDepth=2,filterInstances=None,filterPredicates=None)
         list_triple = list(searchTripleStore)
         print("stl_list=",list_triple)
         for tpl in list_triple:
@@ -2373,7 +2373,7 @@ class SurvolSearchTest(unittest.TestCase):
 
         mustFind = "Hello"
 
-        searchTripleStore = instanceOrigin.FindStringFromNeighbour(searchString=mustFind,maxDepth=3,filterInstances=listInstances,filterPredicates=listPredicates)
+        searchTripleStore = instanceOrigin.find_string_from_neighbour(searchString=mustFind,maxDepth=3,filterInstances=listInstances,filterPredicates=listPredicates)
         for tpl in searchTripleStore:
             print(tpl)
 

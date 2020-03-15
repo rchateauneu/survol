@@ -128,11 +128,11 @@ class SurvolSparqlCallbackApi:
         # subject_path=CIM_Process.Handle=2092
         class_name, dot, entity_id = subject_path.partition(".")
 
-        cim_object = lib_client.EntityIdToInstance(None, class_name, entity_id)
+        cim_object = lib_client.entity_id_to_instance(None, class_name, entity_id)
 
 
         # This should be a local script.
-        list_sources = cim_object.GetScripts()
+        list_sources = cim_object.get_scripts()
 
         for my_source in list_sources:
             if my_source.is_very_slow():
