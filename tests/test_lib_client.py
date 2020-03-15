@@ -262,7 +262,7 @@ class SurvolLocalTest(unittest.TestCase):
 
         tripleGrep = mySourceGrep.get_triplestore()
 
-        matchingTriples = tripleGrep.GetMatchingStringsTriples("[Pp]ellentesque")
+        matchingTriples = tripleGrep.get_matching_strings_triples("[Pp]ellentesque")
 
         lstStringsOnly = sorted( [ trpObj.value for trpSubj,trpPred,trpObj in matchingTriples ] )
 
@@ -336,7 +336,7 @@ class SurvolLocalTest(unittest.TestCase):
         if isVerbose:
             print("Len tripleSqlQueries=",len(tripleSqlQueries.m_triplestore))
 
-        matchingTriples = tripleSqlQueries.GetAllStringsTriples()
+        matchingTriples = tripleSqlQueries.get_all_strings_triples()
 
         lstQueriesOnly = sorted( matchingTriples )
 
@@ -431,7 +431,7 @@ class SurvolLocalTest(unittest.TestCase):
         tripleSqlQueries = mySourceSqlQueries.get_triplestore()
         print("len(tripleSqlQueries)=",len(tripleSqlQueries))
 
-        matchingTriples = list(tripleSqlQueries.GetAllStringsTriples())
+        matchingTriples = list(tripleSqlQueries.get_all_strings_triples())
         print("mmm=",matchingTriples)
 
         check_subprocess_end(procOpen)
@@ -461,7 +461,7 @@ class SurvolLocalTest(unittest.TestCase):
         tripleSqlQueries = mySourceSqlQueries.get_triplestore()
         print("len(tripleSqlQueries)=",len(tripleSqlQueries))
 
-        matchingTriples = list(tripleSqlQueries.GetAllStringsTriples())
+        matchingTriples = list(tripleSqlQueries.get_all_strings_triples())
         print("mmm=",matchingTriples)
 
         check_subprocess_end(procOpen)
@@ -638,7 +638,7 @@ class SurvolLocalTest(unittest.TestCase):
 
         # The environment variables are returned in various ways,
         # but it is guaranteed that some of them are always present.
-        setEnvVars = set( tripleEnvVars.GetAllStringsTriples() )
+        setEnvVars = set( tripleEnvVars.get_all_strings_triples() )
 
         print("setEnvVars:",setEnvVars)
 
@@ -934,7 +934,7 @@ class SurvolRemoteWbemTest(unittest.TestCase):
     # This test is very slow and should not fail Travis.
     @unittest.skipIf(not has_wbem() or is_travis_machine(), "pywbem cannot be imported. test_remote_ontology_wbem not executed.")
     def test_remote_ontology_wbem(self):
-        missing_triples = lib_client.CheckOntologyGraph("wbem", SurvolServerAgent)
+        missing_triples = lib_client.check_ontology_graph("wbem", SurvolServerAgent)
         self.assertTrue(missing_triples == [], "Missing triples:%s" % str(missing_triples))
 
 
@@ -1076,17 +1076,17 @@ class SurvolLocalOntologiesTest(unittest.TestCase):
     """This tests the creation of RDFS or OWL-DL ontologies"""
 
     def test_ontology_survol(self):
-        missing_triples = lib_client.CheckOntologyGraph("survol")
+        missing_triples = lib_client.check_ontology_graph("survol")
         self.assertTrue(missing_triples == [], "Missing triples:%s" % str(missing_triples))
 
     @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported. test_ontology_wmi not executed.")
     def test_ontology_wmi(self):
-        missing_triples = lib_client.CheckOntologyGraph("wmi")
+        missing_triples = lib_client.check_ontology_graph("wmi")
         self.assertTrue(missing_triples == [], "Missing triples:%s" % str(missing_triples))
 
     @unittest.skipIf(not is_linux_wbem(), "pywbem cannot be imported. test_ontology_wbem not executed.")
     def test_ontology_wbem(self):
-        missing_triples = lib_client.CheckOntologyGraph("wbem")
+        missing_triples = lib_client.check_ontology_graph("wbem")
         self.assertTrue(missing_triples == [], "Missing triples:%s" % str(missing_triples))
 
 # TODO: Test namespaces etc... etc classes wmi etc...
@@ -2382,7 +2382,7 @@ class SurvolInternalTest(unittest.TestCase):
     def check_internal_values(self,anAgentStr):
 
         anAgent = lib_client.Agent(anAgentStr)
-        mapInternalData = anAgent.GetInternalData()
+        mapInternalData = anAgent.get_internal_data()
 
         # http://192.168.0.14/Survol/survol/print_internal_data_as_json.py
         # http://rchateau-hp:8000/survol/print_internal_data_as_json.py
