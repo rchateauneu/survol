@@ -293,8 +293,6 @@ def stop_wsgiserver(agent_process):
 
 update_test_path()
 
-import lib_util
-import lib_kbase
 import lib_sparql
 import lib_properties
 
@@ -324,19 +322,5 @@ def query_see_also_key_value_pairs(grph, sparql_query):
     iter_dict_objects = __queries_entities_to_value_pairs(iter_entities_dicts)
     list_dict_objects = list(iter_dict_objects)
     return list_dict_objects
-
-
-# def UrlToRdf(url_rdf):
-#     print("url_rdf=",url_rdf)
-#
-#     response = lib_util.survol_urlopen(url_rdf)
-#     doc_xml_rdf = response.read().decode("utf-8")
-#
-#     print("doc_xml_rdf=",doc_xml_rdf)
-#
-#     # We could use lib_client GetTripleStore because we just need to deserialize XML into RDF.
-#     # On the other hand, this would imply that a SparQL endpoint works just like that, and this is not sure.
-#     grphKBase = lib_kbase.triplestore_from_rdf_xml(doc_xml_rdf)
-#     return grphKBase
 
 ################################################################################
