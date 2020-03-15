@@ -20,7 +20,7 @@ def Main():
 		parameters = { paramkeyShowUnconnected : False }
 	)
 
-	flagShowUnconnected = bool(cgiEnv.GetParameters( paramkeyShowUnconnected ))
+	flagShowUnconnected = bool(cgiEnv.get_parameters( paramkeyShowUnconnected ))
 
 	grph = cgiEnv.GetGraph()
 

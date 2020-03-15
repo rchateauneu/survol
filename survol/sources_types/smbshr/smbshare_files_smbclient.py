@@ -38,7 +38,7 @@ def Main():
 		lib_common.ErrorMessageHtml("smbclient not available on Windows")
 
 	smbShr = cgiEnv.GetId()
-	password = cgiEnv.GetParameters( paramkeyPassword )
+	password = cgiEnv.get_parameters( paramkeyPassword )
 
 	nodeSmbShr = lib_common.gUriGen.SmbShareUri( smbShr )
 

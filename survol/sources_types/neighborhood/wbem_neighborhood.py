@@ -62,7 +62,7 @@ def Main():
 		parameters = { paramkeySLP : False }
 	)
 
-	flagSLP = bool(cgiEnv.GetParameters( paramkeySLP ))
+	flagSLP = bool(cgiEnv.get_parameters( paramkeySLP ))
 
 	grph = cgiEnv.GetGraph()
 

@@ -72,7 +72,7 @@ def Main():
 
 	cgiEnv = lib_common.CgiEnv(	parameters = { paramkeyMaximumDepth : 3 })
 
-	maxDepth = int(cgiEnv.GetParameters( paramkeyMaximumDepth ))
+	maxDepth = int(cgiEnv.get_parameters( paramkeyMaximumDepth ))
 
 	win_module = cgiEnv.GetId()
 

@@ -267,7 +267,7 @@ def Main():
                     parameters = { lib_util.paramkeyShowAll : False })
     entity_id = cgiEnv.m_entity_id
     entity_host = cgiEnv.GetHost()
-    flagShowAll = int(cgiEnv.GetParameters( lib_util.paramkeyShowAll ))
+    flagShowAll = int(cgiEnv.get_parameters( lib_util.paramkeyShowAll ))
 
     ( nameSpace, entity_type, entity_namespace_type ) = cgiEnv.get_namespace_type()
 

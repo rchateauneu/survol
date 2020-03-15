@@ -138,7 +138,7 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	paramExtensiveScan = cgiEnv.GetParameters( paramkeyExtensiveScan )
+	paramExtensiveScan = cgiEnv.get_parameters( paramkeyExtensiveScan )
 
 	# By default, uses a small map of possible connection strings keyword.
 	# Otherwise it is very slow to scan the whole process memory.

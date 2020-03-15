@@ -182,7 +182,7 @@ def ScriptsTreeHtmlIterator(theCgi):
     if(theCgi.m_entity_type != "") and (theCgi.m_entity_id ==""):
         return
 
-    flagVal = theCgi.GetParameters( lib_util.paramkeyShowAll )
+    flagVal = theCgi.get_parameters( lib_util.paramkeyShowAll )
     DEBUG("WriteScriptsTree flagVal=%s",flagVal)
     # This happens when merging scripts.
     if flagVal == "":

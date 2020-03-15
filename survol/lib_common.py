@@ -605,13 +605,13 @@ class CgiEnv():
 	# If the parameter is "cimom", it will extract the host of Uris like these: Wee GetHost()
 	# https://jdd:test@acme.com:5959/cimv2:CIM_RegisteredProfile.InstanceID="acme:1"
 
-	def GetParameters(self,paramkey):
-		#sys.stderr.write("GetParameters paramkey='%s' m_arguments=%s\n" % (paramkey,str(self.m_arguments) ) )
+	def get_parameters(self,paramkey):
+		#sys.stderr.write("get_parameters paramkey='%s' m_arguments=%s\n" % (paramkey,str(self.m_arguments) ) )
 
 		# Default value if no CGI argument.
 		try:
 			dfltValue = self.m_parameters[paramkey]
-			# sys.stderr.write("GetParameters %s Default=%s\n" % ( paramkey, dfltValue ) )
+			# sys.stderr.write("get_parameters %s Default=%s\n" % ( paramkey, dfltValue ) )
 			hasDfltVal = True
 		except KeyError:
 			hasDfltVal = False
@@ -623,9 +623,9 @@ class CgiEnv():
 			# BEWARE !!! An empty argument triggers an exception !!!
 			# Same problem if the same argument appears several times: This will be a list.
 			paramVal = self.m_arguments[paramkey].value
-			#sys.stderr.write("GetParameters paramkey='%s' paramVal='%s' as CGI\n" % ( paramkey, paramVal ) )
+			#sys.stderr.write("get_parameters paramkey='%s' paramVal='%s' as CGI\n" % ( paramkey, paramVal ) )
 		except KeyError:
-			DEBUG("GetParameters paramkey='%s' not as CGI", paramkey )
+			DEBUG("get_parameters paramkey='%s' not as CGI", paramkey )
 			hasArgValue = False
 
 		# Now converts it to the type of the default value. Otherwise untouched.
@@ -633,7 +633,7 @@ class CgiEnv():
 			if hasArgValue:
 				paramTyp = type(dfltValue)
 				paramVal = paramTyp( paramVal )
-				#sys.stderr.write("GetParameters paramkey='%s' paramVal='%s' after conversion to %s\n" % ( paramkey, paramVal, str(paramTyp) ) )
+				#sys.stderr.write("get_parameters paramkey='%s' paramVal='%s' after conversion to %s\n" % ( paramkey, paramVal, str(paramTyp) ) )
 			else:
 				# If the parameters were edited but the value did not appear,
 				# it can only be a Boolean with a clear check box.
@@ -646,17 +646,17 @@ class CgiEnv():
 					# Sets the right value of the parameter because HTML form do not POST unchecked check boxes.
 					# Therefore, if in edit mode, a parameter is not returned, it can only be a False boolean.
 					self.m_parameters[paramkey] = paramVal
-					DEBUG("GetParameters paramkey='%s' set to FALSE", paramkey )
+					DEBUG("get_parameters paramkey='%s' set to FALSE", paramkey )
 				except KeyError:
 					paramVal = dfltValue
-					DEBUG("GetParameters paramkey='%s' set to paramVal='%s'", paramkey, paramVal )
+					DEBUG("get_parameters paramkey='%s' set to paramVal='%s'", paramkey, paramVal )
 		else:
 			if not hasArgValue:
-				#sys.stderr.write("GetParameters no value nor default for paramkey='%s' m_parameters=%s\n" % ( paramkey, str(self.m_parameters)))
-				# lib_util.InfoMessageHtml("GetParameters no value nor default for %s\n" % paramkey )
+				#sys.stderr.write("get_parameters no value nor default for paramkey='%s' m_parameters=%s\n" % ( paramkey, str(self.m_parameters)))
+				# lib_util.InfoMessageHtml("get_parameters no value nor default for %s\n" % paramkey )
 				paramVal = ""
 			else:
-				DEBUG("GetParameters nothing for paramkey='%s'", ( paramkey ))
+				DEBUG("get_parameters nothing for paramkey='%s'", ( paramkey ))
 
 		# TODO: Beware, empty strings are NOT send by the HTML form,
 		# TODO: so an empty string must be equal to the default value.
@@ -737,8 +737,8 @@ class CgiEnv():
 		else:
 			OutCgiMode( self, topUrl, mode )
 
-	# Example: cgiEnv.AddParameterizedLinks( "Next", { paramkeyStartIndex : startIndex + maxInstances } )
-	def AddParameterizedLinks( self, urlLabel, paramsMap ):
+	# Example: cgiEnv.add_parameterized_links( "Next", { paramkeyStartIndex : startIndex + maxInstances } )
+	def add_parameterized_links(self, urlLabel, paramsMap):
 		"""This adds the parameters of an URL which points to the same page,
 		but with different CGI parameters. This URLS will displays basically
 		the same things, from the same script."""
@@ -751,7 +751,7 @@ class CgiEnv():
 		prmsCopy = dict()
 		for argK in cgi.FieldStorage():
 			argV = cgi.FieldStorage()[argK].value
-			# sys.stderr.write("AddParameterizedLinks argK=%s argV=%s\n"%(argK,argV))
+			# sys.stderr.write("add_parameterized_links argK=%s argV=%s\n"%(argK,argV))
 			prmsCopy[argK] = lib_util.urllib_quote(argV)
 
 		# Update these parameters with the values specific for this label.

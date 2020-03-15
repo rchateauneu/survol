@@ -25,7 +25,7 @@ def Main():
 
 	cgiEnv = lib_common.CgiEnv(	parameters = { paramkeyEnumInstances : False })
 
-	flagEnumInstances = bool(cgiEnv.GetParameters( paramkeyEnumInstances ))
+	flagEnumInstances = bool(cgiEnv.get_parameters( paramkeyEnumInstances ))
 
 	grph = cgiEnv.GetGraph()
 

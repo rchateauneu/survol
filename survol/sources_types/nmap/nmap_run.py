@@ -27,11 +27,11 @@ def Main():
 	# The program nmap must be in the PATH.
 	# args = ["nmap", '-oX', '-', '127.0.0.1', '-p', '22-443' ]
 
-	portsRange = cgiEnv.GetParameters( paramkeyPortsRange )
+	portsRange = cgiEnv.get_parameters( paramkeyPortsRange )
 	args = ["nmap", '-oX', '-', '127.0.0.1', '-p', portsRange ]
 	# C:\Program Files (x86)\Nmap;
 
-	isGraphDisplay = cgiEnv.GetParameters( paramkeyGraphDisplay )
+	isGraphDisplay = cgiEnv.get_parameters( paramkeyGraphDisplay )
 	
 	#try:
 	p = lib_common.SubProcPOpen(args)

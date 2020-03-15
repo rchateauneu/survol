@@ -20,8 +20,8 @@ def Main():
 	)
 	top_pid = int( cgiEnv.GetId() )
 
-	flagShowSharedLib = bool(cgiEnv.GetParameters( paramkeyShowSharedLib ))
-	flagShowFontFiles = bool(cgiEnv.GetParameters( paramkeyShowFontFiles ))
+	flagShowSharedLib = bool(cgiEnv.get_parameters( paramkeyShowSharedLib ))
+	flagShowFontFiles = bool(cgiEnv.get_parameters( paramkeyShowFontFiles ))
 
 	grph = cgiEnv.GetGraph()
 
