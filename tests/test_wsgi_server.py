@@ -114,7 +114,7 @@ class WsgiRemoteTest(unittest.TestCase):
         # CIM_DataFile.Name=C:/Windows/explorer.exe
         # Win32_Group.Name=TrustedInstaller,Domain=NT SERVICE
         # CIM_Directory.Name=C:/
-        list_instances = data_triplestore.GetInstances()
+        list_instances = data_triplestore.get_instances()
 
         found_file = False
         found_dir = False

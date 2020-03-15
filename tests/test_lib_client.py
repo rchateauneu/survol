@@ -104,7 +104,7 @@ class SurvolLocalTest(unittest.TestCase):
         #     CIM_Directory.Name=C:/
         #     CIM_Directory.Name=C:/Windows
         #     CIM_DataFile.Name=C:/Windows/explorer.exe
-        instancesFileStatLocal = tripleFileStatLocal.GetInstances()
+        instancesFileStatLocal = tripleFileStatLocal.get_instances()
 
         lenInstances = len(instancesFileStatLocal)
         sys.stdout.write("Len tripleFileStatLocal=%s\n"%lenInstances)
@@ -138,9 +138,9 @@ class SurvolLocalTest(unittest.TestCase):
         triplePlus = mySrcMergePlus.get_triplestore()
         print("Len triplePlus:",len(triplePlus))
 
-        lenSource1 = len(mySource1.get_triplestore().GetInstances())
-        lenSource2 = len(mySource2.get_triplestore().GetInstances())
-        lenPlus = len(triplePlus.GetInstances())
+        lenSource1 = len(mySource1.get_triplestore().get_instances())
+        lenSource2 = len(mySource2.get_triplestore().get_instances())
+        lenPlus = len(triplePlus.get_instances())
         # In the merged link, there cannot be more instances than in the input sources.
         self.assertTrue(lenPlus <= lenSource1 + lenSource2)
 
@@ -158,8 +158,8 @@ class SurvolLocalTest(unittest.TestCase):
         tripleMinus = mySrcMergeMinus.get_triplestore()
         print("Len tripleMinus:",len(tripleMinus))
 
-        lenSource1 = len(mySource1.get_triplestore().GetInstances())
-        lenMinus = len(tripleMinus.GetInstances())
+        lenSource1 = len(mySource1.get_triplestore().get_instances())
+        lenMinus = len(tripleMinus.get_instances())
         # There cannot be more instances after removal.
         self.assertTrue(lenMinus <= lenSource1 )
 
@@ -171,18 +171,18 @@ class SurvolLocalTest(unittest.TestCase):
             Domain=CurrentMachine,
             Name=CurrentUsername)
         tripleDupl = mySourceDupl.get_triplestore()
-        print("Len tripleDupl=",len(tripleDupl.GetInstances()))
+        print("Len tripleDupl=",len(tripleDupl.get_instances()))
 
         mySrcMergePlus = mySourceDupl + mySourceDupl
         triplePlus = mySrcMergePlus.get_triplestore()
-        print("Len triplePlus=",len(triplePlus.GetInstances()))
+        print("Len triplePlus=",len(triplePlus.get_instances()))
         # No added node.
-        self.assertEqual(len(triplePlus.GetInstances()), len(tripleDupl.GetInstances()))
+        self.assertEqual(len(triplePlus.get_instances()), len(tripleDupl.get_instances()))
 
         mySrcMergeMinus = mySourceDupl - mySourceDupl
         tripleMinus = mySrcMergeMinus.get_triplestore()
-        print("Len tripleMinus=",len(tripleMinus.GetInstances()))
-        self.assertEqual(len(tripleMinus.GetInstances()), 0)
+        print("Len tripleMinus=",len(tripleMinus.get_instances()))
+        self.assertEqual(len(tripleMinus.get_instances()), 0)
 
     # http://rchateau-hp:8000/survol/sources_types/memmap/memmap_processes.py?xid=memmap.Id%3DC%3A%2FWindows%2FSystem32%2Fen-US%2Fkernel32.dll.mui
 
@@ -277,7 +277,7 @@ class SurvolLocalTest(unittest.TestCase):
             "sources_types/win32/win32_local_groups.py")
 
         tripleTopLevelLocal = mySourceTopLevelLocal.get_triplestore()
-        instancesTopLevelLocal = tripleTopLevelLocal.GetInstances()
+        instancesTopLevelLocal = tripleTopLevelLocal.get_instances()
 
         if isVerbose:
             for oneInst in instancesTopLevelLocal:
@@ -386,7 +386,7 @@ class SurvolLocalTest(unittest.TestCase):
         print(len(tripleSqlQueries))
         assert(len(tripleSqlQueries.m_triplestore)==190)
 
-        lstMatches = list(tripleSqlQueries.GetInstances("[Pp]ellentesque"))
+        lstMatches = list(tripleSqlQueries.get_instances("[Pp]ellentesque"))
         print("Matches:",lstMatches)
         assert( len(lstMatches) == 5 )
 
@@ -515,7 +515,7 @@ class SurvolLocalTest(unittest.TestCase):
 
         tripleProcesses = mySourceProcesses.get_triplestore()
 
-        lstInstances = tripleProcesses.GetInstances()
+        lstInstances = tripleProcesses.get_instances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
         # Some instances are required.
@@ -554,7 +554,7 @@ class SurvolLocalTest(unittest.TestCase):
 
         tripleMemMaps = mySourceMemMaps.get_triplestore()
 
-        lstInstances = tripleMemMaps.GetInstances()
+        lstInstances = tripleMemMaps.get_instances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
         print("Instances=",strInstancesSet)
@@ -694,7 +694,7 @@ class SurvolLocalTest(unittest.TestCase):
 
         triplePythonPackage = mySourcePythonPackage.get_triplestore()
 
-        lstInstances = triplePythonPackage.GetInstances()
+        lstInstances = triplePythonPackage.get_instances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
         DEBUG("strInstancesSet=%s",strInstancesSet)
@@ -742,7 +742,7 @@ class SurvolLocalTest(unittest.TestCase):
 
         triplePyScript = mySourcePyScript.get_triplestore()
 
-        lstInstances = triplePyScript.GetInstances()
+        lstInstances = triplePyScript.get_instances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
         DEBUG("strInstancesSet=%s",str(strInstancesSet))
 
@@ -769,7 +769,7 @@ class SurvolLocalTest(unittest.TestCase):
             "sources_types/enumerate_user.py")
 
         tripleUsers = mySourceUsers.get_triplestore()
-        instancesUsers = tripleUsers.GetInstances()
+        instancesUsers = tripleUsers.get_instances()
         strInstancesSet = set([str(oneInst) for oneInst in instancesUsers ])
 
         # At least the current user must be found.
@@ -785,7 +785,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=CurrentPid)
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().GetInstances() ])
+        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
 
         # The result is empty but the script worked.
         print(strInstancesSet)
@@ -799,7 +799,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=CurrentPid)
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().GetInstances() ])
+        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
 
         # The result is empty but the script worked.
         print("Connections=",strInstancesSet)
@@ -813,7 +813,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=CurrentPid)
 
-        strInstancesSet = set( [str(oneInst) for oneInst in mySource.get_triplestore().GetInstances() ])
+        strInstancesSet = set( [str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
         print("test_process_cwd: strInstancesSet:", strInstancesSet)
 
         print("test_process_cwd: CurrentExecutablePath:", CurrentExecutablePath)
@@ -841,7 +841,7 @@ class SurvolLocalWbemTest(unittest.TestCase):
             Handle=CurrentPid)
 
         triple_store = mySource.get_triplestore()
-        instances_list = triple_store.GetInstances()
+        instances_list = triple_store.get_instances()
         strInstancesSet = set( [str(oneInst) for oneInst in instances_list ])
         print("test_wbem_process_info: strInstancesSet:", strInstancesSet)
 
@@ -855,7 +855,7 @@ class SurvolLocalWbemTest(unittest.TestCase):
             Name=CurrentMachine)
 
         triple_store = mySource.get_triplestore()
-        instances_list = triple_store.GetInstances()
+        instances_list = triple_store.get_instances()
         strInstancesSet = set( [str(oneInst) for oneInst in instances_list ])
         print("test_wbem_hostname_processes_local: strInstancesSet:", strInstancesSet)
 
@@ -884,7 +884,7 @@ class SurvolRemoteWbemTest(unittest.TestCase):
             Name=SurvolServerHostname)
 
         computer_triple_store = computer_source.get_triplestore()
-        instances_list = computer_triple_store.GetInstances()
+        instances_list = computer_triple_store.get_instances()
         strInstancesSet = set( [str(oneInst) for oneInst in instances_list ])
 
         # ['CIM_Process.Handle=10', 'CIM_Process.Handle=816', 'CIM_Process.Handle=12' etc...
@@ -920,7 +920,7 @@ class SurvolRemoteWbemTest(unittest.TestCase):
                 continue
 
             # FIXME: If the process has left, this list is empty, and the test fails.
-            instances_list = process_triple_store.GetInstances()
+            instances_list = process_triple_store.get_instances()
             if instances_list == []:
                 WARNING("test_wbem_info_processes_remote: Process %s exit." % remote_pid)
                 num_exit_processes += 1
@@ -981,7 +981,7 @@ class SurvolLocalJavaTest(unittest.TestCase):
         ]:
             listRequired.append( instPrefix + instJavaName )
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().GetInstances() ])
+        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
         print("test_java_mbeans strInstancesSet=", strInstancesSet)
 
         for oneStr in listRequired:
@@ -1024,7 +1024,7 @@ class SurvolLocalJavaTest(unittest.TestCase):
 
         listRequired.append( CurrentProcessPath )
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().GetInstances() ])
+        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
         print("test_java_system_properties strInstancesSet=", strInstancesSet)
 
         print("listRequired=",listRequired)
@@ -1045,7 +1045,7 @@ class SurvolLocalJavaTest(unittest.TestCase):
 
         # Start a Java process.
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().GetInstances() ])
+        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
 
         assert(strInstancesSet == set())
 
@@ -1131,7 +1131,7 @@ class SurvolLocalLinuxTest(unittest.TestCase):
             'Linux/cgroup.Name=cpuset',
         ]
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().GetInstances() ])
+        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
 
         for oneStr in listRequired:
             assert( oneStr in strInstancesSet )
@@ -1172,7 +1172,7 @@ class SurvolLocalGdbTest(unittest.TestCase):
         ]
 
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().GetInstances() ])
+        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
 
         for oneStr in listRequired:
             assert( oneStr in strInstancesSet )
@@ -1202,7 +1202,7 @@ class SurvolLocalGdbTest(unittest.TestCase):
 
         triplePyStack = mySourcePyStack.get_triplestore()
 
-        lstInstances = triplePyStack.GetInstances()
+        lstInstances = triplePyStack.get_instances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
         print("strInstancesSet=",strInstancesSet)
 
@@ -1383,8 +1383,8 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 
         sys.stderr.write("CurrentMachine=%s before get_triplestore\n" % CurrentMachine)
         tripleHostLocalGroups = mySourceHostLocalGroups.get_triplestore()
-        sys.stderr.write("CurrentMachine=%s before GetInstances\n" % CurrentMachine)
-        instancesHostLocalGroups = tripleHostLocalGroups.GetInstances()
+        sys.stderr.write("CurrentMachine=%s before get_instances\n" % CurrentMachine)
+        instancesHostLocalGroups = tripleHostLocalGroups.get_instances()
 
         print("Host local groups=", instancesHostLocalGroups)
         for one_instance in instancesHostLocalGroups:
@@ -1782,7 +1782,7 @@ class SurvolRemoteTest(unittest.TestCase):
             Id="rdflib")
         triplePythonPackageRemote = mySourcePythonPackageRemote.get_triplestore()
 
-        instancesPythonPackageRemote = triplePythonPackageRemote.GetInstances()
+        instancesPythonPackageRemote = triplePythonPackageRemote.get_instances()
         lenInstances = len(instancesPythonPackageRemote)
         # This Python module must be there because it is needed by Survol.
         self.assertTrue(lenInstances>=1)
@@ -1795,7 +1795,7 @@ class SurvolRemoteTest(unittest.TestCase):
         tripleJavaRemote = mySourceJavaRemote.get_triplestore()
         print("Len tripleJavaRemote=",len(tripleJavaRemote))
 
-        instancesJavaRemote = tripleJavaRemote.GetInstances()
+        instancesJavaRemote = tripleJavaRemote.get_instances()
         numJavaProcesses = 0
         for oneInstance in instancesJavaRemote:
             if oneInstance.__class__.__name__ == "CIM_Process":
@@ -1814,7 +1814,7 @@ class SurvolRemoteTest(unittest.TestCase):
         tripleArpRemote = mySourceArpRemote.get_triplestore()
         print("Len tripleArpRemote=",len(tripleArpRemote))
 
-        instancesArpRemote = tripleArpRemote.GetInstances()
+        instancesArpRemote = tripleArpRemote.get_instances()
         numComputers = 0
         for oneInstance in instancesArpRemote:
             if oneInstance.__class__.__name__ == "CIM_ComputerSystem":
@@ -1839,9 +1839,9 @@ class SurvolRemoteTest(unittest.TestCase):
         triplePlus = mySrcMergePlus.get_triplestore()
         print("Len triplePlus:",len(triplePlus))
 
-        lenSource1 = len(mySource1.get_triplestore().GetInstances())
-        lenSource2 = len(mySource2.get_triplestore().GetInstances())
-        lenPlus = len(triplePlus.GetInstances())
+        lenSource1 = len(mySource1.get_triplestore().get_instances())
+        lenSource2 = len(mySource2.get_triplestore().get_instances())
+        lenPlus = len(triplePlus.get_instances())
         # There is a margin because some instances could be created in the mean time.
         errorMargin = 20
         # In the merged link, there cannot be more instances than in the input sources.
@@ -1863,8 +1863,8 @@ class SurvolRemoteTest(unittest.TestCase):
         tripleMinus = mySrcMergeMinus.get_triplestore()
         print("Len tripleMinus:",len(tripleMinus))
 
-        lenSource1 = len(mySource1.get_triplestore().GetInstances())
-        lenMinus = len(tripleMinus.GetInstances())
+        lenSource1 = len(mySource1.get_triplestore().get_instances())
+        lenMinus = len(tripleMinus.get_instances())
         # There cannot be more instances after removal.
         self.assertTrue(lenMinus <= lenSource1 )
 
