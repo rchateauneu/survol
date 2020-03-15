@@ -613,7 +613,7 @@ def DoTheJob(TheEngine,Deserializer,AppName,Title,dot_layout = "", collapsed_pro
 		try:
 			# Normally we are stuck in this, answering HTTP requests and accumulating data.
 			# TODO: It is probably not necessary to send Title and DotLayout.
-			layoutParams = lib_common.MakeDotLayout( dot_layout, collapsed_properties )
+			layoutParams = lib_common.make_dot_layout( dot_layout, collapsed_properties )
 
 			# Now, will append log at the end.
 			srvSingle.m_logFd.close()

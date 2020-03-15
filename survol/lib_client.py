@@ -353,9 +353,9 @@ class SourceMergeMinus (SourceMerge):
 
 # http://LOCALHOST:80
 # http://rchateau-hp:8000
-def AgentToHost(agentUrl):
+def agent_to_host(agentUrl):
     parsed_url = lib_util.survol_urlparse(agentUrl)
-    DEBUG("AgentToHost %s => %s",agentUrl,parsed_url.hostname)
+    DEBUG("agent_to_host %s => %s",agentUrl,parsed_url.hostname)
     return parsed_url.hostname
 
 # https://stackoverflow.com/questions/15247075/how-can-i-dynamically-create-derived-classes-from-a-base-class
@@ -377,7 +377,7 @@ class BaseCIMClass(object):
 
         entity_id = lib_util.KWArgsToEntityId(className, **kwargsOntology)
         if agentUrl:
-            hostAgent = AgentToHost(agentUrl)
+            hostAgent = agent_to_host(agentUrl)
             instanceKey = hostAgent + "+++" + entity_id
         else:
             instanceKey = "NO_AGENT" + "+++" + entity_id
@@ -667,24 +667,24 @@ def CIM_class_factory_no_cache(className):
 # Each class contain a dictionary of its instances, with a key
 # mostly made of the URL parameters plus the agent.
 # Classes are the same for all agents, therefore the agent is not needed in the key.
-cacheCIMClasses = {}
+CacheCIMClasses = {}
 
 def create_CIM_class(agentUrl,className,**kwargsOntology):
-    global cacheCIMClasses
+    global CacheCIMClasses
     entity_id = lib_util.KWArgsToEntityId(className,**kwargsOntology)
 
     # No need to use the class in the key, because the cache is class-specific.
     DEBUG("create_CIM_class agentUrl=%s className=%s entity_id=%s",agentUrl,className,entity_id)
 
     try:
-        newCIMClass = cacheCIMClasses[className]
+        newCIMClass = CacheCIMClasses[className]
         #DEBUG("Found existing className=%s",className)
     except KeyError:
         # This class is not yet created.
         # TODO: If entity_label contains slashes, submodules must be imported.
         newCIMClass = CIM_class_factory_no_cache(className)
 
-        cacheCIMClasses[className] = newCIMClass
+        CacheCIMClasses[className] = newCIMClass
 
     # Now, it creates a new instance and stores it in the cache of the CIM class.
     newInstance = newCIMClass(agentUrl, className, **kwargsOntology)

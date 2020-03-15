@@ -25,7 +25,7 @@ class OutputMachineWsgi:
     def __init__(self, start_response):
         # FIXME: This is not efficient because Survol creates a string stored in the stream,
         # FIXME: then converted to a string, then written to the socket.
-        # FIXME: Ideally, this should be written in one go from for example lib_common.CopyToOut,
+        # FIXME: Ideally, this should be written in one go from for example lib_common.copy_to_output_destination,
         # FIXME: to the output socket.
         self.m_output = create_string_stream()
         self.m_start_response = start_response

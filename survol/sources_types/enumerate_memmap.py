@@ -101,7 +101,7 @@ def FunctionProcess(mapToProc,proc):
 	# The process might have left in the meantime.
 	pid = proc.pid
 
-	if lib_common.UselessProc(proc):
+	if lib_common.is_useless_process(proc):
 		return
 
 	try:

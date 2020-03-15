@@ -73,7 +73,7 @@ def Main():
 
 	for proc in CIM_Process.ProcessIter():
 		try:
-			if lib_common.UselessProc(proc):
+			if lib_common.is_useless_process(proc):
 				continue
 
 			pid = proc.pid

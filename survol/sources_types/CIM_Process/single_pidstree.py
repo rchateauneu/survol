@@ -23,7 +23,7 @@ def AddExtraInformationtoProcess(grph,node_process,proc_obj):
 		lib_entity_file.AddInfo( grph, execNod, [ execName ] )
 
 def tree_subprocesses(grph, proc_obj):
-	if lib_common.UselessProc(proc_obj):
+	if lib_common.is_useless_process(proc_obj):
 		return
 
 	node_process = lib_common.gUriGen.PidUri(proc_obj.pid)
@@ -59,7 +59,7 @@ def tree_parent_process(grph, proc_obj, pids_seen_set):
 		if the_ppid == 0:
 			return
 
-		if lib_common.UselessProc(proc_obj):
+		if lib_common.is_useless_process(proc_obj):
 			return
 
 		node_process = lib_common.gUriGen.PidUri(the_pid)
