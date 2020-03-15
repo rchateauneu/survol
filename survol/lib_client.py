@@ -428,7 +428,7 @@ class BaseCIMClass(object):
         dataJson = json.loads(dataJsonStr)
 
         # The scripts urls are the keys of the Json object.
-        listSources = [ ScriptUrlToSource(oneScr) for oneScr in dataJson]
+        listSources = [ script_url_to_source(oneScr) for oneScr in dataJson]
         return listSources
 
     # This is much faster than using the URL of a local server.
@@ -460,7 +460,7 @@ class BaseCIMClass(object):
 
         entity_dirmenu_only.DirToMenu(CallbackGrphAdd,rootNode,entity_type,self.m_entity_id,entity_host,flagShowAll)
 
-        listSources = [ ScriptUrlToSource(oneScr) for oneScr in listScripts]
+        listSources = [ script_url_to_source(oneScr) for oneScr in listScripts]
         return listSources
 
     # This returns the set of words which describes an instance and allows to compare it to other instances.
@@ -601,7 +601,7 @@ class BaseCIMClass(object):
                 if tripleStore is None:
                     continue
 
-                tripleStoreMatch = tripleStore.GetMatchingStringsTriples(searchString)
+                tripleStoreMatch = tripleStore.get_matching_strings_triples(searchString)
                 for oneTriple in tripleStoreMatch:
                     yield oneTriple
 
@@ -615,7 +615,7 @@ class BaseCIMClass(object):
                     # TODO: whereas the solution could be quite close.
                     #
                     # TODO: Give a high cost when a node is on a remote machine.
-                    lstInstances = tripleStore.GetConnectedInstances(bestEdge.m_node_instance,filterPredicates)
+                    lstInstances = tripleStore.get_connected_instances(bestEdge.m_node_instance,filterPredicates)
                 except Exception as ex:
                     ERROR("find_string_from_neighbour: %s",ex)
                     raise
@@ -807,7 +807,7 @@ class TripleStore:
         return lstInstances
 
     # This returns the set of all nodes connected directly or indirectly to the input.
-    def GetConnectedInstances(self,startInstance,filterPredicates):
+    def get_connected_instances(self,startInstance,filterPredicates):
         setFilterPredicates = {pc.property_script,pc.property_rdf_data_nolist2}
         if filterPredicates:
             setFilterPredicates.update(filterPredicates)
@@ -831,7 +831,7 @@ class TripleStore:
         setConnectedInstances = set()
 
         # This recursively merges all nodes connected to this one.
-        def MergeConnectedInstancesTo(oneInst):
+        def __merge_connected_instances_to(oneInst):
 
             if not oneInst in instances_adjacency_list:
                 #DEBUG("Already deleted oneInst=%s",oneInst)
@@ -844,23 +844,23 @@ class TripleStore:
 
             del instances_adjacency_list[oneInst]
             for endInst in instsConnected:
-                MergeConnectedInstancesTo(endInst)
+                __merge_connected_instances_to(endInst)
 
-        MergeConnectedInstancesTo(startInstance)
+        __merge_connected_instances_to(startInstance)
 
         # All the nodes connected to the input one.
         INFO("startInstance=%s len(setConnectedInstances)=%d",startInstance,len(setConnectedInstances))
         return setConnectedInstances
 
-    def GetMatchingStringsTriples(self,searchString):
+    def get_matching_strings_triples(self, searchString):
         return lib_kbase.triplestore_matching_strings(self.m_triplestore,searchString)
 
-    def GetAllStringsTriples(self):
+    def get_all_strings_triples(self):
         for trpSubj,trpPred,trpObj in lib_kbase.triplestore_all_strings(self.m_triplestore):
             yield lib_util.urllib_unquote(trpObj.value )
 
     # This returns only the objects of a given class and for a given predicate.
-    def FilterObjectsWithPredicateClass(self, associator_key_name, result_class_name):
+    def filter_objects_with_predicate_class(self, associator_key_name, result_class_name):
         WARNING("TripleStore.ObjectFromPredicate associator_key_name=%s, result_class_name=%s",
                 associator_key_name, result_class_name)
 
@@ -874,7 +874,7 @@ class TripleStore:
             # This transforms for example "http://primhillcomputers.com/survol#Domain" into "Domain"
             predicate_name = lib_properties.PropToQName(source_predicate)
 
-            # WARNING("FilterObjectsWithPredicateClass predicate_name=%s",predicate_name)
+            # WARNING("filter_objects_with_predicate_class predicate_name=%s",predicate_name)
             # s=http://LOCALHOST:80/LocalExecution/entity.py?xid=CIM_Process.Handle=2544
             # p=http://primhillcomputers.com/survol#ppid
             # o=http://LOCALHOST:80/LocalExecution/entity.py?xid=CIM_Process.Handle=2092
@@ -883,9 +883,9 @@ class TripleStore:
                 # class_object = source_object
                 object_instance = url_to_instance(source_object)
                 #if predicate_name.find("ppid") >= 0:
-                #    WARNING("FilterObjectsWithPredicateClass OKOKOKOK s=%s p=%s o=%s", str(source_subject), str(source_predicate), str(source_object))
-                #    WARNING("FilterObjectsWithPredicateClass object_instance=%s", dir(object_instance) )
-                #    WARNING("FilterObjectsWithPredicateClass object_instance.__class__.__name__=%s", object_instance.__class__.__name__)
+                #    WARNING("filter_objects_with_predicate_class OKOKOKOK s=%s p=%s o=%s", str(source_subject), str(source_predicate), str(source_object))
+                #    WARNING("filter_objects_with_predicate_class object_instance=%s", dir(object_instance) )
+                #    WARNING("filter_objects_with_predicate_class object_instance.__class__.__name__=%s", object_instance.__class__.__name__)
                 if object_instance.__class__.__name__ == result_class_name:
                     dict_objects[source_object] = object_instance
 
@@ -909,16 +909,16 @@ class TripleStore:
                 lib_properties.MakeProp(dict_key): dict_value for dict_key, dict_value in object_instance.m_key_value_pairs.items() }
             yield (node_path, dict_nodes_keys_values)
 
-    def CopyToGraph(self, grph):
+    def copy_to_graph(self, grph):
         """This adds the triples to another triplestore."""
         # TODO: This could be faster.
 
         # Maybe this is a test mode.
         if not grph:
-            WARNING("CopyToGraph Graph is None. Leaving")
+            WARNING("copy_to_graph Graph is None. Leaving")
             return
 
-        WARNING("CopyToGraph Adding %d triples", len(self.m_triplestore))
+        WARNING("copy_to_graph Adding %d triples", len(self.m_triplestore))
         for subject, predicate, object in self.m_triplestore:
             grph.add((subject, predicate, object))
 
@@ -930,7 +930,7 @@ class TripleStore:
 # Input examples:
 # "http://LOCAL_MODE:80/LocalExecution/sources_types/Win32_UserAccount/Win32_NetUserGetGroups.py?xid=Win32_UserAccount.Domain%3Drchateau-hp%2CName%3Drchateau"
 # "http://rchateau-HP:8000/survol/sources_types/CIM_Directory/doxygen_dir.py?xid=CIM_Directory.Name%3DD%3A"
-def ScriptUrlToSource(callingUrl):
+def script_url_to_source(callingUrl):
 
     parse_url = lib_util.survol_urlparse(callingUrl)
     query = parse_url.query
@@ -938,9 +938,9 @@ def ScriptUrlToSource(callingUrl):
     params = parse_qs(query)
 
     xidParam = params['xid'][0]
-    # sys.stdout.write("ScriptUrlToSource xidParam=%s\n"%xidParam)
+    # sys.stdout.write("script_url_to_source xidParam=%s\n"%xidParam)
     (entity_type,entity_id,entity_host) = lib_util.ParseXid(xidParam)
-    # sys.stdout.write("ScriptUrlToSource entity_id=%s\n"%entity_id)
+    # sys.stdout.write("script_url_to_source entity_id=%s\n"%entity_id)
     entity_id_dict = lib_util.SplitMoniker(entity_id)
     # sys.stdout.write("entity_id_dict=%s\n"%str(entity_id_dict))
 
@@ -995,19 +995,19 @@ class Agent:
         #sys.stdout.write("Agent.__getattr__ attr=%s\n"%(str(attribute_name)))
         return CallDispatcher(self, self.m_agent_url, attribute_name)
 
-    def ExecHttpScript(self,aScript):
+    def exec_http_script(self,aScript):
         if self.m_agent_url:
             anUrl = self.m_agent_url + aScript
-            DEBUG("GetInternalData anUrl=%s"%anUrl)
+            DEBUG("get_internal_data anUrl=%s"%anUrl)
             urlContent = load_moded_urls(anUrl)
             return urlContent
         else:
-            raise Exception("ExecHttpScript: Feature not implemenetd yet")
+            raise Exception("exec_http_script: Feature not implemenetd yet")
 
-    def GetInternalData(self):
+    def get_internal_data(self):
         # This adds "?xid=" at the end, otherwise it is parsed differently,
         # depending on the path.
-        urlContent = self.ExecHttpScript("/survol/print_internal_data_as_json.py" + lib_util.xidCgiDelimiter)
+        urlContent = self.exec_http_script("/survol/print_internal_data_as_json.py" + lib_util.xidCgiDelimiter)
         return json.loads(urlContent)
 
 
@@ -1015,7 +1015,7 @@ class Agent:
 
 # This checks that a full ontology contains a minimal subset of classes and attributes.
 # This is for testing purpose only.
-def CheckOntologyGraph(ontology_key, survol_agent = None):
+def check_ontology_graph(ontology_key, survol_agent = None):
     import rdflib
 
     url_script = {
@@ -1035,15 +1035,9 @@ def CheckOntologyGraph(ontology_key, survol_agent = None):
     ontology_graph = rdflib.Graph()
     ontoTrunc = b"".join(ontologySurvol.split(b"\n"))
     result = ontology_graph.parse(data=ontoTrunc, format="application/rdf+xml")
-    INFO("CheckOntologyGraph Load OK:l=%d"%len(ontology_graph))
+    INFO("check_ontology_graph Load OK:l=%d"%len(ontology_graph))
 
     return lib_kbase.CheckMinimalRdsfOntology(ontology_graph)
-
-
-################################################################################
-def SetDebugMode():
-    import logging
-    lib_util.SetLoggingConfig(logging.WARNING)
 
 ################################################################################
 
@@ -1053,7 +1047,6 @@ def SetDebugMode():
 
 # TODO: Create the merge URL. What about a local script ?
 # Or: A merged URL needs an agent anyway.
-
 
 ################################################################################
 

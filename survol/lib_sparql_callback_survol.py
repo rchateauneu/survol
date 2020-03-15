@@ -42,7 +42,7 @@ class SurvolSparqlCallbackApi:
             my_triplestore = my_source.get_triplestore()
 
             # This is returned anyway, as a triplestore that rdflib Sparql can work on.
-            my_triplestore.CopyToGraph(grph)
+            my_triplestore.copy_to_graph(grph)
 
             list_instances = my_triplestore.GetInstances()
 
@@ -150,8 +150,8 @@ class SurvolSparqlCallbackApi:
 
             # This is returned anyway, as a triplestore that rdflib Sparql can work on.
             # TODO: This should be done in one loop instead of THREE !!!!!!!
-            my_triplestore.CopyToGraph(grph)
-            iter_objects = my_triplestore.FilterObjectsWithPredicateClass(associator_key_name, result_class_name)
+            my_triplestore.copy_to_graph(grph)
+            iter_objects = my_triplestore.filter_objects_with_predicate_class(associator_key_name, result_class_name)
 
             for object_path, one_key_value_dict_nodes in iter_objects:
                 DEBUG("SurvolCallbackAssociator object_path=%s one_key_value_dict_nodes=%s",
