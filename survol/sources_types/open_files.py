@@ -53,9 +53,9 @@ def Main():
 					   paramkeyShowNonShared : False }
 	)
 
-	flagShowSharedLib = bool(cgiEnv.GetParameters( paramkeyShowSharedLib ))
-	flagShowFontFiles = bool(cgiEnv.GetParameters( paramkeyShowFontFiles ))
-	flagShowNonShared = bool(cgiEnv.GetParameters( paramkeyShowNonShared ))
+	flagShowSharedLib = bool(cgiEnv.get_parameters( paramkeyShowSharedLib ))
+	flagShowFontFiles = bool(cgiEnv.get_parameters( paramkeyShowFontFiles ))
+	flagShowNonShared = bool(cgiEnv.get_parameters( paramkeyShowNonShared ))
 
 	grph = cgiEnv.GetGraph()
 

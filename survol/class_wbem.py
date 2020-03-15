@@ -143,8 +143,8 @@ def Main():
 	cgiEnv = lib_common.CgiEnv(can_process_remote = True,
 									parameters = { paramkeyMaxInstances : 80, paramkeyStartIndex: 0 })
 
-	maxInstances = cgiEnv.GetParameters( paramkeyMaxInstances )
-	startIndex = cgiEnv.GetParameters( paramkeyStartIndex )
+	maxInstances = cgiEnv.get_parameters( paramkeyMaxInstances )
+	startIndex = cgiEnv.get_parameters( paramkeyStartIndex )
 
 	grph = cgiEnv.GetGraph()
 
@@ -205,9 +205,9 @@ def Main():
 	# The other parameters are not changed.
 	# TODO, BEWARE: What is the total number of elements ?
 	if startIndex + maxInstances < numInstances:
-		cgiEnv.AddParameterizedLinks( "Next", { paramkeyStartIndex: startIndex + maxInstances } )
+		cgiEnv.add_parameterized_links("Next", {paramkeyStartIndex: startIndex + maxInstances})
 	if startIndex > 0:
-		cgiEnv.AddParameterizedLinks( "Previous", { paramkeyStartIndex: max(startIndex - maxInstances,0) } )
+		cgiEnv.add_parameterized_links("Previous", {paramkeyStartIndex: max(startIndex - maxInstances, 0)})
 
 
 	# TODO: On pourrait rassembler par classes,

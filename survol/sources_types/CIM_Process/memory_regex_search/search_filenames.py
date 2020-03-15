@@ -83,9 +83,9 @@ def Main():
 
 	pidint = int( cgiEnv.GetId() )
 
-	paramMiniDepth = int(cgiEnv.GetParameters( keyMiniDepth ))
-	paramWithRelative = bool(cgiEnv.GetParameters( keyWithRelative ))
-	paramCheckExistence = bool(cgiEnv.GetParameters( keyCheckExistence ))
+	paramMiniDepth = int(cgiEnv.get_parameters( keyMiniDepth ))
+	paramWithRelative = bool(cgiEnv.get_parameters( keyWithRelative ))
+	paramCheckExistence = bool(cgiEnv.get_parameters( keyCheckExistence ))
 
 
 	grph = cgiEnv.GetGraph()

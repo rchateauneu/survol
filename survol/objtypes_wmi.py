@@ -103,7 +103,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv(can_process_remote = True,
 									parameters = { paramkeyMaxDepth : 3 })
 
-	maxDepth = int(cgiEnv.GetParameters( paramkeyMaxDepth ))
+	maxDepth = int(cgiEnv.get_parameters( paramkeyMaxDepth ))
 
 	( wmiNamespace, entity_type, entity_namespace_type ) = cgiEnv.get_namespace_type()
 
