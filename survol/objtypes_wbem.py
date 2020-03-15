@@ -71,7 +71,7 @@ def Main():
 					can_process_remote = True,
 					parameters = { paramkeyMaxDepth : 2, paramkeyYawnUrls:False })
 
-	( wbemNamespace, entity_type, entity_namespace_type ) = cgiEnv.GetNamespaceType()
+	( wbemNamespace, entity_type, entity_namespace_type ) = cgiEnv.get_namespace_type()
 
 	maxDepth = int(cgiEnv.GetParameters( paramkeyMaxDepth ))
 	withYawnUrls = int(cgiEnv.GetParameters( paramkeyYawnUrls ))

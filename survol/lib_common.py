@@ -516,13 +516,13 @@ class CgiEnv():
 		# See presence of source_types.sql.query.DecodeCgiArg(keyWord,cgiArg) for example.
 
 		# This is probably too generous to indicate a local host.
-		self.TestRemoteIfPossible(can_process_remote)
+		self.test_remote_if_possible(can_process_remote)
 
 		# TODO: HOW WILL WE RESTORE THE ORIGINAL DISPLAY MODE ?
 		if mode == "edit":
-			self.EditionMode()
+			self.enter_edition_mode()
 
-	def TestRemoteIfPossible(self,can_process_remote):
+	def test_remote_if_possible(self,can_process_remote):
 		# This is probably too generous to indicate a local host.
 		if can_process_remote or self.m_entity_host is None:
 			return
@@ -550,7 +550,7 @@ class CgiEnv():
 			# The benefit would be to have the same encoding for all arguments.
 			xid = self.m_arguments["xid"].value
 		except KeyError:
-			# See function EditionMode
+			# See function enter_edition_mode
 			try:
 				return ( "", "", "" )
 				# TODO: Not finished, useless or debugging purpose ?
@@ -575,13 +575,13 @@ class CgiEnv():
 	# Suggest all available scritps for this entity type.
 	# Add legend in RDF mode:
 	# http://stackoverflow.com/questions/3499056/making-a-legend-key-in-graphviz
-	def EditionMode(self):
+	def enter_edition_mode(self):
 		"""This allow to edit the CGI parameters when in SVG (Graphviz) mode"""
 		import lib_export_html
 		import lib_edition_parameters
 
 		formAction = os.environ['SCRIPT_NAME']
-		DEBUG("EditionMode formAction=%s",formAction)
+		DEBUG("enter_edition_mode formAction=%s",formAction)
 
 		lib_util.WrtHeader('text/html')
 
@@ -599,7 +599,7 @@ class CgiEnv():
 		print("</html>")
 		sys.exit(0)
 
-	# These are the parameters specific to the script, which are edit in our HTML form, in EditionMode().
+	# These are the parameters specific to the script, which are edit in our HTML form, in enter_edition_mode().
 	# They must have a default value. Maybe we could always have an edition mode when their value
 	# is not set.
 	# If the parameter is "cimom", it will extract the host of Uris like these: Wee GetHost()
@@ -694,7 +694,7 @@ class CgiEnv():
 			pass
 
 		# If no parameters although one was requested.
-		self.EditionMode()
+		self.enter_edition_mode()
 		return ""
 
 	# TODO: Ca va etre de facon generale le moyen d'acces aux donnees et donc inclure le cimom
@@ -709,8 +709,8 @@ class CgiEnv():
 	# TODO: Would probably be faster by searching for the last "/".
 	# '\\\\RCHATEAU-HP\\root\\cimv2:Win32_Process.Handle="0"'  => "root\\cimv2:Win32_Process"
 	# https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"  => ""
-	def GetNamespaceType(self):
-		return lib_util.ParseNamespaceType( self.m_entity_type )
+	def get_namespace_type(self):
+		return lib_util.parse_namespace_type(self.m_entity_type)
 
 	# When in merge mode, these parameters must be aggregated, and used only during
 	# the unique generation of graphic data.
