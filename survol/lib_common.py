@@ -55,7 +55,7 @@ nodeMachine = gUriGen.HostnameUri( lib_util.currentHostname )
 
 # Could be reused if we want to focus on some processes only.
 # proc in [ 'bash', 'gvim', 'konsole' ]
-def UselessProc(proc):
+def is_useless_process(proc):
 	return False
 
 ################################################################################
@@ -65,7 +65,7 @@ def UselessProc(proc):
 
 ################################################################################
 
-def WriteDotHeader( page_title, layout_style, stream, grph ):
+def write_dot_header( page_title, layout_style, stream, grph ):
 	# Some cleanup.
 	page_title_clean = page_title.strip()
 	page_title_clean = page_title_clean.replace("\n", " ")
@@ -130,7 +130,7 @@ def WriteDotHeader( page_title, layout_style, stream, grph ):
 # Copies a file to standard output.
 # TODO: On Linux, consider splice.
 # See lib_kbase.triplestore_to_stream_xml for a similar situation.
-def CopyToOut(logfil, svg_out_filnam, out_dest):
+def copy_to_output_destination(logfil, svg_out_filnam, out_dest):
 	logfil.write( TimeStamp() + " Output without conversion: %s\n" % svg_out_filnam  )
 	infil = open(svg_out_filnam,'rb')
 	strInRead = infil.read()
@@ -200,7 +200,7 @@ def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest ):
 	lib_util.WrtHeader( "image/svg+xml", dictHttpProperties )
 
 	# Here, we are sure that the output file is closed.
-	CopyToOut(logfil,svg_out_filnam,out_dest)
+	copy_to_output_destination(logfil,svg_out_filnam,out_dest)
 
 ################################################################################
 
@@ -222,7 +222,7 @@ def Grph2Svg( page_title, error_msg, isSubServer, parameters, grph, parameterize
 	rdfoutfil = open( dot_filnam_after, "w" )
 	logfil.write( TimeStamp()+" Created "+dot_filnam_after+"\n" )
 
-	dot_layout = WriteDotHeader( page_title, dot_style['layout_style'], rdfoutfil, grph )
+	dot_layout = write_dot_header( page_title, dot_style['layout_style'], rdfoutfil, grph )
 	lib_exports.WriteDotLegend( page_title, topUrl, error_msg, isSubServer, parameters, parameterized_links, rdfoutfil, grph )
 	logfil.write( TimeStamp()+" Legend written\n" )
 	lib_export_dot.Rdf2Dot( grph, logfil, rdfoutfil, dot_style['collapsed_properties'] )
@@ -288,7 +288,7 @@ def OutCgiMode( theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
 
 ################################################################################
 
-def MakeDotLayout(dot_layout, collapsed_properties ):
+def make_dot_layout(dot_layout, collapsed_properties ):
 	return { 'layout_style': dot_layout, 'collapsed_properties':collapsed_properties }
 
 ################################################################################
@@ -379,7 +379,7 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 
 	page_title = "Merge of %d scripts:\n" % len(globalCgiEnvList)
 	delim_title = ""
-	# This is equivalent to: MakeDotLayout( "", [] )
+	# This is equivalent to: make_dot_layout( "", [] )
 	layoutParams = { 'layout_style': "", 'collapsed_properties':[] }
 	cgiParams = {}
 	cgiParamLinks = {}
@@ -720,7 +720,7 @@ class CgiEnv():
 		#sys.stderr.write("OutCgiRdf lib_util.globalOutMach:%s\n" %(lib_util.globalOutMach.__class__.__name__))
 		DEBUG("OutCgiRdf globalMergeMode=%d m_calling_url=%s m_page_title=%s",globalMergeMode,self.m_calling_url, self.m_page_title.replace("\n","<NL>") )
 
-		self.m_layoutParams = MakeDotLayout( dot_layout, collapsed_properties )
+		self.m_layoutParams = make_dot_layout( dot_layout, collapsed_properties )
 
 		mode = lib_util.GuessDisplayMode()
 

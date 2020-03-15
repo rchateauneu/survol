@@ -2,23 +2,25 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="217fdf30-e1c5-4541-a80a-6b2caf048c88" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/Experimental/pydbg/setup.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Experimental/pydbg/tests/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Experimental/pydbg/tests/crash_dump.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Experimental/pydbg/tests/firefox_hook.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Experimental/pydbg/tests/utils/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Experimental/pydbg/tests/utils/code_coverage.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Experimental/pydbg/tests/utils/crash_binning.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Experimental/pydbg/tests/utils/injection.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Experimental/pydbg/tests/utils/udraw_connector.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/PythonStyle.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/PythonStyle.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Experimental/Test_pydbg.py" beforeDir="false" afterPath="$PROJECT_DIR$/Experimental/Test_pydbg.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Experimental/pydbg/hook_container.py" beforeDir="false" afterPath="$PROJECT_DIR$/Experimental/pydbg/tests/utils/hooking.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Experimental/pydbg/pydbg.py" beforeDir="false" afterPath="$PROJECT_DIR$/Experimental/pydbg/pydbg.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Experimental/pydbg/system_dll.py" beforeDir="false" afterPath="$PROJECT_DIR$/Experimental/pydbg/system_dll.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/lib_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/lib_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/lib_common.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/lib_common.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/lib_webserv.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/lib_webserv.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/scripts/wsgiserver.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/scripts/wsgiserver.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/CIM_ComputerSystem/connected_sockets.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_ComputerSystem/connected_sockets.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Process/single_pidstree.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Process/single_pidstree.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/LMI_Account/user_processes.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/LMI_Account/user_processes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/Win32_UserAccount/Win32_UserAccount_process.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/Win32_UserAccount/Win32_UserAccount_process.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/enumerate_CIM_Process.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/enumerate_CIM_Process.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/enumerate_memmap.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/enumerate_memmap.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/enumerate_socket.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/enumerate_socket.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/memmap/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/memmap/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/open_files.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/open_files.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_pydbg.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_pydbg.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_win32_api_definitions.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_win32_api_definitions.py" afterDir="false" />
     </list>
+    <ignored path="$PROJECT_DIR$/venv/" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -33,10 +35,31 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_dockit.py">
+        <entry file="file://$PROJECT_DIR$/setup.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="286">
-              <caret line="739" column="53" selection-start-line="739" selection-start-column="53" selection-end-line="739" selection-end-column="53" />
+            <state relative-caret-position="245">
+              <caret line="135" column="73" selection-start-line="135" selection-start-column="53" selection-end-line="135" selection-end-column="73" />
+              <folding>
+                <element signature="e#23#32#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/survol/scripts/cgiserver.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="156">
+              <caret line="234" lean-forward="true" selection-start-line="234" selection-end-line="234" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/test_wsgi_server.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="423">
+              <caret line="77" column="20" selection-start-line="77" selection-start-column="20" selection-end-line="77" selection-end-column="20" />
               <folding>
                 <element signature="e#23#60#0" expanded="true" />
               </folding>
@@ -44,89 +67,77 @@
           </provider>
         </entry>
       </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/survol/lib_client.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-990">
+              <caret line="669" column="15" selection-start-line="669" selection-end-line="669" selection-end-column="15" />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Experimental/Test_pydbg.py">
+        <entry file="file://$PROJECT_DIR$/survol/lib_common.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="211" column="20" selection-start-line="211" selection-start-column="20" selection-end-line="211" selection-end-column="20" />
-              <folding>
-                <element signature="e#542#579#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="-432">
+              <caret line="293" column="68" selection-start-line="293" selection-start-column="68" selection-end-line="293" selection-end-column="68" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Experimental/pydbg/tests/utils/__init__.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="15" column="28" selection-start-line="15" selection-start-column="28" selection-end-line="15" selection-end-column="28" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Experimental/pydbg/tests/utils/code_coverage.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="31" column="18" selection-start-line="31" selection-start-column="11" selection-end-line="31" selection-end-column="18" />
-              <folding>
-                <element signature="e#1102#1113#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Experimental/pydbg/system_dll.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="277">
-              <caret line="99" column="26" lean-forward="true" selection-start-line="99" selection-start-column="26" selection-end-line="99" selection-end-column="26" />
-              <folding>
-                <element signature="e#984#997#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Experimental/pydbg/pydbg.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
-              <caret line="910" column="20" selection-start-line="910" selection-start-column="12" selection-end-line="910" selection-end-column="20" />
-              <folding>
-                <element signature="e#1010#1025#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Experimental/pydbg/windows_h.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-843">
-              <caret line="159" column="11" selection-start-line="159" selection-start-column="6" selection-end-line="159" selection-end-column="11" />
-              <folding>
-                <element signature="e#392#415#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Experimental/pydbg/defines.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="126">
-              <caret line="125" column="24" selection-start-line="125" selection-start-column="24" selection-end-line="125" selection-end-column="24" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://C:/Python27/Lib/ctypes/__init__.py">
+        <entry file="file://$PROJECT_DIR$/tests/test_lib_client.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="140">
-              <caret line="276" column="70" lean-forward="true" selection-start-line="276" selection-start-column="70" selection-end-line="276" selection-end-column="70" />
+              <caret line="52" column="63" lean-forward="true" selection-start-line="52" selection-start-column="63" selection-end-line="52" selection-end-column="63" />
+              <folding>
+                <element signature="e#23#60#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/init.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="530">
+              <caret line="295" selection-start-line="295" selection-end-line="295" />
+              <folding>
+                <element signature="e#248#285#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/survol/scripts/wsgiserver.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="53">
+              <caret line="338" column="46" lean-forward="true" selection-start-line="338" selection-start-column="46" selection-end-line="338" selection-end-column="46" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/survol/scripts/dockit.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="43">
+              <caret line="761" column="38" lean-forward="true" selection-start-line="761" selection-start-column="38" selection-end-line="761" selection-end-column="38" />
+              <folding>
+                <element signature="e#476#485#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/test_dockit_win32.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="192">
+              <caret line="12" column="33" selection-start-line="12" selection-start-column="33" selection-end-line="12" selection-end-column="33" />
+              <folding>
+                <element signature="e#23#60#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -135,39 +146,68 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>hook_c</find>
-      <find>six</find>
-      <find>hook_container</find>
-      <find>WaitForDebugEvent b41</find>
-      <find>stderr</find>
-      <find>get_thread_context64 thread_id</find>
-      <find>system_dll __init__</find>
-      <find>event_handler_create_thread DISABLE</find>
-      <find>setting</find>
-      <find>debug_event_iteration</find>
-      <find>debug_event_loop In loop on debugger_active</find>
-      <find>debug_active_process</find>
-      <find>debug_event_iteration before WaitForDebugEvent</find>
-      <find>c_ulong</find>
-      <find>debug_event_loop() exception</find>
-      <find>debug_event_</find>
-      <find>SegF</find>
-      <find>SegFs</find>
-      <find>CONTEXT64</find>
-      <find>first windows driven system breakpoint</find>
-      <find>debug_event_loop</find>
-      <find>80000003</find>
-      <find>debug_event_loop()</find>
-      <find>attach</find>
-      <find>GetThreadSelectorEntry</find>
-      <find>ret_self</find>
-      <find>kernel32</find>
-      <find>self.dbg</find>
-      <find>the_argument</find>
-      <find>cPickle</find>
+      <find>EntityIdToInstance</find>
+      <find>UrlToInstance</find>
+      <find>InstanceUrlToAgentUrl</find>
+      <find>DisplayTripleStore</find>
+      <find>ToStreamXml</find>
+      <find>IsSurvolUrl</find>
+      <find>EnumerateUrls</find>
+      <find>GetConnectedInstances</find>
+      <find>MergeConnectedInstancesTo</find>
+      <find>GetMatchingStringsTriples</find>
+      <find>GetAllStringsTriples</find>
+      <find>FilterObjectsWithPredicateClass</find>
+      <find>CopyToGraph</find>
+      <find>ScriptUrlToSource</find>
+      <find>ExecHttpScript</find>
+      <find>GetInternalData</find>
+      <find>CheckOntologyGraph</find>
+      <find>SetDebugMode</find>
+      <find>GetInstances</find>
+      <find>CreateCIMClass</find>
+      <find>CIMClassFactoryNoCache</find>
+      <find>ErrorMessageEnable</find>
+      <find>DfltOutDest</find>
+      <find>AgentToHost</find>
+      <find>cacheCIMClasses</find>
+      <find>__cacheCIMClasses</find>
+      <find>UselessProc</find>
+      <find>WriteDotHeader</find>
+      <find>CopyToOut</find>
+      <find>MakeDotLayout</find>
     </findStrings>
     <replaceStrings>
-      <replace>squeeze</replace>
+      <replace>find_string_from_neighbour</replace>
+      <replace>fill_heap_with_instance_scripts</replace>
+      <replace>entity_id_to_instance</replace>
+      <replace>url_to_instance</replace>
+      <replace>instance_url_to_agent_url</replace>
+      <replace>to_stream_xml</replace>
+      <replace>is_survol_url</replace>
+      <replace>enumerate_urls</replace>
+      <replace>get_connected_instances</replace>
+      <replace>merge_connected_instances_to</replace>
+      <replace>get_matching_strings_triples</replace>
+      <replace>get_all_strings_triples</replace>
+      <replace>filter_objects_with_predicate_class</replace>
+      <replace>copy_to_graph</replace>
+      <replace>script_url_to_source</replace>
+      <replace>exec_http_script</replace>
+      <replace>get_internal_data</replace>
+      <replace>check_ontology_graph</replace>
+      <replace>get_instances</replace>
+      <replace>create_CIM_class</replace>
+      <replace>CIM_class_factory_no_cache</replace>
+      <replace>enable_error_message</replace>
+      <replace>get_default_output_destination</replace>
+      <replace>agent_to_host</replace>
+      <replace>__cacheCIMClasses</replace>
+      <replace>CacheCIMClasses</replace>
+      <replace>is_useless_process</replace>
+      <replace>write_dot_header</replace>
+      <replace>copy_to_output_destination</replace>
+      <replace>make_dot_layout</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -178,17 +218,65 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/tests/test_dockit.py" />
+        <option value="$PROJECT_DIR$/Experimental/pydbg/tests/utils/injection.py" />
+        <option value="$PROJECT_DIR$/Experimental/Divers/getting_process_information_on_windows.py" />
         <option value="$PROJECT_DIR$/Experimental/pydbg/windows_h.py" />
-        <option value="$PROJECT_DIR$/Experimental/pydbg/hook_container.py" />
-        <option value="$PROJECT_DIR$/Experimental/pydbg/system_dll.py" />
-        <option value="$PROJECT_DIR$/Experimental/pydbg/pydbg.py" />
-        <option value="$PROJECT_DIR$/Experimental/pydbg/tests/utils/__init__.py" />
-        <option value="$PROJECT_DIR$/Experimental/pydbg/tests/utils/code_coverage.py" />
         <option value="$PROJECT_DIR$/Experimental/pydbg/tests/utils/crash_binning.py" />
+        <option value="$PROJECT_DIR$/Experimental/Test_dbrandt_proc_events/proc_events/bin/pec_listener.py" />
+        <option value="$PROJECT_DIR$/Experimental/Test_dbrandt_proc_events/proc_events/proc_events_test.py" />
+        <option value="$PROJECT_DIR$/survol/scripts/lib_monitoring.py" />
+        <option value="$PROJECT_DIR$/Experimental/pydbg/tests/utils/hooking.py" />
+        <option value="$PROJECT_DIR$/Experimental/pydbg/pydbg.py" />
+        <option value="$PROJECT_DIR$/Experimental/pydbg/tests/utils/win32_api_definition.py" />
         <option value="$PROJECT_DIR$/Experimental/Test_pydbg.py" />
+        <option value="$PROJECT_DIR$/survol/scripts/pydbg/defines.py" />
+        <option value="$PROJECT_DIR$/survol/scripts/pydbg/windows_h.py" />
+        <option value="$PROJECT_DIR$/survol/scripts/pydbg/pdx.py" />
+        <option value="$PROJECT_DIR$/survol/scripts/pydbg/utils/win32_api_definition.py" />
+        <option value="$PROJECT_DIR$/tests/test_dockit_pydbg.py" />
+        <option value="$PROJECT_DIR$/.travis.yml" />
+        <option value="$PROJECT_DIR$/survol/scripts/pydbg/__init__.py" />
+        <option value="$PROJECT_DIR$/Experimental/RetroBatch/unittest_dockit.py" />
+        <option value="$PROJECT_DIR$/survol/scripts/win32_api_definition.py" />
+        <option value="$PROJECT_DIR$/tests/test_pydbg_win32_callbacks.py" />
+        <option value="$PROJECT_DIR$/survol/scripts/pydbg/dockit_filter_clusterize.py" />
+        <option value="$PROJECT_DIR$/survol/scripts/pydbg/dockit_aggregate_clusterize.py" />
+        <option value="$PROJECT_DIR$/tests/test_dockit_win32.py" />
+        <option value="$PROJECT_DIR$/survol/scripts/win32_api_definitions.py" />
+        <option value="$PROJECT_DIR$/tests/test_sparql_custom_evals_survol.py" />
+        <option value="$PROJECT_DIR$/tests/create_process_chain.py" />
+        <option value="$PROJECT_DIR$/survol/scripts/linux_api_definitions.py" />
+        <option value="$PROJECT_DIR$/survol/scripts/dockit_aggregate_clusterize.py" />
+        <option value="$PROJECT_DIR$/survol/scripts/cim_objects_definitions.py" />
+        <option value="$PROJECT_DIR$/tests/test_win32_api_definitions.py" />
+        <option value="$PROJECT_DIR$/survol/scripts/pydbg/system_dll.py" />
+        <option value="$PROJECT_DIR$/survol/scripts/pydbg/pydbg.py" />
+        <option value="$PROJECT_DIR$/tests/test_pydbg.py" />
+        <option value="$PROJECT_DIR$/survol/__init__.py" />
+        <option value="$PROJECT_DIR$/docs/dockit_readme.txt" />
+        <option value="$PROJECT_DIR$/survol/scripts/dockit.py" />
+        <option value="$PROJECT_DIR$/tests/test_dockit.py" />
+        <option value="$PROJECT_DIR$/survol/lib_export_html.py" />
+        <option value="$PROJECT_DIR$/survol/www/index.htm" />
+        <option value="$PROJECT_DIR$/survol/www/edit_configuration.template.htm" />
+        <option value="$PROJECT_DIR$/survol/www/help.htm" />
+        <option value="$PROJECT_DIR$/docs/Map_Relational_Databases_to_RDF.txt" />
+        <option value="$PROJECT_DIR$/LICENSE.txt" />
+        <option value="$PROJECT_DIR$/survol/scripts/wsgiserver.py" />
+        <option value="$PROJECT_DIR$/setup.py" />
+        <option value="$PROJECT_DIR$/survol/scripts/cgiserver.py" />
+        <option value="$PROJECT_DIR$/tests/init.py" />
+        <option value="$PROJECT_DIR$/tests/test_wsgi_server.py" />
+        <option value="$PROJECT_DIR$/survol/lib_client.py" />
+        <option value="$PROJECT_DIR$/survol/lib_common.py" />
       </list>
     </option>
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="x" value="208" />
+    <option name="y" value="3" />
+    <option name="width" value="1261" />
+    <option name="height" value="850" />
   </component>
   <component name="ProjectId" id="1WOE5WHbX8Ia3rllndCbinEDTda" />
   <component name="ProjectInspectionProfilesVisibleTreeState">
@@ -228,28 +316,13 @@
             <path>
               <item name="PythonStyle" type="b2602c69:ProjectViewProjectNode" />
               <item name="PythonStyle" type="462c0819:PsiDirectoryNode" />
-              <item name="Experimental" type="462c0819:PsiDirectoryNode" />
+              <item name=".github" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="PythonStyle" type="b2602c69:ProjectViewProjectNode" />
               <item name="PythonStyle" type="462c0819:PsiDirectoryNode" />
-              <item name="Experimental" type="462c0819:PsiDirectoryNode" />
-              <item name="pydbg" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonStyle" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonStyle" type="462c0819:PsiDirectoryNode" />
-              <item name="Experimental" type="462c0819:PsiDirectoryNode" />
-              <item name="pydbg" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonStyle" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonStyle" type="462c0819:PsiDirectoryNode" />
-              <item name="Experimental" type="462c0819:PsiDirectoryNode" />
-              <item name="pydbg" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
-              <item name="utils" type="462c0819:PsiDirectoryNode" />
+              <item name=".github" type="462c0819:PsiDirectoryNode" />
+              <item name="workflows" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="PythonStyle" type="b2602c69:ProjectViewProjectNode" />
@@ -259,19 +332,13 @@
             <path>
               <item name="PythonStyle" type="b2602c69:ProjectViewProjectNode" />
               <item name="PythonStyle" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="survol" type="462c0819:PsiDirectoryNode" />
+              <item name="scripts" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="PythonStyle" type="b2602c69:ProjectViewProjectNode" />
               <item name="PythonStyle" type="462c0819:PsiDirectoryNode" />
               <item name="tests" type="462c0819:PsiDirectoryNode" />
-              <item name="AnotherSampleDir" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonStyle" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonStyle" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
-              <item name="dockit_output_files_expected" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -336,7 +403,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.Test_pydbg">
+  <component name="RunManager" selected="Python tests.Unittests in test_wsgi_server.py">
     <configuration default="true" type="tests" factoryName="Attests">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -356,100 +423,49 @@
       <option name="USE_PATTERN" value="false" />
       <method />
     </configuration>
-    <configuration name="Test_pydbg" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="PythonStyle" />
-      <option name="INTERPRETER_OPTIONS" value="-u" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="C:\Python27\python.exe" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Experimental" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Experimental/Test_pydbg.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="Test_pydbg_custom" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="Unittests for test_pydbg" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <module name="PythonStyle" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Experimental" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Experimental/Test_pydbg_custom.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_pydbg&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="pydbg_test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="Unittests for test_pydbg.PydbgAPythonHooksTest.test_pydbg_Python_CreateFile" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <module name="PythonStyle" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Experimental/WindowsPyDbg" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Experimental/WindowsPyDbg/pydbg_test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="Unittests for test_dockit" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
-      <module name="PythonStyle" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="C:\Python27\python.exe" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="_new_pattern" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_dockit&quot;" />
+      <option name="_new_target" value="&quot;test_pydbg.PydbgAPythonHooksTest.test_pydbg_Python_CreateFile&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Unittests for test_dockit.DockitEventsTest.test_file_events" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+    <configuration name="Unittests for test_pydbg.PydbgAPythonHooksTest.test_pydbg_Python_DeleteFile" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <module name="PythonStyle" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="C:\Python27\python.exe" />
+      <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="_new_pattern" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_dockit.DockitEventsTest.test_file_events&quot;" />
+      <option name="_new_target" value="&quot;test_pydbg.PydbgAPythonHooksTest.test_pydbg_Python_DeleteFile&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Unittests in System32" type="tests" factoryName="Unittests" nameIsGenerated="true">
+    <configuration name="Unittests in Desktop" type="tests" factoryName="Unittests" nameIsGenerated="true">
       <module name="PythonStyle" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -483,21 +499,49 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
+    <configuration name="Unittests in test_lib_client.py" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <module name="PythonStyle" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/test_lib_client.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unittests in test_wsgi_server.py" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <module name="PythonStyle" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/test_wsgi_server.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
     <list>
-      <item itemvalue="Python.Test_pydbg_custom" />
-      <item itemvalue="Python.pydbg_test" />
-      <item itemvalue="Python.Test_pydbg" />
-      <item itemvalue="Python tests.Unittests in System32" />
-      <item itemvalue="Python tests.Unittests for test_dockit" />
-      <item itemvalue="Python tests.Unittests for test_dockit.DockitEventsTest.test_file_events" />
+      <item itemvalue="Python tests.Unittests in Desktop" />
+      <item itemvalue="Python tests.Unittests for test_pydbg" />
+      <item itemvalue="Python tests.Unittests for test_pydbg.PydbgAPythonHooksTest.test_pydbg_Python_DeleteFile" />
+      <item itemvalue="Python tests.Unittests for test_pydbg.PydbgAPythonHooksTest.test_pydbg_Python_CreateFile" />
+      <item itemvalue="Python tests.Unittests in test_lib_client.py" />
+      <item itemvalue="Python tests.Unittests in test_wsgi_server.py" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.Test_pydbg" />
-        <item itemvalue="Python tests.Unittests for test_dockit.DockitEventsTest.test_file_events" />
-        <item itemvalue="Python tests.Unittests for test_dockit" />
-        <item itemvalue="Python.Test_pydbg_custom" />
-        <item itemvalue="Python.pydbg_test" />
+        <item itemvalue="Python tests.Unittests in test_wsgi_server.py" />
+        <item itemvalue="Python tests.Unittests in test_lib_client.py" />
+        <item itemvalue="Python tests.Unittests for test_pydbg.PydbgAPythonHooksTest.test_pydbg_Python_CreateFile" />
+        <item itemvalue="Python tests.Unittests for test_pydbg.PydbgAPythonHooksTest.test_pydbg_Python_DeleteFile" />
+        <item itemvalue="Python tests.Unittests for test_pydbg" />
       </list>
     </recent_temporary>
   </component>
@@ -541,23 +585,47 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Unittests_for_test_dockit - 2020.01.27 at 22h 21m 19s.xml">
-      <configuration name="Unittests for test_dockit" configurationId="tests" />
+    <history-entry file="Unittests_for_test_pydbg_PydbgPythonHooksTest_test_pydbg_Python_subprocesses_recursive - 2020.03.11 at 19h 25m 15s.xml">
+      <configuration name="Unittests for test_pydbg.PydbgPythonHooksTest.test_pydbg_Python_subprocesses_recursive" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_for_test_dockit_DockitEventsTest_test_file_events - 2020.01.27 at 22h 22m 46s.xml">
-      <configuration name="Unittests for test_dockit.DockitEventsTest.test_file_events" configurationId="tests" />
+    <history-entry file="Unittests_for_test_pydbg_PydbgPythonHooksTest_test_pydbg_Python_subprocesses_recursive - 2020.03.11 at 19h 25m 48s.xml">
+      <configuration name="Unittests for test_pydbg.PydbgPythonHooksTest.test_pydbg_Python_subprocesses_recursive" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_test_pydbg - 2020.03.11 at 22h 37m 50s.xml">
+      <configuration name="Unittests for test_pydbg" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_test_pydbg - 2020.03.11 at 22h 39m 31s.xml">
+      <configuration name="Unittests for test_pydbg" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_test_pydbg - 2020.03.11 at 22h 40m 07s.xml">
+      <configuration name="Unittests for test_pydbg" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_test_pydbg - 2020.03.11 at 22h 44m 22s.xml">
+      <configuration name="Unittests for test_pydbg" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_test_pydbg_PydbgAPythonHooksTest_test_pydbg_Python_DeleteFile - 2020.03.11 at 22h 44m 44s.xml">
+      <configuration name="Unittests for test_pydbg.PydbgAPythonHooksTest.test_pydbg_Python_DeleteFile" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_test_pydbg_PydbgAPythonHooksTest_test_pydbg_Python_CreateFile - 2020.03.11 at 22h 44m 55s.xml">
+      <configuration name="Unittests for test_pydbg.PydbgAPythonHooksTest.test_pydbg_Python_CreateFile" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_in_test_lib_client_py - 2020.03.15 at 10h 04m 43s.xml">
+      <configuration name="Unittests in test_lib_client.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_in_test_wsgi_server_py - 2020.03.15 at 10h 11m 08s.xml">
+      <configuration name="Unittests in test_wsgi_server.py" configurationId="tests" />
     </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="42" y="15" width="1601" height="962" extended-state="0" />
+    <frame x="208" y="3" width="1261" height="850" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.23600508" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.21996753" />
       <window_info id="Structure" order="1" weight="0.24918033" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.47935003" weight="0.24108241" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.90724444" visible="true" weight="0.3222749" />
+      <window_info active="true" anchor="bottom" id="Find" order="1" sideWeight="0.47935003" visible="true" weight="0.2554645" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.90724444" weight="0.29644808" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.77928233" weight="0.32464454" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.39949748" />
@@ -566,7 +634,7 @@
       <window_info anchor="bottom" id="Python Console" order="8" weight="0.3287483" />
       <window_info anchor="bottom" id="Application Servers" order="9" />
       <window_info anchor="bottom" id="Version Control" order="10" weight="0.42980295" />
-      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.49967426" weight="0.15945612" />
+      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.49967426" weight="0.15876777" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -602,6 +670,14 @@
                     </value>
                   </entry>
                 </map>
+              </option>
+              <option name="COLUMN_ORDER">
+                <list>
+                  <option value="0" />
+                  <option value="1" />
+                  <option value="2" />
+                  <option value="3" />
+                </list>
               </option>
             </State>
           </value>
@@ -748,113 +824,345 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_wsgi_server.py</url>
-          <line>68</line>
+          <line>49</line>
           <option name="timeStamp" value="55" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_wsgi_server.py</url>
-          <line>81</line>
+          <line>62</line>
           <option name="timeStamp" value="56" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/survol/scripts/pydbg/__init__.py</url>
+          <line>39</line>
+          <option name="timeStamp" value="71" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/Experimental/pydbg/windows_h.py" />
+    <entry file="file://$PROJECT_DIR$/Experimental/pydbg/tests/utils/hooking.py" />
+    <entry file="file://$PROJECT_DIR$/Experimental/pydbg/tests/utils/win32_api_definition.py" />
+    <entry file="file://$PROJECT_DIR$/Experimental/pydbg/pydbg.py" />
+    <entry file="file://$PROJECT_DIR$/Experimental/pydbg/utils/win32_api_definition.py" />
+    <entry file="file://$PROJECT_DIR$/Experimental/RetroBatch/unittest_dockit.py" />
+    <entry file="file://$PROJECT_DIR$/Experimental/Test_pydbg.py" />
+    <entry file="file://$PROJECT_DIR$/tests/test_lib_wmi.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2832" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/scripts/pydbg/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="752">
+          <caret line="47" column="1" selection-start-line="47" selection-start-column="1" selection-end-line="47" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/scripts/pydbg/pdx.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="26" column="6" selection-start-line="26" selection-start-column="6" selection-end-line="26" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/scripts/pydbg/utils/win32_api_definition.py" />
+    <entry file="file://$PROJECT_DIR$/tests/test_dockit_pydbg.py" />
+    <entry file="file://$PROJECT_DIR$/survol/scripts/pydbg/tests/firefox_hook.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-334" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/scripts/pydbg/tests/crash_dump.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.github/workflows/greetings.yml">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.travis.yml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="544">
+          <caret line="34" selection-start-line="34" selection-end-line="34" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/scripts/win32_api_definition.py" />
+    <entry file="file://C:/Python27/Lib/subprocess.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="191">
+          <caret line="572" selection-start-line="572" selection-end-line="572" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/scripts/pydbg/dockit_filter_clusterize.py" />
+    <entry file="file://$PROJECT_DIR$/survol/scripts/pydbg/dockit_aggregate_clusterize.py" />
+    <entry file="file://$PROJECT_DIR$/survol/scripts/win32_api_definitions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1158">
+          <caret line="343" column="13" selection-start-line="343" selection-start-column="13" selection-end-line="343" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_sparql_custom_evals_survol.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="88">
+          <caret line="837" selection-start-line="837" selection-end-line="846" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/create_process_chain.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="22" selection-start-line="22" selection-end-line="22" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/tests/test_dockit.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="286">
-          <caret line="739" column="53" selection-start-line="739" selection-start-column="53" selection-end-line="739" selection-end-column="53" />
+        <state relative-caret-position="161">
+          <caret line="405" column="22" selection-start-line="405" selection-start-column="22" selection-end-line="405" selection-end-column="22" />
           <folding>
             <element signature="e#23#60#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Experimental/pydbg/hook_container.py">
+    <entry file="file://$PROJECT_DIR$/survol/scripts/dockit_aggregate_clusterize.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3776">
-          <caret line="245" selection-start-line="241" selection-end-line="245" />
+        <state relative-caret-position="-1472">
+          <caret line="7" column="45" selection-start-line="7" selection-start-column="45" selection-end-line="7" selection-end-column="45" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/scripts/linux_api_definitions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="1911" column="53" selection-start-line="1911" selection-start-column="53" selection-end-line="1911" selection-end-column="53" />
           <folding>
-            <element signature="e#949#953#0" expanded="true" />
+            <element signature="e#260#269#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Experimental/pydbg/system_dll.py">
+    <entry file="file://$PROJECT_DIR$/survol/scripts/cim_objects_definitions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="277">
-          <caret line="99" column="26" lean-forward="true" selection-start-line="99" selection-start-column="26" selection-end-line="99" selection-end-column="26" />
+        <state relative-caret-position="-616">
+          <caret line="1120" column="47" selection-start-line="1120" selection-start-column="47" selection-end-line="1120" selection-end-column="47" />
           <folding>
-            <element signature="e#984#997#0" expanded="true" />
+            <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Experimental/pydbg/defines.py">
+    <entry file="file://$PROJECT_DIR$/survol/scripts/pydbg/windows_h.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="125" column="24" selection-start-line="125" selection-start-column="24" selection-end-line="125" selection-end-column="24" />
+        <state relative-caret-position="599">
+          <caret line="657" column="80" lean-forward="true" selection-start-line="657" selection-start-column="80" selection-end-line="657" selection-end-column="80" />
+          <folding>
+            <element signature="e#370#394#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Experimental/pydbg/my_ctypes.py">
+    <entry file="file://$PROJECT_DIR$/survol/scripts/pydbg/defines.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="64">
-          <caret line="4" column="3" selection-start-line="4" selection-start-column="3" selection-end-line="4" selection-end-column="3" />
+        <state relative-caret-position="5">
+          <caret line="35" column="6" selection-start-line="35" selection-start-column="6" selection-end-line="35" selection-end-column="6" />
         </state>
       </provider>
     </entry>
-    <entry file="file://C:/Python27/Lib/ctypes/__init__.py">
+    <entry file="file://$PROJECT_DIR$/survol/scripts/pydbg/my_ctypes.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-603" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/scripts/pydbg/utils/hooking.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="152">
+          <caret line="87" selection-start-line="87" selection-end-line="87" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/scripts/pydbg/system_dll.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1376">
+          <caret line="90" selection-start-line="90" selection-end-line="90" />
+          <folding>
+            <element signature="e#984#1021#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_win32_api_definitions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="200">
+          <caret line="187" column="2" selection-start-line="187" selection-start-column="2" selection-end-line="187" selection-end-column="2" />
+          <folding>
+            <element signature="e#23#60#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_pydbg_win32_callbacks.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="437">
+          <caret line="105" column="8" selection-start-line="105" selection-start-column="8" selection-end-line="105" selection-end-column="8" />
+          <folding>
+            <element signature="e#0#37#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/scripts/pydbg/pydbg.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="108">
+          <caret line="1881" column="46" selection-start-line="1881" selection-start-column="46" selection-end-line="1881" selection-end-column="46" />
+          <folding>
+            <element signature="e#1010#1047#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_pydbg.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="327">
+          <caret line="728" selection-start-line="728" selection-end-line="728" />
+          <folding>
+            <element signature="e#23#60#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/dockit_readme.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="223" column="5" selection-start-line="223" selection-end-line="223" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/Map_Relational_Databases_to_RDF.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="192">
+          <caret line="12" column="36" selection-start-line="12" selection-start-column="36" selection-end-line="12" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_dockit_win32.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="192">
+          <caret line="12" column="33" selection-start-line="12" selection-start-column="33" selection-end-line="12" selection-end-column="33" />
+          <folding>
+            <element signature="e#23#60#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/archives/WebsiteVersion3/installation.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="471" column="44" selection-start-line="471" selection-start-column="44" selection-end-line="471" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/LICENSE.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="128">
+          <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/scripts/dockit.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="43">
+          <caret line="761" column="38" lean-forward="true" selection-start-line="761" selection-start-column="38" selection-end-line="761" selection-end-column="38" />
+          <folding>
+            <element signature="e#476#485#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/scripts/wsgiserver.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="53">
+          <caret line="338" column="46" lean-forward="true" selection-start-line="338" selection-start-column="46" selection-end-line="338" selection-end-column="46" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/scripts/cgiserver.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="156">
+          <caret line="234" lean-forward="true" selection-start-line="234" selection-end-line="234" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_lib_client.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="140">
-          <caret line="276" column="70" lean-forward="true" selection-start-line="276" selection-start-column="70" selection-end-line="276" selection-end-column="70" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Experimental/pydbg/windows_h.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-843">
-          <caret line="159" column="11" selection-start-line="159" selection-start-column="6" selection-end-line="159" selection-end-column="11" />
+          <caret line="52" column="63" lean-forward="true" selection-start-line="52" selection-start-column="63" selection-end-line="52" selection-end-column="63" />
           <folding>
-            <element signature="e#392#415#0" expanded="true" />
+            <element signature="e#23#60#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Experimental/pydbg/pydbg.py">
+    <entry file="file://$PROJECT_DIR$/survol/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="910" column="20" selection-start-line="910" selection-start-column="12" selection-end-line="910" selection-end-column="20" />
+        <state relative-caret-position="192">
+          <caret line="12" selection-start-line="12" selection-end-line="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/setup.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="245">
+          <caret line="135" column="73" selection-start-line="135" selection-start-column="53" selection-end-line="135" selection-end-column="73" />
           <folding>
-            <element signature="e#1010#1025#0" expanded="true" />
+            <element signature="e#23#32#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Experimental/pydbg/tests/utils/__init__.py">
+    <entry file="file://$PROJECT_DIR$/tests/init.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="15" column="28" selection-start-line="15" selection-start-column="28" selection-end-line="15" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Experimental/pydbg/tests/utils/code_coverage.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="31" column="18" selection-start-line="31" selection-start-column="11" selection-end-line="31" selection-end-column="18" />
+        <state relative-caret-position="530">
+          <caret line="295" selection-start-line="295" selection-end-line="295" />
           <folding>
-            <element signature="e#1102#1113#0" expanded="true" />
+            <element signature="e#248#285#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Experimental/Test_pydbg.py">
+    <entry file="file://$PROJECT_DIR$/tests/test_wsgi_server.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="211" column="20" selection-start-line="211" selection-start-column="20" selection-end-line="211" selection-end-column="20" />
+        <state relative-caret-position="423">
+          <caret line="77" column="20" selection-start-line="77" selection-start-column="20" selection-end-line="77" selection-end-column="20" />
           <folding>
-            <element signature="e#542#579#0" expanded="true" />
+            <element signature="e#23#60#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/lib_client.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-990">
+          <caret line="669" column="15" selection-start-line="669" selection-end-line="669" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/survol/lib_common.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-432">
+          <caret line="293" column="68" selection-start-line="293" selection-start-column="68" selection-end-line="293" selection-end-column="68" />
         </state>
       </provider>
     </entry>
