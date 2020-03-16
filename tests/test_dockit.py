@@ -12,23 +12,6 @@ import unittest
 import shutil
 import rdflib
 
-# This loads the module from the source, so no need to install it, and no need of virtualenv.
-# This is needed when running from PyCharm.
-sys.path.insert(0,"../survol/scripts")
-
-
-# On Travis, getcwd= /home/travis/build/rchateauneu/survol
-# path= ['../survol/scripts', '/home/travis/build/rchateauneu/survol',
-# '../survol', '/home/travis/build/rchateauneu/survol', '/home/travis/virtualenv/python2.7.15/bin',
-# '/home/travis/virtualenv/python2.7.15/lib/python27.zip', '/home/travis/virtualenv/python2.7.15/lib/python2.7',
-# '/home/travis/virtualenv/python2.7.15/lib/python2.7/plat-linux2',
-# '/home/travis/virtualenv/python2.7.15/lib/python2.7/lib-tk',
-# '/home/travis/virtualenv/python2.7.15/lib/python2.7/lib-old', '/home/travis/virtualenv/python2.7.15/lib/python2.7/lib-dynload',
-# '/opt/python/2.7.15/lib/python2.7', '/opt/python/2.7.15/lib/python2.7/plat-linux2',
-# '/opt/python/2.7.15/lib/python2.7/lib-tk', '/home/travis/virtualenv/python2.7.15/lib/python2.7/site-packages',
-# 'survol', '/home/travis/build/rchateauneu/survol/survol']
-sys.path.insert(0,"survol/scripts")
-
 dockit_output_files_path = os.path.join( os.path.dirname(__file__), "dockit_output_files" )
 # This is the expected content of some generated files.
 dockit_output_files_path_expected = os.path.join( os.path.dirname(__file__), "dockit_output_files_expected" )

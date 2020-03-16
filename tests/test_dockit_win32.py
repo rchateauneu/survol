@@ -3,14 +3,8 @@
 from __future__ import print_function
 
 import os
-import sys
 import unittest
-import subprocess
 
-# This loads the module from the source, so no need to install it, and no need of virtualenv.
-# This is needed when running from PyCharm.
-sys.path.append("../survol/scripts")
-sys.path.append("survol/scripts")
 print("cwd=%s" % os.getcwd())
 
 from init import *
