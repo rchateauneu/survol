@@ -104,8 +104,8 @@ def path_prefix_input_file(*file_path):
 print("path=",sys.path)
 print("getcwd=",os.getcwd())
 
-import dockit
-import linux_api_definitions
+from survol.scripts import dockit
+from survol.scripts import linux_api_definitions
 
 from init import *
 

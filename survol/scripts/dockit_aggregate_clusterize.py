@@ -6,7 +6,7 @@
 import sys
 import datetime
 # TODO: It should not depend on this package.
-import linux_api_definitions
+from . import linux_api_definitions
 
 def _SignatureForRepetitions(batchRange):
     return "+".join( [ aBtch.GetSignatureWithArgs() for aBtch in batchRange ] )
