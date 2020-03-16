@@ -24,7 +24,6 @@ import inspect
 import socket
 import json
 import atexit
-import datetime
 import shutil
 import tempfile
 import logging
@@ -45,7 +44,7 @@ G_traceToTracer["ltrace"] = linux_api_definitions.LTraceTracer()
 
 if sys.platform.startswith("win"):
     # Definitions of Win32 systems calls to monitor.
-    import win32_api_definitions
+    from . import win32_api_definitions
     G_traceToTracer["pydbg"] = win32_api_definitions.Win32Tracer()
 
 ################################################################################
