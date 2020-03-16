@@ -566,7 +566,7 @@ def CallsFlowClassFactory(aggregator):
 
     # This is temporary. Do this for each aggregator.
     if aggregator == "clusterize":
-        import dockit_aggregate_clusterize
+        from . import dockit_aggregate_clusterize
         return dockit_aggregate_clusterize.BatchFlow
 
     raise Exception("Invalid aggregator:%s", aggregator)
