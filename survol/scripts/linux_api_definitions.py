@@ -12,7 +12,7 @@ import sys
 import logging
 import signal
 import subprocess
-import cim_objects_definitions
+from . import cim_objects_definitions
 
 ################################################################################
 

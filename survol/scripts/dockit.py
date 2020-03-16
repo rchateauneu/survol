@@ -31,7 +31,7 @@ import logging
 
 # This defines the CIM objects which are created when monitoring
 # a running process.
-import cim_objects_definitions
+from . import cim_objects_definitions
 
 ################################################################################
 
@@ -39,7 +39,7 @@ G_traceToTracer = {}
 
 # This contains th definitions of Linux system calls, and other things.
 # TODO: Should be done on Linux only.
-import linux_api_definitions
+from . import linux_api_definitions
 G_traceToTracer["strace"] = linux_api_definitions.STraceTracer()
 G_traceToTracer["ltrace"] = linux_api_definitions.LTraceTracer()
 
