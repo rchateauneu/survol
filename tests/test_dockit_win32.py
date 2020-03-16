@@ -19,11 +19,11 @@ if not is_platform_linux:
     import pydbg
     import pydbg.utils
     from pydbg import pydbg
-    import win32_api_definitions
+    from survol.scripts import win32_api_definitions
 
 ################################################################################
 
-import dockit
+from survol.scripts import dockit
 
 # TODO: Add test of win32_api_definitions.Win32Tracer
 @unittest.skipIf(is_platform_linux, "Windows only.")
