@@ -21,9 +21,9 @@ else:
     import queue
 
 from survol.scripts import pydbg
-from pydbg import defines
-from pydbg import windows_h
-from pydbg import utils
+from survol.scripts.pydbg import defines
+from survol.scripts.pydbg import windows_h
+from survol.scripts.pydbg import utils
 
 ################################################################################
 def create_pydbg():
