@@ -10,7 +10,7 @@ print("cwd=%s" % os.getcwd())
 from init import *
 
 if not is_platform_linux:
-    import pydbg
+    from . import pydbg
     import pydbg.utils
     from pydbg import pydbg
     from survol.scripts import win32_api_definitions
