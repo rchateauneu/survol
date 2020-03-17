@@ -20,7 +20,7 @@ if sys.version_info < (3,):
 else:
     import queue
 
-from . import pydbg
+from survol.scripts import pydbg
 from pydbg import defines
 from pydbg import windows_h
 from pydbg import utils
@@ -37,7 +37,7 @@ def create_pydbg():
 
 class Win32Hook_BaseClass(object):
     object_pydbg = None
-    object_hooks = pydbg.utils.hook_container()
+    object_hooks = utils.hook_container()
     callback_create_call = None
     callback_create_object = None
 
