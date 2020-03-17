@@ -20,7 +20,7 @@ if sys.version_info < (3,):
 else:
     import queue
 
-import pydbg
+from . import pydbg
 from pydbg import defines
 from pydbg import windows_h
 from pydbg import utils
