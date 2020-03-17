@@ -19,7 +19,7 @@ from init import *
 
 if not is_platform_linux:
     # import win32_api_definitions
-f	from survol.scripts import win32_api_definitions
+    from survol.scripts import win32_api_definitions
 
 ################################################################################
 
