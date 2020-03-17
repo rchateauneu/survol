@@ -16,8 +16,8 @@ print("cwd=%s" % os.getcwd())
 from init import *
 
 if not is_platform_linux:
-    from pydbg import pydbg
-    import win32_api_definitions
+    # from pydbg import pydbg
+    from survol.scripts import win32_api_definitions
 
 ################################################################################
 
@@ -86,7 +86,11 @@ class PydbgAttachTest(unittest.TestCase):
         if function_name == b"RemoveDirectoryA":
             assert cim_arguments["Name"] == "NonExistentDirBinary"
         elif function_name == b"RemoveDirectoryW":
-            assert cim_arguments["Name"] == b"NonExistentDirUnicode"
+            #assert cim_arguments["Name"] == b"NonExistentDirUnicode"
+            if sys.version_info > (3,):
+                assert cim_arguments["Name"] == "NonExistentDirUnicode"
+            else:
+                assert cim_arguments["Name"] == b"NonExistentDirUnicode"
         elif function_name == b"CreateFileA":
             assert cim_arguments["Name"] in [
                 nonexistent_file,
@@ -141,10 +145,15 @@ class PydbgAttachTest(unittest.TestCase):
 
         print("Finished:", tst_pydbg.calls_counter)
 
-        self.assertTrue(tst_pydbg.calls_counter == {
-            'CreateFileA': num_loops + 3,
-            'RemoveDirectoryW': 2 * num_loops,
-            'CreateProcessA': num_loops} )
+        if sys.version_info > (3,):
+            self.assertTrue(tst_pydbg.calls_counter == {
+                b'RemoveDirectoryW': 2 * num_loops,
+                b'CreateProcessW': num_loops} )
+        else:
+            self.assertTrue(tst_pydbg.calls_counter == {
+                'CreateFileA': num_loops + 3,
+                'RemoveDirectoryW': 2 * num_loops,
+                'CreateProcessA': num_loops} )
 
 if __name__ == '__main__':
     unittest.main()
