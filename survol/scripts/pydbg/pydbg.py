@@ -1882,7 +1882,8 @@ class pydbg:
         assert isinstance(dll, six.binary_type)
         assert isinstance(function, six.binary_type)
 
-        dll_module = ctypes.WinDLL(dll, use_last_error=True)
+        dll_utf8 = dll.decode("utf-8")
+        dll_module = ctypes.WinDLL(dll_utf8, use_last_error=True)
 
         dll_kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
         dll_kernel32.GetProcAddress.restype = ctypes.c_void_p
