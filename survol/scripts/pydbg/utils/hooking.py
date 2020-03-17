@@ -22,7 +22,7 @@
 @organization: www.openrce.org
 '''
 
-from ..defines import *
+from survol.scripts.pydbg.defines import *
 
 ########################################################################################################################
 class hook_container:
