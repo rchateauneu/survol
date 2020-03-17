@@ -22,7 +22,6 @@
 @organization: www.openrce.org
 '''
 
-# from survol.scripts.pydbg.defines import *
 from ..defines import *
 
 ########################################################################################################################
