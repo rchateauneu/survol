@@ -24,9 +24,9 @@
 
 import os.path
 
-from pydbg           import *
-from pydbg.defines   import *
-from pydbg.my_ctypes import *
+from survol.scripts.pydbg           import *
+from survol.scripts.pydbg.defines   import *
+from survol.scripts.pydbg.my_ctypes import *
 
 # macos compatability.
 try:
