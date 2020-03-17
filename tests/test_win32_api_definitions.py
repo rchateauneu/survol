@@ -18,7 +18,8 @@ print("cwd=%s" % os.getcwd())
 from init import *
 
 if not is_platform_linux:
-    from survol.scripts import win32_api_definitions
+    # import win32_api_definitions
+f	from survol.scripts import win32_api_definitions
 
 ################################################################################
 
