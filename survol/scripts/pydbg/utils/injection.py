@@ -24,7 +24,8 @@
 
 import os.path
 
-from survol.scripts.pydbg           import *
+# from survol.scripts.pydbg           import *
+from ..pydbg           import *
 from survol.scripts.pydbg.defines   import *
 from survol.scripts.pydbg.my_ctypes import *
 
