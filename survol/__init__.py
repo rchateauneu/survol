@@ -8,5 +8,5 @@ to help understand an existing information system and legacy applications.
 
 __author__ = 'Primhill Computers'
 __email__ = 'contact@primhillcomputers.com'
-__version__ = '1.0.dev8'
+__version__ = '1.0.dev9'
 __version_info__ = [s for s in __version__.split(".")]
