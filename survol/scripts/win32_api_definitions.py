@@ -20,10 +20,10 @@ if sys.version_info < (3,):
 else:
     import queue
 
-from survol.scripts import pydbg
-from survol.scripts.pydbg import defines
-from survol.scripts.pydbg import windows_h
-from survol.scripts.pydbg import utils
+from . import pydbg
+from .pydbg import defines
+from .pydbg import windows_h
+from .pydbg import utils
 
 ################################################################################
 def create_pydbg():
