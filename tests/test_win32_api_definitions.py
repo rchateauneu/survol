@@ -11,14 +11,11 @@ import tempfile
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 # This is needed when running from PyCharm.
-sys.path.append("../survol/scripts")
-sys.path.append("survol/scripts")
 print("cwd=%s" % os.getcwd())
 
 from init import *
 
 if not is_platform_linux:
-    # import win32_api_definitions
     from survol.scripts import win32_api_definitions
 
 ################################################################################
@@ -133,7 +130,10 @@ class PydbgDockitBasicTest(unittest.TestCase):
 
         print("function_calls_set=", PydbgDockitBasicTest.function_calls_set)
         print("created_objects_set=", PydbgDockitBasicTest.created_objects_set)
-        self.assertTrue(PydbgDockitBasicTest.function_calls_set == {"CreateProcessW"})
+        if sys.version_info >= (3,):
+            self.assertTrue(PydbgDockitBasicTest.function_calls_set == {b"CreateProcessW"})
+        else:
+            self.assertTrue(PydbgDockitBasicTest.function_calls_set == {"CreateProcessW"})
         self.assertTrue([one_str for one_str in PydbgDockitBasicTest.created_objects_set
             if re.match('Win32Hook_CreateProcessW:CIM_Process:Handle=[0-9]+', one_str)])
 
