@@ -13,7 +13,6 @@ import ast
 
 # pip install ..\dist\survol-1.0.dev0.zip --upgrade --install-option="--port 12345"
 
-
 # TODO: Have a look to setuptools.setup
 from distutils.core import setup
 from setuptools import find_packages
@@ -32,6 +31,7 @@ from setuptools.command.install import install
 class InstallCommand(install):
     # The html files can be copied at any place.
     # For example at ~/public_html on Unix, i.e. "Users Dir feature of Apache".
+    # TODO: This is not used yet.
     user_options = install.user_options + [
         ('port=', 'p', 'CGI server port number'),
         ('www=', 'w', 'Web UI destination directory'),
@@ -40,7 +40,7 @@ class InstallCommand(install):
     def initialize_options(self):
         print("Running initialize_options")
         install.initialize_options(self)
-        self.port = 24680
+        self.port = 24680 # TODO: This is not used yet.
 
         # By default, cgiserver will pick its files from the Python installation directory,
         # and this is acceptable because their are part of the same package.
@@ -69,7 +69,7 @@ class InstallCommand(install):
 
         print("Custom installation. Port:%s Dest dir=%s" % (my_port,my_www))
         if my_www:
-            print("About to copy %s"%my_www)
+            print("About to copy %s" % my_www)
         install.run(self)  # OR: install.do_egg_install(self)
 
 # TODO: Explain installation in Apache:
@@ -121,23 +121,21 @@ setup(
     name='survol',
     version=__version__,
     description='Understanding legacy applications',
-	long_description=README,
-    author='Remi Chateauneu',
-    author_email='remi.chateauneu@primhillcomputers.com',
+    long_description=README,
+    author='Primhill Computers',
+    author_email='contact@primhillcomputers.com',
     url='http://www.primhillcomputers.com/survol.html',
     packages=find_packages(),
     package_dir = {"survol": "survol"},
     # This is apparently not recursive.
-    # package_data={'survol':['www_test/*'],},
     package_data={'survol':extra_files,},
-    # include_package_data=True,
-
     entry_points = { 'console_scripts': [
         'survol_cgiserver = survol.scripts.cgiserver:start_server_forever',
         'survol_wsgiserver = survol.scripts.wsgiserver:RunWsgiServer',
         'survol_cgiscript = survol.scripts.survolcgi:SurvolCgi',
     ]},
-    requires=['rdflib'],
+    # These packages are not needed to run dockit.py
+    install_requires=['psutil', 'rdflib'],
     cmdclass={
         'install': InstallCommand,
     },
@@ -168,9 +166,9 @@ setup(
 # APPENDIX: Some tips about the installation of Survol under Apache.
 #
 # Two installations types are possible:
-# (1) With the CGI scripts survolcgi.exe, which just need to be accessible,
+# (1) With the CGI scripts cgiserver, which just need to be accessible,
 # and imports survol Python modules, installed by sdist.
-# (2) Or if Apache runs sources files from the development directory or from the installed packages.
+# (2) Or if Apache runs the sources files from the development directory or from the installed packages.
 # This is what is demonstrated here.
 
 #Alias /Survol "C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle"
