@@ -265,8 +265,8 @@ def start_wsgiserver(agent_url, agent_port):
         atexit.register(__dump_server_content,scripts.wsgiserver.WsgiServerLogFileName)
 
         agent_process = multiprocessing.Process(
-            target=scripts.wsgiserver.StartWsgiServer,
-            args=(AgentHost, agent_port, current_dir))
+            target=scripts.wsgiserver.start_server_forever,
+            args=(True, AgentHost, agent_port, current_dir))
         agent_process.start()
         INFO("Waiting for WSGI agent ready")
         time.sleep(8.0)
