@@ -110,7 +110,6 @@ def ParseEntitySurvolUri(uprs,longDisplay, force_entity_ip_addr):
     # uprs=ParseResult(
     #   scheme=u'http',
     #   netloc=u'127.0.0.1:8000',
-    #   path=u'/survol/survolcgi.py',
     #   params='',
     #   query=u'script=/entity.py&amp;amp;xid=Win32_UserAccount.Domain=rchateau-HP,Name=rchateau',
     #   fragment='')
