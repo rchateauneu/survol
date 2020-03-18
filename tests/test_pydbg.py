@@ -597,9 +597,6 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
         object_hooks = pydbg.utils.hook_container()
 
-        import socket
-
-
         # "C:\Windows\System32\ws2_32.dll"
         # Windows Socket 2.0 32-Bit DLL
         # Dump of file C:\Windows\System32\ws2_32.dll
@@ -661,7 +658,6 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         self.assertTrue(tst_pydbg.count_exit == num_loops)
 
 # BEWARE: When running DOS tests first, then Python tests fail.
-
 @unittest.skipIf(is_platform_linux, "Windows only.")
 class PydbgPythonHooksTest(unittest.TestCase):
     """
@@ -673,6 +669,7 @@ class PydbgPythonHooksTest(unittest.TestCase):
 
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_Python_CreateFile(self):
+        # TEST THIS ???
         import pydbg
         from pydbg import defines
         from pydbg import utils
@@ -689,7 +686,6 @@ class PydbgPythonHooksTest(unittest.TestCase):
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
 
         print("creation_file_process ", creation_file_process.pid)
-        sys.stdout.flush()
 
         class Context:
             file_name_entry = None
@@ -730,6 +726,12 @@ class PydbgPythonHooksTest(unittest.TestCase):
         self.assertTrue(Context.file_name_entry == temp_file_name)
         self.assertTrue(Context.file_name_exit == temp_file_name)
 
+
+    @unittest.skip("Not implemented yet.")
+    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    def test_pydbg_Python_mkdir(self):
+        pass
+
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_Python_DeleteFile(self):
         import pydbg
@@ -748,7 +750,6 @@ class PydbgPythonHooksTest(unittest.TestCase):
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
 
         print("deletion_file_process ", deletion_file_process.pid)
-        sys.stdout.flush()
 
         class Context:
             file_name_entry = None
@@ -787,6 +788,11 @@ class PydbgPythonHooksTest(unittest.TestCase):
         deletion_file_process.kill()
         self.assertTrue(Context.file_name_entry == temp_file_name)
         self.assertTrue(Context.file_name_exit == temp_file_name)
+
+    @unittest.skip("Not implemented yet.")
+    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    def test_pydbg_Python_rmdir(self):
+        pass
 
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_Python_subprocess(self):
@@ -831,7 +837,6 @@ class PydbgPythonHooksTest(unittest.TestCase):
         tst_pydbg.run()
         self.assertTrue(Context.command_line == [sys.executable, '-c', python_command])
 
-    # Modified Python path so it can find the special module to create a chain of subprocesses.
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_Python_subprocesses_recursive(self):
         import pydbg
@@ -843,11 +848,9 @@ class PydbgPythonHooksTest(unittest.TestCase):
         dir_path = os.path.dirname(__file__)
         sys.path.append(dir_path)
 
-        my_env = os.environ.copy()
         tree_depth = 5
 
         top_created_process = subprocess.Popen([sys.executable, '-m', 'create_process_chain', str(tree_depth)],
-                                                env = my_env,
                                                 stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = False)
 
         print("create_process_tree_popen ", top_created_process.pid)
@@ -859,19 +862,33 @@ class PydbgPythonHooksTest(unittest.TestCase):
         print("Attaching to pid=%d" % top_created_process.pid)
         tst_pydbg.attach(top_created_process.pid)
 
+        tst_pydbg.sub_pydbgs = []
+
         def python_process_creation_callback(object_pydbg):
-            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId)
-            print("object_pydbg.dbg.dwThreadId=", object_pydbg.dbg.dwThreadId)
+            print("python_process_creation_callback object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId)
+            print("python_process_creation_callbackobject_pydbg.dbg.dwThreadId=", object_pydbg.dbg.dwThreadId)
 
             object_process = psutil.Process(object_pydbg.dbg.dwProcessId)
             # Command line: ['C:\\Python27\\python.exe', '-m', 'create_process_chain', '5']
             command_line = object_process.cmdline()
-            print("Command line:", command_line)
+            print("python_process_creation_callback Command line:", command_line)
             assert command_line == [sys.executable, '-m', 'create_process_chain', str(tree_depth)]
 
             assert object_pydbg == tst_pydbg
 
             assert object_process.ppid() == root_process_id
+
+
+            the_subpydbg = create_pydbg()
+            the_subpydbg.sub_pydbgs = []
+            tst_pydbg.sub_pydbgs.append(the_subpydbg)
+            the_subpydbg.open_process(object_pydbg.dbg.dwProcessId)
+            print("AFTER REDUNDANCY")
+            the_subpydbg.attach(object_pydbg.dbg.dwProcessId)
+            the_subpydbg.set_callback(pydbg.defines.CREATE_PROCESS_DEBUG_EVENT, python_process_creation_callback)
+            the_subpydbg.run()
+
+
             return pydbg.defines.DBG_CONTINUE
 
         tst_pydbg.set_callback(pydbg.defines.CREATE_PROCESS_DEBUG_EVENT, python_process_creation_callback)
@@ -883,7 +900,6 @@ class PydbgPythonHooksTest(unittest.TestCase):
         for ix in range(tree_depth+1):
             one_line = top_created_process.stdout.readline()
             print("one_line=", one_line)
-            sys.stdout.flush()
             one_depth, one_pid = map(int, one_line.split(b" "))
             return_dict[one_depth] = one_pid
         print("return_dict=", return_dict)
@@ -907,7 +923,6 @@ class PydbgPythonHooksTest(unittest.TestCase):
             stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = False)
 
         print("creation_file_process ", url_process.pid)
-        sys.stdout.flush()
 
         # A bit of delay so the process can start.
         time.sleep(0.5)
