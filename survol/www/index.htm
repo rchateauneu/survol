@@ -1749,8 +1749,6 @@ function DisplayD3Layout(divItselfG,newData,w,h)
                     // d.survol_info_dict is a dictionary, and survol_info_list is a list.
                     // These two members are filled when parsing the input JSON document.
 
-                    // On OVH, we have this URL:
-                    // d.survol_url=http://www.primhillcomputers.com:80/survol/survolcgi.py?script=/entity.py&amp;xid=user.Domain=ovh.net,Name=lp
                     // console.log("IfMouseOver d.survol_url="+d.survol_url);
                     var urlReplaced = d.survol_url.replace("entity.py","entity_info_only.py");
                     var urlTooltip = AppendCgiToUrl(urlReplaced,"mode=json");
