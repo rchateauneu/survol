@@ -254,34 +254,34 @@ def Usage():
     print("Script must be started with command: survol/scripts/cgiserver.py")
 
 # https://docs.python.org/2/library/webbrowser.html
-def StartsWebrowser(browser_name,theUrl):
+def starts_webrowser(browser_name, the_url):
     """This starts a browser with the specific module to do it"""
 
     import webbrowser
 
     # TODO: Parses the argument from the parameter
-    webbrowser.open(theUrl, new=0, autoraise=True)
+    webbrowser.open(the_url, new=0, autoraise=True)
 
-def StartsBrowser(browser_name,theUrl):
+def starts_browser(browser_name, the_url):
     """This starts a browser whose executable is given on the command line"""
     # Import only if needed.
     import threading
     import time
     import subprocess
 
-    def StartBrowserProcess():
+    def __starts_browser_process():
 
-        print("About to start browser: %s %s"%(browser_name,theUrl))
+        print("About to start browser: %s %s"%(browser_name, the_url))
 
         # Leaves a bit of time so the HTTP server can start.
         time.sleep(5)
 
-        subprocess.check_call([browser_name, theUrl])
+        subprocess.check_call([browser_name, the_url])
 
-    threading.Thread(target=StartBrowserProcess).start()
+    threading.Thread(target=__starts_browser_process).start()
     print("Browser thread started")
 
-def RunWsgiServer():
+def run_wsgi_server():
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "ha:p:b:v", ["help","address=","port=","browser=","verbose"])
@@ -334,24 +334,25 @@ def RunWsgiServer():
     if browser_name:
 
         if browser_name.startswith("webbrowser"):
-            StartsWebrowser(browser_name,theUrl)
+            starts_webrowser(browser_name,theUrl)
         else:
-            StartsBrowser(browser_name,theUrl)
+            starts_browser(browser_name,theUrl)
         print("Browser thread started to:"+theUrl)
 
-    StartWsgiServer(server_name, port_number, current_dir="")
+    start_server_forever(verbose, server_name, port_number, current_dir="")
 
 WsgiServerLogFileName = "wsgiserver.execution.log"
 
-def StartWsgiServer(server_name, port_number, current_dir=""):
+def start_server_forever(verbose, server_name, port_number, current_dir=""):
     logfil = open(WsgiServerLogFileName, "w")
     logfil.write(__file__ + " startup\n")
     logfil.flush()
 
-    sys.stderr = logfil
-    sys.stderr.write(__file__ + " redirection stderr\n")
-    logfil.write(__file__ + " redirection stderr\n")
-    logfil.flush()
+    if verbose:
+        sys.stderr = logfil
+        sys.stderr.write(__file__ + " redirection stderr\n")
+        logfil.write(__file__ + " redirection stderr\n")
+        logfil.flush()
 
     server_addr = socket.gethostbyname(server_name)
 
@@ -366,7 +367,7 @@ def StartWsgiServer(server_name, port_number, current_dir=""):
     # The script must be started from a specific directory because of the URLs.
     if current_dir:
         os.chdir(current_dir)
-        sys.stderr.write("StartWsgiServer getcwd=%s\n" % os.getcwd() )
+        sys.stderr.write("start_server_forever getcwd=%s\n" % os.getcwd() )
     try:
         filMyself = open("survol/scripts/wsgiserver.py")
     except Exception as exc:
@@ -381,7 +382,8 @@ def StartWsgiServer(server_name, port_number, current_dir=""):
     os.environ["SURVOL_SERVER_NAME"] = server_name
     sys.stderr.write(__file__ + " server_name=%s\n"% server_name)
 
-    log_information(sys.stdout)
+    if verbose:
+        log_information(sys.stdout)
     log_information(logfil)
     logfil.flush()
 
@@ -397,4 +399,4 @@ def StartWsgiServer(server_name, port_number, current_dir=""):
 if __name__ == '__main__':
     # If this is called from the command line, we are in test mode and must use the local Python code,
     # and not use the installed packages.
-    RunWsgiServer()
+    run_wsgi_server()

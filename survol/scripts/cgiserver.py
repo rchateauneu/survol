@@ -98,7 +98,7 @@ def __open_url_with_new_browser_process(browser_name, the_url):
     import time
     import subprocess
 
-    def StartBrowserProcess():
+    def __starts_browser_process():
 
         print("About to start browser: %s %s"%(browser_name,the_url))
 
@@ -107,7 +107,7 @@ def __open_url_with_new_browser_process(browser_name, the_url):
 
         subprocess.check_call([browser_name, the_url])
 
-    threading.Thread(target=StartBrowserProcess).start()
+    threading.Thread(target=__starts_browser_process).start()
     print("Browser thread started")
 
 # It is also possible to call the script from command line.

@@ -72,10 +72,7 @@ class InstallCommand(install):
             print("About to copy %s" % my_www)
         install.run(self)  # OR: install.do_egg_install(self)
 
-# TODO: Explain installation in Apache:
-# - When pointing to Python scripts.
-# - or when using the CGI script survolcgi.
-
+# TODO: Explain installation in Apache when pointing to Python scripts.
 
 # http://peak.telecommunity.com/DevCenter/PythonEggs#accessing-package-resources
 # from pkg_resources import resource_string
@@ -131,8 +128,7 @@ setup(
     package_data={'survol':extra_files,},
     entry_points = { 'console_scripts': [
         'survol_cgiserver = survol.scripts.cgiserver:start_server_forever',
-        'survol_wsgiserver = survol.scripts.wsgiserver:RunWsgiServer',
-        'survol_cgiscript = survol.scripts.survolcgi:SurvolCgi',
+        'survol_wsgiserver = survol.scripts.wsgiserver:run_wsgi_server',
     ]},
     # These packages are not needed to run dockit.py
     install_requires=['psutil', 'rdflib'],
