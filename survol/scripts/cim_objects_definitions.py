@@ -24,7 +24,7 @@ try:
     # Optional: To add more information to processes etc...
     import psutil
 except ImportError:
-    pass
+    psutil = None
 
 ################################################################################
 
@@ -54,7 +54,8 @@ def DecodeOctalEscapeSequence(aBuffer):
 
 # Buffers transferred with read() and write() are parsed to detect information
 # about the running applications. There can be several types of parsers,
-# indexed by a descriptive key.
+# indexed by a descriptive key: "SqlQuery" etc...
+# TODO: There is not valid reason to load all buffer scanners in this file.
 BufferScanners = {}
 
 try:
@@ -115,7 +116,7 @@ class BufferConcatenator:
         self.m_currentBuffer = None
         self.m_parsedData = None
 
-    def AnalyseCompleteBuffer(self,aBuffer):
+    def __analyse_io_buffer(self,aBuffer):
         for scannerKey in BufferScanners:
             scannerFunction = BufferScanners[scannerKey]
 
@@ -131,11 +132,10 @@ class BufferConcatenator:
                 else:
                     self.m_parsedData[scannerKey] = lstResults
 
-
-    def HasParsedData(self):
+    def has_parsed_data(self):
         return self.m_parsedData != None
 
-    def ParsedDataToXML(self, strm, margin,direction):
+    def parsed_data_to_XML(self, strm, margin, direction):
         if self.m_parsedData:
             submargin = margin + "    "
             for scannerKey in self.m_parsedData:
@@ -152,7 +152,7 @@ class BufferConcatenator:
     # decodes them and tries to rebuild a complete logical message if it seems
     # to be truncated.
     # It then analyses the logical pieces.
-    def AppendIOBuffer(self,aFragment,szFragment = 0):
+    def append_io_buffer(self, aFragment, szFragment = 0):
         decodedFragment = DecodeOctalEscapeSequence(aFragment)
 
         # Typical buffer size are multiple of 100x:
@@ -176,12 +176,12 @@ class BufferConcatenator:
                 self.m_currentBuffer = decodedFragment
         else:
             if self.m_currentBuffer:
-                self.AnalyseCompleteBuffer(self.m_currentBuffer)
+                self.__analyse_io_buffer(self.m_currentBuffer)
                 # Reuse memory.
                 del self.m_currentBuffer
                 self.m_currentBuffer = None
 
-            self.AnalyseCompleteBuffer(decodedFragment)
+            self.__analyse_io_buffer(decodedFragment)
 
 ################################################################################
 G_FilesToPackagesCache = None
@@ -270,7 +270,7 @@ class FileAccess:
             concatBuf = self.m_bufConcatWrite
 
         try:
-            concatBuf.AppendIOBuffer(aBuffer,szBuffer)
+            concatBuf.append_io_buffer(aBuffer, szBuffer)
         except Exception as exc:
             # Example: '[pid  5602] 19:59:20.590740 <... read resumed> "... end of read() content"..., 32768) = 4096 <0.037642>'
             sys.stdout.write("Cannot parse:%s szBuffer=%s: %s\n" % (aBuffer, szBuffer, exc))
@@ -328,14 +328,14 @@ class FileAccess:
         accRead = getattr(self,'m_bufConcatRead',None)
         accWrite = getattr(self,'m_bufConcatWrite',None)
 
-        if (accRead and accRead.HasParsedData() ) or (accWrite and accWrite.HasParsedData() ):
+        if (accRead and accRead.has_parsed_data()) or (accWrite and accWrite.has_parsed_data()):
             strm.write(" >\n" )
 
             submargin = margin + "    "
-            if accRead and accRead.HasParsedData():
-                accRead.ParsedDataToXML(strm, submargin,"Read")
-            if accWrite and accWrite.HasParsedData():
-                accWrite.ParsedDataToXML(strm, submargin,"Write")
+            if accRead and accRead.has_parsed_data():
+                accRead.parsed_data_to_XML(strm, submargin, "Read")
+            if accWrite and accWrite.has_parsed_data():
+                accWrite.parsed_data_to_XML(strm, submargin, "Write")
 
             strm.write("%s</Access>\n" % ( margin ) )
         else:
