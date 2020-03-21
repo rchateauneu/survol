@@ -100,7 +100,7 @@ def print_dockit_usage(exitCode = 1, errMsg = None):
 # key-value pairs in the expressions are matched one-to-one with objects.
 
 # Example: rgxObjectPath = 'Win32_LogicalDisk.DeviceID="C:",Prop="Value",Prop="Regex"'
-def ParseFilterCIM(rgxObjectPath):
+def _parse_filter_CIM(rgxObjectPath):
     idxDot = rgxObjectPath.find(".")
     if idxDot < 0 :
         return ( rgxObjectPath, {} )
@@ -132,29 +132,29 @@ def ParseFilterCIM(rgxObjectPath):
     return ( objClassName, mapKeyValues )
 
 # TODO: Probably not needed because noone wants this output format..
-def GenerateSummaryTXT(mapParamsSummary, fdSummaryFile):
+def _generate_summary_txt(mapParamsSummary, fdSummaryFile):
     for rgxObjectPath in mapParamsSummary:
-        ( cimClassName, cimKeyValuePairs ) = ParseFilterCIM(rgxObjectPath)
+        ( cimClassName, cimKeyValuePairs ) = _parse_filter_CIM(rgxObjectPath)
         classObj = getattr(cim_objects_definitions, cimClassName)
         classObj.DisplaySummary(fdSummaryFile,cimKeyValuePairs)
 
 # This stores various data related to the execution.
-def GenerateSummaryXML(mapParamsSummary,fdSummaryFile):
+def _generate_summary_xml(mapParamsSummary,fdSummaryFile):
     fdSummaryFile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
     fdSummaryFile.write('<Dockit>\n')
     if mapParamsSummary:
         for rgxObjectPath in mapParamsSummary:
-            ( cimClassName, cimKeyValuePairs ) = ParseFilterCIM(rgxObjectPath)
+            ( cimClassName, cimKeyValuePairs ) = _parse_filter_CIM(rgxObjectPath)
             classObj = getattr(cim_objects_definitions, cimClassName)
             classObj.XMLSummary(fdSummaryFile,cimKeyValuePairs)
     fdSummaryFile.write('</Dockit>\n')
 
-def GenerateSummary(mapParamsSummary, summaryFormat, outputSummaryFile):
+def _generate_summary(mapParamsSummary, summaryFormat, outputSummaryFile):
     if summaryFormat == "TXT":
-        summaryGenerator = GenerateSummaryTXT
+        summaryGenerator = _generate_summary_txt
     elif summaryFormat == "XML":
         # The output format is very different.
-        summaryGenerator = GenerateSummaryXML
+        summaryGenerator = _generate_summary_xml
     elif summaryFormat == None:
         return
     else:
@@ -420,7 +420,7 @@ G_OSType = None
 
 ################################################################################
 
-def DefaultTracer(inputLogFile,tracer=None):
+def default_tracer(inputLogFile,tracer=None):
     if not tracer:
         if inputLogFile:
             # Maybe the pid is embedded in the log file.
@@ -466,7 +466,7 @@ def LoadIniFile(iniFilNam):
     return mapKV
 
 # This returns a stream with each line written by strace or ltrace.
-def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
+def _create_event_log(argsCmd, aPid, inputLogFile, tracer ):
     global G_Hostname
     global G_OSType
 
@@ -529,13 +529,13 @@ def CreateEventLog(argsCmd, aPid, inputLogFile, tracer ):
 
 
 # Global variables which must be reinitialised before a run.
-def InitGlobals( withWarning ):
+def _init_globals(withWarning):
     linux_api_definitions.InitLinuxGlobals(withWarning)
 
-    cim_objects_definitions.InitGlobalObjects()
+    cim_objects_definitions.init_global_objects()
 
 # Called after a run.
-def ExitGlobals():
+def _exit_globals():
     cim_objects_definitions.ExitGlobalObjects()
 
 ################################################################################
@@ -544,7 +544,7 @@ def ExitGlobals():
 # It can aggregate the calls or process them in anyway, on the fly or at the end.
 # There is one object for each execution flow, which is a process or a thread.
 # This method returns a class.
-def CallsFlowClassFactory(aggregator):
+def _calls_flow_class_factory(aggregator):
     if not aggregator:
         # This is the required interface for aggregators.
         # The default base class does minimal statistics.
@@ -575,15 +575,15 @@ def CallsFlowClassFactory(aggregator):
 
 # This receives a stream of lines, each of them is a function call,
 # possibly unfinished/resumed/interrupted by a signal.
-def CreateMapFlowFromStream(verbose, withWarning, logStream, tracer, batchConstructor, aggregator):
+def _create_map_flow_from_stream(verbose, withWarning, logStream, tracer, batchConstructor, aggregator):
     # Here, we have an event log as a stream, which comes from a file (if testing),
     # the output of strace or anything else.
 
-    InitGlobals(withWarning)
+    _init_globals(withWarning)
 
     mapFlows = {}
 
-    CallsFlowClass = CallsFlowClassFactory(aggregator)
+    CallsFlowClass = _calls_flow_class_factory(aggregator)
 
     # This generator creates individual BatchLet objects on-the-fly.
     # At this stage, "resumed" calls are matched with the previously received "unfinished"
@@ -613,7 +613,7 @@ def CreateMapFlowFromStream(verbose, withWarning, logStream, tracer, batchConstr
         if verbose > 0: sys.stdout.write("\n------------------ PID=%d\n" % the_pid)
         calls_flow.FactorizeOneFlow(verbose, batchConstructor)
 
-    ExitGlobals()
+    _exit_globals()
     return mapFlows
 
 ################################################################################
@@ -627,7 +627,7 @@ fullMapParamsSummary = [
     "CIM_Process",
     "CIM_DataFile"]
 
-def FromStreamToFlow(
+def _analyse_functions_calls_stream(
         verbose, withWarning, logStream, tracer, outputFormat,
         baseOutName, mapParamsSummary, summaryFormat, withDockerfile, aggregator):
     if not baseOutName:
@@ -645,7 +645,7 @@ def FromStreamToFlow(
     else:
         batchConstructor = None
 
-    mapFlows = CreateMapFlowFromStream(verbose, withWarning, logStream, tracer, batchConstructor, aggregator)
+    mapFlows = _create_map_flow_from_stream(verbose, withWarning, logStream, tracer, batchConstructor, aggregator)
 
     linux_api_definitions.G_stackUnfinishedBatches.PrintUnfinished(sys.stdout)
 
@@ -669,7 +669,7 @@ def FromStreamToFlow(
     if withDockerfile:
         mapParamsSummary = fullMapParamsSummary
 
-    GenerateSummary(mapParamsSummary, summaryFormat, outputSummaryFile)
+    _generate_summary(mapParamsSummary, summaryFormat, outputSummaryFile)
     
     if withDockerfile:
         if outFile:
@@ -689,17 +689,17 @@ def FromStreamToFlow(
     return outputSummaryFile
 
 # Function called for unit tests by unittest.py
-def UnitTest(
+def monitor_execution(
         inputLogFile, tracer, topPid, baseOutName, outputFormat, verbose, mapParamsSummary,
         summaryFormat, withWarning, withDockerfile, updateServer, aggregator):
     assert isinstance(topPid, int)
-    logStream = CreateEventLog([], topPid, inputLogFile, tracer )
+    logStream = _create_event_log([], topPid, inputLogFile, tracer )
     cim_objects_definitions.G_UpdateServer = updateServer
 
     # Check if there is a context file, which gives parameters such as the current directory,
     # necessary to reproduce the test in the same conditions.
 
-    outputSummaryFile = FromStreamToFlow(
+    outputSummaryFile = _analyse_functions_calls_stream(
         verbose, withWarning, logStream, tracer, outputFormat, baseOutName,
         mapParamsSummary, summaryFormat, withDockerfile, aggregator)
     return outputSummaryFile
@@ -771,8 +771,8 @@ if __name__ == '__main__':
             assert False, "Unhandled option"
 
 
-    tracer = DefaultTracer( inputLogFile, tracer )
-    logStream = CreateEventLog(argsCmd, aPid, inputLogFile, tracer )
+    tracer = default_tracer(inputLogFile, tracer)
+    logStream = _create_event_log(argsCmd, aPid, inputLogFile, tracer)
 
     if outputLogFilePrefix:
         fullPrefixNoExt = "%s.%s.%s." % ( outputLogFilePrefix, tracer, linux_api_definitions.G_topProcessId )
@@ -794,9 +794,6 @@ if __name__ == '__main__':
 
         logStream = TeeStream(logStream)
 
-        #outFilExt = outputFormat.lower() # "txt", "xml" etc...
-        #outFilNam = fullPrefixNoExt + outFilExt
-
         # If not replaying, saves all parameters in an ini file.
         if not cim_objects_definitions.G_ReplayMode:
             iniFilNam = fullPrefixNoExt + "ini"
@@ -817,7 +814,7 @@ if __name__ == '__main__':
         fullPrefixNoExt = "dockit_output_" + tracer
 
     # In normal usage, the summary output format is the same as the output format for calls.
-    FromStreamToFlow(
+    _analyse_functions_calls_stream(
         verbose,
         withWarning,
         logStream,

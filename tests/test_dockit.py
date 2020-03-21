@@ -302,7 +302,7 @@ class DockitSummaryXMLTest(unittest.TestCase):
         tmpFilSTrace.write(tstLogFileSTrace)
         tmpFilSTrace.close()
 
-        outputSummaryFile = dockit.UnitTest(
+        outputSummaryFile = dockit.monitor_execution(
             inputLogFile=tmpFilSTrace.name,
             tracer="strace",
             topPid=19351,
@@ -374,7 +374,7 @@ class DockitSummaryXMLTest(unittest.TestCase):
         tmpFilSTrace.write(tstLogFileSTrace)
         tmpFilSTrace.close()
 
-        outputSummaryFile = dockit.UnitTest(
+        outputSummaryFile = dockit.monitor_execution(
             inputLogFile=tmpFilSTrace.name,
             tracer="strace",
             topPid=22029,
@@ -450,7 +450,7 @@ class DockitSummaryXMLTest(unittest.TestCase):
         tmpFilSTrace.write(tstLogFileLTrace)
         tmpFilSTrace.close()
 
-        outputSummaryFile = dockit.UnitTest(
+        outputSummaryFile = dockit.monitor_execution(
             inputLogFile=tmpFilSTrace.name,
             tracer="ltrace",
             topPid=21256,
@@ -482,7 +482,7 @@ class DockitTraceFilesTest(unittest.TestCase):
     """
 
     def test_file_strace_txt(self):
-        dockit.UnitTest(
+        dockit.monitor_execution(
             inputLogFile=path_prefix_input_file("sample_shell.strace.log"),
             tracer="strace",
             topPid=0,
@@ -501,7 +501,7 @@ class DockitTraceFilesTest(unittest.TestCase):
         check_file_content("sample_shell_strace_tst_txt.summary.txt")
 
     def test_file_strace_csv_docker(self):
-        dockit.UnitTest(
+        dockit.monitor_execution(
             inputLogFile=path_prefix_input_file("sample_shell.strace.log"),
             tracer="strace",
             topPid=0,
@@ -523,7 +523,7 @@ class DockitTraceFilesTest(unittest.TestCase):
 
     def test_file_strace_json(self):
 
-        dockit.UnitTest(
+        dockit.monitor_execution(
             inputLogFile=path_prefix_input_file("sample_shell.strace.log"),
             tracer="strace",
             topPid=0,
@@ -543,7 +543,7 @@ class DockitTraceFilesTest(unittest.TestCase):
 
 
     def test_file_ltrace_docker(self):
-        dockit.UnitTest(
+        dockit.monitor_execution(
             inputLogFile = path_prefix_input_file("sample_shell.ltrace.log"),
             tracer="ltrace",
             topPid=0,
@@ -592,11 +592,11 @@ class DockitTraceFilesTest(unittest.TestCase):
                 # else:
                 #    aPid = -1
 
-                tracer = dockit.DefaultTracer(inputLogFile)
+                tracer = dockit.default_tracer(inputLogFile)
 
                 for outputFormat in ["JSON"]:
                     # In tests, the summary output format is always XML.
-                    dockit.UnitTest(
+                    dockit.monitor_execution(
                         inputLogFile=inputLogFile,
                         tracer=tracer,
                         topPid=-1,
@@ -630,7 +630,7 @@ class DockitProcessesTest(unittest.TestCase):
 
         # Avoids exception: "UnsupportedOperation: redirected stdin is pseudofile, has no fileno()"
         sys.stdin = open(os.devnull)
-        dockit.UnitTest(
+        dockit.monitor_execution(
             inputLogFile = None,
             tracer="strace",
             topPid=sub_proc.pid,
@@ -657,7 +657,7 @@ class DockitToRDF(unittest.TestCase):
     """
 
     def test_create_RDF_file(self):
-        dockit.UnitTest(
+        dockit.monitor_execution(
             inputLogFile=path_prefix_input_file("sample_shell.ltrace.log"),
             tracer="ltrace",
             topPid=0,
@@ -691,7 +691,7 @@ class DockitEventsTest(unittest.TestCase):
 
     @unittest.skipIf(is_travis_machine(),"test_file_events does not work on Travis server.")
     def test_file_events(self):
-        dockit.UnitTest(
+        dockit.monitor_execution(
             inputLogFile = path_prefix_input_file("dockit_ps_ef.strace.log"),
             tracer="strace",
             topPid=0,
