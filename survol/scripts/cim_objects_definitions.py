@@ -21,7 +21,8 @@ except ImportError:
     import urllib.request as urllib2
 
 try:
-    # Optional: To add more information to processes etc...
+    # This is optional when used from dockit, so dockit can be used
+    # without any installation.
     import psutil
 except ImportError:
     psutil = None
@@ -1489,7 +1490,7 @@ def GenerateDockerFile(dockerFilename):
 # As read from the strace or ltrace calls to getenv()
 G_EnvironmentVariables = None
 
-def InitGlobalObjects():
+def init_global_objects():
     global G_mapCacheObjects
     global G_httpClient
     global G_EnvironmentVariables
