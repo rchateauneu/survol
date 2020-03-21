@@ -1,0 +1,13 @@
+I finally got to review the doc that you shared.
+Overall looks good - explains the approach of building a knowledge graph
+to support system refactoring and explains static vs. dynamic aspects.
+
+A couple of points:
+1. If you mention BIAN, it is worth adding TOGAF into the same section on business terms.
+TOGAF metamodel is convertible into OWL and is a good basis for describing enterprise architecture.
+I just created a repo with TOGAF Metamodel Ontology based on earlier work of Aurona Gerber
+https://github.com/cadmiumkitty/togaf-content-metamodel-ontology
+2. I would not class StarDog as an ontology editing tool,
+would suggest replacing it with TopQuadrant TopBraid Composer
+https://www.topquadrant.com/products/topbraid-composer/
+3. Would consider federation of data along with "merging" to a single repository
