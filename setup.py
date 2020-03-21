@@ -14,10 +14,12 @@ import ast
 # pip install ..\dist\survol-1.0.dev0.zip --upgrade --install-option="--port 12345"
 
 # TODO: Have a look to setuptools.setup
+from distutils import log
 from distutils.core import setup
 from setuptools import find_packages
 
 from setuptools.command.install import install
+from setuptools.command.install_lib import install_lib
 
 # https://stackoverflow.com/questions/677577/distutils-how-to-pass-a-user-defined-parameter-to-setup-py
 #
@@ -72,29 +74,52 @@ class InstallCommand(install):
             print("About to copy %s" % my_www)
         install.run(self)  # OR: install.do_egg_install(self)
 
+class InstallLibCommand(install_lib):
+    # On Linux, this converts Python files to proper Unix format,
+    # and sets the executable flag.
+    def _transform_linux_script(self, one_path):
+        with open(one_path, 'rb') as input_stream:
+            file_content = input_stream.readlines()
+
+        # There must not be any CR character after this shebang line.
+        if file_content[0].startswith(b"#!/usr/bin/env python"):
+            log.info("Script file=%s l=%d end=%s"
+                     % (one_path, len(file_content), str([ord(x) for x in file_content[0]])))
+            try:
+                # Maybe this file is a script. If so, remove "CRLF" at the end.
+                lines_number = 0
+                with open(one_path, 'wb') as output_stream:
+                    for one_line in file_content:
+                        if one_line.endswith(b'\r\n') or one_line.endswith(b'\n\r') :
+                            output_stream.write(b"%s\n" % one_line[:-2])
+                        else:
+                            output_stream.write(one_line)
+                        lines_number += 1
+
+                log.info("Script written=%d" % lines_number)
+                # Set executable flag for Linux CGI scripts.
+                os.chmod(one_path, 0o744)
+            except Exception as exc:
+                log.error("Script err=%s" % exc)
+
+    def copy_tree(
+            self, infile, outfile,
+            preserve_mode=1, preserve_times=1, preserve_symlinks=0, level=1
+    ):
+        # This is called on, for the top-level infile='build\\lib'
+        if sys.platform.startswith("lin"):
+            library_top = os.path.join(infile, "survol")
+            for library_root, library_dirs, library_files in os.walk(library_top):
+                for one_file in library_files:
+                    if one_file.endswith(".py"):
+                        one_path = os.path.join(library_root, one_file)
+                        self._transform_linux_script(one_path)
+
+        return install_lib.copy_tree(self, infile, outfile,
+            preserve_mode, preserve_times, preserve_symlinks, level)
+
+
 # TODO: Explain installation in Apache when pointing to Python scripts.
-
-# http://peak.telecommunity.com/DevCenter/PythonEggs#accessing-package-resources
-# from pkg_resources import resource_string
-# foo_config = resource_string(__name__, 'foo.conf')
-
-sys.stdout.write("Packages=%s\n"%find_packages())
-
-#	  data_files=['*.htm','*.js','*.css','Docs/*.txt'],
-
-# FIXME: The HTTP server, in the cgiserver.py configuration,
-# is pointing to directories in the Python packages.
-# => Copy ui/Images into survol/Images and make a Python data directory.
-# ui is also an independant static HTML/Javascript website.
-#
-# What is the traditional way to install html files ?
-# And the easiest way to install them in Apache or any other HTTP server ?
-#
-# We should deliver two installers:
-# * setup.py which installs the agent and also the UI while we are at it.
-# * a simple static HTML website installer, using only "ui" directory.
-#
-# Docs is not copied anywhere.
 
 # The current directory is where setup.py is.
 def package_files(directory):
@@ -105,6 +130,8 @@ def package_files(directory):
     return paths
 
 extra_files = package_files('survol/www')
+
+# The zip archive contains directories: docs, survol and tests.
 
 with open(os.path.join('survol', '__init__.py')) as f:
     __version__ = ast.parse(next(filter(lambda line: line.startswith('__version__'), f))).body[0].value.s
@@ -125,17 +152,19 @@ setup(
     packages=find_packages(),
     package_dir = {"survol": "survol"},
     # This is apparently not recursive.
-    package_data={'survol':extra_files,},
+    package_data={'survol': extra_files},
     entry_points = { 'console_scripts': [
         'survol_cgiserver = survol.scripts.cgiserver:start_server_forever',
         'survol_wsgiserver = survol.scripts.wsgiserver:run_wsgi_server',
     ]},
-    # These packages are not needed to run dockit.py
+    # These packages are not needed to run dockit.py which is strictly standalone.
     install_requires=['psutil', 'rdflib'],
     cmdclass={
         'install': InstallCommand,
+        'install_lib': InstallLibCommand,
     },
-    # scripts=['cgiserver.py','wsgiserver.py','webserver.py'],
+
+    # scripts=['cgiserver.py','wsgiserver.py'],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
