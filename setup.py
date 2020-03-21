@@ -83,8 +83,7 @@ class InstallLibCommand(install_lib):
 
         # There must not be any CR character after this shebang line.
         if file_content[0].startswith(b"#!/usr/bin/env python"):
-            log.info("Script file=%s l=%d end=%s"
-                     % (one_path, len(file_content), str([ord(x) for x in file_content[0]])))
+            log.info("Script file=%s l=%d" % (one_path, len(file_content)))
             try:
                 # Maybe this file is a script. If so, remove "CRLF" at the end.
                 lines_number = 0
