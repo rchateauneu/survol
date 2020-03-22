@@ -30,21 +30,31 @@ import logging
 
 # This defines the CIM objects which are created when monitoring
 # a running process.
-from . import cim_objects_definitions
+if __package__:
+    from . import cim_objects_definitions
+else:
+    import cim_objects_definitions
 
 ################################################################################
 
 G_traceToTracer = {}
 
-# This contains th definitions of Linux system calls, and other things.
 # TODO: Should be done on Linux only.
-from . import linux_api_definitions
+if __package__:
+    from . import linux_api_definitions
+else:
+    import linux_api_definitions
+
+# This contains th definitions of Linux system calls, and other things.
 G_traceToTracer["strace"] = linux_api_definitions.STraceTracer()
 G_traceToTracer["ltrace"] = linux_api_definitions.LTraceTracer()
 
 if sys.platform.startswith("win"):
     # Definitions of Win32 systems calls to monitor.
-    from . import win32_api_definitions
+    if __package__:
+        from . import win32_api_definitions
+    else:
+        import win32_api_definitions
     G_traceToTracer["pydbg"] = win32_api_definitions.Win32Tracer()
 
 ################################################################################
@@ -67,8 +77,8 @@ def print_dockit_usage(exitCode = 1, errMsg = None):
     print("  -p,--pid <pid>                  Monitors a running process instead of starting an executable.")
     print("  -f,--format TXT|CSV|JSON        Output format. Default is TXT.")
     print("  -F,--summary-format TXT|XML     Summary output format. Default is XML.")
-    print("  -i,--input <file name>          trace command input file.")
-    print("  -l,--log <filename prefix>      trace command log output file.\n")
+    print("  -i,--input <file name>          trace input file.")
+    print("  -l,--log <filename prefix>      prefix of output files.\n")
     print("  -t,--tracer strace|ltrace|pydbg command for generating trace log")
     print("  -S,--server <Url>               Survol url for CIM objects updates. Ex: http://127.0.0.1:80/survol/event_put.py")
     print("  -a,--aggregator <aggregator>    Aggregation method, e.g. clusterize etc...")
@@ -185,7 +195,7 @@ class FileToPackage:
         try:
             fdCache = open(self.m_cacheFileName,"r")
         except:
-            sys.stdout.write("Cannot open packages cache file:%s.\n" % self.m_cacheFileName)
+            logging.info("Cannot open packages cache file:%s." % self.m_cacheFileName)
             self.m_cacheFilesToPackages = dict()
             self.m_dirtyCache = False
             return
@@ -194,26 +204,26 @@ class FileToPackage:
             self.m_cacheFilesToPackages = json.load(fdCache)
             fdCache.close()
             self.m_dirtyCache = False
-            sys.stdout.write("Loaded packages cache file:%s\n"%self.m_cacheFileName)
+            logging.info("Loaded packages cache file:%s" % self.m_cacheFileName)
         except:
-            sys.stdout.write("Error reading packages cache file:%s. Resetting.\n" % self.m_cacheFileName)
+            logging.warning("Error reading packages cache file:%s. Resetting." % self.m_cacheFileName)
             self.m_cacheFilesToPackages = dict()
             self.m_dirtyCache = True
 
     # Dump cache to a file. It does not use __del__()
     # because it cannot access some global names in recent versions of Python.
-    def DumpToFile(self):
+    def dump_cache_to_file(self):
         if self.m_dirtyCache:
             try:
                 fdCache = open(self.m_cacheFileName,"w")
-                sys.stdout.write("Dumping to packages cache file %s\n"%self.m_cacheFileName)
+                logging.info("Dumping to packages cache file %s" % self.m_cacheFileName)
                 json.dump(self.m_cacheFilesToPackages,fdCache)
                 fdCache.close()
             except IOError:
                 raise Exception("Cannot dump packages cache file to %s"%self.m_cacheFileName)
 
     @staticmethod
-    def OneFileToPackageLinuxNoCache(oneFilNam):
+    def _one_file_to_linux_package_no_cache(oneFilNam):
         if sys.platform.startswith("linux"):
             aCmd = ['rpm','-qf',oneFilNam]
 
@@ -239,23 +249,23 @@ class FileToPackage:
     unpackagedPrefixes = ["/dev/","/home/","/proc/","/tmp/","/sys/","/var/cache/"] + cim_objects_definitions.CIM_DataFile.m_nonFilePrefixes
 
     @staticmethod
-    def CannotBePackaged(filNam):
+    def _cannot_be_packaged(filNam):
         # Some files cannot be packaged, ever.
         for pfx in FileToPackage.unpackagedPrefixes:
             if filNam.startswith(pfx):
                 return True
         return False
 
-    def OneFileToPackageLinux(self,oneFilObj):
+    def one_file_to_linux_package(self, oneFilObj):
         oneFilNam = oneFilObj.Name
 
         # Very common case of a file which is only local.
-        if FileToPackage.CannotBePackaged(oneFilNam):
+        if FileToPackage._cannot_be_packaged(oneFilNam):
             return []
         try:
             return self.m_cacheFilesToPackages[oneFilNam]
         except KeyError:
-            lstPacks= self.OneFileToPackageLinuxNoCache(oneFilNam)
+            lstPacks= self._one_file_to_linux_package_no_cache(oneFilNam)
 
             if lstPacks:
                 self.m_dirtyCache = True
@@ -269,8 +279,7 @@ class FileToPackage:
 
             return lstPacks
 
-
-    def GetPackagesList(self,lstPackagedFiles):
+    def get_packages_list(self, lstPackagedFiles):
 
         # This command is very slow:
         # dnf provides /usr/bin/as
@@ -283,7 +292,7 @@ class FileToPackage:
 
         for oneFil in lstPackagedFiles:
             # sys.stdout.write("oneFil=%s tp=%s\n"%(oneFil,str(type(oneFil))))
-            lstPacks = self.OneFileToPackageLinux(oneFil)
+            lstPacks = self.one_file_to_linux_package(oneFil)
             if lstPacks:
                 # BEWARE: This takes the first pack, randomly.
                 aPack = lstPacks[0]
@@ -298,7 +307,7 @@ class FileToPackage:
 # they were all run on the same machine.
 cim_objects_definitions.G_FilesToPackagesCache = FileToPackage()
 
-atexit.register( FileToPackage.DumpToFile, cim_objects_definitions.G_FilesToPackagesCache )
+atexit.register(FileToPackage.dump_cache_to_file, cim_objects_definitions.G_FilesToPackagesCache)
 
 
 ################################################################################
@@ -420,7 +429,7 @@ G_OSType = None
 
 ################################################################################
 
-def default_tracer(inputLogFile,tracer=None):
+def default_tracer(inputLogFile, tracer=None):
     if not tracer:
         if inputLogFile:
             # Maybe the pid is embedded in the log file.
@@ -442,15 +451,15 @@ def default_tracer(inputLogFile,tracer=None):
                 tracer = "strace"
             else:
                 raise Exception("Unknown platform")
-    logging.info("Tracer "+tracer)
+    logging.info("Tracer " + tracer)
     return tracer
 
 
-def LoadIniFile(iniFilNam):
+def _load_init_file(iniFilNam):
     mapKV = {}
     try:
-        filOp =  open(iniFilNam)
-        logging.info("Init "+iniFilNam)
+        filOp = open(iniFilNam)
+        logging.info("Init " + iniFilNam)
     except IOError:
         return mapKV
     for linKV in filOp.readlines():
@@ -465,8 +474,9 @@ def LoadIniFile(iniFilNam):
     filOp.close()
     return mapKV
 
+
 # This returns a stream with each line written by strace or ltrace.
-def _create_event_log(argsCmd, aPid, inputLogFile, tracer ):
+def _create_calls_stream(argsCmd, aPid, inputLogFile, tracer):
     global G_Hostname
     global G_OSType
 
@@ -489,13 +499,13 @@ def _create_event_log(argsCmd, aPid, inputLogFile, tracer ):
 
     currWrkDir = os.getcwd()
     if inputLogFile:
-        logStream = open(inputLogFile)
+        calls_stream = open(inputLogFile)
         logging.info("File "+inputLogFile)
         logging.info("Logfile %s pid=%s" % (inputLogFile,aPid) )
 
         # There might be a context file with important information to reproduce the test.
         contextLogFile = os.path.splitext(inputLogFile)[0]+"."+"ini"
-        mapKV = LoadIniFile(contextLogFile)
+        mapKV = _load_init_file(contextLogFile)
 
         # The main process pid might be embedded in the log file name,
         # but preferably stored in the ini file.
@@ -511,7 +521,7 @@ def _create_event_log(argsCmd, aPid, inputLogFile, tracer ):
         sys.stdout.write("G_topProcessId=%d\n" % linux_api_definitions.G_topProcessId)
     else:
 
-        (linux_api_definitions.G_topProcessId, logStream)   = G_traceToTracer[tracer].LogFileStream(argsCmd,aPid)
+        (linux_api_definitions.G_topProcessId, calls_stream) = G_traceToTracer[tracer].LogFileStream(argsCmd,aPid)
         cim_objects_definitions.G_CurrentDirectory          = currWrkDir
         cim_objects_definitions.G_Today                     = dateTodayRun
         G_Hostname                                          = theHostNam
@@ -525,18 +535,18 @@ def _create_event_log(argsCmd, aPid, inputLogFile, tracer ):
     # Another possibility is to start a process or a thread which will monitor
     # the target process, and will write output information in a stream.
 
-    return logStream
+    return calls_stream
 
 
 # Global variables which must be reinitialised before a run.
 def _init_globals(withWarning):
-    linux_api_definitions.InitLinuxGlobals(withWarning)
+    linux_api_definitions.init_linux_globals(withWarning)
 
     cim_objects_definitions.init_global_objects()
 
 # Called after a run.
 def _exit_globals():
-    cim_objects_definitions.ExitGlobalObjects()
+    cim_objects_definitions.exit_global_objects()
 
 ################################################################################
 
@@ -549,9 +559,12 @@ def _calls_flow_class_factory(aggregator):
         # This is the required interface for aggregators.
         # The default base class does minimal statistics.
         class BatchFlowVoid(object):
+            def __init__(self):
+                self.m_calls_number = 0
+
             # For each function call.
             def SendBatch(self, oneBatch):
-                pass
+                self.m_calls_number += 1
 
             # At the end.
             def FactorizeOneFlow(self, verbose, batchConstructor):
@@ -559,13 +572,18 @@ def _calls_flow_class_factory(aggregator):
 
             def DumpFlowConstructor(self, batchDump, extra_header=None):
                 batchDump.Header(extra_header)
+                batchDump.m_strm.write("%s\n" % extra_header)
+                batchDump.m_strm.write("Number of function calls: %d\n" % self.m_calls_number)
                 batchDump.Footer()
 
         return BatchFlowVoid
 
     # This is temporary. Do this for each aggregator.
     if aggregator == "clusterize":
-        from . import dockit_aggregate_clusterize
+        if __package__:
+            from . import dockit_aggregate_clusterize
+        else:
+            import dockit_aggregate_clusterize
         return dockit_aggregate_clusterize.BatchFlow
 
     raise Exception("Invalid aggregator:%s", aggregator)
@@ -575,7 +593,9 @@ def _calls_flow_class_factory(aggregator):
 
 # This receives a stream of lines, each of them is a function call,
 # possibly unfinished/resumed/interrupted by a signal.
-def _create_map_flow_from_stream(verbose, withWarning, logStream, tracer, batchConstructor, aggregator):
+def _create_map_flow_from_stream(
+        verbose, withWarning,
+        calls_stream, tracer, batchConstructor, aggregator):
     # Here, we have an event log as a stream, which comes from a file (if testing),
     # the output of strace or anything else.
 
@@ -590,7 +610,7 @@ def _create_map_flow_from_stream(verbose, withWarning, logStream, tracer, batchC
     # line for the same call.
     # Some calls, for some reason, might stay "unfinished": Though,
     # they are still needed to rebuild the processes tree.
-    mapFlowsGenerator = G_traceToTracer[tracer].CreateFlowsFromLogger(verbose, logStream)
+    mapFlowsGenerator = G_traceToTracer[tracer].create_flows_from_calls_stream(verbose, calls_stream)
 
     # Maybe, some system calls are unfinished, i.e. the "resumed" part of the call
     # is never seen. They might be matched later.
@@ -628,12 +648,12 @@ fullMapParamsSummary = [
     "CIM_DataFile"]
 
 def _analyse_functions_calls_stream(
-        verbose, withWarning, logStream, tracer, outputFormat,
-        baseOutName, mapParamsSummary, summaryFormat, withDockerfile, aggregator):
-    if not baseOutName:
-        baseOutName = "results"
+        verbose, withWarning, calls_stream, tracer, outputFormat,
+        output_files_prefix, mapParamsSummary, summaryFormat, withDockerfile, aggregator):
+    if not output_files_prefix:
+        output_files_prefix = "results"
     if summaryFormat:
-        outputSummaryFile = baseOutName + ".summary." + summaryFormat.lower()
+        outputSummaryFile = output_files_prefix + ".summary." + summaryFormat.lower()
     else:
         outputSummaryFile = None
 
@@ -645,15 +665,20 @@ def _analyse_functions_calls_stream(
     else:
         batchConstructor = None
 
-    mapFlows = _create_map_flow_from_stream(verbose, withWarning, logStream, tracer, batchConstructor, aggregator)
+    mapFlows = _create_map_flow_from_stream(verbose, withWarning, calls_stream, tracer, batchConstructor, aggregator)
 
     linux_api_definitions.G_stackUnfinishedBatches.PrintUnfinished(sys.stdout)
 
-    if baseOutName and outputFormat:
-        outFile = baseOutName + "." + outputFormat.lower()
-        sys.stdout.write("Creating flow file:%s\n" % outFile)
-        outFd = open(outFile, "w")
-        batchDump = batchConstructor(outFd)
+    if output_files_prefix and outputFormat:
+        assert output_files_prefix[-1] != '.'
+        assert outputFormat[0] != '.'
+        print("output_files_prefix=", output_files_prefix)
+        print("outputFormat=", outputFormat)
+        outFile = output_files_prefix + "." + outputFormat.lower()
+        ## outFile = output_files_prefix + "." + outputFormat.lower()
+        sys.stdout.write("Creating flow file:%s. %d flows\n" % (outFile, len(mapFlows)))
+        output_stream = open(outFile, "w")
+        batchDump = batchConstructor(output_stream)
         batchDump.DocumentStart()
 
         for aPid in sorted(list(mapFlows.keys()),reverse=True):
@@ -661,7 +686,7 @@ def _analyse_functions_calls_stream(
             btchTree.DumpFlowConstructor(batchDump, "================== PID=%d"%aPid)
         batchDump.DocumentEnd()
         sys.stdout.write("Closing flow file:%s\n" % outFile)
-        outFd.close()
+        output_stream.close()
 
         if verbose: sys.stdout.write("\n")
 
@@ -673,12 +698,13 @@ def _analyse_functions_calls_stream(
     
     if withDockerfile:
         if outFile:
-            baseOutName, filOutExt = os.path.splitext(outFile)
+            output_files_prefix, filOutExt = os.path.splitext(outFile)
         elif outputSummaryFile:
-            baseOutName, filOutExt = os.path.splitext(outputSummaryFile)
+            output_files_prefix, filOutExt = os.path.splitext(outputSummaryFile)
         else:
-            baseOutName = "docker"
-        dockerDirName = baseOutName + ".docker"
+            output_files_prefix = "docker"
+        assert output_files_prefix[-1] != '.'
+        dockerDirName = output_files_prefix + ".docker"
         if os.path.exists(dockerDirName):
             shutil.rmtree(dockerDirName)
         os.makedirs(dockerDirName)
@@ -688,29 +714,89 @@ def _analyse_functions_calls_stream(
 
     return outputSummaryFile
 
+
 # Function called for unit tests by unittest.py
-def monitor_execution(
-        inputLogFile, tracer, topPid, baseOutName, outputFormat, verbose, mapParamsSummary,
+def test_from_file(
+        inputLogFile, tracer, topPid, output_files_prefix, outputFormat, verbose, mapParamsSummary,
         summaryFormat, withWarning, withDockerfile, updateServer, aggregator):
     assert isinstance(topPid, int)
-    logStream = _create_event_log([], topPid, inputLogFile, tracer )
+    calls_stream = _create_calls_stream([], topPid, inputLogFile, tracer)
     cim_objects_definitions.G_UpdateServer = updateServer
 
     # Check if there is a context file, which gives parameters such as the current directory,
     # necessary to reproduce the test in the same conditions.
 
     outputSummaryFile = _analyse_functions_calls_stream(
-        verbose, withWarning, logStream, tracer, outputFormat, baseOutName,
+        verbose, withWarning, calls_stream, tracer, outputFormat, output_files_prefix,
         mapParamsSummary, summaryFormat, withDockerfile, aggregator)
     return outputSummaryFile
+
+def _start_processing(argsCmd, aPid, inputLogFile, tracer, output_files_short_prefix):
+
+    calls_stream = _create_calls_stream(argsCmd, aPid, inputLogFile, tracer)
+
+    if output_files_short_prefix:
+        output_files_prefix = "%s.%s.%s" % ( output_files_short_prefix, tracer, linux_api_definitions.G_topProcessId )
+
+        # tee: This just needs to reimplement "readline()"
+        class TeeStream:
+            def __init__(self,logStrm):
+                self.m_logStrm = logStrm
+                assert output_files_prefix[-1] != '.'
+                logFilNam = output_files_prefix + ".log"
+                self.m_outFd = open( logFilNam, "w" )
+                print("Creating log file:%s" % logFilNam )
+
+            def readline(self):
+                # sys.stdout.write("xxx\n" )
+                aLin = self.m_logStrm.readline()
+                # sys.stdout.write("tee=%s" % aLin)
+                self.m_outFd.write(aLin)
+                return aLin
+
+        calls_stream = TeeStream(calls_stream)
+
+        # If not replaying, saves all parameters in an ini file.
+        if not cim_objects_definitions.G_ReplayMode:
+            iniFilNam = output_files_prefix + "ini"
+            iniFd = open(iniFilNam,"w")
+
+            # At this stage, we know what is the top process id,
+            # because the command is created, or the process attached.
+            iniFd.write('TopProcessId=%s\n' % linux_api_definitions.G_topProcessId )
+
+            iniFd.write('CurrentDirectory=%s\n' % os.getcwd() )
+            # Necessary because ltrace and strace do not write the date.
+            # Done before testing in case the test stops next day.
+            iniFd.write('CurrentDate=%s\n' % cim_objects_definitions.G_Today)
+            iniFd.write('CurrentHostname=%s\n' % socket.gethostname())
+            iniFd.write('CurrentOSType=%s\n' % sys.platform)
+            iniFd.close()
+    else:
+        output_files_prefix = "dockit_output_" + tracer
+
+    assert output_files_prefix[-1] != '.'
+
+    # In normal usage, the summary output format is the same as the output format for calls.
+    _analyse_functions_calls_stream(
+        verbose,
+        withWarning,
+        calls_stream,
+        tracer,
+        outputFormat,
+        output_files_prefix,
+        mapParamsSummary,
+        summaryFormat,
+        withDockerfile,
+        aggregator)
 
 if __name__ == '__main__':
     try:
         optsCmd, argsCmd = getopt.getopt(sys.argv[1:],
-                "hvws:Dp:f:F:r:i:l:t:S:a:",
-                ["help","verbose","warning","summary","summary-format",
-                 "docker","pid","format","repetition","input",
-                 "log","tracer","server","aggregator"])
+                "hvws:Dp:f:F:i:l:t:S:a:",
+                ["help","verbose","warning","summary=",
+                 "dockerfile","pid=","format=","summary-format=","input=",
+                 "log=","tracer=","server=","aggregator="])
     except getopt.GetoptError as err:
         # print help information and exit:
         print_dockit_usage(2,err) # will print something like "option -a not recognized"
@@ -730,10 +816,9 @@ if __name__ == '__main__':
 
     aPid = -1
     outputFormat = "TXT" # Default output format of the generated files.
-    szWindow = 0
     inputLogFile = None
     summaryFormat = None
-    outputLogFilePrefix = None
+    output_files_short_prefix = None
     tracer = None
     aggregator = None
 
@@ -752,13 +837,10 @@ if __name__ == '__main__':
             outputFormat = aVal.upper()
         elif anOpt in ("-F", "--summary_format"):
             summaryFormat = aVal.upper()
-        elif anOpt in ("-w", "--window"):
-            szWindow = int(aVal)
-            raise Exception("Sliding window not implemented yet")
         elif anOpt in ("-i", "--input"):
             inputLogFile = aVal
         elif anOpt in ("-l", "--log"):
-            outputLogFilePrefix = aVal
+            output_files_short_prefix = aVal
         elif anOpt in ("-t", "--tracer"):
             tracer = aVal
         elif anOpt in ("-S", "--server"):
@@ -770,61 +852,9 @@ if __name__ == '__main__':
         else:
             assert False, "Unhandled option"
 
-
     tracer = default_tracer(inputLogFile, tracer)
-    logStream = _create_event_log(argsCmd, aPid, inputLogFile, tracer)
+    _start_processing(argsCmd, aPid, inputLogFile, tracer, output_files_short_prefix)
 
-    if outputLogFilePrefix:
-        fullPrefixNoExt = "%s.%s.%s." % ( outputLogFilePrefix, tracer, linux_api_definitions.G_topProcessId )
-
-        # tee: This just needs to reimplement "readline()"
-        class TeeStream:
-            def __init__(self,logStrm):
-                self.m_logStrm = logStrm
-                logFilNam = fullPrefixNoExt + "log"
-                self.m_outFd = open( logFilNam, "w" )
-                print("Creating log file:%s" % logFilNam )
-
-            def readline(self):
-                # sys.stdout.write("xxx\n" )
-                aLin = self.m_logStrm.readline()
-                # sys.stdout.write("tee=%s" % aLin)
-                self.m_outFd.write(aLin)
-                return aLin
-
-        logStream = TeeStream(logStream)
-
-        # If not replaying, saves all parameters in an ini file.
-        if not cim_objects_definitions.G_ReplayMode:
-            iniFilNam = fullPrefixNoExt + "ini"
-            iniFd = open(iniFilNam,"w")
-
-            # At this stage, we know what is the top process id,
-            # because the command is created, or the process attached.
-            iniFd.write('TopProcessId=%s\n' % linux_api_definitions.G_topProcessId )
-
-            iniFd.write('CurrentDirectory=%s\n' % os.getcwd() )
-            # Necessary because ltrace and strace do not write the date.
-            # Done before testing in case the test stops next day.
-            iniFd.write('CurrentDate=%s\n' % cim_objects_definitions.G_Today)
-            iniFd.write('CurrentHostname=%s\n' % socket.gethostname())
-            iniFd.write('CurrentOSType=%s\n' % sys.platform)
-            iniFd.close()
-    else:
-        fullPrefixNoExt = "dockit_output_" + tracer
-
-    # In normal usage, the summary output format is the same as the output format for calls.
-    _analyse_functions_calls_stream(
-        verbose,
-        withWarning,
-        logStream,
-        tracer,
-        outputFormat,
-        fullPrefixNoExt,
-        mapParamsSummary,
-        summaryFormat,
-        withDockerfile,
-        aggregator)
 
 ################################################################################
 # The End.

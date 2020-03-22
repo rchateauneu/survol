@@ -11,6 +11,7 @@ import tempfile
 import unittest
 import shutil
 import rdflib
+import subprocess
 
 dockit_output_files_path = os.path.join( os.path.dirname(__file__), "dockit_output_files" )
 # This is the expected content of some generated files.
@@ -200,7 +201,6 @@ class DockitComponentsTest(unittest.TestCase):
                     if tupl[0][idx-2] != ')':
                         raise Exception("Fail idx2: len=%d %d SHOULD BE:%d; S=%s / '%s'" % ( len(tupl[0]), idx, tupl[2], tupl[0], tupl[0][idx-2:] ) )
 
-    @unittest.skip("Disabled for the moment.")
     def test_usage(self):
         # Conventional value so this function does not exit.
         dockit.print_dockit_usage(999)
@@ -211,6 +211,81 @@ class DockitComponentsTest(unittest.TestCase):
         oneLine = ""
         idxStart = 0
         batch_core.InitAfterPid(oneLine, idxStart)
+
+
+# This tests some simple command enterered from the command line,
+# and not from the internal function.
+class DockitCommandLineTest(unittest.TestCase):
+
+    @staticmethod
+    def run_command(one_command):
+        # __file__ could be 'C:\\Python27\\lib\\site-packages\\survol\\scripts\\dockit.pyc'
+        #dockit_pathname = os.path.join(os.path.dirname(dockit.__file__), "dockit.py")
+        #dockit_command = "python %s %s" % (dockit_pathname, one_command)
+        dockit_dirname = os.path.dirname(dockit.__file__)
+        dockit_command = "cd %s&python dockit.py %s" % (dockit_dirname, one_command)
+        print("dockit_command=", dockit_command)
+
+        print("dockit_command=", dockit_command)
+        if is_platform_linux:
+            return subprocess.check_output(dockit_command)
+        else:
+            return subprocess.check_output(dockit_command, shell=True)
+
+    def test_usage(self):
+        command_result = DockitCommandLineTest.run_command("--help")
+        self.assertTrue(command_result.startswith("DockIT"))
+
+    @unittest.skipIf(not is_platform_linux or is_travis_machine(), "This is not a Linux machine. Test skipped.")
+    def test_linux_ls(self):
+        command_result = DockitCommandLineTest.run_command("-c 'ls' -D -f JSON -F TXT ")
+        print("command_result=", command_result)
+
+    @unittest.skipIf(True or not is_platform_windows or is_travis_machine(), "NOT IMPLEMENTED YET.")
+    def test_windows_dir(self):
+        command_result = DockitCommandLineTest.run_command("-c 'ls'")
+        print("command_result=", command_result)
+
+    def test_non_existent_input_file(self):
+        try:
+            DockitCommandLineTest.run_command("--input does_not_exist")
+            self.fail("An exception should be thrown")
+        except Exception as exc:
+            print("exc=", exc)
+
+    # This processes an existing input file by running the script dockit.py.
+    def test_sample_shell_file(self):
+        input_log_file = path_prefix_input_file("sample_shell.strace.log")
+        output_prefix = path_prefix_output_result("pytest_test_sample_shell_file_%d" % os.getpid())
+
+        dockit_command = "--input %s --dockerfile --log %s -t strace" % (
+            input_log_file,
+            output_prefix)
+        command_result = DockitCommandLineTest.run_command(dockit_command)
+
+        # The pid 4401 comes from the input log file.
+        output_file_path = output_prefix + ".strace.4401.txt"
+
+        expected_output = [
+            "================== PID=18198\n",
+            "Number of function calls: 29\n",
+            "================== PID=18196\n",
+            "Number of function calls: 84\n",
+            "================== PID=18195\n",
+            "Number of function calls: 2754\n",
+            "================== PID=18194\n",
+            "Number of function calls: 77\n",
+            "================== PID=18193\n",
+            "Number of function calls: 12\n",
+            "================== PID=4401\n",
+            "Number of function calls: 66\n",
+        ]
+
+        with open(output_file_path) as output_file_descriptor:
+            output_file_content = output_file_descriptor.readlines()
+
+        self.assertTrue(output_file_content == expected_output)
+
 
 class DockitSummaryXMLTest(unittest.TestCase):
     @staticmethod
@@ -302,11 +377,11 @@ class DockitSummaryXMLTest(unittest.TestCase):
         tmpFilSTrace.write(tstLogFileSTrace)
         tmpFilSTrace.close()
 
-        outputSummaryFile = dockit.monitor_execution(
+        outputSummaryFile = dockit.test_from_file(
             inputLogFile=tmpFilSTrace.name,
             tracer="strace",
             topPid=19351,
-            baseOutName=None,
+            output_files_prefix=None,
             outputFormat=None,
             verbose=False,
             mapParamsSummary=dockit.fullMapParamsSummary,
@@ -374,11 +449,11 @@ class DockitSummaryXMLTest(unittest.TestCase):
         tmpFilSTrace.write(tstLogFileSTrace)
         tmpFilSTrace.close()
 
-        outputSummaryFile = dockit.monitor_execution(
+        outputSummaryFile = dockit.test_from_file(
             inputLogFile=tmpFilSTrace.name,
             tracer="strace",
             topPid=22029,
-            baseOutName=None,
+            output_files_prefix=None,
             outputFormat=None,
             verbose=False,
             mapParamsSummary=dockit.fullMapParamsSummary,
@@ -450,11 +525,11 @@ class DockitSummaryXMLTest(unittest.TestCase):
         tmpFilSTrace.write(tstLogFileLTrace)
         tmpFilSTrace.close()
 
-        outputSummaryFile = dockit.monitor_execution(
+        outputSummaryFile = dockit.test_from_file(
             inputLogFile=tmpFilSTrace.name,
             tracer="ltrace",
             topPid=21256,
-            baseOutName=None,
+            output_files_prefix=None,
             outputFormat=None,
             verbose=False,
             mapParamsSummary=dockit.fullMapParamsSummary,
@@ -482,11 +557,11 @@ class DockitTraceFilesTest(unittest.TestCase):
     """
 
     def test_file_strace_txt(self):
-        dockit.monitor_execution(
+        dockit.test_from_file(
             inputLogFile=path_prefix_input_file("sample_shell.strace.log"),
             tracer="strace",
             topPid=0,
-            baseOutName=path_prefix_output_result("sample_shell_strace_tst_txt"),
+            output_files_prefix=path_prefix_output_result("sample_shell_strace_tst_txt"),
             outputFormat="TXT",
             verbose=True,
             mapParamsSummary=["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"],
@@ -501,11 +576,11 @@ class DockitTraceFilesTest(unittest.TestCase):
         check_file_content("sample_shell_strace_tst_txt.summary.txt")
 
     def test_file_strace_csv_docker(self):
-        dockit.monitor_execution(
+        dockit.test_from_file(
             inputLogFile=path_prefix_input_file("sample_shell.strace.log"),
             tracer="strace",
             topPid=0,
-            baseOutName=path_prefix_output_result("sample_shell_strace_tst_csv" ),
+            output_files_prefix=path_prefix_output_result("sample_shell_strace_tst_csv"),
             outputFormat="CSV",
             verbose=True,
             mapParamsSummary=["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"],
@@ -523,11 +598,11 @@ class DockitTraceFilesTest(unittest.TestCase):
 
     def test_file_strace_json(self):
 
-        dockit.monitor_execution(
+        dockit.test_from_file(
             inputLogFile=path_prefix_input_file("sample_shell.strace.log"),
             tracer="strace",
             topPid=0,
-            baseOutName=path_prefix_output_result("sample_shell_strace_tst_json"),
+            output_files_prefix=path_prefix_output_result("sample_shell_strace_tst_json"),
             outputFormat="JSON",
             verbose=True,
             mapParamsSummary=["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"],
@@ -543,11 +618,11 @@ class DockitTraceFilesTest(unittest.TestCase):
 
 
     def test_file_ltrace_docker(self):
-        dockit.monitor_execution(
+        dockit.test_from_file(
             inputLogFile = path_prefix_input_file("sample_shell.ltrace.log"),
             tracer="ltrace",
             topPid=0,
-            baseOutName= path_prefix_output_result("sample_shell_ltrace_tst_docker"),
+            output_files_prefix= path_prefix_output_result("sample_shell_ltrace_tst_docker"),
             outputFormat="JSON",
             verbose=True,
             mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
@@ -596,11 +671,11 @@ class DockitTraceFilesTest(unittest.TestCase):
 
                 for outputFormat in ["JSON"]:
                     # In tests, the summary output format is always XML.
-                    dockit.monitor_execution(
+                    dockit.test_from_file(
                         inputLogFile=inputLogFile,
                         tracer=tracer,
                         topPid=-1,
-                        baseOutName=path_prefix_output_result( baseName ),
+                        output_files_prefix=path_prefix_output_result(baseName),
                         outputFormat=outputFormat,
                         verbose=False,
                         mapParamsSummary=dockit.fullMapParamsSummary,
@@ -617,7 +692,6 @@ class DockitProcessesTest(unittest.TestCase):
 
     @unittest.skipIf(not is_platform_linux or is_travis_machine(), "This is not a Linux machine. Test skipped.")
     def test_strace_ls(self):
-        import subprocess
         # stdout=FNULL, stderr=subprocess.STDOUT, subprocess.PIPE
         FNULL = open(os.devnull, 'r')
         sub_proc = subprocess.Popen(['bash', '-c', 'sleep 5;ls /tmp'],
@@ -630,11 +704,11 @@ class DockitProcessesTest(unittest.TestCase):
 
         # Avoids exception: "UnsupportedOperation: redirected stdin is pseudofile, has no fileno()"
         sys.stdin = open(os.devnull)
-        dockit.monitor_execution(
+        dockit.test_from_file(
             inputLogFile = None,
             tracer="strace",
             topPid=sub_proc.pid,
-            baseOutName=path_prefix_output_result("result_ls_strace"),
+            output_files_prefix=path_prefix_output_result("result_ls_strace"),
             outputFormat="TXT",
             verbose=True,
             mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
@@ -657,11 +731,11 @@ class DockitToRDF(unittest.TestCase):
     """
 
     def test_create_RDF_file(self):
-        dockit.monitor_execution(
+        dockit.test_from_file(
             inputLogFile=path_prefix_input_file("sample_shell.ltrace.log"),
             tracer="ltrace",
             topPid=0,
-            baseOutName=path_prefix_output_result("sample_shell_ltrace_tst_create_RDF"),
+            output_files_prefix=path_prefix_output_result("sample_shell_ltrace_tst_create_RDF"),
             outputFormat="JSON",
             verbose=True,
             mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
@@ -691,11 +765,11 @@ class DockitEventsTest(unittest.TestCase):
 
     @unittest.skipIf(is_travis_machine(),"test_file_events does not work on Travis server.")
     def test_file_events(self):
-        dockit.monitor_execution(
+        dockit.test_from_file(
             inputLogFile = path_prefix_input_file("dockit_ps_ef.strace.log"),
             tracer="strace",
             topPid=0,
-            baseOutName= path_prefix_output_result("dockit_ps_ef.strace"),
+            output_files_prefix= path_prefix_output_result("dockit_ps_ef.strace"),
             outputFormat="JSON",
             verbose=False,
             mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],

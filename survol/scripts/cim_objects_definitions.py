@@ -1507,7 +1507,7 @@ def init_global_objects():
     CreateObjectPath(CIM_OperatingSystem)
     CreateObjectPath(CIM_NetworkAdapter, socket.gethostbyname(socket.gethostname()))
 
-def ExitGlobalObjects():
+def exit_global_objects():
     # It is also used to store the triples in a RDF file, which is created by the destructor.
     global G_httpClient
     # Flushes the data to a file or possibly a Survol agent.
@@ -1891,7 +1891,7 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
             # __libc_start_main([ "python", "TestProgs/mineit_mysql_select.py" ] <unfinished ...>
             #    return objInstance.Executable.find("/python") >= 0 or objInstance.Executable.startswith("python")
 
-            lstAccessedPackages, unpackagedAccessedCodeFiles = G_FilesToPackagesCache.GetPackagesList(
+            lstAccessedPackages, unpackagedAccessedCodeFiles = G_FilesToPackagesCache.get_packages_list(
                 self.m_accessedCodeFiles)
 
             fdDockerFile.write("# Package installations:\n")
@@ -1944,7 +1944,7 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
     # Install or copy the executables.
     # Beware that some of them are specifically installed: Python, Perl.
     fdDockerFile.write("################################# Executables:\n")
-    lstPackages, unknownBinaries = G_FilesToPackagesCache.GetPackagesList(lstBinaryExecutables)
+    lstPackages, unknownBinaries = G_FilesToPackagesCache.get_packages_list(lstBinaryExecutables)
     for anExec in sorted(lstPackages):
         InstallLinuxPackage(fdDockerFile, anExec)
     fdDockerFile.write("\n")
@@ -1967,7 +1967,7 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
         "Other TCP/IP sockets",
     ])
 
-    lstPackagesData, unpackagedDataFiles = G_FilesToPackagesCache.GetPackagesList(accessedDataFiles)
+    lstPackagesData, unpackagedDataFiles = G_FilesToPackagesCache.get_packages_list(accessedDataFiles)
 
     setPythonModules, unknownDataFiles = FilesToPythonModules(unpackagedDataFiles)
 
