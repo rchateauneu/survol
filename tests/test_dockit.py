@@ -223,7 +223,7 @@ class DockitCommandLineTest(unittest.TestCase):
         dockit_dirname = os.path.dirname(dockit.__file__)
 
         if is_platform_linux:
-            dockit_command = "cd %;&python dockit.py %s" % (dockit_dirname, one_command)
+            dockit_command = "cd %s;python dockit.py %s" % (dockit_dirname, one_command)
             print("dockit_command=", dockit_command)
             return subprocess.check_output(dockit_command, shell=True)
         else:
