@@ -5,8 +5,12 @@
 
 import sys
 import datetime
+
 # TODO: It should not depend on this package.
-from . import linux_api_definitions
+if __name__ == '__main__':
+    import linux_api_definitions
+else:
+    from . import linux_api_definitions
 
 def _SignatureForRepetitions(batchRange):
     return "+".join( [ aBtch.GetSignatureWithArgs() for aBtch in batchRange ] )

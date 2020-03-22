@@ -20,10 +20,17 @@ if sys.version_info < (3,):
 else:
     import queue
 
-from . import pydbg
-from .pydbg import defines
-from .pydbg import windows_h
-from .pydbg import utils
+if __package__:
+    from . import pydbg
+    from .pydbg import defines
+    from .pydbg import windows_h
+    from .pydbg import utils
+else:
+    import pydbg
+    from pydbg import defines
+    from pydbg import windows_h
+    from pydbg import utils
+
 
 ################################################################################
 def create_pydbg():
@@ -439,7 +446,7 @@ class Win32Tracer:
         if not aPid:
             raise Exception("LogFileStream: process id should not be None")
         if extCommand:
-            raise Exception("LogFileStream: command should not None")
+            raise Exception("LogFileStream: command should not be None")
 
         self._root_pid = aPid
 
@@ -475,7 +482,7 @@ class Win32Tracer:
 
         return (self._root_pid, self._queue)
 
-    def CreateFlowsFromLogger(self, verbose, logStream):
+    def create_flows_from_calls_stream(self, verbose, logStream):
 
         assert isinstance(logStream, queue.Queue)
 
@@ -497,7 +504,7 @@ class Win32Tracer:
                 # We could use the queue to signal the end of the loop.
                 batch_core = logStream.get(True, timeout = queue_timeout)
             except queue.Empty:
-                logging.info("Win32Tracer.CreateFlowsFromLogger timeout. Waiting.")
+                logging.info("Win32Tracer.create_flows_from_calls_stream timeout. Waiting.")
                 continue
 
             assert isinstance(batch_core, Win32BatchCore)

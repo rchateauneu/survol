@@ -12,7 +12,11 @@ import sys
 import logging
 import signal
 import subprocess
-from . import cim_objects_definitions
+
+if __package__:
+    from . import cim_objects_definitions
+else:
+    import cim_objects_definitions
 
 ################################################################################
 
@@ -561,7 +565,7 @@ class BatchLetBase(my_with_metaclass(BatchMeta)):
 # cannot be used. There are predefined values.
 G_mapFilDesToPathName = None
 
-def InitLinuxGlobals(withWarning):
+def init_linux_globals(withWarning):
     global G_stackUnfinishedBatches
     global G_mapFilDesToPathName
 
@@ -1962,7 +1966,7 @@ class STraceTracer:
             logging.info("Process %s\n" % aPid)
         return _GenerateLinuxStreamFromCommand(aCmd, aPid)
 
-    def CreateFlowsFromLogger(self, verbose, logStream):
+    def create_flows_from_calls_stream(self, verbose, logStream):
         return _CreateFlowsFromGenericLinuxLog(verbose, logStream, "strace")
 
     def Version(self):
@@ -2035,7 +2039,7 @@ class LTraceTracer:
     # [pid 28735] 08:51:40.616610 <... Py_Main resumed> )                                                               = 0 <1.092079>
     # [pid 28735] 08:51:40.616913 exit_group@SYS(0 <no return ...>
 
-    def CreateFlowsFromLogger(self, verbose, logStream):
+    def create_flows_from_calls_stream(self, verbose, logStream):
         # The output format of the command ltrace seems very similar to strace
         # so for the moment, no reason not to use it.
         return _CreateFlowsFromGenericLinuxLog(verbose, logStream, "ltrace")
