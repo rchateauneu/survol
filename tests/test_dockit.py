@@ -233,7 +233,7 @@ class DockitCommandLineTest(unittest.TestCase):
 
     def test_usage(self):
         command_result = DockitCommandLineTest.run_command("--help")
-        self.assertTrue(command_result.startswith("DockIT"))
+        self.assertTrue(command_result.startswith(b"DockIT"))
 
     @unittest.skipIf(not is_platform_linux or is_travis_machine(), "This is not a Linux machine. Test skipped.")
     def test_linux_ls(self):
@@ -261,6 +261,7 @@ class DockitCommandLineTest(unittest.TestCase):
             input_log_file,
             output_prefix)
         command_result = DockitCommandLineTest.run_command(dockit_command)
+        print("command_result=", command_result)
 
         # The pid 4401 comes from the input log file.
         output_file_path = output_prefix + ".strace.4401.txt"
