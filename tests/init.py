@@ -231,15 +231,12 @@ def start_cgiserver(agent_url, agent_port):
     INFO("CGI Survol agent OK")
     return agent_process
 
-
 def stop_cgiserver(agent_process):
-    print("tearDownModule")
     if agent_process:
         agent_process.terminate()
         agent_process.join()
 
 def start_wsgiserver(agent_url, agent_port):
-    print("setUpModule")
     try:
         # No SVG because Travis might not have dot/Graphviz. Also, the script must be compatible with WSGI.
         agent_process = None
