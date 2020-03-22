@@ -220,16 +220,15 @@ class DockitCommandLineTest(unittest.TestCase):
     @staticmethod
     def run_command(one_command):
         # __file__ could be 'C:\\Python27\\lib\\site-packages\\survol\\scripts\\dockit.pyc'
-        #dockit_pathname = os.path.join(os.path.dirname(dockit.__file__), "dockit.py")
-        #dockit_command = "python %s %s" % (dockit_pathname, one_command)
         dockit_dirname = os.path.dirname(dockit.__file__)
-        dockit_command = "cd %s&python dockit.py %s" % (dockit_dirname, one_command)
-        print("dockit_command=", dockit_command)
 
-        print("dockit_command=", dockit_command)
         if is_platform_linux:
-            return subprocess.check_output(dockit_command)
+            dockit_command = "cd %;&python dockit.py %s" % (dockit_dirname, one_command)
+            print("dockit_command=", dockit_command)
+            return subprocess.check_output(dockit_command, shell=True)
         else:
+            dockit_command = "cd %s&python dockit.py %s" % (dockit_dirname, one_command)
+            print("dockit_command=", dockit_command)
             return subprocess.check_output(dockit_command, shell=True)
 
     def test_usage(self):
