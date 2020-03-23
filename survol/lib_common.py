@@ -871,9 +871,19 @@ def ErrorMessageHtml(message):
 		except KeyError:
 			pass
 
+		# 'SERVER_SOFTWARE': 'SimpleHTTP/0.6 Python/2.7.10', 'WSGIServer/0.2'
+		try:
+			server_software = os.environ['SERVER_SOFTWARE']
+		except KeyError:
+			server_software = "Unknown_SERVER_SOFTWARE"
 		lib_util.InfoMessageHtml(message)
-		DEBUG("ErrorMessageHtml about to leave")
-		sys.exit(0)
+		DEBUG("ErrorMessageHtml about to leave. server_software=%s" % server_software)
+
+		if server_software.find('WSGIServer') >= 0:
+			# WSGI server is persistent and should not exit.
+			raise RuntimeError("Server software=" + server_software)
+		else:
+			sys.exit(0)
 	else:
 		# Instead of exiting, it throws an exception which can be used by merge_scripts.py
 		DEBUG("ErrorMessageHtml DISABLED")
