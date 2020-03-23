@@ -263,7 +263,7 @@ class DockitCommandLineTest(unittest.TestCase):
         print("command_result=", command_result)
 
     def test_file_oracle_db_data_strace(self):
-        input_log_file = path_prefix_input_file("oracle_db_data.strace.log")
+        input_log_file = path_prefix_input_file("oracle_db_data.strace.5718.log")
         output_prefix = path_prefix_output_result("pytest_oracle_db_data_strace_%d" % os.getpid())
 
         dockit_command = "--input %s --dockerfile --log %s -t strace" % (
@@ -307,7 +307,7 @@ class DockitCommandLineTest(unittest.TestCase):
         self.assertTrue(output_file_content == expected_output)
 
     def test_file_sqlplus_strace(self):
-        input_log_file = path_prefix_input_file("sqlplus.strace.log")
+        input_log_file = path_prefix_input_file("sqlplus.strace.4401.log")
         output_prefix = path_prefix_output_result("pytest_sqlplus_strace_%d" % os.getpid())
 
         dockit_command = "--input %s --dockerfile --log %s -t strace" % (
