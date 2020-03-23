@@ -502,7 +502,6 @@ def DisplayHtmlTextHeader(page_title):
     WrtAsUtf( """
     <head>
         <title>%s</title>
-        <link rel='stylesheet' type='text/css' href=/ui/css/html_exports.css>
         <link rel='stylesheet' type='text/css' href='/survol/www/css/html_exports.css'>
         <link rel='stylesheet' type='text/css' href='../survol/www/css/html_exports.css'>
     </head>
