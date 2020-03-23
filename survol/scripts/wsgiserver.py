@@ -41,14 +41,12 @@ class OutputMachineWsgi:
             sys.stderr.write("Content: Warning OutputMachineWsgi.Content HeaderWriter not called.\n")
         self.m_header_called = False
         str_value = self.m_output.getvalue()
-        sys.stderr.write("Content A: type(str_value)=%s len(str_value)=%d.\n" % ( str(type(str_value)), len(str_value)))
         if sys.version_info >= (3,):
             if type(str_value) == str:
                 str_value = str_value.encode()
         else:
             if type(str_value) == unicode:
                 str_value = str_value.encode()
-        sys.stderr.write("Content B: type(str_value)=%s len(str_value)=%d.\n" % ( str(type(str_value)), len(str_value)))
         return str_value
 
     # extraArgs is an array of key-value tuples.
@@ -159,7 +157,9 @@ def application_ok(environ, start_response):
     sys.stderr.write("application_ok: pathInfo=%s\n" % pathInfo)
 
     # Example: pathInfo=/survol/www/index.htm
-    if pathInfo.find("/survol/www/") >= 0 or pathInfo.find("/ui/css") >= 0 :
+    if pathInfo.find("/survol/www/") >= 0 \
+            or pathInfo.find("/ui/css") >= 0 \
+            or pathInfo == '/favicon.ico':
         return app_serve_file(pathInfo, start_response)
 
     pathInfo = pathInfo.replace("/",".")
@@ -167,7 +167,10 @@ def application_ok(environ, start_response):
     modulePrefix = "survol."
     htbinIndex = pathInfo.find(modulePrefix)
 
-    assert pathInfo.endswith(".py")
+    if not pathInfo.endswith(".py"):
+        sys.stderr.write("application_ok (1): pathInfo=%s should be a Python script\n" % pathInfo)
+        raise Exception("application_ok: pathInfo=%s is not a Python script" % pathInfo)
+
     pathInfo = pathInfo[htbinIndex + len(modulePrefix):-3] # "Strips ".py" at the end.
 
     # ["sources_types","enumerate_CIM_LogicalDisk"]
@@ -199,7 +202,7 @@ def application_ok(environ, start_response):
         # Tested with Python2 on Windows.
 
         # TODO: Strange: Here, this load lib_util a second time.
-        sys.stderr.write("application_ok: pathInfo=%s\n" % pathInfo)
+        sys.stderr.write("application_ok: Not dot in pathInfo=%s\n" % pathInfo)
         the_module = importlib.import_module(pathInfo)
 
         # TODO: Apparently, if lib_util is imported again, it seems its globals are initialised again. NOT SURE...
@@ -210,11 +213,13 @@ def application_ok(environ, start_response):
 
     try:
         the_module.Main()
+    except RuntimeError as exc:
+    # Minor error thrown by ErrorMessageHtml
+        sys.stderr.write(__file__ + ": application_ok runtime-error caught %s in Main()\n" % exc)
+        sys.stderr.write(__file__ + ": application_ok runtime-error exception=%s\n" % traceback.format_exc())
     except Exception as exc:
         sys.stderr.write(__file__ + ": application_ok caught %s in Main()\n" % exc)
-
         sys.stderr.write(__file__ + ": application_ok exception=%s\n" % traceback.format_exc() )
-
         raise
 
     try:
