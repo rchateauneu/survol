@@ -462,8 +462,7 @@ def _load_init_file(ini_pathname):
         ini_file = open(ini_pathname)
         logging.info("Init " + ini_pathname)
     except IOError:
-        sys.stdout.write("Error opening ini file:%s\n" % ini_pathname)
-        return ini_map_key_value_pairs
+        raise Exception("Error opening ini file:%s\n" % ini_pathname)
     for line_key_value in ini_file.readlines():
         stripped_key_value = line_key_value.strip()
         if not stripped_key_value: continue
