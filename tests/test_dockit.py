@@ -252,10 +252,30 @@ class DockitCommandLineTest(unittest.TestCase):
         except Exception as exc:
             print("exc=", exc)
 
+    def test_file_sample_shell_ltrace(self):
+        input_log_file = path_prefix_input_file("sample_shell.ltrace.log")
+        output_prefix = path_prefix_output_result("pytest_sample_shell_ltrace_%d" % os.getpid())
+
+        dockit_command = "--input %s --dockerfile --log %s -t ltrace" % (
+            input_log_file,
+            output_prefix)
+        command_result = DockitCommandLineTest.run_command(dockit_command)
+        print("command_result=", command_result)
+
+    def test_file_oracle_db_data_strace(self):
+        input_log_file = path_prefix_input_file("oracle_db_data.strace.log")
+        output_prefix = path_prefix_output_result("pytest_oracle_db_data_strace_%d" % os.getpid())
+
+        dockit_command = "--input %s --dockerfile --log %s -t strace" % (
+            input_log_file,
+            output_prefix)
+        command_result = DockitCommandLineTest.run_command(dockit_command)
+        print("command_result=", command_result)
+
     # This processes an existing input file by running the script dockit.py.
-    def test_sample_shell_file(self):
+    def test_file_sample_shell_strace(self):
         input_log_file = path_prefix_input_file("sample_shell.strace.log")
-        output_prefix = path_prefix_output_result("pytest_test_sample_shell_file_%d" % os.getpid())
+        output_prefix = path_prefix_output_result("pytest_sample_shell_strace_%d" % os.getpid())
 
         dockit_command = "--input %s --dockerfile --log %s -t strace" % (
             input_log_file,
@@ -285,6 +305,16 @@ class DockitCommandLineTest(unittest.TestCase):
             output_file_content = output_file_descriptor.readlines()
 
         self.assertTrue(output_file_content == expected_output)
+
+    def test_file_sqlplus_strace(self):
+        input_log_file = path_prefix_input_file("sqlplus.strace.log")
+        output_prefix = path_prefix_output_result("pytest_sqlplus_strace_%d" % os.getpid())
+
+        dockit_command = "--input %s --dockerfile --log %s -t strace" % (
+            input_log_file,
+            output_prefix)
+        command_result = DockitCommandLineTest.run_command(dockit_command)
+        print("command_result=", command_result)
 
 
 class DockitSummaryXMLTest(unittest.TestCase):
