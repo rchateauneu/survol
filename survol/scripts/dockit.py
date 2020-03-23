@@ -455,24 +455,28 @@ def default_tracer(inputLogFile, tracer=None):
     return tracer
 
 
-def _load_init_file(iniFilNam):
-    mapKV = {}
+def _load_init_file(ini_pathname):
+    sys.stdout.write("Loading ini file:%s\n" % ini_pathname)
+    ini_map_key_value_pairs = {}
     try:
-        filOp = open(iniFilNam)
-        logging.info("Init " + iniFilNam)
+        ini_file = open(ini_pathname)
+        logging.info("Init " + ini_pathname)
     except IOError:
-        return mapKV
-    for linKV in filOp.readlines():
-        clnKV = linKV.strip()
-        if not clnKV: continue
-        if clnKV[0] == ';': continue
-        idxEq = clnKV.find('=')
-        if idxEq < 0: continue
-        prmKey = clnKV[:idxEq]
-        prmVal = clnKV[idxEq+1:]
-        mapKV[prmKey] = prmVal
-    filOp.close()
-    return mapKV
+        sys.stdout.write("Error opening ini file:%s\n" % ini_pathname)
+        return ini_map_key_value_pairs
+    for line_key_value in ini_file.readlines():
+        stripped_key_value = line_key_value.strip()
+        if not stripped_key_value: continue
+        if stripped_key_value[0] == ';': continue
+        index_equal = stripped_key_value.find('=')
+        if index_equal < 0: continue
+        string_key = stripped_key_value[:index_equal]
+        string_val = stripped_key_value[index_equal+1:]
+        ini_map_key_value_pairs[string_key] = string_val
+        sys.stdout.write("Ini line:%s %s=%s\n" % (line_key_value, string_key, string_val))
+    sys.stdout.write("Closing ini file:%s\n" % ini_pathname)
+    ini_file.close()
+    return ini_map_key_value_pairs
 
 
 # This returns a stream with each line written by strace or ltrace.
