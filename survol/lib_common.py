@@ -152,9 +152,9 @@ def copy_to_output_destination(logfil, svg_out_filnam, out_dest):
 # TODO: Consider using the Python module pydot,
 # but anyway it needs to have graphviz already installed.
 # Also, creating an intermediary files helps debugging.
-def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest ):
+def _dot_to_svg(dot_filnam_after, logfil, viztype, out_dest):
 	DEBUG("viztype=%s",viztype)
-	tmpSvgFil = TmpFile("Dot2Svg","svg")
+	tmpSvgFil = TmpFile("_dot_to_svg","svg")
 	svg_out_filnam = tmpSvgFil.Name
 	# dot -Kneato
 
@@ -206,14 +206,14 @@ def Dot2Svg(dot_filnam_after,logfil, viztype, out_dest ):
 
 # This transforms a RDF triplestore into a temporary DOT file, which is
 # transformed by GraphViz into a SVG file sent to the HTTP browser.
-def Grph2Svg( page_title, error_msg, isSubServer, parameters, grph, parameterized_links, topUrl, dot_style ):
-	tmpLogFil = TmpFile("Grph2Svg","log")
+def _graph_to_svg(page_title, error_msg, isSubServer, parameters, grph, parameterized_links, topUrl, dot_style):
+	tmpLogFil = TmpFile("_graph_to_svg","log")
 	try:
 		logfil = open(tmpLogFil.Name,"w")
 	except:
 		exc = sys.exc_info()[1]
-		ERROR("Grph2Svg caught %s when opening:%s",str(exc),tmpLogFil.Name)
-		ErrorMessageHtml("Grph2Svg caught %s when opening:%s\n"%(str(exc),tmpLogFil.Name))
+		ERROR("_graph_to_svg caught %s when opening:%s",str(exc),tmpLogFil.Name)
+		ErrorMessageHtml("_graph_to_svg caught %s when opening:%s\n"%(str(exc),tmpLogFil.Name))
 
 	logfil.write( "Starting logging\n" )
 
@@ -235,7 +235,7 @@ def Grph2Svg( page_title, error_msg, isSubServer, parameters, grph, parameterize
 
 	out_dest = lib_util.get_default_output_destination()
 
-	Dot2Svg( dot_filnam_after, logfil, dot_layout, out_dest )
+	_dot_to_svg(dot_filnam_after, logfil, dot_layout, out_dest)
 	logfil.write( TimeStamp()+" closing log file\n" )
 	logfil.close()
 
@@ -265,7 +265,7 @@ def OutCgiMode( theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
 		lib_export_ontology.Grph2Rdf(grph)
 	elif mode in ["svg",""]:
 		# Default mode, because graphviz did not like several CGI arguments in a SVG document (Bug ?).
-		Grph2Svg( pageTitle, errorMsg, isSubServer, parameters, grph, parameterized_links, topUrl, dotLayout )
+		_graph_to_svg(pageTitle, errorMsg, isSubServer, parameters, grph, parameterized_links, topUrl, dotLayout)
 	else:
 		ERROR("OutCgiMode invalid mode=%s",mode)
 		ErrorMessageHtml("OutCgiMode invalid mode=%s"%mode)
@@ -293,14 +293,14 @@ def make_dot_layout(dot_layout, collapsed_properties ):
 
 ################################################################################
 
-def GetCallingModuleDoc():
+def _get_calling_module_doc():
 	"""
 		Works if called from Apache, cgiserver.py or wsgiserver.py
 		This is a global and can be fetched differently, if needed.
 		It returns the whole content.
 	"""
 
-	#sys.stderr.write("GetCallingModuleDoc Main module:%s\n"% str(sys.modules['__main__']))
+	#sys.stderr.write("_get_calling_module_doc Main module:%s\n"% str(sys.modules['__main__']))
 
 
 	# If it uses an unique CGI script.
@@ -331,17 +331,17 @@ def GetCallingModuleDoc():
 				theDoc = theDoc.strip()
 			else:
 				theDoc = ""
-			#sys.stderr.write("GetCallingModuleDoc  moduleCaller.__doc__=%s\n" % theDoc)
+			#sys.stderr.write("_get_calling_module_doc  moduleCaller.__doc__=%s\n" % theDoc)
 			return theDoc
 		except:
 			exc = sys.exc_info()[1]
-			WARNING("GetCallingModuleDoc Caught when getting doc:%s",str(exc))
+			WARNING("_get_calling_module_doc Caught when getting doc:%s",str(exc))
 			return "Caught when getting doc:"+str(exc)
 	else:
 		try:
 			# This does not work when in WSGI mode, nor when merging.
 			mainModu = sys.modules['__main__']
-			#sys.stderr.write("GetCallingModuleDoc Main module:%s\n"% mainModu.__name__ )
+			#sys.stderr.write("_get_calling_module_doc Main module:%s\n"% mainModu.__name__ )
 			page_title = mainModu.__doc__
 			if page_title:
 				page_title = page_title.strip()
@@ -350,7 +350,7 @@ def GetCallingModuleDoc():
 				return "No __main__ doc"
 		except:
 			exc = sys.exc_info()[1]
-			return "GetCallingModuleDoc (Caught %s)" % str(exc)
+			return "_get_calling_module_doc (Caught %s)" % str(exc)
 
 
 ################################################################################
@@ -457,7 +457,7 @@ class CgiEnv():
 
 		# When in merge mode, the display parameters must be stored in a place accessible by the graph.
 
-		docModuAll = GetCallingModuleDoc()
+		docModuAll = _get_calling_module_doc()
 
 		# Take only the first non-empty line. See lib_util.FromModuleToDoc()
 		self.m_page_title, self.m_page_subtitle = lib_util.SplitTextTitleRest(docModuAll)
@@ -478,7 +478,7 @@ class CgiEnv():
 			entity_class = parsedEntityUri[1]
 
 			# Similar code in objtypes.py
-			# TODO: Maybe replace this by GetCallingModuleDoc.
+			# TODO: Maybe replace this by _get_calling_module_doc.
 			entity_module = lib_util.GetEntityModule(entity_class)
 			entDoc = entity_module.__doc__
 			# The convention is the first line treated as a title.
@@ -784,7 +784,6 @@ class CgiEnv():
 
 		DEBUG("labelledUrl=%s",labelledUrl)
 
-
 		self.m_parameterized_links[urlLabel] = labelledUrl
 
 	# Graphs might contain the same entities calculated by different servers.
@@ -913,13 +912,13 @@ def SubProcCall(command):
 
 ################################################################################
 
-def TryDir(dir):
+def __check_if_directory(dir):
 	if( os.path.isdir(dir) ):
 		return dir
 	raise Exception("Not a dir:"+dir)
 
 # The temp directory as specified by the operating system.
-def TmpDir():
+def get_temporary_directory():
 
 	# TODO: For some reason, the user "apache" used by httpd cannot write,
 	# on some Linux distributions, to the directory "/tmp"
@@ -937,32 +936,32 @@ def TmpDir():
 
 	try:
 		# Maybe these environment variables are undefined for Apache user.
-		return TryDir( os.environ["TEMP"].replace('\\','/') )
+		return __check_if_directory(os.environ["TEMP"].replace('\\', '/'))
 	except Exception:
 		pass
 
 	try:
-		return TryDir( os.environ["TMP"].replace('\\','/') )
+		return __check_if_directory(os.environ["TMP"].replace('\\', '/'))
 	except Exception:
 		pass
 
 	if lib_util.isPlatformWindows:
 		try:
-			return TryDir( os.environ["USERPROFILE"].replace('\\','/') + "/AppData/Local/Temp" )
+			return __check_if_directory(os.environ["USERPROFILE"].replace('\\', '/') + "/AppData/Local/Temp")
 		except Exception:
 			pass
 
 		try:
-			return TryDir( "C:/Windows/Temp" )
+			return __check_if_directory("C:/Windows/Temp")
 		except Exception:
 			pass
 
-		return TryDir( "C:/Temp" )
+		return __check_if_directory("C:/Temp")
 	else:
-		return TryDir( "/tmp" )
+		return __check_if_directory("/tmp")
 
 # This will not change during a process.
-tmpDir = TmpDir()
+tmpDir = get_temporary_directory()
 		
 # Creates and automatically delete, a file and possibly a dir.
 # TODO: Consider using the module tempfile.
@@ -1020,7 +1019,9 @@ class TmpFile:
 
 ################################################################################
 
-def IsSharedLib(path):
+# This is deprecated and was used to reduce the number fo displayed filed,
+# by hiding the ones which are not really interesting.
+def _is_shared_library(path):
 
 	if lib_util.isPlatformWindows:
 		tmp, fileExt = os.path.splitext(path)
@@ -1044,12 +1045,12 @@ def IsSharedLib(path):
 	return False
 
 # A file containing fonts and other stuff not usefull to understand how a process works.
-# So by default we do not display them.
-def IsFontsFile(path):
+# So by default they are ot displayed. This should be deprecated.
+def _is_fonts_file(path):
 
 	if lib_util.isPlatformWindows:
 		tmp, fileExt = os.path.splitext(path)
-		# sys.stderr.write("IsFontsFile fileExt=%s\n" % fileExt)
+		# sys.stderr.write("_is_fonts_file fileExt=%s\n" % fileExt)
 		return fileExt in [ ".ttf", ".ttc" ]
 
 	elif lib_util.isPlatformLinux:
@@ -1060,16 +1061,15 @@ def IsFontsFile(path):
 	return False
 
 # Used when displaying all files open by a process: There are many of them,
-# so the useless junk could maybe be eliminated.
-# Or rather make it an option.
-def MeaninglessFile(path, removeSharedLibs, removeFontsFile ):
+# so the irrelevant files are hidden. This should be an option.
+def is_meaningless_file(path, removeSharedLibs, removeFontsFile):
 	if removeSharedLibs:
-		if IsSharedLib(path):
+		if _is_shared_library(path):
 			return True
 
 	if removeFontsFile:
-		if IsFontsFile(path):
-			# sys.stderr.write("YES MeaninglessFile path=%s\n" % path)
+		if _is_fonts_file(path):
+			# sys.stderr.write("YES is_meaningless_file path=%s\n" % path)
 			return True
 
 	return False

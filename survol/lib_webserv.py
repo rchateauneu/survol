@@ -506,7 +506,7 @@ class SrvSingleton:
 		self.m_appBaseName = os.path.basename(AppName).split(".")[0]
 
 		# The file name must be unique.
-		self.m_logFilNam = lib_common.TmpDir() + "/SubSrv." + self.m_appBaseName + ".log"
+		self.m_logFilNam = lib_common.get_temporary_directory() + "/SubSrv." + self.m_appBaseName + ".log"
 
 		self.m_isSubSrv = False
 		self.m_pidSubSrv = -1
