@@ -7,7 +7,7 @@ import json
 # This caches data in files for performance.
 # Extracting the entire ontology takes time.
 def ManageLocalOntologyCache(ontology_name, ontology_extractor):
-    tmp_dir = lib_common.TmpDir()
+    tmp_dir = lib_common.get_temporary_directory()
 
     # A cache can hold an entire month.
     today_date = datetime.date.today()
