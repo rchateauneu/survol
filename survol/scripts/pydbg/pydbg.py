@@ -74,8 +74,6 @@ def process_is_wow64(pid=None):
     temp_is_wow64 = wintypes.BOOL()
     a_bool = IsWow64Process(process_handle, byref(temp_is_wow64))
 
-    assert a_bool
-    print("temp_is_wow64=", temp_is_wow64)
     return True if temp_is_wow64 else False
 
 class pydbg:
@@ -1891,6 +1889,16 @@ class pydbg:
 
         function_address = dll_kernel32.GetProcAddress(dll_module._handle, function)
         assert function_address
+
+        # These addresses might be identical but basic libraries like KERNEL32 because they are always loaded first.
+        function_address_debuggee = self.func_resolve_debuggee(dll, function)
+        self._log("function_address=%016x" % function_address)
+        self._log("function_address_debuggee=%016x" % function_address_debuggee)
+        if function_address == function_address_debuggee:
+            self._log("Identical debugger and debuggee addresses.")
+        else:
+            self._log("Different debugger and debuggee addresses.")
+
         return function_address
 
     ####################################################################################################################
@@ -1924,22 +1932,90 @@ class pydbg:
 
         for module in self.iterate_modules():
             if module.szModule.lower() == dll_name:
-                base_address = module.modBaseAddr
-                dos_header   = self.read_process_memory(base_address, 0x40)
+                base_address = int(cast(module.modBaseAddr, ctypes.c_void_p).value)
+
+                self._log("base_address.value=%016x" % base_address)
+
+                # A PE executable is strctured like that:
+                # MZ-DOS header.
+                # DOS sergement, executed when running in DOS mode.
+                # PE header.
+                # Sections table.
+                # Section 1, 2, 3 etc...
+
+                dos_header = self.read_process_memory(base_address, 0x40)
 
                 # check validity of DOS header.
-                if len(dos_header) != 0x40 or dos_header[:2] != "MZ":
+                if len(dos_header) != 0x40 or dos_header[:2] != b"MZ":
+                    self._log("module=%s: Invalid DOS header: %s" % (module.szModule, str(dos_header[:2])))
                     continue
 
+                # This contains the beginning of the PE header.
                 e_lfanew   = struct.unpack("<I", dos_header[0x3c:0x40])[0]
                 pe_headers = self.read_process_memory(base_address + e_lfanew, 0xF8)
 
-                # check validity of PE headers.
-                if len(pe_headers) != 0xF8 or pe_headers[:2] != "PE":
+                # typedef struct _IMAGE_NT_HEADERS {
+                #  0  x00 DWORD                 Signature;
+                #  4  x04 IMAGE_FILE_HEADER     FileHeader;
+                # 24  x18 IMAGE_OPTIONAL_HEADER OptionalHeader;
+                # } IMAGE_NT_HEADERS, *PIMAGE_NT_HEADERS;
+
+                # Signature must contain "PE\0\0" or 0x00004550
+                # check validity of PE headers. OK in 32 and 64 bits.
+                if len(pe_headers) != 0xF8 or pe_headers[:4] != b"PE\0\0":
+                    self._log("module=%s: Invalid PE header." % module.szModule)
                     continue
 
+                # typedef struct _IMAGE_FILE_HEADER {
+                #   0 WORD  Machine;
+                #   2 WORD  NumberOfSections;
+                #   4 DWORD TimeDateStamp;
+                #   8 DWORD PointerToSymbolTable;
+                #  12 DWORD NumberOfSymbols;
+                #  16 WORD  SizeOfOptionalHeader;
+                #  18 WORD  Characteristics;
+                # } 20 IMAGE_FILE_HEADER, *PIMAGE_FILE_HEADER;
+
+                # IMAGE_FILE_MACHINE_I386  0x014c
+                # IMAGE_FILE_MACHINE_IA64  0x0200
+                # IMAGE_FILE_MACHINE_AMD64 0x8664
+                machine_type = struct.unpack("<H", pe_headers[4:6])[0]
+                assert(machine_type in [0x014c, 0x0200, 0x8664])
+
+                # IMAGE_NT_OPTIONAL_HDR32_MAGIC 0x10b
+                # IMAGE_NT_OPTIONAL_HDR64_MAGIC 0x20b
+                # IMAGE_ROM_OPTIONAL_HDR_MAGIC  0x107
+
+                offset_image_file_header = 4
+                offset_image_optional_header = offset_image_file_header + 20
+                optional_magic = struct.unpack("<H", pe_headers[offset_image_optional_header:offset_image_optional_header+2])[0]
+                assert optional_magic in [0x10b, 0x20b, 0x107]
+
+                if optional_magic == 0x10b:
+                    class_image_optional_header = IMAGE_OPTIONAL_HEADER32
+                    assert class_image_optional_header.Magic.offset == 0
+                    assert class_image_optional_header.DataDirectory.offset == 0x60
+                    return _from_pe_headers32(pe_headers, class_image_optional_header, offset_image_optional_header)
+                elif optional_magic == 0x20b:
+                    class_image_optional_header = IMAGE_OPTIONAL_HEADER64
+                    assert class_image_optional_header.Magic.offset == 0
+                    assert class_image_optional_header.DataDirectory.offset == 0x70
+                    return _from_pe_headers64(pe_headers, class_image_optional_header, offset_image_optional_header)
+                else:
+                    raise Exception("Cannot work with IMAGE_ROM_OPTIONAL_HDR_MAGIC")
+
+            def _from_pe_headers32(pe_headers):
                 export_directory_rva = struct.unpack("<I", pe_headers[0x78:0x7C])[0]
                 export_directory_len = struct.unpack("<I", pe_headers[0x7C:0x80])[0]
+                return _from_export_directory(export_directory_rva, export_directory_len)
+
+            def _from_pe_headers64(pe_headers, class_image_optional_header, offset_image_optional_header):
+                offset_export_directory = class_image_optional_header.DataDirectory.offset + offset_image_optional_header
+                export_directory_rva = struct.unpack("<I", pe_headers[offset_export_directory:offset_export_directory+4])[0]
+                export_directory_len = struct.unpack("<I", pe_headers[offset_export_directory+4:offset_export_directory+8])[0]
+                return _from_export_directory(export_directory_rva, export_directory_len)
+
+            def _from_export_directory(export_directory_rva, export_directory_len):
                 export_directory     = self.read_process_memory(base_address + export_directory_rva, export_directory_len)
                 num_of_functions     = struct.unpack("<I", export_directory[0x14:0x18])[0]
                 num_of_names         = struct.unpack("<I", export_directory[0x18:0x1C])[0]
@@ -1955,13 +2031,13 @@ class pydbg:
                 while low <= high:
                     # python does not suffer from integer overflows:
                     #     http://googleresearch.blogspot.com/2006/06/extra-extra-read-all-about-it-nearly.html
-                    middle          = (low + high) / 2
+                    middle          = (low + high) // 2
                     current_address = base_address + struct.unpack("<I", name_table[middle*4:(middle+1)*4])[0]
 
                     # we use a crude approach here. read 256 bytes and cut on NULL char. not very beautiful, but reading
                     # 1 byte at a time is very slow.
                     name_buffer = self.read_process_memory(current_address, 256)
-                    name_buffer = name_buffer[:name_buffer.find("\0")]
+                    name_buffer = name_buffer[:name_buffer.find(b"\0")]
 
                     if name_buffer < func_name:
                         low = middle + 1
@@ -3056,7 +3132,7 @@ class pydbg:
         old_protect = self.virtual_protect(_address, _length, PAGE_EXECUTE_READWRITE)
 
         while length:
-            self._log("read_process_memory address=%016x length=%d" % (address, length))
+            # self._log("read_process_memory address=%016x length=%d" % (address, length))
             # TODO: Apparently there are default arguments.
             if not kernel32.ReadProcessMemory(self.h_process, address, read_buf, length, byref(count)):
                 if not len(data):
