@@ -96,6 +96,10 @@ VirtualProtectEx.restype = wintypes.BOOL
 #   PDWORD lpflOldProtect
 # );
 
+Module32First = ctypes.windll.kernel32.Module32First
+Module32First.argtypes = (wintypes.HANDLE, POINTER(MODULEENTRY32))
+Module32First.restype = wintypes.BOOL
+
 OpenProcessToken = ctypes.windll.advapi32.OpenProcessToken
 OpenProcessToken.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE))
 OpenProcessToken.restype = wintypes.BOOL
