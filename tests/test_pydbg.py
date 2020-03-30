@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import os
 import sys
+import struct
 import subprocess
 import tempfile
 import platform
@@ -20,10 +21,13 @@ root_process_id = os.getpid()
 from init import *
 
 if not is_platform_linux:
-    from pydbg import pydbg
+    from survol.scripts import pydbg
+    from survol.scripts.pydbg import defines
+    from survol.scripts.pydbg import utils
+    from survol.scripts.pydbg import windows_h
 
     def create_pydbg():
-        tst_pydbg = pydbg()
+        tst_pydbg = pydbg.pydbg()
         return tst_pydbg
 
 ################################################################################
@@ -39,28 +43,24 @@ class PydbgBasicTest(unittest.TestCase):
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     @unittest.skipIf(platform.architecture()[0] != '64bit', "Only on 64 bits machines.")
     def test_pydbg_Wow64_Self(self):
-        import pydbg
-
         is_wow64 = pydbg.process_is_wow64(pid=None)
         print("is_wow64=", is_wow64)
         print("platform.architecture()=", platform.architecture())
 
         if sys.maxsize > 2 ** 32:
-            self.assertTrue(is_wow64 == False)
+            self.assertTrue(not is_wow64)
         else:
-            self.assertTrue(is_wow64 == True)
+            self.assertTrue(is_wow64)
 
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     @unittest.skipIf(platform.architecture()[0] != '64bit', "Only on 64 bits machines.")
     def test_pydbg_Wow64_Other(self):
         """This starts a 32 bits process on a 64 bits platform"""
-        import pydbg
-
         tst_pydbg = create_pydbg()
 
         cmd32_command = r"C:\Windows\SysWOW64\cmd.exe"
 
-        created_process = subprocess.Popen(cmd32_command, shell=False)
+        created_process = subprocess.Popen([cmd32_command, "/c", "FOR /L %A IN (1,1,3) DO ping -n 2 127.0.0.1"], shell=False)
         print("Created process:%d" % created_process.pid)
 
         time.sleep(0.5)
@@ -71,77 +71,16 @@ class PydbgBasicTest(unittest.TestCase):
         is_wow64 = pydbg.process_is_wow64(pid=created_process.pid)
         print("is_wow64=", is_wow64)
 
-        self.assertTrue(is_wow64 == True)
+        self.assertTrue(is_wow64)
+
+        # Not needed in the test but does the cleanup.
+        tst_pydbg.run()
+        created_process.communicate()
 
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_listdlls(self):
         # This is just for debugging.
         os.system('listdlls %d' % os.getpid())
-
-    # 0x000000001d000000  0xb000    C:\Python27\python.exe
-    # 0x0000000076fd0000  0x1aa000  C:\windows\SYSTEM32\ntdll.dll
-    # 0x0000000076eb0000  0x11f000  C:\windows\system32\kernel32.dll
-    # 0x00000000fcf20000  0x6a000   C:\windows\system32\KERNELBASE.dll
-    # 0x000000001e000000  0x2f3000  C:\windows\system32\python27.dll
-    # 0x0000000076db0000  0xfa000   C:\windows\system32\USER32.dll
-    # 0x00000000fd080000  0x67000   C:\windows\system32\GDI32.dll
-    # 0x00000000fea90000  0xe000    C:\windows\system32\LPK.dll
-    # 0x00000000feca0000  0xcb000   C:\windows\system32\USP10.dll
-    # 0x00000000fe8f0000  0x9f000   C:\windows\system32\msvcrt.dll
-    # 0x00000000fe760000  0xdb000   C:\windows\system32\ADVAPI32.dll
-    # 0x00000000ff210000  0x1f000   C:\windows\SYSTEM32\sechost.dll
-    # 0x00000000fe1f0000  0x12d000  C:\windows\system32\RPCRT4.dll
-    # 0x00000000fd0f0000  0xd8a000  C:\windows\system32\SHELL32.dll
-    # 0x00000000fe9f0000  0x71000   C:\windows\system32\SHLWAPI.dll
-    # 0x0000000072e90000  0xa3000   C:\windows\WinSxS\amd64_microsoft.vc90.crt_1fc8b3b9a1e18e3b_9.0.30729.6161_none_08e61857a83bc251\MSVCR90.dll
-    # 0x00000000fe8c0000  0x2e000   C:\windows\system32\IMM32.DLL
-    # 0x00000000fe650000  0x109000  C:\windows\system32\MSCTF.dll
-    # 0x0000000080000000  0x184000  C:\Python27\DLLs\_hashlib.pyd
-    # 0x00000000fc4b0000  0x18000   C:\windows\system32\CRYPTSP.dll
-    # 0x00000000fc1b0000  0x47000   C:\windows\system32\rsaenh.dll
-    # 0x00000000fcac0000  0xf000    C:\windows\system32\CRYPTBASE.dll
-    # 0x00000000003f0000  0xf000    C:\Python27\DLLs\_socket.pyd
-    # 0x00000000ff0e0000  0x4d000   C:\windows\system32\WS2_32.dll
-    # 0x00000000ff2d0000  0x8000    C:\windows\system32\NSI.dll
-    # 0x0000000002b50000  0x225000  C:\Python27\DLLs\_ssl.pyd
-    # 0x00000000fcd50000  0x16d000  C:\windows\system32\CRYPT32.dll
-    # 0x00000000fccc0000  0xf000    C:\windows\system32\MSASN1.dll
-    # 0x0000000001d60000  0x11000   C:\Python27\lib\site-packages\psutil\_psutil_windows.pyd
-    # 0x00000000771a0000  0x7000    C:\windows\system32\PSAPI.DLL
-    # 0x00000000f9fb0000  0x27000   C:\windows\system32\IPHLPAPI.DLL
-    # 0x00000000f9fa0000  0xb000    C:\windows\system32\WINNSI.DLL
-    # 0x00000000facb0000  0x11000   C:\windows\system32\WTSAPI32.dll
-    # 0x00000000fb160000  0x2c000   C:\windows\system32\POWRPROF.dll
-    # 0x00000000fef00000  0x1d7000  C:\windows\system32\SETUPAPI.dll
-    # 0x00000000fcec0000  0x36000   C:\windows\system32\CFGMGR32.dll
-    # 0x00000000ff130000  0xda000   C:\windows\system32\OLEAUT32.dll
-    # 0x00000000feaa0000  0x1fc000  C:\windows\system32\ole32.dll
-    # 0x00000000fcd30000  0x1a000   C:\windows\system32\DEVOBJ.dll
-    # 0x00000000fa620000  0x15000   C:\windows\system32\NLAapi.dll
-    # 0x00000000f6f50000  0x15000   C:\windows\system32\napinsp.dll
-    # 0x00000000f6e50000  0x19000   C:\windows\system32\pnrpnsp.dll
-    # 0x00000000fc450000  0x55000   C:\windows\System32\mswsock.dll
-    # 0x00000000fc2d0000  0x5b000   C:\windows\system32\DNSAPI.dll
-    # 0x00000000f6e40000  0xb000    C:\windows\System32\winrnr.dll
-    # 0x0000000072d90000  0x26000   C:\Program Files\Bonjour\mdnsNSP.dll
-    # 0x00000000f6e30000  0x10000   C:\windows\system32\wshbth.dll
-    # 0x000000001e8c0000  0x24000   C:\Python27\lib\site-packages\win32\win32api.pyd
-    # 0x00000000fbda0000  0xc000    C:\windows\system32\VERSION.dll
-    # 0x000000001e7a0000  0x26000   C:\windows\system32\pywintypes27.dll
-    # 0x00000000fca60000  0xb000    C:\windows\system32\secur32.dll
-    # 0x00000000fca90000  0x25000   C:\windows\system32\SSPICLI.DLL
-    # 0x000000001d100000  0x2c000   C:\Python27\DLLs\_elementtree.pyd
-    # 0x0000000002a30000  0x2c000   C:\Python27\DLLs\pyexpat.pyd
-    # 0x000000001d1a0000  0x1f000   C:\Python27\DLLs\_ctypes.pyd
-    # 0x0000000003930000  0xab000   C:\Python27\DLLs\unicodedata.pyd
-    # 0x00000000f9e40000  0x53000   C:\windows\System32\fwpuclnt.dll
-    # 0x00000000f7900000  0x8000    C:\windows\system32\rasadhlp.dll
-    # 0x00000000fc440000  0x7000    C:\windows\System32\wship6.dll
-    # 0x00000000fbe70000  0x7000    C:\windows\System32\wshtcpip.dll
-    # 0x00000000fcb70000  0x57000   C:\windows\system32\apphelp.dll
-
-    # C:\windows\system32\WS2_32.dll is loaded but maybe not at the same address than in the subprocess.
-
 
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_psutil_memory_maps(self):
@@ -150,71 +89,6 @@ class PydbgBasicTest(unittest.TestCase):
         p = psutil.Process(os.getpid())
         for dll in p.memory_maps():
             print(dll.path)
-
-    # C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\tests\init.pyc Fixed sys.executableC:\Windows\System32\wshbth.dll
-    # C:\Windows\System32\oleaut32.dll
-    # C:\Windows\System32\devobj.dll
-    # C:\Windows\System32\secur32.dll
-    # C:\Windows\System32\advapi32.dll
-    # C:\Windows\System32\msvcrt.dll
-    # C:\Windows\System32\ws2_32.dll
-    # C:\Windows\System32\en-US\KernelBase.dll.mui
-    # C:\Windows\winsxs\amd64_microsoft.vc90.crt_1fc8b3b9a1e18e3b_9.0.30729.6161_none_08e61857a83bc251\msvcr90.dll
-    # C:\Windows\System32\python27.dll
-    # C:\Windows\System32\winnsi.dll
-    # C:\Windows\System32\sspicli.dll
-    # C:\Windows\System32\locale.nls
-    # C:\Windows\System32\pywintypes27.dll
-    # C:\Windows\System32\cryptsp.dll
-    # C:\Windows\System32\nlaapi.dll
-    # C:\Windows\System32\shlwapi.dll
-    # C:\Python27\DLLs\_ssl.pyd
-    # C:\Windows\System32\winrnr.dll
-    # C:\Windows\System32\IPHLPAPI.DLL
-    # C:\Windows\System32\setupapi.dll
-    # C:\Python27\python.exe
-    # C:\Windows\System32\wtsapi32.dll
-    # C:\Python27\DLLs\_elementtree.pyd
-    # C:\Windows\System32\version.dll
-    # C:\Windows\System32\pnrpnsp.dll
-    # C:\Windows\System32\ole32.dll
-    # C:\Python27\DLLs\unicodedata.pyd
-    # C:\Windows\System32\imm32.dll
-    # C:\Windows\System32\NapiNSP.dll
-    # C:\Windows\System32\powrprof.dll
-    # C:\Windows\System32\usp10.dll
-    # C:\Windows\System32\user32.dll
-    # C:\Python27\DLLs\_hashlib.pyd
-    # C:\Windows\System32\shell32.dll
-    # C:\Windows\System32\ntdll.dll
-    # C:\Windows\System32\psapi.dll
-    # C:\Python27\DLLs\_socket.pyd
-    # C:\Windows\System32\rasadhlp.dll
-    # C:\Windows\System32\rpcrt4.dll
-    # C:\Windows\System32\apisetschema.dll
-    # C:\Windows\System32\lpk.dll
-    # C:\Python27\DLLs\_ctypes.pyd
-    # C:\Windows\System32\crypt32.dll
-    # C:\Windows\System32\dnsapi.dll
-    # C:\Windows\System32\mswsock.dll
-    # C:\Python27\Lib\site-packages\win32\win32api.pyd
-    # C:\Windows\System32\WSHTCPIP.DLL
-    # C:\Program Files\Bonjour\mdnsNSP.dll
-    # C:\Windows\System32\wship6.dll
-    # C:\Windows\System32\FWPUCLNT.DLL
-    # C:\Windows\System32\cryptbase.dll
-    # C:\Windows\System32\sechost.dll
-    # C:\Windows\System32\gdi32.dll
-    # C:\Python27\DLLs\pyexpat.pyd
-    # C:\Python27\Lib\site-packages\psutil\_psutil_windows.pyd
-    # C:\Windows\Globalization\Sorting\SortDefault.nls
-    # C:\Windows\System32\msctf.dll
-    # C:\Windows\System32\nsi.dll
-    # C:\Windows\System32\msasn1.dll
-    # C:\Windows\System32\rsaenh.dll
-    # C:\Windows\System32\kernel32.dll
-    # C:\Windows\System32\cfgmgr32.dll
-    # C:\Windows\System32\KernelBase.dll
 
 ################################################################################
 
@@ -231,10 +105,6 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
     # It starts a DOS process which attempts to remove a directory.
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_DOS_RemoveDirectoryW(self):
-        import pydbg
-        from pydbg import defines
-        from pydbg import utils
-
         tst_pydbg = create_pydbg()
 
         num_loops = 4
@@ -253,7 +123,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         print("Attaching. Root pid=%d" % root_process_id)
         tst_pydbg.attach(created_process.pid)
 
-        object_hooks = pydbg.utils.hook_container()
+        object_hooks = utils.hook_container()
 
         hook_address_RemoveDirectoryW = tst_pydbg.func_resolve(b"KERNEL32.dll", b"RemoveDirectoryW")
 
@@ -300,10 +170,6 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
     # It starts a DOS process which attempts to remove a directory.
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_DOS_DeleteFileW(self):
-        import pydbg
-        from pydbg import defines
-        from pydbg import utils
-
         tst_pydbg = create_pydbg()
 
         num_loops = 3
@@ -323,7 +189,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         print("Attaching. Root pid=%d" % root_process_id)
         tst_pydbg.attach(created_process.pid)
 
-        object_hooks = pydbg.utils.hook_container()
+        object_hooks = utils.hook_container()
 
         hook_address_DeleteFileW = tst_pydbg.func_resolve(b"KERNEL32.dll", b"DeleteFileW")
 
@@ -370,10 +236,6 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
     # This starts a separate Python process which attempts several times to open a non-existent file.
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_DOS_CreateFileW(self):
-        import pydbg
-        from pydbg import defines
-        from pydbg import utils
-
         tst_pydbg = create_pydbg()
 
         num_loops = 5
@@ -392,7 +254,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         print("Attaching. Root pid=%d" % root_process_id)
         tst_pydbg.attach(created_process.pid)
 
-        object_hooks = pydbg.utils.hook_container()
+        object_hooks = utils.hook_container()
 
         hook_address_CreateFileW = tst_pydbg.func_resolve(b"KERNEL32.dll", b"CreateFileW")
 
@@ -435,8 +297,6 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_DOS_create_process(self):
-        import pydbg
-
         tst_pydbg = create_pydbg()
 
         num_loops = 3
@@ -464,9 +324,9 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
             Context.command_line = object_process.cmdline()
             assert object_pydbg == tst_pydbg
             assert object_process.ppid() == root_process_id
-            return pydbg.defines.DBG_CONTINUE
+            return defines.DBG_CONTINUE
 
-        tst_pydbg.set_callback(pydbg.defines.CREATE_PROCESS_DEBUG_EVENT, process_creation_callback)
+        tst_pydbg.set_callback(defines.CREATE_PROCESS_DEBUG_EVENT, process_creation_callback)
 
         tst_pydbg.run()
 
@@ -477,10 +337,6 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_DOS_CreateProcessW(self):
-        import pydbg
-        from pydbg import utils
-        from pydbg import windows_h
-
         tst_pydbg = create_pydbg()
 
         num_loops = 3
@@ -498,7 +354,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         print("Attaching. Root pid=%d" % root_process_id)
         tst_pydbg.attach(created_process.pid)
 
-        object_hooks = pydbg.utils.hook_container()
+        object_hooks = utils.hook_container()
 
         hook_address_process_information = tst_pydbg.func_resolve(b"KERNEL32.dll", b"CreateProcessW")
         # hook_address_process_information=0000000076ed05e0
@@ -541,7 +397,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
             self.assertTrue(object_pydbg.dbg.dwProcessId == created_process.pid)
 
-            return pydbg.defines.DBG_CONTINUE
+            return defines.DBG_CONTINUE
 
         def callback_process_information_exit(object_pydbg, args, function_result):
             object_pydbg.count_exit += 1
@@ -554,7 +410,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
             self.assertTrue(object_pydbg.dbg.dwProcessId == created_process.pid)
 
-            return pydbg.defines.DBG_CONTINUE
+            return defines.DBG_CONTINUE
 
         object_hooks.add(
             tst_pydbg,
@@ -571,91 +427,101 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         self.assertTrue(tst_pydbg.count_entry == num_loops - 1)
         self.assertTrue(tst_pydbg.count_exit == num_loops - 1)
 
-
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
-    def test_pydbg_DOS_socket(self):
-        import pydbg
-        from pydbg import defines
-        from pydbg import utils
-
+    def test_pydbg_DOS_nslookup(self):
         tst_pydbg = create_pydbg()
 
-        num_loops = 5
+        import subprocess
 
-        # This attempts several times to remove a non-existent dir.
-        # This is detected by the hook.
-        nslookup_command = "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 1.2.3.4 & echo %%A & nslookup any.thing.com )" % num_loops
+        created_process = subprocess.Popen(["nslookup"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=False)
 
-        created_process = subprocess.Popen(nslookup_command, shell=True)
-        print("Created process:%d" % created_process.pid)
-
-        # A bit of delay so the process can start.
         time.sleep(0.5)
 
         print("Attaching. Root pid=%d" % root_process_id)
         tst_pydbg.attach(created_process.pid)
 
-        object_hooks = pydbg.utils.hook_container()
+        object_hooks = utils.hook_container()
 
-        # "C:\Windows\System32\ws2_32.dll"
-        # Windows Socket 2.0 32-Bit DLL
-        # Dump of file C:\Windows\System32\ws2_32.dll
-        #             8664 machine (x64)
+        hook_address_DOS_nslookup = tst_pydbg.func_resolve(b"ws2_32.dll", b"connect")
 
-        # "C:\Windows\System32\kernel32.dll"
-        # Windows NT BASE API Client DLL
+        assert hook_address_DOS_nslookup
+        print("hook_address_DOS_nslookup=%016x" % hook_address_DOS_nslookup)
 
-        # Same error messages with these functions:
-        # "Only part of a ReadProcessMemory or WriteProcessMemory request was completed"
-        # socket, WSAConnectByNameA, WSAConnectByNameW, WSAStringToAddressA
-        # hook_address_socket = tst_pydbg.func_resolve_experimental(u"Ws2_32.dll", b"socket")
-        # hook_address_socket = tst_pydbg.func_resolve_experimental(u"C:\\Windows\\System32\\ws2_32.dll", b"socket")
-        #
-        # This is a x64 library:
-        #
-        # hook_address_socket = tst_pydbg.func_resolve_experimental(u"C:\\Windows\\System32\\ws2_32.dll", b"WSAStringToAddressA")
-        hook_address_socket = tst_pydbg.func_resolve(b"ws2_32.dll", b"WSAStringToAddressA")
+        class PersistentState:
+            port_number = -1
+            sin_family = -1
+            s_addr = -1
 
-        # The specified module could not be found
-        # hook_address_socket = tst_pydbg.func_resolve("ws2_32.dll", b"WSAStringToAddressA")
-        #
-        assert hook_address_socket
-        print("hook_address_socket=%016x" % hook_address_socket)
-        # hook_address_process_information=0000000076ed05e0 OK
-        # hook_address_socket             =000007feff0ed910 Broken.
+        def check_sockaddr_nslookup(object_pydbg, args):
 
-        tst_pydbg.count_entry = 0
-        tst_pydbg.count_exit = 0
+            sockaddr_address = args[1]
 
-        def callback_socket_entry(object_pydbg, args):
-            object_pydbg.count_entry += 1
-            print("callback_socket_entry args=", args)
+            sin_family_memory = object_pydbg.read_process_memory(sockaddr_address, 2)
+            PersistentState.sin_family = struct.unpack("<H", sin_family_memory)[0]
+            print("sin_family=", PersistentState.sin_family)
+
+            # AF_INET6 = 23, if this is an IPV6 DNS server.
+            if PersistentState.sin_family == defines.AF_INET6:
+                # struct sockaddr_in6 {
+                #      sa_family_t     sin6_family;   /* AF_INET6 */
+                #      in_port_t       sin6_port;     /* port number */
+                #      uint32_t        sin6_flowinfo; /* IPv6 flow information */
+                #      struct in6_addr sin6_addr;     /* IPv6 address */
+                #      uint32_t        sin6_scope_id; /* Scope ID (new in 2.4) */
+                #  };
+                #
+                # struct in6_addr {
+                #      unsigned char   s6_addr[16];   /* IPv6 address */
+                # };
+                ip_port_memory = object_pydbg.read_process_memory(sockaddr_address + 2, 2)
+                PersistentState.ip_port = struct.unpack(">H", ip_port_memory)[0]
+                print("ip_port=", PersistentState.ip_port)
+
+                self.assertTrue(args[2] == 28)
+                self.assertTrue(PersistentState.ip_port == 53) # DNS
+
+                s_addr_ipv6 = object_pydbg.read_process_memory(sockaddr_address + 8, 16)
+
+                print("s_addr_ipv6=%s" % "".join(["%02x" % ord(one_byte) for one_byte in s_addr_ipv6]))
+            else:
+                raise Exception("Invalid sa_family")
+
+        def callback_DOS_nslookup_entry(object_pydbg, args):
+            print("callback_DOS_nslookup_entry args=", args)
+            check_sockaddr_nslookup(object_pydbg, args)
             return defines.DBG_CONTINUE
 
-        def callback_socket_exit(object_pydbg, args, function_result):
-            object_pydbg.count_exit += 1
-            print("callback_socket_exit args=", args, function_result)
-
-            is_invalid_handle = function_result % (1 + defines.INVALID_HANDLE_VALUE) == defines.INVALID_HANDLE_VALUE
-            self.assertTrue(is_invalid_handle)
+        def callback_DOS_nslookup_exit(object_pydbg, args, function_result):
+            print("callback_DOS_nslookup_exit args=", args, function_result)
+            check_sockaddr_nslookup(object_pydbg, args)
             return defines.DBG_CONTINUE
 
-        # pdx: Failed setting breakpoint at 000007feff0ed910 : [299] ReadProcessMemory(7feff0ed910, 1, read=0):
-        # Only part of a ReadProcessMemory or WriteProcessMemory request was completed.
+        print("Adding breakpoint")
         object_hooks.add(
             tst_pydbg,
-            hook_address_socket,
+            hook_address_DOS_nslookup,
             3,
-            callback_socket_entry,
-            callback_socket_exit)
+            callback_DOS_nslookup_entry,
+            callback_DOS_nslookup_exit)
 
+        print("Writing data to input pipe")
+        for counter in range(50):
+            created_process.stdin.write(b"primhillcomputers.com\n")
+        created_process.stdin.write(b"quit\n")
+        print("Data written")
+
+        print("Running")
         tst_pydbg.run()
 
-        print("END", tst_pydbg.count_entry, tst_pydbg.count_exit)
+        output_content = created_process.communicate()[0]
+        print("Leaving")
+
+        #created_process.communicate()[0]
+        created_process.stdin.close()
         created_process.kill()
-        # The first call might be missed.
-        self.assertTrue(tst_pydbg.count_entry == num_loops)
-        self.assertTrue(tst_pydbg.count_exit == num_loops)
+
+        self.assertTrue(PersistentState.sin_family == defines.AF_INET6)
+
 
 # BEWARE: When running DOS tests first, then Python tests fail.
 @unittest.skipIf(is_platform_linux, "Windows only.")
@@ -669,11 +535,6 @@ class PydbgPythonHooksTest(unittest.TestCase):
 
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_Python_CreateFile(self):
-        # TEST THIS ???
-        import pydbg
-        from pydbg import defines
-        from pydbg import utils
-
         tst_pydbg = create_pydbg()
 
         dir_path = os.path.dirname(__file__)
@@ -698,7 +559,7 @@ class PydbgPythonHooksTest(unittest.TestCase):
         print("Attaching to pid=%d" % creation_file_process.pid)
         tst_pydbg.attach(creation_file_process.pid)
 
-        object_hooks = pydbg.utils.hook_container()
+        object_hooks = utils.hook_container()
 
         hook_address_create_file_w = tst_pydbg.func_resolve(b"KERNEL32.dll", b"CreateFileW")
         print("hook_address_create_file_w=%016x" % hook_address_create_file_w)
@@ -734,10 +595,6 @@ class PydbgPythonHooksTest(unittest.TestCase):
 
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_Python_DeleteFile(self):
-        import pydbg
-        from pydbg import defines
-        from pydbg import utils
-
         tst_pydbg = create_pydbg()
 
         dir_path = os.path.dirname(__file__)
@@ -762,7 +619,7 @@ class PydbgPythonHooksTest(unittest.TestCase):
         print("Attaching to pid=%d" % deletion_file_process.pid)
         tst_pydbg.attach(deletion_file_process.pid)
 
-        object_hooks = pydbg.utils.hook_container()
+        object_hooks = utils.hook_container()
 
         hook_address_delete_file_w = tst_pydbg.func_resolve(b"KERNEL32.dll", b"DeleteFileW")
         print("hook_address_delete_file_w=%016x" % hook_address_delete_file_w)
@@ -796,10 +653,6 @@ class PydbgPythonHooksTest(unittest.TestCase):
 
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_Python_subprocess(self):
-        import pydbg
-        from pydbg import defines
-        from pydbg import utils
-
         tst_pydbg = create_pydbg()
 
         dir_path = os.path.dirname(__file__)
@@ -829,20 +682,17 @@ class PydbgPythonHooksTest(unittest.TestCase):
 
             assert object_pydbg == tst_pydbg
             assert object_process.ppid() == root_process_id
-            return pydbg.defines.DBG_CONTINUE
+            return defines.DBG_CONTINUE
 
-        tst_pydbg.set_callback(pydbg.defines.CREATE_PROCESS_DEBUG_EVENT, print_hello_callback)
+        tst_pydbg.set_callback(defines.CREATE_PROCESS_DEBUG_EVENT, print_hello_callback)
 
         print("About to run subprocess")
         tst_pydbg.run()
         self.assertTrue(Context.command_line == [sys.executable, '-c', python_command])
 
+    @unittest.skip("Does not work yet")
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_Python_subprocesses_recursive(self):
-        import pydbg
-        from pydbg import defines
-        from pydbg import utils
-
         tst_pydbg = create_pydbg()
 
         dir_path = os.path.dirname(__file__)
@@ -870,14 +720,15 @@ class PydbgPythonHooksTest(unittest.TestCase):
 
             object_process = psutil.Process(object_pydbg.dbg.dwProcessId)
             # Command line: ['C:\\Python27\\python.exe', '-m', 'create_process_chain', '5']
-            command_line = object_process.cmdline()
-            print("python_process_creation_callback Command line:", command_line)
-            assert command_line == [sys.executable, '-m', 'create_process_chain', str(tree_depth)]
+            actual_command_line = object_process.cmdline()
+            expected_command_line = [sys.executable, '-m', 'create_process_chain', str(tree_depth)]
+            print("python_process_creation_callback Actual command line:", actual_command_line)
+            print("python_process_creation_callback Expected command line:", expected_command_line)
+            assert actual_command_line == expected_command_line
 
             assert object_pydbg == tst_pydbg
 
             assert object_process.ppid() == root_process_id
-
 
             the_subpydbg = create_pydbg()
             the_subpydbg.sub_pydbgs = []
@@ -885,13 +736,12 @@ class PydbgPythonHooksTest(unittest.TestCase):
             the_subpydbg.open_process(object_pydbg.dbg.dwProcessId)
             print("AFTER REDUNDANCY")
             the_subpydbg.attach(object_pydbg.dbg.dwProcessId)
-            the_subpydbg.set_callback(pydbg.defines.CREATE_PROCESS_DEBUG_EVENT, python_process_creation_callback)
+            the_subpydbg.set_callback(defines.CREATE_PROCESS_DEBUG_EVENT, python_process_creation_callback)
             the_subpydbg.run()
 
+            return defines.DBG_CONTINUE
 
-            return pydbg.defines.DBG_CONTINUE
-
-        tst_pydbg.set_callback(pydbg.defines.CREATE_PROCESS_DEBUG_EVENT, python_process_creation_callback)
+        tst_pydbg.set_callback(defines.CREATE_PROCESS_DEBUG_EVENT, python_process_creation_callback)
 
         print("About to run subprocess")
         tst_pydbg.run()
@@ -906,109 +756,149 @@ class PydbgPythonHooksTest(unittest.TestCase):
 
 
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
-    def test_pydbg_Python_socket(self):
-        import pydbg
-        from pydbg import defines
-        from pydbg import utils
+    def test_pydbg_Python_connect(self):
+        server_domain = "primhillcomputers.com"
+        server_port = 80
+
+        # A subprocess is about to loop on a socket connection to a remote machine.
+        temporary_python_file = tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False)
+        script_content = """
+import socket
+import time
+print('Before')
+for counter in range(3):
+    s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect(('%s', %d))
+    s.sendall(b'Hello, world')
+    data = s.recv(1024)
+    s.close()
+    time.sleep(2.0)
+""" % (server_domain, server_port)
+        temporary_python_file.write(script_content)
+        temporary_python_file.close()
 
         tst_pydbg = create_pydbg()
 
-        dir_path = os.path.dirname(__file__)
-        sys.path.append(dir_path)
-
-        python_command = "import time;time.sleep(2.0);"
-        python_command += "import urllib2;response = urllib2.urlopen('http://python.org/');html = response.read();print(html)"
         url_process = subprocess.Popen(
-            [sys.executable, '-c', python_command],
+            [sys.executable, temporary_python_file.name],
             stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = False)
 
-        print("creation_file_process ", url_process.pid)
-
-        # A bit of delay so the process can start.
+        # A bit of delay so the process can start before attaching to it.
         time.sleep(0.5)
 
         print("Root pid=%d" % root_process_id)
         print("Attaching to pid=%d" % url_process.pid)
         tst_pydbg.attach(url_process.pid)
 
-        object_hooks = pydbg.utils.hook_container()
+        object_hooks = utils.hook_container()
 
-        # "C:\Windows\System32\ws2_32.dll"
-        # Windows Socket 2.0 32-Bit DLL
-        # Dump of file C:\Windows\System32\ws2_32.dll
-        #             8664 machine (x64)
+        # This library contains the functions socket(), connect(), accept(), bind() etc...
+        hook_address_connect = tst_pydbg.func_resolve(b"ws2_32.dll", b"connect")
 
-        # "C:\Windows\System32\kernel32.dll"
-        # Windows NT BASE API Client DLL
+        assert hook_address_connect
+        print("hook_address_connect=%016x" % hook_address_connect)
 
-        # Same error messages with these functions:
-        # "Only part of a ReadProcessMemory or WriteProcessMemory request was completed"
-        # socket, WSAConnectByNameA, WSAConnectByNameW, WSAStringToAddressA
-        # hook_address_socket = tst_pydbg.func_resolve_experimental(u"Ws2_32.dll", b"socket")
-        # hook_address_socket = tst_pydbg.func_resolve_experimental(u"C:\\Windows\\System32\\ws2_32.dll", b"socket")
-        #
-        # This is a x64 library:
-        #
-        # hook_address_socket = tst_pydbg.func_resolve_experimental(u"C:\\Windows\\System32\\ws2_32.dll", b"WSAStringToAddressA")
-        # hook_address = tst_pydbg.func_resolve_experimental(u"kernel32.dll", b"CreateProcessW")
-        hook_address = tst_pydbg.func_resolve(b"ws2_32.dll", b"WSAStringToAddressA")
+        class PersistentState:
+            port_number = -1
+            sin_family = -1
+            s_addr = -1
 
-        # The specified module could not be found
-        # hook_address_socket = tst_pydbg.func_resolve("ws2_32.dll", b"WSAStringToAddressA")
-        #
-        assert hook_address
-        print("hook_address_socket=%016x" % hook_address)
+        def check_sockaddr_content(object_pydbg, args):
+            # struct sockaddr {
+            #         ushort  sa_family;
+            #         char    sa_data[14];
+            # };
+            #
+            # struct sockaddr_in {
+            #         short   sin_family;
+            #         u_short sin_port;
+            #         struct  in_addr sin_addr;
+            #         char    sin_zero[8];
+            # };
 
+            sockaddr_address = args[1]
+            assert args[2] == 16
 
-        # 0x0000000076eb0000  0x11f000  C:\windows\system32\kernel32.dll
-        # CreateProcessW=0000000076ed05e0 OK
-        print("CreateProcessW=%016x" % tst_pydbg.func_resolve(b"kernel32.dll", b"CreateProcessW"))
+            sin_family_memory = object_pydbg.read_process_memory(sockaddr_address, 2)
+            PersistentState.sin_family = struct.unpack("<H", sin_family_memory)[0]
+            print("sin_family=", PersistentState.sin_family)
 
-        # 0x00000000ff0e0000  0x4d000   C:\windows\system32\WS2_32.dll
-        # WSAStringToAddressA             =000007feff109360 Broken.
-        print("WSAStringToAddressA=%016x" % tst_pydbg.func_resolve(b"ws2_32.dll", b"WSAStringToAddressA"))
-        # socket                          =000007feff0ed910
-        print("socket=%016x" % tst_pydbg.func_resolve(b"ws2_32.dll", b"socket"))
+            ip_port_memory = object_pydbg.read_process_memory(sockaddr_address + 2, 2)
+            PersistentState.ip_port = struct.unpack(">H", ip_port_memory)[0]
+            print("ip_port=", PersistentState.ip_port)
 
-        # ws2_32 are not correct.
+            # struct in_addr {
+            #     unsigned long s_addr;  // load with inet_aton()
+            # };
+            s_addr_memory = object_pydbg.read_process_memory(sockaddr_address + 4, 4)
+            s_addr_integer = struct.unpack(">I", s_addr_memory)[0]
 
-        # WHY 7fe ????? Is it always the same value ?
-        # Is this the address in the debugged process???
-        # Maybe using func_resolve_debuggee ?
-        # Try with other DLLs ?
-        # Try masking the address ?
+            PersistentState.s_addr ="%d.%d.%d.%d" % (
+                (s_addr_integer & 0xFF000000)/0x1000000,
+                (s_addr_integer & 0x00FF0000)/0x10000,
+                (s_addr_integer & 0x0000FF00)/0x100,
+                (s_addr_integer & 0x000000FF)/0x1)
+            print("s_addr=%s" % PersistentState.s_addr)
 
-        # VirtualProtectEx(000007fefd789360, 1, 00000040): Attempt to access invalid address.
-
-        tst_pydbg.count_entry = 0
-        tst_pydbg.count_exit = 0
-
-        def callback_entry(object_pydbg, args):
-            object_pydbg.count_entry += 1
-            print("callback_entry args=", args)
+        def callback_entry_connect(object_pydbg, args):
+            check_sockaddr_content(object_pydbg, args)
             return defines.DBG_CONTINUE
 
-        def callback_exit(object_pydbg, args, function_result):
-            object_pydbg.count_exit += 1
-            print("callback_exit args=", args, function_result)
-
-            is_invalid_handle = function_result % (1 + defines.INVALID_HANDLE_VALUE) == defines.INVALID_HANDLE_VALUE
-            self.assertTrue(is_invalid_handle)
+        def callback_exit_connect(object_pydbg, args, function_result):
+            check_sockaddr_content(object_pydbg, args)
             return defines.DBG_CONTINUE
 
+        # int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
         object_hooks.add(
             tst_pydbg,
-            hook_address,
+            hook_address_connect,
             3,
-            callback_entry,
-            callback_exit)
+            callback_entry_connect,
+            callback_exit_connect)
 
         tst_pydbg.run()
+        os.remove(temporary_python_file.name)
 
-        print("END", tst_pydbg.count_entry, tst_pydbg.count_exit)
-        # The first call might be missed.
-
+        self.assertTrue(PersistentState.sin_family == defines.AF_INET)
+        self.assertTrue(PersistentState.ip_port == server_port)
+        self.assertTrue(PersistentState.s_addr == socket.gethostbyname(server_domain))
 
 
 if __name__ == '__main__':
     unittest.main()
+
+##### Kernel32.dll
+# Many functions are very specific to old-style Windows applications.
+# Still, this is the only way to track specific behaviour.
+#
+# CopyFileA
+# CopyFileW
+# CopyFileExA
+# CopyFileExW
+# CopyFileTransactedA
+# CopyFileTransactedW
+# CopyLZFile
+
+# CreateHardLink A/W/TransactedA/TransactedW
+# CreateNamedPipe A/W
+
+# LoadLibrary
+
+# MapViewOfIle ?
+
+# MoveFile ...
+
+# OpenFile, OpenFileById
+# ReOpenFile
+
+# ReplaceFile, A, W
+
+# OpenJobObjects
+
+##### KernelBase.dll
+# Looks like a subset of Kernel32.dll
+
+##### ntdll.dll
+# NtOpenFile
+# NtOpenDirectoryObject ?
+
