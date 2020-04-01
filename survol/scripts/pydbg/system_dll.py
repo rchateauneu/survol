@@ -100,6 +100,10 @@ Module32First = ctypes.windll.kernel32.Module32First
 Module32First.argtypes = (wintypes.HANDLE, POINTER(MODULEENTRY32))
 Module32First.restype = wintypes.BOOL
 
+OpenThread = ctypes.windll.kernel32.OpenThread
+OpenThread.argtypes = (wintypes.DWORD, wintypes.BOOL, wintypes.DWORD)
+OpenThread.restype = HANDLE
+
 OpenProcessToken = ctypes.windll.advapi32.OpenProcessToken
 OpenProcessToken.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE))
 OpenProcessToken.restype = wintypes.BOOL
