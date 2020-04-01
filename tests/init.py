@@ -66,16 +66,16 @@ if is_platform_windows:
 
         # The drive must be in uppercase too:
         CurrentExecutable = CurrentExecutable[0].upper() + CurrentExecutable[1:]
-        sys.stderr.write(__file__ + " Fixed sys.executable")
+        sys.stderr.write(__file__ + " Fixed sys.executable:%s\n" % CurrentExecutable)
     except ImportError:
         # Here we cannot do anything.
-        sys.stderr.write(__file__ + " Cannot import win32api to fix sys.executable. Trying _getfinalpathname")
 
         # https://stackoverflow.com/questions/27465610/how-can-i-get-the-proper-capitalization-for-a-path
         # This is an undocumented function, for Python 3 only.
         # os.path._getfinalpathname("c:/python27/python.exe") => '\\\\?\\C:\\Python27\\python.exe'
         # os.path._getfinalpathname("c:/python27/python.exe").lstrip(r'\?') => 'C:\\Python27\\python.exe'
         CurrentExecutable = os.path._getfinalpathname(CurrentExecutable).lstrip(r'\?')
+        sys.stderr.write(__file__ + " Cannot import win32api to fix sys.executable:%s\n" % CurrentExecutable)
 
     CurrentExecutable = CurrentExecutable.replace("\\","/")
 
