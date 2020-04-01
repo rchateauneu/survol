@@ -324,7 +324,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
             print("root=", root_dir, dir_depth(root_dir), dir_depth(test_root_dir))
             if dir_depth(root_dir) != dir_depth(test_root_dir) + 2:
                 continue
-            print("OKOK=", root_dir, dir_depth(root_dir))
+            print("root_dir=", root_dir, dir_depth(root_dir))
             for one_file_name in files_list:
                 sub_path_name = os.path.join(root_dir, one_file_name)
                 expected_files.append(sub_path_name)
