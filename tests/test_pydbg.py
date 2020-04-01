@@ -440,6 +440,11 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         print("Attaching. Root pid=%d" % root_process_id)
         tst_pydbg.attach(created_process.pid)
 
+        subprocess_object = psutil.Process(created_process.pid)
+        self.assertTrue(subprocess_object.ppid() == root_process_id)
+        print("Command=", subprocess_object.cmdline())
+        self.assertTrue(subprocess_object.cmdline() == ["nslookup"])
+
         object_hooks = utils.hook_container()
 
         hook_address_DOS_nslookup = tst_pydbg.func_resolve(b"ws2_32.dll", b"connect")
@@ -482,7 +487,10 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
                 s_addr_ipv6 = object_pydbg.read_process_memory(sockaddr_address + 8, 16)
 
-                print("s_addr_ipv6=%s" % "".join(["%02x" % ord(one_byte) for one_byte in s_addr_ipv6]))
+                if sys.version_info >= (3,):
+                    print("s_addr_ipv6=%s" % str(s_addr_ipv6))
+                else:
+                    print("s_addr_ipv6=%s" % "".join(["%02x" % ord(one_byte) for one_byte in s_addr_ipv6]))
             else:
                 raise Exception("Invalid sa_family")
 
@@ -505,21 +513,36 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
             callback_DOS_nslookup_exit)
 
         print("Writing data to input pipe")
-        for counter in range(50):
-            created_process.stdin.write(b"primhillcomputers.com\n")
+        # The maximum number is variable. If too big, it hangs.
+        created_process.stdin.write(b"primhillcomputers.com\n" * 10)
         created_process.stdin.write(b"quit\n")
         print("Data written")
 
+        if sys.version_info >= (3,):
+            # The subprocess implementation is different between Python 2 and 3.
+            # This makes data available to the subprocess while it is still blocked.
+            try:
+                stdout_data, stderr_data = created_process.communicate(timeout=1.0)
+            except subprocess.TimeoutExpired as exc:
+                print("exc=", exc)
         print("Running")
         tst_pydbg.run()
 
-        output_content = created_process.communicate()[0]
         print("Leaving")
 
-        #created_process.communicate()[0]
+        stdout_data, stderr_data = created_process.communicate()
         created_process.stdin.close()
         created_process.kill()
 
+        print("stdout_data=", stdout_data)
+        # Typical content:
+        # > Server:  UnKnown
+        # Address:  fe80::22b0:1ff:fea4:4672
+        #
+        # Name:    primhillcomputers.com
+        # Address:  164.132.235.17
+        self.assertTrue(stdout_data.find(b"primhillcomputers.com") > 0)
+        self.assertTrue(stderr_data is None)
         self.assertTrue(PersistentState.sin_family == defines.AF_INET6)
 
 
