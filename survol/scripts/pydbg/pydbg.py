@@ -2819,7 +2819,7 @@ class pydbg:
         @raise pdx: An exception is raised on failure.
         '''
 
-        h_thread = kernel32.OpenThread(THREAD_ALL_ACCESS, None, thread_id)
+        h_thread = kernel32.OpenThread(THREAD_ALL_ACCESS, False, thread_id)
 
         if not h_thread:
             raise pdx("OpenThread(%d)" % thread_id, True)
