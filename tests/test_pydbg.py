@@ -40,7 +40,7 @@ class PydbgBasicTest(unittest.TestCase):
 
     # This tests the callbacks which are used for good in other tests.
     # It starts a DOS process which attempts to remove a directory.
-    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    ### @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     @unittest.skipIf(platform.architecture()[0] != '64bit', "Only on 64 bits machines.")
     def test_pydbg_Wow64_Self(self):
         is_wow64 = pydbg.process_is_wow64(pid=None)
