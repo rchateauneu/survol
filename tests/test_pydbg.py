@@ -40,7 +40,6 @@ class PydbgBasicTest(unittest.TestCase):
 
     # This tests the callbacks which are used for good in other tests.
     # It starts a DOS process which attempts to remove a directory.
-    ### @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     @unittest.skipIf(platform.architecture()[0] != '64bit', "Only on 64 bits machines.")
     def test_pydbg_Wow64_Self(self):
         is_wow64 = pydbg.process_is_wow64(pid=None)
@@ -52,7 +51,7 @@ class PydbgBasicTest(unittest.TestCase):
         else:
             self.assertTrue(is_wow64)
 
-    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    ## @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     @unittest.skipIf(platform.architecture()[0] != '64bit', "Only on 64 bits machines.")
     def test_pydbg_Wow64_Other(self):
         """This starts a 32 bits process on a 64 bits platform"""
@@ -77,19 +76,6 @@ class PydbgBasicTest(unittest.TestCase):
         tst_pydbg.run()
         created_process.communicate()
 
-    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
-    def test_listdlls(self):
-        # This is just for debugging.
-        os.system('listdlls %d' % os.getpid())
-
-    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
-    def test_psutil_memory_maps(self):
-        # This is just for debugging.
-        import psutil
-        p = psutil.Process(os.getpid())
-        for dll in p.memory_maps():
-            print(dll.path)
-
 ################################################################################
 
 @unittest.skipIf(is_platform_linux, "Windows only.")
@@ -103,7 +89,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
     # This tests the callbacks which are used for good in other tests.
     # It starts a DOS process which attempts to remove a directory.
-    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    ## @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_DOS_RemoveDirectoryW(self):
         tst_pydbg = create_pydbg()
 
