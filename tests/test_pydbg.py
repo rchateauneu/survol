@@ -542,7 +542,7 @@ class PydbgPythonHooksTest(unittest.TestCase):
     Calls to these functions are then detected and reported.
     """
 
-    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    ## @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_Python_CreateFile(self):
         tst_pydbg = create_pydbg()
 
