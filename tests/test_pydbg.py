@@ -276,7 +276,6 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         self.assertTrue(Context.count_entry == num_loops)
         self.assertTrue(Context.count_exit == num_loops)
 
-    #### @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_DOS_create_process(self):
         tst_pydbg = create_pydbg()
 
@@ -316,7 +315,6 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         self.assertTrue(Context.command_line[1] == '/c')
         self.assertTrue(Context.command_line[2] == ping_echo_command)
 
-    ### @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_DOS_CreateProcessW(self):
         tst_pydbg = create_pydbg()
 
@@ -338,7 +336,6 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         object_hooks = utils.hook_container()
 
         hook_address_process_information = tst_pydbg.func_resolve(b"KERNEL32.dll", b"CreateProcessW")
-        # hook_address_process_information=0000000076ed05e0
         print("hook_address_process_information=%016x" % hook_address_process_information)
 
         tst_pydbg.count_entry = 0
@@ -363,18 +360,9 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
             #   DWORD  dwProcessId;
             #   DWORD  dwThreadId;
             # }
-            offset_dwProcessId = windows_h.sizeof(windows_h.HANDLE) + windows_h.sizeof(windows_h.HANDLE)
-            dwProcessId = object_pydbg.get_long(lpProcessInformation + offset_dwProcessId)
-            print("callback_process_information_entry Handle=", dwProcessId)
-
-            offset_dwThreadId = windows_h.sizeof(windows_h.HANDLE) + windows_h.sizeof(windows_h.HANDLE) + windows_h.sizeof(windows_h.DWORD)
-            dwThreadId = object_pydbg.get_long(lpProcessInformation + offset_dwThreadId)
-            print("callback_process_information_entry dwThreadId=", dwThreadId)
-
             # object_pydbg.dbg is a LPDEBUG_EVENT, pointer to DEBUG_EVENT.
             print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId)
             print("object_pydbg.dbg.dwThreadId=", object_pydbg.dbg.dwThreadId)
-            ### assert object_pydbg.dbg.dwProcessId == long(root_process_id)
 
             self.assertTrue(object_pydbg.dbg.dwProcessId == created_process.pid)
 
@@ -591,7 +579,6 @@ class PydbgPythonHooksTest(unittest.TestCase):
         self.assertTrue(Context.file_name_entry == temp_file_name)
         self.assertTrue(Context.file_name_exit == temp_file_name)
 
-    ####@unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_Python_DeleteFile(self):
         tst_pydbg = create_pydbg()
 
@@ -643,20 +630,19 @@ class PydbgPythonHooksTest(unittest.TestCase):
         self.assertTrue(Context.file_name_entry == temp_file_name)
         self.assertTrue(Context.file_name_exit == temp_file_name)
 
-    @unittest.skip("Not implemented yet.")
-    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    ##@unittest.skip("Not implemented yet.")
+    ##@unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_Python_mkdir_rmdir(self):
         tst_pydbg = create_pydbg()
 
         dir_path = os.path.dirname(__file__)
         sys.path.append(dir_path)
 
-        temp_dir_name = "tmp_directory_%d" % root_process_id
+        temp_file = "tmp_directory_%d_%d" % (os.getpid(), int(time.time()))
+        temp_path = os.path.join( tempfile.gettempdir(), temp_file)
 
-        python_command = ''
-        python_command += 'import time;import os;time.sleep(2.0);'
-        python_command += 'os.mkdir("%s")' % temp_dir_name
-        python_command += 'os.rmdir("%s")' % temp_dir_name
+        python_command = "import time;import os;time.sleep(2.0);dn=r'%s';os.mkdir(dn);os.rmdir(dn)" % temp_path
+        print("python_command=", python_command)
         dir_command_process = subprocess.Popen(
             [sys.executable, '-c', python_command],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
@@ -666,8 +652,8 @@ class PydbgPythonHooksTest(unittest.TestCase):
         class Context:
             created_directory_entry = None
             created_directory_exit = None
-            deleted_directory_entry = None
-            deleted_directory_exit = None
+            removed_directory_entry = None
+            removed_directory_exit = None
 
         # A bit of delay so the process can start.
         time.sleep(0.5)
@@ -677,56 +663,69 @@ class PydbgPythonHooksTest(unittest.TestCase):
 
         object_hooks = utils.hook_container()
 
-        hook_address_CreateDirectoryW = tst_pydbg.func_resolve(b"KERNEL32.dll", b"CreateDirectoryW")
+        if sys.version_info >= (3,):
+            directory_create = b"CreateDirectoryW"
+            directory_remove = b"RemoveDirectoryW"
+            function_get_string = "get_wstring"
+        else:
+            directory_create = b"CreateDirectoryA"
+            directory_remove = b"RemoveDirectoryA"
+            function_get_string = "get_string"
 
-        def callback_CreateDirectoryW_entry(object_pydbg, args):
-            Context.created_directory_entry = object_pydbg.get_wstring(args[0])
-            print("callback_CreateDirectoryW_entry created_directory_entry=", Context.created_directory_entry)
+        hook_address_CreateDirectory = tst_pydbg.func_resolve(b"KERNEL32.dll", directory_create)
+
+        def callback_CreateDirectory_entry(object_pydbg, args):
+            Context.created_directory_entry = getattr(object_pydbg, function_get_string)(args[0])
+            print("callback_CreateDirectory_entry created_directory_entry=", Context.created_directory_entry)
             return defines.DBG_CONTINUE
 
-        def callback_CreateDirectoryW_exit(object_pydbg, args, function_result):
-            Context.created_directory_exit = object_pydbg.get_wstring(args[0])
-            print("callback_CreateDirectoryW_exit created_directory_exit=", Context.created_directory_exit)
+        def callback_CreateDirectory_exit(object_pydbg, args, function_result):
+            Context.created_directory_exit = getattr(object_pydbg, function_get_string)(args[0])
+            print("callback_CreateDirectory_exit created_directory_exit=", Context.created_directory_exit)
             return defines.DBG_CONTINUE
 
         object_hooks.add(
             tst_pydbg,
-            hook_address_CreateDirectoryW,
+            hook_address_CreateDirectory,
             2,
-            callback_CreateDirectoryW_entry,
-            callback_CreateDirectoryW_exit)
+            callback_CreateDirectory_entry,
+            callback_CreateDirectory_exit)
 
-        def callback_RemoveDirectoryW_entry(object_pydbg, args):
-            Context.deleted_directory_entry = object_pydbg.get_wstring(args[0])
-            print("callback_RemoveDirectoryW_entry deleted_directory_entry=", Context.deleted_directory_entry)
+        hook_address_RemoveDirectory = tst_pydbg.func_resolve(b"KERNEL32.dll", directory_remove)
+
+        def callback_RemoveDirectory_entry(object_pydbg, args):
+            Context.removed_directory_entry = getattr(object_pydbg, function_get_string)(args[0])
+            print("callback_RemoveDirectory_entry removed_directory_entry=", Context.removed_directory_entry)
             return defines.DBG_CONTINUE
 
-        def callback_RemoveDirectoryW_exit(object_pydbg, args, function_result):
-            Context.deleted_directory_exit = object_pydbg.get_wstring(args[0])
-            print("callback_RemoveDirectoryW_exit deleted_directory_exit=", Context.deleted_directory_exit)
+        def callback_RemoveDirectory_exit(object_pydbg, args, function_result):
+            Context.removed_directory_exit = getattr(object_pydbg, function_get_string)(args[0])
+            print("callback_RemoveDirectory_exit removed_directory_exit=", Context.removed_directory_exit)
             return defines.DBG_CONTINUE
-
-        hook_address_RemoveDirectoryW = tst_pydbg.func_resolve(b"KERNEL32.dll", b"RemoveDirectoryW")
 
         object_hooks.add(
             tst_pydbg,
-            hook_address_RemoveDirectoryW,
+            hook_address_RemoveDirectory,
             1,
-            callback_RemoveDirectoryW_entry,
-            callback_RemoveDirectoryW_exit)
+            callback_RemoveDirectory_entry,
+            callback_RemoveDirectory_exit)
 
         tst_pydbg.run()
+        stdout_data, stderr_data = dir_command_process.communicate()
+        self.assertTrue(not stdout_data)
+        self.assertTrue(not stderr_data)
         dir_command_process.kill()
 
-        self.assertTrue(Context.created_directory_entry == temp_dir_name)
-        self.assertTrue(Context.created_directory_exit == temp_dir_name)
-        self.assertTrue(Context.deleted_directory_entry == temp_dir_name)
-        self.assertTrue(Context.deleted_directory_exit == temp_dir_name)
+        print("created_directory_entry=", Context.created_directory_entry)
+        print("created_directory_exit=", Context.created_directory_exit)
+        print("removed_directory_entry=", Context.removed_directory_entry)
+        print("removed_directory_exit=", Context.removed_directory_exit)
 
+        self.assertTrue(Context.created_directory_entry == temp_path)
+        self.assertTrue(Context.created_directory_exit == temp_path)
+        self.assertTrue(Context.removed_directory_entry == temp_path)
+        self.assertTrue(Context.removed_directory_exit == temp_path)
 
-
-
-    ###@unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_Python_subprocess(self):
         tst_pydbg = create_pydbg()
 
@@ -829,8 +828,6 @@ class PydbgPythonHooksTest(unittest.TestCase):
             return_dict[one_depth] = one_pid
         print("return_dict=", return_dict)
 
-
-    #####@unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_Python_connect(self):
         server_domain = "primhillcomputers.com"
         server_port = 80
