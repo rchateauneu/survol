@@ -172,7 +172,12 @@ class pydbg:
         system_info = SYSTEM_INFO()
         kernel32.GetSystemInfo(byref(system_info))
         self.page_size = system_info.dwPageSize
+        self._log("system page size is %d" % self.page_size)
+        self.system_break = None
 
+    def set_system_break(self):
+        if self.system_break:
+            return
         # determine the system DbgBreakPoint address. this is the address at which initial and forced breaks happen.
         # XXX - need to look into fixing this for pydbg client/server.
         try:
@@ -181,10 +186,10 @@ class pydbg:
         except Exception as exc:
             self.system_break = None
             self._err("Cannot get DbgBreakPoint address. Exc=%s. Continue" % exc)
-            modules_list = self.enumerate_modules()
+            modules_list = [one_module[0] for one_module in self.enumerate_modules()]
             self._err("modules_list=%s." % str(modules_list))
+            #raise
 
-        self._log("system page size is %d" % self.page_size)
 
 
     ####################################################################################################################
@@ -1643,6 +1648,7 @@ class pydbg:
         # breakpoints we did not set.
         if not self.bp_is_ours(self.exception_address):
             # system breakpoints.
+            self.set_system_break()
             if self.exception_address == self.system_break:
                 # pass control to user registered call back.
                 if EXCEPTION_BREAKPOINT in self.callbacks:
@@ -3849,7 +3855,7 @@ class pydbg:
         @return:    Previous access protection.
         '''
 
-        #self._log("VirtualProtectEx( , 0x%08x, %d, %08x, ,)" % (base_address, size, protection))
+        # self._log("VirtualProtectEx( , 0x%08x, %d, %08x, ,)" % (base_address, size, protection))
 
         old_protect = c_ulong(0)
 
