@@ -214,7 +214,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         self.assertTrue(Context.count_exit == num_loops)
 
     # This starts a separate Python process which attempts several times to open a non-existent file.
-    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    ####@unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_DOS_CreateFileW(self):
         tst_pydbg = create_pydbg()
 
@@ -276,7 +276,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         self.assertTrue(Context.count_entry == num_loops)
         self.assertTrue(Context.count_exit == num_loops)
 
-    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    #### @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_DOS_create_process(self):
         tst_pydbg = create_pydbg()
 
@@ -316,7 +316,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         self.assertTrue(Context.command_line[1] == '/c')
         self.assertTrue(Context.command_line[2] == ping_echo_command)
 
-    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    ### @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_DOS_CreateProcessW(self):
         tst_pydbg = create_pydbg()
 
@@ -408,7 +408,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         self.assertTrue(tst_pydbg.count_entry == num_loops - 1)
         self.assertTrue(tst_pydbg.count_exit == num_loops - 1)
 
-    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    ### @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_DOS_nslookup(self):
         tst_pydbg = create_pydbg()
 
@@ -597,7 +597,7 @@ class PydbgPythonHooksTest(unittest.TestCase):
     def test_pydbg_Python_mkdir(self):
         pass
 
-    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    ####@unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_Python_DeleteFile(self):
         tst_pydbg = create_pydbg()
 
@@ -655,7 +655,7 @@ class PydbgPythonHooksTest(unittest.TestCase):
     def test_pydbg_Python_rmdir(self):
         pass
 
-    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    ###@unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_Python_subprocess(self):
         tst_pydbg = create_pydbg()
 
@@ -759,7 +759,7 @@ class PydbgPythonHooksTest(unittest.TestCase):
         print("return_dict=", return_dict)
 
 
-    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    #####@unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_Python_connect(self):
         server_domain = "primhillcomputers.com"
         server_port = 80
