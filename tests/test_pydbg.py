@@ -112,31 +112,26 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
         hook_address_RemoveDirectoryW = tst_pydbg.func_resolve(b"KERNEL32.dll", b"RemoveDirectoryW")
 
-        tst_pydbg.count_entry = 0
-        tst_pydbg.count_exit = 0
+        class Context:
+            count_entry = 0
+            count_exit = 0
 
         def callback_RemoveDirectoryW_entry(object_pydbg, args):
-            object_pydbg.count_entry += 1
+            Context.count_entry += 1
             dir_name = object_pydbg.get_wstring(args[0])
-            print("callback_RemoveDirectoryW_entry dir_name=", dir_name)
-            self.assertTrue(dir_name == non_existent_dir)
-
             # object_pydbg.dbg is a LPDEBUG_EVENT, pointer to DEBUG_EVENT.
-            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId)
+            print("callback_RemoveDirectoryW_entry dir_name=", dir_name, "dwProcessId=", object_pydbg.dbg.dwProcessId)
+            self.assertTrue(dir_name == non_existent_dir)
             self.assertTrue(object_pydbg.dbg.dwProcessId == created_process.pid)
-
             return defines.DBG_CONTINUE
 
         def callback_RemoveDirectoryW_exit(object_pydbg, args, function_result):
-            object_pydbg.count_exit += 1
+            Context.count_exit += 1
             dir_name = object_pydbg.get_wstring(args[0])
             print("callback_RemoveDirectoryW_exit dir_name=", dir_name, function_result)
             self.assertTrue(dir_name == non_existent_dir)
             self.assertTrue(function_result == 0)
-
-            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId)
             self.assertTrue(object_pydbg.dbg.dwProcessId == created_process.pid)
-
             return defines.DBG_CONTINUE
 
         object_hooks.add(
@@ -148,9 +143,9 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
         tst_pydbg.run()
 
-        print("END", tst_pydbg.count_entry, tst_pydbg.count_exit)
-        self.assertTrue(tst_pydbg.count_entry == num_loops)
-        self.assertTrue(tst_pydbg.count_exit == num_loops)
+        print("Counters:", Context.count_entry, Context.count_exit)
+        self.assertTrue(Context.count_entry == num_loops)
+        self.assertTrue(Context.count_exit == num_loops)
 
     # It starts a DOS process which attempts to remove a directory.
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
@@ -178,29 +173,29 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
         hook_address_DeleteFileW = tst_pydbg.func_resolve(b"KERNEL32.dll", b"DeleteFileW")
 
-        tst_pydbg.count_entry = 0
-        tst_pydbg.count_exit = 0
+        class Context:
+            count_entry = 0
+            count_exit = 0
 
         def callback_DeleteFileW_entry(object_pydbg, args):
-            object_pydbg.count_entry += 1
+            Context.count_entry += 1
             file_name = object_pydbg.get_wstring(args[0])
             print("callback_DeleteFileW_entry file_name=", file_name)
-            print("callback_DeleteFileW_entry getcwd=", os.getcwd())
             self.assertTrue(file_name == temp_path)
 
             # object_pydbg.dbg is a LPDEBUG_EVENT, pointer to DEBUG_EVENT.
-            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId, type(object_pydbg.dbg.dwProcessId))
+            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId)
             self.assertTrue(object_pydbg.dbg.dwProcessId == created_process.pid)
 
             return defines.DBG_CONTINUE
 
         def callback_DeleteFileW_exit(object_pydbg, args, function_result):
-            object_pydbg.count_exit += 1
+            Context.count_exit += 1
             file_name = object_pydbg.get_wstring(args[0])
             print("callback_DeleteFileW_exit file_name=", file_name, function_result)
             self.assertTrue(file_name == temp_path)
 
-            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId, type(object_pydbg.dbg.dwProcessId))
+            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId)
             self.assertTrue(object_pydbg.dbg.dwProcessId == created_process.pid)
 
             return defines.DBG_CONTINUE
@@ -214,9 +209,9 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
         tst_pydbg.run()
 
-        print("END", tst_pydbg.count_entry, tst_pydbg.count_exit)
-        self.assertTrue(tst_pydbg.count_entry == num_loops)
-        self.assertTrue(tst_pydbg.count_exit == num_loops)
+        print("Counters:", Context.count_entry, Context.count_exit)
+        self.assertTrue(Context.count_entry == num_loops)
+        self.assertTrue(Context.count_exit == num_loops)
 
     # This starts a separate Python process which attempts several times to open a non-existent file.
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
@@ -243,11 +238,12 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
         hook_address_CreateFileW = tst_pydbg.func_resolve(b"KERNEL32.dll", b"CreateFileW")
 
-        tst_pydbg.count_entry = 0
-        tst_pydbg.count_exit = 0
+        class Context:
+            count_entry = 0
+            count_exit = 0
 
         def callback_CreateFileW_entry(object_pydbg, args):
-            object_pydbg.count_entry += 1
+            Context.count_entry += 1
             file_name = object_pydbg.get_wstring(args[0])
             print("callback_CreateFileW_entry file_name=", file_name)
             if object_pydbg.is_wow64:
@@ -257,7 +253,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
             return defines.DBG_CONTINUE
 
         def callback_CreateFileW_exit(object_pydbg, args, function_result):
-            object_pydbg.count_exit += 1
+            Context.count_exit += 1
             file_name = object_pydbg.get_wstring(args[0])
             print("callback_CreateFileW_exit file_name=", file_name, function_result)
             self.assertTrue(file_name == non_existent_file)
@@ -275,10 +271,10 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
         tst_pydbg.run()
 
-        print("END", tst_pydbg.count_entry, tst_pydbg.count_exit)
+        print("END", Context.count_entry, Context.count_exit)
         # The first call might be missed.
-        self.assertTrue(tst_pydbg.count_entry == num_loops)
-        self.assertTrue(tst_pydbg.count_exit == num_loops)
+        self.assertTrue(Context.count_entry == num_loops)
+        self.assertTrue(Context.count_exit == num_loops)
 
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_DOS_create_process(self):
@@ -376,7 +372,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
             print("callback_process_information_entry dwThreadId=", dwThreadId)
 
             # object_pydbg.dbg is a LPDEBUG_EVENT, pointer to DEBUG_EVENT.
-            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId, type(object_pydbg.dbg.dwProcessId))
+            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId)
             print("object_pydbg.dbg.dwThreadId=", object_pydbg.dbg.dwThreadId)
             ### assert object_pydbg.dbg.dwProcessId == long(root_process_id)
 
