@@ -180,7 +180,9 @@ class pydbg:
             self.system_break = self.func_resolve(b"ntdll.dll", b"DbgBreakPoint")
         except Exception as exc:
             self.system_break = None
-            sys.stderr.write("Cannot get DbgBreakPoint address. Continue")
+            self._err("Cannot get DbgBreakPoint address. Exc=%s. Continue" % exc)
+            modules_list = self.enumerate_modules()
+            self._err("modules_list=%s." % str(modules_list))
 
         self._log("system page size is %d" % self.page_size)
 
@@ -1306,11 +1308,11 @@ class pydbg:
         @return: List of module name / base address tuples.
         '''
 
-        self._log("enumerate_modules()")
+        # self._log("enumerate_modules()")
 
         module      = MODULEENTRY32()
         module_list = []
-        self._log("CreateToolhelp32Snapshot")
+        # self._log("CreateToolhelp32Snapshot")
         snapshot    = kernel32.CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, self.pid)
 
         if snapshot == INVALID_HANDLE_VALUE:
@@ -1319,12 +1321,12 @@ class pydbg:
         # we *must* set the size of the structure prior to using it, otherwise Module32First() will fail.
         module.dwSize = sizeof(module)
 
-        self._log("Module32First")
+        # self._log("Module32First")
         found_mod = kernel32.Module32First(snapshot, byref(module))
 
         while found_mod:
             module_list.append((module.szModule, module.modBaseAddr))
-            self._log("Module32Next")
+            # self._log("Module32Next")
             found_mod = kernel32.Module32Next(snapshot, byref(module))
 
         self.close_handle(snapshot)

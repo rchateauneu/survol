@@ -51,7 +51,6 @@ class PydbgBasicTest(unittest.TestCase):
         else:
             self.assertTrue(is_wow64)
 
-    ## @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     @unittest.skipIf(platform.architecture()[0] != '64bit', "Only on 64 bits machines.")
     def test_pydbg_Wow64_Other(self):
         """This starts a 32 bits process on a 64 bits platform"""
@@ -123,7 +122,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
             self.assertTrue(dir_name == non_existent_dir)
 
             # object_pydbg.dbg is a LPDEBUG_EVENT, pointer to DEBUG_EVENT.
-            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId, type(object_pydbg.dbg.dwProcessId))
+            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId)
             self.assertTrue(object_pydbg.dbg.dwProcessId == created_process.pid)
 
             return defines.DBG_CONTINUE
@@ -135,7 +134,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
             self.assertTrue(dir_name == non_existent_dir)
             self.assertTrue(function_result == 0)
 
-            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId, type(object_pydbg.dbg.dwProcessId))
+            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId)
             self.assertTrue(object_pydbg.dbg.dwProcessId == created_process.pid)
 
             return defines.DBG_CONTINUE
