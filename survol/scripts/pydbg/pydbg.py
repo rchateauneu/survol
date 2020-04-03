@@ -1049,9 +1049,9 @@ class pydbg:
         @raise pdx: An exception is raised on failure.
         '''
 
-        self._log("DebugSetProcessKillOnExit")
+        self._log("About to call DebugSetProcessKillOnExit(%s)" % kill_on_exit)
         if not kernel32.DebugSetProcessKillOnExit(kill_on_exit):
-            raise pdx("DebugActiveProcess(%s)" % kill_on_exit, True)
+            raise pdx("DebugSetProcessKillOnExit(%s)" % kill_on_exit, True)
 
 
     ####################################################################################################################
@@ -1649,6 +1649,7 @@ class pydbg:
         if not self.bp_is_ours(self.exception_address):
             # system breakpoints.
             self.set_system_break()
+            assert self.system_break
             if self.exception_address == self.system_break:
                 # pass control to user registered call back.
                 if EXCEPTION_BREAKPOINT in self.callbacks:
