@@ -88,7 +88,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
     # This tests the callbacks which are used for good in other tests.
     # It starts a DOS process which attempts to remove a directory.
-    ## @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_DOS_RemoveDirectoryW(self):
         tst_pydbg = create_pydbg()
 
@@ -214,7 +214,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         self.assertTrue(Context.count_exit == num_loops)
 
     # This starts a separate Python process which attempts several times to open a non-existent file.
-    ####@unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_DOS_CreateFileW(self):
         tst_pydbg = create_pydbg()
 
@@ -408,7 +408,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         self.assertTrue(tst_pydbg.count_entry == num_loops - 1)
         self.assertTrue(tst_pydbg.count_exit == num_loops - 1)
 
-    ### @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_DOS_nslookup(self):
         tst_pydbg = create_pydbg()
 
@@ -537,7 +537,7 @@ class PydbgPythonHooksTest(unittest.TestCase):
     Calls to these functions are then detected and reported.
     """
 
-    ## @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_Python_CreateFile(self):
         tst_pydbg = create_pydbg()
 
@@ -591,12 +591,6 @@ class PydbgPythonHooksTest(unittest.TestCase):
         self.assertTrue(Context.file_name_entry == temp_file_name)
         self.assertTrue(Context.file_name_exit == temp_file_name)
 
-
-    @unittest.skip("Not implemented yet.")
-    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
-    def test_pydbg_Python_mkdir(self):
-        pass
-
     ####@unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_Python_DeleteFile(self):
         tst_pydbg = create_pydbg()
@@ -619,7 +613,6 @@ class PydbgPythonHooksTest(unittest.TestCase):
         # A bit of delay so the process can start.
         time.sleep(0.5)
 
-        print("Root pid=%d" % root_process_id)
         print("Attaching to pid=%d" % deletion_file_process.pid)
         tst_pydbg.attach(deletion_file_process.pid)
 
@@ -652,8 +645,86 @@ class PydbgPythonHooksTest(unittest.TestCase):
 
     @unittest.skip("Not implemented yet.")
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
-    def test_pydbg_Python_rmdir(self):
-        pass
+    def test_pydbg_Python_mkdir_rmdir(self):
+        tst_pydbg = create_pydbg()
+
+        dir_path = os.path.dirname(__file__)
+        sys.path.append(dir_path)
+
+        temp_dir_name = "tmp_directory_%d" % root_process_id
+
+        python_command = ''
+        python_command += 'import time;import os;time.sleep(2.0);'
+        python_command += 'os.mkdir("%s")' % temp_dir_name
+        python_command += 'os.rmdir("%s")' % temp_dir_name
+        dir_command_process = subprocess.Popen(
+            [sys.executable, '-c', python_command],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+
+        print("dir_command_process ", dir_command_process.pid)
+
+        class Context:
+            created_directory_entry = None
+            created_directory_exit = None
+            deleted_directory_entry = None
+            deleted_directory_exit = None
+
+        # A bit of delay so the process can start.
+        time.sleep(0.5)
+
+        print("Attaching to pid=%d" % dir_command_process.pid)
+        tst_pydbg.attach(dir_command_process.pid)
+
+        object_hooks = utils.hook_container()
+
+        hook_address_CreateDirectoryW = tst_pydbg.func_resolve(b"KERNEL32.dll", b"CreateDirectoryW")
+
+        def callback_CreateDirectoryW_entry(object_pydbg, args):
+            Context.created_directory_entry = object_pydbg.get_wstring(args[0])
+            print("callback_CreateDirectoryW_entry created_directory_entry=", Context.created_directory_entry)
+            return defines.DBG_CONTINUE
+
+        def callback_CreateDirectoryW_exit(object_pydbg, args, function_result):
+            Context.created_directory_exit = object_pydbg.get_wstring(args[0])
+            print("callback_CreateDirectoryW_exit created_directory_exit=", Context.created_directory_exit)
+            return defines.DBG_CONTINUE
+
+        object_hooks.add(
+            tst_pydbg,
+            hook_address_CreateDirectoryW,
+            2,
+            callback_CreateDirectoryW_entry,
+            callback_CreateDirectoryW_exit)
+
+        def callback_RemoveDirectoryW_entry(object_pydbg, args):
+            Context.deleted_directory_entry = object_pydbg.get_wstring(args[0])
+            print("callback_RemoveDirectoryW_entry deleted_directory_entry=", Context.deleted_directory_entry)
+            return defines.DBG_CONTINUE
+
+        def callback_RemoveDirectoryW_exit(object_pydbg, args, function_result):
+            Context.deleted_directory_exit = object_pydbg.get_wstring(args[0])
+            print("callback_RemoveDirectoryW_exit deleted_directory_exit=", Context.deleted_directory_exit)
+            return defines.DBG_CONTINUE
+
+        hook_address_RemoveDirectoryW = tst_pydbg.func_resolve(b"KERNEL32.dll", b"RemoveDirectoryW")
+
+        object_hooks.add(
+            tst_pydbg,
+            hook_address_RemoveDirectoryW,
+            1,
+            callback_RemoveDirectoryW_entry,
+            callback_RemoveDirectoryW_exit)
+
+        tst_pydbg.run()
+        dir_command_process.kill()
+
+        self.assertTrue(Context.created_directory_entry == temp_dir_name)
+        self.assertTrue(Context.created_directory_exit == temp_dir_name)
+        self.assertTrue(Context.deleted_directory_entry == temp_dir_name)
+        self.assertTrue(Context.deleted_directory_exit == temp_dir_name)
+
+
+
 
     ###@unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_Python_subprocess(self):
