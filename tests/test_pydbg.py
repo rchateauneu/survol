@@ -59,11 +59,10 @@ class PydbgBasicTest(unittest.TestCase):
         cmd32_command = r"C:\Windows\SysWOW64\cmd.exe"
 
         created_process = subprocess.Popen([cmd32_command, "/c", "FOR /L %A IN (1,1,3) DO ping -n 2 127.0.0.1"], shell=False)
-        print("Created process:%d" % created_process.pid)
 
         time.sleep(0.5)
 
-        print("Attaching to created_process.pid=%d" % created_process.pid)
+        print("Root pid=%d. Attaching to %d" % (root_process_id, created_process.pid))
         tst_pydbg.attach(created_process.pid)
 
         is_wow64 = pydbg.process_is_wow64(pid=created_process.pid)
@@ -100,12 +99,11 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         rmdir_command = "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 127.0.0.1 >NUL & echo %%A & rmdir %s )" % (num_loops, non_existent_dir)
 
         created_process = subprocess.Popen(rmdir_command, shell=True)
-        print("Created process:%d" % created_process.pid)
 
         # A bit of delay so the process can start.
         time.sleep(1.0)
 
-        print("Attaching. Root pid=%d" % root_process_id)
+        print("Root pid=%d. Attaching to %d" % (root_process_id, created_process.pid))
         tst_pydbg.attach(created_process.pid)
 
         object_hooks = utils.hook_container()
@@ -161,12 +159,11 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         del_file_command = "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 127.0.0.1 >%s & echo %%A & del %s )" % (num_loops, temp_path, temp_path)
 
         created_process = subprocess.Popen(del_file_command, shell=True)
-        print("Created process:%d" % created_process.pid)
 
         # A bit of delay so the process can start.
         time.sleep(1.0)
 
-        print("Attaching. Root pid=%d" % root_process_id)
+        print("Root pid=%d. Attaching to %d" % (root_process_id, created_process.pid))
         tst_pydbg.attach(created_process.pid)
 
         object_hooks = utils.hook_container()
@@ -226,12 +223,11 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         type_command = "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 127.0.0.1 & echo %%A & type %s )" % (num_loops, non_existent_file)
 
         created_process = subprocess.Popen(type_command, shell=True)
-        print("Created process:%d" % created_process.pid)
 
         # A bit of delay so the process can start.
         time.sleep(1.0)
 
-        print("Attaching. Root pid=%d" % root_process_id)
+        print("Root pid=%d. Attaching to %d" % (root_process_id, created_process.pid))
         tst_pydbg.attach(created_process.pid)
 
         object_hooks = utils.hook_container()
@@ -285,12 +281,11 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         ping_echo_command = "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 127.0.0.1& echo %%A )" % num_loops
 
         created_process = subprocess.Popen(ping_echo_command, shell=True)
-        print("Created process:%d" % created_process.pid)
 
         # A bit of delay so the process can start.
         time.sleep(0.5)
 
-        print("Attaching. Root pid=%d" % root_process_id)
+        print("Root pid=%d. Attaching to %d" % (root_process_id, created_process.pid))
         tst_pydbg.attach(created_process.pid)
 
         class Context:
@@ -330,7 +325,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         # A bit of delay so the process can start.
         time.sleep(1.0)
 
-        print("Attaching. Root pid=%d" % root_process_id)
+        print("Root pid=%d. Attaching to %d" % (root_process_id, created_process.pid))
         tst_pydbg.attach(created_process.pid)
 
         object_hooks = utils.hook_container()
@@ -361,8 +356,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
             #   DWORD  dwThreadId;
             # }
             # object_pydbg.dbg is a LPDEBUG_EVENT, pointer to DEBUG_EVENT.
-            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId)
-            print("object_pydbg.dbg.dwThreadId=", object_pydbg.dbg.dwThreadId)
+            print("dwProcessId=", object_pydbg.dbg.dwProcessId, "dwThreadId=", object_pydbg.dbg.dwThreadId)
 
             self.assertTrue(object_pydbg.dbg.dwProcessId == created_process.pid)
 
@@ -400,13 +394,11 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
     def test_pydbg_DOS_nslookup(self):
         tst_pydbg = create_pydbg()
 
-        import subprocess
-
         created_process = subprocess.Popen(["nslookup"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=False)
 
         time.sleep(0.5)
 
-        print("Attaching. Root pid=%d" % root_process_id)
+        print("Root pid=%d. Attaching to %d" % (root_process_id, created_process.pid))
         tst_pydbg.attach(created_process.pid)
 
         subprocess_object = psutil.Process(created_process.pid)
@@ -529,10 +521,7 @@ class PydbgPythonHooksTest(unittest.TestCase):
     def test_pydbg_Python_CreateFile(self):
         tst_pydbg = create_pydbg()
 
-        dir_path = os.path.dirname(__file__)
-        sys.path.append(dir_path)
-
-        temp_file_name = "tmp_create.txt"
+        temp_file_name = "test_pydbg_tmp_create_%d_%d" % (root_process_id, int(time.time()))
         python_command = 'import time;time.sleep(2.0);f=open(u"%s", "w");f.close()' % temp_file_name
         creation_file_process = subprocess.Popen(
             [sys.executable, '-c', python_command],
@@ -547,7 +536,6 @@ class PydbgPythonHooksTest(unittest.TestCase):
         # A bit of delay so the process can start.
         time.sleep(0.5)
 
-        print("Root pid=%d" % root_process_id)
         print("Attaching to pid=%d" % creation_file_process.pid)
         tst_pydbg.attach(creation_file_process.pid)
 
@@ -582,10 +570,7 @@ class PydbgPythonHooksTest(unittest.TestCase):
     def test_pydbg_Python_DeleteFile(self):
         tst_pydbg = create_pydbg()
 
-        dir_path = os.path.dirname(__file__)
-        sys.path.append(dir_path)
-
-        temp_file_name = "tmp_delete.txt"
+        temp_file_name = "test_pydbg_tmp_delete_%d_%d" % (root_process_id, int(time.time()))
         python_command = 'import time;import os;time.sleep(2.0);f=open(u"%s", "w");f.close();os.remove(u"%s")' % (temp_file_name, temp_file_name)
         deletion_file_process = subprocess.Popen(
             [sys.executable, '-c', python_command],
@@ -630,16 +615,11 @@ class PydbgPythonHooksTest(unittest.TestCase):
         self.assertTrue(Context.file_name_entry == temp_file_name)
         self.assertTrue(Context.file_name_exit == temp_file_name)
 
-    ##@unittest.skip("Not implemented yet.")
-    ##@unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_Python_mkdir_rmdir(self):
         tst_pydbg = create_pydbg()
 
-        dir_path = os.path.dirname(__file__)
-        sys.path.append(dir_path)
-
-        temp_file = "tmp_directory_%d_%d" % (os.getpid(), int(time.time()))
-        temp_path = os.path.join( tempfile.gettempdir(), temp_file)
+        temp_file_name = "test_pydbg_tmp_directory_%d_%d" % (root_process_id, int(time.time()))
+        temp_path = os.path.join( tempfile.gettempdir(), temp_file_name)
 
         python_command = "import time;import os;time.sleep(2.0);dn=r'%s';os.mkdir(dn);os.rmdir(dn)" % temp_path
         print("python_command=", python_command)
@@ -727,10 +707,8 @@ class PydbgPythonHooksTest(unittest.TestCase):
         self.assertTrue(Context.removed_directory_exit == temp_path)
 
     def test_pydbg_Python_subprocess(self):
+        """This starts a Python subprocess without an intermediary shell."""
         tst_pydbg = create_pydbg()
-
-        dir_path = os.path.dirname(__file__)
-        sys.path.append(dir_path)
 
         python_command = 'print("Hello");import time;time.sleep(2.0)'
         print_hello_process = subprocess.Popen([sys.executable, '-c', python_command],
@@ -742,13 +720,12 @@ class PydbgPythonHooksTest(unittest.TestCase):
         time.sleep(0.5)
 
         class Context:
-            object_process = None
+            command_line = None
 
         tst_pydbg.attach(print_hello_process.pid)
 
         def print_hello_callback(object_pydbg):
-            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId)
-            print("object_pydbg.dbg.dwThreadId=", object_pydbg.dbg.dwThreadId)
+            print("dwProcessId=", object_pydbg.dbg.dwProcessId, "dwThreadId=", object_pydbg.dbg.dwThreadId)
 
             object_process = psutil.Process(object_pydbg.dbg.dwProcessId)
             Context.command_line = object_process.cmdline()
@@ -764,13 +741,51 @@ class PydbgPythonHooksTest(unittest.TestCase):
         tst_pydbg.run()
         self.assertTrue(Context.command_line == [sys.executable, '-c', python_command])
 
+    def test_pydbg_Python_shell_sub_process(self):
+        """This starts a shell, then a Python subprocess."""
+        tst_pydbg = create_pydbg()
+
+        python_command = 'print("Hello");import time;time.sleep(2.0)'
+        process_command = [sys.executable, '-c', python_command]
+        print_shell_process = subprocess.Popen(process_command,
+                                                stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
+
+        # A bit of delay so the process can start.
+        time.sleep(0.5)
+
+        class Context:
+            command_line = None
+
+        tst_pydbg.attach(print_shell_process.pid)
+
+        def print_shell_callback(object_pydbg):
+            print("dwProcessId=", object_pydbg.dbg.dwProcessId, "dbg.dwThreadId=", object_pydbg.dbg.dwThreadId)
+            object_process = psutil.Process(object_pydbg.dbg.dwProcessId)
+            Context.command_line = object_process.cmdline()
+            assert object_pydbg == tst_pydbg
+            assert object_process.ppid() == root_process_id
+            return defines.DBG_CONTINUE
+
+        tst_pydbg.set_callback(defines.CREATE_PROCESS_DEBUG_EVENT, print_shell_callback)
+
+        tst_pydbg.run()
+        # FIXME: The command array is wrong when parameters contain spaces:
+        # Actual:
+        # ['C:\\windows\\system32\\cmd.exe', '/c', 'C:\\Python27\\python.exe -c print("Hello");import', 'time;time.sleep(2.0)'
+        # Expected:
+        # ['C:\\windows\\system32\\cmd.exe', '/c', 'C:\\Python27\\python.exe -c print("Hello");import time;time.sleep(2.0)'
+        # FIXME: Therefore everything is converted to strings before comparison.
+
+        expected_command_line = "C:\\windows\\system32\\cmd.exe /c %s" % " ".join(process_command)
+        print("expected_command_line=", expected_command_line)
+        actual_command_line = " ".join(Context.command_line)
+        print("actual_command_line=", actual_command_line)
+        self.assertTrue(actual_command_line == expected_command_line)
+
     @unittest.skip("Does not work yet")
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_pydbg_Python_subprocesses_recursive(self):
         tst_pydbg = create_pydbg()
-
-        dir_path = os.path.dirname(__file__)
-        sys.path.append(dir_path)
 
         tree_depth = 5
 
@@ -782,15 +797,13 @@ class PydbgPythonHooksTest(unittest.TestCase):
         # A bit of delay so the process can start.
         time.sleep(1.0)
 
-        print("Root pid=%d" % root_process_id)
         print("Attaching to pid=%d" % top_created_process.pid)
         tst_pydbg.attach(top_created_process.pid)
 
         tst_pydbg.sub_pydbgs = []
 
         def python_process_creation_callback(object_pydbg):
-            print("python_process_creation_callback object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId)
-            print("python_process_creation_callbackobject_pydbg.dbg.dwThreadId=", object_pydbg.dbg.dwThreadId)
+            print("dwProcessId=", object_pydbg.dbg.dwProcessId, "dwThreadId=", object_pydbg.dbg.dwThreadId)
 
             object_process = psutil.Process(object_pydbg.dbg.dwProcessId)
             # Command line: ['C:\\Python27\\python.exe', '-m', 'create_process_chain', '5']
@@ -858,7 +871,6 @@ for counter in range(3):
         # A bit of delay so the process can start before attaching to it.
         time.sleep(0.5)
 
-        print("Root pid=%d" % root_process_id)
         print("Attaching to pid=%d" % url_process.pid)
         tst_pydbg.attach(url_process.pid)
 
