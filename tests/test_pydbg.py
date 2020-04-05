@@ -527,8 +527,6 @@ class PydbgPythonHooksTest(unittest.TestCase):
             [sys.executable, '-c', python_command],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
 
-        print("creation_file_process ", creation_file_process.pid)
-
         class Context:
             file_name_entry = None
             file_name_exit = None
@@ -576,8 +574,6 @@ class PydbgPythonHooksTest(unittest.TestCase):
             [sys.executable, '-c', python_command],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
 
-        print("deletion_file_process ", deletion_file_process.pid)
-
         class Context:
             file_name_entry = None
             file_name_exit = None
@@ -614,6 +610,53 @@ class PydbgPythonHooksTest(unittest.TestCase):
         deletion_file_process.kill()
         self.assertTrue(Context.file_name_entry == temp_name)
         self.assertTrue(Context.file_name_exit == temp_name)
+
+    def test_pydbg_Python_system(self):
+        tst_pydbg = create_pydbg()
+
+        temp_name = "test_pydbg_tmp_delete_%d_%d" % (root_process_id, int(time.time()))
+        system_command = "dir"
+        python_command = 'import time;import os;time.sleep(2);os.system("%s")' % system_command
+        system_process = subprocess.Popen(
+            [sys.executable, '-c', python_command],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+
+        class Context:
+            system_command_exit = None
+
+        # A bit of delay so the process can start.
+        time.sleep(0.5)
+
+        print("Attaching to pid=%d" % system_process.pid)
+        tst_pydbg.attach(system_process.pid)
+
+        object_hooks = utils.hook_container()
+
+        if sys.version_info >= (3,):
+            create_process_function = b"CreateProcessW"
+            function_get_string = "get_wstring"
+        else:
+            create_process_function = b"CreateProcessA"
+            function_get_string = "get_string"
+
+        hook_address_create_process = tst_pydbg.func_resolve(b"KERNEL32.dll", create_process_function)
+
+        def callback_system_exit(object_pydbg, args, function_result):
+            Context.system_command_exit = getattr(object_pydbg, function_get_string)(args[0])
+            print("callback_system_exit system_command_exit=", Context.system_command_exit)
+            return defines.DBG_CONTINUE
+
+        object_hooks.add(
+            tst_pydbg,
+            hook_address_create_process,
+            1,
+            None,
+            callback_system_exit)
+
+        tst_pydbg.run()
+        system_process.kill()
+        cmd_executable = r'C:\windows\system32\cmd.exe'
+        self.assertTrue(Context.system_command_exit == cmd_executable)
 
     def test_pydbg_Python_mkdir_rmdir(self):
         tst_pydbg = create_pydbg()
