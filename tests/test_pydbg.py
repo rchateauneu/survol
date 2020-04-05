@@ -656,7 +656,9 @@ class PydbgPythonHooksTest(unittest.TestCase):
         tst_pydbg.run()
         system_process.kill()
         cmd_executable = r'C:\windows\system32\cmd.exe'
-        self.assertTrue(Context.system_command_exit == cmd_executable)
+        # Conversion to lower case because c:\windows might be C:\Windows on Travis.
+        print("cmd_executable=", cmd_executable)
+        self.assertTrue(Context.system_command_exit.lower() == cmd_executable.lower())
 
     def test_pydbg_Python_mkdir_rmdir(self):
         tst_pydbg = create_pydbg()
@@ -825,6 +827,53 @@ class PydbgPythonHooksTest(unittest.TestCase):
         print("actual_command_line=", actual_command_line)
         # Conversion to lower case because c:\windows might be C:\Windows.
         self.assertTrue(actual_command_line.lower() == expected_command_line.lower())
+
+    @unittest.skip("Does not work yet")
+    def test_pydbg_Python_shell_DeleteFile(self):
+        tst_pydbg = create_pydbg()
+
+        temp_name = "test_pydbg_non_existent_%d_%d" % (root_process_id, int(time.time()))
+        python_command = 'import time;import os;time.sleep(2);os.remove(u"%s")' % temp_name
+        deletion_file_process = subprocess.Popen(
+            [sys.executable, '-c', python_command],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+
+        class Context:
+            file_name_entry = None
+            file_name_exit = None
+
+        # A bit of delay so the process can start.
+        time.sleep(0.5)
+
+        print("Attaching to pid=%d" % deletion_file_process.pid)
+        tst_pydbg.attach(deletion_file_process.pid)
+
+        object_hooks = utils.hook_container()
+
+        hook_address_shell_delete_file_w = tst_pydbg.func_resolve(b"KERNEL32.dll", b"DeleteFileW")
+        print("hook_address_shell_delete_file_w=%016x" % hook_address_shell_delete_file_w)
+
+        def callback_shell_delete_file_entry(object_pydbg, args):
+            Context.file_name_entry = object_pydbg.get_wstring(args[0])
+            print("callback_shell_delete_file_entry file_name_entry=", Context.file_name_entry)
+            return defines.DBG_CONTINUE
+
+        def callback_shell_delete_file_exit(object_pydbg, args, function_result):
+            Context.file_name_exit = object_pydbg.get_wstring(args[0])
+            print("callback_shell_delete_file_exit file_name_exit=", Context.file_name_exit)
+            return defines.DBG_CONTINUE
+
+        object_hooks.add(
+            tst_pydbg,
+            hook_address_shell_delete_file_w,
+            1,
+            callback_shell_delete_file_entry,
+            callback_shell_delete_file_exit)
+
+        tst_pydbg.run()
+        deletion_file_process.kill()
+        self.assertTrue(Context.file_name_entry == temp_name)
+        self.assertTrue(Context.file_name_exit == temp_name)
 
     @unittest.skip("Does not work yet")
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
