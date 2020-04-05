@@ -571,7 +571,7 @@ class PydbgPythonHooksTest(unittest.TestCase):
         tst_pydbg = create_pydbg()
 
         temp_file_name = "test_pydbg_tmp_delete_%d_%d" % (root_process_id, int(time.time()))
-        python_command = 'import time;import os;time.sleep(2.0);f=open(u"%s", "w");f.close();os.remove(u"%s")' % (temp_file_name, temp_file_name)
+        python_command = 'import time;import os;time.sleep(2);n=u"%s";f=open(n,"w");f.close();os.remove(n)' % temp_file_name
         deletion_file_process = subprocess.Popen(
             [sys.executable, '-c', python_command],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
