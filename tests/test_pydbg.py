@@ -780,7 +780,8 @@ class PydbgPythonHooksTest(unittest.TestCase):
         print("expected_command_line=", expected_command_line)
         actual_command_line = " ".join(Context.command_line)
         print("actual_command_line=", actual_command_line)
-        self.assertTrue(actual_command_line == expected_command_line)
+        # Conversion to lower case because c:\windows might be C:\Windows.
+        self.assertTrue(actual_command_line.lower() == expected_command_line.lower())
 
     @unittest.skip("Does not work yet")
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
