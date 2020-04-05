@@ -570,8 +570,8 @@ class PydbgPythonHooksTest(unittest.TestCase):
     def test_pydbg_Python_DeleteFile(self):
         tst_pydbg = create_pydbg()
 
-        temp_file_name = "test_pydbg_tmp_delete_%d_%d" % (root_process_id, int(time.time()))
-        python_command = 'import time;import os;time.sleep(2);n=u"%s";f=open(n,"w");f.close();os.remove(n)' % temp_file_name
+        temp_name = "test_pydbg_tmp_delete_%d_%d" % (root_process_id, int(time.time()))
+        python_command = 'import time;import os;time.sleep(2);n=u"%s";f=open(n,"w");f.close();os.remove(n)' % temp_name
         deletion_file_process = subprocess.Popen(
             [sys.executable, '-c', python_command],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
@@ -612,8 +612,8 @@ class PydbgPythonHooksTest(unittest.TestCase):
 
         tst_pydbg.run()
         deletion_file_process.kill()
-        self.assertTrue(Context.file_name_entry == temp_file_name)
-        self.assertTrue(Context.file_name_exit == temp_file_name)
+        self.assertTrue(Context.file_name_entry == temp_name)
+        self.assertTrue(Context.file_name_exit == temp_name)
 
     def test_pydbg_Python_mkdir_rmdir(self):
         tst_pydbg = create_pydbg()
