@@ -66,7 +66,7 @@ if is_platform_windows:
 
         # The drive must be in uppercase too:
         CurrentExecutable = CurrentExecutable[0].upper() + CurrentExecutable[1:]
-        sys.stderr.write(__file__ + " Fixed sys.executable:%s\n" % CurrentExecutable)
+        # sys.stderr.write(__file__ + " Fixed sys.executable:%s\n" % CurrentExecutable)
     except ImportError:
         # Here we cannot do anything.
 
