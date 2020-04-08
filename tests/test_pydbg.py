@@ -26,22 +26,18 @@ if not is_platform_linux:
     from survol.scripts.pydbg import utils
     from survol.scripts.pydbg import windows_h
 
-    def create_pydbg():
-        tst_pydbg = pydbg.pydbg()
-        return tst_pydbg
-
 ################################################################################
 
 @unittest.skipIf(is_platform_linux, "Windows only.")
 class PydbgBasicTest(unittest.TestCase):
     """
-    Test basic features
+    Test basic features.
     """
 
     # This tests the callbacks which are used for good in other tests.
     # It starts a DOS process which attempts to remove a directory.
     @unittest.skipIf(platform.architecture()[0] != '64bit', "Only on 64 bits machines.")
-    def test_pydbg_Wow64_Self(self):
+    def test_Wow64_Self(self):
         is_wow64 = pydbg.process_is_wow64(pid=None)
         print("is_wow64=", is_wow64)
         print("platform.architecture()=", platform.architecture())
@@ -52,9 +48,9 @@ class PydbgBasicTest(unittest.TestCase):
             self.assertTrue(is_wow64)
 
     @unittest.skipIf(platform.architecture()[0] != '64bit', "Only on 64 bits machines.")
-    def test_pydbg_Wow64_Other(self):
+    def test_Wow64_Other(self):
         """This starts a 32 bits process on a 64 bits platform"""
-        tst_pydbg = create_pydbg()
+        tst_pydbg = pydbg.pydbg()
 
         cmd32_command = r"C:\Windows\SysWOW64\cmd.exe"
 
@@ -88,8 +84,8 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
     # This tests the callbacks which are used for good in other tests.
     # It starts a DOS process which attempts to remove a directory.
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
-    def test_pydbg_DOS_RemoveDirectoryW(self):
-        tst_pydbg = create_pydbg()
+    def test_DOS_RemoveDirectoryW(self):
+        tst_pydbg = pydbg.pydbg()
 
         num_loops = 4
         non_existent_dir = "NonExistentDir"
@@ -147,8 +143,8 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
     # It starts a DOS process which attempts to remove a directory.
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
-    def test_pydbg_DOS_DeleteFileW(self):
-        tst_pydbg = create_pydbg()
+    def test_DOS_DeleteFileW(self):
+        tst_pydbg = pydbg.pydbg()
 
         num_loops = 3
         temp_file = "Temporary_%d_%d.xyz" % (os.getpid(), int(time.time()))
@@ -212,8 +208,8 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
     # This starts a separate Python process which attempts several times to open a non-existent file.
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
-    def test_pydbg_DOS_CreateFileW(self):
-        tst_pydbg = create_pydbg()
+    def test_DOS_CreateFileW(self):
+        tst_pydbg = pydbg.pydbg()
 
         num_loops = 5
         non_existent_file = "NonExistentFile"
@@ -272,8 +268,8 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         self.assertTrue(Context.count_entry == num_loops)
         self.assertTrue(Context.count_exit == num_loops)
 
-    def test_pydbg_DOS_create_process(self):
-        tst_pydbg = create_pydbg()
+    def test_DOS_create_process(self):
+        tst_pydbg = pydbg.pydbg()
 
         num_loops = 3
 
@@ -310,8 +306,8 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         self.assertTrue(Context.command_line[1] == '/c')
         self.assertTrue(Context.command_line[2] == ping_echo_command)
 
-    def test_pydbg_DOS_CreateProcessW(self):
-        tst_pydbg = create_pydbg()
+    def test_DOS_CreateProcessW(self):
+        tst_pydbg = pydbg.pydbg()
 
         num_loops = 3
 
@@ -391,8 +387,8 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         self.assertTrue(tst_pydbg.count_exit == num_loops - 1)
 
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
-    def test_pydbg_DOS_nslookup(self):
-        tst_pydbg = create_pydbg()
+    def test_DOS_nslookup(self):
+        tst_pydbg = pydbg.pydbg()
 
         created_process = subprocess.Popen(["nslookup"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=False)
 
@@ -518,8 +514,8 @@ class PydbgPythonHooksTest(unittest.TestCase):
     """
 
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
-    def test_pydbg_Python_CreateFile(self):
-        tst_pydbg = create_pydbg()
+    def test_Python_CreateFile(self):
+        tst_pydbg = pydbg.pydbg()
 
         temp_file_name = "test_pydbg_tmp_create_%d_%d" % (root_process_id, int(time.time()))
         python_command = 'import time;time.sleep(2.0);f=open(u"%s", "w");f.close()' % temp_file_name
@@ -565,8 +561,8 @@ class PydbgPythonHooksTest(unittest.TestCase):
         self.assertTrue(Context.file_name_entry == temp_file_name)
         self.assertTrue(Context.file_name_exit == temp_file_name)
 
-    def test_pydbg_Python_DeleteFile(self):
-        tst_pydbg = create_pydbg()
+    def test_Python_DeleteFile(self):
+        tst_pydbg = pydbg.pydbg()
 
         temp_name = "test_pydbg_tmp_delete_%d_%d" % (root_process_id, int(time.time()))
         python_command = 'import time;import os;time.sleep(2);n=u"%s";f=open(n,"w");f.close();os.remove(n)' % temp_name
@@ -611,8 +607,8 @@ class PydbgPythonHooksTest(unittest.TestCase):
         self.assertTrue(Context.file_name_entry == temp_name)
         self.assertTrue(Context.file_name_exit == temp_name)
 
-    def test_pydbg_Python_system(self):
-        tst_pydbg = create_pydbg()
+    def test_Python_system(self):
+        tst_pydbg = pydbg.pydbg()
 
         temp_name = "test_pydbg_tmp_delete_%d_%d" % (root_process_id, int(time.time()))
         system_command = "dir"
@@ -660,8 +656,8 @@ class PydbgPythonHooksTest(unittest.TestCase):
         print("cmd_executable=", cmd_executable)
         self.assertTrue(Context.system_command_exit.lower() == cmd_executable.lower())
 
-    def test_pydbg_Python_mkdir_rmdir(self):
-        tst_pydbg = create_pydbg()
+    def test_Python_mkdir_rmdir(self):
+        tst_pydbg = pydbg.pydbg()
 
         temp_file_name = "test_pydbg_tmp_directory_%d_%d" % (root_process_id, int(time.time()))
         temp_path = os.path.join( tempfile.gettempdir(), temp_file_name)
@@ -751,9 +747,9 @@ class PydbgPythonHooksTest(unittest.TestCase):
         self.assertTrue(Context.removed_directory_entry == temp_path)
         self.assertTrue(Context.removed_directory_exit == temp_path)
 
-    def test_pydbg_Python_subprocess(self):
+    def test_Python_subprocess(self):
         """This starts a Python subprocess without an intermediary shell."""
-        tst_pydbg = create_pydbg()
+        tst_pydbg = pydbg.pydbg()
 
         python_command = 'print("Hello");import time;time.sleep(2.0)'
         print_hello_process = subprocess.Popen([sys.executable, '-c', python_command],
@@ -786,9 +782,9 @@ class PydbgPythonHooksTest(unittest.TestCase):
         tst_pydbg.run()
         self.assertTrue(Context.command_line == [sys.executable, '-c', python_command])
 
-    def test_pydbg_Python_shell_sub_process(self):
+    def test_Python_shell_sub_process(self):
         """This starts a shell, then a Python subprocess."""
-        tst_pydbg = create_pydbg()
+        tst_pydbg = pydbg.pydbg()
 
         python_command = 'print("Hello");import time;time.sleep(2.0)'
         process_command = [sys.executable, '-c', python_command]
@@ -828,113 +824,11 @@ class PydbgPythonHooksTest(unittest.TestCase):
         # Conversion to lower case because c:\windows might be C:\Windows.
         self.assertTrue(actual_command_line.lower() == expected_command_line.lower())
 
-    @unittest.skip("Does not work yet")
-    def test_pydbg_Python_shell_DeleteFile(self):
-        tst_pydbg = create_pydbg()
-
-        temp_name = "test_pydbg_non_existent_%d_%d" % (root_process_id, int(time.time()))
-        python_command = 'import time;import os;time.sleep(2);os.remove(u"%s")' % temp_name
-        deletion_file_process = subprocess.Popen(
-            [sys.executable, '-c', python_command],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
-
-        class Context:
-            file_name_entry = None
-            file_name_exit = None
-
-        # A bit of delay so the process can start.
-        time.sleep(0.5)
-
-        print("Attaching to pid=%d" % deletion_file_process.pid)
-        tst_pydbg.attach(deletion_file_process.pid)
-
-        object_hooks = utils.hook_container()
-
-        hook_address_shell_delete_file_w = tst_pydbg.func_resolve(b"KERNEL32.dll", b"DeleteFileW")
-        print("hook_address_shell_delete_file_w=%016x" % hook_address_shell_delete_file_w)
-
-        def callback_shell_delete_file_entry(object_pydbg, args):
-            Context.file_name_entry = object_pydbg.get_wstring(args[0])
-            print("callback_shell_delete_file_entry file_name_entry=", Context.file_name_entry)
-            return defines.DBG_CONTINUE
-
-        def callback_shell_delete_file_exit(object_pydbg, args, function_result):
-            Context.file_name_exit = object_pydbg.get_wstring(args[0])
-            print("callback_shell_delete_file_exit file_name_exit=", Context.file_name_exit)
-            return defines.DBG_CONTINUE
-
-        object_hooks.add(
-            tst_pydbg,
-            hook_address_shell_delete_file_w,
-            1,
-            callback_shell_delete_file_entry,
-            callback_shell_delete_file_exit)
-
-        tst_pydbg.run()
-        deletion_file_process.kill()
-        self.assertTrue(Context.file_name_entry == temp_name)
-        self.assertTrue(Context.file_name_exit == temp_name)
-
-    @unittest.skip("Does not work yet")
-    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
-    def test_pydbg_Python_subprocesses_recursive(self):
-        tst_pydbg = create_pydbg()
-
-        tree_depth = 5
-
-        top_created_process = subprocess.Popen([sys.executable, '-m', 'create_process_chain', str(tree_depth)],
-                                                stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = False)
-
-        print("create_process_tree_popen ", top_created_process.pid)
-
-        # A bit of delay so the process can start.
-        time.sleep(1.0)
-
-        print("Attaching to pid=%d" % top_created_process.pid)
-        tst_pydbg.attach(top_created_process.pid)
-
-        tst_pydbg.sub_pydbgs = []
-
-        def python_process_creation_callback(object_pydbg):
-            print("dwProcessId=", object_pydbg.dbg.dwProcessId, "dwThreadId=", object_pydbg.dbg.dwThreadId)
-
-            object_process = psutil.Process(object_pydbg.dbg.dwProcessId)
-            # Command line: ['C:\\Python27\\python.exe', '-m', 'create_process_chain', '5']
-            actual_command_line = object_process.cmdline()
-            expected_command_line = [sys.executable, '-m', 'create_process_chain', str(tree_depth)]
-            print("python_process_creation_callback Actual command line:", actual_command_line)
-            print("python_process_creation_callback Expected command line:", expected_command_line)
-            assert actual_command_line == expected_command_line
-
-            assert object_pydbg == tst_pydbg
-
-            assert object_process.ppid() == root_process_id
-
-            the_subpydbg = create_pydbg()
-            the_subpydbg.sub_pydbgs = []
-            tst_pydbg.sub_pydbgs.append(the_subpydbg)
-            the_subpydbg.open_process(object_pydbg.dbg.dwProcessId)
-            print("AFTER REDUNDANCY")
-            the_subpydbg.attach(object_pydbg.dbg.dwProcessId)
-            the_subpydbg.set_callback(defines.CREATE_PROCESS_DEBUG_EVENT, python_process_creation_callback)
-            the_subpydbg.run()
-
-            return defines.DBG_CONTINUE
-
-        tst_pydbg.set_callback(defines.CREATE_PROCESS_DEBUG_EVENT, python_process_creation_callback)
-
-        print("About to run subprocess")
-        tst_pydbg.run()
-
-        return_dict = {}
-        for ix in range(tree_depth+1):
-            one_line = top_created_process.stdout.readline()
-            print("one_line=", one_line)
-            one_depth, one_pid = map(int, one_line.split(b" "))
-            return_dict[one_depth] = one_pid
-        print("return_dict=", return_dict)
-
-    def test_pydbg_Python_connect(self):
+    def test_Python_connect(self):
+        """
+        This does a TCP/IP connection to Primhill Computers website.
+        The call to socket() is detected, the IP address and the port number are reported.
+        """
         server_domain = "primhillcomputers.com"
         server_port = 80
 
@@ -955,7 +849,7 @@ for counter in range(3):
         temporary_python_file.write(script_content)
         temporary_python_file.close()
 
-        tst_pydbg = create_pydbg()
+        tst_pydbg = pydbg.pydbg()
 
         url_process = subprocess.Popen(
             [sys.executable, temporary_python_file.name],
@@ -1040,6 +934,122 @@ for counter in range(3):
         self.assertTrue(PersistentState.ip_port == server_port)
         self.assertTrue(PersistentState.s_addr == socket.gethostbyname(server_domain))
 
+    # This an experimental attempt to detected nested processes creations.
+    # Quite probably, a different approach will be chosen.
+    @unittest.skip("Does not work yet")
+    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    def test_Python_subprocesses_recursive(self):
+        tst_pydbg = pydbg.pydbg()
+
+        tree_depth = 5
+
+        top_created_process = subprocess.Popen([sys.executable, '-m', 'create_process_chain', str(tree_depth)],
+                                                stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = False)
+
+        print("create_process_tree_popen ", top_created_process.pid)
+
+        # A bit of delay so the process can start.
+        time.sleep(1.0)
+
+        print("Attaching to pid=%d" % top_created_process.pid)
+        tst_pydbg.attach(top_created_process.pid)
+
+        tst_pydbg.sub_pydbgs = []
+
+        def python_process_creation_callback(object_pydbg):
+            print("dwProcessId=", object_pydbg.dbg.dwProcessId, "dwThreadId=", object_pydbg.dbg.dwThreadId)
+
+            object_process = psutil.Process(object_pydbg.dbg.dwProcessId)
+            # Command line: ['C:\\Python27\\python.exe', '-m', 'create_process_chain', '5']
+            actual_command_line = object_process.cmdline()
+            expected_command_line = [sys.executable, '-m', 'create_process_chain', str(tree_depth)]
+            print("python_process_creation_callback Actual command line:", actual_command_line)
+            print("python_process_creation_callback Expected command line:", expected_command_line)
+            assert actual_command_line == expected_command_line
+
+            assert object_pydbg == tst_pydbg
+
+            assert object_process.ppid() == root_process_id
+
+            the_subpydbg = pydbg.pydbg()
+            the_subpydbg.sub_pydbgs = []
+            tst_pydbg.sub_pydbgs.append(the_subpydbg)
+            the_subpydbg.open_process(object_pydbg.dbg.dwProcessId)
+            print("AFTER REDUNDANCY")
+            the_subpydbg.attach(object_pydbg.dbg.dwProcessId)
+            the_subpydbg.set_callback(defines.CREATE_PROCESS_DEBUG_EVENT, python_process_creation_callback)
+            the_subpydbg.run()
+
+            return defines.DBG_CONTINUE
+
+        tst_pydbg.set_callback(defines.CREATE_PROCESS_DEBUG_EVENT, python_process_creation_callback)
+
+        print("About to run subprocess")
+        tst_pydbg.run()
+
+        return_dict = {}
+        for ix in range(tree_depth+1):
+            one_line = top_created_process.stdout.readline()
+            print("one_line=", one_line)
+            one_depth, one_pid = map(int, one_line.split(b" "))
+            return_dict[one_depth] = one_pid
+        print("return_dict=", return_dict)
+
+
+# BEWARE: When running DOS tests first, then Python tests fail.
+@unittest.skipIf(is_platform_linux, "Windows only.")
+class PydbgWin32HooksTest(unittest.TestCase):
+    """
+    Test pydbg from Python processes created with win32.
+    It is necessary to create suspended processes, so that breakpoints can be applied before they run.
+    The class subprocess.Popen does not allow the creation of suspended processes.
+    """
+
+    def test_win32_process(self):
+        import win32process
+        import win32con
+
+        start_info = win32process.STARTUPINFO()
+        start_info.dwFlags = win32con.STARTF_USESHOWWINDOW
+        start_info.wShowWindow = win32con.SW_MAXIMIZE
+
+        temp_data_file_name = "test_win32_process_%d_%d.txt" % (root_process_id, int(time.time()))
+        temp_data_file_path = os.path.join( tempfile.gettempdir(), temp_data_file_name)
+
+        temp_python_name = "test_win32_process_%d_%d.py" % (root_process_id, int(time.time()))
+        temp_python_path = os.path.join( tempfile.gettempdir(), temp_python_name)
+        result_message = "Hello_%d" % root_process_id
+        script_content = """
+with open(r"%s", "w") as output_file:
+    output_file.write("%s")
+""" % (temp_data_file_path, result_message)
+        with open(temp_python_path, "w") as temp_python_file:
+            temp_python_file.write(script_content)
+
+        python_command = "%s %s" % (sys.executable, temp_python_path)
+        print("python_command", python_command)
+        # CreateProcess() takes no keyword arguments
+        prc_info = win32process.CreateProcess(
+            None, # appName
+            python_command, # commandLine
+            None, # processAttributes
+            None, # threadAttributes
+            False, # bInheritHandles
+            win32con.CREATE_NEW_CONSOLE, # dwCreationFlags
+            None, # newEnvironment
+            os.getcwd(), # currentDirectory
+            start_info) # startupinfo
+
+        # So the Python process can run and finish to write the file.
+        time.sleep(1)
+        with open(temp_data_file_path) as result_file:
+            first_line = result_file.readlines()[0]
+        print("first_line=", first_line)
+
+        os.remove(temp_data_file_path)
+        os.remove(temp_python_path)
+
+        self.assertTrue(first_line == result_message)
 
 if __name__ == '__main__':
     unittest.main()
