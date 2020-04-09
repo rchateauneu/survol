@@ -10,6 +10,12 @@ import tempfile
 import platform
 import unittest
 
+try:
+    import win32process
+    import win32con
+except ImportError:
+    pass
+
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 # This is needed when running from PyCharm.
 sys.path.append("../survol/scripts")
@@ -998,6 +1004,7 @@ for counter in range(3):
 
 # BEWARE: When running DOS tests first, then Python tests fail.
 @unittest.skipIf(is_platform_linux, "Windows only.")
+@unittest.skipIf(not pkgutil.find_loader('win32process') or not pkgutil.find_loader('win32con'), "Needs win32 module.")
 class PydbgWin32HooksTest(unittest.TestCase):
     """
     Test pydbg from Python processes created with win32.
@@ -1005,13 +1012,53 @@ class PydbgWin32HooksTest(unittest.TestCase):
     The class subprocess.Popen does not allow the creation of suspended processes.
     """
 
-    def test_win32_process(self):
-        import win32process
-        import win32con
-
+    def test_win32_process_basic(self):
         start_info = win32process.STARTUPINFO()
         start_info.dwFlags = win32con.STARTF_USESHOWWINDOW
-        start_info.wShowWindow = win32con.SW_MAXIMIZE
+
+        temp_data_file_name = "test_win32_process_%d_%d.txt" % (root_process_id, int(time.time()))
+        temp_data_file_path = os.path.join(tempfile.gettempdir(), temp_data_file_name)
+
+        temp_python_name = "test_win32_process_%d_%d.py" % (root_process_id, int(time.time()))
+        temp_python_path = os.path.join(tempfile.gettempdir(), temp_python_name)
+        result_message = "Hello_%d" % root_process_id
+        script_content = """
+    with open(r"%s", "w") as output_file:
+        output_file.write("%s")
+    """ % (temp_data_file_path, result_message)
+        with open(temp_python_path, "w") as temp_python_file:
+            temp_python_file.write(script_content)
+
+        python_command = "%s %s" % (sys.executable, temp_python_path)
+        print("python_command", python_command)
+        # CreateProcess() takes no keyword arguments
+        prc_info = win32process.CreateProcess(
+            None,  # appName
+            python_command,  # commandLine
+            None,  # processAttributes
+            None,  # threadAttributes
+            False,  # bInheritHandles
+            win32con.CREATE_NEW_CONSOLE,  # dwCreationFlags
+            None,  # newEnvironment
+            os.getcwd(),  # currentDirectory
+            start_info)  # startupinfo
+
+        # So the Python process can run and finish to write the file.
+        time.sleep(1)
+        with open(temp_data_file_path) as result_file:
+            first_line = result_file.readlines()[0]
+        print("first_line=", first_line)
+
+        os.remove(temp_data_file_path)
+        os.remove(temp_python_path)
+
+        self.assertTrue(first_line == result_message)
+
+
+    def test_win32_process_suspended(self):
+        start_info = win32process.STARTUPINFO()
+        start_info.dwFlags = win32con.STARTF_USESHOWWINDOW
+        #start_info.wShowWindow = win32con.SW_MAXIMIZE
 
         temp_data_file_name = "test_win32_process_%d_%d.txt" % (root_process_id, int(time.time()))
         temp_data_file_path = os.path.join( tempfile.gettempdir(), temp_data_file_name)
@@ -1028,20 +1075,31 @@ with open(r"%s", "w") as output_file:
 
         python_command = "%s %s" % (sys.executable, temp_python_path)
         print("python_command", python_command)
-        # CreateProcess() takes no keyword arguments
+        # CreateProcess takes no keyword arguments. It returns a tuple (hProcess, hThread, dwProcessId, dwThreadId)
         prc_info = win32process.CreateProcess(
             None, # appName
             python_command, # commandLine
             None, # processAttributes
             None, # threadAttributes
             False, # bInheritHandles
-            win32con.CREATE_NEW_CONSOLE, # dwCreationFlags
+            win32con.CREATE_NEW_CONSOLE | win32con.CREATE_SUSPENDED, # dwCreationFlags
             None, # newEnvironment
             os.getcwd(), # currentDirectory
             start_info) # startupinfo
 
-        # So the Python process can run and finish to write the file.
-        time.sleep(1)
+        # The process must be suspended, so nothing should happen.
+        time.sleep(0.1)
+        try:
+            open(temp_data_file_path)
+            self.assertTrue(False, "This file should not be there")
+        except IOError:
+            pass
+
+        print("prc_info=", prc_info, type(prc_info), dir(prc_info))
+        win32process.ResumeThread(prc_info[1])
+
+        time.sleep(0.5)
+        # The resumed process had time enough to create the file.
         with open(temp_data_file_path) as result_file:
             first_line = result_file.readlines()[0]
         print("first_line=", first_line)
