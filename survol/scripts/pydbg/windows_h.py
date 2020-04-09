@@ -380,6 +380,8 @@ else:
 CHAR = c_char
 LPSTR = POINTER(CHAR)
 LPBYTE = POINTER(BYTE)
+
+# This is also defined in win32process.STARTUPINFO.
 _STARTUPINFOA._fields_ = [
     # C:/PROGRA~1/MICROS~2/VC98/Include/winbase.h 3774
     ('cb', DWORD),
