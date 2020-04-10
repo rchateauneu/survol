@@ -129,6 +129,8 @@ class system_dll:
         '''
         Given a handle and base address of the loaded DLL, determine the DLL name and size to fully initialize the
         system DLL object.
+        Consider using GetFinalPathNameByHandleA() which does the same, since Windows Vista.
+        https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfinalpathnamebyhandlea
 
         @type  handle: HANDLE
         @param handle: Handle to the loaded DLL
