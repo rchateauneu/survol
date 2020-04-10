@@ -1106,13 +1106,13 @@ class PydbgWin32HooksTest(unittest.TestCase):
         start_info = win32process.STARTUPINFO()
         start_info.dwFlags = win32con.STARTF_USESHOWWINDOW
 
-        temp_data_file_name = "test_win32_process_suspend_hook_%d_%d.txt" % (root_process_id, int(time.time()))
-        temp_data_file_path = os.path.join(tempfile.gettempdir(), temp_data_file_name)
+        file_base_name = "test_win32_process_suspend_hook_%d_%d" % (root_process_id, int(time.time()))
+        temp_text_file_path = os.path.join(tempfile.gettempdir(), file_base_name + ".txt")
+        temp_python_path = os.path.join(tempfile.gettempdir(), file_base_name + ".py")
 
-        temp_python_name = "test_win32_process_suspend_hook_%d_%d.py" % (root_process_id, int(time.time()))
-        temp_python_path = os.path.join(tempfile.gettempdir(), temp_python_name)
+        # This text will be written in a text file by a simple Python script, run in a subprocess.
         result_message = "Hello_%d" % root_process_id
-        script_content = "open(r'%s', 'w').write('%s')" % (temp_data_file_path, result_message)
+        script_content = "open(r'%s', 'w').write('%s')" % (temp_text_file_path, result_message)
         with open(temp_python_path, "w") as temp_python_file:
             temp_python_file.write(script_content)
 
@@ -1146,16 +1146,7 @@ class PydbgWin32HooksTest(unittest.TestCase):
         object_hooks = utils.hook_container()
 
         def load_dll_callback(object_pydbg):
-            # self.dbg.u.LoadDll is _LOAD_DLL_DEBUG_INFO {
-            #   HANDLE hFile;
-            #   LPVOID lpBaseOfDll;
-            #   DWORD  dwDebugInfoFileOffset;
-            #   DWORD  nDebugInfoSize;
-            #   LPVOID lpImageName;
-            #   WORD   fUnicode;
-            # } LOAD_DLL_DEBUG_INFO, *LPLOAD_DLL_DEBUG_INFO;
-
-
+            # self.dbg.u.LoadDll is _LOAD_DLL_DEBUG_INFO
             dll_filename = win32file.GetFinalPathNameByHandle(
                 object_pydbg.dbg.u.LoadDll.hFile, win32con.FILE_NAME_NORMALIZED)
             if dll_filename.startswith("\\\\?\\"):
@@ -1191,17 +1182,30 @@ class PydbgWin32HooksTest(unittest.TestCase):
         win32process.ResumeThread(prc_info[1])
 
         tst_pydbg.run()
-        print("Context.filename_entry=", Context.filename_entry)
+        # A bit of extra time so the subprocess can do its work then finish.
+        time.sleep(0.1)
+
+        # The created subprocess must exit.
+        try:
+            sub_process_psutil = psutil.Process(sub_process_id)
+            self.fail("This process should have left:%d" % sub_process_id)
+        except psutil.NoSuchProcess:
+            pass
+
+
+        print("Context.filename_entry=", Context.filename_entry, type(Context.filename_entry))
+        print("temp_data_file_path=", temp_text_file_path, type(temp_text_file_path))
 
         # The resumed process had time enough to create the file.
-        with open(temp_data_file_path) as result_file:
-            first_line = result_file.readlines()[0]
+        with open(temp_text_file_path) as result_file:
+            first_line = open(temp_text_file_path).readlines()[0]
+        self.assertTrue(first_line == result_message)
 
-        os.remove(temp_data_file_path)
+        os.remove(temp_text_file_path)
         os.remove(temp_python_path)
 
-        self.assertTrue(Context.filename_entry == temp_data_file_path)
-        self.assertTrue(first_line == result_message)
+        # This is the last accessed file.
+        self.assertTrue(Context.filename_entry == temp_text_file_path)
 
 if __name__ == '__main__':
     unittest.main()
