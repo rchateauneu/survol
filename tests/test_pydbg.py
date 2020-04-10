@@ -13,6 +13,7 @@ import unittest
 try:
     import win32process
     import win32con
+    import win32file
 except ImportError:
     pass
 
@@ -635,16 +636,16 @@ class PydbgPythonHooksTest(unittest.TestCase):
         object_hooks = utils.hook_container()
 
         if sys.version_info >= (3,):
-            create_process_function = b"CreateProcessW"
-            function_get_string = "get_wstring"
+            function_name_create_process = b"CreateProcessW"
+            string_getter = "get_wstring"
         else:
-            create_process_function = b"CreateProcessA"
-            function_get_string = "get_string"
+            function_name_create_process = b"CreateProcessA"
+            string_getter = "get_string"
 
-        hook_address_create_process = tst_pydbg.func_resolve(b"KERNEL32.dll", create_process_function)
+        hook_address_create_process = tst_pydbg.func_resolve(b"KERNEL32.dll", function_name_create_process)
 
         def callback_system_exit(object_pydbg, args, function_result):
-            Context.system_command_exit = getattr(object_pydbg, function_get_string)(args[0])
+            Context.system_command_exit = getattr(object_pydbg, string_getter)(args[0])
             print("callback_system_exit system_command_exit=", Context.system_command_exit)
             return defines.DBG_CONTINUE
 
@@ -691,23 +692,23 @@ class PydbgPythonHooksTest(unittest.TestCase):
         object_hooks = utils.hook_container()
 
         if sys.version_info >= (3,):
-            directory_create = b"CreateDirectoryW"
-            directory_remove = b"RemoveDirectoryW"
-            function_get_string = "get_wstring"
+            function_name_create_directory = b"CreateDirectoryW"
+            function_name_remove_directory = b"RemoveDirectoryW"
+            string_getter = "get_wstring"
         else:
-            directory_create = b"CreateDirectoryA"
-            directory_remove = b"RemoveDirectoryA"
-            function_get_string = "get_string"
+            function_name_create_directory = b"CreateDirectoryA"
+            function_name_remove_directory = b"RemoveDirectoryA"
+            string_getter = "get_string"
 
-        hook_address_CreateDirectory = tst_pydbg.func_resolve(b"KERNEL32.dll", directory_create)
+        hook_address_CreateDirectory = tst_pydbg.func_resolve(b"KERNEL32.dll", function_name_create_directory)
 
         def callback_CreateDirectory_entry(object_pydbg, args):
-            Context.created_directory_entry = getattr(object_pydbg, function_get_string)(args[0])
+            Context.created_directory_entry = getattr(object_pydbg, string_getter)(args[0])
             print("callback_CreateDirectory_entry created_directory_entry=", Context.created_directory_entry)
             return defines.DBG_CONTINUE
 
         def callback_CreateDirectory_exit(object_pydbg, args, function_result):
-            Context.created_directory_exit = getattr(object_pydbg, function_get_string)(args[0])
+            Context.created_directory_exit = getattr(object_pydbg, string_getter)(args[0])
             print("callback_CreateDirectory_exit created_directory_exit=", Context.created_directory_exit)
             return defines.DBG_CONTINUE
 
@@ -718,15 +719,15 @@ class PydbgPythonHooksTest(unittest.TestCase):
             callback_CreateDirectory_entry,
             callback_CreateDirectory_exit)
 
-        hook_address_RemoveDirectory = tst_pydbg.func_resolve(b"KERNEL32.dll", directory_remove)
+        hook_address_RemoveDirectory = tst_pydbg.func_resolve(b"KERNEL32.dll", function_name_remove_directory)
 
         def callback_RemoveDirectory_entry(object_pydbg, args):
-            Context.removed_directory_entry = getattr(object_pydbg, function_get_string)(args[0])
+            Context.removed_directory_entry = getattr(object_pydbg, string_getter)(args[0])
             print("callback_RemoveDirectory_entry removed_directory_entry=", Context.removed_directory_entry)
             return defines.DBG_CONTINUE
 
         def callback_RemoveDirectory_exit(object_pydbg, args, function_result):
-            Context.removed_directory_exit = getattr(object_pydbg, function_get_string)(args[0])
+            Context.removed_directory_exit = getattr(object_pydbg, string_getter)(args[0])
             print("callback_RemoveDirectory_exit removed_directory_exit=", Context.removed_directory_exit)
             return defines.DBG_CONTINUE
 
@@ -1004,7 +1005,7 @@ for counter in range(3):
 
 # BEWARE: When running DOS tests first, then Python tests fail.
 @unittest.skipIf(is_platform_linux, "Windows only.")
-@unittest.skipIf(not pkgutil.find_loader('win32process') or not pkgutil.find_loader('win32con'), "Needs win32 module.")
+@unittest.skipIf(pkgutil.find_loader('pywin32'), "Needs pywin32 module.")
 class PydbgWin32HooksTest(unittest.TestCase):
     """
     Test pydbg from Python processes created with win32.
@@ -1016,21 +1017,17 @@ class PydbgWin32HooksTest(unittest.TestCase):
         start_info = win32process.STARTUPINFO()
         start_info.dwFlags = win32con.STARTF_USESHOWWINDOW
 
-        temp_data_file_name = "test_win32_process_%d_%d.txt" % (root_process_id, int(time.time()))
+        temp_data_file_name = "test_win32_process_basic_%d_%d.txt" % (root_process_id, int(time.time()))
         temp_data_file_path = os.path.join(tempfile.gettempdir(), temp_data_file_name)
 
-        temp_python_name = "test_win32_process_%d_%d.py" % (root_process_id, int(time.time()))
+        temp_python_name = "test_win32_process_basic_%d_%d.py" % (root_process_id, int(time.time()))
         temp_python_path = os.path.join(tempfile.gettempdir(), temp_python_name)
         result_message = "Hello_%d" % root_process_id
-        script_content = """
-    with open(r"%s", "w") as output_file:
-        output_file.write("%s")
-    """ % (temp_data_file_path, result_message)
+        script_content = "open(r'%s', 'w').write('%s')" % (temp_data_file_path, result_message)
         with open(temp_python_path, "w") as temp_python_file:
             temp_python_file.write(script_content)
 
         python_command = "%s %s" % (sys.executable, temp_python_path)
-        print("python_command", python_command)
         # CreateProcess() takes no keyword arguments
         prc_info = win32process.CreateProcess(
             None,  # appName
@@ -1044,32 +1041,27 @@ class PydbgWin32HooksTest(unittest.TestCase):
             start_info)  # startupinfo
 
         # So the Python process can run and finish to write the file.
-        time.sleep(1)
+        time.sleep(2.0)
         with open(temp_data_file_path) as result_file:
             first_line = result_file.readlines()[0]
-        print("first_line=", first_line)
 
         os.remove(temp_data_file_path)
         os.remove(temp_python_path)
 
         self.assertTrue(first_line == result_message)
 
-
     def test_win32_process_suspended(self):
         start_info = win32process.STARTUPINFO()
         start_info.dwFlags = win32con.STARTF_USESHOWWINDOW
-        #start_info.wShowWindow = win32con.SW_MAXIMIZE
+        # start_info.wShowWindow = win32con.SW_MAXIMIZE
 
         temp_data_file_name = "test_win32_process_%d_%d.txt" % (root_process_id, int(time.time()))
-        temp_data_file_path = os.path.join( tempfile.gettempdir(), temp_data_file_name)
+        temp_data_file_path = os.path.join(tempfile.gettempdir(), temp_data_file_name)
 
         temp_python_name = "test_win32_process_%d_%d.py" % (root_process_id, int(time.time()))
-        temp_python_path = os.path.join( tempfile.gettempdir(), temp_python_name)
+        temp_python_path = os.path.join(tempfile.gettempdir(), temp_python_name)
         result_message = "Hello_%d" % root_process_id
-        script_content = """
-with open(r"%s", "w") as output_file:
-    output_file.write("%s")
-""" % (temp_data_file_path, result_message)
+        script_content = "open(r'%s', 'w').write('%s')" % (temp_data_file_path, result_message)
         with open(temp_python_path, "w") as temp_python_file:
             temp_python_file.write(script_content)
 
@@ -1077,15 +1069,15 @@ with open(r"%s", "w") as output_file:
         print("python_command", python_command)
         # CreateProcess takes no keyword arguments. It returns a tuple (hProcess, hThread, dwProcessId, dwThreadId)
         prc_info = win32process.CreateProcess(
-            None, # appName
-            python_command, # commandLine
-            None, # processAttributes
-            None, # threadAttributes
-            False, # bInheritHandles
-            win32con.CREATE_NEW_CONSOLE | win32con.CREATE_SUSPENDED, # dwCreationFlags
-            None, # newEnvironment
-            os.getcwd(), # currentDirectory
-            start_info) # startupinfo
+            None,  # appName
+            python_command,  # commandLine
+            None,  # processAttributes
+            None,  # threadAttributes
+            False,  # bInheritHandles
+            win32con.CREATE_NEW_CONSOLE | win32con.CREATE_SUSPENDED,  # dwCreationFlags
+            None,  # newEnvironment
+            os.getcwd(),  # currentDirectory
+            start_info)  # startupinfo
 
         # The process must be suspended, so nothing should happen.
         time.sleep(0.1)
@@ -1107,6 +1099,108 @@ with open(r"%s", "w") as output_file:
         os.remove(temp_data_file_path)
         os.remove(temp_python_path)
 
+        self.assertTrue(first_line == result_message)
+
+    def test_win32_process_suspended_hook(self):
+        """This tests a process created in suspended state, then stopping in breakpoints."""
+        start_info = win32process.STARTUPINFO()
+        start_info.dwFlags = win32con.STARTF_USESHOWWINDOW
+
+        temp_data_file_name = "test_win32_process_suspend_hook_%d_%d.txt" % (root_process_id, int(time.time()))
+        temp_data_file_path = os.path.join(tempfile.gettempdir(), temp_data_file_name)
+
+        temp_python_name = "test_win32_process_suspend_hook_%d_%d.py" % (root_process_id, int(time.time()))
+        temp_python_path = os.path.join(tempfile.gettempdir(), temp_python_name)
+        result_message = "Hello_%d" % root_process_id
+        script_content = "open(r'%s', 'w').write('%s')" % (temp_data_file_path, result_message)
+        with open(temp_python_path, "w") as temp_python_file:
+            temp_python_file.write(script_content)
+
+        python_command = "%s %s" % (sys.executable, temp_python_path)
+        # CreateProcess returns a tuple (hProcess, hThread, dwProcessId, dwThreadId)
+        prc_info = win32process.CreateProcess(None, python_command, None, None, False,  # bInheritHandles
+                                              win32con.CREATE_NEW_CONSOLE | win32con.CREATE_SUSPENDED, None,
+                                              os.getcwd(), start_info)
+
+        sub_process_id = prc_info[2]
+        print("Attaching to pid=%d" % sub_process_id)
+
+        tst_pydbg = pydbg.pydbg()
+        tst_pydbg.attach(sub_process_id)
+
+        if sys.version_info >= (3,):
+            function_name_create_file = b"CreateFileW"
+            string_getter = "get_wstring"
+        else:
+            function_name_create_file = b"CreateFileA"
+            string_getter = "get_string"
+
+        class Context:
+            filename_entry = None
+
+        def callback_CreateFile_entry(object_pydbg, args):
+            Context.filename_entry = getattr(object_pydbg, string_getter)(args[0])
+            print("callback_CreateFile_entry file_name=", Context.filename_entry)
+            return defines.DBG_CONTINUE
+
+        object_hooks = utils.hook_container()
+
+        def load_dll_callback(object_pydbg):
+            # self.dbg.u.LoadDll is _LOAD_DLL_DEBUG_INFO {
+            #   HANDLE hFile;
+            #   LPVOID lpBaseOfDll;
+            #   DWORD  dwDebugInfoFileOffset;
+            #   DWORD  nDebugInfoSize;
+            #   LPVOID lpImageName;
+            #   WORD   fUnicode;
+            # } LOAD_DLL_DEBUG_INFO, *LPLOAD_DLL_DEBUG_INFO;
+
+
+            dll_filename = win32file.GetFinalPathNameByHandle(
+                object_pydbg.dbg.u.LoadDll.hFile, win32con.FILE_NAME_NORMALIZED)
+            if dll_filename.startswith("\\\\?\\"):
+                dll_filename = dll_filename[4:]
+
+            # a ce moment on ne peut pas encore iterer car pas dans le snap shot,
+            # donc faut aller chercher directement dans le handle de la lib.
+
+            self.assertTrue(object_pydbg == tst_pydbg)
+            if dll_filename.upper().endswith("KERNEL32.dll".upper()):
+                print("FOUND dll_filename=", dll_filename)
+                # At this stage, the DLL cannot be enumerated yet: For an unknown reason,
+                # it cannot be obtained with CreateToolhelp32Snapshot and Module32First/Module32Next
+                # hook_address_CreateFileW = object_pydbg.func_resolve(b"KERNEL32.dll", b"CreateFileW")
+                hook_address_CreateFile = object_pydbg.func_resolve_from_dll_address(
+                    object_pydbg.dbg.u.LoadDll.lpBaseOfDll,
+                    function_name_create_file)
+
+                object_hooks.add(
+                    tst_pydbg,
+                    hook_address_CreateFile,
+                    1,
+                    callback_CreateFile_entry,
+                    None)
+
+                print("Breakpoint set:", dir(object_hooks))
+
+            return defines.DBG_CONTINUE
+
+        # This event is received after the DLL is mapped into the address space of the debuggee.
+        tst_pydbg.set_callback(defines.LOAD_DLL_DEBUG_EVENT, load_dll_callback)
+
+        win32process.ResumeThread(prc_info[1])
+
+        tst_pydbg.run()
+        print("Context.filename_entry=", Context.filename_entry)
+
+        # The resumed process had time enough to create the file.
+        with open(temp_data_file_path) as result_file:
+            first_line = result_file.readlines()[0]
+
+        os.remove(temp_data_file_path)
+        os.remove(temp_python_path)
+
+        self.assertTrue(Context.filename_entry == temp_data_file_path)
         self.assertTrue(first_line == result_message)
 
 if __name__ == '__main__':
