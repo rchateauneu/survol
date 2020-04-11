@@ -1137,10 +1137,17 @@ class PydbgWin32HooksTest(unittest.TestCase):
 
         class Context:
             filename_entry = None
+            filename_exit = None
 
         def callback_CreateFile_entry(object_pydbg, args):
             Context.filename_entry = getattr(object_pydbg, string_getter)(args[0])
             print("callback_CreateFile_entry file_name=", Context.filename_entry)
+            return defines.DBG_CONTINUE
+
+        def callback_CreateFile_exit(object_pydbg, args, function_result):
+            Context.filename_exit = getattr(object_pydbg, string_getter)(args[0])
+            Context.result = function_result
+            print("callback_CreateFile_exit file_name=", Context.filename_exit, "result=", function_result)
             return defines.DBG_CONTINUE
 
         object_hooks = utils.hook_container()
@@ -1170,9 +1177,7 @@ class PydbgWin32HooksTest(unittest.TestCase):
                     hook_address_CreateFile,
                     1,
                     callback_CreateFile_entry,
-                    None)
-
-                print("Breakpoint set:", dir(object_hooks))
+                    callback_CreateFile_exit)
 
             return defines.DBG_CONTINUE
 
@@ -1192,8 +1197,9 @@ class PydbgWin32HooksTest(unittest.TestCase):
         except psutil.NoSuchProcess:
             pass
 
-
-        print("Context.filename_entry=", Context.filename_entry, type(Context.filename_entry))
+        print("Context.filename_entry=", Context.filename_entry)
+        print("Context.filename_exit=", Context.filename_entry)
+        print("Context.result=", Context.result)
         print("temp_data_file_path=", temp_text_file_path, type(temp_text_file_path))
 
         # The resumed process had time enough to create the file.
@@ -1206,6 +1212,114 @@ class PydbgWin32HooksTest(unittest.TestCase):
 
         # This is the last accessed file.
         self.assertTrue(Context.filename_entry == temp_text_file_path)
+        self.assertTrue(Context.filename_exit == temp_text_file_path)
+
+    @unittest.skip("Not implemented yet.")
+    def test_win32_sub_process_suspended_hook(self):
+        """This tests a process created in suspended state, then creating a subprocess."""
+        start_info = win32process.STARTUPINFO()
+        start_info.dwFlags = win32con.STARTF_USESHOWWINDOW
+
+        file_base_name = "test_win32_sub_process_suspend_hook_%d_%d" % (root_process_id, int(time.time()))
+        temp_text_file_path = os.path.join(tempfile.gettempdir(), file_base_name + ".txt")
+        temp_python_path = os.path.join(tempfile.gettempdir(), file_base_name + ".py")
+
+        # This text will be written in a text file by a simple Python script, run in a subprocess.
+        result_message = "Hello_%d" % root_process_id
+        script_content = "import os;os.system('echo %s > %s')" % (result_message, temp_text_file_path,)
+        with open(temp_python_path, "w") as temp_python_file:
+            temp_python_file.write(script_content)
+    
+        python_command = "%s %s" % (sys.executable, temp_python_path)
+        # CreateProcess returns a tuple (hProcess, hThread, dwProcessId, dwThreadId)
+        prc_info = win32process.CreateProcess(None, python_command, None, None, False,  # bInheritHandles
+                                              win32con.CREATE_NEW_CONSOLE | win32con.CREATE_SUSPENDED, None,
+                                              os.getcwd(), start_info)
+    
+        sub_process_id = prc_info[2]
+        print("Attaching to pid=%d" % sub_process_id)
+    
+        tst_pydbg = pydbg.pydbg()
+        tst_pydbg.attach(sub_process_id)
+    
+        if sys.version_info >= (3,):
+            function_name_create_file = b"CreateFileW"
+            string_getter = "get_wstring"
+        else:
+            function_name_create_file = b"CreateFileA"
+            string_getter = "get_string"
+    
+        class Context:
+            filename_entry = None
+    
+        def callback_CreateFile_entry(object_pydbg, args):
+            Context.filename_entry = getattr(object_pydbg, string_getter)(args[0])
+            print("callback_CreateFile_entry file_name=", Context.filename_entry)
+            return defines.DBG_CONTINUE
+    
+        object_hooks = utils.hook_container()
+    
+        def load_dll_callback(object_pydbg):
+            # self.dbg.u.LoadDll is _LOAD_DLL_DEBUG_INFO
+            dll_filename = win32file.GetFinalPathNameByHandle(
+                object_pydbg.dbg.u.LoadDll.hFile, win32con.FILE_NAME_NORMALIZED)
+            if dll_filename.startswith("\\\\?\\"):
+                dll_filename = dll_filename[4:]
+    
+            # a ce moment on ne peut pas encore iterer car pas dans le snap shot,
+            # donc faut aller chercher directement dans le handle de la lib.
+    
+            self.assertTrue(object_pydbg == tst_pydbg)
+            if dll_filename.upper().endswith("KERNEL32.dll".upper()):
+                print("FOUND dll_filename=", dll_filename)
+                # At this stage, the DLL cannot be enumerated yet: For an unknown reason,
+                # it cannot be obtained with CreateToolhelp32Snapshot and Module32First/Module32Next
+                # hook_address_CreateFileW = object_pydbg.func_resolve(b"KERNEL32.dll", b"CreateFileW")
+                hook_address_CreateFile = object_pydbg.func_resolve_from_dll_address(
+                    object_pydbg.dbg.u.LoadDll.lpBaseOfDll,
+                    function_name_create_file)
+    
+                object_hooks.add(
+                    tst_pydbg,
+                    hook_address_CreateFile,
+                    1,
+                    callback_CreateFile_entry,
+                    None)
+    
+                print("Breakpoint set:", dir(object_hooks))
+    
+            return defines.DBG_CONTINUE
+    
+        # This event is received after the DLL is mapped into the address space of the debuggee.
+        tst_pydbg.set_callback(defines.LOAD_DLL_DEBUG_EVENT, load_dll_callback)
+    
+        win32process.ResumeThread(prc_info[1])
+    
+        tst_pydbg.run()
+        # A bit of extra time so the subprocess can do its work then finish.
+        time.sleep(0.1)
+    
+        # The created subprocess must exit.
+        try:
+            sub_process_psutil = psutil.Process(sub_process_id)
+            self.fail("This process should have left:%d" % sub_process_id)
+        except psutil.NoSuchProcess:
+            pass
+    
+        print("Context.filename_entry=", Context.filename_entry, type(Context.filename_entry))
+        print("temp_data_file_path=", temp_text_file_path, type(temp_text_file_path))
+    
+        # The resumed process had time enough to create the file.
+        with open(temp_text_file_path) as result_file:
+            first_line = open(temp_text_file_path).readlines()[0]
+        self.assertTrue(first_line == result_message)
+    
+        os.remove(temp_text_file_path)
+        os.remove(temp_python_path)
+    
+        # This is the last accessed file.
+        self.assertTrue(Context.filename_entry == temp_text_file_path)
+
 
 if __name__ == '__main__':
     unittest.main()
