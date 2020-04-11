@@ -1941,7 +1941,7 @@ class pydbg:
             dll_name += b".dll"
 
         for module in self.iterate_modules():
-            self._log("func_resolve_debuggee dll_name=%s func_name=%s szModule=%s" % (dll_name, func_name, module.szModule))
+            # self._log("func_resolve_debuggee dll_name=%s func_name=%s szModule=%s" % (dll_name, func_name, module.szModule))
             if module.szModule.lower() == dll_name:
                 base_address = int(cast(module.modBaseAddr, ctypes.c_void_p).value)
 
