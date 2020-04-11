@@ -111,25 +111,25 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
         object_hooks = utils.hook_container()
 
-        hook_address_RemoveDirectoryW = tst_pydbg.func_resolve(b"KERNEL32.dll", b"RemoveDirectoryW")
+        hook_RemoveDirectoryW = tst_pydbg.func_resolve(b"KERNEL32.dll", b"RemoveDirectoryW")
 
         class Context:
-            count_entry = 0
-            count_exit = 0
+            count_in = 0
+            count_out = 0
 
-        def callback_RemoveDirectoryW_entry(object_pydbg, args):
-            Context.count_entry += 1
-            dir_name = object_pydbg.get_wstring(args[0])
+        def callback_RemoveDirectoryW_in(object_pydbg, args):
+            Context.count_in += 1
+            dir_name = object_pydbg.get_unicode_string(args[0])
             # object_pydbg.dbg is a LPDEBUG_EVENT, pointer to DEBUG_EVENT.
-            print("callback_RemoveDirectoryW_entry dir_name=", dir_name, "dwProcessId=", object_pydbg.dbg.dwProcessId)
+            print("callback_RemoveDirectoryW_in dir_name=", dir_name, "dwProcessId=", object_pydbg.dbg.dwProcessId)
             self.assertTrue(dir_name == non_existent_dir)
             self.assertTrue(object_pydbg.dbg.dwProcessId == created_process.pid)
             return defines.DBG_CONTINUE
 
-        def callback_RemoveDirectoryW_exit(object_pydbg, args, function_result):
-            Context.count_exit += 1
-            dir_name = object_pydbg.get_wstring(args[0])
-            print("callback_RemoveDirectoryW_exit dir_name=", dir_name, function_result)
+        def callback_RemoveDirectoryW_out(object_pydbg, args, function_result):
+            Context.count_out += 1
+            dir_name = object_pydbg.get_unicode_string(args[0])
+            print("callback_RemoveDirectoryW_out dir_name=", dir_name, function_result)
             self.assertTrue(dir_name == non_existent_dir)
             self.assertTrue(function_result == 0)
             self.assertTrue(object_pydbg.dbg.dwProcessId == created_process.pid)
@@ -137,16 +137,16 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
         object_hooks.add(
             tst_pydbg,
-            hook_address_RemoveDirectoryW,
+            hook_RemoveDirectoryW,
             1,
-            callback_RemoveDirectoryW_entry,
-            callback_RemoveDirectoryW_exit)
+            callback_RemoveDirectoryW_in,
+            callback_RemoveDirectoryW_out)
 
         tst_pydbg.run()
 
-        print("Counters:", Context.count_entry, Context.count_exit)
-        self.assertTrue(Context.count_entry == num_loops)
-        self.assertTrue(Context.count_exit == num_loops)
+        print("Counters:", Context.count_in, Context.count_out)
+        self.assertTrue(Context.count_in == num_loops)
+        self.assertTrue(Context.count_out == num_loops)
 
     # It starts a DOS process which attempts to remove a directory.
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
@@ -154,7 +154,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         tst_pydbg = pydbg.pydbg()
 
         num_loops = 3
-        temp_file = "Temporary_%d_%d.xyz" % (os.getpid(), int(time.time()))
+        temp_file = "Temporary_%d_%d.xyz" % (root_process_id, int(time.time()))
         temp_path = os.path.join( tempfile.gettempdir(), temp_file)
 
         # This creates a file then removes it, several times.
@@ -171,16 +171,16 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
         object_hooks = utils.hook_container()
 
-        hook_address_DeleteFileW = tst_pydbg.func_resolve(b"KERNEL32.dll", b"DeleteFileW")
+        hook_DeleteFileW = tst_pydbg.func_resolve(b"KERNEL32.dll", b"DeleteFileW")
 
         class Context:
-            count_entry = 0
-            count_exit = 0
+            count_in = 0
+            count_out = 0
 
-        def callback_DeleteFileW_entry(object_pydbg, args):
-            Context.count_entry += 1
-            file_name = object_pydbg.get_wstring(args[0])
-            print("callback_DeleteFileW_entry file_name=", file_name)
+        def callback_DeleteFileW_in(object_pydbg, args):
+            Context.count_in += 1
+            file_name = object_pydbg.get_unicode_string(args[0])
+            print("callback_DeleteFileW_in file_name=", file_name)
             self.assertTrue(file_name == temp_path)
 
             # object_pydbg.dbg is a LPDEBUG_EVENT, pointer to DEBUG_EVENT.
@@ -189,10 +189,10 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
             return defines.DBG_CONTINUE
 
-        def callback_DeleteFileW_exit(object_pydbg, args, function_result):
-            Context.count_exit += 1
-            file_name = object_pydbg.get_wstring(args[0])
-            print("callback_DeleteFileW_exit file_name=", file_name, function_result)
+        def callback_DeleteFileW_out(object_pydbg, args, function_result):
+            Context.count_out += 1
+            file_name = object_pydbg.get_unicode_string(args[0])
+            print("callback_DeleteFileW_out file_name=", file_name, function_result)
             self.assertTrue(file_name == temp_path)
 
             print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId)
@@ -202,16 +202,16 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
         object_hooks.add(
             tst_pydbg,
-            hook_address_DeleteFileW,
+            hook_DeleteFileW,
             1,
-            callback_DeleteFileW_entry,
-            callback_DeleteFileW_exit)
+            callback_DeleteFileW_in,
+            callback_DeleteFileW_out)
 
         tst_pydbg.run()
 
-        print("Counters:", Context.count_entry, Context.count_exit)
-        self.assertTrue(Context.count_entry == num_loops)
-        self.assertTrue(Context.count_exit == num_loops)
+        print("Counters:", Context.count_in, Context.count_out)
+        self.assertTrue(Context.count_in == num_loops)
+        self.assertTrue(Context.count_out == num_loops)
 
     # This starts a separate Python process which attempts several times to open a non-existent file.
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
@@ -235,26 +235,26 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
         object_hooks = utils.hook_container()
 
-        hook_address_CreateFileW = tst_pydbg.func_resolve(b"KERNEL32.dll", b"CreateFileW")
+        hook_CreateFileW = tst_pydbg.func_resolve(b"KERNEL32.dll", b"CreateFileW")
 
         class Context:
-            count_entry = 0
-            count_exit = 0
+            count_in = 0
+            count_out = 0
 
-        def callback_CreateFileW_entry(object_pydbg, args):
-            Context.count_entry += 1
-            file_name = object_pydbg.get_wstring(args[0])
-            print("callback_CreateFileW_entry file_name=", file_name)
+        def callback_CreateFileW_in(object_pydbg, args):
+            Context.count_in += 1
+            file_name = object_pydbg.get_unicode_string(args[0])
+            print("callback_CreateFileW_in file_name=", file_name)
             if object_pydbg.is_wow64:
                 self.assertTrue(file_name == non_existent_file)
             else:
                 self.assertTrue(file_name in [non_existent_file, r"C:\Windows\SysWOW64\cmd.exe"])
             return defines.DBG_CONTINUE
 
-        def callback_CreateFileW_exit(object_pydbg, args, function_result):
-            Context.count_exit += 1
-            file_name = object_pydbg.get_wstring(args[0])
-            print("callback_CreateFileW_exit file_name=", file_name, function_result)
+        def callback_CreateFileW_out(object_pydbg, args, function_result):
+            Context.count_out += 1
+            file_name = object_pydbg.get_unicode_string(args[0])
+            print("callback_CreateFileW_out file_name=", file_name, function_result)
             self.assertTrue(file_name == non_existent_file)
 
             is_invalid_handle = function_result % (1 + defines.INVALID_HANDLE_VALUE) == defines.INVALID_HANDLE_VALUE
@@ -263,17 +263,17 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
         object_hooks.add(
             tst_pydbg,
-            hook_address_CreateFileW,
+            hook_CreateFileW,
             1,
-            callback_CreateFileW_entry,
-            callback_CreateFileW_exit)
+            callback_CreateFileW_in,
+            callback_CreateFileW_out)
 
         tst_pydbg.run()
 
-        print("END", Context.count_entry, Context.count_exit)
+        print("END", Context.count_in, Context.count_out)
         # The first call might be missed.
-        self.assertTrue(Context.count_entry == num_loops)
-        self.assertTrue(Context.count_exit == num_loops)
+        self.assertTrue(Context.count_in == num_loops)
+        self.assertTrue(Context.count_out == num_loops)
 
     def test_DOS_create_process(self):
         tst_pydbg = pydbg.pydbg()
@@ -295,8 +295,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
             command_line = None
 
         def process_creation_callback(object_pydbg):
-            print("object_pydbg.dbg.dwProcessId=", object_pydbg.dbg.dwProcessId)
-            print("object_pydbg.dbg.dwThreadId=", object_pydbg.dbg.dwThreadId)
+            print("dwProcessId=", object_pydbg.dbg.dwProcessId, "dwThreadId=", object_pydbg.dbg.dwThreadId)
 
             object_process = psutil.Process(object_pydbg.dbg.dwProcessId)
             Context.command_line = object_process.cmdline()
@@ -333,21 +332,21 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
         object_hooks = utils.hook_container()
 
-        hook_address_process_information = tst_pydbg.func_resolve(b"KERNEL32.dll", b"CreateProcessW")
-        print("hook_address_process_information=%016x" % hook_address_process_information)
+        hook_process_information = tst_pydbg.func_resolve(b"KERNEL32.dll", b"CreateProcessW")
+        print("hook_process_information=%016x" % hook_process_information)
 
-        tst_pydbg.count_entry = 0
-        tst_pydbg.count_exit = 0
+        tst_pydbg.count_in = 0
+        tst_pydbg.count_out = 0
 
         ping_binary_lower = r"C:\windows\system32\PING.EXE".lower()
 
-        def callback_process_information_entry(object_pydbg, args):
-            object_pydbg.count_entry += 1
-            lpApplicationName = object_pydbg.get_wstring(args[0])
-            print("callback_process_information_entry lpApplicationName=", lpApplicationName)
+        def callback_process_information_in(object_pydbg, args):
+            object_pydbg.count_in += 1
+            lpApplicationName = object_pydbg.get_unicode_string(args[0])
+            print("callback_process_information_in lpApplicationName=", lpApplicationName)
             assert lpApplicationName.lower() == ping_binary_lower
-            lpCommandLine = object_pydbg.get_wstring(args[1])
-            print("callback_process_information_entry lpCommandLine=%s." % lpCommandLine)
+            lpCommandLine = object_pydbg.get_unicode_string(args[1])
+            print("callback_process_information_in lpCommandLine=%s." % lpCommandLine)
             assert lpCommandLine == "ping  -n 2 127.0.0.1"
 
             lpProcessInformation = args[9]
@@ -362,36 +361,34 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
             print("dwProcessId=", object_pydbg.dbg.dwProcessId, "dwThreadId=", object_pydbg.dbg.dwThreadId)
 
             self.assertTrue(object_pydbg.dbg.dwProcessId == created_process.pid)
-
             return defines.DBG_CONTINUE
 
-        def callback_process_information_exit(object_pydbg, args, function_result):
-            object_pydbg.count_exit += 1
-            lpApplicationName = object_pydbg.get_wstring(args[0])
-            print("callback_process_information_exit lpApplicationName=", lpApplicationName)
+        def callback_process_information_out(object_pydbg, args, function_result):
+            object_pydbg.count_out += 1
+            lpApplicationName = object_pydbg.get_unicode_string(args[0])
+            print("callback_process_information_out lpApplicationName=", lpApplicationName)
             assert lpApplicationName.lower() == ping_binary_lower
-            lpCommandLine = object_pydbg.get_wstring(args[1])
-            print("callback_process_information_exit lpCommandLine=%s." % lpCommandLine)
+            lpCommandLine = object_pydbg.get_unicode_string(args[1])
+            print("callback_process_information_out lpCommandLine=%s." % lpCommandLine)
             assert lpCommandLine == "ping  -n 2 127.0.0.1"
 
             self.assertTrue(object_pydbg.dbg.dwProcessId == created_process.pid)
-
             return defines.DBG_CONTINUE
 
         object_hooks.add(
             tst_pydbg,
-            hook_address_process_information,
+            hook_process_information,
             10,
-            callback_process_information_entry,
-            callback_process_information_exit)
+            callback_process_information_in,
+            callback_process_information_out)
 
         tst_pydbg.run()
 
-        print("END", tst_pydbg.count_entry, tst_pydbg.count_exit)
+        print("END", tst_pydbg.count_in, tst_pydbg.count_out)
         created_process.kill()
         # The first call is missed.
-        self.assertTrue(tst_pydbg.count_entry == num_loops - 1)
-        self.assertTrue(tst_pydbg.count_exit == num_loops - 1)
+        self.assertTrue(tst_pydbg.count_in == num_loops - 1)
+        self.assertTrue(tst_pydbg.count_out == num_loops - 1)
 
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_DOS_nslookup(self):
@@ -411,12 +408,12 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
 
         object_hooks = utils.hook_container()
 
-        hook_address_DOS_nslookup = tst_pydbg.func_resolve(b"ws2_32.dll", b"connect")
+        hook_DOS_nslookup = tst_pydbg.func_resolve(b"ws2_32.dll", b"connect")
 
-        assert hook_address_DOS_nslookup
-        print("hook_address_DOS_nslookup=%016x" % hook_address_DOS_nslookup)
+        assert hook_DOS_nslookup
+        print("hook_DOS_nslookup=%016x" % hook_DOS_nslookup)
 
-        class PersistentState:
+        class Context:
             port_number = -1
             sin_family = -1
             s_addr = -1
@@ -426,11 +423,11 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
             sockaddr_address = args[1]
 
             sin_family_memory = object_pydbg.read_process_memory(sockaddr_address, 2)
-            PersistentState.sin_family = struct.unpack("<H", sin_family_memory)[0]
-            print("sin_family=", PersistentState.sin_family)
+            Context.sin_family = struct.unpack("<H", sin_family_memory)[0]
+            print("sin_family=", Context.sin_family)
 
             # AF_INET6 = 23, if this is an IPV6 DNS server.
-            if PersistentState.sin_family == defines.AF_INET6:
+            if Context.sin_family == defines.AF_INET6:
                 # struct sockaddr_in6 {
                 #      sa_family_t     sin6_family;   /* AF_INET6 */
                 #      in_port_t       sin6_port;     /* port number */
@@ -443,11 +440,11 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
                 #      unsigned char   s6_addr[16];   /* IPv6 address */
                 # };
                 ip_port_memory = object_pydbg.read_process_memory(sockaddr_address + 2, 2)
-                PersistentState.ip_port = struct.unpack(">H", ip_port_memory)[0]
-                print("ip_port=", PersistentState.ip_port)
+                Context.ip_port = struct.unpack(">H", ip_port_memory)[0]
+                print("ip_port=", Context.ip_port)
 
                 self.assertTrue(args[2] == 28)
-                self.assertTrue(PersistentState.ip_port == 53) # DNS
+                self.assertTrue(Context.ip_port == 53) # DNS
 
                 s_addr_ipv6 = object_pydbg.read_process_memory(sockaddr_address + 8, 16)
 
@@ -458,29 +455,26 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
             else:
                 raise Exception("Invalid sa_family")
 
-        def callback_DOS_nslookup_entry(object_pydbg, args):
-            print("callback_DOS_nslookup_entry args=", args)
+        def callback_DOS_nslookup_in(object_pydbg, args):
+            print("callback_DOS_nslookup_in args=", args)
             check_sockaddr_nslookup(object_pydbg, args)
             return defines.DBG_CONTINUE
 
-        def callback_DOS_nslookup_exit(object_pydbg, args, function_result):
-            print("callback_DOS_nslookup_exit args=", args, function_result)
+        def callback_DOS_nslookup_out(object_pydbg, args, function_result):
+            print("callback_DOS_nslookup_out args=", args, function_result)
             check_sockaddr_nslookup(object_pydbg, args)
             return defines.DBG_CONTINUE
 
-        print("Adding breakpoint")
         object_hooks.add(
             tst_pydbg,
-            hook_address_DOS_nslookup,
+            hook_DOS_nslookup,
             3,
-            callback_DOS_nslookup_entry,
-            callback_DOS_nslookup_exit)
+            callback_DOS_nslookup_in,
+            callback_DOS_nslookup_out)
 
-        print("Writing data to input pipe")
         # The maximum number is variable. If too big, it hangs.
         created_process.stdin.write(b"primhillcomputers.com\n" * 10)
         created_process.stdin.write(b"quit\n")
-        print("Data written")
 
         if sys.version_info >= (3,):
             # The subprocess implementation is different between Python 2 and 3.
@@ -507,7 +501,7 @@ class PydbgDosCmdHooksTest(unittest.TestCase):
         # Address:  164.132.235.17
         self.assertTrue(stdout_data.find(b"primhillcomputers.com") > 0)
         self.assertTrue(stderr_data is None)
-        self.assertTrue(PersistentState.sin_family == defines.AF_INET6)
+        self.assertTrue(Context.sin_family == defines.AF_INET6)
 
 
 # BEWARE: When running DOS tests first, then Python tests fail.
@@ -531,8 +525,8 @@ class PydbgPythonHooksTest(unittest.TestCase):
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
 
         class Context:
-            file_name_entry = None
-            file_name_exit = None
+            file_name_in = None
+            file_name_out = None
 
         # A bit of delay so the process can start.
         time.sleep(0.5)
@@ -542,31 +536,31 @@ class PydbgPythonHooksTest(unittest.TestCase):
 
         object_hooks = utils.hook_container()
 
-        hook_address_create_file_w = tst_pydbg.func_resolve(b"KERNEL32.dll", b"CreateFileW")
-        print("hook_address_create_file_w=%016x" % hook_address_create_file_w)
+        hook_create_file_w = tst_pydbg.func_resolve(b"KERNEL32.dll", b"CreateFileW")
+        print("hook_create_file_w=%016x" % hook_create_file_w)
 
-        def callback_create_file_entry(object_pydbg, args):
-            Context.file_name_entry = object_pydbg.get_wstring(args[0])
-            print("callback_create_file_entry file_name_entry=", Context.file_name_entry)
-            self.assertTrue(Context.file_name_entry == temp_file_name)
+        def callback_create_file_in(object_pydbg, args):
+            Context.file_name_in = object_pydbg.get_unicode_string(args[0])
+            print("callback_create_file_in file_name_in=", Context.file_name_in)
+            self.assertTrue(Context.file_name_in == temp_file_name)
             return defines.DBG_CONTINUE
 
-        def callback_create_file_exit(object_pydbg, args, function_result):
-            Context.file_name_exit = object_pydbg.get_wstring(args[0])
-            print("callback_create_file_exit m=", Context.file_name_exit)
+        def callback_create_file_out(object_pydbg, args, function_result):
+            Context.file_name_out = object_pydbg.get_unicode_string(args[0])
+            print("callback_create_file_out m=", Context.file_name_out)
             return defines.DBG_CONTINUE
 
         object_hooks.add(
             tst_pydbg,
-            hook_address_create_file_w,
+            hook_create_file_w,
             10,
-            callback_create_file_entry,
-            callback_create_file_exit)
+            callback_create_file_in,
+            callback_create_file_out)
 
         tst_pydbg.run()
         creation_file_process.kill()
-        self.assertTrue(Context.file_name_entry == temp_file_name)
-        self.assertTrue(Context.file_name_exit == temp_file_name)
+        self.assertTrue(Context.file_name_in == temp_file_name)
+        self.assertTrue(Context.file_name_out == temp_file_name)
 
     def test_Python_DeleteFile(self):
         tst_pydbg = pydbg.pydbg()
@@ -578,8 +572,8 @@ class PydbgPythonHooksTest(unittest.TestCase):
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
 
         class Context:
-            file_name_entry = None
-            file_name_exit = None
+            file_name_in = None
+            file_name_out = None
 
         # A bit of delay so the process can start.
         time.sleep(0.5)
@@ -589,35 +583,34 @@ class PydbgPythonHooksTest(unittest.TestCase):
 
         object_hooks = utils.hook_container()
 
-        hook_address_delete_file_w = tst_pydbg.func_resolve(b"KERNEL32.dll", b"DeleteFileW")
-        print("hook_address_delete_file_w=%016x" % hook_address_delete_file_w)
+        hook_delete_file_w = tst_pydbg.func_resolve(b"KERNEL32.dll", b"DeleteFileW")
+        print("hook_delete_file_w=%016x" % hook_delete_file_w)
 
-        def callback_delete_file_entry(object_pydbg, args):
-            Context.file_name_entry = object_pydbg.get_wstring(args[0])
-            print("callback_delete_file_entry file_name_entry=", Context.file_name_entry)
+        def callback_delete_file_in(object_pydbg, args):
+            Context.file_name_in = object_pydbg.get_unicode_string(args[0])
+            print("callback_delete_file_in file_name_in=", Context.file_name_in)
             return defines.DBG_CONTINUE
 
-        def callback_delete_file_exit(object_pydbg, args, function_result):
-            Context.file_name_exit = object_pydbg.get_wstring(args[0])
-            print("callback_delete_file_exit file_name_exit=", Context.file_name_exit)
+        def callback_delete_file_out(object_pydbg, args, function_result):
+            Context.file_name_out = object_pydbg.get_unicode_string(args[0])
+            print("callback_delete_file_out file_name_out=", Context.file_name_out)
             return defines.DBG_CONTINUE
 
         object_hooks.add(
             tst_pydbg,
-            hook_address_delete_file_w,
+            hook_delete_file_w,
             1,
-            callback_delete_file_entry,
-            callback_delete_file_exit)
+            callback_delete_file_in,
+            callback_delete_file_out)
 
         tst_pydbg.run()
         deletion_file_process.kill()
-        self.assertTrue(Context.file_name_entry == temp_name)
-        self.assertTrue(Context.file_name_exit == temp_name)
+        self.assertTrue(Context.file_name_in == temp_name)
+        self.assertTrue(Context.file_name_out == temp_name)
 
     def test_Python_system(self):
         tst_pydbg = pydbg.pydbg()
 
-        temp_name = "test_pydbg_tmp_delete_%d_%d" % (root_process_id, int(time.time()))
         system_command = "dir"
         python_command = 'import time;import os;time.sleep(2);os.system("%s")' % system_command
         system_process = subprocess.Popen(
@@ -625,7 +618,7 @@ class PydbgPythonHooksTest(unittest.TestCase):
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
 
         class Context:
-            system_command_exit = None
+            system_command_out = None
 
         # A bit of delay so the process can start.
         time.sleep(0.5)
@@ -637,31 +630,29 @@ class PydbgPythonHooksTest(unittest.TestCase):
 
         if sys.version_info >= (3,):
             function_name_create_process = b"CreateProcessW"
-            string_getter = "get_wstring"
         else:
             function_name_create_process = b"CreateProcessA"
-            string_getter = "get_string"
 
-        hook_address_create_process = tst_pydbg.func_resolve(b"KERNEL32.dll", function_name_create_process)
+        hook_create_process = tst_pydbg.func_resolve(b"KERNEL32.dll", function_name_create_process)
 
-        def callback_system_exit(object_pydbg, args, function_result):
-            Context.system_command_exit = getattr(object_pydbg, string_getter)(args[0])
-            print("callback_system_exit system_command_exit=", Context.system_command_exit)
+        def callback_system_out(object_pydbg, args, function_result):
+            Context.system_command_out = object_pydbg.get_text_string(args[0])
+            print("callback_system_out system_command_out=", Context.system_command_out)
             return defines.DBG_CONTINUE
 
         object_hooks.add(
             tst_pydbg,
-            hook_address_create_process,
+            hook_create_process,
             1,
             None,
-            callback_system_exit)
+            callback_system_out)
 
         tst_pydbg.run()
         system_process.kill()
         cmd_executable = r'C:\windows\system32\cmd.exe'
         # Conversion to lower case because c:\windows might be C:\Windows on Travis.
         print("cmd_executable=", cmd_executable)
-        self.assertTrue(Context.system_command_exit.lower() == cmd_executable.lower())
+        self.assertTrue(Context.system_command_out.lower() == cmd_executable.lower())
 
     def test_Python_mkdir_rmdir(self):
         tst_pydbg = pydbg.pydbg()
@@ -678,10 +669,10 @@ class PydbgPythonHooksTest(unittest.TestCase):
         print("dir_command_process ", dir_command_process.pid)
 
         class Context:
-            created_directory_entry = None
-            created_directory_exit = None
-            removed_directory_entry = None
-            removed_directory_exit = None
+            created_directory_in = None
+            created_directory_out = None
+            removed_directory_in = None
+            removed_directory_out = None
 
         # A bit of delay so the process can start.
         time.sleep(0.5)
@@ -694,49 +685,47 @@ class PydbgPythonHooksTest(unittest.TestCase):
         if sys.version_info >= (3,):
             function_name_create_directory = b"CreateDirectoryW"
             function_name_remove_directory = b"RemoveDirectoryW"
-            string_getter = "get_wstring"
         else:
             function_name_create_directory = b"CreateDirectoryA"
             function_name_remove_directory = b"RemoveDirectoryA"
-            string_getter = "get_string"
 
-        hook_address_CreateDirectory = tst_pydbg.func_resolve(b"KERNEL32.dll", function_name_create_directory)
+        hook_CreateDirectory = tst_pydbg.func_resolve(b"KERNEL32.dll", function_name_create_directory)
 
-        def callback_CreateDirectory_entry(object_pydbg, args):
-            Context.created_directory_entry = getattr(object_pydbg, string_getter)(args[0])
-            print("callback_CreateDirectory_entry created_directory_entry=", Context.created_directory_entry)
+        def callback_CreateDirectory_in(object_pydbg, args):
+            Context.created_directory_in = object_pydbg.get_text_string(args[0])
+            print("callback_CreateDirectory_in created_directory_in=", Context.created_directory_in)
             return defines.DBG_CONTINUE
 
-        def callback_CreateDirectory_exit(object_pydbg, args, function_result):
-            Context.created_directory_exit = getattr(object_pydbg, string_getter)(args[0])
-            print("callback_CreateDirectory_exit created_directory_exit=", Context.created_directory_exit)
+        def callback_CreateDirectory_out(object_pydbg, args, function_result):
+            Context.created_directory_out = object_pydbg.get_text_string(args[0])
+            print("callback_CreateDirectory_out created_directory_out=", Context.created_directory_out)
             return defines.DBG_CONTINUE
 
         object_hooks.add(
             tst_pydbg,
-            hook_address_CreateDirectory,
+            hook_CreateDirectory,
             2,
-            callback_CreateDirectory_entry,
-            callback_CreateDirectory_exit)
+            callback_CreateDirectory_in,
+            callback_CreateDirectory_out)
 
-        hook_address_RemoveDirectory = tst_pydbg.func_resolve(b"KERNEL32.dll", function_name_remove_directory)
+        hook_RemoveDirectory = tst_pydbg.func_resolve(b"KERNEL32.dll", function_name_remove_directory)
 
-        def callback_RemoveDirectory_entry(object_pydbg, args):
-            Context.removed_directory_entry = getattr(object_pydbg, string_getter)(args[0])
-            print("callback_RemoveDirectory_entry removed_directory_entry=", Context.removed_directory_entry)
+        def callback_RemoveDirectory_in(object_pydbg, args):
+            Context.removed_directory_in = object_pydbg.get_text_string(args[0])
+            print("callback_RemoveDirectory_in removed_directory_in=", Context.removed_directory_in)
             return defines.DBG_CONTINUE
 
-        def callback_RemoveDirectory_exit(object_pydbg, args, function_result):
-            Context.removed_directory_exit = getattr(object_pydbg, string_getter)(args[0])
-            print("callback_RemoveDirectory_exit removed_directory_exit=", Context.removed_directory_exit)
+        def callback_RemoveDirectory_out(object_pydbg, args, function_result):
+            Context.removed_directory_out = object_pydbg.get_text_string(args[0])
+            print("callback_RemoveDirectory_out removed_directory_out=", Context.removed_directory_out)
             return defines.DBG_CONTINUE
 
         object_hooks.add(
             tst_pydbg,
-            hook_address_RemoveDirectory,
+            hook_RemoveDirectory,
             1,
-            callback_RemoveDirectory_entry,
-            callback_RemoveDirectory_exit)
+            callback_RemoveDirectory_in,
+            callback_RemoveDirectory_out)
 
         tst_pydbg.run()
         stdout_data, stderr_data = dir_command_process.communicate()
@@ -744,15 +733,15 @@ class PydbgPythonHooksTest(unittest.TestCase):
         self.assertTrue(not stderr_data)
         dir_command_process.kill()
 
-        print("created_directory_entry=", Context.created_directory_entry)
-        print("created_directory_exit=", Context.created_directory_exit)
-        print("removed_directory_entry=", Context.removed_directory_entry)
-        print("removed_directory_exit=", Context.removed_directory_exit)
+        print("created_directory_in=", Context.created_directory_in)
+        print("created_directory_out=", Context.created_directory_out)
+        print("removed_directory_in=", Context.removed_directory_in)
+        print("removed_directory_out=", Context.removed_directory_out)
 
-        self.assertTrue(Context.created_directory_entry == temp_path)
-        self.assertTrue(Context.created_directory_exit == temp_path)
-        self.assertTrue(Context.removed_directory_entry == temp_path)
-        self.assertTrue(Context.removed_directory_exit == temp_path)
+        self.assertTrue(Context.created_directory_in == temp_path)
+        self.assertTrue(Context.created_directory_out == temp_path)
+        self.assertTrue(Context.removed_directory_in == temp_path)
+        self.assertTrue(Context.removed_directory_out == temp_path)
 
     def test_Python_subprocess(self):
         """This starts a Python subprocess without an intermediary shell."""
@@ -871,10 +860,10 @@ for counter in range(3):
         object_hooks = utils.hook_container()
 
         # This library contains the functions socket(), connect(), accept(), bind() etc...
-        hook_address_connect = tst_pydbg.func_resolve(b"ws2_32.dll", b"connect")
+        hook_connect = tst_pydbg.func_resolve(b"ws2_32.dll", b"connect")
 
-        assert hook_address_connect
-        print("hook_address_connect=%016x" % hook_address_connect)
+        assert hook_connect
+        print("hook_connect=%016x" % hook_connect)
 
         class PersistentState:
             port_number = -1
@@ -918,21 +907,21 @@ for counter in range(3):
                 (s_addr_integer & 0x000000FF)/0x1)
             print("s_addr=%s" % PersistentState.s_addr)
 
-        def callback_entry_connect(object_pydbg, args):
+        def callback_in_connect(object_pydbg, args):
             check_sockaddr_content(object_pydbg, args)
             return defines.DBG_CONTINUE
 
-        def callback_exit_connect(object_pydbg, args, function_result):
+        def callback_out_connect(object_pydbg, args, function_result):
             check_sockaddr_content(object_pydbg, args)
             return defines.DBG_CONTINUE
 
         # int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
         object_hooks.add(
             tst_pydbg,
-            hook_address_connect,
+            hook_connect,
             3,
-            callback_entry_connect,
-            callback_exit_connect)
+            callback_in_connect,
+            callback_out_connect)
 
         tst_pydbg.run()
         os.remove(temporary_python_file.name)
@@ -941,69 +930,7 @@ for counter in range(3):
         self.assertTrue(PersistentState.ip_port == server_port)
         self.assertTrue(PersistentState.s_addr == socket.gethostbyname(server_domain))
 
-    # This an experimental attempt to detected nested processes creations.
-    # Quite probably, a different approach will be chosen.
-    @unittest.skip("Does not work yet")
-    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
-    def test_Python_subprocesses_recursive(self):
-        tst_pydbg = pydbg.pydbg()
 
-        tree_depth = 5
-
-        top_created_process = subprocess.Popen([sys.executable, '-m', 'create_process_chain', str(tree_depth)],
-                                                stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = False)
-
-        print("create_process_tree_popen ", top_created_process.pid)
-
-        # A bit of delay so the process can start.
-        time.sleep(1.0)
-
-        print("Attaching to pid=%d" % top_created_process.pid)
-        tst_pydbg.attach(top_created_process.pid)
-
-        tst_pydbg.sub_pydbgs = []
-
-        def python_process_creation_callback(object_pydbg):
-            print("dwProcessId=", object_pydbg.dbg.dwProcessId, "dwThreadId=", object_pydbg.dbg.dwThreadId)
-
-            object_process = psutil.Process(object_pydbg.dbg.dwProcessId)
-            # Command line: ['C:\\Python27\\python.exe', '-m', 'create_process_chain', '5']
-            actual_command_line = object_process.cmdline()
-            expected_command_line = [sys.executable, '-m', 'create_process_chain', str(tree_depth)]
-            print("python_process_creation_callback Actual command line:", actual_command_line)
-            print("python_process_creation_callback Expected command line:", expected_command_line)
-            assert actual_command_line == expected_command_line
-
-            assert object_pydbg == tst_pydbg
-
-            assert object_process.ppid() == root_process_id
-
-            the_subpydbg = pydbg.pydbg()
-            the_subpydbg.sub_pydbgs = []
-            tst_pydbg.sub_pydbgs.append(the_subpydbg)
-            the_subpydbg.open_process(object_pydbg.dbg.dwProcessId)
-            print("AFTER REDUNDANCY")
-            the_subpydbg.attach(object_pydbg.dbg.dwProcessId)
-            the_subpydbg.set_callback(defines.CREATE_PROCESS_DEBUG_EVENT, python_process_creation_callback)
-            the_subpydbg.run()
-
-            return defines.DBG_CONTINUE
-
-        tst_pydbg.set_callback(defines.CREATE_PROCESS_DEBUG_EVENT, python_process_creation_callback)
-
-        print("About to run subprocess")
-        tst_pydbg.run()
-
-        return_dict = {}
-        for ix in range(tree_depth+1):
-            one_line = top_created_process.stdout.readline()
-            print("one_line=", one_line)
-            one_depth, one_pid = map(int, one_line.split(b" "))
-            return_dict[one_depth] = one_pid
-        print("return_dict=", return_dict)
-
-
-# BEWARE: When running DOS tests first, then Python tests fail.
 @unittest.skipIf(is_platform_linux, "Windows only.")
 @unittest.skipIf(pkgutil.find_loader('pywin32'), "Needs pywin32 module.")
 class PydbgWin32HooksTest(unittest.TestCase):
@@ -1111,8 +1038,8 @@ class PydbgWin32HooksTest(unittest.TestCase):
         temp_python_path = os.path.join(tempfile.gettempdir(), file_base_name + ".py")
 
         # This text will be written in a text file by a simple Python script, run in a subprocess.
-        result_message = "Hello_%d" % root_process_id
-        script_content = "open(r'%s', 'w').write('%s')" % (temp_text_file_path, result_message)
+        # This appends also the pid of tghe created subprocess.
+        script_content = "import os;open(r'%s', 'w').write('Hello_%d_%%d' %% os.getpid())" % (temp_text_file_path, root_process_id)
         with open(temp_python_path, "w") as temp_python_file:
             temp_python_file.write(script_content)
 
@@ -1130,24 +1057,22 @@ class PydbgWin32HooksTest(unittest.TestCase):
 
         if sys.version_info >= (3,):
             function_name_create_file = b"CreateFileW"
-            string_getter = "get_wstring"
         else:
             function_name_create_file = b"CreateFileA"
-            string_getter = "get_string"
 
         class Context:
-            filename_entry = None
-            filename_exit = None
+            filename_in = None
+            filename_out = None
 
-        def callback_CreateFile_entry(object_pydbg, args):
-            Context.filename_entry = getattr(object_pydbg, string_getter)(args[0])
-            print("callback_CreateFile_entry file_name=", Context.filename_entry)
+        def callback_CreateFile_in(object_pydbg, args):
+            Context.filename_in = object_pydbg.get_text_string(args[0])
+            print("callback_CreateFile_in file_name=", Context.filename_in)
             return defines.DBG_CONTINUE
 
-        def callback_CreateFile_exit(object_pydbg, args, function_result):
-            Context.filename_exit = getattr(object_pydbg, string_getter)(args[0])
+        def callback_CreateFile_out(object_pydbg, args, function_result):
+            Context.filename_out = object_pydbg.get_text_string(args[0])
             Context.result = function_result
-            print("callback_CreateFile_exit file_name=", Context.filename_exit, "result=", function_result)
+            print("callback_CreateFile_out file_name=", Context.filename_out, "result=", function_result)
             return defines.DBG_CONTINUE
 
         object_hooks = utils.hook_container()
@@ -1159,25 +1084,21 @@ class PydbgWin32HooksTest(unittest.TestCase):
             if dll_filename.startswith("\\\\?\\"):
                 dll_filename = dll_filename[4:]
 
-            # a ce moment on ne peut pas encore iterer car pas dans le snap shot,
-            # donc faut aller chercher directement dans le handle de la lib.
-
             self.assertTrue(object_pydbg == tst_pydbg)
             if dll_filename.upper().endswith("KERNEL32.dll".upper()):
-                print("FOUND dll_filename=", dll_filename)
                 # At this stage, the DLL cannot be enumerated yet: For an unknown reason,
-                # it cannot be obtained with CreateToolhelp32Snapshot and Module32First/Module32Next
-                # hook_address_CreateFileW = object_pydbg.func_resolve(b"KERNEL32.dll", b"CreateFileW")
-                hook_address_CreateFile = object_pydbg.func_resolve_from_dll_address(
+                # it cannot be obtained with CreateToolhelp32Snapshot and Module32First/Module32Next,
+                # so we cannot use func_resolve() with "KERNEL32.dll" as DLL name.
+                hook_CreateFile = object_pydbg.func_resolve_from_dll_address(
                     object_pydbg.dbg.u.LoadDll.lpBaseOfDll,
                     function_name_create_file)
 
                 object_hooks.add(
                     tst_pydbg,
-                    hook_address_CreateFile,
+                    hook_CreateFile,
                     1,
-                    callback_CreateFile_entry,
-                    callback_CreateFile_exit)
+                    callback_CreateFile_in,
+                    callback_CreateFile_out)
 
             return defines.DBG_CONTINUE
 
@@ -1197,22 +1118,24 @@ class PydbgWin32HooksTest(unittest.TestCase):
         except psutil.NoSuchProcess:
             pass
 
-        print("Context.filename_entry=", Context.filename_entry)
-        print("Context.filename_exit=", Context.filename_entry)
+        print("Context.filename_in=", Context.filename_in)
+        print("Context.filename_out=", Context.filename_in)
         print("Context.result=", Context.result)
-        print("temp_data_file_path=", temp_text_file_path, type(temp_text_file_path))
+        print("temp_data_file_path=", temp_text_file_path)
 
         # The resumed process had time enough to create the file.
         with open(temp_text_file_path) as result_file:
             first_line = open(temp_text_file_path).readlines()[0]
-        self.assertTrue(first_line == result_message)
+        print("first_line=", first_line)
+        expected_line = 'Hello_%d_%d' % (root_process_id, sub_process_id)
+        self.assertTrue(first_line == expected_line)
 
         os.remove(temp_text_file_path)
         os.remove(temp_python_path)
 
         # This is the last accessed file.
-        self.assertTrue(Context.filename_entry == temp_text_file_path)
-        self.assertTrue(Context.filename_exit == temp_text_file_path)
+        self.assertTrue(Context.filename_in == temp_text_file_path)
+        self.assertTrue(Context.filename_out == temp_text_file_path)
 
     @unittest.skip("Not implemented yet.")
     def test_win32_sub_process_suspended_hook(self):
@@ -1244,17 +1167,15 @@ class PydbgWin32HooksTest(unittest.TestCase):
     
         if sys.version_info >= (3,):
             function_name_create_file = b"CreateFileW"
-            string_getter = "get_wstring"
         else:
             function_name_create_file = b"CreateFileA"
-            string_getter = "get_string"
-    
+
         class Context:
-            filename_entry = None
+            filename_in = None
     
-        def callback_CreateFile_entry(object_pydbg, args):
-            Context.filename_entry = getattr(object_pydbg, string_getter)(args[0])
-            print("callback_CreateFile_entry file_name=", Context.filename_entry)
+        def callback_CreateFile_in(object_pydbg, args):
+            Context.filename_in = object_pydbg.get_text_string(args[0])
+            print("callback_CreateFile_in file_name=", Context.filename_in)
             return defines.DBG_CONTINUE
     
         object_hooks = utils.hook_container()
@@ -1271,22 +1192,18 @@ class PydbgWin32HooksTest(unittest.TestCase):
     
             self.assertTrue(object_pydbg == tst_pydbg)
             if dll_filename.upper().endswith("KERNEL32.dll".upper()):
-                print("FOUND dll_filename=", dll_filename)
                 # At this stage, the DLL cannot be enumerated yet: For an unknown reason,
                 # it cannot be obtained with CreateToolhelp32Snapshot and Module32First/Module32Next
-                # hook_address_CreateFileW = object_pydbg.func_resolve(b"KERNEL32.dll", b"CreateFileW")
-                hook_address_CreateFile = object_pydbg.func_resolve_from_dll_address(
+                address_CreateFile = object_pydbg.func_resolve_from_dll_address(
                     object_pydbg.dbg.u.LoadDll.lpBaseOfDll,
                     function_name_create_file)
     
                 object_hooks.add(
                     tst_pydbg,
-                    hook_address_CreateFile,
+                    address_CreateFile,
                     1,
-                    callback_CreateFile_entry,
+                    callback_CreateFile_in,
                     None)
-    
-                print("Breakpoint set:", dir(object_hooks))
     
             return defines.DBG_CONTINUE
     
@@ -1306,7 +1223,7 @@ class PydbgWin32HooksTest(unittest.TestCase):
         except psutil.NoSuchProcess:
             pass
     
-        print("Context.filename_entry=", Context.filename_entry, type(Context.filename_entry))
+        print("Context.filename_in=", Context.filename_in, type(Context.filename_in))
         print("temp_data_file_path=", temp_text_file_path, type(temp_text_file_path))
     
         # The resumed process had time enough to create the file.
@@ -1318,7 +1235,7 @@ class PydbgWin32HooksTest(unittest.TestCase):
         os.remove(temp_python_path)
     
         # This is the last accessed file.
-        self.assertTrue(Context.filename_entry == temp_text_file_path)
+        self.assertTrue(Context.filename_in == temp_text_file_path)
 
 
 if __name__ == '__main__':

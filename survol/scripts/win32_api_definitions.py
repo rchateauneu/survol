@@ -124,8 +124,8 @@ class Win32Hook_CreateProcessA(Win32Hook_BaseClass):
         );"""
 
     def process_arguments(self):
-        lpApplicationName = Win32Hook_BaseClass.object_pydbg.get_string(self.m_parsedArgs[0])
-        lpCommandLine = Win32Hook_BaseClass.object_pydbg.get_string(self.m_parsedArgs[1])
+        lpApplicationName = Win32Hook_BaseClass.object_pydbg.get_bytes_string(self.m_parsedArgs[0])
+        lpCommandLine = Win32Hook_BaseClass.object_pydbg.get_bytes_string(self.m_parsedArgs[1])
         lpProcessInformation = self.m_parsedArgs[9]
 
         # _PROCESS_INFORMATION {
@@ -191,8 +191,8 @@ class Win32Hook_CreateProcessW(Win32Hook_BaseClass):
         );"""
 
     def process_arguments(self):
-        lpApplicationName = Win32Hook_BaseClass.object_pydbg.get_wstring(self.m_parsedArgs[0])
-        lpCommandLine = Win32Hook_BaseClass.object_pydbg.get_wstring(self.m_parsedArgs[1])
+        lpApplicationName = Win32Hook_BaseClass.object_pydbg.get_unicode_string(self.m_parsedArgs[0])
+        lpCommandLine = Win32Hook_BaseClass.object_pydbg.get_unicode_string(self.m_parsedArgs[1])
         lpProcessInformation = self.m_parsedArgs[9]
         offset_dwProcessId = windows_h.sizeof(windows_h.HANDLE) + windows_h.sizeof(windows_h.HANDLE)
         dwProcessId = Win32Hook_BaseClass.object_pydbg.get_long(lpProcessInformation + offset_dwProcessId)
@@ -280,7 +280,7 @@ class Win32Hook_RemoveDirectoryA(Win32Hook_BaseClass):
         );"""
     def process_arguments(self):
         logging.debug("hook_function_RemoveDirectoryA args=", self.m_parsedArgs)
-        dirname = Win32Hook_BaseClass.object_pydbg.get_string(self.m_parsedArgs[0])
+        dirname = Win32Hook_BaseClass.object_pydbg.get_bytes_string(self.m_parsedArgs[0])
         logging.debug("hook_function_RemoveDirectoryA dirname=", dirname)
         self.callback_create_object("CIM_Directory", Name=dirname)
 
@@ -291,7 +291,7 @@ class Win32Hook_RemoveDirectoryW(Win32Hook_BaseClass):
         );"""
     def process_arguments(self):
         logging.debug("hook_function_RemoveDirectoryW args=", self.m_parsedArgs)
-        dirname = Win32Hook_BaseClass.object_pydbg.get_wstring(self.m_parsedArgs[0])
+        dirname = Win32Hook_BaseClass.object_pydbg.get_unicode_string(self.m_parsedArgs[0])
         logging.debug("hook_function_RemoveDirectoryW dirname=", dirname)
         self.callback_create_object("CIM_Directory", Name=dirname)
 
@@ -307,7 +307,7 @@ class Win32Hook_CreateFileA(Win32Hook_BaseClass):
             HANDLE                hTemplateFile
         );"""
     def process_arguments(self):
-        dirname = Win32Hook_BaseClass.object_pydbg.get_string(self.m_parsedArgs[0])
+        dirname = Win32Hook_BaseClass.object_pydbg.get_bytes_string(self.m_parsedArgs[0])
         self.callback_create_object("CIM_DataFile", Name=dirname)
 
 class Win32Hook_CreateFileW(Win32Hook_BaseClass):
@@ -322,7 +322,7 @@ class Win32Hook_CreateFileW(Win32Hook_BaseClass):
             HANDLE                hTemplateFile
         );"""
     def process_arguments(self):
-        dirname = Win32Hook_BaseClass.object_pydbg.get_wstring(self.m_parsedArgs[0])
+        dirname = Win32Hook_BaseClass.object_pydbg.get_unicode_string(self.m_parsedArgs[0])
         self.callback_create_object("CIM_DataFile", Name=dirname)
 
 class Win32Hook_CreateFile2(Win32Hook_BaseClass):
@@ -341,7 +341,7 @@ class Win32Hook_DeleteFileA(Win32Hook_BaseClass):
             LPCSTR lpFileName
         );"""
     def process_arguments(self):
-        dirname = Win32Hook_BaseClass.object_pydbg.get_string(self.m_parsedArgs[0])
+        dirname = Win32Hook_BaseClass.object_pydbg.get_bytes_string(self.m_parsedArgs[0])
         self.callback_create_object("CIM_DataFile", Name=dirname)
 
 class Win32Hook_DeleteFileW(Win32Hook_BaseClass):
@@ -350,7 +350,7 @@ class Win32Hook_DeleteFileW(Win32Hook_BaseClass):
             LPCWSTR lpFileName
         );"""
     def process_arguments(self):
-        dirname = Win32Hook_BaseClass.object_pydbg.get_wstring(self.m_parsedArgs[0])
+        dirname = Win32Hook_BaseClass.object_pydbg.get_unicode_string(self.m_parsedArgs[0])
         self.callback_create_object("CIM_DataFile", Name=dirname)
 
 class Win32Hook_WriteFile(Win32Hook_BaseClass):
@@ -368,7 +368,7 @@ class Win32Hook_WriteFile(Win32Hook_BaseClass):
         lpBuffer = self.m_parsedArgs[1]
         nNumberOfBytesToWrite = self.m_parsedArgs[2]
         # logging.debug("lpBuffer=", lpBuffer, "nNumberOfBytesToWrite=", nNumberOfBytesToWrite)
-        buffer = Win32Hook_BaseClass.object_pydbg.get_string_size(lpBuffer, nNumberOfBytesToWrite)
+        buffer = Win32Hook_BaseClass.object_pydbg.get_bytes_size(lpBuffer, nNumberOfBytesToWrite)
         logging.debug("Buffer=", buffer)
 
 

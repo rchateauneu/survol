@@ -4024,7 +4024,7 @@ class pydbg:
         self.virtual_protect(_address, _length, old_protect)
 
 
-    def get_string(self, address):
+    def get_bytes_string(self, address):
         buffer  = b""
         offset  = 0
         while 1:
@@ -4038,12 +4038,12 @@ class pydbg:
         assert offset == len(buffer)
         return buffer
 
-    def get_string_size(self, address, number_bytes):
+    def get_bytes_size(self, address, number_bytes):
         buffer = self.read_process_memory(address, number_bytes)
         return buffer
 
     # The input buffer is a Windows UTF-16 string.
-    def get_wstring(self, address):
+    def get_unicode_string(self, address):
         buffer = b""
         offset = 0
         while 1:
@@ -4053,6 +4053,12 @@ class pydbg:
                 return buffer.decode("utf-16")
             buffer += byte
             offset += 2
+
+    def get_text_string(self, address):
+        if sys.version_info >= (3,):
+            return self.get_unicode_string(address)
+        else:
+            return self.get_bytes_string(address)
 
     def get_long(self, address):
         ret_bytes = self.read_process_memory(address, 4)
