@@ -1496,9 +1496,7 @@ class pydbg:
             self.set_thread_context(thread_context, thread_id=thread_id)
 
     def event_handler_create_thread64(self):
-        self._log("event_handler_create_thread64")
-        self._log("event_handler_create_thread64 dbg.dwProcessId=%d" % self.dbg.dwProcessId)
-        self._log("event_handler_create_thread64 dbg.dwThreadId=%d" % self.dbg.dwThreadId)
+        self._log("event_handler_create_thread64 pid=%d tid=%d" % (self.dbg.dwProcessId, self.dbg.dwThreadId))
 
     def event_handler_create_thread(self):
         # https://stackoverflow.com/questions/54953185/getthreadselectorentry-throwing-error-not-supported-for-x64-app
