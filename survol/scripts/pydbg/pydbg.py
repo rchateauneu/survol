@@ -1946,7 +1946,7 @@ class pydbg:
                 base_address = int(cast(module.modBaseAddr, ctypes.c_void_p).value)
 
                 try:
-                    function_address = self.func_resolve_from_dll_address(base_address, func_name)
+                    function_address = self.func_resolve_from_dll(base_address, func_name)
                 except Exception as exc:
                     new_message = "%s. Module=%s" % (str(exc), module.szModule)
                     raise Exception(new_message)
@@ -1957,7 +1957,7 @@ class pydbg:
 
 ####################################################################################################################
 
-    def func_resolve_from_dll_address(self, base_address, func_name):
+    def func_resolve_from_dll(self, base_address, func_name):
         def _from_pe_headers32(pe_headers):
             export_directory_rva = struct.unpack("<I", pe_headers[0x78:0x7C])[0]
             export_directory_len = struct.unpack("<I", pe_headers[0x7C:0x80])[0]
