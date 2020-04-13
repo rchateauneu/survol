@@ -290,14 +290,13 @@ def stop_wsgiserver(agent_process):
 
 update_test_path()
 
-import lib_sparql
-import lib_properties
-
 # The query function from lib_sparql module, returns RDF nodes.
 # This is not very convenient to test.
 # Therefore, for tests, this is a helper function which returns dict of strings,
 # which are easier to compare.
 def __queries_entities_to_value_pairs(iter_entities_dicts):
+    import lib_properties
+
     for one_entities_dict in iter_entities_dicts:
 
         one_entities_dict_qname = {}
@@ -314,6 +313,9 @@ def __queries_entities_to_value_pairs(iter_entities_dicts):
         yield one_entities_dict_qname
 
 def query_see_also_key_value_pairs(grph, sparql_query):
+    # This is imported here so rdflib is not mandatory for all tests.
+    import lib_sparql
+
     WARNING("query_see_also_key_value_pairs")
     iter_entities_dicts = lib_sparql.QuerySeeAlsoEntities(grph, sparql_query)
     iter_dict_objects = __queries_entities_to_value_pairs(iter_entities_dicts)
