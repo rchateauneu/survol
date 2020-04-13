@@ -1036,6 +1036,25 @@ class Pywin32HooksTest(unittest.TestCase):
 
                 object_hooks.add(tst_pydbg, hook_CreateFile, 1, callback_CreateFile_in, callback_CreateFile_out)
 
+                if is_travis_machine():
+                    # Attempt to understand why it does not work with Travis and Python 3.7
+                    hook_CreateFileA = object_pydbg.func_resolve_from_dll(
+                        object_pydbg.dbg.u.LoadDll.lpBaseOfDll,
+                        b"CreateFileA")
+
+                    def callback_CreateFileA_in(object_pydbg, args):
+                        Context.filenameA_in = object_pydbg.get_text_string(args[0])
+                        print("callback_CreateFileA_in file_name=", Context.filenameA_in)
+                        return defines.DBG_CONTINUE
+
+                    def callback_CreateFileA_out(object_pydbg, args, function_result):
+                        Context.filenameA_out = object_pydbg.get_text_string(args[0])
+                        Context.result = function_result
+                        print("callback_CreateFileA_out file_name=", Context.filenameA_out, "result=", function_result)
+                        return defines.DBG_CONTINUE
+
+                    object_hooks.add(tst_pydbg, hook_CreateFileA, 1, callback_CreateFileA_in, callback_CreateFileA_out)
+
             return defines.DBG_CONTINUE
 
         # This event is received after the DLL is mapped into the address space of the debuggee.
@@ -1090,7 +1109,6 @@ class Pywin32HooksTest(unittest.TestCase):
         # "tasklist.exe","7944","Console","1","7,428 K","Unknown","rchateau-HP\rchateau","0:00:00","N/A"
         #
         # After that, the main process appends another string to the same file.
-        # The command "tasklist" might not be available on all platforms.
         script_content = """
 import os
 os.system(r'echo %s > %s&tasklist /fi "IMAGENAME eq tasklist.exe" /nh /fo CSV /v >>%s')
@@ -1185,7 +1203,7 @@ with open(r'%s', "a") as append_file:
 
         # The resumed process had time enough to create the file.
         with open(temp_text_file_path) as result_file:
-            written_lines = open(temp_text_file_path).readlines()
+            written_lines = result_file.readlines()
         # written_lines= ['System_32436 \n', '"tasklist.exe","16828","Console","1","7,784 K","Unknown","user\\domain","0:00:00","N/A"\n', 'Pid_22600']
         print("written_lines=", written_lines)
         result_message_nl = result_message + " \n"
@@ -1193,7 +1211,7 @@ with open(r'%s', "a") as append_file:
         split_tasklist = written_lines[1].split(",")
         self.assertTrue(split_tasklist[0] == '"tasklist.exe"')
         # In Pycharm: "Console, on Travis: "Services".
-        self.assertTrue(split_tasklist[2] in ['"Console"', 'Services"'])
+        self.assertTrue(split_tasklist[2] in ['"Console"', '"Services"'])
         self.assertTrue(written_lines[2] == "Pid_%d" % sub_process_id)
 
         self.assertTrue(Context.lpApplicationName_in == windows_system32_cmd_exe)
@@ -1312,15 +1330,12 @@ with open(r'%s', "a") as append_file:
 
         # The resumed process had time enough to create the file.
         with open(temp_text_file_path) as result_file:
-            written_lines = open(temp_text_file_path).readlines()
+            written_lines = result_file.readlines()
         # written_lines= ['System_32436 \n', '"tasklist.exe","16828","Console","1","7,784 K","Unknown","user\\domain","0:00:00","N/A"\n', 'Pid_22600']
         print("written_lines=", written_lines)
         result_message_nl = result_message + " \n"
         self.assertTrue(written_lines[0] == result_message_nl)
-        split_tasklist = written_lines[1].split(",")
-        self.assertTrue(split_tasklist[0] == '"tasklist.exe"')
-        self.assertTrue(split_tasklist[2] == '"Console"')
-        self.assertTrue(written_lines[2] == "Pid_%d" % sub_process_id)
+        self.assertTrue(written_lines[1] == "Pid_%d" % sub_process_id)
 
         self.assertTrue(Context.lpApplicationName_in == windows_system32_cmd_exe)
         self.assertTrue(Context.lpCommandLine_in.startswith(windows_system32_cmd_exe))
