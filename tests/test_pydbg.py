@@ -152,6 +152,7 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
         print("Counters:", Context.count_in, Context.count_out)
         self.assertTrue(Context.count_in == num_loops)
         self.assertTrue(Context.count_out == num_loops)
+        created_process.terminate()
 
     # It starts a DOS process which attempts to remove a directory.
     @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
@@ -171,7 +172,7 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
         # A bit of delay so the process can start.
         time.sleep(1.0)
 
-        print("Root pid=%d. Attaching to %d" % (root_process_id, created_process.pid))
+        print("Delete file test. Root pid=%d. Attaching to %d" % (root_process_id, created_process.pid))
         tst_pydbg.attach(created_process.pid)
 
         object_hooks = utils.hook_container()
@@ -229,7 +230,7 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
         # A bit of delay so the process can start.
         time.sleep(1.0)
 
-        print("Root pid=%d. Attaching to %d" % (root_process_id, created_process.pid))
+        print("CreateFile test: Root pid=%d. Attaching to %d" % (root_process_id, created_process.pid))
         tst_pydbg.attach(created_process.pid)
 
         object_hooks = utils.hook_container()
@@ -268,6 +269,7 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
         # The first call might be missed.
         self.assertTrue(Context.count_in == num_loops)
         self.assertTrue(Context.count_out == num_loops)
+        created_process.terminate()
 
     def test_DOS_create_process(self):
         tst_pydbg = pydbg.pydbg()
@@ -282,7 +284,7 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
         # A bit of delay so the process can start.
         time.sleep(0.5)
 
-        print("Root pid=%d. Attaching to %d" % (root_process_id, created_process.pid))
+        print("Create process test: Root pid=%d. Attaching to %d" % (root_process_id, created_process.pid))
         tst_pydbg.attach(created_process.pid)
 
         class Context:
@@ -323,7 +325,7 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
         # A bit of delay so the process can start.
         time.sleep(1.0)
 
-        print("Root pid=%d. Attaching to %d" % (root_process_id, created_process.pid))
+        print("DOS CreateProcessW test: Root pid=%d. Attaching to %d" % (root_process_id, created_process.pid))
         tst_pydbg.attach(created_process.pid)
 
         object_hooks = utils.hook_container()
@@ -406,9 +408,48 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
             sin_family_memory = object_pydbg.read_process_memory(sockaddr_address, 2)
             Context.sin_family = struct.unpack("<H", sin_family_memory)[0]
             print("sin_family=", Context.sin_family)
+            sockaddr_size = args[2]
+            print("size=", args[2])
+
+            # AF_INET = 2, if this is an IPV4 DNS server.
+            if Context.sin_family == defines.AF_INET:
+                # struct sockaddr_in {
+                #         short   sin_family;
+                #         u_short sin_port;
+                #         struct  in_addr sin_addr;
+                #         char    sin_zero[8];
+                # };
+                # struct in_addr {
+                #   union {
+                #     struct {
+                #       u_char s_b1;
+                #       u_char s_b2;
+                #       u_char s_b3;
+                #       u_char s_b4;
+                #     } S_un_b;
+                #     struct {
+                #       u_short s_w1;
+                #       u_short s_w2;
+                #     } S_un_w;
+                #     u_long S_addr;
+                #   } S_un;
+                # };
+                ip_port_memory = object_pydbg.read_process_memory(sockaddr_address + 2, 2)
+                Context.ip_port = struct.unpack(">H", ip_port_memory)[0]
+                print("ip_port=", Context.ip_port)
+
+                self.assertTrue(sockaddr_size == 16)
+                self.assertTrue(Context.ip_port == 53)  # DNS
+
+                s_addr_ipv4 = object_pydbg.read_process_memory(sockaddr_address + 4, 4)
+                if is_py3:
+                    addr_ipv4 = ".".join(["%d" % s_addr_ipv4[i] for i in range(4)])
+                else:
+                    addr_ipv4 = ".".join(["%d" % ord(s_addr_ipv4[i]) for i in range(4)])
+                print("s_addr_ipv4=", addr_ipv4)
 
             # AF_INET6 = 23, if this is an IPV6 DNS server.
-            if Context.sin_family == defines.AF_INET6:
+            elif Context.sin_family == defines.AF_INET6:
                 # struct sockaddr_in6 {
                 #      sa_family_t     sin6_family;   /* AF_INET6 */
                 #      in_port_t       sin6_port;     /* port number */
@@ -424,15 +465,17 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
                 Context.ip_port = struct.unpack(">H", ip_port_memory)[0]
                 print("ip_port=", Context.ip_port)
 
-                self.assertTrue(args[2] == 28)
+                self.assertTrue(sockaddr_size == 28)
                 self.assertTrue(Context.ip_port == 53) # DNS
 
                 s_addr_ipv6 = object_pydbg.read_process_memory(sockaddr_address + 8, 16)
-
                 if is_py3:
-                    print("s_addr_ipv6=%s" % str(s_addr_ipv6))
+                    addr_ipv6 = str(s_addr_ipv6)
                 else:
-                    print("s_addr_ipv6=%s" % "".join(["%02x" % ord(one_byte) for one_byte in s_addr_ipv6]))
+                    addr_ipv6 = "".join(["%02x" % ord(one_byte) for one_byte in s_addr_ipv6])
+
+                print("s_addr_ipv6=", addr_ipv6)
+
             else:
                 raise Exception("Invalid sa_family")
 
@@ -449,7 +492,7 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
         object_hooks.add(tst_pydbg, hook_DOS_nslookup, 3, callback_DOS_nslookup_in, callback_DOS_nslookup_out)
 
         # The maximum number is variable. If too big, it hangs.
-        created_process.stdin.write(b"primhillcomputers.com\n" * 10)
+        created_process.stdin.write(b"primhillcomputers.com\n" * 5)
         created_process.stdin.write(b"quit\n")
 
         if is_py3:
@@ -459,10 +502,7 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
                 stdout_data, stderr_data = created_process.communicate(timeout=1.0)
             except subprocess.TimeoutExpired as exc:
                 print("exc=", exc)
-        print("Running")
         tst_pydbg.run()
-
-        print("Leaving")
 
         stdout_data, stderr_data = created_process.communicate()
         created_process.stdin.close()
@@ -477,7 +517,7 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
         # Address:  164.132.235.17
         self.assertTrue(stdout_data.find(b"primhillcomputers.com") > 0)
         self.assertTrue(stderr_data is None)
-        self.assertTrue(Context.sin_family == defines.AF_INET6)
+        self.assertTrue(Context.sin_family in [defines.AF_INET, defines.AF_INET6])
 
 
 # BEWARE: When running DOS tests first, then Python tests fail.
@@ -721,8 +761,8 @@ class PythonHooksTest(unittest.TestCase):
 
         tst_pydbg.set_callback(defines.CREATE_PROCESS_DEBUG_EVENT, print_hello_callback)
 
-        print("About to run subprocess")
         tst_pydbg.run()
+        print_hello_process.terminate()
         self.assertTrue(Context.command_line == [sys.executable, '-c', python_command])
 
     def test_Python_shell_sub_process(self):
@@ -768,6 +808,7 @@ class PythonHooksTest(unittest.TestCase):
         print("actual_command_line=", actual_command_line)
         # Conversion to lower case because c:\windows might be C:\Windows.
         self.assertTrue(actual_command_line.lower() == expected_command_line.lower())
+        print_shell_process.terminate()
 
     def test_Python_connect(self):
         """
@@ -803,16 +844,13 @@ for counter in range(3):
         # A bit of delay so the process can start before attaching to it.
         time.sleep(0.5)
 
-        print("Attaching to pid=%d" % url_process.pid)
+        print("Connect test: Attaching to pid=%d" % url_process.pid)
         tst_pydbg.attach(url_process.pid)
 
         object_hooks = utils.hook_container()
 
         # This library contains the functions socket(), connect(), accept(), bind() etc...
         hook_connect = tst_pydbg.func_resolve(b"ws2_32.dll", b"connect")
-
-        assert hook_connect
-        print("hook_connect=%016x" % hook_connect)
 
         class Context:
             port_number = -1
@@ -869,6 +907,7 @@ for counter in range(3):
 
         tst_pydbg.run()
         os.remove(temporary_python_file.name)
+        url_process.terminate()
 
         self.assertTrue(Context.sin_family == defines.AF_INET)
         self.assertTrue(Context.ip_port == server_port)
@@ -957,7 +996,6 @@ class Pywin32HooksTest(unittest.TestCase):
         except IOError:
             pass
 
-        print("prc_info=", prc_info, type(prc_info), dir(prc_info))
         win32process.ResumeThread(prc_info[1])
 
         time.sleep(0.5)
@@ -992,7 +1030,7 @@ class Pywin32HooksTest(unittest.TestCase):
                                               os.getcwd(), start_info)
 
         sub_process_id = prc_info[2]
-        print("Attaching to pid=%d" % sub_process_id)
+        print("Suspend test: Attaching to pid=%d" % sub_process_id)
 
         tst_pydbg = pydbg.pydbg()
         tst_pydbg.attach(sub_process_id)
@@ -1080,7 +1118,7 @@ class Pywin32HooksTest(unittest.TestCase):
 
         # The resumed process had time enough to create the file.
         with open(temp_text_file_path) as result_file:
-            first_line = open(temp_text_file_path).readlines()[0]
+            first_line = result_file.readlines()[0]
         print("first_line=", first_line)
         expected_line = 'Hello_%d_%d' % (root_process_id, sub_process_id)
         self.assertTrue(first_line == expected_line)
@@ -1126,7 +1164,7 @@ with open(r'%s', "a") as append_file:
                                               os.getcwd(), start_info)
 
         sub_process_id = prc_info[2]
-        print("Attaching to pid=%d" % sub_process_id)
+        print("Tasklist test: Attaching to pid=%d" % sub_process_id)
 
         tst_pydbg = pydbg.pydbg()
         tst_pydbg.attach(sub_process_id)
@@ -1254,7 +1292,7 @@ with open(r'%s', "a") as append_file:
                                               os.getcwd(), start_info)
 
         sub_process_id = prc_info[2]
-        print("Attaching to pid=%d" % sub_process_id)
+        print("Echo test: Attaching to pid=%d" % sub_process_id)
 
         tst_pydbg = pydbg.pydbg()
         tst_pydbg.attach(sub_process_id)
