@@ -1078,22 +1078,24 @@ class Pywin32HooksTest(unittest.TestCase):
 
                 if is_travis_machine():
                     # Attempt to understand why it does not work with Travis and Python 3.7
-                    hook_CreateFileA = object_pydbg.func_resolve_from_dll(
+                    # Tried with CreateFileA.
+                    # Python 3.7 is not the reason.
+                    hook_CreateFileTravis = object_pydbg.func_resolve_from_dll(
                         object_pydbg.dbg.u.LoadDll.lpBaseOfDll,
-                        b"CreateFileA")
+                        b"CreateFile2")
 
-                    def callback_CreateFileA_in(object_pydbg, args):
-                        Context.filenameA_in = object_pydbg.get_text_string(args[0])
-                        print("callback_CreateFileA_in file_name=", Context.filenameA_in)
+                    def callback_CreateFileTravis_in(object_pydbg, args):
+                        Context.filenameTravis_in = object_pydbg.get_text_string(args[0])
+                        print("callback_CreateFileTravis_in file_name=", Context.filenameTravis_in)
                         return defines.DBG_CONTINUE
 
-                    def callback_CreateFileA_out(object_pydbg, args, function_result):
-                        Context.filenameA_out = object_pydbg.get_text_string(args[0])
+                    def callback_CreateFileTravis_out(object_pydbg, args, function_result):
+                        Context.filenameTravis_out = object_pydbg.get_text_string(args[0])
                         Context.result = function_result
-                        print("callback_CreateFileA_out file_name=", Context.filenameA_out, "result=", function_result)
+                        print("callback_CreateFileTravis_out file_name=", Context.filenameTravis_out, "result=", function_result)
                         return defines.DBG_CONTINUE
 
-                    object_hooks.add(tst_pydbg, hook_CreateFileA, 1, callback_CreateFileA_in, callback_CreateFileA_out)
+                    object_hooks.add(tst_pydbg, hook_CreateFileTravis, 1, callback_CreateFileTravis_in, callback_CreateFileTravis_out)
 
             return defines.DBG_CONTINUE
 
