@@ -2009,12 +2009,12 @@ class pydbg:
                     return base_address + function_address
 
             # function was not found.
-            # self._log("func_resolve_debuggee dll_name=%s func_name=%s" % (dll_name, func_name))
+            self._log("func_resolve_from_dll func_name=%s not found" % func_name)
             return None
 
         assert isinstance(func_name, six.binary_type)
 
-        self._log("base_address.value=%016x" % base_address)
+        self._log("func_resolve_from_dll func_name=%s base_address=%016x" % (func_name, base_address))
 
         # A PE executable is strctured like that:
         # MZ-DOS header.
