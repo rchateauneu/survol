@@ -1081,8 +1081,8 @@ class Pywin32HooksTest(unittest.TestCase):
         start_info = win32process.STARTUPINFO()
         start_info.dwFlags = win32con.STARTF_USESHOWWINDOW
 
-        temp_text_file_path = unique_temporary_path("test_win32_system_suspended", ".txt")
-        temp_python_path = unique_temporary_path("test_win32_system_suspended", ".py")
+        temp_text_file_path = unique_temporary_path("test_win32_system_tasklist", ".txt")
+        temp_python_path = unique_temporary_path("test_win32_system_tasklist", ".py")
 
         result_message = "System_%d" % root_process_id
         # This script starts a DOS process which writes a string in a file, then its pid:
@@ -1090,6 +1090,7 @@ class Pywin32HooksTest(unittest.TestCase):
         # "tasklist.exe","7944","Console","1","7,428 K","Unknown","rchateau-HP\rchateau","0:00:00","N/A"
         #
         # After that, the main process appends another string to the same file.
+        # The command "tasklist" might not be available on all platforms.
         script_content = """
 import os
 os.system(r'echo %s > %s&tasklist /fi "IMAGENAME eq tasklist.exe" /nh /fo CSV /v >>%s')
@@ -1098,17 +1099,17 @@ with open(r'%s', "a") as append_file:
 """ % (result_message, temp_text_file_path, temp_text_file_path, temp_text_file_path)
         with open(temp_python_path, "w") as temp_python_file:
             temp_python_file.write(script_content)
-        #print("script_content=", script_content)
-    
+        # print("script_content=", script_content)
+
         python_command = "%s %s" % (sys.executable, temp_python_path)
         # CreateProcess returns a tuple (hProcess, hThread, dwProcessId, dwThreadId)
         prc_info = win32process.CreateProcess(None, python_command, None, None, False,  # bInheritHandles
                                               win32con.CREATE_NEW_CONSOLE | win32con.CREATE_SUSPENDED, None,
                                               os.getcwd(), start_info)
-    
+
         sub_process_id = prc_info[2]
         print("Attaching to pid=%d" % sub_process_id)
-    
+
         tst_pydbg = pydbg.pydbg()
         tst_pydbg.attach(sub_process_id)
 
@@ -1121,14 +1122,14 @@ with open(r'%s', "a") as append_file:
             dwProcessId_out = None
 
         object_hooks = utils.hook_container()
-    
+
         def load_dll_callback(object_pydbg):
             # self.dbg.u.LoadDll is _LOAD_DLL_DEBUG_INFO
             dll_filename = win32file.GetFinalPathNameByHandle(
                 object_pydbg.dbg.u.LoadDll.hFile, win32con.FILE_NAME_NORMALIZED)
             if dll_filename.startswith("\\\\?\\"):
                 dll_filename = dll_filename[4:]
-            #print("load_dll_callback dll_filename=", dll_filename)
+            # print("load_dll_callback dll_filename=", dll_filename)
 
             self.assertTrue(object_pydbg == tst_pydbg)
 
@@ -1158,15 +1159,16 @@ with open(r'%s', "a") as append_file:
                     Context.dwProcessId_out = object_pydbg.dbg.dwProcessId
                     return defines.DBG_CONTINUE
 
-                object_hooks.add(tst_pydbg, hook_CreateProcessW, 2, callback_CreateProcessW_in, callback_CreateProcessW_out)
+                object_hooks.add(tst_pydbg, hook_CreateProcessW, 2, callback_CreateProcessW_in,
+                                 callback_CreateProcessW_out)
 
             return defines.DBG_CONTINUE
-    
+
         # This event is received after the DLL is mapped into the address space of the debuggee.
         tst_pydbg.set_callback(defines.LOAD_DLL_DEBUG_EVENT, load_dll_callback)
-    
+
         win32process.ResumeThread(prc_info[1])
-    
+
         tst_pydbg.run()
         # A bit of extra time so the subprocess can do its work then finish.
         time.sleep(0.1)
@@ -1180,7 +1182,134 @@ with open(r'%s', "a") as append_file:
 
         # print("Context.filename_in=", Context.filename_in, type(Context.filename_in))
         print("temp_data_file_path=", temp_text_file_path)
-    
+
+        # The resumed process had time enough to create the file.
+        with open(temp_text_file_path) as result_file:
+            written_lines = open(temp_text_file_path).readlines()
+        # written_lines= ['System_32436 \n', '"tasklist.exe","16828","Console","1","7,784 K","Unknown","user\\domain","0:00:00","N/A"\n', 'Pid_22600']
+        print("written_lines=", written_lines)
+        result_message_nl = result_message + " \n"
+        self.assertTrue(written_lines[0] == result_message_nl)
+        split_tasklist = written_lines[1].split(",")
+        self.assertTrue(split_tasklist[0] == '"tasklist.exe"')
+        # In Pycharm: "Console, on Travis: "Services".
+        self.assertTrue(split_tasklist[2] in ['"Console"', 'Services"'])
+        self.assertTrue(written_lines[2] == "Pid_%d" % sub_process_id)
+
+        self.assertTrue(Context.lpApplicationName_in == windows_system32_cmd_exe)
+        self.assertTrue(Context.lpCommandLine_in.startswith(windows_system32_cmd_exe))
+        self.assertTrue(Context.dwProcessId_in == sub_process_id)
+        self.assertTrue(Context.lpApplicationName_out == windows_system32_cmd_exe)
+        self.assertTrue(Context.lpCommandLine_out.startswith(windows_system32_cmd_exe))
+        self.assertTrue(Context.dwProcessId_out == sub_process_id)
+
+        os.remove(temp_text_file_path)
+        os.remove(temp_python_path)
+
+    def test_win32_system_echo_to_file(self):
+        """This attempts to catch the file creation of a DOS process started by Python."""
+        start_info = win32process.STARTUPINFO()
+        start_info.dwFlags = win32con.STARTF_USESHOWWINDOW
+
+        temp_text_file_path = unique_temporary_path("test_win32_system_echo_to_file", ".txt")
+        temp_python_path = unique_temporary_path("test_win32_system_echo_to_file", ".py")
+
+        result_message = "System_%d" % root_process_id
+        # This script starts a DOS process which writes a string in a file.
+        #
+        # After that, the main process appends another string to the same file.
+        script_content = """
+import os
+os.system(r'echo %s > %s')
+with open(r'%s', "a") as append_file:
+    append_file.write('Pid_%%d' %% os.getpid())
+""" % (result_message, temp_text_file_path, temp_text_file_path)
+        with open(temp_python_path, "w") as temp_python_file:
+            temp_python_file.write(script_content)
+        # print("script_content=", script_content)
+
+        python_command = "%s %s" % (sys.executable, temp_python_path)
+        # CreateProcess returns a tuple (hProcess, hThread, dwProcessId, dwThreadId)
+        prc_info = win32process.CreateProcess(None, python_command, None, None, False,  # bInheritHandles
+                                              win32con.CREATE_NEW_CONSOLE | win32con.CREATE_SUSPENDED, None,
+                                              os.getcwd(), start_info)
+
+        sub_process_id = prc_info[2]
+        print("Attaching to pid=%d" % sub_process_id)
+
+        tst_pydbg = pydbg.pydbg()
+        tst_pydbg.attach(sub_process_id)
+
+        class Context:
+            lpApplicationName_in = None
+            lpCommandLine_in = None
+            dwProcessId_in = None
+            lpApplicationName_out = None
+            lpCommandLine_out = None
+            dwProcessId_out = None
+
+        object_hooks = utils.hook_container()
+
+        def load_dll_callback(object_pydbg):
+            # self.dbg.u.LoadDll is _LOAD_DLL_DEBUG_INFO
+            dll_filename = win32file.GetFinalPathNameByHandle(
+                object_pydbg.dbg.u.LoadDll.hFile, win32con.FILE_NAME_NORMALIZED)
+            if dll_filename.startswith("\\\\?\\"):
+                dll_filename = dll_filename[4:]
+            # print("load_dll_callback dll_filename=", dll_filename)
+
+            self.assertTrue(object_pydbg == tst_pydbg)
+
+            if dll_filename.upper().endswith("KERNEL32.dll".upper()):
+                function_name_create_process = b"CreateProcessW" if is_py3 else b"CreateProcessA"
+
+                # At this stage, the DLL cannot be enumerated yet: For an unknown reason,
+                # it cannot be obtained with CreateToolhelp32Snapshot and Module32First/Module32Next
+                hook_CreateProcessW = object_pydbg.func_resolve_from_dll(
+                    object_pydbg.dbg.u.LoadDll.lpBaseOfDll,
+                    function_name_create_process)
+                print("load_dll_callback hook_CreateProcessW=", hook_CreateProcessW)
+
+                def callback_CreateProcessW_in(object_pydbg, args):
+                    Context.lpApplicationName_in = object_pydbg.get_text_string(args[0])
+                    print("lpApplicationName_in=", Context.lpApplicationName_in)
+                    Context.lpCommandLine_in = object_pydbg.get_text_string(args[1])
+                    print("lpCommandLine_in=", Context.lpCommandLine_in)
+                    Context.dwProcessId_in = object_pydbg.dbg.dwProcessId
+                    return defines.DBG_CONTINUE
+
+                def callback_CreateProcessW_out(object_pydbg, args, function_result):
+                    Context.lpApplicationName_out = object_pydbg.get_text_string(args[0])
+                    print("lpApplicationName_out=", Context.lpApplicationName_out)
+                    Context.lpCommandLine_out = object_pydbg.get_text_string(args[1])
+                    print("lpCommandLine_out=", Context.lpCommandLine_out)
+                    Context.dwProcessId_out = object_pydbg.dbg.dwProcessId
+                    return defines.DBG_CONTINUE
+
+                object_hooks.add(tst_pydbg, hook_CreateProcessW, 2, callback_CreateProcessW_in,
+                                 callback_CreateProcessW_out)
+
+            return defines.DBG_CONTINUE
+
+        # This event is received after the DLL is mapped into the address space of the debuggee.
+        tst_pydbg.set_callback(defines.LOAD_DLL_DEBUG_EVENT, load_dll_callback)
+
+        win32process.ResumeThread(prc_info[1])
+
+        tst_pydbg.run()
+        # A bit of extra time so the subprocess can do its work then finish.
+        time.sleep(0.1)
+
+        # The created subprocess must exit.
+        try:
+            sub_process_psutil = psutil.Process(sub_process_id)
+            self.fail("This process should have left:%d" % sub_process_id)
+        except psutil.NoSuchProcess:
+            pass
+
+        # print("Context.filename_in=", Context.filename_in, type(Context.filename_in))
+        print("temp_data_file_path=", temp_text_file_path)
+
         # The resumed process had time enough to create the file.
         with open(temp_text_file_path) as result_file:
             written_lines = open(temp_text_file_path).readlines()
@@ -1202,6 +1331,7 @@ with open(r'%s', "a") as append_file:
 
         os.remove(temp_text_file_path)
         os.remove(temp_python_path)
+
 
 if __name__ == '__main__':
     unittest.main()
