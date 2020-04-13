@@ -1255,7 +1255,7 @@ with open(r'%s', "a") as append_file:
         self.assertTrue(written_lines[2] == "Pid_%d" % sub_process_id)
 
         print("test_win32_system_tasklist Context.lpApplicationName_in=", Context.lpApplicationName_in)
-        self.assertTrue(Context.lpApplicationName_in.lower() == windows_system32_cmd_exe)
+        self.assertTrue(Context.lpApplicationName_in == windows_system32_cmd_exe)
         self.assertTrue(Context.lpCommandLine_in.startswith(windows_system32_cmd_exe))
         self.assertTrue(Context.dwProcessId_in == sub_process_id)
         self.assertTrue(Context.lpApplicationName_out == windows_system32_cmd_exe)
