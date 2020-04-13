@@ -25,9 +25,6 @@ sys.path.append("../survol/scripts")
 sys.path.append("survol/scripts")
 print("cwd=%s" % os.getcwd())
 
-# Some tests start a DOS box process. The processes application is checked.
-windows_system32_cmd_exe = r'C:\windows\system32\cmd.exe'
-
 def unique_temporary_path(prefix, extension):
     temp_file = "%s_%d_%d%s" % (prefix, root_process_id, int(time.time()), extension)
     temp_path = os.path.join(tempfile.gettempdir(), temp_file)
@@ -36,6 +33,9 @@ def unique_temporary_path(prefix, extension):
 root_process_id = os.getpid()
 
 from init import *
+
+# Some tests start a DOS box process. The processes application is checked.
+windows_system32_cmd_exe = r'C:\Windows\system32\cmd.exe' if is_travis_machine() else r'C:\windows\system32\cmd.exe'
 
 if not is_platform_linux:
     from survol.scripts import pydbg
@@ -86,6 +86,7 @@ class BasicTest(unittest.TestCase):
         # Not needed in the test but does the cleanup.
         tst_pydbg.run()
         created_process.communicate()
+        created_process.terminate()
 
 ################################################################################
 
@@ -570,7 +571,7 @@ class PythonHooksTest(unittest.TestCase):
         object_hooks.add(tst_pydbg, hook_create_file_w, 10, callback_create_file_in, callback_create_file_out)
 
         tst_pydbg.run()
-        creation_file_process.kill()
+        creation_file_process.terminate()
         self.assertTrue(Context.file_name_in == temp_file_name)
         self.assertTrue(Context.file_name_out == temp_file_name)
         os.remove(temp_file_name)
@@ -762,6 +763,7 @@ class PythonHooksTest(unittest.TestCase):
         tst_pydbg.set_callback(defines.CREATE_PROCESS_DEBUG_EVENT, print_hello_callback)
 
         tst_pydbg.run()
+        print_hello_process.communicate()
         print_hello_process.terminate()
         self.assertTrue(Context.command_line == [sys.executable, '-c', python_command])
 
@@ -801,13 +803,13 @@ class PythonHooksTest(unittest.TestCase):
         # FIXME: Therefore everything is converted to strings before comparison.
 
         # windows_system32_cmd_exe
-        # expected_command_line = "C:\\windows\\system32\\cmd.exe /c %s" % " ".join(process_command)
         expected_command_line = windows_system32_cmd_exe + " /c "+ " ".join(process_command)
         print("expected_command_line=", expected_command_line)
         actual_command_line = " ".join(Context.command_line)
         print("actual_command_line=", actual_command_line)
         # Conversion to lower case because c:\windows might be C:\Windows.
         self.assertTrue(actual_command_line.lower() == expected_command_line.lower())
+        print_shell_process.communicate()
         print_shell_process.terminate()
 
     def test_Python_connect(self):
@@ -1253,7 +1255,7 @@ with open(r'%s', "a") as append_file:
         self.assertTrue(written_lines[2] == "Pid_%d" % sub_process_id)
 
         print("test_win32_system_tasklist Context.lpApplicationName_in=", Context.lpApplicationName_in)
-        self.assertTrue(Context.lpApplicationName_in == windows_system32_cmd_exe)
+        self.assertTrue(Context.lpApplicationName_in.lower() == windows_system32_cmd_exe)
         self.assertTrue(Context.lpCommandLine_in.startswith(windows_system32_cmd_exe))
         self.assertTrue(Context.dwProcessId_in == sub_process_id)
         self.assertTrue(Context.lpApplicationName_out == windows_system32_cmd_exe)
