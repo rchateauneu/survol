@@ -1019,8 +1019,7 @@ class Pywin32HooksTest(unittest.TestCase):
         temp_text_file_path = unique_temporary_path("test_win32_process_suspend_hook", ".txt")
         temp_python_path = unique_temporary_path("test_win32_process_suspend_hook", ".py")
 
-        # This text will be written in a text file by a simple Python script, run in a subprocess.
-        # This appends also the pid of the created subprocess.
+        # A Python script writes to a file, a text containing the pid and its parent.
         script_content = "import os;open(r'%s', 'w').write('Hello_%d_%%d' %% os.getpid())" % (temp_text_file_path, root_process_id)
         with open(temp_python_path, "w") as temp_python_file:
             temp_python_file.write(script_content)
@@ -1045,13 +1044,16 @@ class Pywin32HooksTest(unittest.TestCase):
 
         def callback_CreateFile_in(object_pydbg, args):
             Context.filename_in = object_pydbg.get_text_string(args[0])
-            print("callback_CreateFile_in file_name=", Context.filename_in)
+            print("callback_CreateFile_in file_name=", Context.filename_in,
+                  object_pydbg.dbg.dwProcessId, object_pydbg.dbg.dwThreadId)
             return defines.DBG_CONTINUE
 
         def callback_CreateFile_out(object_pydbg, args, function_result):
             Context.filename_out = object_pydbg.get_text_string(args[0])
             Context.result = function_result
-            print("callback_CreateFile_out file_name=", Context.filename_out, "result=", function_result)
+            print("callback_CreateFile_out file_name=", Context.filename_out,
+                  object_pydbg.dbg.dwProcessId, object_pydbg.dbg.dwThreadId,
+                  "result=", function_result)
             return defines.DBG_CONTINUE
 
         object_hooks = utils.hook_container()
@@ -1075,28 +1077,6 @@ class Pywin32HooksTest(unittest.TestCase):
                     function_name_create_file)
 
                 object_hooks.add(tst_pydbg, hook_CreateFile, 1, callback_CreateFile_in, callback_CreateFile_out)
-
-                if is_travis_machine():
-                    # Attempt to understand why it does not work with Travis and Python 3.7
-                    # Tried with CreateFileA.
-                    # Python 3.7 is not the reason.
-                    hook_CreateFileTravis = object_pydbg.func_resolve_from_dll(
-                        object_pydbg.dbg.u.LoadDll.lpBaseOfDll,
-                        b"CreateFile2")
-
-                    def callback_CreateFileTravis_in(object_pydbg, args):
-                        Context.filenameTravis_in = object_pydbg.get_text_string(args[0])
-                        print("callback_CreateFileTravis_in file_name=", Context.filenameTravis_in)
-                        return defines.DBG_CONTINUE
-
-                    def callback_CreateFileTravis_out(object_pydbg, args, function_result):
-                        Context.filenameTravis_out = object_pydbg.get_text_string(args[0])
-                        Context.result = function_result
-                        print("callback_CreateFileTravis_out file_name=", Context.filenameTravis_out, "result=", function_result)
-                        return defines.DBG_CONTINUE
-
-                    object_hooks.add(tst_pydbg, hook_CreateFileTravis, 1, callback_CreateFileTravis_in, callback_CreateFileTravis_out)
-
             return defines.DBG_CONTINUE
 
         # This event is received after the DLL is mapped into the address space of the debuggee.
