@@ -595,7 +595,7 @@ class pydbg:
 
             return self.ret_self()
 
-        #self._log("bp_set(0x%016x)" % address)
+        self._log("bp_set(0x%016x)" % address)
         assert address
         # ensure a breakpoint doesn't already exist at the target address.
         if not address in self.breakpoints:
@@ -909,7 +909,7 @@ class pydbg:
             self.violation_address = dbg.u.Exception.ExceptionRecord.ExceptionInformation[1]
             self.exception_code    = dbg.u.Exception.ExceptionRecord.ExceptionCode
 
-            #self._log("debug_event_iteration dbg.dwDebugEventCode=%d" % dbg.dwDebugEventCode)
+            self._log("debug_event_iteration dbg.dwDebugEventCode=%d" % dbg.dwDebugEventCode)
             if dbg.dwDebugEventCode == CREATE_PROCESS_DEBUG_EVENT:
                 self._log("debug_event_iteration CREATE_PROCESS_DEBUG_EVENT")
                 continue_status = self.event_handler_create_process()
@@ -936,13 +936,12 @@ class pydbg:
 
             # an exception was caught.
             elif dbg.dwDebugEventCode == EXCEPTION_DEBUG_EVENT:
-                #self._log("debug_event_iteration EXCEPTION_DEBUG_EVENT")
+                self._log("debug_event_iteration EXCEPTION_DEBUG_EVENT")
                 # https://stackoverflow.com/questions/3799294/im-having-problems-with-waitfordebugevent-exception-debug-event
                 # Windows will send one EXCEPTION_BREAKPOINT (INT3) when it first loads.
                 # You must DEBUG_CONTINUE this first breakpoint exception...
                 # if you DBG_EXCEPTION_NOT_HANDLED you will get the popup message box:
                 # The application failed to initialize properly (0x80000003).
-
 
                 ec = dbg.u.Exception.ExceptionRecord.ExceptionCode
 
@@ -954,9 +953,9 @@ class pydbg:
                     self._log("EXCEPTION_ACCESS_VIOLATION")
                     continue_status = self.exception_handler_access_violation()
                 elif ec == EXCEPTION_BREAKPOINT:
-                    #self._log("EXCEPTION_BREAKPOINT")
+                    self._log("EXCEPTION_BREAKPOINT")
                     continue_status = self.exception_handler_breakpoint()
-                    #self._log("debug_event_loop() continue_status: %08x DBG_CONTINUE: %08x" % (continue_status, DBG_CONTINUE) )
+                    self._log("debug_event_loop() continue_status: %08x DBG_CONTINUE: %08x" % (continue_status, DBG_CONTINUE) )
                     ############ assert continue_status == DBG_CONTINUE
                 elif ec == EXCEPTION_GUARD_PAGE:
                     self._log("EXCEPTION_GUARD_PAGE")
@@ -976,7 +975,7 @@ class pydbg:
             # from MSDN: Applications should call FlushInstructionCache if they generate or modify code in memory.
             #            The CPU cannot detect the change, and may execute the old code it cached.
             if self.dirty:
-                #self._log("FlushInstructionCache")
+                self._log("FlushInstructionCache")
                 kernel32.FlushInstructionCache(self.h_process, 0, 0)
 
             # close the opened thread handle and resume executing the thread that triggered the debug event.
@@ -1009,9 +1008,9 @@ class pydbg:
             # don't let the user interrupt us in the midst of handling a debug event.
             try:
                 def_sigint_handler = None
-                #self._log("debug_event_loop In loop on debugger_active A")
+                self._log("debug_event_loop In loop on debugger_active A")
                 def_sigint_handler = signal.signal(signal.SIGINT, self.sigint_handler)
-                #self._log("debug_event_loop In loop on debugger_active A1")
+                self._log("debug_event_loop In loop on debugger_active A1")
             except:
                 pass
 
@@ -1026,7 +1025,7 @@ class pydbg:
 
             # iterate through a debug event.
             self.debug_event_iteration()
-            #self._log("debug_event_loop Returning from debug_event_iteration")
+            self._log("debug_event_loop Returning from debug_event_iteration")
 
             # resume keyboard interruptability.
             if def_sigint_handler:
@@ -1641,7 +1640,7 @@ class pydbg:
         @return: Debug event continue status.
         '''
 
-        #self._log("pydbg.exception_handler_breakpoint() at %08x from thread id %d" % (self.exception_address, self.dbg.dwThreadId))
+        self._log("pydbg.exception_handler_breakpoint() at %016x from thread id %d" % (self.exception_address, self.dbg.dwThreadId))
 
         # breakpoints we did not set.
         if not self.bp_is_ours(self.exception_address):
@@ -1667,7 +1666,7 @@ class pydbg:
         # breakpoints we did set.
         else:
             # restore the original byte at the breakpoint address.
-            #self._log("restoring original byte at %08x: %s" % (self.exception_address, self.breakpoints[self.exception_address].original_byte))
+            self._log("restoring original byte at %016x: %s" % (self.exception_address, self.breakpoints[self.exception_address].original_byte))
             self.write_process_memory(self.exception_address, self.breakpoints[self.exception_address].original_byte)
             self.set_attr("dirty", True)
 
@@ -1703,7 +1702,7 @@ class pydbg:
 
                 self.bp_del(self.exception_address)
 
-        #self._log("leaving exception_handler_breakpoint")
+        self._log("leaving exception_handler_breakpoint")
         return continue_status
 
     ####################################################################################################################
