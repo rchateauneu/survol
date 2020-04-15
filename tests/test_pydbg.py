@@ -1067,6 +1067,7 @@ class Pywin32HooksTest(unittest.TestCase):
             if dll_filename.startswith("\\\\?\\"):
                 dll_filename = dll_filename[4:]
 
+            print("load_dll_callback dll_filename=", dll_filename)
             self.assertTrue(object_pydbg == tst_pydbg)
             if dll_filename.upper().endswith("KERNEL32.dll".upper()):
                 # At this stage, the DLL cannot be enumerated yet: For an unknown reason,
