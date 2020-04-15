@@ -927,7 +927,7 @@ class pydbg:
                 continue_status = self.event_handler_exit_thread()
 
             elif dbg.dwDebugEventCode == LOAD_DLL_DEBUG_EVENT:
-                #self._log("debug_event_iteration LOAD_DLL_DEBUG_EVENT")
+                self._log("debug_event_iteration LOAD_DLL_DEBUG_EVENT")
                 continue_status = self.event_handler_load_dll()
 
             elif dbg.dwDebugEventCode == UNLOAD_DLL_DEBUG_EVENT:
@@ -1008,9 +1008,9 @@ class pydbg:
             # don't let the user interrupt us in the midst of handling a debug event.
             try:
                 def_sigint_handler = None
-                self._log("debug_event_loop In loop on debugger_active A")
+                #self._log("debug_event_loop In loop on debugger_active A")
                 def_sigint_handler = signal.signal(signal.SIGINT, self.sigint_handler)
-                self._log("debug_event_loop In loop on debugger_active A1")
+                #self._log("debug_event_loop In loop on debugger_active A1")
             except:
                 pass
 
