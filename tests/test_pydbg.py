@@ -1083,11 +1083,13 @@ class Pywin32HooksTest(unittest.TestCase):
         # This event is received after the DLL is mapped into the address space of the debuggee.
         tst_pydbg.set_callback(defines.LOAD_DLL_DEBUG_EVENT, load_dll_callback)
 
+        print("test_win32_process_suspend_hook resuming")
         win32process.ResumeThread(prc_info[1])
 
+        print("test_win32_process_suspend_hook running")
         tst_pydbg.run()
         # A bit of extra time so the subprocess can do its work then finish.
-        time.sleep(0.1)
+        time.sleep(1)
 
         # The created subprocess must exit.
         try:
@@ -1373,6 +1375,9 @@ with open(r'%s', "a") as append_file:
         os.remove(temp_python_path)
 
 
+
+# TODO: Test pydbg.    def load (self, path_to_file, command_line=None, create_new_console=False, show_window=True):
+
 if __name__ == '__main__':
     unittest.main()
 
@@ -1411,3 +1416,6 @@ if __name__ == '__main__':
 # NtOpenFile
 # NtOpenDirectoryObject ?
 
+
+
+# TODO: Test pydbg.    def load (self, path_to_file, command_line=None, create_new_console=False, show_window=True):
