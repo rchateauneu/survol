@@ -324,7 +324,7 @@ class pydbg:
 
             return self.ret_self()
 
-        #self._log("bp_del(0x%08x)" % address)
+        self._log("bp_del(0x%016x)" % address)
 
         # ensure a breakpoint exists at the target address.
         if address in self.breakpoints:
@@ -654,7 +654,7 @@ class pydbg:
         @return:    Self
         '''
 
-        self._log("bp_set_hw(%08x, %d, %s)" % (address, length, condition))
+        self._log("bp_set_hw(%016x, %d, %s)" % (address, length, condition))
 
         # instantiate a new hardware breakpoint object for the new bp to create.
         hw_bp = hardware_breakpoint(address, length, condition, description, restore, handler=handler)
@@ -760,20 +760,20 @@ class pydbg:
         @return:    Self
         '''
 
-        self._log("bp_set_mem() buffer range is %08x - %08x" % (address, address + size))
+        self._log("bp_set_mem() buffer range is %016x - %016x" % (address, address + size))
 
         # ensure the target address doesn't already sit in a memory breakpoint range:
         if self.bp_is_ours_mem(address):
-            self._log("a memory breakpoint spanning %08x already exists" % address)
+            self._log("a memory breakpoint spanning %016x already exists" % address)
             return self.ret_self()
 
         # determine the base address of the page containing the starting point of our buffer.
         try:
             mbi = self.virtual_query(address)
         except:
-            raise pdx("bp_set_mem(): failed querying address: %08x" % address)
+            raise pdx("bp_set_mem(): failed querying address: %016x" % address)
 
-        self._log("buffer starting at %08x sits on page starting at %08x" % (address, mbi.BaseAddress))
+        self._log("buffer starting at %016x sits on page starting at %016x" % (address, mbi.BaseAddress))
 
         # individually change the page permissions for each page our buffer spans.
         # why do we individually set the page permissions of each page as opposed to a range of pages? because empirical
@@ -783,7 +783,7 @@ class pydbg:
         current_page = mbi.BaseAddress
 
         while current_page <= address + size:
-            self._log("changing page permissions on %08x" % current_page)
+            self._log("changing page permissions on %016x" % current_page)
 
             # keep track of explicitly guarded pages, to differentiate from pages guarded by the debuggee / OS.
             self._guarded_pages.add(current_page)
@@ -854,7 +854,7 @@ class pydbg:
 
             if mbi.Protect & PAGE_GUARD:
                 address = mbi.BaseAddress
-                self._log("PAGE GUARD on %08x" % mbi.BaseAddress)
+                self._log("PAGE GUARD on %016x" % mbi.BaseAddress)
 
                 while 1:
                     address += self.page_size
@@ -863,7 +863,7 @@ class pydbg:
                     if not tmp_mbi.Protect & PAGE_GUARD:
                         break
 
-                    self._log("PAGE GUARD on %08x" % address)
+                    self._log("PAGE GUARD on %016x" % address)
 
             cursor += mbi.RegionSize
 
@@ -1535,6 +1535,8 @@ class pydbg:
         @rtype:  DWORD
         @return: Debug event continue status.
         '''
+
+        self._log("pydbg.event_handler_exit_thread() thread id %d" % self.dbg.dwThreadId)
 
         # before we remove the TEB entry from our internal list, let's give the user a chance to do something with it.
         if EXIT_THREAD_DEBUG_EVENT in self.callbacks:

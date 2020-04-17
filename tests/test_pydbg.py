@@ -1045,15 +1045,19 @@ class Pywin32HooksTest(unittest.TestCase):
         def callback_CreateFile_in(object_pydbg, args):
             Context.filename_in = object_pydbg.get_text_string(args[0])
             print("callback_CreateFile_in file_name=", Context.filename_in,
-                  object_pydbg.dbg.dwProcessId, object_pydbg.dbg.dwThreadId)
+                  "pid=", object_pydbg.dbg.dwProcessId, "tid=", object_pydbg.dbg.dwThreadId)
+            import threading
+            print("threading.current_thread()=", threading.current_thread())
             return defines.DBG_CONTINUE
 
         def callback_CreateFile_out(object_pydbg, args, function_result):
             Context.filename_out = object_pydbg.get_text_string(args[0])
             Context.result = function_result
             print("callback_CreateFile_out file_name=", Context.filename_out,
-                  object_pydbg.dbg.dwProcessId, object_pydbg.dbg.dwThreadId,
+                  "pid=", object_pydbg.dbg.dwProcessId, "tid=", object_pydbg.dbg.dwThreadId,
                   "result=", function_result)
+            import threading
+            print("threading.current_thread()=", threading.current_thread())
             return defines.DBG_CONTINUE
 
         object_hooks = utils.hook_container()
@@ -1067,7 +1071,8 @@ class Pywin32HooksTest(unittest.TestCase):
             if dll_filename.startswith("\\\\?\\"):
                 dll_filename = dll_filename[4:]
 
-            print("load_dll_callback dll_filename=", dll_filename)
+            print("load_dll_callback dll_filename=", dll_filename,
+                  "pid=", object_pydbg.dbg.dwProcessId, "tid=", object_pydbg.dbg.dwThreadId)
             self.assertTrue(object_pydbg == tst_pydbg)
             if dll_filename.upper().endswith("KERNEL32.dll".upper()):
                 # At this stage, the DLL cannot be enumerated yet: For an unknown reason,
