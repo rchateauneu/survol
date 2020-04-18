@@ -43,7 +43,7 @@ def Main():
 	for fil in fillist:
 		# TODO: Resolve symbolic links. Do not do that if shared memory.
 		# TODO: AVOIDS THESE TESTS FOR SHARED MEMORY !!!!
-		if lib_common.MeaninglessFile(fil.path, not flagShowSharedLib, not flagShowFontFiles ):
+		if lib_common.is_meaningless_file(fil.path, not flagShowSharedLib, not flagShowFontFiles ):
 			continue
 
 		fileNode = lib_common.gUriGen.FileUri( fil.path )
