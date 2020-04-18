@@ -1791,17 +1791,17 @@ class pydbg:
 
             # restore a soft breakpoint.
             if isinstance(bp, breakpoint):
-                #self._log("restoring breakpoint at 0x%08x" % bp.address)
+                self._log("restoring breakpoint at 0x%016x" % bp.address)
                 self.bp_set(bp.address, bp.description, bp.restore, bp.handler)
 
             # restore PAGE_GUARD for a memory breakpoint (make sure guards are not temporarily suspended).
             elif isinstance(bp, memory_breakpoint) and self._guards_active:
-                self._log("restoring %08x +PAGE_GUARD on page based @ %08x" % (bp.mbi.Protect, bp.mbi.BaseAddress))
+                self._log("restoring %016x +PAGE_GUARD on page based @ %016x" % (bp.mbi.Protect, bp.mbi.BaseAddress))
                 self.virtual_protect(bp.mbi.BaseAddress, 1, bp.mbi.Protect | PAGE_GUARD)
 
             # restore a hardware breakpoint.
             elif isinstance(bp, hardware_breakpoint):
-                self._log("restoring hardware breakpoint on %08x" % bp.address)
+                self._log("restoring hardware breakpoint on %016x" % bp.address)
                 self.bp_set_hw(bp.address, bp.length, bp.condition, bp.description, bp.restore, bp.handler)
 
         # determine if this single step event occured in reaction to a hardware breakpoint and grab the hit breakpoint.
