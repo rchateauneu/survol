@@ -1027,7 +1027,9 @@ class Pywin32HooksTest(unittest.TestCase):
         python_command = "%s %s" % (sys.executable, temp_python_path)
         # CreateProcess returns a tuple (hProcess, hThread, dwProcessId, dwThreadId)
         prc_info = win32process.CreateProcess(None, python_command, None, None, False,  # bInheritHandles
-                                              win32con.CREATE_NEW_CONSOLE | win32con.CREATE_SUSPENDED, None,
+                                              # win32con.CREATE_NEW_CONSOLE | win32con.CREATE_SUSPENDED, None,
+                                              # No console, test for Travis which runs this as a service.
+                                              win32con.CREATE_SUSPENDED, None,
                                               os.getcwd(), start_info)
 
         sub_process_id = prc_info[2]
