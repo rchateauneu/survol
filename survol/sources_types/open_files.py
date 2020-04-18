@@ -85,7 +85,7 @@ def Main():
 			for fil in CIM_Process.PsutilProcOpenFiles( proc ):
 
 				# Some files are not interesting even if accessed by many processes.
-				if lib_common.MeaninglessFile(fil.path, not flagShowSharedLib, not flagShowFontFiles ):
+				if lib_common.is_meaningless_file(fil.path, not flagShowSharedLib, not flagShowFontFiles ):
 					continue
 
 				# Adds the process node only if it has at least one open file.
