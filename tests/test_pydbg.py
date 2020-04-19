@@ -1026,13 +1026,13 @@ class Pywin32HooksTest(unittest.TestCase):
 
         python_command = "%s %s" % (sys.executable, temp_python_path)
         # CreateProcess returns a tuple (hProcess, hThread, dwProcessId, dwThreadId)
-        prc_info = win32process.CreateProcess(None, python_command, None, None, False,  # bInheritHandles
-                                              # win32con.CREATE_NEW_CONSOLE | win32con.CREATE_SUSPENDED, None,
-                                              # No console, test for Travis which runs this as a service.
-                                              win32con.CREATE_SUSPENDED, None,
-                                              os.getcwd(), start_info)
+        hProcess, hThread, sub_process_id, dwThreadId = win32process.CreateProcess(
+            None, python_command, None, None, False,  # bInheritHandles
+            # win32con.CREATE_NEW_CONSOLE | win32con.CREATE_SUSPENDED, None,
+            # No console, test for Travis which runs this as a service.
+            win32con.CREATE_SUSPENDED, None,
+            os.getcwd(), start_info)
 
-        sub_process_id = prc_info[2]
         print("Suspend test: Attaching to pid=%d" % sub_process_id)
 
         tst_pydbg = pydbg.pydbg()
@@ -1091,12 +1091,19 @@ class Pywin32HooksTest(unittest.TestCase):
         tst_pydbg.set_callback(defines.LOAD_DLL_DEBUG_EVENT, load_dll_callback)
 
         print("test_win32_process_suspend_hook resuming")
-        win32process.ResumeThread(prc_info[1])
+        win32process.ResumeThread(hThread)
 
         print("test_win32_process_suspend_hook running")
         tst_pydbg.run()
         # A bit of extra time so the subprocess can do its work then finish.
-        time.sleep(1)
+        # time.sleep(1)
+
+        while True:
+            time.sleep(0.25)
+            exit_status = win32process.GetExitCodeProcess(hProcess)
+            if exit_status != win32con.STILL_ACTIVE:
+                print("Waiting for process", sub_process_id, "status=", exit_status)
+                break
 
         # The created subprocess must exit.
         try:
