@@ -1056,9 +1056,14 @@ class Pywin32HooksTest(unittest.TestCase):
                         one_hook.exit_bps)
                 print("Pydbg")
                 print("    dirty=", the_pydbg.dirty)
-                print("    system_dlls=", the_pydbg.system_dlls)
-                print("    dirty=", the_pydbg.dirty)
-                print("    dirty=", the_pydbg.dirty)
+                print("    breakpoints:")
+                for one_address, one_breakpoint in the_pydbg.breakpoints.items():
+                    #print("        ", dir(one_breakpoint))
+                    print("        %016x" % one_breakpoint.address,
+                        one_breakpoint.original_byte,
+                        one_breakpoint.description,
+                        "restore=", one_breakpoint.restore,
+                        "handler=", one_breakpoint.handler)
 
         def callback_CreateFile_in(object_pydbg, args):
             Context.filename_in = object_pydbg.get_text_string(args[0])
