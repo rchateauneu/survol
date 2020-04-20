@@ -961,7 +961,7 @@ class pydbg:
                     self._log("EXCEPTION_GUARD_PAGE")
                     continue_status = self.exception_handler_guard_page()
                 elif ec == EXCEPTION_SINGLE_STEP:
-                    #self._log("EXCEPTION_SINGLE_STEP")
+                    self._log("EXCEPTION_SINGLE_STEP")
                     continue_status = self.exception_handler_single_step()
                 # generic callback support.
                 elif ec in self.callbacks:
@@ -975,7 +975,7 @@ class pydbg:
             # from MSDN: Applications should call FlushInstructionCache if they generate or modify code in memory.
             #            The CPU cannot detect the change, and may execute the old code it cached.
             if self.dirty:
-                self._log("FlushInstructionCache")
+                # self._log("FlushInstructionCache")
                 kernel32.FlushInstructionCache(self.h_process, 0, 0)
 
             # close the opened thread handle and resume executing the thread that triggered the debug event.
