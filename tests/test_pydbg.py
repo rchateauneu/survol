@@ -1020,7 +1020,7 @@ class Pywin32HooksTest(unittest.TestCase):
         temp_python_path = unique_temporary_path("test_win32_process_suspend_hook", ".py")
 
         # A Python script writes to a file, a text containing the pid and its parent.
-        script_content = "import os;open(r'%s', 'w').write('Hello_%d_%%d' %% os.getpid())" % (temp_text_file_path, root_process_id)
+        script_content = "import os;fo=open(r'%s', 'w');fo.write('Hello_%d_%%d' %% os.getpid());fo.close()" % (temp_text_file_path, root_process_id)
         with open(temp_python_path, "w") as temp_python_file:
             temp_python_file.write(script_content)
 
@@ -1043,6 +1043,22 @@ class Pywin32HooksTest(unittest.TestCase):
         class Context:
             filename_in = None
             filename_out = None
+            @staticmethod
+            def print_pydbg_status(the_pydbg, the_hooks):
+                print("Hooks")
+                for one_hook in the_hooks.iterate(the_pydbg):
+                    print("    ",
+                        one_hook.address,
+                        one_hook.num_args,
+                        one_hook.entry_hook,
+                        one_hook.exit_hook,
+                        one_hook.arguments,
+                        one_hook.exit_bps)
+                print("Pydbg")
+                print("    dirty=", the_pydbg.dirty)
+                print("    system_dlls=", the_pydbg.system_dlls)
+                print("    dirty=", the_pydbg.dirty)
+                print("    dirty=", the_pydbg.dirty)
 
         def callback_CreateFile_in(object_pydbg, args):
             Context.filename_in = object_pydbg.get_text_string(args[0])
@@ -1060,11 +1076,15 @@ class Pywin32HooksTest(unittest.TestCase):
                   "result=", function_result)
             import threading
             print("threading.current_thread()=", threading.current_thread())
+
+            if Context.filename_out == temp_python_path:
+                Context.print_pydbg_status(object_pydbg, object_hooks)
+
             return defines.DBG_CONTINUE
 
         object_hooks = utils.hook_container()
 
-        # This is called for each loaded DLL. As soos as possible,
+        # This is called for each loaded DLL. As soon as possible,
         # it sets a breakpoint on the Windows function for files creation.
         def load_dll_callback(object_pydbg):
             # self.dbg.u.LoadDll is _LOAD_DLL_DEBUG_INFO
@@ -1085,6 +1105,10 @@ class Pywin32HooksTest(unittest.TestCase):
                     function_name_create_file)
 
                 object_hooks.add(tst_pydbg, hook_CreateFile, 1, callback_CreateFile_in, callback_CreateFile_out)
+
+            if dll_filename.upper().endswith("kernel.appcore.dll".upper()):
+                Context.print_pydbg_status(object_pydbg, object_hooks)
+
             return defines.DBG_CONTINUE
 
         # This event is received after the DLL is mapped into the address space of the debuggee.
@@ -1095,10 +1119,9 @@ class Pywin32HooksTest(unittest.TestCase):
 
         print("test_win32_process_suspend_hook running")
         tst_pydbg.run()
-        # A bit of extra time so the subprocess can do its work then finish.
-        # time.sleep(1)
 
         while True:
+            # A bit of extra time so the subprocess can do its work then finish.
             time.sleep(0.25)
             exit_status = win32process.GetExitCodeProcess(hProcess)
             if exit_status != win32con.STILL_ACTIVE:
