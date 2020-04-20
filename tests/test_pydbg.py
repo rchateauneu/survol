@@ -1113,6 +1113,12 @@ class Pywin32HooksTest(unittest.TestCase):
 
             if dll_filename.upper().endswith("kernel.appcore.dll".upper()):
                 Context.print_pydbg_status(object_pydbg, object_hooks)
+                try:
+                    result_file = open(temp_text_file_path)
+                    print("RESULT FILE IS READY")
+                    result_file.close()
+                except:
+                    print("RESULT FILE IS READY")
 
             return defines.DBG_CONTINUE
 
