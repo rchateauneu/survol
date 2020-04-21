@@ -1020,7 +1020,47 @@ class Pywin32HooksTest(unittest.TestCase):
         temp_python_path = unique_temporary_path("test_win32_process_suspend_hook", ".py")
 
         # A Python script writes to a file, a text containing the pid and its parent.
-        script_content = "import os;fo=open(r'%s', 'w');fo.write('Hello_%d_%%d' %% os.getpid());fo.close()" % (temp_text_file_path, root_process_id)
+
+        temp_data_file_path = unique_temporary_path("test_win32_process_suspend_hook", ".dat")
+
+        explicit_call = True
+        if not explicit_call:
+            data_handle_out = win32file.CreateFile(temp_data_file_path,
+                                          win32file.GENERIC_WRITE,
+                                          0,
+                                          None,
+                                          win32con.CREATE_NEW,
+                                          0,
+                                          None)
+            test_data = b"Hello everyone"
+            win32file.WriteFile(data_handle_out, test_data)
+            data_handle_out.Close()
+
+            data_handle_in = open(temp_data_file_path)
+            data_content = data_handle_in.readlines()
+            data_handle_in.close()
+            print("data_content=", data_content)
+
+        script_content = """
+import win32con
+import win32file
+temp_data_file_path = r'%s'
+data_handle_out = win32file.CreateFile(temp_data_file_path,
+                              win32file.GENERIC_WRITE,
+                              0,
+                              None,
+                              win32con.CREATE_NEW,
+                              0,
+                              None)
+test_data = b"Hello everyone"
+win32file.WriteFile(data_handle_out, test_data)
+data_handle_out.Close()
+
+import os;
+fo=open(r'%s', 'w');
+fo.write('Hello_%d_%%d' %% os.getpid());
+fo.close()
+""" % (temp_data_file_path, temp_text_file_path, root_process_id)
         with open(temp_python_path, "w") as temp_python_file:
             temp_python_file.write(script_content)
 
@@ -1167,6 +1207,11 @@ class Pywin32HooksTest(unittest.TestCase):
 
         # This does not work with Python 3.7 (Travis). Maybe this Python version uses another
         # Windows API function, such as CreateFile2 ??
+        if explicit_call:
+            data_handle_in = open(temp_data_file_path)
+            data_content = data_handle_in.readlines()
+            data_handle_in.close()
+            print("data_content=", data_content)
 
     def test_win32_system_tasklist(self):
         """This tests a process created in suspended state, then creating a subprocess."""
