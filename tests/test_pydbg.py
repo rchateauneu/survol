@@ -1019,48 +1019,27 @@ class Pywin32HooksTest(unittest.TestCase):
         temp_text_file_path = unique_temporary_path("test_win32_process_suspend_hook", ".txt")
         temp_python_path = unique_temporary_path("test_win32_process_suspend_hook", ".py")
 
-        # A Python script writes to a file, a text containing the pid and its parent.
-
-        temp_data_file_path = unique_temporary_path("test_win32_process_suspend_hook", ".dat")
-
-        explicit_call = True
-        if not explicit_call:
-            data_handle_out = win32file.CreateFile(temp_data_file_path,
-                                          win32file.GENERIC_WRITE,
-                                          0,
-                                          None,
-                                          win32con.CREATE_NEW,
-                                          0,
-                                          None)
-            test_data = b"Hello everyone"
-            win32file.WriteFile(data_handle_out, test_data)
-            data_handle_out.Close()
-
-            data_handle_in = open(temp_data_file_path)
-            data_content = data_handle_in.readlines()
-            data_handle_in.close()
-            print("data_content=", data_content)
-
+        # This test does not use Python open() function because on Travis platform and Chocolatey,
+        # it is not implemented with CreateFileW() or CreateFileA(), although these are used with CPython.
+        # It does not use CreateFile2() either.
+        # To avoid any ambiguity, this test explicitly calls CreateFileW or CreateFileA,
+        # as described here in pywin32 source code: https://github.com/pyserial/pyserial/blob/master/serial/win32.py
         script_content = """
+import os
 import win32con
 import win32file
-temp_data_file_path = r'%s'
-data_handle_out = win32file.CreateFile(temp_data_file_path,
+temp_text_file_path = r'%s'
+data_handle_out = win32file.CreateFile(temp_text_file_path,
                               win32file.GENERIC_WRITE,
                               0,
                               None,
                               win32con.CREATE_NEW,
                               0,
                               None)
-test_data = b"Hello everyone"
+test_data = b'Hello_%d_%%d' %% os.getpid()
 win32file.WriteFile(data_handle_out, test_data)
 data_handle_out.Close()
-
-import os;
-fo=open(r'%s', 'w');
-fo.write('Hello_%d_%%d' %% os.getpid());
-fo.close()
-""" % (temp_data_file_path, temp_text_file_path, root_process_id)
+""" % (temp_text_file_path, root_process_id)
         with open(temp_python_path, "w") as temp_python_file:
             temp_python_file.write(script_content)
 
@@ -1189,7 +1168,7 @@ fo.close()
         print("Context.filename_in=", Context.filename_in)
         print("Context.filename_out=", Context.filename_in)
         print("Context.result=", Context.result)
-        print("temp_data_file_path=", temp_text_file_path)
+        print("temp_text_file_path=", temp_text_file_path)
 
         # The resumed process had time enough to create the file.
         with open(temp_text_file_path) as result_file:
@@ -1207,11 +1186,6 @@ fo.close()
 
         # This does not work with Python 3.7 (Travis). Maybe this Python version uses another
         # Windows API function, such as CreateFile2 ??
-        if explicit_call:
-            data_handle_in = open(temp_data_file_path)
-            data_content = data_handle_in.readlines()
-            data_handle_in.close()
-            print("data_content=", data_content)
 
     def test_win32_system_tasklist(self):
         """This tests a process created in suspended state, then creating a subprocess."""
