@@ -1044,11 +1044,8 @@ data_handle_out.Close()
             temp_python_file.write(script_content)
 
         python_command = "%s %s" % (sys.executable, temp_python_path)
-        # CreateProcess returns a tuple (hProcess, hThread, dwProcessId, dwThreadId)
         hProcess, hThread, sub_process_id, dwThreadId = win32process.CreateProcess(
             None, python_command, None, None, False,  # bInheritHandles
-            # win32con.CREATE_NEW_CONSOLE | win32con.CREATE_SUSPENDED, None,
-            # No console, test for Travis which runs this as a service.
             win32con.CREATE_SUSPENDED, None,
             os.getcwd(), start_info)
 
@@ -1062,34 +1059,11 @@ data_handle_out.Close()
         class Context:
             filename_in = None
             filename_out = None
-            @staticmethod
-            def print_pydbg_status(the_pydbg, the_hooks):
-                print("Hooks")
-                for one_hook in the_hooks.iterate(the_pydbg):
-                    print("    ",
-                        one_hook.address,
-                        one_hook.num_args,
-                        one_hook.entry_hook,
-                        one_hook.exit_hook,
-                        one_hook.arguments,
-                        one_hook.exit_bps)
-                print("Pydbg")
-                print("    dirty=", the_pydbg.dirty)
-                print("    breakpoints:")
-                for one_address, one_breakpoint in the_pydbg.breakpoints.items():
-                    #print("        ", dir(one_breakpoint))
-                    print("        %016x" % one_breakpoint.address,
-                        one_breakpoint.original_byte,
-                        one_breakpoint.description,
-                        "restore=", one_breakpoint.restore,
-                        "handler=", one_breakpoint.handler)
 
         def callback_CreateFile_in(object_pydbg, args):
             Context.filename_in = object_pydbg.get_text_string(args[0])
             print("callback_CreateFile_in file_name=", Context.filename_in,
                   "pid=", object_pydbg.dbg.dwProcessId, "tid=", object_pydbg.dbg.dwThreadId)
-            import threading
-            print("threading.current_thread()=", threading.current_thread())
             return defines.DBG_CONTINUE
 
         def callback_CreateFile_out(object_pydbg, args, function_result):
@@ -1098,12 +1072,6 @@ data_handle_out.Close()
             print("callback_CreateFile_out file_name=", Context.filename_out,
                   "pid=", object_pydbg.dbg.dwProcessId, "tid=", object_pydbg.dbg.dwThreadId,
                   "result=", function_result)
-            import threading
-            print("threading.current_thread()=", threading.current_thread())
-
-            if Context.filename_out == temp_python_path:
-                Context.print_pydbg_status(object_pydbg, object_hooks)
-
             return defines.DBG_CONTINUE
 
         object_hooks = utils.hook_container()
@@ -1130,24 +1098,13 @@ data_handle_out.Close()
 
                 object_hooks.add(tst_pydbg, hook_CreateFile, 1, callback_CreateFile_in, callback_CreateFile_out)
 
-            if dll_filename.upper().endswith("kernel.appcore.dll".upper()):
-                Context.print_pydbg_status(object_pydbg, object_hooks)
-                try:
-                    result_file = open(temp_text_file_path)
-                    print("RESULT FILE IS READY")
-                    result_file.close()
-                except:
-                    print("RESULT FILE IS READY")
-
             return defines.DBG_CONTINUE
 
         # This event is received after the DLL is mapped into the address space of the debuggee.
         tst_pydbg.set_callback(defines.LOAD_DLL_DEBUG_EVENT, load_dll_callback)
 
-        print("test_win32_process_suspend_hook resuming")
         win32process.ResumeThread(hThread)
 
-        print("test_win32_process_suspend_hook running")
         tst_pydbg.run()
 
         while True:
@@ -1183,9 +1140,6 @@ data_handle_out.Close()
         # This is the last accessed file.
         self.assertTrue(Context.filename_in == temp_text_file_path)
         self.assertTrue(Context.filename_out == temp_text_file_path)
-
-        # This does not work with Python 3.7 (Travis). Maybe this Python version uses another
-        # Windows API function, such as CreateFile2 ??
 
     def test_win32_system_tasklist(self):
         """This tests a process created in suspended state, then creating a subprocess."""
@@ -1361,6 +1315,10 @@ with open(r'%s', "a") as append_file:
 
         object_hooks = utils.hook_container()
 
+        # This callback is called each time the programs loads a DLL.
+        # This moment is chosen to set breakpoints to fucntions which are in these DLLs
+        # and are not in the executable started for the process.
+        # This is the earliest moment where these breakpoints can be set.
         def load_dll_callback(object_pydbg):
             # self.dbg.u.LoadDll is _LOAD_DLL_DEBUG_INFO
             dll_filename = win32file.GetFinalPathNameByHandle(
