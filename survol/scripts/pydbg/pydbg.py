@@ -909,7 +909,7 @@ class pydbg:
             self.violation_address = dbg.u.Exception.ExceptionRecord.ExceptionInformation[1]
             self.exception_code    = dbg.u.Exception.ExceptionRecord.ExceptionCode
 
-            self._log("debug_event_iteration dbg.dwDebugEventCode=%d" % dbg.dwDebugEventCode)
+            # self._log("debug_event_iteration dbg.dwDebugEventCode=%d" % dbg.dwDebugEventCode)
             if dbg.dwDebugEventCode == CREATE_PROCESS_DEBUG_EVENT:
                 self._log("debug_event_iteration CREATE_PROCESS_DEBUG_EVENT")
                 continue_status = self.event_handler_create_process()
@@ -927,7 +927,7 @@ class pydbg:
                 continue_status = self.event_handler_exit_thread()
 
             elif dbg.dwDebugEventCode == LOAD_DLL_DEBUG_EVENT:
-                self._log("debug_event_iteration LOAD_DLL_DEBUG_EVENT")
+                # self._log("debug_event_iteration LOAD_DLL_DEBUG_EVENT")
                 continue_status = self.event_handler_load_dll()
 
             elif dbg.dwDebugEventCode == UNLOAD_DLL_DEBUG_EVENT:
@@ -1025,7 +1025,7 @@ class pydbg:
 
             # iterate through a debug event.
             self.debug_event_iteration()
-            self._log("debug_event_loop Returning from debug_event_iteration")
+            # self._log("debug_event_loop Returning from debug_event_iteration")
 
             # resume keyboard interruptability.
             if def_sigint_handler:
@@ -1930,6 +1930,20 @@ class pydbg:
         @return: Address of the symbol in the target process address space if it can be resolved, None otherwise
         '''
 
+        base_address = self.find_dll_base_address (dll_name)
+        if base_address:
+            try:
+                function_address = self.func_resolve_from_dll(base_address, func_name)
+            except Exception as exc:
+                new_message = "%s. Module=%s" % (str(exc), module.szModule)
+                raise Exception(new_message)
+            return function_address
+        return 0
+
+
+    def canonic_dll_name(self, dll_name):
+        assert isinstance(dll_name, six.binary_type )
+        dll_name = os.path.basename(dll_name)
         dll_name = dll_name.lower()
 
         # we can't make the assumption that all DLL names end in .dll, for example Quicktime libs end in .qtx / .qts
@@ -1938,21 +1952,17 @@ class pydbg:
         # we'll check for the presence of a dot and will add .dll as a conveneince.
         if not dll_name.count(b"."):
             dll_name += b".dll"
+        return dll_name
+
+    def find_dll_base_address (self, dll_name):
+        dll_name = self.canonic_dll_name(dll_name)
 
         for module in self.iterate_modules():
-            # self._log("func_resolve_debuggee dll_name=%s func_name=%s szModule=%s" % (dll_name, func_name, module.szModule))
             if module.szModule.lower() == dll_name:
                 base_address = int(cast(module.modBaseAddr, ctypes.c_void_p).value)
-
-                try:
-                    function_address = self.func_resolve_from_dll(base_address, func_name)
-                except Exception as exc:
-                    new_message = "%s. Module=%s" % (str(exc), module.szModule)
-                    raise Exception(new_message)
-                return function_address
-        # module was not found.
-        self._log("func_resolve_debuggee module not found dll_name=%s func_name=%s" % (dll_name, func_name))
-        return -1 # None
+                return base_address
+        self._log("find_dll_base_address module not found dll_name=%s func_name=%s" % (dll_name, func_name))
+        return 0
 
 ####################################################################################################################
 
@@ -2577,7 +2587,7 @@ class pydbg:
         @return: Iterated module entries.
         '''
 
-        self._log("iterate_modules pid=%d" % self.pid)
+        # self._log("iterate_modules pid=%d" % self.pid)
 
         current_entry = MODULEENTRY32()
         snapshot      = kernel32.CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, self.pid)
