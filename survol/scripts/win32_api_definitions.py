@@ -38,12 +38,29 @@ else:
 
 ################################################################################
 
+# This models what can be done with the detection of function calls
+# in a running program. It is possible to report the function,
+# and also report the creation or update of an object, modelled with CIM,
+# or an extension of CIM.
+class TracerBase(object):
+    def report_function_call(self, function_name, task_id):
+        logging.debug("report_cim_object %s %s %s" % (self.__class__.__name__, function_name, task_id))
+        # For testing, it just stores the function name.
+        # In Survol, it stores the function name in a queue,
+        # and this event can be forwarded to a RDF semantic database.
+
+    def report_object_creation(self, cim_class_name, **cim_arguments):
+        logging.debug("report_cim_object %s %s %s" % (self.__class__.__name__, cim_class_name, cim_arguments))
+        # For testing, it just stores the object where it can be read for testing.
+        # In Survol, it stores the object in a queue,
+        # and this event can be forwarded to a RDF semantic database.
+
 # class Win32BatchCore:
 #     def __init__(self, task_id, function_name):
 #         self._task_id = task_id
 #         self._function_name = function_name
 #
-# class Win32Tracer(TracerBase):
+class Win32Tracer(TracerBase):
 #     def LogFileStream(self, extCommand, aPid):
 #         if not aPid:
 #             raise Exception("LogFileStream: process id should not be None")
@@ -51,28 +68,19 @@ else:
 #             raise Exception("LogFileStream: command should not be None")
 #
 #         self._root_pid = aPid
-#
 #         Win32Tracer._queue = queue.Queue()
-#
 #         time.sleep(1.0)
-#
 #         hook_functions()
-#
-#         def report_function_call(one_syscall, task_id):
-#             logging.info("syscall=%s" % one_syscall.function_name)
-#             # Different logic of objects creation.
-#             # COMMENT ON VA FAIRE DOCKERFILE ?
-#
-#             batch_core = Win32BatchCore(task_id, one_syscall.function_name)
-#
-#             Win32Tracer._queue.put(batch_core)
-#
-#         def report_object_creation(calling_class_instance, cim_class_name, **cim_arguments):
-#             logging.debug("win32_tracer_cim_object_callback", calling_class_instance.__class__.__name__, cim_class_name,
-#                   cim_arguments)
-#             function_name = calling_class_instance.function_name
-#
-#         return (self._root_pid, self._queue)
+
+        def report_function_call(self, function_name, task_id):
+            logging.info("function_name=%s" % function_name)
+
+            batch_core = Win32BatchCore(task_id, one_syscall.function_name)
+            Win32Tracer._queue.put(batch_core)
+
+        def report_object_creation(self, cim_class_name, **cim_arguments):
+            logging.debug("win32_tracer_cim_object_callback", cim_class_name, cim_arguments)
+            return (self._root_pid, self._queue)
 #
 #     def create_flows_from_calls_stream(self, verbose, logStream):
 #
@@ -103,21 +111,6 @@ else:
 #
 #             yield batch_core
 #
-#     def Version(self):
-#         return str("pydbg " + str(pydbg.__version__))
-
-class TracerBase(object):
-    def report_function_call(self, function_name, task_id):
-        logging.debug("report_cim_object %s %s %s" % (self.__class__.__name__, function_name, task_id))
-        # For testing, it just stores the function name.
-        # In Survol, it stores the function name in a queue,
-        # and this event can be forwarded to a RDF semantic database.
-
-    def report_object_creation(self, cim_class_name, **cim_arguments):
-        logging.debug("report_cim_object %s %s %s" % (self.__class__.__name__, cim_class_name, cim_arguments))
-        # For testing, it just stores the object where it can be read for testing.
-        # In Survol, it stores the object in a queue,
-        # and this event can be forwarded to a RDF semantic database.
 
 # This must be replaced by an object of a derived class.
 tracer_object = None # TracerBase()
