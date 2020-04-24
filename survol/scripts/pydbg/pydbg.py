@@ -172,7 +172,6 @@ class pydbg:
         system_info = SYSTEM_INFO()
         kernel32.GetSystemInfo(byref(system_info))
         self.page_size = system_info.dwPageSize
-        self._log("system page size is %d" % self.page_size)
         self.system_break = None
 
     def set_system_break(self):
