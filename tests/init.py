@@ -12,6 +12,7 @@ import psutil
 import pkgutil
 import atexit
 import time
+import tempfile
 
 CurrentMachine = socket.gethostname().lower()
 try:
@@ -44,6 +45,8 @@ SurvolWbemCimom = "http://vps516494.ovh.net:5988"
 
 is_platform_windows = sys.platform.startswith("win")
 is_platform_linux = sys.platform.startswith("linux")
+
+is_py3 = sys.version_info >= (3,)
 
 # For example /usr/bin/python2.7
 # Typical situation of symbolic links:
@@ -148,6 +151,11 @@ def has_wbem():
 def update_test_path():
     if sys.path[0] != "../survol":
         sys.path.insert(0,"../survol")
+
+def unique_temporary_path(prefix, extension):
+    temp_file = "%s_%d_%d%s" % (prefix, CurrentPid, int(time.time()), extension)
+    temp_path = os.path.join(tempfile.gettempdir(), temp_file)
+    return temp_path
 
 ################################################################################
 
