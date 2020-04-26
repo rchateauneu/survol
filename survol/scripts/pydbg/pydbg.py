@@ -910,19 +910,19 @@ class pydbg:
 
             # self._log("debug_event_iteration dbg.dwDebugEventCode=%d" % dbg.dwDebugEventCode)
             if dbg.dwDebugEventCode == CREATE_PROCESS_DEBUG_EVENT:
-                self._log("debug_event_iteration CREATE_PROCESS_DEBUG_EVENT")
+                #self._log("debug_event_iteration CREATE_PROCESS_DEBUG_EVENT")
                 continue_status = self.event_handler_create_process()
 
             elif dbg.dwDebugEventCode == CREATE_THREAD_DEBUG_EVENT:
-                self._log("debug_event_iteration CREATE_THREAD_DEBUG_EVENT")
+                #self._log("debug_event_iteration CREATE_THREAD_DEBUG_EVENT")
                 continue_status = self.event_handler_create_thread()
 
             elif dbg.dwDebugEventCode == EXIT_PROCESS_DEBUG_EVENT:
-                self._log("debug_event_iteration EXIT_PROCESS_DEBUG_EVENT")
+                #self._log("debug_event_iteration EXIT_PROCESS_DEBUG_EVENT")
                 continue_status = self.event_handler_exit_process()
 
             elif dbg.dwDebugEventCode == EXIT_THREAD_DEBUG_EVENT:
-                self._log("debug_event_iteration EXIT_THREAD_DEBUG_EVENT")
+                #self._log("debug_event_iteration EXIT_THREAD_DEBUG_EVENT")
                 continue_status = self.event_handler_exit_thread()
 
             elif dbg.dwDebugEventCode == LOAD_DLL_DEBUG_EVENT:
@@ -930,12 +930,12 @@ class pydbg:
                 continue_status = self.event_handler_load_dll()
 
             elif dbg.dwDebugEventCode == UNLOAD_DLL_DEBUG_EVENT:
-                self._log("debug_event_iteration UNLOAD_DLL_DEBUG_EVENT")
+                # self._log("debug_event_iteration UNLOAD_DLL_DEBUG_EVENT")
                 continue_status = self.event_handler_unload_dll()
 
             # an exception was caught.
             elif dbg.dwDebugEventCode == EXCEPTION_DEBUG_EVENT:
-                self._log("debug_event_iteration EXCEPTION_DEBUG_EVENT")
+                #self._log("debug_event_iteration EXCEPTION_DEBUG_EVENT")
                 # https://stackoverflow.com/questions/3799294/im-having-problems-with-waitfordebugevent-exception-debug-event
                 # Windows will send one EXCEPTION_BREAKPOINT (INT3) when it first loads.
                 # You must DEBUG_CONTINUE this first breakpoint exception...
@@ -952,15 +952,14 @@ class pydbg:
                     self._log("EXCEPTION_ACCESS_VIOLATION")
                     continue_status = self.exception_handler_access_violation()
                 elif ec == EXCEPTION_BREAKPOINT:
-                    self._log("EXCEPTION_BREAKPOINT")
+                    #self._log("EXCEPTION_BREAKPOINT")
                     continue_status = self.exception_handler_breakpoint()
-                    self._log("debug_event_loop() continue_status: %08x DBG_CONTINUE: %08x" % (continue_status, DBG_CONTINUE) )
-                    ############ assert continue_status == DBG_CONTINUE
+                    #self._log("debug_event_loop() continue_status: %08x DBG_CONTINUE: %08x" % (continue_status, DBG_CONTINUE) )
                 elif ec == EXCEPTION_GUARD_PAGE:
-                    self._log("EXCEPTION_GUARD_PAGE")
+                    #self._log("EXCEPTION_GUARD_PAGE")
                     continue_status = self.exception_handler_guard_page()
                 elif ec == EXCEPTION_SINGLE_STEP:
-                    self._log("EXCEPTION_SINGLE_STEP")
+                    #self._log("EXCEPTION_SINGLE_STEP")
                     continue_status = self.exception_handler_single_step()
                 # generic callback support.
                 elif ec in self.callbacks:
@@ -1703,7 +1702,7 @@ class pydbg:
 
                 self.bp_del(self.exception_address)
 
-        self._log("leaving exception_handler_breakpoint")
+        #self._log("leaving exception_handler_breakpoint")
         return continue_status
 
     ####################################################################################################################
@@ -1960,7 +1959,7 @@ class pydbg:
             if module.szModule.lower() == dll_name:
                 base_address = int(cast(module.modBaseAddr, ctypes.c_void_p).value)
                 return base_address
-        self._log("find_dll_base_address module not found dll_name=%s func_name=%s" % (dll_name, func_name))
+        self._log("find_dll_base_address module not found dll_name=%s" % dll_name)
         return 0
 
 ####################################################################################################################
