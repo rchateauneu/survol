@@ -123,7 +123,7 @@ class hook_container:
 
 
     ####################################################################################################################
-    def iterate (self, address):
+    def iterate (self):
         '''
         A simple iterator function that can be used to iterate through all hooks. Yielded objects are of type hook().
 
