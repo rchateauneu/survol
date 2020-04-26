@@ -17,20 +17,11 @@ try:
 except ImportError:
     pass
 
-is_py3 = sys.version_info >= (3,)
-
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 # This is needed when running from PyCharm.
 sys.path.append("../survol/scripts")
 sys.path.append("survol/scripts")
 print("cwd=%s" % os.getcwd())
-
-def unique_temporary_path(prefix, extension):
-    temp_file = "%s_%d_%d%s" % (prefix, root_process_id, int(time.time()), extension)
-    temp_path = os.path.join(tempfile.gettempdir(), temp_file)
-    return temp_path
-
-root_process_id = os.getpid()
 
 from init import *
 
@@ -75,7 +66,7 @@ class BasicTest(unittest.TestCase):
 
         time.sleep(0.5)
 
-        print("Root pid=%d. Attaching to %d" % (root_process_id, created_process.pid))
+        print("Root pid=%d. Attaching to %d" % (CurrentPid, created_process.pid))
         tst_pydbg.attach(created_process.pid)
 
         is_wow64 = pydbg.process_is_wow64(pid=created_process.pid)
@@ -117,7 +108,7 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
         # A bit of delay so the process can start.
         time.sleep(1.0)
 
-        print("Root pid=%d. Attaching to %d" % (root_process_id, created_process.pid))
+        print("Root pid=%d. Attaching to %d" % (CurrentPid, created_process.pid))
         tst_pydbg.attach(created_process.pid)
 
         object_hooks = utils.hook_container()
@@ -161,7 +152,7 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
         tst_pydbg = pydbg.pydbg()
 
         num_loops = 3
-        temp_file = "Temporary_%d_%d.xyz" % (root_process_id, int(time.time()))
+        temp_file = "Temporary_%d_%d.xyz" % (CurrentPid, int(time.time()))
         temp_path = os.path.join( tempfile.gettempdir(), temp_file)
 
         # This creates a file then removes it, several times.
@@ -173,7 +164,7 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
         # A bit of delay so the process can start.
         time.sleep(1.0)
 
-        print("Delete file test. Root pid=%d. Attaching to %d" % (root_process_id, created_process.pid))
+        print("Delete file test. Root pid=%d. Attaching to %d" % (CurrentPid, created_process.pid))
         tst_pydbg.attach(created_process.pid)
 
         object_hooks = utils.hook_container()
@@ -231,7 +222,7 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
         # A bit of delay so the process can start.
         time.sleep(1.0)
 
-        print("CreateFile test: Root pid=%d. Attaching to %d" % (root_process_id, created_process.pid))
+        print("CreateFile test: Root pid=%d. Attaching to %d" % (CurrentPid, created_process.pid))
         tst_pydbg.attach(created_process.pid)
 
         object_hooks = utils.hook_container()
@@ -285,7 +276,7 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
         # A bit of delay so the process can start.
         time.sleep(0.5)
 
-        print("Create process test: Root pid=%d. Attaching to %d" % (root_process_id, created_process.pid))
+        print("Create process test: Root pid=%d. Attaching to %d" % (CurrentPid, created_process.pid))
         tst_pydbg.attach(created_process.pid)
 
         class Context:
@@ -297,7 +288,7 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
             object_process = psutil.Process(object_pydbg.dbg.dwProcessId)
             Context.command_line = object_process.cmdline()
             assert object_pydbg == tst_pydbg
-            assert object_process.ppid() == root_process_id
+            assert object_process.ppid() == CurrentPid
             return defines.DBG_CONTINUE
 
         tst_pydbg.set_callback(defines.CREATE_PROCESS_DEBUG_EVENT, process_creation_callback)
@@ -326,7 +317,7 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
         # A bit of delay so the process can start.
         time.sleep(1.0)
 
-        print("DOS CreateProcessW test: Root pid=%d. Attaching to %d" % (root_process_id, created_process.pid))
+        print("DOS CreateProcessW test: Root pid=%d. Attaching to %d" % (CurrentPid, created_process.pid))
         tst_pydbg.attach(created_process.pid)
 
         object_hooks = utils.hook_container()
@@ -382,11 +373,11 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
 
         time.sleep(0.5)
 
-        print("Root pid=%d. Attaching to %d" % (root_process_id, created_process.pid))
+        print("Root pid=%d. Attaching to %d" % (CurrentPid, created_process.pid))
         tst_pydbg.attach(created_process.pid)
 
         subprocess_object = psutil.Process(created_process.pid)
-        self.assertTrue(subprocess_object.ppid() == root_process_id)
+        self.assertTrue(subprocess_object.ppid() == CurrentPid)
         print("Command=", subprocess_object.cmdline())
         self.assertTrue(subprocess_object.cmdline() == ["nslookup"])
 
@@ -535,7 +526,7 @@ class PythonHooksTest(unittest.TestCase):
     def test_Python_CreateFile(self):
         tst_pydbg = pydbg.pydbg()
 
-        temp_file_name = "test_pydbg_tmp_create_%d_%d" % (root_process_id, int(time.time()))
+        temp_file_name = "test_pydbg_tmp_create_%d_%d" % (CurrentPid, int(time.time()))
         # The file is an Unicode string, to enforce CreateFileW() in Python 2.
         python_command = 'import time;time.sleep(2.0);f=open(u"%s", "w");f.close()' % temp_file_name
         creation_file_process = subprocess.Popen(
@@ -757,7 +748,7 @@ class PythonHooksTest(unittest.TestCase):
             print("Command line:", Context.command_line)
 
             assert object_pydbg == tst_pydbg
-            assert object_process.ppid() == root_process_id
+            assert object_process.ppid() == CurrentPid
             return defines.DBG_CONTINUE
 
         tst_pydbg.set_callback(defines.CREATE_PROCESS_DEBUG_EVENT, print_hello_callback)
@@ -789,7 +780,7 @@ class PythonHooksTest(unittest.TestCase):
             object_process = psutil.Process(object_pydbg.dbg.dwProcessId)
             Context.command_line = object_process.cmdline()
             assert object_pydbg == tst_pydbg
-            assert object_process.ppid() == root_process_id
+            assert object_process.ppid() == CurrentPid
             return defines.DBG_CONTINUE
 
         tst_pydbg.set_callback(defines.CREATE_PROCESS_DEBUG_EVENT, print_shell_callback)
@@ -929,12 +920,11 @@ class Pywin32HooksTest(unittest.TestCase):
         start_info = win32process.STARTUPINFO()
         start_info.dwFlags = win32con.STARTF_USESHOWWINDOW
 
-        # temporary_python_file = tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False)
         temp_data_file_path = unique_temporary_path("test_win32_process_basic", ".txt")
 
-        temp_python_name = "test_win32_process_basic_%d_%d.py" % (root_process_id, int(time.time()))
+        temp_python_name = "test_win32_process_basic_%d_%d.py" % (CurrentPid, int(time.time()))
         temp_python_path = os.path.join(tempfile.gettempdir(), temp_python_name)
-        result_message = "Hello_%d" % root_process_id
+        result_message = "Hello_%d" % CurrentPid
         script_content = "open(r'%s', 'w').write('%s')" % (temp_data_file_path, result_message)
         with open(temp_python_path, "w") as temp_python_file:
             temp_python_file.write(script_content)
@@ -971,7 +961,7 @@ class Pywin32HooksTest(unittest.TestCase):
 
         temp_python_path = unique_temporary_path("test_win32_process", ".py")
 
-        result_message = "Hello_%d" % root_process_id
+        result_message = "Hello_%d" % CurrentPid
         script_content = "open(r'%s', 'w').write('%s')" % (temp_data_file_path, result_message)
         with open(temp_python_path, "w") as temp_python_file:
             temp_python_file.write(script_content)
@@ -1039,7 +1029,7 @@ data_handle_out = win32file.CreateFile(temp_text_file_path,
 test_data = b'Hello_%d_%%d' %% os.getpid()
 win32file.WriteFile(data_handle_out, test_data)
 data_handle_out.Close()
-""" % (temp_text_file_path, root_process_id)
+""" % (temp_text_file_path, CurrentPid)
         with open(temp_python_path, "w") as temp_python_file:
             temp_python_file.write(script_content)
 
@@ -1131,7 +1121,7 @@ data_handle_out.Close()
         with open(temp_text_file_path) as result_file:
             first_line = result_file.readlines()[0]
         print("first_line=", first_line)
-        expected_line = 'Hello_%d_%d' % (root_process_id, sub_process_id)
+        expected_line = 'Hello_%d_%d' % (CurrentPid, sub_process_id)
         self.assertTrue(first_line == expected_line)
 
         os.remove(temp_text_file_path)
@@ -1149,7 +1139,7 @@ data_handle_out.Close()
         temp_text_file_path = unique_temporary_path("test_win32_system_tasklist", ".txt")
         temp_python_path = unique_temporary_path("test_win32_system_tasklist", ".py")
 
-        result_message = "System_%d" % root_process_id
+        result_message = "System_%d" % CurrentPid
         # This script starts a DOS process which writes a string in a file, then its pid:
         # C:\Users\rchateau>tasklist /fi "IMAGENAME eq tasklist.exe" /nh /fo CSV /v
         # "tasklist.exe","7944","Console","1","7,428 K","Unknown","rchateau-HP\rchateau","0:00:00","N/A"
@@ -1279,7 +1269,7 @@ with open(r'%s', "a") as append_file:
         temp_text_file_path = unique_temporary_path("test_win32_system_echo_to_file", ".txt")
         temp_python_path = unique_temporary_path("test_win32_system_echo_to_file", ".py")
 
-        result_message = "System_%d" % root_process_id
+        result_message = "System_%d" % CurrentPid
         # This script starts a DOS process which writes a string in a file.
         #
         # After that, the main process appends another string to the same file.
@@ -1406,41 +1396,3 @@ with open(r'%s', "a") as append_file:
 if __name__ == '__main__':
     unittest.main()
 
-##### Kernel32.dll
-# Many functions are very specific to old-style Windows applications.
-# Still, this is the only way to track specific behaviour.
-#
-# CopyFileA
-# CopyFileW
-# CopyFileExA
-# CopyFileExW
-# CopyFileTransactedA
-# CopyFileTransactedW
-# CopyLZFile
-
-# CreateHardLink A/W/TransactedA/TransactedW
-# CreateNamedPipe A/W
-
-# LoadLibrary
-
-# MapViewOfIle ?
-
-# MoveFile ...
-
-# OpenFile, OpenFileById
-# ReOpenFile
-
-# ReplaceFile, A, W
-
-# OpenJobObjects
-
-##### KernelBase.dll
-# Looks like a subset of Kernel32.dll
-
-##### ntdll.dll
-# NtOpenFile
-# NtOpenDirectoryObject ?
-
-
-
-# TODO: Test pydbg.    def load (self, path_to_file, command_line=None, create_new_console=False, show_window=True):

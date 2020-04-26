@@ -19,6 +19,7 @@ import collections
 
 import win32file
 import win32con
+import win32process
 
 if sys.version_info < (3,):
     import Queue as queue
@@ -126,13 +127,12 @@ class Win32Hook_Manager(object):
         # So it can be found from the callbacks.
         self.object_pydbg.hook_manager = self
 
-        # TODO: Replace by a map: Process id -> hook_container
         self.object_hooks = utils.hook_container()
 
-        # This event is received after the DLL is mapped into the address space of the debuggee.
-        self.object_pydbg.set_callback(defines.LOAD_DLL_DEBUG_EVENT, self.load_dll_callback)
-
         self.unhooked_functions_by_dll = collections.defaultdict(list)
+
+        # This event is received after the DLL is mapped into the address space of the debuggee.
+        self.object_pydbg.set_callback(defines.LOAD_DLL_DEBUG_EVENT, self._functions_hooking_load_dll_callback)
 
     def add_one_function_from_dll_address(self, dll_address, the_subclass):
 
@@ -169,31 +169,34 @@ class Win32Hook_Manager(object):
                          hook_function_adapter_exit)
 
     @staticmethod
-    def load_dll_callback(object_pydbg):
+    def _functions_hooking_load_dll_callback(object_pydbg):
         # self.dbg.u.LoadDll is _LOAD_DLL_DEBUG_INFO
         dll_filename = win32file.GetFinalPathNameByHandle(
             object_pydbg.dbg.u.LoadDll.hFile, win32con.FILE_NAME_NORMALIZED)
         if dll_filename.startswith("\\\\?\\"):
             dll_filename = dll_filename[4:]
         assert isinstance(dll_filename, six.text_type)
-        print("load_dll_callback dll_filename=", dll_filename)
+        print("_functions_hooking_load_dll_callback dll_filename=", dll_filename)
 
         dll_canonic_name = object_pydbg.canonic_dll_name(dll_filename.encode('utf-8'))
 
         # At this stage, the library cannot be found with CreateToolhelp32Snapshot,
         #  and Module32First/Module32Next. But the dll object is passed to the callback.
         dll_address = object_pydbg.dbg.u.LoadDll.lpBaseOfDll
+        print("dll_canonic_name=", dll_canonic_name)
+        print("unhooked_functions_by_dll.keys=", object_pydbg.hook_manager.unhooked_functions_by_dll.keys())
         for one_subclass in object_pydbg.hook_manager.unhooked_functions_by_dll.get(dll_canonic_name, []):
-            self.add_one_function_from_dll_address(dll_address, one_subclass)
+            object_pydbg.hook_manager.add_one_function_from_dll_address(dll_address, one_subclass)
 
         return defines.DBG_CONTINUE
 
     # This is called when looping on the list of semantically interesting functions.
-    def hook_api_function(self, the_subclass):
+    def _hook_api_function(self, the_subclass):
         logging.debug("hook_api_function:%s" % the_subclass.__name__)
         the_subclass._parse_text_definition(the_subclass)
 
-        dll_canonic_name = os.path.basename(the_subclass.dll_name).upper()
+        # dll_canonic_name = os.path.basename(the_subclass.dll_name).upper()
+        dll_canonic_name = self.object_pydbg.canonic_dll_name(the_subclass.dll_name)
 
         dll_address = self.object_pydbg.find_dll_base_address(dll_canonic_name)
 
@@ -203,7 +206,29 @@ class Win32Hook_Manager(object):
         else:
             self.unhooked_functions_by_dll[dll_canonic_name].append(the_subclass)
 
-hooks_manager = Win32Hook_Manager()
+    def _hook_api_functions_list(self, functions_list):
+        for the_subclass in functions_list:
+            self._hook_api_function(the_subclass)
+
+    def attach_to_pid(self, process_id, functions_list):
+
+        self.object_pydbg.attach(process_id)
+        self._hook_api_functions_list(functions_list)
+        self.object_pydbg.run()
+
+    def attach_to_command(self, command_line, functions_list):
+        start_info = win32process.STARTUPINFO()
+        start_info.dwFlags = win32con.STARTF_USESHOWWINDOW
+
+        hProcess, hThread, dwProcessId, dwThreadId = win32process.CreateProcess(
+            None, command_line, None, None, False,
+            win32con.CREATE_SUSPENDED, None,
+            os.getcwd(), start_info)
+
+        self.object_pydbg.attach(dwProcessId)
+        self._hook_api_functions_list(functions_list)
+        win32process.ResumeThread(hThread)
+        self.object_pydbg.run()
 
 ################################################################################
 
@@ -604,16 +629,50 @@ class Win32Hook_ReadFileScatter(Win32Hook_BaseClass):
 
 ################################################################################
 
-def hook_all_functions():
-    # Loop on all lead subclasses of Win32Hook_BaseClass.
-    for subclass_definition in [
-        Win32Hook_CreateProcessA,
-        Win32Hook_CreateProcessW,
-        Win32Hook_RemoveDirectoryA,
-        Win32Hook_RemoveDirectoryW,
-        Win32Hook_CreateFileA,
-        Win32Hook_CreateFileW,
-        Win32Hook_DeleteFileA,
-        Win32Hook_DeleteFileW]:
-        hooks_manager.hook_api_function(subclass_definition)
+functions_list = [
+    Win32Hook_CreateProcessA,
+    Win32Hook_CreateProcessW,
+    Win32Hook_RemoveDirectoryA,
+    Win32Hook_RemoveDirectoryW,
+    Win32Hook_CreateFileA,
+    Win32Hook_CreateFileW,
+    Win32Hook_DeleteFileA,
+    Win32Hook_DeleteFileW]
+
+##### Kernel32.dll
+# Many functions are very specific to old-style Windows applications.
+# Still, this is the only way to track specific behaviour.
+# Which function for opening files, is called by the Python interpreter on Travis ?
+#
+# CopyFileA
+# CopyFileW
+# CopyFileExA
+# CopyFileExW
+# CopyFileTransactedA
+# CopyFileTransactedW
+# CopyLZFile
+
+# CreateHardLink A/W/TransactedA/TransactedW
+# CreateNamedPipe A/W
+
+# LoadLibrary
+
+# MapViewOfIle ?
+
+# MoveFile ...
+
+# OpenFile, OpenFileById
+# ReOpenFile
+
+# ReplaceFile, A, W
+
+# OpenJobObjects
+
+##### KernelBase.dll
+# Looks like a subset of Kernel32.dll
+
+##### ntdll.dll
+# NtOpenFile
+# NtOpenDirectoryObject ?
+
 
