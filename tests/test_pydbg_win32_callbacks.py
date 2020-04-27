@@ -8,18 +8,25 @@ import ctypes
 import collections
 import multiprocessing
 
-# This loads the module from the source, so no need to install it, and no need of virtualenv.
-# This is needed when running from PyCharm.
-#sys.path.append("../survol/scripts")
-#sys.path.append("survol/scripts")
-#print("cwd=%s" % os.getcwd())
-
 from init import *
 
 if not is_platform_linux:
     from survol.scripts import win32_api_definitions
 
 ################################################################################
+
+class TestTracer(win32_api_definitions.TracerBase):
+    calls_counter = collections.defaultdict(lambda: 0)
+    created_objects = collections.defaultdict(list)
+
+    def report_function_call(self, function_name, task_id):
+        self.calls_counter[function_name] += 1
+
+    def report_object_creation(self, cim_class_name, **cim_arguments):
+        self.created_objects[cim_class_name].append(cim_arguments)
+
+################################################################################
+
 
 nonexistent_file = "NonExistentFile.xyz"
 
@@ -69,7 +76,6 @@ class PydbgAttachTest(unittest.TestCase):
     Test pydbg callbacks.
     """
 
-    #@unittest.skip("xx.")
     def test_attach_pid(self):
         num_loops = 3
         created_process = multiprocessing.Process(target=processing_function, args=(1.0, num_loops))
@@ -78,19 +84,7 @@ class PydbgAttachTest(unittest.TestCase):
 
         time.sleep(1.0)
 
-        class Context:
-            calls_counter = collections.defaultdict(lambda: 0)
-            created_objects = collections.defaultdict(list)
-
-        class AttachTestTracer(win32_api_definitions.TracerBase):
-            def report_function_call(self, function_name, task_id):
-                print("report_function_call function_name=%s" % function_name)
-                Context.calls_counter[function_name] += 1
-            def report_object_creation(self, cim_class_name, **cim_arguments):
-                print("report_object_creation", cim_class_name, cim_arguments)
-                Context.created_objects[cim_class_name].append(cim_arguments)
-
-        win32_api_definitions.tracer_object = AttachTestTracer()
+        win32_api_definitions.tracer_object = TestTracer()
 
         hooks_manager = win32_api_definitions.Win32Hook_Manager()
 
@@ -99,54 +93,48 @@ class PydbgAttachTest(unittest.TestCase):
         created_process.terminate()
         created_process.join()
 
-        print("Calls:", Context.calls_counter)
+        print("Calls:", win32_api_definitions.tracer_object.calls_counter)
         if sys.version_info > (3,):
             # FIXME: For an unknown reason, the Python function open() of the implementation used by Travis
             # does not use CreateFileW or CreateFileA. This problem is not understood yet.
             # Other functions do not have the same problem. This is not a big issue because
             # this test just checks general behaviour of funcitons and breakpoints.
             if is_travis_machine():
-                self.assertTrue(Context.calls_counter == {
+                self.assertTrue(win32_api_definitions.tracer_object.calls_counter == {
                     b'RemoveDirectoryW': 2 * num_loops,
-                    b'CreateProcessW': num_loops})
+                    b'CreateProcessW': num_loops,
+                    b'WriteFile': 1})
             else:
-                self.assertTrue(Context.calls_counter == {
+                self.assertTrue(win32_api_definitions.tracer_object.calls_counter == {
                     b'RemoveDirectoryW':  2 * num_loops,
                     b'CreateFileW': num_loops,
-                    b'CreateProcessW': num_loops})
+                    b'CreateProcessW': num_loops,
+                    b'WriteFile': 1})
         else:
-            self.assertTrue(Context.calls_counter == {
+            self.assertTrue(win32_api_definitions.tracer_object.calls_counter == {
                 b'CreateFileA': num_loops + 3,
                 b'RemoveDirectoryW': 2 * num_loops,
-                b'CreateProcessA': num_loops} )
+                b'CreateProcessA': num_loops,
+                b'WriteFile': 1,
+                b'ReadFile': 2} )
 
         # Not all objects are checked: This just tests the general mechanism.
-        print("Objects:", Context.created_objects)
-        self.assertTrue({'Name': u'NonExistentDirUnicode'} in Context.created_objects['CIM_Directory'])
+        print("Objects:", win32_api_definitions.tracer_object.created_objects)
+        self.assertTrue({'Name': u'NonExistentDirUnicode'} in win32_api_definitions.tracer_object.created_objects['CIM_Directory'])
         if is_travis_machine():
             # FIXME: Which function is used by Travis Python interpreter ?
-            self.assertTrue({'Name': 'NonExistentFile.xyz'} not in Context.created_objects['CIM_DataFile'])
+            self.assertTrue({'Name': nonexistent_file} not in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
         else:
-            self.assertTrue({'Name': 'NonExistentFile.xyz'} in Context.created_objects['CIM_DataFile'])
-        self.assertTrue(len(Context.created_objects['CIM_Process']) == num_loops)
+            self.assertTrue({'Name': nonexistent_file} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
+        self.assertTrue(len(win32_api_definitions.tracer_object.created_objects['CIM_Process']) == num_loops)
 
-    def test_start_process(self):
+    def test_start_python_process(self):
 
-        class Context:
-            calls_counter = collections.defaultdict(lambda: 0)
-            created_objects = collections.defaultdict(list)
-
-        class CreateTestTracer(win32_api_definitions.TracerBase):
-            def report_function_call(self, function_name, task_id):
-                print("report_function_call function_name=%s" % function_name)
-                Context.calls_counter[function_name] += 1
-            def report_object_creation(self, cim_class_name, **cim_arguments):
-                print("report_object_creation", cim_class_name, cim_arguments)
-                Context.created_objects[cim_class_name].append(cim_arguments)
-
-        win32_api_definitions.tracer_object = CreateTestTracer()
+        win32_api_definitions.tracer_object = TestTracer()
 
         temp_data_file_path = unique_temporary_path("test_win32_process_basic", ".txt")
+
+        # Verifier le contenu mais faire un test plus compact.
 
         temp_python_name = "test_win32_process_basic_%d_%d.py" % (CurrentPid, int(time.time()))
         temp_python_path = os.path.join(tempfile.gettempdir(), temp_python_name)
@@ -160,19 +148,27 @@ class PydbgAttachTest(unittest.TestCase):
         hooks_manager = win32_api_definitions.Win32Hook_Manager()
         hooks_manager.attach_to_command(command_line, win32_api_definitions.functions_list)
 
-        #hooks_manager.clear()
-
-        print("test_start_process calls_counter=", Context.calls_counter)
-        print("test_start_process created_objects=", Context.created_objects)
+        print("test_start_process calls_counter=", win32_api_definitions.tracer_object.calls_counter)
+        print("test_start_process created_objects=", win32_api_definitions.tracer_object.created_objects)
         function_name_create_file = b"CreateFileW" if is_py3 else b"CreateFileA"
-        self.assertTrue(function_name_create_file in Context.calls_counter)
-        # This contains many Python modules which are loaded at startup, followed by plain files, that are checked
-        self.assertTrue({'Name': temp_python_path} in Context.created_objects['CIM_DataFile'])
+        self.assertTrue(function_name_create_file in win32_api_definitions.tracer_object.calls_counter)
+
+        # This contains many Python modules which are loaded at startup, followed by plain files, checked here.
+        self.assertTrue({'Name': temp_python_path} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
         if is_travis_machine():
             # FIXME: Which function is used by Travis Python interpreter to open a file?
-            self.assertTrue( {'Name': temp_data_file_path} not in Context.created_objects['CIM_DataFile'])
+            self.assertTrue( {'Name': temp_data_file_path} not in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
         else:
-            self.assertTrue( {'Name': temp_data_file_path} in Context.created_objects['CIM_DataFile'])
+            self.assertTrue( {'Name': temp_data_file_path} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
+
+
+    # Ajouter plus de fonctions pour comprendre le probleme de Travis
+
+    # Simple process DOS.
+
+    # Ajouter toutes les fonctons testees dans test_pydbg et les tester de facon tres compacte.
+
+
 
 if __name__ == '__main__':
     unittest.main()

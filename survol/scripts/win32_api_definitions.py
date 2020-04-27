@@ -137,6 +137,7 @@ class Win32Hook_Manager(object):
     def add_one_function_from_dll_address(self, dll_address, the_subclass):
 
         the_subclass.function_address = self.object_pydbg.func_resolve_from_dll(dll_address, the_subclass.function_name)
+        assert the_subclass.function_address
 
         # There is one such function per class associated to an API function.
         # The arguments are stored per thread, and implictly form a stack.
@@ -260,6 +261,7 @@ class Win32Hook_BaseClass(object):
         the_class.args_list = []
         for one_arg_pair in match_one.group(3).split(b","):
             match_pair = re.match(br"\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*", one_arg_pair)
+            print("one_arg_pair=", one_arg_pair)
             the_class.args_list.append((match_pair.group(1), match_pair.group(2)))
 
         assert isinstance(the_class.function_name, six.binary_type)
@@ -323,41 +325,6 @@ class Win32Hook_CreateProcessA(Win32Hook_GenericProcessCreation):
         logging.debug("Win32Hook_CreateProcessA Handle=", dwProcessId)
         self.callback_create_object("CIM_Process", Handle=dwProcessId)
 
-
-class Win32Hook_CreateProcessAsUserA(Win32Hook_GenericProcessCreation):
-    api_definition = b"""
-        BOOL CreateProcessAsUserA(
-            HANDLE                hToken,
-            LPCSTR                lpApplicationName,
-            LPSTR                 lpCommandLine,
-            LPSECURITY_ATTRIBUTES lpProcessAttributes,
-            LPSECURITY_ATTRIBUTES lpThreadAttributes,
-            BOOL                  bInheritHandles,
-            DWORD                 dwCreationFlags,
-            LPVOID                lpEnvironment,
-            LPCSTR                lpCurrentDirectory,
-            LPSTARTUPINFOA        lpStartupInfo,
-            LPPROCESS_INFORMATION lpProcessInformation
-        );"""
-    dll_name = b"KERNEL32.dll"
-
-class Win32Hook_CreateProcessAsUserW(Win32Hook_GenericProcessCreation):
-    api_definition = b"""
-        BOOL CreateProcessAsUserW(
-            HANDLE                hToken,
-            LPCWSTR               lpApplicationName,
-            LPWSTR                lpCommandLine,
-            LPSECURITY_ATTRIBUTES lpProcessAttributes,
-            LPSECURITY_ATTRIBUTES lpThreadAttributes,
-            BOOL                  bInheritHandles,
-            DWORD                 dwCreationFlags,
-            LPVOID                lpEnvironment,
-            LPCWSTR               lpCurrentDirectory,
-            LPSTARTUPINFOW        lpStartupInfo,
-            LPPROCESS_INFORMATION lpProcessInformation
-        );"""
-    dll_name = b"KERNEL32.dll"
-
 class Win32Hook_CreateProcessW(Win32Hook_GenericProcessCreation):
     api_definition = b"""
         BOOL CreateProcessW(
@@ -384,69 +351,6 @@ class Win32Hook_CreateProcessW(Win32Hook_GenericProcessCreation):
         logging.debug("Win32Hook_CreateProcessW m_retValue=", function_result)
         logging.debug("Win32Hook_CreateProcessW Handle=", dwProcessId)
         self.callback_create_object("CIM_Process", Handle=dwProcessId)
-
-class Win32Hook_ExitProcess(Win32Hook_BaseClass):
-    api_definition = b"""
-        void ExitProcess(
-            UINT uExitCode
-        );"""
-    dll_name = b"KERNEL32.dll"
-    # TODO: Must find the data structure associated to its process at creation time.
-
-class Win32Hook_CreateThread(Win32Hook_BaseClass):
-    api_definition = b"""
-        HANDLE CreateThread(
-            LPSECURITY_ATTRIBUTES   lpThreadAttributes,
-            SIZE_T                  dwStackSize,
-            LPTHREAD_START_ROUTINE  lpStartAddress,
-            __drv_aliasesMem LPVOID lpParameter,
-            DWORD                   dwCreationFlags,
-            LPDWORD                 lpThreadId
-        );"""
-    dll_name = b"KERNEL32.dll"
-
-class Win32Hook_CreateRemoteThread(Win32Hook_BaseClass):
-    api_definition = b"""
-        HANDLE CreateRemoteThread(
-            HANDLE                 hProcess,
-            LPSECURITY_ATTRIBUTES  lpThreadAttributes,
-            SIZE_T                 dwStackSize,
-            LPTHREAD_START_ROUTINE lpStartAddress,
-            LPVOID                 lpParameter,
-            DWORD                  dwCreationFlags,
-            LPDWORD                lpThreadId
-        );"""
-    dll_name = b"KERNEL32.dll"
-
-class Win32Hook_CreateRemoteThreadEx(Win32Hook_BaseClass):
-    api_definition = b"""
-        HANDLE CreateRemoteThreadEx(
-            HANDLE                       hProcess,
-            LPSECURITY_ATTRIBUTES        lpThreadAttributes,
-            SIZE_T                       dwStackSize,
-            LPTHREAD_START_ROUTINE       lpStartAddress,
-            LPVOID                       lpParameter,
-            DWORD                        dwCreationFlags,
-            LPPROC_THREAD_ATTRIBUTE_LIST lpAttributeList,
-            LPDWORD                      lpThreadId
-        );"""
-    dll_name = b"KERNEL32.dll"
-
-class Win32Hook_TerminateProcess(Win32Hook_BaseClass):
-    api_definition = b"""
-            BOOL TerminateProcess(
-                HANDLE hProcess,
-                UINT   uExitCode
-            );"""
-    dll_name = b"KERNEL32.dll"
-
-class Win32Hook_TerminateThread(Win32Hook_BaseClass):
-    api_definition = b"""
-        BOOL TerminateThread(
-            HANDLE hThread,
-            DWORD  dwExitCode
-        );"""
-    dll_name = b"KERNEL32.dll"
 
 class Win32Hook_CreateDirectoryA(Win32Hook_BaseClass):
     api_definition = b"""
@@ -520,17 +424,6 @@ class Win32Hook_CreateFileW(Win32Hook_BaseClass):
         dirname = self.current_pydbg.get_unicode_string(function_arguments[0])
         self.callback_create_object("CIM_DataFile", Name=dirname)
 
-class Win32Hook_CreateFile2(Win32Hook_BaseClass):
-    api_definition = b"""
-        HANDLE CreateFile2(
-            LPCWSTR                           lpFileName,
-            DWORD                             dwDesiredAccess,
-            DWORD                             dwShareMode,
-            DWORD                             dwCreationDisposition,
-            LPCREATEFILE2_EXTENDED_PARAMETERS pCreateExParams
-        );"""
-    dll_name = b"KERNEL32.dll"
-
 class Win32Hook_DeleteFileA(Win32Hook_BaseClass):
     api_definition = b"""
         BOOL DeleteFileA(
@@ -551,6 +444,61 @@ class Win32Hook_DeleteFileW(Win32Hook_BaseClass):
         dirname = self.current_pydbg.get_unicode_string(function_arguments[0])
         self.callback_create_object("CIM_DataFile", Name=dirname)
 
+class Win32Hook_CreateThread(Win32Hook_BaseClass):
+    api_definition = b"""
+        HANDLE CreateThread(
+            LPSECURITY_ATTRIBUTES   lpThreadAttributes,
+            SIZE_T                  dwStackSize,
+            LPTHREAD_START_ROUTINE  lpStartAddress,
+            __drv_aliasesMem LPVOID lpParameter,
+            DWORD                   dwCreationFlags,
+            LPDWORD                 lpThreadId
+        );"""
+    dll_name = b"KERNEL32.dll"
+
+class Win32Hook_CreateRemoteThread(Win32Hook_BaseClass):
+    api_definition = b"""
+        HANDLE CreateRemoteThread(
+            HANDLE                 hProcess,
+            LPSECURITY_ATTRIBUTES  lpThreadAttributes,
+            SIZE_T                 dwStackSize,
+            LPTHREAD_START_ROUTINE lpStartAddress,
+            LPVOID                 lpParameter,
+            DWORD                  dwCreationFlags,
+            LPDWORD                lpThreadId
+        );"""
+    dll_name = b"KERNEL32.dll"
+
+class Win32Hook_CreateRemoteThreadEx(Win32Hook_BaseClass):
+    api_definition = b"""
+        HANDLE CreateRemoteThreadEx(
+            HANDLE                       hProcess,
+            LPSECURITY_ATTRIBUTES        lpThreadAttributes,
+            SIZE_T                       dwStackSize,
+            LPTHREAD_START_ROUTINE       lpStartAddress,
+            LPVOID                       lpParameter,
+            DWORD                        dwCreationFlags,
+            LPPROC_THREAD_ATTRIBUTE_LIST lpAttributeList,
+            LPDWORD                      lpThreadId
+        );"""
+    dll_name = b"KERNEL32.dll"
+
+class Win32Hook_TerminateProcess(Win32Hook_BaseClass):
+    api_definition = b"""
+            BOOL TerminateProcess(
+                HANDLE hProcess,
+                UINT   uExitCode
+            );"""
+    dll_name = b"KERNEL32.dll"
+
+class Win32Hook_TerminateThread(Win32Hook_BaseClass):
+    api_definition = b"""
+        BOOL TerminateThread(
+            HANDLE hThread,
+            DWORD  dwExitCode
+        );"""
+    dll_name = b"KERNEL32.dll"
+
 class Win32Hook_WriteFile(Win32Hook_BaseClass):
     api_definition = b"""
         BOOL WriteFile(
@@ -567,7 +515,7 @@ class Win32Hook_WriteFile(Win32Hook_BaseClass):
         lpBuffer = function_arguments[1]
         nNumberOfBytesToWrite = function_arguments[2]
         # logging.debug("lpBuffer=", lpBuffer, "nNumberOfBytesToWrite=", nNumberOfBytesToWrite)
-        buffer = self.object_pydbg.get_bytes_size(lpBuffer, nNumberOfBytesToWrite)
+        buffer = self.current_pydbg.get_bytes_size(lpBuffer, nNumberOfBytesToWrite)
         logging.debug("Buffer=", buffer)
 
 class Win32Hook_WriteFileEx(Win32Hook_BaseClass):
@@ -578,17 +526,6 @@ class Win32Hook_WriteFileEx(Win32Hook_BaseClass):
             DWORD                           nNumberOfBytesToWrite,
             LPOVERLAPPED                    lpOverlapped,
             LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
-        );"""
-    dll_name = b"KERNEL32.dll"
-
-class Win32Hook_WriteFileGather(Win32Hook_BaseClass):
-    api_definition = b"""
-        BOOL WriteFileGather(
-            HANDLE                  hFile,
-            FILE_SEGMENT_ELEMENT [] aSegmentArray,
-            DWORD                   nNumberOfBytesToWrite,
-            LPDWORD                 lpReserved,
-            LPOVERLAPPED            lpOverlapped
         );"""
     dll_name = b"KERNEL32.dll"
 
@@ -614,28 +551,101 @@ class Win32Hook_ReadFileEx(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
 
-class Win32Hook_ReadFileScatter(Win32Hook_BaseClass):
-    api_definition = b"""
-        BOOL ReadFileScatter(
-            HANDLE                  hFile,
-            FILE_SEGMENT_ELEMENT [] aSegmentArray,
-            DWORD                   nNumberOfBytesToRead,
-            LPDWORD                 lpReserved,
-            LPOVERLAPPED            lpOverlapped
-        );"""
-    dll_name = b"KERNEL32.dll"
+if False:
+    class Win32Hook_ExitProcess(Win32Hook_BaseClass):
+        # This crashes with the message:
+        # python.exe - Entry Point Not Found
+        # The procedure entry point <utf8>DLL.RtlExitUserProcess could not be located
+        # in the dynamic link library API-MS-Win-Core-ProcessThreads-L1-1-0.dll.
+        api_definition = b"""
+            void ExitProcess(
+                UINT uExitCode
+            );"""
+        dll_name = b"KERNEL32.dll"
+        # TODO: Must find the data structure associated to its process at creation time.
+
+windows8_or_higher = False
+
+if windows8_or_higher:
+    class Win32Hook_CreateProcessAsUserA(Win32Hook_GenericProcessCreation):
+        api_definition = b"""
+            BOOL CreateProcessAsUserA(
+                HANDLE                hToken,
+                LPCSTR                lpApplicationName,
+                LPSTR                 lpCommandLine,
+                LPSECURITY_ATTRIBUTES lpProcessAttributes,
+                LPSECURITY_ATTRIBUTES lpThreadAttributes,
+                BOOL                  bInheritHandles,
+                DWORD                 dwCreationFlags,
+                LPVOID                lpEnvironment,
+                LPCSTR                lpCurrentDirectory,
+                LPSTARTUPINFOA        lpStartupInfo,
+                LPPROCESS_INFORMATION lpProcessInformation
+            );"""
+        dll_name = b"KERNEL32.dll"
+
+    class Win32Hook_CreateProcessAsUserW(Win32Hook_GenericProcessCreation):
+        api_definition = b"""
+            BOOL CreateProcessAsUserW(
+                HANDLE                hToken,
+                LPCWSTR               lpApplicationName,
+                LPWSTR                lpCommandLine,
+                LPSECURITY_ATTRIBUTES lpProcessAttributes,
+                LPSECURITY_ATTRIBUTES lpThreadAttributes,
+                BOOL                  bInheritHandles,
+                DWORD                 dwCreationFlags,
+                LPVOID                lpEnvironment,
+                LPCWSTR               lpCurrentDirectory,
+                LPSTARTUPINFOW        lpStartupInfo,
+                LPPROCESS_INFORMATION lpProcessInformation
+            );"""
+        dll_name = b"KERNEL32.dll"
+
+    # Minimum supported client 	Windows 8 [desktop apps | UWP apps]
+    # Minimum supported server 	Windows Server 2012 [desktop apps | UWP apps]
+    # Travis is Windows Server 1809 (2019 ?)
+    # os.sys.getwindowsversion()
+    # (6, 0, 6002, 2, 'Service Pack 2')
+    # platform.release()
+    # 'Vista'
+    # platform.win32_ver()
+    # ('Vista', '6.0.6002', 'SP2', 'Multiprocessor Free')
+    class Win32Hook_CreateFile2(Win32Hook_BaseClass):
+        api_definition = b"""
+            HANDLE CreateFile2(
+                LPCWSTR                           lpFileName,
+                DWORD                             dwDesiredAccess,
+                DWORD                             dwShareMode,
+                DWORD                             dwCreationDisposition,
+                LPCREATEFILE2_EXTENDED_PARAMETERS pCreateExParams
+            );"""
+        dll_name = b"KERNEL32.dll"
+
 
 ################################################################################
 
-functions_list = [
-    Win32Hook_CreateProcessA,
-    Win32Hook_CreateProcessW,
-    Win32Hook_RemoveDirectoryA,
-    Win32Hook_RemoveDirectoryW,
-    Win32Hook_CreateFileA,
-    Win32Hook_CreateFileW,
-    Win32Hook_DeleteFileA,
-    Win32Hook_DeleteFileW]
+#functions_list = [
+#    Win32Hook_CreateProcessA,
+#    Win32Hook_CreateProcessW,
+#    Win32Hook_RemoveDirectoryA,
+#    Win32Hook_RemoveDirectoryW,
+#    Win32Hook_CreateFileA,
+#    Win32Hook_CreateFileW,
+#    Win32Hook_DeleteFileA,
+#    Win32Hook_DeleteFileW]
+
+# This returns only leaf classes.
+def all_subclasses(the_class):
+    current_subclasses = the_class.__subclasses__()
+    return set([sub_class for sub_class in current_subclasses if not all_subclasses(sub_class)]).union(
+        [sub_sub_class for sub_class in current_subclasses for sub_sub_class in all_subclasses(sub_class)])
+
+functions_list = all_subclasses(Win32Hook_BaseClass)
+
+#print("Subclasses:")
+#for onesub in functions_list:
+#    print(onesub.__name__)
+#exit(1)
 
 ##### Kernel32.dll
 # Many functions are very specific to old-style Windows applications.
