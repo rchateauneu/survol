@@ -100,8 +100,7 @@ class PydbgAttachTest(unittest.TestCase):
             if is_travis_machine():
                 self.assertTrue(win32_api_definitions.tracer_object.calls_counter == {
                     b'RemoveDirectoryW': 2 * num_loops,
-                    b'CreateProcessW': num_loops,
-                    b'WriteFile': 1})
+                    b'CreateProcessW': num_loops})
             else:
                 self.assertTrue(win32_api_definitions.tracer_object.calls_counter == {
                     b'RemoveDirectoryW':  2 * num_loops,
