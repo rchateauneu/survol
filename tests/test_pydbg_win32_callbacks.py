@@ -13,17 +13,15 @@ from init import *
 if not is_platform_linux:
     from survol.scripts import win32_api_definitions
 
-################################################################################
+    class TestTracer(win32_api_definitions.TracerBase):
+        calls_counter = collections.defaultdict(lambda: 0)
+        created_objects = collections.defaultdict(list)
 
-class TestTracer(win32_api_definitions.TracerBase):
-    calls_counter = collections.defaultdict(lambda: 0)
-    created_objects = collections.defaultdict(list)
+        def report_function_call(self, function_name, task_id):
+            self.calls_counter[function_name] += 1
 
-    def report_function_call(self, function_name, task_id):
-        self.calls_counter[function_name] += 1
-
-    def report_object_creation(self, cim_class_name, **cim_arguments):
-        self.created_objects[cim_class_name].append(cim_arguments)
+        def report_object_creation(self, cim_class_name, **cim_arguments):
+            self.created_objects[cim_class_name].append(cim_arguments)
 
 ################################################################################
 
