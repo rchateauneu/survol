@@ -14,6 +14,33 @@ import atexit
 import time
 import tempfile
 
+################################################################################
+
+is_platform_windows = sys.platform.startswith("win")
+is_platform_linux = sys.platform.startswith("linux")
+
+is_py3 = sys.version_info >= (3,)
+
+# os.sys.getwindowsversion()
+# sys.getwindowsversion(major=6, minor=1, build=7601, platform=2, service_pack='Service Pack 1')
+# platform.release()
+# '7'
+# platform.win32_ver()
+# ('7', '6.1.7601', 'SP1', 'Multiprocessor Free')
+
+def is_travis_machine():
+    # /home/travis/build/rchateauneu/survol : See "lib_credentials.py" for the same test.
+    # Some tests cannot be run on a Travis machine if some tools are not there.
+    return os.getcwd().find("travis") >= 0
+
+# "vps516494.localdomain": "http://vps516494.ovh.net/Survol/survol" }[CurrentMachine]
+# Name = "vps516494.ovh.net")
+SurvolServerHostname = "vps516494.ovh.net"
+SurvolServerAgent = "http://vps516494.ovh.net:80/Survol"
+SurvolWbemCimom = "http://vps516494.ovh.net:5988"
+
+################################################################################
+
 CurrentMachine = socket.gethostname().lower()
 try:
     CurrentUsername = os.environ["USERNAME"]
@@ -37,16 +64,6 @@ RemoteEventsTestAgent = "http://%s:%d" % (CurrentMachine, RemoteEventsTestPort)
 RemoteSparqlServerPort = 8002
 RemoteSparqlServerAgent = "http://%s:%d" % (CurrentMachine, RemoteSparqlServerPort)
 
-# "vps516494.localdomain": "http://vps516494.ovh.net/Survol/survol" }[CurrentMachine]
-# Name = "vps516494.ovh.net")
-SurvolServerHostname = "vps516494.ovh.net"
-SurvolServerAgent = "http://vps516494.ovh.net:80/Survol"
-SurvolWbemCimom = "http://vps516494.ovh.net:5988"
-
-is_platform_windows = sys.platform.startswith("win")
-is_platform_linux = sys.platform.startswith("linux")
-
-is_py3 = sys.version_info >= (3,)
 
 # For example /usr/bin/python2.7
 # Typical situation of symbolic links:
@@ -84,11 +101,6 @@ if is_platform_windows:
 
 CurrentExecutablePath = 'CIM_DataFile.Name=%s' % CurrentExecutable
 
-# https://stackoverflow.com/questions/46978624/python-multiprocessing-process-to-use-virtualenv
-#print(__file__+" sys.execPath=%s" % execPath)
-#print(__file__+" sys.executable=%s" % sys.executable)
-#print(__file__+" sys.exec_prefix=%s" % sys.exec_prefix)
-
 def __dump_server_content(log_filename):
     sys.stdout.write("Agent log file: %s\n" % log_filename)
     try:
@@ -113,11 +125,6 @@ def linux_check_program_exists(program_name):
     p = subprocess.Popen(['/usr/bin/which', program_name], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
     p.communicate()
     return p.returncode == 0
-
-def is_travis_machine():
-    # /home/travis/build/rchateauneu/survol : See "lib_credentials.py" for the same test.
-    # Some tests cannot be run on a Travis machine if some tools are not there.
-    return os.getcwd().find("travis") >= 0
 
 # Problem on Travis: Domain = 'PACKER-5D93E860', machine='packer-5d93e860-43ba-c2e7-85d2-3ea0696b8fc8'
 if is_platform_windows:
@@ -168,6 +175,8 @@ else:
         AnyLogicalDisk = "C:"
     else:
         AnyLogicalDisk = "D:"
+
+# These files are garanteed to exist, so it is possible to rely on this assumption.
 
 # https://stackoverflow.com/questions/7783308/os-path-dirname-file-returns-empty
 absolute_dir = os.path.dirname(os.path.abspath(__file__))
