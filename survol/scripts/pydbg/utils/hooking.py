@@ -90,7 +90,7 @@ class hook_container:
         # save the newly created hook into the internal dictionary.
         self.hooks[address] = h
 
-        pydbg._log("hook num=%d add %016x\n" % (len(self.hooks), address))
+        #pydbg._log("hook num=%d add %016x" % (len(self.hooks), address))
 
         return self
 
@@ -184,7 +184,7 @@ class hook:
         @param pydbg: PyDbg Instance
         '''
 
-        pydbg._log("Setting breakpoint on __proxy_on_entry: %016x" % self.address)
+        #pydbg._log("Setting breakpoint on __proxy_on_entry: %016x" % self.address)
         pydbg.bp_set(self.address, restore=True, handler=self.__proxy_on_entry, description="__proxy_on_entry")
 
 
@@ -241,7 +241,7 @@ class hook:
             function_exit = pydbg.get_arg(0)
 
             # set a breakpoint on the function exit.
-            pydbg._log("Setting breakpoint on __proxy_on_exit: %016x" % function_exit)
+            #pydbg._log("__proxy_on_entry Setting breakpoint on __proxy_on_exit: %016x" % function_exit)
             pydbg.bp_set(function_exit, restore=True, handler=self.__proxy_on_exit, description="__proxy_on_exit")
 
             # increment the break count for the exit bp.
