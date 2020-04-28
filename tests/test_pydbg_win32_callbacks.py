@@ -13,9 +13,10 @@ from init import *
 if not is_platform_linux:
     from survol.scripts import win32_api_definitions
 
-    class TestTracer(win32_api_definitions.TracerBase):
-        calls_counter = collections.defaultdict(lambda: 0)
-        created_objects = collections.defaultdict(list)
+    class TracerForTests(win32_api_definitions.TracerBase):
+        def __init__(self):
+            self.calls_counter = collections.defaultdict(lambda: 0)
+            self.created_objects = collections.defaultdict(list)
 
         def report_function_call(self, function_name, task_id):
             self.calls_counter[function_name] += 1
@@ -25,17 +26,17 @@ if not is_platform_linux:
 
 ################################################################################
 
-
 nonexistent_file = "NonExistentFile.xyz"
+
 
 # This procedure calls various win32 systems functions,
 # which are hooked then tested: Arguments, return values etc...
 # It is started in a subprocess.
 # It has to be global otherwise it fails with the error message:
 # PicklingError: Can't pickle <function processing_function at ...>: it's not found as test_pydbg.processing_function
-def processing_function(one_argument, num_loops):
+def attach_pid_target_function(one_argument, num_loops):
     time.sleep(one_argument)
-    print('processing_function START.')
+    print('test_attach_pid_target_function START.')
     while num_loops:
         time.sleep(one_argument)
         num_loops -= 1
@@ -64,7 +65,7 @@ def processing_function(one_argument, num_loops):
             os.system("dir nothing_at_all")
         except Exception as exc:
             pass
-    print('processing_function END.')
+    print('test_attach_pid_target_function END.')
 
 ################################################################################
 
@@ -74,15 +75,19 @@ class PydbgAttachTest(unittest.TestCase):
     Test pydbg callbacks.
     """
 
+    def setUp(self):
+        win32_api_definitions.tracer_object = TracerForTests()
+
+    def tearDown(self):
+        win32_api_definitions.tracer_object = None
+
     def test_attach_pid(self):
         num_loops = 3
-        created_process = multiprocessing.Process(target=processing_function, args=(1.0, num_loops))
+        created_process = multiprocessing.Process(target=attach_pid_target_function, args=(1.0, num_loops))
         created_process.start()
         print("created_process=", created_process.pid)
 
         time.sleep(1.0)
-
-        win32_api_definitions.tracer_object = TestTracer()
 
         hooks_manager = win32_api_definitions.Win32Hook_Manager()
 
@@ -91,8 +96,8 @@ class PydbgAttachTest(unittest.TestCase):
         created_process.terminate()
         created_process.join()
 
-        print("Calls:", win32_api_definitions.tracer_object.calls_counter)
-        if sys.version_info > (3,):
+        print("test_attach_pid counters:", win32_api_definitions.tracer_object.calls_counter)
+        if is_py3:
             # FIXME: For an unknown reason, the Python function open() of the implementation used by Travis
             # does not use CreateFileW or CreateFileA. This problem is not understood yet.
             # Other functions do not have the same problem. This is not a big issue because
@@ -109,11 +114,11 @@ class PydbgAttachTest(unittest.TestCase):
                     b'WriteFile': 1})
         else:
             self.assertTrue(win32_api_definitions.tracer_object.calls_counter == {
-                b'CreateFileA': num_loops + 3,
                 b'RemoveDirectoryW': 2 * num_loops,
+                b'CreateFileA': 2 * num_loops,
                 b'CreateProcessA': num_loops,
-                b'WriteFile': 1,
-                b'ReadFile': 2} )
+                b'ReadFile': 2,
+                b'WriteFile': 1})
 
         # Not all objects are checked: This just tests the general mechanism.
         print("Objects:", win32_api_definitions.tracer_object.created_objects)
@@ -126,12 +131,7 @@ class PydbgAttachTest(unittest.TestCase):
         self.assertTrue(len(win32_api_definitions.tracer_object.created_objects['CIM_Process']) == num_loops)
 
     def test_start_python_process(self):
-
-        win32_api_definitions.tracer_object = TestTracer()
-
-        temp_data_file_path = unique_temporary_path("test_win32_process_basic", ".txt")
-
-        # Verifier le contenu mais faire un test plus compact.
+        temp_data_file_path = unique_temporary_path("test_start_python_process", ".txt")
 
         temp_python_name = "test_win32_process_basic_%d_%d.py" % (CurrentPid, int(time.time()))
         temp_python_path = os.path.join(tempfile.gettempdir(), temp_python_name)
@@ -145,8 +145,8 @@ class PydbgAttachTest(unittest.TestCase):
         hooks_manager = win32_api_definitions.Win32Hook_Manager()
         hooks_manager.attach_to_command(command_line, win32_api_definitions.functions_list)
 
-        print("test_start_process calls_counter=", win32_api_definitions.tracer_object.calls_counter)
-        print("test_start_process created_objects=", win32_api_definitions.tracer_object.created_objects)
+        print("test_start_python_process calls_counter=", win32_api_definitions.tracer_object.calls_counter)
+        print("test_start_python_process created_objects=", win32_api_definitions.tracer_object.created_objects)
         function_name_create_file = b"CreateFileW" if is_py3 else b"CreateFileA"
         self.assertTrue(function_name_create_file in win32_api_definitions.tracer_object.calls_counter)
 
@@ -158,14 +158,53 @@ class PydbgAttachTest(unittest.TestCase):
         else:
             self.assertTrue( {'Name': temp_data_file_path} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
 
+    def test_dos_create_process(self):
+        num_loops = 2
+        create_process_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 127.0.0.1)" % num_loops
 
-    # Ajouter plus de fonctions pour comprendre le probleme de Travis
+        hooks_manager = win32_api_definitions.Win32Hook_Manager()
+        hooks_manager.attach_to_command(create_process_command, win32_api_definitions.functions_list)
 
-    # Simple process DOS.
+        print("test_dos_create_process calls_counter=", win32_api_definitions.tracer_object.calls_counter)
+        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'WriteFile'] > 0)
+        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'CreateProcessW'] == num_loops)
 
-    # Ajouter toutes les fonctons testees dans test_pydbg et les tester de facon tres compacte.
+        print("test_dos_create_process created_objects=", win32_api_definitions.tracer_object.created_objects)
+        self.assertTrue('CIM_Process' in win32_api_definitions.tracer_object.created_objects)
 
+    def test_dos_delete_file(self):
+        num_loops = 3
+        temp_path = unique_temporary_path("test_basic_delete_file", ".txt")
+        delete_file_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 127.0.0.1 > %s &del %s)" % (num_loops, temp_path, temp_path)
 
+        hooks_manager = win32_api_definitions.Win32Hook_Manager()
+        hooks_manager.attach_to_command(delete_file_command, win32_api_definitions.functions_list)
+
+        print("test_dos_delete_file calls_counter=", win32_api_definitions.tracer_object.calls_counter)
+        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'WriteFile'] > 0)
+        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'CreateProcessW'] == num_loops)
+        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'CreateFileW'] == num_loops)
+        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'DeleteFileW'] == num_loops)
+
+        print("test_dos_delete_file created_objects=", win32_api_definitions.tracer_object.created_objects)
+        self.assertTrue('CIM_Process' in win32_api_definitions.tracer_object.created_objects)
+        self.assertTrue({'Name': temp_path} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
+
+    def test_dos_dir(self):
+        num_loops = 2
+        dir_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 1.2.3.4 & type something.xyz )" % num_loops
+
+        hooks_manager = win32_api_definitions.Win32Hook_Manager()
+        hooks_manager.attach_to_command(dir_command, win32_api_definitions.functions_list)
+
+        print("test_dos_dir calls_counter=", win32_api_definitions.tracer_object.calls_counter)
+        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'WriteFile'] > 0)
+        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'CreateProcessW'] == num_loops)
+        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'CreateFileW'] == num_loops)
+
+        print("test_dos_dir created_objects=", win32_api_definitions.tracer_object.created_objects)
+        self.assertTrue('CIM_Process' in win32_api_definitions.tracer_object.created_objects)
+        self.assertTrue({'Name': 'something.xyz'} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
 
 if __name__ == '__main__':
     unittest.main()

@@ -33,6 +33,9 @@ def is_travis_machine():
     # Some tests cannot be run on a Travis machine if some tools are not there.
     return os.getcwd().find("travis") >= 0
 
+# Some tests start a DOS box process. The processes application is checked.
+windows_system32_cmd_exe = r'C:\Windows\system32\cmd.exe' if is_travis_machine() else r'C:\windows\system32\cmd.exe'
+
 # "vps516494.localdomain": "http://vps516494.ovh.net/Survol/survol" }[CurrentMachine]
 # Name = "vps516494.ovh.net")
 SurvolServerHostname = "vps516494.ovh.net"
