@@ -201,15 +201,15 @@ except ImportError:
 
 
 def start_cgiserver(agent_url, agent_port):
-    INFO("start_cgiserver agent_url=%s agent_port=%d", agent_url, agent_port)
+    print("start_cgiserver agent_url=%s agent_port=%d" % (agent_url, agent_port))
 
     try:
         agent_process = None
         response = portable_urlopen(agent_url + "/survol/entity.py", timeout=5)
-        INFO("start_cgiserver: Using existing CGI Survol agent")
+        print("start_cgiserver: Using existing CGI Survol agent")
     except:
         import multiprocessing
-        INFO("start_cgiserver: agent_url=%s agent_port=%d hostname=%s", agent_url, agent_port, socket.gethostname())
+        print("start_cgiserver: agent_url=%s agent_port=%d hostname=%s" % (agent_url, agent_port, socket.gethostname()))
 
         import scripts.cgiserver
         # cwd = "PythonStyle/tests", must be "PythonStyle".
@@ -221,7 +221,7 @@ def start_cgiserver(agent_url, agent_port):
             current_dir = ".."
         except KeyError:
             current_dir = ""
-        INFO("start_cgiserver: current_dir=%s", current_dir)
+        print("start_cgiserver: current_dir=%s" % current_dir)
 
         # This delay to allow the reuse of the socket.
         # TODO: A better solution would be to override server_bind()
@@ -233,19 +233,19 @@ def start_cgiserver(agent_url, agent_port):
         atexit.register(__dump_server_content, scripts.cgiserver.cgi_server_logfile_name(agent_port) )
 
         agent_process.start()
-        INFO("start_cgiserver: Waiting for CGI agent to start")
+        print("start_cgiserver: Waiting for CGI agent to start")
         time.sleep(3.0)
         local_agent_url = "http://%s:%s/survol/entity.py" % (AgentHost, agent_port)
         print("start_cgiserver local_agent_url=", local_agent_url)
         try:
             response = portable_urlopen(local_agent_url, timeout=15)
         except Exception as exc:
-            ERROR("Caught:%s", exc)
+            print("Caught:%s", exc)
             __dump_server_content(scripts.cgiserver.cgi_server_logfile_name(agent_port))
             raise
 
     data = response.read().decode("utf-8")
-    INFO("CGI Survol agent OK")
+    print("CGI Survol agent OK")
     return agent_process
 
 def stop_cgiserver(agent_process):
