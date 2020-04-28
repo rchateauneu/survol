@@ -19,9 +19,6 @@ except ImportError:
 
 from init import *
 
-# Some tests start a DOS box process. The processes application is checked.
-windows_system32_cmd_exe = r'C:\Windows\system32\cmd.exe' if is_travis_machine() else r'C:\windows\system32\cmd.exe'
-
 if not is_platform_linux:
     from survol.scripts import pydbg
     from survol.scripts.pydbg import defines
@@ -290,8 +287,6 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
         tst_pydbg.run()
 
         print("Command line:", Context.command_line)
-        # windows_system32_cmd_exe
-        # self.assertTrue(Context.command_line[0].lower() == 'C:\\windows\\system32\\cmd.exe'.lower())
         self.assertTrue(Context.command_line[0].lower() == windows_system32_cmd_exe.lower())
         self.assertTrue(Context.command_line[1] == '/c')
         self.assertTrue(Context.command_line[2] == ping_echo_command)
@@ -787,7 +782,6 @@ class PythonHooksTest(unittest.TestCase):
         # ['C:\\windows\\system32\\cmd.exe', '/c', 'C:\\Python27\\python.exe -c print("Hello");import time;time.sleep(2.0)'
         # FIXME: Therefore everything is converted to strings before comparison.
 
-        # windows_system32_cmd_exe
         expected_command_line = windows_system32_cmd_exe + " /c "+ " ".join(process_command)
         print("expected_command_line=", expected_command_line)
         actual_command_line = " ".join(Context.command_line)
