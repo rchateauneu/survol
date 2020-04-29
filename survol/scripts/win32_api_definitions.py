@@ -14,6 +14,7 @@ import os
 import sys
 import six
 import time
+import struct
 import logging
 import collections
 
@@ -21,10 +22,11 @@ import win32file
 import win32con
 import win32process
 
-if sys.version_info < (3,):
-    import Queue as queue
-else:
+is_py3 = sys.version_info >= (3,)
+if is_py3:
     import queue
+else:
+    import Queue as queue
 
 if __package__:
     from . import pydbg
@@ -228,6 +230,7 @@ class Win32Hook_Manager(object):
         self._hook_api_functions_list(functions_list)
         win32process.ResumeThread(hThread)
         self.object_pydbg.run()
+        return dwProcessId
 
 ################################################################################
 
@@ -254,6 +257,8 @@ class Win32Hook_BaseClass(object):
     @staticmethod
     def _parse_text_definition(the_class):
         match_one = re.match(br"\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*\((.*)\)\s*;", the_class.api_definition, re.DOTALL)
+        if not match_one:
+            raise Exception("Cannot parse api definition:%s" % the_class.api_definition)
         the_class.return_type = match_one.group(1)
         the_class.function_name = match_one.group(2)
         logging.debug("_parse_text_definition %s %s" % (the_class.__name__, the_class.function_name))
@@ -261,7 +266,6 @@ class Win32Hook_BaseClass(object):
         the_class.args_list = []
         for one_arg_pair in match_one.group(3).split(b","):
             match_pair = re.match(br"\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*", one_arg_pair)
-            print("one_arg_pair=", one_arg_pair)
             the_class.args_list.append((match_pair.group(1), match_pair.group(2)))
 
         assert isinstance(the_class.function_name, six.binary_type)
@@ -551,6 +555,91 @@ class Win32Hook_ReadFileEx(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
 
+class Win32Hook_connect(Win32Hook_BaseClass):
+    api_definition = b"""
+        int connect(
+            SOCKET         s,
+            sockaddr_cptr  name,
+            int            namelen
+        );"""
+    dll_name = b"ws2_32.dll"
+    def callback_after(self, function_arguments, function_result):
+        logging.debug("Win32Hook_connect function_arguments=", function_arguments)
+        sockaddr_address = function_arguments[1]
+
+        sin_family_memory = self.current_pydbg.read_process_memory(sockaddr_address, 2)
+        print("sin_family_memory=", sin_family_memory, len(sin_family_memory))
+
+        sin_family = struct.unpack("<H", sin_family_memory)[0]
+
+        print("sin_family=", sin_family)
+        sockaddr_size = function_arguments[2]
+        print("size=", function_arguments[2])
+
+        # AF_INET = 2, if this is an IPV4 DNS server.
+        if sin_family == defines.AF_INET:
+            # struct sockaddr_in {
+            #         short   sin_family;
+            #         u_short sin_port;
+            #         struct  in_addr sin_addr;
+            #         char    sin_zero[8];
+            # };
+            # struct in_addr {
+            #   union {
+            #     struct {
+            #       u_char s_b1;
+            #       u_char s_b2;
+            #       u_char s_b3;
+            #       u_char s_b4;
+            #     } S_un_b;
+            #     struct {
+            #       u_short s_w1;
+            #       u_short s_w2;
+            #     } S_un_w;
+            #     u_long S_addr;
+            #   } S_un;
+            # };
+            ip_port_memory = self.current_pydbg.read_process_memory(sockaddr_address + 2, 2)
+            port_number = struct.unpack(">H", ip_port_memory)[0]
+
+            assert sockaddr_size == 16
+
+            s_addr_ipv4 = self.current_pydbg.read_process_memory(sockaddr_address + 4, 4)
+            if is_py3:
+                addr_ipv4 = ".".join(["%d" % int(one_byte) for one_byte in s_addr_ipv4])
+            else:
+                addr_ipv4 = ".".join(["%d" % ord(one_byte) for one_byte in s_addr_ipv4])
+            self.callback_create_object("addr", Id="%s:%d" % (addr_ipv4, port_number))
+
+        # AF_INET6 = 23, if this is an IPV6 DNS server.
+        elif sin_family == defines.AF_INET6:
+            # struct sockaddr_in6 {
+            #      sa_family_t     sin6_family;   /* AF_INET6 */
+            #      in_port_t       sin6_port;     /* port number */
+            #      uint32_t        sin6_flowinfo; /* IPv6 flow information */
+            #      struct in6_addr sin6_addr;     /* IPv6 address */
+            #      uint32_t        sin6_scope_id; /* Scope ID (new in 2.4) */
+            #  };
+            #
+            # struct in6_addr {
+            #      unsigned char   s6_addr[16];   /* IPv6 address */
+            # };
+            ip_port_memory = self.current_pydbg.read_process_memory(sockaddr_address + 2, 2)
+            port_number = struct.unpack(">H", ip_port_memory)[0]
+
+            assert sockaddr_size == 28
+
+            s_addr_ipv6 = self.current_pydbg.read_process_memory(sockaddr_address + 8, 16)
+            if is_py3:
+                addr_ipv6 = str(s_addr_ipv6)
+            else:
+                addr_ipv6 = "".join(["%02x" % ord(one_byte) for one_byte in s_addr_ipv6])
+
+            self.callback_create_object("addr", Id="%s.%d" % (addr_ipv6, port_number))
+
+        else:
+            raise Exception("Invalid sa_family:%d" % sin_family)
+
 if False:
     class Win32Hook_ExitProcess(Win32Hook_BaseClass):
         # This crashes with the message:
@@ -624,16 +713,6 @@ if windows8_or_higher:
 
 ################################################################################
 
-#functions_list = [
-#    Win32Hook_CreateProcessA,
-#    Win32Hook_CreateProcessW,
-#    Win32Hook_RemoveDirectoryA,
-#    Win32Hook_RemoveDirectoryW,
-#    Win32Hook_CreateFileA,
-#    Win32Hook_CreateFileW,
-#    Win32Hook_DeleteFileA,
-#    Win32Hook_DeleteFileW]
-
 # This returns only leaf classes.
 def all_subclasses(the_class):
     current_subclasses = the_class.__subclasses__()
@@ -641,11 +720,6 @@ def all_subclasses(the_class):
         [sub_sub_class for sub_class in current_subclasses for sub_sub_class in all_subclasses(sub_class)])
 
 functions_list = all_subclasses(Win32Hook_BaseClass)
-
-#print("Subclasses:")
-#for onesub in functions_list:
-#    print(onesub.__name__)
-#exit(1)
 
 ##### Kernel32.dll
 # Many functions are very specific to old-style Windows applications.
