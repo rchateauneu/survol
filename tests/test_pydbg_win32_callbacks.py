@@ -3,6 +3,7 @@ from __future__ import print_function
 import os
 import sys
 import unittest
+import socket
 import six
 import ctypes
 import collections
@@ -158,53 +159,198 @@ class PydbgAttachTest(unittest.TestCase):
         else:
             self.assertTrue( {'Name': temp_data_file_path} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
 
-    def test_dos_create_process(self):
+    def test_cmd_create_process(self):
         num_loops = 2
-        create_process_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 127.0.0.1)" % num_loops
+        create_process_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 1 127.0.0.1)" % num_loops
 
         hooks_manager = win32_api_definitions.Win32Hook_Manager()
         hooks_manager.attach_to_command(create_process_command, win32_api_definitions.functions_list)
 
         print("test_dos_create_process calls_counter=", win32_api_definitions.tracer_object.calls_counter)
-        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'WriteFile'] > 0)
+        if is_travis_machine():
+            # FIXME: The Python implementation used by Travis is based on another set of IO functions.
+            self.assertTrue(b'WriteFile' not in win32_api_definitions.tracer_object.calls_counter)
+        else:
+            self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'WriteFile'] > 0)
         self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'CreateProcessW'] == num_loops)
 
         print("test_dos_create_process created_objects=", win32_api_definitions.tracer_object.created_objects)
         self.assertTrue('CIM_Process' in win32_api_definitions.tracer_object.created_objects)
 
-    def test_dos_delete_file(self):
+    def test_cmd_delete_file(self):
         num_loops = 3
         temp_path = unique_temporary_path("test_basic_delete_file", ".txt")
-        delete_file_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 127.0.0.1 > %s &del %s)" % (num_loops, temp_path, temp_path)
+        delete_file_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 1 127.0.0.1 > %s &del %s)" % (num_loops, temp_path, temp_path)
 
         hooks_manager = win32_api_definitions.Win32Hook_Manager()
         hooks_manager.attach_to_command(delete_file_command, win32_api_definitions.functions_list)
 
         print("test_dos_delete_file calls_counter=", win32_api_definitions.tracer_object.calls_counter)
-        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'WriteFile'] > 0)
         self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'CreateProcessW'] == num_loops)
-        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'CreateFileW'] == num_loops)
-        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'DeleteFileW'] == num_loops)
+        if is_travis_machine():
+            # FIXME: The Python implementation used by Travis is based on another set of IO functions.
+            self.assertTrue(b'WriteFile' not in win32_api_definitions.tracer_object.calls_counter)
+            self.assertTrue(b'CreateFileW' not in win32_api_definitions.tracer_object.calls_counter)
+            self.assertTrue(b'DeleteFileW' not in win32_api_definitions.tracer_object.calls_counter)
+        else:
+            self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'WriteFile'] > 0)
+            self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'CreateFileW'] == num_loops)
+            self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'DeleteFileW'] == num_loops)
 
         print("test_dos_delete_file created_objects=", win32_api_definitions.tracer_object.created_objects)
         self.assertTrue('CIM_Process' in win32_api_definitions.tracer_object.created_objects)
         self.assertTrue({'Name': temp_path} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
 
-    def test_dos_dir(self):
+    def test_cmd_ping_type(self):
         num_loops = 2
-        dir_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 2 1.2.3.4 & type something.xyz )" % num_loops
+        dir_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 1 1.2.3.4 & type something.xyz )" % num_loops
 
         hooks_manager = win32_api_definitions.Win32Hook_Manager()
         hooks_manager.attach_to_command(dir_command, win32_api_definitions.functions_list)
 
         print("test_dos_dir calls_counter=", win32_api_definitions.tracer_object.calls_counter)
-        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'WriteFile'] > 0)
         self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'CreateProcessW'] == num_loops)
-        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'CreateFileW'] == num_loops)
+        if is_travis_machine():
+            # FIXME: The Python implementation used by Travis is based on another set of IO functions.
+            self.assertTrue(b'WriteFile' not in win32_api_definitions.tracer_object.calls_counter)
+            self.assertTrue(b'CreateFileW' not in win32_api_definitions.tracer_object.calls_counter)
+        else:
+            self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'WriteFile'] > 0)
+            self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'CreateFileW'] == num_loops)
 
         print("test_dos_dir created_objects=", win32_api_definitions.tracer_object.created_objects)
         self.assertTrue('CIM_Process' in win32_api_definitions.tracer_object.created_objects)
         self.assertTrue({'Name': 'something.xyz'} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
+
+    def test_cmd_type(self):
+        num_loops = 2
+        dir_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO type something.xyz )" % num_loops
+
+        hooks_manager = win32_api_definitions.Win32Hook_Manager()
+        hooks_manager.attach_to_command(dir_command, win32_api_definitions.functions_list)
+
+        print("test_dos_dir calls_counter=", win32_api_definitions.tracer_object.calls_counter)
+        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'CreateFileW'] == 2 * num_loops)
+        if is_travis_machine():
+            # FIXME: The Python implementation used by Travis is based on another set of IO functions.
+            self.assertTrue(b'WriteFile' not in win32_api_definitions.tracer_object.calls_counter)
+        else:
+            self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'WriteFile'] > 0)
+
+        print("test_dos_dir created_objects=", win32_api_definitions.tracer_object.created_objects.keys())
+        print("test_dos_dir created_objects=", win32_api_definitions.tracer_object.created_objects)
+        self.assertTrue( list(win32_api_definitions.tracer_object.created_objects.keys()) == ['CIM_DataFile'])
+        self.assertTrue({'Name': 'something.xyz'} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
+
+    def test_cmd_mkdir_rmdir(self):
+        temp_path = unique_temporary_path("test_cmd_mkdir_rmdir", ".dir")
+
+        dir_mk_rm_command = windows_system32_cmd_exe + " /c "+ "mkdir %s&rmdir %s" % (temp_path, temp_path)
+
+        hooks_manager = win32_api_definitions.Win32Hook_Manager()
+        hooks_manager.attach_to_command(dir_mk_rm_command, win32_api_definitions.functions_list)
+
+        print("test_cmd_mkdir_rmdir calls_counter=", win32_api_definitions.tracer_object.calls_counter)
+        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'CreateDirectoryW'] == 1)
+        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'RemoveDirectoryW'] == 1)
+
+        print("test_cmd_mkdir_rmdir created_objects=", win32_api_definitions.tracer_object.created_objects)
+        self.assertTrue({'Name': temp_path} in win32_api_definitions.tracer_object.created_objects['CIM_Directory'])
+
+    @unittest.skip("FIXME")
+    def test_cmd_nslookup(self):
+        nslookup_command = windows_system32_cmd_exe + " /c "+ "nslookup primhillcomputers.com"
+        # It seems nslookup needs to be started from a cmd process, otherwise it crashes.
+        # nslookup_command = r"C:\Windows\System32\nslookup.exe primhillcomputers.com"
+
+        hooks_manager = win32_api_definitions.Win32Hook_Manager()
+        hooks_manager.attach_to_command(nslookup_command, win32_api_definitions.functions_list)
+
+        # Typical answer:
+        # > Server:  UnKnown
+        # Address:  fe80::22b0:1ff:fea4:4672
+        #
+        # Name:    primhillcomputers.com
+        # Address:  164.132.235.17
+        # The port number must be 53, for DNS.
+
+        print("test_DOS_nslookup calls_counter=", win32_api_definitions.tracer_object.calls_counter)
+        # Ca cree un process. Pourquoi ? Supposons que cmd.exe cree un process pour nslookup,
+        # mais on n en aurait l id.
+        # Et que multiprocess.process ou POpen renvoie l id du sous-process,
+        # et donc qu on attach correctement au bon pid.
+        # Mais dans ce cas en effet, test_api_Python_connect ne cree pas de sous process mais on devrait
+        # voir arriver la dll car on est dans le bon process.
+        # Et on ne voit pas passer la dll python.
+        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'CreateProcessW'] > 0)
+        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'connect'] == 123)
+
+        print("test_DOS_nslookup created_objects=", win32_api_definitions.tracer_object.created_objects)
+        self.assertTrue('CIM_DataFile' in win32_api_definitions.tracer_object.created_objects)
+
+    def test_api_Python_connect(self):
+        """
+        This does a TCP/IP connection to Primhill Computers website.
+        The call to socket() is detected, the IP address and the port number are reported.
+        """
+
+        server_domain = "primhillcomputers.com"
+        server_address = socket.gethostbyname(server_domain)
+        server_port = 80
+
+        temp_path = unique_temporary_path("test_api_Python_connect", ".txt")
+        print("temp_path=", temp_path)
+
+        # A subprocess is about to loop on a socket connection to a remote machine.
+        temporary_python_file = tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False)
+        script_content = """
+import socket
+import time
+s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+print("Hello from subprocess")
+s.connect(('%s', %d))
+s.sendall(b'Hello, world')
+data = s.recv(1024)
+s.close()
+import os
+import psutil
+subprocess_object = psutil.Process(os.getpid())
+outfil = open(r"%s", "w")
+outfil.write("%%d\\n%%d\\n" %% (os.getpid(), subprocess_object.ppid()))
+outfil.close()
+""" % (server_domain, server_port, temp_path)
+        temporary_python_file.write(script_content)
+        temporary_python_file.close()
+
+        connect_command = "%s %s" % (sys.executable, temporary_python_file.name)
+
+        hooks_manager = win32_api_definitions.Win32Hook_Manager()
+
+        dwProcessId = hooks_manager.attach_to_command(connect_command, win32_api_definitions.functions_list)
+        print("dwProcessId=", dwProcessId)
+
+        with open(temp_path) as temp_file:
+            temp_data = temp_file.readlines()
+            print("temp_data=", temp_data)
+            sub_pid = int(temp_data[0])
+            sub_ppid = int(temp_data[1])
+            print("sub_pid=", sub_pid, "sub_ppid=", sub_ppid)
+        self.assertTrue(sub_pid== dwProcessId)
+
+        print("test_api_Python_connect calls_counter=", win32_api_definitions.tracer_object.calls_counter)
+        if not is_py3:
+            self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'CreateFileA'] > 0)
+        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'CreateFileW'] > 0)
+        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'WriteFile'] == 2)
+        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'ReadFile'] > 0)
+        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'connect'] == 1)
+
+        # print("test_api_Python_connect created_objects=", win32_api_definitions.tracer_object.created_objects)
+        expected_addr = "%s:%s" % (server_address, server_port)
+        self.assertTrue('CIM_DataFile' in win32_api_definitions.tracer_object.created_objects)
+        self.assertTrue({'Id': expected_addr} in win32_api_definitions.tracer_object.created_objects['addr'])
+        os.remove(temporary_python_file.name)
+
 
 if __name__ == '__main__':
     unittest.main()
