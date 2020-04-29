@@ -16,6 +16,7 @@ import six
 import time
 import struct
 import logging
+import platform
 import collections
 
 import win32file
@@ -642,7 +643,7 @@ class Win32Hook_connect(Win32Hook_BaseClass):
 
 if False:
     class Win32Hook_ExitProcess(Win32Hook_BaseClass):
-        # This crashes with the message:
+        # FIXME: This crashes with the message:
         # python.exe - Entry Point Not Found
         # The procedure entry point <utf8>DLL.RtlExitUserProcess could not be located
         # in the dynamic link library API-MS-Win-Core-ProcessThreads-L1-1-0.dll.
@@ -653,9 +654,23 @@ if False:
         dll_name = b"KERNEL32.dll"
         # TODO: Must find the data structure associated to its process at creation time.
 
-windows8_or_higher = False
+# Minimum supported client 	Windows 8 [desktop apps | UWP apps]
+# Minimum supported server 	Windows Server 2012 [desktop apps | UWP apps]
+# Travis is Windows Server 1809 (2019 ?)
+# os.sys.getwindowsversion()
+# (6, 0, 6002, 2, 'Service Pack 2')
+# platform.release()
+# 'Vista'
+# platform.win32_ver()
+# ('Vista', '6.0.6002', 'SP2', 'Multiprocessor Free')
+print("os.sys.getwindowsversion()=", os.sys.getwindowsversion())
+print("platform.release()=", platform.release())
+print("platform.win32_ver()=", platform.win32_ver())
+windows8_or_higher = os.sys.getwindowsversion() != (6, 1, 7601, 2, 'Service Pack 1')
 
 if windows8_or_higher:
+    print("os.sys.getwindowsversion()=", os.sys.getwindowsversion())
+
     class Win32Hook_CreateProcessAsUserA(Win32Hook_GenericProcessCreation):
         api_definition = b"""
             BOOL CreateProcessAsUserA(
@@ -690,15 +705,6 @@ if windows8_or_higher:
             );"""
         dll_name = b"KERNEL32.dll"
 
-    # Minimum supported client 	Windows 8 [desktop apps | UWP apps]
-    # Minimum supported server 	Windows Server 2012 [desktop apps | UWP apps]
-    # Travis is Windows Server 1809 (2019 ?)
-    # os.sys.getwindowsversion()
-    # (6, 0, 6002, 2, 'Service Pack 2')
-    # platform.release()
-    # 'Vista'
-    # platform.win32_ver()
-    # ('Vista', '6.0.6002', 'SP2', 'Multiprocessor Free')
     class Win32Hook_CreateFile2(Win32Hook_BaseClass):
         api_definition = b"""
             HANDLE CreateFile2(
