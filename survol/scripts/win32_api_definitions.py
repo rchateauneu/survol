@@ -654,22 +654,9 @@ if False:
         dll_name = b"KERNEL32.dll"
         # TODO: Must find the data structure associated to its process at creation time.
 
-# Minimum supported client 	Windows 8 [desktop apps | UWP apps]
-# Minimum supported server 	Windows Server 2012 [desktop apps | UWP apps]
-# Travis is Windows Server 1809 (2019 ?)
-# os.sys.getwindowsversion()
-# (6, 0, 6002, 2, 'Service Pack 2')
-# platform.release()
-# 'Vista'
-# platform.win32_ver()
-# ('Vista', '6.0.6002', 'SP2', 'Multiprocessor Free')
-print("os.sys.getwindowsversion()=", os.sys.getwindowsversion())
-print("platform.release()=", platform.release())
-print("platform.win32_ver()=", platform.win32_ver())
 windows8_or_higher = os.sys.getwindowsversion() != (6, 1, 7601, 2, 'Service Pack 1')
 
 if windows8_or_higher:
-    print("os.sys.getwindowsversion()=", os.sys.getwindowsversion())
 
     class Win32Hook_CreateProcessAsUserA(Win32Hook_GenericProcessCreation):
         api_definition = b"""
@@ -721,6 +708,20 @@ if windows8_or_higher:
 
 # This returns only leaf classes.
 def all_subclasses(the_class):
+    # Minimum supported client 	Windows 8 [desktop apps | UWP apps]
+    # Minimum supported server 	Windows Server 2012 [desktop apps | UWP apps]
+    # Travis is Windows Server 1809 (2019 ?)
+    # os.sys.getwindowsversion()
+    # (6, 0, 6002, 2, 'Service Pack 2')
+    # platform.release()
+    # 'Vista'
+    # platform.win32_ver()
+    # ('Vista', '6.0.6002', 'SP2', 'Multiprocessor Free')
+    if windows8_or_higher:
+        print("os.sys.getwindowsversion()=", os.sys.getwindowsversion())
+        print("platform.release()=", platform.release())
+        print("platform.win32_ver()=", platform.win32_ver())
+
     current_subclasses = the_class.__subclasses__()
     return set([sub_class for sub_class in current_subclasses if not all_subclasses(sub_class)]).union(
         [sub_sub_class for sub_class in current_subclasses for sub_sub_class in all_subclasses(sub_class)])
