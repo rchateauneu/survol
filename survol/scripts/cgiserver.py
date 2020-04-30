@@ -17,6 +17,7 @@ except ImportError:
     YappiProfile = False
 
 import sys
+import platform
 import getopt
 import os
 import socket
@@ -190,6 +191,10 @@ def __run_cgi_server_internal():
     # print("os.environ['SERVER_NAME']='%s'" % (os.environ['SERVER_NAME']) )
     print("Platform=%s"%sys.platform)
     print("Version:%s"% str(sys.version_info))
+    if 'win' in sys.platform:
+        print("os.sys.getwindowsversion()=", os.sys.getwindowsversion())
+        print("platform.win32_ver()=", platform.win32_ver())
+    print("platform.release()=", platform.release())
     print("Server address:%s" % server_addr)
     print("Opening %s:%d" % (server_name,port_number))
 
