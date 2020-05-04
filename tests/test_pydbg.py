@@ -41,7 +41,7 @@ class BasicTest(unittest.TestCase):
         print("is_wow64=", is_wow64)
         print("platform.architecture()=", platform.architecture())
 
-        if is_64bits:
+        if windows_h.is_64bits:
             self.assertTrue(not is_wow64)
         else:
             self.assertTrue(is_wow64)
@@ -60,7 +60,7 @@ class BasicTest(unittest.TestCase):
         print("Root pid=%d. Attaching to %d" % (CurrentPid, created_process.pid))
         tst_pydbg.attach(created_process.pid)
 
-        windows_h.is_wow64 = pydbg.process_is_wow64(pid=created_process.pid)
+        is_wow64 = pydbg.process_is_wow64(pid=created_process.pid)
         print("is_wow64=", is_wow64)
 
         self.assertTrue(is_wow64)
