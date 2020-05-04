@@ -330,10 +330,11 @@ class PydbgAttachTest(unittest.TestCase):
 
         print("test_DOS_nslookup created_objects=", win32_api_definitions.tracer_object.created_objects)
         self.assertTrue( {'Handle': sub_process_id} in win32_api_definitions.tracer_object.created_objects['CIM_Process'])
-        # 'CIM_DataFile': [{'Name': u'\\\\.\\Nsi'}]}
-        self.assertTrue('CIM_DataFile' in win32_api_definitions.tracer_object.created_objects)
+        if not is_travis_machine():
+            # 'CIM_DataFile': [{'Name': u'\\\\.\\Nsi'}]}
+            self.assertTrue('CIM_DataFile' in win32_api_definitions.tracer_object.created_objects)
 
-        # All sockets used the port number 53 for DNS
+        # All sockets used the port number 53 for DNS, whether in IPV4 or IPV6.
         for dict_key_value in win32_api_definitions.tracer_object.created_objects['addr']:
             self.assertTrue(dict_key_value['Id'].endswith(':53'))
 
