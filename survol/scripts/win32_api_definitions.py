@@ -25,9 +25,6 @@ import win32process
 import pywintypes
 import win32api
 
-# TEMP TEMP. JUST FOR DEBUGGING.
-# import psutil
-
 is_py3 = sys.version_info >= (3,)
 if is_py3:
     import queue
@@ -398,16 +395,6 @@ class Win32Hook_CreateProcessW(Win32Hook_GenericProcessCreation):
         offset_dwThreadId = windows_h.sizeof(windows_h.HANDLE) + windows_h.sizeof(windows_h.HANDLE) + windows_h.sizeof(windows_h.DWORD)
         dwThreadId = self.current_pydbg.get_long(lpProcessInformation + offset_dwThreadId)
 
-        # As quickly as possible before the process just created disappears.
-        #process_object = psutil.Process(dwProcessId)
-        #dwProcessId_parent = process_object.ppid()
-
-        #current_pid = os.getpid()
-        #parent_process_object = psutil.Process(dwProcessId_parent)
-        #dwProcessId_parent_parent = parent_process_object.ppid()
-
-        #print("current_pid=%d sub_pid.ppid=%d current_pppid=%d" % (current_pid, dwProcessId_parent, dwProcessId_parent_parent))
-        #assert dwProcessId_parent_parent == current_pid
         self.callback_create_object("CIM_Process", Handle=dwProcessId)
 
         if self.process_is_not_suspended:
@@ -710,7 +697,7 @@ class Win32Hook_connect(Win32Hook_BaseClass):
             else:
                 addr_ipv6 = "".join(["%02x" % ord(one_byte) for one_byte in s_addr_ipv6])
 
-            self.callback_create_object("addr", Id="%s.%d" % (addr_ipv6, port_number))
+            self.callback_create_object("addr", Id="%s:%d" % (addr_ipv6, port_number))
 
         else:
             raise Exception("Invalid sa_family:%d" % sin_family)
