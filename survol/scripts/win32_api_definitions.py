@@ -22,6 +22,11 @@ import collections
 import win32file
 import win32con
 import win32process
+import pywintypes
+import win32api
+
+# TEMP TEMP. JUST FOR DEBUGGING.
+# import psutil
 
 is_py3 = sys.version_info >= (3,)
 if is_py3:
@@ -47,10 +52,11 @@ else:
 # and also report the creation or update of an object, modelled with CIM,
 # or an extension of CIM.
 class TracerBase(object):
-    def report_function_call(self, function_name, task_id):
-        logging.debug("report_cim_object %s %s %s" % (self.__class__.__name__, function_name, task_id))
-        # For testing, it just stores the function name.
-        # In Survol, it stores the function name in a queue,
+    def report_function_call(self, function_name, process_id):
+        logging.debug("report_cim_object %s %s %s" % (self.__class__.__name__, function_name, process_id))
+        # For testing, it just stores the function name and the process id.
+        # The called functions are then checked against the program behaviour.
+        # In Survol, it may store the function name in a queue,
         # and this event can be forwarded to a RDF semantic database.
 
     def report_object_creation(self, cim_class_name, **cim_arguments):
@@ -137,6 +143,9 @@ class Win32Hook_Manager(object):
         # This event is received after the DLL is mapped into the address space of the debuggee.
         self.object_pydbg.set_callback(defines.LOAD_DLL_DEBUG_EVENT, self._functions_hooking_load_dll_callback)
 
+        # This is a dict of Win32Hook_Manager indxed by the subprocess id.
+        self.subprocesses_managers = dict()
+
     def add_one_function_from_dll_address(self, dll_address, the_subclass):
 
         the_subclass.function_address = self.object_pydbg.func_resolve_from_dll(dll_address, the_subclass.function_name)
@@ -154,7 +163,7 @@ class Win32Hook_Manager(object):
             # This instance is a context for the results of anything done before the function call.
             subclass_instance.callback_before(function_arguments)
             function_arguments.append(subclass_instance)
-            tracer_object.report_function_call(the_subclass.function_name, object_pydbg.dbg.dwThreadId)
+            tracer_object.report_function_call(the_subclass.function_name, object_pydbg.dbg.dwProcessId)
             return defines.DBG_CONTINUE
 
         # There is one such function per class associated to an API function.
@@ -208,17 +217,21 @@ class Win32Hook_Manager(object):
         else:
             self.unhooked_functions_by_dll[dll_canonic_name].append(the_subclass)
 
-    def _hook_api_functions_list(self, functions_list):
-        for the_subclass in functions_list:
+    def _hook_api_functions_list(self):
+        for the_subclass in _functions_list:
             self._hook_api_function(the_subclass)
 
-    def attach_to_pid(self, process_id, functions_list):
+    def attach_to_pid(self, process_id):
 
         self.object_pydbg.attach(process_id)
-        self._hook_api_functions_list(functions_list)
+        self._hook_api_functions_list()
         self.object_pydbg.run()
 
-    def attach_to_command(self, command_line, functions_list):
+    # This receives a command line, starts the process in suspended mode,
+    # stores the desired breakpoints, in a map indexed by the DLL name,
+    # then resumes the process.
+    # When the DLLs are loaded, a callback sets their breakpoints.
+    def attach_to_command(self, command_line):
         start_info = win32process.STARTUPINFO()
         start_info.dwFlags = win32con.STARTF_USESHOWWINDOW
 
@@ -228,7 +241,7 @@ class Win32Hook_Manager(object):
             os.getcwd(), start_info)
 
         self.object_pydbg.attach(dwProcessId)
-        self._hook_api_functions_list(functions_list)
+        self._hook_api_functions_list()
         win32process.ResumeThread(hThread)
         self.object_pydbg.run()
         return dwProcessId
@@ -345,17 +358,78 @@ class Win32Hook_CreateProcessW(Win32Hook_GenericProcessCreation):
             LPPROCESS_INFORMATION lpProcessInformation
         );"""
     dll_name = b"KERNEL32.dll"
+
+    def __init__(self):
+        print("Win32Hook_CreateProcessW.__init__")
+
+    def callback_before(self, function_arguments):
+        dwCreationFlags = function_arguments[5]
+        print("Win32Hook_CreateProcessW.callback_before dwCreationFlags = %0x." % dwCreationFlags)
+        # This should be the case most of times,
+        # because it is very rare that a user process starts in suspended state.
+        self.process_is_not_suspended = ~(dwCreationFlags & win32con.CREATE_SUSPENDED)
+        if self.process_is_not_suspended:
+            print("Win32Hook_CreateProcessW.callback_before : Suspending process")
+            dwCreationFlagsSuspended = dwCreationFlags | win32con.CREATE_SUSPENDED
+            self.current_pydbg.set_arg(5, dwCreationFlagsSuspended)
+
+
     def callback_after(self, function_arguments, function_result):
         lpApplicationName = self.current_pydbg.get_unicode_string(function_arguments[0])
         lpCommandLine = self.current_pydbg.get_unicode_string(function_arguments[1])
+        print("callback_after lpCommandLine=", lpCommandLine, "function_result", function_result)
+
+        # typedef struct _PROCESS_INFORMATION {
+        #   HANDLE hProcess;
+        #   HANDLE hThread;
+        #   DWORD  dwProcessId;
+        #   DWORD  dwThreadId;
+        # } PROCESS_INFORMATION, *PPROCESS_INFORMATION, *LPPROCESS_INFORMATION;
         lpProcessInformation = function_arguments[9]
+
+        hProcess = self.current_pydbg.get_pointer(lpProcessInformation)
+
+        offset_hThread = windows_h.sizeof(windows_h.HANDLE)
+        hThread = self.current_pydbg.get_pointer(lpProcessInformation + offset_hThread)
+
         offset_dwProcessId = windows_h.sizeof(windows_h.HANDLE) + windows_h.sizeof(windows_h.HANDLE)
         dwProcessId = self.current_pydbg.get_long(lpProcessInformation + offset_dwProcessId)
 
-        logging.debug("Win32Hook_CreateProcessW m_parsedArgs=", function_arguments)
-        logging.debug("Win32Hook_CreateProcessW m_retValue=", function_result)
-        logging.debug("Win32Hook_CreateProcessW Handle=", dwProcessId)
+        offset_dwThreadId = windows_h.sizeof(windows_h.HANDLE) + windows_h.sizeof(windows_h.HANDLE) + windows_h.sizeof(windows_h.DWORD)
+        dwThreadId = self.current_pydbg.get_long(lpProcessInformation + offset_dwThreadId)
+
+        # As quickly as possible before the process just created disappears.
+        #process_object = psutil.Process(dwProcessId)
+        #dwProcessId_parent = process_object.ppid()
+
+        #current_pid = os.getpid()
+        #parent_process_object = psutil.Process(dwProcessId_parent)
+        #dwProcessId_parent_parent = parent_process_object.ppid()
+
+        #print("current_pid=%d sub_pid.ppid=%d current_pppid=%d" % (current_pid, dwProcessId_parent, dwProcessId_parent_parent))
+        #assert dwProcessId_parent_parent == current_pid
         self.callback_create_object("CIM_Process", Handle=dwProcessId)
+
+        if self.process_is_not_suspended:
+            print("Win32Hook_CreateProcessW: Setting breakpoints in suspended thread:", dwThreadId)
+
+            if True:
+                sub_hooks_manager = Win32Hook_Manager()
+                # The same breakpoints are used by all threads of the same subprocess.
+                self.current_pydbg.hook_manager.subprocesses_managers[dwProcessId] = sub_hooks_manager
+
+                try:
+                    sub_hooks_manager.attach_to_pid(dwProcessId)
+                except Exception as exc:
+                    # Cannot attach to some subprocesses:
+                    # ping  -n 1 127.0.0.1
+                    #
+                    print("CANNOT ATTACH TO", dwProcessId, lpCommandLine, exc)
+
+            # FIXME: It is not possible to call pywin32 with these handles. Why ??
+            print("Win32Hook_CreateProcessW: Resuming thread:", dwThreadId)
+            self.current_pydbg.resume_thread(dwThreadId)
+
 
 class Win32Hook_CreateDirectoryA(Win32Hook_BaseClass):
     api_definition = b"""
@@ -717,16 +791,18 @@ def all_subclasses(the_class):
     # 'Vista'
     # platform.win32_ver()
     # ('Vista', '6.0.6002', 'SP2', 'Multiprocessor Free')
-    if windows8_or_higher:
-        print("os.sys.getwindowsversion()=", os.sys.getwindowsversion())
-        print("platform.release()=", platform.release())
-        print("platform.win32_ver()=", platform.win32_ver())
+
+# Travis:
+# survol\scripts\wsgiserver.py server_name=packer-5e27ace7-7289-64cc-b5e7-c83abe164ad0
+# Platform=win32
+# Version:sys.version_info(major=3, minor=7, micro=5, releaselevel='final', serial=0)
+# Server address:10.20.0.174
 
     current_subclasses = the_class.__subclasses__()
     return set([sub_class for sub_class in current_subclasses if not all_subclasses(sub_class)]).union(
         [sub_sub_class for sub_class in current_subclasses for sub_sub_class in all_subclasses(sub_class)])
 
-functions_list = all_subclasses(Win32Hook_BaseClass)
+_functions_list = all_subclasses(Win32Hook_BaseClass)
 
 ##### Kernel32.dll
 # Many functions are very specific to old-style Windows applications.
