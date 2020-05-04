@@ -1051,7 +1051,7 @@ class SurvolLocalJavaTest(unittest.TestCase):
 
 class SurvolLocalUtf8Test(unittest.TestCase):
 
-    # Traiter ce nom de fichier: Yana e-trema lle et Constantin a-accent-grave Boulogne-sur-Mer.IMG-20190806-WA0000.jpg
+    # FIXME: This filename: Yana e-trema lle et Constantin a-accent-grave Boulogne-sur-Mer.IMG-20190806-WA0000.jpg
     def test_accented_filename(self):
         # Create directory and file name with accents, depending on the platform: Windows/Linux.
 
@@ -1062,7 +1062,7 @@ class SurvolLocalUtf8Test(unittest.TestCase):
         # Properties: CIM_DataFile.file_stat.py
         pass
 
-    # Traiter ce nom de fichier: Yana e-trema lle et Constantin a-accent-grave Boulogne-sur-Mer.IMG-20190806-WA0000.jpg
+    # FIXME: This filename: Yana e-trema lle et Constantin a-accent-grave Boulogne-sur-Mer.IMG-20190806-WA0000.jpg
     def test_accented_dirname(self):
         pass
         # Create directory and file name with accents, depending on the platform: Windows/Linux.
