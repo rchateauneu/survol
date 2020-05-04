@@ -4,7 +4,11 @@ import os
 import sys
 import psutil
 import rdflib
+# Probably needed to force rdflib to load its plugins ?
+# Apparently, this has to be loaded explicitly.
+# Surprisingly it was not needed until this commit.
 import rdflib.plugins.memory
+import rdflib.plugins.sparql
 
 import lib_util
 import lib_common
