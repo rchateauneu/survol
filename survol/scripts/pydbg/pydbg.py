@@ -323,7 +323,7 @@ class pydbg:
 
             return self.ret_self()
 
-        self._log("bp_del(0x%016x)" % address)
+        #self._log("bp_del(0x%016x)" % address)
 
         # ensure a breakpoint exists at the target address.
         if address in self.breakpoints:
@@ -349,7 +349,7 @@ class pydbg:
         @return:    Self
         '''
 
-        self._log("bp_del_all()")
+        #self._log("bp_del_all()")
 
         for bp in self.breakpoints.keys():
             self.bp_del(bp)
@@ -594,7 +594,7 @@ class pydbg:
 
             return self.ret_self()
 
-        self._log("bp_set(0x%016x)" % address)
+        #self._log("bp_set(0x%016x)" % address)
         assert address
         # ensure a breakpoint doesn't already exist at the target address.
         if not address in self.breakpoints:
@@ -926,7 +926,7 @@ class pydbg:
                 continue_status = self.event_handler_exit_thread()
 
             elif dbg.dwDebugEventCode == LOAD_DLL_DEBUG_EVENT:
-                # self._log("debug_event_iteration LOAD_DLL_DEBUG_EVENT")
+                #self._log("debug_event_iteration LOAD_DLL_DEBUG_EVENT")
                 continue_status = self.event_handler_load_dll()
 
             elif dbg.dwDebugEventCode == UNLOAD_DLL_DEBUG_EVENT:
@@ -1640,7 +1640,7 @@ class pydbg:
         @return: Debug event continue status.
         '''
 
-        self._log("pydbg.exception_handler_breakpoint() at %016x from thread id %d" % (self.exception_address, self.dbg.dwThreadId))
+        #self._log("pydbg.exception_handler_breakpoint() at %016x from thread id %d" % (self.exception_address, self.dbg.dwThreadId))
 
         # breakpoints we did not set.
         if not self.bp_is_ours(self.exception_address):
@@ -1666,7 +1666,7 @@ class pydbg:
         # breakpoints we did set.
         else:
             # restore the original byte at the breakpoint address.
-            self._log("restoring original byte at %016x: %s" % (self.exception_address, self.breakpoints[self.exception_address].original_byte))
+            #self._log("restoring original byte at %016x: %s" % (self.exception_address, self.breakpoints[self.exception_address].original_byte))
             self.write_process_memory(self.exception_address, self.breakpoints[self.exception_address].original_byte)
             self.set_attr("dirty", True)
 
@@ -1789,7 +1789,7 @@ class pydbg:
 
             # restore a soft breakpoint.
             if isinstance(bp, breakpoint):
-                self._log("restoring breakpoint at 0x%016x" % bp.address)
+                #self._log("restoring breakpoint at 0x%016x" % bp.address)
                 self.bp_set(bp.address, bp.description, bp.restore, bp.handler)
 
             # restore PAGE_GUARD for a memory breakpoint (make sure guards are not temporarily suspended).
@@ -1901,9 +1901,9 @@ class pydbg:
         address_debuggee = self.func_resolve_debuggee(dll, function)
         self._log("func_resolve dll=%s function=%s address_debuggee=%016x" % (dll, function, address_debuggee))
         if function_address == address_debuggee:
-            self._log("Identical debugger and debuggee addresses.")
+            self._log("Identical debugger and debuggee addresses for %s." % function)
         else:
-            self._log("Different debugger and debuggee addresses.")
+            self._log("Different debugger and debuggee addresses for %s." % function)
 
         return function_address
 
@@ -1936,6 +1936,7 @@ class pydbg:
                 new_message = "%s. Module=%s" % (str(exc), module.szModule)
                 raise Exception(new_message)
             return function_address
+        self._log("func_resolve_debuggee func_name=%s module not found dll_name=%s" % (func_name, dll_name))
         return 0
 
 
@@ -1959,7 +1960,6 @@ class pydbg:
             if module.szModule.lower() == dll_name:
                 base_address = int(cast(module.modBaseAddr, ctypes.c_void_p).value)
                 return base_address
-        self._log("find_dll_base_address module not found dll_name=%s" % dll_name)
         return 0
 
 ####################################################################################################################
@@ -2130,7 +2130,7 @@ class pydbg:
         from breakpoint handlers at the top of a function.
 
         @type  index:   Integer
-        @param index:   Data to explore for printable ascii string
+        @param index:   Index of the parameter on the stack.
         @type  context: Context
         @param context: (Optional) Current thread context to examine
 
@@ -2162,6 +2162,7 @@ class pydbg:
             else:
                 arg_val = self.read_process_memory(context.Rsp + index * 8, 8)
                 assert isinstance(arg_val, six.binary_type)
+                # FIXME: Why flipping here only, and not the registers content ?
                 arg_val = self.flip_endian_dword(arg_val)
             #self._log("get_arg index=%d Rsp=%016x Rbp=%016x Rcx=%016x Rdx=%016x arg_val= %016x"
             #          % (index, context.Rsp, context.Rbp, context.Rcx, context.Rdx, arg_val))
@@ -2175,6 +2176,46 @@ class pydbg:
 
         return arg_val
 
+    ####################################################################################################################
+    def set_arg (self, index, value, context=None):
+        '''
+        Given a thread context, this convenience routine will sets the function argument at the specified index.
+
+        @type  index:   Integer
+        @param index:   Index of the parameter on the stack.
+        @type  value:   Integer
+        @param value:   Data to store
+        @type  context: Context
+        @param context: (Optional) Current thread context to examine
+        '''
+
+        # if the optional current thread context was not supplied, grab it for the current thread.
+        if not context:
+            context = self.context
+
+        if is_64bits:
+            # https://docs.microsoft.com/en-us/cpp/build/x64-calling-convention?view=vs-2019
+            # The first four integer arguments are passed in registers.
+            # Integer values are passed in left-to-right order in RCX, RDX, R8, and R9, respectively.
+            # Arguments five and higher are passed on the stack.
+            # All arguments are right-justified in registers,
+            # so the callee can ignore the upper bits of the register and access only the portion of the register necessary.
+            # BEWARE: Different logic for floats and doubles.
+            if index == 1:
+                raise Exception("Set_val: Not implemented yet")
+            elif index == 2:
+                raise Exception("Set_val: Not implemented yet")
+            elif index == 3:
+                raise Exception("Set_val: Not implemented yet")
+            elif index == 4:
+                raise Exception("Set_val: Not implemented yet")
+            else:
+                arg_val = self.unflip_endian_dword(value)
+                self.write_process_memory(context.Rsp + index * 8, arg_val, 8)
+            #self._log("get_arg index=%d Rsp=%016x Rbp=%016x Rcx=%016x Rdx=%016x arg_val= %016x"
+            #          % (index, context.Rsp, context.Rbp, context.Rcx, context.Rdx, arg_val))
+        else:
+            raise Exception("Set_val: Not implemented yet")
 
     ####################################################################################################################
     def get_attr (self, attribute):
@@ -2718,13 +2759,34 @@ class pydbg:
         @rtype:  DWORD
         @return: Converted DWORD.
         '''
-        # Little-endian, and unsigned long (4 bytes)
+        # Little-endian, and unsigned long (4 or 8 bytes depending on the platform)
         assert isinstance(array_bytes, six.binary_type)
         if is_64bits:
             word_result = big_integer_type(struct.unpack("<Q", array_bytes)[0])
         else:
             word_result = big_integer_type(struct.unpack("<L", array_bytes)[0])
         return word_result
+
+    ####################################################################################################################
+    def unflip_endian_dword (self, word_result):
+        '''
+        Utility function to do the inverse of flip_endian_dword.
+
+        @type  bytes: DWORD
+        @param bytes: Integer
+
+        @rtype:  bytes
+        @return: Converted bytes.
+        '''
+        # Little-endian, and unsigned long (4 or 8 bytes depending on the platform)
+        if is_64bits:
+            array_bytes = struct.pack("<Q", word_result)
+            # FIXME: Check the result then remove.
+            word_check = big_integer_type(struct.unpack("<Q", array_bytes)[0])
+            assert word_check == word_result
+        else:
+            raise Exception("unflip_endian_dword: Not implemented yet")
+        return array_bytes
 
     ####################################################################################################################
     def load (self, path_to_file, command_line=None, create_new_console=False, show_window=True):

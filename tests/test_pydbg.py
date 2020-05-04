@@ -41,7 +41,7 @@ class BasicTest(unittest.TestCase):
         print("is_wow64=", is_wow64)
         print("platform.architecture()=", platform.architecture())
 
-        if sys.maxsize > 2 ** 32:
+        if is_64bits:
             self.assertTrue(not is_wow64)
         else:
             self.assertTrue(is_wow64)
@@ -60,7 +60,7 @@ class BasicTest(unittest.TestCase):
         print("Root pid=%d. Attaching to %d" % (CurrentPid, created_process.pid))
         tst_pydbg.attach(created_process.pid)
 
-        is_wow64 = pydbg.process_is_wow64(pid=created_process.pid)
+        windows_h.is_wow64 = pydbg.process_is_wow64(pid=created_process.pid)
         print("is_wow64=", is_wow64)
 
         self.assertTrue(is_wow64)
@@ -69,6 +69,15 @@ class BasicTest(unittest.TestCase):
         tst_pydbg.run()
         created_process.communicate()
         created_process.terminate()
+
+    def test_flip_endian(self):
+        tst_pydbg = pydbg.pydbg()
+
+        array_bytes = b"76543210" if windows_h.is_64bits else b"3210"
+        integer_value = tst_pydbg.flip_endian_dword(array_bytes)
+        array_check = tst_pydbg.unflip_endian_dword(integer_value)
+        assert array_bytes == array_check
+
 
 ################################################################################
 
