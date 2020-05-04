@@ -309,14 +309,8 @@ class PydbgAttachTest(unittest.TestCase):
         # The port number must be 53, for DNS.
 
         print("test_DOS_nslookup calls_counter=", win32_api_definitions.tracer_object.calls_counter)
-        created_process_calls_counter = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
-        # Ca cree un process. Pourquoi ? Supposons que cmd.exe cree un process pour nslookup,
-        # mais on n en aurait l id.
-        # Et que multiprocess.process ou POpen renvoie l id du sous-process,
-        # et donc qu on attach correctement au bon pid.
-        # Mais dans ce cas en effet, test_api_Python_connect ne cree pas de sous process mais on devrait
-        # voir arriver la dll car on est dans le bon process.
-        # Et on ne voit pas passer la dll python.
+
+        # This NSLOOKUP command creates a subprocess.
 
         self.assertTrue(len(win32_api_definitions.tracer_object.calls_counter) == 2)
         self.assertTrue(win32_api_definitions.tracer_object.calls_counter[dwProcessId][b'CreateProcessW'] == 1)
@@ -328,13 +322,19 @@ class PydbgAttachTest(unittest.TestCase):
         sub_process_id = all_created_processes[0]
         print("sub_process_id", sub_process_id)
 
-        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[sub_process_id][b'connect'] == 5)
-        #self.assertTrue(win32_api_definitions.tracer_object.calls_counter[b'CreateFileW'] == 1)
+        # FIXME: Adjust this, depending on the machine, the number of DNS connections will vary.
+        connections_number = 3 if is_travis_machine() else 5
+        self.assertTrue(win32_api_definitions.tracer_object.calls_counter[sub_process_id][b'connect'] == connections_number)
         self.assertTrue(win32_api_definitions.tracer_object.calls_counter[sub_process_id][b'WriteFile'] == 2)
 
         print("test_DOS_nslookup created_objects=", win32_api_definitions.tracer_object.created_objects)
-        self.assertTrue('CIM_Process' in win32_api_definitions.tracer_object.created_objects)
-        self.assertTrue('addr' in win32_api_definitions.tracer_object.created_objects)
+        self.assertTrue( {'Handle': sub_process_id} in win32_api_definitions.tracer_object.created_objects['CIM_Process'])
+        # 'CIM_DataFile': [{'Name': u'\\\\.\\Nsi'}]}
+        self.assertTrue('CIM_DataFile' in win32_api_definitions.tracer_object.created_objects)
+
+        # All sockets used the port number 53 for DNS
+        for dict_key_value in win32_api_definitions.tracer_object.created_objects['addr']:
+            self.assertTrue(dict_key_value['Id'].endswith(':53'))
 
     def test_api_Python_connect(self):
         """
