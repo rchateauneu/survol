@@ -342,17 +342,17 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                 # Loop on first level only.
                 break
 
-            sys.stderr.write("Sparql_CIM_Directory.FetchAll return_values_list=%s\n" % return_values_list)
+            #sys.stderr.write("Sparql_CIM_Directory.FetchAll return_values_list=%s\n" % return_values_list)
             if isinstance(dir_path_variable, rdflib.term.Variable):
-                sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables Returning variables pair:%s\n" % associated_instance.m_variable)
+                #sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables Returning variables pair:%s\n" % associated_instance.m_variable)
                 returned_variables[(associated_instance.m_variable, dir_path_variable)] = return_values_list
                 check_returned_variables(returned_variables)
             else:
-                sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables Returning variable:%s\n" % associated_instance.m_variable)
+                #sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables Returning variable:%s\n" % associated_instance.m_variable)
                 returned_variables[(associated_instance.m_variable,)] = return_values_list
                 check_returned_variables(returned_variables)
 
-            sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables returned_variables=%s\n" % returned_variables)
+            #sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables returned_variables=%s\n" % returned_variables)
 
         # TODO: If there are no properties and no directory and no sub-files or sub-directories,
         # TODO: this should return ALL DIRECTORIES OF THE FILE SYSTEM.
