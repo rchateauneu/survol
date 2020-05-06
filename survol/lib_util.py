@@ -1525,6 +1525,10 @@ def GetEntityModuleNoCacheNoCatch(entity_type):
 def GetEntityModuleNoCache(entity_type):
     # sys.stderr.write("GetEntityModuleNoCache entity_type=%s\n"%entity_type)
 
+    # Temporary hack to avoid an annoying warning message.
+    if entity_type == "provider_script":
+        return None
+
     try:
         return GetEntityModuleNoCacheNoCatch(entity_type)
     except ImportError:
