@@ -7,6 +7,7 @@ from __future__ import print_function
 
 import os
 import sys
+import json
 import socket
 import psutil
 import pkgutil
@@ -208,7 +209,7 @@ def start_cgiserver(agent_url, agent_port):
 
     try:
         agent_process = None
-        response = portable_urlopen(agent_url + "/survol/entity.py", timeout=5)
+        response = portable_urlopen(agent_url + "/survol/print_internal_data_as_json.py", timeout=2)
         print("start_cgiserver: Using existing CGI Survol agent")
     except:
         import multiprocessing
@@ -226,9 +227,9 @@ def start_cgiserver(agent_url, agent_port):
             current_dir = ""
         print("start_cgiserver: current_dir=%s" % current_dir)
 
-        # This delay to allow the reuse of the socket.
+        # This delay to allow the reuse of the socket port.
         # TODO: A better solution would be to override server_bind()
-        time.sleep(2.0)
+        time.sleep(0.5)
         agent_process = multiprocessing.Process(
             target=scripts.cgiserver.start_server_forever,
             args=(True, AgentHost, agent_port, current_dir))
@@ -237,18 +238,31 @@ def start_cgiserver(agent_url, agent_port):
 
         agent_process.start()
         print("start_cgiserver: Waiting for CGI agent to start")
-        time.sleep(3.0)
-        local_agent_url = "http://%s:%s/survol/entity.py" % (AgentHost, agent_port)
+        time.sleep(0.5)
+
+        # It was using "entity.py" in the past, but it is slower.
+        local_agent_url = "http://%s:%s/survol/print_internal_data_as_json.py" % (AgentHost, agent_port)
         print("start_cgiserver local_agent_url=", local_agent_url)
         try:
-            response = portable_urlopen(local_agent_url, timeout=15)
+            response = portable_urlopen(local_agent_url, timeout=5)
         except Exception as exc:
             print("Caught:%s", exc)
             __dump_server_content(scripts.cgiserver.cgi_server_logfile_name(agent_port))
             raise
 
-    data = response.read().decode("utf-8")
-    print("CGI Survol agent OK")
+    internal_data = response.read().decode("utf-8")
+    json_internal_data = json.loads(internal_data)
+
+    # RootUri	"http://rchateau-hp:8000/survol/print_internal_data_as_json.py"
+    # uriRoot	"http://rchateau-hp:8000/survol"
+    # HttpPrefix	"http://rchateau-hp:8000"
+    # RequestUri	"/survol/print_internal_data_as_json.py"
+    root_uri = json_internal_data['RootUri']
+    uri_root = json_internal_data['uriRoot']
+    http_prefix = json_internal_data['HttpPrefix']
+    request_uri = json_internal_data['RequestUri']
+
+    print("CGI Survol agent OK:", root_uri, uri_root, http_prefix, request_uri)
     return agent_process
 
 def stop_cgiserver(agent_process):
