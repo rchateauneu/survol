@@ -286,6 +286,7 @@ def starts_browser(browser_name, the_url):
     threading.Thread(target=__starts_browser_process).start()
     print("Browser thread started")
 
+# Setup (setup.py) creates a binary script which directly calls this function.
 def run_wsgi_server():
 
     try:
