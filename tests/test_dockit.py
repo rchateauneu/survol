@@ -786,14 +786,13 @@ class DockitEventsTest(unittest.TestCase):
     """
 
     def setUp(self):
-        pass
         # If the Survol agent does not exist, this script starts a local one.
         self.RemoteEventsTestAgent = start_cgiserver(RemoteEventsTestAgent, RemoteEventsTestPort)
 
     def tearDown(self):
         stop_cgiserver(self.RemoteEventsTestAgent)
 
-    @unittest.skipIf(is_travis_machine(),"test_file_events does not work on Travis server.")
+    #### @unittest.skipIf(is_travis_machine(),"test_file_events does not work on Travis server.")
     def test_file_events(self):
         dockit.test_from_file(
             inputLogFile = path_prefix_input_file("dockit_ps_ef.strace.log"),
