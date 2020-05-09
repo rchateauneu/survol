@@ -455,23 +455,15 @@ class HttpTriplesClient(object):
             else:
                 # FIXME: The URL event_put.py sometimes times out, on Python 3 and only
                 # FIXME: ... if the server is started by the test program (pytest or unittest).
-                # FIXME: It happens also with small packets.
-                # FIXME: Same problem if data are encoded in base64.
-                # FIXME: Reading stdin in text or binary mode.
-                # FIXME: Surprisingly, ia logfile written in event_put.py contained '\0' (zero) characters.
                 triples_as_bytes, sent_triples_number = self._pop_triples_to_bytes()
                 if triples_as_bytes:
                     received_triples_number = self._send_bytes_to_server(triples_as_bytes)
                     if received_triples_number != sent_triples_number:
                         raise Exception("Lost triples: %d != %d\n" % (received_triples_number, sent_triples_number))
 
-
     def _pop_triples_to_bytes(self):
         triples_number = len(self._triples_list)
         if triples_number:
-            sys.stdout.write("Tm=%f Sending %d triples to %s\n" % (time.time(), triples_number, G_UpdateServer))
-            sys.stdout.flush()
-
             triples_as_bytes = json.dumps(self._triples_list)
             if is_py3:
                 assert isinstance(triples_as_bytes, str)
@@ -484,25 +476,17 @@ class HttpTriplesClient(object):
             triples_as_bytes = None
         return triples_as_bytes, triples_number
 
-
     def _send_bytes_to_server(self, triples_as_bytes):
         assert isinstance(triples_as_bytes, six.binary_type)
         if not self._is_valid_http_client:
             return -1
         try:
-            sys.stdout.write("About to write to:%s %d bytes. t=%d\n"
-                             % (G_UpdateServer, len(triples_as_bytes), self._is_threaded_client))
-            sys.stdout.flush()
-
             req = urllib2.Request(G_UpdateServer)
-            urlopen_result = urllib2.urlopen(req, data=triples_as_bytes, timeout=10.0)
+            print("len(triples_as_bytes)=%d\n" % len(triples_as_bytes))
+            urlopen_result = urllib2.urlopen(req, data=triples_as_bytes, timeout=30.0)
 
-            sys.stdout.write("Tm=%f Reading response from %s\n" % (time.time(), G_UpdateServer))
-            sys.stdout.flush()
             server_response = urlopen_result.read()
-            sys.stdout.write("server_response=%s\n" % server_response)
             json_response = json.loads(server_response)
-            sys.stdout.write("json_response=%s\n" % json_response)
             if json_response['success'] != 'true':
                 raise Exception("Event server error message=%s\n" % json_response['error_message'])
             received_triples_number = int(json_response['triples_number'])
@@ -531,7 +515,7 @@ class HttpTriplesClient(object):
         assert self._is_threaded_client
         while True:
             time.sleep(2.0)
-            self._push_triples_tu_server_threaded()
+            self._push_triples_to_server_threaded()
 
     def queue_triples_for_sending(self, json_triple):
         if self._server_is_file:
