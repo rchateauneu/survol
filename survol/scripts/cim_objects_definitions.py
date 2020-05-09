@@ -6,6 +6,7 @@
 
 import os
 import re
+import six
 import sys
 import json
 import platform
@@ -16,9 +17,14 @@ import threading
 import time
 
 try:
+    # This is for Python 2
     import urllib2
+    import urllib
+    urlencode_portable = urllib.urlencode
 except ImportError:
     import urllib.request as urllib2
+    import urllib.parse
+    urlencode_portable = urllib.parse.urlencode
 
 try:
     # This is optional when used from dockit, so dockit can be used
@@ -26,6 +32,8 @@ try:
     import psutil
 except ImportError:
     psutil = None
+
+is_py3 = sys.version_info >= (3,)
 
 ################################################################################
 
@@ -45,7 +53,7 @@ def DecodeOctalEscapeSequence(aBuffer):
     # https://en.wikipedia.org/wiki/Escape_sequences_in_C
 
     # https://stackoverflow.com/questions/4020539/process-escape-sequences-in-a-string-in-python
-    if (sys.version_info >= (3,)):
+    if is_py3:
         decBuf = bytes(aBuffer, "utf-8").decode("unicode_escape")
     else:
         decBuf = aBuffer.decode('string_escape')
@@ -396,6 +404,7 @@ def TimeStampToStr(timStamp):
 
 ################################################################################
 
+# FIXME: Is it really needed ? And safe ??
 sys.path.append("../..")
 # Import this now, and not in the destructor, to avoid the error:
 # "sys.meta_path must be a list of import hooks"
@@ -409,82 +418,133 @@ except ImportError:
 # This objects groups triples to send to the HTTP server,
 # and periodically wakes up to send them.
 # But if the server name is a file, the RDF content is instead stored to this
- # file by the object destructor.
+# file by the object destructor.
 class HttpTriplesClient(object):
     def __init__(self):
-        self.m_listTriples = []
+        self._triples_list = []
+
+        # Threaded mode does not work when creating the server in the same process.
+        # For safety, this reverts to a simpler mode where the triples are sent
+        # in block at the end of the execution.
+        self._is_threaded_client = False
+
         # Tests if this a output RDF file, or rather None or the URL of a Survol agent.
-        self.m_server_is_file = G_UpdateServer and not(
+        self._server_is_file = G_UpdateServer and not(
                 G_UpdateServer.lower().startswith("http:")
                 or G_UpdateServer.lower().startswith("https:") )
-        if self.m_server_is_file:
+        if self._server_is_file:
             print("G_UpdateServer=", G_UpdateServer, " IS FILE")
             return
         elif G_UpdateServer:
-            self.m_sharedLock = threading.Lock()
-            aThrd = threading.Thread(target = self.run)
-            # If leaving too early, some data might be lost.
-            aThrd.daemon = True
-            aThrd.start()
-            self.m_valid = True
+            self._is_valid_http_client = True
+            if self._is_threaded_client:
+                self._shared_lock = threading.Lock()
+                self._client_thread = threading.Thread(target = self.run)
+                # If leaving too early, some data might be lost.
+                self._client_thread.daemon = True
+                self._client_thread.start()
 
-    def Shutdown(self):
-        print("HttpTriplesClient.Shutdown")
-        if self.m_server_is_file:
-            lib_event.json_triples_to_rdf(self.m_listTriples, G_UpdateServer)
+    def http_client_shutdown(self):
+        print("HttpTriplesClient.http_client_shutdown")
+        if self._server_is_file:
+            lib_event.json_triples_to_rdf(self._triples_list, G_UpdateServer)
             print("Stored RDF content to", G_UpdateServer)
         elif G_UpdateServer:
-            print("TODO: Flush data to Survol agent")
-
-    def run(self):
-        while True:
-            # TODO: Wait the same delay before leaving the program.
-            time.sleep(2.0)
-            self.m_sharedLock.acquire()
-            numTriples = len(self.m_listTriples)
-            if numTriples:
-                strToSend = json.dumps(self.m_listTriples)
-                if sys.version_info >= (3,):
-                    assert isinstance(strToSend, str)
-                    strToSend = strToSend.encode('utf-8')
-                    assert isinstance(strToSend, bytes)
-                else:
-                    assert isinstance(strToSend, str)
-                self.m_listTriples = []
+            if self._is_threaded_client:
+                self._push_triples_to_server_threaded()
             else:
-                strToSend = None
-            # Immediately unlocked so no need to wait for the server.
-            self.m_sharedLock.release()
-
-            if strToSend:
-                try:
-                    sys.stdout.write("About to write to:%s %d bytes\n" % (G_UpdateServer, len(strToSend)))
-                    sys.stdout.flush()
-                    req = urllib2.Request(G_UpdateServer)
-                    req.add_header('Content-Type', 'application/json')
-
-                    sys.stdout.write("Tm=%f Sending %d triples to %s\n" % (time.time(), numTriples, G_UpdateServer))
-                    sys.stdout.flush()
-
-                    # POST data should be bytes, an iterable of bytes, or a file object. It cannot be of type str
-                    response = urllib2.urlopen(req, data=strToSend, timeout=5.0)
-
-                    sys.stdout.write("Tm=%f Reading response from %s\n"% ( time.time(), G_UpdateServer))
-                    sys.stdout.flush()
-                    srvOut = response.read()
-                except:
-                    self.m_valid = False
-                    raise
+                # FIXME: The URL event_put.py sometimes times out, on Python 3 and only
+                # FIXME: ... if the server is started by the test program (pytest or unittest).
+                # FIXME: It happens also with small packets.
+                # FIXME: Same problem if data are encoded in base64.
+                # FIXME: Reading stdin in text or binary mode.
+                # FIXME: Surprisingly, ia logfile written in event_put.py contained '\0' (zero) characters.
+                triples_as_bytes, sent_triples_number = self._pop_triples_to_bytes()
+                if triples_as_bytes:
+                    received_triples_number = self._send_bytes_to_server(triples_as_bytes)
+                    if received_triples_number != sent_triples_number:
+                        raise Exception("Lost triples: %d != %d\n" % (received_triples_number, sent_triples_number))
 
 
-    def AddDataToSend(self,jsonTriple):
-        if self.m_server_is_file:
+    def _pop_triples_to_bytes(self):
+        triples_number = len(self._triples_list)
+        if triples_number:
+            sys.stdout.write("Tm=%f Sending %d triples to %s\n" % (time.time(), triples_number, G_UpdateServer))
+            sys.stdout.flush()
+
+            triples_as_bytes = json.dumps(self._triples_list)
+            if is_py3:
+                assert isinstance(triples_as_bytes, str)
+                triples_as_bytes = triples_as_bytes.encode('utf-8')
+                assert isinstance(triples_as_bytes, bytes)
+            else:
+                assert isinstance(triples_as_bytes, str)
+            self._triples_list = []
+        else:
+            triples_as_bytes = None
+        return triples_as_bytes, triples_number
+
+
+    def _send_bytes_to_server(self, triples_as_bytes):
+        assert isinstance(triples_as_bytes, six.binary_type)
+        if not self._is_valid_http_client:
+            return -1
+        try:
+            sys.stdout.write("About to write to:%s %d bytes. t=%d\n"
+                             % (G_UpdateServer, len(triples_as_bytes), self._is_threaded_client))
+            sys.stdout.flush()
+
+            req = urllib2.Request(G_UpdateServer)
+            urlopen_result = urllib2.urlopen(req, data=triples_as_bytes, timeout=10.0)
+
+            sys.stdout.write("Tm=%f Reading response from %s\n" % (time.time(), G_UpdateServer))
+            sys.stdout.flush()
+            server_response = urlopen_result.read()
+            sys.stdout.write("server_response=%s\n" % server_response)
+            json_response = json.loads(server_response)
+            sys.stdout.write("json_response=%s\n" % json_response)
+            if json_response['success'] != 'true':
+                raise Exception("Event server error message=%s\n" % json_response['error_message'])
+            received_triples_number = int(json_response['triples_number'])
+            return received_triples_number
+
+        except Exception as server_exception:
+            sys.stdout.write("Event server error=%s\n" % str(server_exception))
+            self._is_valid_http_client = False
+            raise
+
+    def _push_triples_to_server_threaded(self):
+        assert self._is_threaded_client
+        self._shared_lock.acquire()
+        triples_as_bytes, sent_triples_number = self._pop_triples_to_bytes()
+        # Immediately unlocked so no need to wait for the server.
+        self._shared_lock.release()
+
+        if triples_as_bytes:
+            received_triples_number = self._send_bytes_to_server(triples_as_bytes)
+            if received_triples_number != sent_triples_number:
+                raise Exception("Lost triples: %d != %d\n" % (received_triples_number, sent_triples_number))
+
+    # This thread functor loops on the container of triples.
+    # It formats them in JSON and sends them to the URL of the events server.
+    def run(self):
+        assert self._is_threaded_client
+        while True:
+            time.sleep(2.0)
+            self._push_triples_tu_server_threaded()
+
+    def queue_triples_for_sending(self, json_triple):
+        if self._server_is_file:
+            assert not self._is_threaded_client
             # Just append the triple, no need to synchronise.
-            self.m_listTriples.append(jsonTriple)
-        elif self.m_valid and G_UpdateServer:
-            self.m_sharedLock.acquire()
-            self.m_listTriples.append(jsonTriple)
-            self.m_sharedLock.release()
+            self._triples_list.append(json_triple)
+        elif G_UpdateServer:
+            if self._is_threaded_client:
+                self._shared_lock.acquire()
+                self._triples_list.append(json_triple)
+                self._shared_lock.release()
+            else:
+                self._triples_list.append(json_triple)
 
 # This is the Survol server which is notified of all updates
 # of CIM objects. These updates can then be displayed in Survol Web clients.
@@ -548,7 +608,7 @@ class CIM_XmlMarshaller:
                     strm.write("%s<%s>%s</%s>\n" % ( subMargin, attr, attrVal, attr ) )
 
     def HttpUpdateRequest(self,**objJson):
-        G_httpClient.AddDataToSend(objJson)
+        G_httpClient.queue_triples_for_sending(objJson)
 
     def SendUpdateToServer(self, attrNam, oldAttrVal, attrVal):
         # These are the properties which uniquely define the object.
@@ -1511,7 +1571,7 @@ def exit_global_objects():
     # It is also used to store the triples in a RDF file, which is created by the destructor.
     global G_httpClient
     # Flushes the data to a file or possibly a Survol agent.
-    G_httpClient.Shutdown()
+    G_httpClient.http_client_shutdown()
 
 
 # This is not a map, it is not sorted.
