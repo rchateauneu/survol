@@ -65,23 +65,6 @@ def __print_cgi_server_usage():
     print("")
     print("Script must be started with command: survol/scripts/cgiserver.py")
 
-# Setup creates a binary script which directly calls this function.
-# This changes the current directory, so that URLs can point to plain Python scripts.
-# This can be avoided if we have an unique CGI script loading Python scripts as modules.
-def RunCgiServer():
-    curPth = None
-    print("Searching internal packages")
-    for pth in sys.path:
-        if pth.endswith("site-packages"):
-            curPth = pth
-            break
-
-    if curPth:
-        print("Setting current path to %s"%curPth)
-        os.chdir(curPth)
-        __run_cgi_server_internal()
-    else:
-        print("No python path to set")
 
 # https://docs.python.org/2/library/webbrowser.html
 def __open_url_with_webbrowser(browser_name, the_url):
@@ -204,6 +187,7 @@ def __run_cgi_server_internal():
 def cgi_server_logfile_name(port_number):
     return "cgiserver.execution.%d.log" % port_number
 
+# Setup (setup.py) creates a binary script which directly calls this function.
 # The current directory can be set, this is used when this is called from multiprocessing.
 def start_server_forever(verbose, server_name, port_number, current_dir = ""):
     logfil = open(cgi_server_logfile_name(port_number), "w")
