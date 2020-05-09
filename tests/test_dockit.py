@@ -792,7 +792,6 @@ class DockitEventsTest(unittest.TestCase):
     def tearDown(self):
         stop_cgiserver(self.RemoteEventsTestAgent)
 
-    #### @unittest.skipIf(is_travis_machine(),"test_file_events does not work on Travis server.")
     def test_file_events(self):
         dockit.test_from_file(
             inputLogFile = path_prefix_input_file("dockit_ps_ef.strace.log"),
@@ -821,13 +820,12 @@ class DockitEventsTest(unittest.TestCase):
         num_loops = 10
         actual_types_dict = dict()
 
-        properties_number = 25 if sys.platform.startswith("linux") else 14
         expected_types_list = {
             'CIM_Process': 1,
             'CIM_NetworkAdapter': 1,
             'CIM_DataFile': 292,
             'CIM_ComputerSystem': 1,
-            'Property': properties_number,
+            'Property': 14,
             'Class': 4 }
 
         while(num_loops > 0):
