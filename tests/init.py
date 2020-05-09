@@ -14,6 +14,9 @@ import pkgutil
 import atexit
 import time
 import tempfile
+import subprocess
+
+import scripts.cgiserver
 
 ################################################################################
 
@@ -21,6 +24,10 @@ is_platform_windows = sys.platform.startswith("win")
 is_platform_linux = sys.platform.startswith("linux")
 
 is_py3 = sys.version_info >= (3,)
+
+if is_platform_windows:
+    import win32process
+    import win32con
 
 # os.sys.getwindowsversion()
 # sys.getwindowsversion(major=6, minor=1, build=7601, platform=2, service_pack='Service Pack 1')
@@ -125,7 +132,6 @@ def is_pytest():
 
 # This tests if an executable is present.
 def linux_check_program_exists(program_name):
-    import subprocess
     p = subprocess.Popen(['/usr/bin/which', program_name], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
     p.communicate()
     return p.returncode == 0
@@ -203,51 +209,117 @@ except ImportError:
     # Fall back to Python 2's urllib2
     from urllib2 import urlopen as portable_urlopen
 
+# FIXME: BEWARE: The subprocess should not inherit the handles because
+# FIXME: ... with Python 3, when communicating with sockets, it does not work,
+# FIXME: ... losing characters...
+def _start_cgiserver_subprocess_windows(agent_url, agent_port, current_dir):
+    print("_start_cgiserver_subprocess_windows: agent_url=%s agent_port=%d hostname=%s" % (agent_url, agent_port, socket.gethostname()))
+
+    # cwd = "PythonStyle/tests", must be "PythonStyle".
+    # agent_host = "127.0.0.1"
+    agent_host = socket.gethostname()
+
+    cgiserver_module = "survol.scripts.cgiserver"
+    cgi_command_str = sys.executable + ' -c "import %s as ssc;ssc.start_server_forever(True,\'%s\',%d,\'%s\')"' % (
+            cgiserver_module, agent_host, agent_port, current_dir)
+    print("cgi_command=", cgi_command_str)
+
+    start_info = win32process.STARTUPINFO()
+    start_info.dwFlags = win32con.STARTF_USESHOWWINDOW
+
+    current_abs_dir = os.path.abspath(current_dir)
+
+    hProcess, hThread, dwProcessId, dwThreadId = win32process.CreateProcess(
+        None,  # appName
+        cgi_command_str,  # commandLine
+        None,  # processAttributes
+        None,  # threadAttributes
+        False,  # bInheritHandles
+        win32con.CREATE_NEW_CONSOLE,  # dwCreationFlags
+        None,  # newEnvironment
+        current_abs_dir,  # currentDirectory
+        start_info)  # startupinfo
+
+    class AgentProcess(object):
+        def __init__(self, hProcess):
+            self._process_handle = hProcess
+        def terminate(self):
+            win32process.TerminateProcess(self._process_handle, 0)
+
+    agent_process = AgentProcess(hProcess)
+    return agent_process
+
+
+def _start_cgiserver_subprocess_portable(agent_url, agent_port, current_dir):
+    # cwd = "PythonStyle/tests", must be "PythonStyle".
+    # agent_host = "127.0.0.1"
+    agent_host = socket.gethostname()
+
+    cgiserver_module = "survol.scripts.cgiserver"
+    cgi_command = [
+        sys.executable,
+        "-c",
+        'import %s as ssc;ssc.start_server_forever(True,\'%s\',%s,\'%s\')' % (
+            cgiserver_module, agent_host, agent_port, current_dir)
+    ]
+    print("cgi_command=", " ".join(cgi_command))
+    agent_process = subprocess.Popen(cgi_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    print("agent_process.returncode=", agent_process.returncode)
+    print("agent_process.pid=", agent_process.pid)
+    #(cmd_output, cmd_error) = agent_process.communicate()
+    #print("cmd_output=", cmd_output)
+    #print("cmd_error=", cmd_error)
+
+    return agent_process
+
+
+def _start_cgiserver_subprocess(agent_url, agent_port):
+    print("_start_cgiserver_subprocess: agent_url=%s agent_port=%d hostname=%s" % (agent_url, agent_port, socket.gethostname()))
+    try:
+        # Running the tests scripts from PyCharm is from the current directory.
+        os.environ["PYCHARM_HELPERS_DIR"]
+        current_dir = ".."
+    except KeyError:
+        current_dir = ""
+    if is_platform_windows:
+        return _start_cgiserver_subprocess_windows(agent_url, agent_port, current_dir)
+    else:
+        return _start_cgiserver_subprocess_portable(agent_url, agent_port, current_dir)
+
 
 def start_cgiserver(agent_url, agent_port):
     print("start_cgiserver agent_url=%s agent_port=%d" % (agent_url, agent_port))
 
+    # The CGI agent creates a log file, the old one must be removed first.
+    logfile_name = scripts.cgiserver.cgi_server_logfile_name(agent_port)
+    if os.path.exists(logfile_name):
+        try:
+            os.remove(logfile_name)
+        except:
+            print("Cannot remove", logfile_name)
+
+    # agent_host = "127.0.0.1"
+    agent_host = socket.gethostname()
     try:
         agent_process = None
         response = portable_urlopen(agent_url + "/survol/print_internal_data_as_json.py", timeout=2)
         print("start_cgiserver: Using existing CGI Survol agent")
     except:
-        import multiprocessing
-        print("start_cgiserver: agent_url=%s agent_port=%d hostname=%s" % (agent_url, agent_port, socket.gethostname()))
-
-        import scripts.cgiserver
-        # cwd = "PythonStyle/tests", must be "PythonStyle".
-        # AgentHost = "127.0.0.1"
-        AgentHost = socket.gethostname()
-        try:
-            # Running the tests scripts from PyCharm is from the current directory.
-            os.environ["PYCHARM_HELPERS_DIR"]
-            current_dir = ".."
-        except KeyError:
-            current_dir = ""
-        print("start_cgiserver: current_dir=%s" % current_dir)
-
+        agent_process = _start_cgiserver_subprocess(agent_url, agent_port)
+        print("_start_cgiserver_subprocess: Waiting for CGI agent to start")
         # This delay to allow the reuse of the socket port.
         # TODO: A better solution would be to override server_bind()
         time.sleep(0.5)
-        agent_process = multiprocessing.Process(
-            target=scripts.cgiserver.start_server_forever,
-            args=(True, AgentHost, agent_port, current_dir))
-
-        atexit.register(__dump_server_content, scripts.cgiserver.cgi_server_logfile_name(agent_port) )
-
-        agent_process.start()
-        print("start_cgiserver: Waiting for CGI agent to start")
-        time.sleep(0.5)
+        atexit.register(__dump_server_content, logfile_name)
 
         # It was using "entity.py" in the past, but it is slower.
-        local_agent_url = "http://%s:%s/survol/print_internal_data_as_json.py" % (AgentHost, agent_port)
+        local_agent_url = "http://%s:%s/survol/print_internal_data_as_json.py" % (agent_host, agent_port)
         print("start_cgiserver local_agent_url=", local_agent_url)
         try:
             response = portable_urlopen(local_agent_url, timeout=5)
         except Exception as exc:
             print("Caught:%s", exc)
-            __dump_server_content(scripts.cgiserver.cgi_server_logfile_name(agent_port))
+            __dump_server_content(logfile_name)
             raise
 
     internal_data = response.read().decode("utf-8")
@@ -268,7 +340,6 @@ def start_cgiserver(agent_url, agent_port):
 def stop_cgiserver(agent_process):
     if agent_process:
         agent_process.terminate()
-        agent_process.join()
 
 def start_wsgiserver(agent_url, agent_port):
     try:
@@ -283,7 +354,7 @@ def start_wsgiserver(agent_url, agent_port):
         import scripts.wsgiserver
         # cwd = "PythonStyle/tests", must be "PythonStyle".
         # AgentHost = "127.0.0.1"
-        AgentHost = socket.gethostname()
+        agent_host = socket.gethostname()
         try:
             # Running the tests scripts from PyCharm is from the current directory.
             os.environ["PYCHARM_HELPERS_DIR"]
@@ -293,21 +364,20 @@ def start_wsgiserver(agent_url, agent_port):
         INFO("current_dir=%s",current_dir)
         INFO("sys.path=%s",str(sys.path))
 
-        atexit.register(__dump_server_content,scripts.wsgiserver.WsgiServerLogFileName)
-
         agent_process = multiprocessing.Process(
             target=scripts.wsgiserver.start_server_forever,
-            args=(True, AgentHost, agent_port, current_dir))
+            args=(True, agent_host, agent_port, current_dir))
         agent_process.start()
+        atexit.register(__dump_server_content, scripts.wsgiserver.WsgiServerLogFileName)
         INFO("Waiting for WSGI agent ready")
         time.sleep(8.0)
         # Check again if the server is started. This can be done only with scripts compatible with WSGI.
-        local_agent_url = "http://%s:%s/survol/entity.py?mode=json" % (AgentHost, agent_port)
+        local_agent_url = "http://%s:%s/survol/entity.py?mode=json" % (agent_host, agent_port)
         try:
             response = portable_urlopen( local_agent_url, timeout=5)
         except Exception as exc:
             ERROR("Caught:", exc)
-            __dump_server_content( scripts.wsgiserver.WsgiServerLogFileName)
+            __dump_server_content(scripts.wsgiserver.WsgiServerLogFileName)
             raise
 
     data = response.read().decode("utf-8")
