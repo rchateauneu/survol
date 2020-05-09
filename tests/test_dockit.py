@@ -792,41 +792,11 @@ class DockitEventsTest(unittest.TestCase):
     def tearDown(self):
         stop_cgiserver(self.RemoteEventsTestAgent)
 
-    def test_file_events(self):
-        dockit.test_from_file(
-            inputLogFile = path_prefix_input_file("dockit_ps_ef.strace.log"),
-            tracer="strace",
-            topPid=0,
-            output_files_prefix= path_prefix_output_result("dockit_ps_ef.strace"),
-            outputFormat="JSON",
-            verbose=False,
-            mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
-            summaryFormat="TXT",
-            withWarning=False,
-            withDockerfile=False,
-            updateServer=RemoteEventsTestAgent + "/survol/event_put.py",
-            aggregator="clusterize")
-
-        check_file_content("dockit_ps_ef.strace.json")
-
-        check_file_content("dockit_ps_ef.strace.summary.txt")
-
+    def _check_read_triples(self, num_loops, expected_types_list):
         # Now read the events.
-        # This is for a specific entity.
-        # RemoteTestAgent + "/survol/event_get.py"
         url_events = RemoteEventsTestAgent + "/survol/sources_types/event_get_all.py?mode=rdf"
 
-
-        num_loops = 10
         actual_types_dict = dict()
-
-        expected_types_list = {
-            'CIM_Process': 1,
-            'CIM_NetworkAdapter': 1,
-            'CIM_DataFile': 292,
-            'CIM_ComputerSystem': 1,
-            'Property': 14,
-            'Class': 4 }
 
         while(num_loops > 0):
             events_response = portable_urlopen(url_events, timeout=20)
@@ -856,6 +826,35 @@ class DockitEventsTest(unittest.TestCase):
         print("expected_types_list=", expected_types_list)
         print("actual_types_dict=", actual_types_dict)
         self.assertTrue(expected_types_list == actual_types_dict)
+
+    def test_file_events(self):
+        dockit.test_from_file(
+            inputLogFile = path_prefix_input_file("dockit_ps_ef.strace.log"),
+            tracer="strace",
+            topPid=0,
+            output_files_prefix= path_prefix_output_result("dockit_ps_ef.strace"),
+            outputFormat="JSON",
+            verbose=False,
+            mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summaryFormat="TXT",
+            withWarning=False,
+            withDockerfile=False,
+            updateServer=RemoteEventsTestAgent + "/survol/event_put.py",
+            aggregator="clusterize")
+
+        check_file_content("dockit_ps_ef.strace.json")
+        check_file_content("dockit_ps_ef.strace.summary.txt")
+
+        expected_types_list = {
+            'CIM_Process': 1,
+            'CIM_NetworkAdapter': 1,
+            'CIM_DataFile': 292,
+            'CIM_ComputerSystem': 1,
+            'Property': 14,
+            'Class': 4 }
+
+        # Now read and test the events.
+        self._check_read_triples(10, expected_types_list)
 
 if __name__ == '__main__':
     unittest.main()
