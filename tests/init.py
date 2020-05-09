@@ -245,12 +245,14 @@ def _start_cgiserver_subprocess_windows(agent_url, agent_port, current_dir):
             self._process_handle = hProcess
         def terminate(self):
             win32process.TerminateProcess(self._process_handle, 0)
+        def join(self):
+            pass
 
     agent_process = AgentProcess(hProcess)
     return agent_process
 
 
-def _start_cgiserver_subprocess_portable(agent_url, agent_port, current_dir):
+def _start_cgiserver_subprocess_portable_OLD(agent_url, agent_port, current_dir):
     # cwd = "PythonStyle/tests", must be "PythonStyle".
     # agent_host = "127.0.0.1"
     agent_host = socket.gethostname()
@@ -269,6 +271,22 @@ def _start_cgiserver_subprocess_portable(agent_url, agent_port, current_dir):
     #(cmd_output, cmd_error) = agent_process.communicate()
     #print("cmd_output=", cmd_output)
     #print("cmd_error=", cmd_error)
+
+    return agent_process
+
+
+def _start_cgiserver_subprocess_portable(agent_url, agent_port, current_dir):
+    # cwd = "PythonStyle/tests", must be "PythonStyle".
+    # agent_host = "127.0.0.1"
+    import multiprocessing
+
+    agent_host = socket.gethostname()
+    agent_process = multiprocessing.Process(
+        target=scripts.cgiserver.start_server_forever,
+        args=(True, agent_host, agent_port, current_dir))
+    agent_process.start()
+
+    print("agent_process.pid=", agent_process.pid)
 
     return agent_process
 
@@ -340,6 +358,7 @@ def start_cgiserver(agent_url, agent_port):
 def stop_cgiserver(agent_process):
     if agent_process:
         agent_process.terminate()
+        agent_process.join()
 
 def start_wsgiserver(agent_url, agent_port):
     try:
