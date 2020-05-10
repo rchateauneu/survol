@@ -824,11 +824,10 @@ class EventsServerTest(unittest.TestCase):
         # Now read and test the events.
         self._check_read_triples(5, expected_types_list)
 
-    # FIXME: CELUI LA AUSSI DECONNE AVEC PY3 !!!!!!!!!!
-    # CA EN LIT PARFOIS QUE 23360 bytes ....
-    # ca peut pas etre un probleme de quota car parfois ca marche.
-    # Quand ca marche ca lit tout d un coup.
-    # CONSOLE ? Non, on avait le meme symptome.
+    # FIXME: Broken on local machine with Windows, Python 3, if the server is automatically started.
+    # FIXME: Sometimes, it stops reading only 23360 bytes ....
+    # FIXME: It cannot be a sizgin problem because it sometimes work.
+    # FIXME: When it works, it reads everything in one go.
     @unittest.skipIf(is_platform_windows and is_py3 and not is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS AND LOCAL. WHY ??")
     def test_file_events_shell(self):
         dockit.test_from_file(
@@ -859,7 +858,6 @@ class EventsServerTest(unittest.TestCase):
         # Now read and test the events.
         self._check_read_triples(5, expected_types_list)
 
-    #@unittest.skipIf(is_platform_windows and is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS. WHY ?? Test skipped.")
     @unittest.skipIf(is_platform_windows and is_py3 and not is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS AND LOCAL. WHY ??")
     def test_file_events_proftpd(self):
         dockit.test_from_file(
@@ -890,7 +888,8 @@ class EventsServerTest(unittest.TestCase):
         # Now read and test the events.
         self._check_read_triples(5, expected_types_list)
 
-    @unittest.skipIf(is_platform_windows and is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS. WHY ?? Test skipped.")
+    #@unittest.skipIf(is_platform_windows and is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS. WHY ?? Test skipped.")
+    @unittest.skipIf(is_platform_windows and is_py3 and not is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS AND LOCAL. WHY ??")
     def test_file_events_firefox    (self):
         dockit.test_from_file(
             inputLogFile = path_prefix_input_file("firefox_google.strace.22501.log"),
