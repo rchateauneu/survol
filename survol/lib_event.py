@@ -5,6 +5,7 @@ __copyright__   = "Copyright 2020, Primhill Computers"
 __license__     = "GPL"
 
 import os
+import re
 import sys
 import time
 import json
@@ -28,25 +29,10 @@ events_file_extension = ".events"
 # CON, PRN, AUX, NUL,
 # COM1, COM2, COM3, COM4, COM5, COM6, COM7, COM8, COM9,
 # LPT1, LPT2, LPT3, LPT4, LPT5, LPT6, LPT7, LPT8, and LPT9
-
-valid_filename_chars = ",=-_.() %s%s" % (string.ascii_letters, string.digits)
-
-# This transforms a string into a valid filename.
 def _string_to_filename(input_filename):
-    #sys.stderr.write("_string_to_filename orgFilNam=%s\n"%(orgFilNam))
-
-    # keep only valid ascii chars
-    # "must be unicode, not str"
-    # cleaned_filename = unicodedata.normalize('NFKD', filNa).encode('ASCII', 'ignore').decode()
-    cleaned_filename = input_filename
-    # replace spaces
-    for r in '/\\ ':
-        cleaned_filename = cleaned_filename.replace(r,'_')
-
-    # keep only whitelisted chars
-    retfilnam = ''.join(c for c in cleaned_filename if c in valid_filename_chars)
-    #sys.stderr.write("_string_to_filename retfilnam=%s\n"%(retfilnam))
-    return retfilnam
+    filename_noslashes = re.sub(r'[/\\ \t\r\n]', '_', input_filename)
+    filename_nobadchars = re.sub('r[^-a-zA-Z,=_.()-]', '', filename_noslashes)
+    return filename_nobadchars
 
 
 # This transforms an entity into a filename which is used to store the events
@@ -62,24 +48,24 @@ def _entity_type_ids_to_event_file(entity_type, entity_ids_dict):
     # Build a file name; where the event will be stored.
 
     # These are the properties which uniquely define the object.
-    eventFilNam = entity_type
+    event_filename = entity_type
     delim = "."
-    for ontoAttrNam in entity_ids_dict:
-        attrVal = entity_ids_dict[ontoAttrNam]
-        encodeVal = attrVal
-        eventFilNam += delim + ontoAttrNam + "=" + str(encodeVal)
+    for attribute_name, attribute_value in entity_ids_dict.items():
+        attribute_value = entity_ids_dict[attribute_name]
+        # TODO: The value should probably be encoded and some characters escaped.
+        event_filename += delim + "%s=%s" % (attribute_name, attribute_value)
         delim = ","
 
     #sys.stderr.write("_entity_type_ids_to_event_file eventFilNam=%s\n"%eventFilNam)
 
     # Windows filenames should not be too long.
-    if len(eventFilNam) > 240:
-        eventFilNam = eventFilNam[:240]
+    if len(event_filename) > 240:
+        event_filename = event_filename[:240]
 
     # TODO: This is a temporary solution which should check the unicity of filenames
     # by adding a hash value at the end.
 
-    eventFilNamLong = _string_to_filename(eventFilNam) + events_file_extension
+    eventFilNamLong = _string_to_filename(event_filename) + events_file_extension
 
     #sys.stderr.write("_entity_type_ids_to_event_file eventFilNamLong=%s\n"%eventFilNamLong)
 
