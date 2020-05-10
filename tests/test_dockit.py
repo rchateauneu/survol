@@ -213,9 +213,10 @@ class DockitComponentsTest(unittest.TestCase):
         batch_core.InitAfterPid(oneLine, idxStart)
 
 
-# This tests some simple command enterered from the command line,
-# and not from the internal function.
-class DockitCommandLineTest(unittest.TestCase):
+# The script dockit.py can be used as a command line or as an imported module.
+# This test checks the script dockit.py from from command lines, and not from the internal function.
+# All the other tests are testing only internal functions of dockit.py.
+class CommandLineTest(unittest.TestCase):
 
     @staticmethod
     def run_command(one_command):
@@ -232,22 +233,23 @@ class DockitCommandLineTest(unittest.TestCase):
             return subprocess.check_output(dockit_command, shell=True)
 
     def test_usage(self):
-        command_result = DockitCommandLineTest.run_command("--help")
+        """This tests the help message displayed by dockit.py """
+        command_result = CommandLineTest.run_command("--help")
         self.assertTrue(command_result.startswith(b"DockIT"))
 
     @unittest.skipIf(not is_platform_linux or is_travis_machine(), "This is not a Linux machine. Test skipped.")
     def test_linux_ls(self):
-        command_result = DockitCommandLineTest.run_command("-c 'ls' -D -f JSON -F TXT ")
+        command_result = CommandLineTest.run_command("-c 'ls' -D -f JSON -F TXT ")
         print("command_result=", command_result)
 
     @unittest.skipIf(True or not is_platform_windows or is_travis_machine(), "NOT IMPLEMENTED YET.")
     def test_windows_dir(self):
-        command_result = DockitCommandLineTest.run_command("-c 'ls'")
+        command_result = CommandLineTest.run_command("-c 'ls'")
         print("command_result=", command_result)
 
     def test_non_existent_input_file(self):
         try:
-            DockitCommandLineTest.run_command("--input does_not_exist")
+            CommandLineTest.run_command("--input does_not_exist")
             self.fail("An exception should be thrown")
         except Exception as exc:
             print("exc=", exc)
@@ -259,7 +261,7 @@ class DockitCommandLineTest(unittest.TestCase):
         dockit_command = "--input %s --dockerfile --log %s -t ltrace" % (
             input_log_file,
             output_prefix)
-        command_result = DockitCommandLineTest.run_command(dockit_command)
+        command_result = CommandLineTest.run_command(dockit_command)
         print("command_result=", command_result)
 
     def test_file_oracle_db_data_strace(self):
@@ -269,7 +271,7 @@ class DockitCommandLineTest(unittest.TestCase):
         dockit_command = "--input %s --dockerfile --log %s -t strace" % (
             input_log_file,
             output_prefix)
-        command_result = DockitCommandLineTest.run_command(dockit_command)
+        command_result = CommandLineTest.run_command(dockit_command)
         print("command_result=", command_result)
 
     # This processes an existing input file by running the script dockit.py.
@@ -280,7 +282,7 @@ class DockitCommandLineTest(unittest.TestCase):
         dockit_command = "--input %s --dockerfile --log %s -t strace" % (
             input_log_file,
             output_prefix)
-        command_result = DockitCommandLineTest.run_command(dockit_command)
+        command_result = CommandLineTest.run_command(dockit_command)
         print("command_result=", command_result)
 
         # The pid 4401 comes from the input log file.
@@ -313,58 +315,37 @@ class DockitCommandLineTest(unittest.TestCase):
         dockit_command = "--input %s --dockerfile --log %s -t strace" % (
             input_log_file,
             output_prefix)
-        command_result = DockitCommandLineTest.run_command(dockit_command)
+        command_result = CommandLineTest.run_command(dockit_command)
         print("command_result=", command_result)
 
 
-class DockitSummaryXMLTest(unittest.TestCase):
+class SummaryXMLTest(unittest.TestCase):
     @staticmethod
-    def RebuildProcessTreeAux(currNode,margin=""):
-        def PrintOneNode(currNode,margin):
-            try:
-                procId = currNode.attributes['Handle'].value
-            except KeyError:
-                procId = 123456789
+    def _rebuild_process_tree_aux(currNode, margin=""):
 
-            execNam = "???"
-            for subNod in currNode.childNodes:
-                if subNod.nodeType == subNod.TEXT_NODE:
-                    continue
-
-                if subNod.localName == 'Executable':
-                    try:
-                        strXml = subNod.toxml()
-                        execNam = re.sub("<.*?>", "", strXml)
-                    except AttributeError:
-                        pass
-                    break
-
-            #sys.stdout.write("%s   %s %s\n"%(margin,procId,execNam))
-
-        procTree = {}
+        summary_process_tree = {}
 
         submargin = margin + "   "
         for subNod in currNode.childNodes:
             if subNod.localName == 'CIM_Process':
-                subObj = DockitSummaryXMLTest.RebuildProcessTreeAux(subNod,submargin)
+                subObj = SummaryXMLTest._rebuild_process_tree_aux(subNod, submargin)
                 procId = int(subNod.attributes['Handle'].value)
-                PrintOneNode(subNod,submargin)
-                procTree[procId] = subObj
+                summary_process_tree[procId] = subObj
 
-        return procTree
+        return summary_process_tree
 
     @staticmethod
-    def RebuildProcessTree(outputSummaryFile):
+    def rebuild_process_tree(outputSummaryFile):
         mydoc = minidom.parse(outputSummaryFile)
         currNode = mydoc.getElementsByTagName('Dockit')
 
-        return DockitSummaryXMLTest.RebuildProcessTreeAux(currNode[0])
+        return SummaryXMLTest._rebuild_process_tree_aux(currNode[0])
 
 
     # This loads a log file generated by strace and rebuilds the processes tree.
     def test_summary_XML_strace1(self):
         # For testing the creation of summary XML file from a strace log.
-        tstLogFileSTrace = """
+        strace_logfile_content = """
 12:43:54.334660 execve("/usr/bin/gcc", ["gcc", "-O3", "ProgsAndScriptsForUnitTests/HelloWorld.c"], 0x7ffd8b44aab8 /* 30 vars */) = 0 <0.000270>
 12:43:54.351205 vfork( <unfinished ...>
 [pid 19353] 12:43:54.353230 execve("/usr/libexec/gcc/x86_64-redhat-linux/7/cc1", ["/usr/libexec/gcc/x86_64-redhat-linux/7/cc1", "-quiet", "ProgsAndScriptsForUnitTests/HelloWorld.c", "-quiet", "-dumpbase", "HelloWorld.c", "-mtune=generic", "-march=x86-64", "-auxbase", "HelloWorld", "-O3", "-o", "/tmp/ccPlYSs9.s"], 0x175f140 /* 35 vars */ <unfinished ...>
@@ -403,12 +384,12 @@ class DockitSummaryXMLTest(unittest.TestCase):
 12:43:54.608378 exit_group(0)           = ?
 """
 
-        tmpFilSTrace = tempfile.NamedTemporaryFile(mode='w+',delete=False)
-        tmpFilSTrace.write(tstLogFileSTrace)
-        tmpFilSTrace.close()
+        tempfil_strace= tempfile.NamedTemporaryFile(mode='w+',delete=False)
+        tempfil_strace.write(strace_logfile_content)
+        tempfil_strace.close()
 
-        outputSummaryFile = dockit.test_from_file(
-            inputLogFile=tmpFilSTrace.name,
+        output_summary_file = dockit.test_from_file(
+            inputLogFile=tempfil_strace.name,
             tracer="strace",
             topPid=19351,
             output_files_prefix=None,
@@ -421,22 +402,22 @@ class DockitSummaryXMLTest(unittest.TestCase):
             updateServer=None,
             aggregator=None)
 
-        procTree = DockitSummaryXMLTest.RebuildProcessTree(outputSummaryFile)
+        process_tree = SummaryXMLTest.rebuild_process_tree(output_summary_file)
 
-        print(procTree)
+        print(process_tree)
 
-        procTree[19351]
-        procTree[19351][19353]
-        procTree[19351][19354]
-        procTree[19351][19355]
-        procTree[19351][19355][19356]
-
+        # This tests the existence of some processes and subprocesses.
+        process_tree[19351]
+        process_tree[19351][19353]
+        process_tree[19351][19354]
+        process_tree[19351][19355]
+        process_tree[19351][19355][19356]
 
 
     # This loads a log file generated by strace and rebuilds the processes tree.
     def test_summary_XML_strace2(self):
         # For testing the creation of summary XML file from a strace log.
-        tstLogFileSTrace = """
+        strace_logfile_content = """
 19:37:50.321491 execve("/usr/bin/gcc", ["gcc", "-O3", "ProgsAndScriptsForUnitTests/HelloWorld.c"], 0x7ffdf59908e8 /* 30 vars */) = 0 <0.000170>
 19:37:50.331960 vfork( <unfinished ...>
 [pid 22034] 19:37:50.334013 execve("/usr/libexec/gcc/x86_64-redhat-linux/7/cc1", ["/usr/libexec/gcc/x86_64-redhat-linux/7/cc1", "-quiet", "ProgsAndScriptsForUnitTests/HelloWorld.c", "-quiet", "-dumpbase", "HelloWorld.c", "-mtune=generic", "-march=x86-64", "-auxbase", "HelloWorld", "-O3", "-o", "/tmp/cceK71h9.s"], 0x2514140 /* 35 vars */ <unfinished ...>
@@ -475,12 +456,12 @@ class DockitSummaryXMLTest(unittest.TestCase):
 19:37:50.582490 exit_group(0)           = ?
 """
 
-        tmpFilSTrace = tempfile.NamedTemporaryFile(mode='w+',delete=False)
-        tmpFilSTrace.write(tstLogFileSTrace)
-        tmpFilSTrace.close()
+        tempfil_strace = tempfile.NamedTemporaryFile(mode='w+',delete=False)
+        tempfil_strace.write(strace_logfile_content)
+        tempfil_strace.close()
 
-        outputSummaryFile = dockit.test_from_file(
-            inputLogFile=tmpFilSTrace.name,
+        output_summary_file = dockit.test_from_file(
+            inputLogFile=tempfil_strace.name,
             tracer="strace",
             topPid=22029,
             output_files_prefix=None,
@@ -494,21 +475,21 @@ class DockitSummaryXMLTest(unittest.TestCase):
             aggregator=None)
 
         sys.stdout.write("\nRebuilding tree\n")
-        procTree = DockitSummaryXMLTest.RebuildProcessTree(outputSummaryFile)
+        process_tree = SummaryXMLTest.rebuild_process_tree(output_summary_file)
 
-        print(procTree)
+        print(process_tree)
 
         # Tests the existence of some processes and their subprocesses.
-        procTree[22033]
-        procTree[22033][22034]
-        procTree[22033][22035]
-        procTree[22033][22036]
-        procTree[22033][22036][22037]
+        process_tree[22033]
+        process_tree[22033][22034]
+        process_tree[22033][22035]
+        process_tree[22033][22036]
+        process_tree[22033][22036][22037]
 
     # This loads a log file generated by ltrace and rebuilds the processes tree.
     def test_summary_XML_ltrace(self):
         # For testing the creation of summary XML file from a ltrace log.
-        tstLogFileLTrace = """
+        ltrace_logfile_content = """
 [pid 21256] 14:45:29.412869 vfork@SYS(0x463a43, 0, 0, 4 <unfinished ...>
 [pid 21257] 14:45:29.414920 execve@SYS("/usr/libexec/gcc/x86_64-redhat-linux/7/cc1", 0x164ffb8, 0x1650140 <no return ...>
 [pid 21257] 14:45:29.415223 --- Called exec() ---
@@ -551,12 +532,12 @@ class DockitSummaryXMLTest(unittest.TestCase):
 [pid 21256] 14:45:29.863535 +++ exited (status 0) +++
 """
 
-        tmpFilSTrace = tempfile.NamedTemporaryFile(mode='w+',delete=False)
-        tmpFilSTrace.write(tstLogFileLTrace)
-        tmpFilSTrace.close()
+        tempfil_ltrace = tempfile.NamedTemporaryFile(mode='w+',delete=False)
+        tempfil_ltrace.write(ltrace_logfile_content)
+        tempfil_ltrace.close()
 
-        outputSummaryFile = dockit.test_from_file(
-            inputLogFile=tmpFilSTrace.name,
+        output_summary_file = dockit.test_from_file(
+            inputLogFile=tempfil_ltrace.name,
             tracer="ltrace",
             topPid=21256,
             output_files_prefix=None,
@@ -570,16 +551,17 @@ class DockitSummaryXMLTest(unittest.TestCase):
             aggregator=None)
 
         sys.stdout.write("\nRebuilding tree\n")
-        procTree = DockitSummaryXMLTest.RebuildProcessTree(outputSummaryFile)
+        process_tree = SummaryXMLTest.rebuild_process_tree(output_summary_file)
 
-        print(procTree)
+        print(process_tree)
 
-        # This tests the existence of some processes.
-        procTree[21256]
-        procTree[21256][21257]
-        procTree[21256][21258]
-        procTree[21256][21259]
-        procTree[21256][21259][21260]
+        # This tests the existence of some processes and their sub-sub-processes.
+        process_tree[21256]
+        process_tree[21256][21257]
+        process_tree[21256][21258]
+        process_tree[21256][21259]
+        process_tree[21256][21259][21260]
+
 
 class DockitTraceFilesTest(unittest.TestCase):
     """
@@ -602,7 +584,6 @@ class DockitTraceFilesTest(unittest.TestCase):
             aggregator="clusterize")
 
         check_file_content("sample_shell_strace_tst_txt.txt")
-
         check_file_content("sample_shell_strace_tst_txt.summary.txt")
 
     def test_file_strace_csv_docker(self):
@@ -621,9 +602,7 @@ class DockitTraceFilesTest(unittest.TestCase):
             aggregator="clusterize")
 
         check_file_content("sample_shell_strace_tst_csv.csv")
-
         check_file_content("sample_shell_strace_tst_csv.summary.xml")
-
         check_file_content("sample_shell_strace_tst_csv.docker", "Dockerfile")
 
     def test_file_strace_json(self):
@@ -643,9 +622,7 @@ class DockitTraceFilesTest(unittest.TestCase):
             aggregator="clusterize")
 
         check_file_content("sample_shell_strace_tst_json.json")
-
         check_file_content("sample_shell_strace_tst_json.summary.txt")
-
 
     def test_file_ltrace_docker(self):
         dockit.test_from_file(
@@ -663,11 +640,8 @@ class DockitTraceFilesTest(unittest.TestCase):
             aggregator="clusterize")
 
         check_file_content("sample_shell_ltrace_tst_docker.json")
-
         check_file_content("sample_shell_ltrace_tst_docker.summary.txt")
-
         check_file_content("sample_shell_ltrace_tst_docker.docker", "Dockerfile")
-
 
     def test_all_trace_files(self):
         # This iterates on the input test files and generates the "compressed" output.as
@@ -690,12 +664,7 @@ class DockitTraceFilesTest(unittest.TestCase):
 
                 # The main process pid might be embedded in the log file name,
                 # just before the extension. If it cannot be found, it is assumed
-                # to be -1..
-                # mtchLog = re.match(".*\.([0-9]*)$", baseName)
-                # if mtchLog:
-                #    aPid = int( mtchLog.group(1) )
-                # else:
-                #    aPid = -1
+                # to be -1.
 
                 tracer = dockit.default_tracer(inputLogFile)
 
@@ -715,15 +684,13 @@ class DockitTraceFilesTest(unittest.TestCase):
                         updateServer=None,
                         aggregator="clusterize")
 
-class DockitProcessesTest(unittest.TestCase):
+class RunningLinuxProcessesTest(unittest.TestCase):
     """
     Test the execution of the Dockit script from real processes.
     """
 
     @unittest.skipIf(not is_platform_linux or is_travis_machine(), "This is not a Linux machine. Test skipped.")
     def test_strace_ls(self):
-        # stdout=FNULL, stderr=subprocess.STDOUT, subprocess.PIPE
-        FNULL = open(os.devnull, 'r')
         sub_proc = subprocess.Popen(['bash', '-c', 'sleep 5;ls /tmp'],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
@@ -752,10 +719,10 @@ class DockitProcessesTest(unittest.TestCase):
         self.assertTrue(sub_proc.returncode == 0)
 
         check_file_content("result_ls_strace.txt")
-
         check_file_content("result_ls_strace.summary.txt")
 
-class DockitToRDF(unittest.TestCase):
+
+class StoreToRDF(unittest.TestCase):
     """
     Send events to an RDF file.
     """
@@ -779,7 +746,7 @@ class DockitToRDF(unittest.TestCase):
         check_file_content("sample_shell_ltrace_tst_create_RDF.summary.txt")
         check_file_content("sample_shell_ltrace_tst_create_RDF.rdf")
 
-class DockitEventsTest(unittest.TestCase):
+class EventsServerTest(unittest.TestCase):
     """
     This tests the ability to parse a strace log and tranform it into events in Survol,
     with a Survol agents receiving the events from an url.
