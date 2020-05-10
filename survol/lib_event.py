@@ -166,38 +166,37 @@ def store_events_triples_list(json_data_list):
     return files_updates_total_number
 
 
-def _triple_json_to_rdf(jsonTriple):
-    def UrlJsonToTxt(valJson):
-        entity_type = valJson["entity_type"]
+# Transforms a triple in JSON representation, into the rdflib triple.
+def _triple_json_to_rdf(input_json_triple):
+    def url_json_to_txt(json_value):
+        entity_type = json_value["entity_type"]
 
         arrOnto = lib_util.OntologyClassKeys(entity_type)
 
         # Only the properties we need.
-        entity_ids_dict = {ontoAttrNam: valJson[ontoAttrNam] for ontoAttrNam in arrOnto}
+        entity_ids_dict = {ontoAttrNam: json_value[ontoAttrNam] for ontoAttrNam in arrOnto}
 
         return lib_common.gUriGen.UriMakeFromDict(entity_type, entity_ids_dict)
 
-    valSubject = jsonTriple["subject"]
-    txtSubject = UrlJsonToTxt(valSubject)
+    subject_value_json = input_json_triple["subject"]
+    subject_value_text = url_json_to_txt(subject_value_json)
 
-    valObject = jsonTriple["object"]
+    object_value_json = input_json_triple["object"]
 
     # The object might be another CIM object or a literal.
-    if isinstance(valObject, dict):
-        txtObject = UrlJsonToTxt(valObject)
+    if isinstance(object_value_json, dict):
+        object_value_text = url_json_to_txt(object_value_json)
     else:
-        txtObject = lib_kbase.MakeNodeLiteral(valObject)
+        object_value_text = lib_kbase.MakeNodeLiteral(object_value_json)
         #sys.stderr.write("_store_event_triple stored object.\n")
 
-    urlPred = lib_common.MakeProp(jsonTriple["predicate"])
-    rdfTriple = (txtSubject, urlPred, txtObject)
-    return rdfTriple
+    url_predicate = lib_common.MakeProp(input_json_triple["predicate"])
+    rdf_triple = (subject_value_text, url_predicate, object_value_text)
+    return rdf_triple
 
-
+# This reads events from a file, then deletes them, so they can be read once only.
+# TODO: Maybe keep an history ?
 def _get_events_from_file(event_filename):
-    # sys.stderr.write("_get_events_from_file eventFilNam=%s.\n"%eventFilNam)
-    # Consider deleting the files if it is empty and not written to
-    # for more than X hours, with os.fstat() and the member st_mtime
 
     # Try several times in case the script event_get.py would read at the same time.
     max_try = 3
@@ -215,11 +214,23 @@ def _get_events_from_file(event_filename):
                     rdf_triple = _triple_json_to_rdf(json_triple)
                     triples_list.append(rdf_triple)
 
-                event_filedes.seek(0)
-                # TODO: BEWARE: WHY SHOULD WE DELETE OBJECTS IN THE GENERAL CASE ?
-                # TODO: OR RATHER, THE INTERFACE SHOULD CHOOSE TO KEEP OBJECTS UNTIL THEY ARE EXPLICITLY DELETED ?
-                event_filedes.truncate()
+                file_was_empty = len(triples_list) == 0
+                if not file_was_empty:
+                    event_filedes.seek(0)
+                    event_filedes.truncate()
+
                 event_filedes.close()
+                if file_was_empty:
+                    # If the file was empty, this considers that maybe the underlying entity
+                    # does not change anymore, or is destroyed. Then is deletes the file.
+                    # If new data is written for this entity, the file will be recreated anyway.
+                    # Another possibility to to check the last modification time with fileno(),
+                    # os.fstat() and the member st_mtime, then delete it if too old.
+                    try:
+                        # Maybe the file is accessed at the same time, this is not a problem.
+                        os.remove(event_filename)
+                    except:
+                        pass
             break
         except Exception as exc:
             sys.stderr.write("_get_events_from_file failed event_filename=%s%s\n" % (event_filename, exc))
@@ -247,7 +258,7 @@ def _retrieve_events_by_entity(entity_type, entity_ids_arr):
     return events_triples_list
 
 
-# TODO: The sane event might appear in two objects.
+# TODO: The same event might appear in two objects.
 def retrieve_all_events():
     DEBUG("retrieve_all_events events_directory=%s", events_directory)
 
@@ -264,6 +275,7 @@ def retrieve_all_events():
     return triples_list
 
 
+# This stores a list of triples in json format, into a RDF file descriptor or stream.
 def json_triples_to_rdf(json_triples, rdf_file_path):
     rdflib_graph = lib_kbase.MakeGraph()
     for tripl in json_triples:
