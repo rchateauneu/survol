@@ -689,7 +689,8 @@ class RunningLinuxProcessesTest(unittest.TestCase):
     Test the execution of the Dockit script from real processes.
     """
 
-    @unittest.skipIf(not is_platform_linux or is_travis_machine(), "This is not a Linux machine. Test skipped.")
+    # @unittest.skipIf(not is_platform_linux or is_travis_machine(), "This is not a Linux machine. Test skipped.")
+    @unittest.skipIf(is_platform_windows, "This is not a Linux machine. Test skipped.")
     def test_strace_ls(self):
         sub_proc = subprocess.Popen(['bash', '-c', 'sleep 5;ls /tmp'],
             stdin=subprocess.PIPE,
@@ -888,7 +889,6 @@ class EventsServerTest(unittest.TestCase):
         # Now read and test the events.
         self._check_read_triples(5, expected_types_list)
 
-    #@unittest.skipIf(is_platform_windows and is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS. WHY ?? Test skipped.")
     @unittest.skipIf(is_platform_windows and is_py3 and not is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS AND LOCAL. WHY ??")
     def test_file_events_firefox    (self):
         dockit.test_from_file(
