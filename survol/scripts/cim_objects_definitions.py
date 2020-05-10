@@ -991,8 +991,9 @@ class CIM_Process(CIM_XmlMarshaller, object):
     def XMLSummary(theClass, fdSummaryFile, cimKeyValuePairs):
         # Find unvisited processes. It does not start from G_top_ProcessId
         # because maybe it contains several trees, or subtrees were missed etc...
-        list_CIM_Process = getattr(G_mapCacheObjects, CIM_Process.__name__, dict())
-        for objPath, objInstance in sorted(list_CIM_Process.items()):
+        if CIM_Process.__name__ not in G_mapCacheObjects:
+            return
+        for objPath, objInstance in sorted(G_mapCacheObjects[CIM_Process.__name__].items()):
             try:
                 objInstance.m_isVisited
                 continue
