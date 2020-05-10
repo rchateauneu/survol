@@ -24,10 +24,12 @@ class DockitComponentsTest(unittest.TestCase):
             (string.ascii_letters, string.ascii_letters),
             (string.digits, string.digits),
             ("a/bc\\d", "a_bc_d"),
-            (" \t\r\n", "_"),
             (",=_.()-", ",=_.()-"),
             ("*!\"%^&+[]", ""),
             ("{}@~#?><|;:", ""),
+            (" ", "_"),
+            ("\t", "_"),
+            (" \t\r\n", "____"),
         ]
         for one_test_pair in test_data_set:
             actual_filename = lib_event._string_to_filename(one_test_pair[0])
