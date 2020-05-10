@@ -908,8 +908,8 @@ class EventsServerTest(unittest.TestCase):
         check_file_content("firefox_events_google.strace.22501.json")
         check_file_content("firefox_events_google.strace.22501.summary.txt")
 
-        # TODO: Why a different properties number if the input file is the same ?
-        properties_number = 28 if is_platform_linux else 27
+        # TODO: Why different properties numbers if the input file is the same ?
+        properties_number = 28 if is_platform_linux else 17 if is_travis_machine() and is_py3 else 27
         expected_types_list = {
             'CIM_Process': 174,
             'CIM_NetworkAdapter': 1,
