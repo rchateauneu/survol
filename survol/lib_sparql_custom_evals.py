@@ -1118,16 +1118,16 @@ def custom_eval_function_generic(ctx, part, sparql_instance_creator):
             # This returns the first instance which is completely kown, i.e. its parameters
             # are iterals, or variables whose values are known in the current context.
             one_instance = visited_nodes[instance_index]
-            sys.stderr.write(margin + "one_instance=%s\n" % one_instance)
+            #sys.stderr.write(margin + "one_instance=%s\n" % one_instance)
 
-            sys.stderr.write(margin + "variables_context BEFORE\n")
+            #sys.stderr.write(margin + "variables_context BEFORE\n")
             display_variables_context(margin)
             returned_variables = one_instance.FetchAllVariables(ctx.graph, variables_context)
-            sys.stderr.write(margin + "variables_context AFTER\n")
+            #sys.stderr.write(margin + "variables_context AFTER\n")
             display_variables_context(margin)
             check_returned_variables(returned_variables)
 
-            sys.stderr.write(margin + "returned_variables=%s\n" % str(returned_variables))
+            #sys.stderr.write(margin + "returned_variables=%s\n" % str(returned_variables))
 
             variables_combinations_iter = product_variables_lists(returned_variables)
             variables_context_backup = variables_context.copy()
