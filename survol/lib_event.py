@@ -7,6 +7,7 @@ __license__     = "GPL"
 import os
 import re
 import sys
+import six
 import time
 import json
 import unicodedata
@@ -71,28 +72,34 @@ def _entity_type_ids_to_event_file(entity_type, entity_ids_dict):
 
     return eventFilNamLong
 
+
+def json_moniker_to_entity_class_and_dict(json_moniker):
+    assert len(json_moniker) == 2
+    entity_type, entity_attributes_dict = json_moniker
+    assert isinstance(entity_type, (six.binary_type, six.text_type))
+    assert isinstance(entity_attributes_dict, dict)
+
+    ontology_list = lib_util.OntologyClassKeys(entity_type)
+    sys.stderr.write("json_moniker_to_entity_class_and_dict ontology_list=%s\n" % str(ontology_list))
+
+    # TODO: Only the properties we need. In fact, they should come in the right order.
+    # TODO: Make this faster by assuming this is a list of key-value pairs.
+    entity_ids_dict = {ontology_attribute_name: entity_attributes_dict[ontology_attribute_name]
+                       for ontology_attribute_name in ontology_list}
+    return entity_type, entity_ids_dict
+
+
 # There is one directory per entity type.
 # Then, each entity has its own file whose name is the rest of the moniker.
 def _moniker_to_event_filename(json_moniker):
+    entity_type, entity_ids_dict = json_moniker_to_entity_class_and_dict(json_moniker)
+
     # The subject could be parsed with the usual functions made for moniker.
-    entity_type = json_moniker["entity_type"]
-    #sys.stderr.write("_moniker_to_event_filename entity_type=%s\n"%entity_type)
 
     entity_directory = events_directory + entity_type
 
     if not os.path.isdir(entity_directory):
         os.makedirs(entity_directory)
-
-    #sys.stderr.write("_moniker_to_event_filename dirEntity=%s\n"%dirEntity)
-    ontology_array = lib_util.OntologyClassKeys(entity_type)
-
-    #sys.stderr.write("_moniker_to_event_filename arrOnto=%s\n"%str(arrOnto))
-    entity_ids_dict = {}
-
-    # Only the properties we need.
-    for attribute_name in ontology_array:
-        attribute_value = json_moniker[attribute_name]
-        entity_ids_dict[attribute_name] = attribute_value
 
     event_created_filename = _entity_type_ids_to_event_file(entity_type, entity_ids_dict)
 
@@ -145,7 +152,7 @@ def _store_event_triple(json_data):
 
     # Store the triple object if it is also a CIM url and not a literal.
     files_updates_number = 1
-    if isinstance(triple_object, dict):
+    if isinstance(triple_object, (list, tuple)):
         _add_event_to_file_of_object(triple_object, json_data)
         files_updates_number += 1
     return files_updates_number
@@ -169,12 +176,7 @@ def store_events_triples_list(json_data_list):
 # Transforms a triple in JSON representation, into the rdflib triple.
 def _triple_json_to_rdf(input_json_triple):
     def url_json_to_txt(json_value):
-        entity_type = json_value["entity_type"]
-
-        arrOnto = lib_util.OntologyClassKeys(entity_type)
-
-        # Only the properties we need.
-        entity_ids_dict = {ontoAttrNam: json_value[ontoAttrNam] for ontoAttrNam in arrOnto}
+        entity_type, entity_ids_dict = json_moniker_to_entity_class_and_dict(json_value)
 
         return lib_common.gUriGen.UriMakeFromDict(entity_type, entity_ids_dict)
 
@@ -208,7 +210,7 @@ def _get_events_from_file(event_filename):
             with open(event_filename, "r+") as event_filedes:
                 # This must be as fast as possible, so event_put is not blocked.
                 for line_json in event_filedes.readlines():
-                    #sys.stderr.write("_get_events_from_file lineJson=%s.\n"%lineJson)
+                    sys.stderr.write("_get_events_from_file line_json=%s.\n"%line_json)
                     json_triple = json.loads(line_json)
                     # Now build Survol links which can be transformed in to valid RDF triples.
                     rdf_triple = _triple_json_to_rdf(json_triple)
@@ -233,7 +235,7 @@ def _get_events_from_file(event_filename):
                         pass
             break
         except Exception as exc:
-            sys.stderr.write("_get_events_from_file failed event_filename=%s%s\n" % (event_filename, exc))
+            sys.stderr.write("_get_events_from_file failed event_filename=%s exc=%s\n" % (event_filename, exc))
             # File locked or does not exist.
             time.sleep(sleep_delay)
             sleep_delay *= 2
@@ -242,19 +244,17 @@ def _get_events_from_file(event_filename):
     return triples_list
 
 
-def _retrieve_events_by_entity(entity_type, entity_ids_arr):
-    DEBUG("_retrieve_events_by_entity entity_type=%s",entity_type)
-    arrOnto = lib_util.OntologyClassKeys(entity_type)
+def retrieve_events_by_entity(entity_type, entity_attributes):
+    DEBUG("retrieve_events_by_entity entity_type=%s",entity_type)
+    assert isinstance(entity_attributes, dict )
 
-    # Properties are in the right order.
-    entity_ids_dict = dict(zip(arrOnto, entity_ids_arr))
+    # Only the useful properties are filtered, and stored in the ontology order.
+    # This will break if one attribute is missing.
+    events_filepath = _moniker_to_event_filename((entity_type, entity_attributes))
 
-    events_filepath = _entity_type_ids_to_event_file(entity_type, entity_ids_dict)
-
-    DEBUG("_retrieve_events_by_entity events_filepath=%s", events_filepath)
     events_triples_list = _get_events_from_file(events_filepath)
 
-    DEBUG("_retrieve_events_by_entity triples number=%d",len(events_triples_list))
+    DEBUG("retrieve_events_by_entity triples number=%d",len(events_triples_list))
     return events_triples_list
 
 
@@ -268,7 +268,7 @@ def retrieve_all_events():
             #sys.stderr.write("retrieve_all_events filNam=%s\n"%filNam)
             if events_filename.endswith(events_file_extension):
                 events_pathname = dirpath + "/" + events_filename
-                #sys.stderr.write("retrieve_all_events pathNam=%s\n"%pathNam)
+                sys.stderr.write("retrieve_all_events events_pathname=%s\n" % events_pathname)
                 triples_sublist = _get_events_from_file(events_pathname)
                 triples_list.extend(triples_sublist)
     DEBUG("retrieve_all_events leaving with %d triples." % len(triples_list))
