@@ -93,7 +93,7 @@ from survol.scripts import linux_api_definitions
 
 from init import *
 
-class DockitComponentsTest(unittest.TestCase):
+class LowLevelComponentsTest(unittest.TestCase):
     """
     Test parsing of strace output.
     """
@@ -263,6 +263,7 @@ class CommandLineTest(unittest.TestCase):
             output_prefix)
         command_result = CommandLineTest.run_command(dockit_command)
         print("command_result=", command_result)
+        self.assertTrue(command_result.startswith(b"Loading ini file:"))
 
     def test_file_oracle_db_data_strace(self):
         input_log_file = path_prefix_input_file("oracle_db_data.strace.5718.log")
@@ -273,6 +274,7 @@ class CommandLineTest(unittest.TestCase):
             output_prefix)
         command_result = CommandLineTest.run_command(dockit_command)
         print("command_result=", command_result)
+        self.assertTrue(command_result.startswith(b"Loading ini file:"))
 
     # This processes an existing input file by running the script dockit.py.
     def test_file_sample_shell_strace(self):
@@ -284,6 +286,7 @@ class CommandLineTest(unittest.TestCase):
             output_prefix)
         command_result = CommandLineTest.run_command(dockit_command)
         print("command_result=", command_result)
+        self.assertTrue(command_result.startswith(b"Loading ini file:"))
 
         # The pid 4401 comes from the input log file.
         output_file_path = output_prefix + ".strace.4401.txt"
