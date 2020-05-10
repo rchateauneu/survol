@@ -861,7 +861,8 @@ class DockitEventsTest(unittest.TestCase):
     # ca peut pas etre un probleme de quota car parfois ca marche.
     # Quand ca marche ca lit tout d un coup.
     # CONSOLE ? Non, on avait le meme symptome.
-    @unittest.skipIf(is_platform_windows and is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS. WHY ?? Test skipped.")
+    # @unittest.skipIf(is_platform_windows and is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS. WHY ?? Test skipped.")
+    @unittest.skipIf(is_platform_windows and is_py3 and not is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS. WHY ?? Test skipped.")
     def test_file_events_shell(self):
         dockit.test_from_file(
             inputLogFile = path_prefix_input_file("dockit_sample_shell.ltrace.log"),
@@ -916,6 +917,36 @@ class DockitEventsTest(unittest.TestCase):
             'CIM_DataFile': 4229,
             'CIM_ComputerSystem': 1,
             'Property': 16,
+            'Class': 4 }
+
+        # Now read and test the events.
+        self._check_read_triples(5, expected_types_list)
+
+    @unittest.skipIf(is_platform_windows and is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS. WHY ?? Test skipped.")
+    def test_file_events_firefox    (self):
+        dockit.test_from_file(
+            inputLogFile = path_prefix_input_file("firefox_google.strace.22501.log"),
+            tracer="strace",
+            topPid=0,
+            output_files_prefix= path_prefix_output_result("firefox_events_google.strace.22501"),
+            outputFormat="JSON",
+            verbose=False,
+            mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summaryFormat="TXT",
+            withWarning=False,
+            withDockerfile=False,
+            updateServer=RemoteEventsTestAgent + "/survol/event_put.py",
+            aggregator="clusterize")
+
+        check_file_content("firefox_events_google.strace.22501.json")
+        check_file_content("firefox_events_google.strace.22501.summary.txt")
+
+        expected_types_list = {
+            'CIM_Process': 174,
+            'CIM_NetworkAdapter': 1,
+            'CIM_DataFile': 1678,
+            'CIM_ComputerSystem': 1,
+            'Property': 27,
             'Class': 4 }
 
         # Now read and test the events.
