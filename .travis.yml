@@ -24,6 +24,7 @@ matrix:
         - PATH=/c/Python37:/c/Python37/Scripts:$PATH
 install:
   - pip install psutil
+  - pip install requests
   - pip install rdflib
   - pip install SPARQLWrapper
   - pip install pywbem
