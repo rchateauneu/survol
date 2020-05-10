@@ -935,8 +935,8 @@ class CIM_Process(CIM_XmlMarshaller, object):
     def DisplaySummary(theClass, fdSummaryFile, cimKeyValuePairs):
         fdSummaryFile.write("Processes:\n")
         print("keys=", G_mapCacheObjects.keys())
-        for objPath, objInstance in sorted(G_mapCacheObjects[CIM_Process.__name__].items()):
-            # sys.stdout.write("Path=%s\n"%objPath)
+        list_CIM_Process = getattr(G_mapCacheObjects, CIM_Process.__name__, dict())
+        for objPath, objInstance in sorted(list_CIM_Process.items()):
             objInstance.Summarize(fdSummaryFile)
         fdSummaryFile.write("\n")
 
@@ -991,7 +991,8 @@ class CIM_Process(CIM_XmlMarshaller, object):
     def XMLSummary(theClass, fdSummaryFile, cimKeyValuePairs):
         # Find unvisited processes. It does not start from G_top_ProcessId
         # because maybe it contains several trees, or subtrees were missed etc...
-        for objPath, objInstance in sorted(G_mapCacheObjects[CIM_Process.__name__].items()):
+        list_CIM_Process = getattr(G_mapCacheObjects, CIM_Process.__name__, dict())
+        for objPath, objInstance in sorted(list_CIM_Process.items()):
             try:
                 objInstance.m_isVisited
                 continue
@@ -999,7 +1000,6 @@ class CIM_Process(CIM_XmlMarshaller, object):
                 pass
 
             topObjProc = CIM_Process.TopProcessFromProc(objInstance)
-
             topObjProc.XMLOneLevelSummary(fdSummaryFile)
 
     # In text mode, with no special formatting.
