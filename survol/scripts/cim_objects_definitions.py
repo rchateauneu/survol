@@ -598,7 +598,7 @@ class CIM_XmlMarshaller:
         # These are the properties which uniquely define the object.
         # There are always sent even if they did not change,
         # otherwise the object could not be identified.
-        theSubjMoniker = self.GetMonikerSurvol()
+        theSubjMoniker = self.get_survol_moniker()
 
         # TODO: If the attribute is part of the ontology, just inform about the object creation.
         # TODO: Some attributes could be the moniker of another object.
@@ -606,14 +606,15 @@ class CIM_XmlMarshaller:
         # OTHERWISE NO EDGES !!
 
         if oldAttrVal and isinstance( oldAttrVal, CIM_XmlMarshaller):
-            objMonikerOld = oldAttrVal.GetMonikerSurvol()
+            raise Exception("Not implemented yet")
+            objMonikerOld = oldAttrVal.get_survol_moniker()
             attrNamDelete = attrNam + "?predicate_delete"
             self.HttpUpdateRequest(subject=theSubjMoniker,predicate=attrNam,object=objMonikerOld )
 
 
         # For example a file being opened by a process, or a process started by a user etc...
         if isinstance( attrVal, CIM_XmlMarshaller):
-            objMoniker = attrVal.GetMonikerSurvol()
+            objMoniker = attrVal.get_survol_moniker()
             self.HttpUpdateRequest(subject=theSubjMoniker,predicate=attrNam,object=objMoniker)
         else:
             self.HttpUpdateRequest(subject=theSubjMoniker,predicate=attrNam,object=attrVal)
@@ -658,12 +659,14 @@ class CIM_XmlMarshaller:
         #sys.stdout.write("CreateMonikerKey mnk=%s\n"%mnk)
         return mnk
 
+    # This object has a class name, an ontology which is an ordered list
+    # of attributes names, and several attributes in the object itself.
+    # This method wraps the class name and these attributes and their values,
+    # into an object which is used to store an event related to this object.
     # JSON escapes special characters in strings.
-    def GetMonikerSurvol(self):
-        dictMonik = { "entity_type": self.__class__.__name__}
-        for k in self.m_Ontology:
-            dictMonik[k] = getattr(self,k)
-        return dictMonik
+    def get_survol_moniker(self):
+        attributes_dict = {attribute_key: getattr(self, attribute_key) for attribute_key in self.m_Ontology}
+        return (self.__class__.__name__, attributes_dict)
 
     def __repr__(self):
         mnk = self.__class__.__name__ + "." + ",".join( '%s="%s"' % (k,getattr(self,k)) for k in self.m_Ontology )
