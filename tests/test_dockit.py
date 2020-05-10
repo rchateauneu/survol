@@ -563,7 +563,7 @@ class SummaryXMLTest(unittest.TestCase):
         process_tree[21256][21259][21260]
 
 
-class DockitTraceFilesTest(unittest.TestCase):
+class TraceFilesTest(unittest.TestCase):
     """
     Test the execution of the Dockit script of trace files.
     """
@@ -746,6 +746,7 @@ class StoreToRDF(unittest.TestCase):
         check_file_content("sample_shell_ltrace_tst_create_RDF.summary.txt")
         check_file_content("sample_shell_ltrace_tst_create_RDF.rdf")
 
+
 class EventsServerTest(unittest.TestCase):
     """
     This tests the ability to parse a strace log and tranform it into events in Survol,
@@ -828,8 +829,7 @@ class EventsServerTest(unittest.TestCase):
     # ca peut pas etre un probleme de quota car parfois ca marche.
     # Quand ca marche ca lit tout d un coup.
     # CONSOLE ? Non, on avait le meme symptome.
-    # @unittest.skipIf(is_platform_windows and is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS. WHY ?? Test skipped.")
-    @unittest.skipIf(is_platform_windows and is_py3 and not is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS. WHY ?? Test skipped.")
+    @unittest.skipIf(is_platform_windows and is_py3 and not is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS AND LOCAL. WHY ??")
     def test_file_events_shell(self):
         dockit.test_from_file(
             inputLogFile = path_prefix_input_file("dockit_sample_shell.ltrace.log"),
@@ -859,7 +859,8 @@ class EventsServerTest(unittest.TestCase):
         # Now read and test the events.
         self._check_read_triples(5, expected_types_list)
 
-    @unittest.skipIf(is_platform_windows and is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS. WHY ?? Test skipped.")
+    #@unittest.skipIf(is_platform_windows and is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS. WHY ?? Test skipped.")
+    @unittest.skipIf(is_platform_windows and is_py3 and not is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS AND LOCAL. WHY ??")
     def test_file_events_proftpd(self):
         dockit.test_from_file(
             inputLogFile = path_prefix_input_file("dockit_proftpd.strace.26299.log"),
