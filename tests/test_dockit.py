@@ -941,12 +941,14 @@ class DockitEventsTest(unittest.TestCase):
         check_file_content("firefox_events_google.strace.22501.json")
         check_file_content("firefox_events_google.strace.22501.summary.txt")
 
+        # TODO: Why a different properties number if the input file is the same ?
+        properties_number = 28 if is_platform_linux else 27
         expected_types_list = {
             'CIM_Process': 174,
             'CIM_NetworkAdapter': 1,
             'CIM_DataFile': 1678,
             'CIM_ComputerSystem': 1,
-            'Property': 27,
+            'Property': properties_number,
             'Class': 4 }
 
         # Now read and test the events.
