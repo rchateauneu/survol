@@ -32,17 +32,16 @@ events_file_extension = ".events"
 valid_filename_chars = ",=-_.() %s%s" % (string.ascii_letters, string.digits)
 
 # This transforms a string into a valid filename.
-def _string_to_filename(orgFilNam):
+def _string_to_filename(input_filename):
     #sys.stderr.write("_string_to_filename orgFilNam=%s\n"%(orgFilNam))
-    filNa = orgFilNam
-    # replace spaces
-    for r in '/\\ ':
-        filNa = filNa.replace(r,'_')
 
     # keep only valid ascii chars
     # "must be unicode, not str"
     # cleaned_filename = unicodedata.normalize('NFKD', filNa).encode('ASCII', 'ignore').decode()
-    cleaned_filename = filNa
+    cleaned_filename = input_filename
+    # replace spaces
+    for r in '/\\ ':
+        cleaned_filename = cleaned_filename.replace(r,'_')
 
     # keep only whitelisted chars
     retfilnam = ''.join(c for c in cleaned_filename if c in valid_filename_chars)
@@ -50,6 +49,8 @@ def _string_to_filename(orgFilNam):
     return retfilnam
 
 
+# This transforms an entity into a filename which is used to store the events
+# related to this entity.
 # This assumes that the properties are in the order of the ontology.
 def _entity_type_ids_to_event_file(entity_type, entity_ids_dict):
     dirEntity = events_directory + entity_type
@@ -86,50 +87,49 @@ def _entity_type_ids_to_event_file(entity_type, entity_ids_dict):
 
 # There is one directory per entity type.
 # Then, each entity has its own file whose name is the rest of the moniker.
-def _moniker_to_event_filename(jsonMonik):
+def _moniker_to_event_filename(json_moniker):
     # The subject could be parsed with the usual functions made for moniker.
-    entity_type = jsonMonik["entity_type"]
+    entity_type = json_moniker["entity_type"]
     #sys.stderr.write("_moniker_to_event_filename entity_type=%s\n"%entity_type)
 
-    dirEntity = events_directory + entity_type
+    entity_directory = events_directory + entity_type
 
-    if not os.path.isdir(dirEntity):
-        os.makedirs(dirEntity)
+    if not os.path.isdir(entity_directory):
+        os.makedirs(entity_directory)
 
     #sys.stderr.write("_moniker_to_event_filename dirEntity=%s\n"%dirEntity)
-    arrOnto = lib_util.OntologyClassKeys(entity_type)
+    ontology_array = lib_util.OntologyClassKeys(entity_type)
 
     #sys.stderr.write("_moniker_to_event_filename arrOnto=%s\n"%str(arrOnto))
     entity_ids_dict = {}
 
     # Only the properties we need.
-    for ontoAttrNam in arrOnto:
-        attrVal = jsonMonik[ontoAttrNam]
-        entity_ids_dict[ ontoAttrNam ] = attrVal
+    for attribute_name in ontology_array:
+        attribute_value = json_moniker[attribute_name]
+        entity_ids_dict[attribute_name] = attribute_value
 
-    eventFilNam = _entity_type_ids_to_event_file(entity_type,entity_ids_dict)
+    event_created_filename = _entity_type_ids_to_event_file(entity_type, entity_ids_dict)
 
     #sys.stderr.write("_moniker_to_event_filename eventFilNam=%s\n"%eventFilNam)
-    eventPath = dirEntity + "/" + eventFilNam
-    return eventPath
+    event_created_path = entity_directory + "/" + event_created_filename
+    return event_created_path
 
 
-def _add_event_to_file_of_object(theObject, jsonData):
-    event_filename = _moniker_to_event_filename(theObject)
+def _add_event_to_file_of_object(object_moniker, json_events_triples):
+    event_filename = _moniker_to_event_filename(object_moniker)
     # sys.stderr.write("_add_event_to_file_of_object eventFilNam=%s jsonData=%s\n"%(eventFilNam,str(jsonData)))
     # One JSON triple per line.
 
     # Try several times in case the script event_get.py would read at the same time.
-    maxTry = 3
+    retries_number = 3
     sleep_delay = 0.5
-    while maxTry > 0:
-        maxTry -= 1
+    while retries_number > 0:
+        retries_number -= 1
         try:
             # Appends a new event at the end.
             with open(event_filename, "a") as event_filedes:
-                #eventFd = open(event_filename, "a")
                 # This must be as fast as possible, so event_get is not blocked..
-                json.dump(jsonData, event_filedes)
+                json.dump(json_events_triples, event_filedes)
                 event_filedes.write("\n")
                 event_filedes.close()
             break
@@ -137,7 +137,7 @@ def _add_event_to_file_of_object(theObject, jsonData):
             sys.stderr.write("_add_event_to_file_of_object. Caught:%s\n" % str(exc))
             time.sleep(sleep_delay)
             sleep_delay *= 2
-    if maxTry == 0:
+    if retries_number == 0:
         WARNING("_add_event_to_file_of_object %s leaving. Failed." % event_filename)
 
 
@@ -151,16 +151,16 @@ def _add_event_to_file_of_object(theObject, jsonData):
 def _store_event_triple(json_data):
     # sys.stderr.write("_store_event_triple entering.\n")
     # The subject is always there and telles where the data are stored.
-    valSubject = json_data["subject"]
-    _add_event_to_file_of_object(valSubject, json_data)
+    triple_subject = json_data["subject"]
+    _add_event_to_file_of_object(triple_subject, json_data)
     #sys.stderr.write("_store_event_triple stored subject.\n")
 
-    valObject = json_data["object"]
+    triple_object = json_data["object"]
 
-    # The object might be another CIM object or a literal.
+    # Store the triple object if it is also a CIM url and not a literal.
     files_updates_number = 1
-    if isinstance(valObject, dict):
-        _add_event_to_file_of_object(valObject, json_data)
+    if isinstance(triple_object, dict):
+        _add_event_to_file_of_object(triple_object, json_data)
         files_updates_number += 1
     return files_updates_number
 
@@ -197,14 +197,14 @@ def _triple_json_to_rdf(jsonTriple):
     valObject = jsonTriple["object"]
 
     # The object might be another CIM object or a literal.
-    if isinstance(valObject,dict):
+    if isinstance(valObject, dict):
         txtObject = UrlJsonToTxt(valObject)
     else:
         txtObject = lib_kbase.MakeNodeLiteral(valObject)
         #sys.stderr.write("_store_event_triple stored object.\n")
 
     urlPred = lib_common.MakeProp(jsonTriple["predicate"])
-    rdfTriple = (txtSubject,urlPred,txtObject)
+    rdfTriple = (txtSubject, urlPred, txtObject)
     return rdfTriple
 
 
@@ -252,13 +252,13 @@ def _retrieve_events_by_entity(entity_type, entity_ids_arr):
     # Properties are in the right order.
     entity_ids_dict = dict(zip(arrOnto, entity_ids_arr))
 
-    eventFilNam = _entity_type_ids_to_event_file(entity_type,entity_ids_dict)
+    events_filepath = _entity_type_ids_to_event_file(entity_type, entity_ids_dict)
 
-    DEBUG("_retrieve_events_by_entity eventFilNam=%s",eventFilNam)
-    arrTriples = _get_events_from_file(eventFilNam)
+    DEBUG("_retrieve_events_by_entity events_filepath=%s", events_filepath)
+    events_triples_list = _get_events_from_file(events_filepath)
 
-    DEBUG("_retrieve_events_by_entity NumTriples=%d",len(arrTriples))
-    return arrTriples
+    DEBUG("_retrieve_events_by_entity triples number=%d",len(events_triples_list))
+    return events_triples_list
 
 
 # TODO: The sane event might appear in two objects.
