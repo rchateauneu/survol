@@ -12,9 +12,9 @@ from init import *
 
 import lib_event
 
-class DockitComponentsTest(unittest.TestCase):
+class LowLevelFunctionsTest(unittest.TestCase):
     """
-    Test parsing of strace output.
+    Test of low-level features of lib_event.
     """
 
     def test_string_to_filename(self):
@@ -49,6 +49,41 @@ class DockitComponentsTest(unittest.TestCase):
             print(actual_pathname, "=>", expected_pathname, "/", json_moniker)
             self.assertTrue(actual_pathname == expected_pathname)
 
+    def test_retrieve_all_events_empty(self):
+        # Cleanup first.
+        lib_event.retrieve_all_events()
+        triples_list = lib_event.retrieve_all_events()
+        self.assertTrue(triples_list == [])
+
+    def test_put_retrieve_events(self):
+        triples_data_set = [
+            {
+                "subject":{"entity_type":"CIM_Process", "Handle":123},
+                "predicate":"priority",
+                "object":255
+            },
+            {
+                "subject": {"entity_type": "CIM_Process", "Handle": 123},
+                "predicate": "user",
+                "object": {"entity_type": "Win32_UserAccount", "Name": "my_user", "Domain": "my_domain"},
+            },
+            ]
+        print("time=", time.time())
+        files_updates_total_number = lib_event.store_events_triples_list(triples_data_set)
+        print("time=", time.time())
+        triples_list = lib_event.retrieve_all_events()
+        print("time=", time.time())
+        print("files_updates_total_number=", files_updates_total_number)
+        print("len(triples_list)=", len(triples_list))
+        for one_triple in triples_list:
+            print("    one_triple=", one_triple)
+        self.assertTrue(files_updates_total_number == 3)
+        # When the subject and object of a triple are urls, this triple is stored twice.
+        self.assertTrue(len(triples_list) == 3)
+
+    @unittest.skip("Not implemented yet")
+    def test_retrieve_events_by_entity(self):
+        pass
 
 if __name__ == '__main__':
     unittest.main()
