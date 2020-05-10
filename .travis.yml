@@ -24,7 +24,7 @@ matrix:
         - PATH=/c/Python37:/c/Python37/Scripts:$PATH
 install:
   - pip install psutil
-  - pip install rdflib==4.2.2
+  - pip install rdflib
   - pip install SPARQLWrapper
   - pip install pywbem
   - pip install sqlparse
