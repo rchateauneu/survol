@@ -29,11 +29,30 @@ events_file_extension = ".events"
 # CON, PRN, AUX, NUL,
 # COM1, COM2, COM3, COM4, COM5, COM6, COM7, COM8, COM9,
 # LPT1, LPT2, LPT3, LPT4, LPT5, LPT6, LPT7, LPT8, and LPT9
-def _string_to_filename(input_filename):
+def _string_to_filename_jnew(input_filename):
     filename_noslashes = re.sub(r'[/\\ \t\r\n]', '_', input_filename)
     filename_nobadchars = re.sub('r[^-a-zA-Z,=_.()-]', '', filename_noslashes)
     return filename_nobadchars
 
+
+valid_filename_chars = ",=-_.() %s%s" % (string.ascii_letters, string.digits)
+
+# This transforms a string into a valid filename.
+def _string_to_filename(input_filename):
+    #sys.stderr.write("_string_to_filename orgFilNam=%s\n"%(orgFilNam))
+
+    # keep only valid ascii chars
+    # "must be unicode, not str"
+    # cleaned_filename = unicodedata.normalize('NFKD', filNa).encode('ASCII', 'ignore').decode()
+    cleaned_filename = input_filename
+    # replace spaces
+    for r in '/\\ ':
+        cleaned_filename = cleaned_filename.replace(r,'_')
+
+    # keep only whitelisted chars
+    retfilnam = ''.join(c for c in cleaned_filename if c in valid_filename_chars)
+    #sys.stderr.write("_string_to_filename retfilnam=%s\n"%(retfilnam))
+    return retfilnam
 
 # This transforms an entity into a filename which is used to store the events
 # related to this entity.
