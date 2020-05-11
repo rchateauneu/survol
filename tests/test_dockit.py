@@ -232,23 +232,32 @@ class CommandLineTest(unittest.TestCase):
 
     # @unittest.skipIf(not is_platform_linux or is_travis_machine(), "This is not a Linux machine. Test skipped.")
     @unittest.skipIf(is_platform_windows, "This is not a Linux machine. Test skipped.")
-    def test_linux_ls(self):
-        command_result = CommandLineTest.run_command("-D -f JSON -F TXT ls")
+    def test_run_linux_ls(self):
+
+        file_label = "test_linux_ls"
+        files_prefix = path_prefix_output_result(file_label)
+        command_result = CommandLineTest.run_command("-D -f JSON -F TXT -l %s ls" % files_prefix)
         print("command_result=", command_result)
 
+        check_file_content(file_label +".ini")
+        check_file_content(file_label + ".json")
+        check_file_content(file_label + ".summary.txt")
+        check_file_content(file_label + ".log")
+        check_file_content(file_label + ".docker", "Dockerfile")
+
     @unittest.skipIf(True or not is_platform_windows or is_travis_machine(), "NOT IMPLEMENTED YET.")
-    def test_windows_dir(self):
+    def test_run_windows_dir(self):
         command_result = CommandLineTest.run_command("DIR")
         print("command_result=", command_result)
 
-    def test_non_existent_input_file(self):
+    def test_replay_non_existent_input_file(self):
         try:
             CommandLineTest.run_command("--input does_not_exist")
             self.fail("An exception should be thrown")
         except Exception as exc:
             print("exc=", exc)
 
-    def test_file_sample_shell_ltrace(self):
+    def test_replay_sample_shell_ltrace(self):
         input_log_file = path_prefix_input_file("sample_shell.ltrace.log")
         output_prefix = path_prefix_output_result("pytest_sample_shell_ltrace_%d" % os.getpid())
 
@@ -259,7 +268,7 @@ class CommandLineTest(unittest.TestCase):
         print("command_result=", command_result)
         self.assertTrue(command_result.startswith(b"Loading ini file:"))
 
-    def test_file_oracle_db_data_strace(self):
+    def test_replay_oracle_db_data_strace(self):
         input_log_file = path_prefix_input_file("oracle_db_data.strace.5718.log")
         output_prefix = path_prefix_output_result("pytest_oracle_db_data_strace_%d" % os.getpid())
 
@@ -271,7 +280,7 @@ class CommandLineTest(unittest.TestCase):
         self.assertTrue(command_result.startswith(b"Loading ini file:"))
 
     # This processes an existing input file by running the script dockit.py.
-    def test_file_sample_shell_strace(self):
+    def test_replay_sample_shell_strace(self):
         input_log_file = path_prefix_input_file("sample_shell.strace.log")
         output_prefix = path_prefix_output_result("pytest_sample_shell_strace_%d" % os.getpid())
 
@@ -305,7 +314,7 @@ class CommandLineTest(unittest.TestCase):
 
         self.assertTrue(output_file_content == expected_output)
 
-    def test_file_sqlplus_strace(self):
+    def test_replay_sqlplus_strace(self):
         input_log_file = path_prefix_input_file("sqlplus.strace.4401.log")
         output_prefix = path_prefix_output_result("pytest_sqlplus_strace_%d" % os.getpid())
 
