@@ -86,10 +86,10 @@ def print_dockit_usage(exitCode = 1, errMsg = None):
     print("")
 
     if sys.platform.startswith("lin"):
-        print("strace command: " +" ".join(G_traceToTracer["strace"]._build_strace_command(["<command>"], None)))
-        print("                " +" ".join(G_traceToTracer["strace"]._build_strace_command(None, "<pid>")))
-        print("ltrace command: " +" ".join(G_traceToTracer["ltrace"]._build_strace_command(["<command>"], None)))
-        print("                " +" ".join(G_traceToTracer["ltrace"]._build_strace_command(None, "<pid>")))
+        print("strace command: " +" ".join(G_traceToTracer["strace"].build_trace_command(["<command>"], None)))
+        print("                " +" ".join(G_traceToTracer["strace"].build_trace_command(None, "<pid>")))
+        print("ltrace command: " +" ".join(G_traceToTracer["ltrace"].build_trace_command(["<command>"], None)))
+        print("                " +" ".join(G_traceToTracer["ltrace"].build_trace_command(None, "<pid>")))
         print("")
         if G_traceToTracer["strace"].trace_software_version() < (4,21):
             # It needs the option "-y"
