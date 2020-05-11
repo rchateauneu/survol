@@ -24,7 +24,7 @@ else:
 # This starts immediately after an open parenthesis or bracket.
 # It returns an index on the closing parenthesis, or equal to the string length.
 # This is called for each line and is on the critical path.
-def ParseCallArguments(strArgs,ixStart = 0):
+def parse_call_arguments(strArgs, ixStart = 0):
     lenStr = len(strArgs)
 
     theResult = []
@@ -68,7 +68,7 @@ def ParseCallArguments(strArgs,ixStart = 0):
         # This assumes that [] and {} are paired by strace so no need to check parity.
         if aChr in ['[','{']:
             if ixCurr == ixStart +1:
-                objToAdd, ixStart = ParseCallArguments( strArgs, ixCurr)
+                objToAdd, ixStart = parse_call_arguments(strArgs, ixCurr)
                 theResult.append( objToAdd )
                 while ixStart < lenStr and strArgs[ixStart] in [' ',',']: ixStart += 1
                 ixCurr = ixStart
@@ -166,7 +166,7 @@ class BatchLetCore:
         self.m_resumedBatch = None # If this is a matched batch.
 
     # tracer = "strace|ltrace"
-    def ParseLine(self, oneLine, tracer):
+    def parse_line_to_object(self, oneLine, tracer):
         # sys.stdout.write("%s oneLine1=%s" % (id(self),oneLine ) )
         self.m_tracer = tracer
 
@@ -178,11 +178,11 @@ class BatchLetCore:
             # This is a sub-process.
             self.m_pid = pidParsed
 
-            self.InitAfterPid(oneLine, idxAfterPid + 2)
+            self._init_after_pid(oneLine, idxAfterPid + 2)
         else:
             # This is the main process, but at this stage we do not have its pid.
             self.m_pid = G_topProcessId
-            self.InitAfterPid(oneLine, 0)
+            self._init_after_pid(oneLine, 0)
 
         # If this process is just created, it receives the creation time-stamp.
         self.m_objectProcess = cim_objects_definitions.ToObjectPath_CIM_Process(self.m_pid)
@@ -191,7 +191,7 @@ class BatchLetCore:
         if not self.m_objectProcess.CreationDate:
             self.m_objectProcess.CreationDate = self.m_timeStart
 
-    def SetFunction(self, funcFull):
+    def _set_function(self, funcFull):
         # With ltrace, systems calls are suffix with the string "@SYS".
         if self.m_tracer == "strace":
             # strace can only intercept system calls.
@@ -234,15 +234,15 @@ class BatchLetCore:
             # store their prefix and use this to correctly suffix them or not.
 
         else:
-            raise Exception("SetFunction tracer %s unsupported" % self.m_trace)
+            raise Exception("_set_function tracer %s unsupported" % self.m_trace)
 
-    def SetDefaultOnError(self):
-        self.SetFunction("")
+    def _set_default_on_error(self):
+        self._set_function("")
         self.m_parsedArgs = []
         self.m_retValue = None
 
     # This parsing is specific to strace and ltrace.
-    def InitAfterPid(self, oneLine, idxStart):
+    def _init_after_pid(self, oneLine, idxStart):
         # "07:54:54.206113"
         aTimeStamp = oneLine[idxStart:idxStart+15]
 
@@ -306,7 +306,7 @@ class BatchLetCore:
             self.m_status = BatchStatus.resumed
             # TODO: Should check if this is the correct function name.
             funcNameResumed = matchResume.group(1)
-            self.SetFunction(funcNameResumed)
+            self._set_function(funcNameResumed)
 
             # ") = 0 <0.000069>"
             # ", { 0x5612836832c0, <>, 0, nil }) = 0 <0.000361>"
@@ -324,7 +324,7 @@ class BatchLetCore:
                 if self.m_tracer == "ltrace":
                     if oneLine.startswith("error:"):
                         sys.stdout.write("Warning ltrace:%s\n" % oneLine)
-                        self.SetDefaultOnError()
+                        self._set_default_on_error()
                         return
 
                 # Exception: No function in:22:50:11.879132 <... exit resumed>) = ?
@@ -332,19 +332,19 @@ class BatchLetCore:
                 elif self.m_tracer == "strace":
                     if oneLine.find("<... exit resumed>) = ?") >= 0:
                         sys.stdout.write("Warning strace exit:%s"%oneLine)
-                        self.SetDefaultOnError()
+                        self._set_default_on_error()
                         return
 
                     if oneLine.find("<... exit_group resumed>) = ?") >= 0:
                         sys.stdout.write("Warning strace exit_group:%s\n"%oneLine)
-                        self.SetDefaultOnError()
+                        self._set_default_on_error()
                         return
 
                 raise Exception("No function in:%s"%oneLine)
 
-            self.SetFunction(theCall[:idxPar])
+            self._set_function(theCall[:idxPar])
 
-        self.m_parsedArgs, idxLastPar = ParseCallArguments(theCall,idxPar+1)
+        self.m_parsedArgs, idxLastPar = parse_call_arguments(theCall, idxPar + 1)
 
         if self.m_status == BatchStatus.unfinished:
             # 18:46:10.920748 execve("/usr/bin/ps", ["ps", "-ef"], [/* 33 vars */] <unfinished ...>
@@ -377,7 +377,7 @@ class BatchLetCore:
             self.m_retValue = theCall[idxEq + 1:idxLT].strip()
             # sys.stdout.write("idxEq=%d idxLastPar=%d idxLT=%d retValue=%s\n"%(idxEq,idxLastPar,idxLT,self.m_retValue))
 
-    def AsStr(self):
+    def convert_to_string(self):
         return "%s %s s=%s" % (
             str(self.m_parsedArgs),
             self.m_retValue,
@@ -393,7 +393,7 @@ def CreateBatchCore(oneLine,tracer):
 
     try:
         batchCore = BatchLetCore()
-        batchCore.ParseLine(oneLine, tracer)
+        batchCore.parse_line_to_object(oneLine, tracer)
         return batchCore
     except ExceptionIsExit:
         return None
@@ -1701,7 +1701,7 @@ class UnfinishedBatches:
                 strm.write("    Call name=%s\n" % funcNam)
                 arrCores = mapPid[funcNam]
                 for batchCoreUnfinished in arrCores:
-                    strm.write("        %s\n" % (batchCoreUnfinished.AsStr()))
+                    strm.write("        %s\n" % (batchCoreUnfinished.convert_to_string()))
                 strm.write("\n")
         strm.write("\n")
 
@@ -1795,7 +1795,7 @@ def signal_handler(signal, frame):
 
 # This applies to strace and ltrace.
 # It isolates single lines describing an individual function or system call.
-def _CreateFlowsFromGenericLinuxLog(verbose, logStream, tracer):
+def _create_flows_from_generic_linux_log(verbose, logStream, tracer):
     # Generates output files if interrupt with control-C.
     original_sigint_handler = signal.getsignal(signal.SIGINT)
     signal.signal(signal.SIGINT, signal_handler)
@@ -1804,7 +1804,7 @@ def _CreateFlowsFromGenericLinuxLog(verbose, logStream, tracer):
     # "[pid 18196] 08:26:47.199313 close(255</tmp/shell.sh> <unfinished ...>"
     # "08:26:47.197164 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18194 <0.011216>"
     # This test is not reliable because we cannot really control what a spurious output can be:
-    def IsLogEnding(aLin):
+    def _is_log_ending(aLin):
         if aLin.endswith(">\n"):
             ixLT = aLin.rfind("<")
             if ixLT >= 0:
@@ -1865,7 +1865,7 @@ def _CreateFlowsFromGenericLinuxLog(verbose, logStream, tracer):
             # "[pid 18196] 08:26:47.199313 close(255</tmp/shell.sh> <unfinished ...>"
             # "08:26:47.197164 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18194 <0.011216>"
             # This test is not reliable because we cannot really control what a spurious output can be:
-            if IsLogEnding( tmpLine ):
+            if _is_log_ending(tmpLine):
                 # TODO: The most common case is that the call is on one line only.
                 oneLine += tmpLine
                 break
@@ -1940,36 +1940,36 @@ G_StringSize = "500"
 class STraceTracer:
     # The command options generate a specific output file format,
     # and therefore parsing it is specific to these options.
-    def BuildCommand(self, extCommand, aPid):
+    def _build_strace_command(self, external_command, aPid):
         # -f  Trace  child  processes as a result of the fork, vfork and clone.
-        aCmd = ["strace", "-q", "-qq", "-f", "-tt", "-T", "-s", G_StringSize]
+        trace_command = ["strace", "-q", "-qq", "-f", "-tt", "-T", "-s", G_StringSize]
 
-        if STraceTracer().Version() < (4, 21):
-            aCmd += ["-e", "trace=desc,ipc,process,network"]
+        if STraceTracer().trace_software_version() < (4, 21):
+            trace_command += ["-e", "trace=desc,ipc,process,network"]
         else:
-            aCmd += ["-y", "-yy", "-e", "trace=desc,ipc,process,network,memory"]
+            trace_command += ["-y", "-yy", "-e", "trace=desc,ipc,process,network,memory"]
 
-        if extCommand:
+        if external_command:
             # Run tracer process as a detached grandchild, not as parent of the tracee. This reduces the visible
             # effect of strace by keeping the tracee a direct child of the calling process.
-            aCmd += ["-D"]
-            aCmd += extCommand
+            trace_command += ["-D"]
+            trace_command += external_command
         else:
-            aCmd += ["-p", aPid]
-        return aCmd
+            trace_command += ["-p", aPid]
+        return trace_command
 
-    def LogFileStream(self, extCommand, aPid):
-        aCmd = self.BuildCommand(extCommand, aPid)
-        if extCommand:
-            logging.info("Command " + " ".join(extCommand))
+    def LogFileStream(self, external_command, aPid):
+        trace_command = self._build_strace_command(external_command, aPid)
+        if external_command:
+            logging.info("Command " + " ".join(external_command))
         else:
             logging.info("Process %s\n" % aPid)
-        return _GenerateLinuxStreamFromCommand(aCmd, aPid)
+        return _GenerateLinuxStreamFromCommand(trace_command, aPid)
 
     def create_flows_from_calls_stream(self, verbose, logStream):
-        return _CreateFlowsFromGenericLinuxLog(verbose, logStream, "strace")
+        return _create_flows_from_generic_linux_log(verbose, logStream, "strace")
 
-    def Version(self):
+    def trace_software_version(self):
         strace_version_str = subprocess.check_output('strace -V', shell=True).split()[3]
         return tuple(map(int, strace_version_str.split(b'.')))
 
@@ -1977,7 +1977,7 @@ class STraceTracer:
 class LTraceTracer:
     # The command options generate a specific output file format,
     # and therefore parsing it is specific to these options.
-    def BuildCommand(self, extCommand, aPid):
+    def _build_ltrace_command(self, external_comnand, aPid):
 
         # This selects:
         # libpython2.7.so.1.0->getenv, cx_Oracle.so->getenv, libclntsh.so.11.1->getenv, libresolv.so.2->getenv etc...
@@ -1987,7 +1987,7 @@ class LTraceTracer:
         # -S  Display system calls as well as library calls
         # -f  Trace  child  processes as a result of the fork, vfork and clone.
         # This needs long strings because path names are truncated like normal strings.
-        aCmd = ["ltrace",
+        trace_command = ["ltrace",
                 "-tt", "-T", "-f", "-S", "-s", G_StringSize,
                 "-e", strMandatoryLibc
                 ]
@@ -2000,20 +2000,20 @@ class LTraceTracer:
         # lstat@SYS("/usr/local/include/bits", 0x7ffd739d8240) = -2 <0.000177>
         # <... realpath resumed> )                             = 0 <0.001261>
 
-        if extCommand:
-            aCmd += extCommand
+        if external_comnand:
+            trace_command += external_comnand
         else:
-            aCmd += ["-p", aPid]
+            trace_command += ["-p", aPid]
 
-        return aCmd
+        return trace_command
 
-    def LogFileStream(self, extCommand, aPid):
-        aCmd = self.BuildCommand(extCommand, aPid)
-        if extCommand:
-            logging.info("Command " + " ".join(extCommand))
+    def LogFileStream(self, str_mandatory_libc, aPid):
+        trace_command = self._build_ltrace_command(external_command, aPid)
+        if external_command:
+            logging.info("Command " + " ".join(external_command))
         else:
             logging.info("Process %s\n" % aPid)
-        return _GenerateLinuxStreamFromCommand(aCmd, aPid)
+        return _GenerateLinuxStreamFromCommand(trace_command, aPid)
 
     # The output log format of ltrace is very similar to strace's, except that:
     # - The system calls are suffixed with "@SYS" or prefixed with "SYS_"
@@ -2042,9 +2042,9 @@ class LTraceTracer:
     def create_flows_from_calls_stream(self, verbose, logStream):
         # The output format of the command ltrace seems very similar to strace
         # so for the moment, no reason not to use it.
-        return _CreateFlowsFromGenericLinuxLog(verbose, logStream, "ltrace")
+        return _create_flows_from_generic_linux_log(verbose, logStream, "ltrace")
 
-    def Version(self):
+    def trace_software_version(self):
         ltrace_version_str = subprocess.check_output('strace -V', shell=True).split()[2]
         return tuple(map(int, ltrace_version_str.split(b'.')))
 
