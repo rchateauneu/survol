@@ -230,20 +230,26 @@ class CommandLineTest(unittest.TestCase):
         command_result = CommandLineTest.run_command("--help")
         self.assertTrue(command_result.startswith(b"DockIT"))
 
-    @unittest.skip("TEMP: Test skipped.")
-    # @unittest.skipIf(is_platform_windows, "This is not a Linux machine. Test skipped.")
+    @unittest.skipIf(is_platform_windows, "This is not a Linux machine. Test skipped.")
     def test_run_linux_ls(self):
 
         file_label = "test_linux_ls"
         files_prefix = path_prefix_output_result(file_label)
         command_result = CommandLineTest.run_command("-D -f JSON -F TXT -l %s ls" % files_prefix)
         print("command_result=", command_result)
+        json_result = command_result.split(b"\n")[-1]
+        print("json_result=", json_result)
+        json_result = json.loads(command_result.split(b"\n")[-2])
+        print("json_result=", json_result)
+        created_pid = json_result["pid"]
+        full_file_prefix = file_label + ".strace." + created_pid
 
-        check_file_content(file_label +".ini")
-        check_file_content(file_label + ".json")
-        check_file_content(file_label + ".summary.txt")
-        check_file_content(file_label + ".log")
-        check_file_content(file_label + ".docker", "Dockerfile")
+        # This creates files like ".../test_linux_ls.strace<pid>.ini"
+        check_file_content(full_file_prefix + ".ini")
+        check_file_content(full_file_prefix + ".json")
+        check_file_content(full_file_prefix + ".summary.txt")
+        check_file_content(full_file_prefix + ".log")
+        check_file_content(full_file_prefix + ".docker", "Dockerfile")
 
     @unittest.skipIf(True or not is_platform_windows or is_travis_machine(), "NOT IMPLEMENTED YET.")
     def test_run_windows_dir(self):

@@ -576,8 +576,10 @@ def _calls_flow_class_factory(aggregator):
 
             def DumpFlowConstructor(self, batchDump, extra_header=None):
                 batchDump.Header(extra_header)
-                batchDump.m_strm.write("%s\n" % extra_header)
-                batchDump.m_strm.write("Number of function calls: %d\n" % self.m_calls_number)
+                # TODO: Reformat this information for JSON, TXT and CSV
+                # FIXME: extra_header is probably never used.
+                # batchDump.m_strm.write("%s\n" % extra_header)
+                # batchDump.m_strm.write("Number of function calls: %d\n" % self.m_calls_number)
                 batchDump.Footer()
 
         return BatchFlowVoid
@@ -859,6 +861,9 @@ if __name__ == '__main__':
     tracer = default_tracer(inputLogFile, tracer)
     _start_processing(argsCmd, aPid, inputLogFile, tracer, output_files_short_prefix)
 
+    # These information in JSON format on the last line
+    # are needed to use the generated file.
+    print('{"pid": "%d"}' % linux_api_definitions.G_topProcessId)
 
 ################################################################################
 # The End.
