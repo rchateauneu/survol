@@ -47,7 +47,7 @@ class LowLevelFunctionsTest(unittest.TestCase):
              "CIM_DataFile/CIM_DataFile.Name=C_Windows_Explorer.exe"),
         ]
         for json_moniker, expected_basename in test_data_set:
-            expected_pathname = lib_event.events_directory + expected_basename + ".events"
+            expected_pathname = lib_event.events_directory + expected_basename + lib_event.events_file_extension
             actual_pathname = lib_event._moniker_to_event_filename(json_moniker)
             print(actual_pathname, "=>", expected_pathname, "/", json_moniker)
             self.assertTrue(actual_pathname == expected_pathname)
@@ -107,14 +107,21 @@ class LowLevelFunctionsTest(unittest.TestCase):
         # XMLSchema#integer'))), (rdflib.term.URIRef(u'http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_Process.Handle=123'), rdflib.ter
         # m.URIRef(u'http://www.primhillcomputers.com/survol#user'), rdflib.term.Literal(u"[u'Win32_UserAccount', {u'Domain': u'my_domain', u'
         # Name': u'my_user'}]"))]
-        self.assertTrue(len(events_a) == 2)
+
+        # Simple check of predicates, whcih should detect most of errors.
+        predicates_only = sorted([str(one_triple[1]).rpartition('#')[-1] for one_triple in events_a])
+        print("predicates_only=", predicates_only)
+        self.assertTrue(predicates_only == ['priority', 'user'])
 
         events_b = lib_event.retrieve_events_by_entity("Win32_UserAccount", {"Name": "my_user", "Domain": "my_domain"})
         print("events_b=", events_b)
         # events_b= [(rdflib.term.URIRef(u'http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_Process.Handle=123'), rdflib.term.URIRef(u'h
         # ttp://www.primhillcomputers.com/survol#user'), rdflib.term.Literal(u"[u'Win32_UserAccount', {u'Domain': u'my_domain', u'Name': u'my_
         # user'}]"))]
-        self.assertTrue(len(events_b) == 1)
+        # Simple check of predicates, whcih should detect most of errors.
+        predicates_only = sorted([str(one_triple[1]).rpartition('#')[-1] for one_triple in events_b])
+        print("predicates_only=", predicates_only)
+        self.assertTrue(predicates_only == ['user'])
 
 
 if __name__ == '__main__':
