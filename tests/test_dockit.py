@@ -202,15 +202,8 @@ class LowLevelComponentsTest(unittest.TestCase):
                         raise Exception("Fail idx2: len=%d %d SHOULD BE:%d; S=%s / '%s'" % ( len(tupl[0]), idx, tupl[2], tupl[0], tupl[0][idx-2:] ) )
 
     def test_usage(self):
-        # Conventional value so this function does not exit.
+        # Conventional value 999 makes that this function does not exit.
         dockit.print_dockit_usage(999)
-
-    @unittest.skip("Not implemented yet")
-    def test_InitAfterPid(self):
-        batch_core = linux_api_definitions.BatchLetCore()
-        oneLine = ""
-        idxStart = 0
-        batch_core.InitAfterPid(oneLine, idxStart)
 
 
 # The script dockit.py can be used as a command line or as an imported module.
@@ -237,7 +230,8 @@ class CommandLineTest(unittest.TestCase):
         command_result = CommandLineTest.run_command("--help")
         self.assertTrue(command_result.startswith(b"DockIT"))
 
-    @unittest.skipIf(not is_platform_linux or is_travis_machine(), "This is not a Linux machine. Test skipped.")
+    # @unittest.skipIf(not is_platform_linux or is_travis_machine(), "This is not a Linux machine. Test skipped.")
+    @unittest.skipIf(is_platform_windows, "This is not a Linux machine. Test skipped.")
     def test_linux_ls(self):
         command_result = CommandLineTest.run_command("-c 'ls' -D -f JSON -F TXT ")
         print("command_result=", command_result)
