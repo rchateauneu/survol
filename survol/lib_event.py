@@ -63,14 +63,10 @@ def _entity_type_ids_to_event_file(entity_type, entity_ids_dict):
     if len(event_filename) > 240:
         event_filename = event_filename[:240]
 
-    # TODO: This is a temporary solution which should check the unicity of filenames
-    # by adding a hash value at the end.
+    # TODO: check the unicity of filenames by adding a hash value at the end.
 
-    eventFilNamLong = _string_to_filename(event_filename) + events_file_extension
-
-    #sys.stderr.write("_entity_type_ids_to_event_file eventFilNamLong=%s\n"%eventFilNamLong)
-
-    return eventFilNamLong
+    event_full_filepath= _string_to_filename(event_filename) + events_file_extension
+    return event_full_filepath
 
 
 def json_moniker_to_entity_class_and_dict(json_moniker):
@@ -80,7 +76,6 @@ def json_moniker_to_entity_class_and_dict(json_moniker):
     assert isinstance(entity_attributes_dict, dict)
 
     ontology_list = lib_util.OntologyClassKeys(entity_type)
-    sys.stderr.write("json_moniker_to_entity_class_and_dict ontology_list=%s\n" % str(ontology_list))
 
     # TODO: Only the properties we need. In fact, they should come in the right order.
     # TODO: Make this faster by assuming this is a list of key-value pairs.
@@ -95,7 +90,6 @@ def _moniker_to_event_filename(json_moniker):
     entity_type, entity_ids_dict = json_moniker_to_entity_class_and_dict(json_moniker)
 
     # The subject could be parsed with the usual functions made for moniker.
-
     entity_directory = events_directory + entity_type
 
     if not os.path.isdir(entity_directory):
@@ -159,7 +153,6 @@ def _store_event_triple(json_data):
 
 
 def store_events_triples_list(json_data_list):
-    DEBUG("store_events_triples_list entering. Numtriples=%d.", len(json_data_list))
     files_updates_total_number = 0
     for json_data in json_data_list:
         try:
@@ -169,7 +162,6 @@ def store_events_triples_list(json_data_list):
             WARNING("store_events_triples_list caught:%s. Json=%s", str(exc), str(json_data))
             traceback.print_exc()
 
-    DEBUG("store_events_triples_list leaving.")
     return files_updates_total_number
 
 
@@ -196,10 +188,10 @@ def _triple_json_to_rdf(input_json_triple):
     rdf_triple = (subject_value_text, url_predicate, object_value_text)
     return rdf_triple
 
+
 # This reads events from a file, then deletes them, so they can be read once only.
 # TODO: Maybe keep an history ?
 def _get_events_from_file(event_filename):
-
     # Try several times in case the script event_get.py would read at the same time.
     max_try = 3
     sleep_delay = 1
@@ -282,4 +274,3 @@ def json_triples_to_rdf(json_triples, rdf_file_path):
         rdf_triple = _triple_json_to_rdf(tripl)
         rdflib_graph.add(rdf_triple)
     rdflib_graph.serialize(destination = rdf_file_path, format='pretty-xml')
-
