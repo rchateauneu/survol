@@ -86,12 +86,12 @@ def print_dockit_usage(exitCode = 1, errMsg = None):
     print("")
 
     if sys.platform.startswith("lin"):
-        print("strace command: "+" ".join(G_traceToTracer["strace"].BuildCommand(["<command>"],None)))
-        print("                "+" ".join(G_traceToTracer["strace"].BuildCommand(None,"<pid>")))
-        print("ltrace command: "+" ".join(G_traceToTracer["ltrace"].BuildCommand(["<command>"],None)))
-        print("                "+" ".join(G_traceToTracer["ltrace"].BuildCommand(None,"<pid>")))
+        print("strace command: " +" ".join(G_traceToTracer["strace"]._build_strace_command(["<command>"], None)))
+        print("                " +" ".join(G_traceToTracer["strace"]._build_strace_command(None, "<pid>")))
+        print("ltrace command: " +" ".join(G_traceToTracer["ltrace"]._build_strace_command(["<command>"], None)))
+        print("                " +" ".join(G_traceToTracer["ltrace"]._build_strace_command(None, "<pid>")))
         print("")
-        if G_traceToTracer["strace"].Version() < (4,21):
+        if G_traceToTracer["strace"].trace_software_version() < (4,21):
             # It needs the option "-y"
             print("strace version deprecated. Consider upgrading")
 
@@ -508,7 +508,7 @@ def _create_calls_stream(argsCmd, aPid, inputLogFile, tracer):
         logging.info("Logfile %s pid=%s" % (inputLogFile,aPid) )
 
         # There might be a context file with important information to reproduce the test.
-        contextLogFile = os.path.splitext(inputLogFile)[0]+"."+"ini"
+        contextLogFile = os.path.splitext(inputLogFile)[0]+".ini"
         mapKV = _load_init_file(contextLogFile)
 
         # The main process pid might be embedded in the log file name,
@@ -762,7 +762,7 @@ def _start_processing(argsCmd, aPid, inputLogFile, tracer, output_files_short_pr
 
         # If not replaying, saves all parameters in an ini file.
         if not cim_objects_definitions.G_ReplayMode:
-            iniFilNam = output_files_prefix + "ini"
+            iniFilNam = output_files_prefix + ".ini"
             iniFd = open(iniFilNam,"w")
 
             # At this stage, we know what is the top process id,
