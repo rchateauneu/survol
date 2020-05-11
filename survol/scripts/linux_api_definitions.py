@@ -1940,7 +1940,7 @@ G_StringSize = "500"
 class STraceTracer:
     # The command options generate a specific output file format,
     # and therefore parsing it is specific to these options.
-    def _build_strace_command(self, external_command, aPid):
+    def build_trace_command(self, external_command, aPid):
         # -f  Trace  child  processes as a result of the fork, vfork and clone.
         trace_command = ["strace", "-q", "-qq", "-f", "-tt", "-T", "-s", G_StringSize]
 
@@ -1959,7 +1959,7 @@ class STraceTracer:
         return trace_command
 
     def LogFileStream(self, external_command, aPid):
-        trace_command = self._build_strace_command(external_command, aPid)
+        trace_command = self.build_trace_command(external_command, aPid)
         if external_command:
             logging.info("Command " + " ".join(external_command))
         else:
@@ -1977,7 +1977,7 @@ class STraceTracer:
 class LTraceTracer:
     # The command options generate a specific output file format,
     # and therefore parsing it is specific to these options.
-    def _build_ltrace_command(self, external_comnand, aPid):
+    def build_trace_command(self, external_comnand, aPid):
 
         # This selects:
         # libpython2.7.so.1.0->getenv, cx_Oracle.so->getenv, libclntsh.so.11.1->getenv, libresolv.so.2->getenv etc...
@@ -2008,7 +2008,7 @@ class LTraceTracer:
         return trace_command
 
     def LogFileStream(self, str_mandatory_libc, aPid):
-        trace_command = self._build_ltrace_command(external_command, aPid)
+        trace_command = self.build_trace_command(external_command, aPid)
         if external_command:
             logging.info("Command " + " ".join(external_command))
         else:
