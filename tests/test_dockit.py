@@ -233,12 +233,12 @@ class CommandLineTest(unittest.TestCase):
     # @unittest.skipIf(not is_platform_linux or is_travis_machine(), "This is not a Linux machine. Test skipped.")
     @unittest.skipIf(is_platform_windows, "This is not a Linux machine. Test skipped.")
     def test_linux_ls(self):
-        command_result = CommandLineTest.run_command("-c 'ls' -D -f JSON -F TXT ")
+        command_result = CommandLineTest.run_command("-D -f JSON -F TXT ls")
         print("command_result=", command_result)
 
     @unittest.skipIf(True or not is_platform_windows or is_travis_machine(), "NOT IMPLEMENTED YET.")
     def test_windows_dir(self):
-        command_result = CommandLineTest.run_command("-c 'ls'")
+        command_result = CommandLineTest.run_command("DIR")
         print("command_result=", command_result)
 
     def test_non_existent_input_file(self):
