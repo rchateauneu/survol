@@ -531,7 +531,7 @@ def _create_calls_stream(argsCmd, aPid, inputLogFile, tracer):
         sys.stdout.write("G_topProcessId=%d\n" % linux_api_definitions.G_topProcessId)
     else:
 
-        (linux_api_definitions.G_topProcessId, calls_stream) = G_traceToTracer[tracer].LogFileStream(argsCmd,aPid)
+        (linux_api_definitions.G_topProcessId, calls_stream) = G_traceToTracer[tracer].create_logfile_stream(argsCmd,aPid)
         cim_objects_definitions.G_CurrentDirectory          = currWrkDir
         cim_objects_definitions.G_Today                     = dateTodayRun
         G_Hostname                                          = theHostNam
@@ -679,7 +679,7 @@ def _analyse_functions_calls_stream(
 
     mapFlows = _create_map_flow_from_stream(verbose, withWarning, calls_stream, tracer, batchConstructor, aggregator)
 
-    linux_api_definitions.G_stackUnfinishedBatches.PrintUnfinished(sys.stdout)
+    linux_api_definitions.G_stackUnfinishedBatches.display_unfinished_unmerged_batches(sys.stdout)
 
     if output_files_prefix and outputFormat:
         assert output_files_prefix[-1] != '.'

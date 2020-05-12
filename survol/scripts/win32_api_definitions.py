@@ -68,11 +68,11 @@ class TracerBase(object):
 #         self._function_name = function_name
 #
 class Win32Tracer(TracerBase):
-#     def LogFileStream(self, extCommand, aPid):
+#     def create_logfile_stream(self, extCommand, aPid):
 #         if not aPid:
-#             raise Exception("LogFileStream: process id should not be None")
+#             raise Exception("create_logfile_stream: process id should not be None")
 #         if extCommand:
-#             raise Exception("LogFileStream: command should not be None")
+#             raise Exception("create_logfile_stream: command should not be None")
 #
 #         self._root_pid = aPid
 #         Win32Tracer._queue = queue.Queue()
