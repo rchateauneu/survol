@@ -334,7 +334,8 @@ class BatchDumperTXT(BatchDumperBase):
         self.m_strm = strm
 
     def flow_header(self, **flow_kwargs):
-        for flow_key, flow_value in flow_kwargs.items():
+        for flow_key in sorted(flow_kwargs):
+            flow_value = flow_kwargs[flow_key]
             self.m_strm.write("%s:%s\n" % (flow_key, flow_value))
 
     def dump_batch_to_stream(self,batchLet):
@@ -354,7 +355,8 @@ class BatchDumperCSV(BatchDumperBase):
         self.m_strm = strm
 
     def flow_header(self, **flow_kwargs):
-        for flow_key, flow_value in flow_kwargs.items():
+        for flow_key in sorted(flow_kwargs):
+            flow_value = flow_kwargs[flow_key]
             self.m_strm.write("%s:%s\n" % (flow_key, flow_value))
         self.m_strm.write("Pid,Occurrences,Style,Function,Arguments,Return,Start,End\n")
 
@@ -417,7 +419,7 @@ class BatchDumperJSON(BatchDumperBase):
 
 ################################################################################
 
-BatchDumpersDictionary = {
+__batch_dumpers_dictionary = {
     "TXT": BatchDumperTXT,
     "CSV": BatchDumperCSV,
     "JSON": BatchDumperJSON
@@ -650,7 +652,7 @@ def _create_map_flow_from_stream(
 
 # All possible summaries. Data created for the summaries are also needed
 # to generate a docker file. So, summaries are calculated if Dockerfile is asked.
-fullMapParamsSummary = [
+full_map_params_summary = [
     "CIM_ComputerSystem",
     "CIM_OperatingSystem",
     "CIM_NetworkAdapter",
@@ -669,7 +671,7 @@ def _analyse_functions_calls_stream(
 
     if outputFormat:
         try:
-            batchConstructor = BatchDumpersDictionary[outputFormat]
+            batchConstructor = __batch_dumpers_dictionary[outputFormat]
         except KeyError:
             raise Exception("Invalid output format:" + str(outputFormat))
     else:
@@ -702,7 +704,7 @@ def _analyse_functions_calls_stream(
 
     # Generating a docker file needs some data calculated with the summaries.
     if withDockerfile:
-        mapParamsSummary = fullMapParamsSummary
+        mapParamsSummary = full_map_params_summary
 
     _generate_summary(mapParamsSummary, summaryFormat, outputSummaryFile)
     
@@ -740,6 +742,7 @@ def test_from_file(
         verbose, withWarning, calls_stream, tracer, outputFormat, output_files_prefix,
         mapParamsSummary, summaryFormat, withDockerfile, aggregator)
     return outputSummaryFile
+
 
 def _start_processing(argsCmd, aPid, inputLogFile, tracer, output_files_short_prefix):
 
@@ -793,11 +796,11 @@ def _start_processing(argsCmd, aPid, inputLogFile, tracer, output_files_short_pr
         withWarning,
         calls_stream,
         tracer,
-        outputFormat,
+        output_format,
         output_files_prefix,
         mapParamsSummary,
-        summaryFormat,
-        withDockerfile,
+        summary_format,
+        with_docker_file,
         aggregator)
 
 if __name__ == '__main__':
@@ -820,14 +823,14 @@ if __name__ == '__main__':
     #
     # At the moment, the summary generates only two sorts of objects: CIM_Process and CIM_DataFile.
     # mapParamsSummary = ["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"]
-    mapParamsSummary = fullMapParamsSummary
+    mapParamsSummary = full_map_params_summary
 
-    withDockerfile = None
+    with_docker_file = None
 
     aPid = -1
-    outputFormat = "TXT" # Default output format of the generated files.
-    inputLogFile = None
-    summaryFormat = None
+    output_format = "TXT" # Default output format of the generated files.
+    input_log_file = None
+    summary_format = None
     output_files_short_prefix = None
     tracer = None
     aggregator = None
@@ -840,15 +843,15 @@ if __name__ == '__main__':
         elif anOpt in ("-s", "--summary"):
             mapParamsSummary = mapParamsSummary + [ aVal ] if aVal else []
         elif anOpt in ("-D", "--dockerfile"):
-            withDockerfile = True
+            with_docker_file = True
         elif anOpt in ("-p", "--pid"):
             aPid = int(aVal)
         elif anOpt in ("-f", "--format"):
-            outputFormat = aVal.upper()
+            output_format = aVal.upper()
         elif anOpt in ("-F", "--summary_format"):
-            summaryFormat = aVal.upper()
+            summary_format = aVal.upper()
         elif anOpt in ("-i", "--input"):
-            inputLogFile = aVal
+            input_log_file = aVal
         elif anOpt in ("-l", "--log"):
             output_files_short_prefix = aVal
         elif anOpt in ("-t", "--tracer"):
@@ -862,11 +865,11 @@ if __name__ == '__main__':
         else:
             assert False, "Unhandled option"
 
-    tracer = default_tracer(inputLogFile, tracer)
-    _start_processing(argsCmd, aPid, inputLogFile, tracer, output_files_short_prefix)
+    tracer = default_tracer(input_log_file, tracer)
+    _start_processing(argsCmd, aPid, input_log_file, tracer, output_files_short_prefix)
 
     # These information in JSON format on the last line
-    # are needed to use the generated file.
+    # are needed to find the name of the generated file.
     print('{"pid": "%d"}' % linux_api_definitions.G_topProcessId)
 
 ################################################################################
