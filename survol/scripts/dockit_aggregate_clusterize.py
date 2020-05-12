@@ -60,20 +60,19 @@ class BatchLetSequence(linux_api_definitions.BatchLetBase, object):
         super( BatchLetSequence,self).__init__(batchCore,style)
 
 
-
 # This is an execution flow, associated to a process. And a thread ?
 class BatchFlow:
     def __init__(self):
 
         self.m_listBatchLets = []
-        self.m_coroutine = self.__AddingCoroutine()
+        self.m_coroutine = self.__adding_coroutine()
         next(self.m_coroutine)
 
     # It processes system calls on-the-fly without intermediate storage.
-    def SendBatch(self, btchLet):
+    def append_batch_to_flow(self, btchLet):
         self.m_coroutine.send(btchLet)
 
-    def __AddingCoroutine(self):
+    def __adding_coroutine(self):
         lstBatch = None
         while True:
             btchLet = yield
@@ -89,7 +88,7 @@ class BatchFlow:
 
     # This removes matched batches (Formerly unfinished calls which were matched to the resumed part)
     # when the merged batches (The resumed calls) comes immediately after.
-    def __FilterMatchedBatches(self):
+    def __filter_matched_batches(self):
         lenBatch = len(self.m_listBatchLets)
 
         numSubst = 0
@@ -133,7 +132,7 @@ class BatchFlow:
     # Used to replace these common pairs by an aggregate call.
     # See https://en.wikipedia.org/wiki/N-gram about bigrams.
     # About statistics: https://books.google.com/ngrams/info
-    def __StatisticsBigrams(self):
+    def __statistics_bigrams(self):
 
         lenBatch = len(self.m_listBatchLets)
 
@@ -156,10 +155,10 @@ class BatchFlow:
 
     # This examines pairs of consecutive calls with their arguments, and if a pair
     # occurs often enough, it is replaced by a single BatchLetSequence which represents it.
-    def __ClusterizeBigrams(self):
+    def __clusterize_bigrams(self):
         lenBatch = len(self.m_listBatchLets)
 
-        mapOccurences = self.__StatisticsBigrams()
+        mapOccurences = self.__statistics_bigrams()
 
         numSubst = 0
         idxBatch = 0
@@ -195,7 +194,7 @@ class BatchFlow:
         return numSubst
 
     # Successive calls which have the same arguments are clusterized into logical entities.
-    def __ClusterizeBatchesByArguments(self):
+    def __clusterize_batches_by_arguments(self):
         lenBatch = len(self.m_listBatchLets)
 
         numSubst = 0
@@ -228,54 +227,54 @@ class BatchFlow:
             idxBatch = idxLast + 1
         return numSubst
 
-    def __DumpFlowInternal(self, batchDump, extra_header=None):
-        batchDump.Header(extra_header)
+    def __dump_flow_internal(self, batchDump):
+        batchDump.flow_header()
         for aBtch in self.m_listBatchLets:
-            batchDump.DumpBatch(aBtch)
-        batchDump.Footer()
+            batchDump.dump_batch_to_stream(aBtch)
+        batchDump.flow_footer()
 
-    def __DumpFlowSimple(self, strm, batchConstructor):
+    def __dump_flow_simple(self, strm, batchConstructor):
         batchDump = batchConstructor(strm)
-        self.__DumpFlowInternal(batchDump)
+        self.__dump_flow_internal(batchDump)
 
-    def DumpFlowConstructor(self, batchDump, extra_header=None):
-        self.__DumpFlowInternal(batchDump)
+    def dump_flow_constructor(self, batchDump, flow_process_id=None):
+        self.__dump_flow_internal(batchDump)
 
-    def FactorizeOneFlow(self, verbose, batchConstructor):
+    def factorise_one_flow(self, verbose, batchConstructor):
 
-        if verbose > 1: self.__DumpFlowSimple(sys.stdout, batchConstructor)
+        if verbose > 1: self.__dump_flow_simple(sys.stdout, batchConstructor)
 
         if verbose > 0:
             sys.stdout.write("\n")
-            sys.stdout.write("FactorizeOneFlow lenBatch=%d\n" % (len(self.m_listBatchLets)))
-        numSubst = self.__FilterMatchedBatches()
+            sys.stdout.write("factorise_one_flow lenBatch=%d\n" % (len(self.m_listBatchLets)))
+        numSubst = self.__filter_matched_batches()
         if verbose > 0:
-            sys.stdout.write("FactorizeOneFlow numSubst=%d lenBatch=%d\n" % (numSubst, len(self.m_listBatchLets)))
+            sys.stdout.write("factorise_one_flow numSubst=%d lenBatch=%d\n" % (numSubst, len(self.m_listBatchLets)))
 
         idxLoops = 0
         while True:
             if verbose > 1:
-                self.__DumpFlowSimple(sys.stdout, batchConstructor)
+                self.__dump_flow_simple(sys.stdout, batchConstructor)
 
             if verbose > 0:
                 sys.stdout.write("\n")
-                sys.stdout.write("FactorizeOneFlow lenBatch=%d\n" % (len(self.m_listBatchLets)))
-            numSubst = self.__ClusterizeBigrams()
+                sys.stdout.write("factorise_one_flow lenBatch=%d\n" % (len(self.m_listBatchLets)))
+            numSubst = self.__clusterize_bigrams()
             if verbose > 0:
-                sys.stdout.write("FactorizeOneFlow numSubst=%d lenBatch=%d\n" % (numSubst, len(self.m_listBatchLets)))
+                sys.stdout.write("factorise_one_flow numSubst=%d lenBatch=%d\n" % (numSubst, len(self.m_listBatchLets)))
             if numSubst == 0:
                 break
             idxLoops += 1
 
-        if verbose > 1: self.__DumpFlowSimple(sys.stdout, batchConstructor)
+        if verbose > 1: self.__dump_flow_simple(sys.stdout, batchConstructor)
 
         if verbose > 0:
             sys.stdout.write("\n")
-            sys.stdout.write("FactorizeOneFlow lenBatch=%d\n" % (len(self.m_listBatchLets)))
-        numSubst = self.__ClusterizeBatchesByArguments()
+            sys.stdout.write("factorise_one_flow lenBatch=%d\n" % (len(self.m_listBatchLets)))
+        numSubst = self.__clusterize_batches_by_arguments()
         if verbose > 0:
             sys.stdout.write(
-                "FactorizeOneFlow numSubst=%d lenBatch=%d\n" % (numSubst, len(self.m_listBatchLets)))
+                "factorise_one_flow numSubst=%d lenBatch=%d\n" % (numSubst, len(self.m_listBatchLets)))
 
-        if verbose > 1: self.__DumpFlowSimple(sys.stdout, batchConstructor)
+        if verbose > 1: self.__dump_flow_simple(sys.stdout, batchConstructor)
 
