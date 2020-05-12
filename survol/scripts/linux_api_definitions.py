@@ -383,11 +383,14 @@ class BatchLetCore:
             self.m_retValue,
             BatchStatus.chrDisplayCodes[self.m_status])
 
+
 class ExceptionIsExit(Exception):
     pass
 
+
 class ExceptionIsSignal(Exception):
     pass
+
 
 def CreateBatchCore(oneLine,tracer):
 
@@ -497,14 +500,14 @@ class BatchLetBase(my_with_metaclass(BatchMeta)):
     def __str__(self):
         return self.m_core.m_funcNam
 
-    def SignificantArgs(self):
+    def get_significant_args(self):
         return self.m_significantArgs
 
     # This is used to detect repetitions.
-    def GetSignature(self):
+    def get_signature_without_args(self):
         return self.m_core.m_funcNam
 
-    def GetSignatureWithArgs(self):
+    def get_signature_with_args(self):
         try:
             # This is costly so we calculate it once only.
             return self.m_signatureWithArgs
@@ -513,21 +516,21 @@ class BatchLetBase(my_with_metaclass(BatchMeta)):
             return self.m_signatureWithArgs
 
     # This is very often used.
-    def StreamName(self, idx=0):
+    def get_stream_name(self, idx=0):
         aFil = self.STraceStreamToFile(self.m_core.m_parsedArgs[idx])
         return [aFil]
 
-    def SameCall(self, anotherBatch):
+    def is_same_call(self, anotherBatch):
         if self.m_core.m_funcNam != anotherBatch.m_core.m_funcNam:
             return False
 
-        return self.SameArguments(anotherBatch)
+        return self._has_same_arguments(anotherBatch)
 
     # This assumes that the function calls are the same.
     # It compares the arguments one by one.
-    def SameArguments(self, anotherBatch):
-        args1 = self.SignificantArgs()
-        args2 = anotherBatch.SignificantArgs()
+    def _has_same_arguments(self, anotherBatch):
+        args1 = self.get_significant_args()
+        args2 = anotherBatch.get_significant_args()
 
         # sys.stdout.write("%s args1=%s\n" % ( self.m_core.m_funcNam, str(args1)) )
         # sys.stdout.write("%s args2=%s\n" % ( anotherBatch.m_core.m_funcNam, str(args2)) )
@@ -751,7 +754,7 @@ class BatchLetSys_open(BatchLetBase, object):
             # If the open succeeds, the file actually opened might be different,
             # than the input argument. Example:
             # open("/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libc-2.25.so>
-            # Therefore the returned file should be SignificantArgs(),
+            # Therefore the returned file should be get_significant_args(),
             # not the input file.
             filObj = self.STraceStreamToFile(self.m_core.m_retValue)
         elif batchCore.m_tracer == "ltrace":
@@ -816,7 +819,7 @@ class BatchLetSys_close(BatchLetBase, object):
         # Maybe no need to record it if close is unsuccessful.
         # [pid 10624] 14:09:55.350002 close(2902) = -1 EBADF (Bad file descriptor) <0.000006>
         super(BatchLetSys_close, self).__init__(batchCore)
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
         aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
         aFilAcc.SetOpenTime(self.m_core.m_timeStart)
         if batchCore.m_retValue.find("EBADF") >= 0:
@@ -845,7 +848,7 @@ class BatchLetSys_read(BatchLetBase, object):
 
         super(BatchLetSys_read, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
         aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
 
         aFilAcc.SetRead(bytesRead, self.m_core.m_parsedArgs[1])
@@ -870,7 +873,7 @@ class BatchLetSys_preadx(BatchLetBase, object):
 
         bytesRead = ConvertBatchCoreRetValue(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
         aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
         aFilAcc.SetRead(bytesRead)
 
@@ -881,7 +884,7 @@ class BatchLetSys_pread64x(BatchLetBase, object):
 
         bytesRead = ConvertBatchCoreRetValue(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
         aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
         aFilAcc.SetRead(bytesRead, self.m_core.m_parsedArgs[1])
 
@@ -890,7 +893,7 @@ class BatchLetSys_write(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_write, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
         aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
 
         try:
@@ -905,7 +908,7 @@ class BatchLetSys_writev(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_writev, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
         aFilAcc = self.m_core.m_objectProcess.GetFileAccess(self.m_significantArgs[0])
 
         try:
@@ -963,7 +966,7 @@ class BatchLetSys_dup(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_dup, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
 
         self.m_significantArgs.append(self.STraceStreamToFile(self.m_core.m_retValue))
         # TODO: BEWARE, DUPLICATED ELEMENTS IN THE ARGUMENTS: SHOULD sort()+uniq()
@@ -974,7 +977,7 @@ class BatchLetSys_dup2(BatchLetBase, object):
         super(BatchLetSys_dup2, self).__init__(batchCore)
 
         # TODO: After that, the second file descriptor points to the first one.
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
 
 
 ##### Memory system calls.
@@ -990,7 +993,7 @@ class BatchLetSys_mmap(BatchLetBase, object):
             return
         super(BatchLetSys_mmap, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName(4)
+        self.m_significantArgs = self.get_stream_name(4)
 
 
 class BatchLetSys_munmap(BatchLetBase, object):
@@ -1009,7 +1012,7 @@ class BatchLetSys_mmap2(BatchLetBase, object):
             return
         super(BatchLetSys_mmap2, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName(4)
+        self.m_significantArgs = self.get_stream_name(4)
 
 
 ##### File system calls.
@@ -1021,35 +1024,35 @@ class BatchLetSys_fstat(BatchLetBase, object):
             return
         super(BatchLetSys_fstat, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
 
 
 class BatchLetSys_fstat64(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_fstat64, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
 
 
 class BatchLetSys_fstatfs(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_fstatfs, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
 
 
 class BatchLetSys_fadvise64(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_fadvise64, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
 
 
 class BatchLetSys_fchdir(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_fchdir, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
 
         # This also stores the new current directory in the process.
         self.m_core.m_objectProcess.SetProcessCurrentDir(self.m_significantArgs[0])
@@ -1059,42 +1062,42 @@ class BatchLetSys_fcntl(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_fcntl, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
 
 
 class BatchLetSys_fcntl64(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_fcntl64, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
 
 
 class BatchLetSys_fchown(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_fchown, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
 
 
 class BatchLetSys_ftruncate(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_ftruncate, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
 
 
 class BatchLetSys_fsync(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_fsync, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
 
 
 class BatchLetSys_fchmod(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_fchmod, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
 
 
 ##### Process system calls.
@@ -1160,7 +1163,7 @@ class BatchLetSys_clone(BatchLetBase, object):
         objNewProcess.AddParentProcess(self.m_core.m_timeStart, self.m_core.m_objectProcess)
 
     # Process creations are not aggregated, not to lose the new pid.
-    def SameCall(self, anotherBatch):
+    def is_same_call(self, anotherBatch):
         return False
 
 
@@ -1188,7 +1191,7 @@ class BatchLetSys_vfork(BatchLetBase, object):
         objNewProcess.AddParentProcess(self.m_core.m_timeStart, self.m_core.m_objectProcess)
 
     # Process creations are not aggregated, not to lose the new pid.
-    def SameCall(self, anotherBatch):
+    def is_same_call(self, anotherBatch):
         return False
 
 
@@ -1236,7 +1239,7 @@ class BatchLetSys_execve(BatchLetBase, object):
         # TODO: Specifically filter the creation of a new process.
 
     # Process creations or setup are not aggregated.
-    def SameCall(self, anotherBatch):
+    def is_same_call(self, anotherBatch):
         return False
 
 
@@ -1262,7 +1265,7 @@ class BatchLetLib___libc_start_main(BatchLetBase, object):
         objNewDataFile.SetIsExecuted()
 
     # Process creations or setup are not aggregated.
-    def SameCall(self, anotherBatch):
+    def is_same_call(self, anotherBatch):
         return False
 
 
@@ -1339,14 +1342,14 @@ class BatchLetSys_getdents(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_getdents, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
 
 
 class BatchLetSys_getdents64(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_getdents64, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
 
 
 ##### Sockets system calls.
@@ -1355,7 +1358,7 @@ class BatchLetSys_sendmsg(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_sendmsg, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
 
 
 # sendmmsg(3<socket:[535040600]>, {{{msg_name(0)=NULL, msg_iov(1)=[{"\270\32\1\0\0\1\0\0
@@ -1363,14 +1366,14 @@ class BatchLetSys_sendmmsg(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_sendmmsg, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
 
 
 class BatchLetSys_recvmsg(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_recvmsg, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
 
 
 # recvfrom(3<socket:[535040600]>, "\270\32\201\203\0\1\0\0\0\1\0\0\
@@ -1378,7 +1381,7 @@ class BatchLetSys_recvfrom(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_recvfrom, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
 
 
 # getsockname(1<TCPv6:[::ffff:54.36.162.150:21->::ffff:82.45.12.63:63703]>, {sa_family=AF_INET6, sin6_port=htons(21), inet_pton(AF_INET6, "::ffff:54.36.162.150", &sin6_addr), sin6_flowinfo=htonl(0), sin6_scope_id=0}, [28]) = 0 <0.000008>
@@ -1386,7 +1389,7 @@ class BatchLetSys_getsockname(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_getsockname, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
 
 
 # getpeername(1<TCPv6:[::ffff:54.36.162.150:21->::ffff:82.45.12.63:63703]>, {sa_family=AF_INET6, sin6_port=htons(63703), inet_pton(AF_INET6, "::ffff:82.45.12.63", &sin6_addr), sin6_flowinfo=htonl(0), sin6_scope_id=0}, [28]) = 0 <0.000007>
@@ -1394,7 +1397,7 @@ class BatchLetSys_getpeername(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_getpeername, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
 
 
 # ['[{fd=5<UNIX:[73470->73473]>, events=POLLIN}]', '1', '25000'] ==>> 1 ([{fd=5, revents=POLLIN}])
@@ -1534,7 +1537,7 @@ class BatchLetSys_sendto(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_sendto, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
 
 
 # TODO: If the return value is not zero, maybe reject.
@@ -1567,7 +1570,7 @@ class BatchLetSys_shutdown(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_shutdown, self).__init__(batchCore)
 
-        self.m_significantArgs = self.StreamName()
+        self.m_significantArgs = self.get_stream_name()
 
 
 #####
@@ -1749,7 +1752,7 @@ G_stackUnfinishedBatches = None
 # This executes a Linux command and returns the stderr pipe.
 # It is used to get the return content of strace or ltrace,
 # so it can be parsed.
-def _GenerateLinuxStreamFromCommand(raw_command, aPid):
+def _generate_linux_stream_from_command(raw_command, aPid):
     def quote_argument(elt):
         # Quotes in command-line arguments must be escaped.
         elt = str(elt).replace('"', '\\"').replace("'", "\\'")
@@ -1964,7 +1967,7 @@ class STraceTracer:
             logging.info("Command " + " ".join(external_command))
         else:
             logging.info("Process %s\n" % aPid)
-        return _GenerateLinuxStreamFromCommand(trace_command, aPid)
+        return _generate_linux_stream_from_command(trace_command, aPid)
 
     def create_flows_from_calls_stream(self, verbose, logStream):
         return _create_flows_from_generic_linux_log(verbose, logStream, "strace")
@@ -2013,7 +2016,7 @@ class LTraceTracer:
             logging.info("Command " + " ".join(external_command))
         else:
             logging.info("Process %s\n" % aPid)
-        return _GenerateLinuxStreamFromCommand(trace_command, aPid)
+        return _generate_linux_stream_from_command(trace_command, aPid)
 
     # The output log format of ltrace is very similar to strace's, except that:
     # - The system calls are suffixed with "@SYS" or prefixed with "SYS_"

@@ -13,7 +13,7 @@ else:
     from . import linux_api_definitions
 
 def _SignatureForRepetitions(batchRange):
-    return "+".join( [ aBtch.GetSignatureWithArgs() for aBtch in batchRange ] )
+    return "+".join( [ aBtch.get_signature_with_args() for aBtch in batchRange ] )
 
 # This groups several contiguous BatchLet which form a logical operation.
 # For example (If the argument is factorised).:
@@ -32,20 +32,20 @@ class BatchLetSequence(linux_api_definitions.BatchLetBase, object):
         batchCore = linux_api_definitions.BatchLetCore()
 
         # TODO: Instead of a string, this could be a tuple because it is hashable.
-        concatSigns = "+".join( [ btch.GetSignature() for btch in arrBatch ] )
+        concatSigns = "+".join( [ btch.get_signature_without_args() for btch in arrBatch ] )
         batchCore.m_funcNam = "(" + concatSigns + ")"
 
         batchCore.m_status = linux_api_definitions.BatchStatus.sequence
 
         # sys.stdout.write("BatchLetSequence concatSigns=%s\n"%concatSigns)
 
-        # This is returned by the method SignificantArgs()
+        # This is returned by the method get_significant_args()
 
         # Cannot use a set because lists are not hashable, and objects always different.
         # Because there are very few arguments, it is allright to iterate on each list.
         argsArray = []
         for btch in arrBatch:
-            for oneArg in btch.SignificantArgs():
+            for oneArg in btch.get_significant_args():
                 if not oneArg in argsArray:
                     argsArray.append( oneArg )
         batchCore.m_parsedArgs = argsArray
@@ -77,7 +77,7 @@ class BatchFlow:
         while True:
             btchLet = yield
 
-            if lstBatch and lstBatch.SameCall(btchLet):
+            if lstBatch and lstBatch.is_same_call(btchLet):
                 # This is a compression: Similar and consecutive calls are stored once only.
                 lstBatch.m_occurrences += 1
             else:
@@ -175,7 +175,7 @@ class BatchFlow:
                 batchSequence = BatchLetSequence(batchRange, "Rept")
 
                 # Maybe it is the same as the previous element, if this is a periodic pattern.
-                if batchSeqPrev and batchSequence.SameCall(batchSeqPrev):
+                if batchSeqPrev and batchSequence.is_same_call(batchSeqPrev):
                     # Simply reuse the previous batch.
                     batchSeqPrev.m_occurrences += 1
                     del self.m_listBatchLets[idxBatch: idxBatch + 2]
@@ -203,7 +203,7 @@ class BatchFlow:
         while idxBatch <= lenBatch:
             if idxBatch < lenBatch:
                 lastBatch = self.m_listBatchLets[idxLast]
-                lastArgs = lastBatch.SignificantArgs()
+                lastArgs = lastBatch.get_significant_args()
                 if not lastArgs:
                     idxLast += 1
                     idxBatch += 1
@@ -211,7 +211,7 @@ class BatchFlow:
 
                 currentBatch = self.m_listBatchLets[idxBatch]
 
-                if currentBatch.SignificantArgs() == lastArgs:
+                if currentBatch.get_significant_args() == lastArgs:
                     idxBatch += 1
                     continue
 
