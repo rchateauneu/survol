@@ -13,9 +13,15 @@ import shutil
 import rdflib
 import subprocess
 
-dockit_output_files_path = os.path.join( os.path.dirname(__file__), "dockit_output_files" )
+# In pytest, __file__ is abolute, but this is relative with unittest.
+_current_file_dirname = os.path.abspath(os.path.dirname(__file__))
+
+dock_input_files_path = os.path.join(_current_file_dirname, "dockit_input_test_trace_files")
+
+dockit_output_files_path = os.path.join(_current_file_dirname, "dockit_output_files")
+
 # This is the expected content of some generated files.
-dockit_output_files_path_expected = os.path.join( os.path.dirname(__file__), "dockit_output_files_expected" )
+dockit_output_files_path_expected = os.path.join(_current_file_dirname, "dockit_output_files_expected")
 
 # Creates the destination file for result if not there, otherwise cleanup.
 # This is needed otherwise pytest would run the Python files in this dir.
@@ -75,14 +81,9 @@ def check_file_content(*file_path):
     except IOError:
         print("INFO: No comparison file:", expected_file_path)
 
-
-dock_input_files_path = os.path.join( os.path.dirname(__file__), "dockit_input_test_trace_files" )
-
 def path_prefix_input_file(*file_path):
     # Travis and PyCharm do not start this unit tests script from the same directory.
     # The test files are alongside the script.
-    # input_test_files_dir = os.path.dirname(__file__)
-
     return os.path.join( dock_input_files_path, *file_path )
 
 print("path=",sys.path)
@@ -214,7 +215,7 @@ class CommandLineTest(unittest.TestCase):
     @staticmethod
     def run_command(one_command):
         # __file__ could be 'C:\\Python27\\lib\\site-packages\\survol\\scripts\\dockit.pyc'
-        dockit_dirname = os.path.dirname(dockit.__file__)
+        dockit_dirname = os.path.abspath(os.path.dirname(dockit.__file__))
 
         if is_platform_linux:
             dockit_command = "cd %s;python dockit.py %s" % (dockit_dirname, one_command)
