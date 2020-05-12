@@ -345,7 +345,7 @@ class BatchDumperTXT(BatchDumperBase):
             batchLet.m_style,
             linux_api_definitions.BatchStatus.chrDisplayCodes[batchLet.m_core.m_status],
             batchLet.m_core.m_funcNam,
-            batchLet.SignificantArgs(),
+            batchLet.get_significant_args(),
             batchLet.m_core.m_retValue,
             FmtTim(batchLet.m_core.m_timeStart),
             FmtTim(batchLet.m_core.m_timeEnd) ) )
@@ -367,7 +367,7 @@ class BatchDumperCSV(BatchDumperBase):
             batchLet.m_style,
             batchLet.m_core.m_status,
             batchLet.m_core.m_funcNam,
-            batchLet.SignificantArgs(),
+            batchLet.get_significant_args(),
             batchLet.m_core.m_retValue,
             FmtTim(batchLet.m_core.m_timeStart),
             FmtTim(batchLet.m_core.m_timeEnd)))
@@ -407,7 +407,7 @@ class BatchDumperJSON(BatchDumperBase):
             batchLet.m_style,
             batchLet.m_core.m_status,
             batchLet.m_core.m_funcNam,
-            json.dumps([str(arg) for arg in batchLet.SignificantArgs()]),
+            json.dumps([str(arg) for arg in batchLet.get_significant_args()]),
             json.dumps(batchLet.m_core.m_retValue), # It may contain double-quotes
             FmtTim(batchLet.m_core.m_timeStart),
             FmtTim(batchLet.m_core.m_timeEnd)))
