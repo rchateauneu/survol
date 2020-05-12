@@ -647,11 +647,11 @@ def _batchlet_factory(batchCore):
             btchLetDrv = BatchLetBase(batchCore)
 
             # To match later with the "resumed" line.
-            G_stackUnfinishedBatches.PushBatch(batchCore)
+            G_stackUnfinishedBatches.push_unfinished_batch(batchCore)
     elif batchCore.m_status == BatchStatus.resumed:
         # We should have the "unfinished" part somewhere.
 
-        batchCoreMerged = G_stackUnfinishedBatches.MergePopBatch(batchCore)
+        batchCoreMerged = G_stackUnfinishedBatches.merge_pop_resumed_batch(batchCore)
 
         if batchCoreMerged:
             assert batchCoreMerged == batchCore
