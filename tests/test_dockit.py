@@ -317,7 +317,7 @@ class CommandLineTest(unittest.TestCase):
 
         with open(output_file_path) as output_file_descriptor:
             output_file_content = output_file_descriptor.readlines()
-
+        print("output_file_content=", output_file_content)
         self.assertTrue(output_file_content == expected_output)
 
     def test_replay_sqlplus_strace(self):
