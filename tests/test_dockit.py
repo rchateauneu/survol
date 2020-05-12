@@ -301,18 +301,18 @@ class CommandLineTest(unittest.TestCase):
         output_file_path = output_prefix + ".strace.4401.txt"
 
         expected_output = [
-            "================== PID=18198\n",
-            "Number of function calls: 29\n",
-            "================== PID=18196\n",
-            "Number of function calls: 84\n",
-            "================== PID=18195\n",
-            "Number of function calls: 2754\n",
-            "================== PID=18194\n",
-            "Number of function calls: 77\n",
-            "================== PID=18193\n",
-            "Number of function calls: 12\n",
-            "================== PID=4401\n",
-            "Number of function calls: 66\n",
+            "calls_number:29\n",
+            "process_id:18198\n",
+            "calls_number:84\n",
+            "process_id:18196\n",
+            "calls_number:2754\n",
+            "process_id:18195\n",
+            "calls_number:77\n",
+            "process_id:18194\n",
+            "calls_number:12\n",
+            "process_id:18193\n",
+            "calls_number:66\n",
+            "process_id:4401\n",
         ]
 
         with open(output_file_path) as output_file_descriptor:

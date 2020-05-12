@@ -317,23 +317,27 @@ def FmtTim(aTim):
     return aTim
 
 class BatchDumperBase:
-    def DocumentStart(self):
+    def document_start(self):
         return
 
-    def DocumentEnd(self):
+    def document_end(self):
         return
 
-    def Header(self, extra_header):
+    def flow_header(self, **flow_kwargs):
         return
 
-    def Footer(self):
+    def flow_footer(self):
         return
 
 class BatchDumperTXT(BatchDumperBase):
     def __init__(self, strm):
         self.m_strm = strm
 
-    def DumpBatch(self,batchLet):
+    def flow_header(self, **flow_kwargs):
+        for flow_key, flow_value in flow_kwargs.items():
+            self.m_strm.write("%s:%s\n" % (flow_key, flow_value))
+
+    def dump_batch_to_stream(self,batchLet):
         self.m_strm.write("Pid=%6d {%4d/%s}%1s'%-20s' %s ==>> %s (%s,%s)\n" %(
             batchLet.m_core.m_pid,
             batchLet.m_occurrences,
@@ -349,12 +353,12 @@ class BatchDumperCSV(BatchDumperBase):
     def __init__(self, strm):
         self.m_strm = strm
 
-    def Header(self, extra_header):
-        if extra_header:
-            self.m_strm.write("%s\n" % extra_header)
+    def flow_header(self, **flow_kwargs):
+        for flow_key, flow_value in flow_kwargs.items():
+            self.m_strm.write("%s:%s\n" % (flow_key, flow_value))
         self.m_strm.write("Pid,Occurrences,Style,Function,Arguments,Return,Start,End\n")
 
-    def DumpBatch(self, batchLet):
+    def dump_batch_to_stream(self, batchLet):
         self.m_strm.write("%d,%d,%s,%s,%s,%s,%s,%s,%s\n" % (
             batchLet.m_core.m_pid,
             batchLet.m_occurrences,
@@ -371,19 +375,19 @@ class BatchDumperJSON(BatchDumperBase):
     def __init__(self, strm):
         self.m_strm = strm
 
-    def DocumentStart(self):
+    def document_start(self):
         self.m_strm.write('[\n')
         self.m_top_delimiter = ""
 
-    def DocumentEnd(self):
+    def document_end(self):
         self.m_strm.write(']\n')
 
-    def Header(self, extra_header):
+    def flow_header(self, **flow_kwargs):
         self.m_strm.write(self.m_top_delimiter + '[\n')
         self.m_delimiter = ""
         self.m_top_delimiter = ","
 
-    def DumpBatch(self, batchLet):
+    def dump_batch_to_stream(self, batchLet):
         self.m_strm.write(
             self.m_delimiter + '{\n'
             '   "pid" : %d,\n'
@@ -407,7 +411,7 @@ class BatchDumperJSON(BatchDumperBase):
             FmtTim(batchLet.m_core.m_timeEnd)))
         self.m_delimiter = ","
 
-    def Footer(self):
+    def flow_footer(self):
         self.m_strm.write(']\n')
 
 
@@ -567,20 +571,20 @@ def _calls_flow_class_factory(aggregator):
                 self.m_calls_number = 0
 
             # For each function call.
-            def SendBatch(self, oneBatch):
+            def append_batch_to_flow(self, oneBatch):
                 self.m_calls_number += 1
 
             # At the end.
-            def FactorizeOneFlow(self, verbose, batchConstructor):
+            def factorise_one_flow(self, verbose, batchConstructor):
                 pass
 
-            def DumpFlowConstructor(self, batchDump, extra_header=None):
-                batchDump.Header(extra_header)
+            def dump_flow_constructor(self, batchDump, flow_process_id=None):
+                batchDump.flow_header(process_id=flow_process_id, calls_number=self.m_calls_number)
                 # TODO: Reformat this information for JSON, TXT and CSV
                 # FIXME: extra_header is probably never used.
                 # batchDump.m_strm.write("%s\n" % extra_header)
                 # batchDump.m_strm.write("Number of function calls: %d\n" % self.m_calls_number)
-                batchDump.Footer()
+                batchDump.flow_footer()
 
         return BatchFlowVoid
 
@@ -631,13 +635,13 @@ def _create_map_flow_from_stream(
             calls_flow = CallsFlowClass()
             mapFlows[the_pid] = calls_flow
 
-        calls_flow.SendBatch(one_function_call)
+        calls_flow.append_batch_to_flow(one_function_call)
 
     for the_pid in sorted(list(mapFlows.keys()), reverse=True):
         calls_flow = mapFlows[the_pid]
         assert isinstance(calls_flow, CallsFlowClass)
         if verbose > 0: sys.stdout.write("\n------------------ PID=%d\n" % the_pid)
-        calls_flow.FactorizeOneFlow(verbose, batchConstructor)
+        calls_flow.factorise_one_flow(verbose, batchConstructor)
 
     _exit_globals()
     return mapFlows
@@ -685,12 +689,12 @@ def _analyse_functions_calls_stream(
         sys.stdout.write("Creating flow file:%s. %d flows\n" % (outFile, len(mapFlows)))
         output_stream = open(outFile, "w")
         batchDump = batchConstructor(output_stream)
-        batchDump.DocumentStart()
+        batchDump.document_start()
 
-        for aPid in sorted(list(mapFlows.keys()),reverse=True):
-            btchTree = mapFlows[aPid]
-            btchTree.DumpFlowConstructor(batchDump, "================== PID=%d"%aPid)
-        batchDump.DocumentEnd()
+        for flow_process_id in sorted(list(mapFlows.keys()),reverse=True):
+            btchTree = mapFlows[flow_process_id]
+            btchTree.dump_flow_constructor(batchDump, flow_process_id)
+        batchDump.document_end()
         sys.stdout.write("Closing flow file:%s\n" % outFile)
         output_stream.close()
 
