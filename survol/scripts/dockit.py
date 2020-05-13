@@ -746,24 +746,27 @@ def test_from_file(
     return output_summary_file
 
 
-def _start_processing(argsCmd, aPid, inputLogFile, tracer,
-                      output_files_short_prefix, with_warning, mapParamsSummary, verbose,
-                      output_format, summary_format,
-                      with_docker_file, aggregator):
+def _start_processing(global_parameters):
+    calls_stream = _create_calls_stream(
+        global_parameters.command_line,
+        global_parameters.input_process_id,
+        global_parameters.input_log_file,
+        global_parameters.tracer)
 
-    calls_stream = _create_calls_stream(argsCmd, aPid, inputLogFile, tracer)
-
-    if output_files_short_prefix:
-        output_files_prefix = "%s.%s.%s" % ( output_files_short_prefix, tracer, linux_api_definitions.G_topProcessId )
+    if global_parameters.output_files_short_prefix:
+        output_files_prefix = "%s.%s.%s" % (
+            global_parameters.output_files_short_prefix,
+            global_parameters.tracer,
+            linux_api_definitions.G_topProcessId)
 
         # tee: This just needs to reimplement "readline()"
         class TeeStream:
-            def __init__(self,logStrm):
-                self.m_logStrm = logStrm
+            def __init__(self, log_stream):
+                self.m_logStrm = log_stream
                 assert output_files_prefix[-1] != '.'
-                logFilNam = output_files_prefix + ".log"
-                self.m_outFd = open( logFilNam, "w" )
-                print("Creating log file:%s" % logFilNam )
+                log_fil_nam = output_files_prefix + ".log"
+                self.m_outFd = open( log_fil_nam, "w" )
+                print("Creating log file:%s" % log_fil_nam )
 
             def readline(self):
                 # sys.stdout.write("xxx\n" )
@@ -797,16 +800,16 @@ def _start_processing(argsCmd, aPid, inputLogFile, tracer,
 
     # In normal usage, the summary output format is the same as the output format for calls.
     _analyse_functions_calls_stream(
-        verbose,
-        with_warning,
+        global_parameters.verbose,
+        global_parameters.with_warning,
         calls_stream,
-        tracer,
-        output_format,
+        global_parameters.tracer,
+        global_parameters.output_format,
         output_files_prefix,
-        mapParamsSummary,
-        summary_format,
-        with_docker_file,
-        aggregator)
+        global_parameters.map_params_summary,
+        global_parameters.summary_format,
+        global_parameters.with_docker_file,
+        global_parameters.aggregator)
 
 if __name__ == '__main__':
     class G_parameters:
@@ -872,19 +875,8 @@ if __name__ == '__main__':
             assert False, "Unhandled option"
 
     G_parameters.tracer = default_tracer(G_parameters.input_log_file, G_parameters.tracer)
-    _start_processing(
-        G_parameters.command_line,
-        G_parameters.input_process_id,
-        G_parameters.input_log_file,
-        G_parameters.tracer,
-        G_parameters.output_files_short_prefix,
-        G_parameters.with_warning,
-        G_parameters.map_params_summary,
-        G_parameters.verbose,
-        G_parameters.output_format,
-        G_parameters.summary_format,
-        G_parameters.with_docker_file,
-        G_parameters.aggregator)
+
+    _start_processing(G_parameters)
 
     # These information in JSON format on the last line
     # are needed to find the name of the generated file.
