@@ -350,6 +350,7 @@ class BatchDumperTXT(BatchDumperBase):
             FmtTim(batchLet.m_core.m_timeStart),
             FmtTim(batchLet.m_core.m_timeEnd) ) )
 
+
 class BatchDumperCSV(BatchDumperBase):
     def __init__(self, strm):
         self.m_strm = strm
@@ -371,6 +372,7 @@ class BatchDumperCSV(BatchDumperBase):
             batchLet.m_core.m_retValue,
             FmtTim(batchLet.m_core.m_timeStart),
             FmtTim(batchLet.m_core.m_timeEnd)))
+
 
 # TODO: Must use json package.
 class BatchDumperJSON(BatchDumperBase):
@@ -613,7 +615,7 @@ def _create_map_flow_from_stream(
 
     _init_globals(withWarning)
 
-    mapFlows = {}
+    map_flows = {}
 
     CallsFlowClass = _calls_flow_class_factory(aggregator)
 
@@ -622,31 +624,31 @@ def _create_map_flow_from_stream(
     # line for the same call.
     # Some calls, for some reason, might stay "unfinished": Though,
     # they are still needed to rebuild the processes tree.
-    mapFlowsGenerator = G_traceToTracer[tracer].create_flows_from_calls_stream(verbose, calls_stream)
+    map_flows_generator = G_traceToTracer[tracer].create_flows_from_calls_stream(verbose, calls_stream)
 
     # Maybe, some system calls are unfinished, i.e. the "resumed" part of the call
     # is never seen. They might be matched later.
-    for one_function_call in mapFlowsGenerator:
+    for one_function_call in map_flows_generator:
         aCore = one_function_call.m_core
 
         the_pid = aCore.m_pid
         try:
-            calls_flow = mapFlows[the_pid]
+            calls_flow = map_flows[the_pid]
         except KeyError:
             # This is the first system call of this process.
             calls_flow = CallsFlowClass()
-            mapFlows[the_pid] = calls_flow
+            map_flows[the_pid] = calls_flow
 
         calls_flow.append_batch_to_flow(one_function_call)
 
-    for the_pid in sorted(list(mapFlows.keys()), reverse=True):
-        calls_flow = mapFlows[the_pid]
+    for the_pid in sorted(list(map_flows.keys()), reverse=True):
+        calls_flow = map_flows[the_pid]
         assert isinstance(calls_flow, CallsFlowClass)
         if verbose > 0: sys.stdout.write("\n------------------ PID=%d\n" % the_pid)
         calls_flow.factorise_one_flow(verbose, batchConstructor)
 
     _exit_globals()
-    return mapFlows
+    return map_flows
 
 ################################################################################
 
@@ -738,13 +740,13 @@ def test_from_file(
     # Check if there is a context file, which gives parameters such as the current directory,
     # necessary to reproduce the test in the same conditions.
 
-    outputSummaryFile = _analyse_functions_calls_stream(
+    output_summary_file = _analyse_functions_calls_stream(
         verbose, withWarning, calls_stream, tracer, outputFormat, output_files_prefix,
         mapParamsSummary, summaryFormat, withDockerfile, aggregator)
-    return outputSummaryFile
+    return output_summary_file
 
 
-def _start_processing(argsCmd, aPid, inputLogFile, tracer, output_files_short_prefix):
+def _start_processing(argsCmd, aPid, inputLogFile, tracer, output_files_short_prefix, with_warning, mapParamsSummary):
 
     calls_stream = _create_calls_stream(argsCmd, aPid, inputLogFile, tracer)
 
@@ -786,14 +788,14 @@ def _start_processing(argsCmd, aPid, inputLogFile, tracer, output_files_short_pr
             iniFd.write('CurrentOSType=%s\n' % sys.platform)
             iniFd.close()
     else:
-        output_files_prefix = "dockit_output_" + tracer
+        output_files_prefix = "dockit_output_" + global_parameters.tracer
 
     assert output_files_prefix[-1] != '.'
 
     # In normal usage, the summary output format is the same as the output format for calls.
     _analyse_functions_calls_stream(
         verbose,
-        withWarning,
+        with_warning,
         calls_stream,
         tracer,
         output_format,
@@ -804,69 +806,77 @@ def _start_processing(argsCmd, aPid, inputLogFile, tracer, output_files_short_pr
         aggregator)
 
 if __name__ == '__main__':
+    class G_parameters:
+        verbose = 0
+        with_warning = 0
+
+        # By default, generates all summaries. The filter syntax is based on CIM object pathes:
+        # -s 'Win32_LogicalDisk.DeviceID="C:",Prop="Value",Prop="Regex"'
+        # -s "CIM+_DataFile:Category=['Others','Shared libraries']"
+        #
+        # At the moment, the summary generates only two sorts of objects: CIM_Process and CIM_DataFile.
+        # mapParamsSummary = ["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"]
+        map_params_summary = full_map_params_summary
+
+        with_docker_file = None
+
+        input_process_id = -1
+        output_format = "TXT" # Default output format of the generated files.
+        input_log_file = None
+        summary_format = None
+        output_files_short_prefix = None
+        tracer = None
+        aggregator = None
+
     try:
-        optsCmd, argsCmd = getopt.getopt(sys.argv[1:],
+        command_options, G_parameters.command_line = getopt.getopt(sys.argv[1:],
                 "hvws:Dp:f:F:i:l:t:S:a:",
                 ["help","verbose","warning","summary=",
                  "dockerfile","pid=","format=","summary-format=","input=",
                  "log=","tracer=","server=","aggregator="])
     except getopt.GetoptError as err:
         # print help information and exit:
-        print_dockit_usage(2,err) # will print something like "option -a not recognized"
+        print_dockit_usage(2, err) # will print something like "option -a not recognized"
 
-    verbose = 0
-    withWarning = 0
-
-    # By default, generates all summaries. The filter syntax is based on CIM object pathes:
-    # -s 'Win32_LogicalDisk.DeviceID="C:",Prop="Value",Prop="Regex"'
-    # -s "CIM+_DataFile:Category=['Others','Shared libraries']"
-    #
-    # At the moment, the summary generates only two sorts of objects: CIM_Process and CIM_DataFile.
-    # mapParamsSummary = ["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"]
-    mapParamsSummary = full_map_params_summary
-
-    with_docker_file = None
-
-    aPid = -1
-    output_format = "TXT" # Default output format of the generated files.
-    input_log_file = None
-    summary_format = None
-    output_files_short_prefix = None
-    tracer = None
-    aggregator = None
-
-    for anOpt, aVal in optsCmd:
-        if anOpt in ("-v", "--verbose"):
-            verbose += 1
-        elif anOpt in ("-w", "--warning"):
-            withWarning += 1
-        elif anOpt in ("-s", "--summary"):
-            mapParamsSummary = mapParamsSummary + [ aVal ] if aVal else []
-        elif anOpt in ("-D", "--dockerfile"):
-            with_docker_file = True
-        elif anOpt in ("-p", "--pid"):
-            aPid = int(aVal)
-        elif anOpt in ("-f", "--format"):
-            output_format = aVal.upper()
-        elif anOpt in ("-F", "--summary_format"):
-            summary_format = aVal.upper()
-        elif anOpt in ("-i", "--input"):
-            input_log_file = aVal
-        elif anOpt in ("-l", "--log"):
-            output_files_short_prefix = aVal
-        elif anOpt in ("-t", "--tracer"):
-            tracer = aVal
-        elif anOpt in ("-S", "--server"):
-            cim_objects_definitions.G_UpdateServer = aVal
-        elif anOpt in ("-a", "--aggregator"):
-            aggregator = aVal
-        elif anOpt in ("-h", "--help"):
+    for an_option, a_value in command_options:
+        if an_option in ("-v", "--verbose"):
+            G_parameters.verbose += 1
+        elif an_option in ("-w", "--warning"):
+            G_parameters.with_warning += 1
+        elif an_option in ("-s", "--summary"):
+            G_parameters.map_params_summary = G_parameters.map_params_summary + [a_value] if a_value else []
+        elif an_option in ("-D", "--dockerfile"):
+            G_parameters.with_docker_file = True
+        elif an_option in ("-p", "--pid"):
+            G_parameters.input_process_id = int(a_value)
+        elif an_option in ("-f", "--format"):
+            G_parameters.output_format = a_value.upper()
+        elif an_option in ("-F", "--summary_format"):
+            G_parameters.summary_format = a_value.upper()
+        elif an_option in ("-i", "--input"):
+            G_parameters.input_log_file = a_value
+        elif an_option in ("-l", "--log"):
+            G_parameters.output_files_short_prefix = a_value
+        elif an_option in ("-t", "--tracer"):
+            G_parameters.tracer = a_value
+        elif an_option in ("-S", "--server"):
+            G_parameters.cim_objects_definitions.G_UpdateServer = a_value
+        elif an_option in ("-a", "--aggregator"):
+            G_parameters.aggregator = a_value
+        elif an_option in ("-h", "--help"):
             print_dockit_usage(0)
         else:
             assert False, "Unhandled option"
 
     tracer = default_tracer(input_log_file, tracer)
-    _start_processing(argsCmd, aPid, input_log_file, tracer, output_files_short_prefix)
+    _start_processing(
+        G_parameters.command_line,
+        G_parameters.input_process_id,
+        G_parameters.input_log_file,
+        G_parameters.tracer,
+        G_parameters.output_files_short_prefix,
+        G_parameters.with_warning,
+        G_parameters.map_params_summary)
 
     # These information in JSON format on the last line
     # are needed to find the name of the generated file.
