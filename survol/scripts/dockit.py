@@ -746,7 +746,10 @@ def test_from_file(
     return output_summary_file
 
 
-def _start_processing(argsCmd, aPid, inputLogFile, tracer, output_files_short_prefix, with_warning, mapParamsSummary):
+def _start_processing(argsCmd, aPid, inputLogFile, tracer,
+                      output_files_short_prefix, with_warning, mapParamsSummary, verbose,
+                      output_format, summary_format,
+                      with_docker_file, aggregator):
 
     calls_stream = _create_calls_stream(argsCmd, aPid, inputLogFile, tracer)
 
@@ -868,7 +871,7 @@ if __name__ == '__main__':
         else:
             assert False, "Unhandled option"
 
-    tracer = default_tracer(input_log_file, tracer)
+    G_parameters.tracer = default_tracer(G_parameters.input_log_file, G_parameters.tracer)
     _start_processing(
         G_parameters.command_line,
         G_parameters.input_process_id,
@@ -876,7 +879,12 @@ if __name__ == '__main__':
         G_parameters.tracer,
         G_parameters.output_files_short_prefix,
         G_parameters.with_warning,
-        G_parameters.map_params_summary)
+        G_parameters.map_params_summary,
+        G_parameters.verbose,
+        G_parameters.output_format,
+        G_parameters.summary_format,
+        G_parameters.with_docker_file,
+        G_parameters.aggregator)
 
     # These information in JSON format on the last line
     # are needed to find the name of the generated file.
