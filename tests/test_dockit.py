@@ -89,10 +89,11 @@ def path_prefix_input_file(*file_path):
 print("path=",sys.path)
 print("getcwd=",os.getcwd())
 
-from survol.scripts import dockit
-from survol.scripts import linux_api_definitions
-
 from init import *
+
+from survol.scripts import dockit
+# FIXME: It should be on Linux only.
+from survol.scripts import linux_api_definitions
 
 class LowLevelComponentsTest(unittest.TestCase):
     """
@@ -402,17 +403,17 @@ class SummaryXMLTest(unittest.TestCase):
         tempfil_strace.close()
 
         output_summary_file = dockit.test_from_file(
-            inputLogFile=tempfil_strace.name,
+            input_log_file=tempfil_strace.name,
             tracer="strace",
-            topPid=19351,
+            input_process_id=19351,
             output_files_prefix=None,
-            outputFormat=None,
+            output_format=None,
             verbose=False,
-            mapParamsSummary=dockit.full_map_params_summary,
-            summaryFormat="XML",
-            withWarning=False,
-            withDockerfile=False,
-            updateServer=None,
+            map_params_summary=dockit.full_map_params_summary,
+            summary_format="XML",
+            with_warning=False,
+            with_dockerfile=False,
+            update_server=None,
             aggregator=None)
 
         process_tree = SummaryXMLTest.rebuild_process_tree(output_summary_file)
@@ -474,17 +475,17 @@ class SummaryXMLTest(unittest.TestCase):
         tempfil_strace.close()
 
         output_summary_file = dockit.test_from_file(
-            inputLogFile=tempfil_strace.name,
+            input_log_file=tempfil_strace.name,
             tracer="strace",
-            topPid=22029,
+            input_process_id=22029,
             output_files_prefix=None,
-            outputFormat=None,
+            output_format=None,
             verbose=False,
-            mapParamsSummary=dockit.full_map_params_summary,
-            summaryFormat="XML",
-            withWarning=False,
-            withDockerfile=False,
-            updateServer = None,
+            map_params_summary=dockit.full_map_params_summary,
+            summary_format="XML",
+            with_warning=False,
+            with_dockerfile=False,
+            update_server= None,
             aggregator=None)
 
         sys.stdout.write("\nRebuilding tree\n")
@@ -550,17 +551,17 @@ class SummaryXMLTest(unittest.TestCase):
         tempfil_ltrace.close()
 
         output_summary_file = dockit.test_from_file(
-            inputLogFile=tempfil_ltrace.name,
+            input_log_file=tempfil_ltrace.name,
             tracer="ltrace",
-            topPid=21256,
+            input_process_id=21256,
             output_files_prefix=None,
-            outputFormat=None,
+            output_format=None,
             verbose=False,
-            mapParamsSummary=dockit.full_map_params_summary,
-            summaryFormat="XML",
-            withWarning=False,
-            withDockerfile=False,
-            updateServer=None,
+            map_params_summary=dockit.full_map_params_summary,
+            summary_format="XML",
+            with_warning=False,
+            with_dockerfile=False,
+            update_server=None,
             aggregator=None)
 
         sys.stdout.write("\nRebuilding tree\n")
@@ -583,17 +584,17 @@ class TraceFilesTest(unittest.TestCase):
 
     def test_file_strace_txt(self):
         dockit.test_from_file(
-            inputLogFile=path_prefix_input_file("sample_shell.strace.log"),
+            input_log_file=path_prefix_input_file("sample_shell.strace.log"),
             tracer="strace",
-            topPid=0,
+            input_process_id=0,
             output_files_prefix=path_prefix_output_result("sample_shell_strace_tst_txt"),
-            outputFormat="TXT",
+            output_format="TXT",
             verbose=True,
-            mapParamsSummary=["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"],
-            summaryFormat="TXT",
-            withWarning=False,
-            withDockerfile=False,
-            updateServer=None,
+            map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summary_format="TXT",
+            with_warning=False,
+            with_dockerfile=False,
+            update_server=None,
             aggregator="clusterize")
 
         check_file_content("sample_shell_strace_tst_txt.txt")
@@ -601,17 +602,17 @@ class TraceFilesTest(unittest.TestCase):
 
     def test_file_strace_csv_docker(self):
         dockit.test_from_file(
-            inputLogFile=path_prefix_input_file("sample_shell.strace.log"),
+            input_log_file=path_prefix_input_file("sample_shell.strace.log"),
             tracer="strace",
-            topPid=0,
+            input_process_id=0,
             output_files_prefix=path_prefix_output_result("sample_shell_strace_tst_csv"),
-            outputFormat="CSV",
+            output_format="CSV",
             verbose=True,
-            mapParamsSummary=["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"],
-            summaryFormat="XML",
-            withWarning=False,
-            withDockerfile=True,
-            updateServer=None,
+            map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summary_format="XML",
+            with_warning=False,
+            with_dockerfile=True,
+            update_server=None,
             aggregator="clusterize")
 
         check_file_content("sample_shell_strace_tst_csv.csv")
@@ -621,17 +622,17 @@ class TraceFilesTest(unittest.TestCase):
     def test_file_strace_json(self):
 
         dockit.test_from_file(
-            inputLogFile=path_prefix_input_file("sample_shell.strace.log"),
+            input_log_file=path_prefix_input_file("sample_shell.strace.log"),
             tracer="strace",
-            topPid=0,
+            input_process_id=0,
             output_files_prefix=path_prefix_output_result("sample_shell_strace_tst_json"),
-            outputFormat="JSON",
+            output_format="JSON",
             verbose=True,
-            mapParamsSummary=["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"],
-            summaryFormat="TXT",
-            withWarning=False,
-            withDockerfile=False,
-            updateServer=None,
+            map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summary_format="TXT",
+            with_warning=False,
+            with_dockerfile=False,
+            update_server=None,
             aggregator="clusterize")
 
         check_file_content("sample_shell_strace_tst_json.json")
@@ -639,17 +640,17 @@ class TraceFilesTest(unittest.TestCase):
 
     def test_file_ltrace_docker(self):
         dockit.test_from_file(
-            inputLogFile = path_prefix_input_file("sample_shell.ltrace.log"),
+            input_log_file= path_prefix_input_file("sample_shell.ltrace.log"),
             tracer="ltrace",
-            topPid=0,
+            input_process_id=0,
             output_files_prefix= path_prefix_output_result("sample_shell_ltrace_tst_docker"),
-            outputFormat="JSON",
+            output_format="JSON",
             verbose=True,
-            mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
-            summaryFormat="TXT",
-            withWarning=False,
-            withDockerfile=True,
-            updateServer=None,
+            map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summary_format="TXT",
+            with_warning=False,
+            with_dockerfile=True,
+            update_server=None,
             aggregator="clusterize")
 
         check_file_content("sample_shell_ltrace_tst_docker.json")
@@ -684,17 +685,17 @@ class TraceFilesTest(unittest.TestCase):
                 for outputFormat in ["JSON"]:
                     # In tests, the summary output format is always XML.
                     dockit.test_from_file(
-                        inputLogFile=inputLogFile,
+                        input_log_file=inputLogFile,
                         tracer=tracer,
-                        topPid=-1,
+                        input_process_id=-1,
                         output_files_prefix=path_prefix_output_result(baseName),
-                        outputFormat=outputFormat,
+                        output_format=outputFormat,
                         verbose=False,
-                        mapParamsSummary=dockit.full_map_params_summary,
-                        summaryFormat="TXT",
-                        withWarning=False,
-                        withDockerfile=True,
-                        updateServer=None,
+                        map_params_summary=dockit.full_map_params_summary,
+                        summary_format="TXT",
+                        with_warning=False,
+                        with_dockerfile=True,
+                        update_server=None,
                         aggregator="clusterize")
 
 class RunningLinuxProcessesTest(unittest.TestCase):
@@ -716,17 +717,17 @@ class RunningLinuxProcessesTest(unittest.TestCase):
         # Avoids exception: "UnsupportedOperation: redirected stdin is pseudofile, has no fileno()"
         sys.stdin = open(os.devnull)
         dockit.test_from_file(
-            inputLogFile = None,
+            input_log_file= None,
             tracer="strace",
-            topPid=sub_proc.pid,
+            input_process_id=sub_proc.pid,
             output_files_prefix=path_prefix_output_result("result_ls_strace"),
-            outputFormat="TXT",
+            output_format="TXT",
             verbose=True,
-            mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
-            summaryFormat="TXT",
-            withWarning=False,
-            withDockerfile=False,
-            updateServer=None,
+            map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summary_format="TXT",
+            with_warning=False,
+            with_dockerfile=False,
+            update_server=None,
             aggregator="clusterize")
 
         sub_proc.communicate()
@@ -743,17 +744,17 @@ class StoreToRDF(unittest.TestCase):
 
     def test_create_RDF_file(self):
         dockit.test_from_file(
-            inputLogFile=path_prefix_input_file("sample_shell.ltrace.log"),
+            input_log_file=path_prefix_input_file("sample_shell.ltrace.log"),
             tracer="ltrace",
-            topPid=0,
+            input_process_id=0,
             output_files_prefix=path_prefix_output_result("sample_shell_ltrace_tst_create_RDF"),
-            outputFormat="JSON",
+            output_format="JSON",
             verbose=True,
-            mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
-            summaryFormat="TXT",
-            withWarning=False,
-            withDockerfile=False,
-            updateServer = path_prefix_output_result("sample_shell_ltrace_tst_create_RDF.rdf"),
+            map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summary_format="TXT",
+            with_warning=False,
+            with_dockerfile=False,
+            update_server= path_prefix_output_result("sample_shell_ltrace_tst_create_RDF.rdf"),
             aggregator="clusterize")
 
         check_file_content("sample_shell_ltrace_tst_create_RDF.json")
@@ -811,17 +812,17 @@ class EventsServerTest(unittest.TestCase):
 
     def test_file_events_ps_ef(self):
         dockit.test_from_file(
-            inputLogFile = path_prefix_input_file("dockit_ps_ef.strace.log"),
+            input_log_file= path_prefix_input_file("dockit_ps_ef.strace.log"),
             tracer="strace",
-            topPid=0,
+            input_process_id=0,
             output_files_prefix= path_prefix_output_result("dockit_events_ps_ef.strace"),
-            outputFormat="JSON",
+            output_format="JSON",
             verbose=False,
-            mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
-            summaryFormat="TXT",
-            withWarning=False,
-            withDockerfile=False,
-            updateServer=RemoteEventsTestAgent + "/survol/event_put.py",
+            map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summary_format="TXT",
+            with_warning=False,
+            with_dockerfile=False,
+            update_server=RemoteEventsTestAgent + "/survol/event_put.py",
             aggregator="clusterize")
 
         check_file_content("dockit_events_ps_ef.strace.json")
@@ -845,17 +846,17 @@ class EventsServerTest(unittest.TestCase):
     @unittest.skipIf(is_platform_windows and is_py3 and not is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS AND LOCAL. WHY ??")
     def test_file_events_shell(self):
         dockit.test_from_file(
-            inputLogFile = path_prefix_input_file("dockit_sample_shell.ltrace.log"),
+            input_log_file= path_prefix_input_file("dockit_sample_shell.ltrace.log"),
             tracer="ltrace",
-            topPid=0,
+            input_process_id=0,
             output_files_prefix= path_prefix_output_result("dockit_events_sample_shell.ltrace"),
-            outputFormat="JSON",
+            output_format="JSON",
             verbose=False,
-            mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
-            summaryFormat="TXT",
-            withWarning=False,
-            withDockerfile=False,
-            updateServer=RemoteEventsTestAgent + "/survol/event_put.py",
+            map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summary_format="TXT",
+            with_warning=False,
+            with_dockerfile=False,
+            update_server=RemoteEventsTestAgent + "/survol/event_put.py",
             aggregator="clusterize")
 
         check_file_content("dockit_events_sample_shell.ltrace.json")
@@ -875,17 +876,17 @@ class EventsServerTest(unittest.TestCase):
     @unittest.skipIf(is_platform_windows and is_py3 and not is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS AND LOCAL. WHY ??")
     def test_file_events_proftpd(self):
         dockit.test_from_file(
-            inputLogFile = path_prefix_input_file("dockit_proftpd.strace.26299.log"),
+            input_log_file= path_prefix_input_file("dockit_proftpd.strace.26299.log"),
             tracer="strace",
-            topPid=0,
+            input_process_id=0,
             output_files_prefix= path_prefix_output_result("dockit_events_proftpd.strace.26299"),
-            outputFormat="JSON",
+            output_format="JSON",
             verbose=False,
-            mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
-            summaryFormat="TXT",
-            withWarning=False,
-            withDockerfile=False,
-            updateServer=RemoteEventsTestAgent + "/survol/event_put.py",
+            map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summary_format="TXT",
+            with_warning=False,
+            with_dockerfile=False,
+            update_server=RemoteEventsTestAgent + "/survol/event_put.py",
             aggregator="clusterize")
 
         check_file_content("dockit_events_proftpd.strace.26299.json")
@@ -905,17 +906,17 @@ class EventsServerTest(unittest.TestCase):
     @unittest.skipIf(is_platform_windows and is_py3 and not is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS AND LOCAL. WHY ??")
     def test_file_events_firefox    (self):
         dockit.test_from_file(
-            inputLogFile = path_prefix_input_file("firefox_google.strace.22501.log"),
+            input_log_file= path_prefix_input_file("firefox_google.strace.22501.log"),
             tracer="strace",
-            topPid=0,
+            input_process_id=0,
             output_files_prefix= path_prefix_output_result("firefox_events_google.strace.22501"),
-            outputFormat="JSON",
+            output_format="JSON",
             verbose=False,
-            mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
-            summaryFormat="TXT",
-            withWarning=False,
-            withDockerfile=False,
-            updateServer=RemoteEventsTestAgent + "/survol/event_put.py",
+            map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summary_format="TXT",
+            with_warning=False,
+            with_dockerfile=False,
+            update_server=RemoteEventsTestAgent + "/survol/event_put.py",
             aggregator="clusterize")
 
         check_file_content("firefox_events_google.strace.22501.json")
