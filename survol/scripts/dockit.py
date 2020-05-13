@@ -59,12 +59,12 @@ if sys.platform.startswith("win"):
 
 ################################################################################
 
-def print_dockit_usage(exitCode = 1, errMsg = None):
-    if errMsg:
-        print(errMsg)
+def print_dockit_usage(exit_code = 1, error_message = None):
+    if error_message:
+        print(error_message)
 
-    progNam = sys.argv[0]
-    print("DockIT: %s <executable>"%progNam)
+    prog_nam = sys.argv[0]
+    print("DockIT: %s <executable>" % prog_nam)
     print("Monitors and factorizes systems calls.")
     print("  -h,--help                       This message.")
     print("  -v,--verbose                    Verbose mode (Cumulative).")
@@ -99,8 +99,8 @@ def print_dockit_usage(exitCode = 1, errMsg = None):
 # ./dockit.py -D -l UnitTests/mineit_firefox  -t  ltrace bash firefox
 
     # Special value just for testing.
-    if exitCode != 999:
-        sys.exit(exitCode)
+    if exit_code != 999:
+        sys.exit(exit_code)
 
 ################################################################################
 
@@ -109,78 +109,80 @@ def print_dockit_usage(exitCode = 1, errMsg = None):
 # The values can be regular expressions.
 # key-value pairs in the expressions are matched one-to-one with objects.
 
-# Example: rgxObjectPath = 'Win32_LogicalDisk.DeviceID="C:",Prop="Value",Prop="Regex"'
-def _parse_filter_CIM(rgxObjectPath):
-    idxDot = rgxObjectPath.find(".")
-    if idxDot < 0 :
-        return ( rgxObjectPath, {} )
+# Example: rgx_object_path = 'Win32_LogicalDisk.DeviceID="C:",Prop="Value",Prop="Regex"'
+def _parse_filter_CIM(rgx_object_path):
+    idx_dot = rgx_object_path.find(".")
+    if idx_dot < 0 :
+        return rgx_object_path, {}
 
-    objClassName = rgxObjectPath[:idxDot]
+    obj_class_name = rgx_object_path[:idx_dot]
 
-    # Maybe there is nothing after the dot.
-    if idxDot == len(rgxObjectPath)-1:
-        return ( objClassName, {} )
+    # Maybe the input string is just the class name, with nothing after the dot.
+    if idx_dot == len(rgx_object_path)-1:
+        return obj_class_name, {}
 
-    strKeyValues = rgxObjectPath[idxDot+1:]
+    str_key_values = rgx_object_path[idx_dot + 1:]
 
-    # def toto(a='1',b='2')
-    # >>> inspect.getargspec(toto)
-    # ArgSpec(args=['a', 'b'], varargs=None, keywords=None, defaults=('1', '2'))
-    tmpFunc = "def aTempFunc(%s) : pass" % strKeyValues
+    # This transforms the concatenation of key-value pairs into a function signature, and it is parsed by Python.
+    # Example:
+    #     def toto(a='1',b='2')
+    #     >>> inspect.getargspec(toto)
+    #     ArgSpec(args=['a', 'b'], varargs=None, keywords=None, defaults=('1', '2'))
+    tmp_func = "def aTempFunc(%s) : pass" % str_key_values
 
-    # OK with Python 3
-    exec(tmpFunc)
+    exec(tmp_func)
     local_temp_func = locals()["aTempFunc"]
     if sys.version_info >= (3,):
-        tmpInsp = inspect.getfullargspec(local_temp_func)
+        tmp_insp = inspect.getfullargspec(local_temp_func)
     else:
-        tmpInsp = inspect.getargspec(local_temp_func)
-    arrArgs = tmpInsp.args
-    arrVals = tmpInsp.defaults
-    mapKeyValues = dict( zip(arrArgs, arrVals) )
+        tmp_insp = inspect.getargspec(local_temp_func)
+    list_keys = tmp_insp.args
+    list_vals = tmp_insp.defaults
+    map_key_values = dict(zip(list_keys, list_vals))
 
-    return ( objClassName, mapKeyValues )
+    return obj_class_name, map_key_values
 
 # TODO: Probably not needed because noone wants this output format..
-def _generate_summary_txt(mapParamsSummary, fdSummaryFile):
-    for rgxObjectPath in mapParamsSummary:
-        ( cimClassName, cimKeyValuePairs ) = _parse_filter_CIM(rgxObjectPath)
-        classObj = getattr(cim_objects_definitions, cimClassName)
-        classObj.DisplaySummary(fdSummaryFile,cimKeyValuePairs)
+def _generate_summary_txt(map_params_summary, fd_summary_file):
+    for rgx_object_path in map_params_summary:
+        (cim_class_name, cim_key_value_pairs) = _parse_filter_CIM(rgx_object_path)
+        class_obj = getattr(cim_objects_definitions, cim_class_name)
+        class_obj.DisplaySummary(fd_summary_file, cim_key_value_pairs)
 
 # This stores various data related to the execution.
-def _generate_summary_xml(mapParamsSummary,fdSummaryFile):
-    fdSummaryFile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-    fdSummaryFile.write('<Dockit>\n')
-    if mapParamsSummary:
-        for rgxObjectPath in mapParamsSummary:
-            ( cimClassName, cimKeyValuePairs ) = _parse_filter_CIM(rgxObjectPath)
-            classObj = getattr(cim_objects_definitions, cimClassName)
-            classObj.XMLSummary(fdSummaryFile,cimKeyValuePairs)
-    fdSummaryFile.write('</Dockit>\n')
+def _generate_summary_xml(map_params_summary, fd_summary_file):
+    fd_summary_file.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+    fd_summary_file.write('<Dockit>\n')
+    if map_params_summary:
+        for rgx_object_path in map_params_summary:
+            (cim_class_name, cim_key_value_pairs) = _parse_filter_CIM(rgx_object_path)
+            class_obj = getattr(cim_objects_definitions, cim_class_name)
+            class_obj.XMLSummary(fd_summary_file, cim_key_value_pairs)
+    fd_summary_file.write('</Dockit>\n')
 
-def _generate_summary(mapParamsSummary, summaryFormat, outputSummaryFile):
-    if summaryFormat == "TXT":
-        summaryGenerator = _generate_summary_txt
-    elif summaryFormat == "XML":
+
+def _generate_summary(mapParamsSummary, summary_format, output_summary_file):
+    if summary_format == "TXT":
+        summary_generator = _generate_summary_txt
+    elif summary_format == "XML":
         # The output format is very different.
-        summaryGenerator = _generate_summary_xml
-    elif summaryFormat == None:
+        summary_generator = _generate_summary_xml
+    elif summary_format == None:
         return
     else:
-        raise Exception("Unsupported summary output format:%s"%summaryFormat)
+        raise Exception("Unsupported summary output format:%s" % summary_format)
 
-    if outputSummaryFile:
-        fdSummaryFile = open(outputSummaryFile, "w")
-        sys.stdout.write("Creating summary file:%s\n"%outputSummaryFile)
+    if output_summary_file:
+        fd_summary_file = open(output_summary_file, "w")
+        sys.stdout.write("Creating summary file:%s\n" % output_summary_file)
     else:
-        fdSummaryFile = sys.stdout
+        fd_summary_file = sys.stdout
 
-    summaryGenerator(mapParamsSummary,fdSummaryFile)
+    summary_generator(mapParamsSummary,fd_summary_file)
 
-    if outputSummaryFile:
-        sys.stdout.write("Closing summary file:%s\n"%outputSummaryFile)
-        fdSummaryFile.close()
+    if output_summary_file:
+        sys.stdout.write("Closing summary file:%s\n" % output_summary_file)
+        fd_summary_file.close()
 
 
 ################################################################################
@@ -437,20 +439,21 @@ G_OSType = None
 
 ################################################################################
 
-def default_tracer(inputLogFile, tracer=None):
+
+def default_tracer(input_log_file, tracer=None):
     if not tracer:
-        if inputLogFile:
+        if input_log_file:
             # Maybe the pid is embedded in the log file.
-            matchTrace = re.match(r".*\.([^\.]*)\.[0-9]+\.log", inputLogFile )
-            if matchTrace:
-                tracer = matchTrace.group(1)
+            match_trace = re.match(r".*\.([^\.]*)\.[0-9]+\.log", input_log_file)
+            if match_trace:
+                tracer = match_trace.group(1)
             else:
                 # The file format might be "xyzxyz.strace.log", "abcabc.ltrace.log", "123123.cdb.log"
                 # depending on the tool which generated the log.
-                matchTrace = re.match(r".*\.([^\.]*)\.log", inputLogFile )
-                if not matchTrace:
-                    raise Exception("Cannot read tracer from log file name:%s"%inputLogFile)
-                tracer = matchTrace.group(1)
+                match_trace = re.match(r".*\.([^\.]*)\.log", input_log_file)
+                if not match_trace:
+                    raise Exception("Cannot read tracer from log file name:%s" % input_log_file)
+                tracer = match_trace.group(1)
         else:
             if sys.platform.startswith("win32"):
                 tracer = "pydbg"
@@ -488,56 +491,56 @@ def _load_init_file(ini_pathname):
 
 
 # This returns a stream with each line written by strace or ltrace.
-def _create_calls_stream(argsCmd, aPid, inputLogFile, tracer):
+def _create_calls_stream(command_line, input_process_id, input_log_file, tracer):
     global G_Hostname
     global G_OSType
 
     # A command or a pid or an input log file, only one possibility.
-    if argsCmd != []:
-        if aPid > 0 or inputLogFile:
+    if command_line != []:
+        if input_process_id > 0 or input_log_file:
             print_dockit_usage(1,"When providing command, must not specify process id or input log file")
-    elif aPid> 0 :
-        if argsCmd != []:
+    elif input_process_id> 0 :
+        if command_line != []:
             print_dockit_usage(1,"When providing process id, must not specify command or input log file")
-    elif inputLogFile:
-        if argsCmd != []:
+    elif input_log_file:
+        if command_line != []:
             print_dockit_usage(1,"When providing input file, must not specify command or process id")
     else:
         print_dockit_usage(1,"Must provide command, pid or input file")
 
-    dateTodayRun = time.strftime("%Y-%m-%d")
-    theHostNam = socket.gethostname()
-    thePlatform = sys.platform
+    date_today_run = time.strftime("%Y-%m-%d")
+    the_host_nam = socket.gethostname()
+    the_platform = sys.platform
 
-    currWrkDir = os.getcwd()
-    if inputLogFile:
-        calls_stream = open(inputLogFile)
-        logging.info("File "+inputLogFile)
-        logging.info("Logfile %s pid=%s" % (inputLogFile,aPid) )
+    curr_wrk_dir = os.getcwd()
+    if input_log_file:
+        calls_stream = open(input_log_file)
+        logging.info("File " + input_log_file)
+        logging.info("Logfile %s pid=%s" % (input_log_file, input_process_id))
 
         # There might be a context file with important information to reproduce the test.
-        contextLogFile = os.path.splitext(inputLogFile)[0]+".ini"
-        mapKV = _load_init_file(contextLogFile)
+        context_log_file = os.path.splitext(input_log_file)[0] + ".ini"
+        mapKV = _load_init_file(context_log_file)
 
         # The main process pid might be embedded in the log file name,
         # but preferably stored in the ini file.
-        linux_api_definitions.G_topProcessId       = int(mapKV.get("TopProcessId",aPid))
+        linux_api_definitions.G_topProcessId       = int(mapKV.get("TopProcessId", input_process_id))
 
-        cim_objects_definitions.G_CurrentDirectory = mapKV.get("CurrentDirectory",currWrkDir)
-        cim_objects_definitions.G_Today            = mapKV.get("CurrentDate",dateTodayRun)
-        G_Hostname                                 = mapKV.get("CurrentHostname",theHostNam)
-        G_OSType                                   = mapKV.get("CurrentOSType",thePlatform)
+        cim_objects_definitions.G_CurrentDirectory = mapKV.get("CurrentDirectory", curr_wrk_dir)
+        cim_objects_definitions.G_Today            = mapKV.get("CurrentDate", date_today_run)
+        G_Hostname                                 = mapKV.get("CurrentHostname", the_host_nam)
+        G_OSType                                   = mapKV.get("CurrentOSType", the_platform)
 
         cim_objects_definitions.G_ReplayMode = True
 
         sys.stdout.write("G_topProcessId=%d\n" % linux_api_definitions.G_topProcessId)
     else:
 
-        (linux_api_definitions.G_topProcessId, calls_stream) = G_traceToTracer[tracer].create_logfile_stream(argsCmd,aPid)
-        cim_objects_definitions.G_CurrentDirectory          = currWrkDir
-        cim_objects_definitions.G_Today                     = dateTodayRun
-        G_Hostname                                          = theHostNam
-        G_OSType                                            = thePlatform
+        (linux_api_definitions.G_topProcessId, calls_stream)= G_traceToTracer[tracer].create_logfile_stream(command_line, input_process_id)
+        cim_objects_definitions.G_CurrentDirectory          = curr_wrk_dir
+        cim_objects_definitions.G_Today                     = date_today_run
+        G_Hostname                                          = the_host_nam
+        G_OSType                                            = the_platform
 
         cim_objects_definitions.G_ReplayMode = False
 
@@ -551,8 +554,8 @@ def _create_calls_stream(argsCmd, aPid, inputLogFile, tracer):
 
 
 # Global variables which must be reinitialised before a run.
-def _init_globals(withWarning):
-    linux_api_definitions.init_linux_globals(withWarning)
+def _init_globals(with_warning):
+    linux_api_definitions.init_linux_globals(with_warning)
 
     cim_objects_definitions.init_global_objects()
 
@@ -582,13 +585,13 @@ def _calls_flow_class_factory(aggregator):
             def factorise_one_flow(self, verbose, batchConstructor):
                 pass
 
-            def dump_flow_constructor(self, batchDump, flow_process_id=None):
-                batchDump.flow_header(process_id=flow_process_id, calls_number=self.m_calls_number)
+            def dump_flow_constructor(self, batch_dump, flow_process_id=None):
+                batch_dump.flow_header(process_id=flow_process_id, calls_number=self.m_calls_number)
                 # TODO: Reformat this information for JSON, TXT and CSV
                 # FIXME: extra_header is probably never used.
                 # batchDump.m_strm.write("%s\n" % extra_header)
                 # batchDump.m_strm.write("Number of function calls: %d\n" % self.m_calls_number)
-                batchDump.flow_footer()
+                batch_dump.flow_footer()
 
         return BatchFlowVoid
 
@@ -608,12 +611,12 @@ def _calls_flow_class_factory(aggregator):
 # This receives a stream of lines, each of them is a function call,
 # possibly unfinished/resumed/interrupted by a signal.
 def _create_map_flow_from_stream(
-        verbose, withWarning,
-        calls_stream, tracer, batchConstructor, aggregator):
+        verbose, with_warning,
+        calls_stream, tracer, batch_constructor, aggregator):
     # Here, we have an event log as a stream, which comes from a file (if testing),
     # the output of strace or anything else.
 
-    _init_globals(withWarning)
+    _init_globals(with_warning)
 
     map_flows = {}
 
@@ -645,12 +648,13 @@ def _create_map_flow_from_stream(
         calls_flow = map_flows[the_pid]
         assert isinstance(calls_flow, CallsFlowClass)
         if verbose > 0: sys.stdout.write("\n------------------ PID=%d\n" % the_pid)
-        calls_flow.factorise_one_flow(verbose, batchConstructor)
+        calls_flow.factorise_one_flow(verbose, batch_constructor)
 
     _exit_globals()
     return map_flows
 
 ################################################################################
+
 
 # All possible summaries. Data created for the summaries are also needed
 # to generate a docker file. So, summaries are calculated if Dockerfile is asked.
@@ -662,87 +666,88 @@ full_map_params_summary = [
     "CIM_DataFile"]
 
 def _analyse_functions_calls_stream(
-        verbose, withWarning, calls_stream, tracer, outputFormat,
-        output_files_prefix, mapParamsSummary, summaryFormat, withDockerfile, aggregator):
+        verbose, with_warning, calls_stream, tracer, output_format,
+        output_files_prefix, map_params_summary, summary_format,
+        with_dockerfile, aggregator):
     if not output_files_prefix:
         output_files_prefix = "results"
-    if summaryFormat:
-        outputSummaryFile = output_files_prefix + ".summary." + summaryFormat.lower()
+    if summary_format:
+        output_summary_file = output_files_prefix + ".summary." + summary_format.lower()
     else:
-        outputSummaryFile = None
+        output_summary_file = None
 
-    if outputFormat:
+    if output_format:
         try:
-            batchConstructor = __batch_dumpers_dictionary[outputFormat]
+            batch_constructor = __batch_dumpers_dictionary[output_format]
         except KeyError:
-            raise Exception("Invalid output format:" + str(outputFormat))
+            raise Exception("Invalid output format:" + str(output_format))
     else:
-        batchConstructor = None
+        batch_constructor = None
 
-    mapFlows = _create_map_flow_from_stream(verbose, withWarning, calls_stream, tracer, batchConstructor, aggregator)
+    mapFlows = _create_map_flow_from_stream(verbose, with_warning, calls_stream, tracer, batch_constructor, aggregator)
 
     linux_api_definitions.G_stackUnfinishedBatches.display_unfinished_unmerged_batches(sys.stdout)
 
-    if output_files_prefix and outputFormat:
+    if output_files_prefix and output_format:
         assert output_files_prefix[-1] != '.'
-        assert outputFormat[0] != '.'
+        assert output_format[0] != '.'
         print("output_files_prefix=", output_files_prefix)
-        print("outputFormat=", outputFormat)
-        outFile = output_files_prefix + "." + outputFormat.lower()
+        print("outputFormat=", output_format)
+        outFile = output_files_prefix + "." + output_format.lower()
         ## outFile = output_files_prefix + "." + outputFormat.lower()
         sys.stdout.write("Creating flow file:%s. %d flows\n" % (outFile, len(mapFlows)))
         output_stream = open(outFile, "w")
-        batchDump = batchConstructor(output_stream)
-        batchDump.document_start()
+        batch_dump = batch_constructor(output_stream)
+        batch_dump.document_start()
 
         for flow_process_id in sorted(list(mapFlows.keys()),reverse=True):
             btchTree = mapFlows[flow_process_id]
-            btchTree.dump_flow_constructor(batchDump, flow_process_id)
-        batchDump.document_end()
+            btchTree.dump_flow_constructor(batch_dump, flow_process_id)
+        batch_dump.document_end()
         sys.stdout.write("Closing flow file:%s\n" % outFile)
         output_stream.close()
 
         if verbose: sys.stdout.write("\n")
 
     # Generating a docker file needs some data calculated with the summaries.
-    if withDockerfile:
-        mapParamsSummary = full_map_params_summary
+    if with_dockerfile:
+        map_params_summary = full_map_params_summary
 
-    _generate_summary(mapParamsSummary, summaryFormat, outputSummaryFile)
+    _generate_summary(map_params_summary, summary_format, output_summary_file)
     
-    if withDockerfile:
+    if with_dockerfile:
         if outFile:
-            output_files_prefix, filOutExt = os.path.splitext(outFile)
-        elif outputSummaryFile:
-            output_files_prefix, filOutExt = os.path.splitext(outputSummaryFile)
+            output_files_prefix, fil_out_ext = os.path.splitext(outFile)
+        elif output_summary_file:
+            output_files_prefix, fil_out_ext = os.path.splitext(output_summary_file)
         else:
             output_files_prefix = "docker"
         assert output_files_prefix[-1] != '.'
-        dockerDirName = output_files_prefix + ".docker"
-        if os.path.exists(dockerDirName):
-            shutil.rmtree(dockerDirName)
-        os.makedirs(dockerDirName)
+        docker_dir_name = output_files_prefix + ".docker"
+        if os.path.exists(docker_dir_name):
+            shutil.rmtree(docker_dir_name)
+        os.makedirs(docker_dir_name)
 
-        dockerFilename = dockerDirName + "/Dockerfile"
+        dockerFilename = docker_dir_name + "/Dockerfile"
         cim_objects_definitions.GenerateDockerFile(dockerFilename)
 
-    return outputSummaryFile
+    return output_summary_file
 
 
 # Function called for unit tests by unittest.py
 def test_from_file(
-        inputLogFile, tracer, topPid, output_files_prefix, outputFormat, verbose, mapParamsSummary,
-        summaryFormat, withWarning, withDockerfile, updateServer, aggregator):
-    assert isinstance(topPid, int)
-    calls_stream = _create_calls_stream([], topPid, inputLogFile, tracer)
-    cim_objects_definitions.G_UpdateServer = updateServer
+        input_log_file, tracer, input_process_id, output_files_prefix, output_format, verbose, map_params_summary,
+        summary_format, with_warning, with_dockerfile, update_server, aggregator):
+    assert isinstance(input_process_id, int)
+    calls_stream = _create_calls_stream([], input_process_id, input_log_file, tracer)
+    cim_objects_definitions.G_UpdateServer = update_server
 
     # Check if there is a context file, which gives parameters such as the current directory,
     # necessary to reproduce the test in the same conditions.
 
     output_summary_file = _analyse_functions_calls_stream(
-        verbose, withWarning, calls_stream, tracer, outputFormat, output_files_prefix,
-        mapParamsSummary, summaryFormat, withDockerfile, aggregator)
+        verbose, with_warning, calls_stream, tracer, output_format, output_files_prefix,
+        map_params_summary, summary_format, with_dockerfile, aggregator)
     return output_summary_file
 
 
@@ -808,7 +813,7 @@ def _start_processing(global_parameters):
         output_files_prefix,
         global_parameters.map_params_summary,
         global_parameters.summary_format,
-        global_parameters.with_docker_file,
+        global_parameters.with_dockerfile,
         global_parameters.aggregator)
 
 if __name__ == '__main__':
@@ -824,7 +829,7 @@ if __name__ == '__main__':
         # mapParamsSummary = ["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"]
         map_params_summary = full_map_params_summary
 
-        with_docker_file = None
+        with_dockerfile = None
 
         input_process_id = -1
         output_format = "TXT" # Default output format of the generated files.
@@ -852,7 +857,7 @@ if __name__ == '__main__':
         elif an_option in ("-s", "--summary"):
             G_parameters.map_params_summary = G_parameters.map_params_summary + [a_value] if a_value else []
         elif an_option in ("-D", "--dockerfile"):
-            G_parameters.with_docker_file = True
+            G_parameters.with_dockerfile = True
         elif an_option in ("-p", "--pid"):
             G_parameters.input_process_id = int(a_value)
         elif an_option in ("-f", "--format"):
