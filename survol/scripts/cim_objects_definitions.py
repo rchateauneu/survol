@@ -1709,7 +1709,7 @@ def PathToPythonModuleOneFile_OldOldOldOld(path):
 # - The set of unique Python modules, some files come from.
 # - The remaining list of files, not coming from any Python module.
 # This allow to reproduce an environment.
-def FilesToPythonModules(unpackagedDataFiles):
+def _files_to_python_modules(unpackagedDataFiles):
     setPythonModules = set()
     unknownDataFiles = []
 
@@ -1825,7 +1825,7 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
             super(DependencyPython, self).__init__()
 
         @staticmethod
-        def IsDepType(objInstance):
+        def is_dependency_of(objInstance):
             try:
                 # Detection with strace:
                 # execve("/usr/bin/python", ["python", "TestProgs/mineit_mys"...], [/* 22 vars */]) = 0
@@ -1837,10 +1837,14 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
                 return False
 
         @staticmethod
-        def IsCode(objDataFile):
-            return objDataFile.Name.endswith(".py") or objDataFile.Name.endswith(".pyc")
+        def is_executable_file(objDataFile):
+            for file_extension in [".py", ".pyc", ".pyd"]:
+                if objDataFile.Name.endswith(file_extension):
+                    return True
+            return False
 
-        def GenerateDockerDependencies(self, fdDockerFile):
+        def generate_docker_dependencies(self, fdDockerFile):
+            # FIXME: TODO: Remove these hardcodes.
             packagesToInstall = set()
 
             for objDataFile in self.m_accessedCodeFiles:
@@ -1871,7 +1875,6 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
                     # "ADD /usr/lib64/python2.7/cgitb.py /"
                     # TODO: Use the right path:
                     if not filNam.startswith("/usr/lib64/python2.7"):
-                        # ADD /home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/big_mysql_select.py /
                         AddToDockerDir(filNam)
 
             if packagesToInstall or self.m_accessedCodeFiles:
@@ -1887,7 +1890,7 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
             super(DependencyPerl, self).__init__()
 
         @staticmethod
-        def IsDepType(objInstance):
+        def is_dependency_of(objInstance):
             try:
                 return objInstance.Executable.find("/perl") >= 0
             except AttributeError:
@@ -1895,10 +1898,10 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
                 return False
 
         @staticmethod
-        def IsCode(objDataFile):
+        def is_executable_file(objDataFile):
             return objDataFile.Name.endswith(".pl")
 
-        def GenerateDockerDependencies(self, fdDockerFile):
+        def generate_docker_dependencies(self, fdDockerFile):
             for objDataFile in self.m_accessedCodeFiles:
                 filNam = objDataFile.Name
                 fdDockerFile.write("RUN cpanm %s\n" % filNam)
@@ -1911,13 +1914,13 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
             super(DependencyBinary, self).__init__()
 
         @staticmethod
-        def IsDepType(objInstance):
+        def is_dependency_of(objInstance):
             # Always true because tested at the end as a default.
             # The executable should at least be an executable file.
             return True
 
         @staticmethod
-        def IsCode(objDataFile):
+        def is_executable_file(objDataFile):
             return objDataFile.Name.find(".so") > 0
 
         @staticmethod
@@ -1935,7 +1938,7 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
                 return True
             return False
 
-        def GenerateDockerDependencies(self, fdDockerFile):
+        def generate_docker_dependencies(self, fdDockerFile):
             # __libc_start_main([ "python", "TestProgs/mineit_mysql_select.py" ] <unfinished ...>
             #    return objInstance.Executable.find("/python") >= 0 or objInstance.Executable.startswith("python")
 
@@ -1953,7 +1956,7 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
                 filNam = objDataFile.Name
                 AddToDockerDir(filNam)
 
-    lstDependencies = [
+    _dependencies_list = [
         DependencyPython(),
         DependencyPerl(),
         DependencyBinary(),
@@ -1964,20 +1967,20 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
     # This is the complete list of extra executables which have to be installed.
     lstBinaryExecutables = set()
 
-    # This is a subset of lstDependencies.
+    # This is a subset of _dependencies_list.
     setUsefulDependencies = set()
 
     for objPath, objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
-        for oneDep in lstDependencies:
+        for oneDep in _dependencies_list:
             # Based on the executable of the process,
             # this tells if we might have dependencies of this type: Python Perl etc...
-            if oneDep.IsDepType(objInstance):
+            if oneDep.is_dependency_of(objInstance):
                 setUsefulDependencies.add(oneDep)
                 break
 
         for filAcc in objInstance.m_ProcessFileAccesses:
             oneFile = filAcc.m_objectCIM_DataFile
-            if oneDep and oneDep.IsCode(oneFile):
+            if oneDep and oneDep.is_executable_file(oneFile):
                 oneDep.AddDep(oneFile)
             else:
                 accessedDataFiles.add(oneFile)
@@ -2002,7 +2005,7 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
     fdDockerFile.write("################################# Dependencies by program type\n")
     for oneDep in setUsefulDependencies:
         fdDockerFile.write("# Dependencies: %s\n" % oneDep.DependencyName)
-        oneDep.GenerateDockerDependencies(fdDockerFile)
+        oneDep.generate_docker_dependencies(fdDockerFile)
         fdDockerFile.write("\n")
 
     # These are not data files.
@@ -2017,7 +2020,7 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
 
     lstPackagesData, unpackagedDataFiles = G_FilesToPackagesCache.get_packages_list(accessedDataFiles)
 
-    setPythonModules, unknownDataFiles = FilesToPythonModules(unpackagedDataFiles)
+    setPythonModules, unknownDataFiles = _files_to_python_modules(unpackagedDataFiles)
 
     if setPythonModules:
         fdDockerFile.write("# Python modules:\n")
