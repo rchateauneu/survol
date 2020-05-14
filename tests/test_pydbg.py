@@ -51,9 +51,7 @@ class BasicTest(unittest.TestCase):
         """This starts a 32 bits process on a 64 bits platform"""
         tst_pydbg = pydbg.pydbg()
 
-        cmd32_command = r"C:\Windows\SysWOW64\cmd.exe"
-
-        created_process = subprocess.Popen([cmd32_command, "/c", "FOR /L %A IN (1,1,3) DO ping -n 2 127.0.0.1"], shell=False)
+        created_process = subprocess.Popen([windows_wow64_cmd_exe, "/c", "FOR /L %A IN (1,1,3) DO ping -n 2 127.0.0.1"], shell=False)
 
         time.sleep(0.5)
 
@@ -240,7 +238,8 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
             if object_pydbg.is_wow64:
                 self.assertTrue(file_name == non_existent_file)
             else:
-                self.assertTrue(file_name in [non_existent_file, r"C:\Windows\SysWOW64\cmd.exe"])
+                # windows_wow64_cmd_exe = r"C:\Windows\SysWOW64\cmd.exe"
+                self.assertTrue(file_name in [non_existent_file, windows_wow64_cmd_exe])
             return defines.DBG_CONTINUE
 
         def callback_CreateFileW_out(object_pydbg, args, function_result):
