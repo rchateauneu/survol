@@ -1747,10 +1747,11 @@ G_stackUnfinishedBatches = None
 # So we filter them additively.
 ################################################################################
 
+
 # This executes a Linux command and returns the stderr pipe.
-# It is used to get the return content of strace or ltrace,
-# so it can be parsed.
-def _generate_linux_stream_from_command(raw_command, aPid):
+# It is used to get the return content of strace or ltrace, so it can be parsed.
+# stderr contains one line for each system function call.
+def _generate_linux_stream_from_command(linux_trace_command, process_id):
     def quote_argument(elt):
         # Quotes in command-line arguments must be escaped.
         elt = str(elt).replace('"', '\\"').replace("'", "\\'")
@@ -1759,28 +1760,29 @@ def _generate_linux_stream_from_command(raw_command, aPid):
             elt = '"%s"' % elt
         return elt
 
-    aCmd = [quote_argument(elt) for elt in raw_command]
-    assert isinstance(aPid, int)
-    sys.stdout.write("Starting trace command:%s\n" % " ".join(aCmd) )
+    command_as_list = [quote_argument(elt) for elt in linux_trace_command]
+    assert isinstance(process_id, int)
+    sys.stdout.write("Starting trace command:%s\n" % " ".join(command_as_list) )
 
     # If shell=True, the command must be passed as a single line.
     kwargs = {"bufsize":100000, "shell":False,
         "stdin":sys.stdin, "stdout":subprocess.PIPE, "stderr":subprocess.PIPE}
     if sys.version_info >= (3,):
         kwargs["encoding"] = "utf-8"
-    pipPOpen = subprocess.Popen(aCmd, **kwargs)
+    object_popen = subprocess.Popen(command_as_list, **kwargs)
 
     # If shell argument is True, this is the process ID of the spawned shell.
-    if aPid > 0:
+    if process_id > 0:
         # The process already exists and strace/ltrace attaches to it.
-        thePid = aPid
+        assert int(object_popen.pid) == process_id
+        created_process_id = process_id
     else:
         # We want the pid of the process created by strace/ltrace.
         # ltrace always prefixes each line with the pid, so no ambiguity.
         # strace does not always prefixes the top process calls with the pid.
-        thePid = int(pipPOpen.pid)
+        created_process_id = int(object_popen.pid)
 
-    return ( thePid, pipPOpen.stderr )
+    return (created_process_id, object_popen.stderr)
 
 ################################################################################
 # This is set by a signal handler when a control-C is typed.
@@ -1805,11 +1807,11 @@ def _create_flows_from_generic_linux_log(verbose, logStream, tracer):
     # "[pid 18196] 08:26:47.199313 close(255</tmp/shell.sh> <unfinished ...>"
     # "08:26:47.197164 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18194 <0.011216>"
     # This test is not reliable because we cannot really control what a spurious output can be:
-    def _is_log_ending(aLin):
-        if aLin.endswith(">\n"):
-            ixLT = aLin.rfind("<")
+    def _is_log_ending(trace_line):
+        if trace_line.endswith(">\n"):
+            ixLT = trace_line.rfind("<")
             if ixLT >= 0:
-                strBrack = aLin[ixLT+1:-2]
+                strBrack = trace_line[ixLT + 1:-2]
                 try:
                     flt = float(strBrack)
                     return True
@@ -1827,12 +1829,12 @@ def _create_flows_from_generic_linux_log(verbose, logStream, tracer):
         else:
             # "[pid 18194] 08:26:47.197005 exit_group(0) = ?"
             # Not reliable because this could be a plain string ending like this.
-            if aLin.startswith("[pid ") and aLin.endswith(" = ?\n"):
+            if trace_line.startswith("[pid ") and trace_line.endswith(" = ?\n"):
                 return True
 
             # "08:26:47.197304 --- SIGCHLD {si_signo=SIGCHLD, si_status=0, si_utime=0, si_stime=0} ---"
             # Not reliable because this could be a plain string ending like this.
-            if aLin.endswith(" ---\n"):
+            if trace_line.endswith(" ---\n"):
                 return True
 
         return False
@@ -1967,8 +1969,8 @@ class STraceTracer:
             logging.info("Process %s\n" % aPid)
         return _generate_linux_stream_from_command(trace_command, aPid)
 
-    def create_flows_from_calls_stream(self, verbose, logStream):
-        return _create_flows_from_generic_linux_log(verbose, logStream, "strace")
+    def create_flows_from_calls_stream(self, verbose, log_stream):
+        return _create_flows_from_generic_linux_log(verbose, log_stream, "strace")
 
     def trace_software_version(self):
         strace_version_str = subprocess.check_output('strace -V', shell=True).split()[3]
@@ -1978,7 +1980,8 @@ class STraceTracer:
 class LTraceTracer:
     # The command options generate a specific output file format,
     # and therefore parsing it is specific to these options.
-    def build_trace_command(self, external_comnand, aPid):
+    def build_trace_command(self, external_command, aPid):
+        assert isinstance(external_command, list)
 
         # This selects:
         # libpython2.7.so.1.0->getenv, cx_Oracle.so->getenv, libclntsh.so.11.1->getenv, libresolv.so.2->getenv etc...
@@ -2001,20 +2004,20 @@ class LTraceTracer:
         # lstat@SYS("/usr/local/include/bits", 0x7ffd739d8240) = -2 <0.000177>
         # <... realpath resumed> )                             = 0 <0.001261>
 
-        if external_comnand:
-            trace_command += external_comnand
+        if external_command:
+            trace_command += external_command
         else:
             trace_command += ["-p", aPid]
 
         return trace_command
 
-    def create_logfile_stream(self, str_mandatory_libc, aPid):
-        trace_command = self.build_trace_command(external_command, aPid)
+    def create_logfile_stream(self, str_mandatory_libc, process_id):
+        trace_command = self.build_trace_command(external_command, process_id)
         if external_command:
             logging.info("Command " + " ".join(external_command))
         else:
-            logging.info("Process %s\n" % aPid)
-        return _generate_linux_stream_from_command(trace_command, aPid)
+            logging.info("Process %s\n" % process_id)
+        return _generate_linux_stream_from_command(trace_command, process_id)
 
     # The output log format of ltrace is very similar to strace's, except that:
     # - The system calls are suffixed with "@SYS" or prefixed with "SYS_"
