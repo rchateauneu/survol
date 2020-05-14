@@ -1774,7 +1774,6 @@ def _generate_linux_stream_from_command(linux_trace_command, process_id):
     # If shell argument is True, this is the process ID of the spawned shell.
     if process_id > 0:
         # The process already exists and strace/ltrace attaches to it.
-        assert int(object_popen.pid) == process_id
         created_process_id = process_id
     else:
         # We want the pid of the process created by strace/ltrace.
@@ -1981,8 +1980,6 @@ class LTraceTracer:
     # The command options generate a specific output file format,
     # and therefore parsing it is specific to these options.
     def build_trace_command(self, external_command, aPid):
-        assert isinstance(external_command, list)
-
         # This selects:
         # libpython2.7.so.1.0->getenv, cx_Oracle.so->getenv, libclntsh.so.11.1->getenv, libresolv.so.2->getenv etc...
         strMandatoryLibc = "-*+getenv+*@SYS"
