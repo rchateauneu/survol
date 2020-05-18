@@ -500,7 +500,7 @@ def check_ini_file(ini_pathname):
     assert ini_dict["CurrentDirectory"]
     assert ini_dict["CurrentDate"] # 2020-05-17
     assert ini_dict["CurrentHostname"]
-    assert ini_dict["CurrentOSType"] in ["win32", "linux2"]
+    assert ini_dict["CurrentOSType"] in ["win32", "linux", "linux2"]
 
 
 # This returns a stream with each line written by strace or ltrace.
