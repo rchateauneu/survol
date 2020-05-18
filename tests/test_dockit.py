@@ -266,8 +266,9 @@ class CommandLineTest(unittest.TestCase):
         check_file_content(output_basename + ".ini")
         check_file_content(output_basename + ".json")
         check_file_content(output_basename + ".summary.txt")
-        check_file_content(output_basename + ".log")
         check_file_content(output_basename + ".docker", "Dockerfile")
+
+        check_file_nothere(output_basename + ".log")
 
     def test_replay_non_existent_input_file(self):
         try:
