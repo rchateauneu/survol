@@ -39,7 +39,7 @@ def parse_call_arguments(strArgs, ixStart = 0):
     if ixUnfinished >= 0:
         lenStr = ixUnfinished
 
-    hasOctal = False
+    #hasOctal = False
     while (ixCurr < lenStr) and not finished:
 
         aChr = strArgs[ixCurr]
@@ -143,7 +143,7 @@ class BatchStatus:
     chrDisplayCodes = "? URmM "
 
 # Read from a real process or from the log file name when replaying a session.
-G_topProcessId = None
+#G_topProcessId = None
 
 class BatchLetCore:
     # The input line is read from "strace" command.
@@ -177,15 +177,18 @@ class BatchLetCore:
             self._init_after_pid(trace_line, index_after_pid + 2)
         else:
             # This is the main process, but at this stage we do not have its pid.
-            self.m_pid = G_topProcessId
+            self.m_pid = cim_objects_definitions.G_topProcessId
             self._init_after_pid(trace_line, 0)
 
         # If this process is just created, it receives the creation time-stamp.
-        self.m_objectProcess = cim_objects_definitions.ToObjectPath_CIM_Process(self.m_pid)
+        self.m_objectProcess = self.cim_context().ToObjectPath_CIM_Process(self.m_pid)
 
         # If the creation date is uknown, it is at least equal to the current call time.
         if not self.m_objectProcess.CreationDate:
             self.m_objectProcess.CreationDate = self.m_timeStart
+
+    def cim_context(self):
+        return cim_objects_definitions.ObjectsContext(self.m_pid)
 
     def _set_function(self, funcFull):
         # With ltrace, systems calls are suffix with the string "@SYS".
@@ -499,6 +502,9 @@ class BatchLetBase(my_with_metaclass(BatchMeta)):
     def get_significant_args(self):
         return self.m_significantArgs
 
+    def cim_context_core(self):
+        return self.m_core.cim_context()
+
     # This is used to detect repetitions.
     def get_signature_without_args(self):
         return self.m_core.m_funcNam
@@ -555,10 +561,12 @@ class BatchLetBase(my_with_metaclass(BatchMeta)):
             # Signal the error once only.
             self.invalid_hexadecimal_pathnames.add(pathName)
             raise Exception("Invalid hexadecimal pathname:%s" % pathName)
-        return cim_objects_definitions.ToObjectPath_CIM_DataFile(pathName, self.m_core.m_pid)
+        # return cim_objects_definitions.ToObjectPath_CIM_DataFile(pathName, self.m_core.m_pid)
+        return self.cim_context_core().ToObjectPath_CIM_DataFile(pathName)
 
     def _strace_stream_to_file(self, strmStr):
-        return cim_objects_definitions.ToObjectPath_CIM_DataFile(_strace_stream_to_pathname(strmStr), self.m_core.m_pid)
+        # return cim_objects_definitions.ToObjectPath_CIM_DataFile(_strace_stream_to_pathname(strmStr), self.m_core.m_pid)
+        return self.cim_context_core().ToObjectPath_CIM_DataFile(_strace_stream_to_pathname(strmStr))
 
 # This associates file descriptors to path names when strace and the option "-y"
 # cannot be used. There are predefined values.
@@ -798,7 +806,7 @@ class BatchLetSys_openat(BatchLetBase, object):
 
             filNam = self.m_core.m_parsedArgs[1]
 
-            pathName = cim_objects_definitions.ToAbsPath(dirPath, filNam)
+            pathName = cim_objects_definitions.to_real_absolute_path(dirPath, filNam)
 
             filDes = self.m_core.m_retValue
 
@@ -1151,7 +1159,7 @@ class BatchLetSys_clone(BatchLetBase, object):
         # sys.stdout.write("CLONE %s %s PID=%d\n" % ( batchCore.m_tracer, self.m_core.m_retValue, aPid) )
 
         # This is the created process.
-        objNewProcess = cim_objects_definitions.ToObjectPath_CIM_Process(aPid)
+        objNewProcess = self.cim_context_core().ToObjectPath_CIM_Process(aPid)
 
         if isThread:
             objNewProcess.SetThread()
@@ -1183,7 +1191,7 @@ class BatchLetSys_vfork(BatchLetBase, object):
             raise Exception("Tracer %s not supported yet" % batchCore.m_tracer)
 
         # This is the created process.
-        objNewProcess = cim_objects_definitions.ToObjectPath_CIM_Process(aPid)
+        objNewProcess = self.cim_context_core().ToObjectPath_CIM_Process(aPid)
         self.m_significantArgs = [objNewProcess]
 
         objNewProcess.AddParentProcess(self.m_core.m_timeStart, self.m_core.m_objectProcess)
@@ -1301,7 +1309,7 @@ class BatchLetSys_wait4(BatchLetBase, object):
 
         if aPid:
             # sys.stdout.write("WAIT=%d\n" % aPid )
-            waitedProcess = cim_objects_definitions.ToObjectPath_CIM_Process(aPid)
+            waitedProcess = self.cim_context_core().ToObjectPath_CIM_Process(aPid)
             self.m_significantArgs = [waitedProcess]
             waitedProcess.WaitProcessEnd(self.m_core.m_timeStart, self.m_core.m_objectProcess)
 
@@ -1313,7 +1321,7 @@ class BatchLetSys_exit_group(BatchLetBase, object):
         self.m_significantArgs = []
 
 
-#####
+##### Others.
 
 # int fstatat(int dirfd, const char *pathname, struct stat *statbuf, int flags);
 class BatchLetSys_newfstatat(BatchLetBase, object):
@@ -1331,7 +1339,7 @@ class BatchLetSys_newfstatat(BatchLetBase, object):
 
         filNam = self.m_core.m_parsedArgs[1]
 
-        pathName = cim_objects_definitions.ToAbsPath(dirPath, filNam)
+        pathName = cim_objects_definitions.to_real_absolute_path(dirPath, filNam)
 
         self.m_significantArgs = [self.ToObjectPath_Accessed_CIM_DataFile(pathName)]
 
@@ -1781,7 +1789,7 @@ def _generate_linux_stream_from_command(linux_trace_command, process_id):
         # strace does not always prefixes the top process calls with the pid.
         created_process_id = int(object_popen.pid)
 
-    return (created_process_id, object_popen.stderr)
+    return created_process_id, object_popen.stderr
 
 ################################################################################
 # This is set by a signal handler when a control-C is typed.
@@ -1796,8 +1804,10 @@ def signal_handler(signal, frame):
     G_Interrupt = True
 
 # This applies to strace and ltrace.
+# The input is a stream of lines coming from strace or ltrace.
 # It isolates single lines describing an individual function or system call.
-def _create_flows_from_generic_linux_log(verbose, logStream, tracer):
+# This yields objects which model a function call.
+def _create_flows_from_generic_linux_log(logStream, tracer):
     # Generates output files if interrupt with control-C.
     original_sigint_handler = signal.getsignal(signal.SIGINT)
     signal.signal(signal.SIGINT, signal_handler)
@@ -1939,7 +1949,45 @@ def _create_flows_from_generic_linux_log(verbose, logStream, tracer):
 # Max bytes number when strace or ltrace display read() and write() calls.
 G_StringSize = "500"
 
-class STraceTracer:
+class GenericTraceTracer:
+    def tee_calls_stream(self, log_stream, output_files_prefix):
+        class TeeStream:
+            def __init__(self):
+                self._log_stream = log_stream
+                assert output_files_prefix[-1] != '.'
+                log_filename = output_files_prefix + ".log"
+                self._out_file_descriptor = open(log_filename, "w")
+                print("Creating log file:%s" % log_filename)
+
+            def readline(self):
+                duplicate_line = self._log_stream.readline()
+                # sys.stdout.write("tee=%s" % aLin)
+                # This is will be read during a replay session.
+                self._out_file_descriptor.write(duplicate_line)
+                return duplicate_line
+
+        calls_stream = TeeStream()
+        return calls_stream
+
+    # This returns a pair of a process id and a stream of lines, each modelling a function call.
+    def create_logfile_stream(self, str_mandatory_libc, process_id):
+        trace_command = self.build_trace_command(external_command, process_id)
+        if external_command:
+            logging.info("Command " + " ".join(external_command))
+        else:
+            logging.info("Process %s\n" % process_id)
+        return _generate_linux_stream_from_command(trace_command, process_id)
+
+    # Used when replaying a trace session. This returns an object, on which each read access
+    # return a conceptual function call, similar to what is returned when monitoring a process.
+    # For Linux, strace and ltrace returns one line for each function call.
+    # To replay these sessions, these lines are saved as is in a text file,
+    # which just needs to be open and read when replying a session.
+    def logfile_pathname_to_stream(self, input_log_file):
+        return open(input_log_file)
+
+
+class STraceTracer(GenericTraceTracer):
     # The command options generate a specific output file format,
     # and therefore parsing it is specific to these options.
     def build_trace_command(self, external_command, aPid):
@@ -1960,23 +2008,16 @@ class STraceTracer:
             trace_command += ["-p", aPid]
         return trace_command
 
-    def create_logfile_stream(self, external_command, aPid):
-        trace_command = self.build_trace_command(external_command, aPid)
-        if external_command:
-            logging.info("Command " + " ".join(external_command))
-        else:
-            logging.info("Process %s\n" % aPid)
-        return _generate_linux_stream_from_command(trace_command, aPid)
-
-    def create_flows_from_calls_stream(self, verbose, log_stream):
-        return _create_flows_from_generic_linux_log(verbose, log_stream, "strace")
+    # This yields objects which model a function call.
+    def create_flows_from_calls_stream(self, log_stream):
+        return _create_flows_from_generic_linux_log(log_stream, "strace")
 
     def trace_software_version(self):
         strace_version_str = subprocess.check_output('strace -V', shell=True).split()[3]
         return tuple(map(int, strace_version_str.split(b'.')))
 
 
-class LTraceTracer:
+class LTraceTracer(GenericTraceTracer):
     # The command options generate a specific output file format,
     # and therefore parsing it is specific to these options.
     def build_trace_command(self, external_command, aPid):
@@ -1988,10 +2029,11 @@ class LTraceTracer:
         # -S  Display system calls as well as library calls
         # -f  Trace  child  processes as a result of the fork, vfork and clone.
         # This needs long strings because path names are truncated like normal strings.
-        trace_command = ["ltrace",
-                "-tt", "-T", "-f", "-S", "-s", G_StringSize,
-                "-e", strMandatoryLibc
-                ]
+        trace_command = [
+            "ltrace",
+            "-tt", "-T", "-f", "-S", "-s", G_StringSize,
+            "-e", strMandatoryLibc
+            ]
 
         # Example of log: This can be filtered with: "-e -realpath"
         # gcc->realpath(0x2abfbe0, 0x7ffd739d8310, 0x2ac0930, 0 <unfinished ...>
@@ -2007,14 +2049,6 @@ class LTraceTracer:
             trace_command += ["-p", aPid]
 
         return trace_command
-
-    def create_logfile_stream(self, str_mandatory_libc, process_id):
-        trace_command = self.build_trace_command(external_command, process_id)
-        if external_command:
-            logging.info("Command " + " ".join(external_command))
-        else:
-            logging.info("Process %s\n" % process_id)
-        return _generate_linux_stream_from_command(trace_command, process_id)
 
     # The output log format of ltrace is very similar to strace's, except that:
     # - The system calls are suffixed with "@SYS" or prefixed with "SYS_"
@@ -2040,10 +2074,10 @@ class LTraceTracer:
     # [pid 28735] 08:51:40.616610 <... Py_Main resumed> )                                                               = 0 <1.092079>
     # [pid 28735] 08:51:40.616913 exit_group@SYS(0 <no return ...>
 
-    def create_flows_from_calls_stream(self, verbose, logStream):
+    def create_flows_from_calls_stream(self, logStream):
         # The output format of the command ltrace seems very similar to strace
         # so for the moment, no reason not to use it.
-        return _create_flows_from_generic_linux_log(verbose, logStream, "ltrace")
+        return _create_flows_from_generic_linux_log(logStream, "ltrace")
 
     def trace_software_version(self):
         ltrace_version_str = subprocess.check_output('strace -V', shell=True).split()[2]
