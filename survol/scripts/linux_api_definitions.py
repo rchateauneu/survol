@@ -1970,7 +1970,7 @@ class GenericTraceTracer:
         return calls_stream
 
     # This returns a pair of a process id and a stream of lines, each modelling a function call.
-    def create_logfile_stream(self, str_mandatory_libc, process_id):
+    def create_logfile_stream(self, external_command, process_id):
         trace_command = self.build_trace_command(external_command, process_id)
         if external_command:
             logging.info("Command " + " ".join(external_command))
