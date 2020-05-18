@@ -396,7 +396,7 @@ class CommandLineWin32Test(unittest.TestCase):
         #             [-w deadline] [-W timeout] [hop1 ...] destination
 
         # Now parse the output to ensure that the command ran correctly.
-        self.assertTrue( command_result.find("Usage: ping") >= 0)
+        self.assertTrue( command_result.find(b"Usage: ping") >= 0)
 
     def test_run_windows_ping_home(self):
         # This test pings to a domain name.
