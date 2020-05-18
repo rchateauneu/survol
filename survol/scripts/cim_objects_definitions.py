@@ -15,6 +15,7 @@ import socket
 import shutil
 import threading
 import time
+import collections
 
 try:
     # This is for Python 2
@@ -415,10 +416,8 @@ try:
 except ImportError:
     lib_event = None
 
-# This objects groups triples to send to the HTTP server,
-# and periodically wakes up to send them.
-# But if the server name is a file, the RDF content is instead stored to this
-# file by the object destructor.
+# This objects groups triples to send to the HTTP server, and periodically wakes up to send them.
+# But if the server name is a file, the RDF content is instead stored to this file by the object destructor.
 class HttpTriplesClient(object):
     def __init__(self):
         self._triples_list = []
@@ -426,6 +425,7 @@ class HttpTriplesClient(object):
         # Threaded mode does not work when creating the server in the same process.
         # For safety, this reverts to a simpler mode where the triples are sent
         # in block at the end of the execution.
+        # TODO: Test this with thread mode.
         self._is_threaded_client = False
 
         # Tests if this a output RDF file, or rather None or the URL of a Survol agent.
@@ -478,6 +478,7 @@ class HttpTriplesClient(object):
 
     def _send_bytes_to_server(self, triples_as_bytes):
         assert isinstance(triples_as_bytes, six.binary_type)
+        assert not self._server_is_file
         if not self._is_valid_http_client:
             return -1
         try:
@@ -498,6 +499,7 @@ class HttpTriplesClient(object):
             raise
 
     def _push_triples_to_server_threaded(self):
+        assert not self._server_is_file
         assert self._is_threaded_client
         self._shared_lock.acquire()
         triples_as_bytes, sent_triples_number = self._pop_triples_to_bytes()
@@ -519,7 +521,7 @@ class HttpTriplesClient(object):
 
     def queue_triples_for_sending(self, json_triple):
         if self._server_is_file:
-            assert not self._is_threaded_client
+            #assert not self._is_threaded_client
             # Just append the triple, no need to synchronise.
             self._triples_list.append(json_triple)
         elif G_UpdateServer:
@@ -878,7 +880,8 @@ class CIM_Process(CIM_XmlMarshaller, object):
             try:
                 self.Name = procObj.name()
                 execFilNam = procObj.exe()
-                execFilObj = CreateObjectPath(CIM_DataFile, execFilNam)
+                objects_context = ObjectsContext(procId)
+                execFilObj = objects_context._class_model_to_object_path(CIM_DataFile, execFilNam)
                 self.SetExecutable(execFilObj)
             except:
                 self.Name = None
@@ -913,32 +916,27 @@ class CIM_Process(CIM_XmlMarshaller, object):
         # one other process, then it is its parent.
         # It helps if the first vfork() is never finished,
         # and if we did not get the main process id.
-        try:
-            mapProcs = G_mapCacheObjects[CIM_Process.__name__]
-            keysProcs = list(mapProcs.keys())
-            if len(keysProcs) == 1:
-                # We are about to create the second process.
+        mapProcs = G_mapCacheObjects[CIM_Process.__name__]
+        keysProcs = list(mapProcs.keys())
+        if len(keysProcs) == 1:
+            # We are about to create the second process.
 
-                # CIM_Process.Handle="29300"
-                firstProcId = keysProcs[0]
-                firstProcObj = mapProcs[firstProcId]
-                if firstProcId != ('CIM_Process.Handle="%s"' % firstProcObj.Handle):
-                    raise Exception("Inconsistent procid:%s != %s" % (firstProcId, firstProcObj.Handle))
+            # CIM_Process.Handle="29300"
+            firstProcId = keysProcs[0]
+            firstProcObj = mapProcs[firstProcId]
+            if firstProcId != ('CIM_Process.Handle="%s"' % firstProcObj.Handle):
+                raise Exception("Inconsistent procid:%s != %s" % (firstProcId, firstProcObj.Handle))
 
-                if firstProcObj.Handle == procId:
-                    raise Exception("Duplicate procid:%s" % procId)
-                self.SetParentProcess(firstProcObj)
-        except KeyError:
-            # This is the first process.
-            pass
+            if firstProcObj.Handle == procId:
+                raise Exception("Duplicate procid:%s" % procId)
+            self.SetParentProcess(firstProcObj)
 
     m_Ontology = ['Handle']
 
     @classmethod
     def DisplaySummary(theClass, fdSummaryFile, cimKeyValuePairs):
         fdSummaryFile.write("Processes:\n")
-        print("keys=", G_mapCacheObjects.keys())
-        list_CIM_Process = getattr(G_mapCacheObjects, CIM_Process.__name__, dict())
+        list_CIM_Process = G_mapCacheObjects[CIM_Process.__name__]
         for objPath, objInstance in sorted(list_CIM_Process.items()):
             objInstance.Summarize(fdSummaryFile)
         fdSummaryFile.write("\n")
@@ -994,8 +992,6 @@ class CIM_Process(CIM_XmlMarshaller, object):
     def XMLSummary(theClass, fdSummaryFile, cimKeyValuePairs):
         # Find unvisited processes. It does not start from G_top_ProcessId
         # because maybe it contains several trees, or subtrees were missed etc...
-        if CIM_Process.__name__ not in G_mapCacheObjects:
-            return
         for objPath, objInstance in sorted(G_mapCacheObjects[CIM_Process.__name__].items()):
             try:
                 objInstance.m_isVisited
@@ -1168,7 +1164,7 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
             self.FileName = basNa.split(".")[0]
         except:
             pass
-        self.Category = _PathCategory(pathName)
+        self.Category = _pathname_to_category(pathName)
 
         self.m_DataFileFileAccesses = []
 
@@ -1350,11 +1346,7 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
     def GetExposedPorts():
         """this is is the list of all ports numbers whihc have to be open."""
 
-        try:
-            mapFiles = G_mapCacheObjects[CIM_DataFile.__name__].items()
-        except KeyError:
-            return
-
+        mapFiles = G_mapCacheObjects[CIM_DataFile.__name__].items()
         setPorts = set()
         for objPath, objInstance in mapFiles:
             try:
@@ -1376,77 +1368,108 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
 
 ################################################################################
 
-# This contains all CIM objects: CIM_Process, CIM_DataFile etc...
-# and is used to generate the summary. Each time an object is created,
-# updated or deleted, an event might be sent to a Survol server.
-G_mapCacheObjects = None
-
-################################################################################
-
-def CreateObjectPath(classModel, *ctorArgs):
-    global G_mapCacheObjects
-    try:
-        mapObjs = G_mapCacheObjects[classModel.__name__]
-    except KeyError:
-        mapObjs = {}
-        G_mapCacheObjects[classModel.__name__] = mapObjs
-
-    objPath = classModel.CreateMonikerKey(*ctorArgs)
-    try:
-        theObj = mapObjs[objPath]
-    except KeyError:
-        theObj = classModel(*ctorArgs)
-        mapObjs[objPath] = theObj
-    return theObj
-
-################################################################################
-
 # os.path.abspath removes things like . and .. from the path
 # giving a full path from the root of the directory tree to the named file (or symlink)
-def ToAbsPath( dirPath, filNam ):
+def to_real_absolute_path(directory_path, file_basename):
     # This does not apply to pseudo-files such as: "pipe:", "TCPv6:" etc...
-    if re.match("^[0-9a-zA-Z_]+:", filNam):
-        return filNam
+    if re.match("^[0-9a-zA-Z_]+:", file_basename):
+        return file_basename
 
-    if filNam in ["stdout", "stdin", "stderr"]:
-        return filNam
+    if file_basename in ["stdout", "stdin", "stderr"]:
+        return file_basename
 
-    join_path = os.path.join(dirPath, filNam)
+    join_path = os.path.join(directory_path, file_basename)
     norm_path = os.path.realpath(join_path)
     return norm_path
 
 ################################################################################
 
-def ToObjectPath_CIM_Process(aPid):
-    return CreateObjectPath(CIM_Process,aPid)
+# This contains all CIM objects: CIM_Process, CIM_DataFile etc...
+# and is used to generate the summary. Each time an object is created,
+# updated or deleted, an event might be sent to a Survol server.
+G_mapCacheObjects = None
 
-# It might be a Linux socket or an IP socket.
-# The pid can be added so we know which process accesses this file.
-def ToObjectPath_CIM_DataFile(pathName,aPid = None):
-    #sys.stdout.write("ToObjectPath_CIM_DataFile pathName=%s aPid=%s\n" % ( pathName, str(aPid) ) )
-    if aPid:
-        # Maybe this is a relative file, and to make it absolute,
-        # the process is needed.
-        objProcess = ToObjectPath_CIM_Process(aPid)
-        dirPath = objProcess.GetProcessCurrentDir()
-    else:
-        # At least it will suppress ".." etc...
-        dirPath = ""
-
-    pathName = ToAbsPath( dirPath, pathName )
-
-    objDataFile = CreateObjectPath(CIM_DataFile,pathName)
-    return objDataFile
+# Read from a real process or from the log file name when replaying a session.
+# It is conceptually part of an ObjectsContext.
+G_topProcessId = None
 
 ################################################################################
 
-def GenerateDockerFile(dockerFilename):
+
+# This helps creating CIM objects based on their class name a key-value pairs
+# defined from the ontology. The role of this context object is to contain
+# everything which is needed to create a CIM object without ambiguity.
+# For example, when creating a CIM_DataFile, only the relative path name
+# might ba available. So, the process current work dir is given by this context.
+class ObjectsContext:
+    def __init__(self, process_id = None):
+        self._process_id = process_id
+
+    def attributes_to_cim_object(self, cim_class_name, **cim_attributes_dict):
+        if cim_class_name == "CIM_Process":
+            cim_key_handle = cim_attributes_dict['Handle']
+            return self._class_model_to_object_path(CIM_Process, cim_key_handle)
+        if cim_class_name == "CIM_DataFile":
+            # It might be a Linux socket or an IP socket.
+            # The pid can be added so we know which process accesses this file.
+            if self._process_id:
+                # Maybe this is a relative file, and to make it absolute,
+                # the process is needed.
+                cim_object_process = self._class_model_to_object_path(CIM_Process, self._process_id)
+                directory_path = cim_object_process.GetProcessCurrentDir()
+            else:
+                # At least it will suppress ".." etc...
+                directory_path = ""
+
+            file_pathname = cim_attributes_dict['Name']
+            cim_key_name = to_real_absolute_path(directory_path, file_pathname)
+
+            cim_object_datafile = self._class_model_to_object_path(CIM_DataFile, cim_key_name)
+            return cim_object_datafile
+
+    def ToObjectPath_CIM_Process(self, process_id):
+        return self._class_model_to_object_path(CIM_Process, process_id)
+
+    # It might be a Linux socket or an IP socket.
+    # The pid can be added so we know which process accesses this file.
+    def ToObjectPath_CIM_DataFile(self, pathName):
+        #sys.stdout.write("ToObjectPath_CIM_DataFile pathName=%s aPid=%s\n" % ( pathName, str(aPid) ) )
+        if self._process_id:
+            # Maybe this is a relative file, and to make it absolute,
+            # the process is needed.
+            objProcess = self.ToObjectPath_CIM_Process(self._process_id)
+            dirPath = objProcess.GetProcessCurrentDir()
+        else:
+            # At least it will suppress ".." etc...
+            dirPath = ""
+
+        pathName = to_real_absolute_path(dirPath, pathName)
+
+        objDataFile = self._class_model_to_object_path(CIM_DataFile, pathName)
+        return objDataFile
+
+    def _class_model_to_object_path(self, classModel, *ctorArgs):
+        global G_mapCacheObjects
+        mapObjs = G_mapCacheObjects[classModel.__name__]
+        G_mapCacheObjects[classModel.__name__] = mapObjs
+
+        objPath = classModel.CreateMonikerKey(*ctorArgs)
+        try:
+            theObj = mapObjs[objPath]
+        except KeyError:
+            theObj = classModel(*ctorArgs)
+            mapObjs[objPath] = theObj
+        return theObj
+
+################################################################################
+
+def generate_dockerfile(dockerFilename):
     fdDockerFile = open(dockerFilename, "w")
 
     # This write in the DockerFile, the environment variables accessed
     # by processes. For the moment, all env vars are mixed together,
     # which is inexact, strictly speaking.
-    def WriteEnvironVar():
+    def _write_environment_variables():
         for envNam in G_EnvironmentVariables:
             envVal = G_EnvironmentVariables[envNam]
             if envVal == "":
@@ -1456,7 +1479,7 @@ def GenerateDockerFile(dockerFilename):
 
         fdDockerFile.write("\n")
 
-    def WriteProcessTree():
+    def _write_process_tree():
         """Only for documentation purpose"""
 
         def WriteOneProcessSubTree(objProc, depth):
@@ -1523,9 +1546,9 @@ def GenerateDockerFile(dockerFilename):
             fdDockerFile.write("EXPOSE %s\n" % onePort)
         fdDockerFile.write("\n")
 
-    WriteEnvironVar()
+    _write_environment_variables()
 
-    WriteProcessTree()
+    _write_process_tree()
 
     # More examples here:
     # https://github.com/kstaken/dockerfile-examples/blob/master/couchdb/Dockerfile
@@ -1538,11 +1561,12 @@ def GenerateDockerFile(dockerFilename):
 # As read from the strace or ltrace calls to getenv()
 G_EnvironmentVariables = None
 
+
 def init_global_objects():
     global G_mapCacheObjects
     global G_httpClient
     global G_EnvironmentVariables
-    G_mapCacheObjects = {}
+    G_mapCacheObjects = collections.defaultdict(dict)
 
     # This object is used to send triples to a Survol server.
     # It is also used to store the triples in a RDF file, which is created by the destructor.
@@ -1551,9 +1575,12 @@ def init_global_objects():
     # As read from the strace or ltrace calls to getenv()
     G_EnvironmentVariables = {}
 
-    CreateObjectPath(CIM_ComputerSystem, socket.gethostname())
-    CreateObjectPath(CIM_OperatingSystem)
-    CreateObjectPath(CIM_NetworkAdapter, socket.gethostbyname(socket.gethostname()))
+    objects_context = ObjectsContext(os.getpid())
+
+    objects_context._class_model_to_object_path(CIM_ComputerSystem, socket.gethostname())
+    objects_context._class_model_to_object_path(CIM_OperatingSystem)
+    objects_context._class_model_to_object_path(CIM_NetworkAdapter, socket.gethostbyname(socket.gethostname()))
+
 
 def exit_global_objects():
     # It is also used to store the triples in a RDF file, which is created by the destructor.
@@ -1566,62 +1593,63 @@ def exit_global_objects():
 # It contains regular expression for classifying file names in categories:
 # Shared libraries, source files, scripts, Linux pipes etc...
 G_lstFilters = [
-    ( "Shared libraries" , [
+    ("Shared libraries", [
         r"^/usr/lib[^/]*/.*\.so",
         r"^/usr/lib[^/]*/.*\.so\..*",
         r"^/var/lib[^/]*/.*\.so",
         r"^/lib/.*\.so",
         r"^/lib64/.*\.so",
-    ] ),
-    ( "System config files" , [
+    ]),
+    ("System config files", [
         "^/etc/",
         "^/usr/share/fonts/",
         "^/usr/share/fontconfig/",
         "^/usr/share/fontconfig/",
         "^/usr/share/locale/",
         "^/usr/share/zoneinfo/",
-    ] ),
-    ( "Other libraries" , [
+    ]),
+    ("Other libraries", [
         "^/usr/share/",
         "^/usr/lib[^/]*/",
         "^/var/lib[^/]*/",
-    ] ),
-    ( "System executables" , [
+    ]),
+    ("System executables", [
         "^/bin/",
         "^/usr/bin[^/]*/",
-    ] ),
-    ( "Kernel file systems" , [
+    ]),
+    ("Kernel file systems", [
         "^/proc",
         "^/run",
-    ] ),
-    ( "Temporary files" , [
+    ]),
+    ("Temporary files", [
         "^/tmp/",
         "^/var/log/",
         "^/var/cache/",
-    ] ),
-    ( "Pipes and terminals" , [
+    ]),
+    ("Pipes and terminals", [
         "^/sys",
         "^/dev",
         "^pipe:",
         "^socket:",
         "^UNIX:",
         "^NETLINK:",
-    ] ),
+    ]),
     # TCP:[54.36.162.150:41039->82.45.12.63:63711]
-    ( "Connected TCP sockets" , [
+    ("Connected TCP sockets", [
         r"^TCP:\[.*->.*\]",
         r"^TCPv6:\[.*->.*\]",
-    ] ),
-    ( "Other TCP/IP sockets" , [
+    ]),
+    ("Other TCP/IP sockets", [
         "^TCP:",
         "^TCPv6:",
         "^UDP:",
         "^UDPv6:",
-    ] ),
-    ( "Others" , [] ),
+    ]),
+    ("Others", []),
 ]
 
-def _PathCategory(pathName):
+
+def _pathname_to_category(pathName):
     """This match the path name againt the set of regular expressions
     defining broad categories of files: Sockets, libraries, temporary files...
     These categories are not technical but based on application best practices,

@@ -45,7 +45,7 @@ if __package__:
 else:
     import linux_api_definitions
 
-# This contains th definitions of Linux system calls, and other things.
+# This contains the definitions of Linux system calls, and other things.
 G_traceToTracer["strace"] = linux_api_definitions.STraceTracer()
 G_traceToTracer["ltrace"] = linux_api_definitions.LTraceTracer()
 
@@ -55,7 +55,8 @@ if sys.platform.startswith("win"):
         from . import win32_api_definitions
     else:
         import win32_api_definitions
-    G_traceToTracer["pydbg"] = win32_api_definitions.Win32Tracer()
+    win32_api_definitions.tracer_object = win32_api_definitions.Win32Tracer()
+    G_traceToTracer["pydbg"] = win32_api_definitions.tracer_object
 
 ################################################################################
 
@@ -68,7 +69,7 @@ def print_dockit_usage(exit_code = 1, error_message = None):
     print("Monitors and factorizes systems calls.")
     print("  -h,--help                       This message.")
     print("  -v,--verbose                    Verbose mode (Cumulative).")
-    print("  -w,--warning                    Display warnings (Cumulative).")
+    print("  -w,--warning                    Displays warnings (Cumulative).")
     print("  -s,--summary <CIM class>        Prints a summary at the end: Start end end time stamps, executable name,\n"
         + "                                  loaded libraries, read/written/created files and timestamps, subprocesses tree.\n"
         + "                                  Examples: -s 'Win32_LogicalDisk.DeviceID=\"C:\",Prop1=\"Value1\",Prop2=\"Value2\"'\n"
@@ -77,11 +78,12 @@ def print_dockit_usage(exit_code = 1, error_message = None):
     print("  -p,--pid <pid>                  Monitors a running process instead of starting an executable.")
     print("  -f,--format TXT|CSV|JSON        Output format. Default is TXT.")
     print("  -F,--summary-format TXT|XML     Summary output format. Default is XML.")
-    print("  -i,--input <file name>          trace input file.")
-    print("  -l,--log <filename prefix>      prefix of output files.\n")
-    print("  -t,--tracer strace|ltrace|pydbg command for generating trace log")
+    print("  -i,--input <file name>          Trace input log file for replaying a session.")
+    print("  -l,--log <filename prefix>      Directory and prefix of output files.")
+    print("  -t,--tracer strace|ltrace|pydbg Set trace program.")
     print("  -S,--server <Url>               Survol url for CIM objects updates. Ex: http://127.0.0.1:80/survol/event_put.py")
-    print("  -a,--aggregator <aggregator>    Aggregation method, e.g. clusterize etc...")
+    print("  -a,--aggregator <aggregator>    Aggregation method, e.g. 'clusterize' etc...")
+    print("  -d,--log                        Duplicates session to a log file which can be replayed as input...")
 
     print("")
 
@@ -125,8 +127,8 @@ def _parse_filter_CIM(rgx_object_path):
 
     # This transforms the concatenation of key-value pairs into a function signature, and it is parsed by Python.
     # Example:
-    #     def toto(a='1',b='2')
-    #     >>> inspect.getargspec(toto)
+    #     def xxx(a='1',b='2')
+    #     >>> inspect.getargspec(xxx)
     #     ArgSpec(args=['a', 'b'], varargs=None, keywords=None, defaults=('1', '2'))
     tmp_func = "def aTempFunc(%s) : pass" % str_key_values
 
@@ -466,7 +468,8 @@ def default_tracer(input_log_file, tracer=None):
     return tracer
 
 
-def _load_init_file(ini_pathname):
+# This file contains some extra details to replay a session with a log file.
+def ini_file_load(ini_pathname):
     sys.stdout.write("Loading ini file:%s\n" % ini_pathname)
     ini_map_key_value_pairs = {}
     try:
@@ -488,6 +491,16 @@ def _load_init_file(ini_pathname):
     sys.stdout.write("Closing ini file:%s\n" % ini_pathname)
     ini_file.close()
     return ini_map_key_value_pairs
+
+
+# This is purely for debugging and testing.
+def check_ini_file(ini_pathname):
+    ini_dict = ini_file_load(ini_pathname)
+    assert int(ini_dict["TopProcessId"]) >= 0
+    assert ini_dict["CurrentDirectory"]
+    assert ini_dict["CurrentDate"] # 2020-05-17
+    assert ini_dict["CurrentHostname"]
+    assert ini_dict["CurrentOSType"] in ["win32", "linux2"]
 
 
 # This returns a stream with each line written by strace or ltrace.
@@ -513,39 +526,42 @@ def _create_calls_stream(command_line, input_process_id, input_log_file, tracer)
     the_platform = sys.platform
 
     curr_wrk_dir = os.getcwd()
-    if input_log_file:
-        calls_stream = open(input_log_file)
+
+    cim_objects_definitions.G_ReplayMode = True if input_log_file else False
+    cim_objects_definitions.G_SameMachine = not cim_objects_definitions.G_ReplayMode or G_Hostname == socket.gethostname()
+
+    with_warning = True # FIXME: Must be a parameter.
+    _init_globals(with_warning)
+
+    current_tracer = G_traceToTracer[tracer]
+    if cim_objects_definitions.G_ReplayMode:
+        # calls_stream = open(input_log_file)
+        calls_stream = current_tracer.logfile_pathname_to_stream(input_log_file)
         logging.info("File " + input_log_file)
         logging.info("Logfile %s pid=%s" % (input_log_file, input_process_id))
 
         # There might be a context file with important information to reproduce the test.
         context_log_file = os.path.splitext(input_log_file)[0] + ".ini"
-        mapKV = _load_init_file(context_log_file)
+        mapKV = ini_file_load(context_log_file)
 
         # The main process pid might be embedded in the log file name,
         # but preferably stored in the ini file.
-        linux_api_definitions.G_topProcessId       = int(mapKV.get("TopProcessId", input_process_id))
+        cim_objects_definitions.G_topProcessId     = int(mapKV.get("TopProcessId", input_process_id))
 
         cim_objects_definitions.G_CurrentDirectory = mapKV.get("CurrentDirectory", curr_wrk_dir)
         cim_objects_definitions.G_Today            = mapKV.get("CurrentDate", date_today_run)
         G_Hostname                                 = mapKV.get("CurrentHostname", the_host_nam)
         G_OSType                                   = mapKV.get("CurrentOSType", the_platform)
 
-        cim_objects_definitions.G_ReplayMode = True
-
-        sys.stdout.write("G_topProcessId=%d\n" % linux_api_definitions.G_topProcessId)
+        sys.stdout.write("G_topProcessId=%d\n" % cim_objects_definitions.G_topProcessId)
     else:
-
-        (linux_api_definitions.G_topProcessId, calls_stream)= G_traceToTracer[tracer].create_logfile_stream(command_line, input_process_id)
+        # FIXME: G_topProcessId is set elsewhere, at the creation of the subprocess ?
+        cim_objects_definitions.G_topProcessId, calls_stream= current_tracer.create_logfile_stream(command_line, input_process_id)
         cim_objects_definitions.G_CurrentDirectory          = curr_wrk_dir
         cim_objects_definitions.G_Today                     = date_today_run
         G_Hostname                                          = the_host_nam
         G_OSType                                            = the_platform
-
-        cim_objects_definitions.G_ReplayMode = False
-
-    cim_objects_definitions.G_SameMachine = not cim_objects_definitions.G_ReplayMode or G_Hostname == socket.gethostname()
-
+        assert cim_objects_definitions.G_topProcessId >= 0, "_create_calls_stream G_topProcessId not set"
 
     # Another possibility is to start a process or a thread which will monitor
     # the target process, and will write output information in a stream.
@@ -613,28 +629,24 @@ def _calls_flow_class_factory(aggregator):
 def _create_map_flow_from_stream(
         verbose, with_warning,
         calls_stream, tracer, batch_constructor, aggregator):
-    # Here, we have an event log as a stream, which comes from a file (if testing),
-    # the output of strace or anything else.
-
-    _init_globals(with_warning)
+    # This is an event log as a stream, coming from a file (if testing), the output of strace or anything else.
 
     map_flows = {}
 
     CallsFlowClass = _calls_flow_class_factory(aggregator)
 
     # This generator creates individual BatchLet objects on-the-fly.
-    # At this stage, "resumed" calls are matched with the previously received "unfinished"
-    # line for the same call.
+    # At this stage, "resumed" calls are matched with the previously received "unfinished" line for the same call.
     # Some calls, for some reason, might stay "unfinished": Though,
     # they are still needed to rebuild the processes tree.
-    map_flows_generator = G_traceToTracer[tracer].create_flows_from_calls_stream(verbose, calls_stream)
+    map_flows_generator = G_traceToTracer[tracer].create_flows_from_calls_stream(calls_stream)
 
-    # Maybe, some system calls are unfinished, i.e. the "resumed" part of the call
-    # is never seen. They might be matched later.
+    # Maybe, some system calls are unfinished, i.e. the "resumed" part of the call is never seen.
+    # They might be matched later.
     for one_function_call in map_flows_generator:
-        aCore = one_function_call.m_core
+        a_core = one_function_call.m_core
 
-        the_pid = aCore.m_pid
+        the_pid = a_core.m_pid
         try:
             calls_flow = map_flows[the_pid]
         except KeyError:
@@ -651,6 +663,9 @@ def _create_map_flow_from_stream(
         calls_flow.factorise_one_flow(verbose, batch_constructor)
 
     _exit_globals()
+
+    # TODO: Should go in create_flows_from_calls_stream
+    linux_api_definitions.G_stackUnfinishedBatches.display_unfinished_unmerged_batches(sys.stdout)
     return map_flows
 
 ################################################################################
@@ -686,7 +701,7 @@ def _analyse_functions_calls_stream(
 
     mapFlows = _create_map_flow_from_stream(verbose, with_warning, calls_stream, tracer, batch_constructor, aggregator)
 
-    linux_api_definitions.G_stackUnfinishedBatches.display_unfinished_unmerged_batches(sys.stdout)
+    #linux_api_definitions.G_stackUnfinishedBatches.display_unfinished_unmerged_batches(sys.stdout)
 
     if output_files_prefix and output_format:
         assert output_files_prefix[-1] != '.'
@@ -729,7 +744,7 @@ def _analyse_functions_calls_stream(
         os.makedirs(docker_dir_name)
 
         dockerFilename = docker_dir_name + "/Dockerfile"
-        cim_objects_definitions.GenerateDockerFile(dockerFilename)
+        cim_objects_definitions.generate_dockerfile(dockerFilename)
 
     return output_summary_file
 
@@ -739,8 +754,8 @@ def test_from_file(
         input_log_file, tracer, input_process_id, output_files_prefix, output_format, verbose, map_params_summary,
         summary_format, with_warning, with_dockerfile, update_server, aggregator):
     assert isinstance(input_process_id, int)
-    calls_stream = _create_calls_stream([], input_process_id, input_log_file, tracer)
     cim_objects_definitions.G_UpdateServer = update_server
+    calls_stream = _create_calls_stream([], input_process_id, input_log_file, tracer)
 
     # Check if there is a context file, which gives parameters such as the current directory,
     # necessary to reproduce the test in the same conditions.
@@ -751,6 +766,24 @@ def test_from_file(
     return output_summary_file
 
 
+def _create_ini_file(output_files_prefix):
+    iniFilNam = output_files_prefix + ".ini"
+    iniFd = open(iniFilNam, "w")
+
+    # At this stage, we know what is the top process id,
+    # because the command is created, or the process attached.
+    assert cim_objects_definitions.G_topProcessId >= 0
+    iniFd.write('TopProcessId=%s\n' % cim_objects_definitions.G_topProcessId)
+
+    iniFd.write('CurrentDirectory=%s\n' % os.getcwd())
+    # Necessary because ltrace and strace do not write the date.
+    # Done before testing in case the test stops next day.
+    iniFd.write('CurrentDate=%s\n' % cim_objects_definitions.G_Today)
+    iniFd.write('CurrentHostname=%s\n' % socket.gethostname())
+    iniFd.write('CurrentOSType=%s\n' % sys.platform)
+    iniFd.close()
+
+
 def _start_processing(global_parameters):
     calls_stream = _create_calls_stream(
         global_parameters.command_line,
@@ -758,46 +791,19 @@ def _start_processing(global_parameters):
         global_parameters.input_log_file,
         global_parameters.tracer)
 
+    assert cim_objects_definitions.G_topProcessId >= 0
     if global_parameters.output_files_short_prefix:
         output_files_prefix = "%s.%s.%s" % (
             global_parameters.output_files_short_prefix,
             global_parameters.tracer,
-            linux_api_definitions.G_topProcessId)
+            cim_objects_definitions.G_topProcessId)
 
-        # tee: This just needs to reimplement "readline()"
-        class TeeStream:
-            def __init__(self, log_stream):
-                self.m_logStrm = log_stream
-                assert output_files_prefix[-1] != '.'
-                log_fil_nam = output_files_prefix + ".log"
-                self.m_outFd = open( log_fil_nam, "w" )
-                print("Creating log file:%s" % log_fil_nam )
+        if global_parameters.duplicate_input_log:
+            calls_stream = G_traceToTracer[global_parameters.tracer].tee_calls_stream(calls_stream, output_files_prefix)
 
-            def readline(self):
-                # sys.stdout.write("xxx\n" )
-                aLin = self.m_logStrm.readline()
-                # sys.stdout.write("tee=%s" % aLin)
-                self.m_outFd.write(aLin)
-                return aLin
-
-        calls_stream = TeeStream(calls_stream)
-
-        # If not replaying, saves all parameters in an ini file.
+        # If not replaying, saves all parameters in an ini file, with all parameters needed for a replay.
         if not cim_objects_definitions.G_ReplayMode:
-            iniFilNam = output_files_prefix + ".ini"
-            iniFd = open(iniFilNam,"w")
-
-            # At this stage, we know what is the top process id,
-            # because the command is created, or the process attached.
-            iniFd.write('TopProcessId=%s\n' % linux_api_definitions.G_topProcessId )
-
-            iniFd.write('CurrentDirectory=%s\n' % os.getcwd() )
-            # Necessary because ltrace and strace do not write the date.
-            # Done before testing in case the test stops next day.
-            iniFd.write('CurrentDate=%s\n' % cim_objects_definitions.G_Today)
-            iniFd.write('CurrentHostname=%s\n' % socket.gethostname())
-            iniFd.write('CurrentOSType=%s\n' % sys.platform)
-            iniFd.close()
+            _create_ini_file(output_files_prefix)
     else:
         output_files_prefix = "dockit_output_" + global_parameters.tracer
 
@@ -838,13 +844,14 @@ if __name__ == '__main__':
         output_files_short_prefix = None
         tracer = None
         aggregator = None
+        duplicate_input_log = False
 
     try:
         command_options, G_parameters.command_line = getopt.getopt(sys.argv[1:],
-                "hvws:Dp:f:F:i:l:t:S:a:",
+                "hvws:Dp:f:F:i:l:t:S:a:d",
                 ["help","verbose","warning","summary=",
                  "dockerfile","pid=","format=","summary-format=","input=",
-                 "log=","tracer=","server=","aggregator="])
+                 "log=","tracer=","server=","aggregator=","duplicate"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print_dockit_usage(2, err) # will print something like "option -a not recognized"
@@ -874,6 +881,8 @@ if __name__ == '__main__':
             G_parameters.cim_objects_definitions.G_UpdateServer = a_value
         elif an_option in ("-a", "--aggregator"):
             G_parameters.aggregator = a_value
+        elif an_option in ("-d", "--duplicate"):
+            G_parameters.duplicate_input_log = True
         elif an_option in ("-h", "--help"):
             print_dockit_usage(0)
         else:
@@ -885,7 +894,7 @@ if __name__ == '__main__':
 
     # These information in JSON format on the last line
     # are needed to find the name of the generated file.
-    print('{"pid": "%d"}' % linux_api_definitions.G_topProcessId)
+    print('{"pid": "%d"}' % cim_objects_definitions.G_topProcessId)
 
 ################################################################################
 # The End.

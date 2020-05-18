@@ -17,6 +17,7 @@ import time
 import struct
 import logging
 import platform
+import threading
 import collections
 
 import win32file
@@ -24,6 +25,11 @@ import win32con
 import win32process
 import pywintypes
 import win32api
+
+if __package__:
+    from . import cim_objects_definitions
+else:
+    import cim_objects_definitions
 
 is_py3 = sys.version_info >= (3,)
 if is_py3:
@@ -50,77 +56,200 @@ else:
 # or an extension of CIM.
 class TracerBase(object):
     def report_function_call(self, function_name, process_id):
-        logging.debug("report_cim_object %s %s %s" % (self.__class__.__name__, function_name, process_id))
-        # For testing, it just stores the function name and the process id.
-        # The called functions are then checked against the program behaviour.
-        # In Survol, it may store the function name in a queue,
-        # and this event can be forwarded to a RDF semantic database.
+        raise NotImplementedError("To be implemented")
 
-    def report_object_creation(self, cim_class_name, **cim_arguments):
-        logging.debug("report_cim_object %s %s %s" % (self.__class__.__name__, cim_class_name, cim_arguments))
-        # For testing, it just stores the object where it can be read for testing.
-        # In Survol, it stores the object in a queue,
-        # and this event can be forwarded to a RDF semantic database.
+    def report_object_creation(self, cim_objects_context, cim_class_name, **cim_arguments):
+        raise NotImplementedError("To be implemented")
 
-# class Win32BatchCore:
-#     def __init__(self, task_id, function_name):
-#         self._task_id = task_id
-#         self._function_name = function_name
-#
+
+# This uses duck typing to behave like a BatchLetCore.
+class PseudoTraceLineCore:
+    def __init__(self, process_id, function_name):
+        self.m_pid = process_id
+        # This is not applicable to Windows, yet.
+        self.m_status = 999999
+        self.m_funcNam = function_name
+        self.m_retValue = 0
+        self.m_timeStart = time.time()
+        self.m_timeEnd = self.m_timeStart
+
+    # TODO: Finish this list.
+    _functions_creating_processes = set(["CreateProcessW", "CreateProcessA"])
+
+    def is_creating_process(self):
+        return self.m_funcNam in self._functions_creating_processes
+
+class PseudoTraceLine:
+    def __init__(self, process_id, function_name):
+        assert isinstance(function_name, six.binary_type)
+        self.m_core = PseudoTraceLineCore(process_id, function_name)
+        # So, consecutive calls can be aggregated.
+        # This compresses consecutive calls, in a loop, to the same function.
+        self.m_occurrences = 1
+        # The style tells if this is a native call or an aggregate of function calls.
+        self.m_style = "Breakpoint"
+
+    def write_to_file(self, file_descriptor):
+        assert isinstance(self.m_core.m_funcNam, six.binary_type)
+        file_descriptor.write("%d %s\n" % (self.m_core.m_pid, self.m_core.m_funcNam.decode('utf-8)')))
+
+    @staticmethod
+    def read_from_file(file_descriptor):
+        function_call_line = file_descriptor.readline().split()
+        process_id = int(function_call_line[0])
+        function_name = function_call_line[1].encode()
+        return PseudoTraceLine(process_id, function_name)
+
+    # Process creations or setup are not aggregated.
+    def is_same_call(self, another_object):
+        return self.m_core.m_funcNam == another_object.m_core.m_funcNam \
+               and not self.m_core.is_creating_process() \
+               and not another_object.m_core.is_creating_process()
+
+    def get_significant_args(self):
+        return []
+
+
 class Win32Tracer(TracerBase):
-#     def create_logfile_stream(self, extCommand, aPid):
-#         if not aPid:
-#             raise Exception("create_logfile_stream: process id should not be None")
-#         if extCommand:
-#             raise Exception("create_logfile_stream: command should not be None")
-#
-#         self._root_pid = aPid
-#         Win32Tracer._queue = queue.Queue()
-#         time.sleep(1.0)
-#         hook_functions()
 
-        def report_function_call(self, function_name, task_id):
-            logging.info("function_name=%s" % function_name)
+    # This is a convention to indicate the program end.
+    _function_name_process_start = b"PYDBG_PROCESS_START"
+    _function_name_process_exit = b"PYDBG_PROCESS_EXIT"
 
-            batch_core = Win32BatchCore(task_id, one_syscall.function_name)
-            Win32Tracer._queue.put(batch_core)
+    def _callback_process_creation(self, created_process_id):
+        logging.error("_callback_process_creation created_process_id=%d" % created_process_id)
+        # The first message of this queue is a conventional function call which contains the created process id.
+        # After that, it contains only genuine function calls, plus the last one,
+        # also conventional, which indicates the process end, and releases the main process.
+        batch_core = PseudoTraceLine(created_process_id, self._function_name_process_start)
+        self._queue.put(batch_core)
 
-        def report_object_creation(self, cim_class_name, **cim_arguments):
-            logging.debug("win32_tracer_cim_object_callback", cim_class_name, cim_arguments)
-            return (self._root_pid, self._queue)
-#
-#     def create_flows_from_calls_stream(self, verbose, logStream):
-#
-#         assert isinstance(logStream, queue.Queue)
-#
-#         queue_timeout = 10.0 # Seconds.
-#
-#         def thread_function():
-#             Win32Hook_BaseClass.object_pydbg.attach(aPid)
-#             Win32Hook_BaseClass.object_pydbg.run()
-#             #         On veut se mettre a la place de pydbg.debug_event_loop equivalent a run())
-#             #         qui appelle debug_event_iteration qui appelle WaitForDebugEvent
-#             ######        self._pydbg.detach()
-#             Win32Hook_BaseClass.object_pydbg.terminate()
-#
-#         # Not finished yet.
-#         start_thread(thread_function)
-#
-#         while True:
-#             try:
-#                 # We could use the queue to signal the end of the loop.
-#                 batch_core = logStream.get(True, timeout = queue_timeout)
-#             except queue.Empty:
-#                 logging.info("Win32Tracer.create_flows_from_calls_stream timeout. Waiting.")
-#                 continue
-#
-#             assert isinstance(batch_core, Win32BatchCore)
-#
-#             yield batch_core
-#
+    def _start_debugging(self):
+        if self._input_process_id > 0:
+            logging.error("_start_debugging self._input_process_id=%d" % self._input_process_id)
+            assert not self._command_line
+            self._hooks_manager.attach_to_pid(self._input_process_id)
+        elif self._command_line:
+            logging.error("_start_debugging self._command_line=%s" % self._command_line)
+            command_as_string = " ".join(self._command_line)
+            self._root_pid = self._hooks_manager.attach_to_command(command_as_string, self._callback_process_creation)
+        else:
+            raise Exception("_start_debugging: command should not be None")
+
+        logging.error("Win32Tracer._start_debugging FINISHED")
+        self.report_function_call(self._function_name_process_exit, 0)
+        # created_process.terminate()
+        # created_process.join()
+
+    def tee_calls_stream(self, log_stream, output_files_prefix):
+        assert isinstance(log_stream, queue.Queue)
+
+        class TeeQueue:
+            def __init__(self):
+                self._log_stream = log_stream
+                assert output_files_prefix[-1] != '.'
+                log_filename = output_files_prefix + ".log"
+                self._out_file_descriptor = open(log_filename, "w")
+                print("Creating log file:%s" % log_filename)
+
+            def get(self, block=True, timeout=None):
+                next_function_call = self._log_stream.get(block, timeout)
+                assert isinstance(next_function_call, PseudoTraceLine)
+                # When replaying, each line is deserialized into a PseudoTraceLine.
+                next_function_call.write_to_file(self._out_file_descriptor)
+                return next_function_call
+
+        return TeeQueue()
+
+    def create_logfile_stream(self, command_line, process_id):
+        print("Win32Tracer.create_logfile_stream")
+        print("Win32Tracer.create_logfile_stream command_line=", command_line)
+        print("Win32Tracer.create_logfile_stream process_id=", process_id)
+        assert isinstance(command_line, list)
+        assert isinstance(process_id, int)
+        assert (command_line == []) ^ (process_id < 0)
+        logging.error("create_logfile_stream command_line=%s process_id=%d" % (command_line, process_id))
+
+        self._hooks_manager = Win32Hook_Manager()
+        self._command_line = command_line
+        self._queue = queue.Queue()
+
+        self._input_process_id = process_id
+        if self._input_process_id < 0:
+            # It is possible to start the process in a Python thread and resume it in another,
+            # because these are not real threads. It might be possible to do that
+            # in different threads, but it is better not to take the risk.
+            logging.error("create_logfile_stream process will be started in thread")
+            self._top_process_id = process_id * 100
+            self._debugging_thread = threading.Thread(target=self._start_debugging, args=())
+            self._debugging_thread.start()
+            logging.error("Waiting for process id to be set")
+            process_start_timeout = 10.0
+            first_function_call = self._queue.get(True, timeout=process_start_timeout)
+            assert isinstance(first_function_call, PseudoTraceLine)
+            assert first_function_call.m_core.m_funcNam == self._function_name_process_start
+            self._top_process_id = first_function_call.m_core.m_pid
+        else:
+            self._top_process_id = process_id
+
+        # return self._top_process_id, self.QueueToStreamAdapter(self._queue)
+        return self._top_process_id, self._queue
+
+    # Used when replaying a trace session. This returns an object, on which each read access
+    # return a conceptual function call, similar to what is returned when monitoring a process.
+    def logfile_pathname_to_stream(self, input_log_file):
+        class ReplayStream:
+            def __init__(self):
+                self._in_file_descriptor = open(input_log_file)
+
+            def get(self, block=True, timeout=None):
+                next_function_call = PseudoTraceLine.read_from_file(self._in_file_descriptor)
+                return next_function_call
+
+        return ReplayStream()
+
+    # This yields objects which model a function call.
+    def create_flows_from_calls_stream(self, log_stream):
+        # TODO: So why not simply returning self instead of the queue ?
+        logging.error("create_flows_from_calls_stream log_stream=%s" % log_stream.__class__.__name__)
+        #exit(0)
+        # TeeStream
+        # assert isinstance(log_stream, self.QueueToStreamAdapter)
+
+        #self._debugging_thread = threading.Thread(target=self._start_debugging, args=())
+        #self._debugging_thread.start()
+
+        queue_timeout = 10.0  # Seconds.
+
+        while True:
+            try:
+                # We could use the queue to signal the end of the loop.
+                pseudo_trace_line = log_stream.get(True, timeout=queue_timeout)
+            except queue.Empty:
+                logging.info("Win32Tracer.create_flows_from_calls_stream timeout. Waiting.")
+                continue
+            print("create_flows_from_calls_stream Function=", pseudo_trace_line.m_core.m_funcNam)
+            assert isinstance(pseudo_trace_line, PseudoTraceLine)
+
+            if pseudo_trace_line.m_core.m_funcNam == self._function_name_process_exit:
+                print("create_flows_from_calls_stream LEAVING")
+                return
+
+            yield pseudo_trace_line
+
+    def report_function_call(self, function_name, task_id):
+        logging.info("function_name=%s" % function_name)
+
+        batch_core = PseudoTraceLine(task_id, function_name)
+        self._queue.put(batch_core)
+
+    def report_object_creation(self, cim_objects_context, cim_class_name, **cim_arguments):
+        logging.debug("report_object_creation", cim_class_name, cim_arguments)
+        cim_objects_context.attributes_to_cim_object(cim_class_name, **cim_arguments)
+
 
 # This must be replaced by an object of a derived class.
-tracer_object = None # TracerBase()
+tracer_object = None # Win32Tracer()
 
 ################################################################################
 class Win32Hook_Manager(object):
@@ -153,7 +282,8 @@ class Win32Hook_Manager(object):
         def hook_function_adapter_entry(object_pydbg, function_arguments):
             logging.debug("hook_function_adapter_entry", the_subclass.__name__, function_arguments)
             subclass_instance = the_subclass()
-            subclass_instance.current_pydbg = object_pydbg
+            subclass_instance.set_current_pydbg(object_pydbg)
+
             # This instance object has the same visibility and scope than the arguments.
             # Therefore, they are stored together with a hack of appending the instance
             # at the arguments'end.
@@ -219,7 +349,6 @@ class Win32Hook_Manager(object):
             self._hook_api_function(the_subclass)
 
     def attach_to_pid(self, process_id):
-
         self.object_pydbg.attach(process_id)
         self._hook_api_functions_list()
         self.object_pydbg.run()
@@ -228,7 +357,8 @@ class Win32Hook_Manager(object):
     # stores the desired breakpoints, in a map indexed by the DLL name,
     # then resumes the process.
     # When the DLLs are loaded, a callback sets their breakpoints.
-    def attach_to_command(self, command_line):
+    def attach_to_command(self, command_line, callback_process_creation = None):
+        logging.error("attach_to_command command_line=%s" % command_line)
         start_info = win32process.STARTUPINFO()
         start_info.dwFlags = win32con.STARTF_USESHOWWINDOW
 
@@ -236,7 +366,12 @@ class Win32Hook_Manager(object):
             None, command_line, None, None, False,
             win32con.CREATE_SUSPENDED, None,
             os.getcwd(), start_info)
+        logging.error("attach_to_command dwProcessId=%s" % dwProcessId)
 
+        if callback_process_creation:
+            callback_process_creation(dwProcessId)
+
+        cim_objects_definitions.G_topProcessId = dwProcessId
         self.object_pydbg.attach(dwProcessId)
         self._hook_api_functions_list()
         win32process.ResumeThread(hThread)
@@ -253,6 +388,7 @@ class Win32Hook_BaseClass(object):
     # calls, made with some style: Factorization etc...
     def __init__(self):
         self.m_core = None
+        self.current_pydbg = None
 
     # Possible optimisation: If this function is not implemented,
     # no need to create a subclass instance.
@@ -261,6 +397,12 @@ class Win32Hook_BaseClass(object):
 
     def callback_after(self, function_arguments, function_result):
         pass
+
+    def cim_context(self):
+        return cim_objects_definitions.ObjectsContext(self.current_pydbg.dbg.dwProcessId)
+
+    def set_current_pydbg(self, current_pydbg):
+        self.current_pydbg = current_pydbg
 
     # The API signature is taken "as is" from Microsoft web site.
     # There are many functions and copying their signature is error-prone.
@@ -282,7 +424,7 @@ class Win32Hook_BaseClass(object):
         assert isinstance(the_class.function_name, six.binary_type)
 
     def callback_create_object(self, cim_class_name, **cim_arguments):
-        tracer_object.report_object_creation(cim_class_name, **cim_arguments)
+        tracer_object.report_object_creation(self.cim_context(), cim_class_name, **cim_arguments)
 
 ################################################################################
 
