@@ -212,12 +212,6 @@ class Win32Tracer(TracerBase):
     def create_flows_from_calls_stream(self, log_stream):
         # TODO: So why not simply returning self instead of the queue ?
         logging.error("create_flows_from_calls_stream log_stream=%s" % log_stream.__class__.__name__)
-        #exit(0)
-        # TeeStream
-        # assert isinstance(log_stream, self.QueueToStreamAdapter)
-
-        #self._debugging_thread = threading.Thread(target=self._start_debugging, args=())
-        #self._debugging_thread.start()
 
         queue_timeout = 10.0  # Seconds.
 
@@ -428,6 +422,7 @@ class Win32Hook_BaseClass(object):
 
 ################################################################################
 
+# This is a base class for all functions which create a process.
 class Win32Hook_GenericProcessCreation(Win32Hook_BaseClass):
 
     # API functions which create process have a specific behaviour:
@@ -481,6 +476,7 @@ class Win32Hook_CreateProcessA(Win32Hook_GenericProcessCreation):
         logging.debug("Win32Hook_CreateProcessA _return_value=", function_result)
         logging.debug("Win32Hook_CreateProcessA Handle=", dwProcessId)
         self.callback_create_object("CIM_Process", Handle=dwProcessId)
+
 
 class Win32Hook_CreateProcessW(Win32Hook_GenericProcessCreation):
     api_definition = b"""
@@ -568,6 +564,7 @@ class Win32Hook_CreateDirectoryA(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
 
+
 class Win32Hook_CreateDirectoryW(Win32Hook_BaseClass):
     api_definition = b"""
         BOOL CreateDirectoryW(
@@ -575,6 +572,7 @@ class Win32Hook_CreateDirectoryW(Win32Hook_BaseClass):
             LPSECURITY_ATTRIBUTES lpSecurityAttributes
         );"""
     dll_name = b"KERNEL32.dll"
+
 
 class Win32Hook_RemoveDirectoryA(Win32Hook_BaseClass):
     api_definition = b"""
@@ -588,6 +586,7 @@ class Win32Hook_RemoveDirectoryA(Win32Hook_BaseClass):
         logging.debug("hook_function_RemoveDirectoryA dirname=", dirname)
         self.callback_create_object("CIM_Directory", Name=dirname)
 
+
 class Win32Hook_RemoveDirectoryW(Win32Hook_BaseClass):
     api_definition = b"""
         BOOL RemoveDirectoryW(
@@ -599,6 +598,7 @@ class Win32Hook_RemoveDirectoryW(Win32Hook_BaseClass):
         dirname = self.current_pydbg.get_unicode_string(function_arguments[0])
         logging.debug("hook_function_RemoveDirectoryW dirname=", dirname)
         self.callback_create_object("CIM_Directory", Name=dirname)
+
 
 class Win32Hook_CreateFileA(Win32Hook_BaseClass):
     api_definition = b"""
@@ -616,6 +616,7 @@ class Win32Hook_CreateFileA(Win32Hook_BaseClass):
         dirname = self.current_pydbg.get_bytes_string(function_arguments[0])
         self.callback_create_object("CIM_DataFile", Name=dirname)
 
+
 class Win32Hook_CreateFileW(Win32Hook_BaseClass):
     api_definition = b"""
         HANDLE CreateFileW(
@@ -632,6 +633,7 @@ class Win32Hook_CreateFileW(Win32Hook_BaseClass):
         dirname = self.current_pydbg.get_unicode_string(function_arguments[0])
         self.callback_create_object("CIM_DataFile", Name=dirname)
 
+
 class Win32Hook_DeleteFileA(Win32Hook_BaseClass):
     api_definition = b"""
         BOOL DeleteFileA(
@@ -642,6 +644,7 @@ class Win32Hook_DeleteFileA(Win32Hook_BaseClass):
         dirname = self.current_pydbg.get_bytes_string(function_arguments[0])
         self.callback_create_object("CIM_DataFile", Name=dirname)
 
+
 class Win32Hook_DeleteFileW(Win32Hook_BaseClass):
     api_definition = b"""
         BOOL DeleteFileW(
@@ -651,6 +654,7 @@ class Win32Hook_DeleteFileW(Win32Hook_BaseClass):
     def callback_after(self, function_arguments, function_result):
         dirname = self.current_pydbg.get_unicode_string(function_arguments[0])
         self.callback_create_object("CIM_DataFile", Name=dirname)
+
 
 class Win32Hook_CreateThread(Win32Hook_BaseClass):
     api_definition = b"""
@@ -664,6 +668,7 @@ class Win32Hook_CreateThread(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
 
+
 class Win32Hook_CreateRemoteThread(Win32Hook_BaseClass):
     api_definition = b"""
         HANDLE CreateRemoteThread(
@@ -676,6 +681,7 @@ class Win32Hook_CreateRemoteThread(Win32Hook_BaseClass):
             LPDWORD                lpThreadId
         );"""
     dll_name = b"KERNEL32.dll"
+
 
 class Win32Hook_CreateRemoteThreadEx(Win32Hook_BaseClass):
     api_definition = b"""
@@ -691,6 +697,7 @@ class Win32Hook_CreateRemoteThreadEx(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
 
+
 class Win32Hook_TerminateProcess(Win32Hook_BaseClass):
     api_definition = b"""
             BOOL TerminateProcess(
@@ -699,6 +706,7 @@ class Win32Hook_TerminateProcess(Win32Hook_BaseClass):
             );"""
     dll_name = b"KERNEL32.dll"
 
+
 class Win32Hook_TerminateThread(Win32Hook_BaseClass):
     api_definition = b"""
         BOOL TerminateThread(
@@ -706,6 +714,7 @@ class Win32Hook_TerminateThread(Win32Hook_BaseClass):
             DWORD  dwExitCode
         );"""
     dll_name = b"KERNEL32.dll"
+
 
 class Win32Hook_WriteFile(Win32Hook_BaseClass):
     api_definition = b"""
@@ -726,6 +735,7 @@ class Win32Hook_WriteFile(Win32Hook_BaseClass):
         buffer = self.current_pydbg.get_bytes_size(lpBuffer, nNumberOfBytesToWrite)
         logging.debug("Buffer=", buffer)
 
+
 class Win32Hook_WriteFileEx(Win32Hook_BaseClass):
     api_definition = b"""
         BOOL WriteFileEx(
@@ -736,6 +746,7 @@ class Win32Hook_WriteFileEx(Win32Hook_BaseClass):
             LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
         );"""
     dll_name = b"KERNEL32.dll"
+
 
 class Win32Hook_ReadFile(Win32Hook_BaseClass):
     api_definition = b"""
@@ -748,6 +759,7 @@ class Win32Hook_ReadFile(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
 
+
 class Win32Hook_ReadFileEx(Win32Hook_BaseClass):
     api_definition = b"""
         BOOL ReadFileEx(
@@ -758,6 +770,7 @@ class Win32Hook_ReadFileEx(Win32Hook_BaseClass):
             LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
         );"""
     dll_name = b"KERNEL32.dll"
+
 
 class Win32Hook_connect(Win32Hook_BaseClass):
     api_definition = b"""
@@ -844,6 +857,7 @@ class Win32Hook_connect(Win32Hook_BaseClass):
         else:
             raise Exception("Invalid sa_family:%d" % sin_family)
 
+
 if False:
     class Win32Hook_ExitProcess(Win32Hook_BaseClass):
         # FIXME: This crashes with the message:
@@ -878,6 +892,7 @@ if windows8_or_higher:
             );"""
         dll_name = b"KERNEL32.dll"
 
+
     class Win32Hook_CreateProcessAsUserW(Win32Hook_GenericProcessCreation):
         api_definition = b"""
             BOOL CreateProcessAsUserW(
@@ -894,6 +909,7 @@ if windows8_or_higher:
                 LPPROCESS_INFORMATION lpProcessInformation
             );"""
         dll_name = b"KERNEL32.dll"
+
 
     class Win32Hook_CreateFile2(Win32Hook_BaseClass):
         api_definition = b"""
@@ -930,6 +946,7 @@ def all_subclasses(the_class):
     current_subclasses = the_class.__subclasses__()
     return set([sub_class for sub_class in current_subclasses if not all_subclasses(sub_class)]).union(
         [sub_sub_class for sub_class in current_subclasses for sub_sub_class in all_subclasses(sub_class)])
+
 
 _functions_list = all_subclasses(Win32Hook_BaseClass)
 
