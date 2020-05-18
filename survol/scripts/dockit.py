@@ -35,6 +35,9 @@ if __package__:
 else:
     import cim_objects_definitions
 
+is_platform_windows = sys.platform.startswith("win32")
+is_platform_linux = sys.platform.startswith("linux")
+
 ################################################################################
 
 G_traceToTracer = {}
@@ -49,7 +52,7 @@ else:
 G_traceToTracer["strace"] = linux_api_definitions.STraceTracer()
 G_traceToTracer["ltrace"] = linux_api_definitions.LTraceTracer()
 
-if sys.platform.startswith("win"):
+if is_platform_windows:
     # Definitions of Win32 systems calls to monitor.
     if __package__:
         from . import win32_api_definitions
@@ -87,7 +90,7 @@ def print_dockit_usage(exit_code = 1, error_message = None):
 
     print("")
 
-    if sys.platform.startswith("lin"):
+    if is_platform_linux:
         print("strace command: " +" ".join(G_traceToTracer["strace"].build_trace_command(["<command>"], None)))
         print("                " +" ".join(G_traceToTracer["strace"].build_trace_command(None, "<pid>")))
         print("ltrace command: " +" ".join(G_traceToTracer["ltrace"].build_trace_command(["<command>"], None)))
@@ -105,6 +108,7 @@ def print_dockit_usage(exit_code = 1, error_message = None):
         sys.exit(exit_code)
 
 ################################################################################
+
 
 # This receives an array of WMI/WBEM/CIM object paths:
 # 'Win32_LogicalDisk.DeviceID="C:"'
@@ -144,12 +148,14 @@ def _parse_filter_CIM(rgx_object_path):
 
     return obj_class_name, map_key_values
 
+
 # TODO: Probably not needed because noone wants this output format..
 def _generate_summary_txt(map_params_summary, fd_summary_file):
     for rgx_object_path in map_params_summary:
         (cim_class_name, cim_key_value_pairs) = _parse_filter_CIM(rgx_object_path)
         class_obj = getattr(cim_objects_definitions, cim_class_name)
         class_obj.DisplaySummary(fd_summary_file, cim_key_value_pairs)
+
 
 # This stores various data related to the execution.
 def _generate_summary_xml(map_params_summary, fd_summary_file):
@@ -228,8 +234,8 @@ class FileToPackage:
 
     @staticmethod
     def _one_file_to_linux_package_no_cache(oneFilNam):
-        if sys.platform.startswith("linux"):
-            aCmd = ['rpm','-qf',oneFilNam]
+        if is_platform_linux:
+            aCmd = ['rpm', '-qf', oneFilNam]
 
             try:
                 aPop = subprocess.Popen(aCmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -317,8 +323,9 @@ atexit.register(FileToPackage.dump_cache_to_file, cim_objects_definitions.G_File
 ################################################################################
 
 # Formatting function specific to TXT mode output file.ExceptionIsExit
-def FmtTim(aTim):
-    return aTim
+def _format_time(a_timestamp):
+    return a_timestamp
+
 
 class BatchDumperBase:
     def document_start(self):
@@ -332,6 +339,7 @@ class BatchDumperBase:
 
     def flow_footer(self):
         return
+
 
 class BatchDumperTXT(BatchDumperBase):
     def __init__(self, strm):
@@ -351,8 +359,8 @@ class BatchDumperTXT(BatchDumperBase):
             batchLet.m_core._function_name,
             batchLet.get_significant_args(),
             batchLet.m_core._return_value,
-            FmtTim(batchLet.m_core._time_start),
-            FmtTim(batchLet.m_core._time_end) ) )
+            _format_time(batchLet.m_core._time_start),
+            _format_time(batchLet.m_core._time_end) ) )
 
 
 class BatchDumperCSV(BatchDumperBase):
@@ -374,8 +382,8 @@ class BatchDumperCSV(BatchDumperBase):
             batchLet.m_core._function_name,
             batchLet.get_significant_args(),
             batchLet.m_core._return_value,
-            FmtTim(batchLet.m_core._time_start),
-            FmtTim(batchLet.m_core._time_end)))
+            _format_time(batchLet.m_core._time_start),
+            _format_time(batchLet.m_core._time_end)))
 
 
 # TODO: Must use json package.
@@ -415,8 +423,8 @@ class BatchDumperJSON(BatchDumperBase):
             batchLet.m_core._function_name,
             json.dumps([str(arg) for arg in batchLet.get_significant_args()]),
             json.dumps(batchLet.m_core._return_value), # It may contain double-quotes
-            FmtTim(batchLet.m_core._time_start),
-            FmtTim(batchLet.m_core._time_end)))
+            _format_time(batchLet.m_core._time_start),
+            _format_time(batchLet.m_core._time_end)))
         self.m_delimiter = ","
 
     def flow_footer(self):
@@ -441,7 +449,7 @@ G_OSType = None
 
 ################################################################################
 
-
+# Rule-of-thumb method to deduce the tracer type given the log file.
 def default_tracer(input_log_file, tracer=None):
     if not tracer:
         if input_log_file:
@@ -457,9 +465,9 @@ def default_tracer(input_log_file, tracer=None):
                     raise Exception("Cannot read tracer from log file name:%s" % input_log_file)
                 tracer = match_trace.group(1)
         else:
-            if sys.platform.startswith("win32"):
+            if is_platform_windows:
                 tracer = "pydbg"
-            elif sys.platform.startswith("linux"):
+            elif is_platform_linux:
                 # This could also be "ltrace", but "strace" is more usual.
                 tracer = "strace"
             else:
@@ -574,6 +582,7 @@ def _init_globals(with_warning):
     linux_api_definitions.init_linux_globals(with_warning)
 
     cim_objects_definitions.init_global_objects()
+
 
 # Called after a run.
 def _exit_globals():
