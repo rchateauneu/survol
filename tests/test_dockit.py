@@ -796,6 +796,9 @@ class ReplaySessionsTest(unittest.TestCase):
         check_file_content("sample_shell_ltrace_tst_docker.summary.txt")
         check_file_content("sample_shell_ltrace_tst_docker.docker", "Dockerfile")
 
+    # TODO: This replay could theoretically run on Linux,
+    # TODO: but win32_defs must be amended so that it can load some parts, on Linux boxes.
+    @unittest.skipIf(is_platform_linux, "This is not a Windows machine. Test skipped.")
     def test_replay_win32_dir(self):
         dockit.test_from_file(
             input_log_file= path_prefix_input_file("windows_dir.pydbg.45884.log"),
@@ -839,6 +842,13 @@ class ReplaySessionsTest(unittest.TestCase):
                 # to be -1.
 
                 tracer = dockit.default_tracer(inputLogFile)
+
+                # TODO: This is a hack to avoid replaying Windows sessions on Linux.
+                # TODO: This replay could theoretically run on Linux,
+                # TODO: but win32_defs must be amended so that it can load some parts, on Linux boxes.
+                if tracer == "pydbg" and is_platform_linux:
+                    print("DO NOT RUN FOR THE MOMENT:", inputLogFile)
+                    continue
 
                 for outputFormat in ["JSON"]:
                     # In tests, the summary output format is always XML.
