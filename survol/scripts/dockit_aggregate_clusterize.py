@@ -33,7 +33,7 @@ class BatchLetSequence(linux_api_definitions.BatchLetBase, object):
 
         # TODO: Instead of a string, this could be a tuple because it is hashable.
         concatSigns = "+".join( [ btch.get_signature_without_args() for btch in arrBatch ] )
-        batchCore.m_funcNam = "(" + concatSigns + ")"
+        batchCore._function_name = "(" + concatSigns + ")"
 
         batchCore.m_status = linux_api_definitions.BatchStatus.sequence
 
@@ -53,9 +53,9 @@ class BatchLetSequence(linux_api_definitions.BatchLetBase, object):
         # All batchlets should have the same pid.
         batchCore.m_pid = arrBatch[0].m_core.m_pid
 
-        batchCore.m_timeStart = arrBatch[0].m_core.m_timeStart
-        batchCore.m_timeEnd = arrBatch[-1].m_core.m_timeEnd
-        batchCore.m_execTim = datetime.datetime.strptime(batchCore.m_timeEnd, '%H:%M:%S.%f') - datetime.datetime.strptime(batchCore.m_timeStart, '%H:%M:%S.%f')
+        batchCore._time_start = arrBatch[0].m_core._time_start
+        batchCore._time_end = arrBatch[-1].m_core._time_end
+        batchCore.m_execTim = datetime.datetime.strptime(batchCore._time_end, '%H:%M:%S.%f') - datetime.datetime.strptime(batchCore._time_start, '%H:%M:%S.%f')
 
         super( BatchLetSequence,self).__init__(batchCore,style)
 
@@ -101,19 +101,19 @@ class BatchFlow:
             # Sanity check.
             if batchSeqPrev.m_core.m_status == linux_api_definitions.BatchStatus.matched \
                     and batchSeq.m_core.m_status == linux_api_definitions.BatchStatus.merged:
-                if batchSeqPrev.m_core.m_funcNam != batchSeq.m_core.m_funcNam:
+                if batchSeqPrev.m_core._function_name != batchSeq.m_core._function_name:
                     raise Exception(
-                        "INCONSISTENCY1 %s %s\n" % (batchSeq.m_core.m_funcNam, batchSeqPrev.m_core.m_funcNam))
+                        "INCONSISTENCY1 %s %s\n" % (batchSeq.m_core._function_name, batchSeqPrev.m_core._function_name))
 
             if batchSeqPrev.m_core.m_status == linux_api_definitions.BatchStatus.matched \
                     and batchSeq.m_core.m_status == linux_api_definitions.BatchStatus.merged:
                 if batchSeqPrev.m_core.m_resumedBatch.m_unfinishedBatch != batchSeqPrev.m_core:
-                    raise Exception("INCONSISTENCY2 %s\n" % batchSeqPrev.m_core.m_funcNam)
+                    raise Exception("INCONSISTENCY2 %s\n" % batchSeqPrev.m_core._function_name)
 
             if batchSeqPrev.m_core.m_status == linux_api_definitions.BatchStatus.matched \
                     and batchSeq.m_core.m_status == linux_api_definitions.BatchStatus.merged:
                 if batchSeq.m_core.m_unfinishedBatch.m_resumedBatch != batchSeq.m_core:
-                    raise Exception("INCONSISTENCY3 %s\n" % batchSeq.m_core.m_funcNam)
+                    raise Exception("INCONSISTENCY3 %s\n" % batchSeq.m_core._function_name)
 
             if batchSeqPrev.m_core.m_status == linux_api_definitions.BatchStatus.matched \
                     and batchSeq.m_core.m_status == linux_api_definitions.BatchStatus.merged \
