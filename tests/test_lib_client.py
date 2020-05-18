@@ -1052,6 +1052,7 @@ class SurvolLocalJavaTest(unittest.TestCase):
 class SurvolLocalUtf8Test(unittest.TestCase):
 
     # FIXME: This filename: Yana e-trema lle et Constantin a-accent-grave Boulogne-sur-Mer.IMG-20190806-WA0000.jpg
+    @unittest.skip("Not implemented yet.")
     def test_accented_filename(self):
         # Create directory and file name with accents, depending on the platform: Windows/Linux.
 
@@ -1063,6 +1064,7 @@ class SurvolLocalUtf8Test(unittest.TestCase):
         pass
 
     # FIXME: This filename: Yana e-trema lle et Constantin a-accent-grave Boulogne-sur-Mer.IMG-20190806-WA0000.jpg
+    @unittest.skip("Not implemented yet.")
     def test_accented_dirname(self):
         pass
         # Create directory and file name with accents, depending on the platform: Windows/Linux.
