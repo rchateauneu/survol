@@ -972,10 +972,14 @@ class EventsServerTest(unittest.TestCase):
                 if event_predicate == rdflib.namespace.RDF.type:
                     # 'http://www.primhillcomputers.com/survol#CIM_Process'
                     header, hash_char, class_name = str(event_object).rpartition("#")
-                    try:
-                        actual_types_dict[class_name] += 1
-                    except KeyError:
-                        actual_types_dict[class_name] = 1
+
+                    # Some URLs are not objects.
+                    # http://www.w3.org/1999/02/22-rdf-syntax-ns#Property
+                    if class_name not in ['Class', 'Property']:
+                        try:
+                            actual_types_dict[class_name] += 1
+                        except KeyError:
+                            actual_types_dict[class_name] = 1
 
             print("num_loops=", num_loops,"types_dict=", actual_types_dict)
             if expected_types_list == actual_types_dict:
@@ -1009,9 +1013,8 @@ class EventsServerTest(unittest.TestCase):
             'CIM_Process': 1,
             'CIM_NetworkAdapter': 1,
             'CIM_DataFile': 292,
-            'CIM_ComputerSystem': 1,
-            'Property': 14,
-            'Class': 4 }
+            'CIM_ComputerSystem': 1
+        }
 
         # Now read and test the events.
         self._check_read_triples(5, expected_types_list)
@@ -1043,9 +1046,8 @@ class EventsServerTest(unittest.TestCase):
             'CIM_Process': 5,
             'CIM_NetworkAdapter': 1,
             'CIM_DataFile': 1066,
-            'CIM_ComputerSystem': 1,
-            'Property': 13,
-            'Class': 4 }
+            'CIM_ComputerSystem': 1
+        }
 
         # Now read and test the events.
         self._check_read_triples(5, expected_types_list)
@@ -1073,9 +1075,8 @@ class EventsServerTest(unittest.TestCase):
             'CIM_Process': 6,
             'CIM_NetworkAdapter': 1,
             'CIM_DataFile': 4229,
-            'CIM_ComputerSystem': 1,
-            'Property': 16,
-            'Class': 4 }
+            'CIM_ComputerSystem': 1
+        }
 
         # Now read and test the events.
         self._check_read_triples(5, expected_types_list)
@@ -1099,17 +1100,12 @@ class EventsServerTest(unittest.TestCase):
         check_file_content("firefox_events_google.strace.22501.json")
         check_file_content("firefox_events_google.strace.22501.summary.txt")
 
-        # TODO: Why different properties numbers if the input file is the same ?
-        # local py2: 17
-        # properties_number = 28 if is_platform_linux else 17 if is_travis_machine() and is_py3 else 27
-        properties_number = 28 if is_platform_linux else 17
         expected_types_list = {
             'CIM_Process': 174,
             'CIM_NetworkAdapter': 1,
             'CIM_DataFile': 1678,
-            'CIM_ComputerSystem': 1,
-            'Property': properties_number,
-            'Class': 4 }
+            'CIM_ComputerSystem': 1
+        }
 
         # Now read and test the events.
         self._check_read_triples(5, expected_types_list)
