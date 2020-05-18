@@ -258,12 +258,12 @@ class FileAccess:
         # anymore from this process and this file because it is closed.
         del G_cacheFileAccesses[self.m_objectCIM_Process][self.m_objectCIM_DataFile]
 
-    def AnalyseNewBuffer(self,isRead,szBuffer,aBuffer):
+    def _analyze_new_buffer(self, isRead, buffer_size, aBuffer):
         if not aBuffer:
             return
 
         # This does not apply to files.
-        if self.m_objectCIM_DataFile.IsPlainFile():
+        if self.m_objectCIM_DataFile.is_plain_file():
             return
 
         if isRead:
@@ -280,33 +280,33 @@ class FileAccess:
             concatBuf = self.m_bufConcatWrite
 
         try:
-            concatBuf.append_io_buffer(aBuffer, szBuffer)
+            concatBuf.append_io_buffer(aBuffer, buffer_size)
         except Exception as exc:
             # Example: '[pid  5602] 19:59:20.590740 <... read resumed> "... end of read() content"..., 32768) = 4096 <0.037642>'
-            sys.stdout.write("Cannot parse:%s szBuffer=%s: %s\n" % (aBuffer, szBuffer, exc))
+            sys.stdout.write("Cannot parse:%s szBuffer=%s: %s\n" % (aBuffer, buffer_size, exc))
             exit(1)
 
-    def SetRead(self,bytesRead,bufferRead):
+    def set_read_bytes_number(self, read_bytes_number, bufferRead):
         try:
             self.NumReads += 1
         except AttributeError:
             self.NumReads = 1
         try:
-            self.BytesRead += bytesRead
+            self.BytesRead += read_bytes_number
         except AttributeError:
-            self.BytesRead = bytesRead
-        self.AnalyseNewBuffer(True,bytesRead,bufferRead)
+            self.BytesRead = read_bytes_number
+        self._analyze_new_buffer(True, read_bytes_number, bufferRead)
 
-    def SetWritten(self, bytesWritten,bufferWrite):
+    def set_written_bytes_number(self, written_bytes_number, bufferWrite):
         try:
             self.NumWrites += 1
         except AttributeError:
             self.NumWrites = 1
         try:
-            self.BytesWritten += bytesWritten
+            self.BytesWritten += written_bytes_number
         except AttributeError:
-            self.BytesWritten = bytesWritten
-        self.AnalyseNewBuffer(False,bytesWritten,bufferWrite)
+            self.BytesWritten = written_bytes_number
+        self._analyze_new_buffer(False, written_bytes_number, bufferWrite)
 
     def TagXML(self,strm,margin,displayedFromProcess):
         strm.write("%s<Access" % ( margin ) )
@@ -351,9 +351,8 @@ class FileAccess:
         else:
             strm.write(" />\n" )
 
-
     @staticmethod
-    def LookupFileAccess(objProcess,objDataFile):
+    def lookup_file_access(objProcess,objDataFile):
         global G_cacheFileAccesses
         assert G_cacheFileAccesses is not None
 
@@ -368,7 +367,7 @@ class FileAccess:
         return filAcc
 
     @staticmethod
-    def VectorToXML(strm,vecFilesAccesses,margin,displayedFromProcess):
+    def serialize_list_to_XML(strm,vecFilesAccesses,margin,displayedFromProcess):
         if not vecFilesAccesses:
             return
         subMargin = margin + "    "
@@ -563,7 +562,7 @@ class CIM_XmlMarshaller:
     def PlainToXML(self,strm,subMargin):
         try:
             # Optional members order.
-            attrExtra = self.__class__.m_AttrsPriorities
+            attrExtra = self.__class__.m_attributes_priorities
         except AttributeError:
             attrExtra = []
 
@@ -882,7 +881,7 @@ class CIM_Process(CIM_XmlMarshaller, object):
                 execFilNam = procObj.exe()
                 objects_context = ObjectsContext(procId)
                 execFilObj = objects_context._class_model_to_object_path(CIM_DataFile, execFilNam)
-                self.SetExecutable(execFilObj)
+                self.set_executable_path(execFilObj)
             except:
                 self.Name = None
 
@@ -941,7 +940,7 @@ class CIM_Process(CIM_XmlMarshaller, object):
             objInstance.Summarize(fdSummaryFile)
         fdSummaryFile.write("\n")
 
-    m_AttrsPriorities = ["Handle", "Name", "CommandLine", "CreationDate", "TerminationDate", "Priority"]
+    m_attributes_priorities = ["Handle", "Name", "CommandLine", "CreationDate", "TerminationDate", "Priority"]
 
     def XMLOneLevelSummary(self, strm, margin="    "):
         self.m_isVisited = True
@@ -951,7 +950,7 @@ class CIM_Process(CIM_XmlMarshaller, object):
 
         self.PlainToXML(strm, subMargin)
 
-        FileAccess.VectorToXML(strm, self.m_ProcessFileAccesses, subMargin, False)
+        FileAccess.serialize_list_to_XML(strm, self.m_ProcessFileAccesses, subMargin, False)
 
         for objInstance in self.m_subProcesses:
             objInstance.XMLOneLevelSummary(strm, subMargin)
@@ -1026,7 +1025,7 @@ class CIM_Process(CIM_XmlMarshaller, object):
         self.m_parentProcess = objCIM_Process
         objCIM_Process.m_subProcesses.add(self)
 
-    def AddParentProcess(self, timeStamp, objCIM_Process):
+    def add_parent_process(self, timeStamp, objCIM_Process):
         self.SetParentProcess(objCIM_Process)
         self.CreationDate = timeStamp
 
@@ -1043,12 +1042,12 @@ class CIM_Process(CIM_XmlMarshaller, object):
             # sys.stdout.write("WaitProcessEnd: %s already linked to %s\n" % (self.m_parentProcess.Handle,objCIM_Process.Handle))
             pass
 
-    def SetExecutable(self, objCIM_DataFile):
+    def set_executable_path(self, objCIM_DataFile):
         assert (isinstance(objCIM_DataFile, CIM_DataFile))
         self.Executable = objCIM_DataFile.Name
         self.m_ExecutableObject = objCIM_DataFile
 
-    def SetCommandLine(self, lstCmdLine):
+    def set_command_line(self, lstCmdLine):
         # TypeError: sequence item 7: expected string, dict found
         if lstCmdLine:
             self.CommandLine = " ".join([str(elt) for elt in lstCmdLine])
@@ -1086,7 +1085,7 @@ class CIM_Process(CIM_XmlMarshaller, object):
 
     # Some system calls are relative to the current directory.
     # Therefore, this traces current dir changes due to system calls.
-    def SetProcessCurrentDir(self, currDirObject):
+    def set_process_current_directory(self, currDirObject):
         self.CurrentDirectory = currDirObject.Name
 
     def GetProcessCurrentDir(self):
@@ -1100,9 +1099,9 @@ class CIM_Process(CIM_XmlMarshaller, object):
     # A file might have been opened several times by the same process.
     # Therefore, once a file has been closed, the associated file access
     # cannot be returned again.
-    def GetFileAccess(self, objCIM_DataFile):
-        filAcc = FileAccess.LookupFileAccess(self, objCIM_DataFile)
-        return filAcc
+    def get_file_access(self, objCIM_DataFile):
+        one_file_access = FileAccess.lookup_file_access(self, objCIM_DataFile)
+        return one_file_access
 
 
 # Other tools to consider:
@@ -1247,7 +1246,7 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
                 objInstance.Summarize(fdSummaryFile)
         fdSummaryFile.write("\n")
 
-    m_AttrsPriorities = ["Name", "Category", "SocketAddress"]
+    m_attributes_priorities = ["Name", "Category", "SocketAddress"]
 
     def XMLDisplay(self, strm):
         margin = "        "
@@ -1257,7 +1256,7 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
 
         self.PlainToXML(strm, subMargin)
 
-        FileAccess.VectorToXML(strm, self.m_DataFileFileAccesses, subMargin, True)
+        FileAccess.serialize_list_to_XML(strm, self.m_DataFileFileAccesses, subMargin, True)
 
         strm.write("%s</CIM_DataFile>\n" % (margin))
 
@@ -1324,7 +1323,7 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
         except AttributeError:
             pass
 
-    def SetIsExecuted(self):
+    def set_is_executed(self):
         self.IsExecuted = True
 
     # The input could be IPV4 or IPV6:
@@ -1357,7 +1356,7 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
 
     m_nonFilePrefixes = ["UNIX:", "TCP:", "TCPv6:", "NETLINK:", "pipe:", "UDP:", "UDPv6:", ]
 
-    def IsPlainFile(self):
+    def is_plain_file(self):
         if self.Name:
             for pfx in CIM_DataFile.m_nonFilePrefixes:
                 if self.Name.startswith(pfx):
