@@ -348,11 +348,11 @@ class BatchDumperTXT(BatchDumperBase):
             batchLet.m_occurrences,
             batchLet.m_style,
             linux_api_definitions.BatchStatus.chrDisplayCodes[batchLet.m_core.m_status],
-            batchLet.m_core.m_funcNam,
+            batchLet.m_core._function_name,
             batchLet.get_significant_args(),
-            batchLet.m_core.m_retValue,
-            FmtTim(batchLet.m_core.m_timeStart),
-            FmtTim(batchLet.m_core.m_timeEnd) ) )
+            batchLet.m_core._return_value,
+            FmtTim(batchLet.m_core._time_start),
+            FmtTim(batchLet.m_core._time_end) ) )
 
 
 class BatchDumperCSV(BatchDumperBase):
@@ -371,11 +371,11 @@ class BatchDumperCSV(BatchDumperBase):
             batchLet.m_occurrences,
             batchLet.m_style,
             batchLet.m_core.m_status,
-            batchLet.m_core.m_funcNam,
+            batchLet.m_core._function_name,
             batchLet.get_significant_args(),
-            batchLet.m_core.m_retValue,
-            FmtTim(batchLet.m_core.m_timeStart),
-            FmtTim(batchLet.m_core.m_timeEnd)))
+            batchLet.m_core._return_value,
+            FmtTim(batchLet.m_core._time_start),
+            FmtTim(batchLet.m_core._time_end)))
 
 
 # TODO: Must use json package.
@@ -412,11 +412,11 @@ class BatchDumperJSON(BatchDumperBase):
             batchLet.m_occurrences,
             batchLet.m_style,
             batchLet.m_core.m_status,
-            batchLet.m_core.m_funcNam,
+            batchLet.m_core._function_name,
             json.dumps([str(arg) for arg in batchLet.get_significant_args()]),
-            json.dumps(batchLet.m_core.m_retValue), # It may contain double-quotes
-            FmtTim(batchLet.m_core.m_timeStart),
-            FmtTim(batchLet.m_core.m_timeEnd)))
+            json.dumps(batchLet.m_core._return_value), # It may contain double-quotes
+            FmtTim(batchLet.m_core._time_start),
+            FmtTim(batchLet.m_core._time_end)))
         self.m_delimiter = ","
 
     def flow_footer(self):

@@ -68,16 +68,16 @@ class PseudoTraceLineCore:
         self.m_pid = process_id
         # This is not applicable to Windows, yet.
         self.m_status = 999999
-        self.m_funcNam = function_name
-        self.m_retValue = 0
-        self.m_timeStart = time.time()
-        self.m_timeEnd = self.m_timeStart
+        self._function_name = function_name
+        self._return_value = 0
+        self._time_start = time.time()
+        self._time_end = self._time_start
 
     # TODO: Finish this list.
     _functions_creating_processes = set(["CreateProcessW", "CreateProcessA"])
 
     def is_creating_process(self):
-        return self.m_funcNam in self._functions_creating_processes
+        return self._function_name in self._functions_creating_processes
 
 class PseudoTraceLine:
     def __init__(self, process_id, function_name):
@@ -90,8 +90,8 @@ class PseudoTraceLine:
         self.m_style = "Breakpoint"
 
     def write_to_file(self, file_descriptor):
-        assert isinstance(self.m_core.m_funcNam, six.binary_type)
-        file_descriptor.write("%d %s\n" % (self.m_core.m_pid, self.m_core.m_funcNam.decode('utf-8)')))
+        assert isinstance(self.m_core._function_name, six.binary_type)
+        file_descriptor.write("%d %s\n" % (self.m_core.m_pid, self.m_core._function_name.decode('utf-8)')))
 
     @staticmethod
     def read_from_file(file_descriptor):
@@ -102,7 +102,7 @@ class PseudoTraceLine:
 
     # Process creations or setup are not aggregated.
     def is_same_call(self, another_object):
-        return self.m_core.m_funcNam == another_object.m_core.m_funcNam \
+        return self.m_core._function_name == another_object.m_core._function_name \
                and not self.m_core.is_creating_process() \
                and not another_object.m_core.is_creating_process()
 
@@ -187,7 +187,7 @@ class Win32Tracer(TracerBase):
             process_start_timeout = 10.0
             first_function_call = self._queue.get(True, timeout=process_start_timeout)
             assert isinstance(first_function_call, PseudoTraceLine)
-            assert first_function_call.m_core.m_funcNam == self._function_name_process_start
+            assert first_function_call.m_core._function_name == self._function_name_process_start
             self._top_process_id = first_function_call.m_core.m_pid
         else:
             self._top_process_id = process_id
@@ -228,10 +228,10 @@ class Win32Tracer(TracerBase):
             except queue.Empty:
                 logging.info("Win32Tracer.create_flows_from_calls_stream timeout. Waiting.")
                 continue
-            print("create_flows_from_calls_stream Function=", pseudo_trace_line.m_core.m_funcNam)
+            print("create_flows_from_calls_stream Function=", pseudo_trace_line.m_core._function_name)
             assert isinstance(pseudo_trace_line, PseudoTraceLine)
 
-            if pseudo_trace_line.m_core.m_funcNam == self._function_name_process_exit:
+            if pseudo_trace_line.m_core._function_name == self._function_name_process_exit:
                 print("create_flows_from_calls_stream LEAVING")
                 return
 
@@ -478,7 +478,7 @@ class Win32Hook_CreateProcessA(Win32Hook_GenericProcessCreation):
         dwProcessId = self.current_pydbg.get_long(lpProcessInformation + offset_dwProcessId)
 
         logging.debug("Win32Hook_CreateProcessA m_parsedArgs=", function_arguments)
-        logging.debug("Win32Hook_CreateProcessA m_retValue=", function_result)
+        logging.debug("Win32Hook_CreateProcessA _return_value=", function_result)
         logging.debug("Win32Hook_CreateProcessA Handle=", dwProcessId)
         self.callback_create_object("CIM_Process", Handle=dwProcessId)
 
