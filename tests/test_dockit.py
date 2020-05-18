@@ -956,7 +956,7 @@ class EventsServerTest(unittest.TestCase):
         # Now read the events.
         url_events = RemoteEventsTestAgent + "/survol/sources_types/event_get_all.py?mode=rdf"
 
-        actual_types_dict = dict()
+        actual_types_dict = collections.defaultdict(lambda: 0)
 
         while(num_loops > 0):
             events_response = portable_urlopen(url_events, timeout=20)
@@ -976,10 +976,7 @@ class EventsServerTest(unittest.TestCase):
                     # Some URLs are not objects.
                     # http://www.w3.org/1999/02/22-rdf-syntax-ns#Property
                     if class_name not in ['Class', 'Property']:
-                        try:
-                            actual_types_dict[class_name] += 1
-                        except KeyError:
-                            actual_types_dict[class_name] = 1
+                        actual_types_dict[class_name] += 1
 
             print("num_loops=", num_loops,"types_dict=", actual_types_dict)
             if expected_types_list == actual_types_dict:
@@ -1021,7 +1018,7 @@ class EventsServerTest(unittest.TestCase):
 
     # FIXME: Broken on local machine with Windows, Python 3, if the server is automatically started.
     # FIXME: Sometimes, it stops reading only 23360 bytes ....
-    # FIXME: It cannot be a sizgin problem because it sometimes work.
+    # FIXME: It cannot be a sizing problem because it sometimes work.
     # FIXME: When it works, it reads everything in one go.
     @unittest.skipIf(is_platform_windows and is_py3 and not is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS AND LOCAL. WHY ??")
     def test_file_events_shell(self):
