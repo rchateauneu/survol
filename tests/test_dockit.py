@@ -85,7 +85,7 @@ def check_file_content(*file_path):
         print("INFO: No comparison file:", expected_file_path)
 
 # This checks that a file was NOT created.
-def check_file_nothere(*file_path):
+def check_file_missing(*file_path):
     full_file_path = path_prefix_output_result(*file_path)
     try:
         open(full_file_path)
@@ -256,20 +256,18 @@ class CommandLineTest(unittest.TestCase):
     @unittest.skipIf(is_platform_windows, "This is not a Linux machine. Test skipped.")
     def test_run_linux_ls(self):
 
-        file_label = "test_linux_ls"
-        files_prefix = path_prefix_output_result(file_label)
-        command_result, json_last_line = _run_dockit_command("-D -f JSON -F TXT -l %s ls" % files_prefix)
+        output_basename_prefix = "test_linux_ls"
+        output_prefix = path_prefix_output_result(output_basename_prefix)
+        command_result, json_last_line = _run_dockit_command("-D -f JSON -F TXT -l %s ls" % output_prefix)
         print("command_result=", command_result)
-        created_pid = json_last_line["pid"]
-        output_basename = file_label + ".strace." + created_pid
 
         # This creates files like ".../test_linux_ls.strace<pid>.ini"
-        check_file_content(output_basename + ".ini")
-        check_file_content(output_basename + ".json")
-        check_file_content(output_basename + ".summary.txt")
-        check_file_content(output_basename + ".docker", "Dockerfile")
+        check_file_content(output_basename_prefix + ".ini")
+        check_file_content(output_basename_prefix + ".json")
+        check_file_content(output_basename_prefix + ".summary.txt")
+        check_file_content(output_basename_prefix + ".docker", "Dockerfile")
 
-        check_file_nothere(output_basename + ".log")
+        check_file_missing(output_basename_prefix + ".log")
 
     def test_replay_non_existent_input_file(self):
         try:
@@ -280,8 +278,8 @@ class CommandLineTest(unittest.TestCase):
 
     def test_replay_sample_shell_ltrace(self):
         input_log_file = path_prefix_input_file("sample_shell.ltrace.log")
-        basename_prefix = "pytest_sample_shell"
-        output_prefix = path_prefix_output_result(basename_prefix)
+        output_basename_prefix = "sample_shell.ltrace"
+        output_prefix = path_prefix_output_result(output_basename_prefix)
 
         dockit_command = "--input %s --dockerfile --log %s -t ltrace --duplicate" % (
             input_log_file,
@@ -290,22 +288,19 @@ class CommandLineTest(unittest.TestCase):
         print("command_result=", command_result)
         self.assertTrue(command_result.startswith(b"Loading ini file:"))
 
-        # For example "pytest_sample_shell_ltrace.ltrace.4401"
-        output_basename = basename_prefix + ".ltrace.4401"
+        # No ini file created because this is a replay session from a log file.
+        check_file_missing(output_basename_prefix + ".txt")
 
         # No ini file created because this is a replay session from a log file.
-        check_file_nothere(output_basename + ".txt")
-
-        # No ini file created because this is a replay session from a log file.
-        check_file_nothere(output_basename + ".ini")
+        check_file_missing(output_basename_prefix + ".ini")
 
         # This file must be created because "--duplicate" options is set.
-        check_file_content(output_basename + ".log")
+        check_file_content(output_basename_prefix + ".log")
 
     def test_replay_oracle_db_data_strace(self):
         input_log_file = path_prefix_input_file("oracle_db_data.strace.5718.log")
-        basename_prefix = "pytest_oracle_db_data_%d" % CurrentPid
-        output_prefix = path_prefix_output_result(basename_prefix)
+        output_basename_prefix = "oracle_db_data.strace.5718"
+        output_prefix = path_prefix_output_result(output_basename_prefix)
 
         dockit_command = "--input %s --dockerfile --log %s -t strace" % (
             input_log_file,
@@ -316,21 +311,20 @@ class CommandLineTest(unittest.TestCase):
 
         self.assertTrue(command_result.startswith(b"Loading ini file:"))
 
-        output_basename = basename_prefix + ".strace.5718"
+        # No ini file created because this is a replay session from a log file.
+        check_file_content(output_basename_prefix + ".txt")
 
         # No ini file created because this is a replay session from a log file.
-        check_file_content(output_basename + ".txt")
-
-        # No ini file created because this is a replay session from a log file.
-        check_file_nothere(output_basename + ".ini")
+        check_file_missing(output_basename_prefix + ".ini")
 
         # This file should not be created because "--duplicate" options is not set.
-        check_file_nothere(output_basename + ".log")
+        check_file_missing(output_basename_prefix + ".log")
 
-# This processes an existing input file by running the script dockit.py.
+    # This processes an existing input file by running the script dockit.py.
     def test_replay_sample_shell_strace(self):
         input_log_file = path_prefix_input_file("sample_shell.strace.log")
-        output_prefix = path_prefix_output_result("pytest_sample_shell_strace_%d" % CurrentPid)
+        output_basename_prefix = "sample_shell.strace"
+        output_prefix = path_prefix_output_result(output_basename_prefix)
 
         dockit_command = "--input %s --dockerfile --log %s -t strace" % (
             input_log_file,
@@ -340,7 +334,7 @@ class CommandLineTest(unittest.TestCase):
         self.assertTrue(command_result.startswith(b"Loading ini file:"))
 
         # The pid 4401 comes from the input log file.
-        output_file_path = output_prefix + ".strace.4401.txt"
+        output_file_path = output_prefix + ".txt"
 
         expected_output = [
             "calls_number:29\n",
@@ -364,13 +358,32 @@ class CommandLineTest(unittest.TestCase):
 
     def test_replay_sqlplus_strace(self):
         input_log_file = path_prefix_input_file("sqlplus.strace.4401.log")
-        output_prefix = path_prefix_output_result("pytest_sqlplus_strace_%d" % CurrentPid)
+        output_basename_prefix = "sqlplus.strace.4401"
+        output_prefix = path_prefix_output_result(output_basename_prefix)
 
         dockit_command = "--input %s --dockerfile --log %s -t strace" % (
             input_log_file,
             output_prefix)
         command_result, json_last_line = _run_dockit_command(dockit_command)
         print("command_result=", command_result)
+
+        check_file_content(output_basename_prefix + ".docker", "Dockerfile")
+        check_file_missing(output_basename_prefix + ".ini")
+
+    @unittest.skipIf(is_platform_linux, "Windows only.")
+    def test_replay_windows_dir(self):
+        input_log_file = path_prefix_input_file("windows_dir.pydbg.45884.log")
+        output_basename_prefix = "windows_dir.pydbg.45884"
+        output_prefix = path_prefix_output_result(output_basename_prefix)
+
+        dockit_command = "--input %s --dockerfile --log %s -t strace" % (
+            input_log_file,
+            output_prefix)
+        command_result, json_last_line = _run_dockit_command(dockit_command)
+        print("command_result=", command_result)
+
+        check_file_content(output_basename_prefix + ".docker", "Dockerfile")
+        check_file_missing(output_basename_prefix + ".ini")
 
 
 # The script dockit.py can be used as a command line or as an imported module.
@@ -401,36 +414,34 @@ class CommandLineWin32Test(unittest.TestCase):
 
     def test_run_windows_ping_home(self):
         # This test pings to a domain name.
-        basename_prefix = "test_run_windows_ping_home_%d" % CurrentPid
-        output_prefix = path_prefix_output_result(basename_prefix)
+        output_basename_prefix = "test_run_windows_ping_home_%d" % CurrentPid
+        output_prefix = path_prefix_output_result(output_basename_prefix)
         command_result, json_last_line = _run_dockit_command("--log=%s ping primhillcomputers.com" % output_prefix)
-        output_basename = "%s.pydbg.%s" % (basename_prefix, json_last_line['pid'])
 
         # The ini file is always created and store some parameters to replay the sessiosn.
-        check_file_content(output_basename + ".ini")
-        check_file_content(output_basename + ".txt")
+        check_file_content(output_basename_prefix + ".ini")
+        check_file_content(output_basename_prefix + ".txt")
 
         # The parameter to log the function calls is not given on the command line.
-        check_file_nothere(output_basename + ".log")
+        check_file_missing(output_basename_prefix + ".log")
 
         # The parameter to create a Dockerfile is not given on the command line.
-        check_file_nothere(output_basename + ".docker", "Dockerfile")
+        check_file_missing(output_basename_prefix + ".docker", "Dockerfile")
 
     def test_run_windows_ping_github(self):
-        basename_prefix = "test_run_windows_ping_github_%d" % CurrentPid
-        output_prefix = path_prefix_output_result(basename_prefix)
+        output_basename_prefix = "test_run_windows_ping_github_%d" % CurrentPid
+        output_prefix = path_prefix_output_result(output_basename_prefix)
         command_result, json_last_line = _run_dockit_command("--log=%s --duplicate ping github.com" % output_prefix)
-        output_basename = "%s.pydbg.%s" % (basename_prefix, json_last_line['pid'])
 
-        check_file_content(output_basename + ".ini")
-        check_file_content(output_basename + ".txt")
-        check_file_content(output_basename + ".log")
+        check_file_content(output_basename_prefix + ".ini")
+        check_file_content(output_basename_prefix + ".txt")
+        check_file_content(output_basename_prefix + ".log")
 
-        check_file_nothere(output_basename + ".docker", "Dockerfile")
+        check_file_missing(output_basename_prefix + ".docker", "Dockerfile")
 
     def test_run_windows_echo(self):
-        basename_prefix = "test_run_windows_echo_%d" % CurrentPid
-        output_prefix = path_prefix_output_result(basename_prefix)
+        output_basename_prefix = "test_run_windows_echo_%d" % CurrentPid
+        output_prefix = path_prefix_output_result(output_basename_prefix)
 
         output_tmpfile = output_prefix + ".tmp.txt"
         dockit_command = "%s /c echo HelloWorld > %s" % (windows_system32_cmd_exe, output_tmpfile)
@@ -447,30 +458,26 @@ class CommandLineWin32Test(unittest.TestCase):
             # This must be there because the output file contains the expected result.
             created_pid = json_content["pid"]
 
-        output_basename = "%s.pydbg.%s" % (basename_prefix, created_pid)
-
         print("output_tmpfile=", output_tmpfile)
 
         # No other output file is created.
-        check_file_nothere(output_basename + ".ini")
-        check_file_nothere(output_basename + ".txt")
-        check_file_nothere(output_basename + ".log")
-        check_file_nothere(output_basename + ".docker", "Dockerfile")
+        check_file_missing(output_basename_prefix + ".ini")
+        check_file_missing(output_basename_prefix + ".txt")
+        check_file_missing(output_basename_prefix + ".log")
+        check_file_missing(output_basename_prefix + ".docker", "Dockerfile")
 
     def test_run_windows_dir(self):
         """This generates a replay filename and reuses it immediately."""
-        basename_prefix = "test_run_windows_dir"
-        output_prefix = path_prefix_output_result(basename_prefix)
+        output_basename_prefix = "test_run_windows_dir"
+        output_prefix = path_prefix_output_result(output_basename_prefix)
 
         dockit_command = "--log=%s --duplicate %s /c DIR" % (output_prefix, windows_system32_cmd_exe)
         command_result, json_last_line = _run_dockit_command(dockit_command)
         # cmd.exe
         print("command_result=", command_result)
 
-        output_basename = "%s.pydbg.%s" % (basename_prefix, json_last_line['pid'])
-
-        check_file_content(output_basename + ".ini")
-        check_file_content(output_basename + ".log")
+        check_file_content(output_basename_prefix + ".ini")
+        check_file_content(output_basename_prefix + ".log")
 
 
 class SummaryXMLTest(unittest.TestCase):
@@ -741,11 +748,12 @@ class ReplaySessionsTest(unittest.TestCase):
         check_file_content("sample_shell_strace_tst_txt.summary.txt")
 
     def test_replay_linux_strace_csv_docker(self):
+        output_basename_prefix = "sample_shell_strace_tst_csv"
         dockit.test_from_file(
             input_log_file=path_prefix_input_file("sample_shell.strace.log"),
             tracer="strace",
             input_process_id=0,
-            output_files_prefix=path_prefix_output_result("sample_shell_strace_tst_csv"),
+            output_files_prefix=path_prefix_output_result(output_basename_prefix),
             output_format="CSV",
             verbose=True,
             map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
@@ -755,17 +763,17 @@ class ReplaySessionsTest(unittest.TestCase):
             update_server=None,
             aggregator="clusterize")
 
-        check_file_content("sample_shell_strace_tst_csv.csv")
-        check_file_content("sample_shell_strace_tst_csv.summary.xml")
-        check_file_content("sample_shell_strace_tst_csv.docker", "Dockerfile")
+        check_file_content(output_basename_prefix + ".csv")
+        check_file_content(output_basename_prefix + ".summary.xml")
+        check_file_content(output_basename_prefix + ".docker", "Dockerfile")
 
     def test_replay_linux_strace_json(self):
-
+        output_basename_prefix = "sample_shell_strace_tst_json"
         dockit.test_from_file(
             input_log_file=path_prefix_input_file("sample_shell.strace.log"),
             tracer="strace",
             input_process_id=0,
-            output_files_prefix=path_prefix_output_result("sample_shell_strace_tst_json"),
+            output_files_prefix=path_prefix_output_result(output_basename_prefix),
             output_format="JSON",
             verbose=True,
             map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
@@ -775,15 +783,16 @@ class ReplaySessionsTest(unittest.TestCase):
             update_server=None,
             aggregator="clusterize")
 
-        check_file_content("sample_shell_strace_tst_json.json")
-        check_file_content("sample_shell_strace_tst_json.summary.txt")
+        check_file_content(output_basename_prefix + ".json")
+        check_file_content(output_basename_prefix + ".summary.txt")
 
     def test_replay_linux_ltrace_docker(self):
+        output_basename_prefix = "sample_shell_ltrace_tst_docker"
         dockit.test_from_file(
             input_log_file= path_prefix_input_file("sample_shell.ltrace.log"),
             tracer="ltrace",
             input_process_id=0,
-            output_files_prefix= path_prefix_output_result("sample_shell_ltrace_tst_docker"),
+            output_files_prefix= path_prefix_output_result(output_basename_prefix),
             output_format="JSON",
             verbose=True,
             map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
@@ -793,19 +802,20 @@ class ReplaySessionsTest(unittest.TestCase):
             update_server=None,
             aggregator="clusterize")
 
-        check_file_content("sample_shell_ltrace_tst_docker.json")
-        check_file_content("sample_shell_ltrace_tst_docker.summary.txt")
-        check_file_content("sample_shell_ltrace_tst_docker.docker", "Dockerfile")
+        check_file_content(output_basename_prefix + ".json")
+        check_file_content(output_basename_prefix + ".summary.txt")
+        check_file_content(output_basename_prefix + ".docker", "Dockerfile")
 
     # TODO: This replay could theoretically run on Linux,
     # TODO: but win32_defs must be amended so that it can load some parts, on Linux boxes.
     @unittest.skipIf(is_platform_linux, "This is not a Windows machine. Test skipped.")
     def test_replay_win32_dir(self):
+        output_basename_prefix = "windows_dir_pydbg_45884"
         dockit.test_from_file(
             input_log_file= path_prefix_input_file("windows_dir.pydbg.45884.log"),
             tracer="pydbg",
             input_process_id=0,
-            output_files_prefix= path_prefix_output_result("windows_dir_pydbg_45884"),
+            output_files_prefix= path_prefix_output_result(output_basename_prefix),
             output_format="JSON",
             verbose=True,
             map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
@@ -815,9 +825,9 @@ class ReplaySessionsTest(unittest.TestCase):
             update_server=None,
             aggregator="clusterize")
 
-        check_file_content("windows_dir_pydbg_45884.json")
-        check_file_content("windows_dir_pydbg_45884.summary.txt")
-        check_file_content("windows_dir_pydbg_45884.docker", "Dockerfile")
+        check_file_content(output_basename_prefix + ".json")
+        check_file_content(output_basename_prefix + ".summary.txt")
+        check_file_content(output_basename_prefix + ".docker", "Dockerfile")
 
     def test_replay_all_trace_files(self):
         """Iterates on all input test files
@@ -833,7 +843,7 @@ class ReplaySessionsTest(unittest.TestCase):
         for subdir, dirs, files in os.walk( path_prefix_input_file() ):
             for inFile in files:
                 inputLogFile = subdir + os.sep + inFile
-                base_name, fil_ext = os.path.splitext(inFile)
+                output_basename_prefix, fil_ext = os.path.splitext(inFile)
 
                 if fil_ext != ".log":
                     continue
@@ -857,7 +867,7 @@ class ReplaySessionsTest(unittest.TestCase):
                         input_log_file=inputLogFile,
                         tracer=tracer,
                         input_process_id=-1,
-                        output_files_prefix=path_prefix_output_result(base_name),
+                        output_files_prefix=path_prefix_output_result(output_basename_prefix),
                         output_format=outputFormat,
                         verbose=False,
                         map_params_summary=dockit.full_map_params_summary,
@@ -868,12 +878,12 @@ class ReplaySessionsTest(unittest.TestCase):
                         aggregator="clusterize")
 
             # Files .ini are not created for replay sessions.
-            check_file_nothere("%s.ini" % base_name)
+            check_file_missing(output_basename_prefix + ".ini")
 
             # Files .log are not created because --duplicate option is not set.
-            check_file_nothere("%s.log" % base_name)
+            check_file_missing(output_basename_prefix + ".log")
 
-            check_file_content("%s.summary.txt" % base_name)
+            check_file_content(output_basename_prefix + ".summary.txt")
 
 
 class RunningLinuxProcessesTest(unittest.TestCase):
@@ -893,12 +903,13 @@ class RunningLinuxProcessesTest(unittest.TestCase):
         time.sleep(2.0)
 
         # Avoids exception: "UnsupportedOperation: redirected stdin is pseudofile, has no fileno()"
+        output_basename_prefix = "result_ls_strace"
         sys.stdin = open(os.devnull)
         dockit.test_from_file(
             input_log_file= None,
             tracer="strace",
             input_process_id=sub_proc.pid,
-            output_files_prefix=path_prefix_output_result("result_ls_strace"),
+            output_files_prefix=path_prefix_output_result(output_basename_prefix),
             output_format="TXT",
             verbose=True,
             map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
@@ -911,8 +922,8 @@ class RunningLinuxProcessesTest(unittest.TestCase):
         sub_proc.communicate()
         self.assertTrue(sub_proc.returncode == 0)
 
-        check_file_content("result_ls_strace.txt")
-        check_file_content("result_ls_strace.summary.txt")
+        check_file_content(output_basename_prefix + ".txt")
+        check_file_content(output_basename_prefix + ".summary.txt")
 
 
 class StoreToRDFTest(unittest.TestCase):
@@ -921,11 +932,12 @@ class StoreToRDFTest(unittest.TestCase):
     """
 
     def test_create_RDF_file(self):
+        output_basename_prefix = "sample_shell_ltrace_tst_create_RDF"
         dockit.test_from_file(
             input_log_file=path_prefix_input_file("sample_shell.ltrace.log"),
             tracer="ltrace",
             input_process_id=0,
-            output_files_prefix=path_prefix_output_result("sample_shell_ltrace_tst_create_RDF"),
+            output_files_prefix=path_prefix_output_result(output_basename_prefix),
             output_format="JSON",
             verbose=True,
             map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
@@ -935,9 +947,9 @@ class StoreToRDFTest(unittest.TestCase):
             update_server= path_prefix_output_result("sample_shell_ltrace_tst_create_RDF.rdf"),
             aggregator="clusterize")
 
-        check_file_content("sample_shell_ltrace_tst_create_RDF.json")
-        check_file_content("sample_shell_ltrace_tst_create_RDF.summary.txt")
-        check_file_content("sample_shell_ltrace_tst_create_RDF.rdf")
+        check_file_content(output_basename_prefix + ".json")
+        check_file_content(output_basename_prefix + ".summary.txt")
+        check_file_content(output_basename_prefix + ".rdf")
 
 
 class EventsServerTest(unittest.TestCase):
@@ -990,11 +1002,12 @@ class EventsServerTest(unittest.TestCase):
         self.assertTrue(expected_types_list == actual_types_dict)
 
     def test_file_events_ps_ef(self):
+        output_basename_prefix = "dockit_events_ps_ef.strace"
         dockit.test_from_file(
             input_log_file= path_prefix_input_file("dockit_ps_ef.strace.log"),
             tracer="strace",
             input_process_id=0,
-            output_files_prefix= path_prefix_output_result("dockit_events_ps_ef.strace"),
+            output_files_prefix= path_prefix_output_result(output_basename_prefix),
             output_format="JSON",
             verbose=False,
             map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
@@ -1004,8 +1017,8 @@ class EventsServerTest(unittest.TestCase):
             update_server=RemoteEventsTestAgent + "/survol/event_put.py",
             aggregator="clusterize")
 
-        check_file_content("dockit_events_ps_ef.strace.json")
-        check_file_content("dockit_events_ps_ef.strace.summary.txt")
+        check_file_content(output_basename_prefix + ".json")
+        check_file_content(output_basename_prefix + ".summary.txt")
 
         expected_types_list = {
             'CIM_Process': 1,
@@ -1023,11 +1036,12 @@ class EventsServerTest(unittest.TestCase):
     # FIXME: When it works, it reads everything in one go.
     @unittest.skipIf(is_platform_windows and is_py3 and not is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS AND LOCAL. WHY ??")
     def test_file_events_shell(self):
+        output_basename_prefix = "dockit_events_sample_shell.ltrace"
         dockit.test_from_file(
             input_log_file= path_prefix_input_file("dockit_sample_shell.ltrace.log"),
             tracer="ltrace",
             input_process_id=0,
-            output_files_prefix= path_prefix_output_result("dockit_events_sample_shell.ltrace"),
+            output_files_prefix= path_prefix_output_result(output_basename_prefix),
             output_format="JSON",
             verbose=False,
             map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
@@ -1037,8 +1051,8 @@ class EventsServerTest(unittest.TestCase):
             update_server=RemoteEventsTestAgent + "/survol/event_put.py",
             aggregator="clusterize")
 
-        check_file_content("dockit_events_sample_shell.ltrace.json")
-        check_file_content("dockit_events_sample_shell.ltrace.summary.txt")
+        check_file_content(output_basename_prefix + ".json")
+        check_file_content(output_basename_prefix + ".summary.txt")
 
         expected_types_list = {
             'CIM_Process': 5,
@@ -1052,11 +1066,12 @@ class EventsServerTest(unittest.TestCase):
 
     @unittest.skipIf(is_platform_windows and is_py3 and not is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS AND LOCAL. WHY ??")
     def test_file_events_proftpd(self):
+        output_basename_prefix = "dockit_events_proftpd.strace.26299"
         dockit.test_from_file(
             input_log_file= path_prefix_input_file("dockit_proftpd.strace.26299.log"),
             tracer="strace",
             input_process_id=0,
-            output_files_prefix= path_prefix_output_result("dockit_events_proftpd.strace.26299"),
+            output_files_prefix= path_prefix_output_result(output_basename_prefix),
             output_format="JSON",
             verbose=False,
             map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
@@ -1066,8 +1081,8 @@ class EventsServerTest(unittest.TestCase):
             update_server=RemoteEventsTestAgent + "/survol/event_put.py",
             aggregator="clusterize")
 
-        check_file_content("dockit_events_proftpd.strace.26299.json")
-        check_file_content("dockit_events_proftpd.strace.26299.summary.txt")
+        check_file_content(output_basename_prefix + ".json")
+        check_file_content(output_basename_prefix + ".summary.txt")
 
         expected_types_list = {
             'CIM_Process': 6,
@@ -1080,12 +1095,13 @@ class EventsServerTest(unittest.TestCase):
         self._check_read_triples(5, expected_types_list)
 
     @unittest.skipIf(is_platform_windows and is_py3 and not is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS AND LOCAL. WHY ??")
-    def test_file_events_firefox    (self):
+    def test_file_events_firefox(self):
+        output_basename_prefix = "firefox_events_google.strace.22501"
         dockit.test_from_file(
             input_log_file= path_prefix_input_file("firefox_google.strace.22501.log"),
             tracer="strace",
             input_process_id=0,
-            output_files_prefix= path_prefix_output_result("firefox_events_google.strace.22501"),
+            output_files_prefix= path_prefix_output_result(output_basename_prefix),
             output_format="JSON",
             verbose=False,
             map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
@@ -1095,8 +1111,8 @@ class EventsServerTest(unittest.TestCase):
             update_server=RemoteEventsTestAgent + "/survol/event_put.py",
             aggregator="clusterize")
 
-        check_file_content("firefox_events_google.strace.22501.json")
-        check_file_content("firefox_events_google.strace.22501.summary.txt")
+        check_file_content(output_basename_prefix + ".json")
+        check_file_content(output_basename_prefix + ".summary.txt")
 
         expected_types_list = {
             'CIM_Process': 174,

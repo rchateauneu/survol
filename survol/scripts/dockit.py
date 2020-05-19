@@ -801,22 +801,15 @@ def _start_processing(global_parameters):
         global_parameters.tracer)
 
     assert cim_objects_definitions.G_topProcessId >= 0
-    if global_parameters.output_files_short_prefix:
-        output_files_prefix = "%s.%s.%s" % (
-            global_parameters.output_files_short_prefix,
-            global_parameters.tracer,
-            cim_objects_definitions.G_topProcessId)
 
-        if global_parameters.duplicate_input_log:
-            calls_stream = G_traceToTracer[global_parameters.tracer].tee_calls_stream(calls_stream, output_files_prefix)
+    if global_parameters.duplicate_input_log:
+        calls_stream = G_traceToTracer[global_parameters.tracer].tee_calls_stream(calls_stream, global_parameters.output_files_prefix)
 
-        # If not replaying, saves all parameters in an ini file, with all parameters needed for a replay.
-        if not cim_objects_definitions.G_ReplayMode:
-            _create_ini_file(output_files_prefix)
-    else:
-        output_files_prefix = "dockit_output_" + global_parameters.tracer
+    # If not replaying, saves all parameters in an ini file, with all parameters needed for a replay.
+    if not cim_objects_definitions.G_ReplayMode:
+        _create_ini_file(global_parameters.output_files_prefix)
 
-    assert output_files_prefix[-1] != '.'
+    assert global_parameters.output_files_prefix[-1] != '.'
 
     # In normal usage, the summary output format is the same as the output format for calls.
     _analyse_functions_calls_stream(
@@ -825,7 +818,7 @@ def _start_processing(global_parameters):
         calls_stream,
         global_parameters.tracer,
         global_parameters.output_format,
-        output_files_prefix,
+        global_parameters.output_files_prefix,
         global_parameters.map_params_summary,
         global_parameters.summary_format,
         global_parameters.with_dockerfile,
@@ -850,7 +843,7 @@ if __name__ == '__main__':
         output_format = "TXT" # Default output format of the generated files.
         input_log_file = None
         summary_format = None
-        output_files_short_prefix = None
+        output_files_prefix = "dockit_output"
         tracer = None
         aggregator = None
         duplicate_input_log = False
@@ -883,7 +876,7 @@ if __name__ == '__main__':
         elif an_option in ("-i", "--input"):
             G_parameters.input_log_file = a_value
         elif an_option in ("-l", "--log"):
-            G_parameters.output_files_short_prefix = a_value
+            G_parameters.output_files_prefix = a_value
         elif an_option in ("-t", "--tracer"):
             G_parameters.tracer = a_value
         elif an_option in ("-S", "--server"):
