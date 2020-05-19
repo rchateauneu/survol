@@ -12,6 +12,7 @@ import unittest
 import shutil
 import rdflib
 import subprocess
+import collections
 
 # In pytest, __file__ is abolute, but this is relative with unittest.
 _current_file_dirname = os.path.abspath(os.path.dirname(__file__))
@@ -825,7 +826,7 @@ class ReplaySessionsTest(unittest.TestCase):
         The keys are the prefix of the log files and the content is an array of actual files
         whose output must be reproduced.
         """
-        mapFiles = {}
+        ####mapFiles = {}
 
         # First pass to build a map of files.
         # This takes only the log files at the top level.
