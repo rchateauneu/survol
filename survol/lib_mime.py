@@ -1,7 +1,6 @@
 import os
 import sys
 import lib_util
-import lib_common
 from lib_properties import pc
 
 try:
@@ -57,9 +56,9 @@ mimeModePrefix = "mime:"
 def AddMimeUrl(grph,filNode, entity_type,mime_type,entity_id_arr):
 	entity_host = None
 	if entity_host:
-		genObj = lib_common.RemoteBox(entity_host)
+		genObj = lib_uris.RemoteBox(entity_host)
 	else:
-		genObj = lib_common.gUriGen
+		genObj = lib_uris.gUriGen
 
 	mimeNode = genObj.UriMakeFromScript( '/entity_mime.py', entity_type, *entity_id_arr )
 
@@ -71,7 +70,7 @@ def AddMimeUrl(grph,filNode, entity_type,mime_type,entity_id_arr):
 	# sys.stderr.write("lib_mime.AddMimeUrl BEFORE mimeNode=%s\n"%(mimeNode))
 	mimeNodeWithMode = mimeNode + "&amp;amp;" + "mode=" + mimeModePrefix + mime_type
 
-	grph.add( ( filNode, pc.property_rdf_data_nolist2, lib_common.NodeUrl(mimeNodeWithMode) ) )
+	grph.add( ( filNode, pc.property_rdf_data_nolist2, lib_uris.NodeUrl(mimeNodeWithMode) ) )
 
 # If the CGI parameter is for example: "...&mode=
 def ModeToMimeType(urlMode):
