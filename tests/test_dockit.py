@@ -17,12 +17,24 @@ import collections
 # In pytest, __file__ is abolute, but this is relative with unittest.
 _current_file_dirname = os.path.abspath(os.path.dirname(__file__))
 
+from init import *
+
+from survol.scripts import dockit
+# FIXME: It should be on Linux only.
+from survol.scripts import linux_api_definitions
+
+
 dock_input_files_path = os.path.join(_current_file_dirname, "dockit_input_test_trace_files")
 
 dockit_output_files_path = os.path.join(_current_file_dirname, "dockit_output_files")
 
 # This is the expected content of some generated files.
 dockit_output_files_path_expected = os.path.join(_current_file_dirname, "dockit_output_files_expected")
+
+# This is the directory of the command dockit.py and ised used to run it
+# and check where the default ouput files are created.
+# __file__ could be 'C:\\Python27\\lib\\site-packages\\survol\\scripts\\dockit.pyc'
+dockit_dirname = os.path.abspath(os.path.dirname(dockit.__file__))
 
 # Creates the destination file for result if not there, otherwise cleanup.
 # This is needed otherwise pytest would run the Python files in this dir.
@@ -40,26 +52,31 @@ else:
 def path_prefix_output_result(*file_path):
     return os.path.join(dockit_output_files_path, *file_path)
 
+
 # Check content of the generated files.
 # Depending on the file extension, this tries to load the content of the file.
+# it returns the parsed content, depending on the extension,
 def check_file_content(*file_path):
     full_file_path = path_prefix_output_result(*file_path)
     fil_descr = open(full_file_path)
     filename, file_extension = os.path.splitext(full_file_path)
     if file_extension == ".json":
         # Checks that this json file can be loaded.
-        json.load(fil_descr)
+        file_content = json.load(fil_descr)
     elif file_extension == ".xml":
         # Checks that this xml file can be parsed.
-        minidom.parse(full_file_path)
+        file_content = minidom.parse(full_file_path)
     elif file_extension == ".rdf":
         rdflib_graph = rdflib.Graph()
         rdflib_graph.parse(full_file_path)
         num_triples = len(rdflib_graph)
         # There should be at least one triple.
         assert num_triples > 0
+        file_content = rdflib_graph
     elif file_extension == ".ini":
-        dockit.check_ini_file(full_file_path)
+        file_content = dockit.ini_file_check(full_file_path)
+    else:
+        file_content = None
 
     fil_descr.close()
 
@@ -83,6 +100,8 @@ def check_file_content(*file_path):
 
     except IOError:
         print("INFO: No comparison file:", expected_file_path)
+    return file_content
+
 
 # This checks that a file was NOT created.
 def check_file_missing(*file_path):
@@ -98,11 +117,6 @@ def path_prefix_input_file(*file_path):
     # The test files are alongside the script.
     return os.path.join( dock_input_files_path, *file_path )
 
-from init import *
-
-from survol.scripts import dockit
-# FIXME: It should be on Linux only.
-from survol.scripts import linux_api_definitions
 
 class LowLevelComponentsTest(unittest.TestCase):
     """
@@ -112,79 +126,79 @@ class LowLevelComponentsTest(unittest.TestCase):
     # This is a set of arguments of system function calls as displayed by strace or ltrace.
     # This checks if they are correctly parsed.
     def test_trace_line_parse(self):
-        dataTst = [
-            ( 'xyz',
-              ["xyz"],3 ),
-            ( '"Abcd"',
-              ["Abcd"],6 ),
-            ( '"Ab","cd"',
-              ["Ab","cd"],9 ),
-            ( 'Ab,"cd"',
-              ["Ab","cd"],7 ),
-            ( '"Ab","cd","ef"',
-              ["Ab","cd","ef"],14 ),
-            ( '"Ab","cd","ef",gh',
-              ["Ab","cd","ef","gh"],17 ),
-            ( '"/usr/bin/grep", ["grep", "toto"]',
-              ["/usr/bin/grep", ["grep", "toto"] ],33 ),
-            ( '"/usr/bin/grep", ["grep", "toto", "tutu"]',
-              ["/usr/bin/grep", ["grep", "toto", "tutu"] ],41 ),
-            ( '"/usr/bin/grep", ["grep", "toto", "tutu"], "tata"',
-              ["/usr/bin/grep", ["grep", "toto", "tutu"], "tata" ],49 ),
-            ( '"","cd"',
-              ["","cd"],7 ),
-            ( '3 <unfinished ...>',
-              ["3"],2 ),
-            ( '<... close resumed>',
-              ['<... close resumed>'],19 ),
-            ( '"12345",""',
-              ["12345",""],10 ),
-            ( '8, "/\nbid_convert_data.o/\nbid128_noncomp.o/\nbid128_compare.o/\nbid32_to_bid64.o/\nbid32_to_bid128.o/\nbid64_to_bid128.o/\nbid64_to_int32.o/\nbid64_to_int64.o/\nbid64_to_uint32.o/\nbid64_to_uint64.o/\nbid128_to_in"..., 4096',
-              ['8', '/\nbid_convert_data.o/\nbid128_noncomp.o/\nbid128_compare.o/\nbid32_to_bid64.o/\nbid32_to_bid128.o/\nbid64_to_bid128.o/\nbid64_to_int32.o/\nbid64_to_int64.o/\nbid64_to_uint32.o/\nbid64_to_uint64.o/\nbid128_to_in...', '4096'],214 ),
-            ( '3</usr/lib64/libpcre.so.1.2.8>',
+        data_tst = [
+            ('xyz',
+              ["xyz"], 3),
+            ('"Abcd"',
+              ["Abcd"], 6),
+            ('"Ab","cd"',
+              ["Ab","cd"], 9),
+            ('Ab,"cd"',
+              ["Ab","cd"], 7),
+            ('"Ab","cd","ef"',
+              ["Ab","cd","ef"], 14),
+            ('"Ab","cd","ef",gh',
+              ["Ab","cd","ef","gh"], 17),
+            ('"/usr/bin/grep", ["grep", "earth"]',
+              ["/usr/bin/grep", ["grep", "earth"] ], 33),
+            ('"/usr/bin/grep", ["grep", "earth", "moon"]',
+              ["/usr/bin/grep", ["grep", "earth", "moon"] ], 41),
+            ('"/usr/bin/grep", ["grep", "earth", "moon"], "sun"',
+              ["/usr/bin/grep", ["grep", "earth", "moon"], "sun" ], 49),
+            ('"","cd"',
+              ["","cd"], 7),
+            ('3 <unfinished ...>',
+              ["3"], 2),
+            ('<... close resumed>',
+              ['<... close resumed>'], 19),
+            ('"12345",""',
+              ["12345",""], 10),
+            ('8, "/\nbid_convert_data.o/\nbid128_noncomp.o/\nbid128_compare.o/\nbid32_to_bid64.o/\nbid32_to_bid128.o/\nbid64_to_bid128.o/\nbid64_to_int32.o/\nbid64_to_int64.o/\nbid64_to_uint32.o/\nbid64_to_uint64.o/\nbid128_to_in"..., 4096',
+              ['8', '/\nbid_convert_data.o/\nbid128_noncomp.o/\nbid128_compare.o/\nbid32_to_bid64.o/\nbid32_to_bid128.o/\nbid64_to_bid128.o/\nbid64_to_int32.o/\nbid64_to_int64.o/\nbid64_to_uint32.o/\nbid64_to_uint64.o/\nbid128_to_in...', '4096'], 214),
+            ('3</usr/lib64/libpcre.so.1.2.8>',
               ['3</usr/lib64/libpcre.so.1.2.8>'], 30),
-            ( 'NULL, 4000096, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libc-2.25.so>, 0',
+            ('NULL, 4000096, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libc-2.25.so>, 0',
               ['NULL', '4000096', 'PROT_READ|PROT_EXEC', 'MAP_PRIVATE|MAP_DENYWRITE', '3</usr/lib64/libc-2.25.so>', '0'], 92),
-            ( '"/usr/bin/grep", ["grep", "Hello", "../Divers/com_type_l"...], 0x7ffd8a76efa8 /* 17 vars */',
+            ('"/usr/bin/grep", ["grep", "Hello", "../Divers/com_type_l"...], 0x7ffd8a76efa8 /* 17 vars */',
               ['/usr/bin/grep', ['grep', 'Hello', '../Divers/com_type_l...'], '0x7ffd8a76efa8 /* 17 vars */'], 91),
-            ( '3</usr/lib64/libpthread-2.21.so>, "xyz", 832',
-              ['3</usr/lib64/libpthread-2.21.so>', 'xyz', '832'],44),
-            ( '1<pipe:[7124131]>, TCGETS, 0x7ffe58d35d60',
-              ['1<pipe:[7124131]>', 'TCGETS', '0x7ffe58d35d60'],41 ),
-            ( '3<TCP:[127.0.0.1:59100->127.0.0.1:3306]>, SOL_IP, IP_TOS, [8], 4',
-              ['3<TCP:[127.0.0.1:59100->127.0.0.1:3306]>', 'SOL_IP', 'IP_TOS', ['8'], '4'],64 ),
-            ( '"/usr/bin/python", ["python", "TestProgs/big_mysql_"...], [/* 37 vars */]',
-              ['/usr/bin/python', ['python', 'TestProgs/big_mysql_...'], ['/* 37 vars */']],73 ),
+            ('3</usr/lib64/libpthread-2.21.so>, "xyz", 832',
+              ['3</usr/lib64/libpthread-2.21.so>', 'xyz', '832'], 44),
+            ('1<pipe:[7124131]>, TCGETS, 0x7ffe58d35d60',
+              ['1<pipe:[7124131]>', 'TCGETS', '0x7ffe58d35d60'], 41),
+            ('3<TCP:[127.0.0.1:59100->127.0.0.1:3306]>, SOL_IP, IP_TOS, [8], 4',
+              ['3<TCP:[127.0.0.1:59100->127.0.0.1:3306]>', 'SOL_IP', 'IP_TOS', ['8'], '4'], 64),
+            ('"/usr/bin/python", ["python", "TestProgs/big_mysql_"...], [/* 37 vars */]',
+              ['/usr/bin/python', ['python', 'TestProgs/big_mysql_...'], ['/* 37 vars */']], 73),
 
-            ( '3</usr/lib64/libc-2.21.so>, "\x7fELF\x02\x01\x01\x03\\>\x00"..., 832',
-                ['3</usr/lib64/libc-2.21.so>', '\x7fELF\x02\x01\x01\x03\\>\x00...', '832'],49 ),
+            ('3</usr/lib64/libc-2.21.so>, "\x7fELF\x02\x01\x01\x03\\>\x00"..., 832',
+                ['3</usr/lib64/libc-2.21.so>', '\x7fELF\x02\x01\x01\x03\\>\x00...', '832'], 49),
 
-            ( '29</home/rchateau/.mozilla/firefox/72h59sxe.default/cookies.sqlite>, "SQLite format 3\0\200\0\2\2\0@  \0\0\0\4\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\2\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0\t\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\4\0.\30\310", 100',
+            ('29</home/rchateau/.mozilla/firefox/72h59sxe.default/cookies.sqlite>, "SQLite format 3\0\200\0\2\2\0@  \0\0\0\4\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\2\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0\t\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\4\0.\30\310", 100',
               ['29</home/rchateau/.mozilla/firefox/72h59sxe.default/cookies.sqlite>', 'SQLite format 3\x00\x80\x00\x02\x02\x00@  \x00\x00\x00\x04\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\t\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x00.\x18\xc8', '100'], 176),
 
-            ( '5</etc/pki/nssdb/key4.db>, "\r\0\0\0\1\0G\0\0G\3\313\0\0\0\0\0\0\2076\1\7\27!!\1\2167tablenssPrivatenssPrivate\2CREATE TABLE nssP\2076\1\7\27!!\1\2167tablenssPrivatenssPrivate\2CREATE TABLE nssPrivate (id PRIMARY KEY UNIQUE ON CONFLICT ABORT, a0, a1, a2, a3, a10, a11, a"..., 1024, 3072',
+            ('5</etc/pki/nssdb/key4.db>, "\r\0\0\0\1\0G\0\0G\3\313\0\0\0\0\0\0\2076\1\7\27!!\1\2167tablenssPrivatenssPrivate\2CREATE TABLE nssP\2076\1\7\27!!\1\2167tablenssPrivatenssPrivate\2CREATE TABLE nssPrivate (id PRIMARY KEY UNIQUE ON CONFLICT ABORT, a0, a1, a2, a3, a10, a11, a"..., 1024, 3072',
               ['5</etc/pki/nssdb/key4.db>', '\r\x00\x00\x00\x01\x00G\x00\x00G\x03\xcb\x00\x00\x00\x00\x00\x00\x876\x01\x07\x17!!\x01\x8e7tablenssPrivatenssPrivate\x02CREATE TABLE nssP\x876\x01\x07\x17!!\x01\x8e7tablenssPrivatenssPrivate\x02CREATE TABLE nssPrivate (id PRIMARY KEY UNIQUE ON CONFLICT ABORT, a0, a1, a2, a3, a10, a11, a...', '1024', '3072'], 244),
 
-            ( '4</etc/pki/nssdb/cert9.db>, F_SETLK, {l_type=F_RDLCK, l_whence=SEEK_SET, l_start=1073741824, l_len=1}',
+            ('4</etc/pki/nssdb/cert9.db>, F_SETLK, {l_type=F_RDLCK, l_whence=SEEK_SET, l_start=1073741824, l_len=1}',
                 ['4</etc/pki/nssdb/cert9.db>', 'F_SETLK', ['l_type=F_RDLCK', 'l_whence=SEEK_SET', 'l_start=1073741824', 'l_len=1']], 101),
 
-            ( '4</etc/pki/nssdb/cert9.db>, "\0\0\0\2\0\0\0\t\0\0\0\0\0\0\0\0", 16, 24',
+            ('4</etc/pki/nssdb/cert9.db>, "\0\0\0\2\0\0\0\t\0\0\0\0\0\0\0\0", 16, 24',
               ['4</etc/pki/nssdb/cert9.db>', '\x00\x00\x00\x02\x00\x00\x00\t\x00\x00\x00\x00\x00\x00\x00\x00', '16', '24'], 54),
 
-            ( '0</dev/pts/2>, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 2)}',
-              ['0</dev/pts/2>', ['st_mode=S_IFCHR|0620', 'st_rdev=makedev(136, 2)']],62 ),
+            ('0</dev/pts/2>, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 2)}',
+              ['0</dev/pts/2>', ['st_mode=S_IFCHR|0620', 'st_rdev=makedev(136, 2)']], 62),
 
-            ( '6, [4<UNIX:[3646855,"/run/proftpd/proftpd.sock"]>], NULL, NULL, {tv_sec=0, tv_usec=500}',
+            ('6, [4<UNIX:[3646855,"/run/proftpd/proftpd.sock"]>], NULL, NULL, {tv_sec=0, tv_usec=500}',
               ['6', ['4<UNIX:[3646855,"/run/proftpd/proftpd.sock"]>'], 'NULL', 'NULL', ['tv_sec=0', 'tv_usec=500']], 87),
 
-            ( '13<UNIX:[10579575->10579582]>, SOL_SOCKET, SO_PEERSEC, "system_u:system_r:system_dbusd_t:s0-s0:c0.c1023\0", [64->48]',
+            ('13<UNIX:[10579575->10579582]>, SOL_SOCKET, SO_PEERSEC, "system_u:system_r:system_dbusd_t:s0-s0:c0.c1023\0", [64->48]',
               ['13<UNIX:[10579575->10579582]>', 'SOL_SOCKET', 'SO_PEERSEC', 'system_u:system_r:system_dbusd_t:s0-s0:c0.c1023\x00', ['64->48']], 115),
 
-            ( '17<TCP:[54.36.162.150:32855]>, {sa_family=AF_INET, sin_port=htons(63705), sin_addr=inet_addr("82.45.12.63")}, [16]',
+            ('17<TCP:[54.36.162.150:32855]>, {sa_family=AF_INET, sin_port=htons(63705), sin_addr=inet_addr("82.45.12.63")}, [16]',
               ['17<TCP:[54.36.162.150:32855]>', ['sa_family=AF_INET', 'sin_port=htons(63705)', 'sin_addr=inet_addr("82.45.12.63")'], ['16']], 114),
 
-            ( '"/usr/bin/gcc", ["gcc", "-O3", "ProgsAndScriptsForUnitTests/HelloWorld.c"], 0x7ffd8b44aab8 /* 30 vars */) = 0 <0.000270>',
-              ['/usr/bin/gcc', ['gcc', '-O3', 'ProgsAndScriptsForUnitTests/HelloWorld.c'], '0x7ffd8b44aab8 /* 30 vars */'],106 ),
+            ('"/usr/bin/gcc", ["gcc", "-O3", "ProgsAndScriptsForUnitTests/HelloWorld.c"], 0x7ffd8b44aab8 /* 30 vars */) = 0 <0.000270>',
+              ['/usr/bin/gcc', ['gcc', '-O3', 'ProgsAndScriptsForUnitTests/HelloWorld.c'], '0x7ffd8b44aab8 /* 30 vars */'], 106),
 
             # TODO: ltrace does not escape double-quotes:
             #  "\001$\001$\001\026\001"\0015\001\n\001\r\001\r\001\f\001(\020",
@@ -195,7 +209,7 @@ class LowLevelComponentsTest(unittest.TestCase):
 
         ]
 
-        for tupl in dataTst:
+        for tupl in data_tst:
             # The input string theoretically starts and ends with parenthesis,
             # but the closing one might not be there.
             # Therefore it should be tested with and without the closing parenthesis.
@@ -210,7 +224,7 @@ class LowLevelComponentsTest(unittest.TestCase):
             if idx != len(tupl[0]):
                 if not tupl[0][idx:].startswith("<unfinished ...>"):
                     if tupl[0][idx-2] != ')':
-                        raise Exception("Fail idx2: len=%d %d SHOULD BE:%d; S=%s / '%s'" % ( len(tupl[0]), idx, tupl[2], tupl[0], tupl[0][idx-2:] ) )
+                        raise Exception("Fail idx2: len=%d %d SHOULD BE:%d; S=%s / '%s'" % (len(tupl[0]), idx, tupl[2], tupl[0], tupl[0][idx-2:] ) )
 
     def test_usage(self):
         # Conventional value 999 makes that this function does not exit.
@@ -219,9 +233,6 @@ class LowLevelComponentsTest(unittest.TestCase):
 
 # This runs dockit as a command. Its returns the content of stdout.
 def _run_dockit_command(one_command):
-    # __file__ could be 'C:\\Python27\\lib\\site-packages\\survol\\scripts\\dockit.pyc'
-    dockit_dirname = os.path.abspath(os.path.dirname(dockit.__file__))
-
     if is_platform_linux:
         dockit_command = "cd %s;%s dockit.py %s" % (dockit_dirname, sys.executable, one_command)
     else:
@@ -230,19 +241,9 @@ def _run_dockit_command(one_command):
         # therefore it must be enclosed in quotes.
         dockit_command = 'cd %s&"%s" dockit.py %s' % (dockit_dirname, sys.executable, one_command)
     print("dockit_command=", dockit_command)
-    # the last line returned by dockit.py is a JSON dict containing information such as the created pid.
     output_content = subprocess.check_output(dockit_command, shell=True)
-    output_split = output_content.split(b"\n")
-    try:
-        last_line = output_split[-2]
-        print("last_line=", last_line)
-        try:
-            returned_json = json.loads(last_line)
-        except json.decoder.JSONDecodeError as exc:
-            returned_json = {"exception": exc}
-    except:
-        returned_json = {"error": "Missing json footer"}
-    return output_content, returned_json
+    return output_content
+
 
 # The script dockit.py can be used as a command line or as an imported module.
 # This test checks the script dockit.py from from command lines, and not from the internal function.
@@ -250,7 +251,7 @@ class CommandLineTest(unittest.TestCase):
 
     def test_usage(self):
         """This tests the help message displayed by dockit.py """
-        command_result, json_last_line = _run_dockit_command("--help")
+        command_result = _run_dockit_command("--help")
         self.assertTrue(command_result.startswith(b"DockIT"))
 
     @unittest.skipIf(is_platform_windows, "This is not a Linux machine. Test skipped.")
@@ -258,8 +259,7 @@ class CommandLineTest(unittest.TestCase):
 
         output_basename_prefix = "test_linux_ls"
         output_prefix = path_prefix_output_result(output_basename_prefix)
-        command_result, json_last_line = _run_dockit_command("-D -f JSON -F TXT -l %s ls" % output_prefix)
-        print("command_result=", command_result)
+        command_result = _run_dockit_command("-D -f JSON -F TXT -l %s ls" % output_prefix)
 
         # This creates files like ".../test_linux_ls.strace<pid>.ini"
         check_file_content(output_basename_prefix + ".ini")
@@ -284,8 +284,7 @@ class CommandLineTest(unittest.TestCase):
         dockit_command = "--input %s --dockerfile --log %s -t ltrace --duplicate" % (
             input_log_file,
             output_prefix)
-        command_result, json_last_line = _run_dockit_command(dockit_command)
-        print("command_result=", command_result)
+        command_result = _run_dockit_command(dockit_command)
         self.assertTrue(command_result.startswith(b"Loading ini file:"))
 
         # No ini file created because this is a replay session from a log file.
@@ -305,9 +304,7 @@ class CommandLineTest(unittest.TestCase):
         dockit_command = "--input %s --dockerfile --log %s -t strace" % (
             input_log_file,
             output_prefix)
-        command_result, json_last_line = _run_dockit_command(dockit_command)
-
-        print("command_result=", command_result)
+        command_result = _run_dockit_command(dockit_command)
 
         self.assertTrue(command_result.startswith(b"Loading ini file:"))
 
@@ -329,8 +326,7 @@ class CommandLineTest(unittest.TestCase):
         dockit_command = "--input %s --dockerfile --log %s -t strace" % (
             input_log_file,
             output_prefix)
-        command_result, json_last_line = _run_dockit_command(dockit_command)
-        print("command_result=", command_result)
+        command_result = _run_dockit_command(dockit_command)
         self.assertTrue(command_result.startswith(b"Loading ini file:"))
 
         # The pid 4401 comes from the input log file.
@@ -364,8 +360,7 @@ class CommandLineTest(unittest.TestCase):
         dockit_command = "--input %s --dockerfile --log %s -t strace" % (
             input_log_file,
             output_prefix)
-        command_result, json_last_line = _run_dockit_command(dockit_command)
-        print("command_result=", command_result)
+        command_result = _run_dockit_command(dockit_command)
 
         check_file_content(output_basename_prefix + ".docker", "Dockerfile")
         check_file_missing(output_basename_prefix + ".ini")
@@ -379,8 +374,7 @@ class CommandLineTest(unittest.TestCase):
         dockit_command = "--input %s --dockerfile --log %s -t strace" % (
             input_log_file,
             output_prefix)
-        command_result, json_last_line = _run_dockit_command(dockit_command)
-        print("command_result=", command_result)
+        command_result = _run_dockit_command(dockit_command)
 
         check_file_content(output_basename_prefix + ".docker", "Dockerfile")
         check_file_missing(output_basename_prefix + ".ini")
@@ -393,30 +387,24 @@ class CommandLineWin32Test(unittest.TestCase):
 
     def test_run_windows_ping_nowhere(self):
         """This runs "ping" and the command help must be print."""
-        command_result, json_last_line = _run_dockit_command("ping")
-        print("command_result=", command_result)
+        command_result = _run_dockit_command("ping")
 
+        # Now parse the output to ensure that the command ran correctly.
 
         # C:\Survol>ping
         #
-        # Usage: ping [-t] [-a] [-n count] [-l size] [-f] [-i TTL] [-v TOS]
-        #             [-r count] [-s count] [[-j host-list] | [-k host-list]]
-        #             [-w timeout] [-R] [-S srcaddr] [-4] [-6] target_name
+        # Usage: ping [-t] ...
 
         # [msdos@domain survol]$ ping
-        # Usage: ping [-aAbBdDfhLnOqrRUvV64] [-c count] [-i interval] [-I interface]
-        #             [-m mark] [-M pmtudisc_option] [-l preload] [-p pattern] [-Q tos]
-        #             [-s packetsize] [-S sndbuf] [-t ttl] [-T timestamp_option]
-        #             [-w deadline] [-W timeout] [hop1 ...] destination
+        # Usage: ping [-aAbBdDfhLnOqrRUvV64] ...
 
-        # Now parse the output to ensure that the command ran correctly.
         self.assertTrue( command_result.find(b"Usage: ping") >= 0)
 
     def test_run_windows_ping_home(self):
         # This test pings to a domain name.
         output_basename_prefix = "test_run_windows_ping_home_%d" % CurrentPid
         output_prefix = path_prefix_output_result(output_basename_prefix)
-        command_result, json_last_line = _run_dockit_command("--log=%s ping primhillcomputers.com" % output_prefix)
+        command_result = _run_dockit_command("--log=%s ping primhillcomputers.com" % output_prefix)
 
         # The ini file is always created and store some parameters to replay the sessiosn.
         check_file_content(output_basename_prefix + ".ini")
@@ -431,7 +419,7 @@ class CommandLineWin32Test(unittest.TestCase):
     def test_run_windows_ping_github(self):
         output_basename_prefix = "test_run_windows_ping_github_%d" % CurrentPid
         output_prefix = path_prefix_output_result(output_basename_prefix)
-        command_result, json_last_line = _run_dockit_command("--log=%s --duplicate ping github.com" % output_prefix)
+        command_result = _run_dockit_command("--log=%s --duplicate ping github.com" % output_prefix)
 
         check_file_content(output_basename_prefix + ".ini")
         check_file_content(output_basename_prefix + ".txt")
@@ -445,18 +433,14 @@ class CommandLineWin32Test(unittest.TestCase):
 
         output_tmpfile = output_prefix + ".tmp.txt"
         dockit_command = "%s /c echo HelloWorld > %s" % (windows_system32_cmd_exe, output_tmpfile)
-        command_result, json_last_line = _run_dockit_command(dockit_command)
+        command_result = _run_dockit_command(dockit_command)
+
         self.assertTrue(command_result == b"")
-        self.assertTrue(json_last_line == {'error': 'Missing json footer'})
 
         # The outputs of the command and of dockit.py are redirected to the same file.
         with open(output_tmpfile) as results_file_descriptor:
             result_lines = results_file_descriptor.readlines()
-
-            self.assertTrue( result_lines[0].startswith("HelloWorld"))
-            json_content = json.loads(result_lines[-1])
-            # This must be there because the output file contains the expected result.
-            created_pid = json_content["pid"]
+            self.assertTrue(result_lines[0].startswith("HelloWorld"))
 
         print("output_tmpfile=", output_tmpfile)
 
@@ -472,35 +456,116 @@ class CommandLineWin32Test(unittest.TestCase):
         output_prefix = path_prefix_output_result(output_basename_prefix)
 
         dockit_command = "--log=%s --duplicate %s /c DIR" % (output_prefix, windows_system32_cmd_exe)
-        command_result, json_last_line = _run_dockit_command(dockit_command)
-        # cmd.exe
-        print("command_result=", command_result)
+        command_result = _run_dockit_command(dockit_command)
 
         check_file_content(output_basename_prefix + ".ini")
         check_file_content(output_basename_prefix + ".log")
 
+    def test_run_windows_mkdir_rdf(self):
+        """This generates a replay filename and reuses it immediately."""
+        output_basename_prefix = "test_run_windows_mkdir_rdf"
+        created_rdf_file = path_prefix_output_result(output_basename_prefix + ".rdf")
+        created_directory = path_prefix_output_result(output_basename_prefix + ".dir")
+
+        dockit_command = "--server=%s %s /c mkdir %s" % (created_rdf_file, windows_system32_cmd_exe, created_directory)
+        command_result = _run_dockit_command(dockit_command)
+
+        # The ini file is created with a default name.
+        # It does not use check_file_content because the output directory is not standard.
+        ini_file_default = os.path.join(dockit_dirname, "dockit_output" + ".ini")
+        dockit.ini_file_check(ini_file_default)
+
+        # This RDF file contains the raw triples generated from events.
+        # It does not contain semantic data necessary for SPARQL quries such as rdflib.namespace.RDF.type.
+        rdf_content = check_file_content(created_rdf_file)
+        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_NetworkAdapter.Name=192.168.1.10
+        # http://www.primhillcomputers.com/survol#Name
+        # 192.168.1.10
+        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_OperatingSystem.
+        # http://www.primhillcomputers.com/survol#OSType
+        # win32
+        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_ComputerSystem.Name=rchateau-hp
+        # http://www.primhillcomputers.com/survol#VirtualMemoryTotal
+        # 17099120640
+        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_ComputerSystem.Name=rchateau-hp
+        # http://www.primhillcomputers.com/survol#VirtualMemoryUsed
+        # 14555295744
+        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_OperatingSystem.
+        # http://www.primhillcomputers.com/survol#Release
+        # 7
+        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_OperatingSystem.
+        # http://www.primhillcomputers.com/survol#Platform
+        # Windows-7-6.1.7601-SP1
+        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_ComputerSystem.Name=rchateau-hp
+        # http://www.primhillcomputers.com/survol#CpuMinimum
+        # 0.0
+        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_OperatingSystem.
+        # http://www.primhillcomputers.com/survol#Name
+        # nt
+        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_ComputerSystem.Name=rchateau-hp
+        # http://www.primhillcomputers.com/survol#VirtualMemoryAvailable
+        # 2543824896
+        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_ComputerSystem.Name=rchateau-hp
+        # http://www.primhillcomputers.com/survol#CpuMaximum
+        # 3200.0
+        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_OperatingSystem.
+        # http://www.primhillcomputers.com/survol#System
+        # Windows
+        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_ComputerSystem.Name=rchateau-hp
+        # http://www.primhillcomputers.com/survol#CpuCurrent
+        # 3200.0
+        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_ComputerSystem.Name=rchateau-hp
+        # http://www.primhillcomputers.com/survol#Name
+        # rchateau-hp
+        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_ComputerSystem.Name=rchateau-hp
+        # http://www.primhillcomputers.com/survol#VirtualMemoryFree
+        # 2543824896
+        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_NetworkAdapter.Name=192.168.1.10
+        # http://www.primhillcomputers.com/survol#PermanentAddress
+        # 192.168.1.10
+        triples_as_string = [
+            (str(rdf_subject), str(rdf_predicate), str(rdf_object))
+            for rdf_subject, rdf_predicate, rdf_object in rdf_content.triples((None, None, None))
+        ]
+
+        self.assertTrue((
+            "http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_OperatingSystem.",
+            "http://www.primhillcomputers.com/survol#System",
+            "Windows"
+        ) in triples_as_string)
+
+        current_ip_address = socket.gethostbyname(socket.gethostname())
+        self.assertTrue((
+            "http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_NetworkAdapter.Name=%s" % current_ip_address,
+            "http://www.primhillcomputers.com/survol#PermanentAddress",
+            current_ip_address
+        ) in triples_as_string)
+
+        check_file_missing(output_basename_prefix + ".log")
+        check_file_missing(output_basename_prefix + ".docker", "Dockerfile")
+
 
 class SummaryXMLTest(unittest.TestCase):
     @staticmethod
-    def _rebuild_process_tree_aux(currNode, margin=""):
+    def _rebuild_process_tree_aux(current_node, margin=""):
 
         summary_process_tree = {}
 
         submargin = margin + "   "
-        for subNod in currNode.childNodes:
-            if subNod.localName == 'CIM_Process':
-                subObj = SummaryXMLTest._rebuild_process_tree_aux(subNod, submargin)
-                procId = int(subNod.attributes['Handle'].value)
-                summary_process_tree[procId] = subObj
+        for sub_node in current_node.childNodes:
+            if sub_node.localName == 'CIM_Process':
+                sub_object = SummaryXMLTest._rebuild_process_tree_aux(sub_node, submargin)
+                process_id = int(sub_node.attributes['Handle'].value)
+                summary_process_tree[process_id] = sub_object
 
         return summary_process_tree
 
     @staticmethod
-    def rebuild_process_tree(outputSummaryFile):
-        mydoc = minidom.parse(outputSummaryFile)
-        currNode = mydoc.getElementsByTagName('Dockit')
+    def rebuild_process_tree(output_summary_file):
+        mydoc = minidom.parse(output_summary_file)
+        current_node = mydoc.getElementsByTagName('Dockit')
 
-        return SummaryXMLTest._rebuild_process_tree_aux(currNode[0])
+        return SummaryXMLTest._rebuild_process_tree_aux(current_node[0])
 
 
     # This loads a log file generated by strace and rebuilds the processes tree.
@@ -841,9 +906,9 @@ class ReplaySessionsTest(unittest.TestCase):
         # First pass to build a map of files.
         # This takes only the log files at the top level.
         for subdir, dirs, files in os.walk( path_prefix_input_file() ):
-            for inFile in files:
-                inputLogFile = subdir + os.sep + inFile
-                output_basename_prefix, fil_ext = os.path.splitext(inFile)
+            for in_file in files:
+                input_log_file = subdir + os.sep + in_file
+                output_basename_prefix, fil_ext = os.path.splitext(in_file)
 
                 if fil_ext != ".log":
                     continue
@@ -852,23 +917,23 @@ class ReplaySessionsTest(unittest.TestCase):
                 # just before the extension. If it cannot be found, it is assumed
                 # to be -1.
 
-                tracer = dockit.default_tracer(inputLogFile)
+                tracer = dockit.default_tracer(input_log_file)
 
                 # TODO: This is a hack to avoid replaying Windows sessions on Linux.
                 # TODO: This replay could theoretically run on Linux,
                 # TODO: but win32_defs must be amended so that it can load some parts, on Linux boxes.
                 if tracer == "pydbg" and is_platform_linux:
-                    print("DO NOT RUN FOR THE MOMENT:", inputLogFile)
+                    print("DO NOT RUN FOR THE MOMENT:", input_log_file)
                     continue
 
-                for outputFormat in ["JSON"]:
+                for output_format in ["JSON"]:
                     # In tests, the summary output format is always XML.
                     dockit.test_from_file(
-                        input_log_file=inputLogFile,
+                        input_log_file=input_log_file,
                         tracer=tracer,
                         input_process_id=-1,
                         output_files_prefix=path_prefix_output_result(output_basename_prefix),
-                        output_format=outputFormat,
+                        output_format=output_format,
                         verbose=False,
                         map_params_summary=dockit.full_map_params_summary,
                         summary_format="TXT",
