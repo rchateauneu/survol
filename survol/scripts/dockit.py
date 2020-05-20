@@ -449,6 +449,67 @@ G_OSType = None
 
 ################################################################################
 
+
+
+# This file contains some extra details to replay a session with a log file.
+def ini_file_load(ini_pathname):
+    assert ini_pathname.endswith(".ini")
+    sys.stdout.write("Loading ini file:%s\n" % ini_pathname)
+    ini_map_key_value_pairs = {}
+    try:
+        ini_file = open(ini_pathname)
+        logging.info("Init " + ini_pathname)
+    except IOError:
+        sys.stdout.write("Error opening ini file:%s\n" % ini_pathname)
+        return ini_map_key_value_pairs
+    for line_key_value in ini_file.readlines():
+        stripped_key_value = line_key_value.strip()
+        if not stripped_key_value: continue
+        if stripped_key_value[0] == ';': continue
+        index_equal = stripped_key_value.find('=')
+        if index_equal < 0: continue
+        string_key = stripped_key_value[:index_equal]
+        string_val = stripped_key_value[index_equal+1:]
+        ini_map_key_value_pairs[string_key] = string_val
+        sys.stdout.write("Ini line:%s %s=%s\n" % (line_key_value, string_key, string_val))
+    sys.stdout.write("Closing ini file:%s\n" % ini_pathname)
+    ini_file.close()
+    return ini_map_key_value_pairs
+
+
+# This is purely for debugging and testing.
+def ini_file_check(ini_pathname):
+    assert ini_pathname.endswith(".ini")
+    ini_dict = ini_file_load(ini_pathname)
+    assert int(ini_dict["TopProcessId"]) >= 0
+    assert ini_dict["CurrentDirectory"]
+    assert ini_dict["CurrentDate"] # Example "2020-05-17"
+    assert ini_dict["CurrentHostname"]
+    assert ini_dict["CurrentOSType"] in ["win32", "linux", "linux2"]
+    return ini_dict
+
+
+def _ini_file_create(output_files_prefix):
+    ini_pathname = output_files_prefix + ".ini"
+    sys.stdout.write("Creating ini file:%s\n" % ini_pathname)
+    ini_file_descriptor = open(ini_pathname, "w")
+
+    # At this stage, we know what is the top process id,
+    # because the command is created, or the process attached.
+    assert cim_objects_definitions.G_topProcessId >= 0
+    ini_file_descriptor.write('TopProcessId=%s\n' % cim_objects_definitions.G_topProcessId)
+
+    ini_file_descriptor.write('CurrentDirectory=%s\n' % os.getcwd())
+    # Necessary because ltrace and strace do not write the date.
+    # Done before testing in case the test stops next day.
+    ini_file_descriptor.write('CurrentDate=%s\n' % cim_objects_definitions.G_Today)
+    ini_file_descriptor.write('CurrentHostname=%s\n' % socket.gethostname())
+    ini_file_descriptor.write('CurrentOSType=%s\n' % sys.platform)
+    ini_file_descriptor.close()
+
+
+################################################################################
+
 # Rule-of-thumb method to deduce the tracer type given the log file.
 def default_tracer(input_log_file, tracer=None):
     if not tracer:
@@ -474,41 +535,6 @@ def default_tracer(input_log_file, tracer=None):
                 raise Exception("Unknown platform")
     logging.info("Tracer " + tracer)
     return tracer
-
-
-# This file contains some extra details to replay a session with a log file.
-def ini_file_load(ini_pathname):
-    sys.stdout.write("Loading ini file:%s\n" % ini_pathname)
-    ini_map_key_value_pairs = {}
-    try:
-        ini_file = open(ini_pathname)
-        logging.info("Init " + ini_pathname)
-    except IOError:
-        sys.stdout.write("Error opening ini file:%s\n" % ini_pathname)
-        return ini_map_key_value_pairs
-    for line_key_value in ini_file.readlines():
-        stripped_key_value = line_key_value.strip()
-        if not stripped_key_value: continue
-        if stripped_key_value[0] == ';': continue
-        index_equal = stripped_key_value.find('=')
-        if index_equal < 0: continue
-        string_key = stripped_key_value[:index_equal]
-        string_val = stripped_key_value[index_equal+1:]
-        ini_map_key_value_pairs[string_key] = string_val
-        sys.stdout.write("Ini line:%s %s=%s\n" % (line_key_value, string_key, string_val))
-    sys.stdout.write("Closing ini file:%s\n" % ini_pathname)
-    ini_file.close()
-    return ini_map_key_value_pairs
-
-
-# This is purely for debugging and testing.
-def check_ini_file(ini_pathname):
-    ini_dict = ini_file_load(ini_pathname)
-    assert int(ini_dict["TopProcessId"]) >= 0
-    assert ini_dict["CurrentDirectory"]
-    assert ini_dict["CurrentDate"] # 2020-05-17
-    assert ini_dict["CurrentHostname"]
-    assert ini_dict["CurrentOSType"] in ["win32", "linux", "linux2"]
 
 
 # This returns a stream with each line written by strace or ltrace.
@@ -775,24 +801,6 @@ def test_from_file(
     return output_summary_file
 
 
-def _create_ini_file(output_files_prefix):
-    iniFilNam = output_files_prefix + ".ini"
-    iniFd = open(iniFilNam, "w")
-
-    # At this stage, we know what is the top process id,
-    # because the command is created, or the process attached.
-    assert cim_objects_definitions.G_topProcessId >= 0
-    iniFd.write('TopProcessId=%s\n' % cim_objects_definitions.G_topProcessId)
-
-    iniFd.write('CurrentDirectory=%s\n' % os.getcwd())
-    # Necessary because ltrace and strace do not write the date.
-    # Done before testing in case the test stops next day.
-    iniFd.write('CurrentDate=%s\n' % cim_objects_definitions.G_Today)
-    iniFd.write('CurrentHostname=%s\n' % socket.gethostname())
-    iniFd.write('CurrentOSType=%s\n' % sys.platform)
-    iniFd.close()
-
-
 def _start_processing(global_parameters):
     calls_stream = _create_calls_stream(
         global_parameters.command_line,
@@ -806,8 +814,9 @@ def _start_processing(global_parameters):
         calls_stream = G_traceToTracer[global_parameters.tracer].tee_calls_stream(calls_stream, global_parameters.output_files_prefix)
 
     # If not replaying, saves all parameters in an ini file, with all parameters needed for a replay.
+    assert cim_objects_definitions.G_ReplayMode in [False, True]
     if not cim_objects_definitions.G_ReplayMode:
-        _create_ini_file(global_parameters.output_files_prefix)
+        _ini_file_create(global_parameters.output_files_prefix)
 
     assert global_parameters.output_files_prefix[-1] != '.'
 
@@ -880,7 +889,7 @@ if __name__ == '__main__':
         elif an_option in ("-t", "--tracer"):
             G_parameters.tracer = a_value
         elif an_option in ("-S", "--server"):
-            G_parameters.cim_objects_definitions.G_UpdateServer = a_value
+            cim_objects_definitions.G_UpdateServer = a_value
         elif an_option in ("-a", "--aggregator"):
             G_parameters.aggregator = a_value
         elif an_option in ("-d", "--duplicate"):
@@ -894,9 +903,9 @@ if __name__ == '__main__':
 
     _start_processing(G_parameters)
 
-    # These information in JSON format on the last line
-    # are needed to find the name of the generated file.
-    print('{"pid": "%d"}' % cim_objects_definitions.G_topProcessId)
+    logging.error("cim_objects_definitions.G_ReplayMode=%s" % cim_objects_definitions.G_ReplayMode)
+    print("cim_objects_definitions.G_ReplayMode=", cim_objects_definitions.G_ReplayMode)
+
 
 ################################################################################
 # The End.
