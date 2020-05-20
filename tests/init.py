@@ -56,7 +56,9 @@ SurvolWbemCimom = "http://vps516494.ovh.net:5988"
 
 ################################################################################
 
-CurrentMachine = socket.gethostname().lower()
+# agent_host = "127.0.0.1"
+agent_host = socket.gethostname()
+CurrentMachine = agent_host.lower()
 try:
     CurrentUsername = os.environ["USERNAME"]
     # The class of users is different on Linux and Windows.
@@ -217,11 +219,9 @@ except ImportError:
 # FIXME: ... with Python 3, when communicating with sockets, it does not work,
 # FIXME: ... losing characters...
 def _start_cgiserver_subprocess_windows(agent_url, agent_port, current_dir):
-    print("_start_cgiserver_subprocess_windows: agent_url=%s agent_port=%d hostname=%s" % (agent_url, agent_port, socket.gethostname()))
+    print("_start_cgiserver_subprocess_windows: agent_url=%s agent_port=%d hostname=%s" % (agent_url, agent_port, agent_host))
 
     # cwd = "PythonStyle/tests", must be "PythonStyle".
-    # agent_host = "127.0.0.1"
-    agent_host = socket.gethostname()
 
     cgiserver_module = "survol.scripts.cgiserver"
     cgi_command_str = sys.executable + ' -c "import %s as ssc;ssc.start_server_forever(True,\'%s\',%d,\'%s\')"' % (
@@ -257,10 +257,6 @@ def _start_cgiserver_subprocess_windows(agent_url, agent_port, current_dir):
 
 
 def _start_cgiserver_subprocess_portable_OLD(agent_url, agent_port, current_dir):
-    # cwd = "PythonStyle/tests", must be "PythonStyle".
-    # agent_host = "127.0.0.1"
-    agent_host = socket.gethostname()
-
     cgiserver_module = "survol.scripts.cgiserver"
     cgi_command = [
         sys.executable,
@@ -280,11 +276,8 @@ def _start_cgiserver_subprocess_portable_OLD(agent_url, agent_port, current_dir)
 
 
 def _start_cgiserver_subprocess_portable(agent_url, agent_port, current_dir):
-    # cwd = "PythonStyle/tests", must be "PythonStyle".
-    # agent_host = "127.0.0.1"
     import multiprocessing
 
-    agent_host = socket.gethostname()
     agent_process = multiprocessing.Process(
         target=scripts.cgiserver.start_server_forever,
         args=(True, agent_host, agent_port, current_dir))
@@ -296,7 +289,7 @@ def _start_cgiserver_subprocess_portable(agent_url, agent_port, current_dir):
 
 
 def _start_cgiserver_subprocess(agent_url, agent_port):
-    print("_start_cgiserver_subprocess: agent_url=%s agent_port=%d hostname=%s" % (agent_url, agent_port, socket.gethostname()))
+    print("_start_cgiserver_subprocess: agent_url=%s agent_port=%d hostname=%s" % (agent_url, agent_port, agent_host))
     try:
         # Running the tests scripts from PyCharm is from the current directory.
         os.environ["PYCHARM_HELPERS_DIR"]
@@ -320,8 +313,6 @@ def start_cgiserver(agent_url, agent_port):
         except:
             print("Cannot remove", logfile_name)
 
-    # agent_host = "127.0.0.1"
-    agent_host = socket.gethostname()
     try:
         agent_process = None
         response = portable_urlopen(agent_url + "/survol/print_internal_data_as_json.py", timeout=2)
@@ -372,20 +363,18 @@ def start_wsgiserver(agent_url, agent_port):
         INFO("start_wsgiserver: Using existing WSGI Survol agent")
     except:
         import multiprocessing
-        INFO("Starting test survol agent_url=%s hostnqme=%s", agent_url, socket.gethostname())
+        INFO("Starting test survol agent_url=%s hostnqme=%s", agent_url, agent_host)
 
         import scripts.wsgiserver
-        # cwd = "PythonStyle/tests", must be "PythonStyle".
-        # AgentHost = "127.0.0.1"
-        agent_host = socket.gethostname()
+
         try:
             # Running the tests scripts from PyCharm is from the current directory.
             os.environ["PYCHARM_HELPERS_DIR"]
             current_dir = ".."
         except KeyError:
             current_dir = ""
-        INFO("current_dir=%s",current_dir)
-        INFO("sys.path=%s",str(sys.path))
+        INFO("current_dir=%s", current_dir)
+        INFO("sys.path=%s", str(sys.path))
 
         agent_process = multiprocessing.Process(
             target=scripts.wsgiserver.start_server_forever,
