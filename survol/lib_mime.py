@@ -1,6 +1,7 @@
 import os
 import sys
 import lib_util
+import lib_uris
 from lib_properties import pc
 
 try:
