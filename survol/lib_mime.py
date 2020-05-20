@@ -71,7 +71,7 @@ def AddMimeUrl(grph,filNode, entity_type,mime_type,entity_id_arr):
 	# sys.stderr.write("lib_mime.AddMimeUrl BEFORE mimeNode=%s\n"%(mimeNode))
 	mimeNodeWithMode = mimeNode + "&amp;amp;" + "mode=" + mimeModePrefix + mime_type
 
-	grph.add( ( filNode, pc.property_rdf_data_nolist2, lib_uris.NodeUrl(mimeNodeWithMode) ) )
+	grph.add( ( filNode, pc.property_rdf_data_nolist2, lib_util.NodeUrl(mimeNodeWithMode) ) )
 
 # If the CGI parameter is for example: "...&mode=
 def ModeToMimeType(urlMode):
