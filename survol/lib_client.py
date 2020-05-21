@@ -87,7 +87,6 @@ class SourceCgi(SourceBase):
         super(SourceCgi, self).__init__()
 
     def create_url_query(self, mode=None):
-        # suffix = ",".join( [ "%s=%s" % (k,v) for k,v in self.m_kwargs.items() ])
         # v might be an integer, a double, a string.
         suffix = ",".join( [ "%s=%s" % (k,lib_util.urllib_quote(str(v))) for k,v in self.m_kwargs.items() ])
         if self.m_className:
@@ -187,7 +186,7 @@ class SourceLocal (SourceCgi):
         modu = self.__get_local_module()
 
         # SCRIPT_NAME=/survol/print_environment_variables.py
-        os.environ["SCRIPT_NAME"] = lib_util.prefixLocalScript + "/" + self.m_script
+        os.environ["SCRIPT_NAME"] = lib_util.prefixLocalExecution + "/" + self.m_script
         # QUERY_STRING=xid=class.k=v
         os.environ["QUERY_STRING"] = self.create_url_query(mode)
 
@@ -723,7 +722,7 @@ def url_to_instance(instanceUrl):
 # instanceUrl="http://rchateau-hp:8000/survol/sources_types/memmap/memmap_processes.py?xid=memmap.Id%3DC%3A%2FWindows%2FSystem32%2Fen-US%2Fkernel32.dll.mui"
 def instance_url_to_agent_url(instanceUrl):
     parse_url = lib_util.survol_urlparse(instanceUrl)
-    if parse_url.path.startswith(lib_util.prefixLocalScript):
+    if parse_url.path.startswith(lib_util.prefixLocalExecution):
         agentUrl = None
     else:
         idxSurvol = instanceUrl.find("/survol")
@@ -769,10 +768,10 @@ class TripleStore:
         if strUrl.startswith("http://LOCALHOST:80/"):
             # "http://LOCALHOST:80/LocalExecution"
             # lib_util.prefixLocalScript = "/LocalExecution"
-            assert(strUrl.startswith("http://LOCALHOST:80"+lib_util.prefixLocalScript))
+            assert(strUrl.startswith("http://LOCALHOST:80" + lib_util.prefixLocalExecution))
 
         # These local scripts are always from Survol.
-        if strUrl.find(lib_util.prefixLocalScript) >= 0:
+        if strUrl.find(lib_util.prefixLocalExecution) >= 0:
             return True
         return strUrl.find("/survol") >= 0
 
@@ -949,9 +948,9 @@ def script_url_to_source(callingUrl):
 
     # parse_url.path=/LocalExecution/sources_types/Win32_UserAccount/Win32_NetUserGetInfo.py
     # This is a very simple method to differentiate local from remote scripts
-    if parse_url.path.startswith(lib_util.prefixLocalScript):
+    if parse_url.path.startswith(lib_util.prefixLocalExecution):
         # This also chops the leading slash.
-        pathScript = parse_url.path[len(lib_util.prefixLocalScript)+1:]
+        pathScript = parse_url.path[len(lib_util.prefixLocalExecution) + 1:]
         objSource = SourceLocal(pathScript,entity_type,**entity_id_dict)
 
         # Note: This should be True: parse_url.netloc.startswith("LOCAL_MODE")
