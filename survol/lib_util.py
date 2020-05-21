@@ -36,7 +36,9 @@ try:
 except ImportError:
     from urllib.parse import urlparse as survol_urlparse
 
-if sys.version_info >= (3,):
+is_py3 = sys.version_info >= (3,)
+
+if is_py3:
     import html.parser
     def survol_unescape(s):
         return html.parser.unescape(s)
@@ -55,7 +57,7 @@ except ImportError:
 
 ################################################################################
 
-def SetLoggingConfig(logLevel):
+def SetLoggingConfig(log_level):
     # Reinit: https://stackoverflow.com/questions/12158048/changing-loggings-basicconfig-which-is-already-set
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
@@ -64,9 +66,9 @@ def SetLoggingConfig(logLevel):
     # rdflib is used at least by lib_kbase.py
     logging.basicConfig(
         stream=sys.stderr,
-        # format='%(asctime)s %(levelname)8s %(name)s %(filename)s %(lineno)d: %(message)s',
         format='%(asctime)s %(levelname)8s %(filename)s %(lineno)d %(message)s',
-        level = logLevel)
+        level = log_level)
+
 
 SetLoggingConfig(logging.WARNING)
 
@@ -76,15 +78,16 @@ loggerRdflib = logging.getLogger("rdflib.term")
 loggerRdflib.setLevel(logging.ERROR)
 
 # This is the general purpose logger.
-if sys.version_info >= (3,):
+if is_py3:
     logger_name = "inspect"
 else:
     frm = inspect.stack()[1]
     mod = inspect.getmodule(frm[0])
     logger_name = mod.__name__
+
 gblLogger = logging.getLogger(logger_name)
 
-if sys.version_info >= (3,):
+if is_py3:
     import builtins
     builtins.DEBUG = gblLogger.debug
     builtins.WARNING = gblLogger.warning
@@ -145,7 +148,7 @@ except ImportError:
 
 # This avoids needing the "six" module which is not always available.
 # On some environments, it is a hassle to import it.
-if sys.version_info >= (3,):
+if is_py3:
     def six_iteritems(array):
             return array.items()
 
@@ -240,7 +243,9 @@ def HttpPrefix():
     return prfx
 
 # This is also used in lib_client to differentiate local from remote scripts.
-prefixLocalScript = "/LocalExecution"
+# Objects need an URL, but if no agent is used, we need a pseudo-URL,
+# represented by the string, by convention. Syntactically, this is a correct URL.
+prefixLocalExecution = "/LocalExecution"
 
 def UriRootHelper():
     try:
@@ -253,7 +258,6 @@ def UriRootHelper():
         # However, if used with remote objects, this hostname should be replaced
         # on-the-fly by the actual host name.
         # An alternative is to specify the right hostname here.
-        #os.environ["SERVER_NAME"] = "LOCALHOST"
         os.environ["SERVER_NAME"] = socket.gethostname().lower()
         # sys.stderr.write("SERVER_NAME=%s FIXED\n" % os.environ["SERVER_NAME"])
     try:
@@ -273,7 +277,7 @@ def UriRootHelper():
         # If this runs from the command line and not as a CGI script,
         # then this environment variable is not set.
         # Just like SERVER_NAME, it should test that the caller is lib_client.py.
-        root = prefixLocalScript
+        root = prefixLocalExecution
     urh = HttpPrefix() + root
     # sys.stderr.write("UriRootHelper urh=%s\n"%urh)
     return urh
@@ -385,13 +389,13 @@ def IsLocalAddress(anHostNam):
         # sys.stderr.write("IsLocalAddress anHostNam=%s:%s FALSE\n" % ( anHostNam, str(exc) ) )
         return False
 
-    # IsLocalAddress RCHATEAU-HP ipOnly=192.168.0.14 localIP=127.0.0.1 currentHostname=127.0.0.1
+    # IsLocalAddress MYHOST-HP ipOnly=192.168.0.14 localIP=127.0.0.1 currentHostname=127.0.0.1
     # sys.stderr.write("IsLocalAddress %s ipOnly=%s localIP=%s currentHostname=%s\n"%(anHostNam,ipOnly,localIP,currentHostname))
     if ipOnly in [ "0.0.0.0", "127.0.0.1", localIP ]:
         # sys.stderr.write("IsLocalAddress %s TRUE\n"%anHostNam)
         return True
 
-    # "RCHATEAU-HP" and "rchateau-HP" ??
+    # "MYHOST-HP" and "myhost-HP" ??
     # sys.stderr.write("IsLocalAddress %s socket.gethostname()=%s\n"%(anHostNam,socket.gethostname()))
     if anHostNam.lower() == socket.gethostname().lower():
         return True
@@ -446,7 +450,7 @@ def EncodeUri(anStr):
         strTABLE = ""
 
     # In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
-    if sys.version_info >= (3,):
+    if is_py3:
         return urllib_quote(strTABLE,'')
     else:
 
@@ -524,7 +528,7 @@ def EntHostToIp(entity_host):
         #sys.stderr.write("EntHostToIp WBEM=%s\n" % mtch_host_wbem.group(1) )
         return mtch_host_wbem.group(1)
 
-    # WMI : \\RCHATEAU-HP
+    # WMI : \\MYHOST-HP
     mtch_host_wmi = re.match( r"\\\\([-0-9A-Za-z_\.]*)", entity_host )
     if mtch_host_wmi:
         #sys.stderr.write("EntHostToIp WBEM=%s\n" % mtch_host_wmi.group(1) )
@@ -544,9 +548,9 @@ def EntHostToIpReally(entity_host):
 ################################################################################
 
 def ParseXidLocal(xid ):
-    # A machine name can contain a domain name : "WORKGROUP\RCHATEAU-HP", the backslash cannot be at the beginning.
-    # "WORKGROUP\RCHATEAU-HP@CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2"
-    # "WORKGROUP\RCHATEAU-HP@oracle/table.Name=MY_TABLE"
+    # A machine name can contain a domain name : "WORKGROUP\MYHOST-HP", the backslash cannot be at the beginning.
+    # "WORKGROUP\MYHOST-HP@CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2"
+    # "WORKGROUP\MYHOST-HP@oracle/table.Name=MY_TABLE"
     # BEWARE: This must NOT match "http://127.0.0.1:8000/survol/namespaces_wbem.py?xid=http://192.168.1.83:5988/."
     # that is "http://192.168.1.83:5988/."
     # A class name starts with a letter. There are no consecutives slashes "/".
@@ -570,12 +574,12 @@ def ParseXidLocal(xid ):
     return None
 
 def ParseXidWMI(xid ):
-    # WMI : \\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="0"
+    # WMI : \\MYHOST-HP\root\cimv2:Win32_Process.Handle="0"
     # Beware ! On Windows, namespaces are separated by backslashes.
-    # WMI : \\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="0"
-    # http://127.0.0.1:8000/survol/objtypes_wmi.py?xid=\\rchateau-HP\root\CIMV2\Applications%3A.
-    # http://127.0.0.1:8000/survol/class_wmi.py?xid=\\rchateau-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.
-    # http://127.0.0.1:8000/survol/entity_wmi.py?xid=\\RCHATEAU-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.Name%3D%22Default%22
+    # WMI : \\MYHOST-HP\root\cimv2:Win32_Process.Handle="0"
+    # http://127.0.0.1:8000/survol/objtypes_wmi.py?xid=\\myhost-HP\root\CIMV2\Applications%3A.
+    # http://127.0.0.1:8000/survol/class_wmi.py?xid=\\myhost-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.
+    # http://127.0.0.1:8000/survol/entity_wmi.py?xid=\\MYHOST-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.Name%3D%22Default%22
     # TODO: BEWARE ! If the host name starts with a L, we have to "triplicate" the back-slash
     # TODO: otherwise graphviz replace "\L" par "<TABLE">
 
@@ -678,7 +682,7 @@ def ParseXid(xid ):
 
 # TODO: Would probably be faster by searching for the last "/".
 # MUST BE VERY FAST.
-# '\\\\RCHATEAU-HP\\root\\cimv2:Win32_Process.Handle="0"'  => "root\\cimv2:Win32_Process"
+# '\\\\MYHOST-HP\\root\\cimv2:Win32_Process.Handle="0"'  => "root\\cimv2:Win32_Process"
 # https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"  => ""
 def parse_namespace_type(ns_entity_type):
     # sys.stderr.write("ParseEntityType entity_type=%s\n" % ns_entity_type )
@@ -717,7 +721,7 @@ def EntityClassUrl(entity_type, entity_namespace = "", entity_host = "", categor
     # WBEM: https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"
     if category == "WBEM":
         monikerClass = entity_host + "/" + entity_namespace + ":" + entity_type + "."
-    # WMI : \\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="0"
+    # WMI : \\MYHOST-HP\root\cimv2:Win32_Process.Handle="0"
     elif category == "WMI":
         monikerClass = "\\\\" + entity_host + "\\" + entity_namespace + ":" + entity_type + "."
     # This is temporary.
@@ -766,7 +770,7 @@ def KWArgsToEntityId(className, **kwargsOntology):
         entity_id += delim + "%s=%s" % (argKey,argVal)
         delim = ","
     # The values might come from many different origins
-    if sys.version_info < (3,):
+    if not is_py3:
         if type(entity_id) == unicode:
             entity_id = entity_id.encode("utf-8")
     return entity_id
@@ -829,10 +833,6 @@ def EntityUrlFromMoniker(monikerEntity,is_class=False,is_namespace=False,is_host
     url = uriRoot + "/" + scriptPath + xidCgiDelimiter + EncodeUri(monikerEntity)
     return url
 
-# Full natural path: We must try to merge it with WBEM Uris.
-# '\\\\RCHATEAU-HP\\root\\cimv2:Win32_Process.Handle="0"'
-# https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"
-
 ################################################################################
 
 # TODO: Find another solution more compatible with WBEM and WMI logic.
@@ -855,7 +855,7 @@ def CopyFile( mime_type, file_name):
     # https://stackoverflow.com/questions/2374427/python-2-x-write-binary-output-to-stdout
     if is_apache_server():
         if isPlatformWindows:
-            if sys.version_info < (3,):
+            if not is_py3:
                 import os, msvcrt
                 msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
 
@@ -907,7 +907,7 @@ def InfoMessageHtml(message):
     # On Linux it says: "OSError: [Errno 2] No such file or directory"
     WrtAsUtf('<table>')
 
-    if sys.version_info >= (3,):
+    if is_py3:
         WrtAsUtf("<tr><td>Login</td><td>%s</td></tr>"%os.getlogin())
 
     WrtAsUtf("<tr><td>Cwd</td><td>%s</td></tr>" % os.getcwd())
@@ -934,7 +934,6 @@ def InfoMessageHtml(message):
 
 # Returns the list of available object types: ["process", "file," group", etc...]
 def ObjectTypesNoCache():
-    # directory=C:\\Users\\rchateau\\Developpement\\ReverseEngineeringApps\\PythonStyle\\htbin\\sources_top/sources_types\r:
     directory = gblTopScripts + "/sources_types"
     DEBUG("ObjectTypesNoCache directory=%s",directory)
 
@@ -1184,31 +1183,30 @@ def UrlNoAmp(url):
 # If there is no such parameter, then it is removed. If the input parameter is
 # an empty string, then it is removed from the URLs.
 # Used for example as the root in entity.py, obj_types.py and class_type_all.py.
-def RequestUriModed(otherMode):
+def RequestUriModed(other_mode):
     # When in merge_scripts.py for merging several scripts,
     # the request uri is prefixed by a host:
-    # HttpPrefix()=http://rchateau-hp:8000
-    # RequestUri()=http://rchateau-hp:80/Survol/survol/entity.py?xid=CIM_Process.Handle=1900
-    strRequestUri = RequestUri()
+    # HttpPrefix()=http://myhost-hp:8000
+    # RequestUri()=http://myhost-hp:80/Survol/survol/entity.py?xid=CIM_Process.Handle=1900
+    str_request_uri = RequestUri()
 
     # strRequestUri=/survol/print_internal_data_as_json.py
-    if strRequestUri.startswith("http"):
-        script = strRequestUri
+    if str_request_uri.startswith("http"):
+        script = str_request_uri
     else:
-        script = HttpPrefix() + strRequestUri
-    # DEBUG("RequestUriModed HttpPrefix()=%s RequestUri()=%s script=%s",HttpPrefix(),strRequestUri,script)
-    return AnyUriModed(script, otherMode)
+        script = HttpPrefix() + str_request_uri
+    return AnyUriModed(script, other_mode)
 
 # If an Url, it replaces the value of the argument "mode" by another one,
 # remove this arguments or adds it, depending on the case.
-def AnyUriModed(script, otherMode):
+def AnyUriModed(script, other_mode):
     mtch_url = re.match(r"(.*)([\?\&])mode=[^\&]*(.*)", script)
 
-    if otherMode:
+    if other_mode:
         if mtch_url:
-            edtUrl = mtch_url.group(1) + mtch_url.group(2) + "mode=" + otherMode + mtch_url.group(3)
+            edtUrl = mtch_url.group(1) + mtch_url.group(2) + "mode=" + other_mode + mtch_url.group(3)
         else:
-            edtUrl = ConcatenateCgi( script, "mode=" + otherMode )
+            edtUrl = ConcatenateCgi(script, "mode=" + other_mode)
     else:
         # We want to remove the mode.
         if mtch_url:
@@ -1230,10 +1228,10 @@ def AnyUriModed(script, otherMode):
     return edtUrl
 
 def RootUri():
-    callingUrl = RequestUriModed("")
-    callingUrl = callingUrl.replace("&","&amp;")
-    DEBUG("RootUri callingUrl=%s",callingUrl)
-    return NodeUrl(callingUrl)
+    calling_url = RequestUriModed("")
+    calling_url = calling_url.replace("&", "&amp;")
+    DEBUG("RootUri calling_url=%s", calling_url)
+    return NodeUrl(calling_url)
 
 ################################################################################
 
@@ -1248,6 +1246,7 @@ def GetModeFromUrl(url):
     if mtch_url:
         return mtch_url.group(1)
     return ""
+
 
 # The display mode can come from the previous URL or from a CGI environment.
 def GuessDisplayMode():
@@ -1267,16 +1266,16 @@ def GuessDisplayMode():
     try:
         # HTTP_REFERER=http://127.0.0.1/PythonStyle/print.py?mode=xyz
         referer = os.environ["HTTP_REFERER"]
-        modeReferer = GetModeFromUrl( referer )
+        mode_referer = GetModeFromUrl( referer )
         # If we come from the edit form, we should not come back to id.
         # TODO: HOW CAN WE COME BACK TO THE FORMER DISPLAY MODE ??
-        if modeReferer != "":
-            if modeReferer == "edit":
+        if mode_referer != "":
+            if mode_referer == "edit":
                 # TODO: Should restore the original edit mode.
                 # enter_edition_mode
                 return ""
             else:
-                return modeReferer
+                return mode_referer
 
     except KeyError:
         pass
@@ -1294,12 +1293,6 @@ def GuessDisplayMode():
     return mode
 
 ################################################################################
-
-# Concatenate key-value pairs to build the path of a WMI or WBEM moniker.
-# TODO: SHOULD WE WRAP VALUES IN DOUBLE-QUOTES ?????
-def BuildMonikerPath(dictKeyVal):
-    return ','.join( [ '%s=%s' % ( wbemKey, dictKeyVal[wbemKey] ) for wbemKey in dictKeyVal ] )
-
 
 # Slight modification from  http://stackoverflow.com/questions/16710076/python-split-a-string-respect-and-preserve-quotes
 # 'Id=NT AUTHORITY\SYSTEM'         => ['Id=NT AUTHORITY\\SYSTEM']
@@ -1344,8 +1337,9 @@ def SplitMonikToWQL(splitMonik,className):
     DEBUG("Query=%s", aQry )
     return aQry
 
+
 def Base64Encode(text):
-    if sys.version_info >= (3,):
+    if is_py3:
         if isinstance(text,bytes):
             txtToB64Encode = text
         else:
@@ -1354,13 +1348,14 @@ def Base64Encode(text):
     else:
         return base64.urlsafe_b64encode(text)
 
+
 def Base64Decode(text):
     # The padding might be missing which is not a problem:
     # https://stackoverflow.com/questions/2941995/python-ignore-incorrect-padding-error-when-base64-decoding
     missing_padding = len(text) % 4
 
     try:
-        if sys.version_info >= (3,):
+        if is_py3:
             if missing_padding != 0:
                 text += '=' * (4 - missing_padding)
             resu = base64.urlsafe_b64decode(text.encode('utf-8')).decode('utf-8')
@@ -1377,7 +1372,7 @@ def Base64Decode(text):
 ################################################################################
 
 # Different stream behaviour due to string vs binary.
-if sys.version_info >= (3,):
+if is_py3:
     outputHttp = sys.stdout.buffer
 else:
     outputHttp = sys.stdout
@@ -1577,7 +1572,7 @@ def GetScriptModule(currentModule, fil):
         ERROR("GetScriptModule module=%s fil=%s not a Python script", currentModule, fil )
         return None
     fileBaseName = fil[:-3] # Without the ".py" extension.
-    if sys.version_info >= (3, ):
+    if is_py3:
         # Example: importlib.import_module("sources_top.Databases.mysql_processlist")
         #DEBUG("currentModule=%s fil=%s subClass=%s",currentModule,fil,subClass)
         if currentModule:
