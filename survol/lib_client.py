@@ -691,30 +691,33 @@ def create_CIM_class(agentUrl,className,**kwargsOntology):
 
 ################################################################################
 
+# Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
+# BEWARE: Some arguments should be decoded.
 # Example: xid="CIM_Process.Handle=2092"
-def entity_id_to_instance(agentUrl, class_name, entity_id):
+def entity_id_to_instance(agent_url, class_name, entity_id):
     xidDict = { sp[0]:sp[2] for sp in [ ss.partition("=") for ss in entity_id.split(",") ] }
 
-    newInstance = create_CIM_class(agentUrl, class_name, **xidDict)
-    return newInstance
+    new_instance = create_CIM_class(agent_url, class_name, **xidDict)
+    return new_instance
+
 
 # This creates an object from an URI.
-# Example input: instanceUrl="http://LOCALHOST:80/LocalExecution/entity.py?xid=CIM_Process.Handle=2092"
-def url_to_instance(instanceUrl):
-    if instanceUrl.find("entity.py") < 0:
+# Input example: instanceUrl="http://LOCALHOST:80/LocalExecution/entity.py?xid=CIM_Process.Handle=2092"
+def url_to_instance(instance_url):
+    if instance_url.find("entity.py") < 0:
         # So maybe this is not an instance after all.
         return None
 
     # This parsing that all urls are not scripts but just define an instance
     # and therefore have the form "http://.../entity.py?xid=...",
-    agentUrl = instance_url_to_agent_url(instanceUrl)
+    agent_url = instance_url_to_agent_url(instance_url)
 
-    ( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(instanceUrl)
+    (entity_label, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri(instance_url)
     # Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
     # BEWARE: Some arguments should be decoded.
     #DEBUG("get_instances instanceUrl=%s entity_graphic_class=%s entity_id=%s",instanceUrl,entity_graphic_class,entity_id)
 
-    return entity_id_to_instance(agentUrl, entity_graphic_class, entity_id)
+    return entity_id_to_instance(agent_url, entity_graphic_class, entity_id)
 
 
 # instanceUrl="http://LOCAL_MODE:80/LocalExecution/entity.py?xid=Win32_Group.Domain=local_mode,Name=Replicator"
@@ -730,6 +733,7 @@ def instance_url_to_agent_url(instanceUrl):
 
     DEBUG("instance_url_to_agent_url instanceUrl=%s agentUrl=%s",instanceUrl,agentUrl)
     return agentUrl
+
 
 # This wraps rdflib triplestore.
 # rdflib objects and subjects can be handled as WMI or WBEM objects.
@@ -761,25 +765,25 @@ class TripleStore:
     # This keeps only Survol instances and scripts urls.
     # For example, 'http://localhost:12345/#/vhosts/' is a RabbitMQ HTTP url.
     # TODO: Make this test better.
-    def is_survol_url(self,anUrl):
-        strUrl = str(anUrl)
+    def is_survol_url(self, an_url):
+        str_url = str(an_url)
         # anUrl=http://LOCALHOST:80/entity.py?xid=python/package.Id%3Drdflib
         # anUrl=http://LOCALHOST:80/LocalExecution/entity.py?xid=python/package.Id=sparqlwrapper
-        if strUrl.startswith("http://LOCALHOST:80/"):
+        if str_url.startswith("http://LOCALHOST:80/"):
             # "http://LOCALHOST:80/LocalExecution"
             # lib_util.prefixLocalScript = "/LocalExecution"
-            assert(strUrl.startswith("http://LOCALHOST:80" + lib_util.prefixLocalExecution))
+            assert(str_url.startswith("http://LOCALHOST:80" + lib_util.prefixLocalExecution))
 
         # These local scripts are always from Survol.
-        if strUrl.find(lib_util.prefixLocalExecution) >= 0:
+        if str_url.find(lib_util.prefixLocalExecution) >= 0:
             return True
-        return strUrl.find("/survol") >= 0
+        return str_url.find("/survol") >= 0
 
     def enumerate_urls(self):
         objsSet = lib_kbase.enumerate_urls(self.m_triplestore)
-        for instanceUrl in objsSet:
-            if self.is_survol_url(instanceUrl    ):
-                yield instanceUrl
+        for instance_url in objsSet:
+            if self.is_survol_url(instance_url):
+                yield instance_url
 
     # This creates a CIM object for each unique URL, subject or object found in a triplestore.
     # If needed, the CIM class is created on-the-fly.
@@ -788,25 +792,12 @@ class TripleStore:
     def get_instances(self):
         DEBUG("get_instances")
         objsSet = self.enumerate_urls()
-        lstInstances = []
-        for instanceUrl in objsSet:
-            if instanceUrl.find("entity.py") < 0:
-                continue
+        instances_list = []
+        for instance_url in objsSet:
+            new_instance = url_to_instance(instance_url)
 
-            ( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(instanceUrl)
-            # Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
-            # BEWARE: Some arguments should be decoded.
-            #DEBUG("get_instances instanceUrl=%s entity_graphic_class=%s entity_id=%s",instanceUrl,entity_graphic_class,entity_id)
-
-            xidDict = { sp[0]:sp[2] for sp in [ ss.partition("=") for ss in entity_id.split(",") ] }
-
-            # This parsing that all urls are not scripts but just define an instance
-            # and therefore have the form "http://.../entity.py?xid=...",
-            agentUrl = instance_url_to_agent_url(instanceUrl)
-
-            newInstance = create_CIM_class(agentUrl,entity_graphic_class, **xidDict)
-            lstInstances.append(newInstance)
-        return lstInstances
+            instances_list.append(new_instance)
+        return instances_list
 
     # This returns the set of all nodes connected directly or indirectly to the input.
     def get_connected_instances(self,startInstance,filterPredicates):
