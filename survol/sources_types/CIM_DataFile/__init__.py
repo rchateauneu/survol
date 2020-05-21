@@ -42,10 +42,12 @@ def AddMagic( grph, filNode, filNam ):
 		DEBUG("Type error:%s", filNam )
 		return
 
+
 # Transforms a "stat" date into something which can be printed.
-def IntToDateLiteral(timeStamp):
-	dtStr = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S')
+def _int_to_date_literal(time_stamp):
+	dtStr = datetime.datetime.fromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
 	return lib_common.NodeLiteral(dtStr)
+
 
 # Adds to the node of a file some information taken from a call to stat().
 def AddStatNode( grph, filNode, infoStat ):
@@ -53,9 +55,9 @@ def AddStatNode( grph, filNode, infoStat ):
 	sizUnit = lib_util.AddSIUnit(infoStat.st_size, "B")
 	grph.add( ( filNode, pc.property_file_size, lib_common.NodeLiteral(sizUnit) ) )
 
-	grph.add( ( filNode, pc.property_last_access,          IntToDateLiteral(infoStat.st_atime) ) )
-	grph.add( ( filNode, pc.property_last_change,          IntToDateLiteral(infoStat.st_mtime) ) )
-	grph.add( ( filNode, pc.property_last_metadata_change, IntToDateLiteral(infoStat.st_ctime) ) )
+	grph.add((filNode, pc.property_last_access, _int_to_date_literal(infoStat.st_atime)))
+	grph.add((filNode, pc.property_last_change, _int_to_date_literal(infoStat.st_mtime)))
+	grph.add((filNode, pc.property_last_metadata_change, _int_to_date_literal(infoStat.st_ctime)))
 
 def AddStat( grph, filNode, filNam ):
 	try:
@@ -78,7 +80,8 @@ def AddHtml( grph, filNode, filNam ):
 	mime_type = mime_stuff[0]
 
 	if mime_type:
-		lib_mime.AddMimeUrl(grph,filNode, "CIM_DataFile",mime_type,[filNam])
+		lib_mime.AddMimeUrl(grph, filNode, "CIM_DataFile",mime_type,[filNam])
+
 
 # Display the node of the directory this file is in.
 def AddParentDir( grph, filNode, filNam ):
@@ -88,7 +91,6 @@ def AddParentDir( grph, filNode, filNam ):
 		if dirPath[-1] == "\\":
 			dirPath = dirPath[:-1]
 		dirNode = lib_uris.gUriGen.DirectoryUri(dirPath)
-		# grph.add( ( dirNode, pc.property_directory, filNode ) )
 		# We do not use the property pc.property_directory because it breaks the display.
 		# Also, the direction is inverted so the current file is displayed on the left.
 		grph.add( ( filNode, lib_common.MakeProp("Top directory"), dirNode ) )
@@ -141,33 +143,32 @@ def AddDevice(grph,filNode,info):
 		deviceNode = lib_common.gUriGen.DiskPartitionUri(deviceName)
 		grph.add( ( filNode, pc.property_file_device, deviceNode ) )
 
-def AddFileProperties(grph,currNode,currFilNam):
+
+def AddFileProperties(grph, current_node, current_filename):
 	try:
 		import win32api
 		import lib_win32
 
-		propDict = lib_win32.getFileProperties(currFilNam)
+		propDict = lib_win32.getFileProperties(current_filename)
 		for prp, val in propDict.items():
 			val = propDict[prp]
 			if val is None:
 				continue
 
 			if isinstance( val, dict ):
-				# val = ", ".join( "%s=%s" % (k,val[k]) for k in val )
 				val = json.dumps(val)
 				# TODO: Unicode error encoding=ascii
 				# 169	251	A9	10101001	"Copyright"	&#169;	&copy;	Copyright sign
 				# Might contain this: "LegalCopyright Copyright \u00a9 2010"
 				val = val.replace("\\","\\\\")
-			grph.add( ( currNode, lib_common.MakeProp(prp), lib_common.NodeLiteral(val) ) )
+			grph.add((current_node, lib_common.MakeProp(prp), lib_common.NodeLiteral(val)))
 	except ImportError:
 		pass
 
-	mimTy = lib_mime.FilenameToMime(currFilNam)
+	mimTy = lib_mime.FilenameToMime(current_filename)
 	if mimTy:
 		if mimTy[0]:
-			grph.add( ( currNode, lib_common.MakeProp("Mime type"), lib_common.NodeLiteral(str(mimTy)) ) )
-
+			grph.add((current_node, lib_common.MakeProp("Mime type"), lib_common.NodeLiteral(str(mimTy))))
 
 
 def AffFileOwner(grph, filNode, filNam):
