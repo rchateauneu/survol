@@ -36,6 +36,8 @@ dockit_output_files_path_expected = os.path.join(_current_file_dirname, "dockit_
 # __file__ could be 'C:\\Python27\\lib\\site-packages\\survol\\scripts\\dockit.pyc'
 dockit_dirname = os.path.abspath(os.path.dirname(dockit.__file__))
 
+ini_file_default = os.path.join(dockit_dirname, "dockit_output" + ".ini")
+
 current_ip_address = socket.gethostbyname(socket.gethostname())
 
 # Creates the destination file for result if not there, otherwise cleanup.
@@ -319,7 +321,7 @@ class CommandLineTest(unittest.TestCase):
         check_file_missing(output_basename_prefix + ".log")
 
 
-    @unittest.skip("Broken for the moment.")
+    # @unittest.skip("Broken for the moment.")
     @unittest.skipIf(is_platform_windows, "This is not a Linux machine. Test skipped.")
     def test_run_linux_touch_rdf(self):
         """This touch a new file. An RDF event must be created."""
@@ -330,7 +332,8 @@ class CommandLineTest(unittest.TestCase):
         command_result = _run_dockit_command("--server=%s touch %s" % (created_rdf_file, created_temp_file))
 
         # This creates files like ".../test_linux_ls.strace<pid>.ini"
-        ini_content = dockit.ini_file_check(output_basename_prefix + ".ini")
+        ini_file_default = os.path.join(dockit_dirname, "dockit_output" + ".ini")
+        ini_content = dockit.ini_file_check(ini_file_default)
         created_pid = ini_content["TopProcessId"]
 
         triples_as_string = _rdf_file_to_triples(created_rdf_file)
@@ -548,7 +551,6 @@ class CommandLineWin32Test(unittest.TestCase):
 
         # The ini file is created with a default name.
         # It does not use check_file_content because the output directory is not standard.
-        ini_file_default = os.path.join(dockit_dirname, "dockit_output" + ".ini")
         dockit.ini_file_check(ini_file_default)
 
         # This RDF file contains the raw triples generated from events.
