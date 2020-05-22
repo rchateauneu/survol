@@ -385,10 +385,14 @@ def DispClassObjectsNoJinja(dictSubjPropObj):
     for aSubj in dictSubjPropObj:
         subj_str = str(aSubj)
         ( subj_title, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(subj_str)
-        if subj_title[0] == 'Y' and subj_title.find("Boulogne"):
-            sys.stderr.write("DispClassObjectsNoJinja subj_str=%s\n" % subj_str)
-            sys.stderr.write("DispClassObjectsNoJinja subj_title=%s\n" % subj_title)
-            continue
+        if subj_title:
+            # The intention is to detect a specific test case with accented characters.
+            if subj_title[0] == 'Y' and subj_title.find("Boulogne"):
+                sys.stderr.write("DispClassObjectsNoJinja subj_str=%s\n" % subj_str)
+                sys.stderr.write("DispClassObjectsNoJinja subj_title=%s\n" % subj_title)
+                continue
+        else:
+            sys.stderr.write("NO TITLE FOR %s\n" % subj_str)
         lstTuplesSubjects.append((aSubj, subj_str, subj_title, entity_graphic_class, entity_id))
 
     # Sorted by the title of the subject, which is the third value of the tuple.
