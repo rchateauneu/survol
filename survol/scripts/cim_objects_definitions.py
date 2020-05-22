@@ -198,8 +198,6 @@ G_FilesToPackagesCache = None
 
 G_SameMachine = None
 
-G_ReplayMode = None
-
 # This is a dictionary (indexed by processes) of dictionaries (indexed by files).
 # It containes files accesses, which are object representing what happens
 # to a file between its opening and closing by a process.
@@ -405,12 +403,15 @@ def TimeStampToStr(timStamp):
 ################################################################################
 
 # FIXME: Is it really needed ? And safe ??
-sys.path.append("../..")
+#sys.path.append("../..")
 # Import this now, and not in the destructor, to avoid the error:
 # "sys.meta_path must be a list of import hooks"
 # This module is needed for storing the generated data into a RDF file.
 try:
-    sys.path.append("../survol")
+    if is_py3:
+        sys.path.append("..")
+    else:
+        sys.path.append("../survol")
     from survol import lib_event
 except ImportError:
     lib_event = None
@@ -446,6 +447,8 @@ class HttpTriplesClient(object):
     def http_client_shutdown(self):
         print("HttpTriplesClient.http_client_shutdown")
         if self._server_is_file:
+            if not lib_event:
+                raise Exception("lib_event was not imported")
             lib_event.json_triples_to_rdf(self._triples_list, G_UpdateServer)
             print("Stored RDF content to", G_UpdateServer)
         elif G_UpdateServer:
