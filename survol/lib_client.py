@@ -691,13 +691,15 @@ def create_CIM_class(agentUrl,className,**kwargsOntology):
 
 ################################################################################
 
+
 # Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
 # BEWARE: Some arguments should be decoded.
 # Example: xid="CIM_Process.Handle=2092"
+# TODO: See lib_util.SplitMoniker()
 def entity_id_to_instance(agent_url, class_name, entity_id):
-    xidDict = { sp[0]:sp[2] for sp in [ ss.partition("=") for ss in entity_id.split(",") ] }
+    xid_dict = { sp[0]:sp[2] for sp in [ ss.partition("=") for ss in entity_id.split(",") ] }
 
-    new_instance = create_CIM_class(agent_url, class_name, **xidDict)
+    new_instance = create_CIM_class(agent_url, class_name, **xid_dict)
     return new_instance
 
 
@@ -790,12 +792,13 @@ class TripleStore:
     # TODO: Is is really useful to build objects, given that the edges are lost ??
     # TODO: And what about connected objects ? Can a value be an object ?
     def get_instances(self):
-        DEBUG("get_instances")
-        objsSet = self.enumerate_urls()
+        objs_set = self.enumerate_urls()
         instances_list = []
-        for instance_url in objsSet:
+        for instance_url in objs_set:
             new_instance = url_to_instance(instance_url)
-
+            if new_instance == None:
+                continue
+            assert(new_instance)
             instances_list.append(new_instance)
         return instances_list
 
