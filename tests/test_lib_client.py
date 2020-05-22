@@ -268,25 +268,26 @@ class SurvolLocalTest(unittest.TestCase):
 
         assert( lstStringsOnly == [u'Pellentesque;14;94', u'Pellentesque;6;36', u'Pellentesque;8;50', u'pellentesque;10;66', u'pellentesque;14;101'])
 
-    @unittest.skipIf(not pkgutil.find_loader('win32net'), "Cannot import win32net. test_local_scripts_from_local_source not run.")
-    def test_local_scripts_from_local_source(self):
+    @unittest.skipIf(not pkgutil.find_loader('win32net'), "test_local_groups_local_scripts: Cannot import win32net.")
+    def test_local_groups_local_scripts(self):
         """Loads the scripts of instances displayed by an initial script"""
 
         # This is a top-level script.
-        mySourceTopLevelLocal = lib_client.SourceLocal(
+        my_source_top_level_local = lib_client.SourceLocal(
             "sources_types/win32/win32_local_groups.py")
 
-        tripleTopLevelLocal = mySourceTopLevelLocal.get_triplestore()
-        instancesTopLevelLocal = tripleTopLevelLocal.get_instances()
-        self.assertTrue(instancesTopLevelLocal != None)
-        print("Instances number:", len(instancesTopLevelLocal))
+        triple_top_level_local = my_source_top_level_local.get_triplestore()
+        instances_top_level_local = triple_top_level_local.get_instances()
+        print("Instances number:", len(instances_top_level_local))
 
-        if isVerbose:
-            for oneInst in instancesTopLevelLocal:
-                sys.stdout.write("    Scripts: %s\n"%str(oneInst))
-                listScripts = oneInst.get_scripts()
-                for oneScr in listScripts:
-                    sys.stdout.write("        %s\n"%oneScr)
+        class_names_set = {'CIM_ComputerSystem', 'Win32_Group', 'Win32_UserAccount'}
+        for one_instance in instances_top_level_local:
+            print("    Instance: %s" % str(one_instance))
+            print("    Instance Name: %s" % one_instance.__class__.__name__)
+            self.assertTrue(one_instance.__class__.__name__ in class_names_set)
+            list_scripts = one_instance.get_scripts()
+            for one_script in list_scripts:
+                print("        %s" % one_script)
 
     @unittest.skipIf(not pkgutil.find_loader('win32service'), "Cannot import win32service. test_scripts_of_local_instance not run.")
     def test_scripts_of_local_instance(self):
