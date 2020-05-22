@@ -1298,25 +1298,25 @@ def GuessDisplayMode():
 # 'Id=NT AUTHORITY\SYSTEM'         => ['Id=NT AUTHORITY\\SYSTEM']
 # 'Id="NT =\\"AUTHORITY\SYSTEM"'   => ['Id=NT AUTHORITY\\SYSTEM']
 # The input string is an entity_id: "key1=val1&key2=val2&key3=val3",
-# i.e. what comes after "xid=" in an object URL.
+# i.e. what comes after "xid=<class>." in an object URL.
 # This returns a dictionary of key-values.
 def SplitMoniker(xid):
     # sys.stderr.write("SplitMoniker xid=%s\n" % xid )
 
-    spltLst = re.findall(r'(?:[^,"]|"(?:\\.|[^"])*")+', xid)
+    splt_lst = re.findall(r'(?:[^,"]|"(?:\\.|[^"])*")+', xid)
 
-    # sys.stderr.write("SplitMoniker spltLst=%s\n" % ";".join(spltLst) )
+    # sys.stderr.write("SplitMoniker splt_lst=%s\n" % ";".join(splt_lst) )
 
     resu = dict()
-    for spltWrd in spltLst:
-        mtchEqualQuote = re.match(r'([A-Z0-9a-z_]+)="(.*)"', spltWrd)
-        if mtchEqualQuote:
+    for splt_wrd in splt_lst:
+        mtch_equal_quote = re.match(r'([A-Z0-9a-z_]+)="(.*)"', splt_wrd)
+        if mtch_equal_quote:
             # If there are quotes, they are dropped.
-            resu[ mtchEqualQuote.group(1) ] = mtchEqualQuote.group(2)
+            resu[mtch_equal_quote.group(1)] = mtch_equal_quote.group(2)
         else:
-            mtchEqualNoQuote = re.match(r'([A-Z0-9a-z_]+)=(.*)', spltWrd)
-            if mtchEqualNoQuote:
-                resu[ mtchEqualNoQuote.group(1) ] = mtchEqualNoQuote.group(2)
+            mtch_equal_no_quote = re.match(r'([A-Z0-9a-z_]+)=(.*)', splt_wrd)
+            if mtch_equal_no_quote:
+                resu[mtch_equal_no_quote.group(1)] = mtch_equal_no_quote.group(2)
 
     # sys.stderr.write("SplitMoniker resu=%s\n" % str(resu) )
 
@@ -1325,51 +1325,51 @@ def SplitMoniker(xid):
 # Builds a WQL (WMI Query Language) query from a Moniker.
 # This allows to search for an object in the CIM repository,
 # whatever the attribute values are, or if it is a Survol object.
-def SplitMonikToWQL(splitMonik,className):
-    gblLogger.debug("SplitMonikToWQL splitMonik=[%s]", str(splitMonik) )
-    aQry = 'select * from %s' % className
-    qryDelim = "where"
-    for qryKey in splitMonik:
-        qryVal = splitMonik[qryKey]
-        aQry += ' %s %s="%s"' % ( qryDelim, qryKey, qryVal )
-        qryDelim = "and"
+def SplitMonikToWQL(moniker_to_split, class_name):
+    gblLogger.debug("SplitMonikToWQL splitMonik=[%s]", str(moniker_to_split))
+    a_qry = 'select * from %s' % class_name
+    qry_delim = "where"
+    for qry_key in moniker_to_split:
+        qry_val = moniker_to_split[qry_key]
+        a_qry += ' %s %s="%s"' % (qry_delim, qry_key, qry_val)
+        qry_delim = "and"
 
-    DEBUG("Query=%s", aQry )
-    return aQry
+    DEBUG("Query=%s", a_qry)
+    return a_qry
 
 
-def Base64Encode(text):
+def Base64Encode(input_text):
     if is_py3:
-        if isinstance(text,bytes):
-            txtToB64Encode = text
+        if isinstance(input_text,bytes):
+            txtToB64Encode = input_text
         else:
-            txtToB64Encode = text.encode('utf-8')
+            txtToB64Encode = input_text.encode('utf-8')
         return base64.urlsafe_b64encode(txtToB64Encode).decode('utf-8')
     else:
         return base64.urlsafe_b64encode(text)
 
 
-def Base64Decode(text):
+def Base64Decode(input_text):
     # The padding might be missing which is not a problem:
     # https://stackoverflow.com/questions/2941995/python-ignore-incorrect-padding-error-when-base64-decoding
-    missing_padding = len(text) % 4
+    missing_padding = len(input_text) % 4
 
     try:
         if is_py3:
             if missing_padding != 0:
-                text += '=' * (4 - missing_padding)
-            resu = base64.urlsafe_b64decode(text.encode('utf-8')).decode('utf-8')
+                input_text += '=' * (4 - missing_padding)
+            resu = base64.urlsafe_b64decode(input_text.encode('utf-8')).decode('utf-8')
         else:
             if missing_padding != 0:
-                text += b'=' * (4 - missing_padding)
-            resu = base64.urlsafe_b64decode(str(text))
+                input_text += b'=' * (4 - missing_padding)
+            resu = base64.urlsafe_b64decode(str(input_text))
         return resu
-    except Exception:
-        exc = sys.exc_info()[1]
-        gblLogger.error("CANNOT DECODE: symbol=(%s):%s",text,str(exc))
-        return text + ":" + str(exc)
+    except Exception as exc:
+        gblLogger.error("CANNOT DECODE: symbol=(%s):%s", input_text, str(exc))
+        return input_text + ":" + str(exc)
 
 ################################################################################
+
 
 # Different stream behaviour due to string vs binary.
 if is_py3:
@@ -1384,9 +1384,9 @@ class OutputMachineCgi:
     def __init__(self):
         pass
 
-    def HeaderWriter(self,mimeType,extraArgs= None):
-        gblLogger.debug("OutputMachineCgi.WriteHeadContentType:%s",mimeType)
-        HttpHeaderClassic(outputHttp,mimeType,extraArgs)
+    def HeaderWriter(self, mime_type, extra_arguments= None):
+        gblLogger.debug("OutputMachineCgi.WriteHeadContentType:%s", mime_type)
+        HttpHeaderClassic(outputHttp, mime_type, extra_arguments)
 
     def OutStream(self):
         return outputHttp
@@ -1410,17 +1410,20 @@ paramkeyShowAll = "Show all scripts"
 
 ################################################################################
 
+
 # Default destination for the RDF, HTML or SVG output.
-gblcnt = 10
 def get_default_output_destination():
     return globalOutMach.OutStream()
+
 
 def DfltOutMach():
     return globalOutMach
 
+
 def SetGlobalOutMach(outmachSomething):
     global globalOutMach
     globalOutMach = outmachSomething
+
 
 # environ["SERVER_SOFTWARE"] = "WSGIServer/0.2"
 # This must be calculated each time because the WSGI server sets this environment
@@ -1436,11 +1439,10 @@ def is_wsgi_server():
             is_wsgi_server_data = "DefaultServerSoftware"
     return is_wsgi_server_data
 
+
 def is_apache_server():
     return os.environ["SERVER_SOFTWARE"].startswith("Apache/")
 
-
-# or os.environ["SERVER_SOFTWARE"].startswith("Apache/")
 
 # Depending if the stream is a socket, a file or standard output,
 # if Python 2 or 3, Windows or Linux, some complicated tests or conversions are needed.
@@ -1450,20 +1452,25 @@ def is_apache_server():
 # - lib_client stream.
 # - CGI output.
 # FIXME: Should always send bytes (Py3) or str (Py2)
-def WrtAsUtf(aStr):
-    gblOutStrm = get_default_output_destination()
+def WrtAsUtf(input_str):
+    my_output_stream = get_default_output_destination()
     try:
-        gblOutStrm.write(aStr)
+        my_output_stream.write(input_str)
     except:
         try:
-            gblOutStrm.write(aStr.encode('latin1'))
+            my_output_stream.write(input_str.encode('latin1'))
         except Exception as exc:
-            sys.stderr.write("WrtAsUtf type=%s gblOutStrm=%s caught %s\n" % (type(aStr), type(gblOutStrm), exc))
+            sys.stderr.write("WrtAsUtf type=%s my_output_stream=%s caught %s\n"
+                             % (type(input_str), type(my_output_stream), exc))
+
 
 # For asynchronous display.
 # TODO: NEVER TESTED, JUST TEMP SYNTAX FIX.
 def SetDefaultOutput(wFile):
+    sys.stderr.write("SetDefaultOutput NEVER TESTED\n")
+    global outputHttp
     outputHttp = wFile
+
 
 # contentType = "text/rdf", "text/html", "image/svg+xml", "application/json" etc...
 def HttpHeaderClassic( out_dest, contentType, extraArgs = None):
