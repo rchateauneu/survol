@@ -631,7 +631,6 @@ class CommandLineWin32Test(unittest.TestCase):
             if one_path[0][0] == 'CIM_DataFile'])
 
         self.assertTrue(u'__init__.py' in files_basenames)
-        self.assertTrue(u'_weakrefset.py' in files_basenames)
         self.assertTrue(u'abc.py' in files_basenames)
         self.assertTrue(u'aliases.py' in files_basenames)
         self.assertTrue(u'codecs.py' in files_basenames)
