@@ -640,7 +640,6 @@ class CommandLineWin32Test(unittest.TestCase):
         self.assertTrue(u'os.py' in files_basenames)
         self.assertTrue(u'site.py' in files_basenames)
         self.assertTrue(u'stat.py' in files_basenames)
-        self.assertTrue(u'sysconfig.py' in files_basenames)
         self.assertTrue(u'types.py' in files_basenames)
         self.assertTrue(u'warnings.py' in files_basenames)
 
