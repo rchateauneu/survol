@@ -36,6 +36,8 @@ dockit_output_files_path_expected = os.path.join(_current_file_dirname, "dockit_
 # __file__ could be 'C:\\Python27\\lib\\site-packages\\survol\\scripts\\dockit.pyc'
 dockit_dirname = os.path.abspath(os.path.dirname(dockit.__file__))
 
+current_ip_address = socket.gethostbyname(socket.gethostname())
+
 # Creates the destination file for result if not there, otherwise cleanup.
 # This is needed otherwise pytest would run the Python files in this dir.
 if os.path.exists(dockit_output_files_path):
@@ -48,6 +50,7 @@ if os.path.exists(dockit_output_files_path):
 else:
     # Creates the outdir directory, because it is not there.
     os.makedirs(dockit_output_files_path)
+
 
 def path_prefix_output_result(*file_path):
     return os.path.join(dockit_output_files_path, *file_path)
@@ -111,6 +114,7 @@ def check_file_missing(*file_path):
         assert False, "File %s should not be there." % full_file_path
     except:
         pass
+
 
 def path_prefix_input_file(*file_path):
     # Travis and PyCharm do not start this unit tests script from the same directory.
@@ -245,6 +249,51 @@ def _run_dockit_command(one_command):
     return output_content
 
 
+# This receives a rdflib graph and returns a list of tuples made only of literals,
+# which can easily be compared in tests.
+def _rdf_file_to_triples(rdf_file):
+    # This RDF file contains the raw triples generated from events.
+    # It does not contain semantic data necessary for SPARQL quries such as rdflib.namespace.RDF.type.
+    rdf_content = check_file_content(rdf_file)
+    # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_NetworkAdapter.Name=192.168.1.10
+    # http://www.primhillcomputers.com/survol#Name
+    # 192.168.1.10
+    # ...
+    # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_NetworkAdapter.Name=192.168.1.10
+    # http://www.primhillcomputers.com/survol#PermanentAddress
+    # 192.168.1.10
+
+    # TODO: Replace this by lib_naming.ParseEntity, lib_util.SplitMoniker etc...
+    def url_to_string(rdf_url):
+        subject_moniker = rdf_url.partition("xid=")[2]
+        class_name, dot_delimiter, attributes_string = subject_moniker.partition(".")
+        if attributes_string:
+            attributes_split = attributes_string.split(",")
+            attributes_partitions = (one_attribute.partition("=") for one_attribute in attributes_split)
+            attributes_dict = {
+                one_attribute[0]: one_attribute[2]
+                for one_attribute in attributes_partitions}
+        else:
+            attributes_dict = {}
+        return class_name, attributes_dict
+
+    def object_to_string(rdf_url):
+        if rdf_url.find("xid=") >= 0:
+            return url_to_string(rdf_url)
+        else:
+            # Or this is a literal.
+            return str(rdf_url)
+
+    triples_as_string = [
+        (
+            url_to_string(rdf_subject),
+            str(rdf_predicate).rpartition('#')[2],
+            object_to_string(rdf_object))
+        for rdf_subject, rdf_predicate, rdf_object in rdf_content.triples((None, None, None))
+    ]
+    return triples_as_string
+
+
 # The script dockit.py can be used as a command line or as an imported module.
 # This test checks the script dockit.py from from command lines, and not from the internal function.
 class CommandLineTest(unittest.TestCase):
@@ -267,6 +316,28 @@ class CommandLineTest(unittest.TestCase):
         check_file_content(output_basename_prefix + ".summary.txt")
         check_file_content(output_basename_prefix + ".docker", "Dockerfile")
 
+        check_file_missing(output_basename_prefix + ".log")
+
+
+    @unittest.skipIf(is_platform_windows, "This is not a Linux machine. Test skipped.")
+    def test_run_linux_touch_rdf(self):
+        """This touch a new file. An RDF event must be created."""
+        output_basename_prefix = "test_linux_touch"
+        created_rdf_file = path_prefix_output_result(output_basename_prefix + ".rdf")
+        created_temp_file = path_prefix_output_result(output_basename_prefix + ".tmp")
+
+        command_result = _run_dockit_command("--server=%s touch %s" % (created_rdf_file, created_temp_file))
+
+        # This creates files like ".../test_linux_ls.strace<pid>.ini"
+        ini_content = dockit.ini_file_check(output_basename_prefix + ".ini")
+        created_pid = ini_content["TopProcessId"]
+
+        triples_as_string = _rdf_file_to_triples(created_rdf_file)
+        print("triples_as_string=", triples_as_string)
+
+        # check_file_missing(output_basename_prefix + ".ini")
+        check_file_missing(output_basename_prefix + ".json")
+        check_file_missing(output_basename_prefix + ".summary.txt")
         check_file_missing(output_basename_prefix + ".log")
 
     def test_replay_non_existent_input_file(self):
@@ -367,6 +438,7 @@ class CommandLineTest(unittest.TestCase):
 
     @unittest.skipIf(is_platform_linux, "Windows only.")
     def test_replay_windows_dir(self):
+        """This could theoretically run on Linux because there is no Windows command execution."""
         input_log_file = path_prefix_input_file("windows_dir.pydbg.45884.log")
         output_basename_prefix = "windows_dir.pydbg.45884"
         output_prefix = path_prefix_output_result(output_basename_prefix)
@@ -461,9 +533,9 @@ class CommandLineWin32Test(unittest.TestCase):
         check_file_content(output_basename_prefix + ".ini")
         check_file_content(output_basename_prefix + ".log")
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: Broken on Travis and Python 3. WHY ??")
+   # @unittest.skipIf(is_travis_machine(), "FIXME: Broken on Travis and Python 3. WHY ??")
     def test_run_windows_mkdir_rdf(self):
-        """This generates a replay filename and reuses it immediately."""
+        """This checks the events generated in a RDF file. It must contain the directory."""
         output_basename_prefix = "test_run_windows_mkdir_rdf"
         created_rdf_file = path_prefix_output_result(output_basename_prefix + ".rdf")
         created_directory = path_prefix_output_result(output_basename_prefix + ".dir")
@@ -479,71 +551,99 @@ class CommandLineWin32Test(unittest.TestCase):
         dockit.ini_file_check(ini_file_default)
 
         # This RDF file contains the raw triples generated from events.
-        # It does not contain semantic data necessary for SPARQL quries such as rdflib.namespace.RDF.type.
-        rdf_content = check_file_content(created_rdf_file)
-        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_NetworkAdapter.Name=192.168.1.10
-        # http://www.primhillcomputers.com/survol#Name
-        # 192.168.1.10
-        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_OperatingSystem.
-        # http://www.primhillcomputers.com/survol#OSType
-        # win32
-        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_ComputerSystem.Name=rchateau-hp
-        # http://www.primhillcomputers.com/survol#VirtualMemoryTotal
-        # 17099120640
-        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_ComputerSystem.Name=rchateau-hp
-        # http://www.primhillcomputers.com/survol#VirtualMemoryUsed
-        # 14555295744
-        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_OperatingSystem.
-        # http://www.primhillcomputers.com/survol#Release
-        # 7
-        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_OperatingSystem.
-        # http://www.primhillcomputers.com/survol#Platform
-        # Windows-7-6.1.7601-SP1
-        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_ComputerSystem.Name=rchateau-hp
-        # http://www.primhillcomputers.com/survol#CpuMinimum
-        # 0.0
-        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_OperatingSystem.
-        # http://www.primhillcomputers.com/survol#Name
-        # nt
-        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_ComputerSystem.Name=rchateau-hp
-        # http://www.primhillcomputers.com/survol#VirtualMemoryAvailable
-        # 2543824896
-        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_ComputerSystem.Name=rchateau-hp
-        # http://www.primhillcomputers.com/survol#CpuMaximum
-        # 3200.0
-        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_OperatingSystem.
-        # http://www.primhillcomputers.com/survol#System
-        # Windows
-        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_ComputerSystem.Name=rchateau-hp
-        # http://www.primhillcomputers.com/survol#CpuCurrent
-        # 3200.0
-        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_ComputerSystem.Name=rchateau-hp
-        # http://www.primhillcomputers.com/survol#Name
-        # rchateau-hp
-        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_ComputerSystem.Name=rchateau-hp
-        # http://www.primhillcomputers.com/survol#VirtualMemoryFree
-        # 2543824896
-        # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_NetworkAdapter.Name=192.168.1.10
-        # http://www.primhillcomputers.com/survol#PermanentAddress
-        # 192.168.1.10
-        triples_as_string = [
-            (str(rdf_subject), str(rdf_predicate), str(rdf_object))
-            for rdf_subject, rdf_predicate, rdf_object in rdf_content.triples((None, None, None))
-        ]
+        # It does not contain semantic data necessary for SPARQL queries such as rdflib.namespace.RDF.type.
+
+        triples_as_string = _rdf_file_to_triples(created_rdf_file)
         print("triples_as_string=", triples_as_string)
 
         self.assertTrue((
-            "http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_OperatingSystem.",
-            "http://www.primhillcomputers.com/survol#System",
-            "Windows"
-        ) in triples_as_string)
+                            ("CIM_OperatingSystem", {}),
+                            "System",
+                            "Windows") in triples_as_string)
 
-        current_ip_address = socket.gethostbyname(socket.gethostname())
         self.assertTrue((
-            "http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_NetworkAdapter.Name=%s" % current_ip_address,
-            "http://www.primhillcomputers.com/survol#PermanentAddress",
-            current_ip_address
-        ) in triples_as_string)
+                            ("CIM_NetworkAdapter", {"Name": current_ip_address}),
+                           "PermanentAddress",
+                           current_ip_address) in triples_as_string)
+
+        check_file_missing(output_basename_prefix + ".log")
+        check_file_missing(output_basename_prefix + ".docker", "Dockerfile")
+
+        print("Where is the dir ???")
+        print("Where is the dir ???")
+        print("Where is the dir ???")
+        print("Where is the dir ???")
+        print("Where is the dir ???")
+        print("Where is the dir ???")
+        print("Where is the dir ???")
+        print("Where is the dir ???")
+
+
+    def test_run_windows_python_print_rdf(self):
+        """This checks the events generated in a RDF file. It must contain the directory."""
+        output_basename_prefix = "test_run_windows_mkdir_rdf"
+        created_rdf_file = path_prefix_output_result(output_basename_prefix + ".rdf")
+
+        dockit_command = "--server=%s %s -c \"print('Hello')\"" % (created_rdf_file, sys.executable)
+        command_result = _run_dockit_command(dockit_command)
+
+        # The ini file is created with a default name.
+        # It does not use check_file_content because the output directory is not standard.
+        ini_file_default = os.path.join(dockit_dirname, "dockit_output" + ".ini")
+        ini_content = dockit.ini_file_check(ini_file_default)
+        created_pid = ini_content["TopProcessId"]
+
+        triples_as_string = _rdf_file_to_triples(created_rdf_file)
+
+        for rdf_subject, rdf_predicate, rdf_object in triples_as_string:
+            if rdf_subject[0] != "CIM_DataFile":
+                print(rdf_subject, rdf_predicate, rdf_object)
+        print("------------------------")
+
+        self.assertTrue((
+                            ("CIM_OperatingSystem", {}),
+                            "System",
+                            "Windows") in triples_as_string)
+
+        self.assertTrue((
+                            ("CIM_Process", {"Handle": str(created_pid)}),
+                            "Handle",
+                            str(created_pid)) in triples_as_string)
+
+        self.assertTrue((
+                            ("CIM_NetworkAdapter", {"Name": current_ip_address}),
+                            "PermanentAddress",
+                            current_ip_address) in triples_as_string)
+
+        self.assertTrue((
+                            ("CIM_ComputerSystem", {"Name": CurrentMachine}),
+                            "Name",
+                            CurrentMachine) in triples_as_string)
+
+        # At startup, Python loads dozen of library files.
+        # This checks the existence of some files which are usually loaded by Python at startup.
+        files_basenames = set([
+            os.path.basename(one_path[0][1]['Name'])
+            for one_path in triples_as_string
+            if one_path[0][0] == 'CIM_DataFile'])
+
+        self.assertTrue(u'__init__.py' in files_basenames)
+        self.assertTrue(u'_weakrefset.py' in files_basenames)
+        self.assertTrue(u'abc.py' in files_basenames)
+        self.assertTrue(u'aliases.py' in files_basenames)
+        self.assertTrue(u'codecs.py' in files_basenames)
+        self.assertTrue(u'functools.py' in files_basenames)
+        self.assertTrue(u'genericpath.py' in files_basenames)
+        self.assertTrue(u'ntpath.py' in files_basenames)
+        self.assertTrue(u'os.py' in files_basenames)
+        self.assertTrue(u'site.py' in files_basenames)
+        self.assertTrue(u'stat.py' in files_basenames)
+        self.assertTrue(u'sysconfig.py' in files_basenames)
+        self.assertTrue(u'types.py' in files_basenames)
+        self.assertTrue(u'warnings.py' in files_basenames)
+
+        self.assertTrue(u'encodings' in files_basenames)
+        self.assertTrue(u'python.exe' in files_basenames)
 
         check_file_missing(output_basename_prefix + ".log")
         check_file_missing(output_basename_prefix + ".docker", "Dockerfile")
