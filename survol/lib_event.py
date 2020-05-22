@@ -178,7 +178,8 @@ def _triple_json_to_rdf(input_json_triple):
     object_value_json = input_json_triple["object"]
 
     # The object might be another CIM object or a literal.
-    if isinstance(object_value_json, dict):
+    # We should check the form: ("string", {})
+    if isinstance(object_value_json, tuple) and len(object_value_json) == 2:
         object_value_text = url_json_to_txt(object_value_json)
     else:
         object_value_text = lib_kbase.MakeNodeLiteral(object_value_json)
