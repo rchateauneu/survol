@@ -278,6 +278,8 @@ class SurvolLocalTest(unittest.TestCase):
 
         tripleTopLevelLocal = mySourceTopLevelLocal.get_triplestore()
         instancesTopLevelLocal = tripleTopLevelLocal.get_instances()
+        self.assertTrue(instancesTopLevelLocal != None)
+        print("Instances number:", len(instancesTopLevelLocal))
 
         if isVerbose:
             for oneInst in instancesTopLevelLocal:
