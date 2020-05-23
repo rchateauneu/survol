@@ -1346,7 +1346,7 @@ def Base64Encode(input_text):
             txtToB64Encode = input_text.encode('utf-8')
         return base64.urlsafe_b64encode(txtToB64Encode).decode('utf-8')
     else:
-        return base64.urlsafe_b64encode(text)
+        return base64.urlsafe_b64encode(input_text)
 
 
 def Base64Decode(input_text):
