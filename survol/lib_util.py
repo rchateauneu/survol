@@ -47,6 +47,8 @@ else:
     def survol_unescape(s):
         return HTMLParser.HTMLParser().unescape(s)
 
+
+# See tests/init.py which duplicates this statement.
 try:
     # For Python 3.0 and later
     from urllib.request import urlopen as survol_urlopen
@@ -152,21 +154,19 @@ if is_py3:
     def six_iteritems(array):
             return array.items()
 
-    def six_u(aStr):
-        return aStr
+    def six_u(a_str):
+        return a_str
 
     six_string_types = str,
     six_integer_types = int,
     six_text_type = str
     six_binary_type = bytes
-
-    # from six.moves import builtins
 else:
     def six_iteritems(array):
         return array.iteritems()
 
-    def six_u(aStr):
-        return unicode(aStr.replace(r'\\', r'\\\\'), "unicode_escape")
+    def six_u(a_str):
+        return unicode(a_str.replace(r'\\', r'\\\\'), "unicode_escape")
 
     six_string_types = basestring,
     six_integer_types = (int, long)
@@ -189,8 +189,8 @@ def NodeUrl(url):
 ################################################################################
 
 # See xidCgiDelimiter = "?xid="
-def EncodeEntityId(entity_type,entity_id):
-    return "xid=%s.%s" % ( entity_type, entity_id )
+def EncodeEntityId(entity_type, entity_id):
+    return "xid=%s.%s" % (entity_type, entity_id)
 
 ################################################################################
 
@@ -219,9 +219,9 @@ def HttpPrefix():
             # Hostnames always in lowercase.
             server_addr = server_addr.lower()
 
-        #os.environ['REMOTE_ADDR']=127.0.0.1
-        #os.environ['SERVER_NAME']=rchateau-HP
-        #os.environ['REMOTE_HOST']=rchateau-HP
+        # 'REMOTE_ADDR'] => "127.0.0.1"
+        # 'SERVER_NAME'] => "rchateau-HP"
+        # 'REMOTE_HOST'] => "rchateau-HP"
 
     except KeyError:
         ERROR("HttpPrefix SERVER_NAME MUST BE DEFINED")
@@ -247,8 +247,10 @@ def HttpPrefix():
 # represented by the string, by convention. Syntactically, this is a correct URL.
 prefixLocalExecution = "/LocalExecution"
 
+
 def UriRootHelper():
     try:
+        # Checks of this environment variable is defined.
         os.environ["SERVER_NAME"]
         # sys.stderr.write("SERVER_NAME=%s gethostname=%s\n" % (os.environ["SERVER_NAME"], socket.gethostname()))
     except KeyError:
@@ -265,7 +267,6 @@ def UriRootHelper():
         # SCRIPT_NAME=/survol/print_environment_variables.py
         scriptNam=os.environ['SCRIPT_NAME']
         idx = scriptNam.find('survol')
-        # sys.stderr.write("UriRootHelper scriptNam=%s idx=%d\n"%(scriptNam,idx))
         if idx >= 0:
             root = scriptNam[:idx] + 'survol'
         else:
@@ -349,11 +350,11 @@ def HostName():
     # Converted to lowercase because of RFC4343: Domain Name System (DNS) Case Insensitivity Clarification
     return os.environ["SERVER_NAME"].lower()
 
-# hostName
+
 currentHostname = HostName()
 
+
 def GlobalGetHostByName(hostNam):
-    # timeStart = time.time()
     try:
         theIP = socket.gethostbyname(hostNam)
         # sys.stderr.write("GlobalGetHostByName tm=%f OK hostNam=%s theIP=%s\n"%(time.time()-timeStart,hostNam,theIP))
@@ -383,9 +384,8 @@ def IsLocalAddress(anHostNam):
     try:
         ipOnly = GlobalGetHostByName(hostOnly)
     # socket.gaierror
-    except Exception:
+    except Exception as exc:
         # Unknown machine
-        exc = sys.exc_info()[1]
         # sys.stderr.write("IsLocalAddress anHostNam=%s:%s FALSE\n" % ( anHostNam, str(exc) ) )
         return False
 
@@ -406,8 +406,8 @@ def IsLocalAddress(anHostNam):
 # Beware: lib_util.currentHostname="Unknown-30-b5-c2-02-0c-b5-2.home"
 # socket.gethostname() = 'Unknown-30-b5-c2-02-0c-b5-2.home'
 # socket.gethostbyaddr(hst) = ('Unknown-30-b5-c2-02-0c-b5-2.home', [], ['192.168.1.88'])
-def SameHostOrLocal( srv, entHost ):
-    if ( entHost == srv ) or ( ( entHost is None or entHost in ["","0.0.0.0"] ) and ( localIP == srv ) ):
+def SameHostOrLocal(srv, entHost):
+    if (entHost == srv) or ((entHost is None or entHost in ["","0.0.0.0"] ) and ( localIP == srv ) ):
         # We might add credentials.
         DEBUG("SameHostOrLocal entHost=%s localIP=%s srv=%s SAME", entHost, localIP, srv )
         return True
@@ -451,7 +451,7 @@ def EncodeUri(anStr):
 
     # In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
     if is_py3:
-        return urllib_quote(strTABLE,'')
+        return urllib_quote(strTABLE, '')
     else:
 
         # THIS SHOULD NORMALLY BE DONE. BUT WHAT ??
@@ -463,11 +463,7 @@ def EncodeUri(anStr):
 
 def RequestUri():
     try:
-        # If url = "http://primhillcomputers.ddns.net/Survol/survol/print_environment_variables.py"
         # REQUEST_URI=/Survol/survol/print_environment_variables.py
-        #sys.stderr.write("RequestUri\n")
-        #for k in os.environ:
-        #    sys.stderr.write("    key=%s val=%s\n"%(k,os.environ[k]))
         script = os.environ["REQUEST_URI"]
         #sys.stderr.write("RequestUri script=%s\n"%script)
     except KeyError:
@@ -480,9 +476,9 @@ def RequestUri():
         try:
             script = os.environ['SCRIPT_NAME']
             # "xid=EURO%5CLONL00111310@process:16580"
-            queryString = os.environ['QUERY_STRING']
-            if queryString:
-                script += "?" + queryString
+            query_string = os.environ['QUERY_STRING']
+            if query_string:
+                script += "?" + query_string
         except KeyError:
             script = "RequestUri: No value"
     return script
