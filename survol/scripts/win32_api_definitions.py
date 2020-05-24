@@ -79,6 +79,9 @@ class PseudoTraceLineCore:
     def is_creating_process(self):
         return self._function_name in self._functions_creating_processes
 
+
+# This is functionally equivalent to a line displayed by strace or ltrace:
+# It contains a process id, a function name and its arguments.
 class PseudoTraceLine:
     def __init__(self, process_id, function_name):
         assert isinstance(function_name, six.binary_type)
@@ -89,6 +92,7 @@ class PseudoTraceLine:
         # The style tells if this is a native call or an aggregate of function calls.
         self.m_style = "Breakpoint"
 
+    # This writes the content, so it can be deseriazied, to replay a session.
     def write_to_file(self, file_descriptor):
         assert isinstance(self.m_core._function_name, six.binary_type)
         file_descriptor.write("%d %s\n" % (self.m_core.m_pid, self.m_core._function_name.decode('utf-8)')))
@@ -136,7 +140,6 @@ class Win32Tracer(TracerBase):
         else:
             raise Exception("_start_debugging: command should not be None")
 
-        logging.error("Win32Tracer._start_debugging FINISHED")
         self.report_function_call(self._function_name_process_exit, 0)
         # created_process.terminate()
         # created_process.join()
@@ -232,13 +235,11 @@ class Win32Tracer(TracerBase):
             yield pseudo_trace_line
 
     def report_function_call(self, function_name, task_id):
-        logging.info("function_name=%s" % function_name)
-
+        # This is called in the debugger context.
         batch_core = PseudoTraceLine(task_id, function_name)
         self._queue.put(batch_core)
 
     def report_object_creation(self, cim_objects_context, cim_class_name, **cim_arguments):
-        logging.debug("report_object_creation", cim_class_name, cim_arguments)
         cim_objects_context.attributes_to_cim_object(cim_class_name, **cim_arguments)
 
 
@@ -563,6 +564,9 @@ class Win32Hook_CreateDirectoryA(Win32Hook_BaseClass):
             LPSECURITY_ATTRIBUTES lpSecurityAttributes
         );"""
     dll_name = b"KERNEL32.dll"
+    def callback_after(self, function_arguments, function_result):
+        dirname = self.current_pydbg.get_bytes_string(function_arguments[0])
+        self.callback_create_object("CIM_Directory", Name=dirname)
 
 
 class Win32Hook_CreateDirectoryW(Win32Hook_BaseClass):
@@ -572,6 +576,9 @@ class Win32Hook_CreateDirectoryW(Win32Hook_BaseClass):
             LPSECURITY_ATTRIBUTES lpSecurityAttributes
         );"""
     dll_name = b"KERNEL32.dll"
+    def callback_after(self, function_arguments, function_result):
+        dirname = self.current_pydbg.get_unicode_string(function_arguments[0])
+        self.callback_create_object("CIM_Directory", Name=dirname)
 
 
 class Win32Hook_RemoveDirectoryA(Win32Hook_BaseClass):
@@ -926,29 +933,7 @@ if windows8_or_higher:
 ################################################################################
 
 # This returns only leaf classes.
-def all_subclasses(the_class):
-    # Minimum supported client 	Windows 8 [desktop apps | UWP apps]
-    # Minimum supported server 	Windows Server 2012 [desktop apps | UWP apps]
-    # Travis is Windows Server 1809 (2019 ?)
-    # os.sys.getwindowsversion()
-    # (6, 0, 6002, 2, 'Service Pack 2')
-    # platform.release()
-    # 'Vista'
-    # platform.win32_ver()
-    # ('Vista', '6.0.6002', 'SP2', 'Multiprocessor Free')
-
-# Travis:
-# survol\scripts\wsgiserver.py server_name=packer-5e27ace7-7289-64cc-b5e7-c83abe164ad0
-# Platform=win32
-# Version:sys.version_info(major=3, minor=7, micro=5, releaselevel='final', serial=0)
-# Server address:10.20.0.174
-
-    current_subclasses = the_class.__subclasses__()
-    return set([sub_class for sub_class in current_subclasses if not all_subclasses(sub_class)]).union(
-        [sub_sub_class for sub_class in current_subclasses for sub_sub_class in all_subclasses(sub_class)])
-
-
-_functions_list = all_subclasses(Win32Hook_BaseClass)
+_functions_list = cim_objects_definitions.leaf_derived_classes(Win32Hook_BaseClass)
 
 ##### Kernel32.dll
 # Many functions are very specific to old-style Windows applications.
