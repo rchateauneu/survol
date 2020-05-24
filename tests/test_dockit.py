@@ -23,6 +23,7 @@ from survol.scripts import dockit
 # FIXME: It should be on Linux only.
 from survol.scripts import linux_api_definitions
 
+_remote_events_test_agent = "http://%s:%d" % (CurrentMachine, RemoteEventsTestServerPort)
 
 dock_input_files_path = os.path.join(_current_file_dirname, "dockit_input_test_trace_files")
 
@@ -580,6 +581,7 @@ class CommandLineWin32Test(unittest.TestCase):
         print("Where is the dir ???")
         print("Where is the dir ???")
         print("Where is the dir ???")
+        ####
 
 
     def test_run_windows_python_print_rdf(self):
@@ -1124,15 +1126,15 @@ class EventsServerTest(unittest.TestCase):
     """
 
     def setUp(self):
-        # If the Survol agent does not exist, this script starts a local one.
-        self.RemoteEventsTestAgent = start_cgiserver(RemoteEventsTestAgent, RemoteEventsTestPort)
+        # If a Survol agent does not run on this machine with this port, this script starts a local one.
+        self._remote_events_test_agent, self._agent_url = start_cgiserver(RemoteEventsTestServerPort)
 
     def tearDown(self):
-        stop_cgiserver(self.RemoteEventsTestAgent)
+        stop_cgiserver(self._remote_events_test_agent)
 
     def _check_read_triples(self, num_loops, expected_types_list):
         # Now read the events.
-        url_events = RemoteEventsTestAgent + "/survol/sources_types/event_get_all.py?mode=rdf"
+        url_events = _remote_events_test_agent + "/survol/sources_types/event_get_all.py?mode=rdf"
 
         actual_types_dict = collections.defaultdict(lambda: 0)
 
@@ -1144,7 +1146,7 @@ class EventsServerTest(unittest.TestCase):
 
             events_graph = rdflib.Graph()
             result = events_graph.parse(data=events_content_trunc, format="application/rdf+xml")
-            print("len results=", len(events_graph))
+            print("len results=", len(result), "events_graph=", len(events_graph))
             for event_subject, event_predicate, event_object in events_graph:
                 # Given the input filename, this expects some specific data.
                 if event_predicate == rdflib.namespace.RDF.type:
@@ -1179,7 +1181,7 @@ class EventsServerTest(unittest.TestCase):
             summary_format="TXT",
             with_warning=False,
             with_dockerfile=False,
-            update_server=RemoteEventsTestAgent + "/survol/event_put.py",
+            update_server=_remote_events_test_agent + "/survol/event_put.py",
             aggregator="clusterize")
 
         check_file_content(output_basename_prefix + ".json")
@@ -1213,7 +1215,7 @@ class EventsServerTest(unittest.TestCase):
             summary_format="TXT",
             with_warning=False,
             with_dockerfile=False,
-            update_server=RemoteEventsTestAgent + "/survol/event_put.py",
+            update_server=_remote_events_test_agent + "/survol/event_put.py",
             aggregator="clusterize")
 
         check_file_content(output_basename_prefix + ".json")
@@ -1243,7 +1245,7 @@ class EventsServerTest(unittest.TestCase):
             summary_format="TXT",
             with_warning=False,
             with_dockerfile=False,
-            update_server=RemoteEventsTestAgent + "/survol/event_put.py",
+            update_server=_remote_events_test_agent + "/survol/event_put.py",
             aggregator="clusterize")
 
         check_file_content(output_basename_prefix + ".json")
@@ -1273,7 +1275,7 @@ class EventsServerTest(unittest.TestCase):
             summary_format="TXT",
             with_warning=False,
             with_dockerfile=False,
-            update_server=RemoteEventsTestAgent + "/survol/event_put.py",
+            update_server=_remote_events_test_agent + "/survol/event_put.py",
             aggregator="clusterize")
 
         check_file_content(output_basename_prefix + ".json")

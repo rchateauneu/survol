@@ -24,10 +24,11 @@ import lib_properties
 
 # If the Survol agent does not exist, this script starts a local one.
 RemoteAgentProcess = None
+_remote_general_test_agent = "http://%s:%d" % (CurrentMachine, RemoteGeneralTestServerPort)
 
 def setUpModule():
     global RemoteAgentProcess
-    RemoteAgentProcess = start_cgiserver(RemoteTestAgent, RemoteTestPort)
+    RemoteAgentProcess, _agent_url = start_cgiserver(RemoteGeneralTestServerPort)
 
 def tearDownModule():
     global RemoteAgentProcess
@@ -38,7 +39,7 @@ isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 # This deletes the module so we can reload them each time.
 # Problem: survol modules are not detectable.
 # We could as well delete all modules except sys.
-allModules = [ modu for modu in sys.modules if modu.startswith("survol") or modu.startswith("lib_")]
+allModules = [modu for modu in sys.modules if modu.startswith("survol") or modu.startswith("lib_")]
 
 ClientObjectInstancesFromScript = lib_client.SourceLocal.get_object_instances_from_script
 
@@ -47,7 +48,7 @@ cgitb.enable(format="txt")
 
 # Many tests start a subprocess: Its termination must be checked.
 def check_subprocess_end(procOpen):
-    ( child_stdout_content, child_stderr_content ) = procOpen.communicate()
+    (child_stdout_content, child_stderr_content) = procOpen.communicate()
 
     if is_platform_windows:
         # This ensures that the suprocess is correctly started.
@@ -198,7 +199,7 @@ class SurvolLocalTest(unittest.TestCase):
             print("Error detected:",exc)
 
         mySourceBroken = lib_client.SourceRemote(
-            RemoteTestAgent + "/xxx/yyy/zzz/ttt.py",
+            _remote_general_test_agent + "/xxx/yyy/zzz/ttt.py",
             "wwwww")
         try:
             tripleBroken = mySourceBroken.get_triplestore()
@@ -1736,12 +1737,12 @@ class SurvolRemoteTest(unittest.TestCase):
 
     def test_InstanceUrlToAgentUrl(selfself):
         assert( lib_client.instance_url_to_agent_url("http://LOCALHOST:80/LocalExecution/entity.py?xid=addr.Id=127.0.0.1:427") == None )
-        assert( lib_client.instance_url_to_agent_url(RemoteTestAgent + "/survol/sources_types/java/java_processes.py") == RemoteTestAgent )
+        assert( lib_client.instance_url_to_agent_url(_remote_general_test_agent + "/survol/sources_types/java/java_processes.py") == _remote_general_test_agent )
 
     def test_create_source_url(self):
         # http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
         mySourceFileStatRemote = lib_client.SourceRemote(
-            RemoteTestAgent + "/survol/sources_types/CIM_DataFile/file_stat.py",
+            _remote_general_test_agent + "/survol/sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
             Name=always_present_file)
         print("urlFileStatRemote=",mySourceFileStatRemote.Url())
@@ -1756,7 +1757,7 @@ class SurvolRemoteTest(unittest.TestCase):
 
     def test_remote_triplestore(self):
         mySourceFileStatRemote = lib_client.SourceRemote(
-            RemoteTestAgent + "/survol/sources_types/CIM_Directory/file_directory.py",
+            _remote_general_test_agent + "/survol/sources_types/CIM_Directory/file_directory.py",
             "CIM_Directory",
             Name=always_present_dir)
         tripleFileStatRemote = mySourceFileStatRemote.get_triplestore()
@@ -1766,7 +1767,7 @@ class SurvolRemoteTest(unittest.TestCase):
 
     # This does not work yet.
     def test_remote_scripts_exception(self):
-        myAgent = lib_client.Agent(RemoteTestAgent)
+        myAgent = lib_client.Agent(_remote_general_test_agent)
 
         try:
             mySourceInvalid = myAgent.CIM_LogicalDisk(WrongProperty=AnyLogicalDisk)
@@ -1782,7 +1783,7 @@ class SurvolRemoteTest(unittest.TestCase):
     def test_remote_instances_python_package(self):
         """This loads a specific Python package"""
         mySourcePythonPackageRemote = lib_client.SourceRemote(
-            RemoteTestAgent + "/survol/entity.py",
+            _remote_general_test_agent + "/survol/entity.py",
             "python/package",
             Id="rdflib")
         triplePythonPackageRemote = mySourcePythonPackageRemote.get_triplestore()
@@ -1796,7 +1797,7 @@ class SurvolRemoteTest(unittest.TestCase):
     def test_remote_instances_java(self):
         """Loads Java processes. There is at least one Java process, the one doing the test"""
         mySourceJavaRemote = lib_client.SourceRemote(
-            RemoteTestAgent + "/survol/sources_types/java/java_processes.py")
+            _remote_general_test_agent + "/survol/sources_types/java/java_processes.py")
         tripleJavaRemote = mySourceJavaRemote.get_triplestore()
         print("Len tripleJavaRemote=",len(tripleJavaRemote))
 
@@ -1815,7 +1816,7 @@ class SurvolRemoteTest(unittest.TestCase):
         """Loads machines visible with ARP. There must be at least one CIM_ComputerSystem"""
 
         mySourceArpRemote = lib_client.SourceRemote(
-            RemoteTestAgent + "/survol/sources_types/neighborhood/cgi_arp_async.py")
+            _remote_general_test_agent + "/survol/sources_types/neighborhood/cgi_arp_async.py")
         tripleArpRemote = mySourceArpRemote.get_triplestore()
         print("Len tripleArpRemote=",len(tripleArpRemote))
 
@@ -1835,9 +1836,9 @@ class SurvolRemoteTest(unittest.TestCase):
             "CIM_LogicalDisk",
             DeviceID=AnyLogicalDisk)
         if is_platform_windows:
-            mySource2 = lib_client.SourceRemote(RemoteTestAgent + "/survol/sources_types/win32/tcp_sockets_windows.py")
+            mySource2 = lib_client.SourceRemote(_remote_general_test_agent + "/survol/sources_types/win32/tcp_sockets_windows.py")
         else:
-            mySource2 = lib_client.SourceRemote(RemoteTestAgent + "/survol/sources_types/Linux/tcp_sockets.py")
+            mySource2 = lib_client.SourceRemote(_remote_general_test_agent + "/survol/sources_types/Linux/tcp_sockets.py")
 
         mySrcMergePlus = mySource1 + mySource2
         print("Merge plus:",str(mySrcMergePlus.content_rdf())[:30])
@@ -1859,9 +1860,9 @@ class SurvolRemoteTest(unittest.TestCase):
             "CIM_LogicalDisk",
             DeviceID=AnyLogicalDisk)
         if is_platform_windows:
-            mySource2 = lib_client.SourceRemote(RemoteTestAgent + "/survol/sources_types/win32/win32_local_groups.py")
+            mySource2 = lib_client.SourceRemote(_remote_general_test_agent + "/survol/sources_types/win32/win32_local_groups.py")
         else:
-            mySource2 = lib_client.SourceRemote(RemoteTestAgent + "/survol/sources_types/Linux/etc_group.py")
+            mySource2 = lib_client.SourceRemote(_remote_general_test_agent + "/survol/sources_types/Linux/etc_group.py")
 
         mySrcMergeMinus = mySource1 - mySource2
         print("Merge Minus:",str(mySrcMergeMinus.content_rdf())[:30])
@@ -1874,7 +1875,7 @@ class SurvolRemoteTest(unittest.TestCase):
         self.assertTrue(lenMinus <= lenSource1 )
 
     def test_remote_scripts_CIM_LogicalDisk(self):
-        myAgent = lib_client.Agent(RemoteTestAgent)
+        myAgent = lib_client.Agent(_remote_general_test_agent)
 
         myInstancesRemoteDisk = myAgent.CIM_LogicalDisk(DeviceID=AnyLogicalDisk)
         listScriptsDisk = myInstancesRemoteDisk.get_scripts()
@@ -1882,7 +1883,7 @@ class SurvolRemoteTest(unittest.TestCase):
         self.assertTrue(len(listScriptsDisk) == 0)
 
     def test_remote_scripts_CIM_Directory(self):
-        myAgent = lib_client.Agent(RemoteTestAgent)
+        myAgent = lib_client.Agent(_remote_general_test_agent)
 
         myInstancesRemoteDir = myAgent.CIM_Directory(Name=AnyLogicalDisk)
         listScriptsDir = myInstancesRemoteDir.get_scripts()
@@ -2437,7 +2438,7 @@ class SurvolInternalTest(unittest.TestCase):
         assert(mapInternalData["RootUri"] == anAgentStr + "/survol/print_internal_data_as_json.py" + "?xid=")
 
     def test_internal_remote(self):
-        self.check_internal_values(RemoteTestAgent)
+        self.check_internal_values(_remote_general_test_agent)
 
     @unittest.skipIf(is_travis_machine(), "Cannot run Apache test on TravisCI.")
     def test_internal_apache(self):
