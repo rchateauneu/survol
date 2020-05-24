@@ -16,6 +16,7 @@ import shutil
 import threading
 import time
 import collections
+import logging
 
 try:
     # This is for Python 2
@@ -317,11 +318,11 @@ class FileAccess:
                 strm.write(" File='%s'" % ( self.m_objectCIM_DataFile.Name ) )
 
         if self.OpenTime:
-            strm.write(" OpenTime='%s'" % TimeStampToStr( self.OpenTime ) )
+            strm.write(" OpenTime='%s'" % _timestamp_to_str( self.OpenTime ) )
         if getattr(self,'OpenSize',0):
             strm.write(" OpenSize='%s'" % ( self.OpenSize ) )
         if self.CloseTime:
-            strm.write(" CloseTime='%s'" % TimeStampToStr( self.CloseTime ) )
+            strm.write(" CloseTime='%s'" % _timestamp_to_str( self.CloseTime ) )
         if getattr(self,'CloseSize',0):
             strm.write(" CloseSize='%s'" % ( self.CloseSize ) )
         if getattr(self,'NumReads',0):
@@ -383,7 +384,7 @@ G_ReplayMode = False
 # The date where the test was run. Loaded from the ini file when replaying.
 G_Today = None
 
-def TimeStampToStr(timStamp):
+def _timestamp_to_str(timStamp):
     # 0     tm_year     (for example, 1993)
     # 1     tm_mon      range [1, 12]
     # 2     tm_mday     range [1, 31]
@@ -394,7 +395,7 @@ def TimeStampToStr(timStamp):
     # 7     tm_yday     range [1, 366]
     # 8     tm_isdst    0, 1 or -1; see below
 
-    # Today's date can change so we can reproduce a run.TimeStampToStr
+    # Today's date can change so we can reproduce a run.
     if timStamp:
         return G_Today + " " + timStamp
     else:
@@ -548,12 +549,25 @@ def TimeT_to_DateTime(stTimeT):
 
 ################################################################################
 
-def IsCIM(attr,attrVal):
-    return not callable(attrVal) and not attr.startswith("__") and not attr.startswith("m_")
 
-def IsTimeStamp(attr,attrVal):
+# This returns only leaf classes.
+def leaf_derived_classes(the_class):
+    current_subclasses = the_class.__subclasses__()
+    return set([sub_class for sub_class in current_subclasses if not leaf_derived_classes(sub_class)]).union(
+        [sub_sub_class for sub_class in current_subclasses for sub_sub_class in leaf_derived_classes(sub_class)])
+
+
+# CIM classes are defined as plain Python classes plus their attributes.
+# Therefore, CIM attributes are mixed with Python ones.
+# This function is a rule-thumb test to check if an attribute of a class
+# is a CIM attribute. It works because there are very few non-CIM attributes.
+def IsCIM(attr, attr_val):
+    return not callable(attr_val) and not attr.startswith("__") and not attr.startswith("m_")
+
+
+# This identifies CIM attribute which is date or time and must be displayed as such.
+def _is_time_stamp(attr):
     return attr.find("Date") > 0 or attr.find("Time") > 0
-
 
 
 # This is the base class of all CIM_xxx classes. It does the serialization
@@ -589,8 +603,8 @@ class CIM_XmlMarshaller:
                 continue
             if IsCIM(attr,attrVal):
                 # FIXME: Not very reliable.
-                if IsTimeStamp(attr,attrVal):
-                    attrVal = TimeStampToStr(attrVal)
+                if _is_time_stamp(attr):
+                    attrVal = _timestamp_to_str(attrVal)
                 if attrVal:
                     # No need to write empty strings.
                     strm.write("%s<%s>%s</%s>\n" % ( subMargin, attr, attrVal, attr ) )
@@ -642,24 +656,24 @@ class CIM_XmlMarshaller:
                     self.SendUpdateToServer(attrNam, oldAttrVal, attrVal)
 
     @classmethod
-    def DisplaySummary(theClass,fdSummaryFile,cimKeyValuePairs):
+    def DisplaySummary(cls, fd_summary_file, cimKeyValuePairs):
         pass
 
     @classmethod
-    def XMLSummary(theClass,fdSummaryFile,cimKeyValuePairs):
-        namClass = theClass.__name__
+    def XMLSummary(cls, fd_summary_file, cimKeyValuePairs):
+        namClass = cls.__name__
         margin = "    "
         subMargin = margin + margin
-        for objPath,objInstance in sorted( G_mapCacheObjects[namClass].items() ):
-            fdSummaryFile.write("%s<%s>\n" % ( margin, namClass ) )
-            objInstance.PlainToXML(fdSummaryFile,subMargin)
-            fdSummaryFile.write("%s</%s>\n" % ( margin, namClass ) )
+        for objPath,objInstance in sorted(G_mapCacheObjects[namClass].items()):
+            fd_summary_file.write("%s<%s>\n" % (margin, namClass))
+            objInstance.PlainToXML(fd_summary_file, subMargin)
+            fd_summary_file.write("%s</%s>\n" % (margin, namClass))
 
     @classmethod
-    def CreateMonikerKey(theClass,*args):
+    def CreateMonikerKey(cls, *args):
         # The input arguments must be in the same order as the ontology.
-        #sys.stdout.write("CreateMonikerKey %s %s %s\n"%(theClass.__name__,str(theClass.m_Ontology),str(args)))
-        mnk = theClass.__name__ + "." + ",".join( '%s="%s"' % (k,v) for k,v in zip(theClass.m_Ontology,args) )
+        #sys.stdout.write("CreateMonikerKey %s %s %s\n"%(cls.__name__,str(cls.cim_ontology_list),str(args)))
+        mnk = cls.__name__ + "." + ",".join('%s="%s"' % (k, v) for k, v in zip(cls.cim_ontology_list, args))
         #sys.stdout.write("CreateMonikerKey mnk=%s\n"%mnk)
         return mnk
 
@@ -669,13 +683,18 @@ class CIM_XmlMarshaller:
     # into an object which is used to store an event related to this object.
     # JSON escapes special characters in strings.
     def get_survol_moniker(self):
-        attributes_dict = {attribute_key: getattr(self, attribute_key) for attribute_key in self.m_Ontology}
+        attributes_dict = {attribute_key: getattr(self, attribute_key) for attribute_key in self.cim_ontology_list}
         return (self.__class__.__name__, attributes_dict)
 
     def __repr__(self):
-        mnk = self.__class__.__name__ + "." + ",".join( '%s="%s"' % (k,getattr(self,k)) for k in self.m_Ontology )
+        mnk = self.__class__.__name__ + "." + ",".join( '%s="%s"' % (k,getattr(self,k)) for k in self.cim_ontology_list )
         return "%s" % mnk
 
+    @staticmethod
+    def create_instance_from_class_name(cim_class_name, **cim_attributes_dict):
+        cim_class_definition = _class_name_to_subclass[cim_class_name]
+        attributes_list = [cim_attributes_dict[key] for key in cim_class_definition.cim_ontology_list]
+        return cim_class_definition(*attributes_list)
 
 ################################################################################
 
@@ -720,7 +739,7 @@ class CIM_ComputerSystem(CIM_XmlMarshaller, object):
             except AttributeError:
                 pass
 
-    m_Ontology = ['Name']
+    cim_ontology_list = ['Name']
 
 
 #
@@ -765,7 +784,7 @@ class CIM_OperatingSystem(CIM_XmlMarshaller, object):
             self.Release = platform.release()
             self.Platform = platform.platform()
 
-    m_Ontology = []
+    cim_ontology_list = []
 
 
 #
@@ -802,7 +821,7 @@ class CIM_NetworkAdapter(CIM_XmlMarshaller, object):
         self.Name = address
         self.PermanentAddress = address
 
-    m_Ontology = ['Name']
+    cim_ontology_list = ['Name']
 
 
 # class CIM_Process : CIM_LogicalElement
@@ -933,10 +952,10 @@ class CIM_Process(CIM_XmlMarshaller, object):
                 raise Exception("Duplicate procid:%s" % procId)
             self.SetParentProcess(firstProcObj)
 
-    m_Ontology = ['Handle']
+    cim_ontology_list = ['Handle']
 
     @classmethod
-    def DisplaySummary(theClass, fdSummaryFile, cimKeyValuePairs):
+    def DisplaySummary(cls, fdSummaryFile, cimKeyValuePairs):
         fdSummaryFile.write("Processes:\n")
         list_CIM_Process = G_mapCacheObjects[CIM_Process.__name__]
         for objPath, objInstance in sorted(list_CIM_Process.items()):
@@ -991,7 +1010,7 @@ class CIM_Process(CIM_XmlMarshaller, object):
                 objInstance.TerminationDate = timeEnd
 
     @classmethod
-    def XMLSummary(theClass, fdSummaryFile, cimKeyValuePairs):
+    def XMLSummary(cls, fd_summary_file, cimKeyValuePairs):
         # Find unvisited processes. It does not start from G_top_ProcessId
         # because maybe it contains several trees, or subtrees were missed etc...
         for objPath, objInstance in sorted(G_mapCacheObjects[CIM_Process.__name__].items()):
@@ -1002,7 +1021,7 @@ class CIM_Process(CIM_XmlMarshaller, object):
                 pass
 
             topObjProc = CIM_Process.TopProcessFromProc(objInstance)
-            topObjProc.XMLOneLevelSummary(fdSummaryFile)
+            topObjProc.XMLOneLevelSummary(fd_summary_file)
 
     # In text mode, with no special formatting.
     def Summarize(self, strm):
@@ -1013,10 +1032,10 @@ class CIM_Process(CIM_XmlMarshaller, object):
         except AttributeError:
             pass
         if self.CreationDate:
-            strStart = TimeStampToStr(self.CreationDate)
+            strStart = _timestamp_to_str(self.CreationDate)
             strm.write("    Start time:%s\n" % strStart)
         if self.TerminationDate:
-            strEnd = TimeStampToStr(self.TerminationDate)
+            strEnd = _timestamp_to_str(self.TerminationDate)
             strm.write("    End time:%s\n" % strEnd)
         if self.m_parentProcess:
             strm.write("    Parent:%s\n" % self.m_parentProcess.Handle)
@@ -1111,6 +1130,107 @@ class CIM_Process(CIM_XmlMarshaller, object):
 # dtrace and blktrac and valgrind
 # http://www.brendangregg.com/ebpf.html
 
+# class CIM_LogicalFile : CIM_LogicalElement
+# {
+#   string   Caption;
+#   string   Description;
+#   datetime InstallDate;
+#   string   Status;
+#   uint32   AccessMask;
+#   boolean  Archive;
+#   boolean  Compressed;
+#   string   CompressionMethod;
+#   string   CreationClassName;
+#   datetime CreationDate;
+#   string   CSCreationClassName;
+#   string   CSName;
+#   string   Drive;
+#   string   EightDotThreeFileName;
+#   boolean  Encrypted;
+#   string   EncryptionMethod;
+#   string   Name;
+#   string   Extension;
+#   string   FileName;
+#   uint64   FileSize;
+#   string   FileType;
+#   string   FSCreationClassName;
+#   string   FSName;
+#   boolean  Hidden;
+#   uint64   InUseCount;
+#   datetime LastAccessed;
+#   datetime LastModified;
+#   string   Path;
+#   boolean  Readable;
+#   boolean  System;
+#   boolean  Writeable;
+# };
+class CIM_LogicalFile(CIM_XmlMarshaller, object):
+    def __init__(self, path_name):
+        super(CIM_LogicalFile, self).__init__()
+
+        # https://msdn.microsoft.com/en-us/library/aa387236(v=vs.85).aspx
+        # The Name property is a string representing the inherited name
+        # that serves as a key of a logical file instance within a file system.
+        # Full path names should be provided.
+
+        # TODO: When the name contains "<" or ">" it cannot be properly displayed in SVG.
+        # TODO: Also, names like "UNIX:" or "TCP:" should be processed a special way.
+        self.Name = path_name
+        # File name without the file name extension. Example: "MyDataFile"
+        try:
+            basNa = os.path.basename(path_name)
+            # There might be several dots, or none.
+            self.FileName = basNa.split(".")[0]
+        except:
+            pass
+        self.Category = _pathname_to_category(path_name)
+
+        self.m_DataFileFileAccesses = []
+
+        # Some information are meaningless because they vary between executions.
+        if G_SameMachine:
+            try:
+                objStat = os.stat(path_name)
+            except:
+                objStat = None
+
+            if objStat:
+                self.FileSize = objStat.st_size
+                self.FileMode = objStat.st_mode
+                self.Inode = objStat.st_ino
+                self.DeviceId = objStat.st_dev
+                self.HardLinksNumber = objStat.st_nlink
+                self.OwnerUserId = objStat.st_uid
+                self.OwnerGroupId = objStat.st_gid
+                self.AccessTime = TimeT_to_DateTime(objStat.st_atime)
+                self.ModifyTime = TimeT_to_DateTime(objStat.st_mtime)
+                self.CreationTime = TimeT_to_DateTime(objStat.st_ctime)
+                try:
+                    # This does not exist on Windows.
+                    self.DeviceType = objStat.st_rdev
+                except AttributeError:
+                    pass
+
+                # This is on Windows only.
+                # self.UserDefinedFlags = objStat.st_flags
+                # self.FileCreator = objStat.st_creator
+                # self.FileType = objStat.st_type
+
+        # If this is a connected socket:
+        # 'TCP:[54.36.162.150:37415->82.45.12.63:63708]'
+        mtchSock = re.match(r"TCP:\[.*->(.*)\]", path_name)
+        if mtchSock:
+            self.SetAddrPort(mtchSock.group(1))
+        else:
+            # 'TCPv6:[::ffff:54.36.162.150:21->::ffff:82.45.12.63:63703]'
+            mtchSock = re.match(r"TCPv6:\[.*->(.*)\]", path_name)
+            if mtchSock:
+                self.SetAddrPort(mtchSock.group(1))
+
+    cim_ontology_list = ['Name']
+
+
+
 # class CIM_DataFile : CIM_LogicalFile
 # {
 # string   Caption;
@@ -1147,70 +1267,9 @@ class CIM_Process(CIM_XmlMarshaller, object):
 # string   Manufacturer;
 # string   Version;
 # };
-class CIM_DataFile(CIM_XmlMarshaller, object):
-    def __init__(self, pathName):
-        super(CIM_DataFile, self).__init__()
-
-        # https://msdn.microsoft.com/en-us/library/aa387236(v=vs.85).aspx
-        # The Name property is a string representing the inherited name
-        # that serves as a key of a logical file instance within a file system.
-        # Full path names should be provided.
-
-        # TODO: When the name contains "<" or ">" it cannot be properly displayed in SVG.
-        # TODO: Also, names like "UNIX:" or "TCP:" should be processed a special way.
-        self.Name = pathName
-        # File name without the file name extension. Example: "MyDataFile"
-        try:
-            basNa = os.path.basename(pathName)
-            # There might be several dots, or none.
-            self.FileName = basNa.split(".")[0]
-        except:
-            pass
-        self.Category = _pathname_to_category(pathName)
-
-        self.m_DataFileFileAccesses = []
-
-        # Some information are meaningless because they vary between executions.
-        if G_SameMachine:
-            try:
-                objStat = os.stat(pathName)
-            except:
-                objStat = None
-
-            if objStat:
-                self.FileSize = objStat.st_size
-                self.FileMode = objStat.st_mode
-                self.Inode = objStat.st_ino
-                self.DeviceId = objStat.st_dev
-                self.HardLinksNumber = objStat.st_nlink
-                self.OwnerUserId = objStat.st_uid
-                self.OwnerGroupId = objStat.st_gid
-                self.AccessTime = TimeT_to_DateTime(objStat.st_atime)
-                self.ModifyTime = TimeT_to_DateTime(objStat.st_mtime)
-                self.CreationTime = TimeT_to_DateTime(objStat.st_ctime)
-                try:
-                    # This does not exist on Windows.
-                    self.DeviceType = objStat.st_rdev
-                except AttributeError:
-                    pass
-
-                # This is on Windows only.
-                # self.UserDefinedFlags = objStat.st_flags
-                # self.FileCreator = objStat.st_creator
-                # self.FileType = objStat.st_type
-
-        # If this is a connected socket:
-        # 'TCP:[54.36.162.150:37415->82.45.12.63:63708]'
-        mtchSock = re.match(r"TCP:\[.*->(.*)\]", pathName)
-        if mtchSock:
-            self.SetAddrPort(mtchSock.group(1))
-        else:
-            # 'TCPv6:[::ffff:54.36.162.150:21->::ffff:82.45.12.63:63703]'
-            mtchSock = re.match(r"TCPv6:\[.*->(.*)\]", pathName)
-            if mtchSock:
-                self.SetAddrPort(mtchSock.group(1))
-
-    m_Ontology = ['Name']
+class CIM_DataFile(CIM_LogicalFile, object):
+    def __init__(self, path_name):
+        super(CIM_DataFile, self).__init__(path_name)
 
     # This creates a map containing all detected files. This map is indexed
     # by an informal file category: DLL, data file etc...
@@ -1232,7 +1291,7 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
         return mapOfFilesMap
 
     @classmethod
-    def DisplaySummary(theClass, fdSummaryFile, cimKeyValuePairs):
+    def DisplaySummary(cls, fdSummaryFile, cimKeyValuePairs):
         fdSummaryFile.write("Files:\n")
         mapOfFilesMap = CIM_DataFile.SplitFilesByCategory()
 
@@ -1270,7 +1329,7 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
             objInstance.XMLDisplay(fdSummaryFile)
 
     @classmethod
-    def XMLSummary(theClass, fdSummaryFile, cimKeyValuePairs):
+    def XMLSummary(cls, fd_summary_file, cimKeyValuePairs):
         """Top-level informations are categories of CIM_DataFile which are not technical
         but the regex-based filtering."""
         mapOfFilesMap = CIM_DataFile.SplitFilesByCategory()
@@ -1285,10 +1344,10 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
                 # No need to write a category name if it is empty.
                 continue
 
-            fdSummaryFile.write("    <FilesCategory category='%s'>\n" % categoryFiles)
+            fd_summary_file.write("    <FilesCategory category='%s'>\n" % categoryFiles)
             if filterCats and (not categoryFiles in filterCats): continue
-            CIM_DataFile.XMLCategorySummary(fdSummaryFile, mapFilesSub)
-            fdSummaryFile.write("    </FilesCategory>\n")
+            CIM_DataFile.XMLCategorySummary(fd_summary_file, mapFilesSub)
+            fd_summary_file.write("    </FilesCategory>\n")
 
     def Summarize(self, strm):
         try:
@@ -1302,7 +1361,7 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
         for filAcc in self.m_DataFileFileAccesses:
 
             if filAcc.OpenTime:
-                strOpen = TimeStampToStr(filAcc.OpenTime)
+                strOpen = _timestamp_to_str(filAcc.OpenTime)
                 strm.write("  Open:%s\n" % strOpen)
 
                 try:
@@ -1311,7 +1370,7 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
                     pass
 
             if filAcc.CloseTime:
-                strClose = TimeStampToStr(filAcc.CloseTime)
+                strClose = _timestamp_to_str(filAcc.CloseTime)
                 strm.write("  Close:%s\n" % strClose)
 
         # Only if this is a socket.
@@ -1368,7 +1427,47 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
         return False
 
 
-################################################################################
+# class CIM_Directory : CIM_LogicalFile
+# {
+#   uint32   AccessMask;
+#   boolean  Archive;
+#   string   Caption;
+#   boolean  Compressed;
+#   string   CompressionMethod;
+#   string   CreationClassName;
+#   datetime CreationDate;
+#   string   CSCreationClassName;
+#   string   CSName;
+#   string   Description;
+#   string   Drive;
+#   string   EightDotThreeFileName;
+#   boolean  Encrypted;
+#   string   EncryptionMethod;
+#   string   Extension;
+#   string   FileName;
+#   uint64   FileSize;
+#   string   FileType;
+#   string   FSCreationClassName;
+#   string   FSName;
+#   boolean  Hidden;
+#   datetime InstallDate;
+#   uint64   InUseCount;
+#   datetime LastAccessed;
+#   datetime LastModified;
+#   string   Name;
+#   string   Path;
+#   boolean  Readable;
+#   string   Status;
+#   boolean  System;
+#   boolean  Writeable;
+# };
+class CIM_Directory(CIM_LogicalFile, object):
+    def __init__(self, path_name):
+        super(CIM_Directory, self).__init__(path_name)
+
+
+_class_name_to_subclass = {cls.__name__: cls for cls in leaf_derived_classes(CIM_XmlMarshaller)}
+
 
 # os.path.abspath removes things like . and .. from the path
 # giving a full path from the root of the directory tree to the named file (or symlink)
@@ -1429,6 +1528,10 @@ class ObjectsContext:
             cim_object_datafile = self._class_model_to_object_path(CIM_DataFile, cim_key_name)
             return cim_object_datafile
 
+        # In the general case, reorder the arguments.
+        cim_object_datafile = CIM_XmlMarshaller.create_instance_from_class_name(cim_class_name, **cim_attributes_dict)
+        return cim_object_datafile
+
     def ToObjectPath_CIM_Process(self, process_id):
         return self._class_model_to_object_path(CIM_Process, process_id)
 
@@ -1450,18 +1553,19 @@ class ObjectsContext:
         objDataFile = self._class_model_to_object_path(CIM_DataFile, pathName)
         return objDataFile
 
-    def _class_model_to_object_path(self, classModel, *ctorArgs):
-        global G_mapCacheObjects
-        mapObjs = G_mapCacheObjects[classModel.__name__]
-        G_mapCacheObjects[classModel.__name__] = mapObjs
 
-        objPath = classModel.CreateMonikerKey(*ctorArgs)
+    def _class_model_to_object_path(self, class_model, *ctor_args):
+        global G_mapCacheObjects
+        map_objs = G_mapCacheObjects[class_model.__name__]
+        G_mapCacheObjects[class_model.__name__] = map_objs
+
+        obj_path = class_model.CreateMonikerKey(*ctor_args)
         try:
-            theObj = mapObjs[objPath]
+            the_obj = map_objs[obj_path]
         except KeyError:
-            theObj = classModel(*ctorArgs)
-            mapObjs[objPath] = theObj
-        return theObj
+            the_obj = class_model(*ctor_args)
+            map_objs[obj_path] = the_obj
+        return the_obj
 
 ################################################################################
 
@@ -1489,7 +1593,7 @@ def generate_dockerfile(dockerFilename):
             if not commandLine:
                 commandLine = "????"
             fdDockerFile.write("# %s -> %s : %s %s\n" % (
-            TimeStampToStr(objProc.CreationDate), TimeStampToStr(objProc.TerminationDate), "    " * depth, commandLine))
+            _timestamp_to_str(objProc.CreationDate), _timestamp_to_str(objProc.TerminationDate), "    " * depth, commandLine))
 
             for subProc in sorted(objProc.m_subProcesses, key=lambda x: x.Handle):
                 WriteOneProcessSubTree(subProc, depth + 1)

@@ -538,7 +538,6 @@ class CommandLineWin32Test(unittest.TestCase):
         check_file_content(output_basename_prefix + ".ini")
         check_file_content(output_basename_prefix + ".log")
 
-   # @unittest.skipIf(is_travis_machine(), "FIXME: Broken on Travis and Python 3. WHY ??")
     def test_run_windows_mkdir_rdf(self):
         """This checks the events generated in a RDF file. It must contain the directory."""
         output_basename_prefix = "test_run_windows_mkdir_rdf"
@@ -558,7 +557,6 @@ class CommandLineWin32Test(unittest.TestCase):
         # It does not contain semantic data necessary for SPARQL queries such as rdflib.namespace.RDF.type.
 
         triples_as_string = _rdf_file_to_triples(created_rdf_file)
-        print("triples_as_string=", triples_as_string)
 
         self.assertTrue((
                             ("CIM_OperatingSystem", {}),
@@ -570,19 +568,18 @@ class CommandLineWin32Test(unittest.TestCase):
                            "PermanentAddress",
                            current_ip_address) in triples_as_string)
 
+        self.assertTrue((
+                            ("CIM_Directory", {"Name": created_directory}),
+                           "Name",
+                           created_directory) in triples_as_string)
+
+        self.assertTrue((
+                            ("CIM_Directory", {"Name": created_directory}),
+                           "FileSize",
+                           '0') in triples_as_string)
+
         check_file_missing(output_basename_prefix + ".log")
         check_file_missing(output_basename_prefix + ".docker", "Dockerfile")
-
-        print("Where is the dir ???")
-        print("Where is the dir ???")
-        print("Where is the dir ???")
-        print("Where is the dir ???")
-        print("Where is the dir ???")
-        print("Where is the dir ???")
-        print("Where is the dir ???")
-        print("Where is the dir ???")
-        ####
-
 
     def test_run_windows_python_print_rdf(self):
         """This checks the events generated in a RDF file. It must contain the directory."""

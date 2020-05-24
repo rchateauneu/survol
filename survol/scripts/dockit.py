@@ -633,7 +633,7 @@ def _calls_flow_class_factory(aggregator):
                 self.m_calls_number += 1
 
             # At the end.
-            def factorise_one_flow(self, verbose, batchConstructor):
+            def factorise_one_flow(self, verbose, batch_constructor):
                 pass
 
             def dump_flow_constructor(self, batch_dump, flow_process_id=None):
@@ -662,9 +662,10 @@ def _calls_flow_class_factory(aggregator):
 # This receives a stream of lines, each of them is a function call,
 # possibly unfinished/resumed/interrupted by a signal.
 def _create_map_flow_from_stream(
-        verbose, with_warning,
+        verbose,
         calls_stream, tracer, batch_constructor, aggregator):
     # This is an event log as a stream, coming from a file (if testing), the output of strace or anything else.
+    logging.error("_create_map_flow_from_stream")
 
     map_flows = {}
 
@@ -680,7 +681,6 @@ def _create_map_flow_from_stream(
     # They might be matched later.
     for one_function_call in map_flows_generator:
         a_core = one_function_call.m_core
-
         the_pid = a_core.m_pid
         try:
             calls_flow = map_flows[the_pid]
@@ -715,8 +715,9 @@ full_map_params_summary = [
     "CIM_Process",
     "CIM_DataFile"]
 
+
 def _analyse_functions_calls_stream(
-        verbose, with_warning, calls_stream, tracer, output_format,
+        verbose, calls_stream, tracer, output_format,
         output_files_prefix, map_params_summary, summary_format,
         with_dockerfile, aggregator):
     if not output_files_prefix:
@@ -734,27 +735,24 @@ def _analyse_functions_calls_stream(
     else:
         batch_constructor = None
 
-    mapFlows = _create_map_flow_from_stream(verbose, with_warning, calls_stream, tracer, batch_constructor, aggregator)
-
-    #linux_api_definitions.G_stackUnfinishedBatches.display_unfinished_unmerged_batches(sys.stdout)
+    map_flows = _create_map_flow_from_stream(verbose, calls_stream, tracer, batch_constructor, aggregator)
 
     if output_files_prefix and output_format:
         assert output_files_prefix[-1] != '.'
         assert output_format[0] != '.'
         print("output_files_prefix=", output_files_prefix)
         print("outputFormat=", output_format)
-        outFile = output_files_prefix + "." + output_format.lower()
-        ## outFile = output_files_prefix + "." + outputFormat.lower()
-        sys.stdout.write("Creating flow file:%s. %d flows\n" % (outFile, len(mapFlows)))
-        output_stream = open(outFile, "w")
+        out_file = output_files_prefix + "." + output_format.lower()
+        sys.stdout.write("Creating flow file:%s. %d flows\n" % (out_file, len(map_flows)))
+        output_stream = open(out_file, "w")
         batch_dump = batch_constructor(output_stream)
         batch_dump.document_start()
 
-        for flow_process_id in sorted(list(mapFlows.keys()),reverse=True):
-            btchTree = mapFlows[flow_process_id]
+        for flow_process_id in sorted(list(map_flows.keys()),reverse=True):
+            btchTree = map_flows[flow_process_id]
             btchTree.dump_flow_constructor(batch_dump, flow_process_id)
         batch_dump.document_end()
-        sys.stdout.write("Closing flow file:%s\n" % outFile)
+        sys.stdout.write("Closing flow file:%s\n" % out_file)
         output_stream.close()
 
         if verbose: sys.stdout.write("\n")
@@ -766,8 +764,8 @@ def _analyse_functions_calls_stream(
     _generate_summary(map_params_summary, summary_format, output_summary_file)
     
     if with_dockerfile:
-        if outFile:
-            output_files_prefix, fil_out_ext = os.path.splitext(outFile)
+        if out_file:
+            output_files_prefix, fil_out_ext = os.path.splitext(out_file)
         elif output_summary_file:
             output_files_prefix, fil_out_ext = os.path.splitext(output_summary_file)
         else:
@@ -796,7 +794,7 @@ def test_from_file(
     # necessary to reproduce the test in the same conditions.
 
     output_summary_file = _analyse_functions_calls_stream(
-        verbose, with_warning, calls_stream, tracer, output_format, output_files_prefix,
+        verbose, calls_stream, tracer, output_format, output_files_prefix,
         map_params_summary, summary_format, with_dockerfile, aggregator)
     return output_summary_file
 
@@ -823,7 +821,6 @@ def _start_processing(global_parameters):
     # In normal usage, the summary output format is the same as the output format for calls.
     _analyse_functions_calls_stream(
         global_parameters.verbose,
-        global_parameters.with_warning,
         calls_stream,
         global_parameters.tracer,
         global_parameters.output_format,
