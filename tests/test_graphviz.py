@@ -31,8 +31,13 @@ class SvgCommon(unittest.TestCase):
         self._check_svg_main_page(svg_content)
 
 
+def _is_dot_available():
+    dot_status = os.system("dot -?")
+    return dot_status == 0
+
+
 # Graphviz/dot must be installed on the test platform, for example Travis.
-@unittest.skipIf(is_travis_machine(), "Graphviz not available on Travis-CI yet.")
+@unittest.skipIf(not _is_dot_available(), "Graphviz Must be available.")
 class SvgLocalAgentTest(SvgCommon):
     """
     Test parsing of the SVG output.
