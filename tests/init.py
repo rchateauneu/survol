@@ -83,6 +83,7 @@ RemoteGeneralTestServerPort = 8000
 RemoteEventsTestServerPort = 8001
 RemoteSparqlTestServerPort = 8002
 RemoteGraphvizTestServerPort = 8003
+RemoteHtmlTestServerPort = 8003
 
 # For example /usr/bin/python2.7
 # Typical situation of symbolic links:
