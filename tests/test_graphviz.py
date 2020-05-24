@@ -11,8 +11,10 @@ from init import *
 
 from survol.scripts import dockit
 
-class SvgCommon(unittest.TestCase):
 
+class SvgCommon(unittest.TestCase):
+    # This tests the content of the main page of Survol.
+    # The content is not accurately check, just that it is a XML document with some strings
     def _check_svg_main_page(self, svg_content):
         dom = minidom.parseString(svg_content)
 
