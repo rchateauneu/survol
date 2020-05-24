@@ -557,6 +557,7 @@ class CommandLineWin32Test(unittest.TestCase):
         # It does not contain semantic data necessary for SPARQL queries such as rdflib.namespace.RDF.type.
 
         triples_as_string = _rdf_file_to_triples(created_rdf_file)
+        print("triples_as_string=", triples_as_string)
 
         self.assertTrue((
                             ("CIM_OperatingSystem", {}),
