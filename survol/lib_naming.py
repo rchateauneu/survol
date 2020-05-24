@@ -286,7 +286,7 @@ def ParseEntityUri(uriWithMode,longDisplay=True, force_entity_ip_addr = None):
 
         entity_label = CalcLabel(entity_host,entity_type,entity_id,force_entity_ip_addr,filScript)
 
-        # TODO: Consider ExternalToTitle, similar logic with different results.
+        # TODO: Consider external_url_to_title, similar logic with different results.
         if longDisplay:
             entity_label = KnownScriptToTitle(filScript,uriMode,entity_host,entity_label)
 
