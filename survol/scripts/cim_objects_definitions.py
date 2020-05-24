@@ -572,7 +572,7 @@ def _is_time_stamp(attr):
 
 # This is the base class of all CIM_xxx classes. It does the serialization
 # into XML and also sends updates events to the Survol server if there is one.
-class CIM_XmlMarshaller:
+class CIM_XmlMarshaller(object):
     def __init__(self):
         pass
 
@@ -718,7 +718,7 @@ G_CurrentDirectory = None
 #   string   Roles[];
 #   string   NameFormat;
 # }
-class CIM_ComputerSystem(CIM_XmlMarshaller, object):
+class CIM_ComputerSystem(CIM_XmlMarshaller):
     def __init__(self, hostname):
         super(CIM_ComputerSystem, self).__init__()
         self.Name = hostname.lower()  # This is a convention.
@@ -773,7 +773,7 @@ class CIM_ComputerSystem(CIM_XmlMarshaller, object):
 #   uint64   TotalVisibleMemorySize;
 #   string   Version;
 # };
-class CIM_OperatingSystem(CIM_XmlMarshaller, object):
+class CIM_OperatingSystem(CIM_XmlMarshaller):
     def __init__(self):
         super(CIM_OperatingSystem, self).__init__()
 
@@ -815,7 +815,7 @@ class CIM_OperatingSystem(CIM_XmlMarshaller, object):
 #   string   SystemCreationClassName;
 #   string   SystemName;
 # };
-class CIM_NetworkAdapter(CIM_XmlMarshaller, object):
+class CIM_NetworkAdapter(CIM_XmlMarshaller):
     def __init__(self, address):
         super(CIM_NetworkAdapter, self).__init__()
         self.Name = address
@@ -845,7 +845,7 @@ class CIM_NetworkAdapter(CIM_XmlMarshaller, object):
 #  uint64   UserModeTime;
 #  uint64   WorkingSetSize;
 # };
-class CIM_Process(CIM_XmlMarshaller, object):
+class CIM_Process(CIM_XmlMarshaller):
     def __init__(self, procId):
         super(CIM_Process, self).__init__()
 
@@ -1164,7 +1164,7 @@ class CIM_Process(CIM_XmlMarshaller, object):
 #   boolean  System;
 #   boolean  Writeable;
 # };
-class CIM_LogicalFile(CIM_XmlMarshaller, object):
+class CIM_LogicalFile(CIM_XmlMarshaller):
     def __init__(self, path_name):
         super(CIM_LogicalFile, self).__init__()
 
@@ -1267,7 +1267,7 @@ class CIM_LogicalFile(CIM_XmlMarshaller, object):
 # string   Manufacturer;
 # string   Version;
 # };
-class CIM_DataFile(CIM_LogicalFile, object):
+class CIM_DataFile(CIM_LogicalFile):
     def __init__(self, path_name):
         super(CIM_DataFile, self).__init__(path_name)
 
@@ -1461,11 +1461,12 @@ class CIM_DataFile(CIM_LogicalFile, object):
 #   boolean  System;
 #   boolean  Writeable;
 # };
-class CIM_Directory(CIM_LogicalFile, object):
+class CIM_Directory(CIM_LogicalFile):
     def __init__(self, path_name):
         super(CIM_Directory, self).__init__(path_name)
 
 
+# This must appear AFTER the declaration of classes.
 _class_name_to_subclass = {cls.__name__: cls for cls in leaf_derived_classes(CIM_XmlMarshaller)}
 
 
@@ -1945,14 +1946,14 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
     # Code dependencies and data files dependencies are different.
 
     # All versions mixed together which is realistic most of times.
-    class Dependency:
+    class Dependency(object):
         def __init__(self):
             self.m_accessedCodeFiles = set()
 
         def AddDep(self, pathName):
             self.m_accessedCodeFiles.add(pathName)
 
-    class DependencyPython(Dependency, object):
+    class DependencyPython(Dependency):
         DependencyName = "Python scripts"
 
         def __init__(self):
@@ -2017,7 +2018,7 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
                 # TODO: Do not duplicate Python modules installation.
                 InstallPipModule(fdDockerFile, onePckgNam)
 
-    class DependencyPerl(Dependency, object):
+    class DependencyPerl(Dependency):
         DependencyName = "Perl scripts"
 
         def __init__(self):
@@ -2041,7 +2042,7 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
                 fdDockerFile.write("RUN cpanm %s\n" % filNam)
             pass
 
-    class DependencyBinary(Dependency, object):
+    class DependencyBinary(Dependency):
         DependencyName = "Binary programs"
 
         def __init__(self):
