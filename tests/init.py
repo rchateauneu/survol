@@ -16,8 +16,9 @@ import time
 import tempfile
 import subprocess
 
-#sys.path.append("..")
-#sys.path.append("../survol")
+# TODO: Maybe not needed on TravisCI
+sys.path.append("..")
+sys.path.append("../survol")
 import scripts.cgiserver
 
 ################################################################################
@@ -48,6 +49,9 @@ windows_system32_cmd_exe = r'C:\Windows\system32\cmd.exe' if is_travis_machine()
 
 windows_wow64_cmd_exe = r"C:\Windows\SysWOW64\cmd.exe"
 
+################################################################################
+# This is our host machine and its URLs.
+
 # "vps516494.localdomain": "http://vps516494.ovh.net/Survol/survol" }[CurrentMachine]
 # Name = "vps516494.ovh.net")
 SurvolServerHostname = "vps516494.ovh.net"
@@ -72,20 +76,18 @@ CurrentPid = os.getpid()
 CurrentProcessPath = 'CIM_Process.Handle=%d' % CurrentPid
 CurrentParentPid = psutil.Process().ppid()
 
-# TODO: This should be a parameter.
-# It points to the Survol adhoc CGI server: "http://rchateau-hp:8000"
-RemoteTestPort = 8000
-RemoteTestAgent = "http://%s:%d" % (CurrentMachine, RemoteTestPort)
-RemoteEventsTestPort = 8001
-RemoteEventsTestAgent = "http://%s:%d" % (CurrentMachine, RemoteEventsTestPort)
-RemoteSparqlServerPort = 8002
-RemoteSparqlServerAgent = "http://%s:%d" % (CurrentMachine, RemoteSparqlServerPort)
-
+# The agent urls point to the Survol adhoc CGI server: "http://myhost-hp:8000"
+# The tests use different port numbers to avoid interferences between servers,
+# if port numbers are not freed etc... Problems are easier to find.
+RemoteGeneralTestServerPort = 8000
+RemoteEventsTestServerPort = 8001
+RemoteSparqlTestServerPort = 8002
+RemoteGraphvizTestServerPort = 8003
 
 # For example /usr/bin/python2.7
 # Typical situation of symbolic links:
 # /usr/bin/python => python2 => python2.7
-# Several Python scripts return this executable as a node.
+# Several Survol scripts return this executable among ther results, so it can be tested.
 CurrentExecutable = os.path.realpath(sys.executable)
 if is_platform_windows:
     # When running in PyCharm with virtualenv, the path is correct:
@@ -118,6 +120,9 @@ if is_platform_windows:
 
 CurrentExecutablePath = 'CIM_DataFile.Name=%s' % CurrentExecutable
 
+
+# This is called at the end of the execution of a Survol agent created here for tests.
+# It displays the content of a log file created by this agent.
 def __dump_server_content(log_filename):
     sys.stdout.write("Agent log file: %s\n" % log_filename)
     try:
@@ -129,6 +134,8 @@ def __dump_server_content(log_filename):
     except Exception as exc:
         sys.stdout.write("No agent log file:%s\n" % exc)
 
+
+# This tells if the current process is started by pytest.
 def is_pytest():
     print("argv=",sys.argv)
     for one_arg in sys.argv:
@@ -136,11 +143,13 @@ def is_pytest():
             return True
     return False
 
+
 # This tests if an executable is present.
 def linux_check_program_exists(program_name):
     p = subprocess.Popen(['/usr/bin/which', program_name], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
     p.communicate()
     return p.returncode == 0
+
 
 # Problem on Travis: Domain = 'PACKER-5D93E860', machine='packer-5d93e860-43ba-c2e7-85d2-3ea0696b8fc8'
 if is_platform_windows:
@@ -159,9 +168,11 @@ if is_platform_windows:
     else:
         CurrentDomainWin32 = CurrentMachine.lower()
 
+
 def is_linux_wbem():
     # WBEM is not available on TravisCI.
     return is_platform_linux and has_wbem() and not is_travis_machine()
+
 
 def has_wbem():
     # WBEM is not available on TravisCI.
@@ -174,6 +185,7 @@ def has_wbem():
 def update_test_path():
     if sys.path[0] != "../survol":
         sys.path.insert(0,"../survol")
+
 
 def unique_temporary_path(prefix, extension):
     temp_file = "%s_%d_%d%s" % (prefix, CurrentPid, int(time.time()), extension)
@@ -207,6 +219,7 @@ assert always_present_sub_file.startswith(always_present_sub_dir)
 
 ################################################################################
 
+
 # See lib_util.survol_urlopen
 try:
     # For Python 3.0 and later
@@ -215,11 +228,12 @@ except ImportError:
     # Fall back to Python 2's urllib2
     from urllib2 import urlopen as portable_urlopen
 
+
 # FIXME: BEWARE: The subprocess should not inherit the handles because
 # FIXME: ... with Python 3, when communicating with sockets, it does not work,
 # FIXME: ... losing characters...
-def _start_cgiserver_subprocess_windows(agent_url, agent_port, current_dir):
-    print("_start_cgiserver_subprocess_windows: agent_url=%s agent_port=%d hostname=%s" % (agent_url, agent_port, agent_host))
+def _start_cgiserver_subprocess_windows(agent_port, current_dir):
+    print("_start_cgiserver_subprocess_windows: agent_port=%d hostname=%s" % (agent_port, agent_host))
 
     # cwd = "PythonStyle/tests", must be "PythonStyle".
 
@@ -247,8 +261,10 @@ def _start_cgiserver_subprocess_windows(agent_url, agent_port, current_dir):
     class AgentProcess(object):
         def __init__(self, hProcess):
             self._process_handle = hProcess
+
         def terminate(self):
             win32process.TerminateProcess(self._process_handle, 0)
+
         def join(self):
             pass
 
@@ -256,26 +272,7 @@ def _start_cgiserver_subprocess_windows(agent_url, agent_port, current_dir):
     return agent_process
 
 
-def _start_cgiserver_subprocess_portable_OLD(agent_url, agent_port, current_dir):
-    cgiserver_module = "survol.scripts.cgiserver"
-    cgi_command = [
-        sys.executable,
-        "-c",
-        'import %s as ssc;ssc.start_server_forever(True,\'%s\',%s,\'%s\')' % (
-            cgiserver_module, agent_host, agent_port, current_dir)
-    ]
-    print("cgi_command=", " ".join(cgi_command))
-    agent_process = subprocess.Popen(cgi_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    print("agent_process.returncode=", agent_process.returncode)
-    print("agent_process.pid=", agent_process.pid)
-    #(cmd_output, cmd_error) = agent_process.communicate()
-    #print("cmd_output=", cmd_output)
-    #print("cmd_error=", cmd_error)
-
-    return agent_process
-
-
-def _start_cgiserver_subprocess_portable(agent_url, agent_port, current_dir):
+def _start_cgiserver_subprocess_portable(agent_port, current_dir):
     import multiprocessing
 
     agent_process = multiprocessing.Process(
@@ -288,8 +285,8 @@ def _start_cgiserver_subprocess_portable(agent_url, agent_port, current_dir):
     return agent_process
 
 
-def _start_cgiserver_subprocess(agent_url, agent_port):
-    print("_start_cgiserver_subprocess: agent_url=%s agent_port=%d hostname=%s" % (agent_url, agent_port, agent_host))
+def _start_cgiserver_subprocess(agent_port):
+    print("_start_cgiserver_subprocess: agent_port=%d hostname=%s" % (agent_port, agent_host))
     try:
         # Running the tests scripts from PyCharm is from the current directory.
         os.environ["PYCHARM_HELPERS_DIR"]
@@ -297,12 +294,13 @@ def _start_cgiserver_subprocess(agent_url, agent_port):
     except KeyError:
         current_dir = ""
     if is_platform_windows:
-        return _start_cgiserver_subprocess_windows(agent_url, agent_port, current_dir)
+        return _start_cgiserver_subprocess_windows(agent_port, current_dir)
     else:
-        return _start_cgiserver_subprocess_portable(agent_url, agent_port, current_dir)
+        return _start_cgiserver_subprocess_portable(agent_port, current_dir)
 
 
-def start_cgiserver(agent_url, agent_port):
+def start_cgiserver(agent_port):
+    agent_url = "http://%s:%d" % (CurrentMachine, agent_port)
     print("start_cgiserver agent_url=%s agent_port=%d" % (agent_url, agent_port))
 
     # The CGI agent creates a log file, the old one must be removed first.
@@ -310,15 +308,15 @@ def start_cgiserver(agent_url, agent_port):
     if os.path.exists(logfile_name):
         try:
             os.remove(logfile_name)
-        except:
-            print("Cannot remove", logfile_name)
+        except Exception as exc:
+            print("Cannot remove", logfile_name, exc)
 
     try:
         agent_process = None
         response = portable_urlopen(agent_url + "/survol/print_internal_data_as_json.py", timeout=2)
         print("start_cgiserver: Using existing CGI Survol agent")
     except:
-        agent_process = _start_cgiserver_subprocess(agent_url, agent_port)
+        agent_process = _start_cgiserver_subprocess(agent_port)
         print("_start_cgiserver_subprocess: Waiting for CGI agent to start")
         # This delay to allow the reuse of the socket port.
         # TODO: A better solution would be to override server_bind()
@@ -348,12 +346,14 @@ def start_cgiserver(agent_url, agent_port):
     request_uri = json_internal_data['RequestUri']
 
     print("CGI Survol agent OK:", root_uri, uri_root, http_prefix, request_uri)
-    return agent_process
+    return agent_process, agent_url
+
 
 def stop_cgiserver(agent_process):
     if agent_process:
         agent_process.terminate()
         agent_process.join()
+
 
 def start_wsgiserver(agent_url, agent_port):
     try:
@@ -386,7 +386,7 @@ def start_wsgiserver(agent_url, agent_port):
         # Check again if the server is started. This can be done only with scripts compatible with WSGI.
         local_agent_url = "http://%s:%s/survol/entity.py?mode=json" % (agent_host, agent_port)
         try:
-            response = portable_urlopen( local_agent_url, timeout=5)
+            response = portable_urlopen(local_agent_url, timeout=5)
         except Exception as exc:
             ERROR("Caught:", exc)
             __dump_server_content(scripts.wsgiserver.WsgiServerLogFileName)
@@ -395,6 +395,7 @@ def start_wsgiserver(agent_url, agent_port):
     data = response.read().decode("utf-8")
     print("WSGI Survol agent OK")
     return agent_process
+
 
 def stop_wsgiserver(agent_process):
     print("tearDownModule")
@@ -427,6 +428,7 @@ def __queries_entities_to_value_pairs(iter_entities_dicts):
                 dict_qname_value[qname_key] = str_val
             one_entities_dict_qname[variable_name] = dict_qname_value
         yield one_entities_dict_qname
+
 
 def query_see_also_key_value_pairs(grph, sparql_query):
     # This is imported here so rdflib is not mandatory for all tests.

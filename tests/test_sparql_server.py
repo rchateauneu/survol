@@ -21,10 +21,12 @@ update_test_path()
 
 # If the Survol agent does not exist, this script starts a local one.
 RemoteSparqlServerProcess = None
+_remote_sparql_test_agent = "http://%s:%d" % (CurrentMachine, RemoteSparqlTestServerPort)
 
 def setUpModule():
     global RemoteSparqlServerProcess
-    RemoteSparqlServerProcess = start_cgiserver(RemoteSparqlServerProcess, RemoteSparqlServerPort)
+    RemoteSparqlServerProcess, _agent_url = start_cgiserver(RemoteSparqlTestServerPort)
+    assert _agent_url == _remote_sparql_test_agent
 
 def tearDownModule():
     global RemoteSparqlServerProcess
@@ -121,7 +123,7 @@ def UrlToSparqlResult(url_rdf, sparql_query, format_str):
 def run_remote_sparql_query(sparql_query, format_str):
     print("run_remote_sparql_query sparql_query=", sparql_query)
 
-    url_sparql = RemoteSparqlServerAgent + "/survol/sparql.py"
+    url_sparql = _remote_sparql_test_agent + "/survol/sparql.py"
 
     sparql_result = UrlToSparqlResult(url_sparql, sparql_query, format_str)
     return sparql_result
