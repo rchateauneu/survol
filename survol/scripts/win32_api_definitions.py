@@ -436,10 +436,10 @@ class Win32Hook_GenericProcessCreation(Win32Hook_BaseClass):
 
         # Change dwCreationFlags in the stack, the way its value was read.
 
-        raise NotImplementedYet()
+        raise NotImplementedYet("Win32Hook_GenericProcessCreation")
 
     def process_creation_after(self, process_id):
-        raise NotImplementedYet()
+        raise NotImplementedYet("Win32Hook_GenericProcessCreation")
 
 
 ################################################################################
@@ -565,8 +565,8 @@ class Win32Hook_CreateDirectoryA(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
-        dirname = self.current_pydbg.get_bytes_string(function_arguments[0])
-        self.callback_create_object("CIM_Directory", Name=dirname)
+        lpPathName = self.current_pydbg.get_bytes_string(function_arguments[0])
+        self.callback_create_object("CIM_Directory", Name=lpPathName)
 
 
 class Win32Hook_CreateDirectoryW(Win32Hook_BaseClass):
@@ -577,8 +577,8 @@ class Win32Hook_CreateDirectoryW(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
-        dirname = self.current_pydbg.get_unicode_string(function_arguments[0])
-        self.callback_create_object("CIM_Directory", Name=dirname)
+        lpPathName = self.current_pydbg.get_unicode_string(function_arguments[0])
+        self.callback_create_object("CIM_Directory", Name=lpPathName)
 
 
 class Win32Hook_RemoveDirectoryA(Win32Hook_BaseClass):
@@ -588,10 +588,8 @@ class Win32Hook_RemoveDirectoryA(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
-        logging.debug("hook_function_RemoveDirectoryA args=", function_arguments)
-        dirname = self.current_pydbg.get_bytes_string(function_arguments[0])
-        logging.debug("hook_function_RemoveDirectoryA dirname=", dirname)
-        self.callback_create_object("CIM_Directory", Name=dirname)
+        lpPathName = self.current_pydbg.get_bytes_string(function_arguments[0])
+        self.callback_create_object("CIM_Directory", Name=lpPathName)
 
 
 class Win32Hook_RemoveDirectoryW(Win32Hook_BaseClass):
@@ -601,10 +599,8 @@ class Win32Hook_RemoveDirectoryW(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
-        logging.debug("hook_function_RemoveDirectoryW args=", function_arguments)
-        dirname = self.current_pydbg.get_unicode_string(function_arguments[0])
-        logging.debug("hook_function_RemoveDirectoryW dirname=", dirname)
-        self.callback_create_object("CIM_Directory", Name=dirname)
+        lpPathName = self.current_pydbg.get_unicode_string(function_arguments[0])
+        self.callback_create_object("CIM_Directory", Name=lpPathName)
 
 
 class Win32Hook_CreateFileA(Win32Hook_BaseClass):
@@ -620,8 +616,8 @@ class Win32Hook_CreateFileA(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
-        dirname = self.current_pydbg.get_bytes_string(function_arguments[0])
-        self.callback_create_object("CIM_DataFile", Name=dirname)
+        lpFileName = self.current_pydbg.get_bytes_string(function_arguments[0])
+        self.callback_create_object("CIM_DataFile", Name=lpFileName)
 
 
 class Win32Hook_CreateFileW(Win32Hook_BaseClass):
@@ -637,8 +633,8 @@ class Win32Hook_CreateFileW(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
-        dirname = self.current_pydbg.get_unicode_string(function_arguments[0])
-        self.callback_create_object("CIM_DataFile", Name=dirname)
+        lpFileName = self.current_pydbg.get_unicode_string(function_arguments[0])
+        self.callback_create_object("CIM_DataFile", Name=lpFileName)
 
 
 class Win32Hook_DeleteFileA(Win32Hook_BaseClass):
@@ -648,8 +644,8 @@ class Win32Hook_DeleteFileA(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
-        dirname = self.current_pydbg.get_bytes_string(function_arguments[0])
-        self.callback_create_object("CIM_DataFile", Name=dirname)
+        lpFileName = self.current_pydbg.get_bytes_string(function_arguments[0])
+        self.callback_create_object("CIM_DataFile", Name=lpFileName)
 
 
 class Win32Hook_DeleteFileW(Win32Hook_BaseClass):
@@ -659,8 +655,98 @@ class Win32Hook_DeleteFileW(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
-        dirname = self.current_pydbg.get_unicode_string(function_arguments[0])
-        self.callback_create_object("CIM_DataFile", Name=dirname)
+        lpFileName = self.current_pydbg.get_unicode_string(function_arguments[0])
+        self.callback_create_object("CIM_DataFile", Name=lpFileName)
+
+
+# Not validated yet.
+if False:
+    class Win32Hook_CopyFileA(Win32Hook_BaseClass):
+        api_definition = b"""
+            BOOL CopyFileA(
+                LPCSTR  lpExistingFileName,
+                LPCSTR  lpNewFileName,
+                BOOL    bFailIfExists
+              );"""
+        dll_name = b"KERNEL32.dll"
+        def callback_after(self, function_arguments, function_result):
+            lpExistingFileName = self.current_pydbg.get_bytes_string(function_arguments[0])
+            lpNewFileName = self.current_pydbg.get_bytes_string(function_arguments[0])
+            self.callback_create_object("CIM_DataFile", Name=lpExistingFileName)
+            self.callback_create_object("CIM_DataFile", Name=lpNewFileName)
+
+
+    class Win32Hook_CopyFileExA(Win32Hook_BaseClass):
+        api_definition = b"""
+            BOOL CopyFileExA(
+                LPCSTR             lpExistingFileName,
+                LPCSTR             lpNewFileName,
+                LPPROGRESS_ROUTINE lpProgressRoutine,
+                LPVOID             lpData,
+                LPBOOL             pbCancel,
+                DWORD              dwCopyFlags
+            );"""
+        dll_name = b"KERNEL32.dll"
+        def callback_after(self, function_arguments, function_result):
+            lpExistingFileName = self.current_pydbg.get_bytes_string(function_arguments[0])
+            lpNewFileName = self.current_pydbg.get_bytes_string(function_arguments[0])
+            self.callback_create_object("CIM_DataFile", Name=lpExistingFileName)
+            self.callback_create_object("CIM_DataFile", Name=lpNewFileName)
+
+
+    class Win32Hook_CopyFileExW(Win32Hook_BaseClass):
+        api_definition = b"""
+            BOOL CopyFileExW(
+                LPCWSTR            lpExistingFileName,
+                LPCWSTR            lpNewFileName,
+                LPPROGRESS_ROUTINE lpProgressRoutine,
+                LPVOID             lpData,
+                LPBOOL             pbCancel,
+                DWORD              dwCopyFlags
+            );"""
+        dll_name = b"KERNEL32.dll"
+        def callback_after(self, function_arguments, function_result):
+            lpExistingFileName = self.current_pydbg.get_unicode_string(function_arguments[0])
+            lpNewFileName = self.current_pydbg.get_unicode_string(function_arguments[0])
+            self.callback_create_object("CIM_DataFile", Name=lpExistingFileName)
+            self.callback_create_object("CIM_DataFile", Name=lpNewFileName)
+
+
+    class Win32Hook_CopyFileW(Win32Hook_BaseClass):
+        api_definition = b"""
+            BOOL CopyFileW(
+                LPCWSTR  lpExistingFileName,
+                LPCWSTR  lpNewFileName,
+                BOOL    bFailIfExists
+              );"""
+        dll_name = b"KERNEL32.dll"
+        def callback_after(self, function_arguments, function_result):
+            lpExistingFileName = self.current_pydbg.get_unicode_string(function_arguments[0])
+            lpNewFileName = self.current_pydbg.get_unicode_string(function_arguments[0])
+            self.callback_create_object("CIM_DataFile", Name=lpExistingFileName)
+            self.callback_create_object("CIM_DataFile", Name=lpNewFileName)
+
+
+    # This blocks the process.
+    #
+    # class Win32Hook_CopyFile2(Win32Hook_BaseClass):
+    #     api_definition = b"""
+    #         BOOL CopyFile2(
+    #             PCWSTR                        pwszExistingFileName,
+    #             PCWSTR                        pwszNewFileName,
+    #             COPYFILE2_EXTENDED_PARAMETERS *pExtendedParameters
+    #             );"""
+    #     dll_name = b"KERNEL32.dll"
+    #     def callback_after(self, function_arguments, function_result):
+    #         exit(0)
+    #         pwszExistingFileName = self.current_pydbg.get_unicode_string(function_arguments[0])
+    #         pwszNewFileName = self.current_pydbg.get_unicode_string(function_arguments[0])
+    #         self.callback_create_object("CIM_DataFile", Name=pwszExistingFileName)
+    #         self.callback_create_object("CIM_DataFile", Name=pwszNewFileName)
+    #
+    # CopyFileTransactedA
+    # CopyFileTransactedW
+    # CopyLZFile
 
 
 class Win32Hook_CreateThread(Win32Hook_BaseClass):
@@ -880,8 +966,6 @@ if False:
 
 windows8_or_higher = os.sys.getwindowsversion() != (6, 1, 7601, 2, 'Service Pack 1')
 
-print("windows8_or_higher=", windows8_or_higher)
-
 if windows8_or_higher:
 
     class Win32Hook_CreateProcessAsUserA(Win32Hook_GenericProcessCreation):
@@ -942,14 +1026,6 @@ _functions_list = cim_objects_definitions.leaf_derived_classes(Win32Hook_BaseCla
 # Still, this is the only way to track specific behaviour.
 # Which function for opening files, is called by the Python interpreter on Travis ?
 #
-# CopyFileA
-# CopyFileW
-# CopyFileExA
-# CopyFileExW
-# CopyFileTransactedA
-# CopyFileTransactedW
-# CopyLZFile
-
 # CreateHardLink A/W/TransactedA/TransactedW
 # CreateNamedPipe A/W
 
