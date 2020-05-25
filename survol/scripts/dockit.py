@@ -199,9 +199,9 @@ def _generate_summary(mapParamsSummary, summary_format, output_summary_file):
 # So, in Docker, a file used by a process is not copied, but its package installed.
 class FileToPackage:
     def __init__(self):
-        tmpDir = tempfile.gettempdir()
+        the_temp_dir = tempfile.gettempdir()
         # This file stores and reuses the map from file name to Linux package.
-        self.m_cacheFileName = tmpDir + "/" + "FileToPackageCache." + socket.gethostname() + ".txt"
+        self.m_cacheFileName = the_temp_dir + "/" + "FileToPackageCache." + socket.gethostname() + ".txt"
         try:
             fdCache = open(self.m_cacheFileName,"r")
         except:
