@@ -733,12 +733,12 @@ class CommandLineLivePythonTest(unittest.TestCase):
                             "CurrentDirectory",
                             dockit_dirname) in triples_as_string)
 
-        # The Python interpreter is accessed.
-        print("sys.executable=", sys.executable)
+        # The Python interpreter is accessed, after symlinks resolution.
+        print("sys.executable=", sys.executable, CurrentExecutable)
         self.assertTrue((
-                            ("CIM_DataFile", {"Name": sys.executable}),
+                            ("CIM_DataFile", {"Name": CurrentExecutable}),
                             "Name",
-                            sys.executable) in triples_as_string)
+                            CurrentExecutable) in triples_as_string)
 
         # The created Python script is accessed.
         # FIXME: Does not work on Linux.
