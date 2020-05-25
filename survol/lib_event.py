@@ -19,7 +19,7 @@ import traceback
 
 # The directory where we store the events related to each object.
 # "C:/Windows/Temp"
-events_directory = lib_common.tmpDir + "/Events/"
+events_directory = lib_common.global_temp_directory + "/Events/"
 
 # Files with this extension contains several lines,
 # each line is a RDF-like triple, encoded in JSON,

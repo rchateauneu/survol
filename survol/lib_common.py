@@ -246,28 +246,28 @@ def _graph_to_svg(page_title, error_msg, isSubServer, parameters, grph, paramete
 # The result can be sent to the Web browser in several formats.
 # TODO: The nodes should be displayed always in the same order.
 # THIS IS NOT THE CASE IN HTML AND SVG !!
-def OutCgiMode(theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
-    theCgi.BindIdenticalNodes()
+def OutCgiMode(theCgi, topUrl, mode, errorMsg = None, isSubServer=False):
+    theCgi._bind_identical_nodes()
 
     grph = theCgi.m_graph
-    pageTitle = theCgi.m_page_title
-    dotLayout = theCgi.m_layoutParams
+    page_title = theCgi.m_page_title
+    dot_layout = theCgi.m_layoutParams
     parameters = theCgi.m_parameters
     parameterized_links = theCgi.m_parameterized_links
 
     if mode == "html":
         # Used rarely and performance not very important. This returns a HTML page.
         import lib_export_html
-        lib_export_html.Grph2Html( theCgi, topUrl, errorMsg, isSubServer, globalCgiEnvList)
+        lib_export_html.Grph2Html(theCgi, topUrl, errorMsg, isSubServer, globalCgiEnvList)
     elif mode == "json":
-        lib_exports.Grph2Json( pageTitle, errorMsg, isSubServer, parameters, grph)
+        lib_exports.Grph2Json(page_title, errorMsg, isSubServer, parameters, grph)
     elif mode == "menu":
-        lib_exports.Grph2Menu( pageTitle, errorMsg, isSubServer, parameters, grph)
+        lib_exports.Grph2Menu(page_title, errorMsg, isSubServer, parameters, grph)
     elif mode == "rdf":
         lib_export_ontology.Grph2Rdf(grph)
     elif mode in ["svg",""]:
         # Default mode, because graphviz did not like several CGI arguments in a SVG document (Bug ?).
-        _graph_to_svg(pageTitle, errorMsg, isSubServer, parameters, grph, parameterized_links, topUrl, dotLayout)
+        _graph_to_svg(page_title, errorMsg, isSubServer, parameters, grph, parameterized_links, topUrl, dot_layout)
     else:
         ERROR("OutCgiMode invalid mode=%s",mode)
         ErrorMessageHtml("OutCgiMode invalid mode=%s"%mode)
@@ -287,11 +287,11 @@ def OutCgiMode(theCgi, topUrl, mode, errorMsg = None, isSubServer=False ):
     # An acknowledgment and status HTML message is sent back to the caller.
 
 
-
 ################################################################################
 
-def make_dot_layout(dot_layout, collapsed_properties ):
-    return { 'layout_style': dot_layout, 'collapsed_properties':collapsed_properties }
+
+def make_dot_layout(dot_layout, collapsed_properties):
+    return {'layout_style': dot_layout, 'collapsed_properties':collapsed_properties}
 
 ################################################################################
 
@@ -313,28 +313,28 @@ def _get_calling_module_doc():
             frame=inspect.currentframe()
             frame=frame.f_back.f_back
             code=frame.f_code
-            filnamCaller = code.co_filename
-            filnamCaller = filnamCaller.replace("\\",".").replace("/",".")
-            filnamCaller = filnamCaller[:-3] # Strings ".py" at the end.
-            modulePrefix = "survol."
-            htbinIdx = filnamCaller.find(modulePrefix)
-            filnamCaller = filnamCaller[htbinIdx + len(modulePrefix):]
+            filnam_caller = code.co_filename
+            filnam_caller = filnam_caller.replace("\\",".").replace("/",".")
+            filnam_caller = filnam_caller[:-3] # Strings ".py" at the end.
+            module_prefix = "survol."
+            htbin_idx = filnam_caller.find(module_prefix)
+            filnam_caller = filnam_caller[htbin_idx + len(module_prefix):]
 
             try:
                 # Another try if "survol." is duplicated, possibly for Win10 and Py3.8:
-                if filnamCaller.startswith(modulePrefix):
-                    filnamCaller = filnamCaller[len(modulePrefix):]
-                moduleCaller = sys.modules[filnamCaller]
+                if filnam_caller.startswith(module_prefix):
+                    filnam_caller = filnam_caller[len(module_prefix):]
+                module_caller = sys.modules[filnam_caller]
             except:
-                return filnamCaller + ":No doc"
+                return filnam_caller + ":No doc"
 
-            theDoc = moduleCaller.__doc__
-            if theDoc:
-                theDoc = theDoc.strip()
+            the_doc = module_caller.__doc__
+            if the_doc:
+                the_doc = the_doc.strip()
             else:
-                theDoc = ""
-            #sys.stderr.write("_get_calling_module_doc  moduleCaller.__doc__=%s\n" % theDoc)
-            return theDoc
+                the_doc = ""
+            #sys.stderr.write("_get_calling_module_doc  module_caller.__doc__=%s\n" % the_doc)
+            return the_doc
         except:
             exc = sys.exc_info()[1]
             WARNING("_get_calling_module_doc Caught when getting doc:%s",str(exc))
@@ -342,16 +342,15 @@ def _get_calling_module_doc():
     else:
         try:
             # This does not work when in WSGI mode, nor when merging.
-            mainModu = sys.modules['__main__']
-            #sys.stderr.write("_get_calling_module_doc Main module:%s\n"% mainModu.__name__ )
-            page_title = mainModu.__doc__
+            main_modu = sys.modules['__main__']
+            #sys.stderr.write("_get_calling_module_doc Main module:%s\n"% main_modu.__name__ )
+            page_title = main_modu.__doc__
             if page_title:
                 page_title = page_title.strip()
                 return page_title
             else:
                 return "No __main__ doc"
-        except:
-            exc = sys.exc_info()[1]
+        except Exception as exc:
             return "_get_calling_module_doc (Caught %s)" % str(exc)
 
 
@@ -372,6 +371,7 @@ def CgiEnvMergeMode():
     globalCgiEnvList = []
     globalGraph = lib_kbase.MakeGraph()
 
+
 # OutCgiRdf has been called by each script without writing anything,
 # but the specific parameters per script are stored inside.
 def MergeOutCgiRdf(theMode,cumulatedError):
@@ -387,7 +387,6 @@ def MergeOutCgiRdf(theMode,cumulatedError):
     cgiParamLinks = {}
     for theCgiEnv in globalCgiEnvList:
         # theCgiEnv.m_page_title contains just the first line.
-        # (page_title_first,page_title_rest) = lib_util.SplitTextTitleRest(theCgiEnv.m_page_title)
         (page_title_first,page_title_rest) = (theCgiEnv.m_page_title,theCgiEnv.m_page_subtitle)
         page_title += delim_title + page_title_first
         if page_title_rest:
@@ -456,37 +455,36 @@ class CgiEnv():
 
         self.m_parameterized_links = dict()
 
-
         # When in merge mode, the display parameters must be stored in a place accessible by the graph.
 
-        docModuAll = _get_calling_module_doc()
+        doc_modu_all = _get_calling_module_doc()
 
         # Take only the first non-empty line. See lib_util.FromModuleToDoc()
-        self.m_page_title, self.m_page_subtitle = lib_util.SplitTextTitleRest(docModuAll)
+        self.m_page_title, self.m_page_subtitle = lib_util.SplitTextTitleRest(doc_modu_all)
 
         # Title page contains __doc__ plus object label.
-        callingUrl = lib_util.RequestUri()
-        self.m_calling_url = callingUrl
-        DEBUG("CgiEnv m_page_title=%s m_calling_url=%s",self.m_page_title,self.m_calling_url)
+        calling_url = lib_util.RequestUri()
+        self.m_calling_url = calling_url
+        DEBUG("CgiEnv m_page_title=%s m_calling_url=%s", self.m_page_title, self.m_calling_url)
         #sys.stderr.write("CgiEnv lib_util.globalOutMach:%s\n" %(lib_util.globalOutMach.__class__.__name__))
-        parsedEntityUri = lib_naming.ParseEntityUri(callingUrl,longDisplay=False,force_entity_ip_addr=None)
-        if parsedEntityUri[2]:
+        parsed_entity_uri = lib_naming.ParseEntityUri(calling_url, longDisplay=False, force_entity_ip_addr=None)
+        if parsed_entity_uri[2]:
             # If there is an object to display.
             # Practically, we are in the script "entity.py" and the single doc string is "Overview"
-            fullTitle = parsedEntityUri[0]
-            self.m_page_title += " " + fullTitle
+            full_title = parsed_entity_uri[0]
+            self.m_page_title += " " + full_title
 
             # We assume there is an object, and therefore a class and its description.
-            entity_class = parsedEntityUri[1]
+            entity_class = parsed_entity_uri[1]
 
             # Similar code in objtypes.py
             # TODO: Maybe replace this by _get_calling_module_doc.
             entity_module = lib_util.GetEntityModule(entity_class)
-            entDoc = entity_module.__doc__
+            ent_doc = entity_module.__doc__
             # The convention is the first line treated as a title.
-            if entDoc:
-                entDoc = entDoc.strip()
-                self.m_page_title += "\n" + entDoc
+            if ent_doc:
+                ent_doc = ent_doc.strip()
+                self.m_page_title += "\n" + ent_doc
 
         # Global CanProcessRemote has precedence over parameter can_process_remote
         # which should probably be deprecated, although they do not have exactly the same role:
@@ -557,19 +555,19 @@ class CgiEnv():
                 return ( "", "", "" )
                 # TODO: Not finished, useless or debugging purpose ?
                 entity_type = self.m_arguments["edimodtype"].value
-                monikDelim = ""
+                monik_delim = ""
                 entity_id = ""
-                for ediKey in self.m_arguments:
-                    if ediKey[:11] == "edimodargs_":
-                        monikKey = ediKey[11:]
-                        monikVal = self.m_arguments[ediKey].value
-                        entity_id += monikDelim + monikKey + "=" + monikVal
-                        monikDelim = "&"
+                for edi_key in self.m_arguments:
+                    if edi_key[:11] == "edimodargs_":
+                        monik_key = edi_key[11:]
+                        monik_val = self.m_arguments[edi_key].value
+                        entity_id += monik_delim + monik_key + "=" + monik_val
+                        monik_delim = "&"
 
-                return ( entity_type, entity_id, "" )
+                return (entity_type, entity_id, "")
             except KeyError:
                 # No host, for the moment.
-                return ( "", "", "" )
+                return ("", "", "")
         return lib_util.ParseXid( xid )
     
     # TODO: If no arguments, allow to edit it.
@@ -582,8 +580,8 @@ class CgiEnv():
         import lib_export_html
         import lib_edition_parameters
 
-        formAction = os.environ['SCRIPT_NAME']
-        DEBUG("enter_edition_mode formAction=%s",formAction)
+        form_action = os.environ['SCRIPT_NAME']
+        DEBUG("enter_edition_mode form_action=%s", form_action)
 
         lib_util.WrtHeader('text/html')
 
@@ -594,7 +592,7 @@ class CgiEnv():
 
         print("<h3>%s</h3><br>"%self.m_page_title)
 
-        htmlForm = "".join( lib_edition_parameters.FormEditionParameters(formAction,self) )
+        htmlForm = "".join( lib_edition_parameters.FormEditionParameters(form_action,self))
         print(htmlForm)
 
         print("</body>")
@@ -608,34 +606,32 @@ class CgiEnv():
     # https://jdd:test@acme.com:5959/cimv2:CIM_RegisteredProfile.InstanceID="acme:1"
 
     def get_parameters(self,paramkey):
-        #sys.stderr.write("get_parameters paramkey='%s' m_arguments=%s\n" % (paramkey,str(self.m_arguments) ) )
-
         # Default value if no CGI argument.
         try:
-            dfltValue = self.m_parameters[paramkey]
-            # sys.stderr.write("get_parameters %s Default=%s\n" % ( paramkey, dfltValue ) )
-            hasDfltVal = True
+            dflt_value = self.m_parameters[paramkey]
+            # sys.stderr.write("get_parameters %s Default=%s\n" % ( paramkey, dflt_value ) )
+            has_dflt_val = True
         except KeyError:
-            hasDfltVal = False
+            has_dflt_val = False
 
         # unchecked_hidden
-        hasArgValue = True
+        has_arg_value = True
         try:
             # If the script parameter is passed as a CGI argument.
             # BEWARE !!! An empty argument triggers an exception !!!
             # Same problem if the same argument appears several times: This will be a list.
-            paramVal = self.m_arguments[paramkey].value
-            #sys.stderr.write("get_parameters paramkey='%s' paramVal='%s' as CGI\n" % ( paramkey, paramVal ) )
+            param_val = self.m_arguments[paramkey].value
+            #sys.stderr.write("get_parameters paramkey='%s' param_val='%s' as CGI\n" % ( paramkey, param_val ) )
         except KeyError:
             DEBUG("get_parameters paramkey='%s' not as CGI", paramkey )
-            hasArgValue = False
+            has_arg_value = False
 
         # Now converts it to the type of the default value. Otherwise untouched.
-        if hasDfltVal:
-            if hasArgValue:
-                paramTyp = type(dfltValue)
-                paramVal = paramTyp( paramVal )
-                #sys.stderr.write("get_parameters paramkey='%s' paramVal='%s' after conversion to %s\n" % ( paramkey, paramVal, str(paramTyp) ) )
+        if has_dflt_val:
+            if has_arg_value:
+                paramTyp = type(dflt_value)
+                param_val = paramTyp( param_val )
+                #sys.stderr.write("get_parameters paramkey='%s' param_val='%s' after conversion to %s\n" % ( paramkey, param_val, str(paramTyp) ) )
             else:
                 # If the parameters were edited but the value did not appear,
                 # it can only be a Boolean with a clear check box.
@@ -643,27 +639,27 @@ class CgiEnv():
                 # Unchecked check boxes are not POSTed.
                 try:
                     self.m_arguments["edimodtype"]
-                    paramVal = False
+                    param_val = False
 
                     # Sets the right value of the parameter because HTML form do not POST unchecked check boxes.
                     # Therefore, if in edit mode, a parameter is not returned, it can only be a False boolean.
-                    self.m_parameters[paramkey] = paramVal
+                    self.m_parameters[paramkey] = param_val
                     DEBUG("get_parameters paramkey='%s' set to FALSE", paramkey )
                 except KeyError:
-                    paramVal = dfltValue
-                    DEBUG("get_parameters paramkey='%s' set to paramVal='%s'", paramkey, paramVal )
+                    param_val = dflt_value
+                    DEBUG("get_parameters paramkey='%s' set to param_val='%s'", paramkey, param_val )
         else:
-            if not hasArgValue:
+            if not has_arg_value:
                 #sys.stderr.write("get_parameters no value nor default for paramkey='%s' m_parameters=%s\n" % ( paramkey, str(self.m_parameters)))
                 # lib_util.InfoMessageHtml("get_parameters no value nor default for %s\n" % paramkey )
-                paramVal = ""
+                param_val = ""
             else:
                 DEBUG("get_parameters nothing for paramkey='%s'", ( paramkey ))
 
         # TODO: Beware, empty strings are NOT send by the HTML form,
         # TODO: so an empty string must be equal to the default value.
 
-        return paramVal
+        return param_val
 
     # This is used for compatibility with the legacy scripts, which has a single id.
     # Now all parameters must have a key. As a transition, GetId() will return the value of
@@ -676,22 +672,22 @@ class CgiEnv():
             if self.m_entity_type == "":
                 return ""
 
-            splitKV = lib_util.SplitMoniker(self.m_entity_id)
-            DEBUG("GetId splitKV=%s", str( splitKV ) )
+            split_kv = lib_util.SplitMoniker(self.m_entity_id)
+            DEBUG("GetId split_kv=%s", str( split_kv))
 
             # If this class is defined in our ontology, then we know the first property.
-            entOnto = lib_util.OntologyClassKeys(self.m_entity_type)
-            if entOnto:
-                keyFirst = entOnto[0]
+            ent_onto = lib_util.OntologyClassKeys(self.m_entity_type)
+            if ent_onto:
+                keyFirst = ent_onto[0]
                 # Only if this mandatory key is in the dict.
                 try:
-                    return splitKV[keyFirst]
+                    return split_kv[keyFirst]
                 except KeyError:
                     # This is a desperate case...
                     pass
             # Returns the first value but this is not reliable at all.
-            for key in splitKV:
-                return splitKV[key]
+            for key in split_kv:
+                return split_kv[key]
         except KeyError:
             pass
 
@@ -709,7 +705,7 @@ class CgiEnv():
         return self.m_entity_host
 
     # TODO: Would probably be faster by searching for the last "/".
-    # '\\\\RCHATEAU-HP\\root\\cimv2:Win32_Process.Handle="0"'  => "root\\cimv2:Win32_Process"
+    # '\\\\MYHOST-HP\\root\\cimv2:Win32_Process.Handle="0"'  => "root\\cimv2:Win32_Process"
     # https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"  => ""
     def get_namespace_type(self):
         return lib_util.parse_namespace_type(self.m_entity_type)
@@ -719,7 +715,6 @@ class CgiEnv():
     # TODO: "OutCgiRdf" should be changed to a more appropriate name, such as "DisplayTripleStore"
     def OutCgiRdf(self, dot_layout = "", collapsed_properties=[] ):
         global globalCgiEnvList
-        #sys.stderr.write("OutCgiRdf lib_util.globalOutMach:%s\n" %(lib_util.globalOutMach.__class__.__name__))
         DEBUG("OutCgiRdf globalMergeMode=%d m_calling_url=%s m_page_title=%s",globalMergeMode,self.m_calling_url, self.m_page_title.replace("\n","<NL>") )
 
         self.m_layoutParams = make_dot_layout( dot_layout, collapsed_properties )
@@ -774,9 +769,7 @@ class CgiEnv():
         else:
             labelledUrl = self.m_calling_url[:idxCgi]
 
-        # ENCODING PROBLEM HERE.
-        # ENCODING PROBLEM HERE.
-        # ENCODING PROBLEM HERE.
+        # FIXME: ENCODING PROBLEM HERE.
         # OK http://127.0.0.1/Survol/survol/class_wbem.py?Start+index=0&Max+instances=800&xid=http%3A%2F%2Fprimhillcomputers.ddns.net%3A5988%2Froot%2Fcimv2%3APG_UnixProcess.&edimodtype=root%2Fcimv2%3APG_UnixProcess
         # OK http://rchateau-hp:8000/survol/class_wbem.py?xid=http%3A%2F%2F192.168.0.17%3A5988%2Froot%2Fcimv2%3APG_UnixProcess.
         # KO http://rchateau-hp:8000/survol/class_wbem.py?xid=http%3A//192.168.0.17%3A5988/root/cimv2%3APG_UnixProcess.
@@ -799,53 +792,53 @@ class CgiEnv():
     # This is done, basically, by taking the URL, replacing the host name of where
     # the object sits, by an IP address.
     # Nodes with the same
-    def BindIdenticalNodes(self):
+    def _bind_identical_nodes(self):
 
         # This maps each universal alias to the set of nodes which have it.
         # At the end, all nodes with the same universal alias are
         # linked with a special property.
-        dictUniToObjs = dict()
+        dict_uni_to_objs = dict()
 
-        def HasUnivAlias(anObject):
-            if lib_kbase.IsLiteral(anObject):
+        def _has_univ_alias(an_object):
+            if lib_kbase.IsLiteral(an_object):
                 return False
 
-            if ( anObject.find("entity.py") >= 0 ) or ( anObject.find("entity_wbem.py") >= 0 ) or( anObject.find("entity_wmi.py") >= 0 ):
+            if (an_object.find("entity.py") >= 0) or (an_object.find("entity_wbem.py") >= 0) or(an_object.find("entity_wmi.py") >= 0):
                 return True
 
             return False
 
         # This calculates the universal alias for each node representing an object.
-        def PrepareBinding(anObject):
+        def _prepare_binding(an_object):
 
-            if not HasUnivAlias(anObject):
+            if not _has_univ_alias(an_object):
                 return
 
-            uniDescr = lib_exports.NodeToUniversalAlias(anObject)
+            uni_descr = lib_exports.NodeToUniversalAlias(an_object)
             try:
-                dictUniToObjs[uniDescr].add(anObject)
+                dict_uni_to_objs[uni_descr].add(an_object)
             except KeyError:
-                dictUniToObjs[uniDescr] = { anObject }
+                dict_uni_to_objs[uni_descr] = {an_object}
 
         for aSubj, aPred, anObj in self.m_graph:
-            PrepareBinding(aSubj)
-            PrepareBinding(anObj)
+            _prepare_binding(aSubj)
+            _prepare_binding(anObj)
 
-        for anUniDescr in dictUniToObjs:
-            relatedNodes = dictUniToObjs[anUniDescr]
-            if len(relatedNodes) < 2:
+        for an_uni_descr in dict_uni_to_objs:
+            related_nodes = dict_uni_to_objs[an_uni_descr]
+            if len(related_nodes) < 2:
                 continue
 
-            nodePrevious = None
+            node_previous = None
 
             # These specific links must be very visible and short.
             # They should be displayed identically in SVG and D3.
             # Ideally, all objects with the same alias should be a single graphic shape,
             # with all scripts of each object.
-            for otherNode in relatedNodes:
-                if nodePrevious:
-                    self.m_graph.add((nodePrevious,lib_properties.pc.property_alias,otherNode))
-                nodePrevious = otherNode
+            for other_node in related_nodes:
+                if node_previous:
+                    self.m_graph.add((node_previous, lib_properties.pc.property_alias, other_node))
+                node_previous = other_node
 
 
 ################################################################################
@@ -889,26 +882,27 @@ def ErrorMessageHtml(message):
         # Instead of exiting, it throws an exception which can be used by merge_scripts.py
         DEBUG("ErrorMessageHtml DISABLED")
         # It might be displayed in a HTML document.
-        messageClean = portable_escape(message)
-        raise Exception("ErrorMessageHtml raised:%s\n"%messageClean)
+        message_clean = portable_escape(message)
+        raise Exception("ErrorMessageHtml raised:%s\n" % message_clean)
 
 ################################################################################
 
 def SubProcPOpen(command):
     try:
-        retPipe = subprocess.Popen(command, bufsize=100000, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        ret_pipe = subprocess.Popen(command, bufsize=100000, shell=False,
+                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except OSError:
         ErrorMessageHtml("Cannot run "+" ".join(command))
 
     # For the win32/script windows_network_devices.py,
     # we need shell=True, because it runs the command "wmic",
     # but this might be a security hole.
-    return retPipe
+    return ret_pipe
 
 def SubProcCall(command):
     # For doxygen, we should have shell=True but this is NOT safe.
         # Shell is however needed for unit tests.
-    DEBUG("command=%s",command)
+    DEBUG("command=%s", command)
     ret = subprocess.call(command, stdout=sys.stderr, stderr=sys.stderr, shell=True)
     return ret
 
@@ -962,25 +956,27 @@ def get_temporary_directory():
     else:
         return __check_if_directory("/tmp")
 
+
 # This will not change during a process.
-tmpDir = get_temporary_directory()
-        
+global_temp_directory = get_temporary_directory()
+
+
 # Creates and automatically delete, a file and possibly a dir.
 # TODO: Consider using the module tempfile.
 class TmpFile:
-    def __init__(self,prefix="tmp", suffix="tmp",subdir=None):
-        procPid = os.getpid()
-        currDir = tmpDir
+    def __init__(self, prefix="tmp", suffix="tmp", subdir=None):
+        proc_pid = os.getpid()
+        curr_dir = global_temp_directory
 
         if subdir:
-            customDir = "/%s.%d" % ( subdir, procPid )
-            currDir += customDir
-            if not os.path.isdir(currDir):
-                os.mkdir(currDir)
+            customDir = "/%s.%d" % ( subdir, proc_pid)
+            curr_dir += customDir
+            if not os.path.isdir(curr_dir):
+                os.mkdir(curr_dir)
             else:
                 # TODO: Cleanup ??
                 pass
-            self.TmpDirToDel = currDir
+            self.TmpDirToDel = curr_dir
         else:
             self.TmpDirToDel = None
 
@@ -988,7 +984,7 @@ class TmpFile:
             self.Name = None
             return
 
-        self.Name = "%s/%s.%d.%s" % ( currDir, prefix, procPid, suffix )
+        self.Name = "%s/%s.%d.%s" % ( curr_dir, prefix, proc_pid, suffix )
         DEBUG("tmp=%s", self.Name )
 
     def DbgDelFil(self,filNam):
