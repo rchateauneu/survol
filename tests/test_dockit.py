@@ -248,6 +248,8 @@ def _run_dockit_command(one_command):
         # therefore it must be enclosed in quotes.
         dockit_command = 'cd %s&"%s" dockit.py %s' % (dockit_dirname, sys.executable, one_command)
     print("dockit_command=", dockit_command)
+    windows8_or_higher = os.sys.getwindowsversion() != (6, 1, 7601, 2, 'Service Pack 1')
+    print("windows8_or_higher=", windows8_or_higher)
     output_content = subprocess.check_output(dockit_command, shell=True)
     return output_content
 
@@ -333,7 +335,6 @@ class CommandLineTest(unittest.TestCase):
         command_result = _run_dockit_command("--server=%s touch %s" % (created_rdf_file, created_temp_file))
 
         # This creates files like ".../test_linux_ls.strace<pid>.ini"
-        ini_file_default = os.path.join(dockit_dirname, "dockit_output" + ".ini")
         ini_content = dockit.ini_file_check(ini_file_default)
         created_pid = ini_content["TopProcessId"]
 
@@ -403,6 +404,7 @@ class CommandLineTest(unittest.TestCase):
             input_log_file,
             output_prefix)
         command_result = _run_dockit_command(dockit_command)
+        print("command_result=", command_result)
         self.assertTrue(command_result.startswith(b"Loading ini file:"))
 
         # The pid 4401 comes from the input log file.
@@ -566,18 +568,18 @@ class CommandLineWin32Test(unittest.TestCase):
 
         self.assertTrue((
                             ("CIM_NetworkAdapter", {"Name": current_ip_address}),
-                           "PermanentAddress",
-                           current_ip_address) in triples_as_string)
+                            "PermanentAddress",
+                            current_ip_address) in triples_as_string)
 
         self.assertTrue((
                             ("CIM_Directory", {"Name": created_directory}),
-                           "Name",
-                           created_directory) in triples_as_string)
+                            "Name",
+                            created_directory) in triples_as_string)
 
         self.assertTrue((
                             ("CIM_Directory", {"Name": created_directory}),
-                           "FileSize",
-                           '0') in triples_as_string)
+                            "FileSize",
+                            '0') in triples_as_string)
 
         check_file_missing(output_basename_prefix + ".log")
         check_file_missing(output_basename_prefix + ".docker", "Dockerfile")
@@ -592,7 +594,6 @@ class CommandLineWin32Test(unittest.TestCase):
 
         # The ini file is created with a default name.
         # It does not use check_file_content because the output directory is not standard.
-        ini_file_default = os.path.join(dockit_dirname, "dockit_output" + ".ini")
         ini_content = dockit.ini_file_check(ini_file_default)
         created_pid = ini_content["TopProcessId"]
 
@@ -603,15 +604,11 @@ class CommandLineWin32Test(unittest.TestCase):
                 print(rdf_subject, rdf_predicate, rdf_object)
         print("------------------------")
 
+        # This is always created at startup.
         self.assertTrue((
                             ("CIM_OperatingSystem", {}),
                             "System",
                             "Windows") in triples_as_string)
-
-        self.assertTrue((
-                            ("CIM_Process", {"Handle": str(created_pid)}),
-                            "Handle",
-                            str(created_pid)) in triples_as_string)
 
         self.assertTrue((
                             ("CIM_NetworkAdapter", {"Name": current_ip_address}),
@@ -622,6 +619,18 @@ class CommandLineWin32Test(unittest.TestCase):
                             ("CIM_ComputerSystem", {"Name": CurrentMachine}),
                             "Name",
                             CurrentMachine) in triples_as_string)
+
+        # This is the created process which runs dockit.py
+        self.assertTrue((
+                            ("CIM_Process", {"Handle": str(created_pid)}),
+                            "Handle",
+                            str(created_pid)) in triples_as_string)
+
+        # The created process points to its current directory.
+        self.assertTrue((
+                            ("CIM_Process", {"Handle": str(created_pid)}),
+                            "CurrentDirectory",
+                            dockit_dirname) in triples_as_string)
 
         # At startup, Python loads dozen of library files.
         # This checks the existence of some files which are usually loaded by Python at startup.
@@ -643,6 +652,48 @@ class CommandLineWin32Test(unittest.TestCase):
 
         check_file_missing(output_basename_prefix + ".log")
         check_file_missing(output_basename_prefix + ".docker", "Dockerfile")
+
+
+    def test_run_windows_copy_cmd_exe_rdf(self):
+        """This checks the events generated in a RDF file, during a file copy."""
+        output_basename_prefix = "test_run_windows_copy_cmd_exe_rdf"
+        created_rdf_file = path_prefix_output_result(output_basename_prefix + ".rdf")
+        copied_file = path_prefix_output_result(output_basename_prefix + ".exe")
+
+        # It copies cmd.exe elsewhere.
+        dockit_command = "--server=%s %s /c copy %s %s" % (
+            created_rdf_file, windows_system32_cmd_exe,
+            windows_system32_cmd_exe, copied_file)
+        command_result = _run_dockit_command(dockit_command)
+
+        ini_content = dockit.ini_file_check(ini_file_default)
+        created_pid = ini_content["TopProcessId"]
+
+        self.assertTrue(os.path.isfile(copied_file))
+
+        # The ini file is created with a default name.
+        # It does not use check_file_content because the output directory is not standard.
+        dockit.ini_file_check(ini_file_default)
+
+        # This RDF file contains the raw triples generated from events.
+        # It does not contain semantic data necessary for SPARQL queries such as rdflib.namespace.RDF.type.
+
+        triples_as_string = _rdf_file_to_triples(created_rdf_file)
+        print("triples_as_string=", triples_as_string)
+
+        # The created process points to its current directory
+        self.assertTrue((
+                            ("CIM_Process", {"Handle": str(created_pid)}),
+                            "CurrentDirectory",
+                            dockit_dirname) in triples_as_string)
+
+        # This file is read from by the process, so it must appear here.
+        self.assertTrue((
+                            ("CIM_DataFile", {"Name": windows_system32_cmd_exe}),
+                            "Name",
+                            windows_system32_cmd_exe) in triples_as_string)
+
+        # FIXME: The written file should also be visible. But we do not know how "copy" works.
 
 
 class SummaryXMLTest(unittest.TestCase):
