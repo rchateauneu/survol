@@ -718,7 +718,8 @@ class CommandLineLivePythonTest(unittest.TestCase):
         created_pid = ini_content["TopProcessId"]
 
         triples_as_string = _rdf_file_to_triples(created_rdf_file)
-        print("triples_as_string=", triples_as_string)
+        for one_triple in triples_as_string:
+            print("    ", one_triple)
 
         # This is the created process which runs dockit.py
         self.assertTrue((
