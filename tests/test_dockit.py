@@ -591,7 +591,7 @@ class CommandLineLiveWin32Test(unittest.TestCase):
 
     def test_run_windows_python_print_rdf(self):
         """This checks the events generated in a RDF file. It must contain the directory."""
-        output_basename_prefix = "test_run_windows_mkdir_rdf"
+        output_basename_prefix = "test_run_windows_python_print_rdf"
         created_rdf_file = path_prefix_output_result(output_basename_prefix + ".rdf")
 
         dockit_command = "--server=%s %s -c \"print('Hello')\"" % (created_rdf_file, sys.executable)
@@ -718,6 +718,7 @@ class CommandLineLivePythonTest(unittest.TestCase):
         created_pid = ini_content["TopProcessId"]
 
         triples_as_string = _rdf_file_to_triples(created_rdf_file)
+        print("triples_as_string=", triples_as_string)
 
         # This is the created process which runs dockit.py
         self.assertTrue((
