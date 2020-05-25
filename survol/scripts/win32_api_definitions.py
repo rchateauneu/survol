@@ -880,6 +880,8 @@ if False:
 
 windows8_or_higher = os.sys.getwindowsversion() != (6, 1, 7601, 2, 'Service Pack 1')
 
+print("windows8_or_higher=", windows8_or_higher)
+
 if windows8_or_higher:
 
     class Win32Hook_CreateProcessAsUserA(Win32Hook_GenericProcessCreation):
