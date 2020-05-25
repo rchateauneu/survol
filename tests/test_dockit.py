@@ -248,8 +248,9 @@ def _run_dockit_command(one_command):
         # therefore it must be enclosed in quotes.
         dockit_command = 'cd %s&"%s" dockit.py %s' % (dockit_dirname, sys.executable, one_command)
     print("dockit_command=", dockit_command)
-    windows8_or_higher = os.sys.getwindowsversion() != (6, 1, 7601, 2, 'Service Pack 1')
-    print("windows8_or_higher=", windows8_or_higher)
+    if is_platform_windows:
+        windows8_or_higher = os.sys.getwindowsversion() != (6, 1, 7601, 2, 'Service Pack 1')
+        print("windows8_or_higher=", windows8_or_higher)
     output_content = subprocess.check_output(dockit_command, shell=True)
     return output_content
 
@@ -653,7 +654,7 @@ class CommandLineWin32Test(unittest.TestCase):
         check_file_missing(output_basename_prefix + ".log")
         check_file_missing(output_basename_prefix + ".docker", "Dockerfile")
 
-
+    @unittest.skipIf(is_travis_machine(), "FIXME: IOs function calls not detected on Travis.")
     def test_run_windows_copy_cmd_exe_rdf(self):
         """This checks the events generated in a RDF file, during a file copy."""
         output_basename_prefix = "test_run_windows_copy_cmd_exe_rdf"
@@ -694,6 +695,58 @@ class CommandLineWin32Test(unittest.TestCase):
                             windows_system32_cmd_exe) in triples_as_string)
 
         # FIXME: The written file should also be visible. But we do not know how "copy" works.
+
+    def _run_python_script_rdf(self, output_basename_prefix, python_script):
+        """This runs a Python script."""
+        created_rdf_file = path_prefix_output_result(output_basename_prefix + ".rdf")
+        python_script_file = path_prefix_output_result(output_basename_prefix + ".py")
+        with open(python_script_file, "w") as python_script_file_descriptor:
+            python_script_file_descriptor.write(python_script)
+
+        dockit_command = "--server=%s %s %s" % (created_rdf_file, sys.executable, python_script_file)
+        command_result = _run_dockit_command(dockit_command)
+
+        # The ini file is created with a default name.
+        # It does not use check_file_content because the output directory is not standard.
+        ini_content = dockit.ini_file_check(ini_file_default)
+        created_pid = ini_content["TopProcessId"]
+
+        triples_as_string = _rdf_file_to_triples(created_rdf_file)
+
+        # This is the created process which runs dockit.py
+        self.assertTrue((
+                            ("CIM_Process", {"Handle": str(created_pid)}),
+                            "Handle",
+                            str(created_pid)) in triples_as_string)
+
+        # The created process points to its current directory.
+        self.assertTrue((
+                            ("CIM_Process", {"Handle": str(created_pid)}),
+                            "CurrentDirectory",
+                            dockit_dirname) in triples_as_string)
+
+        # The Python interpreter is accessed.
+        self.assertTrue((
+                            ("CIM_DataFile", {"Name": sys.executable}),
+                            "Name",
+                            sys.executable) in triples_as_string)
+
+        # The created Python script is accessed.
+        self.assertTrue((
+                            ("CIM_DataFile", {"Name": python_script_file}),
+                            "Name",
+                            python_script_file) in triples_as_string)
+
+        return triples_as_string, created_pid
+
+    def test_run_windows_python_script_rdf(self):
+        """This runs a Python script."""
+        output_basename_prefix = "test_run_windows_python_script_rdf"
+
+        python_script = """
+            print("Hello")
+        """
+        triples_as_string, created_pid = self._run_python_script_rdf(output_basename_prefix, python_script)
 
 
 class SummaryXMLTest(unittest.TestCase):
@@ -1107,7 +1160,6 @@ class RunningLinuxProcessesTest(unittest.TestCase):
     Test the execution of the Dockit script from real processes.
     """
 
-    # @unittest.skipIf(not is_platform_linux or is_travis_machine(), "This is not a Linux machine. Test skipped.")
     @unittest.skipIf(is_platform_windows, "This is not a Linux machine. Test skipped.")
     def test_strace_ls(self):
         sub_proc = subprocess.Popen(['bash', '-c', 'sleep 5;ls /tmp'],
