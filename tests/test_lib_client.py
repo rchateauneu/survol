@@ -580,9 +580,6 @@ class SurvolLocalTest(unittest.TestCase):
                 'memmap.Id=C:/Windows/System32/cmd.exe',
                 ]
         else:
-            # Typical situation of symbolic links:
-            # /usr/bin/python => /usr/bin/python2 => /usr/bin/python2.7
-            execPath = os.path.realpath( sys.executable )
             lstMandatoryInstances += [
                         'memmap.Id=[heap]',
                         'memmap.Id=[vdso]',
