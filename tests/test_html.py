@@ -18,7 +18,7 @@ class HtmlCommon(unittest.TestCase):
         print(html_page_content)
 
         # Some strings must be displayed.
-        self.assertTrue('<title>Overview entity.py</title>' in html_page_content)
+        self.assertTrue(b'<title>Overview entity.py</title>' in html_page_content)
 
     def _check_page_entity(self, agent_url):
         html_url_response = portable_urlopen(agent_url + "/survol/entity.py?mode=html", timeout=5)
