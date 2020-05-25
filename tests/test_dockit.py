@@ -300,52 +300,7 @@ def _rdf_file_to_triples(rdf_file):
     return triples_as_string
 
 
-# The script dockit.py can be used as a command line or as an imported module.
-# This test checks the script dockit.py from from command lines, and not from the internal function.
-class CommandLineTest(unittest.TestCase):
-
-    def test_usage(self):
-        """This tests the help message displayed by dockit.py """
-        command_result = _run_dockit_command("--help")
-        self.assertTrue(command_result.startswith(b"DockIT"))
-
-    @unittest.skipIf(is_platform_windows, "This is not a Linux machine. Test skipped.")
-    def test_run_linux_ls(self):
-
-        output_basename_prefix = "test_linux_ls"
-        output_prefix = path_prefix_output_result(output_basename_prefix)
-        command_result = _run_dockit_command("-D -f JSON -F TXT -l %s ls" % output_prefix)
-
-        # This creates files like ".../test_linux_ls.strace<pid>.ini"
-        check_file_content(output_basename_prefix + ".ini")
-        check_file_content(output_basename_prefix + ".json")
-        check_file_content(output_basename_prefix + ".summary.txt")
-        check_file_content(output_basename_prefix + ".docker", "Dockerfile")
-
-        check_file_missing(output_basename_prefix + ".log")
-
-
-    # @unittest.skip("Broken for the moment.")
-    @unittest.skipIf(is_platform_windows, "This is not a Linux machine. Test skipped.")
-    def test_run_linux_touch_rdf(self):
-        """This touch a new file. An RDF event must be created."""
-        output_basename_prefix = "test_linux_touch"
-        created_rdf_file = path_prefix_output_result(output_basename_prefix + ".rdf")
-        created_temp_file = path_prefix_output_result(output_basename_prefix + ".tmp")
-
-        command_result = _run_dockit_command("--server=%s touch %s" % (created_rdf_file, created_temp_file))
-
-        # This creates files like ".../test_linux_ls.strace<pid>.ini"
-        ini_content = dockit.ini_file_check(ini_file_default)
-        created_pid = ini_content["TopProcessId"]
-
-        triples_as_string = _rdf_file_to_triples(created_rdf_file)
-        print("triples_as_string=", triples_as_string)
-
-        # check_file_missing(output_basename_prefix + ".ini")
-        check_file_missing(output_basename_prefix + ".json")
-        check_file_missing(output_basename_prefix + ".summary.txt")
-        check_file_missing(output_basename_prefix + ".log")
+class CommandLineReplayTest(unittest.TestCase):
 
     def test_replay_non_existent_input_file(self):
         try:
@@ -462,8 +417,56 @@ class CommandLineTest(unittest.TestCase):
 
 # The script dockit.py can be used as a command line or as an imported module.
 # This test checks the script dockit.py from from command lines, and not from the internal function.
+class CommandLineLiveTest(unittest.TestCase):
+
+    def test_usage(self):
+        """This tests the help message displayed by dockit.py """
+        command_result = _run_dockit_command("--help")
+        self.assertTrue(command_result.startswith(b"DockIT"))
+
+# The script dockit.py can be used as a command line or as an imported module.
+# This test checks the script dockit.py from from command lines, and not from the internal function.
+@unittest.skipIf(is_platform_windows, "These tests are for Linux only.")
+class CommandLineLiveLinuxTest(unittest.TestCase):
+    def test_run_linux_ls(self):
+
+        output_basename_prefix = "test_linux_ls"
+        output_prefix = path_prefix_output_result(output_basename_prefix)
+        command_result = _run_dockit_command("-D -f JSON -F TXT -l %s ls" % output_prefix)
+
+        # This creates files like ".../test_linux_ls.strace<pid>.ini"
+        check_file_content(output_basename_prefix + ".ini")
+        check_file_content(output_basename_prefix + ".json")
+        check_file_content(output_basename_prefix + ".summary.txt")
+        check_file_content(output_basename_prefix + ".docker", "Dockerfile")
+
+        check_file_missing(output_basename_prefix + ".log")
+
+    def test_run_linux_touch_rdf(self):
+        """This touch a new file. An RDF event must be created."""
+        output_basename_prefix = "test_linux_touch"
+        created_rdf_file = path_prefix_output_result(output_basename_prefix + ".rdf")
+        created_temp_file = path_prefix_output_result(output_basename_prefix + ".tmp")
+
+        command_result = _run_dockit_command("--server=%s touch %s" % (created_rdf_file, created_temp_file))
+
+        # This creates files like ".../test_linux_ls.strace<pid>.ini"
+        ini_content = dockit.ini_file_check(ini_file_default)
+        created_pid = ini_content["TopProcessId"]
+
+        triples_as_string = _rdf_file_to_triples(created_rdf_file)
+        print("triples_as_string=", triples_as_string)
+
+        # check_file_missing(output_basename_prefix + ".ini")
+        check_file_missing(output_basename_prefix + ".json")
+        check_file_missing(output_basename_prefix + ".summary.txt")
+        check_file_missing(output_basename_prefix + ".log")
+
+
+# The script dockit.py can be used as a command line or as an imported module.
+# This test checks the script dockit.py from from command lines, and not from the internal function.
 @unittest.skipIf(is_platform_linux, "Windows only.")
-class CommandLineWin32Test(unittest.TestCase):
+class CommandLineLiveWin32Test(unittest.TestCase):
 
     def test_run_windows_ping_nowhere(self):
         """This runs "ping" and the command help must be print."""
@@ -541,6 +544,7 @@ class CommandLineWin32Test(unittest.TestCase):
         check_file_content(output_basename_prefix + ".ini")
         check_file_content(output_basename_prefix + ".log")
 
+    @unittest.skipIf(is_travis_machine(), "FIXME: IOs function calls not detected on Travis.")
     def test_run_windows_mkdir_rdf(self):
         """This checks the events generated in a RDF file. It must contain the directory."""
         output_basename_prefix = "test_run_windows_mkdir_rdf"
@@ -696,6 +700,8 @@ class CommandLineWin32Test(unittest.TestCase):
 
         # FIXME: The written file should also be visible. But we do not know how "copy" works.
 
+class CommandLineLivePythonTest(unittest.TestCase):
+
     def _run_python_script_rdf(self, output_basename_prefix, python_script):
         """This runs a Python script."""
         created_rdf_file = path_prefix_output_result(output_basename_prefix + ".rdf")
@@ -740,7 +746,7 @@ class CommandLineWin32Test(unittest.TestCase):
         return triples_as_string, created_pid
 
     def test_run_windows_python_script_rdf(self):
-        """This runs a Python script."""
+        """This runs a minimal Python script."""
         output_basename_prefix = "test_run_windows_python_script_rdf"
 
         python_script = """
@@ -996,6 +1002,7 @@ class SummaryXMLTest(unittest.TestCase):
 class ReplaySessionsTest(unittest.TestCase):
     """
     Replay sessions of Dockit executions using log and ini files.
+    This og files are the result of strace or ltrace execution on a process.
     """
 
     def test_replay_linux_strace_txt(self):
@@ -1105,7 +1112,6 @@ class ReplaySessionsTest(unittest.TestCase):
         The keys are the prefix of the log files and the content is an array of actual files
         whose output must be reproduced.
         """
-        ####mapFiles = {}
 
         # First pass to build a map of files.
         # This takes only the log files at the top level.
