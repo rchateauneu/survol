@@ -702,6 +702,7 @@ class CommandLineLiveWin32Test(unittest.TestCase):
 
         # FIXME: The written file should also be visible. But we do not know how "copy" works.
 
+
 class CommandLineLivePythonTest(unittest.TestCase):
 
     def _run_python_script_rdf(self, output_basename_prefix, python_script):
@@ -739,19 +740,16 @@ class CommandLineLivePythonTest(unittest.TestCase):
                             "Name",
                             CurrentExecutable) in triples_as_string)
 
-        # The created Python script is accessed.
-        # FIXME: Does not work on Linux.
-        if is_platform_windows:
-            # TODO: Could use standardized_file_path()
-            python_script_file_standard = python_script_file.replace("\\", "/")
-            self.assertTrue((
-                                ("CIM_DataFile", {"Name": python_script_file_standard}),
-                                "Name",
-                                python_script_file_standard) in triples_as_string)
+        # TODO: Could use standardized_file_path()
+        python_script_file_standard = python_script_file.replace("\\", "/")
+        self.assertTrue((
+                            ("CIM_DataFile", {"Name": python_script_file_standard}),
+                            "Name",
+                            python_script_file_standard) in triples_as_string)
 
         return triples_as_string, created_pid
 
-    def test_run_windows_python_script_rdf(self):
+    def test_run_python_script_rdf(self):
         """This runs a minimal Python script."""
         output_basename_prefix = "test_run_windows_python_script_rdf"
 
