@@ -5,6 +5,8 @@
 # NOTE: For convenience purpose, this script is standalone, and therefore quite big.
 # Requires Python 2.7 or later.
 
+from __future__ import print_function
+
 __author__      = "Remi Chateauneu"
 __copyright__   = "Primhill Computers, 2018-2020"
 __credits__ = ["","",""]
@@ -86,7 +88,7 @@ def print_dockit_usage(exit_code = 1, error_message = None):
     print("  -t,--tracer strace|ltrace|pydbg Set trace program.")
     print("  -S,--server <Url>               Survol url for CIM objects updates. Ex: http://127.0.0.1:80/survol/event_put.py")
     print("  -a,--aggregator <aggregator>    Aggregation method, e.g. 'clusterize' etc...")
-    print("  -d,--log                        Duplicates session to a log file which can be replayed as input...")
+    print("  -d,--log                        Duplicates session to a log file which can be replayed as input.")
 
     print("")
 
@@ -471,7 +473,7 @@ def ini_file_load(ini_pathname):
         string_key = stripped_key_value[:index_equal]
         string_val = stripped_key_value[index_equal+1:]
         ini_map_key_value_pairs[string_key] = string_val
-        sys.stdout.write("Ini line:%s %s=%s\n" % (line_key_value, string_key, string_val))
+        sys.stdout.write("Init:%s=%s\n" % (string_key, string_val))
     sys.stdout.write("Closing ini file:%s\n" % ini_pathname)
     ini_file.close()
     return ini_map_key_value_pairs
@@ -897,11 +899,15 @@ if __name__ == '__main__':
             assert False, "Unhandled option"
 
     G_parameters.tracer = default_tracer(G_parameters.input_log_file, G_parameters.tracer)
+    print("tracer is", G_parameters.tracer)
+
+    print("THIS IS TEMPORARY")
+    print_dockit_usage(999)
 
     _start_processing(G_parameters)
 
-    logging.error("cim_objects_definitions.G_ReplayMode=%s" % cim_objects_definitions.G_ReplayMode)
-    print("cim_objects_definitions.G_ReplayMode=", cim_objects_definitions.G_ReplayMode)
+    #logging.error("cim_objects_definitions.G_ReplayMode=%s" % cim_objects_definitions.G_ReplayMode)
+    #print("cim_objects_definitions.G_ReplayMode=", cim_objects_definitions.G_ReplayMode)
 
 
 ################################################################################
