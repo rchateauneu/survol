@@ -359,7 +359,7 @@ class BatchLetCore:
                 # So the closing parenthesis could not be found.
                 idxEq = theCall.rfind("=", 0, idxLT)
                 if idxEq < 0:
-                    raise Exception("No = from end: idxLT=%d. theCall=%s" % (idxLT, theCall))
+                    raise Exception("No = from end: idxLT=%d. function=%s" % (idxLT, theCall))
             else:
                 # Normal case where the '=' equal sign comes after the clolsing parenthese of the args list.
                 idxEq = theCall.find("=", idxLastPar)
@@ -369,10 +369,13 @@ class BatchLetCore:
                         if self.m_tracer != "ltrace":
                         # This can happen with ltrace which does not escape double-quotes. Example:
                         # read@SYS(8, "\003\363\r\n"|\314Vc", 4096) = 765 <0.000049>
-                            raise Exception("No = from parenthesis: idxLastPar=%d. theCall=%s. Len=%d" % (idxLT, theCall, len(theCall)))
+                            raise Exception("No = from parenthesis: idxLastPar=%d. function=%s. Len=%d" % (idxLT, theCall, len(theCall)))
 
             if not(idxEq >= 0 and idxEq < idxLT):
-                raise Exception("idxEq=%d idxLT=%d theCall=%s" % (idxEq, idxLT, theCall.strip()))
+                # If this is the last line, not a problem
+                # 20:20:34.510927 exit_group(0)           = ?
+                if not theCall.startswith("exit_group"):
+                    raise Exception("idxEq=%d idxLT=%d function=%s" % (idxEq, idxLT, theCall.strip()))
             self._return_value = theCall[idxEq + 1:idxLT].strip()
             # sys.stdout.write("idxEq=%d idxLastPar=%d idxLT=%d retValue=%s\n"%(idxEq,idxLastPar,idxLT,self._return_value))
 
@@ -699,23 +702,25 @@ def _batchlet_factory(batchCore):
 # read ['3</usr/lib64/libc-2.21.so>']
 # This returns a WMI object path, which is self-descriptive.
 # FIXME: Are file descriptors shared between processes ?
-def _strace_stream_to_pathname(strmStr):
-    idxLT = strmStr.find("<")
+def _strace_stream_to_pathname(strm_str):
+    print("_strace_stream_to_pathname strm_str=", strm_str)
+    print("keys=", str(G_mapFilDesToPathName.keys()))
+    idxLT = strm_str.find("<")
     if idxLT >= 0:
-        pathName = strmStr[ idxLT + 1 : -1 ]
+        path_name = strm_str[idxLT + 1: -1]
     else:
         # If the option "-y" is not available, with ltrace or truss.
         # Theoretically the path name should be in the map.
         try:
             assert G_mapFilDesToPathName is not None
-            pathName = G_mapFilDesToPathName[ strmStr ]
+            path_name = G_mapFilDesToPathName[strm_str]
         except KeyError:
-            if strmStr == "-1": # Normal return value.
-                pathName = "Invalid device"
+            if strm_str == "-1": # Normal return value.
+                path_name = "Invalid device"
             else:
-                pathName = "UnknownFileDescr:%s" % strmStr
+                path_name = "UnknownFileDescr:%s" % strm_str
 
-    return pathName
+    return path_name
 
 
 ################################################################################
@@ -759,8 +764,10 @@ class BatchLetSys_open(BatchLetBase, object):
             # If the open succeeds, the file actually opened might be different,
             # than the input argument. Example:
             # open("/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3</usr/lib64/libc-2.25.so>
-            # Therefore the returned file should be get_significant_args(),
-            # not the input file.
+            # Therefore the returned file should be get_significant_args(), not the input file.
+            #
+            # But with a deprecated version, it is also possible to have this format:
+            # open("/lib/x86_64-linux-gnu/libpthread.so.0", O_RDONLY|O_CLOEXEC) = 10 <0.000016>
             filObj = self._strace_stream_to_file(self.m_core._return_value)
         elif batchCore.m_tracer == "ltrace":
             # The option "-y" which writes the complete path after the file descriptor,
@@ -1912,7 +1919,7 @@ def _create_flows_from_generic_linux_log(logStream, tracer):
                 if one_new_line.find("No such process") >= 0:
                     raise Exception("Invalid process id: %s" % exc)
 
-            sys.stderr.write("ERROR '%s' Caught invalid line %d:%s" % (exc, line_number, one_new_line))
+            sys.stderr.write("ERROR '%s' Caught invalid line %d:%s\n" % (exc, line_number, one_new_line))
 
         # Maybe the line cannot be parsed.
         if batchCore:
@@ -1994,7 +2001,7 @@ class STraceTracer(GenericTraceTracer):
         # -f  Trace  child  processes as a result of the fork, vfork and clone.
         trace_command = ["strace", "-q", "-qq", "-f", "-tt", "-T", "-s", G_StringSize]
 
-        if STraceTracer().trace_software_version() < (4, 21):
+        if self.deprecated_version():
             trace_command += ["-e", "trace=desc,ipc,process,network"]
         else:
             trace_command += ["-y", "-yy", "-e", "trace=desc,ipc,process,network,memory"]
@@ -2008,11 +2015,17 @@ class STraceTracer(GenericTraceTracer):
             trace_command += ["-p", aPid]
         return trace_command
 
+    def deprecated_version(self):
+        # (4,21) is OK
+        # (4,5,19) does not have the option "-y".
+        return self.trace_software_version() < (4, 11)
+
     # This yields objects which model a function call.
     def create_flows_from_calls_stream(self, log_stream):
         return _create_flows_from_generic_linux_log(log_stream, "strace")
 
     def trace_software_version(self):
+        # "strace -- version 4.21"
         strace_version_str = subprocess.check_output('strace -V', shell=True).split()[3]
         return tuple(map(int, strace_version_str.split(b'.')))
 
@@ -2080,6 +2093,10 @@ class LTraceTracer(GenericTraceTracer):
         return _create_flows_from_generic_linux_log(logStream, "ltrace")
 
     def trace_software_version(self):
-        ltrace_version_str = subprocess.check_output('strace -V', shell=True).split()[2]
+        # "ltrace version 0.5."
+        # "ltrace 0.7.91"
+        ltrace_version_str = subprocess.check_output('ltrace -V', shell=True).split()[-1]
+        if ltrace_version_str[-1] == '.':
+            ltrace_version_str = ltrace_version_str[:-1]
         return tuple(map(int, ltrace_version_str.split(b'.')))
 
