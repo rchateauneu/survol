@@ -2095,7 +2095,7 @@ class LTraceTracer(GenericTraceTracer):
     def trace_software_version(self):
         # "ltrace version 0.5."
         # "ltrace 0.7.91"
-        ltrace_version_str = subprocess.check_output('ltrace -V', shell=True).split()[-1]
+        ltrace_version_str = subprocess.check_output('ltrace -V', shell=True).split('\n')[0].split()[-1]
         if ltrace_version_str[-1] == '.':
             ltrace_version_str = ltrace_version_str[:-1]
         return tuple(map(int, ltrace_version_str.split(b'.')))
