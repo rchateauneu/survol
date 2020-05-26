@@ -2099,5 +2099,6 @@ class LTraceTracer(GenericTraceTracer):
         print("ltrace_version_str=", ltrace_version_str)
         if ltrace_version_str[-1] == b'.':
             ltrace_version_str = ltrace_version_str[:-1]
+        print("ltrace_version_str=", ltrace_version_str)
         return tuple(map(int, ltrace_version_str.split(b'.')))
 
