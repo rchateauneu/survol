@@ -36,6 +36,7 @@ except ImportError:
     psutil = None
 
 is_py3 = sys.version_info >= (3,)
+is_platform_linux = sys.platform.startswith("linux")
 
 ################################################################################
 
@@ -846,13 +847,13 @@ class CIM_NetworkAdapter(CIM_XmlMarshaller):
 #  uint64   WorkingSetSize;
 # };
 class CIM_Process(CIM_XmlMarshaller):
-    def __init__(self, procId):
+    def __init__(self, proc_id):
         super(CIM_Process, self).__init__()
 
-        # sys.stdout.write("CIM_Process procId=%s\n"%procId)
+        # sys.stdout.write("CIM_Process proc_id=%s\n"%proc_id)
 
-        # BY CONVENTION, SOME MEMBERS MUST BE DISPLAYED AND FOLLOW CIM CONVENTION.
-        self.Handle = procId
+        # SOME MEMBERS MUST BE DISPLAYED AND FOLLOW CIM CONVENTION.
+        self.Handle = proc_id
         self.m_parentProcess = None
         self.m_subProcesses = set()
         self.CreationDate = None
@@ -868,20 +869,15 @@ class CIM_Process(CIM_XmlMarshaller):
 
         if not G_ReplayMode:
             # Maybe this cannot be accessed.
-            if sys.platform.startswith("linux"):
-                filnamEnviron = "/proc/%d/environ" % self.Handle
+            if is_platform_linux:
+                filnam_environ = "/proc/%d/environ" % self.Handle
                 try:
-                    fdEnv = open(filnamEnviron)
-                    arrEnv = fdEnv.readline().split('\0')
                     self.EnvironmentVariables = {}
-                    for onePair in fdEnv.readline().split('\0'):
-                        if onePair:
-                            ixEq = onePair.find("=")
-                            if ixEq > 0:
-                                envKey = onePair[:ixEq]
-                                envVal = onePair[ixEq + 1:]
-                                self.EnvironmentVariables[envKey] = envVal
-                    fdEnv.close()
+                    with open(filnam_environ) as fd_env:
+                        for one_pair in fd_env.readline().split('\0'):
+                            env_key, colon, env_val = one_pair.partition('=')
+                            if colon:
+                                self.EnvironmentVariables[env_key] = env_val
                 except:
                     pass
 
@@ -889,41 +885,50 @@ class CIM_Process(CIM_XmlMarshaller):
             try:
                 # FIXME: If rerunning a simulation, this does not make sense.
                 # Same for CIM_DataFile when this is not the target machine.
-                procObj = psutil.Process(procId)
+                proc_obj = psutil.Process(proc_id)
             except:
                 # Maybe this is replaying a former session and in this case,
                 # the process is not there anymore.
-                procObj = None
+                proc_obj = None
         else:
-            procObj = None
+            proc_obj = None
 
-        if procObj:
+        if proc_obj:
             try:
-                self.Name = procObj.name()
-                execFilNam = procObj.exe()
-                objects_context = ObjectsContext(procId)
-                execFilObj = objects_context._class_model_to_object_path(CIM_DataFile, execFilNam)
-                self.set_executable_path(execFilObj)
+                self.Name = proc_obj.name()
+                exec_fil_nam = proc_obj.exe().replace("\\", "/")
+                # The process id is not needed because the path is absolute and the process CIM object
+                # should already be created. However, in the future it might reuse an existing context.
+                objects_context = ObjectsContext(proc_id)
+                #exec_fil_obj = objects_context.ToObjectPath_CIM_DataFile(exec_fil_nam)
+                exec_fil_obj = objects_context._class_model_to_object_path(CIM_DataFile, exec_fil_nam)
+
+                # The process id is not needed because the path is absolute.
+                # However, in the future it might reuse an existing context.
+                # Also, the process must not be inserted twice.
+                #exec_fil_obj = objects_context.attributes_to_cim_object("CIM_DataFile", Name=exec_fil_nam)
+
+                self.set_executable_path(exec_fil_obj)
             except:
                 self.Name = None
 
             try:
                 # Maybe the process has exit.
-                self.Username = procObj.username()
-                self.Priority = procObj.nice()
+                self.Username = proc_obj.username()
+                self.Priority = proc_obj.nice()
             except:
                 pass
 
             try:
-                self.CurrentDirectory = procObj.cwd()
+                self.CurrentDirectory = proc_obj.cwd().replace("\\", "/")
             except:
                 # psutil.ZombieProcess process still exists but it's a zombie
                 # Another possibility would be to use the parent process.
                 self.CurrentDirectory = G_CurrentDirectory
 
         else:
-            if procId > 0:
-                self.Name = "pid=%s" % procId
+            if proc_id > 0:
+                self.Name = "pid=%s" % proc_id
             else:
                 self.Name = ""
             # TODO: This could be deduced with calls to setuid().
@@ -937,20 +942,20 @@ class CIM_Process(CIM_XmlMarshaller):
         # one other process, then it is its parent.
         # It helps if the first vfork() is never finished,
         # and if we did not get the main process id.
-        mapProcs = G_mapCacheObjects[CIM_Process.__name__]
-        keysProcs = list(mapProcs.keys())
-        if len(keysProcs) == 1:
+        map_procs = G_mapCacheObjects[CIM_Process.__name__]
+        keys_procs = list(map_procs.keys())
+        if len(keys_procs) == 1:
             # We are about to create the second process.
 
             # CIM_Process.Handle="29300"
-            firstProcId = keysProcs[0]
-            firstProcObj = mapProcs[firstProcId]
-            if firstProcId != ('CIM_Process.Handle="%s"' % firstProcObj.Handle):
-                raise Exception("Inconsistent procid:%s != %s" % (firstProcId, firstProcObj.Handle))
+            first_proc_id = keys_procs[0]
+            first_proc_obj = map_procs[first_proc_id]
+            if first_proc_id != ('CIM_Process.Handle="%s"' % first_proc_obj.Handle):
+                raise Exception("Inconsistent procid:%s != %s" % (first_proc_id, first_proc_obj.Handle))
 
-            if firstProcObj.Handle == procId:
-                raise Exception("Duplicate procid:%s" % procId)
-            self.SetParentProcess(firstProcObj)
+            if first_proc_obj.Handle == proc_id:
+                raise Exception("Duplicate procid:%s" % proc_id)
+            self.SetParentProcess(first_proc_obj)
 
     cim_ontology_list = ['Handle']
 
@@ -1474,7 +1479,8 @@ _class_name_to_subclass = {cls.__name__: cls for cls in leaf_derived_classes(CIM
 # giving a full path from the root of the directory tree to the named file (or symlink)
 def to_real_absolute_path(directory_path, file_basename):
     # This does not apply to pseudo-files such as: "pipe:", "TCPv6:" etc...
-    if re.match("^[0-9a-zA-Z_]+:", file_basename):
+    # It must not filter Windows paths such as "C:\\xxxxx"
+    if is_platform_linux and re.match("^[0-9a-zA-Z_]+:", file_basename):
         return file_basename
 
     if file_basename in ["stdout", "stdin", "stderr"]:
@@ -1482,6 +1488,9 @@ def to_real_absolute_path(directory_path, file_basename):
 
     join_path = os.path.join(directory_path, file_basename)
     norm_path = os.path.realpath(join_path)
+
+    if not is_platform_linux:
+        norm_path = norm_path.replace("\\", "/")
     return norm_path
 
 ################################################################################
@@ -1553,7 +1562,6 @@ class ObjectsContext:
 
         objDataFile = self._class_model_to_object_path(CIM_DataFile, pathName)
         return objDataFile
-
 
     def _class_model_to_object_path(self, class_model, *ctor_args):
         global G_mapCacheObjects
