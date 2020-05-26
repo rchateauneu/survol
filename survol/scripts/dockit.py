@@ -93,10 +93,14 @@ def print_dockit_usage(exit_code = 1, error_message = None):
     print("")
 
     if is_platform_linux:
-        print("strace command: " +" ".join(G_traceToTracer["strace"].build_trace_command(["<command>"], None)))
-        print("                " +" ".join(G_traceToTracer["strace"].build_trace_command(None, "<pid>")))
-        print("ltrace command: " +" ".join(G_traceToTracer["ltrace"].build_trace_command(["<command>"], None)))
-        print("                " +" ".join(G_traceToTracer["ltrace"].build_trace_command(None, "<pid>")))
+        trace_strace = G_traceToTracer["strace"]
+        print("strace command: " + " ".join(trace_strace.build_trace_command(["<command>"], None)))
+        print("                " + " ".join(trace_strace.build_trace_command(None, "<pid>")))
+        print("version       : " + str(trace_strace.trace_software_version()))
+        trace_ltrace = G_traceToTracer["ltrace"]
+        print("ltrace command: " + " ".join(trace_ltrace.build_trace_command(["<command>"], None)))
+        print("                " + " ".join(trace_ltrace.build_trace_command(None, "<pid>")))
+        print("version       : " + str(trace_ltrace.trace_software_version()))
         print("")
         if G_traceToTracer["strace"].trace_software_version() < (4,21):
             # It needs the option "-y"
@@ -899,7 +903,7 @@ if __name__ == '__main__':
             assert False, "Unhandled option"
 
     G_parameters.tracer = default_tracer(G_parameters.input_log_file, G_parameters.tracer)
-    print("tracer is", G_parameters.tracer)
+    #print("tracer is", G_parameters.tracer)
 
     print("THIS IS TEMPORARY")
     print_dockit_usage(999)
