@@ -65,11 +65,11 @@ def path_prefix_output_result(*file_path):
 # it returns the parsed content, depending on the extension,
 def check_file_content(*file_path):
     full_file_path = path_prefix_output_result(*file_path)
-    fil_descr = open(full_file_path)
     filename, file_extension = os.path.splitext(full_file_path)
     if file_extension == ".json":
         # Checks that this json file can be loaded.
-        file_content = json.load(fil_descr)
+        with open(full_file_path) as fil_descr:
+            file_content = json.load(fil_descr)
     elif file_extension == ".xml":
         # Checks that this xml file can be parsed.
         file_content = minidom.parse(full_file_path)
@@ -84,8 +84,6 @@ def check_file_content(*file_path):
         file_content = dockit.ini_file_check(full_file_path)
     else:
         file_content = None
-
-    fil_descr.close()
 
     # Now compare this file with the expected one, if it is here.
     expected_file_path = os.path.join(dockit_output_files_path_expected, *file_path)
@@ -742,6 +740,74 @@ class CommandLineLivePythonTest(unittest.TestCase):
 
         # TODO: Could use standardized_file_path()
         python_script_file_standard = python_script_file.replace("\\", "/")
+        self.assertTrue((
+                            ("CIM_DataFile", {"Name": python_script_file_standard}),
+                            "Name",
+                            python_script_file_standard) in triples_as_string)
+
+        return triples_as_string, created_pid
+
+    @unittest.skipIf(is_travis_machine(), "FIXME: Broken on Travis for the moment.")
+    def test_run_python_script_rdf(self):
+        """This runs a minimal Python script."""
+        output_basename_prefix = "test_run_windows_python_script_rdf"
+
+        python_script = """
+print("Hello")
+"""
+        triples_as_string, created_pid = self._run_python_script_rdf(output_basename_prefix, python_script)
+
+    def _run_python_script_rdf_travis_temp(self, output_basename_prefix, python_script):
+        """This runs a Python script."""
+        output_prefix = path_prefix_output_result(output_basename_prefix)
+        created_rdf_file = path_prefix_output_result(output_basename_prefix + ".rdf")
+        python_script_file = path_prefix_output_result(output_basename_prefix + ".py")
+        with open(python_script_file, "w") as python_script_file_descriptor:
+            python_script_file_descriptor.write(python_script)
+
+        # dockit_command = "--server=%s --log %s -t ltrace --duplicate %s %s" % (created_rdf_file, output_prefix, sys.executable, python_script_file)
+        dockit_command = "--server=%s --log %s --duplicate %s %s" % (created_rdf_file, output_prefix, sys.executable, python_script_file)
+        #dockit_command = "--server=%s %s %s" % (created_rdf_file, sys.executable, python_script_file)
+        command_result = _run_dockit_command(dockit_command)
+
+#        check_file_content(output_basename_prefix + ".log")
+
+#        log_file_path = path_prefix_output_result(output_basename_prefix + ".log")
+#        print("log_file_path=", log_file_path)
+#        with open(log_file_path) as log_file_descriptor:
+#            for one_line in log_file_descriptor.readlines():
+#                print(one_line, end='')
+
+
+        ini_content = check_file_content(output_basename_prefix + ".ini")
+        created_pid = ini_content["TopProcessId"]
+
+        print("created_pid=", created_pid)
+        triples_as_string = _rdf_file_to_triples(created_rdf_file)
+        for one_triple in triples_as_string:
+            print("    ", one_triple)
+
+        # This is the created process which runs dockit.py
+        print("created_pid=", created_pid)
+        self.assertTrue((
+                            ("CIM_Process", {"Handle": str(created_pid)}),
+                            "Handle",
+                            str(created_pid)) in triples_as_string)
+
+        # The created process points to its current directory.
+        self.assertTrue((
+                            ("CIM_Process", {"Handle": str(created_pid)}),
+                            "CurrentDirectory",
+                            dockit_dirname.replace("\\", "/")) in triples_as_string)
+
+        # The Python interpreter is accessed, after symlinks resolution.
+        self.assertTrue((
+                            ("CIM_DataFile", {"Name": CurrentExecutable}),
+                            "Name",
+                            CurrentExecutable) in triples_as_string)
+
+        # TODO: Could use standardized_file_path()
+        python_script_file_standard = python_script_file.replace("\\", "/")
 
         print("python_script_file_standard=", python_script_file_standard)
         for a, b, c in triples_as_string:
@@ -752,16 +818,18 @@ class CommandLineLivePythonTest(unittest.TestCase):
                             "Name",
                             python_script_file_standard) in triples_as_string)
 
+        print("created_pid=", created_pid)
         return triples_as_string, created_pid
 
-    def test_run_python_script_rdf(self):
+    @unittest.skipIf(not is_travis_machine(), "FIXME: Broken on Travis for the moment.")
+    def test_run_python_script_rdf_travis_temp(self):
         """This runs a minimal Python script."""
-        output_basename_prefix = "test_run_windows_python_script_rdf"
+        output_basename_prefix = "test_run_windows_python_script_rdf_travis_temp"
 
         python_script = """
 print("Hello")
 """
-        triples_as_string, created_pid = self._run_python_script_rdf(output_basename_prefix, python_script)
+        triples_as_string, created_pid = self._run_python_script_rdf_travis_temp(output_basename_prefix, python_script)
 
 
 class SummaryXMLTest(unittest.TestCase):
