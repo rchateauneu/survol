@@ -2095,13 +2095,10 @@ class LTraceTracer(GenericTraceTracer):
     def trace_software_version(self):
         # "ltrace version 0.5."
         # "ltrace 0.7.91"
+        # 0.7.3 on Travis.
         ltrace_version_bytes = subprocess.check_output('ltrace -V', shell=True).split(b'\n')[0].split()[-1]
         ltrace_version_str = ltrace_version_bytes.decode()
-        print("ltrace_version_str=", ltrace_version_str)
-        print("ltrace_version_str[-1]=", ltrace_version_str[-1])
         if ltrace_version_str[-1] == '.':
-            print("Truncate")
             ltrace_version_str = ltrace_version_str[:-1]
-        print("ltrace_version_str=", ltrace_version_str)
         return tuple(map(int, ltrace_version_str.split('.')))
 
