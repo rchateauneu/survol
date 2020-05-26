@@ -769,6 +769,7 @@ print("Hello")
         dockit_command = "--server=%s --log %s --duplicate %s %s" % (created_rdf_file, output_prefix, sys.executable, python_script_file)
         #dockit_command = "--server=%s %s %s" % (created_rdf_file, sys.executable, python_script_file)
         command_result = _run_dockit_command(dockit_command)
+        print("command_result=", command_result)
 
         check_file_content(output_basename_prefix + ".log")
 
