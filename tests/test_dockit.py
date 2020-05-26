@@ -35,7 +35,8 @@ dockit_output_files_path_expected = os.path.join(_current_file_dirname, "dockit_
 # This is the directory of the command dockit.py and ised used to run it
 # and check where the default ouput files are created.
 # __file__ could be 'C:\\Python27\\lib\\site-packages\\survol\\scripts\\dockit.pyc'
-dockit_dirname = os.path.abspath(os.path.dirname(dockit.__file__))
+
+dockit_dirname = standardized_file_path(os.path.dirname(dockit.__file__))
 
 ini_file_default = os.path.join(dockit_dirname, "dockit_output" + ".ini")
 
@@ -693,10 +694,11 @@ class CommandLineLiveWin32Test(unittest.TestCase):
                             dockit_dirname) in triples_as_string)
 
         # This file is read from by the process, so it must appear here.
+        win32_cmd_standardized = standardized_file_path(windows_system32_cmd_exe)
         self.assertTrue((
-                            ("CIM_DataFile", {"Name": windows_system32_cmd_exe}),
+                            ("CIM_DataFile", {"Name": win32_cmd_standardized}),
                             "Name",
-                            windows_system32_cmd_exe) in triples_as_string)
+                            win32_cmd_standardized) in triples_as_string)
 
         # FIXME: The written file should also be visible. But we do not know how "copy" works.
 
@@ -718,8 +720,6 @@ class CommandLineLivePythonTest(unittest.TestCase):
         created_pid = ini_content["TopProcessId"]
 
         triples_as_string = _rdf_file_to_triples(created_rdf_file)
-        for one_triple in triples_as_string:
-            print("    ", one_triple)
 
         # This is the created process which runs dockit.py
         self.assertTrue((
@@ -731,10 +731,9 @@ class CommandLineLivePythonTest(unittest.TestCase):
         self.assertTrue((
                             ("CIM_Process", {"Handle": str(created_pid)}),
                             "CurrentDirectory",
-                            dockit_dirname) in triples_as_string)
+                            dockit_dirname.replace("\\", "/")) in triples_as_string)
 
         # The Python interpreter is accessed, after symlinks resolution.
-        print("sys.executable=", sys.executable, CurrentExecutable)
         self.assertTrue((
                             ("CIM_DataFile", {"Name": CurrentExecutable}),
                             "Name",
@@ -743,10 +742,12 @@ class CommandLineLivePythonTest(unittest.TestCase):
         # The created Python script is accessed.
         # FIXME: Does not work on Linux.
         if is_platform_windows:
+            # TODO: Could use standardized_file_path()
+            python_script_file_standard = python_script_file.replace("\\", "/")
             self.assertTrue((
-                                ("CIM_DataFile", {"Name": python_script_file}),
+                                ("CIM_DataFile", {"Name": python_script_file_standard}),
                                 "Name",
-                                python_script_file) in triples_as_string)
+                                python_script_file_standard) in triples_as_string)
 
         return triples_as_string, created_pid
 
@@ -755,8 +756,8 @@ class CommandLineLivePythonTest(unittest.TestCase):
         output_basename_prefix = "test_run_windows_python_script_rdf"
 
         python_script = """
-            print("Hello")
-        """
+print("Hello")
+"""
         triples_as_string, created_pid = self._run_python_script_rdf(output_basename_prefix, python_script)
 
 
