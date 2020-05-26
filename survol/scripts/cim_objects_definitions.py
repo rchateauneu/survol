@@ -411,9 +411,11 @@ def _timestamp_to_str(timStamp):
 # This module is needed for storing the generated data into a RDF file.
 try:
     if is_py3:
-        sys.path.append("..")
+        if ".." not in sys.path:
+            sys.path.append("..")
     else:
-        sys.path.append("../survol")
+        if "../survol" not in sys.path:
+            sys.path.append("../survol")
     from survol import lib_event
 except ImportError:
     lib_event = None
