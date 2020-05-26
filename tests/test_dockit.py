@@ -317,6 +317,7 @@ class CommandLineReplayTest(unittest.TestCase):
             input_log_file,
             output_prefix)
         command_result = _run_dockit_command(dockit_command)
+        print("command_result ... =", command_result[:50])
         self.assertTrue(command_result.startswith(b"Loading ini file:"))
 
         # No ini file created because this is a replay session from a log file.
