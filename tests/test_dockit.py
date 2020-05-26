@@ -770,13 +770,13 @@ print("Hello")
         #dockit_command = "--server=%s %s %s" % (created_rdf_file, sys.executable, python_script_file)
         command_result = _run_dockit_command(dockit_command)
 
-#        check_file_content(output_basename_prefix + ".log")
+        check_file_content(output_basename_prefix + ".log")
 
-#        log_file_path = path_prefix_output_result(output_basename_prefix + ".log")
-#        print("log_file_path=", log_file_path)
-#        with open(log_file_path) as log_file_descriptor:
-#            for one_line in log_file_descriptor.readlines():
-#                print(one_line, end='')
+        log_file_path = path_prefix_output_result(output_basename_prefix + ".log")
+        print("log_file_path=", log_file_path)
+        with open(log_file_path) as log_file_descriptor:
+            for one_line in log_file_descriptor.readlines():
+                print(one_line, end='')
 
 
         ini_content = check_file_content(output_basename_prefix + ".ini")
@@ -788,7 +788,6 @@ print("Hello")
             print("    ", one_triple)
 
         # This is the created process which runs dockit.py
-        print("created_pid=", created_pid)
         self.assertTrue((
                             ("CIM_Process", {"Handle": str(created_pid)}),
                             "Handle",
@@ -810,8 +809,6 @@ print("Hello")
         python_script_file_standard = python_script_file.replace("\\", "/")
 
         print("python_script_file_standard=", python_script_file_standard)
-        for a, b, c in triples_as_string:
-            print("    ", a, b, c)
 
         self.assertTrue((
                             ("CIM_DataFile", {"Name": python_script_file_standard}),
