@@ -93,21 +93,18 @@ def print_dockit_usage(exit_code = 1, error_message = None):
     print("")
 
     if is_platform_linux:
-        trace_strace = G_traceToTracer["strace"]
-        print("strace command: " + " ".join(trace_strace.build_trace_command(["<command>"], None)))
-        print("                " + " ".join(trace_strace.build_trace_command(None, "<pid>")))
-        print("version       : " + str(trace_strace.trace_software_version()))
         trace_ltrace = G_traceToTracer["ltrace"]
         print("ltrace command: " + " ".join(trace_ltrace.build_trace_command(["<command>"], None)))
         print("                " + " ".join(trace_ltrace.build_trace_command(None, "<pid>")))
         print("version       : " + str(trace_ltrace.trace_software_version()))
         print("")
-        if G_traceToTracer["strace"].trace_software_version() < (4,21):
-            # It needs the option "-y"
+        trace_strace = G_traceToTracer["strace"]
+        print("strace command: " + " ".join(trace_strace.build_trace_command(["<command>"], None)))
+        print("                " + " ".join(trace_strace.build_trace_command(None, "<pid>")))
+        print("version       : " + str(trace_strace.trace_software_version()))
+        if trace_strace.deprecated_version():
             print("strace version deprecated. Consider upgrading")
-
-# Example to create a new unit test:
-# ./dockit.py -D -l UnitTests/mineit_firefox  -t  ltrace bash firefox
+        print("")
 
     # Special value just for testing.
     if exit_code != 999:
@@ -902,11 +899,8 @@ if __name__ == '__main__':
         else:
             assert False, "Unhandled option"
 
+    # For Linux, default value is "strace".
     G_parameters.tracer = default_tracer(G_parameters.input_log_file, G_parameters.tracer)
-    #print("tracer is", G_parameters.tracer)
-
-    print("THIS IS TEMPORARY")
-    print_dockit_usage(999)
 
     _start_processing(G_parameters)
 
