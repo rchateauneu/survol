@@ -539,18 +539,17 @@ class Win32Hook_CreateProcessW(Win32Hook_GenericProcessCreation):
         if self.process_is_not_suspended:
             print("Win32Hook_CreateProcessW: Setting breakpoints in suspended thread:", dwThreadId)
 
-            if True:
-                sub_hooks_manager = Win32Hook_Manager()
-                # The same breakpoints are used by all threads of the same subprocess.
-                self.current_pydbg.hook_manager.subprocesses_managers[dwProcessId] = sub_hooks_manager
+            sub_hooks_manager = Win32Hook_Manager()
+            # The same breakpoints are used by all threads of the same subprocess.
+            self.current_pydbg.hook_manager.subprocesses_managers[dwProcessId] = sub_hooks_manager
 
-                try:
-                    sub_hooks_manager.attach_to_pid(dwProcessId)
-                except Exception as exc:
-                    # Cannot attach to some subprocesses:
-                    # ping  -n 1 127.0.0.1
-                    #
-                    print("CANNOT ATTACH TO", dwProcessId, lpCommandLine, exc)
+            try:
+                sub_hooks_manager.attach_to_pid(dwProcessId)
+            except Exception as exc:
+                # Cannot attach to some subprocesses:
+                # ping  -n 1 127.0.0.1
+                #
+                print("CANNOT ATTACH TO", dwProcessId, lpCommandLine, exc)
 
             # FIXME: It is not possible to call pywin32 with these handles. Why ??
             print("Win32Hook_CreateProcessW: Resuming thread:", dwThreadId)
