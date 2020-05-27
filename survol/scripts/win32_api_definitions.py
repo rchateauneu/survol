@@ -432,73 +432,14 @@ class Win32Hook_GenericProcessCreation(Win32Hook_BaseClass):
     # - Once the subprocess is created, the necessary environment for hooking a process is re-created
     #   inside this function call which is then uniquely associated to a process.
     #   This data structure associated to a process also contains the hook logic to interrupt API functions calls.
-    def process_creation_before(self):
-
-        # Change dwCreationFlags in the stack, the way its value was read.
-
-        raise NotImplementedYet("Win32Hook_GenericProcessCreation")
-
-    def process_creation_after(self, process_id):
-        raise NotImplementedYet("Win32Hook_GenericProcessCreation")
-
-
-################################################################################
-
-class Win32Hook_CreateProcessA(Win32Hook_GenericProcessCreation):
-    api_definition = b"""
-        BOOL CreateProcessA(
-            LPCSTR                lpApplicationName,
-            LPSTR                 lpCommandLine,
-            LPSECURITY_ATTRIBUTES lpProcessAttributes,
-            LPSECURITY_ATTRIBUTES lpThreadAttributes,
-            BOOL                  bInheritHandles,
-            DWORD                 dwCreationFlags,
-            LPVOID                lpEnvironment,
-            LPCSTR                lpCurrentDirectory,
-            LPSTARTUPINFOA        lpStartupInfo,
-            LPPROCESS_INFORMATION lpProcessInformation
-        );"""
-    dll_name = b"KERNEL32.dll"
-    def callback_after(self, function_arguments, function_result):
-        lpApplicationName = self.current_pydbg.get_bytes_string(function_arguments[0])
-        lpCommandLine = self.current_pydbg.get_bytes_string(function_arguments[1])
-        lpProcessInformation = function_arguments[9]
-
-        # _PROCESS_INFORMATION {
-        #   HANDLE hProcess;
-        #   HANDLE hThread;
-        #   DWORD  dwProcessId;
-        #   DWORD  dwThreadId;
-        # }
-        offset_dwProcessId = windows_h.sizeof(windows_h.HANDLE) + windows_h.sizeof(windows_h.HANDLE)
-        dwProcessId = self.current_pydbg.get_long(lpProcessInformation + offset_dwProcessId)
-
-        logging.debug("Win32Hook_CreateProcessA m_parsedArgs=", function_arguments)
-        logging.debug("Win32Hook_CreateProcessA _return_value=", function_result)
-        logging.debug("Win32Hook_CreateProcessA Handle=", dwProcessId)
-        self.callback_create_object("CIM_Process", Handle=dwProcessId)
-
-
-class Win32Hook_CreateProcessW(Win32Hook_GenericProcessCreation):
-    api_definition = b"""
-        BOOL CreateProcessW(
-            LPCWSTR               lpApplicationName,
-            LPWSTR                lpCommandLine,
-            LPSECURITY_ATTRIBUTES lpProcessAttributes,
-            LPSECURITY_ATTRIBUTES lpThreadAttributes,
-            BOOL                  bInheritHandles,
-            DWORD                 dwCreationFlags,
-            LPVOID                lpEnvironment,
-            LPCWSTR               lpCurrentDirectory,
-            LPSTARTUPINFOW        lpStartupInfo,
-            LPPROCESS_INFORMATION lpProcessInformation
-        );"""
-    dll_name = b"KERNEL32.dll"
-
-    def __init__(self):
-        print("Win32Hook_CreateProcessW.__init__")
 
     def callback_before(self, function_arguments):
+        raise NotImplementedYet("Win32Hook_GenericProcessCreation.callback_before")
+
+    def callback_after(self, function_arguments, function_result):
+        raise NotImplementedYet("Win32Hook_GenericProcessCreation.callback_after")
+
+    def callback_before_common(self, function_arguments):
         dwCreationFlags = function_arguments[5]
         print("Win32Hook_CreateProcessW.callback_before dwCreationFlags = %0x." % dwCreationFlags)
         # This should be the case most of times,
@@ -509,12 +450,7 @@ class Win32Hook_CreateProcessW(Win32Hook_GenericProcessCreation):
             dwCreationFlagsSuspended = dwCreationFlags | win32con.CREATE_SUSPENDED
             self.current_pydbg.set_arg(5, dwCreationFlagsSuspended)
 
-
-    def callback_after(self, function_arguments, function_result):
-        lpApplicationName = self.current_pydbg.get_unicode_string(function_arguments[0])
-        lpCommandLine = self.current_pydbg.get_unicode_string(function_arguments[1])
-        print("callback_after lpCommandLine=", lpCommandLine, "function_result", function_result)
-
+    def callback_after_common(self, function_arguments, function_result):
         # typedef struct _PROCESS_INFORMATION {
         #   HANDLE hProcess;
         #   HANDLE hThread;
@@ -549,11 +485,66 @@ class Win32Hook_CreateProcessW(Win32Hook_GenericProcessCreation):
                 # Cannot attach to some subprocesses:
                 # ping  -n 1 127.0.0.1
                 #
-                print("CANNOT ATTACH TO", dwProcessId, lpCommandLine, exc)
+                # print("CANNOT ATTACH TO", dwProcessId, lpCommandLine, exc)
+                print("CANNOT ATTACH TO", dwProcessId, exc)
+                sys.stderr.write("CANNOT ATTACH TO %d:%s" % (dwProcessId, exc))
 
             # FIXME: It is not possible to call pywin32 with these handles. Why ??
             print("Win32Hook_CreateProcessW: Resuming thread:", dwThreadId)
             self.current_pydbg.resume_thread(dwThreadId)
+
+################################################################################
+
+
+class Win32Hook_CreateProcessA(Win32Hook_GenericProcessCreation):
+    api_definition = b"""
+        BOOL CreateProcessA(
+            LPCSTR                lpApplicationName,
+            LPSTR                 lpCommandLine,
+            LPSECURITY_ATTRIBUTES lpProcessAttributes,
+            LPSECURITY_ATTRIBUTES lpThreadAttributes,
+            BOOL                  bInheritHandles,
+            DWORD                 dwCreationFlags,
+            LPVOID                lpEnvironment,
+            LPCSTR                lpCurrentDirectory,
+            LPSTARTUPINFOA        lpStartupInfo,
+            LPPROCESS_INFORMATION lpProcessInformation
+        );"""
+    dll_name = b"KERNEL32.dll"
+
+    def callback_before(self, function_arguments):
+        self.callback_before_common(function_arguments)
+
+    def callback_after(self, function_arguments, function_result):
+        lpApplicationName = self.current_pydbg.get_bytes_string(function_arguments[0])
+        lpCommandLine = self.current_pydbg.get_bytes_string(function_arguments[1])
+        self.callback_after_common(function_arguments, function_result)
+
+
+class Win32Hook_CreateProcessW(Win32Hook_GenericProcessCreation):
+    api_definition = b"""
+        BOOL CreateProcessW(
+            LPCWSTR               lpApplicationName,
+            LPWSTR                lpCommandLine,
+            LPSECURITY_ATTRIBUTES lpProcessAttributes,
+            LPSECURITY_ATTRIBUTES lpThreadAttributes,
+            BOOL                  bInheritHandles,
+            DWORD                 dwCreationFlags,
+            LPVOID                lpEnvironment,
+            LPCWSTR               lpCurrentDirectory,
+            LPSTARTUPINFOW        lpStartupInfo,
+            LPPROCESS_INFORMATION lpProcessInformation
+        );"""
+    dll_name = b"KERNEL32.dll"
+
+    def callback_before(self, function_arguments):
+        self.callback_before_common(function_arguments)
+
+    def callback_after(self, function_arguments, function_result):
+        lpApplicationName = self.current_pydbg.get_unicode_string(function_arguments[0])
+        lpCommandLine = self.current_pydbg.get_unicode_string(function_arguments[1])
+        print("callback_after lpCommandLine=", lpCommandLine, "function_result", function_result)
+        self.callback_after_common(function_arguments, function_result)
 
 
 class Win32Hook_CreateDirectoryA(Win32Hook_BaseClass):
