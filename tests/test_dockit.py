@@ -748,7 +748,7 @@ class CommandLineLivePythonTest(unittest.TestCase):
 
         return triples_as_string, created_pid
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: Broken on Travis for the moment.")
+    #@unittest.skipIf(is_travis_machine(), "FIXME: Broken on Travis for the moment.")
     def test_run_python_script_rdf(self):
         """This runs a minimal Python script."""
         output_basename_prefix = "test_run_windows_python_script_rdf"
