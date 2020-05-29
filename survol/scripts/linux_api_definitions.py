@@ -12,6 +12,7 @@ import sys
 import logging
 import signal
 import subprocess
+import six
 
 if __package__:
     from . import cim_objects_definitions
@@ -568,7 +569,6 @@ class BatchLetBase(my_with_metaclass(BatchMeta)):
         return self.cim_context_core().ToObjectPath_CIM_DataFile(pathName)
 
     def _strace_stream_to_file(self, strmStr):
-        # return cim_objects_definitions.ToObjectPath_CIM_DataFile(_strace_stream_to_pathname(strmStr), self.m_core.m_pid)
         return self.cim_context_core().ToObjectPath_CIM_DataFile(_strace_stream_to_pathname(strmStr))
 
 # This associates file descriptors to path names when strace and the option "-y"
@@ -701,8 +701,6 @@ def _batchlet_factory(batchCore):
 # This returns a WMI object path, which is self-descriptive.
 # FIXME: Are file descriptors shared between processes ?
 def _strace_stream_to_pathname(strm_str):
-    print("_strace_stream_to_pathname strm_str=", strm_str)
-    print("keys=", str(G_mapFilDesToPathName.keys()))
     idxLT = strm_str.find("<")
     if idxLT >= 0:
         path_name = strm_str[idxLT + 1: -1]
