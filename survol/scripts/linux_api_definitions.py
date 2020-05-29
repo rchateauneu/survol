@@ -679,9 +679,7 @@ def _batchlet_factory(batchCore):
                 aModel.Incomplete_ResumedWithoutUnfinishedIsOk
                 btchLetDrv = aModel(batchCore)
             except AttributeError:
-                pass
-
-            btchLetDrv = BatchLetBase(batchCore)
+                btchLetDrv = BatchLetBase(batchCore)
     else:
         btchLetDrv = aModel(batchCore)
 
