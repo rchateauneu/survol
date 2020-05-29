@@ -1566,7 +1566,6 @@ class ObjectsContext:
     def _class_model_to_object_path(self, class_model, *ctor_args):
         global G_mapCacheObjects
         map_objs = G_mapCacheObjects[class_model.__name__]
-        G_mapCacheObjects[class_model.__name__] = map_objs
 
         obj_path = class_model.CreateMonikerKey(*ctor_args)
         try:
