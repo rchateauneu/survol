@@ -1282,10 +1282,7 @@ class CIM_DataFile(CIM_LogicalFile):
     # by an informal file category: DLL, data file etc...
     @staticmethod
     def SplitFilesByCategory():
-        try:
-            mapFiles = G_mapCacheObjects[CIM_DataFile.__name__].items()
-        except KeyError:
-            return {}
+        mapFiles = G_mapCacheObjects[CIM_DataFile.__name__].items()
 
         # TODO: Find a way to define the presentation as a parameter.
         # Maybe we can use the list of keys: Just mentioning a property
