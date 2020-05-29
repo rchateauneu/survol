@@ -195,7 +195,6 @@ class Win32Tracer(TracerBase):
         else:
             self._top_process_id = process_id
 
-        # return self._top_process_id, self.QueueToStreamAdapter(self._queue)
         return self._top_process_id, self._queue
 
     # Used when replaying a trace session. This returns an object, on which each read access
@@ -487,7 +486,7 @@ class Win32Hook_GenericProcessCreation(Win32Hook_BaseClass):
                 #
                 # print("CANNOT ATTACH TO", dwProcessId, lpCommandLine, exc)
                 print("CANNOT ATTACH TO", dwProcessId, exc)
-                sys.stderr.write("CANNOT ATTACH TO %d:%s" % (dwProcessId, exc))
+                sys.stderr.write("CANNOT ATTACH TO %d:%s\n" % (dwProcessId, exc))
 
             # FIXME: It is not possible to call pywin32 with these handles. Why ??
             print("Win32Hook_CreateProcessW: Resuming thread:", dwThreadId)
