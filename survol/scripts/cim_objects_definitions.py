@@ -702,7 +702,7 @@ class CIM_XmlMarshaller(object):
 ################################################################################
 
 # Read from a real process or from the ini file when replaying a session.
-G_CurrentDirectory = None
+G_CurrentDirectory = u""
 
 
 # The CIM_xxx classes are taken from Common Information Model standard.
@@ -889,8 +889,7 @@ class CIM_Process(CIM_XmlMarshaller):
                 # Same for CIM_DataFile when this is not the target machine.
                 proc_obj = psutil.Process(proc_id)
             except:
-                # Maybe this is replaying a former session and in this case,
-                # the process is not there anymore.
+                # Maybe this is replaying a former session and if so, the process exited.
                 proc_obj = None
         else:
             proc_obj = None
@@ -902,14 +901,11 @@ class CIM_Process(CIM_XmlMarshaller):
                 # The process id is not needed because the path is absolute and the process CIM object
                 # should already be created. However, in the future it might reuse an existing context.
                 objects_context = ObjectsContext(proc_id)
-                #exec_fil_obj = objects_context.ToObjectPath_CIM_DataFile(exec_fil_nam)
                 exec_fil_obj = objects_context._class_model_to_object_path(CIM_DataFile, exec_fil_nam)
 
                 # The process id is not needed because the path is absolute.
                 # However, in the future it might reuse an existing context.
                 # Also, the process must not be inserted twice.
-                #exec_fil_obj = objects_context.attributes_to_cim_object("CIM_DataFile", Name=exec_fil_nam)
-
                 self.set_executable_path(exec_fil_obj)
             except:
                 self.Name = None
@@ -1477,19 +1473,24 @@ _class_name_to_subclass = {cls.__name__: cls for cls in leaf_derived_classes(CIM
 # os.path.abspath removes things like . and .. from the path
 # giving a full path from the root of the directory tree to the named file (or symlink)
 def to_real_absolute_path(directory_path, file_basename):
+    # This conversion to avoid "TypeError: Can't mix strings and bytes in path components"
+    if isinstance(directory_path, six.binary_type):
+        directory_path = directory_path.decode("utf-8")
+    if isinstance(file_basename, six.binary_type):
+        file_basename = file_basename.decode("utf-8")
     # This does not apply to pseudo-files such as: "pipe:", "TCPv6:" etc...
     # It must not filter Windows paths such as "C:\\xxxxx"
-    if is_platform_linux and re.match("^[0-9a-zA-Z_]+:", file_basename):
+    if is_platform_linux and re.match(u"^[0-9a-zA-Z_]+:", file_basename):
         return file_basename
 
-    if file_basename in ["stdout", "stdin", "stderr"]:
+    if file_basename in [u"stdout", u"stdin", u"stderr"]:
         return file_basename
 
     join_path = os.path.join(directory_path, file_basename)
     norm_path = os.path.realpath(join_path)
 
     if not is_platform_linux:
-        norm_path = norm_path.replace("\\", "/")
+        norm_path = norm_path.replace(u"\\", "/")
     return norm_path
 
 ################################################################################
