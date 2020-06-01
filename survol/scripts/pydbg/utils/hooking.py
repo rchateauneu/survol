@@ -81,7 +81,7 @@ class hook_container:
 
         # ensure a hook doesn't already exist at the requested address.
         if address in self.hooks.keys():
-            return
+            return None
 
         # create a new hook instance and activate it.
         h = hook(address, num_args, entry_hook, exit_hook)
