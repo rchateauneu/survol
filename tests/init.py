@@ -17,8 +17,10 @@ import tempfile
 import subprocess
 
 # TODO: Maybe not needed on TravisCI
-sys.path.append("..")
-sys.path.append("../survol")
+if ".." not in sys.path:
+    sys.path.append("..")
+if "../survol" not in sys.path:
+    sys.path.append("../survol")
 import scripts.cgiserver
 
 ################################################################################
