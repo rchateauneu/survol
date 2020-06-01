@@ -39,6 +39,7 @@ else:
 
 is_platform_windows = sys.platform.startswith("win32")
 is_platform_linux = sys.platform.startswith("linux")
+is_py3 = sys.version_info >= (3,)
 
 ################################################################################
 
@@ -141,7 +142,7 @@ def _parse_filter_CIM(rgx_object_path):
 
     exec(tmp_func)
     local_temp_func = locals()["aTempFunc"]
-    if sys.version_info >= (3,):
+    if is_py3:
         tmp_insp = inspect.getfullargspec(local_temp_func)
     else:
         tmp_insp = inspect.getargspec(local_temp_func)
