@@ -436,14 +436,14 @@ os.system('dir')
         calls_counter_process = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
         print("calls_counter_process.keys()=", calls_counter_process.keys())
         if is_py3:
-            self.assertTrue(calls_counter_process[b'CreateProcessW'] == 1)
+            self.assertEqual(calls_counter_process[b'CreateProcessW'], 1)
             self.assertTrue(b'CreateProcessA' not in calls_counter_process)
         else:
-            self.assertTrue(calls_counter_process[b'CreateProcessA'] == 1)
+            self.assertEqual(calls_counter_process[b'CreateProcessA'], 1)
             self.assertTrue(b'CreateProcessW' not in calls_counter_process)
 
         # This creates one single subprocess running cmd.exe
-        self.assertTrue(len(created_processes) == 1)
+        self.assertEqual(len(created_processes), 1)
 
 
     def test_api_Python_os_system_python(self):
