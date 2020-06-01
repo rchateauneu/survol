@@ -923,6 +923,7 @@ class pydbg:
 
             elif dbg.dwDebugEventCode == EXIT_THREAD_DEBUG_EVENT:
                 #self._log("debug_event_iteration EXIT_THREAD_DEBUG_EVENT")
+                # exit_code = dbg.u.ExitProcess.dwExitCode
                 continue_status = self.event_handler_exit_thread()
 
             elif dbg.dwDebugEventCode == LOAD_DLL_DEBUG_EVENT:
@@ -945,7 +946,7 @@ class pydbg:
                 ec = dbg.u.Exception.ExceptionRecord.ExceptionCode
 
                 # 0x80000003  EXCEPTION_BREAKPOINT
-                #self._log("debug_event_loop() exception: %08x" % ec)
+                #self._log("debug_event_iteration() exception: %08x" % ec)
 
                 # call the internal handler for the exception event that just occured.
                 if ec == EXCEPTION_ACCESS_VIOLATION:
@@ -954,7 +955,7 @@ class pydbg:
                 elif ec == EXCEPTION_BREAKPOINT:
                     #self._log("EXCEPTION_BREAKPOINT")
                     continue_status = self.exception_handler_breakpoint()
-                    #self._log("debug_event_loop() continue_status: %08x DBG_CONTINUE: %08x" % (continue_status, DBG_CONTINUE) )
+                    #self._log("debug_event_iteration() continue_status: %08x DBG_CONTINUE: %08x" % (continue_status, DBG_CONTINUE) )
                 elif ec == EXCEPTION_GUARD_PAGE:
                     #self._log("EXCEPTION_GUARD_PAGE")
                     continue_status = self.exception_handler_guard_page()
@@ -1022,7 +1023,13 @@ class pydbg:
                 #self._log("debug_event_loop In loop on debugger_active C")
 
             # iterate through a debug event.
-            self.debug_event_iteration()
+            try:
+                self.debug_event_iteration()
+            except:
+                exc = sys.exc_info()[0]
+                sys.stderr.write("debug_event_loop In loop on debugger_active: Caught:%s\n" % exc)
+                raise
+
             # self._log("debug_event_loop Returning from debug_event_iteration")
 
             # resume keyboard interruptability.
@@ -1436,6 +1443,8 @@ class pydbg:
 
         # don't need this.
         self.close_handle(self.dbg.u.CreateProcessInfo.hFile)
+
+        # self.dbg.u.CreateProcessInfo.hProcess
 
         if not self.follow_forks:
             self._log("Do not follow forks")
