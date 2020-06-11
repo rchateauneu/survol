@@ -44,13 +44,7 @@ function AddUrlPrefix(urlQuery, cgiArgs )
 	}
 	else
 	{
-		var ixPrim = window.location.hostname.indexOf("primhillcomputers.com");
-		// This special case because hosting on OVH does not give the choice of CGI scripts location.
-		if( ixPrim >= 0 )
-			// http://www.primhillcomputers.com/cgi-bin/survol/survolcgi.py?script=/sources_types/Linux/etc_passwd.py&mode=json
-			url_survol_prefix = "../cgi-bin/survol/survolcgi.py?script=/";
-		else
-			url_survol_prefix = "../";
+		url_survol_prefix = "../";
 	}
 
 	var fullUrl =  url_survol_prefix + urlQuery;

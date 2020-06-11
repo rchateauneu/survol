@@ -13,8 +13,10 @@ from lib_properties import pc
 import lib_mime
 import json
 
+
 def EntityOntology():
-	return ( ["Name"], )
+	return (["Name"],)
+
 
 def EntityName(entity_ids_arr):
 	entity_id = entity_ids_arr[0]
@@ -25,95 +27,98 @@ def EntityName(entity_ids_arr):
 	else:
 		return file_basename
 
-def AddMagic( grph, filNode, filNam ):
+
+def AddMagic(grph, file_node, file_name):
 	try:
 		import magic
 	except ImportError:
-		DEBUG("File magic unavailable:%s", filNam )
+		DEBUG("File magic unavailable:%s", file_name)
 		return
 
 	try:
 		ms = magic.open(magic.MAGIC_NONE)
 		ms.load()
-		mtype =  ms.file(filNam)
+		mtype = ms.file(file_name)
 		ms.close()
-		grph.add( ( filNode, pc.property_information, lib_common.NodeLiteral(mtype) ) )
+		grph.add((file_node, pc.property_information, lib_common.NodeLiteral(mtype)))
 	except TypeError:
-		DEBUG("Type error:%s", filNam )
+		DEBUG("Type error:%s", file_name)
 		return
 
+
 # Transforms a "stat" date into something which can be printed.
-def IntToDateLiteral(timeStamp):
-	dtStr = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S')
+def _int_to_date_literal(time_stamp):
+	dtStr = datetime.datetime.fromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
 	return lib_common.NodeLiteral(dtStr)
 
+
 # Adds to the node of a file some information taken from a call to stat().
-def AddStatNode( grph, filNode, infoStat ):
+def AddStatNode(grph, file_node, info_stat):
 	# st_size: size of file, in bytes. The SI unit is mentioned.
-	sizUnit = lib_util.AddSIUnit(infoStat.st_size, "B")
-	grph.add( ( filNode, pc.property_file_size, lib_common.NodeLiteral(sizUnit) ) )
+	siz_unit = lib_util.AddSIUnit(info_stat.st_size, "B")
+	grph.add((file_node, pc.property_file_size, lib_common.NodeLiteral(siz_unit)))
 
-	grph.add( ( filNode, pc.property_last_access,          IntToDateLiteral(infoStat.st_atime) ) )
-	grph.add( ( filNode, pc.property_last_change,          IntToDateLiteral(infoStat.st_mtime) ) )
-	grph.add( ( filNode, pc.property_last_metadata_change, IntToDateLiteral(infoStat.st_ctime) ) )
+	grph.add((file_node, pc.property_last_access, _int_to_date_literal(info_stat.st_atime)))
+	grph.add((file_node, pc.property_last_change, _int_to_date_literal(info_stat.st_mtime)))
+	grph.add((file_node, pc.property_last_metadata_change, _int_to_date_literal(info_stat.st_ctime)))
 
-def AddStat( grph, filNode, filNam ):
+
+def AddStat(grph, file_node, file_name):
 	try:
-		statObj = os.stat(filNam)
-		AddStatNode( grph, filNode, statObj )
-	except Exception:
+		statObj = os.stat(file_name)
+		AddStatNode(grph, file_node, statObj)
+	except Exception as exc:
 		# If there is an error, displays the message.
-		exc = sys.exc_info()[1]
 		msg = str(exc)
-		grph.add( ( filNode, pc.property_information, lib_common.NodeLiteral(msg) ) )
+		grph.add((file_node, pc.property_information, lib_common.NodeLiteral(msg)))
 
-# BEWARE: This link always as a literal. So it is simpler to display
-# in an embedded HTML table.
-# NON: On stocke les urls vraiment comment des URI.
-def AddHtml( grph, filNode, filNam ):
+
+# BEWARE: This link always as a literal. So it is simpler to display in an embedded HTML table.
+def AddHtml(grph, file_node, file_name):
 	# Get the mime type, maybe with Magic. Then return a URL with for this mime type.
 	# This is a separated script because it returns HTML data, not RDF.
 
-	mime_stuff = lib_mime.FilenameToMime( filNam )
+	mime_stuff = lib_mime.FilenameToMime(file_name)
 	mime_type = mime_stuff[0]
 
 	if mime_type:
-		lib_mime.AddMimeUrl(grph,filNode, "CIM_DataFile",mime_type,[filNam])
+		lib_mime.AddMimeUrl(grph, file_node, "CIM_DataFile", mime_type, [file_name])
+
 
 # Display the node of the directory this file is in.
-def AddParentDir( grph, filNode, filNam ):
-	dirPath = os.path.dirname(filNam)
-	if dirPath and dirPath != filNam:
+def AddParentDir(grph, file_node, file_name):
+	dir_path = os.path.dirname(file_name)
+	if dir_path and dir_path != file_name:
 		# Possibly trunc last backslash such as in "C:\" as it crashes graphviz !
-		if dirPath[-1] == "\\":
-			dirPath = dirPath[:-1]
-		dirNode = lib_uris.gUriGen.DirectoryUri(dirPath)
-		# grph.add( ( dirNode, pc.property_directory, filNode ) )
+		if dir_path[-1] == "\\":
+			dir_path = dir_path[:-1]
+		dir_node = lib_uris.gUriGen.DirectoryUri(dir_path)
 		# We do not use the property pc.property_directory because it breaks the display.
 		# Also, the direction is inverted so the current file is displayed on the left.
-		grph.add( ( filNode, lib_common.MakeProp("Top directory"), dirNode ) )
+		grph.add((file_node, lib_common.MakeProp("Top directory"), dir_node))
+
 
 # Plain call to stat with some filtering if the file does not exists.
-def GetInfoStat(filNam):
+def GetInfoStat(file_name):
 	try:
-		info = os.stat(filNam)
-	except Exception:
+		info = os.stat(file_name)
+	except Exception as exc:
 		# On recent Python versions, we would catch IOError or FileNotFoundError.
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Caught:"+str(exc))
+		lib_common.ErrorMessageHtml("Caught:" + str(exc))
 	except IOError:
-		lib_common.ErrorMessageHtml("IOError:"+filNam)
+		lib_common.ErrorMessageHtml("IOError:" + file_name)
 	except FileNotFoundError:
-		lib_common.ErrorMessageHtml("File not found:"+filNam)
+		lib_common.ErrorMessageHtml("File not found:" + file_name)
 	except PermissionError:
-		lib_common.ErrorMessageHtml("Permission error:"+filNam)
+		lib_common.ErrorMessageHtml("Permission error:" + file_name)
 	except OSError:
-		lib_common.ErrorMessageHtml("Incorrect syntax:"+filNam)
+		lib_common.ErrorMessageHtml("Incorrect syntax:" + file_name)
 
 	return info
 
-def AddDevice(grph,filNode,info):
-	deviceName = "Device:"+str(info.st_dev)
+
+def AddDevice(grph, file_node, info):
+	device_name = "Device:"+str(info.st_dev)
 	if lib_util.isPlatformLinux:
 		# TODO: How to get the device name on Windows ???
 		file_mounts = open('/proc/mounts')
@@ -127,52 +132,50 @@ def AddDevice(grph,filNode,info):
 				line = [s.decode('string_escape') for s in line_split_end]
 			try:
 				if os.lstat(line[1]).st_dev == info.st_dev:
-					deviceName = line[1]
+					device_name = line[1]
 					break
-			except OSError:
+			except OSError as exc:
 				# Beware, index 1, not 0:
 				# "[Errno 13] Permission denied: '/run/user/42/gvfs'"
 				# Better display the error message.
-				exc = sys.exc_info()[1]
-				deviceName=str(exc)
+				device_name=str(exc)
 				break
 		file_mounts.close()
 
-		deviceNode = lib_common.gUriGen.DiskPartitionUri(deviceName)
-		grph.add( ( filNode, pc.property_file_device, deviceNode ) )
+		device_node = lib_common.gUriGen.DiskPartitionUri(device_name)
+		grph.add((file_node, pc.property_file_device, device_node))
 
-def AddFileProperties(grph,currNode,currFilNam):
+
+def AddFileProperties(grph, current_node, current_filename):
 	try:
 		import win32api
 		import lib_win32
 
-		propDict = lib_win32.getFileProperties(currFilNam)
-		for prp, val in propDict.items():
-			val = propDict[prp]
+		prop_dict = lib_win32.getFileProperties(current_filename)
+		for prp, val in prop_dict.items():
+			val = prop_dict[prp]
 			if val is None:
 				continue
 
-			if isinstance( val, dict ):
-				# val = ", ".join( "%s=%s" % (k,val[k]) for k in val )
+			if isinstance(val, dict):
 				val = json.dumps(val)
 				# TODO: Unicode error encoding=ascii
 				# 169	251	A9	10101001	"Copyright"	&#169;	&copy;	Copyright sign
 				# Might contain this: "LegalCopyright Copyright \u00a9 2010"
 				val = val.replace("\\","\\\\")
-			grph.add( ( currNode, lib_common.MakeProp(prp), lib_common.NodeLiteral(val) ) )
+			grph.add((current_node, lib_common.MakeProp(prp), lib_common.NodeLiteral(val)))
 	except ImportError:
 		pass
 
-	mimTy = lib_mime.FilenameToMime(currFilNam)
-	if mimTy:
-		if mimTy[0]:
-			grph.add( ( currNode, lib_common.MakeProp("Mime type"), lib_common.NodeLiteral(str(mimTy)) ) )
+	file_mime_type = lib_mime.FilenameToMime(current_filename)
+	if file_mime_type:
+		if file_mime_type[0]:
+			grph.add((current_node, lib_common.MakeProp("Mime type"), lib_common.NodeLiteral(str(file_mime_type))))
 
 
+def AffFileOwner(grph, file_node, file_name):
 
-def AffFileOwner(grph, filNode, filNam):
-
-	def AddFileOwnerWindows(grph, filNode, filNam):
+	def AddFileOwnerWindows():
 		try:
 			import win32api
 			import win32con
@@ -202,49 +205,46 @@ def AffFileOwner(grph, filNode, filNam):
 			except:
 				return "Unknown SID"
 
-		#print "I am", win32api.GetUserNameEx (win32con.NameSamCompatible)
-
 		try:
-			sd = win32security.GetFileSecurity (filNam, win32security.OWNER_SECURITY_INFORMATION)
-		except:
-			exc = sys.exc_info()[1]
+			sd = win32security.GetFileSecurity (file_name, win32security.OWNER_SECURITY_INFORMATION)
+		except Exception as exc:
 			msg = str(exc)
-			grph.add( ( filNode, pc.property_owner, lib_common.NodeLiteral(msg) ) )
+			grph.add((file_node, pc.property_owner, lib_common.NodeLiteral(msg)))
 			return
 
 		owner_sid = sd.GetSecurityDescriptorOwner ()
-		accountName, domainName, typeCode = win32security.LookupAccountSid (None, owner_sid)
+		account_name, domain_name, typeCode = win32security.LookupAccountSid(None, owner_sid)
 		typNam = SID_CodeToName(typeCode)
-		DEBUG("Domain=%s Name=%s Type=%s", domainName, accountName,typNam)
+		DEBUG("Domain=%s Name=%s Type=%s", domain_name, account_name,typNam)
 
 		if typeCode == win32security.SidTypeUser:
-			accountNode = Win32_UserAccount.MakeUri(accountName,domainName)
+			account_node = Win32_UserAccount.MakeUri(account_name, domain_name)
 		elif typeCode == win32security.SidTypeGroup:
-			accountNode = Win32_Group.MakeUri(accountName,domainName)
+			account_node = Win32_Group.MakeUri(account_name, domain_name)
 		elif typeCode == win32security.SidTypeWellKnownGroup:
-			accountNode = Win32_Group.MakeUri(accountName,domainName)
+			account_node = Win32_Group.MakeUri(account_name, domain_name)
 		else:
 			# What else can we do ?
-			accountNode = Win32_UserAccount.MakeUri(accountName,domainName)
+			account_node = Win32_UserAccount.MakeUri(account_name, domain_name)
 
 		# TODO: What can we do with the domain ?
-		grph.add( ( accountNode, lib_common.MakeProp("Domain"), lib_common.NodeLiteral(domainName) ) )
-		grph.add( ( accountNode, lib_common.MakeProp("SID"), lib_common.NodeLiteral(typNam) ) )
-		grph.add( ( filNode, pc.property_owner, accountNode ) )
+		grph.add((account_node, lib_common.MakeProp("Domain"), lib_common.NodeLiteral(domain_name)))
+		grph.add((account_node, lib_common.MakeProp("SID"), lib_common.NodeLiteral(typNam)))
+		grph.add((file_node, pc.property_owner, account_node))
 
 
-	def AddFileOwnerLinux(grph, filNode, filNam):
+	def AddFileOwnerLinux():
 		# Do it a second time, but this is very fast.
-		info = GetInfoStat(filNam)
+		info = GetInfoStat(file_name)
 
 		# st_uid: user id of owner.
 		try:
 			# Can work on Unix only.
 			import pwd
-			user = pwd.getpwuid( info.st_uid )
-			userName = user[0]
-			userNode = lib_common.gUriGen.UserUri(userName)
-			grph.add( ( filNode, pc.property_owner, userNode ) )
+			user = pwd.getpwuid(info.st_uid)
+			user_name = user[0]
+			user_node = lib_common.gUriGen.UserUri(user_name)
+			grph.add((file_node, pc.property_owner, user_node))
 		except ImportError:
 			pass
 
@@ -253,9 +253,9 @@ def AffFileOwner(grph, filNode, filNam):
 			# Can work on Unix only.
 			import grp
 			group = grp.getgrgid( info.st_gid )
-			groupName = group[0]
-			groupNode = lib_common.gUriGen.GroupUri(groupName)
-			grph.add( ( filNode, pc.property_group, groupNode ) )
+			group_name = group[0]
+			group_node = lib_common.gUriGen.GroupUri(group_name)
+			grph.add((file_node, pc.property_group, group_node))
 		except ImportError:
 			pass
 
@@ -263,9 +263,9 @@ def AffFileOwner(grph, filNode, filNam):
 
 	try:
 		if lib_util.isPlatformWindows:
-			AddFileOwnerWindows(grph, filNode, filNam)
+			AddFileOwnerWindows()
 		elif lib_util.isPlatformLinux:
-			AddFileOwnerLinux(grph, filNode, filNam)
+			AddFileOwnerLinux()
 		else:
 			WARNING("unknown OS")
 			pass
@@ -274,59 +274,48 @@ def AffFileOwner(grph, filNode, filNam):
 		pass
 
 
-# This applies on Linux only. Given an executable,
-# it looks for a Shebang, and returns the string, or nothing.
-# The first element of the string is an interpreter.
-# Now we must use the same logic as CIM_Process/languages,
-# to detect the language and accordingly parse this file
-# by correctly detecting its language.
-def GetShebang(grph, filNode, filNam):
-	return None
-
-
-def AddInfo(grph,node,entity_ids_arr):
+def AddInfo(grph, node, entity_ids_arr):
 	"""
 		This creates a couple of nodes about a file.
 	"""
-	filNam = entity_ids_arr[0]
+	file_name = entity_ids_arr[0]
 
-	if not filNam: # Faster than comparing to an empty string.
+	if not file_name: # Faster than comparing to an empty string.
 		return
 
 	# Cleanup the filename. This function is called without knowledge of the specific case,
 	# therefore the cleanup can only be done in code related to this entity type.
-	filNam = filNam.replace("\\","/")
+	file_name = file_name.replace("\\","/")
 
-	AddMagic( grph,node,filNam)
-	AddStat( grph,node,filNam)
-	AddHtml( grph,node,filNam)
-	AddParentDir( grph,node,filNam)
+	AddMagic(grph,node, file_name)
+	AddStat(grph,node, file_name)
+	AddHtml(grph,node, file_name)
+	AddParentDir(grph,node, file_name)
+
 
 # It receives as CGI arguments, the entity type which is "HttpUrl_MimeDocument", and the filename.
 # It must then return the content of the file, with the right MIME type,
-def DisplayAsMime(grph,node,entity_ids_arr):
-	fileName = entity_ids_arr[0]
+def DisplayAsMime(grph,node, entity_ids_arr):
+	file_name = entity_ids_arr[0]
 
-	mime_stuff = lib_mime.FilenameToMime( fileName )
+	mime_stuff = lib_mime.FilenameToMime(file_name)
 
-	DEBUG("DisplayAsMime fileName=%s MIME:%s", fileName, str(mime_stuff) )
+	DEBUG("DisplayAsMime fileName=%s MIME:%s", file_name, str(mime_stuff))
 
 	mime_type = mime_stuff[0]
 
 	# It could also be a binary stream.
 	if mime_type == None:
-		lib_common.ErrorMessageHtml("No mime type for %s"%fileName)
+		lib_common.ErrorMessageHtml("No mime type for %s" % file_name)
 
 	# TODO: Find a solution for JSON files such as:
 	# "No mime type for C:\Users\rchateau\AppData\Roaming\Mozilla\Firefox\Profiles\gciw4sok.default/dh-ldata.json"
 
 	try:
 		# TODO: Change this with WSGI.
-		lib_util.CopyFile( mime_type, fileName )
-
-	except Exception:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("file_to_mime.py Reading fileName=%s, caught:%s" % ( fileName, str(exc) ) )
+		lib_util.CopyFile(mime_type, file_name)
+	except Exception as exc:
+		lib_common.ErrorMessageHtml("file_to_mime.py Reading fileName=%s, caught:%s" % (file_name, str(exc)))
 
 
 # TODO: Some files in /proc filesystem, on Linux, could be displayed

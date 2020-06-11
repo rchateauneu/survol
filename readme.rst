@@ -21,10 +21,11 @@ It is very modular: You can add your own scripts, to display information specifi
 Survol collects data from a running system, on-demand. It does not slow down a machine by accumulating statistics on a running system, because the quantity of data is so huge that it is useless.
 Instead, Survol assists an investigation, by letting a user choose the data that are needed.
 
-Survol has several views on the same data: HTML, SVG, D3 JavaScript library and RDF.
+Survol displays multiple views on the same data: HTML, SVG, D3 JavaScript library and RDF.
 
 More information is available at `Primhill Computers
-<http://primhillcomputers.com/survol.html>`_
+<http://primhillcomputers.com/survol.html>`_ web site and an online demo is visible `here
+<http://vps516494.ovh.net/Survol/survol/www/index.htm>`_ .
 
-Continuous integration is here: `Survol on Travis CI
-<https://travis-ci.org/rchateauneu/survol>`_
+Continuous integration is at: `Survol on Travis CI
+<https://travis-ci.org/rchateauneu/survol>`_ .

@@ -30,6 +30,25 @@ else:
 
 ################################################################################
 
+def kill_process_by_pid(pid):
+	sys.stderr.write("About to kill pid=" + str(pid) )
+	try:
+		# SIGQUIT apparently not defined on Windows.
+		if lib_util.isPlatformLinux:
+			os.kill( pid, signal.SIGQUIT )
+		else:
+			# On Linux, it raises: KeyboardInterrupt
+			os.kill( pid, signal.SIGINT )
+
+	except AttributeError:
+		exc = sys.exc_info()[1]
+		# 'module' object has no attribute 'SIGQUIT'
+		sys.stderr.write("Caught:"+str(exc)+" when killing pid=" + str(pid) )
+	except Exception:
+		# For example: [Errno 3] No such process.
+		exc = sys.exc_info()[1]
+		sys.stderr.write("Unknown exception " + str(exc) + " when killing pid=" + str(pid) )
+
 def Task():
 	timeStamp = time.time()
 	dtStr = datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S')
@@ -67,7 +86,7 @@ class RdfQueue_HTTPRequestHandler(BaseHTTPRequestHandler):
 			oneFeed.terminate()
 			self.LogMsg("Joining feeder ent="+ent+" pid="+str(oneFeed.pid) )
 			oneFeed.join()
-			lib_common.KillProc( oneFeed.pid )
+			kill_process_by_pid(oneFeed.pid)
 
 		# This mean killing our own process, the http subserver.
 		msg = "Stopping entityId="+entityId+" pidServer="+str(pidServer)+" self.server.m_pid=" + str(self.server.m_pid)
@@ -77,7 +96,7 @@ class RdfQueue_HTTPRequestHandler(BaseHTTPRequestHandler):
 		# TODO: METTRE UN BOUTON ET QUAND ON LE CLIQUE CA REDIRIGE
 		# VERS L URL DE DEPART, COMME CA ON PEUT REDEMARRER QUAND ON VEUT.
 
-		lib_common.KillProc( self.server.m_pid )
+		kill_process_by_pid(self.server.m_pid)
 		self.LogMsg("SHOULD NEVER BE HERE")
 		sys.exit(0)
 
@@ -487,7 +506,7 @@ class SrvSingleton:
 		self.m_appBaseName = os.path.basename(AppName).split(".")[0]
 
 		# The file name must be unique.
-		self.m_logFilNam = lib_common.TmpDir() + "/SubSrv." + self.m_appBaseName + ".log"
+		self.m_logFilNam = lib_common.get_temporary_directory() + "/SubSrv." + self.m_appBaseName + ".log"
 
 		self.m_isSubSrv = False
 		self.m_pidSubSrv = -1
@@ -613,7 +632,7 @@ def DoTheJob(TheEngine,Deserializer,AppName,Title,dot_layout = "", collapsed_pro
 		try:
 			# Normally we are stuck in this, answering HTTP requests and accumulating data.
 			# TODO: It is probably not necessary to send Title and DotLayout.
-			layoutParams = lib_common.MakeDotLayout( dot_layout, collapsed_properties )
+			layoutParams = lib_common.make_dot_layout( dot_layout, collapsed_properties )
 
 			# Now, will append log at the end.
 			srvSingle.m_logFd.close()

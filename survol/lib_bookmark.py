@@ -1,6 +1,11 @@
-# Used for:
-# - Scanning bookmarks to open them all, for testing.
-# - When printing, gets descriptions associated to URLs.
+"""Used for:
+- Scanning bookmarks to open them all, for testing.
+- When printing, gets descriptions associated to URLs.
+"""
+
+__author__      = "Remi Chateauneu"
+__copyright__   = "Copyright 2020, Primhill Computers"
+__license__     = "GPL"
 
 import sys
 import re

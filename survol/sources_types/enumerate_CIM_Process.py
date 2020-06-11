@@ -35,7 +35,7 @@ def Main():
 	# although it children processes are not reassigned (As it is the case on Unix).
 	# This is a "non-existent process".
 	for proc in CIM_Process.ProcessIter():
-		if lib_common.UselessProc(proc):
+		if lib_common.is_useless_process(proc):
 			continue
 
 		# proc=['__class__', '__delattr__', '__dict__', '__doc__', '__eq__', '__format__', '__getattribute__', '__hash__', '__init__', '__modu

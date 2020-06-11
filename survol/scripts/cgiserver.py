@@ -17,9 +17,11 @@ except ImportError:
     YappiProfile = False
 
 import sys
+import platform
 import getopt
 import os
 import socket
+import datetime
 
 try:
     from urlparse import urlparse
@@ -29,8 +31,8 @@ except ImportError:
 # Apache setup:
 # In Apache httpd.conf, we have the directive:
 
-def ServerForever(server):
-    sys.stderr.write("ServerForever\n")
+def __run_server_forever(server):
+    sys.stderr.write("__run_server_forever\n")
     if YappiProfile:
         try:
             yappi.start()
@@ -52,7 +54,7 @@ def ServerForever(server):
 
 port_number_default = 8000
 
-def Usage():
+def __print_cgi_server_usage():
     progNam = sys.argv[0]
     print("Survol CGI server: %s"%progNam)
     print("    -a,--address=<IP address> TCP/IP address")
@@ -63,61 +65,44 @@ def Usage():
     print("")
     print("Script must be started with command: survol/scripts/cgiserver.py")
 
-# Setup creates a binary script which directly calls this function.
-# This changes the current directory, so that URLs can point to plain Python scripts.
-# This can be avoided if we have an unique CGI script loading Python scripts as modules.
-def RunCgiServer():
-    curPth = None
-    print("Searching internal packages")
-    for pth in sys.path:
-        if pth.endswith("site-packages"):
-            curPth = pth
-            break
-
-    if curPth:
-        print("Setting current path to %s"%curPth)
-        os.chdir(curPth)
-        RunCgiServerInternal()
-    else:
-        print("No python path to set")
 
 # https://docs.python.org/2/library/webbrowser.html
-def StartsWebrowser(browser_name,theUrl):
+def __open_url_with_webbrowser(browser_name, the_url):
     """This starts a browser with the specific module to do it"""
 
     import webbrowser
 
     # TODO: Parses the argument from the parameter
-    webbrowser.open(theUrl, new=0, autoraise=True)
+    webbrowser.open(the_url, new=0, autoraise=True)
 
-def StartsBrowser(browser_name,theUrl):
+def __open_url_with_new_browser_process(browser_name, the_url):
     """This starts a browser whose executable is given on the command line"""
     # Import only if needed.
     import threading
     import time
     import subprocess
 
-    def StartBrowserProcess():
+    def __starts_browser_process():
 
-        print("About to start browser: %s %s"%(browser_name,theUrl))
+        print("About to start browser: %s %s"%(browser_name,the_url))
 
         # Leaves a bit of time so the HTTP server can start.
         time.sleep(5)
 
-        subprocess.check_call([browser_name, theUrl])
+        subprocess.check_call([browser_name, the_url])
 
-    threading.Thread(target=StartBrowserProcess).start()
+    threading.Thread(target=__starts_browser_process).start()
     print("Browser thread started")
 
 # It is also possible to call the script from command line.
-def RunCgiServerInternal():
+def __run_cgi_server_internal():
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "ha:p:b:v", ["help","address=","port=","browser=","verbose"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(err)  # will print something like "option -a not recognized"
-        Usage()
+        __print_cgi_server_usage()
         sys.exit(2)
 
     # It must be the same address whether it is local or guessed from another machine.
@@ -145,7 +130,7 @@ def RunCgiServerInternal():
         elif anOpt in ("-b", "--browser"):
             browser_name = aVal
         elif anOpt in ("-h", "--help"):
-            Usage()
+            __print_cgi_server_usage()
             sys.exit()
         else:
             assert False, "Unhandled option"
@@ -160,7 +145,7 @@ def RunCgiServerInternal():
     filMyself = open("survol/scripts/cgiserver.py")
     if not filMyself:
         print("Script started from wrong directory")
-        Usage()
+        __print_cgi_server_usage()
         sys.exit()
     
 
@@ -175,9 +160,9 @@ def RunCgiServerInternal():
     if browser_name:
 
         if browser_name.startswith("webbrowser"):
-            StartsWebrowser(browser_name,theUrl)
+            __open_url_with_webbrowser(browser_name,theUrl)
         else:
-            StartsBrowser(browser_name,theUrl)
+            __open_url_with_new_browser_process(browser_name,theUrl)
         print("Browser thread started to:"+theUrl)
 
     # Apache sets these environment variables.
@@ -189,27 +174,34 @@ def RunCgiServerInternal():
     # print("os.environ['SERVER_NAME']='%s'" % (os.environ['SERVER_NAME']) )
     print("Platform=%s"%sys.platform)
     print("Version:%s"% str(sys.version_info))
+    if 'win' in sys.platform:
+        print("os.sys.getwindowsversion()=", os.sys.getwindowsversion())
+        print("platform.win32_ver()=", platform.win32_ver())
+    print("platform.release()=", platform.release())
     print("Server address:%s" % server_addr)
     print("Opening %s:%d" % (server_name,port_number))
 
-    StartParameters(verbose, server_name, port_number)
+    start_server_forever(verbose, server_name, port_number)
 
 # This is used when testing on Travis, when output cannot be read.
-CgiServerLogFileName = "cgiserver.execution.log"
+def cgi_server_logfile_name(port_number):
+    return "cgiserver.execution.%d.log" % port_number
 
+# Setup (setup.py) creates a binary script which directly calls this function.
 # The current directory can be set, this is used when this is called from multiprocessing.
-def StartParameters(verbose, server_name, port_number, current_dir = ""):
-    logfil = open(CgiServerLogFileName, "w")
+def start_server_forever(verbose, server_name, port_number, current_dir = ""):
+    logfil = open(cgi_server_logfile_name(port_number), "w")
+    logfil.write(__file__ + " "+ datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "\n")
     logfil.write(__file__ + " startup server_name=%s port_number=%d\n" % (server_name, port_number))
     logfil.flush()
 
     os.environ["SERVER_SOFTWARE"] = "CGIServerPython"
 
     if verbose:
-        sys.stderr.write("StartParameters server_name=%s port_number=%d\n" % (server_name, port_number) )
-        sys.stderr.write("StartParameters sys.executable=%s\n" % sys.executable)
-        sys.stderr.write("StartParameters sys.exec_prefix=%s\n" % sys.exec_prefix)
-        sys.stderr.write("StartParameters getpid=%d\n" % os.getpid())
+        sys.stderr.write("server_name=%s port_number=%d\n" % (server_name, port_number) )
+        sys.stderr.write("sys.executable=%s\n" % sys.executable)
+        sys.stderr.write("sys.exec_prefix=%s\n" % sys.exec_prefix)
+        sys.stderr.write("getpid=%d\n" % os.getpid())
     envPYTHONPATH = "PYTHONPATH"
     if 'win' in sys.platform:
         # This is necessary for lib_util which is otherwise not found.
@@ -232,13 +224,13 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
 
     # print("sys.path=%s"% str(sys.path))
     try:
-        sys.stderr.write("StartParameters os.environ['%s']=%s\n"% (envPYTHONPATH,os.environ[envPYTHONPATH]))
+        sys.stderr.write("os.environ['%s']=%s\n"% (envPYTHONPATH,os.environ[envPYTHONPATH]))
     except KeyError:
         print("os.environ['%s']=%s"% (envPYTHONPATH,"Not defined"))
 
     if current_dir:
         os.chdir(current_dir)
-        sys.stderr.write("StartParameters getcwd=%s\n" % os.getcwd() )
+        sys.stderr.write("getcwd=%s\n" % os.getcwd() )
     if sys.version_info[0] < 3:
         import CGIHTTPServer
         import BaseHTTPServer
@@ -249,9 +241,8 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
                 # self.path = "/survol/entity.py?xid=odbc/table.Dsn=DSN~MyNativeSqlServerDataSrc,Table=VIEWS"
                 collapsed_path = _url_collapse_path(self.path)
                 if verbose:
-                    sys.stderr.write("StartParameters.is_cgi getpid=%d\n" % os.getpid())
-                    # sys.stderr.write("StartParameters.is_cgi sys.path=%s\n" % str(sys.path))
-                    sys.stderr.write("StartParameters.is_cgi collapsed_path=%s getcwd=%s\n" % (collapsed_path, os.getcwd()))
+                    sys.stderr.write("is_cgi getpid=%d\n" % os.getpid())
+                    sys.stderr.write("is_cgi collapsed_path=%s getcwd=%s\n" % (collapsed_path, os.getcwd()))
 
                 uprs = urlparse(collapsed_path)
                 pathOnly = uprs.path
@@ -276,18 +267,16 @@ def StartParameters(verbose, server_name, port_number, current_dir = ""):
 
         server = HTTPServer((server_name, port_number), handler)
 
-        if 'linux' in sys.platform:
-            # Normally, this value receives socket.gethostname(),
-            # which later gives its value to os.environ["SERVER_NAME"].
-            # But, for this application, this environment variable must have the same value
-            # as the server address, because it is used to build URLs.
-            # Therefore, we are indirectly setting the value of the environment variable "SERVER_NAME".
-            # This is not necessary for Windows (Which apparently copies its env vars).
-            logfil.write(__file__ + " server_name=%s\n" % server_name)
-            logfil.flush()
-            server.server_name = server_name
+        # server.server_name is later stored to os.environ["SERVER_NAME"].
+        # Here, this environment variable must have the same value
+        # as the server address, because it is used to build URLs.
+        # It is not properly set on Linux.
+        # Same for Windows Py2 and an Internet provider ("hostname.broadband")
+        server.server_name = server_name
 
-        ServerForever(server)
+        sys.stderr.write("server.server_name=%s\n" % server.server_name)
+
+        __run_server_forever(server)
 
     else:
         from http.server import CGIHTTPRequestHandler, HTTPServer
@@ -349,7 +338,7 @@ if __name__ == '__main__':
     #
     # In this mode, we assume that the Python scripts are here, on the same server.
     # survol/entity.py
-    RunCgiServerInternal()
+    __run_cgi_server_internal()
 
     # TODO: Once started, it could register itself to Service Location Protocol (SLP),
     # for example with the Python 3 module pyslp.

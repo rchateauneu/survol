@@ -38,7 +38,7 @@ def Main():
 
 	cgiEnv = lib_common.CgiEnv(	parameters = { paramkeyGroupByDirs : True })
 
-	flagGroupByDirs = bool(cgiEnv.GetParameters( paramkeyGroupByDirs ))
+	flagGroupByDirs = bool(cgiEnv.get_parameters( paramkeyGroupByDirs ))
 
 	win_module = cgiEnv.GetId()
 

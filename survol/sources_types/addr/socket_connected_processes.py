@@ -85,7 +85,13 @@ def Main():
 		all_connect = CIM_Process.PsutilProcConnections(proc,'all')
 
 		for cnt in all_connect:
+			# pconn(fd=13, family=<AddressFamily.AF_INET: 2>, type=<SocketKind.SOCK_STREAM: 1>, laddr=('127.0.0.1', 8000), raddr=(), status='LISTEN')
+			# The socket can be empty.			
+			# pconn(fd=15, family=<AddressFamily.AF_UNIX: 1>, type=2, laddr='/run/user/1001/systemd/notify', raddr=None, status='NONE')
 			( larray, rarray ) = survol_addr.SocketToPair(cnt)
+			if not larray or not rarray:
+				sys.stderr.write("Empty socket. Continue.\n")
+				continue
 
 			try:
 				DEBUG("l[0]=%16s l[1]=%5d r[0]=%16s r[1]=%5d",

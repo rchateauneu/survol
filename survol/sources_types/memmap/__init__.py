@@ -56,7 +56,7 @@ def DisplayMappedProcesses(grph,fileName):
 	propMemoryRSS = lib_common.MakeProp("Resident Set Size")
 	for proc in CIM_Process.ProcessIter():
 
-		if lib_common.UselessProc(proc):
+		if lib_common.is_useless_process(proc):
 			continue
 
 		pid = proc.pid

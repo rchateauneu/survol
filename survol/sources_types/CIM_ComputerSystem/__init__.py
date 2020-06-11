@@ -1,17 +1,20 @@
 """
 Computer system.
 
-Execution of Survol agent, WMI or WBEM requests etc...
+Scripts related to the class CIM_ComputerSystem.
 """
 
 import sys
 import socket
 import lib_util
-import lib_common
-from lib_properties import pc
 
+# This must be defined here, because dockit cannot load modules from here,
+# and this ontology would not be defined.
 def EntityOntology():
     return ( ["Name"], )
+
+import lib_common
+from lib_properties import pc
 
 # This returns a nice name given the parameter of the object.
 def EntityName(entity_ids_arr):

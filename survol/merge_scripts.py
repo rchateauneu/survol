@@ -103,7 +103,7 @@ def Main():
 			# "xid=EURO%5CLONL00111310@process:16580"
 			os.environ['QUERY_STRING'] = cgiQueryString
 
-			lib_common.ErrorMessageEnable(False)
+			lib_common.enable_error_message(False)
 
 			# This executes the script: The new nodes and links are merged in a global RDF container.
 			importedMod.Main()
@@ -115,7 +115,7 @@ def Main():
 			cumulatedError += " url=" + urlNoArgs + " / "+urlFilNam + ":" + str(errorMsg)
 
 			continue
-		lib_common.ErrorMessageEnable(True)
+		lib_common.enable_error_message(True)
 
 	os.environ["REQUEST_URI"] = origReqUri
 

@@ -25,11 +25,11 @@ def Main():
 
 	cgiEnv = lib_common.CgiEnv(	parameters = { paramkeyEnumInstances : False })
 
-	flagEnumInstances = bool(cgiEnv.GetParameters( paramkeyEnumInstances ))
+	flagEnumInstances = bool(cgiEnv.get_parameters( paramkeyEnumInstances ))
 
 	grph = cgiEnv.GetGraph()
 
-	( nameSpace, className, entity_namespace_type ) = cgiEnv.GetNamespaceType()
+	( nameSpace, className, entity_namespace_type ) = cgiEnv.get_namespace_type()
 	INFO("nameSpace=%s className=%s entity_namespace_type=%s", nameSpace,className,entity_namespace_type)
 
 	# If nameSpace is not provided, it is set to "root/CIMV2" by default.
