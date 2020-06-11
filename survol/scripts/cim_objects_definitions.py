@@ -907,6 +907,7 @@ class CIM_Process(CIM_XmlMarshaller):
                 # However, in the future it might reuse an existing context.
                 # Also, the process must not be inserted twice.
                 self.set_executable_path(exec_fil_obj)
+                self.CommandLine = proc_obj.cmdline()
             except:
                 self.Name = None
 
@@ -936,25 +937,16 @@ class CIM_Process(CIM_XmlMarshaller):
             self.CurrentDirectory = G_CurrentDirectory
             self.Priority = 0
 
-        # If this process appears for the first time and there is only
-        # one other process, then it is its parent.
-        # It helps if the first vfork() is never finished,
-        # and if we did not get the main process id.
+        # In the general case, it is not possible to get the parent process,
+        # because it might replay a session. So, it can only rely on the successive function calls.
+        # Therefore, the parent processes must be stored before the subprocesses.
+
+
+
+        # If this process appears for the first time and there is only one other process, then it is its parent.
+        # It helps if the first vfork() is never finished, and if we did not get the main process id.
         map_procs = G_mapCacheObjects[CIM_Process.__name__]
         keys_procs = list(map_procs.keys())
-        if len(keys_procs) == 1:
-            # We are about to create the second process.
-
-            # CIM_Process.Handle="29300"
-            first_proc_id = keys_procs[0]
-            first_proc_obj = map_procs[first_proc_id]
-            if first_proc_id != ('CIM_Process.Handle="%s"' % first_proc_obj.Handle):
-                raise Exception("Inconsistent procid:%s != %s" % (first_proc_id, first_proc_obj.Handle))
-
-            if first_proc_obj.Handle == proc_id:
-                raise Exception("Duplicate procid:%s" % proc_id)
-            self.SetParentProcess(first_proc_obj)
-
     cim_ontology_list = ['Handle']
 
     @classmethod
@@ -1048,11 +1040,8 @@ class CIM_Process(CIM_XmlMarshaller):
         if int(self.Handle) == int(objCIM_Process.Handle):
             raise Exception("Self-parent")
         self.m_parentProcess = objCIM_Process
+        self.ParentProcessID = objCIM_Process.Handle
         objCIM_Process.m_subProcesses.add(self)
-
-    def add_parent_process(self, timeStamp, objCIM_Process):
-        self.SetParentProcess(objCIM_Process)
-        self.CreationDate = timeStamp
 
     def WaitProcessEnd(self, timeStamp, objCIM_Process):
         # sys.stdout.write("WaitProcessEnd: %s linking to %s\n" % (self.Handle,objCIM_Process.Handle))
@@ -1519,36 +1508,39 @@ class ObjectsContext:
     def attributes_to_cim_object(self, cim_class_name, **cim_attributes_dict):
         if cim_class_name == "CIM_Process":
             cim_key_handle = cim_attributes_dict['Handle']
-            return self._class_model_to_object_path(CIM_Process, cim_key_handle)
+            sys.stderr.write("attributes_to_cim_object CIM_Process cim_key_handle=%s self._process_id=%s\n"
+                             % (cim_key_handle, self._process_id))
+            return self.ToObjectPath_CIM_Process(cim_key_handle)
         if cim_class_name == "CIM_DataFile":
-            # It might be a Linux socket or an IP socket.
-            # The pid can be added so we know which process accesses this file.
-            if self._process_id:
-                # Maybe this is a relative file, and to make it absolute,
-                # the process is needed.
-                cim_object_process = self._class_model_to_object_path(CIM_Process, self._process_id)
-                directory_path = cim_object_process.GetProcessCurrentDir()
-            else:
-                # At least it will suppress ".." etc...
-                directory_path = ""
-
             file_pathname = cim_attributes_dict['Name']
-            cim_key_name = to_real_absolute_path(directory_path, file_pathname)
+            return self.ToObjectPath_CIM_DataFile(file_pathname)
 
-            cim_object_datafile = self._class_model_to_object_path(CIM_DataFile, cim_key_name)
-            return cim_object_datafile
 
         # In the general case, reorder the arguments.
         cim_object_datafile = CIM_XmlMarshaller.create_instance_from_class_name(cim_class_name, **cim_attributes_dict)
         return cim_object_datafile
 
     def ToObjectPath_CIM_Process(self, process_id):
-        return self._class_model_to_object_path(CIM_Process, process_id)
+        returned_object = self._class_model_to_object_path(CIM_Process, process_id)
+
+        map_procs = G_mapCacheObjects[CIM_Process.__name__]
+        #sys.stderr.write("map_procs.keys()=%s\n" % str(map_procs.keys()))
+
+        if process_id != self._process_id:
+            context_process_obj_path = CIM_Process.CreateMonikerKey(self._process_id)
+            sys.stderr.write("context_process_obj_path=%s\n" % context_process_obj_path)
+
+            parent_proc_obj = map_procs[context_process_obj_path]
+
+            returned_object.SetParentProcess(parent_proc_obj)
+        return returned_object
 
     # It might be a Linux socket or an IP socket.
     # The pid can be added so we know which process accesses this file.
     def ToObjectPath_CIM_DataFile(self, pathName):
-        #sys.stdout.write("ToObjectPath_CIM_DataFile pathName=%s aPid=%s\n" % ( pathName, str(aPid) ) )
+        if isinstance(pathName, six.binary_type):
+            pathName = pathName.decode("utf-8")
+        assert isinstance(pathName, six.text_type)
         if self._process_id:
             # Maybe this is a relative file, and to make it absolute,
             # the process is needed.
@@ -1571,6 +1563,10 @@ class ObjectsContext:
         try:
             the_obj = map_objs[obj_path]
         except KeyError:
+            if class_model.__name__ == "CIM_Process":
+                # FIXME: IT IS CALLED TOO OFTEN, FOR EACH CIM_DataFile !!
+                sys.stderr.write("_class_model_to_object_path %s CIM_Process args=%s\n" % (sys._getframe(1).f_code.co_name, str(*ctor_args)))
+
             the_obj = class_model(*ctor_args)
             map_objs[obj_path] = the_obj
         return the_obj

@@ -748,87 +748,121 @@ class CommandLineLivePythonTest(unittest.TestCase):
 
         return triples_as_string, created_pid
 
-    #@unittest.skipIf(is_travis_machine(), "FIXME: Broken on Travis for the moment.")
-    def test_run_python_script_rdf(self):
+    def test_run_python_rdf_print_hello(self):
         """This runs a minimal Python script."""
-        output_basename_prefix = "test_run_windows_python_script_rdf"
+        output_basename_prefix = "test_run_python_rdf_print_hello"
 
         python_script = """
 print("Hello")
 """
         triples_as_string, created_pid = self._run_python_script_rdf(output_basename_prefix, python_script)
 
-    def _run_python_script_rdf_travis_temp(self, output_basename_prefix, python_script):
-        """This runs a Python script."""
-        output_prefix = path_prefix_output_result(output_basename_prefix)
-        created_rdf_file = path_prefix_output_result(output_basename_prefix + ".rdf")
-        python_script_file = path_prefix_output_result(output_basename_prefix + ".py")
-        with open(python_script_file, "w") as python_script_file_descriptor:
-            python_script_file_descriptor.write(python_script)
+    def test_run_python_rdf_os_system_python(self):
+        """This creates a subprocess."""
+        output_basename_prefix = "test_run_python_rdf_os_system_python"
+        output_text_name = output_basename_prefix + ".txt"
+        output_text_path = os.path.join(dockit_dirname, output_text_name)
 
-        # dockit_command = "--server=%s --log %s -t ltrace --duplicate %s %s" % (created_rdf_file, output_prefix, sys.executable, python_script_file)
-        dockit_command = "--server=%s --log %s --duplicate %s %s" % (created_rdf_file, output_prefix, sys.executable, python_script_file)
-        #dockit_command = "--server=%s %s %s" % (created_rdf_file, sys.executable, python_script_file)
-        command_result = _run_dockit_command(dockit_command)
-        print("command_result=", command_result)
-
-        check_file_content(output_basename_prefix + ".log")
-
-        log_file_path = path_prefix_output_result(output_basename_prefix + ".log")
-        print("log_file_path=", log_file_path)
-        with open(log_file_path) as log_file_descriptor:
-            for one_line in log_file_descriptor.readlines():
-                print(one_line, end='')
-
-
-        ini_content = check_file_content(output_basename_prefix + ".ini")
-        created_pid = ini_content["TopProcessId"]
-
+        # This Python script starts a shell command which starts another Python process
+        # which writes a simple text in a file. This content is checked.
+        try:
+            os.remove(output_text_path)
+        except:
+            pass
+        python_script = """
+import os
+# Double-quotes because of spaces: C:\\Program Files (x86)\\...\\python.exe
+os.system(r'"%s" -c print(123456789) > %s')
+""" % (sys.executable, output_text_name)
+        print("python_script=", python_script)
+        triples_as_string, created_pid = self._run_python_script_rdf(output_basename_prefix, python_script)
         print("created_pid=", created_pid)
-        triples_as_string = _rdf_file_to_triples(created_rdf_file)
-        for one_triple in triples_as_string:
-            print("    ", one_triple)
 
-        # This is the created process which runs dockit.py
-        self.assertTrue((
-                            ("CIM_Process", {"Handle": str(created_pid)}),
-                            "Handle",
-                            str(created_pid)) in triples_as_string)
+        # The output file must exist.
+        with open(output_text_path) as output_text_file:
+            written_line = output_text_file.readline()
+        print("written_line=", written_line)
+        self.assertEqual(written_line, "123456789\n")
 
-        # The created process points to its current directory.
-        self.assertTrue((
-                            ("CIM_Process", {"Handle": str(created_pid)}),
-                            "CurrentDirectory",
-                            dockit_dirname.replace("\\", "/")) in triples_as_string)
+        # There must be three processes.
+        processe_ids_set = {
+            one_subject[1]['Handle']
+            for one_subject, one_predicate, one_object in triples_as_string
+            if one_subject[0] == 'CIM_Process'
+        }
+        print("processe_ids_set=", processe_ids_set)
+        self.assertTrue(created_pid in processe_ids_set)
+        self.assertEqual(len(processe_ids_set), 3)
 
-        # The Python interpreter is accessed, after symlinks resolution.
-        self.assertTrue((
-                            ("CIM_DataFile", {"Name": CurrentExecutable}),
-                            "Name",
-                            CurrentExecutable) in triples_as_string)
+        # Parent and child processes.
+        parent_pairs_list = list({
+            (one_subject[1]['Handle'], one_object)
+                for one_subject, one_predicate, one_object in triples_as_string
+                if one_subject[0] == 'CIM_Process' and one_predicate == 'ParentProcessID'
+        })
+        print("parent_pairs_list=", parent_pairs_list)
+        self.assertEqual(len(parent_pairs_list), 2)
 
-        # TODO: Could use standardized_file_path()
-        python_script_file_standard = python_script_file.replace("\\", "/")
+        # Find the parent and the child.
+        if parent_pairs_list[0][1] == parent_pairs_list[1][0]:
+            parent_pid = parent_pairs_list[1][1]
+            middle_pid = parent_pairs_list[0][1]
+            child_pid = parent_pairs_list[0][0]
+        elif parent_pairs_list[0][0] == parent_pairs_list[1][1]:
+            parent_pid = parent_pairs_list[0][1]
+            middle_pid = parent_pairs_list[0][0]
+            child_pid = parent_pairs_list[1][0]
+        else:
+            self.assertTrue(False, "No middle process")
 
-        print("python_script_file_standard=", python_script_file_standard)
+        # Checks the executables.
+        checked_executables = 0
+        cmd_exe_standardized = standardized_file_path(windows_system32_cmd_exe)
+        for one_subject, one_predicate, one_object in triples_as_string:
+            if one_subject[0] == 'CIM_Process':
+                print(one_subject, one_predicate, one_object)
+                if one_predicate == 'Executable':
+                    checked_executables += 1
+                    one_pid = one_subject[1]['Handle']
+                    if one_pid == parent_pid:
+                        # Python.
+                        self.assertTrue(one_object == CurrentExecutable)
+                    elif one_pid == middle_pid:
+                        # Dos box.
+                        self.assertTrue(one_object == cmd_exe_standardized)
+                    elif one_pid == child_pid:
+                        # Python.
+                        self.assertTrue(one_object == CurrentExecutable)
+                    else:
+                        self.assertTrue(False, "Unidentified executable and process")
 
-        self.assertTrue((
-                            ("CIM_DataFile", {"Name": python_script_file_standard}),
-                            "Name",
-                            python_script_file_standard) in triples_as_string)
+        self.assertEqual(checked_executables, 3)
 
-        print("created_pid=", created_pid)
-        return triples_as_string, created_pid
-
-    @unittest.skipIf(not is_travis_machine(), "FIXME: Broken on Travis for the moment.")
-    def test_run_python_script_rdf_travis_temp(self):
-        """This runs a minimal Python script."""
-        output_basename_prefix = "test_run_windows_python_script_rdf_travis_temp"
+    def test_run_python_rdf_os_system_dir(self):
+        """This creates a subprocess running dir."""
+        output_basename_prefix = "test_run_python_rdf_os_system_dir"
 
         python_script = """
-print("Hello")
-"""
-        triples_as_string, created_pid = self._run_python_script_rdf_travis_temp(output_basename_prefix, python_script)
+import os
+os.system('dir')
+        """
+        triples_as_string, created_pid = self._run_python_script_rdf(output_basename_prefix, python_script)
+        print("created_pid=", created_pid)
+        processes_number = 0
+        for one_subject, one_predicate, one_object in triples_as_string:
+            if one_subject[0] == 'CIM_Process':
+                if one_predicate == 'Executable':
+                    processes_number += 1
+                    if one_object == CurrentExecutable:
+                        pid_python = one_subject[1]['Handle']
+                    elif one_object == standardized_file_path(windows_system32_cmd_exe):
+                        url_cmd = one_subject
+                print("    ", one_subject, one_predicate, one_object)
+        print("pid_python=", pid_python)
+        print("url_cmd=", url_cmd)
+
+        self.assertEqual(processes_number, 2)
+        self.assertTrue((url_cmd, 'ParentProcessID', pid_python) in triples_as_string)
 
 
 class SummaryXMLTest(unittest.TestCase):
