@@ -24,30 +24,31 @@ import lib_properties
 
 # If the Survol agent does not exist, this script starts a local one.
 RemoteAgentProcess = None
+_remote_general_test_agent = "http://%s:%d" % (CurrentMachine, RemoteGeneralTestServerPort)
 
 def setUpModule():
     global RemoteAgentProcess
-    RemoteAgentProcess = CgiAgentStart(RemoteTestAgent, RemoteTestPort)
+    RemoteAgentProcess, _agent_url = start_cgiserver(RemoteGeneralTestServerPort)
 
 def tearDownModule():
     global RemoteAgentProcess
-    CgiAgentStop(RemoteAgentProcess)
+    stop_cgiserver(RemoteAgentProcess)
 
 isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 
 # This deletes the module so we can reload them each time.
 # Problem: survol modules are not detectable.
 # We could as well delete all modules except sys.
-allModules = [ modu for modu in sys.modules if modu.startswith("survol") or modu.startswith("lib_")]
+allModules = [modu for modu in sys.modules if modu.startswith("survol") or modu.startswith("lib_")]
 
-ClientObjectInstancesFromScript = lib_client.SourceLocal.GetObjectInstancesFromScript
+ClientObjectInstancesFromScript = lib_client.SourceLocal.get_object_instances_from_script
 
 # Otherwise, Python callstack would be displayed in HTML.
 cgitb.enable(format="txt")
 
 # Many tests start a subprocess: Its termination must be checked.
-def CheckSubprocessEnd(procOpen):
-    ( child_stdout_content, child_stderr_content ) = procOpen.communicate()
+def check_subprocess_end(procOpen):
+    (child_stdout_content, child_stderr_content) = procOpen.communicate()
 
     if is_platform_windows:
         # This ensures that the suprocess is correctly started.
@@ -66,8 +67,8 @@ class SurvolLocalTest(unittest.TestCase):
         mySourceFileStatLocal = lib_client.SourceLocal(
             "sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
-            Name=FileAlwaysThere)
-        print("test_create_source_local_json: query==%s" % mySourceFileStatLocal.UrlQuery())
+            Name=always_present_file)
+        print("test_create_source_local_json: query==%s" % mySourceFileStatLocal.create_url_query())
         the_content_json = mySourceFileStatLocal.content_json()
         print("test_create_source_local_json: Json content=%s ..."%str(the_content_json)[:30])
 
@@ -75,8 +76,8 @@ class SurvolLocalTest(unittest.TestCase):
         mySourceFileStatLocal = lib_client.SourceLocal(
             "sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
-            Name=FileAlwaysThere)
-        print("test_create_source_local_rdf: query=%s" % mySourceFileStatLocal.UrlQuery())
+            Name=always_present_file)
+        print("test_create_source_local_rdf: query=%s" % mySourceFileStatLocal.create_url_query())
         the_content_rdf = mySourceFileStatLocal.content_rdf()
         print("test_create_source_local_rdf: RDF content=%s ..."%str(the_content_rdf)[:30])
 
@@ -84,19 +85,19 @@ class SurvolLocalTest(unittest.TestCase):
         mySourceFileStatLocal = lib_client.SourceLocal(
             "sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
-            Name=FileAlwaysThere)
-        tripleFileStatLocal = mySourceFileStatLocal.GetTriplestore()
+            Name=always_present_file)
+        tripleFileStatLocal = mySourceFileStatLocal.get_triplestore()
         print("Len triple store local=",len(tripleFileStatLocal.m_triplestore))
 
     def test_local_instances(self):
         mySourceFileStatLocal = lib_client.SourceLocal(
             "sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
-            Name=FileAlwaysThere)
+            Name=always_present_file)
 
         lib_common.globalErrorMessageEnabled = False
 
-        tripleFileStatLocal = mySourceFileStatLocal.GetTriplestore()
+        tripleFileStatLocal = mySourceFileStatLocal.get_triplestore()
         print("Len tripleFileStatLocal=",len(tripleFileStatLocal))
 
         # Typical output:
@@ -104,7 +105,7 @@ class SurvolLocalTest(unittest.TestCase):
         #     CIM_Directory.Name=C:/
         #     CIM_Directory.Name=C:/Windows
         #     CIM_DataFile.Name=C:/Windows/explorer.exe
-        instancesFileStatLocal = tripleFileStatLocal.GetInstances()
+        instancesFileStatLocal = tripleFileStatLocal.get_instances()
 
         lenInstances = len(instancesFileStatLocal)
         sys.stdout.write("Len tripleFileStatLocal=%s\n"%lenInstances)
@@ -127,7 +128,7 @@ class SurvolLocalTest(unittest.TestCase):
         mySource1 = lib_client.SourceLocal(
             "entity.py",
             "CIM_DataFile",
-            Name=FileAlwaysThere)
+            Name=always_present_file)
         # The current process is always available.
         mySource2 = lib_client.SourceLocal(
             "entity.py",
@@ -135,12 +136,12 @@ class SurvolLocalTest(unittest.TestCase):
             Handle=CurrentPid)
 
         mySrcMergePlus = mySource1 + mySource2
-        triplePlus = mySrcMergePlus.GetTriplestore()
+        triplePlus = mySrcMergePlus.get_triplestore()
         print("Len triplePlus:",len(triplePlus))
 
-        lenSource1 = len(mySource1.GetTriplestore().GetInstances())
-        lenSource2 = len(mySource2.GetTriplestore().GetInstances())
-        lenPlus = len(triplePlus.GetInstances())
+        lenSource1 = len(mySource1.get_triplestore().get_instances())
+        lenSource2 = len(mySource2.get_triplestore().get_instances())
+        lenPlus = len(triplePlus.get_instances())
         # In the merged link, there cannot be more instances than in the input sources.
         self.assertTrue(lenPlus <= lenSource1 + lenSource2)
 
@@ -155,11 +156,11 @@ class SurvolLocalTest(unittest.TestCase):
 
         mySrcMergeMinus = mySource1 - mySource2
         print("Merge Minus:",str(mySrcMergeMinus.content_rdf())[:30])
-        tripleMinus = mySrcMergeMinus.GetTriplestore()
+        tripleMinus = mySrcMergeMinus.get_triplestore()
         print("Len tripleMinus:",len(tripleMinus))
 
-        lenSource1 = len(mySource1.GetTriplestore().GetInstances())
-        lenMinus = len(tripleMinus.GetInstances())
+        lenSource1 = len(mySource1.get_triplestore().get_instances())
+        lenMinus = len(tripleMinus.get_instances())
         # There cannot be more instances after removal.
         self.assertTrue(lenMinus <= lenSource1 )
 
@@ -170,19 +171,19 @@ class SurvolLocalTest(unittest.TestCase):
             "Win32_UserAccount",
             Domain=CurrentMachine,
             Name=CurrentUsername)
-        tripleDupl = mySourceDupl.GetTriplestore()
-        print("Len tripleDupl=",len(tripleDupl.GetInstances()))
+        tripleDupl = mySourceDupl.get_triplestore()
+        print("Len tripleDupl=",len(tripleDupl.get_instances()))
 
         mySrcMergePlus = mySourceDupl + mySourceDupl
-        triplePlus = mySrcMergePlus.GetTriplestore()
-        print("Len triplePlus=",len(triplePlus.GetInstances()))
+        triplePlus = mySrcMergePlus.get_triplestore()
+        print("Len triplePlus=",len(triplePlus.get_instances()))
         # No added node.
-        self.assertEqual(len(triplePlus.GetInstances()), len(tripleDupl.GetInstances()))
+        self.assertEqual(len(triplePlus.get_instances()), len(tripleDupl.get_instances()))
 
         mySrcMergeMinus = mySourceDupl - mySourceDupl
-        tripleMinus = mySrcMergeMinus.GetTriplestore()
-        print("Len tripleMinus=",len(tripleMinus.GetInstances()))
-        self.assertEqual(len(tripleMinus.GetInstances()), 0)
+        tripleMinus = mySrcMergeMinus.get_triplestore()
+        print("Len tripleMinus=",len(tripleMinus.get_instances()))
+        self.assertEqual(len(tripleMinus.get_instances()), 0)
 
     # http://rchateau-hp:8000/survol/sources_types/memmap/memmap_processes.py?xid=memmap.Id%3DC%3A%2FWindows%2FSystem32%2Fen-US%2Fkernel32.dll.mui
 
@@ -193,15 +194,15 @@ class SurvolLocalTest(unittest.TestCase):
             "xxx/yyy/zzz.py",
             "this-will-raise-an-exception")
         try:
-            tripleBad = mySourceBad.GetTriplestore()
+            tripleBad = mySourceBad.get_triplestore()
         except Exception as exc:
             print("Error detected:",exc)
 
         mySourceBroken = lib_client.SourceRemote(
-            RemoteTestAgent + "/xxx/yyy/zzz/ttt.py",
+            _remote_general_test_agent + "/xxx/yyy/zzz/ttt.py",
             "wwwww")
         try:
-            tripleBroken = mySourceBroken.GetTriplestore()
+            tripleBroken = mySourceBroken.get_triplestore()
             excRaised = False
         except Exception as exc:
             excRaised = True
@@ -242,7 +243,7 @@ class SurvolLocalTest(unittest.TestCase):
             Domain=CurrentMachine,
             Name=CurrentUsername)
 
-        listScripts = myInstancesLocal.GetScripts()
+        listScripts = myInstancesLocal.get_scripts()
         if isVerbose:
             sys.stdout.write("Scripts:\n")
             for oneScr in listScripts:
@@ -260,31 +261,34 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_DataFile",
             Name=sampleFile)
 
-        tripleGrep = mySourceGrep.GetTriplestore()
+        tripleGrep = mySourceGrep.get_triplestore()
 
-        matchingTriples = tripleGrep.GetMatchingStringsTriples("[Pp]ellentesque")
+        matchingTriples = tripleGrep.get_matching_strings_triples("[Pp]ellentesque")
 
         lstStringsOnly = sorted( [ trpObj.value for trpSubj,trpPred,trpObj in matchingTriples ] )
 
         assert( lstStringsOnly == [u'Pellentesque;14;94', u'Pellentesque;6;36', u'Pellentesque;8;50', u'pellentesque;10;66', u'pellentesque;14;101'])
 
-    @unittest.skipIf(not pkgutil.find_loader('win32net'), "Cannot import win32net. test_local_scripts_from_local_source not run.")
-    def test_local_scripts_from_local_source(self):
+    @unittest.skipIf(not pkgutil.find_loader('win32net'), "test_local_groups_local_scripts: Cannot import win32net.")
+    def test_local_groups_local_scripts(self):
         """Loads the scripts of instances displayed by an initial script"""
 
         # This is a top-level script.
-        mySourceTopLevelLocal = lib_client.SourceLocal(
+        my_source_top_level_local = lib_client.SourceLocal(
             "sources_types/win32/win32_local_groups.py")
 
-        tripleTopLevelLocal = mySourceTopLevelLocal.GetTriplestore()
-        instancesTopLevelLocal = tripleTopLevelLocal.GetInstances()
+        triple_top_level_local = my_source_top_level_local.get_triplestore()
+        instances_top_level_local = triple_top_level_local.get_instances()
+        print("Instances number:", len(instances_top_level_local))
 
-        if isVerbose:
-            for oneInst in instancesTopLevelLocal:
-                sys.stdout.write("    Scripts: %s\n"%str(oneInst))
-                listScripts = oneInst.GetScripts()
-                for oneScr in listScripts:
-                    sys.stdout.write("        %s\n"%oneScr)
+        class_names_set = {'CIM_ComputerSystem', 'Win32_Group', 'Win32_UserAccount'}
+        for one_instance in instances_top_level_local:
+            print("    Instance: %s" % str(one_instance))
+            print("    Instance Name: %s" % one_instance.__class__.__name__)
+            self.assertTrue(one_instance.__class__.__name__ in class_names_set)
+            list_scripts = one_instance.get_scripts()
+            for one_script in list_scripts:
+                print("        %s" % one_script)
 
     @unittest.skipIf(not pkgutil.find_loader('win32service'), "Cannot import win32service. test_scripts_of_local_instance not run.")
     def test_scripts_of_local_instance(self):
@@ -294,7 +298,7 @@ class SurvolLocalTest(unittest.TestCase):
         myInstanceLocal = lib_client.Agent().Win32_Service(
             Name="PlugPlay")
 
-        listScripts = myInstanceLocal.GetScripts()
+        listScripts = myInstanceLocal.get_scripts()
 
         if isVerbose:
             sys.stdout.write("Scripts:\n")
@@ -303,13 +307,13 @@ class SurvolLocalTest(unittest.TestCase):
         # There should be at least a couple of scripts.
         self.assertTrue(len(listScripts) > 0)
         # TODO: Maybe this script will not come first in the future.
-        assert(listScripts[0].UrlQuery() == "xid=Win32_Service.Name=PlugPlay")
+        assert(listScripts[0].create_url_query() == "xid=Win32_Service.Name=PlugPlay")
         assert(listScripts[0].m_script == "sources_types/Win32_Service/service_dependencies.py")
 
     def test_instances_cache(self):
         instanceA = lib_client.Agent().CIM_Directory( Name="C:/Windows")
         instanceB = lib_client.Agent().CIM_Directory( Name="C:/Windows")
-        instanceC = lib_client.CreateCIMClass(None,"CIM_Directory",Name="C:/Windows")
+        instanceC = lib_client.create_CIM_class(None,"CIM_Directory",Name="C:/Windows")
         if isVerbose:
             sys.stdout.write("Class=%s\n"%instanceC.__class__.__name__)
             sys.stdout.write("Module=%s\n"%instanceC.__module__)
@@ -332,11 +336,11 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_DataFile",
             Name=sqlPathName)
 
-        tripleSqlQueries = mySourceSqlQueries.GetTriplestore()
+        tripleSqlQueries = mySourceSqlQueries.get_triplestore()
         if isVerbose:
             print("Len tripleSqlQueries=",len(tripleSqlQueries.m_triplestore))
 
-        matchingTriples = tripleSqlQueries.GetAllStringsTriples()
+        matchingTriples = tripleSqlQueries.get_all_strings_triples()
 
         lstQueriesOnly = sorted( matchingTriples )
 
@@ -382,11 +386,11 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=procOpen.pid)
 
-        tripleSqlQueries = mySourceSqlQueries.GetTriplestore()
+        tripleSqlQueries = mySourceSqlQueries.get_triplestore()
         print(len(tripleSqlQueries))
         assert(len(tripleSqlQueries.m_triplestore)==190)
 
-        lstMatches = list(tripleSqlQueries.GetInstances("[Pp]ellentesque"))
+        lstMatches = list(tripleSqlQueries.get_instances("[Pp]ellentesque"))
         print("Matches:",lstMatches)
         assert( len(lstMatches) == 5 )
 
@@ -428,13 +432,13 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=procOpen.pid)
 
-        tripleSqlQueries = mySourceSqlQueries.GetTriplestore()
+        tripleSqlQueries = mySourceSqlQueries.get_triplestore()
         print("len(tripleSqlQueries)=",len(tripleSqlQueries))
 
-        matchingTriples = list(tripleSqlQueries.GetAllStringsTriples())
+        matchingTriples = list(tripleSqlQueries.get_all_strings_triples())
         print("mmm=",matchingTriples)
 
-        CheckSubprocessEnd(procOpen)
+        check_subprocess_end(procOpen)
 
     # This searches the content of a process memory which contains a SQL memory.
     def test_regex_sql_query_from_perl_process(self):
@@ -458,13 +462,13 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=procOpen.pid)
 
-        tripleSqlQueries = mySourceSqlQueries.GetTriplestore()
+        tripleSqlQueries = mySourceSqlQueries.get_triplestore()
         print("len(tripleSqlQueries)=",len(tripleSqlQueries))
 
-        matchingTriples = list(tripleSqlQueries.GetAllStringsTriples())
+        matchingTriples = list(tripleSqlQueries.get_all_strings_triples())
         print("mmm=",matchingTriples)
 
-        CheckSubprocessEnd(procOpen)
+        check_subprocess_end(procOpen)
 
     def test_open_files_from_python_process(self):
         """Files open by a Python process"""
@@ -481,7 +485,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=procOpen.pid)
 
-        tripleSqlQueries = mySourceSqlQueries.GetTriplestore()
+        tripleSqlQueries = mySourceSqlQueries.get_triplestore()
 
         # Some instances are required.
         lstMandatoryInstances = [
@@ -496,7 +500,7 @@ class SurvolLocalTest(unittest.TestCase):
         for oneStr in lstMandatoryInstances:
             assert( oneStr in lstMandatoryInstances)
 
-        CheckSubprocessEnd(procOpen)
+        check_subprocess_end(procOpen)
 
     def test_sub_parent_from_python_process(self):
         """Sub and parent processes a Python process"""
@@ -513,9 +517,9 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=procOpen.pid)
 
-        tripleProcesses = mySourceProcesses.GetTriplestore()
+        tripleProcesses = mySourceProcesses.get_triplestore()
 
-        lstInstances = tripleProcesses.GetInstances()
+        lstInstances = tripleProcesses.get_instances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
         # Some instances are required.
@@ -532,7 +536,7 @@ class SurvolLocalTest(unittest.TestCase):
         for oneStr in lstMandatoryInstances:
             assert( oneStr in strInstancesSet)
 
-        CheckSubprocessEnd(procOpen)
+        check_subprocess_end(procOpen)
 
     def test_memory_maps_from_python_process(self):
         """Sub and parent processes a Python process"""
@@ -552,9 +556,9 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=procOpen.pid)
 
-        tripleMemMaps = mySourceMemMaps.GetTriplestore()
+        tripleMemMaps = mySourceMemMaps.get_triplestore()
 
-        lstInstances = tripleMemMaps.GetInstances()
+        lstInstances = tripleMemMaps.get_instances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
         print("Instances=",strInstancesSet)
@@ -576,9 +580,6 @@ class SurvolLocalTest(unittest.TestCase):
                 'memmap.Id=C:/Windows/System32/cmd.exe',
                 ]
         else:
-            # Typical situation of symbolic links:
-            # /usr/bin/python => /usr/bin/python2 => /usr/bin/python2.7
-            execPath = os.path.realpath( sys.executable )
             lstMandatoryInstances += [
                         'memmap.Id=[heap]',
                         'memmap.Id=[vdso]',
@@ -623,7 +624,7 @@ class SurvolLocalTest(unittest.TestCase):
                     WARNING("Cannot find regex %s in %s", oneRegex, str(strInstancesSet))
                 assert result is not None
 
-        CheckSubprocessEnd(procOpen)
+        check_subprocess_end(procOpen)
 
     @staticmethod
     def check_environment_variables(process_id):
@@ -632,13 +633,13 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=process_id)
 
-        tripleEnvVars = mySourceEnvVars.GetTriplestore()
+        tripleEnvVars = mySourceEnvVars.get_triplestore()
 
         print("tripleEnvVars:",tripleEnvVars)
 
         # The environment variables are returned in various ways,
         # but it is guaranteed that some of them are always present.
-        setEnvVars = set( tripleEnvVars.GetAllStringsTriples() )
+        setEnvVars = set( tripleEnvVars.get_all_strings_triples() )
 
         print("setEnvVars:",setEnvVars)
 
@@ -692,9 +693,9 @@ class SurvolLocalTest(unittest.TestCase):
             "python/package",
             Id="rdflib")
 
-        triplePythonPackage = mySourcePythonPackage.GetTriplestore()
+        triplePythonPackage = mySourcePythonPackage.get_triplestore()
 
-        lstInstances = triplePythonPackage.GetInstances()
+        lstInstances = triplePythonPackage.get_instances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
 
         DEBUG("strInstancesSet=%s",strInstancesSet)
@@ -740,9 +741,9 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=procOpen.pid)
 
-        triplePyScript = mySourcePyScript.GetTriplestore()
+        triplePyScript = mySourcePyScript.get_triplestore()
 
-        lstInstances = triplePyScript.GetInstances()
+        lstInstances = triplePyScript.get_instances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
         DEBUG("strInstancesSet=%s",str(strInstancesSet))
 
@@ -758,8 +759,9 @@ class SurvolLocalTest(unittest.TestCase):
         for oneStr in listRequired:
             assert( oneStr in strInstancesSet )
 
-        CheckSubprocessEnd(procOpen)
+        check_subprocess_end(procOpen)
 
+    @unittest.skipIf(is_travis_machine() and is_platform_windows, "Cannot get users on Travis and Windows.")
     def test_enumerate_users(self):
         """List detectable users. Security might hide some of them"""
 
@@ -767,8 +769,8 @@ class SurvolLocalTest(unittest.TestCase):
         mySourceUsers = lib_client.SourceLocal(
             "sources_types/enumerate_user.py")
 
-        tripleUsers = mySourceUsers.GetTriplestore()
-        instancesUsers = tripleUsers.GetInstances()
+        tripleUsers = mySourceUsers.get_triplestore()
+        instancesUsers = tripleUsers.get_instances()
         strInstancesSet = set([str(oneInst) for oneInst in instancesUsers ])
 
         # At least the current user must be found.
@@ -784,7 +786,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=CurrentPid)
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
 
         # The result is empty but the script worked.
         print(strInstancesSet)
@@ -798,7 +800,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=CurrentPid)
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
 
         # The result is empty but the script worked.
         print("Connections=",strInstancesSet)
@@ -812,7 +814,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=CurrentPid)
 
-        strInstancesSet = set( [str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+        strInstancesSet = set( [str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
         print("test_process_cwd: strInstancesSet:", strInstancesSet)
 
         print("test_process_cwd: CurrentExecutablePath:", CurrentExecutablePath)
@@ -839,8 +841,8 @@ class SurvolLocalWbemTest(unittest.TestCase):
             "CIM_Process",
             Handle=CurrentPid)
 
-        triple_store = mySource.GetTriplestore()
-        instances_list = triple_store.GetInstances()
+        triple_store = mySource.get_triplestore()
+        instances_list = triple_store.get_instances()
         strInstancesSet = set( [str(oneInst) for oneInst in instances_list ])
         print("test_wbem_process_info: strInstancesSet:", strInstancesSet)
 
@@ -853,15 +855,15 @@ class SurvolLocalWbemTest(unittest.TestCase):
             "CIM_ComputerSystem",
             Name=CurrentMachine)
 
-        triple_store = mySource.GetTriplestore()
-        instances_list = triple_store.GetInstances()
+        triple_store = mySource.get_triplestore()
+        instances_list = triple_store.get_instances()
         strInstancesSet = set( [str(oneInst) for oneInst in instances_list ])
         print("test_wbem_hostname_processes_local: strInstancesSet:", strInstancesSet)
 
 class SurvolRemoteWbemTest(unittest.TestCase):
     """These tests do not need a Survol agent"""
 
-    @unittest.skipIf(not pkgutil.find_loader('pywbem'), "pywbem cannot be imported. test_wbem_hostname_processes_remote not executed.")
+    @unittest.skipIf(not has_wbem(), "pywbem cannot be imported. test_wbem_hostname_processes_remote not executed.")
     def test_wbem_hostname_processes_remote(self):
         """Get processes on remote machine"""
 
@@ -870,10 +872,10 @@ class SurvolRemoteWbemTest(unittest.TestCase):
             "CIM_ComputerSystem",
             Name=SurvolServerHostname)
 
-        mySource.GetTriplestore()
+        mySource.get_triplestore()
 
 
-    @unittest.skipIf(not pkgutil.find_loader('pywbem'), "pywbem cannot be imported. test_wbem_hostname_processes_remote not executed.")
+    @unittest.skipIf(not has_wbem(), "pywbem cannot be imported. test_wbem_hostname_processes_remote not executed.")
     def test_wbem_info_processes_remote(self):
         """Display information about one process on a remote machine"""
 
@@ -882,8 +884,8 @@ class SurvolRemoteWbemTest(unittest.TestCase):
             "CIM_ComputerSystem",
             Name=SurvolServerHostname)
 
-        computer_triple_store = computer_source.GetTriplestore()
-        instances_list = computer_triple_store.GetInstances()
+        computer_triple_store = computer_source.get_triplestore()
+        instances_list = computer_triple_store.get_instances()
         strInstancesSet = set( [str(oneInst) for oneInst in instances_list ])
 
         # ['CIM_Process.Handle=10', 'CIM_Process.Handle=816', 'CIM_Process.Handle=12' etc...
@@ -894,7 +896,7 @@ class SurvolRemoteWbemTest(unittest.TestCase):
         pids_list = [oneInst.Handle for oneInst in instances_list ]
         print("test_wbem_hostname_processes_remote: pids_list:", pids_list)
 
-        remote_url = SurvolServerAgent + "/sources_types/CIM_ComputerSystem/wbem_hostname_processes.py"
+        remote_url = SurvolServerAgent + "/survol/sources_types/CIM_ComputerSystem/wbem_hostname_processes.py"
         print("remote_url=", remote_url)
 
         # Do not check all processes, it would be too slow.
@@ -909,17 +911,17 @@ class SurvolRemoteWbemTest(unittest.TestCase):
 
             print("remote_pid=", remote_pid)
             process_source = lib_client.SourceRemote(
-                SurvolServerAgent + "/sources_types/CIM_Process/wbem_process_info.py",
+                SurvolServerAgent + "/survol/sources_types/CIM_Process/wbem_process_info.py",
                 "CIM_Process",
                 Handle=remote_pid)
             try:
-                process_triple_store = process_source.GetTriplestore()
+                process_triple_store = process_source.get_triplestore()
             except Exception as exc:
                 print("pid=", remote_pid, " exc=", exc)
                 continue
 
             # FIXME: If the process has left, this list is empty, and the test fails.
-            instances_list = process_triple_store.GetInstances()
+            instances_list = process_triple_store.get_instances()
             if instances_list == []:
                 WARNING("test_wbem_info_processes_remote: Process %s exit." % remote_pid)
                 num_exit_processes += 1
@@ -930,9 +932,10 @@ class SurvolRemoteWbemTest(unittest.TestCase):
         # Rule of thumb: Not too many processes should have left in such a short time.
         self.assertTrue(num_exit_processes < 10)
 
-    @unittest.skipIf(not pkgutil.find_loader('pywbem'), "pywbem cannot be imported. test_remote_ontology_wbem not executed.")
+    # This test is very slow and should not fail Travis.
+    @unittest.skipIf(not has_wbem() or is_travis_machine(), "pywbem cannot be imported. test_remote_ontology_wbem not executed.")
     def test_remote_ontology_wbem(self):
-        missing_triples = lib_client.CheckOntologyGraph("wbem", SurvolServerAgent)
+        missing_triples = lib_client.check_ontology_graph("wbem", SurvolServerAgent)
         self.assertTrue(missing_triples == [], "Missing triples:%s" % str(missing_triples))
 
 
@@ -979,7 +982,7 @@ class SurvolLocalJavaTest(unittest.TestCase):
         ]:
             listRequired.append( instPrefix + instJavaName )
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
         print("test_java_mbeans strInstancesSet=", strInstancesSet)
 
         for oneStr in listRequired:
@@ -1022,7 +1025,7 @@ class SurvolLocalJavaTest(unittest.TestCase):
 
         listRequired.append( CurrentProcessPath )
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
         print("test_java_system_properties strInstancesSet=", strInstancesSet)
 
         print("listRequired=",listRequired)
@@ -1043,13 +1046,14 @@ class SurvolLocalJavaTest(unittest.TestCase):
 
         # Start a Java process.
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
 
         assert(strInstancesSet == set())
 
 class SurvolLocalUtf8Test(unittest.TestCase):
 
-    # Traiter ce nom de fichier: Yana e-trema lle et Constantin a-accent-grave Boulogne-sur-Mer.IMG-20190806-WA0000.jpg
+    # FIXME: This filename: Yana e-trema lle et Constantin a-accent-grave Boulogne-sur-Mer.IMG-20190806-WA0000.jpg
+    @unittest.skip("Not implemented yet.")
     def test_accented_filename(self):
         # Create directory and file name with accents, depending on the platform: Windows/Linux.
 
@@ -1060,7 +1064,8 @@ class SurvolLocalUtf8Test(unittest.TestCase):
         # Properties: CIM_DataFile.file_stat.py
         pass
 
-    # Traiter ce nom de fichier: Yana e-trema lle et Constantin a-accent-grave Boulogne-sur-Mer.IMG-20190806-WA0000.jpg
+    # FIXME: This filename: Yana e-trema lle et Constantin a-accent-grave Boulogne-sur-Mer.IMG-20190806-WA0000.jpg
+    @unittest.skip("Not implemented yet.")
     def test_accented_dirname(self):
         pass
         # Create directory and file name with accents, depending on the platform: Windows/Linux.
@@ -1068,40 +1073,23 @@ class SurvolLocalUtf8Test(unittest.TestCase):
         # Properties: CIM_DataFile.dir_stat.py
         # Properties: CIM_Directory.file_directory
 
-    # Test a filename with accents.
-    def test_accents_filenames(self):
-        pass
-
-    # Get Python properties of a script.
-    def test_python_properties(self):
-        pass # CIM_DataFile.python_properties.py
-
-    # Access the directory: file_directory.py
-    def test_file_directory(self):
-        pass # CIM_Directory.file_directory
-
-    # Properties: CIM_DataFile.file_stat.py
-    def test_dir_stats(self):
-        pass
-
-
 
 
 class SurvolLocalOntologiesTest(unittest.TestCase):
     """This tests the creation of RDFS or OWL-DL ontologies"""
 
     def test_ontology_survol(self):
-        missing_triples = lib_client.CheckOntologyGraph("survol")
+        missing_triples = lib_client.check_ontology_graph("survol")
         self.assertTrue(missing_triples == [], "Missing triples:%s" % str(missing_triples))
 
     @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported. test_ontology_wmi not executed.")
     def test_ontology_wmi(self):
-        missing_triples = lib_client.CheckOntologyGraph("wmi")
+        missing_triples = lib_client.check_ontology_graph("wmi")
         self.assertTrue(missing_triples == [], "Missing triples:%s" % str(missing_triples))
 
     @unittest.skipIf(not is_linux_wbem(), "pywbem cannot be imported. test_ontology_wbem not executed.")
     def test_ontology_wbem(self):
-        missing_triples = lib_client.CheckOntologyGraph("wbem")
+        missing_triples = lib_client.check_ontology_graph("wbem")
         self.assertTrue(missing_triples == [], "Missing triples:%s" % str(missing_triples))
 
 # TODO: Test namespaces etc... etc classes wmi etc...
@@ -1146,7 +1134,7 @@ class SurvolLocalLinuxTest(unittest.TestCase):
             'Linux/cgroup.Name=cpuset',
         ]
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
 
         for oneStr in listRequired:
             assert( oneStr in strInstancesSet )
@@ -1171,18 +1159,28 @@ class SurvolLocalGdbTest(unittest.TestCase):
 
         listRequired = [
             'linker_symbol.Name=X19wb2xsX25vY2FuY2Vs,File=/lib64/libc.so.6',
-            'CIM_DataFile.Name=/usr/bin/python2.7',
-            'linker_symbol.Name=cG9sbF9wb2xs,File=/usr/bin/python2.7',
             'CIM_DataFile.Name=/lib64/libc.so.6',
             CurrentUserPath,
             CurrentProcessPath
         ]
+        if sys.version_info >= (3,):
+            listRequired += [
+                'CIM_DataFile.Name=/usr/bin/python3.6',
+                'linker_symbol.Name=cG9sbF9wb2xs,File=/usr/bin/python3.6',
+        ]
+        else:
+            listRequired += [
+                'CIM_DataFile.Name=/usr/bin/python2.7',
+                'CIM_DataFile.Name=/lib64/libc.so.6',
+        ]
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.GetTriplestore().GetInstances() ])
+
+        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
 
         for oneStr in listRequired:
             assert( oneStr in strInstancesSet )
 
+    @unittest.skipIf(sys.version_info >= (3,), "Python stack for Python 2 only.")
     @decorator_gdb_platform
     def test_display_python_stack(self):
         """Displays the stack of a Python process"""
@@ -1205,9 +1203,9 @@ class SurvolLocalGdbTest(unittest.TestCase):
             "CIM_Process",
             Handle=procOpen.pid)
 
-        triplePyStack = mySourcePyStack.GetTriplestore()
+        triplePyStack = mySourcePyStack.get_triplestore()
 
-        lstInstances = triplePyStack.GetInstances()
+        lstInstances = triplePyStack.get_instances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
         print("strInstancesSet=",strInstancesSet)
 
@@ -1231,19 +1229,13 @@ class SurvolLocalGdbTest(unittest.TestCase):
             print(oneStr)
             assert( oneStr in strInstancesSet )
 
-        CheckSubprocessEnd(procOpen)
+        check_subprocess_end(procOpen)
 
+@unittest.skipIf(not is_platform_windows, "SurvolLocalWindowsTest runs on Windows only")
 class SurvolLocalWindowsTest(unittest.TestCase):
     """These tests do not need a Survol agent. They apply to Windows machines only"""
 
-    def decorator_windows_platform(test_func):
-
-        if is_platform_windows:
-            return test_func
-        else:
-            return None
-
-    @decorator_windows_platform
+    @unittest.skipIf(not pkgutil.find_loader('win32service'), "test_win32_services needs win32service to run.")
     def test_win32_services(self):
         """List of Win32 services"""
 
@@ -1257,8 +1249,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         assert('Win32_Service.Name=nsi' in strInstancesSet)
         assert('Win32_Service.Name=LanmanWorkstation' in strInstancesSet)
 
-    @decorator_windows_platform
-    @unittest.skipIf(not pkgutil.find_loader('wmi'), "Cannot import wmi. test_wmi_process_info not run.")
+    @unittest.skipIf(not pkgutil.find_loader('wmi'), "test_wmi_process_info needs wmi to run.")
     def test_wmi_process_info(self):
         """WMI information about current process"""
 
@@ -1275,8 +1266,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
             # Checks the parent's presence also. Not for 2.7.10
             assert(CurrentProcessPath in strInstancesSet)
 
-    @decorator_windows_platform
-    @unittest.skipIf(not pkgutil.find_loader('wmi'), "Cannot import wmi. test_win_process_modules not run.")
+    @unittest.skipIf(not pkgutil.find_loader('wmi'), "test_win_process_modules needs wmi to run.")
     def test_win_process_modules(self):
         """Windows process modules"""
 
@@ -1291,7 +1281,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         listRequired = [
             CurrentProcessPath,
             CurrentUserPath,
-            'CIM_DataFile.Name=%s' % sys.executable.replace("\\","/"),
+            'CIM_DataFile.Name=%s' % CurrentExecutable,
         ]
 
         # Some nodes are in Py2 or Py3.
@@ -1303,23 +1293,26 @@ class SurvolLocalWindowsTest(unittest.TestCase):
             elif platform.release() == '10':
                 # 'C:\\Users\\rchat\\AppData\\Local\\Programs\\Python\\Python36\\python.exe'
                 # 'C:/Users/rchat/AppData/Local/Programs/Python/Python36/DLLs/_ctypes.pyd'
-                filCTypes = os.path.dirname(sys.executable).replace("\\","/") + '/DLLs/_ctypes.pyd'
-                listOption = [
-                    'CIM_DataFile.Name=%s' % sys.executable.replace("\\","/"),
-                    'CIM_DataFile.Name=%s' % filCTypes,
-                ]
+                listOption = []
+                if is_travis_machine():
+                    extraFile = os.path.dirname(CurrentExecutable).lower() + '/lib/site-packages/win32/win32api.pyd'
+                    listOption.append('CIM_DataFile.Name=%s' % extraFile)
+                else:
+                    filCTypes = os.path.dirname(CurrentExecutable) + '/DLLs/_ctypes.pyd'
+                    listOption.append('CIM_DataFile.Name=%s' % filCTypes)
         else:
             listOption = [
             'CIM_DataFile.Name=C:/windows/SYSTEM32/ntdll.dll',
             ]
 
+        print("Actual=", strInstancesSet)
         for oneStr in listRequired + listOption:
-            assert( oneStr in strInstancesSet )
+            print("oneStr=", oneStr)
+            self.assertTrue( oneStr in strInstancesSet )
 
         # Detection if a specific bug is fixed.
-        assert(not 'CIM_DataFile.Name=' in strInstancesSet)
+        self.assertTrue(not 'CIM_DataFile.Name=' in strInstancesSet)
 
-    @decorator_windows_platform
     def test_win32_products(self):
         lstInstances = ClientObjectInstancesFromScript(
             "sources_types/win32/enumerate_Win32_Product.py")
@@ -1327,7 +1320,6 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         strInstancesLst = [str(oneInst) for oneInst in lstInstances ]
         print("lstInstances=",strInstancesLst[:3])
 
-    @decorator_windows_platform
     def test_win_cdb_callstack(self):
         """win_cdb_callstack Information about current process"""
 
@@ -1338,14 +1330,13 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 
         try:
             # Should throw "Exception: ErrorMessageHtml raised:Cannot debug current process"
-            mySource.GetTriplestore()
+            mySource.get_triplestore()
         except Exception as exc:
             print("Success: Exception received, because cannot debug current process")
             return
 
         assert(False)
 
-    @decorator_windows_platform
     def test_win_cdb_modules(self):
         """win_cdb_modules about current process"""
 
@@ -1356,14 +1347,13 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 
         try:
             # Should throw "Exception: ErrorMessageHtml raised:Cannot debug current process"
-            mySource.GetTriplestore()
+            mySource.get_triplestore()
         except Exception as exc:
             print("Success: Exception received, because cannot debug current process")
             return
 
         assert(False)
 
-    @decorator_windows_platform
     @unittest.skipIf(is_pytest(), "This msdos test cannot run in pytest.")
     def test_msdos_current_batch(self):
         """Displays information a MSDOS current batch"""
@@ -1387,19 +1377,17 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         for oneStr in listRequired:
             assert( oneStr in strInstancesSet )
 
-
-    @decorator_windows_platform
+    @unittest.skipIf(not pkgutil.find_loader('win32net'), "test_win32_host_local_groups needs win32net.")
     def test_win32_host_local_groups(self):
-        sys.stderr.write("CurrentMachine=%s\n" % CurrentMachine)
         mySourceHostLocalGroups = lib_client.SourceLocal(
             "sources_types/CIM_ComputerSystem/Win32/win32_host_local_groups.py",
             "CIM_ComputerSystem",
             Name = CurrentMachine)
 
-        sys.stderr.write("CurrentMachine=%s before GetTriplestore\n" % CurrentMachine)
-        tripleHostLocalGroups = mySourceHostLocalGroups.GetTriplestore()
-        sys.stderr.write("CurrentMachine=%s before GetInstances\n" % CurrentMachine)
-        instancesHostLocalGroups = tripleHostLocalGroups.GetInstances()
+        sys.stderr.write("CurrentMachine=%s before get_triplestore\n" % CurrentMachine)
+        tripleHostLocalGroups = mySourceHostLocalGroups.get_triplestore()
+        sys.stderr.write("CurrentMachine=%s before get_instances\n" % CurrentMachine)
+        instancesHostLocalGroups = tripleHostLocalGroups.get_instances()
 
         print("Host local groups=", instancesHostLocalGroups)
         for one_instance in instancesHostLocalGroups:
@@ -1425,7 +1413,7 @@ class SurvolPyODBCTest(unittest.TestCase):
         instanceLocalODBC = lib_client.Agent().odbc.dsn(
             Dsn="DSN~MS%20Access%20Database")
 
-        listScripts = instanceLocalODBC.GetScripts()
+        listScripts = instanceLocalODBC.get_scripts()
         if isVerbose:
             sys.stdout.write("Scripts:\n")
             for oneScr in listScripts:
@@ -1745,17 +1733,17 @@ class SurvolRemoteTest(unittest.TestCase):
     #    time.sleep(0.01)  # sleep time in seconds
 
     def test_InstanceUrlToAgentUrl(selfself):
-        assert( lib_client.InstanceUrlToAgentUrl("http://LOCALHOST:80/NotRunningAsCgi/entity.py?xid=addr.Id=127.0.0.1:427") == None )
-        assert( lib_client.InstanceUrlToAgentUrl(RemoteTestAgent + "/survol/sources_types/java/java_processes.py") == RemoteTestAgent )
+        assert( lib_client.instance_url_to_agent_url("http://LOCALHOST:80/LocalExecution/entity.py?xid=addr.Id=127.0.0.1:427") == None )
+        assert( lib_client.instance_url_to_agent_url(_remote_general_test_agent + "/survol/sources_types/java/java_processes.py") == _remote_general_test_agent )
 
     def test_create_source_url(self):
         # http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
         mySourceFileStatRemote = lib_client.SourceRemote(
-            RemoteTestAgent + "/survol/sources_types/CIM_DataFile/file_stat.py",
+            _remote_general_test_agent + "/survol/sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
-            Name=FileAlwaysThere)
+            Name=always_present_file)
         print("urlFileStatRemote=",mySourceFileStatRemote.Url())
-        print("qryFileStatRemote=",mySourceFileStatRemote.UrlQuery())
+        print("qryFileStatRemote=",mySourceFileStatRemote.create_url_query())
         print("jsonFileStatRemote=%s  ..." % str(mySourceFileStatRemote.content_json())[:30])
         print("rdfFileStatRemote=%s ..." % str(mySourceFileStatRemote.content_rdf())[:30])
 
@@ -1766,21 +1754,21 @@ class SurvolRemoteTest(unittest.TestCase):
 
     def test_remote_triplestore(self):
         mySourceFileStatRemote = lib_client.SourceRemote(
-            RemoteTestAgent + "/survol/sources_types/CIM_Directory/file_directory.py",
+            _remote_general_test_agent + "/survol/sources_types/CIM_Directory/file_directory.py",
             "CIM_Directory",
-            Name=DirAlwaysThere)
-        tripleFileStatRemote = mySourceFileStatRemote.GetTriplestore()
+            Name=always_present_dir)
+        tripleFileStatRemote = mySourceFileStatRemote.get_triplestore()
         print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
         # This should not be empty.
         self.assertTrue(len(tripleFileStatRemote)>=1)
 
     # This does not work yet.
     def test_remote_scripts_exception(self):
-        myAgent = lib_client.Agent(RemoteTestAgent)
+        myAgent = lib_client.Agent(_remote_general_test_agent)
 
         try:
             mySourceInvalid = myAgent.CIM_LogicalDisk(WrongProperty=AnyLogicalDisk)
-            scriptsInvalid = mySourceInvalid.GetScripts()
+            scriptsInvalid = mySourceInvalid.get_scripts()
             excRaised = False
             print("No exception is raised (This is a problem)")
         except Exception as exc:
@@ -1792,12 +1780,12 @@ class SurvolRemoteTest(unittest.TestCase):
     def test_remote_instances_python_package(self):
         """This loads a specific Python package"""
         mySourcePythonPackageRemote = lib_client.SourceRemote(
-            RemoteTestAgent + "/survol/entity.py",
+            _remote_general_test_agent + "/survol/entity.py",
             "python/package",
             Id="rdflib")
-        triplePythonPackageRemote = mySourcePythonPackageRemote.GetTriplestore()
+        triplePythonPackageRemote = mySourcePythonPackageRemote.get_triplestore()
 
-        instancesPythonPackageRemote = triplePythonPackageRemote.GetInstances()
+        instancesPythonPackageRemote = triplePythonPackageRemote.get_instances()
         lenInstances = len(instancesPythonPackageRemote)
         # This Python module must be there because it is needed by Survol.
         self.assertTrue(lenInstances>=1)
@@ -1806,11 +1794,11 @@ class SurvolRemoteTest(unittest.TestCase):
     def test_remote_instances_java(self):
         """Loads Java processes. There is at least one Java process, the one doing the test"""
         mySourceJavaRemote = lib_client.SourceRemote(
-            RemoteTestAgent + "/survol/sources_types/java/java_processes.py")
-        tripleJavaRemote = mySourceJavaRemote.GetTriplestore()
+            _remote_general_test_agent + "/survol/sources_types/java/java_processes.py")
+        tripleJavaRemote = mySourceJavaRemote.get_triplestore()
         print("Len tripleJavaRemote=",len(tripleJavaRemote))
 
-        instancesJavaRemote = tripleJavaRemote.GetInstances()
+        instancesJavaRemote = tripleJavaRemote.get_instances()
         numJavaProcesses = 0
         for oneInstance in instancesJavaRemote:
             if oneInstance.__class__.__name__ == "CIM_Process":
@@ -1825,11 +1813,11 @@ class SurvolRemoteTest(unittest.TestCase):
         """Loads machines visible with ARP. There must be at least one CIM_ComputerSystem"""
 
         mySourceArpRemote = lib_client.SourceRemote(
-            RemoteTestAgent + "/survol/sources_types/neighborhood/cgi_arp_async.py")
-        tripleArpRemote = mySourceArpRemote.GetTriplestore()
+            _remote_general_test_agent + "/survol/sources_types/neighborhood/cgi_arp_async.py")
+        tripleArpRemote = mySourceArpRemote.get_triplestore()
         print("Len tripleArpRemote=",len(tripleArpRemote))
 
-        instancesArpRemote = tripleArpRemote.GetInstances()
+        instancesArpRemote = tripleArpRemote.get_instances()
         numComputers = 0
         for oneInstance in instancesArpRemote:
             if oneInstance.__class__.__name__ == "CIM_ComputerSystem":
@@ -1845,56 +1833,57 @@ class SurvolRemoteTest(unittest.TestCase):
             "CIM_LogicalDisk",
             DeviceID=AnyLogicalDisk)
         if is_platform_windows:
-            mySource2 = lib_client.SourceRemote(RemoteTestAgent + "/survol/sources_types/win32/tcp_sockets_windows.py")
+            mySource2 = lib_client.SourceRemote(_remote_general_test_agent + "/survol/sources_types/win32/tcp_sockets_windows.py")
         else:
-            mySource2 = lib_client.SourceRemote(RemoteTestAgent + "/survol/sources_types/Linux/tcp_sockets.py")
+            mySource2 = lib_client.SourceRemote(_remote_general_test_agent + "/survol/sources_types/Linux/tcp_sockets.py")
 
         mySrcMergePlus = mySource1 + mySource2
         print("Merge plus:",str(mySrcMergePlus.content_rdf())[:30])
-        triplePlus = mySrcMergePlus.GetTriplestore()
+        triplePlus = mySrcMergePlus.get_triplestore()
         print("Len triplePlus:",len(triplePlus))
 
-        lenSource1 = len(mySource1.GetTriplestore().GetInstances())
-        lenSource2 = len(mySource2.GetTriplestore().GetInstances())
-        lenPlus = len(triplePlus.GetInstances())
+        lenSource1 = len(mySource1.get_triplestore().get_instances())
+        lenSource2 = len(mySource2.get_triplestore().get_instances())
+        lenPlus = len(triplePlus.get_instances())
         # There is a margin because some instances could be created in the mean time.
         errorMargin = 20
         # In the merged link, there cannot be more instances than in the input sources.
         self.assertTrue(lenPlus <= lenSource1 + lenSource2 + errorMargin)
 
+    @unittest.skipIf(not pkgutil.find_loader('win32net'), "Cannot import win32net. test_merge_sub_mixed not run.")
     def test_merge_sub_mixed(self):
         mySource1 = lib_client.SourceLocal(
             "entity.py",
             "CIM_LogicalDisk",
             DeviceID=AnyLogicalDisk)
         if is_platform_windows:
-            mySource2 = lib_client.SourceRemote(RemoteTestAgent + "/survol/sources_types/win32/win32_local_groups.py")
+            mySource2 = lib_client.SourceRemote(_remote_general_test_agent + "/survol/sources_types/win32/win32_local_groups.py")
         else:
-            mySource2 = lib_client.SourceRemote(RemoteTestAgent + "/survol/sources_types/Linux/etc_group.py")
+            mySource2 = lib_client.SourceRemote(_remote_general_test_agent + "/survol/sources_types/Linux/etc_group.py")
 
         mySrcMergeMinus = mySource1 - mySource2
         print("Merge Minus:",str(mySrcMergeMinus.content_rdf())[:30])
-        tripleMinus = mySrcMergeMinus.GetTriplestore()
+        tripleMinus = mySrcMergeMinus.get_triplestore()
         print("Len tripleMinus:",len(tripleMinus))
 
-        lenSource1 = len(mySource1.GetTriplestore().GetInstances())
-        lenMinus = len(tripleMinus.GetInstances())
+        lenSource1 = len(mySource1.get_triplestore().get_instances())
+        lenMinus = len(tripleMinus.get_instances())
         # There cannot be more instances after removal.
         self.assertTrue(lenMinus <= lenSource1 )
 
     def test_remote_scripts_CIM_LogicalDisk(self):
-        myAgent = lib_client.Agent(RemoteTestAgent)
+        myAgent = lib_client.Agent(_remote_general_test_agent)
 
         myInstancesRemoteDisk = myAgent.CIM_LogicalDisk(DeviceID=AnyLogicalDisk)
-        listScriptsDisk = myInstancesRemoteDisk.GetScripts()
+        listScriptsDisk = myInstancesRemoteDisk.get_scripts()
         # No scripts yet.
         self.assertTrue(len(listScriptsDisk) == 0)
 
     def test_remote_scripts_CIM_Directory(self):
-        myAgent = lib_client.Agent(RemoteTestAgent)
+        myAgent = lib_client.Agent(_remote_general_test_agent)
 
         myInstancesRemoteDir = myAgent.CIM_Directory(Name=AnyLogicalDisk)
-        listScriptsDir = myInstancesRemoteDir.GetScripts()
+        listScriptsDir = myInstancesRemoteDir.get_scripts()
 
         if isVerbose:
             for keyScript in listScriptsDir:
@@ -2070,8 +2059,11 @@ class SurvolRabbitMQTest(unittest.TestCase):
             "rabbitmq/manager",
             Url=rabbitmqManager)
 
-        # TODO: Which queues should always be present ?
+        # FIXME: Which queues should always be present ?
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+        print("test_rabbitmq_queues strInstancesSet=", strInstancesSet)
+        self.assertTrue('rabbitmq/vhost.Url=localhost:12345,VHost=/' in strInstancesSet)
+        self.assertTrue('rabbitmq/manager.Url=localhost:12345' in strInstancesSet)
 
 
     @decorator_rabbitmq_subscription
@@ -2333,7 +2325,7 @@ class SurvolSearchTest(unittest.TestCase):
         sampleFile = os.path.join( os.path.dirname(__file__), "SampleDir", "SampleFile.txt" )
         instanceOrigin = lib_client.Agent().CIM_DataFile(Name=sampleFile)
 
-        searchTripleStore = instanceOrigin.FindStringFromNeighbour(searchString="Maecenas",maxDepth=1,filterInstances=None,filterPredicates=None)
+        searchTripleStore = instanceOrigin.find_string_from_neighbour(searchString="Maecenas",maxDepth=1,filterInstances=None,filterPredicates=None)
 
         results = list(searchTripleStore)
 
@@ -2353,7 +2345,7 @@ class SurvolSearchTest(unittest.TestCase):
 
         mustFind = "Drivers"
 
-        searchTripleStore = instanceOrigin.FindStringFromNeighbour(searchString="Curabitur",maxDepth=2,filterInstances=None,filterPredicates=None)
+        searchTripleStore = instanceOrigin.find_string_from_neighbour(searchString="Curabitur",maxDepth=2,filterInstances=None,filterPredicates=None)
         list_triple = list(searchTripleStore)
         print("stl_list=",list_triple)
         for tpl in list_triple:
@@ -2384,7 +2376,7 @@ class SurvolSearchTest(unittest.TestCase):
 
         mustFind = "Hello"
 
-        searchTripleStore = instanceOrigin.FindStringFromNeighbour(searchString=mustFind,maxDepth=3,filterInstances=listInstances,filterPredicates=listPredicates)
+        searchTripleStore = instanceOrigin.find_string_from_neighbour(searchString=mustFind,maxDepth=3,filterInstances=listInstances,filterPredicates=listPredicates)
         for tpl in searchTripleStore:
             print(tpl)
 
@@ -2393,7 +2385,7 @@ class SurvolInternalTest(unittest.TestCase):
     def check_internal_values(self,anAgentStr):
 
         anAgent = lib_client.Agent(anAgentStr)
-        mapInternalData = anAgent.GetInternalData()
+        mapInternalData = anAgent.get_internal_data()
 
         # http://192.168.0.14/Survol/survol/print_internal_data_as_json.py
         # http://rchateau-hp:8000/survol/print_internal_data_as_json.py
@@ -2432,22 +2424,18 @@ class SurvolInternalTest(unittest.TestCase):
         # This breaks on Linux Python 3:
         # "http://localhost:8000/survol"
         # "http://travis-job-051017ff-a582-4258-a817-d9cd836533a6:8000/survol"
-        self.assertTrue(mapInternalData["uriRoot"] == anAgentStr + "/survol")
-
         print("RootUri=",mapInternalData["RootUri"])
         print("anAgentStr=",anAgentStr)
+
+        self.assertTrue(mapInternalData["uriRoot"] == anAgentStr + "/survol")
 
         # When the agent is started automatically, "?xid=" is added at the end of the URL.
         # http://rchateau-hp:8000/survol/print_internal_data_as_json.py?xid=
         # This adds lib_util.xidCgiDelimiter at the end.
         assert(mapInternalData["RootUri"] == anAgentStr + "/survol/print_internal_data_as_json.py" + "?xid=")
 
-        #lib_client.urlparse
-        #assert(mapInternalData["HttpPrefix"] == anAgentStr)
-        #assert(mapInternalData["RequestUri"] == "dddd")
-
     def test_internal_remote(self):
-        self.check_internal_values(RemoteTestAgent)
+        self.check_internal_values(_remote_general_test_agent)
 
     @unittest.skipIf(is_travis_machine(), "Cannot run Apache test on TravisCI.")
     def test_internal_apache(self):
@@ -2458,8 +2446,8 @@ class SurvolInternalTest(unittest.TestCase):
         # The key is the return value of socket.gethostname().lower()
         try:
             RemoteTestApacheAgent = {
-                "rchateau-hp": "http://192.168.0.14:80/Survol",
-                "vps516494.localdomain": SurvolServerAgent }[CurrentMachine]
+                "rchateau-hp": "http://192.168.1.10:80/Survol",
+                "vps516494.localdomain": SurvolServerAgent}[CurrentMachine]
             self.check_internal_values(RemoteTestApacheAgent)
         except KeyError:
             print("test_internal_apache cannot be run on machine:",CurrentMachine)

@@ -20,13 +20,13 @@ def Main():
 		parameters = { paramkeyShowUnconnected : False }
 	)
 
-	flagShowUnconnected = bool(cgiEnv.GetParameters( paramkeyShowUnconnected ))
+	flagShowUnconnected = bool(cgiEnv.get_parameters( paramkeyShowUnconnected ))
 
 	grph = cgiEnv.GetGraph()
 
 	for proc in CIM_Process.ProcessIter():
 		try:
-			if lib_common.UselessProc(proc):
+			if lib_common.is_useless_process(proc):
 				continue
 
 			pid = proc.pid

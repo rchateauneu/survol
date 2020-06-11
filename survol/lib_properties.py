@@ -1,7 +1,7 @@
 import lib_kbase
 
 # This is an RDF prefix.
-primns = "http://primhillcomputers.com/survol"
+primns = "http://www.primhillcomputers.com/survol"
 
 pc = lib_kbase.MakeNamespace(primns)
 
@@ -29,7 +29,12 @@ primns_slash = primns + prefix_terminator
 # We could add information in a given order: "information?key=1", "information?key=2",
 # Natural order should be OK. or add a sort function in the call to sorted().
 def MakeProp(*prps,**kvargs):
-    ret = primns_slash + ":".join(prps)
+    # The delimiter must be compatible with XML because for example, the tag:
+    # "<ldt:odbc:column rdf:resource=..."
+    # is rejected with the error: "SAXParseException: <unknown>:93:13: not well-formed (invalid token)"
+    # The convention is that triple-underscore can only be a separator.
+    # It is a very rare situation at the moment, and might change.
+    ret = primns_slash + "___".join(prps)
     if kvargs:
         ret += "?" + "&amp;".join( "%s=%s" % (k,kvargs[k]) for k in kvargs )
     # TODO: If the key contains a space or "\x20", the result gets prefixed by primns:
@@ -41,6 +46,7 @@ def MakeProp(*prps,**kvargs):
 MakeNodeForSparql = MakeProp
 
 # See lib_kbase.qname
+# ... and lib_sparql_custom_evals.survol_url = "http://www.primhillcomputers.com/survol#"
 def PropToQName(property_node):
     # property_node is a <class 'rdflib.term.URIRef'>, ex "rdflib.term.URIRef(u'http://primhillcomputers.com/survol/QuotaPagedPoolUsage')"
     # TODO: Should call compute_qname ?

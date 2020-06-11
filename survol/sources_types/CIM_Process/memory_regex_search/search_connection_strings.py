@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 """
 Scan process memory for ODBC connection strings
@@ -18,6 +18,8 @@ from sources_types.odbc import dsn as survol_odbc_dsn
 
 # ODBC connection strings, on Windows only.
 Usable = lib_util.UsableWindows
+
+SlowScript = True
 
 # aRegex=[; ]*PIPENAME *= *\w+ *|[; ]*SSLKEY *= *[^=]+ *|[; ]*CONNECTIONRESET *= *[a-zA-Z01]* *|[; ]*DBA PRIVILEGE *= *[^=]+ *|[; ]*EN
 # CRYPT *= *[a-zA-Z01]* *|[; ]*OPTION *= *[^=]+ *|[; ]*FILEDSN *= *[^=]+ *|[; ]*IGNORE PREPARE *= *[a-zA-Z01]* *|[; ]*CHARSET *= *\w+
@@ -136,7 +138,7 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	paramExtensiveScan = cgiEnv.GetParameters( paramkeyExtensiveScan )
+	paramExtensiveScan = cgiEnv.get_parameters( paramkeyExtensiveScan )
 
 	# By default, uses a small map of possible connection strings keyword.
 	# Otherwise it is very slow to scan the whole process memory.

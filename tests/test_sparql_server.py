@@ -4,6 +4,8 @@ from __future__ import print_function
 
 import os
 import sys
+import xml
+import json
 import unittest
 import pkgutil
 
@@ -16,6 +18,20 @@ except ImportError as exc:
 from init import *
 
 update_test_path()
+
+# If the Survol agent does not exist, this script starts a local one.
+RemoteSparqlServerProcess = None
+_remote_sparql_test_agent = "http://%s:%d" % (CurrentMachine, RemoteSparqlTestServerPort)
+
+def setUpModule():
+    global RemoteSparqlServerProcess
+    RemoteSparqlServerProcess, _agent_url = start_cgiserver(RemoteSparqlTestServerPort)
+    assert _agent_url == _remote_sparql_test_agent
+
+def tearDownModule():
+    global RemoteSparqlServerProcess
+    stop_cgiserver(RemoteSparqlServerProcess)
+
 
 # <?xml version="1.0" ?>
 # <sparql><head><variable name="caption"/></head>
@@ -69,14 +85,12 @@ def SparqlResultsXMLToJSON(results_xml):
 # This returns the result as a dictionary of dictionaries
 def UrlToSparqlResult(url_rdf, sparql_query, format_str):
     # print("UrlToSparqlResult sparql_query=",sparql_query)
-    print("UrlToSparqlResult url_rdf=",url_rdf," format_str=",format_str)
+    print("UrlToSparqlResult url_rdf=", url_rdf, " format_str=", format_str)
 
     sparql_wrapper = SPARQLWrapper.SPARQLWrapper(url_rdf)
     sparql_wrapper.setQuery(sparql_query)
     # print("sparql_wrapper:",str(dir(sparql_wrapper)))
     # print("sparql_wrapper.queryString:",sparql_wrapper.queryString)
-
-    # JSON and JSONLD do not work.
 
     str_to_format = {
         "XML": SPARQLWrapper.XML,
@@ -85,22 +99,34 @@ def UrlToSparqlResult(url_rdf, sparql_query, format_str):
 
     sparql_wrapper.setReturnFormat(str_to_format)
     sparql_qry_result = sparql_wrapper.query()
-    results_conversion = sparql_qry_result.convert()
+    results_http_convert = sparql_qry_result.convert()
 
+    print("SPARQLWrapper.__version__=", SPARQLWrapper.__version__)
+    print("UrlToSparqlResult type(results_convert)=", type(results_http_convert))
+    print("UrlToSparqlResult results_convert=", results_http_convert)
+
+    print("AFTER EXECUTION ==================================")
     if format_str == "XML":
-        if isinstance(results_conversion, str):
-            # This is because an error occurred somewhere.
-            ERROR("UrlToSparqlResult results_conversion=%s", results_conversion)
-            return None
         # Specific conversion of XML Sparql results to JSON, so we can use the same results data.
-        # print("dir(results_conversion)=",dir(results_conversion))
-        print("results_conversion=",results_conversion)
-        assert isinstance( format_str, str )
-        print("results_conversion.toxml()=",results_conversion.toxml())
-        results_conversion = SparqlResultsXMLToJSON(results_conversion)
+        assert isinstance(results_http_convert, xml.dom.minidom.Document)
+        results_chopped_xml_to_json = SparqlResultsXMLToJSON(results_http_convert)
+        assert results_chopped_xml_to_json
+        return results_chopped_xml_to_json
+    elif format_str == "JSON":
+        assert isinstance(results_http_convert, dict)
+        return results_http_convert
+    else:
+        raise Exception("Invalid format:", format_str)
 
-    return results_conversion
 
+# This executes a query to the Sparql server of the current machine, via TCP/IP.
+def run_remote_sparql_query(sparql_query, format_str):
+    print("run_remote_sparql_query sparql_query=", sparql_query)
+
+    url_sparql = _remote_sparql_test_agent + "/survol/sparql.py"
+
+    sparql_result = UrlToSparqlResult(url_sparql, sparql_query, format_str)
+    return sparql_result
 
     # https://www.w3.org/TR/2013/REC-sparql11-results-json-20130321/
     # {
@@ -133,134 +159,59 @@ class SparqlServerSurvolTest(unittest.TestCase):
     Test the Sparql server which works on Survol data.
     """
 
-    @staticmethod
-    def run_compare_survol(sparql_query, expected_header, expected_dicts, format_str):
+    def test_server_CIM_Process_xml(self):
+        sparql_query = """
+            PREFIX survol:  <http://www.primhillcomputers.com/survol#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT ?pid
+            WHERE
+            {
+                ?url_proc rdf:type survol:CIM_Process .
+                ?url_proc survol:Description 'python.exe' .
+                ?url_proc survol:Handle ?pid .
+            }
+            """
+        sparql_result_json = run_remote_sparql_query(sparql_query, "XML")
+        print("test_server_CIM_Process_xml: sparql_result_json=", sparql_result_json)
+        self.assertTrue( sparql_result_json["head"]["vars"][0] == "pid" )
 
-        print("run_compare_survol sparql_query=", sparql_query)
+    def test_server_CIM_Process_json(self):
+        sparql_query = """
+            PREFIX survol:  <http://www.primhillcomputers.com/survol#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT ?pid
+            WHERE
+            {
+                ?url_proc rdf:type survol:CIM_Process .
+                ?url_proc survol:Description 'python.exe' .
+                ?url_proc survol:Handle ?pid .
+            }
+            """
+        sparql_result_json = run_remote_sparql_query(sparql_query, "JSON")
+        print("test_server_CIM_Process_json: sparql_result_json=", sparql_result_json)
+        self.assertTrue( sparql_result_json["head"]["vars"][0] == "pid" )
 
-        url_sparql = RemoteTestAgent + "/survol/sparql.py"
+    def test_server_all_CIM_Process_json(self):
+        sparql_query = """
+            PREFIX survol:  <http://www.primhillcomputers.com/survol#>
+            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT ?pid
+            WHERE
+            {
+                ?url_proc rdf:type survol:CIM_Process .
+                ?url_proc survol:Handle ?pid .
+            }
+            """
+        sparql_result_json = run_remote_sparql_query(sparql_query, "JSON")
+        print("test_server_all_CIM_Process_json: sparql_result_json=", sparql_result_json)
+        print("head=", sparql_result_json["head"])
+        print("vars=", sparql_result_json["head"]["vars"])
+        self.assertTrue( sparql_result_json["head"]["vars"][0] == "pid" )
+        pids_list = [ one_result["pid"]["value"] for one_result in sparql_result_json["results"]["bindings"] ]
+        print("test_server_all_CIM_Process_json: pids_list=", pids_list)
+        # At least a handful of processes.
+        self.assertTrue( len(pids_list) > 1)
 
-        sparql_result = UrlToSparqlResult(url_sparql, sparql_query, format_str)
-
-
-        # sparql_result ... = {
-        # u'head': {u'vars': [u'caption']},
-        # u'results': {
-        #   u'bindings': [
-        #       {u'caption': {u'type': u'literal', u'value': u'rchateau-HP\\\\rchateau'}},
-        #       {u'caption': {u'type': u'literal', u'value': u'S-1-5-21-3348735596-448992173-972389567-1001'}},
-        #       {u'caption': {u'type': u'url', u'value': u'http://primhillcomputers.com/survol/Win32_UserAccount'}},
-        print("run_compare_survol sparql_result ... =", sparql_result)
-        print("run_compare_survol expected_header ... =", expected_header)
-        assert sparql_result['head']['vars'] == expected_header
-
-        # This builds a set of tuples from the actual results.
-        # Conversion in lower case.
-        str_actual_data_lower = set()
-        for one_dict in sparql_result['results']['bindings']:
-            values_tuple = tuple( ( one_variable, one_dict[one_variable][u'value'].lower() ) for one_variable in expected_header)
-            str_actual_data_lower.add(values_tuple)
-        print("run_compare_survol len(str_actual_data)=", len(str_actual_data_lower))
-
-        print("run_compare_survol expected_dicts=", expected_dicts)
-        print("run_compare_survol str_actual_data=", str_actual_data_lower)
-        for one_dict in expected_dicts:
-            print("run_compare_survol one_dict=",one_dict)
-            assert(one_dict in str_actual_data_lower)
-
-    def run_complete_survol_test(self,array_queries):
-        for sparql_query, expected_header, expected_dicts in array_queries:
-            for fmt in ["XML","JSON"]:
-                self.run_compare_survol(sparql_query, expected_header, expected_dicts, fmt)
-
-    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported. test_server_survol not executed.")
-    def test_server_survol(self):
-        array_survol_queries=[
-            [
-                """
-                PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
-                PREFIX survol:  <http://primhillcomputers.com/survol#>
-                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-                SELECT ?pid
-                WHERE
-                {
-                    ?url_proc rdf:type survol:CIM_Process .
-                    ?url_proc survol:Description 'python.exe' .
-                    ?url_proc survol:Handle ?pid .
-                    ?url_proc rdfs:seeAlso "WMI" .
-                }
-                """,
-                [ u'pid'],
-                [
-                    ((u'pid', str(CurrentPid) ),),
-                ]
-            ],
-            [
-                """
-                PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
-                PREFIX survol:  <http://primhillcomputers.com/survol#>
-                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-                SELECT ?caption
-                WHERE
-                {
-                    ?url_user rdf:type survol:Win32_UserAccount .
-                    ?url_user survol:Name '%s' .
-                    ?url_user survol:Caption ?caption .
-                    ?url_user rdfs:seeAlso "WMI" .
-                }
-                """ % CurrentUsername,
-                [u'caption'],
-                [
-                    ((u'caption', u'%s\\\\%s' % (CurrentMachine, CurrentUsername)),),
-                ]
-            ],
-            [
-                """
-                PREFIX wmi:  <http://www.primhillcomputers.com/ontology/wmi#>
-                PREFIX survol:  <http://primhillcomputers.com/survol#>
-                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-                SELECT ?domain ?caption
-                WHERE
-                {
-                    ?url_user rdf:type survol:Win32_UserAccount .
-                    ?url_user survol:Name '%s' .
-                    ?url_user survol:Caption ?caption .
-                    ?url_user survol:Domain ?domain .
-                    ?url_user rdfs:seeAlso "WMI" .
-                }
-                """ % CurrentUsername,
-                [u'domain', u'caption'],
-                [
-                    ((u'domain', CurrentMachine),(u'caption', u'%s\\\\%s' % (CurrentMachine, CurrentUsername)),),
-                ]
-            ],
-        ]
-
-        self.run_complete_survol_test(array_survol_queries)
-
-    # This tests the ability to extract the WMI classes and their attributes.
-    # Results are converted to lowercase. This is not really an issue.
-    @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported. test_server_survol_wmi_meta not executed.")
-    def test_server_survol_wmi_meta(self):
-        array_survol_queries=[
-            [
-                """
-                PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-                SELECT ?url_class
-                WHERE
-                { ?url_class rdf:type rdfs:Class .
-                  ?url_class rdfs:seeAlso "WMI" .
-                }
-                """,
-                [ u'url_class'],
-                [
-                    ((u'url_class', u'wmiclass:cim_directorycontainsfile'),),
-                    ((u'url_class', u'wmiclass:cim_remotefilesystem'),),
-                ]
-            ],
-        ]
-
-        self.run_complete_survol_test(array_survol_queries)
 
 
 if __name__ == '__main__':

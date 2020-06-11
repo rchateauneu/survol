@@ -125,10 +125,13 @@ def JavaJmxPidMBeansAttach(pid,jvPckVM,mbeanObjNam = None):
 
 	dictResult = {}
 
-	DEBUG("Attaching to pid=%s type=%s",pid,type(pid))
+	DEBUG("JavaJmxPidMBeansAttach Attaching to pid=%s type=%s",pid,type(pid))
 	# jpype._jexception.AttachNotSupportedExceptionPyRaisable:
 	# com.sun.tools.attach.AttachNotSupportedException:
 	# Unable to attach to 32-bit process running under WOW64
+	#
+	# This exception is caught with pytest and many tests.
+	# It works fine with few tests or with PyCharm.
 	try:
 		virtMach = jvPckVM.attach(str(pid))
 	except:

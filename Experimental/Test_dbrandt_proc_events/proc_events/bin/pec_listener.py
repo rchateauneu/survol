@@ -13,7 +13,7 @@ def hex_dump(data):
     Print struct packed data in a way similar to 'x /Nbx <address>'
     in GDB.
     """
-    for i in xrange(len(data)):
+    for i in range(len(data)):
         print("0x%02x" % ord(data[i]))
         if i != 0 and not (i+1) % 8:
             print("")

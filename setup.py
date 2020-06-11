@@ -2,17 +2,24 @@
 
 import os
 import sys
-from itertools import ifilter
+try:
+    # Python 2
+    from future_builtins import filter
+except ImportError:
+    # Python 3
+    pass
+
 import ast
 
 # pip install ..\dist\survol-1.0.dev0.zip --upgrade --install-option="--port 12345"
 
-
 # TODO: Have a look to setuptools.setup
+from distutils import log
 from distutils.core import setup
 from setuptools import find_packages
 
 from setuptools.command.install import install
+from setuptools.command.install_lib import install_lib
 
 # https://stackoverflow.com/questions/677577/distutils-how-to-pass-a-user-defined-parameter-to-setup-py
 #
@@ -26,6 +33,7 @@ from setuptools.command.install import install
 class InstallCommand(install):
     # The html files can be copied at any place.
     # For example at ~/public_html on Unix, i.e. "Users Dir feature of Apache".
+    # TODO: This is not used yet.
     user_options = install.user_options + [
         ('port=', 'p', 'CGI server port number'),
         ('www=', 'w', 'Web UI destination directory'),
@@ -34,7 +42,7 @@ class InstallCommand(install):
     def initialize_options(self):
         print("Running initialize_options")
         install.initialize_options(self)
-        self.port = 24680
+        self.port = 24680 # TODO: This is not used yet.
 
         # By default, cgiserver will pick its files from the Python installation directory,
         # and this is acceptable because their are part of the same package.
@@ -63,35 +71,54 @@ class InstallCommand(install):
 
         print("Custom installation. Port:%s Dest dir=%s" % (my_port,my_www))
         if my_www:
-            print("About to copy %s"%my_www)
+            print("About to copy %s" % my_www)
         install.run(self)  # OR: install.do_egg_install(self)
 
-# TODO: Explain installation in Apache:
-# - When pointing to Python scripts.
-# - or when using the CGI script survolcgi.
+class InstallLibCommand(install_lib):
+    # On Linux, this converts Python files to proper Unix format,
+    # and sets the executable flag.
+    def _transform_linux_script(self, one_path):
+        with open(one_path, 'rb') as input_stream:
+            file_content = input_stream.readlines()
+
+        # There must not be any CR character after this shebang line.
+        if file_content[0].startswith(b"#!/usr/bin/env python"):
+            log.info("Script file=%s l=%d" % (one_path, len(file_content)))
+            try:
+                # Maybe this file is a script. If so, remove "CRLF" at the end.
+                lines_number = 0
+                with open(one_path, 'wb') as output_stream:
+                    for one_line in file_content:
+                        if one_line.endswith(b'\r\n') or one_line.endswith(b'\n\r') :
+                            output_stream.write(b"%s\n" % one_line[:-2])
+                        else:
+                            output_stream.write(one_line)
+                        lines_number += 1
+
+                log.info("Script written=%d" % lines_number)
+                # Set executable flag for Linux CGI scripts.
+                os.chmod(one_path, 0o744)
+            except Exception as exc:
+                log.error("Script err=%s" % exc)
+
+    def copy_tree(
+            self, infile, outfile,
+            preserve_mode=1, preserve_times=1, preserve_symlinks=0, level=1
+    ):
+        # This is called on, for the top-level infile='build\\lib'
+        if sys.platform.startswith("lin"):
+            library_top = os.path.join(infile, "survol")
+            for library_root, library_dirs, library_files in os.walk(library_top):
+                for one_file in library_files:
+                    if one_file.endswith(".py"):
+                        one_path = os.path.join(library_root, one_file)
+                        self._transform_linux_script(one_path)
+
+        return install_lib.copy_tree(self, infile, outfile,
+            preserve_mode, preserve_times, preserve_symlinks, level)
 
 
-# http://peak.telecommunity.com/DevCenter/PythonEggs#accessing-package-resources
-# from pkg_resources import resource_string
-# foo_config = resource_string(__name__, 'foo.conf')
-
-sys.stdout.write("Packages=%s\n"%find_packages())
-
-#	  data_files=['*.htm','*.js','*.css','Docs/*.txt'],
-
-# FIXME: The HTTP server, in the cgiserver.py configuration,
-# is pointing to directories in the Python packages.
-# => Copy ui/Images into survol/Images and make a Python data directory.
-# ui is also an independant static HTML/Javascript website.
-#
-# What is the traditional way to install html files ?
-# And the easiest way to install them in Apache or any other HTTP server ?
-#
-# We should deliver two installers:
-# * setup.py which installs the agent and also the UI while we are at it.
-# * a simple static HTML website installer, using only "ui" directory.
-#
-# Docs is not copied anywhere.
+# TODO: Explain installation in Apache when pointing to Python scripts.
 
 # The current directory is where setup.py is.
 def package_files(directory):
@@ -103,8 +130,10 @@ def package_files(directory):
 
 extra_files = package_files('survol/www')
 
+# The zip archive contains directories: docs, survol and tests.
+
 with open(os.path.join('survol', '__init__.py')) as f:
-    __version__ = ast.parse(next(ifilter(lambda line: line.startswith('__version__'),f))).body[0].value.s
+    __version__ = ast.parse(next(filter(lambda line: line.startswith('__version__'), f))).body[0].value.s
 
 with open('README.txt') as readme_file:
     README = readme_file.read()
@@ -115,27 +144,26 @@ setup(
     name='survol',
     version=__version__,
     description='Understanding legacy applications',
-	long_description=README,
-    author='Remi Chateauneu',
-    author_email='remi.chateauneu@primhillcomputers.com',
+    long_description=README,
+    author='Primhill Computers',
+    author_email='contact@primhillcomputers.com',
     url='http://www.primhillcomputers.com/survol.html',
     packages=find_packages(),
     package_dir = {"survol": "survol"},
     # This is apparently not recursive.
-    # package_data={'survol':['www_test/*'],},
-    package_data={'survol':extra_files,},
-    # include_package_data=True,
-
+    package_data={'survol': extra_files},
     entry_points = { 'console_scripts': [
-        'survol_cgiserver = survol.scripts.cgiserver:RunCgiServer',
-        'survol_wsgiserver = survol.scripts.wsgiserver:RunWsgiServer',
-        'survol_cgiscript = survol.scripts.survolcgi:SurvolCgi',
+        'survol_cgiserver = survol.scripts.cgiserver:start_server_forever',
+        'survol_wsgiserver = survol.scripts.wsgiserver:run_wsgi_server',
     ]},
-    requires=['rdflib'],
+    # These packages are not needed to run dockit.py which is strictly standalone.
+    install_requires=['psutil', 'rdflib'],
     cmdclass={
         'install': InstallCommand,
+        'install_lib': InstallLibCommand,
     },
-    # scripts=['cgiserver.py','wsgiserver.py','webserver.py'],
+
+    # scripts=['cgiserver.py','wsgiserver.py'],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
@@ -162,9 +190,9 @@ setup(
 # APPENDIX: Some tips about the installation of Survol under Apache.
 #
 # Two installations types are possible:
-# (1) With the CGI scripts survolcgi.exe, which just need to be accessible,
+# (1) With the CGI scripts cgiserver, which just need to be accessible,
 # and imports survol Python modules, installed by sdist.
-# (2) Or if Apache runs sources files from the development directory or from the installed packages.
+# (2) Or if Apache runs the sources files from the development directory or from the installed packages.
 # This is what is demonstrated here.
 
 #Alias /Survol "C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle"

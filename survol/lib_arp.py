@@ -1,3 +1,9 @@
+"""Survol code for ARP features"""
+
+__author__      = "Remi Chateauneu"
+__copyright__   = "Copyright 2020, Primhill Computers"
+__license__ = "GPL"
+
 import sys
 import re
 import socket

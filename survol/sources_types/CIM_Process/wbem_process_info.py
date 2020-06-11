@@ -23,11 +23,6 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	if ( machineName == lib_util.currentHostname ) or ( not machineName ):
-		serverBox = lib_common.gUriGen
-	else:
-		serverBox = lib_common.RemoteBox(machineName)
-
 	cimomUrl = lib_wbem.HostnameToWbemServer(machineName)
 
 	DEBUG("wbem_process_info.py currentHostname=%s pid=%d machineName=%s cimomUrl=%s",

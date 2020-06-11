@@ -16,7 +16,7 @@ def Main():
 
 	def OutStr(a_str):
 		try:
-			sys.stdout.write(a_str.decode())
+			sys.stdout.write(a_str)
 		except Exception as exc:
 			sys.stderr.write(__file__ + " Caught" + str(exc))
 

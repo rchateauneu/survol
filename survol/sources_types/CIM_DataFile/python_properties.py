@@ -29,9 +29,9 @@ def Main():
 	cgiEnv = lib_common.CgiEnv(
 			{ paramkeyMaxDepth : 1, paramkeyDispPackages: True, paramkeyDispFiles: False} )
 
-	maxDepth = cgiEnv.GetParameters( paramkeyMaxDepth )
-	dispPackages= cgiEnv.GetParameters( paramkeyDispPackages )
-	dispFiles = cgiEnv.GetParameters( paramkeyDispFiles )
+	maxDepth = cgiEnv.get_parameters( paramkeyMaxDepth )
+	dispPackages= cgiEnv.get_parameters( paramkeyDispPackages )
+	dispFiles = cgiEnv.get_parameters( paramkeyDispFiles )
 
 	pyFilNam = cgiEnv.GetId()
 

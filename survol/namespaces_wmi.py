@@ -90,9 +90,6 @@ def SubNamespace( rootNode, grph, nskey, cimomUrl, nsDepth = 1 ):
 def Main():
 	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 
-	# See differences and similarities between these.
-	# entity_host = cgiEnv.GetHost()
-	# entity_host = cgiEnv.GetParameters("xid")
 	entity_host = cgiEnv.GetHost()
 
 	DEBUG("entity_host=%s", entity_host)

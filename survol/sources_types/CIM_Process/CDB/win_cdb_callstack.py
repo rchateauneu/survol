@@ -101,7 +101,7 @@ def Main():
 			lib_common.ErrorMessageHtml("CDB:"+dot_line)
 
 		# 76590000 766a0000   kernel32   (export symbols)       C:\Windows\syswow64\kernel32.dll
-		match_lm = re.match( "[0-9a-fA-F]+ [0-9a-fA-F]+ +([^ ]*) +\(export symbols\) +(.*)", dot_line )
+		match_lm = re.match(r"[0-9a-fA-F]+ [0-9a-fA-F]+ +([^ ]*) +\(export symbols\) +(.*)", dot_line )
 		if match_lm:
 			moduleName = match_lm.group(1)
 			dllName = match_lm.group(2).strip().replace("\\","/") # .replace(":","COLON")

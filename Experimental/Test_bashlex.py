@@ -1,0 +1,14 @@
+"""
+https://pypi.org/project/bashlex/
+
+bashlex is a Python port of the parser used internally by GNU bash.
+
+For the most part it’s transliterated from C, the major differences are:
+
+    it does not execute anything
+    it is reentrant
+    it generates a complete AST
+
+"""
+
+import bashlex
