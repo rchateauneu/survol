@@ -39,6 +39,8 @@ except ImportError:
 import socket
 import ctypes
 from ctypes import wintypes
+import win32process
+import collections
 
 from .windows_h  import *
 
@@ -76,7 +78,28 @@ def process_is_wow64(pid=None):
 
     return True if temp_is_wow64 else False
 
-class pydbg:
+
+def wait_for_process_exit(process_id):
+    process_handle = kernel32.OpenProcess(PROCESS_ALL_ACCESS, False, process_id)
+
+    result = kernel32.WaitForSingleObject(process_handle, 1000)
+    if result == 0: # WAIT_OBJECT_0:
+        pass # print("wait_for_process_exit ok stopped pid=", process_id)
+    elif result == 258: # WAIT_TIMEOUT:
+        pass # print("wait_for_process_exit timeout stopping pid=", process_id, "err=", result)
+        result_terminate = kernel32.TerminateProcess(process_handle, 12345)
+        print("wait_for_process_exit terminate pid=", process_id, "result_terminate=", result_terminate)
+        # raise pdx("Cannot terminate %d" % process_id, True)
+    else:
+        print("wait_for_process_exit cannot stop pid=", process_id, "err=", result)
+
+# This data structure relates to the memory specae of a process.
+class memory_space:
+    def __init__(self):
+        self.breakpoints = {}  # internal breakpoint dictionary, keyed by address
+        # TODO: Add memory_breakpoints, hardware_breakpoints, memory_snapshot_blocks, memory_snapshot_contexts
+
+class pydbg(object):
     '''
     This class implements standard low leven functionality including:
         - The load() / attach() routines.
@@ -106,6 +129,7 @@ class pydbg:
     STRING_EXPLORATION_MIN_LENGTH = 2
 
     ####################################################################################################################
+
     def __init__ (self, ff=True, cs=False):
         '''
         Set the default attributes. See the source if you want to modify the default creation values.
@@ -123,6 +147,7 @@ class pydbg:
 
         self.page_size                = 0         # memory page size (dynamically resolved at run-time)
         self.pid                      = 0         # debuggee's process id
+        self.root_pid                 = 0         # debuggee's root process id
         self.h_process                = None      # debuggee's process handle
         self.h_thread                 = None      # handle to current debuggee thread
         self.debugger_active          = True      # flag controlling the main debugger event handling loop
@@ -143,7 +168,9 @@ class pydbg:
         self.violation_address        = None      # from dbg.u.Exception.ExceptionRecord.ExceptionInformation[1]
         self.exception_code           = None      # from dbg.u.Exception.ExceptionRecord.ExceptionCode
 
-        self.breakpoints              = {}        # internal breakpoint dictionary, keyed by address
+        self.memory_by_pid = collections.defaultdict(memory_space)
+        #self.breakpoints              = {}        # internal breakpoint dictionary, keyed by address
+        # TODO: This is relative to a process memory space and should go in memory_space with breakpoints.
         self.memory_breakpoints       = {}        # internal memory breakpoint dictionary, keyed by base address
         self.hardware_breakpoints     = {}        # internal hardware breakpoint array, indexed by slot (0-3 inclusive)
         self.memory_snapshot_blocks   = []        # list of memory blocks at time of memory snapshot
@@ -255,9 +282,12 @@ class pydbg:
         self.get_debug_privileges()
         # self._log("After get_debug_privileges")
 
+        print("attach pid=", pid)
         self.pid = pid
+        self.root_pid = pid
         self.open_process(pid)
-        self._log("attach After open_process")
+        self._log("attach After open_process pid=%d" % pid)
+        self.pids_to_handle = {self.pid: self.h_process}
 
         self.debug_active_process(pid)
         self._log("attach After debug_active_process pid=%d" % pid)
@@ -326,13 +356,13 @@ class pydbg:
         #self._log("bp_del(0x%016x)" % address)
 
         # ensure a breakpoint exists at the target address.
-        if address in self.breakpoints:
+        if address in self.memory_by_pid[self.pid].breakpoints:
             # restore the original byte.
-            self.write_process_memory(address, self.breakpoints[address].original_byte)
+            self.write_process_memory(address, self.memory_by_pid[self.pid].breakpoints[address].original_byte)
             self.set_attr("dirty", True)
 
             # remove the breakpoint from the internal list.
-            del self.breakpoints[address]
+            del self.memory_by_pid[self.pid].breakpoints[address]
 
         return self.ret_self()
 
@@ -351,7 +381,7 @@ class pydbg:
 
         #self._log("bp_del_all()")
 
-        for bp in self.breakpoints.keys():
+        for bp in self.memory_by_pid[self.pid].breakpoints.keys():
             self.bp_del(bp)
 
         return self.ret_self()
@@ -526,7 +556,7 @@ class pydbg:
         @return: True if breakpoint in question is ours, False otherwise
         '''
 
-        if address_to_check in self.breakpoints:
+        if address_to_check in self.memory_by_pid[self.pid].breakpoints:
             return True
 
         return False
@@ -597,7 +627,7 @@ class pydbg:
         #self._log("bp_set(0x%016x)" % address)
         assert address
         # ensure a breakpoint doesn't already exist at the target address.
-        if not address in self.breakpoints:
+        if not address in self.memory_by_pid[self.pid].breakpoints:
             try:
                 # save the original byte at the requested breakpoint address.
                 original_byte = self.read_process_memory(address, 1)
@@ -607,9 +637,11 @@ class pydbg:
                 self.set_attr("dirty", True)
 
                 # add the breakpoint to the internal list.
-                self.breakpoints[address] = breakpoint(address, original_byte, description, restore, handler)
+                self.memory_by_pid[self.pid].breakpoints[address] = breakpoint(address, original_byte, description, restore, handler)
             except Exception as exc:
                 raise pdx("Failed setting breakpoint at %016x : %s" % (address, exc))
+        else:
+            print("bp_set ALREADY BREAKPOINT in %d" % self.pid)
 
         return self.ret_self()
 
@@ -885,7 +917,25 @@ class pydbg:
 
 
     ####################################################################################################################
-    def debug_event_iteration (self, loop_delay = 5000):
+    def switch_to_process(self, process_id, message):
+        print("+++++++++ switch_to_process", message,
+              "FROM self.pid=", self.pid,
+              "TO process_id=", process_id,
+              "root_pid=", self.root_pid)
+        self.pid = process_id
+        self.open_process(process_id)
+        if False:
+            if process_id in self.pids_to_handle:
+                self.pid = process_id
+                self.h_process = self.pids_to_handle[process_id]
+            else:
+                self.pid = process_id
+                self.open_process(process_id)
+                self.pids_to_handle[process_id] = process_id
+
+    ####################################################################################################################
+
+    def debug_event_iteration (self, loop_delay = 10000):
         '''
         Check for and process a debug event.
         '''
@@ -893,11 +943,45 @@ class pydbg:
         continue_status = DBG_CONTINUE
         dbg             = DEBUG_EVENT()
 
+        # struct _DEBUG_EVENT {
+        #   DWORD dwDebugEventCode;
+        #   DWORD dwProcessId;
+        #   DWORD dwThreadId;
+        #   union {
+        #     EXCEPTION_DEBUG_INFO      Exception;
+        #     CREATE_THREAD_DEBUG_INFO  CreateThread;
+        #     CREATE_PROCESS_DEBUG_INFO CreateProcessInfo;
+        #     EXIT_THREAD_DEBUG_INFO    ExitThread;
+        #     EXIT_PROCESS_DEBUG_INFO   ExitProcess;
+        #     LOAD_DLL_DEBUG_INFO       LoadDll;
+        #     UNLOAD_DLL_DEBUG_INFO     UnloadDll;
+        #     OUTPUT_DEBUG_STRING_INFO  DebugString;
+        #     RIP_INFO                  RipInfo;
+        #   } u;
+        # }
+
+
+        def debug_code_to_message(debug_code):
+            try:
+                return {
+                    EXCEPTION_DEBUG_EVENT: "EXCEPTION_DEBUG_EVENT",
+                    CREATE_THREAD_DEBUG_EVENT: "CREATE_THREAD_DEBUG_EVENT",
+                    CREATE_PROCESS_DEBUG_EVENT: "CREATE_PROCESS_DEBUG_EVENT",
+                    EXIT_THREAD_DEBUG_EVENT: "EXIT_THREAD_DEBUG_EVENT",
+                    EXIT_PROCESS_DEBUG_EVENT: "EXIT_PROCESS_DEBUG_EVENT",
+                    LOAD_DLL_DEBUG_EVENT: "LOAD_DLL_DEBUG_EVENT",
+                    UNLOAD_DLL_DEBUG_EVENT: "UNLOAD_DLL_DEBUG_EVENT",
+                    OUTPUT_DEBUG_STRING_EVENT: "OUTPUT_DEBUG_STRING_EVENT",
+                    RIP_EVENT: "RIP_EVENT"}[debug_code]
+            except KeyError:
+                return "Unknown_%d" % debug_code
+
         #self._log("debug_event_iteration before WaitForDebugEvent")
         # wait for a debug event.
-        #self._log("WaitForDebugEvent DEBUT")
         if kernel32.WaitForDebugEvent(byref(dbg), loop_delay):
-            #self._log("WaitForDebugEvent AFTER")
+            if dbg.dwProcessId != self.pid:
+                self.switch_to_process(dbg.dwProcessId, debug_code_to_message(dbg.dwDebugEventCode))
+
             # grab various information with regards to the current exception.
             self.h_thread          = self.open_thread(dbg.dwThreadId)
             self.context           = self.get_thread_context(self.h_thread)
@@ -910,24 +994,22 @@ class pydbg:
 
             # self._log("debug_event_iteration dbg.dwDebugEventCode=%d" % dbg.dwDebugEventCode)
             if dbg.dwDebugEventCode == CREATE_PROCESS_DEBUG_EVENT:
-                #self._log("debug_event_iteration CREATE_PROCESS_DEBUG_EVENT")
+                print("debug_event_iteration CREATE_PROCESS_DEBUG_EVENT self.pid=", self.pid, "dbg.dwProcessId=", dbg.dwProcessId)
                 continue_status = self.event_handler_create_process()
-
             elif dbg.dwDebugEventCode == CREATE_THREAD_DEBUG_EVENT:
                 #self._log("debug_event_iteration CREATE_THREAD_DEBUG_EVENT")
                 continue_status = self.event_handler_create_thread()
 
             elif dbg.dwDebugEventCode == EXIT_PROCESS_DEBUG_EVENT:
-                #self._log("debug_event_iteration EXIT_PROCESS_DEBUG_EVENT")
+                self._log("debug_event_iteration EXIT_PROCESS_DEBUG_EVENT dbg.dwProcessId=%d" % dbg.dwProcessId)
                 continue_status = self.event_handler_exit_process()
 
             elif dbg.dwDebugEventCode == EXIT_THREAD_DEBUG_EVENT:
                 #self._log("debug_event_iteration EXIT_THREAD_DEBUG_EVENT")
-                # exit_code = dbg.u.ExitProcess.dwExitCode
                 continue_status = self.event_handler_exit_thread()
 
             elif dbg.dwDebugEventCode == LOAD_DLL_DEBUG_EVENT:
-                #self._log("debug_event_iteration LOAD_DLL_DEBUG_EVENT")
+                #print("debug_event_iteration LOAD_DLL_DEBUG_EVENT dwProcessId=", dbg.dwProcessId)
                 continue_status = self.event_handler_load_dll()
 
             elif dbg.dwDebugEventCode == UNLOAD_DLL_DEBUG_EVENT:
@@ -982,10 +1064,11 @@ class pydbg:
             #self._log("debug_event_iteration BEFORE ContinueDebugEvent dbg.dwProcessId=%d" % (dbg.dwProcessId))
             #self._log("ContinueDebugEvent DBG_CONTINUE=%08x" % DBG_CONTINUE)
             if not kernel32.ContinueDebugEvent(dbg.dwProcessId, dbg.dwThreadId, continue_status):
-                raise pdx("ContinueDebugEvent(%d)" % dbg.dwThreadId, True)
+                raise pdx("ContinueDebugEvent(p=%d t=%d)" % (dbg.dwProcessId, dbg.dwThreadId), True)
 
         else:
             self._log("WaitForDebugEvent delay=%d ms" % loop_delay)
+            raise pdx("WaitForDebugEvent", True)
             # "The semaphore timeout period has expired."
             # self.win32_error("WaitForDebugEvent")
 
@@ -1439,7 +1522,8 @@ class pydbg:
         @return: Debug event continue status.
         '''
 
-        self._log("event_handler_create_process()")
+        self._log("event_handler_create_process() pid=%d created_pid=%d"
+                  % (self.pid, win32process.GetProcessId(self.dbg.u.CreateProcessInfo.hProcess)))
 
         # don't need this.
         self.close_handle(self.dbg.u.CreateProcessInfo.hFile)
@@ -1502,7 +1586,8 @@ class pydbg:
             self.set_thread_context(thread_context, thread_id=thread_id)
 
     def event_handler_create_thread64(self):
-        self._log("event_handler_create_thread64 pid=%d tid=%d" % (self.dbg.dwProcessId, self.dbg.dwThreadId))
+        #self._log("event_handler_create_thread64 pid=%d tid=%d" % (self.dbg.dwProcessId, self.dbg.dwThreadId))
+        pass
 
     def event_handler_create_thread(self):
         # https://stackoverflow.com/questions/54953185/getthreadselectorentry-throwing-error-not-supported-for-x64-app
@@ -1525,8 +1610,12 @@ class pydbg:
         @raise pdx: An exception is raised to denote process exit.
         '''
 
-        self._log("event_handler_exit_process reset debugger_active")
-        self.set_debugger_active(False)
+		# Debugging stops only if the root process leaves. Otherwise, do on debugging.
+        if self.pid == self.root_pid:
+            self._log("event_handler_exit_process reset debugger_active pid=%d" % self.pid)
+            self.set_debugger_active(False)
+        else:
+            self._log("event_handler_exit_process NOT YET reset debugger_active pid=%d" % self.pid)
 
         if EXIT_PROCESS_DEBUG_EVENT in self.callbacks:
             return self.callbacks[EXIT_PROCESS_DEBUG_EVENT](self)
@@ -1543,7 +1632,7 @@ class pydbg:
         @return: Debug event continue status.
         '''
 
-        self._log("pydbg.event_handler_exit_thread() thread id %d" % self.dbg.dwThreadId)
+        #self._log("pydbg.event_handler_exit_thread() thread id %d" % self.dbg.dwThreadId)
 
         # before we remove the TEB entry from our internal list, let's give the user a chance to do something with it.
         if EXIT_THREAD_DEBUG_EVENT in self.callbacks:
@@ -1676,7 +1765,7 @@ class pydbg:
         else:
             # restore the original byte at the breakpoint address.
             #self._log("restoring original byte at %016x: %s" % (self.exception_address, self.breakpoints[self.exception_address].original_byte))
-            self.write_process_memory(self.exception_address, self.breakpoints[self.exception_address].original_byte)
+            self.write_process_memory(self.exception_address, self.memory_by_pid[self.pid].breakpoints[self.exception_address].original_byte)
             self.set_attr("dirty", True)
 
             # before we can continue, we have to correct the value of EIP. the reason for this is that the 1-byte INT 3
@@ -1690,9 +1779,9 @@ class pydbg:
                 self.context.Eip -= 1
 
             # if there is a specific handler registered for this bp, pass control to it.
-            if self.breakpoints[self.exception_address].handler:
+            if self.memory_by_pid[self.pid].breakpoints[self.exception_address].handler:
                 #self._log("calling user handler")
-                continue_status = self.breakpoints[self.exception_address].handler(self)
+                continue_status = self.memory_by_pid[self.pid].breakpoints[self.exception_address].handler(self)
 
             # pass control to default user registered call back handler, if it is specified.
             elif EXCEPTION_BREAKPOINT in self.callbacks:
@@ -1704,9 +1793,9 @@ class pydbg:
             # if the breakpoint still exists, ie: the user didn't erase it during the callback, and the breakpoint is
             # flagged for restore, then tell the single step handler about it. furthermore, check if the debugger is
             # still active, that way we don't try and single step if the user requested a detach.
-            if self.get_attr("debugger_active") and self.exception_address in self.breakpoints:
-                if self.breakpoints[self.exception_address].restore:
-                    self._restore_breakpoint = self.breakpoints[self.exception_address]
+            if self.get_attr("debugger_active") and self.exception_address in self.memory_by_pid[self.pid].breakpoints:
+                if self.memory_by_pid[self.pid].breakpoints[self.exception_address].restore:
+                    self._restore_breakpoint = self.memory_by_pid[self.pid].breakpoints[self.exception_address]
                     self.single_step(True)
 
                 self.bp_del(self.exception_address)
@@ -1906,13 +1995,12 @@ class pydbg:
         assert function_address
 
         # These addresses might be identical but basic libraries like KERNEL32 because they are always loaded first.
-        self._log("func_resolve dll=%s function=%s function_address=%016x" % (dll, function, function_address))
-        address_debuggee = self.func_resolve_debuggee(dll, function)
-        self._log("func_resolve dll=%s function=%s address_debuggee=%016x" % (dll, function, address_debuggee))
-        if function_address == address_debuggee:
-            self._log("Identical debugger and debuggee addresses for %s." % function)
-        else:
-            self._log("Different debugger and debuggee addresses for %s." % function)
+        if True or "DEBUG DEBUG":
+            address_debuggee = self.func_resolve_debuggee(dll, function)
+            if function_address != address_debuggee:
+                self._log("func_resolve dll=%s function=%s function_address=%016x" % (dll, function, function_address))
+                self._log("func_resolve dll=%s function=%s address_debuggee=%016x" % (dll, function, address_debuggee))
+                self._log("DIFFERENT debugger and debuggee addresses for %s." % function)
 
         return function_address
 
@@ -2025,12 +2113,12 @@ class pydbg:
                     return base_address + function_address
 
             # function was not found.
-            self._log("func_resolve_from_dll func_name=%s not found" % func_name)
+            self._log("_from_export_directory pid=% func_name=%s not found" % (self.pid, func_name))
             return None
 
         assert isinstance(func_name, six.binary_type)
 
-        self._log("func_resolve_from_dll func_name=%s base_address=%016x" % (func_name, base_address))
+        #self._log("func_resolve_from_dll  pid=%d func_name=%s base_address=%016x" % (self.pid, func_name, base_address))
 
         # A PE executable is strctured like that:
         # MZ-DOS header.
@@ -2039,6 +2127,7 @@ class pydbg:
         # Sections table.
         # Section 1, 2, 3 etc...
 
+        assert self.h_process
         dos_header = self.read_process_memory(base_address, 0x40)
 
         # check validity of DOS header.
@@ -2181,7 +2270,7 @@ class pydbg:
             assert isinstance(arg_val, six.binary_type)
             arg_val = self.flip_endian_dword(arg_val)
 
-            self._log("get_arg index=%d Esp=%08x Ebp=%08x arg_val= %08x" % (index, context.Esp, context.Ebp, arg_val))
+            #self._log("get_arg index=%d Esp=%08x Ebp=%08x arg_val= %08x" % (index, context.Esp, context.Ebp, arg_val))
 
         return arg_val
 
@@ -2274,12 +2363,10 @@ class pydbg:
         luid        = LUID()
         token_state = TOKEN_PRIVILEGES()
 
-        self._log("get_debug_privileges()")
-
-        self._log("OpenProcessToken")
+        #self._log("get_debug_privileges()")
 
         if not advapi32.OpenProcessToken(kernel32.GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, byref(h_token)):
-            raise pdx("OpenProcessToken()", True)
+            raise pdx("Exception:OpenProcessToken()", True)
 
         if not advapi32.LookupPrivilegeValueA(0, b"seDebugPrivilege", byref(luid)):
             raise pdx("LookupPrivilegeValue()", True)
@@ -2861,6 +2948,7 @@ class pydbg:
 
         # store the handles we need.
         self.pid       = pi.dwProcessId
+        self.root_pid  = self.pid
         self.h_process = pi.hProcess
 
         # resolve the PEB address.
@@ -2900,6 +2988,7 @@ class pydbg:
         '''
 
         self.h_process = kernel32.OpenProcess(PROCESS_ALL_ACCESS, False, pid)
+        assert self.h_process
 
         if not self.h_process:
             raise pdx("OpenProcess(%d)" % pid, True)
@@ -2908,7 +2997,7 @@ class pydbg:
         a_bool = IsWow64Process(self.h_process, byref(self.is_wow64))
 
         assert a_bool
-        self._log("open_process pid=%d self.is_wow64=%d" % (pid, 1 if self.is_wow64 else 0))
+        #self._log("open_process pid=%d self.is_wow64=%d" % (pid, 1 if self.is_wow64 else 0))
 
         return self.h_process
 
@@ -3217,11 +3306,6 @@ class pydbg:
         @rtype:     Raw
         @return:    Read data.
         '''
-        if False:
-            if is_64bits:
-                self._log("read_process_memory address=%016x length=%d" % (address, length))
-            else:
-                self._log("read_process_memory address=%08x length=%d" % (address, length))
         assert address
 
         data         = b""
@@ -3234,6 +3318,7 @@ class pydbg:
         _address = address
         _length  = length
 
+        assert self.h_process
         old_protect = self.virtual_protect(_address, _length, PAGE_EXECUTE_READWRITE)
 
         while length:
@@ -3288,16 +3373,21 @@ class pydbg:
         @return:    Self
         '''
 
-        self._log("resuming thread: %08x" % thread_id)
+        # self._log("resuming thread: %08x" % thread_id)
 
         thread_handle = self.open_thread(thread_id)
 
-        if kernel32.ResumeThread(thread_handle) == -1:
+        # if kernel32.ResumeThread(thread_handle) == -1:
+
+
+        former_counter = kernel32.ResumeThread(thread_handle)
+        if former_counter == -1:
             raise pdx("ResumeThread()", True)
 
         self.close_handle(thread_handle)
 
-        return self.ret_self()
+        return former_counter
+        # return self.ret_self()
 
 
     ####################################################################################################################
@@ -3808,12 +3898,16 @@ class pydbg:
 
         thread_handle = self.open_thread(thread_id)
 
-        if kernel32.SuspendThread(thread_handle) == -1:
+        # if kernel32.SuspendThread(thread_handle) == -1:
+
+        former_counter = kernel32.SuspendThread(thread_handle)
+        if former_counter == -1:
             raise pdx("SuspendThread()", True)
 
         self.close_handle(thread_handle)
 
-        return self.ret_self()
+        return former_counter
+        # return self.ret_self()
 
 
     ####################################################################################################################
@@ -4103,6 +4197,8 @@ class pydbg:
 
 
     def get_bytes_string(self, address):
+        if address == 0:
+            return b"<NULL>"
         buffer  = b""
         offset  = 0
         while 1:
@@ -4122,6 +4218,8 @@ class pydbg:
 
     # The input buffer is a Windows UTF-16 string.
     def get_unicode_string(self, address):
+        if address == 0:
+            return u"<NULL>"
         buffer = b""
         offset = 0
         while 1:

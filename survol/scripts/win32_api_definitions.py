@@ -25,6 +25,10 @@ import win32con
 import win32process
 import pywintypes
 import win32api
+import win32event
+
+# FIXME: For tests only !!
+import psutil
 
 if __package__:
     from . import cim_objects_definitions
@@ -120,14 +124,6 @@ class Win32Tracer(TracerBase):
     _function_name_process_start = b"PYDBG_PROCESS_START"
     _function_name_process_exit = b"PYDBG_PROCESS_EXIT"
 
-    def _callback_process_creation(self, created_process_id):
-        logging.error("_callback_process_creation created_process_id=%d" % created_process_id)
-        # The first message of this queue is a conventional function call which contains the created process id.
-        # After that, it contains only genuine function calls, plus the last one,
-        # also conventional, which indicates the process end, and releases the main process.
-        batch_core = PseudoTraceLine(created_process_id, self._function_name_process_start)
-        self._queue.put(batch_core)
-
     def _start_debugging(self):
         if self._input_process_id > 0:
             logging.error("_start_debugging self._input_process_id=%d" % self._input_process_id)
@@ -136,7 +132,7 @@ class Win32Tracer(TracerBase):
         elif self._command_line:
             logging.error("_start_debugging self._command_line=%s" % self._command_line)
             command_as_string = " ".join(self._command_line)
-            self._root_pid = self._hooks_manager.attach_to_command(command_as_string, self._callback_process_creation)
+            self._root_pid = self._hooks_manager.attach_to_command(command_as_string)
         else:
             raise Exception("_start_debugging: command should not be None")
 
@@ -190,7 +186,9 @@ class Win32Tracer(TracerBase):
             process_start_timeout = 10.0
             first_function_call = self._queue.get(True, timeout=process_start_timeout)
             assert isinstance(first_function_call, PseudoTraceLine)
-            assert first_function_call.m_core._function_name == self._function_name_process_start
+            logging.error("first_function_call.m_core._function_name=%s" % first_function_call.m_core._function_name)
+            logging.error("self._function_name_process_start=%s" % self._function_name_process_start)
+            ########## assert first_function_call.m_core._function_name == self._function_name_process_start
             self._top_process_id = first_function_call.m_core.m_pid
         else:
             self._top_process_id = process_id
@@ -245,30 +243,49 @@ class Win32Tracer(TracerBase):
 # This must be replaced by an object of a derived class.
 tracer_object = None # Win32Tracer()
 
+
 ################################################################################
-class Win32Hook_Manager(object):
+class Win32Hook_Manager(pydbg.pydbg):
     # The style tells if this is a native call or an aggregate of function
     # calls, made with some style: Factorization etc...
     def __init__(self):
+        super(Win32Hook_Manager, self).__init__()
         self.m_core = None
-        self.object_pydbg = pydbg.pydbg()
+        print("Win32Hook_Manager ctor")
+        assert self.pid == 0
 
-        # So it can be found from the callbacks.
-        self.object_pydbg.hook_manager = self
+        self.create_process_handle = None
 
-        self.object_hooks = utils.hook_container()
+        class process_hooks_definition(object):
+            def __init__(self):
+                self.hooked_functions = utils.hook_container()
+                self.unhooked_functions_by_dll = collections.defaultdict(list)
 
-        self.unhooked_functions_by_dll = collections.defaultdict(list)
+        # Indexed by the pid of subprocesses of the root pid, as a flattened tree.
+        self.hooks_by_processes = collections.defaultdict(process_hooks_definition)
 
-        # This event is received after the DLL is mapped into the address space of the debuggee.
-        self.object_pydbg.set_callback(defines.LOAD_DLL_DEBUG_EVENT, self._functions_hooking_load_dll_callback)
+    def __del__(self):
+        self.stop_cleanup()
 
-        # This is a dict of Win32Hook_Manager indxed by the subprocess id.
-        self.subprocesses_managers = dict()
+    def stop_cleanup(self):
+        if self.create_process_handle:
+            # We cannot rely anymore on self.pid because it might point to a subprocess.
+            created_process_id = win32process.GetProcessId(self.create_process_handle)
+            print("Current_Pid=", os.getpid())
 
-    def add_one_function_from_dll_address(self, dll_address, the_subclass):
+            current_process = psutil.Process()
+            children = current_process.children(recursive=True)
+            print("Killing subprocesses of created_process_id=", created_process_id)
+            for child_process in children:
+                if child_process.pid != created_process_id:
+                    print('==== Killing child pid {}'.format(child_process.pid))
+                    pydbg.wait_for_process_exit(child_process.pid)
 
-        the_subclass.function_address = self.object_pydbg.func_resolve_from_dll(dll_address, the_subclass.function_name)
+            pydbg.wait_for_process_exit(created_process_id)
+
+
+    def add_one_function_from_dll_address(self, hooked_pid, dll_address, the_subclass):
+        the_subclass.function_address = self.func_resolve_from_dll(dll_address, the_subclass.function_name)
         assert the_subclass.function_address
 
         # There is one such function per class associated to an API function.
@@ -276,11 +293,10 @@ class Win32Hook_Manager(object):
         def hook_function_adapter_entry(object_pydbg, function_arguments):
             logging.debug("hook_function_adapter_entry", the_subclass.__name__, function_arguments)
             subclass_instance = the_subclass()
-            subclass_instance.set_current_pydbg(object_pydbg)
+            subclass_instance.set_hook_manager(object_pydbg)
 
             # This instance object has the same visibility and scope than the arguments.
-            # Therefore, they are stored together with a hack of appending the instance
-            # at the arguments'end.
+            # Therefore, they are stored together with a hack of appending the instance at the arguments'end.
             # This instance is a context for the results of anything done before the function call.
             subclass_instance.callback_before(function_arguments)
             function_arguments.append(subclass_instance)
@@ -296,63 +312,86 @@ class Win32Hook_Manager(object):
             subclass_instance.callback_after(function_arguments, function_result)
             return defines.DBG_CONTINUE
 
-        self.object_hooks.add(self.object_pydbg,
+        self.hooks_by_processes[hooked_pid].hooked_functions.add(self,
                          the_subclass.function_address,
                          len(the_subclass.args_list),
                          hook_function_adapter_entry,
                          hook_function_adapter_exit)
 
     @staticmethod
-    def _functions_hooking_load_dll_callback(object_pydbg):
+    def callback_event_handler_load_dll(self):
         # self.dbg.u.LoadDll is _LOAD_DLL_DEBUG_INFO
         dll_filename = win32file.GetFinalPathNameByHandle(
-            object_pydbg.dbg.u.LoadDll.hFile, win32con.FILE_NAME_NORMALIZED)
+            self.dbg.u.LoadDll.hFile, win32con.FILE_NAME_NORMALIZED)
         if dll_filename.startswith("\\\\?\\"):
             dll_filename = dll_filename[4:]
-        assert isinstance(dll_filename, six.text_type)
-        print("_functions_hooking_load_dll_callback dll_filename=", dll_filename)
 
-        dll_canonic_name = object_pydbg.canonic_dll_name(dll_filename.encode('utf-8'))
+        if dll_filename == r"C:\Windows\System32\kernel32.dll":
+            print("event_handler_load_dll dwProcessId=", self.dbg.dwProcessId, "pid=", self.pid, "dll_filename=", dll_filename)
+        assert isinstance(dll_filename, six.text_type)
+        dll_canonic_name = self.canonic_dll_name(dll_filename.encode('utf-8'))
+
+        unhooked_functions = self.hooks_by_processes[self.dbg.dwProcessId].unhooked_functions_by_dll[dll_canonic_name]
+
+        if dll_filename == r"C:\Windows\System32\kernel32.dll":
+            print("unhooked_functions=", [func.__name__ for func in unhooked_functions])
 
         # At this stage, the library cannot be found with CreateToolhelp32Snapshot,
         #  and Module32First/Module32Next. But the dll object is passed to the callback.
-        dll_address = object_pydbg.dbg.u.LoadDll.lpBaseOfDll
-        for one_subclass in object_pydbg.hook_manager.unhooked_functions_by_dll[dll_canonic_name]:
-            object_pydbg.hook_manager.add_one_function_from_dll_address(dll_address, one_subclass)
+        dll_address = self.dbg.u.LoadDll.lpBaseOfDll
+        for one_subclass in unhooked_functions:
+            self.add_one_function_from_dll_address(self.dbg.dwProcessId, dll_address, one_subclass)
 
         return defines.DBG_CONTINUE
 
+    # Not necessary because creation of processes are detected by hooking CreatngProcessA and W.
+    @staticmethod
+    def callback_event_handler_create_process(self):
+        created_process_id = win32process.GetProcessId(self.dbg.u.CreateProcessInfo.hProcess)
+        print("event_handler_create_process ",
+              "dwProcessId=", self.dbg.dwProcessId,
+              "created_process_id= ", created_process_id,
+              "self.pid= ", self.pid)
+        return defines.DBG_CONTINUE
+
+    def set_handlers(self):
+        self.set_callback(defines.CREATE_PROCESS_DEBUG_EVENT, self.callback_event_handler_create_process)
+        self.set_callback(defines.LOAD_DLL_DEBUG_EVENT, self.callback_event_handler_load_dll)
+
     # This is called when looping on the list of semantically interesting functions.
-    def _hook_api_function(self, the_subclass):
-        logging.debug("hook_api_function:%s" % the_subclass.__name__)
+    def _hook_api_function(self, the_subclass, process_id):
+        logging.debug("hook_api_function:%s process_id=%d" % (the_subclass.__name__, process_id))
+        assert sorted(self.callbacks.keys()) == sorted([defines.CREATE_PROCESS_DEBUG_EVENT, defines.LOAD_DLL_DEBUG_EVENT])
+
         the_subclass._parse_text_definition(the_subclass)
 
-        # dll_canonic_name = os.path.basename(the_subclass.dll_name).upper()
-        dll_canonic_name = self.object_pydbg.canonic_dll_name(the_subclass.dll_name)
+        dll_canonic_name = self.canonic_dll_name(the_subclass.dll_name)
 
-        dll_address = self.object_pydbg.find_dll_base_address(dll_canonic_name)
+        dll_address = self.find_dll_base_address(dll_canonic_name)
 
         # If the DLL is already loaded.
         if dll_address:
-            self.add_one_function_from_dll_address(dll_address, the_subclass)
+            self.add_one_function_from_dll_address(process_id, dll_address, the_subclass)
         else:
-            self.unhooked_functions_by_dll[dll_canonic_name].append(the_subclass)
+            self.hooks_by_processes[self.pid].unhooked_functions_by_dll[dll_canonic_name].append(the_subclass)
 
-    def _hook_api_functions_list(self):
+    def _hook_api_functions_list(self, process_id):
         for the_subclass in _functions_list:
-            self._hook_api_function(the_subclass)
+            self._hook_api_function(the_subclass, process_id)
 
     def attach_to_pid(self, process_id):
-        self.object_pydbg.attach(process_id)
-        self._hook_api_functions_list()
-        self.object_pydbg.run()
+        print("attach_to_pid process_id=", process_id)
+        self.set_handlers()
+        self.attach(process_id)
+        self._hook_api_functions_list(process_id)
+        self.run()
 
     # This receives a command line, starts the process in suspended mode,
-    # stores the desired breakpoints, in a map indexed by the DLL name,
-    # then resumes the process.
-    # When the DLLs are loaded, a callback sets their breakpoints.
-    def attach_to_command(self, command_line, callback_process_creation = None):
+    # stores the desired breakpoints, in a map indexed by the DLL name, then resumes the process.
+    # When the DLLs are loaded, a callback sets their breakpoints. The callback is optional because of tests.
+    def attach_to_command(self, command_line):
         logging.error("attach_to_command command_line=%s" % command_line)
+
         start_info = win32process.STARTUPINFO()
         start_info.dwFlags = win32con.STARTF_USESHOWWINDOW
 
@@ -360,16 +399,31 @@ class Win32Hook_Manager(object):
             None, command_line, None, None, False,
             win32con.CREATE_SUSPENDED, None,
             os.getcwd(), start_info)
-        logging.error("attach_to_command dwProcessId=%s" % dwProcessId)
 
-        if callback_process_creation:
-            callback_process_creation(dwProcessId)
+        # This is used for clean process termination.
+        self.create_process_handle = hProcess
+
+        print("Created dwProcessId=", dwProcessId)
+
+        if "DEBUG DEBUG":
+            suspend_count = win32process.SuspendThread(hThread)
+            if suspend_count != 1:
+                raise Exception("Process %d: Invalid suspend count:%d" % (dwProcessId, suspend_count))
+            resume_count = win32process.ResumeThread(hThread)
+            if resume_count != 2:
+                raise Exception("Process %d: Invalid resume count (a):%d" % (dwProcessId, resume_count))
 
         cim_objects_definitions.G_topProcessId = dwProcessId
-        self.object_pydbg.attach(dwProcessId)
-        self._hook_api_functions_list()
-        win32process.ResumeThread(hThread)
-        self.object_pydbg.run()
+
+        self.set_handlers()
+        self.attach(dwProcessId)
+        self._hook_api_functions_list(dwProcessId)
+
+        resume_count = win32process.ResumeThread(hThread)
+        # Value is two, if root process started from command line.
+        if resume_count != 1 and resume_count != 2:
+            raise Exception("Process %d: Invalid resume count:%d" % (dwProcessId, resume_count))
+        self.run()
         return dwProcessId
 
 ################################################################################
@@ -382,7 +436,7 @@ class Win32Hook_BaseClass(object):
     # calls, made with some style: Factorization etc...
     def __init__(self):
         self.m_core = None
-        self.current_pydbg = None
+        self.win32_hook_manager = None
 
     # Possible optimisation: If this function is not implemented,
     # no need to create a subclass instance.
@@ -393,10 +447,10 @@ class Win32Hook_BaseClass(object):
         pass
 
     def cim_context(self):
-        return cim_objects_definitions.ObjectsContext(self.current_pydbg.dbg.dwProcessId)
+        return cim_objects_definitions.ObjectsContext(self.win32_hook_manager.dbg.dwProcessId)
 
-    def set_current_pydbg(self, current_pydbg):
-        self.current_pydbg = current_pydbg
+    def set_hook_manager(self, hook_manager):
+        self.win32_hook_manager = hook_manager
 
     # The API signature is taken "as is" from Microsoft web site.
     # There are many functions and copying their signature is error-prone.
@@ -439,15 +493,53 @@ class Win32Hook_GenericProcessCreation(Win32Hook_BaseClass):
         raise NotImplementedYet("Win32Hook_GenericProcessCreation.callback_after")
 
     def callback_before_common(self, function_arguments):
-        dwCreationFlags = function_arguments[5]
-        print("Win32Hook_CreateProcessW.callback_before dwCreationFlags = %0x." % dwCreationFlags)
+        print("callback_before_common self.win32_hook_manager.pid=", self.win32_hook_manager.pid)
+
+        offset_flags=5
+        dwCreationFlags = function_arguments[offset_flags]
+
         # This should be the case most of times,
         # because it is very rare that a user process starts in suspended state.
-        self.process_is_not_suspended = ~(dwCreationFlags & win32con.CREATE_SUSPENDED)
-        if self.process_is_not_suspended:
-            print("Win32Hook_CreateProcessW.callback_before : Suspending process")
-            dwCreationFlagsSuspended = dwCreationFlags | win32con.CREATE_SUSPENDED
-            self.current_pydbg.set_arg(5, dwCreationFlagsSuspended)
+        self.process_is_already_suspended = dwCreationFlags & win32con.CREATE_SUSPENDED
+        if self.process_is_already_suspended:
+            raise Exception("Process already suspended. Not implemented.")
+
+        # The primary thread of the new process is created in a suspended state,
+        # and does not run until the ResumeThread function is called.
+        # If the process is started with os.system, dwCreationFlags=win32con.EXTENDED_STARTUPINFO_PRESENT
+        # If started with multiprocessing.Process, it is win32con.CREATE_UNICODE_ENVIRONMENT
+        # for Python 3, otherwise 0.
+        try:
+            # This value might not be defined.
+            win32con.EXTENDED_STARTUPINFO_PRESENT
+        except AttributeError:
+            win32con.EXTENDED_STARTUPINFO_PRESENT = 0x80000
+        if is_py3:
+            assert dwCreationFlags in [
+                win32con.CREATE_UNICODE_ENVIRONMENT,
+                win32con.EXTENDED_STARTUPINFO_PRESENT]
+        else:
+            assert dwCreationFlags in [
+                0,
+                win32con.EXTENDED_STARTUPINFO_PRESENT]
+        dwCreationFlagsSuspended = dwCreationFlags | win32con.CREATE_SUSPENDED
+
+        self.win32_hook_manager.set_arg(offset_flags+1, dwCreationFlagsSuspended)
+        #dwCreationFlagsAgain = self.win32_hook_manager.get_arg(offset_flags+1)
+        #print("callback_before_common : CHECK dwCreationFlags=%0x" % dwCreationFlagsAgain)
+
+        if False:
+            dwCreationFlagsAgain = self.win32_hook_manager.get_arg(offset_flags + 1)
+            print("callback_before_common : CHECK dwCreationFlags=%0x" % dwCreationFlagsAgain)
+            if is_py3:
+                assert dwCreationFlagsAgain in [
+                    win32con.CREATE_SUSPENDED | win32con.CREATE_UNICODE_ENVIRONMENT,
+                    win32con.CREATE_SUSPENDED | win32con.EXTENDED_STARTUPINFO_PRESENT]
+            else:
+                assert dwCreationFlagsAgain in [
+                    win32con.CREATE_SUSPENDED | win32con.CREATE_UNICODE_ENVIRONMENT,
+                    win32con.CREATE_SUSPENDED]
+            #print("callback_before_common CHECK AGAIN dwCreationFlags=%0x." % dwCreationFlags)
 
     def callback_after_common(self, function_arguments, function_result):
         # typedef struct _PROCESS_INFORMATION {
@@ -456,41 +548,61 @@ class Win32Hook_GenericProcessCreation(Win32Hook_BaseClass):
         #   DWORD  dwProcessId;
         #   DWORD  dwThreadId;
         # } PROCESS_INFORMATION, *PPROCESS_INFORMATION, *LPPROCESS_INFORMATION;
+
+        print("callback_after_common self.win32_hook_manager.pid=", self.win32_hook_manager.pid)
+
+        offset_flags=5
+        dwCreationFlags = function_arguments[offset_flags]
+        dwCreationFlags = self.win32_hook_manager.get_arg(offset_flags + 1)
+        assert dwCreationFlags == self.win32_hook_manager.get_arg(offset_flags + 1)
+
         lpProcessInformation = function_arguments[9]
 
-        hProcess = self.current_pydbg.get_pointer(lpProcessInformation)
+        hProcess = self.win32_hook_manager.get_pointer(lpProcessInformation)
 
         offset_hThread = windows_h.sizeof(windows_h.HANDLE)
-        hThread = self.current_pydbg.get_pointer(lpProcessInformation + offset_hThread)
+        hThread = self.win32_hook_manager.get_pointer(lpProcessInformation + offset_hThread)
 
         offset_dwProcessId = windows_h.sizeof(windows_h.HANDLE) + windows_h.sizeof(windows_h.HANDLE)
-        dwProcessId = self.current_pydbg.get_long(lpProcessInformation + offset_dwProcessId)
+        dwProcessId = self.win32_hook_manager.get_long(lpProcessInformation + offset_dwProcessId)
 
         offset_dwThreadId = windows_h.sizeof(windows_h.HANDLE) + windows_h.sizeof(windows_h.HANDLE) + windows_h.sizeof(windows_h.DWORD)
-        dwThreadId = self.current_pydbg.get_long(lpProcessInformation + offset_dwThreadId)
+        dwThreadId = self.win32_hook_manager.get_long(lpProcessInformation + offset_dwThreadId)
+
+        print("callback_after_common dwProcessId=%d dwThreadId=%d self.win32_hook_manager.pid=%d" % (
+            dwProcessId, dwThreadId, self.win32_hook_manager.pid))
 
         self.callback_create_object("CIM_Process", Handle=dwProcessId)
 
-        if self.process_is_not_suspended:
-            print("Win32Hook_CreateProcessW: Setting breakpoints in suspended thread:", dwThreadId)
+        if self.process_is_already_suspended:
+            raise Exception("Process was already suspended. NOT IMPLEMENTED YET.")
 
-            sub_hooks_manager = Win32Hook_Manager()
-            # The same breakpoints are used by all threads of the same subprocess.
-            self.current_pydbg.hook_manager.subprocesses_managers[dwProcessId] = sub_hooks_manager
+        process_object = psutil.Process(dwProcessId)
+        print("callback_after_common ppid=", process_object.ppid(),
+            "dwProcessId=", dwProcessId,
+            "self.win32_hook_manager.pid=", self.win32_hook_manager.pid,
+            "self.win32_hook_manager.dbg.dwProcessId=", self.win32_hook_manager.dbg.dwProcessId)
+        assert process_object.ppid() == self.win32_hook_manager.dbg.dwProcessId
+        print("callback_after_common cmdline=", process_object.cmdline())
 
-            try:
-                sub_hooks_manager.attach_to_pid(dwProcessId)
-            except Exception as exc:
-                # Cannot attach to some subprocesses:
-                # ping  -n 1 127.0.0.1
-                #
-                # print("CANNOT ATTACH TO", dwProcessId, lpCommandLine, exc)
-                print("CANNOT ATTACH TO", dwProcessId, exc)
-                sys.stderr.write("CANNOT ATTACH TO %d:%s\n" % (dwProcessId, exc))
 
-            # FIXME: It is not possible to call pywin32 with these handles. Why ??
-            print("Win32Hook_CreateProcessW: Resuming thread:", dwThreadId)
-            self.current_pydbg.resume_thread(dwThreadId)
+        self.win32_hook_manager.set_handlers()
+        self.win32_hook_manager.debug_active_process(dwProcessId)
+
+        current_process_id = self.win32_hook_manager.pid
+        self.win32_hook_manager.switch_to_process(dwProcessId, "before hooking")
+        self.win32_hook_manager._hook_api_functions_list(dwProcessId)
+        self.win32_hook_manager.switch_to_process(current_process_id, "after hooking")
+
+        resume_count = self.win32_hook_manager.resume_thread(dwThreadId)
+        if resume_count != 2:
+            raise Exception("Process %d: Invalid resume count:%d" % (dwProcessId, resume_count))
+        resume_count = self.win32_hook_manager.resume_thread(dwThreadId)
+        if resume_count != 1:
+            raise Exception("Process %d: Invalid resume count:%d" % (dwProcessId, resume_count))
+        print("callback_after_common AFTER Resuming thread OK:", dwThreadId)
+
+
 
 ################################################################################
 
@@ -512,11 +624,15 @@ class Win32Hook_CreateProcessA(Win32Hook_GenericProcessCreation):
     dll_name = b"KERNEL32.dll"
 
     def callback_before(self, function_arguments):
+        lpApplicationName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
+        print("Win32Hook_CreateProcessA lpApplicationName=", lpApplicationName)
+        lpCurrentDirectory = self.win32_hook_manager.get_bytes_string(function_arguments[7])
+        print("Win32Hook_CreateProcessA lpCurrentDirectory=", lpCurrentDirectory)
         self.callback_before_common(function_arguments)
 
     def callback_after(self, function_arguments, function_result):
-        lpApplicationName = self.current_pydbg.get_bytes_string(function_arguments[0])
-        lpCommandLine = self.current_pydbg.get_bytes_string(function_arguments[1])
+        lpApplicationName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
+        lpCommandLine = self.win32_hook_manager.get_bytes_string(function_arguments[1])
         self.callback_after_common(function_arguments, function_result)
 
 
@@ -537,11 +653,13 @@ class Win32Hook_CreateProcessW(Win32Hook_GenericProcessCreation):
     dll_name = b"KERNEL32.dll"
 
     def callback_before(self, function_arguments):
+        lpApplicationName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
+        lpCurrentDirectory = self.win32_hook_manager.get_unicode_string(function_arguments[7])
         self.callback_before_common(function_arguments)
 
     def callback_after(self, function_arguments, function_result):
-        lpApplicationName = self.current_pydbg.get_unicode_string(function_arguments[0])
-        lpCommandLine = self.current_pydbg.get_unicode_string(function_arguments[1])
+        lpApplicationName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
+        lpCommandLine = self.win32_hook_manager.get_unicode_string(function_arguments[1])
         print("callback_after lpCommandLine=", lpCommandLine, "function_result", function_result)
         self.callback_after_common(function_arguments, function_result)
 
@@ -554,7 +672,7 @@ class Win32Hook_CreateDirectoryA(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
-        lpPathName = self.current_pydbg.get_bytes_string(function_arguments[0])
+        lpPathName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
         self.callback_create_object("CIM_Directory", Name=lpPathName)
 
 
@@ -566,7 +684,7 @@ class Win32Hook_CreateDirectoryW(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
-        lpPathName = self.current_pydbg.get_unicode_string(function_arguments[0])
+        lpPathName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
         self.callback_create_object("CIM_Directory", Name=lpPathName)
 
 
@@ -577,7 +695,7 @@ class Win32Hook_RemoveDirectoryA(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
-        lpPathName = self.current_pydbg.get_bytes_string(function_arguments[0])
+        lpPathName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
         self.callback_create_object("CIM_Directory", Name=lpPathName)
 
 
@@ -588,7 +706,7 @@ class Win32Hook_RemoveDirectoryW(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
-        lpPathName = self.current_pydbg.get_unicode_string(function_arguments[0])
+        lpPathName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
         self.callback_create_object("CIM_Directory", Name=lpPathName)
 
 
@@ -605,7 +723,7 @@ class Win32Hook_CreateFileA(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
-        lpFileName = self.current_pydbg.get_bytes_string(function_arguments[0])
+        lpFileName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
         self.callback_create_object("CIM_DataFile", Name=lpFileName)
 
 
@@ -622,7 +740,7 @@ class Win32Hook_CreateFileW(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
-        lpFileName = self.current_pydbg.get_unicode_string(function_arguments[0])
+        lpFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
         self.callback_create_object("CIM_DataFile", Name=lpFileName)
 
 
@@ -633,7 +751,7 @@ class Win32Hook_DeleteFileA(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
-        lpFileName = self.current_pydbg.get_bytes_string(function_arguments[0])
+        lpFileName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
         self.callback_create_object("CIM_DataFile", Name=lpFileName)
 
 
@@ -644,7 +762,7 @@ class Win32Hook_DeleteFileW(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
-        lpFileName = self.current_pydbg.get_unicode_string(function_arguments[0])
+        lpFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
         self.callback_create_object("CIM_DataFile", Name=lpFileName)
 
 
@@ -659,8 +777,8 @@ if False:
               );"""
         dll_name = b"KERNEL32.dll"
         def callback_after(self, function_arguments, function_result):
-            lpExistingFileName = self.current_pydbg.get_bytes_string(function_arguments[0])
-            lpNewFileName = self.current_pydbg.get_bytes_string(function_arguments[0])
+            lpExistingFileName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
+            lpNewFileName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
             self.callback_create_object("CIM_DataFile", Name=lpExistingFileName)
             self.callback_create_object("CIM_DataFile", Name=lpNewFileName)
 
@@ -677,8 +795,8 @@ if False:
             );"""
         dll_name = b"KERNEL32.dll"
         def callback_after(self, function_arguments, function_result):
-            lpExistingFileName = self.current_pydbg.get_bytes_string(function_arguments[0])
-            lpNewFileName = self.current_pydbg.get_bytes_string(function_arguments[0])
+            lpExistingFileName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
+            lpNewFileName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
             self.callback_create_object("CIM_DataFile", Name=lpExistingFileName)
             self.callback_create_object("CIM_DataFile", Name=lpNewFileName)
 
@@ -695,8 +813,8 @@ if False:
             );"""
         dll_name = b"KERNEL32.dll"
         def callback_after(self, function_arguments, function_result):
-            lpExistingFileName = self.current_pydbg.get_unicode_string(function_arguments[0])
-            lpNewFileName = self.current_pydbg.get_unicode_string(function_arguments[0])
+            lpExistingFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
+            lpNewFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
             self.callback_create_object("CIM_DataFile", Name=lpExistingFileName)
             self.callback_create_object("CIM_DataFile", Name=lpNewFileName)
 
@@ -710,8 +828,8 @@ if False:
               );"""
         dll_name = b"KERNEL32.dll"
         def callback_after(self, function_arguments, function_result):
-            lpExistingFileName = self.current_pydbg.get_unicode_string(function_arguments[0])
-            lpNewFileName = self.current_pydbg.get_unicode_string(function_arguments[0])
+            lpExistingFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
+            lpNewFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
             self.callback_create_object("CIM_DataFile", Name=lpExistingFileName)
             self.callback_create_object("CIM_DataFile", Name=lpNewFileName)
 
@@ -728,8 +846,8 @@ if False:
     #     dll_name = b"KERNEL32.dll"
     #     def callback_after(self, function_arguments, function_result):
     #         exit(0)
-    #         pwszExistingFileName = self.current_pydbg.get_unicode_string(function_arguments[0])
-    #         pwszNewFileName = self.current_pydbg.get_unicode_string(function_arguments[0])
+    #         pwszExistingFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
+    #         pwszNewFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
     #         self.callback_create_object("CIM_DataFile", Name=pwszExistingFileName)
     #         self.callback_create_object("CIM_DataFile", Name=pwszNewFileName)
     #
@@ -814,7 +932,7 @@ class Win32Hook_WriteFile(Win32Hook_BaseClass):
         lpBuffer = function_arguments[1]
         nNumberOfBytesToWrite = function_arguments[2]
         # logging.debug("lpBuffer=", lpBuffer, "nNumberOfBytesToWrite=", nNumberOfBytesToWrite)
-        buffer = self.current_pydbg.get_bytes_size(lpBuffer, nNumberOfBytesToWrite)
+        buffer = self.win32_hook_manager.get_bytes_size(lpBuffer, nNumberOfBytesToWrite)
         logging.debug("Buffer=", buffer)
 
 
@@ -866,7 +984,7 @@ class Win32Hook_connect(Win32Hook_BaseClass):
         logging.debug("Win32Hook_connect function_arguments=", function_arguments)
         sockaddr_address = function_arguments[1]
 
-        sin_family_memory = self.current_pydbg.read_process_memory(sockaddr_address, 2)
+        sin_family_memory = self.win32_hook_manager.read_process_memory(sockaddr_address, 2)
         print("sin_family_memory=", sin_family_memory, len(sin_family_memory))
 
         sin_family = struct.unpack("<H", sin_family_memory)[0]
@@ -898,12 +1016,12 @@ class Win32Hook_connect(Win32Hook_BaseClass):
             #     u_long S_addr;
             #   } S_un;
             # };
-            ip_port_memory = self.current_pydbg.read_process_memory(sockaddr_address + 2, 2)
+            ip_port_memory = self.win32_hook_manager.read_process_memory(sockaddr_address + 2, 2)
             port_number = struct.unpack(">H", ip_port_memory)[0]
 
             assert sockaddr_size == 16
 
-            s_addr_ipv4 = self.current_pydbg.read_process_memory(sockaddr_address + 4, 4)
+            s_addr_ipv4 = self.win32_hook_manager.read_process_memory(sockaddr_address + 4, 4)
             if is_py3:
                 addr_ipv4 = ".".join(["%d" % int(one_byte) for one_byte in s_addr_ipv4])
             else:
@@ -923,12 +1041,12 @@ class Win32Hook_connect(Win32Hook_BaseClass):
             # struct in6_addr {
             #      unsigned char   s6_addr[16];   /* IPv6 address */
             # };
-            ip_port_memory = self.current_pydbg.read_process_memory(sockaddr_address + 2, 2)
+            ip_port_memory = self.win32_hook_manager.read_process_memory(sockaddr_address + 2, 2)
             port_number = struct.unpack(">H", ip_port_memory)[0]
 
             assert sockaddr_size == 28
 
-            s_addr_ipv6 = self.current_pydbg.read_process_memory(sockaddr_address + 8, 16)
+            s_addr_ipv6 = self.win32_hook_manager.read_process_memory(sockaddr_address + 8, 16)
             if is_py3:
                 addr_ipv6 = str(s_addr_ipv6)
             else:

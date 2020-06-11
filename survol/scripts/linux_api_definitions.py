@@ -1169,7 +1169,7 @@ class BatchLetSys_clone(BatchLetBase, object):
 
         self.m_significantArgs = [objNewProcess]
 
-        objNewProcess.add_parent_process(self.m_core._time_start, self.m_core.m_objectProcess)
+        objNewProcess.CreationDate = self.m_core._time_start
 
     # Process creations are not aggregated, not to lose the new pid.
     def is_same_call(self, anotherBatch):
@@ -1197,7 +1197,7 @@ class BatchLetSys_vfork(BatchLetBase, object):
         objNewProcess = self.cim_context_core().ToObjectPath_CIM_Process(aPid)
         self.m_significantArgs = [objNewProcess]
 
-        objNewProcess.add_parent_process(self.m_core._time_start, self.m_core.m_objectProcess)
+        objNewProcess.CreationDate = self.m_core._time_start
 
     # Process creations are not aggregated, not to lose the new pid.
     def is_same_call(self, anotherBatch):
