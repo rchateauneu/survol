@@ -317,7 +317,7 @@ class Win32Hook_Manager(object):
         # At this stage, the library cannot be found with CreateToolhelp32Snapshot,
         #  and Module32First/Module32Next. But the dll object is passed to the callback.
         dll_address = object_pydbg.dbg.u.LoadDll.lpBaseOfDll
-        for one_subclass in object_pydbg.hook_manager.unhooked_functions_by_dll.get(dll_canonic_name, []):
+        for one_subclass in object_pydbg.hook_manager.unhooked_functions_by_dll[dll_canonic_name]:
             object_pydbg.hook_manager.add_one_function_from_dll_address(dll_address, one_subclass)
 
         return defines.DBG_CONTINUE
