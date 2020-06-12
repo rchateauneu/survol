@@ -28,7 +28,7 @@ class SvgCommon(unittest.TestCase):
 
 
     def _check_page_entity(self, agent_url):
-        svg_url_response = portable_urlopen(agent_url + "/survol/entity.py", timeout=5)
+        svg_url_response = portable_urlopen(agent_url + "/survol/entity.py?mode=svg", timeout=5)
         svg_content = svg_url_response.read()  # Py3:bytes, Py2:str
         self._check_svg_main_page(svg_content)
 
