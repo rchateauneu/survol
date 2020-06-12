@@ -380,6 +380,8 @@ else:
 CHAR = c_char
 LPSTR = POINTER(CHAR)
 LPBYTE = POINTER(BYTE)
+
+# This is also defined in win32process.STARTUPINFO.
 _STARTUPINFOA._fields_ = [
     # C:/PROGRA~1/MICROS~2/VC98/Include/winbase.h 3774
     ('cb', DWORD),
@@ -659,3 +661,100 @@ if is_64bits:
 else:
     assert sizeof(_PROCESS_INFORMATION) == 16, sizeof(_PROCESS_INFORMATION)
     assert alignment(_PROCESS_INFORMATION) == 4, alignment(_PROCESS_INFORMATION)
+
+class _IMAGE_FILE_HEADER(Structure):
+    _fields_ = [
+        ("Machine", WORD),
+        ("NumberOfSections", WORD),
+        ("TimeDateStamp", DWORD),
+        ("PointerToSymbolTable", DWORD),
+        ("NumberOfSymbols", DWORD),
+        ("SizeOfOptionalHeader", WORD),
+        ("Characteristics", WORD),
+    ]
+
+class _IMAGE_DATA_DIRECTORY(Structure):
+    _fields_ = [
+        ("VirtualAddress", DWORD),
+        ("Size", DWORD),
+    ]
+
+class _IMAGE_DATA_DIRECTORY(Structure):
+    _fields_ = [
+        ("VirtualAddress", DWORD),
+        ("Size", DWORD),
+    ]
+
+IMAGE_NUMBEROF_DIRECTORY_ENTRIES = 16
+
+class _IMAGE_OPTIONAL_HEADER(Structure):
+    _fields_ = [
+        ("Magic", WORD),
+        ("MajorLinkerVersion", BYTE),
+        ("MinorLinkerVersion", BYTE),
+        ("SizeOfCode", DWORD),
+        ("SizeOfInitializedData", DWORD),
+        ("SizeOfUninitializedData", DWORD),
+        ("AddressOfEntryPoint", DWORD),
+        ("BaseOfCode", DWORD),
+        ("BaseOfData", DWORD),
+        ("ImageBase", DWORD),
+        ("SectionAlignment", DWORD),
+        ("FileAlignment", DWORD),
+        ("MajorOperatingSystemVersion", WORD),
+        ("MinorOperatingSystemVersion", WORD),
+        ("MajorImageVersion", WORD),
+        ("MinorImageVersion", WORD),
+        ("MajorSubsystemVersion", WORD),
+        ("MinorSubsystemVersion", WORD),
+        ("Win32VersionValue", DWORD),
+        ("SizeOfImage", DWORD),
+        ("SizeOfHeaders", DWORD),
+        ("CheckSum", DWORD),
+        ("Subsystem", WORD),
+        ("DllCharacteristics", WORD),
+        ("SizeOfStackReserve", DWORD),
+        ("SizeOfStackCommit", DWORD),
+        ("SizeOfHeapReserve", DWORD),
+        ("SizeOfHeapCommit", DWORD),
+        ("LoaderFlags", DWORD),
+        ("NumberOfRvaAndSizes", DWORD),
+        ("DataDirectory", _IMAGE_DATA_DIRECTORY * IMAGE_NUMBEROF_DIRECTORY_ENTRIES),
+    ]
+IMAGE_OPTIONAL_HEADER32 = _IMAGE_OPTIONAL_HEADER
+
+class _IMAGE_OPTIONAL_HEADER64(Structure):
+    _fields_ = [
+        ("Magic", WORD),
+        ("MajorLinkerVersion", BYTE),
+        ("MinorLinkerVersion", BYTE),
+        ("SizeOfCode", DWORD),
+        ("SizeOfInitializedData", DWORD),
+        ("SizeOfUninitializedData", DWORD),
+        ("AddressOfEntryPoint", DWORD),
+        ("BaseOfCode", DWORD),
+        ("ImageBase", DWORD64),
+        ("SectionAlignment", DWORD),
+        ("FileAlignment", DWORD),
+        ("MajorOperatingSystemVersion", WORD),
+        ("MinorOperatingSystemVersion", WORD),
+        ("MajorImageVersion", WORD),
+        ("MinorImageVersion", WORD),
+        ("MajorSubsystemVersion", WORD),
+        ("MinorSubsystemVersion", WORD),
+        ("Win32VersionValue", DWORD),
+        ("SizeOfImage", DWORD),
+        ("SizeOfHeaders", DWORD),
+        ("CheckSum", DWORD),
+        ("Subsystem", WORD),
+        ("DllCharacteristics", WORD),
+        ("SizeOfStackReserve", DWORD64),
+        ("SizeOfStackCommit", DWORD64),
+        ("SizeOfHeapReserve", DWORD64),
+        ("SizeOfHeapCommit", DWORD64),
+        ("LoaderFlags", DWORD),
+        ("NumberOfRvaAndSizes", DWORD),
+        ("DataDirectory", _IMAGE_DATA_DIRECTORY * IMAGE_NUMBEROF_DIRECTORY_ENTRIES),
+    ]
+IMAGE_OPTIONAL_HEADER64 = _IMAGE_OPTIONAL_HEADER64
+

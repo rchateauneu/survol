@@ -19,8 +19,8 @@ def Main():
 	cgiEnv = lib_common.CgiEnv(
 		parameters = { paramkeyRecursive : False, paramkeyExplodeClasses : False })
 
-	paramRecursiveExploration = int(cgiEnv.GetParameters( paramkeyRecursive ))
-	paramExplodeClasses = int(cgiEnv.GetParameters( paramkeyExplodeClasses ))
+	paramRecursiveExploration = int(cgiEnv.get_parameters( paramkeyRecursive ))
+	paramExplodeClasses = int(cgiEnv.get_parameters( paramkeyExplodeClasses ))
 
 	fileParam = cgiEnv.GetId()
 

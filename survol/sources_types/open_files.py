@@ -53,9 +53,9 @@ def Main():
 					   paramkeyShowNonShared : False }
 	)
 
-	flagShowSharedLib = bool(cgiEnv.GetParameters( paramkeyShowSharedLib ))
-	flagShowFontFiles = bool(cgiEnv.GetParameters( paramkeyShowFontFiles ))
-	flagShowNonShared = bool(cgiEnv.GetParameters( paramkeyShowNonShared ))
+	flagShowSharedLib = bool(cgiEnv.get_parameters( paramkeyShowSharedLib ))
+	flagShowFontFiles = bool(cgiEnv.get_parameters( paramkeyShowFontFiles ))
+	flagShowNonShared = bool(cgiEnv.get_parameters( paramkeyShowNonShared ))
 
 	grph = cgiEnv.GetGraph()
 
@@ -73,7 +73,7 @@ def Main():
 
 	for proc in CIM_Process.ProcessIter():
 		try:
-			if lib_common.UselessProc(proc):
+			if lib_common.is_useless_process(proc):
 				continue
 
 			pid = proc.pid
@@ -85,7 +85,7 @@ def Main():
 			for fil in CIM_Process.PsutilProcOpenFiles( proc ):
 
 				# Some files are not interesting even if accessed by many processes.
-				if lib_common.MeaninglessFile(fil.path, not flagShowSharedLib, not flagShowFontFiles ):
+				if lib_common.is_meaningless_file(fil.path, not flagShowSharedLib, not flagShowFontFiles ):
 					continue
 
 				# Adds the process node only if it has at least one open file.

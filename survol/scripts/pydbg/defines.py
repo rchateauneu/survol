@@ -78,11 +78,11 @@ class MODULEENTRY32(Structure):
         ("th32ProcessID", DWORD),
         ("GlblcntUsage",  DWORD),
         ("ProccntUsage",  DWORD),
-        ("modBaseAddr",   DWORD),
+        ("modBaseAddr",   POINTER(CHAR)),
         ("modBaseSize",   DWORD),
-        ("hModule",       DWORD),
-        ("szModule",      CHAR * 256),
-        ("szExePath",     CHAR * 260),
+        ("hModule",       HANDLE),
+        ("szModule",      CHAR * 256), # MAX_MODULE_NAME32 + 1
+        ("szExePath",     CHAR * 260), # MAX_PATH
     ]
 
 class _MIB_TCPROW_OWNER_PID(Structure):

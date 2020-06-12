@@ -236,10 +236,10 @@ def Main():
     cgiEnv = lib_common.CgiEnv(can_process_remote=True,
                                     parameters = { paramkeyDisplayNone : False, paramkeyDisplayAssociators : False })
 
-    displayNoneValues = bool(cgiEnv.GetParameters( paramkeyDisplayNone ))
-    displayAssociators = bool(cgiEnv.GetParameters( paramkeyDisplayAssociators ))
+    displayNoneValues = bool(cgiEnv.get_parameters( paramkeyDisplayNone ))
+    displayAssociators = bool(cgiEnv.get_parameters( paramkeyDisplayAssociators ))
 
-    ( nameSpace, className, entity_namespace_type ) = cgiEnv.GetNamespaceType()
+    ( nameSpace, className, entity_namespace_type ) = cgiEnv.get_namespace_type()
     # If nameSpace is not provided, it is set to "root/CIMV2" by default.
     if not className:
         lib_common.ErrorMessageHtml("Class name should not be empty")
@@ -259,7 +259,7 @@ def Main():
 
     # Try to read the moniker, which is much faster,
     # but it does not always work if we do not have all the properties.
-    cgiMoniker = cgiEnv.GetParameters("xid")
+    cgiMoniker = cgiEnv.get_parameters("xid")
     DEBUG("entity_wmi.py cgiMoniker=[%s]", cgiMoniker )
 
     objList = WmiReadWithMoniker( cgiEnv, cgiMoniker )

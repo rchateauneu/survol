@@ -125,20 +125,6 @@ Many Python modules are available in the ovh package: six, rdflib, psutil
 ~/cgi-bin contains the CVGI scripts.
 
 ##########
-In ~/cgi-bin, a CGI script imports the survol Python package. It is not stored into CGI (But is very small).
-Called with http://www.primhillcomputers.com/cgi-bin/survol.py
-Same logic for http://www.primhillcomputers.com/cgi-bin/test.py
-
-$ cat ~/cgi-bin/survol.py
-#!/usr/bin/python
-
-from survol import scripts
-from survol.scripts import survolcgi
-
-if __name__ == '__main__':
-        survolcgi.SurvolCgi()
-
-##########
 In ~/cgi-bin, a symbolic link points to the survol repository, so it can be imported:
 ls -l ~/survol/survol survol
 

@@ -22,7 +22,7 @@
 @organization: www.openrce.org
 '''
 
-from pydbg.defines import *
+from ..defines import *
 
 ########################################################################################################################
 class hook_container:
@@ -81,7 +81,7 @@ class hook_container:
 
         # ensure a hook doesn't already exist at the requested address.
         if address in self.hooks.keys():
-            return
+            return None
 
         # create a new hook instance and activate it.
         h = hook(address, num_args, entry_hook, exit_hook)
@@ -89,6 +89,8 @@ class hook_container:
 
         # save the newly created hook into the internal dictionary.
         self.hooks[address] = h
+
+        #pydbg._log("hook num=%d add %016x" % (len(self.hooks), address))
 
         return self
 
@@ -121,7 +123,7 @@ class hook_container:
 
 
     ####################################################################################################################
-    def iterate (self, address):
+    def iterate (self):
         '''
         A simple iterator function that can be used to iterate through all hooks. Yielded objects are of type hook().
 
@@ -182,7 +184,8 @@ class hook:
         @param pydbg: PyDbg Instance
         '''
 
-        pydbg.bp_set(self.address, restore=True, handler=self.__proxy_on_entry)
+        #pydbg._log("Setting breakpoint on __proxy_on_entry: %016x" % self.address)
+        pydbg.bp_set(self.address, restore=True, handler=self.__proxy_on_entry, description="__proxy_on_entry")
 
 
     ####################################################################################################################
@@ -238,7 +241,8 @@ class hook:
             function_exit = pydbg.get_arg(0)
 
             # set a breakpoint on the function exit.
-            pydbg.bp_set(function_exit, restore=True, handler=self.__proxy_on_exit)
+            #pydbg._log("__proxy_on_entry Setting breakpoint on __proxy_on_exit: %016x" % function_exit)
+            pydbg.bp_set(function_exit, restore=True, handler=self.__proxy_on_exit, description="__proxy_on_exit")
 
             # increment the break count for the exit bp.
             # we track the number of breakpoints set on the exit point to avoid a hook exit race condition, ie:

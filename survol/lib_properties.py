@@ -29,7 +29,12 @@ primns_slash = primns + prefix_terminator
 # We could add information in a given order: "information?key=1", "information?key=2",
 # Natural order should be OK. or add a sort function in the call to sorted().
 def MakeProp(*prps,**kvargs):
-    ret = primns_slash + ":".join(prps)
+    # The delimiter must be compatible with XML because for example, the tag:
+    # "<ldt:odbc:column rdf:resource=..."
+    # is rejected with the error: "SAXParseException: <unknown>:93:13: not well-formed (invalid token)"
+    # The convention is that triple-underscore can only be a separator.
+    # It is a very rare situation at the moment, and might change.
+    ret = primns_slash + "___".join(prps)
     if kvargs:
         ret += "?" + "&amp;".join( "%s=%s" % (k,kvargs[k]) for k in kvargs )
     # TODO: If the key contains a space or "\x20", the result gets prefixed by primns:

@@ -11,27 +11,36 @@ import tempfile
 import unittest
 import shutil
 import rdflib
+import subprocess
+import collections
 
-# This loads the module from the source, so no need to install it, and no need of virtualenv.
-# This is needed when running from PyCharm.
-sys.path.insert(0,"../survol/scripts")
+# In pytest, __file__ is abolute, but this is relative with unittest.
+_current_file_dirname = os.path.abspath(os.path.dirname(__file__))
 
+from init import *
 
-# On Travis, getcwd= /home/travis/build/rchateauneu/survol
-# path= ['../survol/scripts', '/home/travis/build/rchateauneu/survol',
-# '../survol', '/home/travis/build/rchateauneu/survol', '/home/travis/virtualenv/python2.7.15/bin',
-# '/home/travis/virtualenv/python2.7.15/lib/python27.zip', '/home/travis/virtualenv/python2.7.15/lib/python2.7',
-# '/home/travis/virtualenv/python2.7.15/lib/python2.7/plat-linux2',
-# '/home/travis/virtualenv/python2.7.15/lib/python2.7/lib-tk',
-# '/home/travis/virtualenv/python2.7.15/lib/python2.7/lib-old', '/home/travis/virtualenv/python2.7.15/lib/python2.7/lib-dynload',
-# '/opt/python/2.7.15/lib/python2.7', '/opt/python/2.7.15/lib/python2.7/plat-linux2',
-# '/opt/python/2.7.15/lib/python2.7/lib-tk', '/home/travis/virtualenv/python2.7.15/lib/python2.7/site-packages',
-# 'survol', '/home/travis/build/rchateauneu/survol/survol']
-sys.path.insert(0,"survol/scripts")
+from survol.scripts import dockit
+# FIXME: It should be on Linux only.
+from survol.scripts import linux_api_definitions
 
-dockit_output_files_path = os.path.join( os.path.dirname(__file__), "dockit_output_files" )
+_remote_events_test_agent = "http://%s:%d" % (CurrentMachine, RemoteEventsTestServerPort)
+
+dock_input_files_path = os.path.join(_current_file_dirname, "dockit_input_test_trace_files")
+
+dockit_output_files_path = os.path.join(_current_file_dirname, "dockit_output_files")
+
 # This is the expected content of some generated files.
-dockit_output_files_path_expected = os.path.join( os.path.dirname(__file__), "dockit_output_files_expected" )
+dockit_output_files_path_expected = os.path.join(_current_file_dirname, "dockit_output_files_expected")
+
+# This is the directory of the command dockit.py and ised used to run it
+# and check where the default ouput files are created.
+# __file__ could be 'C:\\Python27\\lib\\site-packages\\survol\\scripts\\dockit.pyc'
+
+dockit_dirname = standardized_file_path(os.path.dirname(dockit.__file__))
+
+ini_file_default = os.path.join(dockit_dirname, "dockit_output" + ".ini")
+
+current_ip_address = socket.gethostbyname(socket.gethostname())
 
 # Creates the destination file for result if not there, otherwise cleanup.
 # This is needed otherwise pytest would run the Python files in this dir.
@@ -46,32 +55,38 @@ else:
     # Creates the outdir directory, because it is not there.
     os.makedirs(dockit_output_files_path)
 
+
 def path_prefix_output_result(*file_path):
     return os.path.join(dockit_output_files_path, *file_path)
 
+
 # Check content of the generated files.
 # Depending on the file extension, this tries to load the content of the file.
+# it returns the parsed content, depending on the extension,
 def check_file_content(*file_path):
     full_file_path = path_prefix_output_result(*file_path)
-    fil_descr = open(full_file_path)
     filename, file_extension = os.path.splitext(full_file_path)
     if file_extension == ".json":
         # Checks that this json file can be loaded.
-        json.load(fil_descr)
+        with open(full_file_path) as fil_descr:
+            file_content = json.load(fil_descr)
     elif file_extension == ".xml":
         # Checks that this xml file can be parsed.
-        minidom.parse(full_file_path)
+        file_content = minidom.parse(full_file_path)
     elif file_extension == ".rdf":
         rdflib_graph = rdflib.Graph()
         rdflib_graph.parse(full_file_path)
         num_triples = len(rdflib_graph)
         # There should be at least one triple.
         assert num_triples > 0
-    fil_descr.close()
+        file_content = rdflib_graph
+    elif file_extension == ".ini":
+        file_content = dockit.ini_file_check(full_file_path)
+    else:
+        file_content = None
 
     # Now compare this file with the expected one, if it is here.
     expected_file_path = os.path.join(dockit_output_files_path_expected, *file_path)
-    print("expected_file_path=", expected_file_path)
     try:
         expected_fil_descr = open(expected_file_path)
         expected_content = expected_fil_descr.readlines()
@@ -90,26 +105,26 @@ def check_file_content(*file_path):
 
     except IOError:
         print("INFO: No comparison file:", expected_file_path)
+    return file_content
 
 
-dock_input_files_path = os.path.join( os.path.dirname(__file__), "dockit_input_test_trace_files" )
+# This checks that a file was NOT created.
+def check_file_missing(*file_path):
+    full_file_path = path_prefix_output_result(*file_path)
+    try:
+        open(full_file_path)
+        assert False, "File %s should not be there." % full_file_path
+    except:
+        pass
+
 
 def path_prefix_input_file(*file_path):
     # Travis and PyCharm do not start this unit tests script from the same directory.
     # The test files are alongside the script.
-    # input_test_files_dir = os.path.dirname(__file__)
+    return os.path.join( dock_input_files_path, *file_path)
 
-    return os.path.join( dock_input_files_path, *file_path )
 
-print("path=",sys.path)
-print("getcwd=",os.getcwd())
-
-import dockit
-import linux_api_definitions
-
-from init import *
-
-class DockitComponentsTest(unittest.TestCase):
+class LowLevelComponentsTest(unittest.TestCase):
     """
     Test parsing of strace output.
     """
@@ -117,79 +132,79 @@ class DockitComponentsTest(unittest.TestCase):
     # This is a set of arguments of system function calls as displayed by strace or ltrace.
     # This checks if they are correctly parsed.
     def test_trace_line_parse(self):
-        dataTst = [
-            ( 'xyz',
-              ["xyz"],3 ),
-            ( '"Abcd"',
-              ["Abcd"],6 ),
-            ( '"Ab","cd"',
-              ["Ab","cd"],9 ),
-            ( 'Ab,"cd"',
-              ["Ab","cd"],7 ),
-            ( '"Ab","cd","ef"',
-              ["Ab","cd","ef"],14 ),
-            ( '"Ab","cd","ef",gh',
-              ["Ab","cd","ef","gh"],17 ),
-            ( '"/usr/bin/grep", ["grep", "toto"]',
-              ["/usr/bin/grep", ["grep", "toto"] ],33 ),
-            ( '"/usr/bin/grep", ["grep", "toto", "tutu"]',
-              ["/usr/bin/grep", ["grep", "toto", "tutu"] ],41 ),
-            ( '"/usr/bin/grep", ["grep", "toto", "tutu"], "tata"',
-              ["/usr/bin/grep", ["grep", "toto", "tutu"], "tata" ],49 ),
-            ( '"","cd"',
-              ["","cd"],7 ),
-            ( '3 <unfinished ...>',
-              ["3"],2 ),
-            ( '<... close resumed>',
-              ['<... close resumed>'],19 ),
-            ( '"12345",""',
-              ["12345",""],10 ),
-            ( '8, "/\nbid_convert_data.o/\nbid128_noncomp.o/\nbid128_compare.o/\nbid32_to_bid64.o/\nbid32_to_bid128.o/\nbid64_to_bid128.o/\nbid64_to_int32.o/\nbid64_to_int64.o/\nbid64_to_uint32.o/\nbid64_to_uint64.o/\nbid128_to_in"..., 4096',
-              ['8', '/\nbid_convert_data.o/\nbid128_noncomp.o/\nbid128_compare.o/\nbid32_to_bid64.o/\nbid32_to_bid128.o/\nbid64_to_bid128.o/\nbid64_to_int32.o/\nbid64_to_int64.o/\nbid64_to_uint32.o/\nbid64_to_uint64.o/\nbid128_to_in...', '4096'],214 ),
-            ( '3</usr/lib64/libpcre.so.1.2.8>',
+        data_tst = [
+            ('xyz',
+              ["xyz"], 3),
+            ('"Abcd"',
+              ["Abcd"], 6),
+            ('"Ab","cd"',
+              ["Ab","cd"], 9),
+            ('Ab,"cd"',
+              ["Ab","cd"], 7),
+            ('"Ab","cd","ef"',
+              ["Ab","cd","ef"], 14),
+            ('"Ab","cd","ef",gh',
+              ["Ab","cd","ef","gh"], 17),
+            ('"/usr/bin/grep", ["grep", "earth"]',
+              ["/usr/bin/grep", ["grep", "earth"] ], 34),
+            ('"/usr/bin/grep", ["grep", "earth", "moon"]',
+              ["/usr/bin/grep", ["grep", "earth", "moon"] ], 42),
+            ('"/usr/bin/grep", ["grep", "earth", "moon"], "sun"',
+              ["/usr/bin/grep", ["grep", "earth", "moon"], "sun" ], 49),
+            ('"","cd"',
+              ["","cd"], 7),
+            ('3 <unfinished ...>',
+              ["3"], 2),
+            ('<... close resumed>',
+              ['<... close resumed>'], 19),
+            ('"12345",""',
+              ["12345",""], 10),
+            ('8, "/\nbid_convert_data.o/\nbid128_noncomp.o/\nbid128_compare.o/\nbid32_to_bid64.o/\nbid32_to_bid128.o/\nbid64_to_bid128.o/\nbid64_to_int32.o/\nbid64_to_int64.o/\nbid64_to_uint32.o/\nbid64_to_uint64.o/\nbid128_to_in"..., 4096',
+              ['8', '/\nbid_convert_data.o/\nbid128_noncomp.o/\nbid128_compare.o/\nbid32_to_bid64.o/\nbid32_to_bid128.o/\nbid64_to_bid128.o/\nbid64_to_int32.o/\nbid64_to_int64.o/\nbid64_to_uint32.o/\nbid64_to_uint64.o/\nbid128_to_in...', '4096'], 214),
+            ('3</usr/lib64/libpcre.so.1.2.8>',
               ['3</usr/lib64/libpcre.so.1.2.8>'], 30),
-            ( 'NULL, 4000096, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libc-2.25.so>, 0',
+            ('NULL, 4000096, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3</usr/lib64/libc-2.25.so>, 0',
               ['NULL', '4000096', 'PROT_READ|PROT_EXEC', 'MAP_PRIVATE|MAP_DENYWRITE', '3</usr/lib64/libc-2.25.so>', '0'], 92),
-            ( '"/usr/bin/grep", ["grep", "Hello", "../Divers/com_type_l"...], 0x7ffd8a76efa8 /* 17 vars */',
+            ('"/usr/bin/grep", ["grep", "Hello", "../Divers/com_type_l"...], 0x7ffd8a76efa8 /* 17 vars */',
               ['/usr/bin/grep', ['grep', 'Hello', '../Divers/com_type_l...'], '0x7ffd8a76efa8 /* 17 vars */'], 91),
-            ( '3</usr/lib64/libpthread-2.21.so>, "xyz", 832',
-              ['3</usr/lib64/libpthread-2.21.so>', 'xyz', '832'],44),
-            ( '1<pipe:[7124131]>, TCGETS, 0x7ffe58d35d60',
-              ['1<pipe:[7124131]>', 'TCGETS', '0x7ffe58d35d60'],41 ),
-            ( '3<TCP:[127.0.0.1:59100->127.0.0.1:3306]>, SOL_IP, IP_TOS, [8], 4',
-              ['3<TCP:[127.0.0.1:59100->127.0.0.1:3306]>', 'SOL_IP', 'IP_TOS', ['8'], '4'],64 ),
-            ( '"/usr/bin/python", ["python", "TestProgs/big_mysql_"...], [/* 37 vars */]',
-              ['/usr/bin/python', ['python', 'TestProgs/big_mysql_...'], ['/* 37 vars */']],73 ),
+            ('3</usr/lib64/libpthread-2.21.so>, "xyz", 832',
+              ['3</usr/lib64/libpthread-2.21.so>', 'xyz', '832'], 44),
+            ('1<pipe:[7124131]>, TCGETS, 0x7ffe58d35d60',
+              ['1<pipe:[7124131]>', 'TCGETS', '0x7ffe58d35d60'], 41),
+            ('3<TCP:[127.0.0.1:59100->127.0.0.1:3306]>, SOL_IP, IP_TOS, [8], 4',
+              ['3<TCP:[127.0.0.1:59100->127.0.0.1:3306]>', 'SOL_IP', 'IP_TOS', ['8'], '4'], 64),
+            ('"/usr/bin/python", ["python", "TestProgs/big_mysql_"...], [/* 37 vars */]',
+              ['/usr/bin/python', ['python', 'TestProgs/big_mysql_...'], ['/* 37 vars */']], 73),
 
-            ( '3</usr/lib64/libc-2.21.so>, "\x7fELF\x02\x01\x01\x03\\>\x00"..., 832',
-                ['3</usr/lib64/libc-2.21.so>', '\x7fELF\x02\x01\x01\x03\\>\x00...', '832'],49 ),
+            ('3</usr/lib64/libc-2.21.so>, "\x7fELF\x02\x01\x01\x03\\>\x00"..., 832',
+                ['3</usr/lib64/libc-2.21.so>', '\x7fELF\x02\x01\x01\x03\\>\x00...', '832'], 49),
 
-            ( '29</home/rchateau/.mozilla/firefox/72h59sxe.default/cookies.sqlite>, "SQLite format 3\0\200\0\2\2\0@  \0\0\0\4\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\2\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0\t\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\4\0.\30\310", 100',
+            ('29</home/rchateau/.mozilla/firefox/72h59sxe.default/cookies.sqlite>, "SQLite format 3\0\200\0\2\2\0@  \0\0\0\4\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\2\0\0\0\4\0\0\0\0\0\0\0\0\0\0\0\1\0\0\0\t\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\4\0.\30\310", 100',
               ['29</home/rchateau/.mozilla/firefox/72h59sxe.default/cookies.sqlite>', 'SQLite format 3\x00\x80\x00\x02\x02\x00@  \x00\x00\x00\x04\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\t\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x00.\x18\xc8', '100'], 176),
 
-            ( '5</etc/pki/nssdb/key4.db>, "\r\0\0\0\1\0G\0\0G\3\313\0\0\0\0\0\0\2076\1\7\27!!\1\2167tablenssPrivatenssPrivate\2CREATE TABLE nssP\2076\1\7\27!!\1\2167tablenssPrivatenssPrivate\2CREATE TABLE nssPrivate (id PRIMARY KEY UNIQUE ON CONFLICT ABORT, a0, a1, a2, a3, a10, a11, a"..., 1024, 3072',
+            ('5</etc/pki/nssdb/key4.db>, "\r\0\0\0\1\0G\0\0G\3\313\0\0\0\0\0\0\2076\1\7\27!!\1\2167tablenssPrivatenssPrivate\2CREATE TABLE nssP\2076\1\7\27!!\1\2167tablenssPrivatenssPrivate\2CREATE TABLE nssPrivate (id PRIMARY KEY UNIQUE ON CONFLICT ABORT, a0, a1, a2, a3, a10, a11, a"..., 1024, 3072',
               ['5</etc/pki/nssdb/key4.db>', '\r\x00\x00\x00\x01\x00G\x00\x00G\x03\xcb\x00\x00\x00\x00\x00\x00\x876\x01\x07\x17!!\x01\x8e7tablenssPrivatenssPrivate\x02CREATE TABLE nssP\x876\x01\x07\x17!!\x01\x8e7tablenssPrivatenssPrivate\x02CREATE TABLE nssPrivate (id PRIMARY KEY UNIQUE ON CONFLICT ABORT, a0, a1, a2, a3, a10, a11, a...', '1024', '3072'], 244),
 
-            ( '4</etc/pki/nssdb/cert9.db>, F_SETLK, {l_type=F_RDLCK, l_whence=SEEK_SET, l_start=1073741824, l_len=1}',
+            ('4</etc/pki/nssdb/cert9.db>, F_SETLK, {l_type=F_RDLCK, l_whence=SEEK_SET, l_start=1073741824, l_len=1}',
                 ['4</etc/pki/nssdb/cert9.db>', 'F_SETLK', ['l_type=F_RDLCK', 'l_whence=SEEK_SET', 'l_start=1073741824', 'l_len=1']], 101),
 
-            ( '4</etc/pki/nssdb/cert9.db>, "\0\0\0\2\0\0\0\t\0\0\0\0\0\0\0\0", 16, 24',
+            ('4</etc/pki/nssdb/cert9.db>, "\0\0\0\2\0\0\0\t\0\0\0\0\0\0\0\0", 16, 24',
               ['4</etc/pki/nssdb/cert9.db>', '\x00\x00\x00\x02\x00\x00\x00\t\x00\x00\x00\x00\x00\x00\x00\x00', '16', '24'], 54),
 
-            ( '0</dev/pts/2>, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 2)}',
-              ['0</dev/pts/2>', ['st_mode=S_IFCHR|0620', 'st_rdev=makedev(136, 2)']],62 ),
+            ('0</dev/pts/2>, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 2)}',
+              ['0</dev/pts/2>', ['st_mode=S_IFCHR|0620', 'st_rdev=makedev(136, 2)']], 62),
 
-            ( '6, [4<UNIX:[3646855,"/run/proftpd/proftpd.sock"]>], NULL, NULL, {tv_sec=0, tv_usec=500}',
+            ('6, [4<UNIX:[3646855,"/run/proftpd/proftpd.sock"]>], NULL, NULL, {tv_sec=0, tv_usec=500}',
               ['6', ['4<UNIX:[3646855,"/run/proftpd/proftpd.sock"]>'], 'NULL', 'NULL', ['tv_sec=0', 'tv_usec=500']], 87),
 
-            ( '13<UNIX:[10579575->10579582]>, SOL_SOCKET, SO_PEERSEC, "system_u:system_r:system_dbusd_t:s0-s0:c0.c1023\0", [64->48]',
+            ('13<UNIX:[10579575->10579582]>, SOL_SOCKET, SO_PEERSEC, "system_u:system_r:system_dbusd_t:s0-s0:c0.c1023\0", [64->48]',
               ['13<UNIX:[10579575->10579582]>', 'SOL_SOCKET', 'SO_PEERSEC', 'system_u:system_r:system_dbusd_t:s0-s0:c0.c1023\x00', ['64->48']], 115),
 
-            ( '17<TCP:[54.36.162.150:32855]>, {sa_family=AF_INET, sin_port=htons(63705), sin_addr=inet_addr("82.45.12.63")}, [16]',
+            ('17<TCP:[54.36.162.150:32855]>, {sa_family=AF_INET, sin_port=htons(63705), sin_addr=inet_addr("82.45.12.63")}, [16]',
               ['17<TCP:[54.36.162.150:32855]>', ['sa_family=AF_INET', 'sin_port=htons(63705)', 'sin_addr=inet_addr("82.45.12.63")'], ['16']], 114),
 
-            ( '"/usr/bin/gcc", ["gcc", "-O3", "ProgsAndScriptsForUnitTests/HelloWorld.c"], 0x7ffd8b44aab8 /* 30 vars */) = 0 <0.000270>',
-              ['/usr/bin/gcc', ['gcc', '-O3', 'ProgsAndScriptsForUnitTests/HelloWorld.c'], '0x7ffd8b44aab8 /* 30 vars */'],106 ),
+            ('"/usr/bin/gcc", ["gcc", "-O3", "ProgsAndScriptsForUnitTests/HelloWorld.c"], 0x7ffd8b44aab8 /* 30 vars */) = 0 <0.000270>',
+              ['/usr/bin/gcc', ['gcc', '-O3', 'ProgsAndScriptsForUnitTests/HelloWorld.c'], '0x7ffd8b44aab8 /* 30 vars */'], 106),
 
             # TODO: ltrace does not escape double-quotes:
             #  "\001$\001$\001\026\001"\0015\001\n\001\r\001\r\001\f\001(\020",
@@ -200,11 +215,11 @@ class DockitComponentsTest(unittest.TestCase):
 
         ]
 
-        for tupl in dataTst:
+        for tupl in data_tst:
             # The input string theoretically starts and ends with parenthesis,
             # but the closing one might not be there.
             # Therefore it should be tested with and without the closing parenthesis.
-            resu,idx = linux_api_definitions.ParseCallArguments(tupl[0])
+            resu,idx = linux_api_definitions.parse_call_arguments(tupl[0])
             if resu != tupl[1]:
                 raise Exception("\n     Fail:%s\nSHOULD BE:%s" % ( str(resu),str(tupl[1])  ) )
 
@@ -215,68 +230,677 @@ class DockitComponentsTest(unittest.TestCase):
             if idx != len(tupl[0]):
                 if not tupl[0][idx:].startswith("<unfinished ...>"):
                     if tupl[0][idx-2] != ')':
-                        raise Exception("Fail idx2: len=%d %d SHOULD BE:%d; S=%s / '%s'" % ( len(tupl[0]), idx, tupl[2], tupl[0], tupl[0][idx-2:] ) )
+                        raise Exception("Fail idx2: len=%d %d SHOULD BE:%d; S=%s / '%s'" % (len(tupl[0]), idx, tupl[2], tupl[0], tupl[0][idx-2:] ) )
 
-    @unittest.skip("Disabled for the moment.")
     def test_usage(self):
-        # Conventional value so this function does not exit.
-        dockit.Usage(999)
+        # Conventional value 999 makes that this function does not exit.
+        dockit.print_dockit_usage(999)
 
-    @unittest.skip("Not implemented yet")
-    def test_InitAfterPid(self):
-        batch_core = linux_api_definitions.BatchLetCore()
-        oneLine = ""
-        idxStart = 0
-        batch_core.InitAfterPid(oneLine, idxStart)
 
-class DockitSummaryXMLTest(unittest.TestCase):
+# This runs dockit as a command. Its returns the content of stdout.
+def _run_dockit_command(one_command):
+    if is_platform_linux:
+        dockit_command = "cd %s;%s dockit.py %s" % (dockit_dirname, sys.executable, one_command)
+    else:
+        # The executable could contain spaces like:
+        # 'C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\Python36_64\\python.exe',
+        # therefore it must be enclosed in quotes.
+        dockit_command = 'cd %s&"%s" dockit.py %s' % (dockit_dirname, sys.executable, one_command)
+    print("dockit_command=", dockit_command)
+    if is_platform_windows:
+        windows8_or_higher = os.sys.getwindowsversion() != (6, 1, 7601, 2, 'Service Pack 1')
+        print("windows8_or_higher=", windows8_or_higher)
+    output_content = subprocess.check_output(dockit_command, shell=True)
+    return output_content
+
+
+# This receives a rdflib graph and returns a list of tuples made only of literals,
+# which can easily be compared in tests.
+def _rdf_file_to_triples(rdf_file):
+    # This RDF file contains the raw triples generated from events.
+    # It does not contain semantic data necessary for SPARQL quries such as rdflib.namespace.RDF.type.
+    rdf_content = check_file_content(rdf_file)
+    # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_NetworkAdapter.Name=192.168.1.10
+    # http://www.primhillcomputers.com/survol#Name
+    # 192.168.1.10
+    # ...
+    # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_NetworkAdapter.Name=192.168.1.10
+    # http://www.primhillcomputers.com/survol#PermanentAddress
+    # 192.168.1.10
+
+    # TODO: Replace this by lib_naming.ParseEntity, lib_util.SplitMoniker etc...
+    def url_to_string(rdf_url):
+        subject_moniker = rdf_url.partition("xid=")[2]
+        class_name, dot_delimiter, attributes_string = subject_moniker.partition(".")
+        if attributes_string:
+            attributes_split = attributes_string.split(",")
+            attributes_partitions = (one_attribute.partition("=") for one_attribute in attributes_split)
+            attributes_dict = {
+                one_attribute[0]: one_attribute[2]
+                for one_attribute in attributes_partitions}
+        else:
+            attributes_dict = {}
+        return class_name, attributes_dict
+
+    def object_to_string(rdf_url):
+        if rdf_url.find("xid=") >= 0:
+            return url_to_string(rdf_url)
+        else:
+            # Or this is a literal.
+            return str(rdf_url)
+
+    triples_as_string = [
+        (
+            url_to_string(rdf_subject),
+            str(rdf_predicate).rpartition('#')[2],
+            object_to_string(rdf_object))
+        for rdf_subject, rdf_predicate, rdf_object in rdf_content.triples((None, None, None))
+    ]
+    return triples_as_string
+
+
+class CommandLineReplayTest(unittest.TestCase):
+
+    def test_replay_non_existent_input_file(self):
+        try:
+            _run_dockit_command("--input does_not_exist")
+            self.fail("An exception should be thrown")
+        except Exception as exc:
+            print("exc=", exc)
+
+    def test_replay_sample_shell_ltrace(self):
+        input_log_file = path_prefix_input_file("sample_shell.ltrace.log")
+        output_basename_prefix = "sample_shell.ltrace"
+        output_prefix = path_prefix_output_result(output_basename_prefix)
+
+        dockit_command = "--input %s --dockerfile --log %s -t ltrace --duplicate" % (
+            input_log_file,
+            output_prefix)
+        command_result = _run_dockit_command(dockit_command)
+        print("command_result ... =", command_result[:50])
+        self.assertTrue(command_result.startswith(b"Loading ini file:"))
+
+        # No ini file created because this is a replay session from a log file.
+        check_file_missing(output_basename_prefix + ".txt")
+
+        # No ini file created because this is a replay session from a log file.
+        check_file_missing(output_basename_prefix + ".ini")
+
+        # This file must be created because "--duplicate" options is set.
+        check_file_content(output_basename_prefix + ".log")
+
+    def test_replay_oracle_db_data_strace(self):
+        input_log_file = path_prefix_input_file("oracle_db_data.strace.5718.log")
+        output_basename_prefix = "oracle_db_data.strace.5718"
+        output_prefix = path_prefix_output_result(output_basename_prefix)
+
+        dockit_command = "--input %s --dockerfile --log %s -t strace" % (
+            input_log_file,
+            output_prefix)
+        command_result = _run_dockit_command(dockit_command)
+
+        self.assertTrue(command_result.startswith(b"Loading ini file:"))
+
+        # No ini file created because this is a replay session from a log file.
+        check_file_content(output_basename_prefix + ".txt")
+
+        # No ini file created because this is a replay session from a log file.
+        check_file_missing(output_basename_prefix + ".ini")
+
+        # This file should not be created because "--duplicate" options is not set.
+        check_file_missing(output_basename_prefix + ".log")
+
+    # This processes an existing input file by running the script dockit.py.
+    def test_replay_sample_shell_strace(self):
+        input_log_file = path_prefix_input_file("sample_shell.strace.log")
+        output_basename_prefix = "sample_shell.strace"
+        output_prefix = path_prefix_output_result(output_basename_prefix)
+
+        dockit_command = "--input %s --dockerfile --log %s -t strace" % (
+            input_log_file,
+            output_prefix)
+        command_result = _run_dockit_command(dockit_command)
+        print("command_result=", command_result)
+        self.assertTrue(command_result.startswith(b"Loading ini file:"))
+
+        # The pid 4401 comes from the input log file.
+        output_file_path = output_prefix + ".txt"
+
+        expected_output = [
+            "calls_number:29\n",
+            "process_id:18198\n",
+            "calls_number:84\n",
+            "process_id:18196\n",
+            "calls_number:2754\n",
+            "process_id:18195\n",
+            "calls_number:77\n",
+            "process_id:18194\n",
+            "calls_number:12\n",
+            "process_id:18193\n",
+            "calls_number:66\n",
+            "process_id:4401\n",
+        ]
+
+        with open(output_file_path) as output_file_descriptor:
+            output_file_content = output_file_descriptor.readlines()
+        print("output_file_content=", output_file_content)
+        self.assertTrue(output_file_content == expected_output)
+
+    def test_replay_sqlplus_strace(self):
+        input_log_file = path_prefix_input_file("sqlplus.strace.4401.log")
+        output_basename_prefix = "sqlplus.strace.4401"
+        output_prefix = path_prefix_output_result(output_basename_prefix)
+
+        dockit_command = "--input %s --dockerfile --log %s -t strace" % (
+            input_log_file,
+            output_prefix)
+        command_result = _run_dockit_command(dockit_command)
+
+        check_file_content(output_basename_prefix + ".docker", "Dockerfile")
+        check_file_missing(output_basename_prefix + ".ini")
+
+    @unittest.skipIf(is_platform_linux, "Windows only.")
+    def test_replay_windows_dir(self):
+        """This could theoretically run on Linux because there is no Windows command execution."""
+        input_log_file = path_prefix_input_file("windows_dir.pydbg.45884.log")
+        output_basename_prefix = "windows_dir.pydbg.45884"
+        output_prefix = path_prefix_output_result(output_basename_prefix)
+
+        dockit_command = "--input %s --dockerfile --log %s -t strace" % (
+            input_log_file,
+            output_prefix)
+        command_result = _run_dockit_command(dockit_command)
+
+        check_file_content(output_basename_prefix + ".docker", "Dockerfile")
+        check_file_missing(output_basename_prefix + ".ini")
+
+
+# The script dockit.py can be used as a command line or as an imported module.
+# This test checks the script dockit.py from from command lines, and not from the internal function.
+class CommandLineLiveTest(unittest.TestCase):
+
+    def test_usage(self):
+        """This tests the help message displayed by dockit.py """
+        command_result = _run_dockit_command("--help")
+        self.assertTrue(command_result.startswith(b"DockIT"))
+
+# The script dockit.py can be used as a command line or as an imported module.
+# This test checks the script dockit.py from from command lines, and not from the internal function.
+@unittest.skipIf(is_platform_windows, "These tests are for Linux only.")
+class CommandLineLiveLinuxTest(unittest.TestCase):
+    def test_run_linux_ls(self):
+
+        output_basename_prefix = "test_linux_ls"
+        output_prefix = path_prefix_output_result(output_basename_prefix)
+        command_result = _run_dockit_command("-D -f JSON -F TXT -l %s ls" % output_prefix)
+
+        # This creates files like ".../test_linux_ls.strace<pid>.ini"
+        check_file_content(output_basename_prefix + ".ini")
+        check_file_content(output_basename_prefix + ".json")
+        check_file_content(output_basename_prefix + ".summary.txt")
+        check_file_content(output_basename_prefix + ".docker", "Dockerfile")
+
+        check_file_missing(output_basename_prefix + ".log")
+
+    def test_run_linux_touch_rdf(self):
+        """This touch a new file. An RDF event must be created."""
+        output_basename_prefix = "test_linux_touch"
+        created_rdf_file = path_prefix_output_result(output_basename_prefix + ".rdf")
+        created_temp_file = path_prefix_output_result(output_basename_prefix + ".tmp")
+
+        command_result = _run_dockit_command("--server=%s touch %s" % (created_rdf_file, created_temp_file))
+
+        # This creates files like ".../test_linux_ls.strace<pid>.ini"
+        ini_content = dockit.ini_file_check(ini_file_default)
+        created_pid = ini_content["TopProcessId"]
+
+        triples_as_string = _rdf_file_to_triples(created_rdf_file)
+        print("triples_as_string=", triples_as_string)
+
+        # check_file_missing(output_basename_prefix + ".ini")
+        check_file_missing(output_basename_prefix + ".json")
+        check_file_missing(output_basename_prefix + ".summary.txt")
+        check_file_missing(output_basename_prefix + ".log")
+
+
+# The script dockit.py can be used as a command line or as an imported module.
+# This test checks the script dockit.py from from command lines, and not from the internal function.
+@unittest.skipIf(is_platform_linux, "Windows only.")
+class CommandLineLiveWin32Test(unittest.TestCase):
+
+    @unittest.skipIf(is_windows10, "FIXME: Now broken on Windows 10. WHY ?")
+    def test_run_windows_ping_nowhere(self):
+        """This runs "ping" and the command help must be print."""
+        command_result = _run_dockit_command("ping")
+
+        # Now parse the output to ensure that the command ran correctly.
+
+        # C:\Survol>ping
+        #
+        # Usage: ping [-t] ...
+
+        # [msdos@domain survol]$ ping
+        # Usage: ping [-aAbBdDfhLnOqrRUvV64] ...
+
+        self.assertTrue( command_result.find(b"Usage: ping") >= 0)
+
+    @unittest.skipIf(is_windows10, "FIXME: Now broken on Windows 10. WHY ?")
+    def test_run_windows_ping_home(self):
+        # This test pings to a domain name.
+        output_basename_prefix = "test_run_windows_ping_home_%d" % CurrentPid
+        output_prefix = path_prefix_output_result(output_basename_prefix)
+        command_result = _run_dockit_command("--log=%s ping primhillcomputers.com" % output_prefix)
+
+        # The ini file is always created and store some parameters to replay the sessiosn.
+        check_file_content(output_basename_prefix + ".ini")
+        check_file_content(output_basename_prefix + ".txt")
+
+        # The parameter to log the function calls is not given on the command line.
+        check_file_missing(output_basename_prefix + ".log")
+
+        # The parameter to create a Dockerfile is not given on the command line.
+        check_file_missing(output_basename_prefix + ".docker", "Dockerfile")
+
+    @unittest.skipIf(is_windows10, "FIXME: Now broken on Windows 10. WHY ?")
+    def test_run_windows_ping_github(self):
+        output_basename_prefix = "test_run_windows_ping_github_%d" % CurrentPid
+        output_prefix = path_prefix_output_result(output_basename_prefix)
+        command_result = _run_dockit_command("--log=%s --duplicate ping github.com" % output_prefix)
+
+        check_file_content(output_basename_prefix + ".ini")
+        check_file_content(output_basename_prefix + ".txt")
+        check_file_content(output_basename_prefix + ".log")
+
+        check_file_missing(output_basename_prefix + ".docker", "Dockerfile")
+
+    @unittest.skipIf(is_windows10, "FIXME: Now broken on Windows 10. WHY ?")
+    def test_run_windows_echo(self):
+        output_basename_prefix = "test_run_windows_echo_%d" % CurrentPid
+        output_prefix = path_prefix_output_result(output_basename_prefix)
+
+        output_tmpfile = output_prefix + ".tmp.txt"
+        dockit_command = "%s /c echo HelloWorld > %s" % (windows_system32_cmd_exe, output_tmpfile)
+        command_result = _run_dockit_command(dockit_command)
+
+        self.assertTrue(command_result == b"")
+
+        # The outputs of the command and of dockit.py are redirected to the same file.
+        with open(output_tmpfile) as results_file_descriptor:
+            result_lines = results_file_descriptor.readlines()
+            self.assertTrue(result_lines[0].startswith("HelloWorld"))
+
+        print("output_tmpfile=", output_tmpfile)
+
+        # No other output file is created.
+        check_file_missing(output_basename_prefix + ".ini")
+        check_file_missing(output_basename_prefix + ".txt")
+        check_file_missing(output_basename_prefix + ".log")
+        check_file_missing(output_basename_prefix + ".docker", "Dockerfile")
+
+    @unittest.skipIf(is_windows10, "FIXME: Now broken on Windows 10. WHY ?")
+    def test_run_windows_dir(self):
+        """This generates a replay filename and reuses it immediately."""
+        output_basename_prefix = "test_run_windows_dir"
+        output_prefix = path_prefix_output_result(output_basename_prefix)
+
+        dockit_command = "--log=%s --duplicate %s /c DIR" % (output_prefix, windows_system32_cmd_exe)
+        command_result = _run_dockit_command(dockit_command)
+
+        check_file_content(output_basename_prefix + ".ini")
+        check_file_content(output_basename_prefix + ".log")
+
+    @unittest.skipIf(is_windows10, "FIXME: IOs function calls not detected on Windows 10.")
+    def test_run_windows_mkdir_rdf(self):
+        """This checks the events generated in a RDF file. It must contain the directory."""
+        output_basename_prefix = "test_run_windows_mkdir_rdf"
+        created_rdf_file = path_prefix_output_result(output_basename_prefix + ".rdf")
+        created_directory = path_prefix_output_result(output_basename_prefix + ".dir")
+
+        dockit_command = "--server=%s %s /c mkdir %s" % (created_rdf_file, windows_system32_cmd_exe, created_directory)
+        command_result = _run_dockit_command(dockit_command)
+
+        self.assertTrue(os.path.isdir(created_directory))
+
+        # The ini file is created with a default name.
+        # It does not use check_file_content because the output directory is not standard.
+        dockit.ini_file_check(ini_file_default)
+
+        # This RDF file contains the raw triples generated from events.
+        # It does not contain semantic data necessary for SPARQL queries such as rdflib.namespace.RDF.type.
+
+        triples_as_string = _rdf_file_to_triples(created_rdf_file)
+        print("triples_as_string=", triples_as_string)
+
+        self.assertTrue((
+                            ("CIM_OperatingSystem", {}),
+                            "System",
+                            "Windows") in triples_as_string)
+
+        self.assertTrue((
+                            ("CIM_NetworkAdapter", {"Name": current_ip_address}),
+                            "PermanentAddress",
+                            current_ip_address) in triples_as_string)
+
+        self.assertTrue((
+                            ("CIM_Directory", {"Name": created_directory}),
+                            "Name",
+                            created_directory) in triples_as_string)
+
+        self.assertTrue((
+                            ("CIM_Directory", {"Name": created_directory}),
+                            "FileSize",
+                            '0') in triples_as_string)
+
+        check_file_missing(output_basename_prefix + ".log")
+        check_file_missing(output_basename_prefix + ".docker", "Dockerfile")
+
+    def test_run_windows_python_print_rdf(self):
+        """This checks the events generated in a RDF file. It must contain the directory."""
+        output_basename_prefix = "test_run_windows_python_print_rdf"
+        created_rdf_file = path_prefix_output_result(output_basename_prefix + ".rdf")
+
+        dockit_command = "--server=%s %s -c \"print('Hello')\"" % (created_rdf_file, sys.executable)
+        command_result = _run_dockit_command(dockit_command)
+
+        # The ini file is created with a default name.
+        # It does not use check_file_content because the output directory is not standard.
+        ini_content = dockit.ini_file_check(ini_file_default)
+        created_pid = ini_content["TopProcessId"]
+
+        triples_as_string = _rdf_file_to_triples(created_rdf_file)
+
+        for rdf_subject, rdf_predicate, rdf_object in triples_as_string:
+            if rdf_subject[0] != "CIM_DataFile":
+                print(rdf_subject, rdf_predicate, rdf_object)
+        print("------------------------")
+
+        # This is always created at startup.
+        self.assertTrue((
+                            ("CIM_OperatingSystem", {}),
+                            "System",
+                            "Windows") in triples_as_string)
+
+        self.assertTrue((
+                            ("CIM_NetworkAdapter", {"Name": current_ip_address}),
+                            "PermanentAddress",
+                            current_ip_address) in triples_as_string)
+
+        self.assertTrue((
+                            ("CIM_ComputerSystem", {"Name": CurrentMachine}),
+                            "Name",
+                            CurrentMachine) in triples_as_string)
+
+        # This is the created process which runs dockit.py
+        self.assertTrue((
+                            ("CIM_Process", {"Handle": str(created_pid)}),
+                            "Handle",
+                            str(created_pid)) in triples_as_string)
+
+        # The created process points to its current directory.
+        self.assertTrue((
+                            ("CIM_Process", {"Handle": str(created_pid)}),
+                            "CurrentDirectory",
+                            dockit_dirname) in triples_as_string)
+
+        # At startup, Python loads dozen of library files.
+        # This checks the existence of some files which are usually loaded by Python at startup.
+        files_basenames = set([
+            os.path.basename(one_path[0][1]['Name'])
+            for one_path in triples_as_string
+            if one_path[0][0] == 'CIM_DataFile'])
+
+        self.assertTrue(u'__init__.py' in files_basenames)
+        self.assertTrue(u'abc.py' in files_basenames)
+        self.assertTrue(u'aliases.py' in files_basenames)
+        self.assertTrue(u'codecs.py' in files_basenames)
+        self.assertTrue(u'genericpath.py' in files_basenames)
+        self.assertTrue(u'ntpath.py' in files_basenames)
+        self.assertTrue(u'os.py' in files_basenames)
+        self.assertTrue(u'site.py' in files_basenames)
+        self.assertTrue(u'stat.py' in files_basenames)
+
+        check_file_missing(output_basename_prefix + ".log")
+        check_file_missing(output_basename_prefix + ".docker", "Dockerfile")
+
+    @unittest.skipIf(is_windows10, "FIXME: IOs function calls not detected on Travis.")
+    def test_run_windows_copy_cmd_exe_rdf(self):
+        """This checks the events generated in a RDF file, during a file copy."""
+        output_basename_prefix = "test_run_windows_copy_cmd_exe_rdf"
+        created_rdf_file = path_prefix_output_result(output_basename_prefix + ".rdf")
+        copied_file = path_prefix_output_result(output_basename_prefix + ".exe")
+
+        print("os.sys.getwindowsversion()=", os.sys.getwindowsversion())
+        self.assertTrue(False)
+
+        # It copies cmd.exe elsewhere.
+        dockit_command = "--server=%s %s /c copy %s %s" % (
+            created_rdf_file, windows_system32_cmd_exe,
+            windows_system32_cmd_exe, copied_file)
+        command_result = _run_dockit_command(dockit_command)
+
+        ini_content = dockit.ini_file_check(ini_file_default)
+        created_pid = ini_content["TopProcessId"]
+
+        self.assertTrue(os.path.isfile(copied_file))
+
+        # The ini file is created with a default name.
+        # It does not use check_file_content because the output directory is not standard.
+        dockit.ini_file_check(ini_file_default)
+
+        # This RDF file contains the raw triples generated from events.
+        # It does not contain semantic data necessary for SPARQL queries such as rdflib.namespace.RDF.type.
+
+        triples_as_string = _rdf_file_to_triples(created_rdf_file)
+        print("triples_as_string=", triples_as_string)
+
+        # The created process points to its current directory
+        self.assertTrue((
+                            ("CIM_Process", {"Handle": str(created_pid)}),
+                            "CurrentDirectory",
+                            dockit_dirname) in triples_as_string)
+
+        # This file is read from by the process, so it must appear here.
+        win32_cmd_standardized = standardized_file_path(windows_system32_cmd_exe)
+        self.assertTrue((
+                            ("CIM_DataFile", {"Name": win32_cmd_standardized}),
+                            "Name",
+                            win32_cmd_standardized) in triples_as_string)
+
+        # FIXME: The written file should also be visible. But we do not know how "copy" works.
+
+
+class CommandLineLivePythonTest(unittest.TestCase):
+
+    def _run_python_script_rdf(self, output_basename_prefix, python_script):
+        """This runs a Python script."""
+        created_rdf_file = path_prefix_output_result(output_basename_prefix + ".rdf")
+        python_script_file = path_prefix_output_result(output_basename_prefix + ".py")
+        with open(python_script_file, "w") as python_script_file_descriptor:
+            python_script_file_descriptor.write(python_script)
+
+        dockit_command = "--server=%s %s %s" % (created_rdf_file, sys.executable, python_script_file)
+        command_result = _run_dockit_command(dockit_command)
+
+        # The ini file is created with a default name.
+        # It does not use check_file_content because the output directory is not standard.
+        ini_content = dockit.ini_file_check(ini_file_default)
+        created_pid = ini_content["TopProcessId"]
+
+        triples_as_string = _rdf_file_to_triples(created_rdf_file)
+
+        # This is the created process which runs dockit.py
+        self.assertTrue((
+                            ("CIM_Process", {"Handle": str(created_pid)}),
+                            "Handle",
+                            str(created_pid)) in triples_as_string)
+
+        # The created process points to its current directory.
+        self.assertTrue((
+                            ("CIM_Process", {"Handle": str(created_pid)}),
+                            "CurrentDirectory",
+                            dockit_dirname.replace("\\", "/")) in triples_as_string)
+
+        # The Python interpreter is accessed, after symlinks resolution.
+        self.assertTrue((
+                            ("CIM_DataFile", {"Name": CurrentExecutable}),
+                            "Name",
+                            CurrentExecutable) in triples_as_string)
+
+        # TODO: Could use standardized_file_path()
+        python_script_file_standard = python_script_file.replace("\\", "/")
+        self.assertTrue((
+                            ("CIM_DataFile", {"Name": python_script_file_standard}),
+                            "Name",
+                            python_script_file_standard) in triples_as_string)
+
+        return triples_as_string, created_pid
+
+    def test_run_python_rdf_print_hello(self):
+        """This runs a minimal Python script."""
+        output_basename_prefix = "test_run_python_rdf_print_hello"
+
+        python_script = """
+print("Hello")
+"""
+        triples_as_string, created_pid = self._run_python_script_rdf(output_basename_prefix, python_script)
+
+    @unittest.skipIf(is_platform_linux, "These tests are for Windows only.")
+    def test_run_python_rdf_os_system_python(self):
+        """This creates a subprocess."""
+        output_basename_prefix = "test_run_python_rdf_os_system_python"
+        output_text_name = output_basename_prefix + ".txt"
+        output_text_path = os.path.join(dockit_dirname, output_text_name)
+
+        # This Python script starts a shell command which starts another Python process
+        # which writes a simple text in a file. This content is checked.
+        try:
+            os.remove(output_text_path)
+        except:
+            pass
+        python_script = """
+import os
+# Double-quotes because of spaces: C:\\Program Files (x86)\\...\\python.exe
+os.system(r'"%s" -c print(123456789) > %s')
+""" % (sys.executable, output_text_name)
+        print("python_script=", python_script)
+        triples_as_string, created_pid = self._run_python_script_rdf(output_basename_prefix, python_script)
+        print("created_pid=", created_pid)
+
+        # The output file must exist.
+        with open(output_text_path) as output_text_file:
+            written_line = output_text_file.readline()
+        print("written_line=", written_line)
+        self.assertEqual(written_line, "123456789\n")
+
+        # There must be three processes.
+        processe_ids_set = {
+            one_subject[1]['Handle']
+            for one_subject, one_predicate, one_object in triples_as_string
+            if one_subject[0] == 'CIM_Process'
+        }
+        print("processe_ids_set=", processe_ids_set)
+        self.assertTrue(created_pid in processe_ids_set)
+        self.assertEqual(len(processe_ids_set), 3)
+
+        # Parent and child processes.
+        parent_pairs_list = list({
+            (one_subject[1]['Handle'], one_object)
+                for one_subject, one_predicate, one_object in triples_as_string
+                if one_subject[0] == 'CIM_Process' and one_predicate == 'ParentProcessID'
+        })
+        print("parent_pairs_list=", parent_pairs_list)
+        self.assertEqual(len(parent_pairs_list), 2)
+
+        # Find the parent and the child.
+        if parent_pairs_list[0][1] == parent_pairs_list[1][0]:
+            parent_pid = parent_pairs_list[1][1]
+            middle_pid = parent_pairs_list[0][1]
+            child_pid = parent_pairs_list[0][0]
+        elif parent_pairs_list[0][0] == parent_pairs_list[1][1]:
+            parent_pid = parent_pairs_list[0][1]
+            middle_pid = parent_pairs_list[0][0]
+            child_pid = parent_pairs_list[1][0]
+        else:
+            self.assertTrue(False, "No middle process")
+
+        # Checks the executables.
+        checked_executables = 0
+        cmd_exe_standardized = standardized_file_path(windows_system32_cmd_exe)
+        for one_subject, one_predicate, one_object in triples_as_string:
+            if one_subject[0] == 'CIM_Process':
+                print(one_subject, one_predicate, one_object)
+                if one_predicate == 'Executable':
+                    checked_executables += 1
+                    one_pid = one_subject[1]['Handle']
+                    if one_pid == parent_pid:
+                        # Python.
+                        self.assertTrue(one_object == CurrentExecutable)
+                    elif one_pid == middle_pid:
+                        # Dos box.
+                        self.assertTrue(one_object == cmd_exe_standardized)
+                    elif one_pid == child_pid:
+                        # Python.
+                        self.assertTrue(one_object == CurrentExecutable)
+                    else:
+                        self.assertTrue(False, "Unidentified executable and process")
+
+        self.assertEqual(checked_executables, 3)
+
+    @unittest.skipIf(is_platform_linux, "These tests are for Windows only.")
+    def test_run_python_rdf_os_system_dir(self):
+        """This creates a subprocess running dir."""
+        output_basename_prefix = "test_run_python_rdf_os_system_dir"
+
+        python_script = """
+import os
+os.system('dir')
+        """
+        triples_as_string, created_pid = self._run_python_script_rdf(output_basename_prefix, python_script)
+        print("created_pid=", created_pid)
+        processes_number = 0
+        for one_subject, one_predicate, one_object in triples_as_string:
+            if one_subject[0] == 'CIM_Process':
+                if one_predicate == 'Executable':
+                    processes_number += 1
+                    if one_object == CurrentExecutable:
+                        pid_python = one_subject[1]['Handle']
+                    elif one_object == standardized_file_path(windows_system32_cmd_exe):
+                        url_cmd = one_subject
+                print("    ", one_subject, one_predicate, one_object)
+        print("pid_python=", pid_python)
+        print("url_cmd=", url_cmd)
+
+        self.assertEqual(processes_number, 2)
+        self.assertTrue((url_cmd, 'ParentProcessID', pid_python) in triples_as_string)
+
+
+class SummaryXMLTest(unittest.TestCase):
     @staticmethod
-    def RebuildProcessTreeAux(currNode,margin=""):
-        def PrintOneNode(currNode,margin):
-            try:
-                procId = currNode.attributes['Handle'].value
-            except KeyError:
-                procId = 123456789
+    def _rebuild_process_tree_aux(current_node, margin=""):
 
-            execNam = "???"
-            for subNod in currNode.childNodes:
-                if subNod.nodeType == subNod.TEXT_NODE:
-                    continue
-
-                if subNod.localName == 'Executable':
-                    try:
-                        strXml = subNod.toxml()
-                        execNam = re.sub("<.*?>", "", strXml)
-                    except AttributeError:
-                        pass
-                    break
-
-            #sys.stdout.write("%s   %s %s\n"%(margin,procId,execNam))
-
-        procTree = {}
+        summary_process_tree = {}
 
         submargin = margin + "   "
-        for subNod in currNode.childNodes:
-            if subNod.localName == 'CIM_Process':
-                subObj = DockitSummaryXMLTest.RebuildProcessTreeAux(subNod,submargin)
-                procId = int(subNod.attributes['Handle'].value)
-                PrintOneNode(subNod,submargin)
-                procTree[procId] = subObj
+        for sub_node in current_node.childNodes:
+            if sub_node.localName == 'CIM_Process':
+                sub_object = SummaryXMLTest._rebuild_process_tree_aux(sub_node, submargin)
+                process_id = int(sub_node.attributes['Handle'].value)
+                summary_process_tree[process_id] = sub_object
 
-        return procTree
+        return summary_process_tree
 
     @staticmethod
-    def RebuildProcessTree(outputSummaryFile):
-        mydoc = minidom.parse(outputSummaryFile)
-        currNode = mydoc.getElementsByTagName('Dockit')
+    def rebuild_process_tree(output_summary_file):
+        mydoc = minidom.parse(output_summary_file)
+        current_node = mydoc.getElementsByTagName('Dockit')
 
-        return DockitSummaryXMLTest.RebuildProcessTreeAux(currNode[0])
+        return SummaryXMLTest._rebuild_process_tree_aux(current_node[0])
 
 
     # This loads a log file generated by strace and rebuilds the processes tree.
     def test_summary_XML_strace1(self):
         # For testing the creation of summary XML file from a strace log.
-        tstLogFileSTrace = """
+        strace_logfile_content = """
 12:43:54.334660 execve("/usr/bin/gcc", ["gcc", "-O3", "ProgsAndScriptsForUnitTests/HelloWorld.c"], 0x7ffd8b44aab8 /* 30 vars */) = 0 <0.000270>
 12:43:54.351205 vfork( <unfinished ...>
 [pid 19353] 12:43:54.353230 execve("/usr/libexec/gcc/x86_64-redhat-linux/7/cc1", ["/usr/libexec/gcc/x86_64-redhat-linux/7/cc1", "-quiet", "ProgsAndScriptsForUnitTests/HelloWorld.c", "-quiet", "-dumpbase", "HelloWorld.c", "-mtune=generic", "-march=x86-64", "-auxbase", "HelloWorld", "-O3", "-o", "/tmp/ccPlYSs9.s"], 0x175f140 /* 35 vars */ <unfinished ...>
@@ -315,40 +939,40 @@ class DockitSummaryXMLTest(unittest.TestCase):
 12:43:54.608378 exit_group(0)           = ?
 """
 
-        tmpFilSTrace = tempfile.NamedTemporaryFile(mode='w+',delete=False)
-        tmpFilSTrace.write(tstLogFileSTrace)
-        tmpFilSTrace.close()
+        tempfil_strace= tempfile.NamedTemporaryFile(mode='w+',delete=False)
+        tempfil_strace.write(strace_logfile_content)
+        tempfil_strace.close()
 
-        outputSummaryFile = dockit.UnitTest(
-            inputLogFile=tmpFilSTrace.name,
+        output_summary_file = dockit.test_from_file(
+            input_log_file=tempfil_strace.name,
             tracer="strace",
-            topPid=19351,
-            baseOutName=None,
-            outputFormat=None,
+            input_process_id=19351,
+            output_files_prefix=None,
+            output_format=None,
             verbose=False,
-            mapParamsSummary=dockit.fullMapParamsSummary,
-            summaryFormat="XML",
-            withWarning=False,
-            withDockerfile=False,
-            updateServer=None,
+            map_params_summary=dockit.full_map_params_summary,
+            summary_format="XML",
+            with_warning=False,
+            with_dockerfile=False,
+            update_server=None,
             aggregator=None)
 
-        procTree = DockitSummaryXMLTest.RebuildProcessTree(outputSummaryFile)
+        process_tree = SummaryXMLTest.rebuild_process_tree(output_summary_file)
 
-        print(procTree)
+        print(process_tree)
 
-        procTree[19351]
-        procTree[19351][19353]
-        procTree[19351][19354]
-        procTree[19351][19355]
-        procTree[19351][19355][19356]
-
+        # This tests the existence of some processes and subprocesses.
+        process_tree[19351]
+        process_tree[19351][19353]
+        process_tree[19351][19354]
+        process_tree[19351][19355]
+        process_tree[19351][19355][19356]
 
 
     # This loads a log file generated by strace and rebuilds the processes tree.
     def test_summary_XML_strace2(self):
         # For testing the creation of summary XML file from a strace log.
-        tstLogFileSTrace = """
+        strace_logfile_content = """
 19:37:50.321491 execve("/usr/bin/gcc", ["gcc", "-O3", "ProgsAndScriptsForUnitTests/HelloWorld.c"], 0x7ffdf59908e8 /* 30 vars */) = 0 <0.000170>
 19:37:50.331960 vfork( <unfinished ...>
 [pid 22034] 19:37:50.334013 execve("/usr/libexec/gcc/x86_64-redhat-linux/7/cc1", ["/usr/libexec/gcc/x86_64-redhat-linux/7/cc1", "-quiet", "ProgsAndScriptsForUnitTests/HelloWorld.c", "-quiet", "-dumpbase", "HelloWorld.c", "-mtune=generic", "-march=x86-64", "-auxbase", "HelloWorld", "-O3", "-o", "/tmp/cceK71h9.s"], 0x2514140 /* 35 vars */ <unfinished ...>
@@ -387,40 +1011,40 @@ class DockitSummaryXMLTest(unittest.TestCase):
 19:37:50.582490 exit_group(0)           = ?
 """
 
-        tmpFilSTrace = tempfile.NamedTemporaryFile(mode='w+',delete=False)
-        tmpFilSTrace.write(tstLogFileSTrace)
-        tmpFilSTrace.close()
+        tempfil_strace = tempfile.NamedTemporaryFile(mode='w+',delete=False)
+        tempfil_strace.write(strace_logfile_content)
+        tempfil_strace.close()
 
-        outputSummaryFile = dockit.UnitTest(
-            inputLogFile=tmpFilSTrace.name,
+        output_summary_file = dockit.test_from_file(
+            input_log_file=tempfil_strace.name,
             tracer="strace",
-            topPid=22029,
-            baseOutName=None,
-            outputFormat=None,
+            input_process_id=22029,
+            output_files_prefix=None,
+            output_format=None,
             verbose=False,
-            mapParamsSummary=dockit.fullMapParamsSummary,
-            summaryFormat="XML",
-            withWarning=False,
-            withDockerfile=False,
-            updateServer = None,
+            map_params_summary=dockit.full_map_params_summary,
+            summary_format="XML",
+            with_warning=False,
+            with_dockerfile=False,
+            update_server= None,
             aggregator=None)
 
         sys.stdout.write("\nRebuilding tree\n")
-        procTree = DockitSummaryXMLTest.RebuildProcessTree(outputSummaryFile)
+        process_tree = SummaryXMLTest.rebuild_process_tree(output_summary_file)
 
-        print(procTree)
+        print(process_tree)
 
         # Tests the existence of some processes and their subprocesses.
-        procTree[22033]
-        procTree[22033][22034]
-        procTree[22033][22035]
-        procTree[22033][22036]
-        procTree[22033][22036][22037]
+        process_tree[22033]
+        process_tree[22033][22034]
+        process_tree[22033][22035]
+        process_tree[22033][22036]
+        process_tree[22033][22036][22037]
 
     # This loads a log file generated by ltrace and rebuilds the processes tree.
     def test_summary_XML_ltrace(self):
         # For testing the creation of summary XML file from a ltrace log.
-        tstLogFileLTrace = """
+        ltrace_logfile_content = """
 [pid 21256] 14:45:29.412869 vfork@SYS(0x463a43, 0, 0, 4 <unfinished ...>
 [pid 21257] 14:45:29.414920 execve@SYS("/usr/libexec/gcc/x86_64-redhat-linux/7/cc1", 0x164ffb8, 0x1650140 <no return ...>
 [pid 21257] 14:45:29.415223 --- Called exec() ---
@@ -463,180 +1087,206 @@ class DockitSummaryXMLTest(unittest.TestCase):
 [pid 21256] 14:45:29.863535 +++ exited (status 0) +++
 """
 
-        tmpFilSTrace = tempfile.NamedTemporaryFile(mode='w+',delete=False)
-        tmpFilSTrace.write(tstLogFileLTrace)
-        tmpFilSTrace.close()
+        tempfil_ltrace = tempfile.NamedTemporaryFile(mode='w+',delete=False)
+        tempfil_ltrace.write(ltrace_logfile_content)
+        tempfil_ltrace.close()
 
-        outputSummaryFile = dockit.UnitTest(
-            inputLogFile=tmpFilSTrace.name,
+        output_summary_file = dockit.test_from_file(
+            input_log_file=tempfil_ltrace.name,
             tracer="ltrace",
-            topPid=21256,
-            baseOutName=None,
-            outputFormat=None,
+            input_process_id=21256,
+            output_files_prefix=None,
+            output_format=None,
             verbose=False,
-            mapParamsSummary=dockit.fullMapParamsSummary,
-            summaryFormat="XML",
-            withWarning=False,
-            withDockerfile=False,
-            updateServer=None,
+            map_params_summary=dockit.full_map_params_summary,
+            summary_format="XML",
+            with_warning=False,
+            with_dockerfile=False,
+            update_server=None,
             aggregator=None)
 
         sys.stdout.write("\nRebuilding tree\n")
-        procTree = DockitSummaryXMLTest.RebuildProcessTree(outputSummaryFile)
+        process_tree = SummaryXMLTest.rebuild_process_tree(output_summary_file)
 
-        print(procTree)
+        print(process_tree)
 
-        # This tests the existence of some processes.
-        procTree[21256]
-        procTree[21256][21257]
-        procTree[21256][21258]
-        procTree[21256][21259]
-        procTree[21256][21259][21260]
+        # This tests the existence of some processes and their sub-sub-processes.
+        process_tree[21256]
+        process_tree[21256][21257]
+        process_tree[21256][21258]
+        process_tree[21256][21259]
+        process_tree[21256][21259][21260]
 
-class DockitTraceFilesTest(unittest.TestCase):
+
+class ReplaySessionsTest(unittest.TestCase):
     """
-    Test the execution of the Dockit script of trace files.
+    Replay sessions of Dockit executions using log and ini files.
+    This og files are the result of strace or ltrace execution on a process.
     """
 
-    def test_file_strace_txt(self):
-        dockit.UnitTest(
-            inputLogFile=path_prefix_input_file("sample_shell.strace.log"),
+    def test_replay_linux_strace_txt(self):
+        dockit.test_from_file(
+            input_log_file=path_prefix_input_file("sample_shell.strace.log"),
             tracer="strace",
-            topPid=0,
-            baseOutName=path_prefix_output_result("sample_shell_strace_tst_txt"),
-            outputFormat="TXT",
+            input_process_id=0,
+            output_files_prefix=path_prefix_output_result("sample_shell_strace_tst_txt"),
+            output_format="TXT",
             verbose=True,
-            mapParamsSummary=["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"],
-            summaryFormat="TXT",
-            withWarning=False,
-            withDockerfile=False,
-            updateServer=None,
+            map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summary_format="TXT",
+            with_warning=False,
+            with_dockerfile=False,
+            update_server=None,
             aggregator="clusterize")
 
         check_file_content("sample_shell_strace_tst_txt.txt")
-
         check_file_content("sample_shell_strace_tst_txt.summary.txt")
 
-    def test_file_strace_csv_docker(self):
-        dockit.UnitTest(
-            inputLogFile=path_prefix_input_file("sample_shell.strace.log"),
+    def test_replay_linux_strace_csv_docker(self):
+        output_basename_prefix = "sample_shell_strace_tst_csv"
+        dockit.test_from_file(
+            input_log_file=path_prefix_input_file("sample_shell.strace.log"),
             tracer="strace",
-            topPid=0,
-            baseOutName=path_prefix_output_result("sample_shell_strace_tst_csv" ),
-            outputFormat="CSV",
+            input_process_id=0,
+            output_files_prefix=path_prefix_output_result(output_basename_prefix),
+            output_format="CSV",
             verbose=True,
-            mapParamsSummary=["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"],
-            summaryFormat="XML",
-            withWarning=False,
-            withDockerfile=True,
-            updateServer=None,
+            map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summary_format="XML",
+            with_warning=False,
+            with_dockerfile=True,
+            update_server=None,
             aggregator="clusterize")
 
-        check_file_content("sample_shell_strace_tst_csv.csv")
+        check_file_content(output_basename_prefix + ".csv")
+        check_file_content(output_basename_prefix + ".summary.xml")
+        check_file_content(output_basename_prefix + ".docker", "Dockerfile")
 
-        check_file_content("sample_shell_strace_tst_csv.summary.xml")
-
-        check_file_content("sample_shell_strace_tst_csv.docker", "Dockerfile")
-
-    def test_file_strace_json(self):
-
-        dockit.UnitTest(
-            inputLogFile=path_prefix_input_file("sample_shell.strace.log"),
+    def test_replay_linux_strace_json(self):
+        output_basename_prefix = "sample_shell_strace_tst_json"
+        dockit.test_from_file(
+            input_log_file=path_prefix_input_file("sample_shell.strace.log"),
             tracer="strace",
-            topPid=0,
-            baseOutName=path_prefix_output_result("sample_shell_strace_tst_json"),
-            outputFormat="JSON",
+            input_process_id=0,
+            output_files_prefix=path_prefix_output_result(output_basename_prefix),
+            output_format="JSON",
             verbose=True,
-            mapParamsSummary=["CIM_Process","CIM_DataFile.Category=['Others','Shared libraries']"],
-            summaryFormat="TXT",
-            withWarning=False,
-            withDockerfile=False,
-            updateServer=None,
+            map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summary_format="TXT",
+            with_warning=False,
+            with_dockerfile=False,
+            update_server=None,
             aggregator="clusterize")
 
-        check_file_content("sample_shell_strace_tst_json.json")
+        check_file_content(output_basename_prefix + ".json")
+        check_file_content(output_basename_prefix + ".summary.txt")
 
-        check_file_content("sample_shell_strace_tst_json.summary.txt")
-
-
-    def test_file_ltrace_docker(self):
-        dockit.UnitTest(
-            inputLogFile = path_prefix_input_file("sample_shell.ltrace.log"),
+    def test_replay_linux_ltrace_docker(self):
+        output_basename_prefix = "sample_shell_ltrace_tst_docker"
+        dockit.test_from_file(
+            input_log_file= path_prefix_input_file("sample_shell.ltrace.log"),
             tracer="ltrace",
-            topPid=0,
-            baseOutName= path_prefix_output_result("sample_shell_ltrace_tst_docker"),
-            outputFormat="JSON",
+            input_process_id=0,
+            output_files_prefix= path_prefix_output_result(output_basename_prefix),
+            output_format="JSON",
             verbose=True,
-            mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
-            summaryFormat="TXT",
-            withWarning=False,
-            withDockerfile=True,
-            updateServer=None,
+            map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summary_format="TXT",
+            with_warning=False,
+            with_dockerfile=True,
+            update_server=None,
             aggregator="clusterize")
 
-        check_file_content("sample_shell_ltrace_tst_docker.json")
+        check_file_content(output_basename_prefix + ".json")
+        check_file_content(output_basename_prefix + ".summary.txt")
+        check_file_content(output_basename_prefix + ".docker", "Dockerfile")
 
-        check_file_content("sample_shell_ltrace_tst_docker.summary.txt")
+    # TODO: This replay could theoretically run on Linux,
+    # TODO: but win32_defs must be amended so that it can load some parts, on Linux boxes.
+    @unittest.skipIf(is_platform_linux, "This is not a Windows machine. Test skipped.")
+    def test_replay_win32_dir(self):
+        output_basename_prefix = "windows_dir_pydbg_45884"
+        dockit.test_from_file(
+            input_log_file= path_prefix_input_file("windows_dir.pydbg.45884.log"),
+            tracer="pydbg",
+            input_process_id=0,
+            output_files_prefix= path_prefix_output_result(output_basename_prefix),
+            output_format="JSON",
+            verbose=True,
+            map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summary_format="TXT",
+            with_warning=False,
+            with_dockerfile=True,
+            update_server=None,
+            aggregator="clusterize")
 
-        check_file_content("sample_shell_ltrace_tst_docker.docker", "Dockerfile")
+        check_file_content(output_basename_prefix + ".json")
+        check_file_content(output_basename_prefix + ".summary.txt")
+        check_file_content(output_basename_prefix + ".docker", "Dockerfile")
 
+    def test_replay_all_trace_files(self):
+        """Iterates on all input test files
 
-    def test_all_trace_files(self):
-        # This iterates on the input test files and generates the "compressed" output.as
-        # After that we can check if the results are as expected.
-
-        # The keys are the prefix of the log files
-        # and the content is an array of actual files
-        # whose output must be reproduced.
-        mapFiles = {}
+        After that we can check if the results are as expected.
+        The keys are the prefix of the log files and the content is an array of actual files
+        whose output must be reproduced.
+        """
 
         # First pass to build a map of files.
         # This takes only the log files at the top level.
         for subdir, dirs, files in os.walk( path_prefix_input_file() ):
-            for inFile in files:
-                inputLogFile = subdir + os.sep + inFile
-                baseName, filExt = os.path.splitext(inFile)
+            for in_file in files:
+                input_log_file = subdir + os.sep + in_file
+                output_basename_prefix, fil_ext = os.path.splitext(in_file)
 
-                if filExt != ".log":
+                if fil_ext != ".log":
                     continue
 
                 # The main process pid might be embedded in the log file name,
                 # just before the extension. If it cannot be found, it is assumed
-                # to be -1..
-                # mtchLog = re.match(".*\.([0-9]*)$", baseName)
-                # if mtchLog:
-                #    aPid = int( mtchLog.group(1) )
-                # else:
-                #    aPid = -1
+                # to be -1.
 
-                tracer = dockit.DefaultTracer(inputLogFile)
+                tracer = dockit.default_tracer(input_log_file)
 
-                for outputFormat in ["JSON"]:
+                # TODO: This is a hack to avoid replaying Windows sessions on Linux.
+                # TODO: This replay could theoretically run on Linux,
+                # TODO: but win32_defs must be amended so that it can load some parts, on Linux boxes.
+                if tracer == "pydbg" and is_platform_linux:
+                    print("DO NOT RUN FOR THE MOMENT:", input_log_file)
+                    continue
+
+                for output_format in ["JSON"]:
                     # In tests, the summary output format is always XML.
-                    dockit.UnitTest(
-                        inputLogFile=inputLogFile,
+                    dockit.test_from_file(
+                        input_log_file=input_log_file,
                         tracer=tracer,
-                        topPid=-1,
-                        baseOutName=path_prefix_output_result( baseName ),
-                        outputFormat=outputFormat,
+                        input_process_id=-1,
+                        output_files_prefix=path_prefix_output_result(output_basename_prefix),
+                        output_format=output_format,
                         verbose=False,
-                        mapParamsSummary=dockit.fullMapParamsSummary,
-                        summaryFormat="TXT",
-                        withWarning=False,
-                        withDockerfile=True,
-                        updateServer=None,
+                        map_params_summary=dockit.full_map_params_summary,
+                        summary_format="TXT",
+                        with_warning=False,
+                        with_dockerfile=True,
+                        update_server=None,
                         aggregator="clusterize")
 
-class DockitProcessesTest(unittest.TestCase):
+            # Files .ini are not created for replay sessions.
+            check_file_missing(output_basename_prefix + ".ini")
+
+            # Files .log are not created because --duplicate option is not set.
+            check_file_missing(output_basename_prefix + ".log")
+
+            check_file_content(output_basename_prefix + ".summary.txt")
+
+
+class RunningLinuxProcessesTest(unittest.TestCase):
     """
     Test the execution of the Dockit script from real processes.
     """
 
-    @unittest.skipIf(not is_platform_linux or is_travis_machine(), "This is not a Linux machine. Test skipped.")
+    @unittest.skipIf(is_platform_windows, "This is not a Linux machine. Test skipped.")
     def test_strace_ls(self):
-        import subprocess
-        # stdout=FNULL, stderr=subprocess.STDOUT, subprocess.PIPE
-        FNULL = open(os.devnull, 'r')
         sub_proc = subprocess.Popen(['bash', '-c', 'sleep 5;ls /tmp'],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
@@ -646,103 +1296,73 @@ class DockitProcessesTest(unittest.TestCase):
         time.sleep(2.0)
 
         # Avoids exception: "UnsupportedOperation: redirected stdin is pseudofile, has no fileno()"
+        output_basename_prefix = "result_ls_strace"
         sys.stdin = open(os.devnull)
-        dockit.UnitTest(
-            inputLogFile = None,
+        dockit.test_from_file(
+            input_log_file= None,
             tracer="strace",
-            topPid=sub_proc.pid,
-            baseOutName=path_prefix_output_result("result_ls_strace"),
-            outputFormat="TXT",
+            input_process_id=sub_proc.pid,
+            output_files_prefix=path_prefix_output_result(output_basename_prefix),
+            output_format="TXT",
             verbose=True,
-            mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
-            summaryFormat="TXT",
-            withWarning=False,
-            withDockerfile=False,
-            updateServer=None,
+            map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summary_format="TXT",
+            with_warning=False,
+            with_dockerfile=False,
+            update_server=None,
             aggregator="clusterize")
 
         sub_proc.communicate()
         self.assertTrue(sub_proc.returncode == 0)
 
-        check_file_content("result_ls_strace.txt")
+        check_file_content(output_basename_prefix + ".txt")
+        check_file_content(output_basename_prefix + ".summary.txt")
 
-        check_file_content("result_ls_strace.summary.txt")
 
-class DockitToRDF(unittest.TestCase):
+class StoreToRDFTest(unittest.TestCase):
     """
     Send events to an RDF file.
     """
 
     def test_create_RDF_file(self):
-        dockit.UnitTest(
-            inputLogFile=path_prefix_input_file("sample_shell.ltrace.log"),
+        output_basename_prefix = "sample_shell_ltrace_tst_create_RDF"
+        dockit.test_from_file(
+            input_log_file=path_prefix_input_file("sample_shell.ltrace.log"),
             tracer="ltrace",
-            topPid=0,
-            baseOutName=path_prefix_output_result("sample_shell_ltrace_tst_create_RDF"),
-            outputFormat="JSON",
+            input_process_id=0,
+            output_files_prefix=path_prefix_output_result(output_basename_prefix),
+            output_format="JSON",
             verbose=True,
-            mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
-            summaryFormat="TXT",
-            withWarning=False,
-            withDockerfile=False,
-            updateServer = path_prefix_output_result("sample_shell_ltrace_tst_create_RDF.rdf"),
+            map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summary_format="TXT",
+            with_warning=False,
+            with_dockerfile=False,
+            update_server= path_prefix_output_result("sample_shell_ltrace_tst_create_RDF.rdf"),
             aggregator="clusterize")
 
-        check_file_content("sample_shell_ltrace_tst_create_RDF.json")
-        check_file_content("sample_shell_ltrace_tst_create_RDF.summary.txt")
-        check_file_content("sample_shell_ltrace_tst_create_RDF.rdf")
+        check_file_content(output_basename_prefix + ".json")
+        check_file_content(output_basename_prefix + ".summary.txt")
+        check_file_content(output_basename_prefix + ".rdf")
 
-class DockitEventsTest(unittest.TestCase):
+
+class EventsServerTest(unittest.TestCase):
     """
     This tests the ability to parse a strace log and tranform it into events in Survol,
     with a Survol agents receiving the events from an url.
     """
 
     def setUp(self):
-        pass
-        # If the Survol agent does not exist, this script starts a local one.
-        self.RemoteEventsTestAgent = CgiAgentStart(RemoteEventsTestAgent, RemoteEventsTestPort)
+        # If a Survol agent does not run on this machine with this port, this script starts a local one.
+        self._remote_events_test_agent, self._agent_url = start_cgiserver(RemoteEventsTestServerPort)
 
     def tearDown(self):
-        CgiAgentStop(self.RemoteEventsTestAgent)
+        stop_cgiserver(self._remote_events_test_agent)
 
-    @unittest.skipIf(is_travis_machine(),"test_file_events does not work on Travis server.")
-    def test_file_events(self):
-        dockit.UnitTest(
-            inputLogFile = path_prefix_input_file("dockit_ps_ef.strace.log"),
-            tracer="strace",
-            topPid=0,
-            baseOutName= path_prefix_output_result("dockit_ps_ef.strace"),
-            outputFormat="JSON",
-            verbose=False,
-            mapParamsSummary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
-            summaryFormat="TXT",
-            withWarning=False,
-            withDockerfile=False,
-            updateServer=RemoteEventsTestAgent + "/survol/event_put.py",
-            aggregator="clusterize")
-
-        check_file_content("dockit_ps_ef.strace.json")
-
-        check_file_content("dockit_ps_ef.strace.summary.txt")
-
+    def _check_read_triples(self, num_loops, expected_types_list):
         # Now read the events.
-        # This is for a specific entity.
-        # RemoteTestAgent + "/survol/event_get.py"
-        url_events = RemoteEventsTestAgent + "/survol/sources_types/event_get_all.py?mode=rdf"
+        url_events = _remote_events_test_agent + "/survol/sources_types/event_get_all.py?mode=rdf"
 
-
-        num_loops = 10
-        actual_types_dict = dict()
-
-        properties_number = 25 if sys.platform.startswith("linux") else 14
-        expected_types_list = {
-            'CIM_Process': 1,
-            'CIM_NetworkAdapter': 1,
-            'CIM_DataFile': 292,
-            'CIM_ComputerSystem': 1,
-            'Property': properties_number,
-            'Class': 4 }
+        actual_types_dict = collections.defaultdict(lambda: 0)
 
         while(num_loops > 0):
             events_response = portable_urlopen(url_events, timeout=20)
@@ -752,16 +1372,17 @@ class DockitEventsTest(unittest.TestCase):
 
             events_graph = rdflib.Graph()
             result = events_graph.parse(data=events_content_trunc, format="application/rdf+xml")
-            print("len results=", len(events_graph))
+            print("len results=", len(result), "events_graph=", len(events_graph))
             for event_subject, event_predicate, event_object in events_graph:
                 # Given the input filename, this expects some specific data.
                 if event_predicate == rdflib.namespace.RDF.type:
                     # 'http://www.primhillcomputers.com/survol#CIM_Process'
                     header, hash_char, class_name = str(event_object).rpartition("#")
-                    try:
+
+                    # Some URLs are not objects.
+                    # http://www.w3.org/1999/02/22-rdf-syntax-ns#Property
+                    if class_name not in ['Class', 'Property']:
                         actual_types_dict[class_name] += 1
-                    except KeyError:
-                        actual_types_dict[class_name] = 1
 
             print("num_loops=", num_loops,"types_dict=", actual_types_dict)
             if expected_types_list == actual_types_dict:
@@ -772,6 +1393,130 @@ class DockitEventsTest(unittest.TestCase):
         print("expected_types_list=", expected_types_list)
         print("actual_types_dict=", actual_types_dict)
         self.assertTrue(expected_types_list == actual_types_dict)
+
+    def test_file_events_ps_ef(self):
+        output_basename_prefix = "dockit_events_ps_ef.strace"
+        dockit.test_from_file(
+            input_log_file= path_prefix_input_file("dockit_ps_ef.strace.log"),
+            tracer="strace",
+            input_process_id=0,
+            output_files_prefix= path_prefix_output_result(output_basename_prefix),
+            output_format="JSON",
+            verbose=False,
+            map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summary_format="TXT",
+            with_warning=False,
+            with_dockerfile=False,
+            update_server=_remote_events_test_agent + "/survol/event_put.py",
+            aggregator="clusterize")
+
+        check_file_content(output_basename_prefix + ".json")
+        check_file_content(output_basename_prefix + ".summary.txt")
+
+        expected_types_list = {
+            'CIM_Process': 1,
+            'CIM_NetworkAdapter': 1,
+            'CIM_DataFile': 292,
+            'CIM_ComputerSystem': 1
+        }
+
+        # Now read and test the events.
+        self._check_read_triples(5, expected_types_list)
+
+    # FIXME: Broken on local machine with Windows, Python 3, if the server is automatically started.
+    # FIXME: Sometimes, it stops reading only 23360 bytes ....
+    # FIXME: It cannot be a sizing problem because it sometimes work.
+    # FIXME: When it works, it reads everything in one go.
+    @unittest.skipIf(is_platform_windows and is_py3 and not is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS AND LOCAL. WHY ??")
+    def test_file_events_shell(self):
+        output_basename_prefix = "dockit_events_sample_shell.ltrace"
+        dockit.test_from_file(
+            input_log_file= path_prefix_input_file("dockit_sample_shell.ltrace.log"),
+            tracer="ltrace",
+            input_process_id=0,
+            output_files_prefix= path_prefix_output_result(output_basename_prefix),
+            output_format="JSON",
+            verbose=False,
+            map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summary_format="TXT",
+            with_warning=False,
+            with_dockerfile=False,
+            update_server=_remote_events_test_agent + "/survol/event_put.py",
+            aggregator="clusterize")
+
+        check_file_content(output_basename_prefix + ".json")
+        check_file_content(output_basename_prefix + ".summary.txt")
+
+        expected_types_list = {
+            'CIM_Process': 5,
+            'CIM_NetworkAdapter': 1,
+            'CIM_DataFile': 1066,
+            'CIM_ComputerSystem': 1
+        }
+
+        # Now read and test the events.
+        self._check_read_triples(5, expected_types_list)
+
+    @unittest.skipIf(is_platform_windows and is_py3 and not is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS AND LOCAL. WHY ??")
+    def test_file_events_proftpd(self):
+        output_basename_prefix = "dockit_events_proftpd.strace.26299"
+        dockit.test_from_file(
+            input_log_file= path_prefix_input_file("dockit_proftpd.strace.26299.log"),
+            tracer="strace",
+            input_process_id=0,
+            output_files_prefix= path_prefix_output_result(output_basename_prefix),
+            output_format="JSON",
+            verbose=False,
+            map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summary_format="TXT",
+            with_warning=False,
+            with_dockerfile=False,
+            update_server=_remote_events_test_agent + "/survol/event_put.py",
+            aggregator="clusterize")
+
+        check_file_content(output_basename_prefix + ".json")
+        check_file_content(output_basename_prefix + ".summary.txt")
+
+        expected_types_list = {
+            'CIM_Process': 6,
+            'CIM_NetworkAdapter': 1,
+            'CIM_DataFile': 4229,
+            'CIM_ComputerSystem': 1
+        }
+
+        # Now read and test the events.
+        self._check_read_triples(5, expected_types_list)
+
+    @unittest.skipIf(is_platform_windows and is_py3 and not is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS AND LOCAL. WHY ??")
+    def test_file_events_firefox(self):
+        output_basename_prefix = "firefox_events_google.strace.22501"
+        dockit.test_from_file(
+            input_log_file= path_prefix_input_file("firefox_google.strace.22501.log"),
+            tracer="strace",
+            input_process_id=0,
+            output_files_prefix= path_prefix_output_result(output_basename_prefix),
+            output_format="JSON",
+            verbose=False,
+            map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+            summary_format="TXT",
+            with_warning=False,
+            with_dockerfile=False,
+            update_server=_remote_events_test_agent + "/survol/event_put.py",
+            aggregator="clusterize")
+
+        check_file_content(output_basename_prefix + ".json")
+        check_file_content(output_basename_prefix + ".summary.txt")
+
+        expected_types_list = {
+            'CIM_Process': 174,
+            'CIM_NetworkAdapter': 1,
+            'CIM_DataFile': 1678,
+            'CIM_ComputerSystem': 1
+        }
+
+        # Now read and test the events.
+        self._check_read_triples(5, expected_types_list)
+
 
 if __name__ == '__main__':
     unittest.main()

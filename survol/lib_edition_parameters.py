@@ -43,7 +43,7 @@ def FormEditionParameters(formActionNoMode,theCgi):
 		DEBUG("FormEditionParameters param_key=%s",param_key)
 		yield("<tr>")
 		yield('<td>' + param_key + '</td>')
-		param_val = theCgi.GetParameters( param_key )
+		param_val = theCgi.get_parameters( param_key )
 		# TODO: Encode the value.
 		if isinstance( param_val, bool ):
 			# Beware that unchecked checkboxes are not posted, i.e. boolean variables set to False.

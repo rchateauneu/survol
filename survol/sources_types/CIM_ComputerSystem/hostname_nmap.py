@@ -24,7 +24,7 @@ def Main():
 
 	# This is just a first experimentation with nmap.
 	# Ideally, the port range could be changed in edit mode of this script.
-	portsRange = cgiEnv.GetParameters( paramkeyPortsRange )
+	portsRange = cgiEnv.get_parameters( paramkeyPortsRange )
 	args = ['nmap', '-oX', '-', hostname, '-p', portsRange ]
 
 	# NOTE: This is completely similar to the script in the sources directory.

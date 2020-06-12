@@ -39,8 +39,8 @@ def Main():
 	# TODO: Therefore, this could be replaced by the slice of lines to analyse ?
 
 
-	maxOccurrences = cgiEnv.GetParameters( paramkeyMaxOccurrences )
-	regExpr = cgiEnv.GetParameters( paramkeyRegularExpression )
+	maxOccurrences = cgiEnv.get_parameters( paramkeyMaxOccurrences )
+	regExpr = cgiEnv.get_parameters( paramkeyRegularExpression )
 
 	filNam = cgiEnv.GetId()
 	DEBUG("filNam=%s regExpr=%s",filNam,regExpr)

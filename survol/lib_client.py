@@ -25,6 +25,7 @@ try:
 except ImportError:
     from urllib.parse import parse_qs
 
+
 ################################################################################
 
 # A SourceBase is a Survol URL or a script which returns a graph of urls
@@ -58,7 +59,7 @@ class SourceBase (object):
 
     # In the general case, it gets the content in RDF format and converts it
     # again to a triplestore. This always works if this is a remote host.
-    def GetTriplestore(self):
+    def get_triplestore(self):
         docXmlRdf = self.get_content_moded("rdf")
 
         grphKBase = lib_kbase.triplestore_from_rdf_xml(docXmlRdf)
@@ -66,27 +67,26 @@ class SourceBase (object):
 
     # This is a hack when mapping Sparql to Survol.
     # This helps avoiding scripts which are very slow and not usable in a loop.
-    def IsVerySlow(self):
+    def is_very_slow(self):
         return False
 
     # If it does not have the necessary CGI args,
     # then loop on the existing objects of this class.
     # It is always True for merged sources,
     # because they do not have CGI arguments.
-    def IsCgiComplete(self):
-        #print("SourceCgi.IsCgiComplete")
+    def is_cgi_complete(self):
         return True
+
 
 ################################################################################
 # If it has a class, then it has CGI arguments.
-class SourceCgi (SourceBase):
+class SourceCgi(SourceBase):
     def __init__(self,className = None,**kwargs):
         self.m_className = className
         self.m_kwargs = kwargs
         super(SourceCgi, self).__init__()
 
-    def UrlQuery(self,mode=None):
-        # suffix = ",".join( [ "%s=%s" % (k,v) for k,v in self.m_kwargs.items() ])
+    def create_url_query(self, mode=None):
         # v might be an integer, a double, a string.
         suffix = ",".join( [ "%s=%s" % (k,lib_util.urllib_quote(str(v))) for k,v in self.m_kwargs.items() ])
         if self.m_className:
@@ -94,7 +94,6 @@ class SourceCgi (SourceBase):
         else:
             restQry = suffix
         quotedRest = restQry
-        #quotedRest = lib_util.urllib_quote(restQry)
 
         # TODO: See lib_util.xidCgiDelimiter = "?xid="
         qryArgs = "xid=" + quotedRest
@@ -103,29 +102,28 @@ class SourceCgi (SourceBase):
 
         return qryArgs
 
-    def UrlQueryWithQuestionMark(self,mode=None):
-        urlQry = self.UrlQuery(mode)
+    def create_url_query_with_question_mark(self,mode=None):
+        urlQry = self.create_url_query(mode)
         if urlQry:
             return "?" + urlQry
         else:
             return ""
 
     # TODO: For the moment, this assumes that all CGI arguments are there.
-    def IsCgiComplete(self):
-        #print("SourceCgi.IsCgiComplete")
+    def is_cgi_complete(self):
         return True
 
-    def GetScriptBagOfWords(self):
+    def get_script_bag_of_words(self):
         raise Exception("GetScriptBag Not implemented yet")
 
 
-def LoadModedUrl(urlModed):
-    DEBUG("LoadModedUrl urlModed=%s",urlModed)
+def load_moded_urls(urlModed):
+    DEBUG("load_moded_urls urlModed=%s",urlModed)
     try:
         # Very long timeout to read WBEM ontology.
         response = lib_util.survol_urlopen(urlModed, timeout=120)
     except Exception as exc:
-        ERROR("LoadModedUrl urlModed=%s. Caught:%s", urlModed, str(exc))
+        ERROR("load_moded_urls urlModed=%s. Caught:%s", urlModed, str(exc))
         raise
     data = response.read()
     assert isinstance(data, lib_util.six_binary_type)
@@ -143,20 +141,22 @@ class SourceRemote (SourceCgi):
         return "URL=" + self.Url()
 
     def Url(self):
-        return self.m_url + self.UrlQueryWithQuestionMark()
+        return self.m_url + self.create_url_query_with_question_mark()
 
     def __url_with_mode(self,mode):
-        return self.m_url + self.UrlQueryWithQuestionMark(mode)
+        return self.m_url + self.create_url_query_with_question_mark(mode)
 
     def get_content_moded(self,mode):
         the_url = self.__url_with_mode(mode)
-        data = LoadModedUrl(the_url)
+        data = load_moded_urls(the_url)
         assert isinstance(data, lib_util.six_binary_type)
         return data
 
-def CreateStringStream():
+
+def create_string_stream():
     from io import BytesIO
     return BytesIO()
+
 
 class SourceLocal (SourceCgi):
     def __init__(self,aScript,className = None,**kwargsOntology):
@@ -164,7 +164,7 @@ class SourceLocal (SourceCgi):
         super(SourceLocal, self).__init__(className,**kwargsOntology)
 
     def __str__(self):
-        return self.m_script + self.UrlQueryWithQuestionMark()
+        return self.m_script + self.create_url_query_with_question_mark()
 
     def __get_local_module(self):
         # Sets an environment variable then imports the script and execute it.
@@ -179,7 +179,6 @@ class SourceLocal (SourceCgi):
 
         return lib_util.GetScriptModule(moduNam, urlFilNam)
 
-
     # This executes the script and return the data in the right format.
     def __execute_script_with_mode(self,mode):
         # Sets an envirorment variable then imports the script and execute it.
@@ -187,14 +186,14 @@ class SourceLocal (SourceCgi):
         modu = self.__get_local_module()
 
         # SCRIPT_NAME=/survol/print_environment_variables.py
-        os.environ["SCRIPT_NAME"] = lib_util.prefixLocalScript + "/" + self.m_script
+        os.environ["SCRIPT_NAME"] = lib_util.prefixLocalExecution + "/" + self.m_script
         # QUERY_STRING=xid=class.k=v
-        os.environ["QUERY_STRING"] = self.UrlQuery(mode)
+        os.environ["QUERY_STRING"] = self.create_url_query(mode)
 
         # This technique of replacing the output object is also used by WSGI
         class OutputMachineString:
             def __init__(self):
-                self.m_output = CreateStringStream()
+                self.m_output = create_string_stream()
 
             # Do not write the header: This just wants the content.
             def HeaderWriter(self,mimeType,extraArgs= None):
@@ -216,20 +215,20 @@ class SourceLocal (SourceCgi):
         lib_util.SetGlobalOutMach(outmachString)
 
         # If there is an error, it will not exit but send a nice exception/
-        lib_common.ErrorMessageEnable(False)
+        lib_common.enable_error_message(False)
         try:
             # TODO: If some arguments are missing, it might display an HTML form.
             modu.Main()
         except Exception as ex:
             # https://www.stefaanlippens.net/python-traceback-in-catch/
             ERROR("__execute_script_with_mode with module=%s: Caught:%s",modu.__name__,ex, exc_info=True)
-            lib_common.ErrorMessageEnable(True)
+            lib_common.enable_error_message(True)
 
             # Restores the original stream.
             lib_util.globalOutMach = originalOutMach
             raise
 
-        lib_common.ErrorMessageEnable(True)
+        lib_common.enable_error_message(True)
 
         # Restores the original stream.
         lib_util.globalOutMach = originalOutMach
@@ -251,7 +250,7 @@ class SourceLocal (SourceCgi):
     # TODO: Add the classes and predicates returns by this script when executed.
     # TODO: Estimate the cost of calling this script.
     # TODO: Store it in the object.
-    def GetScriptBagOfWords(self):
+    def get_script_bag_of_words(self):
         modu = self.__get_local_module()
         if modu.__doc__:
             return set( [ wrd.strip() for wrd in modu.__doc__.split() ])
@@ -259,12 +258,11 @@ class SourceLocal (SourceCgi):
             # There is not much information we can return: Just the module name.
             return set(modu.__name__)
 
-
     # TODO: At the moment, this serializes an rdflib triplestore into a XML-RDF buffer,
     # TODO: which is parsed again by rdflib into a triplestore,
     # TODO: and then this triplestore is looped on, to extract the instances.
     # TODO: It would be much faster to avoid this useless serialization/deserialization.
-    def GetTriplestore(self):
+    def get_triplestore(self):
         docXmlRdf = self.get_content_moded("rdf")
         if not docXmlRdf:
             return None
@@ -272,15 +270,14 @@ class SourceLocal (SourceCgi):
         grphKBase = lib_kbase.triplestore_from_rdf_xml(docXmlRdf)
         return TripleStore(grphKBase)
 
-
     @staticmethod
-    def GetObjectInstancesFromScript(script_name,class_name = None,**kwargs_ontology):
+    def get_object_instances_from_script(script_name,class_name = None,**kwargs_ontology):
         my_source = SourceLocal(script_name, class_name, **kwargs_ontology)
-        my_triplestore = my_source.GetTriplestore()
-        list_instances = my_triplestore.GetInstances()
+        my_triplestore = my_source.get_triplestore()
+        list_instances = my_triplestore.get_instances()
         return list_instances
 
-    def IsVerySlow(self):
+    def is_very_slow(self):
         modu = self.__get_local_module()
         try:
             return modu.SlowScript
@@ -290,7 +287,7 @@ class SourceLocal (SourceCgi):
 
 class SourceMerge (SourceBase):
     def __init__(self,srcA,srcB,operatorTripleStore):
-        if not srcA.IsCgiComplete():
+        if not srcA.is_cgi_complete():
             raise Exception("Left-hand-side URL must be complete")
         self.m_srcA = srcA
         self.m_srcB = srcB
@@ -298,10 +295,10 @@ class SourceMerge (SourceBase):
         self.m_operatorTripleStore = operatorTripleStore
         super(SourceMerge, self).__init__()
 
-    def GetTriplestore(self):
-        triplestoreA = self.m_srcA.GetTriplestore()
-        if self.IsCgiComplete():
-            triplestoreB = self.m_srcB.GetTriplestore()
+    def get_triplestore(self):
+        triplestoreA = self.m_srcA.get_triplestore()
+        if self.is_cgi_complete():
+            triplestoreB = self.m_srcB.get_triplestore()
 
             return self.m_operatorTripleStore(triplestoreA,triplestoreB)
 
@@ -309,23 +306,23 @@ class SourceMerge (SourceBase):
             # TODO: Was it ever used ?
             # The class cannot be None because the url is not complete
 
-            objsList = triplestoreA.EnumerateUrls()
+            objsList = triplestoreA.enumerate_urls()
 
             # TODO: Not optimal because it processes not only instances urls but also scripts urls.
             for instanceUrl in objsList:
                 ( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(instanceUrl)
                 if entity_label == self.m_srcB.m_class:
-                    urlDerived = UrlToInstance(instanceUrl)
+                    urlDerived = url_to_instance(instanceUrl)
                     # urlDerived = self.m_srcB.DeriveUrl(instanceUrl)
-                    triplestoreB = urlDerived.GetTriplestore()
+                    triplestoreB = urlDerived.get_triplestore()
                     triplestoreA = self.m_operatorTripleStore(triplestoreA,triplestoreB)
             return TripleStore(triplestoreA)
 
     def get_content_moded(self,mode):
-        tripstore = self.GetTriplestore()
+        tripstore = self.get_triplestore()
         if mode == "rdf":
-            strStrm = CreateStringStream()
-            tripstore.ToStreamXml(strStrm)
+            strStrm = create_string_stream()
+            tripstore.to_stream_xml(strStrm)
             strResult = strStrm.getvalue()
             strStrm.close()
             assert isinstance(strResult, lib_util.six_binary_type)
@@ -333,9 +330,11 @@ class SourceMerge (SourceBase):
 
         raise Exception("get_content_moded: Cannot yet convert to %s"%mode)
 
+
 class SourceMergePlus (SourceMerge):
     def __init__(self,srcA,srcB):
         super(SourceMergePlus, self).__init__(srcA,srcB,TripleStore.__add__)
+
 
 class SourceMergeMinus (SourceMerge):
     def __init__(self,srcA,srcB):
@@ -353,9 +352,9 @@ class SourceMergeMinus (SourceMerge):
 
 # http://LOCALHOST:80
 # http://rchateau-hp:8000
-def AgentToHost(agentUrl):
+def agent_to_host(agentUrl):
     parsed_url = lib_util.survol_urlparse(agentUrl)
-    DEBUG("AgentToHost %s => %s",agentUrl,parsed_url.hostname)
+    DEBUG("agent_to_host %s => %s",agentUrl,parsed_url.hostname)
     return parsed_url.hostname
 
 # https://stackoverflow.com/questions/15247075/how-can-i-dynamically-create-derived-classes-from-a-base-class
@@ -377,7 +376,7 @@ class BaseCIMClass(object):
 
         entity_id = lib_util.KWArgsToEntityId(className, **kwargsOntology)
         if agentUrl:
-            hostAgent = AgentToHost(agentUrl)
+            hostAgent = agent_to_host(agentUrl)
             instanceKey = hostAgent + "+++" + entity_id
         else:
             instanceKey = "NO_AGENT" + "+++" + entity_id
@@ -406,16 +405,15 @@ class BaseCIMClass(object):
     # Each source can return a triplestore.
     # This allows the discovery of a machine and its neighbours,
     # discovery with A* algorithm or any exploration heuristic etc....
-    def GetScripts(self):
+    def get_scripts(self):
         if self.m_agent_url:
-            return self.GetScriptsRemote()
+            return self.__get_scripts_remote()
         else:
-            return self.GetScriptsLocal()
+            return self.__get_scripts_local()
 
-    def GetScriptsRemote(self):
+    def __get_scripts_remote(self):
         # We expect a contextual menu in JSON format, not a graph.
         urlScripts = self.m_agent_url + "/survol/entity_dirmenu_only.py" + "?xid=" + self.__class__.__name__ + "." + self.m_entity_id + "&mode=menu"
-        #DEBUG("GetScriptsRemote self.m_agent_url=%s urlScripts=%s",self.m_agent_url,urlScripts)
 
         # Typical content:
         # {
@@ -428,18 +426,16 @@ class BaseCIMClass(object):
         #         "url": "http://rchateau-HP:8000/survol/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name%3DD%3A"
         #     }
         # }
-        dataJsonStr = LoadModedUrl(urlScripts)
+        dataJsonStr = load_moded_urls(urlScripts)
         dataJson = json.loads(dataJsonStr)
 
         # The scripts urls are the keys of the Json object.
-        listSources = [ ScriptUrlToSource(oneScr) for oneScr in dataJson]
+        listSources = [ script_url_to_source(oneScr) for oneScr in dataJson]
         return listSources
 
     # This is much faster than using the URL of a local server.
     # Also: Such a server is not necessary.
-    def GetScriptsLocal(self):
-        #sys.stdout.write("GetScriptsLocal: class=%s entity_id=%s\n"%(self.__class__.__name__,self.m_entity_id))
-
+    def __get_scripts_local(self):
         listScripts = []
 
         # This function is called for each script which applies to the given entity.
@@ -466,11 +462,11 @@ class BaseCIMClass(object):
 
         entity_dirmenu_only.DirToMenu(CallbackGrphAdd,rootNode,entity_type,self.m_entity_id,entity_host,flagShowAll)
 
-        listSources = [ ScriptUrlToSource(oneScr) for oneScr in listScripts]
+        listSources = [ script_url_to_source(oneScr) for oneScr in listScripts]
         return listSources
 
     # This returns the set of words which describes an instance and allows to compare it to other instances.
-    def GetInstanceBagOfWords(self):
+    def get_instance_bag_of_words(self):
         # TODO: And the host ?
         bagOfWords = set(self.__class__.__name__)
 
@@ -500,7 +496,7 @@ class BaseCIMClass(object):
     #
     # Searching for an instance is very similar as long as it has a bag of words.
     #
-    def FindStringFromNeighbour(self,searchString,maxDepth,filterInstances,filterPredicates):
+    def find_string_from_neighbour(self,searchString,maxDepth,filterInstances,filterPredicates):
         # Heuristics and specialization per class.
 
         # TODO: This is very raw...
@@ -557,20 +553,20 @@ class BaseCIMClass(object):
         #  f(n)=g(n)+h(n)
         # where n is the next node on the path, g(n) is the cost of the path from the start node to n,
         # and h(n) is a heuristic function that estimates the cost of the cheapest path from n to the goal.
-        def FillHeapWithInstanceScripts(nodeInstance,currDistance, currDepth):
+        def fill_heap_with_instance_scripts(nodeInstance,currDistance, currDepth):
             global heapq
-            lstScripts = nodeInstance.GetScripts()
-            instanceBagOfWords = nodeInstance.GetInstanceBagOfWords()
+            lstScripts = nodeInstance.get_scripts()
+            instanceBagOfWords = nodeInstance.get_instance_bag_of_words()
 
             #DEBUG("nodeInstance=%s type(nodeInstance)=%s",nodeInstance,str(type(nodeInstance)))
             for oneScript in lstScripts:
-                scriptBagOfWords = oneScript.GetScriptBagOfWords()
+                scriptBagOfWords = oneScript.get_script_bag_of_words()
                 commonBagOfWords = set.union(instanceBagOfWords, scriptBagOfWords)
                 anEdge = AStarEdge(nodeInstance, oneScript, currDistance, currDepth, commonBagOfWords)
                 heapq.heappush( priorityQueue, anEdge)
 
 
-        FillHeapWithInstanceScripts( self, 0, 0 )
+        fill_heap_with_instance_scripts( self, 0, 0 )
 
         # Search in the instance based on a specific function.
         # If found, add to the list of results.
@@ -595,19 +591,19 @@ class BaseCIMClass(object):
 
             if currDepth <= maxDepth:
                 INFO("bestEdge.m_url_script=%s bestEdge.m_node_instance=%s",bestEdge.m_url_script,bestEdge.m_node_instance)
-                lib_common.ErrorMessageEnable(False)
+                lib_common.enable_error_message(False)
 
                 # TODO: Use filterPredicates
                 try:
-                    tripleStore = bestEdge.m_url_script.GetTriplestore()
+                    tripleStore = bestEdge.m_url_script.get_triplestore()
                 except Exception as exc:
-                    WARNING("FindStringFromNeighbour:%s",str(exc))
+                    WARNING("find_string_from_neighbour:%s",str(exc))
                     continue
 
                 if tripleStore is None:
                     continue
 
-                tripleStoreMatch = tripleStore.GetMatchingStringsTriples(searchString)
+                tripleStoreMatch = tripleStore.get_matching_strings_triples(searchString)
                 for oneTriple in tripleStoreMatch:
                     yield oneTriple
 
@@ -621,12 +617,12 @@ class BaseCIMClass(object):
                     # TODO: whereas the solution could be quite close.
                     #
                     # TODO: Give a high cost when a node is on a remote machine.
-                    lstInstances = tripleStore.GetConnectedInstances(bestEdge.m_node_instance,filterPredicates)
+                    lstInstances = tripleStore.get_connected_instances(bestEdge.m_node_instance,filterPredicates)
                 except Exception as ex:
-                    ERROR("FindStringFromNeighbour: %s",ex)
+                    ERROR("find_string_from_neighbour: %s",ex)
                     raise
                     continue
-                lib_common.ErrorMessageEnable(True)
+                lib_common.enable_error_message(True)
                 for oneInstance in lstInstances:
                     if filterInstances and oneInstance in filterInstances:
                         INFO("Avoiding instance:%s",oneInstance)
@@ -645,11 +641,11 @@ class BaseCIMClass(object):
                         if oneInstance.m_current_depth > currDepth:
                             oneInstance.m_current_depth = currDepth
                     except AttributeError:
-                        FillHeapWithInstanceScripts( oneInstance, currDistance, currDepth )
+                        fill_heap_with_instance_scripts( oneInstance, currDistance, currDepth )
 
 
 
-def CIMClassFactoryNoCache(className):
+def CIM_class_factory_no_cache(className):
     def Derived__init__(self, agentUrl, className, **kwargsOntology):
         """This function will be used as a constructor for the new class."""
         for key, value in kwargsOntology.items():
@@ -670,24 +666,24 @@ def CIMClassFactoryNoCache(className):
 # Each class contain a dictionary of its instances, with a key
 # mostly made of the URL parameters plus the agent.
 # Classes are the same for all agents, therefore the agent is not needed in the key.
-cacheCIMClasses = {}
+CacheCIMClasses = {}
 
-def CreateCIMClass(agentUrl,className,**kwargsOntology):
-    global cacheCIMClasses
+def create_CIM_class(agentUrl,className,**kwargsOntology):
+    global CacheCIMClasses
     entity_id = lib_util.KWArgsToEntityId(className,**kwargsOntology)
 
     # No need to use the class in the key, because the cache is class-specific.
-    DEBUG("CreateCIMClass agentUrl=%s className=%s entity_id=%s",agentUrl,className,entity_id)
+    DEBUG("create_CIM_class agentUrl=%s className=%s entity_id=%s",agentUrl,className,entity_id)
 
     try:
-        newCIMClass = cacheCIMClasses[className]
+        newCIMClass = CacheCIMClasses[className]
         #DEBUG("Found existing className=%s",className)
     except KeyError:
         # This class is not yet created.
         # TODO: If entity_label contains slashes, submodules must be imported.
-        newCIMClass = CIMClassFactoryNoCache(className)
+        newCIMClass = CIM_class_factory_no_cache(className)
 
-        cacheCIMClasses[className] = newCIMClass
+        CacheCIMClasses[className] = newCIMClass
 
     # Now, it creates a new instance and stores it in the cache of the CIM class.
     newInstance = newCIMClass(agentUrl, className, **kwargsOntology)
@@ -695,45 +691,51 @@ def CreateCIMClass(agentUrl,className,**kwargsOntology):
 
 ################################################################################
 
-# Example: xid="CIM_Process.Handle=2092"
-def EntityIdToInstance(agentUrl, class_name, entity_id):
-    xidDict = { sp[0]:sp[2] for sp in [ ss.partition("=") for ss in entity_id.split(",") ] }
 
-    newInstance = CreateCIMClass(agentUrl, class_name, **xidDict)
-    return newInstance
+# Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
+# BEWARE: Some arguments should be decoded.
+# Example: xid="CIM_Process.Handle=2092"
+# TODO: See lib_util.SplitMoniker()
+def entity_id_to_instance(agent_url, class_name, entity_id):
+    xid_dict = { sp[0]:sp[2] for sp in [ ss.partition("=") for ss in entity_id.split(",") ] }
+
+    new_instance = create_CIM_class(agent_url, class_name, **xid_dict)
+    return new_instance
+
 
 # This creates an object from an URI.
-# Example input: instanceUrl="http://LOCALHOST:80/LocalExecution/entity.py?xid=CIM_Process.Handle=2092"
-def UrlToInstance(instanceUrl):
-    if instanceUrl.find("entity.py") < 0:
+# Input example: instanceUrl="http://LOCALHOST:80/LocalExecution/entity.py?xid=CIM_Process.Handle=2092"
+def url_to_instance(instance_url):
+    if instance_url.find("entity.py") < 0:
         # So maybe this is not an instance after all.
         return None
 
     # This parsing that all urls are not scripts but just define an instance
     # and therefore have the form "http://.../entity.py?xid=...",
-    agentUrl = InstanceUrlToAgentUrl(instanceUrl)
+    agent_url = instance_url_to_agent_url(instance_url)
 
-    ( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(instanceUrl)
+    (entity_label, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri(instance_url)
     # Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
     # BEWARE: Some arguments should be decoded.
-    #DEBUG("GetInstances instanceUrl=%s entity_graphic_class=%s entity_id=%s",instanceUrl,entity_graphic_class,entity_id)
+    #DEBUG("get_instances instanceUrl=%s entity_graphic_class=%s entity_id=%s",instanceUrl,entity_graphic_class,entity_id)
 
-    return EntityIdToInstance(agentUrl, entity_graphic_class, entity_id)
+    return entity_id_to_instance(agent_url, entity_graphic_class, entity_id)
 
 
 # instanceUrl="http://LOCAL_MODE:80/LocalExecution/entity.py?xid=Win32_Group.Domain=local_mode,Name=Replicator"
 # instanceUrl=http://LOCALHOST:80/LocalExecution/entity.py?xid=addr.Id=127.0.0.1:427
 # instanceUrl="http://rchateau-hp:8000/survol/sources_types/memmap/memmap_processes.py?xid=memmap.Id%3DC%3A%2FWindows%2FSystem32%2Fen-US%2Fkernel32.dll.mui"
-def InstanceUrlToAgentUrl(instanceUrl):
+def instance_url_to_agent_url(instanceUrl):
     parse_url = lib_util.survol_urlparse(instanceUrl)
-    if parse_url.path.startswith(lib_util.prefixLocalScript):
+    if parse_url.path.startswith(lib_util.prefixLocalExecution):
         agentUrl = None
     else:
         idxSurvol = instanceUrl.find("/survol")
         agentUrl = instanceUrl[:idxSurvol]
 
-    DEBUG("InstanceUrlToAgentUrl instanceUrl=%s agentUrl=%s",instanceUrl,agentUrl)
+    DEBUG("instance_url_to_agent_url instanceUrl=%s agentUrl=%s",instanceUrl,agentUrl)
     return agentUrl
+
 
 # This wraps rdflib triplestore.
 # rdflib objects and subjects can be handled as WMI or WBEM objects.
@@ -746,14 +748,8 @@ class TripleStore:
         else:
             DEBUG("TripleStore.__init__ empty")
 
-    # Debugging purpose.
-    def DisplayTripleStore(self):
-        DEBUG("TripleStore.DisplayTripleStore")
-        for subject, predicate, object in self.m_triplestore:
-            print("   ", subject, predicate, object)
-
-    def ToStreamXml(self,strStrm):
-        DEBUG("TripleStore.ToStreamXml")
+    def to_stream_xml(self,strStrm):
+        DEBUG("TripleStore.to_stream_xml")
         lib_kbase.triplestore_to_stream_xml(self.m_triplestore,strStrm,'xml')
 
     # This merges two triplestores. The package rdflib does exactly that,
@@ -771,71 +767,58 @@ class TripleStore:
     # This keeps only Survol instances and scripts urls.
     # For example, 'http://localhost:12345/#/vhosts/' is a RabbitMQ HTTP url.
     # TODO: Make this test better.
-    def IsSurvolUrl(self,anUrl):
-        strUrl = str(anUrl)
+    def is_survol_url(self, an_url):
+        str_url = str(an_url)
         # anUrl=http://LOCALHOST:80/entity.py?xid=python/package.Id%3Drdflib
         # anUrl=http://LOCALHOST:80/LocalExecution/entity.py?xid=python/package.Id=sparqlwrapper
-        if strUrl.startswith("http://LOCALHOST:80/"):
+        if str_url.startswith("http://LOCALHOST:80/"):
             # "http://LOCALHOST:80/LocalExecution"
             # lib_util.prefixLocalScript = "/LocalExecution"
-            assert(strUrl.startswith("http://LOCALHOST:80"+lib_util.prefixLocalScript))
+            assert(str_url.startswith("http://LOCALHOST:80" + lib_util.prefixLocalExecution))
 
         # These local scripts are always from Survol.
-        if strUrl.find(lib_util.prefixLocalScript) >= 0:
+        if str_url.find(lib_util.prefixLocalExecution) >= 0:
             return True
-        return strUrl.find("/survol") >= 0
+        return str_url.find("/survol") >= 0
 
-    def EnumerateUrls(self):
+    def enumerate_urls(self):
         objsSet = lib_kbase.enumerate_urls(self.m_triplestore)
-        for instanceUrl in objsSet:
-            if self.IsSurvolUrl(instanceUrl    ):
-                yield instanceUrl
+        for instance_url in objsSet:
+            if self.is_survol_url(instance_url):
+                yield instance_url
 
     # This creates a CIM object for each unique URL, subject or object found in a triplestore.
     # If needed, the CIM class is created on-the-fly.
     # TODO: Is is really useful to build objects, given that the edges are lost ??
     # TODO: And what about connected objects ? Can a value be an object ?
-    def GetInstances(self):
-        DEBUG("GetInstances")
-        objsSet = self.EnumerateUrls()
-        lstInstances = []
-        for instanceUrl in objsSet:
-            if instanceUrl.find("entity.py") < 0:
+    def get_instances(self):
+        objs_set = self.enumerate_urls()
+        instances_list = []
+        for instance_url in objs_set:
+            new_instance = url_to_instance(instance_url)
+            if new_instance == None:
                 continue
-
-            ( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(instanceUrl)
-            # Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
-            # BEWARE: Some arguments should be decoded.
-            #DEBUG("GetInstances instanceUrl=%s entity_graphic_class=%s entity_id=%s",instanceUrl,entity_graphic_class,entity_id)
-
-            xidDict = { sp[0]:sp[2] for sp in [ ss.partition("=") for ss in entity_id.split(",") ] }
-
-            # This parsing that all urls are not scripts but just define an instance
-            # and therefore have the form "http://.../entity.py?xid=...",
-            agentUrl = InstanceUrlToAgentUrl(instanceUrl)
-
-            newInstance = CreateCIMClass(agentUrl,entity_graphic_class, **xidDict)
-            lstInstances.append(newInstance)
-        return lstInstances
+            assert(new_instance)
+            instances_list.append(new_instance)
+        return instances_list
 
     # This returns the set of all nodes connected directly or indirectly to the input.
-    def GetConnectedInstances(self,startInstance,filterPredicates):
+    def get_connected_instances(self,startInstance,filterPredicates):
         setFilterPredicates = {pc.property_script,pc.property_rdf_data_nolist2}
         if filterPredicates:
             setFilterPredicates.update(filterPredicates)
 
         urls_adjacency_list = lib_kbase.get_urls_adjacency_list(self.m_triplestore,startInstance,setFilterPredicates)
 
-
         # Now the adjacency list between scripts must be transformed into an adjacency list between instances only.
         instances_adjacency_list = dict()
         for oneUrl in urls_adjacency_list:
-            oneInstance = UrlToInstance(oneUrl)
+            oneInstance = url_to_instance(oneUrl)
             if oneInstance:
                 adj_urls_list = urls_adjacency_list[oneUrl]
                 adj_insts = []
                 for oneAdjUrl in adj_urls_list:
-                    oneAdjInstance = UrlToInstance(oneAdjUrl)
+                    oneAdjInstance = url_to_instance(oneAdjUrl)
                     if oneAdjInstance:
                         adj_insts.append(oneAdjInstance)
                 if adj_insts:
@@ -844,7 +827,7 @@ class TripleStore:
         setConnectedInstances = set()
 
         # This recursively merges all nodes connected to this one.
-        def MergeConnectedInstancesTo(oneInst):
+        def __merge_connected_instances_to(oneInst):
 
             if not oneInst in instances_adjacency_list:
                 #DEBUG("Already deleted oneInst=%s",oneInst)
@@ -857,23 +840,23 @@ class TripleStore:
 
             del instances_adjacency_list[oneInst]
             for endInst in instsConnected:
-                MergeConnectedInstancesTo(endInst)
+                __merge_connected_instances_to(endInst)
 
-        MergeConnectedInstancesTo(startInstance)
+        __merge_connected_instances_to(startInstance)
 
         # All the nodes connected to the input one.
         INFO("startInstance=%s len(setConnectedInstances)=%d",startInstance,len(setConnectedInstances))
         return setConnectedInstances
 
-    def GetMatchingStringsTriples(self,searchString):
+    def get_matching_strings_triples(self, searchString):
         return lib_kbase.triplestore_matching_strings(self.m_triplestore,searchString)
 
-    def GetAllStringsTriples(self):
+    def get_all_strings_triples(self):
         for trpSubj,trpPred,trpObj in lib_kbase.triplestore_all_strings(self.m_triplestore):
             yield lib_util.urllib_unquote(trpObj.value )
 
     # This returns only the objects of a given class and for a given predicate.
-    def FilterObjectsWithPredicateClass(self, associator_key_name, result_class_name):
+    def filter_objects_with_predicate_class(self, associator_key_name, result_class_name):
         WARNING("TripleStore.ObjectFromPredicate associator_key_name=%s, result_class_name=%s",
                 associator_key_name, result_class_name)
 
@@ -887,18 +870,18 @@ class TripleStore:
             # This transforms for example "http://primhillcomputers.com/survol#Domain" into "Domain"
             predicate_name = lib_properties.PropToQName(source_predicate)
 
-            # WARNING("FilterObjectsWithPredicateClass predicate_name=%s",predicate_name)
+            # WARNING("filter_objects_with_predicate_class predicate_name=%s",predicate_name)
             # s=http://LOCALHOST:80/LocalExecution/entity.py?xid=CIM_Process.Handle=2544
             # p=http://primhillcomputers.com/survol#ppid
             # o=http://LOCALHOST:80/LocalExecution/entity.py?xid=CIM_Process.Handle=2092
 
             if predicate_name == associator_key_name:
                 # class_object = source_object
-                object_instance = UrlToInstance(source_object)
+                object_instance = url_to_instance(source_object)
                 #if predicate_name.find("ppid") >= 0:
-                #    WARNING("FilterObjectsWithPredicateClass OKOKOKOK s=%s p=%s o=%s", str(source_subject), str(source_predicate), str(source_object))
-                #    WARNING("FilterObjectsWithPredicateClass object_instance=%s", dir(object_instance) )
-                #    WARNING("FilterObjectsWithPredicateClass object_instance.__class__.__name__=%s", object_instance.__class__.__name__)
+                #    WARNING("filter_objects_with_predicate_class OKOKOKOK s=%s p=%s o=%s", str(source_subject), str(source_predicate), str(source_object))
+                #    WARNING("filter_objects_with_predicate_class object_instance=%s", dir(object_instance) )
+                #    WARNING("filter_objects_with_predicate_class object_instance.__class__.__name__=%s", object_instance.__class__.__name__)
                 if object_instance.__class__.__name__ == result_class_name:
                     dict_objects[source_object] = object_instance
 
@@ -922,16 +905,16 @@ class TripleStore:
                 lib_properties.MakeProp(dict_key): dict_value for dict_key, dict_value in object_instance.m_key_value_pairs.items() }
             yield (node_path, dict_nodes_keys_values)
 
-    def CopyToGraph(self, grph):
+    def copy_to_graph(self, grph):
         """This adds the triples to another triplestore."""
         # TODO: This could be faster.
 
         # Maybe this is a test mode.
         if not grph:
-            WARNING("CopyToGraph Graph is None. Leaving")
+            WARNING("copy_to_graph Graph is None. Leaving")
             return
 
-        WARNING("CopyToGraph Adding %d triples", len(self.m_triplestore))
+        WARNING("copy_to_graph Adding %d triples", len(self.m_triplestore))
         for subject, predicate, object in self.m_triplestore:
             grph.add((subject, predicate, object))
 
@@ -943,7 +926,7 @@ class TripleStore:
 # Input examples:
 # "http://LOCAL_MODE:80/LocalExecution/sources_types/Win32_UserAccount/Win32_NetUserGetGroups.py?xid=Win32_UserAccount.Domain%3Drchateau-hp%2CName%3Drchateau"
 # "http://rchateau-HP:8000/survol/sources_types/CIM_Directory/doxygen_dir.py?xid=CIM_Directory.Name%3DD%3A"
-def ScriptUrlToSource(callingUrl):
+def script_url_to_source(callingUrl):
 
     parse_url = lib_util.survol_urlparse(callingUrl)
     query = parse_url.query
@@ -951,17 +934,17 @@ def ScriptUrlToSource(callingUrl):
     params = parse_qs(query)
 
     xidParam = params['xid'][0]
-    # sys.stdout.write("ScriptUrlToSource xidParam=%s\n"%xidParam)
+    # sys.stdout.write("script_url_to_source xidParam=%s\n"%xidParam)
     (entity_type,entity_id,entity_host) = lib_util.ParseXid(xidParam)
-    # sys.stdout.write("ScriptUrlToSource entity_id=%s\n"%entity_id)
+    # sys.stdout.write("script_url_to_source entity_id=%s\n"%entity_id)
     entity_id_dict = lib_util.SplitMoniker(entity_id)
     # sys.stdout.write("entity_id_dict=%s\n"%str(entity_id_dict))
 
     # parse_url.path=/LocalExecution/sources_types/Win32_UserAccount/Win32_NetUserGetInfo.py
     # This is a very simple method to differentiate local from remote scripts
-    if parse_url.path.startswith(lib_util.prefixLocalScript):
+    if parse_url.path.startswith(lib_util.prefixLocalExecution):
         # This also chops the leading slash.
-        pathScript = parse_url.path[len(lib_util.prefixLocalScript)+1:]
+        pathScript = parse_url.path[len(lib_util.prefixLocalExecution) + 1:]
         objSource = SourceLocal(pathScript,entity_type,**entity_id_dict)
 
         # Note: This should be True: parse_url.netloc.startswith("LOCAL_MODE")
@@ -997,7 +980,7 @@ class Agent:
             def __call__(self, *argsCall, **kwargsCall):
                 #sys.stdout.write("CallDispatcher.__call__ class=%s url=%s\n"%(self.m_name,str(type(self.m_agent_url))))
                 #sys.stdout.flush()
-                newInstance = CreateCIMClass(self.m_agent_url, self.m_name, **kwargsCall)
+                newInstance = create_CIM_class(self.m_agent_url, self.m_name, **kwargsCall)
                 return newInstance
 
             def __getattr__(self, attribute_name):
@@ -1008,19 +991,19 @@ class Agent:
         #sys.stdout.write("Agent.__getattr__ attr=%s\n"%(str(attribute_name)))
         return CallDispatcher(self, self.m_agent_url, attribute_name)
 
-    def ExecHttpScript(self,aScript):
+    def exec_http_script(self,aScript):
         if self.m_agent_url:
             anUrl = self.m_agent_url + aScript
-            DEBUG("GetInternalData anUrl=%s"%anUrl)
-            urlContent = LoadModedUrl(anUrl)
+            DEBUG("get_internal_data anUrl=%s"%anUrl)
+            urlContent = load_moded_urls(anUrl)
             return urlContent
         else:
-            raise Exception("ExecHttpScript: Feature not implemenetd yet")
+            raise Exception("exec_http_script: Feature not implemenetd yet")
 
-    def GetInternalData(self):
+    def get_internal_data(self):
         # This adds "?xid=" at the end, otherwise it is parsed differently,
         # depending on the path.
-        urlContent = self.ExecHttpScript("/survol/print_internal_data_as_json.py" + lib_util.xidCgiDelimiter)
+        urlContent = self.exec_http_script("/survol/print_internal_data_as_json.py" + lib_util.xidCgiDelimiter)
         return json.loads(urlContent)
 
 
@@ -1028,7 +1011,7 @@ class Agent:
 
 # This checks that a full ontology contains a minimal subset of classes and attributes.
 # This is for testing purpose only.
-def CheckOntologyGraph(ontology_key, survol_agent = None):
+def check_ontology_graph(ontology_key, survol_agent = None):
     import rdflib
 
     url_script = {
@@ -1048,15 +1031,9 @@ def CheckOntologyGraph(ontology_key, survol_agent = None):
     ontology_graph = rdflib.Graph()
     ontoTrunc = b"".join(ontologySurvol.split(b"\n"))
     result = ontology_graph.parse(data=ontoTrunc, format="application/rdf+xml")
-    INFO("CheckOntologyGraph Load OK:l=%d"%len(ontology_graph))
+    INFO("check_ontology_graph Load OK:l=%d"%len(ontology_graph))
 
     return lib_kbase.CheckMinimalRdsfOntology(ontology_graph)
-
-
-################################################################################
-def SetDebugMode():
-    import logging
-    lib_util.SetLoggingConfig(logging.WARNING)
 
 ################################################################################
 
@@ -1066,7 +1043,6 @@ def SetDebugMode():
 
 # TODO: Create the merge URL. What about a local script ?
 # Or: A merged URL needs an agent anyway.
-
 
 ################################################################################
 

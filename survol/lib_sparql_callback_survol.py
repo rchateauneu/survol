@@ -39,12 +39,12 @@ class SurvolSparqlCallbackApi:
 
             my_source = lib_client.SourceLocal(script_name, class_name, **filtered_where_key_values)
             DEBUG("SurvolCallbackSelect my_source=%s", my_source)
-            my_triplestore = my_source.GetTriplestore()
+            my_triplestore = my_source.get_triplestore()
 
             # This is returned anyway, as a triplestore that rdflib Sparql can work on.
-            my_triplestore.CopyToGraph(grph)
+            my_triplestore.copy_to_graph(grph)
 
-            list_instances = my_triplestore.GetInstances()
+            list_instances = my_triplestore.get_instances()
 
             # TODO: We filter only the objects of the right type,
             # TODO: ... but we lose all the other objects which could be stored in the output triplestore !!...
@@ -128,17 +128,17 @@ class SurvolSparqlCallbackApi:
         # subject_path=CIM_Process.Handle=2092
         class_name, dot, entity_id = subject_path.partition(".")
 
-        cim_object = lib_client.EntityIdToInstance(None, class_name, entity_id)
+        cim_object = lib_client.entity_id_to_instance(None, class_name, entity_id)
 
 
         # This should be a local script.
-        list_sources = cim_object.GetScripts()
+        list_sources = cim_object.get_scripts()
 
         for my_source in list_sources:
-            if my_source.IsVerySlow():
+            if my_source.is_very_slow():
                 continue
             try:
-                my_triplestore = my_source.GetTriplestore()
+                my_triplestore = my_source.get_triplestore()
             except Exception as ex:
                 # We have no idea about the script, because we run every possible script,
                 # so it is not an issue it it fails.
@@ -150,8 +150,8 @@ class SurvolSparqlCallbackApi:
 
             # This is returned anyway, as a triplestore that rdflib Sparql can work on.
             # TODO: This should be done in one loop instead of THREE !!!!!!!
-            my_triplestore.CopyToGraph(grph)
-            iter_objects = my_triplestore.FilterObjectsWithPredicateClass(associator_key_name, result_class_name)
+            my_triplestore.copy_to_graph(grph)
+            iter_objects = my_triplestore.filter_objects_with_predicate_class(associator_key_name, result_class_name)
 
             for object_path, one_key_value_dict_nodes in iter_objects:
                 DEBUG("SurvolCallbackAssociator object_path=%s one_key_value_dict_nodes=%s",

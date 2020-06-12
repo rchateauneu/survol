@@ -20,7 +20,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv(
 		parameters = { paramkeyMaxDepth : 1 })
 
-	maxDepth = int(cgiEnv.GetParameters( paramkeyMaxDepth ))
+	maxDepth = int(cgiEnv.get_parameters( paramkeyMaxDepth ))
 
 	fileSharedLib = cgiEnv.GetId()
 

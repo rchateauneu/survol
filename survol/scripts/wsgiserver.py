@@ -12,7 +12,7 @@ import wsgiref.simple_server as server
 
 # See lib_client.py with similar code which cannot be imported here.
 # This expects bytes (Py3) or str (Py2).
-def CreateStringStream():
+def create_string_stream():
     from io import BytesIO
     return BytesIO()
 
@@ -25,9 +25,9 @@ class OutputMachineWsgi:
     def __init__(self, start_response):
         # FIXME: This is not efficient because Survol creates a string stored in the stream,
         # FIXME: then converted to a string, then written to the socket.
-        # FIXME: Ideally, this should be written in one go from for example lib_common.CopyToOut,
+        # FIXME: Ideally, this should be written in one go from for example lib_common.copy_to_output_destination,
         # FIXME: to the output socket.
-        self.m_output = CreateStringStream()
+        self.m_output = create_string_stream()
         self.m_start_response = start_response
         self.m_header_called = False
 
@@ -41,14 +41,12 @@ class OutputMachineWsgi:
             sys.stderr.write("Content: Warning OutputMachineWsgi.Content HeaderWriter not called.\n")
         self.m_header_called = False
         str_value = self.m_output.getvalue()
-        sys.stderr.write("Content A: type(str_value)=%s len(str_value)=%d.\n" % ( str(type(str_value)), len(str_value)))
         if sys.version_info >= (3,):
             if type(str_value) == str:
                 str_value = str_value.encode()
         else:
             if type(str_value) == unicode:
                 str_value = str_value.encode()
-        sys.stderr.write("Content B: type(str_value)=%s len(str_value)=%d.\n" % ( str(type(str_value)), len(str_value)))
         return str_value
 
     # extraArgs is an array of key-value tuples.
@@ -159,7 +157,9 @@ def application_ok(environ, start_response):
     sys.stderr.write("application_ok: pathInfo=%s\n" % pathInfo)
 
     # Example: pathInfo=/survol/www/index.htm
-    if pathInfo.find("/survol/www/") >= 0 or pathInfo.find("/ui/css") >= 0 :
+    if pathInfo.find("/survol/www/") >= 0 \
+            or pathInfo.find("/ui/css") >= 0 \
+            or pathInfo == '/favicon.ico':
         return app_serve_file(pathInfo, start_response)
 
     pathInfo = pathInfo.replace("/",".")
@@ -167,7 +167,10 @@ def application_ok(environ, start_response):
     modulePrefix = "survol."
     htbinIndex = pathInfo.find(modulePrefix)
 
-    assert pathInfo.endswith(".py")
+    if not pathInfo.endswith(".py"):
+        sys.stderr.write("application_ok (1): pathInfo=%s should be a Python script\n" % pathInfo)
+        raise Exception("application_ok: pathInfo=%s is not a Python script" % pathInfo)
+
     pathInfo = pathInfo[htbinIndex + len(modulePrefix):-3] # "Strips ".py" at the end.
 
     # ["sources_types","enumerate_CIM_LogicalDisk"]
@@ -199,7 +202,7 @@ def application_ok(environ, start_response):
         # Tested with Python2 on Windows.
 
         # TODO: Strange: Here, this load lib_util a second time.
-        sys.stderr.write("application_ok: pathInfo=%s\n" % pathInfo)
+        sys.stderr.write("application_ok: Not dot in pathInfo=%s\n" % pathInfo)
         the_module = importlib.import_module(pathInfo)
 
         # TODO: Apparently, if lib_util is imported again, it seems its globals are initialised again. NOT SURE...
@@ -210,11 +213,13 @@ def application_ok(environ, start_response):
 
     try:
         the_module.Main()
+    except RuntimeError as exc:
+    # Minor error thrown by ErrorMessageHtml
+        sys.stderr.write(__file__ + ": application_ok runtime-error caught %s in Main()\n" % exc)
+        sys.stderr.write(__file__ + ": application_ok runtime-error exception=%s\n" % traceback.format_exc())
     except Exception as exc:
         sys.stderr.write(__file__ + ": application_ok caught %s in Main()\n" % exc)
-
         sys.stderr.write(__file__ + ": application_ok exception=%s\n" % traceback.format_exc() )
-
         raise
 
     try:
@@ -251,37 +256,38 @@ def Usage():
     print("    -b,--browser=<program>    Starts a browser")
     print("    -v,--verbose              Verbose mode")
     print("")
-    print("Script must be started with command: survol/scripts/cgiserver.py")
+    print("Script must be started with command: survol/scripts/wsgiserver.py")
 
 # https://docs.python.org/2/library/webbrowser.html
-def StartsWebrowser(browser_name,theUrl):
+def starts_webrowser(browser_name, the_url):
     """This starts a browser with the specific module to do it"""
 
     import webbrowser
 
     # TODO: Parses the argument from the parameter
-    webbrowser.open(theUrl, new=0, autoraise=True)
+    webbrowser.open(the_url, new=0, autoraise=True)
 
-def StartsBrowser(browser_name,theUrl):
+def starts_browser(browser_name, the_url):
     """This starts a browser whose executable is given on the command line"""
     # Import only if needed.
     import threading
     import time
     import subprocess
 
-    def StartBrowserProcess():
+    def __starts_browser_process():
 
-        print("About to start browser: %s %s"%(browser_name,theUrl))
+        print("About to start browser: %s %s"%(browser_name, the_url))
 
         # Leaves a bit of time so the HTTP server can start.
         time.sleep(5)
 
-        subprocess.check_call([browser_name, theUrl])
+        subprocess.check_call([browser_name, the_url])
 
-    threading.Thread(target=StartBrowserProcess).start()
+    threading.Thread(target=__starts_browser_process).start()
     print("Browser thread started")
 
-def RunWsgiServer():
+# Setup (setup.py) creates a binary script which directly calls this function.
+def run_wsgi_server():
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "ha:p:b:v", ["help","address=","port=","browser=","verbose"])
@@ -334,24 +340,25 @@ def RunWsgiServer():
     if browser_name:
 
         if browser_name.startswith("webbrowser"):
-            StartsWebrowser(browser_name,theUrl)
+            starts_webrowser(browser_name,theUrl)
         else:
-            StartsBrowser(browser_name,theUrl)
+            starts_browser(browser_name,theUrl)
         print("Browser thread started to:"+theUrl)
 
-    StartWsgiServer(server_name, port_number, current_dir="")
+    start_server_forever(verbose, server_name, port_number, current_dir="")
 
 WsgiServerLogFileName = "wsgiserver.execution.log"
 
-def StartWsgiServer(server_name, port_number, current_dir=""):
+def start_server_forever(verbose, server_name, port_number, current_dir=""):
     logfil = open(WsgiServerLogFileName, "w")
     logfil.write(__file__ + " startup\n")
     logfil.flush()
 
-    sys.stderr = logfil
-    sys.stderr.write(__file__ + " redirection stderr\n")
-    logfil.write(__file__ + " redirection stderr\n")
-    logfil.flush()
+    if verbose:
+        sys.stderr = logfil
+        sys.stderr.write(__file__ + " redirection stderr\n")
+        logfil.write(__file__ + " redirection stderr\n")
+        logfil.flush()
 
     server_addr = socket.gethostbyname(server_name)
 
@@ -366,7 +373,7 @@ def StartWsgiServer(server_name, port_number, current_dir=""):
     # The script must be started from a specific directory because of the URLs.
     if current_dir:
         os.chdir(current_dir)
-        sys.stderr.write("StartWsgiServer getcwd=%s\n" % os.getcwd() )
+        sys.stderr.write("start_server_forever getcwd=%s\n" % os.getcwd() )
     try:
         filMyself = open("survol/scripts/wsgiserver.py")
     except Exception as exc:
@@ -381,7 +388,8 @@ def StartWsgiServer(server_name, port_number, current_dir=""):
     os.environ["SURVOL_SERVER_NAME"] = server_name
     sys.stderr.write(__file__ + " server_name=%s\n"% server_name)
 
-    log_information(sys.stdout)
+    if verbose:
+        log_information(sys.stdout)
     log_information(logfil)
     logfil.flush()
 
@@ -397,4 +405,4 @@ def StartWsgiServer(server_name, port_number, current_dir=""):
 if __name__ == '__main__':
     # If this is called from the command line, we are in test mode and must use the local Python code,
     # and not use the installed packages.
-    RunWsgiServer()
+    run_wsgi_server()

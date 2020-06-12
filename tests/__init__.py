@@ -7,5 +7,5 @@ import os
 sys.path.append("survol")
 sys.path.append("tests")
 
-print("__init__.py Current dir=",os.getcwd())
-print("__init__.py Tests path=",sys.path)
+sys.stdout.write("%s Current dir=%s\n" % (__file__, os.getcwd()))
+

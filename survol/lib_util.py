@@ -36,7 +36,9 @@ try:
 except ImportError:
     from urllib.parse import urlparse as survol_urlparse
 
-if sys.version_info >= (3,):
+is_py3 = sys.version_info >= (3,)
+
+if is_py3:
     import html.parser
     def survol_unescape(s):
         return html.parser.unescape(s)
@@ -45,6 +47,8 @@ else:
     def survol_unescape(s):
         return HTMLParser.HTMLParser().unescape(s)
 
+
+# See tests/init.py which duplicates this statement.
 try:
     # For Python 3.0 and later
     from urllib.request import urlopen as survol_urlopen
@@ -55,7 +59,7 @@ except ImportError:
 
 ################################################################################
 
-def SetLoggingConfig(logLevel):
+def SetLoggingConfig(log_level):
     # Reinit: https://stackoverflow.com/questions/12158048/changing-loggings-basicconfig-which-is-already-set
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
@@ -64,9 +68,9 @@ def SetLoggingConfig(logLevel):
     # rdflib is used at least by lib_kbase.py
     logging.basicConfig(
         stream=sys.stderr,
-        # format='%(asctime)s %(levelname)8s %(name)s %(filename)s %(lineno)d: %(message)s',
         format='%(asctime)s %(levelname)8s %(filename)s %(lineno)d %(message)s',
-        level = logLevel)
+        level = log_level)
+
 
 SetLoggingConfig(logging.WARNING)
 
@@ -76,15 +80,16 @@ loggerRdflib = logging.getLogger("rdflib.term")
 loggerRdflib.setLevel(logging.ERROR)
 
 # This is the general purpose logger.
-if sys.version_info >= (3,):
+if is_py3:
     logger_name = "inspect"
 else:
     frm = inspect.stack()[1]
     mod = inspect.getmodule(frm[0])
     logger_name = mod.__name__
+
 gblLogger = logging.getLogger(logger_name)
 
-if sys.version_info >= (3,):
+if is_py3:
     import builtins
     builtins.DEBUG = gblLogger.debug
     builtins.WARNING = gblLogger.warning
@@ -145,25 +150,23 @@ except ImportError:
 
 # This avoids needing the "six" module which is not always available.
 # On some environments, it is a hassle to import it.
-if sys.version_info >= (3,):
+if is_py3:
     def six_iteritems(array):
             return array.items()
 
-    def six_u(aStr):
-        return aStr
+    def six_u(a_str):
+        return a_str
 
     six_string_types = str,
     six_integer_types = int,
     six_text_type = str
     six_binary_type = bytes
-
-    # from six.moves import builtins
 else:
     def six_iteritems(array):
         return array.iteritems()
 
-    def six_u(aStr):
-        return unicode(aStr.replace(r'\\', r'\\\\'), "unicode_escape")
+    def six_u(a_str):
+        return unicode(a_str.replace(r'\\', r'\\\\'), "unicode_escape")
 
     six_string_types = basestring,
     six_integer_types = (int, long)
@@ -186,8 +189,8 @@ def NodeUrl(url):
 ################################################################################
 
 # See xidCgiDelimiter = "?xid="
-def EncodeEntityId(entity_type,entity_id):
-    return "xid=%s.%s" % ( entity_type, entity_id )
+def EncodeEntityId(entity_type, entity_id):
+    return "xid=%s.%s" % (entity_type, entity_id)
 
 ################################################################################
 
@@ -216,9 +219,9 @@ def HttpPrefix():
             # Hostnames always in lowercase.
             server_addr = server_addr.lower()
 
-        #os.environ['REMOTE_ADDR']=127.0.0.1
-        #os.environ['SERVER_NAME']=rchateau-HP
-        #os.environ['REMOTE_HOST']=rchateau-HP
+        # 'REMOTE_ADDR'] => "127.0.0.1"
+        # 'SERVER_NAME'] => "rchateau-HP"
+        # 'REMOTE_HOST'] => "rchateau-HP"
 
     except KeyError:
         ERROR("HttpPrefix SERVER_NAME MUST BE DEFINED")
@@ -240,20 +243,23 @@ def HttpPrefix():
     return prfx
 
 # This is also used in lib_client to differentiate local from remote scripts.
-prefixLocalScript = "/LocalExecution"
+# Objects need an URL, but if no agent is used, we need a pseudo-URL,
+# represented by the string, by convention. Syntactically, this is a correct URL.
+prefixLocalExecution = "/LocalExecution"
+
 
 def UriRootHelper():
     try:
+        # Checks of this environment variable is defined.
         os.environ["SERVER_NAME"]
-        sys.stderr.write("SERVER_NAME=%s gethostname=%s\n" % (os.environ["SERVER_NAME"], socket.gethostname()))
+        # sys.stderr.write("SERVER_NAME=%s gethostname=%s\n" % (os.environ["SERVER_NAME"], socket.gethostname()))
     except KeyError:
-        # This is necessary when returning objects for example from GetInstances()
+        # This is necessary when returning objects for example from get_instances()
         # in the client library lib_client.py. The local objects need a hostname,
         # and "localhost" fills this role.
         # However, if used with remote objects, this hostname should be replaced
         # on-the-fly by the actual host name.
         # An alternative is to specify the right hostname here.
-        #os.environ["SERVER_NAME"] = "LOCALHOST"
         os.environ["SERVER_NAME"] = socket.gethostname().lower()
         # sys.stderr.write("SERVER_NAME=%s FIXED\n" % os.environ["SERVER_NAME"])
     try:
@@ -261,7 +267,6 @@ def UriRootHelper():
         # SCRIPT_NAME=/survol/print_environment_variables.py
         scriptNam=os.environ['SCRIPT_NAME']
         idx = scriptNam.find('survol')
-        # sys.stderr.write("UriRootHelper scriptNam=%s idx=%d\n"%(scriptNam,idx))
         if idx >= 0:
             root = scriptNam[:idx] + 'survol'
         else:
@@ -273,7 +278,7 @@ def UriRootHelper():
         # If this runs from the command line and not as a CGI script,
         # then this environment variable is not set.
         # Just like SERVER_NAME, it should test that the caller is lib_client.py.
-        root = prefixLocalScript
+        root = prefixLocalExecution
     urh = HttpPrefix() + root
     # sys.stderr.write("UriRootHelper urh=%s\n"%urh)
     return urh
@@ -345,11 +350,11 @@ def HostName():
     # Converted to lowercase because of RFC4343: Domain Name System (DNS) Case Insensitivity Clarification
     return os.environ["SERVER_NAME"].lower()
 
-# hostName
+
 currentHostname = HostName()
 
+
 def GlobalGetHostByName(hostNam):
-    # timeStart = time.time()
     try:
         theIP = socket.gethostbyname(hostNam)
         # sys.stderr.write("GlobalGetHostByName tm=%f OK hostNam=%s theIP=%s\n"%(time.time()-timeStart,hostNam,theIP))
@@ -379,19 +384,18 @@ def IsLocalAddress(anHostNam):
     try:
         ipOnly = GlobalGetHostByName(hostOnly)
     # socket.gaierror
-    except Exception:
+    except Exception as exc:
         # Unknown machine
-        exc = sys.exc_info()[1]
         # sys.stderr.write("IsLocalAddress anHostNam=%s:%s FALSE\n" % ( anHostNam, str(exc) ) )
         return False
 
-    # IsLocalAddress RCHATEAU-HP ipOnly=192.168.0.14 localIP=127.0.0.1 currentHostname=127.0.0.1
+    # IsLocalAddress MYHOST-HP ipOnly=192.168.0.14 localIP=127.0.0.1 currentHostname=127.0.0.1
     # sys.stderr.write("IsLocalAddress %s ipOnly=%s localIP=%s currentHostname=%s\n"%(anHostNam,ipOnly,localIP,currentHostname))
     if ipOnly in [ "0.0.0.0", "127.0.0.1", localIP ]:
         # sys.stderr.write("IsLocalAddress %s TRUE\n"%anHostNam)
         return True
 
-    # "RCHATEAU-HP" and "rchateau-HP" ??
+    # "MYHOST-HP" and "myhost-HP" ??
     # sys.stderr.write("IsLocalAddress %s socket.gethostname()=%s\n"%(anHostNam,socket.gethostname()))
     if anHostNam.lower() == socket.gethostname().lower():
         return True
@@ -402,8 +406,8 @@ def IsLocalAddress(anHostNam):
 # Beware: lib_util.currentHostname="Unknown-30-b5-c2-02-0c-b5-2.home"
 # socket.gethostname() = 'Unknown-30-b5-c2-02-0c-b5-2.home'
 # socket.gethostbyaddr(hst) = ('Unknown-30-b5-c2-02-0c-b5-2.home', [], ['192.168.1.88'])
-def SameHostOrLocal( srv, entHost ):
-    if ( entHost == srv ) or ( ( entHost is None or entHost in ["","0.0.0.0"] ) and ( localIP == srv ) ):
+def SameHostOrLocal(srv, entHost):
+    if (entHost == srv) or ((entHost is None or entHost in ["","0.0.0.0"] ) and ( localIP == srv ) ):
         # We might add credentials.
         DEBUG("SameHostOrLocal entHost=%s localIP=%s srv=%s SAME", entHost, localIP, srv )
         return True
@@ -446,8 +450,8 @@ def EncodeUri(anStr):
         strTABLE = ""
 
     # In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
-    if sys.version_info >= (3,):
-        return urllib_quote(strTABLE,'')
+    if is_py3:
+        return urllib_quote(strTABLE, '')
     else:
 
         # THIS SHOULD NORMALLY BE DONE. BUT WHAT ??
@@ -459,11 +463,7 @@ def EncodeUri(anStr):
 
 def RequestUri():
     try:
-        # If url = "http://primhillcomputers.ddns.net/Survol/survol/print_environment_variables.py"
         # REQUEST_URI=/Survol/survol/print_environment_variables.py
-        #sys.stderr.write("RequestUri\n")
-        #for k in os.environ:
-        #    sys.stderr.write("    key=%s val=%s\n"%(k,os.environ[k]))
         script = os.environ["REQUEST_URI"]
         #sys.stderr.write("RequestUri script=%s\n"%script)
     except KeyError:
@@ -476,9 +476,9 @@ def RequestUri():
         try:
             script = os.environ['SCRIPT_NAME']
             # "xid=EURO%5CLONL00111310@process:16580"
-            queryString = os.environ['QUERY_STRING']
-            if queryString:
-                script += "?" + queryString
+            query_string = os.environ['QUERY_STRING']
+            if query_string:
+                script += "?" + query_string
         except KeyError:
             script = "RequestUri: No value"
     return script
@@ -524,7 +524,7 @@ def EntHostToIp(entity_host):
         #sys.stderr.write("EntHostToIp WBEM=%s\n" % mtch_host_wbem.group(1) )
         return mtch_host_wbem.group(1)
 
-    # WMI : \\RCHATEAU-HP
+    # WMI : \\MYHOST-HP
     mtch_host_wmi = re.match( r"\\\\([-0-9A-Za-z_\.]*)", entity_host )
     if mtch_host_wmi:
         #sys.stderr.write("EntHostToIp WBEM=%s\n" % mtch_host_wmi.group(1) )
@@ -544,9 +544,9 @@ def EntHostToIpReally(entity_host):
 ################################################################################
 
 def ParseXidLocal(xid ):
-    # A machine name can contain a domain name : "WORKGROUP\RCHATEAU-HP", the backslash cannot be at the beginning.
-    # "WORKGROUP\RCHATEAU-HP@CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2"
-    # "WORKGROUP\RCHATEAU-HP@oracle/table.Name=MY_TABLE"
+    # A machine name can contain a domain name : "WORKGROUP\MYHOST-HP", the backslash cannot be at the beginning.
+    # "WORKGROUP\MYHOST-HP@CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2"
+    # "WORKGROUP\MYHOST-HP@oracle/table.Name=MY_TABLE"
     # BEWARE: This must NOT match "http://127.0.0.1:8000/survol/namespaces_wbem.py?xid=http://192.168.1.83:5988/."
     # that is "http://192.168.1.83:5988/."
     # A class name starts with a letter. There are no consecutives slashes "/".
@@ -570,12 +570,12 @@ def ParseXidLocal(xid ):
     return None
 
 def ParseXidWMI(xid ):
-    # WMI : \\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="0"
+    # WMI : \\MYHOST-HP\root\cimv2:Win32_Process.Handle="0"
     # Beware ! On Windows, namespaces are separated by backslashes.
-    # WMI : \\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="0"
-    # http://127.0.0.1:8000/survol/objtypes_wmi.py?xid=\\rchateau-HP\root\CIMV2\Applications%3A.
-    # http://127.0.0.1:8000/survol/class_wmi.py?xid=\\rchateau-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.
-    # http://127.0.0.1:8000/survol/entity_wmi.py?xid=\\RCHATEAU-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.Name%3D%22Default%22
+    # WMI : \\MYHOST-HP\root\cimv2:Win32_Process.Handle="0"
+    # http://127.0.0.1:8000/survol/objtypes_wmi.py?xid=\\myhost-HP\root\CIMV2\Applications%3A.
+    # http://127.0.0.1:8000/survol/class_wmi.py?xid=\\myhost-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.
+    # http://127.0.0.1:8000/survol/entity_wmi.py?xid=\\MYHOST-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.Name%3D%22Default%22
     # TODO: BEWARE ! If the host name starts with a L, we have to "triplicate" the back-slash
     # TODO: otherwise graphviz replace "\L" par "<TABLE">
 
@@ -678,9 +678,9 @@ def ParseXid(xid ):
 
 # TODO: Would probably be faster by searching for the last "/".
 # MUST BE VERY FAST.
-# '\\\\RCHATEAU-HP\\root\\cimv2:Win32_Process.Handle="0"'  => "root\\cimv2:Win32_Process"
+# '\\\\MYHOST-HP\\root\\cimv2:Win32_Process.Handle="0"'  => "root\\cimv2:Win32_Process"
 # https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"  => ""
-def ParseNamespaceType(ns_entity_type):
+def parse_namespace_type(ns_entity_type):
     # sys.stderr.write("ParseEntityType entity_type=%s\n" % ns_entity_type )
     nsSplit = ns_entity_type.split(":")
     if len(nsSplit) == 1:
@@ -717,7 +717,7 @@ def EntityClassUrl(entity_type, entity_namespace = "", entity_host = "", categor
     # WBEM: https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"
     if category == "WBEM":
         monikerClass = entity_host + "/" + entity_namespace + ":" + entity_type + "."
-    # WMI : \\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="0"
+    # WMI : \\MYHOST-HP\root\cimv2:Win32_Process.Handle="0"
     elif category == "WMI":
         monikerClass = "\\\\" + entity_host + "\\" + entity_namespace + ":" + entity_type + "."
     # This is temporary.
@@ -766,7 +766,7 @@ def KWArgsToEntityId(className, **kwargsOntology):
         entity_id += delim + "%s=%s" % (argKey,argVal)
         delim = ","
     # The values might come from many different origins
-    if sys.version_info < (3,):
+    if not is_py3:
         if type(entity_id) == unicode:
             entity_id = entity_id.encode("utf-8")
     return entity_id
@@ -829,10 +829,6 @@ def EntityUrlFromMoniker(monikerEntity,is_class=False,is_namespace=False,is_host
     url = uriRoot + "/" + scriptPath + xidCgiDelimiter + EncodeUri(monikerEntity)
     return url
 
-# Full natural path: We must try to merge it with WBEM Uris.
-# '\\\\RCHATEAU-HP\\root\\cimv2:Win32_Process.Handle="0"'
-# https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"
-
 ################################################################################
 
 # TODO: Find another solution more compatible with WBEM and WMI logic.
@@ -855,7 +851,7 @@ def CopyFile( mime_type, file_name):
     # https://stackoverflow.com/questions/2374427/python-2-x-write-binary-output-to-stdout
     if is_apache_server():
         if isPlatformWindows:
-            if sys.version_info < (3,):
+            if not is_py3:
                 import os, msvcrt
                 msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
 
@@ -907,7 +903,7 @@ def InfoMessageHtml(message):
     # On Linux it says: "OSError: [Errno 2] No such file or directory"
     WrtAsUtf('<table>')
 
-    if sys.version_info >= (3,):
+    if is_py3:
         WrtAsUtf("<tr><td>Login</td><td>%s</td></tr>"%os.getlogin())
 
     WrtAsUtf("<tr><td>Cwd</td><td>%s</td></tr>" % os.getcwd())
@@ -934,7 +930,6 @@ def InfoMessageHtml(message):
 
 # Returns the list of available object types: ["process", "file," group", etc...]
 def ObjectTypesNoCache():
-    # directory=C:\\Users\\rchateau\\Developpement\\ReverseEngineeringApps\\PythonStyle\\htbin\\sources_top/sources_types\r:
     directory = gblTopScripts + "/sources_types"
     DEBUG("ObjectTypesNoCache directory=%s",directory)
 
@@ -1184,31 +1179,30 @@ def UrlNoAmp(url):
 # If there is no such parameter, then it is removed. If the input parameter is
 # an empty string, then it is removed from the URLs.
 # Used for example as the root in entity.py, obj_types.py and class_type_all.py.
-def RequestUriModed(otherMode):
+def RequestUriModed(other_mode):
     # When in merge_scripts.py for merging several scripts,
     # the request uri is prefixed by a host:
-    # HttpPrefix()=http://rchateau-hp:8000
-    # RequestUri()=http://rchateau-hp:80/Survol/survol/entity.py?xid=CIM_Process.Handle=1900
-    strRequestUri = RequestUri()
+    # HttpPrefix()=http://myhost-hp:8000
+    # RequestUri()=http://myhost-hp:80/Survol/survol/entity.py?xid=CIM_Process.Handle=1900
+    str_request_uri = RequestUri()
 
     # strRequestUri=/survol/print_internal_data_as_json.py
-    if strRequestUri.startswith("http"):
-        script = strRequestUri
+    if str_request_uri.startswith("http"):
+        script = str_request_uri
     else:
-        script = HttpPrefix() + strRequestUri
-    # DEBUG("RequestUriModed HttpPrefix()=%s RequestUri()=%s script=%s",HttpPrefix(),strRequestUri,script)
-    return AnyUriModed(script, otherMode)
+        script = HttpPrefix() + str_request_uri
+    return AnyUriModed(script, other_mode)
 
 # If an Url, it replaces the value of the argument "mode" by another one,
 # remove this arguments or adds it, depending on the case.
-def AnyUriModed(script, otherMode):
+def AnyUriModed(script, other_mode):
     mtch_url = re.match(r"(.*)([\?\&])mode=[^\&]*(.*)", script)
 
-    if otherMode:
+    if other_mode:
         if mtch_url:
-            edtUrl = mtch_url.group(1) + mtch_url.group(2) + "mode=" + otherMode + mtch_url.group(3)
+            edtUrl = mtch_url.group(1) + mtch_url.group(2) + "mode=" + other_mode + mtch_url.group(3)
         else:
-            edtUrl = ConcatenateCgi( script, "mode=" + otherMode )
+            edtUrl = ConcatenateCgi(script, "mode=" + other_mode)
     else:
         # We want to remove the mode.
         if mtch_url:
@@ -1230,10 +1224,10 @@ def AnyUriModed(script, otherMode):
     return edtUrl
 
 def RootUri():
-    callingUrl = RequestUriModed("")
-    callingUrl = callingUrl.replace("&","&amp;")
-    DEBUG("RootUri callingUrl=%s",callingUrl)
-    return NodeUrl(callingUrl)
+    calling_url = RequestUriModed("")
+    calling_url = calling_url.replace("&", "&amp;")
+    DEBUG("RootUri calling_url=%s", calling_url)
+    return NodeUrl(calling_url)
 
 ################################################################################
 
@@ -1248,6 +1242,7 @@ def GetModeFromUrl(url):
     if mtch_url:
         return mtch_url.group(1)
     return ""
+
 
 # The display mode can come from the previous URL or from a CGI environment.
 def GuessDisplayMode():
@@ -1267,16 +1262,16 @@ def GuessDisplayMode():
     try:
         # HTTP_REFERER=http://127.0.0.1/PythonStyle/print.py?mode=xyz
         referer = os.environ["HTTP_REFERER"]
-        modeReferer = GetModeFromUrl( referer )
+        mode_referer = GetModeFromUrl( referer )
         # If we come from the edit form, we should not come back to id.
         # TODO: HOW CAN WE COME BACK TO THE FORMER DISPLAY MODE ??
-        if modeReferer != "":
-            if modeReferer == "edit":
+        if mode_referer != "":
+            if mode_referer == "edit":
                 # TODO: Should restore the original edit mode.
-                # EditionMode
+                # enter_edition_mode
                 return ""
             else:
-                return modeReferer
+                return mode_referer
 
     except KeyError:
         pass
@@ -1295,35 +1290,29 @@ def GuessDisplayMode():
 
 ################################################################################
 
-# Concatenate key-value pairs to build the path of a WMI or WBEM moniker.
-# TODO: SHOULD WE WRAP VALUES IN DOUBLE-QUOTES ?????
-def BuildMonikerPath(dictKeyVal):
-    return ','.join( [ '%s=%s' % ( wbemKey, dictKeyVal[wbemKey] ) for wbemKey in dictKeyVal ] )
-
-
 # Slight modification from  http://stackoverflow.com/questions/16710076/python-split-a-string-respect-and-preserve-quotes
 # 'Id=NT AUTHORITY\SYSTEM'         => ['Id=NT AUTHORITY\\SYSTEM']
 # 'Id="NT =\\"AUTHORITY\SYSTEM"'   => ['Id=NT AUTHORITY\\SYSTEM']
 # The input string is an entity_id: "key1=val1&key2=val2&key3=val3",
-# i.e. what comes after "xid=" in an object URL.
+# i.e. what comes after "xid=<class>." in an object URL.
 # This returns a dictionary of key-values.
 def SplitMoniker(xid):
     # sys.stderr.write("SplitMoniker xid=%s\n" % xid )
 
-    spltLst = re.findall(r'(?:[^,"]|"(?:\\.|[^"])*")+', xid)
+    splt_lst = re.findall(r'(?:[^,"]|"(?:\\.|[^"])*")+', xid)
 
-    # sys.stderr.write("SplitMoniker spltLst=%s\n" % ";".join(spltLst) )
+    # sys.stderr.write("SplitMoniker splt_lst=%s\n" % ";".join(splt_lst) )
 
     resu = dict()
-    for spltWrd in spltLst:
-        mtchEqualQuote = re.match(r'([A-Z0-9a-z_]+)="(.*)"', spltWrd)
-        if mtchEqualQuote:
+    for splt_wrd in splt_lst:
+        mtch_equal_quote = re.match(r'([A-Z0-9a-z_]+)="(.*)"', splt_wrd)
+        if mtch_equal_quote:
             # If there are quotes, they are dropped.
-            resu[ mtchEqualQuote.group(1) ] = mtchEqualQuote.group(2)
+            resu[mtch_equal_quote.group(1)] = mtch_equal_quote.group(2)
         else:
-            mtchEqualNoQuote = re.match(r'([A-Z0-9a-z_]+)=(.*)', spltWrd)
-            if mtchEqualNoQuote:
-                resu[ mtchEqualNoQuote.group(1) ] = mtchEqualNoQuote.group(2)
+            mtch_equal_no_quote = re.match(r'([A-Z0-9a-z_]+)=(.*)', splt_wrd)
+            if mtch_equal_no_quote:
+                resu[mtch_equal_no_quote.group(1)] = mtch_equal_no_quote.group(2)
 
     # sys.stderr.write("SplitMoniker resu=%s\n" % str(resu) )
 
@@ -1332,52 +1321,54 @@ def SplitMoniker(xid):
 # Builds a WQL (WMI Query Language) query from a Moniker.
 # This allows to search for an object in the CIM repository,
 # whatever the attribute values are, or if it is a Survol object.
-def SplitMonikToWQL(splitMonik,className):
-    gblLogger.debug("SplitMonikToWQL splitMonik=[%s]", str(splitMonik) )
-    aQry = 'select * from %s' % className
-    qryDelim = "where"
-    for qryKey in splitMonik:
-        qryVal = splitMonik[qryKey]
-        aQry += ' %s %s="%s"' % ( qryDelim, qryKey, qryVal )
-        qryDelim = "and"
+def SplitMonikToWQL(moniker_to_split, class_name):
+    gblLogger.debug("SplitMonikToWQL splitMonik=[%s]", str(moniker_to_split))
+    a_qry = 'select * from %s' % class_name
+    qry_delim = "where"
+    for qry_key in moniker_to_split:
+        qry_val = moniker_to_split[qry_key]
+        a_qry += ' %s %s="%s"' % (qry_delim, qry_key, qry_val)
+        qry_delim = "and"
 
-    DEBUG("Query=%s", aQry )
-    return aQry
+    DEBUG("Query=%s", a_qry)
+    return a_qry
 
-def Base64Encode(text):
-    if sys.version_info >= (3,):
-        if isinstance(text,bytes):
-            txtToB64Encode = text
+
+def Base64Encode(input_text):
+    if is_py3:
+        if isinstance(input_text,bytes):
+            txtToB64Encode = input_text
         else:
-            txtToB64Encode = text.encode('utf-8')
+            txtToB64Encode = input_text.encode('utf-8')
         return base64.urlsafe_b64encode(txtToB64Encode).decode('utf-8')
     else:
-        return base64.urlsafe_b64encode(text)
+        return base64.urlsafe_b64encode(input_text)
 
-def Base64Decode(text):
+
+def Base64Decode(input_text):
     # The padding might be missing which is not a problem:
     # https://stackoverflow.com/questions/2941995/python-ignore-incorrect-padding-error-when-base64-decoding
-    missing_padding = len(text) % 4
+    missing_padding = len(input_text) % 4
 
     try:
-        if sys.version_info >= (3,):
+        if is_py3:
             if missing_padding != 0:
-                text += '=' * (4 - missing_padding)
-            resu = base64.urlsafe_b64decode(text.encode('utf-8')).decode('utf-8')
+                input_text += '=' * (4 - missing_padding)
+            resu = base64.urlsafe_b64decode(input_text.encode('utf-8')).decode('utf-8')
         else:
             if missing_padding != 0:
-                text += b'=' * (4 - missing_padding)
-            resu = base64.urlsafe_b64decode(str(text))
+                input_text += b'=' * (4 - missing_padding)
+            resu = base64.urlsafe_b64decode(str(input_text))
         return resu
-    except Exception:
-        exc = sys.exc_info()[1]
-        gblLogger.error("CANNOT DECODE: symbol=(%s):%s",text,str(exc))
-        return text + ":" + str(exc)
+    except Exception as exc:
+        gblLogger.error("CANNOT DECODE: symbol=(%s):%s", input_text, str(exc))
+        return input_text + ":" + str(exc)
 
 ################################################################################
 
+
 # Different stream behaviour due to string vs binary.
-if sys.version_info >= (3,):
+if is_py3:
     outputHttp = sys.stdout.buffer
 else:
     outputHttp = sys.stdout
@@ -1389,9 +1380,9 @@ class OutputMachineCgi:
     def __init__(self):
         pass
 
-    def HeaderWriter(self,mimeType,extraArgs= None):
-        gblLogger.debug("OutputMachineCgi.WriteHeadContentType:%s",mimeType)
-        HttpHeaderClassic(outputHttp,mimeType,extraArgs)
+    def HeaderWriter(self, mime_type, extra_arguments= None):
+        gblLogger.debug("OutputMachineCgi.WriteHeadContentType:%s", mime_type)
+        HttpHeaderClassic(outputHttp, mime_type, extra_arguments)
 
     def OutStream(self):
         return outputHttp
@@ -1415,17 +1406,20 @@ paramkeyShowAll = "Show all scripts"
 
 ################################################################################
 
+
 # Default destination for the RDF, HTML or SVG output.
-gblcnt = 10
-def DfltOutDest():
+def get_default_output_destination():
     return globalOutMach.OutStream()
+
 
 def DfltOutMach():
     return globalOutMach
 
+
 def SetGlobalOutMach(outmachSomething):
     global globalOutMach
     globalOutMach = outmachSomething
+
 
 # environ["SERVER_SOFTWARE"] = "WSGIServer/0.2"
 # This must be calculated each time because the WSGI server sets this environment
@@ -1441,11 +1435,10 @@ def is_wsgi_server():
             is_wsgi_server_data = "DefaultServerSoftware"
     return is_wsgi_server_data
 
+
 def is_apache_server():
     return os.environ["SERVER_SOFTWARE"].startswith("Apache/")
 
-
-# or os.environ["SERVER_SOFTWARE"].startswith("Apache/")
 
 # Depending if the stream is a socket, a file or standard output,
 # if Python 2 or 3, Windows or Linux, some complicated tests or conversions are needed.
@@ -1455,20 +1448,25 @@ def is_apache_server():
 # - lib_client stream.
 # - CGI output.
 # FIXME: Should always send bytes (Py3) or str (Py2)
-def WrtAsUtf(aStr):
-    gblOutStrm = DfltOutDest()
+def WrtAsUtf(input_str):
+    my_output_stream = get_default_output_destination()
     try:
-        gblOutStrm.write(aStr)
+        my_output_stream.write(input_str)
     except:
         try:
-            gblOutStrm.write(aStr.encode('latin1'))
+            my_output_stream.write(input_str.encode('latin1'))
         except Exception as exc:
-            sys.stderr.write("WrtAsUtf type=%s gblOutStrm=%s caught %s\n" % (type(aStr), type(gblOutStrm), exc))
+            sys.stderr.write("WrtAsUtf type=%s my_output_stream=%s caught %s\n"
+                             % (type(input_str), type(my_output_stream), exc))
+
 
 # For asynchronous display.
 # TODO: NEVER TESTED, JUST TEMP SYNTAX FIX.
 def SetDefaultOutput(wFile):
+    sys.stderr.write("SetDefaultOutput NEVER TESTED\n")
+    global outputHttp
     outputHttp = wFile
+
 
 # contentType = "text/rdf", "text/html", "image/svg+xml", "application/json" etc...
 def HttpHeaderClassic( out_dest, contentType, extraArgs = None):
@@ -1525,6 +1523,10 @@ def GetEntityModuleNoCacheNoCatch(entity_type):
 def GetEntityModuleNoCache(entity_type):
     # sys.stderr.write("GetEntityModuleNoCache entity_type=%s\n"%entity_type)
 
+    # Temporary hack to avoid an annoying warning message.
+    if entity_type == "provider_script":
+        return None
+
     try:
         return GetEntityModuleNoCacheNoCatch(entity_type)
     except ImportError:
@@ -1573,7 +1575,7 @@ def GetScriptModule(currentModule, fil):
         ERROR("GetScriptModule module=%s fil=%s not a Python script", currentModule, fil )
         return None
     fileBaseName = fil[:-3] # Without the ".py" extension.
-    if sys.version_info >= (3, ):
+    if is_py3:
         # Example: importlib.import_module("sources_top.Databases.mysql_processlist")
         #DEBUG("currentModule=%s fil=%s subClass=%s",currentModule,fil,subClass)
         if currentModule:

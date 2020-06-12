@@ -41,7 +41,7 @@ def AddData( log_strm, grph, node, entity_type, entity_id, header, values ):
 
 	delim = '\t'
 
-	csvFilNam = lib_common.TmpDir() + TabularFilNam( entity_type, entity_id, header )
+	csvFilNam = lib_common.get_temporary_directory() + TabularFilNam(entity_type, entity_id, header)
 	csvFd = open( csvFilNam, "a" )
 	pos = csvFd.tell()
 	if pos == 0:
