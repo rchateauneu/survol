@@ -10,7 +10,7 @@
 # http://d2rq.org/
 # Accessing Relational Databases as Virtual RDF Graphs
 
-# These projects seem inactive (2019)
+# These projects seem inactive (2020)
 # Both need a mapping language: It is better to build an ontology
 # just out of the database, with no extra information.
 

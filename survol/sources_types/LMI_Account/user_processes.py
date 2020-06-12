@@ -67,7 +67,7 @@ def Main():
 		if procUsername != userName:
 			continue
 
-		if lib_common.UselessProc(proc):
+		if lib_common.is_useless_process(proc):
 			continue
 
 		procName = proc.name

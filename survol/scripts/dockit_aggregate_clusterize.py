@@ -5,11 +5,15 @@
 
 import sys
 import datetime
+
 # TODO: It should not depend on this package.
-import linux_api_definitions
+if __name__ == '__main__':
+    import linux_api_definitions
+else:
+    from . import linux_api_definitions
 
 def _SignatureForRepetitions(batchRange):
-    return "+".join( [ aBtch.GetSignatureWithArgs() for aBtch in batchRange ] )
+    return "+".join( [ aBtch.get_signature_with_args() for aBtch in batchRange ] )
 
 # This groups several contiguous BatchLet which form a logical operation.
 # For example (If the argument is factorised).:
@@ -28,20 +32,20 @@ class BatchLetSequence(linux_api_definitions.BatchLetBase, object):
         batchCore = linux_api_definitions.BatchLetCore()
 
         # TODO: Instead of a string, this could be a tuple because it is hashable.
-        concatSigns = "+".join( [ btch.GetSignature() for btch in arrBatch ] )
-        batchCore.m_funcNam = "(" + concatSigns + ")"
+        concatSigns = "+".join( [ btch.get_signature_without_args() for btch in arrBatch ] )
+        batchCore._function_name = "(" + concatSigns + ")"
 
         batchCore.m_status = linux_api_definitions.BatchStatus.sequence
 
         # sys.stdout.write("BatchLetSequence concatSigns=%s\n"%concatSigns)
 
-        # This is returned by the method SignificantArgs()
+        # This is returned by the method get_significant_args()
 
         # Cannot use a set because lists are not hashable, and objects always different.
         # Because there are very few arguments, it is allright to iterate on each list.
         argsArray = []
         for btch in arrBatch:
-            for oneArg in btch.SignificantArgs():
+            for oneArg in btch.get_significant_args():
                 if not oneArg in argsArray:
                     argsArray.append( oneArg )
         batchCore.m_parsedArgs = argsArray
@@ -49,12 +53,11 @@ class BatchLetSequence(linux_api_definitions.BatchLetBase, object):
         # All batchlets should have the same pid.
         batchCore.m_pid = arrBatch[0].m_core.m_pid
 
-        batchCore.m_timeStart = arrBatch[0].m_core.m_timeStart
-        batchCore.m_timeEnd = arrBatch[-1].m_core.m_timeEnd
-        batchCore.m_execTim = datetime.datetime.strptime(batchCore.m_timeEnd, '%H:%M:%S.%f') - datetime.datetime.strptime(batchCore.m_timeStart, '%H:%M:%S.%f')
+        batchCore._time_start = arrBatch[0].m_core._time_start
+        batchCore._time_end = arrBatch[-1].m_core._time_end
+        batchCore.m_execTim = datetime.datetime.strptime(batchCore._time_end, '%H:%M:%S.%f') - datetime.datetime.strptime(batchCore._time_start, '%H:%M:%S.%f')
 
         super( BatchLetSequence,self).__init__(batchCore,style)
-
 
 
 # This is an execution flow, associated to a process. And a thread ?
@@ -62,19 +65,19 @@ class BatchFlow:
     def __init__(self):
 
         self.m_listBatchLets = []
-        self.m_coroutine = self.__AddingCoroutine()
+        self.m_coroutine = self.__adding_coroutine()
         next(self.m_coroutine)
 
     # It processes system calls on-the-fly without intermediate storage.
-    def SendBatch(self, btchLet):
+    def append_batch_to_flow(self, btchLet):
         self.m_coroutine.send(btchLet)
 
-    def __AddingCoroutine(self):
+    def __adding_coroutine(self):
         lstBatch = None
         while True:
             btchLet = yield
 
-            if lstBatch and lstBatch.SameCall(btchLet):
+            if lstBatch and lstBatch.is_same_call(btchLet):
                 # This is a compression: Similar and consecutive calls are stored once only.
                 lstBatch.m_occurrences += 1
             else:
@@ -85,7 +88,7 @@ class BatchFlow:
 
     # This removes matched batches (Formerly unfinished calls which were matched to the resumed part)
     # when the merged batches (The resumed calls) comes immediately after.
-    def __FilterMatchedBatches(self):
+    def __filter_matched_batches(self):
         lenBatch = len(self.m_listBatchLets)
 
         numSubst = 0
@@ -98,19 +101,19 @@ class BatchFlow:
             # Sanity check.
             if batchSeqPrev.m_core.m_status == linux_api_definitions.BatchStatus.matched \
                     and batchSeq.m_core.m_status == linux_api_definitions.BatchStatus.merged:
-                if batchSeqPrev.m_core.m_funcNam != batchSeq.m_core.m_funcNam:
+                if batchSeqPrev.m_core._function_name != batchSeq.m_core._function_name:
                     raise Exception(
-                        "INCONSISTENCY1 %s %s\n" % (batchSeq.m_core.m_funcNam, batchSeqPrev.m_core.m_funcNam))
+                        "INCONSISTENCY1 %s %s\n" % (batchSeq.m_core._function_name, batchSeqPrev.m_core._function_name))
 
             if batchSeqPrev.m_core.m_status == linux_api_definitions.BatchStatus.matched \
                     and batchSeq.m_core.m_status == linux_api_definitions.BatchStatus.merged:
                 if batchSeqPrev.m_core.m_resumedBatch.m_unfinishedBatch != batchSeqPrev.m_core:
-                    raise Exception("INCONSISTENCY2 %s\n" % batchSeqPrev.m_core.m_funcNam)
+                    raise Exception("INCONSISTENCY2 %s\n" % batchSeqPrev.m_core._function_name)
 
             if batchSeqPrev.m_core.m_status == linux_api_definitions.BatchStatus.matched \
                     and batchSeq.m_core.m_status == linux_api_definitions.BatchStatus.merged:
                 if batchSeq.m_core.m_unfinishedBatch.m_resumedBatch != batchSeq.m_core:
-                    raise Exception("INCONSISTENCY3 %s\n" % batchSeq.m_core.m_funcNam)
+                    raise Exception("INCONSISTENCY3 %s\n" % batchSeq.m_core._function_name)
 
             if batchSeqPrev.m_core.m_status == linux_api_definitions.BatchStatus.matched \
                     and batchSeq.m_core.m_status == linux_api_definitions.BatchStatus.merged \
@@ -129,7 +132,7 @@ class BatchFlow:
     # Used to replace these common pairs by an aggregate call.
     # See https://en.wikipedia.org/wiki/N-gram about bigrams.
     # About statistics: https://books.google.com/ngrams/info
-    def __StatisticsBigrams(self):
+    def __statistics_bigrams(self):
 
         lenBatch = len(self.m_listBatchLets)
 
@@ -152,10 +155,10 @@ class BatchFlow:
 
     # This examines pairs of consecutive calls with their arguments, and if a pair
     # occurs often enough, it is replaced by a single BatchLetSequence which represents it.
-    def __ClusterizeBigrams(self):
+    def __clusterize_bigrams(self):
         lenBatch = len(self.m_listBatchLets)
 
-        mapOccurences = self.__StatisticsBigrams()
+        mapOccurences = self.__statistics_bigrams()
 
         numSubst = 0
         idxBatch = 0
@@ -172,7 +175,7 @@ class BatchFlow:
                 batchSequence = BatchLetSequence(batchRange, "Rept")
 
                 # Maybe it is the same as the previous element, if this is a periodic pattern.
-                if batchSeqPrev and batchSequence.SameCall(batchSeqPrev):
+                if batchSeqPrev and batchSequence.is_same_call(batchSeqPrev):
                     # Simply reuse the previous batch.
                     batchSeqPrev.m_occurrences += 1
                     del self.m_listBatchLets[idxBatch: idxBatch + 2]
@@ -191,7 +194,7 @@ class BatchFlow:
         return numSubst
 
     # Successive calls which have the same arguments are clusterized into logical entities.
-    def __ClusterizeBatchesByArguments(self):
+    def __clusterize_batches_by_arguments(self):
         lenBatch = len(self.m_listBatchLets)
 
         numSubst = 0
@@ -200,7 +203,7 @@ class BatchFlow:
         while idxBatch <= lenBatch:
             if idxBatch < lenBatch:
                 lastBatch = self.m_listBatchLets[idxLast]
-                lastArgs = lastBatch.SignificantArgs()
+                lastArgs = lastBatch.get_significant_args()
                 if not lastArgs:
                     idxLast += 1
                     idxBatch += 1
@@ -208,7 +211,7 @@ class BatchFlow:
 
                 currentBatch = self.m_listBatchLets[idxBatch]
 
-                if currentBatch.SignificantArgs() == lastArgs:
+                if currentBatch.get_significant_args() == lastArgs:
                     idxBatch += 1
                     continue
 
@@ -224,54 +227,54 @@ class BatchFlow:
             idxBatch = idxLast + 1
         return numSubst
 
-    def __DumpFlowInternal(self, batchDump, extra_header=None):
-        batchDump.Header(extra_header)
+    def __dump_flow_internal(self, batchDump):
+        batchDump.flow_header()
         for aBtch in self.m_listBatchLets:
-            batchDump.DumpBatch(aBtch)
-        batchDump.Footer()
+            batchDump.dump_batch_to_stream(aBtch)
+        batchDump.flow_footer()
 
-    def __DumpFlowSimple(self, strm, batchConstructor):
+    def __dump_flow_simple(self, strm, batchConstructor):
         batchDump = batchConstructor(strm)
-        self.__DumpFlowInternal(batchDump)
+        self.__dump_flow_internal(batchDump)
 
-    def DumpFlowConstructor(self, batchDump, extra_header=None):
-        self.__DumpFlowInternal(batchDump)
+    def dump_flow_constructor(self, batchDump, flow_process_id=None):
+        self.__dump_flow_internal(batchDump)
 
-    def FactorizeOneFlow(self, verbose, batchConstructor):
+    def factorise_one_flow(self, verbose, batchConstructor):
 
-        if verbose > 1: self.__DumpFlowSimple(sys.stdout, batchConstructor)
+        if verbose > 1: self.__dump_flow_simple(sys.stdout, batchConstructor)
 
         if verbose > 0:
             sys.stdout.write("\n")
-            sys.stdout.write("FactorizeOneFlow lenBatch=%d\n" % (len(self.m_listBatchLets)))
-        numSubst = self.__FilterMatchedBatches()
+            sys.stdout.write("factorise_one_flow lenBatch=%d\n" % (len(self.m_listBatchLets)))
+        numSubst = self.__filter_matched_batches()
         if verbose > 0:
-            sys.stdout.write("FactorizeOneFlow numSubst=%d lenBatch=%d\n" % (numSubst, len(self.m_listBatchLets)))
+            sys.stdout.write("factorise_one_flow numSubst=%d lenBatch=%d\n" % (numSubst, len(self.m_listBatchLets)))
 
         idxLoops = 0
         while True:
             if verbose > 1:
-                self.__DumpFlowSimple(sys.stdout, batchConstructor)
+                self.__dump_flow_simple(sys.stdout, batchConstructor)
 
             if verbose > 0:
                 sys.stdout.write("\n")
-                sys.stdout.write("FactorizeOneFlow lenBatch=%d\n" % (len(self.m_listBatchLets)))
-            numSubst = self.__ClusterizeBigrams()
+                sys.stdout.write("factorise_one_flow lenBatch=%d\n" % (len(self.m_listBatchLets)))
+            numSubst = self.__clusterize_bigrams()
             if verbose > 0:
-                sys.stdout.write("FactorizeOneFlow numSubst=%d lenBatch=%d\n" % (numSubst, len(self.m_listBatchLets)))
+                sys.stdout.write("factorise_one_flow numSubst=%d lenBatch=%d\n" % (numSubst, len(self.m_listBatchLets)))
             if numSubst == 0:
                 break
             idxLoops += 1
 
-        if verbose > 1: self.__DumpFlowSimple(sys.stdout, batchConstructor)
+        if verbose > 1: self.__dump_flow_simple(sys.stdout, batchConstructor)
 
         if verbose > 0:
             sys.stdout.write("\n")
-            sys.stdout.write("FactorizeOneFlow lenBatch=%d\n" % (len(self.m_listBatchLets)))
-        numSubst = self.__ClusterizeBatchesByArguments()
+            sys.stdout.write("factorise_one_flow lenBatch=%d\n" % (len(self.m_listBatchLets)))
+        numSubst = self.__clusterize_batches_by_arguments()
         if verbose > 0:
             sys.stdout.write(
-                "FactorizeOneFlow numSubst=%d lenBatch=%d\n" % (numSubst, len(self.m_listBatchLets)))
+                "factorise_one_flow numSubst=%d lenBatch=%d\n" % (numSubst, len(self.m_listBatchLets)))
 
-        if verbose > 1: self.__DumpFlowSimple(sys.stdout, batchConstructor)
+        if verbose > 1: self.__dump_flow_simple(sys.stdout, batchConstructor)
 

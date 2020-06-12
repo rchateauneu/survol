@@ -6,6 +6,7 @@
 
 import os
 import re
+import six
 import sys
 import json
 import platform
@@ -14,17 +15,28 @@ import socket
 import shutil
 import threading
 import time
+import collections
+import logging
 
 try:
+    # This is for Python 2
     import urllib2
+    import urllib
+    urlencode_portable = urllib.urlencode
 except ImportError:
     import urllib.request as urllib2
+    import urllib.parse
+    urlencode_portable = urllib.parse.urlencode
 
 try:
-    # Optional: To add more information to processes etc...
+    # This is optional when used from dockit, so dockit can be used
+    # without any installation.
     import psutil
 except ImportError:
-    pass
+    psutil = None
+
+is_py3 = sys.version_info >= (3,)
+is_platform_linux = sys.platform.startswith("linux")
 
 ################################################################################
 
@@ -44,7 +56,7 @@ def DecodeOctalEscapeSequence(aBuffer):
     # https://en.wikipedia.org/wiki/Escape_sequences_in_C
 
     # https://stackoverflow.com/questions/4020539/process-escape-sequences-in-a-string-in-python
-    if (sys.version_info >= (3,)):
+    if is_py3:
         decBuf = bytes(aBuffer, "utf-8").decode("unicode_escape")
     else:
         decBuf = aBuffer.decode('string_escape')
@@ -54,7 +66,8 @@ def DecodeOctalEscapeSequence(aBuffer):
 
 # Buffers transferred with read() and write() are parsed to detect information
 # about the running applications. There can be several types of parsers,
-# indexed by a descriptive key.
+# indexed by a descriptive key: "SqlQuery" etc...
+# TODO: There is not valid reason to load all buffer scanners in this file.
 BufferScanners = {}
 
 try:
@@ -115,7 +128,7 @@ class BufferConcatenator:
         self.m_currentBuffer = None
         self.m_parsedData = None
 
-    def AnalyseCompleteBuffer(self,aBuffer):
+    def __analyse_io_buffer(self,aBuffer):
         for scannerKey in BufferScanners:
             scannerFunction = BufferScanners[scannerKey]
 
@@ -131,11 +144,10 @@ class BufferConcatenator:
                 else:
                     self.m_parsedData[scannerKey] = lstResults
 
-
-    def HasParsedData(self):
+    def has_parsed_data(self):
         return self.m_parsedData != None
 
-    def ParsedDataToXML(self, strm, margin,direction):
+    def parsed_data_to_XML(self, strm, margin, direction):
         if self.m_parsedData:
             submargin = margin + "    "
             for scannerKey in self.m_parsedData:
@@ -152,7 +164,7 @@ class BufferConcatenator:
     # decodes them and tries to rebuild a complete logical message if it seems
     # to be truncated.
     # It then analyses the logical pieces.
-    def AppendIOBuffer(self,aFragment,szFragment = 0):
+    def append_io_buffer(self, aFragment, szFragment = 0):
         decodedFragment = DecodeOctalEscapeSequence(aFragment)
 
         # Typical buffer size are multiple of 100x:
@@ -176,19 +188,17 @@ class BufferConcatenator:
                 self.m_currentBuffer = decodedFragment
         else:
             if self.m_currentBuffer:
-                self.AnalyseCompleteBuffer(self.m_currentBuffer)
+                self.__analyse_io_buffer(self.m_currentBuffer)
                 # Reuse memory.
                 del self.m_currentBuffer
                 self.m_currentBuffer = None
 
-            self.AnalyseCompleteBuffer(decodedFragment)
+            self.__analyse_io_buffer(decodedFragment)
 
 ################################################################################
 G_FilesToPackagesCache = None
 
 G_SameMachine = None
-
-G_ReplayMode = None
 
 # This is a dictionary (indexed by processes) of dictionaries (indexed by files).
 # It containes files accesses, which are object representing what happens
@@ -248,12 +258,12 @@ class FileAccess:
         # anymore from this process and this file because it is closed.
         del G_cacheFileAccesses[self.m_objectCIM_Process][self.m_objectCIM_DataFile]
 
-    def AnalyseNewBuffer(self,isRead,szBuffer,aBuffer):
+    def _analyze_new_buffer(self, isRead, buffer_size, aBuffer):
         if not aBuffer:
             return
 
         # This does not apply to files.
-        if self.m_objectCIM_DataFile.IsPlainFile():
+        if self.m_objectCIM_DataFile.is_plain_file():
             return
 
         if isRead:
@@ -270,33 +280,33 @@ class FileAccess:
             concatBuf = self.m_bufConcatWrite
 
         try:
-            concatBuf.AppendIOBuffer(aBuffer,szBuffer)
+            concatBuf.append_io_buffer(aBuffer, buffer_size)
         except Exception as exc:
             # Example: '[pid  5602] 19:59:20.590740 <... read resumed> "... end of read() content"..., 32768) = 4096 <0.037642>'
-            sys.stdout.write("Cannot parse:%s szBuffer=%s: %s\n" % (aBuffer, szBuffer, exc))
+            sys.stdout.write("Cannot parse:%s szBuffer=%s: %s\n" % (aBuffer, buffer_size, exc))
             exit(1)
 
-    def SetRead(self,bytesRead,bufferRead):
+    def set_read_bytes_number(self, read_bytes_number, bufferRead):
         try:
             self.NumReads += 1
         except AttributeError:
             self.NumReads = 1
         try:
-            self.BytesRead += bytesRead
+            self.BytesRead += read_bytes_number
         except AttributeError:
-            self.BytesRead = bytesRead
-        self.AnalyseNewBuffer(True,bytesRead,bufferRead)
+            self.BytesRead = read_bytes_number
+        self._analyze_new_buffer(True, read_bytes_number, bufferRead)
 
-    def SetWritten(self, bytesWritten,bufferWrite):
+    def set_written_bytes_number(self, written_bytes_number, bufferWrite):
         try:
             self.NumWrites += 1
         except AttributeError:
             self.NumWrites = 1
         try:
-            self.BytesWritten += bytesWritten
+            self.BytesWritten += written_bytes_number
         except AttributeError:
-            self.BytesWritten = bytesWritten
-        self.AnalyseNewBuffer(False,bytesWritten,bufferWrite)
+            self.BytesWritten = written_bytes_number
+        self._analyze_new_buffer(False, written_bytes_number, bufferWrite)
 
     def TagXML(self,strm,margin,displayedFromProcess):
         strm.write("%s<Access" % ( margin ) )
@@ -309,11 +319,11 @@ class FileAccess:
                 strm.write(" File='%s'" % ( self.m_objectCIM_DataFile.Name ) )
 
         if self.OpenTime:
-            strm.write(" OpenTime='%s'" % TimeStampToStr( self.OpenTime ) )
+            strm.write(" OpenTime='%s'" % _timestamp_to_str( self.OpenTime ) )
         if getattr(self,'OpenSize',0):
             strm.write(" OpenSize='%s'" % ( self.OpenSize ) )
         if self.CloseTime:
-            strm.write(" CloseTime='%s'" % TimeStampToStr( self.CloseTime ) )
+            strm.write(" CloseTime='%s'" % _timestamp_to_str( self.CloseTime ) )
         if getattr(self,'CloseSize',0):
             strm.write(" CloseSize='%s'" % ( self.CloseSize ) )
         if getattr(self,'NumReads',0):
@@ -328,22 +338,21 @@ class FileAccess:
         accRead = getattr(self,'m_bufConcatRead',None)
         accWrite = getattr(self,'m_bufConcatWrite',None)
 
-        if (accRead and accRead.HasParsedData() ) or (accWrite and accWrite.HasParsedData() ):
+        if (accRead and accRead.has_parsed_data()) or (accWrite and accWrite.has_parsed_data()):
             strm.write(" >\n" )
 
             submargin = margin + "    "
-            if accRead and accRead.HasParsedData():
-                accRead.ParsedDataToXML(strm, submargin,"Read")
-            if accWrite and accWrite.HasParsedData():
-                accWrite.ParsedDataToXML(strm, submargin,"Write")
+            if accRead and accRead.has_parsed_data():
+                accRead.parsed_data_to_XML(strm, submargin, "Read")
+            if accWrite and accWrite.has_parsed_data():
+                accWrite.parsed_data_to_XML(strm, submargin, "Write")
 
             strm.write("%s</Access>\n" % ( margin ) )
         else:
             strm.write(" />\n" )
 
-
     @staticmethod
-    def LookupFileAccess(objProcess,objDataFile):
+    def lookup_file_access(objProcess,objDataFile):
         global G_cacheFileAccesses
         assert G_cacheFileAccesses is not None
 
@@ -358,7 +367,7 @@ class FileAccess:
         return filAcc
 
     @staticmethod
-    def VectorToXML(strm,vecFilesAccesses,margin,displayedFromProcess):
+    def serialize_list_to_XML(strm,vecFilesAccesses,margin,displayedFromProcess):
         if not vecFilesAccesses:
             return
         subMargin = margin + "    "
@@ -376,7 +385,7 @@ G_ReplayMode = False
 # The date where the test was run. Loaded from the ini file when replaying.
 G_Today = None
 
-def TimeStampToStr(timStamp):
+def _timestamp_to_str(timStamp):
     # 0     tm_year     (for example, 1993)
     # 1     tm_mon      range [1, 12]
     # 2     tm_mday     range [1, 31]
@@ -387,7 +396,7 @@ def TimeStampToStr(timStamp):
     # 7     tm_yday     range [1, 366]
     # 8     tm_isdst    0, 1 or -1; see below
 
-    # Today's date can change so we can reproduce a run.TimeStampToStr
+    # Today's date can change so we can reproduce a run.
     if timStamp:
         return G_Today + " " + timStamp
     else:
@@ -395,95 +404,139 @@ def TimeStampToStr(timStamp):
 
 ################################################################################
 
-sys.path.append("../..")
+# FIXME: Is it really needed ? And safe ??
+#sys.path.append("../..")
 # Import this now, and not in the destructor, to avoid the error:
 # "sys.meta_path must be a list of import hooks"
 # This module is needed for storing the generated data into a RDF file.
 try:
-    sys.path.append("../survol")
+    if is_py3:
+        if ".." not in sys.path:
+            sys.path.append("..")
+    else:
+        if "../survol" not in sys.path:
+            sys.path.append("../survol")
     from survol import lib_event
 except ImportError:
     lib_event = None
 
-# This objects groups triples to send to the HTTP server,
-# and periodically wakes up to send them.
-# But if the server name is a file, the RDF content is instead stored to this
- # file by the object destructor.
+# This objects groups triples to send to the HTTP server, and periodically wakes up to send them.
+# But if the server name is a file, the RDF content is instead stored to this file by the object destructor.
 class HttpTriplesClient(object):
     def __init__(self):
-        self.m_listTriples = []
+        self._triples_list = []
+
+        # Threaded mode does not work when creating the server in the same process.
+        # For safety, this reverts to a simpler mode where the triples are sent
+        # in block at the end of the execution.
+        # TODO: Test this with thread mode.
+        self._is_threaded_client = False
+
         # Tests if this a output RDF file, or rather None or the URL of a Survol agent.
-        self.m_server_is_file = G_UpdateServer and not(
+        self._server_is_file = G_UpdateServer and not(
                 G_UpdateServer.lower().startswith("http:")
                 or G_UpdateServer.lower().startswith("https:") )
-        if self.m_server_is_file:
+        if self._server_is_file:
             print("G_UpdateServer=", G_UpdateServer, " IS FILE")
             return
         elif G_UpdateServer:
-            self.m_sharedLock = threading.Lock()
-            aThrd = threading.Thread(target = self.run)
-            # If leaving too early, some data might be lost.
-            aThrd.daemon = True
-            aThrd.start()
-            self.m_valid = True
+            self._is_valid_http_client = True
+            if self._is_threaded_client:
+                self._shared_lock = threading.Lock()
+                self._client_thread = threading.Thread(target = self.run)
+                # If leaving too early, some data might be lost.
+                self._client_thread.daemon = True
+                self._client_thread.start()
 
-    def Shutdown(self):
-        print("HttpTriplesClient.Shutdown")
-        if self.m_server_is_file:
-            lib_event.json_triples_to_rdf(self.m_listTriples, G_UpdateServer)
+    def http_client_shutdown(self):
+        print("HttpTriplesClient.http_client_shutdown")
+        if self._server_is_file:
+            if not lib_event:
+                raise Exception("lib_event was not imported")
+            lib_event.json_triples_to_rdf(self._triples_list, G_UpdateServer)
             print("Stored RDF content to", G_UpdateServer)
         elif G_UpdateServer:
-            print("TODO: Flush data to Survol agent")
-
-    def run(self):
-        while True:
-            # TODO: Wait the same delay before leaving the program.
-            time.sleep(2.0)
-            self.m_sharedLock.acquire()
-            numTriples = len(self.m_listTriples)
-            if numTriples:
-                strToSend = json.dumps(self.m_listTriples)
-                if sys.version_info >= (3,):
-                    assert isinstance(strToSend, str)
-                    strToSend = strToSend.encode('utf-8')
-                    assert isinstance(strToSend, bytes)
-                else:
-                    assert isinstance(strToSend, str)
-                self.m_listTriples = []
+            if self._is_threaded_client:
+                self._push_triples_to_server_threaded()
             else:
-                strToSend = None
-            # Immediately unlocked so no need to wait for the server.
-            self.m_sharedLock.release()
+                # FIXME: The URL event_put.py sometimes times out, on Python 3 and only
+                # FIXME: ... if the server is started by the test program (pytest or unittest).
+                triples_as_bytes, sent_triples_number = self._pop_triples_to_bytes()
+                if triples_as_bytes:
+                    received_triples_number = self._send_bytes_to_server(triples_as_bytes)
+                    if received_triples_number != sent_triples_number:
+                        raise Exception("Lost triples: %d != %d\n" % (received_triples_number, sent_triples_number))
 
-            if strToSend:
-                try:
-                    sys.stdout.write("About to write to:%s %d bytes\n" % (G_UpdateServer, len(strToSend)))
-                    sys.stdout.flush()
-                    req = urllib2.Request(G_UpdateServer)
-                    req.add_header('Content-Type', 'application/json')
+    def _pop_triples_to_bytes(self):
+        triples_number = len(self._triples_list)
+        if triples_number:
+            triples_as_bytes = json.dumps(self._triples_list)
+            if is_py3:
+                assert isinstance(triples_as_bytes, str)
+                triples_as_bytes = triples_as_bytes.encode('utf-8')
+                assert isinstance(triples_as_bytes, bytes)
+            else:
+                assert isinstance(triples_as_bytes, str)
+            self._triples_list = []
+        else:
+            triples_as_bytes = None
+        return triples_as_bytes, triples_number
 
-                    sys.stdout.write("Tm=%f Sending %d triples to %s\n" % (time.time(), numTriples, G_UpdateServer))
-                    sys.stdout.flush()
+    def _send_bytes_to_server(self, triples_as_bytes):
+        assert isinstance(triples_as_bytes, six.binary_type)
+        assert not self._server_is_file
+        if not self._is_valid_http_client:
+            return -1
+        try:
+            req = urllib2.Request(G_UpdateServer)
+            print("len(triples_as_bytes)=%d\n" % len(triples_as_bytes))
+            urlopen_result = urllib2.urlopen(req, data=triples_as_bytes, timeout=30.0)
 
-                    # POST data should be bytes, an iterable of bytes, or a file object. It cannot be of type str
-                    response = urllib2.urlopen(req, data=strToSend, timeout=5.0)
+            server_response = urlopen_result.read()
+            json_response = json.loads(server_response)
+            if json_response['success'] != 'true':
+                raise Exception("Event server error message=%s\n" % json_response['error_message'])
+            received_triples_number = int(json_response['triples_number'])
+            return received_triples_number
 
-                    sys.stdout.write("Tm=%f Reading response from %s\n"% ( time.time(), G_UpdateServer))
-                    sys.stdout.flush()
-                    srvOut = response.read()
-                except:
-                    self.m_valid = False
-                    raise
+        except Exception as server_exception:
+            sys.stdout.write("Event server error=%s\n" % str(server_exception))
+            self._is_valid_http_client = False
+            raise
 
+    def _push_triples_to_server_threaded(self):
+        assert not self._server_is_file
+        assert self._is_threaded_client
+        self._shared_lock.acquire()
+        triples_as_bytes, sent_triples_number = self._pop_triples_to_bytes()
+        # Immediately unlocked so no need to wait for the server.
+        self._shared_lock.release()
 
-    def AddDataToSend(self,jsonTriple):
-        if self.m_server_is_file:
+        if triples_as_bytes:
+            received_triples_number = self._send_bytes_to_server(triples_as_bytes)
+            if received_triples_number != sent_triples_number:
+                raise Exception("Lost triples: %d != %d\n" % (received_triples_number, sent_triples_number))
+
+    # This thread functor loops on the container of triples.
+    # It formats them in JSON and sends them to the URL of the events server.
+    def run(self):
+        assert self._is_threaded_client
+        while True:
+            time.sleep(2.0)
+            self._push_triples_to_server_threaded()
+
+    def queue_triples_for_sending(self, json_triple):
+        if self._server_is_file:
+            #assert not self._is_threaded_client
             # Just append the triple, no need to synchronise.
-            self.m_listTriples.append(jsonTriple)
-        elif self.m_valid and G_UpdateServer:
-            self.m_sharedLock.acquire()
-            self.m_listTriples.append(jsonTriple)
-            self.m_sharedLock.release()
+            self._triples_list.append(json_triple)
+        elif G_UpdateServer:
+            if self._is_threaded_client:
+                self._shared_lock.acquire()
+                self._triples_list.append(json_triple)
+                self._shared_lock.release()
+            else:
+                self._triples_list.append(json_triple)
 
 # This is the Survol server which is notified of all updates
 # of CIM objects. These updates can then be displayed in Survol Web clients.
@@ -499,24 +552,37 @@ def TimeT_to_DateTime(stTimeT):
 
 ################################################################################
 
-def IsCIM(attr,attrVal):
-    return not callable(attrVal) and not attr.startswith("__") and not attr.startswith("m_")
 
-def IsTimeStamp(attr,attrVal):
+# This returns only leaf classes.
+def leaf_derived_classes(the_class):
+    current_subclasses = the_class.__subclasses__()
+    return set([sub_class for sub_class in current_subclasses if not leaf_derived_classes(sub_class)]).union(
+        [sub_sub_class for sub_class in current_subclasses for sub_sub_class in leaf_derived_classes(sub_class)])
+
+
+# CIM classes are defined as plain Python classes plus their attributes.
+# Therefore, CIM attributes are mixed with Python ones.
+# This function is a rule-thumb test to check if an attribute of a class
+# is a CIM attribute. It works because there are very few non-CIM attributes.
+def IsCIM(attr, attr_val):
+    return not callable(attr_val) and not attr.startswith("__") and not attr.startswith("m_")
+
+
+# This identifies CIM attribute which is date or time and must be displayed as such.
+def _is_time_stamp(attr):
     return attr.find("Date") > 0 or attr.find("Time") > 0
-
 
 
 # This is the base class of all CIM_xxx classes. It does the serialization
 # into XML and also sends updates events to the Survol server if there is one.
-class CIM_XmlMarshaller:
+class CIM_XmlMarshaller(object):
     def __init__(self):
         pass
 
     def PlainToXML(self,strm,subMargin):
         try:
             # Optional members order.
-            attrExtra = self.__class__.m_AttrsPriorities
+            attrExtra = self.__class__.m_attributes_priorities
         except AttributeError:
             attrExtra = []
 
@@ -540,20 +606,20 @@ class CIM_XmlMarshaller:
                 continue
             if IsCIM(attr,attrVal):
                 # FIXME: Not very reliable.
-                if IsTimeStamp(attr,attrVal):
-                    attrVal = TimeStampToStr(attrVal)
+                if _is_time_stamp(attr):
+                    attrVal = _timestamp_to_str(attrVal)
                 if attrVal:
                     # No need to write empty strings.
                     strm.write("%s<%s>%s</%s>\n" % ( subMargin, attr, attrVal, attr ) )
 
     def HttpUpdateRequest(self,**objJson):
-        G_httpClient.AddDataToSend(objJson)
+        G_httpClient.queue_triples_for_sending(objJson)
 
     def SendUpdateToServer(self, attrNam, oldAttrVal, attrVal):
         # These are the properties which uniquely define the object.
         # There are always sent even if they did not change,
         # otherwise the object could not be identified.
-        theSubjMoniker = self.GetMonikerSurvol()
+        theSubjMoniker = self.get_survol_moniker()
 
         # TODO: If the attribute is part of the ontology, just inform about the object creation.
         # TODO: Some attributes could be the moniker of another object.
@@ -561,14 +627,15 @@ class CIM_XmlMarshaller:
         # OTHERWISE NO EDGES !!
 
         if oldAttrVal and isinstance( oldAttrVal, CIM_XmlMarshaller):
-            objMonikerOld = oldAttrVal.GetMonikerSurvol()
+            raise Exception("Not implemented yet")
+            objMonikerOld = oldAttrVal.get_survol_moniker()
             attrNamDelete = attrNam + "?predicate_delete"
             self.HttpUpdateRequest(subject=theSubjMoniker,predicate=attrNam,object=objMonikerOld )
 
 
         # For example a file being opened by a process, or a process started by a user etc...
         if isinstance( attrVal, CIM_XmlMarshaller):
-            objMoniker = attrVal.GetMonikerSurvol()
+            objMoniker = attrVal.get_survol_moniker()
             self.HttpUpdateRequest(subject=theSubjMoniker,predicate=attrNam,object=objMoniker)
         else:
             self.HttpUpdateRequest(subject=theSubjMoniker,predicate=attrNam,object=attrVal)
@@ -592,43 +659,50 @@ class CIM_XmlMarshaller:
                     self.SendUpdateToServer(attrNam, oldAttrVal, attrVal)
 
     @classmethod
-    def DisplaySummary(theClass,fdSummaryFile,cimKeyValuePairs):
+    def DisplaySummary(cls, fd_summary_file, cimKeyValuePairs):
         pass
 
     @classmethod
-    def XMLSummary(theClass,fdSummaryFile,cimKeyValuePairs):
-        namClass = theClass.__name__
+    def XMLSummary(cls, fd_summary_file, cimKeyValuePairs):
+        namClass = cls.__name__
         margin = "    "
         subMargin = margin + margin
-        for objPath,objInstance in sorted( G_mapCacheObjects[namClass].items() ):
-            fdSummaryFile.write("%s<%s>\n" % ( margin, namClass ) )
-            objInstance.PlainToXML(fdSummaryFile,subMargin)
-            fdSummaryFile.write("%s</%s>\n" % ( margin, namClass ) )
+        for objPath,objInstance in sorted(G_mapCacheObjects[namClass].items()):
+            fd_summary_file.write("%s<%s>\n" % (margin, namClass))
+            objInstance.PlainToXML(fd_summary_file, subMargin)
+            fd_summary_file.write("%s</%s>\n" % (margin, namClass))
 
     @classmethod
-    def CreateMonikerKey(theClass,*args):
+    def CreateMonikerKey(cls, *args):
         # The input arguments must be in the same order as the ontology.
-        #sys.stdout.write("CreateMonikerKey %s %s %s\n"%(theClass.__name__,str(theClass.m_Ontology),str(args)))
-        mnk = theClass.__name__ + "." + ",".join( '%s="%s"' % (k,v) for k,v in zip(theClass.m_Ontology,args) )
+        #sys.stdout.write("CreateMonikerKey %s %s %s\n"%(cls.__name__,str(cls.cim_ontology_list),str(args)))
+        mnk = cls.__name__ + "." + ",".join('%s="%s"' % (k, v) for k, v in zip(cls.cim_ontology_list, args))
         #sys.stdout.write("CreateMonikerKey mnk=%s\n"%mnk)
         return mnk
 
+    # This object has a class name, an ontology which is an ordered list
+    # of attributes names, and several attributes in the object itself.
+    # This method wraps the class name and these attributes and their values,
+    # into an object which is used to store an event related to this object.
     # JSON escapes special characters in strings.
-    def GetMonikerSurvol(self):
-        dictMonik = { "entity_type": self.__class__.__name__}
-        for k in self.m_Ontology:
-            dictMonik[k] = getattr(self,k)
-        return dictMonik
+    def get_survol_moniker(self):
+        attributes_dict = {attribute_key: getattr(self, attribute_key) for attribute_key in self.cim_ontology_list}
+        return (self.__class__.__name__, attributes_dict)
 
     def __repr__(self):
-        mnk = self.__class__.__name__ + "." + ",".join( '%s="%s"' % (k,getattr(self,k)) for k in self.m_Ontology )
+        mnk = self.__class__.__name__ + "." + ",".join( '%s="%s"' % (k,getattr(self,k)) for k in self.cim_ontology_list )
         return "%s" % mnk
 
+    @staticmethod
+    def create_instance_from_class_name(cim_class_name, **cim_attributes_dict):
+        cim_class_definition = _class_name_to_subclass[cim_class_name]
+        attributes_list = [cim_attributes_dict[key] for key in cim_class_definition.cim_ontology_list]
+        return cim_class_definition(*attributes_list)
 
 ################################################################################
 
 # Read from a real process or from the ini file when replaying a session.
-G_CurrentDirectory = None
+G_CurrentDirectory = u""
 
 
 # The CIM_xxx classes are taken from Common Information Model standard.
@@ -647,7 +721,7 @@ G_CurrentDirectory = None
 #   string   Roles[];
 #   string   NameFormat;
 # }
-class CIM_ComputerSystem(CIM_XmlMarshaller, object):
+class CIM_ComputerSystem(CIM_XmlMarshaller):
     def __init__(self, hostname):
         super(CIM_ComputerSystem, self).__init__()
         self.Name = hostname.lower()  # This is a convention.
@@ -668,7 +742,7 @@ class CIM_ComputerSystem(CIM_XmlMarshaller, object):
             except AttributeError:
                 pass
 
-    m_Ontology = ['Name']
+    cim_ontology_list = ['Name']
 
 
 #
@@ -702,7 +776,7 @@ class CIM_ComputerSystem(CIM_XmlMarshaller, object):
 #   uint64   TotalVisibleMemorySize;
 #   string   Version;
 # };
-class CIM_OperatingSystem(CIM_XmlMarshaller, object):
+class CIM_OperatingSystem(CIM_XmlMarshaller):
     def __init__(self):
         super(CIM_OperatingSystem, self).__init__()
 
@@ -713,7 +787,7 @@ class CIM_OperatingSystem(CIM_XmlMarshaller, object):
             self.Release = platform.release()
             self.Platform = platform.platform()
 
-    m_Ontology = []
+    cim_ontology_list = []
 
 
 #
@@ -744,13 +818,13 @@ class CIM_OperatingSystem(CIM_XmlMarshaller, object):
 #   string   SystemCreationClassName;
 #   string   SystemName;
 # };
-class CIM_NetworkAdapter(CIM_XmlMarshaller, object):
+class CIM_NetworkAdapter(CIM_XmlMarshaller):
     def __init__(self, address):
         super(CIM_NetworkAdapter, self).__init__()
         self.Name = address
         self.PermanentAddress = address
 
-    m_Ontology = ['Name']
+    cim_ontology_list = ['Name']
 
 
 # class CIM_Process : CIM_LogicalElement
@@ -774,14 +848,14 @@ class CIM_NetworkAdapter(CIM_XmlMarshaller, object):
 #  uint64   UserModeTime;
 #  uint64   WorkingSetSize;
 # };
-class CIM_Process(CIM_XmlMarshaller, object):
-    def __init__(self, procId):
+class CIM_Process(CIM_XmlMarshaller):
+    def __init__(self, proc_id):
         super(CIM_Process, self).__init__()
 
-        # sys.stdout.write("CIM_Process procId=%s\n"%procId)
+        # sys.stdout.write("CIM_Process proc_id=%s\n"%proc_id)
 
-        # BY CONVENTION, SOME MEMBERS MUST BE DISPLAYED AND FOLLOW CIM CONVENTION.
-        self.Handle = procId
+        # SOME MEMBERS MUST BE DISPLAYED AND FOLLOW CIM CONVENTION.
+        self.Handle = proc_id
         self.m_parentProcess = None
         self.m_subProcesses = set()
         self.CreationDate = None
@@ -797,20 +871,15 @@ class CIM_Process(CIM_XmlMarshaller, object):
 
         if not G_ReplayMode:
             # Maybe this cannot be accessed.
-            if sys.platform.startswith("linux"):
-                filnamEnviron = "/proc/%d/environ" % self.Handle
+            if is_platform_linux:
+                filnam_environ = "/proc/%d/environ" % self.Handle
                 try:
-                    fdEnv = open(filnamEnviron)
-                    arrEnv = fdEnv.readline().split('\0')
                     self.EnvironmentVariables = {}
-                    for onePair in fdEnv.readline().split('\0'):
-                        if onePair:
-                            ixEq = onePair.find("=")
-                            if ixEq > 0:
-                                envKey = onePair[:ixEq]
-                                envVal = onePair[ixEq + 1:]
-                                self.EnvironmentVariables[envKey] = envVal
-                    fdEnv.close()
+                    with open(filnam_environ) as fd_env:
+                        for one_pair in fd_env.readline().split('\0'):
+                            env_key, colon, env_val = one_pair.partition('=')
+                            if colon:
+                                self.EnvironmentVariables[env_key] = env_val
                 except:
                     pass
 
@@ -818,40 +887,47 @@ class CIM_Process(CIM_XmlMarshaller, object):
             try:
                 # FIXME: If rerunning a simulation, this does not make sense.
                 # Same for CIM_DataFile when this is not the target machine.
-                procObj = psutil.Process(procId)
+                proc_obj = psutil.Process(proc_id)
             except:
-                # Maybe this is replaying a former session and in this case,
-                # the process is not there anymore.
-                procObj = None
+                # Maybe this is replaying a former session and if so, the process exited.
+                proc_obj = None
         else:
-            procObj = None
+            proc_obj = None
 
-        if procObj:
+        if proc_obj:
             try:
-                self.Name = procObj.name()
-                execFilNam = procObj.exe()
-                execFilObj = CreateObjectPath(CIM_DataFile, execFilNam)
-                self.SetExecutable(execFilObj)
+                self.Name = proc_obj.name()
+                exec_fil_nam = proc_obj.exe().replace("\\", "/")
+                # The process id is not needed because the path is absolute and the process CIM object
+                # should already be created. However, in the future it might reuse an existing context.
+                objects_context = ObjectsContext(proc_id)
+                exec_fil_obj = objects_context._class_model_to_object_path(CIM_DataFile, exec_fil_nam)
+
+                # The process id is not needed because the path is absolute.
+                # However, in the future it might reuse an existing context.
+                # Also, the process must not be inserted twice.
+                self.set_executable_path(exec_fil_obj)
+                self.CommandLine = proc_obj.cmdline()
             except:
                 self.Name = None
 
             try:
                 # Maybe the process has exit.
-                self.Username = procObj.username()
-                self.Priority = procObj.nice()
+                self.Username = proc_obj.username()
+                self.Priority = proc_obj.nice()
             except:
                 pass
 
             try:
-                self.CurrentDirectory = procObj.cwd()
+                self.CurrentDirectory = proc_obj.cwd().replace("\\", "/")
             except:
                 # psutil.ZombieProcess process still exists but it's a zombie
                 # Another possibility would be to use the parent process.
                 self.CurrentDirectory = G_CurrentDirectory
 
         else:
-            if procId > 0:
-                self.Name = "pid=%s" % procId
+            if proc_id > 0:
+                self.Name = "pid=%s" % proc_id
             else:
                 self.Name = ""
             # TODO: This could be deduced with calls to setuid().
@@ -861,41 +937,27 @@ class CIM_Process(CIM_XmlMarshaller, object):
             self.CurrentDirectory = G_CurrentDirectory
             self.Priority = 0
 
-        # If this process appears for the first time and there is only
-        # one other process, then it is its parent.
-        # It helps if the first vfork() is never finished,
-        # and if we did not get the main process id.
-        try:
-            mapProcs = G_mapCacheObjects[CIM_Process.__name__]
-            keysProcs = list(mapProcs.keys())
-            if len(keysProcs) == 1:
-                # We are about to create the second process.
+        # In the general case, it is not possible to get the parent process,
+        # because it might replay a session. So, it can only rely on the successive function calls.
+        # Therefore, the parent processes must be stored before the subprocesses.
 
-                # CIM_Process.Handle="29300"
-                firstProcId = keysProcs[0]
-                firstProcObj = mapProcs[firstProcId]
-                if firstProcId != ('CIM_Process.Handle="%s"' % firstProcObj.Handle):
-                    raise Exception("Inconsistent procid:%s != %s" % (firstProcId, firstProcObj.Handle))
 
-                if firstProcObj.Handle == procId:
-                    raise Exception("Duplicate procid:%s" % procId)
-                self.SetParentProcess(firstProcObj)
-        except KeyError:
-            # This is the first process.
-            pass
 
-    m_Ontology = ['Handle']
+        # If this process appears for the first time and there is only one other process, then it is its parent.
+        # It helps if the first vfork() is never finished, and if we did not get the main process id.
+        map_procs = G_mapCacheObjects[CIM_Process.__name__]
+        keys_procs = list(map_procs.keys())
+    cim_ontology_list = ['Handle']
 
     @classmethod
-    def DisplaySummary(theClass, fdSummaryFile, cimKeyValuePairs):
+    def DisplaySummary(cls, fdSummaryFile, cimKeyValuePairs):
         fdSummaryFile.write("Processes:\n")
-        print("keys=", G_mapCacheObjects.keys())
-        for objPath, objInstance in sorted(G_mapCacheObjects[CIM_Process.__name__].items()):
-            # sys.stdout.write("Path=%s\n"%objPath)
+        list_CIM_Process = G_mapCacheObjects[CIM_Process.__name__]
+        for objPath, objInstance in sorted(list_CIM_Process.items()):
             objInstance.Summarize(fdSummaryFile)
         fdSummaryFile.write("\n")
 
-    m_AttrsPriorities = ["Handle", "Name", "CommandLine", "CreationDate", "TerminationDate", "Priority"]
+    m_attributes_priorities = ["Handle", "Name", "CommandLine", "CreationDate", "TerminationDate", "Priority"]
 
     def XMLOneLevelSummary(self, strm, margin="    "):
         self.m_isVisited = True
@@ -905,7 +967,7 @@ class CIM_Process(CIM_XmlMarshaller, object):
 
         self.PlainToXML(strm, subMargin)
 
-        FileAccess.VectorToXML(strm, self.m_ProcessFileAccesses, subMargin, False)
+        FileAccess.serialize_list_to_XML(strm, self.m_ProcessFileAccesses, subMargin, False)
 
         for objInstance in self.m_subProcesses:
             objInstance.XMLOneLevelSummary(strm, subMargin)
@@ -943,7 +1005,7 @@ class CIM_Process(CIM_XmlMarshaller, object):
                 objInstance.TerminationDate = timeEnd
 
     @classmethod
-    def XMLSummary(theClass, fdSummaryFile, cimKeyValuePairs):
+    def XMLSummary(cls, fd_summary_file, cimKeyValuePairs):
         # Find unvisited processes. It does not start from G_top_ProcessId
         # because maybe it contains several trees, or subtrees were missed etc...
         for objPath, objInstance in sorted(G_mapCacheObjects[CIM_Process.__name__].items()):
@@ -954,8 +1016,7 @@ class CIM_Process(CIM_XmlMarshaller, object):
                 pass
 
             topObjProc = CIM_Process.TopProcessFromProc(objInstance)
-
-            topObjProc.XMLOneLevelSummary(fdSummaryFile)
+            topObjProc.XMLOneLevelSummary(fd_summary_file)
 
     # In text mode, with no special formatting.
     def Summarize(self, strm):
@@ -966,10 +1027,10 @@ class CIM_Process(CIM_XmlMarshaller, object):
         except AttributeError:
             pass
         if self.CreationDate:
-            strStart = TimeStampToStr(self.CreationDate)
+            strStart = _timestamp_to_str(self.CreationDate)
             strm.write("    Start time:%s\n" % strStart)
         if self.TerminationDate:
-            strEnd = TimeStampToStr(self.TerminationDate)
+            strEnd = _timestamp_to_str(self.TerminationDate)
             strm.write("    End time:%s\n" % strEnd)
         if self.m_parentProcess:
             strm.write("    Parent:%s\n" % self.m_parentProcess.Handle)
@@ -979,11 +1040,8 @@ class CIM_Process(CIM_XmlMarshaller, object):
         if int(self.Handle) == int(objCIM_Process.Handle):
             raise Exception("Self-parent")
         self.m_parentProcess = objCIM_Process
+        self.ParentProcessID = objCIM_Process.Handle
         objCIM_Process.m_subProcesses.add(self)
-
-    def AddParentProcess(self, timeStamp, objCIM_Process):
-        self.SetParentProcess(objCIM_Process)
-        self.CreationDate = timeStamp
 
     def WaitProcessEnd(self, timeStamp, objCIM_Process):
         # sys.stdout.write("WaitProcessEnd: %s linking to %s\n" % (self.Handle,objCIM_Process.Handle))
@@ -998,12 +1056,12 @@ class CIM_Process(CIM_XmlMarshaller, object):
             # sys.stdout.write("WaitProcessEnd: %s already linked to %s\n" % (self.m_parentProcess.Handle,objCIM_Process.Handle))
             pass
 
-    def SetExecutable(self, objCIM_DataFile):
+    def set_executable_path(self, objCIM_DataFile):
         assert (isinstance(objCIM_DataFile, CIM_DataFile))
         self.Executable = objCIM_DataFile.Name
         self.m_ExecutableObject = objCIM_DataFile
 
-    def SetCommandLine(self, lstCmdLine):
+    def set_command_line(self, lstCmdLine):
         # TypeError: sequence item 7: expected string, dict found
         if lstCmdLine:
             self.CommandLine = " ".join([str(elt) for elt in lstCmdLine])
@@ -1041,7 +1099,7 @@ class CIM_Process(CIM_XmlMarshaller, object):
 
     # Some system calls are relative to the current directory.
     # Therefore, this traces current dir changes due to system calls.
-    def SetProcessCurrentDir(self, currDirObject):
+    def set_process_current_directory(self, currDirObject):
         self.CurrentDirectory = currDirObject.Name
 
     def GetProcessCurrentDir(self):
@@ -1055,14 +1113,115 @@ class CIM_Process(CIM_XmlMarshaller, object):
     # A file might have been opened several times by the same process.
     # Therefore, once a file has been closed, the associated file access
     # cannot be returned again.
-    def GetFileAccess(self, objCIM_DataFile):
-        filAcc = FileAccess.LookupFileAccess(self, objCIM_DataFile)
-        return filAcc
+    def get_file_access(self, objCIM_DataFile):
+        one_file_access = FileAccess.lookup_file_access(self, objCIM_DataFile)
+        return one_file_access
 
 
 # Other tools to consider:
 # dtrace and blktrac and valgrind
 # http://www.brendangregg.com/ebpf.html
+
+# class CIM_LogicalFile : CIM_LogicalElement
+# {
+#   string   Caption;
+#   string   Description;
+#   datetime InstallDate;
+#   string   Status;
+#   uint32   AccessMask;
+#   boolean  Archive;
+#   boolean  Compressed;
+#   string   CompressionMethod;
+#   string   CreationClassName;
+#   datetime CreationDate;
+#   string   CSCreationClassName;
+#   string   CSName;
+#   string   Drive;
+#   string   EightDotThreeFileName;
+#   boolean  Encrypted;
+#   string   EncryptionMethod;
+#   string   Name;
+#   string   Extension;
+#   string   FileName;
+#   uint64   FileSize;
+#   string   FileType;
+#   string   FSCreationClassName;
+#   string   FSName;
+#   boolean  Hidden;
+#   uint64   InUseCount;
+#   datetime LastAccessed;
+#   datetime LastModified;
+#   string   Path;
+#   boolean  Readable;
+#   boolean  System;
+#   boolean  Writeable;
+# };
+class CIM_LogicalFile(CIM_XmlMarshaller):
+    def __init__(self, path_name):
+        super(CIM_LogicalFile, self).__init__()
+
+        # https://msdn.microsoft.com/en-us/library/aa387236(v=vs.85).aspx
+        # The Name property is a string representing the inherited name
+        # that serves as a key of a logical file instance within a file system.
+        # Full path names should be provided.
+
+        # TODO: When the name contains "<" or ">" it cannot be properly displayed in SVG.
+        # TODO: Also, names like "UNIX:" or "TCP:" should be processed a special way.
+        self.Name = path_name
+        # File name without the file name extension. Example: "MyDataFile"
+        try:
+            basNa = os.path.basename(path_name)
+            # There might be several dots, or none.
+            self.FileName = basNa.split(".")[0]
+        except:
+            pass
+        self.Category = _pathname_to_category(path_name)
+
+        self.m_DataFileFileAccesses = []
+
+        # Some information are meaningless because they vary between executions.
+        if G_SameMachine:
+            try:
+                objStat = os.stat(path_name)
+            except:
+                objStat = None
+
+            if objStat:
+                self.FileSize = objStat.st_size
+                self.FileMode = objStat.st_mode
+                self.Inode = objStat.st_ino
+                self.DeviceId = objStat.st_dev
+                self.HardLinksNumber = objStat.st_nlink
+                self.OwnerUserId = objStat.st_uid
+                self.OwnerGroupId = objStat.st_gid
+                self.AccessTime = TimeT_to_DateTime(objStat.st_atime)
+                self.ModifyTime = TimeT_to_DateTime(objStat.st_mtime)
+                self.CreationTime = TimeT_to_DateTime(objStat.st_ctime)
+                try:
+                    # This does not exist on Windows.
+                    self.DeviceType = objStat.st_rdev
+                except AttributeError:
+                    pass
+
+                # This is on Windows only.
+                # self.UserDefinedFlags = objStat.st_flags
+                # self.FileCreator = objStat.st_creator
+                # self.FileType = objStat.st_type
+
+        # If this is a connected socket:
+        # 'TCP:[54.36.162.150:37415->82.45.12.63:63708]'
+        mtchSock = re.match(r"TCP:\[.*->(.*)\]", path_name)
+        if mtchSock:
+            self.SetAddrPort(mtchSock.group(1))
+        else:
+            # 'TCPv6:[::ffff:54.36.162.150:21->::ffff:82.45.12.63:63703]'
+            mtchSock = re.match(r"TCPv6:\[.*->(.*)\]", path_name)
+            if mtchSock:
+                self.SetAddrPort(mtchSock.group(1))
+
+    cim_ontology_list = ['Name']
+
+
 
 # class CIM_DataFile : CIM_LogicalFile
 # {
@@ -1100,79 +1259,15 @@ class CIM_Process(CIM_XmlMarshaller, object):
 # string   Manufacturer;
 # string   Version;
 # };
-class CIM_DataFile(CIM_XmlMarshaller, object):
-    def __init__(self, pathName):
-        super(CIM_DataFile, self).__init__()
-
-        # https://msdn.microsoft.com/en-us/library/aa387236(v=vs.85).aspx
-        # The Name property is a string representing the inherited name
-        # that serves as a key of a logical file instance within a file system.
-        # Full path names should be provided.
-
-        # TODO: When the name contains "<" or ">" it cannot be properly displayed in SVG.
-        # TODO: Also, names like "UNIX:" or "TCP:" should be processed a special way.
-        self.Name = pathName
-        # File name without the file name extension. Example: "MyDataFile"
-        try:
-            basNa = os.path.basename(pathName)
-            # There might be several dots, or none.
-            self.FileName = basNa.split(".")[0]
-        except:
-            pass
-        self.Category = _PathCategory(pathName)
-
-        self.m_DataFileFileAccesses = []
-
-        # Some information are meaningless because they vary between executions.
-        if G_SameMachine:
-            try:
-                objStat = os.stat(pathName)
-            except:
-                objStat = None
-
-            if objStat:
-                self.FileSize = objStat.st_size
-                self.FileMode = objStat.st_mode
-                self.Inode = objStat.st_ino
-                self.DeviceId = objStat.st_dev
-                self.HardLinksNumber = objStat.st_nlink
-                self.OwnerUserId = objStat.st_uid
-                self.OwnerGroupId = objStat.st_gid
-                self.AccessTime = TimeT_to_DateTime(objStat.st_atime)
-                self.ModifyTime = TimeT_to_DateTime(objStat.st_mtime)
-                self.CreationTime = TimeT_to_DateTime(objStat.st_ctime)
-                try:
-                    # This does not exist on Windows.
-                    self.DeviceType = objStat.st_rdev
-                except AttributeError:
-                    pass
-
-                # This is on Windows only.
-                # self.UserDefinedFlags = objStat.st_flags
-                # self.FileCreator = objStat.st_creator
-                # self.FileType = objStat.st_type
-
-        # If this is a connected socket:
-        # 'TCP:[54.36.162.150:37415->82.45.12.63:63708]'
-        mtchSock = re.match(r"TCP:\[.*->(.*)\]", pathName)
-        if mtchSock:
-            self.SetAddrPort(mtchSock.group(1))
-        else:
-            # 'TCPv6:[::ffff:54.36.162.150:21->::ffff:82.45.12.63:63703]'
-            mtchSock = re.match(r"TCPv6:\[.*->(.*)\]", pathName)
-            if mtchSock:
-                self.SetAddrPort(mtchSock.group(1))
-
-    m_Ontology = ['Name']
+class CIM_DataFile(CIM_LogicalFile):
+    def __init__(self, path_name):
+        super(CIM_DataFile, self).__init__(path_name)
 
     # This creates a map containing all detected files. This map is indexed
     # by an informal file category: DLL, data file etc...
     @staticmethod
     def SplitFilesByCategory():
-        try:
-            mapFiles = G_mapCacheObjects[CIM_DataFile.__name__].items()
-        except KeyError:
-            return {}
+        mapFiles = G_mapCacheObjects[CIM_DataFile.__name__].items()
 
         # TODO: Find a way to define the presentation as a parameter.
         # Maybe we can use the list of keys: Just mentioning a property
@@ -1185,7 +1280,7 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
         return mapOfFilesMap
 
     @classmethod
-    def DisplaySummary(theClass, fdSummaryFile, cimKeyValuePairs):
+    def DisplaySummary(cls, fdSummaryFile, cimKeyValuePairs):
         fdSummaryFile.write("Files:\n")
         mapOfFilesMap = CIM_DataFile.SplitFilesByCategory()
 
@@ -1202,7 +1297,7 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
                 objInstance.Summarize(fdSummaryFile)
         fdSummaryFile.write("\n")
 
-    m_AttrsPriorities = ["Name", "Category", "SocketAddress"]
+    m_attributes_priorities = ["Name", "Category", "SocketAddress"]
 
     def XMLDisplay(self, strm):
         margin = "        "
@@ -1212,7 +1307,7 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
 
         self.PlainToXML(strm, subMargin)
 
-        FileAccess.VectorToXML(strm, self.m_DataFileFileAccesses, subMargin, True)
+        FileAccess.serialize_list_to_XML(strm, self.m_DataFileFileAccesses, subMargin, True)
 
         strm.write("%s</CIM_DataFile>\n" % (margin))
 
@@ -1223,7 +1318,7 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
             objInstance.XMLDisplay(fdSummaryFile)
 
     @classmethod
-    def XMLSummary(theClass, fdSummaryFile, cimKeyValuePairs):
+    def XMLSummary(cls, fd_summary_file, cimKeyValuePairs):
         """Top-level informations are categories of CIM_DataFile which are not technical
         but the regex-based filtering."""
         mapOfFilesMap = CIM_DataFile.SplitFilesByCategory()
@@ -1238,10 +1333,10 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
                 # No need to write a category name if it is empty.
                 continue
 
-            fdSummaryFile.write("    <FilesCategory category='%s'>\n" % categoryFiles)
+            fd_summary_file.write("    <FilesCategory category='%s'>\n" % categoryFiles)
             if filterCats and (not categoryFiles in filterCats): continue
-            CIM_DataFile.XMLCategorySummary(fdSummaryFile, mapFilesSub)
-            fdSummaryFile.write("    </FilesCategory>\n")
+            CIM_DataFile.XMLCategorySummary(fd_summary_file, mapFilesSub)
+            fd_summary_file.write("    </FilesCategory>\n")
 
     def Summarize(self, strm):
         try:
@@ -1255,7 +1350,7 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
         for filAcc in self.m_DataFileFileAccesses:
 
             if filAcc.OpenTime:
-                strOpen = TimeStampToStr(filAcc.OpenTime)
+                strOpen = _timestamp_to_str(filAcc.OpenTime)
                 strm.write("  Open:%s\n" % strOpen)
 
                 try:
@@ -1264,7 +1359,7 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
                     pass
 
             if filAcc.CloseTime:
-                strClose = TimeStampToStr(filAcc.CloseTime)
+                strClose = _timestamp_to_str(filAcc.CloseTime)
                 strm.write("  Close:%s\n" % strClose)
 
         # Only if this is a socket.
@@ -1279,7 +1374,7 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
         except AttributeError:
             pass
 
-    def SetIsExecuted(self):
+    def set_is_executed(self):
         self.IsExecuted = True
 
     # The input could be IPV4 or IPV6:
@@ -1301,11 +1396,7 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
     def GetExposedPorts():
         """this is is the list of all ports numbers whihc have to be open."""
 
-        try:
-            mapFiles = G_mapCacheObjects[CIM_DataFile.__name__].items()
-        except KeyError:
-            return
-
+        mapFiles = G_mapCacheObjects[CIM_DataFile.__name__].items()
         setPorts = set()
         for objPath, objInstance in mapFiles:
             try:
@@ -1316,7 +1407,7 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
 
     m_nonFilePrefixes = ["UNIX:", "TCP:", "TCPv6:", "NETLINK:", "pipe:", "UDP:", "UDPv6:", ]
 
-    def IsPlainFile(self):
+    def is_plain_file(self):
         if self.Name:
             for pfx in CIM_DataFile.m_nonFilePrefixes:
                 if self.Name.startswith(pfx):
@@ -1325,6 +1416,72 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
         return False
 
 
+# class CIM_Directory : CIM_LogicalFile
+# {
+#   uint32   AccessMask;
+#   boolean  Archive;
+#   string   Caption;
+#   boolean  Compressed;
+#   string   CompressionMethod;
+#   string   CreationClassName;
+#   datetime CreationDate;
+#   string   CSCreationClassName;
+#   string   CSName;
+#   string   Description;
+#   string   Drive;
+#   string   EightDotThreeFileName;
+#   boolean  Encrypted;
+#   string   EncryptionMethod;
+#   string   Extension;
+#   string   FileName;
+#   uint64   FileSize;
+#   string   FileType;
+#   string   FSCreationClassName;
+#   string   FSName;
+#   boolean  Hidden;
+#   datetime InstallDate;
+#   uint64   InUseCount;
+#   datetime LastAccessed;
+#   datetime LastModified;
+#   string   Name;
+#   string   Path;
+#   boolean  Readable;
+#   string   Status;
+#   boolean  System;
+#   boolean  Writeable;
+# };
+class CIM_Directory(CIM_LogicalFile):
+    def __init__(self, path_name):
+        super(CIM_Directory, self).__init__(path_name)
+
+
+# This must appear AFTER the declaration of classes.
+_class_name_to_subclass = {cls.__name__: cls for cls in leaf_derived_classes(CIM_XmlMarshaller)}
+
+
+# os.path.abspath removes things like . and .. from the path
+# giving a full path from the root of the directory tree to the named file (or symlink)
+def to_real_absolute_path(directory_path, file_basename):
+    # This conversion to avoid "TypeError: Can't mix strings and bytes in path components"
+    if isinstance(directory_path, six.binary_type):
+        directory_path = directory_path.decode("utf-8")
+    if isinstance(file_basename, six.binary_type):
+        file_basename = file_basename.decode("utf-8")
+    # This does not apply to pseudo-files such as: "pipe:", "TCPv6:" etc...
+    # It must not filter Windows paths such as "C:\\xxxxx"
+    if is_platform_linux and re.match(u"^[0-9a-zA-Z_]+:", file_basename):
+        return file_basename
+
+    if file_basename in [u"stdout", u"stdin", u"stderr"]:
+        return file_basename
+
+    join_path = os.path.join(directory_path, file_basename)
+    norm_path = os.path.realpath(join_path)
+
+    if not is_platform_linux:
+        norm_path = norm_path.replace(u"\\", "/")
+    return norm_path
+
 ################################################################################
 
 # This contains all CIM objects: CIM_Process, CIM_DataFile etc...
@@ -1332,72 +1489,97 @@ class CIM_DataFile(CIM_XmlMarshaller, object):
 # updated or deleted, an event might be sent to a Survol server.
 G_mapCacheObjects = None
 
-################################################################################
-
-def CreateObjectPath(classModel, *ctorArgs):
-    global G_mapCacheObjects
-    try:
-        mapObjs = G_mapCacheObjects[classModel.__name__]
-    except KeyError:
-        mapObjs = {}
-        G_mapCacheObjects[classModel.__name__] = mapObjs
-
-    objPath = classModel.CreateMonikerKey(*ctorArgs)
-    try:
-        theObj = mapObjs[objPath]
-    except KeyError:
-        theObj = classModel(*ctorArgs)
-        mapObjs[objPath] = theObj
-    return theObj
+# Read from a real process or from the log file name when replaying a session.
+# It is conceptually part of an ObjectsContext.
+G_topProcessId = None
 
 ################################################################################
 
-# os.path.abspath removes things like . and .. from the path
-# giving a full path from the root of the directory tree to the named file (or symlink)
-def ToAbsPath( dirPath, filNam ):
-    # This does not apply to pseudo-files such as: "pipe:", "TCPv6:" etc...
-    if re.match("^[0-9a-zA-Z_]+:", filNam):
-        return filNam
 
-    if filNam in ["stdout", "stdin", "stderr"]:
-        return filNam
+# This helps creating CIM objects based on their class name a key-value pairs
+# defined from the ontology. The role of this context object is to contain
+# everything which is needed to create a CIM object without ambiguity.
+# For example, when creating a CIM_DataFile, only the relative path name
+# might ba available. So, the process current work dir is given by this context.
+class ObjectsContext:
+    def __init__(self, process_id = None):
+        self._process_id = process_id
 
-    join_path = os.path.join(dirPath, filNam)
-    norm_path = os.path.realpath(join_path)
-    return norm_path
+    def attributes_to_cim_object(self, cim_class_name, **cim_attributes_dict):
+        if cim_class_name == "CIM_Process":
+            cim_key_handle = cim_attributes_dict['Handle']
+            sys.stderr.write("attributes_to_cim_object CIM_Process cim_key_handle=%s self._process_id=%s\n"
+                             % (cim_key_handle, self._process_id))
+            return self.ToObjectPath_CIM_Process(cim_key_handle)
+        if cim_class_name == "CIM_DataFile":
+            file_pathname = cim_attributes_dict['Name']
+            return self.ToObjectPath_CIM_DataFile(file_pathname)
+
+
+        # In the general case, reorder the arguments.
+        cim_object_datafile = CIM_XmlMarshaller.create_instance_from_class_name(cim_class_name, **cim_attributes_dict)
+        return cim_object_datafile
+
+    def ToObjectPath_CIM_Process(self, process_id):
+        returned_object = self._class_model_to_object_path(CIM_Process, process_id)
+
+        map_procs = G_mapCacheObjects[CIM_Process.__name__]
+        #sys.stderr.write("map_procs.keys()=%s\n" % str(map_procs.keys()))
+
+        if process_id != self._process_id:
+            context_process_obj_path = CIM_Process.CreateMonikerKey(self._process_id)
+            sys.stderr.write("context_process_obj_path=%s\n" % context_process_obj_path)
+
+            parent_proc_obj = map_procs[context_process_obj_path]
+
+            returned_object.SetParentProcess(parent_proc_obj)
+        return returned_object
+
+    # It might be a Linux socket or an IP socket.
+    # The pid can be added so we know which process accesses this file.
+    def ToObjectPath_CIM_DataFile(self, pathName):
+        if isinstance(pathName, six.binary_type):
+            pathName = pathName.decode("utf-8")
+        assert isinstance(pathName, six.text_type)
+        if self._process_id:
+            # Maybe this is a relative file, and to make it absolute,
+            # the process is needed.
+            objProcess = self.ToObjectPath_CIM_Process(self._process_id)
+            dirPath = objProcess.GetProcessCurrentDir()
+        else:
+            # At least it will suppress ".." etc...
+            dirPath = ""
+
+        pathName = to_real_absolute_path(dirPath, pathName)
+
+        objDataFile = self._class_model_to_object_path(CIM_DataFile, pathName)
+        return objDataFile
+
+    def _class_model_to_object_path(self, class_model, *ctor_args):
+        global G_mapCacheObjects
+        map_objs = G_mapCacheObjects[class_model.__name__]
+
+        obj_path = class_model.CreateMonikerKey(*ctor_args)
+        try:
+            the_obj = map_objs[obj_path]
+        except KeyError:
+            if class_model.__name__ == "CIM_Process":
+                # FIXME: IT IS CALLED TOO OFTEN, FOR EACH CIM_DataFile !!
+                sys.stderr.write("_class_model_to_object_path %s CIM_Process args=%s\n" % (sys._getframe(1).f_code.co_name, str(*ctor_args)))
+
+            the_obj = class_model(*ctor_args)
+            map_objs[obj_path] = the_obj
+        return the_obj
 
 ################################################################################
 
-def ToObjectPath_CIM_Process(aPid):
-    return CreateObjectPath(CIM_Process,aPid)
-
-# It might be a Linux socket or an IP socket.
-# The pid can be added so we know which process accesses this file.
-def ToObjectPath_CIM_DataFile(pathName,aPid = None):
-    #sys.stdout.write("ToObjectPath_CIM_DataFile pathName=%s aPid=%s\n" % ( pathName, str(aPid) ) )
-    if aPid:
-        # Maybe this is a relative file, and to make it absolute,
-        # the process is needed.
-        objProcess = ToObjectPath_CIM_Process(aPid)
-        dirPath = objProcess.GetProcessCurrentDir()
-    else:
-        # At least it will suppress ".." etc...
-        dirPath = ""
-
-    pathName = ToAbsPath( dirPath, pathName )
-
-    objDataFile = CreateObjectPath(CIM_DataFile,pathName)
-    return objDataFile
-
-################################################################################
-
-def GenerateDockerFile(dockerFilename):
+def generate_dockerfile(dockerFilename):
     fdDockerFile = open(dockerFilename, "w")
 
     # This write in the DockerFile, the environment variables accessed
     # by processes. For the moment, all env vars are mixed together,
     # which is inexact, strictly speaking.
-    def WriteEnvironVar():
+    def _write_environment_variables():
         for envNam in G_EnvironmentVariables:
             envVal = G_EnvironmentVariables[envNam]
             if envVal == "":
@@ -1407,7 +1589,7 @@ def GenerateDockerFile(dockerFilename):
 
         fdDockerFile.write("\n")
 
-    def WriteProcessTree():
+    def _write_process_tree():
         """Only for documentation purpose"""
 
         def WriteOneProcessSubTree(objProc, depth):
@@ -1415,7 +1597,7 @@ def GenerateDockerFile(dockerFilename):
             if not commandLine:
                 commandLine = "????"
             fdDockerFile.write("# %s -> %s : %s %s\n" % (
-            TimeStampToStr(objProc.CreationDate), TimeStampToStr(objProc.TerminationDate), "    " * depth, commandLine))
+            _timestamp_to_str(objProc.CreationDate), _timestamp_to_str(objProc.TerminationDate), "    " * depth, commandLine))
 
             for subProc in sorted(objProc.m_subProcesses, key=lambda x: x.Handle):
                 WriteOneProcessSubTree(subProc, depth + 1)
@@ -1474,9 +1656,9 @@ def GenerateDockerFile(dockerFilename):
             fdDockerFile.write("EXPOSE %s\n" % onePort)
         fdDockerFile.write("\n")
 
-    WriteEnvironVar()
+    _write_environment_variables()
 
-    WriteProcessTree()
+    _write_process_tree()
 
     # More examples here:
     # https://github.com/kstaken/dockerfile-examples/blob/master/couchdb/Dockerfile
@@ -1489,11 +1671,12 @@ def GenerateDockerFile(dockerFilename):
 # As read from the strace or ltrace calls to getenv()
 G_EnvironmentVariables = None
 
-def InitGlobalObjects():
+
+def init_global_objects():
     global G_mapCacheObjects
     global G_httpClient
     global G_EnvironmentVariables
-    G_mapCacheObjects = {}
+    G_mapCacheObjects = collections.defaultdict(dict)
 
     # This object is used to send triples to a Survol server.
     # It is also used to store the triples in a RDF file, which is created by the destructor.
@@ -1502,77 +1685,81 @@ def InitGlobalObjects():
     # As read from the strace or ltrace calls to getenv()
     G_EnvironmentVariables = {}
 
-    CreateObjectPath(CIM_ComputerSystem, socket.gethostname())
-    CreateObjectPath(CIM_OperatingSystem)
-    CreateObjectPath(CIM_NetworkAdapter, socket.gethostbyname(socket.gethostname()))
+    objects_context = ObjectsContext(os.getpid())
 
-def ExitGlobalObjects():
+    objects_context._class_model_to_object_path(CIM_ComputerSystem, socket.gethostname())
+    objects_context._class_model_to_object_path(CIM_OperatingSystem)
+    objects_context._class_model_to_object_path(CIM_NetworkAdapter, socket.gethostbyname(socket.gethostname()))
+
+
+def exit_global_objects():
     # It is also used to store the triples in a RDF file, which is created by the destructor.
     global G_httpClient
     # Flushes the data to a file or possibly a Survol agent.
-    G_httpClient.Shutdown()
+    G_httpClient.http_client_shutdown()
 
 
 # This is not a map, it is not sorted.
 # It contains regular expression for classifying file names in categories:
 # Shared libraries, source files, scripts, Linux pipes etc...
 G_lstFilters = [
-    ( "Shared libraries" , [
+    ("Shared libraries", [
         r"^/usr/lib[^/]*/.*\.so",
         r"^/usr/lib[^/]*/.*\.so\..*",
         r"^/var/lib[^/]*/.*\.so",
         r"^/lib/.*\.so",
         r"^/lib64/.*\.so",
-    ] ),
-    ( "System config files" , [
+    ]),
+    ("System config files", [
         "^/etc/",
         "^/usr/share/fonts/",
         "^/usr/share/fontconfig/",
         "^/usr/share/fontconfig/",
         "^/usr/share/locale/",
         "^/usr/share/zoneinfo/",
-    ] ),
-    ( "Other libraries" , [
+    ]),
+    ("Other libraries", [
         "^/usr/share/",
         "^/usr/lib[^/]*/",
         "^/var/lib[^/]*/",
-    ] ),
-    ( "System executables" , [
+    ]),
+    ("System executables", [
         "^/bin/",
         "^/usr/bin[^/]*/",
-    ] ),
-    ( "Kernel file systems" , [
+    ]),
+    ("Kernel file systems", [
         "^/proc",
         "^/run",
-    ] ),
-    ( "Temporary files" , [
+    ]),
+    ("Temporary files", [
         "^/tmp/",
         "^/var/log/",
         "^/var/cache/",
-    ] ),
-    ( "Pipes and terminals" , [
+    ]),
+    ("Pipes and terminals", [
         "^/sys",
         "^/dev",
         "^pipe:",
         "^socket:",
         "^UNIX:",
         "^NETLINK:",
-    ] ),
+    ]),
     # TCP:[54.36.162.150:41039->82.45.12.63:63711]
-    ( "Connected TCP sockets" , [
+    ("Connected TCP sockets", [
         r"^TCP:\[.*->.*\]",
         r"^TCPv6:\[.*->.*\]",
-    ] ),
-    ( "Other TCP/IP sockets" , [
+    ]),
+    ("Other TCP/IP sockets", [
         "^TCP:",
         "^TCPv6:",
         "^UDP:",
         "^UDPv6:",
-    ] ),
-    ( "Others" , [] ),
+    ]),
+    ("Others", []),
 ]
 
-def _PathCategory(pathName):
+
+def _pathname_to_category(pathName):
     """This match the path name againt the set of regular expressions
     defining broad categories of files: Sockets, libraries, temporary files...
     These categories are not technical but based on application best practices,
@@ -1660,7 +1847,7 @@ def PathToPythonModuleOneFile_OldOldOldOld(path):
 # - The set of unique Python modules, some files come from.
 # - The remaining list of files, not coming from any Python module.
 # This allow to reproduce an environment.
-def FilesToPythonModules(unpackagedDataFiles):
+def _files_to_python_modules(unpackagedDataFiles):
     setPythonModules = set()
     unknownDataFiles = []
 
@@ -1762,21 +1949,21 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
     # Code dependencies and data files dependencies are different.
 
     # All versions mixed together which is realistic most of times.
-    class Dependency:
+    class Dependency(object):
         def __init__(self):
             self.m_accessedCodeFiles = set()
 
         def AddDep(self, pathName):
             self.m_accessedCodeFiles.add(pathName)
 
-    class DependencyPython(Dependency, object):
+    class DependencyPython(Dependency):
         DependencyName = "Python scripts"
 
         def __init__(self):
             super(DependencyPython, self).__init__()
 
         @staticmethod
-        def IsDepType(objInstance):
+        def is_dependency_of(objInstance):
             try:
                 # Detection with strace:
                 # execve("/usr/bin/python", ["python", "TestProgs/mineit_mys"...], [/* 22 vars */]) = 0
@@ -1788,10 +1975,14 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
                 return False
 
         @staticmethod
-        def IsCode(objDataFile):
-            return objDataFile.Name.endswith(".py") or objDataFile.Name.endswith(".pyc")
+        def is_executable_file(objDataFile):
+            for file_extension in [".py", ".pyc", ".pyd"]:
+                if objDataFile.Name.endswith(file_extension):
+                    return True
+            return False
 
-        def GenerateDockerDependencies(self, fdDockerFile):
+        def generate_docker_dependencies(self, fdDockerFile):
+            # FIXME: TODO: Remove these hardcodes.
             packagesToInstall = set()
 
             for objDataFile in self.m_accessedCodeFiles:
@@ -1822,7 +2013,6 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
                     # "ADD /usr/lib64/python2.7/cgitb.py /"
                     # TODO: Use the right path:
                     if not filNam.startswith("/usr/lib64/python2.7"):
-                        # ADD /home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/big_mysql_select.py /
                         AddToDockerDir(filNam)
 
             if packagesToInstall or self.m_accessedCodeFiles:
@@ -1831,14 +2021,14 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
                 # TODO: Do not duplicate Python modules installation.
                 InstallPipModule(fdDockerFile, onePckgNam)
 
-    class DependencyPerl(Dependency, object):
+    class DependencyPerl(Dependency):
         DependencyName = "Perl scripts"
 
         def __init__(self):
             super(DependencyPerl, self).__init__()
 
         @staticmethod
-        def IsDepType(objInstance):
+        def is_dependency_of(objInstance):
             try:
                 return objInstance.Executable.find("/perl") >= 0
             except AttributeError:
@@ -1846,29 +2036,29 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
                 return False
 
         @staticmethod
-        def IsCode(objDataFile):
+        def is_executable_file(objDataFile):
             return objDataFile.Name.endswith(".pl")
 
-        def GenerateDockerDependencies(self, fdDockerFile):
+        def generate_docker_dependencies(self, fdDockerFile):
             for objDataFile in self.m_accessedCodeFiles:
                 filNam = objDataFile.Name
                 fdDockerFile.write("RUN cpanm %s\n" % filNam)
             pass
 
-    class DependencyBinary(Dependency, object):
+    class DependencyBinary(Dependency):
         DependencyName = "Binary programs"
 
         def __init__(self):
             super(DependencyBinary, self).__init__()
 
         @staticmethod
-        def IsDepType(objInstance):
+        def is_dependency_of(objInstance):
             # Always true because tested at the end as a default.
             # The executable should at least be an executable file.
             return True
 
         @staticmethod
-        def IsCode(objDataFile):
+        def is_executable_file(objDataFile):
             return objDataFile.Name.find(".so") > 0
 
         @staticmethod
@@ -1886,11 +2076,11 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
                 return True
             return False
 
-        def GenerateDockerDependencies(self, fdDockerFile):
+        def generate_docker_dependencies(self, fdDockerFile):
             # __libc_start_main([ "python", "TestProgs/mineit_mysql_select.py" ] <unfinished ...>
             #    return objInstance.Executable.find("/python") >= 0 or objInstance.Executable.startswith("python")
 
-            lstAccessedPackages, unpackagedAccessedCodeFiles = G_FilesToPackagesCache.GetPackagesList(
+            lstAccessedPackages, unpackagedAccessedCodeFiles = G_FilesToPackagesCache.get_packages_list(
                 self.m_accessedCodeFiles)
 
             fdDockerFile.write("# Package installations:\n")
@@ -1904,7 +2094,7 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
                 filNam = objDataFile.Name
                 AddToDockerDir(filNam)
 
-    lstDependencies = [
+    _dependencies_list = [
         DependencyPython(),
         DependencyPerl(),
         DependencyBinary(),
@@ -1915,20 +2105,20 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
     # This is the complete list of extra executables which have to be installed.
     lstBinaryExecutables = set()
 
-    # This is a subset of lstDependencies.
+    # This is a subset of _dependencies_list.
     setUsefulDependencies = set()
 
     for objPath, objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
-        for oneDep in lstDependencies:
+        for oneDep in _dependencies_list:
             # Based on the executable of the process,
             # this tells if we might have dependencies of this type: Python Perl etc...
-            if oneDep.IsDepType(objInstance):
+            if oneDep.is_dependency_of(objInstance):
                 setUsefulDependencies.add(oneDep)
                 break
 
         for filAcc in objInstance.m_ProcessFileAccesses:
             oneFile = filAcc.m_objectCIM_DataFile
-            if oneDep and oneDep.IsCode(oneFile):
+            if oneDep and oneDep.is_executable_file(oneFile):
                 oneDep.AddDep(oneFile)
             else:
                 accessedDataFiles.add(oneFile)
@@ -1943,7 +2133,7 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
     # Install or copy the executables.
     # Beware that some of them are specifically installed: Python, Perl.
     fdDockerFile.write("################################# Executables:\n")
-    lstPackages, unknownBinaries = G_FilesToPackagesCache.GetPackagesList(lstBinaryExecutables)
+    lstPackages, unknownBinaries = G_FilesToPackagesCache.get_packages_list(lstBinaryExecutables)
     for anExec in sorted(lstPackages):
         InstallLinuxPackage(fdDockerFile, anExec)
     fdDockerFile.write("\n")
@@ -1953,7 +2143,7 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
     fdDockerFile.write("################################# Dependencies by program type\n")
     for oneDep in setUsefulDependencies:
         fdDockerFile.write("# Dependencies: %s\n" % oneDep.DependencyName)
-        oneDep.GenerateDockerDependencies(fdDockerFile)
+        oneDep.generate_docker_dependencies(fdDockerFile)
         fdDockerFile.write("\n")
 
     # These are not data files.
@@ -1966,9 +2156,9 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
         "Other TCP/IP sockets",
     ])
 
-    lstPackagesData, unpackagedDataFiles = G_FilesToPackagesCache.GetPackagesList(accessedDataFiles)
+    lstPackagesData, unpackagedDataFiles = G_FilesToPackagesCache.get_packages_list(accessedDataFiles)
 
-    setPythonModules, unknownDataFiles = FilesToPythonModules(unpackagedDataFiles)
+    setPythonModules, unknownDataFiles = _files_to_python_modules(unpackagedDataFiles)
 
     if setPythonModules:
         fdDockerFile.write("# Python modules:\n")

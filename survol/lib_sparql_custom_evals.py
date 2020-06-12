@@ -4,7 +4,11 @@ import os
 import sys
 import psutil
 import rdflib
+# Probably needed to force rdflib to load its plugins ?
+# Apparently, this has to be loaded explicitly.
+# Surprisingly it was not needed until this commit.
 import rdflib.plugins.memory
+import rdflib.plugins.sparql
 
 import lib_util
 import lib_common
@@ -172,7 +176,7 @@ class Sparql_CIM_DataFile(Sparql_CIM_Object):
     # or the variable properties if these variables have a value in the context.
     # This returns None if it cannot be done.
     def CreateFileNodeFromProperties(self, variables_context):
-        sys.stderr.write("Sparql_CIM_DataFile.CreateFileNodeFromProperties\n")
+        #sys.stderr.write("Sparql_CIM_DataFile.CreateFileNodeFromProperties\n")
         if predicate_Name in self.m_properties:
             # The path name is enough to fully define a data file or a directory.
             return self.GetNodeValue(predicate_Name, variables_context)
@@ -183,7 +187,7 @@ class Sparql_CIM_DataFile(Sparql_CIM_Object):
 
     def FetchFromDirectory(self, variables_context, file_path, graph, returned_variables, node_uri_ref):
         check_returned_variables(returned_variables)
-        sys.stderr.write("Sparql_CIM_DataFile.FetchFromDirectory file_path=%s\n" % file_path)
+        #sys.stderr.write("Sparql_CIM_DataFile.FetchFromDirectory file_path=%s\n" % file_path)
         if associator_CIM_DirectoryContainsFile in self.m_associated:
             associator_instance = self.m_associated[associator_CIM_DirectoryContainsFile]
             assert isinstance(associator_instance, Sparql_CIM_Directory)
@@ -338,17 +342,17 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                 # Loop on first level only.
                 break
 
-            sys.stderr.write("Sparql_CIM_Directory.FetchAll return_values_list=%s\n" % return_values_list)
+            #sys.stderr.write("Sparql_CIM_Directory.FetchAll return_values_list=%s\n" % return_values_list)
             if isinstance(dir_path_variable, rdflib.term.Variable):
-                sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables Returning variables pair:%s\n" % associated_instance.m_variable)
+                #sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables Returning variables pair:%s\n" % associated_instance.m_variable)
                 returned_variables[(associated_instance.m_variable, dir_path_variable)] = return_values_list
                 check_returned_variables(returned_variables)
             else:
-                sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables Returning variable:%s\n" % associated_instance.m_variable)
+                #sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables Returning variable:%s\n" % associated_instance.m_variable)
                 returned_variables[(associated_instance.m_variable,)] = return_values_list
                 check_returned_variables(returned_variables)
 
-            sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables returned_variables=%s\n" % returned_variables)
+            #sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables returned_variables=%s\n" % returned_variables)
 
         # TODO: If there are no properties and no directory and no sub-files or sub-directories,
         # TODO: this should return ALL DIRECTORIES OF THE FILE SYSTEM.
@@ -955,7 +959,7 @@ def product_variables_lists(returned_variables, iter_keys = None):
         first_key, values_list = next(iter_keys)
         assert isinstance(values_list, list)
 
-        max_display_count_values = 100
+        max_display_count_values = 0
         #sys.stderr.write("product_variables_lists LOOP BEFORE\n")
         for one_dict in product_variables_lists(returned_variables, iter_keys):
             # sys.stderr.write("product_variables_lists len(values_list)=%d\n" % len(values_list))
@@ -1107,23 +1111,23 @@ def custom_eval_function_generic(ctx, part, sparql_instance_creator):
         def recursive_instantiation(instance_index):
             if instance_index == len(visited_nodes):
                 return
-            margin = " " + str(instance_index) + "    " * (instance_index + 1)
             sys.stderr.write("recursive_instantiation: ix=%d visited nodes=%s\n"
                              % (instance_index, str([nod.m_variable for nod in visited_nodes])))
 
             # This returns the first instance which is completely kown, i.e. its parameters
             # are iterals, or variables whose values are known in the current context.
             one_instance = visited_nodes[instance_index]
-            sys.stderr.write(margin + "one_instance=%s\n" % one_instance)
+            #margin = " " + str(instance_index) + "    " * (instance_index + 1)
+            #sys.stderr.write(margin + "one_instance=%s\n" % one_instance)
 
-            sys.stderr.write(margin + "variables_context BEFORE\n")
-            display_variables_context(margin)
+            #sys.stderr.write(margin + "variables_context BEFORE\n")
+            #display_variables_context(margin)
             returned_variables = one_instance.FetchAllVariables(ctx.graph, variables_context)
-            sys.stderr.write(margin + "variables_context AFTER\n")
-            display_variables_context(margin)
+            #sys.stderr.write(margin + "variables_context AFTER\n")
+            #display_variables_context(margin)
             check_returned_variables(returned_variables)
 
-            sys.stderr.write(margin + "returned_variables=%s\n" % str(returned_variables))
+            #sys.stderr.write(margin + "returned_variables=%s\n" % str(returned_variables))
 
             variables_combinations_iter = product_variables_lists(returned_variables)
             variables_context_backup = variables_context.copy()
@@ -1144,7 +1148,7 @@ def custom_eval_function_generic(ctx, part, sparql_instance_creator):
         #sys.stderr.write("Graph after recursive_instantiation: %d triples\n" % len(ctx.graph))
         for s,p,o in ctx.graph:
             sys.stderr.write("   %s %s %s\n" % (s, p, o))
-        sys.stderr.flush()
+        #sys.stderr.flush()
 
         # <type 'generator'>
         ret_BGP = rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)

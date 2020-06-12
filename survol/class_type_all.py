@@ -189,7 +189,7 @@ def Main():
 	# This should be able to process remote hosts because it calls scripts which can access remote data.
 	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 
-	( nameSpace, className, entity_type ) = cgiEnv.GetNamespaceType()
+	( nameSpace, className, entity_type ) = cgiEnv.get_namespace_type()
 
 	# If nameSpace is not provided, it is set to "root/CIMV2" by default.
 	if not className:

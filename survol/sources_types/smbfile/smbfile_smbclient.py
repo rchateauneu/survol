@@ -37,7 +37,7 @@ def Main():
 	if lib_util.isPlatformWindows:
 		lib_common.ErrorMessageHtml("smbclient not available on Windows")
 
-	password = cgiEnv.GetParameters( paramkeyPassword )
+	password = cgiEnv.get_parameters( paramkeyPassword )
 
 	# Top directory, not just the share name.
 	smbFile= cgiEnv.GetId()

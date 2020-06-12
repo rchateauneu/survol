@@ -36,9 +36,9 @@ def Main():
 
 	packageNam = cgiEnv.GetId()
 
-	maxDepth = cgiEnv.GetParameters( paramkeyMaxDepth )
-	dispPackages= cgiEnv.GetParameters( paramkeyDispPackages )
-	dispFiles = cgiEnv.GetParameters( paramkeyDispFiles )
+	maxDepth = cgiEnv.get_parameters( paramkeyMaxDepth )
+	dispPackages= cgiEnv.get_parameters( paramkeyDispPackages )
+	dispFiles = cgiEnv.get_parameters( paramkeyDispFiles )
 
 	packageNode = survol_python_package.MakeUri( packageNam )
 

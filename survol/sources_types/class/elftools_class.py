@@ -24,7 +24,7 @@ def Main():
 	cgiEnv = lib_common.CgiEnv(
 		parameters = { paramkeyMaxDepth : 2 })
 
-	maxDepth = int(cgiEnv.GetParameters( paramkeyMaxDepth ))
+	maxDepth = int(cgiEnv.get_parameters( paramkeyMaxDepth ))
 
 	nameTopClass = cgiEnv.m_entity_id_dict["Name"]
 

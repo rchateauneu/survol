@@ -93,7 +93,7 @@ def AddInfo(grph,node,entity_ids_arr):
         user_name = PsutilProcToUser(proc_obj,"User access denied:PID=%s"%pidProc)
 
         # TODO: Should add the hostname to the user ???
-        user_name_host = lib_common.FormatUser( user_name )
+        user_name_host = lib_common.format_username( user_name )
         user_node = lib_common.gUriGen.UserUri(user_name_host)
         grph.add( ( node, pc.property_user, user_node ) )
 
@@ -139,7 +139,7 @@ def SelectFromWhere( where_key_values ):
     for proc_obj in ProcessIter():
         user_name = PsutilProcToUser(proc_obj,None)
         if user_name:
-            user_name_host = lib_common.FormatUser(user_name)
+            user_name_host = lib_common.format_username(user_name)
         else:
             user_name_host = user_name
 

@@ -257,9 +257,6 @@ urlsForJson = (
 	"/class_type_all.py",
 	"/class_wbem.py",
 	"/class_wmi.py",
-	# survol.cgi is the special case of the Web server. This prefix normally applies to all scripts.
-	"/survolcgi.py?script=/entity.py",
-	"/survolcgi.py?script=/entity_info_only.py",
 	# TODO: Maybe pass portal_wbem.py and portal_wmi.py ??
 )
 

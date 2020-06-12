@@ -22,7 +22,7 @@ def Main():
     grph = cgiEnv.GetGraph()
 
     DEBUG("event_get_all.py About to get events")
-    arrTriples = lib_event.data_retrieve_all()
+    arrTriples = lib_event.retrieve_all_events()
     num_triples = 0
     for tripl in arrTriples:
         grph.add(tripl)

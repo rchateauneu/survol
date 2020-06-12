@@ -16,17 +16,6 @@ def TestCgi():
 	print("</pre>")
 	print("<br>GENUINE SCRIPT<br>")
 
-
-# This is normally not used this way, but rather imported
-# from cgi-bin/test.py which is not in GIT and does a plain import:
-
-# #!/usr/bin/env python
-# from survol import scripts
-# from survol.scripts import testcgi
-#
-# if __name__ == '__main__':
-#	testcgi.TestCgi()
-#
 if __name__ == '__main__':
 	TestCgi()
 

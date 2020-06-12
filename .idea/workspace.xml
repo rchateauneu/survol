@@ -2,22 +2,338 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="217fdf30-e1c5-4541-a80a-6b2caf048c88" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/Experimental/pydbg/setup.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Experimental/pydbg/tests/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Experimental/pydbg/tests/crash_dump.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Experimental/pydbg/tests/firefox_hook.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Experimental/pydbg/tests/utils/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Experimental/pydbg/tests/utils/code_coverage.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Experimental/pydbg/tests/utils/crash_binning.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Experimental/pydbg/tests/utils/injection.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Experimental/pydbg/tests/utils/udraw_connector.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/PythonStyle.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/PythonStyle.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/methodology.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/dockit_input_test_trace_files/oracle_db_data.strace.5718.ini" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/dockit_input_test_trace_files/python_linux_print_hello.strace.ini" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/dockit_input_test_trace_files/python_linux_print_hello.strace.log" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/dockit_input_test_trace_files/sample_shell.ltrace.ini" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/dockit_input_test_trace_files/sample_shell.strace.ini" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/dockit_input_test_trace_files/sqlplus.strace.4401.ini" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/dockit_input_test_trace_files/windows_dir.pydbg.45884.ini" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/dockit_input_test_trace_files/windows_dir.pydbg.45884.log" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/dockit_output_files_expected/dockit_ps_ef.strace.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/dockit_output_files_expected/dockit_ps_ef.strace.summary.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/dockit_output_files_expected/sample_shell.ltrace.log" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/dockit_output_files_expected/windows_dir.pydbg.45884.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/test_graphviz.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/test_html.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/test_lib_event.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Experimental/Test_pydbg.py" beforeDir="false" afterPath="$PROJECT_DIR$/Experimental/Test_pydbg.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Experimental/pydbg/hook_container.py" beforeDir="false" afterPath="$PROJECT_DIR$/Experimental/pydbg/tests/utils/hooking.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Experimental/pydbg/pydbg.py" beforeDir="false" afterPath="$PROJECT_DIR$/Experimental/pydbg/pydbg.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Experimental/pydbg/system_dll.py" beforeDir="false" afterPath="$PROJECT_DIR$/Experimental/pydbg/system_dll.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.travis.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.travis.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Experimental/Jupyter_Notebook_Tests/Survol_Test1.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Experimental/Jupyter_Notebook_Tests/Survol_Test1.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Experimental/Jupyter_Notebook_Tests/test_client_library.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Experimental/Jupyter_Notebook_Tests/test_client_library.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Experimental/Test_Cgi.py" beforeDir="false" afterPath="$PROJECT_DIR$/Experimental/Test_Cgi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LICENSE.txt" beforeDir="false" afterPath="$PROJECT_DIR$/LICENSE.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/Map_Relational_Databases_to_RDF.txt" beforeDir="false" afterPath="$PROJECT_DIR$/docs/Map_Relational_Databases_to_RDF.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/Survol_Installation.txt" beforeDir="false" afterPath="$PROJECT_DIR$/docs/Survol_Installation.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/Consulting.htm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/LogoColorNoText.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/LogoColorTextBelow.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/LogoColorTextRight.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/Mvc-107x.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/Survol/SnapshotFiles.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/Survol/SnapshotInteractionWMI.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/Survol/SnapshotMemmaps.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/Survol/SnapshotOracleDatabase.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/Survol/SnapshotProcesses.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/Survol/SnapshotPythonModules.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/Survol/SnapshotRabbitMQ.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/Survol/SnapshotSqlServer.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/Survol/SnapshotWindowsServices.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/mvc-003x.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/mvc-006x.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/survol.htm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/survol_architecture.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/survol_faq.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/survol_installation.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/survol_use_cases.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/use_cases/use_case_telnet/Linux_processes_in_D3.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/use_cases/use_case_telnet/Linux_processes_in_SVG.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/use_cases/use_case_telnet/Some_server_sockets.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/use_cases/use_case_telnet/Summary_on_client.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/use_cases/use_case_telnet/Summary_on_server_after_merge.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/use_cases/use_case_telnet/client_mergestatic_SVG.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/use_cases/use_case_telnet/merge_client_server_d3.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/use_cases/use_case_telnet/server_global_scripts.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/use_cases/use_case_telnet/telnet_client_in_d3.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/use_cases/use_case_telnet/telnet_client_sockets_D3.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/use_cases/use_case_telnet/use_case telnet.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/use_cases/use_case_windows_explorer/Available_scripts.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/use_cases/use_case_windows_explorer/Explorer_icons.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/use_cases/use_case_windows_explorer/Import_Symbols.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/use_cases/use_case_windows_explorer/ProcTortoise.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/use_cases/use_case_windows_explorer/Tortoise.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/use_cases/use_case_windows_explorer/Windows_explorer_process.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/use_cases/use_case_windows_explorer/executable_scripts.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/use_cases/use_case_windows_explorer/files_in_heap.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/use_cases/use_case_windows_explorer/open_files.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/use_cases/use_case_windows_explorer/urls.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion1/use_cases/use_case_windows_explorer/use_case windows_explorer.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/Global_performance_enhancement.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/Process_Mining.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/Reverse-engineering_analysis_of_existing app.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/architecture.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/contact.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/css/bootstrap.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/css/drop_down_menu.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/css/font-awesome.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/css/style.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/dock_it.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/doxygen_extra_stylesheet.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/doxygen_footer.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/doxygen_header.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/events.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/faq.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/favicon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/fonts/FontAwesome.otf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/fonts/fontawesome-webfont.eot" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/fonts/fontawesome-webfont.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/fonts/fontawesome-webfont.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/fonts/fontawesome-webfont.woff" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/fonts/fontawesome-webfont.woff2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/fonts/glyphicons-halflings-regular.eot" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/fonts/glyphicons-halflings-regular.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/fonts/glyphicons-halflings-regular.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/fonts/glyphicons-halflings-regular.woff" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/fonts/glyphicons-halflings-regular.woff2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/Available_scripts.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/Docker_official_logo_vertical.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/Explorer_icons.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/GraphDB_Class_Hierarchy.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/GraphDB_Import.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/GraphDB_cgroup_cpuacct.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/Import_Symbols.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/Linux_processes_in_D3.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/Linux_processes_in_SVG.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/LogoColorNoText.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/ProcTortoise.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/Protege_Annotations.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/Protege_Ontology_metrics.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/Protege_Open_from_URL.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/Protege_enter_or_select_URI.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/Protégé_Logo.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/Readme.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/Some_server_sockets.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/Summary_on_client.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/Summary_on_server_after_merge.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/Tortoise.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/Windows_explorer_process.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/about-line.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/addressing-line.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/addressing.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/architecture.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/audience_users.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/breadcrum-bg.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/cgi.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/client_mergestatic_SVG.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/executable_scripts.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/field-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/field-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/field-3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/field-4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/files_in_heap.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/footer-logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/installation-1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/installation.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/line.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/merge_client_server_d3.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/open-slp-logo.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/open_files.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/performance_enhancement.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/python.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/rdf.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/reverse_engineering.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/server_global_scripts.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/slide1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/slide2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/software_modernization.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/solution-img.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/survol-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/survol-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/survol-3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/survol-4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/survol-abtimg.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/system_renovation.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/technology.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/telnet.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/telnet_client_in_d3.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/telnet_client_sockets_D3.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/urls.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/use-case.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/images/w-explorer1.PNG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/installation.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/intended_audience.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/jobs.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/js/bootstrap.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/js/bootstrap.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/js/npm.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/jupyter_notebook_and_survol.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/links.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/links.html.bak" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/mail.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/rdf_ontology.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/software_modernization_and_reengineering.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/solutions.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/survol.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/system_renovations.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/telnet.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/apple-touch-icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/css/html_exports.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/css/jquery.contextMenu.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/display_rdf_to_json.htm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/favicon-16x16.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/favicon-32x32.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/help.htm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/images/LogoColorNoText.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/images/LogoColorTextBelow.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/images/LogoColorTextRight.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/images/LogoColorTextRightThin.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/images/OpenLMI Logo with slogan_2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/images/favicons/android-chrome-192x192.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/images/favicons/apple-touch-icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/images/favicons/browserconfig.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/images/favicons/favicon-16x16.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/images/favicons/favicon-32x32.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/images/favicons/favicon.ico" beforeDir="false" afterPath="$PROJECT_DIR$/favicon.ico" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/images/favicons/manifest.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/images/favicons/mstile-150x150.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/images/favicons/safari-pinned-tab.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/images/logo-wbem.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/images/opengroupLogo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/images/openlmi-logo_full-color_light-bg.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/images/openwbem.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/images/pegicon2.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/images/prod-JSERVER-sm.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/images/prod-SDK-sm.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/images/prod-WAVE-sm.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/images/prod-WW-sm.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/index.htm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/index_js.htm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/index_technical.htm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/js/ActiveX_WMI.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/js/base64.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/js/jquery.contextMenu.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/js/jquery.rdfquery.rules-1.0.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/js/revjslib.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/manifest.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/rdfquery_text.htm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/readme.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/ui/summary.htm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/usecase.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/archives/WebsiteVersion3/window-explorer.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/bookmarks.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/bookmarks.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/bookmarks_test_survol.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/bookmarks_test_survol.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/bookmarks_tests_survol_17_07_2018.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/bookmarks_tests_survol_17_07_2018.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/html/sitemap.txt" beforeDir="false" afterPath="$PROJECT_DIR$/html/sitemap.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/html/survol.html" beforeDir="false" afterPath="$PROJECT_DIR$/html/survol.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/class_type_all.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/class_type_all.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/class_wbem.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/class_wbem.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/class_wmi.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/class_wmi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/entity.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/entity.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/entity_dirmenu_only.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/entity_dirmenu_only.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/entity_info_only.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/entity_info_only.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/entity_mime.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/entity_mime.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/entity_wbem.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/entity_wbem.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/entity_wmi.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/entity_wmi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/event_get.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/event_get.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/event_put.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/event_put.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/favicon.ico" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/lib_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/lib_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/lib_common.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/lib_common.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/lib_edition_parameters.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/lib_edition_parameters.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/lib_event.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/lib_event.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/lib_export_dot.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/lib_export_dot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/lib_export_html.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/lib_export_html.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/lib_export_ontology.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/lib_export_ontology.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/lib_exports.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/lib_exports.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/lib_mime.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/lib_mime.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/lib_naming.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/lib_naming.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/lib_ontology_tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/lib_ontology_tools.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/lib_properties.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/lib_properties.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/lib_sparql_callback_survol.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/lib_sparql_callback_survol.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/lib_sparql_custom_evals.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/lib_sparql_custom_evals.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/lib_tabular.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/lib_tabular.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/lib_util.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/lib_util.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/lib_webserv.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/lib_webserv.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/merge_scripts.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/merge_scripts.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/namespaces_wmi.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/namespaces_wmi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/objtypes_wbem.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/objtypes_wbem.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/objtypes_wmi.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/objtypes_wmi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/portal_wbem.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/portal_wbem.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/print_internal_data_as_json.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/print_internal_data_as_json.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/scripts/cgiserver.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/scripts/cgiserver.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/scripts/cim_objects_definitions.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/scripts/cim_objects_definitions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/scripts/dockit.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/scripts/dockit.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/scripts/dockit_aggregate_clusterize.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/scripts/dockit_aggregate_clusterize.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/scripts/linux_api_definitions.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/scripts/linux_api_definitions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/scripts/pydbg/defines.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/scripts/pydbg/defines.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/scripts/pydbg/pydbg.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/scripts/pydbg/pydbg.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/scripts/pydbg/system_dll.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/scripts/pydbg/system_dll.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/scripts/pydbg/utils/hooking.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/scripts/pydbg/utils/hooking.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/scripts/pydbg/utils/injection.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/scripts/pydbg/utils/injection.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/scripts/pydbg/windows_h.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/scripts/pydbg/windows_h.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/scripts/run_script_local.sh" beforeDir="false" afterPath="$PROJECT_DIR$/survol/scripts/run_script_local.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/scripts/win32_api_definitions.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/scripts/win32_api_definitions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/scripts/wsgiserver.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/scripts/wsgiserver.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/CIM_ComputerSystem/connected_sockets.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_ComputerSystem/connected_sockets.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/CIM_ComputerSystem/hostname_nmap.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_ComputerSystem/hostname_nmap.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/doxygen_file.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/doxygen_file.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/elftools_parse_classes.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/elftools_parse_classes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/grep_text_strings.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/grep_text_strings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/portable_executable/pefile_imports.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/portable_executable/pefile_imports.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/python_properties.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/python_properties.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/win_depends.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_DataFile/win_depends.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Directory/doxygen_dir.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Directory/doxygen_dir.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Process/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Process/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Process/memory_regex_search/search_connection_strings.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Process/memory_regex_search/search_connection_strings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Process/memory_regex_search/search_filenames.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Process/memory_regex_search/search_filenames.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Process/process_open_files.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Process/process_open_files.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/CIM_Process/single_pidstree.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/CIM_Process/single_pidstree.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/LMI_Account/user_processes.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/LMI_Account/user_processes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/Linux/enumerate_user.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/Linux/enumerate_user.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/Win32_UserAccount/Win32_UserAccount_process.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/Win32_UserAccount/Win32_UserAccount_process.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/class/elftools_class.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/class/elftools_class.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/enumerate_CIM_Process.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/enumerate_CIM_Process.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/enumerate_memmap.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/enumerate_memmap.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/enumerate_socket.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/enumerate_socket.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/enumerate_user.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/enumerate_user.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/event_get_all.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/event_get_all.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/memmap/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/memmap/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/neighborhood/survol_neighborhood.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/neighborhood/survol_neighborhood.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/neighborhood/wbem_neighborhood.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/neighborhood/wbem_neighborhood.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/nmap/nmap_run.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/nmap/nmap_run.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/open_files.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/open_files.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/python/package/python_package_dis.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/python/package/python_package_dis.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/smbfile/smbfile_smbclient.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/smbfile/smbfile_smbclient.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/smbshr/smbshare_files_smbclient.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/smbshr/smbshare_files_smbclient.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/sources_types/win32/enumerate_Win32_UserAccount.py" beforeDir="false" afterPath="$PROJECT_DIR$/survol/sources_types/win32/enumerate_Win32_UserAccount.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/www/edit_configuration.template.htm" beforeDir="false" afterPath="$PROJECT_DIR$/survol/www/edit_configuration.template.htm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/www/edit_credentials.template.htm" beforeDir="false" afterPath="$PROJECT_DIR$/survol/www/edit_credentials.template.htm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/www/export_html.template.htm" beforeDir="false" afterPath="$PROJECT_DIR$/survol/www/export_html.template.htm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/www/help.htm" beforeDir="false" afterPath="$PROJECT_DIR$/survol/www/help.htm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/www/index.htm" beforeDir="false" afterPath="$PROJECT_DIR$/survol/www/index.htm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/www/index_technical.htm" beforeDir="false" afterPath="$PROJECT_DIR$/survol/www/index_technical.htm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/survol/www/js/revjslib.js" beforeDir="false" afterPath="$PROJECT_DIR$/survol/www/js/revjslib.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/init.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/init.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_dockit.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_dockit.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_dockit_win32.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_lib_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_lib_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_lib_wmi.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_lib_wmi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_pydbg.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_pydbg.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_pydbg_win32_callbacks.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_pydbg_win32_callbacks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_sparql_custom_evals_see_also.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_sparql_custom_evals_see_also.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_sparql_custom_evals_survol.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_sparql_custom_evals_survol.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_sparql_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_sparql_server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_win32_api_definitions.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_wsgi_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_wsgi_server.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,165 +346,10 @@
   <component name="FavoritesManager">
     <favorites_list name="PythonStyle" />
   </component>
-  <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/test_dockit.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="286">
-              <caret line="739" column="53" selection-start-line="739" selection-start-column="53" selection-end-line="739" selection-end-column="53" />
-              <folding>
-                <element signature="e#23#60#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Experimental/Test_pydbg.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="211" column="20" selection-start-line="211" selection-start-column="20" selection-end-line="211" selection-end-column="20" />
-              <folding>
-                <element signature="e#542#579#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Experimental/pydbg/tests/utils/__init__.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="15" column="28" selection-start-line="15" selection-start-column="28" selection-end-line="15" selection-end-column="28" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Experimental/pydbg/tests/utils/code_coverage.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="31" column="18" selection-start-line="31" selection-start-column="11" selection-end-line="31" selection-end-column="18" />
-              <folding>
-                <element signature="e#1102#1113#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Experimental/pydbg/system_dll.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="277">
-              <caret line="99" column="26" lean-forward="true" selection-start-line="99" selection-start-column="26" selection-end-line="99" selection-end-column="26" />
-              <folding>
-                <element signature="e#984#997#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Experimental/pydbg/pydbg.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
-              <caret line="910" column="20" selection-start-line="910" selection-start-column="12" selection-end-line="910" selection-end-column="20" />
-              <folding>
-                <element signature="e#1010#1025#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Experimental/pydbg/windows_h.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-843">
-              <caret line="159" column="11" selection-start-line="159" selection-start-column="6" selection-end-line="159" selection-end-column="11" />
-              <folding>
-                <element signature="e#392#415#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Experimental/pydbg/defines.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="126">
-              <caret line="125" column="24" selection-start-line="125" selection-start-column="24" selection-end-line="125" selection-end-column="24" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://C:/Python27/Lib/ctypes/__init__.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="140">
-              <caret line="276" column="70" lean-forward="true" selection-start-line="276" selection-start-column="70" selection-end-line="276" selection-end-column="70" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
-  </component>
-  <component name="FindInProjectRecents">
-    <findStrings>
-      <find>hook_c</find>
-      <find>six</find>
-      <find>hook_container</find>
-      <find>WaitForDebugEvent b41</find>
-      <find>stderr</find>
-      <find>get_thread_context64 thread_id</find>
-      <find>system_dll __init__</find>
-      <find>event_handler_create_thread DISABLE</find>
-      <find>setting</find>
-      <find>debug_event_iteration</find>
-      <find>debug_event_loop In loop on debugger_active</find>
-      <find>debug_active_process</find>
-      <find>debug_event_iteration before WaitForDebugEvent</find>
-      <find>c_ulong</find>
-      <find>debug_event_loop() exception</find>
-      <find>debug_event_</find>
-      <find>SegF</find>
-      <find>SegFs</find>
-      <find>CONTEXT64</find>
-      <find>first windows driven system breakpoint</find>
-      <find>debug_event_loop</find>
-      <find>80000003</find>
-      <find>debug_event_loop()</find>
-      <find>attach</find>
-      <find>GetThreadSelectorEntry</find>
-      <find>ret_self</find>
-      <find>kernel32</find>
-      <find>self.dbg</find>
-      <find>the_argument</find>
-      <find>cPickle</find>
-    </findStrings>
-    <replaceStrings>
-      <replace>squeeze</replace>
-    </replaceStrings>
-  </component>
   <component name="Git.Settings">
     <option name="UPDATE_TYPE" value="MERGE" />
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="SET_USER_NAME_GLOBALLY" value="false" />
-  </component>
-  <component name="IdeDocumentHistory">
-    <option name="CHANGED_PATHS">
-      <list>
-        <option value="$PROJECT_DIR$/tests/test_dockit.py" />
-        <option value="$PROJECT_DIR$/Experimental/pydbg/windows_h.py" />
-        <option value="$PROJECT_DIR$/Experimental/pydbg/hook_container.py" />
-        <option value="$PROJECT_DIR$/Experimental/pydbg/system_dll.py" />
-        <option value="$PROJECT_DIR$/Experimental/pydbg/pydbg.py" />
-        <option value="$PROJECT_DIR$/Experimental/pydbg/tests/utils/__init__.py" />
-        <option value="$PROJECT_DIR$/Experimental/pydbg/tests/utils/code_coverage.py" />
-        <option value="$PROJECT_DIR$/Experimental/pydbg/tests/utils/crash_binning.py" />
-        <option value="$PROJECT_DIR$/Experimental/Test_pydbg.py" />
-      </list>
-    </option>
   </component>
   <component name="ProjectId" id="1WOE5WHbX8Ia3rllndCbinEDTda" />
   <component name="ProjectInspectionProfilesVisibleTreeState">
@@ -212,73 +373,6 @@
         </selected-state>
       </profile-state>
     </entry>
-  </component>
-  <component name="ProjectView">
-    <navigator proportions="" version="1">
-      <foldersAlwaysOnTop value="true" />
-    </navigator>
-    <panes>
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="PythonStyle" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonStyle" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonStyle" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonStyle" type="462c0819:PsiDirectoryNode" />
-              <item name="Experimental" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonStyle" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonStyle" type="462c0819:PsiDirectoryNode" />
-              <item name="Experimental" type="462c0819:PsiDirectoryNode" />
-              <item name="pydbg" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonStyle" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonStyle" type="462c0819:PsiDirectoryNode" />
-              <item name="Experimental" type="462c0819:PsiDirectoryNode" />
-              <item name="pydbg" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonStyle" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonStyle" type="462c0819:PsiDirectoryNode" />
-              <item name="Experimental" type="462c0819:PsiDirectoryNode" />
-              <item name="pydbg" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
-              <item name="utils" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonStyle" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonStyle" type="462c0819:PsiDirectoryNode" />
-              <item name="survol" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonStyle" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonStyle" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonStyle" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonStyle" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
-              <item name="AnotherSampleDir" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="PythonStyle" type="b2602c69:ProjectViewProjectNode" />
-              <item name="PythonStyle" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
-              <item name="dockit_output_files_expected" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-      <pane id="Scope" />
-    </panes>
   </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -324,19 +418,7 @@
       <recent name="C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\Experimental\OWL" />
     </key>
   </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
-      <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
-      </list>
-    </option>
-  </component>
-  <component name="RunManager" selected="Python.Test_pydbg">
+  <component name="RunManager" selected="Python tests.Unittests for test_lib_client.SurvolRabbitMQTest.test_rabbitmq_queues">
     <configuration default="true" type="tests" factoryName="Attests">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -356,100 +438,51 @@
       <option name="USE_PATTERN" value="false" />
       <method />
     </configuration>
-    <configuration name="Test_pydbg" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="PythonStyle" />
-      <option name="INTERPRETER_OPTIONS" value="-u" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="C:\Python27\python.exe" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Experimental" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Experimental/Test_pydbg.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="Test_pydbg_custom" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="Unittests for test_lib_client.SurvolRabbitMQTest.test_rabbitmq_queues" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <module name="PythonStyle" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Experimental" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Experimental/Test_pydbg_custom.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_lib_client.SurvolRabbitMQTest.test_rabbitmq_queues&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="pydbg_test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="Unittests for test_win32_api_definitions.PydbgDockitBasicTest" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <module name="PythonStyle" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Experimental/WindowsPyDbg" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Experimental/WindowsPyDbg/pydbg_test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="Unittests for test_dockit" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
-      <module name="PythonStyle" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="C:\Python27\python.exe" />
+      <option name="SDK_HOME" value="C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\venv\Scripts\python.exe" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="_new_pattern" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_dockit&quot;" />
+      <option name="_new_target" value="&quot;test_win32_api_definitions.PydbgDockitBasicTest&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Unittests for test_dockit.DockitEventsTest.test_file_events" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+    <configuration name="Unittests for test_win32_api_definitions.PydbgDockitBasicTest.test_basic_create_process" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <module name="PythonStyle" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="C:\Python27\python.exe" />
+      <option name="SDK_HOME" value="C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\venv\Scripts\python.exe" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="_new_pattern" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_dockit.DockitEventsTest.test_file_events&quot;" />
+      <option name="_new_target" value="&quot;test_win32_api_definitions.PydbgDockitBasicTest.test_basic_create_process&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Unittests in System32" type="tests" factoryName="Unittests" nameIsGenerated="true">
+    <configuration name="Unittests in Desktop" type="tests" factoryName="Unittests" nameIsGenerated="true">
       <module name="PythonStyle" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -483,21 +516,49 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
+    <configuration name="Unittests in test_lib_client.py" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <module name="PythonStyle" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/test_lib_client.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unittests in test_wsgi_server.py" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <module name="PythonStyle" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/test_wsgi_server.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
     <list>
-      <item itemvalue="Python.Test_pydbg_custom" />
-      <item itemvalue="Python.pydbg_test" />
-      <item itemvalue="Python.Test_pydbg" />
-      <item itemvalue="Python tests.Unittests in System32" />
-      <item itemvalue="Python tests.Unittests for test_dockit" />
-      <item itemvalue="Python tests.Unittests for test_dockit.DockitEventsTest.test_file_events" />
+      <item itemvalue="Python tests.Unittests for test_lib_client.SurvolRabbitMQTest.test_rabbitmq_queues" />
+      <item itemvalue="Python tests.Unittests for test_win32_api_definitions.PydbgDockitBasicTest" />
+      <item itemvalue="Python tests.Unittests for test_win32_api_definitions.PydbgDockitBasicTest.test_basic_create_process" />
+      <item itemvalue="Python tests.Unittests in Desktop" />
+      <item itemvalue="Python tests.Unittests in test_lib_client.py" />
+      <item itemvalue="Python tests.Unittests in test_wsgi_server.py" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.Test_pydbg" />
-        <item itemvalue="Python tests.Unittests for test_dockit.DockitEventsTest.test_file_events" />
-        <item itemvalue="Python tests.Unittests for test_dockit" />
-        <item itemvalue="Python.Test_pydbg_custom" />
-        <item itemvalue="Python.pydbg_test" />
+        <item itemvalue="Python tests.Unittests for test_lib_client.SurvolRabbitMQTest.test_rabbitmq_queues" />
+        <item itemvalue="Python tests.Unittests in test_lib_client.py" />
+        <item itemvalue="Python tests.Unittests in test_wsgi_server.py" />
+        <item itemvalue="Python tests.Unittests for test_win32_api_definitions.PydbgDockitBasicTest" />
+        <item itemvalue="Python tests.Unittests for test_win32_api_definitions.PydbgDockitBasicTest.test_basic_create_process" />
       </list>
     </recent_temporary>
   </component>
@@ -541,36 +602,36 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Unittests_for_test_dockit - 2020.01.27 at 22h 21m 19s.xml">
-      <configuration name="Unittests for test_dockit" configurationId="tests" />
+    <history-entry file="Unittests_in_test_dockit_py - 2020.03.17 at 16h 14m 25s.xml">
+      <configuration name="Unittests in test_dockit.py" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_for_test_dockit_DockitEventsTest_test_file_events - 2020.01.27 at 22h 22m 46s.xml">
-      <configuration name="Unittests for test_dockit.DockitEventsTest.test_file_events" configurationId="tests" />
+    <history-entry file="Unittests_in_test_dockit_py - 2020.03.17 at 16h 17m 17s.xml">
+      <configuration name="Unittests in test_dockit.py" configurationId="tests" />
     </history-entry>
-  </component>
-  <component name="ToolWindowManager">
-    <frame x="42" y="15" width="1601" height="962" extended-state="0" />
-    <editor active="true" />
-    <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.23600508" />
-      <window_info id="Structure" order="1" weight="0.24918033" />
-      <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.47935003" weight="0.24108241" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.90724444" visible="true" weight="0.3222749" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.77928233" weight="0.32464454" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.39949748" />
-      <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49865046" weight="0.3289855" />
-      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.092755586" side_tool="true" weight="0.27675277" />
-      <window_info anchor="bottom" id="Python Console" order="8" weight="0.3287483" />
-      <window_info anchor="bottom" id="Application Servers" order="9" />
-      <window_info anchor="bottom" id="Version Control" order="10" weight="0.42980295" />
-      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.49967426" weight="0.15945612" />
-      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
-      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-    </layout>
+    <history-entry file="Unittests_in_test_win32_api_definitions_py - 2020.03.17 at 16h 31m 35s.xml">
+      <configuration name="Unittests in test_win32_api_definitions.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_test_win32_api_definitions_PydbgDockitBasicTest_test_basic_create_process - 2020.03.17 at 16h 32m 59s.xml">
+      <configuration name="Unittests for test_win32_api_definitions.PydbgDockitBasicTest.test_basic_create_process" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_test_win32_api_definitions_PydbgDockitBasicTest - 2020.03.17 at 16h 33m 35s.xml">
+      <configuration name="Unittests for test_win32_api_definitions.PydbgDockitBasicTest" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_test_win32_api_definitions_PydbgDockitBasicTest_test_basic_create_process - 2020.03.17 at 16h 56m 52s.xml">
+      <configuration name="Unittests for test_win32_api_definitions.PydbgDockitBasicTest.test_basic_create_process" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_test_win32_api_definitions_PydbgDockitBasicTest - 2020.03.17 at 16h 57m 21s.xml">
+      <configuration name="Unittests for test_win32_api_definitions.PydbgDockitBasicTest" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_in_test_wsgi_server_py - 2020.03.18 at 23h 00m 46s.xml">
+      <configuration name="Unittests in test_wsgi_server.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_in_test_wsgi_server_py - 2020.03.18 at 23h 02m 55s.xml">
+      <configuration name="Unittests in test_wsgi_server.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_in_test_lib_client_py - 2020.03.18 at 23h 05m 36s.xml">
+      <configuration name="Unittests in test_lib_client.py" configurationId="tests" />
+    </history-entry>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -579,12 +640,6 @@
           <value>
             <State>
               <option name="SHOW_ONLY_AFFECTED_CHANGES" value="true" />
-              <option name="RECENTLY_FILTERED_USER_GROUPS">
-                <collection />
-              </option>
-              <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
-                <collection />
-              </option>
               <option name="FILTERS">
                 <map>
                   <entry key="branch">
@@ -602,6 +657,14 @@
                     </value>
                   </entry>
                 </map>
+              </option>
+              <option name="COLUMN_ORDER">
+                <list>
+                  <option value="0" />
+                  <option value="1" />
+                  <option value="2" />
+                  <option value="3" />
+                </list>
               </option>
             </State>
           </value>
@@ -642,93 +705,25 @@
     <option name="LAST_COMMIT_MESSAGE" value="Added __init__ for conformance with Py2." />
   </component>
   <component name="WindowStateProjectService">
-    <state x="328" y="41" key="#Unittests_for_test_dockit" timestamp="1579012134233">
-      <screen x="0" y="0" width="1200" height="760" />
+    <state x="409" y="91" key="#Notifications" timestamp="1591970116947">
+      <screen x="0" y="40" width="1536" height="784" />
     </state>
-    <state x="328" y="41" key="#Unittests_for_test_dockit/0.0.1200.760@0.0.1200.760" timestamp="1579012134233" />
-    <state x="55" y="39" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1579288843863">
-      <screen x="0" y="0" width="1200" height="760" />
+    <state x="409" y="91" key="#Notifications/0.40.1536.784@0.40.1536.784" timestamp="1591970116947" />
+    <state x="513" y="256" key="com.intellij.ide.util.TipDialog" timestamp="1591970078623">
+      <screen x="0" y="40" width="1536" height="784" />
     </state>
-    <state x="55" y="39" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1200.760@0.0.1200.760" timestamp="1579288843863" />
-    <state x="331" y="131" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1580120320145">
-      <screen x="0" y="0" width="1200" height="760" />
+    <state x="513" y="256" key="com.intellij.ide.util.TipDialog/0.40.1536.784@0.40.1536.784" timestamp="1591970078623" />
+    <state x="510" y="164" width="611" height="536" key="find.popup" timestamp="1591973488607">
+      <screen x="0" y="40" width="1536" height="784" />
     </state>
-    <state x="331" y="131" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1200.760@0.0.1200.760" timestamp="1580120320145" />
-    <state x="299" y="0" key="CommitChangelistDialog2" timestamp="1579901860642">
-      <screen x="0" y="0" width="1200" height="760" />
-    </state>
-    <state x="299" y="0" key="CommitChangelistDialog2/0.0.1200.760@0.0.1200.760" timestamp="1579901860642" />
-    <state width="1021" height="197" key="GridCell.Tab.0.bottom" timestamp="1580156191048">
-      <screen x="0" y="0" width="1200" height="760" />
-    </state>
-    <state width="1021" height="197" key="GridCell.Tab.0.bottom/0.0.1200.760@0.0.1200.760" timestamp="1580156191048" />
-    <state width="1021" height="197" key="GridCell.Tab.0.center" timestamp="1580156191048">
-      <screen x="0" y="0" width="1200" height="760" />
-    </state>
-    <state width="1021" height="197" key="GridCell.Tab.0.center/0.0.1200.760@0.0.1200.760" timestamp="1580156191048" />
-    <state width="1021" height="197" key="GridCell.Tab.0.left" timestamp="1580156191048">
-      <screen x="0" y="0" width="1200" height="760" />
-    </state>
-    <state width="1021" height="197" key="GridCell.Tab.0.left/0.0.1200.760@0.0.1200.760" timestamp="1580156191048" />
-    <state width="1021" height="197" key="GridCell.Tab.0.right" timestamp="1580156191048">
-      <screen x="0" y="0" width="1200" height="760" />
-    </state>
-    <state width="1021" height="197" key="GridCell.Tab.0.right/0.0.1200.760@0.0.1200.760" timestamp="1580156191048" />
-    <state width="918" height="186" key="GridCell.Tab.1.bottom" timestamp="1579255219263">
-      <screen x="0" y="0" width="1200" height="760" />
-    </state>
-    <state width="918" height="186" key="GridCell.Tab.1.bottom/0.0.1200.760@0.0.1200.760" timestamp="1579255219263" />
-    <state width="918" height="186" key="GridCell.Tab.1.center" timestamp="1579255219263">
-      <screen x="0" y="0" width="1200" height="760" />
-    </state>
-    <state width="918" height="186" key="GridCell.Tab.1.center/0.0.1200.760@0.0.1200.760" timestamp="1579255219263" />
-    <state width="918" height="186" key="GridCell.Tab.1.left" timestamp="1579255219263">
-      <screen x="0" y="0" width="1200" height="760" />
-    </state>
-    <state width="918" height="186" key="GridCell.Tab.1.left/0.0.1200.760@0.0.1200.760" timestamp="1579255219263" />
-    <state width="918" height="186" key="GridCell.Tab.1.right" timestamp="1579255219263">
-      <screen x="0" y="0" width="1200" height="760" />
-    </state>
-    <state width="918" height="186" key="GridCell.Tab.1.right/0.0.1200.760@0.0.1200.760" timestamp="1579255219263" />
-    <state x="314" y="99" key="MultipleFileMergeDialog" timestamp="1580119245721">
-      <screen x="0" y="0" width="1200" height="760" />
-    </state>
-    <state x="314" y="99" key="MultipleFileMergeDialog/0.0.1200.760@0.0.1200.760" timestamp="1580119245721" />
-    <state x="423" y="95" key="RollbackChangesDialog" timestamp="1580120289827">
-      <screen x="0" y="0" width="1200" height="760" />
-    </state>
-    <state x="423" y="95" key="RollbackChangesDialog/0.0.1200.760@0.0.1200.760" timestamp="1580120289827" />
-    <state x="104" y="26" key="SettingsEditor" timestamp="1579032993862">
-      <screen x="0" y="0" width="1200" height="760" />
-    </state>
-    <state x="104" y="26" key="SettingsEditor/0.0.1200.760@0.0.1200.760" timestamp="1579032993862" />
-    <state x="193" y="117" key="Vcs.Push.Dialog.v2" timestamp="1579901882715">
-      <screen x="0" y="0" width="1200" height="760" />
-    </state>
-    <state x="193" y="117" key="Vcs.Push.Dialog.v2/0.0.1200.760@0.0.1200.760" timestamp="1579901882715" />
-    <state x="308" y="209" key="com.intellij.ide.util.TipDialog" timestamp="1579012074921">
-      <screen x="0" y="0" width="1200" height="760" />
-    </state>
-    <state x="308" y="209" key="com.intellij.ide.util.TipDialog/0.0.1200.760@0.0.1200.760" timestamp="1579012074921" />
-    <state x="412" y="300" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1580119221361">
-      <screen x="0" y="0" width="1200" height="760" />
-    </state>
-    <state x="412" y="300" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1200.760@0.0.1200.760" timestamp="1580119221361" />
-    <state x="305" y="14" width="591" height="732" key="find.popup" timestamp="1580119477756">
-      <screen x="0" y="0" width="1200" height="760" />
-    </state>
-    <state x="305" y="14" width="591" height="732" key="find.popup/0.0.1200.760@0.0.1200.760" timestamp="1580119477756" />
-    <state x="263" y="81" width="672" height="678" key="search.everywhere.popup" timestamp="1580155565761">
-      <screen x="0" y="0" width="1200" height="760" />
-    </state>
-    <state x="263" y="81" width="672" height="678" key="search.everywhere.popup/0.0.1200.760@0.0.1200.760" timestamp="1580155565761" />
+    <state x="510" y="164" width="611" height="536" key="find.popup/0.40.1536.784@0.40.1536.784" timestamp="1591973488607" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/survol/lib_util.py</url>
-          <line>1474</line>
+          <line>1472</line>
           <option name="timeStamp" value="44" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -748,115 +743,25 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_wsgi_server.py</url>
-          <line>68</line>
+          <line>39</line>
           <option name="timeStamp" value="55" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tests/test_wsgi_server.py</url>
-          <line>81</line>
+          <line>43</line>
           <option name="timeStamp" value="56" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/survol/scripts/pydbg/__init__.py</url>
+          <line>39</line>
+          <option name="timeStamp" value="71" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/tests/init.py</url>
+          <line>5</line>
+          <option name="timeStamp" value="72" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
-  </component>
-  <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/tests/test_dockit.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="286">
-          <caret line="739" column="53" selection-start-line="739" selection-start-column="53" selection-end-line="739" selection-end-column="53" />
-          <folding>
-            <element signature="e#23#60#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Experimental/pydbg/hook_container.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3776">
-          <caret line="245" selection-start-line="241" selection-end-line="245" />
-          <folding>
-            <element signature="e#949#953#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Experimental/pydbg/system_dll.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="277">
-          <caret line="99" column="26" lean-forward="true" selection-start-line="99" selection-start-column="26" selection-end-line="99" selection-end-column="26" />
-          <folding>
-            <element signature="e#984#997#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Experimental/pydbg/defines.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="125" column="24" selection-start-line="125" selection-start-column="24" selection-end-line="125" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Experimental/pydbg/my_ctypes.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="64">
-          <caret line="4" column="3" selection-start-line="4" selection-start-column="3" selection-end-line="4" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/ctypes/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="140">
-          <caret line="276" column="70" lean-forward="true" selection-start-line="276" selection-start-column="70" selection-end-line="276" selection-end-column="70" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Experimental/pydbg/windows_h.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-843">
-          <caret line="159" column="11" selection-start-line="159" selection-start-column="6" selection-end-line="159" selection-end-column="11" />
-          <folding>
-            <element signature="e#392#415#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Experimental/pydbg/pydbg.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="910" column="20" selection-start-line="910" selection-start-column="12" selection-end-line="910" selection-end-column="20" />
-          <folding>
-            <element signature="e#1010#1025#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Experimental/pydbg/tests/utils/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="15" column="28" selection-start-line="15" selection-start-column="28" selection-end-line="15" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Experimental/pydbg/tests/utils/code_coverage.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="31" column="18" selection-start-line="31" selection-start-column="11" selection-end-line="31" selection-end-column="18" />
-          <folding>
-            <element signature="e#1102#1113#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Experimental/Test_pydbg.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="211" column="20" selection-start-line="211" selection-start-column="20" selection-end-line="211" selection-end-column="20" />
-          <folding>
-            <element signature="e#542#579#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
   </component>
 </project>

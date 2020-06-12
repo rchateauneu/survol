@@ -110,7 +110,6 @@ def ParseEntitySurvolUri(uprs,longDisplay, force_entity_ip_addr):
     # uprs=ParseResult(
     #   scheme=u'http',
     #   netloc=u'127.0.0.1:8000',
-    #   path=u'/survol/survolcgi.py',
     #   params='',
     #   query=u'script=/entity.py&amp;amp;xid=Win32_UserAccount.Domain=rchateau-HP,Name=rchateau',
     #   fragment='')
@@ -209,7 +208,7 @@ def KnownScriptToTitle(filScript,uriMode,entity_host = None,entity_suffix=None):
 
 
 def CalcLabel(entity_host,entity_type,entity_id,force_entity_ip_addr,filScript):
-    ( namSpac, entity_type_NoNS, _ ) = lib_util.ParseNamespaceType(entity_type)
+    ( namSpac, entity_type_NoNS, _ ) = lib_util.parse_namespace_type(entity_type)
 
     if not force_entity_ip_addr and not lib_util.IsLocalAddress(entity_host):
         entity_label = None
@@ -287,7 +286,7 @@ def ParseEntityUri(uriWithMode,longDisplay=True, force_entity_ip_addr = None):
 
         entity_label = CalcLabel(entity_host,entity_type,entity_id,force_entity_ip_addr,filScript)
 
-        # TODO: Consider ExternalToTitle, similar logic with different results.
+        # TODO: Consider external_url_to_title, similar logic with different results.
         if longDisplay:
             entity_label = KnownScriptToTitle(filScript,uriMode,entity_host,entity_label)
 

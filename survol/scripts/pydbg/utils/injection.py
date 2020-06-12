@@ -24,9 +24,9 @@
 
 import os.path
 
-from pydbg           import *
-from pydbg.defines   import *
-from pydbg.my_ctypes import *
+from ..pydbg import *
+from ..defines import *
+from ..my_ctypes import *
 
 # macos compatability.
 try:
