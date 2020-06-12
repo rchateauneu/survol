@@ -85,7 +85,7 @@ RemoteGeneralTestServerPort = 8000
 RemoteEventsTestServerPort = 8001
 RemoteSparqlTestServerPort = 8002
 RemoteGraphvizTestServerPort = 8003
-RemoteHtmlTestServerPort = 8003
+RemoteHtmlTestServerPort = 8004
 
 
 # Windows has two specific details with file path:
