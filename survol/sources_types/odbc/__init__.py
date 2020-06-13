@@ -61,7 +61,7 @@ def Graphic_is_rounded():
 # "True", "False", "true", "yes", "0", "1"
 rgxTrueFalse = "[a-zA-Z01]*"
 
-rgxUser = "\w+"
+rgxUser = r"\w+"
 
 # TODO: Will not work if "=" in the password, even if it is escaped.
 # Should reasonably contain more than four or five chars.
@@ -70,7 +70,7 @@ rgxPassword = ".+"
 # Hexadecimal number
 rgxHexa = "[0-9a-fA-F]+"
 
-rgxNumber = "\d+"
+rgxNumber = r"\d+"
 
 rgxAlpha = "[a-zA-Z]+"
 
