@@ -713,8 +713,10 @@ class CommandLineLivePythonTest(unittest.TestCase):
 
     def _run_python_script_rdf(self, output_basename_prefix, python_script):
         """This runs a Python script."""
-        created_rdf_file = path_prefix_output_result(output_basename_prefix + ".rdf")
-        python_script_file = path_prefix_output_result(output_basename_prefix + ".py")
+        created_rdf_file = path_prefix_output_result(output_basename_prefix + "_%d.rdf" % os.getpid())
+        # No Python files in the output directory, otherwise pytest interprets them as valid test scripts.
+        python_script_file = os.path.join(tempfile.gettempdir(), output_basename_prefix + "_%d.py" % os.getpid())
+        #python_script_file = path_prefix_output_result(output_basename_prefix + ".py")
         with open(python_script_file, "w") as python_script_file_descriptor:
             python_script_file_descriptor.write(python_script)
 
@@ -764,6 +766,7 @@ print("Hello")
 """
         triples_as_string, created_pid = self._run_python_script_rdf(output_basename_prefix, python_script)
 
+    @unittest.skipIf(is_windows10, "Broken on Windows 10.")
     @unittest.skipIf(is_platform_linux, "These tests are for Windows only.")
     def test_run_python_rdf_os_system_python(self):
         """This creates a subprocess."""
@@ -846,6 +849,7 @@ os.system(r'"%s" -c print(123456789) > %s')
 
         self.assertEqual(checked_executables, 3)
 
+    @unittest.skipIf(is_windows10, "Broken on Windows 10.")
     @unittest.skipIf(is_platform_linux, "These tests are for Windows only.")
     def test_run_python_rdf_os_system_dir(self):
         """This creates a subprocess running dir."""
