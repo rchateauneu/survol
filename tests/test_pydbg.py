@@ -90,7 +90,7 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
 
     # This tests the callbacks which are used for good in other tests.
     # It starts a DOS process which attempts to remove a directory.
-    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    @unittest.skipIf(is_windows10, "Does not work on Windows 10.")
     def test_DOS_RemoveDirectoryW(self):
         tst_pydbg = pydbg.pydbg()
 
@@ -140,12 +140,12 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
         tst_pydbg.run()
 
         print("Counters:", Context.count_in, Context.count_out)
-        self.assertTrue(Context.count_in == num_loops)
-        self.assertTrue(Context.count_out == num_loops)
+        self.assertEqual(Context.count_in, num_loops)
+        self.assertEqual(Context.count_out, num_loops)
         created_process.terminate()
 
     # It starts a DOS process which attempts to remove a directory.
-    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    @unittest.skipIf(is_windows10, "Does not work on Windows 10.")
     def test_DOS_DeleteFileW(self):
         tst_pydbg = pydbg.pydbg()
 
@@ -201,11 +201,11 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
         tst_pydbg.run()
 
         print("Counters:", Context.count_in, Context.count_out)
-        self.assertTrue(Context.count_in == num_loops)
-        self.assertTrue(Context.count_out == num_loops)
+        self.assertEqual(Context.count_in, num_loops)
+        self.assertEqual(Context.count_out, num_loops)
 
     # This starts a separate Python process which attempts several times to open a non-existent file.
-    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    @unittest.skipIf(is_windows10, "Does not work on Windows 10.")
     def test_DOS_CreateFileW(self):
         tst_pydbg = pydbg.pydbg()
 
@@ -258,8 +258,8 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
 
         print("END", Context.count_in, Context.count_out)
         # The first call might be missed.
-        self.assertTrue(Context.count_in == num_loops)
-        self.assertTrue(Context.count_out == num_loops)
+        self.assertEqual(Context.count_in, num_loops)
+        self.assertEqual(Context.count_out, num_loops)
         created_process.terminate()
 
     def test_DOS_create_process(self):
@@ -519,7 +519,7 @@ class PythonHooksTest(unittest.TestCase):
     Calls to these functions are then detected and reported.
     """
 
-    @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
+    @unittest.skipIf(is_windows10, "Does not work on Travis.")
     def test_Python_CreateFile(self):
         tst_pydbg = pydbg.pydbg()
 
@@ -548,7 +548,7 @@ class PythonHooksTest(unittest.TestCase):
         def callback_create_file_in(object_pydbg, args):
             Context.file_name_in = object_pydbg.get_unicode_string(args[0])
             print("callback_create_file_in file_name_in=", Context.file_name_in)
-            self.assertTrue(Context.file_name_in == temp_file_name)
+            self.assertEqual(Context.file_name_in, temp_file_name)
             return defines.DBG_CONTINUE
 
         def callback_create_file_out(object_pydbg, args, function_result):
@@ -560,8 +560,8 @@ class PythonHooksTest(unittest.TestCase):
 
         tst_pydbg.run()
         creation_file_process.terminate()
-        self.assertTrue(Context.file_name_in == temp_file_name)
-        self.assertTrue(Context.file_name_out == temp_file_name)
+        self.assertEqual(Context.file_name_in, temp_file_name)
+        self.assertEqual(Context.file_name_out, temp_file_name)
         os.remove(temp_file_name)
 
     def test_Python_DeleteFile_non_existent(self):
@@ -603,8 +603,8 @@ class PythonHooksTest(unittest.TestCase):
 
         tst_pydbg.run()
         deletion_file_process.kill()
-        self.assertTrue(Context.file_name_in == temp_name)
-        self.assertTrue(Context.file_name_out == temp_name)
+        self.assertEqual(Context.file_name_in, temp_name)
+        self.assertEqual(Context.file_name_out, temp_name)
 
     def test_Python_system(self):
         """A Python process runs the function system()"""
@@ -642,7 +642,7 @@ class PythonHooksTest(unittest.TestCase):
         system_process.kill()
         # Conversion to lower case because c:\windows might be C:\Windows on Travis.
         print("windows_system32_cmd_exe=", windows_system32_cmd_exe)
-        self.assertTrue(Context.system_command_out.lower() == windows_system32_cmd_exe.lower())
+        self.assertEqual(Context.system_command_out.lower(), windows_system32_cmd_exe.lower())
 
     def test_Python_mkdir_rmdir(self):
         """A Python process creates then removes a directory."""
@@ -714,10 +714,10 @@ class PythonHooksTest(unittest.TestCase):
         print("removed_directory_in=", Context.removed_directory_in)
         print("removed_directory_out=", Context.removed_directory_out)
 
-        self.assertTrue(Context.created_directory_in == temp_path)
-        self.assertTrue(Context.created_directory_out == temp_path)
-        self.assertTrue(Context.removed_directory_in == temp_path)
-        self.assertTrue(Context.removed_directory_out == temp_path)
+        self.assertEqual(Context.created_directory_in, temp_path)
+        self.assertEqual(Context.created_directory_out, temp_path)
+        self.assertEqual(Context.removed_directory_in, temp_path)
+        self.assertEqual(Context.removed_directory_out, temp_path)
 
     def test_Python_subprocess(self):
         """This starts a Python subprocess without an intermediary shell."""
@@ -753,7 +753,7 @@ class PythonHooksTest(unittest.TestCase):
         tst_pydbg.run()
         print_hello_process.communicate()
         print_hello_process.terminate()
-        self.assertTrue(Context.command_line == [sys.executable, '-c', python_command])
+        self.assertEqual(Context.command_line, [sys.executable, '-c', python_command])
 
     def test_Python_shell_sub_process(self):
         """This starts a shell, then a Python subprocess."""
@@ -795,7 +795,7 @@ class PythonHooksTest(unittest.TestCase):
         actual_command_line = " ".join(Context.command_line)
         print("actual_command_line=", actual_command_line)
         # Conversion to lower case because c:\windows might be C:\Windows.
-        self.assertTrue(actual_command_line.lower() == expected_command_line.lower())
+        self.assertEqual(actual_command_line.lower(), expected_command_line.lower())
         print_shell_process.communicate()
         print_shell_process.terminate()
 
@@ -1239,20 +1239,21 @@ with open(r'%s', "a") as append_file:
         # written_lines= ['System_32436 \n', '"tasklist.exe","16828","Console","1","7,784 K","Unknown","user\\domain","0:00:00","N/A"\n', 'Pid_22600']
         print("written_lines=", written_lines)
         result_message_nl = result_message + " \n"
-        self.assertTrue(written_lines[0] == result_message_nl)
+        self.assertEqual(written_lines[0], result_message_nl)
         split_tasklist = written_lines[1].split(",")
-        self.assertTrue(split_tasklist[0] == '"tasklist.exe"')
+        self.assertEqual(split_tasklist[0], '"tasklist.exe"')
         # In Pycharm: "Console, on Travis: "Services".
         self.assertTrue(split_tasklist[2] in ['"Console"', '"Services"'])
-        self.assertTrue(written_lines[2] == "Pid_%d" % sub_process_id)
+        self.assertEqual(written_lines[2], "Pid_%d" % sub_process_id)
 
         print("test_win32_system_tasklist Context.lpApplicationName_in=", Context.lpApplicationName_in)
-        self.assertTrue(Context.lpApplicationName_in == windows_system32_cmd_exe)
-        self.assertTrue(Context.lpCommandLine_in.startswith(windows_system32_cmd_exe))
-        self.assertTrue(Context.dwProcessId_in == sub_process_id)
-        self.assertTrue(Context.lpApplicationName_out == windows_system32_cmd_exe)
-        self.assertTrue(Context.lpCommandLine_out.startswith(windows_system32_cmd_exe))
-        self.assertTrue(Context.dwProcessId_out == sub_process_id)
+        # Conversion in lower case for Windows 10.
+        self.assertEqual(Context.lpApplicationName_in.lower(), windows_system32_cmd_exe.lower())
+        self.assertTrue(Context.lpCommandLine_in.lower().startswith(windows_system32_cmd_exe.lower()))
+        self.assertEqual(Context.dwProcessId_in, sub_process_id)
+        self.assertEqual(Context.lpApplicationName_out.lower(), windows_system32_cmd_exe.lower())
+        self.assertTrue(Context.lpCommandLine_out.lower().startswith(windows_system32_cmd_exe.lower()))
+        self.assertEqual(Context.dwProcessId_out, sub_process_id)
 
         os.remove(temp_text_file_path)
         os.remove(temp_python_path)
@@ -1371,16 +1372,16 @@ with open(r'%s', "a") as append_file:
         # written_lines= ['System_32436 \n', '"tasklist.exe","16828","Console","1","7,784 K","Unknown","user\\domain","0:00:00","N/A"\n', 'Pid_22600']
         print("written_lines=", written_lines)
         result_message_nl = result_message + " \n"
-        self.assertTrue(written_lines[0] == result_message_nl)
-        self.assertTrue(written_lines[1] == "Pid_%d" % sub_process_id)
+        self.assertEqual(written_lines[0], result_message_nl)
+        self.assertEqual(written_lines[1], "Pid_%d" % sub_process_id)
 
         print("test_win32_system_echo_to_file Context.lpApplicationName_in=", Context.lpApplicationName_in)
-        self.assertTrue(Context.lpApplicationName_in == windows_system32_cmd_exe)
-        self.assertTrue(Context.lpCommandLine_in.startswith(windows_system32_cmd_exe))
-        self.assertTrue(Context.dwProcessId_in == sub_process_id)
-        self.assertTrue(Context.lpApplicationName_out == windows_system32_cmd_exe)
-        self.assertTrue(Context.lpCommandLine_out.startswith(windows_system32_cmd_exe))
-        self.assertTrue(Context.dwProcessId_out == sub_process_id)
+        self.assertEqual(Context.lpApplicationName_in.lower(), windows_system32_cmd_exe.lower())
+        self.assertTrue(Context.lpCommandLine_in.lower().startswith(windows_system32_cmd_exe.lower()))
+        self.assertEqual(Context.dwProcessId_in, sub_process_id)
+        self.assertEqual(Context.lpApplicationName_out.lower(), windows_system32_cmd_exe.lower())
+        self.assertTrue(Context.lpCommandLine_out.lower().startswith(windows_system32_cmd_exe.lower()))
+        self.assertEqual(Context.dwProcessId_out, sub_process_id)
 
         os.remove(temp_text_file_path)
         os.remove(temp_python_path)
