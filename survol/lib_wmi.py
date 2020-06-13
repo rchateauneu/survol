@@ -1058,9 +1058,9 @@ class WmiSparqlExecutor:
 
     def SelectBidirectionalAssociatorsFromObject(self, result_class_name, associator_key_name, wmi_path, role_index):
         # subject_path = '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="31588"'
-        sys.stderr.write("SelectAssociatorsFromObject subject_path=%s\n" % wmi_path)
+        #sys.stderr.write("SelectAssociatorsFromObject subject_path=%s\n" % wmi_path)
         # dummy, colon, wmi_path = subject_path.partition(":")
-        DEBUG("WmiCallbackAssociator wmi_path=%s", wmi_path)
+        #DEBUG("WmiCallbackAssociator wmi_path=%s", wmi_path)
 
         wmi_path = self._cleanup_wmi_path(wmi_path)
 
@@ -1080,8 +1080,8 @@ class WmiSparqlExecutor:
         wmi_query = "ASSOCIATORS OF {%s} WHERE AssocClass=%s ResultClass=%s ResultRole=%s" % (
             wmi_path, associator_key_name, result_class_name, chosen_role)
 
-        DEBUG("WmiCallbackAssociator wmi_query=%s", wmi_query)
-        sys.stderr.write("SelectAssociatorsFromObject wmi_query=%s\n" % wmi_query)
+        #DEBUG("WmiCallbackAssociator wmi_query=%s", wmi_query)
+        #sys.stderr.write("SelectAssociatorsFromObject wmi_query=%s\n" % wmi_query)
 
         try:
             wmi_objects = self.m_wmi_connection.query(wmi_query)
