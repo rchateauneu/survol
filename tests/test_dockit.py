@@ -669,9 +669,6 @@ class CommandLineLiveWin32Test(unittest.TestCase):
         created_rdf_file = path_prefix_output_result(output_basename_prefix + ".rdf")
         copied_file = path_prefix_output_result(output_basename_prefix + ".exe")
 
-        print("os.sys.getwindowsversion()=", os.sys.getwindowsversion())
-        self.assertTrue(False)
-
         # It copies cmd.exe elsewhere.
         dockit_command = "--server=%s %s /c copy %s %s" % (
             created_rdf_file, windows_system32_cmd_exe,
