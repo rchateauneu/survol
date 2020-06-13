@@ -240,13 +240,13 @@ class WmiSparqlExecutorTest(unittest.TestCase):
         list_results = list(iter_results)
         paths_list = []
         for object_path, dict_key_values in list_results:
-            actual_filename_clean = self._object_path_to_path(object_path)
+            actual_filename_clean = self._object_path_to_path(object_path).lower()
             paths_list.append(actual_filename_clean)
         print("paths_list=", paths_list)
         print("file_name=", file_name)
         expected_file_path = 'CIM_DataFile.Name="%s"' % file_name
         print("expected_file_path=", expected_file_path)
-        self.assertTrue(expected_file_path in paths_list)
+        self.assertTrue(expected_file_path.lower() in paths_list)
 
     def test_SelectBidirectionalAssociatorsFromObject_dir_to_subdir(self):
         wmiExecutor = lib_wmi.WmiSparqlExecutor()
@@ -261,13 +261,14 @@ class WmiSparqlExecutorTest(unittest.TestCase):
         list_results = list(iter_results)
         paths_list = []
         for object_path, dict_key_values in list_results:
-            actual_sub_dir_clean = self._object_path_to_path(object_path)
+            # Filenames are converted to lowercase because of different behaviour wrt Windows version.
+            actual_sub_dir_clean = self._object_path_to_path(object_path).lower()
             paths_list.append(actual_sub_dir_clean)
         print("paths_list=", paths_list)
         print("sub_dir_name=", sub_dir_name)
         expected_subdir_path = 'Win32_Directory.Name="%s"' % sub_dir_name
         print("expected_subdir_path=", expected_subdir_path)
-        self.assertTrue(expected_subdir_path in paths_list)
+        self.assertTrue(expected_subdir_path.lower() in paths_list)
 
     def test_SelectBidirectionalAssociatorsFromObject_subdir_to_dir(self):
         wmiExecutor = lib_wmi.WmiSparqlExecutor()
