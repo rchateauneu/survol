@@ -186,7 +186,7 @@ def GetWbemUrls( entity_host, entity_namespace, entity_type, entity_id ):
         # TODO: Example: "xid=http://192.168.1.83:5988/." becomes "xid=http:/192.168.1.83:5988/"
         # TODO: Replace by "xid=http:%2F%2F192.168.1.83:5988/."
         # Maybe a bad collapsing of URL ?
-        theCimom = lib_credentials.KeyUrlCgiEncode(theCimom)
+        theCimom = lib_credentials.key_url_cgi_encode(theCimom)
 
         # On suppose que les classes sont les memes.
         if entity_type == "":
