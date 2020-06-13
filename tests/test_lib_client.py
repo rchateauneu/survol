@@ -1394,7 +1394,7 @@ try:
     import pyodbc
     # This is temporary until ODBC is setup on this machine.
     # FIXME: The correct solution might be to check ODBC credentials.
-    if CurrentMachine == "LAPTOP-R89KG6V1":
+    if CurrentMachine == "laptop-r89kg6v1":
         pyodbc = None
 except ImportError as exc:
     pyodbc = None
