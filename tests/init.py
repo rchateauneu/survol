@@ -210,17 +210,19 @@ def unique_temporary_path(prefix, extension):
     temp_path = os.path.join(tempfile.gettempdir(), temp_file)
     return temp_path
 
+
+def has_credentials(credential_type):
+    import lib_credentials
+    return lib_credentials.GetCredentialsNames(credential_type)
+
+
 ################################################################################
 
-# This defines a file and a directory present on all platforms, for testing.
-# This is deprecated and should be replaced by "always_present_*" constants.
+# This defines a disk present on all platforms, for testing.
 if is_platform_linux:
     AnyLogicalDisk = ""
 else:
-    if is_travis_machine():
-        AnyLogicalDisk = "C:"
-    else:
-        AnyLogicalDisk = "D:"
+    AnyLogicalDisk = "C:"
 
 # These files are garanteed to exist, so it is possible to rely on this assumption.
 
