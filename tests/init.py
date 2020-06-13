@@ -34,19 +34,20 @@ if is_platform_windows:
     import win32process
     import win32con
 
-# os.sys.getwindowsversion()
-# sys.getwindowsversion(major=6, minor=1, build=7601, platform=2, service_pack='Service Pack 1')
-# platform.release()
-# '7'
-# platform.win32_ver()
-# ('7', '6.1.7601', 'SP1', 'Multiprocessor Free')
+    # os.sys.getwindowsversion()
+    # sys.getwindowsversion(major=6, minor=1, build=7601, platform=2, service_pack='Service Pack 1')
+    # platform.release()
+    # '7'
+    # platform.win32_ver()
+    # ('7', '6.1.7601', 'SP1', 'Multiprocessor Free')
+    is_windows10 = os.sys.getwindowsversion()[0] == 10
+else:
+    is_windows10 = None
 
 def is_travis_machine():
     # /home/travis/build/rchateauneu/survol : See "lib_credentials.py" for the same test.
     # Some tests cannot be run on a Travis machine if some tools are not there.
     return os.getcwd().find("travis") >= 0
-
-is_windows10 = os.sys.getwindowsversion()[0] == 10
 
 # Some tests start a DOS box process. The processes application is checked.
 windows_system32_cmd_exe = r'C:\Windows\system32\cmd.exe' if is_travis_machine() else r'C:\windows\system32\cmd.exe'
