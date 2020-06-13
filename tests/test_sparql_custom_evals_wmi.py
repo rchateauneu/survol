@@ -469,17 +469,18 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
+        query_str_only = set([str(one_query[0]).lower() for one_query in query_result])
+        print("query_str_only=", query_str_only)
 
         file_name_python_exe = sys.executable.lower().replace("\\", "/")
         node_python_exe = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name_python_exe})
         print("node_python_exe=", node_python_exe)
-        self.assertTrue((node_python_exe,) in query_result)
+        self.assertTrue(str(node_python_exe).lower() in query_str_only)
 
         # u'http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=c:/windows/system32/iphlpapi.dll' etc
         file_name_gdi32 = "c:/windows/system32/gdi32.dll"
         datafile_node_gdi32 = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name_gdi32})
-        self.assertTrue((datafile_node_gdi32,) in query_result)
+        self.assertTrue(str(datafile_node_gdi32).lower() in query_str_only)
 
     def test_associator_CIM_Process_executable_node(self):
         sparql_query = """
@@ -494,16 +495,18 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
+
+        filenames_only = set(str(one_result[0]).lower() for one_result in query_result)
+        print("filenames_only=", filenames_only)
 
         file_name_python_exe = sys.executable.lower().replace("\\", "/")
         node_python_exe = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name_python_exe})
         print("node_python_exe=", node_python_exe)
-        self.assertTrue((node_python_exe,) in query_result)
+        self.assertTrue(str(node_python_exe).lower() in filenames_only)
 
         file_name_ntdll = "c:/windows/system32/ntdll.dll"
         datafile_node_ntdll = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name_ntdll})
-        self.assertTrue((datafile_node_ntdll,) in query_result)
+        self.assertTrue(str(datafile_node_ntdll).lower() in filenames_only)
 
     def test_associator_CIM_Process_executable_name(self):
         sparql_query = """
@@ -519,7 +522,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
-        filenames_only = set([str(one_result[0]) for one_result in query_result])
+        filenames_only = set([str(one_result[0]).lower() for one_result in query_result])
         print("filenames_only=", filenames_only)
 
         file_name_python_exe = sys.executable.lower().replace("\\", "/")
@@ -649,7 +652,8 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
-        dirnodes_only = {one_result[0] for one_result in query_result}
+        # Conversion to lowercase because of inconsistencies in some Windows versions.
+        dirnodes_only = {str(one_result[0]).lower() for one_result in query_result}
         print("dirnodes_only=", dirnodes_only, "len=", len(dirnodes_only))
 
         for dir_path in [
@@ -659,7 +663,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
             os.path.dirname(CurrentExecutable).lower().replace("\\", "/") + "/dlls",
             "c:/windows/system32",
             "c:/windows/system32/wbem"]:
-            node_dir = lib_common.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": dir_path})
+            node_dir = str(lib_common.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": dir_path})).lower()
             print("Path=", dir_path)
             print("Node=", node_dir)
             self.assertTrue(node_dir in dirnodes_only)
@@ -751,7 +755,8 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
+        query_as_str = set([str(one_result[0]).lower() for one_result in query_result])
+        print("query_as_str=", query_as_str)
 
         # These files must be there because they are used by the current process.
         mandatory_file_paths = [
@@ -764,7 +769,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         for one_path in mandatory_file_paths:
             node_file = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": one_path})
             print("one_path=", one_path)
-            self.assertTrue((node_file,) in query_result)
+            self.assertTrue(str(node_file).lower() in query_as_str)
 
     def test_associator_executable_name_to_process(self):
         # C:/Python27/python.exe
@@ -808,12 +813,17 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
             }""" % (survol_namespace, directory_name)
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
+
+        # Conversion to lowercase because different behaviour depending on Windows and WMI version.
+        query_urls = [str(one_tuple[0]).lower() for one_tuple in query_result]
+        print("query_urls=", query_urls)
 
         # ASSOCIATOR INVERSION !!!!!!!!!!
 
-        node_file_name = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name})
-        self.assertTrue((node_file_name,) in query_result)
+        node_url = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name})
+        node_file_name = str(node_url).lower()
+        print("node_file_name=", node_file_name)
+        self.assertTrue(node_file_name in query_urls)
 
     def test_associator_directory_to_datafile_names(self):
         """All the file names in a directory."""
@@ -831,14 +841,18 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
-        filenames_only = set([str(one_result[0]) for one_result in query_result])
+        filenames_only = set([str(one_result[0]).lower() for one_result in query_result])
         print("filenames_only=%s\n" % filenames_only)
 
         for dir_root, dir_dirs, dir_files in os.walk(directory_name):
-            expected_files = set(os.path.join(dir_root, one_file).lower().replace("\\", "/") for one_file in dir_files)
+            expected_files = set(
+                # File path standardized and to lower case, because it is mistakenly
+                # converted on some versions of Windows and Python and maybe WMI parameters.
+                os.path.join(dir_root, one_file).replace("\\", "/").lower()
+                for one_file in dir_files)
             break
         print("expected_files=%s\n" % expected_files)
-        self.assertTrue(filenames_only == expected_files)
+        self.assertEqual(filenames_only, expected_files)
 
     def test_associator_datafile_to_directory_node(self):
         """From a file to the node of its parent directory."""
@@ -860,7 +874,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         # ASSOCIATOR INVERSION !!!!!!!!!!
 
         # The file belongs to one directory.
-        self.assertTrue( len(query_result) == 1)
+        self.assertEqual(len(query_result), 1)
         node_directory = lib_common.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": directory_name})
         self.assertTrue((node_directory,) in query_result)
 
@@ -878,7 +892,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
             }""" % (survol_namespace, directory_name)
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
-        actual_dir_nodes = set(one_tuple[0] for one_tuple in query_result)
+        actual_dir_nodes = set(one_tuple[0].lower() for one_tuple in query_result)
         print("actual_dir_nodes=%s\n" % actual_dir_nodes)
 
         expected_dir_nodes = set()
@@ -886,11 +900,11 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
             for one_dir in dir_dirs:
                 dir_path = os.path.join(dir_root, one_dir).lower().replace("\\", "/")
                 dir_node = lib_common.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": dir_path})
-                expected_dir_nodes.add(dir_node)
+                expected_dir_nodes.add(str(dir_node).lower())
             break
         print("expected_dir_nodes=%s\n" % expected_dir_nodes)
 
-        self.assertTrue(actual_dir_nodes == expected_dir_nodes)
+        self.assertEqual(actual_dir_nodes, expected_dir_nodes)
 
     def test_associator_sub_directory_to_directory_node(self):
         """From a subdirectory to its parent directory."""
@@ -910,7 +924,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         print("Result=", query_result)
         directory_node = lib_common.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": directory_name})
         print("directory_node=", directory_node)
-        self.assertTrue([(directory_node,)] == query_result)
+        self.assertEqual([(directory_node,)], query_result)
 
     def test_associator_datafile_to_directory_of_directory_node(self):
         """From a file to the node of the parent of its parent directory."""
@@ -934,9 +948,9 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         # ASSOCIATOR INVERSION !!!!!!!!!!
 
         # The file belongs to one directory.
-        self.assertTrue( len(query_result) == 1)
+        self.assertEqual(len(query_result), 1)
         node_directory_of_directory = lib_common.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": directory_of_directory_name})
-        self.assertTrue([(node_directory_of_directory,)] == query_result)
+        self.assertEqual([(node_directory_of_directory,)], query_result)
 
     def test_associator_datafile_to_directory_of_directory_name(self):
         """From a file to the name of the parent of its parent directory."""
@@ -959,8 +973,8 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         print("Result=", query_result)
 
         # The directory belongs to one directory only.
-        self.assertTrue(len(query_result) == 1)
-        self.assertTrue(directory_of_directory_name == str(query_result[0][0]))
+        self.assertEqual(len(query_result), 1)
+        self.assertEqual(directory_of_directory_name, str(query_result[0][0]))
 
     def test_associator_dir_dir_to_sub_sub_datafile_node(self):
         """From a directory to the files in its subdirectories"""
@@ -988,15 +1002,16 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
             os.path.join(directory_of_directory_name, *file_name).lower().replace("\\", "/")
             for file_name in expect_filenames
         ]
+        # Conversions to lowercase because of inconsistent behaviour in previous WMI and Windows versions.
         expect_nodes = sorted([
-            lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": path_name})
+            str(lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": path_name})).lower()
             for path_name in expect_pathnames
         ])
         print("expect_nodes=",expect_nodes)
 
-        actual_nodes = sorted([one_result[0] for one_result in query_result])
+        actual_nodes = sorted([one_result[0].lower() for one_result in query_result])
         print("actual_nodes=", actual_nodes)
-        self.assertTrue(expect_nodes == actual_nodes)
+        self.assertEqual(expect_nodes, actual_nodes)
 
     def test_associator_dir_dir_to_sub_sub_datafile_name(self):
         """From a directory to the files in its subdirectories"""
@@ -1027,9 +1042,10 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         ]
         print("expect_pathnames=",expect_pathnames)
 
-        actual_filenames = sorted([str(one_result[0]) for one_result in query_result])
+        # Conversion to lowercase because of inconsistent behaviour in former WMI versions.
+        actual_filenames = sorted([str(one_result[0]).lower() for one_result in query_result])
         print("actual_filenames=", actual_filenames)
-        self.assertTrue(expect_pathnames == actual_filenames)
+        self.assertEqual(expect_pathnames, actual_filenames)
 
     ################################################################################
 
@@ -1049,7 +1065,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
-        self.assertTrue(str(query_result[0][0]) == 'Guests')
+        self.assertEqual(str(query_result[0][0]), 'Guests')
 
     def test_associator_guests_group_to_user(self):
         sparql_query = """
@@ -1067,7 +1083,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
-        self.assertTrue(str(query_result[0][0]) == 'Guest')
+        self.assertEqual(str(query_result[0][0]), 'Guest')
 
     def test_associator_computer_to_system_users(self):
         sparql_query = """
