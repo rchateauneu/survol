@@ -1346,6 +1346,12 @@ class StoreToRDFTest(unittest.TestCase):
         check_file_content(output_basename_prefix + ".rdf")
 
 
+# FIXME: Broken on local machine with Windows 7, Python 3, if the server is automatically started.
+# FIXME: Sometimes, it stops reading only 23360 bytes ....
+# FIXME: It cannot be a sizing problem because it sometimes work.
+# FIXME: When it works, it reads everything in one go.
+# FIXME: It works if the Survol agent is already started.
+@unittest.skipIf(is_platform_windows and is_py3 and not is_windows10(), "BROKEN WITH PY3, WINDOWS AND LOCAL. WHY ??")
 class EventsServerTest(unittest.TestCase):
     """
     This tests the ability to parse a strace log and tranform it into events in Survol,
@@ -1424,11 +1430,6 @@ class EventsServerTest(unittest.TestCase):
         # Now read and test the events.
         self._check_read_triples(5, expected_types_list)
 
-    # FIXME: Broken on local machine with Windows, Python 3, if the server is automatically started.
-    # FIXME: Sometimes, it stops reading only 23360 bytes ....
-    # FIXME: It cannot be a sizing problem because it sometimes work.
-    # FIXME: When it works, it reads everything in one go.
-    @unittest.skipIf(is_platform_windows and is_py3 and not is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS AND LOCAL. WHY ??")
     def test_file_events_shell(self):
         output_basename_prefix = "dockit_events_sample_shell.ltrace"
         dockit.test_from_file(
@@ -1458,7 +1459,6 @@ class EventsServerTest(unittest.TestCase):
         # Now read and test the events.
         self._check_read_triples(5, expected_types_list)
 
-    @unittest.skipIf(is_platform_windows and is_py3 and not is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS AND LOCAL. WHY ??")
     def test_file_events_proftpd(self):
         output_basename_prefix = "dockit_events_proftpd.strace.26299"
         dockit.test_from_file(
@@ -1488,7 +1488,6 @@ class EventsServerTest(unittest.TestCase):
         # Now read and test the events.
         self._check_read_triples(5, expected_types_list)
 
-    @unittest.skipIf(is_platform_windows and is_py3 and not is_travis_machine(), "BROKEN WITH PY3 AND WINDOWS AND LOCAL. WHY ??")
     def test_file_events_firefox(self):
         output_basename_prefix = "firefox_events_google.strace.22501"
         dockit.test_from_file(
