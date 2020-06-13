@@ -27,7 +27,6 @@ def Main():
 
     DEBUG("dsn=%s tabNam=%s", dsnNam, tabNam )
 
-    nodeDsn = survol_odbc_dsn.MakeUri( dsnNam )
     nodTab = survol_odbc_table.MakeUri( dsnNam, tabNam )
 
     # ('C:\\Program Files (x86)\\Microsoft Visual Studio 8\\Crystal Reports\\Samples\\en\\Databases\\xtreme', None, 'MSysAccessObjects', 'SYSTEM TABLE', None)
@@ -84,7 +83,7 @@ def Main():
 
     except Exception:
         exc = sys.exc_info()[0]
-        lib_common.ErrorMessageHtml("nodeDsn=%s Unexpected error:%s" % ( dsnNam, str( exc ) ) )
+        lib_common.ErrorMessageHtml("dsnNam=%s Unexpected error:%s" % ( dsnNam, str( exc ) ) )
 
 
     # cgiEnv.OutCgiRdf()
