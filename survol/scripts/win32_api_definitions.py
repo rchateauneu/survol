@@ -515,9 +515,14 @@ class Win32Hook_GenericProcessCreation(Win32Hook_BaseClass):
         except AttributeError:
             win32con.EXTENDED_STARTUPINFO_PRESENT = 0x80000
         if is_py3:
-            assert dwCreationFlags in [
-                win32con.CREATE_UNICODE_ENVIRONMENT,
-                win32con.EXTENDED_STARTUPINFO_PRESENT]
+            # On Windows 10 in 64 bits, dwCreationFlags=x19e00080400 or x400 or x80000.
+            # The lowest int is CREATE_UNICODE_ENVIRONMENT | EXTENDED_STARTUPINFO_PRESENT
+            print("dwCreationFlags=%0x" % dwCreationFlags)
+            #assert dwCreationFlags & win32con.CREATE_UNICODE_ENVIRONMENT
+            #assert dwCreationFlags & win32con.EXTENDED_STARTUPINFO_PRESENT
+            #assert dwCreationFlags in [
+            #    win32con.CREATE_UNICODE_ENVIRONMENT,
+            #    win32con.EXTENDED_STARTUPINFO_PRESENT]
         else:
             assert dwCreationFlags in [
                 0,
@@ -766,96 +771,6 @@ class Win32Hook_DeleteFileW(Win32Hook_BaseClass):
         self.callback_create_object("CIM_DataFile", Name=lpFileName)
 
 
-# Not validated yet.
-if False:
-    class Win32Hook_CopyFileA(Win32Hook_BaseClass):
-        api_definition = b"""
-            BOOL CopyFileA(
-                LPCSTR  lpExistingFileName,
-                LPCSTR  lpNewFileName,
-                BOOL    bFailIfExists
-              );"""
-        dll_name = b"KERNEL32.dll"
-        def callback_after(self, function_arguments, function_result):
-            lpExistingFileName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
-            lpNewFileName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
-            self.callback_create_object("CIM_DataFile", Name=lpExistingFileName)
-            self.callback_create_object("CIM_DataFile", Name=lpNewFileName)
-
-
-    class Win32Hook_CopyFileExA(Win32Hook_BaseClass):
-        api_definition = b"""
-            BOOL CopyFileExA(
-                LPCSTR             lpExistingFileName,
-                LPCSTR             lpNewFileName,
-                LPPROGRESS_ROUTINE lpProgressRoutine,
-                LPVOID             lpData,
-                LPBOOL             pbCancel,
-                DWORD              dwCopyFlags
-            );"""
-        dll_name = b"KERNEL32.dll"
-        def callback_after(self, function_arguments, function_result):
-            lpExistingFileName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
-            lpNewFileName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
-            self.callback_create_object("CIM_DataFile", Name=lpExistingFileName)
-            self.callback_create_object("CIM_DataFile", Name=lpNewFileName)
-
-
-    class Win32Hook_CopyFileExW(Win32Hook_BaseClass):
-        api_definition = b"""
-            BOOL CopyFileExW(
-                LPCWSTR            lpExistingFileName,
-                LPCWSTR            lpNewFileName,
-                LPPROGRESS_ROUTINE lpProgressRoutine,
-                LPVOID             lpData,
-                LPBOOL             pbCancel,
-                DWORD              dwCopyFlags
-            );"""
-        dll_name = b"KERNEL32.dll"
-        def callback_after(self, function_arguments, function_result):
-            lpExistingFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
-            lpNewFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
-            self.callback_create_object("CIM_DataFile", Name=lpExistingFileName)
-            self.callback_create_object("CIM_DataFile", Name=lpNewFileName)
-
-
-    class Win32Hook_CopyFileW(Win32Hook_BaseClass):
-        api_definition = b"""
-            BOOL CopyFileW(
-                LPCWSTR  lpExistingFileName,
-                LPCWSTR  lpNewFileName,
-                BOOL    bFailIfExists
-              );"""
-        dll_name = b"KERNEL32.dll"
-        def callback_after(self, function_arguments, function_result):
-            lpExistingFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
-            lpNewFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
-            self.callback_create_object("CIM_DataFile", Name=lpExistingFileName)
-            self.callback_create_object("CIM_DataFile", Name=lpNewFileName)
-
-
-    # This blocks the process.
-    #
-    # class Win32Hook_CopyFile2(Win32Hook_BaseClass):
-    #     api_definition = b"""
-    #         BOOL CopyFile2(
-    #             PCWSTR                        pwszExistingFileName,
-    #             PCWSTR                        pwszNewFileName,
-    #             COPYFILE2_EXTENDED_PARAMETERS *pExtendedParameters
-    #             );"""
-    #     dll_name = b"KERNEL32.dll"
-    #     def callback_after(self, function_arguments, function_result):
-    #         exit(0)
-    #         pwszExistingFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
-    #         pwszNewFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
-    #         self.callback_create_object("CIM_DataFile", Name=pwszExistingFileName)
-    #         self.callback_create_object("CIM_DataFile", Name=pwszNewFileName)
-    #
-    # CopyFileTransactedA
-    # CopyFileTransactedW
-    # CopyLZFile
-
-
 class Win32Hook_CreateThread(Win32Hook_BaseClass):
     api_definition = b"""
         HANDLE CreateThread(
@@ -1078,9 +993,98 @@ if False:
 # sys.getwindowsversion() != (6, 1, 7601, 2, 'Service Pack 1')
 # Travis
 # Windows 10.0.17134 N/A Build 17134
-windows8_or_higher = os.sys.getwindowsversion() != (6, 1, 7601, 2, 'Service Pack 1')
+is_windows10 = os.sys.getwindowsversion()[0] == 10
 
-if windows8_or_higher:
+
+# Not validated yet.
+if is_windows10:
+    class Win32Hook_CopyFileA(Win32Hook_BaseClass):
+        api_definition = b"""
+            BOOL CopyFileA(
+                LPCSTR  lpExistingFileName,
+                LPCSTR  lpNewFileName,
+                BOOL    bFailIfExists
+              );"""
+        dll_name = b"KERNEL32.dll"
+        def callback_after(self, function_arguments, function_result):
+            lpExistingFileName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
+            lpNewFileName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
+            self.callback_create_object("CIM_DataFile", Name=lpExistingFileName)
+            self.callback_create_object("CIM_DataFile", Name=lpNewFileName)
+
+
+    class Win32Hook_CopyFileExA(Win32Hook_BaseClass):
+        api_definition = b"""
+            BOOL CopyFileExA(
+                LPCSTR             lpExistingFileName,
+                LPCSTR             lpNewFileName,
+                LPPROGRESS_ROUTINE lpProgressRoutine,
+                LPVOID             lpData,
+                LPBOOL             pbCancel,
+                DWORD              dwCopyFlags
+            );"""
+        dll_name = b"KERNEL32.dll"
+        def callback_after(self, function_arguments, function_result):
+            lpExistingFileName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
+            lpNewFileName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
+            self.callback_create_object("CIM_DataFile", Name=lpExistingFileName)
+            self.callback_create_object("CIM_DataFile", Name=lpNewFileName)
+
+
+    class Win32Hook_CopyFileExW(Win32Hook_BaseClass):
+        api_definition = b"""
+            BOOL CopyFileExW(
+                LPCWSTR            lpExistingFileName,
+                LPCWSTR            lpNewFileName,
+                LPPROGRESS_ROUTINE lpProgressRoutine,
+                LPVOID             lpData,
+                LPBOOL             pbCancel,
+                DWORD              dwCopyFlags
+            );"""
+        dll_name = b"KERNEL32.dll"
+        def callback_after(self, function_arguments, function_result):
+            lpExistingFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
+            lpNewFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
+            self.callback_create_object("CIM_DataFile", Name=lpExistingFileName)
+            self.callback_create_object("CIM_DataFile", Name=lpNewFileName)
+
+
+    class Win32Hook_CopyFileW(Win32Hook_BaseClass):
+        api_definition = b"""
+            BOOL CopyFileW(
+                LPCWSTR  lpExistingFileName,
+                LPCWSTR  lpNewFileName,
+                BOOL    bFailIfExists
+              );"""
+        dll_name = b"KERNEL32.dll"
+        def callback_after(self, function_arguments, function_result):
+            lpExistingFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
+            lpNewFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
+            self.callback_create_object("CIM_DataFile", Name=lpExistingFileName)
+            self.callback_create_object("CIM_DataFile", Name=lpNewFileName)
+
+
+    # This blocks the process.
+    #
+    # class Win32Hook_CopyFile2(Win32Hook_BaseClass):
+    #     api_definition = b"""
+    #         BOOL CopyFile2(
+    #             PCWSTR                        pwszExistingFileName,
+    #             PCWSTR                        pwszNewFileName,
+    #             COPYFILE2_EXTENDED_PARAMETERS *pExtendedParameters
+    #             );"""
+    #     dll_name = b"KERNEL32.dll"
+    #     def callback_after(self, function_arguments, function_result):
+    #         exit(0)
+    #         pwszExistingFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
+    #         pwszNewFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
+    #         self.callback_create_object("CIM_DataFile", Name=pwszExistingFileName)
+    #         self.callback_create_object("CIM_DataFile", Name=pwszNewFileName)
+    #
+    # CopyFileTransactedA
+    # CopyFileTransactedW
+    # CopyLZFile
+
 
     class Win32Hook_CreateProcessAsUserA(Win32Hook_GenericProcessCreation):
         api_definition = b"""
