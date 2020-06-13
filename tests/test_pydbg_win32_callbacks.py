@@ -88,7 +88,7 @@ class PydbgAttachTest(unittest.TestCase):
         win32_api_definitions.tracer_object = None
 
     # TODO: This test might fail if the main process is slowed down wrt the subprocess it attaches to.
-    @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
+    @unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ?")
     def test_attach_pid(self):
         """This attaches to a process already running. Beware that it might fail sometimes
         due ti synchronization problem: This is inherent to this test."""
@@ -110,12 +110,12 @@ class PydbgAttachTest(unittest.TestCase):
         created_process_calls_counter = win32_api_definitions.tracer_object.calls_counter[created_process.pid]
         self.assertEqual(created_process_calls_counter[b'RemoveDirectoryW'], 2 * num_loops)
         if is_py3:
-            # FIXME: For an unknown reason, the Python function open() of the implementation used by Travis
+            # FIXME: For an unknown reason, the Python function open() of the implementation used by Windows 10
             # does not use CreateFileW or CreateFileA. This problem is not understood yet.
             # Other functions do not have the same problem. This is not a big issue because
             # this test just checks general behaviour of functions and breakpoints.
             self.assertTrue(created_process_calls_counter[b'CreateProcessW'] == num_loops)
-            if is_travis_machine():
+            if is_windows10:
                 self.assertTrue(b'CreateFileW' not in created_process_calls_counter)
                 #self.assertTrue(b'WriteFile' not in created_process_calls_counter)
             else:
@@ -137,7 +137,7 @@ class PydbgAttachTest(unittest.TestCase):
             self.assertTrue({'Name': nonexistent_file} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
         self.assertEqual(len(win32_api_definitions.tracer_object.created_objects['CIM_Process']), num_loops)
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
+    @unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ?")
     def test_start_python_process(self):
         temp_data_file_path = unique_temporary_path("test_start_python_process", ".txt")
 
@@ -182,12 +182,12 @@ class PydbgAttachTest(unittest.TestCase):
             self.assertTrue(b'WriteFile' not in created_process_calls_counter)
         #else:
         #    self.assertTrue(created_process_calls_counter[b'WriteFile'] > 0)
-        self.assertTrue(created_process_calls_counter[b'CreateProcessW'] == num_loops)
+        self.assertEqual(created_process_calls_counter[b'CreateProcessW'], num_loops)
 
         print("test_dos_create_process created_objects=", win32_api_definitions.tracer_object.created_objects)
         self.assertTrue('CIM_Process' in win32_api_definitions.tracer_object.created_objects)
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
+    @unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ?")
     def test_cmd_delete_file(self):
         num_loops = 3
         temp_path = unique_temporary_path("test_basic_delete_file", ".txt")
@@ -201,8 +201,8 @@ class PydbgAttachTest(unittest.TestCase):
         created_process_calls_counter = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
         self.assertEqual(created_process_calls_counter[b'CreateProcessW'], num_loops)
         print("created_process_calls_counter=", created_process_calls_counter)
-        if is_travis_machine():
-            # FIXME: The Python implementation used by Travis is based on another set of IO functions.
+        if is_windows10:
+            # FIXME: The Python implementation used by Windows 10 is based on another set of IO functions.
             #self.assertTrue(b'WriteFile' not in created_process_calls_counter)
             self.assertTrue(b'CreateFileW' not in created_process_calls_counter)
             self.assertTrue(b'DeleteFileW' not in created_process_calls_counter)
@@ -213,13 +213,13 @@ class PydbgAttachTest(unittest.TestCase):
 
         print("test_dos_delete_file created_objects=", win32_api_definitions.tracer_object.created_objects)
         self.assertTrue('CIM_Process' in win32_api_definitions.tracer_object.created_objects)
-        if is_travis_machine():
+        if is_windows10:
             # FIXME: The Python implementation used by Travis is based on another set of IO functions.
             self.assertTrue('CIM_DataFile' not in win32_api_definitions.tracer_object.created_objects)
         else:
             self.assertTrue({'Name': temp_path} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ? IT USED TO WORK !!")
+    @unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ? IT USED TO WORK !!")
     def test_cmd_ping_type(self):
         num_loops = 5
         dir_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 1 1.2.3.4 & type something.xyz )" % num_loops
@@ -231,8 +231,8 @@ class PydbgAttachTest(unittest.TestCase):
         created_process_calls_counter = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
         self.assertTrue(created_process_calls_counter[b'CreateProcessW'] == num_loops)
         #self.assertTrue(created_process_calls_counter[b'CreateProcessW'] == 1)
-        if is_travis_machine():
-            # FIXME: The Python implementation used by Travis is based on another set of IO functions.
+        if is_windows10:
+            # FIXME: The Python implementation used by Windows 10 is based on another set of IO functions.
             #self.assertTrue(b'WriteFile' not in created_process_calls_counter)
             self.assertTrue(b'CreateFileW' not in created_process_calls_counter)
         else:
@@ -241,8 +241,8 @@ class PydbgAttachTest(unittest.TestCase):
 
         print("test_dos_dir created_objects=", win32_api_definitions.tracer_object.created_objects)
         self.assertTrue('CIM_Process' in win32_api_definitions.tracer_object.created_objects)
-        if is_travis_machine():
-            # FIXME: The Python implementation used by Travis is based on another set of IO functions.
+        if is_windows10:
+            # FIXME: The Python implementation used by Windows 10 is based on another set of IO functions.
             self.assertTrue('CIM_DataFile' not in win32_api_definitions.tracer_object.created_objects)
         else:
             self.assertTrue({'Name': 'something.xyz'} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
@@ -256,8 +256,8 @@ class PydbgAttachTest(unittest.TestCase):
 
         print("test_dos_dir calls_counter=", win32_api_definitions.tracer_object.calls_counter)
         created_process_calls_counter = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
-        if is_travis_machine():
-            # FIXME: The Python implementation used by Travis is based on another set of IO functions.
+        if is_windows10:
+            # FIXME: The Python implementation used by Windows 10 is based on another set of IO functions?
             self.assertTrue(b'WriteFile' not in created_process_calls_counter)
             self.assertTrue(b'CreateFileW' not in created_process_calls_counter)
         else:
@@ -266,7 +266,7 @@ class PydbgAttachTest(unittest.TestCase):
 
         print("test_dos_dir created_objects=", win32_api_definitions.tracer_object.created_objects.keys())
         print("test_dos_dir created_objects=", win32_api_definitions.tracer_object.created_objects)
-        if is_travis_machine():
+        if is_windows10:
             # FIXME: The Python implementation used by Travis is based on another set of IO functions.
             self.assertTrue(not win32_api_definitions.tracer_object.created_objects)
         else:
@@ -283,8 +283,8 @@ class PydbgAttachTest(unittest.TestCase):
 
         print("test_cmd_mkdir_rmdir calls_counter=", win32_api_definitions.tracer_object.calls_counter)
         created_process_calls_counter = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
-        if is_travis_machine():
-            # FIXME: The Python implementation used by Travis is based on another set of IO functions.
+        if is_windows10:
+            # FIXME: The Python implementation used by Windows 10 is based on another set of IO functions.
             self.assertTrue(b'CreateDirectoryW' not in created_process_calls_counter)
             self.assertTrue(b'RemoveDirectoryW' not in created_process_calls_counter)
         else:
@@ -292,13 +292,13 @@ class PydbgAttachTest(unittest.TestCase):
             self.assertTrue(created_process_calls_counter[b'RemoveDirectoryW'] == 1)
 
         print("test_cmd_mkdir_rmdir created_objects=", win32_api_definitions.tracer_object.created_objects)
-        if is_travis_machine():
-            # FIXME: The Python implementation used by Travis is based on another set of IO functions.
+        if is_windows10:
+            # FIXME: The Python implementation used by Windows 10 is based on another set of IO functions.
             self.assertTrue('CIM_Directory' not in win32_api_definitions.tracer_object.created_objects)
         else:
             self.assertTrue({'Name': temp_path} in win32_api_definitions.tracer_object.created_objects['CIM_Directory'])
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ? IT USED TO WORK !!")
+    @unittest.skipIf(is_windows10, "FIXME: Does not work on Travis. WHY ? IT USED TO WORK !!")
     def test_cmd_nslookup(self):
         nslookup_command = windows_system32_cmd_exe + " /c "+ "nslookup primhillcomputers.com"
         # It seems nslookup needs to be started from a cmd process, otherwise it crashes.
@@ -337,7 +337,7 @@ class PydbgAttachTest(unittest.TestCase):
 
         print("test_DOS_nslookup created_objects=", win32_api_definitions.tracer_object.created_objects)
         self.assertTrue( {'Handle': sub_process_id} in win32_api_definitions.tracer_object.created_objects['CIM_Process'])
-        if not is_travis_machine():
+        if not is_windows10:
             # 'CIM_DataFile': [{'Name': u'\\\\.\\Nsi'}]}
             self.assertTrue('CIM_DataFile' in win32_api_definitions.tracer_object.created_objects)
 
@@ -402,7 +402,7 @@ outfil.close()
         if not is_py3:
             self.assertTrue(sub_process_calls_counter[b'CreateFileA'] > 0)
         self.assertTrue(sub_process_calls_counter[b'CreateFileW'] > 0)
-        if is_travis_machine():
+        if is_windows10:
             # FIXME: It uses another set of IO functions.
             self.assertTrue(b'WriteFile' not in sub_process_calls_counter)
             self.assertTrue(b'ReadFile' not in sub_process_calls_counter)
@@ -498,7 +498,7 @@ os.system('"%s" -V' % sys.executable)
         self.assertEqual(len(created_processes), 2)
         os.remove(temporary_python_file.name)
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
+    @unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10.")
     def test_api_python_os_system_python_redirect(self):
         """
         This creates a subprocess with the system call os.system(), starting python.
@@ -596,7 +596,7 @@ subprocess.check_output([sys.executable, '-V'], shell=False)
         self.assertEqual(len(created_processes), 1)
         os.remove(temporary_python_file.name)
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
+    @unittest.skipIf(is_windows10, "FIXME: It works only sometimes on Windows 10. WHY ?")
     def test_api_python_multiprocessing_recursive_noio(self):
         """
         This creates a subprocess with multiprocessing.Process, starting python
@@ -657,7 +657,7 @@ if __name__ == '__main__':
 
         os.remove(temporary_python_file.name)
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
+    @unittest.skipIf(is_windows10, "FIXME: Does not work on Travis. WHY ?")
     def test_api_python_multiprocessing_recursive_io(self):
         """
         This uses multiprocessing.Process.
@@ -737,7 +737,7 @@ if __name__ == '__main__':
         os.remove(temporary_python_file.name)
         os.remove(temporary_text_file.name)
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ? Maybe multiprocessing ?")
+    @unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ? Maybe multiprocessing ?")
     def test_api_python_multiprocessing_flat(self):
         """
         This uses multiprocessing.Process.
