@@ -7,7 +7,7 @@ import lib_util
 # TODO: What if an access for "192.168.1.78" and "titi" ?
 
 # This returns the file name containing the credentials.
-def CredFilNam():
+def credentials_filename():
 	filNamOnly = "SurvolCredentials.json"
 	try:
 		return os.environ["HOME"] + "/" + filNamOnly
@@ -28,20 +28,20 @@ def CredFilNam():
 	return filNam
 
 # This returns a map containing all credentials.
-def BuildCredDocument():
+def _build_credentials_document():
 	# /home/travis/build/rchateauneu/survol : See "tests/init.py" for the same test.
 	# So the passwords are encruypted in environment variables:
 	# https://stackoverflow.com/questions/9338428/using-secret-api-keys-on-travis-ci/12778315#12778315
 	if os.getcwd().find("travis") >= 0:
-		WARNING("BuildCredDocument Travis mode")
+		WARNING("_build_credentials_document Travis mode")
 
 		# travis_credentials_env = \{\"WBEM\":\{\"http://vps516494.ovh.net:5988\"\:\[\"xxx\",\"yyy\"\]\}\}
 		travis_credentials_env = os.environ["SURVOL_CREDENTIALS"]
-		DEBUG("BuildCredDocument travis_credentials=%s", travis_credentials_env)
+		DEBUG("_build_credentials_document travis_credentials=%s", travis_credentials_env)
 		travis_credentials = json.loads(travis_credentials_env)
 		return travis_credentials
 
-	filNam = CredFilNam()
+	filNam = credentials_filename()
 	try:
 		opFil = open(filNam)
 		jsonCreds = json.load( opFil )
@@ -54,23 +54,23 @@ def BuildCredDocument():
 
 		return upperCredentials
 	except Exception:
-		WARNING("BuildCredDocument no credentials %s: %s", filNam, str(sys.exc_info()))
+		WARNING("_build_credentials_document no credentials %s: %s", filNam, str(sys.exc_info()))
 		return dict()
 
-def CredDocument():
-	if not CredDocument.credentials:
-		CredDocument.credentials = BuildCredDocument()
+def _credentials_document():
+	if not _credentials_document.credentials:
+		_credentials_document.credentials = _build_credentials_document()
 
-	return CredDocument.credentials
+	return _credentials_document.credentials
 
-CredDocument.credentials = None
+_credentials_document.credentials = None
 
 # For example: GetCredentials("Oracle","XE") or GetCredentials("Login","192.168.1.78")
 # It returns the username and the password.
 def GetCredentials( credType, credName ):
 	if credName is None:
 		credName = ""
-	credentials = CredDocument()
+	credentials = _credentials_document()
 	DEBUG("GetCredentials credType=%s credName=%s credentials=%d elements",credType,credName,len(credentials))
 	try:
 		if not credentials:
@@ -102,52 +102,58 @@ def GetCredentials( credType, credName ):
 		WARNING("GetCredentials Unknown name credType=%s credName=%s",credType,credName)
 		return ('','')
 
+
 # For example, if "credType" == "Oracle", it will returned all databases defined in the credentials file.
 # TODO: For Oracle, consider exploring tnsnames.ora ?
 def GetCredentialsNames( credType ):
 	try:
-		credDict = CredDocument()
+		credDict = _credentials_document()
 		arrType = credDict[credType]
 		return arrType.keys()
 	except KeyError:
 		ERROR("GetCredentials Invalid type credType=%s",credType)
 		return []
 
-def GetCredentialsTypes():
+
+def get_credentials_types():
 	"""Returns the various credential types taken form the confidential file: """
 	try:
-		credDict = CredDocument()
+		credDict = _credentials_document()
 		return credDict.keys()
 	except KeyError:
 		ERROR("GetCredentials Invalid document")
 		return None
 
-def DumpToFile(credDict):
-	filNam = CredFilNam()
+
+def _dump_credentials_to_file(credDict):
+	filNam = credentials_filename()
 	filFil = open(filNam, 'w')
 	json.dump(credDict, filFil)
 	filFil.close()
 
-def AddCredential(credType,credName,credUsr,credPwd):
-	credDict = CredDocument()
+
+def add_one_credential(credType, credName, credUsr, credPwd):
+	credDict = _credentials_document()
 	try:
-		credDict[credType][credName] = [credUsr,credPwd]
+		credDict[credType][credName] = [credUsr, credPwd]
 	except KeyError:
 		try:
-			credDict[credType] = { credName : [credUsr,credPwd] }
+			credDict[credType] = {credName : [credUsr,credPwd]}
 		except KeyError:
-			credDict = { credType: { credName : [credUsr,credPwd] } }
+			credDict = {credType: {credName : [credUsr,credPwd]}}
 
-	DumpToFile(credDict)
+	_dump_credentials_to_file(credDict)
 
-def UpdatesCredentials(credMapOut):
+
+def update_credentials(credMapOut):
 	credDict = dict()
 	for credType in credMapOut:
 		credDict[credType] = dict()
 		for credName in credMapOut[credType]:
 			cred = credMapOut[credType][credName]
 			credDict[credType][credName] = [ cred[0], cred[1] ]
-	DumpToFile(credDict)
+	_dump_credentials_to_file(credDict)
 
-def KeyUrlCgiEncode(aKeyUrl):
+
+def key_url_cgi_encode(aKeyUrl):
 	return aKeyUrl.replace("http://","http:%2F%2F").replace("https://","https:%2F%2F")

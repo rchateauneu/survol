@@ -19,7 +19,7 @@ from lib_util import WrtAsUtf
 # This lists the content of credentials and associates a variable name to each element.
 # This variable name which must be unique, is later used to build a HTML form.
 def CreateCredentialsMap():
-    credTypeList = lib_credentials.GetCredentialsTypes()
+    credTypeList = lib_credentials.get_credentials_types()
 
     credTypesDict = dict()
 
@@ -154,7 +154,7 @@ def InsertedCredMap(cgiArguments):
         credUsr = cgiArguments["credentials_add_usr"].value
         credPwd = cgiArguments["credentials_add_pwd"].value
 
-        lib_credentials.AddCredential(credType,credName,credUsr,credPwd)
+        lib_credentials.add_one_credential(credType, credName, credUsr, credPwd)
 
     except KeyError:
         pass
@@ -207,7 +207,7 @@ def UpdatedCredMap(cgiArguments):
 
     if wasChanged:
         # Change the file only if something really changed.
-        lib_credentials.UpdatesCredentials(credMapOut)
+        lib_credentials.update_credentials(credMapOut)
     return credMapOut
 
 
@@ -256,7 +256,7 @@ def CredDefinitions():
             return nodeWbem
         else:
             import lib_wbem
-            theCimom = lib_credentials.KeyUrlCgiEncode(cimomUrl)
+            theCimom = lib_credentials.key_url_cgi_encode(cimomUrl)
             nodeWbem = lib_wbem.WbemAllNamespacesUrl(theCimom)
             return nodeWbem
 
@@ -316,7 +316,7 @@ def Main():
 
     cgiArguments = cgi.FieldStorage()
 
-    credFilename = os.path.normpath(lib_credentials.CredFilNam())
+    credFilename = os.path.normpath(lib_credentials.credentials_filename())
     page_title = "Edit Survol credentials in %s" % credFilename
 
     # Hostname=Unknown-30-b5-c2-02-0c-b5-2.home
