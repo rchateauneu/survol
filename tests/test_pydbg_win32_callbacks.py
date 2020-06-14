@@ -418,15 +418,14 @@ outfil.close()
         self.assertTrue({'Id': expected_addr} in win32_api_definitions.tracer_object.created_objects['addr'])
         os.remove(temporary_python_file.name)
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
-    def test_api_python_os_system_dir(self):
+    #@unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
+    def test_api_python_os_system_dir_once(self):
         """
         This creates a subprocess with the system call os.system(), running dir.
         """
         temporary_python_file = tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False)
         script_content = """
 import os
-import sys
 os.system('dir')
 """
         temporary_python_file.write(script_content)
@@ -454,6 +453,43 @@ os.system('dir')
 
         # This creates one single subprocess running cmd.exe
         self.assertEqual(len(created_processes), 1)
+
+    def test_api_python_os_system_dir_multiple(self):
+        """
+        This creates a subprocess with the system call os.system(), running dir.
+        """
+        temporary_python_file = tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False)
+        loops_number = 100
+        script_content = """
+import os
+for loop_index in range(%d):
+    os.system('dir > null')
+""" % loops_number
+        temporary_python_file.write(script_content)
+        temporary_python_file.close()
+
+        system_command = "%s %s" % (sys.executable, temporary_python_file.name)
+
+        hooks_manager = win32_api_definitions.Win32Hook_Manager()
+
+        dwProcessId = hooks_manager.attach_to_command(system_command)
+        print("dwProcessId=", dwProcessId)
+
+        print("calls_counter=", win32_api_definitions.tracer_object.calls_counter)
+        created_processes = win32_api_definitions.tracer_object.created_objects['CIM_Process']
+        print("created_objects=", win32_api_definitions.tracer_object.created_objects['CIM_Process'])
+
+        calls_counter_process = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
+        print("calls_counter_process.keys()=", calls_counter_process.keys())
+        if is_py3:
+            self.assertEqual(calls_counter_process[b'CreateProcessW'], loops_number)
+            self.assertTrue(b'CreateProcessA' not in calls_counter_process)
+        else:
+            self.assertEqual(calls_counter_process[b'CreateProcessA'], loops_number)
+            self.assertTrue(b'CreateProcessW' not in calls_counter_process)
+
+        # This creates one single subprocess running cmd.exe
+        self.assertEqual(len(created_processes), loops_number)
 
     # Sometimes it does not work.
     # Maybe cmd.exe does NOT create another process ?
