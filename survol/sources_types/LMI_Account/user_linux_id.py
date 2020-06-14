@@ -23,12 +23,11 @@ def ParseIdNam(str):
 # Properly splits this string.
 # Maybe we could use the keys but they depend on the locale.
 # uid=500(rchateau) gid=500(guest) groupes=500(guest),81(audio)
-def SplitId(str):
-	DEBUG("SplitId:"+str)
-	arr = str.split(' ')
+def split_id(str):
+	arr = str.split(b' ')
 	resu = []
 	for substr in arr:
-		resu.append( substr.split('=')[1] )
+		resu.append(substr.split(b'=')[1])
 	return resu
 
 def Main():
@@ -69,7 +68,7 @@ def Main():
 
 	firstLine = lines[0]
 
-	firstSplit = SplitId( firstLine )
+	firstSplit = split_id(firstLine)
 
 	userId = ParseIdNam( firstSplit[0] )[0]
 
