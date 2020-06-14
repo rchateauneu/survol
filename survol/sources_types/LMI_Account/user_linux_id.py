@@ -10,32 +10,34 @@ import lib_common
 import lib_util
 from lib_properties import pc
 
+# This runs only on Linux.
 Usable = lib_util.UsableLinux
 
 
-# Parses b"500(guest) and returns (500, "guest"")
+# Parses b"500(guest)" (bytes) and returns (500, "guest") (str)
 def parse_id_name(one_string):
 	mtch = re.match(br"^([0-9]*)\(([^)]*)\)$", one_string)
 	if mtch:
-		return mtch.group(1), mtch.group(2)
-	return -1, b""
+		return mtch.group(1), mtch.group(2).decode("utf-8")
+	return -1, ""
 
-# Properly splits this string.
-# Maybe we could use the keys but they depend on the locale.
-# uid=500(rchateau) gid=500(guest) groupes=500(guest),81(audio)
+
+# This splits the line returned by the command "id".
+# Maybe we could use the keys like "groups" but they depend on the locale: "groupes" ...
+# "uid=500(my_user) gid=500(guest) groupes=500(guest),81(audio)"
+# "uid=1001(my_user) gid=1001(my_user) groups=1001(my_user),10(wheel),993(docker) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023"
 def split_id(one_string):
 	arr = one_string.split(b' ')
 	resu = []
+	# There should be one line only.
 	for substr in arr:
 		resu.append(substr.split(b'=')[1])
 	return resu
 
+
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 	userNameWithHost = cgiEnv.GetId()
-
-	if not lib_util.isPlatformLinux:
-		lib_common.ErrorMessageHtml("id command on Linux only")
 
 	# Usernames have the syntax user@host
 	user_split = userNameWithHost.split('@')
@@ -54,6 +56,7 @@ def Main():
 
 	user_node = lib_common.gUriGen.UserUri(user_name)
 
+	# It runs this Linux command which returns a single line.
 	id_cmd = ["id", user_name]
 
 	id_pipe = lib_common.SubProcPOpen(id_cmd)
@@ -61,10 +64,11 @@ def Main():
 	(id_last_output, id_err) = id_pipe.communicate()
 
 	lines = id_last_output.split(b'\n')
+	sys.stderr.write("lines=%s\n" % lines)
 	DEBUG("id=" + user_name + " lines="+str(lines))
 
-	# $ id rchateau
-	# uid=500(rchateau) gid=500(guest) groupes=500(guest),81(audio)
+	# $ id my_user
+	# uid=500(my_user) gid=500(guest) groupes=500(guest),81(audio)
 
 	first_line = lines[0]
 
@@ -75,6 +79,7 @@ def Main():
 	grph.add((user_node, pc.property_userid, lib_common.NodeLiteral(user_id)))
 
 	for grp_str in first_split[2].split(b','):
+		sys.stderr.write("grp_str=%s\n" % grp_str)
 		(group_id, group_name) = parse_id_name(grp_str)
 		grpNode = lib_common.gUriGen.GroupUri(group_name)
 		grph.add( ( grpNode, pc.property_groupid, lib_common.NodeLiteral(group_id)))
