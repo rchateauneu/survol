@@ -61,7 +61,7 @@ def Main():
 
 	( id_last_output, id_err ) = id_pipe.communicate()
 
-	lines = id_last_output.split('\n')
+	lines = id_last_output.split(b'\n')
 	DEBUG("id=" + userName + " lines="+str(lines))
 
 	# $ id rchateau
