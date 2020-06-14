@@ -1135,7 +1135,7 @@ class SurvolLocalLinuxTest(unittest.TestCase):
         """Groups of a Linux account"""
 
         my_source = lib_client.SourceLocal(
-            "sources_types/LMI_Account/Linux/user_linux_id.py",
+            "sources_types/LMI_Account/user_linux_id.py",
             "LMI_Account",
             Name="root",
             Domain=CurrentMachine)
@@ -1156,7 +1156,7 @@ class SurvolLocalLinuxTest(unittest.TestCase):
         """Processes of a Linux account"""
 
         my_source = lib_client.SourceLocal(
-            "sources_types/LMI_Account/Linux/user_processes.py",
+            "sources_types/LMI_Account/user_processes.py",
             "LMI_Account",
             Name="root",
             Domain=CurrentMachine)
@@ -1179,7 +1179,7 @@ class SurvolLocalLinuxTest(unittest.TestCase):
         """Users of a Linux group"""
 
         my_source = lib_client.SourceLocal(
-            "sources_types/LMI_Group/Linux/linux_user_group.py",
+            "sources_types/LMI_Group/linux_user_group.py",
             "LMI_Group",
             Name="root")
 
