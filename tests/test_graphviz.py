@@ -52,6 +52,10 @@ class SvgCommon(unittest.TestCase):
             "/survol/sources_types/LMI_Account/user_linux_id.py?xid=LMI_Account.Name=root,Domain=%s"
             % SurvolServerHostname)
 
+    def _test_svg_cgi_arp_linux(self):
+        self._check_script(
+            "/survol/sources_types/Linux/cgi_arp_linux.py")
+
 
 def _is_dot_available():
     dot_status = os.system("dot -?")
@@ -89,6 +93,10 @@ class SvgLocalAgentTest(SvgCommon):
     def test_local_svg_user_linux_id(self):
         self._test_svg_user_linux_id()
 
+    @unittest.skipIf(not is_platform_linux, "Linux only")
+    def test_local_svg_cgi_arp_linux(self):
+        self._test_svg_cgi_arp_linux()
+
 
 # This targets Primhill Computers test machine.
 class SvgRemoteAgentTest(SvgCommon):
@@ -112,6 +120,9 @@ class SvgRemoteAgentTest(SvgCommon):
 
     def test_remote_svg_user_linux_id(self):
         self._test_svg_user_linux_id()
+
+    def test_remote_svg_cgi_arp_linux(self):
+        self._test_svg_cgi_arp_linux()
 
 
 # TODO: Test loadbookmark
