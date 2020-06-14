@@ -70,7 +70,7 @@ def Main():
 
 	first_split = split_id(first_line)
 
-	user_id = user_id(first_split[0])[0]
+	user_id = parse_id_name(first_split[0])[0]
 
 	grph.add((user_node, pc.property_userid, lib_common.NodeLiteral(user_id)))
 
