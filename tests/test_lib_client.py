@@ -1144,7 +1144,9 @@ class SurvolLocalLinuxTest(unittest.TestCase):
         print("str_instances_set=", str_instances_set)
 
         # Account "root" always belong to group "root"
+        # The account must also be returned.
         list_required = [
+            'LMI_Account.Name=root,Domain=%s' % CurrentMachine,
             'LMI_Group.Name=root',
         ]
 
@@ -1164,11 +1166,9 @@ class SurvolLocalLinuxTest(unittest.TestCase):
         str_instances_set = set([str(one_inst) for one_inst in my_source.get_triplestore().get_instances()])
         print("str_instances_set=", str_instances_set)
 
-        # This is diffcult to test because the process ids are changing.
-        self.assertTrue(len(str_instances_set) > 0)
-
+        # At least the account is returned.
         list_required = [
-            'Linux/cgroup.Name=name=systemd',
+            'LMI_Account.Name=root,Domain=%s' % CurrentMachine,
         ]
 
         for one_str in list_required:
@@ -1186,7 +1186,9 @@ class SurvolLocalLinuxTest(unittest.TestCase):
         str_instances_set = set([str(one_inst) for one_inst in my_source.get_triplestore().get_instances()])
         print("str_instances_set=", str_instances_set)
 
+        # At least the group itself, is returned.
         list_required = [
+            'LMI_Group.Name=root',
         ]
 
         for one_str in list_required:
