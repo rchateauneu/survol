@@ -1074,13 +1074,12 @@ class SurvolLocalUtf8Test(unittest.TestCase):
         # Properties: CIM_Directory.file_directory
 
 
-
 class SurvolLocalOntologiesTest(unittest.TestCase):
     """This tests the creation of RDFS or OWL-DL ontologies"""
 
     def test_ontology_survol(self):
         missing_triples = lib_client.check_ontology_graph("survol")
-        self.assertTrue(missing_triples == [], "Missing triples:%s" % str(missing_triples))
+        self.assertEqual(missing_triples, [], "Missing triples:%s" % str(missing_triples))
 
     @unittest.skipIf(not pkgutil.find_loader('wmi'), "wmi cannot be imported. test_ontology_wmi not executed.")
     def test_ontology_wmi(self):
@@ -1094,30 +1093,24 @@ class SurvolLocalOntologiesTest(unittest.TestCase):
 
 # TODO: Test namespaces etc... etc classes wmi etc...
 
+@unittest.skipIf(not is_platform_linux, "Linux tests only.")
 class SurvolLocalLinuxTest(unittest.TestCase):
     """These tests do not need a Survol agent and apply to Linux machines only"""
 
-    def decorator_linux_platform(test_func):
-        if is_platform_linux:
-            return test_func
-        else:
-            return None
-
-    @decorator_linux_platform
     def test_process_cgroups(self):
         """CGroups about current process"""
 
-        mySource = lib_client.SourceLocal(
+        my_source = lib_client.SourceLocal(
             "sources_types/CIM_Process/Linux/process_cgroups.py",
             "CIM_Process",
             Handle=CurrentPid)
 
-        listRequired = [
+        str_instances_set = set([str(one_inst) for one_inst in my_source.get_triplestore().get_instances()])
+
+        list_required = [
             CurrentExecutablePath,
             CurrentProcessPath,
             CurrentUserPath,
-            # 'CIM_Directory.Name=/user.slice/user-1001.slice/session-371.scope',
-            # 'CIM_Directory.Name=/user.slice/user-1001.slice',
             'CIM_Directory.Name=/',
             'Linux/cgroup.Name=name=systemd',
             'Linux/cgroup.Name=cpuacct',
@@ -1134,10 +1127,71 @@ class SurvolLocalLinuxTest(unittest.TestCase):
             'Linux/cgroup.Name=cpuset',
         ]
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
+        for one_str in list_required:
+            self.assertTrue(one_str in str_instances_set)
 
-        for oneStr in listRequired:
-            assert( oneStr in strInstancesSet )
+
+    def test_account_groups(self):
+        """Groups of a Linux account"""
+
+        my_source = lib_client.SourceLocal(
+            "sources_types/LMI_Account/Linux/user_linux_id.py",
+            "LMI_Account",
+            Name="root",
+            Domain=CurrentMachine)
+
+        str_instances_set = set([str(one_inst) for one_inst in my_source.get_triplestore().get_instances()])
+        print("str_instances_set=", str_instances_set)
+
+        # Account "root" always belong to group "root"
+        list_required = [
+            'LMI_Group.Name=root',
+        ]
+
+        for one_str in list_required:
+            self.assertTrue(one_str in str_instances_set)
+
+
+    def test_account_processes(self):
+        """Processes of a Linux account"""
+
+        my_source = lib_client.SourceLocal(
+            "sources_types/LMI_Account/Linux/user_processes.py",
+            "LMI_Account",
+            Name="root",
+            Domain=CurrentMachine)
+
+        str_instances_set = set([str(one_inst) for one_inst in my_source.get_triplestore().get_instances()])
+        print("str_instances_set=", str_instances_set)
+
+        # This is diffcult to test because the process ids are changing.
+        self.assertTrue(len(str_instances_set) > 0)
+
+        list_required = [
+            'Linux/cgroup.Name=name=systemd',
+        ]
+
+        for one_str in list_required:
+            self.assertTrue(one_str in str_instances_set)
+
+
+    def test_group_users(self):
+        """Users of a Linux group"""
+
+        my_source = lib_client.SourceLocal(
+            "sources_types/LMI_Group/Linux/linux_user_group.py",
+            "LMI_Group",
+            Name="root")
+
+        str_instances_set = set([str(one_inst) for one_inst in my_source.get_triplestore().get_instances()])
+        print("str_instances_set=", str_instances_set)
+
+        list_required = [
+        ]
+
+        for one_str in list_required:
+            self.assertTrue(one_str in str_instances_set)
+
 
 class SurvolLocalGdbTest(unittest.TestCase):
     """These tests do not need a Survol agent, and run on Linux with GDB debugger"""
