@@ -203,7 +203,7 @@ def _get_events_from_file(event_filename):
             with open(event_filename, "r+") as event_filedes:
                 # This must be as fast as possible, so event_put is not blocked.
                 for line_json in event_filedes.readlines():
-                    sys.stderr.write("_get_events_from_file line_json=%s.\n"%line_json)
+                    #sys.stderr.write("_get_events_from_file line_json=%s.\n"%line_json)
                     json_triple = json.loads(line_json)
                     # Now build Survol links which can be transformed in to valid RDF triples.
                     rdf_triple = _triple_json_to_rdf(json_triple)
