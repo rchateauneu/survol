@@ -357,7 +357,7 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         expected_sibling_pids = set([proc.pid for proc in psutil.Process(CurrentParentPid).children(recursive=False)])
         print("expected_sibling_pids=", expected_sibling_pids)
 
-        self.assertTrue(expected_sibling_pids == actual_sibling_pids)
+        self.assertEqual(expected_sibling_pids, actual_sibling_pids)
 
     def test_select_CIM_DiskDrive(self):
         sparql_query = """
