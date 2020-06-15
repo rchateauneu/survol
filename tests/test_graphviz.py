@@ -20,7 +20,8 @@ class SvgCommon(unittest.TestCase):
         else:
             full_url += "?mode=svg"
         print("full_url=", full_url)
-        svg_url_response = portable_urlopen(full_url, timeout=5)
+        # Some scripts take a long time to run.
+        svg_url_response = portable_urlopen(full_url, timeout=20)
         svg_content = svg_url_response.read()  # Py3:bytes, Py2:str
         return svg_content
 
@@ -55,6 +56,10 @@ class SvgCommon(unittest.TestCase):
     def _test_svg_cgi_arp_linux(self):
         self._check_script(
             "/survol/sources_types/Linux/cgi_arp_linux.py")
+
+    def _test_svg_enumerate_python_package(self):
+        self._check_script(
+            "/survol/sources_types/enumerate_python_package.py")
 
 
 def _is_dot_available():
@@ -98,6 +103,9 @@ class SvgLocalAgentTest(SvgCommon):
     def test_local_svg_cgi_arp_linux(self):
         self._test_svg_cgi_arp_linux()
 
+    def test_local_svg_enumerate_python_package(self):
+        self._test_svg_enumerate_python_package()
+
 
 # This targets Primhill Computers test machine.
 class SvgRemoteAgentTest(SvgCommon):
@@ -124,6 +132,9 @@ class SvgRemoteAgentTest(SvgCommon):
 
     def test_remote_svg_cgi_arp_linux(self):
         self._test_svg_cgi_arp_linux()
+
+    def test_remote_svg_enumerate_python_package(self):
+        self._test_svg_enumerate_python_package()
 
 
 # TODO: Test loadbookmark
