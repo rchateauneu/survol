@@ -124,6 +124,14 @@ class Win32Tracer(TracerBase):
     _function_name_process_start = b"PYDBG_PROCESS_START"
     _function_name_process_exit = b"PYDBG_PROCESS_EXIT"
 
+    def _callback_process_creation(self, created_process_id):
+        logging.error("_callback_process_creation created_process_id=%d" % created_process_id)
+        # The first message of this queue is a conventional function call which contains the created process id.
+        # After that, it contains only genuine function calls, plus the last one,
+        # also conventional, which indicates the process end, and releases the main process.
+        batch_core = PseudoTraceLine(created_process_id, self._function_name_process_start)
+        self._queue.put(batch_core)
+
     def _start_debugging(self):
         if self._input_process_id > 0:
             logging.error("_start_debugging self._input_process_id=%d" % self._input_process_id)
@@ -132,7 +140,7 @@ class Win32Tracer(TracerBase):
         elif self._command_line:
             logging.error("_start_debugging self._command_line=%s" % self._command_line)
             command_as_string = " ".join(self._command_line)
-            self._root_pid = self._hooks_manager.attach_to_command(command_as_string)
+            self._root_pid = self._hooks_manager.attach_to_command(command_as_string, self._callback_process_creation)
         else:
             raise Exception("_start_debugging: command should not be None")
 
@@ -179,7 +187,7 @@ class Win32Tracer(TracerBase):
             # because these are not real threads. It might be possible to do that
             # in different threads, but it is better not to take the risk.
             logging.error("create_logfile_stream process will be started in thread")
-            self._top_process_id = process_id * 100
+            ######### self._top_process_id = process_id * 100
             self._debugging_thread = threading.Thread(target=self._start_debugging, args=())
             self._debugging_thread.start()
             logging.error("Waiting for process id to be set")
@@ -188,7 +196,7 @@ class Win32Tracer(TracerBase):
             assert isinstance(first_function_call, PseudoTraceLine)
             logging.error("first_function_call.m_core._function_name=%s" % first_function_call.m_core._function_name)
             logging.error("self._function_name_process_start=%s" % self._function_name_process_start)
-            ########## assert first_function_call.m_core._function_name == self._function_name_process_start
+            assert first_function_call.m_core._function_name == self._function_name_process_start
             self._top_process_id = first_function_call.m_core.m_pid
         else:
             self._top_process_id = process_id
@@ -389,7 +397,7 @@ class Win32Hook_Manager(pydbg.pydbg):
     # This receives a command line, starts the process in suspended mode,
     # stores the desired breakpoints, in a map indexed by the DLL name, then resumes the process.
     # When the DLLs are loaded, a callback sets their breakpoints. The callback is optional because of tests.
-    def attach_to_command(self, command_line):
+    def attach_to_command(self, command_line, callback_process_creation = None):
         logging.error("attach_to_command command_line=%s" % command_line)
 
         start_info = win32process.STARTUPINFO()
@@ -404,6 +412,10 @@ class Win32Hook_Manager(pydbg.pydbg):
         self.create_process_handle = hProcess
 
         print("Created dwProcessId=", dwProcessId)
+        if callback_process_creation:
+            # This is needed to possibly inform a caller of the process id which is wrapped in the first element
+            # stored in a queue, so we know the root process id.
+            callback_process_creation(dwProcessId)
 
         if "DEBUG DEBUG":
             suspend_count = win32process.SuspendThread(hThread)
