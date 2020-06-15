@@ -555,7 +555,7 @@ os.system('"%s" -V' % sys.executable)
         os.remove(temporary_python_file.name)
         hooks_manager.stop_cleanup()
 
-    #@unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10.")
+    @unittest.skipIf(is_travis_machine(), "FIXME")
     def test_api_python_os_system_python_redirect(self):
         """
         This creates a subprocess with the system call os.system(), starting python.
@@ -656,7 +656,7 @@ subprocess.check_output([sys.executable, '-V'], shell=False)
         os.remove(temporary_python_file.name)
         hooks_manager.stop_cleanup()
 
-    #@unittest.skipIf(is_windows10, "FIXME: It works only sometimes on Windows 10. WHY ?")
+    @unittest.skipIf(is_travis_machine(), "FIXME")
     def test_api_python_multiprocessing_recursive_noio(self):
         """
         This creates a subprocess with multiprocessing.Process, starting python
