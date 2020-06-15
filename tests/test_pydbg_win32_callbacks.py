@@ -83,15 +83,17 @@ class PydbgAttachTest(unittest.TestCase):
         # Terminate all child processes from a previous test,
         # otherwise they might send events to the next test.
         win32_api_definitions.tracer_object = TracerForTests()
+        self.hooks_manager = win32_api_definitions.Win32Hook_Manager()
 
     def tearDown(self):
         win32_api_definitions.tracer_object = None
+        self.hooks_manager.stop_cleanup()
 
     # TODO: This test might fail if the main process is slowed down wrt the subprocess it attaches to.
     @unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ?")
     def test_attach_pid(self):
         """This attaches to a process already running. Beware that it might fail sometimes
-        due ti synchronization problem: This is inherent to this test."""
+        due to synchronization problem: This is inherent to this test."""
         num_loops = 3
         created_process = multiprocessing.Process(target=attach_pid_target_function, args=(1.0, num_loops))
         created_process.start()
@@ -99,9 +101,7 @@ class PydbgAttachTest(unittest.TestCase):
 
         time.sleep(1.0)
 
-        hooks_manager = win32_api_definitions.Win32Hook_Manager()
-
-        hooks_manager.attach_to_pid(created_process.pid)
+        self.hooks_manager.attach_to_pid(created_process.pid)
 
         created_process.terminate()
         created_process.join()
@@ -136,7 +136,6 @@ class PydbgAttachTest(unittest.TestCase):
         else:
             self.assertTrue({'Name': nonexistent_file} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
         self.assertEqual(len(win32_api_definitions.tracer_object.created_objects['CIM_Process']), num_loops)
-        hooks_manager.stop_cleanup()
 
     @unittest.skipIf(is_travis_machine(), "FIXME: WHY ?")
     def test_start_python_process(self):
@@ -151,8 +150,7 @@ class PydbgAttachTest(unittest.TestCase):
 
         command_line = "%s %s" % (sys.executable, temp_python_path)
 
-        hooks_manager = win32_api_definitions.Win32Hook_Manager()
-        dwProcessId = hooks_manager.attach_to_command(command_line)
+        dwProcessId = self.hooks_manager.attach_to_command(command_line)
 
         print("test_start_python_process calls_counter=", win32_api_definitions.tracer_object.calls_counter)
         print("test_start_python_process created_objects=", win32_api_definitions.tracer_object.created_objects)
@@ -168,7 +166,6 @@ class PydbgAttachTest(unittest.TestCase):
             self.assertTrue({'Name': temp_data_file_path} not in created_files)
         else:
             self.assertTrue({'Name': temp_data_file_path} in created_files)
-        hooks_manager.stop_cleanup()
 
     #@unittest.skipIf(is_windows10, "FIXME: Sometimes it misses function calls on Windows. WHY ?")
     @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
@@ -176,8 +173,7 @@ class PydbgAttachTest(unittest.TestCase):
         num_loops = 2
         create_process_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 1 127.0.0.1)" % num_loops
 
-        hooks_manager = win32_api_definitions.Win32Hook_Manager()
-        dwProcessId = hooks_manager.attach_to_command(create_process_command)
+        dwProcessId = self.hooks_manager.attach_to_command(create_process_command)
 
         print("test_cmd_create_process dwProcessId=", dwProcessId)
         print("test_dos_create_process calls_counter=", win32_api_definitions.tracer_object.calls_counter)
@@ -191,7 +187,6 @@ class PydbgAttachTest(unittest.TestCase):
 
         print("test_dos_create_process created_objects=", win32_api_definitions.tracer_object.created_objects)
         self.assertTrue('CIM_Process' in win32_api_definitions.tracer_object.created_objects)
-        hooks_manager.stop_cleanup()
 
     #@unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ?")
     def test_cmd_delete_file(self):
@@ -199,8 +194,7 @@ class PydbgAttachTest(unittest.TestCase):
         temp_path = unique_temporary_path("test_basic_delete_file", ".txt")
         delete_file_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 1 127.0.0.1 > %s &del %s)" % (num_loops, temp_path, temp_path)
 
-        hooks_manager = win32_api_definitions.Win32Hook_Manager()
-        dwProcessId = hooks_manager.attach_to_command(delete_file_command)
+        dwProcessId = self.hooks_manager.attach_to_command(delete_file_command)
         print("test_cmd_delete_file dwProcessId=", dwProcessId)
 
         print("test_dos_delete_file calls_counter=", win32_api_definitions.tracer_object.calls_counter)
@@ -224,15 +218,13 @@ class PydbgAttachTest(unittest.TestCase):
             self.assertTrue('CIM_DataFile' not in win32_api_definitions.tracer_object.created_objects)
         else:
             self.assertTrue({'Name': temp_path} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
-        hooks_manager.stop_cleanup()
 
     @unittest.skipIf(is_travis_machine(), "FIXME: WHY ?")
     def test_cmd_ping_type(self):
         num_loops = 5
         dir_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 1 1.2.3.4 & type something.xyz )" % num_loops
 
-        hooks_manager = win32_api_definitions.Win32Hook_Manager()
-        dwProcessId = hooks_manager.attach_to_command(dir_command)
+        dwProcessId = self.hooks_manager.attach_to_command(dir_command)
 
         print("test_dos_dir calls_counter=", win32_api_definitions.tracer_object.calls_counter)
         created_process_calls_counter = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
@@ -254,14 +246,13 @@ class PydbgAttachTest(unittest.TestCase):
             self.assertTrue('CIM_DataFile' not in win32_api_definitions.tracer_object.created_objects)
         else:
             self.assertTrue({'Name': 'something.xyz'} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
-        hooks_manager.stop_cleanup()
 
     def test_cmd_type(self):
         num_loops = 2
         dir_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO type something.xyz )" % num_loops
 
         hooks_manager = win32_api_definitions.Win32Hook_Manager()
-        dwProcessId = hooks_manager.attach_to_command(dir_command)
+        dwProcessId = self.hooks_manager.attach_to_command(dir_command)
 
         print("test_dos_dir calls_counter=", win32_api_definitions.tracer_object.calls_counter)
         created_process_calls_counter = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
@@ -281,15 +272,13 @@ class PydbgAttachTest(unittest.TestCase):
         else:
             self.assertTrue(list(win32_api_definitions.tracer_object.created_objects.keys()) == ['CIM_DataFile'])
             self.assertTrue({'Name': 'something.xyz'} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
-        hooks_manager.stop_cleanup()
 
     def test_cmd_mkdir_rmdir(self):
         temp_path = unique_temporary_path("test_cmd_mkdir_rmdir", ".dir")
 
         dir_mk_rm_command = windows_system32_cmd_exe + " /c "+ "mkdir %s&rmdir %s" % (temp_path, temp_path)
 
-        hooks_manager = win32_api_definitions.Win32Hook_Manager()
-        dwProcessId = hooks_manager.attach_to_command(dir_mk_rm_command)
+        dwProcessId = self.hooks_manager.attach_to_command(dir_mk_rm_command)
 
         print("test_cmd_mkdir_rmdir calls_counter=", win32_api_definitions.tracer_object.calls_counter)
         created_process_calls_counter = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
@@ -307,16 +296,12 @@ class PydbgAttachTest(unittest.TestCase):
             self.assertTrue('CIM_Directory' not in win32_api_definitions.tracer_object.created_objects)
         else:
             self.assertTrue({'Name': temp_path} in win32_api_definitions.tracer_object.created_objects['CIM_Directory'])
-        hooks_manager.stop_cleanup()
 
     @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
     def test_cmd_nslookup(self):
         nslookup_command = windows_system32_cmd_exe + " /c "+ "nslookup primhillcomputers.com"
-        # It seems nslookup needs to be started from a cmd process, otherwise it crashes.
-        # nslookup_command = r"C:\Windows\System32\nslookup.exe primhillcomputers.com"
 
-        hooks_manager = win32_api_definitions.Win32Hook_Manager()
-        dwProcessId = hooks_manager.attach_to_command(nslookup_command)
+        dwProcessId = self.hooks_manager.attach_to_command(nslookup_command)
 
         # Typical answer:
         # > Server:  UnKnown
@@ -355,7 +340,6 @@ class PydbgAttachTest(unittest.TestCase):
         # All sockets used the port number 53 for DNS, whether in IPV4 or IPV6.
         for dict_key_value in win32_api_definitions.tracer_object.created_objects['addr']:
             self.assertTrue(dict_key_value['Id'].endswith(':53'))
-        hooks_manager.stop_cleanup()
 
     @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
     def test_api_python_connect(self):
@@ -395,9 +379,7 @@ outfil.close()
 
         connect_command = "%s %s" % (sys.executable, temporary_python_path)
 
-        hooks_manager = win32_api_definitions.Win32Hook_Manager()
-
-        dwProcessId = hooks_manager.attach_to_command(connect_command)
+        dwProcessId = self.hooks_manager.attach_to_command(connect_command)
         print("dwProcessId=", dwProcessId)
 
         # The created subprocess has written in a file its id and parent id.
@@ -430,7 +412,6 @@ outfil.close()
         self.assertTrue('CIM_DataFile' in win32_api_definitions.tracer_object.created_objects)
         self.assertTrue({'Id': expected_addr} in win32_api_definitions.tracer_object.created_objects['addr'])
         os.remove(temporary_python_path)
-        hooks_manager.stop_cleanup()
 
     @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
     def test_api_python_os_system_dir_once(self):
@@ -447,9 +428,7 @@ os.system('dir')
 
         system_command = "%s %s" % (sys.executable, temporary_python_file.name)
 
-        hooks_manager = win32_api_definitions.Win32Hook_Manager()
-
-        dwProcessId = hooks_manager.attach_to_command(system_command)
+        dwProcessId = self.hooks_manager.attach_to_command(system_command)
         print("dwProcessId=", dwProcessId)
 
         print("calls_counter=", win32_api_definitions.tracer_object.calls_counter)
@@ -467,7 +446,6 @@ os.system('dir')
 
         # This creates one single subprocess running cmd.exe
         self.assertEqual(len(created_processes), 1)
-        hooks_manager.stop_cleanup()
 
     @unittest.skipIf(is_travis_machine(), "FIXME: Sometimes broken on Travis. WHY ?")
     def test_api_python_os_system_dir_multiple(self):
@@ -486,9 +464,7 @@ for loop_index in range(%d):
 
         system_command = "%s %s" % (sys.executable, temporary_python_file.name)
 
-        hooks_manager = win32_api_definitions.Win32Hook_Manager()
-
-        dwProcessId = hooks_manager.attach_to_command(system_command)
+        dwProcessId = self.hooks_manager.attach_to_command(system_command)
         print("dwProcessId=", dwProcessId)
 
         print("calls_counter=", win32_api_definitions.tracer_object.calls_counter)
@@ -506,7 +482,6 @@ for loop_index in range(%d):
 
         # This creates one single subprocess running cmd.exe
         self.assertEqual(len(created_processes), loops_number)
-        hooks_manager.stop_cleanup()
 
     # Sometimes it does not work.
     # Maybe cmd.exe does NOT create another process ?
@@ -529,9 +504,7 @@ os.system('"%s" -V' % sys.executable)
 
         system_command = "%s %s" % (sys.executable, temporary_python_file.name)
 
-        hooks_manager = win32_api_definitions.Win32Hook_Manager()
-
-        dwProcessId = hooks_manager.attach_to_command(system_command)
+        dwProcessId = self.hooks_manager.attach_to_command(system_command)
         print("dwProcessId=", dwProcessId)
 
         print("calls_counter=", win32_api_definitions.tracer_object.calls_counter)
@@ -551,7 +524,6 @@ os.system('"%s" -V' % sys.executable)
         # This creates a cmd.exe subprocess, creating a Python subprocess.
         self.assertEqual(len(created_processes), 2)
         os.remove(temporary_python_file.name)
-        hooks_manager.stop_cleanup()
 
     @unittest.skipIf(is_travis_machine(), "FIXME")
     def test_api_python_os_system_python_redirect(self):
@@ -578,9 +550,7 @@ print("ret=", ret)
 
         system_command = "%s %s" % (sys.executable, temporary_python_file.name)
 
-        hooks_manager = win32_api_definitions.Win32Hook_Manager()
-
-        dwProcessId = hooks_manager.attach_to_command(system_command)
+        dwProcessId = self.hooks_manager.attach_to_command(system_command)
         print("dwProcessId=", dwProcessId)
 
         print("calls_counter=", win32_api_definitions.tracer_object.calls_counter)
@@ -610,7 +580,6 @@ print("ret=", ret)
         hooks_manager.stop_cleanup()
         os.remove(temporary_text_file.name)
         os.remove(temporary_python_file.name)
-        hooks_manager.stop_cleanup()
 
     ########## @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
     #@unittest.skipIf(is_windows10, "FIXME: Does not work on Travis. WHY ?")
@@ -630,9 +599,7 @@ subprocess.check_output([sys.executable, '-V'], shell=False)
 
         system_command = "%s %s" % (sys.executable, temporary_python_file.name)
 
-        hooks_manager = win32_api_definitions.Win32Hook_Manager()
-
-        dwProcessId = hooks_manager.attach_to_command(system_command)
+        dwProcessId = self.hooks_manager.attach_to_command(system_command)
         print("dwProcessId=", dwProcessId)
 
         print("calls_counter=", win32_api_definitions.tracer_object.calls_counter)
@@ -652,7 +619,6 @@ subprocess.check_output([sys.executable, '-V'], shell=False)
         # This creates a Python subprocess.
         self.assertEqual(len(created_processes), 1)
         os.remove(temporary_python_file.name)
-        hooks_manager.stop_cleanup()
 
     @unittest.skipIf(is_travis_machine(), "FIXME")
     def test_api_python_multiprocessing_recursive_noio(self):
@@ -676,9 +642,7 @@ if __name__ == '__main__':
 
         system_command = "%s %s" % (sys.executable, temporary_python_file.name)
 
-        hooks_manager = win32_api_definitions.Win32Hook_Manager()
-
-        dwProcessId = hooks_manager.attach_to_command(system_command)
+        dwProcessId = self.hooks_manager.attach_to_command(system_command)
 
         created_processes = win32_api_definitions.tracer_object.created_objects['CIM_Process']
         print("created_processes=", created_processes)
@@ -714,7 +678,6 @@ if __name__ == '__main__':
                 self.assertEqual(function_calls_list[create_process_function], 1)
 
         os.remove(temporary_python_file.name)
-        hooks_manager.stop_cleanup()
 
     @unittest.skipIf(is_travis_machine(), "FIXME: Sometimes broken on Travis. WHY ?")
     def test_api_python_multiprocessing_recursive_io(self):
@@ -750,9 +713,7 @@ if __name__ == '__main__':
 
         system_command = "%s %s" % (sys.executable, temporary_python_file.name)
 
-        hooks_manager = win32_api_definitions.Win32Hook_Manager()
-
-        dwProcessId = hooks_manager.attach_to_command(system_command)
+        dwProcessId = self.hooks_manager.attach_to_command(system_command)
 
         created_processes = win32_api_definitions.tracer_object.created_objects['CIM_Process']
         print("created_processes=", created_processes)
@@ -795,7 +756,6 @@ if __name__ == '__main__':
 
         os.remove(temporary_python_file.name)
         os.remove(temporary_text_file.name)
-        hooks_manager.stop_cleanup()
 
     #@unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ? Maybe multiprocessing ?")
     @unittest.skipIf(is_travis_machine(), "FIXME: Sometimes broken on Travis. WHY ?")
@@ -847,9 +807,7 @@ if __name__ == '__main__':
 
         system_command = "%s %s" % (sys.executable, temporary_python_file.name)
 
-        hooks_manager = win32_api_definitions.Win32Hook_Manager()
-
-        dwProcessId = hooks_manager.attach_to_command(system_command)
+        dwProcessId = self.hooks_manager.attach_to_command(system_command)
 
         # This reads the files created by the subprocesses and extracts the process ids.
         created_processes_handles_from_files = set()
@@ -873,7 +831,6 @@ if __name__ == '__main__':
         self.assertEqual(created_processes_handles, created_processes_handles_from_files)
 
         os.remove(temporary_python_file.name)
-        hooks_manager.stop_cleanup()
 
 
 if __name__ == '__main__':
