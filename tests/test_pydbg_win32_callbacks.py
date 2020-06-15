@@ -371,6 +371,7 @@ class PydbgAttachTest(unittest.TestCase):
 
         # A subprocess is about to loop on a socket connection to a remote machine.
         temporary_python_file = tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False)
+        temporary_python_path = temporary_python_file.name
         script_content = """
 import socket
 import time
@@ -390,7 +391,7 @@ outfil.close()
         temporary_python_file.write(script_content)
         temporary_python_file.close()
 
-        connect_command = "%s %s" % (sys.executable, temporary_python_file.name)
+        connect_command = "%s %s" % (sys.executable, temporary_python_path)
 
         hooks_manager = win32_api_definitions.Win32Hook_Manager()
 
@@ -426,7 +427,7 @@ outfil.close()
         expected_addr = "%s:%s" % (server_address, server_port)
         self.assertTrue('CIM_DataFile' in win32_api_definitions.tracer_object.created_objects)
         self.assertTrue({'Id': expected_addr} in win32_api_definitions.tracer_object.created_objects['addr'])
-        os.remove(temporary_python_file.name)
+        os.remove(temporary_python_path)
         hooks_manager.stop_cleanup()
 
     #@unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
@@ -550,7 +551,7 @@ os.system('"%s" -V' % sys.executable)
         os.remove(temporary_python_file.name)
         hooks_manager.stop_cleanup()
 
-    @unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10.")
+    #@unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10.")
     def test_api_python_os_system_python_redirect(self):
         """
         This creates a subprocess with the system call os.system(), starting python.
@@ -558,18 +559,18 @@ os.system('"%s" -V' % sys.executable)
         """
         temporary_text_file = tempfile.NamedTemporaryFile(suffix='.txt', mode='w', delete=False)
         temporary_text_file.close()
-        # Python does not like backslahes.
-        clean_text_name = temporary_text_file.name.replace("\\", "/")
 
-        temporary_python_file = tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False)
+        # Python 3 confusion with backslashes and unicode escape sequences.
+        clean_text_name = temporary_text_file.name.replace("\\", "/")
         script_content = """
 import os
 import sys
 # Double-quotes because of spaces: C:\\Program Files (x86)\\...\\python.exe
 ret = os.system('"%s" -c print(123456) > %s')
 print("ret=", ret)
-""" % (sys.executable, clean_text_name)
+""" % (sys.executable.replace("\\", "/"), clean_text_name)
 
+        temporary_python_file = tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False)
         temporary_python_file.write(script_content)
         temporary_python_file.close()
 
