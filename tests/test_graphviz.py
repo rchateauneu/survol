@@ -21,7 +21,7 @@ class SvgCommon(unittest.TestCase):
             full_url += "?mode=svg"
         print("full_url=", full_url)
         # Some scripts take a long time to run.
-        svg_url_response = portable_urlopen(full_url, timeout=20)
+        svg_url_response = portable_urlopen(full_url, timeout=30)
         svg_content = svg_url_response.read()  # Py3:bytes, Py2:str
         return svg_content
 
