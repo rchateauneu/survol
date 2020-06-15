@@ -136,8 +136,9 @@ class PydbgAttachTest(unittest.TestCase):
         else:
             self.assertTrue({'Name': nonexistent_file} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
         self.assertEqual(len(win32_api_definitions.tracer_object.created_objects['CIM_Process']), num_loops)
+        hooks_manager.stop_cleanup()
 
-    @unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ?")
+    ###### @unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ?")
     def test_start_python_process(self):
         temp_data_file_path = unique_temporary_path("test_start_python_process", ".txt")
 
@@ -160,14 +161,16 @@ class PydbgAttachTest(unittest.TestCase):
         self.assertTrue(function_name_create_file in created_process_calls_counter)
 
         # This contains many Python modules which are loaded at startup, followed by plain files, checked here.
-        self.assertTrue({'Name': temp_python_path} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
-        if is_travis_machine():
-            # FIXME: Which function is used by Travis Python interpreter to open a file?
-            self.assertTrue({'Name': temp_data_file_path} not in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
+        created_files = win32_api_definitions.tracer_object.created_objects['CIM_DataFile']
+        self.assertTrue({'Name': temp_python_path} in created_files)
+        if is_windows10:
+            # FIXME: Which function is used by Windows 10 Python interpreter to open a file?
+            self.assertTrue({'Name': temp_data_file_path} not in created_files)
         else:
-            self.assertTrue({'Name': temp_data_file_path} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
+            self.assertTrue({'Name': temp_data_file_path} in created_files)
+        hooks_manager.stop_cleanup()
 
-    @unittest.skipIf(is_windows10, "FIXME: Sometimes it misses function calls on Windows. WHY ?")
+    #@unittest.skipIf(is_windows10, "FIXME: Sometimes it misses function calls on Windows. WHY ?")
     def test_cmd_create_process(self):
         num_loops = 2
         create_process_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 1 127.0.0.1)" % num_loops
@@ -187,8 +190,9 @@ class PydbgAttachTest(unittest.TestCase):
 
         print("test_dos_create_process created_objects=", win32_api_definitions.tracer_object.created_objects)
         self.assertTrue('CIM_Process' in win32_api_definitions.tracer_object.created_objects)
+        hooks_manager.stop_cleanup()
 
-    @unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ?")
+    #@unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ?")
     def test_cmd_delete_file(self):
         num_loops = 3
         temp_path = unique_temporary_path("test_basic_delete_file", ".txt")
@@ -219,8 +223,9 @@ class PydbgAttachTest(unittest.TestCase):
             self.assertTrue('CIM_DataFile' not in win32_api_definitions.tracer_object.created_objects)
         else:
             self.assertTrue({'Name': temp_path} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
+        hooks_manager.stop_cleanup()
 
-    @unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ? IT USED TO WORK !!")
+    #@unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ? IT USED TO WORK !!")
     def test_cmd_ping_type(self):
         num_loops = 5
         dir_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 1 1.2.3.4 & type something.xyz )" % num_loops
@@ -247,6 +252,7 @@ class PydbgAttachTest(unittest.TestCase):
             self.assertTrue('CIM_DataFile' not in win32_api_definitions.tracer_object.created_objects)
         else:
             self.assertTrue({'Name': 'something.xyz'} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
+        hooks_manager.stop_cleanup()
 
     def test_cmd_type(self):
         num_loops = 2
@@ -273,6 +279,7 @@ class PydbgAttachTest(unittest.TestCase):
         else:
             self.assertTrue(list(win32_api_definitions.tracer_object.created_objects.keys()) == ['CIM_DataFile'])
             self.assertTrue({'Name': 'something.xyz'} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
+        hooks_manager.stop_cleanup()
 
     def test_cmd_mkdir_rmdir(self):
         temp_path = unique_temporary_path("test_cmd_mkdir_rmdir", ".dir")
@@ -298,8 +305,9 @@ class PydbgAttachTest(unittest.TestCase):
             self.assertTrue('CIM_Directory' not in win32_api_definitions.tracer_object.created_objects)
         else:
             self.assertTrue({'Name': temp_path} in win32_api_definitions.tracer_object.created_objects['CIM_Directory'])
+        hooks_manager.stop_cleanup()
 
-    @unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ?")
+    #@unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ?")
     def test_cmd_nslookup(self):
         nslookup_command = windows_system32_cmd_exe + " /c "+ "nslookup primhillcomputers.com"
         # It seems nslookup needs to be started from a cmd process, otherwise it crashes.
@@ -333,7 +341,7 @@ class PydbgAttachTest(unittest.TestCase):
         # FIXME: Adjust this, depending on the machine, the number of DNS connections will vary.
         connections_number = 3 if is_travis_machine() else 5
         self.assertTrue(win32_api_definitions.tracer_object.calls_counter[sub_process_id][b'connect'] == connections_number)
-        if not is_travis_machine():
+        if not is_windows10:
             self.assertTrue(win32_api_definitions.tracer_object.calls_counter[sub_process_id][b'WriteFile'] > 0)
 
         print("test_DOS_nslookup created_objects=", win32_api_definitions.tracer_object.created_objects)
@@ -345,8 +353,9 @@ class PydbgAttachTest(unittest.TestCase):
         # All sockets used the port number 53 for DNS, whether in IPV4 or IPV6.
         for dict_key_value in win32_api_definitions.tracer_object.created_objects['addr']:
             self.assertTrue(dict_key_value['Id'].endswith(':53'))
+        hooks_manager.stop_cleanup()
 
-    @unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ?")
+    #@unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ?")
     def test_api_python_connect(self):
         """
         This does a TCP/IP connection to Primhill Computers website.
@@ -418,8 +427,10 @@ outfil.close()
         self.assertTrue('CIM_DataFile' in win32_api_definitions.tracer_object.created_objects)
         self.assertTrue({'Id': expected_addr} in win32_api_definitions.tracer_object.created_objects['addr'])
         os.remove(temporary_python_file.name)
+        hooks_manager.stop_cleanup()
 
     #@unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
+    #@unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ?")
     def test_api_python_os_system_dir_once(self):
         """
         This creates a subprocess with the system call os.system(), running dir.
@@ -454,6 +465,7 @@ os.system('dir')
 
         # This creates one single subprocess running cmd.exe
         self.assertEqual(len(created_processes), 1)
+        hooks_manager.stop_cleanup()
 
     def test_api_python_os_system_dir_multiple(self):
         """
@@ -491,11 +503,12 @@ for loop_index in range(%d):
 
         # This creates one single subprocess running cmd.exe
         self.assertEqual(len(created_processes), loops_number)
+        hooks_manager.stop_cleanup()
 
     # Sometimes it does not work.
     # Maybe cmd.exe does NOT create another process ?
     # See difference between "cmd -c" and "cmd -k"
-    @unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ?")
+    #@unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ?")
     def test_api_python_os_system_python_stdout(self):
         """
         This creates a subprocess with the system call os.system(), starting python
@@ -535,6 +548,7 @@ os.system('"%s" -V' % sys.executable)
         # This creates a cmd.exe subprocess, creating a Python subprocess.
         self.assertEqual(len(created_processes), 2)
         os.remove(temporary_python_file.name)
+        hooks_manager.stop_cleanup()
 
     @unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10.")
     def test_api_python_os_system_python_redirect(self):
@@ -593,8 +607,10 @@ print("ret=", ret)
         hooks_manager.stop_cleanup()
         os.remove(temporary_text_file.name)
         os.remove(temporary_python_file.name)
+        hooks_manager.stop_cleanup()
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
+    ########## @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
+    #@unittest.skipIf(is_windows10, "FIXME: Does not work on Travis. WHY ?")
     def test_api_python_check_output_python(self):
         """
         This creates a subprocess with the system call os.system(), starting python
@@ -633,8 +649,9 @@ subprocess.check_output([sys.executable, '-V'], shell=False)
         # This creates a Python subprocess.
         self.assertEqual(len(created_processes), 1)
         os.remove(temporary_python_file.name)
+        hooks_manager.stop_cleanup()
 
-    @unittest.skipIf(is_windows10, "FIXME: It works only sometimes on Windows 10. WHY ?")
+    #@unittest.skipIf(is_windows10, "FIXME: It works only sometimes on Windows 10. WHY ?")
     def test_api_python_multiprocessing_recursive_noio(self):
         """
         This creates a subprocess with multiprocessing.Process, starting python
@@ -694,8 +711,9 @@ if __name__ == '__main__':
                 self.assertEqual(function_calls_list[create_process_function], 1)
 
         os.remove(temporary_python_file.name)
+        hooks_manager.stop_cleanup()
 
-    @unittest.skipIf(is_windows10, "FIXME: Does not work on Travis. WHY ?")
+    #@unittest.skipIf(is_windows10, "FIXME: Does not work on Travis. WHY ?")
     def test_api_python_multiprocessing_recursive_io(self):
         """
         This uses multiprocessing.Process.
@@ -774,8 +792,9 @@ if __name__ == '__main__':
 
         os.remove(temporary_python_file.name)
         os.remove(temporary_text_file.name)
+        hooks_manager.stop_cleanup()
 
-    @unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ? Maybe multiprocessing ?")
+    #@unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ? Maybe multiprocessing ?")
     def test_api_python_multiprocessing_flat(self):
         """
         This uses multiprocessing.Process.
@@ -850,6 +869,7 @@ if __name__ == '__main__':
         self.assertEqual(created_processes_handles, created_processes_handles_from_files)
 
         os.remove(temporary_python_file.name)
+        hooks_manager.stop_cleanup()
 
 
 if __name__ == '__main__':
