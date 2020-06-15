@@ -238,8 +238,9 @@ class PydbgAttachTest(unittest.TestCase):
         created_process_calls_counter = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
         self.assertEqual(created_process_calls_counter[b'CreateProcessW'], num_loops)
         #self.assertTrue(created_process_calls_counter[b'CreateProcessW'] == 1)
+        print("INIT:", b'CreateFileW' in created_process_calls_counter)
         if is_windows10:
-            # FIXME: The Python implementation used by Windows 10 is based on another set of IO functions.
+            # FIXME: cmd.exe used by Windows 10 is based on another set of IO functions.
             #self.assertTrue(b'WriteFile' not in created_process_calls_counter)
             self.assertTrue(b'CreateFileW' not in created_process_calls_counter)
         else:
@@ -249,7 +250,7 @@ class PydbgAttachTest(unittest.TestCase):
         print("test_dos_dir created_objects=", win32_api_definitions.tracer_object.created_objects)
         self.assertTrue('CIM_Process' in win32_api_definitions.tracer_object.created_objects)
         if is_windows10:
-            # FIXME: The Python implementation used by Windows 10 is based on another set of IO functions.
+            # FIXME: cmd.exe implementation used by Windows 10 is based on another set of IO functions.
             self.assertTrue('CIM_DataFile' not in win32_api_definitions.tracer_object.created_objects)
         else:
             self.assertTrue({'Name': 'something.xyz'} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
@@ -308,7 +309,6 @@ class PydbgAttachTest(unittest.TestCase):
             self.assertTrue({'Name': temp_path} in win32_api_definitions.tracer_object.created_objects['CIM_Directory'])
         hooks_manager.stop_cleanup()
 
-    #@unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ?")
     @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
     def test_cmd_nslookup(self):
         nslookup_command = windows_system32_cmd_exe + " /c "+ "nslookup primhillcomputers.com"
@@ -357,7 +357,6 @@ class PydbgAttachTest(unittest.TestCase):
             self.assertTrue(dict_key_value['Id'].endswith(':53'))
         hooks_manager.stop_cleanup()
 
-    #@unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ?")
     @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
     def test_api_python_connect(self):
         """
@@ -434,7 +433,6 @@ outfil.close()
         hooks_manager.stop_cleanup()
 
     @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
-    #@unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ?")
     def test_api_python_os_system_dir_once(self):
         """
         This creates a subprocess with the system call os.system(), running dir.
@@ -513,7 +511,6 @@ for loop_index in range(%d):
     # Sometimes it does not work.
     # Maybe cmd.exe does NOT create another process ?
     # See difference between "cmd -c" and "cmd -k"
-    #@unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ?")
     @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
     def test_api_python_os_system_python_stdout(self):
         """
