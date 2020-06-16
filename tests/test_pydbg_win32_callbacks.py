@@ -412,10 +412,9 @@ outfil.close()
         self.assertTrue({'Id': expected_addr} in win32_api_definitions.tracer_object.created_objects['addr'])
         os.remove(temporary_python_path)
 
-    # @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
-    def test_api_python_accept(self):
+    def test_api_python_bind(self):
         """
-        This opens a TCP/IP socket for connection from a client.
+        This opens a TCP/IP socket, ready for a client connection.
         """
 
         server_port = 12345
@@ -440,9 +439,7 @@ server_socket.close()
               win32_api_definitions.tracer_object.calls_counter)
         calls_counter_process = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
         print("test_api_Python_connect calls_counter=", calls_counter_process)
-        #print("test_api_Python_connect created_objects=", win32_api_definitions.tracer_object.created_objects)
         self.assertTrue(calls_counter_process[b'CreateFileW'] > 0)
-        self.assertTrue(calls_counter_process[b'ReadFile'] > 0)
         self.assertEqual(calls_counter_process[b'bind'], 1)
 
         # 'addr': [{'Id': '192.168.1.10:12345'}
