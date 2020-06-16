@@ -899,6 +899,78 @@ class Win32Hook_ReadFileEx(Win32Hook_BaseClass):
     dll_name = b"KERNEL32.dll"
 
 
+def _sockaddr_to_addr_id(hook_base_class, sockaddr_address, sockaddr_size):
+    sin_family_memory = hook_base_class.win32_hook_manager.read_process_memory(sockaddr_address, 2)
+    print("sin_family_memory=", sin_family_memory, len(sin_family_memory))
+
+    sin_family = struct.unpack("<H", sin_family_memory)[0]
+
+    print("sin_family=", sin_family)
+    print("size=", sockaddr_size)
+
+    if sin_family == defines.AF_INET:
+        # AF_INET = 2, if this is an IPV4 DNS server.
+        # struct sockaddr_in {
+        #         short   sin_family;
+        #         u_short sin_port;
+        #         struct  in_addr sin_addr;
+        #         char    sin_zero[8];
+        # };
+        # struct in_addr {
+        #   union {
+        #     struct {
+        #       u_char s_b1;
+        #       u_char s_b2;
+        #       u_char s_b3;
+        #       u_char s_b4;
+        #     } S_un_b;
+        #     struct {
+        #       u_short s_w1;
+        #       u_short s_w2;
+        #     } S_un_w;
+        #     u_long S_addr;
+        #   } S_un;
+        # };
+        ip_port_memory = hook_base_class.win32_hook_manager.read_process_memory(sockaddr_address + 2, 2)
+        port_number = struct.unpack(">H", ip_port_memory)[0]
+
+        assert sockaddr_size == 16
+
+        s_addr_ipv4 = hook_base_class.win32_hook_manager.read_process_memory(sockaddr_address + 4, 4)
+        if is_py3:
+            addr_ipv4 = ".".join(["%d" % int(one_byte) for one_byte in s_addr_ipv4])
+        else:
+            addr_ipv4 = ".".join(["%d" % ord(one_byte) for one_byte in s_addr_ipv4])
+        return "%s:%d" % (addr_ipv4, port_number)
+    elif sin_family == defines.AF_INET6:
+        # AF_INET6 = 23, if this is an IPV6 DNS server.
+        # struct sockaddr_in6 {
+        #      sa_family_t     sin6_family;   /* AF_INET6 */
+        #      in_port_t       sin6_port;     /* port number */
+        #      uint32_t        sin6_flowinfo; /* IPv6 flow information */
+        #      struct in6_addr sin6_addr;     /* IPv6 address */
+        #      uint32_t        sin6_scope_id; /* Scope ID (new in 2.4) */
+        #  };
+        #
+        # struct in6_addr {
+        #      unsigned char   s6_addr[16];   /* IPv6 address */
+        # };
+        ip_port_memory = hook_base_class.win32_hook_manager.read_process_memory(sockaddr_address + 2, 2)
+        port_number = struct.unpack(">H", ip_port_memory)[0]
+
+        assert sockaddr_size == 28
+
+        s_addr_ipv6 = hook_base_class.win32_hook_manager.read_process_memory(sockaddr_address + 8, 16)
+        if is_py3:
+            addr_ipv6 = str(s_addr_ipv6)
+        else:
+            addr_ipv6 = "".join(["%02x" % ord(one_byte) for one_byte in s_addr_ipv6])
+
+        return "%s:%d" % (addr_ipv6, port_number)
+    else:
+        raise Exception("Invalid sa_family:%d" % sin_family)
+
+
 class Win32Hook_connect(Win32Hook_BaseClass):
     api_definition = b"""
         int connect(
@@ -910,79 +982,28 @@ class Win32Hook_connect(Win32Hook_BaseClass):
     def callback_after(self, function_arguments, function_result):
         logging.debug("Win32Hook_connect function_arguments=", function_arguments)
         sockaddr_address = function_arguments[1]
-
-        sin_family_memory = self.win32_hook_manager.read_process_memory(sockaddr_address, 2)
-        print("sin_family_memory=", sin_family_memory, len(sin_family_memory))
-
-        sin_family = struct.unpack("<H", sin_family_memory)[0]
-
-        print("sin_family=", sin_family)
         sockaddr_size = function_arguments[2]
-        print("size=", function_arguments[2])
 
-        # AF_INET = 2, if this is an IPV4 DNS server.
-        if sin_family == defines.AF_INET:
-            # struct sockaddr_in {
-            #         short   sin_family;
-            #         u_short sin_port;
-            #         struct  in_addr sin_addr;
-            #         char    sin_zero[8];
-            # };
-            # struct in_addr {
-            #   union {
-            #     struct {
-            #       u_char s_b1;
-            #       u_char s_b2;
-            #       u_char s_b3;
-            #       u_char s_b4;
-            #     } S_un_b;
-            #     struct {
-            #       u_short s_w1;
-            #       u_short s_w2;
-            #     } S_un_w;
-            #     u_long S_addr;
-            #   } S_un;
-            # };
-            ip_port_memory = self.win32_hook_manager.read_process_memory(sockaddr_address + 2, 2)
-            port_number = struct.unpack(">H", ip_port_memory)[0]
+        addr_id = _sockaddr_to_addr_id(self, sockaddr_address, sockaddr_size)
+        self.callback_create_object("addr", Id=addr_id)
 
-            assert sockaddr_size == 16
 
-            s_addr_ipv4 = self.win32_hook_manager.read_process_memory(sockaddr_address + 4, 4)
-            if is_py3:
-                addr_ipv4 = ".".join(["%d" % int(one_byte) for one_byte in s_addr_ipv4])
-            else:
-                addr_ipv4 = ".".join(["%d" % ord(one_byte) for one_byte in s_addr_ipv4])
-            self.callback_create_object("addr", Id="%s:%d" % (addr_ipv4, port_number))
+class Win32Hook_bind(Win32Hook_BaseClass):
+    api_definition = b"""
+        int bind(
+            SOCKET         s,
+            const sockaddr *name,
+            int            namelen
+        );"""
+    dll_name = b"ws2_32.dll"
+    def callback_after(self, function_arguments, function_result):
+        logging.debug("Win32Hook_bind function_arguments=", function_arguments)
+        sockaddr_address = function_arguments[1]
+        sockaddr_size = function_arguments[2]
 
-        # AF_INET6 = 23, if this is an IPV6 DNS server.
-        elif sin_family == defines.AF_INET6:
-            # struct sockaddr_in6 {
-            #      sa_family_t     sin6_family;   /* AF_INET6 */
-            #      in_port_t       sin6_port;     /* port number */
-            #      uint32_t        sin6_flowinfo; /* IPv6 flow information */
-            #      struct in6_addr sin6_addr;     /* IPv6 address */
-            #      uint32_t        sin6_scope_id; /* Scope ID (new in 2.4) */
-            #  };
-            #
-            # struct in6_addr {
-            #      unsigned char   s6_addr[16];   /* IPv6 address */
-            # };
-            ip_port_memory = self.win32_hook_manager.read_process_memory(sockaddr_address + 2, 2)
-            port_number = struct.unpack(">H", ip_port_memory)[0]
+        addr_id = _sockaddr_to_addr_id(self, sockaddr_address, sockaddr_size)
+        self.callback_create_object("addr", Id=addr_id)
 
-            assert sockaddr_size == 28
-
-            s_addr_ipv6 = self.win32_hook_manager.read_process_memory(sockaddr_address + 8, 16)
-            if is_py3:
-                addr_ipv6 = str(s_addr_ipv6)
-            else:
-                addr_ipv6 = "".join(["%02x" % ord(one_byte) for one_byte in s_addr_ipv6])
-
-            self.callback_create_object("addr", Id="%s:%d" % (addr_ipv6, port_number))
-
-        else:
-            raise Exception("Invalid sa_family:%d" % sin_family)
 
 
 if False:
