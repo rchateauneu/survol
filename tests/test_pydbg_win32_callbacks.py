@@ -355,20 +355,19 @@ class PydbgAttachTest(unittest.TestCase):
         temp_path = unique_temporary_path("test_api_Python_connect", ".txt")
         print("temp_path=", temp_path)
 
-        # A subprocess is about to loop on a socket connection to a remote machine.
+        # A subprocess is about to connect to a remote HTTP server.
         temporary_python_file = tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False)
         temporary_python_path = temporary_python_file.name
         script_content = """
 import socket
-import time
-s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-print("Hello from subprocess")
-s.connect(('%s', %d))
-s.sendall(b'Hello, world')
-data = s.recv(1024)
-s.close()
 import os
 import psutil
+client_socket=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+print("Hello from subprocess")
+client_socket.connect(('%s', %d))
+client_socket.sendall(b'Hello, world')
+data = client_socket.recv(1024)
+client_socket.close()
 subprocess_object = psutil.Process(os.getpid())
 outfil = open(r"%s", "w")
 outfil.write("%%d\\n%%d\\n" %% (os.getpid(), subprocess_object.ppid()))
@@ -408,9 +407,51 @@ outfil.close()
         self.assertEqual(sub_process_calls_counter[b'connect'], 1)
 
         # print("test_api_Python_connect created_objects=", win32_api_definitions.tracer_object.created_objects)
-        expected_addr = "%s:%s" % (server_address, server_port)
+        expected_addr = "%s:%d" % (server_address, server_port)
         self.assertTrue('CIM_DataFile' in win32_api_definitions.tracer_object.created_objects)
         self.assertTrue({'Id': expected_addr} in win32_api_definitions.tracer_object.created_objects['addr'])
+        os.remove(temporary_python_path)
+
+    # @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
+    def test_api_python_accept(self):
+        """
+        This opens a TCP/IP socket for connection from a client.
+        """
+
+        server_port = 12345
+        temporary_python_file = tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False)
+        temporary_python_path = temporary_python_file.name
+        script_content = """
+import socket
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_socket.bind((socket.gethostname(), %d))
+server_socket.listen(5)
+server_socket.close()
+""" % server_port
+        temporary_python_file.write(script_content)
+        temporary_python_file.close()
+
+        connect_command = "%s %s" % (sys.executable, temporary_python_path)
+
+        dwProcessId = self.hooks_manager.attach_to_command(connect_command)
+        print("dwProcessId=", dwProcessId)
+
+        print("win32_api_definitions.tracer_object.calls_counter=",
+              win32_api_definitions.tracer_object.calls_counter)
+        calls_counter_process = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
+        print("test_api_Python_connect calls_counter=", calls_counter_process)
+        #print("test_api_Python_connect created_objects=", win32_api_definitions.tracer_object.created_objects)
+        self.assertTrue(calls_counter_process[b'CreateFileW'] > 0)
+        self.assertTrue(calls_counter_process[b'ReadFile'] > 0)
+        self.assertEqual(calls_counter_process[b'bind'], 1)
+
+        # 'addr': [{'Id': '192.168.1.10:12345'}
+        server_address = socket.gethostbyname(socket.gethostname())
+        expected_addr = "%s:%d" % (server_address, server_port)
+        print("expected_addr=", expected_addr)
+        self.assertTrue('CIM_DataFile' in win32_api_definitions.tracer_object.created_objects)
+        self.assertTrue({'Id': expected_addr} in win32_api_definitions.tracer_object.created_objects['addr'])
+
         os.remove(temporary_python_path)
 
     @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
