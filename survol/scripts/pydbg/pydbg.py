@@ -1612,10 +1612,7 @@ class pydbg(object):
 
 		# Debugging stops only if the root process leaves. Otherwise, do on debugging.
         if self.pid == self.root_pid:
-            self._log("event_handler_exit_process reset debugger_active pid=%d" % self.pid)
             self.set_debugger_active(False)
-        else:
-            self._log("event_handler_exit_process NOT YET reset debugger_active pid=%d" % self.pid)
 
         if EXIT_PROCESS_DEBUG_EVENT in self.callbacks:
             return self.callbacks[EXIT_PROCESS_DEBUG_EVENT](self)
@@ -1758,7 +1755,7 @@ class pydbg(object):
 
             # ignore all other breakpoints we didn't explicitly set.
             else:
-                self._log("breakpoint not ours %016x" % self.exception_address)
+                # self._log("breakpoint not ours %016x" % self.exception_address)
                 continue_status = DBG_EXCEPTION_NOT_HANDLED
 
         # breakpoints we did set.
@@ -1766,6 +1763,7 @@ class pydbg(object):
             # restore the original byte at the breakpoint address.
             #self._log("restoring original byte at %016x: %s" % (self.exception_address, self.breakpoints[self.exception_address].original_byte))
             self.write_process_memory(self.exception_address, self.memory_by_pid[self.pid].breakpoints[self.exception_address].original_byte)
+            # TODO: Why not self.dirty = True ??
             self.set_attr("dirty", True)
 
             # before we can continue, we have to correct the value of EIP. the reason for this is that the 1-byte INT 3
@@ -1779,9 +1777,9 @@ class pydbg(object):
                 self.context.Eip -= 1
 
             # if there is a specific handler registered for this bp, pass control to it.
-            if self.memory_by_pid[self.pid].breakpoints[self.exception_address].handler:
-                #self._log("calling user handler")
-                continue_status = self.memory_by_pid[self.pid].breakpoints[self.exception_address].handler(self)
+            bp_handler = self.memory_by_pid[self.pid].breakpoints[self.exception_address].handler
+            if bp_handler:
+                continue_status = bp_handler(self)
 
             # pass control to default user registered call back handler, if it is specified.
             elif EXCEPTION_BREAKPOINT in self.callbacks:
