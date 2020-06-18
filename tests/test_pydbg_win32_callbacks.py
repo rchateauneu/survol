@@ -50,6 +50,7 @@ class HooksManagerUtil(unittest.TestCase):
         self.hooks_manager = win32_api_definitions.Win32Hook_Manager()
 
     def tearDown(self):
+        print("Test teardown")
         self.hooks_manager.stop_cleanup()
         win32_api_definitions.tracer_object = None
 
