@@ -275,8 +275,23 @@ class Win32Hook_Manager(pydbg.pydbg):
     def __del__(self):
         self.stop_cleanup()
 
+    def debug_print_hooks_counter(self):
+        for process_id in self.hooks_by_processes:
+            print("pid=", process_id)
+            hooks_container = self.hooks_by_processes[process_id].hooked_functions
+            for one_address in hooks_container.hooks:
+                the_hook = hooks_container.hooks[one_address]
+                print("    ",
+                      one_address,
+                      the_hook.counter_proxy_on_entry,
+                      the_hook.counter_proxy_on_exit)
+
     def stop_cleanup(self):
-        if self.create_process_handle:
+        # This test on win32process, other, exiting the program might display the error message:
+        # Exception AttributeError: "'NoneType' object has no attribute 'GetProcessId'"
+        # in <bound method Win32Hook_Manager.__del__ of <survol.scripts.win32_api_definitions.Win32Hook_Manager
+        # object at 0x0000000003FF1C50>> ignored
+        if self.create_process_handle and win32process:
             # We cannot rely anymore on self.pid because it might point to a subprocess.
             created_process_id = win32process.GetProcessId(self.create_process_handle)
             print("Current_Pid=", os.getpid())
@@ -290,7 +305,6 @@ class Win32Hook_Manager(pydbg.pydbg):
                     pydbg.wait_for_process_exit(child_process.pid)
 
             pydbg.wait_for_process_exit(created_process_id)
-
 
     def add_one_function_from_dll_address(self, hooked_pid, dll_address, the_subclass):
         the_subclass.function_address = self.func_resolve_from_dll(dll_address, the_subclass.function_name)
@@ -309,6 +323,7 @@ class Win32Hook_Manager(pydbg.pydbg):
             subclass_instance.callback_before(function_arguments)
             function_arguments.append(subclass_instance)
             tracer_object.report_function_call(the_subclass.function_name, object_pydbg.dbg.dwProcessId)
+            subclass_instance.__class__._debug_counter_before += 1
             return defines.DBG_CONTINUE
 
         # There is one such function per class associated to an API function.
@@ -318,6 +333,7 @@ class Win32Hook_Manager(pydbg.pydbg):
             function_arguments.pop()
             # So we can use arguments stored before the actual function call.
             subclass_instance.callback_after(function_arguments, function_result)
+            subclass_instance.__class__._debug_counter_after += 1
             return defines.DBG_CONTINUE
 
         self.hooks_by_processes[hooked_pid].hooked_functions.add(self,
@@ -334,15 +350,10 @@ class Win32Hook_Manager(pydbg.pydbg):
         if dll_filename.startswith("\\\\?\\"):
             dll_filename = dll_filename[4:]
 
-        if dll_filename == r"C:\Windows\System32\kernel32.dll":
-            print("event_handler_load_dll dwProcessId=", self.dbg.dwProcessId, "pid=", self.pid, "dll_filename=", dll_filename)
         assert isinstance(dll_filename, six.text_type)
         dll_canonic_name = self.canonic_dll_name(dll_filename.encode('utf-8'))
 
         unhooked_functions = self.hooks_by_processes[self.dbg.dwProcessId].unhooked_functions_by_dll[dll_canonic_name]
-
-        if dll_filename == r"C:\Windows\System32\kernel32.dll":
-            print("unhooked_functions=", [func.__name__ for func in unhooked_functions])
 
         # At this stage, the library cannot be found with CreateToolhelp32Snapshot,
         #  and Module32First/Module32Next. But the dll object is passed to the callback.
@@ -440,10 +451,25 @@ class Win32Hook_Manager(pydbg.pydbg):
 
 ################################################################################
 
+
+class CallsCounterMeta(type):
+    def __init__(cls, name, bases, dct):
+        super(CallsCounterMeta, cls).__init__(name, bases, dct)
+        cls._cnt = cls.__name__ + "_SPECIFIC"
+        cls._debug_counter_before = 0
+        cls._debug_counter_after = 0
+
+
+def hook_metaclass(meta, *bases):
+    return meta("CallsCounterMetaGenerator", bases, {})
+
+
 # Each derived class must have:
 # - The string api_definition="" which contains the signature of the Windows API
 #   function in Windows web site format.
-class Win32Hook_BaseClass(object):
+# class Win32Hook_BaseClass(object):
+class Win32Hook_BaseClass(hook_metaclass(CallsCounterMeta)):
+
     # The style tells if this is a native call or an aggregate of function
     # calls, made with some style: Factorization etc...
     def __init__(self):
@@ -479,6 +505,11 @@ class Win32Hook_BaseClass(object):
         the_class.args_list = []
         for one_arg_pair in match_one.group(3).split(b","):
             match_pair = re.match(br"\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*", one_arg_pair)
+            if not match_pair:
+                # Maybe there is a pointer, so there is another regular expression,.
+                match_pair = re.match(br"\s*([A-Za-z0-9_]+ +\*)\s+([A-Za-z0-9_]+)\s*", one_arg_pair)
+                if not match_pair:
+                    raise Exception("_parse_text_definition: Cannot match:%s" % one_arg_pair)
             the_class.args_list.append((match_pair.group(1), match_pair.group(2)))
 
         assert isinstance(the_class.function_name, six.binary_type)
@@ -505,7 +536,7 @@ class Win32Hook_GenericProcessCreation(Win32Hook_BaseClass):
         raise NotImplementedYet("Win32Hook_GenericProcessCreation.callback_after")
 
     def callback_before_common(self, function_arguments):
-        print("callback_before_common self.win32_hook_manager.pid=", self.win32_hook_manager.pid)
+        #print("callback_before_common self.win32_hook_manager.pid=", self.win32_hook_manager.pid)
 
         offset_flags=5
         dwCreationFlags = function_arguments[offset_flags]
@@ -519,23 +550,15 @@ class Win32Hook_GenericProcessCreation(Win32Hook_BaseClass):
         # The primary thread of the new process is created in a suspended state,
         # and does not run until the ResumeThread function is called.
         # If the process is started with os.system, dwCreationFlags=win32con.EXTENDED_STARTUPINFO_PRESENT
-        # If started with multiprocessing.Process, it is win32con.CREATE_UNICODE_ENVIRONMENT
-        # for Python 3, otherwise 0.
+        # If multiprocessing.Process, it is win32con.CREATE_UNICODE_ENVIRONMENT for Python 3, otherwise 0.
         try:
             # This value might not be defined.
             win32con.EXTENDED_STARTUPINFO_PRESENT
         except AttributeError:
             win32con.EXTENDED_STARTUPINFO_PRESENT = 0x80000
-        if is_py3:
+        if not is_py3:
             # On Windows 10 in 64 bits, dwCreationFlags=x19e00080400 or x400 or x80000.
             # The lowest int is CREATE_UNICODE_ENVIRONMENT | EXTENDED_STARTUPINFO_PRESENT
-            print("dwCreationFlags=%0x" % dwCreationFlags)
-            #assert dwCreationFlags & win32con.CREATE_UNICODE_ENVIRONMENT
-            #assert dwCreationFlags & win32con.EXTENDED_STARTUPINFO_PRESENT
-            #assert dwCreationFlags in [
-            #    win32con.CREATE_UNICODE_ENVIRONMENT,
-            #    win32con.EXTENDED_STARTUPINFO_PRESENT]
-        else:
             assert dwCreationFlags in [
                 0,
                 win32con.EXTENDED_STARTUPINFO_PRESENT]
@@ -545,19 +568,6 @@ class Win32Hook_GenericProcessCreation(Win32Hook_BaseClass):
         #dwCreationFlagsAgain = self.win32_hook_manager.get_arg(offset_flags+1)
         #print("callback_before_common : CHECK dwCreationFlags=%0x" % dwCreationFlagsAgain)
 
-        if False:
-            dwCreationFlagsAgain = self.win32_hook_manager.get_arg(offset_flags + 1)
-            print("callback_before_common : CHECK dwCreationFlags=%0x" % dwCreationFlagsAgain)
-            if is_py3:
-                assert dwCreationFlagsAgain in [
-                    win32con.CREATE_SUSPENDED | win32con.CREATE_UNICODE_ENVIRONMENT,
-                    win32con.CREATE_SUSPENDED | win32con.EXTENDED_STARTUPINFO_PRESENT]
-            else:
-                assert dwCreationFlagsAgain in [
-                    win32con.CREATE_SUSPENDED | win32con.CREATE_UNICODE_ENVIRONMENT,
-                    win32con.CREATE_SUSPENDED]
-            #print("callback_before_common CHECK AGAIN dwCreationFlags=%0x." % dwCreationFlags)
-
     def callback_after_common(self, function_arguments, function_result):
         # typedef struct _PROCESS_INFORMATION {
         #   HANDLE hProcess;
@@ -566,10 +576,10 @@ class Win32Hook_GenericProcessCreation(Win32Hook_BaseClass):
         #   DWORD  dwThreadId;
         # } PROCESS_INFORMATION, *PPROCESS_INFORMATION, *LPPROCESS_INFORMATION;
 
-        print("callback_after_common self.win32_hook_manager.pid=", self.win32_hook_manager.pid)
+        #print("callback_after_common self.win32_hook_manager.pid=", self.win32_hook_manager.pid)
 
         offset_flags=5
-        dwCreationFlags = function_arguments[offset_flags]
+        #dwCreationFlags = function_arguments[offset_flags]
         dwCreationFlags = self.win32_hook_manager.get_arg(offset_flags + 1)
         assert dwCreationFlags == self.win32_hook_manager.get_arg(offset_flags + 1)
 
@@ -594,13 +604,14 @@ class Win32Hook_GenericProcessCreation(Win32Hook_BaseClass):
         if self.process_is_already_suspended:
             raise Exception("Process was already suspended. NOT IMPLEMENTED YET.")
 
-        process_object = psutil.Process(dwProcessId)
-        print("callback_after_common ppid=", process_object.ppid(),
-            "dwProcessId=", dwProcessId,
-            "self.win32_hook_manager.pid=", self.win32_hook_manager.pid,
-            "self.win32_hook_manager.dbg.dwProcessId=", self.win32_hook_manager.dbg.dwProcessId)
-        assert process_object.ppid() == self.win32_hook_manager.dbg.dwProcessId
-        print("callback_after_common cmdline=", process_object.cmdline())
+        if False:
+            process_object = psutil.Process(dwProcessId)
+            print("callback_after_common ppid=", process_object.ppid(),
+                "dwProcessId=", dwProcessId,
+                "self.win32_hook_manager.pid=", self.win32_hook_manager.pid,
+                "self.win32_hook_manager.dbg.dwProcessId=", self.win32_hook_manager.dbg.dwProcessId)
+            assert process_object.ppid() == self.win32_hook_manager.dbg.dwProcessId
+            print("callback_after_common cmdline=", process_object.cmdline())
 
 
         self.win32_hook_manager.set_handlers()
@@ -1004,6 +1015,20 @@ class Win32Hook_bind(Win32Hook_BaseClass):
         addr_id = _sockaddr_to_addr_id(self, sockaddr_address, sockaddr_size)
         self.callback_create_object("addr", Id=addr_id)
 
+
+class Win32Hook_SQLDataSources(Win32Hook_BaseClass):
+    api_definition = b"""
+        SQLRETURN SQLDataSources(
+            SQLHENV          EnvironmentHandle,  
+            SQLUSMALLINT     Direction,  
+            SQLCHAR *        ServerName,  
+            SQLSMALLINT      BufferLength1,  
+            SQLSMALLINT *    NameLength1Ptr,  
+            SQLCHAR *        Description,  
+            SQLSMALLINT      BufferLength2,  
+            SQLSMALLINT *    NameLength2Ptr
+        );"""
+    dll_name = b"odbc32.dll"
 
 
 if False:
