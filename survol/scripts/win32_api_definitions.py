@@ -273,6 +273,7 @@ class Win32Hook_Manager(pydbg.pydbg):
         self.hooks_by_processes = collections.defaultdict(process_hooks_definition)
 
     def __del__(self):
+        print("Win32Hook_Manager.__del__")
         self.stop_cleanup()
 
     def debug_print_hooks_counter(self):
@@ -305,6 +306,10 @@ class Win32Hook_Manager(pydbg.pydbg):
                     pydbg.wait_for_process_exit(child_process.pid)
 
             pydbg.wait_for_process_exit(created_process_id)
+            # The destructor might be called at any moment by the garbage collector,
+            # and this would delete all subprocesses of the current process.
+            # Setting the handle to None prevents this.
+            self.create_process_handle = None
 
     def add_one_function_from_dll_address(self, hooked_pid, dll_address, the_subclass):
         the_subclass.function_address = self.func_resolve_from_dll(dll_address, the_subclass.function_name)
