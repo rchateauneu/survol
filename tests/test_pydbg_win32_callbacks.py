@@ -437,6 +437,11 @@ for dir_index in range(%d):
         This gets oBC data sources and checks that SQLDataSources() is called.
         """
 
+        # Typical ODBC data sources:
+        # {'MyNativeSqlServerDataSrc': 'SQL Server Native Client 11.0', 'Excel Files': 'Microsoft Excel Driver (*.xls, *.xlsx, *.xlsm, *.xlsb)
+        # ', 'SqlSrvNativeDataSource': 'SQL Server Native Client 11.0', 'mySqlServerDataSource': 'SQL Server', 'MyOracleDataSource': 'Oracle i
+        # n XE', 'SysDataSourceSQLServer': 'SQL Server', 'dBASE Files': 'Microsoft Access dBASE Driver (*.dbf, *.ndx, *.mdx)', 'OraSysDataSrc'
+        # : 'Oracle in XE', 'MS Access Database': 'Microsoft Access Driver (*.mdb, *.accdb)'}
         script_content = """
 import pyodbc
 odbc_sources = pyodbc.dataSources()
@@ -445,23 +450,7 @@ odbc_sources = pyodbc.dataSources()
         print("Object:", list(win32_api_definitions.tracer_object.created_objects.keys()))
         created_process_calls_counter = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
         print("created_process_calls_counter=", created_process_calls_counter)
-
-        if False:
-            for one_cim_class in win32_api_definitions.tracer_object.created_objects:
-                print(one_cim_class)
-
-                filenames_set = {
-                    one_object['Name']
-                    for one_object in win32_api_definitions.tracer_object.created_objects[one_cim_class]
-                }
-                for file_name in filenames_set:
-                    if not any(file_name.endswith(file_extension) for file_extension in [".py", ".pyd", ".pyw", ".pyc"]):
-                        print("    ", file_name)
-
         self.assertTrue(created_process_calls_counter[b'SQLDataSources'] > 0)
-
-        # CreateFileW, ReadFile
-
 
     @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
     def test_python_connect(self):
@@ -538,7 +527,15 @@ server_socket.listen(5)
 server_socket.close()
 """ % server_port
 
+        win32_api_definitions.Win32Hook_bind._debug_counter_before = 0
+        win32_api_definitions.Win32Hook_bind._debug_counter_after = 0
+
         dwProcessId = self._debug_python_script(script_content)
+
+        print("Win32Hook_bind BEFORE:", win32_api_definitions.Win32Hook_bind._debug_counter_before)
+        print("Win32Hook_bind AFTER :", win32_api_definitions.Win32Hook_bind._debug_counter_after)
+
+        self.hooks_manager.debug_print_hooks_counter()
 
         calls_counter_process = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
 
@@ -699,12 +696,19 @@ import sys
 # Double-quotes because of spaces: C:\\Program Files (x86)\\...\\python.exe
 subprocess.check_output([sys.executable, '-V'], shell=False)
 """
+        class_create_process = win32_api_definitions.Win32Hook_CreateProcessW if is_py3 else win32_api_definitions.Win32Hook_CreateProcessA
+        class_create_process._debug_counter_before = 0
+        class_create_process._debug_counter_after = 0
+
         dwProcessId = self._debug_python_script(script_content)
 
         created_processes = win32_api_definitions.tracer_object.created_objects['CIM_Process']
         print("created_objects=", win32_api_definitions.tracer_object.created_objects['CIM_Process'])
 
         calls_counter_process = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
+
+        print("Win32Hook_CreateProcessX BEFORE:", class_create_process._debug_counter_before)
+        print("Win32Hook_CreateProcessX AFTER :", class_create_process._debug_counter_after)
 
         # The first process is created for the shell cmd.
         if is_py3:
