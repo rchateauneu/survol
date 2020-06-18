@@ -192,4 +192,9 @@ class system_dll:
         Close the handle.
         '''
 
-        kernel32.CloseHandle(self.handle)
+        if kernel32:
+            # Without the test, error message:
+            # Exception AttributeError: "'NoneType' object has no attribute 'CloseHandle'"
+            # in <bound method system_dll.__del__ of
+            # <survol.scripts.pydbg.system_dll.system_dll instance at 0x0000000004116108>> ignored
+            kernel32.CloseHandle(self.handle)
