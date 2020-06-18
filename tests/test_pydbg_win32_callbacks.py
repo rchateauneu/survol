@@ -535,6 +535,9 @@ server_socket.close()
         print("Win32Hook_bind BEFORE:", win32_api_definitions.Win32Hook_bind._debug_counter_before)
         print("Win32Hook_bind AFTER :", win32_api_definitions.Win32Hook_bind._debug_counter_after)
 
+        print("debug_counter_WaitForDebugEvent:", self.hooks_manager.debug_counter_WaitForDebugEvent)
+        print("debug_counter_exception_breakpoint:", self.hooks_manager.debug_counter_exception_breakpoint)
+
         self.hooks_manager.debug_print_hooks_counter()
 
         calls_counter_process = win32_api_definitions.tracer_object.calls_counter[dwProcessId]

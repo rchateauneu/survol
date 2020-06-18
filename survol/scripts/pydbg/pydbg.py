@@ -201,6 +201,9 @@ class pydbg(object):
         self.page_size = system_info.dwPageSize
         self.system_break = None
 
+        self.debug_counter_WaitForDebugEvent = 0
+        self.debug_counter_exception_breakpoint = 0
+
     def set_system_break(self):
         if self.system_break:
             return
@@ -979,6 +982,8 @@ class pydbg(object):
         #self._log("debug_event_iteration before WaitForDebugEvent")
         # wait for a debug event.
         if kernel32.WaitForDebugEvent(byref(dbg), loop_delay):
+            self.debug_counter_WaitForDebugEvent += 1
+
             if dbg.dwProcessId != self.pid:
                 self.switch_to_process(dbg.dwProcessId, debug_code_to_message(dbg.dwDebugEventCode))
 
@@ -1036,6 +1041,7 @@ class pydbg(object):
                     continue_status = self.exception_handler_access_violation()
                 elif ec == EXCEPTION_BREAKPOINT:
                     #self._log("EXCEPTION_BREAKPOINT")
+                    self.debug_counter_exception_breakpoint += 1
                     continue_status = self.exception_handler_breakpoint()
                     #self._log("debug_event_iteration() continue_status: %08x DBG_CONTINUE: %08x" % (continue_status, DBG_CONTINUE) )
                 elif ec == EXCEPTION_GUARD_PAGE:
