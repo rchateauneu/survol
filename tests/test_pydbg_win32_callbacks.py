@@ -15,10 +15,13 @@ from init import *
 if not is_platform_linux:
     from survol.scripts import win32_api_definitions
 
+    # This counts the system function calls, and the creation of objects such as files, processes etc...
     class TracerForTests(win32_api_definitions.TracerBase):
         def __init__(self):
             # The key is a process id, and the subkey a function name.
             self.calls_counter = collections.defaultdict(lambda:collections.defaultdict(lambda: 0))
+            # The label is a class name. Each element of the lists is an object,
+            # described as a dict of key-value pairs.
             self.created_objects = collections.defaultdict(list)
 
         def report_function_call(self, function_name, process_id):
@@ -34,13 +37,31 @@ if not is_platform_linux:
 nonexistent_file = "NonExistentFile.xyz"
 
 
+################################################################################
+
+@unittest.skipIf(is_platform_linux, "Windows only.")
+class HooksManagerUtil(unittest.TestCase):
+    """The role of this class is to create and delete the object
+    which handles the debugging session and the break points. """
+    def setUp(self):
+        # Terminate all child processes from a previous test,
+        # otherwise they might send events to the next test.
+        win32_api_definitions.tracer_object = TracerForTests()
+        self.hooks_manager = win32_api_definitions.Win32Hook_Manager()
+
+    def tearDown(self):
+        self.hooks_manager.stop_cleanup()
+        win32_api_definitions.tracer_object = None
+
+################################################################################
+
 # This procedure calls various win32 systems functions,
 # which are hooked then tested: Arguments, return values etc... It is started in a subprocess.
 # It has to be global otherwise it fails with the error message:
 # PicklingError: Can't pickle <function processing_function at ...>: it's not found as test_pydbg.processing_function
-def attach_pid_target_function(one_argument, num_loops):
+def _attach_pid_target_function(one_argument, num_loops):
     time.sleep(one_argument)
-    print('test_attach_pid_target_function START.')
+    print('_attach_pid_target_function START.')
     while num_loops:
         time.sleep(one_argument)
         num_loops -= 1
@@ -69,25 +90,14 @@ def attach_pid_target_function(one_argument, num_loops):
             os.system("dir nothing_at_all")
         except Exception as exc:
             pass
-    print('test_attach_pid_target_function END.')
+    print('_attach_pid_target_function END.')
 
-################################################################################
 
 @unittest.skipIf(is_platform_linux, "Windows only.")
-class PydbgAttachTest(unittest.TestCase):
+class PydbgAttachTest(HooksManagerUtil):
     """
     Test pydbg callbacks.
     """
-
-    def setUp(self):
-        # Terminate all child processes from a previous test,
-        # otherwise they might send events to the next test.
-        win32_api_definitions.tracer_object = TracerForTests()
-        self.hooks_manager = win32_api_definitions.Win32Hook_Manager()
-
-    def tearDown(self):
-        win32_api_definitions.tracer_object = None
-        self.hooks_manager.stop_cleanup()
 
     # TODO: This test might fail if the main process is slowed down wrt the subprocess it attaches to.
     @unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ?")
@@ -95,7 +105,7 @@ class PydbgAttachTest(unittest.TestCase):
         """This attaches to a process already running. Beware that it might fail sometimes
         due to synchronization problem: This is inherent to this test."""
         num_loops = 3
-        created_process = multiprocessing.Process(target=attach_pid_target_function, args=(1.0, num_loops))
+        created_process = multiprocessing.Process(target=_attach_pid_target_function, args=(1.0, num_loops))
         created_process.start()
         print("created_process=", created_process.pid)
 
@@ -119,7 +129,7 @@ class PydbgAttachTest(unittest.TestCase):
                 self.assertTrue(b'CreateFileW' not in created_process_calls_counter)
                 #self.assertTrue(b'WriteFile' not in created_process_calls_counter)
             else:
-                self.assertTrue(created_process_calls_counter[b'CreateFileW'] == num_loops)
+                self.assertEqual(created_process_calls_counter[b'CreateFileW'], num_loops)
                 #self.assertTrue(created_process_calls_counter[b'WriteFile'] > 0)
         else:
             self.assertEqual(created_process_calls_counter[b'CreateFileA'], 2 * num_loops)
@@ -136,6 +146,16 @@ class PydbgAttachTest(unittest.TestCase):
         else:
             self.assertTrue({'Name': nonexistent_file} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
         self.assertEqual(len(win32_api_definitions.tracer_object.created_objects['CIM_Process']), num_loops)
+
+
+################################################################################
+
+
+@unittest.skipIf(is_platform_linux, "Windows only.")
+class DOSCommandsTest(HooksManagerUtil):
+    """
+    Test pydbg callbacks when running a DOS command.
+    """
 
     @unittest.skipIf(is_travis_machine(), "FIXME: WHY ?")
     def test_start_python_process(self):
@@ -199,24 +219,22 @@ class PydbgAttachTest(unittest.TestCase):
 
         print("test_dos_delete_file calls_counter=", win32_api_definitions.tracer_object.calls_counter)
         created_process_calls_counter = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
-        self.assertEqual(created_process_calls_counter[b'CreateProcessW'], num_loops)
         print("created_process_calls_counter=", created_process_calls_counter)
+        print("test_dos_delete_file created_objects=", win32_api_definitions.tracer_object.created_objects)
+
+        self.assertEqual(created_process_calls_counter[b'CreateProcessW'], num_loops)
+        self.assertTrue('CIM_Process' in win32_api_definitions.tracer_object.created_objects)
+
         if is_windows10:
-            # FIXME: The Python implementation used by Windows 10 is based on another set of IO functions.
+            # FIXME: cmd.exe used by Windows 10 is based on another set of IO functions.
             #self.assertTrue(b'WriteFile' not in created_process_calls_counter)
             self.assertTrue(b'CreateFileW' not in created_process_calls_counter)
             self.assertTrue(b'DeleteFileW' not in created_process_calls_counter)
+            self.assertTrue('CIM_DataFile' not in win32_api_definitions.tracer_object.created_objects)
         else:
             #self.assertTrue(created_process_calls_counter[b'WriteFile'] > 0)
             self.assertEqual(created_process_calls_counter[b'CreateFileW'], num_loops)
             self.assertEqual(created_process_calls_counter[b'DeleteFileW'], num_loops)
-
-        print("test_dos_delete_file created_objects=", win32_api_definitions.tracer_object.created_objects)
-        self.assertTrue('CIM_Process' in win32_api_definitions.tracer_object.created_objects)
-        if is_windows10:
-            # FIXME: The Python implementation used by Travis is based on another set of IO functions.
-            self.assertTrue('CIM_DataFile' not in win32_api_definitions.tracer_object.created_objects)
-        else:
             self.assertTrue({'Name': temp_path} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
 
     @unittest.skipIf(is_travis_machine(), "FIXME: WHY ?")
@@ -229,47 +247,37 @@ class PydbgAttachTest(unittest.TestCase):
         print("test_dos_dir calls_counter=", win32_api_definitions.tracer_object.calls_counter)
         created_process_calls_counter = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
         self.assertEqual(created_process_calls_counter[b'CreateProcessW'], num_loops)
-        #self.assertTrue(created_process_calls_counter[b'CreateProcessW'] == 1)
-        print("INIT:", b'CreateFileW' in created_process_calls_counter)
-        if is_windows10:
-            # FIXME: cmd.exe used by Windows 10 is based on another set of IO functions.
-            #self.assertTrue(b'WriteFile' not in created_process_calls_counter)
-            self.assertTrue(b'CreateFileW' not in created_process_calls_counter)
-        else:
-            #self.assertTrue(created_process_calls_counter[b'WriteFile'] > 0)
-            self.assertEqual(created_process_calls_counter[b'CreateFileW'], num_loops)
 
         print("test_dos_dir created_objects=", win32_api_definitions.tracer_object.created_objects)
         self.assertTrue('CIM_Process' in win32_api_definitions.tracer_object.created_objects)
+
         if is_windows10:
-            # FIXME: cmd.exe implementation used by Windows 10 is based on another set of IO functions.
+            # FIXME: cmd.exe used by Windows 10 is based on another set of IO functions.
+            self.assertTrue(b'CreateFileW' not in created_process_calls_counter)
             self.assertTrue('CIM_DataFile' not in win32_api_definitions.tracer_object.created_objects)
         else:
+            self.assertEqual(created_process_calls_counter[b'CreateFileW'], num_loops)
             self.assertTrue({'Name': 'something.xyz'} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
 
     def test_cmd_type(self):
         num_loops = 2
         dir_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO type something.xyz )" % num_loops
 
-        hooks_manager = win32_api_definitions.Win32Hook_Manager()
         dwProcessId = self.hooks_manager.attach_to_command(dir_command)
 
         print("test_dos_dir calls_counter=", win32_api_definitions.tracer_object.calls_counter)
         created_process_calls_counter = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
+        print("test_dos_dir created_objects=", win32_api_definitions.tracer_object.created_objects.keys())
+        print("test_dos_dir created_objects=", win32_api_definitions.tracer_object.created_objects)
+
         if is_windows10:
-            # FIXME: The Python implementation used by Windows 10 is based on another set of IO functions?
+            # FIXME: The cmd.exe in Windows 10 is based on another set of IO functions?
             self.assertTrue(b'WriteFile' not in created_process_calls_counter)
             self.assertTrue(b'CreateFileW' not in created_process_calls_counter)
+            self.assertTrue(not win32_api_definitions.tracer_object.created_objects)
         else:
             self.assertEqual(created_process_calls_counter[b'CreateFileW'], 2 * num_loops)
             self.assertTrue(created_process_calls_counter[b'WriteFile'] > 0)
-
-        print("test_dos_dir created_objects=", win32_api_definitions.tracer_object.created_objects.keys())
-        print("test_dos_dir created_objects=", win32_api_definitions.tracer_object.created_objects)
-        if is_windows10:
-            # FIXME: The Python implementation used by Travis is based on another set of IO functions.
-            self.assertTrue(not win32_api_definitions.tracer_object.created_objects)
-        else:
             self.assertTrue(list(win32_api_definitions.tracer_object.created_objects.keys()) == ['CIM_DataFile'])
             self.assertTrue({'Name': 'something.xyz'} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
 
@@ -282,19 +290,16 @@ class PydbgAttachTest(unittest.TestCase):
 
         print("test_cmd_mkdir_rmdir calls_counter=", win32_api_definitions.tracer_object.calls_counter)
         created_process_calls_counter = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
+        print("test_cmd_mkdir_rmdir created_objects=", win32_api_definitions.tracer_object.created_objects)
+
         if is_windows10:
-            # FIXME: The Python implementation used by Windows 10 is based on another set of IO functions.
+            # FIXME: Cmd.exe used by Windows 10 is based on another set of IO functions.
             self.assertTrue(b'CreateDirectoryW' not in created_process_calls_counter)
             self.assertTrue(b'RemoveDirectoryW' not in created_process_calls_counter)
+            self.assertTrue('CIM_Directory' not in win32_api_definitions.tracer_object.created_objects)
         else:
             self.assertEqual(created_process_calls_counter[b'CreateDirectoryW'], 1)
             self.assertEqual(created_process_calls_counter[b'RemoveDirectoryW'], 1)
-
-        print("test_cmd_mkdir_rmdir created_objects=", win32_api_definitions.tracer_object.created_objects)
-        if is_windows10:
-            # FIXME: The Python implementation used by Windows 10 is based on another set of IO functions.
-            self.assertTrue('CIM_Directory' not in win32_api_definitions.tracer_object.created_objects)
-        else:
             self.assertTrue({'Name': temp_path} in win32_api_definitions.tracer_object.created_objects['CIM_Directory'])
 
     @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
@@ -341,8 +346,125 @@ class PydbgAttachTest(unittest.TestCase):
         for dict_key_value in win32_api_definitions.tracer_object.created_objects['addr']:
             self.assertTrue(dict_key_value['Id'].endswith(':53'))
 
+
+################################################################################
+
+
+@unittest.skipIf(is_platform_linux, "Windows only.")
+class PythonScriptsTest(HooksManagerUtil):
+    """
+    Test python scripts created on-the-fly.
+    """
+
+    def setUp(self):
+        HooksManagerUtil.setUp(self)
+        self._temporary_python_file = tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False)
+        self._temporary_python_path = self._temporary_python_file.name
+
+    def tearDown(self):
+        HooksManagerUtil.tearDown(self)
+        os.remove(self._temporary_python_path)
+
+    def _debug_python_script(self, script_content):
+        """Stats a Python script in a debugging sesson"""
+        self._temporary_python_file.write(script_content)
+        self._temporary_python_file.close()
+
+        connect_command = "%s %s" % (sys.executable, self._temporary_python_path)
+
+        dwProcessId = self.hooks_manager.attach_to_command(connect_command)
+        print("_debug_python_script dwProcessId=", dwProcessId)
+
+        # print("win32_api_definitions.tracer_object.calls_counter=", win32_api_definitions.tracer_object.calls_counter)
+
+        return dwProcessId
+
+    def test_python_mkdir_loop(self):
+        """
+        This creates directories in a loop then deletes them.
+        """
+
+        loops_number = 100
+
+        # Each system function is modelled by a class, with an internal counter for entry and exit of the function.
+        # These counters are for debugging purpose, and shared by all subprocesses of the root process being debugged.
+        # Because thees counters are class-specific, this resets them to zero before counting.
+        class_create_directory = win32_api_definitions.Win32Hook_CreateDirectoryW if is_py3 else win32_api_definitions.Win32Hook_CreateDirectoryA
+        class_create_directory._debug_counter_before = 0
+        class_create_directory._debug_counter_after = 0
+
+        temporary_directories_prefix = os.path.join(tempfile.gettempdir(), "test_python_%d_mkdir_loop_" % os.getpid())
+        # Python does not like backslashes.
+        temporary_directories_prefix = temporary_directories_prefix.replace("\\", "/")
+
+        script_content = """
+import os
+for dir_index in range(%d):
+    directory_path = '%s' + str(dir_index)
+    os.mkdir(directory_path)
+""" % (loops_number, temporary_directories_prefix)
+
+        dwProcessId = self._debug_python_script(script_content)
+
+        print("Win32Hook_CreateDirectoryX BEFORE:", class_create_directory._debug_counter_before)
+        print("Win32Hook_CreateDirectoryX AFTER :", class_create_directory._debug_counter_after)
+        self.hooks_manager.debug_print_hooks_counter()
+
+        created_directories_set = {
+            one_directory['Name']
+            for one_directory in win32_api_definitions.tracer_object.created_objects['CIM_Directory']}
+        # print("created_directories_set=", created_directories_set)
+        for dir_index in range(loops_number):
+            directory_path = temporary_directories_prefix + str(dir_index)
+            self.assertTrue(os.path.isdir(directory_path))
+            os.rmdir(directory_path)
+
+            self.assertTrue({'Name': directory_path}
+                            in win32_api_definitions.tracer_object.created_objects['CIM_Directory'])
+            self.assertTrue(directory_path in created_directories_set)
+
+        create_directory_function = b'CreateDirectoryW' if is_py3 else b'CreateDirectoryA'
+
+        created_process_calls_counter = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
+        self.assertEqual(created_process_calls_counter[create_directory_function], loops_number)
+
+        self.assertEqual(class_create_directory._debug_counter_before, loops_number)
+        self.assertEqual(class_create_directory._debug_counter_after, loops_number)
+
+    @unittest.skipIf(not pkgutil.find_loader('pyodbc'), "pyodbc cannot be imported.")
+    def test_python_import_pyodbc(self):
+        """
+        This gets oBC data sources and checks that SQLDataSources() is called.
+        """
+
+        script_content = """
+import pyodbc
+odbc_sources = pyodbc.dataSources()
+"""
+        dwProcessId = self._debug_python_script(script_content)
+        print("Object:", list(win32_api_definitions.tracer_object.created_objects.keys()))
+        created_process_calls_counter = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
+        print("created_process_calls_counter=", created_process_calls_counter)
+
+        if False:
+            for one_cim_class in win32_api_definitions.tracer_object.created_objects:
+                print(one_cim_class)
+
+                filenames_set = {
+                    one_object['Name']
+                    for one_object in win32_api_definitions.tracer_object.created_objects[one_cim_class]
+                }
+                for file_name in filenames_set:
+                    if not any(file_name.endswith(file_extension) for file_extension in [".py", ".pyd", ".pyw", ".pyc"]):
+                        print("    ", file_name)
+
+        self.assertTrue(created_process_calls_counter[b'SQLDataSources'] > 0)
+
+        # CreateFileW, ReadFile
+
+
     @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
-    def test_api_python_connect(self):
+    def test_python_connect(self):
         """
         This does a TCP/IP connection to Primhill Computers website.
         The call to socket() is detected, the IP address and the port number are reported.
@@ -356,8 +478,6 @@ class PydbgAttachTest(unittest.TestCase):
         print("temp_path=", temp_path)
 
         # A subprocess is about to connect to a remote HTTP server.
-        temporary_python_file = tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False)
-        temporary_python_path = temporary_python_file.name
         script_content = """
 import socket
 import os
@@ -373,13 +493,8 @@ outfil = open(r"%s", "w")
 outfil.write("%%d\\n%%d\\n" %% (os.getpid(), subprocess_object.ppid()))
 outfil.close()
 """ % (server_domain, server_port, temp_path)
-        temporary_python_file.write(script_content)
-        temporary_python_file.close()
 
-        connect_command = "%s %s" % (sys.executable, temporary_python_path)
-
-        dwProcessId = self.hooks_manager.attach_to_command(connect_command)
-        print("dwProcessId=", dwProcessId)
+        dwProcessId = self._debug_python_script(script_content)
 
         # The created subprocess has written in a file its id and parent id.
         with open(temp_path) as temp_file:
@@ -390,10 +505,9 @@ outfil.close()
             print("sub_pid=", sub_pid, "sub_ppid=", sub_ppid)
         self.assertTrue(sub_pid == dwProcessId)
 
-        print("win32_api_definitions.tracer_object.calls_counter=", win32_api_definitions.tracer_object.calls_counter)
         self.assertEqual(len(win32_api_definitions.tracer_object.calls_counter), 1)
         sub_process_calls_counter = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
-        print("test_api_Python_connect calls_counter=", sub_process_calls_counter)
+
         if not is_py3:
             self.assertTrue(sub_process_calls_counter[b'CreateFileA'] > 0)
         self.assertTrue(sub_process_calls_counter[b'CreateFileW'] > 0)
@@ -406,20 +520,16 @@ outfil.close()
             self.assertTrue(sub_process_calls_counter[b'ReadFile'] > 0)
         self.assertEqual(sub_process_calls_counter[b'connect'], 1)
 
-        # print("test_api_Python_connect created_objects=", win32_api_definitions.tracer_object.created_objects)
         expected_addr = "%s:%d" % (server_address, server_port)
         self.assertTrue('CIM_DataFile' in win32_api_definitions.tracer_object.created_objects)
         self.assertTrue({'Id': expected_addr} in win32_api_definitions.tracer_object.created_objects['addr'])
-        os.remove(temporary_python_path)
 
-    def test_api_python_bind(self):
+    def test_python_bind(self):
         """
         This opens a TCP/IP socket, ready for a client connection.
         """
 
         server_port = 12345
-        temporary_python_file = tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False)
-        temporary_python_path = temporary_python_file.name
         script_content = """
 import socket
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -427,18 +537,11 @@ server_socket.bind((socket.gethostname(), %d))
 server_socket.listen(5)
 server_socket.close()
 """ % server_port
-        temporary_python_file.write(script_content)
-        temporary_python_file.close()
 
-        connect_command = "%s %s" % (sys.executable, temporary_python_path)
+        dwProcessId = self._debug_python_script(script_content)
 
-        dwProcessId = self.hooks_manager.attach_to_command(connect_command)
-        print("dwProcessId=", dwProcessId)
-
-        print("win32_api_definitions.tracer_object.calls_counter=",
-              win32_api_definitions.tracer_object.calls_counter)
         calls_counter_process = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
-        print("test_api_Python_connect calls_counter=", calls_counter_process)
+
         self.assertTrue(calls_counter_process[b'CreateFileW'] > 0)
         self.assertEqual(calls_counter_process[b'bind'], 1)
 
@@ -449,32 +552,22 @@ server_socket.close()
         self.assertTrue('CIM_DataFile' in win32_api_definitions.tracer_object.created_objects)
         self.assertTrue({'Id': expected_addr} in win32_api_definitions.tracer_object.created_objects['addr'])
 
-        os.remove(temporary_python_path)
-
     @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
-    def test_api_python_os_system_dir_once(self):
+    def test_python_os_system_dir_once(self):
         """
         This creates a subprocess with the system call os.system(), running dir.
         """
-        temporary_python_file = tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False)
         script_content = """
 import os
 os.system('dir')
 """
-        temporary_python_file.write(script_content)
-        temporary_python_file.close()
+        dwProcessId = self._debug_python_script(script_content)
 
-        system_command = "%s %s" % (sys.executable, temporary_python_file.name)
-
-        dwProcessId = self.hooks_manager.attach_to_command(system_command)
-        print("dwProcessId=", dwProcessId)
-
-        print("calls_counter=", win32_api_definitions.tracer_object.calls_counter)
         created_processes =  win32_api_definitions.tracer_object.created_objects['CIM_Process']
         print("created_objects=", win32_api_definitions.tracer_object.created_objects['CIM_Process'])
 
         calls_counter_process = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
-        print("calls_counter_process.keys()=", calls_counter_process.keys())
+
         if is_py3:
             self.assertEqual(calls_counter_process[b'CreateProcessW'], 1)
             self.assertTrue(b'CreateProcessA' not in calls_counter_process)
@@ -486,26 +579,19 @@ os.system('dir')
         self.assertEqual(len(created_processes), 1)
 
     @unittest.skipIf(is_travis_machine(), "FIXME: Sometimes broken on Travis. WHY ?")
-    def test_api_python_os_system_dir_multiple(self):
+    def test_python_os_system_dir_multiple(self):
         """
         This creates a subprocess with the system call os.system(), running dir.
         """
-        temporary_python_file = tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False)
         loops_number = 100
         script_content = """
 import os
 for loop_index in range(%d):
     os.system('dir > null')
 """ % loops_number
-        temporary_python_file.write(script_content)
-        temporary_python_file.close()
 
-        system_command = "%s %s" % (sys.executable, temporary_python_file.name)
+        dwProcessId = self._debug_python_script(script_content)
 
-        dwProcessId = self.hooks_manager.attach_to_command(system_command)
-        print("dwProcessId=", dwProcessId)
-
-        print("calls_counter=", win32_api_definitions.tracer_object.calls_counter)
         created_processes = win32_api_definitions.tracer_object.created_objects['CIM_Process']
         print("created_objects=", win32_api_definitions.tracer_object.created_objects['CIM_Process'])
 
@@ -525,11 +611,11 @@ for loop_index in range(%d):
     # Maybe cmd.exe does NOT create another process ?
     # See difference between "cmd -c" and "cmd -k"
     @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
-    def test_api_python_os_system_python_stdout(self):
+    def test_python_os_system_python_stdout(self):
         """
         This creates a subprocess with the system call os.system(), starting python
         """
-        temporary_python_file = tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False)
+
         script_content = """
 import os
 import sys
@@ -537,20 +623,13 @@ import sys
 # This starts the command: "..\\cmd.exe /c C:\\Python27\\python.exe -V"
 os.system('"%s" -V' % sys.executable)
 """
-        temporary_python_file.write(script_content)
-        temporary_python_file.close()
+        dwProcessId = self._debug_python_script(script_content)
 
-        system_command = "%s %s" % (sys.executable, temporary_python_file.name)
-
-        dwProcessId = self.hooks_manager.attach_to_command(system_command)
-        print("dwProcessId=", dwProcessId)
-
-        print("calls_counter=", win32_api_definitions.tracer_object.calls_counter)
         created_processes =  win32_api_definitions.tracer_object.created_objects['CIM_Process']
         print("created_objects=", win32_api_definitions.tracer_object.created_objects['CIM_Process'])
 
         calls_counter_process = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
-        print("calls_counter_process.keys()=", calls_counter_process.keys())
+
         # The first process is created for the shell cmd.
         if is_py3:
             self.assertEqual(calls_counter_process[b'CreateProcessW'], 1)
@@ -561,10 +640,9 @@ os.system('"%s" -V' % sys.executable)
 
         # This creates a cmd.exe subprocess, creating a Python subprocess.
         self.assertEqual(len(created_processes), 2)
-        os.remove(temporary_python_file.name)
 
     @unittest.skipIf(is_travis_machine(), "FIXME")
-    def test_api_python_os_system_python_redirect(self):
+    def test_python_os_system_python_redirect(self):
         """
         This creates a subprocess with the system call os.system(), starting python.
         This checks the output.
@@ -582,21 +660,13 @@ ret = os.system('"%s" -c print(123456) > %s')
 print("ret=", ret)
 """ % (sys.executable.replace("\\", "/"), clean_text_name)
 
-        temporary_python_file = tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False)
-        temporary_python_file.write(script_content)
-        temporary_python_file.close()
+        dwProcessId = self._debug_python_script(script_content)
 
-        system_command = "%s %s" % (sys.executable, temporary_python_file.name)
-
-        dwProcessId = self.hooks_manager.attach_to_command(system_command)
-        print("dwProcessId=", dwProcessId)
-
-        print("calls_counter=", win32_api_definitions.tracer_object.calls_counter)
         created_processes = win32_api_definitions.tracer_object.created_objects['CIM_Process']
         print("created_objects=", win32_api_definitions.tracer_object.created_objects['CIM_Process'])
 
         calls_counter_process = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
-        print("calls_counter_process.keys()=", calls_counter_process.keys())
+
         # The first process is created for the shell cmd.
         if is_py3:
             self.assertEqual(calls_counter_process[b'CreateProcessW'], 1)
@@ -614,38 +684,28 @@ print("ret=", ret)
 
         # This creates a cmd.exe subprocess, creating a Python subprocess.
         self.assertEqual(len(created_processes), 2)
-
-        hooks_manager.stop_cleanup()
         os.remove(temporary_text_file.name)
-        os.remove(temporary_python_file.name)
 
     ########## @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
     #@unittest.skipIf(is_windows10, "FIXME: Does not work on Travis. WHY ?")
-    def test_api_python_check_output_python(self):
+    def test_python_check_output_python(self):
         """
         This creates a subprocess with the system call os.system(), starting python
         """
-        temporary_python_file = tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False)
+
         script_content = """
 import subprocess
 import sys
 # Double-quotes because of spaces: C:\\Program Files (x86)\\...\\python.exe
 subprocess.check_output([sys.executable, '-V'], shell=False)
 """
-        temporary_python_file.write(script_content)
-        temporary_python_file.close()
+        dwProcessId = self._debug_python_script(script_content)
 
-        system_command = "%s %s" % (sys.executable, temporary_python_file.name)
-
-        dwProcessId = self.hooks_manager.attach_to_command(system_command)
-        print("dwProcessId=", dwProcessId)
-
-        print("calls_counter=", win32_api_definitions.tracer_object.calls_counter)
         created_processes = win32_api_definitions.tracer_object.created_objects['CIM_Process']
         print("created_objects=", win32_api_definitions.tracer_object.created_objects['CIM_Process'])
 
         calls_counter_process = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
-        print("calls_counter_process.keys()=", calls_counter_process.keys())
+
         # The first process is created for the shell cmd.
         if is_py3:
             self.assertEqual(calls_counter_process[b'CreateProcessW'], 1)
@@ -656,14 +716,12 @@ subprocess.check_output([sys.executable, '-V'], shell=False)
 
         # This creates a Python subprocess.
         self.assertEqual(len(created_processes), 1)
-        os.remove(temporary_python_file.name)
 
     @unittest.skipIf(is_travis_machine(), "FIXME")
-    def test_api_python_multiprocessing_recursive_noio(self):
+    def test_python_multiprocessing_recursive_noio(self):
         """
-        This creates a subprocess with multiprocessing.Process, starting python
+        This uses multiprocessing.Process recursively.
         """
-        temporary_python_file = tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False)
         loops_number = 3
         script_content = """
 import multiprocessing
@@ -675,12 +733,8 @@ def spawned_function(level):
 if __name__ == '__main__':
     spawned_function(%d)
 """ % loops_number
-        temporary_python_file.write(script_content)
-        temporary_python_file.close()
 
-        system_command = "%s %s" % (sys.executable, temporary_python_file.name)
-
-        dwProcessId = self.hooks_manager.attach_to_command(system_command)
+        dwProcessId = self._debug_python_script(script_content)
 
         created_processes = win32_api_definitions.tracer_object.created_objects['CIM_Process']
         print("created_processes=", created_processes)
@@ -715,14 +769,12 @@ if __name__ == '__main__':
             else:
                 self.assertEqual(function_calls_list[create_process_function], 1)
 
-        os.remove(temporary_python_file.name)
-
     @unittest.skipIf(is_travis_machine(), "FIXME: Sometimes broken on Travis. WHY ?")
-    def test_api_python_multiprocessing_recursive_io(self):
+    def test_python_multiprocessing_recursive_io(self):
         """
-        This uses multiprocessing.Process.
+        This uses multiprocessing.Process recursively: Each process does some IOs.
         """
-        temporary_python_file = tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False)
+
         temporary_text_file = tempfile.NamedTemporaryFile(suffix='.txt', mode='w', delete=False)
         temporary_text_file.close()
         # Python does not like backslashes.
@@ -746,12 +798,8 @@ def spawned_function(level):
 if __name__ == '__main__':
     spawned_function(%d)
 """ % (clean_text_name, loops_number)
-        temporary_python_file.write(script_content)
-        temporary_python_file.close()
 
-        system_command = "%s %s" % (sys.executable, temporary_python_file.name)
-
-        dwProcessId = self.hooks_manager.attach_to_command(system_command)
+        dwProcessId = self._debug_python_script(script_content)
 
         created_processes = win32_api_definitions.tracer_object.created_objects['CIM_Process']
         print("created_processes=", created_processes)
@@ -792,17 +840,24 @@ if __name__ == '__main__':
         self.assertEqual({one_line[1] for one_line in file_content}, created_processes_handles.union({dwProcessId}))
         self.assertEqual({one_line[2] for one_line in file_content}, creator_processes_handles.union({CurrentPid}))
 
-        os.remove(temporary_python_file.name)
         os.remove(temporary_text_file.name)
 
-    #@unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ? Maybe multiprocessing ?")
     @unittest.skipIf(is_travis_machine(), "FIXME: Sometimes broken on Travis. WHY ?")
-    def test_api_python_multiprocessing_flat(self):
+    def test_python_multiprocessing_flat(self):
         """
-        This uses multiprocessing.Process.
+        This uses multiprocessing.Process in a loop.
         """
-        temporary_python_file = tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False)
-        temporary_files_prefix = os.path.join(tempfile.gettempdir(), "test_api_python_%d_multiprocessing_flat.txt_" % os.getpid())
+
+        # Each system function is modelled by a class. Thees classes have an internal counter
+        # for the entry and the exit of the function.
+        # These counters are only for debugging purpose. They are shared by all subprocesses
+        # of the root process being debugged.
+        # Because thees counters are class-specific, this resets them to zero before counting.
+        class_create_process = win32_api_definitions.Win32Hook_CreateProcessW if is_py3 else win32_api_definitions.Win32Hook_CreateProcessA
+        class_create_process._debug_counter_before = 0
+        class_create_process._debug_counter_after = 0
+
+        temporary_files_prefix = os.path.join(tempfile.gettempdir(), "test_python_%d_multiprocessing_flat.txt_" % os.getpid())
         # Python does not like backslashes.
         temporary_files_prefix = temporary_files_prefix.replace("\\", "/")
 
@@ -840,12 +895,11 @@ if __name__ == '__main__':
         sub_process.join()
         print("------------------------------------------- Joined pid=", sub_process.pid, "alive=", sub_process.is_alive())
 """ % (temporary_files_prefix, loops_number)
-        temporary_python_file.write(script_content)
-        temporary_python_file.close()
 
-        system_command = "%s %s" % (sys.executable, temporary_python_file.name)
+        dwProcessId = self._debug_python_script(script_content)
 
-        dwProcessId = self.hooks_manager.attach_to_command(system_command)
+        print("Win32Hook_CreateProcessX BEFORE:", class_create_process._debug_counter_before)
+        print("Win32Hook_CreateProcessX AFTER :", class_create_process._debug_counter_after)
 
         # This reads the files created by the subprocesses and extracts the process ids.
         created_processes_handles_from_files = set()
@@ -868,8 +922,15 @@ if __name__ == '__main__':
 
         self.assertEqual(created_processes_handles, created_processes_handles_from_files)
 
-        os.remove(temporary_python_file.name)
+        create_process_function = b'CreateProcessW' if is_py3 else b'CreateProcessA'
 
+        root_process_calls = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
+
+        # Number of process creation calls by the root process.
+        self.assertEqual(root_process_calls[create_process_function], loops_number)
+
+        self.assertEqual(class_create_process._debug_counter_before, loops_number)
+        self.assertEqual(class_create_process._debug_counter_after, loops_number)
 
 if __name__ == '__main__':
     unittest.main()
