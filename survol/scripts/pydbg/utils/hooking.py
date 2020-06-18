@@ -142,13 +142,14 @@ class hook:
     maintaining the various state variables requires to prevent race conditions.
     '''
 
-    hooks      = None
-    address    = 0
-    num_args   = 0
-    entry_hook = None
-    exit_hook  = None
-    arguments  = {}
-    exit_bps   = {}
+    # FIXME: A QUOI SERVENT CES GLOBALES ?????????????
+    #hooks      = None
+    #address    = 0
+    #num_args   = 0
+    #entry_hook = None
+    #exit_hook  = None
+    #arguments  = {}
+    #exit_bps   = {}
 
     ####################################################################################################################
     def __init__ (self, address, num_args, entry_hook=None, exit_hook=None):
@@ -171,6 +172,8 @@ class hook:
         self.exit_hook  = exit_hook
         self.arguments  = {}
         self.exit_bps   = {}
+        self.counter_proxy_on_entry = 0
+        self.counter_proxy_on_exit = 0
 
 
     ####################################################################################################################
@@ -220,6 +223,8 @@ class hook:
         '''
 
         continue_status = None
+
+        self.counter_proxy_on_entry += 1
 
         # retrieve and store the arguments to the hooked function.
         # we categorize arguments by thread id to avoid an entry / exit matching race condition, example:
@@ -277,6 +282,8 @@ class hook:
         # if we are in this function, then an exit point callback was specified, call it and grab the return value.
         if pydbg.dbg.dwThreadId not in self.arguments.keys():
             return
+
+        self.counter_proxy_on_exit += 1
 
         continue_status = self.exit_hook(pydbg, self.arguments[pydbg.dbg.dwThreadId], pydbg.returned_value())
 
