@@ -14,7 +14,7 @@ import lib_util
 from lib_properties import pc
 
 # If this is not a directory, should not be displayed.
-def Usable(entity_type,entity_ids_arr):
+def Usable(entity_type, entity_ids_arr):
     dirNam = entity_ids_arr[0]
     return os.path.isdir(dirNam)
 
@@ -37,9 +37,9 @@ def Usable(entity_type,entity_ids_arr):
 def UrlDirectory( fullDirPath ):
     # sys.stderr.write("UrlDirectory fullDirPath=%s\n" % fullDirPath)
     dirPrefix = "C://Users/CurrentUser"
-    if fullDirPath.startswith( dirPrefix ):
+    if fullDirPath.startswith(dirPrefix):
         shortPath = fullDirPath[ len(dirPrefix) : ]
-        shortpathclean = shortPath.replace("&","&amp;" )
+        shortpathclean = shortPath.replace("&","&amp;")
         dirUrl = "http://127.0.0.1/Home/" + shortpathclean
         return lib_common.NodeUrl(dirUrl)
     return None
@@ -54,7 +54,7 @@ def UriDirectoryDirectScript(dirNam):
         '/sources_types/CIM_Directory/file_directory.py',
         "CIM_Directory", # TODO: NOT SURE: lib_util.ComposeTypes("file","dir"),
         # pc.property_script,
-        lib_util.EncodeUri(dirNam) )
+        lib_util.EncodeUri(dirNam))
 
 
 def Main():
@@ -64,13 +64,13 @@ def Main():
     # Maybe this is a disk name, on Windows, such as "A:", "C:" etc...
     if lib_util.isPlatformWindows :
         # Remove the trailing backslash.
-        if re.match( r"^[a-zA-Z]:\\$", filNam ):
+        if re.match(r"^[a-zA-Z]:\\$", filNam):
             filNam = filNam[:2]
         # Add a slash at the end, otherwise it does not work.
-        if re.match( "^[a-zA-Z]:$", filNam ):
+        if re.match("^[a-zA-Z]:$", filNam):
             filNam += "/"
 
-    filNode = lib_common.gUriGen.DirectoryUri(filNam )
+    filNode = lib_common.gUriGen.DirectoryUri(filNam)
 
     grph = cgiEnv.GetGraph()
 
@@ -78,7 +78,7 @@ def Main():
         isTopDirectory = filNam == '/'
     elif lib_util.isPlatformWindows:
         # Should be "E:/" but in case it would be "E:".
-        isTopDirectory = ( len(filNam) == 2 and filNam[1] == ':' ) or ( len(filNam) == 3 and filNam[1:3] == ':/' )
+        isTopDirectory = (len(filNam) == 2 and filNam[1] == ':') or (len(filNam) == 3 and filNam[1:3] == ':/')
     else:
         isTopDirectory = False
 
@@ -86,50 +86,52 @@ def Main():
 
     if not isTopDirectory:
         topdir = os.path.dirname(filNam)
-        DEBUG("topdir=%s",topdir)
+        DEBUG("topdir=%s", topdir)
         if topdir:
-            topdirNode = lib_common.gUriGen.DirectoryUri(topdir )
-            grph.add( ( topdirNode, pc.property_directory, filNode ) )
+            topdirNode = lib_common.gUriGen.DirectoryUri(topdir)
+            grph.add((topdirNode, pc.property_directory, filNode))
 
             url_mime = UriDirectoryDirectScript( topdir )
-            grph.add( ( topdirNode, pc.property_rdf_data_nolist2, lib_common.NodeUrl(url_mime) ) )
+            grph.add((topdirNode, pc.property_rdf_data_nolist2, lib_common.NodeUrl(url_mime)))
 
-    if os.path.isdir( filNam ):
+    if os.path.isdir(filNam):
         # sys.stderr.write("filNam=%s\n"%(filNam))
 
-        # In case we do not loop at all.
+        # In case we do not loop at all, the value must be set.
         dirs = None
+
+        # This takes the list of files and directories of this directory, without recursing.
         for subdir, dirs, files in os.walk(filNam):
             break
 
         if dirs == None:
-            lib_common.ErrorMessageHtml("No files in:"+filNam)
+            lib_common.ErrorMessageHtml("No files in:" + filNam)
 
         # Special case if top of the filesystem, on Linux.
         filNam_slash = filNam
         if filNam != "/":
             filNam_slash += "/"
 
-        for dir in dirs:
-            fullDirPath = filNam_slash + dir
-            subdirNode = lib_common.gUriGen.DirectoryUri( fullDirPath.replace("&","&amp;" ) )
-            grph.add( ( filNode, pc.property_directory, subdirNode ) )
+        for one_directory in dirs:
+            fullDirPath = filNam_slash + one_directory
+            subdirNode = lib_common.gUriGen.DirectoryUri(fullDirPath.replace("&","&amp;"))
+            grph.add((filNode, pc.property_directory, subdirNode))
 
-            url_dir_node = UrlDirectory( fullDirPath )
+            url_dir_node = UrlDirectory(fullDirPath)
             if not url_dir_node is None:
-                grph.add( ( subdirNode, pc.property_rdf_data_nolist1, url_dir_node ) )
+                grph.add((subdirNode, pc.property_rdf_data_nolist1, url_dir_node))
 
             url_mime = UriDirectoryDirectScript(fullDirPath)
-            grph.add( ( subdirNode, pc.property_rdf_data_nolist2, lib_common.NodeUrl(url_mime) ) )
+            grph.add((subdirNode, pc.property_rdf_data_nolist2, lib_common.NodeUrl(url_mime)))
 
-        # TODO: If this is a script, checks if this is executale ?
-        for file in files:
-            fullFilePath = filNam_slash + file
+        # TODO: If this is a script, checks if this is executable ?
+        for one_file in files:
+            fullFilePath = filNam_slash + one_file
             # First replace the ampersand, then encode.
 
             fullFilePath = lib_util.urllib_quote(fullFilePath, safe='/:! ')
 
-            file_path_replace_encoded = fullFilePath.replace("&", "&amp;" )
+            file_path_replace_encoded = fullFilePath.replace("&", "&amp;")
 
             # There might be non-ascii chars, accents etc...
             # filNam='C://Users/Yana\xeblle \xe0 la plage.jpg'
@@ -140,12 +142,12 @@ def Main():
 
             subfilNode = lib_common.gUriGen.FileUri(file_path_replace_encoded)
 
-            grph.add( ( filNode, pc.property_directory, subfilNode ) )
+            grph.add((filNode, pc.property_directory, subfilNode))
 
-            CIM_DataFile.AddStat( grph, subfilNode, fullFilePath )
-            CIM_DataFile.AddHtml( grph, subfilNode, fullFilePath )
+            CIM_DataFile.AddStat(grph, subfilNode, fullFilePath)
+            CIM_DataFile.AddHtml(grph, subfilNode, fullFilePath)
 
-    cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_directory] )
+    cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_directory])
     # cgiEnv.OutCgiRdf("LAYOUT_RECT", [] )
 
 if __name__ == '__main__':
