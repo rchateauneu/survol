@@ -163,10 +163,21 @@ def is_pytest():
 
 
 # This tests if an executable is present.
+# TODO: Replace this with check_program_exists
 def linux_check_program_exists(program_name):
     p = subprocess.Popen(['/usr/bin/which', program_name], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
     p.communicate()
     return p.returncode == 0
+
+def check_program_exists(program_name):
+    if is_platform_windows:
+        test_command = "where %s" %  program_name
+    elif is_platform_linux:
+        test_command = "where %s" % program_name
+    else:
+        pass
+    test_result = os.system(test_command)
+    return test_result == 0
 
 
 # Problem on Travis: Domain = 'PACKER-5D93E860', machine='packer-5d93e860-43ba-c2e7-85d2-3ea0696b8fc8'
