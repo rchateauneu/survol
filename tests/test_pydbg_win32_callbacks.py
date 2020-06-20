@@ -940,5 +940,84 @@ if __name__ == '__main__':
         self.assertEqual(class_create_process._debug_counter_before, loops_number)
         self.assertEqual(class_create_process._debug_counter_after, loops_number)
 
+
+################################################################################
+
+
+@unittest.skipIf(is_platform_linux, "Windows only.")
+@unittest.skipIf(not check_program_exists("perl"), "Perl must be installed.")
+class PerlScriptsTest(HooksManagerUtil):
+    """
+    Test Perl scripts created on-the-fly.
+    """
+
+    def setUp(self):
+        HooksManagerUtil.setUp(self)
+        self._temporary_perl_file = tempfile.NamedTemporaryFile(suffix='.pl', mode='w', delete=False)
+        self._temporary_perl_path = self._temporary_perl_file.name
+
+    def tearDown(self):
+        HooksManagerUtil.tearDown(self)
+        os.remove(self._temporary_perl_path)
+
+    def _debug_perl_script(self, script_content):
+        """Stats a Perl script in a debugging sesson"""
+        self._temporary_perl_file.write(script_content)
+        self._temporary_perl_file.close()
+
+        connect_command = "perl %s" % (self._temporary_perl_path)
+
+        dwProcessId = self.hooks_manager.attach_to_command(connect_command)
+        print("_debug_perl_script dwProcessId=", dwProcessId)
+
+        return dwProcessId
+
+    def test_perl_simple_test(self):
+        """
+        Simplistic Perl script.
+        """
+
+        # The shebang must be on the first line, hence this backslash.
+        script_content = """\
+#!/usr/bin/env perl
+print "Hello World!";
+"""
+
+        dwProcessId = self._debug_perl_script(script_content)
+
+        self.hooks_manager.debug_print_hooks_counter()
+
+        print("win32_api_definitions.tracer_object.created_objects=", win32_api_definitions.tracer_object.created_objects)
+        print("win32_api_definitions.tracer_object.calls_counter=", win32_api_definitions.tracer_object.calls_counter)
+
+# win32_api_definitions.tracer_object.created_objects= defaultdict(<class 'list'>, {'CIM_DataFile': [
+        # {'Name': b'C:\\Perl64\\site\\lib\5.20.2\\MSWin32-x64-multi-thread'},
+        # {'Name': b'C:\\Perl64\\site\\lib\\5.20.2'},
+        # {'Name': b'C:\\Perl64\\site\\lib\\MSWin32-x64-multi-thread'},
+        # {'Name': b'C:\\Perl64\\lib\\5.20.2\\MSWin32-x64-multi-thread'},
+        # {'Name': b'C:\\Perl64\\lib\\5.20.2'},
+        # {'Name': b'C:\\Perl64\\lib\\MSWin32-x64-multi-thread'},
+        # {'Name': b'C:\\Users\\rchateau\\AppData\\Local\\Temp\\tmp9zgy2691.pl'},
+        # {'Name': b'C:\\Perl64\\site\\lib\\sitecustomize.pl'},
+        # {'Name': b'C:\\Perl64\\site\\lib\\sitecustomize.pl'},
+        # {'Name': b'C:\\Perl64\\site\\lib\\sitecustomize.pl'}]})
+        # win32_api_definitions.tracer_object.calls_counter= defaultdict(<function TracerForTests.__init__.<locals>.<lambda> at 0x0000000004C8
+        # 9950>, {545228: defaultdict(<function TracerForTests.__init__.<locals>.<lambda>.<locals>.<lambda> at 0x0000000004CABC80>,
+        # {b'CreateFileA': 10, b'ReadFile': 4, b'WriteFile': 3})})
+        # Test teardown
+
+        created_files = win32_api_definitions.tracer_object.created_objects['CIM_DataFile']
+
+        # These are the files open when Perl starts. The script must be in these.
+        created_files_names = {file_object['Name'] for file_object in created_files}
+        print("created_files_names=", created_files_names)
+
+        self.assertTrue(self._temporary_perl_path.encode() in created_files_names)
+
+        root_process_calls = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
+
+        self.assertTrue(root_process_calls[b'CreateFileA'] > 0)
+
+
 if __name__ == '__main__':
     unittest.main()
