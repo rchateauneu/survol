@@ -972,26 +972,40 @@ class PerlScriptsTest(HooksManagerUtil):
 
         return dwProcessId
 
-    @skipIf(is_travis_machine(), "Not ready for Travis yet")
+    #@unittest.skipIf(is_travis_machine(), "Not ready for Travis yet")
     def test_perl_simple_test(self):
         """
         Simplistic Perl script.
         """
 
+        temporary_text_file = tempfile.NamedTemporaryFile(suffix='.txt', mode='w', delete=False)
+        temporary_text_file.close()
+        # Python does not like backslashes.
+        clean_text_name = temporary_text_file.name.replace("\\", "/")
+
         # The shebang must be on the first line, hence this backslash.
         script_content = """\
 #!/usr/bin/env perl
-print "Hello World!";
-"""
+open(FH, '>', '%s') or die $!;
+print FH "Hello world";
+close(FH);
+""" % clean_text_name
 
         dwProcessId = self._debug_perl_script(script_content)
 
         self.hooks_manager.debug_print_hooks_counter()
 
+        # Did the program successfully write in the output file ?
+        with open(clean_text_name) as clean_output_file:
+            result_lines = clean_output_file.readlines()
+        print("result_lines=", result_lines)
+        self.assertEqual(result_lines, ["Hello world"])
+        os.remove(clean_text_name)
+
         print("win32_api_definitions.tracer_object.created_objects=", win32_api_definitions.tracer_object.created_objects)
         print("win32_api_definitions.tracer_object.calls_counter=", win32_api_definitions.tracer_object.calls_counter)
 
-# win32_api_definitions.tracer_object.created_objects= defaultdict(<class 'list'>, {'CIM_DataFile': [
+        # win32_api_definitions.tracer_object.created_objects= defaultdict(<class 'list'>, {'CIM_DataFile': [
         # {'Name': b'C:\\Perl64\\site\\lib\5.20.2\\MSWin32-x64-multi-thread'},
         # {'Name': b'C:\\Perl64\\site\\lib\\5.20.2'},
         # {'Name': b'C:\\Perl64\\site\\lib\\MSWin32-x64-multi-thread'},
@@ -1002,10 +1016,18 @@ print "Hello World!";
         # {'Name': b'C:\\Perl64\\site\\lib\\sitecustomize.pl'},
         # {'Name': b'C:\\Perl64\\site\\lib\\sitecustomize.pl'},
         # {'Name': b'C:\\Perl64\\site\\lib\\sitecustomize.pl'}]})
-        # win32_api_definitions.tracer_object.calls_counter= defaultdict(<function TracerForTests.__init__.<locals>.<lambda> at 0x0000000004C8
-        # 9950>, {545228: defaultdict(<function TracerForTests.__init__.<locals>.<lambda>.<locals>.<lambda> at 0x0000000004CABC80>,
+        # win32_api_definitions.tracer_object.calls_counter= ... , {545228: ...
         # {b'CreateFileA': 10, b'ReadFile': 4, b'WriteFile': 3})})
-        # Test teardown
+
+        # Travis:
+        # win32_api_definitions.tracer_object.created_objects= defaultdict(<class 'list'>, {'CIM_DataFile': [
+        # {'Name': b'\\\\.\\pipe\\msys-1888ae32e00d56aa-1768-sigwait'},
+        # {'Name': '\\\\.\\pipe\\msys-1888ae32e00d56aa-lpc'}]})
+        #
+        # win32_api_definitions.tracer_object.calls_counter= ... {
+        # 1768: {b'CreateFileA': 1, b'CreateThread': 1, b'CreateFileW': 1, b'ReadFile': 1, b'TerminateProcess': 1})})
+        #
+        # created_files_names= {'\\\\.\\pipe\\msys-1888ae32e00d56aa-lpc', b'\\\\.\\pipe\\msys-1888ae32e00d56aa-1768-sigwait'}
 
         created_files = win32_api_definitions.tracer_object.created_objects['CIM_DataFile']
 
@@ -1018,6 +1040,7 @@ print "Hello World!";
         root_process_calls = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
 
         self.assertTrue(root_process_calls[b'CreateFileA'] > 0)
+
 
         # win32_api_definitions.tracer_object.calls_counter= ... , {b'CreateFileA': 7})})
         # created_files_names= {
