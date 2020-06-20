@@ -972,6 +972,7 @@ class PerlScriptsTest(HooksManagerUtil):
 
         return dwProcessId
 
+    @skipIf(is_travis_machine(), "Not ready for Travis yet")
     def test_perl_simple_test(self):
         """
         Simplistic Perl script.
@@ -1018,6 +1019,15 @@ print "Hello World!";
 
         self.assertTrue(root_process_calls[b'CreateFileA'] > 0)
 
+        # win32_api_definitions.tracer_object.calls_counter= ... , {b'CreateFileA': 7})})
+        # created_files_names= {
+        # b'C:\\Perl64\\site\\lib\\5.28.1',
+        # b'C:\\Perl64\\lib\\5.28.1',
+        # b'C:\\Perl64\\site\\lib\\MSWin32-x64-multi-thread',
+        # b'C:\\Perl64\\lib\\5.28.1\\MSWin32-x64-multi-thread',
+        # b'C:\\Perl64\\site\\lib\\5.28.1\\MSWin32-x64-multi-thread',
+        # b'C:\\Perl64\\lib\\MSWin32-x64-multi-thread',
+        # b'C:\\Perl64\\site\\lib\\sitecustomize.pl'}
 
 if __name__ == '__main__':
     unittest.main()
