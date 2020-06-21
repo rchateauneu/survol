@@ -611,7 +611,7 @@ for loop_index in range(%d):
     # Sometimes it does not work.
     # Maybe cmd.exe does NOT create another process ?
     # See difference between "cmd -c" and "cmd -k"
-    @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
+    #@unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
     def test_python_os_system_python_stdout(self):
         """
         This creates a subprocess with the system call os.system(), starting python
