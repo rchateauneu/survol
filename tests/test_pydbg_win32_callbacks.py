@@ -850,7 +850,7 @@ if __name__ == '__main__':
 
         os.remove(temporary_text_file.name)
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: Sometimes broken on Travis. WHY ?")
+    #@unittest.skipIf(is_travis_machine(), "FIXME: Sometimes broken on Travis. WHY ?")
     def test_python_multiprocessing_flat(self):
         """
         This uses multiprocessing.Process in a loop.
@@ -973,7 +973,7 @@ class PerlScriptsTest(HooksManagerUtil):
         return dwProcessId
 
     @unittest.skipIf(is_windows10, "This test does not work on Windows 10")
-    def test_perl_simple_test(self):
+    def test_perl_write_file(self):
         """
         Simplistic Perl script.
         """
@@ -1059,6 +1059,7 @@ close(FH);
         #
         # win32_api_definitions.tracer_object.calls_counter= ... {
         # 1768: {b'CreateFileA': 7})})
+
 
 if __name__ == '__main__':
     unittest.main()
