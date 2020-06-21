@@ -725,7 +725,7 @@ subprocess.check_output([sys.executable, '-V'], shell=False)
         # This creates a Python subprocess.
         self.assertEqual(len(created_processes), 1)
 
-    @unittest.skipIf(is_travis_machine(), "FIXME")
+    #@unittest.skipIf(is_travis_machine(), "FIXME")
     def test_python_multiprocessing_recursive_noio(self):
         """
         This uses multiprocessing.Process recursively.
