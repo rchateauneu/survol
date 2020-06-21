@@ -303,7 +303,7 @@ class DOSCommandsTest(HooksManagerUtil):
             self.assertEqual(created_process_calls_counter[b'RemoveDirectoryW'], 1)
             self.assertTrue({'Name': temp_path} in win32_api_definitions.tracer_object.created_objects['CIM_Directory'])
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
+    #@unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
     def test_cmd_nslookup(self):
         nslookup_command = windows_system32_cmd_exe + " /c "+ "nslookup primhillcomputers.com"
 
@@ -348,6 +348,13 @@ class DOSCommandsTest(HooksManagerUtil):
             self.assertTrue(dict_key_value['Id'].endswith(':53'))
 
 
+    @unittest.skip("Not implemented yet.")
+    def test_broken_cmd(self):
+        # This starts a broken command which must be detected
+		pass
+
+
+
 ################################################################################
 
 
@@ -379,6 +386,11 @@ class PythonScriptsTest(HooksManagerUtil):
         # print("win32_api_definitions.tracer_object.calls_counter=", win32_api_definitions.tracer_object.calls_counter)
 
         return dwProcessId
+
+    @unittest.skip("Not implemented yet.")
+    def test_python_broken(self):
+        # this is a broken test correctly detected.
+        pass
 
     def test_python_mkdir_loop(self):
         """
