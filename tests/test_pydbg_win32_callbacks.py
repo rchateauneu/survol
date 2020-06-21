@@ -238,7 +238,7 @@ class DOSCommandsTest(HooksManagerUtil):
             self.assertEqual(created_process_calls_counter[b'DeleteFileW'], num_loops)
             self.assertTrue({'Name': temp_path} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: WHY ?")
+    #@unittest.skipIf(is_travis_machine(), "FIXME: WHY ?")
     def test_cmd_ping_type(self):
         num_loops = 5
         dir_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 1 1.2.3.4 & type something.xyz )" % num_loops
