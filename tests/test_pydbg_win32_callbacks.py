@@ -591,7 +591,7 @@ os.system('dir')
         # This creates one single subprocess running cmd.exe
         self.assertEqual(len(created_processes), 1)
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: Sometimes broken on Travis. WHY ?")
+    #@unittest.skipIf(is_travis_machine(), "FIXME: Sometimes broken on Travis. WHY ?")
     def test_python_os_system_dir_multiple(self):
         """
         This creates a subprocess with the system call os.system(), running dir.
