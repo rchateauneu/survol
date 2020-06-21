@@ -642,7 +642,7 @@ os.system('"%s" -V' % sys.executable)
         # This creates a cmd.exe subprocess, creating a Python subprocess.
         self.assertEqual(len(created_processes), 2)
 
-    @unittest.skipIf(is_travis_machine(), "FIXME")
+    #@unittest.skipIf(is_travis_machine(), "FIXME")
     def test_python_os_system_python_redirect(self):
         """
         This creates a subprocess with the system call os.system(), starting python.
@@ -1070,12 +1070,8 @@ close(FH);
         clean_text_name = temporary_text_file.name.replace("\\", "/")
 
         script_content = """\
-system("cmd echo HelloFromDOS > %s") or die $!;
+system("cmd /c echo HelloFromDOS> %s") or die $!;
 """ % clean_text_name
-
-        script_content = """\
-system("cmd.exe /c dir");
-"""
 
         print("script_content=", script_content)
 
@@ -1087,11 +1083,29 @@ system("cmd.exe /c dir");
         with open(clean_text_name) as clean_output_file:
             result_lines = clean_output_file.readlines()
         print("result_lines=", result_lines)
-        self.assertEqual(result_lines, ["HelloFromDOS"])
+        self.assertEqual(result_lines, ["HelloFromDOS\n"])
         os.remove(clean_text_name)
 
         print("win32_api_definitions.tracer_object.created_objects=", win32_api_definitions.tracer_object.created_objects)
         print("win32_api_definitions.tracer_object.calls_counter=", win32_api_definitions.tracer_object.calls_counter)
+
+        # Windows 7, Python 3.
+        # win32_api_definitions.tracer_object.calls_counter= {
+        # 750752: {b'CreateFileA': 10, b'ReadFile': 4, b'CreateProcessA': 2, b'WriteFile': 1}),
+        # 751104: {b'CreateFileW': 1, b'CreateProcessW': 1}),
+        # 750892: {b'WriteFile': 1})})
+        #
+        # created_files_names= {
+        # b'C:\\Perl64\\site\\lib\\5.20.2\\MSWin32-x64-multi-thread',
+        # 'C:/Users/rchateau/AppData/Local/Temp/tmpepyno8cw.txt',
+        # b'C:\\Perl64\\lib\\5.20.2\\MSWin32-x64-multi-thread',
+        # b'C:\\Perl64\\site\\lib\\sitecustomize.pl',
+        # b'C:\\Users\\rchateau\\AppData\\Local\\Temp\\tmpoxu_rdu9.pl',
+        # b'C:\\Perl64\\site\\lib\\MSWin32-x64-multi-thread',
+        # b'C:\\Perl64\\site\\lib\\5.20.2',
+        # b'C:\\Perl64\\lib\\MSWin32-x64-multi-thread',
+        # b'C:\\Perl64\\lib\\5.20.2'}
+
 
         created_files = win32_api_definitions.tracer_object.created_objects['CIM_DataFile']
 
