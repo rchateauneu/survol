@@ -2005,6 +2005,7 @@ class pydbg(object):
                 self._log("func_resolve dll=%s function=%s function_address=%016x" % (dll, function, function_address))
                 self._log("func_resolve dll=%s function=%s address_debuggee=%016x" % (dll, function, address_debuggee))
                 self._log("DIFFERENT debugger and debuggee addresses for %s." % function)
+            # FIXME: DOES NOT MAKE SENSE. WHICH PROCESS IS USED ??
 
         return function_address
 
