@@ -351,7 +351,7 @@ class DOSCommandsTest(HooksManagerUtil):
     @unittest.skip("Not implemented yet.")
     def test_broken_cmd(self):
         # This starts a broken command which must be detected
-		pass
+        pass
 
 
 
