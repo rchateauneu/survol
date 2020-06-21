@@ -465,7 +465,7 @@ odbc_sources = pyodbc.dataSources()
         print("created_process_calls_counter=", created_process_calls_counter)
         self.assertTrue(created_process_calls_counter[b'SQLDataSources'] > 0)
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
+    #@unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
     def test_python_connect(self):
         """
         This does a TCP/IP connection to Primhill Computers website.
