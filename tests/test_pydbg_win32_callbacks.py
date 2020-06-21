@@ -777,7 +777,7 @@ if __name__ == '__main__':
             else:
                 self.assertEqual(function_calls_list[create_process_function], 1)
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: Sometimes broken on Travis. WHY ?")
+    #@unittest.skipIf(is_travis_machine(), "FIXME: Sometimes broken on Travis. WHY ?")
     def test_python_multiprocessing_recursive_io(self):
         """
         This uses multiprocessing.Process recursively: Each process does some IOs.
@@ -975,7 +975,7 @@ class PerlScriptsTest(HooksManagerUtil):
     @unittest.skipIf(is_windows10, "This test does not work on Windows 10")
     def test_perl_write_file(self):
         """
-        Simplistic Perl script.
+        Simplistic Perl script which just writes into a file.
         """
 
         temporary_text_file = tempfile.NamedTemporaryFile(suffix='.txt', mode='w', delete=False)
@@ -983,9 +983,7 @@ class PerlScriptsTest(HooksManagerUtil):
         # Python does not like backslashes.
         clean_text_name = temporary_text_file.name.replace("\\", "/")
 
-        # The shebang must be on the first line, hence this backslash.
         script_content = """\
-#!/usr/bin/env perl
 open(FH, '>', '%s') or die $!;
 print FH "Hello world";
 close(FH);
@@ -1059,6 +1057,55 @@ close(FH);
         #
         # win32_api_definitions.tracer_object.calls_counter= ... {
         # 1768: {b'CreateFileA': 7})})
+
+    @unittest.skipIf(is_windows10, "This test does not work on Windows 10")
+    def test_perl_create_process(self):
+        """
+        Simplistic Perl script.
+        """
+
+        temporary_text_file = tempfile.NamedTemporaryFile(suffix='.txt', mode='w', delete=False)
+        temporary_text_file.close()
+        # Python does not like backslashes.
+        clean_text_name = temporary_text_file.name.replace("\\", "/")
+
+        script_content = """\
+system("cmd echo HelloFromDOS > %s") or die $!;
+""" % clean_text_name
+
+        script_content = """\
+system("cmd.exe /c dir");
+"""
+
+        print("script_content=", script_content)
+
+        dwProcessId = self._debug_perl_script(script_content)
+
+        self.hooks_manager.debug_print_hooks_counter()
+
+        # Did the program successfully write in the output file ?
+        with open(clean_text_name) as clean_output_file:
+            result_lines = clean_output_file.readlines()
+        print("result_lines=", result_lines)
+        self.assertEqual(result_lines, ["HelloFromDOS"])
+        os.remove(clean_text_name)
+
+        print("win32_api_definitions.tracer_object.created_objects=", win32_api_definitions.tracer_object.created_objects)
+        print("win32_api_definitions.tracer_object.calls_counter=", win32_api_definitions.tracer_object.calls_counter)
+
+        created_files = win32_api_definitions.tracer_object.created_objects['CIM_DataFile']
+
+        # These are the files open when Perl starts. The script must be in these.
+        created_files_names = {file_object['Name'] for file_object in created_files}
+        print("created_files_names=", created_files_names)
+
+        self.assertTrue(self._temporary_perl_path.encode() in created_files_names)
+
+        root_process_calls = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
+
+        self.assertTrue(root_process_calls[b'CreateFileA'] > 0)
+
+        self.assertTrue(False)
 
 
 if __name__ == '__main__':
