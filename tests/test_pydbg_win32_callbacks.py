@@ -158,7 +158,7 @@ class DOSCommandsTest(HooksManagerUtil):
     Test pydbg callbacks when running a DOS command.
     """
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: WHY ?")
+    #@unittest.skipIf(is_travis_machine(), "FIXME: WHY ?")
     def test_start_python_process(self):
         temp_data_file_path = unique_temporary_path("test_start_python_process", ".txt")
 
