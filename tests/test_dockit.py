@@ -465,7 +465,6 @@ class CommandLineLiveLinuxTest(unittest.TestCase):
 @unittest.skipIf(is_platform_linux, "Windows only.")
 class CommandLineLiveWin32Test(unittest.TestCase):
 
-    #@unittest.skipIf(is_windows10, "FIXME: Now broken on Windows 10. WHY ?")
     def test_run_windows_ping_nowhere(self):
         """This runs "ping" and the command help must be print."""
         command_result = _run_dockit_command("ping")
@@ -481,7 +480,6 @@ class CommandLineLiveWin32Test(unittest.TestCase):
 
         self.assertTrue( command_result.find(b"Usage: ping") >= 0)
 
-    #@unittest.skipIf(is_windows10, "FIXME: Now broken on Windows 10. WHY ?")
     def test_run_windows_ping_home(self):
         # This test pings to a domain name.
         output_basename_prefix = "test_run_windows_ping_home_%d" % CurrentPid
@@ -498,7 +496,6 @@ class CommandLineLiveWin32Test(unittest.TestCase):
         # The parameter to create a Dockerfile is not given on the command line.
         check_file_missing(output_basename_prefix + ".docker", "Dockerfile")
 
-    #@unittest.skipIf(is_windows10, "FIXME: Now broken on Windows 10. WHY ?")
     def test_run_windows_ping_github(self):
         output_basename_prefix = "test_run_windows_ping_github_%d" % CurrentPid
         output_prefix = path_prefix_output_result(output_basename_prefix)
@@ -510,7 +507,6 @@ class CommandLineLiveWin32Test(unittest.TestCase):
 
         check_file_missing(output_basename_prefix + ".docker", "Dockerfile")
 
-    #@unittest.skipIf(is_windows10, "FIXME: Now broken on Windows 10. WHY ?")
     def test_run_windows_echo(self):
         output_basename_prefix = "test_run_windows_echo_%d" % CurrentPid
         output_prefix = path_prefix_output_result(output_basename_prefix)
@@ -536,7 +532,6 @@ class CommandLineLiveWin32Test(unittest.TestCase):
         check_file_missing(output_basename_prefix + ".log")
         check_file_missing(output_basename_prefix + ".docker", "Dockerfile")
 
-    #@unittest.skipIf(is_windows10, "FIXME: Now broken on Windows 10. WHY ?")
     def test_run_windows_dir(self):
         """This generates a replay filename and reuses it immediately."""
         output_basename_prefix = "test_run_windows_dir"
@@ -661,7 +656,6 @@ class CommandLineLiveWin32Test(unittest.TestCase):
         check_file_missing(output_basename_prefix + ".log")
         check_file_missing(output_basename_prefix + ".docker", "Dockerfile")
 
-    #@unittest.skipIf(is_windows10, "FIXME: IOs function calls not detected on Travis.")
     def test_run_windows_copy_cmd_exe_rdf(self):
         """This checks the events generated in a RDF file, during a file copy."""
         output_basename_prefix = "test_run_windows_copy_cmd_exe_rdf"
@@ -762,7 +756,6 @@ print("Hello")
 """
         triples_as_string, created_pid = self._run_python_script_rdf(output_basename_prefix, python_script)
 
-    #@unittest.skipIf(is_windows10, "Broken on Windows 10.")
     @unittest.skipIf(is_platform_linux, "These tests are for Windows only.")
     def test_run_python_rdf_os_system_python(self):
         """This creates a subprocess."""
@@ -845,7 +838,6 @@ os.system(r'"%s" -c print(123456789) > %s')
 
         self.assertEqual(checked_executables, 3)
 
-    #@unittest.skipIf(is_windows10, "Broken on Windows 10.")
     @unittest.skipIf(is_platform_linux, "These tests are for Windows only.")
     def test_run_python_rdf_os_system_dir(self):
         """This creates a subprocess running dir."""
