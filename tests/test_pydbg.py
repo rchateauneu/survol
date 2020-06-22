@@ -362,7 +362,6 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
         self.assertTrue(Context.count_in == num_loops - 1)
         self.assertTrue(Context.count_out == num_loops - 1)
 
-    ###### @unittest.skipIf(is_travis_machine(), "Does not work on Travis.")
     def test_DOS_nslookup(self):
         tst_pydbg = pydbg.pydbg()
 
