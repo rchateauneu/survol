@@ -158,7 +158,6 @@ class DOSCommandsTest(HooksManagerUtil):
     Test pydbg callbacks when running a DOS command.
     """
 
-    #@unittest.skipIf(is_travis_machine(), "FIXME: WHY ?")
     def test_start_python_process(self):
         temp_data_file_path = unique_temporary_path("test_start_python_process", ".txt")
 
@@ -188,8 +187,6 @@ class DOSCommandsTest(HooksManagerUtil):
         else:
             self.assertTrue({'Name': temp_data_file_path} in created_files)
 
-    #@unittest.skipIf(is_windows10, "FIXME: Sometimes it misses function calls on Windows. WHY ?")
-    #@unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
     def test_cmd_create_process(self):
         num_loops = 2
         create_process_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 1 127.0.0.1)" % num_loops
@@ -199,7 +196,7 @@ class DOSCommandsTest(HooksManagerUtil):
         print("test_cmd_create_process dwProcessId=", dwProcessId)
         print("test_dos_create_process calls_counter=", win32_api_definitions.tracer_object.calls_counter)
         created_process_calls_counter = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
-        if is_travis_machine():
+        if is_windows10:
             # FIXME: The Python implementation used by Travis is based on another set of IO functions.
             self.assertTrue(b'WriteFile' not in created_process_calls_counter)
         #else:
@@ -238,7 +235,6 @@ class DOSCommandsTest(HooksManagerUtil):
             self.assertEqual(created_process_calls_counter[b'DeleteFileW'], num_loops)
             self.assertTrue({'Name': temp_path} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
 
-    #@unittest.skipIf(is_travis_machine(), "FIXME: WHY ?")
     def test_cmd_ping_type(self):
         num_loops = 5
         dir_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 1 1.2.3.4 & type something.xyz )" % num_loops
@@ -303,7 +299,6 @@ class DOSCommandsTest(HooksManagerUtil):
             self.assertEqual(created_process_calls_counter[b'RemoveDirectoryW'], 1)
             self.assertTrue({'Name': temp_path} in win32_api_definitions.tracer_object.created_objects['CIM_Directory'])
 
-    #@unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
     def test_cmd_nslookup(self):
         nslookup_command = windows_system32_cmd_exe + " /c "+ "nslookup primhillcomputers.com"
 
@@ -347,8 +342,7 @@ class DOSCommandsTest(HooksManagerUtil):
         for dict_key_value in win32_api_definitions.tracer_object.created_objects['addr']:
             self.assertTrue(dict_key_value['Id'].endswith(':53'))
 
-
-    @unittest.skip("Not implemented yet.")
+    @unittest.skipIf(is_windows10, "Windows 7 test only.")
     def test_broken_cmd(self):
         # This starts a broken command which must be detected
         pass
@@ -387,7 +381,7 @@ class PythonScriptsTest(HooksManagerUtil):
 
         return dwProcessId
 
-    @unittest.skip("Not implemented yet.")
+    @unittest.skipIf(is_windows10, "Windows 7 test only.")
     def test_python_broken(self):
         # this is a broken test correctly detected.
         pass
