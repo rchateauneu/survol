@@ -459,7 +459,6 @@ odbc_sources = pyodbc.dataSources()
         print("created_process_calls_counter=", created_process_calls_counter)
         self.assertTrue(created_process_calls_counter[b'SQLDataSources'] > 0)
 
-    #@unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
     def test_python_connect(self):
         """
         This does a TCP/IP connection to Primhill Computers website.
@@ -559,7 +558,6 @@ server_socket.close()
         self.assertTrue('CIM_DataFile' in win32_api_definitions.tracer_object.created_objects)
         self.assertTrue({'Id': expected_addr} in win32_api_definitions.tracer_object.created_objects['addr'])
 
-    #@unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
     def test_python_os_system_dir_once(self):
         """
         This creates a subprocess with the system call os.system(), running dir.
@@ -585,7 +583,6 @@ os.system('dir')
         # This creates one single subprocess running cmd.exe
         self.assertEqual(len(created_processes), 1)
 
-    #@unittest.skipIf(is_travis_machine(), "FIXME: Sometimes broken on Travis. WHY ?")
     def test_python_os_system_dir_multiple(self):
         """
         This creates a subprocess with the system call os.system(), running dir.
@@ -614,10 +611,7 @@ for loop_index in range(%d):
         # This creates one single subprocess running cmd.exe
         self.assertEqual(len(created_processes), loops_number)
 
-    # Sometimes it does not work.
-    # Maybe cmd.exe does NOT create another process ?
     # See difference between "cmd -c" and "cmd -k"
-    #@unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
     def test_python_os_system_python_stdout(self):
         """
         This creates a subprocess with the system call os.system(), starting python
@@ -1085,22 +1079,18 @@ system("cmd /c echo HelloFromDOS> %s") or die $!;
 
         self.hooks_manager.debug_print_hooks_counter()
 
-        # Did the program successfully write in the output file ?
+        # This checks that the program successfully created its output file.
         with open(clean_text_name) as clean_output_file:
             result_lines = clean_output_file.readlines()
         print("result_lines=", result_lines)
         self.assertEqual(result_lines, ["HelloFromDOS\n"])
+        # File is no longer needed.
         os.remove(clean_text_name)
 
         print("win32_api_definitions.tracer_object.created_objects=", win32_api_definitions.tracer_object.created_objects)
         print("win32_api_definitions.tracer_object.calls_counter=", win32_api_definitions.tracer_object.calls_counter)
 
         # Windows 7, Python 3.
-        # win32_api_definitions.tracer_object.calls_counter= {
-        # 750752: {b'CreateFileA': 10, b'ReadFile': 4, b'CreateProcessA': 2, b'WriteFile': 1}),
-        # 751104: {b'CreateFileW': 1, b'CreateProcessW': 1}),
-        # 750892: {b'WriteFile': 1})})
-        #
         # created_files_names= {
         # b'C:\\Perl64\\site\\lib\\5.20.2\\MSWin32-x64-multi-thread',
         # 'C:/Users/rchateau/AppData/Local/Temp/tmpepyno8cw.txt',
@@ -1112,18 +1102,50 @@ system("cmd /c echo HelloFromDOS> %s") or die $!;
         # b'C:\\Perl64\\lib\\MSWin32-x64-multi-thread',
         # b'C:\\Perl64\\lib\\5.20.2'}
 
-
         created_files = win32_api_definitions.tracer_object.created_objects['CIM_DataFile']
 
-        # These are the files open when Perl starts. The script must be in these.
+        # These are the files open when Perl starts.
         created_files_names = {file_object['Name'] for file_object in created_files}
         print("created_files_names=", created_files_names)
 
+        # The Perl script file must be there.
         self.assertTrue(self._temporary_perl_path.encode() in created_files_names)
 
-        root_process_calls = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
+        # This checks that the output file creation is detected.
+        self.assertTrue(clean_text_name in created_files_names)
 
+        # Windows 7, Python 3.
+        # win32_api_definitions.tracer_object.calls_counter= {
+        # 750752: {b'CreateFileA': 10, b'ReadFile': 4, b'CreateProcessA': 2, b'WriteFile': 1}),
+        # 751104: {b'CreateFileW': 1, b'CreateProcessW': 1}),
+        # 750892: {b'WriteFile': 1})})
+        #
+
+        # Three processes are apparently created:
+        # The root process, created by Survol.
+        # A subprocess created by Perl, which runs cmd.exe.
+        # Another process created by cmd.exe, which actually executes the command "echo".
+
+        root_process_calls = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
         self.assertTrue(root_process_calls[b'CreateFileA'] > 0)
+        self.assertTrue(root_process_calls[b'CreateProcessA'] > 0)
+
+        # Now look for the two subprocesses.
+        self.assertEqual(len(win32_api_definitions.tracer_object.calls_counter), 3)
+
+        sub_pid = None
+        sub_sub_pid = None
+        for one_process_id, one_calls_counter in win32_api_definitions.tracer_object.calls_counter.items():
+            if one_process_id != dwProcessId:
+                if b'CreateProcessW' in one_calls_counter:
+                    self.assertEqual(sub_pid, None, "The sub process id should not be already set")
+                    sub_pid = one_process_id
+                else:
+                    self.assertEqual(sub_sub_pid, None, "The sub-sub process id should not be already set")
+                    sub_sub_pid = one_process_id
+        self.assertTrue(sub_pid, "The sub process id was not found")
+        self.assertTrue(sub_sub_pid, "The sub-sub process id was not found")
+
 
         self.assertTrue(False)
 
