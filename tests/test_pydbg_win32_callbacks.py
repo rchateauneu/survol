@@ -189,7 +189,7 @@ class DOSCommandsTest(HooksManagerUtil):
             self.assertTrue({'Name': temp_data_file_path} in created_files)
 
     #@unittest.skipIf(is_windows10, "FIXME: Sometimes it misses function calls on Windows. WHY ?")
-    @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
+    #@unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
     def test_cmd_create_process(self):
         num_loops = 2
         create_process_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 1 127.0.0.1)" % num_loops
