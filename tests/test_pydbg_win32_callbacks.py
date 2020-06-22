@@ -141,7 +141,7 @@ class PydbgAttachTest(HooksManagerUtil):
         # Not all objects are checked: This just tests the general mechanism.
         print("Objects:", win32_api_definitions.tracer_object.created_objects)
         self.assertTrue({'Name': u'NonExistentDirUnicode'} in win32_api_definitions.tracer_object.created_objects['CIM_Directory'])
-        if is_travis_machine():
+        if is_windows10:
             # FIXME: Which function is used by Travis Python interpreter ?
             self.assertTrue({'Name': nonexistent_file} not in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
         else:
