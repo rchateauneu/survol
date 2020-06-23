@@ -48,9 +48,15 @@ if os.path.exists(dockit_output_files_path):
     for file_object in os.listdir(dockit_output_files_path):
         file_object_path = os.path.join(dockit_output_files_path, file_object)
         if os.path.isfile(file_object_path) or os.path.islink(file_object_path):
-            os.unlink(file_object_path)
+            try:
+                os.unlink(file_object_path)
+            except Exception as exc:
+                print("Cannot unlink file", file_object_path, ":", exc)
         else:
-            shutil.rmtree(file_object_path)
+            try:
+                shutil.rmtree(file_object_path)
+            except Exception as exc:
+                print("Cannot remove directory", file_object_path, ":", exc)
 else:
     # Creates the outdir directory, because it is not there.
     os.makedirs(dockit_output_files_path)
@@ -534,6 +540,8 @@ class CommandLineLiveWin32Test(unittest.TestCase):
 
     def test_run_windows_dir(self):
         """This generates a replay filename and reuses it immediately."""
+
+        # DANS tempfile
         output_basename_prefix = "test_run_windows_dir"
         output_prefix = path_prefix_output_result(output_basename_prefix)
 
@@ -1335,14 +1343,7 @@ class StoreToRDFTest(unittest.TestCase):
         check_file_content(output_basename_prefix + ".summary.txt")
         check_file_content(output_basename_prefix + ".rdf")
 
-
-# FIXME: Broken on local machine with Windows 7, Python 3, if the server is automatically started.
-# FIXME: Sometimes, it stops reading only 23360 bytes ....
-# FIXME: It cannot be a sizing problem because it sometimes work.
-# FIXME: When it works, it reads everything in one go.
-# FIXME: It works if the Survol agent is already started.
-# @unittest.skipIf(is_platform_windows and is_py3 and not is_windows10, "BROKEN WITH PY3, WINDOWS AND LOCAL. WHY ??")
-#@unittest.skipIf(is_platform_windows and is_py3 and not is_travis_machine(), "BROKEN WITH PY3, WINDOWS AND LOCAL. WHY ??")
+@unittest.skipIf(is_platform_windows and is_py3 and not is_windows10, "BROKEN WITH PY3, WINDOWS AND LOCAL. WHY ??")
 class EventsServerTest(unittest.TestCase):
     """
     This tests the ability to parse a strace log and tranform it into events in Survol,
