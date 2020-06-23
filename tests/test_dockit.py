@@ -540,8 +540,6 @@ class CommandLineLiveWin32Test(unittest.TestCase):
 
     def test_run_windows_dir(self):
         """This generates a replay filename and reuses it immediately."""
-
-        # DANS tempfile
         output_basename_prefix = "test_run_windows_dir"
         output_prefix = path_prefix_output_result(output_basename_prefix)
 
