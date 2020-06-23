@@ -381,11 +381,6 @@ class PythonScriptsTest(HooksManagerUtil):
 
         return dwProcessId
 
-    @unittest.skipIf(is_windows10, "Windows 7 test only.")
-    def test_python_broken(self):
-        # this is a broken test correctly detected.
-        pass
-
     def test_python_mkdir_loop(self):
         """
         This creates directories in a loop then deletes them.
@@ -642,7 +637,6 @@ os.system('"%s" -V' % sys.executable)
         # This creates a cmd.exe subprocess, creating a Python subprocess.
         self.assertEqual(len(created_processes), 2)
 
-    #@unittest.skipIf(is_travis_machine(), "FIXME")
     def test_python_os_system_python_redirect(self):
         """
         This creates a subprocess with the system call os.system(), starting python.
@@ -687,8 +681,6 @@ print("ret=", ret)
         self.assertEqual(len(created_processes), 2)
         os.remove(temporary_text_file.name)
 
-    ########## @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
-    #@unittest.skipIf(is_windows10, "FIXME: Does not work on Travis. WHY ?")
     def test_python_check_output_python(self):
         """
         This creates a subprocess with the system call os.system(), starting python
@@ -725,7 +717,6 @@ subprocess.check_output([sys.executable, '-V'], shell=False)
         # This creates a Python subprocess.
         self.assertEqual(len(created_processes), 1)
 
-    #@unittest.skipIf(is_travis_machine(), "FIXME")
     def test_python_multiprocessing_recursive_noio(self):
         """
         This uses multiprocessing.Process recursively.
@@ -777,7 +768,6 @@ if __name__ == '__main__':
             else:
                 self.assertEqual(function_calls_list[create_process_function], 1)
 
-    #@unittest.skipIf(is_travis_machine(), "FIXME: Sometimes broken on Travis. WHY ?")
     def test_python_multiprocessing_recursive_io(self):
         """
         This uses multiprocessing.Process recursively: Each process does some IOs.
@@ -850,7 +840,6 @@ if __name__ == '__main__':
 
         os.remove(temporary_text_file.name)
 
-    #@unittest.skipIf(is_travis_machine(), "FIXME: Sometimes broken on Travis. WHY ?")
     def test_python_multiprocessing_flat(self):
         """
         This uses multiprocessing.Process in a loop.
@@ -1145,9 +1134,6 @@ system("cmd /c echo HelloFromDOS> %s") or die $!;
                     sub_sub_pid = one_process_id
         self.assertTrue(sub_pid, "The sub process id was not found")
         self.assertTrue(sub_sub_pid, "The sub-sub process id was not found")
-
-
-        self.assertTrue(False)
 
 
 if __name__ == '__main__':
