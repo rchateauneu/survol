@@ -312,6 +312,8 @@ class Win32Hook_Manager(pydbg.pydbg):
             self.create_process_handle = None
 
     def add_one_function_from_dll_address(self, hooked_pid, dll_address, the_subclass):
+        # This must use the process id self.pid, which is not the current process,
+        # and may be a subprocess of the target pid.
         the_subclass.function_address = self.func_resolve_from_dll(dll_address, the_subclass.function_name)
         assert the_subclass.function_address
 
@@ -561,12 +563,12 @@ class Win32Hook_GenericProcessCreation(Win32Hook_BaseClass):
             win32con.EXTENDED_STARTUPINFO_PRESENT
         except AttributeError:
             win32con.EXTENDED_STARTUPINFO_PRESENT = 0x80000
-        if not is_py3:
-            # On Windows 10 in 64 bits, dwCreationFlags=x19e00080400 or x400 or x80000.
-            # The lowest int is CREATE_UNICODE_ENVIRONMENT | EXTENDED_STARTUPINFO_PRESENT
-            assert dwCreationFlags in [
-                0,
-                win32con.EXTENDED_STARTUPINFO_PRESENT]
+
+        # On Windows 10 in 64 bits, dwCreationFlags=x19e00080400 or x400 or x80000.
+        # The lowest int is CREATE_UNICODE_ENVIRONMENT | EXTENDED_STARTUPINFO_PRESENT
+        # With Python 2.7, Windows 7, 64 bits, process started by Perl,
+        # dwCreationFlags=000007fe00000000
+        # Otherwise it can be 0 or EXTENDED_STARTUPINFO_PRESENT
         dwCreationFlagsSuspended = dwCreationFlags | win32con.CREATE_SUSPENDED
 
         self.win32_hook_manager.set_arg(offset_flags+1, dwCreationFlagsSuspended)
