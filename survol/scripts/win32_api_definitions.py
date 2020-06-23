@@ -606,6 +606,10 @@ class Win32Hook_GenericProcessCreation(Win32Hook_BaseClass):
         print("callback_after_common dwProcessId=%d dwThreadId=%d self.win32_hook_manager.pid=%d" % (
             dwProcessId, dwThreadId, self.win32_hook_manager.pid))
 
+        if function_result == 0:
+            print("callback_after_common FAILED")
+            return
+
         self.callback_create_object("CIM_Process", Handle=dwProcessId)
 
         if self.process_is_already_suspended:
