@@ -770,6 +770,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
             node_file = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": one_path})
             print("one_path=", one_path)
             self.assertTrue(str(node_file).lower() in query_as_str)
+        print("Number of files:", len(query_as_str))
 
     def test_associator_executable_name_to_process(self):
         # C:/Python27/python.exe
