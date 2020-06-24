@@ -279,12 +279,16 @@ class Win32Hook_Manager(pydbg.pydbg):
         for process_id in self.hooks_by_processes:
             print("pid=", process_id)
             hooks_container = self.hooks_by_processes[process_id].hooked_functions
-            for one_address in hooks_container.hooks:
-                the_hook = hooks_container.hooks[one_address]
-                print("    ",
-                      one_address,
+            hooks_by_function_name = {
+                the_hook.function_name: the_hook
+                for one_address, the_hook in hooks_container.hooks.items()}
+
+            for one_function_name in sorted(list(hooks_by_function_name.keys())):
+                the_hook = hooks_by_function_name[one_function_name]
+                print("    %-30s %3d %3d" % (
+                      one_function_name,
                       the_hook.counter_proxy_on_entry,
-                      the_hook.counter_proxy_on_exit)
+                      the_hook.counter_proxy_on_exit))
 
     def stop_cleanup(self):
         # This test on win32process, other, exiting the program might display the error message:
@@ -346,7 +350,8 @@ class Win32Hook_Manager(pydbg.pydbg):
                          the_subclass.function_address,
                          len(the_subclass.args_list),
                          hook_function_adapter_entry,
-                         hook_function_adapter_exit)
+                         hook_function_adapter_exit,
+                         the_subclass.function_name)
 
     @staticmethod
     def callback_event_handler_load_dll(self):
@@ -388,6 +393,7 @@ class Win32Hook_Manager(pydbg.pydbg):
         logging.debug("hook_api_function:%s process_id=%d" % (the_subclass.__name__, process_id))
         assert sorted(self.callbacks.keys()) == sorted([defines.CREATE_PROCESS_DEBUG_EVENT, defines.LOAD_DLL_DEBUG_EVENT])
 
+        # TODO: This should go to the constructor.
         the_subclass._parse_text_definition(the_subclass)
 
         dll_canonic_name = self.canonic_dll_name(the_subclass.dll_name)
