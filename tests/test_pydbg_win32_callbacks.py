@@ -368,7 +368,7 @@ class PythonScriptsTest(HooksManagerUtil):
         os.remove(self._temporary_python_path)
 
     def _debug_python_script(self, script_content):
-        """Stats a Python script in a debugging sesson"""
+        """Starts a Python script in a debugging sesson"""
         self._temporary_python_file.write(script_content)
         self._temporary_python_file.close()
 
@@ -510,8 +510,8 @@ outfil.close()
             self.assertTrue(sub_process_calls_counter[b'ReadFile'] > 0)
         self.assertEqual(sub_process_calls_counter[b'connect'], 1)
 
-        expected_addr = "%s:%d" % (server_address, server_port)
         self.assertTrue('CIM_DataFile' in win32_api_definitions.tracer_object.created_objects)
+        expected_addr = "%s:%d" % (server_address, server_port)
         self.assertTrue({'Id': expected_addr} in win32_api_definitions.tracer_object.created_objects['addr'])
 
     def test_python_bind(self):
@@ -942,6 +942,7 @@ class PerlScriptsTest(HooksManagerUtil):
 
     def setUp(self):
         HooksManagerUtil.setUp(self)
+        # This temporary file contains a Perl script.
         self._temporary_perl_file = tempfile.NamedTemporaryFile(suffix='.pl', mode='w', delete=False)
         self._temporary_perl_path = self._temporary_perl_file.name
 
@@ -950,7 +951,7 @@ class PerlScriptsTest(HooksManagerUtil):
         os.remove(self._temporary_perl_path)
 
     def _debug_perl_script(self, script_content):
-        """Stats a Perl script in a debugging sesson"""
+        """Starts a Perl script in a debugging sesson"""
         self._temporary_perl_file.write(script_content)
         self._temporary_perl_file.close()
 
@@ -1047,39 +1048,19 @@ close(FH);
         # win32_api_definitions.tracer_object.calls_counter= ... {
         # 1768: {b'CreateFileA': 7})})
 
-    #@unittest.skipIf(is_windows10, "This test does not work on Windows 10")
-    @unittest.skipIf(is_travis_machine(), "Not completely understood on Travis.")
-    def test_perl_create_process(self):
+    @unittest.skipIf(is_windows10, "Not completely understood on Windows 10.")
+    def test_perl_create_process_line(self):
         """
-        Simplistic Perl script.
+        This creates a process with system() in its first form (Command line).
         """
 
         temporary_text_file = tempfile.NamedTemporaryFile(suffix='.txt', mode='w', delete=False)
         temporary_text_file.close()
-        # Python does not like backslashes.
+        # Perl does not like backslashes.
         clean_text_name = temporary_text_file.name.replace("\\", "/")
 
-        if is_windows10:
-            # windows_system32_cmd_exe = r'C:\Windows\system32\cmd.exe' if is_travis_machine() else r'C:\windows\system32\cmd.exe'
-            # perl -e "my @args=('cmd','/c','echo toto > tutu.txt');system(@args)"
-            # my @ args = ("C:/windows/system32/cmd.exe", "/c", "echo", "HelloFromDOS", ">", "%s");
-
-            # Perl executes system() by trying several values for lpApplicationName
-            # when calling CreateProcessA:
-            # lpApplicationName= b'cmd.exe'
-            # lpCommandLine= b'cmd.exe /x/d/c "echo HelloFromDOS > tmp.txt"'
-            # ... then:
-            # lpApplicationName= b'C:\\Windows\\system32\\cmd.exe'
-            # lpCommandLine= b'cmd.exe /x/d/c "echo HelloFromDOS > tmp.txt"'
-
-            #script_content = "my @args=('cmd','/c','echo HelloFromDOS > %s');system(@args);" % clean_text_name
-            script_content = "my @args=('echo HelloFromDOS> %s');system(@args);" % clean_text_name
-        else:
-            script_content = """\
-            system("cmd /c echo HelloFromDOS> %s") or die $!;
-            """ % clean_text_name
-
-        print("script_content=", script_content)
+        # If the operating system command contains meta-characters, use this first form.
+        script_content = 'system("cmd /c echo HelloFromDOS> %s") or die $!;' % clean_text_name
 
         dwProcessId = self._debug_perl_script(script_content)
 
@@ -1115,14 +1096,10 @@ close(FH);
         print("created_files_names=", created_files_names)
 
         # The Perl script file must be there.
-        if is_windows10:
-            # Maybe the real criteria is the Perl version ?
-            print("WHY THIS DIFFERENT BEHAVIOUR ???")
-        else:
-            self.assertTrue(self._temporary_perl_path.encode() in created_files_names)
+        self.assertTrue(self._temporary_perl_path.encode() in created_files_names)
 
-            # This checks that the output file creation is detected.
-            self.assertTrue(clean_text_name in created_files_names)
+        # This checks that the output file creation is detected.
+        self.assertTrue(clean_text_name in created_files_names)
 
         # Windows 7, Python 3.
         # win32_api_definitions.tracer_object.calls_counter= {
@@ -1141,26 +1118,144 @@ close(FH);
         self.assertTrue(root_process_calls[b'CreateProcessA'] > 0)
 
         # Now look for the two subprocesses.
-        if is_windows10:
-            # Maybe the real criteria is the Perl version ? Or the way the process is created ?
-            print("WHY THIS DIFFERENT BEHAVIOUR ???")
-            self.assertEqual(len(win32_api_definitions.tracer_object.calls_counter), 1)
-            # Only one subprocess is created and none of its calls are detected.
-        else:
-            self.assertEqual(len(win32_api_definitions.tracer_object.calls_counter), 3)
+        self.assertEqual(len(win32_api_definitions.tracer_object.calls_counter), 3)
 
-            sub_pid = None
-            sub_sub_pid = None
-            for one_process_id, one_calls_counter in win32_api_definitions.tracer_object.calls_counter.items():
-                if one_process_id != dwProcessId:
-                    if b'CreateProcessW' in one_calls_counter:
-                        self.assertEqual(sub_pid, None, "The sub process id should not be already set")
-                        sub_pid = one_process_id
-                    else:
-                        self.assertEqual(sub_sub_pid, None, "The sub-sub process id should not be already set")
-                        sub_sub_pid = one_process_id
-            self.assertTrue(sub_pid, "The sub process id was not found")
-            self.assertTrue(sub_sub_pid, "The sub-sub process id was not found")
+        sub_pid = None
+        sub_sub_pid = None
+        for one_process_id, one_calls_counter in win32_api_definitions.tracer_object.calls_counter.items():
+            if one_process_id != dwProcessId:
+                if b'CreateProcessW' in one_calls_counter:
+                    self.assertEqual(sub_pid, None, "The sub process id should not be already set")
+                    sub_pid = one_process_id
+                else:
+                    self.assertEqual(sub_sub_pid, None, "The sub-sub process id should not be already set")
+                    sub_sub_pid = one_process_id
+        self.assertTrue(sub_pid, "The sub process id was not found")
+        self.assertTrue(sub_sub_pid, "The sub-sub process id was not found")
+
+    #@unittest.skipIf(is_windows10, "This test does not work on Windows 10")
+    @unittest.skipIf(is_travis_machine(), "Not completely understood on Travis.")
+    def test_perl_create_process_args(self):
+        """
+        This creates a process with system() in its second form, with several arguments.
+        """
+
+        temporary_text_file = tempfile.NamedTemporaryFile(suffix='.txt', mode='w', delete=False)
+        temporary_text_file.close()
+        # Perl does not like backslashes.
+        clean_text_name = temporary_text_file.name.replace("\\", "/")
+
+        # Perl executes system() by trying several values for lpApplicationName
+        # when calling CreateProcessA:
+        # lpApplicationName= b'cmd.exe'
+        # lpCommandLine= b'cmd.exe /x/d/c "echo HelloFromDOS > tmp.txt"'
+        # ... then:
+        # lpApplicationName= b'C:\\Windows\\system32\\cmd.exe'
+        # lpCommandLine= b'cmd.exe /x/d/c "echo HelloFromDOS > tmp.txt"'
+
+        script_content = "my @args=('echo HelloFromDOS> %s');system(@args);" % clean_text_name
+
+        dwProcessId = self._debug_perl_script(script_content)
+
+        self.hooks_manager.debug_print_hooks_counter()
+
+        # This checks that the program successfully created its output file.
+        with open(clean_text_name) as clean_output_file:
+            result_lines = clean_output_file.readlines()
+        print("result_lines=", result_lines)
+        self.assertEqual(result_lines, ["HelloFromDOS\n"])
+        # File is no longer needed.
+        os.remove(clean_text_name)
+
+        print("win32_api_definitions.tracer_object.created_objects=", win32_api_definitions.tracer_object.created_objects)
+        print("win32_api_definitions.tracer_object.calls_counter=", win32_api_definitions.tracer_object.calls_counter)
+
+        created_files = win32_api_definitions.tracer_object.created_objects['CIM_DataFile']
+
+        # These are the files open when Perl starts.
+        created_files_names = {file_object['Name'] for file_object in created_files}
+        print("created_files_names=", created_files_names)
+
+        root_process_calls = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
+        self.assertTrue(root_process_calls[b'CreateFileA'] > 0)
+        self.assertTrue(root_process_calls[b'CreateProcessA'] > 0)
+
+        created_process_id = win32_api_definitions.tracer_object.created_objects['CIM_Process'][0]['Handle']
+
+        # Now look for the two subprocesses.
+        # Maybe the real criteria is the Perl version ? Or the way the process is created ?
+        if is_windows10:
+            self.assertEqual(len(win32_api_definitions.tracer_object.calls_counter), 1)
+            # cmd.exe does not use 'CreateFileW' and 'WriteFile' apparently, so the subprocess is not detected.
+        else:
+            self.assertEqual(len(win32_api_definitions.tracer_object.calls_counter), 2)
+            self.assertTrue(created_process_id in win32_api_definitions.tracer_object.calls_counter)
+
+    @unittest.skipIf(is_windows10, "TODO: Check if it works on Windows 10")
+    def test_perl_connect_perl_org(self):
+        """
+        This Perl script connects to a remote web site. The socket must be detected.
+        """
+
+        temporary_text_file = tempfile.NamedTemporaryFile(suffix='.txt', mode='w', delete=False)
+        temporary_text_file.close()
+        # Perl does not like backslashes.
+        clean_text_name = temporary_text_file.name.replace("\\", "/")
+
+        server_domain = "www.perl.org"
+        server_address = socket.gethostbyname(server_domain)
+        server_port = 80
+
+        script_content = """\
+use strict;
+use warnings;
+use Socket qw(PF_INET SOCK_STREAM pack_sockaddr_in inet_aton);
+
+socket(my $socket, PF_INET, SOCK_STREAM, 0) or die "socket: $!";
+my $port = getservbyname "http", "tcp";
+connect($socket, pack_sockaddr_in($port, inet_aton("www.perl.org"))) or die "connect: $!";
+
+send($socket, "GET / HTTP/1.0\r\n", 0);
+send($socket, "Host: www.perl.org\r\n", 0);
+send($socket, "User-Agent: pureperl\r\n\r\n", 0);
+
+# Now, writes the socket output to a file.
+open(FH, '>', '%s') or die $!;
+while (my $line = <$socket>)
+{
+    print FH $line;
+}
+close(FH);
+""" % clean_text_name
+
+        dwProcessId = self._debug_perl_script(script_content)
+
+        # Check that the content of the output text file is correct.
+        # This displays something like:
+        # HTTP/1.1 301 Moved Permanently
+        # Server: Varnish
+        # Retry-After: 0
+        # Location: https://www.perl.org/
+        with open(clean_text_name, "rb") as input_file:
+            input_content = input_file.readlines()
+
+        self.assertEqual(input_content[0], b"HTTP/1.1 301 Moved Permanently\r\r\n")
+        self.assertEqual(input_content[1], b"Server: Varnish\r\r\n")
+
+        print("created_objects=", win32_api_definitions.tracer_object.created_objects['addr'])
+        expected_addr = "%s:%d" % (server_address, server_port)
+        print("expected_addr=", expected_addr)
+        self.assertTrue({'Id': expected_addr} in win32_api_definitions.tracer_object.created_objects['addr'])
+
+        root_process_calls = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
+        print("root_process_calls=", root_process_calls)
+        self.assertTrue(root_process_calls[b'CreateFileA'] > 0)
+        self.assertTrue(root_process_calls[b'CreateFileA'] > 0)
+        self.assertTrue(root_process_calls[b'WriteFile'] > 0)
+        self.assertTrue(root_process_calls[b'ReadFile'] > 0)
+        self.assertEqual(root_process_calls[b'connect'], 1)
+
+        os.remove(temporary_text_file.name)
 
 
 if __name__ == '__main__':
