@@ -273,7 +273,6 @@ class Win32Hook_Manager(pydbg.pydbg):
         self.hooks_by_processes = collections.defaultdict(process_hooks_definition)
 
     def __del__(self):
-        print("Win32Hook_Manager.__del__")
         self.stop_cleanup()
 
     def debug_print_hooks_counter(self):
