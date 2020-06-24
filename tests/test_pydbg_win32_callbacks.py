@@ -1222,6 +1222,7 @@ send($socket, "User-Agent: pureperl\r\n\r\n", 0);
 
 # Now, writes the socket output to a file.
 open(FH, '>', '%s') or die $!;
+binmode FH;
 while (my $line = <$socket>)
 {
     print FH $line;
@@ -1240,8 +1241,10 @@ close(FH);
         with open(clean_text_name, "rb") as input_file:
             input_content = input_file.readlines()
 
-        self.assertEqual(input_content[0], b"HTTP/1.1 301 Moved Permanently\r\r\n")
-        self.assertEqual(input_content[1], b"Server: Varnish\r\r\n")
+        # Travis only:
+        # AssertionError: b'HTTP/1.1 301 Moved Permanently\r\n' != b'HTTP/1.1 301 Moved Permanently\r\r\n'
+        self.assertEqual(input_content[0], b"HTTP/1.1 301 Moved Permanently\r\n")
+        self.assertEqual(input_content[1], b"Server: Varnish\r\n")
 
         print("created_objects=", win32_api_definitions.tracer_object.created_objects['addr'])
         expected_addr = "%s:%d" % (server_address, server_port)
