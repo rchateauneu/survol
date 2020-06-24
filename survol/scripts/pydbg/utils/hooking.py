@@ -50,7 +50,7 @@ class hook_container:
 
 
     ####################################################################################################################
-    def add (self, pydbg, address, num_args, entry_hook=None, exit_hook=None):
+    def add (self, pydbg, address, num_args, entry_hook=None, exit_hook=None, function_name=None):
         '''
         Add a new hook on the specified API which accepts the specified number of arguments. Optionally specify callback
         functions for hooked API entry / exit events. The entry / exit callback prototypes are::
@@ -84,7 +84,7 @@ class hook_container:
             return None
 
         # create a new hook instance and activate it.
-        h = hook(address, num_args, entry_hook, exit_hook)
+        h = hook(address, num_args, entry_hook, exit_hook, function_name)
         h.hook(pydbg)
 
         # save the newly created hook into the internal dictionary.
@@ -142,17 +142,8 @@ class hook:
     maintaining the various state variables requires to prevent race conditions.
     '''
 
-    # FIXME: A QUOI SERVENT CES GLOBALES ?????????????
-    #hooks      = None
-    #address    = 0
-    #num_args   = 0
-    #entry_hook = None
-    #exit_hook  = None
-    #arguments  = {}
-    #exit_bps   = {}
-
     ####################################################################################################################
-    def __init__ (self, address, num_args, entry_hook=None, exit_hook=None):
+    def __init__ (self, address, num_args, entry_hook=None, exit_hook=None, function_name=None):
         '''
         Initialize the object with the specified parameters.
 
@@ -164,6 +155,8 @@ class hook:
         @param entry_hook: (Optional, def=None) Function to call on hooked API entry
         @type  exit_hook:  Function Pointer
         @param exit_hook:  (Optional, def=None) Function to call on hooked API exit
+        @type  function_name:  String
+        @param function_name:  (Optional, def=None) Function name
         '''
 
         self.address    = address
@@ -172,6 +165,7 @@ class hook:
         self.exit_hook  = exit_hook
         self.arguments  = {}
         self.exit_bps   = {}
+        self.function_name = function_name
         self.counter_proxy_on_entry = 0
         self.counter_proxy_on_exit = 0
 
