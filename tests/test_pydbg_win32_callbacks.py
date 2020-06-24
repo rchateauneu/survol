@@ -1134,7 +1134,7 @@ close(FH);
         self.assertTrue(sub_sub_pid, "The sub-sub process id was not found")
 
     #@unittest.skipIf(is_windows10, "This test does not work on Windows 10")
-    @unittest.skipIf(is_travis_machine(), "Not completely understood on Travis.")
+    #@unittest.skipIf(is_travis_machine(), "Not completely understood on Travis.")
     def test_perl_create_process_args(self):
         """
         This creates a process with system() in its second form, with several arguments.
@@ -1191,8 +1191,6 @@ close(FH);
             self.assertEqual(len(win32_api_definitions.tracer_object.calls_counter), 2)
             self.assertTrue(created_process_id in win32_api_definitions.tracer_object.calls_counter)
 
-    #@unittest.skipIf(is_windows10, "TODO: Check if it works on Windows 10")
-    #@unittest.skipIf(is_travis_machine(), "TODO: Check if it works on Windows 10")
     def test_perl_connect_perl_org(self):
         """
         This Perl script connects to a remote web site. The socket must be detected.
