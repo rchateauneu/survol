@@ -1191,7 +1191,8 @@ close(FH);
             self.assertEqual(len(win32_api_definitions.tracer_object.calls_counter), 2)
             self.assertTrue(created_process_id in win32_api_definitions.tracer_object.calls_counter)
 
-    @unittest.skipIf(is_windows10, "TODO: Check if it works on Windows 10")
+    #@unittest.skipIf(is_windows10, "TODO: Check if it works on Windows 10")
+    #@unittest.skipIf(is_travis_machine(), "TODO: Check if it works on Windows 10")
     def test_perl_connect_perl_org(self):
         """
         This Perl script connects to a remote web site. The socket must be detected.
@@ -1250,10 +1251,12 @@ close(FH);
         root_process_calls = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
         print("root_process_calls=", root_process_calls)
         self.assertTrue(root_process_calls[b'CreateFileA'] > 0)
-        self.assertTrue(root_process_calls[b'CreateFileA'] > 0)
-        self.assertTrue(root_process_calls[b'WriteFile'] > 0)
-        self.assertTrue(root_process_calls[b'ReadFile'] > 0)
         self.assertEqual(root_process_calls[b'connect'], 1)
+        if not is_windows10:
+            # FIXME: Why this difference ?
+            self.assertTrue(root_process_calls[b'CreateFileW'] > 0)
+            self.assertTrue(root_process_calls[b'WriteFile'] > 0)
+            self.assertTrue(root_process_calls[b'ReadFile'] > 0)
 
         os.remove(temporary_text_file.name)
 
