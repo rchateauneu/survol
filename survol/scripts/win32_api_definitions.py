@@ -276,6 +276,7 @@ class Win32Hook_Manager(pydbg.pydbg):
         self.stop_cleanup()
 
     def debug_print_hooks_counter(self):
+        # This displays how many times functions where hooked, cumulated by processes.
         for process_id in self.hooks_by_processes:
             print("pid=", process_id)
             hooks_container = self.hooks_by_processes[process_id].hooked_functions
@@ -374,7 +375,7 @@ class Win32Hook_Manager(pydbg.pydbg):
 
         return defines.DBG_CONTINUE
 
-    # Not necessary because creation of processes are detected by hooking CreatngProcessA and W.
+    # Not necessary because creation of processes are detected by hooking CreatingProcessA and CreatingProcessW.
     @staticmethod
     def callback_event_handler_create_process(self):
         created_process_id = win32process.GetProcessId(self.dbg.u.CreateProcessInfo.hProcess)
@@ -384,14 +385,26 @@ class Win32Hook_Manager(pydbg.pydbg):
               "self.pid= ", self.pid)
         return defines.DBG_CONTINUE
 
+    # When catching an access violaton, and to terminate the process,
+    # it is necessary to return DBG_CONTINUE to avoid a deadlock.
+    @staticmethod
+    def callback_event_handler_access_violation(self):
+        print("callback_event_handler_access_violation ACCESS VIOLATION")
+        return defines.DBG_CONTINUE
+
     def set_handlers(self):
+        # TODO: It would be neater and faster to override pydbg methods.
         self.set_callback(defines.CREATE_PROCESS_DEBUG_EVENT, self.callback_event_handler_create_process)
-        self.set_callback(defines.LOAD_DLL_DEBUG_EVENT, self.callback_event_handler_load_dll)
+        self.set_callback(defines.LOAD_DLL_DEBUG_EVENT,       self.callback_event_handler_load_dll)
+        self.set_callback(defines.EXCEPTION_ACCESS_VIOLATION, self.callback_event_handler_access_violation)
 
     # This is called when looping on the list of semantically interesting functions.
     def _hook_api_function(self, the_subclass, process_id):
         logging.debug("hook_api_function:%s process_id=%d" % (the_subclass.__name__, process_id))
-        assert sorted(self.callbacks.keys()) == sorted([defines.CREATE_PROCESS_DEBUG_EVENT, defines.LOAD_DLL_DEBUG_EVENT])
+        assert sorted(self.callbacks.keys()) == sorted([
+            defines.CREATE_PROCESS_DEBUG_EVENT,
+            defines.LOAD_DLL_DEBUG_EVENT,
+            defines.EXCEPTION_ACCESS_VIOLATION])
 
         # TODO: This should go to the constructor.
         the_subclass._parse_text_definition(the_subclass)
@@ -516,12 +529,20 @@ class Win32Hook_BaseClass(hook_metaclass(CallsCounterMeta)):
 
         the_class.args_list = []
         for one_arg_pair in match_one.group(3).split(b","):
-            match_pair = re.match(br"\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*", one_arg_pair)
+            # It uses specific regular expressions for different arguments grammar.
+            # This simplifies regular expressosn testing and will help if speciifc processing is needed.
+            match_pair = None
             if not match_pair:
-                # Maybe there is a pointer, so there is another regular expression,.
+                match_pair = re.match(br"\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*", one_arg_pair)
+            if not match_pair:
+                # Maybe there is a pointer: "const sockaddr *name"
                 match_pair = re.match(br"\s*([A-Za-z0-9_]+ +\*)\s+([A-Za-z0-9_]+)\s*", one_arg_pair)
-                if not match_pair:
-                    raise Exception("_parse_text_definition: Cannot match:%s" % one_arg_pair)
+            if not match_pair:
+                # Maybe there is an array: "FILE_SEGMENT_ELEMENT [] aSegmentArray"
+                match_pair = re.match(br"\s*([A-Za-z0-9_]+ +\[\])\s+([A-Za-z0-9_]+)\s*", one_arg_pair)
+            if not match_pair:
+                raise Exception("_parse_text_definition: Cannot match:%s" % one_arg_pair)
+
             the_class.args_list.append((match_pair.group(1), match_pair.group(2)))
 
         assert isinstance(the_class.function_name, six.binary_type)
@@ -902,6 +923,18 @@ class Win32Hook_WriteFileEx(Win32Hook_BaseClass):
     dll_name = b"KERNEL32.dll"
 
 
+class Win32Hook_WriteFileGather(Win32Hook_BaseClass):
+    api_definition = b"""
+        BOOL WriteFileGather(
+            HANDLE                  hFile,
+            FILE_SEGMENT_ELEMENT [] aSegmentArray,
+            DWORD                   nNumberOfBytesToWrite,
+            LPDWORD                 lpReserved,
+            LPOVERLAPPED            lpOverlapped
+        );"""
+    dll_name = b"KERNEL32.dll"
+
+
 class Win32Hook_ReadFile(Win32Hook_BaseClass):
     api_definition = b"""
         BOOL ReadFile(
@@ -922,6 +955,18 @@ class Win32Hook_ReadFileEx(Win32Hook_BaseClass):
             DWORD                           nNumberOfBytesToRead,
             LPOVERLAPPED                    lpOverlapped,
             LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
+        );"""
+    dll_name = b"KERNEL32.dll"
+
+
+class Win32Hook_ReadFileScatter(Win32Hook_BaseClass):
+    api_definition = b"""
+        BOOL ReadFileScatter(
+            HANDLE                  hFile,
+            FILE_SEGMENT_ELEMENT [] aSegmentArray,
+            DWORD                   nNumberOfBytesToRead,
+            LPDWORD                 lpReserved,
+            LPOVERLAPPED            lpOverlapped
         );"""
     dll_name = b"KERNEL32.dll"
 
