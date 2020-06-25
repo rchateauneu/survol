@@ -1133,8 +1133,7 @@ close(FH);
         self.assertTrue(sub_pid, "The sub process id was not found")
         self.assertTrue(sub_sub_pid, "The sub-sub process id was not found")
 
-    #@unittest.skipIf(is_windows10, "This test does not work on Windows 10")
-    #@unittest.skipIf(is_travis_machine(), "Not completely understood on Travis.")
+    @unittest.skipIf(is_travis_machine(), "Not completely understood on Travis.")
     def test_perl_create_process_args(self):
         """
         This creates a process with system() in its second form, with several arguments.
