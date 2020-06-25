@@ -262,6 +262,10 @@ class Win32Hook_Manager(pydbg.pydbg):
         print("Win32Hook_Manager ctor")
         assert self.pid == 0
 
+        # This contains the list of dlls which were loaded.
+        # It is a helper to indiacte which funcitons calls are worth to investigate.
+        self.dlls_set = set()
+
         self.create_process_handle = None
 
         class process_hooks_definition(object):
@@ -276,7 +280,12 @@ class Win32Hook_Manager(pydbg.pydbg):
         self.stop_cleanup()
 
     def debug_print_hooks_counter(self):
+        print("DLLs")
+        for one_dll_name in sorted(self.dlls_set):
+            print("    ", one_dll_name)
+
         # This displays how many times functions where hooked, cumulated by processes.
+        print("Functions calls")
         for process_id in self.hooks_by_processes:
             print("pid=", process_id)
             hooks_container = self.hooks_by_processes[process_id].hooked_functions
@@ -364,6 +373,8 @@ class Win32Hook_Manager(pydbg.pydbg):
 
         assert isinstance(dll_filename, six.text_type)
         dll_canonic_name = self.canonic_dll_name(dll_filename.encode('utf-8'))
+
+        self.dlls_set.add(dll_canonic_name)
 
         unhooked_functions = self.hooks_by_processes[self.dbg.dwProcessId].unhooked_functions_by_dll[dll_canonic_name]
 
