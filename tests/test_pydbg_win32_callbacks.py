@@ -955,14 +955,15 @@ class PerlScriptsTest(HooksManagerUtil):
         self._temporary_perl_file.write(script_content)
         self._temporary_perl_file.close()
 
-        connect_command = "perl %s" % (self._temporary_perl_path)
+        connect_command = "perl %s" % self._temporary_perl_path
 
         dwProcessId = self.hooks_manager.attach_to_command(connect_command)
         print("_debug_perl_script dwProcessId=", dwProcessId)
 
         return dwProcessId
 
-    @unittest.skipIf(is_windows10, "This test does not work on Windows 10")
+    # @unittest.skipIf(is_windows10, "This test does not work on Windows 10")
+    @unittest.skipIf(is_travis_machine(), "This test does not work on Windows 10")
     def test_perl_write_file(self):
         """
         Simplistic Perl script which just writes into a file.
@@ -992,6 +993,12 @@ close(FH);
 
         print("win32_api_definitions.tracer_object.created_objects=", win32_api_definitions.tracer_object.created_objects)
         print("win32_api_definitions.tracer_object.calls_counter=", win32_api_definitions.tracer_object.calls_counter)
+        print("debug_counter_WaitForDebugEvent:", self.hooks_manager.debug_counter_WaitForDebugEvent)
+        print("debug_counter_exception_breakpoint:", self.hooks_manager.debug_counter_exception_breakpoint)
+
+        print("debug_counter_not_ours_breakpoints:", self.hooks_manager.debug_counter_not_ours_breakpoints)
+        print("debug_counter_deleted_breakpoints:", self.hooks_manager.debug_counter_deleted_breakpoints)
+        print("debug_counter_handled_breakpoints:", self.hooks_manager.debug_counter_handled_breakpoints)
 
         created_files = win32_api_definitions.tracer_object.created_objects['CIM_DataFile']
 
