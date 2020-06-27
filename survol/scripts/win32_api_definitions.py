@@ -375,6 +375,7 @@ class Win32Hook_Manager(pydbg.pydbg):
         dll_canonic_name = self.canonic_dll_name(dll_filename.encode('utf-8'))
 
         self.dlls_set.add(dll_canonic_name)
+        print("LOAD", dll_canonic_name)
 
         unhooked_functions = self.hooks_by_processes[self.dbg.dwProcessId].unhooked_functions_by_dll[dll_canonic_name]
 
@@ -382,6 +383,8 @@ class Win32Hook_Manager(pydbg.pydbg):
         #  and Module32First/Module32Next. But the dll object is passed to the callback.
         dll_address = self.dbg.u.LoadDll.lpBaseOfDll
         for one_subclass in unhooked_functions:
+            if dll_canonic_name in [b'msvcrt.dll', b'ws2_32.dll']:
+                print("    function_name=", one_subclass.function_name)
             self.add_one_function_from_dll_address(self.dbg.dwProcessId, dll_address, one_subclass)
 
         return defines.DBG_CONTINUE
@@ -417,10 +420,10 @@ class Win32Hook_Manager(pydbg.pydbg):
             defines.LOAD_DLL_DEBUG_EVENT,
             defines.EXCEPTION_ACCESS_VIOLATION])
 
-        # TODO: This should go to the constructor.
-        the_subclass._parse_text_definition(the_subclass)
+        the_subclass._parse_text_definition()
 
         dll_canonic_name = self.canonic_dll_name(the_subclass.dll_name)
+        print("dll_canonic_name=", dll_canonic_name)
 
         dll_address = self.find_dll_base_address(dll_canonic_name)
 
@@ -491,7 +494,7 @@ class Win32Hook_Manager(pydbg.pydbg):
 class CallsCounterMeta(type):
     def __init__(cls, name, bases, dct):
         super(CallsCounterMeta, cls).__init__(name, bases, dct)
-        cls._cnt = cls.__name__ + "_SPECIFIC"
+        #cls._cnt = cls.__name__ + "_SPECIFIC"
         cls._debug_counter_before = 0
         cls._debug_counter_after = 0
 
@@ -503,7 +506,6 @@ def hook_metaclass(meta, *bases):
 # Each derived class must have:
 # - The string api_definition="" which contains the signature of the Windows API
 #   function in Windows web site format.
-# class Win32Hook_BaseClass(object):
 class Win32Hook_BaseClass(hook_metaclass(CallsCounterMeta)):
 
     # The style tells if this is a native call or an aggregate of function
@@ -526,37 +528,54 @@ class Win32Hook_BaseClass(hook_metaclass(CallsCounterMeta)):
     def set_hook_manager(self, hook_manager):
         self.win32_hook_manager = hook_manager
 
+    @classmethod
+    def _split_into_return_arguments(cls):
+        # This iterates over several possible syntax.
+        match_one = None
+        if not match_one:
+            match_one = re.match(br"\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*\((.*)\)\s*;", cls.api_definition, re.DOTALL)
+        if not match_one:
+            # The return type could also be: "FILE *fopen("
+            match_one = re.match(br"\s*([A-Za-z0-9_]+)\s*\*\s*([A-Za-z0-9_]+)\s*\((.*)\)\s*;", cls.api_definition, re.DOTALL)
+        if not match_one:
+            raise Exception("Cannot parse api definition:%s" % cls.api_definition)
+
+        cls.return_type = match_one.group(1)
+        cls.function_name = match_one.group(2)
+        logging.debug("_split_into_return_arguments %s" % cls.function_name)
+
+        return match_one.group(3).split(b",")
+
     # The API signature is taken "as is" from Microsoft web site.
     # There are many functions and copying their signature is error-prone.
-    # Therefore, one just needs to copy-paste the zweb site text.
-    @staticmethod
-    def _parse_text_definition(the_class):
-        match_one = re.match(br"\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*\((.*)\)\s*;", the_class.api_definition, re.DOTALL)
-        if not match_one:
-            raise Exception("Cannot parse api definition:%s" % the_class.api_definition)
-        the_class.return_type = match_one.group(1)
-        the_class.function_name = match_one.group(2)
-        logging.debug("_parse_text_definition %s %s" % (the_class.__name__, the_class.function_name))
+    # Therefore, one just needs to copy-paste the web site text.
+    @classmethod
+    def _parse_text_definition(cls):
+        arguments_list = cls._split_into_return_arguments()
 
-        the_class.args_list = []
-        for one_arg_pair in match_one.group(3).split(b","):
+        cls.args_list = []
+        for one_arg_pair in arguments_list:
             # It uses specific regular expressions for different arguments grammar.
-            # This simplifies regular expressosn testing and will help if speciifc processing is needed.
+            # This simplifies regular expressions testing and will help if specific processing is needed.
+            # It is simplistic because there are not many cases.
             match_pair = None
             if not match_pair:
                 match_pair = re.match(br"\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*", one_arg_pair)
             if not match_pair:
-                # Maybe there is a pointer: "const sockaddr *name"
-                match_pair = re.match(br"\s*([A-Za-z0-9_]+ +\*)\s+([A-Za-z0-9_]+)\s*", one_arg_pair)
+                # Maybe this is a pointer: "sockaddr *name" or "FILE** pFile"
+                match_pair = re.match(br"\s*([A-Za-z0-9_]+\s*\*+)\s*([A-Za-z0-9_]+)\s*", one_arg_pair)
             if not match_pair:
-                # Maybe there is an array: "FILE_SEGMENT_ELEMENT [] aSegmentArray"
+                # Maybe this is a const pointer: "const sockaddr *name"
+                match_pair = re.match(br"\s*(const\s+[A-Za-z0-9_]+\s*\*)\s+([A-Za-z0-9_]+)\s*", one_arg_pair)
+            if not match_pair:
+                # Maybe this is an array: "FILE_SEGMENT_ELEMENT [] aSegmentArray"
                 match_pair = re.match(br"\s*([A-Za-z0-9_]+ +\[\])\s+([A-Za-z0-9_]+)\s*", one_arg_pair)
             if not match_pair:
-                raise Exception("_parse_text_definition: Cannot match:%s" % one_arg_pair)
+                raise Exception("_parse_text_definition: %s Cannot match:%s" % (cls.function_name, one_arg_pair))
 
-            the_class.args_list.append((match_pair.group(1), match_pair.group(2)))
+            cls.args_list.append((match_pair.group(1), match_pair.group(2)))
 
-        assert isinstance(the_class.function_name, six.binary_type)
+        assert isinstance(cls.function_name, six.binary_type)
 
     def callback_create_object(self, cim_class_name, **cim_arguments):
         tracer_object.report_object_creation(self.cim_context(), cim_class_name, **cim_arguments)
@@ -1101,6 +1120,145 @@ class Win32Hook_SQLDataSources(Win32Hook_BaseClass):
             SQLSMALLINT *    NameLength2Ptr
         );"""
     dll_name = b"odbc32.dll"
+
+
+class Win32Hook_fopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        FILE *fopen(
+            const char *filename,
+            const char *mode
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook__wfopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        FILE *_wfopen(
+            const wchar_t *filename,
+            const wchar_t *mode
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook_fopen_s(Win32Hook_BaseClass):
+    api_definition = b"""
+        errno_t fopen_s(
+            FILE** pFile,
+            const char *filename,
+            const char *mode
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook__wfopen_s(Win32Hook_BaseClass):
+    api_definition = b"""
+        errno_t _wfopen_s(
+            FILE** pFile,
+            const wchar_t *filename,
+            const wchar_t *mode
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook__fsopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        FILE *_fsopen(
+            const char *filename,
+            const char *mode,
+            int shflag);"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook___wfsopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        FILE *_wfsopen(
+            const wchar_t *filename,
+            const wchar_t *mode,
+            int shflag
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook___wfsopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        FILE *freopen(
+            const char *path,
+            const char *mode,
+            FILE *stream
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook___wfsopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        FILE *_wfreopen(
+            const wchar_t *path,
+            const wchar_t *mode,
+            FILE *stream
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook___wfsopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        errno_t freopen(
+            FILE** pFile,
+            const char *path,
+            const char *mode,
+            FILE *stream
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook___wfsopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        errno_t _wfreopen(
+            FILE** pFile,
+            const wchar_t *path,
+            const wchar_t *mode,
+            FILE *stream
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook___wfsopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        FILE *_fsopen(
+            const char *filename,
+            const char *mode,
+            int shflag
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook___wfsopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        FILE *_wfsopen(
+            const wchar_t *filename,
+            const wchar_t *mode,
+            int shflag
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook___fdopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        FILE *_fdopen(
+            int fd,
+            const char *mode
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook___wfdopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        FILE *_wfdopen(
+            int fd,
+            const wchar_t *mode
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
 
 
 if False:
