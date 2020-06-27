@@ -168,7 +168,11 @@ ERROR_NO_MORE_FILES            = 0x00000012
 FILE_MAP_READ                  = 0x00000004
 FORMAT_MESSAGE_ALLOCATE_BUFFER = 0x00000100
 FORMAT_MESSAGE_FROM_SYSTEM     = 0x00001000
-INVALID_HANDLE_VALUE           = 0xFFFFFFFF
+# This is simply -1 but we want to ensure 100% compatibility with existing 32 bits code.
+if is_64bits:
+    INVALID_HANDLE_VALUE       = 0xFFFFFFFFFFFFFFFF
+else:
+    INVALID_HANDLE_VALUE       = 0xFFFFFFFF
 MEM_COMMIT                     = 0x00001000
 MEM_DECOMMIT                   = 0x00004000
 MEM_IMAGE                      = 0x01000000
