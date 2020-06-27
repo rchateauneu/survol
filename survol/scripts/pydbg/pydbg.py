@@ -203,6 +203,9 @@ class pydbg(object):
 
         self.debug_counter_WaitForDebugEvent = 0
         self.debug_counter_exception_breakpoint = 0
+        self.debug_counter_not_ours_breakpoints = 0
+        self.debug_counter_deleted_breakpoints = 0
+        self.debug_counter_handled_breakpoints = 0
 
     def set_system_break(self):
         if self.system_break:
@@ -999,22 +1002,22 @@ class pydbg(object):
 
             # self._log("debug_event_iteration dbg.dwDebugEventCode=%d" % dbg.dwDebugEventCode)
             if dbg.dwDebugEventCode == CREATE_PROCESS_DEBUG_EVENT:
-                print("debug_event_iteration CREATE_PROCESS_DEBUG_EVENT self.pid=", self.pid, "dbg.dwProcessId=", dbg.dwProcessId)
+                print("debug_event_iteration CREATE_PROCESS_DEBUG_EVENT self.pid=", self.pid, "dwProcessId=", dbg.dwProcessId)
                 continue_status = self.event_handler_create_process()
             elif dbg.dwDebugEventCode == CREATE_THREAD_DEBUG_EVENT:
-                #self._log("debug_event_iteration CREATE_THREAD_DEBUG_EVENT")
+                self._log("debug_event_iteration CREATE_THREAD_DEBUG_EVENT dwThreadId=%d" % dbg.dwThreadId)
                 continue_status = self.event_handler_create_thread()
 
             elif dbg.dwDebugEventCode == EXIT_PROCESS_DEBUG_EVENT:
-                self._log("debug_event_iteration EXIT_PROCESS_DEBUG_EVENT dbg.dwProcessId=%d" % dbg.dwProcessId)
+                self._log("debug_event_iteration EXIT_PROCESS_DEBUG_EVENT dwProcessId=%d" % dbg.dwProcessId)
                 continue_status = self.event_handler_exit_process()
 
             elif dbg.dwDebugEventCode == EXIT_THREAD_DEBUG_EVENT:
-                #self._log("debug_event_iteration EXIT_THREAD_DEBUG_EVENT")
+                self._log("debug_event_iteration EXIT_THREAD_DEBUG_EVENT dwThreadId=%d" % dbg.dwThreadId)
                 continue_status = self.event_handler_exit_thread()
 
             elif dbg.dwDebugEventCode == LOAD_DLL_DEBUG_EVENT:
-                #print("debug_event_iteration LOAD_DLL_DEBUG_EVENT dwProcessId=", dbg.dwProcessId)
+                print("debug_event_iteration LOAD_DLL_DEBUG_EVENT dwProcessId=", dbg.dwProcessId, "dwThreadId=%d" % dbg.dwThreadId)
                 continue_status = self.event_handler_load_dll()
 
             elif dbg.dwDebugEventCode == UNLOAD_DLL_DEBUG_EVENT:
@@ -1745,6 +1748,7 @@ class pydbg(object):
 
         # breakpoints we did not set.
         if not self.bp_is_ours(self.exception_address):
+            self.debug_counter_not_ours_breakpoints +=1
             # system breakpoints.
             self.set_system_break()
             assert self.system_break
@@ -1786,6 +1790,7 @@ class pydbg(object):
             bp_handler = self.memory_by_pid[self.pid].breakpoints[self.exception_address].handler
             if bp_handler:
                 continue_status = bp_handler(self)
+                self.debug_counter_handled_breakpoints +=1
 
             # pass control to default user registered call back handler, if it is specified.
             elif EXCEPTION_BREAKPOINT in self.callbacks:
@@ -1803,6 +1808,7 @@ class pydbg(object):
                     self.single_step(True)
 
                 self.bp_del(self.exception_address)
+                self.debug_counter_deleted_breakpoints +=1
 
         #self._log("leaving exception_handler_breakpoint")
         return continue_status
