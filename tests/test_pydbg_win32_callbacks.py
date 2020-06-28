@@ -1267,6 +1267,32 @@ close(FH);
 
         os.remove(temporary_text_file.name)
 
+    def test_perl_create_directory(self):
+        """
+        This Perl script creates a directory.
+        """
+
+        temporary_directory = unique_temporary_path("test_perl_create_directory", ".dir")
+
+        script_content = """\
+mkdir '%s'
+    """ % temporary_directory
+
+        dwProcessId = self._debug_perl_script(script_content)
+
+        self.hooks_manager.debug_print_hooks_counter()
+
+        self.assertTrue(os.path.isdir(temporary_directory))
+        os.rmdir(temporary_directory)
+
+        root_process_calls = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
+        print("root_process_calls=", root_process_calls)
+        self.assertEqual(root_process_calls[b'CreateDirectoryA'], 1)
+
+        print("created_objects=", win32_api_definitions.tracer_object.created_objects['CIM_Directory'])
+        created_directories = win32_api_definitions.tracer_object.created_objects['CIM_Directory']
+        self.assertTrue({'Name': temporary_directory} in created_directories)
+
 
 if __name__ == '__main__':
     unittest.main()
