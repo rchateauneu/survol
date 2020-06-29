@@ -580,6 +580,15 @@ class Win32Hook_BaseClass(hook_metaclass(CallsCounterMeta)):
     def callback_create_object(self, cim_class_name, **cim_arguments):
         tracer_object.report_object_creation(self.cim_context(), cim_class_name, **cim_arguments)
 
+
+    def callback_create_object_with_status(self, success_flag, cim_class_name, **cim_arguments):
+        if False and not success_flag:
+            # TODO: Maybe report the attempt to create a directory.
+            calling_function_name = sys._getframe(1).f_code.co_name
+            print("FAILED", calling_function_name, "cannot create", cim_class_name, str(**cim_arguments))
+        tracer_object.report_object_creation(self.cim_context(), cim_class_name, **cim_arguments)
+
+
 ################################################################################
 
 # This is a base class for all functions which create a process.
@@ -768,7 +777,7 @@ class Win32Hook_CreateDirectoryA(Win32Hook_BaseClass):
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
         lpPathName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
-        self.callback_create_object("CIM_Directory", Name=lpPathName)
+        self.callback_create_object_with_status(function_result, "CIM_Directory", Name=lpPathName)
 
 
 class Win32Hook_CreateDirectoryW(Win32Hook_BaseClass):
@@ -780,7 +789,7 @@ class Win32Hook_CreateDirectoryW(Win32Hook_BaseClass):
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
         lpPathName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
-        self.callback_create_object("CIM_Directory", Name=lpPathName)
+        self.callback_create_object_with_status(function_result, "CIM_Directory", Name=lpPathName)
 
 
 class Win32Hook_RemoveDirectoryA(Win32Hook_BaseClass):
@@ -791,7 +800,7 @@ class Win32Hook_RemoveDirectoryA(Win32Hook_BaseClass):
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
         lpPathName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
-        self.callback_create_object("CIM_Directory", Name=lpPathName)
+        self.callback_create_object_with_status(function_result, "CIM_Directory", Name=lpPathName)
 
 
 class Win32Hook_RemoveDirectoryW(Win32Hook_BaseClass):
@@ -802,7 +811,7 @@ class Win32Hook_RemoveDirectoryW(Win32Hook_BaseClass):
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
         lpPathName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
-        self.callback_create_object("CIM_Directory", Name=lpPathName)
+        self.callback_create_object_with_status(function_result, "CIM_Directory", Name=lpPathName)
 
 
 class Win32Hook_CreateFileA(Win32Hook_BaseClass):
@@ -819,7 +828,7 @@ class Win32Hook_CreateFileA(Win32Hook_BaseClass):
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
         lpFileName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
-        self.callback_create_object("CIM_DataFile", Name=lpFileName)
+        self.callback_create_object_with_status(function_result != defines.INVALID_HANDLE_VALUE, "CIM_DataFile", Name=lpFileName)
 
 
 class Win32Hook_CreateFileW(Win32Hook_BaseClass):
@@ -836,7 +845,7 @@ class Win32Hook_CreateFileW(Win32Hook_BaseClass):
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
         lpFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
-        self.callback_create_object("CIM_DataFile", Name=lpFileName)
+        self.callback_create_object_with_status(function_result != defines.INVALID_HANDLE_VALUE, "CIM_DataFile", Name=lpFileName)
 
 
 class Win32Hook_DeleteFileA(Win32Hook_BaseClass):
@@ -847,7 +856,7 @@ class Win32Hook_DeleteFileA(Win32Hook_BaseClass):
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
         lpFileName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
-        self.callback_create_object("CIM_DataFile", Name=lpFileName)
+        self.callback_create_object_with_status(function_result, "CIM_DataFile", Name=lpFileName)
 
 
 class Win32Hook_DeleteFileW(Win32Hook_BaseClass):
@@ -858,7 +867,7 @@ class Win32Hook_DeleteFileW(Win32Hook_BaseClass):
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
         lpFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
-        self.callback_create_object("CIM_DataFile", Name=lpFileName)
+        self.callback_create_object_with_status(function_result, "CIM_DataFile", Name=lpFileName)
 
 
 class Win32Hook_CreateThread(Win32Hook_BaseClass):
@@ -1169,7 +1178,7 @@ class Win32Hook__fsopen(Win32Hook_BaseClass):
     dll_name = b"msvcrt.dll"
 
 
-class Win32Hook___wfsopen(Win32Hook_BaseClass):
+class Win32Hook__wfsopen(Win32Hook_BaseClass):
     api_definition = b"""
         FILE *_wfsopen(
             const wchar_t *filename,
@@ -1179,7 +1188,7 @@ class Win32Hook___wfsopen(Win32Hook_BaseClass):
     dll_name = b"msvcrt.dll"
 
 
-class Win32Hook___wfsopen(Win32Hook_BaseClass):
+class Win32Hook__wfsopen(Win32Hook_BaseClass):
     api_definition = b"""
         FILE *freopen(
             const char *path,
@@ -1189,7 +1198,7 @@ class Win32Hook___wfsopen(Win32Hook_BaseClass):
     dll_name = b"msvcrt.dll"
 
 
-class Win32Hook___wfsopen(Win32Hook_BaseClass):
+class Win32Hook__wfsopen(Win32Hook_BaseClass):
     api_definition = b"""
         FILE *_wfreopen(
             const wchar_t *path,
@@ -1199,7 +1208,7 @@ class Win32Hook___wfsopen(Win32Hook_BaseClass):
     dll_name = b"msvcrt.dll"
 
 
-class Win32Hook___wfsopen(Win32Hook_BaseClass):
+class Win32Hook__wfsopen(Win32Hook_BaseClass):
     api_definition = b"""
         errno_t freopen(
             FILE** pFile,
@@ -1210,7 +1219,7 @@ class Win32Hook___wfsopen(Win32Hook_BaseClass):
     dll_name = b"msvcrt.dll"
 
 
-class Win32Hook___wfsopen(Win32Hook_BaseClass):
+class Win32Hook__wfsopen(Win32Hook_BaseClass):
     api_definition = b"""
         errno_t _wfreopen(
             FILE** pFile,
@@ -1221,7 +1230,7 @@ class Win32Hook___wfsopen(Win32Hook_BaseClass):
     dll_name = b"msvcrt.dll"
 
 
-class Win32Hook___wfsopen(Win32Hook_BaseClass):
+class Win32Hook__wfsopen(Win32Hook_BaseClass):
     api_definition = b"""
         FILE *_fsopen(
             const char *filename,
@@ -1231,7 +1240,7 @@ class Win32Hook___wfsopen(Win32Hook_BaseClass):
     dll_name = b"msvcrt.dll"
 
 
-class Win32Hook___wfsopen(Win32Hook_BaseClass):
+class Win32Hook__wfsopen(Win32Hook_BaseClass):
     api_definition = b"""
         FILE *_wfsopen(
             const wchar_t *filename,
@@ -1241,7 +1250,7 @@ class Win32Hook___wfsopen(Win32Hook_BaseClass):
     dll_name = b"msvcrt.dll"
 
 
-class Win32Hook___fdopen(Win32Hook_BaseClass):
+class Win32Hook__fdopen(Win32Hook_BaseClass):
     api_definition = b"""
         FILE *_fdopen(
             int fd,
@@ -1250,7 +1259,7 @@ class Win32Hook___fdopen(Win32Hook_BaseClass):
     dll_name = b"msvcrt.dll"
 
 
-class Win32Hook___wfdopen(Win32Hook_BaseClass):
+class Win32Hook__wfdopen(Win32Hook_BaseClass):
     api_definition = b"""
         FILE *_wfdopen(
             int fd,
