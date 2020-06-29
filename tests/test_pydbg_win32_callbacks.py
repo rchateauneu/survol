@@ -962,8 +962,7 @@ class PerlScriptsTest(HooksManagerUtil):
 
         return dwProcessId
 
-    # @unittest.skipIf(is_windows10, "This test does not work on Windows 10")
-    @unittest.skipIf(is_travis_machine(), "This test does not work on Windows 10")
+    @unittest.skipIf(is_windows10, "This test does not work on Windows 10")
     def test_perl_write_file(self):
         """
         Simplistic Perl script which just writes into a file.
@@ -1267,6 +1266,51 @@ close(FH);
 
         os.remove(temporary_text_file.name)
 
+    def test_perl_socket_bind(self):
+        """
+        This Perl script creates a server socket which must be detected.
+        """
+
+        server_port = 12345
+
+        script_content = """\
+use Socket;
+socket(SERVER, PF_INET, SOCK_STREAM, getprotobyname('tcp'));
+setsockopt(SERVER, SOL_SOCKET, SO_REUSEADDR, 1);
+$my_addr = sockaddr_in(%s, INADDR_ANY);
+bind(SERVER, $my_addr) or die "Couldn't bind to port $server_port : $!\n";
+""" % server_port
+
+        dwProcessId = self._debug_perl_script(script_content)
+
+        print("Win32Hook_bind BEFORE:", win32_api_definitions.Win32Hook_bind._debug_counter_before)
+        print("Win32Hook_bind AFTER :", win32_api_definitions.Win32Hook_bind._debug_counter_after)
+
+        self.hooks_manager.debug_print_hooks_counter()
+
+        print("debug_counter_WaitForDebugEvent:", self.hooks_manager.debug_counter_WaitForDebugEvent)
+        print("debug_counter_exception_breakpoint:", self.hooks_manager.debug_counter_exception_breakpoint)
+
+        # No subprocess creation
+        self.assertEqual(len(win32_api_definitions.tracer_object.calls_counter), 1)
+
+        root_process_calls = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
+        self.assertTrue(root_process_calls[b'CreateFileA'] > 0)
+        self.assertTrue(root_process_calls[b'ReadFile'] > 0)
+        self.assertEqual(root_process_calls[b'bind'], 1)
+        self.assertEqual(root_process_calls[b'fopen'], 1)
+        self.assertEqual(win32_api_definitions.Win32Hook_bind._debug_counter_before, 1)
+        self.assertEqual(win32_api_definitions.Win32Hook_bind._debug_counter_after, 1)
+
+        # TODO: Results with fsopen are not stable. Maybe a thread ?
+
+        print("created_objects=", win32_api_definitions.tracer_object.created_objects)
+        server_address = "0.0.0.0"
+        expected_addr = "%s:%d" % (server_address, server_port)
+        print("expected_addr=", expected_addr)
+        self.assertTrue({'Id': expected_addr} in win32_api_definitions.tracer_object.created_objects['addr'])
+
+    @unittest.skipIf(is_windows10, "Does not work on Windows 10. Why ???")
     def test_perl_create_directory(self):
         """
         This Perl script creates a directory.
