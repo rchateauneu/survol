@@ -141,7 +141,7 @@ class PydbgAttachTest(HooksManagerUtil):
         # Not all objects are checked: This just tests the general mechanism.
         print("Objects:", win32_api_definitions.tracer_object.created_objects)
         self.assertTrue({'Name': u'NonExistentDirUnicode'} in win32_api_definitions.tracer_object.created_objects['CIM_Directory'])
-        if is_travis_machine():
+        if is_windows10:
             # FIXME: Which function is used by Travis Python interpreter ?
             self.assertTrue({'Name': nonexistent_file} not in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
         else:
@@ -158,7 +158,6 @@ class DOSCommandsTest(HooksManagerUtil):
     Test pydbg callbacks when running a DOS command.
     """
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: WHY ?")
     def test_start_python_process(self):
         temp_data_file_path = unique_temporary_path("test_start_python_process", ".txt")
 
@@ -188,8 +187,6 @@ class DOSCommandsTest(HooksManagerUtil):
         else:
             self.assertTrue({'Name': temp_data_file_path} in created_files)
 
-    #@unittest.skipIf(is_windows10, "FIXME: Sometimes it misses function calls on Windows. WHY ?")
-    @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
     def test_cmd_create_process(self):
         num_loops = 2
         create_process_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 1 127.0.0.1)" % num_loops
@@ -199,7 +196,7 @@ class DOSCommandsTest(HooksManagerUtil):
         print("test_cmd_create_process dwProcessId=", dwProcessId)
         print("test_dos_create_process calls_counter=", win32_api_definitions.tracer_object.calls_counter)
         created_process_calls_counter = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
-        if is_travis_machine():
+        if is_windows10:
             # FIXME: The Python implementation used by Travis is based on another set of IO functions.
             self.assertTrue(b'WriteFile' not in created_process_calls_counter)
         #else:
@@ -238,7 +235,6 @@ class DOSCommandsTest(HooksManagerUtil):
             self.assertEqual(created_process_calls_counter[b'DeleteFileW'], num_loops)
             self.assertTrue({'Name': temp_path} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: WHY ?")
     def test_cmd_ping_type(self):
         num_loops = 5
         dir_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 1 1.2.3.4 & type something.xyz )" % num_loops
@@ -303,7 +299,6 @@ class DOSCommandsTest(HooksManagerUtil):
             self.assertEqual(created_process_calls_counter[b'RemoveDirectoryW'], 1)
             self.assertTrue({'Name': temp_path} in win32_api_definitions.tracer_object.created_objects['CIM_Directory'])
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
     def test_cmd_nslookup(self):
         nslookup_command = windows_system32_cmd_exe + " /c "+ "nslookup primhillcomputers.com"
 
@@ -347,6 +342,12 @@ class DOSCommandsTest(HooksManagerUtil):
         for dict_key_value in win32_api_definitions.tracer_object.created_objects['addr']:
             self.assertTrue(dict_key_value['Id'].endswith(':53'))
 
+    @unittest.skipIf(is_windows10, "Windows 7 test only.")
+    def test_broken_cmd(self):
+        # This starts a broken command which must be detected
+        pass
+
+
 
 ################################################################################
 
@@ -367,7 +368,7 @@ class PythonScriptsTest(HooksManagerUtil):
         os.remove(self._temporary_python_path)
 
     def _debug_python_script(self, script_content):
-        """Stats a Python script in a debugging sesson"""
+        """Starts a Python script in a debugging sesson"""
         self._temporary_python_file.write(script_content)
         self._temporary_python_file.close()
 
@@ -453,7 +454,6 @@ odbc_sources = pyodbc.dataSources()
         print("created_process_calls_counter=", created_process_calls_counter)
         self.assertTrue(created_process_calls_counter[b'SQLDataSources'] > 0)
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
     def test_python_connect(self):
         """
         This does a TCP/IP connection to Primhill Computers website.
@@ -510,8 +510,8 @@ outfil.close()
             self.assertTrue(sub_process_calls_counter[b'ReadFile'] > 0)
         self.assertEqual(sub_process_calls_counter[b'connect'], 1)
 
-        expected_addr = "%s:%d" % (server_address, server_port)
         self.assertTrue('CIM_DataFile' in win32_api_definitions.tracer_object.created_objects)
+        expected_addr = "%s:%d" % (server_address, server_port)
         self.assertTrue({'Id': expected_addr} in win32_api_definitions.tracer_object.created_objects['addr'])
 
     def test_python_bind(self):
@@ -553,7 +553,6 @@ server_socket.close()
         self.assertTrue('CIM_DataFile' in win32_api_definitions.tracer_object.created_objects)
         self.assertTrue({'Id': expected_addr} in win32_api_definitions.tracer_object.created_objects['addr'])
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
     def test_python_os_system_dir_once(self):
         """
         This creates a subprocess with the system call os.system(), running dir.
@@ -579,7 +578,6 @@ os.system('dir')
         # This creates one single subprocess running cmd.exe
         self.assertEqual(len(created_processes), 1)
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: Sometimes broken on Travis. WHY ?")
     def test_python_os_system_dir_multiple(self):
         """
         This creates a subprocess with the system call os.system(), running dir.
@@ -608,10 +606,7 @@ for loop_index in range(%d):
         # This creates one single subprocess running cmd.exe
         self.assertEqual(len(created_processes), loops_number)
 
-    # Sometimes it does not work.
-    # Maybe cmd.exe does NOT create another process ?
     # See difference between "cmd -c" and "cmd -k"
-    @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
     def test_python_os_system_python_stdout(self):
         """
         This creates a subprocess with the system call os.system(), starting python
@@ -642,7 +637,6 @@ os.system('"%s" -V' % sys.executable)
         # This creates a cmd.exe subprocess, creating a Python subprocess.
         self.assertEqual(len(created_processes), 2)
 
-    @unittest.skipIf(is_travis_machine(), "FIXME")
     def test_python_os_system_python_redirect(self):
         """
         This creates a subprocess with the system call os.system(), starting python.
@@ -687,8 +681,6 @@ print("ret=", ret)
         self.assertEqual(len(created_processes), 2)
         os.remove(temporary_text_file.name)
 
-    ########## @unittest.skipIf(is_travis_machine(), "FIXME: Does not work on Travis. WHY ?")
-    #@unittest.skipIf(is_windows10, "FIXME: Does not work on Travis. WHY ?")
     def test_python_check_output_python(self):
         """
         This creates a subprocess with the system call os.system(), starting python
@@ -725,7 +717,6 @@ subprocess.check_output([sys.executable, '-V'], shell=False)
         # This creates a Python subprocess.
         self.assertEqual(len(created_processes), 1)
 
-    @unittest.skipIf(is_travis_machine(), "FIXME")
     def test_python_multiprocessing_recursive_noio(self):
         """
         This uses multiprocessing.Process recursively.
@@ -777,7 +768,6 @@ if __name__ == '__main__':
             else:
                 self.assertEqual(function_calls_list[create_process_function], 1)
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: Sometimes broken on Travis. WHY ?")
     def test_python_multiprocessing_recursive_io(self):
         """
         This uses multiprocessing.Process recursively: Each process does some IOs.
@@ -850,7 +840,6 @@ if __name__ == '__main__':
 
         os.remove(temporary_text_file.name)
 
-    @unittest.skipIf(is_travis_machine(), "FIXME: Sometimes broken on Travis. WHY ?")
     def test_python_multiprocessing_flat(self):
         """
         This uses multiprocessing.Process in a loop.
@@ -939,6 +928,435 @@ if __name__ == '__main__':
 
         self.assertEqual(class_create_process._debug_counter_before, loops_number)
         self.assertEqual(class_create_process._debug_counter_after, loops_number)
+
+
+################################################################################
+
+
+@unittest.skipIf(is_platform_linux, "Windows only.")
+@unittest.skipIf(not check_program_exists("perl"), "Perl must be installed.")
+class PerlScriptsTest(HooksManagerUtil):
+    """
+    Test Perl scripts created on-the-fly.
+    """
+
+    def setUp(self):
+        HooksManagerUtil.setUp(self)
+        # This temporary file contains a Perl script.
+        self._temporary_perl_file = tempfile.NamedTemporaryFile(suffix='.pl', mode='w', delete=False)
+        self._temporary_perl_path = self._temporary_perl_file.name
+
+    def tearDown(self):
+        HooksManagerUtil.tearDown(self)
+        os.remove(self._temporary_perl_path)
+
+    def _debug_perl_script(self, script_content):
+        """Starts a Perl script in a debugging sesson"""
+        self._temporary_perl_file.write(script_content)
+        self._temporary_perl_file.close()
+
+        connect_command = "perl %s" % self._temporary_perl_path
+
+        dwProcessId = self.hooks_manager.attach_to_command(connect_command)
+        print("_debug_perl_script dwProcessId=", dwProcessId)
+
+        return dwProcessId
+
+    @unittest.skipIf(is_windows10, "This test does not work on Windows 10")
+    def test_perl_write_file(self):
+        """
+        Simplistic Perl script which just writes into a file.
+        """
+
+        temporary_text_file = tempfile.NamedTemporaryFile(suffix='.txt', mode='w', delete=False)
+        temporary_text_file.close()
+        # Python does not like backslashes.
+        clean_text_name = temporary_text_file.name.replace("\\", "/")
+
+        script_content = """\
+open(FH, '>', '%s') or die $!;
+print FH "Hello world";
+close(FH);
+""" % clean_text_name
+
+        dwProcessId = self._debug_perl_script(script_content)
+
+        self.hooks_manager.debug_print_hooks_counter()
+
+        # Did the program successfully write in the output file ?
+        with open(clean_text_name) as clean_output_file:
+            result_lines = clean_output_file.readlines()
+        print("result_lines=", result_lines)
+        self.assertEqual(result_lines, ["Hello world"])
+        os.remove(clean_text_name)
+
+        print("win32_api_definitions.tracer_object.created_objects=", win32_api_definitions.tracer_object.created_objects)
+        print("win32_api_definitions.tracer_object.calls_counter=", win32_api_definitions.tracer_object.calls_counter)
+        print("debug_counter_WaitForDebugEvent:", self.hooks_manager.debug_counter_WaitForDebugEvent)
+        print("debug_counter_exception_breakpoint:", self.hooks_manager.debug_counter_exception_breakpoint)
+
+        print("debug_counter_not_ours_breakpoints:", self.hooks_manager.debug_counter_not_ours_breakpoints)
+        print("debug_counter_deleted_breakpoints:", self.hooks_manager.debug_counter_deleted_breakpoints)
+        print("debug_counter_handled_breakpoints:", self.hooks_manager.debug_counter_handled_breakpoints)
+
+        created_files = win32_api_definitions.tracer_object.created_objects['CIM_DataFile']
+
+        # These are the files open when Perl starts. The script must be in these.
+        created_files_names = {file_object['Name'] for file_object in created_files}
+        print("created_files_names=", created_files_names)
+
+        self.assertTrue(self._temporary_perl_path.encode() in created_files_names)
+
+        root_process_calls = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
+
+        self.assertTrue(root_process_calls[b'CreateFileA'] > 0)
+
+        # FIXME: Differences between platforms.
+
+        # FIXME: This works.
+        # Windows 7, perl v5.20.2
+        # created_files_names= [
+        # 'C:\\Perl64\\site\\lib\5.20.2\\MSWin32-x64-multi-thread',
+        # 'C:\\Perl64\\site\\lib\\5.20.2',
+        # 'C:\\Perl64\\site\\lib\\MSWin32-x64-multi-thread',
+        # 'C:\\Perl64\\lib\\5.20.2\\MSWin32-x64-multi-thread',
+        # 'C:\\Perl64\\lib\\5.20.2',
+        # 'C:\\Perl64\\lib\\MSWin32-x64-multi-thread',
+        # 'C:\\Users\\rchateau\\AppData\\Local\\Temp\\tmp9zgy2691.pl',
+        # 'C:\\Perl64\\site\\lib\\sitecustomize.pl',
+        # 'C:\\Perl64\\site\\lib\\sitecustomize.pl',
+        # 'C:\\Perl64\\site\\lib\\sitecustomize.pl'}]
+        #
+        # win32_api_definitions.tracer_object.calls_counter= ... , {545228: ...
+        # {b'CreateFileA': 10, b'ReadFile': 4, b'WriteFile': 3})})
+
+        # FIXME: This does not work. What opens the input script file ? CreateThread ?
+        # FIXME: But the breakpoints would still apply.
+        # Windows 10 (Travis):
+        # created_files_names= [
+        # '\\\\.\\pipe\\msys-1888ae32e00d56aa-1768-sigwait',
+        # '\\\\.\\pipe\\msys-1888ae32e00d56aa-lpc'}])
+        #
+        # win32_api_definitions.tracer_object.calls_counter= ... {
+        # 1768: {b'CreateFileA': 1, b'CreateThread': 1, b'CreateFileW': 1, b'ReadFile': 1, b'TerminateProcess': 1})})
+
+        # Windows 10, perl v5.28.1
+        # win32_api_definitions.tracer_object.calls_counter= ... , {b'CreateFileA': 7})})
+        # created_files_names= {
+        # b'C:\\Perl64\\site\\lib\\5.28.1',
+        # b'C:\\Perl64\\lib\\5.28.1',
+        # b'C:\\Perl64\\site\\lib\\MSWin32-x64-multi-thread',
+        # b'C:\\Perl64\\lib\\5.28.1\\MSWin32-x64-multi-thread',
+        # b'C:\\Perl64\\site\\lib\\5.28.1\\MSWin32-x64-multi-thread',
+        # b'C:\\Perl64\\lib\\MSWin32-x64-multi-thread',
+        # b'C:\\Perl64\\site\\lib\\sitecustomize.pl'}
+        #
+        # win32_api_definitions.tracer_object.calls_counter= ... {
+        # 1768: {b'CreateFileA': 7})})
+
+    @unittest.skipIf(is_windows10, "Not completely understood on Windows 10.")
+    def test_perl_create_process_line(self):
+        """
+        This creates a process with system() in its first form (Command line).
+        """
+
+        temporary_text_file = tempfile.NamedTemporaryFile(suffix='.txt', mode='w', delete=False)
+        temporary_text_file.close()
+        # Perl does not like backslashes.
+        clean_text_name = temporary_text_file.name.replace("\\", "/")
+
+        # If the operating system command contains meta-characters, use this first form.
+        script_content = 'system("cmd /c echo HelloFromDOS> %s") or die $!;' % clean_text_name
+
+        dwProcessId = self._debug_perl_script(script_content)
+
+        self.hooks_manager.debug_print_hooks_counter()
+
+        # This checks that the program successfully created its output file.
+        with open(clean_text_name) as clean_output_file:
+            result_lines = clean_output_file.readlines()
+        print("result_lines=", result_lines)
+        self.assertEqual(result_lines, ["HelloFromDOS\n"])
+        # File is no longer needed.
+        os.remove(clean_text_name)
+
+        print("win32_api_definitions.tracer_object.created_objects=", win32_api_definitions.tracer_object.created_objects)
+        print("win32_api_definitions.tracer_object.calls_counter=", win32_api_definitions.tracer_object.calls_counter)
+
+        # Windows 7, Python 3.
+        # created_files_names= {
+        # b'C:\\Perl64\\site\\lib\\5.20.2\\MSWin32-x64-multi-thread',
+        # 'C:/Users/rchateau/AppData/Local/Temp/tmpepyno8cw.txt',
+        # b'C:\\Perl64\\lib\\5.20.2\\MSWin32-x64-multi-thread',
+        # b'C:\\Perl64\\site\\lib\\sitecustomize.pl',
+        # b'C:\\Users\\rchateau\\AppData\\Local\\Temp\\tmpoxu_rdu9.pl',
+        # b'C:\\Perl64\\site\\lib\\MSWin32-x64-multi-thread',
+        # b'C:\\Perl64\\site\\lib\\5.20.2',
+        # b'C:\\Perl64\\lib\\MSWin32-x64-multi-thread',
+        # b'C:\\Perl64\\lib\\5.20.2'}
+
+        created_files = win32_api_definitions.tracer_object.created_objects['CIM_DataFile']
+
+        # These are the files open when Perl starts.
+        created_files_names = {file_object['Name'] for file_object in created_files}
+        print("created_files_names=", created_files_names)
+
+        # The Perl script file must be there.
+        self.assertTrue(self._temporary_perl_path.encode() in created_files_names)
+
+        # This checks that the output file creation is detected.
+        self.assertTrue(clean_text_name in created_files_names)
+
+        # Windows 7, Python 3.
+        # win32_api_definitions.tracer_object.calls_counter= {
+        # 750752: {b'CreateFileA': 10, b'ReadFile': 4, b'CreateProcessA': 2, b'WriteFile': 1}),
+        # 751104: {b'CreateFileW': 1, b'CreateProcessW': 1}),
+        # 750892: {b'WriteFile': 1})})
+        #
+
+        # Three processes are apparently created:
+        # The root process, created by Survol.
+        # A subprocess created by Perl, which runs cmd.exe.
+        # Another process created by cmd.exe, which actually executes the command "echo".
+
+        root_process_calls = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
+        self.assertTrue(root_process_calls[b'CreateFileA'] > 0)
+        self.assertTrue(root_process_calls[b'CreateProcessA'] > 0)
+
+        # Now look for the two subprocesses.
+        self.assertEqual(len(win32_api_definitions.tracer_object.calls_counter), 3)
+
+        sub_pid = None
+        sub_sub_pid = None
+        for one_process_id, one_calls_counter in win32_api_definitions.tracer_object.calls_counter.items():
+            if one_process_id != dwProcessId:
+                if b'CreateProcessW' in one_calls_counter:
+                    self.assertEqual(sub_pid, None, "The sub process id should not be already set")
+                    sub_pid = one_process_id
+                else:
+                    self.assertEqual(sub_sub_pid, None, "The sub-sub process id should not be already set")
+                    sub_sub_pid = one_process_id
+        self.assertTrue(sub_pid, "The sub process id was not found")
+        self.assertTrue(sub_sub_pid, "The sub-sub process id was not found")
+
+    @unittest.skipIf(is_travis_machine(), "Not completely understood on Travis.")
+    def test_perl_create_process_args(self):
+        """
+        This creates a process with system() in its second form, with several arguments.
+        """
+
+        temporary_text_file = tempfile.NamedTemporaryFile(suffix='.txt', mode='w', delete=False)
+        temporary_text_file.close()
+        # Perl does not like backslashes.
+        clean_text_name = temporary_text_file.name.replace("\\", "/")
+
+        # Perl executes system() by trying several values for lpApplicationName
+        # when calling CreateProcessA:
+        # lpApplicationName= b'cmd.exe'
+        # lpCommandLine= b'cmd.exe /x/d/c "echo HelloFromDOS > tmp.txt"'
+        # ... then:
+        # lpApplicationName= b'C:\\Windows\\system32\\cmd.exe'
+        # lpCommandLine= b'cmd.exe /x/d/c "echo HelloFromDOS > tmp.txt"'
+
+        script_content = "my @args=('echo HelloFromDOS> %s');system(@args);" % clean_text_name
+
+        dwProcessId = self._debug_perl_script(script_content)
+
+        self.hooks_manager.debug_print_hooks_counter()
+
+        # This checks that the program successfully created its output file.
+        with open(clean_text_name) as clean_output_file:
+            result_lines = clean_output_file.readlines()
+        print("result_lines=", result_lines)
+        self.assertEqual(result_lines, ["HelloFromDOS\n"])
+        # File is no longer needed.
+        os.remove(clean_text_name)
+
+        print("win32_api_definitions.tracer_object.created_objects=", win32_api_definitions.tracer_object.created_objects)
+        print("win32_api_definitions.tracer_object.calls_counter=", win32_api_definitions.tracer_object.calls_counter)
+
+        created_files = win32_api_definitions.tracer_object.created_objects['CIM_DataFile']
+
+        # These are the files open when Perl starts.
+        created_files_names = {file_object['Name'] for file_object in created_files}
+        print("created_files_names=", created_files_names)
+
+        root_process_calls = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
+        self.assertTrue(root_process_calls[b'CreateFileA'] > 0)
+        self.assertTrue(root_process_calls[b'CreateProcessA'] > 0)
+
+        created_process_id = win32_api_definitions.tracer_object.created_objects['CIM_Process'][0]['Handle']
+
+        # Now look for the two subprocesses.
+        # Maybe the real criteria is the Perl version ? Or the way the process is created ?
+        if is_windows10:
+            self.assertEqual(len(win32_api_definitions.tracer_object.calls_counter), 1)
+            # cmd.exe does not use 'CreateFileW' and 'WriteFile' apparently, so the subprocess is not detected.
+        else:
+            self.assertEqual(len(win32_api_definitions.tracer_object.calls_counter), 2)
+            self.assertTrue(created_process_id in win32_api_definitions.tracer_object.calls_counter)
+
+    def test_perl_connect_perl_org(self):
+        """
+        This Perl script connects to a remote web site. The socket must be detected.
+        """
+
+        temporary_text_file = tempfile.NamedTemporaryFile(suffix='.txt', mode='w', delete=False)
+        temporary_text_file.close()
+        # Perl does not like backslashes.
+        clean_text_name = temporary_text_file.name.replace("\\", "/")
+
+        server_domain = "www.perl.org"
+        server_address = socket.gethostbyname(server_domain)
+        server_port = 80
+
+        script_content = """\
+use strict;
+use warnings;
+use Socket qw(PF_INET SOCK_STREAM pack_sockaddr_in inet_aton);
+
+socket(my $socket, PF_INET, SOCK_STREAM, 0) or die "socket: $!";
+my $port = getservbyname "http", "tcp";
+connect($socket, pack_sockaddr_in($port, inet_aton("www.perl.org"))) or die "connect: $!";
+
+send($socket, "GET / HTTP/1.0\r\n", 0);
+send($socket, "Host: www.perl.org\r\n", 0);
+send($socket, "User-Agent: pureperl\r\n\r\n", 0);
+
+# Now, writes the socket output to a file.
+open(FH, '>', '%s') or die $!;
+binmode FH;
+while (my $line = <$socket>)
+{
+    print FH $line;
+}
+close(FH);
+""" % clean_text_name
+
+        dwProcessId = self._debug_perl_script(script_content)
+
+        # Check that the content of the output text file is correct.
+        # This displays something like:
+        # HTTP/1.1 301 Moved Permanently
+        # Server: Varnish
+        # Retry-After: 0
+        # Location: https://www.perl.org/
+        with open(clean_text_name, "rb") as input_file:
+            input_content = input_file.readlines()
+
+        # Travis only:
+        # AssertionError: b'HTTP/1.1 301 Moved Permanently\r\n' != b'HTTP/1.1 301 Moved Permanently\r\r\n'
+        self.assertEqual(input_content[0], b"HTTP/1.1 301 Moved Permanently\r\n")
+        self.assertEqual(input_content[1], b"Server: Varnish\r\n")
+
+        print("created_objects=", win32_api_definitions.tracer_object.created_objects['addr'])
+        expected_addr = "%s:%d" % (server_address, server_port)
+        print("expected_addr=", expected_addr)
+        self.assertTrue({'Id': expected_addr} in win32_api_definitions.tracer_object.created_objects['addr'])
+
+        root_process_calls = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
+        print("root_process_calls=", root_process_calls)
+        self.assertTrue(root_process_calls[b'CreateFileA'] > 0)
+        self.assertEqual(root_process_calls[b'connect'], 1)
+        if not is_windows10:
+            # FIXME: Why this difference ?
+            self.assertTrue(root_process_calls[b'CreateFileW'] > 0)
+            self.assertTrue(root_process_calls[b'WriteFile'] > 0)
+            self.assertTrue(root_process_calls[b'ReadFile'] > 0)
+
+        os.remove(temporary_text_file.name)
+
+    def test_perl_socket_bind(self):
+        """
+        This Perl script creates a server socket which must be detected.
+        """
+
+        server_port = 12345
+
+        script_content = """\
+use Socket;
+socket(SERVER, PF_INET, SOCK_STREAM, getprotobyname('tcp'));
+setsockopt(SERVER, SOL_SOCKET, SO_REUSEADDR, 1);
+$my_addr = sockaddr_in(%s, INADDR_ANY);
+bind(SERVER, $my_addr) or die "Couldn't bind to port $server_port : $!\n";
+""" % server_port
+
+        dwProcessId = self._debug_perl_script(script_content)
+
+        print("Win32Hook_bind BEFORE:", win32_api_definitions.Win32Hook_bind._debug_counter_before)
+        print("Win32Hook_bind AFTER :", win32_api_definitions.Win32Hook_bind._debug_counter_after)
+
+        self.hooks_manager.debug_print_hooks_counter()
+
+        print("debug_counter_WaitForDebugEvent:", self.hooks_manager.debug_counter_WaitForDebugEvent)
+        print("debug_counter_exception_breakpoint:", self.hooks_manager.debug_counter_exception_breakpoint)
+
+        # No subprocess creation
+        self.assertEqual(len(win32_api_definitions.tracer_object.calls_counter), 1)
+
+        root_process_calls = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
+        self.assertTrue(root_process_calls[b'CreateFileA'] > 0)
+        self.assertTrue(root_process_calls[b'ReadFile'] > 0)
+        self.assertEqual(root_process_calls[b'bind'], 1)
+        if not is_windows10:
+            self.assertEqual(root_process_calls[b'fopen'], 1)
+            self.assertEqual(win32_api_definitions.Win32Hook_bind._debug_counter_before, 1)
+            self.assertEqual(win32_api_definitions.Win32Hook_bind._debug_counter_after, 1)
+
+        #     b'CreateFileA'                   1   1
+        #     b'CreateFileW'                   1   1
+        #     b'CreateProcessA'                0   0
+        #     b'CreateProcessAsUserA'          0   0
+        #     b'CreateProcessAsUserW'          0   0
+        #     b'CreateProcessW'                0   0
+        #     b'CreateRemoteThread'            0   0
+        #     b'CreateRemoteThreadEx'          0   0
+        #     b'CreateThread'                  1   1
+        #     b'DeleteFileA'                   0   0
+        #     b'DeleteFileW'                   0   0
+        #     b'ReadFile'                      1   0
+        #     b'ReadFileEx'                    0   0
+        #     b'ReadFileScatter'               0   0
+        #     b'RemoveDirectoryA'              0   0
+        #     b'RemoveDirectoryW'              0   0
+        #     b'TerminateProcess'              1   0
+
+
+        # TODO: Results with fsopen are not stable. Maybe a thread ?
+
+        print("created_objects=", win32_api_definitions.tracer_object.created_objects)
+        server_address = "0.0.0.0"
+        expected_addr = "%s:%d" % (server_address, server_port)
+        print("expected_addr=", expected_addr)
+        self.assertTrue({'Id': expected_addr} in win32_api_definitions.tracer_object.created_objects['addr'])
+
+    @unittest.skipIf(is_windows10, "Does not work on Windows 10. Why ???")
+    def test_perl_create_directory(self):
+        """
+        This Perl script creates a directory.
+        """
+
+        temporary_directory = unique_temporary_path("test_perl_create_directory", ".dir")
+
+        script_content = """\
+mkdir '%s'
+    """ % temporary_directory
+
+        dwProcessId = self._debug_perl_script(script_content)
+
+        self.hooks_manager.debug_print_hooks_counter()
+
+        self.assertTrue(os.path.isdir(temporary_directory))
+        os.rmdir(temporary_directory)
+
+        root_process_calls = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
+        print("root_process_calls=", root_process_calls)
+        self.assertEqual(root_process_calls[b'CreateDirectoryA'], 1)
+
+        print("created_objects=", win32_api_definitions.tracer_object.created_objects['CIM_Directory'])
+        created_directories = win32_api_definitions.tracer_object.created_objects['CIM_Directory']
+        self.assertTrue({'Name': temporary_directory} in created_directories)
+
 
 if __name__ == '__main__':
     unittest.main()

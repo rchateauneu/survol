@@ -17,5 +17,3 @@ sys.stdout.flush()
 xx = sys.stdin.read(1)
 
 print(sqlQuery1,sqlQuery2,sqlQuery3,sqlQuery4)
-
-exit(123)

@@ -482,7 +482,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
     # Given a file name, it returns all processes executing it.
     def GetProcessesFromExecutable(self, graph, variables_context):
 
-        sys.stderr.write("Sparql_CIM_Process.GetProcessesFromExecutable executable=%s\n" % sys.executable)
+        #sys.stderr.write("Sparql_CIM_Process.GetProcessesFromExecutable executable=%s\n" % sys.executable)
         associated_instance = self.m_associators[associator_CIM_ProcessExecutable]
         assert isinstance(associated_instance, Sparql_CIM_DataFile)
         assert isinstance(associated_instance.m_variable, rdflib.term.Variable)
@@ -490,8 +490,8 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
         associated_executable_node = variables_context[associated_instance.m_variable]
         assert isinstance(associated_executable_node, rdflib.term.URIRef)
 
-        sys.stderr.write("Sparql_CIM_Process.GetProcessesFromExecutable variables_context=%s\n" % variables_context)
-        sys.stderr.write("associated_instance.m_variable=%s\n" % associated_instance.m_variable)
+        #sys.stderr.write("Sparql_CIM_Process.GetProcessesFromExecutable variables_context=%s\n" % variables_context)
+        #sys.stderr.write("associated_instance.m_variable=%s\n" % associated_instance.m_variable)
         executable_node = associated_instance.GetNodeValue(predicate_Name, variables_context)
         assert isinstance(executable_node, rdflib.term.Literal)
         executable_path = str(executable_node)
@@ -500,7 +500,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
         executable_path = os.path.normpath(executable_path)
         if is_platform_linux:
             executable_path = os.path.realpath(executable_path)
-            sys.stderr.write("executable_path=%s\n" % executable_path)
+            #sys.stderr.write("executable_path=%s\n" % executable_path)
 
         process_urls_list = []
         for one_process in psutil.process_iter():
@@ -517,20 +517,20 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
                 process_url = self.CreateURIRef(
                     graph, "CIM_Process", class_CIM_Process,
                     {predicate_Handle: rdflib.term.Literal(one_process.pid)})
-                sys.stderr.write("Adding process %s\n" % str(process_url))
+                #sys.stderr.write("Adding process %s\n" % str(process_url))
                 graph.add((process_url, associator_CIM_ProcessExecutable, associated_executable_node))
                 process_urls_list.append(process_url)
+        #sys.stderr.write("GetProcessesFromExecutable process_urls_list=%\n" % str(process_urls_list))
         return process_urls_list
-        sys.stderr.write("GetProcessesFromExecutable process_urls_list=%\n" % str(process_urls_list))
 
     def FetchAllVariables(self, graph, variables_context):
-        sys.stderr.write("Sparql_CIM_Process.FetchAllVariables variables_context=%s\n" % str(variables_context))
+        #sys.stderr.write("Sparql_CIM_Process.FetchAllVariables variables_context=%s\n" % str(variables_context))
         properties_tuple, url_nodes_list = self.GetListOfOntologyProperties(variables_context)
 
         returned_variables = {}
 
         if isinstance(url_nodes_list, list) and len(url_nodes_list) == 0:
-            sys.stderr.write("FetchAllVariables No such process with self.m_properties:%s\n" % str(self.m_properties))
+            #sys.stderr.write("FetchAllVariables No such process with self.m_properties:%s\n" % str(self.m_properties))
             # No such process.
             return returned_variables
 
@@ -565,7 +565,6 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
         if properties_indices:
             returned_variables[new_properties_tuple] = new_values_list
             check_returned_variables(returned_variables)
-
 
         node_uri_refs_list = []
 
@@ -629,7 +628,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         self.m_class_node = lib_kbase.RdfsPropertyNode(class_name)
 
     def IteratorToObjects(self, rdflib_graph, iterator_objects):
-        sys.stderr.write("IteratorToObjects\n")
+        #sys.stderr.write("IteratorToObjects\n")
 
         # Set by the first row.
         list_variables = []
@@ -640,7 +639,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         property_names_used = []
 
         list_current_values = []
-        sys.stderr.write("IteratorToObjects %s self.m_properties.keys()=%s\n" % (str(self.m_variable), str(self.m_properties)))
+        #sys.stderr.write("IteratorToObjects %s self.m_properties.keys()=%s\n" % (str(self.m_variable), str(self.m_properties)))
 
         for object_path, dict_key_values in iterator_objects:
 
@@ -692,14 +691,13 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             variable_values_tuple = tuple(variable_values_list)
             list_current_values.append(variable_values_tuple)
 
-        sys.stderr.write("IteratorToObjects list_variables=%s\n" % list_variables)
+        #sys.stderr.write("IteratorToObjects list_variables=%s\n" % list_variables)
         assert all((isinstance(one_variable, rdflib.term.Variable) for one_variable in list_variables))
         tuple_variables = tuple(list_variables)
         returned_variables = {tuple_variables: list_current_values}
-        sys.stderr.write("IteratorToObjects END\n\n")
+        #sys.stderr.write("IteratorToObjects END\n\n")
         check_returned_variables(returned_variables)
         return returned_variables
-
 
     def class_keys(self):
         wmi_class_keys = _wmi_load_ontology.classes_map[self.m_class_name]["class_keys_list"]
@@ -707,12 +705,12 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         return wmi_class_keys
 
     def SelectWmiObjectFromProperties(self, graph, variables_context, filtered_where_key_values):
-        sys.stderr.write("SelectWmiObjectFromProperties filtered_where_key_values=%s\n" % str(filtered_where_key_values))
+        #sys.stderr.write("SelectWmiObjectFromProperties filtered_where_key_values=%s\n" % str(filtered_where_key_values))
         iterator_objects = wmiExecutor.SelectObjectFromProperties(self.m_class_name, filtered_where_key_values)
         #####iterator_objects = list(iterator_objects)
         returned_variables = self.IteratorToObjects(graph, iterator_objects)
         check_returned_variables(returned_variables)
-        sys.stderr.write("SelectWmiObjectFromProperties returned_variables=:\n")
+        #sys.stderr.write("SelectWmiObjectFromProperties returned_variables=:\n")
         check_returned_variables(returned_variables)
         return returned_variables
 
@@ -731,20 +729,20 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             ('%s="%s"' % (prop_key, prop_value) for prop_key, prop_value in entity_id_dict.items())
         )
 
-        sys.stderr.write("BuildWmiPathFromSurvolPath associator_path=%s\n" % associator_path)
+        #sys.stderr.write("BuildWmiPathFromSurvolPath associator_path=%s\n" % associator_path)
         return associator_path
 
     def CreateAssociatorObjects(self, graph, variables_context):
         if self.m_associated:
             returned_variables = self.CreateAssociatorObjectsBidirectional(graph, variables_context, self.m_associated, 0)
             if returned_variables:
-                sys.stderr.write("CreateAssociatorObjects m_associated. returned_variables=%s\n" % returned_variables.keys())
+                #sys.stderr.write("CreateAssociatorObjects m_associated. returned_variables=%s\n" % returned_variables.keys())
                 check_returned_variables(returned_variables)
                 return returned_variables
         if self.m_associators:
             returned_variables = self.CreateAssociatorObjectsBidirectional(graph, variables_context, self.m_associators, 1)
             if returned_variables:
-                sys.stderr.write("CreateAssociatorObjects m_associators. returned_variables=%s\n" % returned_variables.keys())
+                #sys.stderr.write("CreateAssociatorObjects m_associators. returned_variables=%s\n" % returned_variables.keys())
                 check_returned_variables(returned_variables)
                 return returned_variables
         return {}
@@ -760,25 +758,25 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         keys_set_first_associator = None
 
         for associator_predicate, associated_instance in assoc_list.items():
-            sys.stderr.write("CreateAssociatorObjectsBidirectional associator_predicate=%s associated_instance=%s\n"
-                             % (associator_predicate, associated_instance))
+            #sys.stderr.write("CreateAssociatorObjectsBidirectional associator_predicate=%s associated_instance=%s\n"
+            #                 % (associator_predicate, associated_instance))
             assert isinstance(associator_predicate, rdflib.term.URIRef)
             assert isinstance(associated_instance, Sparql_CIM_Object)
 
             associated_variable = associated_instance.m_variable
             assert isinstance(associated_variable, rdflib.term.Variable)
-            sys.stderr.write("CreateAssociatorObjectsBidirectional role_index=%d associated_variable=%s\n" % (role_index, associated_variable))
-            sys.stderr.write("CreateAssociatorObjectsBidirectional variables_context.keys()=%s\n" % str(variables_context.keys()))
+            #sys.stderr.write("CreateAssociatorObjectsBidirectional role_index=%d associated_variable=%s\n" % (role_index, associated_variable))
+            #sys.stderr.write("CreateAssociatorObjectsBidirectional variables_context.keys()=%s\n" % str(variables_context.keys()))
 
             if associated_variable not in variables_context:
-                sys.stderr.write("CreateAssociatorObjectsBidirectional Cannot find in variables_context: associated_variable=%s\n" % associated_variable)
+                #sys.stderr.write("CreateAssociatorObjectsBidirectional Cannot find in variables_context: associated_variable=%s\n" % associated_variable)
                 continue
 
             associator_name = lib_properties.PropToQName(associator_predicate)
-            sys.stderr.write("CreateAssociatorObjectsBidirectional associator_name=%s\n" % associator_name)
+            #sys.stderr.write("CreateAssociatorObjectsBidirectional associator_name=%s\n" % associator_name)
 
             associated_variable_value = variables_context[associated_variable]
-            sys.stderr.write("CreateAssociatorObjectsBidirectional associated_variable_value=%s\n" % associated_variable_value)
+            #sys.stderr.write("CreateAssociatorObjectsBidirectional associated_variable_value=%s\n" % associated_variable_value)
             assert isinstance(associated_variable_value, rdflib.URIRef)
 
             associator_path = associated_instance.BuildWmiPathFromSurvolPath(variables_context)
@@ -790,12 +788,12 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             returned_variables_one = self.IteratorToObjects(graph, iterator_objects)
             assert len(returned_variables_one) == 1
             first_key = next(iter(returned_variables_one))
-            sys.stderr.write("CreateAssociatorObjectsBidirectional first_key=%s\n"
-                             % [str(one_key) for one_key in first_key])
+            #sys.stderr.write("CreateAssociatorObjectsBidirectional first_key=%s\n"
+            #                 % [str(one_key) for one_key in first_key])
 
             if not first_key:
-                sys.stderr.write("CreateAssociatorObjectsBidirectional no selection from %s/%s/%s/%s\n"
-                                 % (self.m_class_name, associator_name, associator_path, role_index))
+                #sys.stderr.write("CreateAssociatorObjectsBidirectional no selection from %s/%s/%s/%s\n"
+                #                 % (self.m_class_name, associator_name, associator_path, role_index))
                 continue
 
             if keys_set_first_associator:
@@ -804,16 +802,15 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
                 keys_set_first_associator = first_key
 
             # The variable containing the url must be there.
-            sys.stderr.write("first_key=%s\n" % str(first_key))
-            sys.stderr.write("self.m_variable=%s\n" % self.m_variable)
-            sys.stderr.flush()
+            #sys.stderr.write("CreateAssociatorObjectsBidirectional first_key=%s\n" % str(first_key))
+            #sys.stderr.write("CreateAssociatorObjectsBidirectional self.m_variable=%s\n" % self.m_variable)
             index_url_key = first_key.index(self.m_variable)
             # This is most probably the first key.
             assert index_url_key == 0
             assert first_key[index_url_key] == self.m_variable
 
             urls_list = returned_variables_one[first_key]
-            sys.stderr.write("CreateAssociatorObjectsBidirectional urls_list=%s\n" % urls_list)
+            #sys.stderr.write("CreateAssociatorObjectsBidirectional urls_list=%s\n" % urls_list)
             assert isinstance(urls_list, list)
 
             # Now add the triples specifying the associator relation.
@@ -827,17 +824,17 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
                 else:
                     graph.add((object_url, associator_predicate, associated_variable_value))
 
-            sys.stderr.write("CreateAssociatorObjectsBidirectional returned_variables_one=%s\n" % returned_variables_one)
+            #sys.stderr.write("CreateAssociatorObjectsBidirectional returned_variables_one=%s\n" % returned_variables_one)
 
             if not associator_urls_set:
                 associator_urls_set.update(urls_list)
             else:
                 associator_urls_set = associator_urls_set.intersection(set(urls_list))
-            sys.stderr.write("CreateAssociatorObjectsBidirectional returned_variables_set=%s\n" % associator_urls_set)
+            #sys.stderr.write("CreateAssociatorObjectsBidirectional returned_variables_set=%s\n" % associator_urls_set)
             # Because the variable is in the context, it is defined and its path is available.
             # Therefore, it is possible to fetch its associators only from the path.
 
-        sys.stderr.write("associator_urls_set=%s\n" % associator_urls_set)
+        # sys.stderr.write("CreateAssociatorObjectsBidirectional associator_urls_set=%s\n" % associator_urls_set)
         associator_urls_list = list(associator_urls_set)
         if keys_set_first_associator:
             returned_variables = {keys_set_first_associator: associator_urls_list}
@@ -850,13 +847,13 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
     def FetchAllVariables(self, graph, variables_context):
         filtered_where_key_values = dict()
 
-        sys.stderr.write("FetchAllVariables variables_context=%s\n" % " , ".join("%s=%s" % (str(k), str(v)) for k, v in variables_context.items()))
-        sys.stderr.write("FetchAllVariables self.m_properties=%s\n" % " , ".join("%s=%s" % (str(k), str(v)) for k, v in self.m_properties.items()))
+        #sys.stderr.write("FetchAllVariables variables_context=%s\n" % " , ".join("%s=%s" % (str(k), str(v)) for k, v in variables_context.items()))
+        #sys.stderr.write("FetchAllVariables self.m_properties=%s\n" % " , ".join("%s=%s" % (str(k), str(v)) for k, v in self.m_properties.items()))
 
         for predicate_node in self.m_properties:
             predicate_name = lib_properties.PropToQName(predicate_node)
             value_node = self.GetNodeValue(predicate_node, variables_context)
-            sys.stderr.write("FetchAllVariables predicate_node=%s\n" % predicate_node)
+            #sys.stderr.write("FetchAllVariables predicate_node=%s\n" % predicate_node)
             if value_node:
                 filtered_where_key_values[predicate_name] = str(value_node)
 
@@ -865,7 +862,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             check_returned_variables(returned_variables)
             return returned_variables
 
-        sys.stderr.write("associated:%d associators:%d\n" % (len(self.m_associated), len(self.m_associators)))
+        #sys.stderr.write("associated:%d associators:%d\n" % (len(self.m_associated), len(self.m_associators)))
 
         if not filtered_where_key_values and not self.m_associated and not self.m_associators:
             sys.stderr.write("FetchAllVariables BEWARE FULL SELECT: %s\n" % self.m_class_name)
@@ -1145,9 +1142,10 @@ def custom_eval_function_generic(ctx, part, sparql_instance_creator):
         recursive_instantiation(0)
 
         INFO("Graph after recursive_instantiation: %d triples", len(ctx.graph))
-        #sys.stderr.write("Graph after recursive_instantiation: %d triples\n" % len(ctx.graph))
-        for s,p,o in ctx.graph:
-            sys.stderr.write("   %s %s %s\n" % (s, p, o))
+        if False:
+            sys.stderr.write("Graph after recursive_instantiation: %d triples\n" % len(ctx.graph))
+            for s,p,o in ctx.graph:
+                sys.stderr.write("   s=%s p=%s o=%s\n" % (s, p, o))
         #sys.stderr.flush()
 
         # <type 'generator'>
