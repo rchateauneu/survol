@@ -262,6 +262,10 @@ class Win32Hook_Manager(pydbg.pydbg):
         print("Win32Hook_Manager ctor")
         assert self.pid == 0
 
+        # This contains the list of dlls which were loaded.
+        # It is a helper to indiacte which funcitons calls are worth to investigate.
+        self.dlls_set = set()
+
         self.create_process_handle = None
 
         class process_hooks_definition(object):
@@ -273,19 +277,28 @@ class Win32Hook_Manager(pydbg.pydbg):
         self.hooks_by_processes = collections.defaultdict(process_hooks_definition)
 
     def __del__(self):
-        print("Win32Hook_Manager.__del__")
         self.stop_cleanup()
 
     def debug_print_hooks_counter(self):
+        print("DLLs")
+        for one_dll_name in sorted(self.dlls_set):
+            print("    ", one_dll_name)
+
+        # This displays how many times functions where hooked, cumulated by processes.
+        print("Functions calls")
         for process_id in self.hooks_by_processes:
             print("pid=", process_id)
             hooks_container = self.hooks_by_processes[process_id].hooked_functions
-            for one_address in hooks_container.hooks:
-                the_hook = hooks_container.hooks[one_address]
-                print("    ",
-                      one_address,
+            hooks_by_function_name = {
+                the_hook.function_name: the_hook
+                for one_address, the_hook in hooks_container.hooks.items()}
+
+            for one_function_name in sorted(list(hooks_by_function_name.keys())):
+                the_hook = hooks_by_function_name[one_function_name]
+                print("    %-30s %3d %3d" % (
+                      one_function_name,
                       the_hook.counter_proxy_on_entry,
-                      the_hook.counter_proxy_on_exit)
+                      the_hook.counter_proxy_on_exit))
 
     def stop_cleanup(self):
         # This test on win32process, other, exiting the program might display the error message:
@@ -312,6 +325,8 @@ class Win32Hook_Manager(pydbg.pydbg):
             self.create_process_handle = None
 
     def add_one_function_from_dll_address(self, hooked_pid, dll_address, the_subclass):
+        # This must use the process id self.pid, which is not the current process,
+        # and may be a subprocess of the target pid.
         the_subclass.function_address = self.func_resolve_from_dll(dll_address, the_subclass.function_name)
         assert the_subclass.function_address
 
@@ -345,7 +360,8 @@ class Win32Hook_Manager(pydbg.pydbg):
                          the_subclass.function_address,
                          len(the_subclass.args_list),
                          hook_function_adapter_entry,
-                         hook_function_adapter_exit)
+                         hook_function_adapter_exit,
+                         the_subclass.function_name)
 
     @staticmethod
     def callback_event_handler_load_dll(self):
@@ -358,17 +374,22 @@ class Win32Hook_Manager(pydbg.pydbg):
         assert isinstance(dll_filename, six.text_type)
         dll_canonic_name = self.canonic_dll_name(dll_filename.encode('utf-8'))
 
+        self.dlls_set.add(dll_canonic_name)
+        print("LOAD", dll_canonic_name)
+
         unhooked_functions = self.hooks_by_processes[self.dbg.dwProcessId].unhooked_functions_by_dll[dll_canonic_name]
 
         # At this stage, the library cannot be found with CreateToolhelp32Snapshot,
         #  and Module32First/Module32Next. But the dll object is passed to the callback.
         dll_address = self.dbg.u.LoadDll.lpBaseOfDll
         for one_subclass in unhooked_functions:
+            if dll_canonic_name in [b'msvcrt.dll', b'ws2_32.dll']:
+                print("    function_name=", one_subclass.function_name)
             self.add_one_function_from_dll_address(self.dbg.dwProcessId, dll_address, one_subclass)
 
         return defines.DBG_CONTINUE
 
-    # Not necessary because creation of processes are detected by hooking CreatngProcessA and W.
+    # Not necessary because creation of processes are detected by hooking CreatingProcessA and CreatingProcessW.
     @staticmethod
     def callback_event_handler_create_process(self):
         created_process_id = win32process.GetProcessId(self.dbg.u.CreateProcessInfo.hProcess)
@@ -378,18 +399,31 @@ class Win32Hook_Manager(pydbg.pydbg):
               "self.pid= ", self.pid)
         return defines.DBG_CONTINUE
 
+    # When catching an access violaton, and to terminate the process,
+    # it is necessary to return DBG_CONTINUE to avoid a deadlock.
+    @staticmethod
+    def callback_event_handler_access_violation(self):
+        print("callback_event_handler_access_violation ACCESS VIOLATION")
+        return defines.DBG_CONTINUE
+
     def set_handlers(self):
+        # TODO: It would be neater and faster to override pydbg methods.
         self.set_callback(defines.CREATE_PROCESS_DEBUG_EVENT, self.callback_event_handler_create_process)
-        self.set_callback(defines.LOAD_DLL_DEBUG_EVENT, self.callback_event_handler_load_dll)
+        self.set_callback(defines.LOAD_DLL_DEBUG_EVENT,       self.callback_event_handler_load_dll)
+        self.set_callback(defines.EXCEPTION_ACCESS_VIOLATION, self.callback_event_handler_access_violation)
 
     # This is called when looping on the list of semantically interesting functions.
     def _hook_api_function(self, the_subclass, process_id):
         logging.debug("hook_api_function:%s process_id=%d" % (the_subclass.__name__, process_id))
-        assert sorted(self.callbacks.keys()) == sorted([defines.CREATE_PROCESS_DEBUG_EVENT, defines.LOAD_DLL_DEBUG_EVENT])
+        assert sorted(self.callbacks.keys()) == sorted([
+            defines.CREATE_PROCESS_DEBUG_EVENT,
+            defines.LOAD_DLL_DEBUG_EVENT,
+            defines.EXCEPTION_ACCESS_VIOLATION])
 
-        the_subclass._parse_text_definition(the_subclass)
+        the_subclass._parse_text_definition()
 
         dll_canonic_name = self.canonic_dll_name(the_subclass.dll_name)
+        print("dll_canonic_name=", dll_canonic_name)
 
         dll_address = self.find_dll_base_address(dll_canonic_name)
 
@@ -460,7 +494,7 @@ class Win32Hook_Manager(pydbg.pydbg):
 class CallsCounterMeta(type):
     def __init__(cls, name, bases, dct):
         super(CallsCounterMeta, cls).__init__(name, bases, dct)
-        cls._cnt = cls.__name__ + "_SPECIFIC"
+        #cls._cnt = cls.__name__ + "_SPECIFIC"
         cls._debug_counter_before = 0
         cls._debug_counter_after = 0
 
@@ -472,7 +506,6 @@ def hook_metaclass(meta, *bases):
 # Each derived class must have:
 # - The string api_definition="" which contains the signature of the Windows API
 #   function in Windows web site format.
-# class Win32Hook_BaseClass(object):
 class Win32Hook_BaseClass(hook_metaclass(CallsCounterMeta)):
 
     # The style tells if this is a native call or an aggregate of function
@@ -495,32 +528,66 @@ class Win32Hook_BaseClass(hook_metaclass(CallsCounterMeta)):
     def set_hook_manager(self, hook_manager):
         self.win32_hook_manager = hook_manager
 
+    @classmethod
+    def _split_into_return_arguments(cls):
+        # This iterates over several possible syntax.
+        match_one = None
+        if not match_one:
+            match_one = re.match(br"\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*\((.*)\)\s*;", cls.api_definition, re.DOTALL)
+        if not match_one:
+            # The return type could also be: "FILE *fopen("
+            match_one = re.match(br"\s*([A-Za-z0-9_]+)\s*\*\s*([A-Za-z0-9_]+)\s*\((.*)\)\s*;", cls.api_definition, re.DOTALL)
+        if not match_one:
+            raise Exception("Cannot parse api definition:%s" % cls.api_definition)
+
+        cls.return_type = match_one.group(1)
+        cls.function_name = match_one.group(2)
+        logging.debug("_split_into_return_arguments %s" % cls.function_name)
+
+        return match_one.group(3).split(b",")
+
     # The API signature is taken "as is" from Microsoft web site.
     # There are many functions and copying their signature is error-prone.
-    # Therefore, one just needs to copy-paste the zweb site text.
-    @staticmethod
-    def _parse_text_definition(the_class):
-        match_one = re.match(br"\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*\((.*)\)\s*;", the_class.api_definition, re.DOTALL)
-        if not match_one:
-            raise Exception("Cannot parse api definition:%s" % the_class.api_definition)
-        the_class.return_type = match_one.group(1)
-        the_class.function_name = match_one.group(2)
-        logging.debug("_parse_text_definition %s %s" % (the_class.__name__, the_class.function_name))
+    # Therefore, one just needs to copy-paste the web site text.
+    @classmethod
+    def _parse_text_definition(cls):
+        arguments_list = cls._split_into_return_arguments()
 
-        the_class.args_list = []
-        for one_arg_pair in match_one.group(3).split(b","):
-            match_pair = re.match(br"\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*", one_arg_pair)
+        cls.args_list = []
+        for one_arg_pair in arguments_list:
+            # It uses specific regular expressions for different arguments grammar.
+            # This simplifies regular expressions testing and will help if specific processing is needed.
+            # It is simplistic because there are not many cases.
+            match_pair = None
             if not match_pair:
-                # Maybe there is a pointer, so there is another regular expression,.
-                match_pair = re.match(br"\s*([A-Za-z0-9_]+ +\*)\s+([A-Za-z0-9_]+)\s*", one_arg_pair)
-                if not match_pair:
-                    raise Exception("_parse_text_definition: Cannot match:%s" % one_arg_pair)
-            the_class.args_list.append((match_pair.group(1), match_pair.group(2)))
+                match_pair = re.match(br"\s*([A-Za-z0-9_]+)\s+([A-Za-z0-9_]+)\s*", one_arg_pair)
+            if not match_pair:
+                # Maybe this is a pointer: "sockaddr *name" or "FILE** pFile"
+                match_pair = re.match(br"\s*([A-Za-z0-9_]+\s*\*+)\s*([A-Za-z0-9_]+)\s*", one_arg_pair)
+            if not match_pair:
+                # Maybe this is a const pointer: "const sockaddr *name"
+                match_pair = re.match(br"\s*(const\s+[A-Za-z0-9_]+\s*\*)\s+([A-Za-z0-9_]+)\s*", one_arg_pair)
+            if not match_pair:
+                # Maybe this is an array: "FILE_SEGMENT_ELEMENT [] aSegmentArray"
+                match_pair = re.match(br"\s*([A-Za-z0-9_]+ +\[\])\s+([A-Za-z0-9_]+)\s*", one_arg_pair)
+            if not match_pair:
+                raise Exception("_parse_text_definition: %s Cannot match:%s" % (cls.function_name, one_arg_pair))
 
-        assert isinstance(the_class.function_name, six.binary_type)
+            cls.args_list.append((match_pair.group(1), match_pair.group(2)))
+
+        assert isinstance(cls.function_name, six.binary_type)
 
     def callback_create_object(self, cim_class_name, **cim_arguments):
         tracer_object.report_object_creation(self.cim_context(), cim_class_name, **cim_arguments)
+
+
+    def callback_create_object_with_status(self, success_flag, cim_class_name, **cim_arguments):
+        if False and not success_flag:
+            # TODO: Maybe report the attempt to create a directory.
+            calling_function_name = sys._getframe(1).f_code.co_name
+            print("FAILED", calling_function_name, "cannot create", cim_class_name, str(**cim_arguments))
+        tracer_object.report_object_creation(self.cim_context(), cim_class_name, **cim_arguments)
+
 
 ################################################################################
 
@@ -561,12 +628,12 @@ class Win32Hook_GenericProcessCreation(Win32Hook_BaseClass):
             win32con.EXTENDED_STARTUPINFO_PRESENT
         except AttributeError:
             win32con.EXTENDED_STARTUPINFO_PRESENT = 0x80000
-        if not is_py3:
-            # On Windows 10 in 64 bits, dwCreationFlags=x19e00080400 or x400 or x80000.
-            # The lowest int is CREATE_UNICODE_ENVIRONMENT | EXTENDED_STARTUPINFO_PRESENT
-            assert dwCreationFlags in [
-                0,
-                win32con.EXTENDED_STARTUPINFO_PRESENT]
+
+        # On Windows 10 in 64 bits, dwCreationFlags=x19e00080400 or x400 or x80000.
+        # The lowest int is CREATE_UNICODE_ENVIRONMENT | EXTENDED_STARTUPINFO_PRESENT
+        # With Python 2.7, Windows 7, 64 bits, process started by Perl,
+        # dwCreationFlags=000007fe00000000
+        # Otherwise it can be 0 or EXTENDED_STARTUPINFO_PRESENT
         dwCreationFlagsSuspended = dwCreationFlags | win32con.CREATE_SUSPENDED
 
         self.win32_hook_manager.set_arg(offset_flags+1, dwCreationFlagsSuspended)
@@ -603,6 +670,10 @@ class Win32Hook_GenericProcessCreation(Win32Hook_BaseClass):
 
         print("callback_after_common dwProcessId=%d dwThreadId=%d self.win32_hook_manager.pid=%d" % (
             dwProcessId, dwThreadId, self.win32_hook_manager.pid))
+
+        if function_result == 0:
+            print("callback_after_common FAILED")
+            return
 
         self.callback_create_object("CIM_Process", Handle=dwProcessId)
 
@@ -706,7 +777,7 @@ class Win32Hook_CreateDirectoryA(Win32Hook_BaseClass):
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
         lpPathName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
-        self.callback_create_object("CIM_Directory", Name=lpPathName)
+        self.callback_create_object_with_status(function_result, "CIM_Directory", Name=lpPathName)
 
 
 class Win32Hook_CreateDirectoryW(Win32Hook_BaseClass):
@@ -718,7 +789,7 @@ class Win32Hook_CreateDirectoryW(Win32Hook_BaseClass):
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
         lpPathName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
-        self.callback_create_object("CIM_Directory", Name=lpPathName)
+        self.callback_create_object_with_status(function_result, "CIM_Directory", Name=lpPathName)
 
 
 class Win32Hook_RemoveDirectoryA(Win32Hook_BaseClass):
@@ -729,7 +800,7 @@ class Win32Hook_RemoveDirectoryA(Win32Hook_BaseClass):
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
         lpPathName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
-        self.callback_create_object("CIM_Directory", Name=lpPathName)
+        self.callback_create_object_with_status(function_result, "CIM_Directory", Name=lpPathName)
 
 
 class Win32Hook_RemoveDirectoryW(Win32Hook_BaseClass):
@@ -740,7 +811,7 @@ class Win32Hook_RemoveDirectoryW(Win32Hook_BaseClass):
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
         lpPathName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
-        self.callback_create_object("CIM_Directory", Name=lpPathName)
+        self.callback_create_object_with_status(function_result, "CIM_Directory", Name=lpPathName)
 
 
 class Win32Hook_CreateFileA(Win32Hook_BaseClass):
@@ -757,7 +828,7 @@ class Win32Hook_CreateFileA(Win32Hook_BaseClass):
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
         lpFileName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
-        self.callback_create_object("CIM_DataFile", Name=lpFileName)
+        self.callback_create_object_with_status(function_result != defines.INVALID_HANDLE_VALUE, "CIM_DataFile", Name=lpFileName)
 
 
 class Win32Hook_CreateFileW(Win32Hook_BaseClass):
@@ -774,7 +845,7 @@ class Win32Hook_CreateFileW(Win32Hook_BaseClass):
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
         lpFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
-        self.callback_create_object("CIM_DataFile", Name=lpFileName)
+        self.callback_create_object_with_status(function_result != defines.INVALID_HANDLE_VALUE, "CIM_DataFile", Name=lpFileName)
 
 
 class Win32Hook_DeleteFileA(Win32Hook_BaseClass):
@@ -785,7 +856,7 @@ class Win32Hook_DeleteFileA(Win32Hook_BaseClass):
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
         lpFileName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
-        self.callback_create_object("CIM_DataFile", Name=lpFileName)
+        self.callback_create_object_with_status(function_result, "CIM_DataFile", Name=lpFileName)
 
 
 class Win32Hook_DeleteFileW(Win32Hook_BaseClass):
@@ -796,7 +867,7 @@ class Win32Hook_DeleteFileW(Win32Hook_BaseClass):
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
         lpFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
-        self.callback_create_object("CIM_DataFile", Name=lpFileName)
+        self.callback_create_object_with_status(function_result, "CIM_DataFile", Name=lpFileName)
 
 
 class Win32Hook_CreateThread(Win32Hook_BaseClass):
@@ -848,6 +919,11 @@ class Win32Hook_TerminateProcess(Win32Hook_BaseClass):
                 UINT   uExitCode
             );"""
     dll_name = b"KERNEL32.dll"
+    def callback_before(self, function_arguments):
+        terminated_process_handle = function_arguments[0]
+        terminated_process_id = win32process.GetProcessId(terminated_process_handle)
+        exit_code = function_arguments[1]
+        print("Win32Hook_TerminateProcess terminated_process_id=", terminated_process_id, "exit_code=", exit_code)
 
 
 class Win32Hook_TerminateThread(Win32Hook_BaseClass):
@@ -870,7 +946,7 @@ class Win32Hook_WriteFile(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
-        logging.debug("hook_function_WriteFile args=", function_arguments)
+        logging.debug("Win32Hook_WriteFile args=", function_arguments)
 
         lpBuffer = function_arguments[1]
         nNumberOfBytesToWrite = function_arguments[2]
@@ -887,6 +963,18 @@ class Win32Hook_WriteFileEx(Win32Hook_BaseClass):
             DWORD                           nNumberOfBytesToWrite,
             LPOVERLAPPED                    lpOverlapped,
             LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
+        );"""
+    dll_name = b"KERNEL32.dll"
+
+
+class Win32Hook_WriteFileGather(Win32Hook_BaseClass):
+    api_definition = b"""
+        BOOL WriteFileGather(
+            HANDLE                  hFile,
+            FILE_SEGMENT_ELEMENT [] aSegmentArray,
+            DWORD                   nNumberOfBytesToWrite,
+            LPDWORD                 lpReserved,
+            LPOVERLAPPED            lpOverlapped
         );"""
     dll_name = b"KERNEL32.dll"
 
@@ -911,6 +999,18 @@ class Win32Hook_ReadFileEx(Win32Hook_BaseClass):
             DWORD                           nNumberOfBytesToRead,
             LPOVERLAPPED                    lpOverlapped,
             LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
+        );"""
+    dll_name = b"KERNEL32.dll"
+
+
+class Win32Hook_ReadFileScatter(Win32Hook_BaseClass):
+    api_definition = b"""
+        BOOL ReadFileScatter(
+            HANDLE                  hFile,
+            FILE_SEGMENT_ELEMENT [] aSegmentArray,
+            DWORD                   nNumberOfBytesToRead,
+            LPDWORD                 lpReserved,
+            LPOVERLAPPED            lpOverlapped
         );"""
     dll_name = b"KERNEL32.dll"
 
@@ -1034,6 +1134,145 @@ class Win32Hook_SQLDataSources(Win32Hook_BaseClass):
             SQLSMALLINT *    NameLength2Ptr
         );"""
     dll_name = b"odbc32.dll"
+
+
+class Win32Hook_fopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        FILE *fopen(
+            const char *filename,
+            const char *mode
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook__wfopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        FILE *_wfopen(
+            const wchar_t *filename,
+            const wchar_t *mode
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook_fopen_s(Win32Hook_BaseClass):
+    api_definition = b"""
+        errno_t fopen_s(
+            FILE** pFile,
+            const char *filename,
+            const char *mode
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook__wfopen_s(Win32Hook_BaseClass):
+    api_definition = b"""
+        errno_t _wfopen_s(
+            FILE** pFile,
+            const wchar_t *filename,
+            const wchar_t *mode
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook__fsopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        FILE *_fsopen(
+            const char *filename,
+            const char *mode,
+            int shflag);"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook__wfsopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        FILE *_wfsopen(
+            const wchar_t *filename,
+            const wchar_t *mode,
+            int shflag
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook__wfsopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        FILE *freopen(
+            const char *path,
+            const char *mode,
+            FILE *stream
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook__wfsopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        FILE *_wfreopen(
+            const wchar_t *path,
+            const wchar_t *mode,
+            FILE *stream
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook__wfsopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        errno_t freopen(
+            FILE** pFile,
+            const char *path,
+            const char *mode,
+            FILE *stream
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook__wfsopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        errno_t _wfreopen(
+            FILE** pFile,
+            const wchar_t *path,
+            const wchar_t *mode,
+            FILE *stream
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook__wfsopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        FILE *_fsopen(
+            const char *filename,
+            const char *mode,
+            int shflag
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook__wfsopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        FILE *_wfsopen(
+            const wchar_t *filename,
+            const wchar_t *mode,
+            int shflag
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook__fdopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        FILE *_fdopen(
+            int fd,
+            const char *mode
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
+class Win32Hook__wfdopen(Win32Hook_BaseClass):
+    api_definition = b"""
+        FILE *_wfdopen(
+            int fd,
+            const wchar_t *mode
+        );"""
+    dll_name = b"msvcrt.dll"
+
+
 
 
 if False:

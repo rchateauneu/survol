@@ -1095,7 +1095,7 @@ class WmiSparqlExecutor:
         for one_wmi_object in wmi_objects:
             # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
             object_path = str(one_wmi_object.path())
-            DEBUG("WmiCallbackAssociator one_wmi_object.path=%s",object_path)
+            #DEBUG("WmiCallbackAssociator one_wmi_object.path=%s",object_path)
             list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, result_class_name )
             dict_key_values = { node_key:node_value for node_key,node_value in list_key_values}
 
@@ -1104,7 +1104,7 @@ class WmiSparqlExecutor:
             # o=http://primhillcomputers.com/survol/Win32_UserAccount
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeNodeForSparql(result_class_name)
 
-            DEBUG("WmiCallbackAssociator dict_key_values=%s", dict_key_values)
+            #DEBUG("WmiCallbackAssociator dict_key_values=%s", dict_key_values)
             yield (object_path, dict_key_values)
 
     def AssociatorKeys(self, associator_name):

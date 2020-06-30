@@ -13,36 +13,25 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-# TODO: J ai l impresison que sous Windows, nous enumerons en fait les mount points.
+# TODO: On Windows, it seems only to enumerate mount points.
 # Win32_MountPoint
-# C est une association entre Win32_Directory et Win32_Volume:
+# This is an association between Win32_Directory and Win32_Volume:
 # http://127.0.0.1/Survol/survol/class_wmi.py?xid=\\rchateau-HP\root\CIMV2%3AWin32_MountPoint.
 #
 #
-# MIEUX: Win32_LogicalDisk qui derive aussi de CIM_LogicalDisk, CIM_StorageExtent
-# Mais ca ne marche que sous Windows.
-# Sous Linux, ca sort quelque chose de different.
-# Mais est-ce vraiment un probleme ?
-# De oute facon ces scripts servent a sortir des donnees en vrac, ils sont la plus ou moins
-# a titre indicatif. Il faut les montrer si classes de bse ou bien derivee: L important est de passer vers d autres objets.
-# On peut aussi dire que nos objects derivent de LMI_MountedFileSystem ou autres, ce qui evite de trouver le match parfait.
-# Notons aussi que c'est juste un ou deux scripts qui nous bloquent.
+# BETTER: Win32_LogicalDisk also derives from CIM_LogicalDisk, CIM_StorageExtent
+# But it works only on Windows,
+# On Linux this returns something different. Is it really a problem ?
+# Anyway, these scripts return something approximate data.
+# Maybe, just consider that they derive from LMI_MountedFileSystem or soemthign lese,
+# so no need to have a perfect match.
 #
-# C est a peu pres CIM_StorageExtent
-
-
 # http://192.168.1.88/yawn/GetClass/LMI_LVStorageExtent?url=http%3A%2F%2Flocalhost&verify=0&ns=root%2Fcimv2
-# Mais yapas les mount points. Ou alors certains element LMI_MountedFileSystem plus boot.
-# Bref, je ne sais pas ce que c'est d un point de vue CIM.
-# On peut dupliquer et lui donner deux noms ?
-# Ou bien un nom generique et on ne le raccroche pas a une classe ?
-# Ou bien une classe de base tres generale ? Et on ne pretend pas a l'exhaustivite. "enumerate" veut juste dire "quelques".
-
-
-# On va prendre CIM_LogicalDisk
-
-
-# Cote Unix, lmtab explore LMI_MountedFileSystem (qui descend de CIM_View et c est tout)
+# But it does not have mount points,
+#
+# Should use CIM_LogicalDisk or CIM_StorageExtent.
+#
+# On Linux, lmtab explores LMI_MountedFileSystem (which only derives from CIM_View)
 # http://192.168.1.88/yawn/EnumInstanceNames/LMI_MountedFileSystem?url=http%3A%2F%2Flocalhost&verify=0&ns=root%2Fcimv2
 #string FileSystemSpec;
 #Filesystem specification. Corresponds to the device field in /etc/fstab.

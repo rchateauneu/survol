@@ -61,6 +61,10 @@ class SvgCommon(unittest.TestCase):
         self._check_script(
             "/survol/sources_types/enumerate_python_package.py")
 
+    def _test_svg_enumerate_logical_disk(self):
+        self._check_script(
+            "/survol/sources_types/enumerate_CIM_LogicalDisk.py")
+
 
 def _is_dot_available():
     dot_status = os.system("dot -?")
@@ -106,6 +110,9 @@ class SvgLocalAgentTest(SvgCommon):
     def test_local_svg_enumerate_python_package(self):
         self._test_svg_enumerate_python_package()
 
+    def test_local_svg_enumerate_logical_disk(self):
+        self._test_svg_enumerate_logical_disk()
+
 
 # This targets Primhill Computers test machine.
 class SvgRemoteAgentTest(SvgCommon):
@@ -135,6 +142,9 @@ class SvgRemoteAgentTest(SvgCommon):
 
     def test_remote_svg_enumerate_python_package(self):
         self._test_svg_enumerate_python_package()
+
+    def test_remote_svg_enumerate_logical_disk(self):
+        self._test_svg_enumerate_logical_disk()
 
 
 # TODO: Test loadbookmark
