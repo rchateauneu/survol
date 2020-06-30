@@ -1557,15 +1557,8 @@ class SurvolSocketsTest(unittest.TestCase):
         # 'smbshr.Id=\\\\192.168.0.15\\rchateau',
         # 'smbshr.Id=\\\\localhost\\IPC$'
 
-        # TODO: localhost should be replaced by the IP address.
+        # TODO: This cannot be tested on Travis.
 
-        # These elements are nto there after booting a machine.
-        #assert( 'CIM_DataFile.Name=//localhost/IPC$:' in strInstancesSet )
-        #assert( 'smbshr.Id=\\\\localhost\\IPC$' in strInstancesSet )
-
-        #
-        # set(['CIM_DataFile.Name=//192.168.1.61/public:', 'smbshr.Id=\\\\192.168.1.61\\public'])
-        self.assertTrue(False)
 
     @unittest.skipIf(not is_platform_windows, "test_windows_network_devices for Windows only.")
     def test_windows_network_devices(self):
@@ -1623,14 +1616,19 @@ class SurvolRemoteTest(unittest.TestCase):
             Name=always_present_file)
         print("urlFileStatRemote=",mySourceFileStatRemote.Url())
         print("qryFileStatRemote=",mySourceFileStatRemote.create_url_query())
-        print("jsonFileStatRemote=%s  ..." % str(mySourceFileStatRemote.content_json())[:30])
-        print("rdfFileStatRemote=%s ..." % str(mySourceFileStatRemote.content_rdf())[:30])
+        json_content = mySourceFileStatRemote.content_json()
 
-        # https://stackoverflow.com/questions/46978624/python-multiprocessing-process-to-use-virtualenv
-        # print(__file__ + " sys.path=%s" % str(sys.path))
-        print(__file__ + " sys.executable=%s" % sys.executable)
-        print(__file__ + " sys.exec_prefix=%s" % sys.exec_prefix)
-        # TODO : Check this !!
+        found_file = False
+        always_present_basename = os.path.basename(always_present_file)
+        for one_node in json_content['nodes']:
+            try:
+                found_file = one_node['entity_class'] == 'CIM_DataFile' and one_node['name'] == always_present_basename
+                if found_file:
+                    break
+            except:
+                pass
+
+        self.assertTrue(found_file)
 
     def test_remote_triplestore(self):
         mySourceFileStatRemote = lib_client.SourceRemote(
