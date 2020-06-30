@@ -626,7 +626,7 @@ else:
 			DEBUG("len=%d",lenAddr)
 			if False:
 				# Exception:mmap length is greater than file size
-				# Je crois me souvenir qu on peut empecher un controle de taille ??
+				# Maybe it is possible to prevent a control of the size.
 				mm = mmap.mmap(mem_file.fileno(), lenAddr, access=mmap.ACCESS_READ, offset = addr_beg)
 				mem_proc_functor.ParseSegment(addr_beg, mm.something)
 			else:
