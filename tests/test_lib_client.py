@@ -1217,14 +1217,9 @@ class SurvolLocalWindowsTest(unittest.TestCase):
             "CIM_Process",
             Handle=CurrentPid)
 
-        try:
+        with self.assertRaises(Exception):
             # Should throw "Exception: ErrorMessageHtml raised:Cannot debug current process"
             mySource.get_triplestore()
-        except Exception as exc:
-            print("Success: Exception received, because cannot debug current process")
-            return
-
-        self.assertTrue(False)
 
     def test_win_cdb_modules(self):
         """win_cdb_modules about current process"""
@@ -1234,14 +1229,9 @@ class SurvolLocalWindowsTest(unittest.TestCase):
             "CIM_Process",
             Handle=CurrentPid)
 
-        try:
+        with self.assertRaises(Exception):
             # Should throw "Exception: ErrorMessageHtml raised:Cannot debug current process"
             mySource.get_triplestore()
-        except Exception as exc:
-            print("Success: Exception received, because cannot debug current process")
-            return
-
-        self.assertTrue(False)
 
     @unittest.skipIf(is_pytest(), "This msdos test cannot run in pytest.")
     def test_msdos_current_batch(self):
@@ -1273,15 +1263,15 @@ class SurvolLocalWindowsTest(unittest.TestCase):
             "CIM_ComputerSystem",
             Name = CurrentMachine)
 
-        sys.stderr.write("CurrentMachine=%s before get_triplestore\n" % CurrentMachine)
         tripleHostLocalGroups = mySourceHostLocalGroups.get_triplestore()
-        sys.stderr.write("CurrentMachine=%s before get_instances\n" % CurrentMachine)
         instancesHostLocalGroups = tripleHostLocalGroups.get_instances()
 
-        print("Host local groups=", instancesHostLocalGroups)
-        for one_instance in instancesHostLocalGroups:
-            print("one_instance=", one_instance)
-        # TODO: NOT CHECKED.
+        group_instances = set(str(one_instance) for one_instance in instancesHostLocalGroups)
+        print("group_instances=", group_instances)
+
+        print("Win32_Group.Name=Administrators,Domain=%s" % CurrentMachine)
+        self.assertTrue("Win32_Group.Name=Administrators,Domain=%s" % CurrentMachine in group_instances)
+        self.assertTrue("Win32_Group.Name=Users,Domain=%s" % CurrentMachine in group_instances)
 
 
 try:
