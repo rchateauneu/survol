@@ -1298,9 +1298,29 @@ bind(SERVER, $my_addr) or die "Couldn't bind to port $server_port : $!\n";
         self.assertTrue(root_process_calls[b'CreateFileA'] > 0)
         self.assertTrue(root_process_calls[b'ReadFile'] > 0)
         self.assertEqual(root_process_calls[b'bind'], 1)
-        self.assertEqual(root_process_calls[b'fopen'], 1)
-        self.assertEqual(win32_api_definitions.Win32Hook_bind._debug_counter_before, 1)
-        self.assertEqual(win32_api_definitions.Win32Hook_bind._debug_counter_after, 1)
+        if not is_windows10:
+            self.assertEqual(root_process_calls[b'fopen'], 1)
+            self.assertEqual(win32_api_definitions.Win32Hook_bind._debug_counter_before, 1)
+            self.assertEqual(win32_api_definitions.Win32Hook_bind._debug_counter_after, 1)
+
+        #     b'CreateFileA'                   1   1
+        #     b'CreateFileW'                   1   1
+        #     b'CreateProcessA'                0   0
+        #     b'CreateProcessAsUserA'          0   0
+        #     b'CreateProcessAsUserW'          0   0
+        #     b'CreateProcessW'                0   0
+        #     b'CreateRemoteThread'            0   0
+        #     b'CreateRemoteThreadEx'          0   0
+        #     b'CreateThread'                  1   1
+        #     b'DeleteFileA'                   0   0
+        #     b'DeleteFileW'                   0   0
+        #     b'ReadFile'                      1   0
+        #     b'ReadFileEx'                    0   0
+        #     b'ReadFileScatter'               0   0
+        #     b'RemoveDirectoryA'              0   0
+        #     b'RemoveDirectoryW'              0   0
+        #     b'TerminateProcess'              1   0
+
 
         # TODO: Results with fsopen are not stable. Maybe a thread ?
 
