@@ -460,7 +460,7 @@ class SurvolLocalTest(unittest.TestCase):
 
         procOpen.communicate()
 
-    def _check_environment_variables(process_id):
+    def _check_environment_variables(self, process_id):
         mySourceEnvVars = lib_client.SourceLocal(
             "sources_types/CIM_Process/environment_variables.py",
             "CIM_Process",
@@ -1198,7 +1198,16 @@ class SurvolLocalWindowsTest(unittest.TestCase):
             "sources_types/win32/enumerate_Win32_Product.py")
 
         strInstancesLst = [str(oneInst) for oneInst in lstInstances ]
+        products_count = 0
+        for one_instance in strInstancesLst:
+            # Ex: 'Win32_Product.IdentifyingNumber={1AC6CC3D-7724-4D84-9270-798A2191AB1C}'
+            if one_instance.startswith('Win32_Product.IdentifyingNumber='):
+                products_count += 1
+
         print("lstInstances=",strInstancesLst[:3])
+
+        # Certainly, there a more that five products or any other small number.
+        self.assertTrue(products_count > 5)
 
     def test_win_cdb_callstack(self):
         """win_cdb_callstack Information about current process"""
