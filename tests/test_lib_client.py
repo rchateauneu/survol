@@ -1563,6 +1563,10 @@ class SurvolSocketsTest(unittest.TestCase):
         #assert( 'CIM_DataFile.Name=//localhost/IPC$:' in strInstancesSet )
         #assert( 'smbshr.Id=\\\\localhost\\IPC$' in strInstancesSet )
 
+        #
+        # set(['CIM_DataFile.Name=//192.168.1.61/public:', 'smbshr.Id=\\\\192.168.1.61\\public'])
+        self.assertTrue(False)
+
     @unittest.skipIf(not is_platform_windows, "test_windows_network_devices for Windows only.")
     def test_windows_network_devices(self):
         """Loads network devices on a Windows network"""
