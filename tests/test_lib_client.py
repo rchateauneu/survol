@@ -1427,21 +1427,20 @@ class SurvolSocketsTest(unittest.TestCase):
     def test_enumerate_sockets(self):
         """List of sockets opened on the host machine"""
 
-        # httpHostName = 'www.root-servers.org'
-        # This site was registered on September the 18th, 1986.
-        httpHostName = 'itcorp.com'
+        # This site was registered on September the 18th, 1986. It is very stable.
+        httpHostName = 'www.itcorp.com'
 
-        print("")
         sockHost = socket.gethostbyname(httpHostName)
         print("gethostbyname(%s)=%s"%(httpHostName,sockHost))
 
         # This opens a connection to a specific machine, then checks that the socket can be found.
+        expected_port = 80
         if is_py3:
             import http.client
-            connHttp = http.client.HTTPConnection(httpHostName, 80, timeout=60)
+            connHttp = http.client.HTTPConnection(httpHostName, expected_port, timeout=60)
         else:
             import httplib
-            connHttp = httplib.HTTPConnection(httpHostName, 80, timeout=60)
+            connHttp = httplib.HTTPConnection(httpHostName, expected_port, timeout=60)
         print("Connection to %s OK"%httpHostName)
 
         #connHttp.request(method="GET", url="/", headers={"Connection" : "Keep-alive"})
@@ -1460,35 +1459,31 @@ class SurvolSocketsTest(unittest.TestCase):
         lstInstances = ClientObjectInstancesFromScript(
             "sources_types/enumerate_socket.py")
 
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+        str_instances_list= [str(oneInst) for oneInst in lstInstances]
 
-        addrExpected = "addr.Id=%s:80" % (peerHost)
-
-        #print("Instances:",strInstancesSet)
         print("sockHost=",sockHost)
-        print("addrExpected=",addrExpected)
-        #assert( addrExpected in strInstancesSet)
+        print("peerHost=", peerHost)
+        print("expected_port=", expected_port)
 
-        print("test_enumerate_sockets: Does not work yet. Only testing execution.")
+        found_socket = False
+        for one_instance in str_instances_list:
+            #print("one_instance=", one_instance)
+            match_address = re.match("addr.Id=(.*):([0-9]*)", one_instance)
+            if match_address:
+                instance_host = match_address.group(1)
+                instance_port = match_address.group(2)
+                if instance_host == "127.0.0.1":
+                    continue
+                try:
+                    instance_addr = socket.gethostbyname(instance_host)
+                    #print("instance_addr=", instance_addr)
+                    found_socket = instance_addr == peerHost and instance_port == str(expected_port)
+                    if found_socket:
+                        break
+                except socket.gaierror:
+                    pass
 
-        if False:
-            # For debugging purpose only.
-            def DispIp(oneInst):
-                if oneInst.startswith("addr") and oneInst.find("127.0.0.1") < 0:
-                    # addr.Id=iwc2-31.catholica.va:http
-                    addrOnly = oneInst[ oneInst.find("=") +1: oneInst.find(":") ]
-                    try:
-                        addrHost = socket.gethostbyname(addrOnly)
-                        print(oneInst,addrHost)
-                    except:
-                        print(oneInst,"===",addrOnly)
-
-            for oneInst in sorted(strInstancesSet):
-                DispIp(oneInst)
-                if oneInst.find(addrExpected)>= 0:
-                    print("OK. Found %s in %s "%(addrExpected,oneInst))
-                    break
-
+        self.assertTrue(found_socket)
         connHttp.close()
 
 
