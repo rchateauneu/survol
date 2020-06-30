@@ -46,19 +46,8 @@ ClientObjectInstancesFromScript = lib_client.SourceLocal.get_object_instances_fr
 # Otherwise, Python callstack would be displayed in HTML.
 cgitb.enable(format="txt")
 
-# Many tests start a subprocess: Its termination must be checked.
-def check_subprocess_end(procOpen):
-    (child_stdout_content, child_stderr_content) = procOpen.communicate()
-
-    if is_platform_windows:
-        # This ensures that the suprocess is correctly started.
-        assert(child_stdout_content.startswith(b"Starting subprocess"))
-
-        print("procOpen.returncode=",procOpen.returncode)
-        assert(procOpen.returncode == 123)
-
-
 # TODO: Prefix of url samples should be a parameter.
+
 
 class SurvolLocalTest(unittest.TestCase):
     """These tests do not need a Survol agent"""
@@ -329,7 +318,7 @@ class SurvolLocalTest(unittest.TestCase):
     def test_regex_sql_query_file(self):
         """Searches for SQL queries in one file only."""
 
-        sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py" )
+        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py")
 
         mySourceSqlQueries = lib_client.SourceLocal(
             "sources_types/CIM_DataFile/grep_sql_queries.py",
@@ -355,124 +344,9 @@ class SurvolLocalTest(unittest.TestCase):
         for oneQry in lstQriesPresent:
             assert( oneQry in lstQueriesOnly )
 
-    # This searches the content of a process memory which contains a SQL memory.
-    def test_regex_sql_query_from_batch_process(self):
-        print("test_regex_sql_query_from_batch_process: Broken")
-
-        return
-
-        try:
-            if 'win' in sys.platform:
-                import win32con
-        except ImportError:
-            print("Module win32con is not available so this test is not applicable")
-            return
-
-        sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "CommandExample.bat" )
-
-        execList = [ sqlPathName ]
-
-        # Runs this process: It allocates a variable containing a SQL query, then it waits.
-        procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-        print("Started process:",execList," pid=",procOpen.pid)
-
-        (child_stdin, child_stdout_and_stderr) = (procOpen.stdin, procOpen.stdout)
-
-        #print("child_stdout_and_stderr=",child_stdout_and_stderr.readline())
-
-        mySourceSqlQueries = lib_client.SourceLocal(
-            "sources_types/CIM_Process/memory_regex_search/scan_sql_queries.py",
-            "CIM_Process",
-            Handle=procOpen.pid)
-
-        tripleSqlQueries = mySourceSqlQueries.get_triplestore()
-        print(len(tripleSqlQueries))
-        assert(len(tripleSqlQueries.m_triplestore)==190)
-
-        lstMatches = list(tripleSqlQueries.get_instances("[Pp]ellentesque"))
-        print("Matches:",lstMatches)
-        assert( len(lstMatches) == 5 )
-
-        # Any string will do.
-        child_stdin.write("Stop")
-        #procOpen.kill()
-        #procOpen.communicate()
-        #child_stdin.close()
-        #child_stdout_and_stderr.close()
-
-        print(lstMatches)
-
-    # This searches the content of a process memory which contains a SQL memory.
-    def test_regex_sql_query_from_python_process(self):
-        print("test_regex_sql_query_from_python_process: Broken")
-        return
-
-        try:
-            if 'win' in sys.platform:
-                import win32con
-        except ImportError:
-            print("Module win32con is not available so this test is not applicable")
-            return
-
-        sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py" )
-
-        execList = [ sys.executable, sqlPathName ]
-
-        # Runs this process: It allocates a variable containing a SQL query, then it waits.
-        procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
-
-        print("Started process:",execList," pid=",procOpen.pid)
-
-        # Reading from procOpen.stdout is buffered and one cannot get data until trhe process leaves, or so.
-        #print("child_stdout_and_stderr=",child_stdout_and_stderr.readline())
-
-        mySourceSqlQueries = lib_client.SourceLocal(
-            "sources_types/CIM_Process/memory_regex_search/scan_sql_queries.py",
-            "CIM_Process",
-            Handle=procOpen.pid)
-
-        tripleSqlQueries = mySourceSqlQueries.get_triplestore()
-        print("len(tripleSqlQueries)=",len(tripleSqlQueries))
-
-        matchingTriples = list(tripleSqlQueries.get_all_strings_triples())
-        print("mmm=",matchingTriples)
-
-        check_subprocess_end(procOpen)
-
-    # This searches the content of a process memory which contains a SQL memory.
-    def test_regex_sql_query_from_perl_process(self):
-        print("test_regex_sql_query_from_perl_process: Broken")
-        return
-
-        sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SamplePerlScript.pl" )
-
-        execList = [ "perl", sqlPathName ]
-
-        # Runs this process: It allocates a variable containing a SQL query, then it waits.
-        procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
-
-        print("Started process:",execList," pid=",procOpen.pid)
-
-        # Reading from procOpen.stdout is buffered and one cannot get data until trhe process leaves, or so.
-        #print("child_stdout_and_stderr=",child_stdout_and_stderr.readline())
-
-        mySourceSqlQueries = lib_client.SourceLocal(
-            "sources_types/CIM_Process/memory_regex_search/scan_sql_queries.py",
-            "CIM_Process",
-            Handle=procOpen.pid)
-
-        tripleSqlQueries = mySourceSqlQueries.get_triplestore()
-        print("len(tripleSqlQueries)=",len(tripleSqlQueries))
-
-        matchingTriples = list(tripleSqlQueries.get_all_strings_triples())
-        print("mmm=",matchingTriples)
-
-        check_subprocess_end(procOpen)
-
     def test_open_files_from_python_process(self):
         """Files open by a Python process"""
-        sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py" )
+        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py")
 
         execList = [ sys.executable, sqlPathName ]
 
@@ -500,13 +374,14 @@ class SurvolLocalTest(unittest.TestCase):
         for oneStr in lstMandatoryInstances:
             assert( oneStr in lstMandatoryInstances)
 
-        check_subprocess_end(procOpen)
+        procOpen.communicate()
+
 
     def test_sub_parent_from_python_process(self):
         """Sub and parent processes a Python process"""
-        sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py" )
+        sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py")
 
-        execList = [ sys.executable, sqlPathName ]
+        execList = [sys.executable, sqlPathName]
 
         procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
 
@@ -536,13 +411,14 @@ class SurvolLocalTest(unittest.TestCase):
         for oneStr in lstMandatoryInstances:
             assert( oneStr in strInstancesSet)
 
-        check_subprocess_end(procOpen)
+        procOpen.communicate()
+
 
     def test_memory_maps_from_python_process(self):
         """Sub and parent processes a Python process"""
-        sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py" )
+        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py")
 
-        execList = [ sys.executable, sqlPathName ]
+        execList = [sys.executable, sqlPathName]
 
         procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
 
@@ -594,19 +470,9 @@ class SurvolLocalTest(unittest.TestCase):
 
             # Depending on the machine, the root can be "/usr/lib64" or "/lib/x86_64-linux-gnu"
             lstMandatoryRegex += [
-                # 'memmap.Id=/usr/lib64/libpython*.',
                 r'memmap.Id=.*/ld-.*\.so.*',
                 r'memmap.Id=.*/libc-.*\.so.*',
-                # 'memmap.Id=/usr/lib64/python*./lib-dynload/_localemodule.so'
             ]
-
-
-            # On Travis:
-            # strInstancesSet = set(['memmap.Id=[heap]', 'memmap.Id=[stack]', 'memmap.Id=/lib/x86_64-linux-gnu/ld-2.23.so',
-            # 'memmap.Id=[vdso]', 'CIM_Process.Handle=3331', 'memmap.Id=[vsyscall]', 'memmap.Id=[anon]',
-            # 'memmap.Id=/bin/dash', 'memmap.Id=[vvar]', 'memmap.Id=/lib/x86_64-linux-gnu/libc-2.23.so'])
-
-
 
             for oneStr in lstMandatoryInstances:
                 if oneStr not in strInstancesSet:
@@ -624,7 +490,7 @@ class SurvolLocalTest(unittest.TestCase):
                     WARNING("Cannot find regex %s in %s", oneRegex, str(strInstancesSet))
                 assert result is not None
 
-        check_subprocess_end(procOpen)
+        procOpen.communicate()
 
     @staticmethod
     def check_environment_variables(process_id):
@@ -643,7 +509,7 @@ class SurvolLocalTest(unittest.TestCase):
 
         print("setEnvVars:",setEnvVars)
 
-        if 'win' in sys.platform:
+        if is_platform_windows:
             mandatoryEnvVars = ['COMPUTERNAME','OS','PATH']
         else:
             mandatoryEnvVars = ['HOME','PATH']
@@ -714,7 +580,7 @@ class SurvolLocalTest(unittest.TestCase):
         """Examines a running Python process"""
 
         # This creates a process running in Python, because it does not work with the current process.
-        sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py" )
+        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py")
 
         execList = [ sys.executable, sqlPathName ]
 
@@ -759,7 +625,7 @@ class SurvolLocalTest(unittest.TestCase):
         for oneStr in listRequired:
             assert( oneStr in strInstancesSet )
 
-        check_subprocess_end(procOpen)
+        procOpen.communicate()
 
     @unittest.skipIf(is_travis_machine() and is_platform_windows, "Cannot get users on Travis and Windows.")
     def test_enumerate_users(self):
@@ -1237,7 +1103,7 @@ class SurvolLocalGdbTest(unittest.TestCase):
         """Displays the stack of a Python process"""
 
         # This creates a process running in Python, because it does not work with the current process.
-        pyPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py" )
+        pyPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py")
         pyPathName = os.path.abspath(pyPathName)
 
         execList = [ sys.executable, pyPathName ]
@@ -1280,7 +1146,8 @@ class SurvolLocalGdbTest(unittest.TestCase):
             print(oneStr)
             assert( oneStr in strInstancesSet )
 
-        check_subprocess_end(procOpen)
+        procOpen.communicate()
+
 
 @unittest.skipIf(not is_platform_windows, "SurvolLocalWindowsTest runs on Windows only")
 class SurvolLocalWindowsTest(unittest.TestCase):
