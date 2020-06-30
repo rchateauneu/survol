@@ -67,9 +67,6 @@ CreateFileMappingA.restype = wintypes.HANDLE
 #  LPCSTR                lpName
 #);
 
-GetCurrentProcess = ctypes.windll.kernel32.GetCurrentProcess
-GetCurrentProcess.restype = wintypes.HANDLE
-
 OpenProcessToken = ctypes.windll.advapi32.OpenProcessToken
 OpenProcessToken.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE))
 OpenProcessToken.restype = wintypes.BOOL
@@ -104,9 +101,11 @@ OpenThread = ctypes.windll.kernel32.OpenThread
 OpenThread.argtypes = (wintypes.DWORD, wintypes.BOOL, wintypes.DWORD)
 OpenThread.restype = HANDLE
 
-OpenProcessToken = ctypes.windll.advapi32.OpenProcessToken
-OpenProcessToken.argtypes = (wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE))
-OpenProcessToken.restype = wintypes.BOOL
+kernel32.WriteProcessMemory.argtypes = [HANDLE, LPVOID, LPVOID, c_size_t, POINTER(c_size_t)]
+
+kernel32.GetProcAddress.restype = ctypes.c_void_p
+kernel32.GetProcAddress.argtypes = (wintypes.HMODULE, wintypes.LPCSTR)
+
 
 ####################################################################################################################
 

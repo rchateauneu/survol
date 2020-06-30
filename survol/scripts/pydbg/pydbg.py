@@ -1997,11 +1997,7 @@ class pydbg(object):
         dll_utf8 = dll.decode("utf-8")
         dll_module = ctypes.WinDLL(dll_utf8, use_last_error=True)
 
-        dll_kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
-        dll_kernel32.GetProcAddress.restype = ctypes.c_void_p
-        dll_kernel32.GetProcAddress.argtypes = (wintypes.HMODULE, wintypes.LPCSTR)
-
-        function_address = dll_kernel32.GetProcAddress(dll_module._handle, function)
+        function_address = kernel32.GetProcAddress(dll_module._handle, function)
         assert function_address
 
         # These addresses might be identical but basic libraries like KERNEL32 because they are always loaded first.
@@ -4196,7 +4192,6 @@ class pydbg(object):
         while length:
             c_data = c_char_p(data[count.value:])
 
-            kernel32.WriteProcessMemory.argtypes = [HANDLE, LPVOID, LPVOID, c_size_t, POINTER(c_size_t)]
             if not kernel32.WriteProcessMemory(self.h_process, address, c_data, length, byref(count)):
                 raise pdx("WriteProcessMemory(%016x, ..., %d)" % (address, length), True)
 
