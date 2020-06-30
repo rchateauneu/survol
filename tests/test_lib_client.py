@@ -178,11 +178,8 @@ class SurvolLocalTest(unittest.TestCase):
         print("Len tripleMinus=",len(tripleMinus.get_instances()))
         self.assertEqual(len(tripleMinus.get_instances()), 0)
 
-    # http://rchateau-hp:8000/survol/sources_types/memmap/memmap_processes.py?xid=memmap.Id%3DC%3A%2FWindows%2FSystem32%2Fen-US%2Fkernel32.dll.mui
-
-
     def test_exception_bad_source(self):
-        # This tests if errors are properly displayed.
+        """This tests if errors are properly displayed and an exception is raised."""
         mySourceBad = lib_client.SourceLocal(
             "xxx/yyy/zzz.py",
             "this-will-raise-an-exception")
@@ -194,18 +191,8 @@ class SurvolLocalTest(unittest.TestCase):
         mySourceBroken = lib_client.SourceRemote(
             _remote_general_test_agent + "/xxx/yyy/zzz/ttt.py",
             "wwwww")
-        try:
-            tripleBroken = mySourceBroken.get_triplestore()
-            excRaised = False
-        except Exception as exc:
-            excRaised = True
-        self.assertTrue(excRaised)
-
-    def test_instance_filter(self):
-        # Filter from a triple store by creating a mask like:
-        # inst = lib_client.CMI_DataFile
-        print("TODO: test_instance_filter not implemented yet")
-
+        with self.assertRaises(Exception):
+            mySourceBroken.get_triplestore()
 
     def test_sparql(self):
         # https://en.wikipedia.org/wiki/SPARQL
