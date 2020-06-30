@@ -919,6 +919,11 @@ class Win32Hook_TerminateProcess(Win32Hook_BaseClass):
                 UINT   uExitCode
             );"""
     dll_name = b"KERNEL32.dll"
+    def callback_before(self, function_arguments):
+        terminated_process_handle = function_arguments[0]
+        terminated_process_id = win32process.GetProcessId(terminated_process_handle)
+        exit_code = function_arguments[1]
+        print("Win32Hook_TerminateProcess terminated_process_id=", terminated_process_id, "exit_code=", exit_code)
 
 
 class Win32Hook_TerminateThread(Win32Hook_BaseClass):
@@ -941,7 +946,7 @@ class Win32Hook_WriteFile(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
-        logging.debug("hook_function_WriteFile args=", function_arguments)
+        logging.debug("Win32Hook_WriteFile args=", function_arguments)
 
         lpBuffer = function_arguments[1]
         nNumberOfBytesToWrite = function_arguments[2]
