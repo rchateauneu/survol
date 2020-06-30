@@ -1640,20 +1640,14 @@ class SurvolRemoteTest(unittest.TestCase):
         # This should not be empty.
         self.assertTrue(len(tripleFileStatRemote) >= 1)
 
-    # This does not work yet.
     def test_remote_scripts_exception(self):
         myAgent = lib_client.Agent(_remote_general_test_agent)
 
-        try:
+        # This raises an exception like "EntityId className=CIM_LogicalDisk. No key DeviceID"
+        # because the properties are incorrect,
+        with self.assertRaises(Exception):
             mySourceInvalid = myAgent.CIM_LogicalDisk(WrongProperty=AnyLogicalDisk)
             scriptsInvalid = mySourceInvalid.get_scripts()
-            excRaised = False
-            print("No exception is raised (This is a problem)")
-        except Exception as exc:
-            # Should print: "No JSON object could be decoded"
-            print("An exception is raised (As expected):",exc)
-            excRaised = True
-        self.assertTrue(excRaised)
 
     def test_remote_instances_python_package(self):
         """This loads a specific Python package"""
