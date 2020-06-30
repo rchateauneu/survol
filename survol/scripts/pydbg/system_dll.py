@@ -155,7 +155,6 @@ class system_dll:
         self.size    = (file_size_hi.value << 8) + file_size_lo
 
         # create a file mapping from the dll handle.
-        # CreateFileMappingA.argtypes = (wintypes.HANDLE, wintypes.LPVOID, wintypes.DWORD, wintypes.DWORD, wintypes.DWORD, LPSTR)
         file_map = kernel32.CreateFileMappingA(handle, c_void_p(0), c_ulong(PAGE_READONLY), c_ulong(0), c_ulong(1), b"")
 
         if file_map:
