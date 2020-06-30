@@ -59,7 +59,8 @@ class SurvolLocalTest(unittest.TestCase):
             Name=always_present_file)
         print("test_create_source_local_json: query==%s" % mySourceFileStatLocal.create_url_query())
         the_content_json = mySourceFileStatLocal.content_json()
-        print("test_create_source_local_json: Json content=%s ..."%str(the_content_json)[:30])
+        print("test_create_source_local_json: Json content=%s ..."%str(the_content_json)[:100])
+        self.assertTrue(the_content_json['page_title'].startswith("File stat information"))
 
     def test_create_source_local_rdf(self):
         mySourceFileStatLocal = lib_client.SourceLocal(
@@ -76,7 +77,9 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_DataFile",
             Name=always_present_file)
         tripleFileStatLocal = mySourceFileStatLocal.get_triplestore()
-        print("Len triple store local=",len(tripleFileStatLocal.m_triplestore))
+        print("Len triple store local=", len(tripleFileStatLocal.m_triplestore))
+        # A lot of element.
+        self.assertTrue(len(tripleFileStatLocal.m_triplestore) > 10)
 
     def test_local_instances(self):
         mySourceFileStatLocal = lib_client.SourceLocal(
@@ -101,7 +104,7 @@ class SurvolLocalTest(unittest.TestCase):
         for oneInst in instancesFileStatLocal:
             sys.stdout.write("    %s\n"%str(oneInst))
         # This file should be there on any Windows machine.
-        self.assertTrue(lenInstances>=1)
+        self.assertTrue(lenInstances >= 1)
 
     def test_local_json(self):
         # Test merge of heterogeneous data sources.
@@ -111,7 +114,8 @@ class SurvolLocalTest(unittest.TestCase):
             DeviceID=AnyLogicalDisk)
 
         content1 = mySource1.content_json()
-        print( "content1=",str(content1.keys()))
+        print( "content1=", str(content1.keys()))
+        self.assertEqual(sorted(content1.keys()), ['links', 'nodes', 'page_title'])
 
     def test_merge_add_local(self):
         mySource1 = lib_client.SourceLocal(
