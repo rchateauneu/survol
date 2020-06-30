@@ -1763,9 +1763,10 @@ class SurvolRemoteTest(unittest.TestCase):
         # There should be at least a couple of scripts.
         self.assertTrue(len(listScriptsDir) > 0)
 
+    @unittest.skip("Not implemented yet")
     def test_remote_agents(self):
         """Gets agents accessible of remote host, then accesses them one by one"""
-        print("TODO: test_remote_agents not implemented yet")
+        pass
 
 class SurvolAzureTest(unittest.TestCase):
     """Testing Azure discovery"""
@@ -1798,11 +1799,9 @@ class SurvolAzureTest(unittest.TestCase):
         print("Azure subscription:",azureSubscription)
 
     @decorator_azure_subscription
+    @unittest.skip("Azure test disabled")
     def test_azure_locations(self,azureSubscription):
         """This checks Azure locations."""
-
-        print("decorator_azure_subscription DISABLED")
-        return
 
         lstInstances = ClientObjectInstancesFromScript(
             "sources_types/Azure/subscription/subscription_locations.py",
@@ -1820,11 +1819,9 @@ class SurvolAzureTest(unittest.TestCase):
             self.assertTrue(entitySubscription in strInstancesSet)
 
     @decorator_azure_subscription
+    @unittest.skip("Azure test disabled")
     def test_azure_subscription_disk(self,azureSubscription):
         """This checks Azure disks."""
-
-        print("test_azure_subscription_disk DISABLED")
-        return
 
         lstInstances = ClientObjectInstancesFromScript(
             "sources_types/Azure/subscription/subscription_disk.py",
@@ -1945,7 +1942,6 @@ class SurvolRabbitMQTest(unittest.TestCase):
         print("test_rabbitmq_queues strInstancesSet=", strInstancesSet)
         self.assertTrue('rabbitmq/vhost.Url=localhost:12345,VHost=/' in strInstancesSet)
         self.assertTrue('rabbitmq/manager.Url=localhost:12345' in strInstancesSet)
-
 
     @decorator_rabbitmq_subscription
     def test_rabbitmq_users(self,rabbitmqManager):
