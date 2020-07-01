@@ -4,16 +4,10 @@
 
 from __future__ import print_function
 
-import cgitb
 import unittest
 import subprocess
 import sys
 import os
-import re
-import time
-import socket
-import platform
-import pkgutil
 
 from init import *
 
@@ -21,35 +15,21 @@ from init import *
 update_test_path()
 
 import lib_client
-import lib_common
-import lib_properties
-
-isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
+import lib_util
 
 
-class SurvolLocalMemoryRegexSearchTest(unittest.TestCase):
+class ProcessMemoryTest(unittest.TestCase):
     """This searches with regular expressions in the mmeory of a running process.
     It does not need a Survol agent"""
 
     # This searches the content of a process memory which contains a SQL memory.
-    def test_regex_sql_query_from_batch_process(self):
-        print("test_regex_sql_query_from_batch_process: Broken")
-
-        return
-
-        try:
-            if 'win' in sys.platform:
-                import win32con
-        except ImportError:
-            print("Module win32con is not available so this test is not applicable")
-            return
-
+    @unittest.skip("TODO: Not working now")
+    def test_regex_sql_query_from_batch(self):
         sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "CommandExample.bat" )
 
-        execList = [ sqlPathName ]
+        execList = [sqlPathName]
 
-        # Runs this process: It allocates a variable containing a SQL query, then it waits.
-        procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        procOpen = subprocess.Popen(execList, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
         print("Started process:",execList," pid=",procOpen.pid)
 
@@ -64,89 +44,93 @@ class SurvolLocalMemoryRegexSearchTest(unittest.TestCase):
 
         tripleSqlQueries = mySourceSqlQueries.get_triplestore()
         print(len(tripleSqlQueries))
-        assert(len(tripleSqlQueries.m_triplestore)==190)
+        #self.assertEqual(len(tripleSqlQueries.m_triplestore), 190)
 
-        lstMatches = list(tripleSqlQueries.get_instances("[Pp]ellentesque"))
+        lstMatches = list(tripleSqlQueries.get_instances())
         print("Matches:",lstMatches)
-        assert( len(lstMatches) == 5 )
+        #self.assertEqual(len(lstMatches), 5)
 
         # Any string will do.
         child_stdin.write("Stop")
-        #procOpen.kill()
-        #procOpen.communicate()
-        #child_stdin.close()
-        #child_stdout_and_stderr.close()
 
         print(lstMatches)
 
     # This searches the content of a process memory which contains a SQL memory.
-    def test_regex_sql_query_from_python_process(self):
-        print("test_regex_sql_query_from_python_process: Broken")
-        return
+    def test_regex_sql_query_from_python(self):
+        sql_path_name = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py" )
 
-        try:
-            if 'win' in sys.platform:
-                import win32con
-        except ImportError:
-            print("Module win32con is not available so this test is not applicable")
-            return
-
-        sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py" )
-
-        execList = [ sys.executable, sqlPathName ]
+        exec_list = [sys.executable, sql_path_name]
 
         # Runs this process: It allocates a variable containing a SQL query, then it waits.
-        procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
+        proc_open = subprocess.Popen(exec_list, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
 
-        print("Started process:",execList," pid=",procOpen.pid)
-
-        # Reading from procOpen.stdout is buffered and one cannot get data until trhe process leaves, or so.
-        #print("child_stdout_and_stderr=",child_stdout_and_stderr.readline())
+        print("Started process:", exec_list, "pid=", proc_open.pid)
 
         mySourceSqlQueries = lib_client.SourceLocal(
             "sources_types/CIM_Process/memory_regex_search/scan_sql_queries.py",
             "CIM_Process",
-            Handle=procOpen.pid)
+            Handle=proc_open.pid)
 
-        tripleSqlQueries = mySourceSqlQueries.get_triplestore()
-        print("len(tripleSqlQueries)=",len(tripleSqlQueries))
+        triple_sql_queries = mySourceSqlQueries.get_triplestore()
+        print("len(triple_sql_queries)=", len(triple_sql_queries))
 
-        matchingTriples = list(tripleSqlQueries.get_all_strings_triples())
-        print("mmm=",matchingTriples)
+        # This creates objects like:
+        # "CIM_Process/embedded_sql_query.Query=SW5zZXJ0IGFuIGVudHJ5IGludG8gdGhlIGxpc3Qgb2Ygd2FybmluZ3MgZmlsdGVycyAoYXQgdGhlIGZyb250KS4=,Handle=15564"
+        # Maybe, this is not the best representation. Possibly have a generic query ? Some inheritance ?
+        # The specific detail about this query, is that it depends on the process.
+        # This test focus on the parsing of memory, not on the queries representation.
 
-        (child_stdout_content, child_stderr_content) = procOpen.communicate()
+        queries_set = set()
+        for one_instance in triple_sql_queries.get_instances():
+            if type(one_instance).__name__ == 'CIM_Process/embedded_sql_query':
+                self.assertEqual(one_instance.Handle, str(proc_open.pid))
+                decoded_query = lib_util.Base64Decode(one_instance.Query)
+                queries_set.add(decoded_query)
+
+        print("queries_set=", queries_set)
+        self.assertTrue("select something from somewhere" in queries_set)
+        self.assertTrue("select * from 'AnyTable'" in queries_set)
+        self.assertTrue("select a,b,c from 'AnyTable'" in queries_set)
+        self.assertTrue("select A.x,B.y from AnyTable A, OtherTable B" in queries_set)
+
+        proc_open.communicate()
 
     # This searches the content of a process memory which contains a SQL memory.
-    def test_regex_sql_query_from_perl_process(self):
-        print("test_regex_sql_query_from_perl_process: Broken")
-        return
+    @unittest.skipIf(not check_program_exists("perl"), "Perl must be installed.")
+    def test_regex_sql_query_from_perl(self):
+        sql_path_name = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePerlScript.pl")
 
-        sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SamplePerlScript.pl" )
-
-        execList = [ "perl", sqlPathName ]
+        # For example r"C:\Perl64\bin\perl.exe" on Windows.
+        perl_path = check_program_exists("perl")
+        exec_list = [perl_path, sql_path_name]
 
         # Runs this process: It allocates a variable containing a SQL query, then it waits.
-        procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
+        proc_open = subprocess.Popen(exec_list, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
 
-        print("Started process:",execList," pid=",procOpen.pid)
+        print("Started process:", exec_list," pid=", proc_open.pid)
 
-        # Reading from procOpen.stdout is buffered and one cannot get data until trhe process leaves, or so.
-        #print("child_stdout_and_stderr=",child_stdout_and_stderr.readline())
-
-        mySourceSqlQueries = lib_client.SourceLocal(
+        my_source_sql_queries = lib_client.SourceLocal(
             "sources_types/CIM_Process/memory_regex_search/scan_sql_queries.py",
             "CIM_Process",
-            Handle=procOpen.pid)
+            Handle=proc_open.pid)
 
-        tripleSqlQueries = mySourceSqlQueries.get_triplestore()
-        print("len(tripleSqlQueries)=",len(tripleSqlQueries))
+        triple_sql_queries = my_source_sql_queries.get_triplestore()
 
-        matchingTriples = list(tripleSqlQueries.get_all_strings_triples())
-        print("mmm=",matchingTriples)
+        queries_set = set()
+        for one_instance in triple_sql_queries.get_instances():
+            if type(one_instance).__name__ == 'CIM_Process/embedded_sql_query':
+                self.assertEqual(one_instance.Handle, str(proc_open.pid))
+                decoded_query = lib_util.Base64Decode(one_instance.Query)
+                queries_set.add(decoded_query)
 
-        (child_stdout_content, child_stderr_content) = procOpen.communicate()
+        print("queries_set=", queries_set)
 
+        self.assertTrue("select column_a from table_a" in queries_set)
+        self.assertTrue("select column_b from table_b" in queries_set)
 
+        proc_open.communicate()
+
+# TODO:
 #search_com_classes.py
 #search_connection_strings.py
 #search_filenames.py
