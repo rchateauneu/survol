@@ -1027,7 +1027,7 @@ class SurvolLocalGdbTest(unittest.TestCase):
     """These tests do not need a Survol agent, and run on Linux with GDB debugger"""
 
     def decorator_gdb_platform(test_func):
-        if is_platform_linux and linux_check_program_exists("gdb"):
+        if is_platform_linux and check_program_exists("gdb"):
             return test_func
         else:
             return None
