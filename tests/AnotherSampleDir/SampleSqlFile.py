@@ -11,9 +11,12 @@ sqlQuery3 = "select A.x,B.y from AnyTable A, OtherTable B"
 
 sqlQuery4 = b"select * from 'AnyTable'"
 
-sys.stdout.write("Starting subprocess %s\n"%__file__)
+sys.stdout.write("select something from somewhere\n")
+sys.stdout.write("Starting subprocess: %s\n"%__file__)
 sys.stdout.flush()
+
+print(sqlQuery1,sqlQuery2,sqlQuery3,sqlQuery4)
 
 xx = sys.stdin.read(1)
 
-print(sqlQuery1,sqlQuery2,sqlQuery3,sqlQuery4)
+

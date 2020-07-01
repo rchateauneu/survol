@@ -1,6 +1,8 @@
-my $name = "child";
-my $relative = "father";
+my $plain_query = "select column_a from table_a";
 
-print "select toto from toto\n";
-print "$name, $relative";
+print "select column_b from table_b\n";
+print "$plain_query";
+print "\n";
 
+print "Type return";
+my $end_program = <STDIN>;
