@@ -104,7 +104,7 @@ class ProcessMemoryTest(unittest.TestCase):
 
         # For example r"C:\Perl64\bin\perl.exe" on Windows.
         perl_path = check_program_exists("perl")
-        exec_list = [perl_path, sql_path_name]
+        exec_list = [perl_path.decode(), sql_path_name]
 
         # Runs this process: It allocates a variable containing a SQL query, then it waits.
         proc_open = subprocess.Popen(exec_list, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
