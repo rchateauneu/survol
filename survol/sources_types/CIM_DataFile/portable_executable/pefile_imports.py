@@ -6,6 +6,7 @@ PEFile imported entries and modules
 
 	
 import sys
+import lib_util
 import lib_uris
 import lib_win32
 import lib_common
@@ -13,10 +14,6 @@ import lib_shared_lib_path
 from lib_properties import pc
 
 import pefile
-
-#import win32api
-
-#Usable = lib_util.UsableWindowsBinary
 
 # TODO: THIS SHOULD USE THE ENVIRONMENT VARIABLE "PATH" OF THE RUNNING PROCESS.
 # TODO: INSTEAD, IT IS USING THE CURRENT PROCESS'ONE, WHICH IS WRONG.
@@ -40,7 +37,7 @@ class EnvPeFile:
 
 		try:
 			for entry in pe.DIRECTORY_ENTRY_IMPORT:
-				if sys.version_info >= (3,):
+				if lib_util.is_py3:
 					entry_dll = entry.dll.encode('utf-8')
 				else:
 					entry_dll = entry.dll
