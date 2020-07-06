@@ -653,7 +653,7 @@ def CIM_class_factory_no_cache(className):
         entity_id = lib_util.KWArgsToEntityId(className, **kwargsOntology)
         BaseCIMClass.__init__(self,agentUrl, entity_id, kwargsOntology)
 
-    if sys.version_info < (3,0):
+    if not lib_util.is_py3:
         # Python 2 does not want Unicode class name.
         className = className.encode()
 
