@@ -17,25 +17,32 @@ update_test_path()
 import lib_client
 import lib_util
 
+# For example r"C:\Perl64\bin\perl.exe" on Windows, "/usr/bin/perl" on Linux, or None if not installed.
+_perl_path = check_program_exists("perl")
+if _perl_path.decode(): _perl_path.decode()
 
-class ProcessMemoryTest(unittest.TestCase):
-    """This searches with regular expressions in the mmeory of a running process.
+sample_batch_script = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "CommandExample.bat")
+sample_python_script = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py")
+sample_perl_script = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePerlScript.pl")
+
+def _start_subprocess(*command_args):
+    exec_list = command_args
+    proc_open = subprocess.Popen(exec_list, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT, bufsize=0)
+    print("Started process:", exec_list, "pid=", proc_open.pid)
+    return proc_open
+
+
+class ProcessMemorySqlQueryTest(unittest.TestCase):
+    """This searches with regular expressions in the memory of a running process.
     It does not need a Survol agent"""
 
     # This searches the content of a process memory which contains a SQL memory.
     @unittest.skip("TODO: Not working now")
-    def test_regex_sql_query_from_batch(self):
-        sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "CommandExample.bat" )
+    def test_from_batch(self):
+        proc_open = _start_subprocess(sample_batch_script)
 
-        execList = [sqlPathName]
-
-        procOpen = subprocess.Popen(execList, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-        print("Started process:",execList," pid=",procOpen.pid)
-
-        (child_stdin, child_stdout_and_stderr) = (procOpen.stdin, procOpen.stdout)
-
-        #print("child_stdout_and_stderr=",child_stdout_and_stderr.readline())
+        (child_stdin, child_stdout_and_stderr) = (proc_open.stdin, proc_open.stdout)
 
         mySourceSqlQueries = lib_client.SourceLocal(
             "sources_types/CIM_Process/memory_regex_search/scan_sql_queries.py",
@@ -54,26 +61,20 @@ class ProcessMemoryTest(unittest.TestCase):
         child_stdin.write("Stop")
 
         print(lstMatches)
+        proc_open.communicate()
 
     # This searches the content of a process memory which contains a SQL memory.
-    @unittest.skipIf(is_platform_linux, "TODO: Fix this on Linux")
     @unittest.skipIf(is_travis_machine(), "TODO: Fix this on Travis")
-    def test_regex_sql_query_from_python(self):
-        sql_path_name = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py" )
-
-        exec_list = [sys.executable, sql_path_name]
-
+    def test_from_python(self):
         # Runs this process: It allocates a variable containing a SQL query, then it waits.
-        proc_open = subprocess.Popen(exec_list, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
+        proc_open = _start_subprocess(sys.executable, sample_python_script)
 
-        print("Started process:", exec_list, "pid=", proc_open.pid)
-
-        mySourceSqlQueries = lib_client.SourceLocal(
+        my_source_sql_queries = lib_client.SourceLocal(
             "sources_types/CIM_Process/memory_regex_search/scan_sql_queries.py",
             "CIM_Process",
             Handle=proc_open.pid)
 
-        triple_sql_queries = mySourceSqlQueries.get_triplestore()
+        triple_sql_queries = my_source_sql_queries.get_triplestore()
         print("len(triple_sql_queries)=", len(triple_sql_queries))
 
         # This creates objects like:
@@ -98,20 +99,10 @@ class ProcessMemoryTest(unittest.TestCase):
         proc_open.communicate()
 
     # This searches the content of a process memory which contains a SQL memory.
-    @unittest.skipIf(not check_program_exists("perl"), "Perl must be installed.")
-    @unittest.skipIf(is_platform_linux, "TODO: Fix this on Linux")
+    @unittest.skipIf(not _perl_path, "Perl must be installed.")
     @unittest.skipIf(is_travis_machine(), "TODO: Fix this on Travis")
-    def test_regex_sql_query_from_perl(self):
-        sql_path_name = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePerlScript.pl")
-
-        # For example r"C:\Perl64\bin\perl.exe" on Windows.
-        perl_path = check_program_exists("perl")
-        exec_list = [perl_path.decode(), sql_path_name]
-
-        # Runs this process: It allocates a variable containing a SQL query, then it waits.
-        proc_open = subprocess.Popen(exec_list, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
-
-        print("Started process:", exec_list," pid=", proc_open.pid)
+    def test_from_perl(self):
+        proc_open = _start_subprocess(_perl_path, sample_perl_script)
 
         my_source_sql_queries = lib_client.SourceLocal(
             "sources_types/CIM_Process/memory_regex_search/scan_sql_queries.py",
@@ -134,16 +125,176 @@ class ProcessMemoryTest(unittest.TestCase):
 
         proc_open.communicate()
 
-# TODO:
-#search_com_classes.py
-#search_connection_strings.py
-#search_filenames.py
-#search_urls.py
+
+@unittest.skipIf(is_platform_linux, "No COM classes on Linux")
+@unittest.skipIf(is_travis_machine(), "TODO: Not working on Travis yet")
+class ProcessMemoryCOMClassesTest(unittest.TestCase):
+    """This searches with regular expressions in the memory of a running process.
+    It does not need a Survol agent"""
+
+    # This searches COM classes ids in a process memory.
+    @unittest.skipIf(is_travis_machine(), "TODO: Fix this on Travis")
+    def test_from_python(self):
+        proc_open = _start_subprocess(sys.executable, sample_python_script)
+
+        my_source_com_classes = lib_client.SourceLocal(
+            "sources_types/CIM_Process/memory_regex_search/search_com_classes.py",
+            "CIM_Process",
+            Handle=proc_open.pid)
+
+        my_source_com_classes = my_source_com_classes.get_triplestore()
+        print("len(my_source_com_classes)=", len(my_source_com_classes))
+
+        proc_open.communicate()
+
+    # This searches COM classes ids in a process memory.
+    @unittest.skipIf(not _perl_path, "Perl must be installed.")
+    def test_from_perl(self):
+        proc_open = _start_subprocess(_perl_path, sample_perl_script)
+
+        my_source_com_classes = lib_client.SourceLocal(
+            "sources_types/CIM_Process/memory_regex_search/search_com_classes.py",
+            "CIM_Process",
+            Handle=proc_open.pid)
+
+        triple_com_classes = my_source_com_classes.get_triplestore()
+        print("len(triple_sql_queries)=", len(triple_com_classes))
+
+        proc_open.communicate()
 
 
+@unittest.skipIf(is_travis_machine(), "TODO: Not working on Travis yet")
+class ProcessMemoryConnectionStringsTest(unittest.TestCase):
+    """This searches with regular expressions in the mmemory of a running process.
+    It does not need a Survol agent"""
+
+    # This searches the content of a process memory which contains ODBC connection strings.
+    def test_from_python(self):
+        proc_open = _start_subprocess(sys.executable, sample_python_script)
+
+        my_source_connection_strings = lib_client.SourceLocal(
+            "sources_types/CIM_Process/memory_regex_search/search_connection_strings.py",
+            "CIM_Process",
+            Handle=proc_open.pid)
+
+        triple_connection_strings = my_source_connection_strings.get_triplestore()
+        print("len(triple_connection_strings_queries)=", len(triple_connection_strings))
+
+        proc_open.communicate()
+
+    # This searches the content of a process memory which contains ODBC connection strings.
+    @unittest.skipIf(not _perl_path, "Perl must be installed.")
+    def test_from_perl(self):
+        proc_open = _start_subprocess(_perl_path, sample_perl_script)
+
+        my_source_connection_strings = lib_client.SourceLocal(
+            "sources_types/CIM_Process/memory_regex_search/search_connection_strings.py",
+            "CIM_Process",
+            Handle=proc_open.pid)
+
+        triple_connection_strings = my_source_connection_strings.get_triplestore()
+        print("len(triple_connection_strings_queries)=", len(triple_connection_strings))
+
+        proc_open.communicate()
 
 
-# TODO: Test pydbg.    def load (self, path_to_file, command_line=None, create_new_console=False, show_window=True):
+@unittest.skipIf(is_platform_linux, "No COM classes on Linux")
+@unittest.skipIf(is_travis_machine(), "TODO: Not working on Travis yet")
+class ProcessMemoryFilenamesTest(unittest.TestCase):
+    """This searches with regular expressions in the memory of a running process.
+    It does not need a Survol agent"""
+
+    # This searches the content of a process memory which contains a SQL memory.
+    def test_from_python(self):
+        proc_open = _start_subprocess(sys.executable, sample_python_script)
+
+        my_source_filenames = lib_client.SourceLocal(
+            "sources_types/CIM_Process/memory_regex_search/search_filenames.py",
+            "CIM_Process",
+            Handle=proc_open.pid)
+
+        triple_filenames = my_source_filenames.get_triplestore()
+
+        filenames_set = set()
+        for one_instance in triple_filenames.get_instances():
+            if type(one_instance).__name__ == 'CIM_DataFile':
+                filenames_set.add(one_instance.Name)
+
+        for one_filename in sorted(filenames_set):
+            print("    ", one_filename)
+
+        # This filepath is calculated in the Python script
+        filepath_a = os.path.join(os.path.dirname(sys.executable), "this_is_a_file_name_with_slashes.cpp").replace("\\", "/")
+        self.assertTrue(filepath_a in filenames_set)
+
+        self.assertTrue(windows_system32_cmd_exe.replace("\\", "/") in filenames_set)
+        self.assertTrue(sys.executable.replace("\\", "/") in filenames_set)
+
+        a, b = proc_open.communicate()
+        print("ab=", a, b)
+
+    # This searches the content of a process memory which contains a SQL memory.
+    @unittest.skipIf(not _perl_path, "Perl must be installed.")
+    def test_from_perl(self):
+        proc_open = _start_subprocess(_perl_path, sample_perl_script)
+
+        my_source_filenames = lib_client.SourceLocal(
+            "sources_types/CIM_Process/memory_regex_search/search_filenames.py",
+            "CIM_Process",
+            Handle=proc_open.pid)
+
+        sys.stdout.flush()
+
+        triple_filenames = my_source_filenames.get_triplestore()
+        print("len(triple_filenames)=", len(triple_filenames))
+        filenames_set = set()
+        for one_instance in triple_filenames.get_instances():
+            if type(one_instance).__name__ == 'CIM_DataFile':
+                filenames_set.add(one_instance.Name)
+
+        for one_filename in sorted(filenames_set):
+            print("    ", one_filename)
+
+        self.assertTrue(_perl_path.replace("\\", "/") in filenames_set)
+        self.assertTrue(windows_system32_cmd_exe.replace("\\", "/") in filenames_set)
+
+        proc_open.communicate()
+
+
+@unittest.skipIf(is_travis_machine(), "TODO: Not working on Travis yet")
+class ProcessMemoryUrlsTest(unittest.TestCase):
+    """This searches with regular expressions in the memory of a running process.
+    It does not need a Survol agent"""
+
+    # This searches the content of a process memory which contains a SQL memory.
+    def test_from_python(self):
+        proc_open = _start_subprocess(sys.executable, sample_python_script)
+
+        my_source_urls = lib_client.SourceLocal(
+            "sources_types/CIM_Process/memory_regex_search/search_urls.py",
+            "CIM_Process",
+            Handle=proc_open.pid)
+
+        triple_urls = my_source_urls.get_triplestore()
+        print("len(triple_urls)=", len(triple_urls))
+
+        proc_open.communicate()
+
+    # This searches URLs in a process memory.
+    @unittest.skipIf(not _perl_path, "Perl must be installed.")
+    def test_from_perl(self):
+        proc_open = _start_subprocess(_perl_path, sample_perl_script)
+
+        my_source_urls = lib_client.SourceLocal(
+            "sources_types/CIM_Process/memory_regex_search/search_urls.py",
+            "CIM_Process",
+            Handle=proc_open.pid)
+
+        triple_urls = my_source_urls.get_triplestore()
+        print("len(triple_urls)=", len(triple_urls))
+
+        proc_open.communicate()
+
 
 if __name__ == '__main__':
     unittest.main()
