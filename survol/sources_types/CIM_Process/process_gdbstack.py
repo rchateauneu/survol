@@ -47,7 +47,7 @@ def RunGdbCommand(the_pid,command):
 	# Attaching to process 6513
 	# Reading symbols from /usr/bin/kdeinit...(no debugging symbols found)...done.
 	for lin in gdb_last_output.split(b'\n'):
-		if sys.version_info >= (3,):
+		if lib_util.is_py3:
 			# This return a bytes.
 			lin = lin.decode("utf-8")
 		DEBUG("rungdb:%s", lin )
