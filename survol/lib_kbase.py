@@ -159,13 +159,24 @@ def triplestore_to_stream_xml(grph,out_dest, a_format):
 # This reasonably assumes that the triplestore library is able to convert from RDF.
 # This transforms a serialize XML document into RDF.
 # See: https://rdflib.readthedocs.io/en/stable/apidocs/rdflib.html
-def triplestore_from_rdf_xml(docXmlRdf):
+def triplestore_from_rdf_xml(doc_xml_rdf):
     # This is the inverse operation of: grph.serialize( destination = out_dest, format="xml")
     grph = rdflib.Graph()
     try:
-        grph.parse(data=docXmlRdf, format="application/rdf+xml")
+        grph.parse(data=doc_xml_rdf, format="application/rdf+xml")
     except Exception as exc:
-        ERROR("triplestore_from_rdf_xml exc=", exc, " docXmlRdf...=", docXmlRdf[:20] )
+        # <unknown>:8:50: not well-formed (invalid token)
+        # Attempt to display exactly the error if it is like "<unknown>:8:50: not well-formed (invalid token)"
+        exception_as_string = str(exc)
+        exception_split = exception_as_string.split(":")
+        if len(exception_split) >= 4 and exception_split[0] == "<unknown>":
+            line_index = int(exception_split[1])
+            column_index = int(exception_split[2])
+            document_by_lines = doc_xml_rdf.split("\n")
+            faulty_line = document_by_lines[line_index]
+            ERROR("triplestore_from_rdf_xml index=%d faulty_line=%s", column_index, faulty_line)
+        else:
+            ERROR("triplestore_from_rdf_xml exc=%s docXmlRdf...=%s", exc, doc_xml_rdf[:20])
         raise
     return grph
 
