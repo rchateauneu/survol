@@ -17,12 +17,12 @@ import lib_tabular
 # Python multiprocessing is different under Linux and Windows
 import multiprocessing
 import threading
-if sys.version_info >= (3,):
+if lib_util.is_py3:
 	import _thread as thread
 else:
 	import thread
 
-if sys.version_info >= (3,):
+if lib_util.is_py3:
 	# import http.server
 	from http.server import BaseHTTPRequestHandler, HTTPServer
 else:
