@@ -281,7 +281,7 @@ def PsutilProcToCmdline(proc):
 
 	cmd_line = ' '.join(cmdArr)
 	# There might be non-printable characters.
-	if sys.version_info < (3,):
+	if lib_util.is_py3:
 		cmd_line = cmd_line.decode("ascii",errors="ignore")
 	return cmd_line
 
