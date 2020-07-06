@@ -10,6 +10,7 @@ import sys
 import cgi
 import json
 import time
+import lib_util
 import lib_event
 
 # This receives a CIM class and a pair of attributes which should be enough to create a CIM object.
@@ -35,7 +36,7 @@ def Main():
         rest_to_read = http_content_length
         loop_counter = 0
         while True:
-            if sys.version_info >= (3,):
+            if lib_util.is_py3:
                 loaded_chunk = sys.stdin.buffer.read(rest_to_read)
             else:
                 loaded_chunk = sys.stdin.read(rest_to_read)
