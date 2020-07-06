@@ -35,8 +35,7 @@ if __package__:
 else:
     import cim_objects_definitions
 
-is_py3 = sys.version_info >= (3,)
-if is_py3:
+if cim_objects_definitions.is_py3:
     import queue
 else:
     import Queue as queue
@@ -1053,7 +1052,7 @@ def _sockaddr_to_addr_id(hook_base_class, sockaddr_address, sockaddr_size):
         assert sockaddr_size == 16
 
         s_addr_ipv4 = hook_base_class.win32_hook_manager.read_process_memory(sockaddr_address + 4, 4)
-        if is_py3:
+        if cim_objects_definitions.is_py3:
             addr_ipv4 = ".".join(["%d" % int(one_byte) for one_byte in s_addr_ipv4])
         else:
             addr_ipv4 = ".".join(["%d" % ord(one_byte) for one_byte in s_addr_ipv4])
@@ -1077,7 +1076,7 @@ def _sockaddr_to_addr_id(hook_base_class, sockaddr_address, sockaddr_size):
         assert sockaddr_size == 28
 
         s_addr_ipv6 = hook_base_class.win32_hook_manager.read_process_memory(sockaddr_address + 8, 16)
-        if is_py3:
+        if cim_objects_definitions.is_py3:
             addr_ipv6 = str(s_addr_ipv6)
         else:
             addr_ipv6 = "".join(["%02x" % ord(one_byte) for one_byte in s_addr_ipv6])
