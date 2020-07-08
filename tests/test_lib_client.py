@@ -288,7 +288,7 @@ class SurvolLocalTest(unittest.TestCase):
     def test_regex_sql_query_file(self):
         """Searches for SQL queries in one file only."""
 
-        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile..py")
+        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
 
         mySourceSqlQueries = lib_client.SourceLocal(
             "sources_types/CIM_DataFile/grep_sql_queries.py",
@@ -316,7 +316,7 @@ class SurvolLocalTest(unittest.TestCase):
 
     def test_open_files_from_python_process(self):
         """Files open by a Python process"""
-        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile..py")
+        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
 
         execList = [ sys.executable, sqlPathName ]
 
@@ -348,7 +348,7 @@ class SurvolLocalTest(unittest.TestCase):
 
     def test_sub_parent_from_python_process(self):
         """Sub and parent processes a Python process"""
-        sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile..py")
+        sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
 
         execList = [sys.executable, sqlPathName]
 
@@ -384,7 +384,7 @@ class SurvolLocalTest(unittest.TestCase):
 
     def test_memory_maps_from_python_process(self):
         """Sub and parent processes a Python process"""
-        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile..py")
+        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
 
         execList = [sys.executable, sqlPathName]
 
@@ -547,7 +547,7 @@ class SurvolLocalTest(unittest.TestCase):
         """Examines a running Python process"""
 
         # This creates a process running in Python, because it does not work with the current process.
-        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile..py")
+        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
 
         execList = [ sys.executable, sqlPathName ]
 
@@ -1058,7 +1058,7 @@ class SurvolLocalGdbTest(unittest.TestCase):
         """Displays the stack of a Python process"""
 
         # This creates a process running in Python, because it does not work with the current process.
-        pyPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile..py")
+        pyPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
         pyPathName = os.path.abspath(pyPathName)
 
         execList = [ sys.executable, pyPathName ]
