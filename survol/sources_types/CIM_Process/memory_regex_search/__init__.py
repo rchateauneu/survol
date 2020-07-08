@@ -306,13 +306,12 @@ class MemoryProcessorStructs:
 
 class MemoryProcessorRegex:
 	# We can have: flags=re.IGNORECASE
-	def __init__(self,is64Bits,aRegex, re_flags):
-		DEBUG("aRegex=%s",aRegex)
-		self.m_rgxComp = re.compile(aRegex.encode('utf-8'),re_flags)
-		# self.m_matches = set()
+	def __init__(self, is64Bits, a_regex, re_flags):
+		DEBUG("aRegex=%s", a_regex)
+		self.m_rgxComp = re.compile(a_regex.encode('utf-8'), re_flags)
 		self.m_matches = dict()
 
-	def ParseSegment(self,addr_beg, bytes_array):
+	def ParseSegment(self, addr_beg, bytes_array):
 		#print("MemoryProcessorRegex.ParseSegment len=", len(bytes_array))
 
 		if False:
@@ -323,16 +322,12 @@ class MemoryProcessorRegex:
 
 			#print("Bytes", char_array)
 
-		# TODO: Use finditer
-		# mtch = self.m_rgxComp.findall( bytes_array )
-		# self.m_matches.update( mtch )
-
 		# The result is a dictionary whose key is the offset.
 		# We assume that this offset can only be unique in the segment.
 		matches_count = 0
 		for mtch in self.m_rgxComp.finditer(bytes_array):
-			memOffset = addr_beg + mtch.start()
-			self.m_matches[ memOffset ] = mtch.group()
+			mem_offset = addr_beg + mtch.start()
+			self.m_matches[mem_offset] = mtch.group()
 			matches_count += 1
 		#print("MATCHES:", matches_count, len(self.m_matches))
 
