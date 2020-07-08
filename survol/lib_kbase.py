@@ -2,7 +2,7 @@
 
 import sys
 import re
-
+import collections
 import rdflib
 from rdflib.namespace import RDF, RDFS, XSD
 
@@ -50,16 +50,18 @@ def MakeGraph():
 
 # The returns the set of unique subjects or objects,
 # instances and scripts, but no literals.
-def enumerate_urls(grph):
-    urls_set = set()
+def unique_urls_dict(grph):
+    # A default dictionary of default dictionaries of lists.
+    urls_dict = collections.defaultdict(lambda: collections.defaultdict(list))
 
     # Beware that the order might change each time.
     for k_sub, k_pred, k_obj in grph:
-        urls_set.add(k_sub)
+        pred_name = grph.qname(k_pred)
+        urls_dict[k_sub][pred_name].append(str(k_obj))
 
         if not IsLiteral(k_obj):
-            urls_set.add(k_obj)
-    return urls_set
+            urls_dict[k_obj]
+    return urls_dict
 
 
 # It has to build an intermediary map because we have no simple way to find all edges
@@ -167,14 +169,6 @@ def triplestore_to_stream_xml(grph, out_dest, a_format):
             out_dest.write(str_xml.decode('utf8'))
 
 
-def triplestore_to_text(grph):
-    output_list = []
-    for k_sub, k_pred, k_obj in grph:
-        triple_text = "%s %s %s" % (k_sub, k_pred, k_obj)
-        output_list.append(triple_text)
-    return str(output_list)
-
-
 # This reasonably assumes that the triplestore library is able to convert from RDF.
 # This transforms a serialize XML document into RDF.
 # See: https://rdflib.readthedocs.io/en/stable/apidocs/rdflib.html
@@ -184,7 +178,7 @@ def triplestore_from_rdf_xml(doc_xml_rdf):
     try:
         grph.parse(data=doc_xml_rdf, format="application/rdf+xml")
     except Exception as exc:
-        # <unknown>:8:50: not well-formed (invalid token)
+        # This is the exception message we want to split: "<unknown>:8:50: not well-formed (invalid token)"
         # Attempt to display exactly the error if it is like "<unknown>:8:50: not well-formed (invalid token)"
         exception_as_string = str(exc)
         exception_split = exception_as_string.split(":")

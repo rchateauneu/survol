@@ -313,7 +313,6 @@ class SourceMerge (SourceBase):
                 ( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(instanceUrl)
                 if entity_label == self.m_srcB.m_class:
                     urlDerived = url_to_instance(instanceUrl)
-                    # urlDerived = self.m_srcB.DeriveUrl(instanceUrl)
                     triplestoreB = urlDerived.get_triplestore()
                     triplestoreA = self.m_operatorTripleStore(triplestoreA,triplestoreB)
             return TripleStore(triplestoreA)
@@ -692,12 +691,14 @@ def create_CIM_class(agentUrl,className,**kwargsOntology):
 ################################################################################
 
 
-# Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
-# BEWARE: Some arguments should be decoded.
+# This receives the URL of an object, its class and the moniker.
+# It splits the moniker in key-value pairs.
+# These are used to create a CIM object with key-value pairs transformed in attributes.
 # Example: xid="CIM_Process.Handle=2092"
-# TODO: See lib_util.SplitMoniker()
+# BEWARE: Some arguments should be decoded from Base64.
 def entity_id_to_instance(agent_url, class_name, entity_id):
-    xid_dict = { sp[0]:sp[2] for sp in [ ss.partition("=") for ss in entity_id.split(",") ] }
+    # TODO: Should use lib_util.SplitMoniker() because parsing may be more complicated,
+    xid_dict = {sp[0]:sp[2] for sp in [ss.partition("=") for ss in entity_id.split(",")]}
 
     new_instance = create_CIM_class(agent_url, class_name, **xid_dict)
     return new_instance
@@ -715,11 +716,12 @@ def url_to_instance(instance_url):
     agent_url = instance_url_to_agent_url(instance_url)
 
     (entity_label, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri(instance_url)
-    # Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
-    # BEWARE: Some arguments should be decoded.
-    #DEBUG("get_instances instanceUrl=%s entity_graphic_class=%s entity_id=%s",instanceUrl,entity_graphic_class,entity_id)
+    # This extracts the host from the string "Key=Val,Name=xxxxxx,Key=Val"
+    # TODO: Some arguments should be decoded from base64.
+    # DEBUG("get_instances instanceUrl=%s entity_graphic_class=%s entity_id=%s",instanceUrl,entity_graphic_class,entity_id)
 
-    return entity_id_to_instance(agent_url, entity_graphic_class, entity_id)
+    new_instance = entity_id_to_instance(agent_url, entity_graphic_class, entity_id)
+    return new_instance
 
 
 # instanceUrl="http://LOCAL_MODE:80/LocalExecution/entity.py?xid=Win32_Group.Domain=local_mode,Name=Replicator"
@@ -765,11 +767,6 @@ class TripleStore:
     def __len__(self):
         return len(self.m_triplestore)
 
-    def __str__(self):
-        # This is only for debugging purpose.
-        return lib_kbase.triplestore_to_text(self.m_triplestore)
-
-
     # This keeps only Survol instances and scripts urls.
     # For example, 'http://localhost:12345/#/vhosts/' is a RabbitMQ HTTP url.
     # TODO: Make this test better.
@@ -788,8 +785,8 @@ class TripleStore:
         return str_url.find("/survol") >= 0
 
     def enumerate_urls(self):
-        objs_set = lib_kbase.enumerate_urls(self.m_triplestore)
-        for instance_url in objs_set:
+        urls_dict = lib_kbase.unique_urls_dict(self.m_triplestore)
+        for instance_url, key_value_list in urls_dict.items():
             if self.is_survol_url(instance_url):
                 yield instance_url
 
@@ -798,14 +795,15 @@ class TripleStore:
     # TODO: Is is really useful to build objects, given that the edges are lost ??
     # TODO: And what about connected objects ? Can a value be an object ?
     def get_instances(self):
-        objs_set = self.enumerate_urls()
+        urls_dict = lib_kbase.unique_urls_dict(self.m_triplestore)
+
         instances_list = []
-        for instance_url in objs_set:
-            new_instance = url_to_instance(instance_url)
-            if new_instance is None:
-                continue
-            assert(new_instance)
-            instances_list.append(new_instance)
+        for instance_url, urls_key_value_dict in urls_dict.items():
+            if self.is_survol_url(instance_url):
+                new_instance = url_to_instance(instance_url)
+                if new_instance:
+                    new_instance.graph_attributes = urls_key_value_dict
+                    instances_list.append(new_instance)
         return instances_list
 
     # This returns the set of all nodes connected directly or indirectly to the input.

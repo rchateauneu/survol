@@ -10,6 +10,12 @@ import time
 # This filename must appear in the process memory.
 filepath_a = os.path.join(os.path.dirname(sys.executable), "this_is_a_file_name_with_slashes.cpp").replace("\\", "/")
 
+# This url must appear in the process memory.
+url_http_str = u"http://www.gnu.org/gnu/gnu.html"
+url_http_bytes = b"https://pypi.org/help/"
+url_https_bytes = b"https://www.python.org/about/"
+url_https_str = u"https://www.perl.org/about.html"
+
 sqlQuery1 = "select * from 'AnyTable'"
 sqlQuery2 = "select a,b,c from 'AnyTable'"
 sqlQuery3 = "select A.x,B.y from AnyTable A, OtherTable B"

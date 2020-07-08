@@ -288,7 +288,7 @@ class SurvolLocalTest(unittest.TestCase):
     def test_regex_sql_query_file(self):
         """Searches for SQL queries in one file only."""
 
-        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py")
+        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile..py")
 
         mySourceSqlQueries = lib_client.SourceLocal(
             "sources_types/CIM_DataFile/grep_sql_queries.py",
@@ -316,7 +316,7 @@ class SurvolLocalTest(unittest.TestCase):
 
     def test_open_files_from_python_process(self):
         """Files open by a Python process"""
-        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py")
+        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile..py")
 
         execList = [ sys.executable, sqlPathName ]
 
@@ -348,7 +348,7 @@ class SurvolLocalTest(unittest.TestCase):
 
     def test_sub_parent_from_python_process(self):
         """Sub and parent processes a Python process"""
-        sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py")
+        sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile..py")
 
         execList = [sys.executable, sqlPathName]
 
@@ -384,7 +384,7 @@ class SurvolLocalTest(unittest.TestCase):
 
     def test_memory_maps_from_python_process(self):
         """Sub and parent processes a Python process"""
-        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py")
+        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile..py")
 
         execList = [sys.executable, sqlPathName]
 
@@ -547,21 +547,10 @@ class SurvolLocalTest(unittest.TestCase):
         """Examines a running Python process"""
 
         # This creates a process running in Python, because it does not work with the current process.
-        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py")
+        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile..py")
 
         execList = [ sys.executable, sqlPathName ]
 
-        # On Windows, psutil.Process.cmdline() is not very reliable, if the process is started with cmd.exe and Shell=True:
-        #Python 2, psutil.__version__=5.2.2
-        # Shell=1 argvArray=['C:\\windows\\system32\\cmd.exe', '/c', 'C:\\Python27\\python.exe AnotherSampleDir\\SampleSqlFile.py']
-        # Shell=0 argvArray=['C:\\Python27\\python.exe', 'AnotherSampleDir\\SampleSqlFile.py']
-        #
-        #Python 3, psutil.__version__=5.4.7
-        # Shell=1 argvArray=['C:\\windows\\system32\\cmd.exe', '/c', 'C:\\Program', 'Files', '(x86)\\Microsoft', 'Visual', 'Studio\\Shared\\Python36_64\\python.exe AnotherSampleDir\\SampleSqlFile.py']
-        # Shell=0 argvArray=['C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\Python36_64\\python.exe', 'AnotherSampleDir\\SampleSqlFile.py']
-        #
-        #Python 2, psutil.__version__=5.4.3
-        # argvArray=['python', 'toto space.py']
         procOpen = subprocess.Popen(execList, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
 
         print("Started process:",execList," pid=",procOpen.pid)
@@ -1069,7 +1058,7 @@ class SurvolLocalGdbTest(unittest.TestCase):
         """Displays the stack of a Python process"""
 
         # This creates a process running in Python, because it does not work with the current process.
-        pyPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py")
+        pyPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile..py")
         pyPathName = os.path.abspath(pyPathName)
 
         execList = [ sys.executable, pyPathName ]
@@ -1091,13 +1080,6 @@ class SurvolLocalGdbTest(unittest.TestCase):
         lstInstances = triplePyStack.get_instances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
         print("strInstancesSet=",strInstancesSet)
-
-        # Typical output: [
-        #     'linker_symbol.Name=X19tYWluX18=,File=/tmp/tmpfxxzh0.py',
-        #     'CIM_DataFile.Name=/tmp/tmpfxxzh0.py',
-        #     'linker_symbol.Name=X19tYWluX18=,File=/home/rchateau/survol/tests/AnotherSampleDir/SampleSqlFile.py',
-        #     'CIM_DataFile.Name=/home/rchateau/survol/tests/AnotherSampleDir/SampleSqlFile.py'
-        # ]
 
         pyPathNameAbsolute = os.path.abspath(pyPathName)
         pyPathNameClean = pyPathNameAbsolute.replace("\\","/")
