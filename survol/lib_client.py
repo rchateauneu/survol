@@ -313,7 +313,6 @@ class SourceMerge (SourceBase):
                 ( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(instanceUrl)
                 if entity_label == self.m_srcB.m_class:
                     urlDerived = url_to_instance(instanceUrl)
-                    # urlDerived = self.m_srcB.DeriveUrl(instanceUrl)
                     triplestoreB = urlDerived.get_triplestore()
                     triplestoreA = self.m_operatorTripleStore(triplestoreA,triplestoreB)
             return TripleStore(triplestoreA)
@@ -653,7 +652,7 @@ def CIM_class_factory_no_cache(className):
         entity_id = lib_util.KWArgsToEntityId(className, **kwargsOntology)
         BaseCIMClass.__init__(self,agentUrl, entity_id, kwargsOntology)
 
-    if sys.version_info < (3,0):
+    if not lib_util.is_py3:
         # Python 2 does not want Unicode class name.
         className = className.encode()
 
@@ -692,12 +691,14 @@ def create_CIM_class(agentUrl,className,**kwargsOntology):
 ################################################################################
 
 
-# Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
-# BEWARE: Some arguments should be decoded.
+# This receives the URL of an object, its class and the moniker.
+# It splits the moniker in key-value pairs.
+# These are used to create a CIM object with key-value pairs transformed in attributes.
 # Example: xid="CIM_Process.Handle=2092"
-# TODO: See lib_util.SplitMoniker()
+# BEWARE: Some arguments should be decoded from Base64.
 def entity_id_to_instance(agent_url, class_name, entity_id):
-    xid_dict = { sp[0]:sp[2] for sp in [ ss.partition("=") for ss in entity_id.split(",") ] }
+    # TODO: Should use lib_util.SplitMoniker() because parsing may be more complicated,
+    xid_dict = {sp[0]:sp[2] for sp in [ss.partition("=") for ss in entity_id.split(",")]}
 
     new_instance = create_CIM_class(agent_url, class_name, **xid_dict)
     return new_instance
@@ -715,11 +716,12 @@ def url_to_instance(instance_url):
     agent_url = instance_url_to_agent_url(instance_url)
 
     (entity_label, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri(instance_url)
-    # Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
-    # BEWARE: Some arguments should be decoded.
-    #DEBUG("get_instances instanceUrl=%s entity_graphic_class=%s entity_id=%s",instanceUrl,entity_graphic_class,entity_id)
+    # This extracts the host from the string "Key=Val,Name=xxxxxx,Key=Val"
+    # TODO: Some arguments should be decoded from base64.
+    # DEBUG("get_instances instanceUrl=%s entity_graphic_class=%s entity_id=%s",instanceUrl,entity_graphic_class,entity_id)
 
-    return entity_id_to_instance(agent_url, entity_graphic_class, entity_id)
+    new_instance = entity_id_to_instance(agent_url, entity_graphic_class, entity_id)
+    return new_instance
 
 
 # instanceUrl="http://LOCAL_MODE:80/LocalExecution/entity.py?xid=Win32_Group.Domain=local_mode,Name=Replicator"
@@ -748,18 +750,19 @@ class TripleStore:
         else:
             DEBUG("TripleStore.__init__ empty")
 
-    def to_stream_xml(self,strStrm):
+    def to_stream_xml(self, str_stream):
         DEBUG("TripleStore.to_stream_xml")
-        lib_kbase.triplestore_to_stream_xml(self.m_triplestore,strStrm,'xml')
+        lib_kbase.triplestore_to_stream_xml(self.m_triplestore, str_stream, 'xml')
 
     # This merges two triplestores. The package rdflib does exactly that,
     # but it is better to isolate from it, just in case another triplestores
     # implementation would be preferable.
-    def __add__(self, otherTriple):
-        return TripleStore(lib_kbase.triplestore_add(self.m_triplestore,otherTriple.m_triplestore))
+    def __add__(self, other_triple):
+        return TripleStore(lib_kbase.triplestore_add(self.m_triplestore, other_triple.m_triplestore))
 
-    def __sub__(self, otherTriple):
-        return TripleStore(lib_kbase.triplestore_sub(self.m_triplestore,otherTriple.m_triplestore))
+    # This removes our triples which also belong to another set.
+    def __sub__(self, other_triple):
+        return TripleStore(lib_kbase.triplestore_sub(self.m_triplestore, other_triple.m_triplestore))
 
     def __len__(self):
         return len(self.m_triplestore)
@@ -782,8 +785,8 @@ class TripleStore:
         return str_url.find("/survol") >= 0
 
     def enumerate_urls(self):
-        objsSet = lib_kbase.enumerate_urls(self.m_triplestore)
-        for instance_url in objsSet:
+        urls_dict = lib_kbase.unique_urls_dict(self.m_triplestore)
+        for instance_url, key_value_list in urls_dict.items():
             if self.is_survol_url(instance_url):
                 yield instance_url
 
@@ -792,64 +795,65 @@ class TripleStore:
     # TODO: Is is really useful to build objects, given that the edges are lost ??
     # TODO: And what about connected objects ? Can a value be an object ?
     def get_instances(self):
-        objs_set = self.enumerate_urls()
+        urls_dict = lib_kbase.unique_urls_dict(self.m_triplestore)
+
         instances_list = []
-        for instance_url in objs_set:
-            new_instance = url_to_instance(instance_url)
-            if new_instance == None:
-                continue
-            assert(new_instance)
-            instances_list.append(new_instance)
+        for instance_url, urls_key_value_dict in urls_dict.items():
+            if self.is_survol_url(instance_url):
+                new_instance = url_to_instance(instance_url)
+                if new_instance:
+                    new_instance.graph_attributes = urls_key_value_dict
+                    instances_list.append(new_instance)
         return instances_list
 
     # This returns the set of all nodes connected directly or indirectly to the input.
-    def get_connected_instances(self,startInstance,filterPredicates):
-        setFilterPredicates = {pc.property_script,pc.property_rdf_data_nolist2}
-        if filterPredicates:
-            setFilterPredicates.update(filterPredicates)
+    def get_connected_instances(self, start_instance, filter_predicates):
+        set_filter_predicates = {pc.property_script,pc.property_rdf_data_nolist2}
+        if filter_predicates:
+            set_filter_predicates.update(filter_predicates)
 
-        urls_adjacency_list = lib_kbase.get_urls_adjacency_list(self.m_triplestore,startInstance,setFilterPredicates)
+        urls_adjacency_list = lib_kbase.get_urls_adjacency_list(self.m_triplestore, start_instance, set_filter_predicates)
 
         # Now the adjacency list between scripts must be transformed into an adjacency list between instances only.
         instances_adjacency_list = dict()
-        for oneUrl in urls_adjacency_list:
-            oneInstance = url_to_instance(oneUrl)
-            if oneInstance:
-                adj_urls_list = urls_adjacency_list[oneUrl]
+        for one_url in urls_adjacency_list:
+            one_instance = url_to_instance(one_url)
+            if one_instance:
+                adj_urls_list = urls_adjacency_list[one_url]
                 adj_insts = []
-                for oneAdjUrl in adj_urls_list:
-                    oneAdjInstance = url_to_instance(oneAdjUrl)
-                    if oneAdjInstance:
-                        adj_insts.append(oneAdjInstance)
+                for one_adj_url in adj_urls_list:
+                    one_adj_instance = url_to_instance(one_adj_url)
+                    if one_adj_instance:
+                        adj_insts.append(one_adj_instance)
                 if adj_insts:
-                    instances_adjacency_list[oneInstance] = adj_insts
+                    instances_adjacency_list[one_instance] = adj_insts
 
-        setConnectedInstances = set()
+        set_connected_instances = set()
 
         # This recursively merges all nodes connected to this one.
-        def __merge_connected_instances_to(oneInst):
+        def __merge_connected_instances_to(one_instance):
 
-            if not oneInst in instances_adjacency_list:
+            if not one_instance in instances_adjacency_list:
                 #DEBUG("Already deleted oneInst=%s",oneInst)
                 return
 
-            assert oneInst in instances_adjacency_list,"oneInst not there:%s"%oneInst
-            instsConnected = instances_adjacency_list[oneInst]
+            assert one_instance in instances_adjacency_list, "oneInst not there:%s" % one_instance
+            insts_connected = instances_adjacency_list[one_instance]
 
-            setConnectedInstances.update(instsConnected)
+            set_connected_instances.update(insts_connected)
 
-            del instances_adjacency_list[oneInst]
-            for endInst in instsConnected:
-                __merge_connected_instances_to(endInst)
+            del instances_adjacency_list[one_instance]
+            for end_inst in insts_connected:
+                __merge_connected_instances_to(end_inst)
 
-        __merge_connected_instances_to(startInstance)
+        __merge_connected_instances_to(start_instance)
 
         # All the nodes connected to the input one.
-        INFO("startInstance=%s len(setConnectedInstances)=%d",startInstance,len(setConnectedInstances))
-        return setConnectedInstances
+        INFO("startInstance=%s len(set_connected_instances)=%d", start_instance, len(set_connected_instances))
+        return set_connected_instances
 
-    def get_matching_strings_triples(self, searchString):
-        return lib_kbase.triplestore_matching_strings(self.m_triplestore,searchString)
+    def get_matching_strings_triples(self, search_string):
+        return lib_kbase.triplestore_matching_strings(self.m_triplestore, search_string)
 
     def get_all_strings_triples(self):
         for trpSubj,trpPred,trpObj in lib_kbase.triplestore_all_strings(self.m_triplestore):

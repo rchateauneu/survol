@@ -2,7 +2,7 @@
 
 import sys
 import re
-
+import collections
 import rdflib
 from rdflib.namespace import RDF, RDFS, XSD
 
@@ -14,17 +14,22 @@ PredicateClass = RDFS.Class
 PredicateLabel = RDFS.label
 PredicateSubClassOf = RDFS.subClassOf
 
-def IsLiteral(objRdf):
-    return isinstance(objRdf, (rdflib.term.Literal))
 
-def IsURIRef(objRdf):
-    return isinstance(objRdf, (rdflib.term.URIRef))
+def IsLiteral(obj_rdf):
+    return isinstance(obj_rdf, rdflib.term.Literal)
+
+
+def IsURIRef(obj_rdf):
+    return isinstance(obj_rdf, rdflib.term.URIRef)
+
 
 def IsLink(obj):
-    return isinstance( obj , (rdflib.URIRef, rdflib.BNode))
+    return isinstance(obj , (rdflib.URIRef, rdflib.BNode))
+
 
 def MakeNodeLiteral(value):
     return rdflib.Literal(value)
+
 
 # This returns an object which, whose string conversion is identical to the input string.
 # Beware that it is sometimes called recursively.
@@ -33,70 +38,76 @@ def MakeNodeUrl(url):
     # sys.stderr.write("MakeNodeUrl url=%s uriRef=%s\n"%(url,uriRef))
     return uriRef
 
+
 def MakeNamespace(primns):
     pc = rdflib.Namespace(primns)
     return pc
 
+
 def MakeGraph():
     return rdflib.Graph()
 
+
 # The returns the set of unique subjects or objects,
 # instances and scripts, but no literals.
-def enumerate_urls(grph):
-    urlsSet = set()
+def unique_urls_dict(grph):
+    # A default dictionary of default dictionaries of lists.
+    urls_dict = collections.defaultdict(lambda: collections.defaultdict(list))
 
     # Beware that the order might change each time.
-    for kSub,kPred,kObj in grph:
-        urlsSet.add(kSub)
+    for k_sub, k_pred, k_obj in grph:
+        pred_name = grph.qname(k_pred)
+        urls_dict[k_sub][pred_name].append(str(k_obj))
 
-        if not IsLiteral(kObj):
-            urlsSet.add(kObj)
-    return urlsSet
+        if not IsLiteral(k_obj):
+            urls_dict[k_obj]
+    return urls_dict
+
 
 # It has to build an intermediary map because we have no simple way to find all edges
 # starting from a node. Otherwise, we could use a classical algorithm (Dijkstra ?)
-def get_urls_adjacency_list(grph,startInstance,filterPredicates):
-    DEBUG("startInstance=%s type=%s",str(startInstance),str(type(startInstance)))
+def get_urls_adjacency_list(grph, start_instance, filter_predicates):
+    DEBUG("startInstance=%s type=%s", str(start_instance), str(type(start_instance)))
     # Each node maps to the list of the nodes it is directly connected to.
     adjacency_list = dict()
 
     # This takes an edge and updates the map.
-    def InsertEdge(urlStart,urlEnd):
+    def _insert_edge(url_start, url_end):
         #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
         # This keeps only Survol instances urls.
-        strStart = str(urlStart)
-        strEnd = str(urlEnd)
+        str_start = str(url_start)
+        str_end = str(url_end)
         # TODO: Make this test better.
 
         #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
 
-        if (strStart != "http://localhost") and (strEnd != "http://localhost"):
+        if (str_start != "http://localhost") and (str_end != "http://localhost"):
             #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
-            assert strStart.find("/localhost") < 0, "start local host"
-            assert strEnd.find("/localhost") < 0, "end local host"
+            assert str_start.find("/localhost") < 0, "start local host"
+            assert str_end.find("/localhost") < 0, "end local host"
             #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
             try:
                 #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
-                adjacency_list[urlStart].add(urlEnd)
+                adjacency_list[url_start].add(url_end)
                 #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
             except KeyError:
                 #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
-                adjacency_list[urlStart] = set([urlEnd])
+                adjacency_list[url_start] = set([url_end])
                 #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
         #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
 
     DEBUG("len(grph)=%d",len(grph))
 
     # Connected in both directions.
-    for kSub,kPred,kObj in grph:
-        # TODO: Like in Grph2Json(), we could filter when kPred = pc.property_script = MakeProp("script")
+    for k_sub, k_pred, k_obj in grph:
+        # TODO: Like in Grph2Json(), we could filter when k_pred = pc.property_script = MakeProp("script")
         # TODO: because this can only be a script.
-        if kPred in filterPredicates:
+        if k_pred in filter_predicates:
             continue
 
-        if (not IsLiteral(kSub)) and (not IsLiteral(kObj)):
-            InsertEdge(kSub,kObj)
-            InsertEdge(kObj,kSub)
+        if (not IsLiteral(k_sub)) and (not IsLiteral(k_obj)):
+            _insert_edge(k_sub, k_obj)
+            _insert_edge(k_obj, k_sub)
     #DEBUG("str(adjacency_list)=%s",str(adjacency_list))
 
     return adjacency_list
@@ -104,27 +115,29 @@ def get_urls_adjacency_list(grph,startInstance,filterPredicates):
 
 # This returns a subset of a triplestore whose object matches a given string.
 # TODO: Consider using SparQL.
-def triplestore_matching_strings(grph,searchString):
-    DEBUG("triplestore_matching_strings: searchString=%s"%searchString)
+def triplestore_matching_strings(grph, search_string):
+    DEBUG("triplestore_matching_strings: search_string=%s" % search_string)
     # Beware that the order might change each time.
-    compiledRgx = re.compile(searchString)
-    for kSub,kPred,kObj in grph:
-        if IsLiteral(kObj):
+    compiled_rgx = re.compile(search_string)
+    for k_sub, k_pred, k_obj in grph:
+        if IsLiteral(k_obj):
             # Conversion to string in case it would be a number.
-            strObj = str(kObj.value)
-            if compiledRgx.match(strObj):
-                yield (kSub,kPred,kObj)
+            str_obj = str(k_obj.value)
+            if compiled_rgx.match(str_obj):
+                yield k_sub, k_pred, k_obj
+
 
 def triplestore_all_strings(grph):
     DEBUG("triplestore_all_strings")
     # Beware that the order might change each time.
-    for kSub, kPred, kObj in grph:
-        if IsLiteral(kObj):
+    for k_sub, k_pred, k_obj in grph:
+        if IsLiteral(k_obj):
             # Conversion to string in case it would be a number.
-            yield (kSub, kPred, kObj)
+            yield k_sub, k_pred, k_obj
+
 
 # This writes a triplestore to a stream which can be a socket or a file.
-def triplestore_to_stream_xml(grph,out_dest, a_format):
+def triplestore_to_stream_xml(grph, out_dest, a_format):
 
     # a_format='pretty-xml', 'xml'
 
@@ -132,52 +145,65 @@ def triplestore_to_stream_xml(grph,out_dest, a_format):
     # grph.serialize( destination = out_dest, format="xml")
     # There might be a way to serialize directory to the socket.
     try:
-        strXml = grph.serialize( destination = None, format=a_format)
-    except Exception as ex:
-        ERROR("triplestore_to_stream_xml Exception:%s",ex)
+        str_xml = grph.serialize(destination = None, format=a_format)
+    except Exception as exc:
+        ERROR("triplestore_to_stream_xml Exception:%s", exc)
         raise
     if sys.version_info >= (3,):
         # Really horrible piece of code, because out_dest might expect a str or a bytes,
         # depending on its type.
         try:
-            out_dest.write(strXml)
+            out_dest.write(str_xml)
         except TypeError as exc:
-            DEBUG("triple_store_to_stream_xml. tp=%s exc=%s.",str(type(strXml)),str(exc))
+            DEBUG("triple_store_to_stream_xml. tp=%s exc=%s.", str(type(str_xml)), str(exc))
             try:
                 # TypeError: a bytes-like object is required, not 'str'
-                out_dest.write(strXml.decode('latin1'))
+                out_dest.write(str_xml.decode('latin1'))
             except TypeError as exc:
-                ERROR("triple_store_to_stream_xml. tp=%s exc=%s. Cannot write:%s", str(type(strXml)), str(exc), strXml)
+                ERROR("triple_store_to_stream_xml. tp=%s exc=%s. Cannot write:%s", str(type(str_xml)), str(exc), str_xml)
                 raise
     else:
         try:
-            out_dest.write(strXml)
+            out_dest.write(str_xml)
         except:
-            out_dest.write(strXml.decode('utf8'))
+            out_dest.write(str_xml.decode('utf8'))
 
 
 # This reasonably assumes that the triplestore library is able to convert from RDF.
 # This transforms a serialize XML document into RDF.
 # See: https://rdflib.readthedocs.io/en/stable/apidocs/rdflib.html
-def triplestore_from_rdf_xml(docXmlRdf):
+def triplestore_from_rdf_xml(doc_xml_rdf):
     # This is the inverse operation of: grph.serialize( destination = out_dest, format="xml")
     grph = rdflib.Graph()
     try:
-        grph.parse(data=docXmlRdf, format="application/rdf+xml")
+        grph.parse(data=doc_xml_rdf, format="application/rdf+xml")
     except Exception as exc:
-        ERROR("triplestore_from_rdf_xml exc=", exc, " docXmlRdf...=", docXmlRdf[:20] )
+        # This is the exception message we want to split: "<unknown>:8:50: not well-formed (invalid token)"
+        # Attempt to display exactly the error if it is like "<unknown>:8:50: not well-formed (invalid token)"
+        exception_as_string = str(exc)
+        exception_split = exception_as_string.split(":")
+        if len(exception_split) >= 4 and exception_split[0] == "<unknown>":
+            line_index = int(exception_split[1])
+            column_index = int(exception_split[2])
+            document_by_lines = doc_xml_rdf.split("\n")
+            faulty_line = document_by_lines[line_index]
+            ERROR("triplestore_from_rdf_xml index=%d faulty_line=%s", column_index, faulty_line)
+        else:
+            ERROR("triplestore_from_rdf_xml exc=%s docXmlRdf...=%s", exc, doc_xml_rdf[:20])
         raise
     return grph
 
+
 # See https://rdflib.readthedocs.io/en/stable/merging.html for how it uses rdflib.
-def triplestore_add(tripleStoreA,tripleStoreB):
-    grphResult = tripleStoreA + tripleStoreB
-    return grphResult
+def triplestore_add(triple_store_a, triple_store_b):
+    grph_result = triple_store_a + triple_store_b
+    return grph_result
+
 
 # See https://rdflib.readthedocs.io/en/stable/apidocs/rdflib.html which does qll the work.
-def triplestore_sub(tripleStoreA,tripleStoreB):
-    grphResult = tripleStoreA - tripleStoreB
-    return grphResult
+def triplestore_sub(triple_store_a, triple_store_b):
+    grph_result = triple_store_a - triple_store_b
+    return grph_result
 
 
 ################################################################################
@@ -214,6 +240,7 @@ map_types_CIM_to_XSD = {
     #"7":XSD.duration,
 }
 
+
 # owl_type: "xsd::string" etc... TODO: Transform this into XSD.string etc...
 def PropNameToXsdType(prop_type):
     try:
@@ -234,15 +261,18 @@ LDT = rdflib.Namespace("http://www.primhillcomputers.com/survol#")
 def RdfsPropertyNode(property_name):
     return rdflib.URIRef(LDT[property_name])
 
+
 # Create the node to add to the Graph
 # Example: "http://www.primhillcomputers.com/survol#CIM_DataFile"
 def RdfsClassNode(class_name):
     return rdflib.URIRef(LDT[class_name])
 
+
 def AddNodeToRdfsClass(grph, nodeObject, className, entity_label):
     nodeClass = RdfsClassNode(className)
     grph.add((nodeObject, RDF.type, nodeClass))
     grph.add((nodeObject, RDFS.label, rdflib.Literal(entity_label)))
+
 
 # This receives an ontology described in a neutral way,
 # and adds to the graph the RDFS nodes describing it.
@@ -307,6 +337,7 @@ def CreateRdfsOntology(map_classes, map_attributes, graph=None):
     return graph
 
 ################################################################################
+
 
 # This is only for testing purpose.
 # It checks that a minimal subset of classes and predicates are defined.
@@ -401,13 +432,14 @@ def CheckMinimalRdsfOntology(ontology_graph):
 
 ################################################################################
 
+
 # TODO: We could use the original RDFS predicate instead of replacing.
 def triplestore_set_comment(grph, predicate_for_comment):
     # predicate_RDFS_comment = RDFS.comment
-    for kSub,kPred,kObj in grph.triples((None, predicate_for_comment, None)):
-        grph.add((kSub, RDFS.comment, kObj))
-        grph.remove((kSub, kPred, kObj))
-        pass
+    for k_sub, k_pred, k_obj in grph.triples((None, predicate_for_comment, None)):
+        grph.add((k_sub, RDFS.comment, k_obj))
+        grph.remove((k_sub, k_pred, k_obj))
+
 ################################################################################
 
 

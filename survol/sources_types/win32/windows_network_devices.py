@@ -37,7 +37,7 @@ def Main():
 	# On Windows, now we get "Type str doesn't support the buffer API"
 	# driveLines = strlist.split('\n')
 
-	if sys.version_info >= (3,):
+	if lib_util.is_py3:
 		strlistStr = str( strlist, encoding='utf8' )
 	else:
 		strlistStr = str( strlist )

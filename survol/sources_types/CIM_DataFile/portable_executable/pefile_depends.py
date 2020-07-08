@@ -50,7 +50,7 @@ class EnvPeFile:
 
 			try:
 				for entry in pe.DIRECTORY_ENTRY_IMPORT:
-					if sys.version_info >= (3,):
+					if lib_util.is_py3:
 						entry_dll = entry.dll.encode('utf-8')
 					else:
 						entry_dll = entry.dll
