@@ -113,7 +113,6 @@ if hasattr(builtins, "CTYPES_POINTER_TARGET_64"):
 else:
 	# This should not happen, although we have a backup solution.
 	# TODO: Why ???????????????????????
-	# TODO: Et ca n affiche plus comme avant !!!!!!!!!
 	isPtr64Target = iPtr64Platform
 
 if isPtr64Target == iPtr64Platform:
@@ -207,12 +206,8 @@ def ConcatRegexes(theClass):
 class MemoryProcessorStructs:
 	# We can have: re_flags=re.IGNORECASE
 	def __init__(self,is64Bits,lstStructs,re_flags):
-		# CA MARCHE AVEC PYTHON3
 		from six.moves import builtins
 		builtins.CTYPES_POINTER_TARGET_64 = is64Bits
-		# print("Importing")
-		# import CTypesStructs
-		# print("Imported modules:"+str(sorted(sys.modules.keys())))
 
 		class DefStruct:
 			# We can have flags=re.IGNORECASE
@@ -242,17 +237,8 @@ class MemoryProcessorStructs:
 		self.m_byStruct = { theStr : DefStruct(theStr,flags) for theStr in lstStructs }
 
 
-	# TODO: ON VOUDRAIT AJOUTER LA CONTRAINTE QUE LA MEMOIRE EST ALIGNEE COMME LA STRUCT. COMMENT FAIRE ??
+	# TODO: Consider alignment of pages like the struct.
 	def ParseSegment(self,addr_beg, bytes_array):
-		# print("Imported modules:"+str(sorted(sys.modules.keys())))
-		# TODO: Fix this strange behaviour, when instantiating a class of this module.
-		# Exception:global name 'CTypesStructs' is not defined
-		# if sys.version_info < (3,):
-		# import CTypesStructs
-		# print("Processing %d bytes" % len(arr) )
-		# namDisp = ",".join( str(theStr) for theStr in self.m_mapStructs )
-
-		# print("Parse Segment")
 		for keyStr in self.m_byStruct:
 			structDefinition = self.m_byStruct[ keyStr ]
 			structRegex = structDefinition.m_rgxComp
@@ -267,10 +253,6 @@ class MemoryProcessorStructs:
 
 			#print("Structure=%s" % str(keyStr) )
 			#print("Pattern=%s" % patt )
-			# Pour chacun des elements, extraire les pointeurs et voir si les elements pointes
-			# correspondent aux types.
-			# Si ce n est pas une classe predefinie, on cherche dans notre dictionnaire
-			# l'expression reguliere.
 
 			for mtch in matches:
 				# TODO: Reject non-aligned addresses.
@@ -280,7 +262,6 @@ class MemoryProcessorStructs:
 
 				# Maybe this object contains pointers.
 				# TODO: Do that once only.
-				# LE METTRE DANS UNE LISTE QUI CONTIENT LA DEFINITION DES FIELDS POINTEURS.
 				for fld in keyStr._fields_:
 					fieldNam = fld[0]
 					fieldTyp = fld[1]
@@ -291,7 +272,7 @@ class MemoryProcessorStructs:
 					# TODO: The address just needs to be a multiple of the object size.
 					# pointedTypNam = CTypesStructs.PointedType( fieldTyp )
 					pointedTypNam = PointedType( fieldTyp )
-					# MARCHEPAS ENCORE. VOYPNS D ABORD DES CAS FACILES.
+					# TODO: Fix this !!!
 					if False and pointedTypNam is not None:
 						print("pointedTypNam="+str(pointedTypNam))
 						pointedAddr = getattr( anObj, fieldNam )
@@ -325,23 +306,30 @@ class MemoryProcessorStructs:
 
 class MemoryProcessorRegex:
 	# We can have: flags=re.IGNORECASE
-	def __init__(self,is64Bits,aRegex, re_flags):
-		DEBUG("aRegex=%s",aRegex)
-		self.m_rgxComp = re.compile(aRegex.encode('utf-8'),re_flags)
-		# self.m_matches = set()
+	def __init__(self, is64Bits, a_regex, re_flags):
+		DEBUG("aRegex=%s", a_regex)
+		self.m_rgxComp = re.compile(a_regex.encode('utf-8'), re_flags)
 		self.m_matches = dict()
 
-	def ParseSegment(self,addr_beg, bytes_array):
+	def ParseSegment(self, addr_beg, bytes_array):
+		#print("MemoryProcessorRegex.ParseSegment len=", len(bytes_array))
 
-		# TODO: Use finditer
-		# mtch = self.m_rgxComp.findall( bytes_array )
-		# self.m_matches.update( mtch )
+		if False:
+			# This is for debugging.
+			import string
+			printable = set(string.printable)
+			char_array = filter(lambda x: x in printable, bytes_array)
+
+			#print("Bytes", char_array)
 
 		# The result is a dictionary whose key is the offset.
 		# We assume that this offset can only be unique in the segment.
+		matches_count = 0
 		for mtch in self.m_rgxComp.finditer(bytes_array):
-			memOffset = addr_beg + mtch.start()
-			self.m_matches[ memOffset ] = mtch.group()
+			mem_offset = addr_beg + mtch.start()
+			self.m_matches[mem_offset] = mtch.group()
+			matches_count += 1
+		#print("MATCHES:", matches_count, len(self.m_matches))
 
 
 ################################################################################
@@ -349,9 +337,14 @@ class MemoryProcessorRegex:
 # re flags=re.IGNORECASE
 def MemoryProcessor(is64Bits,lstStructs_or_regex,re_flags):
 	if isinstance(lstStructs_or_regex,list ):
-		return MemoryProcessorStructs(is64Bits,lstStructs_or_regex,re_flags)
+		memory_processor = MemoryProcessorStructs(is64Bits,lstStructs_or_regex,re_flags)
 	else:
-		return MemoryProcessorRegex(is64Bits,lstStructs_or_regex,re_flags)
+		memory_processor = MemoryProcessorRegex(is64Bits,lstStructs_or_regex,re_flags)
+	# These counters are for debugging.
+	memory_processor.pages_count = 0
+	memory_processor.bytes_count = 0
+	memory_processor.error_count = 0
+	return memory_processor
 
 
 ################################################################################
@@ -444,35 +437,42 @@ if sys.platform == "win32":
 
 		success = kernel32.ReadProcessMemory( process_handle, address, cbuffer, size, czero)
 
-		assert success, "ReadMemory Failed with success == %s and address == %s and size == %s.\n%s" % (
-			success, address, size, ctypes.WinError(ctypes.GetLastError())[1])
+		if not success:
+			#print("ReadMemory Failed with success == %s and address == %s and size == %s.\n%s" % ( success, address, size, ctypes.WinError(ctypes.GetLastError())[1]))
+			return None
 		return cbuffer.raw
 
-	def ScanFromPage(process_handle, page_address, mem_proc_functor ):
-		#print("Entering ScanFromPage")
+	def ScanFromPage(process_handle, page_address, mem_proc_functor):
 		information = VirtualQueryEx(process_handle, page_address)
 		base_address = information.BaseAddress
 		region_size = information.RegionSize
 		next_region = base_address + region_size
-		# print("Scanning from %0.16X next_region=%0.16X bytes=%s" % ( base_address, next_region, str(region_size) ) )
 
 		# Filter out any pages that are not readable by returning the next_region address
 		# and an empty list to represent no addresses found."""
-		if information.Type != "MEM_PRIVATE" or \
-						information.State != "MEM_COMMIT" or \
-						information.Protect != "PAGE_READWRITE":
-						# information.Protect not in ["PAGE_EXECUTE_READ", "PAGEEXECUTE_READWRITE", "PAGE_READWRITE"]:
-			# print("Return next_region=%s"% str(next_region))
+		if not(
+				information.Type == "MEM_PRIVATE" and
+				information.State == "MEM_COMMIT" and
+				information.Protect == "PAGE_READWRITE" and
+				True
+				):
+						# information.Protect not in []:
+						# information.Protect can be: "PAGE_WRITECOPY", "PAGE_EXECUTE_READ",
+						# "PAGEEXECUTE_READWRITE", "PAGE_READWRITE", 0 or 2
+						# 2: PAGE_READONLY
 			return next_region
 
-		# print("Before ReadMemory")
 		# TODO: read the whole page into buffer. Should access memory without copy.
 		page_bytes = ReadMemory(process_handle, base_address, region_size)
-		#print("After ReadMemory")
 
-		mem_proc_functor.ParseSegment(base_address,page_bytes)
+		if page_bytes:
+			mem_proc_functor.ParseSegment(base_address,page_bytes)
+			mem_proc_functor.pages_count += 1
+			mem_proc_functor.bytes_count += len(page_bytes)
 
-		del page_bytes  # free the buffer
+			del page_bytes  # free the buffer
+		else:
+			mem_proc_functor.error_count += 1
 		# print("ScanFromPage leaving")
 		return next_region
 
@@ -755,6 +755,9 @@ def CTypesStructToDict(struct):
 # This returns all the strings matching the regular expression.
 def GetRegexMatches(pidint,the_regex,re_flags=0):
 	mem_proc_functor = MemMachine( pidint, the_regex,re_flags)
+	print("pages_count=", mem_proc_functor.pages_count)
+	print("bytes_count=", mem_proc_functor.bytes_count)
+	print("error_count=", mem_proc_functor.error_count)
 	return mem_proc_functor.m_matches
 
 ################################################################################

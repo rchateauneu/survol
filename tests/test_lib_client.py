@@ -59,7 +59,8 @@ class SurvolLocalTest(unittest.TestCase):
             Name=always_present_file)
         print("test_create_source_local_json: query==%s" % mySourceFileStatLocal.create_url_query())
         the_content_json = mySourceFileStatLocal.content_json()
-        print("test_create_source_local_json: Json content=%s ..."%str(the_content_json)[:30])
+        print("test_create_source_local_json: Json content=%s ..."%str(the_content_json)[:100])
+        self.assertTrue(the_content_json['page_title'].startswith("File stat information"))
 
     def test_create_source_local_rdf(self):
         mySourceFileStatLocal = lib_client.SourceLocal(
@@ -76,7 +77,9 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_DataFile",
             Name=always_present_file)
         tripleFileStatLocal = mySourceFileStatLocal.get_triplestore()
-        print("Len triple store local=",len(tripleFileStatLocal.m_triplestore))
+        print("Len triple store local=", len(tripleFileStatLocal.m_triplestore))
+        # A lot of element.
+        self.assertTrue(len(tripleFileStatLocal.m_triplestore) > 10)
 
     def test_local_instances(self):
         mySourceFileStatLocal = lib_client.SourceLocal(
@@ -101,7 +104,7 @@ class SurvolLocalTest(unittest.TestCase):
         for oneInst in instancesFileStatLocal:
             sys.stdout.write("    %s\n"%str(oneInst))
         # This file should be there on any Windows machine.
-        self.assertTrue(lenInstances>=1)
+        self.assertTrue(lenInstances >= 1)
 
     def test_local_json(self):
         # Test merge of heterogeneous data sources.
@@ -111,7 +114,8 @@ class SurvolLocalTest(unittest.TestCase):
             DeviceID=AnyLogicalDisk)
 
         content1 = mySource1.content_json()
-        print( "content1=",str(content1.keys()))
+        print( "content1=", str(content1.keys()))
+        self.assertEqual(sorted(content1.keys()), ['links', 'nodes', 'page_title'])
 
     def test_merge_add_local(self):
         mySource1 = lib_client.SourceLocal(
@@ -174,11 +178,8 @@ class SurvolLocalTest(unittest.TestCase):
         print("Len tripleMinus=",len(tripleMinus.get_instances()))
         self.assertEqual(len(tripleMinus.get_instances()), 0)
 
-    # http://rchateau-hp:8000/survol/sources_types/memmap/memmap_processes.py?xid=memmap.Id%3DC%3A%2FWindows%2FSystem32%2Fen-US%2Fkernel32.dll.mui
-
-
     def test_exception_bad_source(self):
-        # This tests if errors are properly displayed.
+        """This tests if errors are properly displayed and an exception is raised."""
         mySourceBad = lib_client.SourceLocal(
             "xxx/yyy/zzz.py",
             "this-will-raise-an-exception")
@@ -190,39 +191,8 @@ class SurvolLocalTest(unittest.TestCase):
         mySourceBroken = lib_client.SourceRemote(
             _remote_general_test_agent + "/xxx/yyy/zzz/ttt.py",
             "wwwww")
-        try:
-            tripleBroken = mySourceBroken.get_triplestore()
-            excRaised = False
-        except Exception as exc:
-            excRaised = True
-        self.assertTrue(excRaised)
-
-    def test_instance_filter(self):
-        # Filter from a triple store by creating a mask like:
-        # inst = lib_client.CMI_DataFile
-        print("TODO: test_instance_filter not implemented yet")
-
-
-    def test_sparql(self):
-        # https://en.wikipedia.org/wiki/SPARQL
-        # PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-        # SELECT ?name
-        #        ?email
-        # WHERE
-        #   {
-        #     ?person  a          foaf:Person .
-        #     ?person  foaf:name  ?name .
-        #     ?person  foaf:mbox  ?email .
-        #   }
-        #
-        # TODO: Use rdflib implementation:
-        # https://rdflib.readthedocs.io/en/3.4.0/intro_to_sparql.html
-        print("TODO: test_sparql not implemented yet")
-
-    def test_wql(self):
-        # SELECT * FROM meta_class WHERE NOT __class < "win32"="" and="" not="" __this="" isa="">
-        # "Select * from win32_Process where name like '[H-N]otepad.exe'"
-        print("TODO: test_wql not implemented yet")
+        with self.assertRaises(Exception):
+            mySourceBroken.get_triplestore()
 
     @unittest.skipIf(not is_platform_windows, "test_local_scripts_UserAccount for Windows only.")
     def test_local_scripts_UserAccount(self):
@@ -256,7 +226,7 @@ class SurvolLocalTest(unittest.TestCase):
 
         lstStringsOnly = sorted( [ trpObj.value for trpSubj,trpPred,trpObj in matchingTriples ] )
 
-        assert( lstStringsOnly == [u'Pellentesque;14;94', u'Pellentesque;6;36', u'Pellentesque;8;50', u'pellentesque;10;66', u'pellentesque;14;101'])
+        assert(lstStringsOnly == [u'Pellentesque;14;94', u'Pellentesque;6;36', u'Pellentesque;8;50', u'pellentesque;10;66', u'pellentesque;14;101'])
 
     @unittest.skipIf(not pkgutil.find_loader('win32net'), "test_local_groups_local_scripts: Cannot import win32net.")
     def test_local_groups_local_scripts(self):
@@ -296,8 +266,8 @@ class SurvolLocalTest(unittest.TestCase):
         # There should be at least a couple of scripts.
         self.assertTrue(len(listScripts) > 0)
         # TODO: Maybe this script will not come first in the future.
-        assert(listScripts[0].create_url_query() == "xid=Win32_Service.Name=PlugPlay")
-        assert(listScripts[0].m_script == "sources_types/Win32_Service/service_dependencies.py")
+        self.assertEqual(listScripts[0].create_url_query(), "xid=Win32_Service.Name=PlugPlay")
+        self.assertEqual(listScripts[0].m_script, "sources_types/Win32_Service/service_dependencies.py")
 
     def test_instances_cache(self):
         instanceA = lib_client.Agent().CIM_Directory( Name="C:/Windows")
@@ -309,16 +279,16 @@ class SurvolLocalTest(unittest.TestCase):
             sys.stdout.write("Dir=%s\n\n"%str(dir(lib_client)))
             sys.stdout.write("Dir=%s\n"%str(sorted(globals())))
 
-        assert( instanceA is instanceB )
-        assert( instanceA is instanceC )
-        assert( instanceC is instanceB )
+        self.assertTrue(instanceA is instanceB)
+        self.assertTrue(instanceA is instanceC)
+        self.assertTrue(instanceC is instanceB)
 
     # This searches the content of a file which contains SQL queries.
     @unittest.skipIf(not pkgutil.find_loader('sqlparse'), "Cannot import sqlparse. test_regex_sql_query_file not run.")
     def test_regex_sql_query_file(self):
         """Searches for SQL queries in one file only."""
 
-        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py")
+        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile..py")
 
         mySourceSqlQueries = lib_client.SourceLocal(
             "sources_types/CIM_DataFile/grep_sql_queries.py",
@@ -342,11 +312,11 @@ class SurvolLocalTest(unittest.TestCase):
             u'select A.x,B.y from AnyTable A, OtherTable B"',
             u'select a,b,c from \'AnyTable\'"']
         for oneQry in lstQriesPresent:
-            assert( oneQry in lstQueriesOnly )
+            self.assertTrue(oneQry in lstQueriesOnly)
 
     def test_open_files_from_python_process(self):
         """Files open by a Python process"""
-        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py")
+        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile..py")
 
         execList = [ sys.executable, sqlPathName ]
 
@@ -372,13 +342,13 @@ class SurvolLocalTest(unittest.TestCase):
             lstMandatoryInstances += [
                     CurrentExecutablePath ]
         for oneStr in lstMandatoryInstances:
-            assert( oneStr in lstMandatoryInstances)
+            self.assertTrue(oneStr in lstMandatoryInstances)
 
         procOpen.communicate()
 
     def test_sub_parent_from_python_process(self):
         """Sub and parent processes a Python process"""
-        sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py")
+        sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile..py")
 
         execList = [sys.executable, sqlPathName]
 
@@ -408,13 +378,13 @@ class SurvolLocalTest(unittest.TestCase):
             lstMandatoryInstances += [
                     CurrentExecutablePath ]
         for oneStr in lstMandatoryInstances:
-            assert( oneStr in strInstancesSet)
+            self.assertTrue(oneStr in strInstancesSet)
 
         procOpen.communicate()
 
     def test_memory_maps_from_python_process(self):
         """Sub and parent processes a Python process"""
-        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py")
+        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile..py")
 
         execList = [sys.executable, sqlPathName]
 
@@ -475,7 +445,7 @@ class SurvolLocalTest(unittest.TestCase):
             for oneStr in lstMandatoryInstances:
                 if oneStr not in strInstancesSet:
                     WARNING("Cannot find %s in %s", oneStr, str(strInstancesSet))
-                assert( oneStr in strInstancesSet)
+                self.assertTrue(oneStr in strInstancesSet)
 
             # This is much slower, beware.
             for oneRegex in lstMandatoryRegex:
@@ -486,12 +456,11 @@ class SurvolLocalTest(unittest.TestCase):
                         break
                 if not result:
                     WARNING("Cannot find regex %s in %s", oneRegex, str(strInstancesSet))
-                assert result is not None
+                self.assertTrue(result is not None)
 
         procOpen.communicate()
 
-    @staticmethod
-    def _check_environment_variables(process_id):
+    def _check_environment_variables(self, process_id):
         mySourceEnvVars = lib_client.SourceLocal(
             "sources_types/CIM_Process/environment_variables.py",
             "CIM_Process",
@@ -515,7 +484,7 @@ class SurvolLocalTest(unittest.TestCase):
         print("setEnvVars:",setEnvVars)
 
         for oneVar in mandatoryEnvVars:
-            assert( oneVar in setEnvVars )
+            self.assertTrue(oneVar in setEnvVars)
 
     @unittest.skipIf(not pkgutil.find_loader('psutil'), "Cannot import psutil. test_environment_from_batch_process not run.")
     def test_environment_from_batch_process(self):
@@ -572,27 +541,16 @@ class SurvolLocalTest(unittest.TestCase):
             'python/package.Id=rdflib',
             CurrentUserPath ]:
             DEBUG("oneStr=%s",oneStr)
-            assert( oneStr in strInstancesSet)
+            self.assertTrue(oneStr in strInstancesSet)
 
     def test_python_current_script(self):
         """Examines a running Python process"""
 
         # This creates a process running in Python, because it does not work with the current process.
-        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py")
+        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile..py")
 
         execList = [ sys.executable, sqlPathName ]
 
-        # On Windows, psutil.Process.cmdline() is not very reliable, if the process is started with cmd.exe and Shell=True:
-        #Python 2, psutil.__version__=5.2.2
-        # Shell=1 argvArray=['C:\\windows\\system32\\cmd.exe', '/c', 'C:\\Python27\\python.exe AnotherSampleDir\\SampleSqlFile.py']
-        # Shell=0 argvArray=['C:\\Python27\\python.exe', 'AnotherSampleDir\\SampleSqlFile.py']
-        #
-        #Python 3, psutil.__version__=5.4.7
-        # Shell=1 argvArray=['C:\\windows\\system32\\cmd.exe', '/c', 'C:\\Program', 'Files', '(x86)\\Microsoft', 'Visual', 'Studio\\Shared\\Python36_64\\python.exe AnotherSampleDir\\SampleSqlFile.py']
-        # Shell=0 argvArray=['C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\Python36_64\\python.exe', 'AnotherSampleDir\\SampleSqlFile.py']
-        #
-        #Python 2, psutil.__version__=5.4.3
-        # argvArray=['python', 'toto space.py']
         procOpen = subprocess.Popen(execList, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
 
         print("Started process:",execList," pid=",procOpen.pid)
@@ -657,7 +615,7 @@ class SurvolLocalTest(unittest.TestCase):
         self.assertEqual(strInstancesSet, set())
 
     def test_process_connections(self):
-        """process_connections Information about current process"""
+        """This returns the socket connections of the current process."""
 
         mySource = lib_client.SourceLocal(
             "sources_types/CIM_Process/process_connections.py",
@@ -667,9 +625,8 @@ class SurvolLocalTest(unittest.TestCase):
         strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
 
         # The result is empty but the script worked.
-        print("Connections=",strInstancesSet)
-        # TODO: Test this
-        # assert(strInstancesSet == set())
+        print("Connections=", strInstancesSet)
+        self.assertTrue(strInstancesSet == set())
 
     def test_process_cwd(self):
         """process_cwd Information about current process"""
@@ -1020,7 +977,6 @@ class SurvolLocalLinuxTest(unittest.TestCase):
         for one_str in list_required:
             self.assertTrue(one_str in str_instances_set)
 
-
     def test_account_processes(self):
         """Processes of a Linux account"""
 
@@ -1035,7 +991,6 @@ class SurvolLocalLinuxTest(unittest.TestCase):
 
         # It is not possible to know in advance which process ids are used, but there must be at least one.
         self.assertTrue(len(str_instances_set) > 0)
-
 
     def test_group_users(self):
         """Users of a Linux group"""
@@ -1061,7 +1016,7 @@ class SurvolLocalGdbTest(unittest.TestCase):
     """These tests do not need a Survol agent, and run on Linux with GDB debugger"""
 
     def decorator_gdb_platform(test_func):
-        if is_platform_linux and linux_check_program_exists("gdb"):
+        if is_platform_linux and check_program_exists("gdb"):
             return test_func
         else:
             return None
@@ -1081,7 +1036,7 @@ class SurvolLocalGdbTest(unittest.TestCase):
             CurrentUserPath,
             CurrentProcessPath
         ]
-        if sys.version_info >= (3,):
+        if is_py3:
             listRequired += [
                 'CIM_DataFile.Name=/usr/bin/python3.6',
                 'linker_symbol.Name=cG9sbF9wb2xs,File=/usr/bin/python3.6',
@@ -1097,13 +1052,13 @@ class SurvolLocalGdbTest(unittest.TestCase):
         for oneStr in listRequired:
             self.assertTrue(oneStr in strInstancesSet)
 
-    @unittest.skipIf(sys.version_info >= (3,), "Python stack for Python 2 only.")
+    @unittest.skipIf(is_py3, "Python stack for Python 2 only.")
     @decorator_gdb_platform
     def test_display_python_stack(self):
         """Displays the stack of a Python process"""
 
         # This creates a process running in Python, because it does not work with the current process.
-        pyPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SampleSqlFile.py")
+        pyPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile..py")
         pyPathName = os.path.abspath(pyPathName)
 
         execList = [ sys.executable, pyPathName ]
@@ -1125,13 +1080,6 @@ class SurvolLocalGdbTest(unittest.TestCase):
         lstInstances = triplePyStack.get_instances()
         strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
         print("strInstancesSet=",strInstancesSet)
-
-        # Typical output: [
-        #     'linker_symbol.Name=X19tYWluX18=,File=/tmp/tmpfxxzh0.py',
-        #     'CIM_DataFile.Name=/tmp/tmpfxxzh0.py',
-        #     'linker_symbol.Name=X19tYWluX18=,File=/home/rchateau/survol/tests/AnotherSampleDir/SampleSqlFile.py',
-        #     'CIM_DataFile.Name=/home/rchateau/survol/tests/AnotherSampleDir/SampleSqlFile.py'
-        # ]
 
         pyPathNameAbsolute = os.path.abspath(pyPathName)
         pyPathNameClean = pyPathNameAbsolute.replace("\\","/")
@@ -1180,7 +1128,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 
         # This checks the presence of the current process and its parent.
         self.assertTrue('CIM_Process.Handle=%s' % CurrentPid in strInstancesSet)
-        if sys.version_info >= (3,):
+        if is_py3:
             # Checks the parent's presence also. Not for 2.7.10
             self.assertTrue(CurrentProcessPath in strInstancesSet)
 
@@ -1203,7 +1151,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         ]
 
         # Some nodes are in Py2 or Py3.
-        if sys.version_info >= (3,):
+        if is_py3:
             if platform.release() == '7':
                 listOption = [
                 'CIM_DataFile.Name=C:/windows/system32/kernel32.dll',
@@ -1232,7 +1180,16 @@ class SurvolLocalWindowsTest(unittest.TestCase):
             "sources_types/win32/enumerate_Win32_Product.py")
 
         strInstancesLst = [str(oneInst) for oneInst in lstInstances ]
+        products_count = 0
+        for one_instance in strInstancesLst:
+            # Ex: 'Win32_Product.IdentifyingNumber={1AC6CC3D-7724-4D84-9270-798A2191AB1C}'
+            if one_instance.startswith('Win32_Product.IdentifyingNumber='):
+                products_count += 1
+
         print("lstInstances=",strInstancesLst[:3])
+
+        # Certainly, there a more that five products or any other small number.
+        self.assertTrue(products_count > 5)
 
     def test_win_cdb_callstack(self):
         """win_cdb_callstack Information about current process"""
@@ -1242,14 +1199,9 @@ class SurvolLocalWindowsTest(unittest.TestCase):
             "CIM_Process",
             Handle=CurrentPid)
 
-        try:
+        with self.assertRaises(Exception):
             # Should throw "Exception: ErrorMessageHtml raised:Cannot debug current process"
             mySource.get_triplestore()
-        except Exception as exc:
-            print("Success: Exception received, because cannot debug current process")
-            return
-
-        self.assertTrue(False)
 
     def test_win_cdb_modules(self):
         """win_cdb_modules about current process"""
@@ -1259,14 +1211,9 @@ class SurvolLocalWindowsTest(unittest.TestCase):
             "CIM_Process",
             Handle=CurrentPid)
 
-        try:
+        with self.assertRaises(Exception):
             # Should throw "Exception: ErrorMessageHtml raised:Cannot debug current process"
             mySource.get_triplestore()
-        except Exception as exc:
-            print("Success: Exception received, because cannot debug current process")
-            return
-
-        self.assertTrue(False)
 
     @unittest.skipIf(is_pytest(), "This msdos test cannot run in pytest.")
     def test_msdos_current_batch(self):
@@ -1298,15 +1245,15 @@ class SurvolLocalWindowsTest(unittest.TestCase):
             "CIM_ComputerSystem",
             Name = CurrentMachine)
 
-        sys.stderr.write("CurrentMachine=%s before get_triplestore\n" % CurrentMachine)
         tripleHostLocalGroups = mySourceHostLocalGroups.get_triplestore()
-        sys.stderr.write("CurrentMachine=%s before get_instances\n" % CurrentMachine)
         instancesHostLocalGroups = tripleHostLocalGroups.get_instances()
 
-        print("Host local groups=", instancesHostLocalGroups)
-        for one_instance in instancesHostLocalGroups:
-            print("one_instance=", one_instance)
-        # TODO: NOT CHECKED.
+        group_instances = set(str(one_instance) for one_instance in instancesHostLocalGroups)
+        print("group_instances=", group_instances)
+
+        print("Win32_Group.Name=Administrators,Domain=%s" % CurrentMachine)
+        self.assertTrue("Win32_Group.Name=Administrators,Domain=%s" % CurrentMachine in group_instances)
+        self.assertTrue("Win32_Group.Name=Users,Domain=%s" % CurrentMachine in group_instances)
 
 
 try:
@@ -1430,7 +1377,7 @@ class SurvolSocketsTest(unittest.TestCase):
         print("gethostbyname(%s)=%s"%(httpHostName,sockHost))
 
         # This opens a connection to a specific machine, then checks that the socket can be found.
-        if sys.version_info >= (3,):
+        if is_py3:
             import http.client
             connHttp = http.client.HTTPConnection(httpHostName, 80, timeout=60)
         else:
@@ -1462,21 +1409,20 @@ class SurvolSocketsTest(unittest.TestCase):
     def test_enumerate_sockets(self):
         """List of sockets opened on the host machine"""
 
-        # httpHostName = 'www.root-servers.org'
-        # This site was registered on September the 18th, 1986.
-        httpHostName = 'itcorp.com'
+        # This site was registered on September the 18th, 1986. It is very stable.
+        httpHostName = 'www.itcorp.com'
 
-        print("")
         sockHost = socket.gethostbyname(httpHostName)
         print("gethostbyname(%s)=%s"%(httpHostName,sockHost))
 
         # This opens a connection to a specific machine, then checks that the socket can be found.
-        if sys.version_info >= (3,):
+        expected_port = 80
+        if is_py3:
             import http.client
-            connHttp = http.client.HTTPConnection(httpHostName, 80, timeout=60)
+            connHttp = http.client.HTTPConnection(httpHostName, expected_port, timeout=60)
         else:
             import httplib
-            connHttp = httplib.HTTPConnection(httpHostName, 80, timeout=60)
+            connHttp = httplib.HTTPConnection(httpHostName, expected_port, timeout=60)
         print("Connection to %s OK"%httpHostName)
 
         #connHttp.request(method="GET", url="/", headers={"Connection" : "Keep-alive"})
@@ -1495,35 +1441,31 @@ class SurvolSocketsTest(unittest.TestCase):
         lstInstances = ClientObjectInstancesFromScript(
             "sources_types/enumerate_socket.py")
 
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+        str_instances_list= [str(oneInst) for oneInst in lstInstances]
 
-        addrExpected = "addr.Id=%s:80" % (peerHost)
-
-        #print("Instances:",strInstancesSet)
         print("sockHost=",sockHost)
-        print("addrExpected=",addrExpected)
-        #assert( addrExpected in strInstancesSet)
+        print("peerHost=", peerHost)
+        print("expected_port=", expected_port)
 
-        print("test_enumerate_sockets: Does not work yet. Only testing execution.")
+        found_socket = False
+        for one_instance in str_instances_list:
+            #print("one_instance=", one_instance)
+            match_address = re.match("addr.Id=(.*):([0-9]*)", one_instance)
+            if match_address:
+                instance_host = match_address.group(1)
+                instance_port = match_address.group(2)
+                if instance_host == "127.0.0.1":
+                    continue
+                try:
+                    instance_addr = socket.gethostbyname(instance_host)
+                    #print("instance_addr=", instance_addr)
+                    found_socket = instance_addr == peerHost and instance_port == str(expected_port)
+                    if found_socket:
+                        break
+                except socket.gaierror:
+                    pass
 
-        if False:
-            # For debugging purpose only.
-            def DispIp(oneInst):
-                if oneInst.startswith("addr") and oneInst.find("127.0.0.1") < 0:
-                    # addr.Id=iwc2-31.catholica.va:http
-                    addrOnly = oneInst[ oneInst.find("=") +1: oneInst.find(":") ]
-                    try:
-                        addrHost = socket.gethostbyname(addrOnly)
-                        print(oneInst,addrHost)
-                    except:
-                        print(oneInst,"===",addrOnly)
-
-            for oneInst in sorted(strInstancesSet):
-                DispIp(oneInst)
-                if oneInst.find(addrExpected)>= 0:
-                    print("OK. Found %s in %s "%(addrExpected,oneInst))
-                    break
-
+        self.assertTrue(found_socket)
         connHttp.close()
 
 
@@ -1541,7 +1483,7 @@ class SurvolSocketsTest(unittest.TestCase):
         print("gethostbyname(%s)=%s"%(httpHostName,sockHost))
 
         # This opens a connection to a specific machine, then checks that the socket can be found.
-        if sys.version_info >= (3,):
+        if is_py3:
             import http.client
             connHttp = http.client.HTTPConnection(httpHostName, 80, timeout=60)
         else:
@@ -1597,11 +1539,8 @@ class SurvolSocketsTest(unittest.TestCase):
         # 'smbshr.Id=\\\\192.168.0.15\\rchateau',
         # 'smbshr.Id=\\\\localhost\\IPC$'
 
-        # TODO: localhost should be replaced by the IP address.
+        # TODO: This cannot be tested on Travis.
 
-        # These elements are nto there after booting a machine.
-        #assert( 'CIM_DataFile.Name=//localhost/IPC$:' in strInstancesSet )
-        #assert( 'smbshr.Id=\\\\localhost\\IPC$' in strInstancesSet )
 
     @unittest.skipIf(not is_platform_windows, "test_windows_network_devices for Windows only.")
     def test_windows_network_devices(self):
@@ -1659,14 +1598,19 @@ class SurvolRemoteTest(unittest.TestCase):
             Name=always_present_file)
         print("urlFileStatRemote=",mySourceFileStatRemote.Url())
         print("qryFileStatRemote=",mySourceFileStatRemote.create_url_query())
-        print("jsonFileStatRemote=%s  ..." % str(mySourceFileStatRemote.content_json())[:30])
-        print("rdfFileStatRemote=%s ..." % str(mySourceFileStatRemote.content_rdf())[:30])
+        json_content = mySourceFileStatRemote.content_json()
 
-        # https://stackoverflow.com/questions/46978624/python-multiprocessing-process-to-use-virtualenv
-        # print(__file__ + " sys.path=%s" % str(sys.path))
-        print(__file__ + " sys.executable=%s" % sys.executable)
-        print(__file__ + " sys.exec_prefix=%s" % sys.exec_prefix)
-        # TODO : Check this !!
+        found_file = False
+        always_present_basename = os.path.basename(always_present_file)
+        for one_node in json_content['nodes']:
+            try:
+                found_file = one_node['entity_class'] == 'CIM_DataFile' and one_node['name'] == always_present_basename
+                if found_file:
+                    break
+            except:
+                pass
+
+        self.assertTrue(found_file)
 
     def test_remote_triplestore(self):
         mySourceFileStatRemote = lib_client.SourceRemote(
@@ -1678,20 +1622,14 @@ class SurvolRemoteTest(unittest.TestCase):
         # This should not be empty.
         self.assertTrue(len(tripleFileStatRemote) >= 1)
 
-    # This does not work yet.
     def test_remote_scripts_exception(self):
         myAgent = lib_client.Agent(_remote_general_test_agent)
 
-        try:
+        # This raises an exception like "EntityId className=CIM_LogicalDisk. No key DeviceID"
+        # because the properties are incorrect,
+        with self.assertRaises(Exception):
             mySourceInvalid = myAgent.CIM_LogicalDisk(WrongProperty=AnyLogicalDisk)
             scriptsInvalid = mySourceInvalid.get_scripts()
-            excRaised = False
-            print("No exception is raised (This is a problem)")
-        except Exception as exc:
-            # Should print: "No JSON object could be decoded"
-            print("An exception is raised (As expected):",exc)
-            excRaised = True
-        self.assertTrue(excRaised)
 
     def test_remote_instances_python_package(self):
         """This loads a specific Python package"""
@@ -1807,9 +1745,10 @@ class SurvolRemoteTest(unittest.TestCase):
         # There should be at least a couple of scripts.
         self.assertTrue(len(listScriptsDir) > 0)
 
+    @unittest.skip("Not implemented yet")
     def test_remote_agents(self):
         """Gets agents accessible of remote host, then accesses them one by one"""
-        print("TODO: test_remote_agents not implemented yet")
+        pass
 
 class SurvolAzureTest(unittest.TestCase):
     """Testing Azure discovery"""
@@ -1842,11 +1781,9 @@ class SurvolAzureTest(unittest.TestCase):
         print("Azure subscription:",azureSubscription)
 
     @decorator_azure_subscription
+    @unittest.skip("Azure test disabled")
     def test_azure_locations(self,azureSubscription):
         """This checks Azure locations."""
-
-        print("decorator_azure_subscription DISABLED")
-        return
 
         lstInstances = ClientObjectInstancesFromScript(
             "sources_types/Azure/subscription/subscription_locations.py",
@@ -1864,11 +1801,9 @@ class SurvolAzureTest(unittest.TestCase):
             self.assertTrue(entitySubscription in strInstancesSet)
 
     @decorator_azure_subscription
+    @unittest.skip("Azure test disabled")
     def test_azure_subscription_disk(self,azureSubscription):
         """This checks Azure disks."""
-
-        print("test_azure_subscription_disk DISABLED")
-        return
 
         lstInstances = ClientObjectInstancesFromScript(
             "sources_types/Azure/subscription/subscription_disk.py",
@@ -1989,7 +1924,6 @@ class SurvolRabbitMQTest(unittest.TestCase):
         print("test_rabbitmq_queues strInstancesSet=", strInstancesSet)
         self.assertTrue('rabbitmq/vhost.Url=localhost:12345,VHost=/' in strInstancesSet)
         self.assertTrue('rabbitmq/manager.Url=localhost:12345' in strInstancesSet)
-
 
     @decorator_rabbitmq_subscription
     def test_rabbitmq_users(self,rabbitmqManager):

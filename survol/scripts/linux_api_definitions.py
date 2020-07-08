@@ -1778,7 +1778,7 @@ def _generate_linux_stream_from_command(linux_trace_command, process_id):
     # If shell=True, the command must be passed as a single line.
     kwargs = {"bufsize":100000, "shell":False,
         "stdin":sys.stdin, "stdout":subprocess.PIPE, "stderr":subprocess.PIPE}
-    if sys.version_info >= (3,):
+    if cim_objects_definitions.is_py3:
         kwargs["encoding"] = "utf-8"
     object_popen = subprocess.Popen(command_as_list, **kwargs)
 

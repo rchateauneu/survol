@@ -66,7 +66,6 @@ def Main():
         # Check if the file exists in the current directory.
         currPwd,errMsg = CIM_Process.PsutilProcCwd(proc_obj)
         if not currPwd:
-            DEBUG("PyFilNode: %s",errMsg)
             break
 
         allDirsToSearch = [ currPwd ]

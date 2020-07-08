@@ -49,7 +49,7 @@ def Main():
 				# Maybe the string is empty.
 				continue
 			tab = modname[:retLen]
-			if sys.version_info >= (3,):
+			if lib_util.is_py3:
 				# Truncation because "b'C:/xxx/yyy.zzz'", on Python 3
 				# Backslashes are duplicated.
 				filnam = str(tab).replace('\\','/')[2:-1].replace("//","/")
