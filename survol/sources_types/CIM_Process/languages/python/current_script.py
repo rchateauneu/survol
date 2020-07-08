@@ -62,56 +62,56 @@ Usable = survol_python.Usable
 #    in the range [0,4294967295] to get hash values with a predictable seed.
 
 # Find the file, given PYTHONPATH and the process current directory.
-def PyFilNode(proc_obj,filNam,ignoreEnvs):
-    fullFileName = None
+def _py_fil_node(proc_obj, fil_nam, ignore_envs):
+    full_file_name = None
 
-    if os.path.isabs(filNam):
-        fullFileName = filNam
+    if os.path.isabs(fil_nam):
+        full_file_name = fil_nam
     else:
         # Check if the file exists in the current directory.
-        currPwd,errMsg = CIM_Process.PsutilProcCwd(proc_obj)
-        if not currPwd:
-            DEBUG("PyFilNode: %s",errMsg)
+        curr_pwd, err_msg = CIM_Process.PsutilProcCwd(proc_obj)
+        if not curr_pwd:
+            DEBUG("_py_fil_node: %s",err_msg)
             return None
 
-        allDirsToSearch = [ currPwd ]
+        all_dirs_to_search = [curr_pwd]
 
         # With this option, do not use environment variable.
-        if not ignoreEnvs:
-            pathPython = CIM_Process.GetEnvVarProcess("PYTHONPATH",proc_obj.pid)
-            if pathPython:
-                pathPythonSplit = pathPython.split(":")
-                allDirsToSearch += pathPythonSplit
+        if not ignore_envs:
+            path_python = CIM_Process.GetEnvVarProcess("PYTHONPATH",proc_obj.pid)
+            if path_python:
+                path_python_split = path_python.split(":")
+                all_dirs_to_search += path_python_split
 
         # Now tries all possible dirs, starting with current directory.
-        for aDir in allDirsToSearch:
-            fullPath = os.path.join(aDir,filNam)
-            if os.path.isfile(fullPath):
-                fullFileName = fullPath
+        for a_dir in all_dirs_to_search:
+            full_path = os.path.join(a_dir, fil_nam)
+            if os.path.isfile(full_path):
+                full_file_name = full_path
                 break
 
-    if fullFileName:
-        filNode = lib_common.gUriGen.FileUri( fullFileName )
-        return filNode
+    if full_file_name:
+        fil_node = lib_common.gUriGen.FileUri(full_file_name)
+        return fil_node
     else:
         return None
 
 
-def AddNodesFromCommandLine(argvArray, grph, node_process, proc_obj):
+def _add_nodes_from_command_line(argv_array, grph, node_process, proc_obj):
     # First, extracts the executable.
     # This applies to Windows only.
-    idxCommand = 0
-    lenCommand = len(argvArray)
+    idx_command = 0
+    len_command = len(argv_array)
     if lib_util.isPlatformWindows:
-        if argvArray[0].endswith("cmd.exe"):
-            idxCommand += 1
+        if argv_array[0].endswith("cmd.exe"):
+            idx_command += 1
 
-        while idxCommand < lenCommand and argvArray[idxCommand].startswith("/"):
-            idxCommand += 1
+        while idx_command < len_command and argv_array[idx_command].startswith("/"):
+            idx_command += 1
 
     # Now, the current argument should be a Python command.
-    if argvArray[idxCommand].find("python") < 0:
-        DEBUG("Command does not contain Python:%s",str(argvArray))
+    if argv_array[idx_command].find("python") < 0:
+        DEBUG("Command does not contain Python:%s", str(argv_array))
         return
 
     # Now removes options of Python command.
@@ -145,51 +145,47 @@ def AddNodesFromCommandLine(argvArray, grph, node_process, proc_obj):
     # file   : program read from script file
     # -      : program read from stdin (default; interactive mode if a tty)
     # arg ...: arguments passed to program in sys.argv[1:]
-    ignoreEnvs = False
-    idxCommand += 1
-    while idxCommand < lenCommand:
-        currArg = argvArray[idxCommand]
-        if currArg.startswith("-"):
-            if currArg == '-E':
-                ignoreEnvs = True
-            elif currArg in ["-Q","-W"] :
+    ignore_envs = False
+    idx_command += 1
+    while idx_command < len_command:
+        curr_arg = argv_array[idx_command]
+        if curr_arg.startswith("-"):
+            if curr_arg == '-E':
+                ignore_envs = True
+            elif curr_arg in ["-Q","-W"] :
                 # Extra argument we do not want.
-                idxCommand += 1
-            elif currArg in ["-m"] :
+                idx_command += 1
+            elif curr_arg in ["-m"] :
                 # TODO: Followed by a module.
                 pass
-            elif currArg in ["-c"] :
+            elif curr_arg in ["-c"] :
                 # TODO: Followed by Python code: Cannot anything.
                 return
-            idxCommand += 1
+            idx_command += 1
         else:
-            filNode = PyFilNode(proc_obj, currArg, ignoreEnvs)
-            if filNode:
-                grph.add( ( node_process, pc.property_runs, filNode ) )
+            fil_node = _py_fil_node(proc_obj, curr_arg, ignore_envs)
+            if fil_node:
+                grph.add((node_process, pc.property_runs, fil_node))
             break
-        idxCommand += 1
+        idx_command += 1
 
 def Main():
     cgiEnv = lib_common.CgiEnv()
-    pidProc = int( cgiEnv.GetId() )
+    pid_proc = int(cgiEnv.GetId())
 
     grph = cgiEnv.GetGraph()
 
-    node_process = lib_common.gUriGen.PidUri(pidProc)
-    proc_obj = CIM_Process.PsutilGetProcObj(int(pidProc))
+    node_process = lib_common.gUriGen.PidUri(pid_proc)
+    proc_obj = CIM_Process.PsutilGetProcObj(int(pid_proc))
 
     # Now we are parsing the command line.
-    argvArray = CIM_Process.PsutilProcToCmdlineArray(proc_obj)
+    argv_array = CIM_Process.PsutilProcToCmdlineArray(proc_obj)
 
-    # On Windows, this could be:
-    # [u'C:\\windows\\system32\\cmd.exe', u'/c', u'C:\\Python27\\python.exe', u'AnotherSampleDir\\SampleSqlFile.py']
-    DEBUG("argvArray=%s",str(argvArray))
+    DEBUG("argv_array=%s",str(argv_array))
 
     # The difficulty is that filenames with spaces are split.
     # Therefore, entire filenames must be rebuilt from pieces.
-
-    AddNodesFromCommandLine(argvArray,grph,node_process,proc_obj)
-
+    _add_nodes_from_command_line(argv_array, grph, node_process, proc_obj)
 
     cgiEnv.OutCgiRdf()
 
