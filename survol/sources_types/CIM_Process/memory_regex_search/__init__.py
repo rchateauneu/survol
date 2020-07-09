@@ -239,6 +239,7 @@ class MemoryProcessorStructs:
 
 	# TODO: Consider alignment of pages like the struct.
 	def ParseSegment(self,addr_beg, bytes_array):
+		DEBUG("ParseSegment len=%d" % len(bytes_array)) 
 		for keyStr in self.m_byStruct:
 			structDefinition = self.m_byStruct[ keyStr ]
 			structRegex = structDefinition.m_rgxComp
@@ -308,11 +309,14 @@ class MemoryProcessorRegex:
 	# We can have: flags=re.IGNORECASE
 	def __init__(self, is64Bits, a_regex, re_flags):
 		DEBUG("aRegex=%s", a_regex)
+		DEBUG("aRegex=%s", type(a_regex))
 		self.m_rgxComp = re.compile(a_regex.encode('utf-8'), re_flags)
 		self.m_matches = dict()
 
 	def ParseSegment(self, addr_beg, bytes_array):
 		#print("MemoryProcessorRegex.ParseSegment len=", len(bytes_array))
+		DEBUG("ParseSegment len=%d" % len(bytes_array)) 
+		DEBUG("ParseSegment type=%s" % type(bytes_array)) 
 
 		if False:
 			# This is for debugging.
@@ -320,7 +324,7 @@ class MemoryProcessorRegex:
 			printable = set(string.printable)
 			char_array = filter(lambda x: x in printable, bytes_array)
 
-			#print("Bytes", char_array)
+			print("Bytes", char_array)
 
 		# The result is a dictionary whose key is the offset.
 		# We assume that this offset can only be unique in the segment.
@@ -329,7 +333,7 @@ class MemoryProcessorRegex:
 			mem_offset = addr_beg + mtch.start()
 			self.m_matches[mem_offset] = mtch.group()
 			matches_count += 1
-		#print("MATCHES:", matches_count, len(self.m_matches))
+		DEBUG("MATCHES:" + str(matches_count))
 
 
 ################################################################################
@@ -578,17 +582,17 @@ if sys.platform == "win32":
 			try:
 				next_page = ScanFromPage(phandle, page_address, mem_proc_functor)
 			except ctypes.ArgumentError:
-				DEBUG("MemMachine Address overflow: %s", str(page_address) )
+				ERROR("MemMachine Address overflow: %s", str(page_address) )
 				break
 			except Exception:
 				t, e = sys.exc_info()[:2]
-				DEBUG("MemMachine Other exception:%s",str(e).replace("\n"," "))
+				ERROR("MemMachine Other exception:%s",str(e).replace("\n"," "))
 				break
 
 			page_address = next_page
 
 			if not is64bits and page_address == 0x7FFF0000:
-				DEBUG("MemMachine End of 32bits process memory on Windows")
+				ERROR("MemMachine End of 32bits process memory on Windows")
 				break
 
 			if len(allFound) >= 1000000:
@@ -612,6 +616,7 @@ else:
 
 
 	def GetMemoryFromProc(pidint,addr_beg,addr_end, mem_proc_functor):
+		DEBUG("GetMemoryFromProc pidint="+str(pidint))
 		ptrace(True, pidint)
 		try:
 			# http://unix.stackexchange.com/questions/6301/how-do-i-read-from-proc-pid-mem-under-linux
@@ -622,22 +627,26 @@ else:
 			DEBUG("filnam="+filnam+" stats="+str(statinfo))
 			# mem_file = open(filnam, 'r+b', 0)
 			mem_file = open(filnam, 'r', 0)
-			lenAddr = addr_end - addr_beg
-			DEBUG("len=%d",lenAddr)
+			len_addr = addr_end - addr_beg
+			DEBUG("len=%d", len_addr)
 			if False:
 				# Exception:mmap length is greater than file size
 				# Maybe it is possible to prevent a control of the size.
-				mm = mmap.mmap(mem_file.fileno(), lenAddr, access=mmap.ACCESS_READ, offset = addr_beg)
+				mm = mmap.mmap(mem_file.fileno(), len_addr, access=mmap.ACCESS_READ, offset=addr_beg)
 				mem_proc_functor.ParseSegment(addr_beg, mm.something)
 			else:
 				# Must read exactly the section, otherwise "Input/output error"
 				mem_file.seek(addr_beg)  # seek to region start
-				chunk = mem_file.read(lenAddr)  # read region contents
+				chunk = mem_file.read(len_addr)  # read region contents
 				mem_proc_functor.ParseSegment(addr_beg, chunk )
+			mem_proc_functor.pages_count += 1
+			mem_proc_functor.bytes_count += len_addr
+
+			# del page_bytes  # free the buffer
 
 		except Exception as exc:
-			WARNING("GetMemoryFromProc Exception:%s",str(exc))
-			pass
+			ERROR("GetMemoryFromProc len_addr=%d Exception:%s", len_addr, str(exc))
+			mem_proc_functor.error_count += 1
 		ptrace(False, pidint)
 
 
@@ -698,10 +707,11 @@ else:
 
 		for map in memmaps:
 
-			# sys.stderr.write("MemMachine map.path=%s\n"%str(map))
+			DEBUG("MemMachine map.path=%s" % str(map.path))
 
 			if map.path in ["[heap]",""] or map.path.startswith("[stack"):
 				addr_beg, addr_end = ( int( ad, 16 ) for ad in map.addr.split("-") )
+				DEBUG("MemMachine addr_beg=%d addr_end=%d" % (addr_beg, addr_end))
 				# sys.stderr.write("MemMachine %d %d %s\n" % (addr_beg, addr_end, map.path) )
 				GetMemoryFromProc(pidint, addr_beg, addr_end, mem_proc_functor )
 		DEBUG("MemMachine pidint=%d leaving",pidint)
