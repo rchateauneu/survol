@@ -545,7 +545,7 @@ if sys.platform == "win32":
         psi = ctypes.byref(si)
         kernel32.GetSystemInfo(psi)
 
-
+        if False:
             try:
                 arch = {
                     9:"PROCESSOR_ARCHITECTURE_AMD64",
