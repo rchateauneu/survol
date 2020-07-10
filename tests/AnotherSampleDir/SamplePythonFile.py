@@ -16,17 +16,20 @@ url_http_bytes = b"https://pypi.org/help/"
 url_https_bytes = b"https://www.python.org/about/"
 url_https_str = u"https://www.perl.org/about.html"
 
-sqlQuery1 = "select * from 'AnyTable'"
-sqlQuery2 = "select a,b,c from 'AnyTable'"
-sqlQuery3 = "select A.x,B.y from AnyTable A, OtherTable B"
+sql_query1 = "select * from 'AnyTable'"
+sql_query2 = "select a,b,c from 'AnyTable'"
+sql_query3 = "select A.x,B.y from AnyTable A, OtherTable B"
 
-sqlQuery4 = b"select * from 'AnyTable'"
+sql_query4 = b"select * from 'AnyTable'"
 
 sys.stdout.write("select something from somewhere\n")
-sys.stdout.write("Starting subprocess: %s\n"%__file__)
+sys.stdout.write("Starting subprocess: %s\n" % __file__)
 sys.stdout.flush()
 
-print(sqlQuery1,sqlQuery2,sqlQuery3,sqlQuery4)
+print(sql_query1)
+print(sql_query2)
+print(sql_query3)
+print(sql_query4)
 
 # Short delay: This process is not suspended when reading its memory.
 time.sleep(0.5)
