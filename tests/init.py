@@ -94,15 +94,6 @@ RemoteHtmlTestServerPort = 8004
 
 
 
-# This is a hack to ensure that psutil always return the canonical filename.
-#import psutil
-#old_psutil_exe_method = psutil.Process.exe
-#def safe_psutil_exe_method(self):
-#    officiel_exe = old_psutil_exe_method(self)
-#    standard_exe = lib_util.standardized_file_path(officiel_exe)
-#    assert officiel_exe == standard_exe
-#    return standard_exe
-#psutil.Process.exe = safe_psutil_exe_method
 
 
 # Several Survol scripts return this executable among their results, so it can be tested.
@@ -390,7 +381,7 @@ def start_wsgiserver(agent_url, agent_port):
         try:
             response = portable_urlopen(local_agent_url, timeout=5)
         except Exception as exc:
-            ERROR("Caught:", exc)
+            ERROR("Caught:%s", exc)
             __dump_server_content(scripts.wsgiserver.WsgiServerLogFileName)
             raise
 
