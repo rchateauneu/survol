@@ -22,6 +22,7 @@ if ".." not in sys.path:
 if "../survol" not in sys.path:
     sys.path.append("../survol")
 import scripts.cgiserver
+import lib_util
 
 ################################################################################
 
@@ -92,50 +93,20 @@ RemoteGraphvizTestServerPort = 8003
 RemoteHtmlTestServerPort = 8004
 
 
-# Windows has two specific details with file path:
-# - They are case-insensitive but different utilities might change the case.
-# - Backslashes can be difficult to handle.
-# Therefore this function attempts to find the genuine case of a Windows file path,
-# and replace backslashes by slashes.
-#
-# For example /usr/bin/python2.7
-# Typical situation of symbolic links:
-# /usr/bin/python => python2 => python2.7
-def standardized_file_path(file_path):
-    returned_path = os.path.realpath(file_path)
-    if is_platform_windows:
-        # When running in PyCharm with virtualenv, the path is correct:
-        # "C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/venv/Scripts/python.exe"
-        # When running from pytest, it is converted to lowercase.
-        # "c:/python27/python.exe" instead of "C:/Python27/python.exe"
-        #
-        # But it is not possible at this stage, to detect if we run in pytest,
-        # because the environment variable 'PYTEST_CURRENT_TEST' is not set yet;
-        # 'PYTEST_CURRENT_TEST': 'tests/test_client_library.py::SurvolLocalTest::test_process_cwd (call)'
 
-        try:
-            import win32api
-            returned_path = win32api.GetLongPathName(win32api.GetShortPathName(returned_path))
-
-            # The drive must be in uppercase too:
-            returned_path = returned_path[0].upper() + returned_path[1:]
-            # sys.stderr.write(__file__ + " Fixed sys.executable:%s\n" % CurrentExecutable)
-        except ImportError:
-            # Here we cannot do anything.
-
-            # https://stackoverflow.com/questions/27465610/how-can-i-get-the-proper-capitalization-for-a-path
-            # This is an undocumented function, for Python 3 only.
-            # os.path._getfinalpathname("c:/python27/python.exe") => '\\\\?\\C:\\Python27\\python.exe'
-            # os.path._getfinalpathname("c:/python27/python.exe").lstrip(r'\?') => 'C:\\Python27\\python.exe'
-            returned_path = os.path._getfinalpathname(CurrentExecutable).lstrip(r'\?')
-            sys.stderr.write(__file__ + " Cannot import win32api to fix sys.executable:%s\n" % CurrentExecutable)
-
-        returned_path = returned_path.replace("\\","/")
-    return returned_path
+# This is a hack to ensure that psutil always return the canonical filename.
+#import psutil
+#old_psutil_exe_method = psutil.Process.exe
+#def safe_psutil_exe_method(self):
+#    officiel_exe = old_psutil_exe_method(self)
+#    standard_exe = lib_util.standardized_file_path(officiel_exe)
+#    assert officiel_exe == standard_exe
+#    return standard_exe
+#psutil.Process.exe = safe_psutil_exe_method
 
 
 # Several Survol scripts return this executable among their results, so it can be tested.
-CurrentExecutable = standardized_file_path(sys.executable)
+CurrentExecutable = lib_util.standardized_file_path(sys.executable)
 
 CurrentExecutablePath = 'CIM_DataFile.Name=%s' % CurrentExecutable
 

@@ -36,7 +36,7 @@ dockit_output_files_path_expected = os.path.join(_current_file_dirname, "dockit_
 # and check where the default ouput files are created.
 # __file__ could be 'C:\\Python27\\lib\\site-packages\\survol\\scripts\\dockit.pyc'
 
-dockit_dirname = standardized_file_path(os.path.dirname(dockit.__file__))
+dockit_dirname = lib_util.standardized_file_path(os.path.dirname(dockit.__file__))
 
 ini_file_default = os.path.join(dockit_dirname, "dockit_output" + ".ini")
 
@@ -696,7 +696,7 @@ class CommandLineLiveWin32Test(unittest.TestCase):
                             dockit_dirname) in triples_as_string)
 
         # This file is read from by the process, so it must appear here.
-        win32_cmd_standardized = standardized_file_path(windows_system32_cmd_exe)
+        win32_cmd_standardized = lib_util.standardized_file_path(windows_system32_cmd_exe)
         self.assertTrue((
                             ("CIM_DataFile", {"Name": win32_cmd_standardized}),
                             "Name",
@@ -744,7 +744,7 @@ class CommandLineLivePythonTest(unittest.TestCase):
                             "Name",
                             CurrentExecutable) in triples_as_string)
 
-        # TODO: Could use standardized_file_path()
+        # TODO: Could use lib_util.standardized_file_path()
         python_script_file_standard = python_script_file.replace("\\", "/")
         self.assertTrue((
                             ("CIM_DataFile", {"Name": python_script_file_standard}),
@@ -823,7 +823,7 @@ os.system(r'"%s" -c print(123456789) > %s')
 
         # Checks the executables.
         checked_executables = 0
-        cmd_exe_standardized = standardized_file_path(windows_system32_cmd_exe)
+        cmd_exe_standardized = lib_util.standardized_file_path(windows_system32_cmd_exe)
         for one_subject, one_predicate, one_object in triples_as_string:
             if one_subject[0] == 'CIM_Process':
                 print(one_subject, one_predicate, one_object)
@@ -862,7 +862,7 @@ os.system('dir')
                     processes_number += 1
                     if one_object == CurrentExecutable:
                         pid_python = one_subject[1]['Handle']
-                    elif one_object == standardized_file_path(windows_system32_cmd_exe):
+                    elif one_object == lib_util.standardized_file_path(windows_system32_cmd_exe):
                         url_cmd = one_subject
                 print("    ", one_subject, one_predicate, one_object)
         print("pid_python=", pid_python)
