@@ -50,7 +50,8 @@ def is_travis_machine():
     return os.getcwd().find("travis") >= 0
 
 # Some tests start a DOS box process. The processes application is checked.
-windows_system32_cmd_exe = r'C:\Windows\system32\cmd.exe' if is_travis_machine() else r'C:\windows\system32\cmd.exe'
+# windows_system32_cmd_exe = r'C:\Windows\system32\cmd.exe' if is_travis_machine() else r'C:\windows\system32\cmd.exe'
+windows_system32_cmd_exe = r'C:\Windows\system32\cmd.exe' if is_windows10 else r'C:\windows\system32\cmd.exe'
 
 windows_wow64_cmd_exe = r"C:\Windows\SysWOW64\cmd.exe"
 

@@ -1136,15 +1136,15 @@ class SurvolLocalWindowsTest(unittest.TestCase):
     def test_win_process_modules(self):
         """Windows process modules"""
 
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/CIM_Process/win_process_modules.py",
             "CIM_Process",
             Handle=CurrentPid)
 
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         # This checks the presence of the current process and its parent.
-        listRequired = [
+        list_required = [
             CurrentProcessPath,
             CurrentUserPath,
             'CIM_DataFile.Name=%s' % CurrentExecutable,
@@ -1153,27 +1153,31 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         # Some nodes are in Py2 or Py3.
         if is_py3:
             if platform.release() == '7':
-                listOption = [
+                list_option = [
                 'CIM_DataFile.Name=C:/windows/system32/kernel32.dll',
                 ]
             elif is_windows10: # platform.release() == '10': # Is it the same ?
                 # 'C:\\Users\\rchat\\AppData\\Local\\Programs\\Python\\Python36\\python.exe'
                 # 'C:/Users/rchat/AppData/Local/Programs/Python/Python36/DLLs/_ctypes.pyd'
-                listOption = []
-                extraFile = os.path.dirname(CurrentExecutable).lower() + '/lib/site-packages/win32/win32api.pyd'
-                listOption.append('CIM_DataFile.Name=%s' % extraFile)
+                list_option = []
+                packages_dir = os.path.dirname(CurrentExecutable)
+                if is_travis_machine():
+                    # FIXME: On Travis, "C:/users" in lowercase. Why ?
+                    packages_dir = packages_dir.lower()
+                extra_file = packages_dir + '/lib/site-packages/win32/win32api.pyd'
+                list_option.append('CIM_DataFile.Name=%s' % extra_file)
         else:
-            listOption = [
+            list_option = [
             'CIM_DataFile.Name=C:/windows/SYSTEM32/ntdll.dll',
             ]
 
-        print("Actual=", strInstancesSet)
-        for oneStr in listRequired + listOption:
-            print("oneStr=", oneStr)
-            self.assertTrue(oneStr in strInstancesSet)
+        print("Actual=", str_instances_set)
+        for one_str in list_required + list_option:
+            print("one_str=", one_str)
+            self.assertTrue(one_str in str_instances_set)
 
         # Detection if a specific bug is fixed.
-        self.assertTrue(not 'CIM_DataFile.Name=' in strInstancesSet)
+        self.assertTrue(not 'CIM_DataFile.Name=' in str_instances_set)
 
     def test_win32_products(self):
         lstInstances = ClientObjectInstancesFromScript(
