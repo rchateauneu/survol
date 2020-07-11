@@ -221,29 +221,19 @@ def PsutilVirtualMemorySize(proc):
 
 # These functions because of differences between psutil versions.
 def PsutilProcToPPid(proc):
-    try:
-        return proc.ppid()
-    except TypeError:
-        # psutil "0.7.0" 2009
-        return proc.ppid
+    return proc.ppid()
 
 def PsutilProcToName(proc):
-    try:
-        procNam = proc.name()
-        # Very often, the process name will just be the executable file name.
-        # So we shorten because it is nicer.
-        if procNam.upper().endswith(".EXE"):
-            procNam = procNam[:-4]
-        return procNam
-    except TypeError:
-        # Old psutil version.
-        return proc.name
+    procNam = proc.name()
+    # Very often, the process name will just be the executable file name.
+    # So we shorten because it is nicer.
+    if procNam.upper().endswith(".EXE"):
+        procNam = procNam[:-4]
+    return procNam
 
 def PsutilProcToUser(proc,dfltUser = "AccessDenied"):
     try:
         return proc.username()
-    except TypeError:
-        return proc.username
     except AccessDenied:
         return dfltUser
     except KeyError:
@@ -252,27 +242,17 @@ def PsutilProcToUser(proc,dfltUser = "AccessDenied"):
         return "usr"+str(proc.pid)
 
 def PsutilProcOpenFiles(proc):
-    try:
-        return proc.get_open_files()
-    except AccessDenied:
-        raise
-    except Exception:
-        return proc.open_files()
+    return proc.get_open_files()
 
 def PsutilProcToExe(proc):
     try:
-        try:
-            return ( proc.exe(), "" )
-        except TypeError:
-            return ( proc.exe, "" )
+        return (proc.exe(), "")
     except AccessDenied:
-        return ( "", "Access denied" )
+        return ("", "Access denied")
 
 def PsutilProcToCmdlineArray(proc):
     try:
         return proc.cmdline()
-    except TypeError:
-        return proc.cmdline
     except AccessDenied:
         return ["Access denied"]
 
@@ -287,24 +267,12 @@ def PsutilProcToCmdline(proc):
 
 def PsutilProcConnections(proc,kind='inet'):
     try:
-        cnnct = proc.get_connections(kind)
-    except AttributeError:
-        try:
-            cnnct = proc.connections(kind)
-        except AccessDenied:
-            return []
+        return proc.get_connections(kind)
     except AccessDenied:
         return []
 
-    return cnnct
-
 def PsutilProcMemmaps(proc):
-    try:
-        all_maps = proc.memory_maps()
-    except AttributeError:
-        # Old psutil version
-        all_maps = proc.get_memory_maps()
-    return all_maps
+    return proc.memory_maps()
 
 # Returns the current working directory.
 def PsutilProcCwd(proc):
@@ -314,13 +282,6 @@ def PsutilProcCwd(proc):
     except AccessDenied:
         proc_cwd = None
         proc_msg = "Process %d: Cannot get current working directory: %s" % (proc.pid,str(sys.exc_info()))
-    except AttributeError:
-        try:
-            proc_cwd = proc.cwd()
-            proc_msg = None
-        except :
-            proc_cwd = None
-            proc_msg = "Process %d: Cannot get current working directory: %s" % (proc.pid,str(sys.exc_info()[1]))
 
-    return (proc_cwd,proc_msg)
+    return (proc_cwd, proc_msg)
 
