@@ -331,7 +331,7 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                 elif associated_instance.m_class_name == "CIM_DataFile":
                     for one_file_name in files_list:
                         sub_path_name = os.path.join(root_dir, one_file_name)
-                        sys.stderr.write("sub_path_name=%s\n" % sub_path_name)
+                        #sys.stderr.write("sub_path_name=%s\n" % sub_path_name)
                         # This must be a file, possibly unreadable due to access rights, or a symbolic link.
                         assert is_usable_file(sub_path_name)
 
