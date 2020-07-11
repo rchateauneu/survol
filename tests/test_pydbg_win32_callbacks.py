@@ -1296,9 +1296,9 @@ bind(SERVER, $my_addr) or die "Couldn't bind to port $server_port : $!\n";
 
         root_process_calls = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
         self.assertTrue(root_process_calls[b'CreateFileA'] > 0)
-        self.assertTrue(root_process_calls[b'ReadFile'] > 0)
         self.assertEqual(root_process_calls[b'bind'], 1)
         if not is_windows10:
+            self.assertTrue(root_process_calls[b'ReadFile'] > 0)
             self.assertEqual(root_process_calls[b'fopen'], 1)
             self.assertEqual(win32_api_definitions.Win32Hook_bind._debug_counter_before, 1)
             self.assertEqual(win32_api_definitions.Win32Hook_bind._debug_counter_after, 1)
