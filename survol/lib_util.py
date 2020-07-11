@@ -1777,3 +1777,46 @@ def PathAndKeyValuePairsToRdf(grph, subject_path, dict_key_values):
 
     for key, val in dict_key_values.items():
         grph.add((subject_path_node, key, val))
+
+
+# Windows has two specific details with file path:
+# - They are case-insensitive but different utilities might change the case.
+# - Backslashes can be difficult to handle.
+# Therefore this function attempts to find the genuine case of a Windows file path,
+# and replace backslashes by slashes.
+#
+# For example /usr/bin/python2.7
+# Typical situation of symbolic links:
+# /usr/bin/python => python2 => python2.7
+def standardized_file_path(file_path):
+    returned_path = os.path.realpath(file_path)
+    if isPlatformWindows:
+        # When running in PyCharm with virtualenv, the path is correct:
+        # "C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/venv/Scripts/python.exe"
+        # When running from pytest, it is converted to lowercase.
+        # "c:/python27/python.exe" instead of "C:/Python27/python.exe"
+        #
+        # But it is not possible at this stage, to detect if we run in pytest,
+        # because the environment variable 'PYTEST_CURRENT_TEST' is not set yet;
+        # 'PYTEST_CURRENT_TEST': 'tests/test_client_library.py::SurvolLocalTest::test_process_cwd (call)'
+
+        try:
+            import win32api
+            returned_path = win32api.GetLongPathName(win32api.GetShortPathName(returned_path))
+
+            # The drive must be in uppercase too:
+            returned_path = returned_path[0].upper() + returned_path[1:]
+            # sys.stderr.write(__file__ + " Fixed sys.executable:%s\n" % CurrentExecutable)
+        except ImportError:
+            # Here we cannot do anything.
+
+            # https://stackoverflow.com/questions/27465610/how-can-i-get-the-proper-capitalization-for-a-path
+            # This is an undocumented function, for Python 3 only.
+            # os.path._getfinalpathname("c:/python27/python.exe") => '\\\\?\\C:\\Python27\\python.exe'
+            # os.path._getfinalpathname("c:/python27/python.exe").lstrip(r'\?') => 'C:\\Python27\\python.exe'
+            returned_path = os.path._getfinalpathname(CurrentExecutable).lstrip(r'\?')
+            sys.stderr.write(__file__ + " Cannot import win32api to fix sys.executable:%s\n" % CurrentExecutable)
+
+        returned_path = returned_path.replace("\\","/")
+    return returned_path
+
