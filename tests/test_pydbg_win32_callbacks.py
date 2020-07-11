@@ -434,9 +434,9 @@ for dir_index in range(%d):
         self.assertEqual(class_create_directory._debug_counter_after, loops_number)
 
     @unittest.skipIf(not pkgutil.find_loader('pyodbc'), "pyodbc cannot be imported.")
-    def test_python_import_pyodbc(self):
+    def test_python_SQLDataSources_pyodbc(self):
         """
-        This gets oBC data sources and checks that SQLDataSources() is called.
+        This gets ODBC data sources and checks that SQLDataSources() is called.
         """
 
         # Typical ODBC data sources:
@@ -1356,6 +1356,26 @@ mkdir '%s'
         print("created_objects=", win32_api_definitions.tracer_object.created_objects['CIM_Directory'])
         created_directories = win32_api_definitions.tracer_object.created_objects['CIM_Directory']
         self.assertTrue({'Name': temporary_directory} in created_directories)
+
+    @unittest.skip("Not implemented yet")
+    def test_perl_SQLDataSources(self):
+        """
+        This gets ODBC data sources and checks that SQLDataSources() is called.
+        """
+
+        raise Exception("NOT IMPLEMENTED YET")
+
+
+        script_content = """
+import pyodbc
+odbc_sources = pyodbc.dataSources()
+	    """
+        dwProcessId = self._debug_python_script(script_content)
+        print("Object:", list(win32_api_definitions.tracer_object.created_objects.keys()))
+        created_process_calls_counter = win32_api_definitions.tracer_object.calls_counter[dwProcessId]
+        print("created_process_calls_counter=", created_process_calls_counter)
+        self.assertTrue(created_process_calls_counter[b'SQLDataSources'] > 0)
+
 
 
 if __name__ == '__main__':
