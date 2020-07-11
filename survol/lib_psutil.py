@@ -129,7 +129,7 @@ except ImportError:
             except KeyError:
                 return "nobody"
 
-        def get_open_files(self):
+        def open_files(self):
             return []
 
         def exe(self):
@@ -242,7 +242,7 @@ def PsutilProcToUser(proc,dfltUser = "AccessDenied"):
         return "usr"+str(proc.pid)
 
 def PsutilProcOpenFiles(proc):
-    return proc.get_open_files()
+    return proc.open_files()
 
 def PsutilProcToExe(proc):
     try:
@@ -267,7 +267,7 @@ def PsutilProcToCmdline(proc):
 
 def PsutilProcConnections(proc,kind='inet'):
     try:
-        return proc.get_connections(kind)
+        return proc.connections(kind)
     except AccessDenied:
         return []
 
@@ -277,7 +277,7 @@ def PsutilProcMemmaps(proc):
 # Returns the current working directory.
 def PsutilProcCwd(proc):
     try:
-        proc_cwd = proc.getcwd()
+        proc_cwd = proc.cwd()
         proc_msg = None
     except AccessDenied:
         proc_cwd = None
