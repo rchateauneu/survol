@@ -197,7 +197,7 @@ class Sparql_CIM_DataFile(Sparql_CIM_Object):
                 sys.stderr.write("ALREADY DEFINED ?? %s\n" % associator_instance.m_variable)
                 return
 
-            dir_file_path = os.path.dirname(file_path)
+            dir_file_path = lib_util.standardized_file_path(os.path.dirname(file_path))
             dir_file_path_node = rdflib.term.Literal(dir_file_path)
 
             dir_node_str = "Machine:CIM_Directory?Name=" + dir_file_path
@@ -260,7 +260,7 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
     def FetchAllVariables(self, graph, variables_context):
         node_file_path = self.CreateFileNodeFromProperties(variables_context)
         if not node_file_path:
-            sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables LEAVING DOING NOTHING !!!!!\n")
+            #sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables LEAVING DOING NOTHING !!!!!\n")
             return {}
         file_path = str(node_file_path)
         returned_variables = {}
@@ -290,8 +290,8 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
 
             if predicate_Name in associated_instance.m_properties:
                 dir_path_variable = associated_instance.m_properties[predicate_Name]
-                sys.stderr.write("dir_path_variable=%s\n" % dir_path_variable)
-                sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables dir_path_variable=%s\n" % dir_path_variable)
+                #sys.stderr.write("dir_path_variable=%s\n" % dir_path_variable)
+                #sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables dir_path_variable=%s\n" % dir_path_variable)
             else:
                 # This creates a temporary variable to store the name because
                 # it might be necessary to identify this associated instance.
@@ -299,7 +299,7 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                 variable_name = str(associated_instance.m_variable) + "_dummy_subname"
                 dir_path_variable = rdflib.term.Variable(variable_name)
                 associated_instance.m_properties[predicate_Name] = dir_path_variable
-                sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables Created dummy variable:%s\n" % variable_name)
+                #sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables Created dummy variable:%s\n" % variable_name)
 
             def add_sub_node(sub_node_str, cim_class, sub_path_name):
                 # print("Sparql_CIM_Directory.FetchAllVariables add_sub_node ", sub_node_str, "sub_path_name=", sub_path_name)
@@ -319,18 +319,18 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                     assert isinstance(dir_path_variable, rdflib.term.Literal)
                     #print("Associated object Name is literal:", dir_path_variable)
 
-            sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables file_path=%s\n" % file_path)
+            #sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables file_path=%s\n" % file_path)
             for root_dir, dir_lists, files_list in os.walk(file_path):
                 if associated_instance.m_class_name == "CIM_Directory":
                     for one_file_name in dir_lists:
-                        sub_path_name = os.path.join(root_dir, one_file_name)
+                        sub_path_name = lib_util.standardized_file_path(os.path.join(root_dir, one_file_name))
                         # This must be a directory, possibly unreadable due to access rights.
                         assert os.path.isdir(sub_path_name)
                         sub_node_str = "Machine:CIM_Directory?Name=" + sub_path_name
                         add_sub_node(sub_node_str, class_CIM_Directory, sub_path_name)
                 elif associated_instance.m_class_name == "CIM_DataFile":
                     for one_file_name in files_list:
-                        sub_path_name = os.path.join(root_dir, one_file_name)
+                        sub_path_name = lib_util.standardized_file_path(os.path.join(root_dir, one_file_name))
                         #sys.stderr.write("sub_path_name=%s\n" % sub_path_name)
                         # This must be a file, possibly unreadable due to access rights, or a symbolic link.
                         assert is_usable_file(sub_path_name)
@@ -450,6 +450,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
 
             # TODO: This could also explore DLLs, not only the main executable.
             executable_path = lib_util.standardized_file_path(psutil.Process(process_id).exe())
+            #executable_path = psutil.Process(process_id).exe()
             executable_path_node = rdflib.term.Literal(executable_path)
 
             associated_instance_url = self.CreateURIRef(graph, "CIM_DataFile", class_CIM_DataFile,
@@ -497,10 +498,11 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
         executable_path = str(executable_node)
 
         # Because of backslashes transformed into slashes, which is necessary because of Sparql.
-        executable_path = os.path.normpath(executable_path)
-        if is_platform_linux:
-            executable_path = os.path.realpath(executable_path)
-            #sys.stderr.write("executable_path=%s\n" % executable_path)
+        #executable_path = os.path.normpath(executable_path)
+        #if is_platform_linux:
+        #    executable_path = os.path.realpath(executable_path)
+        #    #sys.stderr.write("executable_path=%s\n" % executable_path)
+        executable_path = lib_util.standardized_file_path(executable_path)
 
         process_urls_list = []
         for one_process in psutil.process_iter():
