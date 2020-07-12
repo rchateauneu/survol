@@ -1788,35 +1788,43 @@ def PathAndKeyValuePairsToRdf(grph, subject_path, dict_key_values):
 # For example /usr/bin/python2.7
 # Typical situation of symbolic links:
 # /usr/bin/python => python2 => python2.7
+def _canonical_windows_file_path(file_path):
+    # When running in PyCharm with virtualenv, the path is correct:
+    # "C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/venv/Scripts/python.exe"
+    # When running from pytest, it is converted to lowercase.
+    # "c:/python27/python.exe" instead of "C:/Python27/python.exe"
+    #
+    # But it is not possible at this stage, to detect if we run in pytest,
+    # because the environment variable 'PYTEST_CURRENT_TEST' is not set yet;
+    # 'PYTEST_CURRENT_TEST': 'tests/test_client_library.py::SurvolLocalTest::test_process_cwd (call)'
+    if not os.path.isdir(file_path) and not os.path.isfile(file_path):
+        return file_path
+
+    try:
+        import win32api
+        returned_path = win32api.GetLongPathName(win32api.GetShortPathName(file_path))
+
+        # The drive must be in uppercase too:
+        returned_path = returned_path[0].upper() + returned_path[1:]
+    except:
+        # Here we cannot do anything.
+
+        # https://stackoverflow.com/questions/27465610/how-can-i-get-the-proper-capitalization-for-a-path
+        # This is an undocumented function, for Python 3 only.
+        # os.path._getfinalpathname("c:/python27/python.exe") => '\\\\?\\C:\\Python27\\python.exe'
+        # os.path._getfinalpathname("c:/python27/python.exe").lstrip(r'\?') => 'C:\\Python27\\python.exe'
+        try:
+            returned_path = os.path._getfinalpathname(file_path).lstrip(r'\?')
+        except:
+            returned_path = file_path
+    return returned_path
+
+
 def standardized_file_path(file_path):
+    # Eliminates any symbolic links encountered in the path.
     returned_path = os.path.realpath(file_path)
     if isPlatformWindows:
-        # When running in PyCharm with virtualenv, the path is correct:
-        # "C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/venv/Scripts/python.exe"
-        # When running from pytest, it is converted to lowercase.
-        # "c:/python27/python.exe" instead of "C:/Python27/python.exe"
-        #
-        # But it is not possible at this stage, to detect if we run in pytest,
-        # because the environment variable 'PYTEST_CURRENT_TEST' is not set yet;
-        # 'PYTEST_CURRENT_TEST': 'tests/test_client_library.py::SurvolLocalTest::test_process_cwd (call)'
-
-        try:
-            import win32api
-            returned_path = win32api.GetLongPathName(win32api.GetShortPathName(returned_path))
-
-            # The drive must be in uppercase too:
-            returned_path = returned_path[0].upper() + returned_path[1:]
-            # sys.stderr.write(__file__ + " Fixed sys.executable:%s\n" % CurrentExecutable)
-        except ImportError:
-            # Here we cannot do anything.
-
-            # https://stackoverflow.com/questions/27465610/how-can-i-get-the-proper-capitalization-for-a-path
-            # This is an undocumented function, for Python 3 only.
-            # os.path._getfinalpathname("c:/python27/python.exe") => '\\\\?\\C:\\Python27\\python.exe'
-            # os.path._getfinalpathname("c:/python27/python.exe").lstrip(r'\?') => 'C:\\Python27\\python.exe'
-            returned_path = os.path._getfinalpathname(CurrentExecutable).lstrip(r'\?')
-            sys.stderr.write(__file__ + " Cannot import win32api to fix sys.executable:%s\n" % CurrentExecutable)
-
-        returned_path = returned_path.replace("\\","/")
+        returned_path = _canonical_windows_file_path(file_path)
+        returned_path = returned_path.replace("\\", "/")
     return returned_path
 
