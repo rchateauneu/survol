@@ -744,8 +744,7 @@ class CommandLineLivePythonTest(unittest.TestCase):
                             "Name",
                             CurrentExecutable) in triples_as_string)
 
-        # TODO: Could use lib_util.standardized_file_path()
-        python_script_file_standard = python_script_file.replace("\\", "/")
+        python_script_file_standard = lib_util.standardized_file_path(python_script_file)
         self.assertTrue((
                             ("CIM_DataFile", {"Name": python_script_file_standard}),
                             "Name",
