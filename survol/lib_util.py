@@ -1818,8 +1818,8 @@ def standardized_file_path(file_path):
             # This is an undocumented function, for Python 3 only.
             # os.path._getfinalpathname("c:/python27/python.exe") => '\\\\?\\C:\\Python27\\python.exe'
             # os.path._getfinalpathname("c:/python27/python.exe").lstrip(r'\?') => 'C:\\Python27\\python.exe'
-            returned_path = os.path._getfinalpathname(CurrentExecutable).lstrip(r'\?')
-            sys.stderr.write(__file__ + " Cannot import win32api to fix sys.executable:%s\n" % CurrentExecutable)
+            returned_path = os.path._getfinalpathname(file_path).lstrip(r'\?')
+            sys.stderr.write(__file__ + " Cannot import win32api to fix file_path:%s\n" % file_path)
 
         returned_path = returned_path.replace("\\","/")
     return returned_path
