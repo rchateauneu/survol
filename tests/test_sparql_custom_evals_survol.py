@@ -17,6 +17,7 @@ from init import *
 
 update_test_path()
 
+import lib_util
 import lib_sparql_custom_evals
 
 survol_namespace = rdflib.Namespace(lib_sparql_custom_evals.survol_url)
@@ -48,31 +49,10 @@ def CreateGraph():
 
 ################################################################################
 
-# This displays the correct case for a filename. This is necessary bevause
+# This displays the correct case for a filename. This is necessary because
 # the variable sys.executable is not correctly cased with pytest on Windows.
-# "c:\python27\python.exe" into "C:\Python27\python.exe"
-def get_actual_filename(name):
-    if is_platform_linux:
-        return name
-
-    import glob
-    dirs = name.split('\\')
-    # disk letter
-    test_name = [dirs[0].upper()]
-    for d in dirs[1:]:
-        test_name += ["%s[%s]" % (d[:-1], d[-1])]
-    res = glob.glob('\\'.join(test_name))
-    if not res:
-        #File not found
-        return None
-    return res[0]
-
-sys_executable_case = get_actual_filename(sys.executable)
-
-# This could be a symbolic link: /usr/bin/python3 -> python3.6
-if is_platform_linux:
-    sys_executable_case = os.path.realpath(sys_executable_case)
-    print("Executable: %s => %s" % (sys.executable, sys_executable_case) )
+# "c:\python27\python.exe" into "C:/Python27/python.exe"
+sys_executable_case = lib_util.standardized_file_path(sys.executable)
 
 
 ################################################################################
@@ -203,7 +183,8 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         tmp_pathname = create_temp_file()
 
         # Sparql does not accept backslashes.
-        tmp_pathname = tmp_pathname.replace("\\", "/")
+        #tmp_pathname = tmp_pathname.replace("\\", "/")
+        tmp_pathname = lib_util.standardized_file_path(tmp_pathname)
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -217,14 +198,14 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         """ % (survol_namespace, tmp_pathname)
 
         query_result = list(rdflib_graph.query(sparql_query))
-        self.assertTrue( str(query_result[0][0]) == TempDirPath)
+        self.assertEqual(str(query_result[0][0]), lib_util.standardized_file_path(TempDirPath))
         print("Result=", query_result)
 
     def test_sparql_children_files(self):
         rdflib_graph = CreateGraph()
 
         # C:/Windows/temp\\survol_temp_file_12532.tmp'
-        tmp_pathname = create_temp_file()
+        tmp_pathname = lib_util.standardized_file_path(create_temp_file())
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -326,7 +307,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
                 continue
             print("root_dir=", root_dir, dir_depth(root_dir))
             for one_file_name in files_list:
-                sub_path_name = os.path.join(root_dir, one_file_name)
+                sub_path_name = lib_util.standardized_file_path(os.path.join(root_dir, one_file_name))
                 expected_files.append(sub_path_name)
         expected_files = sorted(expected_files)
 
@@ -341,7 +322,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
     def test_sparql_grandchildren_directories(self):
         rdflib_graph = CreateGraph()
 
-        tmp_pathname = create_temp_file()
+        #tmp_pathname = create_temp_file()
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -362,7 +343,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         for root_dir, dir_lists, files_list in os.walk(TempDirPath):
             if os.path.dirname(root_dir) == TempDirPath:
                 for one_file_name in dir_lists:
-                    sub_path_name = os.path.join(root_dir, one_file_name)
+                    sub_path_name = lib_util.standardized_file_path(os.path.join(root_dir, one_file_name))
                     expected_dirs.add(sub_path_name)
 
         actual_dirs = set([str(one_path_url[0]) for one_path_url in query_result])
@@ -378,6 +359,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
             "survol_temp_dir%s_1" % unique_string,
             "survol_temp_dir%s_2" % unique_string)
         os.makedirs(dir_path)
+        dir_path = lib_util.standardized_file_path(dir_path)
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -409,6 +391,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
             "survol_temp_dir%s_2" % unique_string,
             "survol_temp_dir%s_3" % unique_string)
         os.makedirs(dir_path)
+        dir_path = lib_util.standardized_file_path(dir_path)
 
         print("dir_path=", dir_path)
 
@@ -445,6 +428,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
             "survol_temp_dir%s_3" % unique_string,
             "survol_temp_dir%s_4" % unique_string)
         os.makedirs(dir_path)
+        dir_path = lib_util.standardized_file_path(dir_path)
 
         print("dir_path=", dir_path)
 
@@ -640,7 +624,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         """All processes running the current executable, i.e. Python"""
         rdflib_graph = CreateGraph()
 
-        print("sys.executable=", sys.executable)
+        # print("sys.executable=", sys.executable)
 
         # The Python variable sys.executable contains the currently running executable.
         sparql_query = """
@@ -654,7 +638,8 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
               ?url_datafile rdf:type survol:CIM_DataFile .
               ?url_datafile survol:Name '%s' .
             }
-        """ % (survol_namespace, sys.executable.replace("\\", "/"))
+        """ % (survol_namespace, sys_executable_case)
+        # """ % (survol_namespace, sys.executable.replace("\\", "/"))
 
         query_result = list(rdflib_graph.query(sparql_query))
         print("query_result=", query_result)
@@ -727,7 +712,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         path_names_set = []
         for root_dir, dir_lists, files_list in os.walk(os.path.dirname(sys_executable_case)):
             for one_file_name in files_list:
-                sub_path_name = os.path.join(root_dir, one_file_name)
+                sub_path_name = lib_util.standardized_file_path(os.path.join(root_dir, one_file_name))
                 path_names_set.append(sub_path_name)
             break
         path_names_set = sorted(path_names_set)
@@ -790,7 +775,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
         actual_executable_name = [str(one_value[0]) for one_value in query_result][0]
         print("actual_executable_name=", actual_executable_name)
-        expected_executable_name = psutil.Process().parent().exe()
+        expected_executable_name = lib_util.standardized_file_path(psutil.Process().parent().exe())
         print("expected_executable_name=", expected_executable_name)
         self.assertTrue(expected_executable_name == actual_executable_name)
 
