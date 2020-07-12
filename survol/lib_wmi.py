@@ -748,10 +748,9 @@ def WmiKeyValues(connWmi, objWmi, displayNoneValues, className):
 
         if prpName == "Name" and className in ["CIM_DataFile", "CIM_Directory"]:
             # sys.stderr.write("WmiKeyValues prpName=%s className=%s value=%s\n" % (prpName, className, value))
-            # FIXME: Needed because Sparql does not seem to accept backslashes,
-            # FIXME: see "CIM_DataFile", "CIM_Directory" and "Name"
-            # TODO: Why not CGI escaping ?
-            valueReplaced = str(value).replace('\\','/')
+            # Needed because Sparql does not seem to accept backslashes.
+            # valueReplaced = str(value).replace('\\','/')
+            valueReplaced = lib_util.standardized_file_path(str(value))
             yield prpProp, lib_common.NodeLiteral(valueReplaced)
         elif isinstance(value, lib_util.scalar_data_types):
             # Special backslash replacement otherwise:
@@ -1030,14 +1029,14 @@ class WmiSparqlExecutor:
             # and the prefix containing the Windows host, must rather contain a Survol agent.
             # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
             object_path = str(one_wmi_object.path())
-            DEBUG("one_wmi_object.path=%s",object_path)
+            #DEBUG("one_wmi_object.path=%s",object_path)
             list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, class_name )
             dict_key_values = { node_key: node_value for node_key, node_value in list_key_values}
 
             # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeProp(class_name)
 
-            DEBUG("dict_key_values=%s",dict_key_values)
+            #sys.stderr.write("dict_key_values=%s\n" % str(dict_key_values))
             yield ( object_path, dict_key_values )
 
     @staticmethod
