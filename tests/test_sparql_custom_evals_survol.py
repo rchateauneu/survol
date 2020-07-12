@@ -534,7 +534,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         # Comparaison with the list of sub-processes of the current one.
         expected_pids = set([proc.pid for proc in psutil.Process(os.getpid()).children(recursive=False)])
         print("expected_pids=", expected_pids)
-        self.assertTrue(actual_pids == expected_pids)
+        self.assertEqual(actual_pids, expected_pids)
 
     def test_sparql_all_processes(self):
         """All running processes on this machine."""
@@ -547,7 +547,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
             { ?url_proc survol:Handle ?process_id .
               ?url_proc rdf:type survol:CIM_Process .
             }
-        """ % (survol_namespace)
+        """ % survol_namespace
 
         # Comparison with the list of all processes.. This list must be built as close as possible
         # to the query execution, so the list do not change too much.
@@ -617,14 +617,11 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
         datafile_name = [str(one_value[0]) for one_value in query_result][0]
         print("datafile_name=", datafile_name)
-        print("sys.executable=", sys.executable)
         self.assertTrue(datafile_name == sys_executable_case)
 
     def test_sparql_processes_executing_python(self):
         """All processes running the current executable, i.e. Python"""
         rdflib_graph = CreateGraph()
-
-        # print("sys.executable=", sys.executable)
 
         # The Python variable sys.executable contains the currently running executable.
         sparql_query = """
@@ -639,7 +636,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
               ?url_datafile survol:Name '%s' .
             }
         """ % (survol_namespace, sys_executable_case)
-        # """ % (survol_namespace, sys.executable.replace("\\", "/"))
 
         query_result = list(rdflib_graph.query(sparql_query))
         print("query_result=", query_result)
@@ -828,7 +824,6 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         for ix in range(depth+1):
             one_line = proc.stdout.readline()
             print("one_line=", one_line)
-            sys.stdout.flush()
             one_depth, one_pid = map(int, one_line.split(b" "))
             return_dict[one_depth] = one_pid
         return proc, return_dict
@@ -849,9 +844,8 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
     # to check the detection of processes trees.
     def process_chain_creation(self, depth_processes):
         processes_list_first, pids_dict = self.create_process_tree_popen(depth_processes)
-        pids_list = [ pids_dict[index] for index in range(depth_processes, 0, -1)]
+        pids_list = [pids_dict[index] for index in range(depth_processes, 0, -1)]
         return processes_list_first, pids_list
-
 
     @unittest.skipIf(is_travis_machine(), "Different implementation of processes. Test skipped.")
     def test_sparql_sub2_processes(self):
