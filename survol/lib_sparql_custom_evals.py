@@ -449,7 +449,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
             assert associated_instance.m_variable not in variables_context
 
             # TODO: This could also explore DLLs, not only the main executable.
-            executable_path = psutil.Process(process_id).exe()
+            executable_path = lib_util.standardized_file_path(psutil.Process(process_id).exe())
             executable_path_node = rdflib.term.Literal(executable_path)
 
             associated_instance_url = self.CreateURIRef(graph, "CIM_DataFile", class_CIM_DataFile,
@@ -505,7 +505,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
         process_urls_list = []
         for one_process in psutil.process_iter():
             try:
-                process_executable = one_process.exe()
+                process_executable = lib_util.standardized_file_path(one_process.exe())
             except psutil.AccessDenied as exc:
                 sys.stderr.write("GetProcessesFromExecutable Caught:%s\n" % str(exc))
                 continue
