@@ -1789,6 +1789,10 @@ def PathAndKeyValuePairsToRdf(grph, subject_path, dict_key_values):
 # Typical situation of symbolic links:
 # /usr/bin/python => python2 => python2.7
 def standardized_file_path(file_path):
+    # If the file does not exist, cannot do anything.
+    if not os.path.isdir(file_path) and not os.path.isfile(file_path):
+        return file_path
+    # Eliminates symbolic links.
     returned_path = os.path.realpath(file_path)
     if isPlatformWindows:
         # When running in PyCharm with virtualenv, the path is correct:
