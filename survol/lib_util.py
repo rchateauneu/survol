@@ -1788,10 +1788,13 @@ def PathAndKeyValuePairsToRdf(grph, subject_path, dict_key_values):
 # For example /usr/bin/python2.7
 # Typical situation of symbolic links:
 # /usr/bin/python => python2 => python2.7
+#
+# For example, this is needed because Sparql queries do not accept backslahes.
 def standardized_file_path(file_path):
     # If the file does not exist, cannot do anything.
     if not os.path.isdir(file_path) and not os.path.isfile(file_path):
-        return file_path
+        return file_path.replace("\\", "/")
+
     # Eliminates symbolic links.
     returned_path = os.path.realpath(file_path)
     if isPlatformWindows:
