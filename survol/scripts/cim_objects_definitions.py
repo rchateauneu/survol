@@ -71,20 +71,8 @@ def DecodeOctalEscapeSequence(aBuffer):
 BufferScanners = {}
 
 try:
-    sys.path.append("..")
-    import lib_util
+    sys.path.append("../..")
 
-    local_standard_file_path = lib_util.standardized_file_path
-except ImportError:
-    sys.stderr.write(__file__ + " Degraded standardized_file_path function")
-    def local_standard_file_path(file_path):
-        # Degraded solution if module cannot be imported.
-        norm_path = os.path.realpath(file_path)
-        if not is_platform_linux:
-            norm_path = norm_path.replace(u"\\", "/")
-        return norm_path
-
-try:
     # This creates the SQL queries scanner, it needs Survol code.
     from survol import lib_sql
 
@@ -124,7 +112,8 @@ try:
 
     BufferScanners["SqlQuery"] = RawBufferSqlQueryScanner
 except ImportError:
-    sys.stderr.write(__file__ + " Cannot import optional module lib_sql\n")
+    print("Cannot import optional module lib_sql")
+    pass
 
 ################################################################################
 
@@ -427,8 +416,6 @@ try:
     else:
         if "../survol" not in sys.path:
             sys.path.append("../survol")
-    if "../.." not in sys.path:
-        sys.path.append("../..")
     from survol import lib_event
 except ImportError:
     lib_event = None
@@ -910,8 +897,7 @@ class CIM_Process(CIM_XmlMarshaller):
         if proc_obj:
             try:
                 self.Name = proc_obj.name()
-                exec_fil_nam = local_standard_file_path(proc_obj.exe())
-
+                exec_fil_nam = proc_obj.exe().replace("\\", "/")
                 # The process id is not needed because the path is absolute and the process CIM object
                 # should already be created. However, in the future it might reuse an existing context.
                 objects_context = ObjectsContext(proc_id)
@@ -922,8 +908,7 @@ class CIM_Process(CIM_XmlMarshaller):
                 # Also, the process must not be inserted twice.
                 self.set_executable_path(exec_fil_obj)
                 self.CommandLine = proc_obj.cmdline()
-            except Exception as exc:
-                sys.stderr.write("CAUGHT exc=%s\n" % str(exc))
+            except:
                 self.Name = None
 
             try:
@@ -1491,15 +1476,10 @@ def to_real_absolute_path(directory_path, file_basename):
         return file_basename
 
     join_path = os.path.join(directory_path, file_basename)
-    if True:
-        # On Windows, it properly capitalizes directories.
-        norm_path = local_standard_file_path(join_path)
-    else:
-        norm_path = os.path.realpath(join_path)
-        if not is_platform_linux:
-            norm_path = norm_path.replace(u"\\", "/")
+    norm_path = os.path.realpath(join_path)
 
-
+    if not is_platform_linux:
+        norm_path = norm_path.replace(u"\\", "/")
     return norm_path
 
 ################################################################################
@@ -1548,7 +1528,7 @@ class ObjectsContext:
 
         if process_id != self._process_id:
             context_process_obj_path = CIM_Process.CreateMonikerKey(self._process_id)
-            #sys.stderr.write("context_process_obj_path=%s\n" % context_process_obj_path)
+            sys.stderr.write("context_process_obj_path=%s\n" % context_process_obj_path)
 
             parent_proc_obj = map_procs[context_process_obj_path]
 
