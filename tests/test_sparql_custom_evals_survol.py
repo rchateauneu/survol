@@ -676,8 +676,8 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
         directory_name = [str(one_value[0]) for one_value in query_result][0]
         print("directory_name=", directory_name)
-        print("sys.executable=", sys.executable)
-        self.assertTrue(directory_name == os.path.dirname(sys_executable_case))
+        print("sys_executable_case=", sys_executable_case)
+        self.assertEqual(directory_name, os.path.dirname(sys_executable_case))
 
     def test_sparql_files_in_executable_process_dir(self):
         """Display the files in the directory of the current process'executable."""
@@ -702,22 +702,24 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
         query_result = list(rdflib_graph.query(sparql_query))
 
-        files_names_result = [str(one_value[0]) for one_value in query_result]
-        files_names_result = sorted(files_names_result)
-        print("files_names_result=", files_names_result)
-        print("sys.executable=", sys.executable)
+        files_names_result = {str(one_value[0]) for one_value in query_result}
+        # print("files_names_result=", files_names_result)
+        print("files_names_result len:", len(files_names_result))
+        print("sys_executable_case=", sys_executable_case)
         self.assertTrue(sys_executable_case in files_names_result)
 
         # Compare with the list of the files the directory of the executable.
-        path_names_set = []
+        path_names_set = set()
         for root_dir, dir_lists, files_list in os.walk(os.path.dirname(sys_executable_case)):
             for one_file_name in files_list:
                 sub_path_name = lib_util.standardized_file_path(os.path.join(root_dir, one_file_name))
-                path_names_set.append(sub_path_name)
+                path_names_set.add(sub_path_name)
             break
-        path_names_set = sorted(path_names_set)
-        print("Expected list of files:",path_names_set)
-        self.assertTrue(path_names_set == files_names_result)
+        # print("Expected list of files:", path_names_set)
+        print("Expected list of files length:", len(path_names_set))
+        print("Files differences A:", path_names_set.difference(files_names_result))
+        print("Files differences B:", files_names_result.difference(path_names_set))
+        self.assertEqual(path_names_set, files_names_result)
 
     def test_sparql_executable_process_grand_dir(self):
         """Display the directory of the directory of the current process'executable."""
@@ -745,8 +747,8 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
         directory_name = [str(one_value[0]) for one_value in query_result][0]
         print("directory_name=", directory_name)
-        print("sys.executable=", sys.executable)
-        self.assertTrue(directory_name == os.path.dirname((os.path.dirname(sys_executable_case))))
+        print("sys_executable_case=", sys_executable_case)
+        self.assertEqual(directory_name, os.path.dirname((os.path.dirname(sys_executable_case))))
 
     def test_sparql_executable_parent_process(self):
         """Executable of the parent process."""
