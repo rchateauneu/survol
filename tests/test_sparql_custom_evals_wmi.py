@@ -499,12 +499,12 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         filenames_only = set(str(one_result[0]).lower() for one_result in query_result)
         print("filenames_only=", filenames_only)
 
-        file_name_python_exe = lib_util.standardise_file_path(sys.executable)
+        file_name_python_exe = lib_util.standardized_file_path(sys.executable)
         node_python_exe = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name_python_exe})
         print("node_python_exe=", node_python_exe)
         self.assertTrue(str(node_python_exe) in filenames_only)
 
-        file_name_ntdll = lib_util.standardise_file_path("c:/windows/system32/ntdll.dll")
+        file_name_ntdll = lib_util.standardized_file_path("c:/windows/system32/ntdll.dll")
         datafile_node_ntdll = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name_ntdll})
         self.assertTrue(str(datafile_node_ntdll) in filenames_only)
 
@@ -525,10 +525,10 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         filenames_only = set([str(one_result[0]) for one_result in query_result])
         print("filenames_only=", filenames_only)
 
-        file_name_python_exe = lib_util.standardise_file_path(sys.executable)
+        file_name_python_exe = lib_util.standardized_file_path(sys.executable)
         self.assertTrue(file_name_python_exe in filenames_only)
 
-        file_name_ntdll = lib_util.standardise_file_path("c:/windows/system32/ntdll.dll")
+        file_name_ntdll = lib_util.standardized_file_path("c:/windows/system32/ntdll.dll")
         self.assertTrue(file_name_ntdll in filenames_only)
 
     def test_select_Win32_Process_siblings_executables(self):
