@@ -121,7 +121,7 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         print("query_result=", query_result, len(query_result))
 
         # FIXME: No explanation yet for this difference.
-        c_disk_name = "C:" if is_windows10 and not is_travis_machine() else "c":
+        c_disk_name = "C:" if is_windows10 and not is_travis_machine() else "c:"
         self.assertEqual(str(query_result[0][0]), c_disk_name)
 
     def test_Win32_LogicalDisk_C(self):
