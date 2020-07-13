@@ -48,14 +48,16 @@ def Main():
 			if retLen == 0:
 				# Maybe the string is empty.
 				continue
-			tab = modname[:retLen]
-			if lib_util.is_py3:
-				# Truncation because "b'C:/xxx/yyy.zzz'", on Python 3
-				# Backslashes are duplicated.
-				filnam = str(tab).replace('\\','/')[2:-1].replace("//","/")
-			else:
-				# Windows "\\" must be replaced by "/", so the URLs are the same for all tools.
-				filnam = str(tab).replace('\\','/')
+			raw_filename_bytes = modname[:retLen]
+			raw_filename_as_str = raw_filename_bytes.decode()
+			filnam = lib_util.standardized_file_path(raw_filename_as_str)
+			#if lib_util.is_py3:
+			#	# Truncation because "b'C:/xxx/yyy.zzz'", on Python 3
+			#	# Backslashes are duplicated.
+			#	filnam = str(tab).replace('\\','/')[2:-1].replace("//","/")
+			#else:
+			#	# Windows "\\" must be replaced by "/", so the URLs are the same for all tools.
+			#	filnam = str(tab).replace('\\','/')
 			# The same filename might appear several times.
 			DEBUG("idx=%d retLen=%d filnam=%s",idx,retLen,filnam)
 
