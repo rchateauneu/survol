@@ -496,7 +496,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
 
-        filenames_only = set(str(one_result[0]).lower() for one_result in query_result)
+        filenames_only = set(str(one_result[0]) for one_result in query_result)
         print("filenames_only=", filenames_only)
 
         file_name_python_exe = lib_util.standardized_file_path(sys.executable)
@@ -822,7 +822,6 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         # ASSOCIATOR INVERSION !!!!!!!!!!
 
         node_url = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name})
-        #node_file_name = str(node_url).lower()
         node_file_name = str(node_url)
         print("node_file_name=", node_file_name)
         self.assertTrue(node_file_name in query_urls)
