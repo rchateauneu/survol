@@ -93,9 +93,6 @@ RemoteGraphvizTestServerPort = 8003
 RemoteHtmlTestServerPort = 8004
 
 
-
-
-
 # Several Survol scripts return this executable among their results, so it can be tested.
 CurrentExecutable = lib_util.standardized_file_path(sys.executable)
 
@@ -124,9 +121,6 @@ def is_pytest():
             return True
     return False
 
-
-# This tests if an executable is present.
-# TODO: Replace this with check_program_exists
 
 def check_program_exists(program_name):
     if is_platform_windows:
