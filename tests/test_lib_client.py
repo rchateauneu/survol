@@ -1152,20 +1152,21 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 
         # Some nodes are in Py2 or Py3.
         if is_py3:
-            if platform.release() == '7':
-                list_option = [
-                'CIM_DataFile.Name=C:/windows/system32/kernel32.dll',
-                ]
-            elif is_windows10: # platform.release() == '10': # Is it the same ?
+            if is_windows10:
                 # 'C:\\Users\\rchat\\AppData\\Local\\Programs\\Python\\Python36\\python.exe'
                 # 'C:/Users/rchat/AppData/Local/Programs/Python/Python36/DLLs/_ctypes.pyd'
                 list_option = []
                 packages_dir = os.path.dirname(CurrentExecutable)
-                if is_travis_machine():
-                    # FIXME: On Travis, "C:/users" in lowercase. Why ?
-                    packages_dir = packages_dir.lower()
-                extra_file = packages_dir + '/lib/site-packages/win32/win32api.pyd'
+                #if is_travis_machine():
+                #    # FIXME: On Travis, "C:/users" in lowercase. Why ?
+                #    packages_dir = packages_dir.lower()
+                extra_file = os.path.join(packages_dir, 'lib', 'site-packages', 'win32', 'win32api.pyd')
+                extra_file = lib_util.standardized_file_path(extra_file)
                 list_option.append('CIM_DataFile.Name=%s' % extra_file)
+            else:
+                list_option = [
+                    'CIM_DataFile.Name=C:/windows/system32/kernel32.dll',
+                ]
         else:
             list_option = [
             'CIM_DataFile.Name=C:/windows/SYSTEM32/ntdll.dll',
