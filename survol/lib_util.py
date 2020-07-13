@@ -1819,6 +1819,11 @@ def standardized_file_path(file_path):
                 # os.path._getfinalpathname("c:/python27/python.exe").lstrip(r'\?') => 'C:\\Python27\\python.exe'
                 file_path = os.path._getfinalpathname(file_path).lstrip(r'\?')
                 sys.stderr.write(__file__ + " Cannot import win32api to fix file_path:%s\n" % file_path)
+            except Exception as exc:
+                # pywintypes.error: (5, 'GetShortPathNameW', 'Access is denied.')
+                sys.stderr.write(__file__ + " file_path:%s caught:%s\n" % (file_path, str(exc)))
+                # Leave the file name as it is.
+                pass
 
         # FIXME: The drive must be in uppercase too. WHY ??
         if len(file_path) > 1 and file_path[1] == ':':
