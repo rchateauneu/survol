@@ -1791,13 +1791,10 @@ def PathAndKeyValuePairsToRdf(grph, subject_path, dict_key_values):
 #
 # For example, this is needed because Sparql queries do not accept backslahes.
 def standardized_file_path(file_path):
-    # If the file does not exist, cannot do anything.
-    if not os.path.isdir(file_path) and not os.path.isfile(file_path):
-        return file_path.replace("\\", "/")
-
-    # Eliminates symbolic links.
-    returned_path = os.path.realpath(file_path)
     if isPlatformWindows:
+        # FIXME: Symbolic link on Windows ? Not used yet. Beware of this:
+        # FIXME: os.path.realpath('c:') => 'C:\Users\the_current_user'
+
         # When running in PyCharm with virtualenv, the path is correct:
         # "C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/venv/Scripts/python.exe"
         # When running from pytest, it is converted to lowercase.
@@ -1807,23 +1804,30 @@ def standardized_file_path(file_path):
         # because the environment variable 'PYTEST_CURRENT_TEST' is not set yet;
         # 'PYTEST_CURRENT_TEST': 'tests/test_client_library.py::SurvolLocalTest::test_process_cwd (call)'
 
-        try:
-            import win32api
-            returned_path = win32api.GetLongPathName(win32api.GetShortPathName(returned_path))
+        # If the file does not exist, cannot do anything.
+        if os.path.isdir(file_path) or os.path.isfile(file_path):
+            try:
+                import win32api
+                file_path = win32api.GetLongPathName(win32api.GetShortPathName(file_path))
 
-            # The drive must be in uppercase too:
-            returned_path = returned_path[0].upper() + returned_path[1:]
-            # sys.stderr.write(__file__ + " Fixed sys.executable:%s\n" % CurrentExecutable)
-        except ImportError:
-            # Here we cannot do anything.
+            except ImportError:
+                # Here we cannot do anything.
 
-            # https://stackoverflow.com/questions/27465610/how-can-i-get-the-proper-capitalization-for-a-path
-            # This is an undocumented function, for Python 3 only.
-            # os.path._getfinalpathname("c:/python27/python.exe") => '\\\\?\\C:\\Python27\\python.exe'
-            # os.path._getfinalpathname("c:/python27/python.exe").lstrip(r'\?') => 'C:\\Python27\\python.exe'
-            returned_path = os.path._getfinalpathname(file_path).lstrip(r'\?')
-            sys.stderr.write(__file__ + " Cannot import win32api to fix file_path:%s\n" % file_path)
+                # https://stackoverflow.com/questions/27465610/how-can-i-get-the-proper-capitalization-for-a-path
+                # This is an undocumented function, for Python 3 only.
+                # os.path._getfinalpathname("c:/python27/python.exe") => '\\\\?\\C:\\Python27\\python.exe'
+                # os.path._getfinalpathname("c:/python27/python.exe").lstrip(r'\?') => 'C:\\Python27\\python.exe'
+                file_path = os.path._getfinalpathname(file_path).lstrip(r'\?')
+                sys.stderr.write(__file__ + " Cannot import win32api to fix file_path:%s\n" % file_path)
 
-        returned_path = returned_path.replace("\\","/")
-    return returned_path
+        # FIXME: The drive must be in uppercase too. WHY ??
+        if len(file_path) > 1 and file_path[1] == ':':
+            file_path = file_path[0].upper() + file_path[1:]
+        # sys.stderr.write(__file__ + " Fixed sys.executable:%s\n" % CurrentExecutable)
+
+        file_path = file_path.replace("\\","/")
+    else:
+        # Eliminates symbolic links.
+        file_path = os.path.realpath(file_path)
+    return file_path
 
