@@ -772,8 +772,8 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         ]
         for one_path in mandatory_file_paths:
             standard_path = lib_util.standardized_file_path(one_path)
-            node_file = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": one_path})
-            print("one_path=", one_path)
+            node_file = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": standard_path})
+            print("standard_path=", standard_path)
             self.assertTrue(str(node_file) in query_as_str)
         print("Number of files:", len(query_as_str))
 
