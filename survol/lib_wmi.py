@@ -751,8 +751,8 @@ def WmiKeyValues(connWmi, objWmi, displayNoneValues, className):
             # Needed because Sparql does not seem to accept backslashes.
             # valueReplaced = str(value).replace('\\','/')
             valueReplaced = lib_util.standardized_file_path(str(value))
-            sys.stderr.write("WmiKeyValues prpName=%s className=%s value=%s valueReplaced=%s\n"
-                             % (prpName, className, value, valueReplaced))
+            #sys.stderr.write("WmiKeyValues prpName=%s className=%s value=%s valueReplaced=%s\n"
+            #                 % (prpName, className, value, valueReplaced))
             yield prpProp, lib_common.NodeLiteral(valueReplaced)
         elif isinstance(value, lib_util.scalar_data_types):
             # Special backslash replacement otherwise:
