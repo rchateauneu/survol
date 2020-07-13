@@ -136,7 +136,7 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertEqual(directory_node, query_result[0][0])
 
     def test_Win32_LogicalDisk_all(self):
-        # Load all disks.
+        "Load all disks."
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?url_disk
@@ -251,9 +251,9 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
-        self.assertTrue(len(query_result) == 1)
+        self.assertEqual(len(query_result), 1)
         only_parent_pids = [str(one_result[0]) for one_result in query_result]
-        self.assertTrue(str(CurrentParentPid) == only_parent_pids[0])
+        self.assertEqual(str(CurrentParentPid), only_parent_pids[0])
 
     def test_Win32_Process_Pid_to_ParentProcess(self):
         sparql_query = """
@@ -272,7 +272,7 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
-        self.assertTrue(len(query_result) == 1)
+        self.assertEqual(len(query_result), 1)
         only_descriptions = [str(one_result[0]) for one_result in query_result]
         # Depending on the test framework, Description='pycharm64.exe' for example.
         print("Description=%s", only_descriptions[0])
@@ -372,8 +372,6 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         print("Result=", query_result)
 
     def test_CIM_DataFile_Name(self):
-        # FIXME: Very ugly harcode for transforming slashes to back-slashes and return. Same for lowercase.
-        # file_name = always_present_file.replace("\\", "/").lower()
         file_name = lib_util.standardized_file_path(always_present_file)
         sparql_query="""
             PREFIX survol: <%s>
@@ -391,8 +389,6 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertEqual(query_result[0][0], datafile_node)
 
     def test_CIM_Directory_Name(self):
-        # FIXME: Very ugly harcode for transforming slashes to back-slashes and return. Same for lowercase.
-        # directory_name = "c:/program files/mozilla firefox"
         directory_name = lib_util.standardized_file_path(always_present_dir)
         sparql_query="""
             PREFIX survol: <%s>
@@ -423,12 +419,12 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
         # On Travis: 'PACKER-5D93E860\\\\travis'
-        self.assertTrue(len(query_result)== 1)
+        self.assertEqual(len(query_result), 1)
         account_caption = str(query_result[0][0])
         expected_caption = CurrentDomainWin32.lower() + "\\\\" + CurrentUsername
         print("account_caption=", account_caption)
         print("expected_caption=", expected_caption)
-        self.assertTrue(account_caption.lower() == expected_caption)
+        self.assertEqual(account_caption.lower(), expected_caption)
 
     def test_Win32_UserAccount_to_domain_caption(self):
         sparql_query = """
@@ -448,8 +444,8 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue(len(query_result)== 1)
         account_domain = str(query_result[0][0])
         account_caption = str(query_result[0][1])
-        self.assertTrue(account_domain.lower() == CurrentDomainWin32)
-        self.assertTrue(account_caption.lower() == CurrentDomainWin32 + "\\\\" + CurrentUsername)
+        self.assertEqual(account_domain.lower(), CurrentDomainWin32)
+        self.assertEqual(account_caption.lower(), CurrentDomainWin32 + "\\\\" + CurrentUsername)
 
 
 
@@ -470,18 +466,18 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
-        query_str_only = set([str(one_query[0]).lower() for one_query in query_result])
+        query_str_only = set([str(one_query[0]) for one_query in query_result])
         print("query_str_only=", query_str_only)
 
-        file_name_python_exe = sys.executable.lower().replace("\\", "/")
+        file_name_python_exe = lib_util.standardized_file_path(sys.executable)
         node_python_exe = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name_python_exe})
         print("node_python_exe=", node_python_exe)
-        self.assertTrue(str(node_python_exe).lower() in query_str_only)
+        self.assertTrue(str(node_python_exe) in query_str_only)
 
         # u'http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=c:/windows/system32/iphlpapi.dll' etc
-        file_name_gdi32 = "c:/windows/system32/gdi32.dll"
+        file_name_gdi32 = lib_util.standardized_file_path("c:/windows/system32/gdi32.dll")
         datafile_node_gdi32 = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name_gdi32})
-        self.assertTrue(str(datafile_node_gdi32).lower() in query_str_only)
+        self.assertTrue(str(datafile_node_gdi32) in query_str_only)
 
     def test_associator_CIM_Process_executable_node(self):
         sparql_query = """
@@ -559,7 +555,6 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
         expected_sibling_exes = set([
             lib_util.standardized_file_path(proc.exe())
-            #proc.exe().lower().replace("\\","/")
             for proc in psutil.Process(CurrentParentPid).children(recursive=False)])
         print("expected_sibling_exes=", expected_sibling_exes)
 
@@ -584,7 +579,6 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         actual_sibling_dlls_exes = set(str(one_tuple[0]) for one_tuple in query_result)
         print("actual_sibling_dlls_exes=", actual_sibling_dlls_exes)
 
-        # expected_sibling_exes = set(proc.exe().lower().replace("\\", "/") for proc in psutil.Process(CurrentParentPid).children(recursive=False))
         expected_sibling_exes = set(
             lib_util.standardized_file_path(proc.exe())
             for proc in psutil.Process(CurrentParentPid).children(recursive=False))
@@ -608,13 +602,11 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         query_result = list(rdflib_graph.query(sparql_query))
         print("query_result=", query_result)
 
-        # expected_sibling_exe_names = [proc.exe() for proc in psutil.Process(CurrentParentPid).children(recursive=False)]
         expected_sibling_exe_names = [
             lib_util.standardized_file_path(proc.exe())
             for proc in psutil.Process(CurrentParentPid).children(recursive=False)]
         print("expected_sibling_exe_names=", expected_sibling_exe_names)
         expected_sibling_exe_nodes = set(
-            #lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": exe_name.lower().replace("\\", "/")})
             lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": exe_name})
             for exe_name in expected_sibling_exe_names)
         print("expected_sibling_exe_nodes=", expected_sibling_exe_nodes)
@@ -643,8 +635,6 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         dirnames_only = set([str(one_result[0]) for one_result in query_result])
         print("dirnames_only=", dirnames_only)
 
-        #executable_pathname = CurrentExecutable.lower()
-        #executable_dirname = os.path.dirname(executable_pathname)
         executable_dirname = lib_util.standardized_file_path(os.path.dirname(CurrentExecutable))
         print("executable_dirname=", executable_dirname)
 
@@ -665,18 +655,19 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
-        # Conversion to lowercase because of inconsistencies in some Windows versions.
-        dirnodes_only = {str(one_result[0]).lower() for one_result in query_result}
+        dirnodes_only = {str(one_result[0]) for one_result in query_result}
         print("dirnodes_only=", dirnodes_only, "len=", len(dirnodes_only))
 
+        current_executable_dir = os.path.dirname(CurrentExecutable)
         for dir_path in [
-            os.path.dirname(CurrentExecutable).lower().replace("\\", "/"),
-            os.path.dirname(CurrentExecutable).lower().replace("\\", "/") + "/lib/site-packages/win32",
-            os.path.dirname(CurrentExecutable).lower().replace("\\", "/") + "/lib/site-packages/psutil",
-            os.path.dirname(CurrentExecutable).lower().replace("\\", "/") + "/dlls",
+            current_executable_dir,
+            current_executable_dir + "/lib/site-packages/win32",
+            current_executable_dir + "/lib/site-packages/psutil",
+            current_executable_dir + "/dlls",
             "c:/windows/system32",
             "c:/windows/system32/wbem"]:
-            node_dir = str(lib_common.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": dir_path})).lower()
+            standard_dir_path = lib_util.standardized_file_path(dir_path)
+            node_dir = str(lib_common.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": standard_dir_path}))
             print("Path=", dir_path)
             print("Node=", node_dir)
             self.assertTrue(node_dir in dirnodes_only)
@@ -773,26 +764,25 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
         # These files must be there because they are used by the current process.
         mandatory_file_paths = [
-            sys.executable.lower().replace("\\", "/"),
+            sys.executable,
             "c:/windows/system32/shell32.dll",
             "c:/windows/system32/ole32.dll",
             "c:/windows/system32/oleaut32.dll",
             "c:/windows/system32/gdi32.dll"
         ]
         for one_path in mandatory_file_paths:
+            standard_path = lib_util.standardized_file_path(one_path)
             node_file = lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": one_path})
             print("one_path=", one_path)
-            self.assertTrue(str(node_file).lower() in query_as_str)
+            self.assertTrue(str(node_file) in query_as_str)
         print("Number of files:", len(query_as_str))
 
     def test_associator_executable_name_to_process(self):
         # C:/Python27/python.exe
-        #file_name_python_exe = CurrentExecutable.lower()
-        file_name_python_exe = lib_util.standardized_file_path(CurrentExecutable)
+        #file_name_python_exe = lib_util.standardized_file_path(CurrentExecutable)
 
         # C:\Python27\python.exe
-        #print("sys.executable=", sys.executable)
-        print("file_name_python_exe=", file_name_python_exe)
+        #print("file_name_python_exe=", file_name_python_exe)
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -803,7 +793,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
               ?url_proc rdf:type survol:CIM_Process .
               ?url_file rdf:type survol:CIM_DataFile .
               ?url_file survol:Name "%s" .
-            }""" % (survol_namespace, file_name_python_exe)
+            }""" % (survol_namespace, CurrentExecutable)
 
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
@@ -815,8 +805,6 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
     def test_associator_directory_to_datafile_nodes(self):
         """All the file nodes in a directory."""
-        #file_name = always_present_file.replace("\\", "/").lower()
-        #directory_name = always_present_dir.replace("\\", "/").lower()
         file_name = lib_util.standardized_file_path(always_present_file)
         directory_name = lib_util.standardized_file_path(always_present_dir)
         sparql_query = """
@@ -831,8 +819,6 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
 
-        # Conversion to lowercase because different behaviour depending on Windows and WMI version.
-        #query_urls = [str(one_tuple[0]).lower() for one_tuple in query_result]
         query_urls = [str(one_tuple[0]) for one_tuple in query_result]
         print("query_urls=", query_urls)
 
@@ -846,7 +832,6 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
     def test_associator_directory_to_datafile_names(self):
         """All the file names in a directory."""
-        # directory_name = always_present_dir.replace("\\", "/").lower()
         directory_name = lib_util.standardized_file_path(always_present_dir)
         sparql_query = """
             PREFIX survol: <%s>
@@ -861,15 +846,13 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
-        #filenames_only = set([str(one_result[0]).lower() for one_result in query_result])
         filenames_only = set([str(one_result[0]) for one_result in query_result])
         print("filenames_only=%s\n" % filenames_only)
 
         for dir_root, dir_dirs, dir_files in os.walk(directory_name):
             expected_files = set(
-                # File path standardized and to lower case, because it is mistakenly
+                # File path is standardized, because it is mistakenly
                 # converted on some versions of Windows and Python and maybe WMI parameters.
-                # os.path.join(dir_root, one_file).replace("\\", "/").lower()
                 lib_util.standardized_file_path(os.path.join(dir_root, one_file))
                 for one_file in dir_files)
             break
@@ -878,8 +861,6 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
     def test_associator_datafile_to_directory_node(self):
         """From a file to the node of its parent directory."""
-        #file_name = always_present_file.replace("\\", "/").lower()
-        #directory_name = always_present_dir.replace("\\", "/").lower()
         file_name = lib_util.standardized_file_path(always_present_file)
         directory_name = lib_util.standardized_file_path(always_present_dir)
         sparql_query = """
@@ -904,7 +885,6 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
     def test_associator_directory_to_sub_directory_node(self):
         """All the subdirectories in a directory."""
-        #directory_name = always_present_dir.replace("\\", "/").lower()
         directory_name = lib_util.standardized_file_path(always_present_dir)
         sparql_query = """
             PREFIX survol: <%s>
@@ -917,17 +897,14 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
             }""" % (survol_namespace, directory_name)
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
-        #actual_dir_nodes = set(one_tuple[0].lower() for one_tuple in query_result)
         actual_dir_nodes = set(str(one_tuple[0]) for one_tuple in query_result)
         print("actual_dir_nodes=%s\n" % actual_dir_nodes)
 
         expected_dir_nodes = set()
         for dir_root, dir_dirs, dir_files in os.walk(directory_name):
             for one_dir in dir_dirs:
-                #dir_path = os.path.join(dir_root, one_dir).lower().replace("\\", "/")
                 dir_path = lib_util.standardized_file_path(os.path.join(dir_root, one_dir))
                 dir_node = lib_common.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": dir_path})
-                #expected_dir_nodes.add(str(dir_node).lower())
                 expected_dir_nodes.add(str(dir_node))
             break
         print("expected_dir_nodes=%s\n" % expected_dir_nodes)
@@ -936,8 +913,6 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
     def test_associator_sub_directory_to_directory_node(self):
         """From a subdirectory to its parent directory."""
-        #sub_directory_name = always_present_sub_dir.replace("\\", "/").lower()
-        #directory_name = always_present_dir.replace("\\", "/").lower()
         sub_directory_name = lib_util.standardized_file_path(always_present_sub_dir)
         directory_name = lib_util.standardized_file_path(always_present_dir)
         sparql_query = """
@@ -958,8 +933,6 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
     def test_associator_datafile_to_directory_of_directory_node(self):
         """From a file to the node of the parent of its parent directory."""
-        #file_name = always_present_sub_file.replace("\\", "/").lower()
-        #directory_of_directory_name = always_present_dir.replace("\\", "/").lower()
         file_name = lib_util.standardized_file_path(always_present_sub_file)
         directory_of_directory_name = lib_util.standardized_file_path(always_present_dir)
         sparql_query = """
@@ -986,8 +959,6 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
     def test_associator_datafile_to_directory_of_directory_name(self):
         """From a file to the name of the parent of its parent directory."""
-        #file_name = always_present_sub_file.replace("\\", "/").lower()
-        #directory_of_directory_name = always_present_dir.replace("\\", "/").lower()
         file_name = lib_util.standardized_file_path(always_present_sub_file)
         directory_of_directory_name = lib_util.standardized_file_path(always_present_dir)
         sparql_query = """
@@ -1012,7 +983,6 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
     def test_associator_dir_dir_to_sub_sub_datafile_node(self):
         """From a directory to the files in its subdirectories"""
-        #directory_of_directory_name = always_present_dir.replace("\\", "/").lower()
         directory_of_directory_name = lib_util.standardized_file_path(always_present_dir)
         sparql_query = """
             PREFIX survol: <%s>
@@ -1034,26 +1004,22 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
             ["samplesubdir_2", "samplesubfile_2.txt"],
         ]
         expect_pathnames = [
-            #os.path.join(directory_of_directory_name, *file_name).lower().replace("\\", "/")
             lib_util.standardized_file_path(os.path.join(directory_of_directory_name, *file_name))
             for file_name in expect_filenames
         ]
         # Conversions to lowercase because of inconsistent behaviour in previous WMI and Windows versions.
         expect_nodes = sorted([
             str(lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": path_name}))
-            #str(lib_common.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": path_name})).lower()
             for path_name in expect_pathnames
         ])
         print("expect_nodes=",expect_nodes)
 
-        # actual_nodes = sorted([one_result[0].lower() for one_result in query_result])
         actual_nodes = sorted([str(one_result[0]) for one_result in query_result])
         print("actual_nodes=", actual_nodes)
         self.assertEqual(expect_nodes, actual_nodes)
 
     def test_associator_dir_dir_to_sub_sub_datafile_name(self):
         """From a directory to the files in its subdirectories"""
-        # directory_of_directory_name = always_present_dir.replace("\\", "/").lower()
         directory_of_directory_name = lib_util.standardized_file_path(always_present_dir)
         sparql_query = """
             PREFIX survol: <%s>
@@ -1076,14 +1042,11 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
             ["samplesubdir_2", "samplesubfile_2.txt"],
         ]
         expect_pathnames = [
-            # os.path.join(directory_of_directory_name, *file_name).lower().replace("\\", "/")
             lib_util.standardized_file_path(os.path.join(directory_of_directory_name, *file_name))
             for file_name in expect_filenames
         ]
         print("expect_pathnames=",expect_pathnames)
 
-        # Conversion to lowercase because of inconsistent behaviour in former WMI versions.
-        #actual_filenames = sorted([str(one_result[0]).lower() for one_result in query_result])
         actual_filenames = sorted([
             lib_util.standardized_file_path(str(one_result[0]))
             for one_result in query_result])
@@ -1241,7 +1204,7 @@ class SparqlSeeAlsoTest(CUSTOM_EVALS_WMI_Base_Test):
 class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
 
     def test_all_classes(self):
-        """All WMI classes."""
+        "All WMI classes."
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?url_class
@@ -1253,7 +1216,7 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
         print("Result=", query_result)
 
     def test_labelled_class(self):
-        """One WMI class with a given name."""
+        "One WMI class with a given name."
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?url_class
@@ -1280,7 +1243,7 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
         print("Result=", query_result)
 
     def test_base_class(self):
-        # This prints the base class of CIM_Process
+        "This prints the base class of CIM_Process"
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?url_cim_process ?url_base_class
@@ -1295,7 +1258,7 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
         print("Result=", query_result)
 
     def test_subclasses(self):
-        # This prints the derived classes of a given base class.
+        "This prints the derived classes of a given base class."
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?url_class ?url_subclass
@@ -1310,7 +1273,7 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
         print("Result=", query_result)
 
     def test_all_properties(self):
-        # This returns all WMI properties of classes.
+        "This returns all WMI properties of classes."
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?url_attribute
@@ -1322,7 +1285,7 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
         print("Result=", query_result)
 
     def test_all_process_properties(self):
-        # This returns all properties of the class CIM_Process.
+        "This returns all properties of the class CIM_Process."
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?url_property
@@ -1335,7 +1298,7 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
         print("Result=", query_result)
 
     def test_all_process_named_property(self):
-        # This returns the property named "Handle" of the class CIM_Process.
+        "This returns the property named 'Handle' of the class CIM_Process."
         sparql_query = """
             SELECT ?url_property
             WHERE
@@ -1348,7 +1311,7 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
         print("Result=", query_result)
 
     def test_all_process_dynamic_property(self):
-        # This returns all objects with a dynamic property.
+        "This returns all objects with a dynamic property."
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?url_property
