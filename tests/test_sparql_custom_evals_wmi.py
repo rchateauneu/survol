@@ -762,7 +762,7 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
-        query_as_str = set([str(one_result[0]).lower() for one_result in query_result])
+        query_as_str = set([str(one_result[0]) for one_result in query_result])
         print("query_as_str=", query_as_str)
 
         # These files must be there because they are used by the current process.
@@ -781,12 +781,6 @@ class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         print("Number of files:", len(query_as_str))
 
     def test_associator_executable_name_to_process(self):
-        # C:/Python27/python.exe
-        #file_name_python_exe = lib_util.standardized_file_path(CurrentExecutable)
-
-        # C:\Python27\python.exe
-        #print("file_name_python_exe=", file_name_python_exe)
-
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?process_id
