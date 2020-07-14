@@ -63,7 +63,7 @@ def FillOnePackage(grph,node,good_pckg):
 	grph.add( (node, lib_common.MakeProp("egg_name"), lib_common.NodeLiteral(good_pckg.egg_name()) ) )
 
 	# This might return location="c:\python27\lib\site-packages"
-	cleanLocaDir = good_pckg.location.replace("\\","/")
+	cleanLocaDir = lib_util.standardized_file_path(good_pckg.location)
 	nodeLocation = lib_common.gUriGen.DirectoryUri(cleanLocaDir)
 	grph.add( (node, lib_common.MakeProp("Location"),nodeLocation ) )
 
