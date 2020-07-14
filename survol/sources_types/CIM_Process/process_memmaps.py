@@ -6,6 +6,7 @@ Shared memory segments
 
 import sys
 import lib_common
+import lib_util
 from lib_properties import pc
 from sources_types import CIM_Process
 
@@ -28,7 +29,7 @@ def Main():
 	propMemoryRSS = lib_common.MakeProp("Resident Set Size")
 	for map in all_maps:
 		# This, because all Windows paths are "standardized" by us.
-		cleanMapPath = map.path.replace("\\","/")
+		cleanMapPath = lib_util.standardized_file_path(map.path)
 
 		uriMemMap = lib_common.gUriGen.MemMapUri( cleanMapPath )
 
