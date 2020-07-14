@@ -749,7 +749,6 @@ def WmiKeyValues(connWmi, objWmi, displayNoneValues, className):
         if prpName == "Name" and className in ["CIM_DataFile", "CIM_Directory"]:
             # sys.stderr.write("WmiKeyValues prpName=%s className=%s value=%s\n" % (prpName, className, value))
             # Needed because Sparql does not seem to accept backslashes.
-            # valueReplaced = str(value).replace('\\','/')
             valueReplaced = lib_util.standardized_file_path(str(value))
             #sys.stderr.write("WmiKeyValues prpName=%s className=%s value=%s valueReplaced=%s\n"
             #                 % (prpName, className, value, valueReplaced))
