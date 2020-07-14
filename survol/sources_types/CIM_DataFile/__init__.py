@@ -285,7 +285,7 @@ def AddInfo(grph, node, entity_ids_arr):
 
 	# Cleanup the filename. This function is called without knowledge of the specific case,
 	# therefore the cleanup can only be done in code related to this entity type.
-	file_name = file_name.replace("\\","/")
+	file_name = lib_util.standardized_file_path(file_name)
 
 	AddMagic(grph,node, file_name)
 	AddStat(grph,node, file_name)
