@@ -910,7 +910,7 @@ def SubProcCall(command):
 
 def __check_if_directory(dir):
     if( os.path.isdir(dir) ):
-        return dir
+        return lib_util.standardized_file_path(dir)
     raise Exception("Not a dir:"+dir)
 
 # The temp directory as specified by the operating system.
@@ -932,18 +932,18 @@ def get_temporary_directory():
 
     try:
         # Maybe these environment variables are undefined for Apache user.
-        return __check_if_directory(os.environ["TEMP"].replace('\\', '/'))
+        return __check_if_directory(os.environ["TEMP"])
     except Exception:
         pass
 
     try:
-        return __check_if_directory(os.environ["TMP"].replace('\\', '/'))
+        return __check_if_directory(os.environ["TMP"])
     except Exception:
         pass
 
     if lib_util.isPlatformWindows:
         try:
-            return __check_if_directory(os.environ["USERPROFILE"].replace('\\', '/') + "/AppData/Local/Temp")
+            return __check_if_directory(os.path.join(os.environ["USERPROFILE"]), "AppData", "Local", "Temp")
         except Exception:
             pass
 
