@@ -86,10 +86,9 @@ class SparqlSeeAlsoPortableTest(unittest.TestCase):
             print("all_diff=",all_diff)
             assert found
 
-    @unittest.skipIf( True, "SPARQL special cases not implemented.")
+    @unittest.skip("SPARQL special cases not implemented.")
     def test_see_also_special(self):
         """Special Survol seeAlso pathes"""
-        CurrentFile = __file__.replace("\\","/")
         array_survol_queries=[
             # TODO: This generates all allowed scripts.
             ["""
