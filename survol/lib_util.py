@@ -22,6 +22,9 @@ import inspect
 
 import lib_kbase
 
+# This minimizes changes because it is used everywhere.
+from lib_naming_conventions import standardized_file_path
+
 # In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
 # TODO: Use module six.
 try:
@@ -1496,7 +1499,7 @@ def WrtHeader(mimeType,extraArgs = None):
 
 ################################################################################
 
-def GetEntityModuleNoCacheNoCatch(entity_type):
+def _get_entity_module_without_cache_no_catch(entity_type):
     # Here, we want: "sources_types/Azure/location/__init__.py"
     # Example: entity_type = "Azure.location"
     # This works.
@@ -1519,37 +1522,41 @@ def GetEntityModuleNoCacheNoCatch(entity_type):
     return entity_module
 
 
-
-def GetEntityModuleNoCache(entity_type):
-    # sys.stderr.write("GetEntityModuleNoCache entity_type=%s\n"%entity_type)
+def _get_entity_module_without_cache(entity_type):
+    # sys.stderr.write("_get_entity_module_without_cache entity_type=%s\n"%entity_type)
 
     # Temporary hack to avoid an annoying warning message.
     if entity_type == "provider_script":
         return None
 
     try:
-        return GetEntityModuleNoCacheNoCatch(entity_type)
-    except ImportError:
-        exc = sys.exc_info()[1]
-        gblLogger.error("GetEntityModuleNoCache entity_type=%s Caught:%s",entity_type,str(exc))
+        return _get_entity_module_without_cache_no_catch(entity_type)
+    except ImportError as exc:
+        gblLogger.error("_get_entity_module_without_cache entity_type=%s Caught:%s", entity_type, exc)
+
+        import traceback
+        gblLogger.error("Exception stack trace:%s", traceback.format_exc())
+        gblLogger.error("Current   stack trace:%s", "\n".join(traceback.format_stack()))
+
         return None
 
+
 # So we try to load only once.
-cacheEntityToModule = dict()
-cacheEntityToModule[""] = None
+_cache_entity_to_module = {"": None}
 
 # If it throws, the exception is not hidden.
 # If it does not throw, then try to load the module.
 def GetEntityModuleNoCatch(entity_type):
-    # sys.stderr.write("GetEntityModuleNoCache entity_type=%s\n"%entity_type)
+    # sys.stderr.write("_get_entity_module_without_cache entity_type=%s\n"%entity_type)
 
     # Do not throw KeyError exception.
-    if entity_type in cacheEntityToModule:
-        return cacheEntityToModule[ entity_type ]
+    if entity_type in _cache_entity_to_module:
+        return _cache_entity_to_module[ entity_type]
 
-    entity_module = GetEntityModuleNoCacheNoCatch(entity_type)
-    cacheEntityToModule[ entity_type ] = entity_module
+    entity_module = _get_entity_module_without_cache_no_catch(entity_type)
+    _cache_entity_to_module[ entity_type] = entity_module
     return entity_module
+
 
 # Maybe we could return an array because of heritage ?
 # Or:  GetEntityModuleFunction(entity_type,functionName):
@@ -1561,67 +1568,68 @@ def GetEntityModule(entity_type):
 
     try:
         # Might be None if the module does not exist.
-        return cacheEntityToModule[ entity_type ]
+        return _cache_entity_to_module[ entity_type]
     except KeyError:
         pass
-    entity_module = GetEntityModuleNoCache(entity_type)
-    cacheEntityToModule[ entity_type ] = entity_module
+    entity_module = _get_entity_module_without_cache(entity_type)
+    _cache_entity_to_module[ entity_type] = entity_module
     return entity_module
+
 
 # This loads a script as a module. Example:
 # currentModule="sources_types.win32" fil="enumerate_top_level_windows.py"
-def GetScriptModule(currentModule, fil):
+def GetScriptModule(current_module, fil):
     if not fil.endswith(".py"):
-        ERROR("GetScriptModule module=%s fil=%s not a Python script", currentModule, fil )
+        ERROR("GetScriptModule module=%s fil=%s not a Python script", current_module, fil)
         return None
-    fileBaseName = fil[:-3] # Without the ".py" extension.
+    file_base_name = fil[:-3] # Without the ".py" extension.
     if is_py3:
         # Example: importlib.import_module("sources_top.Databases.mysql_processlist")
         #DEBUG("currentModule=%s fil=%s subClass=%s",currentModule,fil,subClass)
-        if currentModule:
-            importedMod = importlib.import_module(currentModule + "." + fileBaseName)
+        if current_module:
+            imported_mod = importlib.import_module(current_module + "." + file_base_name)
         else:
-            importedMod = importlib.import_module(fileBaseName)
+            imported_mod = importlib.import_module(file_base_name)
     else:
-        if currentModule:
-            DEBUG("GetScriptModule fileBaseName=%s currentModule=%s", fileBaseName, currentModule)
-            importedMod = importlib.import_module("." + fileBaseName, currentModule )
+        if current_module:
+            DEBUG("GetScriptModule file_base_name=%s currentModule=%s", file_base_name, current_module)
+            imported_mod = importlib.import_module("." + file_base_name, current_module)
         else:
-            importedMod = importlib.import_module(fileBaseName)
-    return importedMod
+            imported_mod = importlib.import_module(file_base_name)
+    return imported_mod
 
 
 ################################################################################
 
-def FromModuleToDoc(importedMod,filDfltText):
+def FromModuleToDoc(imported_module, fil_default_text):
     """
         Returns the doc string of a module as a literal node. Possibly truncated
         so it can be displayed.
     """
     try:
-        docModuAll = importedMod.__doc__
-        if docModuAll:
-            docModuAll = docModuAll.strip()
+        doc_modu_all = imported_module.__doc__
+        if doc_modu_all:
+            doc_modu_all = doc_modu_all.strip()
         # Take only the first non-empty line.
-        docModuSplit = docModuAll.split("\n")
-        docModu = None
-        for docModu in docModuSplit:
-            if docModu     :
+        doc_modu_split = doc_modu_all.split("\n")
+        doc_modu = None
+        for doc_modu in doc_modu_split:
+            if doc_modu     :
                 # sys.stderr.write("DOC="+docModu)
-                maxLen = 40
-                if len(docModu) > maxLen:
-                    docModu = docModu[0:maxLen] + "..."
+                max_len = 40
+                if len(doc_modu) > max_len:
+                    doc_modu = doc_modu[0:max_len] + "..."
                 break
     except:
-        docModu = ""
+        doc_modu = ""
 
-    if not docModu:
+    if not doc_modu:
         # If no doc available, just transform the file name.
-        docModu = filDfltText.replace("_"," ").capitalize()
+        doc_modu = fil_default_text.replace("_", " ").capitalize()
 
-    nodModu = NodeLiteral(docModu)
+    node_module = NodeLiteral(doc_modu)
 
-    return nodModu
+    return node_module
 
 # This creates a non-clickable node. The text is taken from __doc__ if it exists,
 # otherwise the file name is beautifuled.
@@ -1778,61 +1786,4 @@ def PathAndKeyValuePairsToRdf(grph, subject_path, dict_key_values):
     for key, val in dict_key_values.items():
         grph.add((subject_path_node, key, val))
 
-
-# Windows has two specific details with file path:
-# - They are case-insensitive but different utilities might change the case.
-# - Backslashes can be difficult to handle.
-# Therefore this function attempts to find the genuine case of a Windows file path,
-# and replace backslashes by slashes.
-#
-# For example /usr/bin/python2.7
-# Typical situation of symbolic links:
-# /usr/bin/python => python2 => python2.7
-#
-# For example, this is needed because Sparql queries do not accept backslahes.
-def standardized_file_path(file_path):
-    if isPlatformWindows:
-        # FIXME: Symbolic link on Windows ? Not used yet. Beware of this:
-        # FIXME: os.path.realpath('c:') => 'C:\Users\the_current_user'
-
-        # When running in PyCharm with virtualenv, the path is correct:
-        # "C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/venv/Scripts/python.exe"
-        # When running from pytest, it is converted to lowercase.
-        # "c:/python27/python.exe" instead of "C:/Python27/python.exe"
-        #
-        # But it is not possible at this stage, to detect if we run in pytest,
-        # because the environment variable 'PYTEST_CURRENT_TEST' is not set yet;
-        # 'PYTEST_CURRENT_TEST': 'tests/test_client_library.py::SurvolLocalTest::test_process_cwd (call)'
-
-        # If the file does not exist, cannot do anything.
-        if os.path.isdir(file_path) or os.path.isfile(file_path):
-            try:
-                import win32api
-                file_path = win32api.GetLongPathName(win32api.GetShortPathName(file_path))
-
-            except ImportError:
-                # Here we cannot do anything.
-
-                # https://stackoverflow.com/questions/27465610/how-can-i-get-the-proper-capitalization-for-a-path
-                # This is an undocumented function, for Python 3 only.
-                # os.path._getfinalpathname("c:/python27/python.exe") => '\\\\?\\C:\\Python27\\python.exe'
-                # os.path._getfinalpathname("c:/python27/python.exe").lstrip(r'\?') => 'C:\\Python27\\python.exe'
-                file_path = os.path._getfinalpathname(file_path).lstrip(r'\?')
-                sys.stderr.write(__file__ + " Cannot import win32api to fix file_path:%s\n" % file_path)
-            except Exception as exc:
-                # pywintypes.error: (5, 'GetShortPathNameW', 'Access is denied.')
-                sys.stderr.write(__file__ + " file_path:%s caught:%s\n" % (file_path, str(exc)))
-                # Leave the file name as it is.
-                pass
-
-        # FIXME: The drive must be in uppercase too. WHY ??
-        if len(file_path) > 1 and file_path[1] == ':':
-            file_path = file_path[0].upper() + file_path[1:]
-        # sys.stderr.write(__file__ + " Fixed sys.executable:%s\n" % CurrentExecutable)
-
-        file_path = file_path.replace("\\","/")
-    else:
-        # Eliminates symbolic links.
-        file_path = os.path.realpath(file_path)
-    return file_path
 
