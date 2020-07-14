@@ -20,7 +20,9 @@ import lib_util
 
 # For example r"C:\Perl64\bin\perl.exe" on Windows, "/usr/bin/perl" on Linux, or None if not installed.
 _perl_path = check_program_exists("perl")
-if _perl_path: _perl_path = _perl_path.decode()
+if _perl_path:
+    _perl_path = _perl_path.decode()
+    _perl_path = lib_util.standardized_file_path(_perl_path)
 
 sample_batch_script = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "CommandExample.bat")
 sample_python_script = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
@@ -229,8 +231,8 @@ class ProcessMemoryFilenamesTest(unittest.TestCase):
         for one_filename in sorted(filenames_set):
             print("    ", one_filename)
 
-        self.assertTrue(windows_system32_cmd_exe.replace("\\", "/") in filenames_set)
-        self.assertTrue(sys.executable.replace("\\", "/") in filenames_set)
+        self.assertTrue(lib_util.standardized_file_path(windows_system32_cmd_exe) in filenames_set)
+        self.assertTrue(lib_util.standardized_file_path(sys.executable) in filenames_set)
 
         # This filepath is calculated in the Python script
         file_name_with_slashes = os.path.join(os.path.dirname(sys.executable), "this_is_a_file_name_with_slashes.cpp").replace("\\", "/")
@@ -263,8 +265,8 @@ class ProcessMemoryFilenamesTest(unittest.TestCase):
         for one_filename in sorted(filenames_set):
             print("    ", one_filename)
 
-        self.assertTrue(_perl_path.replace("\\", "/") in filenames_set)
-        self.assertTrue(windows_system32_cmd_exe.replace("\\", "/") in filenames_set)
+        self.assertTrue(_perl_path in filenames_set)
+        self.assertTrue(lib_util.standardized_file_path(windows_system32_cmd_exe) in filenames_set)
 
         proc_open.communicate()
 
