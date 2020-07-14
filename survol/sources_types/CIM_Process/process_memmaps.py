@@ -29,7 +29,8 @@ def Main():
 	propMemoryRSS = lib_common.MakeProp("Resident Set Size")
 	for map in all_maps:
 		# This, because all Windows paths are "standardized" by us.
-		cleanMapPath = lib_util.standardized_file_path(map.path)
+		# TODO: cleanMapPath = lib_util.standardized_file_path(map.path)
+		cleanMapPath = map.path.replace("\\", "/")
 
 		uriMemMap = lib_common.gUriGen.MemMapUri( cleanMapPath )
 
