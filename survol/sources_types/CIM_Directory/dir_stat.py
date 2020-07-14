@@ -22,7 +22,7 @@ from lib_properties import pc
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 	filNam = cgiEnv.GetId()
-	filNam = filNam.replace("\\","/")
+	filNam = lib_util.standardized_file_path(filNam)
 
 	DEBUG("filNam=%s", filNam )
 
