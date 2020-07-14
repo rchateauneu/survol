@@ -104,7 +104,8 @@ def Main():
 		match_lm = re.match(r"[0-9a-fA-F]+ [0-9a-fA-F]+ +([^ ]*) +\(export symbols\) +(.*)", dot_line )
 		if match_lm:
 			moduleName = match_lm.group(1)
-			dllName = match_lm.group(2).strip().replace("\\","/") # .replace(":","COLON")
+			dllNameRaw = match_lm.group(2).strip()
+			dllName = lib_util.standardized_file_path(dllNameRaw)
 			DEBUG("moduleName=%s dllName=%s", moduleName, dllName )
 			modules_map[ moduleName ] = dllName
 			continue
