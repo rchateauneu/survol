@@ -92,7 +92,8 @@ def Main():
 		grph.add( ( lib_common.nodeMachine, pc.property_smbshare, shareNode ) )
 
 		# mountNode = lib_common.gUriGen.FileUri( "//" + lib_util.currentHostname + "/" + shrRes )
-		shrRes = shrRes.replace("\\","/").strip()
+		shrRes = shrRes.strip()
+		shrRes = lib_util.standardized_file_path(shrRes)
 		mountNode = lib_common.gUriGen.DirectoryUri( shrRes )
 		grph.add( ( shareNode, pc.property_smbmount, mountNode ) )
 
