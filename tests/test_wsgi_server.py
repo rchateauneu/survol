@@ -103,8 +103,8 @@ class WsgiRemoteTest(unittest.TestCase):
             "CIM_DataFile",
             Name=always_present_file)
 
-        cleanFileAlwaysThere = always_present_file.replace("\\","/")
-        dirFileAlwaysThere = always_present_dir.replace("\\","/")
+        cleanFileAlwaysThere = lib_util.standardized_file_path(always_present_file)
+        dirFileAlwaysThere = lib_util.standardized_file_path(always_present_dir)
 
         print("urlFileStatRemote=",mySourceFileStatRemote.Url())
         print("qryFileStatRemote=",mySourceFileStatRemote.create_url_query())
