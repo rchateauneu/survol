@@ -119,8 +119,7 @@ def DirToMenu(callbackGrphAdd,parentNode,entity_type,entity_id,entity_host,flagS
             if dir == "__pycache__":
                 continue
 
-            full_sub_dir = curr_dir + "/" + dir
-            full_sub_dir = full_sub_dir.replace("\\","/")
+            full_sub_dir = os.path.join(curr_dir, dir)
 
             currDirNode = lib_util.DirDocNode(argDir,dir)
 
