@@ -213,7 +213,8 @@ class SurvolLocalTest(unittest.TestCase):
     def test_grep_string(self):
         """Searches for printable strings in a file"""
 
-        sampleFile = os.path.join( os.path.dirname(__file__), "SampleDir", "SampleFile.txt" ).replace("\\","/")
+        sampleFile = os.path.join(os.path.dirname(__file__), "SampleDir", "SampleFile.txt")
+        sampleFile = lib_util.standardized_file_path(sampleFile)
 
         mySourceGrep = lib_client.SourceLocal(
             "sources_types/CIM_DataFile/grep_text_strings.py",
@@ -570,7 +571,7 @@ class SurvolLocalTest(unittest.TestCase):
         DEBUG("strInstancesSet=%s",str(strInstancesSet))
 
         sqlPathNameAbsolute = os.path.abspath(sqlPathName)
-        sqlPathNameClean = sqlPathNameAbsolute.replace("\\","/")
+        sqlPathNameClean = lib_util.standardized_file_path(sqlPathNameAbsolute)
 
         # This checks the presence of the current process and the Python file being executed.
         listRequired = [
@@ -598,6 +599,26 @@ class SurvolLocalTest(unittest.TestCase):
         # At least the current user must be found.
         for oneStr in [ CurrentUserPath ]:
             self.assertTrue(oneStr in strInstancesSet)
+
+    def test_enumerate_CIM_Process(self):
+        """List detectable processes."""
+
+        # http://rchateau-hp:8000/survol/sources_types/enumerate_user.py?xid=.
+        my_source_processes = lib_client.SourceLocal(
+            "sources_types/enumerate_CIM_Process.py")
+
+        import time
+        sys.stderr.write("BEFORE get_triplestore %d\n" % time.time())
+        triple_processes = my_source_processes.get_triplestore()
+        sys.stderr.write("BEFORE get_instances %d\n" % time.time())
+        instances_processes = triple_processes.get_instances()
+        sys.stderr.write("AFTER get_instances %d\n" % time.time())
+        str_instances_set = set([str(oneInst) for oneInst in instances_processes])
+        sys.stderr.write("BEFORE test %d\n" % time.time())
+
+        # At least the current process must be found.
+        for one_str in [CurrentProcessPath]:
+            self.assertTrue(one_str in str_instances_set)
 
     @unittest.skipIf(not pkgutil.find_loader('cx_Oracle'), "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
     def test_oracle_process_dbs(self):
@@ -641,7 +662,7 @@ class SurvolLocalTest(unittest.TestCase):
 
         print("test_process_cwd: CurrentExecutablePath:", CurrentExecutablePath)
         for oneStr in [
-            'CIM_DataFile.Name=%s' % os.getcwd().replace("\\","/"),
+            'CIM_DataFile.Name=%s' % lib_util.standardized_file_path(os.getcwd()),
             CurrentExecutablePath,
             CurrentProcessPath,
             CurrentUserPath,
@@ -1082,7 +1103,7 @@ class SurvolLocalGdbTest(unittest.TestCase):
         print("strInstancesSet=",strInstancesSet)
 
         pyPathNameAbsolute = os.path.abspath(pyPathName)
-        pyPathNameClean = pyPathNameAbsolute.replace("\\","/")
+        pyPathNameClean = lib_util.standardized_file_path(pyPathNameAbsolute)
 
         # This checks the presence of the current process and the Python file being executed.
         listRequired = [
@@ -1165,11 +1186,11 @@ class SurvolLocalWindowsTest(unittest.TestCase):
                 list_option.append('CIM_DataFile.Name=%s' % extra_file)
             else:
                 list_option = [
-                    'CIM_DataFile.Name=C:/windows/system32/kernel32.dll',
+                    'CIM_DataFile.Name=%s' % lib_util.standardized_file_path('C:/windows/system32/kernel32.dll'),
                 ]
         else:
             list_option = [
-            'CIM_DataFile.Name=C:/windows/SYSTEM32/ntdll.dll',
+            'CIM_DataFile.Name=%s' % lib_util.standardized_file_path('C:/windows/SYSTEM32/ntdll.dll'),
             ]
 
         print("Actual=", str_instances_set)
