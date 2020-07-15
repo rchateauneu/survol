@@ -103,23 +103,15 @@ except ImportError:
     print("Cannot import optional module lib_sql")
     lib_sql = None
 
-sys.stderr.write("Attempt to load lib_naming_conventions\n")
-sys.stderr.write("os.getcwd=%s\n" % os.getcwd())
-# os.getcwd=C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\survol\scripts
-# sys.path.append(r"C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\survol")
 sys.path.append(r"../../survol")
 
 try:
-    # from survol import lib_naming_conventions
-    sys.stderr.write("Importing lib_naming_conventions\n")
     import lib_naming_conventions
-    sys.stderr.write("Imported lib_naming_conventions\n")
 
     def local_standardized_file_path(file_path):
         return lib_naming_conventions.standardized_file_path(file_path)
 
 except ImportError:
-    sys.stderr.write("Importing lib_naming_conventions FAILED\n")
     lib_naming_conventions = None
 
     def local_standardized_file_path(file_path):
@@ -129,10 +121,6 @@ except ImportError:
 def standardize_object_attributes(cim_class_name, cim_arguments):
     if cim_class_name in ["CIM_DataFile", "CIM_Directory"]:
         path_file = cim_arguments["Name"]
-        #if (is_py3 and isinstance(path_file, bytes)) or (not is_py3):
-        #    path_file = path_file.decode()
-        #if not isinstance(path_file, str):
-        #    path_file = path_file.decode()
         cim_arguments["Name"] = local_standardized_file_path(path_file)
 
 
@@ -466,22 +454,6 @@ def _timestamp_to_str(timStamp):
         return G_Today + " 00:00:00.000000"
 
 ################################################################################
-
-# FIXME: Is it really needed ? And safe ??
-#sys.path.append("../..")
-# Import this now, and not in the destructor, to avoid the error:
-# "sys.meta_path must be a list of import hooks"
-# This module is needed for storing the generated data into a RDF file.
-try:
-    if is_py3:
-        if ".." not in sys.path:
-            sys.path.append("..")
-    else:
-        if "../survol" not in sys.path:
-            sys.path.append("../survol")
-    from survol import lib_event
-except ImportError:
-    lib_event = None
 
 # This objects groups triples to send to the HTTP server, and periodically wakes up to send them.
 # But if the server name is a file, the RDF content is instead stored to this file by the object destructor.
