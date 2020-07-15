@@ -73,16 +73,12 @@ def DisplayMappedProcesses(grph,fileName):
 
 		for map in all_maps:
 			# This, because all Windows paths are "standardized" by us.
-			cleanMapPath = map.path.replace("\\","/")
+			cleanMapPath = lib_util.standardized_file_path(map.path)
 
 			# MapPath=C:\Windows\System32\KernelBase.dll fileName=c:\windows\system32\API-MS-WIN-CORE-LOCALIZATION-L1-1-0.DLL
 			# sys.stderr.write("Pid=%d MapPath=%s cleanMapPath=%s fileName=%s\n" % (pid,map.path,cleanMapPath,fileName))
 
-			if lib_util.isPlatformWindows:
-				# Horrible conversion due to Windows ...
-				sameFil = map.path.replace("\\","/").lower() == fileName.replace("\\","/").lower()
-			else:
-				sameFil = map.path == fileName
+			sameFil = lib_util.standardized_file_path(map.path) == lib_util.standardized_file_path(fileName)
 
 			if sameFil:
 				DEBUG("Pid=%d MapPath=%s cleanMapPath=%s fileName=%s", pid,map.path,cleanMapPath,fileName)
