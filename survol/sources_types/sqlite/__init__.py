@@ -5,6 +5,7 @@ sqlite objects
 import os
 import sys
 import lib_common
+import lib_util
 from lib_properties import pc
 
 import sqlite3
@@ -52,7 +53,7 @@ def DatabaseEnvParams(processId):
 		DEBUG("DatabaseEnvParams processId=%s filNam=%s",str(processId),filNam)
 		if IsSqliteDatabase(filNam):
 			DEBUG("DatabaseEnvParams ADDING filNam=%s",filNam)
-			filNamClean = filNam.replace("\\","/")
+			filNamClean = lib_util.standardized_file_path(filNam)
 			filDef = { "File" : filNamClean }
 			listArgs.append(filDef)
 
