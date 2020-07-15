@@ -2,6 +2,7 @@ import os
 import sys
 
 _is_py3 = sys.version_info >= (3,)
+_is_windows = 'win' in sys.platform
 
 # Windows has two specific details with file path:
 # - They are case-insensitive but different utilities might change the case.
@@ -23,7 +24,7 @@ def standardized_file_path(file_path):
             file_path = file_path.encode()
     assert isinstance(file_path, str)
 
-    if 'win' in sys.platform:
+    if _is_windows:
         # FIXME: Symbolic link on Windows ? Not used yet. Beware of this:
         # FIXME: os.path.realpath('c:') => 'C:\Users\the_current_user'
 
@@ -78,4 +79,14 @@ def standardized_file_path(file_path):
         file_path = os.path.realpath(file_path)
     assert isinstance(file_path, str)
     return file_path
+
+
+def standardized_memmap_path(memmap_path):
+    memmap_path = memmap_path.strip()
+    # This could be "[anon]", "[heap]" etc...
+    if not _is_windows and memmap_path.startswith("["):
+        return memmap_path
+    # This is a plain file path.
+    return standardized_file_path(memmap_path)
+
 
