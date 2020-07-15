@@ -4,8 +4,8 @@
 UDP sockets
 """
 
-# The Python module psutil is not needed
-
+import lib_util
+import lib_common
 
 # $ netstat -ap -u
 # Active Internet connections (servers and established)
@@ -15,4 +15,19 @@ UDP sockets
 # udp        0      0 fedora22:46107          0.0.0.0:*                           2134/rygel
 
 # TODO: IMPLEMENT THIS
+
+# Usable = lib_util.UsableLinux
+
+def Main():
+    cgiEnv = lib_common.CgiEnv()
+    grph = cgiEnv.GetGraph()
+
+    lib_common.ErrorMessageHtml("Not implemented yet")
+
+
+    cgiEnv.OutCgiRdf("LAYOUT_RECT")
+
+if __name__ == '__main__':
+    Main()
+
 
