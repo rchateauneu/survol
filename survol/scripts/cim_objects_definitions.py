@@ -1,8 +1,15 @@
 # This contains the definitions of CIM objects and their containers.
-# These containers are filled when functiosn calls detect the creation
+# These containers are filled when functions calls detect the creation
 # or handling of such an object.
-# This modules contaisn specilized containers for thsee objects,
+# This modules contains specialized containers for these objects,
 # which are later used to create a Dockerfile.
+# These are many common objects with the sub-packages found in survol/sources_types/*/
+# However, information related to the same class are not stored together, because:
+# - When monitoring a running binary with dockit, we wish to import as few code as possible.
+# - The sub-packages related to a class in survol/sources_types/*/ contain
+#   many scripts and a lot of code, with possibly a lengthy init.
+# - Even if the classes are the same, the needed features are different:
+#   Here, it stores actual information about an object, to model the running application.
 
 import os
 import re
@@ -70,9 +77,68 @@ def DecodeOctalEscapeSequence(aBuffer):
 # TODO: There is not valid reason to load all buffer scanners in this file.
 BufferScanners = {}
 
-try:
-    sys.path.append("../..")
+################################################################################
 
+# Import this now, and not in the destructor, to avoid the error:
+# "sys.meta_path must be a list of import hooks"
+# This module is needed for storing the generated data into a RDF file.
+
+sys.path.append("../..")
+
+if is_py3:
+    if ".." not in sys.path:
+        sys.path.append("..")
+else:
+    if "../survol" not in sys.path:
+        sys.path.append("../survol")
+
+try:
+    from survol import lib_event
+except ImportError:
+    lib_event = None
+
+try:
+    from survol import lib_sql
+except ImportError:
+    print("Cannot import optional module lib_sql")
+    lib_sql = None
+
+sys.stderr.write("Attempt to load lib_naming_conventions\n")
+sys.stderr.write("os.getcwd=%s\n" % os.getcwd())
+# os.getcwd=C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\survol\scripts
+# sys.path.append(r"C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\survol")
+sys.path.append(r"../../survol")
+
+try:
+    # from survol import lib_naming_conventions
+    sys.stderr.write("Importing lib_naming_conventions\n")
+    import lib_naming_conventions
+    sys.stderr.write("Imported lib_naming_conventions\n")
+
+    def local_standardized_file_path(file_path):
+        return lib_naming_conventions.standardized_file_path(file_path)
+
+except ImportError:
+    sys.stderr.write("Importing lib_naming_conventions FAILED\n")
+    lib_naming_conventions = None
+
+    def local_standardized_file_path(file_path):
+        return file_path.replace("\\", "/")
+
+
+def standardize_object_attributes(cim_class_name, cim_arguments):
+    if cim_class_name in ["CIM_DataFile", "CIM_Directory"]:
+        path_file = cim_arguments["Name"]
+        #if (is_py3 and isinstance(path_file, bytes)) or (not is_py3):
+        #    path_file = path_file.decode()
+        #if not isinstance(path_file, str):
+        #    path_file = path_file.decode()
+        cim_arguments["Name"] = local_standardized_file_path(path_file)
+
+
+################################################################################
+
+if lib_sql:
     # This creates the SQL queries scanner, it needs Survol code.
     from survol import lib_sql
 
@@ -111,9 +177,6 @@ try:
         return lstQueries
 
     BufferScanners["SqlQuery"] = RawBufferSqlQueryScanner
-except ImportError:
-    print("Cannot import optional module lib_sql")
-    pass
 
 ################################################################################
 
@@ -897,7 +960,8 @@ class CIM_Process(CIM_XmlMarshaller):
         if proc_obj:
             try:
                 self.Name = proc_obj.name()
-                exec_fil_nam = proc_obj.exe().replace("\\", "/")
+                exec_fil_nam_raw = proc_obj.exe()
+                exec_fil_nam = local_standardized_file_path(exec_fil_nam_raw)
                 # The process id is not needed because the path is absolute and the process CIM object
                 # should already be created. However, in the future it might reuse an existing context.
                 objects_context = ObjectsContext(proc_id)
@@ -919,7 +983,7 @@ class CIM_Process(CIM_XmlMarshaller):
                 pass
 
             try:
-                self.CurrentDirectory = proc_obj.cwd().replace("\\", "/")
+                self.CurrentDirectory = local_standardized_file_path(proc_obj.cwd())
             except:
                 # psutil.ZombieProcess process still exists but it's a zombie
                 # Another possibility would be to use the parent process.
@@ -1476,10 +1540,8 @@ def to_real_absolute_path(directory_path, file_basename):
         return file_basename
 
     join_path = os.path.join(directory_path, file_basename)
-    norm_path = os.path.realpath(join_path)
 
-    if not is_platform_linux:
-        norm_path = norm_path.replace(u"\\", "/")
+    norm_path = local_standardized_file_path(join_path)
     return norm_path
 
 ################################################################################

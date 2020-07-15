@@ -174,7 +174,12 @@ def update_test_path():
 
 def unique_temporary_path(prefix, extension):
     temp_file = "%s_%d_%d%s" % (prefix, CurrentPid, int(time.time()), extension)
-    temp_path = os.path.join(tempfile.gettempdir(), temp_file)
+
+    # This is done in two stages because the case of the file is OK, but not the directory.
+    # This function does not change non existent files.
+    temp_dir = lib_util.standardized_file_path(tempfile.gettempdir())
+    temp_path = os.path.join(temp_dir, temp_file)
+    temp_path = lib_util.standardized_file_path(temp_path)
     return temp_path
 
 
