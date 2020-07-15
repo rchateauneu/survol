@@ -603,22 +603,32 @@ class SurvolLocalTest(unittest.TestCase):
     def test_enumerate_CIM_Process(self):
         """List detectable processes."""
 
-        # http://rchateau-hp:8000/survol/sources_types/enumerate_user.py?xid=.
         my_source_processes = lib_client.SourceLocal(
             "sources_types/enumerate_CIM_Process.py")
 
-        import time
-        sys.stderr.write("BEFORE get_triplestore %d\n" % time.time())
         triple_processes = my_source_processes.get_triplestore()
-        sys.stderr.write("BEFORE get_instances %d\n" % time.time())
         instances_processes = triple_processes.get_instances()
-        sys.stderr.write("AFTER get_instances %d\n" % time.time())
         str_instances_set = set([str(oneInst) for oneInst in instances_processes])
-        sys.stderr.write("BEFORE test %d\n" % time.time())
 
         # At least the current process must be found.
         for one_str in [CurrentProcessPath]:
             self.assertTrue(one_str in str_instances_set)
+
+    def test_objtypes(self):
+        my_source_objtypes = lib_client.SourceLocal(
+            "objtypes.py")
+
+        triple_objtypes = my_source_objtypes.get_triplestore()
+        self.assertTrue(len(triple_objtypes) > 0)
+
+    @unittest.skip("FIXME: Test does not work")
+    def test_class_type_all(self):
+        my_source_class_type_all = lib_client.SourceLocal(
+            "sources_types/class_type_all.py",
+            "CIM_DataFile")
+
+        triple_class_type_all = my_source_class_type_all.get_triplestore()
+        self.assertTrue(len(triple_class_type_all) > 0)
 
     @unittest.skipIf(not pkgutil.find_loader('cx_Oracle'), "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
     def test_oracle_process_dbs(self):
