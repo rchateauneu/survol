@@ -577,10 +577,11 @@ class Win32Hook_BaseClass(hook_metaclass(CallsCounterMeta)):
         assert isinstance(cls.function_name, six.binary_type)
 
     def callback_create_object(self, cim_class_name, **cim_arguments):
+        cim_objects_definitions.standardize_object_attributes(cim_class_name, cim_arguments)
         tracer_object.report_object_creation(self.cim_context(), cim_class_name, **cim_arguments)
 
-
     def callback_create_object_with_status(self, success_flag, cim_class_name, **cim_arguments):
+        cim_objects_definitions.standardize_object_attributes(cim_class_name, cim_arguments)
         if False and not success_flag:
             # TODO: Maybe report the attempt to create a directory.
             calling_function_name = sys._getframe(1).f_code.co_name
