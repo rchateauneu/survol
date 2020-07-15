@@ -176,7 +176,7 @@ def CreateOurNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 		for filename in [f for f in filenames if f == enumerateScript ]:
 
 			shortDir = dirpath[ len(lib_util.gblTopScripts) : ]
-			fullScriptNam = os.path.join(shortDir, filename).replace('\\','/')
+			fullScriptNam = lib_util.standardized_file_path(os.path.join(shortDir, filename))
 			DEBUG("fullScriptNam=%s", fullScriptNam)
 
 			# TODO: Maybe remove the beginning of the file.
