@@ -265,7 +265,7 @@ class LocalBox:
         symbol_name = lib_util.Base64Encode(symbol_name)
         # TODO: Move that to linker_symbol/__init__.py and see sources_types.sql.query.MakeUri
         # TODO: Alphabetical order !!!!
-        path = path.replace("\\","/") # TODO: Use normpath()
+        path = lib_util.standardized_file_path(path)
         return self.UriMakeFromDict("linker_symbol", { "Name" : symbol_name, "File" : lib_util.EncodeUri(path) } )
 
     # Might be a C++ class or a namespace, as there is no way to differentiate from ELF symbols.
@@ -273,7 +273,7 @@ class LocalBox:
     def ClassUri(self,class_name, path = ""):
         # The URL should never contain the chars "<" or ">".
         class_name = lib_util.Base64Encode(class_name)
-        path = path.replace("\\","/") # TODO: Use normpath()
+        path = lib_util.standardized_file_path(path)
         return self.UriMakeFromDict("class", { "Name" : class_name, "File" : lib_util.EncodeUri(path) } )
 
     # CIM_DeviceFile is common to WMI and WBEM.
@@ -283,7 +283,7 @@ class LocalBox:
     # XML Parsing Error: not well-formed
     # Location: http://127.0.0.1/Survol/survol/entity.py?xid=file:C%3A%5CUsers%5Crchateau%5CAppData%5CLocal%5CMicrosoft%5CWindows%5CExplorer%5CThumbCacheToDelete%5Cthm9798.tmp
     def FileUri(self,path):
-        path = path.replace("\\","/") # TODO: Use normpath()
+        path = lib_util.standardized_file_path(path)
         return self.UriMake("CIM_DataFile", lib_util.EncodeUri(path))
 
         # TODO: Consider this might be even be more powerful.
@@ -302,7 +302,7 @@ class LocalBox:
         # Better have our own "canonical" notation for filenames, so replace them.
         # If needed, they can always be replaced by a normal slash.
         #
-        path = path.replace("\\","/")
+        path = lib_util.standardized_file_path(path)
         return self.UriMake( "CIM_Directory" , lib_util.EncodeUri(path))
 
     # This creates a node for a socket, so later it can be merged with the same socket.
@@ -344,7 +344,7 @@ class LocalBox:
         # Because DOT replace "\L" by "<TABLE>".
         # Probably must do that for files also.
         # "xid=memmap:C:\Program Files (x86)Memory mapsoogle\Chrome\Application\39.0.2171.95<TABLE>ocales\fr.pak"
-        return self.UriMake("memmap",memmap_path.replace('\\','/') )
+        return self.UriMake("memmap", lib_util.standardized_file_path(memmap_path))
 
     # TODO: This function should be moved to its module.
     # Win32_Account:    Domain    Name
