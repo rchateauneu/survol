@@ -52,15 +52,12 @@ def Main():
 		subServiceNodeOut = Win32_Service.DictServiceToNode( grph, subServiceDictOut, serviceHost )
 		grph.add( (subServiceNodeOut, pc.property_service, serviceNode ) )
 
-	# TODO: Utiliser les aretes plus intelligemment:
-	# Changer les couleurs.
-	# Mettre plus d'infos dans le nom.
-	# Les rendre bidirectionnelles sans avoir besoin d'un traitement particulier.
-	# Exemple de syntaxe: Type;Titre;Couleur;Taille;Fleches
-	# Exemple: sous-process;Pid=123;Red:1;SinpleArrow
-	#          socket;Telnet;Green;BidirectionnalArrow
-	# On permet la transition en commencant par le type, comme maintenant.
-	# Ou bien: Type;k1=v1;k2=v2
+	# TODO: Edges should be better displayed. Change colors, more informaiton in the name.
+	# TODO Also, they could be bidirectional, have more informaiton in the name.
+	# TODO: Add attributes to the URL, for example:
+	# TODO: Type;Titre;Couleur;Taille;Fleches
+	# TODO: sub-process;Pid=123;Red:1;SinpleArrow
+	# TODO: socket;Telnet;Green;BidirectionnalArrow
 
 	# cgiEnv.OutCgiRdf("LAYOUT_RECT")
 	# cgiEnv.OutCgiRdf()
