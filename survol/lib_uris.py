@@ -344,7 +344,7 @@ class LocalBox:
         # Because DOT replace "\L" by "<TABLE>".
         # Probably must do that for files also.
         # "xid=memmap:C:\Program Files (x86)Memory mapsoogle\Chrome\Application\39.0.2171.95<TABLE>ocales\fr.pak"
-        return self.UriMake("memmap", lib_util.standardized_file_path(memmap_path))
+        return self.UriMake("memmap", lib_util.standardized_memmap_path(memmap_path))
 
     # TODO: This function should be moved to its module.
     # Win32_Account:    Domain    Name

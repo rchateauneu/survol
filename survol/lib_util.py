@@ -24,6 +24,7 @@ import lib_kbase
 
 # This minimizes changes because it is used everywhere.
 from lib_naming_conventions import standardized_file_path
+from lib_naming_conventions import standardized_memmap_path
 
 # In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
 # TODO: Use module six.
