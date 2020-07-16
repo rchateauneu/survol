@@ -19,6 +19,7 @@ import base64
 import importlib
 import logging
 import inspect
+import html
 
 import lib_kbase
 
@@ -51,6 +52,7 @@ else:
     def survol_unescape(s):
         return HTMLParser.HTMLParser().unescape(s)
 
+html_escape = html.escape
 
 # See tests/init.py which duplicates this statement.
 try:
