@@ -205,7 +205,7 @@ class ProcessMemoryConnectionStringsTest(unittest.TestCase):
         proc_open.communicate()
 
 
-@unittest.skipIf(is_travis_machine(), "TODO: Not working on Travis yet")
+## @unittest.skipIf(is_travis_machine(), "TODO: Not working on Travis yet")
 class ProcessMemoryFilenamesTest(unittest.TestCase):
     """This searches with regular expressions in the memory of a running process.
     It does not need a Survol agent"""
