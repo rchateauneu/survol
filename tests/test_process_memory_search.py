@@ -240,6 +240,7 @@ class ProcessMemoryFilenamesTest(unittest.TestCase):
 
     # This searches the content of a process memory which contains a SQL memory.
     #@unittest.skip("FIXME: Not working yet")
+    @unittest.skipIf(is_travis_machine(), "FIXME: Should work on Travis too.")
     @unittest.skipIf(is_platform_linux, "TODO: Not working on Linux yet")
     @unittest.skipIf(not _perl_path, "Perl must be installed.")
     def test_from_perl(self):
