@@ -258,6 +258,9 @@ def OutCgiMode(theCgi, topUrl, mode, errorMsg = None, isSubServer=False):
         lib_exports.Grph2Menu(page_title, errorMsg, isSubServer, parameters, grph)
     elif mode == "rdf":
         lib_export_ontology.Grph2Rdf(grph)
+    #elif mode == "events":
+    #    # This sends the results to the Events directory.
+    #    pass
     elif mode in ["svg",""]:
         # Default mode, because graphviz did not like several CGI arguments in a SVG document (Bug ?).
         _graph_to_svg(page_title, errorMsg, isSubServer, parameters, grph, parameterized_links, topUrl, dot_layout)
