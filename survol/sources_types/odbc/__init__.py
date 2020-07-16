@@ -4,7 +4,6 @@ Open Database Connectivity concepts
 
 import re
 import sys
-import cgi
 import lib_util
 
 # ('C:\\Program Files (x86)\\Microsoft Visual Studio 8\\Crystal Reports\\Samples\\en\\Databases\\xtreme', None, 'MSysAccessObjects', 'SYSTEM TABLE', None)
@@ -229,10 +228,9 @@ class CgiPropertyDsn(str):
 			( aKeyWrd,aVal ) = re.split( " *= *", kvPair )
 			# sys.stderr.write("KeyValuePairEncode aKeyWrd=%s\n"%aKeyWrd)
 			if aKeyWrd in odbcKeysConfidential:
-				# aVal = lib_util.EncodeUri(aVal) # SHOULD BE CRYPTED
-				aVal = cgi.escape(aVal) # SHOULD BE CRYPTED
+				aVal = lib_util.html_escape(aVal) # SHOULD BE CRYPTED
 			elif aKeyWrd not in odbcKeysUncoded:
-				aVal = cgi.escape(aVal)
+				aVal = lib_util.html_escape(aVal)
 			return aKeyWrd.upper() + "~" + aVal
 
 		# return "-".join( KeyValuePairEncode(aKeyW.upper(),vecKeywrd[aKeyW]) for aKeyW in vecKeywrd )

@@ -1,6 +1,5 @@
 import sys
 import json
-import cgi
 import re
 import collections
 
@@ -141,12 +140,12 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
         except ValueError:
             # It is a string which cannot be converted to json.
-            val = cgi.escape(val)
+            val = lib_util.html_escape(val)
             return lib_exports.StrWithBr(val)
         except TypeError:
             # "Expected a string or buffer"
             # It is not a string, so it could be a datetime.datetime
-            val = cgi.escape(str(val))
+            val = lib_util.html_escape(str(val))
             return lib_exports.StrWithBr(val)
         return "_format_element failure"
 
@@ -524,7 +523,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
                     # WE SHOULD PROBABLY ESCAPE HERE TOO.
                     columns[0] = td_bgcolor_light + 'port="%s" href="%s" align="LEFT" >%s</td>' % ( subObjId, subNodUri, title_key )
                 else:
-                    subNodUri = cgi.escape(subNodUri)
+                    subNodUri = lib_util.html_escape(subNodUri)
                     columns[0] = td_bgcolor_light + 'port="%s" align="LEFT" >%s</td>' % ( subObjId, subNodUri )
 
                 # Several scripts might have the same help text, so add a number.
