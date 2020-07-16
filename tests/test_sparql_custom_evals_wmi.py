@@ -452,7 +452,7 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
 
 
 
-class SparqlCallWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
+class SparqlWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
     # We must anyway give the type of url_file,
     # otherwise we cannot deduce that it is an associator.

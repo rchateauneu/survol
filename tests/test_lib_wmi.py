@@ -205,7 +205,7 @@ class WmiSparqlExecutorTest(unittest.TestCase):
         print("lst_Win32_SubDirectory=", lst_Win32_SubDirectory)
         self.assertTrue(lst_Win32_SubDirectory == [('Win32_Directory', 'GroupComponent'), ('Win32_Directory', 'PartComponent')])
 
-    def test_SelectBidirectionalAssociatorsFromObject_file_to_dir(self):
+    def test_BidirectionalAssociatorsFromObject_file_to_dir(self):
         wmiExecutor = lib_wmi.WmiSparqlExecutor()
 
         file_name = always_present_file.replace("\\", "/").lower()
@@ -224,7 +224,7 @@ class WmiSparqlExecutorTest(unittest.TestCase):
             print("directory_path=", directory_path)
             self.assertTrue(actual_filename_clean==directory_path)
 
-    def test_SelectBidirectionalAssociatorsFromObject_dir_to_file(self):
+    def test_BidirectionalAssociatorsFromObject_dir_to_file(self):
         wmiExecutor = lib_wmi.WmiSparqlExecutor()
 
         file_name = always_present_file.replace("\\", "/").lower()
@@ -248,7 +248,7 @@ class WmiSparqlExecutorTest(unittest.TestCase):
         print("expected_file_path=", expected_file_path)
         self.assertTrue(expected_file_path.lower() in paths_list)
 
-    def test_SelectBidirectionalAssociatorsFromObject_dir_to_subdir(self):
+    def test_BidirectionalAssociatorsFromObject_dir_to_subdir(self):
         wmiExecutor = lib_wmi.WmiSparqlExecutor()
 
         sub_dir_name = always_present_sub_dir.replace("\\", "/").lower()
@@ -270,7 +270,7 @@ class WmiSparqlExecutorTest(unittest.TestCase):
         print("expected_subdir_path=", expected_subdir_path)
         self.assertTrue(expected_subdir_path.lower() in paths_list)
 
-    def test_SelectBidirectionalAssociatorsFromObject_subdir_to_dir(self):
+    def test_BidirectionalAssociatorsFromObject_subdir_to_dir(self):
         wmiExecutor = lib_wmi.WmiSparqlExecutor()
 
         sub_dir_name = always_present_sub_dir.replace("\\", "/").lower()
