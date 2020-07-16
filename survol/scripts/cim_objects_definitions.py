@@ -47,7 +47,7 @@ is_platform_linux = sys.platform.startswith("linux")
 
 ################################################################################
 
-def DecodeOctalEscapeSequence(aBuffer):
+def DecodeOctalEscapeSequence(input_buffer):
     # An octal escape sequence consists of \ followed by one, two, or three octal digits.
     # The octal escape sequence ends when it either contains three octal digits already,
     # or the next character is not an octal digit.
@@ -64,10 +64,10 @@ def DecodeOctalEscapeSequence(aBuffer):
 
     # https://stackoverflow.com/questions/4020539/process-escape-sequences-in-a-string-in-python
     if is_py3:
-        decBuf = bytes(aBuffer, "utf-8").decode("unicode_escape")
+        dec_buf = bytes(input_buffer, "utf-8").decode("unicode_escape")
     else:
-        decBuf = aBuffer.decode('string_escape')
-    return decBuf
+        dec_buf = input_buffer.decode('string_escape')
+    return dec_buf
 
 ################################################################################
 
@@ -75,7 +75,7 @@ def DecodeOctalEscapeSequence(aBuffer):
 # about the running applications. There can be several types of parsers,
 # indexed by a descriptive key: "SqlQuery" etc...
 # TODO: There is not valid reason to load all buffer scanners in this file.
-BufferScanners = {}
+_buffer_scanners = {}
 
 ################################################################################
 
@@ -85,12 +85,7 @@ BufferScanners = {}
 
 sys.path.append("../..")
 
-if is_py3:
-    if ".." not in sys.path:
-        sys.path.append("..")
-else:
-    if "../survol" not in sys.path:
-        sys.path.append("../survol")
+sys.path.append(r"../../survol")
 
 try:
     from survol import lib_event
@@ -102,8 +97,6 @@ try:
 except ImportError:
     print("Cannot import optional module lib_sql")
     lib_sql = None
-
-sys.path.append(r"../../survol")
 
 try:
     import lib_naming_conventions
@@ -130,27 +123,27 @@ if lib_sql:
     # This creates the SQL queries scanner, it needs Survol code.
     from survol import lib_sql
 
-    dictRegexSQL = lib_sql.SqlRegularExpressions()
+    dict_regex_sql = lib_sql.SqlRegularExpressions()
 
-    dictRegexSQLCompiled = {
-        rgxKey : re.compile(dictRegexSQL[rgxKey], re.IGNORECASE)
-        for rgxKey in dictRegexSQL
+    dict_regex_sql_compiled = {
+        rgx_key : re.compile(dict_regex_sql[rgx_key], re.IGNORECASE)
+        for rgx_key in dict_regex_sql
     }
 
     # This returns a list of SQL queries.
-    def RawBufferSqlQueryScanner(aBuffer):
+    def _raw_buffer_sql_query_scanner(input_buffer):
         # The regular expressions are indexed with a key such as "INSERT", "SELECT" etc...
         # which gives a hint about what the query does.
         # This creates a dictionary mapping the RDF property to the compiled regular expression.
         # Also, the regular expressions are compiled for better performance.
 
-        lstQueries = []
+        lst_queries = []
 
-        for rgxKey in dictRegexSQLCompiled:
-            compiledRgx = dictRegexSQLCompiled[rgxKey]
-            matchedSqls = compiledRgx.findall(aBuffer)
-            if matchedSqls:
-                lstQueries += matchedSqls
+        for rgx_key in dict_regex_sql_compiled:
+            compiled_rgx = dict_regex_sql_compiled[rgx_key]
+            matched_sqls = compiled_rgx.findall(input_buffer)
+            if matched_sqls:
+                lst_queries += matched_sqls
 
         # TODO: For the moment, we just print the query. How can it be related to a database ?
         # How can we get the database connection ?
@@ -162,9 +155,9 @@ if lib_sql:
         # might imply the database type. This is not very important because the database connection
         # is an obvious information
         # for the user.
-        return lstQueries
+        return lst_queries
 
-    BufferScanners["SqlQuery"] = RawBufferSqlQueryScanner
+    _buffer_scanners["SqlQuery"] = _raw_buffer_sql_query_scanner
 
 ################################################################################
 
@@ -180,8 +173,8 @@ class BufferConcatenator:
         self.m_parsedData = None
 
     def __analyse_io_buffer(self,aBuffer):
-        for scannerKey in BufferScanners:
-            scannerFunction = BufferScanners[scannerKey]
+        for scannerKey in _buffer_scanners:
+            scannerFunction = _buffer_scanners[scannerKey]
 
             # This returns a list of strings.
             # TODO: In a second stage, this will return CIM objects.
@@ -581,7 +574,7 @@ G_UpdateServer = None
 ################################################################################
 
 # attr=AccessTime attrVal=1518262584.92 <type 'float'>
-def TimeT_to_DateTime(stTimeT):
+def _time_t_to_datetime(stTimeT):
     # Or utcfromtimestamp
     return datetime.datetime.strftime( datetime.datetime.fromtimestamp(stTimeT), "%H:%M:%S:%f")
 
@@ -650,7 +643,7 @@ class CIM_XmlMarshaller(object):
     def HttpUpdateRequest(self,**objJson):
         G_httpClient.queue_triples_for_sending(objJson)
 
-    def SendUpdateToServer(self, attrNam, oldAttrVal, attrVal):
+    def send_update_to_server(self, attrNam, oldAttrVal, attrVal):
         # These are the properties which uniquely define the object.
         # There are always sent even if they did not change,
         # otherwise the object could not be identified.
@@ -661,11 +654,11 @@ class CIM_XmlMarshaller(object):
         # TODO: AND THEREFORE, SEND LINKS, NOT ONLY LITERALS !!!
         # OTHERWISE NO EDGES !!
 
-        if oldAttrVal and isinstance( oldAttrVal, CIM_XmlMarshaller):
+        if oldAttrVal and isinstance(oldAttrVal, CIM_XmlMarshaller):
             raise Exception("Not implemented yet")
-            objMonikerOld = oldAttrVal.get_survol_moniker()
+            obj_moniker_old = oldAttrVal.get_survol_moniker()
             attrNamDelete = attrNam + "?predicate_delete"
-            self.HttpUpdateRequest(subject=theSubjMoniker,predicate=attrNam,object=objMonikerOld )
+            self.HttpUpdateRequest(subject=theSubjMoniker,predicate=attrNam,object=obj_moniker_old )
 
 
         # For example a file being opened by a process, or a process started by a user etc...
@@ -691,7 +684,7 @@ class CIM_XmlMarshaller(object):
         if G_UpdateServer:
             if oldAttrVal != attrVal:
                 if IsCIM(attrNam,attrVal):
-                    self.SendUpdateToServer(attrNam, oldAttrVal, attrVal)
+                    self.send_update_to_server(attrNam, oldAttrVal, attrVal)
 
     @classmethod
     def DisplaySummary(cls, fd_summary_file, cimKeyValuePairs):
@@ -977,8 +970,6 @@ class CIM_Process(CIM_XmlMarshaller):
         # because it might replay a session. So, it can only rely on the successive function calls.
         # Therefore, the parent processes must be stored before the subprocesses.
 
-
-
         # If this process appears for the first time and there is only one other process, then it is its parent.
         # It helps if the first vfork() is never finished, and if we did not get the main process id.
         map_procs = G_mapCacheObjects[CIM_Process.__name__]
@@ -1230,9 +1221,9 @@ class CIM_LogicalFile(CIM_XmlMarshaller):
                 self.HardLinksNumber = objStat.st_nlink
                 self.OwnerUserId = objStat.st_uid
                 self.OwnerGroupId = objStat.st_gid
-                self.AccessTime = TimeT_to_DateTime(objStat.st_atime)
-                self.ModifyTime = TimeT_to_DateTime(objStat.st_mtime)
-                self.CreationTime = TimeT_to_DateTime(objStat.st_ctime)
+                self.AccessTime = _time_t_to_datetime(objStat.st_atime)
+                self.ModifyTime = _time_t_to_datetime(objStat.st_mtime)
+                self.CreationTime = _time_t_to_datetime(objStat.st_ctime)
                 try:
                     # This does not exist on Windows.
                     self.DeviceType = objStat.st_rdev
