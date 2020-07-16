@@ -40,7 +40,7 @@ def _start_subprocess(*command_args):
     return proc_open
 
 
-@unittest.skipIf(is_travis_machine(), "TODO: Fix this on Travis")
+## @unittest.skipIf(is_travis_machine(), "TODO: Fix this on Travis")
 class ProcessMemorySqlQueryTest(unittest.TestCase):
     """This searches with regular expressions in the memory of a running process.
     It does not need a Survol agent"""
