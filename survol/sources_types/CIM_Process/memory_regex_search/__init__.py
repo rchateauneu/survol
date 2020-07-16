@@ -655,9 +655,9 @@ else:
             # mem_file = open(filnam, 'r+b', 0)
             if is_py3:
                 # With Python 3, buffering would fail with "ValueError: can't have unbuffered text I/O"
-                mem_file = open(filnam, 'r')
+                mem_file = open(filnam, 'rb', 0)
             else:
-                # With Python 3, this fails with "ValueError: can't have unbuffered text I/O"
+                # FIXME: With Python 3, this fails with "ValueError: can't have unbuffered text I/O"
                 # FIXME: Maybe buffering is not necessary.
                 mem_file = open(filnam, 'r', 0)
             len_addr = addr_end - addr_beg
