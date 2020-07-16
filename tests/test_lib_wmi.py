@@ -31,7 +31,7 @@ def GetElementAsString(one_dict, property_name):
 @unittest.skipIf(not pkgutil.find_loader('wmi'), "LibWmiTest needs wmi package.")
 class LibWmiTest(unittest.TestCase):
 
-    @unittest.skip("BLOCKED. WHY ?")
+    @unittest.skipIf(is_windows10, "FIXME: Broken or very slow on Windows 7")
     def test_local_ontology(self):
         # This test is very slow because it does not use the cache.
         map_classes, map_attributes = lib_wmi.ExtractWmiOntologyLocal()
