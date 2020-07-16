@@ -1781,10 +1781,6 @@ class SurvolRemoteTest(unittest.TestCase):
         # There should be at least a couple of scripts.
         self.assertTrue(len(listScriptsDir) > 0)
 
-    @unittest.skip("Not implemented yet")
-    def test_remote_agents(self):
-        """Gets agents accessible of remote host, then accesses them one by one"""
-        pass
 
 class SurvolAzureTest(unittest.TestCase):
     """Testing Azure discovery"""
