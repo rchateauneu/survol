@@ -19,7 +19,6 @@ import base64
 import importlib
 import logging
 import inspect
-import html
 
 import lib_kbase
 
@@ -44,15 +43,19 @@ except ImportError:
 is_py3 = sys.version_info >= (3,)
 
 if is_py3:
+    import html
     import html.parser
     def survol_unescape(s):
         return html.parser.unescape(s)
+
+    html_escape = html.escape
 else:
+    # TODO: html might be present, so it might be worth testing.
     import HTMLParser
     def survol_unescape(s):
         return HTMLParser.HTMLParser().unescape(s)
 
-html_escape = html.escape
+    html_escape = cgi.escape
 
 # See tests/init.py which duplicates this statement.
 try:
