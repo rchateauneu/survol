@@ -55,20 +55,20 @@ class ProcessMemorySqlQueryTest(unittest.TestCase):
         mySourceSqlQueries = lib_client.SourceLocal(
             "sources_types/CIM_Process/memory_regex_search/scan_sql_queries.py",
             "CIM_Process",
-            Handle=procOpen.pid)
+            Handle=proc_open.pid)
 
-        tripleSqlQueries = mySourceSqlQueries.get_triplestore()
-        print(len(tripleSqlQueries))
-        #self.assertEqual(len(tripleSqlQueries.m_triplestore), 190)
+        triple_sql_queries = mySourceSqlQueries.get_triplestore()
+        print(len(triple_sql_queries))
+        #self.assertEqual(len(triple_sql_queries.m_triplestore), 190)
 
-        lstMatches = list(tripleSqlQueries.get_instances())
-        print("Matches:",lstMatches)
-        #self.assertEqual(len(lstMatches), 5)
+        lst_matches = list(triple_sql_queries.get_instances())
+        print("Matches:",lst_matches)
+        #self.assertEqual(len(lst_matches), 5)
 
         # Any string will do.
         child_stdin.write("Stop")
 
-        print(lstMatches)
+        print(lst_matches)
         proc_open.communicate()
 
     # This searches the content of a process memory which contains a SQL memory.
@@ -134,7 +134,7 @@ class ProcessMemorySqlQueryTest(unittest.TestCase):
 
 
 @unittest.skipIf(is_platform_linux, "No COM classes on Linux")
-@unittest.skipIf(is_travis_machine(), "TODO: Not working on Travis yet")
+## @unittest.skipIf(is_travis_machine(), "TODO: Not working on Travis yet")
 class ProcessMemoryCOMClassesTest(unittest.TestCase):
     """This searches with regular expressions in the memory of a running process.
     It does not need a Survol agent"""
@@ -170,7 +170,7 @@ class ProcessMemoryCOMClassesTest(unittest.TestCase):
         proc_open.communicate()
 
 
-@unittest.skipIf(True or is_travis_machine(), "TODO: Not working on Travis yet")
+@unittest.skip("TODO: Not implemented yet")
 class ProcessMemoryConnectionStringsTest(unittest.TestCase):
     """This searches with regular expressions in the mmemory of a running process.
     It does not need a Survol agent"""
