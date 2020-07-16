@@ -15,6 +15,8 @@ import socket
 from six.moves import builtins
 from sources_types import CIM_Process
 
+is_py3 = sys.version_info >= (3,)
+
 # This module allows to search for regular expressions, in the memory of a running
 # process. Indeed, some specific strings give a hint of what a process is doing:
 # HTTP urls, SQL queries, ODBC connection strings (and passwords), file names etc...
@@ -651,7 +653,13 @@ else:
             statinfo = os.stat(filnam)
             DEBUG("filnam="+filnam+" stats="+str(statinfo))
             # mem_file = open(filnam, 'r+b', 0)
-            mem_file = open(filnam, 'r', 0)
+            if is_py3:
+                # With Python 3, buffering would fail with "ValueError: can't have unbuffered text I/O"
+                mem_file = open(filnam, 'r')
+            else:
+                # With Python 3, this fails with "ValueError: can't have unbuffered text I/O"
+                # FIXME: Maybe buffering is not necessary.
+                mem_file = open(filnam, 'r', 0)
             len_addr = addr_end - addr_beg
             DEBUG("len=%d", len_addr)
             if False:
@@ -667,7 +675,8 @@ else:
             mem_proc_functor.pages_count += 1
             mem_proc_functor.bytes_count += len_addr
 
-            # del page_bytes  # free the buffer
+            # TODO: del chunk.
+            # TODO: Close the file.
 
         except Exception as exc:
             ERROR("_linux_get_process_memory len_addr=%d Exception:%s", len_addr, str(exc))
