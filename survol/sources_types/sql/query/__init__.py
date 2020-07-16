@@ -4,7 +4,6 @@ Abstract SQL query
 
 import re
 import sys
-import cgi
 import lib_util
 import lib_common
 
@@ -32,7 +31,7 @@ class CgiPropertyB64(str):
 		return lib_util.Base64Decode(valueCoded)
 
 	def ValueDisplay(self,valueClear):
-		return cgi.escape(valueClear)
+		return lib_util.html_escape(valueClear)
 
 # TODO: This is probably not the proper solution.
 class CgiPropertyQuery(CgiPropertyB64):
@@ -83,7 +82,7 @@ def stripblanks(text):
 # TODO: Problem, this is not compatible with variable arguments.
 def EntityName(entity_ids_arr):
 	resu = lib_util.Base64Decode(entity_ids_arr[0])
-	resu = cgi.escape(resu)
+	resu = lib_util.html_escape(resu)
 	resu = stripblanks(resu)
 	return resu
 
@@ -98,7 +97,7 @@ def GetEnvArgs(cgiEnv):
 # Only cosmetic reasons: The displayed text should not be too long, when used as a title.
 def EntityNameUtil(textPrefix,sqlQuery):
 	resu = lib_util.Base64Decode(sqlQuery)
-	resu = cgi.escape(resu)
+	resu = lib_util.html_escape(resu)
 	resu = stripblanks(resu)
 
 	lenFilNam = len(textPrefix)
