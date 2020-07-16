@@ -134,7 +134,7 @@ class ProcessMemorySqlQueryTest(unittest.TestCase):
 
 
 @unittest.skipIf(is_platform_linux, "No COM classes on Linux")
-@unittest.skipIf(is_travis_machine(), "TODO: Not working on Travis yet")
+#@unittest.skipIf(is_travis_machine(), "TODO: Not working on Travis yet")
 class ProcessMemoryCOMClassesTest(unittest.TestCase):
     """This searches with regular expressions in the memory of a running process.
     It does not need a Survol agent"""
@@ -155,7 +155,7 @@ class ProcessMemoryCOMClassesTest(unittest.TestCase):
         proc_open.communicate()
 
     # This searches COM classes ids in a process memory.
-    @unittest.skipIf(not _perl_path, "Perl must be installed.")
+    #@unittest.skipIf(not _perl_path, "Perl must be installed.")
     def test_from_perl(self):
         proc_open = _start_subprocess(_perl_path, sample_perl_script)
 
