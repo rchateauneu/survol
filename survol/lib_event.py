@@ -19,6 +19,7 @@ import traceback
 
 # The directory where we store the events related to each object.
 # "C:/Windows/Temp"
+# TODO: This should be a parameter, maybe a directory name stored like credentials or a configuration file.
 events_directory = lib_common.global_temp_directory + "/Events/"
 
 # Files with this extension contains several lines,
@@ -30,6 +31,7 @@ events_file_extension = ".events"
 # CON, PRN, AUX, NUL,
 # COM1, COM2, COM3, COM4, COM5, COM6, COM7, COM8, COM9,
 # LPT1, LPT2, LPT3, LPT4, LPT5, LPT6, LPT7, LPT8, and LPT9
+# TODO: Should detect them.
 def _string_to_filename(input_filename):
     filename_noslashes = re.sub(r'[/\\ \t\r\n]', '_', input_filename)
     filename_nobadchars = re.sub(r'[^-0-9a-zA-Z,=_.()-]', '', filename_noslashes)
@@ -59,7 +61,7 @@ def _entity_type_ids_to_event_file(entity_type, entity_ids_dict):
 
     #sys.stderr.write("_entity_type_ids_to_event_file eventFilNam=%s\n"%eventFilNam)
 
-    # Windows filenames should not be too long.
+    # Windows filenames should not be too long, so this is truncated.
     if len(event_filename) > 240:
         event_filename = event_filename[:240]
 
