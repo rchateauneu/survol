@@ -19,7 +19,7 @@ def EntityName(entity_ids_arr):
 		resu = lib_util.Base64Decode(entity_id)
 		# TODO: Should have a more generic solution: i.e. always b64 encode CGI-incompatible strings.
 		# See lib_uris.SymbolUri which does the encoding.
-		resu = lib_common.portable_escape(resu)
+		resu = lib_util.html_escape(resu)
 		return resu
 	except TypeError:
 		exc = sys.exc_info()[1]
