@@ -87,7 +87,6 @@ class SvgLocalAgentTest(SvgCommon):
         # This stops the local agent, an HTTP server.
         stop_cgiserver(self._remote_graphviz_test_agent)
 
-    @unittest.skipIf(is_platform_windows and is_py3 and not is_travis_machine(), "BROKEN WITH PY3, WINDOWS AND LOCAL. WHY ??")
     def test_local_agent_svg(self):
         self._test_svg_main()
 
