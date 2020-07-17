@@ -46,13 +46,17 @@ from lib_properties import pc
 # When called with "mode=events", it should create a process running Main(),
 # then return. If there is no way to create a process, then return a snapshot, as usual.
 #
-# The process might hav different behaviour, depending on ... something:
+# The process might have different behaviour, depending on ... something:
 # - Call Main() in a loop, with a delay.
 # - Or enter the script in a "special" mode.
 # - Scripts which can naturally generate events might have a special function, like EventLoop().
 #   Their Main() function, will just return a snapshot.
 # - For "normal" script, a default "EventLoop"  which calls Main() at intervals.
-
+#
+# Real-Life Scenario: How would be this script called ?
+# - When clicking on the URL, like in SVG document, nothing should change.
+# - This script might give a quick snapshot, or maybe run a second, depending on the context.
+#   This assumes mode=rdf,html etc... but not mode=event.
 
 def Usable(entity_type, entity_ids_arr):
     """Disabled yet"""
