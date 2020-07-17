@@ -22,15 +22,13 @@ import time
 
 import lib_kbase
 import lib_util
-import lib_patterns
-import lib_properties
 import lib_naming
 import lib_properties
 from lib_properties import MakeProp
 import lib_exports
 import lib_export_ontology
 import lib_export_dot
-import lib_grammar
+import lib_export_html
 
 from lib_util import NodeLiteral
 from lib_util import NodeUrl
@@ -149,8 +147,8 @@ def copy_to_output_destination(logfil, svg_out_filnam, out_dest):
 # Also, creating an intermediary files helps debugging.
 def _dot_to_svg(dot_filnam_after, logfil, viztype, out_dest):
     DEBUG("viztype=%s",viztype)
-    tmpSvgFil = TmpFile("_dot_to_svg","svg")
-    svg_out_filnam = tmpSvgFil.Name
+    tmp_svg_fil = TmpFile("_dot_to_svg","svg")
+    svg_out_filnam = tmp_svg_fil.Name
     # dot -Kneato
 
     # Dot/Graphviz no longer changes PATH at installation. It must be done BEFORE.
@@ -250,7 +248,6 @@ def OutCgiMode(theCgi, topUrl, mode, errorMsg = None, isSubServer=False):
 
     if mode == "html":
         # Used rarely and performance not very important. This returns a HTML page.
-        import lib_export_html
         lib_export_html.Grph2Html(theCgi, topUrl, errorMsg, isSubServer, globalCgiEnvList)
     elif mode == "json":
         lib_exports.Grph2Json(page_title, errorMsg, isSubServer, parameters, grph)
@@ -258,7 +255,7 @@ def OutCgiMode(theCgi, topUrl, mode, errorMsg = None, isSubServer=False):
         lib_exports.Grph2Menu(page_title, errorMsg, isSubServer, parameters, grph)
     elif mode == "rdf":
         lib_export_ontology.Grph2Rdf(grph)
-    #elif mode == "events":
+    #elif mode == "event":
     #    # This sends the results to the Events directory.
     #    pass
     elif mode in ["svg",""]:
@@ -378,51 +375,51 @@ def MergeOutCgiRdf(theMode,cumulatedError):
     page_title = "Merge of %d scripts:\n" % len(globalCgiEnvList)
     delim_title = ""
     # This is equivalent to: make_dot_layout( "", [] )
-    layoutParams = { 'layout_style': "", 'collapsed_properties':[] }
-    cgiParams = {}
-    cgiParamLinks = {}
+    layout_params = {'layout_style': "", 'collapsed_properties': []}
+    cgi_params = {}
+    cgi_param_links = {}
     for theCgiEnv in globalCgiEnvList:
         # theCgiEnv.m_page_title contains just the first line.
-        (page_title_first,page_title_rest) = (theCgiEnv.m_page_title,theCgiEnv.m_page_subtitle)
+        (page_title_first, page_title_rest) = (theCgiEnv.m_page_title, theCgiEnv.m_page_subtitle)
         page_title += delim_title + page_title_first
         if page_title_rest:
             page_title += " (" + page_title_rest + ")"
         delim_title = ", "
 
-        layoutParams['layout_style'] = theCgiEnv.m_layoutParams['layout_style']
-        layoutParams['collapsed_properties'].extend( theCgiEnv.m_layoutParams['collapsed_properties'] )
+        layout_params['layout_style'] = theCgiEnv.m_layoutParams['layout_style']
+        layout_params['collapsed_properties'].extend( theCgiEnv.m_layoutParams['collapsed_properties'])
 
         # The dictionaries of parameters and corresponding links are merged.
         try:
-            cgiParams.update(theCgiEnv.m_parameters)
-            cgiParamLinks.update(theCgiEnv.m_parameterized_links)
+            cgi_params.update(theCgiEnv.m_parameters)
+            cgi_param_links.update(theCgiEnv.m_parameterized_links)
         except ValueError:
             errorMsg = sys.exc_info()[1]
             WARNING("Error:%s Parameters:%s",errorMsg,str(theCgiEnv.m_parameters))
 
     # Eliminate duplicates in the list of collapsed properties.
-    myList = layoutParams['collapsed_properties']
-    mySet = set(myList)
-    layoutParams['collapsed_properties'] = list(mySet)
+    my_list = layout_params['collapsed_properties']
+    my_set = set(my_list)
+    layout_params['collapsed_properties'] = list(my_set)
 
-    topUrl = lib_util.TopUrl( "", "" )
+    top_url = lib_util.TopUrl("", "")
 
-    pseudoCgi = CgiEnv()
-    pseudoCgi.m_graph = globalGraph
-    pseudoCgi.m_page_title = page_title
-    pseudoCgi.m_page_subtitle = ""
-    pseudoCgi.m_layoutParams = layoutParams
+    pseudo_cgi = CgiEnv()
+    pseudo_cgi.m_graph = globalGraph
+    pseudo_cgi.m_page_title = page_title
+    pseudo_cgi.m_page_subtitle = ""
+    pseudo_cgi.m_layoutParams = layout_params
     # Not sure this is the best value, but this is usually done.
     # TODO: We should have a plain map for all m_arguments occurences.
-    pseudoCgi.m_arguments = cgi.FieldStorage()
-    pseudoCgi.m_parameters = cgiParams
-    pseudoCgi.m_parameterized_links = cgiParamLinks
-    pseudoCgi.m_entity_type = ""
-    pseudoCgi.m_entity_id = ""
-    pseudoCgi.m_entity_host = ""
+    pseudo_cgi.m_arguments = cgi.FieldStorage()
+    pseudo_cgi.m_parameters = cgi_params
+    pseudo_cgi.m_parameterized_links = cgi_param_links
+    pseudo_cgi.m_entity_type = ""
+    pseudo_cgi.m_entity_id = ""
+    pseudo_cgi.m_entity_host = ""
 
     # A single rendering of all RDF nodes and links merged from several scripts.
-    OutCgiMode( pseudoCgi, topUrl, theMode, errorMsg = cumulatedError )
+    OutCgiMode(pseudo_cgi, top_url, theMode, errorMsg=cumulatedError)
 
     return
 
@@ -582,13 +579,13 @@ class CgiEnv():
         lib_util.WrtHeader('text/html')
 
         # It uses the same CSS as in HTML mode.
-        lib_export_html.DisplayHtmlTextHeader(self.m_page_title+" - parameters")
+        lib_export_html.DisplayHtmlTextHeader(self.m_page_title + " - parameters")
 
         print("<body>")
 
         print("<h3>%s</h3><br>"%self.m_page_title)
 
-        htmlForm = "".join( lib_edition_parameters.FormEditionParameters(form_action,self))
+        htmlForm = "".join(lib_edition_parameters.FormEditionParameters(form_action,self))
         print(htmlForm)
 
         print("</body>")
@@ -625,9 +622,9 @@ class CgiEnv():
         # Now converts it to the type of the default value. Otherwise untouched.
         if has_dflt_val:
             if has_arg_value:
-                paramTyp = type(dflt_value)
-                param_val = paramTyp( param_val )
-                #sys.stderr.write("get_parameters paramkey='%s' param_val='%s' after conversion to %s\n" % ( paramkey, param_val, str(paramTyp) ) )
+                param_typ = type(dflt_value)
+                param_val = param_typ(param_val)
+                #sys.stderr.write("get_parameters paramkey='%s' param_val='%s' after conversion to %s\n" % ( paramkey, param_val, str(param_typ) ) )
             else:
                 # If the parameters were edited but the value did not appear,
                 # it can only be a Boolean with a clear check box.
@@ -647,7 +644,6 @@ class CgiEnv():
         else:
             if not has_arg_value:
                 #sys.stderr.write("get_parameters no value nor default for paramkey='%s' m_parameters=%s\n" % ( paramkey, str(self.m_parameters)))
-                # lib_util.InfoMessageHtml("get_parameters no value nor default for %s\n" % paramkey )
                 param_val = ""
             else:
                 DEBUG("get_parameters nothing for paramkey='%s'", ( paramkey ))
@@ -709,15 +705,16 @@ class CgiEnv():
     # When in merge mode, these parameters must be aggregated, and used only during
     # the unique generation of graphic data.
     # TODO: "OutCgiRdf" should be changed to a more appropriate name, such as "DisplayTripleStore"
-    def OutCgiRdf(self, dot_layout = "", collapsed_properties=[] ):
+    def OutCgiRdf(self, dot_layout = "", collapsed_properties=[]):
         global globalCgiEnvList
-        DEBUG("OutCgiRdf globalMergeMode=%d m_calling_url=%s m_page_title=%s",globalMergeMode,self.m_calling_url, self.m_page_title.replace("\n","<NL>") )
+        DEBUG("OutCgiRdf globalMergeMode=%d m_calling_url=%s m_page_title=%s",
+              globalMergeMode, self.m_calling_url, self.m_page_title.replace("\n","<NL>"))
 
         self.m_layoutParams = make_dot_layout( dot_layout, collapsed_properties )
 
         mode = lib_util.GuessDisplayMode()
 
-        topUrl = lib_util.TopUrl( self.m_entity_type, self.m_entity_id )
+        top_url = lib_util.TopUrl(self.m_entity_type, self.m_entity_id)
 
         if self.m_page_title is None:
             self.m_page_title = "PAGE TITLE SHOULD BE SET"
@@ -728,7 +725,7 @@ class CgiEnv():
             # At the end, only one call to OutCgiMode() will be made.
             globalCgiEnvList.append(self)
         else:
-            OutCgiMode( self, topUrl, mode )
+            OutCgiMode(self, top_url, mode)
 
     # Example: cgiEnv.add_parameterized_links( "Next", { paramkeyStartIndex : startIndex + maxInstances } )
     def add_parameterized_links(self, urlLabel, paramsMap):
@@ -853,6 +850,7 @@ def ErrorMessageHtml(message):
         # If we are in Json mode, this returns a special json document with the error message.
         try:
             qry = os.environ["QUERY_STRING"]
+            # FIXME: The cgi variable might be anywhere in the query string, not only at the end.
             isJson = qry.endswith("mode=json")
             if isJson:
                 lib_exports.WriteJsonError(message)
@@ -965,8 +963,8 @@ class TmpFile:
         curr_dir = global_temp_directory
 
         if subdir:
-            customDir = "/%s.%d" % ( subdir, proc_pid)
-            curr_dir += customDir
+            custom_dir = "/%s.%d" % (subdir, proc_pid)
+            curr_dir += custom_dir
             if not os.path.isdir(curr_dir):
                 os.mkdir(curr_dir)
             else:
@@ -980,15 +978,15 @@ class TmpFile:
             self.Name = None
             return
 
-        self.Name = "%s/%s.%d.%s" % ( curr_dir, prefix, proc_pid, suffix )
+        self.Name = "%s/%s.%d.%s" % (curr_dir, prefix, proc_pid, suffix)
         DEBUG("tmp=%s", self.Name )
 
-    def DbgDelFil(self,filNam):
+    def DbgDelFil(self, fil_nam):
         if True:
-            DEBUG("Deleting=%s",filNam)
-            os.remove(filNam)
+            DEBUG("Deleting=%s", fil_nam)
+            os.remove(fil_nam)
         else:
-            WARNING("NOT Deleting=%s",filNam)
+            WARNING("NOT Deleting=%s", fil_nam)
 
     def __del__(self):
         try:
@@ -1007,7 +1005,7 @@ class TmpFile:
 
         except Exception:
             exc = sys.exc_info()[1]
-            ERROR("__del__.Caught: %s. TmpDirToDel=%s Name=%s", str(exc), str(self.TmpDirToDel), str(self.Name) )
+            ERROR("__del__.Caught: %s. TmpDirToDel=%s Name=%s", str(exc), str(self.TmpDirToDel), str(self.Name))
         return
 
 
