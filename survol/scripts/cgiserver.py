@@ -27,16 +27,7 @@ except ImportError:
 
 def __run_server_forever(server):
     sys.stderr.write("__run_server_forever\n")
-    if YappiProfile:
-        try:
-            yappi.start()
-            server.serve_forever()
-        except KeyboardInterrupt:
-            print("Leaving")
-            yappi.get_func_stats().print_all()
-            yappi.get_thread_stats().print_all()
-    else:
-        server.serve_forever()
+    server.serve_forever()
 
 # Different specific cases:
 # * In development mode, one process serves the HTML files of the UI and the Python files of the Agent,
