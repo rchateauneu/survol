@@ -1,20 +1,14 @@
 #!/usr/bin/env python
 
 # This is a minimal HTTP server intended to replace Apache or IIS.
-# First reason is that, on a small machine, no HTTP server might be available.
-# 
+# The benefit is that it uses only builtins class: No package installation
+# is necessary. Also, because it it very simple and started as a command-line program,
+# debugging is easier.
+#
 # Also, this script can be run under any privileged account giving much more exploration
 # possibilities than the safe apache IISUSR user accounts.
 
 # The directory "survol" must be in PYTHONPATH to access lib_common.py etc...
-
-# This can be used for profiling.
-# Unfortunately, it does not work yet with threads and subprocesses.
-YappiProfile = False
-try:
-    import yappi
-except ImportError:
-    YappiProfile = False
 
 import sys
 import platform
