@@ -9,32 +9,33 @@ import lib_common
 import lib_util
 import lib_event
 
+
 # See event_put.py for more explanations.
 # This script is called with the CGI arguments of a CIM class and
 # the arguments to define an object, just like entity.py.
 # It then fetches data from the temp directory of events.
 # The type of these data is exactly what can be returned by any scripts.
-
 def Main():
 
 	# This can process remote hosts because it does not call any script, just shows them.
 	cgiEnv = lib_common.CgiEnv()
 	entity_id = cgiEnv.m_entity_id
-	# entity_host = cgiEnv.GetHost()
 
-	( nameSpace, entity_type, entity_namespace_type ) = cgiEnv.get_namespace_type()
+	name_space, entity_type = cgiEnv.get_namespace_type()
 
 	grph = cgiEnv.GetGraph()
 
-	# rootNode = lib_util.RootUri()
+	# This receives an object type stored as a string, and a string made of the concatenation
+	# of key-value pairs, defining an object. It returns the array of property values,
+	# in the proper order of the ontology of the type.
+	entity_ids_arr = lib_util.EntityIdToArray(entity_type, entity_id)
 
-	entity_ids_arr = lib_util.EntityIdToArray( entity_type, entity_id )
-
-	arrTriples = lib_event.data_retrieve(entity_type,entity_ids_arr)
-	for tripl in arrTriples:
+	arr_triples = lib_event.data_retrieve(entity_type, entity_ids_arr)
+	for tripl in arr_triples:
 		grph.add(tripl)
 
 	cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
 	Main()

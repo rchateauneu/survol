@@ -105,7 +105,7 @@ def Main():
 
 	maxDepth = int(cgiEnv.get_parameters( paramkeyMaxDepth ))
 
-	( wmiNamespace, entity_type, entity_namespace_type ) = cgiEnv.get_namespace_type()
+	wmiNamespace, entity_type = cgiEnv.get_namespace_type()
 
 	DEBUG("wmiNamespace=%s entity_type=%s", wmiNamespace,entity_type)
 

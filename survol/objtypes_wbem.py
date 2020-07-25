@@ -71,17 +71,17 @@ def Main():
 					can_process_remote = True,
 					parameters = { paramkeyMaxDepth : 2, paramkeyYawnUrls:False })
 
-	( wbemNamespace, entity_type, entity_namespace_type ) = cgiEnv.get_namespace_type()
+	wbemNamespace, entity_type = cgiEnv.get_namespace_type()
 
 	maxDepth = int(cgiEnv.get_parameters( paramkeyMaxDepth ))
 	withYawnUrls = int(cgiEnv.get_parameters( paramkeyYawnUrls ))
 
-	DEBUG("wbemNamespace=%s entity_type=%s entity_namespace_type=%s maxDepth=%d",wbemNamespace, entity_type,entity_namespace_type,maxDepth)
+	DEBUG("wbemNamespace=%s entity_type=%s maxDepth=%d", wbemNamespace, entity_type, maxDepth)
 
 	cimomUrl = cgiEnv.GetHost()
 
 	if str(wbemNamespace) == "":
-		lib_common.ErrorMessageHtml("namespace should not be empty. entity_namespace_type="+entity_namespace_type)
+		lib_common.ErrorMessageHtml("namespace should not be empty.")
 
 	grph = cgiEnv.GetGraph()
 

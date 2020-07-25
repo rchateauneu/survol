@@ -698,7 +698,7 @@ def parse_namespace_type(ns_entity_type):
     else:
         entity_namespace = nsSplit[0]
         entity_type = nsSplit[1]
-    return ( entity_namespace, entity_type, ns_entity_type )
+    return entity_namespace, entity_type
 
 ################################################################################
 
