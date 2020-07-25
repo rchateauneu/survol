@@ -268,7 +268,7 @@ def Main():
     entity_host = cgiEnv.GetHost()
     flagShowAll = int(cgiEnv.get_parameters( lib_util.paramkeyShowAll ))
 
-    ( nameSpace, entity_type, entity_namespace_type ) = cgiEnv.get_namespace_type()
+    nameSpace, entity_type = cgiEnv.get_namespace_type()
 
     if lib_util.IsLocalAddress( entity_host ):
         entity_host = ""

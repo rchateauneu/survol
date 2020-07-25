@@ -208,7 +208,7 @@ def KnownScriptToTitle(filScript,uriMode,entity_host = None,entity_suffix=None):
 
 
 def CalcLabel(entity_host,entity_type,entity_id,force_entity_ip_addr,filScript):
-    ( namSpac, entity_type_NoNS, _ ) = lib_util.parse_namespace_type(entity_type)
+    namSpac, entity_type_NoNS = lib_util.parse_namespace_type(entity_type)
 
     if not force_entity_ip_addr and not lib_util.IsLocalAddress(entity_host):
         entity_label = None

@@ -83,7 +83,7 @@ def Main():
     DEBUG("entity_host=%s",entity_host)
     flagShowAll = int(cgiEnv.get_parameters( lib_util.paramkeyShowAll ))
 
-    ( nameSpace, entity_type, entity_namespace_type ) = cgiEnv.get_namespace_type()
+    nameSpace, entity_type = cgiEnv.get_namespace_type()
 
     grph = cgiEnv.GetGraph()
 
