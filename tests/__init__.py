@@ -9,3 +9,4 @@ sys.path.append("tests")
 
 sys.stdout.write("%s Current dir=%s\n" % (__file__, os.getcwd()))
 
+$ pytest --version
