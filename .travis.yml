@@ -1,43 +1,4 @@
-# Big Thank You to https://github.com/cclauss/Travis-CI-Python-on-three-OSes/blob/master/.travis.yml
-language: python            # this works for Linux but is an error on macOS or Windows
-matrix:
-  include:
-    - name: "Python 2.7 Linux"
-      os: linux
-      python: 2.7
-      addons:
-        apt:
-          packages:
-            - graphviz
-    - name: "Python 3.6 Linux"
-      os: linux
-      python: 3.6
-      addons:
-        apt:
-          packages:
-            - graphviz
-    - name: "Python 3.7.5 on Windows"
-      os: windows           # Windows 10.0.17134 N/A Build 17134
-      language: shell       # 'language: python' is an error on Travis CI Windows
-      # python: 3.7         # 'python:' is ignored on Travis CI Windows
-      before_install:
-        # https://travis-ci.community/t/windows-python-pip-module-not-found/5480/4
-        - choco install python  --version 3.7.5
-        - python -m pip install --upgrade pip
-        - python -m pip install pytest
-        - python -m pip install pefile
-        - python -m pip install wmi
-        - python -m pip install pywin32
-      env:
-        - PATH=/c/Python37:/c/Python37/Scripts:$PATH
-install:
-  - pip install psutil
-  - pip install requests
-  - pip install rdflib
-  - pip install SPARQLWrapper
-  - pip install pywbem
-  - pip install sqlparse
-script:
-  - pwd
-  - pytest -v --durations=30 tests
-
+language: node_js
+node_js:
+ - "stable"
+script: gulp travis
