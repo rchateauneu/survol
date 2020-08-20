@@ -40,6 +40,7 @@ import configparser
 # config_file = r"C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\survol\scripts\supervisord.conf"
 config_file = os.path.join(os.path.dirname(__file__), "..", "survol", "scripts", "supervisord.conf")
 
+
 def get_supervisor_url():
 
     parsed_config = configparser.ConfigParser()
@@ -123,7 +124,7 @@ def start_one_process(srv_prox, the_group_name):
     random_integer = int(time.time())
     process_name = "survol_url_%d" % int(random_integer)
     full_process_name = the_group_name + ":" + process_name
-    python_command = 'python.exe -c "print(%d)"' % random_integer
+    python_command = 'python.exe -c "import time;print(%d);time.sleep(10)"' % random_integer
 
     srv_prox.twiddler.addProgramToGroup(the_group_name, process_name,
                                         {'command': python_command, 'autostart': 'false', 'autorestart': 'false'})
@@ -134,16 +135,34 @@ def start_one_process(srv_prox, the_group_name):
     process_info_pprint = pprint.pformat(process_info)
     print("srv_prox.supervisor.getProcessInfo()=", process_info_pprint)
 
+    assert process_info['logfile'] == process_info['stdout_logfile']
+
+
+    # 'logfile': 'C:\\Users\\rchateau\\AppData\\Local\\Temp\\survol_url_1597910058-stdout---survol_supervisor-g1bg9mxg.log',
+    # 'name': 'survol_url_1597910058',
+    # 'now': 1597910059,
+    # 'pid': 0,
+    # 'spawnerr': '',
+    # 'start': 0,
+    # 'state': 0,
+    # 'statename': 'STOPPED',
+    # 'stderr_logfile': 'C:\\Users\\rchateau\\AppData\\Local\\Temp\\survol_url_1597910058-stderr---survol_supervisor-1k6bm7jz.log',
+    # 'stdout_logfile': 'C:\\Users\\rchateau\\AppData\\Local\\Temp\\survol_url_1597910058-stdout---survol_supervisor-g1bg9mxg.log',
+
+
+
+
     try:
         print("Starting process")
         srv_prox.supervisor.startProcess(full_process_name)
         print("Process started")
-    except xmlrpclib.Fault:
+    except xmlrpclib.Fault as exc:
         # xmlrpc.client.Fault: <Fault 50: 'SPAWN_ERROR: thegroupname:dir4'>
         # xmlrpc.client.Fault: <Fault 10: 'BAD_NAME: dir4'>
-        print("Stopping process")
+        print("Exception:", exc, "Stopping process")
         srv_prox.supervisor.stopProcess(full_process_name)
         print("Process stopped")
+    return process_name
 
 
 try:
@@ -189,10 +208,18 @@ print("GroupNames=", grpnam)
 
 the_group_name = grpnam[0]
 
-for counter in range(10):
-    start_one_process(srv_prox, the_group_name)
-    print("=======================================================================")
+created_processes = []
 
+# Sometimes it blocks if supervisor is locally created.
+
+for counter in range(100):
+    process_name = start_one_process(srv_prox, the_group_name)
+    print("==", counter, "=======================================================================")
+    created_processes.append(process_name)
+
+print("________________________________________________________________________")
+print("Created processes:", created_processes)
+print("________________________________________________________________________")
 procs_info = srv_prox.supervisor.getAllProcessInfo()
 procs_info_pprint = pprint.pformat(procs_info)
 print("Processes info:", procs_info_pprint)
