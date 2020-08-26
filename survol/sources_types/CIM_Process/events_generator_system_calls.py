@@ -141,10 +141,12 @@ from lib_properties import pc
 # It should be able to call the generation of RDF or
 
 # While we are at adding ideas:
-# - Get forefox bookmarks from the web.
-# - Create an installer in wxwidget for Apache, IIS etc. Startup and monitoring of a server, and processes.
-#   At least an Apache setup.
+# - Get firefox bookmarks from the web.
+# - Create an installer in wxwidget for Apache, IIS etc.
+# - At least an Apache setup.
 
+def EventsGeneratorDaemon():
+    raise Exception("Not implemented")
 
 def Usable(entity_type, entity_ids_arr):
     """Disabled yet"""
