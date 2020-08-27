@@ -6,6 +6,9 @@
 #
 # https://jcalderone.livejournal.com/tag/sixty%20seconds
 
+import daemon_factory
+daemon_factory.supervisor_startup()
+
 raise Exception("Not implemented yet")
 
 # Possible implementation: Iterate on all CGI scripts:

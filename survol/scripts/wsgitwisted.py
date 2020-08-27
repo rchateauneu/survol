@@ -12,6 +12,8 @@ raise Exception("Not implemented yet")
 from twisted.web.wsgi import WSGIResource
 from twisted.internet import reactor
 
+import daemon_factory
+daemon_factory.supervisor_startup()
 
 def application(environ, start_response):
     start_response('200 OK', [('Content-type', 'text/plain')])
