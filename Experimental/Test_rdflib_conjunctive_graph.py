@@ -14,70 +14,219 @@ from rdflib.graph import Graph, ConjunctiveGraph
 # from rdflib.plugins.stores.memory import Memory
 from rdflib.plugins.memory import IOMemory
 
-ns = Namespace("http://love.com#")
 
-# AssertionError: ConjunctiveGraph must be backed by a context aware store.
-mary = URIRef("http://love.com/lovers/mary")
-john = URIRef("http://love.com/lovers/john")
+def DoTheTestMemory():
+    ns = Namespace("http://love.com#")
 
-cmary = URIRef("http://love.com/lovers/mary")
-cjohn = URIRef("http://love.com/lovers/john")
+    # AssertionError: ConjunctiveGraph must be backed by a context aware store.
+    mary = URIRef("http://love.com/lovers/mary")
+    john = URIRef("http://love.com/lovers/john")
 
-# my_store = Memory()
-my_store = IOMemory()
-print("my_store.context_aware=", my_store.context_aware)
+    cmary = URIRef("http://love.com/lovers/context_mary")
+    cjohn = URIRef("http://love.com/lovers/context_john")
 
-g = ConjunctiveGraph(store=my_store)
-g.bind("love", ns)
+    # my_store = Memory()
+    store_input = IOMemory()
 
-# add a graph for Mary's facts to the Conjunctive Graph
-gmary = Graph(store=my_store, identifier=cmary)
-# Mary's graph only contains the URI of the person she love, not his cute name
-gmary.add((mary, ns["hasName"], Literal("Mary")))
-gmary.add((mary, ns["loves"], john))
+    gconjunctive = ConjunctiveGraph(store=store_input)
+    gconjunctive.bind("love", ns)
 
-# add a graph for John's facts to the Conjunctive Graph
-gjohn = Graph(store=my_store, identifier=cjohn)
-# John's graph contains his cute name
-gjohn.add((john, ns["hasCuteName"], Literal("Johnny Boy")))
+    # add a graph for Mary's facts to the Conjunctive Graph
+    gmary = Graph(store=store_input, identifier=cmary)
+    # Mary's graph only contains the URI of the person she love, not his cute name
+    gmary.add((mary, ns["hasName"], Literal("Mary")))
+    gmary.add((mary, ns["loves"], john))
 
-# enumerate contexts
-for c in g.contexts():
-    print("-- %s " % c)
+    # add a graph for John's facts to the Conjunctive Graph
+    gjohn = Graph(store=store_input, identifier=cjohn)
+    # John's graph contains his cute name
+    gjohn.add((john, ns["hasCuteName"], Literal("Johnny Boy")))
 
-# separate graphs
-print("===================")
-print("GJOHN")
-print(gjohn.serialize(format="n3").decode("utf-8"))
-print("===================")
-print("GMARY")
-print(gmary.serialize(format="n3").decode("utf-8"))
-print("===================")
+    # enumerate contexts
+    print("Input contexts")
+    for c in gconjunctive.contexts():
+        print("-- %s " % c)
 
-# full graph
-print(g.serialize(format="n3").decode("utf-8"))
+    # separate graphs
+    if False:
+        print("===================")
+        print("GJOHN")
+        print(gjohn.serialize(format="n3").decode("utf-8"))
+        print("===================")
+        print("GMARY")
+        print(gmary.serialize(format="n3").decode("utf-8"))
+        print("===================")
 
-# query the conjunction of all graphs
-xx = None
-for x in g[mary : ns.loves / ns.hasCuteName]:
-    xx = x
-print("Q: Who does Mary love?")
-print("A: Mary loves {}".format(xx))
+    # full graph
+    print("===================")
+    print("GCONJUNCTIVE NATIVE")
+    print(gconjunctive.serialize(format="n3").decode("utf-8"))
+
+    # query the conjunction of all graphs
+    xx = None
+    for x in gconjunctive[mary : ns.loves / ns.hasCuteName]:
+        xx = x
+    print("Q: Who does Mary love?")
+    print("A: Mary loves {}".format(xx))
 
 
-# Ensuite, on sauve un seul sous-graphe, puis on le recharge et le resultat doit etre le meme.
-gjohn.serialize(destination='gjohn_copy.xml', format='xml')
-gmary.serialize(destination='gmary_copy.xml', format='xml')
+    # Ensuite, on sauve un seul sous-graphe, puis on le recharge et le resultat doit etre le meme.
+    gjohn.serialize(destination='gjohn_copy.xml', format='xml')
+    gmary.serialize(destination='gmary_copy.xml', format='xml')
 
-gjohn_copy = Graph()
-gjohn_copy.parse('gjohn_copy.xml', format='xml')
-gmary_copy = Graph()
-gmary_copy.parse('gmary_copy.xml', format='xml')
+    gjohn_copy = Graph()
+    gjohn_copy.parse('gjohn_copy.xml', format='xml')
+    gmary_copy = Graph()
+    gmary_copy.parse('gmary_copy.xml', format='xml')
 
-print("===================")
-print("GJOHN")
-print(gjohn_copy.serialize(format="n3").decode("utf-8"))
-print("===================")
-print("GMARY")
-print(gmary_copy.serialize(format="n3").decode("utf-8"))
-print("===================")
+    if True:
+        print("===================")
+        print("GJOHN")
+        print(gjohn_copy.serialize(format="n3").decode("utf-8"))
+        print("===================")
+        print("GMARY")
+        print(gmary_copy.serialize(format="n3").decode("utf-8"))
+        print("===================")
+
+
+    print("===================")
+    print("GCONJUNCTIVE WITH QUADS")
+    print(list(gconjunctive.quads(None)))
+    print("===================")
+
+    gconjunctive.serialize(destination='gconjunctive_copy.xml', format='xml')
+
+    gconjunctive_copy = ConjunctiveGraph()
+    gconjunctive_copy.parse('gconjunctive_copy.xml', format='xml')
+
+    print("===================")
+    print("GCONJUNCTIVE AS CONJUNCTIVE")
+    print(gconjunctive_copy.serialize(format="n3").decode("utf-8"))
+    print("Output contexts")
+    for c in gconjunctive_copy.contexts():
+        print("-- %s " % c)
+    print("===================")
+
+    gconjunctive_graph_copy = Graph()
+    gconjunctive_graph_copy.parse('gconjunctive_copy.xml', format='xml')
+
+    print("===================")
+    print("GCONJUNCTIVE AS GRAPH")
+    print(gconjunctive_graph_copy.serialize(format="n3").decode("utf-8"))
+    #print("Output contexts")
+    #for c in gconjunctive_graph_copy.contexts():
+    #    print("-- %s " % c)
+    print("===================")
+
+
+
+def DoTheTestSleepyCat():
+    ns = Namespace("http://love.com#")
+
+    # AssertionError: ConjunctiveGraph must be backed by a context aware store.
+    mary = URIRef("http://love.com/lovers/mary")
+    john = URIRef("http://love.com/lovers/john")
+
+    cmary = URIRef("http://love.com/lovers/context_mary")
+    cjohn = URIRef("http://love.com/lovers/context_john")
+
+    # my_store = Memory()
+    store_input = IOMemory()
+
+    gconjunctive = ConjunctiveGraph(store=store_input)
+    gconjunctive.bind("love", ns)
+
+    # add a graph for Mary's facts to the Conjunctive Graph
+    gmary = Graph(store=store_input, identifier=cmary)
+    # Mary's graph only contains the URI of the person she love, not his cute name
+    gmary.add((mary, ns["hasName"], Literal("Mary")))
+    gmary.add((mary, ns["loves"], john))
+
+    # add a graph for John's facts to the Conjunctive Graph
+    gjohn = Graph(store=store_input, identifier=cjohn)
+    # John's graph contains his cute name
+    gjohn.add((john, ns["hasCuteName"], Literal("Johnny Boy")))
+
+    # enumerate contexts
+    print("Input contexts")
+    for c in gconjunctive.contexts():
+        print("-- %s " % c)
+
+    # separate graphs
+    if False:
+        print("===================")
+        print("GJOHN")
+        print(gjohn.serialize(format="n3").decode("utf-8"))
+        print("===================")
+        print("GMARY")
+        print(gmary.serialize(format="n3").decode("utf-8"))
+        print("===================")
+
+    # full graph
+    print("===================")
+    print("GCONJUNCTIVE NATIVE")
+    print(gconjunctive.serialize(format="n3").decode("utf-8"))
+
+    # query the conjunction of all graphs
+    xx = None
+    for x in gconjunctive[mary : ns.loves / ns.hasCuteName]:
+        xx = x
+    print("Q: Who does Mary love?")
+    print("A: Mary loves {}".format(xx))
+
+
+    # Ensuite, on sauve un seul sous-graphe, puis on le recharge et le resultat doit etre le meme.
+    gjohn.serialize(destination='gjohn_copy.xml', format='xml')
+    gmary.serialize(destination='gmary_copy.xml', format='xml')
+
+    gjohn_copy = Graph()
+    gjohn_copy.parse('gjohn_copy.xml', format='xml')
+    gmary_copy = Graph()
+    gmary_copy.parse('gmary_copy.xml', format='xml')
+
+    if True:
+        print("===================")
+        print("GJOHN")
+        print(gjohn_copy.serialize(format="n3").decode("utf-8"))
+        print("===================")
+        print("GMARY")
+        print(gmary_copy.serialize(format="n3").decode("utf-8"))
+        print("===================")
+
+
+    print("===================")
+    print("GCONJUNCTIVE WITH QUADS")
+    print(list(gconjunctive.quads(None)))
+    print("===================")
+
+    gconjunctive.serialize(destination='gconjunctive_copy.xml', format='xml')
+
+    gconjunctive_copy = ConjunctiveGraph()
+    gconjunctive_copy.parse('gconjunctive_copy.xml', format='xml')
+
+    print("===================")
+    print("GCONJUNCTIVE AS CONJUNCTIVE")
+    print(gconjunctive_copy.serialize(format="n3").decode("utf-8"))
+    print("Output contexts")
+    for c in gconjunctive_copy.contexts():
+        print("-- %s " % c)
+    print("===================")
+
+    gconjunctive_graph_copy = Graph()
+    gconjunctive_graph_copy.parse('gconjunctive_copy.xml', format='xml')
+
+    print("===================")
+    print("GCONJUNCTIVE AS GRAPH")
+    print(gconjunctive_graph_copy.serialize(format="n3").decode("utf-8"))
+    #print("Output contexts")
+    #for c in gconjunctive_graph_copy.contexts():
+    #    print("-- %s " % c)
+    print("===================")
+
+
+
+
+if False:
+    DoTheTestMemory()
+
+DoTheTestSleepyCat()
