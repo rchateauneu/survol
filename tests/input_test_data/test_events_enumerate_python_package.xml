@@ -1,0 +1,1433 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+   xmlns:ldt="http://www.primhillcomputers.com/survol#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=requests">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=urllib3"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=idna"/>
+    <ldt:Version>2.19.1</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>requests</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=certifi"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=chardet"/>
+    <rdfs:label>requests</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-servicebus">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Version>0.4.0</ldt:Version>
+    <ldt:Id>azure-mgmt-servicebus</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <rdfs:label>azure-mgmt-servicebus</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=requests-oauthlib">
+    <rdfs:label>requests-oauthlib</rdfs:label>
+    <ldt:Id>requests-oauthlib</ldt:Id>
+    <ldt:Version>1.0.0</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=requests"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=oauthlib"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-web">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>azure-mgmt-web</rdfs:label>
+    <ldt:Id>azure-mgmt-web</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Version>0.34.1</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.primhillcomputers.com/survol#Name">
+    <rdfs:comment>Ontology predicate Name</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:domain rdf:resource="http://www.primhillcomputers.com/survol#CIM_ComputerSystem"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=tensorboard">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=markdown"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=html5lib"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=futures"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=protobuf"/>
+    <ldt:Id>tensorboard</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=numpy"/>
+    <ldt:Version>1.8.0</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=wheel"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=bleach"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=six"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=werkzeug"/>
+    <rdfs:label>tensorboard</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-subscription"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-containerregistry"/>
+    <ldt:Version>2.0.0</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-msi"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-datafactory"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-containerservice"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-authorization"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-cosmosdb"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-datalake-analytics"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-recoveryservicesbackup"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-advisor"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-commerce"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-web"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-redis"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-devtestlabs"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-loganalytics"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-scheduler"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-storage"/>
+    <rdfs:label>azure-mgmt</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-eventgrid"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-servicefabric"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-batch"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-notificationhubs"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-monitor"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-servermanager"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-compute"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-containerinstance"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-datalake-store"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-machinelearningcompute"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-recoveryservices"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-keyvault"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-marketplaceordering"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-network"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-dns"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-powerbiembedded"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-applicationinsights"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-iothub"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-iothubprovisioningservices"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-servicebus"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-hanaonazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-managementpartner"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-trafficmanager"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-sql"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-batchai"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-eventhub"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-billing"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-cdn"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-relay"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-media"/>
+    <ldt:Id>azure-mgmt</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-cognitiveservices"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-reservations"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-logic"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-search"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-consumption"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-rdbms"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-resource"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=inotify">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>inotify</ldt:Id>
+    <rdfs:label>inotify</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=nose"/>
+    <ldt:Version>0.2.10</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=protobuf">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=six"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=setuptools"/>
+    <ldt:Version>3.5.2.post1</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>protobuf</ldt:Id>
+    <rdfs:label>protobuf</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=wcwidth">
+    <ldt:Id>wcwidth</ldt:Id>
+    <rdfs:label>wcwidth</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>0.1.7</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pytest">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=six"/>
+    <ldt:Id>pytest</ldt:Id>
+    <rdfs:label>pytest</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pathlib2"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=py"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=atomicwrites"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=attrs"/>
+    <ldt:Version>4.6.2</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=funcsigs"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=packaging"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pluggy"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=more-itertools"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=importlib-metadata"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=wcwidth"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=enum34">
+    <rdfs:label>enum34</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>1.1.6</ldt:Version>
+    <ldt:Id>enum34</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=six">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>six</ldt:Id>
+    <rdfs:label>six</rdfs:label>
+    <ldt:Version>1.12.0</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=secretstorage">
+    <ldt:Id>secretstorage</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=cryptography"/>
+    <ldt:Version>2.3.1</ldt:Version>
+    <rdfs:label>secretstorage</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-search">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Version>1.0.0</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>azure-mgmt-search</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <rdfs:label>azure-mgmt-search</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pyparsing">
+    <rdfs:label>pyparsing</rdfs:label>
+    <ldt:Id>pyparsing</ldt:Id>
+    <ldt:Version>2.3.1</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-batch">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <rdfs:label>azure-batch</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-nspkg"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>4.1.3</ldt:Version>
+    <ldt:Id>azure-batch</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-batch">
+    <ldt:Id>azure-mgmt-batch</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>azure-mgmt-batch</rdfs:label>
+    <ldt:Version>5.0.1</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-batchai">
+    <rdfs:label>azure-mgmt-batchai</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Id>azure-mgmt-batchai</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Version>0.2.0</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=setuptools">
+    <rdfs:label>setuptools</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>setuptools</ldt:Id>
+    <ldt:Version>37.0.0</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=psutil">
+    <rdfs:label>psutil</rdfs:label>
+    <ldt:Id>psutil</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>5.4.3</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-monitor">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>azure-mgmt-monitor</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Version>0.4.0</ldt:Version>
+    <rdfs:label>azure-mgmt-monitor</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-network">
+    <ldt:Id>azure-mgmt-network</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <rdfs:label>azure-mgmt-network</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>1.7.1</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-storage">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <rdfs:label>azure-mgmt-storage</rdfs:label>
+    <ldt:Version>1.5.0</ldt:Version>
+    <ldt:Id>azure-mgmt-storage</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-advisor">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <rdfs:label>azure-mgmt-advisor</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>azure-mgmt-advisor</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Version>1.0.1</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.primhillcomputers.com/survol#python">
+    <rdfs:comment>Python package</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+    <rdfs:label>python</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-loganalytics">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>0.1.0</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <rdfs:label>azure-mgmt-loganalytics</rdfs:label>
+    <ldt:Id>azure-mgmt-loganalytics</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=ipaddress">
+    <rdfs:label>ipaddress</rdfs:label>
+    <ldt:Id>ipaddress</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>1.0.22</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pluggy">
+    <ldt:Version>0.12.0</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=importlib-metadata"/>
+    <ldt:Id>pluggy</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>pluggy</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.primhillcomputers.com/survol#Id">
+    <rdfs:comment>Ontology predicate Id</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+    <rdfs:domain rdf:resource="http://www.primhillcomputers.com/survol#python.package"/>
+    <rdfs:domain rdf:resource="http://www.primhillcomputers.com/survol#python"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pywbem">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pyyaml"/>
+    <ldt:Version>0.12.3</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=m2crypto"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=six"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=mock"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=ply"/>
+    <rdfs:label>pywbem</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pbr"/>
+    <ldt:Id>pywbem</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-applicationinsights">
+    <ldt:Id>azure-mgmt-applicationinsights</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Version>0.1.1</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <rdfs:label>azure-mgmt-applicationinsights</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-iothub">
+    <rdfs:label>azure-mgmt-iothub</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Version>0.4.0</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Id>azure-mgmt-iothub</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-recoveryservicesbackup">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Version>0.1.1</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <rdfs:label>azure-mgmt-recoveryservicesbackup</rdfs:label>
+    <ldt:Id>azure-mgmt-recoveryservicesbackup</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=packaging">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>packaging</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=six"/>
+    <ldt:Version>19.0</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pyparsing"/>
+    <rdfs:label>packaging</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pip">
+    <rdfs:label>pip</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>pip</ldt:Id>
+    <ldt:Version>19.3</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=m2crypto">
+    <ldt:Version>0.30.1</ldt:Version>
+    <rdfs:label>m2crypto</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=typing"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>m2crypto</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=gast">
+    <ldt:Id>gast</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>gast</rdfs:label>
+    <ldt:Version>0.2.0</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-eventgrid">
+    <ldt:Id>azure-eventgrid</ldt:Id>
+    <ldt:Version>0.1.0</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrest"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-nspkg"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>azure-eventgrid</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-cdn">
+    <rdfs:label>azure-mgmt-cdn</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>2.0.0</ldt:Version>
+    <ldt:Id>azure-mgmt-cdn</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-managementpartner">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Version>0.1.0</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <rdfs:label>azure-mgmt-managementpartner</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Id>azure-mgmt-managementpartner</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-recoveryservices">
+    <rdfs:label>azure-mgmt-recoveryservices</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Id>azure-mgmt-recoveryservices</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>0.2.0</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=mock">
+    <rdfs:label>mock</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=funcsigs"/>
+    <ldt:Version>2.0.0</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pbr"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=six"/>
+    <ldt:Id>mock</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=mysqlclient">
+    <rdfs:label>mysqlclient</rdfs:label>
+    <ldt:Version>1.3.12</ldt:Version>
+    <ldt:Id>mysqlclient</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-servicefabric">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrest"/>
+    <ldt:Version>6.1.2.9</ldt:Version>
+    <ldt:Id>azure-servicefabric</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>azure-servicefabric</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-nspkg"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-relay">
+    <ldt:Version>0.1.0</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Id>azure-mgmt-relay</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <rdfs:label>azure-mgmt-relay</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-compute">
+    <ldt:Version>3.0.1</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Id>azure-mgmt-compute</ldt:Id>
+    <rdfs:label>azure-mgmt-compute</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=CIM_ComputerSystem.Name=vps516494.ovh.net">
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=contextlib2"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=enum34"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pbr"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=oauthlib"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=werkzeug"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=urllib3"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=cx-oracle"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=py"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=sqlparse"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-nspkg"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=ply"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=six"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pyparsing"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=markdown"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=certifi"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pyodbc"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=httplib2"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=scandir"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=attrs"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=docopt"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=backports.weakref"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=funcsigs"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#CIM_ComputerSystem"/>
+    <rdfs:label>vps516494.ovh.net</rdfs:label>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=wheel"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=atomicwrites"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pyyaml"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=natsort"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=configparser"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=termcolor"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=futures"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=setuptools"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=astor"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=wcwidth"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=typing"/>
+    <ldt:Name>vps516494.ovh.net</ldt:Name>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=ipaddress"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=psutil"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pip"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=nose"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=idna"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=numpy"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pyjwt"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pycparser"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=mysqlclient"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=gast"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=chardet"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=asn1crypto"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=zipp"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pytz"/>
+    <ldt:Package rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=scikit-learn"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pbr">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>pbr</rdfs:label>
+    <ldt:Id>pbr</ldt:Id>
+    <ldt:Version>4.0.3</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=natsort">
+    <ldt:Id>natsort</ldt:Id>
+    <ldt:Version>5.2.0</ldt:Version>
+    <rdfs:label>natsort</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=keyring">
+    <ldt:Id>keyring</ldt:Id>
+    <ldt:Version>13.1.0</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=entrypoints"/>
+    <rdfs:label>keyring</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=secretstorage"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-servicefabric">
+    <rdfs:label>azure-mgmt-servicefabric</rdfs:label>
+    <ldt:Version>0.1.0</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>azure-mgmt-servicefabric</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-servicemanagement-legacy">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Version>0.20.6</ldt:Version>
+    <rdfs:label>azure-servicemanagement-legacy</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=requests"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>azure-servicemanagement-legacy</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-nspkg"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-datalake-store">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-datalake-nspkg"/>
+    <ldt:Id>azure-mgmt-datalake-store</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Version>0.3.0</ldt:Version>
+    <rdfs:label>azure-mgmt-datalake-store</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-keyvault">
+    <ldt:Version>0.3.7</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>azure-keyvault</ldt:Id>
+    <rdfs:label>azure-keyvault</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-nspkg"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-scheduler">
+    <rdfs:label>azure-mgmt-scheduler</rdfs:label>
+    <ldt:Version>1.1.3</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Id>azure-mgmt-scheduler</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-sql">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Id>azure-mgmt-sql</ldt:Id>
+    <ldt:Version>0.8.6</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>azure-mgmt-sql</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-reservations">
+    <ldt:Version>0.1.0</ldt:Version>
+    <rdfs:label>azure-mgmt-reservations</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Id>azure-mgmt-reservations</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-hanaonazure">
+    <ldt:Id>azure-mgmt-hanaonazure</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Version>0.1.1</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <rdfs:label>azure-mgmt-hanaonazure</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pathlib2">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=scandir"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=six"/>
+    <rdfs:label>pathlib2</rdfs:label>
+    <ldt:Id>pathlib2</ldt:Id>
+    <ldt:Version>2.3.2</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-media">
+    <ldt:Version>0.2.0</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>azure-mgmt-media</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Id>azure-mgmt-media</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.primhillcomputers.com/survol#CIM_ComputerSystem">
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+    <rdfs:label>CIM_ComputerSystem</rdfs:label>
+    <rdfs:comment>Computer system.
+
+Scripts related to the class CIM_ComputerSystem.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=astor">
+    <rdfs:label>astor</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>astor</ldt:Id>
+    <ldt:Version>0.6.2</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-devtestlabs">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <rdfs:label>azure-mgmt-devtestlabs</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Version>2.2.0</ldt:Version>
+    <ldt:Id>azure-mgmt-devtestlabs</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-datalake-analytics">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>0.3.0</ldt:Version>
+    <ldt:Id>azure-mgmt-datalake-analytics</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <rdfs:label>azure-mgmt-datalake-analytics</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-datalake-nspkg"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-redis">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <rdfs:label>azure-mgmt-redis</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Version>5.0.0</ldt:Version>
+    <ldt:Id>azure-mgmt-redis</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=termcolor">
+    <ldt:Id>termcolor</ldt:Id>
+    <ldt:Version>1.1.0</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>termcolor</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-storage-file">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=futures"/>
+    <ldt:Id>azure-storage-file</ldt:Id>
+    <rdfs:label>azure-storage-file</rdfs:label>
+    <ldt:Version>1.3.0</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-storage-nspkg"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-storage-common"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-trafficmanager">
+    <rdfs:label>azure-mgmt-trafficmanager</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Id>azure-mgmt-trafficmanager</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>0.40.0</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-eventgrid">
+    <ldt:Version>0.4.0</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <rdfs:label>azure-mgmt-eventgrid</rdfs:label>
+    <ldt:Id>azure-mgmt-eventgrid</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pycparser">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>pycparser</rdfs:label>
+    <ldt:Id>pycparser</ldt:Id>
+    <ldt:Version>2.18</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=configparser">
+    <ldt:Id>configparser</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>configparser</rdfs:label>
+    <ldt:Version>3.5.0</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-consumption">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Version>2.0.0</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>azure-mgmt-consumption</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <rdfs:label>azure-mgmt-consumption</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-datafactory">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Version>0.4.0</ldt:Version>
+    <ldt:Id>azure-mgmt-datafactory</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <rdfs:label>azure-mgmt-datafactory</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-nspkg">
+    <ldt:Id>azure-nspkg</ldt:Id>
+    <rdfs:label>azure-nspkg</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>2.0.0</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-storage-queue">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>azure-storage-queue</rdfs:label>
+    <ldt:Version>1.3.0</ldt:Version>
+    <ldt:Id>azure-storage-queue</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-storage-nspkg"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-storage-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=cryptography">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=idna"/>
+    <ldt:Version>2.2.2</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=cffi"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=asn1crypto"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=enum34"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=ipaddress"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>cryptography</rdfs:label>
+    <ldt:Id>cryptography</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=six"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=html5lib">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>html5lib</rdfs:label>
+    <ldt:Id>html5lib</ldt:Id>
+    <ldt:Version>0.9999999</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=six"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=adal">
+    <rdfs:label>adal</rdfs:label>
+    <ldt:Version>1.0.2</ldt:Version>
+    <ldt:Id>adal</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=cryptography"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=requests"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=python-dateutil"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pyjwt"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-eventhub">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <rdfs:label>azure-mgmt-eventhub</rdfs:label>
+    <ldt:Version>1.2.0</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Id>azure-mgmt-eventhub</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=openlmi">
+    <ldt:Version>0.4.1</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pywbem"/>
+    <rdfs:label>openlmi</rdfs:label>
+    <ldt:Id>openlmi</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-keyvault">
+    <ldt:Id>azure-mgmt-keyvault</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>0.40.0</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <rdfs:label>azure-mgmt-keyvault</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=grpcio">
+    <ldt:Id>grpcio</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>1.12.0</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=enum34"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=futures"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=six"/>
+    <rdfs:label>grpcio</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pyyaml">
+    <ldt:Id>pyyaml</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>pyyaml</rdfs:label>
+    <ldt:Version>3.12</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=nose">
+    <ldt:Id>nose</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>nose</rdfs:label>
+    <ldt:Version>1.3.7</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.primhillcomputers.com/survol#Version">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:comment>Predicate Version</rdfs:comment>
+    <rdfs:domain rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-cosmosdb">
+    <ldt:Id>azure-mgmt-cosmosdb</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Version>0.3.1</ldt:Version>
+    <rdfs:label>azure-mgmt-cosmosdb</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=asn1crypto">
+    <ldt:Version>0.24.0</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>asn1crypto</ldt:Id>
+    <rdfs:label>asn1crypto</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=zipp">
+    <ldt:Id>zipp</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>0.5.1</ldt:Version>
+    <rdfs:label>zipp</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=wheel">
+    <rdfs:label>wheel</rdfs:label>
+    <ldt:Id>wheel</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>0.31.1</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-msi">
+    <ldt:Id>azure-mgmt-msi</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <rdfs:label>azure-mgmt-msi</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Version>0.1.0</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-dns">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Version>1.2.0</ldt:Version>
+    <rdfs:label>azure-mgmt-dns</rdfs:label>
+    <ldt:Id>azure-mgmt-dns</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=entrypoints">
+    <ldt:Id>entrypoints</ldt:Id>
+    <ldt:Version>0.2.3</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>entrypoints</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=configparser"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=absl-py">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=six"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>absl-py</rdfs:label>
+    <ldt:Id>absl-py</ldt:Id>
+    <ldt:Version>0.2.1</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-servicebus">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-nspkg"/>
+    <ldt:Id>azure-servicebus</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=requests"/>
+    <ldt:Version>0.21.1</ldt:Version>
+    <rdfs:label>azure-servicebus</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=httplib2">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>0.11.3</ldt:Version>
+    <ldt:Id>httplib2</ldt:Id>
+    <rdfs:label>httplib2</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=importlib-metadata">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pathlib2"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=configparser"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=zipp"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=contextlib2"/>
+    <rdfs:label>importlib-metadata</rdfs:label>
+    <ldt:Version>0.17</ldt:Version>
+    <ldt:Id>importlib-metadata</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-logic">
+    <ldt:Id>azure-mgmt-logic</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Version>2.1.0</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <rdfs:label>azure-mgmt-logic</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=chardet">
+    <ldt:Id>chardet</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>3.0.4</ldt:Version>
+    <rdfs:label>chardet</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrest">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=requests-oauthlib"/>
+    <ldt:Id>msrest</ldt:Id>
+    <rdfs:label>msrest</rdfs:label>
+    <ldt:Version>0.5.1</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=certifi"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=enum34"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=isodate"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=typing"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=requests"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-resource">
+    <ldt:Version>1.2.2</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <rdfs:label>azure-mgmt-resource</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>azure-mgmt-resource</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=scandir">
+    <ldt:Id>scandir</ldt:Id>
+    <ldt:Version>1.7</ldt:Version>
+    <rdfs:label>scandir</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-iothubprovisioningservices">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>azure-mgmt-iothubprovisioningservices</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Id>azure-mgmt-iothubprovisioningservices</ldt:Id>
+    <ldt:Version>0.1.0</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-cosmosdb-table">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-cosmosdb-nspkg"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=python-dateutil"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-storage-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=futures"/>
+    <ldt:Id>azure-cosmosdb-table</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=requests"/>
+    <rdfs:label>azure-cosmosdb-table</rdfs:label>
+    <ldt:Version>1.0.3</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=cryptography"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=atomicwrites">
+    <rdfs:label>atomicwrites</rdfs:label>
+    <ldt:Version>1.3.0</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>atomicwrites</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-containerregistry">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>azure-mgmt-containerregistry</rdfs:label>
+    <ldt:Version>1.0.1</ldt:Version>
+    <ldt:Id>azure-mgmt-containerregistry</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-servermanager">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>azure-mgmt-servermanager</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Id>azure-mgmt-servermanager</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Version>1.2.0</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-commerce">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Id>azure-mgmt-commerce</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Version>1.0.1</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <rdfs:label>azure-mgmt-commerce</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-containerinstance">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Id>azure-mgmt-containerinstance</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Version>0.3.1</ldt:Version>
+    <rdfs:label>azure-mgmt-containerinstance</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-notificationhubs">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Version>1.0.0</ldt:Version>
+    <ldt:Id>azure-mgmt-notificationhubs</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>azure-mgmt-notificationhubs</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-containerservice">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <rdfs:label>azure-mgmt-containerservice</rdfs:label>
+    <ldt:Id>azure-mgmt-containerservice</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>3.0.1</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=isodate">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=six"/>
+    <rdfs:label>isodate</rdfs:label>
+    <ldt:Version>0.6.0</ldt:Version>
+    <ldt:Id>isodate</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=typing">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>typing</ldt:Id>
+    <ldt:Version>3.6.4</ldt:Version>
+    <rdfs:label>typing</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=werkzeug">
+    <ldt:Id>werkzeug</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>0.14.1</ldt:Version>
+    <rdfs:label>werkzeug</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=cffi">
+    <rdfs:label>cffi</rdfs:label>
+    <ldt:Id>cffi</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pycparser"/>
+    <ldt:Version>1.11.5</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-machinelearningcompute">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>azure-mgmt-machinelearningcompute</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Id>azure-mgmt-machinelearningcompute</ldt:Id>
+    <ldt:Version>0.4.1</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=sklearn">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=scikit-learn"/>
+    <ldt:Id>sklearn</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>sklearn</rdfs:label>
+    <ldt:Version>0.0</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure">
+    <ldt:Id>msrestazure</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrest"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=keyring"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=adal"/>
+    <ldt:Version>0.4.33</ldt:Version>
+    <rdfs:label>msrestazure</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pytz">
+    <ldt:Id>pytz</ldt:Id>
+    <ldt:Version>2018.4</ldt:Version>
+    <rdfs:label>pytz</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-nspkg"/>
+    <ldt:Id>azure-mgmt-nspkg</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>azure-mgmt-nspkg</rdfs:label>
+    <ldt:Version>2.0.0</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-datalake-nspkg">
+    <rdfs:label>azure-mgmt-datalake-nspkg</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Id>azure-mgmt-datalake-nspkg</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>2.0.0</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=openlmi-tools">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pyparsing"/>
+    <ldt:Version>0.10.4</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>openlmi-tools</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=docopt"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=openlmi"/>
+    <ldt:Id>openlmi-tools</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-rdbms">
+    <rdfs:label>azure-mgmt-rdbms</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Id>azure-mgmt-rdbms</ldt:Id>
+    <ldt:Version>0.1.0</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-storage-blob">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=futures"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>azure-storage-blob</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-storage-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-storage-nspkg"/>
+    <ldt:Id>azure-storage-blob</ldt:Id>
+    <ldt:Version>1.3.0</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-subscription">
+    <ldt:Id>azure-mgmt-subscription</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <rdfs:label>azure-mgmt-subscription</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Version>0.1.0</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=cx-oracle">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>6.3.1</ldt:Version>
+    <ldt:Id>cx-oracle</ldt:Id>
+    <rdfs:label>cx-oracle</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=bleach">
+    <rdfs:label>bleach</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=six"/>
+    <ldt:Version>1.5.0</ldt:Version>
+    <ldt:Id>bleach</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=html5lib"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pandas">
+    <ldt:Version>0.23.0</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=python-dateutil"/>
+    <ldt:Id>pandas</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pytz"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=numpy"/>
+    <rdfs:label>pandas</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=numpy">
+    <ldt:Id>numpy</ldt:Id>
+    <ldt:Version>1.14.3</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>numpy</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-powerbiembedded">
+    <rdfs:label>azure-mgmt-powerbiembedded</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>1.0.0</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Id>azure-mgmt-powerbiembedded</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-authorization">
+    <ldt:Version>0.30.0</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <ldt:Id>azure-mgmt-authorization</ldt:Id>
+    <rdfs:label>azure-mgmt-authorization</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pyodbc">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>4.0.23</ldt:Version>
+    <rdfs:label>pyodbc</rdfs:label>
+    <ldt:Id>pyodbc</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-storage-common">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Version>1.3.0</ldt:Version>
+    <rdfs:label>azure-storage-common</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=requests"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=cryptography"/>
+    <ldt:Id>azure-storage-common</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=python-dateutil"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-storage-nspkg"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=ply">
+    <ldt:Id>ply</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>ply</rdfs:label>
+    <ldt:Version>3.11</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=more-itertools">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>5.0.0</ldt:Version>
+    <rdfs:label>more-itertools</rdfs:label>
+    <ldt:Id>more-itertools</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=six"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-cognitiveservices">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <rdfs:label>azure-mgmt-cognitiveservices</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Version>2.0.0</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>azure-mgmt-cognitiveservices</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=attrs">
+    <rdfs:label>attrs</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>19.1.0</ldt:Version>
+    <ldt:Id>attrs</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-cosmosdb-nspkg">
+    <ldt:Version>2.0.2</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>azure-cosmosdb-nspkg</rdfs:label>
+    <ldt:Id>azure-cosmosdb-nspkg</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-nspkg"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=funcsigs">
+    <ldt:Version>1.0.2</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>funcsigs</rdfs:label>
+    <ldt:Id>funcsigs</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=contextlib2">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>contextlib2</rdfs:label>
+    <ldt:Id>contextlib2</ldt:Id>
+    <ldt:Version>0.5.5</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=urllib3">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>urllib3</rdfs:label>
+    <ldt:Id>urllib3</ldt:Id>
+    <ldt:Version>1.23</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-billing">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Id>azure-mgmt-billing</ldt:Id>
+    <ldt:Version>0.1.0</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <rdfs:label>azure-mgmt-billing</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.primhillcomputers.com/survol#Package">
+    <rdfs:comment>Predicate Package</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+    <rdfs:domain rdf:resource="http://www.primhillcomputers.com/survol#CIM_ComputerSystem"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=rdflib">
+    <rdfs:label>rdflib</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pyparsing"/>
+    <ldt:Id>rdflib</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=isodate"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>4.2.2</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.primhillcomputers.com/survol#python.package">
+    <rdfs:comment>Python package</rdfs:comment>
+    <rdfs:label>python.package</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=scikit-learn">
+    <ldt:Id>scikit-learn</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>0.19.1</ldt:Version>
+    <rdfs:label>scikit-learn</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-datalake-store">
+    <ldt:Version>0.0.22</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pathlib2"/>
+    <rdfs:label>azure-datalake-store</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=cffi"/>
+    <ldt:Id>azure-datalake-store</ldt:Id>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=adal"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=futures"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-storage-queue"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-graphrbac"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-storage-file"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-eventgrid"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-cosmosdb-table"/>
+    <rdfs:label>azure</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-servicefabric"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-batch"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-datalake-store"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-storage-blob"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-servicebus"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-keyvault"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-servicemanagement-legacy"/>
+    <ldt:Version>3.0.0</ldt:Version>
+    <ldt:Id>azure</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=idna">
+    <ldt:Id>idna</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>idna</rdfs:label>
+    <ldt:Version>2.7</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=backports.weakref">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>backports.weakref</ldt:Id>
+    <rdfs:label>backports.weakref</rdfs:label>
+    <ldt:Version>1.0.post1</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=scipy">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=numpy"/>
+    <ldt:Id>scipy</ldt:Id>
+    <ldt:Version>1.1.0</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>scipy</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-marketplaceordering">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-mgmt-nspkg"/>
+    <rdfs:label>azure-mgmt-marketplaceordering</rdfs:label>
+    <ldt:Version>0.1.0</ldt:Version>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>azure-mgmt-marketplaceordering</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pyjwt">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>pyjwt</ldt:Id>
+    <ldt:Version>1.6.4</ldt:Version>
+    <rdfs:label>pyjwt</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=certifi">
+    <rdfs:label>certifi</rdfs:label>
+    <ldt:Id>certifi</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>2018.4.16</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=futures">
+    <ldt:Id>futures</ldt:Id>
+    <ldt:Version>3.2.0</ldt:Version>
+    <rdfs:label>futures</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=rdflib-jsonld">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=rdflib"/>
+    <rdfs:label>rdflib-jsonld</rdfs:label>
+    <ldt:Id>rdflib-jsonld</ldt:Id>
+    <ldt:Version>0.5.0</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.primhillcomputers.com/survol#Requires">
+    <rdfs:range rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+    <rdfs:comment>Predicate Requires</rdfs:comment>
+    <rdfs:domain rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common">
+    <ldt:Id>azure-common</ldt:Id>
+    <ldt:Version>1.1.12</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-nspkg"/>
+    <rdfs:label>azure-common</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=pyrabbit">
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=httplib2"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>1.1.0</ldt:Version>
+    <ldt:Id>pyrabbit</ldt:Id>
+    <rdfs:label>pyrabbit</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=oauthlib">
+    <rdfs:label>oauthlib</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>2.1.0</ldt:Version>
+    <ldt:Id>oauthlib</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=markdown">
+    <ldt:Version>2.6.11</ldt:Version>
+    <ldt:Id>markdown</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>markdown</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-storage-nspkg">
+    <ldt:Id>azure-storage-nspkg</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>3.0.0</ldt:Version>
+    <rdfs:label>azure-storage-nspkg</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-nspkg"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-graphrbac">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Id>azure-graphrbac</ldt:Id>
+    <ldt:Version>0.40.0</ldt:Version>
+    <rdfs:label>azure-graphrbac</rdfs:label>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=msrestazure"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-common"/>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=azure-nspkg"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=docopt">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <rdfs:label>docopt</rdfs:label>
+    <ldt:Id>docopt</ldt:Id>
+    <ldt:Version>0.6.2</ldt:Version>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=python-dateutil">
+    <rdfs:label>python-dateutil</rdfs:label>
+    <ldt:Id>python-dateutil</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>2.7.3</ldt:Version>
+    <ldt:Requires rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=six"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=sqlparse">
+    <rdfs:label>sqlparse</rdfs:label>
+    <ldt:Version>0.3.0</ldt:Version>
+    <ldt:Id>sqlparse</ldt:Id>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=python/package.Id=py">
+    <ldt:Id>py</ldt:Id>
+    <rdfs:label>py</rdfs:label>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#python/package"/>
+    <ldt:Version>1.8.0</ldt:Version>
+  </rdf:Description>
+</rdf:RDF>

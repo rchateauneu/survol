@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+   xmlns:ldt="http://www.primhillcomputers.com/survol#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+>
+  <rdf:Description rdf:about="http://www.primhillcomputers.com/survol#Id">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:domain rdf:resource="http://www.primhillcomputers.com/survol#addr"/>
+    <rdfs:comment>Ontology predicate Id</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.primhillcomputers.com/survol#Name">
+    <rdfs:comment>Ontology predicate Name</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+    <rdfs:domain rdf:resource="http://www.primhillcomputers.com/survol#CIM_ComputerSystem"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=addr.Id=127.0.0.1:1521">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#addr"/>
+    <rdfs:label>127.0.0.1:ncube-lm</rdfs:label>
+    <ldt:Id>127.0.0.1:1521</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.primhillcomputers.com/survol#addr">
+    <rdfs:comment>IP socket address</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+    <rdfs:label>addr</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=CIM_ComputerSystem.Name=vps516494.ovh.net">
+    <ldt:host rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=addr.Id=54.36.162.150:22"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#CIM_ComputerSystem"/>
+    <ldt:Name>vps516494.ovh.net</ldt:Name>
+    <ldt:host rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=addr.Id=127.0.0.1:44542"/>
+    <rdfs:label>vps516494.ovh.net</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=addr.Id=54.36.162.150:22">
+    <rdfs:comment>ESTABLISHED</rdfs:comment>
+    <ldt:socket_end rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=addr.Id=220.88.1.208:51474"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#addr"/>
+    <rdfs:label>54.36.162.150:ssh</rdfs:label>
+    <ldt:Id>54.36.162.150:22</ldt:Id>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.primhillcomputers.com/survol#host">
+    <rdfs:comment>Predicate host</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+    <rdfs:domain rdf:resource="http://www.primhillcomputers.com/survol#CIM_ComputerSystem"/>
+    <rdfs:range rdf:resource="http://www.primhillcomputers.com/survol#addr"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=addr.Id=127.0.0.1:44542">
+    <rdfs:comment>ESTABLISHED</rdfs:comment>
+    <ldt:socket_end rdf:resource="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=addr.Id=127.0.0.1:1521"/>
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#addr"/>
+    <ldt:Id>127.0.0.1:44542</ldt:Id>
+    <rdfs:label>127.0.0.1:44542</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.primhillcomputers.com/survol#socket_end">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+    <rdfs:domain rdf:resource="http://www.primhillcomputers.com/survol#addr"/>
+    <rdfs:range rdf:resource="http://www.primhillcomputers.com/survol#addr"/>
+    <rdfs:comment>Predicate socket_end</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://vps516494.ovh.net:80/Survol/survol/entity.py?xid=addr.Id=220.88.1.208:51474">
+    <rdf:type rdf:resource="http://www.primhillcomputers.com/survol#addr"/>
+    <ldt:Id>220.88.1.208:51474</ldt:Id>
+    <rdfs:label>220.88.1.208:51474</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.primhillcomputers.com/survol#CIM_ComputerSystem">
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+    <rdfs:label>CIM_ComputerSystem</rdfs:label>
+    <rdfs:comment>Computer system.
+
+Scripts related to the class CIM_ComputerSystem.</rdfs:comment>
+  </rdf:Description>
+</rdf:RDF>
