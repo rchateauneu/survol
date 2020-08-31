@@ -6,7 +6,10 @@
 #
 # https://jcalderone.livejournal.com/tag/sixty%20seconds
 
-import daemon_factory
+if __package__:
+    from . import daemon_factory
+else:
+    import daemon_factory
 daemon_factory.supervisor_startup()
 
 raise Exception("Not implemented yet")
