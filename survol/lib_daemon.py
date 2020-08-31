@@ -30,6 +30,7 @@ def start_events_generator_daemon(script_url):
 
 def is_events_generator_daemon_running(script_url):
     process_name = _url_to_process_name(script_url)
-    return daemon_factory.is_user_process_running(process_name)
+    supervisor_pid = daemon_factory.is_user_process_running(process_name)
+    return supervisor_pid
 
 
