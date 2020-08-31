@@ -28,15 +28,20 @@ except ImportError:
 # Also, code in "scripts/" directory must be as standalone as possible.
 # C:\Users\rchateau\supervisord.conf
 # config_file = r"C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\survol\scripts\supervisord.conf"
-config_file = os.path.join(os.path.dirname(__file__), "..", "survol", "scripts", "supervisord.conf")
+_supervisor_config_file = os.path.join(os.path.dirname(__file__), "supervisord.conf")
 
 
 # This parses the supervisord configuration file to get the url, username and password.
 def _get_supervisor_url():
 
     parsed_config = configparser.ConfigParser()
-    parsed_config.read(config_file)
-    print("Sections=", parsed_config.sections())
+    if not os.path.exists(_supervisor_config_file):
+        raise Exception("Cannot find supervisor config file:" + _supervisor_config_file)
+    sys.stderr.write("config_file=%s\n" % _supervisor_config_file)
+    config_status = parsed_config.read(_supervisor_config_file)
+    assert config_status
+    sys.stderr.write("config_status=%s\n" % config_status)
+    sys.stderr.write("Sections=%s\n" % parsed_config.sections())
 
     # https://bugs.python.org/issue27762
     # Python 2 bug when the value contains a semicolon after a space which normally should be stripped.
@@ -64,7 +69,7 @@ def _get_supervisor_url():
         # 'http://127.0.0.1:9001'
         supervisor_url = 'http://%s' % (supervisor_port)
 
-    print("supervisor_url=", supervisor_url)
+    sys.stderr.write("supervisor_url=%s\n" % supervisor_url)
     return supervisor_url
 
 
@@ -77,58 +82,125 @@ _supervisor_url = _get_supervisor_url()
 # Typical call: srv_prox = xmlrpclib.ServerProxy('http://chris:123@127.0.0.1:9001')
 _server_proxy = None
 
+_supervisor_process = None
 
-# This starts the supervisor process as a subprocess.
-# This can be done only by web servers which are persistent.
-# TODO: Check that maybe a supervisord process is already there,
-def supervisor_startup():
+
+def _local_supervisor_start():
+    """This starts a local supervisor process."""
+    global _supervisor_process
+
     # Do not start the supervisor if:
     # - Testing and a specific environment variable is not set.
     # - The Python package supervisor is not available.
     if not _must_start_factory:
         return
 
-    supervisor_command = r'"%s" -m supervisor.supervisord -c "%s"' % (sys.executable, config_file)
+    # Maybe it is already started.
+    if _supervisor_process:
+        # TODO: Should check that it is still there.
+        return
 
-    proc = subprocess.Popen(supervisor_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    supervisor_command = r'"%s" -m supervisor.supervisord -c "%s"' % (sys.executable, _supervisor_config_file)
+    sys.stderr.write("supervisor_command=%s\n" % supervisor_command)
+
+    proc_popen = subprocess.Popen(supervisor_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+
+    sys.stderr.write("proc_popen=%s\n" % proc_popen)
+    sys.stderr.write("proc_popen.pid=%s\n" % proc_popen.pid)
+    _supervisor_process = proc_popen
+
+
+def _local_supervisor_stop():
+    """This starts a local supervisor process."""
+    global _supervisor_process
+    if not _supervisor_process:
+        raise Exception("Supervisor was not started")
+    _supervisor_process.kill()
+    del _supervisor_process
+    _supervisor_process = None
 
     if False:
         try:
-            proc_outs, proc_errs = proc.communicate(timeout=15)
-            print("proc_outs=", proc_outs)
-            print("proc_errs=", proc_errs)
-        except subprocess.TimeoutExpired:
-            proc.kill()
-
-    # py -3.6 -m supervisor.supervisord -c C:\Users\rchateau\supervisord
+            proc_outs, proc_errs = _supervisor_process.communicate(timeout=10)
+            sys.stderr.write("proc_outs=%s\n" % proc_outs)
+            sys.stderr.write("proc_errs=%s\n" % proc_errs)
+        except subprocess.TimeoutExpired as exception_startup:
+            sys.stderr.write("exception_startup=%s\n" % exception_startup)
 
 
+# This starts the supervisor process as a subprocess.
+# This can be done only by web servers which are persistent.
+# TODO: Check that maybe a supervisord process is already there,
 def supervisor_startup():
     global _server_proxy
-    if _must_start_factory:
-        # First, a ServerProxy object must be configured.
-        # If supervisord is listening on an inet socket, ServerProxy configuration is simple:
-        import xmlrpclib
+
+    # The proxy is alraedy started.
+    if _server_proxy:
+        return
+
+    # Maybe this is a supervisor service, or a local process.
+
+    # TODO: The process should not be started if a service is already runing supervisor
+    _local_supervisor_start()
+
+    try:
+        # Now, create the connection the supervisor process.
         _server_proxy = xmlrpclib.ServerProxy(_supervisor_url)
 
-        # Once ServerProxy has been configured appropriately, we can now exercise supervisor_twiddler:
+        assert is_supervisor_running()
 
-        # _server_proxy.twiddler.getAPIVersion()
-        return True
-    else:
-        return False
+        return _supervisor_process.pid
+    except Exception as exc:
+        sys.stderr.write("Cannot start server proxy")
+        _local_supervisor_stop()
+        return None
+
+
+def supervisor_stop():
+    global _supervisor_process
+    global _server_proxy
+
+    # Stops the connection.
+    del _server_proxy
+    _server_proxy = None
+
+    _local_supervisor_stop()
+    return True
+
+
+def is_supervisor_running():
+    global _server_proxy
+    assert _server_proxy
+    sys.stderr.write("is_supervisor_running _server_proxy=%s\n" % str(_server_proxy))
+
+    try:
+        api_version = _server_proxy.supervisor.getAPIVersion()
+    except Exception as exc:
+        sys.stderr.write("is_supervisor_running exc=%s\n" % exc)
+        api_version = None
+    return api_version
 
 
 _survol_group_name = "survol_group"
 
 
 def start_user_process(process_name, python_command):
+    sys.stderr.write("python_command=%s\n" % python_command)
     if not _server_proxy:
-        return False
-    full_process_name = _survol_group_name + ":" + process_name
+        raise Exception("Server proxy not set")
 
-    _server_proxy.twiddler.addProgramToGroup(_survol_group_name, process_name,
-                                        {'command': python_command, 'autostart': 'false', 'autorestart': 'false'})
+    full_process_name = _survol_group_name + ":" + process_name
+    sys.stderr.write("full_process_name=%s\n" % full_process_name)
+
+    try:
+        add_status = _server_proxy.twiddler.addProgramToGroup(
+            _survol_group_name,
+            process_name,
+            {'command': python_command, 'autostart': 'false', 'autorestart': 'false'})
+    except Exception as exc:
+        sys.stderr.write("start_user_process exc=%s\n" % exc)
+    sys.stderr.write("add_status=%s\n" % add_status)
+
     # process_log = _server_proxy.supervisor.readProcessLog(full_process_name, 0, 50)
 
     # 'logfile': 'C:\\Users\\rchateau\\AppData\\Local\\Temp\\survol_url_1597910058-stdout---survol_supervisor-g1bg9mxg.log',
@@ -142,6 +214,7 @@ def start_user_process(process_name, python_command):
     # 'stderr_logfile': 'C:\\Users\\rchateau\\AppData\\Local\\Temp\\survol_url_1597910058-stderr---survol_supervisor-1k6bm7jz.log',
     # 'stdout_logfile': 'C:\\Users\\rchateau\\AppData\\Local\\Temp\\survol_url_1597910058-stdout---survol_supervisor-g1bg9mxg.log',
     process_info = _server_proxy.supervisor.getProcessInfo(full_process_name)
+    sys.stderr.write("process_info=%s\n" % process_info)
 
     assert process_info['logfile'] == process_info['stdout_logfile']
 
