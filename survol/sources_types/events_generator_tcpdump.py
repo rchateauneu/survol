@@ -14,10 +14,6 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-#import lib_webserv
-
-IsEventsGenerator = True
-
 # This parses the output of "tcpdump" or "WinDump.exe" if on Windows.
 def _parse_tcpdump_line(grph, line):
     spl = line.split(' ')
@@ -54,11 +50,11 @@ def _get_tcmp_dump_command():
 def Main(loop_number=1):
     tcpdump_cmd = _get_tcmp_dump_command()
 
+    cgiEnv = lib_common.CgiEnv()
     for lin in os.popen(tcpdump_cmd):
         if not lin:
             continue
-        cgiEnv = lib_common.CgiEnv()
-        grph = cgiEnv.GetGraph()
+        grph = cgiEnv.ReinitGraph()
         _parse_tcpdump_line(grph, lin)
         cgiEnv.OutCgiRdf()
 
@@ -69,8 +65,9 @@ def Main(loop_number=1):
 ################################################################################
 
 if __name__ == '__main__':
-    Main()
-elif __name__ == '__daemon__':
-    while True:
-        Main(1000000)
-        time.sleep(20)
+    if lib_util.is_snapshot_behaviour():
+        Main()
+    else:
+        while True:
+            Main(1000000)
+            time.sleep(20)

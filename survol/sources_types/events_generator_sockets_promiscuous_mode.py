@@ -17,11 +17,7 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-#import lib_webserv
-
 #Usable = lib_util.UsableAsynchronousSource
-
-IsEventsGenerator = True
 
 ################################################################################
 
@@ -94,10 +90,10 @@ def _promiscuous_win(loop_number):
     s.ioctl(socket.SIO_RCVALL, socket.RCVALL_ON)
 
     bufferSize=4096
+    cgiEnv = lib_common.CgiEnv()
     while loop_number:
         loop_number -= 1
-        cgiEnv = lib_common.CgiEnv()
-        grph = cgiEnv.GetGraph()
+        grph = cgiEnv.ReinitGraph()
         # TODO: Avoid an allocation.
         package=s.recv(bufferSize)
         _process_frame(grph, package)
@@ -115,11 +111,11 @@ def _promiscuous_win(loop_number):
 def _promiscuous_linux(loop_number):
     rawSocket=socket.socket(socket.PF_PACKET,socket.SOCK_RAW,socket.htons(0x0800))
 
+    cgiEnv = lib_common.CgiEnv()
     while loop_number:
         loop_number -= 1
 
-        cgiEnv = lib_common.CgiEnv()
-        grph = cgiEnv.GetGraph()
+        grph = cgiEnv.ReinitGraph()
 
         #ifconfig eth0 promisc up
         receivedPacket=rawSocket.recv(2048)
@@ -160,8 +156,9 @@ def Main(loop_number = 1):
 
 
 if __name__ == '__main__':
-    Main()
-elif __name__ == '__daemon__':
-    while True:
-        Main(1000000)
-        time.sleep(20)
+    if lib_util.is_snapshot_behaviour():
+        Main()
+    else:
+        while True:
+            Main(1000000)
+            time.sleep(20)
