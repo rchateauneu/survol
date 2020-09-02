@@ -103,7 +103,8 @@ def _local_supervisor_start():
     supervisor_command = r'"%s" -m supervisor.supervisord -c "%s"' % (sys.executable, _supervisor_config_file)
     sys.stderr.write("supervisor_command=%s\n" % supervisor_command)
 
-    proc_popen = subprocess.Popen(supervisor_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    # No Shell, otherwise the subprocess running supervisor, will not be stopped.
+    proc_popen = subprocess.Popen(supervisor_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
 
     sys.stderr.write("proc_popen=%s\n" % proc_popen)
     sys.stderr.write("proc_popen.pid=%s\n" % proc_popen.pid)
@@ -116,6 +117,8 @@ def _local_supervisor_stop():
     if not _supervisor_process:
         raise Exception("Supervisor was not started")
     _supervisor_process.kill()
+    _supervisor_process.communicate()
+    _supervisor_process.terminate()
     del _supervisor_process
     _supervisor_process = None
 
@@ -184,7 +187,7 @@ def is_supervisor_running():
 _survol_group_name = "survol_group"
 
 
-def start_user_process(process_name, python_command):
+def start_user_process(process_name, python_command, environment_parameter=""):
     sys.stderr.write("python_command=%s\n" % python_command)
     if not _server_proxy:
         raise Exception("Server proxy not set")
@@ -192,13 +195,20 @@ def start_user_process(process_name, python_command):
     full_process_name = _survol_group_name + ":" + process_name
     sys.stderr.write("full_process_name=%s\n" % full_process_name)
 
+    program_options = {
+        'command': python_command,
+        'autostart': 'false',
+        'autorestart': 'false',
+        'environment': environment_parameter}
+
     try:
         add_status = _server_proxy.twiddler.addProgramToGroup(
             _survol_group_name,
             process_name,
-            {'command': python_command, 'autostart': 'false', 'autorestart': 'false'})
+            program_options)
     except Exception as exc:
         sys.stderr.write("start_user_process exc=%s\n" % exc)
+        raise
     sys.stderr.write("add_status=%s\n" % add_status)
 
     # process_log = _server_proxy.supervisor.readProcessLog(full_process_name, 0, 50)
@@ -224,8 +234,16 @@ def start_user_process(process_name, python_command):
 
     return True
 
+
 def is_user_process_running(process_name):
     full_process_name = _survol_group_name + ":" + process_name
-    process_info = _server_proxy.supervisor.getProcessInfo(full_process_name)
+    try:
+        process_info = _server_proxy.supervisor.getProcessInfo(full_process_name)
+    except xmlrpclib.Fault as exc:
+        # xmlrpc.client.Fault: <Fault 10: 'BAD_NAME: survol_group:non_existent_url.py?arg=11132'>
+        if "BAD_NAME" in str(exc):
+            return False
+        # Otherwise it is an unexpected exception.
+        raise
     assert process_info['logfile'] == process_info['stdout_logfile']
     return process_info['statename'] != 'STOPPED'
