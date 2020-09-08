@@ -7,17 +7,10 @@ import re
 from lib_properties import pc
 import lib_properties
 
-
-# import lib_webserv
-# import lib_tabular
-
 def Usable(entity_type, entity_ids_arr):
     """Runs on Linux only, in asynchronous mode"""
     return lib_util.UsableLinux(entity_type, entity_ids_arr) and lib_util.UsableAsynchronousSource(entity_type,
                                                                                                    entity_ids_arr)
-
-IsEventsGenerator = True
-
 ################################################################################
 
 # Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
@@ -49,6 +42,7 @@ def Main(loop_number=1):
     # Contains the last header read.
     iostat_header = []
 
+    cgiEnv = lib_common.CgiEnv()
     for lin in os.popen(iostat_cmd):
         if not lin:
             continue
@@ -60,8 +54,7 @@ def Main(loop_number=1):
             iostat_header = spl
             return
 
-        cgiEnv = lib_common.CgiEnv()
-        grph = cgiEnv.GetGraph()
+        grph = cgiEnv.ReinitGraph()
 
         _io_stat_to_graph(grph, spl, iostat_header)
 
@@ -73,7 +66,8 @@ def Main(loop_number=1):
 
 
 if __name__ == '__main__':
-    Main()
-elif __name__ == '__daemon__':
-    while True:
-        Main(1000000)
+    if lib_util.is_snapshot_behaviour():
+        Main()
+    else:
+        while True:
+            Main(1000000)
