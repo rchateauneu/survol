@@ -18,7 +18,12 @@ def _url_to_process_name(script_url):
     # Some characters are not accepted by process names by supervisor, which throws for example:
     # <Fault 2: "INCORRECT_PARAMETERS: Invalid name: 'http://vps516494.ovh.net/x/y/z/script.py?param=24880'
     # because of character: ':' in section 'http://vps516494.ovh.net/x/y/z/script.py?param=24880'>
-    return script_url.replace(":", "_").replace("/", "_")
+    # Also, the process name is used to create stdout and stderr log file names,
+    # so the process name must contain only chars allowed in filenames.
+    for forbidden_char in ":/\\?=&+*()[]{}%":
+        script_url = script_url.replace(forbidden_char, "_")
+
+    return script_url
 
 
 def start_events_generator_daemon(script_url):
@@ -58,32 +63,46 @@ def start_events_generator_daemon(script_url):
     # The process name must contain the CGI parameters: Object class and attributes etc...
     process_name = _url_to_process_name(script_url)
 
+    # This string is processed by several layers of software, and escaping might be mis-processed.
+    script_relative_path = script_relative_path.replace("\\", "/")
+
     # Remove the script parameters and pass them as CGI environment variables: QUERY_STRING etc...
     python_command = '"%s" %s' % (sys.executable, script_relative_path)
 
-    # Adding the mode is probably not necessary because the script does not run as a CGI script,
-    # and should be an events_generator_* one.
+    # Adding the mode is necessary for the function is_snapshot_behaviour()
+    # which checks that environ["QUERY_STRING"] contains "mode=daemon".
     query_mode_delimiter = "&" if parsed_url.query else "?"
-    query_string_with_mode = parsed_url.query + query_mode_delimiter + "mode=" + "daemon"
+    query_string_with_daemon_mode = parsed_url.query + query_mode_delimiter + "mode=" + "daemon"
 
     # KEY1="value1",KEY2="value2"
     environment_parameter = 'HTTP_HOST="%s",QUERY_STRING="%s",SCRIPT_NAME="%s",REQUEST_URI="%s",PYTHONPATH="survol"' % (
         parsed_url.hostname,
-        query_string_with_mode,
+        query_string_with_daemon_mode,
         parsed_url.path,
-        "%s?%s" % (parsed_url.path, query_string_with_mode))
+        "%s?%s" % (parsed_url.path, query_string_with_daemon_mode))
 
+
+    # The script might be a test script which needs its execution context.
+    # Sometimes, the library behaviour is slightly different in test mode.
+    if "PYTEST_CURRENT_TEST" in os.environ:
+        environment_parameter += ',PYTEST_CURRENT_TEST="%s"' % os.environ["PYTEST_CURRENT_TEST"]
+
+    sys.stderr.write("python_command=%s\n" % python_command)
     sys.stderr.write("environment_parameter=%s\n" % environment_parameter)
 
-    daemon_factory.start_user_process(process_name, python_command, environment_parameter)
+    created_process_id = daemon_factory.start_user_process(process_name, python_command, environment_parameter)
+    return created_process_id
 
 
 def is_events_generator_daemon_running(script_url):
     process_name = _url_to_process_name(script_url)
+    sys.stderr.write("is_events_generator_daemon_running process_name=%s\n" % process_name)
     supervisor_pid = daemon_factory.is_user_process_running(process_name)
     return supervisor_pid
 
 
 def stop_events_generator_daemon(script_url):
-    raise Exception("Not implemented yet")
+    process_name = _url_to_process_name(script_url)
+    sys.stderr.write("stop_events_generator_daemon process_name=%s\n" % process_name)
+    return daemon_factory.stop_user_process(process_name)
 
