@@ -3,7 +3,6 @@
 import os
 import re
 import sys
-#import lib_webserv
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -13,29 +12,18 @@ from lib_properties import pc
 import win32file
 import win32con
 
-def Usable(entity_type,entity_ids_arr):
-    """Can run on a directory only, on Windows, in asynchronous mode"""
+
+def Usable(entity_type, entity_ids_arr):
+    """Can run on a directory only, on Windows."""
     if not lib_util.UsableWindows(entity_type,entity_ids_arr):
         return False
     if not lib_util.UsableAsynchronousSource(entity_type,entity_ids_arr):
         return False
-    dirNam = entity_ids_arr[0]
-    return os.path.isdir(dirNam)
+    dir_nam = entity_ids_arr[0]
+    return os.path.isdir(dir_nam)
 
-# Ca marche.
-# Probleme: En avoir un seul pour tout un disque, ou bien plusieurs ?
-# En tout cas les triplets RDF doivent etre les memes de facon a ce que la fusion
-# supprime les doublons.
 
-# Ce sera encore plus spectaculaire en Javascript: Il faut qu'on voie 
-# les fichiers apparaitre et disparaitre.
-# Meme logique que les processes d'ailleurs: Comment dire explicitement
-# qu'un triplet RDF a disparu? Il faudrait une anti-relation qui serait traitee
-# specifiquement par la fusion.
-
-# path_to_watch = cgiEnv.GetId()
-
-def WindDirChangeDeserialize(grph, path_to_watch, updated_file, path_change):
+def _add_windows_dir_change(grph, path_to_watch, updated_file, path_change):
     full_filename = os.path.join(path_to_watch, updated_file)
 
     split_path = file.split('\\')
@@ -84,11 +72,7 @@ def Main():
     )
 
     while True:
-        cgiEnv = lib_common.CgiEnv()
-        # FAUDRAIT PLUTIT RAFRAICHIR
         grph = cgiEnv.ReinitGraph()
-
-        grph = cgiEnv.GetGraph()
 
         #
         # ReadDirectoryChangesW takes a previously-created
@@ -115,12 +99,13 @@ def Main():
             None
         )
         for action, updated_file in results:
-            WindDirChangeDeserialize( grph, path_to_watch, updated_file , ACTIONS.get (action, "Unknown"))
+            _add_windows_dir_change(grph, path_to_watch, updated_file, ACTIONS.get (action, "Unknown"))
 
         cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
-    Main()
-elif __name__ == '__daemon__':
-    while True:
-        Main(1000000)
+    if lib_util.is_snapshot_behaviour():
+        Main()
+    else:
+        while True:
+            Main(1000000)
