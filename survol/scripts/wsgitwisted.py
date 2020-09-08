@@ -16,11 +16,12 @@ if __package__:
     from . import daemon_factory
 else:
     import daemon_factory
-daemon_factory.supervisor_startup()
 
 def application(environ, start_response):
     start_response('200 OK', [('Content-type', 'text/plain')])
     return ['Hello, world!']
 
-
 resource = WSGIResource(reactor, reactor.getThreadPool(), application)
+
+def start_server():
+    daemon_factory.supervisor_startup()
