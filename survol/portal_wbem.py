@@ -20,7 +20,7 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	( nameSpace, className, entity_type ) = cgiEnv.get_namespace_type()
+	nameSpace, entity_type = cgiEnv.get_namespace_type()
 
 	entity_host = cgiEnv.GetHost()
 	hostId = cgiEnv.GetId()
