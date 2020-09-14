@@ -1,10 +1,22 @@
 # This encapsulates rdflib features, and may help to implement differently triplestore features.
 
 import sys
+import os
 import re
 import collections
 import rdflib
 from rdflib.namespace import RDF, RDFS, XSD
+
+from rdflib import Namespace, Literal, URIRef
+# from rdflib.graph import Graph, ConjunctiveGraph
+
+# This will change soon after rdflib 5.0.0
+# from rdflib.plugins.stores.memory import Memory
+from rdflib.plugins.memory import IOMemory
+import rdflib.plugins
+import rdflib.plugins.stores
+import rdflib.plugins.stores.concurrent
+
 
 PredicateSeeAlso = RDFS.seeAlso
 PredicateIsDefinedBy = RDFS.isDefinedBy
@@ -456,4 +468,214 @@ def qname(x, grph):
         return q[2]
     except:
         return x
+
+################################################################################
+
+import tempfile
+
+# my_store = Memory()
+# The graph must be persistent and concurrently accessed.
+# Several stores are possible (For example SqlLite), but SleepyCat is always installed with rdflib,
+# so it is convenient to use it.
+# TODO: Consider SqlLite in memory.
+# https://code.alcidesfonseca.com/docs/rdflib/gettingstarted.html
+
+_store_input = None
+_events_conjunctive_graph = None
+
+
+# Plugin stores
+#
+# Name                 Class
+# Auditable            AuditableStore
+# Concurrent           ConcurrentStore
+# IOMemory             IOMemory
+# SPARQLStore          SPARQLStore
+# SPARQLUpdateStore    SPARQLUpdateStore
+# Sleepycat            Sleepycat
+# default              IOMemory
+
+# https://github.com/RDFLib/rdflib-sqlalchemy
+# SqlAlchemy Sample DBURI values::
+# dburi = Literal("mysql://username:password@hostname:port/database-name?other-parameter")
+# dburi = Literal("mysql+mysqldb://user:password@hostname:port/database?charset=utf8")
+# dburi = Literal('postgresql+psycopg2://user:pasword@hostname:port/database')
+# dburi = Literal('postgresql+pg8000://user:pasword@hostname:port/database')
+# dburi = Literal('sqlite:////absolute/path/to/foo.db')
+# dburi = Literal("sqlite:///%(here)s/development.sqlite" % {"here": os.getcwd()})
+# dburi = Literal('sqlite://') # In-memory
+
+# Modern versions of SQLite support an alternative system of connecting using a driver level URI,
+# which has the advantage that additional driver-level arguments can be passed including options such as "read only".
+# The Python sqlite3 driver supports this mode under modern Python 3 versions.
+# The SQLAlchemy pysqlite driver supports this mode of use by specifing "uri=true" in the URL query string.
+# The SQLite-level "URI" is kept as the "database" portion of the SQLAlchemy url (that is, following a slash):
+#
+# e = create_engine("sqlite:///file:path/to/database?mode=ro&uri=true")
+# e = create_engine(
+#     "sqlite:///file:path/to/database?"
+#     "check_same_thread=true&timeout=10&mode=ro&nolock=1&uri=true"
+# )
+# sqlite3.connect(
+#     "file:path/to/database?mode=ro&nolock=1",
+#     check_same_thread=True, timeout=10, uri=True
+# )
+
+
+_events_storage_style = (None,)
+
+def set_storage_style(*storage_style_tuple):
+    global _events_storage_style
+    global _store_input
+    global _events_conjunctive_graph
+
+    # Resets the connection ven if the new storage style is identical.
+
+    if _events_storage_style[0] == "SQLAlchemy":
+        sqlite_uri = rdflib.Literal(_events_storage_style[1])
+        #_events_conjunctive_graph.destroy(sqlite_uri)
+        try:
+            _events_conjunctive_graph.close()
+        except Exception as exc:
+            sys.stderr.write("set_storage_style Exception=%s\n" % exc)
+
+    del _store_input
+    del _events_conjunctive_graph
+
+    _store_input = None
+    _events_conjunctive_graph = None
+
+    _events_storage_style = storage_style_tuple
+
+
+def _setup_global_graph():
+    """Lazy creation of the graph used to store events by events generators, and read by CGI scripts. """
+    global _store_input
+    global _events_conjunctive_graph
+
+    if _store_input is None:
+        assert not _events_conjunctive_graph
+
+        assert isinstance(_events_storage_style, tuple)
+        if _events_storage_style[0] == "IOMemory":
+            _store_input = IOMemory()
+            _events_conjunctive_graph = rdflib.ConjunctiveGraph(store=_store_input)
+        elif _events_storage_style[0] == "SQLAlchemy":
+            # How to install rdflib-sqlalchemy
+            # pip install rdflib-sqlalchemy
+            #
+            # py -2.7 -m pip install rdflib-sqlalchemy
+            #       from glob import glob
+            #   ImportError: No module named glob
+            #
+            # py -3.6 -m pip install rdflib-sqlalchemy
+            # OK
+
+            sqlite_ident = rdflib.URIRef("rdflib_test")
+            # https://docs.sqlalchemy.org/en/13/dialects/sqlite.html#module-sqlalchemy.dialects.sqlite.pysqlite
+            # _sqlite_uri = rdflib.Literal("sqlite://")
+            # driver://user:pass@host/database
+            # sqlite+pysqlite:///file_path
+            # # absolute path on Windows
+            # e = create_engine('sqlite:///C:\\path\\to\\database.db')
+            # in-memory database
+            # e = create_engine('sqlite://')
+            # _sqlite_uri = rdflib.Literal("sqlite://")
+            # engine=create_engine('sqlite:///:memory:')
+            #sqlite_filename = r"C:\Users\rchateau\survol_events.sqlite"
+            #_sqlite_uri = rdflib.Literal(r"sqlite:///%s" % sqlite_filename)
+
+            sqlite_uri = rdflib.Literal(_events_storage_style[1])
+
+            _store_input = rdflib .plugin.get("SQLAlchemy", rdflib.store.Store)(identifier=sqlite_ident)
+            _events_conjunctive_graph = rdflib.ConjunctiveGraph(_store_input, identifier=sqlite_ident)
+            _events_conjunctive_graph.open(sqlite_uri, create=True)
+
+        else:
+            raise Exception("Unknown storage style:" + str(_events_storage_style))
+
+    assert _store_input is not None
+    assert _events_conjunctive_graph is not None
+    return _events_conjunctive_graph
+
+
+def _url_to_context_node(the_url):
+    """This returns a context for a graph from an url."""
+    return URIRef(the_url)
+
+
+def write_graph_to_events(the_url, input_graph):
+    # TODO: It would be faster to store the events in this named graph.
+    # TODO: Also, it is faster to directly store the triples.
+    global _events_conjunctive_graph
+
+    _setup_global_graph()
+    assert _store_input is not None
+    assert _events_conjunctive_graph is not None
+
+    if the_url is None:
+        _events_conjunctive_graph += input_graph
+    else:
+        url_node = _url_to_context_node(the_url)
+        named_graph = rdflib.Graph(store=_store_input, identifier=url_node)
+        named_graph += input_graph
+
+    if _events_storage_style[0] == "SQLAlchemy":
+        _events_conjunctive_graph.commit()
+
+    len_input_graph = len(input_graph)
+    sys.stderr.write("write_graph_to_events len_input_graph=%d\n" % len_input_graph)
+
+    return len_input_graph
+
+
+def read_events_to_graph(the_url, the_graph):
+    """ This reads from the global graph, all triples in the context of the URL,
+    which is the URL of a CGI script executed to create these events.
+    Storing the events of the URL before reading them later, allows to decouple
+    the generation of events and their usage, for example display etc... in another process."""
+
+    _setup_global_graph()
+    assert _store_input is not None
+    assert _events_conjunctive_graph is not None
+
+    # Some rdflib examples here:
+    # https://code.alcidesfonseca.com/docs/rdflib/assorted_examples.html
+    url_node = _url_to_context_node(the_url)
+
+    named_graph = _events_conjunctive_graph.get_context(url_node)
+
+    the_graph += named_graph
+
+    named_graph.remove((None, None, None))
+
+    if _events_storage_style[0] == "SQLAlchemy":
+        _events_conjunctive_graph.commit()
+
+    return len(the_graph)
+
+
+def retrieve_all_events_to_graph_then_clear(output_graph):
+    _setup_global_graph()
+    assert _store_input is not None
+    assert _events_conjunctive_graph is not None
+
+    output_graph += _events_conjunctive_graph
+    _events_conjunctive_graph.remove((None, None, None))
+
+    if _events_storage_style[0] == "SQLAlchemy":
+        _events_conjunctive_graph.commit()
+
+    return len(output_graph)
+
+
+def events_count():
+    _setup_global_graph()
+    assert _store_input is not None
+    assert _events_conjunctive_graph is not None
+
+    len_graph = len(_events_conjunctive_graph)
+
+    sys.stderr.write("events_count leaving len_graph=%d\n" % len_graph)
+    return len_graph
 

@@ -855,11 +855,11 @@ class SurvolLocalJavaTest(unittest.TestCase):
 
         listRequired = [
             CurrentUserPath,
-            'CIM_Directory.Name=C:/windows/system32',
+            #'CIM_Directory.Name=C:/windows/system32',
             'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/charsets.jar',
             'CIM_Directory.Name=C:/Program Files/nodejs',
             'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121',
-            'CIM_Directory.Name=C:/windows',
+            #'CIM_Directory.Name=C:/windows',
             'CIM_Directory.Name=C:/windows/Sun/Java/lib/ext',
             'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/classes',
             'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/jsse.jar',
@@ -871,7 +871,7 @@ class SurvolLocalJavaTest(unittest.TestCase):
             'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/endorsed',
             'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/bin',
             'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/ext',
-            'CIM_Directory.Name=C:/windows/System32/WindowsPowerShell/v1.0',
+            #'CIM_Directory.Name=C:/windows/System32/WindowsPowerShell/v1.0',
             'CIM_Directory.Name=C:/Program Files/Java/jdk1.8.0_121/jre/bin',
             'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/rt.jar',
             'CIM_Directory.Name=C:/Program Files/Java/jdk1.8.0_121/bin',
@@ -882,7 +882,7 @@ class SurvolLocalJavaTest(unittest.TestCase):
         listRequired.append( CurrentProcessPath )
 
         strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
-        print("test_java_system_properties strInstancesSet=", strInstancesSet)
+        print("test_java_system_properties strInstancesSet=", sorted(strInstancesSet))
 
         print("listRequired=",listRequired)
         for oneStr in listRequired:

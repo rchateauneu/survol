@@ -8,6 +8,7 @@ import sys
 import lib_common
 import lib_util
 import lib_event
+import lib_kbase
 
 
 # See event_put.py for more explanations.
@@ -16,6 +17,7 @@ import lib_event
 # It then fetches data from the temp directory of events.
 # The type of these data is exactly what can be returned by any scripts.
 def Main():
+	lib_event.set_events_credentials()
 
 	# This can process remote hosts because it does not call any script, just shows them.
 	cgiEnv = lib_common.CgiEnv()
@@ -25,14 +27,14 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
+	if entity_type:
+		lib_common.ErrorMessageHtml(__file__ + " objects events retrieval not supported yet.")
+
+	lib_kbase.retrieve_all_events_to_graph_then_clear(grph)
+
 	# This receives an object type stored as a string, and a string made of the concatenation
 	# of key-value pairs, defining an object. It returns the array of property values,
 	# in the proper order of the ontology of the type.
-	entity_ids_arr = lib_util.EntityIdToArray(entity_type, entity_id)
-
-	arr_triples = lib_event.data_retrieve(entity_type, entity_ids_arr)
-	for tripl in arr_triples:
-		grph.add(tripl)
 
 	cgiEnv.OutCgiRdf()
 

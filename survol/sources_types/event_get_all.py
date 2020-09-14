@@ -8,12 +8,14 @@ import sys
 import lib_common
 import lib_util
 import lib_event
+import lib_kbase
 
 # See event_put.py for more explanations.
 # This gets all received events and displays them.
 # The type of these data is exactly what can be returned by any scripts.
 
 def Main():
+    lib_event.set_events_credentials()
 
     # This can process remote hosts because it does not call any script, just shows them.
     cgiEnv = lib_common.CgiEnv()
@@ -22,11 +24,7 @@ def Main():
     grph = cgiEnv.GetGraph()
 
     DEBUG("event_get_all.py About to get events")
-    arrTriples = lib_event.retrieve_all_events()
-    num_triples = 0
-    for tripl in arrTriples:
-        grph.add(tripl)
-        num_triples += 1
+    num_triples = lib_kbase.retrieve_all_events_to_graph_then_clear(grph)
     sys.stderr.write("%s num_triples=%d\n" % (__file__, num_triples))
 
     DEBUG("num_triples=%d" % num_triples)

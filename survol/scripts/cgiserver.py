@@ -17,6 +17,11 @@ import os
 import socket
 import datetime
 
+if __package__:
+    from . import daemon_factory
+else:
+    import daemon_factory
+
 try:
     from urlparse import urlparse
 except ImportError:
@@ -79,9 +84,10 @@ def __open_url_with_new_browser_process(browser_name, the_url):
     threading.Thread(target=__starts_browser_process).start()
     print("Browser thread started")
 
+
 # It is also possible to call the script from command line.
 def __run_cgi_server_internal():
-
+    daemon_factory.supervisor_startup()
     try:
         opts, args = getopt.getopt(sys.argv[1:], "ha:p:b:v", ["help","address=","port=","browser=","verbose"])
     except getopt.GetoptError as err:

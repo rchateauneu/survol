@@ -8,9 +8,6 @@ import unittest
 
 from init import *
 
-from survol.scripts import dockit
-
-
 class HtmlCommon(unittest.TestCase):
     def _check_script(self, script_suffix):
         full_url = self._agent_url + script_suffix

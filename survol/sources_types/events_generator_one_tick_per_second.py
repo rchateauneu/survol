@@ -12,22 +12,32 @@ import lib_util
 import lib_common
 import lib_properties
 
+ParamA = "parama"
+ParamB = "paramb"
+
 def Main():
-    # NE PAS EXECUTER CA SI LE DAEMON FONCTIONNE MAIS PLUTOT ALLER CHERCHER LES EVENEMENTS
-    # QUE LE MEME SCRIPT, EXECUTE PAR LE DAEMON, A CREE. ET ENSUITE ON SORT.
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.CgiEnv(parameters={ParamA: 1, ParamB: "Two"})
+
+    # This is to ensure that all CGI parameters are handled.
+    parameter_a = int(cgiEnv.get_parameters(ParamA))
+    parameter_b = cgiEnv.get_parameters(ParamB)
 
     grph = cgiEnv.GetGraph()
     timestamp_property = lib_properties.MakeProp("ticker_timestamp")
+    param_a_property = lib_properties.MakeProp(ParamA)
+    param_b_property = lib_properties.MakeProp(ParamB)
     current_pid = os.getpid()
     node_process = lib_common.gUriGen.PidUri(current_pid)
 
-    datetime_now = datetime.now()
+    datetime_now = datetime.datetime.now()
     timestamp_literal = datetime_now.strftime("%Y-%m-%d %H:%M:%S")
-    # Ca va ecrire des events ou bien remplir
     grph.add((node_process, timestamp_property, lib_common.NodeLiteral(timestamp_literal)))
 
+    grph.add((node_process, param_a_property, lib_common.NodeLiteral(parameter_a)))
+    grph.add((node_process, param_b_property, lib_common.NodeLiteral(parameter_b)))
+
     cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
     if lib_util.is_snapshot_behaviour():
@@ -40,7 +50,21 @@ if __name__ == '__main__':
         # - More importantly, write in a plain RDFLIB graph, flushed by OutCgiRdf().
         #   This greatly simplifies the code.
         while True:
-            Main()
+            try:
+                Main()
+            except Exception as exc:
+                # type C:\Users\rchateau\AppData\Local\Temp\toto.txt
+                # dir C:\Users\rchateau\AppData\Local\Temp\toto.txt
+                with open("C:/Users/rchateau/AppData/Local/Temp/toto.txt", "w") as toto:
+                    toto.write("XFXFXFXFXF:%s\n" % exc)
+
+                    if "PYTEST_CURRENT_TEST" in os.environ:
+                        toto.write("PYTEST_CURRENT_TEST:%s\n" % os.environ['PYTEST_CURRENT_TEST'])
+                    else:
+                        toto.write("PYTEST_CURRENT_TEST:not defined\n")
+
+                    toto.close()
+                raise
 
 
 

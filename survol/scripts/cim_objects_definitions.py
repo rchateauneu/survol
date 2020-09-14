@@ -448,9 +448,36 @@ def _timestamp_to_str(timStamp):
 
 ################################################################################
 
-# This objects groups triples to send to the HTTP server, and periodically wakes up to send them.
-# But if the server name is a file, the RDF content is instead stored to this file by the object destructor.
-class HttpTriplesClient(object):
+
+class HttpTriplesClientNone(object):
+    def http_client_shutdown(self):
+        pass
+
+    def queue_triples_for_sending(self, json_triple):
+        pass
+
+
+class HttpTriplesClientFile(HttpTriplesClientNone):
+    """If the server name is a file, the RDF content is instead stored to this file by the object destructor."""
+    def __init__(self):
+        self._triples_list = []
+        print("G_UpdateServer=", G_UpdateServer, " IS FILE")
+
+    def http_client_shutdown(self):
+        print("HttpTriplesClient.http_client_shutdown")
+        if not lib_event:
+            raise Exception("lib_event was not imported")
+        lib_event.json_triples_to_rdf(self._triples_list, G_UpdateServer)
+        print("Stored RDF content to", G_UpdateServer)
+
+    def queue_triples_for_sending(self, json_triple):
+        #assert not self._is_threaded_client
+        # Just append the triple, no need to synchronise.
+        self._triples_list.append(json_triple)
+
+
+class HttpTriplesClientHttp(HttpTriplesClientNone):
+    """This objects groups triples to send to the HTTP server, and periodically wakes up to send them."""
     def __init__(self):
         self._triples_list = []
 
@@ -460,42 +487,32 @@ class HttpTriplesClient(object):
         # TODO: Test this with thread mode.
         self._is_threaded_client = False
 
-        # Tests if this a output RDF file, or rather None or the URL of a Survol agent.
-        self._server_is_file = G_UpdateServer and not(
-                G_UpdateServer.lower().startswith("http:")
-                or G_UpdateServer.lower().startswith("https:") )
-        if self._server_is_file:
-            print("G_UpdateServer=", G_UpdateServer, " IS FILE")
-            return
-        elif G_UpdateServer:
-            self._is_valid_http_client = True
-            if self._is_threaded_client:
-                self._shared_lock = threading.Lock()
-                self._client_thread = threading.Thread(target = self.run)
-                # If leaving too early, some data might be lost.
-                self._client_thread.daemon = True
-                self._client_thread.start()
+        self._is_valid_http_client = True
+        if self._is_threaded_client:
+            self._shared_lock = threading.Lock()
+            self._client_thread = threading.Thread(target = self.run)
+            # If leaving too early, some data might be lost.
+            self._client_thread.daemon = True
+            self._client_thread.start()
 
     def http_client_shutdown(self):
         print("HttpTriplesClient.http_client_shutdown")
-        if self._server_is_file:
-            if not lib_event:
-                raise Exception("lib_event was not imported")
-            lib_event.json_triples_to_rdf(self._triples_list, G_UpdateServer)
-            print("Stored RDF content to", G_UpdateServer)
-        elif G_UpdateServer:
-            if self._is_threaded_client:
-                self._push_triples_to_server_threaded()
-            else:
-                # FIXME: The URL event_put.py sometimes times out, on Python 3 and only
-                # FIXME: ... if the server is started by the test program (pytest or unittest).
-                triples_as_bytes, sent_triples_number = self._pop_triples_to_bytes()
-                if triples_as_bytes:
-                    received_triples_number = self._send_bytes_to_server(triples_as_bytes)
-                    if received_triples_number != sent_triples_number:
-                        raise Exception("Lost triples: %d != %d\n" % (received_triples_number, sent_triples_number))
+        if self._is_threaded_client:
+            self._push_triples_to_server_threaded()
+        else:
+            # FIXME: The URL event_put.py sometimes times out, on Python 3 and only
+            # FIXME: ... if the server is started by the test program (pytest or unittest).
+            triples_as_bytes, sent_triples_number = self._pop_triples_to_bytes()
+            if triples_as_bytes:
+                received_triples_number = self._send_bytes_to_server(triples_as_bytes)
+                if received_triples_number != sent_triples_number:
+                    raise Exception("Lost triples: %d != %d\n" % (received_triples_number, sent_triples_number))
 
     def _pop_triples_to_bytes(self):
+        """ Dockit stores its triples in a list, not in with rdflib.
+        This function serializes this JSON list into bytes which is then sent to the server.
+        TODO: Instead of JSON, store and send RDF-XML format because it is more standard.
+        TODO: Also, have the server script event_get.py changed to natively deserialize RDF-XML. """
         triples_number = len(self._triples_list)
         if triples_number:
             triples_as_bytes = json.dumps(self._triples_list)
@@ -512,7 +529,6 @@ class HttpTriplesClient(object):
 
     def _send_bytes_to_server(self, triples_as_bytes):
         assert isinstance(triples_as_bytes, six.binary_type)
-        assert not self._server_is_file
         if not self._is_valid_http_client:
             return -1
         try:
@@ -533,7 +549,6 @@ class HttpTriplesClient(object):
             raise
 
     def _push_triples_to_server_threaded(self):
-        assert not self._server_is_file
         assert self._is_threaded_client
         self._shared_lock.acquire()
         triples_as_bytes, sent_triples_number = self._pop_triples_to_bytes()
@@ -554,17 +569,40 @@ class HttpTriplesClient(object):
             self._push_triples_to_server_threaded()
 
     def queue_triples_for_sending(self, json_triple):
-        if self._server_is_file:
-            #assert not self._is_threaded_client
-            # Just append the triple, no need to synchronise.
+        if self._is_threaded_client:
+            self._shared_lock.acquire()
             self._triples_list.append(json_triple)
-        elif G_UpdateServer:
-            if self._is_threaded_client:
-                self._shared_lock.acquire()
-                self._triples_list.append(json_triple)
-                self._shared_lock.release()
+            self._shared_lock.release()
+        else:
+            self._triples_list.append(json_triple)
+
+
+class HttpTriplesClientDaemon(HttpTriplesClientNone):
+    """This calls function for each generated triple which represents an event.
+    These events are inserted in a global RDF graph which can be access by CGI scripts,
+    started on-demand by users. There is no need to store these events. """
+    def queue_triples_for_sending(self, json_triple):
+        # TODO: Get rid of JSON triple format, and rather handle only RDF nodes and triples.
+        rdf_triple = lib_event.json_triple_to_rdf_triple(json_triple)
+        G_UpdateServer(rdf_triple)
+
+
+def http_triples_client_factory():
+    # Tests if this a output RDF file, or rather None or the URL of a Survol agent.
+    if G_UpdateServer:
+        if callable(G_UpdateServer):
+            return HttpTriplesClientDaemon()
+        else:
+            update_server_lower = G_UpdateServer.lower()
+            server_is_http = update_server_lower.startswith("http:") or update_server_lower.startswith("https:")
+            if server_is_http:
+                return HttpTriplesClientHttp()
             else:
-                self._triples_list.append(json_triple)
+                return HttpTriplesClientFile()
+    else:
+        return HttpTriplesClientNone()
+
+
 
 # This is the Survol server which is notified of all updates
 # of CIM objects. These updates can then be displayed in Survol Web clients.
@@ -1705,7 +1743,7 @@ def init_global_objects():
 
     # This object is used to send triples to a Survol server.
     # It is also used to store the triples in a RDF file, which is created by the destructor.
-    G_httpClient = HttpTriplesClient()
+    G_httpClient = http_triples_client_factory()
 
     # As read from the strace or ltrace calls to getenv()
     G_EnvironmentVariables = {}

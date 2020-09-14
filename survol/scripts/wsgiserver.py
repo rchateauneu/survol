@@ -10,6 +10,11 @@ import traceback
 import importlib
 import wsgiref.simple_server as server
 
+if __package__:
+    from . import daemon_factory
+else:
+    import daemon_factory
+
 # See lib_client.py with similar code which cannot be imported here.
 # This expects bytes (Py3) or str (Py2).
 def create_string_stream():
@@ -286,9 +291,10 @@ def starts_browser(browser_name, the_url):
     threading.Thread(target=__starts_browser_process).start()
     print("Browser thread started")
 
+
 # Setup (setup.py) creates a binary script which directly calls this function.
 def run_wsgi_server():
-
+    daemon_factory.supervisor_startup()
     try:
         opts, args = getopt.getopt(sys.argv[1:], "ha:p:b:v", ["help","address=","port=","browser=","verbose"])
     except getopt.GetoptError as err:

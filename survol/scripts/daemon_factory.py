@@ -4,6 +4,8 @@ import os
 import sys
 import subprocess
 import configparser
+import psutil
+import time
 
 # This is used to communicate with the supervisor.
 if sys.version_info < (3,):
@@ -17,6 +19,7 @@ try:
     # It is not started when run in pytest, except if explicitly asked.
     # Also, it must NOT be started
     # This is for performance reasons.
+    # PYTEST_CURRENT_TEST= tests/test_lib_daemon.py::CgiScriptTest::test_start_events_generator_daemon
     _must_start_factory = "PYTEST_CURRENT_TEST" not in os.environ or "START_DAEMON_FACTORY" in os.environ
 except ImportError:
     _must_start_factory = False
@@ -31,15 +34,17 @@ except ImportError:
 _supervisor_config_file = os.path.join(os.path.dirname(__file__), "supervisord.conf")
 
 
-# This parses the supervisord configuration file to get the url, username and password.
 def _get_supervisor_url():
+    """This parses the supervisord configuration file to get the url, username and password.
+    It does not do any connection. """
 
     parsed_config = configparser.ConfigParser()
     if not os.path.exists(_supervisor_config_file):
         raise Exception("Cannot find supervisor config file:" + _supervisor_config_file)
-    sys.stderr.write("config_file=%s\n" % _supervisor_config_file)
+    sys.stderr.write("_get_supervisor_url config_file=%s\n" % _supervisor_config_file)
     config_status = parsed_config.read(_supervisor_config_file)
-    assert config_status
+    if not config_status:
+        raise Exception("config_status should be True")
     sys.stderr.write("config_status=%s\n" % config_status)
     sys.stderr.write("Sections=%s\n" % parsed_config.sections())
 
@@ -73,14 +78,11 @@ def _get_supervisor_url():
     return supervisor_url
 
 
-# This is done once only.
-_supervisor_url = _get_supervisor_url()
-
 # First, a ServerProxy object must be configured.
 # If supervisord is listening on an inet socket, ServerProxy configuration is simple:
 
 # Typical call: srv_prox = xmlrpclib.ServerProxy('http://chris:123@127.0.0.1:9001')
-_server_proxy = None
+_xmlrpc_server_proxy = None
 
 _supervisor_process = None
 
@@ -122,24 +124,23 @@ def _local_supervisor_stop():
     del _supervisor_process
     _supervisor_process = None
 
-    if False:
-        try:
-            proc_outs, proc_errs = _supervisor_process.communicate(timeout=10)
-            sys.stderr.write("proc_outs=%s\n" % proc_outs)
-            sys.stderr.write("proc_errs=%s\n" % proc_errs)
-        except subprocess.TimeoutExpired as exception_startup:
-            sys.stderr.write("exception_startup=%s\n" % exception_startup)
+    # TODO: Should call _xmlrpc_server_proxy.supervisor.shutdown()
 
 
 # This starts the supervisor process as a subprocess.
 # This can be done only by web servers which are persistent.
 # TODO: Check that maybe a supervisord process is already there,
 def supervisor_startup():
-    global _server_proxy
+    global _xmlrpc_server_proxy
 
-    # The proxy is alraedy started.
-    if _server_proxy:
-        return
+    print("_xmlrpc_server_proxy=", _xmlrpc_server_proxy)
+    sys.stdout.flush()
+
+    # The proxy is already started.
+    if _xmlrpc_server_proxy is not None:
+        print("_supervisor_process=", _supervisor_process)
+        sys.stdout.flush()
+        return _supervisor_process.pid
 
     # Maybe this is a supervisor service, or a local process.
 
@@ -147,37 +148,52 @@ def supervisor_startup():
     _local_supervisor_start()
 
     try:
-        # Now, create the connection the supervisor process.
-        _server_proxy = xmlrpclib.ServerProxy(_supervisor_url)
+        sys.stdout.write("Setting _xmlrpc_server_proxy\n")
+        sys.stdout.flush()
 
-        assert is_supervisor_running()
+        # This is done once only.
+        supervisor_url = _get_supervisor_url()
+
+        # Now, create the connection the supervisor process.
+        _xmlrpc_server_proxy = xmlrpclib.ServerProxy(supervisor_url)
+
+        sys.stderr.write("supervisor_startup supervisor_url=%s Before wait\n" % supervisor_url)
+        time.sleep(1)
+        sys.stderr.write("supervisor_startup supervisor_url=%s After wait\n" % supervisor_url)
+        if not is_supervisor_running():
+            raise Exception("Could not start:%s\n" % supervisor_url)
 
         return _supervisor_process.pid
     except Exception as exc:
-        sys.stderr.write("Cannot start server proxy")
+        sys.stderr.write("Cannot start server proxy:%s\n" % exc)
         _local_supervisor_stop()
         return None
 
 
 def supervisor_stop():
     global _supervisor_process
-    global _server_proxy
+    global _xmlrpc_server_proxy
+
+    sys.stdout.write("supervisor_stop\n")
+    sys.stderr.write("supervisor_stop\n")
 
     # Stops the connection.
-    del _server_proxy
-    _server_proxy = None
+    del _xmlrpc_server_proxy
+    _xmlrpc_server_proxy = None
 
     _local_supervisor_stop()
     return True
 
 
 def is_supervisor_running():
-    global _server_proxy
-    assert _server_proxy
-    sys.stderr.write("is_supervisor_running _server_proxy=%s\n" % str(_server_proxy))
+    global _xmlrpc_server_proxy
+    sys.stderr.write("is_supervisor_running entering\n")
+    if _xmlrpc_server_proxy is None:
+        raise Exception("_xmlrpc_server_proxy should be set")
+    sys.stderr.write("is_supervisor_running _xmlrpc_server_proxy=%s\n" % str(_xmlrpc_server_proxy))
 
     try:
-        api_version = _server_proxy.supervisor.getAPIVersion()
+        api_version = _xmlrpc_server_proxy.supervisor.getAPIVersion()
     except Exception as exc:
         sys.stderr.write("is_supervisor_running exc=%s\n" % exc)
         api_version = None
@@ -187,31 +203,37 @@ def is_supervisor_running():
 _survol_group_name = "survol_group"
 
 
-def start_user_process(process_name, python_command, environment_parameter=""):
-    sys.stderr.write("python_command=%s\n" % python_command)
-    if not _server_proxy:
+def start_user_process(process_name, user_command, environment_parameter=""):
+    """This returns the newly created process id."""
+    sys.stderr.write("start_user_process: python_command=%s\n" % user_command)
+    if _xmlrpc_server_proxy is None:
         raise Exception("Server proxy not set")
 
     full_process_name = _survol_group_name + ":" + process_name
-    sys.stderr.write("full_process_name=%s\n" % full_process_name)
+    sys.stderr.write("start_user_process: full_process_name=%s\n" % full_process_name)
 
+    # Aff the program and starts it immediately: This is faster
     program_options = {
-        'command': python_command,
-        'autostart': 'false',
+        'command': user_command,
+        'autostart': 'true',
         'autorestart': 'false',
         'environment': environment_parameter}
 
     try:
-        add_status = _server_proxy.twiddler.addProgramToGroup(
+        sys.stderr.write("start_user_process: Before addProgramToGroup\n")
+        sys.stderr.write("start_user_process: process_name=%s\n" % str(process_name))
+        sys.stderr.write("start_user_process: program_options=%s\n" % str(program_options))
+        add_status = _xmlrpc_server_proxy.twiddler.addProgramToGroup(
             _survol_group_name,
             process_name,
             program_options)
+        sys.stderr.write("start_user_process: After addProgramToGroup\n")
     except Exception as exc:
-        sys.stderr.write("start_user_process exc=%s\n" % exc)
+        sys.stderr.write("start_user_process: start_user_process exc=%s\n" % exc)
         raise
-    sys.stderr.write("add_status=%s\n" % add_status)
+    sys.stderr.write("start_user_process: add_status=%s\n" % add_status)
 
-    # process_log = _server_proxy.supervisor.readProcessLog(full_process_name, 0, 50)
+    # process_log = _xmlrpc_server_proxy.supervisor.readProcessLog(full_process_name, 0, 50)
 
     # 'logfile': 'C:\\Users\\rchateau\\AppData\\Local\\Temp\\survol_url_1597910058-stdout---survol_supervisor-g1bg9mxg.log',
     # 'name': 'survol_url_1597910058',
@@ -223,27 +245,56 @@ def start_user_process(process_name, python_command, environment_parameter=""):
     # 'statename': 'STOPPED',
     # 'stderr_logfile': 'C:\\Users\\rchateau\\AppData\\Local\\Temp\\survol_url_1597910058-stderr---survol_supervisor-1k6bm7jz.log',
     # 'stdout_logfile': 'C:\\Users\\rchateau\\AppData\\Local\\Temp\\survol_url_1597910058-stdout---survol_supervisor-g1bg9mxg.log',
-    process_info = _server_proxy.supervisor.getProcessInfo(full_process_name)
-    sys.stderr.write("process_info=%s\n" % process_info)
+    process_info = _xmlrpc_server_proxy.supervisor.getProcessInfo(full_process_name)
+    sys.stderr.write("start_user_process: process_info=%s\n" % process_info)
 
-    assert process_info['logfile'] == process_info['stdout_logfile']
+    if process_info['logfile'] != process_info['stdout_logfile']:
+        raise Exception("Inconsistent log files")
 
+    # Various errors.
     # xmlrpc.client.Fault: <Fault 50: 'SPAWN_ERROR: thegroupname:dir4'>
     # xmlrpc.client.Fault: <Fault 10: 'BAD_NAME: dir4'>
-    _server_proxy.supervisor.startProcess(full_process_name)
 
-    return True
+    # Here, it is already started.
+    # xmlrpc.client.Fault: <Fault 60: 'ALREADY_STARTED: survol_group:test_start_user_process_20732'>
+    # _xmlrpc_server_proxy.supervisor.startProcess(full_process_name)
+
+    created_process_id = process_info['pid']
+    # This expects the process to be continuously running.
+    if not psutil.pid_exists(created_process_id):
+        with open(process_info['stdout_logfile']) as stdout_logfile:
+            sys.stderr.write("==== stdout_logfile ====\n%s" % "\n".join(stdout_logfile.readlines()))
+        with open(process_info['stderr_logfile']) as stderr_logfile:
+            sys.stderr.write("==== stderr_logfile ====\n%s" % "\n".join(stderr_logfile.readlines()))
+        raise Exception("created_process_id=%d not started" % created_process_id)
+    return created_process_id
 
 
 def is_user_process_running(process_name):
     full_process_name = _survol_group_name + ":" + process_name
     try:
-        process_info = _server_proxy.supervisor.getProcessInfo(full_process_name)
+        process_info = _xmlrpc_server_proxy.supervisor.getProcessInfo(full_process_name)
     except xmlrpclib.Fault as exc:
         # xmlrpc.client.Fault: <Fault 10: 'BAD_NAME: survol_group:non_existent_url.py?arg=11132'>
         if "BAD_NAME" in str(exc):
             return False
         # Otherwise it is an unexpected exception.
         raise
-    assert process_info['logfile'] == process_info['stdout_logfile']
-    return process_info['statename'] != 'STOPPED'
+    if process_info['logfile'] != process_info['stdout_logfile']:
+        raise Exception("Inconsistent log files")
+    #created_process_id = process_info['pid']
+    is_stopped = process_info['statename'] != 'STOPPED'
+
+    # The logic should be the same: 'STOPPED' means that the process left.
+    # This does not check the process id because it might have been reused (although extremely improbable).
+    return is_stopped
+
+
+def stop_user_process(process_name):
+    """It stops a process, process group names are unique.
+    It does not wait for the result.
+    Consider killing the process if it does not stop after X seconds.
+    It will protect against hanging. """
+    full_process_name = _survol_group_name + ":" + process_name
+    _xmlrpc_server_proxy.supervisor.stopProcess(full_process_name, False)
+    return True
