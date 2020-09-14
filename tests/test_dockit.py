@@ -1376,6 +1376,7 @@ class EventsServerTest(unittest.TestCase):
             events_content_trunc = b"".join(split_content)
 
             events_graph = rdflib.Graph()
+            print("events_content_trunc=", events_content_trunc)
             result = events_graph.parse(data=events_content_trunc, format="application/rdf+xml")
             print("len results=", len(result), "events_graph=", len(events_graph))
             for event_subject, event_predicate, event_object in events_graph:
@@ -1397,7 +1398,7 @@ class EventsServerTest(unittest.TestCase):
 
         print("expected_types_list=", expected_types_list)
         print("actual_types_dict=", actual_types_dict)
-        self.assertTrue(expected_types_list == actual_types_dict)
+        self.assertEqual(expected_types_list, actual_types_dict)
 
     def test_file_events_ps_ef(self):
         output_basename_prefix = "dockit_events_ps_ef.strace"

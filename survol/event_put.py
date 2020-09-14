@@ -10,8 +10,10 @@ import sys
 import cgi
 import json
 import time
+import traceback
 import lib_util
 import lib_event
+import lib_kbase
 
 # This receives a CIM class and a pair of attributes which should be enough to create a CIM object.
 # In the temp directory, there is one sub-directory per CIM class, and in these,
@@ -20,12 +22,16 @@ import lib_event
 # The type of the data stored in these files is exactly what can be returned by any scripts.
 
 def Main():
+    lib_event.set_events_credentials()
+
     time_start = time.time()
     http_content_length = int(os.environ['CONTENT_LENGTH'])
+
 
     # https://stackoverflow.com/questions/49171591/inets-httpd-cgi-script-how-do-you-retrieve-json-data
     # The script MUST NOT attempt to read more than CONTENT_LENGTH bytes, even if more data is available.
     sys.stderr.write("event_put.py http_content_length=%d time_start=%f\n" % (http_content_length, time_start))
+
 
     # FIXME: This can be a lot simplified. This code results of the research of an intermittent time-out
     # FIXME: ... on Windows and Python 3 and if the test agent is started by pytest.
@@ -59,11 +65,12 @@ def Main():
             raise Exception("len(loaded_bytes)=%d http_content_length=%d" %(len(loaded_bytes), http_content_length))
         if read_bytes_number != http_content_length:
             raise Exception("read_bytes_number=%d http_content_length=%d" %(read_bytes_number, http_content_length))
+        # TODO: replace this by RDF-XML.
         triples_json = json.loads(loaded_bytes)
         time_loaded = time.time()
         triples_number = len(triples_json)
 
-        files_updates_total_number = lib_event.store_events_triples_list(triples_json)
+        files_updates_total_number = lib_event.store_events_as_json_triples_list(triples_json)
         time_stored = time.time()
         sys.stderr.write("event_put.py time_stored=%f files_updates_total_number=%d\n" % (time_stored, files_updates_total_number))
 
@@ -79,7 +86,7 @@ def Main():
         server_result = {
             'success': 'false',
             'time_start': '%f' % time_start,
-            'error_message': '%s:%s' % (str(exc), extra_error_status)}
+            'error_message': '%s:%s:%s' % (str(exc), extra_error_status, traceback.format_exc())}
 
     json_output = json.dumps(server_result)
     sys.stdout.write('Content-Type: application/json\n')

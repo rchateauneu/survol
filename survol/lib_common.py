@@ -29,6 +29,7 @@ import lib_exports
 import lib_export_ontology
 import lib_export_dot
 import lib_export_html
+import lib_daemon
 
 from lib_util import NodeLiteral
 from lib_util import NodeUrl
@@ -255,9 +256,12 @@ def OutCgiMode(theCgi, topUrl, mode, errorMsg = None, isSubServer=False):
         lib_exports.Grph2Menu(page_title, errorMsg, isSubServer, parameters, grph)
     elif mode == "rdf":
         lib_export_ontology.Grph2Rdf(grph)
-    #elif mode == "event":
-    #    # This sends the results to the Events directory.
-    #    pass
+    elif mode == "daemon":
+        # This is the end of a loop, or events transaction, in the script which does not in CGI context,
+        # but in a separate daemon process.
+        # This sends the results to the Events directory. See EventsGeneratorDaemon
+        lib_kbase.write_graph_to_events(theCgi.m_url_without_mode, theCgi.m_graph)
+        pass
     elif mode in ["svg",""]:
         # Default mode, because graphviz did not like several CGI arguments in a SVG document (Bug ?).
         _graph_to_svg(page_title, errorMsg, isSubServer, parameters, grph, parameterized_links, topUrl, dot_layout)
@@ -456,28 +460,9 @@ class CgiEnv():
         self.m_page_title, self.m_page_subtitle = lib_util.SplitTextTitleRest(doc_modu_all)
 
         # Title page contains __doc__ plus object label.
-        calling_url = lib_util.RequestUri()
-        self.m_calling_url = calling_url
-        DEBUG("CgiEnv m_page_title=%s m_calling_url=%s", self.m_page_title, self.m_calling_url)
-        #sys.stderr.write("CgiEnv lib_util.globalOutMach:%s\n" %(lib_util.globalOutMach.__class__.__name__))
-        parsed_entity_uri = lib_naming.ParseEntityUri(calling_url, longDisplay=False, force_entity_ip_addr=None)
-        if parsed_entity_uri[2]:
-            # If there is an object to display.
-            # Practically, we are in the script "entity.py" and the single doc string is "Overview"
-            full_title = parsed_entity_uri[0]
-            self.m_page_title += " " + full_title
-
-            # We assume there is an object, and therefore a class and its description.
-            entity_class = parsed_entity_uri[1]
-
-            # Similar code in objtypes.py
-            # TODO: Maybe replace this by _get_calling_module_doc.
-            entity_module = lib_util.GetEntityModule(entity_class)
-            ent_doc = entity_module.__doc__
-            # The convention is the first line treated as a title.
-            if ent_doc:
-                ent_doc = ent_doc.strip()
-                self.m_page_title += "\n" + ent_doc
+        self.m_calling_url = lib_util.RequestUri()
+        self.m_url_without_mode = self.m_calling_url +"WITHOUT MODE"
+        self._concatenate_entity_documentation()
 
         # Global CanProcessRemote has precedence over parameter can_process_remote
         # which should probably be deprecated, although they do not have exactly the same role:
@@ -511,9 +496,61 @@ class CgiEnv():
         # This is probably too generous to indicate a local host.
         self.test_remote_if_possible(can_process_remote)
 
-        # TODO: HOW WILL WE RESTORE THE ORIGINAL DISPLAY MODE ?
         if mode == "edit":
             self.enter_edition_mode()
+            assert False
+
+        # Scripts which can run as events generator must have their name starting with "events_generator_".
+        # This allows to use CGI programs as events genetors not written in Python.
+        # TODO: Using the script name is enough, the module is not necessary.
+        full_script_path, _, _ = self.m_calling_url.partition("?")
+        script_basename = os.path.basename(full_script_path)
+        daemonizable_script = os.path.basename(script_basename).startswith("events_generator_")
+
+        if not daemonizable_script:
+            # This would be absurd.
+            assert mode != "daemon", "Script is not an events generator:" + self.m_calling_url
+            # Runs as usual. The script will fill the graph.
+            return
+
+        # Maybe this is in the daemon.
+        if mode == "daemon":
+            # Just runs as usual. At the end of the script, OutCgiRdf will write the RDF graph in the events.
+            return
+
+        if not lib_daemon.is_events_generator_daemon_running(self.m_url_without_mode):
+            lib_daemon.start_events_generator_daemon(self.m_url)
+            # Whether it is started or not, the script is run in normal, snapshot mode.
+        else:
+            lib_kbase.read_events_to_graph(self.m_url_without_mode, self.m_graph)
+
+            # TODO: IT SHOULD BE WITH THE PARAMETERS OF OutCgiRdf() IN THIS SCRIPT !!
+            # TODO: THESE LAYOUT PARAMETERS: dot_layout, collapsed_properties SHOULD BE IN THE CONSTRUCTOR.
+            self.OutCgiRdf()
+            exit(0)
+
+    def _concatenate_entity_documentation(self):
+        """This appends to the title, the documentation of the class of the object, if there is one. """
+        DEBUG("CgiEnv m_page_title=%s m_calling_url=%s", self.m_page_title, self.m_calling_url)
+        #sys.stderr.write("CgiEnv lib_util.globalOutMach:%s\n" %(lib_util.globalOutMach.__class__.__name__))
+        parsed_entity_uri = lib_naming.ParseEntityUri(self.m_calling_url, longDisplay=False, force_entity_ip_addr=None)
+        if parsed_entity_uri[2]:
+            # If there is an object to display.
+            # Practically, we are in the script "entity.py" and the single doc string is "Overview"
+            full_title = parsed_entity_uri[0]
+            self.m_page_title += " " + full_title
+
+            # We assume there is an object, and therefore a class and its description.
+            entity_class = parsed_entity_uri[1]
+
+            # Similar code in objtypes.py
+            # This is different of _get_calling_module, which takes the __doc__ of the script.
+            entity_module = lib_util.GetEntityModule(entity_class)
+            ent_doc = entity_module.__doc__
+            # The convention is the first line treated as a title.
+            if ent_doc:
+                ent_doc = ent_doc.strip()
+                self.m_page_title += "\n" + ent_doc
 
     def test_remote_if_possible(self,can_process_remote):
         # This is probably too generous to indicate a local host.
@@ -527,12 +564,25 @@ class CgiEnv():
 
     def GetGraph(self):
         global globalMergeMode
+        try:
+            assert self.m_graph
+            raise Exception("self.m_graph must not be defined")
+        except AttributeError:
+            pass
         if globalMergeMode:
             # When in merge mode, the same object must be always returned.
             self.m_graph = globalGraph
         else:
             self.m_graph = lib_kbase.MakeGraph()
         return self.m_graph
+
+    def ReinitGraph(self):
+        """This is used by events generators in daemon mode."""
+        try:
+            del self.m_graph
+        except AttributeError:
+            pass
+        return self.GetGraph()
 
     # We avoid several CGI arguments because Dot/Graphviz wants no ampersand "&" in the URLs.
     # This might change because I suspect bugs in old versions of Graphviz.
@@ -685,6 +735,7 @@ class CgiEnv():
 
         # If no parameters although one was requested.
         self.enter_edition_mode()
+        assert False
         return ""
 
     # TODO: Ca va etre de facon generale le moyen d'acces aux donnees et donc inclure le cimom
@@ -705,6 +756,7 @@ class CgiEnv():
     # When in merge mode, these parameters must be aggregated, and used only during
     # the unique generation of graphic data.
     # TODO: "OutCgiRdf" should be changed to a more appropriate name, such as "DisplayTripleStore"
+    # cgiEnv.OutCgiRdf() will fill self.GetGraph() with events returned by EventsGeneratorDaemon()
     def OutCgiRdf(self, dot_layout = "", collapsed_properties=[]):
         global globalCgiEnvList
         DEBUG("OutCgiRdf globalMergeMode=%d m_calling_url=%s m_page_title=%s",
@@ -720,7 +772,7 @@ class CgiEnv():
             self.m_page_title = "PAGE TITLE SHOULD BE SET"
             self.m_page_subtitle = "PAGE SUBTITLE SHOULD BE SET"
 
-        # See if this can be used in lib_client.py and merge_scritps.py.
+        # TODO: See if this can be used in lib_client.py and merge_scripts.py.
         if globalMergeMode:
             # At the end, only one call to OutCgiMode() will be made.
             globalCgiEnvList.append(self)
