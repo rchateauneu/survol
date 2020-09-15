@@ -32,6 +32,7 @@ class PortalsTest(unittest.TestCase):
 
         self.assertTrue(portal_graph)
 
+    @unittest.skipIf(is_platform_linux, "WMI on Windows only.")
     def test_portal_wmi_main(self):
         rdf_content = self._check_script("/survol/portal_wmi.py?mode=rdf")
         portal_graph = rdflib.Graph().parse(data=rdf_content, format="application/rdf+xml")

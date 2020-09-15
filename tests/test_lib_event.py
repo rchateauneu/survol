@@ -3,17 +3,20 @@
 from __future__ import print_function
 
 import os
-#import re
 import sys
 import string
 import unittest
 import rdflib
 import threading
-import queue
 import multiprocessing
 import tempfile
 
 from init import *
+
+if is_py3:
+    import queue
+else:
+    import Queue as queue
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 update_test_path()
