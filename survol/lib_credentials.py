@@ -27,15 +27,20 @@ def credentials_filename():
 
 	return filNam
 
-# This returns a map containing all credentials.
 def _build_credentials_document():
+	"""This returns a map containing all credentials."""
+
 	# /home/travis/build/rchateauneu/survol : See "tests/init.py" for the same test.
-	# So the passwords are encruypted in environment variables:
+	# So the passwords are encrypted in environment variables:
 	# https://stackoverflow.com/questions/9338428/using-secret-api-keys-on-travis-ci/12778315#12778315
 	if os.getcwd().find("travis") >= 0:
+		# When testing on Travis CI, the credentials are encoded in an environment variable set in the Web interface.
 		WARNING("_build_credentials_document Travis mode")
 
+		# Actual value: of the environment variable SURVOL_CREDENTIALS
+		# Some characters must be escaled: Double-quotes, colons, curly and square brackets, maybe more.
 		# travis_credentials_env = \{\"WBEM\":\{\"http://vps516494.ovh.net:5988\"\:\[\"xxx\",\"yyy\"\]\}\}
+		# travis_credentials_env = \{\"WBEM\":\{\"http://vps516494.ovh.net:5988\"\:\[\"xxx\",\"yyy\"\]\},\"Storage\"\:\{\"Events\"\:\[\"SQLAlchemy\", \"sqlite:///C:/tmp/survol_events.sqlite?mode=memory&cache=shared\"\]\}\}
 		travis_credentials_env = os.environ["SURVOL_CREDENTIALS"]
 		DEBUG("_build_credentials_document travis_credentials=%s", travis_credentials_env)
 		travis_credentials = json.loads(travis_credentials_env)
@@ -57,13 +62,16 @@ def _build_credentials_document():
 		WARNING("_build_credentials_document no credentials %s: %s", filNam, str(sys.exc_info()))
 		return dict()
 
+
 def _credentials_document():
 	if not _credentials_document.credentials:
 		_credentials_document.credentials = _build_credentials_document()
 
 	return _credentials_document.credentials
 
+
 _credentials_document.credentials = None
+
 
 # For example: GetCredentials("Oracle","XE") or GetCredentials("Login","192.168.1.78")
 # It returns the username and the password.
