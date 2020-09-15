@@ -133,13 +133,8 @@ def _local_supervisor_stop():
 def supervisor_startup():
     global _xmlrpc_server_proxy
 
-    print("_xmlrpc_server_proxy=", _xmlrpc_server_proxy)
-    sys.stdout.flush()
-
     # The proxy is already started.
     if _xmlrpc_server_proxy is not None:
-        print("_supervisor_process=", _supervisor_process)
-        sys.stdout.flush()
         return _supervisor_process.pid
 
     # Maybe this is a supervisor service, or a local process.
@@ -148,9 +143,6 @@ def supervisor_startup():
     _local_supervisor_start()
 
     try:
-        sys.stdout.write("Setting _xmlrpc_server_proxy\n")
-        sys.stdout.flush()
-
         # This is done once only.
         supervisor_url = _get_supervisor_url()
 
@@ -175,7 +167,6 @@ def supervisor_stop():
     global _xmlrpc_server_proxy
 
     sys.stdout.write("supervisor_stop\n")
-    sys.stderr.write("supervisor_stop\n")
 
     # Stops the connection.
     del _xmlrpc_server_proxy
