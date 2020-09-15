@@ -1171,10 +1171,11 @@ def EntityIdToArray( entity_type, entity_id ):
 
 ################################################################################
 
+
 # Adds a key value pair at the end of the url with the right delimiter.
 # TODO: Checks that the argument is not already there.
 # TODO: Most of times, it is used for changing the mode.
-def ConcatenateCgi(url,keyvalpair):
+def _concatenate_cgi_argument(url, keyvalpair):
     if url.rfind( '?' ) == -1:
         return url + "?" + keyvalpair
     else:
@@ -1192,11 +1193,12 @@ def UrlNoAmp(url):
 
 ################################################################################
 
+
 # In an URL, this replace the CGI parameter "http://....?mode=XXX" by "mode=YYY".
 # If there is no such parameter, then it is removed. If the input parameter is
 # an empty string, then it is removed from the URLs.
 # Used for example as the root in entity.py, obj_types.py and class_type_all.py.
-def RequestUriModed(other_mode):
+def request_uri_with_mode(other_mode):
     # When in merge_scripts.py for merging several scripts,
     # the request uri is prefixed by a host:
     # HttpPrefix()=http://myhost-hp:8000
@@ -1208,40 +1210,43 @@ def RequestUriModed(other_mode):
         script = str_request_uri
     else:
         script = HttpPrefix() + str_request_uri
-    return AnyUriModed(script, other_mode)
+    return url_mode_replace(script, other_mode)
 
-# If an Url, it replaces the value of the argument "mode" by another one,
-# remove this arguments or adds it, depending on the case.
-def AnyUriModed(script, other_mode):
+
+def url_mode_replace(script, other_mode):
+    """ In an Url, replaces, removes or adds the value of the argument "mode".
+    This is a key argument for CGI scripts. """
+
     mtch_url = re.match(r"(.*)([\?\&])mode=[^\&]*(.*)", script)
 
     if other_mode:
         if mtch_url:
-            edtUrl = mtch_url.group(1) + mtch_url.group(2) + "mode=" + other_mode + mtch_url.group(3)
+            updated_url = mtch_url.group(1) + mtch_url.group(2) + "mode=" + other_mode + mtch_url.group(3)
         else:
-            edtUrl = ConcatenateCgi(script, "mode=" + other_mode)
+            updated_url = _concatenate_cgi_argument(script, "mode=" + other_mode)
     else:
         # We want to remove the mode.
         if mtch_url:
             if mtch_url.group(2) == '?':
                 # "mode" IS the first argument.
                 if mtch_url.group(3):
-                    edtUrl = mtch_url.group(1) + "?" + mtch_url.group(3)[1:]
+                    updated_url = mtch_url.group(1) + "?" + mtch_url.group(3)[1:]
                 else:
-                    edtUrl = mtch_url.group(1)
+                    updated_url = mtch_url.group(1)
             else:
                 # "mode" is NOT the first argument.
-                edtUrl = mtch_url.group(1) + mtch_url.group(3)
+                updated_url = mtch_url.group(1) + mtch_url.group(3)
         else:
             # Nothing to do because it has no cgi arguments.
-            edtUrl = script
+            updated_url = script
 
     # TODO: PROBLEMS IF THE URL CONTAINS BACKSLASHES SUCH AS HERE:
     # "http://127.0.0.1:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A\Program%20Files%20%28x86%29\NETGEAR\WNDA3100v3\WNDA3100v3.EXE"
-    return edtUrl
+    return updated_url
+
 
 def RootUri():
-    calling_url = RequestUriModed("")
+    calling_url = request_uri_with_mode("")
     calling_url = calling_url.replace("&", "&amp;")
     DEBUG("RootUri calling_url=%s", calling_url)
     return NodeUrl(calling_url)
@@ -1250,8 +1255,8 @@ def RootUri():
 
 # Extracts the mode from an URL.
 # https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
-def GetModeFromUrl(url):
-    # sys.stderr.write("lib_util.GetModeFromUrl url=%s\n"%url)
+def get_url_mode(url):
+    # sys.stderr.write("lib_util.get_url_mode url=%s\n"%url)
     # Maybe it contains a MIME type: application/java-archive,
     # application/vnd.ms-powerpoint, audio/3gpp2, application/epub+zip
 
@@ -1279,7 +1284,7 @@ def GuessDisplayMode():
     try:
         # HTTP_REFERER=http://127.0.0.1/PythonStyle/print.py?mode=xyz
         referer = os.environ["HTTP_REFERER"]
-        mode_referer = GetModeFromUrl( referer )
+        mode_referer = get_url_mode( referer )
         # If we come from the edit form, we should not come back to id.
         # TODO: HOW CAN WE COME BACK TO THE FORMER DISPLAY MODE ??
         if mode_referer != "":
@@ -1296,7 +1301,7 @@ def GuessDisplayMode():
     try:
         # When called from another module, cgi.FieldStorage might not work.
         script = os.environ["SCRIPT_NAME"]
-        mode = GetModeFromUrl( script )
+        mode = get_url_mode( script )
         if mode != "":
             return mode
     except KeyError:

@@ -92,15 +92,3 @@ def json_triples_to_rdf(json_triples, rdf_file_path):
     rdflib_graph = _json_triples_to_graph(json_triples)
     rdflib_graph.serialize(destination=rdf_file_path, format='pretty-xml')
 
-
-def set_events_credentials():
-    # storage_style, storage_url = lib_credentials.GetCredentials("Storage", "Events")
-    storage_credential = lib_credentials.GetCredentials("Storage", "Events")
-    if not storage_credential:
-        credentials_filename = lib_credentials.credentials_filename()
-        raise Exception("No storage credential in:%s" % credentials_filename)
-    sys.stderr.write(__file__ + " credentials=%s\n" % str(storage_credential))
-
-    storage_style, storage_url = "SQLAlchemy", "sqlite:///C:/tmp/survol_events.sqlite?mode=memory&cache=shared"
-    # "SQLAlchemy", "sqlite:///C:/tmp/survol_events.sqlite?mode=memory&cache=shared"
-    lib_kbase.set_storage_style(storage_style, storage_url)

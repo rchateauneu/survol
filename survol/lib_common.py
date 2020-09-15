@@ -21,6 +21,7 @@ import re
 import time
 
 import lib_kbase
+import lib_credentials
 import lib_util
 import lib_naming
 import lib_properties
@@ -260,6 +261,7 @@ def OutCgiMode(theCgi, topUrl, mode, errorMsg = None, isSubServer=False):
         # This is the end of a loop, or events transaction, in the script which does not in CGI context,
         # but in a separate daemon process.
         # This sends the results to the Events directory. See EventsGeneratorDaemon
+        set_events_credentials()
         lib_kbase.write_graph_to_events(theCgi.m_url_without_mode, theCgi.m_graph)
         pass
     elif mode in ["svg",""]:
@@ -461,7 +463,7 @@ class CgiEnv():
 
         # Title page contains __doc__ plus object label.
         self.m_calling_url = lib_util.RequestUri()
-        self.m_url_without_mode = self.m_calling_url +"WITHOUT MODE"
+        self.m_url_without_mode = lib_util.url_mode_replace(self.m_calling_url, "")
         self._concatenate_entity_documentation()
 
         # Global CanProcessRemote has precedence over parameter can_process_remote
@@ -508,19 +510,22 @@ class CgiEnv():
         daemonizable_script = os.path.basename(script_basename).startswith("events_generator_")
 
         if not daemonizable_script:
-            # This would be absurd.
+            # This would be absurd to have a normal CGI script started in this mode.
             assert mode != "daemon", "Script is not an events generator:" + self.m_calling_url
-            # Runs as usual. The script will fill the graph.
+            # Runs as usual as a CGI script. The script will fill the graph.
             return
 
         # Maybe this is in the daemon.
         if mode == "daemon":
             # Just runs as usual. At the end of the script, OutCgiRdf will write the RDF graph in the events.
+            # Here, this process is started by the supervisor process; It is not started by the HTTP server,
+            # in CGI or WSGI.
             return
 
         if not lib_daemon.is_events_generator_daemon_running(self.m_url_without_mode):
-            lib_daemon.start_events_generator_daemon(self.m_url)
-            # Whether it is started or not, the script is run in normal, snapshot mode.
+            lib_daemon.start_events_generator_daemon(self.m_url_without_mode)
+            # After that, whether the daemon dedicated to the script and its parameters is started or not,
+            # the script is then executed in normal, snapshot mode, as a CGI script.
         else:
             lib_kbase.read_events_to_graph(self.m_url_without_mode, self.m_graph)
 
@@ -1120,8 +1125,8 @@ def is_meaningless_file(path, removeSharedLibs, removeFontsFile):
 
 
 ################################################################################
-# Reformat the username because in psutil.users() it is "Remi",
-# but from process.username(), it is "PCVERO\Remi"
+# Reformat the username because in psutil.users() it is "John",
+# but from process.username(), it is "MYPC\John"
 #
 # http://msdn.microsoft.com/en-gb/library/windows/desktop/aa380525(v=vs.85).aspx
 # User principal name (UPN) format is used to specify an Internet-style name,
@@ -1135,27 +1140,22 @@ def is_meaningless_file(path, removeSharedLibs, removeFontsFile):
 # 
 # http://serverfault.com/questions/371150/any-difference-between-domain-username-and-usernamedomain-local
 def format_username(usrnam):
-    # BEWARE: WE ARE LOSING THE DOMAIN NAME.
+    # BEWARE: THIS TRUNCATES THE DOMAIN NAME.
     shortnam = usrnam.split('\\')[-1]
 
     # return shortnam + "@" + lib_util.currentHostname
     return shortnam
 
-################################################################################
-# How to display RDF files ?
-#
-# <?xml version="1.0" encoding="iso-8859-1"?>
-# <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-# <html> 
-#
-# And the XSL file might contain something like:
-# <?xml version="1.0" encoding="iso-8859-1"?>
-# <actu xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="schema.xsd">
-# <?xml-stylesheet type="text/xsl" href="fichier.xsl"?>
-# <article rubrique="fiscal" dateArticle="03/11/09" idArticle="art3200">
-# <copyright>..... 
 
-# Avec la geolocalisation des adresses IP, on pourrait fabriquer des fichers KML.
+def set_events_credentials():
+    """This sets the global parameter telling where the events are stored."""
+    storage_credential = lib_credentials.GetCredentials("Storage", "Events")
+    if not storage_credential:
+        credentials_filename = lib_credentials.credentials_filename()
+        raise Exception("No storage credential in:%s" % credentials_filename)
+    sys.stderr.write(__file__ + " credentials=%s\n" % str(storage_credential))
 
-################################################################################
+    storage_style, storage_url = "SQLAlchemy", "sqlite:///C:/tmp/survol_events.sqlite?mode=memory&cache=shared"
+    # "SQLAlchemy", "sqlite:///C:/tmp/survol_events.sqlite?mode=memory&cache=shared"
+    lib_kbase.set_storage_style(storage_style, storage_url)
 

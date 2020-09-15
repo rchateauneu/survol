@@ -264,8 +264,8 @@ def ParseEntityUri(uriWithMode,longDisplay=True, force_entity_ip_addr = None):
     # In the URI, we might have the CGI parameter "&mode=json". It must be removed otherwise
     # it could be taken in entity_id, and the result of EntityToLabel() would be wrong.
     uriWithModeClean = lib_util.UrlNoAmp(uriWithMode)
-    uri = lib_util.AnyUriModed(uriWithModeClean, "")
-    uriMode = lib_util.GetModeFromUrl(uriWithModeClean)
+    uri = lib_util.url_mode_replace(uriWithModeClean, "")
+    uriMode = lib_util.get_url_mode(uriWithModeClean)
 
     uprs = lib_util.survol_urlparse(uri)
 

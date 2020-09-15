@@ -8,16 +8,24 @@ import os
 import sys
 import lib_util
 import lib_common
+from lib_properties import pc
+
 from survol.scripts import dockit
+
 
 def MainSnapshot():
     cgiEnv = lib_common.CgiEnv()
     process_id = cgiEnv.GetId()
+
+    # This just returns one triple.
+    grph = cgiEnv.GetGraph()
+    process_node = lib_common.gUriGen.PidUri(process_id)
+    grph.add((process_node, pc.property_pid, lib_common.NodeLiteral(process_id)))
+
     cgiEnv.OutCgiRdf()
 
 
 dockit_dirname = lib_util.standardized_file_path(os.path.dirname(dockit.__file__))
-
 
 
 # This is called in a subprocess.

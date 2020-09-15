@@ -198,7 +198,8 @@ def start_user_process(process_name, user_command, environment_parameter=""):
     """This returns the newly created process id."""
     sys.stderr.write("start_user_process: python_command=%s\n" % user_command)
     if _xmlrpc_server_proxy is None:
-        raise Exception("Server proxy not set")
+        sys.stderr.write("start_user_process: Server proxy not set")
+        return None
 
     full_process_name = _survol_group_name + ":" + process_name
     sys.stderr.write("start_user_process: full_process_name=%s\n" % full_process_name)
@@ -261,6 +262,9 @@ def start_user_process(process_name, user_command, environment_parameter=""):
 
 
 def is_user_process_running(process_name):
+    if _xmlrpc_server_proxy is None:
+        sys.stderr.write("is_user_process_running: No proxy")
+        return False
     full_process_name = _survol_group_name + ":" + process_name
     try:
         process_info = _xmlrpc_server_proxy.supervisor.getProcessInfo(full_process_name)

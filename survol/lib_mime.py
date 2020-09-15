@@ -67,7 +67,7 @@ def AddMimeUrl(grph,filNode, entity_type,mime_type,entity_id_arr):
 	# Also, it allows to force a specific MIME type.
 	# The MIME type is not coded in the property because it is an attribute of the object.
 
-	# mimeNodeWithMode =  lib_util.AnyUriModed(mimeNode, "mime/" + mime_type)
+	# mimeNodeWithMode =  lib_util.url_mode_replace(mimeNode, "mime/" + mime_type)
 	# sys.stderr.write("lib_mime.AddMimeUrl BEFORE mimeNode=%s\n"%(mimeNode))
 	mimeNodeWithMode = mimeNode + "&amp;amp;" + "mode=" + mimeModePrefix + mime_type
 
@@ -78,7 +78,7 @@ def ModeToMimeType(urlMode):
 	return urlMode[5:]
 
 def GetMimeTypeFromUrl(url):
-	urlMode = lib_util.GetModeFromUrl(url)
+	urlMode = lib_util.get_url_mode(url)
 	if urlMode and urlMode.startswith(mimeModePrefix):
 		return ModeToMimeType(urlMode)
 	else:

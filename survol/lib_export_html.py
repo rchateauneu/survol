@@ -22,12 +22,12 @@ _list_props_td_double_col_span = [pc.property_information, pc.property_rdf_data_
 # This does not change the existing mode if there is one.
 # Otherwise it could erase the MIME type.
 def _url_in_html_mode(anUrl):
-    urlMode = lib_util.GetModeFromUrl(anUrl)
+    urlMode = lib_util.get_url_mode(anUrl)
     # sys.stderr.write("_url_in_html_mode anUrl=%s urlMode=%s\n"%(anUrl,urlMode))
     if urlMode:
         return anUrl
     else:
-        return lib_util.AnyUriModed(anUrl, "html")
+        return lib_util.url_mode_replace(anUrl, "html")
 
 
 def _script_information_html_iterator(theCgi, gblCgiEnvList):
@@ -494,7 +494,7 @@ def _display_class_objects_no_jinja(dict_subj_prop_obj):
                             else:
                                 yield("""<a href="%s">%s</a>""" % (obj_str, obj_title) )
                         else:
-                            url_with_mode = lib_util.AnyUriModed(obj_str, "html")
+                            url_with_mode = lib_util.url_mode_replace(obj_str, "html")
                             yield("""<a href="%s">%s</a>""" % (url_with_mode, obj_title) )
                     else:
                         yield( '%s' %(obj_str))
