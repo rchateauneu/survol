@@ -12,8 +12,8 @@ import json
 import time
 import traceback
 import lib_util
+import lib_common
 import lib_event
-import lib_kbase
 
 # This receives a CIM class and a pair of attributes which should be enough to create a CIM object.
 # In the temp directory, there is one sub-directory per CIM class, and in these,
@@ -22,7 +22,7 @@ import lib_kbase
 # The type of the data stored in these files is exactly what can be returned by any scripts.
 
 def Main():
-    lib_event.set_events_credentials()
+    lib_common.set_events_credentials()
 
     time_start = time.time()
     http_content_length = int(os.environ['CONTENT_LENGTH'])

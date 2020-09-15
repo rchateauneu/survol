@@ -26,7 +26,7 @@ def Usable(entity_type, entity_ids_arr):
 def _add_windows_dir_change(grph, path_to_watch, updated_file, path_change):
     full_filename = os.path.join(path_to_watch, updated_file)
 
-    split_path = file.split('\\')
+    split_path = full_filename.split('\\')
     intermediate_path = path_to_watch
 
     intermediate_node = lib_common.gUriGen.FileUri( intermediate_path )

@@ -7,7 +7,6 @@ Get all dynamic events
 import sys
 import lib_common
 import lib_util
-import lib_event
 import lib_kbase
 
 # See event_put.py for more explanations.
@@ -15,7 +14,7 @@ import lib_kbase
 # The type of these data is exactly what can be returned by any scripts.
 
 def Main():
-    lib_event.set_events_credentials()
+    lib_common.set_events_credentials()
 
     # This can process remote hosts because it does not call any script, just shows them.
     cgiEnv = lib_common.CgiEnv()

@@ -27,7 +27,7 @@ def AntiPredicateUri(uri):
 # PROBLEM: SI PAS DE ENTITY_ID A EDITER CAR "TOP" ALORS ON REBOUCLE SUR Edit:
 # DONC DETECTER LE TYPE DE L'ENTITE EN FOCNTION DU DIRECTORY ET AUCUN SI "TOP".
 def ModedUrl(otherMode):
-	return lib_util.RequestUriModed(otherMode)
+	return lib_util.request_uri_with_mode(otherMode)
 
 ################################################################################
 def TruncateInSpace(labText,maxLenLab):

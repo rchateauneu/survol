@@ -50,21 +50,7 @@ if __name__ == '__main__':
         # - More importantly, write in a plain RDFLIB graph, flushed by OutCgiRdf().
         #   This greatly simplifies the code.
         while True:
-            try:
-                Main()
-            except Exception as exc:
-                # type C:\Users\rchateau\AppData\Local\Temp\toto.txt
-                # dir C:\Users\rchateau\AppData\Local\Temp\toto.txt
-                with open("C:/Users/rchateau/AppData/Local/Temp/toto.txt", "w") as toto:
-                    toto.write("XFXFXFXFXF:%s\n" % exc)
-
-                    if "PYTEST_CURRENT_TEST" in os.environ:
-                        toto.write("PYTEST_CURRENT_TEST:%s\n" % os.environ['PYTEST_CURRENT_TEST'])
-                    else:
-                        toto.write("PYTEST_CURRENT_TEST:not defined\n")
-
-                    toto.close()
-                raise
+            Main()
 
 
 
