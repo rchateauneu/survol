@@ -19,8 +19,6 @@ import lib_common
 from lib_properties import pc
 import lib_properties
 
-Usable = lib_util.UsableLinux
-
 
 # Runs in the subprocess of the HTTP server and parses the output of "tcpdump".
 # The entity id should be the default value and is not relevant.
@@ -35,12 +33,15 @@ def Main():
     for proc in psutil.process_iter():
         node_process = lib_common.gUriGen.PidUri(proc.pid)
 
-        cpu_percent = proc.get_cpu_percent(interval=0)
+        cpu_percent = proc.cpu_percent(interval=0)
         grph.add((node_process, cpu_property, lib_common.NodeLiteral(cpu_percent)))
 
-        rss, vms = proc.get_memory_info()
-        grph.add((node_process, rss_property, lib_common.NodeLiteral(rss)))
-        grph.add((node_process, vms_property, lib_common.NodeLiteral(vms)))
+        try:
+            memory_dict = proc.memory_full_info()
+            grph.add((node_process, rss_property, lib_common.NodeLiteral(memory_dict.rss)))
+            grph.add((node_process, vms_property, lib_common.NodeLiteral(memory_dict.vms)))
+        except psutil.AccessDenied:
+            pass
 
     cgiEnv.OutCgiRdf()
 
