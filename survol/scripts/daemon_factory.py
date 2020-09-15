@@ -224,8 +224,6 @@ def start_user_process(process_name, user_command, environment_parameter=""):
         raise
     sys.stderr.write("start_user_process: add_status=%s\n" % add_status)
 
-    # process_log = _xmlrpc_server_proxy.supervisor.readProcessLog(full_process_name, 0, 50)
-
     # 'logfile': 'C:\\Users\\rchateau\\AppData\\Local\\Temp\\survol_url_1597910058-stdout---survol_supervisor-g1bg9mxg.log',
     # 'name': 'survol_url_1597910058',
     # 'now': 1597910059,
@@ -240,7 +238,8 @@ def start_user_process(process_name, user_command, environment_parameter=""):
     sys.stderr.write("start_user_process: process_info=%s\n" % process_info)
 
     if process_info['logfile'] != process_info['stdout_logfile']:
-        raise Exception("Inconsistent log files")
+        raise Exception("start_user_process Inconsistent log files:%s %s" % (
+            process_info['logfile'], process_info['stdout_logfile']))
 
     # Various errors.
     # xmlrpc.client.Fault: <Fault 50: 'SPAWN_ERROR: thegroupname:dir4'>
@@ -272,8 +271,8 @@ def is_user_process_running(process_name):
         # Otherwise it is an unexpected exception.
         raise
     if process_info['logfile'] != process_info['stdout_logfile']:
-        raise Exception("Inconsistent log files")
-    #created_process_id = process_info['pid']
+        raise Exception("is_user_process_running Inconsistent log files:%s %s" % (
+            process_info['logfile'], process_info['stdout_logfile']))
     is_stopped = process_info['statename'] != 'STOPPED'
 
     # The logic should be the same: 'STOPPED' means that the process left.
