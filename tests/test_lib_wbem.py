@@ -26,9 +26,22 @@ def GetElementAsString(dict_key_values, property_name):
     value_literal = str(value_node)
     return value_literal
 
+
+# Must be initialised EXPLICITELY.
+callback_object = None
+
+
+def setUpModule():
+    global callback_object
+    # This is shared by all tests. This class contains all the methods needed
+    # to execute a Sparql query in a CIM-like context.
+    # BEWARE: NEVER initialise a variable as a global: The effects are often IMPREDICTIBLE.
+    callback_object = lib_wbem.WbemSparqlCallbackApi()
+
+
 # This is shared by all tests. This class contains all the methods needed
 # to execute a Spqral query in a CIM-like context.
-callback_object = lib_wbem.WbemSparqlCallbackApi()
+#callback_object = lib_wbem.WbemSparqlCallbackApi()
 
 class LibWbemTest(unittest.TestCase):
     @unittest.skipIf(not is_linux_wbem(), "No WBEM.")

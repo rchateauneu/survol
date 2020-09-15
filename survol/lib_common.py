@@ -927,9 +927,6 @@ def ErrorMessageHtml(message):
         if server_software.find('WSGIServer') >= 0:
             # WSGI server is persistent and should not exit.
             raise RuntimeError("Server software=" + server_software)
-        elif os.getcwd().find("travis") >= 0:
-            # Do NOT exit when in TravisCI otherwise it stop the tests.
-            raise RuntimeError("Travis: Server software=" + server_software)
         else:
             sys.exit(0)
     else:
