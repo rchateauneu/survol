@@ -66,7 +66,8 @@ class CgiScriptTest(unittest.TestCase):
 
         status_stopped = lib_daemon.stop_events_generator_daemon(test_url)
         self.assertTrue(status_stopped)
-
+        # Supervisor may need a bit of time to stop the user process.
+        time.sleep(1)
         self.assertFalse(psutil.pid_exists(created_process_id))
 
     def test_start_events_generator_non_daemon(self):
