@@ -21,7 +21,8 @@ try:
     # This is for performance reasons.
     # PYTEST_CURRENT_TEST= tests/test_lib_daemon.py::CgiScriptTest::test_start_events_generator_daemon
     _must_start_factory = "PYTEST_CURRENT_TEST" not in os.environ or "START_DAEMON_FACTORY" in os.environ
-except ImportError:
+except ImportError as exc:
+    sys.stderr.write("Cannot import supervisor:%s\n" % exc)
     _must_start_factory = False
 
 
@@ -95,6 +96,7 @@ def _local_supervisor_start():
     # - Testing and a specific environment variable is not set.
     # - The Python package supervisor is not available.
     if not _must_start_factory:
+        sys.stderr.write("_local_supervisor_start: Do not start\n")
         return
 
     # Maybe it is already started.
@@ -158,7 +160,9 @@ def supervisor_startup():
         return _supervisor_process.pid
     except Exception as exc:
         sys.stderr.write("Cannot start server proxy:%s\n" % exc)
-        _local_supervisor_stop()
+        sys.stderr.write("supervisor_url:%s\n" % supervisor_url)
+        if _supervisor_process:
+            _local_supervisor_stop()
         return None
 
 
