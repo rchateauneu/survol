@@ -902,17 +902,26 @@ def enable_error_message(flag):
     globalErrorMessageEnabled = flag
 
 def ErrorMessageHtml(message):
+    """This is called by CGI scripts to leave with an error message.
+    At this stage, the CGI scripts did not write anything to stdout.
+    Therefore, it is possible to return any MIME document.
+    The challenge is to return an error message in the expected output format: html, json, rdf etc..."""
     if globalErrorMessageEnabled:
         ERROR("ErrorMessageHtml %s. Exiting.",message)
-        # If we are in Json mode, this returns a special json document with the error message.
         try:
-            qry = os.environ["QUERY_STRING"]
-            # FIXME: The cgi variable might be anywhere in the query string, not only at the end.
-            isJson = qry.endswith("mode=json")
-            if isJson:
+            # Use RequestUri() instead of "REQUEST_URI", because this CGI environment variable
+            # is not set in minimal HTTP servers such as CGIHTTPServer.
+            request_uri = lib_util.RequestUri()
+            url_mode = lib_util.get_url_mode(request_uri)
+            sys.stderr.write("ErrorMessageHtml request_uri=%s url_mode=%s\n" % (request_uri, url_mode))
+            if url_mode == "json":
+                # If we are in Json mode, this returns a special json document with the error message.
                 lib_exports.WriteJsonError(message)
                 sys.exit(0)
-            
+            if url_mode == "rdf":
+                # If we are in Json mode, this returns a special RDF document with the error message.
+                lib_export_ontology.WriteRdfError(message, request_uri)
+                sys.exit(0)
         except KeyError:
             pass
 

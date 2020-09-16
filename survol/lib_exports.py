@@ -309,9 +309,13 @@ def WriteJsonHeader( bufJson, withContentLength = False ):
 	# lib_util.outputHttp.write(bufJson)
 	lib_util.WrtAsUtf(bufJson)
 
-# This is a standard for returning errors.
-# http://labs.omniti.com/labs/jsend
+
 def WriteJsonError(message):
+	"""This is called only by ErrorMessageHtml when an error is detected and the output format is JSON.
+	After that, the calling function makes an exit.
+	The error message is formatted in the standard for returning errors.
+	http://labs.omniti.com/labs/jsend
+	"""
 	WARNING("WriteJsonError message="+message)
 	jsonErr = {}
 	jsonErr["status"] = "error"
@@ -326,8 +330,7 @@ def WriteJsonError(message):
 	# lib_util.outputHttp.close()
 
 	# "ValueError: I/O operation on closed file"
-
-	sys.exit(0)
+	#sys.exit(0)
 
 
 # Transforms a RDF graph into a JSON document.

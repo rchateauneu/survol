@@ -981,9 +981,6 @@ def UsableWindows(entity_type,entity_ids_arr):
     """Windows only"""
     return isPlatformWindows
 
-def UsableAsynchronousSource(entity_type,entity_ids_arr):
-    """Asychronous data source"""
-    return False
 
 # Tells if a file is executable code or library.
 # TODO: This function should be moved to CIM_DataFile/__init__.py
