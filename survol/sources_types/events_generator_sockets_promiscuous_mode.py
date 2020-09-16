@@ -149,10 +149,13 @@ def _promiscuous_linux(loop_number):
 
 
 def Main(loop_number = 1):
-    if lib_util.isPlatformWindows:
-        _promiscuous_win(loop_number)
-    else:
-        _promiscuous_linux(loop_number)
+    try:
+        if lib_util.isPlatformWindows:
+            _promiscuous_win(loop_number)
+        else:
+            _promiscuous_linux(loop_number)
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("Sockets in promiscuous mode:" + str(exc))
 
 
 if __name__ == '__main__':
