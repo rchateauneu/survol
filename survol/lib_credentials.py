@@ -46,6 +46,8 @@ def _build_credentials_document():
 
 		# SURVOL_CREDENTIALS = \{\"WBEM\":\{\"http://vps516494.ovh.net:5988\"\:\[\"xxx\",\"yyy\"\]\},\"Storage\"\:\{\"Events\"\:\[\"SQLAlchemy\",\"sqlite:///C:/tmp/survol_events.sqlite\?mode=memory&cache=shared\"\]\}\}
 		# SURVOL_CREDENTIALS = \{\"WBEM\":\{\"http://vps516494.ovh.net:5988\"\:\[\"xxx\",\"yyy\"\]\},\"Storage\"\:\{\"Events\"\:\[\"SQLAlchemy\",\"sqlite:///C:/tmp/survol_events.sqlite\?mode=memory\&cache=shared\"\]\}\}
+		# TODO: Change the SQLAlchemy file depending on the platform.
+		# SURVOL_CREDENTIALS = \{\"WBEM\":\{\"http://vps516494.ovh.net:5988\"\:\[\"xxx\",\"yyy\"\]\},\"Storage\"\:\{\"Events\"\:\[\"SQLAlchemy\",\"sqlite:/home/travis/build/rchateauneu/survol_events.sqlite\?mode=memory\&cache=shared\"\]\}\}
 
 		travis_credentials_env = os.environ["SURVOL_CREDENTIALS"]
 		DEBUG("_build_credentials_document travis_credentials=%s", travis_credentials_env)

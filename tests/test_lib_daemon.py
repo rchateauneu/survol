@@ -30,6 +30,7 @@ def tearDownModule():
     daemon_factory.supervisor_stop()
 
 
+@unittest.skipIf(is_travis_machine(), "TEMPORARY DISABLED")
 class CgiScriptTest(unittest.TestCase):
     _dummy_url_prefix = "http://any.machine/any_directory/"
 
@@ -89,6 +90,8 @@ class CgiScriptTest(unittest.TestCase):
 
         self.assertTrue(html_content)
 
+
+@unittest.skipIf(is_travis_machine(), "TEMPORARY DISABLED")
 class CgiScriptStartThenKillTest(unittest.TestCase):
     """This tests all known events generator and at least checks of they start and stop properly."""
 
