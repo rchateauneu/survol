@@ -43,7 +43,10 @@ def _build_credentials_document():
 		# escape them by adding \ in front of each special character.
 		# For example, ma&w!doc would be entered as ma\&w\!doc.
 		# SURVOL_CREDENTIALS = \{\"WBEM\":\{\"http://vps516494.ovh.net:5988\"\:\[\"xxx\",\"yyy\"\]\}\}
+
 		# SURVOL_CREDENTIALS = \{\"WBEM\":\{\"http://vps516494.ovh.net:5988\"\:\[\"xxx\",\"yyy\"\]\},\"Storage\"\:\{\"Events\"\:\[\"SQLAlchemy\",\"sqlite:///C:/tmp/survol_events.sqlite\?mode=memory&cache=shared\"\]\}\}
+		# SURVOL_CREDENTIALS = \{\"WBEM\":\{\"http://vps516494.ovh.net:5988\"\:\[\"xxx\",\"yyy\"\]\},\"Storage\"\:\{\"Events\"\:\[\"SQLAlchemy\",\"sqlite:///C:/tmp/survol_events.sqlite\?mode=memory\&cache=shared\"\]\}\}
+
 		travis_credentials_env = os.environ["SURVOL_CREDENTIALS"]
 		DEBUG("_build_credentials_document travis_credentials=%s", travis_credentials_env)
 		travis_credentials = json.loads(travis_credentials_env)
