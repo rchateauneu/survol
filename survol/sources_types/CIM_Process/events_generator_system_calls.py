@@ -10,7 +10,10 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-from survol.scripts import dockit
+# TODO: Make this cleaner.
+if ".." not in sys.path:
+    sys.path.append("..")
+from scripts import dockit
 
 
 def MainSnapshot():
