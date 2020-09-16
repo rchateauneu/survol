@@ -65,7 +65,7 @@ def CallbackNodeAdder(grph,urlSurvol):
 
 def SurvolServersDisplay(grph):
 	lstSurvolServers = []
-	credNames = lib_credentials.GetCredentialsNames( "Survol" )
+	credNames = lib_credentials.get_credentials_names( "Survol" )
 	DEBUG("SurvolServersDisplay")
 	for urlSurvol in credNames:
 		# sys.stderr.write("SurvolServersDisplay urlSurvol=%s\n"%(urlSurvol))

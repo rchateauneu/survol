@@ -114,7 +114,7 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	credNames = lib_credentials.GetCredentialsNames( "MySql" )
+	credNames = lib_credentials.get_credentials_names( "MySql" )
 
 	for instanceMySql in credNames:
 		DEBUG("MySql servers instanceMySql=%s",instanceMySql)

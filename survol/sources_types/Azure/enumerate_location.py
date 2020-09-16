@@ -42,7 +42,7 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	subscriptions = lib_credentials.GetCredentialsNames( "Azure" )
+	subscriptions = lib_credentials.get_credentials_names( "Azure" )
 
 	for subscriptionName in subscriptions:
 		EnumLoca(grph,subscriptionName)

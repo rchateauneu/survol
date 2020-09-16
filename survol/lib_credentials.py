@@ -39,8 +39,11 @@ def _build_credentials_document():
 
 		# Actual value: of the environment variable SURVOL_CREDENTIALS
 		# Some characters must be escaled: Double-quotes, colons, curly and square brackets, maybe more.
-		# travis_credentials_env = \{\"WBEM\":\{\"http://vps516494.ovh.net:5988\"\:\[\"xxx\",\"yyy\"\]\}\}
-		# travis_credentials_env = \{\"WBEM\":\{\"http://vps516494.ovh.net:5988\"\:\[\"xxx\",\"yyy\"\]\},\"Storage\"\:\{\"Events\"\:\[\"SQLAlchemy\", \"sqlite:///C:/tmp/survol_events.sqlite?mode=memory&cache=shared\"\]\}\}
+		# If your secret variable has special characters like &,
+		# escape them by adding \ in front of each special character.
+		# For example, ma&w!doc would be entered as ma\&w\!doc.
+		# SURVOL_CREDENTIALS = \{\"WBEM\":\{\"http://vps516494.ovh.net:5988\"\:\[\"xxx\",\"yyy\"\]\}\}
+		# SURVOL_CREDENTIALS = \{\"WBEM\":\{\"http://vps516494.ovh.net:5988\"\:\[\"xxx\",\"yyy\"\]\},\"Storage\"\:\{\"Events\"\:\[\"SQLAlchemy\",\"sqlite:///C:/tmp/survol_events.sqlite\?mode=memory&cache=shared\"\]\}\}
 		travis_credentials_env = os.environ["SURVOL_CREDENTIALS"]
 		DEBUG("_build_credentials_document travis_credentials=%s", travis_credentials_env)
 		travis_credentials = json.loads(travis_credentials_env)
@@ -113,13 +116,15 @@ def GetCredentials( credType, credName ):
 
 # For example, if "credType" == "Oracle", it will returned all databases defined in the credentials file.
 # TODO: For Oracle, consider exploring tnsnames.ora ?
-def GetCredentialsNames( credType ):
+def get_credentials_names( credType ):
 	try:
 		credDict = _credentials_document()
 		arrType = credDict[credType]
 		return arrType.keys()
 	except KeyError:
 		ERROR("GetCredentials Invalid type credType=%s",credType)
+		## TEMP TEMP
+		ERROR("SURVOL_CREDENTIALS=[%s]",os.environ['SURVOL_CREDENTIALS'])
 		return []
 
 

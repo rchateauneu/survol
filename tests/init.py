@@ -186,7 +186,7 @@ def unique_temporary_path(prefix, extension):
 
 def has_credentials(credential_type):
     import lib_credentials
-    return lib_credentials.GetCredentialsNames(credential_type)
+    return lib_credentials.get_credentials_names(credential_type)
 
 
 ################################################################################
