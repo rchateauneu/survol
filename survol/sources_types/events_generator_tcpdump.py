@@ -40,6 +40,7 @@ def _parse_tcpdump_line(grph, line):
 def _get_tcmp_dump_command():
     if lib_util.isPlatformWindows:
         # TODO: Should test if it works.
+        lib_common.ErrorMessageHtml("WinDump not implemented yet on Windows")
         return "WinDump"
     else:
         # TODO: sudo is probably not appropriate.
