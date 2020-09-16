@@ -75,14 +75,18 @@ class CgiScriptTest(unittest.TestCase):
 
         try:
             rdf_test_agent, agent_url = start_cgiserver(RemoteRdfTestServerPort)
-            test_url = agent_url + "events_generator_one_tick_per_second.py?parama=%d&paramb=START&mode=html" % os.getpid()
+            script_suffix = "events_generator_one_tick_per_second.py?parama=%d&paramb=START&mode=html" % os.getpid()
+            test_url = agent_url + "/survol/sources_types/" + script_suffix
             html_url_response = portable_urlopen(test_url, timeout=10)
             html_content = html_url_response.read()  # Py3:bytes, Py2:str
             # The format is not important, this just tests that the script started.
-            self.assertTrue(html_content)
+        except Exception as exc:
+            print("test_start_events_generator_non_daemon: Caught:", exc)
+            html_content = None
         finally:
             stop_cgiserver(rdf_test_agent)
 
+        self.assertTrue(html_content)
 
 class CgiScriptStartThenKillTest(unittest.TestCase):
     """This tests all known events generator and at least checks of they start and stop properly."""

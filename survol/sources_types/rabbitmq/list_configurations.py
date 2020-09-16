@@ -19,7 +19,7 @@ def Main():
 	#"RabbitMQ" : {
 	#	"localhost:12345" : [ "guest", "guest" ]
 	#	}
-	credList = lib_credentials.GetCredentialsNames( "RabbitMQ" )
+	credList = lib_credentials.get_credentials_names( "RabbitMQ" )
 
 	grph = cgiEnv.GetGraph()
 

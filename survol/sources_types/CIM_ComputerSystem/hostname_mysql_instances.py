@@ -33,7 +33,7 @@ def Main():
 	propInstance = lib_common.MakeProp("Mysql instance")
 
 	# Now it looks for Mysql instances which are hosted on this machine.
-	credList = lib_credentials.GetCredentialsNames("MySql")
+	credList = lib_credentials.get_credentials_names("MySql")
 	for instanceName in credList:
 		# This does not even need mysql package, so it can always detect instances.
 		sqlInstHost = instanceName.split(":")[0].strip()

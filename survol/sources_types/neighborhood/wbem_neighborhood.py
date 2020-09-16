@@ -40,7 +40,7 @@ def AddFromWbemCimom(grph,cimomWbem):
 
 def WbemServersDisplay(grph):
 	lstWbemServers = []
-	credNames = lib_credentials.GetCredentialsNames( "WBEM" )
+	credNames = lib_credentials.get_credentials_names( "WBEM" )
 	DEBUG("WbemServersDisplay")
 	for cimomWbem in credNames:
 		DEBUG("WbemServersDisplay cimomWbem=%s",cimomWbem)

@@ -41,7 +41,7 @@ import lib_credentials
 #	},
 def DatabaseEnvParams(processId):
 	# This is a list of db names, such as ["XE"]
-	lstCredNams = lib_credentials.GetCredentialsNames('Oracle')
+	lstCredNams = lib_credentials.get_credentials_names('Oracle')
 
 	# TODO: We could use the process id to check if the process executable is linked
 	# with the Oracle shareable library. If not, return None.

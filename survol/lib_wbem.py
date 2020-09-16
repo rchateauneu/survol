@@ -126,7 +126,7 @@ def slp_wbem_services():
 # But for that, we would need a WBEM server sending Access-Control-Allow-Origin header.
 def WbemServersList():
     lstWbemServers = []
-    credNames = lib_credentials.GetCredentialsNames( "WBEM" )
+    credNames = lib_credentials.get_credentials_names( "WBEM" )
     DEBUG("WbemServersList")
     for urlWbem in credNames:
         # crdNam = "http://192.168.1.83:5988"
@@ -143,7 +143,7 @@ def WbemServersList():
 def HostnameToWbemServer(hostname):
     entity_ip_addr = lib_util.EntHostToIpReally(hostname)
 
-    credNames = lib_credentials.GetCredentialsNames( "WBEM" )
+    credNames = lib_credentials.get_credentials_names( "WBEM" )
     for urlWbem in credNames:
         # urlWbem = "http://192.168.1.83:5988"
         parsed_url = lib_util.survol_urlparse( urlWbem )

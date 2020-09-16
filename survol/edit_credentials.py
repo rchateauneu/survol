@@ -28,7 +28,7 @@ def CreateCredentialsMap():
         credTypesDict[credType] = dict()
 
         # This is a homogeneous list, for example of machines names, or databases.
-        credNams = lib_credentials.GetCredentialsNames( credType )
+        credNams = lib_credentials.get_credentials_names( credType )
 
         for credName in sorted(credNams):
 

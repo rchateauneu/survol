@@ -20,7 +20,7 @@ def Main():
 	grph = cgiEnv.GetGraph()
 
 	rootNode = lib_common.nodeMachine
-	subscriptions = lib_credentials.GetCredentialsNames( "Azure" )
+	subscriptions = lib_credentials.get_credentials_names( "Azure" )
 
 	# This creates a node for each available Azure subscription,
 	# as they are given, with password, in the credentials file.
