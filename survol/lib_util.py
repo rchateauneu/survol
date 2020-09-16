@@ -476,7 +476,9 @@ def RequestUri():
         script = os.environ["REQUEST_URI"]
         #sys.stderr.write("RequestUri script=%s\n"%script)
     except KeyError:
-        # Maybe this is started from a minimal http server.
+        # A minimal http server such as CGIHTTPServer does not set REQUEST_URI.
+        # So its content is recreated with available values in the environment.
+
         # If url = "http://127.0.0.1:8000/survol/print_environment_variables.py"
         # SCRIPT_NAME=/survol/print_environment_variables.py
         # QUERY_STRING=
@@ -1242,6 +1244,7 @@ def url_mode_replace(script, other_mode):
 
     # TODO: PROBLEMS IF THE URL CONTAINS BACKSLASHES SUCH AS HERE:
     # "http://127.0.0.1:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A\Program%20Files%20%28x86%29\NETGEAR\WNDA3100v3\WNDA3100v3.EXE"
+    sys.stderr.write("url_mode_replace returns:%s\n" % updated_url)
     return updated_url
 
 
