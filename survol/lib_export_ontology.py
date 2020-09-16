@@ -162,5 +162,28 @@ def Grph2Rdf(grph):
     lib_kbase.triplestore_to_stream_xml(new_grph, out_dest, 'xml')
     DEBUG("Grph2Rdf leaving")
 
+
+def WriteRdfError(message, broken_url):
+    """This is called only by ErrorMessageHtml when an error is detected and the output format is RDF.
+    After that, the calling function makes an exit.
+    """
+
+    new_grph = lib_kbase.MakeGraph()
+    new_grph.add((
+        lib_kbase.MakeNodeUrl(broken_url),
+        lib_properties.MakeProp("Error"),
+        lib_kbase.MakeNodeLiteral(message)))
+
+    # Neither "xml/rdf" nor "text/rdf" are correct MIME-types.
+    # It should be "application/xml+rdf" or possibly "application/xml" or "text/xml"
+    # 'text/rdf' and 'xml/rdf' are OK with Protege
+    # 'application/xml+rdf' creates a file.
+    lib_util.WrtHeader('application/xml')
+
+    out_dest = lib_util.get_default_output_destination()
+
+    lib_kbase.triplestore_to_stream_xml(new_grph, out_dest, 'xml')
+
+
 ################################################################################
 

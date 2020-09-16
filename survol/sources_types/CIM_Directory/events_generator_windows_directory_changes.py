@@ -6,6 +6,7 @@ import sys
 import lib_util
 import lib_common
 from lib_properties import pc
+from sources_types import CIM_Directory
 
 # http://timgolden.me.uk/python/win32_how_do_i/watch_directory_for_changes.html#use_findfirstchange
 
@@ -16,8 +17,6 @@ import win32con
 def Usable(entity_type, entity_ids_arr):
     """Can run on a directory only, on Windows."""
     if not lib_util.UsableWindows(entity_type,entity_ids_arr):
-        return False
-    if not lib_util.UsableAsynchronousSource(entity_type,entity_ids_arr):
         return False
     dir_nam = entity_ids_arr[0]
     return os.path.isdir(dir_nam)
@@ -57,7 +56,19 @@ ACTIONS = {
 # Thanks to Claudio Grondi for the correct set of numbers
 FILE_LIST_DIRECTORY = 0x0001
 
-def Main():
+
+def MainSnapshot():
+    cgiEnv = lib_common.CgiEnv()
+    path_to_watch = cgiEnv.GetId()
+
+    grph = cgiEnv.GetGraph()
+    directory_node = lib_common.gUriGen.DirectoryUri(path_to_watch)
+    CIM_Directory.AddInfo(grph, directory_node, [path_to_watch],)
+
+    cgiEnv.OutCgiRdf()
+
+
+def MainEvents():
     cgiEnv = lib_common.CgiEnv()
     path_to_watch = cgiEnv.GetId()
 
@@ -105,7 +116,7 @@ def Main():
 
 if __name__ == '__main__':
     if lib_util.is_snapshot_behaviour():
-        Main()
+        MainSnapshot()
     else:
         while True:
-            Main(1000000)
+            MainEvents()

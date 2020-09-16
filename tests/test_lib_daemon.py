@@ -114,6 +114,7 @@ class CgiScriptStartThenKillTest(unittest.TestCase):
         # Some scripts take a long time to run.
         rdf_url_response = portable_urlopen(rdf_url, timeout=10)
         rdf_content = rdf_url_response.read()  # Py3:bytes, Py2:str
+        print("rdf_content=", rdf_content)
         try:
             result_graph = rdflib.Graph().parse(data=rdf_content, format="application/rdf+xml")
         except Exception as exc:

@@ -7,10 +7,8 @@ import re
 from lib_properties import pc
 import lib_properties
 
-def Usable(entity_type, entity_ids_arr):
-    """Runs on Linux only, in asynchronous mode"""
-    return lib_util.UsableLinux(entity_type, entity_ids_arr) and lib_util.UsableAsynchronousSource(entity_type,
-                                                                                                   entity_ids_arr)
+Usable = lib_util.UsableLinux
+
 ################################################################################
 
 # Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
