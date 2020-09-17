@@ -94,7 +94,11 @@ VirtualProtectEx.restype = wintypes.BOOL
 # );
 
 Module32First = ctypes.windll.kernel32.Module32First
-Module32First.argtypes = (wintypes.HANDLE, POINTER(MODULEENTRY32))
+# ctypes.ArgumentError: argument 2: <class 'TypeError'>:
+# expected LP_MODULEENTRY32 instance instead of pointer to MODULEENTRY32
+LP_MODULEENTRY32 = POINTER(MODULEENTRY32)
+Module32First.argtypes = (wintypes.HANDLE, LP_MODULEENTRY32)
+# Module32First.argtypes = (wintypes.HANDLE, POINTER(MODULEENTRY32))
 Module32First.restype = wintypes.BOOL
 
 OpenThread = ctypes.windll.kernel32.OpenThread
