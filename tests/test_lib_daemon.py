@@ -164,9 +164,15 @@ class CgiScriptStartThenKillTest(unittest.TestCase):
         self.assertTrue(non_daemon_result)
 
     def test_events_generator_system_calls(self):
+        proc_open = None
         try:
             # This starts a dummy process.
-            subprocess_command = r'"%s" -m supervisor.supervisord -c "import time;time.sleep(10)"' % sys.executable
+            subprocess_command = [
+                sys.executable,
+                "-m",
+                "supervisor.supervisord",
+                "-c",
+                "import time;time.sleep(10)" ]
             sys.stderr.write("test_events_generator_system_calls supervisor_command=%s\n" % subprocess_command)
 
             # No Shell, otherwise the subprocess running supervisor, will not be stopped.
@@ -182,9 +188,10 @@ class CgiScriptStartThenKillTest(unittest.TestCase):
             self.assertTrue(non_daemon_result)
         finally:
             # The subprocess will exit anyway.
-            proc_popen.kill()
-            proc_popen.communicate()
-            proc_popen.terminate()
+            if proc_open:
+                proc_popen.kill()
+                proc_popen.communicate()
+                proc_popen.terminate()
 
     @unittest.skip("BROKEN")
     def test_events_generator_iostat_all_disks(self):
