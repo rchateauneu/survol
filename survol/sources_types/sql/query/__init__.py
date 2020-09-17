@@ -15,15 +15,6 @@ class CgiPropertyB64(str):
 		#return obj
 		return super(CgiPropertyB64, cls).__new__(cls, propName)
 
-	# Python 3
-	#def __new__(cls,propName):
-	#	obj = str.__new__(self, propName)
-	#	return obj
-
-	#def __new__(cls, content):
-	#	return super().__new__(cls, content.upper())
-
-
 	def ValueEncode(self,valueClear):
 		return lib_util.Base64Encode(valueClear)
 
@@ -35,15 +26,10 @@ class CgiPropertyB64(str):
 
 # TODO: This is probably not the proper solution.
 class CgiPropertyQuery(CgiPropertyB64):
-	#def __init__(self):
-	#	#pass
-	#	super(CgiPropertyQuery, self).__init__("Query")
-	#	# super(CgiPropertyQuery, cls).__new__(cls, propName)
 
 	# Python 2
 	def __new__(cls):
 		return super(CgiPropertyQuery, cls).__new__(cls, "Query")
-
 
 
 # This array will be concatenated to other strings, depending of the origin of the query: database,
@@ -74,7 +60,7 @@ def stripblanks(text):
 	lst = text.split('"')
 	for i, item in enumerate(lst):
 		if not i % 2:
-			lst[i] = re.sub("\s+", " ", item)
+			lst[i] = re.sub(r"\s+", " ", item)
 	return '"'.join(lst)
 
 # This is dynamically called from the function EntityArrToLabel() in lib_naming.py.
