@@ -16,15 +16,21 @@ else:
 # This starts a supervisor process in interactive mode, except if a daemon is already started.
 try:
     import supervisor
+except ImportError:
+    sys.stderr.write("Cannot import supervisor\n")
+    supervisor = None
+
+
+def _must_start_factory():
     # It is not started when run in pytest, except if explicitly asked.
     # Also, it must NOT be started
+    if not supervisor:
+        sys.stderr.write("Could not import supervisor\n")
+        return False
+
     # This is for performance reasons.
     # PYTEST_CURRENT_TEST= tests/test_lib_daemon.py::CgiScriptTest::test_start_events_generator_daemon
-    _must_start_factory = "PYTEST_CURRENT_TEST" not in os.environ or "START_DAEMON_FACTORY" in os.environ
-except ImportError as exc:
-    sys.stderr.write("Cannot import supervisor:%s\n" % exc)
-    _must_start_factory = False
-
+    return "PYTEST_CURRENT_TEST" not in os.environ or "START_DAEMON_FACTORY" in os.environ
 
 
 # This is not stored with credentials because the supervisor might be part of the machine setup,
@@ -92,13 +98,6 @@ def _local_supervisor_start():
     """This starts a local supervisor process."""
     global _supervisor_process
 
-    # Do not start the supervisor if:
-    # - Testing and a specific environment variable is not set.
-    # - The Python package supervisor is not available.
-    if not _must_start_factory:
-        sys.stderr.write("_local_supervisor_start: Do not start\n")
-        return
-
     # Maybe it is already started.
     if _supervisor_process:
         # TODO: Should check that it is still there.
@@ -135,14 +134,33 @@ def _local_supervisor_stop():
 def supervisor_startup():
     global _xmlrpc_server_proxy
 
+    # Do not start the supervisor if:
+    # - Testing and a specific environment variable is not set.
+    # - The Python package supervisor is not available.
+    if not _must_start_factory():
+        sys.stderr.write("supervisor_startup: Do not start\n")
+        return None
+
     # The proxy is already started.
     if _xmlrpc_server_proxy is not None:
+        sys.stderr.write("supervisor_startup _supervisor_process.pid=%d RUNNING\n" % _supervisor_process.pid)
         return _supervisor_process.pid
 
     # Maybe this is a supervisor service, or a local process.
 
     # TODO: The process should not be started if a service is already runing supervisor
-    _local_supervisor_start()
+    sys.stderr.write("supervisor_startup about to start _supervisor_process\n")
+    try:
+        _local_supervisor_start()
+    except:
+        sys.stderr.write("supervisor_startup about to start CAUGHT\n")
+        raise
+
+    sys.stderr.write("supervisor_startup _supervisor_process.pid=%d\n" % _supervisor_process.pid)
+    # Extra test to be sure that supervisor is running.
+    if not psutil.pid_exists(_supervisor_process.pid):
+        sys.stderr.write("supervisor_startup not running _supervisor_process.pid=%d\n" % _supervisor_process.pid)
+        raise Exception("supervisor_startup not running _supervisor_process.pid=%d\n" % _supervisor_process.pid)
 
     try:
         # This is done once only.
