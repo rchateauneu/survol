@@ -119,7 +119,7 @@ def _local_supervisor_stop():
     """This starts a local supervisor process."""
     global _supervisor_process
     if not _supervisor_process:
-        raise Exception("Supervisor was not started")
+        return
     _supervisor_process.kill()
     _supervisor_process.communicate()
     _supervisor_process.terminate()
@@ -161,8 +161,7 @@ def supervisor_startup():
     except Exception as exc:
         sys.stderr.write("Cannot start server proxy:%s\n" % exc)
         sys.stderr.write("supervisor_url:%s\n" % supervisor_url)
-        if _supervisor_process:
-            _local_supervisor_stop()
+        _local_supervisor_stop()
         return None
 
 
