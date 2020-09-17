@@ -41,27 +41,39 @@ def _get_tcmp_dump_command():
     if lib_util.isPlatformWindows:
         # TODO: Should test if it works.
         lib_common.ErrorMessageHtml("WinDump not implemented yet on Windows")
-        return "WinDump"
+        return ["WinDump",]
     else:
-        # TODO: sudo is probably not appropriate.
         # Option -n so no conversion of addresses and port numbers.
-        return "sudo tcpdump -n"
+        return ["tcpdump", "-n"]
 
 
 def Main(loop_number=1):
     tcpdump_cmd = _get_tcmp_dump_command()
 
     cgiEnv = lib_common.CgiEnv()
-    for lin in os.popen(tcpdump_cmd):
-        if not lin:
-            continue
-        grph = cgiEnv.ReinitGraph()
-        _parse_tcpdump_line(grph, lin)
-        cgiEnv.OutCgiRdf()
+    proc_open = None
+    try:
+        sys.stderr.write("tcpdump_cmd=%s\n" % str(tcpdump_cmd))
 
-        loop_number -= 1
-        if loop_number == 0:
-            break
+        proc_popen = subprocess.Popen(tcpdump_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+	for lin in proc_popen.stdout.readlines():
+            if not lin:
+                continue
+            grph = cgiEnv.ReinitGraph()
+            _parse_tcpdump_line(grph, lin)
+            cgiEnv.OutCgiRdf()
+
+            loop_number -= 1
+            if loop_number == 0:
+                break
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("tcpdump error:%s" % str(exc))
+    finally:
+        if proc_open:
+            proc_open.kill()
+            proc_open.communicate()
+            proc_open.terminate()
+
 
 ################################################################################
 
