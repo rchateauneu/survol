@@ -152,6 +152,7 @@ class CgiScriptStartThenKillTest(unittest.TestCase):
         self.assertTrue(daemon_result)
         self.assertTrue(non_daemon_result)
 
+    @unittest.skipIf(is_platform_linux, "Windows only")
     def test_events_generator_windows_directory_changes(self):
         # There is not much actovity in these directories: The goal is to test that the script starts correctly.
         if is_platform_linux:
