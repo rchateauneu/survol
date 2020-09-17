@@ -30,7 +30,7 @@ def tearDownModule():
     daemon_factory.supervisor_stop()
 
 
-@unittest.skipIf(is_travis_machine(), "TEMPORARY DISABLED")
+# @unittest.skipIf(is_travis_machine(), "TEMPORARY DISABLED")
 class CgiScriptTest(unittest.TestCase):
     _dummy_url_prefix = "http://any.machine/any_directory/"
 
