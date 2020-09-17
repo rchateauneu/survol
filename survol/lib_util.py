@@ -1241,7 +1241,6 @@ def url_mode_replace(script, other_mode):
 
     # TODO: PROBLEMS IF THE URL CONTAINS BACKSLASHES SUCH AS HERE:
     # "http://127.0.0.1:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A\Program%20Files%20%28x86%29\NETGEAR\WNDA3100v3\WNDA3100v3.EXE"
-    sys.stderr.write("url_mode_replace returns:%s\n" % updated_url)
     return updated_url
 
 
