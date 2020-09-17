@@ -1162,9 +1162,7 @@ def set_events_credentials():
     if not storage_credential:
         credentials_filename = lib_credentials.credentials_filename()
         raise Exception("No storage credential in:%s" % credentials_filename)
-    sys.stderr.write(__file__ + " credentials=%s\n" % str(storage_credential))
 
-    storage_style, storage_url = "SQLAlchemy", "sqlite:///C:/tmp/survol_events.sqlite?mode=memory&cache=shared"
-    # "SQLAlchemy", "sqlite:///C:/tmp/survol_events.sqlite?mode=memory&cache=shared"
+    storage_style, storage_url = storage_credential
     lib_kbase.set_storage_style(storage_style, storage_url)
 

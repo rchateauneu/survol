@@ -1,4 +1,5 @@
 # This encapsulates rdflib features, and may help to implement differently triplestore features.
+from future.utils import raise_from
 
 import sys
 import os
@@ -587,9 +588,12 @@ def _setup_global_graph():
 
             sqlite_uri = rdflib.Literal(_events_storage_style[1])
 
-            _store_input = rdflib .plugin.get("SQLAlchemy", rdflib.store.Store)(identifier=sqlite_ident)
+            _store_input = rdflib.plugin.get("SQLAlchemy", rdflib.store.Store)(identifier=sqlite_ident)
             _events_conjunctive_graph = rdflib.ConjunctiveGraph(_store_input, identifier=sqlite_ident)
-            _events_conjunctive_graph.open(sqlite_uri, create=True)
+            try:
+                _events_conjunctive_graph.open(sqlite_uri, create=True)
+            except Exception as exc:
+                raise_from(Exception("sqlite_uri=%s" % sqlite_uri), exc)
 
         else:
             raise Exception("Unknown storage style:" + str(_events_storage_style))
