@@ -104,8 +104,8 @@ def _local_supervisor_start():
         # TODO: Should check that it is still there.
         return
 
-    supervisor_command = r'"%s" -m supervisor.supervisord -c "%s"' % (sys.executable, _supervisor_config_file)
-    sys.stderr.write("supervisor_command=%s\n" % supervisor_command)
+    supervisor_command = [sys.executable, "-m", "supervisor.supervisord", "-c", _supervisor_config_file]
+    sys.stderr.write("supervisor_command=%s\n" % str(supervisor_command))
 
     # No Shell, otherwise the subprocess running supervisor, will not be stopped.
     proc_popen = subprocess.Popen(supervisor_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
