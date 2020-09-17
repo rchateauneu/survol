@@ -532,8 +532,6 @@ def set_storage_style(*storage_style_tuple):
     # Resets the connection ven if the new storage style is identical.
 
     if _events_storage_style[0] == "SQLAlchemy":
-        sqlite_uri = rdflib.Literal(_events_storage_style[1])
-        #_events_conjunctive_graph.destroy(sqlite_uri)
         try:
             _events_conjunctive_graph.close()
         except Exception as exc:
@@ -571,7 +569,7 @@ def _setup_global_graph():
             # py -3.6 -m pip install rdflib-sqlalchemy
             # OK
 
-            sqlite_ident = rdflib.URIRef("rdflib_test")
+            sqlite_ident = rdflib.URIRef("rdflib_survol")
             # https://docs.sqlalchemy.org/en/13/dialects/sqlite.html#module-sqlalchemy.dialects.sqlite.pysqlite
             # _sqlite_uri = rdflib.Literal("sqlite://")
             # driver://user:pass@host/database
@@ -585,7 +583,10 @@ def _setup_global_graph():
             #sqlite_filename = r"C:\Users\rchateau\survol_events.sqlite"
             #_sqlite_uri = rdflib.Literal(r"sqlite:///%s" % sqlite_filename)
 
-            sqlite_uri = rdflib.Literal(_events_storage_style[1])
+            sqlite_path = _events_storage_style[1]
+            # This path might contain environment variables.
+            sqlite_path_expanded = os.path.expandvars(sqlite_path)
+            sqlite_uri = rdflib.Literal(sqlite_path_expanded)
 
             _store_input = rdflib.plugin.get("SQLAlchemy", rdflib.store.Store)(identifier=sqlite_ident)
             _events_conjunctive_graph = rdflib.ConjunctiveGraph(_store_input, identifier=sqlite_ident)
