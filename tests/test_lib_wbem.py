@@ -166,7 +166,7 @@ class LibWbemTest(unittest.TestCase):
                 subject_path=r'//%s/root/cimv2:CIM_ComputerSystem.Name="%s"' % (CurrentMachine, CurrentMachine))
         for object_path, dict_key_values in iterator_objects:
             DEBUG("object_path=%s", object_path)
-            DEBUG("dict_key_values=%s", istr(dict_key_values))
+            DEBUG("dict_key_values=%s", str(dict_key_values))
 
     @unittest.skipIf(not is_linux_wbem(), "WBEM not usable here")
     def test_sparql_callback_types(self):
