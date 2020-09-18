@@ -164,6 +164,7 @@ class CgiScriptStartThenKillTest(unittest.TestCase):
         self.assertTrue(daemon_result)
         self.assertTrue(non_daemon_result)
 
+    @unittest.skip("TEMPORARY DISABLED")
     def test_events_generator_system_calls(self):
         proc_open = None
         try:
