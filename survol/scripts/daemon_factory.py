@@ -118,6 +118,11 @@ def _local_supervisor_start():
     if _supervisor_process:
         # TODO: Should check that it is still there.
         sys.stderr.write("_local_supervisor_start leaving _supervisor_process.pid=%d\n" % _supervisor_process.pid)
+        is_running = psutil.pid_exists(_supervisor_process.pid)
+        if is_running:
+            sys.stderr.write("_local_supervisor_start running fine\n")
+        else:
+            sys.stderr.write("_local_supervisor_start NOT RUNNING\n")
         return
 
     supervisor_command = [sys.executable, "-m", "supervisor.supervisord", "-c", _supervisor_config_file]
@@ -146,8 +151,18 @@ def _local_supervisor_start():
 def _local_supervisor_stop():
     """This starts a local supervisor process."""
     global _supervisor_process
-    if not _supervisor_process:
+    if _supervisor_process is None:
+        sys.stderr.write("_local_supervisor_stop already stopped\n")
         return
+
+    sys.stderr.write("_local_supervisor_stop _supervisor_process.pid=%d\n" % _supervisor_process.pid)
+
+    is_running = psutil.pid_exists(_supervisor_process.pid)
+    if is_running:
+        sys.stderr.write("_local_supervisor_stop running fine\n")
+    else:
+        sys.stderr.write("_local_supervisor_stop SHOULD BE RUNNING\n")
+
     _supervisor_process.kill()
     _supervisor_process.communicate()
     _supervisor_process.terminate()
@@ -229,11 +244,15 @@ def supervisor_stop():
     global _supervisor_process
     global _xmlrpc_server_proxy
 
-    sys.stdout.write("supervisor_stop\n")
+    sys.stderr.write("supervisor_stop\n")
 
-    # Stops the connection.
-    del _xmlrpc_server_proxy
-    _xmlrpc_server_proxy = None
+    if _xmlrpc_server_proxy is None:
+        sys.stderr.write("supervisor_stop proxy already deleted\n")
+    else:
+        # Stops the connection.
+        del _xmlrpc_server_proxy
+        _xmlrpc_server_proxy = None
+        sys.stderr.write("supervisor_stop deleting proxy\n")
 
     _local_supervisor_stop()
     return True
@@ -248,9 +267,19 @@ def is_supervisor_running():
 
     try:
         api_version = _xmlrpc_server_proxy.supervisor.getAPIVersion()
+        sys.stderr.write("is_supervisor_running api_version=%s\n" % api_version)
     except Exception as exc:
         sys.stderr.write("is_supervisor_running exc=%s\n" % exc)
         api_version = None
+
+    if _supervisor_process is None:
+        sys.stderr.write("is_supervisor_running SUPERVISOR NOT CREATED\n")
+    else:
+        if psutil.pid_exists(_supervisor_process.pid):
+            sys.stderr.write("is_supervisor_running OK _supervisor_process.pid=%d\n" % _supervisor_process.pid)
+        else:
+            sys.stderr.write("is_supervisor_running NOT HERE _supervisor_process.pid=%d\n" % _supervisor_process.pid)
+
     return api_version
 
 
