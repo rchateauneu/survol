@@ -324,7 +324,18 @@ def start_user_process(process_name, user_command, environment_parameter=""):
             program_options)
         sys.stderr.write("start_user_process: After addProgramToGroup\n")
     except Exception as exc:
+        # Possible exception
+        # exc=<Fault 2: "INCORRECT_PARAMETERS: No closing quotation in section
+        # 'program:ama_123_paramb_START' (file: 'survol/scripts/supervisord.conf')">
         sys.stderr.write("start_user_process: start_user_process exc=%s\n" % exc)
+
+        try:
+            with open("survol/scripts/supervisord.conf") as config_file:
+                config_content = "\n".join(config_file.readlines())
+            sys.stderr.write("start_user_process: Configuration=%s\n" % config_content)
+        except Exception as exc:
+            sys.stderr.write("start_user_process: Cannot read configuration exc=%s\n" % str(exc))
+
         raise
     sys.stderr.write("start_user_process: add_status=%s\n" % add_status)
 
