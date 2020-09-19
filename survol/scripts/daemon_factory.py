@@ -184,7 +184,7 @@ def supervisor_startup():
         error_message = "supervisor_startup not running _supervisor_process.pid=%d\n" % _supervisor_process.pid
         _xmlrpc_error += ". " + error_message
         sys.stderr.write(error_message + "\n")
-        raise Exception(error_message)
+        raise Exception("_xmlrpc_error=" + _xmlrpc_error)
 
     try:
         # This is done once only.
@@ -311,7 +311,8 @@ def start_user_process(process_name, user_command, environment_parameter=""):
     return created_process_id
 
 
-def is_user_process_running(process_name):
+
+def _get_user_process_info(process_name):
     if _xmlrpc_server_proxy is None:
         sys.stderr.write("is_user_process_running: No proxy")
         return False
@@ -327,11 +328,30 @@ def is_user_process_running(process_name):
     if process_info['logfile'] != process_info['stdout_logfile']:
         raise Exception("is_user_process_running Inconsistent log files:%s %s" % (
             process_info['logfile'], process_info['stdout_logfile']))
+    return process_info
+
+
+def is_user_process_running(process_name):
+    process_info = _get_user_process_info(process_name)
     is_stopped = process_info['statename'] != 'STOPPED'
 
     # The logic should be the same: 'STOPPED' means that the process left.
     # This does not check the process id because it might have been reused (although extremely improbable).
     return is_stopped
+
+
+def get_user_process_stdout(process_name):
+    process_info = _get_user_process_info(process_name)
+
+    with open(process_info['stdout_logfile']) as file_stdout:
+        return " ".join(file_stdout.readlines())
+
+
+def get_user_process_stderr(process_name):
+    process_info = _get_user_process_info(process_name)
+
+    with open(process_info['stderr_logfile']) as file_stderr:
+        return " ".join(file_stderr.readlines())
 
 
 def stop_user_process(process_name):
