@@ -2,7 +2,6 @@
 import sys
 import os
 import re
-import six
 import collections
 import rdflib
 from rdflib.namespace import RDF, RDFS, XSD
@@ -593,7 +592,7 @@ def _setup_global_graph():
             try:
                 _events_conjunctive_graph.open(sqlite_uri, create=True)
             except Exception as exc:
-                six.raise_from(Exception("sqlite_uri=%s" % sqlite_uri), exc)
+                raise Exception("sqlite_uri=%s.Exception=%s" % (sqlite_uri, exc))
 
         else:
             raise Exception("Unknown storage style:" + str(_events_storage_style))
