@@ -19,7 +19,7 @@ _xmlrpc_error = "XMLRPC Server proxy not started."
 try:
     import supervisor
 except ImportError as exc:
-    _xmlrpc_error += exc + ". "
+    _xmlrpc_error += str(exc) + ". "
     sys.stderr.write("Cannot import supervisor\n")
     supervisor = None
 
