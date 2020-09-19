@@ -50,7 +50,7 @@ class CgiScriptTest(unittest.TestCase):
 
     def test_start_events_generator_daemon(self):
         # http://vps516494.ovh.net/Survol/survol/sources_types/enumerate_CIM_Process.py?xid=.
-        test_url = self._dummy_url_prefix + "/survol/sources_types/events_generator_one_tick_per_second.py?parama=%d&paramb=START" % os.getpid()
+        test_url = self._dummy_url_prefix + "/survol/sources_types/events_generator_one_tick_per_second.py?parama=123&paramb=START"
         created_process_id = lib_daemon.start_events_generator_daemon(test_url)
         self.assertTrue(psutil.pid_exists(created_process_id))
 
@@ -77,7 +77,7 @@ class CgiScriptTest(unittest.TestCase):
 
         try:
             rdf_test_agent, agent_url = start_cgiserver(RemoteRdfTestServerPort)
-            script_suffix = "events_generator_one_tick_per_second.py?parama=%d&paramb=START&mode=html" % os.getpid()
+            script_suffix = "events_generator_one_tick_per_second.py?parama=456&paramb=START&mode=html"
             test_url = agent_url + "/survol/sources_types/" + script_suffix
             html_url_response = portable_urlopen(test_url, timeout=10)
             html_content = html_url_response.read()  # Py3:bytes, Py2:str
