@@ -23,7 +23,8 @@ def _url_to_process_name(script_url):
     for forbidden_char in ":/\\?=&+*()[]{}%.":
         script_url = script_url.replace(forbidden_char, "_")
 
-    return script_url
+    # Maybe there is a maximum length.
+    return script_url[-20:]
 
 
 def start_events_generator_daemon(script_url):
