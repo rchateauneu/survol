@@ -23,8 +23,10 @@ def _url_to_process_name(script_url):
     for forbidden_char in ":/\\?=&+*()[]{}%.":
         script_url = script_url.replace(forbidden_char, "_")
 
-    # Maybe there is a maximum length.
-    return script_url[-20:]
+    # start_user_process: start_user_process exc=<Fault 2:
+    # "INCORRECT_PARAMETERS: No closing quotation in section 'program:ama_123_paramb_START'
+    # (file: 'survol/scripts/supervisord.conf')">
+    return script_url
 
 
 def start_events_generator_daemon(script_url):
@@ -90,7 +92,10 @@ def start_events_generator_daemon(script_url):
     environment_parameter += ',FUNCTION_NAME="%s"' % "start_events_generator_daemon"
     environment_parameter += ',JUST_IN_CASE="%s"' % script_url
     if "SURVOL_CREDENTIALS" in os.environ:
-        environment_parameter += ',SURVOL_CREDENTIALS="%s"' % os.environ["SURVOL_CREDENTIALS"]
+        survol_credentials = os.environ["SURVOL_CREDENTIALS"]
+        # This string contains double-quotes which must be escaped.
+        survol_credentials_escaped = survol_credentials.replace('"', '\\"')
+        environment_parameter += ',SURVOL_CREDENTIALS="%s"' % survol_credentials_escaped
     else:
         environment_parameter += ',SURVOL_CREDENTIALS="%s"' % "Is not set but should be"
 
