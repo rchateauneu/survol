@@ -367,8 +367,8 @@ def start_user_process(process_name, user_command, environment_parameter=""):
 
 def _get_user_process_info(process_name):
     if _xmlrpc_server_proxy is None:
-        sys.stderr.write("is_user_process_running: No proxy")
-        return False
+        sys.stderr.write("_get_user_process_info: No proxy")
+        return None
     full_process_name = _survol_group_name + ":" + process_name
     try:
         process_info = _xmlrpc_server_proxy.supervisor.getProcessInfo(full_process_name)
@@ -379,13 +379,16 @@ def _get_user_process_info(process_name):
         # Otherwise it is an unexpected exception.
         raise
     if process_info['logfile'] != process_info['stdout_logfile']:
-        raise Exception("is_user_process_running Inconsistent log files:%s %s" % (
+        raise Exception("_get_user_process_info Inconsistent log files:%s %s" % (
             process_info['logfile'], process_info['stdout_logfile']))
     return process_info
 
 
 def is_user_process_running(process_name):
     process_info = _get_user_process_info(process_name)
+    if process_info is None:
+        sys.stderr.write("is_user_process_running: No proxy")
+        return False
     is_stopped = process_info['statename'] != 'STOPPED'
 
     # The logic should be the same: 'STOPPED' means that the process left.
