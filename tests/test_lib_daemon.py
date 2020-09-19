@@ -16,6 +16,9 @@ import lib_util
 import lib_daemon
 import lib_common
 
+# Otherwise the supervisor will not be loaded in pytest.
+os.environ["START_DAEMON_FACTORY"] = "1"
+
 # This is used by HTTP servers only.
 from scripts import daemon_factory
 
