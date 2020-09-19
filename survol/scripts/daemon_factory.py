@@ -375,7 +375,8 @@ def _get_user_process_info(process_name):
     except xmlrpclib.Fault as exc:
         # xmlrpc.client.Fault: <Fault 10: 'BAD_NAME: survol_group:non_existent_url.py?arg=11132'>
         if "BAD_NAME" in str(exc):
-            return False
+            sys.stderr.write("_get_user_process_info: BAD NAME:%s. Exc=%s\n" % (full_process_name, exc))
+            return None
         # Otherwise it is an unexpected exception.
         raise
     if process_info['logfile'] != process_info['stdout_logfile']:
