@@ -13,22 +13,37 @@ if sys.version_info < (3,):
 else:
     import xmlrpc.client as xmlrpclib
 
+_xmlrpc_error = "XMLRPC Server proxy not started."
+
 # This starts a supervisor process in interactive mode, except if a daemon is already started.
 try:
     import supervisor
-except ImportError:
+except ImportError as exc:
+    _xmlrpc_error += exc + ". "
     sys.stderr.write("Cannot import supervisor\n")
     supervisor = None
 
 
 def _must_start_factory():
+    global _xmlrpc_error
     # It is not started when run in pytest, except if explicitly asked.
     # Also, it must NOT be started
     if not supervisor:
+        _xmlrpc_error += "Could not import supervisor. "
         sys.stderr.write("Could not import supervisor\n")
         return False
 
-    # This is for performance reasons.
+    if "PYTEST_CURRENT_TEST" in os.environ:
+        _xmlrpc_error += "PYTEST_CURRENT_TEST=" + os.environ["PYTEST_CURRENT_TEST"] + ". "
+    else:
+        _xmlrpc_error += "PYTEST_CURRENT_TEST not here. "
+
+    if "START_DAEMON_FACTORY" in os.environ:
+        _xmlrpc_error += "START_DAEMON_FACTORY=" + os.environ["START_DAEMON_FACTORY"] + ". "
+    else:
+        _xmlrpc_error += "START_DAEMON_FACTORY not here. "
+
+        # This is for performance reasons.
     # PYTEST_CURRENT_TEST= tests/test_lib_daemon.py::CgiScriptTest::test_start_events_generator_daemon
     return "PYTEST_CURRENT_TEST" not in os.environ or "START_DAEMON_FACTORY" in os.environ
 
@@ -90,7 +105,6 @@ def _get_supervisor_url():
 
 # Typical call: srv_prox = xmlrpclib.ServerProxy('http://chris:123@127.0.0.1:9001')
 _xmlrpc_server_proxy = None
-_xmlrpc_error = "XMLRPC Server proxy not started"
 
 _supervisor_process = None
 
@@ -140,14 +154,16 @@ def supervisor_startup():
     # - Testing and a specific environment variable is not set.
     # - The Python package supervisor is not available.
     if not _must_start_factory():
-        _xmlrpc_error = "supervisor_startup: Do not start\n"
-        sys.stderr.write(_xmlrpc_error)
+        error_message = "supervisor_startup: Do not start. "
+        _xmlrpc_error += error_message
+        sys.stderr.write(error_message + "\n")
         return None
 
     # The proxy is already started.
     if _xmlrpc_server_proxy is not None:
-        _xmlrpc_error = "supervisor_startup _supervisor_process.pid=%d RUNNING\n" % _supervisor_process.pid
-        sys.stderr.write(_xmlrpc_error)
+        error_message = "supervisor_startup _supervisor_process.pid=%d RUNNING. " % _supervisor_process.pid
+        _xmlrpc_error += error_message
+        sys.stderr.write(error_message + "\n")
         return _supervisor_process.pid
 
     # Maybe this is a supervisor service, or a local process.
@@ -157,16 +173,18 @@ def supervisor_startup():
     try:
         _local_supervisor_start()
     except Exception as exc:
-        _xmlrpc_error = str(exc)
-        sys.stderr.write(_xmlrpc_error)
+        error_message = str(exc)
+        _xmlrpc_error += error_message + ". "
+        sys.stderr.write(error_message)
         raise
 
     sys.stderr.write("supervisor_startup _supervisor_process.pid=%d\n" % _supervisor_process.pid)
     # Extra test to be sure that supervisor is running.
     if not psutil.pid_exists(_supervisor_process.pid):
-        _xmlrpc_error = "supervisor_startup not running _supervisor_process.pid=%d\n" % _supervisor_process.pid
-        sys.stderr.write(_xmlrpc_error)
-        raise Exception(_xmlrpc_error)
+        error_message = "supervisor_startup not running _supervisor_process.pid=%d\n" % _supervisor_process.pid
+        _xmlrpc_error += ". " + error_message
+        sys.stderr.write(error_message + "\n")
+        raise Exception(error_message)
 
     try:
         # This is done once only.
@@ -179,13 +197,15 @@ def supervisor_startup():
         time.sleep(1)
         sys.stderr.write("supervisor_startup supervisor_url=%s After wait\n" % supervisor_url)
         if not is_supervisor_running():
-            _xmlrpc_error = "Could not start:%s\n" % supervisor_url
-            raise Exception("Could not start:%s\n" % supervisor_url)
+            error_message = "Could not start:%s\n" % supervisor_url
+            _xmlrpc_error += ". " + error_message
+            raise Exception(error_message)
 
-        _xmlrpc_error = "XMLRPC started OK"
+        _xmlrpc_error += ". XMLRPC started OK"
         return _supervisor_process.pid
     except Exception as exc:
-        sys.stderr.write("Cannot start server proxy:%s\n" % exc)
+        error_message = "Cannot start server proxy:%s" % exc
+        sys.stderr.write(error_message + "\n")
         sys.stderr.write("supervisor_url:%s\n" % supervisor_url)
         _local_supervisor_stop()
         return None
