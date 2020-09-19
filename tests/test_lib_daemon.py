@@ -52,6 +52,13 @@ class CgiScriptTest(unittest.TestCase):
         # http://vps516494.ovh.net/Survol/survol/sources_types/enumerate_CIM_Process.py?xid=.
         test_url = self._dummy_url_prefix + "/survol/sources_types/events_generator_one_tick_per_second.py?parama=123&paramb=START"
         created_process_id = lib_daemon.start_events_generator_daemon(test_url)
+
+        content_stdout = lib_daemon.get_events_generator_stdout(test_url)
+        print("content_stdout=", content_stdout)
+
+        content_stderr = lib_daemon.get_events_generator_stderr(test_url)
+        print("content_stderr=", content_stderr)
+
         self.assertTrue(psutil.pid_exists(created_process_id))
 
         # PYTEST_CURRENT_TEST= tests/test_lib_daemon.py::CgiScriptTest::test_start_events_generator_daemon
