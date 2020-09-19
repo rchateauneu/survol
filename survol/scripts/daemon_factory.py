@@ -331,7 +331,8 @@ def start_user_process(process_name, user_command, environment_parameter=""):
 
         try:
             with open("survol/scripts/supervisord.conf") as config_file:
-                config_content = "\n".join(config_file.readlines())
+                config_content = "".join(config_file.readlines())
+            sys.stderr.write("start_user_process: _survol_group_name=%s\n" % _survol_group_name)
             sys.stderr.write("start_user_process: Configuration=%s\n" % config_content)
         except Exception as exc:
             sys.stderr.write("start_user_process: Cannot read configuration exc=%s\n" % str(exc))
