@@ -218,6 +218,7 @@ def supervisor_startup():
     try:
         # This is done once only.
         supervisor_url = _get_supervisor_url()
+        sys.stderr.write("supervisor_startup supervisor_url=%s\n" % supervisor_url)
 
         # Now, create the connection the supervisor process.
         _xmlrpc_server_proxy = xmlrpclib.ServerProxy(supervisor_url)
@@ -233,7 +234,7 @@ def supervisor_startup():
         _xmlrpc_error += ". XMLRPC started OK"
         return _supervisor_process.pid
     except Exception as exc:
-        error_message = "Cannot start server proxy:%s" % exc
+        error_message = "supervisor_startup supervisor_url=%s Cannot start server proxy:%s" % (supervisor_url, exc)
         sys.stderr.write(error_message + "\n")
         sys.stderr.write("supervisor_url:%s\n" % supervisor_url)
         _local_supervisor_stop()
