@@ -20,7 +20,7 @@ def _url_to_process_name(script_url):
     # because of character: ':' in section 'http://vps516494.ovh.net/x/y/z/script.py?param=24880'>
     # Also, the process name is used to create stdout and stderr log file names,
     # so the process name must contain only chars allowed in filenames.
-    for forbidden_char in ":/\\?=&+*()[]{}%":
+    for forbidden_char in ":/\\?=&+*()[]{}%.":
         script_url = script_url.replace(forbidden_char, "_")
 
     return script_url
