@@ -64,7 +64,11 @@ def _get_supervisor_url():
     if not os.path.exists(_supervisor_config_file):
         raise Exception("Cannot find supervisor config file:" + _supervisor_config_file)
     sys.stderr.write("_get_supervisor_url config_file=%s\n" % _supervisor_config_file)
-    config_status = parsed_config.read(_supervisor_config_file)
+    # config_status = parsed_config.read(_supervisor_config_file)
+    if sys.version_info < (3,):
+        config_status = parsed_config.read(_supervisor_config_file.decode())
+    else:
+        config_status = parsed_config.read(_supervisor_config_file)
     if not config_status:
         raise Exception("config_status should be True")
     sys.stderr.write("config_status=%s\n" % config_status)
@@ -165,7 +169,12 @@ def _local_supervisor_stop():
 
     _supervisor_process.kill()
     _supervisor_process.communicate()
-    _supervisor_process.terminate()
+    try:
+        _supervisor_process.terminate()
+    except Exception as exc:
+        sys.stderr.write("_local_supervisor_stop terminating _supervisor_process.pid=%d: %s\n"
+            % (_supervisor_process.pid, str(exc)))
+
     del _supervisor_process
     _supervisor_process = None
 
