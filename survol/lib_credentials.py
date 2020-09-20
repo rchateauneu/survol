@@ -21,7 +21,7 @@ def credentials_filename():
 	if os.path.isfile(cred_name):
 		return cred_name
 
-	cred_name = os.path.join(lib_util.gblTopScripts, "..", "..", credentials_basname).strip()
+	cred_name = os.path.join(lib_util.gblTopScripts, "..", credentials_basname).strip()
 	if os.path.isfile(cred_name):
 		return cred_name
 
