@@ -70,10 +70,34 @@ class CgiScriptTest(unittest.TestCase):
         self.assertTrue(created_process_id)
 
         status_running = lib_daemon.is_events_generator_daemon_running(test_url)
+        content_stdout = lib_daemon.get_events_generator_stdout(test_url)
+        print("content_stdout=", content_stdout)
+
+        content_stderr = lib_daemon.get_events_generator_stderr(test_url)
+        print("content_stderr=", content_stderr)
+
         self.assertTrue(status_running)
+        content_stdout = lib_daemon.get_events_generator_stdout(test_url)
+        print("content_stdout=", content_stdout)
+
+        content_stderr = lib_daemon.get_events_generator_stderr(test_url)
+        print("content_stderr=", content_stderr)
+
         self.assertTrue(psutil.pid_exists(created_process_id))
         time.sleep(1)
+        content_stdout = lib_daemon.get_events_generator_stdout(test_url)
+        print("content_stdout=", content_stdout)
+
+        content_stderr = lib_daemon.get_events_generator_stderr(test_url)
+        print("content_stderr=", content_stderr)
+
         self.assertTrue(psutil.pid_exists(created_process_id))
+
+        content_stdout = lib_daemon.get_events_generator_stdout(test_url)
+        print("content_stdout=", content_stdout)
+
+        content_stderr = lib_daemon.get_events_generator_stderr(test_url)
+        print("content_stderr=", content_stderr)
 
         status_stopped = lib_daemon.stop_events_generator_daemon(test_url)
         self.assertTrue(status_stopped)
