@@ -6,68 +6,40 @@ import lib_util
 # TODO: Several accesses per machine or database ?
 # TODO: What if an access for "192.168.1.78" and "titi" ?
 
-# This returns the file name containing the credentials.
+
 def credentials_filename():
-	filNamOnly = "SurvolCredentials.json"
-	try:
-		return os.environ["HOME"] + "/" + filNamOnly
-	except KeyError:
-		DEBUG("HOME not defined")
-		pass
+	"""This returns the file name containing the credentials.
+	The filename can be overloaded with an environment variable."""
+	credentials_basname = "SurvolCredentials.json"
 
-	try:
-		return os.environ["HOMEPATH"] + "\\" + filNamOnly
-	except KeyError:
-		DEBUG("HOMEPATH not defined")
-		pass
+	if lib_util.isPlatformLinux:
+		home_directory = os.environ["HOME"]
+	else:
+		home_directory = os.path.join(os.environ["HOMEDRIVE"], os.environ["HOMEPATH"])
+	cred_name = os.path.join(home_directory, credentials_basname).strip()
 
-	dirNam = lib_util.gblTopScripts
+	if os.path.isfile(cred_name):
+		return cred_name
 
-	filNam = dirNam + "/../../" + filNamOnly
+	cred_name = os.path.join(lib_util.gblTopScripts, "..", "..", "..", credentials_basname).strip()
+	if os.path.isfile(cred_name):
+		return cred_name
 
-	return filNam
+	raise Exception("Cannot find a credentials filename:%s" % cred_name)
+
 
 def _build_credentials_document():
 	"""This returns a map containing all credentials."""
 
-	# /home/travis/build/rchateauneu/survol : See "tests/init.py" for the same test.
-	# So the passwords are encrypted in environment variables:
-	# https://stackoverflow.com/questions/9338428/using-secret-api-keys-on-travis-ci/12778315#12778315
-	if os.getcwd().find("travis") >= 0:
-		# When testing on Travis CI, the credentials are encoded in an environment variable set in the Web interface.
-		WARNING("_build_credentials_document Travis mode")
+	file_name = credentials_filename()
 
-		# Actual value: of the environment variable SURVOL_CREDENTIALS
-		# Some characters must be escaled: Double-quotes, colons, curly and square brackets, maybe more.
-		# If your secret variable has special characters like &,
-		# escape them by adding \ in front of each special character.
-		# For example, ma&w!doc would be entered as ma\&w\!doc.
-		# SURVOL_CREDENTIALS = \{\"WBEM\":\{\"http://vps516494.ovh.net:5988\"\:\[\"xxx\",\"yyy\"\]\}\}
-
-		# SURVOL_CREDENTIALS = \{\"WBEM\":\{\"http://vps516494.ovh.net:5988\"\:\[\"xxx\",\"yyy\"\]\},\"Storage\"\:\{\"Events\"\:\[\"SQLAlchemy\",\"sqlite:///C:/tmp/survol_events.sqlite\?mode=memory&cache=shared\"\]\}\}
-		# SURVOL_CREDENTIALS = \{\"WBEM\":\{\"http://vps516494.ovh.net:5988\"\:\[\"xxx\",\"yyy\"\]\},\"Storage\"\:\{\"Events\"\:\[\"SQLAlchemy\",\"sqlite:///C:/tmp/survol_events.sqlite\?mode=memory\&cache=shared\"\]\}\}
-		# TODO: Change the SQLAlchemy file depending on the platform.
-		# SURVOL_CREDENTIALS = \{\"WBEM\":\{\"http://vps516494.ovh.net:5988\"\:\[\"xxx\",\"yyy\"\]\},\"Storage\"\:\{\"Events\"\:\[\"SQLAlchemy\",\"sqlite:/home/travis/build/rchateauneu/survol_events.sqlite\?mode=memory\&cache=shared\"\]\}\}
-
-		travis_credentials_env = os.environ["SURVOL_CREDENTIALS"]
-		DEBUG("_build_credentials_document travis_credentials=%s", travis_credentials_env)
-		travis_credentials = json.loads(travis_credentials_env)
-		return travis_credentials
-
-	filNam = credentials_filename()
 	try:
-		opFil = open(filNam)
-		jsonCreds = json.load( opFil )
-		opFil.close()
+		with open(file_name) as cred_file:
+			json_creds = json.load(cred_file)
 
-		upperCredentials = dict()
-		for keyCred in jsonCreds:
-			keyVal = jsonCreds[keyCred]
-			upperCredentials[keyCred] = keyVal
-
-		return upperCredentials
-	except Exception:
-		WARNING("_build_credentials_document no credentials %s: %s", filNam, str(sys.exc_info()))
+		return json_creds
+	except Exception as exc:
+		WARNING("_build_credentials_document no credentials %s: %s", file_name, str(exc))
 		return dict()
 
 
@@ -128,8 +100,6 @@ def get_credentials_names( credType ):
 		return arrType.keys()
 	except KeyError:
 		ERROR("GetCredentials Invalid type credType=%s",credType)
-		## TEMP TEMP
-		ERROR("SURVOL_CREDENTIALS=[%s]",os.environ['SURVOL_CREDENTIALS'])
 		return []
 
 
