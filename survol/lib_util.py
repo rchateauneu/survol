@@ -496,36 +496,17 @@ def RequestUri():
 
 ################################################################################
 
-
-# SCRIPT_FILENAME=C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/survol/internals/print.py
-# REQUEST_URI=/Survol/survol/internals/print.py
-# SCRIPT_NAME=/Survol/survol/internals/print.py
-
-# TODO: cgiserver.py should have the same base directory as the Apache server.
-# Fedora 26, cgiserver.py : "/home/rchateau/survol"
-# Fedora 22, cgiserver.py : "/home/rchateau/rdfmon-code"
-#     "    , Apache       : "/home/rchateau/rdfmon-code/survol"
-# Windows 7, cgiserver.py : "C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle"
-#     "    , Apache       : "C:\\Users\\rchateau\\Developpement\\ReverseEngineeringApps\\PythonStyle\\survol"
-
-
-
-
 # This assumes that this file is at the top of "survol" package.
-# gblTopScripts=C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\survol
 gblTopScripts = os.path.dirname(os.path.abspath(__file__))
-# TODO: This is necessary because now we import modules from htbin.
-# TODO: We will also add survol/revlib so it will not be necessary to set PYTHONPATH in Apache httpd.conf.
 sys.path.append(gblTopScripts)
-# sys.stderr.write("sys.path=%s\n"%str(sys.path))
-# sys.stderr.write("gblTopScripts=%s\n"%gblTopScripts)
-################################################################################
 
-# Depending on the category, entity_host can have several forms.
-# The name is misleading because it returns a host name,
-# Which might or might not be an IP.
-# TODO: Must be very fast !
+
 def EntHostToIp(entity_host):
+    """Depending on the category, entity_host can have several forms.
+    The name is misleading because it returns a host name,
+    which might or might not be an IP."""
+
+
     # WBEM: http://192.168.1.88:5988
     #       https://jdd:test@acme.com:5959
     #       http://192.168.1.88:5988
@@ -544,6 +525,7 @@ def EntHostToIp(entity_host):
     # sys.stderr.write("EntHostToIp Custom=%s\n" % entity_host )
     return entity_host
 
+
 # TODO: Coalesce with EntHostToIp
 def EntHostToIpReally(entity_host):
     try:
@@ -554,7 +536,7 @@ def EntHostToIpReally(entity_host):
 
 ################################################################################
 
-def ParseXidLocal(xid ):
+def ParseXidLocal(xid):
     # A machine name can contain a domain name : "WORKGROUP\MYHOST-HP", the backslash cannot be at the beginning.
     # "WORKGROUP\MYHOST-HP@CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2"
     # "WORKGROUP\MYHOST-HP@oracle/table.Name=MY_TABLE"
@@ -562,7 +544,7 @@ def ParseXidLocal(xid ):
     # that is "http://192.168.1.83:5988/."
     # A class name starts with a letter. There are no consecutives slashes "/".
     # TODO: Filter when consecutives slashes.
-    mtch_entity = re.match( r"([-0-9A-Za-z_]*\\?[-0-9A-Za-z_\.]*@)?([a-zA-Z_][a-z0-9A-Z_/]*)\.(.*)", xid )
+    mtch_entity = re.match(r"([-0-9A-Za-z_]*\\?[-0-9A-Za-z_\.]*@)?([a-zA-Z_][a-z0-9A-Z_/]*)\.(.*)", xid)
 
     if mtch_entity:
         if mtch_entity.group(1) == None:
@@ -576,9 +558,10 @@ def ParseXidLocal(xid ):
         # Everything which comes after the dot which follows the class name.
         entity_id = urllib_unquote(entity_id_quoted)
 
-        return ( entity_type, entity_id, entity_host )
+        return entity_type, entity_id, entity_host
 
     return None
+
 
 def ParseXidWMI(xid ):
     # WMI : \\MYHOST-HP\root\cimv2:Win32_Process.Handle="0"
@@ -593,7 +576,7 @@ def ParseXidWMI(xid ):
     # This matches for example 'root\cimv2:Win32_Process.Handle="0"'
     wmi_regex_local_part = r"([a-zA-Z0-9_]+)\\([^.]*)(\..*)"
 
-    mtch_ent_wmi = re.match( r"\\\\\\?([-0-9A-Za-z_\.]*)\\" + wmi_regex_local_part, xid )
+    mtch_ent_wmi = re.match(r"\\\\\\?([-0-9A-Za-z_\.]*)\\" + wmi_regex_local_part, xid )
     if mtch_ent_wmi:
         grp = mtch_ent_wmi.groups()
         entity_host = grp[0]
@@ -608,7 +591,7 @@ def ParseXidWMI(xid ):
             entity_id = urllib_unquote(entity_id_quoted)[1:]
             # sys.stderr.write("WMI Object Cimom=%s ns_type=%s path=%s\n" % ( entity_host, entity_type, entity_id ))
 
-        return ( entity_type, entity_id, entity_host )
+        return entity_type, entity_id, entity_host
 
     # WMI : Maybe the host is missing, and implicitely the local machine.
     # http://127.0.0.1:8000/survol/class_type_all.py?xid=root\CIMV2:Win32_Process.
@@ -626,9 +609,10 @@ def ParseXidWMI(xid ):
             entity_id = urllib_unquote(entity_id_quoted)[1:]
             # sys.stderr.write("WMI Object Cimom=%s ns_type=%s path=%s\n" % ( entity_host, entity_type, entity_id ))
 
-        return ( entity_type, entity_id, entity_host )
+        return entity_type, entity_id, entity_host
 
     return None
+
 
 def ParseXidWBEM(xid ):
     # https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"
@@ -649,9 +633,10 @@ def ParseXidWBEM(xid ):
             entity_id = urllib_unquote(entity_id_quoted)[1:]
             # sys.stderr.write("WBEM Object Cimom=%s ns_type=%s path=%s\n" % ( entity_host, entity_type, entity_id ))
 
-        return ( entity_type, entity_id, entity_host )
+        return entity_type, entity_id, entity_host
 
     return None
+
 
 # This receives the xid value for, for example: "xid=@/:oracle_package."
 # It parses this string into three components and returns the class,
@@ -674,21 +659,21 @@ def ParseXid(xid ):
     # Apparently it is not a problem for the plain old entities.
     xid = urllib_unquote(xid)
 
-    entity_triplet = ParseXidWMI(xid )
+    entity_triplet = ParseXidWMI(xid)
     if entity_triplet:
         return entity_triplet
 
-    entity_triplet = ParseXidWBEM(xid )
+    entity_triplet = ParseXidWBEM(xid)
     if entity_triplet:
         return entity_triplet
 
     # sys.stderr.write( "ParseXid=%s RETURNS NOTHING\n" % (xid) )
-    return ( "", "", "" )
+    return "", "", ""
 
 ################################################################################
 
+
 # TODO: Would probably be faster by searching for the last "/".
-# MUST BE VERY FAST.
 # '\\\\MYHOST-HP\\root\\cimv2:Win32_Process.Handle="0"'  => "root\\cimv2:Win32_Process"
 # https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"  => ""
 def parse_namespace_type(ns_entity_type):
@@ -704,9 +689,11 @@ def parse_namespace_type(ns_entity_type):
 
 ################################################################################
 
+
 # A bit temporary.
 def ScriptizeCimom(path, entity_type, cimom):
     return uriRoot + path + "?" + EncodeEntityId(cimom + "/" + entity_type,"")
+
 
 # Properly encodes type and id into a URL.
 # TODO: Ca va etre un peu un obstacle car ca code vraiment le type d'URL.
@@ -716,9 +703,11 @@ def Scriptize(path, entity_type, entity_id):
 
 ################################################################################
 
+
 # TODO: Consider base64 encoding of all arguments, with "Xid="
 # This would give the same encoding for all parameters whetever their class.
 xidCgiDelimiter = "?xid="
+
 
 # This creates the URL of a class, "Survol, "WMI" or "WBEM".
 def EntityClassUrl(entity_type, entity_namespace = "", entity_host = "", category = ""):
@@ -746,6 +735,7 @@ def EntityClassUrl(entity_type, entity_namespace = "", entity_host = "", categor
 
     url = uriRoot + "/class_type_all.py" + xidCgiDelimiter + EncodeUri(monikerClass)
     return url
+
 
 # This creates the node of a class, "Survol" (Default), "WMI" or "WBEM".
 def EntityClassNode(entity_type, entity_namespace = "", entity_host = "", category = ""):
@@ -783,11 +773,10 @@ def KWArgsToEntityId(className, **kwargsOntology):
     return entity_id
 
 
-
-
 # This is the most common case. Shame we call the slower function.
 def EntityUri(entity_type,*entity_ids):
     return EntityUriDupl( entity_type, *entity_ids )
+
 
 def EntityUriDupl(entity_type,*entity_ids,**extra_args):
     # sys.stderr.write("EntityUriDupl %s\n" % str(entity_ids))
