@@ -115,8 +115,6 @@ def get_events_generator_stderr(script_url):
     return daemon_factory.get_user_process_stderr(process_name)
 
 
-
-
 def stop_events_generator_daemon(script_url):
     process_name = _url_to_process_name(script_url)
     sys.stderr.write("stop_events_generator_daemon process_name=%s\n" % process_name)
