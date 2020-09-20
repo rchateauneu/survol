@@ -413,14 +413,14 @@ def get_user_process_stdout(process_name):
     process_info = _get_user_process_info(process_name)
 
     with open(process_info['stdout_logfile']) as file_stdout:
-        return " ".join(file_stdout.readlines())
+        return "\n".join(file_stdout.readlines())
 
 
 def get_user_process_stderr(process_name):
     process_info = _get_user_process_info(process_name)
 
     with open(process_info['stderr_logfile']) as file_stderr:
-        return " ".join(file_stderr.readlines())
+        return "\n".join(file_stderr.readlines())
 
 
 def stop_user_process(process_name):
