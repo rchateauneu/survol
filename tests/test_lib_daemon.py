@@ -102,7 +102,7 @@ class CgiScriptTest(unittest.TestCase):
         status_stopped = lib_daemon.stop_events_generator_daemon(test_url)
         self.assertTrue(status_stopped)
         # Supervisor may need a bit of time to stop the user process.
-        time.sleep(1)
+        time.sleep(3)
         self.assertFalse(psutil.pid_exists(created_process_id))
 
     def test_start_events_generator_non_daemon(self):
@@ -125,7 +125,7 @@ class CgiScriptTest(unittest.TestCase):
         self.assertTrue(html_content)
 
 
-@unittest.skipIf(is_travis_machine(), "TEMPORARY DISABLED")
+#@unittest.skipIf(is_travis_machine(), "TEMPORARY DISABLED")
 class CgiScriptStartThenKillTest(unittest.TestCase):
     """This tests all known events generator and at least checks of they start and stop properly."""
 
@@ -198,7 +198,7 @@ class CgiScriptStartThenKillTest(unittest.TestCase):
         self.assertTrue(daemon_result)
         self.assertTrue(non_daemon_result)
 
-    @unittest.skip("TEMPORARY DISABLED")
+    #@unittest.skip("TEMPORARY DISABLED")
     def test_events_generator_system_calls(self):
         proc_open = None
         try:
@@ -229,7 +229,7 @@ class CgiScriptStartThenKillTest(unittest.TestCase):
                 proc_popen.communicate()
                 proc_popen.terminate()
 
-    @unittest.skip("BROKEN")
+    @unittest.skip("iostat must be installed")
     def test_events_generator_iostat_all_disks(self):
         url_suffix = "Linux/events_generator_iostat_all_disks.py"
         daemon_result, non_daemon_result = self._check_script(url_suffix)
