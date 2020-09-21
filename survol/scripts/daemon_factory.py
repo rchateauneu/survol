@@ -399,6 +399,8 @@ def is_user_process_running(process_name):
 
 def get_user_process_stdout(process_name):
     process_info = _get_user_process_info(process_name)
+    if process_info is None:
+        return "No stdout for process_name=" + process_name
 
     with open(process_info['stdout_logfile']) as file_stdout:
         return " ".join(file_stdout.readlines())
@@ -406,6 +408,8 @@ def get_user_process_stdout(process_name):
 
 def get_user_process_stderr(process_name):
     process_info = _get_user_process_info(process_name)
+    if process_info is None:
+        return "No stderr for process_name=" + process_name
 
     with open(process_info['stderr_logfile']) as file_stderr:
         return " ".join(file_stderr.readlines())
