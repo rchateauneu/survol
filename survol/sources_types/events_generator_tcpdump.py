@@ -13,6 +13,7 @@ import time
 import lib_util
 import lib_common
 from lib_properties import pc
+import subprocess
 
 # This parses the output of "tcpdump" or "WinDump.exe" if on Windows.
 def _parse_tcpdump_line(grph, line):
@@ -56,7 +57,7 @@ def Main(loop_number=1):
         sys.stderr.write("tcpdump_cmd=%s\n" % str(tcpdump_cmd))
 
         proc_popen = subprocess.Popen(tcpdump_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
-	for lin in proc_popen.stdout.readlines():
+        for lin in proc_popen.stdout.readlines():
             if not lin:
                 continue
             grph = cgiEnv.ReinitGraph()
