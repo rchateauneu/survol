@@ -42,6 +42,7 @@ install:
   - pip install pywbem
   - pip install sqlparse
   - pip install supervisor
+  - pip install natsort
 script:
   - pwd
   - pytest -v --durations=30 tests
