@@ -380,7 +380,12 @@ def start_user_process(process_name, user_command, environment_parameter=""):
     # 'statename': 'STOPPED',
     # 'stderr_logfile': 'C:\\Users\\rchateau\\AppData\\Local\\Temp\\survol_url_1597910058-stderr---survol_supervisor-1k6bm7jz.log',
     # 'stdout_logfile': 'C:\\Users\\rchateau\\AppData\\Local\\Temp\\survol_url_1597910058-stdout---survol_supervisor-g1bg9mxg.log',
-    process_info = _xmlrpc_server_proxy.supervisor.getProcessInfo(full_process_name)
+    try:
+        process_info = _xmlrpc_server_proxy.supervisor.getProcessInfo(full_process_name)
+        sys.stderr.write("start_user_process: OK getProcessInfo %s\n" % full_process_name)
+    except Exception as exc:
+        sys.stderr.write("start_user_process: No getProcessInfo %s\n" % full_process_name)
+        process_info = None
 
     if process_info is None:
         # Maybe this program is not defined in the config file,
@@ -389,7 +394,7 @@ def start_user_process(process_name, user_command, environment_parameter=""):
         _add_and_start_program_to_group(process_name, user_command, environment_parameter)
         process_info = _xmlrpc_server_proxy.supervisor.getProcessInfo(full_process_name)
         if process_info is None:
-            raise Exception("Cannot get process_infi after adding program:%" % full_process_name)
+            raise Exception("Cannot get process_info after adding program:%" % full_process_name)
         created_process_id = process_info['pid']
         if not psutil.pid_exists(created_process_id):
             raise Exception("start_user_process: New process not successfully started.\n")
