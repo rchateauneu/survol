@@ -324,7 +324,19 @@ def start_user_process(process_name, user_command, environment_parameter=""):
             program_options)
         sys.stderr.write("start_user_process: After addProgramToGroup\n")
     except Exception as exc:
+        # Possible exception
+        # exc=<Fault 2: "INCORRECT_PARAMETERS: No closing quotation in section
+        # 'program:ama_123_paramb_START' (file: 'survol/scripts/supervisord.conf')">
         sys.stderr.write("start_user_process: start_user_process exc=%s\n" % exc)
+
+        try:
+            with open("survol/scripts/supervisord.conf") as config_file:
+                config_content = "".join(config_file.readlines())
+            sys.stderr.write("start_user_process: _survol_group_name=%s\n" % _survol_group_name)
+            sys.stderr.write("start_user_process: Configuration=%s\n" % config_content)
+        except Exception as exc:
+            sys.stderr.write("start_user_process: Cannot read configuration exc=%s\n" % str(exc))
+
         raise
     sys.stderr.write("start_user_process: add_status=%s\n" % add_status)
 
@@ -362,7 +374,6 @@ def start_user_process(process_name, user_command, environment_parameter=""):
             sys.stderr.write("==== stderr_logfile ====\n%s" % "\n".join(stderr_logfile.readlines()))
         raise Exception("created_process_id=%d not started" % created_process_id)
     return created_process_id
-
 
 
 def _get_user_process_info(process_name):
@@ -403,7 +414,7 @@ def get_user_process_stdout(process_name):
         return "No stdout for process_name=" + process_name
 
     with open(process_info['stdout_logfile']) as file_stdout:
-        return " ".join(file_stdout.readlines())
+        return "".join(file_stdout.readlines())
 
 
 def get_user_process_stderr(process_name):
@@ -412,7 +423,7 @@ def get_user_process_stderr(process_name):
         return "No stderr for process_name=" + process_name
 
     with open(process_info['stderr_logfile']) as file_stderr:
-        return " ".join(file_stderr.readlines())
+        return "".join(file_stderr.readlines())
 
 
 def stop_user_process(process_name):

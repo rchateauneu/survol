@@ -23,6 +23,9 @@ def _url_to_process_name(script_url):
     for forbidden_char in ":/\\?=&+*()[]{}%.":
         script_url = script_url.replace(forbidden_char, "_")
 
+    # start_user_process: start_user_process exc=<Fault 2:
+    # "INCORRECT_PARAMETERS: No closing quotation in section 'program:ama_123_paramb_START'
+    # (file: 'survol/scripts/supervisord.conf')">
     return script_url
 
 
@@ -81,17 +84,10 @@ def start_events_generator_daemon(script_url):
         parsed_url.path,
         "%s?%s" % (parsed_url.path, query_string_with_daemon_mode))
 
-
     # The script might be a test script which needs its execution context.
     # Sometimes, the library behaviour is slightly different in test mode.
     if "PYTEST_CURRENT_TEST" in os.environ:
         environment_parameter += ',PYTEST_CURRENT_TEST="%s"' % os.environ["PYTEST_CURRENT_TEST"]
-    environment_parameter += ',FUNCTION_NAME="%s"' % "start_events_generator_daemon"
-    environment_parameter += ',JUST_IN_CASE="%s"' % script_url
-    if "SURVOL_CREDENTIALS" in os.environ:
-        environment_parameter += ',SURVOL_CREDENTIALS="%s"' % os.environ["SURVOL_CREDENTIALS"]
-    else:
-        environment_parameter += ',SURVOL_CREDENTIALS="%s"' % "Is not set but should be"
 
     sys.stderr.write("python_command=%s\n" % python_command)
     sys.stderr.write("environment_parameter=%s\n" % environment_parameter)
@@ -117,8 +113,6 @@ def get_events_generator_stderr(script_url):
     process_name = _url_to_process_name(script_url)
     sys.stderr.write("get_events_generator_stderr process_name=%s\n" % process_name)
     return daemon_factory.get_user_process_stderr(process_name)
-
-
 
 
 def stop_events_generator_daemon(script_url):
