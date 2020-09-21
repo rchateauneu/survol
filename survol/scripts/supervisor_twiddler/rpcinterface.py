@@ -48,6 +48,7 @@ class TwiddlerNamespaceRPCInterface:
         @return array                Process group names
         """
         self._update('getGroupNames')
+        # TODO: Return a set or an generator.
         return list(self.supervisord.process_groups.keys())
 
     def log(self, message, level=supervisor.loggers.LevelsByName.INFO):
@@ -99,7 +100,7 @@ class TwiddlerNamespaceRPCInterface:
         for new_config in new_configs:
             for existing_config in group.config.process_configs:
                 if new_config.name == existing_config.name:
-                    raise RPCError(SupervisorFaults.BAD_NAME, new_config.name)
+                    raise RPCError(SupervisorFaults.BAD_NAME, "Duplicated process name:" + new_config.name)
 
         # add process configs to group
         group.config.process_configs.extend(new_configs)
@@ -131,7 +132,7 @@ class TwiddlerNamespaceRPCInterface:
         # check process exists and is running
         process = group.processes.get(process_name)
         if process is None:
-            raise RPCError(SupervisorFaults.BAD_NAME, process_name)
+            raise RPCError(SupervisorFaults.BAD_NAME, "Unknown process:" + process_name)
         if process.pid or process.state not in STOPPED_STATES:
             raise RPCError(SupervisorFaults.STILL_RUNNING, process_name)
 
@@ -149,7 +150,7 @@ class TwiddlerNamespaceRPCInterface:
         """ Find a process group by its name """
         group = self.supervisord.process_groups.get(name)
         if group is None:
-            raise RPCError(SupervisorFaults.BAD_NAME, 'group: %s' % name)
+            raise RPCError(SupervisorFaults.BAD_NAME, 'Unknown group: %s' % name)
         return group
 
     def _makeConfigParser(self, section_name, options):
