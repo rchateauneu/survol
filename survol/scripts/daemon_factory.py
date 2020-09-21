@@ -18,6 +18,7 @@ _xmlrpc_error = "XMLRPC Server proxy not started."
 # This starts a supervisor process in interactive mode, except if a daemon is already started.
 try:
     import supervisor
+    from supervisor.xmlrpc import Faults as SupervisorFaults
 except ImportError as exc:
     _xmlrpc_error += str(exc) + ". "
     sys.stderr.write("Cannot import supervisor\n")
@@ -296,18 +297,20 @@ def is_supervisor_running():
 _survol_group_name = "survol_group"
 
 
-def start_user_process(process_name, user_command, environment_parameter=""):
-    """This returns the newly created process id."""
-    sys.stderr.write("start_user_process: python_command=%s\n" % user_command)
-    sys.stderr.write("start_user_process: _xmlrpc_error=%s\n" % _xmlrpc_error)
-    if _xmlrpc_server_proxy is None:
-        sys.stderr.write("start_user_process: Server proxy not set: " + _xmlrpc_error)
-        return None
+def _display_configuration_file(configuration_file_name):
+    try:
+        with open(configuration_file_name) as config_file:
+            config_content = "".join(config_file.readlines())
+        sys.stderr.write("start_user_process: _survol_group_name=%s\n" % _survol_group_name)
+        sys.stderr.write("start_user_process: Configuration start ================================\n")
+        sys.stderr.write("%s\n" % config_content)
+        sys.stderr.write("start_user_process: Configuration end   ================================\n")
+    except Exception as exc:
+        sys.stderr.write("start_user_process: Cannot read configuration exc=%s\n" % str(exc))
 
-    full_process_name = _survol_group_name + ":" + process_name
-    sys.stderr.write("start_user_process: full_process_name=%s\n" % full_process_name)
 
-    # Aff the program and starts it immediately: This is faster
+def _add_and_start_program_to_group(process_name, user_command, environment_parameter):
+    # Add the program and starts it immediately: This is faster
     program_options = {
         'command': user_command,
         'autostart': 'true',
@@ -323,22 +326,49 @@ def start_user_process(process_name, user_command, environment_parameter=""):
             process_name,
             program_options)
         sys.stderr.write("start_user_process: After addProgramToGroup\n")
+        sys.stderr.write("start_user_process: add_status=%s\n" % add_status)
     except Exception as exc:
-        # Possible exception
-        # exc=<Fault 2: "INCORRECT_PARAMETERS: No closing quotation in section
+        # Possible exceptions:
+        #
+        # Fault: <Fault 10: 'BAD_NAME: http___any_machine_any_directory__survol_sources_types_events_generator_one_tick_per_second_py_parama_123_paramb_START'>
+        #
+        # <Fault 2: "INCORRECT_PARAMETERS: No closing quotation in section
         # 'program:ama_123_paramb_START' (file: 'survol/scripts/supervisord.conf')">
+        #
         sys.stderr.write("start_user_process: start_user_process exc=%s\n" % exc)
+        sys.stderr.write("start_user_process: start_user_process dir(exc)=%s\n" % dir(exc))
+        sys.stderr.write("start_user_process: start_user_process exc.args=%s\n" % str(exc.args))
+        sys.stderr.write("start_user_process: start_user_process exc.faultCode=%s\n" % exc.faultCode)
+        sys.stderr.write("start_user_process: start_user_process exc.faultString=%s\n" % exc.faultString)
+        sys.stderr.write("start_user_process: start_user_process exc.message=%s\n" % exc.message)
 
-        try:
-            with open("survol/scripts/supervisord.conf") as config_file:
-                config_content = "".join(config_file.readlines())
-            sys.stderr.write("start_user_process: _survol_group_name=%s\n" % _survol_group_name)
-            sys.stderr.write("start_user_process: Configuration=%s\n" % config_content)
-        except Exception as exc:
-            sys.stderr.write("start_user_process: Cannot read configuration exc=%s\n" % str(exc))
+        if exc.faultCode == SupervisorFaults.BAD_NAME:
+            sys.stderr.write("POSSIBLY DOUBLE DEFINITION\n")
+        else:
+            _display_configuration_file("survol/scripts/supervisord.conf")
+            raise
 
-        raise
-    sys.stderr.write("start_user_process: add_status=%s\n" % add_status)
+
+def _display_process_files(process_info):
+    with open(process_info['stderr_logfile']) as stderr_logfile:
+        sys.stderr.write("==== stderr_logfile ====\n%s" % "\n".join(stderr_logfile.readlines()))
+    with open(process_info['stdout_logfile']) as stdout_logfile:
+        sys.stderr.write("==== stdout_logfile ====\n%s" % "\n".join(stdout_logfile.readlines()))
+    if process_info['logfile'] != process_info['stdout_logfile']:
+        raise Exception("display_process_files Inconsistent log files:%s %s" % (
+            process_info['logfile'], process_info['stdout_logfile']))
+
+
+def start_user_process(process_name, user_command, environment_parameter=""):
+    """This returns the newly created process id."""
+    sys.stderr.write("start_user_process: python_command=%s\n" % user_command)
+    sys.stderr.write("start_user_process: _xmlrpc_error=%s\n" % _xmlrpc_error)
+    if _xmlrpc_server_proxy is None:
+        sys.stderr.write("start_user_process: Server proxy not set: " + _xmlrpc_error)
+        return None
+
+    full_process_name = _survol_group_name + ":" + process_name
+    sys.stderr.write("start_user_process: full_process_name=%s\n" % full_process_name)
 
     # 'logfile': 'C:\\Users\\rchateau\\AppData\\Local\\Temp\\survol_url_1597910058-stdout---survol_supervisor-g1bg9mxg.log',
     # 'name': 'survol_url_1597910058',
@@ -351,11 +381,46 @@ def start_user_process(process_name, user_command, environment_parameter=""):
     # 'stderr_logfile': 'C:\\Users\\rchateau\\AppData\\Local\\Temp\\survol_url_1597910058-stderr---survol_supervisor-1k6bm7jz.log',
     # 'stdout_logfile': 'C:\\Users\\rchateau\\AppData\\Local\\Temp\\survol_url_1597910058-stdout---survol_supervisor-g1bg9mxg.log',
     process_info = _xmlrpc_server_proxy.supervisor.getProcessInfo(full_process_name)
+
+    if process_info is None:
+        # Maybe this program is not defined in the config file,
+        # so let's define it automatically.
+        sys.stderr.write("start_user_process: process_info is NONE\n")
+        _add_and_start_program_to_group(process_name, user_command, environment_parameter)
+        process_info = _xmlrpc_server_proxy.supervisor.getProcessInfo(full_process_name)
+        if process_info is None:
+            raise Exception("Cannot get process_infi after adding program:%" % full_process_name)
+        created_process_id = process_info['pid']
+        if not psutil.pid_exists(created_process_id):
+            raise Exception("start_user_process: New process not successfully started.\n")
+    else:
+        sys.stderr.write("start_user_process: process_info is HERE=%s\n" % process_info)
+        created_process_id = process_info['pid']
+        if created_process_id > 0:
+            if not psutil.pid_exists(created_process_id):
+                raise Exception("start_user_process: Existing process not existing.\n")
+        else:
+            # Now, starts the process
+            try:
+                start_result = _xmlrpc_server_proxy.supervisor.startProcess(full_process_name)
+            except Exception as exc:
+                sys.stderr.write("start_user_process: StartProcess raised:%s\n" % str(exc))
+                raise
+            
+            if start_result:
+                sys.stderr.write("start_user_process: StartProcess OK\n")
+            else:
+                raise Exception("Error restarting %s" % full_process_name)
+            process_info = _xmlrpc_server_proxy.supervisor.getProcessInfo(full_process_name)
+            if process_info is None:
+                raise Exception("Cannot get process_infi after restarting program:%" % full_process_name)
+            created_process_id = process_info['pid']
+            if created_process_id > 0:
+                if not psutil.pid_exists(created_process_id):
+                    raise Exception("start_user_process: Existing process not existing.\n")
+
     sys.stderr.write("start_user_process: process_info=%s\n" % process_info)
 
-    if process_info['logfile'] != process_info['stdout_logfile']:
-        raise Exception("start_user_process Inconsistent log files:%s %s" % (
-            process_info['logfile'], process_info['stdout_logfile']))
 
     # Various errors.
     # xmlrpc.client.Fault: <Fault 50: 'SPAWN_ERROR: thegroupname:dir4'>
@@ -365,13 +430,9 @@ def start_user_process(process_name, user_command, environment_parameter=""):
     # xmlrpc.client.Fault: <Fault 60: 'ALREADY_STARTED: survol_group:test_start_user_process_20732'>
     # _xmlrpc_server_proxy.supervisor.startProcess(full_process_name)
 
-    created_process_id = process_info['pid']
     # This expects the process to be continuously running.
     if not psutil.pid_exists(created_process_id):
-        with open(process_info['stdout_logfile']) as stdout_logfile:
-            sys.stderr.write("==== stdout_logfile ====\n%s" % "\n".join(stdout_logfile.readlines()))
-        with open(process_info['stderr_logfile']) as stderr_logfile:
-            sys.stderr.write("==== stderr_logfile ====\n%s" % "\n".join(stderr_logfile.readlines()))
+        _display_process_files(process_info)
         raise Exception("created_process_id=%d not started" % created_process_id)
     return created_process_id
 
