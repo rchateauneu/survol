@@ -95,7 +95,8 @@ except ImportError:
 try:
     from survol import lib_sql
 except ImportError:
-    print("Cannot import optional module lib_sql")
+    # Do not write error message to stdout.
+    sys.stderr.write("Cannot import optional module lib_sql\n")
     lib_sql = None
 
 try:

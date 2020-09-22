@@ -15,7 +15,11 @@ def credentials_filename():
 	if lib_util.isPlatformLinux:
 		home_directory = os.environ["HOME"]
 	else:
-		home_directory = os.path.join(os.environ["HOMEDRIVE"], os.environ["HOMEPATH"])
+		try:
+			home_drive = os.environ["HOMEDRIVE"]
+		except:
+			home_drive = "C:"
+		home_directory = os.path.join(home_drive, os.environ["HOMEPATH"])
 	cred_name = os.path.join(home_directory, credentials_basname).strip()
 
 	if os.path.isfile(cred_name):
