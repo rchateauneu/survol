@@ -19,7 +19,13 @@ def credentials_filename():
 			home_drive = os.environ["HOMEDRIVE"]
 		except:
 			home_drive = "C:"
-		home_directory = os.path.join(home_drive, os.environ["HOMEPATH"])
+		try:
+			home_path = os.environ["HOMEPATH"]
+		except:
+			available_envs = os.environ.keys()
+			sys.stderr.write("Available environment variables:%s\n" % str(available_envs))
+			raise
+		home_directory = os.path.join(home_drive, home_path)
 	cred_name = os.path.join(home_directory, credentials_basname).strip()
 
 	if os.path.isfile(cred_name):
