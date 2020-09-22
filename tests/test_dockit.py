@@ -1364,7 +1364,11 @@ class EventsServerTest(unittest.TestCase):
         stop_cgiserver(self._remote_events_test_agent)
 
     def _check_read_triples(self, num_loops, expected_types_list):
-        # Now read the events.
+        """This reads all available events and do a simplified comparison of the results,
+        by checking the number of instances of each class.
+        Because the events are fed by another process running dockit, the reading is done
+        in a number of loops, until all events are read.
+        """
         url_events = _remote_events_test_agent + "/survol/sources_types/event_get_all.py?mode=rdf"
 
         actual_types_dict = collections.defaultdict(lambda: 0)
@@ -1400,8 +1404,9 @@ class EventsServerTest(unittest.TestCase):
         print("actual_types_dict=", actual_types_dict)
         self.assertEqual(expected_types_list, actual_types_dict)
 
-    @unittest.skipIf(is_travis_machine(), "TEMPORARY DISABLED")
+    #@unittest.skipIf(is_travis_machine(), "TEMPORARY DISABLED")
     def test_file_events_ps_ef(self):
+        """This reruns the tracing of the Linux command "ps -ef" """
         output_basename_prefix = "dockit_events_ps_ef.strace"
         dockit.test_from_file(
             input_log_file= path_prefix_input_file("dockit_ps_ef.strace.log"),
@@ -1430,8 +1435,11 @@ class EventsServerTest(unittest.TestCase):
         # Now read and test the events.
         self._check_read_triples(5, expected_types_list)
 
-    @unittest.skipIf(is_travis_machine(), "TEMPORARY DISABLED")
+    #@unittest.skipIf(is_travis_machine(), "TEMPORARY DISABLED")
     def test_file_events_shell(self):
+        """This reruns the execution of a shell.
+        The result of the command ltrace was stored in a file by dockit.
+        This dockit session is replayed, and the detected objects must be correctly found. """
         output_basename_prefix = "dockit_events_sample_shell.ltrace"
         dockit.test_from_file(
             input_log_file= path_prefix_input_file("dockit_sample_shell.ltrace.log"),
@@ -1460,8 +1468,9 @@ class EventsServerTest(unittest.TestCase):
         # Now read and test the events.
         self._check_read_triples(5, expected_types_list)
 
-    @unittest.skipIf(is_travis_machine(), "TEMPORARY DISABLED")
+    #@unittest.skipIf(is_travis_machine(), "TEMPORARY DISABLED")
     def test_file_events_proftpd(self):
+        """This reruns a dockit tracing of the execution of a FTP command."""
         output_basename_prefix = "dockit_events_proftpd.strace.26299"
         dockit.test_from_file(
             input_log_file= path_prefix_input_file("dockit_proftpd.strace.26299.log"),
@@ -1480,6 +1489,7 @@ class EventsServerTest(unittest.TestCase):
         check_file_content(output_basename_prefix + ".json")
         check_file_content(output_basename_prefix + ".summary.txt")
 
+        # This is a FTP command, which obviously involves many files and a network connection.
         expected_types_list = {
             'CIM_Process': 6,
             'CIM_NetworkAdapter': 1,
@@ -1490,8 +1500,9 @@ class EventsServerTest(unittest.TestCase):
         # Now read and test the events.
         self._check_read_triples(5, expected_types_list)
 
-    @unittest.skipIf(is_travis_machine(), "TEMPORARY DISABLED")
+    #@unittest.skipIf(is_travis_machine(), "TEMPORARY DISABLED")
     def test_file_events_firefox(self):
+        """This replays the startup of a firefox process."""
         output_basename_prefix = "firefox_events_google.strace.22501"
         dockit.test_from_file(
             input_log_file= path_prefix_input_file("firefox_google.strace.22501.log"),
