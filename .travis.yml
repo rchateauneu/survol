@@ -41,7 +41,6 @@ install:
   - pip install SPARQLWrapper
   - pip install pywbem
   - pip install sqlparse
-  - pip install supervisor
   - pip install natsort
 script:
   - pwd
