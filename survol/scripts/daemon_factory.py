@@ -120,37 +120,39 @@ def _local_supervisor_start():
     sys.stderr.write("_local_supervisor_start begin\n")
 
     # Maybe it is already started.
-    if _supervisor_process:
+    if not _supervisor_process is None:
         # TODO: Should check that it is still there.
         sys.stderr.write("_local_supervisor_start leaving _supervisor_process.pid=%d\n" % _supervisor_process.pid)
         is_running = psutil.pid_exists(_supervisor_process.pid)
         if is_running:
             sys.stderr.write("_local_supervisor_start running fine\n")
         else:
-            sys.stderr.write("_local_supervisor_start NOT RUNNING\n")
+            sys.stderr.write("_local_supervisor_start SHOULD BE RUNNING\n")
+            process_stdout, process_stderr = _supervisor_process.communicate()
+            sys.stderr.write("_local_supervisor_start FAILED process_stdout=%s\n" % process_stdout)
+            sys.stderr.write("_local_supervisor_start FAILED process_stderr=%s\n" % process_stderr)
         return
 
     supervisor_command = [sys.executable, "-m", "supervisor.supervisord", "-c", _supervisor_config_file]
     sys.stderr.write("_local_supervisor_start supervisor_command=%s\n" % str(supervisor_command))
 
     # No Shell, otherwise the subprocess running supervisor, will not be stopped.
-    proc_popen = subprocess.Popen(supervisor_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+    _supervisor_process = subprocess.Popen(supervisor_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
 
-    sys.stderr.write("_local_supervisor_start proc_popen=%s\n" % proc_popen)
-    sys.stderr.write("_local_supervisor_start proc_popen.pid=%d\n" % proc_popen.pid)
+    sys.stderr.write("_local_supervisor_start proc_popen=%s\n" % _supervisor_process)
+    sys.stderr.write("_local_supervisor_start proc_popen.pid=%d\n" % _supervisor_process.pid)
 
+    # TODO: Remove this check.
     for counter in range(3):
-        is_running = psutil.pid_exists(proc_popen.pid)
+        is_running = psutil.pid_exists(_supervisor_process.pid)
         if is_running:
-            sys.stderr.write("_local_supervisor_start proc_popen.pid=%d RUNNING OK\n" % proc_popen.pid)
+            sys.stderr.write("_local_supervisor_start proc_popen.pid=%d RUNNING OK\n" % _supervisor_process.pid)
         else:
-            process_stdout, process_stderr = proc_popen.communicate()
+            process_stdout, process_stderr = _supervisor_process.communicate()
             sys.stderr.write("_local_supervisor_start process_stdout=%s\n" % process_stdout)
             sys.stderr.write("_local_supervisor_start process_stderr=%s\n" % process_stderr)
             break
         time.sleep(1)
-
-    _supervisor_process = proc_popen
 
 
 def _local_supervisor_stop():
@@ -176,7 +178,8 @@ def _local_supervisor_stop():
         sys.stderr.write("_local_supervisor_stop terminating _supervisor_process.pid=%d: %s\n"
             % (_supervisor_process.pid, str(exc)))
 
-    del _supervisor_process
+    if _supervisor_process is None:
+        del _supervisor_process
     _supervisor_process = None
 
     # TODO: Should call _xmlrpc_server_proxy.supervisor.shutdown()
