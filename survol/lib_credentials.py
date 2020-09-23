@@ -32,10 +32,12 @@ def credentials_filename():
 	home_directory = _get_home_directory()
 	if home_directory:
 		cred_name = os.path.join(home_directory, credentials_basname).strip()
-	else:
-		# The Travis tests do not store the credential file on the user's home directory
-		# because this is not clearly defined, and anyway, it would potentially a security breach.
-		cred_name = os.path.join(lib_util.gblTopScripts, "..", credentials_basname).strip()
+		if os.path.isfile(cred_name):
+			return cred_name
+
+	# The Travis tests do not store the credential file on the user's home directory
+	# because this is not clearly defined, and anyway, it would potentially a security breach.
+	cred_name = os.path.join(lib_util.gblTopScripts, "..", credentials_basname).strip()
 
 	if os.path.isfile(cred_name):
 		return cred_name
