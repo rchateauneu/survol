@@ -77,7 +77,12 @@ def CreateWbemNode(grph,rootNode,entity_host, nameSpace, className, entity_id):
 		grph.add( ( wbemNode, pc.property_wbem_server, lib_common.NodeLiteral( url_server[1] ) ) )
 
 		# Now adds the description of the class.
-		connWbem = lib_wbem.WbemConnection(entity_host)
+		try:
+			connWbem = lib_wbem.WbemConnection(entity_host)
+		except Exception as exc:
+			sys.stderr.write("WbemConnection throw:%s\n" % str(exc))
+			continue
+
 		klaDescrip = lib_wbem.WbemClassDescription(connWbem,className,wbemNamespace)
 		okWbemClass = True
 		if not klaDescrip:
