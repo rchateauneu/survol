@@ -22,12 +22,10 @@ def Main():
 	namespace_class = "wbem_namespace"
 	rootNode = lib_util.EntityUri(namespace_class,"")
 
-	connWbem = lib_wbem.WbemConnection(cimomUrl)
-
 	try:
+		connWbem = lib_wbem.WbemConnection(cimomUrl)
 		nsd = lib_wbem.EnumNamespacesCapabilities(connWbem)
-	except Exception:
-		exc = sys.exc_info()[1]
+	except Exception as exc:
 		lib_common.ErrorMessageHtml("Namespaces from :"+cimomUrl+" Caught:"+str(exc))
 
 	# TODO: We should draw a namespaces tree but more examples needed.
