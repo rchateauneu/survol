@@ -470,13 +470,9 @@ def qname(x, grph):
 
 ################################################################################
 
-import tempfile
-
-# my_store = Memory()
 # The graph must be persistent and concurrently accessed.
 # Several stores are possible (For example SqlLite), but SleepyCat is always installed with rdflib,
 # so it is convenient to use it.
-# TODO: Consider SqlLite in memory.
 # https://code.alcidesfonseca.com/docs/rdflib/gettingstarted.html
 
 _store_input = None
@@ -510,25 +506,19 @@ _events_conjunctive_graph = None
 # The SQLAlchemy pysqlite driver supports this mode of use by specifing "uri=true" in the URL query string.
 # The SQLite-level "URI" is kept as the "database" portion of the SQLAlchemy url (that is, following a slash):
 #
-# e = create_engine("sqlite:///file:path/to/database?mode=ro&uri=true")
-# e = create_engine(
-#     "sqlite:///file:path/to/database?"
-#     "check_same_thread=true&timeout=10&mode=ro&nolock=1&uri=true"
-# )
-# sqlite3.connect(
-#     "file:path/to/database?mode=ro&nolock=1",
-#     check_same_thread=True, timeout=10, uri=True
-# )
+# "sqlite:///file:path/to/database?mode=ro&uri=true"
+# "sqlite:///file:path/to/database?check_same_thread=true&timeout=10&mode=ro&nolock=1&uri=true"
+#
 
 
 _events_storage_style = (None,)
 
+
 def set_storage_style(*storage_style_tuple):
+    """Resets the connection even if the new storage style is identical."""
     global _events_storage_style
     global _store_input
     global _events_conjunctive_graph
-
-    # Resets the connection ven if the new storage style is identical.
 
     if _events_storage_style[0] == "SQLAlchemy":
         try:
@@ -669,6 +659,19 @@ def retrieve_all_events_to_graph_then_clear(output_graph):
     if _events_storage_style[0] == "SQLAlchemy":
         _events_conjunctive_graph.commit()
 
+    return len(output_graph)
+
+
+def retrieve_events_to_graph(output_graph, entity_node):
+    _setup_global_graph()
+    assert _store_input is not None
+    assert _events_conjunctive_graph is not None
+
+    output_graph += _events_conjunctive_graph
+    _events_conjunctive_graph.remove((entity_node, None, None))
+
+    if _events_storage_style[0] == "SQLAlchemy":
+        _events_conjunctive_graph.commit()
     return len(output_graph)
 
 
