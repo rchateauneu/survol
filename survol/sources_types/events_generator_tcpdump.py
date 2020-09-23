@@ -55,8 +55,8 @@ def Main(loop_number=1):
     proc_open = None
     try:
         sys.stderr.write("tcpdump_cmd=%s\n" % str(tcpdump_cmd))
-
         proc_popen = subprocess.Popen(tcpdump_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+        sys.stderr.write("tcpdump started pid=i%d\n" % proc_open.pid)
         for lin in proc_popen.stdout.readlines():
             if not lin:
                 continue
@@ -68,12 +68,19 @@ def Main(loop_number=1):
             if loop_number == 0:
                 break
     except Exception as exc:
+        sys.stderr.write("tcpdump. Caught:%s\n" % str(exc))
         lib_common.ErrorMessageHtml("tcpdump error:%s" % str(exc))
     finally:
+        sys.stderr.write("tcpdump. Ending\n")
         if proc_open:
+            sys.stderr.write("tcpdump. Killing subprocess\n")
             proc_open.kill()
-            proc_open.communicate()
+            stdout_data, stderr_data = proc_open.communicate()
+            sys.stderr.write("tcpdump. stdout_data=%s\n" % stdout_data)
+            sys.stderr.write("tcpdump. stderr_data=%s\n" % stderr_data)
             proc_open.terminate()
+        else:
+            sys.stderr.write("tcpdump. Subprocess not started\n")
 
 
 ################################################################################
