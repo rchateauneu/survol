@@ -235,8 +235,8 @@ class ProcessMemoryFilenamesTest(unittest.TestCase):
         file_name_with_slashes = os.path.join(os.path.dirname(sys.executable), "this_is_a_file_name_with_slashes.cpp").replace("\\", "/")
         self.assertTrue(file_name_with_slashes in filenames_set)
 
-        tst_stdout, text_stderr = proc_open.communicate()
-        self.assertEqual(text_stderr, None)
+        tst_stdout, tst_stderr = proc_open.communicate()
+        self.assertEqual(tst_stderr, None)
 
     # This searches the content of a process memory which contains a SQL memory.
     #@unittest.skip("FIXME: Not working yet")
@@ -315,8 +315,8 @@ class ProcessMemoryUrlsTest(unittest.TestCase):
                 break
 
 
-        tst_stdout, text_stderr = proc_open.communicate()
-        self.assertEqual(text_stderr, None)
+        tst_stdout, tst_stderr = proc_open.communicate()
+        self.assertEqual(tst_stderr, None)
 
         print("tst_stdout=", tst_stdout)
         return urls_set
