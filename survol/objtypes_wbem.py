@@ -85,7 +85,10 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	connWbem = lib_wbem.WbemConnection(cimomUrl)
+	try:
+		connWbem = lib_wbem.WbemConnection(cimomUrl)
+	except Exception as exc:
+		lib_common.ErrorMessageHtml("Connecting to :" + cimomUrl + " Caught:" + str(exc) + "<br>")
 
 	# entity_type might an empty string.
 	rootNode = WbemNamespaceNode(wbemNamespace, cimomUrl, entity_type)
