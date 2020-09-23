@@ -198,7 +198,6 @@ class CgiScriptStartThenKillTest(unittest.TestCase):
         self.assertTrue(daemon_result)
         self.assertTrue(non_daemon_result)
 
-    #@unittest.skip("TEMPORARY DISABLED")
     def test_events_generator_system_calls(self):
         proc_open = None
         try:
@@ -229,7 +228,6 @@ class CgiScriptStartThenKillTest(unittest.TestCase):
                 proc_popen.communicate()
                 proc_popen.terminate()
 
-    @unittest.skip("iostat must be installed")
     def test_events_generator_iostat_all_disks(self):
         url_suffix = "Linux/events_generator_iostat_all_disks.py"
         daemon_result, non_daemon_result = self._check_script(url_suffix)
