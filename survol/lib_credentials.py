@@ -12,30 +12,35 @@ def credentials_filename():
 	The filename can be overloaded with an environment variable."""
 	credentials_basname = "SurvolCredentials.json"
 
-	if lib_util.isPlatformLinux:
-		home_directory = os.environ["HOME"]
+	def _get_home_directory():
+		if lib_util.isPlatformLinux:
+			return os.environ["HOME"]
+		else:
+			try:
+				home_drive = os.environ["HOMEDRIVE"]
+			except:
+				home_drive = "C:"
+			try:
+				# This is not defined on Travis.
+				home_path = os.environ["HOMEPATH"]
+				return os.path.join(home_drive, home_path)
+			except KeyError:
+				available_envs = os.environ.keys()
+				sys.stderr.write("_get_home_directory: Available environment variables:%s\n" % str(available_envs))
+				return None
+
+	home_directory = _get_home_directory()
+	if home_directory:
+		cred_name = os.path.join(home_directory, credentials_basname).strip()
 	else:
-		try:
-			home_drive = os.environ["HOMEDRIVE"]
-		except:
-			home_drive = "C:"
-		try:
-			home_path = os.environ["HOMEPATH"]
-		except:
-			available_envs = os.environ.keys()
-			sys.stderr.write("Available environment variables:%s\n" % str(available_envs))
-			raise
-		home_directory = os.path.join(home_drive, home_path)
-	cred_name = os.path.join(home_directory, credentials_basname).strip()
+		# The Travis tests do not store the credential file on the user's home directory
+		# because this is not clearly defined, and anyway, it would potentially a security breach.
+		cred_name = os.path.join(lib_util.gblTopScripts, "..", credentials_basname).strip()
 
 	if os.path.isfile(cred_name):
 		return cred_name
 
-	cred_name = os.path.join(lib_util.gblTopScripts, "..", credentials_basname).strip()
-	if os.path.isfile(cred_name):
-		return cred_name
-
-	raise Exception("Cannot find a credentials filename:%s" % cred_name)
+	raise Exception("credentials_filename: Cannot find a credentials filename:%s" % cred_name)
 
 
 def _build_credentials_document():
