@@ -88,7 +88,7 @@ def Main():
 	try:
 		connWbem = lib_wbem.WbemConnection(cimomUrl)
 	except Exception as exc:
-		lib_common.ErrorMessageHtml("Connecting to :" + cimomUrl + " Caught:" + str(exc) + "<br>")
+		lib_common.ErrorMessageHtml("Connecting to :" + cimomUrl + " Caught:" + str(exc))
 
 	# entity_type might an empty string.
 	rootNode = WbemNamespaceNode(wbemNamespace, cimomUrl, entity_type)
