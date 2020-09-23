@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
-import lib_common
-import lib_util
 import os
 import re
+import subprocess
+import lib_common
+import lib_util
 from lib_properties import pc
 import lib_properties
 
@@ -35,32 +36,43 @@ def _io_stat_to_graph(grph, spl, iostat_header):
 # This runs tcpdump, parses output data from it.
 def Main(loop_number=1):
     # TODO: The delay could be a parameter.
-    iostat_cmd = "iostat -d 1"
+    iostat_cmd = ["iostat",  "-d", "1"]
 
     # Contains the last header read.
     iostat_header = []
 
     cgiEnv = lib_common.CgiEnv()
-    for lin in os.popen(iostat_cmd):
-        if not lin:
-            continue
 
-        # We transfer also the header.
-        spl = re.split(' +', lin)
+    proc_open = None
+    try:
+        proc_popen = subprocess.Popen(iostat_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+        for lin in proc_popen.stdout.readlines():
+            if not lin:
+                continue
 
-        if spl[0] == 'Device:':
-            iostat_header = spl
-            return
+            # We transfer also the header.
+            spl = re.split(' +', lin)
 
-        grph = cgiEnv.ReinitGraph()
+            if spl[0] == 'Device:':
+                iostat_header = spl
+                return
 
-        _io_stat_to_graph(grph, spl, iostat_header)
+            grph = cgiEnv.ReinitGraph()
 
-        cgiEnv.OutCgiRdf()
+            _io_stat_to_graph(grph, spl, iostat_header)
 
-        loop_number -= 1
-        if loop_number == 0:
-            break
+            cgiEnv.OutCgiRdf()
+
+            loop_number -= 1
+            if loop_number == 0:
+                break
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("iostat error:%s" % str(exc))
+    finally:
+        if proc_open:
+            proc_open.kill()
+            proc_open.communicate()
+            proc_open.terminate()
 
 
 if __name__ == '__main__':
