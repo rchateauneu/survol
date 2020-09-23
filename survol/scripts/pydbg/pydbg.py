@@ -1428,6 +1428,7 @@ class pydbg(object):
         # <class 'TypeError'>: expected LP_MODULEENTRY32 instance instead of pointer to MODULEENTRY32
         # found_mod = kernel32.Module32First(snapshot, byref(module))
         try:
+            # BEWARE: One of the libraries change this signaure, therefore it is done again here.
             kernel32.Module32First.argtypes = (wintypes.HANDLE, LP_MODULEENTRY32)
             found_mod = kernel32.Module32First(snapshot, pointer(module))
         except Exception as exc:
@@ -2757,6 +2758,7 @@ class pydbg(object):
         try:
             sys.stderr.write("Module32First=%s\n" % Module32First)
             sys.stderr.write("kernel32.Module32First=%s\n" % kernel32.Module32First)
+            # BEWARE: One of the libraries change this signaure, therefore it is done again here.
             kernel32.Module32First.argtypes = (wintypes.HANDLE, LP_MODULEENTRY32)
             # Module32First.argtypes = (wintypes.HANDLE, LP_MODULEENTRY32)
             if not kernel32.Module32First(snapshot, pointer(current_entry)):
