@@ -27,7 +27,10 @@ def Main():
     DEBUG("wbem_process_info.py currentHostname=%s pid=%d machine_name=%s cimom_url=%s",
           lib_util.currentHostname, pid, machine_name, cimom_url)
 
-    conn_wbem = lib_wbem.WbemConnection(cimom_url)
+    try:
+        conn_wbem = lib_wbem.WbemConnection(cimom_url)
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("Connecting to :" + cimom_url + " Caught:" + str(exc))
 
     name_space = "root/cimv2"
     try:
