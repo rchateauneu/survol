@@ -27,24 +27,13 @@ def Main():
 	if entity_type:
 		lib_common.ErrorMessageHtml(__file__ + " objects events retrieval not supported yet.")
 
-	lib_kbase.retrieve_all_events_to_graph_then_clear(grph)
+	entity_node = lib_common.gUriGen.UriMake(entity_type, *entity_id)
 
-	# This receives an object type stored as a string, and a string made of the concatenation
-	# of key-value pairs, defining an object. It returns the array of property values,
-	# in the proper order of the ontology of the type.
+	num_triples = lib_kbase.retrieve_events_to_graph(grph, entity_node)
+	sys.stderr.write("%s num_triples=%d\n" % (__file__, num_triples))
 
 	cgiEnv.OutCgiRdf()
 
 
 if __name__ == '__main__':
 	Main()
-
-
-# Processes which can be started per entity, and which create events:
-# CIM_Process  : * dockit.py
-# CIM_DataFile : * A process using inotify ou dnotify,
-#                  and writes incoming events.
-#                * tcpdump (If this is a socket)
-#                * tail -f
-# addr         : * tcpdump
-
