@@ -49,7 +49,7 @@ class CgiScriptTest(unittest.TestCase):
         status_running = lib_daemon.is_events_generator_daemon_running(test_url)
         self.assertTrue(not status_running)
 
-    #@unittest.skipIf(is_platform_windows and is_travis_machine(), "TEMPORARY DISABLED")
+    @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: This hangs")
     def test_start_events_generator_daemon(self):
         # http://vps516494.ovh.net/Survol/survol/sources_types/enumerate_CIM_Process.py?xid=.
         test_url = self._dummy_url_prefix + "/survol/sources_types/events_generator_one_tick_per_second.py?parama=123&paramb=START"
