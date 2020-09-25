@@ -1,5 +1,8 @@
 ========================================================================================================================
 CREATION OF A SOURCE DISTRIBUTION, UPLOAD ON PYPI:
+
+The version in survol\__init__.py must be incremented each time.
+
 This command creates a sdist which can be later uploaded on pypi.
 python setup.py sdist
 
