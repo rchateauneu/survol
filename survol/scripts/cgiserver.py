@@ -8,6 +8,14 @@
 # Also, this script can be run under any privileged account giving much more exploration
 # possibilities than the safe apache IISUSR user accounts.
 
+# This script is used in different cases:
+# * In development mode, one process serves the HTML files of the UI and the Python files of the Agent,
+#   all of them stored in the same directory. No cross-site scripting needed.
+# * When deployed, acts as an Agent by running CGI scripts from lib-packages Python installed modules.
+# * When deployed, acts as an Agent by running the single Python CGI script which imports installed modules.
+# * When deployed, acts as a UI by running the HTML pages from the installation directory,
+#   or from the directory defined by distutils or pkg_resources.
+
 # The directory "survol" must be in PYTHONPATH to access lib_common.py etc...
 
 import sys
@@ -27,28 +35,20 @@ try:
 except ImportError:
     from urllib.parse import urlparse
 
-# Apache setup:
-# In Apache httpd.conf, we have the directive:
 
 def __run_server_forever(server):
     sys.stderr.write("__run_server_forever\n")
     server.serve_forever()
 
-# Different specific cases:
-# * In development mode, one process serves the HTML files of the UI and the Python files of the Agent,
-#   all of them stored in the same directory. No cross-site scripting needed.
-# * When deployed, acts as an Agent by running CGI scripts from lib-packages Python installed modules.
-# * When deployed, acts as an Agent by running the single Python CGI script which imports installed modules.
-# * When deployed, acts as a UI by running the HTML pages from the installation directory,
-#   or from the directory defined by distutils or pkg_resources.
 
-port_number_default = 8000
+_port_number_default = 8000
+
 
 def __print_cgi_server_usage():
-    progNam = sys.argv[0]
-    print("Survol CGI server: %s"%progNam)
+    prog_nam = sys.argv[0]
+    print("Survol CGI server: %s"%prog_nam)
     print("    -a,--address=<IP address> TCP/IP address")
-    print("    -p,--port=<number>        TCP/IP port number. Default is %d." %(port_number_default) )
+    print("    -p,--port=<number>        TCP/IP port number. Default is %d." % _port_number_default)
     # Ex: -b "C:\Program Files (x86)\Mozilla Firefox\firefox.exe"
     print("    -b,--browser=<program>    Starts a browser")
     print("    -v,--verbose              Verbose mode")
@@ -65,6 +65,7 @@ def __open_url_with_webbrowser(browser_name, the_url):
     # TODO: Parses the argument from the parameter
     webbrowser.open(the_url, new=0, autoraise=True)
 
+
 def __open_url_with_new_browser_process(browser_name, the_url):
     """This starts a browser whose executable is given on the command line"""
     # Import only if needed.
@@ -73,8 +74,7 @@ def __open_url_with_new_browser_process(browser_name, the_url):
     import subprocess
 
     def __starts_browser_process():
-
-        print("About to start browser: %s %s"%(browser_name,the_url))
+        print("About to start browser: %s %s" % (browser_name, the_url))
 
         # Leaves a bit of time so the HTTP server can start.
         time.sleep(5)
@@ -85,11 +85,11 @@ def __open_url_with_new_browser_process(browser_name, the_url):
     print("Browser thread started")
 
 
-# It is also possible to call the script from command line.
 def __run_cgi_server_internal():
+    """Note: It is also possible to call the script from command line."""
     daemon_factory.supervisor_startup()
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ha:p:b:v", ["help","address=","port=","browser=","verbose"])
+        opts, args = getopt.getopt(sys.argv[1:], "ha:p:b:v", ["help", "address=", "port=", "browser=", "verbose"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(err)  # will print something like "option -a not recognized"
@@ -108,53 +108,52 @@ def __run_cgi_server_internal():
     server_addr = socket.gethostbyname(server_name)
 
     verbose = False
-    port_number = port_number_default
+    port_number = _port_number_default
     browser_name = None
 
-    for anOpt, aVal in opts:
-        if anOpt in ("-v", "--verbose"):
+    for an_opt, a_val in opts:
+        if an_opt in ("-v", "--verbose"):
             verbose = True
-        elif anOpt in ("-a", "--address"):
-            server_name = aVal
-        elif anOpt in ("-p", "--port"):
-            port_number = int(aVal)
-        elif anOpt in ("-b", "--browser"):
-            browser_name = aVal
-        elif anOpt in ("-h", "--help"):
+        elif an_opt in ("-a", "--address"):
+            server_name = a_val
+        elif an_opt in ("-p", "--port"):
+            port_number = int(a_val)
+        elif an_opt in ("-b", "--browser"):
+            browser_name = a_val
+        elif an_opt in ("-h", "--help"):
             __print_cgi_server_usage()
             sys.exit()
         else:
             assert False, "Unhandled option"
 
-    currDir = os.getcwd()
+    curr_dir = os.getcwd()
     if verbose:
-        print("cwd=%s path=%s"% (currDir, str(sys.path)))
-
+        print("cwd=%s path=%s"% (curr_dir, str(sys.path)))
 
     # The script must be started from a specific directory to ensure the URL.
     # See AddUrlPrefix() and TopScriptsFunc() to simplify things.
-    filMyself = open("survol/scripts/cgiserver.py")
-    if not filMyself:
-        print("Script started from wrong directory")
+    try:
+        with open("survol/scripts/cgiserver.py"):
+            pass
+    except Exception as exc:
+        print("Script started from wrong directory:", exc)
         __print_cgi_server_usage()
         sys.exit()
-    
 
-    theUrl = "http://" + server_name
+    the_url = "http://" + server_name
     if port_number:
         if port_number != 80:
-            theUrl += ":%d" % port_number
-    theUrl += "/survol/www/index.htm"
-    print("Url:"+theUrl)
+            the_url += ":%d" % port_number
+    the_url += "/survol/www/index.htm"
+    print("Url:" + the_url)
 
     # Starts a thread which will starts the browser.
     if browser_name:
-
         if browser_name.startswith("webbrowser"):
-            __open_url_with_webbrowser(browser_name,theUrl)
+            __open_url_with_webbrowser(browser_name, the_url)
         else:
-            __open_url_with_new_browser_process(browser_name,theUrl)
-        print("Browser thread started to:"+theUrl)
+            __open_url_with_new_browser_process(browser_name, the_url)
+        print("Browser thread started to:"+the_url)
 
     # Apache sets these environment variables.
     # SERVER_SOFTWARE=Apache/2.4.12 (Win64) OpenSSL/1.0.1m mod_wsgi/4.4.12 Python/2.7.10
@@ -163,8 +162,8 @@ def __run_cgi_server_internal():
     # HTTP_HOST=rchateau-hp
 
     # print("os.environ['SERVER_NAME']='%s'" % (os.environ['SERVER_NAME']) )
-    print("Platform=%s"%sys.platform)
-    print("Version:%s"% str(sys.version_info))
+    print("Platform=%s" % sys.platform)
+    print("Version:%s" % str(sys.version_info))
     if 'win' in sys.platform:
         print("os.sys.getwindowsversion()=", os.sys.getwindowsversion())
         print("platform.win32_ver()=", platform.win32_ver())
@@ -174,15 +173,17 @@ def __run_cgi_server_internal():
 
     start_server_forever(verbose, server_name, port_number)
 
-# This is used when testing on Travis, when output cannot be read.
+
 def cgi_server_logfile_name(port_number):
+    """This is used when testing on Travis, when output cannot be read."""
     return "cgiserver.execution.%d.log" % port_number
 
-# Setup (setup.py) creates a binary script which directly calls this function.
-# The current directory can be set, this is used when this is called from multiprocessing.
-def start_server_forever(verbose, server_name, port_number, current_dir = ""):
+
+def start_server_forever(verbose, server_name, port_number, current_dir=""):
+    """Setup (setup.py) creates a binary script which directly calls this function.
+    The current directory can be set, this is used when this is called from multiprocessing."""
     logfil = open(cgi_server_logfile_name(port_number), "w")
-    logfil.write(__file__ + " "+ datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "\n")
+    logfil.write(__file__ + " " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "\n")
     logfil.write(__file__ + " startup server_name=%s port_number=%d\n" % (server_name, port_number))
     logfil.flush()
 
@@ -196,53 +197,52 @@ def start_server_forever(verbose, server_name, port_number, current_dir = ""):
     envPYTHONPATH = "PYTHONPATH"
     if 'win' in sys.platform:
         # This is necessary for lib_util which is otherwise not found.
-        extraPath = "survol"
+        extra_path = "survol"
         try:
-            os.environ[envPYTHONPATH] = os.environ[envPYTHONPATH] + os.pathsep + extraPath
+            os.environ[envPYTHONPATH] = os.environ[envPYTHONPATH] + os.pathsep + extra_path
         except KeyError:
-            os.environ[envPYTHONPATH] = extraPath
+            os.environ[envPYTHONPATH] = extra_path
         os.environ.copy()
 
     # This also works on Windows and Python 3.
     elif 'linux' in sys.platform:
-        extraPath = "survol"
+        extra_path = "survol"
         try:
-            os.environ[envPYTHONPATH] = os.environ[envPYTHONPATH] + os.pathsep + extraPath
+            os.environ[envPYTHONPATH] = os.environ[envPYTHONPATH] + os.pathsep + extra_path
         except KeyError:
-            os.environ[envPYTHONPATH] = extraPath
+            os.environ[envPYTHONPATH] = extra_path
     else:
-        print("Unsupported platform:%s"%sys.platform)
+        print("Unsupported platform:%s" % sys.platform)
 
-    # print("sys.path=%s"% str(sys.path))
     try:
-        sys.stderr.write("os.environ['%s']=%s\n"% (envPYTHONPATH,os.environ[envPYTHONPATH]))
+        sys.stderr.write("os.environ['%s']=%s\n" % (envPYTHONPATH, os.environ[envPYTHONPATH]))
     except KeyError:
-        print("os.environ['%s']=%s"% (envPYTHONPATH,"Not defined"))
+        print("os.environ['%s']=%s" % (envPYTHONPATH,"Not defined"))
 
     if current_dir:
         os.chdir(current_dir)
         sys.stderr.write("getcwd=%s\n" % os.getcwd() )
     if sys.version_info[0] < 3:
         import CGIHTTPServer
-        import BaseHTTPServer
+        #import BaseHTTPServer
         from BaseHTTPServer import HTTPServer
         from CGIHTTPServer import _url_collapse_path
+
         class MyCGIHTTPServer(CGIHTTPServer.CGIHTTPRequestHandler):
             def is_cgi(self):
-                # self.path = "/survol/entity.py?xid=odbc/table.Dsn=DSN~MyNativeSqlServerDataSrc,Table=VIEWS"
                 collapsed_path = _url_collapse_path(self.path)
                 if verbose:
                     sys.stderr.write("is_cgi getpid=%d\n" % os.getpid())
                     sys.stderr.write("is_cgi collapsed_path=%s getcwd=%s\n" % (collapsed_path, os.getcwd()))
 
                 uprs = urlparse(collapsed_path)
-                pathOnly = uprs.path
+                path_only = uprs.path
 
-                fileName, fileExtension = os.path.splitext(pathOnly)
+                file_name, file_extension = os.path.splitext(path_only)
 
-                urlPrefix = "/survol/"
-                if fileExtension == ".py" and pathOnly.startswith(urlPrefix):
-                    dir_sep_index = len(urlPrefix)-1
+                url_prefix = "/survol/"
+                if file_extension == ".py" and path_only.startswith(url_prefix):
+                    dir_sep_index = len(url_prefix)-1
                     head, tail = collapsed_path[:dir_sep_index], collapsed_path[dir_sep_index + 1:]
                     self.cgi_info = head, tail
                     return True
@@ -271,6 +271,7 @@ def start_server_forever(verbose, server_name, port_number, current_dir = ""):
 
     else:
         from http.server import CGIHTTPRequestHandler, HTTPServer
+
         class MyCGIHTTPServer(CGIHTTPRequestHandler):
             def is_cgi(self):
                 if verbose:
@@ -280,13 +281,13 @@ def start_server_forever(verbose, server_name, port_number, current_dir = ""):
                 self.cgi_info = '', self.path[1:]
                 # So it always works.
                 uprs = urlparse(self.path)
-                pathOnly = uprs.path
+                path_only = uprs.path
 
                 # This interprets cr-nl.
                 logging.info('\n')
 
-                fileName, fileExtension = os.path.splitext(pathOnly)
-                return fileExtension == ".py"
+                file_name, file_extension = os.path.splitext(path_only)
+                return file_extension == ".py"
 
             # Not strictly necessary, but useful hook for debugging.
             def run_cgi(self):
@@ -297,7 +298,6 @@ def start_server_forever(verbose, server_name, port_number, current_dir = ""):
         logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s', datefmt='%H:%M:%S')
         logging.info(__file__ + ' test logging.')
         logging.info('\n')
-        # logging.warning('new hello')
 
         handler = MyCGIHTTPServer
         server = HTTPServer((server_name, port_number), handler)
@@ -320,6 +320,7 @@ def start_server_forever(verbose, server_name, port_number, current_dir = ""):
         server.serve_forever()
     logfil.close()
 
+
 if __name__ == '__main__':
     # If this is called from the command line, we are in test mode and must use the local Python code,
     # and not use the installed packages.
@@ -328,9 +329,7 @@ if __name__ == '__main__':
     # www/js/base64.js
     #
     # In this mode, we assume that the Python scripts are here, on the same server.
-    # survol/entity.py
     __run_cgi_server_internal()
 
     # TODO: Once started, it could register itself to Service Location Protocol (SLP),
-    # for example with the Python 3 module pyslp.
-    # this is what WBEM uses for services discovery.
+    # for example with the Python 3 module pyslp. This is what WBEM uses for services discovery.
