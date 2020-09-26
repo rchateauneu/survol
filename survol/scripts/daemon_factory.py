@@ -17,11 +17,13 @@ _xmlrpc_error = "XMLRPC Server proxy not started."
 
 # This starts a supervisor process in interactive mode, except if a daemon is already started.
 try:
+    # Linux  : Module supervisor.
+    # Windows: Module supervisor-win
     import supervisor
     from supervisor.xmlrpc import Faults as SupervisorFaults
 except ImportError as exc:
     _xmlrpc_error += str(exc) + ". "
-    sys.stderr.write("Cannot import supervisor\n")
+    sys.stderr.write(__file__ + ": Cannot import supervisor\n")
     supervisor = None
 
 
