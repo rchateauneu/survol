@@ -317,105 +317,117 @@ class SurvolLocalTest(unittest.TestCase):
 
     def test_open_files_from_python_process(self):
         """Files open by a Python process"""
-        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
+        sql_path_name = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
 
-        execList = [ sys.executable, sqlPathName ]
+        exec_list = [ sys.executable, sql_path_name ]
 
-        procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
+        proc_open = subprocess.Popen(exec_list, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
 
-        print("Started process:",execList," pid=",procOpen.pid)
+        print("Started process:",exec_list," pid=",proc_open.pid)
 
-        mySourceSqlQueries = lib_client.SourceLocal(
+        my_source_sql_queries = lib_client.SourceLocal(
             "sources_types/CIM_Process/process_open_files.py",
             "CIM_Process",
-            Handle=procOpen.pid)
+            Handle=proc_open.pid)
 
-        tripleSqlQueries = mySourceSqlQueries.get_triplestore()
+        tripleSqlQueries = my_source_sql_queries.get_triplestore()
 
         # Some instances are required.
-        lstMandatoryInstances = [
-            "CIM_Process.Handle=%d"%procOpen.pid,
+        lst_mandatory_instances = [
+            "CIM_Process.Handle=%d"%proc_open.pid,
             CurrentUserPath ]
         if is_platform_windows:
-            lstMandatoryInstances += [
+            lst_mandatory_instances += [
                     "CIM_DataFile.Name=C:/Windows/System32/cmd.exe"]
         else:
-            lstMandatoryInstances += [
+            lst_mandatory_instances += [
                     CurrentExecutablePath ]
-        for oneStr in lstMandatoryInstances:
-            self.assertTrue(oneStr in lstMandatoryInstances)
+        for oneStr in lst_mandatory_instances:
+            self.assertTrue(oneStr in lst_mandatory_instances)
 
-        procOpen.communicate()
+        proc_open.communicate()
 
     def test_sub_parent_from_python_process(self):
         """Sub and parent processes a Python process"""
-        sqlPathName = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
+        sql_path_name = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
 
-        execList = [sys.executable, sqlPathName]
+        exec_list = [sys.executable, sql_path_name]
 
-        procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
+        proc_open = subprocess.Popen(
+            exec_list,
+            shell=True,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            bufsize=0)
 
-        print("Started process:",execList," pid=",procOpen.pid)
+        print("Started process:",exec_list," pid=",proc_open.pid)
 
-        mySourceProcesses = lib_client.SourceLocal(
+        my_source_processes = lib_client.SourceLocal(
             "sources_types/CIM_Process/single_pidstree.py",
             "CIM_Process",
-            Handle=procOpen.pid)
+            Handle=proc_open.pid)
 
-        tripleProcesses = mySourceProcesses.get_triplestore()
+        triple_processes = my_source_processes.get_triplestore()
 
-        lstInstances = tripleProcesses.get_instances()
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+        lst_instances = triple_processes.get_instances()
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
 
         # Some instances are required.
-        lstMandatoryInstances = [
+        lst_mandatory_instances = [
             CurrentProcessPath, # This is the parent process.
-            "CIM_Process.Handle=%d"%procOpen.pid,
+            "CIM_Process.Handle=%d"%proc_open.pid,
             CurrentUserPath ]
         if is_platform_windows:
-            lstMandatoryInstances += [
+            lst_mandatory_instances += [
                     "CIM_DataFile.Name=C:/Windows/System32/cmd.exe"]
         else:
-            lstMandatoryInstances += [
-                    CurrentExecutablePath ]
-        for oneStr in lstMandatoryInstances:
-            self.assertTrue(oneStr in strInstancesSet)
+            lst_mandatory_instances += [
+                    CurrentExecutablePath]
+        for one_str in lst_mandatory_instances:
+            self.assertTrue(one_str in str_instances_set)
 
-        procOpen.communicate()
+        proc_open.communicate()
 
     def test_memory_maps_from_python_process(self):
         """Sub and parent processes a Python process"""
-        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
+        sql_path_name = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
 
-        execList = [sys.executable, sqlPathName]
+        exec_list = [sys.executable, sql_path_name]
 
-        procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
+        proc_open = subprocess.Popen(
+            exec_list,
+            shell=True,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            bufsize=0)
 
-        print("Started process:",execList," pid=",procOpen.pid)
+        print("Started process:",exec_list," pid=",proc_open.pid)
 
         # Give a bit of time so the process is fully init.
         time.sleep(1)
 
-        mySourceMemMaps = lib_client.SourceLocal(
+        my_source_mem_maps = lib_client.SourceLocal(
             "sources_types/CIM_Process/process_memmaps.py",
             "CIM_Process",
-            Handle=procOpen.pid)
+            Handle=proc_open.pid)
 
-        tripleMemMaps = mySourceMemMaps.get_triplestore()
+        triple_mem_maps = my_source_mem_maps.get_triplestore()
 
-        lstInstances = tripleMemMaps.get_instances()
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+        lst_instances = triple_mem_maps.get_instances()
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
 
-        print("Instances=",strInstancesSet)
+        print("Instances=",str_instances_set)
 
         # Some instances are required.
-        lstMandatoryInstances = [
-            'CIM_Process.Handle=%s'%procOpen.pid ]
-        lstMandatoryRegex = []
+        lst_mandatory_instances = [
+            'CIM_Process.Handle=%s'%proc_open.pid]
+        lst_mandatory_regex = []
 
         if is_platform_windows:
             # This is common to Windows 7 and Windows 8.
-            lstMandatoryInstances += [
+            lst_mandatory_instances += [
                 'memmap.Id=C:/Windows/Globalization/Sorting/SortDefault.nls',
                 'memmap.Id=C:/Windows/System32/kernel32.dll',
                 'memmap.Id=C:/Windows/System32/locale.nls',
@@ -425,7 +437,7 @@ class SurvolLocalTest(unittest.TestCase):
                 'memmap.Id=C:/Windows/System32/cmd.exe',
                 ]
         else:
-            lstMandatoryInstances += [
+            lst_mandatory_instances += [
                         'memmap.Id=[heap]',
                         'memmap.Id=[vdso]',
                         'memmap.Id=[vsyscall]',
@@ -438,56 +450,56 @@ class SurvolLocalTest(unittest.TestCase):
                 ]
 
             # Depending on the machine, the root can be "/usr/lib64" or "/lib/x86_64-linux-gnu"
-            lstMandatoryRegex += [
+            lst_mandatory_regex += [
                 r'memmap.Id=.*/ld-.*\.so.*',
                 r'memmap.Id=.*/libc-.*\.so.*',
             ]
 
-            for oneStr in lstMandatoryInstances:
-                if oneStr not in strInstancesSet:
-                    WARNING("Cannot find %s in %s", oneStr, str(strInstancesSet))
-                self.assertTrue(oneStr in strInstancesSet)
+            for one_str in lst_mandatory_instances:
+                if one_str not in str_instances_set:
+                    WARNING("Cannot find %s in %s", one_str, str(str_instances_set))
+                self.assertTrue(one_str in str_instances_set)
 
             # This is much slower, beware.
-            for oneRegex in lstMandatoryRegex:
+            for oneRegex in lst_mandatory_regex:
                 re_prog = re.compile(oneRegex)
-                for oneStr in strInstancesSet:
-                    result = re_prog.match(oneStr)
+                for one_str in str_instances_set:
+                    result = re_prog.match(one_str)
                     if result:
                         break
                 if not result:
-                    WARNING("Cannot find regex %s in %s", oneRegex, str(strInstancesSet))
+                    WARNING("Cannot find regex %s in %s", oneRegex, str(str_instances_set))
                 self.assertTrue(result is not None)
 
-        procOpen.communicate()
+        proc_open.communicate()
 
     def _check_environment_variables(self, process_id):
-        mySourceEnvVars = lib_client.SourceLocal(
+        my_source_env_vars = lib_client.SourceLocal(
             "sources_types/CIM_Process/environment_variables.py",
             "CIM_Process",
             Handle=process_id)
 
-        tripleEnvVars = mySourceEnvVars.get_triplestore()
+        triple_env_vars = my_source_env_vars.get_triplestore()
 
-        print("tripleEnvVars:",tripleEnvVars)
+        print("triple_env_vars:",triple_env_vars)
 
         # The environment variables are returned in various ways,
         # but it is guaranteed that some of them are always present.
-        setEnvVars = set( tripleEnvVars.get_all_strings_triples() )
+        set_env_vars = set(triple_env_vars.get_all_strings_triples())
 
-        print("setEnvVars:",setEnvVars)
+        print("set_env_vars:", set_env_vars)
 
         if is_platform_windows:
-            mandatoryEnvVars = ['COMPUTERNAME','OS','PATH']
+            mandatory_env_vars = ['COMPUTERNAME','OS','PATH']
         else:
-            mandatoryEnvVars = ['HOME','PATH']
+            mandatory_env_vars = ['HOME','PATH']
 
-        print("setEnvVars:",setEnvVars)
+        print("set_env_vars:",set_env_vars)
 
-        for oneVar in mandatoryEnvVars:
-            self.assertTrue(oneVar in setEnvVars)
+        for one_var in mandatory_env_vars:
+            self.assertTrue(one_var in set_env_vars)
 
-    @unittest.skipIf(not pkgutil.find_loader('psutil'), "Cannot import psutil. test_environment_from_batch_process not run.")
+    @unittest.skipIf(not pkgutil.find_loader('psutil'), "test_environment_from_batch_process needs psutil.")
     def test_environment_from_batch_process(self):
         """Tests that we can read a process'environment variables"""
 
@@ -495,94 +507,104 @@ class SurvolLocalTest(unittest.TestCase):
             command_example = "CommandExample.bat"
         else:
             command_example = "CommandExample.sh"
-        script_path_name = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", command_example )
+        script_path_name = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", command_example)
 
-        execList = [ script_path_name ]
+        exec_list = [script_path_name]
 
         # Runs this process: It allocates a variable containing a SQL query, then it waits.
-        procOpen = subprocess.Popen(execList, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        proc_open = subprocess.Popen(
+            exec_list,
+            shell=True,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT)
 
-        print("Started process:",execList," pid=",procOpen.pid)
+        print("Started process:",exec_list," pid=",proc_open.pid)
 
-        (child_stdin, child_stdout_and_stderr) = (procOpen.stdin, procOpen.stdout)
+        (child_stdin, child_stdout_and_stderr) = (proc_open.stdin, proc_open.stdout)
 
-        self._check_environment_variables(procOpen.pid)
+        self._check_environment_variables(proc_open.pid)
 
         if is_platform_windows:
             # Any string will do: This stops the subprocess which is waiting for an input.
             child_stdin.write("Stop".encode())
 
-    @unittest.skipIf(not pkgutil.find_loader('psutil'), "Cannot import psutil. test_environment_from_current_process not run.")
+    @unittest.skipIf(not pkgutil.find_loader('psutil'), "test_environment_from_current_process needs psutil.")
     def test_environment_from_current_process(self):
         """Tests that we can read current process'environment variables"""
 
         self._check_environment_variables(CurrentPid)
 
-
     def test_python_package_information(self):
         """Tests Python package information"""
 
-        mySourcePythonPackage = lib_client.SourceLocal(
+        my_source_python_package = lib_client.SourceLocal(
             "entity.py",
             "python/package",
             Id="rdflib")
 
-        triplePythonPackage = mySourcePythonPackage.get_triplestore()
+        triple_python_package = my_source_python_package.get_triplestore()
 
-        lstInstances = triplePythonPackage.get_instances()
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+        lst_instances = triple_python_package.get_instances()
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances ])
 
-        DEBUG("strInstancesSet=%s",strInstancesSet)
+        DEBUG("str_instances_set=%s", str_instances_set)
 
         # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
-        for oneStr in [
+        for one_str in [
             'CIM_ComputerSystem.Name=%s' % CurrentMachine,
             'python/package.Id=isodate',
             'python/package.Id=pyparsing',
             'python/package.Id=rdflib',
             CurrentUserPath ]:
-            DEBUG("oneStr=%s",oneStr)
-            self.assertTrue(oneStr in strInstancesSet)
+            DEBUG("one_str=%s", one_str)
+            self.assertTrue(one_str in str_instances_set)
 
     def test_python_current_script(self):
         """Examines a running Python process"""
 
         # This creates a process running in Python, because it does not work with the current process.
-        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
+        sql_path_name = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
 
-        execList = [ sys.executable, sqlPathName ]
+        exec_list = [sys.executable, sql_path_name]
 
-        procOpen = subprocess.Popen(execList, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
+        proc_open = subprocess.Popen(
+            exec_list,
+            shell=False,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            bufsize=0)
 
-        print("Started process:",execList," pid=",procOpen.pid)
+        print("Started process:", exec_list," pid=", proc_open.pid)
 
         # Give a bit of time so the process is fully init.
         time.sleep(1)
 
-        mySourcePyScript = lib_client.SourceLocal(
+        my_source_py_script = lib_client.SourceLocal(
             "sources_types/CIM_Process/languages/python/current_script.py",
             "CIM_Process",
-            Handle=procOpen.pid)
+            Handle=proc_open.pid)
 
-        triplePyScript = mySourcePyScript.get_triplestore()
+        triple_py_script = my_source_py_script.get_triplestore()
 
-        lstInstances = triplePyScript.get_instances()
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
-        DEBUG("strInstancesSet=%s",str(strInstancesSet))
+        lst_instances = triple_py_script.get_instances()
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
+        DEBUG("str_instances_set=%s", str(str_instances_set))
 
-        sqlPathNameAbsolute = os.path.abspath(sqlPathName)
-        sqlPathNameClean = lib_util.standardized_file_path(sqlPathNameAbsolute)
+        sql_path_name_absolute = os.path.abspath(sql_path_name)
+        sql_path_name_clean = lib_util.standardized_file_path(sql_path_name_absolute)
 
         # This checks the presence of the current process and the Python file being executed.
-        listRequired = [
-            'CIM_Process.Handle=%s' % procOpen.pid,
-            'CIM_DataFile.Name=%s' % sqlPathNameClean,
+        list_required = [
+            'CIM_Process.Handle=%s' % proc_open.pid,
+            'CIM_DataFile.Name=%s' % sql_path_name_clean,
         ]
 
-        for oneStr in listRequired:
-            self.assertTrue(oneStr in strInstancesSet)
+        for one_str in list_required:
+            self.assertTrue(one_str in str_instances_set)
 
-        procOpen.communicate()
+        proc_open.communicate()
 
     @unittest.skipIf(is_travis_machine() and is_platform_windows, "Cannot get users on Travis and Windows.")
     def test_enumerate_users(self):
