@@ -154,22 +154,13 @@ def _local_supervisor_start():
     sys.stderr.write("_local_supervisor_start supervisor_command=%s\n" % str(supervisor_command))
 
     # No Shell, otherwise the subprocess running supervisor, will not be stopped.
-    _supervisor_process = subprocess.Popen(supervisor_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+    _supervisor_process = subprocess.Popen(
+        supervisor_command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=False)
 
-    sys.stderr.write("_local_supervisor_start proc_popen=%s\n" % _supervisor_process)
     sys.stderr.write("_local_supervisor_start proc_popen.pid=%d\n" % _supervisor_process.pid)
-
-    # TODO: Remove this check.
-    for counter in range(3):
-        is_running = psutil.pid_exists(_supervisor_process.pid)
-        if is_running:
-            sys.stderr.write("_local_supervisor_start proc_popen.pid=%d RUNNING OK\n" % _supervisor_process.pid)
-        else:
-            process_stdout, process_stderr = _supervisor_process.communicate()
-            sys.stderr.write("_local_supervisor_start process_stdout=%s\n" % process_stdout)
-            sys.stderr.write("_local_supervisor_start process_stderr=%s\n" % process_stderr)
-            break
-        time.sleep(1)
 
 
 def _local_supervisor_stop():
@@ -202,10 +193,10 @@ def _local_supervisor_stop():
     # TODO: Should call _xmlrpc_server_proxy.supervisor.shutdown()
 
 
-# This starts the supervisor process as a subprocess.
-# This can be done only by web servers which are persistent.
-# TODO: Check that maybe a supervisord process is already there,
 def supervisor_startup():
+    """This starts the supervisor process as a subprocess.
+    This can be done only by web servers which are persistent.
+    TODO: Check that maybe a supervisord process is already there. """
     global _xmlrpc_server_proxy
     global _xmlrpc_error
 
