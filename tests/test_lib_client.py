@@ -53,72 +53,72 @@ class SurvolLocalTest(unittest.TestCase):
     """These tests do not need a Survol agent"""
 
     def test_create_source_local_json(self):
-        mySourceFileStatLocal = lib_client.SourceLocal(
+        my_source_file_stat_local = lib_client.SourceLocal(
             "sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
             Name=always_present_file)
-        print("test_create_source_local_json: query==%s" % mySourceFileStatLocal.create_url_query())
-        the_content_json = mySourceFileStatLocal.content_json()
+        print("test_create_source_local_json: query==%s" % my_source_file_stat_local.create_url_query())
+        the_content_json = my_source_file_stat_local.content_json()
         print("test_create_source_local_json: Json content=%s ..."%str(the_content_json)[:100])
         self.assertTrue(the_content_json['page_title'].startswith("File stat information"))
 
     def test_create_source_local_rdf(self):
-        mySourceFileStatLocal = lib_client.SourceLocal(
+        my_source_file_stat_local = lib_client.SourceLocal(
             "sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
             Name=always_present_file)
-        print("test_create_source_local_rdf: query=%s" % mySourceFileStatLocal.create_url_query())
-        the_content_rdf = mySourceFileStatLocal.content_rdf()
+        print("test_create_source_local_rdf: query=%s" % my_source_file_stat_local.create_url_query())
+        the_content_rdf = my_source_file_stat_local.content_rdf()
         print("test_create_source_local_rdf: RDF content=%s ..."%str(the_content_rdf)[:30])
 
     def test_local_triplestore(self):
-        mySourceFileStatLocal = lib_client.SourceLocal(
+        my_source_file_stat_local = lib_client.SourceLocal(
             "sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
             Name=always_present_file)
-        tripleFileStatLocal = mySourceFileStatLocal.get_triplestore()
-        print("Len triple store local=", len(tripleFileStatLocal.m_triplestore))
+        triple_file_stat_local = my_source_file_stat_local.get_triplestore()
+        print("Len triple store local=", len(triple_file_stat_local.m_triplestore))
         # A lot of element.
-        self.assertTrue(len(tripleFileStatLocal.m_triplestore) > 10)
+        self.assertTrue(len(triple_file_stat_local.m_triplestore) > 10)
 
     def test_local_instances(self):
-        mySourceFileStatLocal = lib_client.SourceLocal(
+        my_source_file_stat_local = lib_client.SourceLocal(
             "sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
             Name=always_present_file)
 
         lib_common.globalErrorMessageEnabled = False
 
-        tripleFileStatLocal = mySourceFileStatLocal.get_triplestore()
-        print("Len tripleFileStatLocal=",len(tripleFileStatLocal))
+        triple_file_stat_local = my_source_file_stat_local.get_triplestore()
+        print("Len triple_file_stat_local=",len(triple_file_stat_local))
 
         # Typical output:
         #     Win32_Group.Domain=NT SERVICE,Name=TrustedInstaller
         #     CIM_Directory.Name=C:/
         #     CIM_Directory.Name=C:/Windows
         #     CIM_DataFile.Name=C:/Windows/explorer.exe
-        instancesFileStatLocal = tripleFileStatLocal.get_instances()
+        instances_file_stat_local = triple_file_stat_local.get_instances()
 
-        lenInstances = len(instancesFileStatLocal)
-        sys.stdout.write("Len tripleFileStatLocal=%s\n"%lenInstances)
-        for oneInst in instancesFileStatLocal:
-            sys.stdout.write("    %s\n"%str(oneInst))
+        len_instances = len(instances_file_stat_local)
+        sys.stdout.write("Len triple_file_stat_local=%s\n"%len_instances)
+        for one_inst in instances_file_stat_local:
+            sys.stdout.write("    %s\n"%str(one_inst))
         # This file should be there on any Windows machine.
-        self.assertTrue(lenInstances >= 1)
+        self.assertTrue(len_instances >= 1)
 
     def test_local_json(self):
         # Test merge of heterogeneous data sources.
-        mySource1 = lib_client.SourceLocal(
+        my_source1 = lib_client.SourceLocal(
             "entity.py",
             "CIM_LogicalDisk",
             DeviceID=AnyLogicalDisk)
 
-        content1 = mySource1.content_json()
+        content1 = my_source1.content_json()
         print( "content1=", str(content1.keys()))
         self.assertEqual(sorted(content1.keys()), ['links', 'nodes', 'page_title'])
 
     def test_merge_add_local(self):
-        mySource1 = lib_client.SourceLocal(
+        my_source1 = lib_client.SourceLocal(
             "entity.py",
             "CIM_DataFile",
             Name=always_present_file)
@@ -128,106 +128,111 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=CurrentPid)
 
-        mySrcMergePlus = mySource1 + mySource2
-        triplePlus = mySrcMergePlus.get_triplestore()
-        print("Len triplePlus:",len(triplePlus))
+        my_src_merge_plus = my_source1 + mySource2
+        triple_plus = my_src_merge_plus.get_triplestore()
+        print("Len triple_plus:",len(triple_plus))
 
-        lenSource1 = len(mySource1.get_triplestore().get_instances())
-        lenSource2 = len(mySource2.get_triplestore().get_instances())
-        lenPlus = len(triplePlus.get_instances())
+        len_source1 = len(my_source1.get_triplestore().get_instances())
+        len_source2 = len(mySource2.get_triplestore().get_instances())
+        len_plus = len(triple_plus.get_instances())
         # In the merged link, there cannot be more instances than in the input sources.
-        self.assertTrue(lenPlus <= lenSource1 + lenSource2)
+        self.assertTrue(len_plus <= len_source1 + len_source2)
 
     @unittest.skipIf(not pkgutil.find_loader('win32net'), "Cannot import win32net. test_merge_sub_local not run.")
     def test_merge_sub_local(self):
-        mySource1 = lib_client.SourceLocal(
+        my_source1 = lib_client.SourceLocal(
             "entity.py",
             "CIM_LogicalDisk",
             DeviceID=AnyLogicalDisk)
-        mySource2 = lib_client.SourceLocal(
+        my_source2 = lib_client.SourceLocal(
             "sources_types/win32/win32_local_groups.py")
 
-        mySrcMergeMinus = mySource1 - mySource2
-        print("Merge Minus:",str(mySrcMergeMinus.content_rdf())[:30])
-        tripleMinus = mySrcMergeMinus.get_triplestore()
-        print("Len tripleMinus:",len(tripleMinus))
+        my_src_merge_minus = my_source1 - my_source2
+        print("Merge Minus:",str(my_src_merge_minus.content_rdf())[:30])
+        triple_minus = my_src_merge_minus.get_triplestore()
+        print("Len triple_minus:",len(triple_minus))
 
-        lenSource1 = len(mySource1.get_triplestore().get_instances())
-        lenMinus = len(tripleMinus.get_instances())
+        len_source1 = len(my_source1.get_triplestore().get_instances())
+        len_minus = len(triple_minus.get_instances())
         # There cannot be more instances after removal.
-        self.assertTrue(lenMinus <= lenSource1 )
+        self.assertTrue(len_minus <= len_source1 )
 
     @unittest.skipIf(not pkgutil.find_loader('win32api'), "Cannot import win32api. test_merge_duplicate not run.")
     def test_merge_duplicate(self):
-        mySourceDupl = lib_client.SourceLocal(
+        my_source_dupl = lib_client.SourceLocal(
             "sources_types/Win32_UserAccount/Win32_NetUserGetGroups.py",
             "Win32_UserAccount",
             Domain=CurrentMachine,
             Name=CurrentUsername)
-        tripleDupl = mySourceDupl.get_triplestore()
-        print("Len tripleDupl=",len(tripleDupl.get_instances()))
+        triple_dupl = my_source_dupl.get_triplestore()
+        print("Len triple_dupl=",len(triple_dupl.get_instances()))
 
-        mySrcMergePlus = mySourceDupl + mySourceDupl
-        triplePlus = mySrcMergePlus.get_triplestore()
-        print("Len triplePlus=",len(triplePlus.get_instances()))
+        my_src_merge_plus = my_source_dupl + my_source_dupl
+        triple_plus = my_src_merge_plus.get_triplestore()
+        print("Len triple_plus=",len(triple_plus.get_instances()))
         # No added node.
-        self.assertEqual(len(triplePlus.get_instances()), len(tripleDupl.get_instances()))
+        self.assertEqual(len(triple_plus.get_instances()), len(triple_dupl.get_instances()))
 
-        mySrcMergeMinus = mySourceDupl - mySourceDupl
-        tripleMinus = mySrcMergeMinus.get_triplestore()
-        print("Len tripleMinus=",len(tripleMinus.get_instances()))
-        self.assertEqual(len(tripleMinus.get_instances()), 0)
+        my_src_merge_minus = my_source_dupl - my_source_dupl
+        triple_minus = my_src_merge_minus.get_triplestore()
+        print("Len triple_minus=",len(triple_minus.get_instances()))
+        self.assertEqual(len(triple_minus.get_instances()), 0)
 
     def test_exception_bad_source(self):
         """This tests if errors are properly displayed and an exception is raised."""
-        mySourceBad = lib_client.SourceLocal(
+        my_source_bad = lib_client.SourceLocal(
             "xxx/yyy/zzz.py",
             "this-will-raise-an-exception")
         try:
-            tripleBad = mySourceBad.get_triplestore()
+            my_source_bad.get_triplestore()
         except Exception as exc:
             print("Error detected:",exc)
 
-        mySourceBroken = lib_client.SourceRemote(
+        my_source_broken = lib_client.SourceRemote(
             _remote_general_test_agent + "/xxx/yyy/zzz/ttt.py",
             "wwwww")
         with self.assertRaises(Exception):
-            mySourceBroken.get_triplestore()
+            my_source_broken.get_triplestore()
 
     @unittest.skipIf(not is_platform_windows, "test_local_scripts_UserAccount for Windows only.")
     def test_local_scripts_UserAccount(self):
         """Returns all scripts accessible from current user account."""
 
-        myInstancesLocal = lib_client.Agent().Win32_UserAccount(
+        my_instances_local = lib_client.Agent().Win32_UserAccount(
             Domain=CurrentMachine,
             Name=CurrentUsername)
 
-        listScripts = myInstancesLocal.get_scripts()
+        list_scripts = my_instances_local.get_scripts()
         if isVerbose:
             sys.stdout.write("Scripts:\n")
-            for oneScr in listScripts:
-                sys.stdout.write("    %s\n"%oneScr)
+            for one_scr in list_scripts:
+                sys.stdout.write("    %s\n"%one_scr)
         # There should be at least a couple of scripts.
-        self.assertTrue(len(listScripts) > 0)
+        self.assertTrue(len(list_scripts) > 0)
 
     def test_grep_string(self):
         """Searches for printable strings in a file"""
 
-        sampleFile = os.path.join(os.path.dirname(__file__), "SampleDir", "SampleFile.txt")
-        sampleFile = lib_util.standardized_file_path(sampleFile)
+        sample_file = os.path.join(os.path.dirname(__file__), "SampleDir", "SampleFile.txt")
+        sample_file = lib_util.standardized_file_path(sample_file)
 
-        mySourceGrep = lib_client.SourceLocal(
+        my_source_grep = lib_client.SourceLocal(
             "sources_types/CIM_DataFile/grep_text_strings.py",
             "CIM_DataFile",
-            Name=sampleFile)
+            Name=sample_file)
 
-        tripleGrep = mySourceGrep.get_triplestore()
+        triple_grep = my_source_grep.get_triplestore()
 
-        matchingTriples = tripleGrep.get_matching_strings_triples("[Pp]ellentesque")
+        matching_triples = triple_grep.get_matching_strings_triples("[Pp]ellentesque")
 
-        lstStringsOnly = sorted( [ trpObj.value for trpSubj,trpPred,trpObj in matchingTriples ] )
+        lst_strings_only = sorted([trpObj.value for trpSubj, trpPred, trpObj in matching_triples])
 
-        assert(lstStringsOnly == [u'Pellentesque;14;94', u'Pellentesque;6;36', u'Pellentesque;8;50', u'pellentesque;10;66', u'pellentesque;14;101'])
+        assert(lst_strings_only == [
+            u'Pellentesque;14;94',
+            u'Pellentesque;6;36',
+            u'Pellentesque;8;50',
+            u'pellentesque;10;66',
+            u'pellentesque;14;101'])
 
     @unittest.skipIf(not pkgutil.find_loader('win32net'), "test_local_groups_local_scripts: Cannot import win32net.")
     def test_local_groups_local_scripts(self):
@@ -255,65 +260,65 @@ class SurvolLocalTest(unittest.TestCase):
         """This loads scripts of a local instance"""
 
         # The service "PlugPlay" should be available on all Windows machines.
-        myInstanceLocal = lib_client.Agent().Win32_Service(
+        my_instance_local = lib_client.Agent().Win32_Service(
             Name="PlugPlay")
 
-        listScripts = myInstanceLocal.get_scripts()
+        list_scripts = my_instance_local.get_scripts()
 
         if isVerbose:
             sys.stdout.write("Scripts:\n")
-            for oneScr in listScripts:
-                sys.stdout.write("    %s\n"%oneScr)
+            for one_scr in list_scripts:
+                sys.stdout.write("    %s\n"%one_scr)
         # There should be at least a couple of scripts.
-        self.assertTrue(len(listScripts) > 0)
+        self.assertTrue(len(list_scripts) > 0)
         # TODO: Maybe this script will not come first in the future.
-        self.assertEqual(listScripts[0].create_url_query(), "xid=Win32_Service.Name=PlugPlay")
-        self.assertEqual(listScripts[0].m_script, "sources_types/Win32_Service/service_dependencies.py")
+        self.assertEqual(list_scripts[0].create_url_query(), "xid=Win32_Service.Name=PlugPlay")
+        self.assertEqual(list_scripts[0].m_script, "sources_types/Win32_Service/service_dependencies.py")
 
     def test_instances_cache(self):
-        instanceA = lib_client.Agent().CIM_Directory( Name="C:/Windows")
-        instanceB = lib_client.Agent().CIM_Directory( Name="C:/Windows")
-        instanceC = lib_client.create_CIM_class(None,"CIM_Directory",Name="C:/Windows")
+        instance_a = lib_client.Agent().CIM_Directory( Name="C:/Windows")
+        instance_b = lib_client.Agent().CIM_Directory( Name="C:/Windows")
+        instance_c = lib_client.create_CIM_class(None,"CIM_Directory",Name="C:/Windows")
         if isVerbose:
-            sys.stdout.write("Class=%s\n"%instanceC.__class__.__name__)
-            sys.stdout.write("Module=%s\n"%instanceC.__module__)
-            sys.stdout.write("Dir=%s\n\n"%str(dir(lib_client)))
-            sys.stdout.write("Dir=%s\n"%str(sorted(globals())))
+            sys.stdout.write("Class=%s\n" % instance_c.__class__.__name__)
+            sys.stdout.write("Module=%s\n" % instance_c.__module__)
+            sys.stdout.write("Dir=%s\n\n" % str(dir(lib_client)))
+            sys.stdout.write("Dir=%s\n" % str(sorted(globals())))
 
-        self.assertTrue(instanceA is instanceB)
-        self.assertTrue(instanceA is instanceC)
-        self.assertTrue(instanceC is instanceB)
+        self.assertTrue(instance_a is instance_b)
+        self.assertTrue(instance_a is instance_c)
+        self.assertTrue(instance_c is instance_b)
 
     # This searches the content of a file which contains SQL queries.
     @unittest.skipIf(not pkgutil.find_loader('sqlparse'), "Cannot import sqlparse. test_regex_sql_query_file not run.")
     def test_regex_sql_query_file(self):
         """Searches for SQL queries in one file only."""
 
-        sqlPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
+        sql_path_name = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
 
         mySourceSqlQueries = lib_client.SourceLocal(
             "sources_types/CIM_DataFile/grep_sql_queries.py",
             "CIM_DataFile",
-            Name=sqlPathName)
+            Name=sql_path_name)
 
-        tripleSqlQueries = mySourceSqlQueries.get_triplestore()
+        triple_sql_queries = mySourceSqlQueries.get_triplestore()
         if isVerbose:
-            print("Len tripleSqlQueries=",len(tripleSqlQueries.m_triplestore))
+            print("Len triple_sql_queries=",len(triple_sql_queries.m_triplestore))
 
-        matchingTriples = tripleSqlQueries.get_all_strings_triples()
+        matching_triples = triple_sql_queries.get_all_strings_triples()
 
-        lstQueriesOnly = sorted( matchingTriples )
+        lst_queries_only = sorted( matching_triples )
 
         if isVerbose:
-            print("lstQueriesOnly:",lstQueriesOnly)
+            print("lst_queries_only:",lst_queries_only)
 
         # TODO: Eliminate the last double-quote.
-        lstQriesPresent = [
+        lst_qries_present = [
             u'select * from \'AnyTable\'"',
             u'select A.x,B.y from AnyTable A, OtherTable B"',
             u'select a,b,c from \'AnyTable\'"']
-        for oneQry in lstQriesPresent:
-            self.assertTrue(oneQry in lstQueriesOnly)
+        for one_qry in lst_qries_present:
+            self.assertTrue(one_qry in lst_queries_only)
 
     def test_open_files_from_python_process(self):
         """Files open by a Python process"""
@@ -655,53 +660,53 @@ class SurvolLocalTest(unittest.TestCase):
     def test_oracle_process_dbs(self):
         """oracle_process_dbs Information about current process"""
 
-        mySource = lib_client.SourceLocal(
+        my_source = lib_client.SourceLocal(
             "sources_types/CIM_Process/oracle_process_dbs.py",
             "CIM_Process",
             Handle=CurrentPid)
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
+        str_instances_set = set([str(oneInst) for oneInst in my_source.get_triplestore().get_instances() ])
 
         # The result is empty but the script worked.
-        print(strInstancesSet)
-        self.assertEqual(strInstancesSet, set())
+        print(str_instances_set)
+        self.assertEqual(str_instances_set, set())
 
     def test_process_connections(self):
         """This returns the socket connections of the current process."""
 
-        mySource = lib_client.SourceLocal(
+        my_source = lib_client.SourceLocal(
             "sources_types/CIM_Process/process_connections.py",
             "CIM_Process",
             Handle=CurrentPid)
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
+        str_instances_set = set([str(oneInst) for oneInst in my_source.get_triplestore().get_instances() ])
 
         # The result is empty but the script worked.
-        print("Connections=", strInstancesSet)
-        self.assertTrue(strInstancesSet == set())
+        print("Connections=", str_instances_set)
+        self.assertTrue(str_instances_set == set())
 
     def test_process_cwd(self):
         """process_cwd Information about current process"""
 
-        mySource = lib_client.SourceLocal(
+        my_source = lib_client.SourceLocal(
             "sources_types/CIM_Process/process_cwd.py",
             "CIM_Process",
             Handle=CurrentPid)
 
-        strInstancesSet = set( [str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
-        print("test_process_cwd: strInstancesSet:", strInstancesSet)
+        str_instances_set = set( [str(oneInst) for oneInst in my_source.get_triplestore().get_instances() ])
+        print("test_process_cwd: str_instances_set:", str_instances_set)
 
         print("test_process_cwd: CurrentExecutablePath:", CurrentExecutablePath)
-        for oneStr in [
+        for one_str in [
             'CIM_DataFile.Name=%s' % lib_util.standardized_file_path(os.getcwd()),
             CurrentExecutablePath,
             CurrentProcessPath,
             CurrentUserPath,
         ]:
-            if oneStr not in strInstancesSet:
-                WARNING("oneStr=%s strInstancesSet=%s", oneStr, str(strInstancesSet) )
+            if one_str not in str_instances_set:
+                WARNING("one_str=%s str_instances_set=%s", one_str, str(str_instances_set) )
                 # assert 'CIM_DataFile.Name=c:/python27/python.exe' in set(['CIM_DataFile.Name=C:/Python27/python.exe'
-                self.assertTrue(oneStr in strInstancesSet)
+                self.assertTrue(one_str in str_instances_set)
 
 class SurvolLocalWbemTest(unittest.TestCase):
     """These tests do not need a Survol agent"""
@@ -710,30 +715,30 @@ class SurvolLocalWbemTest(unittest.TestCase):
     def test_wbem_process_info(self):
         """wbem_process_info Information about current process"""
 
-        mySource = lib_client.SourceLocal(
+        my_source = lib_client.SourceLocal(
             "sources_types/CIM_Process/wbem_process_info.py",
             "CIM_Process",
             Handle=CurrentPid)
 
-        triple_store = mySource.get_triplestore()
+        triple_store = my_source.get_triplestore()
         instances_list = triple_store.get_instances()
-        strInstancesSet = set( [str(oneInst) for oneInst in instances_list ])
-        print("test_wbem_process_info: strInstancesSet:", strInstancesSet)
+        str_instances_set = set([str(one_inst) for one_inst in instances_list])
+        print("test_wbem_process_info: str_instances_set:", str_instances_set)
         # TODO: Check output
 
     @unittest.skipIf(not is_linux_wbem(), "WBEM not available. test_wbem_hostname_processes_local not executed.")
     def test_wbem_hostname_processes_local(self):
         """Get processes on current machine"""
 
-        mySource = lib_client.SourceLocal(
+        my_source = lib_client.SourceLocal(
             "sources_types/CIM_ComputerSystem/wbem_hostname_processes.py",
             "CIM_ComputerSystem",
             Name=CurrentMachine)
 
-        triple_store = mySource.get_triplestore()
+        triple_store = my_source.get_triplestore()
         instances_list = triple_store.get_instances()
-        strInstancesSet = set( [str(oneInst) for oneInst in instances_list ])
-        print("test_wbem_hostname_processes_local: strInstancesSet:", strInstancesSet)
+        str_instances_set = set([str(one_inst) for one_inst in instances_list])
+        print("test_wbem_hostname_processes_local: str_instances_set:", str_instances_set)
         # TODO: Check output
 
 
@@ -744,12 +749,12 @@ class SurvolRemoteWbemTest(unittest.TestCase):
     def test_wbem_hostname_processes_remote(self):
         """Get processes on remote machine"""
 
-        mySource = lib_client.SourceLocal(
+        my_source = lib_client.SourceLocal(
             "sources_types/CIM_ComputerSystem/wbem_hostname_processes.py",
             "CIM_ComputerSystem",
             Name=SurvolServerHostname)
 
-        mySource.get_triplestore()
+        my_source.get_triplestore()
         # TODO: Check output
 
     @unittest.skipIf(not has_wbem(), "pywbem cannot be imported. test_wbem_hostname_processes_remote not executed.")
@@ -763,12 +768,12 @@ class SurvolRemoteWbemTest(unittest.TestCase):
 
         computer_triple_store = computer_source.get_triplestore()
         instances_list = computer_triple_store.get_instances()
-        strInstancesSet = set( [str(oneInst) for oneInst in instances_list ])
+        str_instances_set = set( [str(oneInst) for oneInst in instances_list ])
 
         # ['CIM_Process.Handle=10', 'CIM_Process.Handle=816', 'CIM_Process.Handle=12' etc...
-        print("test_wbem_hostname_processes_remote: strInstancesSet:", strInstancesSet)
-        for one_str in strInstancesSet:
-            self.assertTrue( one_str.startswith('CIM_Process.Handle=') )
+        print("test_wbem_hostname_processes_remote: str_instances_set:", str_instances_set)
+        for one_str in str_instances_set:
+            self.assertTrue(one_str.startswith('CIM_Process.Handle='))
 
         pids_list = [oneInst.Handle for oneInst in instances_list ]
         print("test_wbem_hostname_processes_remote: pids_list:", pids_list)
@@ -822,18 +827,18 @@ class SurvolLocalJavaTest(unittest.TestCase):
     def test_java_mbeans(self):
         """Java MBeans"""
 
-        mySource = lib_client.SourceLocal(
+        my_source = lib_client.SourceLocal(
             "sources_types/CIM_Process/languages/java/java_mbeans.py",
             "CIM_Process",
             Handle=CurrentPid)
 
-        listRequired = [
+        list_required = [
             CurrentProcessPath
         ]
 
-        instPrefix = 'java/mbean.Handle=%d,Name=' % CurrentPid
+        inst_prefix = 'java/mbean.Handle=%d,Name=' % CurrentPid
 
-        for instJavaName in [
+        for inst_java_name in [
             'java.lang:type-Memory',
             'java.lang:type-MemoryManager*name-CodeCacheManager',
             'java.lang:type-MemoryManager*name-Metaspace Manager',
@@ -857,24 +862,24 @@ class SurvolLocalJavaTest(unittest.TestCase):
             'java.nio:type-BufferPool*name-direct',
             'java.util.logging:type-Logging'
         ]:
-            listRequired.append( instPrefix + instJavaName )
+            list_required.append( inst_prefix + inst_java_name )
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
-        print("test_java_mbeans strInstancesSet=", strInstancesSet)
+        str_instances_set = set([str(one_inst) for one_inst in my_source.get_triplestore().get_instances()])
+        print("test_java_mbeans str_instances_set=", str_instances_set)
 
-        for oneStr in listRequired:
-            self.assertTrue(oneStr in strInstancesSet)
+        for one_str in list_required:
+            self.assertTrue(one_str in str_instances_set)
 
-    @unittest.skipIf(not pkgutil.find_loader('jpype'), "jpype cannot be imported. test_java_system_properties not executed.")
+    @unittest.skipIf(not pkgutil.find_loader('jpype'), "test_java_system_properties needs jpype.")
     def test_java_system_properties(self):
         """Java system properties"""
 
-        mySource = lib_client.SourceLocal(
+        my_source = lib_client.SourceLocal(
             "sources_types/CIM_Process/languages/java/java_system_properties.py",
             "CIM_Process",
             Handle=CurrentPid)
 
-        listRequired = [
+        list_required = [
             CurrentUserPath,
             #'CIM_Directory.Name=C:/windows/system32',
             'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/charsets.jar',
@@ -900,31 +905,31 @@ class SurvolLocalJavaTest(unittest.TestCase):
             'CIM_Directory.Name=C:/Python27',
         ]
 
-        listRequired.append( CurrentProcessPath )
+        list_required.append(CurrentProcessPath)
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
-        print("test_java_system_properties strInstancesSet=", sorted(strInstancesSet))
+        str_instances_set = set([str(one_inst) for one_inst in my_source.get_triplestore().get_instances()])
+        print("test_java_system_properties str_instances_set=", sorted(str_instances_set))
 
-        print("listRequired=",listRequired)
-        for oneStr in listRequired:
-            if oneStr not in strInstancesSet:
-                print("Not there:",oneStr)
-            self.assertTrue(oneStr in strInstancesSet, "test_java_system_properties: Not there:%s" % str(oneStr))
+        print("list_required=", list_required)
+        for one_str in list_required:
+            if one_str not in str_instances_set:
+                print("Not there:",one_str)
+            self.assertTrue(one_str in str_instances_set, "test_java_system_properties: Not there:%s" % str(one_str))
 
     @unittest.skipIf(not pkgutil.find_loader('jpype'), "jpype cannot be imported. test_java_jdk_jstack not executed.")
     def test_java_jdk_jstack(self):
         """Information about JDK stack"""
 
-        mySource = lib_client.SourceLocal(
+        my_source = lib_client.SourceLocal(
             "sources_types/CIM_Process/languages/java/jdk_jstack.py",
             "CIM_Process",
             Handle=CurrentPid)
 
         # Start a Java process.
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
+        str_instances_set = set([str(one_inst) for one_inst in my_source.get_triplestore().get_instances()])
 
-        self.assertTrue(strInstancesSet == set())
+        self.assertTrue(str_instances_set == set())
 
 class SurvolLocalUtf8Test(unittest.TestCase):
 
@@ -1077,32 +1082,32 @@ class SurvolLocalGdbTest(unittest.TestCase):
     def test_process_gdbstack(self):
         """process_gdbstack Information about current process"""
 
-        mySource = lib_client.SourceLocal(
+        my_source = lib_client.SourceLocal(
             "sources_types/CIM_Process/process_gdbstack.py",
             "CIM_Process",
             Handle=CurrentPid)
 
-        listRequired = [
+        list_required = [
             'linker_symbol.Name=X19wb2xsX25vY2FuY2Vs,File=/lib64/libc.so.6',
             'CIM_DataFile.Name=/lib64/libc.so.6',
             CurrentUserPath,
             CurrentProcessPath
         ]
         if is_py3:
-            listRequired += [
+            list_required += [
                 'CIM_DataFile.Name=/usr/bin/python3.6',
                 'linker_symbol.Name=cG9sbF9wb2xs,File=/usr/bin/python3.6',
         ]
         else:
-            listRequired += [
+            list_required += [
                 'CIM_DataFile.Name=/usr/bin/python2.7',
                 'CIM_DataFile.Name=/lib64/libc.so.6',
         ]
 
-        strInstancesSet = set([str(oneInst) for oneInst in mySource.get_triplestore().get_instances() ])
+        str_instances_set = set([str(oneInst) for oneInst in my_source.get_triplestore().get_instances() ])
 
-        for oneStr in listRequired:
-            self.assertTrue(oneStr in strInstancesSet)
+        for one_str in list_required:
+            self.assertTrue(one_str in str_instances_set)
 
     @unittest.skipIf(is_py3, "Python stack for Python 2 only.")
     @decorator_gdb_platform
@@ -1110,43 +1115,49 @@ class SurvolLocalGdbTest(unittest.TestCase):
         """Displays the stack of a Python process"""
 
         # This creates a process running in Python, because it does not work with the current process.
-        pyPathName = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
-        pyPathName = os.path.abspath(pyPathName)
+        py_path_name = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
+        py_path_name = os.path.abspath(py_path_name)
 
-        execList = [ sys.executable, pyPathName ]
+        exec_list = [sys.executable, py_path_name]
 
-        procOpen = subprocess.Popen(execList, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
+        proc_open = subprocess.Popen(
+            exec_list,
+            shell=False,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            bufsize=0)
 
-        print("Started process:",execList," pid=",procOpen.pid)
+        print("Started process:", exec_list, " pid=", proc_open.pid)
 
         # Give a bit of time so the process is fully init.
         time.sleep(1)
 
-        mySourcePyStack = lib_client.SourceLocal(
+        my_source_py_stack = lib_client.SourceLocal(
             "sources_types/CIM_Process/languages/python/display_python_stack.py",
             "CIM_Process",
-            Handle=procOpen.pid)
+            Handle=proc_open.pid)
 
-        triplePyStack = mySourcePyStack.get_triplestore()
+        triple_py_stack = my_source_py_stack.get_triplestore()
 
-        lstInstances = triplePyStack.get_instances()
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
-        print("strInstancesSet=",strInstancesSet)
+        lst_instances = triple_py_stack.get_instances()
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        print("str_instances_set=",str_instances_set)
 
-        pyPathNameAbsolute = os.path.abspath(pyPathName)
-        pyPathNameClean = lib_util.standardized_file_path(pyPathNameAbsolute)
+        py_path_name_absolute = os.path.abspath(py_path_name)
+        py_path_name_clean = lib_util.standardized_file_path(py_path_name_absolute)
 
         # This checks the presence of the current process and the Python file being executed.
-        listRequired = [
-            'CIM_DataFile.Name=%s' % pyPathNameClean,
-            'linker_symbol.Name=X19tYWluX18=,File=%s' % pyPathName,
+        list_required = [
+            'CIM_DataFile.Name=%s' % py_path_name_clean,
+            'linker_symbol.Name=X19tYWluX18=,File=%s' % py_path_name,
         ]
 
-        for oneStr in listRequired:
-            print(oneStr)
-            self.assertTrue(oneStr in strInstancesSet)
+        for one_str in list_required:
+            print(one_str)
+            self.assertTrue(one_str in str_instances_set)
 
-        procOpen.communicate()
+        proc_open.communicate()
 
 
 @unittest.skipIf(not is_platform_windows, "SurvolLocalWindowsTest runs on Windows only")
@@ -1157,32 +1168,32 @@ class SurvolLocalWindowsTest(unittest.TestCase):
     def test_win32_services(self):
         """List of Win32 services"""
 
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/win32/enumerate_Win32_Service.py")
 
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances ])
 
-        # print(strInstancesSet)
+        # print(str_instances_set)
         # Some services must be on any Windpws machine.
-        self.assertTrue('Win32_Service.Name=nsi' in strInstancesSet)
-        self.assertTrue('Win32_Service.Name=LanmanWorkstation' in strInstancesSet)
+        self.assertTrue('Win32_Service.Name=nsi' in str_instances_set)
+        self.assertTrue('Win32_Service.Name=LanmanWorkstation' in str_instances_set)
 
     @unittest.skipIf(not pkgutil.find_loader('wmi'), "test_wmi_process_info needs wmi to run.")
     def test_wmi_process_info(self):
         """WMI information about current process"""
 
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/CIM_Process/wmi_process_info.py",
             "CIM_Process",
             Handle=CurrentPid)
 
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
 
         # This checks the presence of the current process and its parent.
-        self.assertTrue('CIM_Process.Handle=%s' % CurrentPid in strInstancesSet)
+        self.assertTrue('CIM_Process.Handle=%s' % CurrentPid in str_instances_set)
         if is_py3:
             # Checks the parent's presence also. Not for 2.7.10
-            self.assertTrue(CurrentProcessPath in strInstancesSet)
+            self.assertTrue(CurrentProcessPath in str_instances_set)
 
     @unittest.skipIf(not pkgutil.find_loader('wmi'), "test_win_process_modules needs wmi to run.")
     def test_win_process_modules(self):
@@ -1233,17 +1244,17 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         self.assertTrue(not 'CIM_DataFile.Name=' in str_instances_set)
 
     def test_win32_products(self):
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/win32/enumerate_Win32_Product.py")
 
-        strInstancesLst = [str(oneInst) for oneInst in lstInstances ]
+        str_instances_lst = [str(oneInst) for oneInst in lst_instances ]
         products_count = 0
-        for one_instance in strInstancesLst:
+        for one_instance in str_instances_lst:
             # Ex: 'Win32_Product.IdentifyingNumber={1AC6CC3D-7724-4D84-9270-798A2191AB1C}'
             if one_instance.startswith('Win32_Product.IdentifyingNumber='):
                 products_count += 1
 
-        print("lstInstances=",strInstancesLst[:3])
+        print("lst_instances=",str_instances_lst[:3])
 
         # Certainly, there a more that five products or any other small number.
         self.assertTrue(products_count > 5)
@@ -1251,26 +1262,26 @@ class SurvolLocalWindowsTest(unittest.TestCase):
     def test_win_cdb_callstack(self):
         """win_cdb_callstack Information about current process"""
 
-        mySource = lib_client.SourceLocal(
+        my_source = lib_client.SourceLocal(
             "sources_types/CIM_Process/CDB/win_cdb_callstack.py",
             "CIM_Process",
             Handle=CurrentPid)
 
         with self.assertRaises(Exception):
             # Should throw "Exception: ErrorMessageHtml raised:Cannot debug current process"
-            mySource.get_triplestore()
+            my_source.get_triplestore()
 
     def test_win_cdb_modules(self):
         """win_cdb_modules about current process"""
 
-        mySource = lib_client.SourceLocal(
+        my_source = lib_client.SourceLocal(
             "sources_types/CIM_Process/CDB/win_cdb_modules.py",
             "CIM_Process",
             Handle=CurrentPid)
 
         with self.assertRaises(Exception):
             # Should throw "Exception: ErrorMessageHtml raised:Cannot debug current process"
-            mySource.get_triplestore()
+            my_source.get_triplestore()
 
     @unittest.skipIf(is_pytest(), "This msdos test cannot run in pytest.")
     def test_msdos_current_batch(self):
@@ -1285,27 +1296,27 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 
         # If running in pytest:
         # ['CIM_DataFile.Name=C:/Python27/Scripts/pytest.exe', 'CIM_Process.Handle=74620']
-        strInstancesSet = set([str(oneInst) for oneInst in list_instances ])
+        str_instances_set = set([str(oneInst) for oneInst in list_instances ])
 
-        listRequired =  [
+        list_required =  [
             CurrentProcessPath,
         ]
-        print("listRequired=", listRequired)
+        print("list_required=", list_required)
 
-        for oneStr in listRequired:
-            self.assertTrue(oneStr in strInstancesSet)
+        for one_str in list_required:
+            self.assertTrue(one_str in str_instances_set)
 
     @unittest.skipIf(not pkgutil.find_loader('win32net'), "test_win32_host_local_groups needs win32net.")
     def test_win32_host_local_groups(self):
-        mySourceHostLocalGroups = lib_client.SourceLocal(
+        my_source_host_local_groups = lib_client.SourceLocal(
             "sources_types/CIM_ComputerSystem/Win32/win32_host_local_groups.py",
             "CIM_ComputerSystem",
             Name = CurrentMachine)
 
-        tripleHostLocalGroups = mySourceHostLocalGroups.get_triplestore()
-        instancesHostLocalGroups = tripleHostLocalGroups.get_instances()
+        triple_host_local_groups = my_source_host_local_groups.get_triplestore()
+        instances_host_local_groups = triple_host_local_groups.get_instances()
 
-        group_instances = set(str(one_instance) for one_instance in instancesHostLocalGroups)
+        group_instances = set(str(one_instance) for one_instance in instances_host_local_groups)
         print("group_instances=", group_instances)
 
         print("Win32_Group.Name=Administrators,Domain=%s" % CurrentMachine)
@@ -1333,28 +1344,28 @@ class SurvolPyODBCTest(unittest.TestCase):
         """This instantiates an instance of a subclass"""
 
         # The url is "http://rchateau-hp:8000/survol/entity.py?xid=odbc/dsn.Dsn=DSN~MS%20Access%20Database"
-        instanceLocalODBC = lib_client.Agent().odbc.dsn(
+        instance_local_odbc = lib_client.Agent().odbc.dsn(
             Dsn="DSN~MS%20Access%20Database")
 
-        listScripts = instanceLocalODBC.get_scripts()
+        list_scripts = instance_local_odbc.get_scripts()
         if isVerbose:
             sys.stdout.write("Scripts:\n")
-            for oneScr in listScripts:
-                sys.stdout.write("    %s\n"%oneScr)
+            for one_scr in list_scripts:
+                sys.stdout.write("    %s\n" % one_scr)
         # There should be at least a couple of scripts.
-        self.assertTrue(len(listScripts) > 0)
+        self.assertTrue(len(list_scripts) > 0)
 
     @unittest.skipIf(not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
     def test_pyodbc_sqldatasources(self):
         """Tests ODBC data sources"""
 
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/Databases/win32_sqldatasources_pyodbc.py")
 
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances ])
 
         # At least these instances must be present.
-        for oneStr in [
+        for one_str in [
             'CIM_ComputerSystem.Name=%s' % CurrentMachine,
             'odbc/dsn.Dsn=DSN~Excel Files',
             'odbc/dsn.Dsn=DSN~MS Access Database',
@@ -1365,22 +1376,22 @@ class SurvolPyODBCTest(unittest.TestCase):
             'odbc/dsn.Dsn=DSN~dBASE Files',
             'odbc/dsn.Dsn=DSN~mySqlServerDataSource',
             'odbc/dsn.Dsn=DSN~SqlSrvNativeDataSource']:
-            self.assertTrue(oneStr in strInstancesSet)
+            self.assertTrue(one_str in str_instances_set)
 
     @unittest.skipIf(not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
     def test_pyodbc_dsn_tables(self):
         """Tests ODBC data sources"""
 
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/odbc/dsn/odbc_dsn_tables.py",
             "odbc/dsn",
             Dsn="DSN~SysDataSourceSQLServer")
 
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+        strInstancesSet = set([str(oneInst) for oneInst in lst_instances])
         #print("Instances:",strInstancesSet)
 
         # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
-        for oneStr in [
+        for one_str in [
             'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=all_columns',
             'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=assembly_files',
             'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=change_tracking_tables',
@@ -1392,31 +1403,31 @@ class SurvolPyODBCTest(unittest.TestCase):
             'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=server_audits',
             'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=sysusers',
             ]:
-            self.assertTrue(oneStr in strInstancesSet)
+            self.assertTrue(one_str in strInstancesSet)
 
 
     @unittest.skipIf(not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
     def test_pyodbc_dsn_one_table_columns(self):
         """Tests ODBC table columns"""
 
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/odbc/table/odbc_table_columns.py",
             "odbc/table",
             Dsn="DSN~SysDataSourceSQLServer",
             Table="dm_os_windows_info")
 
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
-        #print("Instances:",strInstancesSet)
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances ])
+        #print("Instances:",str_instances_set)
 
         # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
-        for oneStr in [
+        for one_str in [
             'odbc/column.Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info,Column=windows_service_pack_level',
             'odbc/column.Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info,Column=os_language_version',
             'odbc/column.Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info,Column=windows_release',
             'odbc/column.Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info,Column=windows_sku',
             'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info'
         ]:
-            self.assertTrue(oneStr in strInstancesSet)
+            self.assertTrue(one_str in str_instances_set)
 
 
 class SurvolSocketsTest(unittest.TestCase):
@@ -1428,81 +1439,79 @@ class SurvolSocketsTest(unittest.TestCase):
 
         # Not many web sites in HTTP these days. This one is very stable.
         # http://w2.vatican.va/content/vatican/it.html is on port 80=http
-        httpHostName = 'w2.vatican.va'
+        http_host_name = 'w2.vatican.va'
 
-        sockHost = socket.gethostbyname(httpHostName)
-        print("gethostbyname(%s)=%s"%(httpHostName,sockHost))
+        sock_host = socket.gethostbyname(http_host_name)
+        print("gethostbyname(%s)=%s" % (http_host_name, sock_host))
 
         # This opens a connection to a specific machine, then checks that the socket can be found.
         if is_py3:
             import http.client
-            connHttp = http.client.HTTPConnection(httpHostName, 80, timeout=60)
+            conn_http = http.client.HTTPConnection(http_host_name, 80, timeout=60)
         else:
             import httplib
-            connHttp = httplib.HTTPConnection(httpHostName, 80, timeout=60)
-        print("Connection to %s OK"%httpHostName)
-        connHttp.request("GET", "/content/vatican/it.html")
-        resp = connHttp.getresponse()
+            conn_http = httplib.HTTPConnection(http_host_name, 80, timeout=60)
+        print("Connection to %s OK"%http_host_name)
+        conn_http.request("GET", "/content/vatican/it.html")
+        resp = conn_http.getresponse()
         if resp.status != 200 or resp.reason != "OK":
-            raise Exception("Hostname %s not ok for test. Status=%d, reason=%s."%(httpHostName, resp.status, resp.reason))
-        peerName = connHttp.sock.getpeername()
-        peerHost = peerName[0]
+            raise Exception("Hostname %s not ok. Status=%d, reason=%s." % (http_host_name, resp.status, resp.reason))
+        peer_name = conn_http.sock.getpeername()
+        peer_host = peer_name[0]
 
-        print("Peer name of connection socket:",connHttp.sock.getpeername())
+        print("Peer name of connection socket:",conn_http.sock.getpeername())
 
         if is_platform_windows:
-            lstInstances = ClientObjectInstancesFromScript("sources_types/win32/tcp_sockets_windows.py")
+            lst_instances = ClientObjectInstancesFromScript("sources_types/win32/tcp_sockets_windows.py")
         else:
-            lstInstances = ClientObjectInstancesFromScript("sources_types/Linux/tcp_sockets.py")
+            lst_instances = ClientObjectInstancesFromScript("sources_types/Linux/tcp_sockets.py")
 
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances ])
 
-        addrExpected = "addr.Id=%s:80" % (peerHost)
-        print("addrExpected=",addrExpected)
-        self.assertTrue(addrExpected in strInstancesSet)
+        addr_expected = "addr.Id=%s:80" % peer_host
+        print("addr_expected=", addr_expected)
+        self.assertTrue(addr_expected in str_instances_set)
 
-        connHttp.close()
+        conn_http.close()
 
     @unittest.skip("THIS WORKS ONLY SOMETIMES")
     def test_enumerate_sockets(self):
         """List of sockets opened on the host machine"""
 
         # This site was registered on September the 18th, 1986. It is very stable.
-        httpHostName = 'www.itcorp.com'
+        http_host_name = 'www.itcorp.com'
 
-        sockHost = socket.gethostbyname(httpHostName)
-        print("gethostbyname(%s)=%s"%(httpHostName,sockHost))
+        sock_host = socket.gethostbyname(http_host_name)
+        print("gethostbyname(%s)=%s"%(http_host_name,sock_host))
 
         # This opens a connection to a specific machine, then checks that the socket can be found.
         expected_port = 80
         if is_py3:
             import http.client
-            connHttp = http.client.HTTPConnection(httpHostName, expected_port, timeout=60)
+            conn_http = http.client.HTTPConnection(http_host_name, expected_port, timeout=60)
         else:
             import httplib
-            connHttp = httplib.HTTPConnection(httpHostName, expected_port, timeout=60)
-        print("Connection to %s OK"%httpHostName)
+            conn_http = httplib.HTTPConnection(http_host_name, expected_port, timeout=60)
+        print("Connection to %s OK"%http_host_name)
 
-        #connHttp.request(method="GET", url="/", headers={"Connection" : "Keep-alive"})
         print("Requesting content")
-        #connHttp.request(method="GET", url="/content/vatican/it.html")
-        connHttp.request(method="GET", url="/")
-        print("Peer name of connection socket:",connHttp.sock.getpeername())
+        conn_http.request(method="GET", url="/")
+        print("Peer name of connection socket:",conn_http.sock.getpeername())
 
-        resp = connHttp.getresponse()
+        resp = conn_http.getresponse()
 
         if resp.status != 200 or resp.reason != "OK":
-            raise Exception("Hostname %s not ok for test. Status=%d, reason=%s."%(httpHostName, resp.status, resp.reason))
-        peerName = connHttp.sock.getpeername()
-        peerHost = peerName[0]
+            raise Exception("Hostname %s not ok. Status=%d, reason=%s." % (http_host_name, resp.status, resp.reason))
+        peer_name = conn_http.sock.getpeername()
+        peer_host = peer_name[0]
 
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/enumerate_socket.py")
 
-        str_instances_list= [str(oneInst) for oneInst in lstInstances]
+        str_instances_list = [str(one_inst) for one_inst in lst_instances]
 
-        print("sockHost=",sockHost)
-        print("peerHost=", peerHost)
+        print("sock_host=", sock_host)
+        print("peer_host=", peer_host)
         print("expected_port=", expected_port)
 
         found_socket = False
@@ -1517,15 +1526,14 @@ class SurvolSocketsTest(unittest.TestCase):
                 try:
                     instance_addr = socket.gethostbyname(instance_host)
                     #print("instance_addr=", instance_addr)
-                    found_socket = instance_addr == peerHost and instance_port == str(expected_port)
+                    found_socket = instance_addr == peer_host and instance_port == str(expected_port)
                     if found_socket:
                         break
                 except socket.gaierror:
                     pass
 
         self.assertTrue(found_socket)
-        connHttp.close()
-
+        conn_http.close()
 
     def test_socket_connected_processes(self):
         """List of processes connected to a given socket"""
@@ -1534,49 +1542,49 @@ class SurvolSocketsTest(unittest.TestCase):
         # It needs a HTTP web server because it is simpler for debugging.
         # https://stackoverflow.com/questions/50068127/http-only-site-to-test-rest-requests
         # This URL doesn't redirect http to https.
-        httpHostName = 'eu.httpbin.org'
+        http_host_name = 'eu.httpbin.org'
 
         print("")
-        sockHost = socket.gethostbyname(httpHostName)
-        print("gethostbyname(%s)=%s"%(httpHostName,sockHost))
+        sockHost = socket.gethostbyname(http_host_name)
+        print("gethostbyname(%s)=%s"%(http_host_name, sockHost))
 
         # This opens a connection to a specific machine, then checks that the socket can be found.
         if is_py3:
             import http.client
-            connHttp = http.client.HTTPConnection(httpHostName, 80, timeout=60)
+            conn_http = http.client.HTTPConnection(http_host_name, 80, timeout=60)
         else:
             import httplib
-            connHttp = httplib.HTTPConnection(httpHostName, 80, timeout=60)
-        print("Connection to %s OK"%httpHostName)
-        connHttp.request("GET", "")
-        resp = connHttp.getresponse()
+            conn_http = httplib.HTTPConnection(http_host_name, 80, timeout=60)
+        print("Connection to %s OK"%http_host_name)
+        conn_http.request("GET", "")
+        resp = conn_http.getresponse()
         if resp.status != 200 or resp.reason != "OK":
-            raise Exception("Hostname %s not ok for test. Status=%d, reason=%s."%(httpHostName, resp.status, resp.reason))
-        peerName = connHttp.sock.getpeername()
-        peerHost = peerName[0]
+            raise Exception("Hostname %s not ok. Status=%d, reason=%s." % (http_host_name, resp.status, resp.reason))
+        peer_name = conn_http.sock.getpeername()
+        peer_host = peer_name[0]
 
-        print("Peer name of connection socket:",connHttp.sock.getpeername())
+        print("Peer name of connection socket:",conn_http.sock.getpeername())
 
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/addr/socket_connected_processes.py",
             "addr",
-            Id="%s:80"%peerHost)
+            Id="%s:80" % peer_host)
 
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
 
         # Because the current process has created this socket,
         # it must be found in the socket's connected processes.
 
-        addrExpected = "addr.Id=%s:80" % peerHost
-        procExpected =  CurrentProcessPath
+        addr_expected = "addr.Id=%s:80" % peer_host
+        proc_expected = CurrentProcessPath
 
-        print("addrExpected=",addrExpected)
-        print("procExpected=",procExpected)
+        print("addr_expected=", addr_expected)
+        print("proc_expected=", proc_expected)
 
-        self.assertTrue(addrExpected in strInstancesSet)
-        self.assertTrue(procExpected in strInstancesSet)
+        self.assertTrue(addr_expected in str_instances_set)
+        self.assertTrue(proc_expected in str_instances_set)
 
-        connHttp.close()
+        conn_http.close()
 
     @unittest.skipIf(not is_platform_windows, "test_net_use for Windows only.")
     def test_net_use(self):
@@ -1584,11 +1592,11 @@ class SurvolSocketsTest(unittest.TestCase):
 
         # This does not really test the content, because nothing is sure.
         # However, at least it tests that the script can be called.
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/SMB/net_use.py")
 
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
-        print(strInstancesSet)
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
+        print(str_instances_set)
         # Typical content:
         # 'CIM_DataFile.Name=//192.168.0.15/public:',
         # 'CIM_DataFile.Name=//192.168.0.15/rchateau:',
@@ -1604,11 +1612,11 @@ class SurvolSocketsTest(unittest.TestCase):
     def test_windows_network_devices(self):
         """Loads network devices on a Windows network"""
 
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/win32/windows_network_devices.py")
 
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
-        print(strInstancesSet)
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
+        print(str_instances_set)
 
         # Typical content:
         #   'CIM_ComputerSystem.Name=192.168.0.15',
@@ -1620,13 +1628,13 @@ class SurvolSocketsTest(unittest.TestCase):
         # Some sanity checks of the result.
         set_ip_addresses = set()
         smbshr_disk = set()
-        for oneInst in strInstancesSet:
-            ( the_class,dummy_dot, the_entity_id) = oneInst.partition(".")
+        for one_inst in str_instances_set:
+            ( the_class,dummy_dot, the_entity_id) = one_inst.partition(".")
             if the_class == "CIM_ComputerSystem":
-                (pred_Name,dummy_equal,ip_address) = the_entity_id.partition("=")
+                pred_name, dummy_equal, ip_address = the_entity_id.partition("=")
                 set_ip_addresses.add(ip_address)
-            elif  the_class == "smbshr":
-                (pred_Name,dummy_equal,disk_name) = the_entity_id.partition("=")
+            elif the_class == "smbshr":
+                pred_name, dummy_equal, disk_name = the_entity_id.partition("=")
                 smbshr_disk.add(disk_name)
 
         # Check that all machines hosting a disk have their
@@ -1650,13 +1658,13 @@ class SurvolRemoteTest(unittest.TestCase):
 
     def test_create_source_url(self):
         # http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
-        mySourceFileStatRemote = lib_client.SourceRemote(
+        my_source_file_stat_remote = lib_client.SourceRemote(
             _remote_general_test_agent + "/survol/sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
             Name=always_present_file)
-        print("urlFileStatRemote=",mySourceFileStatRemote.Url())
-        print("qryFileStatRemote=",mySourceFileStatRemote.create_url_query())
-        json_content = mySourceFileStatRemote.content_json()
+        print("urlFileStatRemote=",my_source_file_stat_remote.Url())
+        print("qryFileStatRemote=",my_source_file_stat_remote.create_url_query())
+        json_content = my_source_file_stat_remote.content_json()
 
         found_file = False
         always_present_basename = os.path.basename(always_present_file)
@@ -1671,137 +1679,137 @@ class SurvolRemoteTest(unittest.TestCase):
         self.assertTrue(found_file)
 
     def test_remote_triplestore(self):
-        mySourceFileStatRemote = lib_client.SourceRemote(
+        my_source_file_stat_remote = lib_client.SourceRemote(
             _remote_general_test_agent + "/survol/sources_types/CIM_Directory/file_directory.py",
             "CIM_Directory",
             Name=always_present_dir)
-        tripleFileStatRemote = mySourceFileStatRemote.get_triplestore()
-        print("Len tripleFileStatRemote=",len(tripleFileStatRemote))
+        triple_file_stat_remote = my_source_file_stat_remote.get_triplestore()
+        print("Len triple_file_stat_remote=", len(triple_file_stat_remote))
         # This should not be empty.
-        self.assertTrue(len(tripleFileStatRemote) >= 1)
+        self.assertTrue(len(triple_file_stat_remote) >= 1)
 
     def test_remote_scripts_exception(self):
-        myAgent = lib_client.Agent(_remote_general_test_agent)
+        my_agent = lib_client.Agent(_remote_general_test_agent)
 
         # This raises an exception like "EntityId className=CIM_LogicalDisk. No key DeviceID"
         # because the properties are incorrect,
         with self.assertRaises(Exception):
-            mySourceInvalid = myAgent.CIM_LogicalDisk(WrongProperty=AnyLogicalDisk)
+            mySourceInvalid = my_agent.CIM_LogicalDisk(WrongProperty=AnyLogicalDisk)
             scriptsInvalid = mySourceInvalid.get_scripts()
 
     def test_remote_instances_python_package(self):
         """This loads a specific Python package"""
-        mySourcePythonPackageRemote = lib_client.SourceRemote(
+        my_source_python_package_remote = lib_client.SourceRemote(
             _remote_general_test_agent + "/survol/entity.py",
             "python/package",
             Id="rdflib")
-        triplePythonPackageRemote = mySourcePythonPackageRemote.get_triplestore()
+        triple_python_package_remote = my_source_python_package_remote.get_triplestore()
 
-        instancesPythonPackageRemote = triplePythonPackageRemote.get_instances()
-        lenInstances = len(instancesPythonPackageRemote)
+        instances_python_package_remote = triple_python_package_remote.get_instances()
+        len_instances = len(instances_python_package_remote)
         # This Python module must be there because it is needed by Survol.
-        self.assertTrue(lenInstances>=1)
+        self.assertTrue(len_instances>=1)
 
     @unittest.skipIf(not pkgutil.find_loader('jpype'), "jpype cannot be imported. test_remote_instances_java not executed.")
     def test_remote_instances_java(self):
         """Loads Java processes. There is at least one Java process, the one doing the test"""
-        mySourceJavaRemote = lib_client.SourceRemote(
+        my_source_java_remote = lib_client.SourceRemote(
             _remote_general_test_agent + "/survol/sources_types/java/java_processes.py")
-        tripleJavaRemote = mySourceJavaRemote.get_triplestore()
-        print("Len tripleJavaRemote=",len(tripleJavaRemote))
+        triple_java_remote = my_source_java_remote.get_triplestore()
+        print("Len triple_java_remote=", len(triple_java_remote))
 
-        instancesJavaRemote = tripleJavaRemote.get_instances()
-        numJavaProcesses = 0
-        for oneInstance in instancesJavaRemote:
-            if oneInstance.__class__.__name__ == "CIM_Process":
-                print("Found one Java process:",oneInstance)
-                numJavaProcesses += 1
-        print("Remote Java processes=",numJavaProcesses)
-        self.assertTrue(numJavaProcesses >= 1)
+        instances_java_remote = triple_java_remote.get_instances()
+        num_java_processes = 0
+        for one_instance in instances_java_remote:
+            if one_instance.__class__.__name__ == "CIM_Process":
+                print("Found one Java process:", one_instance)
+                num_java_processes += 1
+        print("Remote Java processes=", num_java_processes)
+        self.assertTrue(num_java_processes >= 1)
 
     # Cannot run /sbin/arp -an
     @unittest.skipIf(is_travis_machine(), "Cannot run this test on TravisCI because arp is not available.")
     def test_remote_instances_arp(self):
         """Loads machines visible with ARP. There must be at least one CIM_ComputerSystem"""
 
-        mySourceArpRemote = lib_client.SourceRemote(
+        my_source_arp_remote = lib_client.SourceRemote(
             _remote_general_test_agent + "/survol/sources_types/neighborhood/cgi_arp_async.py")
-        tripleArpRemote = mySourceArpRemote.get_triplestore()
-        print("Len tripleArpRemote=",len(tripleArpRemote))
+        triple_arp_remote = my_source_arp_remote.get_triplestore()
+        print("Len triple_arp_remote=", len(triple_arp_remote))
 
-        instancesArpRemote = tripleArpRemote.get_instances()
-        numComputers = 0
-        for oneInstance in instancesArpRemote:
-            if oneInstance.__class__.__name__ == "CIM_ComputerSystem":
-                print("Test remote ARP: Found one machine:",oneInstance)
-                numComputers += 1
-        print("Remote hosts number=",numComputers)
-        self.assertTrue(numComputers >= 1)
+        instances_arp_remote = triple_arp_remote.get_instances()
+        num_computers = 0
+        for one_instance in instances_arp_remote:
+            if one_instance.__class__.__name__ == "CIM_ComputerSystem":
+                print("Test remote ARP: Found one machine:", one_instance)
+                num_computers += 1
+        print("Remote hosts number=", num_computers)
+        self.assertTrue(num_computers >= 1)
 
     def test_merge_add_mixed(self):
         """Merges local data triples and remote Survol agent's"""
-        mySource1 = lib_client.SourceLocal(
+        my_source1 = lib_client.SourceLocal(
             "entity.py",
             "CIM_LogicalDisk",
             DeviceID=AnyLogicalDisk)
         if is_platform_windows:
-            mySource2 = lib_client.SourceRemote(_remote_general_test_agent + "/survol/sources_types/win32/tcp_sockets_windows.py")
+            my_source2 = lib_client.SourceRemote(_remote_general_test_agent + "/survol/sources_types/win32/tcp_sockets_windows.py")
         else:
-            mySource2 = lib_client.SourceRemote(_remote_general_test_agent + "/survol/sources_types/Linux/tcp_sockets.py")
+            my_source2 = lib_client.SourceRemote(_remote_general_test_agent + "/survol/sources_types/Linux/tcp_sockets.py")
 
-        mySrcMergePlus = mySource1 + mySource2
-        print("Merge plus:",str(mySrcMergePlus.content_rdf())[:30])
-        triplePlus = mySrcMergePlus.get_triplestore()
-        print("Len triplePlus:",len(triplePlus))
+        my_src_merge_plus = my_source1 + my_source2
+        print("Merge plus:",str(my_src_merge_plus.content_rdf())[:30])
+        triple_plus = my_src_merge_plus.get_triplestore()
+        print("Len triple_plus:",len(triple_plus))
 
-        lenSource1 = len(mySource1.get_triplestore().get_instances())
-        lenSource2 = len(mySource2.get_triplestore().get_instances())
-        lenPlus = len(triplePlus.get_instances())
+        len_source1 = len(my_source1.get_triplestore().get_instances())
+        len_source2 = len(my_source2.get_triplestore().get_instances())
+        len_plus = len(triple_plus.get_instances())
         # There is a margin because some instances could be created in the mean time.
-        errorMargin = 20
+        error_margin = 20
         # In the merged link, there cannot be more instances than in the input sources.
-        self.assertTrue(lenPlus <= lenSource1 + lenSource2 + errorMargin)
+        self.assertTrue(len_plus <= len_source1 + len_source2 + error_margin)
 
     @unittest.skipIf(not pkgutil.find_loader('win32net'), "Cannot import win32net. test_merge_sub_mixed not run.")
     def test_merge_sub_mixed(self):
-        mySource1 = lib_client.SourceLocal(
+        my_source1 = lib_client.SourceLocal(
             "entity.py",
             "CIM_LogicalDisk",
             DeviceID=AnyLogicalDisk)
         if is_platform_windows:
-            mySource2 = lib_client.SourceRemote(_remote_general_test_agent + "/survol/sources_types/win32/win32_local_groups.py")
+            my_source2 = lib_client.SourceRemote(_remote_general_test_agent + "/survol/sources_types/win32/win32_local_groups.py")
         else:
-            mySource2 = lib_client.SourceRemote(_remote_general_test_agent + "/survol/sources_types/Linux/etc_group.py")
+            my_source2 = lib_client.SourceRemote(_remote_general_test_agent + "/survol/sources_types/Linux/etc_group.py")
 
-        mySrcMergeMinus = mySource1 - mySource2
-        print("Merge Minus:",str(mySrcMergeMinus.content_rdf())[:30])
-        tripleMinus = mySrcMergeMinus.get_triplestore()
-        print("Len tripleMinus:",len(tripleMinus))
+        my_src_merge_minus = my_source1 - my_source2
+        print("Merge Minus:",str(my_src_merge_minus.content_rdf())[:30])
+        triple_minus = my_src_merge_minus.get_triplestore()
+        print("Len triple_minus:", len(triple_minus))
 
-        lenSource1 = len(mySource1.get_triplestore().get_instances())
-        lenMinus = len(tripleMinus.get_instances())
+        len_source1 = len(my_source1.get_triplestore().get_instances())
+        len_minus = len(triple_minus.get_instances())
         # There cannot be more instances after removal.
-        self.assertTrue(lenMinus <= lenSource1 )
+        self.assertTrue(len_minus <= len_source1 )
 
     def test_remote_scripts_CIM_LogicalDisk(self):
-        myAgent = lib_client.Agent(_remote_general_test_agent)
+        my_agent = lib_client.Agent(_remote_general_test_agent)
 
-        myInstancesRemoteDisk = myAgent.CIM_LogicalDisk(DeviceID=AnyLogicalDisk)
-        listScriptsDisk = myInstancesRemoteDisk.get_scripts()
+        my_instances_remote_disk = my_agent.CIM_LogicalDisk(DeviceID=AnyLogicalDisk)
+        list_scripts_disk = my_instances_remote_disk.get_scripts()
         # No scripts yet.
-        self.assertTrue(len(listScriptsDisk) == 0)
+        self.assertTrue(len(list_scripts_disk) == 0)
 
     def test_remote_scripts_CIM_Directory(self):
-        myAgent = lib_client.Agent(_remote_general_test_agent)
+        my_agent = lib_client.Agent(_remote_general_test_agent)
 
-        myInstancesRemoteDir = myAgent.CIM_Directory(Name=AnyLogicalDisk)
-        listScriptsDir = myInstancesRemoteDir.get_scripts()
+        my_instances_remote_dir = my_agent.CIM_Directory(Name=AnyLogicalDisk)
+        list_scripts_dir = my_instances_remote_dir.get_scripts()
 
         if isVerbose:
-            for keyScript in listScriptsDir:
-                sys.stdout.write("    %s\n"%keyScript)
+            for key_script in list_scripts_dir:
+                sys.stdout.write("    %s\n"%key_script)
         # There should be at least a couple of scripts.
-        self.assertTrue(len(listScriptsDir) > 0)
+        self.assertTrue(len(list_scripts_dir) > 0)
 
 
 class SurvolAzureTest(unittest.TestCase):
@@ -1816,60 +1824,60 @@ class SurvolAzureTest(unittest.TestCase):
             print("Module azure is not available so this test is not applicable")
             return None
 
-        instancesAzureSubscriptions = ClientObjectInstancesFromScript(
+        instances_azure_subscriptions = ClientObjectInstancesFromScript(
             "sources_types/Azure/enumerate_subscription.py")
 
         # ['Azure/subscription.Subscription=Visual Studio Professional', 'CIM_ComputerSystem.Name=localhost']
-        for oneInst in instancesAzureSubscriptions:
+        for one_inst in instances_azure_subscriptions:
             # This returns the first subscription found.
-            if oneInst.__class__.__name__ == "Azure/subscription":
+            if one_inst.__class__.__name__ == "Azure/subscription":
                 def wrapper(self):
-                    test_func(self,oneInst.Subscription)
+                    test_func(self,one_inst.Subscription)
                 return wrapper
 
         print("No Azure subscription available")
         return None
 
     @decorator_azure_subscription
-    def test_azure_subscriptions(self,azureSubscription):
-        print("Azure subscription:",azureSubscription)
+    def test_azure_subscriptions(self, azureSubscription):
+        print("Azure subscription:", azureSubscription)
 
     @decorator_azure_subscription
     @unittest.skip("Azure test disabled")
-    def test_azure_locations(self,azureSubscription):
+    def test_azure_locations(self, azureSubscription):
         """This checks Azure locations."""
 
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/Azure/subscription/subscription_locations.py",
             "Azure/subscription",
             Subscription=azureSubscription)
 
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances ])
 
         # Some locations are very common.
-        for locationName in [
+        for location_name in [
                 'UK South',
                 'West Central US',
-                'West Europe' ]:
-            entitySubscription = 'Azure/location.Subscription=%s,Location=%s' % ( azureSubscription, locationName )
-            self.assertTrue(entitySubscription in strInstancesSet)
+                'West Europe']:
+            entity_subscription = 'Azure/location.Subscription=%s,Location=%s' % (azureSubscription, location_name)
+            self.assertTrue(entity_subscription in str_instances_set)
 
     @decorator_azure_subscription
     @unittest.skip("Azure test disabled")
-    def test_azure_subscription_disk(self,azureSubscription):
+    def test_azure_subscription_disk(self, azureSubscription):
         """This checks Azure disks."""
 
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/Azure/subscription/subscription_disk.py",
             "Azure/subscription",
             Subscription=azureSubscription)
 
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances ])
 
-        print(strInstancesSet)
+        print(str_instances_set)
 
         # There should be at least one disk.
-        self.assertTrue(len(strInstancesSet) > 0)
+        self.assertTrue(len(str_instances_set) > 0)
 
 
 class SurvolRabbitMQTest(unittest.TestCase):
@@ -1895,15 +1903,15 @@ class SurvolRabbitMQTest(unittest.TestCase):
             print("Module pyrabbit is not available so this test is not applicable")
             return None
 
-        instancesConfigurationsRabbitMQ = ClientObjectInstancesFromScript(
+        instances_configurations_rabbit_mq = ClientObjectInstancesFromScript(
             "sources_types/rabbitmq/list_configurations.py")
 
         # ['Azure/subscription.Subscription=Visual Studio Professional', 'CIM_ComputerSystem.Name=localhost']
-        for oneInst in instancesConfigurationsRabbitMQ:
+        for one_inst in instances_configurations_rabbit_mq:
             # This returns the first subscription found.
-            if oneInst.__class__.__name__ == "rabbitmq/manager":
+            if one_inst.__class__.__name__ == "rabbitmq/manager":
                 def wrapper(self):
-                    test_func(self,oneInst.Url)
+                    test_func(self, one_inst.Url)
                 return wrapper
 
         print("No Azure subscription available")
@@ -1911,19 +1919,19 @@ class SurvolRabbitMQTest(unittest.TestCase):
 
     @decorator_rabbitmq_subscription
     def test_rabbitmq_subscriptions(self,rabbitmqManager):
-        print("RabbitMQ:",rabbitmqManager)
+        print("RabbitMQ:", rabbitmqManager)
 
     @decorator_rabbitmq_subscription
     def test_rabbitmq_connections(self,rabbitmqManager):
-        print("RabbitMQ:",rabbitmqManager)
+        print("RabbitMQ:", rabbitmqManager)
 
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/rabbitmq/manager/list_connections.py",
             "rabbitmq/manager",
             Url=rabbitmqManager)
 
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
-        print(strInstancesSet)
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances ])
+        print(str_instances_set)
 
         # Typical content:
         # 'rabbitmq/manager.Url=localhost:12345',\
@@ -1932,26 +1940,26 @@ class SurvolRabbitMQTest(unittest.TestCase):
         # 'rabbitmq/connection.Url=localhost:12345,Connection=127.0.0.1:51641 -&gt; 127.0.0.1:5672'])
 
         # Typical content
-        for oneStr in [
+        for one_str in [
             'rabbitmq/manager.Url=%s' % rabbitmqManager,
             'rabbitmq/user.Url=%s,User=guest' % rabbitmqManager,
         ]:
-            self.assertTrue(oneStr in strInstancesSet)
+            self.assertTrue(one_str in str_instances_set)
 
     @decorator_rabbitmq_subscription
     def test_rabbitmq_exchanges(self,rabbitmqManager):
         print("RabbitMQ:",rabbitmqManager)
 
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/rabbitmq/manager/list_exchanges.py",
             "rabbitmq/manager",
             Url=rabbitmqManager)
 
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
-        print(strInstancesSet)
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances ])
+        print(str_instances_set)
 
         # Typical content
-        for oneStr in [
+        for one_str in [
             'rabbitmq/exchange.Url=%s,VHost=/,Exchange=amq.match' % rabbitmqManager,
             'rabbitmq/exchange.Url=%s,VHost=/,Exchange=' % rabbitmqManager,
             'rabbitmq/exchange.Url=%s,VHost=/,Exchange=amq.topic' % rabbitmqManager,
@@ -1962,41 +1970,41 @@ class SurvolRabbitMQTest(unittest.TestCase):
             'rabbitmq/exchange.Url=%s,VHost=/,Exchange=amq.direct' % rabbitmqManager,
             'rabbitmq/vhost.Url=%s,VHost=/' % rabbitmqManager
         ]:
-            self.assertTrue(oneStr in strInstancesSet)
+            self.assertTrue(one_str in str_instances_set)
 
     @decorator_rabbitmq_subscription
-    def test_rabbitmq_queues(self,rabbitmqManager):
-        print("RabbitMQ:",rabbitmqManager)
+    def test_rabbitmq_queues(self, rabbitmqManager):
+        print("RabbitMQ:", rabbitmqManager)
 
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/rabbitmq/manager/list_queues.py",
             "rabbitmq/manager",
             Url=rabbitmqManager)
 
         # FIXME: Which queues should always be present ?
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
-        print("test_rabbitmq_queues strInstancesSet=", strInstancesSet)
-        self.assertTrue('rabbitmq/vhost.Url=localhost:12345,VHost=/' in strInstancesSet)
-        self.assertTrue('rabbitmq/manager.Url=localhost:12345' in strInstancesSet)
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        print("test_rabbitmq_queues str_instances_set=", str_instances_set)
+        self.assertTrue('rabbitmq/vhost.Url=localhost:12345,VHost=/' in str_instances_set)
+        self.assertTrue('rabbitmq/manager.Url=localhost:12345' in str_instances_set)
 
     @decorator_rabbitmq_subscription
     def test_rabbitmq_users(self,rabbitmqManager):
         print("RabbitMQ:",rabbitmqManager)
 
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/rabbitmq/manager/list_users.py",
             "rabbitmq/manager",
             Url=rabbitmqManager)
 
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
-        print(strInstancesSet)
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        print(str_instances_set)
 
         # Typical content
-        for oneStr in [
+        for one_str in [
             'rabbitmq/user.Url=%s,User=guest' % rabbitmqManager,
         ]:
-            print(oneStr)
-            self.assertTrue(oneStr in strInstancesSet)
+            print(one_str)
+            self.assertTrue(one_str in str_instances_set)
 
 
 class SurvolOracleTest(unittest.TestCase):
@@ -2025,71 +2033,74 @@ class SurvolOracleTest(unittest.TestCase):
         # 'addr.Id=192.168.0.17:1521', 'oracle/db.Db=XE_FEDORA'}
 
         # Sorted in alphabetical order.
-        strInstances = sorted([str(oneInst.Db) for oneInst in instancesOracleDbs if oneInst.__class__.__name__ == "oracle/db"])
+        str_instances = sorted([
+            str(one_inst.Db)
+            for one_inst in instancesOracleDbs
+            if one_inst.__class__.__name__ == "oracle/db"])
 
-        if strInstances:
+        if str_instances:
             # This returns the first database found in the credentials file in alphabetical order.
             def wrapper(self):
-                test_func(self,strInstances[0])
+                test_func(self,str_instances[0])
             wrapper.__doc__ = test_func.__doc__
             return wrapper
-            # return strInstances[0]
+            # return str_instances[0]
 
         print("No Oracle database available")
         return None
 
     @decorator_oracle_db
-    def test_oracle_databases(self,oracleDb):
+    def test_oracle_databases(self, oracleDb):
         """Check there is at least one connection."""
-        print("Oracle:",oracleDb)
+        print("Oracle:", oracleDb)
 
     @decorator_oracle_db
-    def test_oracle_schemas(self,oracleDb):
-        print("Oracle:",oracleDb)
+    def test_oracle_schemas(self, oracleDb):
+        print("Oracle:", oracleDb)
 
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/oracle/db/oracle_db_schemas.py",
             "oracle/db",
             Db=oracleDb)
 
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         # Typical content:
-        for oneStr in [
+        for one_str in [
             'oracle/schema.Db=%s,Schema=SYSTEM' % oracleDb,
             'oracle/schema.Db=%s,Schema=ANONYMOUS' % oracleDb,
             'oracle/schema.Db=%s,Schema=SYS' % oracleDb,
         ]:
-            self.assertTrue(oneStr in strInstancesSet)
+            self.assertTrue(one_str in str_instances_set)
 
     @decorator_oracle_db
-    def test_oracle_connected_processes(self,oracleDb):
-        print("Oracle:",oracleDb)
+    def test_oracle_connected_processes(self, oracleDb):
+        print("Oracle:", oracleDb)
 
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/oracle/db/oracle_db_processes.py",
             "oracle/db",
             Db=oracleDb)
 
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
 
-        print(strInstancesSet)
+        print(str_instances_set)
 
         # Typical content:
         # 'CIM_Process.Handle=11772', 'oracle/db.Db=XE', 'Win32_UserAccount.Name=rchateau,Domain=rchateau-hp',
         # 'oracle/schema.Db=XE,Schema=SYSTEM', 'oracle/session.Db=XE,Session=102'
-        for oneStr in [
+        for one_str in [
             CurrentProcessPath,
             'oracle/db.Db=%s' % oracleDb,
             'Win32_UserAccount.Name=%s,Domain=%s' % ( CurrentUsername, CurrentMachine),
         ]:
-            self.assertTrue(oneStr in strInstancesSet)
+            self.assertTrue(one_str in str_instances_set)
 
     @decorator_oracle_db
-    def test_oracle_running_queries(self,oracleDb):
-        print("Oracle:",oracleDb)
+    def test_oracle_running_queries(self, oracleDb):
+        print("Oracle:", oracleDb)
 
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/oracle/db/oracle_db_parse_queries.py",
             "oracle/db",
             Db=oracleDb)
@@ -2097,91 +2108,92 @@ class SurvolOracleTest(unittest.TestCase):
         # Typical content:
         # ['oracle/db.Db=XE_OVH', 'oracle/query.Query=ICBTRUxF... base64 ...ZGRyICA=,Db=XE_OVH']
 
-        for oneInst in lstInstances:
-            if oneInst.__class__.__name__ == 'oracle/query':
+        for one_inst in lst_instances:
+            if one_inst.__class__.__name__ == 'oracle/query':
                 import sources_types.oracle.query
-                print("Decoded query:",sources_types.oracle.query.EntityName( [oneInst.Query,oneInst.Db] ))
+                print("Decoded query:", sources_types.oracle.query.EntityName([one_inst.Query, one_inst.Db]))
 
                 # TODO: This is not very consistent: sources_types.oracle.query.EntityName
                 # TODO: produces a nice but truncated message, and the relation between
                 # TODO: oracle.query and sql.query is not obvious.
                 import sources_types.sql.query
-                qryDecodedFull = sources_types.sql.query.EntityName( [oneInst.Query] )
-                print("Decoded query:",qryDecodedFull)
+                qry_decoded_full = sources_types.sql.query.EntityName([one_inst.Query])
+                print("Decoded query:", qry_decoded_full)
                 # The query must start with a select.
-                self.assertTrue(qryDecodedFull.strip().upper().startswith("SELECT"))
+                self.assertTrue(qry_decoded_full.strip().upper().startswith("SELECT"))
 
                 # TODO: Parse the query ? Or extracts its dependencies ?
 
 
     @decorator_oracle_db
-    def test_oracle_schema_tables(self,oracleDb):
-        print("Oracle:",oracleDb)
+    def test_oracle_schema_tables(self, oracleDb):
+        print("Oracle:", oracleDb)
 
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/oracle/schema/oracle_schema_tables.py",
             "oracle/db",
             Db=oracleDb,
         Schema='SYSTEM')
 
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
 
-        print(strInstancesSet)
+        print(str_instances_set)
 
         # Various tables which should always be in 'SYSTEM' namespace:
-        for oneStr in [
+        for one_str in [
             'oracle/table.Db=%s,Schema=SYSTEM,Table=HELP' % oracleDb,
             #'oracle/table.Db=%s,Schema=SYSTEM,Table=REPCAT$_COLUMN_GROUP' % oracleDb,
             #'oracle/table.Db=%s,Schema=SYSTEM,Table=MVIEW$_ADV_WORKLOAD' % oracleDb,
         ]:
-            self.assertTrue(oneStr in strInstancesSet)
+            self.assertTrue(one_str in str_instances_set)
 
     @decorator_oracle_db
-    def test_oracle_schema_views(self,oracleDb):
-        print("Oracle:",oracleDb)
+    def test_oracle_schema_views(self, oracleDb):
+        print("Oracle:", oracleDb)
 
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/oracle/schema/oracle_schema_views.py",
             "oracle/db",
             Db=oracleDb,
             Schema='SYS')
 
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
 
-        print(sorted(strInstancesSet)[:10])
+        print(sorted(str_instances_set)[:10])
 
         # Various tables which should always be in 'SYSTEM' namespace:
-        for oneStr in [
+        for one_str in [
             'oracle/view.Db=%s,Schema=SYS,View=ALL_ALL_TABLES' % oracleDb,
             #'oracle/table.Db=%s,Schema=SYSTEM,Table=REPCAT$_COLUMN_GROUP' % oracleDb,
             #'oracle/table.Db=%s,Schema=SYSTEM,Table=MVIEW$_ADV_WORKLOAD' % oracleDb,
         ]:
-            self.assertTrue(oneStr in strInstancesSet)
+            self.assertTrue(one_str in str_instances_set)
 
     @decorator_oracle_db
-    def test_oracle_view_dependencies(self,oracleDb):
+    def test_oracle_view_dependencies(self, oracleDb):
         """Dsplays dependencies of a very common view"""
 
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/oracle/view/oracle_view_dependencies.py",
             "oracle/db",
             Db=oracleDb,
             Schema='SYS',
             View='ALL_ALL_TABLES')
 
-        strInstancesSet = set([str(oneInst) for oneInst in lstInstances ])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
-        print(sorted(strInstancesSet)[:10])
+        print(sorted(str_instances_set)[:10])
 
         # The dependencies of this view should always be the same,as it does not change often.
-        for oneStr in [
+        for one_str in [
             'oracle/schema.Db=%s,Schema=SYS' % oracleDb,
             'oracle/synonym.Db=%s,Schema=PUBLIC,Synonym=ALL_ALL_TABLES' % oracleDb,
             'oracle/view.Db=%s,Schema=SYS,View=ALL_ALL_TABLES' % oracleDb,
             'oracle/view.Db=%s,Schema=SYS,View=ALL_OBJECT_TABLES' % oracleDb,
             'oracle/view.Db=%s,Schema=SYS,View=ALL_TABLES' % oracleDb,
         ]:
-            self.assertTrue(oneStr in strInstancesSet)
+            self.assertTrue(one_str in str_instances_set)
+
 
 class SurvolPEFileTest(unittest.TestCase):
     """Testing pefile features"""
@@ -2191,23 +2203,23 @@ class SurvolPEFileTest(unittest.TestCase):
         """Tests exported functions of a DLL."""
 
         # Very common DLL.
-        dllFileName = r"C:\Windows\System32\gdi32.dll"
+        dll_file_name = r"C:\Windows\System32\gdi32.dll"
 
-        lstInstances = ClientObjectInstancesFromScript(
+        lst_instances = ClientObjectInstancesFromScript(
             "sources_types/CIM_DataFile/portable_executable/pefile_exports.py",
             "CIM_DataFile",
-            Name=dllFileName)
+            Name=dll_file_name)
 
         import sources_types.linker_symbol
-        namesInstance = set()
+        names_instance = set()
 
-        for oneInst in lstInstances:
-            if oneInst.__class__.__name__ == 'linker_symbol':
-                instName = sources_types.linker_symbol.EntityName( [oneInst.Name,oneInst.File] )
-                namesInstance.add(instName)
+        for one_inst in lst_instances:
+            if one_inst.__class__.__name__ == 'linker_symbol':
+                inst_name = sources_types.linker_symbol.EntityName([one_inst.Name, one_inst.File])
+                names_instance.add(inst_name)
 
         # Some exported functiosn which should be there.
-        for oneStr in [
+        for one_str in [
             "CreateBitmapFromDxSurface",
             "DeleteDC",
             "GdiCreateLocalMetaFilePict",
@@ -2216,7 +2228,7 @@ class SurvolPEFileTest(unittest.TestCase):
             "GdiDescribePixelFormat",
             "OffsetViewportOrgEx",
         ]:
-            self.assertTrue(oneStr in namesInstance)
+            self.assertTrue(one_str in names_instance)
 
 
 class SurvolSearchTest(unittest.TestCase):
@@ -2235,29 +2247,35 @@ class SurvolSearchTest(unittest.TestCase):
     def test_search_local_string_flat(self):
         """Searches for a string in one file only. Two occurrences."""
 
-        sampleFile = os.path.join( os.path.dirname(__file__), "SampleDir", "SampleFile.txt" )
-        instanceOrigin = lib_client.Agent().CIM_DataFile(Name=sampleFile)
+        sample_file = os.path.join(os.path.dirname(__file__), "SampleDir", "SampleFile.txt")
+        instance_origin = lib_client.Agent().CIM_DataFile(Name=sample_file)
 
-        searchTripleStore = instanceOrigin.find_string_from_neighbour(searchString="Maecenas",maxDepth=1,filterInstances=None,filterPredicates=None)
+        search_triple_store = instance_origin.find_string_from_neighbour(
+            searchString="Maecenas",
+            maxDepth=1,
+            filterInstances=None,
+            filterPredicates=None)
 
-        results = list(searchTripleStore)
+        results = list(search_triple_store)
 
         print(results)
         self.assertEqual(len(results), 2)
         # The line number and occurrence number are concatenated after the string.
-        self.assertTrue( str(results[0][2]).encode("utf-8").startswith( "Maecenas".encode("utf-8")) )
-        self.assertTrue( str(results[1][2]).encode("utf-8").startswith( "Maecenas".encode("utf-8")) )
+        self.assertTrue(str(results[0][2]).encode("utf-8").startswith( "Maecenas".encode("utf-8")))
+        self.assertTrue(str(results[1][2]).encode("utf-8").startswith( "Maecenas".encode("utf-8")))
 
     def test_search_local_string_one_level(self):
         """Searches for a string in all files of one directory."""
 
         # There are not many files in this directory
-        sampleDir = os.path.join( os.path.dirname(__file__), "SampleDir" )
-        instanceOrigin = lib_client.Agent().CIM_Directory(Name=sampleDir)
+        sample_dir = os.path.join(os.path.dirname(__file__), "SampleDir")
+        instance_origin = lib_client.Agent().CIM_Directory(Name=sample_dir)
 
-        mustFind = "Drivers"
-
-        searchTripleStore = instanceOrigin.find_string_from_neighbour(searchString="Curabitur",maxDepth=2,filterInstances=None,filterPredicates=None)
+        searchTripleStore = instance_origin.find_string_from_neighbour(
+            searchString="Curabitur",
+            maxDepth=2,
+            filterInstances=None,
+            filterPredicates=None)
         list_triple = list(searchTripleStore)
         print("stl_list=",list_triple)
         for tpl in list_triple:
@@ -2272,34 +2290,38 @@ class SurvolSearchTest(unittest.TestCase):
     def test_search_local_string(self):
         """Loads instances connected to an instance by every available script"""
 
-        instanceOrigin = lib_client.Agent().CIM_Directory(
+        instance_origin = lib_client.Agent().CIM_Directory(
             Name="C:/Windows")
 
         # The service "PlugPlay" should be available on all Windows machines.
-        listInstances = {
+        list_instances = {
             lib_client.Agent().CIM_Directory(Name="C:/Windows/winxs"),
             lib_client.Agent().CIM_Directory(Name="C:/windows/system32"),
             lib_client.Agent().CIM_DataFile(Name="C:/Windows/epplauncher.mif"),
             lib_client.Agent().CIM_DataFile(Name="C:/Windows/U2v243.exe"),
         }
 
-        listPredicates = {
+        list_predicates = {
             lib_properties.pc.property_directory,
         }
 
         mustFind = "Hello"
 
-        searchTripleStore = instanceOrigin.find_string_from_neighbour(searchString=mustFind,maxDepth=3,filterInstances=listInstances,filterPredicates=listPredicates)
-        for tpl in searchTripleStore:
+        search_triple_store = instance_origin.find_string_from_neighbour(
+            searchString=mustFind,
+            maxDepth=3,
+            filterInstances=list_instances,
+            filterPredicates=list_predicates)
+        for tpl in search_triple_store:
             print(tpl)
         # TODO: Check this
 
 # Tests an internal URL
 class SurvolInternalTest(unittest.TestCase):
-    def check_internal_values(self,anAgentStr):
+    def check_internal_values(self, an_agent_str):
 
-        anAgent = lib_client.Agent(anAgentStr)
-        mapInternalData = anAgent.get_internal_data()
+        an_agent = lib_client.Agent(an_agent_str)
+        map_internal_data = an_agent.get_internal_data()
 
         # http://192.168.0.14/Survol/survol/print_internal_data_as_json.py
         # http://rchateau-hp:8000/survol/print_internal_data_as_json.py
@@ -2326,9 +2348,9 @@ class SurvolInternalTest(unittest.TestCase):
 
         print("")
         print("CurrentMachine=", CurrentMachine)
-        print("anAgentStr=", anAgentStr)
-        for key in mapInternalData:
-            print("%-20s %20s"%(key, mapInternalData[key]))
+        print("an_agent_str=", an_agent_str)
+        for key in map_internal_data:
+            print("%-20s %20s"%(key, map_internal_data[key]))
 
         #"uriRoot": lib_util.uriRoot,
         #"HttpPrefix": lib_util.HttpPrefix(),
@@ -2338,15 +2360,15 @@ class SurvolInternalTest(unittest.TestCase):
         # This breaks on Linux Python 3:
         # "http://localhost:8000/survol"
         # "http://travis-job-051017ff-a582-4258-a817-d9cd836533a6:8000/survol"
-        print("RootUri=",mapInternalData["RootUri"])
-        print("anAgentStr=",anAgentStr)
+        print("RootUri=", map_internal_data["RootUri"])
+        print("an_agent_str=", an_agent_str)
 
-        self.assertEqual(mapInternalData["uriRoot"], anAgentStr + "/survol")
+        self.assertEqual(map_internal_data["uriRoot"], an_agent_str + "/survol")
 
         # When the agent is started automatically, "?xid=" is added at the end of the URL.
         # http://rchateau-hp:8000/survol/print_internal_data_as_json.py?xid=
         # This adds lib_util.xidCgiDelimiter at the end.
-        self.assertEqual(mapInternalData["RootUri"], anAgentStr + "/survol/print_internal_data_as_json.py" + "?xid=")
+        self.assertEqual(map_internal_data["RootUri"], an_agent_str + "/survol/print_internal_data_as_json.py" + "?xid=")
 
     def test_internal_remote(self):
         self.check_internal_values(_remote_general_test_agent)
