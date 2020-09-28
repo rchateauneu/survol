@@ -17,11 +17,13 @@ _xmlrpc_error = "XMLRPC Server proxy not started."
 
 # This starts a supervisor process in interactive mode, except if a daemon is already started.
 try:
+    # Linux  : Module supervisor.
+    # Windows: Module supervisor-win
     import supervisor
     from supervisor.xmlrpc import Faults as SupervisorFaults
 except ImportError as exc:
     _xmlrpc_error += str(exc) + ". "
-    sys.stderr.write("Cannot import supervisor\n")
+    sys.stderr.write(__file__ + ": Cannot import supervisor\n")
     supervisor = None
 
 
@@ -57,15 +59,12 @@ def _must_start_factory():
 _supervisor_config_file = os.path.join(os.path.dirname(__file__), "supervisord.conf")
 
 
-def _get_supervisor_url():
-    """This parses the supervisord configuration file to get the url, username and password.
-    It does not do any connection. """
-
+def _get_parsed_configuration():
+    """This parses the supervisord configuration file into a dict. It does not connect to anything. """
     parsed_config = configparser.ConfigParser()
     if not os.path.exists(_supervisor_config_file):
         raise Exception("Cannot find supervisor config file:" + _supervisor_config_file)
     sys.stderr.write("_get_supervisor_url config_file=%s\n" % _supervisor_config_file)
-    # config_status = parsed_config.read(_supervisor_config_file)
     if sys.version_info < (3,):
         config_status = parsed_config.read(_supervisor_config_file.decode())
     else:
@@ -74,19 +73,27 @@ def _get_supervisor_url():
         raise Exception("config_status should be True")
     sys.stderr.write("config_status=%s\n" % config_status)
     sys.stderr.write("Sections=%s\n" % parsed_config.sections())
+    return parsed_config
 
-    # https://bugs.python.org/issue27762
-    # Python 2 bug when the value contains a semicolon after a space which normally should be stripped.
-    # This can be avoided from Python 3.2 with ConfigParser(inline_comment_prefixes=';')
-    # However, this portable function optimistically parses the value for hosts, usernames and passwords.
-    def _clean_config_value(config_value):
-        config_value = config_value.strip()
-        # TODO: Beware if a semicolon in the password.
-        config_value = config_value.split(";")[0]
-        config_value = config_value.strip()
-        return config_value
 
-    # u'127.0.0.1:9001
+# https://bugs.python.org/issue27762
+# Python 2 bug when the value contains a semicolon after a space which normally should be stripped.
+# This can be avoided from Python 3.2 with ConfigParser(inline_comment_prefixes=';')
+# However, this portable function optimistically parses the value for hosts, usernames and passwords.
+def _clean_config_value(config_value):
+    config_value = config_value.strip()
+    # TODO: Beware if a semicolon in the password.
+    config_value = config_value.split(";")[0]
+    config_value = config_value.strip()
+    return config_value
+
+
+def _get_supervisor_url():
+    """This parses the supervisord configuration file to get the url, username and password."""
+
+    parsed_config = _get_parsed_configuration()
+
+    # For example '127.0.0.1:9001'
     supervisor_port = _clean_config_value(parsed_config['inet_http_server']['port'])
 
     # TODO: Use https instead of http.
@@ -96,13 +103,23 @@ def _get_supervisor_url():
         # 'http://chris:123@127.0.0.1:9001'
         supervisor_url = 'http://%s:%s@%s' % (supervisor_user, supervisor_pass, supervisor_port)
     except KeyError:
-        supervisor_user = None
-        supervisor_pass = None
         # 'http://127.0.0.1:9001'
-        supervisor_url = 'http://%s' % (supervisor_port)
+        supervisor_url = 'http://%s' % supervisor_port
 
     sys.stderr.write("supervisor_url=%s\n" % supervisor_url)
     return supervisor_url
+
+
+def supervisorctl_url():
+    """This parses supervisord.conf which contains the URL of supervisorctl."""
+
+    parsed_config = _get_parsed_configuration()
+
+    # For example 'http://localhost:9001'
+    control_url = _clean_config_value(parsed_config['supervisorctl']['serverurl'])
+
+    sys.stderr.write("control_url=%s\n" % control_url)
+    return control_url
 
 
 # First, a ServerProxy object must be configured.
@@ -137,22 +154,13 @@ def _local_supervisor_start():
     sys.stderr.write("_local_supervisor_start supervisor_command=%s\n" % str(supervisor_command))
 
     # No Shell, otherwise the subprocess running supervisor, will not be stopped.
-    _supervisor_process = subprocess.Popen(supervisor_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+    _supervisor_process = subprocess.Popen(
+        supervisor_command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=False)
 
-    sys.stderr.write("_local_supervisor_start proc_popen=%s\n" % _supervisor_process)
     sys.stderr.write("_local_supervisor_start proc_popen.pid=%d\n" % _supervisor_process.pid)
-
-    # TODO: Remove this check.
-    for counter in range(3):
-        is_running = psutil.pid_exists(_supervisor_process.pid)
-        if is_running:
-            sys.stderr.write("_local_supervisor_start proc_popen.pid=%d RUNNING OK\n" % _supervisor_process.pid)
-        else:
-            process_stdout, process_stderr = _supervisor_process.communicate()
-            sys.stderr.write("_local_supervisor_start process_stdout=%s\n" % process_stdout)
-            sys.stderr.write("_local_supervisor_start process_stderr=%s\n" % process_stderr)
-            break
-        time.sleep(1)
 
 
 def _local_supervisor_stop():
@@ -185,10 +193,10 @@ def _local_supervisor_stop():
     # TODO: Should call _xmlrpc_server_proxy.supervisor.shutdown()
 
 
-# This starts the supervisor process as a subprocess.
-# This can be done only by web servers which are persistent.
-# TODO: Check that maybe a supervisord process is already there,
 def supervisor_startup():
+    """This starts the supervisor process as a subprocess.
+    This can be done only by web servers which are persistent.
+    TODO: Check that maybe a supervisord process is already there. """
     global _xmlrpc_server_proxy
     global _xmlrpc_error
 
@@ -421,22 +429,13 @@ def start_user_process(process_name, user_command, environment_parameter=""):
                 raise Exception("Error restarting %s" % full_process_name)
             process_info = _xmlrpc_server_proxy.supervisor.getProcessInfo(full_process_name)
             if process_info is None:
-                raise Exception("Cannot get process_infi after restarting program:%" % full_process_name)
+                raise Exception("Cannot get process_info after restarting program:%" % full_process_name)
             created_process_id = process_info['pid']
             if created_process_id > 0:
                 if not psutil.pid_exists(created_process_id):
                     raise Exception("start_user_process: Existing process not existing.\n")
 
     sys.stderr.write("start_user_process: process_info=%s\n" % process_info)
-
-
-    # Various errors.
-    # xmlrpc.client.Fault: <Fault 50: 'SPAWN_ERROR: thegroupname:dir4'>
-    # xmlrpc.client.Fault: <Fault 10: 'BAD_NAME: dir4'>
-
-    # Here, it is already started.
-    # xmlrpc.client.Fault: <Fault 60: 'ALREADY_STARTED: survol_group:test_start_user_process_20732'>
-    # _xmlrpc_server_proxy.supervisor.startProcess(full_process_name)
 
     # This expects the process to be continuously running.
     if not psutil.pid_exists(created_process_id):
@@ -503,3 +502,4 @@ def stop_user_process(process_name):
     full_process_name = _survol_group_name + ":" + process_name
     _xmlrpc_server_proxy.supervisor.stopProcess(full_process_name, False)
     return True
+
