@@ -4,39 +4,29 @@
 Overview
 """
 
+import lib_util
+import lib_common
+from lib_properties import pc
+import entity_dirmenu_only # Also used with the CGI parameter mode=menu
+from sources_types import CIM_Process
+from sources_types import CIM_ComputerSystem
+
+
 __author__      = "Remi Chateauneu"
 __copyright__   = "Copyright 2020, Primhill Computers"
 __license__     = "GPL"
 
-import os
-import re
-import sys
-import lib_util
-import lib_common
-from lib_properties import pc
 
-# This script is also used as a module.
-import entity_dirmenu_only # Also used with the CGI parameter mode=menu
-
-
-##### import entity_info_only # Also used with the CGI parameter mode=json
-## WE SHOULD NOT LOAD USELESS STUFF WHEN WE WANT TO DISPLAY ONLY THE NODES IN THE D3 INTERFACE.
-## AND THE LINKS LIKE WBEM OR WMI SHOULD BE PROPERLY DISPLAYED.
-## IN THE CONTEXTUAL MENU ??
-
-from sources_types import CIM_Process
 FunctionGetUser = CIM_Process.GetCurrentUser
-
-from sources_types import CIM_ComputerSystem
 
 
 def _add_default_nodes(grph, root_node, entity_host):
     DEBUG("entity.py _add_default_nodes entity_host=%s", entity_host)
-    currentNodeHostname = lib_common.gUriGen.HostnameUri(lib_util.currentHostname)
-    grph.add((currentNodeHostname,
+    current_node_hostname = lib_common.gUriGen.HostnameUri(lib_util.currentHostname)
+    grph.add((current_node_hostname,
               pc.property_information,
               lib_common.NodeLiteral("Current host:" + lib_util.currentHostname)))
-    grph.add((root_node, pc.property_rdf_data_nolist2, currentNodeHostname))
+    grph.add((root_node, pc.property_rdf_data_nolist2, current_node_hostname))
 
     curr_username = FunctionGetUser()
     current_node_user = lib_common.gUriGen.UserUri(curr_username)
@@ -89,8 +79,8 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    rootNode = lib_util.RootUri()
-    DEBUG("rootNode=%s", rootNode)
+    root_node = lib_util.RootUri()
+    DEBUG("root_node=%s", root_node)
 
     entity_ids_arr = lib_util.EntityIdToArray(entity_type, entity_id)
 
@@ -100,7 +90,7 @@ def Main():
         entity_module = lib_util.GetEntityModule(entity_type)
         if entity_module:
             try:
-                entity_module.AddInfo(grph, rootNode, entity_ids_arr)
+                entity_module.AddInfo(grph, root_node, entity_ids_arr)
             except AttributeError as exc:
                 INFO("entity.py No AddInfo for %s %s: %s", entity_type, entity_id, str(exc))
             except Exception as exc:
@@ -123,22 +113,22 @@ def Main():
                 raise
 
         try:
-            entity_dirmenu_only.DirToMenu(callback_grph_add, rootNode, entity_type, entity_id, entity_host, flagShowAll)
+            entity_dirmenu_only.DirToMenu(callback_grph_add, root_node, entity_type, entity_id, entity_host, flagShowAll)
         except Exception as exc:
             ERROR("entity.py caught in ForToMenu:%s", exc)
 
         # This adds WBEM and WMI urls related to the current object.
         if entity_type != "":
-            CIM_ComputerSystem.AddWbemWmiServers(grph, rootNode, entity_host, name_space, entity_type, entity_id)
+            CIM_ComputerSystem.AddWbemWmiServers(grph, root_node, entity_host, name_space, entity_type, entity_id)
 
-        _add_default_scripts(grph, rootNode, entity_host)
+        _add_default_scripts(grph, root_node, entity_host)
 
         # Special case if the currententity we are displaying, is a machine,
         # we might as well try to connect to its WMI or WBEM server, running on this machine.
         if entity_type == "CIM_ComputerSystem":
-            _add_default_scripts(grph, rootNode, entity_id)
+            _add_default_scripts(grph, root_node, entity_id)
 
-    _add_default_nodes(grph, rootNode, entity_host)
+    _add_default_nodes(grph, root_node, entity_host)
 
     cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_directory, pc.property_script])
 
