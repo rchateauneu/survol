@@ -1423,7 +1423,19 @@ class pydbg(object):
         module.dwSize = sizeof(module)
 
         # self._log("Module32First")
-        found_mod = kernel32.Module32First(snapshot, byref(module))
+        # ctypes.ArgumentError: argument 2:
+        # Python 2.7
+        # <class 'TypeError'>: expected LP_MODULEENTRY32 instance instead of pointer to MODULEENTRY32
+        # found_mod = kernel32.Module32First(snapshot, byref(module))
+        try:
+            # BEWARE: One of the libraries change this signature, therefore it is done again here.
+            kernel32.Module32First.argtypes = (wintypes.HANDLE, LP_MODULEENTRY32)
+            found_mod = kernel32.Module32First(snapshot, pointer(module))
+        except Exception as exc:
+            sys.stderr.write("Module32First CAUGHT:%s\n" % str(exc))
+            sys.stderr.write("Module32First LP_MODULEENTRY32:%s\n" % LP_MODULEENTRY32)
+            sys.stderr.write("Module32First pointer(module):%s\n" % pointer(module))
+            raise
 
         while found_mod:
             module_list.append((module.szModule, module.modBaseAddr))
@@ -2740,8 +2752,22 @@ class pydbg(object):
         # we *must* set the size of the structure prior to using it, otherwise Module32First() will fail.
         current_entry.dwSize = sizeof(current_entry)
 
-        if not kernel32.Module32First(snapshot, byref(current_entry)):
-            return
+        # ctypes.ArgumentError: argument 2: <class 'TypeError'>:
+        # expected LP_MODULEENTRY32 instance instead of pointer to MODULEENTRY32
+        # if not kernel32.Module32First(snapshot, byref(current_entry)):
+        try:
+            sys.stderr.write("Module32First=%s\n" % Module32First)
+            sys.stderr.write("kernel32.Module32First=%s\n" % kernel32.Module32First)
+            # BEWARE: One of the libraries change this signature, therefore it is done again here.
+            kernel32.Module32First.argtypes = (wintypes.HANDLE, LP_MODULEENTRY32)
+            # Module32First.argtypes = (wintypes.HANDLE, LP_MODULEENTRY32)
+            if not kernel32.Module32First(snapshot, pointer(current_entry)):
+                return
+        except:
+            # ctypes.ArgumentError: argument 2: <class 'TypeError'>: expected LP_MODULEENTRY32 instance instead of LP_MODULEENTRY32
+            # Module32First.argtypes=(<class 'ctypes.c_void_p'>, <class 'scripts.pydbg.system_dll.LP_MODULEENTRY32'>)
+            sys.stderr.write("Module32First.argtypes=%s\n" % str(Module32First.argtypes))
+            raise
 
         while 1:
             yield current_entry

@@ -27,7 +27,7 @@ import lib_kbase
 
 class IndividualEventsTest(unittest.TestCase):
     """Very fast tests in memory. No multiprocessing, nor multithreading.
-    Just testing data strctures."""
+    Just testing data structures."""
     def setUp(self):
         lib_kbase.set_storage_style("IOMemory",)
 
@@ -189,8 +189,29 @@ class IndividualEventsTest(unittest.TestCase):
         actual_events_count_6 = lib_kbase.events_count()
         self.assertEqual(actual_events_count_6, 0)
 
+    def test_pure_memory_read_by_entity(self):
+        triples_count = 10
+        triples_graph = _create_dummy_graph(triples_count)
 
-class EventsGraphTest(unittest.TestCase):
+        returned_number = lib_kbase.write_graph_to_events(None, triples_graph)
+        self.assertEqual(returned_number, triples_count)
+
+        for triple_counter, one_triple in enumerate(triples_graph):
+            actual_events_count = lib_kbase.events_count()
+            self.assertEqual(actual_events_count, returned_number - triple_counter)
+            test_graph_output = rdflib.Graph()
+            entity_node = one_triple[0]
+            lib_kbase.retrieve_events_to_graph(test_graph_output, entity_node)
+            self.assertEqual(len(test_graph_output), 1)
+            for returned_triple in test_graph_output:
+                break
+            self.assertEqual(returned_triple, one_triple)
+
+        actual_events_count = lib_kbase.events_count()
+        self.assertEqual(actual_events_count, 0)
+
+
+class EventsGraphIOMemoryTest(unittest.TestCase):
 
     def setUp(self):
         lib_kbase.set_storage_style("IOMemory",)
@@ -390,7 +411,7 @@ def _create_temporary_filename():
 
 
 @unittest.skipIf(not pkgutil.find_loader('sqlalchemy'), "sqlalchemy cannot be imported.")
-class EventsSQLAlchemyMemoryTest(unittest.TestCase):
+class EventsSQLAlchemyMemoryLocalTest(unittest.TestCase):
     """All these tests assume that the global events graph is empty."""
 
     database_path = _create_temporary_filename()
@@ -510,9 +531,7 @@ class EventsSQLAlchemyMemoryTest(unittest.TestCase):
         # The two lists of triples must be identical: Comparison of the string representations.
         self.assertEqual(input_triples, output_triples)
 
-
     def test_sqlalchemy_memory_write_two_urls(self):
-
         graph_cleanup = rdflib.Graph()
         lib_kbase.retrieve_all_events_to_graph_then_clear(graph_cleanup)
 
@@ -544,7 +563,7 @@ class EventsSQLAlchemyMemoryTest(unittest.TestCase):
 
 
 @unittest.skipIf(not pkgutil.find_loader('sqlalchemy'), "sqlalchemy cannot be imported.")
-class EventsSQLAlchemySqliteTest(unittest.TestCase):
+class EventsSQLAlchemySqliteLocalTest(unittest.TestCase):
     """IO based on sqlite and database files. Shared with threads and processes."""
 
     def setUp(self):
@@ -884,6 +903,21 @@ class EventsSQLAlchemySqliteTest(unittest.TestCase):
         self.assertEqual(actual_events_count_4, 0)
 
 
+@unittest.skipIf(not pkgutil.find_loader('sqlalchemy'), "sqlalchemy cannot be imported.")
+class EventsSQLAlchemySqliteUrlsTest(unittest.TestCase):
+    """Test the URLs related to events manipulation."""
+
+    @unittest.skip("Not implemented yet")
+    def test_event_put(self):
+        pass
+
+    @unittest.skip("Not implemented yet")
+    def test_event_get_all(self):
+        pass
+
+    @unittest.skip("Not implemented yet")
+    def test_event_get_one(self):
+        pass
 
 if __name__ == '__main__':
     unittest.main()

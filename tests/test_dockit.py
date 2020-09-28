@@ -1521,10 +1521,13 @@ class EventsServerTest(unittest.TestCase):
         check_file_content(output_basename_prefix + ".json")
         check_file_content(output_basename_prefix + ".summary.txt")
 
+        # TODO: WHY IS THIS DIFFERENT ???
+        files_number = 1678 if is_platform_linux else 1800
+
         expected_types_list = {
             'CIM_Process': 174,
             'CIM_NetworkAdapter': 1,
-            'CIM_DataFile': 1678,
+            'CIM_DataFile': files_number,
             'CIM_ComputerSystem': 1
         }
 

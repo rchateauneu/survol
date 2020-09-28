@@ -39,7 +39,10 @@ def Main():
 		serverBox = lib_common.RemoteBox(machineName)
 
 	# >>> conn = pywbem.WBEMConnection("http://192.168.1.88:5988" , ('pe***us','t*t*') )
-	connWbem = lib_wbem.WbemConnection(cimomUrl)
+	try:
+		connWbem = lib_wbem.WbemConnection(cimomUrl)
+	except Exception as exc:
+		lib_common.ErrorMessageHtml("Connecting to :" + cimomUrl + " Caught:" + str(exc) + "<br>")
 
 	try:
 		lstProc = connWbem.EnumerateInstances(ClassName="PG_UnixProcess",namespace="root/cimv2")

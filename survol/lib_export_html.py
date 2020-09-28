@@ -186,42 +186,48 @@ def _scripts_tree_html_iterator(theCgi):
     """
 
     # Otherwise it does not work with class_type_all.py
-    if(theCgi.m_entity_type != "") and (theCgi.m_entity_id ==""):
+    if(theCgi.m_entity_type != "") and (theCgi.m_entity_id == ""):
         return
 
-    flagVal = theCgi.get_parameters( lib_util.paramkeyShowAll )
-    DEBUG("WriteScriptsTree flagVal=%s",flagVal)
+    flag_val = theCgi.get_parameters(lib_util.paramkeyShowAll)
+    DEBUG("WriteScriptsTree flagVal=%s", flag_val)
     # This happens when merging scripts.
-    if flagVal == "":
-        flagShowAll = 0
+    if flag_val == "":
+        flag_show_all = 0
     else:
-        flagShowAll = int(flagVal)
+        flag_show_all = int(flag_val)
 
-    rootNode = None
+    root_node = None
 
-    dictScripts = {}
+    dict_scripts = {}
 
     # This function is called for each script which applies to the given entity.
     # It receives a triplet: (subject,property,object) and the depth in the tree.
     # Here, this simply stores the scripts in a map, which is later used to build
     # the HTML display. The depth is not used yet.
-    def CallbackGrphAdd( trpl, depthCall ):
-        subj,prop,obj = trpl
+    def callback_grph_add(trpl, depthCall):
+        subj, prop, obj = trpl
 
-        # sys.stderr.write("CallbackGrphAdd subj=%s\n"%str(subj))
+        # sys.stderr.write("callback_grph_add subj=%s\n"%str(subj))
         try:
-            mapProps = dictScripts[subj]
+            map_props = dict_scripts[subj]
             try:
-                lstObjs = mapProps[prop].append(obj)
+                map_props[prop].append(obj)
             except KeyError:
-                mapProps[prop] = [obj]
+                map_props[prop] = [obj]
         except KeyError:
-            dictScripts[subj] = { prop : [obj ] }
+            dict_scripts[subj] = {prop: [obj]}
 
-    DEBUG("WriteScriptsTree entity_type=%s flagShowAll=%d",theCgi.m_entity_type,flagShowAll)
-    entity_dirmenu_only.DirToMenu(CallbackGrphAdd,rootNode,theCgi.m_entity_type,theCgi.m_entity_id,theCgi.m_entity_host,flagShowAll)
+    DEBUG("WriteScriptsTree entity_type=%s flag_show_all=%d", theCgi.m_entity_type, flag_show_all)
+    entity_dirmenu_only.DirToMenu(
+        callback_grph_add,
+        root_node,
+        theCgi.m_entity_type,
+        theCgi.m_entity_id,
+        theCgi.m_entity_host,
+        flag_show_all)
 
-    def _display_level_table(subj, depthMenu=1):
+    def _display_level_table(subj, depth_menu=1):
         """
             Top-level should always be none.
             TODO: Have another version which formats all cells the same way.
@@ -232,34 +238,34 @@ def _scripts_tree_html_iterator(theCgi):
         """
         yield('<table class="scripts_tree_class">')
         try:
-            mapProps = dictScripts[subj]
+            map_props = dict_scripts[subj]
         except KeyError:
             return
 
-        def ExtractTitleFromMapProps(mapProps):
-            if len(mapProps) != 1:
+        def extract_title_from_map_props(argument_map_props):
+            if len(argument_map_props) != 1:
                 return None
-            for oneProp in mapProps:
-                if oneProp != pc.property_information:
+            for one_prop in argument_map_props:
+                if one_prop != pc.property_information:
                     return None
 
-                lstStr = mapProps[oneProp]
-                if len(lstStr) != 1:
+                lst_str = argument_map_props[one_prop]
+                if len(lst_str) != 1:
                     return None
-                retStr = lstStr[0]
-                if lib_kbase.IsLink( retStr ):
+                ret_str = lst_str[0]
+                if lib_kbase.IsLink(ret_str):
                     return None
 
-                return str(retStr)
+                return str(ret_str)
 
         yield('<tr>')
-        depthMenu += 1
+        depth_menu += 1
 
-        subj_uniq_title = ExtractTitleFromMapProps(mapProps)
+        subj_uniq_title = extract_title_from_map_props(map_props)
 
         if subj:
             subj_str = str(subj)
-            yield('<td valign="top" rowspan="%d" class="scripts_tree_class">'%len(mapProps))
+            yield('<td valign="top" rowspan="%d" class="scripts_tree_class">'%len(map_props))
             if lib_kbase.IsLink( subj ):
                 url_with_mode = _url_in_html_mode(subj_str)
                 if subj_uniq_title:
@@ -272,21 +278,21 @@ def _scripts_tree_html_iterator(theCgi):
             yield("</td>")
 
         if not subj_uniq_title:
-            for oneProp in mapProps:
-                lstObjs = mapProps[oneProp]
+            for one_prop in map_props:
+                lst_objs = map_props[one_prop]
 
                 yield('<td class="scripts_tree_class">')
                 yield('<table>')
-                for oneObj in lstObjs:
-                    if oneObj is None:
+                for one_obj in lst_objs:
+                    if one_obj is None:
                         continue
                     yield('<tr>')
                     yield('<td class="scripts_tree_class">')
                     try:
-                        for linHtml in _display_level_table(oneObj,depthMenu):
+                        for linHtml in _display_level_table(one_obj, depth_menu):
                             yield linHtml
                     except KeyError:
-                        yield("Script error: "+str(oneObj))
+                        yield("Script error: "+str(one_obj))
                     yield('</td>')
                     yield('</tr>')
                 yield('</table>')
@@ -295,8 +301,8 @@ def _scripts_tree_html_iterator(theCgi):
         yield('</tr>')
         yield( "</table>")
 
-    for linHtml in _display_level_table(None):
-        yield linHtml
+    for lin_html in _display_level_table(None):
+        yield lin_html
 
 
 def _write_errors_no_jinja(error_msg, is_sub_server):
@@ -323,7 +329,7 @@ def _create_objects_list(grph):
     """
 
     # This groups data by subject, then predicate, then object.
-    dictClassSubjPropObj = dict()
+    dict_class_subj_prop_obj = dict()
 
     # TODO: Group objects by type, then display the count, some info about each type etc...
     for aSubj, aPred, anObj in grph:
@@ -343,7 +349,7 @@ def _create_objects_list(grph):
         ( subj_title, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(subj_str)
 
         try:
-            dictSubjPropObj = dictClassSubjPropObj[entity_graphic_class]
+            dictSubjPropObj = dict_class_subj_prop_obj[entity_graphic_class]
             try:
                 dictPred = dictSubjPropObj[aSubj]
                 try:
@@ -356,13 +362,13 @@ def _create_objects_list(grph):
                 dictSubjPropObj[aSubj] = { aPred : [ anObj ] }
         except KeyError:
             # First object of this class.
-            dictClassSubjPropObj[entity_graphic_class] = { aSubj: { aPred : [ anObj ] } }
-    return dictClassSubjPropObj
+            dict_class_subj_prop_obj[entity_graphic_class] = { aSubj: { aPred : [ anObj ] } }
+    return dict_class_subj_prop_obj
 
 
 def _objects_triplets(dictClassSubjPropObj):
-    # Group objects by class.
-    # Display list of classes with an index and a link to the class.
+    """Group objects by class.
+    Display list of classes with an index and a link to the class."""
 
     # No need to use natural sort, because these are no filenames or strings containing numbers.
     for entity_graphic_class in sorted(dictClassSubjPropObj):
@@ -387,7 +393,7 @@ def _write_all_objects_no_jinja(dictClassSubjPropObj):
 
 
 def _display_class_objects_no_jinja(dict_subj_prop_obj):
-    # The subjects must be sorted by their title.
+    """The subjects must be sorted by their title."""
     tuples_subjects_list = []
     for a_subj in dict_subj_prop_obj:
         subj_str = str(a_subj)
@@ -509,7 +515,7 @@ def _display_class_objects_no_jinja(dict_subj_prop_obj):
                 yield("</tr>")
 
 
-def DisplayHtmlTextHeader(page_title):
+def display_html_text_header(page_title):
     """
     This is the common Survol header, ideally for all HTML documents.
     """
@@ -522,7 +528,7 @@ def DisplayHtmlTextHeader(page_title):
     """ % page_title )
 
 
-def DisplayHtmlTextFooter():
+def display_html_text_footer():
     """
     This is the common Survol footer.
     """
@@ -531,32 +537,34 @@ def DisplayHtmlTextFooter():
 
     # This needs a directory which depends on the HTTP hosting, such as on OVH.
     # TODO: Probably useless.
-    urlIndex = lib_exports.UrlWWW("index.htm")
-    urlEdtConfiguration = lib_util.uriRoot + "/edit_configuration.py"
-    urlEdtCredentials = lib_util.uriRoot + "/edit_credentials.py"
+    url_index = lib_exports.UrlWWW("index.htm")
+    url_edt_configuration = lib_util.uriRoot + "/edit_configuration.py"
+    url_edt_supervisor = lib_util.uriRoot + "/edit_supervisor.py"
+    url_edt_credentials = lib_util.uriRoot + "/edit_credentials.py"
 
     wrtFmt = """
     <br>
     <table width="100%%"><tr>
     <td><a href="%s">Survol home</a></td>
     <td><a href="%s">Configuration</a></td>
+    <td><a href="%s">Events supervisor</a></td>
     <td><a href="%s">Credentials</a></td>
     <td align="right">&copy; <a href="http://www.primhillcomputers.com">Primhill Computers</a> 2017-2020</i></td>
     </tr></table>
     """
 
-    wrtTxt = wrtFmt % (urlIndex,urlEdtConfiguration,urlEdtCredentials)
+    wrtTxt = wrtFmt % (url_index, url_edt_configuration, url_edt_credentials, url_edt_supervisor)
     yield(wrtTxt)
 
 
-def Grph2HtmlNoJinja( theCgi, topUrl, error_msg, isSubServer,gblCgiEnvList):
+def _Grph2Html_no_jinja(theCgi, topUrl, error_msg, isSubServer, gblCgiEnvList):
     """
         This transforms an internal data graph into a HTML document.
     """
     page_title = theCgi.m_page_title
     grph = theCgi.m_graph
 
-    DisplayHtmlTextHeader(page_title)
+    display_html_text_header(page_title)
 
     WrtAsUtf('<body>')
 
@@ -567,9 +575,9 @@ def Grph2HtmlNoJinja( theCgi, topUrl, error_msg, isSubServer,gblCgiEnvList):
 
     WrtAsUtf("".join( _write_errors_no_jinja(error_msg,isSubServer) ) )
 
-    dictClassSubjPropObj = _create_objects_list(grph)
+    dict_class_subj_prop_obj = _create_objects_list(grph)
 
-    WrtAsUtf("".join(_write_all_objects_no_jinja(dictClassSubjPropObj)))
+    WrtAsUtf("".join(_write_all_objects_no_jinja(dict_class_subj_prop_obj)))
 
     parameters_edition_html = "".join(_parameters_edition_html_iterator(theCgi))
     if parameters_edition_html:
@@ -589,15 +597,15 @@ def Grph2HtmlNoJinja( theCgi, topUrl, error_msg, isSubServer,gblCgiEnvList):
     WrtAsUtf("".join(_cim_urls_html_iterator()))
     WrtAsUtf('</table>')
 
-    htmlFooter = "".join( DisplayHtmlTextFooter() )
-    WrtAsUtf(htmlFooter)
+    html_footer = "".join(display_html_text_footer())
+    WrtAsUtf(html_footer)
 
     WrtAsUtf("</body>")
 
     WrtAsUtf("</html> ")
 
 
-def Grph2HtmlJinja( theCgi, topUrl, error_msg, isSubServer,gblCgiEnvList):
+def _Grph2Html_jinja(theCgi, topUrl, error_msg, isSubServer, gblCgiEnvList):
     this_dir = os.path.dirname(os.path.abspath(__file__))
     template_file_name = "www/export_html.template.htm"
 
@@ -624,10 +632,10 @@ def Grph2HtmlJinja( theCgi, topUrl, error_msg, isSubServer,gblCgiEnvList):
 
     errors_table_html = "".join( _write_errors_no_jinja(error_msg,isSubServer) )
 
-    dictClassSubjPropObj = _create_objects_list(theCgi.m_graph)
+    dict_class_subj_prop_obj = _create_objects_list(theCgi.m_graph)
 
     all_objects_list = []
-    for (urlClass_with_mode, entity_graphic_class, colorClass, dictSubjPropObj) in _objects_triplets(dictClassSubjPropObj):
+    for (urlClass_with_mode, entity_graphic_class, colorClass, dictSubjPropObj) in _objects_triplets(dict_class_subj_prop_obj):
         one_class_html = "".join(_display_class_objects_no_jinja(dictSubjPropObj))
         all_objects_list.append( (urlClass_with_mode,entity_graphic_class,colorClass,one_class_html))
 
@@ -655,11 +663,11 @@ def Grph2HtmlJinja( theCgi, topUrl, error_msg, isSubServer,gblCgiEnvList):
 
 # The list gblCgiEnvList contains a list of URL which are merged
 # into the current URLs. There are displayed for informational purpose.
-def Grph2Html( theCgi, topUrl, error_msg, isSubServer,gblCgiEnvList):
+def Grph2Html(theCgi, top_url, error_msg, is_sub_server, gblCgiEnvList):
     lib_util.WrtHeader('text/html')
     if lib_util.GetJinja2():
-        Grph2HtmlJinja( theCgi, topUrl, error_msg, isSubServer,gblCgiEnvList)
+        _Grph2Html_jinja(theCgi, top_url, error_msg, is_sub_server, gblCgiEnvList)
     else:
-        Grph2HtmlNoJinja( theCgi, topUrl, error_msg, isSubServer,gblCgiEnvList)
+        _Grph2Html_no_jinja(theCgi, top_url, error_msg, is_sub_server, gblCgiEnvList)
 
 ################################################################################

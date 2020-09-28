@@ -17,7 +17,7 @@ from lib_util import WrtAsUtf
 
 def MainNoJinja():
     lib_util.WrtHeader('text/html')
-    lib_export_html.DisplayHtmlTextHeader("Configuration")
+    lib_export_html.display_html_text_header("Configuration")
 
     WrtAsUtf("""
     <body><h2>Edit Survol configuration</h2>
@@ -45,7 +45,7 @@ def MainNoJinja():
     </form>
     """)
 
-    htmlFooter = "".join( lib_export_html.DisplayHtmlTextFooter() )
+    htmlFooter = "".join(lib_export_html.display_html_text_footer())
     WrtAsUtf(htmlFooter)
 
     WrtAsUtf("</body></html>")
@@ -65,7 +65,7 @@ def MainJinja():
 
     jinja_render = jinja_template.render(   )
     lib_util.WrtHeader('text/html')
-    WrtAsUtf( jinja_render )
+    WrtAsUtf(jinja_render)
 
 def Main():
     if lib_util.GetJinja2():

@@ -634,7 +634,7 @@ class CgiEnv():
         lib_util.WrtHeader('text/html')
 
         # It uses the same CSS as in HTML mode.
-        lib_export_html.DisplayHtmlTextHeader(self.m_page_title + " - parameters")
+        lib_export_html.display_html_text_header(self.m_page_title + " - parameters")
 
         print("<body>")
 

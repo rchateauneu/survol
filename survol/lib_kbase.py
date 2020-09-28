@@ -667,7 +667,7 @@ def retrieve_events_to_graph(output_graph, entity_node):
     assert _store_input is not None
     assert _events_conjunctive_graph is not None
 
-    output_graph += _events_conjunctive_graph
+    output_graph += _events_conjunctive_graph.triples((entity_node, None, None))
     _events_conjunctive_graph.remove((entity_node, None, None))
 
     if _events_storage_style[0] == "SQLAlchemy":
