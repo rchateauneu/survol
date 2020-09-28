@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
-"""This continuously display memory state with vmstat command."""
+"""vmstat command"""
 
 
 import os
 import re
+import sys
 import subprocess
 import lib_common
 import lib_util
@@ -24,17 +25,19 @@ def Main():
     #  r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
     #  0  0 217344 152232 112880 1573408    0    0     1    43    0    1  1  1 98  0  0
     def _vmstat_to_graph(grph, vmstat_header, input_line):
-        split_header = vmstat_header.split(" ")
-        split_line = input_line.split(" ")
+        split_header = re.split(' +', vmstat_header.strip())
+        split_line = re.split(' +', input_line.strip())
 
-        assert len(split_header) == len(split_line)
+        if len(split_header) != len(split_line):
+            sys.stderr.write("Different lengths: [%s] / [%s]\n" % (vmstat_header, input_line))
+            return
 
         for column_name, column_value in zip(split_header, split_line):
-            qty = float(column_value)
-
-            property_node = lib_properties.MakeProp(column_name)
+            if column_name == "":
+                continue
+            property_node = lib_properties.MakeProp("vmstat.%s" % column_name)
             # TODO: Add a timestamp.
-            grph.add((current_node_hostname, property_node, lib_common.NodeLiteral(qty)))
+            grph.add((current_node_hostname, property_node, lib_common.NodeLiteral(column_value)))
 
     def main_snapshot():
         iostat_cmd = ["vmstat", ]
