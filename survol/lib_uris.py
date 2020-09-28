@@ -434,11 +434,12 @@ class RemoteBox (LocalBox):
     def TypeMake(self):
         return self.m_mach + "@"
 
+
 # For remote objects displayed by their corresponding remote agent.
 # At the moment, this can only be HTTP. Should be HTTPS also.
 class OtherAgentBox (LocalBox):
-    def __init__(self,urlRootAgent):
-        self.m_urlRootAgent = urlRootAgent
+    def __init__(self, url_root_agent):
+        self.m_urlRootAgent = url_root_agent
 
     # No need to change the host because the object
     # will be local to its agent.
