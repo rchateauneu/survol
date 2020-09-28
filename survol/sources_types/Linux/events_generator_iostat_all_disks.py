@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+"""This continuously display disks state with iostat command."""
+
 import os
 import re
 import subprocess
@@ -18,9 +20,9 @@ Usable = lib_util.UsableLinux
 
 
 
-# This runs in the HTTP server and uses the data from the queue.
-# This reads a record from the queue and builds a RDF relation with it.
 def _io_stat_to_graph(grph, spl, iostat_header):
+    """This runs in the HTTP server and uses the data from the queue.
+    This reads a record from the queue and builds a RDF relation with it."""
     device_node = lib_common.gUriGen.DiskUri(spl[0])
     property_name_to_node = dict()
 
@@ -33,8 +35,8 @@ def _io_stat_to_graph(grph, spl, iostat_header):
         grph.add((device_node, property_node, lib_common.NodeLiteral(qty)))
 
 
-# This runs tcpdump, parses output data from it.
 def Main(loop_number=1):
+    """This runs tcpdump, parses output data from it."""
     # TODO: The delay could be a parameter.
     iostat_cmd = ["iostat",  "-d", "1"]
 
