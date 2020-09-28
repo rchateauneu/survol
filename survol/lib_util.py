@@ -136,7 +136,7 @@ try:
 
     natural_sorted = natsort.natsorted
 
-    def natural_sort_list(one_list,**args):
+    def natural_sort_list(one_list, **args):
 
         natsort_key = natsort_keygen()
 
@@ -152,7 +152,7 @@ except ImportError:
     WARNING("WritePatterned Module natsorted not available.")
     natural_sorted = sorted
 
-    def natural_sort_list(one_list,**args):
+    def natural_sort_list(one_list, **args):
         one_list.sort(**args)
 
 ################################################################################
@@ -183,12 +183,14 @@ else:
     six_binary_type = str
 
 # Add all usual Python types.
-scalar_data_types = six_string_types + ( six_text_type, six_binary_type, float, bool ) + six_integer_types
+scalar_data_types = six_string_types + (six_text_type, six_binary_type, float, bool) + six_integer_types
 
 ################################################################################
 
+
 def NodeLiteral(value):
     return lib_kbase.MakeNodeLiteral(value)
+
 
 def NodeUrl(url):
     # TODO: Apparently, it is called twice, which is not detected
@@ -197,11 +199,13 @@ def NodeUrl(url):
 
 ################################################################################
 
+
 # See xidCgiDelimiter = "?xid="
 def EncodeEntityId(entity_type, entity_id):
     return "xid=%s.%s" % (entity_type, entity_id)
 
 ################################################################################
+
 
 # unitSI = "B", "b", "B/s" for example.
 # TODO: We need a way to describe a number of items, without unit.
@@ -216,9 +220,10 @@ def AddSIUnit(number, unitSI):
 
 ################################################################################
 
-# This is the protocol, the server address followed by the port:
-# "http://192.168.0.14:80", "http://rchateau-hp:8000"
+
 def HttpPrefix():
+    """This is the protocol, the server address followed by the port:
+     "http://192.168.0.14:80", "http://rchateau-hp:8000" """
 
     # Default values for ease of testing, so CGI scripts can be run as is from command line..
     try:
@@ -363,14 +368,14 @@ def HostName():
 currentHostname = HostName()
 
 
-def GlobalGetHostByName(hostNam):
+def GlobalGetHostByName(host_nam):
     try:
-        theIP = socket.gethostbyname(hostNam)
-        # sys.stderr.write("GlobalGetHostByName tm=%f OK hostNam=%s theIP=%s\n"%(time.time()-timeStart,hostNam,theIP))
-        return theIP
+        the_ip = socket.gethostbyname(host_nam)
+        # sys.stderr.write("GlobalGetHostByName tm=%f OK host_nam=%s the_ip=%s\n"%(time.time()-timeStart,host_nam,the_ip))
+        return the_ip
     except Exception:
-        # sys.stderr.write("GlobalGetHostByName tm=%f FAIL hostNam=%s\n"%(time.time()-timeStart,hostNam))
-        return hostNam
+        # sys.stderr.write("GlobalGetHostByName tm=%f FAIL host_nam=%s\n"%(time.time()-timeStart,host_nam))
+        return host_nam
 
 
 # Beware: The machine might have several IP addresses.
@@ -381,80 +386,83 @@ except Exception:
     # Apparently, it happens if the router is down.
     localIP = "127.0.0.1"
 
+
 # This is for example used by WMI, which does not accept credentials
 # for a local machine: We must therefore be sure that the machine is local or not.
-def IsLocalAddress(anHostNam):
+def IsLocalAddress(an_host_nam):
     # Maybe entity_host="http://192.168.1.83:5988"
-    hostOnly = EntHostToIp(anHostNam)
-    if hostOnly in [ None, "", "localhost", "127.0.0.1", currentHostname ]:
-        # sys.stderr.write("IsLocalAddress %s TRUE\n"%anHostNam)
+    host_only = EntHostToIp(an_host_nam)
+    if host_only in [ None, "", "localhost", "127.0.0.1", currentHostname]:
+        # sys.stderr.write("IsLocalAddress %s TRUE\n"%an_host_nam)
         return True
 
     try:
-        ipOnly = GlobalGetHostByName(hostOnly)
+        ipOnly = GlobalGetHostByName(host_only)
     # socket.gaierror
     except Exception as exc:
         # Unknown machine
-        # sys.stderr.write("IsLocalAddress anHostNam=%s:%s FALSE\n" % ( anHostNam, str(exc) ) )
+        # sys.stderr.write("IsLocalAddress an_host_nam=%s:%s FALSE\n" % ( an_host_nam, str(exc) ) )
         return False
 
     # IsLocalAddress MYHOST-HP ipOnly=192.168.0.14 localIP=127.0.0.1 currentHostname=127.0.0.1
-    # sys.stderr.write("IsLocalAddress %s ipOnly=%s localIP=%s currentHostname=%s\n"%(anHostNam,ipOnly,localIP,currentHostname))
-    if ipOnly in [ "0.0.0.0", "127.0.0.1", localIP ]:
-        # sys.stderr.write("IsLocalAddress %s TRUE\n"%anHostNam)
+    # sys.stderr.write("IsLocalAddress %s ipOnly=%s localIP=%s currentHostname=%s\n"%(an_host_nam,ipOnly,localIP,currentHostname))
+    if ipOnly in [ "0.0.0.0", "127.0.0.1", localIP]:
+        # sys.stderr.write("IsLocalAddress %s TRUE\n"%an_host_nam)
         return True
 
     # "MYHOST-HP" and "myhost-HP" ??
-    # sys.stderr.write("IsLocalAddress %s socket.gethostname()=%s\n"%(anHostNam,socket.gethostname()))
-    if anHostNam.lower() == socket.gethostname().lower():
+    # sys.stderr.write("IsLocalAddress %s socket.gethostname()=%s\n"%(an_host_nam,socket.gethostname()))
+    if an_host_nam.lower() == socket.gethostname().lower():
         return True
 
-    # sys.stderr.write("IsLocalAddress %s FALSE\n"%anHostNam)
+    # sys.stderr.write("IsLocalAddress %s FALSE\n"%an_host_nam)
     return False
 
 # Beware: lib_util.currentHostname="Unknown-30-b5-c2-02-0c-b5-2.home"
 # socket.gethostname() = 'Unknown-30-b5-c2-02-0c-b5-2.home'
 # socket.gethostbyaddr(hst) = ('Unknown-30-b5-c2-02-0c-b5-2.home', [], ['192.168.1.88'])
-def SameHostOrLocal(srv, entHost):
-    if (entHost == srv) or ((entHost is None or entHost in ["","0.0.0.0"] ) and ( localIP == srv ) ):
+def SameHostOrLocal(srv, ent_host):
+    if (ent_host == srv) or ((ent_host is None or ent_host in ["", "0.0.0.0"]) and (localIP == srv)):
         # We might add credentials.
-        DEBUG("SameHostOrLocal entHost=%s localIP=%s srv=%s SAME", entHost, localIP, srv )
+        DEBUG("SameHostOrLocal ent_host=%s localIP=%s srv=%s SAME", ent_host, localIP, srv)
         return True
     else:
-        DEBUG("SameHostOrLocal entHost=%s localIP=%s srv=%s Different", entHost, localIP, srv )
+        DEBUG("SameHostOrLocal ent_host=%s localIP=%s srv=%s Different", ent_host, localIP, srv)
         return False
 
 ################################################################################
 
-def TopUrl( entityType, entityId ):
+
+def TopUrl(entity_type, entity_id):
     """ This returns the top-level URL"""
     try:
-        scriptNam = os.environ['SCRIPT_NAME']
+        script_nam = os.environ['SCRIPT_NAME']
     except KeyError:
-        scriptNam = "Hello.py"
-    if re.match( ".*/survol/entity.py.*", scriptNam ):
-        if entityType == "":
-            topUrl = uriRoot + "/entity.py"
+        script_nam = "Hello.py"
+    if re.match( ".*/survol/entity.py.*", script_nam):
+        if entity_type == "":
+            top_url = uriRoot + "/entity.py"
         else:
             # Same as in objtypes.py
-            if entityId == "" or re.match( "[a-zA-Z_]*=", entityId ):
-                topUrl = uriRoot + "/entity.py"
+            if entity_id == "" or re.match("[a-zA-Z_]*=", entity_id):
+                top_url = uriRoot + "/entity.py"
             else:
-                topUrl = EntityUri( entityType, "" )
+                top_url = EntityUri(entity_type, "")
     else:
-        topUrl = uriRoot + "/entity.py"
-    return topUrl
+        top_url = uriRoot + "/entity.py"
+    return top_url
 
 ################################################################################
+
 
 # This, because graphviz transforms a "\L" (backslash-L) into "<TABLE>". Example:
 # http://127.0.0.1/PythonStyle/survol/entity.py?xid=com_type_lib:C%3A%5CWINDOWS%5Csystem32%5CLangWrbk.dll
 # Or if the url contains a file in "App\Local"
-def EncodeUri(anStr):
+def EncodeUri(an_str):
     # sys.stderr.write("EncodeUri str=%s\n" % str(anStr) )
 
-    if anStr:
-        strTABLE = anStr.replace("\\L","\\\\L")
+    if an_str:
+        strTABLE = an_str.replace("\\L", "\\\\L")
     else:
         strTABLE = ""
 
@@ -469,6 +477,7 @@ def EncodeUri(anStr):
         return urllib_quote(strTABLE,'ascii')
 
 ################################################################################
+
 
 def RequestUri():
     try:
@@ -496,6 +505,7 @@ def RequestUri():
 
 ################################################################################
 
+
 # This assumes that this file is at the top of "survol" package.
 gblTopScripts = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(gblTopScripts)
@@ -511,13 +521,13 @@ def EntHostToIp(entity_host):
     #       https://jdd:test@acme.com:5959
     #       http://192.168.1.88:5988
     # TODO: Not sure this will work with IPV6
-    mtch_host_wbem = re.match( "https?://([^/:]*).*", entity_host )
+    mtch_host_wbem = re.match("https?://([^/:]*).*", entity_host)
     if mtch_host_wbem:
         #sys.stderr.write("EntHostToIp WBEM=%s\n" % mtch_host_wbem.group(1) )
         return mtch_host_wbem.group(1)
 
     # WMI : \\MYHOST-HP
-    mtch_host_wmi = re.match( r"\\\\([-0-9A-Za-z_\.]*)", entity_host )
+    mtch_host_wmi = re.match(r"\\\\([-0-9A-Za-z_\.]*)", entity_host)
     if mtch_host_wmi:
         #sys.stderr.write("EntHostToIp WBEM=%s\n" % mtch_host_wmi.group(1) )
         return mtch_host_wmi.group(1)
@@ -535,6 +545,7 @@ def EntHostToIpReally(entity_host):
         return hostOnly
 
 ################################################################################
+
 
 def ParseXidLocal(xid):
     # A machine name can contain a domain name : "WORKGROUP\MYHOST-HP", the backslash cannot be at the beginning.
@@ -563,7 +574,7 @@ def ParseXidLocal(xid):
     return None
 
 
-def ParseXidWMI(xid ):
+def ParseXidWMI(xid):
     # WMI : \\MYHOST-HP\root\cimv2:Win32_Process.Handle="0"
     # Beware ! On Windows, namespaces are separated by backslashes.
     # WMI : \\MYHOST-HP\root\cimv2:Win32_Process.Handle="0"
@@ -576,7 +587,7 @@ def ParseXidWMI(xid ):
     # This matches for example 'root\cimv2:Win32_Process.Handle="0"'
     wmi_regex_local_part = r"([a-zA-Z0-9_]+)\\([^.]*)(\..*)"
 
-    mtch_ent_wmi = re.match(r"\\\\\\?([-0-9A-Za-z_\.]*)\\" + wmi_regex_local_part, xid )
+    mtch_ent_wmi = re.match(r"\\\\\\?([-0-9A-Za-z_\.]*)\\" + wmi_regex_local_part, xid)
     if mtch_ent_wmi:
         grp = mtch_ent_wmi.groups()
         entity_host = grp[0]
@@ -595,7 +606,7 @@ def ParseXidWMI(xid ):
 
     # WMI : Maybe the host is missing, and implicitely the local machine.
     # http://127.0.0.1:8000/survol/class_type_all.py?xid=root\CIMV2:Win32_Process.
-    mtch_ent_wmi = re.match( wmi_regex_local_part, xid )
+    mtch_ent_wmi = re.match(wmi_regex_local_part, xid)
     if mtch_ent_wmi:
         grp = mtch_ent_wmi.groups()
         entity_host = ""
@@ -614,16 +625,16 @@ def ParseXidWMI(xid ):
     return None
 
 
-def ParseXidWBEM(xid ):
+def ParseXidWBEM(xid):
     # https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"
     # http://192.168.1.88:5988/root/PG_Internal:PG_WBEMSLPTemplate
     # "http://127.0.0.1:8000/survol/namespaces_wbem.py?xid=http://192.168.1.83:5988/."
     # "xid=http://192.168.1.88:5988/."
-    mtch_ent_wbem = re.match( r"(https?://[^/]*)/([^.]*)(\..*)?", xid )
+    mtch_ent_wbem = re.match(r"(https?://[^/]*)/([^.]*)(\..*)?", xid)
     if mtch_ent_wbem:
         #sys.stderr.write("mtch_ent_wbem\n")
         grp = mtch_ent_wbem.groups()
-        ( entity_host, entity_type, entity_id_quoted ) = grp
+        (entity_host, entity_type, entity_id_quoted) = grp
         # TODO: SAME LOGIC FOR THE TWO OTHER CASES !!!!!!!!!!!!!!
         if entity_id_quoted is None:
             entity_id = ""
@@ -645,14 +656,14 @@ def ParseXidWBEM(xid ):
 # TODO: Should also parse the namespace.
 # ParseXid xid=CIM_ComputerSystem.Name=rchateau-HP
 # ParseXid xid=CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2
-def ParseXid(xid ):
+def ParseXid(xid):
     # sys.stderr.write( "ParseXid xid=%s\n" % (xid) )
 
     # First, we try to match our terminology.
     # The type can be in several directories separated by slashes: "oracle/table"
     # If suffixed with "/", it means namespaces.
 
-    entity_triplet = ParseXidLocal(xid )
+    entity_triplet = ParseXidLocal(xid)
     if entity_triplet:
         return entity_triplet
 
@@ -690,16 +701,14 @@ def parse_namespace_type(ns_entity_type):
 ################################################################################
 
 
-# A bit temporary.
 def ScriptizeCimom(path, entity_type, cimom):
+    """This is a adhoc solution, for a local use."""
     return uriRoot + path + "?" + EncodeEntityId(cimom + "/" + entity_type,"")
 
 
-# Properly encodes type and id into a URL.
-# TODO: Ca va etre un peu un obstacle car ca code vraiment le type d'URL.
-# Ne pas utiliser ca pour les Entity.
 def Scriptize(path, entity_type, entity_id):
-    return uriRoot + path + "?" + EncodeEntityId(entity_type,entity_id)
+    """Properly encodes type and id into a URL."""
+    return uriRoot + path + "?" + EncodeEntityId(entity_type, entity_id)
 
 ################################################################################
 
@@ -709,62 +718,60 @@ def Scriptize(path, entity_type, entity_id):
 xidCgiDelimiter = "?xid="
 
 
-# This creates the URL of a class, "Survol, "WMI" or "WBEM".
-def EntityClassUrl(entity_type, entity_namespace = "", entity_host = "", category = ""):
+def EntityClassUrl(entity_type, entity_namespace="", entity_host="", category=""):
+    """This creates the URL of a class, "Survol, "WMI" or "WBEM"."""
     if entity_type is None:
         entity_type = ""
 
     # WBEM: https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"
     if category == "WBEM":
-        monikerClass = entity_host + "/" + entity_namespace + ":" + entity_type + "."
+        moniker_class = entity_host + "/" + entity_namespace + ":" + entity_type + "."
     # WMI : \\MYHOST-HP\root\cimv2:Win32_Process.Handle="0"
     elif category == "WMI":
-        monikerClass = "\\\\" + entity_host + "\\" + entity_namespace + ":" + entity_type + "."
+        moniker_class = "\\\\" + entity_host + "\\" + entity_namespace + ":" + entity_type + "."
     # This is temporary.
     else:
         # We could simplify the format, if no namespace nor hostname.
-        monikerClass = ""
+        moniker_class = ""
         if entity_host:
-            monikerClass += entity_host + "@"
+            moniker_class += entity_host + "@"
         # Should not happen.
         if entity_namespace:
-            monikerClass += entity_namespace + "/:"
-        monikerClass += entity_type + "."
+            moniker_class += entity_namespace + "/:"
+        moniker_class += entity_type + "."
 
     # TODO: See also EntityUrlFromMoniker.
 
-    url = uriRoot + "/class_type_all.py" + xidCgiDelimiter + EncodeUri(monikerClass)
+    url = uriRoot + "/class_type_all.py" + xidCgiDelimiter + EncodeUri(moniker_class)
     return url
 
 
-# This creates the node of a class, "Survol" (Default), "WMI" or "WBEM".
-def EntityClassNode(entity_type, entity_namespace = "", entity_host = "", category = ""):
+def EntityClassNode(entity_type, entity_namespace="", entity_host="", category=""):
+    """This creates the node of a class, "Survol" (Default), "WMI" or "WBEM"."""
     url = EntityClassUrl(entity_type, entity_namespace, entity_host, category)
 
     # sys.stdout.write("EntityClassUrl url=%s\n" % url)
-    return NodeUrl( url )
+    return NodeUrl(url)
 
-################################################################################
-# TODO: What about the namespace ?
 
-# From key-value paris, this builds an entity_id in the good property order.
 def KWArgsToEntityId(className, **kwargsOntology):
+    """From key-value pairs, this builds an entity_id in the good property order."""
     entity_id = ""
     delim = ""
-    keysOnto = OntologyClassKeys(className)
+    keys_onto = OntologyClassKeys(className)
 
     # The dictionary is not properly ordered because it depends
     # on the Python version, and these data are given by a user application.
 
-    for argKey in keysOnto:
+    for arg_key in keys_onto:
         try:
-            argVal = kwargsOntology[argKey]
+            argVal = kwargsOntology[arg_key]
         except KeyError:
-            ERROR("KWArgsToEntityId className=%s. No key %s",className, argKey)
+            ERROR("KWArgsToEntityId className=%s. No key %s",className, arg_key)
             raise
 
         # TODO: The values should be encoded !!!
-        entity_id += delim + "%s=%s" % (argKey,argVal)
+        entity_id += delim + "%s=%s" % (arg_key, argVal)
         delim = ","
     # The values might come from many different origins
     if not is_py3:
@@ -773,46 +780,46 @@ def KWArgsToEntityId(className, **kwargsOntology):
     return entity_id
 
 
-# This is the most common case. Shame we call the slower function.
-def EntityUri(entity_type,*entity_ids):
-    return EntityUriDupl( entity_type, *entity_ids )
+def EntityUri(entity_type, *entity_ids):
+    return EntityUriDupl(entity_type, *entity_ids)
 
 
-def EntityUriDupl(entity_type,*entity_ids,**extra_args):
+def EntityUriDupl(entity_type, *entity_ids, **extra_args):
     # sys.stderr.write("EntityUriDupl %s\n" % str(entity_ids))
 
     keys = OntologyClassKeys(entity_type)
 
     if len(keys) != len(entity_ids):
-        WARNING("EntityUriDupl Different lens:%s and %s",str(keys),str(entity_ids))
-    entity_id = ",".join( "%s=%s" % pairKW for pairKW in zip( keys, entity_ids ) )
+        WARNING("EntityUriDupl Different lens:%s and %s", str(keys), str(entity_ids))
+    entity_id = ",".join("%s=%s" % pairKW for pairKW in zip(keys, entity_ids))
     
     # Extra arguments, differentiating duplicates.
-    entity_id += "".join( ",%s=%s" % ( extArg, extra_args[extArg] ) for extArg in extra_args )
+    entity_id += "".join( ",%s=%s" % (extArg, extra_args[extArg]) for extArg in extra_args)
 
-    url = Scriptize("/entity.py", entity_type, entity_id )
-    return NodeUrl( url )
+    url = Scriptize("/entity.py", entity_type, entity_id)
+    return NodeUrl(url)
 
 ################################################################################
 
-# Probably not necessary because we apparently always know
-# if we need a WMI, WBEM or custom scripts. Not urgent to change this.
-def EntityScriptFromPath(monikerEntity,is_class,is_namespace,is_hostname):
-    if monikerEntity[0] == '\\':
-        entIdx = 0
-    elif monikerEntity[0:4] == 'http':
-        entIdx = 1
+
+def EntityScriptFromPath(moniker_entity, is_class, is_namespace, is_hostname):
+    """Probably not necessary because we apparently always know
+    if we need a WMI, WBEM or custom scripts. Not urgent to change this."""
+    if moniker_entity[0] == '\\':
+        ent_idx = 0
+    elif moniker_entity[0:4] == 'http':
+        ent_idx = 1
     else:
-        entIdx = 2
+        ent_idx = 2
 
     if is_hostname:
-        return ('namespaces_wmi.py','namespaces_wbem.py','entity.py')[ entIdx ]
+        return ('namespaces_wmi.py','namespaces_wbem.py','entity.py')[ent_idx]
     elif is_namespace:
-        return ('objtypes_wmi.py','objtypes_wbem.py','objtypes.py')[ entIdx ]
+        return ('objtypes_wmi.py','objtypes_wbem.py','objtypes.py')[ent_idx]
     elif is_class:
-        return ('class_wmi.py','class_wbem.py','class_type_all.py')[ entIdx ]
+        return ('class_wmi.py','class_wbem.py','class_type_all.py')[ent_idx]
     else:
-        return ('entity_wmi.py','entity_wbem.py','entity.py')[ entIdx ]
+        return ('entity_wmi.py','entity_wbem.py','entity.py')[ent_idx]
 
 # WMI, WBEM and Survol have the similar monikers.
 # TODO: This should split the arguments and reformat them according to the class.
@@ -822,29 +829,31 @@ def EntityScriptFromPath(monikerEntity,is_class,is_namespace,is_hostname):
 # TODO: but we must be sure that WBEM and WMI will follow the same standard.
 # TODO: Probably same problem with CIM_DataFile on Windows because of backslashes
 # TODO: as directory separator.
-def EntityUrlFromMoniker(monikerEntity,is_class=False,is_namespace=False,is_hostname=False):
-    scriptPath = EntityScriptFromPath(monikerEntity,is_class,is_namespace,is_hostname)
+def EntityUrlFromMoniker(monikerEntity, is_class=False, is_namespace=False, is_hostname=False):
+    script_path = EntityScriptFromPath(monikerEntity, is_class, is_namespace, is_hostname)
 
-    # sys.stderr.write("EntityUrlFromMoniker scriptPath=%s\n"%scriptPath)
-    url = uriRoot + "/" + scriptPath + xidCgiDelimiter + EncodeUri(monikerEntity)
+    # sys.stderr.write("EntityUrlFromMoniker script_path=%s\n"%script_path)
+    url = uriRoot + "/" + script_path + xidCgiDelimiter + EncodeUri(monikerEntity)
     return url
 
 ################################################################################
 
-# TODO: Find another solution more compatible with WBEM and WMI logic.
-# Used to define subtypes.
+
 def ComposeTypes(*hierarchical_entity_types):
+    """Used to define subtypes."""
+    # TODO: Find another solution more compatible with WBEM and WMI logic.
     return ".".join(hierarchical_entity_types)
 
 ################################################################################
 
-# Read and write by chunks, so that it does not use all memory.
+
 def CopyFile( mime_type, file_name):
+    """Read and write by chunks, so that it does not use all memory."""
     sys.stderr.write("CopyFile type globalOutMach=%s\n" % type(globalOutMach))
 
-    filDes = open(file_name, "rb")
+    fil_des = open(file_name, "rb")
 
-    globalOutMach.HeaderWriter( mime_type )
+    globalOutMach.HeaderWriter(mime_type)
 
     outFd = globalOutMach.OutStream()
 
@@ -859,7 +868,7 @@ def CopyFile( mime_type, file_name):
     # The header must always be sent before the content, and once only.
     # os.environ["SERVER_SOFTWARE"] = "WSGIServer/0.2"
     while True:
-        chunk = filDes.read(1000000)
+        chunk = fil_des.read(1000000)
         if not chunk:
             break
         #  or os.environ["SERVER_SOFTWARE"].startswith("Apache/")
@@ -877,10 +886,10 @@ def CopyFile( mime_type, file_name):
             outFd.write(chunk)
 
     outFd.flush()
-    filDes.close()
-
+    fil_des.close()
 
 ################################################################################
+
 
 # By the way, when calling a RDF source, we should check the type of the
 # MIME document and if this is not RDF, the assumes it's an error 
@@ -894,7 +903,7 @@ def InfoMessageHtml(message):
     #gblLogger.debug("InfoMessageHtml:Sending content")
     WrtAsUtf(
         "<html><head><title>Error: Process=%s</title></head>"
-        % str(os.getpid()) )
+        % str(os.getpid()))
 
     WrtAsUtf("<body>")
 
@@ -913,12 +922,11 @@ def InfoMessageHtml(message):
     WrtAsUtf('</table>')
 
     # http://desktop-ni99v8e:8000/survol/www/configuration.htm
-    # envsUrl = uriRoot + "/www/configuration.htm"
     configUrl = uriRoot + "/edit_configuration.py"
     WrtAsUtf('<a href="%s">Setup</a>.<br>'%configUrl)
     envsUrl = uriRoot + "/print_environment_variables.py"
     WrtAsUtf('<a href="%s">Environment variables</a>.<br>'%envsUrl)
-    homeUrl = TopUrl( "", "" )
+    homeUrl = TopUrl("", "")
     WrtAsUtf('<a href="%s">Return home</a>.<br>'%homeUrl)
 
     WrtAsUtf("""
@@ -928,10 +936,11 @@ def InfoMessageHtml(message):
 
 ################################################################################
 
+
 # Returns the list of available object types: ["process", "file," group", etc...]
 def ObjectTypesNoCache():
     directory = gblTopScripts + "/sources_types"
-    DEBUG("ObjectTypesNoCache directory=%s",directory)
+    DEBUG("ObjectTypesNoCache directory=%s", directory)
 
     ld = len(directory)
     for path, dirs, files in os.walk(directory):
@@ -939,21 +948,23 @@ def ObjectTypesNoCache():
             prefix = ""
         else:
             prefix = path[ld +1:].replace("\\","/") + "/"
-        for dir in dirs:
-            if dir != "__pycache__":
-                yield prefix + dir
+        for one_dir in dirs:
+            if one_dir != "__pycache__":
+                yield prefix + one_dir
 
-glbObjectTypes = None
+
+_gbl_object_types = None
+
 
 # TODO: Should concatenate this to localOntology. Default value is "Id".
 def ObjectTypes():
-    global glbObjectTypes
+    global _gbl_object_types
 
-    if glbObjectTypes is None:
-        glbObjectTypes = set( ObjectTypesNoCache() )
+    if _gbl_object_types is None:
+        _gbl_object_types = set(ObjectTypesNoCache())
         # sys.stderr.write("ObjectTypes glbObjectTypes="+str(glbObjectTypes)+"\n")
 
-    return glbObjectTypes
+    return _gbl_object_types
 
 ################################################################################
 
@@ -962,37 +973,40 @@ def ObjectTypes():
 isPlatformLinux = 'linux' in sys.platform
 isPlatformWindows = 'win' in sys.platform
 
-def UsableLinux(entity_type,entity_ids_arr):
+
+def UsableLinux(entity_type, entity_ids_arr):
     """Linux only"""
     return isPlatformLinux
 
-def UsableWindows(entity_type,entity_ids_arr):
+
+def UsableWindows(entity_type, entity_ids_arr):
     """Windows only"""
     return isPlatformWindows
 
 
 # Tells if a file is executable code or library.
 # TODO: This function should be moved to CIM_DataFile/__init__.py
-def UsableWindowsBinary(entity_type,entity_ids_arr):
+def UsableWindowsBinary(entity_type, entity_ids_arr):
     """Windows executable or code file"""
-    if not UsableWindows(entity_type,entity_ids_arr):
+    if not UsableWindows(entity_type, entity_ids_arr):
         return False
-    fulFileName = entity_ids_arr[0]
-    if os.path.isdir(fulFileName):
+    full_file_name = entity_ids_arr[0]
+    if os.path.isdir(full_file_name):
         return False
-    filename, file_extension = os.path.splitext(fulFileName)
+    filename, file_extension = os.path.splitext(full_file_name)
     # TODO: Must add library type for ELF and PE ?
     return file_extension.upper() in [".EXE", ".DLL", ".COM", ".OCX", ".SYS", ".ACM", ".BPL", ".DPL"]
 
+
 # Applies for nm, dll, elftools.
-def UsableLinuxBinary(entity_type,entity_ids_arr):
+def UsableLinuxBinary(entity_type, entity_ids_arr):
     """Linux executable or code file"""
-    if not UsableLinux(entity_type,entity_ids_arr):
+    if not UsableLinux(entity_type, entity_ids_arr):
         return False
-    fulFileName = entity_ids_arr[0]
-    if os.path.isdir(fulFileName):
+    full_file_name = entity_ids_arr[0]
+    if os.path.isdir(full_file_name):
         return False
-    filename, file_extension = os.path.splitext(fulFileName)
+    filename, file_extension = os.path.splitext(full_file_name)
     # TODO: Must add library type for ELF and PE ?
     if file_extension in [".so", ".lib"]:
         return True
@@ -1001,29 +1015,28 @@ def UsableLinuxBinary(entity_type,entity_ids_arr):
     
 
 def is_snapshot_behaviour():
-    # Used by scripts named like events_generator_*.py which can write
-    # a continuous flow of events.
-    # They also must be able to run in snapshot mode, by default,
-    # and return RDF triples.
+    """Used by scripts named like events_generator_*.py which can write a continuous flow of events.
+    They also must be able to run in snapshot mode, by default, and return RDF triples."""
+    sys.stderr.write("is_snapshot_behaviour QUERY_STRING=%s\n" % os.environ["QUERY_STRING"])
     return "mode=" + "daemon" not in os.environ["QUERY_STRING"]
 
-
 ################################################################################
+
 
 # For example gFuncName="Graphic_shape" etc... This seeks for a function in this name.
 # This searches in several modules, starting with the module of the entity,
 # then the upper module etc...
-def HierarchicalFunctionSearchNoCache(typeWithoutNS,gFuncName):
+def HierarchicalFunctionSearchNoCache(typeWithoutNS, gFuncName):
 
     # for the first loop it takes the entire string.
-    lastDot = len(typeWithoutNS)
-    while lastDot > 0:
+    last_dot = len(typeWithoutNS)
+    while last_dot > 0:
 
-        topModule = typeWithoutNS[:lastDot]
-        choppedEntityType = typeWithoutNS[:lastDot]
+        topModule = typeWithoutNS[:last_dot]
+        chopped_entity_type = typeWithoutNS[:last_dot]
 
         # Load the module of this entity to see if it defines the graphic function.
-        entity_module = GetEntityModule(choppedEntityType)
+        entity_module = GetEntityModule(chopped_entity_type)
 
         if entity_module:
             try:
@@ -1033,36 +1046,36 @@ def HierarchicalFunctionSearchNoCache(typeWithoutNS,gFuncName):
                 pass
 
         # Then try the upper level module.
-        lastDot = typeWithoutNS.rfind(".",0,lastDot)
+        last_dot = typeWithoutNS.rfind(".",0,last_dot)
 
     return None
 
-################################################################################
 
 # This caches the result of HierarchicalFunctionSearchNoCache()
-dictHierarchicalFunctionSearch = {}
+_dict_hierarchical_function_search = {}
+
 
 # TODO: This is similar to Python inheritance.
 # TODO: Reuse the CIM hierarchy of classes.
 # TODO: Difficulty is that all scripts must be changed.
 # TODO: This is discussed here:
 # https://softwareengineering.stackexchange.com/questions/298019/how-to-achieve-inheritance-when-using-just-modules-and-vanilla-functions-in-pyth
-def HierarchicalFunctionSearch(typeWithoutNS,function_name):
-    global dictHierarchicalFunctionSearch
+def HierarchicalFunctionSearch(type_without_ns, function_name):
+    global _dict_hierarchical_function_search
     # Safety check.
-    if typeWithoutNS.find(".") >= 0:
-        raise "HierarchicalFunctionSearch Invalid typeWithoutNS=%s" % typeWithoutNS
+    if type_without_ns.find(".") >= 0:
+        raise "HierarchicalFunctionSearch Invalid type_without_ns=%s" % type_without_ns
 
-    typeWithoutNS = typeWithoutNS.replace("/",".")
+    type_without_ns = type_without_ns.replace("/", ".")
 
     try:
-        return dictHierarchicalFunctionSearch[function_name][typeWithoutNS]
+        return _dict_hierarchical_function_search[function_name][type_without_ns]
     except KeyError:
-        funcObj = HierarchicalFunctionSearchNoCache(typeWithoutNS,function_name)
+        funcObj = HierarchicalFunctionSearchNoCache(type_without_ns, function_name)
         try:
-            dictHierarchicalFunctionSearch[function_name][typeWithoutNS] = funcObj
+            _dict_hierarchical_function_search[function_name][type_without_ns] = funcObj
         except KeyError:
-            dictHierarchicalFunctionSearch[function_name] = { typeWithoutNS : funcObj }
+            _dict_hierarchical_function_search[function_name] = {type_without_ns : funcObj}
         return funcObj
 
 
@@ -1073,7 +1086,7 @@ def HierarchicalFunctionSearch(typeWithoutNS,function_name):
 # "dbus/connection"     : ( ["Bus","Connect"], ),
 # "dbus/interface"      : ( ["Bus","Connect","Obj","Itf"], ),
 # "symbol"              : ( ["Name","File"], ), # Must be defined here, not in the module.
-localOntology = {
+_local_ontology = {
 }
 
 # The key must match the DMTF standard. It might contain a namespace.
@@ -1113,7 +1126,7 @@ def OntologyClassKeys(entity_type):
 
     try:
         # TODO: If cannot find it, load the associated module and retry.
-        return localOntology[ entity_type ][0]
+        return _local_ontology[entity_type][0]
     except KeyError:
         pass
 
@@ -1122,38 +1135,38 @@ def OntologyClassKeys(entity_type):
     if     entity_module:
         try:
             entity_ontology_all = entity_module.EntityOntology()
-            localOntology[ entity_type ] = entity_ontology_all
+            _local_ontology[entity_type] = entity_ontology_all
             # sys.stderr.write("OntologyClassKeys entity_type=%s loaded entity_ontology_all=%s\n" % (entity_type,str(entity_ontology_all)))
             return entity_ontology_all[0]
         except AttributeError:
             pass
 
     # It does not have a ontology, so it is a domain.
-    localOntology[ entity_type ] = ([],)
+    _local_ontology[entity_type] = ([],)
     return []
 
-# Used for calling ArrayInfo. The order of arguments is strictly the ontology's.
-# It extracts the values of the ontology parameters and returns them in a list.
-def EntityIdToArray( entity_type, entity_id ):
-    ontoKeys = OntologyClassKeys(entity_type)
+
+def EntityIdToArray(entity_type, entity_id):
+    """Used for calling ArrayInfo. The order of arguments is strictly the ontology's.
+    It extracts the values of the ontology parameters and returns them in a list."""
+    onto_keys = OntologyClassKeys(entity_type)
     #sys.stderr.write("lib_util.EntityIdToArray entity_type=%s entity_id=%s\n"%(entity_type,entity_id))
-    dictIds = SplitMoniker( entity_id )
-    # sys.stderr.write("EntityIdToArray dictIds=%s\n" % ( str(dictIds) ) )
+    dict_ids = SplitMoniker(entity_id)
+    # sys.stderr.write("EntityIdToArray dict_ids=%s\n" % ( str(dict_ids) ) )
     # For the moment, this assumes that all keys are here.
     # Later, drop this constraint and allow WQL queries.
     try:
-        def DecodeCgiArg(aKey):
-            #sys.stderr.write("DecodeCgiArg aKey=%s type=%s dictIds=%s\n"%(aKey,type(aKey),str(dictIds)))
-            aValRaw = dictIds[ aKey ]
+        def DecodeCgiArg(a_key):
+            #sys.stderr.write("DecodeCgiArg aKey=%s type=%s dict_ids=%s\n"%(aKey,type(aKey),str(dict_ids)))
+            a_val_raw = dict_ids[a_key]
             try:
-                valDecod = aKey.ValueDecode(aValRaw)
-                #sys.stderr.write("DecodeCgiArg aKey=%s valDecod=%s\n"%(aKey,valDecod))
-                return valDecod
+                val_decod = a_key.ValueDecode(a_val_raw)
+                return val_decod
             except AttributeError:
-                return aValRaw
-        return [ DecodeCgiArg( aKey ) for aKey in ontoKeys ]
+                return a_val_raw
+        return [ DecodeCgiArg( aKey ) for aKey in onto_keys ]
     except KeyError:
-        gblLogger.error("EntityIdToArray missing key: type=%s id=%s onto=%s", entity_type , entity_id, str(ontoKeys) )
+        gblLogger.error("EntityIdToArray missing key: type=%s id=%s onto=%s", entity_type , entity_id, str(onto_keys) )
         raise
 
 
@@ -1169,15 +1182,17 @@ def _concatenate_cgi_argument(url, keyvalpair):
     else:
         return url + "&" + keyvalpair
 
+
 # This is very primitive and maybe should be replaced by a standard function,
 # but lib_util.EncodeUri() replaces "too much", and SVG urls cannot encode an ampersand...
 # The problems comes from "&mode=edit" or "&mode=html" etc...
 # TODO: If we can fix this, then "xid" can be replaced by "entity_type/entity_id"
 def UrlToSvg(url):
-    return url.replace( "&", "&amp;amp;" )
+    return url.replace("&", "&amp;amp;")
+
 
 def UrlNoAmp(url):
-    return url.replace("&amp;","&").replace("&amp;","&")
+    return url.replace("&amp;", "&").replace("&amp;", "&")
 
 ################################################################################
 
@@ -1241,10 +1256,10 @@ def RootUri():
 
 ################################################################################
 
-# Extracts the mode from an URL.
 # https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
 def get_url_mode(url):
-    # sys.stderr.write("lib_util.get_url_mode url=%s\n"%url)
+    """Extracts the mode from an URL."""
+
     # Maybe it contains a MIME type: application/java-archive,
     # application/vnd.ms-powerpoint, audio/3gpp2, application/epub+zip
 
@@ -1272,7 +1287,7 @@ def GuessDisplayMode():
     try:
         # HTTP_REFERER=http://127.0.0.1/PythonStyle/print.py?mode=xyz
         referer = os.environ["HTTP_REFERER"]
-        mode_referer = get_url_mode( referer )
+        mode_referer = get_url_mode(referer)
         # If we come from the edit form, we should not come back to id.
         # TODO: HOW CAN WE COME BACK TO THE FORMER DISPLAY MODE ??
         if mode_referer != "":
@@ -1299,6 +1314,7 @@ def GuessDisplayMode():
     return mode
 
 ################################################################################
+
 
 # Slight modification from  http://stackoverflow.com/questions/16710076/python-split-a-string-respect-and-preserve-quotes
 # 'Id=NT AUTHORITY\SYSTEM'         => ['Id=NT AUTHORITY\\SYSTEM']
@@ -1328,10 +1344,11 @@ def SplitMoniker(xid):
 
     return resu
 
-# Builds a WQL (WMI Query Language) query from a Moniker.
-# This allows to search for an object in the CIM repository,
-# whatever the attribute values are, or if it is a Survol object.
+
 def SplitMonikToWQL(moniker_to_split, class_name):
+    """Builds a WQL (WMI Query Language) query from a Moniker.
+    This allows to search for an object in the CIM repository,
+    whatever the attribute values are, or if it is a Survol object."""
     gblLogger.debug("SplitMonikToWQL splitMonik=[%s]", str(moniker_to_split))
     a_qry = 'select * from %s' % class_name
     qry_delim = "where"
@@ -1346,7 +1363,7 @@ def SplitMonikToWQL(moniker_to_split, class_name):
 
 def Base64Encode(input_text):
     if is_py3:
-        if isinstance(input_text,bytes):
+        if isinstance(input_text, bytes):
             txtToB64Encode = input_text
         else:
             txtToB64Encode = input_text.encode('utf-8')
@@ -1390,12 +1407,13 @@ class OutputMachineCgi:
     def __init__(self):
         pass
 
-    def HeaderWriter(self, mime_type, extra_arguments= None):
+    def HeaderWriter(self, mime_type, extra_arguments=None):
         gblLogger.debug("OutputMachineCgi.WriteHeadContentType:%s", mime_type)
         HttpHeaderClassic(outputHttp, mime_type, extra_arguments)
 
     def OutStream(self):
         return outputHttp
+
 
 # WSGI changes this to another object with same interface.
 # Overriden in wsgiserver.py.
@@ -1426,9 +1444,9 @@ def DfltOutMach():
     return globalOutMach
 
 
-def SetGlobalOutMach(outmachSomething):
+def SetGlobalOutMach(outmach_something):
     global globalOutMach
-    globalOutMach = outmachSomething
+    globalOutMach = outmach_something
 
 
 # environ["SERVER_SOFTWARE"] = "WSGIServer/0.2"
@@ -1470,41 +1488,43 @@ def WrtAsUtf(input_str):
                              % (type(input_str), type(my_output_stream), exc))
 
 
-# For asynchronous display.
-# TODO: NEVER TESTED, JUST TEMP SYNTAX FIX.
 def SetDefaultOutput(wFile):
+    """For asynchronous display."""
+    # TODO: NEVER TESTED, JUST TEMP SYNTAX FIX.
     sys.stderr.write("SetDefaultOutput NEVER TESTED\n")
     global outputHttp
     outputHttp = wFile
 
 
 # contentType = "text/rdf", "text/html", "image/svg+xml", "application/json" etc...
-def HttpHeaderClassic( out_dest, contentType, extraArgs = None):
-    # sys.stderr.write("HttpHeader:%s\n"%contentType)
+def HttpHeaderClassic(out_dest, content_type, extra_args=None):
+    # sys.stderr.write("HttpHeader:%s\n"%content_type)
     # TODO: out_dest should always be the default output.
 
-    stri = "Content-Type: " + contentType + "; charset=utf-8\n"
-    if extraArgs:
-        # extraArgs in a array of key-value tuples.
+    stri = "Content-Type: " + content_type + "; charset=utf-8\n"
+    if extra_args:
+        # extra_args in a array of key-value tuples.
         # The order is preserved, and the same property can appear several times.
-        for key_value in extraArgs:
-            stri += "%s: %s\n" % ( key_value[0], key_value[1] )
+        for key_value in extra_args:
+            stri += "%s: %s\n" % (key_value[0], key_value[1])
     stri += "\n"
 
     # Python 3.2
     try:
         # WSGI server and Py3, Apache and Py2.
-        out_dest.write( stri )
+        out_dest.write(stri)
         return
     except TypeError:
         pass
     # This is needed for the CGI server and Python 3.
-    out_dest.write( stri.encode() )
+    out_dest.write(stri.encode())
 
-def WrtHeader(mimeType,extraArgs = None):
-    globalOutMach.HeaderWriter(mimeType,extraArgs)
+
+def WrtHeader(mimeType, extraArgs=None):
+    globalOutMach.HeaderWriter(mimeType, extraArgs)
 
 ################################################################################
+
 
 def _get_entity_module_without_cache_no_catch(entity_type):
     # Here, we want: "sources_types/Azure/location/__init__.py"
@@ -1522,9 +1542,9 @@ def _get_entity_module_without_cache_no_catch(entity_type):
     # sys.stderr.write("Loading from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
     if (sys.platform.startswith("win") and sys.version_info >= (3, 2) and sys.version_info < (3, 3) ) \
     or (sys.platform.startswith("lin") and sys.version_info >= (3, 2) ):
-        entity_module = importlib.import_module( entity_package + entity_name )
+        entity_module = importlib.import_module(entity_package + entity_name)
     else:
-        entity_module = importlib.import_module( entity_name, entity_package)
+        entity_module = importlib.import_module(entity_name, entity_package)
     # sys.stderr.write("Loaded OK from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
     return entity_module
 
@@ -1551,6 +1571,7 @@ def _get_entity_module_without_cache(entity_type):
 # So we try to load only once.
 _cache_entity_to_module = {"": None}
 
+
 # If it throws, the exception is not hidden.
 # If it does not throw, then try to load the module.
 def GetEntityModuleNoCatch(entity_type):
@@ -1575,17 +1596,17 @@ def GetEntityModule(entity_type):
 
     try:
         # Might be None if the module does not exist.
-        return _cache_entity_to_module[ entity_type]
+        return _cache_entity_to_module[entity_type]
     except KeyError:
         pass
     entity_module = _get_entity_module_without_cache(entity_type)
-    _cache_entity_to_module[ entity_type] = entity_module
+    _cache_entity_to_module[entity_type] = entity_module
     return entity_module
 
 
-# This loads a script as a module. Example:
-# currentModule="sources_types.win32" fil="enumerate_top_level_windows.py"
 def GetScriptModule(current_module, fil):
+    """This loads a script as a module. Example:
+    currentModule="sources_types.win32" fil="enumerate_top_level_windows.py" """
     if not fil.endswith(".py"):
         ERROR("GetScriptModule module=%s fil=%s not a Python script", current_module, fil)
         return None
@@ -1605,8 +1626,8 @@ def GetScriptModule(current_module, fil):
             imported_mod = importlib.import_module(file_base_name)
     return imported_mod
 
-
 ################################################################################
+
 
 def FromModuleToDoc(imported_module, fil_default_text):
     """
@@ -1638,39 +1659,44 @@ def FromModuleToDoc(imported_module, fil_default_text):
 
     return node_module
 
+
 # This creates a non-clickable node. The text is taken from __doc__ if it exists,
 # otherwise the file name is beautifuled.
-def DirDocNode(argDir,dir):
-    # sys.stderr.write("DirDocNode argDir=%s dir=%s\n"%(argDir,dir))
-    fullModule = argDir + "." + dir
+def DirDocNode(arg_dir, the_dir):
+    # sys.stderr.write("DirDocNode arg_dir=%s dir=%s\n"%(arg_dir,dir))
+    full_module = arg_dir + "." + the_dir
 
     try:
-        importedMod = importlib.import_module(fullModule)
+        imported_mod = importlib.import_module(full_module)
     except ImportError:
         return None
 
     # Add three characters otherwise it is truncated just like a Python file extension.
-    return FromModuleToDoc(importedMod,dir)
+    return FromModuleToDoc(imported_mod, the_dir)
 
-def AppendNotNoneHostname(script,hostname):
-    strUrl = uriRoot + script
+
+def AppendNotNoneHostname(script, hostname):
+    str_url = uriRoot + script
     if hostname:
         # The string "portal" is just there to have a nice title.
-        strUrl += xidCgiDelimiter + hostname + "@portal."
-    return strUrl
+        str_url += xidCgiDelimiter + hostname + "@portal."
+    return str_url
 
-# Point to the WBEM portal for a given machine.
+
 def UrlPortalWbem(hostname=None):
-    strUrl = AppendNotNoneHostname('/portal_wbem.py',hostname)
-    gblLogger.debug("UrlPortalWbem strUrl=%s",strUrl)
-    nodePortal = NodeUrl( strUrl )
-    return nodePortal
+    """Point to the WBEM portal for a given machine."""
+    str_url = AppendNotNoneHostname('/portal_wbem.py',hostname)
+    gblLogger.debug("UrlPortalWbem str_url=%s", str_url)
+    node_portal = NodeUrl(str_url)
+    return node_portal
 
-# Point to the WMI portal for a given machine.
+
 def UrlPortalWmi(hostname=None):
-    strUrl = AppendNotNoneHostname('/portal_wmi.py',hostname)
-    nodePortal = NodeUrl( strUrl )
-    return nodePortal
+    """Point to the WMI portal for a given machine."""
+    str_url = AppendNotNoneHostname('/portal_wmi.py', hostname)
+    node_portal = NodeUrl(str_url)
+    return node_portal
+
 
 # This is used to split a string made of several lines separated by a "\n",
 # following multi-line DocString convention.
@@ -1689,28 +1715,30 @@ def SplitTextTitleRest(title):
 
     return (page_title_first,page_title_rest)
 
+
 def TimeStamp():
     return time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
+
 
 # TODO: This should fetch more information from WMI or WBEM ?
 # TODO: Check for double insertion.
 # domainPredicate and rangePredicate are class names.
 # TODO: The data type is not correct.
-def AppendPropertySurvolOntology(namePredicate, descriptionPredicate, domainPredicate, rangePredicate, map_attributes):
-    if rangePredicate:
+def AppendPropertySurvolOntology(name_predicate, description_predicate, domain_predicate, range_predicate, map_attributes):
+    if range_predicate:
         dataType = None
     else:
         dataType = "string"
-    if not descriptionPredicate:
-        descriptionPredicate = "Predicate %s" % namePredicate
-    if namePredicate in map_attributes:
-        map_attributes[namePredicate]["predicate_domain"].append(domainPredicate)
+    if not description_predicate:
+        description_predicate = "Predicate %s" % name_predicate
+    if name_predicate in map_attributes:
+        map_attributes[name_predicate]["predicate_domain"].append(domain_predicate)
     else:
-        map_attributes[namePredicate] = {
+        map_attributes[name_predicate] = {
             "predicate_type": dataType,
-            "predicate_description": descriptionPredicate,
-            "predicate_domain" : [domainPredicate],
-            "predicate_range" : rangePredicate }
+            "predicate_description": description_predicate,
+            "predicate_domain" : [domain_predicate],
+            "predicate_range" : range_predicate }
 
 
 # TODO: Should we get classes and properties descriptions from WMI and WBEM ?
@@ -1722,52 +1750,51 @@ def AppendClassSurvolOntology(entity_type, map_classes, map_attributes):
     # To make thing simpler, slashes are translated into a dot.
     # NOTE: A difference between Survol and CIM, is that survols carries
     # the hierarchy of classes in their names, just like files.
-    def SurvolClassToCIM(nameSurvolClass):
-        return nameSurvolClass.replace("/",".")
+    def SurvolClassToCIM(name_survol_class):
+        return name_survol_class.replace("/", ".")
 
     idx = 0
-    baseClass = ""
+    base_class = ""
     # Iteration on the base classes starting from the top.
     while idx >= 0:
-        nextSlash = entity_type.find( "/", idx + 1 )
-        if nextSlash == -1:
-            intermedType = entity_type
+        next_slash = entity_type.find("/", idx + 1)
+        if next_slash == -1:
+            intermed_type = entity_type
         else:
-            intermedType = entity_type[ : nextSlash ]
+            intermed_type = entity_type[:next_slash]
 
-        baseClassNameCIM = SurvolClassToCIM(baseClass)
-        classNameCIM = SurvolClassToCIM(intermedType)
+        baseClassNameCIM = SurvolClassToCIM(base_class)
+        classNameCIM = SurvolClassToCIM(intermed_type)
 
         try:
             # This reloads all classes without cache because if it does not load
             # we want to see the error message.
             entity_module = GetEntityModuleNoCatch(entity_type)
-            entDoc = entity_module.__doc__
-            if entDoc:
-                entDoc = entDoc.strip()
+            ent_doc = entity_module.__doc__
+            if ent_doc:
+                ent_doc = ent_doc.strip()
             else:
-                entDoc = "No %s module documentation" % entity_type
+                ent_doc = "No %s module documentation" % entity_type
         except:
             exc = sys.exc_info()[1]
-            entDoc = "Error:"+str(exc)
+            ent_doc = "Error:"+str(exc)
 
         if classNameCIM == "":
             raise Exception("Empty class in AppendClassSurvolOntology: entity_type=%s", entity_type)
-        map_classes[classNameCIM] = { "base_class": baseClassNameCIM, "class_description": entDoc}
+        map_classes[classNameCIM] = {"base_class": baseClassNameCIM, "class_description": ent_doc}
 
-        ontoList = OntologyClassKeys(entity_type)
+        onto_list = OntologyClassKeys(entity_type)
         # We do not have any other information about ontology keys.
-        for ontoKey in ontoList:
-            AppendPropertySurvolOntology(ontoKey, "Ontology predicate %s"%ontoKey, classNameCIM, None, map_attributes)
+        for onto_key in onto_list:
+            AppendPropertySurvolOntology(onto_key, "Ontology predicate %s"%onto_key, classNameCIM, None, map_attributes)
 
-        idx = nextSlash
+        idx = next_slash
 
 
-
-# This iterates on all the classes defined by Survol files tree,
-# and returns two dictionaries which define classes and predicates,
-# compatible with insertion into RDF triplestore.
 def ExtractSurvolOntology():
+    """This iterates on all the classes defined by Survol files tree,
+    and returns two dictionaries which define classes and predicates,
+    compatible with insertion into RDF triplestore."""
     map_classes = {}
     map_attributes = {}
 
@@ -1777,6 +1804,7 @@ def ExtractSurvolOntology():
     return map_classes, map_attributes
 
 ##################################################################################
+
 
 # FIXME: Survol scripts are not able to return objects,
 # FIXME: but they natively create triples which can be fed into the graph:
