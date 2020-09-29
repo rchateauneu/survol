@@ -15,26 +15,17 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	# [suser(name='Remi', terminal=None, host='0.246.33.0', started=1411052436.0)]
-
 	try:
-		# Windows XP, Python 3.
-		try:
-			# Windows XP, Python 3.4.
-			users_list = psutil.users()
-		except AttributeError:
-			# Linux and Python 2.5
-			# Windows 7, Python 3.2 : mais c'est la version de psutil qui compte.
-			users_list = psutil.get_users()
-	except AttributeError:
-		# AttributeError: 'module' object has no attribute 'users'
-		lib_common.ErrorMessageHtml("Function users() not available")
+		# Something like [suser(name='John', terminal=None, host='0.246.33.0', started=1411052436.0)]
+		users_list = psutil.users()
+	except Exception as exc:
+		lib_common.ErrorMessageHtml("psutil.users raised:%s" % exc)
 
 	for user in users_list:
-		usrNam = lib_common.format_username( user.name )
-		userNode = lib_common.gUriGen.UserUri( usrNam )
+		usr_nam = lib_common.format_username(user.name)
+		user_node = lib_common.gUriGen.UserUri(usr_nam)
 
-		grph.add( ( lib_common.nodeMachine, pc.property_user, userNode ) )
+		grph.add((lib_common.nodeMachine, pc.property_user, user_node))
 
 	cgiEnv.OutCgiRdf()
 
