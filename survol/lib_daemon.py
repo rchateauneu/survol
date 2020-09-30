@@ -74,15 +74,21 @@ def start_events_generator_daemon(script_url):
 
     # Adding the mode is necessary for the function is_snapshot_behaviour()
     # which checks that environ["QUERY_STRING"] contains "mode=daemon".
-    query_mode_delimiter = "&" if parsed_url.query else "?"
-    query_string_with_daemon_mode = parsed_url.query + query_mode_delimiter + "mode=" + "daemon"
+    query_string_with_daemon_mode = parsed_url.query
+    if parsed_url.query:
+        query_string_with_daemon_mode += "&"
+    query_string_with_daemon_mode += "mode=daemon"
+    # QUERY_STRING must not start with "?" and certainly not with "&"
+    assert query_string_with_daemon_mode[0] not in "?&"
+
+    request_uri = "%s?%s" % (parsed_url.path, query_string_with_daemon_mode)
 
     # KEY1="value1",KEY2="value2"
     environment_parameter = 'HTTP_HOST="%s",QUERY_STRING="%s",SCRIPT_NAME="%s",REQUEST_URI="%s",PYTHONPATH="survol"' % (
         parsed_url.hostname,
         query_string_with_daemon_mode,
         parsed_url.path,
-        "%s?%s" % (parsed_url.path, query_string_with_daemon_mode))
+        request_uri)
 
     # The script might be a test script which needs its execution context.
     # Sometimes, the library behaviour is slightly different in test mode.
