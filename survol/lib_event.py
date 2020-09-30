@@ -4,17 +4,11 @@ __author__      = "Remi Chateauneu"
 __copyright__   = "Copyright 2020, Primhill Computers"
 __license__     = "GPL"
 
-import os
-import re
 import sys
 import six
-import time
-import json
-import string
 import lib_common
 import lib_util
 import lib_kbase
-import lib_credentials
 
 
 def _json_moniker_to_entity_class_and_dict(json_moniker):
