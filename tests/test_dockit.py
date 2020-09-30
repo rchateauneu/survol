@@ -1239,7 +1239,7 @@ class ReplaySessionsTest(unittest.TestCase):
 
         # First pass to build a map of files.
         # This takes only the log files at the top level.
-        for subdir, dirs, files in os.walk( path_prefix_input_file() ):
+        for subdir, dirs, files in os.walk(path_prefix_input_file()):
             for in_file in files:
                 input_log_file = subdir + os.sep + in_file
                 output_basename_prefix, fil_ext = os.path.splitext(in_file)
@@ -1404,7 +1404,6 @@ class EventsServerTest(unittest.TestCase):
         print("actual_types_dict=", actual_types_dict)
         self.assertEqual(expected_types_list, actual_types_dict)
 
-    #@unittest.skipIf(is_travis_machine(), "TEMPORARY DISABLED")
     def test_file_events_ps_ef(self):
         """This reruns the tracing of the Linux command "ps -ef" """
         output_basename_prefix = "dockit_events_ps_ef.strace"
@@ -1435,7 +1434,6 @@ class EventsServerTest(unittest.TestCase):
         # Now read and test the events.
         self._check_read_triples(5, expected_types_list)
 
-    #@unittest.skipIf(is_travis_machine(), "TEMPORARY DISABLED")
     def test_file_events_shell(self):
         """This reruns the execution of a shell.
         The result of the command ltrace was stored in a file by dockit.
@@ -1468,7 +1466,6 @@ class EventsServerTest(unittest.TestCase):
         # Now read and test the events.
         self._check_read_triples(5, expected_types_list)
 
-    #@unittest.skipIf(is_travis_machine(), "TEMPORARY DISABLED")
     def test_file_events_proftpd(self):
         """This reruns a dockit tracing of the execution of a FTP command."""
         output_basename_prefix = "dockit_events_proftpd.strace.26299"
@@ -1500,7 +1497,6 @@ class EventsServerTest(unittest.TestCase):
         # Now read and test the events.
         self._check_read_triples(5, expected_types_list)
 
-    #@unittest.skipIf(is_travis_machine(), "TEMPORARY DISABLED")
     def test_file_events_firefox(self):
         """This replays the startup of a firefox process."""
         output_basename_prefix = "firefox_events_google.strace.22501"
