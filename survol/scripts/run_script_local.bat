@@ -9,16 +9,20 @@
 @REM set "QUERY_STRING=xid=.&mode=daemon"&set PYTHONPATH=survol&py -2.7 survol/sources_types/events_generator_psutil_processes_perf.py
 @REM
 @REM Another possibility is to create a Python script which imports the target CGI script.
+@REM
+@REM Enclose the URL in double-quotes otherwise DOS strips "-" equal sign !!!
 
-set SCRIPT_URL=%1
-echo %SCRIPT_URL%
-
+@echo 1=%~1
+@set "SCRIPT_URL=%~1"
+echo SCRIPT_URL=%SCRIPT_URL%
+@echo off
 for /f "tokens=1,2 delims=?" %%a in ("%SCRIPT_URL%") do (
-  set BEFORE_QM=%%a
-  set AFTER_QM=%%b
+  set "BEFORE_QM=%%a"
+  set "AFTER_QM=%%b"
 )
+@echo on
 
-echo BEFORE_QM=%BEFORE_QM%
-echo AFTER_QM=%AFTER_QM%
+@echo BEFORE_QM=%BEFORE_QM%
+@echo AFTER_QM=%AFTER_QM%
 
 set SCRIPT_NAME=%BEFORE_QM%&set "QUERY_STRING=%AFTER_QM%&mode=daemon"&set PYTHONPATH=survol&py -2.7 %BEFORE_QM%
