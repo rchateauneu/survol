@@ -398,23 +398,11 @@ def _create_dummy_graph(triples_count):
     return test_graph_input
 
 
-def _create_temporary_filename():
-    use_temporary_file = True
-
-    if use_temporary_file:
-        temporary_database_file = tempfile.NamedTemporaryFile(delete=False, suffix=".sqlite")
-        database_path = temporary_database_file.name
-        temporary_database_file.close()
-    else:
-        database_path = r"C:\Users\rchateau\survol_events.sqlite"
-    return database_path
-
-
 @unittest.skipIf(not pkgutil.find_loader('sqlalchemy'), "sqlalchemy cannot be imported.")
 class EventsSQLAlchemyMemoryLocalTest(unittest.TestCase):
     """All these tests assume that the global events graph is empty."""
 
-    database_path = _create_temporary_filename()
+    database_path = create_temporary_sqlite_filename()
 
     # database_path = "memdb1"
     # sqlite_path = "sqlite:///memdb1?mode=memory&cache=shared"
@@ -567,7 +555,7 @@ class EventsSQLAlchemySqliteLocalTest(unittest.TestCase):
     """IO based on sqlite and database files. Shared with threads and processes."""
 
     def setUp(self):
-        self.database_path = _create_temporary_filename()
+        self.database_path = create_temporary_sqlite_filename()
 
         self.sqlite_path = r"sqlite:///%s" % self.database_path
         lib_kbase.set_storage_style("SQLAlchemy", self.sqlite_path)
