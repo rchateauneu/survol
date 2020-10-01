@@ -9,11 +9,11 @@ import time
 import datetime
 
 # This is used to communicate with the supervisor.
-_is_py3 = sys.version_info < (3,)
+_is_py3 = sys.version_info >= (3,)
 if _is_py3:
-    import xmlrpclib
-else:
     import xmlrpc.client as xmlrpclib
+else:
+    import xmlrpclib
 
 #_xmlrpc_error = "XMLRPC Server proxy not started."
 
@@ -89,9 +89,9 @@ def _get_parsed_configuration():
         raise Exception("Cannot find supervisor config file:" + _supervisor_config_file)
     sys.stderr.write("_get_supervisor_url config_file=%s\n" % _supervisor_config_file)
     if _is_py3:
-        config_status = parsed_config.read(_supervisor_config_file.decode())
-    else:
         config_status = parsed_config.read(_supervisor_config_file)
+    else:
+        config_status = parsed_config.read(_supervisor_config_file.decode())
     if not config_status:
         raise Exception("config_status should be True")
     sys.stderr.write("config_status=%s\n" % config_status)
