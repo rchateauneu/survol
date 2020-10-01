@@ -17,7 +17,6 @@ from scripts import daemon_factory
 
 from init import *
 
-#@unittest.skipIf(is_travis_machine(), "TEMPORARY DISABLED")
 class SupervisorTest(unittest.TestCase):
 
     def test_supervisor_startup(self):
@@ -33,11 +32,13 @@ class SupervisorTest(unittest.TestCase):
 
         status_stop = daemon_factory.supervisor_stop()
         self.assertTrue(status_stop)
+        # Give it a bit of time so the process vanishes.
+        time.sleep(0.5)
         self.assertFalse(psutil.pid_exists(supervisor_pid))
 
     def test_supervisor_running(self):
         sys.stdout.write("Before supervisor_startup\n")
-        sys.stdout.write("daemon_factory._xmlrpc_server_proxy=%s\n" % daemon_factory._xmlrpc_server_proxy)
+        #sys.stdout.write("daemon_factory._xmlrpc_server_proxy=%s\n" % daemon_factory._xmlrpc_server_proxy)
         try:
             supervisor_pid = daemon_factory.supervisor_startup()
         except Exception as exc:
@@ -61,7 +62,6 @@ class SupervisorTest(unittest.TestCase):
         self.assertFalse(psutil.pid_exists(supervisor_pid))
 
 
-#@unittest.skipIf(is_travis_machine(), "TEMPORARY DISABLED")
 class UserProcessTest(unittest.TestCase):
 
     def setUp(self):
@@ -113,22 +113,16 @@ time.sleep(1)
         created_process_id = daemon_factory.start_user_process(process_name, python_command)
 
         # Wait until the process leave.
-        while psutil.pid_exists(created_process_id):
-            time.sleep(1)
+        if created_process_id is None:
+            while psutil.pid_exists(created_process_id):
+                time.sleep(1)
+        else:
+            print("Could not start python_command=%s\n" % python_command)
 
         with open(temporary_output_file.name) as input_file:
             file_content = "".join(input_file.readlines())
 
         self.assertEqual(file_content, secret_string)
-
-
-
-        # self.assertTrue(created_process_id)
-        # self.assertTrue(psutil.pid_exists(created_process_id))
-        #
-        # status_running = daemon_factory.is_user_process_running(process_name)
-        # self.assertTrue(status_running)
-
 
 
 if __name__ == '__main__':
