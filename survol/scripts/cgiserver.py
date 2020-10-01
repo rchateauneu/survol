@@ -217,14 +217,13 @@ def start_server_forever(verbose, server_name, port_number, current_dir=""):
     try:
         sys.stderr.write("os.environ['%s']=%s\n" % (envPYTHONPATH, os.environ[envPYTHONPATH]))
     except KeyError:
-        print("os.environ['%s']=%s" % (envPYTHONPATH,"Not defined"))
+        print("os.environ['%s']=%s" % (envPYTHONPATH, "Not defined"))
 
     if current_dir:
         os.chdir(current_dir)
         sys.stderr.write("getcwd=%s\n" % os.getcwd() )
     if sys.version_info[0] < 3:
         import CGIHTTPServer
-        #import BaseHTTPServer
         from BaseHTTPServer import HTTPServer
         from CGIHTTPServer import _url_collapse_path
 
@@ -266,6 +265,8 @@ def start_server_forever(verbose, server_name, port_number, current_dir=""):
         server.server_name = server_name
 
         sys.stderr.write("server.server_name=%s\n" % server.server_name)
+        logfil.write("server.server_name=%s\n" % server.server_name)
+        logfil.flush()
 
         __run_server_forever(server)
 
@@ -304,6 +305,8 @@ def start_server_forever(verbose, server_name, port_number, current_dir=""):
 
         # Testing Win10 and Python 3
         logfil.write(__file__ + " sys.platform=%s\n" % sys.platform)
+        logfil.flush()
+
         server.server_name = server_name
 
         # FIXME: Win3 and carriage return, in Pycharm..
