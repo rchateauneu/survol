@@ -480,27 +480,35 @@ def EncodeUri(an_str):
 
 
 def RequestUri():
+    """This function returns the value of the environment variable REQUEST_URI.
+    But, a minimal HTTP server such as CGIHTTPServer does not set REQUEST_URI.
+    So its value is recreated with available values in other environment variables.
+    """
     try:
-        # REQUEST_URI=/Survol/survol/print_environment_variables.py
+        # Example: REQUEST_URI=/Survol/survol/print_environment_variables.py
         script = os.environ["REQUEST_URI"]
         #sys.stderr.write("RequestUri script=%s\n"%script)
     except KeyError:
-        # A minimal http server such as CGIHTTPServer does not set REQUEST_URI.
-        # So its content is recreated with available values in the environment.
-
-        # If url = "http://127.0.0.1:8000/survol/print_environment_variables.py"
-        # SCRIPT_NAME=/survol/print_environment_variables.py
-        # QUERY_STRING=
-        #
-        # "/survol/entity.py"
         try:
+            # For example SCRIPT_NAME=/survol/print_environment_variables.py
             script = os.environ['SCRIPT_NAME']
-            # "xid=EURO%5CLONL00111310@process:16580"
-            query_string = os.environ['QUERY_STRING']
-            if query_string:
-                script += "?" + query_string
+
+            # Normalizes "survol\sources_types/a_script.py" into "/survol/sources_types/a_script.py"
+            # This is for the case of debugging a script from the command line: If the URL is also an event key,
+            # it must be the same as the one set by the HTTP server.
+            if not script.startswith("/"):
+                script = "/" + script
+            script = script.replace("\\", "/")
+
+            try:
+                # For example QUERY_STRING="xid=EURO%5CLONL00111310@process:16580"
+                query_string = os.environ['QUERY_STRING']
+                if query_string:
+                    script += "?" + query_string
+            except KeyError:
+                script = "QUERY_STRING should be set in RequestUri()"
         except KeyError:
-            script = "RequestUri: No value"
+            script = "SCRIPT_NAME should be set in RequestUri()"
     return script
 
 ################################################################################
