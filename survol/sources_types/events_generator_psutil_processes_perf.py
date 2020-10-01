@@ -20,8 +20,6 @@ from lib_properties import pc
 import lib_properties
 
 
-# Runs in the subprocess of the HTTP server and parses the output of "tcpdump".
-# The entity id should be the default value and is not relevant.
 def Main():
     cgiEnv = lib_common.CgiEnv()
 
@@ -52,4 +50,4 @@ if __name__ == '__main__':
     else:
         while True:
             Main()
-            time.sleep(20)
+            time.sleep(10)
