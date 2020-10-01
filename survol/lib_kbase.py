@@ -535,6 +535,8 @@ def set_storage_style(*storage_style_tuple):
 
     _events_storage_style = storage_style_tuple
 
+    _log_db_access("set_storage_style", "", "1", str(_events_storage_style))
+
 
 def _check_globals(function_name):
     if _store_input is None:
@@ -590,7 +592,25 @@ def _setup_global_graph():
             _store_input = rdflib.plugin.get("SQLAlchemy", rdflib.store.Store)(identifier=sqlite_ident)
             _events_conjunctive_graph = rdflib.ConjunctiveGraph(_store_input, identifier=sqlite_ident)
             try:
-                _events_conjunctive_graph.open(sqlite_uri, create=True)
+                # _events_conjunctive_graph.open(sqlite_uri, create=True)
+
+                # Open previously created store, or create it if it doesn't exist yet
+                _log_db_access("_setup_global_graph", "O", "1", sqlite_uri)
+                rt = _events_conjunctive_graph.open(sqlite_uri, create=False)
+            except Exception as exc:
+                sys.stderr.write("sqlite_uri=%s. Exception=%s\n" % (sqlite_uri, exc))
+
+                # According to the documentation, it should rather return this value instead of throwing.
+                rt = rdflib.store.NO_STORE
+
+            try:
+                if rt == rdflib.store.NO_STORE:
+                    # There is no underlying SQLAlchemy infrastructure, create it
+                    _log_db_access("_setup_global_graph", "C", "2", sqlite_uri)
+                    _events_conjunctive_graph.open(sqlite_uri, create=True)
+                elif rt != rdflib.store.VALID_STORE:
+                    raise Exception("sqlite_uri=%s rt=%d" % (sqlite_uri, rt))
+
             except Exception as exc:
                 raise Exception("sqlite_uri=%s.Exception=%s" % (sqlite_uri, exc))
 
@@ -609,7 +629,7 @@ def _url_to_context_node(the_url):
 
 def _log_db_access(function_name, access_type, step_name, url_name, data_size=-1):
 
-    if function_name:
+    if access_type:
         # If not init.
         _check_globals(function_name)
 
@@ -646,7 +666,7 @@ def _log_db_access(function_name, access_type, step_name, url_name, data_size=-1
             time.sleep(1)
 
 
-_log_db_access("", "W", "0", "")
+_log_db_access("Init", "", "0", "")
 
 
 def write_graph_to_events(the_url, input_graph):
