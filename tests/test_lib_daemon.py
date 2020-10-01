@@ -14,6 +14,9 @@ update_test_path()
 # This is used by CGI scripts only.
 import lib_daemon
 import lib_common
+import lib_kbase
+import lib_properties
+
 
 # Otherwise the supervisor will not be loaded in pytest.
 os.environ["START_DAEMON_FACTORY"] = "1"
@@ -124,68 +127,102 @@ class CgiScriptTest(unittest.TestCase):
         self.assertTrue(html_content)
 
 
-#@unittest.skipIf(is_travis_machine(), "TEMPORARY DISABLED")
-class CgiScriptStartThenKillTest(unittest.TestCase):
-    """This tests all known events generator and at least checks of they start and stop properly."""
+def _run_daemon_script_in_snapshot_mode(full_url):
+    """Runs the script normally, without a daemon.
+    The function is_snapshot_behaviour(), which is called in all events generators, returns True.
+
+    If the daemon is running, it starts this daemon with the script and mode="daemon",
+    and then immediately runs the script in snapshot mode, as a CGI script, to get some basic data.
+    At this stage, the daemon for this url (script + CGI args) was not started yet. """
+    rdf_url = full_url
+    if full_url.find("?") >= 0:
+        rdf_url += "&mode=rdf"
+    else:
+        rdf_url += "?mode=rdf"
+    print("rdf_url=", rdf_url)
+    # Some scripts take a long time to run.
+    rdf_url_response = portable_urlopen(rdf_url, timeout=20)
+    rdf_content = rdf_url_response.read()
+    #print("rdf_content=", rdf_content)
+    try:
+        result_graph = rdflib.Graph().parse(data=rdf_content, format="application/rdf+xml")
+    except Exception as exc:
+        print("Cannot parse exc=", exc)
+        print("rdf_content=", rdf_content)
+        raise
+    return result_graph
+
+
+def _triple_to_three_strings(*one_triple):
+    """This helper function is used to transform nodes into strings. Nodes are not uniquely generated."""
+    return str(one_triple[0]), str(one_triple[1]), str(one_triple[2])
+
+
+class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
+    """This tests all known events generator and at least checks if they start and stop properly.
+    They expect that the supervisor is freshly started and do not contain events.
+    Many tests also work even if the scripts immediately exit for whatever reason."""
 
     def setUp(self):
         # If a Survol agent does not run on this machine with this port, this script starts a local one.
         self._rdf_test_agent, self._agent_url = start_cgiserver(RemoteRdfTestServerPort)
         print("AgentUrl=", self._agent_url)
+        lib_kbase.set_storage_style("IOMemory",)
 
     def tearDown(self):
         stop_cgiserver(self._rdf_test_agent)
+        lib_kbase.set_storage_style(None,)
 
-    def _run_non_daemon_script(self, full_url):
-        """Runs the script normally, without a daemon.
-        is_snapshot_behaviour() returns True.
+    def _agent_box(self):
+        agent_prefix = self._agent_url + "/survol"
+        return lib_common.OtherAgentBox(agent_prefix)
 
-        If the daemon is running, it starts this daemon with the script and mode="daemon",
-        and then immediately runs the script in snapshot mode, as a CGI script, to get some basic data."""
-        rdf_url = full_url
-        if full_url.find("?") >= 0:
-            rdf_url += "&mode=rdf"
-        else:
-            rdf_url += "?mode=rdf"
-        print("rdf_url=", rdf_url)
-        # Some scripts take a long time to run.
-        rdf_url_response = portable_urlopen(rdf_url, timeout=10)
-        rdf_content = rdf_url_response.read()  # Py3:bytes, Py2:str
-        print("rdf_content=", rdf_content)
-        try:
-            result_graph = rdflib.Graph().parse(data=rdf_content, format="application/rdf+xml")
-        except Exception as exc:
-            print("Cannot parse exc=", exc)
-            print("rdf_content=", rdf_content)
-            self.assertTrue(False)
-        return result_graph
-
-    def _check_script(self, script_suffix):
-        # The url must not contain the mode
+    def _run_script_as_snapshot(self, script_suffix):
+        """This runs the script just once, in snapshot mode. The url must not contain the mode. """
         full_url = self._agent_url + "/survol/sources_types/" + script_suffix
-        graph_daemon_result_a = self._run_non_daemon_script(full_url)
-        graph_daemon_result_b = self._run_non_daemon_script(full_url)
-        return graph_daemon_result_a, graph_daemon_result_b
+        graph_daemon_result_snapshot = _run_daemon_script_in_snapshot_mode(full_url)
+
+        # The result should not be empty, and contain at least a couple of triples.
+        self.assertTrue(graph_daemon_result_snapshot)
+
+        return graph_daemon_result_snapshot
 
     def test_events_generator_psutil_processes_perf(self):
         url_suffix = "events_generator_psutil_processes_perf.py"
-        daemon_result, non_daemon_result = self._check_script(url_suffix)
-        self.assertTrue(daemon_result)
-        self.assertTrue(non_daemon_result)
+        result_snapshot = self._run_script_as_snapshot(url_suffix)
+        self.assertTrue(result_snapshot)
+
+        # The node of the current process must be in the result.
+        created_process_node = self._agent_box().UriMakeFromDict("CIM_Process", {"Handle": CurrentPid})
+        literal_pid = lib_kbase.MakeNodeLiteral(CurrentPid)
+
+        property_Handle = lib_properties.MakeProp("Handle")
+
+        self.assertTrue(
+            _triple_to_three_strings(created_process_node, property_Handle, literal_pid)
+            in [_triple_to_three_strings(*one_triple) for one_triple in result_snapshot])
+
+    def test_events_generator_psutil_system_counters(self):
+        url_suffix = "events_generator_psutil_system_counters.py"
+        result_snapshot = self._run_script_as_snapshot(url_suffix)
+        self.assertTrue(result_snapshot)
+        triples_count = len(result_snapshot)
+        # result_snapshot= [a rdfg:Graph;rdflib:storage [a rdflib:Store;rdfs:label 'IOMemory']].
+        print("triples_count=", triples_count)
+        # Many counters: Memory, network etc....
+        self.assertTrue(triples_count > 10)
 
     @unittest.skipIf(is_platform_windows and is_travis_machine(), "Windows and Travis do not work. WHY ? FIXME.")
     def test_events_generator_sockets_promiscuous_mode(self):
         url_suffix = "events_generator_sockets_promiscuous_mode.py"
-        daemon_result, non_daemon_result = self._check_script(url_suffix)
-        self.assertTrue(daemon_result)
-        self.assertTrue(non_daemon_result)
+        result_snapshot = self._run_script_as_snapshot(url_suffix)
+        self.assertTrue(result_snapshot)
 
     @unittest.skipIf(is_platform_linux and is_travis_machine(), "Linux and Travis do not work. WHY ? FIXME.")
     def test_events_generator_tcpdump(self):
         url_suffix = "events_generator_tcpdump.py"
-        daemon_result, non_daemon_result = self._check_script(url_suffix)
-        self.assertTrue(daemon_result)
-        self.assertTrue(non_daemon_result)
+        result_snapshot = self._run_script_as_snapshot(url_suffix)
+        self.assertTrue(result_snapshot)
 
     @unittest.skipIf(is_platform_linux, "Windows only")
     def test_events_generator_windows_directory_changes(self):
@@ -195,33 +232,40 @@ class CgiScriptStartThenKillTest(unittest.TestCase):
         else:
             checked_directory = r"C:\\Users"
         url_suffix = "CIM_Directory/events_generator_windows_directory_changes.py?xid=CIM_Directory.Name=%s" % checked_directory
-        daemon_result, non_daemon_result = self._check_script(url_suffix)
-        self.assertTrue(daemon_result)
-        self.assertTrue(non_daemon_result)
+        result_snapshot = self._run_script_as_snapshot(url_suffix)
+        self.assertTrue(result_snapshot)
 
-    def test_events_generator_system_calls(self):
+    def test_events_generator_system_calls_sleep(self):
         proc_open = None
         try:
-            # This starts a dummy process.
+            # This starts a dummy process, whose system calls will be monitored.
             subprocess_command = [
                 sys.executable,
-                "-m",
-                "supervisor.supervisord",
                 "-c",
-                "import time;time.sleep(10)" ]
+                "import time;time.sleep(5)"]
             sys.stderr.write("test_events_generator_system_calls supervisor_command=%s\n" % subprocess_command)
 
-            # No Shell, otherwise the subprocess running supervisor, will not be stopped.
-            proc_popen = subprocess.Popen(subprocess_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+            # No Shell, otherwise we cannot know which process is created.
+            proc_popen = subprocess.Popen(
+                subprocess_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
 
-            sys.stderr.write("proc_popen.pid=%s\n" % proc_popen.pid)
+            print("proc_popen.pid=%s\n" % proc_popen.pid)
+
+            # This node must be in the result. Dockit is run within a temporary agent,
+            # therefore this agent is used as a URL for the created nodes.
+            created_process_node = self._agent_box().UriMakeFromDict("CIM_Process", {"Handle": proc_popen.pid})
+            literal_pid = lib_kbase.MakeNodeLiteral(proc_popen.pid)
 
             url_suffix = "CIM_Process/events_generator_system_calls.py?xid=CIM_Process.Handle=%d" % proc_popen.pid
             # This attaches to the subprocess and gets its system calls.
-            daemon_result, non_daemon_result = self._check_script(url_suffix)
+            result_snapshot = self._run_script_as_snapshot(url_suffix)
 
-            self.assertTrue(daemon_result)
-            self.assertTrue(non_daemon_result)
+            print("Triple=", created_process_node, lib_properties.pc.property_pid, literal_pid)
+
+            self.assertTrue(
+                _triple_to_three_strings(created_process_node, lib_properties.pc.property_pid, literal_pid)
+                in [_triple_to_three_strings(*one_triple) for one_triple in result_snapshot])
+
         finally:
             # The subprocess will exit anyway.
             if proc_open:
@@ -231,9 +275,178 @@ class CgiScriptStartThenKillTest(unittest.TestCase):
 
     def test_events_generator_iostat_all_disks(self):
         url_suffix = "Linux/events_generator_iostat_all_disks.py"
-        daemon_result, non_daemon_result = self._check_script(url_suffix)
+        daemon_result = self._run_script_as_snapshot(url_suffix)
         self.assertTrue(daemon_result)
-        self.assertTrue(non_daemon_result)
+
+    def test_events_generator_vmstat(self):
+        url_suffix = "Linux/events_generator_vmstat.py"
+        daemon_result = self._run_script_as_snapshot(url_suffix)
+        self.assertTrue(daemon_result)
+
+
+class CgiScriptSQLAlchemyStartOnlyTest(unittest.TestCase):
+    """This tests some events generator with SQLite events storage."""
+
+    def setUp(self):
+        # If a Survol agent does not run on this machine with this port, this script starts a local one.
+        self._rdf_test_agent, self._agent_url = start_cgiserver(RemoteRdfTestServerPort)
+        print("AgentUrl=", self._agent_url)
+
+        # A shared database is needed because several processes use it simultaneously.
+        database_path = create_temporary_sqlite_filename()
+        sqlite_path = "sqlite:///%s?mode=memory&cache=shared" % database_path
+
+        lib_kbase.set_storage_style("SQLAlchemy", sqlite_path)
+
+    def tearDown(self):
+        stop_cgiserver(self._rdf_test_agent)
+        lib_kbase.set_storage_style(None,)
+
+    def _agent_box(self):
+        agent_prefix = self._agent_url + "/survol"
+        return lib_common.OtherAgentBox(agent_prefix)
+
+    def _run_script_as_snapshot(self, script_suffix):
+        # The url must not contain the mode
+        full_url = self._agent_url + "/survol/sources_types/" + script_suffix
+        graph_daemon_result_snapshot = _run_daemon_script_in_snapshot_mode(full_url)
+
+        # The result should not be empty, and contain at least a couple of triples.
+        self.assertTrue(graph_daemon_result_snapshot)
+
+        return graph_daemon_result_snapshot
+
+    def test_events_generator_psutil_processes_perf_sqlalchemy(self):
+        """Results are stored in a SQLite database"""
+        url_suffix = "events_generator_psutil_processes_perf.py"
+        result_snapshot = self._run_script_as_snapshot(url_suffix)
+        self.assertTrue(result_snapshot)
+        print("len(result_snapshot)=", len(result_snapshot))
+
+        # The node of the current process must be in the result.
+        created_process_node = self._agent_box().UriMakeFromDict("CIM_Process", {"Handle": CurrentPid})
+        literal_pid = lib_kbase.MakeNodeLiteral(CurrentPid)
+
+        # CurrentParentPid
+
+        property_Handle = lib_properties.MakeProp("Handle")
+
+        self.assertTrue(
+            _triple_to_three_strings(created_process_node, property_Handle, literal_pid)
+            in [_triple_to_three_strings(*one_triple) for one_triple in result_snapshot])
+
+
+class CgiScriptStartThenEventsTest(unittest.TestCase):
+    """This tests scripts which also return events and stay running for a long time."""
+
+    def setUp(self):
+        # If a Survol agent does not run on this machine with this port, this script starts a local one.
+        self._rdf_test_agent, self._agent_url = start_cgiserver(RemoteRdfTestServerPort)
+        print("AgentUrl=", self._agent_url)
+
+        # A shared database is needed because several processes use it simultaneously.
+        # When reading the events, this uses the default SQLAlchemy database also used by the CGI scripts.
+        lib_common.set_events_credentials()
+
+    def tearDown(self):
+        stop_cgiserver(self._rdf_test_agent)
+        lib_kbase.set_storage_style(None,)
+
+    def _run_script_snapshot_then_events(self, script_suffix):
+        # Check that the supervisor is running, it is started by cgiserver.py.
+
+        # The url must not contain the mode
+        local_url = "/survol/sources_types/" + script_suffix
+        full_url = self._agent_url + local_url
+        graph_daemon_result_snapshot = _run_daemon_script_in_snapshot_mode(full_url)
+
+        # The result should not be empty, and contain at least a couple of triples.
+        self.assertTrue(graph_daemon_result_snapshot)
+        # graph_daemon_result_snapshot= [a rdfg:Graph;rdflib:storage [a rdflib:Store;rdfs:label 'IOMemory']].
+        print("graph_daemon_result_snapshot=", graph_daemon_result_snapshot)
+
+        time.sleep(20)
+
+        # Now, the daemon process must have been started and must still be running.
+        is_daemon_running = lib_daemon.is_events_generator_daemon_running(local_url)
+        self.assertTrue(is_daemon_running)
+
+        graph_daemon_result_events = rdflib.Graph()
+
+        triples_count = lib_kbase.read_events_to_graph(local_url, graph_daemon_result_events)
+        print("triples_count=", triples_count)
+
+        # Now, loads events from the events graph. After a bit of time, some events might be there.
+        return graph_daemon_result_snapshot, graph_daemon_result_events
+
+    def test_events_generator_psutil_processes_perf(self):
+        url_suffix = "events_generator_psutil_processes_perf.py"
+        result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix)
+        self.assertTrue(result_snapshot)
+        self.assertTrue(result_events)
+
+    def test_events_generator_psutil_system_counters(self):
+        url_suffix = "events_generator_psutil_system_counters.py"
+        result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix)
+        self.assertTrue(result_snapshot)
+        self.assertTrue(result_events)
+
+    @unittest.skip("Temporarily disabled")
+    def test_events_generator_system_calls_loop(self):
+        proc_open = None
+        try:
+            # This starts a dummy process, whose system calls will be monitored.
+            subprocess_command = [
+                sys.executable,
+                "-c",
+                "import time;time.sleep(3)"]
+            sys.stderr.write("test_events_generator_system_calls supervisor_command=%s\n" % subprocess_command)
+
+            # No Shell, otherwise we cannot know which process is created.
+            proc_popen = subprocess.Popen(
+                subprocess_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+
+            print("proc_popen.pid=%s\n" % proc_popen.pid)
+
+            # This node must be in the result. Dockit is run within a temporary agent,
+            # therefore this agent is used as a URL for the created nodes.
+            agent_prefix = self._agent_url + "/survol"
+            created_process_node = lib_common.OtherAgentBox(agent_prefix).UriMakeFromDict(
+                "CIM_Process", {"Handle": proc_popen.pid})
+            literal_pid = lib_kbase.MakeNodeLiteral(proc_popen.pid)
+
+            url_suffix = "CIM_Process/events_generator_system_calls.py?xid=CIM_Process.Handle=%d" % proc_popen.pid
+            # This attaches to the subprocess and gets its system calls.
+            result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix)
+
+            self.assertTrue(result_snapshot)
+            #print("daemon_result=", daemon_result)
+            for daemon_subject, daemon_predicate, daemon_object in result_snapshot:
+                if str(daemon_object) == str(proc_popen.pid):
+                    print("xxxxxx=", daemon_subject, daemon_predicate, daemon_object)
+
+            print("Triple=", created_process_node, lib_properties.pc.property_pid, literal_pid)
+
+            find_triple = result_snapshot.triples((created_process_node, lib_properties.pc.property_pid, literal_pid))
+            print("find_triple=", find_triple)
+            print("len(find_triple)=", len(list(find_triple)))
+
+            # This is used to transform nodes into strings. Nodes are not uniquely generated.
+            def triple_to_three_strings(*one_triple):
+                return str(one_triple[0]), str(one_triple[1]), str(one_triple[2])
+
+            self.assertTrue(
+                triple_to_three_strings(created_process_node, lib_properties.pc.property_pid, literal_pid)
+                in [triple_to_three_strings(*one_triple) for one_triple in result_snapshot])
+
+            self.assertTrue(result_events)
+
+        finally:
+            # The subprocess will exit anyway.
+            if proc_open:
+                proc_popen.kill()
+                proc_popen.communicate()
+                proc_popen.terminate()
 
 
 if __name__ == '__main__':

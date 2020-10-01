@@ -261,15 +261,18 @@ def OutCgiMode(theCgi, topUrl, mode, errorMsg = None, isSubServer=False):
         # This is the end of a loop, or events transaction, in the script which does not in CGI context,
         # but in a separate daemon process.
         # This sends the results to the Events directory. See EventsGeneratorDaemon
-        set_events_credentials()
-        lib_kbase.write_graph_to_events(theCgi.m_url_without_mode, theCgi.m_graph)
-        pass
-    elif mode in ["svg",""]:
+
+        try:
+            triples_count = lib_kbase.write_graph_to_events(theCgi.m_url_without_mode, theCgi.m_graph)
+        except Exception as exc:
+            ERROR("OutCgiMode Exception exc=%s", exc)
+            raise
+    elif mode in ["svg", ""]:
         # Default mode, because graphviz did not like several CGI arguments in a SVG document (Bug ?).
         _graph_to_svg(page_title, errorMsg, isSubServer, parameters, grph, parameterized_links, topUrl, dot_layout)
     else:
-        ERROR("OutCgiMode invalid mode=%s",mode)
-        ErrorMessageHtml("OutCgiMode invalid mode=%s"%mode)
+        ERROR("OutCgiMode invalid mode=%s", mode)
+        ErrorMessageHtml("OutCgiMode invalid mode=%s" % mode)
 
     # TODO: Add a special mode where the triplestore grph is simply returned, without serialization.
     # TODO: This is much faster when in the client library because no marshalling is needed.
@@ -431,11 +434,12 @@ def MergeOutCgiRdf(theMode,cumulatedError):
 
 ################################################################################
 
+
 class CgiEnv():
     """
         This class parses the CGI environment variables which define an entity.
     """
-    def __init__(self, parameters = {}, can_process_remote = False ):
+    def __init__(self, debug_stream=None, parameters={}, can_process_remote=False):
         # TODO: This value is read again in OutCgiRdf, we could save time by making this object global.
         #sys.stderr.write( "CgiEnv parameters=%s\n" % ( str(parameters) ) )
 
@@ -491,6 +495,8 @@ class CgiEnv():
         #sys.stderr.write("CgiEnv m_entity_type=%s m_entity_id=%s m_entity_host=%s\n"%(self.m_entity_type,self.m_entity_id,self.m_entity_host))
         self.m_entity_id_dict = lib_util.SplitMoniker(self.m_entity_id)
 
+        self._create_graph()
+
         # Depending on the caller module, maybe the arguments should be 64decoded. See "sql/query".
         # As the entity type is available, it is possible to import it and check if it encodes it arguments.
         # See presence of source_types.sql.query.DecodeCgiArg(keyWord,cgiArg) for example.
@@ -515,6 +521,9 @@ class CgiEnv():
             # Runs as usual as a CGI script. The script will fill the graph.
             return
 
+        # The events graph must be specified because, from here, everything will access the events graph.
+        set_events_credentials()
+
         # Maybe this is in the daemon.
         if mode == "daemon":
             # Just runs as usual. At the end of the script, OutCgiRdf will write the RDF graph in the events.
@@ -523,14 +532,17 @@ class CgiEnv():
             return
 
         if not lib_daemon.is_events_generator_daemon_running(self.m_url_without_mode):
+            # This is the case of a daemonizable script, normally run.
             lib_daemon.start_events_generator_daemon(self.m_url_without_mode)
             # After that, whether the daemon dedicated to the script and its parameters is started or not,
             # the script is then executed in normal, snapshot mode, as a CGI script.
         else:
+            # Events are probably stored in the big events graph.
             lib_kbase.read_events_to_graph(self.m_url_without_mode, self.m_graph)
 
             # TODO: IT SHOULD BE WITH THE PARAMETERS OF OutCgiRdf() IN THIS SCRIPT !!
             # TODO: THESE LAYOUT PARAMETERS: dot_layout, collapsed_properties SHOULD BE IN THE CONSTRUCTOR.
+            # TODO: Or ... simply go on with the script in snapshot mode ??
             self.OutCgiRdf()
             exit(0)
 
@@ -567,7 +579,7 @@ class CgiEnv():
 
         ErrorMessageHtml("Script %s cannot handle remote hosts on host=%s" % ( sys.argv[0], self.m_entity_host ) )
 
-    def GetGraph(self):
+    def _create_graph(self):
         global globalMergeMode
         try:
             assert self.m_graph
@@ -581,13 +593,17 @@ class CgiEnv():
             self.m_graph = lib_kbase.MakeGraph()
         return self.m_graph
 
+    def GetGraph(self):
+        return self.m_graph
+
     def ReinitGraph(self):
         """This is used by events generators in daemon mode."""
         try:
             del self.m_graph
         except AttributeError:
             pass
-        return self.GetGraph()
+        self._create_graph()
+        return self.m_graph
 
     # We avoid several CGI arguments because Dot/Graphviz wants no ampersand "&" in the URLs.
     # This might change because I suspect bugs in old versions of Graphviz.
