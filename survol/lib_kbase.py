@@ -4,10 +4,10 @@ import os
 import re
 import collections
 import rdflib
+import time
+import datetime
 from rdflib.namespace import RDF, RDFS, XSD
-
-from rdflib import Namespace, Literal, URIRef
-# from rdflib.graph import Graph, ConjunctiveGraph
+from rdflib import URIRef
 
 # This will change soon after rdflib 5.0.0
 # from rdflib.plugins.stores.memory import Memory
@@ -470,11 +470,11 @@ def qname(x, grph):
 
 ################################################################################
 
+
 # The graph must be persistent and concurrently accessed.
 # Several stores are possible (For example SqlLite), but SleepyCat is always installed with rdflib,
 # so it is convenient to use it.
 # https://code.alcidesfonseca.com/docs/rdflib/gettingstarted.html
-
 _store_input = None
 _events_conjunctive_graph = None
 
@@ -511,7 +511,7 @@ _events_conjunctive_graph = None
 #
 
 
-_events_storage_style = (None,)
+_events_storage_style = (None, )
 
 
 def set_storage_style(*storage_style_tuple):
@@ -520,19 +520,27 @@ def set_storage_style(*storage_style_tuple):
     global _store_input
     global _events_conjunctive_graph
 
-    if _events_storage_style[0] == "SQLAlchemy":
-        try:
-            _events_conjunctive_graph.close()
-        except Exception as exc:
-            sys.stderr.write("set_storage_style Exception=%s\n" % exc)
+    if _store_input is not None:
+        del _store_input
+        _store_input = None
 
-    del _store_input
-    del _events_conjunctive_graph
-
-    _store_input = None
-    _events_conjunctive_graph = None
+    if _events_conjunctive_graph is not None:
+        if _events_storage_style[0] == "SQLAlchemy":
+            try:
+                _events_conjunctive_graph.close()
+            except Exception as exc:
+                sys.stderr.write("set_storage_style Exception=%s\n" % exc)
+        del _events_conjunctive_graph
+        _events_conjunctive_graph = None
 
     _events_storage_style = storage_style_tuple
+
+
+def _check_globals(function_name):
+    if _store_input is None:
+        raise Exception("%s _store_input should not be None" % function_name)
+    if _events_conjunctive_graph is None:
+        raise Exception("%s _events_conjunctive_graph should not be None" % function_name)
 
 
 def _setup_global_graph():
@@ -541,9 +549,11 @@ def _setup_global_graph():
     global _events_conjunctive_graph
 
     if _store_input is None:
-        assert not _events_conjunctive_graph
+        if _events_conjunctive_graph is not None:
+            raise Exception("_events_conjunctive_graph should be None")
 
-        assert isinstance(_events_storage_style, tuple)
+        if not isinstance(_events_storage_style, tuple):
+            raise Exception("Wrong type for _events_storage_style")
         if _events_storage_style[0] == "IOMemory":
             _store_input = IOMemory()
             _events_conjunctive_graph = rdflib.ConjunctiveGraph(store=_store_input)
@@ -587,8 +597,8 @@ def _setup_global_graph():
         else:
             raise Exception("Unknown storage style:" + str(_events_storage_style))
 
-    assert _store_input is not None
-    assert _events_conjunctive_graph is not None
+    _check_globals("_setup_global_graph")
+
     return _events_conjunctive_graph
 
 
@@ -597,14 +607,55 @@ def _url_to_context_node(the_url):
     return URIRef(the_url)
 
 
+def _log_db_access(function_name, access_type, step_name, url_name, data_size=-1):
+
+    if function_name:
+        # If not init.
+        _check_globals(function_name)
+
+    # This file shows all accesses to the events graph database.
+    # TODO: This file should be truncated when the CGI server starts.
+    # Also: This is purely for debugging.
+    if "TRAVIS" in os.environ:
+        log_db_file = None
+    else:
+        log_db_file = os.path.join(os.environ["TMP"], "_survol_events_db.log")
+
+    if not log_db_file:
+        return
+
+    timestamp_now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    open_try_count = 3
+    for counter in range(open_try_count):
+        try:
+            db_log_file = open(log_db_file, "a")
+            db_log_file.write("%s %6d %s f=%25s s=%s sz=%5d u=%s\n" % (
+                timestamp_now,
+                os.getpid(),
+                access_type,
+                function_name,
+                step_name,
+                data_size,
+                url_name))
+            db_log_file.flush()
+            db_log_file.close()
+            break
+        except Exception as exc:
+            sys.stderr.write("Did not work: %s. Retry\n" % exc)
+            time.sleep(1)
+
+
+_log_db_access("", "W", "0", "")
+
+
 def write_graph_to_events(the_url, input_graph):
     # TODO: It would be faster to store the events in this named graph.
     # TODO: Also, it is faster to directly store the triples.
     global _events_conjunctive_graph
 
     _setup_global_graph()
-    assert _store_input is not None
-    assert _events_conjunctive_graph is not None
+    _log_db_access("write_graph_to_events", "W", "1", the_url, len(input_graph))
 
     if the_url is None:
         _events_conjunctive_graph += input_graph
@@ -617,8 +668,8 @@ def write_graph_to_events(the_url, input_graph):
         _events_conjunctive_graph.commit()
 
     len_input_graph = len(input_graph)
-    sys.stderr.write("write_graph_to_events len_input_graph=%d\n" % len_input_graph)
 
+    _log_db_access("write_graph_to_events", "W", "2", the_url, len(input_graph))
     return len_input_graph
 
 
@@ -629,8 +680,7 @@ def read_events_to_graph(the_url, the_graph):
     the generation of events and their usage, for example display etc... in another process."""
 
     _setup_global_graph()
-    assert _store_input is not None
-    assert _events_conjunctive_graph is not None
+    _log_db_access("read_events_to_graph", "R", "1", the_url)
 
     # Some rdflib examples here:
     # https://code.alcidesfonseca.com/docs/rdflib/assorted_examples.html
@@ -645,13 +695,13 @@ def read_events_to_graph(the_url, the_graph):
     if _events_storage_style[0] == "SQLAlchemy":
         _events_conjunctive_graph.commit()
 
+    _log_db_access("read_events_to_graph", "R", "2", the_url, len(the_graph))
     return len(the_graph)
 
 
 def retrieve_all_events_to_graph_then_clear(output_graph):
     _setup_global_graph()
-    assert _store_input is not None
-    assert _events_conjunctive_graph is not None
+    _log_db_access("retrieve_all_events_to_graph_then_clear", "R", "1", "")
 
     output_graph += _events_conjunctive_graph
     _events_conjunctive_graph.remove((None, None, None))
@@ -659,29 +709,30 @@ def retrieve_all_events_to_graph_then_clear(output_graph):
     if _events_storage_style[0] == "SQLAlchemy":
         _events_conjunctive_graph.commit()
 
+    _log_db_access("retrieve_all_events_to_graph_then_clear", "R", "2", "", len(output_graph))
     return len(output_graph)
 
 
 def retrieve_events_to_graph(output_graph, entity_node):
     _setup_global_graph()
-    assert _store_input is not None
-    assert _events_conjunctive_graph is not None
+    _log_db_access("retrieve_events_to_graph", "R", "1", str(entity_node), len(output_graph))
 
     output_graph += _events_conjunctive_graph.triples((entity_node, None, None))
     _events_conjunctive_graph.remove((entity_node, None, None))
 
     if _events_storage_style[0] == "SQLAlchemy":
         _events_conjunctive_graph.commit()
+
+    _log_db_access("retrieve_events_to_graph", "R", "2", str(entity_node), len(output_graph))
     return len(output_graph)
 
 
 def events_count():
     _setup_global_graph()
-    assert _store_input is not None
-    assert _events_conjunctive_graph is not None
+    _log_db_access("events_count", "R", "1", "")
 
     len_graph = len(_events_conjunctive_graph)
 
-    sys.stderr.write("events_count leaving len_graph=%d\n" % len_graph)
+    _log_db_access("events_count", "R", "2", "", len_graph)
     return len_graph
 
