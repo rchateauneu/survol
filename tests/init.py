@@ -433,4 +433,14 @@ def query_see_also_key_value_pairs(grph, sparql_query):
     list_dict_objects = list(iter_dict_objects)
     return list_dict_objects
 
+
+def create_temporary_sqlite_filename():
+    """This simply creates a filename used as a sqlite database."""
+    temporary_database_file = tempfile.NamedTemporaryFile(delete=False, suffix=".sqlite")
+    database_path = temporary_database_file.name
+    temporary_database_file.close()
+    return database_path
+
+
+
 ################################################################################
