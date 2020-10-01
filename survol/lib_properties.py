@@ -76,8 +76,8 @@ sortPrefix = "____"
 
 # All the properties for creating RDF triples.
 # Names must all be different because they are used as keys.
-pc.property_pid                  = MakeProp("pid")
-pc.property_ppid                 = MakeProp("ppid") # TODO: Rename "parent" or "parent_process"
+pc.property_pid                  = MakeProp("pid") # TODO: Replace "pid" by "Handle" which is CIM standard.
+pc.property_ppid                 = MakeProp("ppid") # TODO: Rename "parent" or "parent_process". See "ParentProcessId".
 pc.property_command              = MakeProp("command")
 pc.property_host                 = MakeProp("host")
 pc.property_hostname             = MakeProp("hostname")
