@@ -31,6 +31,7 @@ is_platform_linux = sys.platform.startswith("linux")
 
 is_py3 = sys.version_info >= (3,)
 
+
 if is_platform_windows:
     import win32process
     import win32con
@@ -45,10 +46,10 @@ if is_platform_windows:
 else:
     is_windows10 = None
 
+
 def is_travis_machine():
-    # /home/travis/build/rchateauneu/survol : See "lib_credentials.py" for the same test.
-    # Some tests cannot be run on a Travis machine if some tools are not there.
-    return os.getcwd().find("travis") >= 0
+    """Some tests cannot be run on a Travis machine if some tools are not there."""
+    return "TRAVIS" in os.environ
 
 # Some tests start a DOS box process. The processes application is checked.
 # windows_system32_cmd_exe = r'C:\Windows\system32\cmd.exe' if is_travis_machine() else r'C:\windows\system32\cmd.exe'
@@ -116,7 +117,6 @@ def __dump_server_content(log_filename):
 
 # This tells if the current process is started by pytest.
 def is_pytest():
-    print("argv=",sys.argv)
     for one_arg in sys.argv:
         if one_arg.find("pytest") >= 0:
             return True
@@ -170,7 +170,7 @@ def has_wbem():
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 def update_test_path():
     if sys.path[0] != "../survol":
-        sys.path.insert(0,"../survol")
+        sys.path.insert(0, "../survol")
 
 
 def unique_temporary_path(prefix, extension):
