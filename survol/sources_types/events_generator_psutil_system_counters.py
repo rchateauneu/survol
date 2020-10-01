@@ -60,10 +60,8 @@ def Main():
 
 if __name__ == '__main__':
     if lib_util.is_snapshot_behaviour():
-        sys.stderr.write(__file__ + " starting in snapshot mode.")
         Main()
     else:
-        sys.stderr.write(__file__ + " starting in events mode.")
         while True:
             Main()
             time.sleep(20)
