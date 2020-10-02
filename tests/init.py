@@ -93,7 +93,10 @@ RemoteSparqlTestServerPort = 8002
 RemoteGraphvizTestServerPort = 8003
 RemoteHtmlTestServerPort = 8004
 RemotePortalTestServerPort = 8005
-RemoteRdfTestServerPort = 8006
+RemoteRdf1TestServerPort = 8011
+RemoteRdf2TestServerPort = 8011
+RemoteRdf3TestServerPort = 8011
+RemoteRdf4TestServerPort = 8011
 
 
 # Several Survol scripts return this executable among their results, so it can be tested.
