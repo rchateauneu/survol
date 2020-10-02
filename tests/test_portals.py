@@ -12,7 +12,7 @@ from init import *
 class PortalsTest(unittest.TestCase):
     def setUp(self):
         # If a Survol agent does not run on this machine with this port, this script starts a local one.
-        self._remote_html_test_agent, self._agent_url = start_cgiserver(RemoteRdfTestServerPort)
+        self._remote_html_test_agent, self._agent_url = start_cgiserver(RemotePortalsTestServerPort)
         print("AgentUrl=", self._agent_url)
 
     def tearDown(self):

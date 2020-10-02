@@ -92,7 +92,8 @@ RemoteEventsTestServerPort = 8001
 RemoteSparqlTestServerPort = 8002
 RemoteGraphvizTestServerPort = 8003
 RemoteHtmlTestServerPort = 8004
-RemoteRdfTestServerPort = 8005
+RemotePortalTestServerPort = 8005
+RemoteRdfTestServerPort = 8006
 
 
 # Several Survol scripts return this executable among their results, so it can be tested.
@@ -437,7 +438,7 @@ def query_see_also_key_value_pairs(grph, sparql_query):
 def create_temporary_sqlite_filename():
     """This simply creates a filename used as a sqlite database."""
     temporary_database_file = tempfile.NamedTemporaryFile(delete=False, suffix=".sqlite")
-    database_path = temporary_database_file.name
+    database_path = temporary_database_file.name.replace("\\", "/")
     temporary_database_file.close()
     return database_path
 
