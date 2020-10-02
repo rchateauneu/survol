@@ -7,6 +7,7 @@ import configparser
 import psutil
 import time
 import datetime
+import tempfile
 
 # This is used to communicate with the supervisor.
 _is_py3 = sys.version_info >= (3,)
@@ -47,12 +48,13 @@ _supervisor_config_file = os.path.join(os.path.dirname(__file__), "supervisord.c
 
 
 def _log_supervisor_access(function_name, step_name, **kwargs):
-    # This file shows all accesses to the supervisor.
+    """This writes into a file showing all accesses to the supervisor."""
     # TODO: This file should be truncated when the CGI server starts.
     if "TRAVIS" in os.environ:
         log_supervisor_file = None
     else:
-        log_supervisor_file = os.path.join(os.environ["TMP"], "_survol_supervisor.log")
+        tmp_dir = tempfile.gettempdir()
+        log_supervisor_file = os.path.join(tmp_dir, "_survol_supervisor.log")
 
     if not log_supervisor_file:
         return
