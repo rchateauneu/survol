@@ -38,6 +38,13 @@ def tearDownModule():
 class CgiScriptTest(unittest.TestCase):
     _dummy_url_prefix = "http://any.machine/any_directory/"
 
+    def setUp(self):
+        # If a Survol agent does not run on this machine with this port, this script starts a local one.
+        self._rdf_test_agent, self._agent_url = start_cgiserver(RemoteRdfTestServerPort)
+
+    def tearDown(self):
+        stop_cgiserver(self._rdf_test_agent)
+
     def test_url_to_process_name(self):
         """This tests the transformation of a script URL into an unique process name."""
         test_url_a = self._dummy_url_prefix + "this_url_does_not_exist.py?arg=%d" % (os.getpid() + 1)
@@ -111,18 +118,11 @@ class CgiScriptTest(unittest.TestCase):
         """Events generator must return something even if started in non-daemon mode."""
         # http://vps516494.ovh.net/Survol/survol/sources_types/enumerate_CIM_Process.py?xid=.
 
-        try:
-            rdf_test_agent, agent_url = start_cgiserver(RemoteRdfTestServerPort)
-            script_suffix = "events_generator_one_tick_per_second.py?parama=456&paramb=START&mode=html"
-            test_url = agent_url + "/survol/sources_types/" + script_suffix
-            html_url_response = portable_urlopen(test_url, timeout=10)
-            html_content = html_url_response.read()  # Py3:bytes, Py2:str
-            # The format is not important, this just tests that the script started.
-        except Exception as exc:
-            print("test_start_events_generator_non_daemon: Caught:", exc)
-            html_content = None
-        finally:
-            stop_cgiserver(rdf_test_agent)
+        script_suffix = "events_generator_one_tick_per_second.py?parama=456&paramb=START&mode=html"
+        test_url = self._agent_url + "/survol/sources_types/" + script_suffix
+        html_url_response = portable_urlopen(test_url, timeout=10)
+        html_content = html_url_response.read()  # Py3:bytes, Py2:str
+        # The format is not important, this just tests that the script started.
 
         self.assertTrue(html_content)
 
