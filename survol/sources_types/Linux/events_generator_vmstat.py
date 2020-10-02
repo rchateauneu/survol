@@ -55,9 +55,6 @@ def Main():
         # TODO: The delay could be a parameter.
         iostat_cmd = ["vmstat", "1", ]
 
-        # Contains the last header read.
-        iostat_header = []
-
         cgiEnv = lib_common.CgiEnv()
 
         Main.proc_popen = subprocess.Popen(iostat_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
@@ -68,6 +65,7 @@ def Main():
             if line_counter == 1:
                 continue
             if line_counter == 2:
+                # Contains the last header read.
                 vmstat_header = current_line
                 continue
 
