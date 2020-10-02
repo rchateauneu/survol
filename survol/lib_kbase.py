@@ -6,6 +6,7 @@ import collections
 import rdflib
 import time
 import datetime
+import tempfile
 from rdflib.namespace import RDF, RDFS, XSD
 from rdflib import URIRef
 
@@ -639,7 +640,8 @@ def _log_db_access(function_name, access_type, step_name, url_name, data_size=-1
     if "TRAVIS" in os.environ:
         log_db_file = None
     else:
-        log_db_file = os.path.join(os.environ["TMP"], "_survol_events_db.log")
+        tmp_dir = tempfile.gettempdir()
+        log_db_file = os.path.join(tmp_dir, "_survol_events_db.log")
 
     if not log_db_file:
         return
