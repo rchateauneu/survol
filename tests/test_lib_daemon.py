@@ -210,6 +210,7 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
         parent_process_triples = list(result_snapshot.triples((parent_process_node, None, None)))
         self.assertTrue(len(parent_process_triples) > 0)
 
+    @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
     def test_events_generator_psutil_system_counters(self):
         url_suffix = "events_generator_psutil_system_counters.py"
         result_snapshot = self._run_script_as_snapshot(url_suffix)
@@ -243,6 +244,7 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
         result_snapshot = self._run_script_as_snapshot(url_suffix)
         self.assertTrue(result_snapshot)
 
+    @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
     def test_events_generator_system_calls_sleep(self):
         proc_open = None
         try:
@@ -281,6 +283,7 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
                 proc_popen.communicate()
                 proc_popen.terminate()
 
+    @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
     def test_events_generator_iostat_all_disks(self):
         url_suffix = "Linux/events_generator_iostat_all_disks.py"
         daemon_result = self._run_script_as_snapshot(url_suffix)
@@ -413,6 +416,7 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
         self.assertTrue(result_snapshot)
         self.assertTrue(result_events)
 
+    @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
     def test_events_generator_psutil_system_counters(self):
         url_suffix = "events_generator_psutil_system_counters.py"
         result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix)
