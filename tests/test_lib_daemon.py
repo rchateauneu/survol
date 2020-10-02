@@ -40,7 +40,7 @@ class CgiScriptTest(unittest.TestCase):
 
     def setUp(self):
         # If a Survol agent does not run on this machine with this port, this script starts a local one.
-        self._rdf_test_agent, self._agent_url = start_cgiserver(RemoteRdfTestServerPort)
+        self._rdf_test_agent, self._agent_url = start_cgiserver(RemoteRdf1TestServerPort)
 
     def tearDown(self):
         stop_cgiserver(self._rdf_test_agent)
@@ -171,7 +171,7 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
 
     def setUp(self):
         # If a Survol agent does not run on this machine with this port, this script starts a local one.
-        self._rdf_test_agent, self._agent_url = start_cgiserver(RemoteRdfTestServerPort)
+        self._rdf_test_agent, self._agent_url = start_cgiserver(RemoteRdf2TestServerPort)
         print("AgentUrl=", self._agent_url)
         lib_kbase.set_storage_style("IOMemory",)
 
@@ -307,7 +307,7 @@ class CgiScriptSQLAlchemyStartOnlyTest(unittest.TestCase):
         lib_kbase.retrieve_all_events_to_graph_then_clear(rdflib.Graph())
 
         # If a Survol agent does not run on this machine with this port, this script starts a local one.
-        self._rdf_test_agent, self._agent_url = start_cgiserver(RemoteRdfTestServerPort)
+        self._rdf_test_agent, self._agent_url = start_cgiserver(RemoteRdf3TestServerPort)
         print("AgentUrl=", self._agent_url)
 
         # A shared database is needed because several processes use it simultaneously.
@@ -368,7 +368,7 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
 
     def setUp(self):
         # If a Survol agent does not run on this machine with this port, this script starts a local one.
-        self._rdf_test_agent, self._agent_url = start_cgiserver(RemoteRdfTestServerPort)
+        self._rdf_test_agent, self._agent_url = start_cgiserver(RemoteRdf4TestServerPort)
         print("AgentUrl=", self._agent_url)
 
         # A shared database is needed because several processes use it simultaneously.
