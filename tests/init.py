@@ -94,9 +94,9 @@ RemoteGraphvizTestServerPort = 8003
 RemoteHtmlTestServerPort = 8004
 RemotePortalTestServerPort = 8005
 RemoteRdf1TestServerPort = 8011
-RemoteRdf2TestServerPort = 8011
-RemoteRdf3TestServerPort = 8011
-RemoteRdf4TestServerPort = 8011
+RemoteRdf2TestServerPort = 8012
+RemoteRdf3TestServerPort = 8013
+RemoteRdf4TestServerPort = 8014
 
 
 # Several Survol scripts return this executable among their results, so it can be tested.
