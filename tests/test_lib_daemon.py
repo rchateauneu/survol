@@ -324,16 +324,20 @@ class CgiScriptSQLAlchemyStartOnlyTest(unittest.TestCase):
         print("len(result_snapshot)=", len(result_snapshot))
 
         # The node of the current process must be in the result.
-        created_process_node = self._agent_box().UriMakeFromDict("CIM_Process", {"Handle": CurrentPid})
-        literal_pid = lib_kbase.MakeNodeLiteral(CurrentPid)
+        current_process_node = self._agent_box().UriMakeFromDict("CIM_Process", {"Handle": CurrentPid})
+        current_process_triples = list(result_snapshot.triples((current_process_node, None, None)))
+        print("Nodes of current process:", CurrentPid)
+        for s, p, o in current_process_triples:
+            print("    ", s, p, o)
+        self.assertTrue(len(current_process_triples) > 0)
 
-        # CurrentParentPid
-
-        property_Handle = lib_properties.MakeProp("Handle")
-
-        self.assertTrue(
-            _triple_to_three_strings(created_process_node, property_Handle, literal_pid)
-            in [_triple_to_three_strings(*one_triple) for one_triple in result_snapshot])
+        # The node of the parent process must be in the result.
+        parent_process_node = self._agent_box().UriMakeFromDict("CIM_Process", {"Handle": CurrentParentPid})
+        parent_process_triples = list(result_snapshot.triples((parent_process_node, None, None)))
+        print("Nodes of current process:", CurrentParentPid)
+        for s, p, o in parent_process_triples:
+            print("    ", s, p, o)
+        self.assertTrue(len(parent_process_triples) > 0)
 
 
 class CgiScriptStartThenEventsTest(unittest.TestCase):
