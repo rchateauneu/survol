@@ -81,13 +81,18 @@ def start_events_generator_daemon(script_url):
     # QUERY_STRING must not start with "?" and certainly not with "&"
     assert query_string_with_daemon_mode[0] not in "?&"
 
+    # This is needed by the CGI scripts.
     request_uri = "%s?%s" % (parsed_url.path, query_string_with_daemon_mode)
 
+    # This is needed by the CGI scripts.
+    server_port = os.environ["SERVER_PORT"]
+
     # KEY1="value1",KEY2="value2"
-    environment_parameter = 'HTTP_HOST="%s",QUERY_STRING="%s",SCRIPT_NAME="%s",REQUEST_URI="%s",PYTHONPATH="survol"' % (
+    environment_parameter = 'HTTP_HOST="%s",QUERY_STRING="%s",SCRIPT_NAME="%s",SERVER_PORT="%s",REQUEST_URI="%s",PYTHONPATH="survol"' % (
         parsed_url.hostname,
         query_string_with_daemon_mode,
         parsed_url.path,
+        server_port,
         request_uri)
 
     # The script might be a test script which needs its execution context.
