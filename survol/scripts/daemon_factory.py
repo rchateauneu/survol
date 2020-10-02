@@ -194,7 +194,7 @@ def _local_supervisor_start():
         supervisor_stdout = null_device
         supervisor_stderr = null_device
     else:
-        supervisor_files_directory = os.environ["TMP"]
+        supervisor_files_directory = tempfile.gettempdir()
         supervisor_stdout_name = os.path.join(supervisor_files_directory, "_supervisor_stdout.log")
         supervisor_stderr_name = os.path.join(supervisor_files_directory, "_supervisor_stderr.log")
 
