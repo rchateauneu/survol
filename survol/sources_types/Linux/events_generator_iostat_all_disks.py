@@ -7,17 +7,16 @@ import re
 import subprocess
 import lib_common
 import lib_util
-from lib_properties import pc
 import lib_properties
 
 Usable = lib_util.UsableLinux
 
 ################################################################################
+# Typical output of the iostat command:
 
 # Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
 # sda               3,00         0,00        48,00          0         48
 # sdb               0,00         0,00         0,00          0          0
-
 
 
 def _io_stat_to_graph(grph, spl, iostat_header):
@@ -36,7 +35,7 @@ def _io_stat_to_graph(grph, spl, iostat_header):
 
 
 def Main(loop_number=1):
-    """This runs tcpdump, parses output data from it."""
+    """This runs iostat and parses its output."""
     # TODO: The delay could be a parameter.
     iostat_cmd = ["iostat",  "-d", "1"]
 
