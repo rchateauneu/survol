@@ -50,6 +50,10 @@ class SupervisorTest(unittest.TestCase):
         self.assertTrue(supervisor_pid is not None)
         self.assertTrue(psutil.pid_exists(supervisor_pid))
 
+        # A bit of time so the RPC server is ready for connections.
+        time.sleep(1)
+
+        print("Checking existence of supervisor pid=", supervisor_pid)
         try:
             status_running = daemon_factory.is_supervisor_running()
         except:
