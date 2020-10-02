@@ -466,6 +466,10 @@ class CgiEnv():
         self.m_page_title, self.m_page_subtitle = lib_util.SplitTextTitleRest(doc_modu_all)
 
         # Title page contains __doc__ plus object label.
+
+        # Example: REQUEST_URI=/Survol/survol/print_environment_variables.py
+        # This does NOT contain the host and the port, which implies a confusion if severl Survol agents
+        # use the same database. It makes sense, because the result should not depend in the agent.
         self.m_calling_url = lib_util.RequestUri()
         self.m_url_without_mode = lib_util.url_mode_replace(self.m_calling_url, "")
         self._concatenate_entity_documentation()
@@ -537,7 +541,7 @@ class CgiEnv():
             # After that, whether the daemon dedicated to the script and its parameters is started or not,
             # the script is then executed in normal, snapshot mode, as a CGI script.
         else:
-            # Events are probably stored in the big events graph.
+            # Events are probably stored in the big events graph. The host and port are not used in the URL.
             lib_kbase.read_events_to_graph(self.m_url_without_mode, self.m_graph)
 
             # TODO: IT SHOULD BE WITH THE PARAMETERS OF OutCgiRdf() IN THIS SCRIPT !!
