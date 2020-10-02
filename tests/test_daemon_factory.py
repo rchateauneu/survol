@@ -70,6 +70,8 @@ class UserProcessTest(unittest.TestCase):
 
     def setUp(self):
         daemon_factory.supervisor_startup()
+        # The supervisor RPC API server needs a bit of time to be ready.
+        time.sleep(1)
 
     def tearDown(self):
         daemon_factory.supervisor_stop()
@@ -116,13 +118,13 @@ time.sleep(1)
         sys.stderr.write("python_command=%s\n" % python_command)
         created_process_id = daemon_factory.start_user_process(process_name, python_command)
 
-        # Wait until the process leave.
-        if created_process_id is None:
-            while psutil.pid_exists(created_process_id):
-                time.sleep(1)
-        else:
-            print("Could not start python_command=%s\n" % python_command)
+        self.assertTrue(created_process_id is not None)
 
+        # Wait until the process leave.
+        while psutil.pid_exists(created_process_id):
+            time.sleep(1)
+
+        # A bit of extra time 
         with open(temporary_output_file.name) as input_file:
             file_content = "".join(input_file.readlines())
 
