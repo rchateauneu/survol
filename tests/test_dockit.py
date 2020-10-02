@@ -1349,7 +1349,7 @@ class StoreToRDFTest(unittest.TestCase):
         check_file_content(output_basename_prefix + ".summary.txt")
         check_file_content(output_basename_prefix + ".rdf")
 
-@unittest.skipIf(is_platform_windows and is_py3 and not is_windows10, "BROKEN WITH PY3, WINDOWS AND LOCAL. WHY ??")
+#@unittest.skipIf(is_platform_windows and is_py3 and not is_windows10, "BROKEN WITH PY3, WINDOWS AND LOCAL. WHY ??")
 class EventsServerTest(unittest.TestCase):
     """
     This tests the ability to parse a strace log and tranform it into events in Survol,
