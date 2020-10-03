@@ -18,6 +18,7 @@ NET SHARE information
 
 import re
 import sys
+import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -81,13 +82,13 @@ def Main():
 
 	for propKey in propMap:
 		propVal = propMap[propKey]
-		grph.add( ( nodeSmbShr, lib_common.MakeProp(propKey), lib_kbase.MakeNodeLiteral(propVal) ) )
+		grph.add((nodeSmbShr, lib_common.MakeProp(propKey), rdflib.Literal(propVal)))
 
 	if shrPath:
 		mountNode = lib_common.gUriGen.FileUri( "//" + lib_util.currentHostname + "/" + shrPath )
 		grph.add( ( nodeSmbShr, pc.property_smbmount, mountNode ) )
 
-	grph.add( ( nodeSmbShr, pc.property_host, hostNode ) )
+	grph.add((nodeSmbShr, pc.property_host, hostNode))
 
 	cgiEnv.OutCgiRdf()
 
