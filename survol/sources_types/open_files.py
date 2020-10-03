@@ -83,7 +83,7 @@ def Main():
 
 			# http://code.google.com/p/psutil/issues/detail?id=340
 			# https://github.com/giampaolo/psutil/issues/340
-			for fil in CIM_Process.PsutilProcOpenFiles( proc ):
+			for fil in proc.open_files():
 
 				# Some files are not interesting even if accessed by many processes.
 				if lib_common.is_meaningless_file(fil.path, not flagShowSharedLib, not flagShowFontFiles ):

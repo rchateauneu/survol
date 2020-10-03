@@ -49,10 +49,6 @@ def PsutilVirtualMemorySize(proc):
 
 ################################################################################
 
-# These functions because of differences between psutil versions.
-def PsutilProcToPPid(proc):
-    return proc.ppid()
-
 def PsutilProcToName(proc):
     procNam = proc.name()
     # Very often, the process name will just be the executable file name.
@@ -61,7 +57,8 @@ def PsutilProcToName(proc):
         procNam = procNam[:-4]
     return procNam
 
-def PsutilProcToUser(proc,dfltUser = "AccessDenied"):
+
+def PsutilProcToUser(proc, dfltUser = "AccessDenied"):
     try:
         return proc.username()
     except AccessDenied:
@@ -69,10 +66,8 @@ def PsutilProcToUser(proc,dfltUser = "AccessDenied"):
     except KeyError:
         # This does not make sense but it happens.
         # KeyError: 'getpwuid(): uid not found: 56413'
-        return "usr"+str(proc.pid)
+        return "usr" + str(proc.pid)
 
-def PsutilProcOpenFiles(proc):
-    return proc.open_files()
 
 def PsutilProcToExe(proc):
     try:
@@ -80,38 +75,39 @@ def PsutilProcToExe(proc):
     except AccessDenied:
         return ("", "Access denied")
 
+
 def PsutilProcToCmdlineArray(proc):
     try:
         return proc.cmdline()
     except AccessDenied:
         return ["Access denied"]
 
-def PsutilProcToCmdline(proc):
-    cmdArr = PsutilProcToCmdlineArray(proc)
 
-    cmd_line = ' '.join(cmdArr)
+def PsutilProcToCmdline(proc):
+    cmd_arr = PsutilProcToCmdlineArray(proc)
+
+    cmd_line = ' '.join(cmd_arr)
     # There might be non-printable characters.
     if not lib_util.is_py3:
         cmd_line = cmd_line.decode("ascii", errors="ignore")
     return cmd_line
 
-def PsutilProcConnections(proc,kind='inet'):
+
+def PsutilProcConnections(proc, kind='inet'):
     try:
         return proc.connections(kind)
     except AccessDenied:
         return []
 
-def PsutilProcMemmaps(proc):
-    return proc.memory_maps()
 
-# Returns the current working directory.
 def PsutilProcCwd(proc):
+    """Returns the current working directory."""
     try:
         proc_cwd = proc.cwd()
         proc_msg = None
     except AccessDenied:
         proc_cwd = None
-        proc_msg = "Process %d: Cannot get current working directory: %s" % (proc.pid,str(sys.exc_info()))
+        proc_msg = "Process %d: Cannot get current working directory: %s" % (proc.pid, str(sys.exc_info()))
 
     return (proc_cwd, proc_msg)
 
