@@ -423,14 +423,12 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
                     pass
 
             # Appends rest of properties, sorted.
-            fieldsKeys = fieldsKeysOrdered + sorted(rawFieldsKeys)
-
-            # sys.stderr.write("fieldsKeys=%s\n" % str(fieldsKeys) )
+            fields_keys = fieldsKeysOrdered + sorted(rawFieldsKeys)
 
             # This assumes that the header columns are sorted.
-            keyIndices = { nameKey:indexKey for (indexKey,nameKey) in enumerate(fieldsKeys,1) }
+            key_indices = {name_key: index_key for (index_key, name_key) in enumerate(fields_keys, 1)}
 
-            numberKeys = len(keyIndices)+1
+            number_keys = len(key_indices)+1
 
             # Apparently, no embedded tables.
             dictHtmlLines = dict()
@@ -464,13 +462,13 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
                 td_bgcolor = td_bgcolor_plain
 
                 # Some columns might not have a value. The first column is for the key.
-                columns = [ td_bgcolor + " ></td>" ] * numberKeys
+                columns = [td_bgcolor + " ></td>"] * number_keys
 
                 # Just used for the vertical order of lines, one line per object.
                 title = ""
 
                 # TODO: CGIPROP. This is not a dict, the same key can appear several times ?
-                for ( key, val ) in fieldsSet[objUri]:
+                for (key, val) in fieldsSet[objUri]:
                     if key == pc.property_information:
                         # This can be a short string only.
                         title += val
@@ -482,36 +480,37 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
                         # In fact, it might also be an internal URL with "entity.py"
                         if lib_kbase.IsLiteral(val):
                             if isinstance( val.value, (list, tuple )):
-                                strHtml = _format_element_aux(val.value)
-                                DEBUG("val.value=%s",strHtml)
-                                tmpCell = td_bgcolor + 'align="left">%s</td>' % strHtml
+                                str_html = _format_element_aux(val.value)
+                                DEBUG("val.value=%s", str_html)
+                                tmp_cell = td_bgcolor + 'align="left">%s</td>' % str_html
                             else:
-                                tmpCell = td_bgcolor + 'align="left">%s</td>' % val.value
+                                tmp_cell = td_bgcolor + 'align="left">%s</td>' % val.value
                         else:
                             # This displays objects in a table: The top-level object must be
                             # in the same host, so there is no need to display a long label.
-                            valTitle = lib_naming.ParseEntityUriShort( val )[0]
-                            assert isinstance(valTitle, lib_util.six_text_type)
+                            val_title = lib_naming.ParseEntityUriShort( val )[0]
+                            # This could probably be replaced by "str"
+                            assert isinstance(val_title, (lib_util.six_text_type, lib_util.six_binary_type))
 
                             # There might be non-ascii characters such as accents etc...
                             try:
-                                valTitle.encode('ascii')
+                                val_title.encode('ascii')
                             except UnicodeEncodeError:
-                                valTitle = "Not ascii"
+                                val_title = "Not ascii"
 
-                            valTitleUL = lib_exports.DotUL(valTitle)
-                            tmpCell = td_bgcolor + 'href="%s" align="left" >%s</td>' % ( val , valTitleUL )
+                            val_title_ul = lib_exports.DotUL(val_title)
+                            tmp_cell = td_bgcolor + 'href="%s" align="left" >%s</td>' % ( val , val_title_ul )
 
                     else:
                         try:
                             float(val)
-                            tmpCell = td_bgcolor + 'align="right">%s</td>' % val
+                            tmp_cell = td_bgcolor + 'align="right">%s</td>' % val
                         except:
                             # Wraps the string if too long. Can happen only with a literal.
-                            tmpCell = td_bgcolor + 'align="left">%s</td>' % lib_exports.StrWithBr(val)
+                            tmp_cell = td_bgcolor + 'align="left">%s</td>' % lib_exports.StrWithBr(val)
 
-                    idxKey = keyIndices[key]
-                    columns[ idxKey ] = tmpCell
+                    idx_key = key_indices[key]
+                    columns[idx_key] = tmp_cell
 
                 if title:
                     title_key = title
@@ -567,7 +566,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
             # TODO: Replace each column name with a link which sorts the line based on this column.
             # The order of columns could be specified with an extra cgi argument with the columns names.
-            for key in fieldsKeys:
+            for key in fields_keys:
                 columnTitle = lib_kbase.qname(key,grph)
                 columnTitle = columnTitle.replace("_"," ").capitalize()
                 header += "<td border='1'>" + lib_exports.DotBold( columnTitle ) + "</td>"
@@ -580,7 +579,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
             # BEWARE: The shape and the color of this HTML table is from the subjects,
             # because the elements can be of different classes, even if the share the same predicate.
             # TODO: Each row should have its own color according to its class.
-            numFields = len(fieldsKeys)+1
+            numFields = len(fields_keys)+1
 
             # The rows of this HTML table could belong to different classes:
             # What the shared is the predicate. Hence, the predicate, property name is used as a title.
