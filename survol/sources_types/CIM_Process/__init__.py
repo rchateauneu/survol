@@ -140,7 +140,7 @@ def SelectFromWhere( where_key_values ):
         else:
             user_name_host = user_name
 
-        parent_pid = PsutilProcToPPid(proc_obj)
+        parent_pid = proc_obj.ppid()
 
         if "Handle" in where_key_values and str(where_key_values["Handle"]) != str(proc_obj.pid):
             continue

@@ -26,7 +26,7 @@ Usable = lib_util.UsableWindowsBinary
 def MakeMimeProp(prp):
 	ret = primns_slash + "/MIME_PROPERTY/" + prp
 	url = ret.replace(" ","_")
-	return lib_kbase.MakeNodeUrl( url )
+	return rdflib.term.URIRef( url )
 
 
 def Main():
