@@ -9,6 +9,7 @@ System-wide shared memory segments, plus properties. DLLs and fonts are excluded
 import os
 import re
 import sys
+import psutil
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -141,7 +142,7 @@ def Main():
 
 	mapToProc = {}
 
-	for proc in CIM_Process.ProcessIter():
+	for proc in psutil.process_iter():
 
 		# TODO: Instead, should test psutil version !!!
 		try:

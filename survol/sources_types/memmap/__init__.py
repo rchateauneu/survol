@@ -4,6 +4,7 @@ Shareable memory segment
 
 import os
 import sys
+import psutil
 import lib_util
 import lib_common
 
@@ -54,7 +55,7 @@ def DisplayMappedProcesses(grph,fileName):
 	grph.add( ( uriMappedFile, pc.property_file_size, lib_common.NodeLiteral(fileSize) ) )
 
 	propMemoryRSS = lib_common.MakeProp("Resident Set Size")
-	for proc in CIM_Process.ProcessIter():
+	for proc in psutil.process_iter():
 
 		if lib_common.is_useless_process(proc):
 			continue
