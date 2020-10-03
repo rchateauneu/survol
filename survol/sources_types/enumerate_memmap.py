@@ -106,7 +106,7 @@ def FunctionProcess(mapToProc,proc):
 		return
 
 	try:
-		all_maps = CIM_Process.PsutilProcMemmaps(proc)
+		all_maps = proc.memory_maps()
 	except:
 		exc = sys.exc_info()[1]
 		WARNING("get_memory_maps Pid=%d. Caught %s", pid,str(exc))

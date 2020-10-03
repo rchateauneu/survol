@@ -74,7 +74,7 @@ def Main():
 		procName = proc.name
 
 		pid = proc.pid
-		parent_pid = CIM_Process.PsutilProcToPPid(proc)
+		parent_pid = proc.ppid()
 
 		# Built the same way in other RDF documents.
 		node_process = lib_common.gUriGen.PidUri(pid)
