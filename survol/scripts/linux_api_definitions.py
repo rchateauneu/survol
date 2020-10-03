@@ -596,7 +596,6 @@ G_UnknownFunctions = set()
 def _batchlet_factory(batchCore):
     try:
         # TODO: We will have to take the library into account.
-        assert G_batchModels
         aModel = G_batchModels[batchCore._function_name]
     except KeyError:
         # Default generic BatchLet, if the function is not associated to a derived class of BatchLetCore.
@@ -666,12 +665,7 @@ def _batchlet_factory(batchCore):
 
         if batchCoreMerged:
             assert batchCoreMerged == batchCore
-            try:
-                btchLetDrv = aModel(batchCoreMerged)
-            except:
-                sys.stderr.write(
-                    "Cannot create derived class %s from args:%s\n" % (aModel.__name__, str(batchCore.m_parsedArgs)))
-                raise
+            btchLetDrv = aModel(batchCoreMerged)
         else:
             # Could not find the matching unfinished batch.
             # Still we try the degraded mode if it is available.
@@ -740,10 +734,9 @@ def _invalid_returned_file_descriptor(fileDes, tracer):
 ################################################################################
 
 
-
 ##### File descriptor system calls.
 
-# Must be a new-style class.
+
 class BatchLetSys_open(BatchLetBase, object):
     def __init__(self, batchCore):
         global G_mapFilDesToPathName
