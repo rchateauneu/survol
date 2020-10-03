@@ -19,6 +19,7 @@ import cgi
 import os
 import re
 import time
+import rdflib
 
 import lib_kbase
 import lib_credentials
@@ -371,7 +372,7 @@ def CgiEnvMergeMode():
 
     globalMergeMode = True
     globalCgiEnvList = []
-    globalGraph = lib_kbase.MakeGraph()
+    globalGraph = rdflib.Graph()
 
 
 # OutCgiRdf has been called by each script without writing anything,
@@ -594,7 +595,7 @@ class CgiEnv():
             # When in merge mode, the same object must be always returned.
             self.m_graph = globalGraph
         else:
-            self.m_graph = lib_kbase.MakeGraph()
+            self.m_graph = rdflib.Graph()
         return self.m_graph
 
     def GetGraph(self):
