@@ -68,7 +68,7 @@ def _json_triples_to_graph(json_triples):
     TODO: ... instead of creating triples in JSON then recoding them to rdflib.
     TODO: The idea was to be independent of rdflib, but this is not necessary.
     """
-    rdflib_graph = lib_kbase.MakeGraph()
+    rdflib_graph = rdflib.Graph()
     for tripl in json_triples:
         rdf_triple = json_triple_to_rdf_triple(tripl)
         rdflib_graph.add(rdf_triple)
