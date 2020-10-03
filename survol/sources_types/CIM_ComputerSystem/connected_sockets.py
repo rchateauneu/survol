@@ -8,10 +8,10 @@ This displays the connected sockets from this host to the local machine.
 import sys
 import re
 import socket
+import psutil
 import lib_util
 import lib_common
 
-from sources_types import CIM_Process
 from sources_types import addr as survol_addr
 
 from lib_properties import pc
@@ -27,14 +27,12 @@ def Main():
 
 	hostAddr = lib_util.GlobalGetHostByName(hostname)
 
-	# hostNode = lib_common.gUriGen.HostnameUri(hostAddr)
 	# BEWARE: The rule whether we use the host name or the host IP is not very clear !
 	# The IP address would be unambiguous but less clear.
 	hostNode = lib_common.gUriGen.HostnameUri(hostname)
-	# serverBox = lib_common.RemoteBox(hostAddr)
 
 	# Similar code in "enumerate_sockets.py"
-	for proc in CIM_Process.ProcessIter():
+	for proc in psutil.process_iter():
 		try:
 			if lib_common.is_useless_process(proc):
 				continue
