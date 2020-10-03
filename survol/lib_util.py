@@ -196,7 +196,7 @@ def NodeLiteral(value):
 def NodeUrl(url):
     # TODO: Apparently, it is called twice, which is not detected
     # because MakeNodeUrl returns the same string.
-    return lib_kbase.MakeNodeUrl(url)
+    return rdflib.term.URIRef(url)
 
 ################################################################################
 
