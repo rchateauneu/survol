@@ -6,6 +6,8 @@ User processes
 
 
 import sys
+import psutil
+
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -53,7 +55,7 @@ def Main():
 
 	# Also, in the case of a tree, we must find ourselves what is its root.
 
-	for proc in CIM_Process.ProcessIter():
+	for proc in psutil.process_iter():
 
 		procUsername = CIM_Process.PsutilProcToUser(proc)
 
@@ -63,7 +65,6 @@ def Main():
 		# procUsername=NT AUTHORITY\\SYSTEM
 		# procUsername=EURO\\UK936025
 		# procUsername=NT AUTHORITY\\SYSTEM
-		# if procUsername + "@" + lib_util.currentHostname != userName:
 		if procUsername != userName:
 			continue
 
