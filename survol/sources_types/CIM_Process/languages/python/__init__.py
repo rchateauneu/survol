@@ -5,6 +5,7 @@ Python processes
 import os
 import sys
 import json
+import psutil
 import lib_util
 import lib_common
 import tempfile
@@ -18,7 +19,7 @@ def Usable(entity_type,entity_ids_arr):
     pidProc = entity_ids_arr[0]
     try:
         # Any error, no display.
-        proc_obj = CIM_Process.PsutilGetProcObjNoThrow(int(pidProc))
+        proc_obj = psutil.Process(int(pidProc))
     except:
         return False
 
