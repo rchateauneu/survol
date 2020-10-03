@@ -264,7 +264,7 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
             # This node must be in the result. Dockit is run within a temporary agent,
             # therefore this agent is used as a URL for the created nodes.
             created_process_node = self._agent_box().UriMakeFromDict("CIM_Process", {"Handle": proc_popen.pid})
-            literal_pid = lib_kbase.MakeNodeLiteral(proc_popen.pid)
+            literal_pid = rdflib.Literal(proc_popen.pid)
 
             url_suffix = "CIM_Process/events_generator_system_calls.py?xid=CIM_Process.Handle=%d" % proc_popen.pid
             # This attaches to the subprocess and gets its system calls.
@@ -445,7 +445,7 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
             agent_prefix = self._agent_url + "/survol"
             created_process_node = lib_common.OtherAgentBox(agent_prefix).UriMakeFromDict(
                 "CIM_Process", {"Handle": proc_popen.pid})
-            literal_pid = lib_kbase.MakeNodeLiteral(proc_popen.pid)
+            literal_pid = rdflib.Literal(proc_popen.pid)
 
             url_suffix = "CIM_Process/events_generator_system_calls.py?xid=CIM_Process.Handle=%d" % proc_popen.pid
             # This attaches to the subprocess and gets its system calls.
