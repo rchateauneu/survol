@@ -188,15 +188,15 @@ scalar_data_types = six_string_types + (six_text_type, six_binary_type, float, b
 
 ################################################################################
 
+NodeLiteral = rdflib.Literal
+#def NodeLiteral(value):
+#    return rdflib.Literal(value)
 
-def NodeLiteral(value):
-    return rdflib.Literal(value)
-
-
-def NodeUrl(url):
-    # TODO: Apparently, it is called twice, which is not detected
-    # because MakeNodeUrl returns the same string.
-    return rdflib.term.URIRef(url)
+NodeUrl = rdflib.term.URIRef
+#def NodeUrl(url):
+#    # TODO: Apparently, it is called twice, which is not detected
+#    # because MakeNodeUrl returns the same string.
+#    return rdflib.term.URIRef(url)
 
 ################################################################################
 
