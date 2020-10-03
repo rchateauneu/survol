@@ -93,6 +93,7 @@ RemoteSparqlTestServerPort = 8002
 RemoteGraphvizTestServerPort = 8003
 RemoteHtmlTestServerPort = 8004
 RemotePortalTestServerPort = 8005
+RemoteRdf0TestServerPort = 8010
 RemoteRdf1TestServerPort = 8011
 RemoteRdf2TestServerPort = 8012
 RemoteRdf3TestServerPort = 8013
