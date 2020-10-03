@@ -93,6 +93,7 @@ except ImportError:
     lib_event = None
 
 try:
+    # This seems to work on Python 2 Linux but not Python 3
     from survol import lib_sql
 except ImportError:
     # Do not write error message to stdout.
@@ -1572,13 +1573,10 @@ class ObjectsContext:
     def attributes_to_cim_object(self, cim_class_name, **cim_attributes_dict):
         if cim_class_name == "CIM_Process":
             cim_key_handle = cim_attributes_dict['Handle']
-            sys.stderr.write("attributes_to_cim_object CIM_Process cim_key_handle=%s self._process_id=%s\n"
-                             % (cim_key_handle, self._process_id))
             return self.ToObjectPath_CIM_Process(cim_key_handle)
         if cim_class_name == "CIM_DataFile":
             file_pathname = cim_attributes_dict['Name']
             return self.ToObjectPath_CIM_DataFile(file_pathname)
-
 
         # In the general case, reorder the arguments.
         cim_object_datafile = CIM_XmlMarshaller.create_instance_from_class_name(cim_class_name, **cim_attributes_dict)
@@ -1588,11 +1586,9 @@ class ObjectsContext:
         returned_object = self._class_model_to_object_path(CIM_Process, process_id)
 
         map_procs = G_mapCacheObjects[CIM_Process.__name__]
-        #sys.stderr.write("map_procs.keys()=%s\n" % str(map_procs.keys()))
 
         if process_id != self._process_id:
             context_process_obj_path = CIM_Process.CreateMonikerKey(self._process_id)
-            sys.stderr.write("context_process_obj_path=%s\n" % context_process_obj_path)
 
             parent_proc_obj = map_procs[context_process_obj_path]
 
@@ -1606,8 +1602,7 @@ class ObjectsContext:
             pathName = pathName.decode("utf-8")
         assert isinstance(pathName, six.text_type)
         if self._process_id:
-            # Maybe this is a relative file, and to make it absolute,
-            # the process is needed.
+            # Maybe this is a relative file, and to make it absolute, the process is needed.
             objProcess = self.ToObjectPath_CIM_Process(self._process_id)
             dirPath = objProcess.GetProcessCurrentDir()
         else:
