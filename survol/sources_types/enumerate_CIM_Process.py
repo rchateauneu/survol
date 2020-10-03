@@ -5,6 +5,7 @@ Processes tree
 """
 
 import sys
+import psutil
 import lib_common
 from sources_types import CIM_Process
 from lib_properties import pc
@@ -33,7 +34,7 @@ def Main():
     # Another problem due to Windows is that a parent process might have exit,
     # although it children processes are not reassigned (As it is the case on Unix).
     # This is a "non-existent process".
-    for proc in CIM_Process.ProcessIter():
+    for proc in psutil.process_iter():
         if lib_common.is_useless_process(proc):
             continue
 
