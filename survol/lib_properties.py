@@ -1,9 +1,9 @@
-import lib_kbase
+import rdflib
 
 # This is an RDF prefix.
 primns = "http://www.primhillcomputers.com/survol"
 
-pc = lib_kbase.MakeNamespace(primns)
+pc = rdflib.Namespace(primns)
 
 prefix_terminator = "#"
 primns_slash = primns + prefix_terminator
@@ -41,7 +41,7 @@ def MakeProp(*prps,**kvargs):
     # http://primhillcomputers.com/ontologies/swapnote\ futures
     # If the space is replaced by "%20", everything before it is erased.
     url = ret.replace(" ","_").replace("-","_")
-    return lib_kbase.MakeNodeUrl( url )
+    return rdflib.term.URIRef( url )
 
 MakeNodeForSparql = MakeProp
 
