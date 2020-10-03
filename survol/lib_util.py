@@ -19,6 +19,7 @@ import base64
 import importlib
 import logging
 import inspect
+import rdflib
 
 import lib_kbase
 
@@ -189,7 +190,7 @@ scalar_data_types = six_string_types + (six_text_type, six_binary_type, float, b
 
 
 def NodeLiteral(value):
-    return lib_kbase.MakeNodeLiteral(value)
+    return rdflib.Literal(value)
 
 
 def NodeUrl(url):
