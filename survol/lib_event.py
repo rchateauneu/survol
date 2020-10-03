@@ -6,6 +6,7 @@ __license__     = "GPL"
 
 import sys
 import six
+import rdflib
 import lib_common
 import lib_util
 import lib_kbase
@@ -50,7 +51,7 @@ def json_triple_to_rdf_triple(input_json_triple):
     if isinstance(object_value_json, tuple) and len(object_value_json) == 2:
         object_value_text = url_json_to_txt(object_value_json)
     else:
-        object_value_text = lib_kbase.MakeNodeLiteral(object_value_json)
+        object_value_text = rdflib.Literal(object_value_json)
         #sys.stderr.write("_store_event_triple stored object.\n")
 
     url_predicate = lib_common.MakeProp(input_json_triple["predicate"])
