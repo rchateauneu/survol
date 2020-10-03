@@ -74,7 +74,7 @@ def AddLinuxCGroup(node, grph):
 def AddInfo(grph, node, entity_ids_arr):
     pid_proc = entity_ids_arr[0]
     exec_node = None
-    grph.add((exec_node, pc.property_pid, rdflib.Literal(pid_proc)))
+    grph.add((node, pc.property_pid, rdflib.Literal(pid_proc)))
     try:
         proc_obj = psutil.Process(int(pid_proc))
 
