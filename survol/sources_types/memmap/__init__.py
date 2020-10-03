@@ -63,7 +63,7 @@ def DisplayMappedProcesses(grph,fileName):
 		pid = proc.pid
 
 		try:
-			all_maps = CIM_Process.PsutilProcMemmaps(proc)
+			all_maps = proc.memory_maps()
 		except:
 			# Probably psutil.AccessDenied
 			exc = sys.exc_info()[1]
