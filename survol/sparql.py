@@ -34,7 +34,7 @@ lib_util.SetLoggingConfig(logging.DEBUG)
 
 
 def __run_sparql_query(sparql_query):
-    grph = lib_kbase.MakeGraph()
+    grph = rdflib.Graph()
 
     # add function directly, normally we would use setuptools and entry_points
     rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_function'] = lib_sparql_custom_evals.custom_eval_function

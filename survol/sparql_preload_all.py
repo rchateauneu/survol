@@ -10,9 +10,9 @@ This triplestore can also be updated by events.
 import os
 import sys
 import logging
+import rdflib
 import lib_util
 import lib_common
-import lib_kbase
 import lib_sparql
 import lib_wmi
 import lib_sparql_callback_survol
@@ -40,7 +40,7 @@ def Main():
     lib_util.SetLoggingConfig(logging.ERROR)
     envSparql = lib_sparql.SparqlEnvironment()
 
-    grph = lib_kbase.MakeGraph()
+    grph = rdflib.Graph()
 
     sparql_query = envSparql.Query()
 
