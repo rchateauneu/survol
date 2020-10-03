@@ -1,5 +1,6 @@
 import os
 import sys
+import rdflib
 import lib_util
 import lib_kbase
 import lib_naming
@@ -33,23 +34,22 @@ def FlushOrSaveRdfGraph(grph, output_rdf_filename):
 ################################################################################
 
 
-# This receives a triplestore containing only the information from scripts.
-# This adds the classes and the properties information,
-# in order to send it to an external database or system.
-# This returns a new graph.
 # FIXME: WHY CREATING A NEW GRAPH ?? Maybe because we could not remove some information ?? Which one ??
 # FIXME: Maybe to remove the scripts ?
 def AddOntology(old_grph):
-    DEBUG("AddOntology")
+    """This receives a triplestore containing only the information from scripts.
+    This adds the classes and the properties information,
+    in order to send it to an external database or system. This returns a new graph."""
+
     map_classes = {}
     map_attributes = {}
 
     new_grph = lib_kbase.MakeGraph()
 
-    # This takes the class from an Url and defines it in the RDF ontology.
-    # This returns the class name as a string.
     def _define_class_in_ontology(url_node):
-        (entity_label, class_name, entity_id) = lib_naming.ParseEntityUri(url_node)
+        """This takes the class from an Url and defines it in the RDF ontology.
+        This returns the class name as a string."""
+        entity_label, class_name, entity_id = lib_naming.ParseEntityUri(url_node)
 
         # This could be: ("http://the_host", "http://primhillcomputers.com/survol/____Information", "HTTP url")
         if not class_name:
@@ -62,7 +62,7 @@ def AddOntology(old_grph):
         # "http://www.primhillcomputers.com/survol#root\CIMV2:CIM_Process"
         class_name = class_name.replace("\\","%5C")
 
-        if not class_name in map_classes:
+        if class_name not in map_classes:
             if class_name == "":
                 raise Exception("No class name for url=%s type=%s" % (str(url_node), str(type(url_node))))
 
@@ -74,13 +74,13 @@ def AddOntology(old_grph):
         # They are different of the triples, but might overlap.
         entity_id_dict = lib_util.SplitMoniker(entity_id)
         for predicate_key in entity_id_dict:
-            if not predicate_key in map_attributes:
+            if predicate_key not in map_attributes:
                 # This function might also filter a duplicate and redundant insertion.
                 lib_util.AppendPropertySurvolOntology(predicate_key, "CIM key predicate %s" % predicate_key, class_name, None, map_attributes)
 
             # This value is explicitly added to the node.
             predicate_value = entity_id_dict[predicate_key]
-            new_grph.add((url_node, lib_properties.MakeProp(predicate_key), lib_kbase.MakeNodeLiteral(predicate_value)))
+            new_grph.add((url_node, lib_properties.MakeProp(predicate_key), rdflib.Literal(predicate_value)))
 
         # This adds a triple specifying that this node belongs to this RDFS class.
         lib_kbase.AddNodeToRdfsClass(new_grph, url_node, class_name, entity_label)
@@ -97,9 +97,9 @@ def AddOntology(old_grph):
         url_as_str = url_as_str.replace("{","%7B")
         url_as_str = url_as_str.replace("}","%7D")
         if lib_kbase.IsLiteral(url_node):
-            url_node = lib_kbase.MakeNodeLiteral(url_as_str)
+            url_node = rdflib.Literal(url_as_str)
         else:
-            url_node = lib_kbase.MakeNodeUrl(url_as_str)
+            url_node = rdflib.term.URIRef(url_as_str)
         return url_node
 
     for node_subject, node_predicate, node_object in old_grph:
@@ -113,7 +113,7 @@ def AddOntology(old_grph):
                 else:
                     str_object = str(node_object)
                     str_object_rdf = str_object + "&mode=rdf"
-                    node_object_rdf = lib_kbase.MakeNodeUrl(str_object_rdf)
+                    node_object_rdf = rdflib.term.URIRef(str_object_rdf)
                     new_grph.add( (node_subject, lib_kbase.PredicateSeeAlso, node_object_rdf))
         elif node_predicate == pc.property_information:
             new_grph.add( (node_subject, lib_kbase.PredicateComment, node_object))
@@ -170,9 +170,9 @@ def WriteRdfError(message, broken_url):
 
     new_grph = lib_kbase.MakeGraph()
     new_grph.add((
-        lib_kbase.MakeNodeUrl(broken_url),
+        rdflib.term.URIRef(broken_url),
         lib_properties.MakeProp("Error"),
-        lib_kbase.MakeNodeLiteral(message)))
+        rdflib.Literal(message)))
 
     # Neither "xml/rdf" nor "text/rdf" are correct MIME-types.
     # It should be "application/xml+rdf" or possibly "application/xml" or "text/xml"
