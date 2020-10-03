@@ -22,7 +22,7 @@ primns_slash = primns + prefix_terminator
 # Ideally we would like:
 # dflib.term.URIRef(primns_slash + "smbmount", key1=val, key2=val2)
 # Also, no need of URIRef.
-#   lib_common.NodeLiteral({"type":"html","title":"yawn","color":"blue"})
+#   rdflib.Literal({"type":"html","title":"yawn","color":"blue"})
 #   rdflib.term.Literal(u"{'color': 'blue', 'type': 'html', 'title': 'yawn'}")
 # So we could keep everything identical excel equality tests 2html" and "rdf":
 # It tests that the key is in fact an array containing the properties.
