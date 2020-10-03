@@ -44,7 +44,7 @@ def AddOntology(old_grph):
     map_classes = {}
     map_attributes = {}
 
-    new_grph = lib_kbase.MakeGraph()
+    new_grph = rdflib.Graph()
 
     def _define_class_in_ontology(url_node):
         """This takes the class from an Url and defines it in the RDF ontology.
@@ -168,7 +168,7 @@ def WriteRdfError(message, broken_url):
     After that, the calling function makes an exit.
     """
 
-    new_grph = lib_kbase.MakeGraph()
+    new_grph = rdflib.Graph()
     new_grph.add((
         rdflib.term.URIRef(broken_url),
         lib_properties.MakeProp("Error"),
