@@ -39,30 +39,9 @@ def IsLink(obj):
     return isinstance(obj , (rdflib.URIRef, rdflib.BNode))
 
 
-def MakeNodeLiteral(value):
-    return rdflib.Literal(value)
-
-
-# This returns an object which, whose string conversion is identical to the input string.
-# Beware that it is sometimes called recursively.
-def MakeNodeUrl(url):
-    uriRef = rdflib.term.URIRef(url)
-    # sys.stderr.write("MakeNodeUrl url=%s uriRef=%s\n"%(url,uriRef))
-    return uriRef
-
-
-def MakeNamespace(primns):
-    pc = rdflib.Namespace(primns)
-    return pc
-
-
-def MakeGraph():
-    return rdflib.Graph()
-
-
-# The returns the set of unique subjects or objects,
-# instances and scripts, but no literals.
 def unique_urls_dict(grph):
+    """The returns the set of unique subjects or objects, instances and scripts, but no literals."""
+
     # A default dictionary of default dictionaries of lists.
     urls_dict = collections.defaultdict(lambda: collections.defaultdict(list))
 
@@ -76,10 +55,11 @@ def unique_urls_dict(grph):
     return urls_dict
 
 
-# It has to build an intermediary map because we have no simple way to find all edges
-# starting from a node. Otherwise, we could use a classical algorithm (Dijkstra ?)
 def get_urls_adjacency_list(grph, start_instance, filter_predicates):
+    """It has to build an intermediary map because we have no simple way to find all edges
+    starting from a node. Otherwise, we could use a classical algorithm (Dijkstra ?)"""
     DEBUG("startInstance=%s type=%s", str(start_instance), str(type(start_instance)))
+
     # Each node maps to the list of the nodes it is directly connected to.
     adjacency_list = dict()
 
@@ -91,22 +71,14 @@ def get_urls_adjacency_list(grph, start_instance, filter_predicates):
         str_end = str(url_end)
         # TODO: Make this test better.
 
-        #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
-
         if (str_start != "http://localhost") and (str_end != "http://localhost"):
             #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
             assert str_start.find("/localhost") < 0, "start local host"
             assert str_end.find("/localhost") < 0, "end local host"
-            #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
             try:
-                #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
                 adjacency_list[url_start].add(url_end)
-                #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
             except KeyError:
-                #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
                 adjacency_list[url_start] = set([url_end])
-                #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
-        #INFO("urlStart=%s urlEnd=%s",urlStart,urlEnd)
 
     DEBUG("len(grph)=%d",len(grph))
 
@@ -125,9 +97,9 @@ def get_urls_adjacency_list(grph, start_instance, filter_predicates):
     return adjacency_list
 
 
-# This returns a subset of a triplestore whose object matches a given string.
 # TODO: Consider using SparQL.
 def triplestore_matching_strings(grph, search_string):
+    """This returns a subset of a triplestore whose object matches a given string."""
     DEBUG("triplestore_matching_strings: search_string=%s" % search_string)
     # Beware that the order might change each time.
     compiled_rgx = re.compile(search_string)
@@ -148,10 +120,8 @@ def triplestore_all_strings(grph):
             yield k_sub, k_pred, k_obj
 
 
-# This writes a triplestore to a stream which can be a socket or a file.
 def triplestore_to_stream_xml(grph, out_dest, a_format):
-
-    # a_format='pretty-xml', 'xml'
+    """This writes a triplestore to a stream which can be a socket or a file."""
 
     # With Py2 and StringIO or BytesIO, it raises "TypeError: unicode argument expected, got 'str'"
     # grph.serialize( destination = out_dest, format="xml")
@@ -181,10 +151,11 @@ def triplestore_to_stream_xml(grph, out_dest, a_format):
             out_dest.write(str_xml.decode('utf8'))
 
 
-# This reasonably assumes that the triplestore library is able to convert from RDF.
-# This transforms a serialize XML document into RDF.
-# See: https://rdflib.readthedocs.io/en/stable/apidocs/rdflib.html
 def triplestore_from_rdf_xml(doc_xml_rdf):
+    """This reasonably assumes that the triplestore library is able to convert from RDF.
+    This transforms a serialize XML document into RDF.
+    See: https://rdflib.readthedocs.io/en/stable/apidocs/rdflib.html """
+
     # This is the inverse operation of: grph.serialize( destination = out_dest, format="xml")
     grph = rdflib.Graph()
     try:
@@ -274,62 +245,63 @@ def RdfsPropertyNode(property_name):
     return rdflib.URIRef(LDT[property_name])
 
 
-# Create the node to add to the Graph
-# Example: "http://www.primhillcomputers.com/survol#CIM_DataFile"
-def RdfsClassNode(class_name):
+def _rdfs_class_node(class_name):
+    """Create the node to add to the Graph
+    Example: "http://www.primhillcomputers.com/survol#CIM_DataFile" """
     return rdflib.URIRef(LDT[class_name])
 
 
-def AddNodeToRdfsClass(grph, nodeObject, className, entity_label):
-    nodeClass = RdfsClassNode(className)
-    grph.add((nodeObject, RDF.type, nodeClass))
-    grph.add((nodeObject, RDFS.label, rdflib.Literal(entity_label)))
+def AddNodeToRdfsClass(grph, node_object, class_name, entity_label):
+    nodeClass = _rdfs_class_node(class_name)
+    grph.add((node_object, RDF.type, nodeClass))
+    grph.add((node_object, RDFS.label, rdflib.Literal(entity_label)))
 
 
-# This receives an ontology described in a neutral way,
-# and adds to the graph the RDFS nodes describing it.
 def CreateRdfsOntology(map_classes, map_attributes, graph=None):
+    """This receives an ontology described in a neutral way, and adds to the graph the RDFS nodes describing it."""
+
     # Add the RDFS class to the graph
-    def AddClassToRdfsOntology(graph, className, baseClassName, text_descr):
-        className = className.strip()
-        if not className:
+    def add_class_to_rdfs_ontology(the_graph, the_class_name, the_base_class_name, text_description):
+        the_class_name = the_class_name.strip()
+        if not the_class_name:
             raise Exception("Empty class name")
 
-        nodeClass = RdfsClassNode(className)
+        node_class = _rdfs_class_node(the_class_name)
 
-        graph.add((nodeClass, RDF.type, RDFS.Class))
-        if baseClassName:
+        the_graph.add((node_class, RDF.type, RDFS.Class))
+        if the_base_class_name:
             # Empty string if top-level class.
-            MyBaseClassNode = RdfsClassNode(baseClassName)
-            graph.add((nodeClass, RDFS.subClassOf, MyBaseClassNode))
-        graph.add((nodeClass, RDFS.label, rdflib.Literal(className)))
-        if text_descr:
-            graph.add((nodeClass, RDFS.comment, rdflib.Literal(text_descr)))
+            my_base_class_node = _rdfs_class_node(the_base_class_name)
+            the_graph.add((node_class, RDFS.subClassOf, my_base_class_node))
+        the_graph.add((node_class, RDFS.label, rdflib.Literal(the_class_name)))
+        if text_description:
+            the_graph.add((node_class, RDFS.comment, rdflib.Literal(text_description)))
 
-    def AddPropertyToRdfsOntology(graph, prop_name, prop_type, prop_domain, prop_range, prop_desc):
-        nodeDatatypeProperty = rdflib.URIRef(LDT[prop_name])
-        graph.add((nodeDatatypeProperty, RDF.type, RDF.Property))
-        if prop_desc:
-            graph.add((nodeDatatypeProperty, RDFS.comment, rdflib.Literal(prop_desc)))
-        if prop_type:
-            xsd_type = PropNameToXsdType(prop_type)
-            graph.add((nodeDatatypeProperty, RDFS.range, xsd_type))
-        if prop_domain:
-            nodeDomainClass = rdflib.URIRef(LDT[prop_domain])
-            graph.add((nodeDatatypeProperty, RDFS.domain, nodeDomainClass))
-        if prop_range:
-            nodeRangeClass = rdflib.URIRef(LDT[prop_range])
-            graph.add((nodeDatatypeProperty, RDFS.range, nodeRangeClass))
+    def add_property_to_rdfs_ontology(the_graph, property_name, property_type, property_domain,
+                                      property_range, property_description):
+        node_datatype_property = rdflib.URIRef(LDT[property_name])
+        the_graph.add((node_datatype_property, RDF.type, RDF.Property))
+        if property_description:
+            the_graph.add((node_datatype_property, RDFS.comment, rdflib.Literal(property_description)))
+        if property_type:
+            xsd_type = PropNameToXsdType(property_type)
+            the_graph.add((node_datatype_property, RDFS.range, xsd_type))
+        if property_domain:
+            node_domain_class = rdflib.URIRef(LDT[property_domain])
+            the_graph.add((node_datatype_property, RDFS.domain, node_domain_class))
+        if property_range:
+            node_range_class = rdflib.URIRef(LDT[property_range])
+            the_graph.add((node_datatype_property, RDFS.range, node_range_class))
 
     if not graph:
         graph = rdflib.Graph()
 
     for class_name in map_classes:
         prop_dict = map_classes[class_name]
-        base_class_name = prop_dict.get("base_class","")
-        text_descr = prop_dict.get("class_description","")
+        base_class_name = prop_dict.get("base_class", "")
+        text_descr = prop_dict.get("class_description", "")
 
-        AddClassToRdfsOntology(graph,class_name, base_class_name, text_descr)
+        add_class_to_rdfs_ontology(graph,class_name, base_class_name, text_descr)
 
     for prop_name in map_attributes:
         prop_dict = map_attributes[prop_name]
@@ -341,7 +313,7 @@ def CreateRdfsOntology(map_classes, map_attributes, graph=None):
 
         # The same key can exist for several classes.
         for one_class in prop_domain:
-            AddPropertyToRdfsOntology(graph, prop_name, prop_type, one_class, prop_range, prop_desc)
+            add_property_to_rdfs_ontology(graph, prop_name, prop_type, one_class, prop_range, prop_desc)
 
     # Bind the LDT name spaces
     graph.bind("ldt", LDT)
@@ -351,10 +323,9 @@ def CreateRdfsOntology(map_classes, map_attributes, graph=None):
 ################################################################################
 
 
-# This is only for testing purpose.
-# It checks that a minimal subset of classes and predicates are defined.
 def CheckMinimalRdsfOntology(ontology_graph):
-    # print("ontology_graph=",ontology_graph)
+    """This is only for testing purpose.
+    It checks that a minimal subset of classes and predicates are defined."""
 
     # Quick logging for debugging.
     cnt = 0
@@ -431,9 +402,9 @@ def CheckMinimalRdsfOntology(ontology_graph):
 
     missing_triples = []
     for subject_name, predicate_name, object_name in shared_classes:
-        subject_node = RdfsClassNode(subject_name) if subject_name else None
-        predicate_node = RdfsClassNode(predicate_name) if predicate_name else None
-        object_node = RdfsClassNode(object_name) if object_name else None
+        subject_node = _rdfs_class_node(subject_name) if subject_name else None
+        predicate_node = _rdfs_class_node(predicate_name) if predicate_name else None
+        object_node = _rdfs_class_node(object_name) if object_name else None
 
         triple_find = (subject_node, predicate_node, object_node)
         if not triple_find in ontology_graph:
