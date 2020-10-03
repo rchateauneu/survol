@@ -7,6 +7,7 @@ import sys
 import json
 import unittest
 import pkgutil
+import rdflib
 
 from init import *
 
@@ -14,7 +15,6 @@ update_test_path()
 
 # This is what we want to test.
 import lib_wbem
-import lib_kbase
 import lib_properties
 
 ################################################################################
@@ -81,7 +81,7 @@ class LibWbemTest(unittest.TestCase):
         filtered_where_key_values = {
             "Handle": CurrentPid
         }
-        grph = lib_kbase.MakeGraph()
+        grph = rdflib.Graph()
 
         iterator_objects = callback_object.CallbackSelect(grph, "CIM_Process", "WBEM", filtered_where_key_values)
         list_objects = list(iterator_objects)
@@ -119,7 +119,7 @@ class LibWbemTest(unittest.TestCase):
         filtered_where_key_values = {
             #"Name": CurrentMachine
         }
-        grph = lib_kbase.MakeGraph()
+        grph = rdflib.Graph()
 
         # dict_key_values={
         # rdflib.term.URIRef(u'http://primhillcomputers.com/survol#Status'): rdflib.term.Literal(u'OK'), 
@@ -157,7 +157,7 @@ class LibWbemTest(unittest.TestCase):
 
     @unittest.skipIf(not is_linux_wbem(), "WBEM not usable here")
     def test_sparql_callback_associator(self):
-        grph = lib_kbase.MakeGraph()
+        grph = rdflib.Graph()
         iterator_objects = callback_object.CallbackAssociator(
                 grph,
                 result_class_name="CIM_Process",
@@ -171,7 +171,7 @@ class LibWbemTest(unittest.TestCase):
     @unittest.skipIf(not is_linux_wbem(), "WBEM not usable here")
     def test_sparql_callback_types(self):
         callback_object = lib_wbem.WbemSparqlCallbackApi()
-        grph = lib_kbase.MakeGraph()
+        grph = rdflib.Graph()
         iterator_types = callback_object.CallbackTypes(grph, "see_also", {})
         for object_path, dict_key_values in iterator_types:
             pass

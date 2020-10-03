@@ -37,9 +37,9 @@ class IndividualEventsTest(unittest.TestCase):
     def test_pure_memory_retrieve_all_events_empty(self):
         """This reads all events twice, and the second time it should return nothing. """
         # To start with, this cleans all events.
-        new_graph = lib_kbase.MakeGraph()
+        new_graph = rdflib.Graph()
         lib_kbase.retrieve_all_events_to_graph_then_clear(new_graph)
-        new_graph = lib_kbase.MakeGraph()
+        new_graph = rdflib.Graph()
         lib_kbase.retrieve_all_events_to_graph_then_clear(new_graph)
         self.assertEqual(len(new_graph), 0)
 
@@ -57,7 +57,7 @@ class IndividualEventsTest(unittest.TestCase):
             },
             ]
         files_updates_total_number = lib_event.store_events_as_json_triples_list(triples_data_set)
-        new_graph = lib_kbase.MakeGraph()
+        new_graph = rdflib.Graph()
         lib_kbase.retrieve_all_events_to_graph_then_clear(new_graph)
         print("files_updates_total_number=", files_updates_total_number)
         print("len(triples_list)=", len(new_graph))
@@ -89,7 +89,7 @@ class IndividualEventsTest(unittest.TestCase):
         count_events = lib_kbase.write_graph_to_events(None, test_graph_input)
         self.assertEqual(count_events, triples_count)
 
-        graph_whole_content = lib_kbase.MakeGraph()
+        graph_whole_content = rdflib.Graph()
         lib_kbase.retrieve_all_events_to_graph_then_clear(graph_whole_content)
 
         input_triples = _graph_to_triples_set(test_graph_input)
@@ -100,7 +100,7 @@ class IndividualEventsTest(unittest.TestCase):
 
     def test_pure_memory_write_two_urls_plus_none(self):
 
-        graph_cleanup = lib_kbase.MakeGraph()
+        graph_cleanup = rdflib.Graph()
         lib_kbase.retrieve_all_events_to_graph_then_clear(graph_cleanup)
 
         triples_count_a = 10
@@ -145,7 +145,7 @@ class IndividualEventsTest(unittest.TestCase):
         self.assertEqual(actual_events_count_5, 0)
 
     def test_pure_memory_write_read_write_read(self):
-        graph_cleanup = lib_kbase.MakeGraph()
+        graph_cleanup = rdflib.Graph()
         lib_kbase.retrieve_all_events_to_graph_then_clear(graph_cleanup)
 
         triples_count_a = 100
@@ -316,7 +316,7 @@ class EventsGraphIOMemoryTest(unittest.TestCase):
         count_events_output = lib_kbase.read_events_to_graph(test_url, test_graph_output)
         self.assertEqual(count_events, count_events_output)
 
-        new_graph = lib_kbase.MakeGraph()
+        new_graph = rdflib.Graph()
         lib_kbase.retrieve_all_events_to_graph_then_clear(new_graph)
         print("files_updates_total_number=", updates_total_number)
         print("len(triples_list)=", len(new_graph))
@@ -444,7 +444,7 @@ class EventsSQLAlchemyMemoryLocalTest(unittest.TestCase):
 
     def test_sqlalchemy_memory_url_events_count(self):
 
-        graph_cleanup = lib_kbase.MakeGraph()
+        graph_cleanup = rdflib.Graph()
         lib_kbase.retrieve_all_events_to_graph_then_clear(graph_cleanup)
 
         test_graph_input = rdflib.Graph().parse("tests/input_test_data/test_events_tcp_sockets.xml")
@@ -456,7 +456,7 @@ class EventsSQLAlchemyMemoryLocalTest(unittest.TestCase):
         actual_events_count = lib_kbase.events_count()
         self.assertEqual(count_events, actual_events_count)
 
-        graph_from_sql_alchemy = lib_kbase.MakeGraph()
+        graph_from_sql_alchemy = rdflib.Graph()
         lib_kbase.retrieve_all_events_to_graph_then_clear(graph_from_sql_alchemy)
 
         read_events_count = len(graph_from_sql_alchemy)
@@ -574,7 +574,7 @@ class EventsSQLAlchemySqliteLocalTest(unittest.TestCase):
 
         actual_events_count = lib_kbase.events_count()
 
-        graph_from_sql_alchemy = lib_kbase.MakeGraph()
+        graph_from_sql_alchemy = rdflib.Graph()
         lib_kbase.retrieve_all_events_to_graph_then_clear(graph_from_sql_alchemy)
 
         read_events_count = len(graph_from_sql_alchemy)
@@ -584,14 +584,14 @@ class EventsSQLAlchemySqliteLocalTest(unittest.TestCase):
         self.assertEqual(events_count_after_read, 0)
 
         # Second read empties all.
-        graph_from_sql_alchemy = lib_kbase.MakeGraph()
+        graph_from_sql_alchemy = rdflib.Graph()
         lib_kbase.retrieve_all_events_to_graph_then_clear(graph_from_sql_alchemy)
         self.assertEqual(len(graph_from_sql_alchemy), 0)
 
     def test_sqlalchemy_nourl_events_count(self):
         """Just writes."""
 
-        graph_cleanup = lib_kbase.MakeGraph()
+        graph_cleanup = rdflib.Graph()
         lib_kbase.retrieve_all_events_to_graph_then_clear(graph_cleanup)
 
         test_graph_input = rdflib.Graph().parse("tests/input_test_data/test_events_tcp_sockets.xml")
@@ -601,7 +601,7 @@ class EventsSQLAlchemySqliteLocalTest(unittest.TestCase):
         actual_events_count = lib_kbase.events_count()
         self.assertEqual(count_events, actual_events_count)
 
-        graph_from_sql_alchemy = lib_kbase.MakeGraph()
+        graph_from_sql_alchemy = rdflib.Graph()
         lib_kbase.retrieve_all_events_to_graph_then_clear(graph_from_sql_alchemy)
 
         read_events_count = len(graph_from_sql_alchemy)
@@ -609,7 +609,7 @@ class EventsSQLAlchemySqliteLocalTest(unittest.TestCase):
 
     def test_sqlalchemy_url_events_count(self):
 
-        graph_cleanup = lib_kbase.MakeGraph()
+        graph_cleanup = rdflib.Graph()
         lib_kbase.retrieve_all_events_to_graph_then_clear(graph_cleanup)
 
         test_graph_input = rdflib.Graph().parse("tests/input_test_data/test_events_tcp_sockets.xml")
@@ -621,7 +621,7 @@ class EventsSQLAlchemySqliteLocalTest(unittest.TestCase):
         actual_events_count = lib_kbase.events_count()
         self.assertEqual(count_events, actual_events_count)
 
-        graph_from_sql_alchemy = lib_kbase.MakeGraph()
+        graph_from_sql_alchemy = rdflib.Graph()
         lib_kbase.retrieve_all_events_to_graph_then_clear(graph_from_sql_alchemy)
 
         read_events_count = len(graph_from_sql_alchemy)
@@ -643,7 +643,7 @@ class EventsSQLAlchemySqliteLocalTest(unittest.TestCase):
         # TODO: BEWARE, WHY 63 WITH IN-MEMORY SQLITE ??
         self.assertEqual(63, actual_events_count)
 
-        graph_from_sql_alchemy_again = lib_kbase.MakeGraph()
+        graph_from_sql_alchemy_again = rdflib.Graph()
         lib_kbase.retrieve_all_events_to_graph_then_clear(graph_from_sql_alchemy_again)
 
         read_events_count = len(graph_from_sql_alchemy_again)
@@ -665,7 +665,7 @@ class EventsSQLAlchemySqliteLocalTest(unittest.TestCase):
         count_events = lib_kbase.write_graph_to_events(test_url, test_graph_input)
         self.assertEqual(count_events, 43)
 
-        graph_from_sql_alchemy = lib_kbase.MakeGraph()
+        graph_from_sql_alchemy = rdflib.Graph()
         lib_kbase.retrieve_all_events_to_graph_then_clear(graph_from_sql_alchemy)
         self.assertEqual(count_events, len(graph_from_sql_alchemy))
 
@@ -762,7 +762,7 @@ class EventsSQLAlchemySqliteLocalTest(unittest.TestCase):
     def test_sqlalchemy_write_url_read_all_subprocess(self):
         """Writes a RDF graph, then reads from another process."""
 
-        graph_cleanup = lib_kbase.MakeGraph()
+        graph_cleanup = rdflib.Graph()
         lib_kbase.retrieve_all_events_to_graph_then_clear(graph_cleanup)
 
         test_graph_input = rdflib.Graph().parse("tests/input_test_data/test_events_tcp_sockets.xml")
@@ -796,7 +796,7 @@ class EventsSQLAlchemySqliteLocalTest(unittest.TestCase):
     def test_sqlalchemy_sqlite_write_mixed_read_all_subprocess(self):
         """Writes a RDF graph, then reads from another process."""
 
-        graph_cleanup = lib_kbase.MakeGraph()
+        graph_cleanup = rdflib.Graph()
         lib_kbase.retrieve_all_events_to_graph_then_clear(graph_cleanup)
 
         triples_count = 1000
@@ -861,7 +861,7 @@ class EventsSQLAlchemySqliteLocalTest(unittest.TestCase):
 
     def test_sqlalchemy_sqlite_write_two_urls(self):
 
-        graph_cleanup = lib_kbase.MakeGraph()
+        graph_cleanup = rdflib.Graph()
         lib_kbase.retrieve_all_events_to_graph_then_clear(graph_cleanup)
 
         triples_count_a = 1000
