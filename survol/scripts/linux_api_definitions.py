@@ -67,17 +67,17 @@ def parse_call_arguments(strArgs, ixStart = 0):
             continue
 
         # This assumes that [] and {} are paired by strace so no need to check parity.
-        if aChr in ['[','{']:
+        if aChr in '[{':
             if ixCurr == ixStart +1:
                 objToAdd, ixStart = parse_call_arguments(strArgs, ixCurr)
                 theResult.append( objToAdd )
-                while ixStart < lenStr and strArgs[ixStart] in [' ',',']: ixStart += 1
+                while ixStart < lenStr and strArgs[ixStart] in ' ,': ixStart += 1
                 ixCurr = ixStart
                 continue
             levelParent += 1
         elif aChr == '(':
             levelParent += 1
-        elif aChr in [')',']','}']:
+        elif aChr in ')]}':
             levelParent -= 1
             if levelParent == -1:
                 finished = True
@@ -87,7 +87,7 @@ def parse_call_arguments(strArgs, ixStart = 0):
                 continue
 
         if (aChr == ',' and levelParent == 0) or finished :
-            while ixStart < lenStr and strArgs[ixStart] in [' ','"']: ixStart += 1
+            while ixStart < lenStr and strArgs[ixStart] in ' "': ixStart += 1
             ixEnd = ixCurr-2
             while strArgs[ixEnd] == '"' and ixStart <= ixEnd: ixEnd -= 1
 
@@ -103,9 +103,9 @@ def parse_call_arguments(strArgs, ixStart = 0):
             ixStart = ixCurr
 
     if (ixStart < lenStr) and not finished:
-        while ixStart < lenStr and strArgs[ixStart] in [' ','"']: ixStart += 1
+        while ixStart < lenStr and strArgs[ixStart] in ' "': ixStart += 1
         ixEnd = lenStr-1
-        while strArgs[ixEnd] in [',',')',']','}',' ','"'] and ixStart <= ixEnd: ixEnd -= 1
+        while strArgs[ixEnd] in ',)]} "' and ixStart <= ixEnd: ixEnd -= 1
 
         argClean = strArgs[ixStart:ixEnd + 1]
         # Special case due to truncated strings.
