@@ -7,6 +7,7 @@ import sys
 import json
 import unittest
 import pkgutil
+import rdflib
 
 from init import *
 
@@ -14,7 +15,6 @@ update_test_path()
 
 # This is what we want to test.
 import lib_wmi
-import lib_kbase
 import lib_properties
 
 ################################################################################
@@ -57,7 +57,7 @@ class LibWmiTest(unittest.TestCase):
         filtered_where_key_values = {
             "Handle": CurrentPid
         }
-        grph = lib_kbase.MakeGraph()
+        grph = rdflib.Graph()
 
         iterator_objects = callback_object.CallbackSelect(grph, "CIM_Process", "WBEM", filtered_where_key_values)
         list_objects = list(iterator_objects)
@@ -98,7 +98,7 @@ class LibWmiTest(unittest.TestCase):
     # ASSOCIATORS OF {CIM_Process.Handle=32360} WHERE AssocClass=CIM_ProcessExecutable ResultClass=CIM_DataFile
     def test_sparql_callback_associator_process(self):
         callback_object = lib_wmi.WmiSparqlCallbackApi()
-        grph = lib_kbase.MakeGraph()
+        grph = rdflib.Graph()
         iterator_objects = callback_object.CallbackAssociator(
                 grph,
                 result_class_name = "CIM_DataFile",
@@ -142,7 +142,7 @@ class LibWmiTest(unittest.TestCase):
     # ASSOCIATORS OF {Win32_LogicalDisk.DeviceID="C:"} WHERE AssocClass = Win32_SystemDevices
     def test_sparql_callback_associator_logical_disk(self):
         callback_object = lib_wmi.WmiSparqlCallbackApi()
-        grph = lib_kbase.MakeGraph()
+        grph = rdflib.Graph()
         iterator_objects = callback_object.CallbackAssociator(
                 grph,
                 result_class_name = "Win32_ComputerSystem",
@@ -177,7 +177,7 @@ class LibWmiTest(unittest.TestCase):
 
     def test_sparql_callback_types(self):
         callback_object = lib_wmi.WmiSparqlCallbackApi()
-        grph = lib_kbase.MakeGraph()
+        grph = rdflib.Graph()
         iterator_types = callback_object.CallbackTypes(grph, "see_also", {})
         for object_path, dict_key_values in iterator_types:
             print(object_path)
