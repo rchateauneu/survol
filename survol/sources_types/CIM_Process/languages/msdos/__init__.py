@@ -5,9 +5,9 @@ Processes running MSDOS batches
 import os
 import sys
 import json
-import lib_util
 import tempfile
-from sources_types import CIM_Process
+import psutil
+import lib_util
 
 # This tells if this is a Python process, by checking if this runs a python interpreter.
 # TODO: What id a plain C program starts a Python interpreter from inside ?
@@ -21,7 +21,7 @@ def Usable(entity_type,entity_ids_arr):
     pidProc = entity_ids_arr[0]
     try:
         # Any error, no display.
-        proc_obj = CIM_Process.PsutilGetProcObjNoThrow(int(pidProc))
+        proc_obj = psutil.Process(int(pidProc))
     except:
         return False
 
@@ -31,9 +31,6 @@ def Usable(entity_type,entity_ids_arr):
     # cmd  /help
     # "C:\windows\system32\cmd.exe"
     #
-    # cmd_line = CIM_Process.PsutilProcToCmdline(proc_obj)
-    # cmdlinSplit = cmd_line.split(" ")
-    # execNam = cmdlinSplit[0]
 
     # For all of these command lines, the path is always: "C:\Windows\System32\cmd.exe"
     procName = CIM_Process.PsutilProcToName(proc_obj)
