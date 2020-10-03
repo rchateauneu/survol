@@ -39,6 +39,22 @@ class PortalsTest(unittest.TestCase):
 
         self.assertTrue(portal_graph)
 
+    @unittest.skipIf(is_platform_linux, "WMI on Windows only.")
+    def test_objtypes_wmi_main(self):
+        rdf_content = self._check_script("/survol/objtypes_wmi.py?mode=rdf")
+        objtypes_graph = rdflib.Graph().parse(data=rdf_content, format="application/rdf+xml")
+        self.assertTrue(objtypes_graph)
+
+    def test_objtypes_wbem_main(self):
+        rdf_content = self._check_script("/survol/objtypes_wbem.py?mode=rdf")
+        objtypes_graph = rdflib.Graph().parse(data=rdf_content, format="application/rdf+xml")
+        self.assertTrue(objtypes_graph)
+
+    def test_objtypes_main(self):
+        rdf_content = self._check_script("/survol/objtypes.py?mode=rdf")
+        objtypes_graph = rdflib.Graph().parse(data=rdf_content, format="application/rdf+xml")
+        self.assertTrue(objtypes_graph)
+
 
 if __name__ == '__main__':
     unittest.main()
