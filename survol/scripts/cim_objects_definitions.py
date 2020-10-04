@@ -740,14 +740,6 @@ class CIM_XmlMarshaller(object):
             objInstance.PlainToXML(fd_summary_file, subMargin)
             fd_summary_file.write("%s</%s>\n" % (margin, namClass))
 
-    @classmethod
-    def CreateMonikerKey(cls, *args):
-        # The input arguments must be in the same order as the ontology.
-        #sys.stdout.write("CreateMonikerKey %s %s %s\n"%(cls.__name__,str(cls.cim_ontology_list),str(args)))
-        mnk = cls.__name__ + "." + ",".join('%s="%s"' % (k, v) for k, v in zip(cls.cim_ontology_list, args))
-        #sys.stdout.write("CreateMonikerKey mnk=%s\n"%mnk)
-        return mnk
-
     # This object has a class name, an ontology which is an ordered list
     # of attributes names, and several attributes in the object itself.
     # This method wraps the class name and these attributes and their values,
@@ -759,6 +751,7 @@ class CIM_XmlMarshaller(object):
 
     def __repr__(self):
         mnk = self.__class__.__name__ + "." + ",".join( '%s="%s"' % (k,getattr(self,k)) for k in self.cim_ontology_list )
+        # FIXME: WHY THIS ? IT CAN ONLY BE A STRING ??
         return "%s" % mnk
 
     @staticmethod
@@ -1009,11 +1002,6 @@ class CIM_Process(CIM_XmlMarshaller):
         # In the general case, it is not possible to get the parent process,
         # because it might replay a session. So, it can only rely on the successive function calls.
         # Therefore, the parent processes must be stored before the subprocesses.
-
-        # If this process appears for the first time and there is only one other process, then it is its parent.
-        # It helps if the first vfork() is never finished, and if we did not get the main process id.
-        map_procs = G_mapCacheObjects[CIM_Process.__name__]
-        keys_procs = list(map_procs.keys())
     cim_ontology_list = ['Handle']
 
     @classmethod
@@ -1131,7 +1119,7 @@ class CIM_Process(CIM_XmlMarshaller):
     def set_command_line(self, lstCmdLine):
         # TypeError: sequence item 7: expected string, dict found
         if lstCmdLine:
-            self.CommandLine = " ".join([str(elt) for elt in lstCmdLine])
+            self.CommandLine = " ".join(map(str, lstCmdLine))
             # The command line as a list is needed by Dockerfile.
             self.m_commandList = lstCmdLine
 
@@ -1588,7 +1576,8 @@ class ObjectsContext:
         map_procs = G_mapCacheObjects[CIM_Process.__name__]
 
         if process_id != self._process_id:
-            context_process_obj_path = CIM_Process.CreateMonikerKey(self._process_id)
+            # The key is a tuple of the arguments in the order of the ontology.
+            context_process_obj_path = (self._process_id,)
 
             parent_proc_obj = map_procs[context_process_obj_path]
 
@@ -1618,7 +1607,8 @@ class ObjectsContext:
         global G_mapCacheObjects
         map_objs = G_mapCacheObjects[class_model.__name__]
 
-        obj_path = class_model.CreateMonikerKey(*ctor_args)
+        # Here, this tuple in the order of the ontology is a key in a per-class dictionary.
+        obj_path = ctor_args
         try:
             the_obj = map_objs[obj_path]
         except KeyError:
