@@ -4,6 +4,20 @@ import sys
 _is_py3 = sys.version_info >= (3,)
 _is_windows = 'win' in sys.platform
 
+_standardized_file_path_cache = dict()
+
+
+def standardized_file_path(file_path):
+    """Cached of _standardized_file_path_nocache() which is slow and often called with the same file pathes. """
+    global _standardized_file_path_cache
+    try:
+        return _standardized_file_path_cache[file_path]
+    except KeyError:
+        standard_path = _standardized_file_path_nocache(file_path)
+        _standardized_file_path_cache[file_path] = standard_path
+        return standard_path
+
+
 # Windows has two specific details with file path:
 # - They are case-insensitive but different utilities might change the case.
 # - Backslashes can be difficult to handle.
@@ -15,7 +29,7 @@ _is_windows = 'win' in sys.platform
 # /usr/bin/python => python2 => python2.7
 #
 # For example, this is needed because Sparql queries do not accept backslahes.
-def standardized_file_path(file_path):
+def _standardized_file_path_nocache(file_path):
     if _is_py3:
         if isinstance(file_path, bytes):
             file_path = file_path.decode()
