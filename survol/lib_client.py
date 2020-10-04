@@ -1013,9 +1013,10 @@ class Agent:
 
 ################################################################################
 
-# This checks that a full ontology contains a minimal subset of classes and attributes.
-# This is for testing purpose only.
 def check_ontology_graph(ontology_key, survol_agent = None):
+    """This checks that a full ontology contains a minimal subset of classes and attributes.
+    This is for testing purpose only."""
+
     import rdflib
 
     url_script = {
@@ -1026,16 +1027,13 @@ def check_ontology_graph(ontology_key, survol_agent = None):
     if survol_agent:
         # TODO: The url syntax differences between SourceLocal and SourceRemote are not convenient.
         # TODO: Remove this leading "/" slash.
-        mySource = SourceRemote(survol_agent + "/survol/" + url_script)
+        my_source = SourceRemote(survol_agent + "/survol/" + url_script)
     else:
-        mySource = SourceLocal(url_script)
-    ontologySurvol = mySource.get_content_moded(None)
-    assert isinstance(ontologySurvol, lib_util.six_binary_type)
-    INFO("Ontology=", type(ontologySurvol), ontologySurvol[:20])
+        my_source = SourceLocal(url_script)
+    ontology_survol = my_source.get_content_moded(None)
+    assert isinstance(ontology_survol, lib_util.six_binary_type)
     ontology_graph = rdflib.Graph()
-    ontoTrunc = b"".join(ontologySurvol.split(b"\n"))
-    result = ontology_graph.parse(data=ontoTrunc, format="application/rdf+xml")
-    INFO("check_ontology_graph Load OK:l=%d"%len(ontology_graph))
+    result = ontology_graph.parse(data=ontology_survol, format="application/rdf+xml")
 
     return lib_kbase.CheckMinimalRdsfOntology(ontology_graph)
 
