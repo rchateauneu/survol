@@ -22,6 +22,7 @@ from init import *
 from survol.scripts import dockit
 # FIXME: It should be on Linux only.
 from survol.scripts import linux_api_definitions
+import lib_util
 
 _remote_events_test_agent = "http://%s:%d" % (CurrentMachine, RemoteEventsTestServerPort)
 
@@ -275,19 +276,9 @@ def _rdf_file_to_triples(rdf_file):
     # http://www.primhillcomputers.com/survol#PermanentAddress
     # 192.168.1.10
 
-    # TODO: Replace this by lib_naming.ParseEntity, lib_util.SplitMoniker etc...
     def url_to_string(rdf_url):
-        subject_moniker = rdf_url.partition("xid=")[2]
-        class_name, dot_delimiter, attributes_string = subject_moniker.partition(".")
-        if attributes_string:
-            attributes_split = attributes_string.split(",")
-            attributes_partitions = (one_attribute.partition("=") for one_attribute in attributes_split)
-            attributes_dict = {
-                one_attribute[0]: one_attribute[2]
-                for one_attribute in attributes_partitions}
-        else:
-            attributes_dict = {}
-        return class_name, attributes_dict
+        url_path, entity_type, entity_id_dict = lib_util.split_url_to_entity(rdf_url)
+        return entity_type, entity_id_dict
 
     def object_to_string(rdf_url):
         if rdf_url.find("xid=") >= 0:
