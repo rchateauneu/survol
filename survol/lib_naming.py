@@ -246,15 +246,16 @@ def CalcLabel(entity_host,entity_type,entity_id,force_entity_ip_addr,filScript):
     return entity_label
 
 
+def ParseEntityUri(uri_with_mode, longDisplay=True, force_entity_ip_addr=None):
+    """Extracts the entity type and id from a URI, coming from a RDF document. This is used
+    notably when transforming RDF into dot documents.
+    The returned entity type is used for choosing graphic attributes
+    and gives more information than the simple entity type.
 
-
-# Extracts the entity type and id from a URI, coming from a RDF document. This is used
-# notably when transforming RDF into dot documents.
-# The returned entity type is used for choosing graphic attributes and gives more information than the simple entity type.
-# (labText, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri( unquote(obj) )
-# "http://192.168.0.17/yawn/GetClass/CIM_UnixProcess?url=http%3A%2F%2F192.168.0.17%3A5988&amp;amp;verify=0&amp;amp;ns=root%2Fcimv2"
-def ParseEntityUri(uriWithMode,longDisplay=True, force_entity_ip_addr = None):
-    #sys.stderr.write("ParseEntityUri uriWithMode=%s\n"%uriWithMode)
+    Example:
+    (labText, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri(the_url)
+    """
+    #sys.stderr.write("ParseEntityUri uri_with_mode=%s\n"%uri_with_mode)
 
     # Maybe there is a host name before the entity type. It can contain letters, numbers,
     # hyphens, dots etc... but no ":" or "@".
@@ -263,14 +264,14 @@ def ParseEntityUri(uriWithMode,longDisplay=True, force_entity_ip_addr = None):
 
     # In the URI, we might have the CGI parameter "&mode=json". It must be removed otherwise
     # it could be taken in entity_id, and the result of EntityToLabel() would be wrong.
-    uriWithModeClean = lib_util.UrlNoAmp(uriWithMode)
-    uri = lib_util.url_mode_replace(uriWithModeClean, "")
-    uriMode = lib_util.get_url_mode(uriWithModeClean)
+    uri_with_mode_clean = lib_util.UrlNoAmp(uri_with_mode)
+    uri = lib_util.url_mode_replace(uri_with_mode_clean, "")
+    uriMode = lib_util.get_url_mode(uri_with_mode_clean)
 
     uprs = lib_util.survol_urlparse(uri)
 
-    filScript = os.path.basename(uprs.path)
-    # sys.stderr.write("ParseEntityUri filScript=%s\n"%filScript)
+    fil_script = os.path.basename(uprs.path)
+    # sys.stderr.write("ParseEntityUri fil_script=%s\n"%fil_script)
 
     # This works for the scripts:
     # entity.py            xid=namespace/type:idGetNamespaceType
@@ -284,15 +285,15 @@ def ParseEntityUri(uriWithMode,longDisplay=True, force_entity_ip_addr = None):
 
         entity_graphic_class = entity_type
 
-        entity_label = CalcLabel(entity_host,entity_type,entity_id,force_entity_ip_addr,filScript)
+        entity_label = CalcLabel(entity_host,entity_type,entity_id,force_entity_ip_addr,fil_script)
 
         # TODO: Consider external_url_to_title, similar logic with different results.
         if longDisplay:
-            entity_label = KnownScriptToTitle(filScript,uriMode,entity_host,entity_label)
+            entity_label = KnownScriptToTitle(fil_script,uriMode,entity_host,entity_label)
 
     # Maybe an internal script, but not entity.py
     # It has a special entity type as a display parameter
-    elif uri.startswith( lib_util.uriRoot ):
+    elif uri.startswith(lib_util.uriRoot):
         # This is a bit of a special case which allows to display something if we know only
         # the type of the entity but its id is undefined. Instead of displaying nothing,
         # this attempts to display all available entities of this given type.
@@ -308,23 +309,24 @@ def ParseEntityUri(uriWithMode,longDisplay=True, force_entity_ip_addr = None):
             entity_graphic_class = "provider_script"
             entity_id = ""
 
-            entity_label = KnownScriptToTitle(filScript,uriMode)
+            entity_label = KnownScriptToTitle(fil_script,uriMode)
 
-    elif uri.split(':')[0] in [ "ftp", "http", "https", "urn", "mail" ]:
+    elif uri.split(':')[0] in ["ftp", "http", "https", "urn", "mail"]:
         # Standard URLs. Example: lib_common.NodeUrl( "http://www.google.com" )
         entity_graphic_class = ""
         entity_id = ""
         # Display the complete URL, otherwise it is not clickable.
-        entity_label = uriWithMode # uri # uri.split('/')[2]
+        entity_label = uri_with_mode # uri # uri.split('/')[2]
 
     else:
         entity_graphic_class = ""
         entity_id = "PLAINTEXTONLY"
         entity_label = UriToTitle(uprs)
         # TODO: " " are replaced by "%20". Why ? So change back.
-        entity_label = entity_label.replace("%20"," ")
+        entity_label = entity_label.replace("%20", " ")
 
-    return ( entity_label, entity_graphic_class, entity_id )
+    return (entity_label, entity_graphic_class, entity_id)
+
 
 def ParseEntityUriShort(uri):
-    return ParseEntityUri(uri,longDisplay=False,force_entity_ip_addr = None)
+    return ParseEntityUri(uri, longDisplay=False, force_entity_ip_addr=None)
