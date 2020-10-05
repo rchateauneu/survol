@@ -2251,10 +2251,10 @@ class SurvolSearchTest(unittest.TestCase):
         instance_origin = lib_client.Agent().CIM_DataFile(Name=sample_file)
 
         search_triple_store = instance_origin.find_string_from_neighbour(
-            searchString="Maecenas",
-            maxDepth=1,
-            filterInstances=None,
-            filterPredicates=None)
+            search_string="Maecenas",
+            max_depth=1,
+            filter_instances=None,
+            filter_predicates=None)
 
         results = list(search_triple_store)
 
@@ -2272,10 +2272,10 @@ class SurvolSearchTest(unittest.TestCase):
         instance_origin = lib_client.Agent().CIM_Directory(Name=sample_dir)
 
         searchTripleStore = instance_origin.find_string_from_neighbour(
-            searchString="Curabitur",
-            maxDepth=2,
-            filterInstances=None,
-            filterPredicates=None)
+            search_string="Curabitur",
+            max_depth=2,
+            filter_instances=None,
+            filter_predicates=None)
         list_triple = list(searchTripleStore)
         print("stl_list=",list_triple)
         for tpl in list_triple:
@@ -2308,10 +2308,10 @@ class SurvolSearchTest(unittest.TestCase):
         mustFind = "Hello"
 
         search_triple_store = instance_origin.find_string_from_neighbour(
-            searchString=mustFind,
-            maxDepth=3,
-            filterInstances=list_instances,
-            filterPredicates=list_predicates)
+            search_string=mustFind,
+            max_depth=3,
+            filter_instances=list_instances,
+            filter_predicates=list_predicates)
         for tpl in search_triple_store:
             print(tpl)
         # TODO: Check this
