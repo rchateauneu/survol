@@ -19,15 +19,6 @@ import entity_dirmenu_only
 
 ################################################################################
 
-try:
-    # Python 2
-    from urlparse import parse_qs
-except ImportError:
-    from urllib.parse import parse_qs
-
-
-################################################################################
-
 # A SourceBase is a Survol URL or a script which returns a graph of urls
 # of CIM objects, linked by properties. This graph can be formatted in XML-RDF,
 # in JSON, in SVG, D3 etc...
@@ -920,35 +911,26 @@ class TripleStore:
 
 ################################################################################
 
-# This receives an URL, parses it and creates a Source object.
-# It is able to detect if the URL is local or not.
-# Input examples:
-# "http://LOCAL_MODE:80/LocalExecution/sources_types/Win32_UserAccount/Win32_NetUserGetGroups.py?xid=Win32_UserAccount.Domain%3Drchateau-hp%2CName%3Drchateau"
-# "http://rchateau-HP:8000/survol/sources_types/CIM_Directory/doxygen_dir.py?xid=CIM_Directory.Name%3DD%3A"
-def script_url_to_source(callingUrl):
 
-    parse_url = lib_util.survol_urlparse(callingUrl)
-    query = parse_url.query
-
-    params = parse_qs(query)
-
-    xidParam = params['xid'][0]
-    # sys.stdout.write("script_url_to_source xidParam=%s\n"%xidParam)
-    (entity_type,entity_id,entity_host) = lib_util.ParseXid(xidParam)
-    # sys.stdout.write("script_url_to_source entity_id=%s\n"%entity_id)
-    entity_id_dict = lib_util.SplitMoniker(entity_id)
-    # sys.stdout.write("entity_id_dict=%s\n"%str(entity_id_dict))
+def script_url_to_source(calling_url):
+    """This receives an URL, parses it and creates a Source object.
+    It is able to detect if the URL is local or not.
+    Input examples:
+    "http://LOCAL_MODE:80/LocalExecution/sources_types/Win32_UserAccount/Win32_NetUserGetGroups.py?xid=Win32_UserAccount.Domain%3Dthe_machine%2CName%3Drchateau"
+    "http://the_machine:8000/survol/sources_types/CIM_Directory/doxygen_dir.py?xid=CIM_Directory.Name%3DD%3A"
+    """
+    url_path, entity_type, entity_id_dict = lib_util.split_url_to_entity(calling_url)
 
     # parse_url.path=/LocalExecution/sources_types/Win32_UserAccount/Win32_NetUserGetInfo.py
     # This is a very simple method to differentiate local from remote scripts
-    if parse_url.path.startswith(lib_util.prefixLocalExecution):
+    if url_path.startswith(lib_util.prefixLocalExecution):
         # This also chops the leading slash.
-        pathScript = parse_url.path[len(lib_util.prefixLocalExecution) + 1:]
+        pathScript = url_path[len(lib_util.prefixLocalExecution) + 1:]
         objSource = SourceLocal(pathScript,entity_type,**entity_id_dict)
 
         # Note: This should be True: parse_url.netloc.startswith("LOCAL_MODE")
     else:
-        objSource = SourceRemote(callingUrl,entity_type,**entity_id_dict)
+        objSource = SourceRemote(calling_url, entity_type, **entity_id_dict)
 
     return objSource
 
