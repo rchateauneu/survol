@@ -15,14 +15,28 @@ import atexit
 import time
 import tempfile
 import subprocess
+import multiprocessing
 
-# TODO: Maybe not needed on TravisCI
+
+def update_test_path():
+    """This loads the module from the source, so no need to install it, and no need of virtualenv."""
+    #if sys.path[0] != "../survol":
+    #    sys.path.insert(0, "../survol")
+    if "../survol" not in sys.path:
+        sys.path.append("../survol")
+
+
 if ".." not in sys.path:
     sys.path.append("..")
-if "../survol" not in sys.path:
-    sys.path.append("../survol")
+
+update_test_path()
+
 import scripts.cgiserver
+import scripts.wsgiserver
 import lib_util
+import lib_properties
+import lib_sparql
+import lib_credentials
 
 ################################################################################
 
@@ -30,7 +44,6 @@ is_platform_windows = sys.platform.startswith("win")
 is_platform_linux = sys.platform.startswith("linux")
 
 is_py3 = sys.version_info >= (3,)
-
 
 if is_platform_windows:
     import win32process
@@ -51,14 +64,15 @@ def is_travis_machine():
     """Some tests cannot be run on a Travis machine if some tools are not there."""
     return "TRAVIS" in os.environ
 
+
 # Some tests start a DOS box process. The processes application is checked.
-# windows_system32_cmd_exe = r'C:\Windows\system32\cmd.exe' if is_travis_machine() else r'C:\windows\system32\cmd.exe'
 windows_system32_cmd_exe = r'C:\Windows\system32\cmd.exe' if is_windows10 else r'C:\windows\system32\cmd.exe'
 
 windows_wow64_cmd_exe = r"C:\Windows\SysWOW64\cmd.exe"
 
 ################################################################################
-# This is our host machine and its URLs.
+
+# This is our host machine and its URLs. It is used for tests.
 
 # "vps516494.localdomain": "http://vps516494.ovh.net/Survol/survol" }[CurrentMachine]
 # Name = "vps516494.ovh.net")
@@ -68,7 +82,7 @@ SurvolWbemCimom = "http://vps516494.ovh.net:5988"
 
 ################################################################################
 
-# agent_host = "127.0.0.1"
+
 agent_host = socket.gethostname()
 CurrentMachine = agent_host.lower()
 try:
@@ -87,6 +101,7 @@ CurrentParentPid = psutil.Process().ppid()
 # The agent urls point to the Survol adhoc CGI server: "http://myhost-hp:8000"
 # The tests use different port numbers to avoid interferences between servers,
 # if port numbers are not freed etc... Problems are easier to find.
+# Port numbers are roughly associated to the type of tests.
 RemoteGeneralTestServerPort = 8000
 RemoteEventsTestServerPort = 8001
 RemoteSparqlTestServerPort = 8002
@@ -98,6 +113,7 @@ RemoteRdf1TestServerPort = 8011
 RemoteRdf2TestServerPort = 8012
 RemoteRdf3TestServerPort = 8013
 RemoteRdf4TestServerPort = 8014
+RemoteMimeTestServerPort = 8020
 
 
 # Several Survol scripts return this executable among their results, so it can be tested.
@@ -106,9 +122,9 @@ CurrentExecutable = lib_util.standardized_file_path(sys.executable)
 CurrentExecutablePath = 'CIM_DataFile.Name=%s' % CurrentExecutable
 
 
-# This is called at the end of the execution of a Survol agent created here for tests.
-# It displays the content of a log file created by this agent.
 def __dump_server_content(log_filename):
+    """This is called at the end of the execution of a Survol agent created here for tests.
+    It displays the content of a log file created by this agent."""
     sys.stdout.write("Agent log file: %s\n" % log_filename)
     try:
         agent_stream = open(log_filename)
@@ -120,8 +136,8 @@ def __dump_server_content(log_filename):
         sys.stdout.write("No agent log file:%s\n" % exc)
 
 
-# This tells if the current process is started by pytest.
 def is_pytest():
+    """This tells if the current process is started by pytest."""
     for one_arg in sys.argv:
         if one_arg.find("pytest") >= 0:
             return True
@@ -161,21 +177,15 @@ if is_platform_windows:
 
 
 def is_linux_wbem():
-    # WBEM is not available on TravisCI.
+    """WBEM is not available on TravisCI."""
     return is_platform_linux and has_wbem() and not is_travis_machine()
 
 
 def has_wbem():
-    # WBEM is not available on TravisCI.
+    """WBEM is not available on TravisCI."""
     return False
     # Temporarily disable WBEM because firewall blocks wbem port.
     return pkgutil.find_loader('pywbem')
-
-
-# This loads the module from the source, so no need to install it, and no need of virtualenv.
-def update_test_path():
-    if sys.path[0] != "../survol":
-        sys.path.insert(0, "../survol")
 
 
 def unique_temporary_path(prefix, extension):
@@ -190,14 +200,13 @@ def unique_temporary_path(prefix, extension):
 
 
 def has_credentials(credential_type):
-    import lib_credentials
     return lib_credentials.get_credentials_names(credential_type)
 
 
 ################################################################################
 
-# This defines a disk present on all platforms, for testing.
 if is_platform_linux:
+    """This defines a disk present on all platforms, for testing."""
     AnyLogicalDisk = ""
 else:
     AnyLogicalDisk = "C:"
@@ -232,8 +241,6 @@ except ImportError:
 # FIXME: ... losing characters...
 def _start_cgiserver_subprocess_windows(agent_port, current_dir):
     print("_start_cgiserver_subprocess_windows: agent_port=%d hostname=%s" % (agent_port, agent_host))
-
-    # cwd = "PythonStyle/tests", must be "PythonStyle".
 
     cgiserver_module = "survol.scripts.cgiserver"
     cgi_command_str = sys.executable + ' -c "import %s as ssc;ssc.start_server_forever(True,\'%s\',%d,\'%s\')"' % (
@@ -271,8 +278,6 @@ def _start_cgiserver_subprocess_windows(agent_port, current_dir):
 
 
 def _start_cgiserver_subprocess_portable(agent_port, current_dir):
-    import multiprocessing
-
     agent_process = multiprocessing.Process(
         target=scripts.cgiserver.start_server_forever,
         args=(True, agent_host, agent_port, current_dir))
@@ -360,10 +365,7 @@ def start_wsgiserver(agent_url, agent_port):
         response = portable_urlopen(agent_url + "/survol/entity.py?mode=json", timeout=5)
         INFO("start_wsgiserver: Using existing WSGI Survol agent")
     except:
-        import multiprocessing
         INFO("Starting test survol agent_url=%s hostnqme=%s", agent_url, agent_host)
-
-        import scripts.wsgiserver
 
         try:
             # Running the tests scripts from PyCharm is from the current directory.
@@ -403,15 +405,12 @@ def stop_wsgiserver(agent_process):
 
 ################################################################################
 
-update_test_path()
 
 # The query function from lib_sparql module, returns RDF nodes.
 # This is not very convenient to test.
 # Therefore, for tests, this is a helper function which returns dict of strings,
 # which are easier to compare.
 def __queries_entities_to_value_pairs(iter_entities_dicts):
-    import lib_properties
-
     for one_entities_dict in iter_entities_dicts:
 
         one_entities_dict_qname = {}
@@ -429,9 +428,6 @@ def __queries_entities_to_value_pairs(iter_entities_dicts):
 
 
 def query_see_also_key_value_pairs(grph, sparql_query):
-    # This is imported here so rdflib is not mandatory for all tests.
-    import lib_sparql
-
     WARNING("query_see_also_key_value_pairs")
     iter_entities_dicts = lib_sparql.QuerySeeAlsoEntities(grph, sparql_query)
     iter_dict_objects = __queries_entities_to_value_pairs(iter_entities_dicts)
@@ -445,7 +441,6 @@ def create_temporary_sqlite_filename():
     database_path = temporary_database_file.name.replace("\\", "/")
     temporary_database_file.close()
     return database_path
-
 
 
 ################################################################################
