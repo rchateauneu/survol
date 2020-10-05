@@ -9,6 +9,7 @@ import os
 import sys
 import unittest
 import rdflib
+import io
 import lib_util
 import lib_properties
 from lib_properties import pc
@@ -48,21 +49,19 @@ class RdfLocalAgentTest(unittest.TestCase):
         result_graph = self._check_script("/survol/sources_types/SMB/net_share.py?xid=.")
         self.assertTrue(len(result_graph) > 0)
 
-        # Typical SMB shares:
-        # smbshr.Id=//machine-name/IPC$
-        # smbshr.Id=//machine-name/C$
-        # smbshr.Id=//machine-name/Users
-        # smbshr.Id=//machine-name/ADMIN$
-
         shares_set = set()
         for url_subject, url_predicate, url_object in result_graph.triples((None, pc.property_smbshare, None)):
             url_path, entity_type, entity_id_dict = lib_util.split_url_to_entity(url_object)
             shares_set.add(entity_id_dict['Id'])
         print("Shares=", shares_set)
 
+        # Typical SMB shares which are found on many Windows machines:
+        # smbshr.Id=//machine-name/IPC$
+        # smbshr.Id=//machine-name/C$
+        # smbshr.Id=//machine-name/Users
+        # smbshr.Id=//machine-name/ADMIN$
         self.assertTrue( "//%s/IPC$" % lib_util.currentHostname in shares_set)
         self.assertTrue( "//%s/C$" % lib_util.currentHostname in shares_set)
-        self.assertTrue( "//%s/Users" % lib_util.currentHostname in shares_set)
 
     @unittest.skipIf(not is_platform_windows, "Windows only")
     def test_rdf_windows_resource_icons(self):
@@ -89,8 +88,8 @@ class RdfLocalAgentTest(unittest.TestCase):
         self.assertEqual(entity_id_dict, {u'GroupName': u'2', u'Name': u'C:/Windows/System32/notepad.exe'})
 
 
-@unittest.skip("Not ready yet.")
-class MimeLocalAgentTest(unittest.TestCase):
+@unittest.skipIf(not is_platform_windows, "Windows only")
+class MimeWindowsResourceIconsTest(unittest.TestCase):
     """
     Test parsing of the MIME output on a locally running agent.
     """
@@ -112,22 +111,37 @@ class MimeLocalAgentTest(unittest.TestCase):
         mime_content = mime_url_response.read()  # Py3:bytes, Py2:str
         return mime_content
 
-    @unittest.skipIf(not is_platform_windows, "Windows only")
-    def test_entity_mime(self):
-        # This file contains at least one icon.
-        # BEWARE: Ne pas utiliser RDF car on va recevoir du mime de toute facon.
+    def test_entity_mime_notepad_icon_present(self):
+        """Check the resource icon in notepad.exe"""
         file_path = "C:/Windows/System32/notepad.exe"
-        result_graph = self._check_script(
-            # "/survol/entity_mime.py?xid=win32/resource.Name=%s,GroupName=2?mode=mime:image/bmp"
-            "/survol/entity_mime.py?xid=win32/resource.Name=%s,GroupName=2?mode=mime:image/bmp"
+        mime_content = self._check_script(
+            "/survol/entity_mime.py?xid=win32/resource.Name=%s,GroupName=2&mode=mime:image/bmp"
             % file_path)
 
+        print("type(mime_content)=", type(mime_content))
 
+    @unittest.skipIf(not pkgutil.find_loader('PIL'), "PIL is needed.")
+    def test_entity_mime_notepad_icon_content(self):
+        """Check the resource icon and its content in notepad.exe"""
 
-    # http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/win_resource_icons.py?xid=CIM_DataFile.Name%3DC%3A%2F%2F%2FWindows%2FSystem32%2Fnotepad.exe
-    # http://rchateau-hp:8000/survol/entity_mime.py?xid=win32/resource.Name=C:///Windows/System32/notepad.exe,GroupName=2&amp;mode=mime:image/bmp
-    # http://rchateau-hp:8000/survol/entity.py?xid=smbshr.Id=%2F%2Frchateau-hp/IPC$
-    # http://rchateau-hp:8000/survol/sources_types/smbshr/smbshare_netshare.py?xid=smbshr.Id%3D%2F%2Frchateau-hp%2FIPC%24
+        file_path = "C:/Windows/System32/notepad.exe"
+        mime_content = self._check_script(
+            "/survol/entity_mime.py?xid=win32/resource.Name=%s,GroupName=2&mode=mime:image/bmp"
+            % file_path)
+
+        print("type(mime_content)=", type(mime_content))
+
+        import PIL.Image
+
+        # Test the image size: This icon is 256*256 pixels.
+        file_image = io.BytesIO(mime_content)
+        with PIL.Image.open(file_image) as img:
+            print("img.format=", img.format)
+            print("img.mode=", img.mode)
+            print("img.size=", img.size)
+            self.assertEqual(img.format, "BMP")
+            self.assertEqual(img.mode, "RGB")
+            self.assertEqual(img.size, (256, 256))
 
 
 if __name__ == '__main__':
