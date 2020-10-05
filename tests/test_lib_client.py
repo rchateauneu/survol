@@ -1694,8 +1694,8 @@ class SurvolRemoteTest(unittest.TestCase):
         # This raises an exception like "EntityId className=CIM_LogicalDisk. No key DeviceID"
         # because the properties are incorrect,
         with self.assertRaises(Exception):
-            mySourceInvalid = my_agent.CIM_LogicalDisk(WrongProperty=AnyLogicalDisk)
-            scriptsInvalid = mySourceInvalid.get_scripts()
+            my_source_invalid = my_agent.CIM_LogicalDisk(WrongProperty=AnyLogicalDisk)
+            scripts_invalid = my_source_invalid.get_scripts()
 
     def test_remote_instances_python_package(self):
         """This loads a specific Python package"""
@@ -1947,61 +1947,61 @@ class SurvolRabbitMQTest(unittest.TestCase):
             self.assertTrue(one_str in str_instances_set)
 
     @decorator_rabbitmq_subscription
-    def test_rabbitmq_exchanges(self,rabbitmqManager):
-        print("RabbitMQ:",rabbitmqManager)
+    def test_rabbitmq_exchanges(self, rabbitmq_manager):
+        print("RabbitMQ:", rabbitmq_manager)
 
         lst_instances = ClientObjectInstancesFromScript(
             "sources_types/rabbitmq/manager/list_exchanges.py",
             "rabbitmq/manager",
-            Url=rabbitmqManager)
+            Url=rabbitmq_manager)
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances ])
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
         print(str_instances_set)
 
         # Typical content
         for one_str in [
-            'rabbitmq/exchange.Url=%s,VHost=/,Exchange=amq.match' % rabbitmqManager,
-            'rabbitmq/exchange.Url=%s,VHost=/,Exchange=' % rabbitmqManager,
-            'rabbitmq/exchange.Url=%s,VHost=/,Exchange=amq.topic' % rabbitmqManager,
-            'rabbitmq/exchange.Url=%s,VHost=/,Exchange=amq.rabbitmq.trace' % rabbitmqManager,
-            'rabbitmq/exchange.Url=%s,VHost=/,Exchange=amq.headers' % rabbitmqManager,
-            'rabbitmq/exchange.Url=%s,VHost=/,Exchange=amq.rabbitmq.log' % rabbitmqManager,
-            'rabbitmq/exchange.Url=%s,VHost=/,Exchange=amq.fanout' % rabbitmqManager,
-            'rabbitmq/exchange.Url=%s,VHost=/,Exchange=amq.direct' % rabbitmqManager,
-            'rabbitmq/vhost.Url=%s,VHost=/' % rabbitmqManager
+            'rabbitmq/exchange.Url=%s,VHost=/,Exchange=amq.match' % rabbitmq_manager,
+            'rabbitmq/exchange.Url=%s,VHost=/,Exchange=' % rabbitmq_manager,
+            'rabbitmq/exchange.Url=%s,VHost=/,Exchange=amq.topic' % rabbitmq_manager,
+            'rabbitmq/exchange.Url=%s,VHost=/,Exchange=amq.rabbitmq.trace' % rabbitmq_manager,
+            'rabbitmq/exchange.Url=%s,VHost=/,Exchange=amq.headers' % rabbitmq_manager,
+            'rabbitmq/exchange.Url=%s,VHost=/,Exchange=amq.rabbitmq.log' % rabbitmq_manager,
+            'rabbitmq/exchange.Url=%s,VHost=/,Exchange=amq.fanout' % rabbitmq_manager,
+            'rabbitmq/exchange.Url=%s,VHost=/,Exchange=amq.direct' % rabbitmq_manager,
+            'rabbitmq/vhost.Url=%s,VHost=/' % rabbitmq_manager
         ]:
             self.assertTrue(one_str in str_instances_set)
 
     @decorator_rabbitmq_subscription
-    def test_rabbitmq_queues(self, rabbitmqManager):
-        print("RabbitMQ:", rabbitmqManager)
+    def test_rabbitmq_queues(self, rabbitmq_manager):
+        print("RabbitMQ:", rabbitmq_manager)
 
         lst_instances = ClientObjectInstancesFromScript(
             "sources_types/rabbitmq/manager/list_queues.py",
             "rabbitmq/manager",
-            Url=rabbitmqManager)
+            Url=rabbitmq_manager)
 
         # FIXME: Which queues should always be present ?
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
         print("test_rabbitmq_queues str_instances_set=", str_instances_set)
         self.assertTrue('rabbitmq/vhost.Url=localhost:12345,VHost=/' in str_instances_set)
         self.assertTrue('rabbitmq/manager.Url=localhost:12345' in str_instances_set)
 
     @decorator_rabbitmq_subscription
-    def test_rabbitmq_users(self,rabbitmqManager):
-        print("RabbitMQ:",rabbitmqManager)
+    def test_rabbitmq_users(self, rabbitmq_manager):
+        print("RabbitMQ:", rabbitmq_manager)
 
         lst_instances = ClientObjectInstancesFromScript(
             "sources_types/rabbitmq/manager/list_users.py",
             "rabbitmq/manager",
-            Url=rabbitmqManager)
+            Url=rabbitmq_manager)
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
         print(str_instances_set)
 
         # Typical content
         for one_str in [
-            'rabbitmq/user.Url=%s,User=guest' % rabbitmqManager,
+            'rabbitmq/user.Url=%s,User=guest' % rabbitmq_manager,
         ]:
             print(one_str)
             self.assertTrue(one_str in str_instances_set)
@@ -2025,7 +2025,7 @@ class SurvolOracleTest(unittest.TestCase):
                 cx_Oracle_import_ok = False
                 return None
 
-        instancesOracleDbs = ClientObjectInstancesFromScript(
+        instances_oracle_dbs = ClientObjectInstancesFromScript(
             "sources_types/Databases/oracle_tnsnames.py")
 
         # Typical content: 'addr.Id=127.0.0.1:1521', 'oracle/db.Db=XE_WINDOWS',
@@ -2035,7 +2035,7 @@ class SurvolOracleTest(unittest.TestCase):
         # Sorted in alphabetical order.
         str_instances = sorted([
             str(one_inst.Db)
-            for one_inst in instancesOracleDbs
+            for one_inst in instances_oracle_dbs
             if one_inst.__class__.__name__ == "oracle/db"])
 
         if str_instances:
@@ -2050,37 +2050,32 @@ class SurvolOracleTest(unittest.TestCase):
         return None
 
     @decorator_oracle_db
-    def test_oracle_databases(self, oracleDb):
-        """Check there is at least one connection."""
-        print("Oracle:", oracleDb)
-
-    @decorator_oracle_db
-    def test_oracle_schemas(self, oracleDb):
-        print("Oracle:", oracleDb)
+    def test_oracle_schemas(self, oracle_db):
+        print("Oracle:", oracle_db)
 
         lst_instances = ClientObjectInstancesFromScript(
             "sources_types/oracle/db/oracle_db_schemas.py",
             "oracle/db",
-            Db=oracleDb)
+            Db=oracle_db)
 
         str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         # Typical content:
         for one_str in [
-            'oracle/schema.Db=%s,Schema=SYSTEM' % oracleDb,
-            'oracle/schema.Db=%s,Schema=ANONYMOUS' % oracleDb,
-            'oracle/schema.Db=%s,Schema=SYS' % oracleDb,
+            'oracle/schema.Db=%s,Schema=SYSTEM' % oracle_db,
+            'oracle/schema.Db=%s,Schema=ANONYMOUS' % oracle_db,
+            'oracle/schema.Db=%s,Schema=SYS' % oracle_db,
         ]:
             self.assertTrue(one_str in str_instances_set)
 
     @decorator_oracle_db
-    def test_oracle_connected_processes(self, oracleDb):
-        print("Oracle:", oracleDb)
+    def test_oracle_connected_processes(self, oracle_db):
+        print("Oracle:", oracle_db)
 
         lst_instances = ClientObjectInstancesFromScript(
             "sources_types/oracle/db/oracle_db_processes.py",
             "oracle/db",
-            Db=oracleDb)
+            Db=oracle_db)
 
         str_instances_set = set([str(oneInst) for oneInst in lst_instances])
 
@@ -2091,19 +2086,19 @@ class SurvolOracleTest(unittest.TestCase):
         # 'oracle/schema.Db=XE,Schema=SYSTEM', 'oracle/session.Db=XE,Session=102'
         for one_str in [
             CurrentProcessPath,
-            'oracle/db.Db=%s' % oracleDb,
+            'oracle/db.Db=%s' % oracle_db,
             'Win32_UserAccount.Name=%s,Domain=%s' % ( CurrentUsername, CurrentMachine),
         ]:
             self.assertTrue(one_str in str_instances_set)
 
     @decorator_oracle_db
-    def test_oracle_running_queries(self, oracleDb):
-        print("Oracle:", oracleDb)
+    def test_oracle_running_queries(self, oracle_db):
+        print("Oracle:", oracle_db)
 
         lst_instances = ClientObjectInstancesFromScript(
             "sources_types/oracle/db/oracle_db_parse_queries.py",
             "oracle/db",
-            Db=oracleDb)
+            Db=oracle_db)
 
         # Typical content:
         # ['oracle/db.Db=XE_OVH', 'oracle/query.Query=ICBTRUxF... base64 ...ZGRyICA=,Db=XE_OVH']
@@ -2124,16 +2119,15 @@ class SurvolOracleTest(unittest.TestCase):
 
                 # TODO: Parse the query ? Or extracts its dependencies ?
 
-
     @decorator_oracle_db
-    def test_oracle_schema_tables(self, oracleDb):
-        print("Oracle:", oracleDb)
+    def test_oracle_schema_tables(self, oracle_db):
+        print("Oracle:", oracle_db)
 
         lst_instances = ClientObjectInstancesFromScript(
             "sources_types/oracle/schema/oracle_schema_tables.py",
             "oracle/db",
-            Db=oracleDb,
-        Schema='SYSTEM')
+            Db=oracle_db,
+            Schema='SYSTEM')
 
         str_instances_set = set([str(oneInst) for oneInst in lst_instances])
 
@@ -2141,9 +2135,9 @@ class SurvolOracleTest(unittest.TestCase):
 
         # Various tables which should always be in 'SYSTEM' namespace:
         for one_str in [
-            'oracle/table.Db=%s,Schema=SYSTEM,Table=HELP' % oracleDb,
-            #'oracle/table.Db=%s,Schema=SYSTEM,Table=REPCAT$_COLUMN_GROUP' % oracleDb,
-            #'oracle/table.Db=%s,Schema=SYSTEM,Table=MVIEW$_ADV_WORKLOAD' % oracleDb,
+            'oracle/table.Db=%s,Schema=SYSTEM,Table=HELP' % oracle_db,
+            #'oracle/table.Db=%s,Schema=SYSTEM,Table=REPCAT$_COLUMN_GROUP' % oracle_db,
+            #'oracle/table.Db=%s,Schema=SYSTEM,Table=MVIEW$_ADV_WORKLOAD' % oracle_db,
         ]:
             self.assertTrue(one_str in str_instances_set)
 
@@ -2157,8 +2151,9 @@ class SurvolOracleTest(unittest.TestCase):
             Db=oracleDb,
             Schema='SYS')
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
+        # Just print some data for information.
         print(sorted(str_instances_set)[:10])
 
         # Various tables which should always be in 'SYSTEM' namespace:
@@ -2170,13 +2165,13 @@ class SurvolOracleTest(unittest.TestCase):
             self.assertTrue(one_str in str_instances_set)
 
     @decorator_oracle_db
-    def test_oracle_view_dependencies(self, oracleDb):
+    def test_oracle_view_dependencies(self, oracle_db):
         """Dsplays dependencies of a very common view"""
 
         lst_instances = ClientObjectInstancesFromScript(
             "sources_types/oracle/view/oracle_view_dependencies.py",
             "oracle/db",
-            Db=oracleDb,
+            Db=oracle_db,
             Schema='SYS',
             View='ALL_ALL_TABLES')
 
@@ -2186,11 +2181,11 @@ class SurvolOracleTest(unittest.TestCase):
 
         # The dependencies of this view should always be the same,as it does not change often.
         for one_str in [
-            'oracle/schema.Db=%s,Schema=SYS' % oracleDb,
-            'oracle/synonym.Db=%s,Schema=PUBLIC,Synonym=ALL_ALL_TABLES' % oracleDb,
-            'oracle/view.Db=%s,Schema=SYS,View=ALL_ALL_TABLES' % oracleDb,
-            'oracle/view.Db=%s,Schema=SYS,View=ALL_OBJECT_TABLES' % oracleDb,
-            'oracle/view.Db=%s,Schema=SYS,View=ALL_TABLES' % oracleDb,
+            'oracle/schema.Db=%s,Schema=SYS' % oracle_db,
+            'oracle/synonym.Db=%s,Schema=PUBLIC,Synonym=ALL_ALL_TABLES' % oracle_db,
+            'oracle/view.Db=%s,Schema=SYS,View=ALL_ALL_TABLES' % oracle_db,
+            'oracle/view.Db=%s,Schema=SYS,View=ALL_OBJECT_TABLES' % oracle_db,
+            'oracle/view.Db=%s,Schema=SYS,View=ALL_TABLES' % oracle_db,
         ]:
             self.assertTrue(one_str in str_instances_set)
 
@@ -2202,7 +2197,7 @@ class SurvolPEFileTest(unittest.TestCase):
     def test_pefile_exports(self):
         """Tests exported functions of a DLL."""
 
-        # Very common DLL.
+        # Very common DLL on usual Windows machines.
         dll_file_name = r"C:\Windows\System32\gdi32.dll"
 
         lst_instances = ClientObjectInstancesFromScript(
@@ -2218,7 +2213,7 @@ class SurvolPEFileTest(unittest.TestCase):
                 inst_name = sources_types.linker_symbol.EntityName([one_inst.Name, one_inst.File])
                 names_instance.add(inst_name)
 
-        # Some exported functiosn which should be there.
+        # Some exported functions which should be there.
         for one_str in [
             "CreateBitmapFromDxSurface",
             "DeleteDC",
@@ -2233,13 +2228,8 @@ class SurvolPEFileTest(unittest.TestCase):
 
 class SurvolSearchTest(unittest.TestCase):
 
-    # TODO: This is broken.
-    # TODO: This is broken.
-    # TODO: This is broken.
-    # TODO: This is broken.
-    # TODO: This is broken.
+    # TODO: This feature should probably be removed.
     # TODO: Make a simpler test with a fake class and a single script.
-
     # TODO: Consider using ldspider which is a much better long-term approach.
     # TODO: Should test the individual scripts, but replace the search algorithm.
 
@@ -2271,12 +2261,12 @@ class SurvolSearchTest(unittest.TestCase):
         sample_dir = os.path.join(os.path.dirname(__file__), "SampleDir")
         instance_origin = lib_client.Agent().CIM_Directory(Name=sample_dir)
 
-        searchTripleStore = instance_origin.find_string_from_neighbour(
+        search_triple_store = instance_origin.find_string_from_neighbour(
             search_string="Curabitur",
             max_depth=2,
             filter_instances=None,
             filter_predicates=None)
-        list_triple = list(searchTripleStore)
+        list_triple = list(search_triple_store)
         print("stl_list=",list_triple)
         for tpl in list_triple:
             # One occurrence is enough for this test.
@@ -2305,10 +2295,10 @@ class SurvolSearchTest(unittest.TestCase):
             lib_properties.pc.property_directory,
         }
 
-        mustFind = "Hello"
+        must_find = "Hello"
 
         search_triple_store = instance_origin.find_string_from_neighbour(
-            search_string=mustFind,
+            search_string=must_find,
             max_depth=3,
             filter_instances=list_instances,
             filter_predicates=list_predicates)
