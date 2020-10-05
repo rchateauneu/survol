@@ -38,8 +38,10 @@ except ImportError:
 
 try:
     from urlparse import urlparse as survol_urlparse
+    from urlparse import parse_qs
 except ImportError:
     from urllib.parse import urlparse as survol_urlparse
+    from urllib.parse import parse_qs
 
 is_py3 = sys.version_info >= (3,)
 
@@ -1325,14 +1327,11 @@ def GuessDisplayMode():
 ################################################################################
 
 
-# Slight modification from  http://stackoverflow.com/questions/16710076/python-split-a-string-respect-and-preserve-quotes
-# 'Id=NT AUTHORITY\SYSTEM'         => ['Id=NT AUTHORITY\\SYSTEM']
-# 'Id="NT =\\"AUTHORITY\SYSTEM"'   => ['Id=NT AUTHORITY\\SYSTEM']
-# The input string is an entity_id: "key1=val1&key2=val2&key3=val3",
-# i.e. what comes after "xid=<class>." in an object URL.
-# This returns a dictionary of key-values.
 def SplitMoniker(xid):
-    # sys.stderr.write("SplitMoniker xid=%s\n" % xid )
+    """The input string is an entity_id: "key1=val1&key2=val2&key3=val3",
+    i.e. what comes after "xid=<class>." in an object URL.
+    This returns a dictionary of key-values.
+    """
 
     splt_lst = re.findall(r'(?:[^,"]|"(?:\\.|[^"])*")+', xid)
 
@@ -1399,6 +1398,26 @@ def Base64Decode(input_text):
     except Exception as exc:
         gblLogger.error("CANNOT DECODE: symbol=(%s):%s", input_text, str(exc))
         return input_text + ":" + str(exc)
+
+
+def split_url_to_entity(calling_url):
+    """This receives an URL and parses it.
+    Input examples:
+    http://LOCAL_MODE:80/LocalExecution/sources_types/Win32_UserAccount/Win32_NetUserGetGroups.py?xid=Win32_UserAccount.Domain%3Dthe_machine%2CName%3Drchateau"
+    "http://the_machine:8000/survol/sources_types/CIM_Directory/doxygen_dir.py?xid=CIM_Directory.Name%3DD%3A"
+    """
+
+    parse_url = survol_urlparse(calling_url)
+    query = parse_url.query
+
+    params = parse_qs(query)
+
+    xidParam = params['xid'][0]
+    (entity_type, entity_id, entity_host) = ParseXid(xidParam)
+    entity_id_dict = SplitMoniker(entity_id)
+
+    return parse_url.path, entity_type, entity_id_dict
+
 
 ################################################################################
 
