@@ -213,9 +213,11 @@ def _local_supervisor_start():
 
 
 def _local_supervisor_stop():
-    """This starts a local supervisor process."""
+    """This stops a local supervisor process."""
     global _supervisor_process
     # global _cache_xmlrpc_server_proxy
+
+    _log_supervisor_access("_local_supervisor_stop", "entry")
 
     if _supervisor_process is None:
         sys.stderr.write("_local_supervisor_stop already stopped\n")
@@ -241,10 +243,6 @@ def _local_supervisor_stop():
         del _supervisor_process
         _supervisor_process = None
 
-    #if _cache_xmlrpc_server_proxy is not None:
-    #    del _cache_xmlrpc_server_proxy
-    #    _cache_xmlrpc_server_proxy = None
-
     # TODO: Should call _xmlrpc_server_proxy.supervisor.shutdown()
 
 
@@ -252,7 +250,6 @@ def supervisor_startup():
     """This starts the supervisor process as a subprocess.
     This can be done only by web servers which are persistent.
     TODO: Check that maybe a supervisord process is already there. """
-    # global _xmlrpc_server_proxy
 
     _log_supervisor_access("supervisor_startup", "entry")
 
@@ -282,21 +279,11 @@ def supervisor_startup():
     return _supervisor_process.pid
 
 
-
 def supervisor_stop():
     global _supervisor_process
-    #global _xmlrpc_server_proxy
 
     _log_supervisor_access("supervisor_stop", "entry")
     sys.stderr.write("supervisor_stop\n")
-
-    #if _xmlrpc_server_proxy is None:
-    #    sys.stderr.write("supervisor_stop proxy already deleted\n")
-    #else:
-    #    # Stops the connection.
-    #    del _xmlrpc_server_proxy
-    #    _xmlrpc_server_proxy = None
-    #    sys.stderr.write("supervisor_stop deleting proxy\n")
 
     # TODO: In the general case, detect a global supervisor started by somethign else.
     _local_supervisor_stop()
@@ -305,14 +292,9 @@ def supervisor_stop():
 
 
 def is_supervisor_running():
-   # global _xmlrpc_server_proxy
     _log_supervisor_access("is_supervisor_running", "entry")
     message_prefix = "is_supervisor_running pid=%d " % os.getpid()
     sys.stderr.write(message_prefix + " _supervisor_process.pid=%d\n" % _supervisor_process.pid)
-    #sys.stderr.write(message_prefix + "entering _xmlrpc_error=%s\n" % _xmlrpc_error)
-    #if _xmlrpc_server_proxy is None:
-    #    raise Exception("_xmlrpc_server_proxy should be set: " + _xmlrpc_error)
-    #sys.stderr.write(message_prefix + "_xmlrpc_server_proxy=%s\n" % str(_xmlrpc_server_proxy))
 
 
     xmlrpc_server_proxy = None
@@ -362,7 +344,6 @@ def _add_and_start_program_to_group(process_name, user_command, environment_para
         'autorestart': 'false',
         'environment': environment_parameter}
 
-    #xmlrpc_server_proxy = None
     xmlrpc_server_proxy = _create_server_proxy()
 
     try:
@@ -439,7 +420,8 @@ def start_user_process(process_name, user_command, environment_parameter="", deb
         created_process_id = process_info['pid']
         _log_supervisor_access("start_user_process", "created", created_pid=created_process_id)
         if not psutil.pid_exists(created_process_id):
-            raise Exception("start_user_process: New process not successfully started.\n")
+            raise Exception("start_user_process: New process not successfully started. process_info=%s\n"
+                            % str(process_info))
     else:
         created_process_id = process_info['pid']
         _log_supervisor_access("start_user_process", "exists", created_pid=created_process_id)
@@ -478,9 +460,6 @@ def start_user_process(process_name, user_command, environment_parameter="", deb
 
 def _get_user_process_info(process_name):
     message_prefix = "_get_user_process_info pid=%d " % os.getpid()
-    #if _xmlrpc_server_proxy is None:
-    #    sys.stderr.write(message_prefix + "Proxy not set\n")
-    #    return None
     full_process_name = _survol_group_name + ":" + process_name
     _log_supervisor_access("_get_user_process_info", "entry", full_proc_name=full_process_name)
     try:
