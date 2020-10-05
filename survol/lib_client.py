@@ -359,41 +359,35 @@ def agent_to_host(agentUrl):
 # https://stackoverflow.com/questions/15247075/how-can-i-dynamically-create-derived-classes-from-a-base-class
 
 class BaseCIMClass(object):
-    def __init__(self,agentUrl, entity_id, kwargsOntology):
-        DEBUG("BaseCIMClass.__init__ agentUrl=%s %s",agentUrl,entity_id)
-        self.m_agent_url = agentUrl # If None, this is a local instance.
+    def __init__(self, agent_url, entity_id, kwargs_ontology):
+        self.m_agent_url = agent_url # If None, this is a local instance.
         self.m_entity_id = entity_id
         # The values are stored in three ways:
         # - In the URL.
         # - As attributes of the class instance.
         # - As a dictionary of key-value pairs as a reference.
         # This is costly but avoids extra conversions.
-        self.m_key_value_pairs = kwargsOntology
+        self.m_key_value_pairs = kwargs_ontology
 
     # Maybe this object is already in the cache ?
-    def __new__(cls, agentUrl, className, **kwargsOntology):
+    def __new__(cls, agent_url, class_name, **kwargs_ontology):
 
-        entity_id = lib_util.KWArgsToEntityId(className, **kwargsOntology)
-        if agentUrl:
-            hostAgent = agent_to_host(agentUrl)
-            instanceKey = hostAgent + "+++" + entity_id
+        entity_id = lib_util.KWArgsToEntityId(class_name, **kwargs_ontology)
+        if agent_url:
+            host_agent = agent_to_host(agent_url)
+            instance_key = host_agent + "+++" + entity_id
         else:
-            instanceKey = "NO_AGENT" + "+++" + entity_id
+            instance_key = "NO_AGENT" + "+++" + entity_id
 
         # TODO: The key to this class instance must include the host associated to the agent.
         try:
-            cacheInstance = cls.m_instances_cache[instanceKey]
-            DEBUG("BaseCIMClass.__new__ %s is IN the cache instanceKey=",instanceKey)
-            return cacheInstance
+            cache_instance = cls.m_instances_cache[instance_key]
+            return cache_instance
         except KeyError:
-            DEBUG("BaseCIMClass.__new__ %s is NOT in the cache instanceKey=",instanceKey)
-            # newInstance = super(ClassA, cls).__new__(cls, agentUrl, **kwargsOntology)
-            #DEBUG("cls=%s kwargs=%s",cls.__name__,str(kwargs))
 
-            newInstance = super(BaseCIMClass, cls).__new__(cls)
-            cls.m_instances_cache[instanceKey] = newInstance
-            return newInstance
-
+            new_instance = super(BaseCIMClass, cls).__new__(cls)
+            cls.m_instances_cache[instance_key] = new_instance
+            return new_instance
 
     # TODO: This could be __repr__ also.
     def __str__(self):
@@ -435,50 +429,52 @@ class BaseCIMClass(object):
     # This is much faster than using the URL of a local server.
     # Also: Such a server is not necessary.
     def __get_scripts_local(self):
-        listScripts = []
+        list_scripts = []
 
         # This function is called for each script which applies to the given entity.
         # It receives a triplet: (subject,property,object) and the depth in the tree.
         # Here, this simply stores the scripts in a list. The depth is not used yet.
-        def CallbackGrphAdd( trpl, depthCall ):
-            #sys.stdout.write("CallbackGrphAdd:%s %d\n"%(str(trpl),depthCall))
-            aSubject,aPredicate,anObject = trpl
-            if aPredicate == pc.property_script:
+        def CallbackGrphAdd(trpl, depth_call):
+            a_subject, a_predicate, an_object = trpl
+            if a_predicate == pc.property_script:
                 # Directories of scripts are also labelled with the same predicate
                 # although they are literates and not urls.
-                if not lib_kbase.IsLiteral(anObject):
-                    listScripts.append( anObject )
-                    #sys.stdout.write("CallbackGrphAdd: anObject=%s %s\n"%(str(type(anObject)),str(anObject)))
+                if not lib_kbase.IsLiteral(an_object):
+                    list_scripts.append(an_object)
 
-        flagShowAll = False
+        flag_show_all = False
 
         # Beware if there are subclasses.
         entity_type = self.__class__.__name__
         entity_host = None # To start with
-        rootNode = None # The top-level is script is not necessary.
+        root_node = None # The top-level is script is not necessary.
 
-        #sys.stdout.write("lib_util.gblTopScripts=%s\n"%lib_util.gblTopScripts)
+        entity_dirmenu_only.DirToMenu(
+            CallbackGrphAdd,
+            root_node,
+            entity_type,
+            self.m_entity_id,
+            entity_host,
+            flag_show_all)
 
-        entity_dirmenu_only.DirToMenu(CallbackGrphAdd,rootNode,entity_type,self.m_entity_id,entity_host,flagShowAll)
-
-        listSources = [ script_url_to_source(oneScr) for oneScr in listScripts]
-        return listSources
+        list_sources = [script_url_to_source(one_scr) for one_scr in list_scripts]
+        return list_sources
 
     # This returns the set of words which describes an instance and allows to compare it to other instances.
     def get_instance_bag_of_words(self):
         # TODO: And the host ?
-        bagOfWords = set(self.__class__.__name__)
+        bag_of_words = set(self.__class__.__name__)
 
         # This is the minimal set of words.
-        dictIds = lib_util.SplitMoniker( self.m_entity_id )
-        for keyId in dictIds:
-            bagOfWords.add(keyId)
-            valId = dictIds[keyId]
-            bagOfWords.add(valId)
+        dict_ids = lib_util.SplitMoniker(self.m_entity_id)
+        for key_id in dict_ids:
+            bag_of_words.add(key_id)
+            val_id = dict_ids[key_id]
+            bag_of_words.add(val_id)
 
         # TODO: Call AddInfo()
 
-        return bagOfWords
+        return bag_of_words
 
     # This returns an iterator.
     # TODO: This will be able to return elements being calculated by sub-processes.
@@ -495,11 +491,11 @@ class BaseCIMClass(object):
     #
     # Searching for an instance is very similar as long as it has a bag of words.
     #
-    def find_string_from_neighbour(self,searchString,maxDepth,filterInstances,filterPredicates):
+    def find_string_from_neighbour(self, search_string, max_depth, filter_instances, filter_predicates):
         # Heuristics and specialization per class.
 
         # TODO: This is very raw...
-        targetBagOfWords = set(searchString)
+        target_bag_of_words = set(search_string)
 
         # TODO: Ponderation of words ? With < global dictionary of number of occurrences of each word.
         # TODO: Maybe minimal bag of words ?
@@ -519,7 +515,7 @@ class BaseCIMClass(object):
                 self.m_current_distance = currDist
                 self.m_current_depth = currDepth
                 self.m_words_bag = wordsBag
-                self.m_estimation_to_target = BagOfWordsToEstimatedDistance(wordsBag,targetBagOfWords)
+                self.m_estimation_to_target = BagOfWordsToEstimatedDistance(wordsBag, target_bag_of_words)
 
             def __lt__(selfInstance, otherInstance):
                 """This is for the heap priority queue when walking on the triplestores graph.
@@ -540,7 +536,7 @@ class BaseCIMClass(object):
             def __str__(self):
                 return str(self.m_url_script) + " (Est=%d, depth=%d)" % (self.m_estimation_to_target,self.m_current_depth)
 
-        if filterInstances and self in filterInstances:
+        if filter_instances and self in filter_instances:
             INFO("Avoiding instance:%s",self)
             return
 
@@ -565,7 +561,7 @@ class BaseCIMClass(object):
                 heapq.heappush( priorityQueue, anEdge)
 
 
-        fill_heap_with_instance_scripts( self, 0, 0 )
+        fill_heap_with_instance_scripts(self, 0, 0)
 
         # Search in the instance based on a specific function.
         # If found, add to the list of results.
@@ -588,11 +584,11 @@ class BaseCIMClass(object):
 
             INFO("Selecting edge:%s",bestEdge)
 
-            if currDepth <= maxDepth:
+            if currDepth <= max_depth:
                 INFO("bestEdge.m_url_script=%s bestEdge.m_node_instance=%s",bestEdge.m_url_script,bestEdge.m_node_instance)
                 lib_common.enable_error_message(False)
 
-                # TODO: Use filterPredicates
+                # TODO: Use filter_predicates
                 try:
                     tripleStore = bestEdge.m_url_script.get_triplestore()
                 except Exception as exc:
@@ -602,7 +598,7 @@ class BaseCIMClass(object):
                 if tripleStore is None:
                     continue
 
-                tripleStoreMatch = tripleStore.get_matching_strings_triples(searchString)
+                tripleStoreMatch = tripleStore.get_matching_strings_triples(search_string)
                 for oneTriple in tripleStoreMatch:
                     yield oneTriple
 
@@ -616,14 +612,14 @@ class BaseCIMClass(object):
                     # TODO: whereas the solution could be quite close.
                     #
                     # TODO: Give a high cost when a node is on a remote machine.
-                    lstInstances = tripleStore.get_connected_instances(bestEdge.m_node_instance,filterPredicates)
+                    lstInstances = tripleStore.get_connected_instances(bestEdge.m_node_instance, filter_predicates)
                 except Exception as ex:
                     ERROR("find_string_from_neighbour: %s",ex)
                     raise
                     continue
                 lib_common.enable_error_message(True)
                 for oneInstance in lstInstances:
-                    if filterInstances and oneInstance in filterInstances:
+                    if filter_instances and oneInstance in filter_instances:
                         INFO("Avoiding instance:%s",oneInstance)
                         continue
 
@@ -641,7 +637,6 @@ class BaseCIMClass(object):
                             oneInstance.m_current_depth = currDepth
                     except AttributeError:
                         fill_heap_with_instance_scripts( oneInstance, currDistance, currDepth )
-
 
 
 def CIM_class_factory_no_cache(className):
