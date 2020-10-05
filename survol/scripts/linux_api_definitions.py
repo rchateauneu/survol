@@ -21,100 +21,106 @@ else:
 
 ################################################################################
 
-# Parsing of the arguments of the systems calls printed by strace and ltrace.
-# This starts immediately after an open parenthesis or bracket.
-# It returns an index on the closing parenthesis, or equal to the string length.
-# This is called for each line and is on the critical path.
-def parse_call_arguments(strArgs, ixStart = 0):
-    lenStr = len(strArgs)
 
-    theResult = []
+def parse_call_arguments(str_args, ix_start=0):
+    """Parsing of the arguments of the systems calls printed by strace and ltrace.
+    This starts immediately after an open parenthesis or bracket.
+    It returns an index on the closing parenthesis, or equal to the string length.
+    This is called for each line and is on the critical path."""
+    len_str = len(str_args)
+
+    the_result = []
     finished = False
-    inQuotes = False
-    levelParent = 0
-    isEscaped = False
-    while ixStart < lenStr and strArgs[ixStart] == ' ': ixStart += 1
-    ixCurr = ixStart
+    in_quotes = False
+    level_parent = 0
+    is_escaped = False
+    while ix_start < len_str and str_args[ix_start] == ' ':
+        ix_start += 1
+    ix_curr = ix_start
 
-    ixUnfinished = strArgs.find("<unfinished ...>",ixStart)
-    if ixUnfinished >= 0:
-        lenStr = ixUnfinished
+    ix_unfinished = str_args.find("<unfinished ...>", ix_start)
+    if ix_unfinished >= 0:
+        len_str = ix_unfinished
 
-    #hasOctal = False
-    while (ixCurr < lenStr) and not finished:
+    while (ix_curr < len_str) and not finished:
 
-        aChr = strArgs[ixCurr]
-        ixCurr += 1
+        a_chr = str_args[ix_curr]
+        ix_curr += 1
 
-        if isEscaped:
-            isEscaped = False
+        if is_escaped:
+            is_escaped = False
             continue
 
-        if aChr == '\\':
+        if a_chr == '\\':
             # TODO: This might be an octal number as in ltrace.
-            #if (ixCurr == lenStr) or (strArgs[ixCurr] != '0'):
-            isEscaped = True
+            is_escaped = True
             continue
 
-        if aChr == '"':
+        if a_chr == '"':
             # TODO: ltrace does not escape double-quotes:
             #  "\001$\001$\001\026\001"\0015\001\n\001\r\001\r\001\f\001(\020",
             # "read@SYS(3, "" + str(row) + "\\n")\n\n", 4096)"
-            inQuotes = not inQuotes
+            in_quotes = not in_quotes
             continue
 
-        if inQuotes:
+        if in_quotes:
             continue
 
         # This assumes that [] and {} are paired by strace so no need to check parity.
-        if aChr in '[{':
-            if ixCurr == ixStart +1:
-                objToAdd, ixStart = parse_call_arguments(strArgs, ixCurr)
-                theResult.append( objToAdd )
-                while ixStart < lenStr and strArgs[ixStart] in ' ,': ixStart += 1
-                ixCurr = ixStart
+        if a_chr in '[{':
+            if ix_curr == ix_start +1:
+                obj_to_add, ix_start = parse_call_arguments(str_args, ix_curr)
+                the_result.append( obj_to_add )
+                while ix_start < len_str and str_args[ix_start] in ' ,':
+                    ix_start += 1
+                ix_curr = ix_start
                 continue
-            levelParent += 1
-        elif aChr == '(':
-            levelParent += 1
-        elif aChr in ')]}':
-            levelParent -= 1
-            if levelParent == -1:
+            level_parent += 1
+        elif a_chr == '(':
+            level_parent += 1
+        elif a_chr in ')]}':
+            level_parent -= 1
+            if level_parent == -1:
                 finished = True
-                if ixCurr == ixStart +1:
+                if ix_curr == ix_start +1:
                     continue
             else:
                 continue
 
-        if (aChr == ',' and levelParent == 0) or finished :
-            while ixStart < lenStr and strArgs[ixStart] in ' "': ixStart += 1
-            ixEnd = ixCurr-2
-            while strArgs[ixEnd] == '"' and ixStart <= ixEnd: ixEnd -= 1
+        if (a_chr == ',' and level_parent == 0) or finished:
+            while ix_start < len_str and str_args[ix_start] in ' "':
+                ix_start += 1
+            ix_end = ix_curr-2
+            while str_args[ix_end] == '"' and ix_start <= ix_end:
+                ix_end -= 1
 
-            argClean = strArgs[ixStart:ixEnd + 1]
+            arg_clean = str_args[ix_start:ix_end + 1]
             # Special case due to truncated strings.
             # TODO: Should we truncate ? If read()/write'), we know what the length should be."
-            if argClean.endswith('"...'):
-                argClean = argClean[:-4] + "..."
+            if arg_clean.endswith('"...'):
+                arg_clean = arg_clean[:-4] + "..."
 
-            theResult.append( argClean )
+            the_result.append(arg_clean)
 
-            while ixCurr < lenStr and strArgs[ixCurr] == ' ': ixCurr += 1
-            ixStart = ixCurr
+            while ix_curr < len_str and str_args[ix_curr] == ' ':
+                ix_curr += 1
+            ix_start = ix_curr
 
-    if (ixStart < lenStr) and not finished:
-        while ixStart < lenStr and strArgs[ixStart] in ' "': ixStart += 1
-        ixEnd = lenStr-1
-        while strArgs[ixEnd] in ',)]} "' and ixStart <= ixEnd: ixEnd -= 1
+    if (ix_start < len_str) and not finished:
+        while ix_start < len_str and str_args[ix_start] in ' "':
+            ix_start += 1
+        ix_end = len_str-1
+        while str_args[ix_end] in ',)]} "' and ix_start <= ix_end:
+            ix_end -= 1
 
-        argClean = strArgs[ixStart:ixEnd + 1]
+        arg_clean = str_args[ix_start:ix_end + 1]
         # Special case due to truncated strings.
         # TODO: Should we truncate ? If read()/write'), we know what the length should be."
-        if argClean.endswith('"...'):
-            argClean = argClean[:-4] + "..."
-        theResult.append( argClean )
+        if arg_clean.endswith('"...'):
+            arg_clean = arg_clean[:-4] + "..."
+        the_result.append(arg_clean)
 
-    return theResult,ixCurr
+    return the_result, ix_curr
 
 ################################################################################
 
@@ -565,7 +571,6 @@ class BatchLetBase(my_with_metaclass(BatchMeta)):
             # Signal the error once only.
             self.invalid_hexadecimal_pathnames.add(pathName)
             raise Exception("Invalid hexadecimal pathname:%s" % pathName)
-        # return cim_objects_definitions.ToObjectPath_CIM_DataFile(pathName, self.m_core.m_pid)
         return self.cim_context_core().ToObjectPath_CIM_DataFile(pathName)
 
     def _strace_stream_to_file(self, strmStr):
