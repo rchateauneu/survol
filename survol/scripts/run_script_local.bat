@@ -22,7 +22,24 @@ for /f "tokens=1,2 delims=?" %%a in ("%SCRIPT_URL%") do (
 )
 @echo on
 
+
+@REM Usage example:
+@REM survol\scripts\run_script_local.bat survol\sources_types\enumerate_CIM_Process.py
+
 @echo BEFORE_QM=%BEFORE_QM%
 @echo AFTER_QM=%AFTER_QM%
 
-set SCRIPT_NAME=%BEFORE_QM%&set "QUERY_STRING=%AFTER_QM%&mode=daemon"&set PYTHONPATH=survol&py -2.7 %BEFORE_QM%
+@REM set SCRIPT_NAME=%BEFORE_QM%&set "QUERY_STRING=%AFTER_QM%&mode=daemon"&set PYTHONPATH=survol&py -2.7 %BEFORE_QM%
+
+@REM Preferred output mode is probably JSON or RDF because the overhead is very small.
+@REM set SCRIPT_NAME=%BEFORE_QM%&set "QUERY_STRING=%AFTER_QM%&mode=rdf"&set PYTHONPATH=survol&py -2.7 %BEFORE_QM%
+
+@REM Profiling a script:
+@REM https://docs.python.org/3/library/profile.html
+@REM python -m cProfile [-o output_file] [-s sort_order] (-m module | myscript.py)
+
+set SCRIPT_NAME=%BEFORE_QM%&set "QUERY_STRING=%AFTER_QM%&mode=rdf"&set PYTHONPATH=survol&py -2.7 -m cProfile -s cumulative %BEFORE_QM%
+
+@REM Linux only.
+@REM py -2.7 -m cProfile -s cumulative -m pytest tests/test_dockit.py::ReplaySessionsTest::test_replay_all_trace_files
+
