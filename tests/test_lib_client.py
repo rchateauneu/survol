@@ -10,7 +10,6 @@ import os
 import re
 import time
 import socket
-import platform
 import pkgutil
 
 from init import *
@@ -225,7 +224,7 @@ class SurvolLocalTest(unittest.TestCase):
 
         matching_triples = triple_grep.get_matching_strings_triples("[Pp]ellentesque")
 
-        lst_strings_only = sorted([trpObj.value for trpSubj, trpPred, trpObj in matching_triples])
+        lst_strings_only = sorted([trp_obj.value for trp_subj, trp_pred, trp_obj in matching_triples])
 
         assert(lst_strings_only == [
             u'Pellentesque;14;94',
@@ -234,7 +233,7 @@ class SurvolLocalTest(unittest.TestCase):
             u'pellentesque;10;66',
             u'pellentesque;14;101'])
 
-    @unittest.skipIf(not pkgutil.find_loader('win32net'), "test_local_groups_local_scripts: Cannot import win32net.")
+    @unittest.skipIf(not pkgutil.find_loader('win32net'), "test_local_groups_local_scripts needs win32net.")
     def test_local_groups_local_scripts(self):
         """Loads the scripts of instances displayed by an initial script"""
 
@@ -255,7 +254,7 @@ class SurvolLocalTest(unittest.TestCase):
             for one_script in list_scripts:
                 print("        %s" % one_script)
 
-    @unittest.skipIf(not pkgutil.find_loader('win32service'), "Cannot import win32service. test_scripts_of_local_instance not run.")
+    @unittest.skipIf(not pkgutil.find_loader('win32service'), "test_scripts_of_local_instance needs win32service.")
     def test_scripts_of_local_instance(self):
         """This loads scripts of a local instance"""
 
@@ -276,9 +275,9 @@ class SurvolLocalTest(unittest.TestCase):
         self.assertEqual(list_scripts[0].m_script, "sources_types/Win32_Service/service_dependencies.py")
 
     def test_instances_cache(self):
-        instance_a = lib_client.Agent().CIM_Directory( Name="C:/Windows")
-        instance_b = lib_client.Agent().CIM_Directory( Name="C:/Windows")
-        instance_c = lib_client.create_CIM_class(None,"CIM_Directory",Name="C:/Windows")
+        instance_a = lib_client.Agent().CIM_Directory(Name="C:/Windows")
+        instance_b = lib_client.Agent().CIM_Directory(Name="C:/Windows")
+        instance_c = lib_client.create_CIM_class(None, "CIM_Directory", Name="C:/Windows")
         if isVerbose:
             sys.stdout.write("Class=%s\n" % instance_c.__class__.__name__)
             sys.stdout.write("Module=%s\n" % instance_c.__module__)
@@ -307,7 +306,7 @@ class SurvolLocalTest(unittest.TestCase):
 
         matching_triples = triple_sql_queries.get_all_strings_triples()
 
-        lst_queries_only = sorted( matching_triples )
+        lst_queries_only = sorted(matching_triples)
 
         if isVerbose:
             print("lst_queries_only:",lst_queries_only)
