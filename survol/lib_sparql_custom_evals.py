@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import os
 import sys
+import six
 import psutil
 import rdflib
 # Probably needed to force rdflib to load its plugins ?
@@ -703,7 +704,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
 
     def class_keys(self):
         wmi_class_keys = _wmi_load_ontology.classes_map[self.m_class_name]["class_keys_list"]
-        assert all([isinstance(one_class_key, lib_util.six_text_type) for one_class_key in wmi_class_keys])
+        assert all([isinstance(one_class_key, six.text_type) for one_class_key in wmi_class_keys])
         return wmi_class_keys
 
     def SelectWmiObjectFromProperties(self, graph, variables_context, filtered_where_key_values):

@@ -9,6 +9,7 @@ from lib_util import UrlToSvg
 import lib_properties
 from lib_properties import pc
 import sys
+import six
 import time
 import cgi
 import re
@@ -392,7 +393,7 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 					# https://stackoverflow.com/questions/9942594/unicodeencodeerror-ascii-codec-cant-encode-character-u-xa0-in-position-20
 					subjObj.m_info_list.append( obj.value.encode('utf-8') )
 			else:
-				if isinstance(obj.value, lib_util.six_integer_types) or isinstance(obj.value, lib_util.six_string_types):
+				if isinstance(obj.value, six.integer_types) or isinstance(obj.value, six.string_types):
 					subjObj.m_info_dict[propNam] = obj.value
 				else:
 					# If the value cannot be serializable to JSON.

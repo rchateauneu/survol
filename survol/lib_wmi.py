@@ -372,7 +372,7 @@ def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
             # If defined, WMI clients can display the description string to users.
             klassDescr = theCls.Qualifiers_("Description")
             # Beware, klassDescr is of type "instance".
-            strKlassDescr = lib_util.six_text_type(klassDescr)
+            strKlassDescr = six.text_type(klassDescr)
 
             # This might be a value with broken HTML tags such as:
             # "CIM_DataFile is a type ... <B>The behavior ... e returned.<B>"
@@ -382,7 +382,7 @@ def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
 
             if withProps:
                 for propObj in theCls.Properties_:
-                    propDsc = lib_util.six_text_type(propObj.Qualifiers_("Description"))
+                    propDsc = six.text_type(propObj.Qualifiers_("Description"))
 
                     # Properties of different origins should not be mixed.
                     # Prefixes the property with a dot, so sorting displays it at the end.
@@ -510,7 +510,7 @@ def ExtractWmiOntologyLocal():
         if theCls:
             try:
                 textDsc = theCls.Qualifiers_("Description")
-                text_descr = lib_util.six_text_type(textDsc)
+                text_descr = six.text_type(textDsc)
                 # pywintypes.com_error: (-2147352567, 'Exception occurred.', (0, u'SWbemQualifierSet', u'Not found ', None, 0, -2147217406), None)
             except pywintypes.com_error:
                 pass
