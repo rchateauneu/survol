@@ -29,7 +29,9 @@ import lib_sparql
 import lib_util
 import lib_properties
 import lib_kbase
-import lib_wbem
+
+if pkgutil.find_loader('pywbem'):
+    import lib_wbem
 
 import lib_sparql_custom_evals
 
@@ -47,8 +49,10 @@ class CUSTOM_EVALS_WBEM_Base_Test(unittest.TestCase):
             del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_function_wbem']
 
 ################################################################################
+
+
+@unittest.skipIf(not is_linux_wbem(), "WBEM not on this machine. Test skipped.")
 class SparqlCallWbemTest(CUSTOM_EVALS_WBEM_Base_Test):
-    @unittest.skipIf(not is_linux_wbem(), "WBEM not on this machine. Test skipped.")
     def test_wbem_all_processes(self):
         sparql_query ="""
             SELECT ?the_pid
@@ -61,7 +65,6 @@ class SparqlCallWbemTest(CUSTOM_EVALS_WBEM_Base_Test):
         query_result = rdflib_graph.query(sparql_query)
         print(query_result)
 
-    @unittest.skipIf(not is_linux_wbem(), "WBEM not on this machine. Test skipped.")
     def test_wbem_all_computers(self):
         sparql_query ="""
             SELECT ?computer_name
@@ -74,7 +77,6 @@ class SparqlCallWbemTest(CUSTOM_EVALS_WBEM_Base_Test):
         query_result = rdflib_graph.query(sparql_query)
         print(query_result)
 
-    @unittest.skipIf(not is_linux_wbem(), "WBEM not on this machine. Test skipped.")
     def test_server_remote_wbem(self):
         # This selects all processes on the remote machine, as seen by WBEM.
         sparql_query = """
@@ -86,7 +88,7 @@ class SparqlCallWbemTest(CUSTOM_EVALS_WBEM_Base_Test):
               ?url_proc survol:Caption ?caption .
               ?url_proc rdf:type survol:CIM_Process .
             }
-            """ % (survol_namespace)
+            """ % survol_namespace
         rdflib_graph = rdflib.Graph()
         query_result = rdflib_graph.query(sparql_query)
         print(query_result)
