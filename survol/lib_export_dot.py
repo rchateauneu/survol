@@ -2,6 +2,7 @@ import sys
 import json
 import re
 import collections
+import six
 
 import lib_exports
 import lib_kbase
@@ -366,7 +367,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
         dictCollapsedSubjectsToObjectLists = dict_props_collapsed_subjects_to_object_lists[propNam]
         logfil.write( TimeStamp()+" Rdf2Dot: dictCollapsedSubjectsToObjectLists=%d.\n" % ( len( dictCollapsedSubjectsToObjectLists ) ) )
 
-        for subjUrl, nodLst in lib_util.six_iteritems(dictCollapsedSubjectsToObjectLists):
+        for subjUrl, nodLst in six.iteritems(dictCollapsedSubjectsToObjectLists):
             subjNam = _rdf_node_to_dot_label(subjUrl)
 
             subjNamTab = CollapsedLabel(propNam,subjNam)
@@ -490,7 +491,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
                             # in the same host, so there is no need to display a long label.
                             val_title = lib_naming.ParseEntityUriShort( val )[0]
                             # This could probably be replaced by "str"
-                            assert isinstance(val_title, (lib_util.six_text_type, lib_util.six_binary_type))
+                            assert isinstance(val_title, (six.text_type, six.binary_type))
 
                             # There might be non-ascii characters such as accents etc...
                             try:
@@ -612,7 +613,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
     logfil.write( TimeStamp()+" Rdf2Dot: Display remaining nodes. dict_rdf2_dot=%d\n" % len(dict_rdf2_dot) )
 
     # Now, display the normal nodes, which are not displayed in tables.
-    for objRdfNode, objLabel in lib_util.six_iteritems(dict_rdf2_dot):
+    for objRdfNode, objLabel in six.iteritems(dict_rdf2_dot):
         # TODO: Avoids this lookup.
         if objLabel in dict_collapsed_object_labels_to_subject_labels :
             continue
