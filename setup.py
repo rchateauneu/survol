@@ -45,7 +45,7 @@ class InstallCommand(install):
         self.port = 24680 # TODO: This is not used yet.
 
         # By default, cgiserver will pick its files from the Python installation directory,
-        # and this is acceptable because their are part of the same package.
+        # and this is acceptable because they are part of the same package.
 
         # http://setuptools.readthedocs.io/en/latest/setuptools.html#automatic-script-creation
         # For the default destination of HTML pages, see also "pkg_resources" and the likes:
@@ -128,7 +128,10 @@ def package_files(directory):
             paths.append(os.path.join('..', path, filename))
     return paths
 
+# HTML and Javascript files for the D3 interface.
 extra_files = package_files('survol/www')
+# This file is needed for the events generators processes, started by the package supervisor.
+extra_files += ['survol/scripts/supervisord.conf']
 
 # The zip archive contains directories: docs, survol and tests.
 
@@ -143,7 +146,7 @@ with open('README.txt') as readme_file:
 setup(
     name='survol',
     version=__version__,
-    description='Understanding legacy applications',
+    description='Exploring legacy systems',
     long_description=README,
     author='Primhill Computers',
     author_email='contact@primhillcomputers.com',
@@ -163,7 +166,7 @@ setup(
         'install_lib': InstallLibCommand,
     },
 
-    # scripts=['cgiserver.py','wsgiserver.py'],
+    scripts=['cgiserver.py', 'wsgiserver.py'],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
