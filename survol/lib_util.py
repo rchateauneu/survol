@@ -12,6 +12,7 @@ if os.getenv("SERVER_SOFTWARE"):
 
 import re
 import sys
+import six
 import cgi
 import time
 import socket
@@ -165,28 +166,12 @@ except ImportError:
 if is_py3:
     def six_iteritems(array):
             return array.items()
-
-    def six_u(a_str):
-        return a_str
-
-    six_string_types = str,
-    six_integer_types = int,
-    six_text_type = str
-    six_binary_type = bytes
 else:
     def six_iteritems(array):
         return array.iteritems()
 
-    def six_u(a_str):
-        return unicode(a_str.replace(r'\\', r'\\\\'), "unicode_escape")
-
-    six_string_types = basestring,
-    six_integer_types = (int, long)
-    six_text_type = unicode
-    six_binary_type = str
-
 # Add all usual Python types.
-scalar_data_types = six_string_types + (six_text_type, six_binary_type, float, bool) + six_integer_types
+scalar_data_types = six.string_types + (six.text_type, six.binary_type, float, bool) + six.integer_types
 
 ################################################################################
 
