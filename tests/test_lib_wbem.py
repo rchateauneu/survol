@@ -14,7 +14,8 @@ from init import *
 update_test_path()
 
 # This is what we want to test.
-import lib_wbem
+if pkgutil.find_loader('pywbem'):
+    import lib_wbem
 import lib_properties
 
 ################################################################################
@@ -39,12 +40,8 @@ def setUpModule():
     callback_object = lib_wbem.WbemSparqlCallbackApi()
 
 
-# This is shared by all tests. This class contains all the methods needed
-# to execute a Spqral query in a CIM-like context.
-#callback_object = lib_wbem.WbemSparqlCallbackApi()
-
+@unittest.skipIf(not is_linux_wbem(), "No WBEM.")
 class LibWbemTest(unittest.TestCase):
-    @unittest.skipIf(not is_linux_wbem(), "No WBEM.")
     def test_local_ontology(self):
         # This test can run only if the local machine has a WBEM server.
         map_classes, map_attributes = lib_wbem.ExtractWbemOntology()
@@ -56,8 +53,6 @@ class LibWbemTest(unittest.TestCase):
         self.assertTrue("Name" in map_attributes)
         self.assertTrue("Caption" in map_attributes)
 
-    @unittest.skipIf(is_travis_machine(), "Test is too slow for Travis")
-    @unittest.skipIf(not has_wbem(), "pywbem cannot be imported. test_remote_ontology not executed.")
     def test_remote_ontology(self):
         """Very slow test: It displays the entire list of classes and their properties."""
         # In contrast to another test which remotely connect to a Survol agent,
@@ -69,14 +64,12 @@ class LibWbemTest(unittest.TestCase):
         self.assertTrue( "CIM_Process" in map_classes)
         self.assertTrue("Handle" in map_attributes)
 
-    @unittest.skipIf(not has_wbem(), "pywbem cannot be imported. test_remote_ontology not executed.")
     def test_remote_namespaces(self):
         """At least the defaultnamespace must be there."""
         wbem_connection = lib_wbem.WbemConnection(SurvolWbemCimom)
         namespaces_dict = lib_wbem.EnumNamespacesCapabilities(wbem_connection)
         self.assertTrue("root/cimv2" in namespaces_dict)
 
-    @unittest.skipIf(not is_linux_wbem(), "WBEM not usable here")
     def test_sparql_callback_select_current_process(self):
         filtered_where_key_values = {
             "Handle": CurrentPid
@@ -114,7 +107,6 @@ class LibWbemTest(unittest.TestCase):
         self.assertTrue(GetElementAsString(dict_key_values, 'ParentProcessID') == str(CurrentParentPid))
         self.assertTrue(GetElementAsString(dict_key_values, 'CSCreationClassName') == 'CIM_UnitaryComputerSystem')
 
-    @unittest.skipIf(not is_linux_wbem(), "WBEM not usable here")
     def test_sparql_callback_select_computer(self):
         filtered_where_key_values = {
             #"Name": CurrentMachine
@@ -154,8 +146,6 @@ class LibWbemTest(unittest.TestCase):
     # Note: The class CIM_DataFile with the property Name triggers the exception message:
     # "CIMError: 7: CIM_ERR_NOT_SUPPORTED: No provider or repository defined for class"
 
-
-    @unittest.skipIf(not is_linux_wbem(), "WBEM not usable here")
     def test_sparql_callback_associator(self):
         grph = rdflib.Graph()
         iterator_objects = callback_object.CallbackAssociator(
@@ -168,7 +158,6 @@ class LibWbemTest(unittest.TestCase):
             DEBUG("object_path=%s", object_path)
             DEBUG("dict_key_values=%s", str(dict_key_values))
 
-    @unittest.skipIf(not is_linux_wbem(), "WBEM not usable here")
     def test_sparql_callback_types(self):
         callback_object = lib_wbem.WbemSparqlCallbackApi()
         grph = rdflib.Graph()
