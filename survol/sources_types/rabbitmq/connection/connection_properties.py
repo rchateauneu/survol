@@ -5,6 +5,7 @@ RabbitMQ connection properties
 """
 
 import sys
+import six
 import lib_common
 import lib_credentials
 from lib_properties import pc
@@ -61,7 +62,7 @@ def Main():
 			pass
 		else:
 
-			if isinstance(connectVal, lib_util.six_string_types):
+			if isinstance(connectVal, six.string_types):
 				connectVal = connectVal.replace(">","@") # .replace("{","@").replace("}","@")
 
 				DEBUG("connectKey=%s connectVal=%s",connectKey,connectVal)
