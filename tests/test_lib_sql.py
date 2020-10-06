@@ -2,15 +2,15 @@
 
 from __future__ import print_function
 
-# sys.path.insert(1,r'C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\survol\revlib')
-
+import pkgutil
 import unittest
 
 from init import *
 
 update_test_path()
 
-import lib_sql
+if pkgutil.find_loader('sqlparse'):
+    import lib_sql
 
 ################################################################################
 
@@ -1243,24 +1243,10 @@ INSERT OR REPLACE INTO daily_counters VALUES ()
 """:["DAILY_COUNTERS"],
 }
 
-################################################################################
-# TODO: We should make the difference between input and output tables.
+# TODO: Make the difference between input and output tables.
 
-################################################################################
 
-################################################################################
-
-# if len(sys.argv) == 1:
-# 	for key in examples:
-# 		print(key)
-# 		DisplayTablesAny(key,examples[key])
-# else:
-# 	for a in sys.argv[1:]:
-# 		print(a)
-# 		DisplayTablesAny(a,examples[a])
-#
-# print("Fini")
-
+@unittest.skipIf(not pkgutil.find_loader('sqlparse'), "sqlparse is needed.")
 class SqlParse_Test(unittest.TestCase):
     @staticmethod
     def DispSqlNode(parentNode, sqlNode, depth):
