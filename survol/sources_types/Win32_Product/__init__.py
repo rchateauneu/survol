@@ -3,8 +3,8 @@ Windows software product
 """
 
 import sys
+import six
 import lib_common
-import lib_util
 from lib_properties import pc
 
 # http://ashishpython.blogspot.co.uk/2013/12/listing-all-installed-applications-on.html
@@ -126,7 +126,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	# BEWARE: "{}" have been stripped because they crash graphviz
 	# ... but they did not in the "past". Why ?
 	##### NOT ANYMORE BECAUSE OF WMI productIdentifyingNumber = "{" + six.u(entity_ids_arr[0]) + "}"
-	productIdentifyingNumber = lib_util.six_u(entity_ids_arr[0])
+	productIdentifyingNumber = six.u(entity_ids_arr[0])
 
 
 	DEBUG("productIdentifyingNumber=%s",str(productIdentifyingNumber))

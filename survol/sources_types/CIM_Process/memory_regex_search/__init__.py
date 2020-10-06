@@ -10,7 +10,6 @@ import sys
 import six
 import os
 import re
-import socket
 import psutil
 
 from six.moves import builtins
@@ -754,7 +753,7 @@ else:
 # TODO: Should apply the extra validation before creating the dict.
 def CTypesStructToDict(struct):
     def get_value(value):
-        if (type(value) in lib_util.six_integer_types + ( float, bool ) ):
+        if (type(value) in six.integer_types + (float, bool) ):
             return value
 
         if hasattr(value, "_length_") and hasattr(value, "_type_"):

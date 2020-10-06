@@ -4,7 +4,7 @@ Python package
 
 import os
 import sys
-import pip
+import six
 import importlib
 import lib_common
 import lib_uris
@@ -188,7 +188,7 @@ def AddImportedModules(grph,node,filNam,maxDepth,dispPackages,dispFiles):
 			AddImportedModules.dictModules[moduFil] = fileNode
 		return fileNode
 
-	for moduNam, mod in lib_util.six_iteritems( finder.modules ):
+	for moduNam, mod in six.iteritems( finder.modules ):
 		splitNam = moduNam.split(".")
 		# sys.stderr.write("splitNam=%s\n"%str(splitNam))
 		# sys.stderr.write("mod=%s\n"%str(mod))
