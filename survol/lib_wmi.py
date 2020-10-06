@@ -1,9 +1,9 @@
 import os
 import re
 import sys
+import six
 import json
 import socket
-import datetime
 import lib_util
 import lib_common
 import lib_credentials
@@ -626,7 +626,7 @@ def ExtractWmiOntologyLocal():
                 try:
                     # UnicodeEncodeError: 'ascii' codec can't encode character u'\xa0' in position 178: ordinal not in range(128)
                     propDsc = propObj.Qualifiers_("Description")
-                    propTxt = lib_util.six_text_type(propDsc)
+                    propTxt = six.text_type(propDsc)
                     map_attributes.get(propObj.Name,{})["predicate_description"] = propTxt
                 except pywintypes.com_error:
                     # pywintypes.com_error: (-2147352567, 'Exception occurred.', (0, u'SWbemQualifierSet', u'Not found ', None, 0, -2147217406), None)
