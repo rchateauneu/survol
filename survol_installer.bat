@@ -1,31 +1,24 @@
-1>2# : ^
-'''
-@REM TODO: Create an installer in wxwidget for Apache, IIS etc.
+@REM This is a simple demo installer for Survol..
 
-@REM @echo off
+@echo off
 set "$py=0"
 echo import sys; print('{0[0]}.{0[1]}'.format(sys.version_info^)^) >#.py
 for /f "delims=" %%a in ('python #.py ^| findstr "2"') do set "$py=2"
 for /f "delims=" %%a in ('python #.py ^| findstr "3"') do set "$py=3"
 del #.py
 
-echo 
 goto:%$py%
 
 echo python is not installed or python's path Path is not in the %%$path%% env. var
 exit/b
 
 :2
-echo Running with Python 2
-@REM py -2.7 -m virtualenv %TMP%\survol-env
-python -m virtualenv %TMP%\survol-env
-goto:common_python_install
+@python -m virtualenv %TMP%\survol-env
+@goto:common_python_install
 
 :3
-echo Running with Python 3
-@REM py -3.6 -m venv %TMP%\survol-env
-python -m venv %TMP%\survol-env
-goto:common_python_install
+@python -m venv %TMP%\survol-env
+@goto:common_python_install
 
 :common_python_install
 %TMP%\survol-env\Scripts\pip --version
@@ -33,12 +26,18 @@ goto:common_python_install
 %TMP%\survol-env\Scripts\pip install pefile wmi pywin32 supervisor-win configparser
 %TMP%\survol-env\Scripts\pip install survol
 
-REM installer python.
+@REM Add a Python installer.
 
+@REM The CGI server needs to point to the sources because they are executed as CGI scripts.
+@REM This minimal implementation makes debugging much simpler.
+@REM The WSGI server, on the other hand, imports survol subpackages.
+@setlocal
+@pushd %TMP%\survol-env\Lib\site-packages
 %TMP%\survol-env\Scripts\python -c "import survol;print('v=',survol.__version__);import survol.scripts.cgiserver;print('f=',survol.scripts.cgiserver.__file__)"
 
-pushd %TMP%\survol-env\Lib\site-packages
+@echo "Stop with Control-C"
 %TMP%\survol-env\Scripts\python %TMP%\survol-env\Lib\site-packages\survol\scripts\cgiserver.py -b webbrowser
-popd
+@popd
+@endlocal
 
 exit /b
