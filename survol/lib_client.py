@@ -3,6 +3,7 @@ import cgitb
 cgitb.enable(format="txt")
 
 import os
+import six
 import sys
 import json
 import heapq
@@ -117,7 +118,7 @@ def load_moded_urls(urlModed):
         ERROR("load_moded_urls urlModed=%s. Caught:%s", urlModed, str(exc))
         raise
     data = response.read()
-    assert isinstance(data, lib_util.six_binary_type)
+    assert isinstance(data, six.binary_type)
     return data
 
 
@@ -140,7 +141,7 @@ class SourceRemote (SourceCgi):
     def get_content_moded(self,mode):
         the_url = self.__url_with_mode(mode)
         data = load_moded_urls(the_url)
-        assert isinstance(data, lib_util.six_binary_type)
+        assert isinstance(data, six.binary_type)
         return data
 
 
@@ -232,7 +233,7 @@ class SourceLocal (SourceCgi):
     # TODO: Replace __execute_script_with_mode
     def get_content_moded(self,mode):
         data_content = self.__execute_script_with_mode(mode)
-        assert isinstance(data_content, lib_util.six_binary_type)
+        assert isinstance(data_content, six.binary_type)
         return data_content
 
     # This returns a bag of words which describe what this script does.
@@ -315,7 +316,7 @@ class SourceMerge (SourceBase):
             tripstore.to_stream_xml(strStrm)
             strResult = strStrm.getvalue()
             strStrm.close()
-            assert isinstance(strResult, lib_util.six_binary_type)
+            assert isinstance(strResult, six.binary_type)
             return strResult
 
         raise Exception("get_content_moded: Cannot yet convert to %s"%mode)
@@ -1008,7 +1009,7 @@ def check_ontology_graph(ontology_key, survol_agent = None):
     else:
         my_source = SourceLocal(url_script)
     ontology_survol = my_source.get_content_moded(None)
-    assert isinstance(ontology_survol, lib_util.six_binary_type)
+    assert isinstance(ontology_survol, six.binary_type)
     ontology_graph = rdflib.Graph()
     result = ontology_graph.parse(data=ontology_survol, format="application/rdf+xml")
 
