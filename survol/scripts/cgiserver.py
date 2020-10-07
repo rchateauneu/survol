@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 # This is a minimal HTTP server intended to replace Apache or IIS.
 # The benefit is that it uses only builtins class: No package installation
 # is necessary. Also, because it it very simple and started as a command-line program,
@@ -24,6 +26,7 @@ import getopt
 import os
 import socket
 import datetime
+import atexit
 
 if __package__:
     from . import daemon_factory
@@ -40,8 +43,10 @@ def __run_server_forever(server):
     sys.stderr.write("__run_server_forever\n")
     server.serve_forever()
 
-
 _port_number_default = 8000
+
+# So it can be restored.
+original_dir = os.getcwd()
 
 
 def __print_cgi_server_usage():
@@ -53,7 +58,6 @@ def __print_cgi_server_usage():
     print("    -b,--browser=<program>    Starts a browser")
     print("    -v,--verbose              Verbose mode")
     print("")
-    print("Script must be started with command: survol/scripts/cgiserver.py")
 
 
 # https://docs.python.org/2/library/webbrowser.html
@@ -85,9 +89,17 @@ def __open_url_with_new_browser_process(browser_name, the_url):
     print("Browser thread started")
 
 
+def _exit_handler():
+    daemon_factory.supervisor_stop()
+    os.chdir(original_dir)
+
+
 def __run_cgi_server_internal():
     """Note: It is also possible to call the script from command line."""
     daemon_factory.supervisor_startup()
+
+    atexit.register(_exit_handler)
+
     try:
         opts, args = getopt.getopt(sys.argv[1:], "ha:p:b:v", ["help", "address=", "port=", "browser=", "verbose"])
     except getopt.GetoptError as err:
@@ -126,19 +138,9 @@ def __run_cgi_server_internal():
         else:
             assert False, "Unhandled option"
 
-    curr_dir = os.getcwd()
-    if verbose:
-        print("cwd=%s path=%s"% (curr_dir, str(sys.path)))
-
-    # The script must be started from a specific directory to ensure the URL.
-    # See AddUrlPrefix() and TopScriptsFunc() to simplify things.
-    try:
-        with open("survol/scripts/cgiserver.py"):
-            pass
-    except Exception as exc:
-        print("Script started from wrong directory:", exc)
-        __print_cgi_server_usage()
-        sys.exit()
+    # The script must be started from a specific directory to match URLs.
+    good_dir = os.path.join(os.path.dirname(__file__), "..", "..")
+    os.chdir(good_dir)
 
     the_url = "http://" + server_name
     if port_number:
@@ -169,7 +171,7 @@ def __run_cgi_server_internal():
         print("platform.win32_ver()=", platform.win32_ver())
     print("platform.release()=", platform.release())
     print("Server address:%s" % server_addr)
-    print("Opening %s:%d" % (server_name,port_number))
+    print("Opening %s:%d" % (server_name, port_number))
 
     start_server_forever(verbose, server_name, port_number)
 
@@ -188,6 +190,10 @@ def start_server_forever(verbose, server_name, port_number, current_dir=""):
     logfil.flush()
 
     os.environ["SERVER_SOFTWARE"] = "CGIServerPython"
+
+    # Maybe this function is started by tests/init.py.
+    if "SERVER_PORT" not in os.environ:
+        os.environ["SERVER_PORT"] = str(port_number)
 
     if verbose:
         sys.stderr.write("server_name=%s port_number=%d\n" % (server_name, port_number) )
