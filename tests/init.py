@@ -46,9 +46,6 @@ is_platform_linux = sys.platform.startswith("linux")
 is_py3 = sys.version_info >= (3,)
 
 if is_platform_windows:
-    import win32process
-    import win32con
-
     # os.sys.getwindowsversion()
     # sys.getwindowsversion(major=6, minor=1, build=7601, platform=2, service_pack='Service Pack 1')
     # platform.release()
@@ -240,6 +237,9 @@ except ImportError:
 # FIXME: ... with Python 3, when communicating with sockets, it does not work,
 # FIXME: ... losing characters...
 def _start_cgiserver_subprocess_windows(agent_port, current_dir):
+    import win32process
+    import win32con
+
     print("_start_cgiserver_subprocess_windows: agent_port=%d hostname=%s" % (agent_port, agent_host))
 
     cgiserver_module = "survol.scripts.cgiserver"
@@ -314,14 +314,33 @@ def start_cgiserver(agent_port):
         except Exception as exc:
             print("Cannot remove", logfile_name, exc)
 
+
+    def _read_display_server_internal_data(response):
+        internal_data = response.read().decode("utf-8")
+        json_internal_data = json.loads(internal_data)
+
+        # RootUri    "http://rchateau-hp:8000/survol/print_internal_data_as_json.py"
+        # uriRoot    "http://rchateau-hp:8000/survol"
+        # HttpPrefix "http://rchateau-hp:8000"
+        # RequestUri "/survol/print_internal_data_as_json.py"
+        root_uri = json_internal_data['RootUri']
+        uri_root = json_internal_data['uriRoot']
+        http_prefix = json_internal_data['HttpPrefix']
+        request_uri = json_internal_data['RequestUri']
+
+        print("CGI Survol agent OK:", root_uri, uri_root, http_prefix, request_uri)
+
     try:
         agent_process = None
+        # Maybe a server with this port number is already running ?
         response = portable_urlopen(agent_url + "/survol/print_internal_data_as_json.py", timeout=2)
         print("start_cgiserver: Using existing CGI Survol agent")
+        _read_display_server_internal_data(response)
     except:
+        # No server with this port number, so this creates a process.
         agent_process = _start_cgiserver_subprocess(agent_port)
         print("_start_cgiserver_subprocess: Waiting for CGI agent to start")
-        # This delay to allow the reuse of the socket port.
+        # This delay for the server to warmup.
         # TODO: A better solution would be to override server_bind()
         time.sleep(0.5)
         atexit.register(__dump_server_content, logfile_name)
@@ -331,24 +350,12 @@ def start_cgiserver(agent_port):
         print("start_cgiserver local_agent_url=", local_agent_url)
         try:
             response = portable_urlopen(local_agent_url, timeout=5)
+            _read_display_server_internal_data(response)
         except Exception as exc:
             print("Caught:%s", exc)
             __dump_server_content(logfile_name)
             raise
 
-    internal_data = response.read().decode("utf-8")
-    json_internal_data = json.loads(internal_data)
-
-    # RootUri	"http://rchateau-hp:8000/survol/print_internal_data_as_json.py"
-    # uriRoot	"http://rchateau-hp:8000/survol"
-    # HttpPrefix	"http://rchateau-hp:8000"
-    # RequestUri	"/survol/print_internal_data_as_json.py"
-    root_uri = json_internal_data['RootUri']
-    uri_root = json_internal_data['uriRoot']
-    http_prefix = json_internal_data['HttpPrefix']
-    request_uri = json_internal_data['RequestUri']
-
-    print("CGI Survol agent OK:", root_uri, uri_root, http_prefix, request_uri)
     return agent_process, agent_url
 
 
