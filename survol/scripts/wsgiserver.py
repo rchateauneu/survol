@@ -15,11 +15,13 @@ if __package__:
 else:
     import daemon_factory
 
+
 # See lib_client.py with similar code which cannot be imported here.
 # This expects bytes (Py3) or str (Py2).
-def create_string_stream():
+def _create_string_stream():
     from io import BytesIO
     return BytesIO()
+
 
 # This models the output of the header and the content.
 # See the class lib_util.OutputMachineCgi
@@ -32,7 +34,7 @@ class OutputMachineWsgi:
         # FIXME: then converted to a string, then written to the socket.
         # FIXME: Ideally, this should be written in one go from for example lib_common.copy_to_output_destination,
         # FIXME: to the output socket.
-        self.m_output = create_string_stream()
+        self.m_output = _create_string_stream()
         self.m_start_response = start_response
         self.m_header_called = False
 
@@ -67,6 +69,7 @@ class OutputMachineWsgi:
     def OutStream(self):
         return self.m_output
 
+
 def app_serve_file(path_info, start_response):
     file_name = path_info[1:]
     sys.stderr.write("app_serve_file file_name:%s cwd=%s\n" % (file_name, os.getcwd()))
@@ -84,11 +87,12 @@ def app_serve_file(path_info, start_response):
 
         sys.stderr.write("Writing %d bytes\n" % len(file_content))
 
-        return [ file_content ]
+        return [file_content]
     except Exception as exc:
         start_response('200 OK', response_headers)
         sys.stderr.write("app_serve_file caught %s\n" % str(exc))
-        return [ "<html><head></head><body>app_serve_file file_name=%s: Caught:%s</body></html>" % (file_name, exc)]
+        return ["<html><head></head><body>app_serve_file file_name=%s: Caught:%s</body></html>" % (file_name, exc)]
+
 
 global_module = None
 
@@ -133,21 +137,20 @@ def application_ok(environ, start_response):
     # The wsgi Python module sets a value for SERVER_NAME that we do not want.
     os.environ["SERVER_NAME"] = os.environ["SURVOL_SERVER_NAME"]
 
-    ### sys.stderr.write("os.environ['SCRIPT_NAME']=%s\n"%os.environ['SCRIPT_NAME'])
     os.environ["PYTHONPATH"] = "survol" # Not needed if installed ??
 
-    # Not sure this is needed on all platforms.
+    # FIXME: Is this needed on all platforms.
     os.environ.copy()
 
     # Example: "/survol/entity_dirmenu_only.py"
-    pathInfo = environ['PATH_INFO']
+    path_info = environ['PATH_INFO']
 
     # This environment variable is parsed in UriRootHelper
     # os.environ["SCRIPT_NAME"] = "/survol/see_wsgiserver"
     # SCRIPT_NAME=/survol/print_environment_variables.py
     # REQUEST_URI=/survol/print_environment_variables.py?d=s
     # QUERY_STRING=d=s
-    os.environ["SCRIPT_NAME"] = pathInfo
+    os.environ["SCRIPT_NAME"] = path_info
 
     # All modules must be explicitly loaded, because importing is not recursive:
     # The path is imported but if it tries to import another module, the initialisation code
@@ -159,27 +162,27 @@ def application_ok(environ, start_response):
 
     # If "http://127.0.0.1:8000/survol/sources_top/enumerate_CIM_LogicalDisk.py?xid=."
     # then "/survol/sources_top/enumerate_CIM_LogicalDisk.py"
-    sys.stderr.write("application_ok: pathInfo=%s\n" % pathInfo)
+    sys.stderr.write("application_ok: path_info=%s\n" % path_info)
 
-    # Example: pathInfo=/survol/www/index.htm
-    if pathInfo.find("/survol/www/") >= 0 \
-            or pathInfo.find("/ui/css") >= 0 \
-            or pathInfo == '/favicon.ico':
-        return app_serve_file(pathInfo, start_response)
+    # Example: path_info=/survol/www/index.htm
+    if path_info.find("/survol/www/") >= 0 \
+            or path_info.find("/ui/css") >= 0 \
+            or path_info == '/favicon.ico':
+        return app_serve_file(path_info, start_response)
 
-    pathInfo = pathInfo.replace("/",".")
+    path_info = path_info.replace("/",".")
 
-    modulePrefix = "survol."
-    htbinIndex = pathInfo.find(modulePrefix)
+    module_prefix = "survol."
+    htbin_index = path_info.find(module_prefix)
 
-    if not pathInfo.endswith(".py"):
-        sys.stderr.write("application_ok (1): pathInfo=%s should be a Python script\n" % pathInfo)
-        raise Exception("application_ok: pathInfo=%s is not a Python script" % pathInfo)
+    if not path_info.endswith(".py"):
+        sys.stderr.write("application_ok (1): path_info=%s should be a Python script\n" % path_info)
+        raise Exception("application_ok: path_info=%s is not a Python script" % path_info)
 
-    pathInfo = pathInfo[htbinIndex + len(modulePrefix):-3] # "Strips ".py" at the end.
+    path_info = path_info[htbin_index + len(module_prefix):-3] # "Strips ".py" at the end.
 
     # ["sources_types","enumerate_CIM_LogicalDisk"]
-    splitPathInfo = pathInfo.split(".")
+    splitPathInfo = path_info.split(".")
 
     import lib_util
 
@@ -204,19 +207,16 @@ def application_ok(environ, start_response):
         lib_util.globalOutMach = theOutMach
 
     else:
-        # Tested with Python2 on Windows.
+        sys.stderr.write("application_ok: Not dot in path_info=%s\n" % path_info)
+        the_module = importlib.import_module(path_info)
 
-        # TODO: Strange: Here, this load lib_util a second time.
-        sys.stderr.write("application_ok: Not dot in pathInfo=%s\n" % pathInfo)
-        the_module = importlib.import_module(pathInfo)
-
-        # TODO: Apparently, if lib_util is imported again, it seems its globals are initialised again. NOT SURE...
         lib_util.globalOutMach = theOutMach
 
     script_name = os.environ['SCRIPT_NAME']
     sys.stderr.write("application_ok: scriptNam=%s\n" % script_name)
 
     try:
+        # TODO: Rename this to a more visible name like MainEntryPoint.
         the_module.Main()
     except RuntimeError as exc:
     # Minor error thrown by ErrorMessageHtml
@@ -238,7 +238,9 @@ def application_ok(environ, start_response):
 
     return [ module_content ]
 
+
 def application(environ, start_response):
+    """This is required by WSGI"""
     try:
         return application_ok(environ, start_response)
     except Exception as exc:
@@ -250,18 +252,20 @@ def application(environ, start_response):
         return ["<html><head></head><body>Error:%s</body></html>" % module_content]
 
 
-port_number_default = 9000
+_port_number_default = 9000
 
-def Usage():
+
+def __print_wsgi_server_usage():
     progNam = sys.argv[0]
     print("Survol WSGI server: %s"%progNam)
     print("    -a,--address=<IP address> TCP/IP address")
-    print("    -p,--port=<number>        TCP/IP port number. Default is %d." %(port_number_default) )
+    print("    -p,--port=<number>        TCP/IP port number. Default is %d." % (_port_number_default))
     # Ex: -b "C:\Program Files (x86)\Mozilla Firefox\firefox.exe"
     print("    -b,--browser=<program>    Starts a browser")
     print("    -v,--verbose              Verbose mode")
     print("")
     print("Script must be started with command: survol/scripts/wsgiserver.py")
+
 
 # https://docs.python.org/2/library/webbrowser.html
 def starts_webrowser(browser_name, the_url):
@@ -271,6 +275,7 @@ def starts_webrowser(browser_name, the_url):
 
     # TODO: Parses the argument from the parameter
     webbrowser.open(the_url, new=0, autoraise=True)
+
 
 def starts_browser(browser_name, the_url):
     """This starts a browser whose executable is given on the command line"""
@@ -292,15 +297,17 @@ def starts_browser(browser_name, the_url):
     print("Browser thread started")
 
 
-# Setup (setup.py) creates a binary script which directly calls this function.
 def run_wsgi_server():
     daemon_factory.supervisor_startup()
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ha:p:b:v", ["help","address=","port=","browser=","verbose"])
+        opts, args = getopt.getopt(
+            sys.argv[1:],
+            "ha:p:b:v",
+            ["help", "address=", "port=", "browser=", "verbose"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(err)  # will print something like "option -a not recognized"
-        Usage()
+        __print_wsgi_server_usage()
         sys.exit(2)
 
     # It must be the same address whether it is local or guessed from another machine.
@@ -313,7 +320,7 @@ def run_wsgi_server():
     server_name = socket.gethostname()
 
     verbose = False
-    port_number = port_number_default
+    port_number = _port_number_default
     browser_name = None
 
     for anOpt, aVal in opts:
@@ -326,7 +333,7 @@ def run_wsgi_server():
         elif anOpt in ("-b", "--browser"):
             browser_name = aVal
         elif anOpt in ("-h", "--help"):
-            Usage()
+            __print_wsgi_server_usage()
             sys.exit()
         else:
             assert False, "Unhandled option"
@@ -354,6 +361,11 @@ def run_wsgi_server():
     start_server_forever(verbose, server_name, port_number, current_dir="")
 
 WsgiServerLogFileName = "wsgiserver.execution.log"
+
+
+def wsgiserver_entry_point():
+    start_server_forever(False, socket.gethostname(), _port_number_default)
+
 
 def start_server_forever(verbose, server_name, port_number, current_dir=""):
     logfil = open(WsgiServerLogFileName, "w")
@@ -384,7 +396,7 @@ def start_server_forever(verbose, server_name, port_number, current_dir=""):
         filMyself = open("survol/scripts/wsgiserver.py")
     except Exception as exc:
         print("Script started from wrong directory %s: exc=%s" % (os.getcwd(), exc))
-        Usage()
+        __print_wsgi_server_usage()
         sys.exit()
 
     sys.path.append("survol")
