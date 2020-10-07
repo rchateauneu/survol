@@ -24,12 +24,6 @@ from init import *
 
 update_test_path()
 
-# This is what we want to test.
-import lib_sparql
-import lib_util
-import lib_properties
-import lib_kbase
-
 if pkgutil.find_loader('pywbem'):
     import lib_wbem
 
