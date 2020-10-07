@@ -74,9 +74,9 @@ class InstallCommand(install):
             print("About to copy %s" % my_www)
         install.run(self)  # OR: install.do_egg_install(self)
 
+
 class InstallLibCommand(install_lib):
-    # On Linux, this converts Python files to proper Unix format,
-    # and sets the executable flag.
+    """On Linux, this converts Python files to proper Unix format, and sets the executable flag."""
     def _transform_linux_script(self, one_path):
         with open(one_path, 'rb') as input_stream:
             file_content = input_stream.readlines()
@@ -118,7 +118,11 @@ class InstallLibCommand(install_lib):
             preserve_mode, preserve_times, preserve_symlinks, level)
 
 
-# TODO: Explain installation in Apache when pointing to Python scripts.
+# Some explanations: The Python scripts in survol/sources_types (Plus some of them
+# in survol/ like survol/entity.py etc...) are CGI scripts.
+# Therefore, they can easily be run, debugged and tested in isolation, without a HTTP server.
+# These scripts can also be imported: This is how the WSGI server works.
+# Some CGI scripts could easily be rewritten in another language for performance.
 
 # The current directory is where setup.py is.
 def package_files(directory):
@@ -155,9 +159,9 @@ setup(
     package_dir = {"survol": "survol"},
     # This is apparently not recursive.
     package_data={'survol': extra_files},
-    entry_points = { 'console_scripts': [
-        'survol_cgiserver = survol.scripts.cgiserver:start_server_forever',
-        'survol_wsgiserver = survol.scripts.wsgiserver:run_wsgi_server',
+    entry_points = {'console_scripts': [
+        'survolcgi = survol.scripts.cgiserver:cgiserver_entry_point',
+        'survolwsgi = survol.scripts.wsgiserver:wsgiserver_entry_point',
     ]},
     # These packages are not needed to run dockit.py which is strictly standalone.
     install_requires=['psutil', 'rdflib'],
