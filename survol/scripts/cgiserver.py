@@ -43,7 +43,9 @@ def __run_server_forever(server):
     sys.stderr.write("__run_server_forever\n")
     server.serve_forever()
 
+
 _port_number_default = 8000
+
 
 # So it can be restored.
 original_dir = os.getcwd()
@@ -181,6 +183,10 @@ def cgi_server_logfile_name(port_number):
     return "cgiserver.execution.%d.log" % port_number
 
 
+def cgiserver_entry_point():
+    start_server_forever(False, socket.gethostname(), _port_number_default)
+
+
 def start_server_forever(verbose, server_name, port_number, current_dir=""):
     """Setup (setup.py) creates a binary script which directly calls this function.
     The current directory can be set, this is used when this is called from multiprocessing."""
@@ -196,7 +202,7 @@ def start_server_forever(verbose, server_name, port_number, current_dir=""):
         os.environ["SERVER_PORT"] = str(port_number)
 
     if verbose:
-        sys.stderr.write("server_name=%s port_number=%d\n" % (server_name, port_number) )
+        sys.stderr.write("server_name=%s port_number=%d\n" % (server_name, port_number))
         sys.stderr.write("sys.executable=%s\n" % sys.executable)
         sys.stderr.write("sys.exec_prefix=%s\n" % sys.exec_prefix)
         sys.stderr.write("getpid=%d\n" % os.getpid())
@@ -227,7 +233,7 @@ def start_server_forever(verbose, server_name, port_number, current_dir=""):
 
     if current_dir:
         os.chdir(current_dir)
-        sys.stderr.write("getcwd=%s\n" % os.getcwd() )
+        sys.stderr.write("getcwd=%s\n" % os.getcwd())
     if sys.version_info[0] < 3:
         import CGIHTTPServer
         from BaseHTTPServer import HTTPServer
@@ -291,7 +297,7 @@ def start_server_forever(verbose, server_name, port_number, current_dir=""):
                 path_only = uprs.path
 
                 # This interprets cr-nl.
-                logging.info('\n')
+                #logging.info('\n')
 
                 file_name, file_extension = os.path.splitext(path_only)
                 return file_extension == ".py"
@@ -303,8 +309,8 @@ def start_server_forever(verbose, server_name, port_number, current_dir=""):
         # Purpose is to understand why it does not interpret cr-nl.
         import logging
         logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s', datefmt='%H:%M:%S')
-        logging.info(__file__ + ' test logging.')
-        logging.info('\n')
+        logging.info(__file__ + ' test logging.\n')
+        #logging.info('\n')
 
         handler = MyCGIHTTPServer
         server = HTTPServer((server_name, port_number), handler)
