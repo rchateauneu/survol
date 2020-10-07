@@ -57,7 +57,7 @@ ACTIONS = {
 FILE_LIST_DIRECTORY = 0x0001
 
 
-def MainSnapshot():
+def Snapshot():
     cgiEnv = lib_common.CgiEnv()
     path_to_watch = cgiEnv.GetId()
 
@@ -68,7 +68,7 @@ def MainSnapshot():
     cgiEnv.OutCgiRdf()
 
 
-def MainEvents():
+def SendEventsOnce():
     cgiEnv = lib_common.CgiEnv()
     path_to_watch = cgiEnv.GetId()
 
@@ -114,9 +114,14 @@ def MainEvents():
 
         cgiEnv.OutCgiRdf()
 
-if __name__ == '__main__':
+
+def Main():
     if lib_util.is_snapshot_behaviour():
-        MainSnapshot()
+        Snapshot()
     else:
         while True:
-            MainEvents()
+            SendEventsOnce()
+
+
+if __name__ == '__main__':
+    Main()

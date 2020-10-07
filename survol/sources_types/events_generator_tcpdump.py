@@ -48,7 +48,7 @@ def _get_tcmp_dump_command():
         return ["tcpdump", "-n"]
 
 
-def Main(loop_number=1):
+def Snapshot(loop_number=1):
     tcpdump_cmd = _get_tcmp_dump_command()
 
     cgiEnv = lib_common.CgiEnv()
@@ -83,12 +83,14 @@ def Main(loop_number=1):
             sys.stderr.write("tcpdump. Subprocess not started\n")
 
 
-################################################################################
-
-if __name__ == '__main__':
+def Main():
     if lib_util.is_snapshot_behaviour():
-        Main()
+        Snapshot()
     else:
         while True:
-            Main(1000000)
+            Snapshot(1000000)
             time.sleep(20)
+
+
+if __name__ == '__main__':
+    Main()

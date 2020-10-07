@@ -143,10 +143,8 @@ def _promiscuous_linux(loop_number):
 
         cgiEnv.OutCgiRdf()
 
-################################################################################
 
-
-def Main(loop_number = 1):
+def Snapshot(loop_number=1):
     try:
         if lib_util.isPlatformWindows:
             _promiscuous_win(loop_number)
@@ -156,10 +154,14 @@ def Main(loop_number = 1):
         lib_common.ErrorMessageHtml("Sockets in promiscuous mode:" + str(exc))
 
 
-if __name__ == '__main__':
+def Main():
     if lib_util.is_snapshot_behaviour():
-        Main()
+        Snapshot()
     else:
         while True:
-            Main(1000000)
+            Snapshot(1000000)
             time.sleep(20)
+
+
+if __name__ == '__main__':
+    Main()

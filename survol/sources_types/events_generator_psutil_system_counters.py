@@ -15,7 +15,7 @@ from lib_properties import pc
 import lib_properties
 
 
-def Main():
+def Snapshot():
     cgiEnv = lib_common.CgiEnv()
 
     grph = cgiEnv.GetGraph()
@@ -58,10 +58,14 @@ def Main():
     cgiEnv.OutCgiRdf()
 
 
-if __name__ == '__main__':
+def Main():
     if lib_util.is_snapshot_behaviour():
-        Main()
+        Snapshot()
     else:
         while True:
-            Main()
+            Snapshot()
             time.sleep(20)
+
+
+if __name__ == '__main__':
+    Main()

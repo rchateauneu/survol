@@ -16,7 +16,7 @@ if ".." not in sys.path:
 from scripts import dockit
 
 
-def MainSnapshot():
+def Snapshot():
     cgiEnv = lib_common.CgiEnv()
     process_id = cgiEnv.GetId()
 
@@ -31,8 +31,8 @@ def MainSnapshot():
 dockit_dirname = lib_util.standardized_file_path(os.path.dirname(dockit.__file__))
 
 
-# This is called in a subprocess.
-def MainDockit():
+def SendEvents():
+    """This is called in a subprocess."""
     cgiEnv = lib_common.CgiEnv()
     process_id = cgiEnv.GetId()
 
@@ -42,8 +42,7 @@ def MainDockit():
         grph.add(rdf_triple)
         cgiEnv.OutCgiRdf()
 
-
-    class dockit_parameters:
+    class DockitParameters:
         verbose = 1
         with_warning = 1
         map_params_summary = dockit.full_map_params_summary
@@ -58,13 +57,15 @@ def MainDockit():
         aggregator = None
         duplicate_input_log = False
 
-    dockit._start_processing(dockit_parameters)
+    dockit._start_processing(DockitParameters)
 
 
-    # cgiEnv.OutCgiRdf()
+def Main():
+    if lib_util.is_snapshot_behaviour():
+        Snapshot()
+    else:
+        SendEvents()
+
 
 if __name__ == '__main__':
-    if lib_util.is_snapshot_behaviour():
-        MainSnapshot()
-    else:
-        MainDockit()
+    Main()

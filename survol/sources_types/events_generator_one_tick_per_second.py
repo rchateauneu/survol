@@ -15,7 +15,8 @@ import lib_properties
 ParamA = "parama"
 ParamB = "paramb"
 
-def Main():
+
+def Snapshot():
     cgiEnv = lib_common.CgiEnv(parameters={ParamA: 1, ParamB: "Two"})
 
     # This is to ensure that all CGI parameters are handled.
@@ -39,18 +40,14 @@ def Main():
     cgiEnv.OutCgiRdf()
 
 
-if __name__ == '__main__':
+def Main():
     if lib_util.is_snapshot_behaviour():
-        Main()
+        Snapshot()
     else:
-        # Or any condition telling that it does not run as a CGI script, like mode == "daemon",
-        # or the absence of HTTP environment variables.
-        # The looping logic might be different but the ideas are
-        # - to use a similar code for a snapshot and for an event loop.
-        # - More importantly, write in a plain RDFLIB graph, flushed by OutCgiRdf().
-        #   This greatly simplifies the code.
         while True:
-            Main()
+            Snapshot()
 
 
+if __name__ == '__main__':
+    Main()
 
