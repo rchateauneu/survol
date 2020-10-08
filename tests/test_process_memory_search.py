@@ -24,9 +24,9 @@ if _perl_path:
     _perl_path = _perl_path.decode()
     _perl_path = lib_util.standardized_file_path(_perl_path)
 
-sample_batch_script = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "CommandExample.bat")
-sample_python_script = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
-sample_perl_script = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePerlScript.pl")
+sample_batch_script = os.path.join(os.path.dirname(__file__), "SampleDirScripts", "CommandExample.bat")
+sample_python_script = os.path.join(os.path.dirname(__file__), "SampleDirScripts", "SamplePythonFile.py")
+sample_perl_script = os.path.join(os.path.dirname(__file__), "SampleDirScripts", "SamplePerlScript.pl")
 
 
 def _start_subprocess(*command_args):

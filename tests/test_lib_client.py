@@ -293,7 +293,7 @@ class SurvolLocalTest(unittest.TestCase):
     def test_regex_sql_query_file(self):
         """Searches for SQL queries in one file only."""
 
-        sql_path_name = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
+        sql_path_name = os.path.join(os.path.dirname(__file__), "SampleDirScripts", "SamplePythonFile.py")
 
         mySourceSqlQueries = lib_client.SourceLocal(
             "sources_types/CIM_DataFile/grep_sql_queries.py",
@@ -321,7 +321,7 @@ class SurvolLocalTest(unittest.TestCase):
 
     def test_open_files_from_python_process(self):
         """Files open by a Python process"""
-        sql_path_name = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
+        sql_path_name = os.path.join(os.path.dirname(__file__), "SampleDirScripts", "SamplePythonFile.py")
 
         exec_list = [ sys.executable, sql_path_name ]
 
@@ -353,7 +353,7 @@ class SurvolLocalTest(unittest.TestCase):
 
     def test_sub_parent_from_python_process(self):
         """Sub and parent processes a Python process"""
-        sql_path_name = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
+        sql_path_name = os.path.join( os.path.dirname(__file__), "SampleDirScripts", "SamplePythonFile.py")
 
         exec_list = [sys.executable, sql_path_name]
 
@@ -395,7 +395,7 @@ class SurvolLocalTest(unittest.TestCase):
 
     def test_memory_maps_from_python_process(self):
         """Sub and parent processes a Python process"""
-        sql_path_name = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
+        sql_path_name = os.path.join(os.path.dirname(__file__), "SampleDirScripts", "SamplePythonFile.py")
 
         exec_list = [sys.executable, sql_path_name]
 
@@ -511,7 +511,7 @@ class SurvolLocalTest(unittest.TestCase):
             command_example = "CommandExample.bat"
         else:
             command_example = "CommandExample.sh"
-        script_path_name = os.path.join( os.path.dirname(__file__), "AnotherSampleDir", command_example)
+        script_path_name = os.path.join( os.path.dirname(__file__), "SampleDirScripts", command_example)
 
         exec_list = [script_path_name]
 
@@ -568,7 +568,7 @@ class SurvolLocalTest(unittest.TestCase):
         """Examines a running Python process"""
 
         # This creates a process running in Python, because it does not work with the current process.
-        sql_path_name = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
+        sql_path_name = os.path.join(os.path.dirname(__file__), "SampleDirScripts", "SamplePythonFile.py")
 
         exec_list = [sys.executable, sql_path_name]
 
@@ -1114,7 +1114,7 @@ class SurvolLocalGdbTest(unittest.TestCase):
         """Displays the stack of a Python process"""
 
         # This creates a process running in Python, because it does not work with the current process.
-        py_path_name = os.path.join(os.path.dirname(__file__), "AnotherSampleDir", "SamplePythonFile.py")
+        py_path_name = os.path.join(os.path.dirname(__file__), "SampleDirScripts", "SamplePythonFile.py")
         py_path_name = os.path.abspath(py_path_name)
 
         exec_list = [sys.executable, py_path_name]
