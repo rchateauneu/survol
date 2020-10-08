@@ -87,6 +87,36 @@ class RdfLocalAgentTest(unittest.TestCase):
         self.assertEqual(entity_type, "win32/resource")
         self.assertEqual(entity_id_dict, {u'GroupName': u'2', u'Name': u'C:/Windows/System32/notepad.exe'})
 
+    @unittest.skipIf(not is_platform_windows, "Windows only")
+    @unittest.skip("Not implemented yet")
+    def test_rdf_file_msvc_vcxproj(self):
+        result_graph = self._check_script("/survol/sources_types/CIM_DataFile/file_msvc_vcxproj.py?xid=.")
+        self.assertTrue(len(result_graph) > 0)
+
+    @unittest.skipIf(not is_platform_windows, "Windows only")
+    @unittest.skip("Not implemented yet")
+    def test_rdf_file_msvc_sln(self):
+        result_graph = self._check_script("/survol/sources_types/CIM_DataFile/file_msvc_sln.py?xid=.")
+        self.assertTrue(len(result_graph) > 0)
+
+    @unittest.skipIf(not is_platform_linux, "Linux only")
+    def test_rdf_file_symlinks(self):
+        test_dir_path = os.path.join(os.path.dirname(__file__), "SampleDirSymbolicLinks")
+        result_graph = self._check_script(
+            "/survol/sources_types/CIM_DataFile/file_symlinks.py?xid=CIM_DataFile.Name=%s"
+            % test_dir_path)
+        print("Result=", len(result_graph))
+        for s, p, o in result_graph:
+            print("    ", s, p, o)
+
+    # tests\SampleDirSymbolicLinks
+    #     physical_directory.dir
+    #         physical_subfile.dat
+    #     physical_file.dat
+    #     symlink_to_physical_directory
+    #     symlink_to_physical_file
+    #     symlink_to_subphysical_file
+
 
 @unittest.skipIf(not is_platform_windows, "Windows only")
 class MimeWindowsResourceIconsTest(unittest.TestCase):
