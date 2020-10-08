@@ -6,6 +6,8 @@ MSVC solution information
 This returns general information about a Visual Studio solution file.
 """
 
+# TODO: Use https://github.com/jhandley/pyvcproj/tree/master/vcproj
+# Display projects.
 
 import os
 import sys
