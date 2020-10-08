@@ -16,85 +16,93 @@ from sources_types.CIM_Process.languages import python as survol_python
 
 Usable = survol_python.Usable
 
-def Usable(entity_type,entity_ids_arr):
+
+def Usable(entity_type, entity_ids_arr):
     """Python and Linux processes"""
-    isLinux = lib_util.UsableLinux(entity_type,entity_ids_arr)
-    if not isLinux:
+    is_linux = lib_util.UsableLinux(entity_type, entity_ids_arr)
+    if not is_linux:
         return False
 
     # This tells if it is a Python process.
-    return CIM_Process.Usable(entity_type,entity_ids_arr)
+    return CIM_Process.Usable(entity_type, entity_ids_arr)
 
 
-def GetRemoteStack(thePid):
+def _get_remote_stack(the_pid):
     # These Python instructions will be executed by a debugger in the context of a Python process.
     # The result is a vector of strings, the output of the execution.
-    vecInstructions = [
+    vec_instructions = [
         'import json',
         'import traceback',
         'retobj = traceback.extract_stack()'
     ]
-    objResu = survol_python.ExecInPythonDebugger(thePid,vecInstructions)
+    obj_resu = survol_python.ExecInPythonDebugger(the_pid, vec_instructions)
 
-    return objResu
+    return obj_resu
+
 
 def Main():
     cgiEnv = lib_common.CgiEnv()
-    pid = int( cgiEnv.GetId() )
+    pid = int(cgiEnv.GetId())
 
     grph = cgiEnv.GetGraph()
 
-    procNode = lib_common.gUriGen.PidUri(pid)
+    proc_node = lib_common.gUriGen.PidUri(pid)
 
-    remSta = GetRemoteStack(pid)
+    rem_sta = _get_remote_stack(pid)
 
-    if remSta:
-        callNodePrev = None
+    if rem_sta:
+        call_node_prev = None
 
         # Typical result:
         # [
-        #     ["/home/rchateau/survol/tests/AnotherSampleDir/SampleSqlFile.py", 17, "<module>", "xx = sys.stdin.read(1)"],
+        #     ["/home/rchateau/survol/tests/SampleDirScripts/SampleSqlFile.py", 17, "<module>", "xx = sys.stdin.read(1)"],
         #     ["<string>", 1, "<module>", null],
         #     ["/tmp/tmpIcWP2j.py", 9, "<module>", "retobj = traceback.extract_stack()"]
         # ]
-        for st in remSta:
+        for st in rem_sta:
             # == File=../essai.py line=6 module=<module>
             # == File=<string> line=1 module=<module>
             # == File=/tmp/tmpw14tgJ.py line=9 module=<module>
-            DEBUG("File=%s line=%d module=%s", st[0], st[1], st[2] )
+            DEBUG("File=%s line=%d module=%s", st[0], st[1], st[2])
 
-            shortFilNam = st[0]
-            if shortFilNam == "<string>":
-                shortFilNam = None
-            lineNumber = st[1]
-            moduleNam = st[2]
-            if moduleNam == "<module>":
-                moduleNam = None
+            short_fil_nam = st[0]
+            if short_fil_nam == "<string>":
+                short_fil_nam = None
+            line_number = st[1]
+            module_nam = st[2]
+            if module_nam == "<module>":
+                module_nam = None
 
             # TODO: What is the full path name ?
-            fileName = shortFilNam
-            funcName = moduleNam
+            file_name = short_fil_nam
+            func_name = module_nam
 
-            if funcName is None:
+            if func_name is None:
                 # Maybe an intermediate call
-                if fileName is None:
+                if file_name is None:
                     DEBUG("Intermediate call")
                     continue
                 # Maybe the main program ?
-                funcName = "__main__"
+                func_name = "__main__"
 
             # TODO: At each stage, should add the variables defined in each function call.
 
             # See process_gdbstack.py
-            callNodePrev = survol_symbol.AddFunctionCall( grph, callNodePrev, procNode, funcName, fileName, lineNumber )
+            call_node_prev = survol_symbol.AddFunctionCall(
+                grph,
+                call_node_prev,
+                proc_node,
+                func_name,
+                file_name,
+                line_number)
 
-            if not callNodePrev:
+            if not call_node_prev:
                 break
     else:
         WARNING("No stack visible")
 
-
     cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
     Main()
