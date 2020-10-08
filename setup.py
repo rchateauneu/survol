@@ -170,7 +170,7 @@ setup(
         'install_lib': InstallLibCommand,
     },
 
-    scripts=['cgiserver.py', 'wsgiserver.py'],
+    scripts=['survol/scripts/cgiserver.py', 'survol/scripts/wsgiserver.py'],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
