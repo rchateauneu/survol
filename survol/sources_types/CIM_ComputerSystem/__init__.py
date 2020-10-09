@@ -100,13 +100,14 @@ def AddWbemServers(entity_host, name_space, entity_type, entity_id):
 
 
 def AddWmiServers(entity_host, name_space, entity_type, entity_id):
+    map_wmi = dict()
+
     # No WMI implementation is available on Linux.
     if lib_util.isPlatformLinux:
-        return
+        return map_wmi
 
     import lib_wmi
 
-    map_wmi = dict()
     if lib_wmi.ValidClassWmi(entity_type):
         # TODO: We may also loop on all machines which may describe this object.
         wmiurl = lib_wmi.GetWmiUrl(entity_host, name_space, entity_type, entity_id)
