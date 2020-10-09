@@ -140,7 +140,7 @@ class RdfLocalAgentTest(unittest.TestCase):
             "SampleDirSymbolicLinks",
             "symlink_to_physical_directory")
         result_graph = self._check_script(
-            "/survol/sources_types/CIM_DataFile/dir_symlinks.py?xid=CIM_Directory.Name=%s"
+            "/survol/sources_types/CIM_Directory/dir_symlinks.py?xid=CIM_Directory.Name=%s"
             % test_dir_path)
         print("Result=", len(result_graph))
         for s, p, o in result_graph:
