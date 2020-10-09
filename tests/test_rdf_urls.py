@@ -99,9 +99,20 @@ class RdfLocalAgentTest(unittest.TestCase):
         result_graph = self._check_script("/survol/sources_types/CIM_DataFile/file_msvc_sln.py?xid=.")
         self.assertTrue(len(result_graph) > 0)
 
+    # Content of tests\SampleDirSymbolicLinks, used for testing symbolic links:
+    #     physical_directory.dir
+    #         physical_subfile.dat
+    #     physical_file.dat
+    #     symlink_to_physical_directory
+    #     symlink_to_physical_file
+    #     symlink_to_subphysical_file
+
     @unittest.skipIf(not is_platform_linux, "Linux only")
     def test_rdf_file_symlinks(self):
-        test_dir_path = os.path.join(os.path.dirname(__file__), "SampleDirSymbolicLinks")
+        test_dir_path = os.path.join(
+            os.path.dirname(__file__),
+            "SampleDirSymbolicLinks",
+            "symlink_to_physical_file")
         result_graph = self._check_script(
             "/survol/sources_types/CIM_DataFile/file_symlinks.py?xid=CIM_DataFile.Name=%s"
             % test_dir_path)
@@ -109,13 +120,31 @@ class RdfLocalAgentTest(unittest.TestCase):
         for s, p, o in result_graph:
             print("    ", s, p, o)
 
-    # tests\SampleDirSymbolicLinks
-    #     physical_directory.dir
-    #         physical_subfile.dat
-    #     physical_file.dat
-    #     symlink_to_physical_directory
-    #     symlink_to_physical_file
-    #     symlink_to_subphysical_file
+    @unittest.skipIf(not is_platform_linux, "Linux only")
+    def test_rdf_file_symlinks_subfile(self):
+        test_dir_path = os.path.join(
+            os.path.dirname(__file__),
+            "SampleDirSymbolicLinks",
+            "symlink_to_subphysical_file")
+        result_graph = self._check_script(
+            "/survol/sources_types/CIM_DataFile/file_symlinks.py?xid=CIM_DataFile.Name=%s"
+            % test_dir_path)
+        print("Result=", len(result_graph))
+        for s, p, o in result_graph:
+            print("    ", s, p, o)
+
+    @unittest.skipIf(not is_platform_linux, "Linux only")
+    def test_rdf_dir_symlinks(self):
+        test_dir_path = os.path.join(
+            os.path.dirname(__file__),
+            "SampleDirSymbolicLinks",
+            "symlink_to_physical_directory")
+        result_graph = self._check_script(
+            "/survol/sources_types/CIM_DataFile/dir_symlinks.py?xid=CIM_Directory.Name=%s"
+            % test_dir_path)
+        print("Result=", len(result_graph))
+        for s, p, o in result_graph:
+            print("    ", s, p, o)
 
 
 @unittest.skipIf(not is_platform_windows, "Windows only")
