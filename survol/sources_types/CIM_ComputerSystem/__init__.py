@@ -59,11 +59,11 @@ def AddWbemWmiServers(grph, root_node, entity_host, name_space, entity_type, ent
                 grph.add( ( url_subj, the_prop, url_obj ) )
 
     map_wbem = AddWbemServers(host_wbem_wmi, name_space, entity_type, entity_id)
-    add_w_map(map_wbem,pc.property_wbem_data)
+    add_w_map(map_wbem, pc.property_wbem_data)
     map_wmi = AddWmiServers(host_wbem_wmi, name_space, entity_type, entity_id)
-    add_w_map(map_wmi,pc.property_wmi_data)
+    add_w_map(map_wmi, pc.property_wmi_data)
     map_survol = AddSurvolServers(host_wbem_wmi, name_space, entity_type, entity_id)
-    add_w_map(map_survol,pc.property_survol_agent)
+    add_w_map(map_survol, pc.property_survol_agent)
 
 
 def AddWbemServers(entity_host, name_space, entity_type, entity_id):
