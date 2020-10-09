@@ -7,15 +7,14 @@ import psutil
 import time
 import datetime
 import tempfile
+import configparser
 
 # This is used to communicate with the supervisor.
 _is_py3 = sys.version_info >= (3,)
 if _is_py3:
     import xmlrpc.client as xmlrpclib
-    import configparser
 else:
     import xmlrpclib
-    import ConfigParser as configparser
 
 # This starts a supervisor process in interactive mode, except if a daemon is already started.
 try:
