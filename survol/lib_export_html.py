@@ -21,66 +21,61 @@ _list_props_td_double_col_span = [pc.property_information, pc.property_rdf_data_
 
 # This does not change the existing mode if there is one.
 # Otherwise it could erase the MIME type.
-def _url_in_html_mode(anUrl):
-    urlMode = lib_util.get_url_mode(anUrl)
-    # sys.stderr.write("_url_in_html_mode anUrl=%s urlMode=%s\n"%(anUrl,urlMode))
-    if urlMode:
-        return anUrl
+def _url_in_html_mode(an_url):
+    url_mode = lib_util.get_url_mode(an_url)
+    if url_mode:
+        return an_url
     else:
-        return lib_util.url_mode_replace(anUrl, "html")
+        return lib_util.url_mode_replace(an_url, "html")
 
 
 def _script_information_html_iterator(theCgi, gblCgiEnvList):
     """
         This displays general information about this script and the object if there is one.
     """
-    DEBUG("_script_information_html_iterator entity_type=%s",theCgi.m_entity_type)
+    DEBUG("_script_information_html_iterator entity_type=%s", theCgi.m_entity_type)
 
     # This is already called in lib_common, when creating CgiEnv.
     # It does not matter because this is very fast.
-    callingUrl = lib_util.RequestUri()
-    ( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(callingUrl,longDisplay=True)
+    calling_url = lib_util.RequestUri()
+    (entity_label, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri(calling_url, longDisplay=True)
     DEBUG("entity_label=%s entity_graphic_class=%s entity_id=%s", entity_label, entity_graphic_class, entity_id )
 
-    # WrtAsUtf('<table class="list_of_merged_scripts">')
-    yield('<table border="0">')
+    yield '<table border="0">'
     if len(gblCgiEnvList):
-        DEBUG("gblCgiEnvList=%s",str(gblCgiEnvList))
+        DEBUG("gblCgiEnvList=%s", str(gblCgiEnvList))
         # This step is dedicated to the merging of several scripts.
 
-        yield("<tr align=left><td colspan=2 align=left><h2>Fusion of data from %d scripts</h2></td></tr>"%len(gblCgiEnvList))
+        yield(
+                "<tr align=left><td colspan=2 align=left><h2>Fusion of data from %d scripts</h2></td></tr>"
+                % len(gblCgiEnvList))
         for aCgiEnv in gblCgiEnvList:
-            DEBUG("aCgiEnv=%s",str(aCgiEnv))
-            DEBUG("aCgiEnv.m_page_title=%s",str(aCgiEnv.m_page_title))
-            DEBUG("aCgiEnv.m_calling_url=%s",str(aCgiEnv.m_calling_url))
-            #(page_title_first,page_title_rest) = lib_util.SplitTextTitleRest(aCgiEnv.m_page_title)
-            page_title_first,page_title_rest = aCgiEnv.m_page_title, aCgiEnv.m_page_subtitle
-            yield("<tr><td><a href='%s'>%s</td><td><i>%s</i></td></tr>"%(aCgiEnv.m_calling_url,page_title_first,page_title_rest))
+            page_title_first, page_title_rest = aCgiEnv.m_page_title, aCgiEnv.m_page_subtitle
+            yield(
+                    "<tr><td><a href='%s'>%s</td><td><i>%s</i></td></tr>"
+                    % (aCgiEnv.m_calling_url, page_title_first, page_title_rest))
     else:
-        # (page_title_first,page_title_rest) = lib_util.SplitTextTitleRest(theCgi.m_page_title)
-        (page_title_first,page_title_rest) = theCgi.m_page_title, theCgi.m_page_subtitle
-        yield("<tr><td colspan=2><h2>%s</h2></td></tr>"%(page_title_first))
+        (page_title_first, page_title_rest) = theCgi.m_page_title, theCgi.m_page_subtitle
+        yield "<tr><td colspan=2><h2>%s</h2></td></tr>" % page_title_first
         if page_title_rest:
-            yield("<tr><td colspan=2>%s</td></tr>"%(page_title_rest))
+            yield "<tr><td colspan=2>%s</td></tr>" % page_title_rest
 
-    yield('</table>')
+    yield '</table>'
 
 
 def _object_information_html_iterator(theCgi):
     if theCgi.m_entity_type:
-        # WrtAsUtf('m_entity_id: %s<br>'%(theCgi.m_entity_id))
-
         entity_module = lib_util.GetEntityModule(theCgi.m_entity_type)
-        entDoc = entity_module.__doc__
-        if entDoc:
-            entDoc = entDoc.strip()
+        ent_doc = entity_module.__doc__
+        if ent_doc:
+            ent_doc = ent_doc.strip()
         else:
-            entDoc = ""
+            ent_doc = ""
 
-        urlClass = lib_util.EntityClassUrl(theCgi.m_entity_type)
-        urlClass_with_mode = _url_in_html_mode(urlClass)
+        url_class = lib_util.EntityClassUrl(theCgi.m_entity_type)
+        url_class_with_mode = _url_in_html_mode(url_class)
 
-        yield('<table class="table_script_information">')
+        yield '<table class="table_script_information">'
         yield(
         """
         <tr>
@@ -88,12 +83,12 @@ def _object_information_html_iterator(theCgi):
             <td>%s</td>
         </tr>
         """
-        % ( urlClass_with_mode, theCgi.m_entity_type, entDoc ))
+        % (url_class_with_mode, theCgi.m_entity_type, ent_doc))
 
         for dict_property_value in theCgi.m_entity_id_dict.items():
-            yield("<tr><td>%s</td><td>%s</td></tr>" % dict_property_value )
+            yield "<tr><td>%s</td><td>%s</td></tr>" % dict_property_value
 
-        yield('</table>')
+        yield '</table>'
 
 
 def _parameters_edition_html_iterator(theCgi):
@@ -106,22 +101,22 @@ def _parameters_edition_html_iterator(theCgi):
 
     import lib_edition_parameters
 
-    formAction = os.environ['SCRIPT_NAME']
+    form_action = os.environ['SCRIPT_NAME']
 
-    for linHtml in lib_edition_parameters.FormEditionParameters(formAction,theCgi):
-        yield linHtml
+    for lin_html in lib_edition_parameters.FormEditionParameters(form_action, theCgi):
+        yield lin_html
 
 
-def _other_urls(topUrl):
-    if topUrl:
-        topUrl_with_mode = _url_in_html_mode(topUrl)
-        yield(topUrl_with_mode,"Home")
+def _other_urls(top_url):
+    if top_url:
+        topUrl_with_mode = _url_in_html_mode(top_url)
+        yield topUrl_with_mode, "Home"
 
-    yield(lib_exports.ModedUrl("svg"),"SVG format","Graphviz&trade; generated")
+    yield lib_exports.ModedUrl("svg"), "SVG format", "Graphviz&trade; generated"
 
-    yield(lib_exports.ModedUrl("rdf"),"RDF format","Semantic Web, RDF-Schema / Prot&eacute;g&eacute;&trade; / Jena...")
+    yield lib_exports.ModedUrl("rdf"), "RDF format","Semantic Web, RDF-Schema / Prot&eacute;g&eacute;&trade; / Jena..."
 
-    yield(lib_exports.UrlToMergeD3(),"D3","Javascript D3 library")
+    yield lib_exports.UrlToMergeD3(), "D3", "Javascript D3 library"
 
 
 def _other_urls_html_iterator(top_url):
@@ -131,50 +126,50 @@ def _other_urls_html_iterator(top_url):
 
     for url_trip in _other_urls(top_url):
         if len(url_trip) == 2:
-            yield('<tr><td align="left" colspan="2"><a href="%s"><b>%s</b></a></td></tr>' % url_trip)
+            yield '<tr><td align="left" colspan="2"><a href="%s"><b>%s</b></a></td></tr>' % url_trip
         else:
-            yield('<tr><td class="other_urls"><a href="%s">%s</a></td><td>%s</td></tr>' % url_trip)
+            yield '<tr><td class="other_urls"><a href="%s">%s</a></td><td>%s</td></tr>' % url_trip
 
 
 def _cim_urls_html_iterator():
     # This callback receives a RDF property (WBEM or WMI) and a map
     # which represents the CIM links associated to the current object.
-    def WMapToHtml(theMap):
-        DEBUG("WMapToHtml len=%d",len(theMap))
-        for urlSubj in theMap:
-            (subjText, subjEntityGraphClass, subjEntityId) = lib_naming.ParseEntityUri( lib_util.urllib_unquote(urlSubj) )
-            yield("<tr>")
-            yield("<td valign='top'><a href='%s'>%s</a></td>"%( str(urlSubj), subjText ) )
-            yield("<td>")
-            yield("<table border=0>")
-            for theProp, urlObj in theMap[urlSubj]:
-                yield("<tr>")
-                propNam = lib_exports.PropToShortPropNam(theProp)
-                yield("<td><i>%s</i></td>"%propNam)
-                if lib_kbase.IsLiteral(urlObj):
-                    yield("<td>%s</td>"%( str(urlObj) ) )
+    def w_map_to_html(the_map):
+        DEBUG("w_map_to_html len=%d", len(the_map))
+        for url_subj in the_map:
+            (subjText, subj_entity_graph_class, subj_entity_id) = lib_naming.ParseEntityUri(lib_util.urllib_unquote(url_subj))
+            yield "<tr>"
+            yield "<td valign='top'><a href='%s'>%s</a></td>" % (str(url_subj), subjText)
+            yield "<td>"
+            yield "<table border=0>"
+            for the_prop, url_obj in the_map[url_subj]:
+                yield "<tr>"
+                prop_nam = lib_exports.PropToShortPropNam(the_prop)
+                yield "<td><i>%s</i></td>" % prop_nam
+                if lib_kbase.IsLiteral(url_obj):
+                    yield "<td>%s</td>" % str(url_obj)
                 else:
-                    (objText, objEntityGraphClass, objEntityId) = lib_naming.ParseEntityUri( lib_util.urllib_unquote(urlObj) )
-                    yield("<td><a href='%s'>%s</a></td>"%( str(urlObj), objText ) )
-                yield("</tr>")
-            yield("</table>")
-            yield("</td>")
-        yield("</tr>")
+                    (obj_text, obj_entity_graph_class, obj_entity_id) = lib_naming.ParseEntityUri(lib_util.urllib_unquote(url_obj))
+                    yield "<td><a href='%s'>%s</a></td>" % (str(url_obj), obj_text)
+                yield "</tr>"
+            yield "</table>"
+            yield "</td>"
+        yield "</tr>"
 
-    callingUrl = lib_util.RequestUri()
-    ( entity_label, entity_type, entity_id ) = lib_naming.ParseEntityUri(callingUrl,longDisplay=True)
+    calling_url = lib_util.RequestUri()
+    (entity_label, entity_type, entity_id) = lib_naming.ParseEntityUri(calling_url, longDisplay=True)
     host_wbem_wmi = lib_util.currentHostname
     nameSpace = ""
 
-    mapWbem = CIM_ComputerSystem.AddWbemServers(host_wbem_wmi, nameSpace, entity_type, entity_id)
-    for linHtml in WMapToHtml(mapWbem):
-        yield linHtml
-    mapWmi = CIM_ComputerSystem.AddWmiServers(host_wbem_wmi, nameSpace, entity_type, entity_id)
-    for linHtml in WMapToHtml(mapWmi):
-        yield linHtml
-    mapSurvol = CIM_ComputerSystem.AddSurvolServers(host_wbem_wmi, nameSpace, entity_type, entity_id)
-    for linHtml in WMapToHtml(mapSurvol):
-        yield linHtml
+    map_wbem = CIM_ComputerSystem.AddWbemServers(host_wbem_wmi, nameSpace, entity_type, entity_id)
+    for lin_html in w_map_to_html(map_wbem):
+        yield lin_html
+    map_wmi = CIM_ComputerSystem.AddWmiServers(host_wbem_wmi, nameSpace, entity_type, entity_id)
+    for lin_html in w_map_to_html(map_wmi):
+        yield lin_html
+    map_survol = CIM_ComputerSystem.AddSurvolServers(host_wbem_wmi, nameSpace, entity_type, entity_id)
+    for lin_html in w_map_to_html(map_survol):
+        yield lin_html
 
 
 def _scripts_tree_html_iterator(theCgi):
@@ -236,7 +231,7 @@ def _scripts_tree_html_iterator(theCgi):
             to calculate the rowspan and colspan of each cell.
             Although elegant, it is not garanteed to work.
         """
-        yield('<table class="scripts_tree_class">')
+        yield '<table class="scripts_tree_class">'
         try:
             map_props = dict_scripts[subj]
         except KeyError:
@@ -265,41 +260,41 @@ def _scripts_tree_html_iterator(theCgi):
 
         if subj:
             subj_str = str(subj)
-            yield('<td valign="top" rowspan="%d" class="scripts_tree_class">'%len(map_props))
+            yield '<td valign="top" rowspan="%d" class="scripts_tree_class">' % len(map_props)
             if lib_kbase.IsLink( subj ):
                 url_with_mode = _url_in_html_mode(subj_str)
                 if subj_uniq_title:
                     subj_uniq_title_not_none = subj_uniq_title
                 else:
                     subj_uniq_title_not_none = "No title"
-                yield( '<a href="' + url_with_mode + '">' + subj_uniq_title_not_none + "</a>")
+                yield '<a href="' + url_with_mode + '">' + subj_uniq_title_not_none + "</a>"
             else:
-                yield( subj_str )
-            yield("</td>")
+                yield subj_str
+            yield "</td>"
 
         if not subj_uniq_title:
             for one_prop in map_props:
                 lst_objs = map_props[one_prop]
 
-                yield('<td class="scripts_tree_class">')
-                yield('<table>')
+                yield '<td class="scripts_tree_class">'
+                yield '<table>'
                 for one_obj in lst_objs:
                     if one_obj is None:
                         continue
-                    yield('<tr>')
-                    yield('<td class="scripts_tree_class">')
+                    yield '<tr>'
+                    yield '<td class="scripts_tree_class">'
                     try:
-                        for linHtml in _display_level_table(one_obj, depth_menu):
-                            yield linHtml
+                        for table_lin_html in _display_level_table(one_obj, depth_menu):
+                            yield table_lin_html
                     except KeyError:
-                        yield("Script error: "+str(one_obj))
-                    yield('</td>')
-                    yield('</tr>')
-                yield('</table>')
-                yield('</td>')
+                        yield "Script error: " + str(one_obj)
+                    yield '</td>'
+                    yield '</tr>'
+                yield '</table>'
+                yield '</td>'
 
-        yield('</tr>')
-        yield( "</table>")
+        yield '</tr>'
+        yield "</table>"
 
     for lin_html in _display_level_table(None):
         yield lin_html
@@ -307,15 +302,15 @@ def _scripts_tree_html_iterator(theCgi):
 
 def _write_errors_no_jinja(error_msg, is_sub_server):
     if error_msg or is_sub_server:
-        yield('<table border="0">')
+        yield '<table border="0">'
 
         if error_msg:
-            yield('<tr><td bgcolor="#DDDDDD" align="center" color="#FF0000"><b></b></td></tr>')
-            yield('<tr><td bgcolor="#DDDDDD"><b>ERROR MESSAGE:%s</b></td></tr>' % error_msg)
+            yield '<tr><td bgcolor="#DDDDDD" align="center" color="#FF0000"><b></b></td></tr>'
+            yield '<tr><td bgcolor="#DDDDDD"><b>ERROR MESSAGE:%s</b></td></tr>' % error_msg
 
         if is_sub_server:
-            yield('<tr><td><a href="' + lib_exports.ModedUrl("stop") + '">Stop subserver</a></td></tr>')
-        yield(" </table><br>")
+            yield '<tr><td><a href="' + lib_exports.ModedUrl("stop") + '">Stop subserver</a></td></tr>'
+        yield " </table><br>"
 
 
 # TODO: When the objects have the same column names, displaying could be optimised
@@ -332,64 +327,63 @@ def _create_objects_list(grph):
     dict_class_subj_prop_obj = dict()
 
     # TODO: Group objects by type, then display the count, some info about each type etc...
-    for aSubj, aPred, anObj in grph:
+    for a_subj, a_pred, an_obj in grph:
         # No point displaying some keys if there is no value.
-        if aPred == pc.property_information :
+        if a_pred == pc.property_information :
             try:
-                if str(anObj) == "":
+                if str(an_obj) == "":
                     continue
             # 'ascii' codec can't encode character u'\xf3' in position 17: ordinal not in range(128)
             # u'SDK de comprobaci\xf3n de Visual Studio 2012 - esn'
-            except UnicodeEncodeError:
-                exc = sys.exc_info()[1]
+            except UnicodeEncodeError as exc:
                 ERROR("Exception %s",str(exc))
                 continue
 
-        subj_str = str(aSubj)
-        ( subj_title, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(subj_str)
+        subj_str = str(a_subj)
+        (subj_title, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri(subj_str)
 
         try:
-            dictSubjPropObj = dict_class_subj_prop_obj[entity_graphic_class]
+            dict_subj_prop_obj = dict_class_subj_prop_obj[entity_graphic_class]
             try:
-                dictPred = dictSubjPropObj[aSubj]
+                dict_pred = dict_subj_prop_obj[a_subj]
                 try:
-                    dictPred[aPred].append(anObj)
+                    dict_pred[a_pred].append(an_obj)
                 except KeyError:
                     # First time this object has this predicate.
-                    dictPred[aPred] = [ anObj ]
+                    dict_pred[a_pred] = [ an_obj ]
             except KeyError:
                 # First time we see this object.
-                dictSubjPropObj[aSubj] = { aPred : [ anObj ] }
+                dict_subj_prop_obj[a_subj] = {a_pred: [an_obj]}
         except KeyError:
             # First object of this class.
-            dict_class_subj_prop_obj[entity_graphic_class] = { aSubj: { aPred : [ anObj ] } }
+            dict_class_subj_prop_obj[entity_graphic_class] = {a_subj: {a_pred: [an_obj]}}
     return dict_class_subj_prop_obj
 
 
-def _objects_triplets(dictClassSubjPropObj):
+def _objects_triplets(dict_class_subj_prop_obj):
     """Group objects by class.
     Display list of classes with an index and a link to the class."""
 
     # No need to use natural sort, because these are no filenames or strings containing numbers.
-    for entity_graphic_class in sorted(dictClassSubjPropObj):
-        urlClass = lib_util.EntityClassUrl(entity_graphic_class)
-        urlClass_with_mode = _url_in_html_mode(urlClass)
-        dictSubjPropObj = dictClassSubjPropObj[entity_graphic_class]
+    for entity_graphic_class in sorted(dict_class_subj_prop_obj):
+        url_class = lib_util.EntityClassUrl(entity_graphic_class)
+        url_class_with_mode = _url_in_html_mode(url_class)
+        dict_subj_prop_obj = dict_class_subj_prop_obj[entity_graphic_class]
 
-        arrayGraphParams = lib_patterns.TypeToGraphParams(entity_graphic_class)
+        array_graph_params = lib_patterns.TypeToGraphParams(entity_graphic_class)
         # "Graphic_shape","Graphic_colorfill","Graphic_colorbg","Graphic_border","Graphic_is_rounded"
-        colorClass = arrayGraphParams[1]
+        color_class = array_graph_params[1]
 
-        yield( urlClass_with_mode, entity_graphic_class, colorClass, dictSubjPropObj )
+        yield url_class_with_mode, entity_graphic_class, color_class, dict_subj_prop_obj
 
 
-def _write_all_objects_no_jinja(dictClassSubjPropObj):
-    for (urlClass_with_mode, entity_graphic_class, colorClass, dictSubjPropObj) in _objects_triplets(dictClassSubjPropObj):
-        yield("<h3>Class <a href='%s'>%s</a></h3>"%(urlClass_with_mode,entity_graphic_class))
-        yield('<table class="class_objects" bgcolor=%s>'%colorClass)
-        one_class_html = "".join(_display_class_objects_no_jinja(dictSubjPropObj))
+def _write_all_objects_no_jinja(dict_class_subj_prop_obj):
+    for (url_class_with_mode, entity_graphic_class, color_class, dict_subj_prop_obj) in _objects_triplets(dict_class_subj_prop_obj):
+        yield "<h3>Class <a href='%s'>%s</a></h3>"%(url_class_with_mode,entity_graphic_class)
+        yield '<table class="class_objects" bgcolor=%s>' % color_class
+        one_class_html = "".join(_display_class_objects_no_jinja(dict_subj_prop_obj))
         yield one_class_html
-        yield(" </table>")
+        yield "</table>"
 
 
 def _display_class_objects_no_jinja(dict_subj_prop_obj):
@@ -397,7 +391,7 @@ def _display_class_objects_no_jinja(dict_subj_prop_obj):
     tuples_subjects_list = []
     for a_subj in dict_subj_prop_obj:
         subj_str = str(a_subj)
-        ( subj_title, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(subj_str)
+        (subj_title, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri(subj_str)
         if subj_title:
             # The intention is to detect a specific test case with accented characters.
             if subj_title[0] == 'Y' and subj_title.find("Boulogne"):
@@ -409,7 +403,7 @@ def _display_class_objects_no_jinja(dict_subj_prop_obj):
         tuples_subjects_list.append((a_subj, subj_str, subj_title, entity_graphic_class, entity_id))
 
     # Sorted by the title of the subject, which is the third value of the tuple.
-    lib_util.natural_sort_list(tuples_subjects_list,key=lambda tup: tup[2])
+    lib_util.natural_sort_list(tuples_subjects_list, key=lambda tup: tup[2])
 
     # Apparently, a problem is that "%" gets transformed into an hexadecimal number, preventing decoding.
     def _custom_decode_hex(the_str):
@@ -466,17 +460,17 @@ def _display_class_objects_no_jinja(dict_subj_prop_obj):
                     sys.stderr.write("obj_title=%s\n"%obj_title)
                     continue
 
-                yield('<tr>')
+                yield '<tr>'
 
                 if must_write_col_one_subj:
                     yield(
                         '<td valign="top" rowspan="%s"><a href="%s">%s</a></td>'
-                        % (str(cnt_preds), subj_str_with_mode, subj_title ) )
+                        % (str(cnt_preds), subj_str_with_mode, subj_title))
                     must_write_col_one_subj = False
 
                 if must_write_col_one_pred:
                     if a_pred not in _list_props_td_double_col_span :
-                        yield('<td valign="top" rowspan="%s">%s</td>' % (str(cnt_objs), pred_str))
+                        yield '<td valign="top" rowspan="%s">%s</td>' % (str(cnt_objs), pred_str)
                     must_write_col_one_pred = False
 
                 if a_pred in _list_props_td_double_col_span:
@@ -486,11 +480,11 @@ def _display_class_objects_no_jinja(dict_subj_prop_obj):
 
                 disp_mime_urls = True
 
-                yield('<td colspan="%d">' %(col_span))
+                yield '<td colspan="%d">' % col_span
                 if disp_mime_urls:
                     if lib_kbase.IsLink(an_obj):
-                        objStrClean = lib_util.UrlNoAmp(obj_str)
-                        mimeType = lib_mime.GetMimeTypeFromUrl(objStrClean)
+                        obj_str_clean = lib_util.UrlNoAmp(obj_str)
+                        mimeType = lib_mime.GetMimeTypeFromUrl(obj_str_clean)
                         if mimeType:
                             if mimeType.startswith("image/"):
                                 yield(
@@ -498,21 +492,21 @@ def _display_class_objects_no_jinja(dict_subj_prop_obj):
                                     % (obj_str,obj_str, obj_title)
                                 )
                             else:
-                                yield("""<a href="%s">%s</a>""" % (obj_str, obj_title) )
+                                yield """<a href="%s">%s</a>""" % (obj_str, obj_title)
                         else:
                             url_with_mode = lib_util.url_mode_replace(obj_str, "html")
-                            yield("""<a href="%s">%s</a>""" % (url_with_mode, obj_title) )
+                            yield """<a href="%s">%s</a>""" % (url_with_mode, obj_title)
                     else:
-                        yield( '%s' %(obj_str))
+                        yield '%s' % obj_str
                 else:
                     if lib_kbase.IsLink(an_obj):
                         url_with_mode = _url_in_html_mode(obj_str)
-                        yield('<a href="%s">%s</a>' % (url_with_mode, obj_title))
+                        yield '<a href="%s">%s</a>' % (url_with_mode, obj_title)
                     else:
-                        yield('%s' %(obj_str))
+                        yield '%s' % obj_str
 
-                yield("</td>")
-                yield("</tr>")
+                yield "</td>"
+                yield "</tr>"
 
 
 def display_html_text_header(page_title):
@@ -542,7 +536,7 @@ def display_html_text_footer():
     url_edt_supervisor = lib_util.uriRoot + "/edit_supervisor.py"
     url_edt_credentials = lib_util.uriRoot + "/edit_credentials.py"
 
-    wrtFmt = """
+    wrt_fmt = """
     <br>
     <table width="100%%"><tr>
     <td><a href="%s">Survol home</a></td>
@@ -553,11 +547,11 @@ def display_html_text_footer():
     </tr></table>
     """
 
-    wrtTxt = wrtFmt % (url_index, url_edt_configuration, url_edt_credentials, url_edt_supervisor)
-    yield(wrtTxt)
+    wrt_txt = wrt_fmt % (url_index, url_edt_configuration, url_edt_credentials, url_edt_supervisor)
+    yield wrt_txt
 
 
-def _Grph2Html_no_jinja(theCgi, topUrl, error_msg, isSubServer, gblCgiEnvList):
+def _Grph2Html_no_jinja(theCgi, top_url, error_msg, is_sub_server, gblCgiEnvList):
     """
         This transforms an internal data graph into a HTML document.
     """
@@ -573,7 +567,7 @@ def _Grph2Html_no_jinja(theCgi, topUrl, error_msg, isSubServer, gblCgiEnvList):
     object_information = "".join(_object_information_html_iterator(theCgi))
     WrtAsUtf(object_information)
 
-    WrtAsUtf("".join( _write_errors_no_jinja(error_msg,isSubServer) ) )
+    WrtAsUtf("".join(_write_errors_no_jinja(error_msg, is_sub_server)))
 
     dict_class_subj_prop_obj = _create_objects_list(grph)
 
@@ -593,7 +587,7 @@ def _Grph2Html_no_jinja(theCgi, topUrl, error_msg, isSubServer, gblCgiEnvList):
 
     WrtAsUtf("<h2>Other related urls</h2>")
     WrtAsUtf('<table class="other_urls">')
-    WrtAsUtf("".join( _other_urls_html_iterator(topUrl)))
+    WrtAsUtf("".join(_other_urls_html_iterator(top_url)))
     WrtAsUtf("".join(_cim_urls_html_iterator()))
     WrtAsUtf('</table>')
 
@@ -605,7 +599,7 @@ def _Grph2Html_no_jinja(theCgi, topUrl, error_msg, isSubServer, gblCgiEnvList):
     WrtAsUtf("</html> ")
 
 
-def _Grph2Html_jinja(theCgi, topUrl, error_msg, isSubServer, gblCgiEnvList):
+def _Grph2Html_jinja(theCgi, top_url, error_msg, is_sub_server, gblCgiEnvList):
     this_dir = os.path.dirname(os.path.abspath(__file__))
     template_file_name = "www/export_html.template.htm"
 
@@ -618,8 +612,8 @@ def _Grph2Html_jinja(theCgi, topUrl, error_msg, isSubServer, gblCgiEnvList):
     # Something like "/survol" or "survol/sources_types"
     url_dir = os.path.dirname(path_url)
 
-    num_slashes = len( url_dir.split("/") ) - 2
-    base_href = ( "../" * num_slashes ) + "www/"
+    num_slashes = len(url_dir.split("/")) - 2
+    base_href = ("../" * num_slashes) + "www/"
 
     # Create the jinja2 environment.
     # Notice the use of trim_blocks, which greatly helps control whitespace.
@@ -630,20 +624,20 @@ def _Grph2Html_jinja(theCgi, topUrl, error_msg, isSubServer, gblCgiEnvList):
     script_information_html = "".join(_script_information_html_iterator(theCgi, gblCgiEnvList))
     object_information_html = "".join(_object_information_html_iterator(theCgi))
 
-    errors_table_html = "".join( _write_errors_no_jinja(error_msg,isSubServer) )
+    errors_table_html = "".join(_write_errors_no_jinja(error_msg, is_sub_server))
 
     dict_class_subj_prop_obj = _create_objects_list(theCgi.m_graph)
 
     all_objects_list = []
-    for (urlClass_with_mode, entity_graphic_class, colorClass, dictSubjPropObj) in _objects_triplets(dict_class_subj_prop_obj):
-        one_class_html = "".join(_display_class_objects_no_jinja(dictSubjPropObj))
-        all_objects_list.append( (urlClass_with_mode,entity_graphic_class,colorClass,one_class_html))
+    for url_class_with_mode, entity_graphic_class, color_class, dict_subj_prop_obj in _objects_triplets(dict_class_subj_prop_obj):
+        one_class_html = "".join(_display_class_objects_no_jinja(dict_subj_prop_obj))
+        all_objects_list.append( (url_class_with_mode,entity_graphic_class,color_class,one_class_html))
 
     parameters_edition_html = "".join(_parameters_edition_html_iterator(theCgi))
 
-    scripts_tree_html = "".join( _scripts_tree_html_iterator(theCgi) )
+    scripts_tree_html = "".join( _scripts_tree_html_iterator(theCgi))
 
-    list_other_urls = _other_urls(topUrl)
+    list_other_urls = _other_urls(top_url)
     html_cim_urls = "".join(_cim_urls_html_iterator())
 
     jinja_render = jinja_template.render(
@@ -655,10 +649,10 @@ def _Grph2Html_jinja(theCgi, topUrl, error_msg, isSubServer, gblCgiEnvList):
         all_objects_list=all_objects_list,
         parameters_edition_html=parameters_edition_html,
         scripts_tree_html=scripts_tree_html,
-        list_other_urls = list(list_other_urls),
-        html_cim_urls = html_cim_urls
+        list_other_urls=list(list_other_urls),
+        html_cim_urls=html_cim_urls
     )
-    WrtAsUtf( jinja_render )
+    WrtAsUtf(jinja_render)
 
 
 # The list gblCgiEnvList contains a list of URL which are merged
