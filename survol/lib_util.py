@@ -22,38 +22,32 @@ import logging
 import inspect
 import rdflib
 
-import lib_kbase
-
 # This minimizes changes because it is used everywhere.
 from lib_naming_conventions import standardized_file_path
 from lib_naming_conventions import standardized_memmap_path
 
-# In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
-# TODO: Use module six.
-try:
-    from urllib import quote as urllib_quote
-    from urllib import unquote as urllib_unquote
-except ImportError:
-    from urllib.parse import quote as urllib_quote
-    from urllib.parse import unquote as urllib_unquote
-
-try:
-    from urlparse import urlparse as survol_urlparse
-    from urlparse import parse_qs
-except ImportError:
-    from urllib.parse import urlparse as survol_urlparse
-    from urllib.parse import parse_qs
-
 is_py3 = sys.version_info >= (3,)
 
 if is_py3:
+    from urllib.parse import quote as urllib_quote
+    from urllib.parse import unquote as urllib_unquote
+    from urllib.parse import urlparse as survol_urlparse
+    from urllib.parse import parse_qs
+
     import html
     import html.parser
     def survol_unescape(s):
         return html.parser.unescape(s)
 
     html_escape = html.escape
+
+    from urllib.request import urlopen as survol_urlopen
 else:
+    from urllib import quote as urllib_quote
+    from urllib import unquote as urllib_unquote
+    from urlparse import urlparse as survol_urlparse
+    from urlparse import parse_qs
+
     # TODO: html might be present, so it might be worth testing.
     import HTMLParser
     def survol_unescape(s):
@@ -61,12 +55,6 @@ else:
 
     html_escape = cgi.escape
 
-# See tests/init.py which duplicates this statement.
-try:
-    # For Python 3.0 and later
-    from urllib.request import urlopen as survol_urlopen
-except ImportError:
-    # Fall back to Python 2's urllib2
     from urllib2 import urlopen as survol_urlopen
 
 
@@ -78,7 +66,6 @@ def SetLoggingConfig(log_level):
         logging.root.removeHandler(handler)
 
     # This avoids the message "No handlers could be found for logger "rdflib.term""
-    # rdflib is used at least by lib_kbase.py
     logging.basicConfig(
         stream=sys.stderr,
         format='%(asctime)s %(levelname)8s %(filename)s %(lineno)d %(message)s',
@@ -176,14 +163,8 @@ scalar_data_types = six.string_types + (six.text_type, six.binary_type, float, b
 ################################################################################
 
 NodeLiteral = rdflib.Literal
-#def NodeLiteral(value):
-#    return rdflib.Literal(value)
 
 NodeUrl = rdflib.term.URIRef
-#def NodeUrl(url):
-#    # TODO: Apparently, it is called twice, which is not detected
-#    # because MakeNodeUrl returns the same string.
-#    return rdflib.term.URIRef(url)
 
 ################################################################################
 
@@ -244,6 +225,7 @@ def HttpPrefix():
     # sys.stderr.write("HttpPrefix server_addr=%s prfx=%s\n"%(server_addr,prfx))
     return prfx
 
+
 # This is also used in lib_client to differentiate local from remote scripts.
 # Objects need an URL, but if no agent is used, we need a pseudo-URL,
 # represented by the string, by convention. Syntactically, this is a correct URL.
@@ -285,8 +267,9 @@ def UriRootHelper():
     # sys.stderr.write("UriRootHelper urh=%s\n"%urh)
     return urh
 
+
 uriRoot = UriRootHelper()
-# sys.stderr.write("Setting uriRoot. __file__=%s\n"%__file__)
+
 
 ################################################################################
 
@@ -385,16 +368,15 @@ def IsLocalAddress(an_host_nam):
         return True
 
     try:
-        ipOnly = GlobalGetHostByName(host_only)
+        ip_only = GlobalGetHostByName(host_only)
     # socket.gaierror
     except Exception as exc:
         # Unknown machine
         # sys.stderr.write("IsLocalAddress an_host_nam=%s:%s FALSE\n" % ( an_host_nam, str(exc) ) )
         return False
 
-    # IsLocalAddress MYHOST-HP ipOnly=192.168.0.14 localIP=127.0.0.1 currentHostname=127.0.0.1
-    # sys.stderr.write("IsLocalAddress %s ipOnly=%s localIP=%s currentHostname=%s\n"%(an_host_nam,ipOnly,localIP,currentHostname))
-    if ipOnly in [ "0.0.0.0", "127.0.0.1", localIP]:
+    # IsLocalAddress MYHOST-HP ip_only=192.168.0.14 localIP=127.0.0.1 currentHostname=127.0.0.1
+    if ip_only in ["0.0.0.0", "127.0.0.1", localIP]:
         # sys.stderr.write("IsLocalAddress %s TRUE\n"%an_host_nam)
         return True
 
@@ -405,6 +387,7 @@ def IsLocalAddress(an_host_nam):
 
     # sys.stderr.write("IsLocalAddress %s FALSE\n"%an_host_nam)
     return False
+
 
 # Beware: lib_util.currentHostname="Unknown-30-b5-c2-02-0c-b5-2.home"
 # socket.gethostname() = 'Unknown-30-b5-c2-02-0c-b5-2.home'
@@ -685,13 +668,13 @@ def ParseXid(xid):
 # https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"  => ""
 def parse_namespace_type(ns_entity_type):
     # sys.stderr.write("ParseEntityType entity_type=%s\n" % ns_entity_type )
-    nsSplit = ns_entity_type.split(":")
-    if len(nsSplit) == 1:
+    ns_split = ns_entity_type.split(":")
+    if len(ns_split) == 1:
         entity_namespace = ""
-        entity_type = nsSplit[0]
+        entity_type = ns_split[0]
     else:
-        entity_namespace = nsSplit[0]
-        entity_type = nsSplit[1]
+        entity_namespace = ns_split[0]
+        entity_type = ns_split[1]
     return entity_namespace, entity_type
 
 ################################################################################
@@ -699,7 +682,7 @@ def parse_namespace_type(ns_entity_type):
 
 def ScriptizeCimom(path, entity_type, cimom):
     """This is a adhoc solution, for a local use."""
-    return uriRoot + path + "?" + EncodeEntityId(cimom + "/" + entity_type,"")
+    return uriRoot + path + "?" + EncodeEntityId(cimom + "/" + entity_type, "")
 
 
 def Scriptize(path, entity_type, entity_id):
@@ -761,13 +744,13 @@ def KWArgsToEntityId(className, **kwargsOntology):
 
     for arg_key in keys_onto:
         try:
-            argVal = kwargsOntology[arg_key]
+            arg_val = kwargsOntology[arg_key]
         except KeyError:
             ERROR("KWArgsToEntityId className=%s. No key %s",className, arg_key)
             raise
 
         # TODO: The values should be encoded !!!
-        entity_id += delim + "%s=%s" % (arg_key, argVal)
+        entity_id += delim + "%s=%s" % (arg_key, arg_val)
         delim = ","
     # The values might come from many different origins
     if not is_py3:
@@ -790,7 +773,7 @@ def EntityUriDupl(entity_type, *entity_ids, **extra_args):
     entity_id = ",".join("%s=%s" % pairKW for pairKW in zip(keys, entity_ids))
     
     # Extra arguments, differentiating duplicates.
-    entity_id += "".join( ",%s=%s" % (extArg, extra_args[extArg]) for extArg in extra_args)
+    entity_id += "".join(",%s=%s" % (ext_arg, extra_args[ext_arg]) for ext_arg in extra_args)
 
     url = Scriptize("/entity.py", entity_type, entity_id)
     return NodeUrl(url)
@@ -817,6 +800,7 @@ def EntityScriptFromPath(moniker_entity, is_class, is_namespace, is_hostname):
     else:
         return ('entity_wmi.py','entity_wbem.py','entity.py')[ent_idx]
 
+
 # WMI, WBEM and Survol have the similar monikers.
 # TODO: This should split the arguments and reformat them according to the class.
 # TODO: This, because some parameters must be reformatted,
@@ -825,11 +809,11 @@ def EntityScriptFromPath(moniker_entity, is_class, is_namespace, is_hostname):
 # TODO: but we must be sure that WBEM and WMI will follow the same standard.
 # TODO: Probably same problem with CIM_DataFile on Windows because of backslashes
 # TODO: as directory separator.
-def EntityUrlFromMoniker(monikerEntity, is_class=False, is_namespace=False, is_hostname=False):
-    script_path = EntityScriptFromPath(monikerEntity, is_class, is_namespace, is_hostname)
+def EntityUrlFromMoniker(moniker_entity, is_class=False, is_namespace=False, is_hostname=False):
+    script_path = EntityScriptFromPath(moniker_entity, is_class, is_namespace, is_hostname)
 
     # sys.stderr.write("EntityUrlFromMoniker script_path=%s\n"%script_path)
-    url = uriRoot + "/" + script_path + xidCgiDelimiter + EncodeUri(monikerEntity)
+    url = uriRoot + "/" + script_path + xidCgiDelimiter + EncodeUri(moniker_entity)
     return url
 
 ################################################################################
@@ -843,7 +827,7 @@ def ComposeTypes(*hierarchical_entity_types):
 ################################################################################
 
 
-def CopyFile( mime_type, file_name):
+def CopyFile(mime_type, file_name):
     """Read and write by chunks, so that it does not use all memory."""
     sys.stderr.write("CopyFile type globalOutMach=%s\n" % type(globalOutMach))
 
@@ -851,7 +835,7 @@ def CopyFile( mime_type, file_name):
 
     globalOutMach.HeaderWriter(mime_type)
 
-    outFd = globalOutMach.OutStream()
+    out_fd = globalOutMach.OutStream()
 
     # https://stackoverflow.com/questions/2374427/python-2-x-write-binary-output-to-stdout
     if is_apache_server():
@@ -869,19 +853,15 @@ def CopyFile( mime_type, file_name):
             break
         #  or os.environ["SERVER_SOFTWARE"].startswith("Apache/")
         if is_wsgi_server():
-            #outFd.write(chunk.decode('latin1'))
-            #outFd.write(chunk.decode('string_escape'))
-            #outFd.write(u"chunk.encode()")
             try:
-                outFd.write(chunk)
-                #outFd.write(chunk.decode())
+                out_fd.write(chunk)
             except:
                 # 'ascii' codec can't decode byte 0xf3 in position 1: ordinal not in range(128).
-                outFd.write(u"Cannot display:%s" % file_name)
+                out_fd.write(u"Cannot display:%s" % file_name)
         else:
-            outFd.write(chunk)
+            out_fd.write(chunk)
 
-    outFd.flush()
+    out_fd.flush()
     fil_des.close()
 
 ################################################################################
@@ -943,7 +923,7 @@ def ObjectTypesNoCache():
         if len(path) == ld:
             prefix = ""
         else:
-            prefix = path[ld +1:].replace("\\","/") + "/"
+            prefix = path[ld +1:].replace("\\", "/") + "/"
         for one_dir in dirs:
             if one_dir != "__pycache__":
                 yield prefix + one_dir
@@ -1128,11 +1108,10 @@ def OntologyClassKeys(entity_type):
 
     # Maybe the ontology is defined in the related module if it exists.
     entity_module = GetEntityModule(entity_type)
-    if     entity_module:
+    if entity_module:
         try:
             entity_ontology_all = entity_module.EntityOntology()
             _local_ontology[entity_type] = entity_ontology_all
-            # sys.stderr.write("OntologyClassKeys entity_type=%s loaded entity_ontology_all=%s\n" % (entity_type,str(entity_ontology_all)))
             return entity_ontology_all[0]
         except AttributeError:
             pass
@@ -1152,17 +1131,16 @@ def EntityIdToArray(entity_type, entity_id):
     # For the moment, this assumes that all keys are here.
     # Later, drop this constraint and allow WQL queries.
     try:
-        def DecodeCgiArg(a_key):
-            #sys.stderr.write("DecodeCgiArg aKey=%s type=%s dict_ids=%s\n"%(aKey,type(aKey),str(dict_ids)))
+        def decode_cgi_arg(a_key):
             a_val_raw = dict_ids[a_key]
             try:
                 val_decod = a_key.ValueDecode(a_val_raw)
                 return val_decod
             except AttributeError:
                 return a_val_raw
-        return [ DecodeCgiArg( aKey ) for aKey in onto_keys ]
+        return [decode_cgi_arg(a_key) for a_key in onto_keys]
     except KeyError:
-        gblLogger.error("EntityIdToArray missing key: type=%s id=%s onto=%s", entity_type , entity_id, str(onto_keys) )
+        gblLogger.error("EntityIdToArray missing key: type=%s id=%s onto=%s", entity_type, entity_id, str(onto_keys))
         raise
 
 
@@ -1173,7 +1151,7 @@ def EntityIdToArray(entity_type, entity_id):
 # TODO: Checks that the argument is not already there.
 # TODO: Most of times, it is used for changing the mode.
 def _concatenate_cgi_argument(url, keyvalpair):
-    if url.rfind( '?' ) == -1:
+    if url.rfind('?') == -1:
         return url + "?" + keyvalpair
     else:
         return url + "&" + keyvalpair
@@ -1349,8 +1327,6 @@ def SplitMonikToWQL(moniker_to_split, class_name):
         qry_val = moniker_to_split[qry_key]
         a_qry += ' %s %s="%s"' % (qry_delim, qry_key, qry_val)
         qry_delim = "and"
-
-    DEBUG("Query=%s", a_qry)
     return a_qry
 
 
@@ -1397,8 +1373,8 @@ def split_url_to_entity(calling_url):
 
     params = parse_qs(query)
 
-    xidParam = params['xid'][0]
-    (entity_type, entity_id, entity_host) = ParseXid(xidParam)
+    xid_param = params['xid'][0]
+    (entity_type, entity_id, entity_host) = ParseXid(xid_param)
     entity_id_dict = SplitMoniker(entity_id)
 
     return parse_url.path, entity_type, entity_id_dict
@@ -1501,14 +1477,6 @@ def WrtAsUtf(input_str):
                              % (type(input_str), type(my_output_stream), exc))
 
 
-def SetDefaultOutput(wFile):
-    """For asynchronous display."""
-    # TODO: NEVER TESTED, JUST TEMP SYNTAX FIX.
-    sys.stderr.write("SetDefaultOutput NEVER TESTED\n")
-    global outputHttp
-    outputHttp = wFile
-
-
 # contentType = "text/rdf", "text/html", "image/svg+xml", "application/json" etc...
 def HttpHeaderClassic(out_dest, content_type, extra_args=None):
     # sys.stderr.write("HttpHeader:%s\n"%content_type)
@@ -1565,7 +1533,9 @@ def _get_entity_module_without_cache_no_catch(entity_type):
 def _get_entity_module_without_cache(entity_type):
     # sys.stderr.write("_get_entity_module_without_cache entity_type=%s\n"%entity_type)
 
-    # Temporary hack to avoid an annoying warning message.
+    # Temporary hack to avoid an annoying warning message. This type of entity is used for Survol scripts
+    # which return information. It is usefull to display them, so they need a special type,
+    # not only as plain files, but also as Survol scripts.
     if entity_type == "provider_script":
         return None
 
@@ -1688,7 +1658,7 @@ def DirDocNode(arg_dir, the_dir):
     return FromModuleToDoc(imported_mod, the_dir)
 
 
-def AppendNotNoneHostname(script, hostname):
+def _append_not_none_hostname(script, hostname):
     str_url = uriRoot + script
     if hostname:
         # The string "portal" is just there to have a nice title.
@@ -1698,7 +1668,7 @@ def AppendNotNoneHostname(script, hostname):
 
 def UrlPortalWbem(hostname=None):
     """Point to the WBEM portal for a given machine."""
-    str_url = AppendNotNoneHostname('/portal_wbem.py',hostname)
+    str_url = _append_not_none_hostname('/portal_wbem.py', hostname)
     gblLogger.debug("UrlPortalWbem str_url=%s", str_url)
     node_portal = NodeUrl(str_url)
     return node_portal
@@ -1706,7 +1676,7 @@ def UrlPortalWbem(hostname=None):
 
 def UrlPortalWmi(hostname=None):
     """Point to the WMI portal for a given machine."""
-    str_url = AppendNotNoneHostname('/portal_wmi.py', hostname)
+    str_url = _append_not_none_hostname('/portal_wmi.py', hostname)
     node_portal = NodeUrl(str_url)
     return node_portal
 
@@ -1737,18 +1707,23 @@ def TimeStamp():
 # TODO: Check for double insertion.
 # domainPredicate and rangePredicate are class names.
 # TODO: The data type is not correct.
-def AppendPropertySurvolOntology(name_predicate, description_predicate, domain_predicate, range_predicate, map_attributes):
+def AppendPropertySurvolOntology(
+        name_predicate,
+        description_predicate,
+        domain_predicate,
+        range_predicate,
+        map_attributes):
     if range_predicate:
-        dataType = None
+        data_type = None
     else:
-        dataType = "string"
+        data_type = "string"
     if not description_predicate:
         description_predicate = "Predicate %s" % name_predicate
     if name_predicate in map_attributes:
         map_attributes[name_predicate]["predicate_domain"].append(domain_predicate)
     else:
         map_attributes[name_predicate] = {
-            "predicate_type": dataType,
+            "predicate_type": data_type,
             "predicate_description": description_predicate,
             "predicate_domain" : [domain_predicate],
             "predicate_range" : range_predicate }
@@ -1763,7 +1738,7 @@ def AppendClassSurvolOntology(entity_type, map_classes, map_attributes):
     # To make thing simpler, slashes are translated into a dot.
     # NOTE: A difference between Survol and CIM, is that survols carries
     # the hierarchy of classes in their names, just like files.
-    def SurvolClassToCIM(name_survol_class):
+    def survol_class_to_cim(name_survol_class):
         return name_survol_class.replace("/", ".")
 
     idx = 0
@@ -1776,8 +1751,8 @@ def AppendClassSurvolOntology(entity_type, map_classes, map_attributes):
         else:
             intermed_type = entity_type[:next_slash]
 
-        baseClassNameCIM = SurvolClassToCIM(base_class)
-        classNameCIM = SurvolClassToCIM(intermed_type)
+        base_class_name_cim = survol_class_to_cim(base_class)
+        class_name_cim = survol_class_to_cim(intermed_type)
 
         try:
             # This reloads all classes without cache because if it does not load
@@ -1788,18 +1763,17 @@ def AppendClassSurvolOntology(entity_type, map_classes, map_attributes):
                 ent_doc = ent_doc.strip()
             else:
                 ent_doc = "No %s module documentation" % entity_type
-        except:
-            exc = sys.exc_info()[1]
+        except Exception as exc:
             ent_doc = "Error:"+str(exc)
 
-        if classNameCIM == "":
+        if class_name_cim == "":
             raise Exception("Empty class in AppendClassSurvolOntology: entity_type=%s", entity_type)
-        map_classes[classNameCIM] = {"base_class": baseClassNameCIM, "class_description": ent_doc}
+        map_classes[class_name_cim] = {"base_class": base_class_name_cim, "class_description": ent_doc}
 
         onto_list = OntologyClassKeys(entity_type)
         # We do not have any other information about ontology keys.
         for onto_key in onto_list:
-            AppendPropertySurvolOntology(onto_key, "Ontology predicate %s"%onto_key, classNameCIM, None, map_attributes)
+            AppendPropertySurvolOntology(onto_key, "Ontology predicate %s"%onto_key, class_name_cim, None, map_attributes)
 
         idx = next_slash
 
