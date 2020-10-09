@@ -3,7 +3,6 @@
 import os
 import sys
 import subprocess
-import configparser
 import psutil
 import time
 import datetime
@@ -13,10 +12,10 @@ import tempfile
 _is_py3 = sys.version_info >= (3,)
 if _is_py3:
     import xmlrpc.client as xmlrpclib
+    import configparser
 else:
     import xmlrpclib
-
-#_xmlrpc_error = "XMLRPC Server proxy not started."
+    import ConfigParser as configparser
 
 # This starts a supervisor process in interactive mode, except if a daemon is already started.
 try:
@@ -134,20 +133,12 @@ def _get_supervisor_url():
     return supervisor_url
 
 
-#_cache_xmlrpc_server_proxy = None
-
-
 def _create_server_proxy():
-    #global _cache_xmlrpc_server_proxy
-    #if _cache_xmlrpc_server_proxy is not None:
-    #    return _cache_xmlrpc_server_proxy
     supervisor_url = _get_supervisor_url()
 
     # Now, create the connection the supervisor process.
     # Typical call: srv_prox = xmlrpclib.ServerProxy('http://chris:123@127.0.0.1:9001')
-    # _cache_xmlrpc_server_proxy = xmlrpclib.ServerProxy(supervisor_url)
     xmlrpc_server_proxy = xmlrpclib.ServerProxy(supervisor_url)
-    #return _cache_xmlrpc_server_proxy
     return xmlrpc_server_proxy
 
 
@@ -231,6 +222,9 @@ def _local_supervisor_stop():
     else:
         sys.stderr.write("_local_supervisor_stop SHOULD BE RUNNING\n")
 
+    ### NOT YET ############### xmlrpc_server_proxy = _create_server_proxy()
+    ### NOT YET ############### xmlrpc_server_proxy.supervisor.shutdown()
+
     _supervisor_process.kill()
     _supervisor_process.communicate()
     try:
@@ -244,6 +238,8 @@ def _local_supervisor_stop():
         _supervisor_process = None
 
     # TODO: Should call _xmlrpc_server_proxy.supervisor.shutdown()
+    ### NOT YET ############### del xmlrpc_server_proxy
+    _log_supervisor_access("_local_supervisor_stop", "exit")
 
 
 def supervisor_startup():
