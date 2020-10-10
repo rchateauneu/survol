@@ -1237,12 +1237,12 @@ def get_url_mode(url):
     # Maybe it contains a MIME type: application/java-archive,
     # application/vnd.ms-powerpoint, audio/3gpp2, application/epub+zip
 
-    # First argument, if QUERY_STRING
+    # First argument, if QUERY_STRING, not a complete URL.
     mtch_url = re.match(r"mode=([^\&]*).*", url)
     if mtch_url:
         return mtch_url.group(1)
     # After the arguments delimiter, or in a URL.
-    mtch_url = re.match(r".*\&mode=([^\&]*).*", url)
+    mtch_url = re.match(r".*[\?\&]mode=([^\&]*).*", url)
     if mtch_url:
         return mtch_url.group(1)
     return ""
@@ -1253,6 +1253,7 @@ def GuessDisplayMode():
     The previous url is needed when the current is "edit", that is, editing the CGI arguments.
     """
 
+    # These are only the arguments, not an URL.
     query_string = os.environ["QUERY_STRING"]
     query_mode = get_url_mode(query_string)
     if query_mode != "":
@@ -1261,6 +1262,7 @@ def GuessDisplayMode():
     try:
         # HTTP_REFERER=http://127.0.0.1/PythonStyle/print.py?mode=xyz
         referer = os.environ["HTTP_REFERER"]
+        # This is a full URL.
         mode_referer = get_url_mode(referer)
         # If we come from the edit form, we should not come back to id.
         # TODO: HOW CAN WE COME BACK TO THE FORMER DISPLAY MODE ??
