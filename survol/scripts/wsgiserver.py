@@ -9,6 +9,7 @@ import socket
 import traceback
 import importlib
 import wsgiref.simple_server as server
+import webbrowser
 
 if __package__:
     from . import daemon_factory
@@ -258,51 +259,19 @@ _port_number_default = 9000
 def __print_wsgi_server_usage():
     progNam = sys.argv[0]
     print("Survol WSGI server: %s"%progNam)
-    print("    -a,--address=<IP address> TCP/IP address")
-    print("    -p,--port=<number>        TCP/IP port number. Default is %d." % (_port_number_default))
-    # Ex: -b "C:\Program Files (x86)\Mozilla Firefox\firefox.exe"
-    print("    -b,--browser=<program>    Starts a browser")
-    print("    -v,--verbose              Verbose mode")
+    print("    -a,--address=<IP address> TCP/IP address.")
+    print("    -p,--port=<number>        TCP/IP port number. Default is %d." % _port_number_default)
+    print("    -b,--browser              Starts a browser.")
+    print("    -v,--verbose              Verbose mode.")
     print("")
     print("Script must be started with command: survol/scripts/wsgiserver.py")
 
 
-# https://docs.python.org/2/library/webbrowser.html
-def starts_webrowser(browser_name, the_url):
-    """This starts a browser with the specific module to do it"""
-
-    import webbrowser
-
-    # TODO: Parses the argument from the parameter
-    webbrowser.open(the_url, new=0, autoraise=True)
-
-
-def starts_browser(browser_name, the_url):
-    """This starts a browser whose executable is given on the command line"""
-    # Import only if needed.
-    import threading
-    import time
-    import subprocess
-
-    def __starts_browser_process():
-
-        print("About to start browser: %s %s"%(browser_name, the_url))
-
-        # Leaves a bit of time so the HTTP server can start.
-        time.sleep(5)
-
-        subprocess.check_call([browser_name, the_url])
-
-    threading.Thread(target=__starts_browser_process).start()
-    print("Browser thread started")
-
-
 def run_wsgi_server():
-    daemon_factory.supervisor_startup()
     try:
         opts, args = getopt.getopt(
             sys.argv[1:],
-            "ha:p:b:v",
+            "ha:p:bv",
             ["help", "address=", "port=", "browser=", "verbose"])
     except getopt.GetoptError as err:
         # print help information and exit:
@@ -321,42 +290,40 @@ def run_wsgi_server():
 
     verbose = False
     port_number = _port_number_default
-    browser_name = None
+    start_browser = False
 
-    for anOpt, aVal in opts:
-        if anOpt in ("-v", "--verbose"):
+    for an_opt, a_val in opts:
+        if an_opt in ("-v", "--verbose"):
             verbose = True
-        elif anOpt in ("-a", "--address"):
-            server_name = aVal
-        elif anOpt in ("-p", "--port"):
-            port_number = int(aVal)
-        elif anOpt in ("-b", "--browser"):
-            browser_name = aVal
-        elif anOpt in ("-h", "--help"):
+        elif an_opt in ("-a", "--address"):
+            server_name = a_val
+        elif an_opt in ("-p", "--port"):
+            port_number = int(a_val)
+        elif an_opt in ("-b", "--browser"):
+            start_browser = True
+        elif an_opt in ("-h", "--help"):
             __print_wsgi_server_usage()
             sys.exit()
         else:
             assert False, "Unhandled option"
 
-    currDir = os.getcwd()
-    if verbose:
-        print("cwd=%s path=%s"% (currDir, str(sys.path)))
+    # Here, the server starts for good.
+    daemon_factory.supervisor_startup()
 
-    theUrl = "http://" + server_name
+    curr_dir = os.getcwd()
+    if verbose:
+        print("cwd=%s path=%s"% (curr_dir, str(sys.path)))
+
+    the_url = "http://" + server_name
     if port_number:
         if port_number != 80:
-            theUrl += ":%d" % port_number
-    theUrl += "/survol/www/index.htm"
-    print("Url:"+theUrl)
+            the_url += ":%d" % port_number
+    the_url += "/survol/www/index.htm"
+    print("Url:"+the_url)
 
-    # Starts a thread which will starts the browser.
-    if browser_name:
-
-        if browser_name.startswith("webbrowser"):
-            starts_webrowser(browser_name,theUrl)
-        else:
-            starts_browser(browser_name,theUrl)
-        print("Browser thread started to:"+theUrl)
+    if start_browser:
+        webbrowser.open(the_url, new=0, autoraise=True)
+        print("Browser started to:" + the_url)
 
     start_server_forever(verbose, server_name, port_number, current_dir="")
 
