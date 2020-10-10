@@ -32,6 +32,7 @@ import lib_export_ontology
 import lib_export_dot
 import lib_export_html
 import lib_daemon
+import lib_command_line
 
 from lib_util import NodeLiteral
 from lib_util import NodeUrl
@@ -440,10 +441,14 @@ class CgiEnv():
     """
         This class parses the CGI environment variables which define an entity.
     """
-    def __init__(self, debug_stream=None, parameters={}, can_process_remote=False):
-        # TODO: This value is read again in OutCgiRdf, we could save time by making this object global.
-        #sys.stderr.write( "CgiEnv parameters=%s\n" % ( str(parameters) ) )
+    def __init__(self, parameters={}, can_process_remote=False):
+        # It is possible to run these scripts as CGI scripts, so this transforms
+        # command line arguments into CGI arguments. This is very helpful for debugging.
+        # TODO: At the moment, the mode cannot be changed.
+        lib_command_line.command_line_to_cgi_args()
+        assert "QUERY_STRING" in os.environ
 
+        # Some limitations of cgiserver.py and Python2:
         # TODO: When running from cgiserver.py, and if QUERY_STRING is finished by a dot ".", this dot
         # TODO: is removed. Workaround: Any CGI variable added after.
         # TODO: Also: Several slashes "/" are merged into one.
@@ -451,10 +456,10 @@ class CgiEnv():
         # TODO: ... or "xx.py?xid=smbshr.Id=////WDMyCloudMirror///rchateau" become "xx.py?xid=smbshr.Id=/WDMyCloudMirror/rchateau"
         # TODO: Replace by "xid=http:%2F%2F192.168.1.83:5988/."
         # Maybe a bad collapsing of URL ?
-        # sys.stderr.write("QUERY_STRING=%s\n" % os.environ['QUERY_STRING'] )
+
         mode = lib_util.GuessDisplayMode()
 
-        # Contains the optional arguments, needed by calling scripts.
+        # Contains the optional arguments of the script, entered as CGI arguments..
         self.m_parameters = parameters
 
         self.m_parameterized_links = dict()
@@ -496,7 +501,7 @@ class CgiEnv():
 
         self.m_arguments = cgi.FieldStorage()
 
-        (self.m_entity_type,self.m_entity_id,self.m_entity_host) = self.GetXid()
+        self.m_entity_type, self.m_entity_id, self.m_entity_host = self.GetXid()
         #sys.stderr.write("CgiEnv m_entity_type=%s m_entity_id=%s m_entity_host=%s\n"%(self.m_entity_type,self.m_entity_id,self.m_entity_host))
         self.m_entity_id_dict = lib_util.SplitMoniker(self.m_entity_id)
 
@@ -553,17 +558,16 @@ class CgiEnv():
 
     def _concatenate_entity_documentation(self):
         """This appends to the title, the documentation of the class of the object, if there is one. """
-        DEBUG("CgiEnv m_page_title=%s m_calling_url=%s", self.m_page_title, self.m_calling_url)
-        #sys.stderr.write("CgiEnv lib_util.globalOutMach:%s\n" %(lib_util.globalOutMach.__class__.__name__))
-        parsed_entity_uri = lib_naming.ParseEntityUri(self.m_calling_url, longDisplay=False, force_entity_ip_addr=None)
-        if parsed_entity_uri[2]:
+        full_title, entity_class, entity_id = lib_naming.ParseEntityUri(
+            self.m_calling_url,
+            longDisplay=False,
+            force_entity_ip_addr=None)
+        if entity_id:
             # If there is an object to display.
             # Practically, we are in the script "entity.py" and the single doc string is "Overview"
-            full_title = parsed_entity_uri[0]
             self.m_page_title += " " + full_title
 
             # We assume there is an object, and therefore a class and its description.
-            entity_class = parsed_entity_uri[1]
 
             # Similar code in objtypes.py
             # This is different of _get_calling_module, which takes the __doc__ of the script.
@@ -617,11 +621,11 @@ class CgiEnv():
             # See variable xidCgiDelimiter.
             # TODO: Consider base64 encoding all arguments with "Xid=".
             # The benefit would be to have the same encoding for all arguments.
-            xid = self.m_arguments["xid"].value
+            the_xid = self.m_arguments["xid"].value
         except KeyError:
             # See function enter_edition_mode
             try:
-                return ( "", "", "" )
+                return "", "", ""
                 # TODO: Not finished, useless or debugging purpose ?
                 entity_type = self.m_arguments["edimodtype"].value
                 monik_delim = ""
@@ -636,11 +640,12 @@ class CgiEnv():
                 return (entity_type, entity_id, "")
             except KeyError:
                 # No host, for the moment.
-                return ("", "", "")
-        return lib_util.ParseXid( xid )
+                return "", "", ""
+        return lib_util.ParseXid(the_xid)
     
     # TODO: If no arguments, allow to edit it.
     # TODO: Same font as in SVG mode.
+    # TODO: Use Jinja or any other HTML library to edit the script parameters.
     # Suggest all available scritps for this entity type.
     # Add legend in RDF mode:
     # http://stackoverflow.com/questions/3499056/making-a-legend-key-in-graphviz
@@ -661,20 +666,20 @@ class CgiEnv():
 
         print("<h3>%s</h3><br>"%self.m_page_title)
 
-        htmlForm = "".join(lib_edition_parameters.FormEditionParameters(form_action,self))
+        htmlForm = "".join(lib_edition_parameters.FormEditionParameters(form_action, self))
         print(htmlForm)
 
         print("</body>")
         print("</html>")
         sys.exit(0)
 
-    # These are the parameters specific to the script, which are edit in our HTML form, in enter_edition_mode().
-    # They must have a default value. Maybe we could always have an edition mode when their value
-    # is not set.
-    # If the parameter is "cimom", it will extract the host of Uris like these: Wee GetHost()
-    # https://jdd:test@acme.com:5959/cimv2:CIM_RegisteredProfile.InstanceID="acme:1"
-
     def get_parameters(self,paramkey):
+        """These are the parameters specific to the script, which are edit in our HTML form, in enter_edition_mode().
+        They must have a default value. Maybe we could always have an edition mode when their value is not set.
+        If the parameter is "cimom", it will extract the host of Uris like these: Wee GetHost()
+        https://jdd:test@acme.com:5959/cimv2:CIM_RegisteredProfile.InstanceID="acme:1"
+        """
+
         # Default value if no CGI argument.
         try:
             dflt_value = self.m_parameters[paramkey]
@@ -729,11 +734,10 @@ class CgiEnv():
 
         return param_val
 
-    # This is used for compatibility with the legacy scripts, which has a single id.
-    # Now all parameters must have a key. As a transition, GetId() will return the value of
-    # the value of an unique key-value pair.
-    # If this class is not in DMTF, we might need some sort of data dictionary.
     def GetId(self):
+        """This is used for some scripts which have a single parameter (For example pid and file name).
+        GetId() just returns the value of an unique key-value pair.
+        """
         DEBUG("GetId m_entity_type=%s m_entity_id=%s", self.m_entity_type, str( self.m_entity_id ) )
         try:
             # If this is a top-level url, no object type, therefore no id.
@@ -786,7 +790,7 @@ class CgiEnv():
     def OutCgiRdf(self, dot_layout = "", collapsed_properties=[]):
         global globalCgiEnvList
         DEBUG("OutCgiRdf globalMergeMode=%d m_calling_url=%s m_page_title=%s",
-              globalMergeMode, self.m_calling_url, self.m_page_title.replace("\n","<NL>"))
+              globalMergeMode, self.m_calling_url, self.m_page_title.replace("\n", "<NL>"))
 
         self.m_layoutParams = make_dot_layout( dot_layout, collapsed_properties )
 
