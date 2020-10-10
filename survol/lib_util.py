@@ -1232,31 +1232,31 @@ def RootUri():
 
 # https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
 def get_url_mode(url):
-    """Extracts the mode from an URL."""
+    """Extracts the mode from an URL or QUERY_STRING."""
 
     # Maybe it contains a MIME type: application/java-archive,
     # application/vnd.ms-powerpoint, audio/3gpp2, application/epub+zip
 
-    mtch_url = re.match(r".*[\?\&]mode=([^\&]*).*", url)
+    # First argument, if QUERY_STRING
+    mtch_url = re.match(r"mode=([^\&]*).*", url)
+    if mtch_url:
+        return mtch_url.group(1)
+    # After the arguments delimiter, or in a URL.
+    mtch_url = re.match(r".*\&mode=([^\&]*).*", url)
     if mtch_url:
         return mtch_url.group(1)
     return ""
 
 
-# The display mode can come from the previous URL or from a CGI environment.
 def GuessDisplayMode():
-    arguments = cgi.FieldStorage()
-    try:
-        try:
-            mode = arguments["mode"].value
-        except AttributeError:
-            # In case there are several mode arguments,
-            # hardcode to "info". Consequence of a nasty Javascript bug.
-            mode = "info"
-        if mode != "":
-            return mode
-    except KeyError:
-        pass
+    """The display mode can come from the previous URL or from a CGI environment.
+    The previous url is needed when the current is "edit", that is, editing the CGI arguments.
+    """
+
+    query_string = os.environ["QUERY_STRING"]
+    query_mode = get_url_mode(query_string)
+    if query_mode != "":
+        return query_mode
 
     try:
         # HTTP_REFERER=http://127.0.0.1/PythonStyle/print.py?mode=xyz
@@ -1272,15 +1272,6 @@ def GuessDisplayMode():
             else:
                 return mode_referer
 
-    except KeyError:
-        pass
-
-    try:
-        # When called from another module, cgi.FieldStorage might not work.
-        script = os.environ["SCRIPT_NAME"]
-        mode = get_url_mode( script )
-        if mode != "":
-            return mode
     except KeyError:
         pass
 
