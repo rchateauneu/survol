@@ -40,7 +40,8 @@ cgitb.enable(format="txt")
 
 
 class WsgiLocalTest(unittest.TestCase):
-    """Just runs locally without any network connection."""
+    """Just runs locally without any network connection. This does not start the server by importing
+    it as a module, but instead starts it from the Shell or as a DOS command."""
     def test_wsgiserver_help(self):
         """Check content of help command"""
         wsgi_help_command = [sys.executable, "survol/scripts/wsgiserver.py", "--help"]
