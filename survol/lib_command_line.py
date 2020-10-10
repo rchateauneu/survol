@@ -34,6 +34,7 @@ def command_line_to_cgi_args():
             class_name = split_script[index_sources_types + 1]
     except:
         pass
+    # Default display mode.
     display_mode = "json"
 
     line_options, line_arguments = getopt.getopt(sys.argv[1:], "hc:m:", ["help", "class=", "mode="])
@@ -49,8 +50,7 @@ def command_line_to_cgi_args():
         else:
             assert False, "Unhandled option:%s" % an_opt
 
-    query_string = script_name
-    query_string += "?mode=%s" % display_mode
+    query_string = "mode=%s" % display_mode
     if class_name:
         query_string += "&xid=%s." % class_name
 
@@ -60,12 +60,8 @@ def command_line_to_cgi_args():
         entity_ids = ",".join(line_arguments)
         query_string += entity_ids
 
-    sys.stderr.write("query_string=%s\n" % query_string)
-    sys.exit(1)
-
     os.environ["QUERY_STRING"] = query_string
     os.environ["SCRIPT_NAME"] = script_name
-    # os.environ["SERVER_NAME"] = script_name
 
     # TODO: Add profiling because this is much easier to profile from the command line than in a HTTP server.
     # See: python -m cProfile -s cumulative -m pytest tests/test_dockit.py::ReplaySessionsTest::test_replay_all_trace_files
