@@ -5,7 +5,7 @@ REM This works on 192.168.0.14 WIn7 but not on Win10
 REM It displays:
 REM Server address=192.168.0.14
 REM Opening rchateau-HP:8000
-python survol\scripts\cgiserver.py -b webbrowser
+python survol\scripts\cgiserver.py -b
 
 REM From win10 192.168.0.14, here is the result of the command IPCONFIG:
 REM Ethernet adapter Npcap Loopback Adapter:
@@ -35,7 +35,7 @@ REM Netbios names can be used.
 REM Other tests:
 REM When started from Win10 192.168.0.26, the machine can be found from Win7,
 REM but not from Win10 itself.
-python survol\scripts\cgiserver.py -b webbrowser -a 192.168.0.26
+python survol\scripts\cgiserver.py -b -a 192.168.0.26
 
 REM Here the machine is found from Win10 itself.
-python survol\scripts\cgiserver.py -b webbrowser -a 127.0.0.1
+python survol\scripts\cgiserver.py -b -a 127.0.0.1
