@@ -7,8 +7,6 @@ pc = rdflib.Namespace(primns)
 
 prefix_terminator = "#"
 primns_slash = primns + prefix_terminator
-# primns_slash = primns + '#'
-# primns_slash = primns + '/'
 
 # If prp contains a space, it is not properly parsed.
 # TODO: The extra parameter is not used yet.
@@ -43,24 +41,27 @@ def MakeProp(*prps,**kvargs):
     url = ret.replace(" ","_").replace("-","_")
     return rdflib.term.URIRef( url )
 
+
 MakeNodeForSparql = MakeProp
+
 
 # See lib_kbase.qname
 # ... and lib_sparql_custom_evals.survol_url = "http://www.primhillcomputers.com/survol#"
 def PropToQName(property_node):
     # property_node is a <class 'rdflib.term.URIRef'>, ex "rdflib.term.URIRef(u'http://primhillcomputers.com/survol/QuotaPagedPoolUsage')"
     # TODO: Should call compute_qname ?
-    strProp = str(property_node).rpartition("/")[2]
+    str_prop = str(property_node).rpartition("/")[2]
     # If "survol#Handle" for example.
-    if strProp.startswith("survol#"):
-        strProp = strProp[7:]
-    return strProp
+    if str_prop.startswith("survol#"):
+        str_prop = str_prop[7:]
+    return str_prop
+
 
 def MakeNodeForSparql(property_node):
     # property_node is a <class 'rdflib.term.URIRef'>, ex "rdflib.term.URIRef(u'http://primhillcomputers.com/survol/QuotaPagedPoolUsage')"
     # TODO: Should call compute_qname ?
-    strProp = str(property_node).rpartition("/")[2]
-    return strProp
+    str_prop = str(property_node).rpartition("/")[2]
+    return str_prop
 
 # TODO: Maybe "pc" could be an object, or redefine a call to a member,
 # which would allow to dynamically create properties.
@@ -136,7 +137,7 @@ pc.property_group                = MakeProp("LMI_Group")
 pc.property_groupid              = MakeProp("groupid")
 pc.property_file_size            = MakeProp("file_size")
 pc.property_file_device          = MakeProp("file_device")
-pc.property_script               = MakeProp("script",property_description="Data source") # Used only in entity.py and the likes, to attach scripts to a node.
+pc.property_script               = MakeProp("script", property_description="Data source") # Used only in entity.py and the likes, to attach scripts to a node.
 pc.property_rdf_data_nolist1     = MakeProp("Data1") # These three have a special role.
 pc.property_rdf_data_nolist2     = MakeProp("Data2") # Names must all be different
 pc.property_rdf_data_nolist3     = MakeProp("Data3") # Names must all be different
@@ -178,6 +179,7 @@ pc.property_subclass             = MakeProp("subclass")
 pc.property_cim_subclass         = MakeProp("cim subclass")
 pc.property_alias                = MakeProp("alias")
 pc.property_string_occurrence    = MakeProp("string occurrence")
+pc.property_error                = MakeProp("Error")
 
 dictPropertiesGraphAttributes = {
     pc.property_script: "GREEN",
