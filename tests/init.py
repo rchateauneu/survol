@@ -237,6 +237,8 @@ except ImportError:
 # FIXME: ... with Python 3, when communicating with sockets, it does not work,
 # FIXME: ... losing characters...
 def _start_cgiserver_subprocess_windows(agent_port, current_dir):
+    """This start cgiserver.py in a separate process by importing it as a module.
+    This module is therefore not started form the command line."""
     import win32process
     import win32con
 
@@ -278,6 +280,9 @@ def _start_cgiserver_subprocess_windows(agent_port, current_dir):
 
 
 def _start_cgiserver_subprocess_portable(agent_port, current_dir):
+    """This start cgiserver.py in a separate process by importing it as a module.
+    This module is therefore not started form the command line.
+    It is theoretically portable. """
     agent_process = multiprocessing.Process(
         target=scripts.cgiserver.start_server_forever,
         args=(True, agent_host, agent_port, current_dir))
