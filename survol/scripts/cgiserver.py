@@ -27,6 +27,7 @@ import os
 import socket
 import datetime
 import atexit
+import webbrowser
 
 if __package__:
     from . import daemon_factory
@@ -54,41 +55,12 @@ original_dir = os.getcwd()
 def __print_cgi_server_usage():
     prog_nam = sys.argv[0]
     print("Survol CGI server: %s"%prog_nam)
-    print("    -a,--address=<IP address> TCP/IP address")
+    print("    -a,--address=<IP address> TCP/IP address.")
     print("    -p,--port=<number>        TCP/IP port number. Default is %d." % _port_number_default)
     # Ex: -b "C:\Program Files (x86)\Mozilla Firefox\firefox.exe"
-    print("    -b,--browser=<program>    Starts a browser")
-    print("    -v,--verbose              Verbose mode")
+    print("    -b,--browser              Starts a browser.")
+    print("    -v,--verbose              Verbose mode.")
     print("")
-
-
-# https://docs.python.org/2/library/webbrowser.html
-def __open_url_with_webbrowser(browser_name, the_url):
-    """This starts a browser with the specific module to do it"""
-
-    import webbrowser
-
-    # TODO: Parses the argument from the parameter
-    webbrowser.open(the_url, new=0, autoraise=True)
-
-
-def __open_url_with_new_browser_process(browser_name, the_url):
-    """This starts a browser whose executable is given on the command line"""
-    # Import only if needed.
-    import threading
-    import time
-    import subprocess
-
-    def __starts_browser_process():
-        print("About to start browser: %s %s" % (browser_name, the_url))
-
-        # Leaves a bit of time so the HTTP server can start.
-        time.sleep(5)
-
-        subprocess.check_call([browser_name, the_url])
-
-    threading.Thread(target=__starts_browser_process).start()
-    print("Browser thread started")
 
 
 def _exit_handler():
@@ -98,12 +70,9 @@ def _exit_handler():
 
 def __run_cgi_server_internal():
     """Note: It is also possible to call the script from command line."""
-    daemon_factory.supervisor_startup()
-
-    atexit.register(_exit_handler)
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ha:p:b:v", ["help", "address=", "port=", "browser=", "verbose"])
+        opts, args = getopt.getopt(sys.argv[1:], "ha:p:bv", ["help", "address=", "port=", "browser", "verbose"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(err)  # will print something like "option -a not recognized"
@@ -123,7 +92,7 @@ def __run_cgi_server_internal():
 
     verbose = False
     port_number = _port_number_default
-    browser_name = None
+    start_browser = False
 
     for an_opt, a_val in opts:
         if an_opt in ("-v", "--verbose"):
@@ -133,12 +102,17 @@ def __run_cgi_server_internal():
         elif an_opt in ("-p", "--port"):
             port_number = int(a_val)
         elif an_opt in ("-b", "--browser"):
-            browser_name = a_val
+            start_browser = True
         elif an_opt in ("-h", "--help"):
             __print_cgi_server_usage()
             sys.exit()
         else:
             assert False, "Unhandled option"
+
+    # Here, the server starts for good.
+    daemon_factory.supervisor_startup()
+
+    atexit.register(_exit_handler)
 
     # The script must be started from a specific directory to match URLs.
     good_dir = os.path.join(os.path.dirname(__file__), "..", "..")
@@ -151,13 +125,9 @@ def __run_cgi_server_internal():
     the_url += "/survol/www/index.htm"
     print("Url:" + the_url)
 
-    # Starts a thread which will starts the browser.
-    if browser_name:
-        if browser_name.startswith("webbrowser"):
-            __open_url_with_webbrowser(browser_name, the_url)
-        else:
-            __open_url_with_new_browser_process(browser_name, the_url)
-        print("Browser thread started to:"+the_url)
+    if start_browser:
+        webbrowser.open(the_url, new=0, autoraise=True)
+        print("Browser started to:"+the_url)
 
     # Apache sets these environment variables.
     # SERVER_SOFTWARE=Apache/2.4.12 (Win64) OpenSSL/1.0.1m mod_wsgi/4.4.12 Python/2.7.10
