@@ -18,7 +18,7 @@ from lib_properties import pc
 
 
 def Usable(entity_type, entity_ids_arr):
-    """This must be a MSVC project file ending with .vcxproj"""
+    """For a MSVC project file ending with .vcxproj"""
     file_path = entity_ids_arr[0]
     return file_path.endswith(".vcxproj")
 
