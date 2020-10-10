@@ -46,7 +46,7 @@ class WsgiLocalTest(unittest.TestCase):
         wsgi_help_command = [sys.executable, "survol/scripts/wsgiserver.py", "--help"]
         command_result = subprocess.check_output(wsgi_help_command)
         print("WSGI help:", command_result)
-        self.assertTrue(command_result.startswith("Survol WSGI server"))
+        self.assertTrue(command_result.startswith(b"Survol WSGI server"))
 
 
 class WsgiRemoteTest(unittest.TestCase):
