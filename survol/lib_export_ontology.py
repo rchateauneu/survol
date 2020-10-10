@@ -171,7 +171,7 @@ def WriteRdfError(message, broken_url):
     new_grph = rdflib.Graph()
     new_grph.add((
         rdflib.term.URIRef(broken_url),
-        lib_properties.MakeProp("Error"),
+        lib_properties.pc.property_error,
         rdflib.Literal(message)))
 
     # Neither "xml/rdf" nor "text/rdf" are correct MIME-types.
