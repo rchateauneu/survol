@@ -9,22 +9,24 @@ import lib_util
 # it always assumes namespace=root/cimv2 : The other CIM namespaces
 # have no interest for our usage.
 
-# See lib_util.HostName()
-# WMI wants only the first part of the address on Windows (Same string for OpenPegasus and WMI).
-# On Linux apparently, Name="Unknown-30-b5-c2-02-0c-b5-2.home"
-# Beware of a normal address such as: "wb-in-f95.1e100.net"
-# TODO: Fix this !
+
 def TruncateHostname(hostDns):
-    hostSplit = hostDns.split(".")
-    if len(hostSplit) == 2 and hostSplit[1] == "home":
+    """See lib_util.HostName()
+    WMI wants only the first part of the address on Windows (Same string for OpenPegasus and WMI).
+    On Linux apparently, Name="Unknown-30-b5-c2-02-0c-b5-2.home"
+    Beware of a normal address such as: "wb-in-f95.1e100.net" """
+
+    # TODO: Fix this !
+    host_split = hostDns.split(".")
+    if len(host_split) == 2 and host_split[1] == "home":
         # if isPlatformLinux:
-        hostName = hostSplit[0]
+        host_name = host_split[0]
     else:
-        hostName = hostDns
-    return hostName
+        host_name = hostDns
+    return host_name
+
 
 class LocalBox:
-
     def MakeTheNode(self, entity_type, entity_id):
         return self.MakeTheNodeFromScript( "/entity.py", entity_type, entity_id)
 
@@ -43,31 +45,23 @@ class LocalBox:
         keys = lib_util.OntologyClassKeys(entity_type)
         #sys.stderr.write("UriMake keys=%s\n" % str(keys) )
 
-        lenKeys = len(keys)
-        lenEntIds = len(entity_id_arr)
+        len_keys = len(keys)
+        len_ent_ids = len(entity_id_arr)
 
-        assert lenKeys == lenEntIds
-        #if lenKeys < lenEntIds:
-        #    # Append fake temporary keys
-        #    ERROR("BuildEntity entity_type=%s Not enough keys:%s and %s",entity_type,str(keys),str(entity_id_arr))
-        #    keys += [ "Key_%d" % idx for idx in range(lenKeys,lenEntIds) ]
-        #elif lenKeys > lenEntIds:
-        #    # Not enough values. This is not a problem because of queries returning several objects.
-        #    ERROR("BuildEntity entity_type=%s Not enough values:%s and %s",entity_type,str(keys),str(entity_id_arr))
-        #    # entity_id_arr += [ "Unknown" ] * ( lenKeys - lenEntIds )
+        assert len_keys == len_ent_ids
 
         # Sorted keys, same order for Python 2 et 3.
-        entity_id = ",".join( "%s=%s" % kwItems for kwItems in zip( keys, entity_id_arr ) )
+        entity_id = ",".join("%s=%s" % kw_items for kw_items in zip(keys, entity_id_arr))
 
         return entity_id
 
     def UriMake(self, entity_type, *entity_id_arr):
-        entity_id = self.BuildEntity( entity_type, *entity_id_arr )
-        return self.MakeTheNode( entity_type, entity_id )
+        entity_id = self.BuildEntity(entity_type, *entity_id_arr)
+        return self.MakeTheNode(entity_type, entity_id)
 
     def UriMakeFromScript(self, path, entity_type, *entity_id_arr):
-        entity_id = self.BuildEntity( entity_type, *entity_id_arr )
-        return self.MakeTheNodeFromScript( path, entity_type, entity_id )
+        entity_id = self.BuildEntity(entity_type, *entity_id_arr)
+        return self.MakeTheNodeFromScript(path, entity_type, entity_id)
 
     # Example of call
     # UriMakeFromDict("CIM_Datafile/portable_executable/section", { "Name" : fileName, "Section" : sectionName } )
@@ -77,20 +71,20 @@ class LocalBox:
     # Or even: UriMakeFromDictCurrentPackage( Name = fileName, Section = sectionName )
     # Or even: UriMakeFromDictCurrentPackage(fileName,sectionName)
     def UriMakeFromDict(self, entity_type, entity_id_dict):
-        def UriPairEncode(keyIt,valIt):
+        def uri_pair_encode(keyIt, val_it):
             try:
                 # Maybe this is a derived type from str, encoding the value.
-                encodedVal = keyIt.ValueEncode(valIt)
-                # sys.stderr.write("UriPairEncode keyIt=%s typ=%s encodedVal=%s\n"%(keyIt,type(keyIt),encodedVal))
-                return (keyIt,encodedVal)
+                encoded_val = keyIt.ValueEncode(val_it)
+                # sys.stderr.write("uri_pair_encode keyIt=%s typ=%s encoded_val=%s\n"%(keyIt,type(keyIt),encoded_val))
+                return (keyIt,encoded_val)
             except AttributeError:
-                # sys.stderr.write("UriPairEncode keyIt=%s typ=%s\n"%(keyIt,type(keyIt)))
+                # sys.stderr.write("uri_pair_encode keyIt=%s typ=%s\n"%(keyIt,type(keyIt)))
                 # This is a plain str, no value encoding.
-                return (keyIt,valIt)
+                return (keyIt, val_it)
 
-        entity_id = ",".join( "%s=%s" % UriPairEncode(*kwItems) for kwItems in entity_id_dict.items() )
+        entity_id = ",".join("%s=%s" % uri_pair_encode(*kw_items) for kw_items in entity_id_dict.items())
         # sys.stderr.write("UriMakeFromDict entity_id=%s\n"%entity_id)
-        return self.MakeTheNode( entity_type, entity_id )
+        return self.MakeTheNode(entity_type, entity_id)
 
     # This is a virtual method.
     def TypeMake(self):
@@ -121,28 +115,27 @@ class LocalBox:
     # |    |    |    |    |--- PG_UnixProcess     Instance Names     Instances
     #
     def PidUri(self,pid):
-        return self.UriMake('CIM_Process',str(pid))
+        return self.UriMake('CIM_Process', str(pid))
 
     # TODO: Necessaire car CIM_ComputerSystem veut un nom de machine.
     # socket.gethostbyaddr("192.168.1.83")     => ('rchateau-HP.home', [], ['192.168.1.83'])
     # socket.gethostbyaddr("192.168.1.88")     => ('Unknown-30-b5-c2-02-0c-b5-2.home', [], ['192.168.1.88'])
     # socket.gethostbyaddr("192.168.1.81")     => ('WDMyCloudMirror.home', [], ['192.168.1.81'])
-    def HostnameUri(self,hostAddr):
+    def HostnameUri(self, host_addr):
         # WMI    : CIM_ComputerSystem => WIN32_ComputerSystem
         # OpenLMI: CIM_LogicalElement => CIM_System et CIM_ComputerSystem =>  CIM_UnitaryComputerSystem => PG_ComputerSystem
         # OpenPegasus: Idem.
-        # sys.stderr.write("HostnameUri=%s\n" % hostName )
+        # sys.stderr.write("HostnameUri=%s\n" % host_name )
         try:
-            hostName = TruncateHostname(hostAddr)
-        except:
-            exc = sys.exc_info()[1]
-            DEBUG("HostnameUri hostAddr=%s. Caught: %s", hostAddr, str(exc) )
-            hostName = hostAddr
+            host_name = TruncateHostname(host_addr)
+        except Exception as exc:
+            DEBUG("HostnameUri host_addr=%s. Caught: %s", host_addr, str(exc))
+            host_name = host_addr
 
         # Hostnames are case-insensitive, RFC4343 https://tools.ietf.org/html/rfc4343
-        hostName = hostName.lower()
+        host_name = host_name.lower()
 
-        return self.UriMake("CIM_ComputerSystem",hostName)
+        return self.UriMake("CIM_ComputerSystem", host_name)
 
     # TODO: THIS WILL NOT WORK IF REMOTE LIB, BECAUSE IT WRAPS A RemoteXXX
     #
@@ -175,8 +168,10 @@ class LocalBox:
     # OpenPegasus/Windows:
     # Nothing
     #
-    def SharedLibUri(self,soname):
-        return self.UriMake("CIM_DataFile", lib_util.EncodeUri(soname) )
+    def SharedLibUri(self, soname):
+        """This method should be in a module dedicated to this class, but it is used very often,
+        so it is convenient to have it here."""
+        return self.UriMake("CIM_DataFile", lib_util.EncodeUri(soname))
 
     # For a partition. Display the mount point and IO performance.
     # WMI
@@ -193,8 +188,10 @@ class LocalBox:
     # |   |   |--- CIM_GenericDiskPartition
     # |   |   |    |--- CIM_DiskPartition
     # |   |   |    |    |--- LMI_DiskPartition
-    def DiskPartitionUri(self,disk_name):
-        return self.UriMake("CIM_DiskPartition",disk_name)
+    def DiskPartitionUri(self, disk_name):
+        """This method should be in a module dedicated to this class, but it is used very often,
+        so it is convenient to have it here."""
+        return self.UriMake("CIM_DiskPartition", disk_name)
         # return self.UriMake("CIM_LogicalDisk",disk_name)
 
     # For a hard-disk.
@@ -220,8 +217,10 @@ class LocalBox:
     # |   |   |   |   |    |--- CIM_DiskDrive
     # |   |   |   |   |    |    |--- LMI_DiskDrive
     #
-    def DiskUri(self,disk_name):
-        return self.UriMake("CIM_DiskDrive",disk_name)
+    def DiskUri(self, disk_name):
+        """This method should be in a module dedicated to this class, but it is used very often,
+        so it is convenient to have it here."""
+        return self.UriMake("CIM_DiskDrive", disk_name)
 
     # smbshare has the form "//HOST/SHARE" ... but there is a bug in the test HTTP server
     # we are using, as it collapses duplicated slashes "//" into one,
@@ -229,7 +228,9 @@ class LocalBox:
     # The work-around is to encode slashes.
     # See modules CGIHTTPServer, BaseHTTPServer, CGIHTTPRequestHandler and
     # 'SERVER_SOFTWARE': 'SimpleHTTP/0.6 Python/2.7.10'
-    def SmbShareUri(self,smbshare):
+    def SmbShareUri(self, smbshare):
+        """This method should be in a module dedicated to this class, but it is used very often,
+        so it is convenient to have it here."""
         if smbshare[0:2] == "//":
             # Maybe we should cgiescape the whole string.
             smbshare = "%2F%2F" + smbshare[2:]
@@ -241,7 +242,7 @@ class LocalBox:
     def SmbServerUri(self,smbserver):
         return self.UriMake("smbserver", smbserver)
 
-    def SmbFileUri(self,smbshare,smbfile):
+    def SmbFileUri(self, smbshare, smbfile):
         if smbfile and smbfile[0] != "/":
             fullnam = smbshare + "/" + smbfile
         else:
@@ -249,32 +250,35 @@ class LocalBox:
         return self.UriMake("smbfile", fullnam )
 
     # TODO: Services are also a process. Also, put this in its module.
-    def ServiceUri(self,service):
+    def ServiceUri(self, service):
         return self.UriMake("Win32_Service", service)
 
     # TODO: This function should be moved to its module.
-    def SmbDomainUri(self,smbdomain):
+    def SmbDomainUri(self, smbdomain):
         return self.UriMake("smbdomain", smbdomain)
 
-    # Purely abstract, because a symbol can be defined in several libraries.
-    # Its use depend on the behaviour of the dynamic linker if it is defined several
+    # This class does not represent a physical concept, because a symbol can be defined in several libraries.
+    # The use of this logical concept depends on the behaviour of the dynamic linker if it is defined several
     # times in the same binary. If the file is not defined, this is a system call.
+    # This concept also works for Python, Perl or any language, depending on the file.
     # TODO: DOES NOT WORK IF REMOTE SYMBOL.
-    def SymbolUri(self,symbol_name, path = ""):
+    def SymbolUri(self, symbol_name, path=""):
         # The URL should never contain the chars "<" or ">".
         symbol_name = lib_util.Base64Encode(symbol_name)
         # TODO: Move that to linker_symbol/__init__.py and see sources_types.sql.query.MakeUri
         # TODO: Alphabetical order !!!!
         path = lib_util.standardized_file_path(path)
-        return self.UriMakeFromDict("linker_symbol", { "Name" : symbol_name, "File" : lib_util.EncodeUri(path) } )
+        return self.UriMakeFromDict("linker_symbol", {"Name": symbol_name, "File": lib_util.EncodeUri(path)})
 
     # Might be a C++ class or a namespace, as there is no way to differentiate from ELF symbols.
+    # This can also be a Pythonor Perl class: This is a logical concept, whose implementation
+    # depends on the language of the file path.
     # TODO: Move that to class/__init__.py and see sources_types.sql.query.MakeUri
     def ClassUri(self,class_name, path = ""):
         # The URL should never contain the chars "<" or ">".
         class_name = lib_util.Base64Encode(class_name)
         path = lib_util.standardized_file_path(path)
-        return self.UriMakeFromDict("class", { "Name" : class_name, "File" : lib_util.EncodeUri(path) } )
+        return self.UriMakeFromDict("class", {"Name": class_name, "File": lib_util.EncodeUri(path)})
 
     # CIM_DeviceFile is common to WMI and WBEM.
 
@@ -282,7 +286,7 @@ class LocalBox:
     # If there is a backslash-L, it will be replaced by "<TABLE>" in graphviz:
     # XML Parsing Error: not well-formed
     # Location: http://127.0.0.1/Survol/survol/entity.py?xid=file:C%3A%5CUsers%5Crchateau%5CAppData%5CLocal%5CMicrosoft%5CWindows%5CExplorer%5CThumbCacheToDelete%5Cthm9798.tmp
-    def FileUri(self,path):
+    def FileUri(self, path):
         path = lib_util.standardized_file_path(path)
         return self.UriMake("CIM_DataFile", lib_util.EncodeUri(path))
 
@@ -291,7 +295,7 @@ class LocalBox:
 
     # TODO: This function should be moved to its module.
     # If path is terminated by a backslash, it must be stripped otherwise things fail.
-    def DirectoryUri(self,path):
+    def DirectoryUri(self, path):
         # Normalize a pathname by collapsing redundant separators and up-level references
         # so that A//B, A/B/, A/./B and A/foo/../B all become A/B.
         # This string manipulation may change the meaning of a path that contains symbolic links.
@@ -303,7 +307,7 @@ class LocalBox:
         # If needed, they can always be replaced by a normal slash.
         #
         path = lib_util.standardized_file_path(path)
-        return self.UriMake( "CIM_Directory" , lib_util.EncodeUri(path))
+        return self.UriMake("CIM_Directory" , lib_util.EncodeUri(path))
 
     # This creates a node for a socket, so later it can be merged with the same socket.
     #
@@ -316,21 +320,20 @@ class LocalBox:
     # If the port is known, we could wrap the associated service in a Python script.
     # On the other hand, it forces the usage of a service.
     # We do not put it in a specific module because it is used everywhere and is unavoidable.
-    def AddrUri(self,addr,socketPort,transport="tcp"):
+    def AddrUri(self, addr, socket_port, transport="tcp"):
         # The standard id encodes the port as an integer.
         # But addr.EntityName() displays it with getservbyport
         try:
-            socketPortNumber = socket.getservbyname(socketPort)
+            socket_port_number = socket.getservbyname(socket_port)
         except:
-            socketPortNumber = int(socketPort)
+            socket_port_number = int(socket_port)
 
         # addr could be "LOCALHOST"
         if lib_util.IsLocalAddress(addr):
-            # hostName, aliases, _ = socket.gethostbyaddr(hstAddr)
             # TODO: Should use the actual IP address.
             addr = "127.0.0.1"
 
-        url = "%s:%d" % (addr,socketPortNumber)
+        url = "%s:%d" % (addr, socket_port_number)
 
         if transport != 'tcp':
             # This will happen rarely.
@@ -340,7 +343,7 @@ class LocalBox:
 
     # TODO: Maybe this should be a file, nothing else.
     # TODO: This function should be moved to its module.
-    def MemMapUri(self,memmap_path):
+    def MemMapUri(self, memmap_path):
         # Because DOT replace "\L" by "<TABLE>".
         # Probably must do that for files also.
         # "xid=memmap:C:\Program Files (x86)Memory mapsoogle\Chrome\Application\39.0.2171.95<TABLE>ocales\fr.pak"
@@ -379,35 +382,35 @@ class LocalBox:
     # Win32_SystemAccount : Tres intern a Windows, on peut laisser de cote.
     # Win32_GroupUser: "HomeUsers", "Administrator" : Association entre Win32_Group et un account
     #
-    def UserUri(self,username):
+    def UserUri(self, username):
         if lib_util.isPlatformLinux:
-            userTp = "LMI_Account"
+            user_tp = "LMI_Account"
         elif lib_util.isPlatformWindows:
             # TODO: DEPRECATED But this is called directly from entity.py.
             # TODO: Should be removed.
-            userTp = "Win32_UserAccount"
+            user_tp = "Win32_UserAccount"
         else:
-            userTp = "xxxxx"
+            user_tp = "this_should_not_happen"
 
-        splitUser = username.split("\\")
-        if len(splitUser) > 1:
-            userHost = splitUser[0]
-            userOnly = splitUser[1]
+        split_user = username.split("\\")
+        if len(split_user) > 1:
+            user_host = split_user[0]
+            user_only = split_user[1]
         else:
             # This transforms "rchateau-hp.home" into "rchateau-hp"
-            userHost = TruncateHostname(lib_util.currentHostname)
-            userOnly = username
-        userHost = userHost.lower() # RFC4343
+            user_host = TruncateHostname(lib_util.currentHostname)
+            user_only = username
+        user_host = user_host.lower() # RFC4343
         # BEWARE: "Name","Domain"
         # UriMake must take into account the order of the ontology
-        usrUri = self.UriMake(userTp,userOnly,userHost)
-        DEBUG("UserUri usrUri=%s",str(usrUri))
-        return usrUri
+        usr_uri = self.UriMake(user_tp, user_only, user_host)
+        DEBUG("UserUri usr_uri=%s", str(usr_uri))
+        return usr_uri
 
-    # TODO: This function should be moved to its module.
-    def GroupUri(self,groupname):
+    # TODO: This function should be moved to the module of the "group" class.
+    def GroupUri(self, groupname):
         if lib_util.isPlatformLinux:
-            return self.UriMake("LMI_Group",groupname)
+            return self.UriMake("LMI_Group", groupname)
         else:
             return None
 
@@ -415,19 +418,19 @@ class LocalBox:
     # TODO: At the moment, keys have this structure: {CE4AACFA-3CFD-4028-B2D9-F272314F07C8}
     # But we need a string to loop in the registry: win32con.HKEY_CLASSES_ROOT, "TypeLib".
     # What about the other thnigs in combrowse.py ? "Registered Categories" and "Running Objects" ?
-    def ComRegisteredTypeLibUri(self, keyName ):
-        return self.UriMake("com/registered_type_lib", lib_util.EncodeUri(keyName) )
+    def ComRegisteredTypeLibUri(self, key_name):
+        return self.UriMake("com/registered_type_lib", lib_util.EncodeUri(key_name))
 
     # TODO: This function should be moved to its module.
-    def ComTypeLibUri(self, fileName ):
-        return self.UriMake("com/type_lib", lib_util.EncodeUri(fileName) )
+    def ComTypeLibUri(self, file_name):
+        return self.UriMake("com/type_lib", lib_util.EncodeUri(file_name))
 
-    ###################################################################################
 
 gUriGen = LocalBox()
 
-# For a remote object displayed on the local agent.
+
 class RemoteBox (LocalBox):
+    """For a remote object displayed on the local agent."""
     def __init__(self,mach):
         self.m_mach = mach
 
@@ -441,19 +444,14 @@ class OtherAgentBox (LocalBox):
     def __init__(self, url_root_agent):
         self.m_urlRootAgent = url_root_agent
 
-    # No need to change the host because the object
-    # will be local to its agent.
-    # TODO: Adding a host in the url is a dangerous idea,
-    # because it is the same object displayed a remote agent.
-
     def RootUrl(self):
         return self.m_urlRootAgent
 
 
-# mach could be an IP address, a machine name, None, "localhost" etc...
 def MachineBox(mach):
+    """mach could be an IP address, a machine name, None, "localhost" etc..."""
     if lib_util.IsLocalAddress(mach):
-        theMachineBox = LocalBox()
+        the_machine_box = LocalBox()
     else:
-        theMachineBox = RemoteBox(mach)
-    return theMachineBox
+        the_machine_box = RemoteBox(mach)
+    return the_machine_box
