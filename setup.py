@@ -2,12 +2,6 @@
 
 import os
 import sys
-try:
-    # Python 2
-    from future_builtins import filter
-except ImportError:
-    # Python 3
-    pass
 
 import ast
 
@@ -20,6 +14,11 @@ from setuptools import find_packages
 
 from setuptools.command.install import install
 from setuptools.command.install_lib import install_lib
+
+is_py2 = sys.version_info < (3,)
+
+if is_py2:
+    from future_builtins import filter
 
 # https://stackoverflow.com/questions/677577/distutils-how-to-pass-a-user-defined-parameter-to-setup-py
 #
@@ -132,20 +131,28 @@ def package_files(directory):
             paths.append(os.path.join('..', path, filename))
     return paths
 
+
 # HTML and Javascript files for the D3 interface.
 extra_files = package_files('survol/www')
+
 # This file is needed for the events generators processes, started by the package supervisor.
 extra_files += ['survol/scripts/supervisord.conf']
 
 # The zip archive contains directories: docs, survol and tests.
 
+# This extracts the version number for the file "survol/__init__.py"
 with open(os.path.join('survol', '__init__.py')) as f:
     __version__ = ast.parse(next(filter(lambda line: line.startswith('__version__'), f))).body[0].value.s
 
 with open('README.txt') as readme_file:
     README = readme_file.read()
 
-# FIXME: survol.__doc__ = '\nSurvol library\n' ...
+# FIXME: Cleanup the doc strings, for example survol.__doc__ = '\nSurvol library\n' ...
+
+
+required_packages = ['psutil', 'rdflib']
+if is_py2:
+    required_packages.append("configparser")
 
 setup(
     name='survol',
@@ -159,12 +166,12 @@ setup(
     package_dir = {"survol": "survol"},
     # This is apparently not recursive.
     package_data={'survol': extra_files},
-    entry_points = {'console_scripts': [
+    entry_points={'console_scripts': [
         'survolcgi = survol.scripts.cgiserver:cgiserver_entry_point',
         'survolwsgi = survol.scripts.wsgiserver:wsgiserver_entry_point',
     ]},
     # These packages are not needed to run dockit.py which is strictly standalone.
-    install_requires=['psutil', 'rdflib'],
+    install_requires=required_packages,
     cmdclass={
         'install': InstallCommand,
         'install_lib': InstallLibCommand,
