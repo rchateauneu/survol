@@ -1,0 +1,33 @@
+Survol is made of dozens of CGI scripts written in Python.
+These scripts can be freely added or removed by a developer.
+This unique feature makes Survol extremely flexible and easy to customize.
+For example, it is possible to define a new class of objects, just be creaeting a directory.
+
+These CGI scripts are run from a CGI HTTP server and their output displayed in HTML or SVG to the uer browser.
+
+The specific design of these CGI scripts make them also usable in different contexts.
+
+They can be used from a WSGI server, with significantly better performance.
+This is at the cost of possible side effects between CGI scripts. Therefore,
+developers of Survol scripts will create and tests their code, as CGI scripts first,
+for ease of debugging, and then will run them in a WSGI server, without any code change.
+
+These scripts can also be run on a command line, as plain Python scripts.
+
+Again, this feature makes user scripts much easier to develop, debug and profile.
+
+For example, consider the URL which displas the tree processes:
+
+http://vps516494.ovh.net/Survol/survol/sources_types/enumerate_CIM_Process.py?xid=.
+
+This line runs the same script in the context of a DOS command. It output the same result in RDF format.
+set PYTHONPATH=survol&py -2.7 survol\sources_types\enumerate_CIM_Process.py --mode=rdf
+
+All formats are available: JSON, RDF, HTML, SVG etc...
+
+Of course, it is possible to specifiy parameters which uniquely define a Survol object:
+
+set PYTHONPATH=survol&py -2.7 survol\entity.py --class=CIM_Process --mode=json Handle=12804
+
+And profiling your own user scripts is straighforward:
+set PYTHONPATH=survol&py -2.7 -m cProfile survol\sources_types\enumerate_CIM_Process.py
