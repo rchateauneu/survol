@@ -68,9 +68,9 @@ def parse_call_arguments(str_args, ix_start=0):
 
         # This assumes that [] and {} are paired by strace so no need to check parity.
         if a_chr in '[{':
-            if ix_curr == ix_start +1:
+            if ix_curr == ix_start + 1:
                 obj_to_add, ix_start = parse_call_arguments(str_args, ix_curr)
-                the_result.append( obj_to_add )
+                the_result.append(obj_to_add)
                 while ix_start < len_str and str_args[ix_start] in ' ,':
                     ix_start += 1
                 ix_curr = ix_start
@@ -82,7 +82,7 @@ def parse_call_arguments(str_args, ix_start=0):
             level_parent -= 1
             if level_parent == -1:
                 finished = True
-                if ix_curr == ix_start +1:
+                if ix_curr == ix_start + 1:
                     continue
             else:
                 continue
@@ -149,8 +149,6 @@ class BatchStatus:
     no_return  = 7
     chrDisplayCodes = "? URmM "
 
-# Read from a real process or from the log file name when replaying a session.
-#G_topProcessId = None
 
 class BatchLetCore:
     # The input line is read from "strace" command.
@@ -248,20 +246,20 @@ class BatchLetCore:
         self._return_value = None
 
     # This parsing is specific to strace and ltrace.
-    def _init_after_pid(self, oneLine, idxStart):
+    def _init_after_pid(self, one_line, idx_start):
         # "07:54:54.206113"
-        aTimeStamp = oneLine[idxStart:idxStart+15]
+        aTimeStamp = one_line[idx_start:idx_start + 15]
 
         self._time_start = aTimeStamp
         self._time_end = aTimeStamp
-        theCall = oneLine[idxStart+16:]
+        the_call = one_line[idx_start + 16:]
 
         # "--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=19332, si_uid=1000, si_status=1, si_utime=0, si_stime=0} ---"
-        if theCall.startswith("--- "):
+        if the_call.startswith("--- "):
             raise ExceptionIsExit()
 
         # "+++ exited with 1 +++ ['+++ exited with 1 +++']"
-        if theCall.startswith("+++ "):
+        if the_call.startswith("+++ "):
             raise ExceptionIsSignal()
 
 
@@ -282,13 +280,11 @@ class BatchLetCore:
         # "[pid 18534] 19:58:38.406747 wait4(18666,  <unfinished ...>"
         # "19:58:38.410766 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 18666 <0.004009>"
 
-        idxGT = theCall.rfind(">")
-        # sys.stdout.write("idxGT=%d\n" % idxGT )
-        idxLT = theCall.rfind("<", 0, idxGT)
-        # sys.stdout.write("idxLT=%d\n" % idxLT )
+        idx_gt = the_call.rfind(">")
+        idx_lt = the_call.rfind("<", 0, idx_gt)
         self.m_status = BatchStatus.plain
-        if idxLT >= 0 :
-            exeTm = theCall[idxLT+1:idxGT]
+        if idx_lt >= 0 :
+            exeTm = the_call[idx_lt+1:idx_gt]
             if exeTm == "unfinished ...":
                 self.m_execTim = ""
                 self.m_status = BatchStatus.unfinished
@@ -297,7 +293,6 @@ class BatchLetCore:
                 self.m_execTim = ""
                 self.m_status = BatchStatus.no_return
             else:
-                ### ????? self.m_execTim = theCall[idxLT+1:idxGT]
                 self.m_execTim = exeTm
         else:
             self.m_execTim = ""
@@ -307,50 +302,50 @@ class BatchLetCore:
         # [pid 11762] 10:56:39.125896 mmap@SYS(nil, 4096, 3, 34, -1, 0 <unfinished ...>
         # [pid 11761] 10:56:39.125939 <... close resumed> ) = 0 <0.000116>
         # [pid 11762] 10:56:39.125955 <... mmap resumed> ) = 0x7f75198d5000 <0.000063>
-        matchResume = re.match(r"<\.\.\. ([^ ]*) resumed> (.*)", theCall)
-        if matchResume:
+        match_resume = re.match(r"<\.\.\. ([^ ]*) resumed> (.*)", the_call)
+        if match_resume:
             self.m_status = BatchStatus.resumed
             # TODO: Should check if this is the correct function name.
-            funcNameResumed = matchResume.group(1)
-            self._set_function(funcNameResumed)
+            func_name_resumed = match_resume.group(1)
+            self._set_function(func_name_resumed)
 
             # ") = 0 <0.000069>"
             # ", { 0x5612836832c0, <>, 0, nil }) = 0 <0.000361>"
 
             # Offset of the second match.
             # A 'resumed' function call does not have an opening parenthesis.
-            idxPar = matchResume.start(2) - 1
+            idx_par = match_resume.start(2) - 1
 
         else:
-            idxPar = theCall.find("(")
+            idx_par = the_call.find("(")
 
-            if idxPar <= 0 :
+            if idx_par <= 0:
                 # With ltrace only, wrong detection: https://github.com/dkogan/ltrace/blob/master/TODO
-                # oneLine='error: maximum array length seems negative, "\236\245\v", 8192) = -21'
+                # one_line='error: maximum array length seems negative, "\236\245\v", 8192) = -21'
                 if self.m_tracer == "ltrace":
-                    if oneLine.startswith("error:"):
-                        sys.stdout.write("Warning ltrace:%s\n" % oneLine)
+                    if one_line.startswith("error:"):
+                        sys.stdout.write("Warning ltrace:%s\n" % one_line)
                         self._set_default_on_error()
                         return
 
                 # Exception: No function in:22:50:11.879132 <... exit resumed>) = ?
                 # Special case, when it is leaving:
                 elif self.m_tracer == "strace":
-                    if oneLine.find("<... exit resumed>) = ?") >= 0:
-                        sys.stdout.write("Warning strace exit:%s"%oneLine)
+                    if one_line.find("<... exit resumed>) = ?") >= 0:
+                        sys.stdout.write("Warning strace exit:%s" % one_line)
                         self._set_default_on_error()
                         return
 
-                    if oneLine.find("<... exit_group resumed>) = ?") >= 0:
-                        sys.stdout.write("Warning strace exit_group:%s\n"%oneLine)
+                    if one_line.find("<... exit_group resumed>) = ?") >= 0:
+                        sys.stdout.write("Warning strace exit_group:%s\n" % one_line)
                         self._set_default_on_error()
                         return
 
-                raise Exception("No function in:%s"%oneLine)
+                raise Exception("No function in:%s" % one_line)
 
-            self._set_function(theCall[:idxPar])
+            self._set_function(the_call[:idx_par])
 
-        self.m_parsedArgs, idxLastPar = parse_call_arguments(theCall, idxPar + 1)
+        self.m_parsedArgs, idx_last_par = parse_call_arguments(the_call, idx_par + 1)
 
         if self.m_status == BatchStatus.unfinished:
             # 18:46:10.920748 execve("/usr/bin/ps", ["ps", "-ef"], [/* 33 vars */] <unfinished ...>
@@ -361,30 +356,30 @@ class BatchLetCore:
             self._return_value = None
         else:
             # The parameters list might be broken, with strings containing an embedded double-quote.
-            if idxLastPar < 0:
+            if idx_last_par < 0:
                 # The parameters list might be broken, with strings containing an embedded double-quote.
                 # So the closing parenthesis could not be found.
-                idxEq = theCall.rfind("=", 0, idxLT)
-                if idxEq < 0:
-                    raise Exception("No = from end: idxLT=%d. function=%s" % (idxLT, theCall))
+                idx_eq = the_call.rfind("=", 0, idx_lt)
+                if idx_eq < 0:
+                    raise Exception("No = from end: idx_lt=%d. function=%s" % (idx_lt, the_call))
             else:
                 # Normal case where the '=' equal sign comes after the clolsing parenthese of the args list.
-                idxEq = theCall.find("=", idxLastPar)
-                if idxEq < 0:
+                idx_eq = the_call.find("=", idx_last_par)
+                if idx_eq < 0:
                     # This is acceptable in this circumstance only.
-                    if not theCall.endswith("<no return ...>\n") and not theCall.endswith("<detached ...>"):
+                    if not the_call.endswith("<no return ...>\n") and not the_call.endswith("<detached ...>"):
                         if self.m_tracer != "ltrace":
                         # This can happen with ltrace which does not escape double-quotes. Example:
                         # read@SYS(8, "\003\363\r\n"|\314Vc", 4096) = 765 <0.000049>
-                            raise Exception("No = from parenthesis: idxLastPar=%d. function=%s. Len=%d" % (idxLT, theCall, len(theCall)))
+                            raise Exception("No = from parenthesis: idx_last_par=%d. function=%s. Len=%d" % (idx_lt, the_call, len(the_call)))
 
-            if not(idxEq >= 0 and idxEq < idxLT):
+            if not(idx_eq >= 0 and idx_eq < idx_lt):
                 # If this is the last line, not a problem
                 # 20:20:34.510927 exit_group(0)           = ?
-                if not theCall.startswith("exit_group"):
-                    raise Exception("idxEq=%d idxLT=%d function=%s" % (idxEq, idxLT, theCall.strip()))
-            self._return_value = theCall[idxEq + 1:idxLT].strip()
-            # sys.stdout.write("idxEq=%d idxLastPar=%d idxLT=%d retValue=%s\n"%(idxEq,idxLastPar,idxLT,self._return_value))
+                if not the_call.startswith("exit_group"):
+                    raise Exception("idx_eq=%d idx_lt=%d function=%s" % (idx_eq, idx_lt, the_call.strip()))
+            self._return_value = the_call[idx_eq + 1:idx_lt].strip()
+            # sys.stdout.write("idx_eq=%d idx_last_par=%d idx_lt=%d retValue=%s\n"%(idx_eq,idx_last_par,idx_lt,self._return_value))
 
     def convert_to_string(self):
         return "%s %s s=%s" % (
@@ -401,12 +396,11 @@ class ExceptionIsSignal(Exception):
     pass
 
 
-def CreateBatchCore(oneLine,tracer):
-
+def _create_batch_core(one_line, tracer):
     try:
-        batchCore = BatchLetCore()
-        batchCore.parse_line_to_object(oneLine, tracer)
-        return batchCore
+        batch_core = BatchLetCore()
+        batch_core.parse_line_to_object(one_line, tracer)
+        return batch_core
     except ExceptionIsExit:
         return None
     except ExceptionIsSignal:
@@ -458,6 +452,7 @@ G_ignoredSyscalls = [
 
 G_batchModels = {sysCll + "@SYS": None for sysCll in G_ignoredSyscalls}
 
+
 # This metaclass allows derived class of BatchLetBase to self-register their function name.
 # So, the name of a system call is used to lookup the class which represents it.
 class BatchMeta(type):
@@ -475,30 +470,32 @@ class BatchMeta(type):
         btchLibPrefix = "BatchLetLib_"
 
         if name.startswith(btchSysPrefix):
-            syscallName = name[len(btchSysPrefix):] + "@SYS"
-            # sys.stdout.write("Registering sys function:%s\n"%syscallName)
-            G_batchModels[syscallName] = cls
+            syscall_name = name[len(btchSysPrefix):] + "@SYS"
+            # sys.stdout.write("Registering sys function:%s\n"%syscall_name)
+            G_batchModels[syscall_name] = cls
         elif name.startswith(btchLibPrefix):
-            syscallName = name[len(btchLibPrefix):]
-            # sys.stdout.write("Registering lib function:%s\n"%syscallName)
-            G_batchModels[syscallName] = cls
+            syscall_name = name[len(btchLibPrefix):]
+            # sys.stdout.write("Registering lib function:%s\n"%syscall_name)
+            G_batchModels[syscall_name] = cls
         elif name not in ["NewBase", "BatchLetBase", "BatchLetSequence"]:
             # Enumerate the list of legal base classes, for safety only.
             raise Exception("Invalid class name:%s"%name)
 
         super(BatchMeta, cls).__init__(name, bases, dct)
 
+
 # This is portable on Python 2 and Python 3.
 # No need to import the modules six or future.utils
 def my_with_metaclass(meta, *bases):
     return meta("NewBase", bases, {})
+
 
 # All class modeling a system call inherit from this.
 class BatchLetBase(my_with_metaclass(BatchMeta)):
 
     # The style tells if this is a native call or an aggregate of function
     # calls, made with some style: Factorization etc...
-    def __init__(self, batchCore,style="Orig"):
+    def __init__(self, batchCore, style="Orig"):
         self.m_core = batchCore
         self.m_occurrences = 1
         self.m_style = style
@@ -532,20 +529,20 @@ class BatchLetBase(my_with_metaclass(BatchMeta)):
         aFil = self._strace_stream_to_file(self.m_core.m_parsedArgs[idx])
         return [aFil]
 
-    def is_same_call(self, anotherBatch):
-        if self.m_core._function_name != anotherBatch.m_core._function_name:
+    def is_same_call(self, another_batch):
+        if self.m_core._function_name != another_batch.m_core._function_name:
             return False
 
-        return self._has_same_arguments(anotherBatch)
+        return self._has_same_arguments(another_batch)
 
     # This assumes that the function calls are the same.
     # It compares the arguments one by one.
-    def _has_same_arguments(self, anotherBatch):
+    def _has_same_arguments(self, another_batch):
         args1 = self.get_significant_args()
-        args2 = anotherBatch.get_significant_args()
+        args2 = another_batch.get_significant_args()
 
         # sys.stdout.write("%s args1=%s\n" % ( self.m_core._function_name, str(args1)) )
-        # sys.stdout.write("%s args2=%s\n" % ( anotherBatch.m_core._function_name, str(args2)) )
+        # sys.stdout.write("%s args2=%s\n" % ( another_batch.m_core._function_name, str(args2)) )
 
         # At least they should have the same number of arguments.
         if len(args1) != len(args2):
@@ -565,20 +562,22 @@ class BatchLetBase(my_with_metaclass(BatchMeta)):
 
     # Returns the file associated to this path, and creates it if needed.
     # It also associates this file to the process.
-    def ToObjectPath_Accessed_CIM_DataFile(self, pathName):
+    def ToObjectPath_Accessed_CIM_DataFile(self, path_name):
         # With lstat and calls like access() or lstat(), the pathname is not given.
-        if pathName.startswith("0x") and not pathName in self.invalid_hexadecimal_pathnames:
+        if path_name.startswith("0x") and not path_name in self.invalid_hexadecimal_pathnames:
             # Signal the error once only.
-            self.invalid_hexadecimal_pathnames.add(pathName)
-            raise Exception("Invalid hexadecimal pathname:%s" % pathName)
-        return self.cim_context_core().ToObjectPath_CIM_DataFile(pathName)
+            self.invalid_hexadecimal_pathnames.add(path_name)
+            raise Exception("Invalid hexadecimal pathname:%s" % path_name)
+        return self.cim_context_core().ToObjectPath_CIM_DataFile(path_name)
 
-    def _strace_stream_to_file(self, strmStr):
-        return self.cim_context_core().ToObjectPath_CIM_DataFile(_strace_stream_to_pathname(strmStr))
+    def _strace_stream_to_file(self, strm_str):
+        return self.cim_context_core().ToObjectPath_CIM_DataFile(_strace_stream_to_pathname(strm_str))
+
 
 # This associates file descriptors to path names when strace and the option "-y"
 # cannot be used. There are predefined values.
 G_mapFilDesToPathName = None
+
 
 def init_linux_globals(with_warning):
     global G_stackUnfinishedBatches
@@ -700,9 +699,9 @@ def _batchlet_factory(batchCore):
 # This returns a WMI object path, which is self-descriptive.
 # FIXME: Are file descriptors shared between processes ?
 def _strace_stream_to_pathname(strm_str):
-    idxLT = strm_str.find("<")
-    if idxLT >= 0:
-        path_name = strm_str[idxLT + 1: -1]
+    idx_lt = strm_str.find("<")
+    if idx_lt >= 0:
+        path_name = strm_str[idx_lt + 1: -1]
     else:
         # If the option "-y" is not available, with ltrace or truss.
         # Theoretically the path name should be in the map.
@@ -723,14 +722,14 @@ def _strace_stream_to_pathname(strm_str):
 # Some Linux functions return a file descriptor which can be invalid:
 # This is not shown the same way depending on the tracer: strace or ltrace.
 # On Linux, ENOENT = 2.
-def _invalid_returned_file_descriptor(fileDes, tracer):
+def _invalid_returned_file_descriptor(file_des, tracer):
     if tracer == "strace":
         # 09:18:26.452764 open("/usr/lib/python2.7/numbersmodule.so", O_RDONLY|O_LARGEFILE) = -1 ENOENT (No such file or directory) <0.000012>
-        if fileDes.find("ENOENT") >= 0:
+        if file_des.find("ENOENT") >= 0:
             return True
     elif tracer == "ltrace":
         # [pid 4784] 16:42:12.033450 open@SYS("/usr/lib64/python2.7/numbersmodule.so", 0, 0666) = -2 <0.000195>
-        if fileDes.find("-2") >= 0 :
+        if file_des.find("-2") >= 0 :
             return True
     else:
         raise Exception("Tracer %s not supported yet" % tracer)
@@ -762,7 +761,7 @@ class BatchLetSys_open(BatchLetBase, object):
             #
             # But with a deprecated version, it is also possible to have this format:
             # open("/lib/x86_64-linux-gnu/libpthread.so.0", O_RDONLY|O_CLOEXEC) = 10 <0.000016>
-            filObj = self._strace_stream_to_file(self.m_core._return_value)
+            fil_obj = self._strace_stream_to_file(self.m_core._return_value)
         elif batchCore.m_tracer == "ltrace":
             # The option "-y" which writes the complete path after the file descriptor,
             # is not available for ltrace.
@@ -770,18 +769,18 @@ class BatchLetSys_open(BatchLetBase, object):
             # and other system calls which create a file descriptor.
 
             # This logic also should work with strace if the option "-y" is not there.
-            pathName = self.m_core.m_parsedArgs[0]
-            filDes = self.m_core._return_value
+            path_name = self.m_core.m_parsedArgs[0]
+            fil_des = self.m_core._return_value
 
             # TODO: Should be cleaned up when closing ?
-            G_mapFilDesToPathName[filDes] = pathName
-            filObj = self.ToObjectPath_Accessed_CIM_DataFile(pathName)
+            G_mapFilDesToPathName[fil_des] = path_name
+            fil_obj = self.ToObjectPath_Accessed_CIM_DataFile(path_name)
         else:
             raise Exception("Tracer %s not supported yet" % batchCore.m_tracer)
 
-        self.m_significantArgs = [filObj]
-        aFilAcc = self.m_core.m_objectProcess.get_file_access(filObj)
-        aFilAcc.SetOpenTime(self.m_core._time_start)
+        self.m_significantArgs = [fil_obj]
+        a_fil_acc = self.m_core.m_objectProcess.get_file_access(fil_obj)
+        a_fil_acc.SetOpenTime(self.m_core._time_start)
 
 
 # The important file descriptor is the returned value.
@@ -794,30 +793,30 @@ class BatchLetSys_openat(BatchLetBase, object):
 
         # Same logic as for open().
         if batchCore.m_tracer == "strace":
-            filObj = self._strace_stream_to_file(self.m_core._return_value)
+            fil_obj = self._strace_stream_to_file(self.m_core._return_value)
         elif batchCore.m_tracer == "ltrace":
-            dirNam = self.m_core.m_parsedArgs[0]
+            dir_nam = self.m_core.m_parsedArgs[0]
 
-            if dirNam == "AT_FDCWD":
+            if dir_nam == "AT_FDCWD":
                 # A relative pathname is interpreted relative to the directory
                 # referred to by the file descriptor passed as first parameter.
-                dirPath = self.m_core.m_objectProcess.GetProcessCurrentDir()
+                dir_path = self.m_core.m_objectProcess.GetProcessCurrentDir()
             else:
-                dirPath = self._strace_stream_to_file(dirNam)
+                dir_path = self._strace_stream_to_file(dir_nam)
 
-            filNam = self.m_core.m_parsedArgs[1]
+            fil_nam = self.m_core.m_parsedArgs[1]
 
-            pathName = cim_objects_definitions.to_real_absolute_path(dirPath, filNam)
+            path_name = cim_objects_definitions.to_real_absolute_path(dir_path, fil_nam)
 
-            filDes = self.m_core._return_value
+            fil_des = self.m_core._return_value
 
             # TODO: Should be cleaned up when closing ?
-            G_mapFilDesToPathName[filDes] = pathName
-            filObj = self.ToObjectPath_Accessed_CIM_DataFile(pathName)
+            G_mapFilDesToPathName[fil_des] = path_name
+            fil_obj = self.ToObjectPath_Accessed_CIM_DataFile(path_name)
         else:
             raise Exception("Tracer %s not supported yet" % batchCore.m_tracer)
 
-        self.m_significantArgs = [filObj]
+        self.m_significantArgs = [fil_obj]
 
 
 class BatchLetSys_close(BatchLetBase, object):
@@ -826,11 +825,11 @@ class BatchLetSys_close(BatchLetBase, object):
         # [pid 10624] 14:09:55.350002 close(2902) = -1 EBADF (Bad file descriptor) <0.000006>
         super(BatchLetSys_close, self).__init__(batchCore)
         self.m_significantArgs = self.get_stream_name()
-        aFilAcc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0])
-        aFilAcc.SetOpenTime(self.m_core._time_start)
+        a_fil_acc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0])
+        a_fil_acc.SetOpenTime(self.m_core._time_start)
         if batchCore._return_value.find("EBADF") >= 0:
             return
-        aFilAcc.SetCloseTime(self.m_core._time_end)
+        a_fil_acc.SetCloseTime(self.m_core._time_end)
 
 
 class BatchLetSys_read(BatchLetBase, object):
@@ -856,9 +855,9 @@ class BatchLetSys_read(BatchLetBase, object):
         super(BatchLetSys_read, self).__init__(batchCore)
 
         self.m_significantArgs = self.get_stream_name()
-        aFilAcc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0])
+        a_fil_acc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0])
 
-        aFilAcc.set_read_bytes_number(read_bytes_number, self.m_core.m_parsedArgs[1])
+        a_fil_acc.set_read_bytes_number(read_bytes_number, self.m_core.m_parsedArgs[1])
 
 
 # The process id is the return value but does not have the same format
@@ -881,8 +880,8 @@ class BatchLetSys_preadx(BatchLetBase, object):
         read_bytes_number = _convert_batch_core_return_value(batchCore)
 
         self.m_significantArgs = self.get_stream_name()
-        aFilAcc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0])
-        aFilAcc.set_read_bytes_number(read_bytes_number)
+        a_fil_acc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0])
+        a_fil_acc.set_read_bytes_number(read_bytes_number)
 
 
 class BatchLetSys_pread64x(BatchLetBase, object):
@@ -892,8 +891,8 @@ class BatchLetSys_pread64x(BatchLetBase, object):
         read_bytes_number = _convert_batch_core_return_value(batchCore)
 
         self.m_significantArgs = self.get_stream_name()
-        aFilAcc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0])
-        aFilAcc.set_read_bytes_number(read_bytes_number, self.m_core.m_parsedArgs[1])
+        a_fil_acc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0])
+        a_fil_acc.set_read_bytes_number(read_bytes_number, self.m_core.m_parsedArgs[1])
 
 
 class BatchLetSys_write(BatchLetBase, object):
@@ -901,11 +900,11 @@ class BatchLetSys_write(BatchLetBase, object):
         super(BatchLetSys_write, self).__init__(batchCore)
 
         self.m_significantArgs = self.get_stream_name()
-        aFilAcc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0])
+        a_fil_acc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0])
 
         try:
             written_bytes_number = int(self.m_core._return_value)
-            aFilAcc.set_written_bytes_number(written_bytes_number, self.m_core.m_parsedArgs[1])
+            a_fil_acc.set_written_bytes_number(written_bytes_number, self.m_core.m_parsedArgs[1])
         except ValueError:
             # Probably a race condition: invalid literal for int() with base 10: 'write@SYS(28, "\\372", 1'
             pass
@@ -916,12 +915,12 @@ class BatchLetSys_writev(BatchLetBase, object):
         super(BatchLetSys_writev, self).__init__(batchCore)
 
         self.m_significantArgs = self.get_stream_name()
-        aFilAcc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0])
+        a_fil_acc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0])
 
         try:
             written_bytes_number = int(self.m_core._return_value)
             # The content is not processed yet.
-            aFilAcc.set_written_bytes_number(written_bytes_number, None)
+            a_fil_acc.set_written_bytes_number(written_bytes_number, None)
         except ValueError:
             # Probably a race condition: invalid literal for int() with base 10: 'write@SYS(28, "\\372", 1'
             pass
@@ -995,8 +994,8 @@ class BatchLetSys_mmap(BatchLetBase, object):
         if batchCore.m_parsedArgs[3].find("MAP_ANONYMOUS") >= 0:
             return
 
-        fdArg = batchCore.m_parsedArgs[4]
-        if fdArg == "-1":
+        fd_arg = batchCore.m_parsedArgs[4]
+        if fd_arg == "-1":
             return
         super(BatchLetSys_mmap, self).__init__(batchCore)
 
@@ -1142,35 +1141,35 @@ class BatchLetSys_clone(BatchLetBase, object):
         # The process id is the return value but does not have the same format
         # with ltrace (hexadecimal) and strace (decimal).
         if batchCore.m_tracer == "ltrace":
-            aPid = int(self.m_core._return_value, 16)
+            a_pid = int(self.m_core._return_value, 16)
 
             # TODO: How to make the difference between thread and process ?
-            isThread = True
+            is_thread = True
         elif batchCore.m_tracer == "strace":
-            aPid = int(self.m_core._return_value)
-            flagsClone = self.m_core.m_parsedArgs[1].strip()
-            if flagsClone.find("CLONE_VM") >= 0:
-                isThread = True
+            a_pid = int(self.m_core._return_value)
+            flags_clone = self.m_core.m_parsedArgs[1].strip()
+            if flags_clone.find("CLONE_VM") >= 0:
+                is_thread = True
             else:
                 # flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD
-                isThread = False
+                is_thread = False
         else:
             raise Exception("Tracer %s not supported yet" % batchCore.m_tracer)
 
-        # sys.stdout.write("CLONE %s %s PID=%d\n" % ( batchCore.m_tracer, self.m_core._return_value, aPid) )
+        # sys.stdout.write("CLONE %s %s PID=%d\n" % ( batchCore.m_tracer, self.m_core._return_value, a_pid) )
 
         # This is the created process.
-        objNewProcess = self.cim_context_core().ToObjectPath_CIM_Process(aPid)
+        obj_new_process = self.cim_context_core().ToObjectPath_CIM_Process(a_pid)
 
-        if isThread:
-            objNewProcess.SetThread()
+        if is_thread:
+            obj_new_process.SetThread()
 
-        self.m_significantArgs = [objNewProcess]
+        self.m_significantArgs = [obj_new_process]
 
-        objNewProcess.CreationDate = self.m_core._time_start
+        obj_new_process.CreationDate = self.m_core._time_start
 
     # Process creations are not aggregated, not to lose the new pid.
-    def is_same_call(self, anotherBatch):
+    def is_same_call(self, another_batch):
         return False
 
 
@@ -1185,20 +1184,20 @@ class BatchLetSys_vfork(BatchLetBase, object):
         # The process id is the return value but does not have the same format
         # with ltrace (hexadecimal) and strace (decimal).
         if batchCore.m_tracer == "ltrace":
-            aPid = int(self.m_core._return_value, 16)
+            a_pid = int(self.m_core._return_value, 16)
         elif batchCore.m_tracer == "strace":
-            aPid = int(self.m_core._return_value)
+            a_pid = int(self.m_core._return_value)
         else:
             raise Exception("Tracer %s not supported yet" % batchCore.m_tracer)
 
         # This is the created process.
-        objNewProcess = self.cim_context_core().ToObjectPath_CIM_Process(aPid)
-        self.m_significantArgs = [objNewProcess]
+        obj_new_process = self.cim_context_core().ToObjectPath_CIM_Process(a_pid)
+        self.m_significantArgs = [obj_new_process]
 
-        objNewProcess.CreationDate = self.m_core._time_start
+        obj_new_process.CreationDate = self.m_core._time_start
 
     # Process creations are not aggregated, not to lose the new pid.
-    def is_same_call(self, anotherBatch):
+    def is_same_call(self, another_batch):
         return False
 
 
@@ -1225,7 +1224,7 @@ class BatchLetSys_execve(BatchLetBase, object):
 
         # The first argument is the executable file name,
         # while the second is an array of command-line parameters.
-        objNewDataFile = self.ToObjectPath_Accessed_CIM_DataFile(self.m_core.m_parsedArgs[0])
+        obj_new_data_file = self.ToObjectPath_Accessed_CIM_DataFile(self.m_core.m_parsedArgs[0])
 
         if batchCore.m_tracer == "ltrace":
             # This contains just a pointer so we reuse
@@ -1236,17 +1235,17 @@ class BatchLetSys_execve(BatchLetBase, object):
             raise Exception("Tracer %s not supported yet" % batchCore.m_tracer)
 
         self.m_significantArgs = [
-            objNewDataFile,
+            obj_new_data_file,
             command_line]
 
-        self.m_core.m_objectProcess.set_executable_path(objNewDataFile)
+        self.m_core.m_objectProcess.set_executable_path(obj_new_data_file)
         self.m_core.m_objectProcess.set_command_line(command_line)
-        objNewDataFile.set_is_executed()
+        obj_new_data_file.set_is_executed()
 
         # TODO: Specifically filter the creation of a new process.
 
     # Process creations or setup are not aggregated.
-    def is_same_call(self, anotherBatch):
+    def is_same_call(self, another_batch):
         return False
 
 
@@ -1263,16 +1262,16 @@ class BatchLetLib___libc_start_main(BatchLetBase, object):
         # TODO: Take the path of the executable name.
         command_line = self.m_core.m_parsedArgs[0]
         exec_name = command_line[0]
-        objNewDataFile = self.ToObjectPath_Accessed_CIM_DataFile(exec_name)
+        obj_new_data_file = self.ToObjectPath_Accessed_CIM_DataFile(exec_name)
         self.m_significantArgs = [
-            objNewDataFile,
+            obj_new_data_file,
             command_line]
-        self.m_core.m_objectProcess.set_executable_path(objNewDataFile)
+        self.m_core.m_objectProcess.set_executable_path(obj_new_data_file)
         self.m_core.m_objectProcess.set_command_line(command_line)
-        objNewDataFile.set_is_executed()
+        obj_new_data_file.set_is_executed()
 
     # Process creations or setup are not aggregated.
-    def is_same_call(self, anotherBatch):
+    def is_same_call(self, another_batch):
         return False
 
 
@@ -1280,7 +1279,7 @@ class BatchLetSys_wait4(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_wait4, self).__init__(batchCore)
 
-        # sys.stdout.write("CLONE %s %s PID=%d\n" % ( batchCore.m_tracer, self.m_core._return_value, aPid) )
+        # sys.stdout.write("CLONE %s %s PID=%d\n" % ( batchCore.m_tracer, self.m_core._return_value, a_pid) )
 
         # sys.stdout.write("WAIT A=%s\n" % self.m_core._return_value )
         # This is the terminated pid.
@@ -1288,31 +1287,31 @@ class BatchLetSys_wait4(BatchLetBase, object):
             if self.m_core._return_value.find("-10") >= 0:
                 # ECHILD = 10
                 # wait4@SYS(-1, 0x7ffea10cd110, 1, 0) = -10
-                aPid = None
+                a_pid = None
             else:
                 # <... wait4 resumed> ) = 0x2df2
-                aPid = int(self.m_core._return_value, 16)
-                # sys.stdout.write("WAITzzz=%d\n" % aPid )
+                a_pid = int(self.m_core._return_value, 16)
+                # sys.stdout.write("WAITzzz=%d\n" % a_pid )
         elif batchCore.m_tracer == "strace":
             if self.m_core._return_value.find("ECHILD") >= 0:
                 # wait4(-1, 0x7fff9a7a6cd0, WNOHANG, NULL) = -1 ECHILD (No child processes)
-                aPid = None
+                a_pid = None
             else:
                 # <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WSTOPPED|WCONTINUED, NULL) = 27037
                 try:
-                    aPid = int(self.m_core._return_value.split(" ")[0])
+                    a_pid = int(self.m_core._return_value.split(" ")[0])
                 except ValueError:
                     sys.stdout.write("wait4: Cannot decode pid from:%s\n" % self.m_core._return_value)
-                    aPid = None
-                # sys.stdout.write("WAITxxx=%d\n" % aPid )
+                    a_pid = None
+                # sys.stdout.write("WAITxxx=%d\n" % a_pid )
         else:
             raise Exception("Tracer %s not supported yet" % batchCore.m_tracer)
 
-        if aPid:
-            # sys.stdout.write("WAIT=%d\n" % aPid )
-            waitedProcess = self.cim_context_core().ToObjectPath_CIM_Process(aPid)
-            self.m_significantArgs = [waitedProcess]
-            waitedProcess.WaitProcessEnd(self.m_core._time_start, self.m_core.m_objectProcess)
+        if a_pid:
+            # sys.stdout.write("WAIT=%d\n" % a_pid )
+            waited_process = self.cim_context_core().ToObjectPath_CIM_Process(a_pid)
+            self.m_significantArgs = [waited_process]
+            waited_process.WaitProcessEnd(self.m_core._time_start, self.m_core.m_objectProcess)
 
 
 class BatchLetSys_exit_group(BatchLetBase, object):
@@ -1332,17 +1331,17 @@ class BatchLetSys_newfstatat(BatchLetBase, object):
         dirNam = self.m_core.m_parsedArgs[0]
 
         if dirNam == "AT_FDCWD":
-            dirPath = self.m_core.m_objectProcess.GetProcessCurrentDir()
+            dir_path = self.m_core.m_objectProcess.GetProcessCurrentDir()
         else:
-            dirPath = _strace_stream_to_pathname(dirNam)
-            if not dirPath:
+            dir_path = _strace_stream_to_pathname(dirNam)
+            if not dir_path:
                 raise Exception("Invalid directory:%s" % dirNam)
 
-        filNam = self.m_core.m_parsedArgs[1]
+        fil_nam = self.m_core.m_parsedArgs[1]
 
-        pathName = cim_objects_definitions.to_real_absolute_path(dirPath, filNam)
+        path_name = cim_objects_definitions.to_real_absolute_path(dir_path, fil_nam)
 
-        self.m_significantArgs = [self.ToObjectPath_Accessed_CIM_DataFile(pathName)]
+        self.m_significantArgs = [self.ToObjectPath_Accessed_CIM_DataFile(path_name)]
 
 
 class BatchLetSys_getdents(BatchLetBase, object):
@@ -1412,24 +1411,24 @@ class BatchLetSys_poll(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_poll, self).__init__(batchCore)
 
-        arrStrms = self.m_core.m_parsedArgs[0]
+        arr_strms = self.m_core.m_parsedArgs[0]
 
         if batchCore.m_tracer == "strace":
-            if type(arrStrms) in (list, tuple):
-                retList = []
-                for oneStream in arrStrms:
-                    # oneStream: {'fd=5<anon_inode:[eventfd]>', 'events=POLLIN'}
-                    for elt in oneStream:
+            if type(arr_strms) in (list, tuple):
+                ret_list = []
+                for one_stream in arr_strms:
+                    # one_stream: {'fd=5<anon_inode:[eventfd]>', 'events=POLLIN'}
+                    for elt in one_stream:
                         if elt.startswith('fd='):
-                            fdName = elt[3:]
+                            fd_name = elt[3:]
                             break
 
-                filOnly = self._strace_stream_to_file(fdName)
-                retList.append(filOnly)
-                self.m_significantArgs = [retList]
+                fil_only = self._strace_stream_to_file(fd_name)
+                ret_list.append(fil_only)
+                self.m_significantArgs = [ret_list]
             else:
                 # It might be the string "NULL":
-                sys.stdout.write("poll: Unexpected arrStrms=%s\n" % str(arrStrms))
+                sys.stdout.write("poll: Unexpected arr_strms=%s\n" % str(arr_strms))
                 self.m_significantArgs = []
         else:
             self.m_significantArgs = []
@@ -1460,20 +1459,20 @@ class BatchLetSys_select(BatchLetBase, object):
                     # The delimiter is a space:
                     # "1 arrStrms=['0<TCPv6:[:::21]> 12<pipe:[10567127]>']"
                     # sys.stdout.write("%d arrStrms=%s\n"%(len(arrStrms),str(arrStrms)))
-                    filStrms = []
+                    fil_strms = []
                     for fdName in file_descriptors_list:
                         # Most of times there should be one element only.
-                        splitFdName = fdName.split(" ")
-                        for oneFdNam in splitFdName:
-                            filStrms.append(self._strace_stream_to_file(oneFdNam))
-                    return filStrms
+                        split_fd_name = fdName.split(" ")
+                        for one_fd_nam in split_fd_name:
+                            fil_strms.append(self._strace_stream_to_file(one_fd_nam))
+                    return fil_strms
 
             arguments_list = self.m_core.m_parsedArgs
-            arrFilRead = _file_descriptors_to_strings(arguments_list[1])
-            arrFilWrit = _file_descriptors_to_strings(arguments_list[2])
-            arrFilExcp = _file_descriptors_to_strings(arguments_list[3])
+            arr_fil_read = _file_descriptors_to_strings(arguments_list[1])
+            arr_fil_writ = _file_descriptors_to_strings(arguments_list[2])
+            arr_fil_excp = _file_descriptors_to_strings(arguments_list[3])
 
-            self.m_significantArgs = [arrFilRead, arrFilWrit, arrFilExcp]
+            self.m_significantArgs = [arr_fil_read, arr_fil_writ, arr_fil_excp]
         elif batchCore.m_tracer == "ltrace":
             self.m_significantArgs = []
         else:
@@ -1526,17 +1525,17 @@ class BatchLetSys_connect(BatchLetBase, object):
 class BatchLetSys_bind(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_bind, self).__init__(batchCore)
-        objPath = self._strace_stream_to_file(self.m_core.m_parsedArgs[0])
+        obj_path = self._strace_stream_to_file(self.m_core.m_parsedArgs[0])
         if batchCore.m_tracer == "strace":
             # bind(4<NETLINK:[7274795]>, {sa_family=AF_NETLINK, pid=0, groups=00000000}, 12) = 0
-            objPath.SocketAddress = self.m_core.m_parsedArgs[1]
+            obj_path.SocketAddress = self.m_core.m_parsedArgs[1]
 
         elif batchCore.m_tracer == "ltrace":
             pass
         else:
             raise Exception("Tracer %s not supported yet" % batchCore.m_tracer)
 
-        self.m_significantArgs = [objPath]
+        self.m_significantArgs = [obj_path]
 
 
 # sendto(7<UNIX:[2038065->2038073]>, "\24\0\0", 16, MSG_NOSIGNAL, NULL, 0) = 16
@@ -1553,11 +1552,11 @@ class BatchLetSys_pipe(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_pipe, self).__init__(batchCore)
 
-        arrPipes = self.m_core.m_parsedArgs[0]
-        arrFil0 = self._strace_stream_to_file(arrPipes[0])
-        arrFil1 = self._strace_stream_to_file(arrPipes[1])
+        arr_pipes = self.m_core.m_parsedArgs[0]
+        arr_fil0 = self._strace_stream_to_file(arr_pipes[0])
+        arr_fil1 = self._strace_stream_to_file(arr_pipes[1])
 
-        self.m_significantArgs = [arrFil0, arrFil1]
+        self.m_significantArgs = [arr_fil0, arr_fil1]
 
 
 # TODO: If the return value is not zero, maybe reject.
@@ -1566,11 +1565,11 @@ class BatchLetSys_pipe2(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_pipe2, self).__init__(batchCore)
 
-        arrPipes = self.m_core.m_parsedArgs[0]
-        arrFil0 = self._strace_stream_to_file(arrPipes[0])
-        arrFil1 = self._strace_stream_to_file(arrPipes[1])
+        arr_pipes = self.m_core.m_parsedArgs[0]
+        arr_fil0 = self._strace_stream_to_file(arr_pipes[0])
+        arr_fil1 = self._strace_stream_to_file(arr_pipes[1])
 
-        self.m_significantArgs = [arrFil0, arrFil1]
+        self.m_significantArgs = [arr_fil0, arr_fil1]
 
 
 class BatchLetSys_shutdown(BatchLetBase, object):
@@ -1602,13 +1601,13 @@ class BatchLetLib_getenv(BatchLetBase, object):
         # We just need to intercept the environment variables reading.
         # super( BatchLetLib_getenv, self).__init__(batchCore)
 
-        envNam = batchCore.m_parsedArgs[0]
-        envVal = batchCore._return_value
-        if envVal == "nil":
-            envVal = ""
+        env_nam = batchCore.m_parsedArgs[0]
+        env_val = batchCore._return_value
+        if env_val == "nil":
+            env_val = ""
 
         # FIXME: Should have one map per process ?
-        cim_objects_definitions.G_EnvironmentVariables[envNam] = envVal
+        cim_objects_definitions.G_EnvironmentVariables[env_nam] = env_val
 
 # F=  4784 {   1/Orig} 'readlink            ' ['/usr/bin/python', '', '4096'] ==>> 7 (16:42:10,16:42:10)
 # F=  4784 {   1/Orig} 'readlink            ' ['/usr/bin/python2', 'python2', '4096'] ==>> 9 (16:42:10,16:42:10)
@@ -1629,89 +1628,81 @@ class UnfinishedBatches:
     # [pid 23944] 08:53:31.304901 <... vfork resumed> ) = 23945 <0.003032>
 
     def push_unfinished_batch(self, batchCoreUnfinished):
-        # sys.stdout.write("push_unfinished_batch pid=%s _function_name=%s\n"%(batchCoreUnfinished.m_pid,batchCoreUnfinished._function_name))
         try:
-            mapByPids = self._map_stacks[batchCoreUnfinished.m_pid]
+            map_by_pids = self._map_stacks[batchCoreUnfinished.m_pid]
             try:
-                mapByPids[batchCoreUnfinished._function_name].append(batchCoreUnfinished)
+                map_by_pids[batchCoreUnfinished._function_name].append(batchCoreUnfinished)
             except KeyError:
-                mapByPids[batchCoreUnfinished._function_name] = [batchCoreUnfinished]
+                map_by_pids[batchCoreUnfinished._function_name] = [batchCoreUnfinished]
         except KeyError:
             self._map_stacks[batchCoreUnfinished.m_pid] = {batchCoreUnfinished._function_name: [batchCoreUnfinished]}
 
-        # sys.stdout.write("push_unfinished_batch _function_name=%s\n"%batchCoreUnfinished._function_name)
-
-    def merge_pop_resumed_batch(self, batchCoreResumed):
-        # sys.stdout.write("merge_pop_resumed_batch pid=%s _function_name=%s\n"%(batchCoreResumed.m_pid,batchCoreResumed._function_name))
+    def merge_pop_resumed_batch(self, batch_core_resumed):
         try:
-            stackPerFunc = self._map_stacks[batchCoreResumed.m_pid][batchCoreResumed._function_name]
+            stack_per_func = self._map_stacks[batch_core_resumed.m_pid][batch_core_resumed._function_name]
         except KeyError:
             if self.m_withWarning > 1:
-                sys.stdout.write("Resuming %s: cannot find unfinished call\n" % batchCoreResumed._function_name)
-
-            # This is strange, we could not find the unfinished call.
-            # sys.stdout.write("merge_pop_resumed_batch NOTFOUND1 _function_name=%s\n"%batchCoreResumed._function_name)
+                sys.stdout.write("Resuming %s: cannot find unfinished call\n" % batch_core_resumed._function_name)
             return None
 
         # They should have the same pid.
         try:
-            batchCoreUnfinished = stackPerFunc[-1]
+            batch_core_unfinished = stack_per_func[-1]
         except IndexError:
             if self.m_withWarning > 1:
                 sys.stdout.write("merge_pop_resumed_batch pid=%d _function_name=%s cannot find call\n"
-                                 % (batchCoreResumed.m_pid, batchCoreResumed._function_name))
+                                 % (batch_core_resumed.m_pid, batch_core_resumed._function_name))
             # Same problem, we could not find the unfinished call.
-            # sys.stdout.write("merge_pop_resumed_batch NOTFOUND2 _function_name=%s\n"%batchCoreResumed._function_name)
             return None
 
-        del stackPerFunc[-1]
+        del stack_per_func[-1]
 
         # Sanity check
-        if batchCoreUnfinished._function_name != batchCoreResumed._function_name:
-            raise Exception("Inconsistency batchCoreUnfinished._function_name=%s batchCoreResumed._function_name=%s\n"
-                            % (batchCoreUnfinished._function_name, batchCoreResumed._function_name))
+        if batch_core_unfinished._function_name != batch_core_resumed._function_name:
+            raise Exception("Inconsistency batch_core_unfinished._function_name=%s batch_core_resumed._function_name=%s\n"
+                            % (batch_core_unfinished._function_name, batch_core_resumed._function_name))
 
         # Now, the unfinished and the resumed batches are merged.
-        argsMerged = batchCoreUnfinished.m_parsedArgs + batchCoreResumed.m_parsedArgs
-        batchCoreResumed.m_parsedArgs = argsMerged
+        argsMerged = batch_core_unfinished.m_parsedArgs + batch_core_resumed.m_parsedArgs
+        batch_core_resumed.m_parsedArgs = argsMerged
 
         # Sanity check
-        if batchCoreUnfinished.m_status != BatchStatus.unfinished:
-            raise Exception("Unfinished status is not plain:%d" % batchCoreUnfinished.m_status)
+        if batch_core_unfinished.m_status != BatchStatus.unfinished:
+            raise Exception("Unfinished status is not plain:%d" % batch_core_unfinished.m_status)
 
-        batchCoreUnfinished.m_status = BatchStatus.matched
-        batchCoreUnfinished.m_resumedBatch = batchCoreResumed
+        batch_core_unfinished.m_status = BatchStatus.matched
+        batch_core_unfinished.m_resumedBatch = batch_core_resumed
 
         # Sanity check
-        if batchCoreResumed.m_status != BatchStatus.resumed:
-            raise Exception("Resumed status is not plain:%d" % batchCoreResumed.m_status)
+        if batch_core_resumed.m_status != BatchStatus.resumed:
+            raise Exception("Resumed status is not plain:%d" % batch_core_resumed.m_status)
 
-        batchCoreResumed.m_status = BatchStatus.merged
-        batchCoreResumed.m_unfinishedBatch = batchCoreUnfinished
+        batch_core_resumed.m_status = BatchStatus.merged
+        batch_core_resumed.m_unfinishedBatch = batch_core_unfinished
 
-        return batchCoreResumed
+        return batch_core_resumed
 
     def display_unfinished_unmerged_batches(self, strm):
         if self.m_withWarning == 0:
             return
-        for onePid in self._map_stacks:
-            # strm.write("onePid=%s\n"%onePid)
-            mapPid = self._map_stacks[onePid]
+        for one_pid in self._map_stacks:
+            # strm.write("one_pid=%s\n"%one_pid)
+            map_pid = self._map_stacks[one_pid]
 
-            isPidWritten = False
+            is_pid_written = False
 
-            for funcNam in mapPid:
-                arrCores = mapPid[funcNam]
-                if not arrCores: break
+            for func_nam in map_pid:
+                arr_cores = map_pid[func_nam]
+                if not arr_cores: break
 
-                if not isPidWritten:
-                    isPidWritten = True
-                    strm.write("Unfinished calls pid=%s\n" % onePid)
+                if not is_pid_written:
+                    is_pid_written = True
+                    strm.write("Unfinished calls pid=%s\n" % one_pid)
 
-                strm.write("    Call name=%s\n" % funcNam)
-                arrCores = mapPid[funcNam]
-                for batchCoreUnfinished in arrCores:
-                    strm.write("        %s\n" % (batchCoreUnfinished.convert_to_string()))
+                strm.write("    Call name=%s\n" % func_nam)
+                arr_cores = map_pid[func_nam]
+                for batch_core_unfinished in arr_cores:
+                    strm.write("        %s\n" % (batch_core_unfinished.convert_to_string()))
                 strm.write("\n")
         strm.write("\n")
 
@@ -1792,6 +1783,7 @@ def _generate_linux_stream_from_command(linux_trace_command, process_id):
 
     return created_process_id, object_popen.stderr
 
+
 ################################################################################
 # This is set by a signal handler when a control-C is typed.
 # It then triggers a clean exit, and creation of output results.
@@ -1799,10 +1791,12 @@ def _generate_linux_stream_from_command(linux_trace_command, process_id):
 # without stopping it.
 G_Interrupt = False
 
+
 def signal_handler(signal, frame):
     print('You pressed Ctrl+C!')
     global G_Interrupt
     G_Interrupt = True
+
 
 # This applies to strace and ltrace.
 # The input is a stream of lines coming from strace or ltrace.
@@ -1819,22 +1813,22 @@ def _create_flows_from_generic_linux_log(logStream, tracer):
     # This test is not reliable because we cannot really control what a spurious output can be:
     def _is_log_ending(trace_line):
         if trace_line.endswith(">\n"):
-            ixLT = trace_line.rfind("<")
-            if ixLT >= 0:
-                strBrack = trace_line[ixLT + 1:-2]
+            ix_lt = trace_line.rfind("<")
+            if ix_lt >= 0:
+                str_brack = trace_line[ix_lt + 1:-2]
                 try:
-                    flt = float(strBrack)
+                    flt = float(str_brack)
                     return True
                 except:
                     pass
 
-                if strBrack == "unfinished ...":
+                if str_brack == "unfinished ...":
                     return True
 
                 # This value occurs exclusively with ltrace. Examples:
                 # exit_group@SYS(0 <no return ...>
                 # execve@SYS("/usr/bin/as", 0xd1a138, 0xd1a2b0 <no return ...>
-                if strBrack == "no return ...":
+                if str_brack == "no return ...":
                     return True
         else:
             # "[pid 18194] 08:26:47.197005 exit_group(0) = ?"
@@ -1868,23 +1862,23 @@ def _create_flows_from_generic_linux_log(logStream, tracer):
         # FIXME: Problem if several processes.
         while not G_Interrupt:
             # sys.stdout.write("000:\n")
-            tmpLine = logStream.readline()
-            # sys.stdout.write("AAA:%s"%tmpLine)
+            tmp_line = logStream.readline()
+            # sys.stdout.write("AAA:%s"%tmp_line)
             line_number += 1
-            # sys.stdout.write("tmpLine after read=%s"%tmpLine)
-            if not tmpLine:
+            # sys.stdout.write("tmp_line after read=%s"%tmp_line)
+            if not tmp_line:
                 break
 
             # "[pid 18196] 08:26:47.199313 close(255</tmp/shell.sh> <unfinished ...>"
             # "08:26:47.197164 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18194 <0.011216>"
             # This test is not reliable because we cannot really control what a spurious output can be:
-            if _is_log_ending(tmpLine):
+            if _is_log_ending(tmp_line):
                 # TODO: The most common case is that the call is on one line only.
-                one_new_line += tmpLine
+                one_new_line += tmp_line
                 break
 
             # If the call is split on several lines, maybe because a write() contains a "\n".
-            one_new_line += tmpLine[:-1]
+            one_new_line += tmp_line[:-1]
 
         if not one_new_line:
             # If this is the last line and therefore the last call.
@@ -1898,7 +1892,7 @@ def _create_flows_from_generic_linux_log(logStream, tracer):
 
         # This parses the line into the basic parameters of a function call.
         try:
-            batchCore = CreateBatchCore(one_new_line,tracer)
+            batchCore = _create_batch_core(one_new_line, tracer)
         except Exception as exc:
             if line_number == 2:
                 # If the command does not exist:
@@ -1947,8 +1941,10 @@ def _create_flows_from_generic_linux_log(logStream, tracer):
 
 ################################################################################
 
+
 # Max bytes number when strace or ltrace display read() and write() calls.
 G_StringSize = "500"
+
 
 class GenericTraceTracer:
     def tee_calls_stream(self, log_stream, output_files_prefix):
@@ -1991,7 +1987,7 @@ class GenericTraceTracer:
 class STraceTracer(GenericTraceTracer):
     # The command options generate a specific output file format,
     # and therefore parsing it is specific to these options.
-    def build_trace_command(self, external_command, aPid):
+    def build_trace_command(self, external_command, a_pid):
         # -f  Trace  child  processes as a result of the fork, vfork and clone.
         trace_command = ["strace", "-q", "-qq", "-f", "-tt", "-T", "-s", G_StringSize]
 
@@ -2006,7 +2002,7 @@ class STraceTracer(GenericTraceTracer):
             trace_command += ["-D"]
             trace_command += external_command
         else:
-            trace_command += ["-p", aPid]
+            trace_command += ["-p", a_pid]
         return trace_command
 
     def deprecated_version(self):
@@ -2027,10 +2023,10 @@ class STraceTracer(GenericTraceTracer):
 class LTraceTracer(GenericTraceTracer):
     # The command options generate a specific output file format,
     # and therefore parsing it is specific to these options.
-    def build_trace_command(self, external_command, aPid):
+    def build_trace_command(self, external_command, a_pid):
         # This selects:
         # libpython2.7.so.1.0->getenv, cx_Oracle.so->getenv, libclntsh.so.11.1->getenv, libresolv.so.2->getenv etc...
-        strMandatoryLibc = "-*+getenv+*@SYS"
+        str_mandatory_libc = "-*+getenv+*@SYS"
 
         # TODO: Consider filtering read.
         # -S  Display system calls as well as library calls
@@ -2039,7 +2035,7 @@ class LTraceTracer(GenericTraceTracer):
         trace_command = [
             "ltrace",
             "-tt", "-T", "-f", "-S", "-s", G_StringSize,
-            "-e", strMandatoryLibc
+            "-e", str_mandatory_libc
             ]
 
         # Example of log: This can be filtered with: "-e -realpath"
@@ -2053,7 +2049,7 @@ class LTraceTracer(GenericTraceTracer):
         if external_command:
             trace_command += external_command
         else:
-            trace_command += ["-p", aPid]
+            trace_command += ["-p", a_pid]
 
         return trace_command
 
@@ -2081,10 +2077,10 @@ class LTraceTracer(GenericTraceTracer):
     # [pid 28735] 08:51:40.616610 <... Py_Main resumed> )                                                               = 0 <1.092079>
     # [pid 28735] 08:51:40.616913 exit_group@SYS(0 <no return ...>
 
-    def create_flows_from_calls_stream(self, logStream):
+    def create_flows_from_calls_stream(self, log_stream):
         # The output format of the command ltrace seems very similar to strace
         # so for the moment, no reason not to use it.
-        return _create_flows_from_generic_linux_log(logStream, "ltrace")
+        return _create_flows_from_generic_linux_log(log_stream, "ltrace")
 
     def trace_software_version(self):
         # "ltrace version 0.5."
