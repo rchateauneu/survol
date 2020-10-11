@@ -8,8 +8,10 @@ from sources_types import CIM_DataFile
 
 AddInfo = CIM_DataFile.AddInfo
 
+
 def EntityOntology():
-	return ( ["Name"], )
+	return (["Name"],)
+
 
 def EntityName(entity_ids_arr):
 	entity_id = entity_ids_arr[0]
