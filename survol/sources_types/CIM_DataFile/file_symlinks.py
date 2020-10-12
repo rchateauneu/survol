@@ -34,7 +34,7 @@ def Main():
     try:
         file_split = os.path.split(file_path)
         # This assumes that file_path is absolute.
-        lib_symlink.recursive_symlink_analysis(grph, 0, file_split)
+        lib_symlink.recursive_symlink_analysis(grph, file_split)
     except Exception as exc:
         lib_common.ErrorMessageHtml("Error:"+str(exc))
 
