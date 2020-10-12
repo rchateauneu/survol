@@ -9,68 +9,62 @@ Directory stat information
 # "Fatal Python error: Py_Initialize: can't initialize sys standard streams"
 
 import os
-import sys
-import time
-import json
 from sources_types import CIM_DataFile
 import lib_util
 import lib_common
-import lib_properties
 from lib_properties import pc
-# import mimetypes # In Python standard library.
+
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
-	filNam = cgiEnv.GetId()
-	filNam = lib_util.standardized_file_path(filNam)
+    cgiEnv = lib_common.CgiEnv()
+    fil_nam = cgiEnv.GetId()
+    fil_nam = lib_util.standardized_file_path(fil_nam)
 
-	DEBUG("filNam=%s", filNam )
+    fil_node = lib_common.gUriGen.DirectoryUri(fil_nam)
 
-	filNode = lib_common.gUriGen.DirectoryUri(filNam )
+    grph = cgiEnv.GetGraph()
 
-	grph = cgiEnv.GetGraph()
+    info = CIM_DataFile.GetInfoStat(fil_nam)
 
-	info = CIM_DataFile.GetInfoStat(filNam)
+    # st_mode: protection bits.
+    # st_ino: inode number.
 
-	# st_mode: protection bits.
-	# st_ino: inode number.
+    # st_dev: device.
+    CIM_DataFile.AddDevice(grph,fil_node,info)
 
-	# st_dev: device.
-	CIM_DataFile.AddDevice(grph,filNode,info)
+    CIM_DataFile.AddStatNode(grph, fil_node, info)
+    CIM_DataFile.AddMagic(grph, fil_node, fil_nam)
 
-	CIM_DataFile.AddStatNode( grph, filNode, info )
-	CIM_DataFile.AddMagic( grph, filNode, filNam )
+    # st_nlink: number of hard links.
 
-	# st_nlink: number of hard links.
+    CIM_DataFile.AffFileOwner(grph, fil_node, fil_nam)
 
-	CIM_DataFile.AffFileOwner(grph, filNode, filNam)
+    # Displays the file and the parent directories/
+    curr_fil_nam = fil_nam
+    curr_node = fil_node
+    while True:
+        dir_path = os.path.dirname(curr_fil_nam)
+        if dir_path == curr_fil_nam:
+            break
+        if dir_path == "":
+            break
+        dir_node = lib_common.gUriGen.DirectoryUri(dir_path)
+        grph.add((dir_node, pc.property_directory, curr_node))
+        DEBUG("dir_path=%s", dir_path)
+        stat_path = os.stat(dir_path)
+        CIM_DataFile.AddStatNode(grph, dir_node, stat_path)
 
-	# Displays the file and the parent directories/
-	currFilNam = filNam
-	currNode = filNode
-	while True:
-		dirPath = os.path.dirname( currFilNam )
-		if dirPath == currFilNam:
-			break
-		if dirPath == "":
-			break
-		dirNode = lib_common.gUriGen.DirectoryUri( dirPath )
-		grph.add( ( dirNode, pc.property_directory, currNode ) )
-		DEBUG("dirPath=%s", dirPath)
-		statPath = os.stat(dirPath)
-		CIM_DataFile.AddStatNode( grph, dirNode, statPath )
+        CIM_DataFile.AddFileProperties(grph, curr_node, curr_fil_nam)
 
-		CIM_DataFile.AddFileProperties(grph,currNode,currFilNam)
+        curr_fil_nam = dir_path
+        curr_node = dir_node
 
-		currFilNam = dirPath
-		currNode = dirNode
+    # If windows, print more information: DLL version etc...
+    # http://stackoverflow.com/questions/580924/python-windows-file-version-attribute
 
+    # cgiEnv.OutCgiRdf()
+    cgiEnv.OutCgiRdf("LAYOUT_TWOPI")
 
-	# If windows, print more information: DLL version etc...
-	# http://stackoverflow.com/questions/580924/python-windows-file-version-attribute
-
-	# cgiEnv.OutCgiRdf()
-	cgiEnv.OutCgiRdf("LAYOUT_TWOPI")
 
 if __name__ == '__main__':
-	Main()
+    Main()
