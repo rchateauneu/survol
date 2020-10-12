@@ -117,8 +117,22 @@ class RdfLocalAgentTest(unittest.TestCase):
             "/survol/sources_types/CIM_DataFile/file_symlinks.py?xid=CIM_DataFile.Name=%s"
             % test_dir_path)
         print("Result=", len(result_graph))
-        for s, p, o in result_graph:
-            print("    ", s, p, o)
+        links = list(result_graph.triples((None, lib_properties.pc.property_symlink, None)))
+        self.assertEqual(len(links), 1)
+        url_subject, url_predicate, url_object = links[0]
+        print("url_subject=", url_subject)
+        subject_url_path, subject_entity_type, subject_entity_id_dict = lib_util.split_url_to_entity(url_subject)
+        print("subject_entity_id_dict=", subject_entity_id_dict)
+
+        print("url_object=", url_object)
+        object_url_path, object_entity_type, object_entity_id_dict = lib_util.split_url_to_entity(url_object)
+        print("object_entity_id_dict=", object_entity_id_dict)
+
+        print("links=", links)
+
+        print("subject_entity_id_dict['Name']=", subject_entity_id_dict['Name'])
+        print("object_entity_id_dict['Name']=", object_entity_id_dict['Name'])
+
 
     @unittest.skipIf(not is_platform_linux, "Linux only")
     def test_rdf_file_symlinks_subfile(self):
@@ -130,8 +144,8 @@ class RdfLocalAgentTest(unittest.TestCase):
             "/survol/sources_types/CIM_DataFile/file_symlinks.py?xid=CIM_DataFile.Name=%s"
             % test_dir_path)
         print("Result=", len(result_graph))
-        for s, p, o in result_graph:
-            print("    ", s, p, o)
+        for s, p, o in result_graph.triples((None, lib_properties.pc.property_symlink, None)):
+            print("    ", s, o)
 
     @unittest.skipIf(not is_platform_linux, "Linux only")
     def test_rdf_dir_symlinks(self):
@@ -143,8 +157,8 @@ class RdfLocalAgentTest(unittest.TestCase):
             "/survol/sources_types/CIM_Directory/dir_symlinks.py?xid=CIM_Directory.Name=%s"
             % test_dir_path)
         print("Result=", len(result_graph))
-        for s, p, o in result_graph:
-            print("    ", s, p, o)
+        for s, p, o in result_graph.triples((None, lib_properties.pc.property_symlink, None)):
+            print("    ", s, o)
 
 
 @unittest.skipIf(not is_platform_windows, "Windows only")
