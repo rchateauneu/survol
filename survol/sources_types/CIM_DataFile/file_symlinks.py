@@ -32,9 +32,8 @@ def Main():
     grph = cgiEnv.GetGraph()
 
     try:
-        file_split = os.path.split(file_path)
         # This assumes that file_path is absolute.
-        lib_symlink.recursive_symlink_analysis(grph, file_split)
+        lib_symlink.recursive_symlink_analysis(grph, file_path)
     except Exception as exc:
         lib_common.ErrorMessageHtml("Error:"+str(exc))
 
