@@ -28,7 +28,7 @@ def standardized_file_path(file_path):
 # Typical situation of symbolic links:
 # /usr/bin/python => python2 => python2.7
 #
-# For example, this is needed because Sparql queries do not accept backslahes.
+# For example, this is needed because Sparql queries do not accept backslashes.
 def _standardized_file_path_nocache(file_path):
     if _is_py3:
         if isinstance(file_path, bytes):
@@ -67,9 +67,13 @@ def _standardized_file_path_nocache(file_path):
                 # This is an undocumented function, for Python 3 only.
                 # os.path._getfinalpathname("c:/python27/python.exe") => '\\\\?\\C:\\Python27\\python.exe'
                 # os.path._getfinalpathname("c:/python27/python.exe").lstrip(r'\?') => 'C:\\Python27\\python.exe'
-                file_path = os.path._getfinalpathname(file_path).lstrip(r'\?')
-                assert isinstance(file_path, str)
                 sys.stderr.write(__file__ + " Cannot import win32api to fix file_path:%s\n" % file_path)
+                try:
+                    file_path = os.path._getfinalpathname(file_path).lstrip(r'\?')
+                    assert isinstance(file_path, str)
+                    sys.stderr.write(__file__ + " _getfinalpathname:%s\n" % file_path)
+                except AttributeError:
+                    sys.stderr.write(__file__ + " Cannot use _getfinalpathname:%s\n" % file_path)
             except Exception as exc:
                 # pywintypes.error: (5, 'GetShortPathNameW', 'Access is denied.')
                 sys.stderr.write(__file__ + " file_path:%s caught:%s\n" % (file_path, str(exc)))
