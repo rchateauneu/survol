@@ -50,20 +50,26 @@ class StandardizedFilePathLinuxTest(unittest.TestCase):
         symlinks_dir = "SampleDirSymbolicLinks"
         root_directory = os.path.join(os.path.dirname(__file__), symlinks_dir)
 
+        # This checks the current directory, otherwise the test cannot work.
+        relative_symlinks_dir = os.path.join("tests", "SampleDirSymbolicLinks")
+        expected_root = os.path.join(os.getcwd(), relative_symlinks_dir)
+
+        self.assertEqual(root_directory, expected_root)
+
         self.assertEqual(
-            _sfp(symlinks_dir),
+            _sfp(relative_symlinks_dir),
             root_directory)
         self.assertEqual(
-            _sfp("%s/symlink_to_physical_file" % symlinks_dir),
+            _sfp("%s/symlink_to_physical_file" % relative_symlinks_dir),
             os.path.join(root_directory, "physical_file.dat"))
         self.assertEqual(
-            _sfp("%s/symlink_to_physical_directory" % symlinks_dir),
-            os.path.join(root_directory, "physical_directory.dat"))
+            _sfp("%s/symlink_to_physical_directory" % relative_symlinks_dir),
+            os.path.join(root_directory, "physical_directory.dir"))
         self.assertEqual(
-            _sfp("%s/symlink_to_subphysical_file" % symlinks_dir),
+            _sfp("%s/symlink_to_subphysical_file" % relative_symlinks_dir),
             os.path.join(root_directory, "physical_directory.dir", "physical_subfile.dat"))
         self.assertEqual(
-            _sfp("%s/physical_directory.dir/physical_subfile.dat" % symlinks_dir),
+            _sfp("%s/physical_directory.dir/physical_subfile.dat" % relative_symlinks_dir),
             os.path.join(root_directory, "physical_directory.dir", "physical_subfile.dat"))
 
 
