@@ -68,7 +68,7 @@ def _exit_handler():
     os.chdir(original_dir)
 
 
-def __run_cgi_server_internal():
+def cgiserver_entry_point():
     """Note: It is also possible to call the script from command line."""
 
     try:
@@ -115,6 +115,8 @@ def __run_cgi_server_internal():
     atexit.register(_exit_handler)
 
     # The script must be started from a specific directory to match URLs.
+
+    # BEWARE: THIS DOES NOT WORK IF THIS IS TRANSFORMNED INTO A SCRIPT survolcgi.exe
     good_dir = os.path.join(os.path.dirname(__file__), "..", "..")
     os.chdir(good_dir)
 
@@ -151,10 +153,6 @@ def __run_cgi_server_internal():
 def cgi_server_logfile_name(port_number):
     """This is used when testing on Travis, when output cannot be read."""
     return "cgiserver.execution.%d.log" % port_number
-
-
-def cgiserver_entry_point():
-    start_server_forever(False, socket.gethostname(), _port_number_default)
 
 
 def start_server_forever(verbose, server_name, port_number, current_dir=""):
@@ -314,7 +312,7 @@ if __name__ == '__main__':
     # www/js/base64.js
     #
     # In this mode, we assume that the Python scripts are here, on the same server.
-    __run_cgi_server_internal()
+    cgiserver_entry_point()
 
     # TODO: Once started, it could register itself to Service Location Protocol (SLP),
     # for example with the Python 3 module pyslp. This is what WBEM uses for services discovery.

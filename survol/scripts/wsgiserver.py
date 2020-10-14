@@ -267,7 +267,7 @@ def __print_wsgi_server_usage():
     print("Script must be started with command: survol/scripts/wsgiserver.py")
 
 
-def run_wsgi_server():
+def wsgiserver_entry_point():
     try:
         opts, args = getopt.getopt(
             sys.argv[1:],
@@ -330,10 +330,6 @@ def run_wsgi_server():
 WsgiServerLogFileName = "wsgiserver.execution.log"
 
 
-def wsgiserver_entry_point():
-    start_server_forever(False, socket.gethostname(), _port_number_default)
-
-
 def start_server_forever(verbose, server_name, port_number, current_dir=""):
     logfil = open(WsgiServerLogFileName, "w")
     logfil.write(__file__ + " startup\n")
@@ -390,4 +386,4 @@ def start_server_forever(verbose, server_name, port_number, current_dir=""):
 if __name__ == '__main__':
     # If this is called from the command line, we are in test mode and must use the local Python code,
     # and not use the installed packages.
-    run_wsgi_server()
+    wsgiserver_entry_point()
