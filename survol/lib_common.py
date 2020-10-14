@@ -763,17 +763,11 @@ class CgiEnv():
         except KeyError:
             pass
 
-        # If no parameters although one was requested.
+        # If no parameters is found, although one was requested.
         self.enter_edition_mode()
         assert False
         return ""
 
-    # TODO: Ca va etre de facon generale le moyen d'acces aux donnees et donc inclure le cimom
-    # soit par example cimom=http://192.168.1.83:5988  ou bien seulement un nom de machine.
-    # C'est ce que WMI va utiliser. On peut imaginer aussi de mettre un serveur ftp ?
-    # Ou bien un serveur SNMP ?
-    # C est plus un serveur qu un host. Le host est une propriete de l'objet, pas une clef d'acces.
-    # C est ce qui va permettre d acceder au meme fichier par un disque partage et par ftp.
     def GetHost(self):
         return self.m_entity_host
 
@@ -787,7 +781,7 @@ class CgiEnv():
     # the unique generation of graphic data.
     # TODO: "OutCgiRdf" should be changed to a more appropriate name, such as "DisplayTripleStore"
     # cgiEnv.OutCgiRdf() will fill self.GetGraph() with events returned by EventsGeneratorDaemon()
-    def OutCgiRdf(self, dot_layout = "", collapsed_properties=[]):
+    def OutCgiRdf(self, dot_layout="", collapsed_properties=[]):
         global globalCgiEnvList
         DEBUG("OutCgiRdf globalMergeMode=%d m_calling_url=%s m_page_title=%s",
               globalMergeMode, self.m_calling_url, self.m_page_title.replace("\n", "<NL>"))
@@ -810,51 +804,52 @@ class CgiEnv():
             OutCgiMode(self, top_url, mode)
 
     # Example: cgiEnv.add_parameterized_links( "Next", { paramkeyStartIndex : startIndex + maxInstances } )
-    def add_parameterized_links(self, urlLabel, paramsMap):
-        """This adds the parameters of an URL which points to the same page,
-        but with different CGI parameters. This URLS will displays basically
-        the same things, from the same script."""
+    def add_parameterized_links(self, url_label, params_map):
+        """This edits an URL by changing some CGI parameters. For example,
+        if the script displays a list, we wish to change the number of displayed items or the first and last index."""
 
         # We want to display links associated to the parameters.
         # The use case is "Prev/Next" when paging between many values.
         # This calculates the URLS and returns a map of { "label":"urls" }
 
         # Copy the existing parameters of the script. This will be updated.
-        prmsCopy = dict()
-        for argK in cgi.FieldStorage():
-            argV = cgi.FieldStorage()[argK].value
-            # sys.stderr.write("add_parameterized_links argK=%s argV=%s\n"%(argK,argV))
-            prmsCopy[argK] = lib_util.urllib_quote(argV)
+        prms_copy = dict()
+        for arg_k in cgi.FieldStorage():
+            argV = cgi.FieldStorage()[arg_k].value
+            # sys.stderr.write("add_parameterized_links arg_k=%s argV=%s\n"%(arg_k,argV))
+            prms_copy[arg_k] = lib_util.urllib_quote(argV)
 
         # Update these parameters with the values specific for this label.
-        for paramKey in paramsMap:
+        for param_key in params_map:
             # Check that it is a valid parameter.
             try:
-                self.m_parameters[paramKey]
+                self.m_parameters[param_key]
             except KeyError:
-                ErrorMessageHtml("Parameter %s should be defined for a link"%paramKey)
-            prmsCopy[paramKey] = paramsMap[paramKey]
+                ErrorMessageHtml("Parameter %s should be defined for a link"%param_key)
+            prms_copy[param_key] = params_map[param_key]
 
-        DEBUG("prmsCopy=%s",str(prmsCopy))
+        DEBUG("prms_copy=%s",str(prms_copy))
 
         # Now create an URL with these updated params.
-        idxCgi = self.m_calling_url.find("?")
-        if idxCgi < 0:
-            labelledUrl = self.m_calling_url
+        idx_cgi = self.m_calling_url.find("?")
+        if idx_cgi < 0:
+            labelled_url = self.m_calling_url
         else:
-            labelledUrl = self.m_calling_url[:idxCgi]
+            labelled_url = self.m_calling_url[:idx_cgi]
 
         # FIXME: ENCODING PROBLEM HERE.
         # OK http://127.0.0.1/Survol/survol/class_wbem.py?Start+index=0&Max+instances=800&xid=http%3A%2F%2Fprimhillcomputers.ddns.net%3A5988%2Froot%2Fcimv2%3APG_UnixProcess.&edimodtype=root%2Fcimv2%3APG_UnixProcess
         # OK http://rchateau-hp:8000/survol/class_wbem.py?xid=http%3A%2F%2F192.168.0.17%3A5988%2Froot%2Fcimv2%3APG_UnixProcess.
         # KO http://rchateau-hp:8000/survol/class_wbem.py?xid=http%3A//192.168.0.17%3A5988/root/cimv2%3APG_UnixProcess.
         # Conversion to str() because of integer parameters.
-        kvPairsConcat = "&amp;amp;".join( "%s=%s" % ( paramKey,str(prmsCopy[paramKey]).replace("/","%2F")) for paramKey in prmsCopy )
-        labelledUrl += "?" + kvPairsConcat
+        kv_pairs_concat = "&amp;amp;".join(
+            "%s=%s" % (param_key, str(prms_copy[param_key]).replace("/","%2F"))
+            for param_key in prms_copy)
+        labelled_url += "?" + kv_pairs_concat
 
-        DEBUG("labelledUrl=%s",labelledUrl)
+        DEBUG("labelled_url=%s",labelled_url)
 
-        self.m_parameterized_links[urlLabel] = labelledUrl
+        self.m_parameterized_links[url_label] = labelled_url
 
     # Graphs might contain the same entities calculated by different servers.
     # This can happen here, when several URLs are merged.
@@ -993,16 +988,17 @@ def SubProcCall(command):
 
 ################################################################################
 
-def __check_if_directory(dir):
-    if( os.path.isdir(dir) ):
-        return lib_util.standardized_file_path(dir)
-    raise Exception("Not a dir:"+dir)
 
-# The temp directory as specified by the operating system.
+def __check_if_directory(the_dir):
+    if os.path.isdir(the_dir):
+        return lib_util.standardized_file_path(the_dir)
+    raise Exception("Not a dir:" + the_dir)
+
+
 def get_temporary_directory():
+    """The temp directory as specified by the operating system."""
 
-    # TODO: For some reason, the user "apache" used by httpd cannot write,
-    # on some Linux distributions, to the directory "/tmp"
+    # TODO: The user "apache" used by httpd cannot write, on some Linux distributions, to the directory "/tmp"
     # https://blog.lysender.com/2015/07/centos-7-selinux-php-apache-cannot-writeaccess-file-no-matter-what/
     # This is a temporary fix. Maybe related to SELinux.
     try:
@@ -1028,7 +1024,7 @@ def get_temporary_directory():
 
     if lib_util.isPlatformWindows:
         try:
-            return __check_if_directory(os.path.join(os.environ["USERPROFILE"]), "AppData", "Local", "Temp")
+            return __check_if_directory(os.path.join(os.environ["USERPROFILE"], "AppData", "Local", "Temp"))
         except Exception:
             pass
 
