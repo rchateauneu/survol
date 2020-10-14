@@ -46,9 +46,25 @@ class StandardizedFilePathLinuxTest(unittest.TestCase):
         self.assertEqual(_sfp("/this_does_not_exist"), "/this_does_not_exist")
 
     def test_filenames_linux_symlinks(self):
-        self.assertEqual(_sfp("SampleDirSymbolicLinks"), "/SampleDirSymbolicLinks")
-        self.assertEqual(_sfp("SampleDirSymbolicLinks/symlink_to_physical_file"), "/tmp")
-        self.assertEqual(_sfp("SampleDirSymbolicLinks/symlink_to_physical_directory"), "/tmp")
+        # /home/travis/build/rchateauneu/survol/SampleDirSymbolicLinks
+        symlinks_dir = "SampleDirSymbolicLinks"
+        root_directory = os.path.join(os.path.dirname(__file__), symlinks_dir)
+
+        self.assertEqual(
+            _sfp(symlinks_dir),
+            root_directory)
+        self.assertEqual(
+            _sfp("%s/symlink_to_physical_file" % symlinks_dir),
+            os.path.join(root_directory, "physical_file.dat"))
+        self.assertEqual(
+            _sfp("%s/symlink_to_physical_directory" % symlinks_dir),
+            os.path.join(root_directory, "physical_directory.dat"))
+        self.assertEqual(
+            _sfp("%s/symlink_to_subphysical_file" % symlinks_dir),
+            os.path.join(root_directory, "physical_directory.dir", "physical_subfile.dat"))
+        self.assertEqual(
+            _sfp("%s/physical_directory.dir/physical_subfile.dat" % symlinks_dir),
+            os.path.join(root_directory, "physical_directory.dir", "physical_subfile.dat"))
 
 
 
