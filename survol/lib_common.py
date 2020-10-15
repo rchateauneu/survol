@@ -560,7 +560,7 @@ class CgiEnv():
         """This appends to the title, the documentation of the class of the object, if there is one. """
         full_title, entity_class, entity_id = lib_naming.ParseEntityUri(
             self.m_calling_url,
-            longDisplay=False,
+            long_display=False,
             force_entity_ip_addr=None)
         if entity_id:
             # If there is an object to display.

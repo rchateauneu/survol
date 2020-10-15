@@ -38,7 +38,7 @@ def _script_information_html_iterator(theCgi, gblCgiEnvList):
     # This is already called in lib_common, when creating CgiEnv.
     # It does not matter because this is very fast.
     calling_url = lib_util.RequestUri()
-    (entity_label, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri(calling_url, longDisplay=True)
+    entity_label, entity_graphic_class, entity_id = lib_naming.ParseEntityUri(calling_url, long_display=True)
     DEBUG("entity_label=%s entity_graphic_class=%s entity_id=%s", entity_label, entity_graphic_class, entity_id )
 
     yield '<table border="0">'
@@ -157,7 +157,7 @@ def _cim_urls_html_iterator():
         yield "</tr>"
 
     calling_url = lib_util.RequestUri()
-    (entity_label, entity_type, entity_id) = lib_naming.ParseEntityUri(calling_url, longDisplay=True)
+    (entity_label, entity_type, entity_id) = lib_naming.ParseEntityUri(calling_url, long_display=True)
     host_wbem_wmi = lib_util.currentHostname
     nameSpace = ""
 
