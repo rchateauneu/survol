@@ -25,50 +25,50 @@ def WmiReadWithMoniker( cgiEnv, cgiMoniker ):
         Or null if no such object exists.
     """
     try:
-        objWmi = wmi.WMI(moniker=cgiMoniker,find_classes=False)
-        return [ objWmi ]
-    except Exception:
-        exc = sys.exc_info()[1]
-        DEBUG("cgiMoniker=%s Caught:%s", cgiMoniker, str(exc) )
+        obj_wmi = wmi.WMI(moniker=cgiMoniker, find_classes=False)
+        return [ obj_wmi ]
+    except Exception as exc:
+        DEBUG("cgiMoniker=%s Caught:%s", cgiMoniker, str(exc))
         return None
 
-def WmiReadWithQuery( cgiEnv, connWmi, className ):
+
+def WmiReadWithQuery(cgiEnv, conn_wmi, class_name):
     """
         Maybe reading with the moniker does not work because not all properties.
         This splits the moniker into key value paris, and uses a WQL query.
     """
-    splitMonik = lib_util.SplitMoniker( cgiEnv.m_entity_id )
-    aQry = lib_util.SplitMonikToWQL(splitMonik,className)
+    split_monik = lib_util.SplitMoniker(cgiEnv.m_entity_id)
+    a_qry = lib_util.SplitMonikToWQL(split_monik, class_name)
 
     try:
-        return connWmi.query(aQry)
-    except Exception:
-        exc = sys.exc_info()[1]
-        lib_common.ErrorMessageHtml("Query=%s Caught:%s" % ( aQry, str(exc) ) )
+        return conn_wmi.query(a_qry)
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("Query=%s Caught:%s" % (a_qry, str(exc)))
 
 
-def DispWmiProperties(grph, connWmi, wmiInstanceNode, objWmi, displayNoneValues, className ):
+def DispWmiProperties(grph, conn_wmi, wmi_instance_node, obj_wmi, display_none_values, class_name):
     """
         Get the properties and values of a WMI object (Not a class),
         then adds them to the triples graph.
     """
 
-    lstKeyValues = lib_wmi.WmiKeyValues(connWmi, objWmi, displayNoneValues, className )
-    for prpProp, prpValue in lstKeyValues:
-        grph.add( ( wmiInstanceNode, prpProp, prpValue ) )
+    lst_key_values = lib_wmi.WmiKeyValues(conn_wmi, obj_wmi, display_none_values, class_name)
+    for prp_prop, prp_value in lst_key_values:
+        grph.add((wmi_instance_node, prp_prop, prp_value))
 
 
-def ImportSurvolModuleFromWmiClass(connWmi, className):
-    allBaseClasses = ( className, ) + lib_wmi.WmiBaseClasses(connWmi, className)
-    for theClassAscending in allBaseClasses:
+def ImportSurvolModuleFromWmiClass(conn_wmi, class_name):
+    all_base_classes = (class_name,) + lib_wmi.WmiBaseClasses(conn_wmi, class_name)
+    for the_class_ascending in all_base_classes:
         # Maybe there is a module without ontology.
         # In this case, try a base class. This is what does this function.
-        ontoKeys = lib_util.OntologyClassKeys(theClassAscending)
-        if len(ontoKeys):
-            return ( theClassAscending, ontoKeys )
+        onto_keys = lib_util.OntologyClassKeys(the_class_ascending)
+        if len(onto_keys):
+            return (the_class_ascending, onto_keys)
     return None,None
 
-def AddSurvolObjectFromWmi(grph,wmiInstanceNode,connWmi,className,objList):
+
+def AddSurvolObjectFromWmi(grph, wmi_instance_node, conn_wmi, class_name, obj_list):
     """
         Must find the url of the object in the Survol terminoloy equivalent to this one in WMI.
         This does not care the namespace which is set to root/cimv2 anyway.
@@ -77,82 +77,74 @@ def AddSurvolObjectFromWmi(grph,wmiInstanceNode,connWmi,className,objList):
     """
 
     # The first step is to iterate on the base classes until there is one of the Survol classes.
-    ( survolEquivalentClass, ontoKeys ) = ImportSurvolModuleFromWmiClass(connWmi, className)
+    (survol_equivalent_class, onto_keys) = ImportSurvolModuleFromWmiClass(conn_wmi, class_name)
 
     # This class nor any of its base classes exists in Survol.
-    if survolEquivalentClass is None:
+    if survol_equivalent_class is None:
         return
 
-    setSurvolUrls = set()
+    set_survol_urls = set()
 
-    for objWmi in objList:
-        # sys.stderr.write("objWmi=[%s]\n" % str(objWmi) )
+    for obj_wmi in obj_list:
+        # sys.stderr.write("obj_wmi=[%s]\n" % str(obj_wmi) )
 
-        propValuesArray = []
+        prop_values_array = []
 
         # For each property of the survol ontology, picks the value returned by WMI.
         # Replace missing values by an empty string.
-        for survKey in ontoKeys:
+        for surv_key in onto_keys:
             try:
-                wmiVal = getattr(objWmi,survKey)
+                wmi_val = getattr(obj_wmi, surv_key)
             except KeyError:
-                INFO("AddSurvolObjectFromWmi className=%s no value for key=%s",className,survKey)
-                wmiVal = ""
-            propValuesArray.append(wmiVal)
+                INFO("AddSurvolObjectFromWmi className=%s no value for key=%s", class_name, surv_key)
+                wmi_val = ""
+            prop_values_array.append(wmi_val)
 
-        entityModule = lib_util.GetEntityModule(survolEquivalentClass)
+        entity_module = lib_util.GetEntityModule(survol_equivalent_class)
 
         # Maybe there is a special function for encoding these arguments.
         try:
-            urlSurvol = entityModule.MakeUri(*propValuesArray)
+            url_survol = entity_module.MakeUri(*prop_values_array)
         except:
             # Otherwise, general case.
-            urlSurvol = lib_common.gUriGen.UriMake(survolEquivalentClass,*propValuesArray)
+            url_survol = lib_common.gUriGen.UriMake(survol_equivalent_class, *prop_values_array)
 
-        setSurvolUrls.add(urlSurvol)
+        set_survol_urls.add(url_survol)
 
     # There might potentially be several Survol objects for these several WMI objects.
     # It depends on the properties, as Survol takes only a subset of them.
     # Prefixed by hyphens so that it comes first when sorted.
-    propWmi2Survol = lib_common.MakeProp("--Survol equivalent object")
-    for urlSurvol in setSurvolUrls:
-        grph.add( ( wmiInstanceNode, propWmi2Survol, urlSurvol ) )
+    prop_wmi_to_survol = lib_common.MakeProp("--Survol equivalent object")
+    for url_survol in set_survol_urls:
+        grph.add((wmi_instance_node, prop_wmi_to_survol, url_survol))
     return
 
 
-# Better use references() because it gives much more information.
-#for assoc in objWmi.associators():
-#    assocMoniker = str( assoc.path() )
-#    sys.stderr.write("assocMoniker=[%s]\n" % assocMoniker )
-#    assocInstanceUrl = lib_util.EntityUrlFromMoniker( assocMoniker )
-#    assocInstanceNode = lib_common.NodeUrl(assocInstanceUrl)
-#    grph.add( ( wmiInstanceNode, lib_common.MakeProp("assoc"), assocInstanceNode ) )
-
 # TESTS:
 # OK
-# wmi.WMI(moniker='root\CIMV2:CIM_ComputerSystem.Name="rchateau-hp"')
-# _wmi_object: \\RCHATEAU-HP\root\CIMV2:Win32_ComputerSystem.Name="rchateau-hp">
+# wmi.WMI(moniker='root\CIMV2:CIM_ComputerSystem.Name="machine-hp"')
+# _wmi_object: \\MACHINE-HP\root\CIMV2:Win32_ComputerSystem.Name="machine-hp">
 # KAPUTT
-# wmi.WMI(moniker='\\rchateau-HP\root\CIMV2:CIM_ComputerSystem.Name="rchateau-hp"')
-# wmi.WMI(moniker='root\CIMV2:CIM_ComputerSystem.Name=rchateau-hp')
+# wmi.WMI(moniker='\\machine-HP\root\CIMV2:CIM_ComputerSystem.Name="machine-hp"')
+# wmi.WMI(moniker='root\CIMV2:CIM_ComputerSystem.Name=machine-hp')
 # wmi.WMI(moniker='root\CIMV2:CIM_ComputerSystem.Name="127.0.0.1"')
 
 
-
 # All instances that are associated with a particular source instance.
-def DisplayObjectAssociators(grph,wmiInstanceNode,objWmi,cgiMoniker):
+def DisplayObjectAssociators(grph, wmi_instance_node, obj_wmi, cgiMoniker):
     DEBUG("DisplayObjectAssociators\n")
     # It is possible to restrict the associators to a specific class only.
-    for anAssoc in objWmi.associators():
-        # assocMoniker=\\RCHATEAU-HP\root\cimv2:Win32_ComputerSystem.Name="RCHATEAU-HP"
-        assocMoniker = str(anAssoc.path())
-        DEBUG("DisplayObjectAssociators anAssoc Moniker=%s",assocMoniker)
+    for an_assoc in obj_wmi.associators():
+        # assoc_moniker=\\RCHATEAU-HP\root\cimv2:Win32_ComputerSystem.Name="RCHATEAU-HP"
+        assoc_moniker = str(an_assoc.path())
+        DEBUG("DisplayObjectAssociators an_assoc Moniker=%s",assoc_moniker)
 
-        # derivation=(u'CIM_UnitaryComputerSystem', u'CIM_ComputerSystem', u'CIM_System', u'CIM_LogicalElement', u'CIM_ManagedSystemElement')
-        assocDerivation = anAssoc.derivation()
+        # derivation=(u'CIM_UnitaryComputerSystem', u'CIM_ComputerSystem', u'CIM_System',
+        # u'CIM_LogicalElement', u'CIM_ManagedSystemElement')
+        assoc_derivation = an_assoc.derivation()
 
-        DEBUG("DisplayObjectAssociators anAssoc derivation=%s",str(assocDerivation))
-        # sys.stderr.write("DisplayObjectAssociators anAssoc=%s\n"%str(dir(anAssoc)))
+        DEBUG("DisplayObjectAssociators an_assoc derivation=%s", str(assoc_derivation))
+        # sys.stderr.write("DisplayObjectAssociators an_assoc=%s\n"%str(dir(an_assoc)))
 
         # TODO: Consider these methods: associated_classes, associators, derivation,
         # id, keys, methods, ole_object, path, properties, property_map, put,
@@ -160,9 +152,9 @@ def DisplayObjectAssociators(grph,wmiInstanceNode,objWmi,cgiMoniker):
 
         # BEWARE: For example for CIM_ComputerSystem, the host name must be in lowercase.
         # TODO: This is not done here. Luckily the universal alias does this properly.
-        assocInstanceUrl = lib_util.EntityUrlFromMoniker( assocMoniker )
-        assocInstanceNode = lib_common.NodeUrl(assocInstanceUrl)
-        grph.add( ( wmiInstanceNode, lib_common.MakeProp(assocDerivation[0]), assocInstanceNode ) )
+        assoc_instance_url = lib_util.EntityUrlFromMoniker(assoc_moniker)
+        assoc_instance_node = lib_common.NodeUrl(assoc_instance_url)
+        grph.add((wmi_instance_node, lib_common.MakeProp(assoc_derivation[0]), assoc_instance_node))
 
 
 
@@ -182,12 +174,12 @@ def DisplayObjectAssociators(grph,wmiInstanceNode,objWmi,cgiMoniker):
 # '\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="RCHATEAU-HP",Name="Administrator"'
 # '\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="Administrator"'
 #
-def EqualMonikers( monikA, monikB ):
-    splitA = monikA.split(':')
-    splitB = monikB.split(':')
+def EqualMonikers(monik_a, monik_b):
+    split_a = monik_a.split(':')
+    split_b = monik_b.split(':')
 
     # Maybe we could simply make a case-insensitive string comparison.
-    return splitA[0].upper() == splitB[0].upper() and splitA[1:].upper() == splitB[1:].upper()
+    return split_a[0].upper() == split_b[0].upper() and split_a[1:].upper() == split_b[1:].upper()
 
 
 # The references() retrieves all association instances that refer to a particular source instance.
@@ -195,130 +187,135 @@ def EqualMonikers( monikA, monikB ):
 # However, rather than retrieving endpoint instances, it retrieves the intervening association instances.
 # Dont do this on a Win32_ComputerSystem object and several other classes; it is VERY SLOW !
 # TODO: Test with a small data set.
-def DispWmiReferences(grph,wmiInstanceNode,objWmi,cgiMoniker):
-    for objRef in objWmi.references():
-        literalKeyValue = dict()
-        refInstanceNode = None
-        for keyPrp in objRef.properties:
-            valPrp = getattr(objRef,keyPrp)
+def DispWmiReferences(grph, wmi_instance_node, obj_wmi, cgi_moniker):
+    for obj_ref in obj_wmi.references():
+        literal_key_value = dict()
+        ref_instance_node = None
+        for key_prp in obj_ref.properties:
+            val_prp = getattr(obj_ref, key_prp)
             try:
                 # references() have one leg pointing to the current object,
-                refMoniker = str( valPrp.path() )
+                ref_moniker = str(val_prp.path())
 
                 # Maybe it would be better to compare the objects ???
-                if not EqualMonikers( refMoniker, cgiMoniker ):
+                if not EqualMonikers(ref_moniker, cgi_moniker):
                     # TODO: Disabled for the moment because we do not understand the logic.
-                    if False and refInstanceNode is not None:
-                        # TODO: Pourquoi ceci ????????????
-                        # Inconsistency:\\RCHATEAU-HP\root\cimv2:Win32_LogonSession.LogonId="195361" != \\192.168.1.83\root\CIMV2:CIM_Process.Handle=7120
-                        lib_common.ErrorMessageHtml("Inconsistency:"+refMoniker + " != " + cgiMoniker )
-                    refInstanceUrl = lib_util.EntityUrlFromMoniker( refMoniker )
-                    refInstanceNode = lib_common.NodeUrl(refInstanceUrl)
-                    grph.add( ( wmiInstanceNode, lib_common.MakeProp(keyPrp), refInstanceNode ) )
+                    if False and ref_instance_node is not None:
+                        # Inconsistency:\\RCHATEAU-HP\root\cimv2:Win32_LogonSession.LogonId="195361"
+                        # != \\192.168.1.83\root\CIMV2:CIM_Process.Handle=7120
+                        lib_common.ErrorMessageHtml("Inconsistency:" + ref_moniker + " != " + cgi_moniker)
+                    ref_instance_url = lib_util.EntityUrlFromMoniker(ref_moniker)
+                    ref_instance_node = lib_common.NodeUrl(ref_instance_url)
+                    grph.add((wmi_instance_node, lib_common.MakeProp(key_prp), ref_instance_node))
             except AttributeError:
                 # Then it is a literal attribute.
                 # TODO: Maybe we could test if the type is an instance.
                 # Beware: UnicodeEncodeError: 'ascii' codec can't encode character u'\\u2013'
                 try:
-                    literalKeyValue[ keyPrp ] = str(valPrp)
+                    literal_key_value[key_prp] = str(val_prp)
                 except UnicodeEncodeError:
-                    literalKeyValue[ keyPrp ] = "UnicodeEncodeError"
+                    literal_key_value[key_prp] = "UnicodeEncodeError"
 
 
         # Now the literal properties are attached to the other node.
-        if refInstanceNode != None:
-            for keyLitt in literalKeyValue:
-                grph.add( ( refInstanceNode, lib_common.MakeProp(keyLitt), lib_common.NodeLiteral( literalKeyValue[ keyLitt ] ) ) )
+        if ref_instance_node != None:
+            for key_litt in literal_key_value:
+                grph.add((
+                    ref_instance_node,
+                    lib_common.MakeProp(key_litt),
+                    lib_common.NodeLiteral(literal_key_value[key_litt])))
+
 
 def Main():
-    paramkeyDisplayNone = "Display none values"
-    paramkeyDisplayAssociators = "Display Associators"
+    paramkey_display_none = "Display none values"
+    paramkey_display_associators = "Display Associators"
     cgiEnv = lib_common.CgiEnv(can_process_remote=True,
-                                    parameters = { paramkeyDisplayNone : False, paramkeyDisplayAssociators : False })
+                               parameters = {paramkey_display_none: False, paramkey_display_associators: False})
 
-    displayNoneValues = bool(cgiEnv.get_parameters( paramkeyDisplayNone ))
-    displayAssociators = bool(cgiEnv.get_parameters( paramkeyDisplayAssociators ))
+    display_none_values = bool(cgiEnv.get_parameters(paramkey_display_none))
+    display_associators = bool(cgiEnv.get_parameters(paramkey_display_associators))
 
-    nameSpace, className = cgiEnv.get_namespace_type()
-    # If nameSpace is not provided, it is set to "root/CIMV2" by default.
-    if not className:
+    name_space, class_name = cgiEnv.get_namespace_type()
+    # If name_space is not provided, it is set to "root/CIMV2" by default.
+    if not class_name:
         lib_common.ErrorMessageHtml("Class name should not be empty")
 
-    wmiHost = cgiEnv.GetHost()
+    wmi_host = cgiEnv.GetHost()
 
-    # wmiHost=RCHATEAU-HP ns=root\cimv2 cls=Win32_ComputerSystem id=Name="RCHATEAU-HP"
-    DEBUG("wmiHost=%s ns=%s cls=%s id=%s", wmiHost, nameSpace, className, cgiEnv.m_entity_id)
+    # wmi_host=RCHATEAU-HP ns=root\cimv2 cls=Win32_ComputerSystem id=Name="RCHATEAU-HP"
+    DEBUG("wmi_host=%s ns=%s cls=%s id=%s", wmi_host, name_space, class_name, cgiEnv.m_entity_id)
 
     grph = cgiEnv.GetGraph()
 
     try:
-        connWmi = lib_wmi.WmiConnect(wmiHost,nameSpace)
-    except:
-        exc = sys.exc_info()[1]
-        lib_common.ErrorMessageHtml("entity_wmi.py: Cannot connect to WMI server %s with namespace %s: %s" % ( wmiHost,nameSpace, str(exc) ) )
+        conn_wmi = lib_wmi.WmiConnect(wmi_host, name_space)
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("entity_wmi.py: Cannot connect to WMI server %s with namespace %s: %s"
+                                    % (wmi_host,name_space, str(exc)))
 
-    # Try to read the moniker, which is much faster,
-    # but it does not always work if we do not have all the properties.
-    cgiMoniker = cgiEnv.get_parameters("xid")
-    DEBUG("entity_wmi.py cgiMoniker=[%s]", cgiMoniker )
+    # Try to read the moniker, which is much faster, but it does not always work if we do not have all the properties.
+    cgi_moniker = cgiEnv.get_parameters("xid")
+    DEBUG("entity_wmi.py cgi_moniker=[%s]", cgi_moniker)
 
-    objList = WmiReadWithMoniker( cgiEnv, cgiMoniker )
-    if objList is None:
+    obj_list = WmiReadWithMoniker(cgiEnv, cgi_moniker)
+    if obj_list is None:
         # If no object associated with the moniker, then tries a WQL query which might return several objects.
         # BEWARE: This is slow and less efficient than using WMI filters.
-        objList = WmiReadWithQuery( cgiEnv, connWmi, className )
+        obj_list = WmiReadWithQuery(cgiEnv, conn_wmi, class_name)
 
-    wmiInstanceUrl = lib_util.EntityUrlFromMoniker( cgiMoniker )
+    wmi_instance_url = lib_util.EntityUrlFromMoniker(cgi_moniker)
 
     # Possible problem because this associates a single URL with possibly several objects ??
-    wmiInstanceNode = lib_common.NodeUrl(wmiInstanceUrl)
+    wmi_instance_node = lib_common.NodeUrl(wmi_instance_url)
 
     # In principle, there should be only one object to display.
     # TODO: If several instances, the instance node must be recreated.
-    for objWmi in objList:
-        DEBUG("entity_wmi.py objWmi=[%s]", str(objWmi) )
+    for obj_wmi in obj_list:
+        DEBUG("entity_wmi.py obj_wmi=[%s]", str(obj_wmi) )
 
-        DispWmiProperties(grph, connWmi, wmiInstanceNode, objWmi, displayNoneValues, className )
+        DispWmiProperties(grph, conn_wmi, wmi_instance_node, obj_wmi, display_none_values, class_name)
 
         # Displaying these classes is very slow, several minutes for 100 elements.
         # It would be better to have another link.
-        # rchref = wmi.WMI().query("select * from Win32_UserAccount where Name='rchateau'")[0].references()
-        if not lib_wmi.WmiTooManyInstances( className ):
+        if not lib_wmi.WmiTooManyInstances(class_name):
             try:
-                DispWmiReferences(grph,wmiInstanceNode,objWmi,cgiMoniker)
-            except:
-                exc = sys.exc_info()[1]
+                DispWmiReferences(grph,wmi_instance_node, obj_wmi, cgi_moniker)
+            except Exception as exc:
                 WARNING("entity_wmi.py Exception=%s", str(exc) )
         else:
-            # Prefixc with a dot so it is displayed first.
-            grph.add( ( wmiInstanceNode, lib_common.MakeProp(".REFERENCES"), lib_common.NodeLiteral( "DISABLED" ) ) )
+            # Prefix with a dot so it is displayed first.
+            grph.add((wmi_instance_node, lib_common.MakeProp(".REFERENCES"), lib_common.NodeLiteral("DISABLED")))
 
         # Displaying the associators is conditional because it slows things.
         # TODO: How to select this option with D3 ?????
-        if displayAssociators:
+        if display_associators:
             # This class appears everywhere, so not not display its references, it would be too long.
-            if className == "Win32_ComputerSystem":
-                grph.add( ( wmiInstanceNode, lib_common.MakeProp(".ASSOCIATORS"), lib_common.NodeLiteral( "DISABLED" ) ) )
+            if class_name == "Win32_ComputerSystem":
+                grph.add((wmi_instance_node, lib_common.MakeProp(".ASSOCIATORS"), lib_common.NodeLiteral("DISABLED")))
             else:
-                DisplayObjectAssociators(grph,wmiInstanceNode,objWmi,cgiMoniker)
+                DisplayObjectAssociators(grph, wmi_instance_node, obj_wmi, cgi_moniker)
 
     # Adds the class node to the instance.
-    wmiClassNode = lib_wmi.WmiAddClassNode(grph,connWmi,wmiInstanceNode, wmiHost, nameSpace, className, lib_common.MakeProp(className) )
+    wmi_class_node = lib_wmi.WmiAddClassNode(
+        grph,
+        conn_wmi,
+        wmi_instance_node,
+        wmi_host,
+        name_space,
+        class_name,
+        lib_common.MakeProp(class_name))
 
     # Now displays the base class, up to the top.
-    lib_wmi.WmiAddBaseClasses(grph,connWmi,wmiClassNode,wmiHost, nameSpace, className)
+    lib_wmi.WmiAddBaseClasses(grph, conn_wmi, wmi_class_node, wmi_host, name_space, class_name)
 
     # Now tries to find the equivalent object in the Survol terminology.
-    AddSurvolObjectFromWmi(grph,wmiInstanceNode,connWmi,className,objList)
+    AddSurvolObjectFromWmi(grph, wmi_instance_node, conn_wmi, class_name, obj_list)
 
-    # TODO: Embetant car il faut le faire pour toutes les classes.
-    # Et en plus on perd le nom de la propriete.
-    # cgiEnv.OutCgiRdf("LAYOUT_RECT",['root\\cimv2:CIM_Datafile'])
-    # 'PartComponent' for 'root\\cimv2:CIM_Datafile'
-    # 'Element' for 'root\\cimv2:Win32_DCOMApplication'
-    # 'Antecedent' for 'CIM_DataFile'
-    cgiEnv.OutCgiRdf("LAYOUT_TWOPI",[lib_common.MakeProp('PartComponent'),lib_common.MakeProp('Element'),lib_common.MakeProp('Antecedent')])
-    # cgiEnv.OutCgiRdf("LAYOUT_SPLINE",[lib_common.MakeProp('PartComponent'),lib_common.MakeProp('Element'),lib_common.MakeProp('Antecedent')])
+    # BEWARE: Mustbe done for all classes
+    cgiEnv.OutCgiRdf("LAYOUT_TWOPI",
+                     [lib_common.MakeProp('PartComponent'),
+                      lib_common.MakeProp('Element'),
+                      lib_common.MakeProp('Antecedent')])
 
 # TODO: Must add a link to our URL, entity.py etc...
 
