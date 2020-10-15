@@ -144,7 +144,7 @@ def NodeToUniversalAlias(anObject):
 		entity_ip_addr = entity_ip_addr.lower()
 
 		# TODO: Many things are calculated several times.
-		( labText, subjEntityGraphicClass, entity_id) = lib_naming.ParseEntityUri( anObject, longDisplay = True, force_entity_ip_addr=entity_ip_addr )
+		labText, subjEntityGraphicClass, entity_id = lib_naming.ParseEntityUri(anObject, long_display=True, force_entity_ip_addr=entity_ip_addr)
 
 		# sys.stderr.write("MakeUniversalAliasNoCache anObject=%s labText=%s\n"%(str(anObject),labText))
 		return labText
@@ -184,7 +184,7 @@ class NodeJson:
 		global NodeJsonNumber
 		subj_str = str(rdf_node)
 
-		( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(subj_str, longDisplay=False,force_entity_ip_addr=None)
+		entity_label, entity_graphic_class, entity_id = lib_naming.ParseEntityUri(subj_str, long_display=False, force_entity_ip_addr=None)
 
 		self.m_label = entity_label.strip()
 		self.m_class = entity_graphic_class
