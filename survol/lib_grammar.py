@@ -1,29 +1,31 @@
 # Consider using the Pythonpackage inflect.
 
+
 # Win32_ReliabilityRecordses
 # Win32_LogicalFileAccesses
-def ToPlural(eltNam,numNodLst):
-	if numNodLst == 1:
-		return eltNam
+def ToPlural(elt_nam, num_nod_lst):
+    if num_nod_lst == 1:
+        return elt_nam
 
-	if not eltNam[-1].isalpha():
-		return eltNam
+    if not elt_nam[-1].isalpha():
+        return elt_nam
 
-	if eltNam[-1] == "s":
-		if (len(eltNam) > 1) and (eltNam[-2] != "s"):
-			# Maybe it is already plural.
-			return eltNam
-		else:
-			return eltNam + "es"
+    if elt_nam[-1] == "s":
+        if (len(elt_nam) > 1) and (elt_nam[-2] != "s"):
+            # Maybe it is already plural.
+            return elt_nam
+        else:
+            return elt_nam + "es"
 
-	if eltNam[-1] == "y":
-		return eltNam[:-1] + "ies"
+    if elt_nam[-1] == "y":
+        return elt_nam[:-1] + "ies"
 
-	return eltNam + "s"
+    return elt_nam + "s"
+
 
 # https://www.theenglishspace.com/grammar/determiners/articles-introduction.html
-def IndefiniteArticle(theWord):
-	if theWord[0].upper() in "AEIOUY":
-		return "an"
-	else:
-		return "a"
+def IndefiniteArticle(the_word):
+    if the_word[0].upper() in "AEIOUY":
+        return "an"
+    else:
+        return "a"
