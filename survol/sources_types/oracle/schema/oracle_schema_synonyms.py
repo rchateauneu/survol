@@ -12,31 +12,33 @@ import lib_oracle
 from sources_types.oracle import schema as oracle_schema
 from sources_types.oracle import synonym as oracle_synonym
 
+
 def Main():
-	cgiEnv = lib_oracle.OracleEnv()
+    cgiEnv = lib_oracle.OracleEnv()
 
-	oraSchema = cgiEnv.m_entity_id_dict["Schema"]
+    ora_schema = cgiEnv.m_entity_id_dict["Schema"]
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	sql_query = "SELECT OBJECT_NAME,STATUS,CREATED FROM ALL_OBJECTS WHERE OBJECT_TYPE = 'SYNONYM' AND OWNER = '" + oraSchema + "'"
-	DEBUG("sql_query=%s", sql_query )
+    sql_query = "SELECT OBJECT_NAME,STATUS,CREATED FROM ALL_OBJECTS WHERE OBJECT_TYPE = 'SYNONYM' AND OWNER = '" + ora_schema + "'"
+    DEBUG("sql_query=%s", sql_query)
 
-	node_oraschema = oracle_schema.MakeUri( cgiEnv.m_oraDatabase, oraSchema )
+    node_oraschema = oracle_schema.MakeUri(cgiEnv.m_oraDatabase, ora_schema )
 
-	result = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(), sql_query)
+    result = lib_oracle.ExecuteQuery(cgiEnv.ConnectStr(), sql_query)
 
-	for row in result:
-		synonymName = str(row[0])
-		nodeSynonym = oracle_synonym.MakeUri( cgiEnv.m_oraDatabase , oraSchema, synonymName )
-		grph.add( ( node_oraschema, pc.property_oracle_synonym, nodeSynonym ) )
+    for row in result:
+        synonym_name = str(row[0])
+        node_synonym = oracle_synonym.MakeUri(cgiEnv.m_oraDatabase , ora_schema, synonym_name)
+        grph.add((node_oraschema, pc.property_oracle_synonym, node_synonym))
 
-		lib_oracle.AddLiteralNotNone(grph,nodeSynonym,"Status",row[1])
-		lib_oracle.AddLiteralNotNone(grph,nodeSynonym,"Creation",row[2])
+        lib_oracle.AddLiteralNotNone(grph, node_synonym, "Status", row[1])
+        lib_oracle.AddLiteralNotNone(grph, node_synonym, "Creation", row[2])
 
-	# It cannot work if there are too many views.
-	# cgiEnv.OutCgiRdf("LAYOUT_RECT")
-	cgiEnv.OutCgiRdf("LAYOUT_RECT",[pc.property_oracle_synonym])
+    # It cannot work if there are too many views.
+    # cgiEnv.OutCgiRdf("LAYOUT_RECT")
+    cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_oracle_synonym])
+
 
 if __name__ == '__main__':
-	Main()
+    Main()
