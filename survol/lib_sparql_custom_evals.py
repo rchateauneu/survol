@@ -74,7 +74,7 @@ def add_ontology(graph):
 
 ################################################################################
 
-is_platform_windows = sys.platform.startswith("win")
+is_platform_windows = sys.platform.startswith("win32")
 is_platform_linux = sys.platform.startswith("linux")
 
 def equal_paths(path_a, path_b):
