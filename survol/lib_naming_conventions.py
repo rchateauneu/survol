@@ -2,7 +2,7 @@ import os
 import sys
 
 _is_py3 = sys.version_info >= (3,)
-_is_windows = 'win' in sys.platform
+_is_windows = 'win32' in sys.platform
 
 _standardized_file_path_cache = dict()
 
