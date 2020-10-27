@@ -13,33 +13,32 @@ from sources_types.oracle import schema as oracle_schema
 from sources_types.oracle import package_body as oracle_package_body
 
 def Main():
-	cgiEnv = lib_oracle.OracleEnv()
+    cgiEnv = lib_oracle.OracleEnv()
 
-	oraSchema = cgiEnv.m_entity_id_dict["Schema"]
+    ora_schema = cgiEnv.m_entity_id_dict["Schema"]
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	sql_query = "SELECT OBJECT_NAME,STATUS,CREATED FROM ALL_OBJECTS WHERE OBJECT_TYPE = 'PACKAGE BODY' AND OWNER = '" + oraSchema + "'"
-	DEBUG("sql_query=%s", sql_query )
+    sql_query = "SELECT OBJECT_NAME,STATUS,CREATED FROM ALL_OBJECTS WHERE OBJECT_TYPE = 'PACKAGE BODY' AND OWNER = '" + ora_schema + "'"
+    DEBUG("sql_query=%s", sql_query)
 
-	node_oraschema = oracle_schema.MakeUri( cgiEnv.m_oraDatabase, oraSchema )
+    node_oraschema = oracle_schema.MakeUri(cgiEnv.m_oraDatabase, ora_schema)
 
-	result = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(), sql_query)
-	num_package_bodies=len(result)
-	DEBUG("num_package_bodies=%d", num_package_bodies )
+    result = lib_oracle.ExecuteQuery(cgiEnv.ConnectStr(), sql_query)
+    num_package_bodies = len(result)
+    DEBUG("num_package_bodies=%d", num_package_bodies)
 
-	for row in result:
-		packageBodyName = str(row[0])
-		# sys.stderr.write("tableName=%s\n" % tableName )
-		nodePackageBody = oracle_package_body.MakeUri( cgiEnv.m_oraDatabase , oraSchema, packageBodyName )
-		grph.add( ( node_oraschema, pc.property_oracle_package_body, nodePackageBody ) )
+    for row in result:
+        package_body_name = str(row[0])
+        sys.stderr.write("package_body_name=%s\n" % package_body_name)
+        node_package_body = oracle_package_body.MakeUri(cgiEnv.m_oraDatabase, ora_schema, package_body_name)
+        grph.add((node_oraschema, pc.property_oracle_package_body, node_package_body))
 
-		lib_oracle.AddLiteralNotNone(grph,nodePackageBody,"Status",row[1])
-		lib_oracle.AddLiteralNotNone(grph,nodePackageBody,"Creation",row[2])
+        lib_oracle.AddLiteralNotNone(grph, node_package_body, "Status", row[1])
+        lib_oracle.AddLiteralNotNone(grph, node_package_body, "Creation", row[2])
 
-	# It cannot work if there are too many tables.
-	# cgiEnv.OutCgiRdf("LAYOUT_RECT")
-	cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_oracle_package_body])
+    # cgiEnv.OutCgiRdf("LAYOUT_RECT")
+    cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_oracle_package_body])
 
 if __name__ == '__main__':
-	Main()
+    Main()
