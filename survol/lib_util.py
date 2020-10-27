@@ -947,7 +947,7 @@ def ObjectTypes():
 # These functions are used in scripts, to tell if it is usable or not.
 
 isPlatformLinux = 'linux' in sys.platform
-isPlatformWindows = 'win' in sys.platform
+isPlatformWindows = 'win32' in sys.platform
 
 
 def UsableLinux(entity_type, entity_ids_arr):
@@ -1514,7 +1514,7 @@ def _get_entity_module_without_cache_no_catch(entity_type):
         entity_package = "sources_types"
         entity_name = "." + entity_type
     # sys.stderr.write("Loading from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
-    if (sys.platform.startswith("win") and sys.version_info >= (3, 2) and sys.version_info < (3, 3) ) \
+    if (sys.platform.startswith("win32") and sys.version_info >= (3, 2) and sys.version_info < (3, 3) ) \
     or (sys.platform.startswith("lin") and sys.version_info >= (3, 2) ):
         entity_module = importlib.import_module(entity_package + entity_name)
     else:
