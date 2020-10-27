@@ -1451,9 +1451,10 @@ class SurvolSocketsTest(unittest.TestCase):
             import httplib
             conn_http = httplib.HTTPConnection(http_host_name, 80, timeout=60)
         print("Connection to %s OK"%http_host_name)
-        conn_http.request("GET", "/content/vatican/it.html")
+        # Legacy and backward compatibility.
+        conn_http.request("GET", "/latin/latin_index.html")
         resp = conn_http.getresponse()
-        if resp.status != 200 or resp.reason != "OK":
+        if (resp.status, resp.reason) not in [(200, "OK"), (302, "Found")]:
             raise Exception("Hostname %s not ok. Status=%d, reason=%s." % (http_host_name, resp.status, resp.reason))
         peer_name = conn_http.sock.getpeername()
         peer_host = peer_name[0]
