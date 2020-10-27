@@ -12,31 +12,33 @@ import lib_oracle
 from sources_types.oracle import schema as oracle_schema
 from sources_types.oracle import trigger as oracle_trigger
 
+
 def Main():
-	cgiEnv = lib_oracle.OracleEnv()
+    cgiEnv = lib_oracle.OracleEnv()
 
-	oraSchema = cgiEnv.m_entity_id_dict["Schema"]
+    ora_schema = cgiEnv.m_entity_id_dict["Schema"]
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	sql_query = "SELECT OBJECT_NAME,STATUS,CREATED FROM ALL_OBJECTS WHERE OBJECT_TYPE = 'TRIGGER' AND OWNER = '" + oraSchema + "'"
-	DEBUG("sql_query=%s", sql_query )
+    sql_query = "SELECT OBJECT_NAME,STATUS,CREATED FROM ALL_OBJECTS WHERE OBJECT_TYPE = 'TRIGGER' AND OWNER = '" + ora_schema + "'"
+    DEBUG("sql_query=%s", sql_query )
 
-	node_oraschema = oracle_schema.MakeUri( cgiEnv.m_oraDatabase, oraSchema )
+    node_oraschema = oracle_schema.MakeUri(cgiEnv.m_oraDatabase, ora_schema )
 
-	result = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(), sql_query)
+    result = lib_oracle.ExecuteQuery(cgiEnv.ConnectStr(), sql_query)
 
-	for row in result:
-		triggerName = str(row[0])
-		nodeTrigger = oracle_trigger.MakeUri( cgiEnv.m_oraDatabase , oraSchema, triggerName )
-		grph.add( ( node_oraschema, pc.property_oracle_trigger, nodeTrigger ) )
+    for row in result:
+        trigger_name = str(row[0])
+        node_trigger = oracle_trigger.MakeUri(cgiEnv.m_oraDatabase , ora_schema, trigger_name)
+        grph.add((node_oraschema, pc.property_oracle_trigger, node_trigger))
 
-		lib_oracle.AddLiteralNotNone(grph,nodeTrigger,"Status",row[1])
-		lib_oracle.AddLiteralNotNone(grph,nodeTrigger,"Creation",row[2])
+        lib_oracle.AddLiteralNotNone(grph, node_trigger, "Status", row[1])
+        lib_oracle.AddLiteralNotNone(grph, node_trigger, "Creation", row[2])
 
-	# It cannot work if there are too many views.
-	# cgiEnv.OutCgiRdf("LAYOUT_RECT")
-	cgiEnv.OutCgiRdf("LAYOUT_RECT",[pc.property_oracle_trigger])
+    # It cannot work if there are too many views.
+    # cgiEnv.OutCgiRdf("LAYOUT_RECT")
+    cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_oracle_trigger])
+
 
 if __name__ == '__main__':
-	Main()
+    Main()

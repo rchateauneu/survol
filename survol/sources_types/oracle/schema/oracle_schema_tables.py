@@ -12,6 +12,7 @@ import lib_oracle
 from sources_types.oracle import schema as oracle_schema
 from sources_types.oracle import table as oracle_table
 
+
 def Main():
     cgiEnv = lib_oracle.OracleEnv()
 
@@ -32,11 +33,12 @@ def Main():
         grph.add((node_oraschema, pc.property_oracle_table, node_table))
 
         lib_oracle.AddLiteralNotNone(grph, node_table, "Status", row[1])
-        lib_oracle.AddLiteralNotNone(grph,node_table, "Creation", row[2])
+        lib_oracle.AddLiteralNotNone(grph, node_table, "Creation", row[2])
 
     # It cannot work if there are too many tables.
     # cgiEnv.OutCgiRdf("LAYOUT_RECT")
     cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_oracle_table])
+
 
 if __name__ == '__main__':
     Main()
