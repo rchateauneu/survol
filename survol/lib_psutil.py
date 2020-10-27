@@ -20,6 +20,7 @@ def PsutilGetProcObj(pid):
     except NoSuchProcess:
         lib_common.ErrorMessageHtml("No such process:"+str(pid))
 
+
 # If psutil is not available, consider "getpass.getuser()"
 # This returns the username, not prefixed by the hostname.
 def GetCurrentUser():
@@ -33,12 +34,14 @@ def GetCurrentUser():
         psUser = psUser.rpartition("\\")[2]
     return psUser
 
+
 # https://pythonhosted.org/psutil/
 # rss: this is the non-swapped physical memory a process has used.
 # On UNIX it matches "top" RES column (see doc).
 # On Windows this is an alias for wset field and it matches "Mem Usage" column of taskmgr.exe.
 def PsutilResidentSetSize(proc):
     return lib_util.AddSIUnit(proc.memory_info().rss,"B")
+
 
 # https://pythonhosted.org/psutil/
 # vms: this is the total amount of virtual memory used by the process.
@@ -49,6 +52,7 @@ def PsutilVirtualMemorySize(proc):
 
 ################################################################################
 
+
 def PsutilProcToName(proc):
     procNam = proc.name()
     # Very often, the process name will just be the executable file name.
@@ -58,11 +62,11 @@ def PsutilProcToName(proc):
     return procNam
 
 
-def PsutilProcToUser(proc, dfltUser = "AccessDenied"):
+def PsutilProcToUser(proc, dflt_user="AccessDenied"):
     try:
         return proc.username()
     except AccessDenied:
-        return dfltUser
+        return dflt_user
     except KeyError:
         # This does not make sense but it happens.
         # KeyError: 'getpwuid(): uid not found: 56413'
