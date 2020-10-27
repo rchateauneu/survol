@@ -157,7 +157,7 @@ if is_py2:
 setup(
     name='survol',
     version=__version__,
-    description='Exploring legacy systems',
+    description='Exploring legacy IT systems',
     long_description=README,
     author='Primhill Computers',
     author_email='contact@primhillcomputers.com',
@@ -240,3 +240,4 @@ setup(
 
 ################################################################################
 
+# TODO: How to display optional modules ? Which features do they provide ?
