@@ -140,7 +140,7 @@ def cgiserver_entry_point():
     # print("os.environ['SERVER_NAME']='%s'" % (os.environ['SERVER_NAME']) )
     print("Platform=%s" % sys.platform)
     print("Version:%s" % str(sys.version_info))
-    if 'win' in sys.platform:
+    if 'win32' in sys.platform:
         print("os.sys.getwindowsversion()=", os.sys.getwindowsversion())
         print("platform.win32_ver()=", platform.win32_ver())
     print("platform.release()=", platform.release())
@@ -175,7 +175,7 @@ def start_server_forever(verbose, server_name, port_number, current_dir=""):
         sys.stderr.write("sys.exec_prefix=%s\n" % sys.exec_prefix)
         sys.stderr.write("getpid=%d\n" % os.getpid())
     envPYTHONPATH = "PYTHONPATH"
-    if 'win' in sys.platform:
+    if 'win32' in sys.platform:
         # This is necessary for lib_util which is otherwise not found.
         extra_path = "survol"
         try:
@@ -290,7 +290,7 @@ def start_server_forever(verbose, server_name, port_number, current_dir=""):
         server.server_name = server_name
 
         # FIXME: Win3 and carriage return, in Pycharm..
-        if 'win' in sys.platform:
+        if 'win32' in sys.platform:
             import msvcrt
             # msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
             # It does not work either. Problem is that it receives binary strings.
