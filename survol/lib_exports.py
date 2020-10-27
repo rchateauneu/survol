@@ -205,6 +205,7 @@ class NodeJson:
 
 		NodeJsonNumber += 1 # One more node.
 
+
 # Transforms a RDF property URIRef into a plain alphanumeric string,
 # which can be used as a DOT label or RDF property, or a label string.
 # It also returns a dictionary of the key value pairs if any.
@@ -213,35 +214,35 @@ class NodeJson:
 # nodePredicate=http://primhillcomputers.com/survol/user
 #
 # TODO: See also AntiPredicateUri
-def PropToShortPropNamAndDict(nodePredicate):
-	strPredicate = str(nodePredicate)
-	idxQuestion = strPredicate.rfind("?")
-	if idxQuestion == -1:
+def PropToShortPropNamAndDict(node_predicate):
+	str_predicate = str(node_predicate)
+	idx_question = str_predicate.rfind("?")
+	if idx_question == -1:
 		dictProperties = None
-		# idxLastSlash = strPredicate.rfind("/")
-		idxLastSlash = strPredicate.rfind(lib_properties.prefix_terminator)
-		shortNam = strPredicate[idxLastSlash+1:]
+		idx_last_slash = str_predicate.rfind(lib_properties.prefix_terminator)
+		short_nam = str_predicate[idx_last_slash+1:]
 	else:
-		strProperties = strPredicate[idxQuestion+1:]
+		strProperties = str_predicate[idx_question+1:]
 		vecProperties = strProperties.split("&")
 		dictProperties = dict(one_s.split('=',1) for one_s in vecProperties)
-		#idxLastSlash = strPredicate.rfind("/",0,idxQuestion)
-		idxLastSlash = strPredicate.rfind(lib_properties.prefix_terminator,0,idxQuestion)
-		shortNam = strPredicate[idxLastSlash+1:idxQuestion]
+		idx_last_slash = str_predicate.rfind(lib_properties.prefix_terminator,0,idx_question)
+		short_nam = str_predicate[idx_last_slash+1:idx_question]
 
 	# "sun.boot.class.path"
 	# Graphviz just want letters.
-	shortNam = shortNam.replace(".","_")
-	shortNam = shortNam.replace(" ","_")
+	short_nam = short_nam.replace(".", "_")
+	short_nam = short_nam.replace(" ", "_")
 
 	# Some properties, such as "information", are sorted differently by adding a special not-displayed prefix.
-	if shortNam.startswith(lib_properties.sortPrefix):
-		shortNam = shortNam[len(lib_properties.sortPrefix):]
-	assert( shortNam != "" )
-	return shortNam, dictProperties
+	if short_nam.startswith(lib_properties.sortPrefix):
+		short_nam = short_nam[len(lib_properties.sortPrefix):]
+	assert short_nam != ""
+	return short_nam, dictProperties
 
-def PropToShortPropNam(nodePredicate):
-	return PropToShortPropNamAndDict(nodePredicate)[0]
+
+def PropToShortPropNam(node_predicate):
+	return PropToShortPropNamAndDict(node_predicate)[0]
+
 
 # Only some scripts and urls are exported to Json.
 # The most frequent should come first.
