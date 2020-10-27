@@ -40,7 +40,7 @@ import lib_credentials
 
 ################################################################################
 
-is_platform_windows = sys.platform.startswith("win")
+is_platform_windows = sys.platform.startswith("win32")
 is_platform_linux = sys.platform.startswith("linux")
 
 is_py3 = sys.version_info >= (3,)
@@ -318,7 +318,6 @@ def start_cgiserver(agent_port):
             os.remove(logfile_name)
         except Exception as exc:
             print("Cannot remove", logfile_name, exc)
-
 
     def _read_display_server_internal_data(response):
         internal_data = response.read().decode("utf-8")
