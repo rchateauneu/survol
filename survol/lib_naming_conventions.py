@@ -74,9 +74,6 @@ def _standardized_file_path_nocache(file_path):
                     # os.path._getfinalpathname("c:/python27/python.exe") => '\\\\?\\C:\\Python27\\python.exe'
                     # os.path._getfinalpathname("c:/python27/python.exe").lstrip(r'\?') => 'C:\\Python27\\python.exe'
 
-                    # Analyser *.jar, *.zip etc... *.dll
-                    # Si memory_map, proposer le fichier associe , ou ajouter les scripts des fichiers.
-
                     try:
                         file_path = os.path._getfinalpathname(file_path).lstrip(r'\?')
                         assert isinstance(file_path, str)
