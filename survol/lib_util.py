@@ -697,6 +697,16 @@ def Scriptize(path, entity_type, entity_id):
 xidCgiDelimiter = "?xid="
 
 
+def BuildWmiMoniker(hostname_wmi, namespac="", class_nam=""):
+    if hostname_wmi:
+        return "\\\\%s\\%s:%s." % (hostname_wmi, namespac, class_nam)
+    else:
+        if namespac:
+            return "\\\\%s\\%s:%s." % (namespac, class_nam)
+        else:
+            return "%s." % class_nam
+
+
 def EntityClassUrl(entity_type, entity_namespace="", entity_host="", category=""):
     """This creates the URL of a class, "Survol, "WMI" or "WBEM"."""
     if entity_type is None:
@@ -707,7 +717,7 @@ def EntityClassUrl(entity_type, entity_namespace="", entity_host="", category=""
         moniker_class = entity_host + "/" + entity_namespace + ":" + entity_type + "."
     # WMI : \\MYHOST-HP\root\cimv2:Win32_Process.Handle="0"
     elif category == "WMI":
-        moniker_class = "\\\\" + entity_host + "\\" + entity_namespace + ":" + entity_type + "."
+        return BuildWmiMoniker(entity_host, entity_namespace, entity_type)
     # This is temporary.
     else:
         # We could simplify the format, if no namespace nor hostname.
