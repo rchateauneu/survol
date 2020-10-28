@@ -169,17 +169,19 @@ def _dot_to_svg(dot_filnam_after, logfil, viztype, out_dest):
                     "-Nfontname=DejaVuSans.ttf",
                     "-Efontname=DejaVuSans.ttf"]
     else:
-         dot_fonts = []
+        dot_fonts = []
 
     # Old versions of dot need the layout on the command line.
     # This is maybe a bit faster than os.open because no shell and direct write to the output.
     svg_command = [dot_path, "-K", viztype, "-Tsvg", dot_filnam_after, "-o", svg_out_filnam,
                    "-v", "-Goverlap=false"] + dot_fonts
-    msg = "svg_command=" + " ".join(svg_command)
-    DEBUG(msg)
-    logfil.write(TimeStamp()+" "+msg+"\n")
+    str_command = " ".join(svg_command)
+    logfil.write(TimeStamp()+" svg_command=" + str_command + "\n")
 
-    ret = subprocess.call(svg_command, stdout=logfil, stderr=logfil, shell=False)
+    try:
+        ret = subprocess.call(svg_command, stdout=logfil, stderr=logfil, shell=False)
+    except Exception as exc:
+        ErrorMessageHtml("ERROR:%s raised:%s" % (str_command, str(exc)))
     logfil.write(TimeStamp()+" Process ret=%d\n" % ret)
 
     if not os.path.isfile(svg_out_filnam):
