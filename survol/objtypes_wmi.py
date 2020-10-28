@@ -18,32 +18,33 @@ import lib_wmi
 
 
 # Manages a cache so nodes are created once only.
-def ClassToNode(wmiNamespace, cimomUrl, clsNam):
-	global dictClassToNode
+def _class_to_node(wmi_namespace, cimom_url, cls_nam):
+	global dict_class_to_node
 	try:
-		wmi_node = dictClassToNode[ clsNam ]
+		wmi_node = dict_class_to_node[cls_nam]
 	except KeyError:
-		wmi_url = lib_wmi.ClassUrl(wmiNamespace,cimomUrl,clsNam)
-		wmi_node = lib_common.NodeUrl( wmi_url )
+		wmi_url = lib_wmi.ClassUrl(wmi_namespace, cimom_url, cls_nam)
+		wmi_node = lib_common.NodeUrl(wmi_url)
 
-		dictClassToNode[ clsNam ] = wmi_node
+		dict_class_to_node[ cls_nam] = wmi_node
 	return wmi_node
 
-def WmiNamespaceNode( wmiNamespace, cimomUrl, clsNam):
-	wmi_url = lib_wmi.NamespaceUrl(wmiNamespace, cimomUrl, clsNam)
+
+def _wmi_namespace_node(wmi_namespace, cimom_url, cls_nam):
+	wmi_url = lib_wmi.NamespaceUrl(wmi_namespace, cimom_url, cls_nam)
 	return lib_common.NodeUrl(wmi_url)
 
 
 _done_node = set()
 
 
-def DrawFromThisBase(root_node, wmi_namespace, cimom_url, cls_nam, grph, cls_deriv):
+def _draw_from_this_base(root_node, wmi_namespace, cimom_url, cls_nam, grph, cls_deriv):
 	global _done_node
-	wmi_node = ClassToNode(wmi_namespace, cimom_url, cls_nam)
+	wmi_node = _class_to_node(wmi_namespace, cimom_url, cls_nam)
 
 	# The class is the starting point when displaying the class tree of the namespace.
-	wmi_node_sub = WmiNamespaceNode(wmi_namespace, cimom_url, cls_nam)
-	grph.add( ( wmi_node, pc.property_rdf_data_nolist1, wmi_node_sub))
+	wmi_node_sub = _wmi_namespace_node(wmi_namespace, cimom_url, cls_nam)
+	grph.add((wmi_node, pc.property_rdf_data_nolist1, wmi_node_sub))
 
 	node_generalised_class = lib_util.EntityClassNode(cls_nam, wmi_namespace, cimom_url, "WMI")
 	grph.add((wmi_node, pc.property_rdf_data_nolist2, node_generalised_class))
@@ -58,57 +59,57 @@ def DrawFromThisBase(root_node, wmi_namespace, cimom_url, cls_nam, grph, cls_der
 		grph.add((root_node, pc.property_cim_subclass, previous_node))
 	else:
 		# sys.stderr.write("cls_nam=%s cls_deriv=%s\n" % ( cls_nam, str(cls_deriv) ))
-		for baseClassNam in cls_deriv:
+		for base_class_nam in cls_deriv:
 
-			wmi_base_node = ClassToNode(wmi_namespace, cimom_url, baseClassNam)
+			wmi_base_node = _class_to_node(wmi_namespace, cimom_url, base_class_nam)
 
 			grph.add((wmi_base_node, pc.property_cim_subclass, previous_node))
-			grph.add((wmi_base_node, pc.property_information, rdflib.Literal(baseClassNam)))
+			grph.add((wmi_base_node, pc.property_information, rdflib.Literal(base_class_nam)))
 			previous_node = wmi_base_node
-			if baseClassNam in _done_node:
+			if base_class_nam in _done_node:
 				break
 
-			_done_node.add(baseClassNam)
+			_done_node.add(base_class_nam)
 
 
-def GetDerivation(conn_wmi, cls_nam):
+def _get_derivation(conn_wmi, cls_nam):
 	wmi_class = getattr(conn_wmi, cls_nam)
 	return  wmi_class.derivation ()
 
 
-cacheDerivations = {}
+_cache_derivations = {}
 
 
-# Not sure this is faster.
-def GetDerivationWithCache(conn_wmi, cls_nam):
-	global cacheDerivations
+def _get_derivation_with_cache(conn_wmi, cls_nam):
+	global _cache_derivations
 	try:
-		return cacheDerivations[ cls_nam]
+		return _cache_derivations[ cls_nam]
 	except KeyError:
 		pass
 
-	deriv = GetDerivation(conn_wmi, cls_nam)
-	cacheDerivations[cls_nam] = deriv
+	deriv = _get_derivation(conn_wmi, cls_nam)
+	_cache_derivations[cls_nam] = deriv
 	for idx in range(0, len(deriv)):
-		loopClass = deriv[idx]
-		if loopClass in cacheDerivations:
+		loop_class = deriv[idx]
+		if loop_class in _cache_derivations:
 			break
-		cacheDerivations[loopClass] = deriv[idx+1:]
+		_cache_derivations[loop_class] = deriv[idx + 1:]
 
 	return deriv
 
 
 def Main():
-	global dictClassToNode
+	global dict_class_to_node
 
-	dictClassToNode = dict()
+	dict_class_to_node = dict()
 
-	paramkeyMaxDepth = "Maximum depth"
+	paramkey_max_depth = "Maximum depth"
 
-	cgiEnv = lib_common.CgiEnv(can_process_remote = True,
-									parameters = { paramkeyMaxDepth : 3 })
+	cgiEnv = lib_common.CgiEnv(
+		can_process_remote=True,
+		parameters={paramkey_max_depth: 3})
 
-	maxDepth = int(cgiEnv.get_parameters( paramkeyMaxDepth ))
+	max_depth = int(cgiEnv.get_parameters(paramkey_max_depth))
 
 	wmi_namespace, entity_type = cgiEnv.get_namespace_type()
 
@@ -122,52 +123,52 @@ def Main():
 
 	try:
 		conn_wmi = lib_wmi.WmiConnect(cimom_url, wmi_namespace)
-	except:
-		exc = sys.exc_info()[1]
+	except Exception as exc:
 		# wmi_namespace=root\directory\\LDAP Caught:
 		# x_wmi: Unexpected COM Error (-2147217375, 'OLE error 0x80041021', None, None)
 		lib_common.ErrorMessageHtml("wmi_namespace=%s Caught:%s" % (wmi_namespace, str(exc)))
 
-	root_node = ClassToNode(wmi_namespace, cimom_url, entity_type)
+	root_node = _class_to_node(wmi_namespace, cimom_url, entity_type)
 
-	# rootNodeNameSpace = WmiNamespaceNode(entity_type)
+	# rootNodeNameSpace = _wmi_namespace_node(entity_type)
 	# grph.add( ( root_node, pc.property_rdf_data_nolist2, lib_common.NodeLiteral(rootNodeNameSpace) ) )
 	# def EntityClassNode(entity_type, entity_namespace = "", entity_host = "", category = ""):
-	rootGeneralisedClass = lib_util.EntityClassNode(entity_type, wmi_namespace, cimom_url, "WMI")
-	grph.add((root_node, pc.property_rdf_data_nolist2, rootGeneralisedClass))
+	root_generalised_class = lib_util.EntityClassNode(entity_type, wmi_namespace, cimom_url, "WMI")
+	grph.add((root_node, pc.property_rdf_data_nolist2, root_generalised_class))
 
 	# TODO: Should add a link to the upper class.
 	if entity_type == "":
 		for cls_nam in conn_wmi.classes:
-			cls_deriv = GetDerivation(conn_wmi, cls_nam)
+			cls_deriv = _get_derivation(conn_wmi, cls_nam)
 
-			if len(cls_deriv) < maxDepth:
-				DrawFromThisBase(root_node, wmi_namespace, cimom_url, cls_nam,grph, cls_deriv)
+			if len(cls_deriv) < max_depth:
+				_draw_from_this_base(root_node, wmi_namespace, cimom_url, cls_nam, grph, cls_deriv)
 	else:
 		# Normally this cache contains nodes to classes, but this is the top one.
-		dictClassToNode[entity_type] = root_node
+		dict_class_to_node[entity_type] = root_node
 
 		# This also points to its closest base class or to the namespace.
-		top_cls_deriv = GetDerivation(conn_wmi, entity_type)
+		top_cls_deriv = _get_derivation(conn_wmi, entity_type)
 		if len(top_cls_deriv) == 0:
-			top_node = WmiNamespaceNode(wmi_namespace, cimom_url, "")
+			top_node = _wmi_namespace_node(wmi_namespace, cimom_url, "")
 		else:
-			top_node = WmiNamespaceNode(wmi_namespace, cimom_url, top_cls_deriv[0])
+			top_node = _wmi_namespace_node(wmi_namespace, cimom_url, top_cls_deriv[0])
 		grph.add((top_node, pc.property_cim_subclass, root_node))
 
 		for cls_nam in conn_wmi.subclasses_of(entity_type):
-			cls_deriv =  GetDerivation(conn_wmi, cls_nam)
+			cls_deriv =  _get_derivation(conn_wmi, cls_nam)
 
 			idx_class = cls_deriv.index(entity_type)
 			invert_idx = len(cls_deriv) - idx_class
 
 			# This tree can be very deep so there is a maximum depth.
-			if len(cls_deriv) < maxDepth + invert_idx:
+			if len(cls_deriv) < max_depth + invert_idx:
 				# derivation starts by the lowest level to the top.
-				DrawFromThisBase(root_node, wmi_namespace, cimom_url, cls_nam,grph, cls_deriv[:idx_class])
+				_draw_from_this_base(root_node, wmi_namespace, cimom_url, cls_nam, grph, cls_deriv[:idx_class])
 
 	cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_cim_subclass])
 	# cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
 	Main()
