@@ -30,7 +30,6 @@ def Main():
 
     for row in result:
         package_body_name = str(row[0])
-        sys.stderr.write("package_body_name=%s\n" % package_body_name)
         node_package_body = oracle_package_body.MakeUri(cgiEnv.m_oraDatabase, ora_schema, package_body_name)
         grph.add((node_oraschema, pc.property_oracle_package_body, node_package_body))
 
