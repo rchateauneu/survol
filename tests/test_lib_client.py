@@ -319,8 +319,8 @@ class SurvolLocalTest(unittest.TestCase):
         for one_qry in lst_qries_present:
             self.assertTrue(one_qry in lst_queries_only)
 
-    def test_open_files_from_python_process(self):
-        """Files open by a Python process"""
+    def test_open_files_from_python_with_shell(self):
+        """Files open by a Python process started in a shell"""
         sql_path_name = os.path.join(os.path.dirname(__file__), "SampleDirScripts", "SamplePythonFile.py")
 
         exec_list = [sys.executable, sql_path_name]
@@ -352,10 +352,10 @@ class SurvolLocalTest(unittest.TestCase):
             CurrentUserPath]
         if is_platform_windows:
             lst_mandatory_instances += [
+                    # Slashes instead of backslashes, as is always the case in Survol.
                     "CIM_DataFile.Name=C:/Windows/System32/cmd.exe"]
-        else:
-            lst_mandatory_instances += [
-                    CurrentExecutablePath]
+        # On Linux, we do not know which Shell is used to start the command.
+
         print("lst_mandatory_instances=", lst_mandatory_instances)
         for one_str in lst_mandatory_instances:
             self.assertTrue(one_str in str_instances_set)
