@@ -323,31 +323,42 @@ class SurvolLocalTest(unittest.TestCase):
         """Files open by a Python process"""
         sql_path_name = os.path.join(os.path.dirname(__file__), "SampleDirScripts", "SamplePythonFile.py")
 
-        exec_list = [ sys.executable, sql_path_name ]
+        exec_list = [sys.executable, sql_path_name]
 
-        proc_open = subprocess.Popen(exec_list, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0)
+        proc_open = subprocess.Popen(
+            exec_list,
+            shell=True,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            bufsize=0)
 
-        print("Started process:",exec_list," pid=",proc_open.pid)
+        print("Started process:", exec_list, " pid=", proc_open.pid)
 
         my_source_sql_queries = lib_client.SourceLocal(
             "sources_types/CIM_Process/process_open_files.py",
             "CIM_Process",
             Handle=proc_open.pid)
 
-        tripleSqlQueries = my_source_sql_queries.get_triplestore()
+        triple_open_files = my_source_sql_queries.get_triplestore()
+        lst_instances = triple_open_files.get_instances()
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        print("str_instances_set=", str_instances_set)
 
         # Some instances are required.
+        # TODO: Add the Python file.
         lst_mandatory_instances = [
             "CIM_Process.Handle=%d"%proc_open.pid,
-            CurrentUserPath ]
+            CurrentUserPath]
         if is_platform_windows:
             lst_mandatory_instances += [
                     "CIM_DataFile.Name=C:/Windows/System32/cmd.exe"]
         else:
             lst_mandatory_instances += [
-                    CurrentExecutablePath ]
-        for oneStr in lst_mandatory_instances:
-            self.assertTrue(oneStr in lst_mandatory_instances)
+                    CurrentExecutablePath]
+        print("lst_mandatory_instances=", lst_mandatory_instances)
+        for one_str in lst_mandatory_instances:
+            self.assertTrue(one_str in str_instances_set)
 
         proc_open.communicate()
 
@@ -365,7 +376,7 @@ class SurvolLocalTest(unittest.TestCase):
             stderr=subprocess.STDOUT,
             bufsize=0)
 
-        print("Started process:",exec_list," pid=",proc_open.pid)
+        print("Started process:", exec_list, " pid=", proc_open.pid)
 
         my_source_processes = lib_client.SourceLocal(
             "sources_types/CIM_Process/single_pidstree.py",
@@ -1114,7 +1125,7 @@ class SurvolLocalGdbTest(unittest.TestCase):
         """Displays the stack of a Python process"""
 
         # This creates a process running in Python, because it does not work with the current process.
-        py_path_name = os.path.join(os.path.dirname(__file__), "SampleDirScripts", "SamplePythonFile.py")
+        py_path_name = os.path.join(os.path.dirname(__file__), "SampleDir", "SamplePythonFile.py")
         py_path_name = os.path.abspath(py_path_name)
 
         exec_list = [sys.executable, py_path_name]
@@ -2006,76 +2017,68 @@ class SurvolRabbitMQTest(unittest.TestCase):
             print(one_str)
             self.assertTrue(one_str in str_instances_set)
 
+def _find_oracle_db():
+    """Returns first Oracle connection from Credentials file"""
+    try:
+        import cx_Oracle
+    except ImportError:
+        print("Module cx_Oracle is not available so this test is not applicable:")
+        return None
 
-class SurvolOracleTest(unittest.TestCase):
-    """Testing Oracle discovery"""
+    instances_oracle_dbs = ClientObjectInstancesFromScript(
+        "sources_types/Databases/oracle_tnsnames.py")
 
-    def decorator_oracle_db(test_func):
-        """Returns first Oracle connection from Credentials file"""
-        global cx_Oracle_import_ok
-        try:
-            # This tests only once if this module can be imported.
-            return cx_Oracle_import_ok
-        except NameError:
-            try:
-                import cx_Oracle
-                cx_Oracle_import_ok = True
-            except ImportError as ex:
-                print("Module cx_Oracle is not available so this test is not applicable:",ex    )
-                cx_Oracle_import_ok = False
-                return None
+    # Typical content: 'addr.Id=127.0.0.1:1521', 'oracle/db.Db=XE_WINDOWS',
+    # 'oracle/db.Db=XE', 'oracle/db.Db=XE_OVH', 'addr.Id=vps516494.ovh.net:1521',
+    # 'addr.Id=192.168.0.17:1521', 'oracle/db.Db=XE_FEDORA'}
 
-        instances_oracle_dbs = ClientObjectInstancesFromScript(
-            "sources_types/Databases/oracle_tnsnames.py")
+    # Sorted in alphabetical order.
+    str_instances = sorted([
+        str(one_inst.Db)
+        for one_inst in instances_oracle_dbs
+        if one_inst.__class__.__name__ == "oracle/db"])
 
-        # Typical content: 'addr.Id=127.0.0.1:1521', 'oracle/db.Db=XE_WINDOWS',
-        # 'oracle/db.Db=XE', 'oracle/db.Db=XE_OVH', 'addr.Id=vps516494.ovh.net:1521',
-        # 'addr.Id=192.168.0.17:1521', 'oracle/db.Db=XE_FEDORA'}
-
-        # Sorted in alphabetical order.
-        str_instances = sorted([
-            str(one_inst.Db)
-            for one_inst in instances_oracle_dbs
-            if one_inst.__class__.__name__ == "oracle/db"])
-
-        if str_instances:
-            # This returns the first database found in the credentials file in alphabetical order.
-            def wrapper(self):
-                test_func(self,str_instances[0])
-            wrapper.__doc__ = test_func.__doc__
-            return wrapper
-            # return str_instances[0]
-
+    if str_instances:
+        return str_instances[0]
+    else:
         print("No Oracle database available")
         return None
 
-    @decorator_oracle_db
-    def test_oracle_schemas(self, oracle_db):
-        print("Oracle:", oracle_db)
+
+_global_oracle_db = _find_oracle_db()
+
+
+@unittest.skipIf(_global_oracle_db is None, "Oracle not available")
+class SurvolOracleTest(unittest.TestCase):
+    """Testing Oracle discovery"""
+    
+    _oracle_db = _global_oracle_db
+
+    def test_oracle_schemas(self):
+        print("Oracle:", self._oracle_db)
 
         lst_instances = ClientObjectInstancesFromScript(
             "sources_types/oracle/db/oracle_db_schemas.py",
             "oracle/db",
-            Db=oracle_db)
+            Db=self._oracle_db)
 
         str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         # Typical content:
         for one_str in [
-            'oracle/schema.Db=%s,Schema=SYSTEM' % oracle_db,
-            'oracle/schema.Db=%s,Schema=ANONYMOUS' % oracle_db,
-            'oracle/schema.Db=%s,Schema=SYS' % oracle_db,
+            'oracle/schema.Db=%s,Schema=SYSTEM' % self._oracle_db,
+            'oracle/schema.Db=%s,Schema=ANONYMOUS' % self._oracle_db,
+            'oracle/schema.Db=%s,Schema=SYS' % self._oracle_db,
         ]:
             self.assertTrue(one_str in str_instances_set)
 
-    @decorator_oracle_db
-    def test_oracle_connected_processes(self, oracle_db):
-        print("Oracle:", oracle_db)
+    def test_oracle_connected_processes(self):
+        print("Oracle:", self._oracle_db)
 
         lst_instances = ClientObjectInstancesFromScript(
             "sources_types/oracle/db/oracle_db_processes.py",
             "oracle/db",
-            Db=oracle_db)
+            Db=self._oracle_db)
 
         str_instances_set = set([str(oneInst) for oneInst in lst_instances])
 
@@ -2086,19 +2089,18 @@ class SurvolOracleTest(unittest.TestCase):
         # 'oracle/schema.Db=XE,Schema=SYSTEM', 'oracle/session.Db=XE,Session=102'
         for one_str in [
             CurrentProcessPath,
-            'oracle/db.Db=%s' % oracle_db,
+            'oracle/db.Db=%s' % self._oracle_db,
             'Win32_UserAccount.Name=%s,Domain=%s' % ( CurrentUsername, CurrentMachine),
         ]:
             self.assertTrue(one_str in str_instances_set)
 
-    @decorator_oracle_db
-    def test_oracle_running_queries(self, oracle_db):
-        print("Oracle:", oracle_db)
+    def test_oracle_running_queries(self):
+        print("Oracle:", self._oracle_db)
 
         lst_instances = ClientObjectInstancesFromScript(
             "sources_types/oracle/db/oracle_db_parse_queries.py",
             "oracle/db",
-            Db=oracle_db)
+            Db=self._oracle_db)
 
         # Typical content:
         # ['oracle/db.Db=XE_OVH', 'oracle/query.Query=ICBTRUxF... base64 ...ZGRyICA=,Db=XE_OVH']
@@ -2119,59 +2121,13 @@ class SurvolOracleTest(unittest.TestCase):
 
                 # TODO: Parse the query ? Or extracts its dependencies ?
 
-    @decorator_oracle_db
-    def test_oracle_schema_tables(self, oracle_db):
-        print("Oracle:", oracle_db)
-
-        lst_instances = ClientObjectInstancesFromScript(
-            "sources_types/oracle/schema/oracle_schema_tables.py",
-            "oracle/db",
-            Db=oracle_db,
-            Schema='SYSTEM')
-
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
-
-        print(str_instances_set)
-
-        # Various tables which should always be in 'SYSTEM' namespace:
-        for one_str in [
-            'oracle/table.Db=%s,Schema=SYSTEM,Table=HELP' % oracle_db,
-            #'oracle/table.Db=%s,Schema=SYSTEM,Table=REPCAT$_COLUMN_GROUP' % oracle_db,
-            #'oracle/table.Db=%s,Schema=SYSTEM,Table=MVIEW$_ADV_WORKLOAD' % oracle_db,
-        ]:
-            self.assertTrue(one_str in str_instances_set)
-
-    @decorator_oracle_db
-    def test_oracle_schema_views(self, oracleDb):
-        print("Oracle:", oracleDb)
-
-        lst_instances = ClientObjectInstancesFromScript(
-            "sources_types/oracle/schema/oracle_schema_views.py",
-            "oracle/db",
-            Db=oracleDb,
-            Schema='SYS')
-
-        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
-
-        # Just print some data for information.
-        print(sorted(str_instances_set)[:10])
-
-        # Various tables which should always be in 'SYSTEM' namespace:
-        for one_str in [
-            'oracle/view.Db=%s,Schema=SYS,View=ALL_ALL_TABLES' % oracleDb,
-            #'oracle/table.Db=%s,Schema=SYSTEM,Table=REPCAT$_COLUMN_GROUP' % oracleDb,
-            #'oracle/table.Db=%s,Schema=SYSTEM,Table=MVIEW$_ADV_WORKLOAD' % oracleDb,
-        ]:
-            self.assertTrue(one_str in str_instances_set)
-
-    @decorator_oracle_db
-    def test_oracle_view_dependencies(self, oracle_db):
+    def test_oracle_view_dependencies(self):
         """Dsplays dependencies of a very common view"""
 
         lst_instances = ClientObjectInstancesFromScript(
             "sources_types/oracle/view/oracle_view_dependencies.py",
             "oracle/db",
-            Db=oracle_db,
+            Db=self._oracle_db,
             Schema='SYS',
             View='ALL_ALL_TABLES')
 
@@ -2181,11 +2137,231 @@ class SurvolOracleTest(unittest.TestCase):
 
         # The dependencies of this view should always be the same,as it does not change often.
         for one_str in [
-            'oracle/schema.Db=%s,Schema=SYS' % oracle_db,
-            'oracle/synonym.Db=%s,Schema=PUBLIC,Synonym=ALL_ALL_TABLES' % oracle_db,
-            'oracle/view.Db=%s,Schema=SYS,View=ALL_ALL_TABLES' % oracle_db,
-            'oracle/view.Db=%s,Schema=SYS,View=ALL_OBJECT_TABLES' % oracle_db,
-            'oracle/view.Db=%s,Schema=SYS,View=ALL_TABLES' % oracle_db,
+            'oracle/schema.Db=%s,Schema=SYS' % self._oracle_db,
+            'oracle/synonym.Db=%s,Schema=PUBLIC,Synonym=ALL_ALL_TABLES' % self._oracle_db,
+            'oracle/view.Db=%s,Schema=SYS,View=ALL_ALL_TABLES' % self._oracle_db,
+            'oracle/view.Db=%s,Schema=SYS,View=ALL_OBJECT_TABLES' % self._oracle_db,
+            'oracle/view.Db=%s,Schema=SYS,View=ALL_TABLES' % self._oracle_db,
+        ]:
+            self.assertTrue(one_str in str_instances_set)
+
+    def test_oracle_schema_functions(self):
+        """See functions of schema SYS"""
+        print("Oracle:", self._oracle_db)
+
+        lst_instances = ClientObjectInstancesFromScript(
+            "sources_types/oracle/schema/oracle_schema_functions.py",
+            "oracle/db",
+            Db=self._oracle_db,
+            Schema='SYS')
+
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+
+        print(str_instances_set)
+
+        # Various functions which should always be in 'SYS' namespace:
+        for one_str in [
+            'oracle/function.Db=%s,Schema=SYS,Function=BLASTN_MATCH' % self._oracle_db,
+        ]:
+            self.assertTrue(one_str in str_instances_set)
+
+    def test_oracle_schema_libraries(self):
+        """See libraries of schema SYS"""
+        print("Oracle:", self._oracle_db)
+
+        lst_instances = ClientObjectInstancesFromScript(
+            "sources_types/oracle/schema/oracle_schema_libraries.py",
+            "oracle/db",
+            Db=self._oracle_db,
+            Schema='SYS')
+
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+
+        print(str_instances_set)
+
+        # Various libraries which should always be in 'SYS' namespace:
+        for one_str in [
+            'oracle/library.Db=%s,Schema=SYS,Library=COLLECTION_LIB' % self._oracle_db,
+        ]:
+            self.assertTrue(one_str in str_instances_set)
+
+    def test_oracle_schema_package_bodies(self):
+        """See package bodies of schema SYS"""
+        print("Oracle:", self._oracle_db)
+
+        lst_instances = ClientObjectInstancesFromScript(
+            "sources_types/oracle/schema/oracle_schema_package_bodies.py",
+            "oracle/db",
+            Db=self._oracle_db,
+            Schema='SYS')
+
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+
+        print(str_instances_set)
+
+        # Various package bodies which should always be in 'SYS' namespace:
+        for one_str in [
+            'oracle/package_body.Db=%s,Schema=SYS,PackageBody=DBMS_TRANSFORM' % self._oracle_db,
+        ]:
+            self.assertTrue(one_str in str_instances_set)
+
+    def test_oracle_schema_packages(self):
+        """See packages of schema SYS"""
+        print("Oracle:", self._oracle_db)
+
+        lst_instances = ClientObjectInstancesFromScript(
+            "sources_types/oracle/schema/oracle_schema_packages.py",
+            "oracle/db",
+            Db=self._oracle_db,
+            Schema='SYS')
+
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+
+        print(str_instances_set)
+
+        # Various packages which should always be in 'SYS' namespace:
+        for one_str in [
+            'oracle/package.Db=%s,Schema=SYS,Package=AS_REPLAY' % self._oracle_db,
+        ]:
+            self.assertTrue(one_str in str_instances_set)
+
+    def test_oracle_schema_procedures(self):
+        """See procedures of schema SYS"""
+        print("Oracle:", self._oracle_db)
+
+        lst_instances = ClientObjectInstancesFromScript(
+            "sources_types/oracle/schema/oracle_schema_procedures.py",
+            "oracle/db",
+            Db=self._oracle_db,
+            Schema='SYS')
+
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+
+        print(str_instances_set)
+
+        # Various procedures which should always be in 'SYS' namespace:
+        for one_str in [
+            'oracle/procedure.Db=%s,Schema=SYS,Procedure=SET_TABLESPACE' % self._oracle_db,
+        ]:
+            self.assertTrue(one_str in str_instances_set)
+
+    def test_oracle_schema_sequences(self):
+        """See sequences of schema SYS"""
+        print("Oracle:", self._oracle_db)
+
+        lst_instances = ClientObjectInstancesFromScript(
+            "sources_types/oracle/schema/oracle_schema_sequences.py",
+            "oracle/db",
+            Db=self._oracle_db,
+            Schema='SYS')
+
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+
+        print(str_instances_set)
+
+        # Various sequences which should always be in 'SYS' namespace:
+        for one_str in [
+            'oracle/sequence.Db=%s,Schema=SYS,Sequence=SYSTEM_GRANT' % self._oracle_db,
+        ]:
+            self.assertTrue(one_str in str_instances_set)
+
+    def test_oracle_schema_synonyms(self):
+        """See synonyms of schema SYS"""
+        print("Oracle:", self._oracle_db)
+
+        lst_instances = ClientObjectInstancesFromScript(
+            "sources_types/oracle/schema/oracle_schema_synonyms.py",
+            "oracle/db",
+            Db=self._oracle_db,
+            Schema='SYS')
+
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+
+        print(str_instances_set)
+
+        # Various synonyms which should always be in 'SYS' namespace:
+        for one_str in [
+            'oracle/synonym.Db=%s,Schema=SYS,Synonym=XMLDOM' % self._oracle_db,
+        ]:
+            self.assertTrue(one_str in str_instances_set)
+
+    def test_oracle_schema_tables(self):
+        """See functions of schema SYS"""
+        print("Oracle:", self._oracle_db)
+
+        lst_instances = ClientObjectInstancesFromScript(
+            "sources_types/oracle/schema/oracle_schema_tables.py",
+            "oracle/db",
+            Db=self._oracle_db,
+            Schema='SYS')
+
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+
+        print(str_instances_set)
+
+        # Various tables which should always be in 'SYS' namespace:
+        for one_str in [
+            'oracle/table.Db=%s,Schema=SYS,Table=SQLERROR$' % self._oracle_db,
+        ]:
+            self.assertTrue(one_str in str_instances_set)
+
+    def test_oracle_schema_triggers(self):
+        """See triggers of schema SYS"""
+        print("Oracle:", self._oracle_db)
+
+        lst_instances = ClientObjectInstancesFromScript(
+            "sources_types/oracle/schema/oracle_schema_triggers.py",
+            "oracle/db",
+            Db=self._oracle_db,
+            Schema='SYS')
+
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+
+        print(str_instances_set)
+
+        # Various triggers which should always be in 'SYS' namespace:
+        for one_str in [
+            'oracle/trigger.Db=%s,Schema=SYS,Trigger=AW_DROP_TRG' % self._oracle_db,
+        ]:
+            self.assertTrue(one_str in str_instances_set)
+
+    def test_oracle_schema_types(self):
+        """See types of schema SYS"""
+        print("Oracle:", self._oracle_db)
+
+        lst_instances = ClientObjectInstancesFromScript(
+            "sources_types/oracle/schema/oracle_schema_types.py",
+            "oracle/db",
+            Db=self._oracle_db,
+            Schema='SYS')
+
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+
+        print(str_instances_set)
+
+        # Various types which should always be in 'SYS' namespace:
+        for one_str in [
+            'oracle/type.Db=%s,Schema=SYS,Type=AQ$_HISTORY' % self._oracle_db,
+        ]:
+            self.assertTrue(one_str in str_instances_set)
+
+    def test_oracle_schema_views(self):
+        print("Oracle:", self._oracle_db)
+
+        lst_instances = ClientObjectInstancesFromScript(
+            "sources_types/oracle/schema/oracle_schema_views.py",
+            "oracle/db",
+            Db=self._oracle_db,
+            Schema='SYS')
+
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
+
+        # Just print some data for information.
+        print(sorted(str_instances_set)[:10])
+
+        # Various views which should always be in 'SYS' namespace:
+        for one_str in [
+            'oracle/view.Db=%s,Schema=SYS,View=ALL_ALL_TABLES' % self._oracle_db,
         ]:
             self.assertTrue(one_str in str_instances_set)
 
