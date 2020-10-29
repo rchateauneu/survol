@@ -26,12 +26,12 @@ except ImportError as exc:
     wmi_imported = False
     ERROR("Some modules could not be imported:%s",str(exc))
 
-################################################################################
+
 # TODO: Just a reminder that WMI can run on Linux, in a certain extent.
 # https://pypi.python.org/pypi/wmi-client-wrapper
 
-if False:
 
+if False:
     if lib_util.isPlatformLinux:
         import wmi_client_wrapper as wmilnx
 
@@ -41,157 +41,152 @@ if False:
 
 ################################################################################
 
-def BuildWmiMoniker( hostnameWmi, namespac = "", classNam = "" ):
-    return "\\\\" + hostnameWmi + "\\" + namespac + ":" + classNam + "."
 
-# namespaces_wmi.py
-def WmiAllNamespacesUrl(hostnameWmi):
-    wmiMoniker = BuildWmiMoniker( hostnameWmi )
-    wmiInstanceUrl = lib_util.EntityUrlFromMoniker( wmiMoniker, True, True, True )
+def WmiAllNamespacesUrl(hostname_wmi):
+    """For namespaces_wmi.py"""
+    wmi_moniker = lib_util.BuildWmiMoniker(hostname_wmi)
+    wmi_instance_url = lib_util.EntityUrlFromMoniker(wmi_moniker, True, True, True)
+    return wmi_instance_url
+
+
+def NamespaceUrl(nskey, hostname_wmi, class_nam=""):
+    """For objtypes_wmi.py. Beware: The class indicates the starting point for displaying the classes of the namespace."""
+    wmi_moniker = lib_util.BuildWmiMoniker(hostname_wmi, nskey, class_nam)
+    wmiInstanceUrl = lib_util.EntityUrlFromMoniker(wmi_moniker, True, True)
     return wmiInstanceUrl
 
-# objtypes_wmi.py. Beware: The class indicates the starting point for displaying the classes of the namespace.
-def NamespaceUrl(nskey,hostnameWmi,classNam=""):
-    wmiMoniker = BuildWmiMoniker( hostnameWmi, nskey, classNam )
-    wmiInstanceUrl = lib_util.EntityUrlFromMoniker( wmiMoniker, True, True )
-    return wmiInstanceUrl
 
-# class_wmi.py
-def ClassUrl(nskey,hostnameWmi,classNam):
-    wmiMoniker = BuildWmiMoniker( hostnameWmi, nskey, classNam )
-    wmiInstanceUrl = lib_util.EntityUrlFromMoniker( wmiMoniker, True )
-    return wmiInstanceUrl
+def ClassUrl(nskey, hostname_wmi, class_nam):
+    """For class_wmi.py"""
+    wmi_moniker = lib_util.BuildWmiMoniker(hostname_wmi, nskey, class_nam)
+    wmi_instance_url = lib_util.EntityUrlFromMoniker(wmi_moniker, True)
+    return wmi_instance_url
 
 ################################################################################
 
-def GetWmiUserPass(machWithBackSlashes):
+
+def GetWmiUserPass(mach_with_back_slashes):
     # WmiConnect cimom=\\\\rchateau-HP\\:. wmiNamspace=aspnet
-    # cleanMachNam = machWithBackSlashes.replace("\\","").lower()
-    cleanMachNam = machWithBackSlashes.replace("\\","")
+    clean_mach_nam = mach_with_back_slashes.replace("\\", "")
 
+    #sys.stderr.write("GetWmiUserPass cimom=%s clean_mach_nam=%s\n" % ( machWithBackSlashes, clean_mach_nam ) )
 
-    #sys.stderr.write("GetWmiUserPass cimom=%s cleanMachNam=%s\n" % ( machWithBackSlashes, cleanMachNam ) )
+    wmi_user_pass = lib_credentials.GetCredentials("WMI", clean_mach_nam)
 
-    wmiUserPass = lib_credentials.GetCredentials("WMI",cleanMachNam)
+    #sys.stderr.write("GetWmiUserPass wmi_user_pass=%s\n" % ( str(wmi_user_pass) ) )
 
-    #sys.stderr.write("GetWmiUserPass wmiUserPass=%s\n" % ( str(wmiUserPass) ) )
-
-    if wmiUserPass[0]:
-        return cleanMachNam, wmiUserPass[0], wmiUserPass[1]
+    if wmi_user_pass[0]:
+        return clean_mach_nam, wmi_user_pass[0], wmi_user_pass[1]
 
     # WMI does not do local connection with the local IP.
     try:
-        machIP = lib_util.GlobalGetHostByName(cleanMachNam)
-    except:
-        exc = sys.exc_info()[1]
-        lib_common.ErrorMessageHtml("GetWmiUserPass: Cannot connect to WMI server:%s" % cleanMachNam)
+        mach_ip = lib_util.GlobalGetHostByName(clean_mach_nam)
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("GetWmiUserPass: Cannot connect to WMI server:%s" % clean_mach_nam)
 
-    #sys.stderr.write("GetWmiUserPass machIP=%s\n" % ( machIP ) )
+    #sys.stderr.write("GetWmiUserPass mach_ip=%s\n" % ( mach_ip ) )
 
-    wmiUserPass = lib_credentials.GetCredentials("WMI",machIP)
-    return machIP, wmiUserPass[0], wmiUserPass[1]
+    wmi_user_pass = lib_credentials.GetCredentials("WMI", mach_ip)
+    return mach_ip, wmi_user_pass[0], wmi_user_pass[1]
 
-# This works
-# Before a given version, had to use server="xyz" instead of computer="xyz"
+
+# This works. Before a given version, had to use server="xyz" instead of computer="xyz"
 #c = wmi.WMI(computer="titi",user="titi\\rchateauneu@hotmail.com",password="my_hotmail_pass")
-def WmiConnect(machWithBackSlashes,wmiNamspac,throw_if_error = True):
+
+
+def WmiConnect(mach_with_back_slashes, wmi_namspac, throw_if_error=True):
     # sys.stderr.write("WmiConnect cimom=%s wmiNamspace=%s\n" % ( machWithBackSlashes, wmiNamspac ) )
     # WmiConnect cimom=\\\\rchateau-HP\\:. wmiNamspace=aspnet
 
-
-    if not machWithBackSlashes or lib_util.IsLocalAddress( machWithBackSlashes ):
-        # sys.stderr.write("WmiConnect Local connect\n")
-        # return wmi.WMI()
+    if not mach_with_back_slashes or lib_util.IsLocalAddress(mach_with_back_slashes):
         return wmi.WMI(find_classes=False)
 
-    wmiMachine, wmiUser, wmiPass = GetWmiUserPass(machWithBackSlashes)
+    wmi_machine, wmi_user, wmi_pass = GetWmiUserPass(mach_with_back_slashes)
 
-    #wmiMachineIpAddr =  socket.gethostbyaddr(wmiMachine)
-    #sys.stderr.write("WmiConnect wmiMachine=%s wmiMachineIpAddr=%s wmiUser=%s wmiPass=%s\n" % ( wmiMachine,wmiMachineIpAddr,wmiUser,wmiPass ) )
+    dict_params = {}
+    if wmi_namspac:
+        dict_params['namespace'] = wmi_namspac
 
-    dictParams = {}
-    if wmiNamspac:
-        dictParams['namespace'] = wmiNamspac
-
-    if wmiUser:
-        dictParams['user'] = wmiUser
-        dictParams['password'] = wmiPass
+    if wmi_user:
+        dict_params['user'] = wmi_user
+        dict_params['password'] = wmi_pass
 
     # TODO: THIS DOES NOT MAKE SENSE AND SHOULD BE CHANGED LIKE lib_wbem.py.
-    if not lib_util.SameHostOrLocal( wmiMachine, None ):
-        dictParams['computer'] = wmiMachine
+    if not lib_util.SameHostOrLocal(wmi_machine, None ):
+        dict_params['computer'] = wmi_machine
 
-    DEBUG("WmiConnect wmiMachine=%s wmiNamspac=%s dictParams=%s", wmiMachine, wmiNamspac, str(dictParams) )
+    DEBUG("WmiConnect wmi_machine=%s wmiNamspac=%s dict_params=%s", wmi_machine, wmi_namspac, str(dict_params))
 
     try:
-        connWMI = wmi.WMI(**dictParams)
+        conn_wmi = wmi.WMI(**dict_params)
         #sys.stderr.write("WmiConnect after connection\n" )
     except:
-        dictParams['password'] = "XXXYYYZZZ" # Security.
+        dict_params['password'] = "XXXYYYZZZ" # Security.
         if throw_if_error:
         # Could not connect, maybe the namespace is wrong.
-            lib_common.ErrorMessageHtml("WmiConnect Cannot connect to WMI server with params:%s.Exc=%s" % (str(dictParams),str(sys.exc_info())))
+            lib_common.ErrorMessageHtml("WmiConnect Cannot connect to WMI server with params:%s.Exc=%s" % (str(dict_params),str(sys.exc_info())))
         else:
-            ERROR("WmiConnect Cannot connect to WMI server with params:%s.Exc=%s", str(dictParams),str(sys.exc_info()))
+            ERROR("WmiConnect Cannot connect to WMI server with params:%s.Exc=%s", str(dict_params),str(sys.exc_info()))
             return None
 
     #sys.stderr.write("WmiConnect returning\n" )
-    return connWMI
+    return conn_wmi
 
 ################################################################################
 
-# Returns the list of a keys of a given WBEM class. This is is used if the key is not given
-# for an entity. This could be stored in a cache for better performance.
-def WmiGetClassKeys( wmiNameSpace, wmiClass, cimomSrv ):
-    DEBUG("WmiGetClassKeys wmiNameSpace=%s wmiClass=%s cimomSrv=%s", wmiNameSpace, wmiClass, cimomSrv )
+
+def WmiGetClassKeys(wmi_name_space, wmi_class, cimom_srv):
+    """Returns the list of a keys of a given WBEM class. This is is used if the key is not given
+    for an entity. This could be stored in a cache for better performance."""
+    DEBUG("WmiGetClassKeys wmiNameSpace=%s wmiClass=%s cimomSrv=%s", wmi_name_space, wmi_class, cimom_srv)
 
     try:
         # TODO: Choose the namespace, remove "root\\" at the beginning.
         # wmi.WMI(namespace="aspnet")
-        wmiCnnct = wmi.WMI(cimomSrv)
-        wmiClass = getattr(wmiCnnct,wmiClass)
-    except Exception:
-        exc = sys.exc_info()[1]
-        ERROR("WmiGetClassKeys %s %s %s: Caught:%s",cimomSrv, wmiNameSpace, wmiClass, str(exc) )
+        wmi_cnnct = wmi.WMI(cimom_srv)
+        wmi_class = getattr(wmi_cnnct, wmi_class)
+    except Exception as exc:
+        ERROR("WmiGetClassKeys %s %s %s: Caught:%s", cimom_srv, wmi_name_space, wmi_class, str(exc))
         return None
 
-    wmiKeys = wmiClass.keys
-    # sys.stderr.write("WmiGetClassKeys keys=%s\n" % ( str(wmiKeys) ) )
-    return wmiKeys
+    wmi_keys = wmi_class.keys
+    # sys.stderr.write("WmiGetClassKeys keys=%s\n" % ( str(wmi_keys) ) )
+    return wmi_keys
 
-# Normally we must find the right namespace, but default value is OK most of times.
-def BuildWmiNamespaceClass( entity_namespace, entity_type ):
+
+def BuildWmiNamespaceClass(entity_namespace, entity_type ):
+    """Normally we must find the right namespace, but default value is OK most of times."""
     # TODO: This is the default namespace where all "interesting" classes are.
     # At the moment, this is hard-coded because we have no interest into other namespaces.
-    wmiNamespace = "root\\CIMV2"
+    wmi_namespace = "root\\CIMV2"
     # Normally we should check if this class is defined in this cimom. For the moment, we assume, yes.
-    return ( wmiNamespace, entity_type, wmiNamespace + ":" + entity_type )
+    return wmi_namespace, entity_type, wmi_namespace + ":" + entity_type
 
 
-def WmiBuildMonikerPath( entity_namespace, entity_type, entity_id ):
-    wmiNameSpace, wmiClass, fullClassPth = BuildWmiNamespaceClass( entity_namespace, entity_type )
+def WmiBuildMonikerPath(entity_namespace, entity_type, entity_id ):
+    wmi_name_space, wmi_class, full_class_pth = BuildWmiNamespaceClass(entity_namespace, entity_type )
 
-    # sys.stderr.write("WmiBuildMonikerPath wmiNameSpace=%s entity_namespace=%s entity_id=%s\n" % (wmiNameSpace, entity_namespace, str(entity_id)))
+    # sys.stderr.write("WmiBuildMonikerPath wmi_name_space=%s entity_namespace=%s entity_id=%s\n" % (wmi_name_space, entity_namespace, str(entity_id)))
 
-    return fullClassPth + "." + entity_id
+    return full_class_pth + "." + entity_id
 
-def WmiInstanceUrl( entity_namespace, entity_type, entity_id, entity_host):
+
+def WmiInstanceUrl(entity_namespace, entity_type, entity_id, entity_host):
     # sys.stderr.write("WmiInstanceUrl %s %s %s %s\n" % (entity_namespace, entity_type, entity_id, entity_host))
 
-    wmiFullPath = WmiBuildMonikerPath( entity_namespace, entity_type, entity_id )
+    wmi_full_path = WmiBuildMonikerPath(entity_namespace, entity_type, entity_id)
 
-    if wmiFullPath is None:
+    if wmi_full_path is None:
         return None
 
-    # sys.stderr.write("WmiInstanceUrl wmiFullPath=%s\n" % (wmiFullPath))
+    # sys.stderr.write("WmiInstanceUrl wmi_full_path=%s\n" % (wmi_full_path))
 
     # 'https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"'
-    wmiMoniker = "\\\\" + entity_host + "\\" + wmiFullPath
-    wmiInstanceUrl = lib_util.EntityUrlFromMoniker( wmiMoniker, entity_id == "" )
+    wmi_moniker = "\\\\" + entity_host + "\\" + wmi_full_path
+    wmi_instance_url = lib_util.EntityUrlFromMoniker( wmi_moniker, entity_id == "")
 
-    # sys.stderr.write("WmiInstanceUrl wmiInstanceUrl=%s\n" % (wmiInstanceUrl))
-    return wmiInstanceUrl
-
+    # sys.stderr.write("WmiInstanceUrl wmi_instance_url=%s\n" % (wmi_instance_url))
+    return wmi_instance_url
 
 
 ################################################################################
@@ -203,13 +198,12 @@ def NormalHostName(entity_host):
         entity_host = socket.gethostname()
     return lib_util.EntHostToIp(entity_host)
 
-################################################################################
-
 # WMI from a Linux box
 # http://www.tomsitpro.com/articles/issue-wmi-queries-from-linux,1-3436.html
 
-# This returns a list of URLS.
-def GetWmiUrl( entity_host, entity_namespace, entity_type, entity_id ):
+
+def GetWmiUrl(entity_host, entity_namespace, entity_type, entity_id):
+    """This returns a list of URLS."""
     if not wmi_imported:
         return None
 
@@ -221,47 +215,51 @@ def GetWmiUrl( entity_host, entity_namespace, entity_type, entity_id ):
 
     if entity_type == "":
         # TODO: In fact this should rather display all classes for this namespace.
-        wmiUrl = WmiAllNamespacesUrl( entity_host )
+        wmi_url = WmiAllNamespacesUrl(entity_host )
     else:
-        wmiUrl = WmiInstanceUrl( entity_namespace, entity_type, entity_id, entity_host)
+        wmi_url = WmiInstanceUrl(entity_namespace, entity_type, entity_id, entity_host)
 
-    # sys.stderr.write("GetWmiUrl %s %s %s %s wmiUrl=%s\n" % (entity_host, entity_namespace, entity_type, entity_id, wmiUrl))
-    return wmiUrl
+    # sys.stderr.write("GetWmiUrl %s %s %s %s wmi_url=%s\n" % (entity_host, entity_namespace, entity_type, entity_id, wmi_url))
+    return wmi_url
 
-# These classes have too many members to be listed or even counted, let alone displayed.
-def WmiTooManyInstances(className):
+
+def WmiTooManyInstances(class_name):
+    """These classes have too many members to be listed or even counted, let alone displayed."""
     # TODO: This list Should also include their base classes.
     # TODO: Have a mechanism to stop the process when it takes too long to return.
-    return className in ['Win32_ComputerSystem','PG_ComputerSystem','CIM_UnitaryComputerSystem',
+    return class_name in ['Win32_ComputerSystem', 'PG_ComputerSystem', 'CIM_UnitaryComputerSystem',
                          'CIM_ComputerSystem','CIM_System','CIM_LogicalElement','Win32_UserAccount',
                          'Win32_Group', 'CIM_ManagedSystemElement', 'CIM_Dependency', 'CIM_LogicalFile',
-                         'CIM_SoftwareElement', 'CIM_Directory', 'CIM_DataFile' ]
+                         'CIM_SoftwareElement', 'CIM_Directory', 'CIM_DataFile']
 
-def GetWmiClassFlagUseAmendedQualifiersn(connWmi, classNam):
-    clsObj = getattr( connWmi, classNam )
-    drv = clsObj.derivation()
+
+def GetWmiClassFlagUseAmendedQualifiersn(conn_wmi, class_nam):
+    cls_obj = getattr(conn_wmi, class_nam)
+    drv = cls_obj.derivation()
     try:
-        baseClass = drv[0]
+        base_class = drv[0]
     except IndexError:
-        baseClass = ""
-    return GetWmiClassFlagUseAmendedQualifiersAux(connWmi, classNam, baseClass)
+        base_class = ""
+    return GetWmiClassFlagUseAmendedQualifiersAux(conn_wmi, class_nam, base_class)
+
 
 # This stores the result of a costly operation.
-dictBaseClassToSubClass = {}
+_dict_base_class_to_sub_class = {}
 
-def GetWmiClassFlagUseAmendedQualifiersAux(connWmi, classNam, baseClass):
+
+def GetWmiClassFlagUseAmendedQualifiersAux(conn_wmi, class_nam, base_class):
     try:
-        subclassesDict = dictBaseClassToSubClass[baseClass]
+        subclasses_dict = _dict_base_class_to_sub_class[base_class]
     except KeyError:
         try:
-            subclasses = connWmi.SubclassesOf(baseClass, win32com.client.constants.wbemFlagUseAmendedQualifiers)
-            subclassesDict = { c.Path_.Class : c for c in subclasses }
+            subclasses = conn_wmi.SubclassesOf(base_class, win32com.client.constants.wbemFlagUseAmendedQualifiers)
+            subclasses_dict = {c.Path_.Class: c for c in subclasses}
         except pywintypes.com_error:
-            subclassesDict = {}
-        dictBaseClassToSubClass[baseClass] = subclassesDict
+            subclasses_dict = {}
+        _dict_base_class_to_sub_class[base_class] = subclasses_dict
 
     try:
-        return subclassesDict[classNam]
+        return subclasses_dict[class_nam]
     except KeyError:
         return None
 
@@ -307,167 +305,173 @@ def GetWmiClassFlagUseAmendedQualifiersAux(connWmi, classNam, baseClass):
 # "PageFileUsage" : Page
 # "PeakPageFileUsage" : Page
 #
-def __WmiDictPropertiesUnitNoCache(connWmi, className):
-    theCls = GetWmiClassFlagUseAmendedQualifiersn(connWmi, className)
+def __WmiDictPropertiesUnitNoCache(conn_wmi, class_name):
+    theCls = GetWmiClassFlagUseAmendedQualifiersn(conn_wmi, class_name)
 
-    mapPropUnits = {}
+    map_prop_units = {}
 
     # Another approach
-    #for qual in propObj.Qualifiers_:
+    #for qual in prop_obj.Qualifiers_:
     #    sys.stderr.write("        qual=%s => %s \n"%(qual.Name,qual.Value))
-    for propObj in theCls.Properties_:
+    for prop_obj in theCls.Properties_:
         try:
-            # sys.stderr.write("    propObj.Qualifiers_('Description')=%s\n"%str(propObj.Qualifiers_("Description")))
-            # sys.stderr.write("    propObj.Qualifiers_('Units')=%s\n"%str(propObj.Qualifiers_("Units")))
-            propNam = propObj.Name # 'str(propObj.Qualifiers_("DisplayName"))'
-            unitNam = str(propObj.Qualifiers_("Units"))
-            mapPropUnits[propNam] = unitNam
-            # sys.stderr.write("WmiDictPropertiesUnit propNam=%s unitNam=%s\n"%(propNam,unitNam))
+            # sys.stderr.write("    prop_obj.Qualifiers_('Description')=%s\n"%str(prop_obj.Qualifiers_("Description")))
+            # sys.stderr.write("    prop_obj.Qualifiers_('Units')=%s\n"%str(prop_obj.Qualifiers_("Units")))
+            prop_nam = prop_obj.Name # 'str(prop_obj.Qualifiers_("DisplayName"))'
+            unit_nam = str(prop_obj.Qualifiers_("Units"))
+            map_prop_units[prop_nam] = unit_nam
+            # sys.stderr.write("WmiDictPropertiesUnit prop_nam=%s unit_nam=%s\n"%(prop_nam,unit_nam))
 
         # except pywintypes.com_error:
-        except :
-            exc = sys.exc_info()[1]
-            #sys.stderr.write("WmiDictPropertiesUnit propNam=%s caught:%s \n"%(propNam,str(exc)))
+        except Exception as exc:
+            #sys.stderr.write("WmiDictPropertiesUnit prop_nam=%s caught:%s \n"%(prop_nam,str(exc)))
+            pass
 
-    return mapPropUnits
+    return map_prop_units
+
 
 # So, this is calculated only once per class, because it does not change,
 # and does not depend on the connection, because it is a WMI data.
-__cacheWmiDictPropertiesUnit = {}
+__cache_wmi_dict_properties_unit = {}
 
-def WmiDictPropertiesUnit(connWmi, className):
+
+def WmiDictPropertiesUnit(conn_wmi, class_name):
     try:
-        mapPropUnits = __cacheWmiDictPropertiesUnit[className]
+        map_prop_units = __cache_wmi_dict_properties_unit[class_name]
     except KeyError:
-        mapPropUnits = __WmiDictPropertiesUnitNoCache(connWmi, className)
-        __cacheWmiDictPropertiesUnit[className] = mapPropUnits
-    return mapPropUnits
+        map_prop_units = __WmiDictPropertiesUnitNoCache(conn_wmi, class_name)
+        __cache_wmi_dict_properties_unit[class_name] = map_prop_units
+    return map_prop_units
 
 
-def WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, withProps ):
+def WmiAddClassQualifiers(grph, conn_wmi, wmi_class_node, class_name, with_props):
     """This adds information to a WMI class."""
     try:
         # No need to print this, at the moment.
         if False:
-            klassDescr = str( dir( getattr( connWmi, className ) ) )
-            grph.add( ( wmiClassNode, lib_common.MakeProp("dir"), lib_common.NodeLiteral(klassDescr) ) )
+            klass_descr = str(dir(getattr(conn_wmi, class_name)))
+            grph.add((wmi_class_node, lib_common.MakeProp("dir"), lib_common.NodeLiteral(klass_descr)))
 
-            klassDescr = str( getattr( connWmi, className )._properties )
-            grph.add( ( wmiClassNode, lib_common.MakeProp("_properties"), lib_common.NodeLiteral(klassDescr) ) )
+            klass_descr = str(getattr(conn_wmi, class_name)._properties)
+            grph.add((wmi_class_node, lib_common.MakeProp("_properties"), lib_common.NodeLiteral(klass_descr)))
 
-            klassDescr = str( getattr( connWmi, className ).properties["Description"] )
-            grph.add( ( wmiClassNode, lib_common.MakeProp("properties.Description"), lib_common.NodeLiteral(klassDescr) ) )
+            klass_descr = str(getattr(conn_wmi, class_name).properties["Description"])
+            grph.add((wmi_class_node, lib_common.MakeProp("properties.Description"), lib_common.NodeLiteral(klass_descr)))
 
-            klassDescr = str( getattr( connWmi, className ).property_map )
+            klass_descr = str(getattr(conn_wmi, class_name).property_map)
             # Otherwise it crashes.
-            # klassDescrClean = klassDescr.replace("{"," ").replace("}"," ")
-            # sys.stderr.write("klassDescr=%s\n"%klassDescr)
-            grph.add( ( wmiClassNode, lib_common.MakeProp("property_map"), lib_common.NodeLiteral(klassDescr.replace("{"," ").replace("}"," ") ) ) )
+            # klassDescrClean = klass_descr.replace("{"," ").replace("}"," ")
+            # sys.stderr.write("klass_descr=%s\n"%klass_descr)
+            grph.add((wmi_class_node, lib_common.MakeProp("property_map"), lib_common.NodeLiteral(klass_descr.replace("{", " ").replace("}", " "))))
 
-
-        theCls = GetWmiClassFlagUseAmendedQualifiersn(connWmi, className)
-        if theCls:
+        the_cls = GetWmiClassFlagUseAmendedQualifiersn(conn_wmi, class_name)
+        if the_cls:
             # https://docs.microsoft.com/en-us/windows-hardware/drivers/kernel/wmi-class-qualifiers
             # Specifies a description of the block for the locale specified by the Locale qualifier.
             # If defined, WMI clients can display the description string to users.
-            klassDescr = theCls.Qualifiers_("Description")
-            # Beware, klassDescr is of type "instance".
-            strKlassDescr = six.text_type(klassDescr)
+            klass_descr = the_cls.Qualifiers_("Description")
+            # Beware, klass_descr is of type "instance".
+            str_klass_descr = six.text_type(klass_descr)
 
             # This might be a value with broken HTML tags such as:
             # "CIM_DataFile is a type ... <B>The behavior ... e returned.<B>"
-            strKlassDescr = strKlassDescr.replace("<B>","")
+            str_klass_descr = str_klass_descr.replace("<B>", "")
 
-            grph.add( ( wmiClassNode, pc.property_information, lib_common.NodeLiteral(strKlassDescr) ) )
+            grph.add((wmi_class_node, pc.property_information, lib_common.NodeLiteral(str_klass_descr)))
 
-            if withProps:
-                for propObj in theCls.Properties_:
-                    propDsc = six.text_type(propObj.Qualifiers_("Description"))
+            if with_props:
+                for prop_obj in the_cls.Properties_:
+                    prop_dsc = six.text_type(prop_obj.Qualifiers_("Description"))
 
                     # Properties of different origins should not be mixed.
                     # Prefixes the property with a dot, so sorting displays it at the end.
                     # Surprisingly, the dot becomes invisible.
-                    grph.add( ( wmiClassNode, lib_common.MakeProp("."+propObj.Name), lib_common.NodeLiteral(propDsc) ) )
+                    grph.add((wmi_class_node, lib_common.MakeProp("." + prop_obj.Name), lib_common.NodeLiteral(prop_dsc)))
         else:
-            grph.add( ( wmiClassNode, pc.property_information, lib_common.NodeLiteral("No description available for %s" % className) ) )
+            grph.add((wmi_class_node, pc.property_information, lib_common.NodeLiteral("No description for %s" % class_name)))
 
-        klassQuals = getattr( connWmi, className ).qualifiers
-        for klaQualKey in klassQuals :
-            klaQualVal = klassQuals[klaQualKey]
-            # sys.stderr.write("WmiAddClassQualifiers klaQualVal=%s / %s\n"%(str(klaQualVal),str(type(klaQualVal))))
-            if isinstance(klaQualVal,tuple):
-                klaQualVal = "{ " + ",".join(klaQualVal) + " }"
+        klass_quals = getattr(conn_wmi, class_name).qualifiers
+        for kla_qual_key in klass_quals :
+            kla_qual_val = klass_quals[kla_qual_key]
+            # sys.stderr.write("WmiAddClassQualifiers kla_qual_val=%s / %s\n"%(str(kla_qual_val),str(type(kla_qual_val))))
+            if isinstance(kla_qual_val, tuple):
+                kla_qual_val = "{ " + ",".join(kla_qual_val) + " }"
 
             # Some specific properties match an entity class, so we can create a node.
             # IT WORKS BUT IT IS NOT NICE AS IT IS A SEPARATE NODE.
             # We would like to have a clickable URL displayed in a table TD.
-            if klaQualKey == "UUID":
-                nodeUUID = lib_common.gUriGen.ComTypeLibUri( klaQualVal )
-                grph.add( ( wmiClassNode, lib_common.MakeProp(klaQualKey), nodeUUID ) )
+            if kla_qual_key == "UUID":
+                nodeUUID = lib_common.gUriGen.ComTypeLibUri(kla_qual_val)
+                grph.add((wmi_class_node, lib_common.MakeProp(kla_qual_key), nodeUUID))
                 continue
 
-            grph.add( ( wmiClassNode, lib_common.MakeProp(klaQualKey), lib_common.NodeLiteral(klaQualVal) ) )
-    except Exception:
-        exc = sys.exc_info()[1]
+            grph.add((wmi_class_node, lib_common.MakeProp(kla_qual_key), lib_common.NodeLiteral(kla_qual_val)))
+    except Exception as exc:
         try:
             # Dumped in json so that lists can be appropriately deserialized then displayed.
-            errStr = json.dumps(list(exc))
+            err_str = json.dumps(list(exc))
         except:
             # Might have caught: 'com_error' object is not iterable
-            errStr = json.dumps("Non-iterable COM Error:"+str(exc))
-        grph.add( ( wmiClassNode, lib_common.MakeProp("WMI Error"), lib_common.NodeLiteral(errStr) ) )
-
-# Tells if this class for our ontology is in a given WMI server, whatever the namespace is.
-# This is used to display or not, the WMI url associated to a Survol object.
-def ValidClassWmi(className):
-    tpSplit = className.split("_")
-    tpPrefix = tpSplit[0]
-    return tpPrefix in ["CIM","Win32","WMI"]
+            err_str = json.dumps("Non-iterable COM Error:"+str(exc))
+        grph.add((wmi_class_node, lib_common.MakeProp("WMI Error"), lib_common.NodeLiteral(err_str)))
 
 
-def WmiAddClassNode(grph,connWmi,wmiNode,entity_host, nameSpace, className, prop):
-        wmiurl = GetWmiUrl( entity_host, nameSpace, className, "" )
+def ValidClassWmi(class_name):
+    """Tells if this class for our ontology is in a given WMI server, whatever the namespace is.
+    This is used to display or not, the WMI url associated to a Survol object."""
+    tp_split = class_name.split("_")
+    tp_prefix = tp_split[0]
+    return tp_prefix in ["CIM", "Win32", "WMI"]
+
+
+def WmiAddClassNode(grph, conn_wmi, wmi_node, entity_host, name_space, class_name, prop):
+        wmiurl = GetWmiUrl(entity_host, name_space, class_name, "")
         if wmiurl is None:
             return
 
-        wmiClassNode = lib_common.NodeUrl(wmiurl)
+        wmi_class_node = lib_common.NodeUrl(wmiurl)
 
-        grph.add( ( wmiClassNode, prop, wmiNode ) )
+        grph.add((wmi_class_node, prop, wmi_node))
 
-        WmiAddClassQualifiers( grph, connWmi, wmiClassNode, className, False )
-        return wmiClassNode
+        WmiAddClassQualifiers(grph, conn_wmi, wmi_class_node, class_name, False)
+        return wmi_class_node
 
-def WmiBaseClasses(connWmi, className):
+
+def WmiBaseClasses(conn_wmi, class_name):
     """
         This returns the base classes of a WMI class.
     """
     # Adds the qualifiers of this class.
-    klassObj = getattr( connWmi, className )
+    klass_obj = getattr(conn_wmi, class_name)
 
     # It always work even if there is no object.
-    return klassObj.derivation()
+    return klass_obj.derivation()
 
-# Adds the list of base classes. Returns the list of pairs (name node),
-# so it can be matched againt another inheritance tree.
-def WmiAddBaseClasses(grph,connWmi,wmiNode,entity_host, nameSpace, className):
-    pairsNameNode = dict()
 
-    wmiSubNode = wmiNode
+def WmiAddBaseClasses(grph, conn_wmi, wmi_node, entity_host, name_space, class_name):
+    """Adds the list of base classes. Returns the list of pairs (name node),
+    so it can be matched againt another inheritance tree."""
+    pairs_name_node = dict()
+
+    wmi_sub_node = wmi_node
 
     # It always work even if there is no object.
-    for baseKlass in WmiBaseClasses( connWmi, className ):
-        wmiClassNode = WmiAddClassNode(grph,connWmi,wmiSubNode,entity_host, nameSpace, baseKlass, pc.property_cim_subclass)
-        pairsNameNode[baseKlass] = wmiClassNode
-        wmiSubNode = wmiClassNode
-    return pairsNameNode
+    for base_klass in WmiBaseClasses(conn_wmi, class_name):
+        wmi_class_node = WmiAddClassNode(
+            grph, conn_wmi, wmi_sub_node, entity_host, name_space, base_klass, pc.property_cim_subclass)
+        pairs_name_node[base_klass] = wmi_class_node
+        wmi_sub_node = wmi_class_node
+    return pairs_name_node
 
-# This must return the label of an url "entity_wmi.py".
-# For example, the name of a process when the PID (Handle) is given.
-# Due to performance problems, consider using a cache.
-# Or a default value for some "expensive" classes.
-def EntityToLabelWmi(namSpac, entity_type_NoNS, entity_id, entity_host):
+
+def EntityToLabelWmi(nam_spac, entity_type_NoNS, entity_id, entity_host):
+    """This must return the label of an url "entity_wmi.py".
+    For example, the name of a process when the PID (Handle) is given.
+    Due to performance problems, consider using a cache.
+    Or a default value for some "expensive" classes."""
     # sys.stderr.write("EntityToLabelWmi\n")
     return None
+
 
 # Survol contains three different ontologies: The ontology of classes defined by Survol,
 # and the ontology of WMI and WBEM classes respectively. These three ontologies
@@ -505,11 +509,11 @@ def ExtractWmiOntologyLocal():
         else:
             base_class_name = ""
 
-        theCls = GetWmiClassFlagUseAmendedQualifiersAux(cnn, class_name, base_class_name)
+        the_cls = GetWmiClassFlagUseAmendedQualifiersAux(cnn, class_name, base_class_name)
         text_descr = ""
-        if theCls:
+        if the_cls:
             try:
-                textDsc = theCls.Qualifiers_("Description")
+                textDsc = the_cls.Qualifiers_("Description")
                 text_descr = six.text_type(textDsc)
                 # pywintypes.com_error: (-2147352567, 'Exception occurred.', (0, u'SWbemQualifierSet', u'Not found ', None, 0, -2147217406), None)
             except pywintypes.com_error:
@@ -616,8 +620,8 @@ def ExtractWmiOntologyLocal():
             #         "predicate_domain": class_name }
 
         # Second enumeration of properties, different style.
-        if False and theCls:
-            for propObj in theCls.Properties_:
+        if False and the_cls:
+            for propObj in the_cls.Properties_:
                 try:
                     map_attributes[propObj.Name]["predicate_description"]
                     continue
@@ -641,8 +645,8 @@ def ExtractWmiOntologyLocal():
 # until we find a general rule, or find similar properties.
 # TODO: Convert this into an image. Find similar properties.
 # At least display the type when it happens.
-prpCannotBeDisplayed = {
-    "CIM_ComputerSystem" : ["OEMLogoBitmap"]
+_prp_cannot_be_displayed = {
+    "CIM_ComputerSystem": ["OEMLogoBitmap"]
 }
 
 # There are unit conversions which are specific to WMI.
@@ -661,25 +665,25 @@ prpCannotBeDisplayed = {
 # VirtualSize         235409408 bytes
 # WorkingSetSize      15052800 bytes
 # WriteTransferCount  13204197 bytes
-def UnitConversion(aFltValue, valUnit):
+def UnitConversion(a_flt_value, val_unit):
     try:
-        unitNotation = {
-            "bytes" : "B",
-            "kilobytes" : "kB"
-        }[valUnit]
-        return lib_util.AddSIUnit( aFltValue, unitNotation )
+        unit_notation = {
+            "bytes": "B",
+            "kilobytes": "kB"
+        }[val_unit]
+        return lib_util.AddSIUnit(a_flt_value, unit_notation)
     except KeyError:
         pass
 
     # Special case needing a conversion. Jeefie.
-    if valUnit == "100 nanoseconds":
-        return lib_util.AddSIUnit( float(aFltValue) / 10, "ms" )
+    if val_unit == "100 nanoseconds":
+        return lib_util.AddSIUnit(float(a_flt_value) / 10, "ms")
 
     # Unknown unit.
-    return lib_util.AddSIUnit( aFltValue, valUnit )
+    return lib_util.AddSIUnit(a_flt_value, val_unit)
 
 
-def WmiKeyValues(connWmi, objWmi, displayNoneValues, className):
+def WmiKeyValues(conn_wmi, obj_wmi, display_none_values, class_name):
     """
         Returns the properties and values of a WMI object (Not a class).
     """
@@ -687,34 +691,34 @@ def WmiKeyValues(connWmi, objWmi, displayNoneValues, className):
     # This returns the map of units for all properties of a class.
     # Consider using the value of the property "OSCreationClassName",
     # because units properties of base classes are not always documented.
-    mapPropUnits = WmiDictPropertiesUnit(connWmi, className)
+    map_prop_units = WmiDictPropertiesUnit(conn_wmi, class_name)
 
-    for prpName in objWmi.properties:
+    for prp_name in obj_wmi.properties:
 
         # Some common properties are not displayed because the value is cumbersome,
         # and do not bring useful information.
-        if prpName in ["OSName"]:
+        if prp_name in ["OSName"]:
             continue
 
-        prpProp = lib_common.MakeProp(prpName)
+        prp_prop = lib_common.MakeProp(prp_name)
 
         try:
-            valUnit = mapPropUnits[prpName]
+            val_unit = map_prop_units[prp_name]
         except KeyError:
-            valUnit = ""
+            val_unit = ""
 
         # className="CIM_ComputerSystem" for example.
         try:
-            doNotDisplay = prpName in prpCannotBeDisplayed[className]
+            do_not_display = prp_name in _prp_cannot_be_displayed[class_name]
         except KeyError:
-            doNotDisplay = False
+            do_not_display = False
 
-        if doNotDisplay:
-            WARNING("Cannot display:%s",str(getattr(objWmi, prpName)))
+        if do_not_display:
+            WARNING("Cannot display:%s", str(getattr(obj_wmi, prp_name)))
             value = "Cannot be displayed"
         else:
             # BEWARE, it could be None.
-            value = getattr(objWmi, prpName)
+            value = getattr(obj_wmi, prp_name)
 
         # Date format: "20189987698769876.97987+000", Universal Time Coordinate (UTC)
         # yyyymmddHHMMSS.xxxxxx +- UUU
@@ -726,47 +730,47 @@ def WmiKeyValues(connWmi, objWmi, displayNoneValues, className):
         # SS represents the seconds.
         # xxxxxx represents the milliseconds.
         # UUU represents the difference, in minutes, between the local time zone and Greenwich Mean Time (GMT).
-        if prpName in ["CreationDate"]:
+        if prp_name in ["CreationDate"]:
             try:
-                dtYear = value[0:4]
-                dtMonth = value[4:6]
-                dtDay = value[6:8]
-                dtHour = value[8:10]
-                dtMinute = value[10:12]
-                dtSecond = value[12:14]
+                dt_year = value[0:4]
+                dt_month = value[4:6]
+                dt_day = value[6:8]
+                dt_hour = value[8:10]
+                dt_minute = value[10:12]
+                dt_second = value[12:14]
 
-                value = "%s-%s-%s %s:%s:%s" % (dtYear,dtMonth,dtDay,dtHour,dtMinute,dtSecond)
+                value = "%s-%s-%s %s:%s:%s" % (dt_year, dt_month, dt_day, dt_hour, dt_minute, dt_second)
             except:
                 pass
 
         # The "GUID" property is very specific in WMI.
-        if prpName == "GUID":
+        if prp_name == "GUID":
             # Example: "{CF185B35-1F88-46CF-A6CE-BDECFBB59B4F}"
-            nodeGUID = lib_common.gUriGen.ComTypeLibUri( value )
-            yield( prpProp, nodeGUID )
+            nodeGUID = lib_common.gUriGen.ComTypeLibUri(value)
+            yield prp_prop, nodeGUID
             continue
 
-        if prpName == "Name" and className in ["CIM_DataFile", "CIM_Directory"]:
-            # sys.stderr.write("WmiKeyValues prpName=%s className=%s value=%s\n" % (prpName, className, value))
+        if prp_name == "Name" and class_name in ["CIM_DataFile", "CIM_Directory"]:
+            # sys.stderr.write("WmiKeyValues prp_name=%s className=%s value=%s\n" % (prp_name, className, value))
             # Needed because Sparql does not seem to accept backslashes.
-            valueReplaced = lib_util.standardized_file_path(str(value))
-            #sys.stderr.write("WmiKeyValues prpName=%s className=%s value=%s valueReplaced=%s\n"
-            #                 % (prpName, className, value, valueReplaced))
-            yield prpProp, lib_common.NodeLiteral(valueReplaced)
+            value_replaced = lib_util.standardized_file_path(str(value))
+            #sys.stderr.write("WmiKeyValues prp_name=%s className=%s value=%s value_replaced=%s\n"
+            #                 % (prp_name, className, value, value_replaced))
+            yield prp_prop, lib_common.NodeLiteral(value_replaced)
         elif isinstance(value, lib_util.scalar_data_types):
             # Special backslash replacement otherwise:
             # "NT AUTHORITY\\\\NetworkService" displayed as "NT AUTHORITYnd_0etworkService"
             # TODO: Why not CGI escaping ?
-            valueReplaced = str(value).replace('\\','\\\\')
+            value_replaced = str(value).replace('\\', '\\\\')
 
-            if valUnit:
-                valueReplaced = UnitConversion( valueReplaced, valUnit )
-            yield ( prpProp, lib_common.NodeLiteral( valueReplaced ) )
-        elif isinstance( value, ( tuple) ):
+            if val_unit:
+                value_replaced = UnitConversion(value_replaced, val_unit)
+            yield prp_prop, lib_common.NodeLiteral(value_replaced)
+        elif isinstance(value, tuple):
             # Special backslash replacement otherwise:
             # "NT AUTHORITY\\\\NetworkService" displayed as "NT AUTHORITYnd_0etworkService"
             # TODO: Why not CGI escaping ?
-            tupleReplaced = [ str(oneVal).replace('\\','\\\\') for oneVal in value ]
+            tuple_replaced = [str(one_val).replace('\\', '\\\\') for one_val in value]
 
             # tuples are displayed as tokens separated by ";". Examples:
             #
@@ -775,25 +779,25 @@ def WmiKeyValues(connWmi, objWmi, displayNoneValues, className):
             #
             # CIM_ComputerSystem.Roles
             # "LM_Workstation ; LM_Server ; SQLServer ; NT ; Potential_Browser ; Master_Browser"
-            cleanTuple = " ; ".join( tupleReplaced )
-            yield( prpProp, lib_common.NodeLiteral( cleanTuple ) )
+            clean_tuple = " ; ".join(tuple_replaced)
+            yield prp_prop, lib_common.NodeLiteral(clean_tuple)
         elif value is None:
-            if displayNoneValues:
-                yield( prpProp, lib_common.NodeLiteral( "None" ) )
+            if display_none_values:
+                yield prp_prop, lib_common.NodeLiteral("None")
         else:
             try:
-                refMoniker = str( value.path() )
-                refInstanceUrl = lib_util.EntityUrlFromMoniker( refMoniker )
-                refInstanceNode = lib_common.NodeUrl(refInstanceUrl)
-                yield( prpProp, refInstanceNode )
-            except AttributeError:
-                exc = sys.exc_info()[1]
-                yield( prpProp, lib_common.NodeLiteral( str(exc) ) )
+                ref_moniker = str(value.path())
+                ref_instance_url = lib_util.EntityUrlFromMoniker(ref_moniker)
+                ref_instance_node = lib_common.NodeUrl(ref_instance_url)
+                yield prp_prop, ref_instance_node
+            except AttributeError as exc:
+                yield prp_prop, lib_common.NodeLiteral(str(exc))
+
 
 class WmiSparqlCallbackApi:
     def __init__(self):
         # Current host and default namespace.
-        self.m_wmi_connection = WmiConnect("","")
+        self.m_wmi_connection = WmiConnect("", "")
         # Lazy evaluation.
         self.m_classes = None
         self.m_subclasses = None
@@ -804,7 +808,6 @@ class WmiSparqlCallbackApi:
         if self.m_classes == None:
            self.m_classes = self.m_wmi_connection.classes
         return self.m_classes
-        #return sorted(self.m_classes)[:5]
 
     def __subclasses_dict(self):
         if self.m_subclasses == None:
@@ -836,14 +839,14 @@ class WmiSparqlCallbackApi:
         # HACK: Temporary hard-code !!
         if class_name == "CIM_DataFile" and "Name" in filtered_where_key_values:
             filnam = filtered_where_key_values["Name"]
-            filtered_where_key_values["Name"] = filnam.replace("/","\\")
+            filtered_where_key_values["Name"] = filnam.replace("/", "\\")
             DEBUG("WmiCallbackSelect REPLACED CIM_DataFile where_key_values=%s", filtered_where_key_values)
         elif class_name == "CIM_Directory" and "Name" in filtered_where_key_values:
             filnam = filtered_where_key_values["Name"]
-            filtered_where_key_values["Name"] = filnam.replace("/","\\")
+            filtered_where_key_values["Name"] = filnam.replace("/", "\\")
             DEBUG("WmiCallbackSelect REPLACED CIM_Directory where_key_values=%s", filtered_where_key_values)
 
-        wmi_query = lib_util.SplitMonikToWQL(filtered_where_key_values,class_name)
+        wmi_query = lib_util.SplitMonikToWQL(filtered_where_key_values, class_name)
         DEBUG("WmiCallbackSelect wmi_query=%s", wmi_query)
 
         try:
@@ -855,9 +858,9 @@ class WmiSparqlCallbackApi:
         for one_wmi_object in wmi_objects:
             # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
             object_path = str(one_wmi_object.path())
-            DEBUG("one_wmi_object.path=%s",object_path)
-            list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, class_name )
-            dict_key_values = { node_key: node_value for node_key, node_value in list_key_values}
+            DEBUG("one_wmi_object.path=%s", object_path)
+            list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, class_name)
+            dict_key_values = {node_key: node_value for node_key, node_value in list_key_values}
 
             dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_common.NodeLiteral("WMI")
             # Add it again, so the original Sparql query will work.
@@ -866,10 +869,9 @@ class WmiSparqlCallbackApi:
             # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeProp(class_name)
 
-            DEBUG("dict_key_values=%s",dict_key_values)
-            #object_path_node = lib_util.NodeUrl(object_path)
+            DEBUG("dict_key_values=%s", dict_key_values)
             lib_util.PathAndKeyValuePairsToRdf(grph, object_path, dict_key_values)
-            yield ( object_path, dict_key_values )
+            yield object_path, dict_key_values
 
 
     # This returns a data structure similar to WmiCallbackSelect
@@ -894,13 +896,13 @@ class WmiSparqlCallbackApi:
         # HACK: Temporary hard-code !! Same problem as WmiCallbackSelect
         # TODO: We must quadruple backslashes in Sparql queries.
         if "CIM_DataFile.Name" in wmi_path:
-            wmi_path = wmi_path.replace("\\\\","\\")
+            wmi_path = wmi_path.replace("\\\\", "\\")
             DEBUG("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
         elif "CIM_Directory.Name" in wmi_path:
             wmi_path = wmi_path.replace("\\\\", "\\")
             DEBUG("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
         elif "Win32_Directory.Name" in wmi_path:
-            wmi_path = wmi_path.replace("\\\\","\\")
+            wmi_path = wmi_path.replace("\\\\", "\\")
             DEBUG("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
         assert wmi_path
 
@@ -916,8 +918,8 @@ class WmiSparqlCallbackApi:
             # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
             object_path = str(one_wmi_object.path())
             DEBUG("WmiCallbackAssociator one_wmi_object.path=%s",object_path)
-            list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, result_class_name )
-            dict_key_values = { node_key:node_value for node_key,node_value in list_key_values}
+            list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, result_class_name)
+            dict_key_values = {node_key:node_value for node_key, node_value in list_key_values}
 
             dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_common.NodeLiteral("WMI")
             # Add it again, so the original Sparql query will work.
@@ -930,7 +932,7 @@ class WmiSparqlCallbackApi:
 
             DEBUG("WmiCallbackAssociator dict_key_values=%s", dict_key_values)
             lib_util.PathAndKeyValuePairsToRdf(grph, object_path, dict_key_values)
-            yield ( object_path, dict_key_values )
+            yield object_path, dict_key_values
 
     # This returns the classes defined by WMI.
     # Parameters:
@@ -1002,7 +1004,7 @@ class WmiSparqlCallbackApi:
 class WmiSparqlExecutor:
     def __init__(self):
         # Current host and default namespace.
-        self.m_wmi_connection = WmiConnect("","")
+        self.m_wmi_connection = WmiConnect("", "")
 
     def SelectObjectFromProperties(self, class_name, filtered_where_key_values):
         INFO("WmiSparqlExecutor.SelectObjectFromProperties class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
@@ -1011,7 +1013,7 @@ class WmiSparqlExecutor:
         # HACK: Temporary hard-code !!
         if class_name in ["CIM_DataFile", "CIM_Directory"] and "Name" in filtered_where_key_values:
             filnam = filtered_where_key_values["Name"]
-            filtered_where_key_values["Name"] = filnam.replace("/","\\")
+            filtered_where_key_values["Name"] = filnam.replace("/", "\\")
             DEBUG("SelectObjectFromProperties REPLACED CIM_DataFile where_key_values=%s", filtered_where_key_values)
 
         wmi_query = lib_util.SplitMonikToWQL(filtered_where_key_values, class_name)
@@ -1021,7 +1023,7 @@ class WmiSparqlExecutor:
         try:
             wmi_objects = self.m_wmi_connection.query(wmi_query)
         except Exception as exc:
-            ERROR("WmiSparqlExecutor.SelectObjectFromProperties wmi_query='%s': Caught:%s" %(wmi_query, exc))
+            ERROR("WmiSparqlExecutor.SelectObjectFromProperties wmi_query='%s': Caught:%s" % (wmi_query, exc))
             raise
 
         sys.stderr.write("SelectObjectFromProperties num=%d\n" % len(wmi_objects))
@@ -1031,27 +1033,27 @@ class WmiSparqlExecutor:
             # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
             object_path = str(one_wmi_object.path())
             #DEBUG("one_wmi_object.path=%s",object_path)
-            list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, class_name )
-            dict_key_values = { node_key: node_value for node_key, node_value in list_key_values}
+            list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, class_name)
+            dict_key_values = {node_key: node_value for node_key, node_value in list_key_values}
 
             # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeProp(class_name)
 
             #sys.stderr.write("dict_key_values=%s\n" % str(dict_key_values))
-            yield ( object_path, dict_key_values )
+            yield object_path, dict_key_values
 
     @staticmethod
     def _cleanup_wmi_path(wmi_path):
         # HACK: Temporary hard-code !! Same problem as WmiCallbackSelect
         # TODO: We must quadruple backslashes in Sparql queries.
         if "CIM_DataFile.Name" in wmi_path:
-            wmi_path = wmi_path.replace("\\\\","\\").replace("/","\\")
+            wmi_path = wmi_path.replace("\\\\", "\\").replace("/", "\\")
             DEBUG("_cleanup_wmi_path wmi_path=%s REPLACED", wmi_path)
         elif "CIM_Directory.Name" in wmi_path:
-            wmi_path = wmi_path.replace("\\\\", "\\").replace("/","\\")
+            wmi_path = wmi_path.replace("\\\\", "\\").replace("/", "\\")
             DEBUG("_cleanup_wmi_path wmi_path=%s REPLACED", wmi_path)
         elif "Win32_Directory.Name" in wmi_path:
-            wmi_path = wmi_path.replace("\\\\","\\").replace("/","\\")
+            wmi_path = wmi_path.replace("\\\\", "\\").replace("/", "\\")
             DEBUG("_cleanup_wmi_path wmi_path=%s REPLACED", wmi_path)
         assert wmi_path
         return wmi_path
@@ -1096,8 +1098,8 @@ class WmiSparqlExecutor:
             # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
             object_path = str(one_wmi_object.path())
             #DEBUG("WmiCallbackAssociator one_wmi_object.path=%s",object_path)
-            list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, result_class_name )
-            dict_key_values = { node_key:node_value for node_key,node_value in list_key_values}
+            list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, result_class_name)
+            dict_key_values = {node_key:node_value for node_key,node_value in list_key_values}
 
             # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"
             # p=http://www.w3.org/1999/02/22-rdf-syntax-ns#type
