@@ -77,15 +77,6 @@ def _add_java_associated_files(grph, node, fil_nam):
     filename_no_ext, file_extension = os.path.splitext(fil_nam)
     _java_extensions[file_extension](grph, node, fil_nam)
 
-    for ext in _java_extensions:
-        fil_assoc_nam = filename_no_ext + ext
-
-        if fil_assoc_nam.lower() != fil_nam.lower():
-            if os.path.isfile(fil_assoc_nam):
-                DEBUG("Link fil_assoc_nam=%s filNam=%s", fil_assoc_nam, fil_nam)
-                fil_assoc_node = lib_uris.gUriGen.FileUri(fil_assoc_nam)
-                grph.add((node, lib_common.MakeProp(_java_extensions[ext]), fil_assoc_node))
-
 
 def Main():
     cgiEnv = lib_common.CgiEnv()
