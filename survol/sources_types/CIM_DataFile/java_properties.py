@@ -71,7 +71,9 @@ _java_extensions = {
     ".class": _add_java_info_to_class,
     ".jar": _add_java_info_to_jar}
 
+
 def _add_java_associated_files(grph, node, fil_nam):
+    """This adds extra nodes to a file related to Java"""
     filename_no_ext, file_extension = os.path.splitext(fil_nam)
     _java_extensions[file_extension](grph, node, fil_nam)
 
