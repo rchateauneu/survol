@@ -17,8 +17,6 @@ import lib_properties
 from lib_properties import pc
 
 
-################################################################################
-
 # TODO: Take the colors from the CSS html_exports.css
 # TODO: Add a tool tip. Also, adapt the color to the context.
 _pattern_edge_oriented = "\t%s -> %s [ color=%s, label=< <font point-size='10' " + \
@@ -27,39 +25,39 @@ _pattern_edge_bidirect = "\t%s -> %s [ dir=both color=%s, label=< <font point-si
     "color='#336633'>%s</font> > ] ;\n"
 
 
-# Returns a string for an URL which might be different from "entity.py" etc...
-def external_url_to_title(extUrl):
-    # Depending on where we come from, "%2F" instead of "/" ... ugly.
-    # BEWARE: This is completely experimental. See if "Yawn" is actually used.
-    if re.match( ".*/yawn/.*", extUrl ) or re.match( ".*%2Fyawn%2F.*", extUrl ):
+def external_url_to_title(ext_url):
+    """Returns a string for an URL which might be different from "entity.py" etc...
+    Depending on where we come from, "%2F" instead of "/" ... ugly.
+    BEWARE: This is completely experimental. See if "Yawn" is actually used."""
+    if re.match( ".*/yawn/.*", ext_url) or re.match(".*%2Fyawn%2F.*", ext_url):
         return "Yawn"
 
-    pyNamMtch = re.match( ".*/([^.]+).py.*", extUrl )
-    if pyNamMtch:
-        pyNam = pyNamMtch.group(1)
+    py_nam_mtch = re.match( ".*/([^.]+).py.*", ext_url)
+    if py_nam_mtch:
+        py_nam = py_nam_mtch.group(1)
 
         # After all, the script might be entity
-        if pyNam == "entity":
-            (objNam, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri( extUrl )
-            return objNam
+        if py_nam == "entity":
+            obj_nam, entity_graphic_class, entity_id = lib_naming.ParseEntityUri(ext_url)
+            return obj_nam
 
         try:
             # TODO: See lib_naming.scripts_to_titles
             basNamToTxt = {
-                "objtypes_wbem" : "Subtypes", # This key is duplicated !!!!
-                "file_directory" : "Subdir",
-                "file_to_mime" : "MIME",
-                "objtypes_wmi" : "WMI tree",
-                "objtypes_wbem" : "WBEM hier.",
-                "class_type_all" : "Cross class",
-                "dir_to_html" : "DIR"
+                "objtypes_wbem": "Subtypes", # This key is duplicated !!!!
+                "file_directory": "Subdir",
+                "file_to_mime": "MIME",
+                "objtypes_wmi": "WMI tree",
+                "objtypes_wbem": "WBEM hier.",
+                "class_type_all": "Cross class",
+                "dir_to_html": "DIR"
             }
-            return basNamToTxt[pyNam]
+            return basNamToTxt[py_nam]
         except:
-            return pyNam.replace("_"," ").capitalize()
+            return py_nam.replace("_", " ").capitalize()
     else:
         # sys.stderr.write("extUrl=%s\n"%extUrl)
-        return "Literal:"+extUrl
+        return "Literal:" + ext_url
 
 
 # These properties must have their object displayed not as a separated node,
@@ -70,10 +68,11 @@ _flat_properties_list = [pc.property_rdf_data_nolist1, pc.property_rdf_data_noli
 def is_flat_property(key):
     return key in _flat_properties_list
 
-# Used for transforming into SVG format.
-# If from entity.py, CollapsedProps = pc.property_directory,pc.property_script
-def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
-    fieldsSet = collections.defaultdict(list)
+
+def Rdf2Dot(grph, logfil, stream, collapsed_properties):
+    """Used for transforming into SVG format.
+    If from entity.py, collapsed_properties = pc.property_directory,pc.property_script """
+    fields_set = collections.defaultdict(list)
 
     # This maps RDFLIB nodes to DOT label names.
     dict_rdf2_dot = {}
@@ -90,7 +89,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
     # The input is any Python object.
     # This returns a simple object which can be transformed into a string.
     # If the input is a container, it returns a HTML table.
-    def _format_element_aux(val,depth=0):
+    def _format_element_aux(val, depth=0):
         if val is None:
             return ""
 
@@ -106,14 +105,14 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
         except:
             pass
 
-        if isinstance(val,dict):
-            subTable = ""
+        if isinstance(val, dict):
+            sub_table = ""
             # TODO: Consider using six.iteritems.
-            for subKey,subVal in val.items():
-                subTd = _format_pair(subKey,subVal, depth + 1)
-                if subTd:
-                    subTable += "<tr>%s</tr>" % subTd
-            return "<table border='0'>%s</table>" % subTable
+            for sub_key, sub_val in val.items():
+                sub_td = _format_pair(sub_key, sub_val, depth + 1)
+                if sub_td:
+                    sub_table += "<tr>%s</tr>" % sub_td
+            return "<table border='0'>%s</table>" % sub_table
 
         # Note: Recursive list are not very visible.
         if isinstance(val, (list, tuple)):
@@ -121,23 +120,23 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
             if not val:
                 # return "(Empty)"
                 # Empty set character in UTF8
-                return "{"+"&#x2205;"+"}"
+                return "{" + "&#x2205;" + "}"
             if depth % 2 == 0:
-                subTable = ""
-                for subElement in val:
-                    subTd = _format_element( subElement, depth + 1 )
-                    subTable += "<tr>%s</tr>" % subTd
-                return "<table border='0'>%s</table>" % subTable
+                sub_table = ""
+                for sub_element in val:
+                    sub_td = _format_element(sub_element, depth + 1)
+                    sub_table += "<tr>%s</tr>" % sub_td
+                return "<table border='0'>%s</table>" % sub_table
             else:
-                subTable = ""
-                for subElement in val:
-                    subTd = _format_element( subElement, depth + 1 )
-                    subTable += subTd
-                return "<table border='0'><tr>%s</tr></table>" % subTable
+                sub_table = ""
+                for sub_element in val:
+                    sub_td = _format_element(sub_element, depth + 1)
+                    sub_table += sub_td
+                return "<table border='0'><tr>%s</tr></table>" % sub_table
 
         try:
-            decodVal = json.loads(val)
-            return _format_element_aux(decodVal, depth + 1)
+            decod_val = json.loads(val)
+            return _format_element_aux(decod_val, depth + 1)
 
         except ValueError:
             # It is a string which cannot be converted to json.
@@ -150,21 +149,20 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
             return lib_exports.StrWithBr(val)
         return "_format_element failure"
 
-    def _format_element(val,depth=0):
+    def _format_element(val, depth=0):
         if lib_kbase.IsLink(val):
-            valTitle = "_format_element "+external_url_to_title(val)
-            valTitleUL = lib_exports.DotUL(valTitle)
-            return "<td align='left' balign='left' border='0' href='%s'>%s</td>" % (val,valTitleUL )
+            val_title = "_format_element " + external_url_to_title(val)
+            val_title_ul = lib_exports.DotUL(val_title)
+            return "<td align='left' balign='left' border='0' href='%s'>%s</td>" % (val, val_title_ul)
 
-        resStr = _format_element_aux(val,depth)
-        return "<td align='left' balign='left' border='0'>%s</td>" % resStr
-
+        res_str = _format_element_aux(val, depth)
+        return "<td align='left' balign='left' border='0'>%s</td>" % res_str
 
     # Prints a key-value pair as two TD tags, to go in an HTML table.
-    def _format_pair(key,val,depth=0):
-        colFirst = "<td align='left' valign='top' border='0'>%s</td>" % lib_exports.DotBold(key)
-        colSecond = _format_element(val,depth+1)
-        return colFirst + colSecond
+    def _format_pair(key, val, depth=0):
+        col_first = "<td align='left' valign='top' border='0'>%s</td>" % lib_exports.DotBold(key)
+        col_second = _format_element(val, depth+1)
+        return col_first + col_second
 
     # Display in the DOT node the list of its literal properties.
     def FieldsToHtmlVertical(grph, the_fields):
@@ -173,27 +171,27 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
         # TODO: The sort must put at first, some specific keys.
         # For example, sources_top/nmap_run.py, the port number as an int (Not a string)
         # Also, filenames, case-sensitive or not.
-        for ( key, val ) in sorted(the_fields):
+        for key, val in sorted(the_fields):
             # This should come first, but it does not so we prefix with "----". Hack !
             if key == pc.property_information:
                 # Completely left-aligned. Col span is 2, approximate ratio.
-                val = lib_exports.StrWithBr(val,2)
-                currTd = "<td align='left' balign='left' colspan='2'>%s</td>" % val
+                val = lib_exports.StrWithBr(val, 2)
+                curr_td = "<td align='left' balign='left' colspan='2'>%s</td>" % val
             elif is_flat_property(key) :
-                urlTxt = lib_naming.ParseEntityUri(val)[0]
-                splitTxt = lib_exports.StrWithBr(urlTxt, 2)
+                url_txt = lib_naming.ParseEntityUri(val)[0]
+                split_txt = lib_exports.StrWithBr(url_txt, 2)
                 # The text of the link must be underlined.
-                currTd = '<td href="%s" align="left" colspan="2">%s</td>' % ( val, lib_exports.DotUL(splitTxt) )
+                curr_td = '<td href="%s" align="left" colspan="2">%s</td>' % (val, lib_exports.DotUL(split_txt))
             else:
-                key_qname = lib_kbase.qname( key, grph )
+                key_qname = lib_kbase.qname(key, grph)
                 # This assumes: type(val) == 'rdflib.term.Literal'
                 # sys.stderr.write("FORMAT ELEMENT: %s\n" %(dir(val)))
                 if lib_kbase.IsLiteral(val):
-                    currTd = _format_pair( key_qname, val.value )
+                    curr_td = _format_pair(key_qname, val.value)
                 else:
-                    currTd = _format_pair( key_qname, val )
+                    curr_td = _format_pair(key_qname, val)
 
-            props[idx] = currTd
+            props[idx] = curr_td
             idx += 1
         return props
 
@@ -205,36 +203,26 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
     # to it with a property to be displayed in tables instead of individual nodes.
     dict_props_collapsed_subjects_to_object_lists = {}
 
-    for collaps_prop_obj in CollapsedProperties:
-        collapsPropNam = lib_exports.PropToShortPropNam(collaps_prop_obj)
-        dict_props_collapsed_subjects_to_object_lists[collapsPropNam] = collections.defaultdict(list)
+    for collaps_prop_obj in collapsed_properties:
+        collaps_prop_nam = lib_exports.PropToShortPropNam(collaps_prop_obj)
+        dict_props_collapsed_subjects_to_object_lists[collaps_prop_nam] = collections.defaultdict(list)
 
-
-    # TODO: (TRANSLATE THIS) Une premiere passe pour batir l'arbre d'une certaine propriete.
-    # Si pas un DAG, tant pis, ca fera un lien en plus.
-    # ON voulait batir des records, mais les nodes dans un record ne peuvent pas
-    # avoir un URL: Donc ca va pas evidemment.
-    # HTML-LIKE Labels avec PORT et PORTPOS.
-    # CA VA AUSSI SIMPLIFIER L'AFFICHAGE DES TRUCS ENORMES: Modules, Fichiers etc...
-    # Et on pourra trier car il y a un ordre.
-    # Donc ca doit etre facile d'ajouter des proprietes affichees comme ca.
-
-    logfil.write( TimeStamp()+" Rdf2Dot: First pass\n" )
+    logfil.write( TimeStamp()+" Rdf2Dot: First pass\n")
 
     # New intermediary node created.
-    def CollapsedLabel(collapsPropNam,subjNam):
-        assert collapsPropNam.find("#") < 0
-        return "R_" + collapsPropNam + "_" + subjNam
+    def CollapsedLabel(collaps_prop_nam, subj_nam):
+        assert collaps_prop_nam.find("#") < 0
+        return "R_" + collaps_prop_nam + "_" + subj_nam
 
     # Called mainly from entity.py. If S points vers O, transforms "O" => "R_S:O"
     # Accordingly we create an edge: "S" => "R_S"
-    def SubjNamFromCollapsed(collapsPropNam,subjNam):
-        #sys.stderr.write("ADDING1 subjNam=%s collapsPropNam=%s\n" % (subjNam,collapsPropNam))
-        collapsedSubjNam = dict_collapsed_object_labels_to_subject_labels[ subjNam ][collapsPropNam]
-        #sys.stderr.write("ADDING2 subjNam=%s collapsPropNam=%s\n" % (subjNam,collapsPropNam))
-        newSubjNam = CollapsedLabel( collapsPropNam, collapsedSubjNam ) + ":" + subjNam
-        #sys.stderr.write("ADDED collapsedSubjNam=%s newSubjNam=%s collapsPropNam=%s\n" % (collapsedSubjNam,newSubjNam,collapsPropNam))
-        return newSubjNam
+    def SubjNamFromCollapsed(collaps_prop_nam, subj_nam):
+        #sys.stderr.write("ADDING1 subj_nam=%s collaps_prop_nam=%s\n" % (subj_nam,collaps_prop_nam))
+        collapsed_subj_nam = dict_collapsed_object_labels_to_subject_labels[subj_nam][collaps_prop_nam]
+        #sys.stderr.write("ADDING2 subj_nam=%s collaps_prop_nam=%s\n" % (subj_nam,collaps_prop_nam))
+        new_subj_nam = CollapsedLabel(collaps_prop_nam, collapsed_subj_nam) + ":" + subj_nam
+        #sys.stderr.write("ADDED collapsed_subj_nam=%s new_subj_nam=%s collaps_prop_nam=%s\n" % (collapsed_subj_nam,new_subj_nam,collaps_prop_nam))
+        return new_subj_nam
 
     # This is sorted so the result is deterministic. Very small performance impact.
     # Any order will do as long as the result is always the same.
@@ -245,43 +233,43 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
     for subj, prop, obj in sortedGrph:
 
         # Objects linked with these properties, are listed in a table, instead of distinct nodes in a graph.
-        if prop in CollapsedProperties:
+        if prop in collapsed_properties:
             # TODO: We lose the property, unfortunately. Should make a map: subject => prop => object ?
-            subjNam = _rdf_node_to_dot_label(subj)
+            subj_nam = _rdf_node_to_dot_label(subj)
 
-            propNam = lib_exports.PropToShortPropNam(prop)
-            dict_props_collapsed_subjects_to_object_lists[ propNam ][ subj ].append( obj )
+            prop_nam = lib_exports.PropToShortPropNam(prop)
+            dict_props_collapsed_subjects_to_object_lists[prop_nam][subj].append(obj)
 
             # Maybe we already entered it: Not a problem.
-            objNam = _rdf_node_to_dot_label(obj)
+            obj_nam = _rdf_node_to_dot_label(obj)
 
-            # CollapsedProperties can contain only properties which define a tree,
+            # collapsed_properties can contain only properties which define a tree,
             # as visibly the "object" nodes can have one ancestor only.
             try:
                 # TODO: We should check if a node appears in two tables,
                 # associated to two properties and/or two parent node.
-                dict_collapsed_object_labels_to_subject_labels[ objNam ][ propNam ] = subjNam
+                dict_collapsed_object_labels_to_subject_labels[obj_nam][prop_nam] = subj_nam
             except KeyError:
-                dict_collapsed_object_labels_to_subject_labels[ objNam ] = dict()
-                dict_collapsed_object_labels_to_subject_labels[ objNam ][ propNam ] = subjNam
+                dict_collapsed_object_labels_to_subject_labels[obj_nam] = dict()
+                dict_collapsed_object_labels_to_subject_labels[obj_nam][prop_nam] = subj_nam
 
     # For getting the node of an object, as it might be in a table.
-    def RdfNodeToDotLabelExtended(obj,prop):
-        objNam = _rdf_node_to_dot_label(obj)
+    def RdfNodeToDotLabelExtended(obj, prop):
+        obj_nam = _rdf_node_to_dot_label(obj)
 
         try:
-            dictOfProps = dict_collapsed_object_labels_to_subject_labels[ objNam ]
+            dict_of_props = dict_collapsed_object_labels_to_subject_labels[obj_nam]
         except KeyError:
-            # sys.stderr.write("RdfNodeToDotLabelExtended propNam=%s objNam=%s\n"%(propNam,objNam) )
-            return objNam
+            # sys.stderr.write("RdfNodeToDotLabelExtended prop_nam=%s obj_nam=%s\n"%(prop_nam,obj_nam) )
+            return obj_nam
 
         # Let's hope there is only one collapsed property for this node. Otherwise, it means
         # that this node would be displayed in two different tables. It happened...
         if not prop is None:
-            propNam = lib_exports.PropToShortPropNam(prop)
+            prop_nam = lib_exports.PropToShortPropNam(prop)
             try:
                 # Maybe this property is not collapsed.
-                subjNam = dictOfProps[propNam]
+                subj_nam = dict_of_props[prop_nam]
             except KeyError:
                 prop = None
 
@@ -289,21 +277,21 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
         # Or the property is not collapsed.
         if prop is None:
             # In Python3, keys() is an iterable. No need to create a list.
-            for propNam in dictOfProps.keys():
+            for sub_prop_nam in dict_of_props.keys():
                 break
             # First property available.
-            subjNam = dictOfProps[propNam]
+            subj_nam = dict_of_props[sub_prop_nam]
 
-        newObjNam = CollapsedLabel( propNam, subjNam ) + ":" + objNam
-        return newObjNam
+        new_obj_nam = CollapsedLabel(sub_prop_nam, subj_nam) + ":" + obj_nam
+        return new_obj_nam
 
     # Now we know that we have seen all nodes in a collapsed property.
     for subj, prop, obj in sortedGrph:
-        if prop in CollapsedProperties:
+        if prop in collapsed_properties:
             continue
 
         # Maybe the subject node belongs to a table, but the property is not known.
-        subjNam = RdfNodeToDotLabelExtended(subj,None)
+        subj_nam = RdfNodeToDotLabelExtended(subj, None)
         if lib_kbase.IsLink(obj):
 
             prp_col = lib_properties.prop_color(prop)
@@ -317,71 +305,71 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
             if prop == pc.property_socket_end:
 
                 # BEWARE, MAYBE THIS IS A PORT INTO A TABLE. SO IT HAS TO BE PREFIXED BY THE RECORD NAME.
-                objNam = RdfNodeToDotLabelExtended(obj,prop)
-                if ( obj, prop, subj ) in grph :
-                    if subjNam < objNam:
-                        stream.write(_pattern_edge_bidirect % (subjNam, objNam, prp_col, lib_kbase.qname(prop, grph)))
+                obj_nam = RdfNodeToDotLabelExtended(obj, prop)
+                if (obj, prop, subj) in grph :
+                    if subj_nam < obj_nam:
+                        stream.write(
+                            _pattern_edge_bidirect
+                            % (subj_nam, obj_nam, prp_col, lib_kbase.qname(prop, grph)))
                 else:
                     # One connection only: We cannot see the other.
-                    stream.write(_pattern_edge_oriented % (subjNam, objNam, prp_col, lib_kbase.qname(prop, grph)))
-            elif prop in [ pc.property_rdf_data_nolist1 , pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist3 ]:
-                # TODO: Il suffit de tester si obj est un url de la forme "entity.py" ???
+                    stream.write(
+                        _pattern_edge_oriented
+                        % (subj_nam, obj_nam, prp_col, lib_kbase.qname(prop, grph)))
+            elif prop in [pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist3]:
                 # HTML and images urls can be "flattened" because the nodes have no descendants.
                 # Do not create a node for this.
                 # MIME links displayed in the same column as sub-directory.
                 # Also, it might be enough to test if the object has the form "entity.py" because it has no descendant.
                 # TODO: CGIPROP: Can it have several html or sub-rdf ?? It is necessary !
-                fieldsSet[subj].append( ( prop, obj ) )
+                fields_set[subj].append((prop, obj))
             else:
-                objNam = RdfNodeToDotLabelExtended(obj,prop)
-                # C est la que si subjNam est dans une liste de dictCollapsedSubjectsToObjectLists,
-                # il faut rajouter devant, le nom du record, c est a dire SON subjNam + "_table_rdf_data:".
+                obj_nam = RdfNodeToDotLabelExtended(obj, prop)
+                # If subj_nam is in a list of dict_collapsed_subjects_to_object_lists,
+                # one must add at front, the record name, i.e. its subj_nam + "_table_rdf_data:".
                 try:
                     # Syntax with colon required by DOT.
-                    propNam = lib_exports.PropToShortPropNam(prop)
-                    subjNam = SubjNamFromCollapsed(propNam,subjNam)
+                    prop_nam = lib_exports.PropToShortPropNam(prop)
+                    subj_nam = SubjNamFromCollapsed(prop_nam, subj_nam)
                 except KeyError:
-                    # sys.stderr.write("PASS subjNam=%s objNam=%s\n"%(subjNam,objNam))
+                    # sys.stderr.write("PASS subj_nam=%s obj_nam=%s\n"%(subj_nam,obj_nam))
                     pass
 
-                stream.write(_pattern_edge_oriented % (subjNam, objNam, prp_col, lib_kbase.qname(prop, grph)))
+                stream.write(_pattern_edge_oriented % (subj_nam, obj_nam, prp_col, lib_kbase.qname(prop, grph)))
         elif obj == None:
             # No element created in nodes[]
-            fieldsSet[subj].append((prop, "Null" ))
+            fields_set[subj].append((prop, "Null"))
         else:
             # For Literals. No element created in nodes[]
             # Literals can be processed according to their type.
             # Some specific properties cannot have children so they can be stored as literals?
-            # Les proprietes comme "pid", on devrait plutot afficher le lien vers le process, dans la table ???
-            # Les URLs de certaines proprietes sont affichees en colonnes.
-            # Ou bien pour ces proprietes, on recree un entity.py ??
+            fields_set[subj].append((prop, obj))
 
-            fieldsSet[subj].append( ( prop, obj ) )
-
-    logfil.write( TimeStamp()+" Rdf2Dot: Replacing vectors: CollapsedProperties=%d.\n" % ( len( CollapsedProperties ) ) )
+    logfil.write(TimeStamp() + " Rdf2Dot: Replacing vectors: CollapsedProperties=%d.\n" % len(collapsed_properties))
 
     # Now, replaces each vector by a single object containg a HTML table.
     # TODO: Unfortunately, the prop is lost, which implies that all children are mixed together.
 
-    def ProcessCollapsedProperties( propNam ):
-        dictCollapsedSubjectsToObjectLists = dict_props_collapsed_subjects_to_object_lists[propNam]
-        logfil.write( TimeStamp()+" Rdf2Dot: dictCollapsedSubjectsToObjectLists=%d.\n" % ( len( dictCollapsedSubjectsToObjectLists ) ) )
+    def _process_collapsed_properties(prop_nam):
+        dict_collapsed_subjects_to_object_lists = dict_props_collapsed_subjects_to_object_lists[prop_nam]
+        logfil.write(TimeStamp()+" Rdf2Dot: dict_collapsed_subjects_to_object_lists=%d.\n"
+                     % len(dict_collapsed_subjects_to_object_lists))
 
-        for subjUrl, nodLst in six.iteritems(dictCollapsedSubjectsToObjectLists):
-            subjNam = _rdf_node_to_dot_label(subjUrl)
+        for subj_url, nod_lst in six.iteritems(dict_collapsed_subjects_to_object_lists):
+            subj_nam = _rdf_node_to_dot_label(subj_url)
 
-            subjNamTab = CollapsedLabel(propNam,subjNam)
+            subj_nam_tab = CollapsedLabel(prop_nam, subj_nam)
             try:
                 # TODO: This logic adds an extra level of node: Try to flatten the tree.
-                subjNam = SubjNamFromCollapsed(propNam,subjNam)
+                subj_nam = SubjNamFromCollapsed(prop_nam, subj_nam)
             except KeyError:
                 pass
 
             # This points from the subject to the table containing the objects.
             # TODO: This color should be a parameter.
-            stream.write(_pattern_edge_oriented % (subjNam, subjNamTab, "GREEN", propNam))
+            stream.write(_pattern_edge_oriented % (subj_nam, subj_nam_tab, "GREEN", prop_nam))
 
-            ( labText, subjEntityGraphicClass, entity_id) = lib_naming.ParseEntityUri( subjUrl )
+            lab_text, subj_entity_graphic_class, entity_id = lib_naming.ParseEntityUri(subj_url)
 
             # At the moment, two passes are necessary:
             # * A first pass to create the compte list of fields, because they might be a bit different
@@ -394,37 +382,33 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
             # then restart from scratch.
 
             # Unique columns of the descendant of this subject.
-            rawFieldsKeys = set()
-            for obj in nodLst:
+            raw_fields_keys = set()
+            for obj in nod_lst:
                 # One table per node.
-                rawFieldsKeys.update( fld[0] for fld in fieldsSet[obj] )
+                raw_fields_keys.update(fld[0] for fld in fields_set[obj])
 
-            # sys.stderr.write("rawFieldsKeys BEFORE =%s\n" % str(rawFieldsKeys) )
+            # sys.stderr.write("raw_fields_keys BEFORE =%s\n" % str(raw_fields_keys) )
 
             # Mandatory properties must come at the beginning of the columns of the header, with first indices.
-            # BUG: Si on retire html de cette liste alors qu il y a des valeurs, colonnes absentes.
-            # S il y a du html ou du RDF, on veut que ca vienne en premier.
-            fieldsKeysOrdered = []
-            for fldPriority in _flat_properties_list:
+            fields_keys_ordered = []
+            for fld_priority in _flat_properties_list:
                 try:
                     # Must always be appended. BUT IF THERE IS NO html_data, IS IT WORTH ?
-                    # TODO: Remove if not HTML and no sub-rdf. CGIPROP
-
                     # If the property is never used, exception then next property.
-                    rawFieldsKeys.remove( fldPriority )
-                    fieldsKeysOrdered.append( fldPriority )
+                    raw_fields_keys.remove(fld_priority)
+                    fields_keys_ordered.append(fld_priority)
                 except KeyError:
                     pass
 
             # This one is always removed because its content is concatenated at the first column.
-            for fldToRemove in [ pc.property_information ]:
+            for fld_to_remove in [pc.property_information]:
                 try:
-                    rawFieldsKeys.remove( fldToRemove )
+                    raw_fields_keys.remove(fld_to_remove)
                 except KeyError:
                     pass
 
             # Appends rest of properties, sorted.
-            fields_keys = fieldsKeysOrdered + sorted(rawFieldsKeys)
+            fields_keys = fields_keys_ordered + sorted(raw_fields_keys)
 
             # This assumes that the header columns are sorted.
             key_indices = {name_key: index_key for (index_key, name_key) in enumerate(fields_keys, 1)}
@@ -432,34 +416,34 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
             number_keys = len(key_indices)+1
 
             # Apparently, no embedded tables.
-            dictHtmlLines = dict()
-            for objUri in nodLst:
+            dict_html_lines = dict()
+            for obj_uri in nod_lst:
                 # One table per node.
-                subObjId = _rdf_node_to_dot_label(objUri)
+                sub_obj_id = _rdf_node_to_dot_label(obj_uri)
 
                 # Beware "\L" which should not be replaced by "<TABLE>" but this is not the right place.
-                subNodUri = objUri.replace('&','&amp;')
+                sub_nod_uri = obj_uri.replace('&', '&amp;')
 
                 try:
-                    (subObjNam, subEntityGraphicClass, subEntityId) = lib_naming.ParseEntityUriShort( objUri )
+                    sub_obj_nam, sub_entity_graphic_class, sub_entity_id = lib_naming.ParseEntityUriShort(obj_uri)
                 except UnicodeEncodeError:
-                    WARNING( "UnicodeEncodeError error:%s", objUri )
-                    (subObjNam, subEntityGraphicClass, subEntityId) = ("Utf problem1","Utf problem2","Utf problem3")
+                    WARNING("UnicodeEncodeError error:%s", obj_uri)
+                    sub_obj_nam, sub_entity_graphic_class, sub_entity_id = ("Utf err 1", "Utf err 2", "Utf err 3")
 
-                # sys.stderr.write("subEntityGraphicClass=%s\n"%subEntityGraphicClass)
+                # sys.stderr.write("sub_entity_graphic_class=%s\n"%sub_entity_graphic_class)
 
                 # If this is a script, always displayed on white, even if related to a specific entity.
                 # THIS IS REALLY A SHAME BECAUSE WE JUST NEED THE ORIGINAL PROPERTY.
-                if objUri.find("entity.py") < 0:
-                    objColor = "#FFFFFF"
+                if obj_uri.find("entity.py") < 0:
+                    obj_color = "#FFFFFF"
                 else:
-                    objColor = lib_patterns.EntityClassToColor(subEntityGraphicClass)
+                    obj_color = lib_patterns.EntityClassToColor(sub_entity_graphic_class)
                 # This lighter cololor for the first column.
-                objColorLight = lib_patterns.ColorLighter(objColor)
+                obj_color_light = lib_patterns.ColorLighter(obj_color)
 
                 # Some colors a bit clearer ? Or take the original color of the class ?
-                td_bgcolor_plain = '<td BGCOLOR="%s" ' % objColor
-                td_bgcolor_light = '<td BGCOLOR="%s" ' % objColorLight
+                td_bgcolor_plain = '<td BGCOLOR="%s" ' % obj_color
+                td_bgcolor_light = '<td BGCOLOR="%s" ' % obj_color_light
                 td_bgcolor = td_bgcolor_plain
 
                 # Some columns might not have a value. The first column is for the key.
@@ -469,7 +453,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
                 title = ""
 
                 # TODO: CGIPROP. This is not a dict, the same key can appear several times ?
-                for (key, val) in fieldsSet[objUri]:
+                for key, val in fields_set[obj_uri]:
                     if key == pc.property_information:
                         # This can be a short string only.
                         title += val
@@ -480,7 +464,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
 
                         # In fact, it might also be an internal URL with "entity.py"
                         if lib_kbase.IsLiteral(val):
-                            if isinstance( val.value, (list, tuple )):
+                            if isinstance(val.value, (list, tuple)):
                                 str_html = _format_element_aux(val.value)
                                 DEBUG("val.value=%s", str_html)
                                 tmp_cell = td_bgcolor + 'align="left">%s</td>' % str_html
@@ -489,10 +473,11 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
                         else:
                             # This displays objects in a table: The top-level object must be
                             # in the same host, so there is no need to display a long label.
-                            val_title = lib_naming.ParseEntityUriShort( val )[0]
-                            # This could probably be replaced by "str"
+                            val_title = lib_naming.ParseEntityUriShort(val)[0]
+
                             assert isinstance(val_title, (six.text_type, six.binary_type))
 
+                            # This could probably be replaced by "str"
                             # There might be non-ascii characters such as accents etc...
                             try:
                                 val_title.encode('ascii')
@@ -500,7 +485,7 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
                                 val_title = "Not ascii"
 
                             val_title_ul = lib_exports.DotUL(val_title)
-                            tmp_cell = td_bgcolor + 'href="%s" align="left" >%s</td>' % ( val , val_title_ul )
+                            tmp_cell = td_bgcolor + 'href="%s" align="left" >%s</td>' % (val, val_title_ul)
 
                     else:
                         try:
@@ -516,15 +501,15 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
                 if title:
                     title_key = title
                 else:
-                    title_key = subObjNam
+                    title_key = sub_obj_nam
 
                 # Maybe the first column is a literal ?
-                if subEntityId != "PLAINTEXTONLY":
+                if sub_entity_id != "PLAINTEXTONLY":
                     # WE SHOULD PROBABLY ESCAPE HERE TOO.
-                    columns[0] = td_bgcolor_light + 'port="%s" href="%s" align="LEFT" >%s</td>' % ( subObjId, subNodUri, title_key )
+                    columns[0] = td_bgcolor_light + 'port="%s" href="%s" align="LEFT" >%s</td>' % (sub_obj_id, sub_nod_uri, title_key )
                 else:
-                    subNodUri = lib_util.html_escape(subNodUri)
-                    columns[0] = td_bgcolor_light + 'port="%s" align="LEFT" >%s</td>' % ( subObjId, subNodUri )
+                    sub_nod_uri = lib_util.html_escape(sub_nod_uri)
+                    columns[0] = td_bgcolor_light + 'port="%s" align="LEFT" >%s</td>' % (sub_obj_id, sub_nod_uri)
 
                 # Several scripts might have the same help text, so add a number.
                 # "Title" => "Title"
@@ -533,18 +518,18 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
                 # Beware that it is quadratic with the number of scripts with identical info.
                 title_idx = 2
                 title_uniq = title_key
-                while title_uniq in dictHtmlLines:
-                    title_uniq = "%s/%d" % ( title_key, title_idx )
+                while title_uniq in dict_html_lines:
+                    title_uniq = "%s/%d" % (title_key, title_idx)
                     title_idx += 1
 
                 # TODO: L'ordre est base sur les chaines mais devrait etre base sur le contenu. Exemple:
                 # TODO: "(TUT_UnixProcess) Handle=10" vient avant "(TUT_UnixProcess) Handle=2"
                 # TODO: title_uniq devrait etre plutot la liste des proprietes.
                 # TODO: By clicking on the column names, we could change the order.
-                dictHtmlLines[ title_uniq ] = "".join( columns )
+                dict_html_lines[title_uniq] = "".join(columns)
 
             # Replace the first column by more useful information.
-            numNodLst = len(nodLst)
+            num_nod_lst = len(nod_lst)
 
             # WBEM and WMI classes have the syntax: "ns1/ns2/ns3:class" and the class it self can have base classes.
             # Survol classes have the syntax: "dir/dir/dir/class": This considers that namespaces are not really
@@ -554,80 +539,90 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
             # and they would be stored in the top dir "root/cimv2" ... it is not too late !
             #
             # This strips the upper directories: "mysql/instance" or "oracle/table", if this is a Survol class
-            eltNam = subEntityGraphicClass.split("/")[-1]
+            elt_nam = sub_entity_graphic_class.split("/")[-1]
             # This strips the namespace: "root/cimv2:CIM_LogicalElement", if this is a WBEM or WMI class.
-            eltNam = eltNam.split(":")[-1]
-            if not eltNam:
+            elt_nam = elt_nam.split(":")[-1]
+            if not elt_nam:
                 # TODO: This is not the right criteria. Must select if we are listing scripts.
-                eltNam = "script"
+                elt_nam = "script"
 
-            eltNamPlural = lib_grammar.ToPlural(eltNam,numNodLst)
-            txtElements = "%d %s" % ( numNodLst, eltNamPlural )
-            header = '<td border="1">' + lib_exports.DotBold(txtElements) + "</td>"
+            elt_nam_plural = lib_grammar.ToPlural(elt_nam, num_nod_lst)
+            txt_elements = "%d %s" % (num_nod_lst, elt_nam_plural)
+            header = '<td border="1">' + lib_exports.DotBold(txt_elements) + "</td>"
 
             # TODO: Replace each column name with a link which sorts the line based on this column.
             # The order of columns could be specified with an extra cgi argument with the columns names.
             for key in fields_keys:
-                columnTitle = lib_kbase.qname(key,grph)
-                columnTitle = columnTitle.replace("_"," ").capitalize()
-                header += "<td border='1'>" + lib_exports.DotBold( columnTitle ) + "</td>"
+                column_title = lib_kbase.qname(key, grph)
+                column_title = column_title.replace("_"," ").capitalize()
+                header += "<td border='1'>" + lib_exports.DotBold(column_title) + "</td>"
             # With an empty key, it comes first when sorting.
-            dictHtmlLines[""] = header
+            dict_html_lines[""] = header
 
             # MAYBE SHOULD BE DONE TWICE !!!!! SEE ALSO ELSEWHERE !!!!
-            subjUrlClean = subjUrl.replace('&','&amp;')
+            subj_url_clean = subj_url.replace('&', '&amp;')
 
             # BEWARE: The shape and the color of this HTML table is from the subjects,
             # because the elements can be of different classes, even if the share the same predicate.
             # TODO: Each row should have its own color according to its class.
-            numFields = len(fields_keys)+1
+            num_fields = len(fields_keys)+1
 
             # The rows of this HTML table could belong to different classes:
             # What the shared is the predicate. Hence, the predicate, property name is used as a title.
-            propNamPlural = lib_grammar.ToPlural(propNam,None)
-            helpText = "List of " + propNamPlural + " in " + labText
+            prop_nam_plural = lib_grammar.ToPlural(prop_nam, None)
+            help_text = "List of " + prop_nam_plural + " in " + lab_text
 
             # TODO: Le title and the content are not necessarily of the same class.
-            # labTextWithBr is the first line of the table containing nodes linked with the
+            # lab_text_with_br is the first line of the table containing nodes linked with the
             # same property. Unfortunately we have lost this property.
-            labText = lib_exports.TruncateInSpace(labText,30)
-            labTextWithBr = lib_exports.StrWithBr( labText )
-            labTextWithBr += ": "+propNam
+            lab_text = lib_exports.TruncateInSpace(lab_text, 30)
+            lab_text_with_br = lib_exports.StrWithBr(lab_text)
+            lab_text_with_br += ": " + prop_nam
 
             if entity_id == "PLAINTEXTONLY":
-                subjUrlClean = ""
+                subj_url_clean = ""
 
             # This color is the table's contour.
-            lib_patterns.WritePatterned( stream, subjEntityGraphicClass, subjNamTab, helpText, '"#000000"', subjUrlClean, numFields, labTextWithBr, dictHtmlLines )
+            lib_patterns.WritePatterned(
+                stream,
+                subj_entity_graphic_class,
+                subj_nam_tab,
+                help_text,
+                '"#000000"',
+                subj_url_clean,
+                num_fields,
+                lab_text_with_br,
+                dict_html_lines)
 
             # TODO: Sometimes, the same value is repeated in contiguous celles of the sames columns.
             # TODO: This could be avoided with the character '"': One just need to compare the values
             # TODO: ... consecutive cells of the same column.
             # TODO: One can even do that if the first N words of a following cell are identical.
 
-    if CollapsedProperties :
-        for collapsedProp in CollapsedProperties:
-            collapsedPropNam = lib_exports.PropToShortPropNam(collapsedProp)
-            ProcessCollapsedProperties(collapsedPropNam)
+    if collapsed_properties :
+        for collapsed_prop in collapsed_properties:
+            collapsed_prop_nam = lib_exports.PropToShortPropNam(collapsed_prop)
+            _process_collapsed_properties(collapsed_prop_nam)
 
-    logfil.write( TimeStamp()+" Rdf2Dot: Display remaining nodes. dict_rdf2_dot=%d\n" % len(dict_rdf2_dot) )
+    logfil.write(TimeStamp()+" Rdf2Dot: Display remaining nodes. dict_rdf2_dot=%d\n" % len(dict_rdf2_dot))
 
     # Now, display the normal nodes, which are not displayed in tables.
-    for objRdfNode, objLabel in six.iteritems(dict_rdf2_dot):
+    for obj_rdf_node, obj_label in six.iteritems(dict_rdf2_dot):
         # TODO: Avoids this lookup.
-        if objLabel in dict_collapsed_object_labels_to_subject_labels :
+        if obj_label in dict_collapsed_object_labels_to_subject_labels :
             continue
 
-        objPropsAsHtml = FieldsToHtmlVertical( grph, fieldsSet[objRdfNode])
+        obj_props_as_html = FieldsToHtmlVertical(grph, fields_set[obj_rdf_node])
 
-        labHRef = objRdfNode.replace('&','&amp;')
+        labHRef = obj_rdf_node.replace('&', '&amp;')
 
         try:
             # TODO: The chain is already encoded for HTML, so the parsing is different
             # TODO: ... of an URL already encoded. They are quoted then unquoted.
-            (labText, objEntityGraphClass, entity_id) = lib_naming.ParseEntityUri( lib_util.urllib_unquote(objRdfNode) )
+            lab_text, obj_entity_graph_class, entity_id = lib_naming.ParseEntityUri(
+                lib_util.urllib_unquote(obj_rdf_node))
         except UnicodeEncodeError:
-            WARNING( "UnicodeEncodeError error:%s", objRdfNode )
+            WARNING("UnicodeEncodeError error:%s", obj_rdf_node )
 
         # WritePatterned receives an list of strings similar to "<td>jhh</td><td>jhh</td><td>jhh</td>"
         # This function adds <tr> and </tr> on both sides.
@@ -636,34 +631,43 @@ def Rdf2Dot( grph, logfil, stream, CollapsedProperties ):
         # Ampersand are intentionally doubled, because later on they are replaced twice.
         # That is, interpreted twice as HTML entities.
         # This might be temporary until we replace CGI arguments by genuine WMI Monikers.
-        labTextNoAmp = labText.replace("&amp;amp;"," ")
-        labTextNoAmp = labTextNoAmp.strip()
-        labTextClean = lib_exports.StrWithBr( labTextNoAmp)
+        lab_text_no_amp = lab_text.replace("&amp;amp;", " ")
+        lab_text_no_amp = lab_text_no_amp.strip()
+        lab_text_clean = lib_exports.StrWithBr(lab_text_no_amp)
         # Two columns because it encompasses the key and the value.
 
-        if objEntityGraphClass:
-            helpText = labTextNoAmp
+        if obj_entity_graph_class:
+            help_text = lab_text_no_amp
 
-            if not helpText:
-                helpText = "Top-level script"
+            if not help_text:
+                help_text = "Top-level script"
             # This condition is for WMI and WBEM where the name of the node is also a class or a namespace.
             # This is a bit convoluted, and just for nicer display.
             # "root/cimv2 (WBEM subclasses) at http://vps516494.ovh.net:5988 is a root/cimv2:"
             # "wmi_namespace is a wmi_namespace"
-            elif not labTextNoAmp.startswith( objEntityGraphClass.replace(":", " ") ):
-                if objEntityGraphClass:
+            elif not lab_text_no_amp.startswith(obj_entity_graph_class.replace(":", " ")):
+                if obj_entity_graph_class:
                     # "is a" or "is an"
-                    theArticle = lib_grammar.IndefiniteArticle(objEntityGraphClass)
-                    helpText += " is %s %s" % ( theArticle, objEntityGraphClass )
+                    the_article = lib_grammar.IndefiniteArticle(obj_entity_graph_class)
+                    help_text += " is %s %s" % (the_article, obj_entity_graph_class)
         else:
-            if labTextClean.startswith("http"):
-                helpText = "External URL " + labTextNoAmp
+            if lab_text_clean.startswith("http"):
+                help_text = "External URL " + lab_text_no_amp
             else:
-                helpText = "Script " + labTextNoAmp
+                help_text = "Script " + lab_text_no_amp
 
         # This color is the object's contour.
-        lib_patterns.WritePatterned( stream, objEntityGraphClass, objLabel, helpText, '"#000000"', labHRef, 2, labTextClean, objPropsAsHtml )
+        lib_patterns.WritePatterned(
+            stream,
+            obj_entity_graph_class,
+            obj_label,
+            help_text,
+            '"#000000"',
+            labHRef,
+            2,
+            lab_text_clean,
+            obj_props_as_html)
 
-    logfil.write( TimeStamp()+" Rdf2Dot: Leaving\n" )
+    logfil.write(TimeStamp()+" Rdf2Dot: Leaving\n")
     stream.write("}\n")
 
