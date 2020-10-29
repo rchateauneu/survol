@@ -18,38 +18,38 @@ from sources_types import python
 from sources_types.python import package
 
 try:
-	import dis
+    import dis
 except ImportError:
-	pass
+    pass
 
 def Usable(entity_type,entity_ids_arr):
-	"""Can run with Python files only"""
+    """Can run with Python files only"""
 
-	pyFilNam = entity_ids_arr[0]
+    py_fil_nam = entity_ids_arr[0]
 
-	return False
+    return False
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.CgiEnv()
 
-	pyFilNam = cgiEnv.GetId()
+    py_fil_nam = cgiEnv.GetId()
 
-	# sys.stderr.write("dbFilNam=%s\n"%dbFilNam)
+    # sys.stderr.write("dbFilNam=%s\n"%dbFilNam)
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	# filNode = lib_common.gUriGen.FileUri(pyFilNam)
-	# 
-	# try:
-	# 
-	# 	AddAssociatedFiles(grph,filNode,pyFilNam)
-	# except:
-	# 	exc = sys.exc_info()[0]
-	# 	lib_common.ErrorMessageHtml("File:%s Unexpected error:%s" % ( pyFilNam, str( exc ) ) )
-	# AddImportedModules(grph,filNode,pyFilNam,maxDepth,dispPackages,dispFiles)
+    # filNode = lib_common.gUriGen.FileUri(py_fil_nam)
+    # 
+    # try:
+    # 
+    #     AddAssociatedFiles(grph,filNode,py_fil_nam)
+    # except:
+    #     exc = sys.exc_info()[0]
+    #     lib_common.ErrorMessageHtml("File:%s Unexpected error:%s" % ( py_fil_nam, str( exc ) ) )
+    # AddImportedModules(grph,filNode,py_fil_nam,maxDepth,dispPackages,dispFiles)
 
-	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
+    cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
 if __name__ == '__main__':
-	Main()
+    Main()

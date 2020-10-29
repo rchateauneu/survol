@@ -16,19 +16,22 @@ from lib_properties import pc
 
 Usable = lib_util.UsableLinuxBinary
 
+
 def DoNothing():
 	return
 
-def AddDepends(grph, nodeSharedLib, library):
-	libNode = lib_common.gUriGen.SharedLibUri( library )
-	grph.add( ( nodeSharedLib, pc.property_library_depends, libNode ) )
+
+def AddDepends(grph, node_shared_lib, library):
+	lib_node = lib_common.gUriGen.SharedLibUri(library)
+	grph.add((node_shared_lib, pc.property_library_depends, lib_node))
 	# This assumes that shared libraries are a special sort of file.
 	# This is true, but not completely used.
-	CIM_DataFile.AddInfo( grph, libNode, [ library ] )
+	CIM_DataFile.AddInfo(grph, lib_node, [library])
+
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
-	fileSharedLib = cgiEnv.GetId()
+	file_shared_lib = cgiEnv.GetId()
 
 	if not lib_util.isPlatformLinux:
 		lib_common.ErrorMessageHtml("LDD on Linux platform only")
@@ -36,13 +39,13 @@ def Main():
 	grph = cgiEnv.GetGraph()
 
 	# Maybe the file does not contain its path so it must be added.
-	if ( fileSharedLib[0] != '/' ):
-		fileSharedLib = os.getcwd() + '/' + fileSharedLib
+	if file_shared_lib[0] != '/':
+		file_shared_lib = os.getcwd() + '/' + file_shared_lib
 
-	nodeSharedLib = lib_common.gUriGen.SharedLibUri( fileSharedLib )
-	CIM_DataFile.AddInfo( grph, nodeSharedLib, [ fileSharedLib ] )
+	node_shared_lib = lib_common.gUriGen.SharedLibUri(file_shared_lib)
+	CIM_DataFile.AddInfo( grph, node_shared_lib, [file_shared_lib])
 
-	stream = os.popen("ldd " + fileSharedLib)
+	stream = os.popen("ldd " + file_shared_lib)
 
 	# Line read are such as:
 	#        linux-gate.so.1 =>  (0xffffe000)
@@ -54,13 +57,13 @@ def Main():
 	rgx = re.compile(r'^.*=> *([^ ]+) \(')
 
 	for line in stream:
-		matchObj = re.match( rgx, line )
-		if matchObj:
-			AddDepends( grph, nodeSharedLib, matchObj.group(1) )
+		match_obj = re.match(rgx, line)
+		if match_obj:
+			AddDepends(grph, node_shared_lib, match_obj.group(1))
 
 	# The dependencies are flattened which may be is a mistake.
-
 	cgiEnv.OutCgiRdf("LAYOUT_RECT")
+
 
 if __name__ == '__main__':
 	Main()

@@ -133,7 +133,6 @@ class RdfLocalAgentTest(unittest.TestCase):
         print("subject_entity_id_dict['Name']=", subject_entity_id_dict['Name'])
         print("object_entity_id_dict['Name']=", object_entity_id_dict['Name'])
 
-
     @unittest.skipIf(not is_platform_linux, "Linux only")
     def test_rdf_file_symlinks_subfile(self):
         test_dir_path = os.path.join(
@@ -159,6 +158,94 @@ class RdfLocalAgentTest(unittest.TestCase):
         print("Result=", len(result_graph))
         for s, p, o in result_graph.triples((None, lib_properties.pc.property_symlink, None)):
             print("    ", s, o)
+
+    @unittest.skipIf(not is_platform_windows, "Windows only")
+    def test_win_depends(self):
+        """Check the resource icon independencies of notepad.exe"""
+        file_path = "C:/Windows/System32/notepad.exe"
+        win_depends_content = self._check_script(
+            "/survol/sources_types/CIM_DataFile/win_depends.py?xid=CIM_DataFile.Name=%s"
+            % file_path)
+
+        print("win_depends_content=", win_depends_content)
+
+    def test_java_properties(self):
+        """Investigate Java files"""
+        file_path = os.path.join(os.path.dirname(__file__), "SampleDirScripts", "SampleJavaFile.java")
+
+        java_properties = self._check_script(
+            "/survol/sources_types/CIM_DataFile/java_properties.py?xid=CIM_DataFile.Name=%s"
+            % file_path)
+
+        print("java_properties=", java_properties)
+
+    def test_python_properties(self):
+        """Investigate Python files"""
+        file_path = os.path.join(os.path.dirname(__file__), "SampleDirScripts", "SamplePythonFile.py")
+        python_properties = self._check_script(
+            "/survol/sources_types/CIM_DataFile/python_properties.py?xid=CIM_DataFile.Name=%s"
+            % file_path)
+
+        print("python_properties=", python_properties)
+
+    def test_python_file_dis(self):
+        """Investigate Python files"""
+        file_path = os.path.join(os.path.dirname(__file__), "SampleDirScripts", "SamplePythonFile.py")
+        python_file_dis = self._check_script(
+            "/survol/sources_types/CIM_DataFile/python_file_dis.py?xid=CIM_DataFile.Name=%s"
+            % file_path)
+
+        print("python_file_dis=", python_file_dis)
+
+    @unittest.skipIf(not is_platform_linux, "Linux only")
+    def test_module_deps(self):
+        """Linux modules dependencies"""
+
+        # $ uname -r
+        # 4.11.8-300.fc26.x86_64
+        proc_version = subprocess.check_output(['uname', '-r'])
+
+        # Any module will be ok.
+        file_path = "/lib/modules/%s/kernel/net/sunrpc/sunrpc.ko.xz" % proc_version
+        module_deps = self._check_script(
+            "/survol/sources_types/CIM_DataFile/module_deps.py?xid=CIM_DataFile.Name=%s"
+            % file_path)
+
+        print("module_deps=", module_deps)
+
+    @unittest.skipIf(not is_platform_linux, "Linux only")
+    def test_ldd_depends(self):
+        """Dependencies of a Linux shared library"""
+
+        # Any shared object is ok.
+        file_path = "/usr/lib/libr_util.so"
+        ldd_depends = self._check_script(
+            "/survol/sources_types/CIM_DataFile/ldd_depends.py?xid=CIM_DataFile.Name=%s"
+            % file_path)
+
+        print("ldd_depends=", ldd_depends)
+
+    @unittest.skip("Not implemented yet")
+    @unittest.skipIf(not is_platform_linux, "Linux only")
+    def test_memmap_processes(self):
+        """Processes connected to a memory map"""
+        file_path = "C:/Windows/System32/notepad.exe"
+        memmap_processes = self._check_script(
+            "/survol/sources_types/memmap/memmap_processes.py?xid=memmap.Name=%s"
+            % file_path)
+
+        print("memmap_processes=", memmap_processes)
+
+    @unittest.skip("Not implemented yet")
+    @unittest.skipIf(not is_platform_linux, "Linux only")
+    def test_memmap_to_file(self):
+        """File associated to a memory map"""
+        file_path = "C:/Windows/System32/notepad.exe"
+        memmap_to_file = self._check_script(
+            "/survol/sources_types/memmap/memmap_to_file.py?xid=memmap.Name=%s"
+            % file_path)
+
+        print("memmap_to_file=", memmap_to_file)
 
 
 @unittest.skipIf(not is_platform_windows, "Windows only")
