@@ -12,43 +12,44 @@ from sources_types import python as survol_python
 from sources_types.python import package as survol_python_package
 
 
-def Usable(entity_type,entity_ids_arr):
-	"""Can run with Python files only"""
+def Usable(entity_type, entity_ids_arr):
+    """Can run with Python files only"""
 
-	filNam = entity_ids_arr[0]
+    fil_nam = entity_ids_arr[0]
 
-	# But probably it is not enough and we should try to open it.
-	filExt = os.path.splitext(filNam)[1]
-	return filExt.lower() in survol_python.pyExtensions
+    # But probably it is not enough and we should try to open it.
+    fil_ext = os.path.splitext(fil_nam)[1]
+    return fil_ext.lower() in survol_python.pyExtensions
+
 
 def Main():
-	paramkeyMaxDepth = "Maximum depth"
-	paramkeyDispPackages = "Display packages"
-	paramkeyDispFiles = "Display files"
+    paramkey_max_depth = "Maximum depth"
+    paramkey_disp_packages = "Display packages"
+    paramkey_disp_files = "Display files"
 
-	cgiEnv = lib_common.CgiEnv(
-			{ paramkeyMaxDepth : 1, paramkeyDispPackages: True, paramkeyDispFiles: False} )
+    cgiEnv = lib_common.CgiEnv({
+        paramkey_max_depth: 1,
+        paramkey_disp_packages: True,
+        paramkey_disp_files: False})
 
-	maxDepth = cgiEnv.get_parameters( paramkeyMaxDepth )
-	dispPackages= cgiEnv.get_parameters( paramkeyDispPackages )
-	dispFiles = cgiEnv.get_parameters( paramkeyDispFiles )
+    max_depth = cgiEnv.get_parameters(paramkey_max_depth)
+    disp_packages= cgiEnv.get_parameters(paramkey_disp_packages)
+    disp_files = cgiEnv.get_parameters(paramkey_disp_files)
 
-	pyFilNam = cgiEnv.GetId()
+    py_fil_nam = cgiEnv.GetId()
 
-	# sys.stderr.write("dbFilNam=%s\n"%dbFilNam)
+    grph = cgiEnv.GetGraph()
 
-	grph = cgiEnv.GetGraph()
+    fil_node = lib_common.gUriGen.FileUri(py_fil_nam)
 
-	filNode = lib_common.gUriGen.FileUri(pyFilNam)
+    try:
+        survol_python.AddAssociatedFiles(grph, fil_node, py_fil_nam)
+        survol_python_package.AddImportedModules(grph, fil_node, py_fil_nam, max_depth, disp_packages, disp_files)
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("File:%s Unexpected error:%s" % (py_fil_nam, str(exc)))
 
-	try:
-		survol_python.AddAssociatedFiles(grph,filNode,pyFilNam)
-		survol_python_package.AddImportedModules(grph,filNode,pyFilNam,maxDepth,dispPackages,dispFiles)
-	except:
-		exc = sys.exc_info()[0]
-		lib_common.ErrorMessageHtml("File:%s Unexpected error:%s" % ( pyFilNam, str( exc ) ) )
+    cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
-	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
 if __name__ == '__main__':
-	Main()
+    Main()
