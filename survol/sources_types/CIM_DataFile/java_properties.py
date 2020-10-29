@@ -4,9 +4,7 @@
 Java properties
 """
 
-# NOT DONE.
-
-# http://jpype.sourceforge.net/
+# TODO: See this: http://jpype.sourceforge.net/
 
 import os
 import os.path
