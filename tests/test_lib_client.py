@@ -362,6 +362,50 @@ class SurvolLocalTest(unittest.TestCase):
 
         proc_open.communicate()
 
+    def test_open_files_from_python_without_shell(self):
+        """Files open by a Python process started in a shell"""
+        sql_path_name = os.path.join(os.path.dirname(__file__), "SampleDirScripts", "SamplePythonFile.py")
+
+        exec_list = [sys.executable, sql_path_name]
+
+        proc_open = subprocess.Popen(
+            exec_list,
+            shell=False,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            bufsize=0)
+
+        print("Started process:", exec_list, " pid=", proc_open.pid)
+
+        my_source_sql_queries = lib_client.SourceLocal(
+            "sources_types/CIM_Process/process_open_files.py",
+            "CIM_Process",
+            Handle=proc_open.pid)
+
+        triple_open_files = my_source_sql_queries.get_triplestore()
+        lst_instances = triple_open_files.get_instances()
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        print("str_instances_set=", str_instances_set)
+
+        # Some instances are required.
+        # TODO: Add the Python file.
+        lst_mandatory_instances = [
+            "CIM_Process.Handle=%d"%proc_open.pid,
+            CurrentUserPath,
+            CurrentExecutablePath]
+        #if is_platform_windows:
+        #    lst_mandatory_instances += [
+        #            # Slashes instead of backslashes, as is always the case in Survol.
+        #            "CIM_DataFile.Name=%s" % sys.executable]
+        # On Linux, we do not know which Shell is used to start the command.
+
+        print("lst_mandatory_instances=", lst_mandatory_instances)
+        for one_str in lst_mandatory_instances:
+            self.assertTrue(one_str in str_instances_set)
+
+        proc_open.communicate()
+
     def test_sub_parent_from_python_process(self):
         """Sub and parent processes a Python process"""
         sql_path_name = os.path.join( os.path.dirname(__file__), "SampleDirScripts", "SamplePythonFile.py")
@@ -654,6 +698,23 @@ class SurvolLocalTest(unittest.TestCase):
     def test_objtypes(self):
         my_source_objtypes = lib_client.SourceLocal(
             "objtypes.py")
+
+        triple_objtypes = my_source_objtypes.get_triplestore()
+        self.assertTrue(len(triple_objtypes) > 0)
+
+    @unittest.skipIf(not is_platform_windows, "WMI on Windows only.")
+    def test_objtypes_wmi(self):
+        my_source_objtypes = lib_client.SourceLocal(
+            "objtypes_wmi.py")
+
+        triple_objtypes = my_source_objtypes.get_triplestore()
+        self.assertTrue(len(triple_objtypes) > 0)
+
+    @unittest.skipIf(not is_platform_windows, "WMI on Windows only.")
+    def test_class_wmi(self):
+        my_source_objtypes = lib_client.SourceLocal(
+            "class_wmi.py",
+            "CIM_LogicalElement")
 
         triple_objtypes = my_source_objtypes.get_triplestore()
         self.assertTrue(len(triple_objtypes) > 0)
