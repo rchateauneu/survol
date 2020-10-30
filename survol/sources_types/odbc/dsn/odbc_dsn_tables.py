@@ -54,7 +54,7 @@ def Main():
             # This prints only some columns.
             for idxCol in mapIndexToProp:
                 predicateNode = mapIndexToProp[idxCol]
-                grph.add( (nodTab, predicateNode, lib_common.NodeLiteral(row[idxCol]) ) )
+                grph.add( (nodTab, predicateNode, lib_util.NodeLiteral(row[idxCol]) ) )
 
     except Exception:
         WARNING("tabNam=%s", str(sys.exc_info()))

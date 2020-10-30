@@ -51,21 +51,21 @@ def Main():
 				prm = getattr(pyodbc,prmstr)
 			# except AttributeError:
 			except:
-				grph.add( (nodeDsn, prop, lib_common.NodeLiteral("Unavailable") ) )
+				grph.add( (nodeDsn, prop, lib_util.NodeLiteral("Unavailable") ) )
 				continue
 
 			try:
 				prm_value = cnxn.getinfo(prm)
 			except:
 				#txt = str( sys.exc_info()[1] )
-				#grph.add( (nodeDsn, prop, lib_common.NodeLiteral(txt) ) )
+				#grph.add( (nodeDsn, prop, lib_util.NodeLiteral(txt) ) )
 				continue
 
 			try:
-				grph.add( (nodeDsn, prop, lib_common.NodeLiteral(prm_value) ) )
+				grph.add( (nodeDsn, prop, lib_util.NodeLiteral(prm_value) ) )
 			except:
 				txt = str( sys.exc_info()[1] )
-				grph.add( (nodeDsn, prop, lib_common.NodeLiteral(txt) ) )
+				grph.add( (nodeDsn, prop, lib_util.NodeLiteral(txt) ) )
 				continue
 
 	except Exception:

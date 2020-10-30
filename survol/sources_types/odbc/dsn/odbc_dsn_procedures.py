@@ -62,7 +62,7 @@ def Main():
             # This prints only some columns.
             for idxCol in mapIndexToProp:
                 predicateNode = mapIndexToProp[idxCol]
-                grph.add( (nodProc, predicateNode, lib_common.NodeLiteral(row[idxCol]) ) )
+                grph.add( (nodProc, predicateNode, lib_util.NodeLiteral(row[idxCol]) ) )
 
     except Exception:
         exc = sys.exc_info()[0]
