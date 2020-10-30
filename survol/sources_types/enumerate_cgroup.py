@@ -38,9 +38,9 @@ def Main():
         splitCG = linCG.split("\t")
         cgroupName = splitCG[0]
         cgroupNode = survol_cgroup.MakeUri(cgroupName)
-        grph.add( ( cgroupNode, lib_common.MakeProp("Hierarchy"), lib_common.NodeLiteral(splitCG[1] ) ) )
-        grph.add( ( cgroupNode, lib_common.MakeProp("Num cgroups"), lib_common.NodeLiteral(splitCG[2] ) ) )
-        grph.add( ( cgroupNode, lib_common.MakeProp("Enabled"), lib_common.NodeLiteral(splitCG[3] ) ) )
+        grph.add( ( cgroupNode, lib_common.MakeProp("Hierarchy"), lib_util.NodeLiteral(splitCG[1] ) ) )
+        grph.add( ( cgroupNode, lib_common.MakeProp("Num cgroups"), lib_util.NodeLiteral(splitCG[2] ) ) )
+        grph.add( ( cgroupNode, lib_common.MakeProp("Enabled"), lib_util.NodeLiteral(splitCG[3] ) ) )
 
         grph.add( ( lib_common.nodeMachine, propCGroup, cgroupNode ) )
 

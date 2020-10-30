@@ -6,6 +6,7 @@ Processes tree
 
 import sys
 import psutil
+import lib_util
 import lib_common
 from sources_types import CIM_Process
 from lib_properties import pc
@@ -47,10 +48,10 @@ def Main():
 
         # We avoid duplicating the edges. Why would the RDF merge do?
         grph.add((node_process, pc.property_ppid, parent_node_process))
-        grph.add((node_process, pc.property_pid, lib_common.NodeLiteral(pid)))
+        grph.add((node_process, pc.property_pid, lib_util.NodeLiteral(pid)))
         usr_nam = CIM_Process.PsutilProcToUser(proc,None)
         if usr_nam:
-            grph.add((node_process, pc.property_user, lib_common.NodeLiteral(usr_nam)))
+            grph.add((node_process, pc.property_user, lib_util.NodeLiteral(usr_nam)))
 
         # TODO: Add the username as a property ? Change the color with the username ?
         # TODO: Get icons of users or programs, use their colors ?

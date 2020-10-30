@@ -94,11 +94,11 @@ def Main():
 		# TODO: Check this list.
 		if part.fstype != "":
 			# partition(device='T:\\\\', mountpoint='T:\\\\', fstype='', opts='cdrom')
-			grph.add( ( nodePartition, pc.property_file_system_type, lib_common.NodeLiteral(part.fstype) ) )
+			grph.add( ( nodePartition, pc.property_file_system_type, lib_util.NodeLiteral(part.fstype) ) )
 			grph.add( ( nodeMount, pc.property_mount, nodePartition ) )
 
 		if part.opts != "":
-			grph.add( ( nodeMount, pc.property_mount_options,  lib_common.NodeLiteral(part.opts) ) )
+			grph.add( ( nodeMount, pc.property_mount_options,  lib_util.NodeLiteral(part.opts) ) )
 
 	cgiEnv.OutCgiRdf()
 

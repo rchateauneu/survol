@@ -138,7 +138,7 @@ def Main():
 	grph = cgiEnv.GetGraph()
 
 	# Not really useful.
-	grph.add( ( lib_common.nodeMachine, pc.property_hostname, lib_common.NodeLiteral( lib_util.currentHostname ) ) )
+	grph.add( ( lib_common.nodeMachine, pc.property_hostname, lib_util.NodeLiteral( lib_util.currentHostname ) ) )
 
 	mapToProc = {}
 
@@ -176,7 +176,7 @@ def Main():
 	# associated file in the directory tree.
 
 	for pid, nodeProcess in lib_util.six_iteritems( addedProcs ):
-		grph.add( ( nodeProcess, pc.property_pid, lib_common.NodeLiteral(pid) ) )
+		grph.add( ( nodeProcess, pc.property_pid, lib_util.NodeLiteral(pid) ) )
 
 
 	# TODO: Petit bug: Ca duplique les memmap. Forcement, l'affichage en tables
