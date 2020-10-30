@@ -111,10 +111,8 @@ def Main():
 					pid = proc.pid
 					node_process = lib_common.gUriGen.PidUri(pid)
 
-					# PAS BON: CAR PEUT_ETRE LE PROCESS PARENT EST DANS LA LISTE DES PROCESSES QU ON AJOUTE,
-					# DONC C EST PAS CLAIR. FAUT VERIFIER LA RELATION DE PARENTE.
 					grph.add( ( node_process, pc.property_host, lib_common.nodeMachine ) )
-					grph.add( ( node_process, pc.property_pid, lib_common.NodeLiteral(pid) ) )
+					grph.add( ( node_process, pc.property_pid, lib_util.NodeLiteral(pid) ) )
 
 				# No need to be asynchronous because this is always the same socket.
 				survol_addr.PsutilAddSocketToGraphOne(node_process,cnt,grph)

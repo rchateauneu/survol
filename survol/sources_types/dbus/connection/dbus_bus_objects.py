@@ -55,7 +55,7 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	Main.localPropDbusPath = lib_common.NodeLiteral("dbus-path")
+	Main.localPropDbusPath = lib_util.NodeLiteral("dbus-path")
 
 	try:
 		RecursiveObjWalk( grph, "/", connectNode )

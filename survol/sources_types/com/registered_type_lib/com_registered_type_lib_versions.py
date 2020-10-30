@@ -37,8 +37,8 @@ def Main():
 		#strVersion = "Version=%.1f" % ( versionStr )
 		#nodeDllVersionNode = lib_common.gUriGen.FileUri( "DLL" + name )
 		#versionNode = lib_common.gUriGen.FileUri( name )
-		#grph.add( (versionNode, pc.property_information, lib_common.NodeLiteral("name="+name) ) )
-		#grph.add( (versionNode, pc.property_information, lib_common.NodeLiteral(strVersion) ) )
+		#grph.add( (versionNode, pc.property_information, lib_util.NodeLiteral("name="+name) ) )
+		#grph.add( (versionNode, pc.property_information, lib_util.NodeLiteral(strVersion) ) )
 		#grph.add( (typelibNode, pc.property_com_version, versionStr ) )
 
 
@@ -97,8 +97,8 @@ def Main():
 							# ret.append(HLITypeLib(fname, "Type Library" + extraDesc))
 
 							fnameMysteryNode = lib_common.gUriGen.ComTypeLibUri( fname )
-							grph.add( (fnameMysteryNode, pc.property_information, lib_common.NodeLiteral("lcid=%d"%lcid) ) )
-							grph.add( (fnameMysteryNode, pc.property_information, lib_common.NodeLiteral("platform="+platform) ) )
+							grph.add( (fnameMysteryNode, pc.property_information, lib_util.NodeLiteral("lcid=%d"%lcid) ) )
+							grph.add( (fnameMysteryNode, pc.property_information, lib_util.NodeLiteral("platform="+platform) ) )
 							grph.add( (typelibNode, pc.property_com_version, fnameMysteryNode ) )
 
 							lcidnum = lcidnum + 1

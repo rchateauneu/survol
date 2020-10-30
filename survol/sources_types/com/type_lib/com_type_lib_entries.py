@@ -77,8 +77,8 @@ def Main():
 
 			name, doc, ctx, helpFile = tlb.GetDocumentation(idx)
 
-			grph.add( (entryNode, pc.property_information, lib_common.NodeLiteral("name=%s" % name) ) )
-			grph.add( (entryNode, pc.property_information, lib_common.NodeLiteral("type=%s" % typNam) ) )
+			grph.add( (entryNode, pc.property_information, lib_util.NodeLiteral("name=%s" % name) ) )
+			grph.add( (entryNode, pc.property_information, lib_util.NodeLiteral("type=%s" % typNam) ) )
 			grph.add( (fnameMysteryNode, pc.property_com_entry, entryNode ) )
 
 		except pythoncom.com_error:
