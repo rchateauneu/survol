@@ -31,7 +31,7 @@ def _io_stat_to_graph(grph, spl, iostat_header):
 
         property_name = iostat_header[idx]
         property_node = property_name_to_node.get(property_name, lib_properties.MakeProp(property_name))
-        grph.add((device_node, property_node, lib_common.NodeLiteral(qty)))
+        grph.add((device_node, property_node, lib_util.NodeLiteral(qty)))
 
 
 def Main(loop_number=1):

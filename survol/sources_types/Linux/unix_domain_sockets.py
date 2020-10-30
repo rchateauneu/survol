@@ -63,9 +63,9 @@ def Main():
 
 		if sockPath:
 			nodePath = lib_common.gUriGen.FileUri(sockPath)
-			grph.add( ( nodePath, propType, lib_common.NodeLiteral(sockType) ) )
-			grph.add( ( nodePath, propState, lib_common.NodeLiteral(sockState) ) )
-			grph.add( ( nodePath, propINode, lib_common.NodeLiteral(sockINode) ) )
+			grph.add( ( nodePath, propType, lib_util.NodeLiteral(sockType) ) )
+			grph.add( ( nodePath, propState, lib_util.NodeLiteral(sockState) ) )
+			grph.add( ( nodePath, propINode, lib_util.NodeLiteral(sockINode) ) )
 
 		sockPidProg = lin[59:80].strip()
 		if sockPidProg not in [ "-", "" ]:
@@ -79,7 +79,7 @@ def Main():
 			nodeProc = lib_common.gUriGen.PidUri(sockPid)
 			if sockPath:
 				grph.add( ( nodePath, propPidPath, nodeProc ) )
-			# grph.add( ( nodeProc, pc.property_information, lib_common.NodeLiteral(sockProgNam) ) )
+			# grph.add( ( nodeProc, pc.property_information, lib_util.NodeLiteral(sockProgNam) ) )
 
 	cgiEnv.OutCgiRdf()
 

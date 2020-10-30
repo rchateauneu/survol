@@ -94,7 +94,7 @@ def Main():
 		# because sometimes we do not have the process id.
 
 		localSocketNode = lib_common.gUriGen.AddrUri( ipLocal, portLocal )
-		grph.add( ( localSocketNode, pc.property_information, lib_common.NodeLiteral(sockStatus) ) )
+		grph.add( ( localSocketNode, pc.property_information, lib_util.NodeLiteral(sockStatus) ) )
 
 		addrRemot = linSplit[4]
 
@@ -110,7 +110,7 @@ def Main():
 			procNode = lib_common.gUriGen.PidUri(procPid)
 
 			grph.add( ( procNode, pc.property_host, lib_common.nodeMachine ) )
-			grph.add( ( procNode, pc.property_pid, lib_common.NodeLiteral(procPid) ) )
+			grph.add( ( procNode, pc.property_pid, lib_util.NodeLiteral(procPid) ) )
 
 			grph.add( ( procNode, pc.property_has_socket, localSocketNode ) )
 

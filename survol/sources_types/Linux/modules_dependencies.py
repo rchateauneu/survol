@@ -65,7 +65,7 @@ def Main():
 		# TODO: Ugly trick, otherwise nodes without connections are not displayed.
 		# TODO: I think this is a BUG in the dot file generation. Or in RDF ?...
 		if file_child is None:
-			grph.add( ( file_parent, pc.property_information, lib_common.NodeLiteral("") ) )
+			grph.add( ( file_parent, pc.property_information, lib_util.NodeLiteral("") ) )
 
 	# Splines are rather slow.
 	if maxCnt > 100:

@@ -49,8 +49,8 @@ def Main():
 
 		hostName = mtch_arp.group(1)
 		hostNode = lib_common.gUriGen.HostnameUri( hostName )
-		grph.add( ( hostNode, pc.property_information, lib_common.NodeLiteral(mtch_arp.group(2)) ) )
-		grph.add( ( hostNode, pc.property_information, lib_common.NodeLiteral(mtch_arp.group(3)) ) )
+		grph.add( ( hostNode, pc.property_information, lib_util.NodeLiteral(mtch_arp.group(2)) ) )
+		grph.add( ( hostNode, pc.property_information, lib_util.NodeLiteral(mtch_arp.group(3)) ) )
 
 	cgiEnv.OutCgiRdf()
 
