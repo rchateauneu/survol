@@ -49,7 +49,7 @@ def Main():
 		else:
 			nodeMount = lib_common.gUriGen.DiskPartitionUri( partition_name )
 		grph.add( ( nodeMount, pc.property_mount, lib_common.gUriGen.FileUri( mnt_point ) ) )
-		grph.add( ( nodeMount, pc.property_file_system, lib_common.NodeLiteral(mnt_type) ) )
+		grph.add( ( nodeMount, pc.property_file_system, lib_util.NodeLiteral(mnt_type) ) )
 
 	cgiEnv.OutCgiRdf()
 

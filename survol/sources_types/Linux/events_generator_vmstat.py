@@ -37,7 +37,7 @@ def Main():
                 continue
             property_node = lib_properties.MakeProp("vmstat.%s" % column_name)
             # TODO: Add a timestamp.
-            grph.add((current_node_hostname, property_node, lib_common.NodeLiteral(column_value)))
+            grph.add((current_node_hostname, property_node, lib_util.NodeLiteral(column_value)))
 
     def main_snapshot():
         iostat_cmd = ["vmstat", ]
