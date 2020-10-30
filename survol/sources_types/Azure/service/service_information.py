@@ -53,19 +53,19 @@ def Main():
 
 	grph.add( ( servNode, pc.property_rdf_data_nolist1, lib_common.NodeUrl(srv.url) ) )
 
-	grph.add( ( servNode, lib_common.MakeProp("deployments"), lib_common.NodeLiteral(str(srv.deployments) ) ) )
+	grph.add( ( servNode, lib_common.MakeProp("deployments"), lib_util.NodeLiteral(str(srv.deployments) ) ) )
 
 	# With a dot ".", they come first.
-	grph.add( ( servNode, lib_common.MakeProp(".affinity_group"), lib_common.NodeLiteral(srv.hosted_service_properties.affinity_group ) ) )
-	grph.add( ( servNode, lib_common.MakeProp(".date_created"), lib_common.NodeLiteral(srv.hosted_service_properties.date_created ) ) )
-	grph.add( ( servNode, lib_common.MakeProp(".date_last_modified"), lib_common.NodeLiteral(srv.hosted_service_properties.date_last_modified ) ) )
-	grph.add( ( servNode, lib_common.MakeProp(".description"), lib_common.NodeLiteral(srv.hosted_service_properties.description ) ) )
-	grph.add( ( servNode, lib_common.MakeProp(".label"), lib_common.NodeLiteral(srv.hosted_service_properties.label ) ) )
-	grph.add( ( servNode, lib_common.MakeProp(".status"), lib_common.NodeLiteral(srv.hosted_service_properties.status ) ) )
+	grph.add( ( servNode, lib_common.MakeProp(".affinity_group"), lib_util.NodeLiteral(srv.hosted_service_properties.affinity_group ) ) )
+	grph.add( ( servNode, lib_common.MakeProp(".date_created"), lib_util.NodeLiteral(srv.hosted_service_properties.date_created ) ) )
+	grph.add( ( servNode, lib_common.MakeProp(".date_last_modified"), lib_util.NodeLiteral(srv.hosted_service_properties.date_last_modified ) ) )
+	grph.add( ( servNode, lib_common.MakeProp(".description"), lib_util.NodeLiteral(srv.hosted_service_properties.description ) ) )
+	grph.add( ( servNode, lib_common.MakeProp(".label"), lib_util.NodeLiteral(srv.hosted_service_properties.label ) ) )
+	grph.add( ( servNode, lib_common.MakeProp(".status"), lib_util.NodeLiteral(srv.hosted_service_properties.status ) ) )
 
 	for extProp in srv.hosted_service_properties.extended_properties:
 		extVal = srv.hosted_service_properties.extended_properties[ extProp ]
-		grph.add( ( servNode, lib_common.MakeProp(extProp), lib_common.NodeLiteral(extVal) ) )
+		grph.add( ( servNode, lib_common.MakeProp(extProp), lib_util.NodeLiteral(extVal) ) )
 
 
 	cgiEnv.OutCgiRdf()
