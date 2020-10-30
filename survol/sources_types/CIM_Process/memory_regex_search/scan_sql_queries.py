@@ -16,6 +16,7 @@ Extract SQL queries from process heap memory
 import re
 import sys
 import lib_sql
+import lib_util
 import lib_common
 
 from sources_types.CIM_Process import memory_regex_search
@@ -64,7 +65,7 @@ def _generate_from_sql_queries(grph, node_process, regex_predicate, queries_set,
 			node_sql_query = embedded_sql_query.MakeUri(one_qry, pid_as_integer)
 			grph.add((node_process, regex_predicate, node_sql_query))
 		except Exception as exc:
-			grph.add((node_process, regex_predicate, lib_common.NodeLiteral("_generate_from_sql_queries:" + str(exc))))
+			grph.add((node_process, regex_predicate, lib_util.NodeLiteral("_generate_from_sql_queries:" + str(exc))))
 
 
 # TODO: What is annoying is that it is in a sub-directory, but it does not have

@@ -165,7 +165,7 @@ def Main():
 		aggregDSN = aggregDsns[aggregOffset]
 		dsnFull = str(aggregOffset) + ": " + aggregDSN
 		DEBUG("aggregOffset=%s dsnFull=%s",aggregOffset,dsnFull)
-		grph.add( ( node_process, pc.property_information, lib_common.NodeLiteral(dsnFull) ) )
+		grph.add( ( node_process, pc.property_information, lib_util.NodeLiteral(dsnFull) ) )
 
 		### NO! Confusion between DSN and connection string.
 		# All the existing code does: ODBC_ConnectString = survol_odbc_dsn.MakeOdbcConnectionString(dsnNam)
@@ -174,7 +174,7 @@ def Main():
 		nodeDsn = survol_odbc_dsn.MakeUri( aggregDSN )
 		grph.add( (node_process, pc.property_odbc_dsn, nodeDsn ) )
 		# Fix this message.
-		grph.add( (nodeDsn, pc.property_odbc_driver, lib_common.NodeLiteral("ODBC driver") ) )
+		grph.add( (nodeDsn, pc.property_odbc_driver, lib_util.NodeLiteral("ODBC driver") ) )
 
 
 
