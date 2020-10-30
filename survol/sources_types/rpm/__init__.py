@@ -6,6 +6,7 @@ import rdflib
 from rdflib.namespace import XSD
 
 import rpm
+import lib_util
 import lib_common
 
 def EntityOntology():
@@ -39,7 +40,7 @@ def AddInfo(grph,node,entity_ids_arr):
 			propRpm = rpmProps[propKey]
 			# The value might be None.
 			propVal = h[ propKey ] or ""
-			grph.add((node, propRpm, lib_common.NodeLiteral(propVal)))
+			grph.add((node, propRpm, lib_util.NodeLiteral(propVal)))
 
 
 
