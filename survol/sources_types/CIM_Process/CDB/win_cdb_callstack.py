@@ -126,7 +126,7 @@ def Main():
 			dllName = CDB.TestIfKnownDll(dllName)
 
 			callNodePrev = survol_symbol.AddFunctionCall( grph, callNodePrev, procNode, funcName, dllName )
-			grph.add( ( callNodePrev, lib_properties.MakeProp("Call_depth"), lib_common.NodeLiteral(callDepth) ) )
+			grph.add( ( callNodePrev, lib_properties.MakeProp("Call_depth"), lib_util.NodeLiteral(callDepth) ) )
 			callDepth += 1
 			continue
 

@@ -5,6 +5,7 @@ Process cgroups
 """
 
 import sys
+import lib_util
 import lib_common
 from sources_types import CIM_Process
 from lib_properties import pc
@@ -45,7 +46,7 @@ def Main():
             if subsys_name:
                 cgrpNode = survol_cgroup.MakeUri( subsys_name )
                 grph.add( ( node_process, lib_common.MakeProp("CGroup"), cgrpNode ) )
-                grph.add( ( cgrpNode, lib_common.MakeProp("Hierarchy"), lib_common.NodeLiteral(hierarchy) ) )
+                grph.add( ( cgrpNode, lib_common.MakeProp("Hierarchy"), lib_util.NodeLiteral(hierarchy) ) )
                 grph.add( ( cgrpNode, lib_common.MakeProp("Control group path"), mount_path_node ) )
 
     cgiEnv.OutCgiRdf()
