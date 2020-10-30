@@ -53,7 +53,7 @@ def AddMySqlPort(grph,instanceMySql):
 
 	aCred = lib_credentials.GetCredentials( "MySql", instanceMySql )
 
-	grph.add( ( nodeInstance, lib_common.MakeProp("Mysql user"), lib_common.NodeLiteral(aCred[0]) ) )
+	grph.add( ( nodeInstance, lib_common.MakeProp("Mysql user"), lib_util.NodeLiteral(aCred[0]) ) )
 	grph.add( ( nodeInstance, lib_common.MakeProp("Mysql instance"), nodeHostMySql ) )
 
 	mysql_cmd_lst = ["mysqladmin","-u",aCred[0],"-p%s"%aCred[1],"-h%s"%hostMySql,"processlist"]
@@ -94,11 +94,11 @@ def AddMySqlPort(grph,instanceMySql):
 			# Otherwise, the merging will not bring anything.
 			sql_task_node = socketNode
 
-		grph.add( ( sql_task_node, lib_common.MakeProp("Mysql user"), lib_common.NodeLiteral(mysql_user) ) )
+		grph.add( ( sql_task_node, lib_common.MakeProp("Mysql user"), lib_util.NodeLiteral(mysql_user) ) )
 
 		# TODO: Add a specific node for the SQL query.
 		if mysql_command != "":
-			grph.add( ( sql_task_node, pc.property_information, lib_common.NodeLiteral(mysql_command) ) )
+			grph.add( ( sql_task_node, pc.property_information, lib_util.NodeLiteral(mysql_command) ) )
 
 		grph.add( ( nodeInstance, lib_common.MakeProp("Mysql session"), sql_task_node ) )
 
