@@ -392,6 +392,7 @@ class CIM_ComputerSystem_JavaTest(unittest.TestCase):
     def _check_script(self, script_suffix):
         return _check_script_rdf(self, self._agent_url, script_suffix)
 
+    @unittest.skipIf(not pkgutil.find_loader('jpype'), "jpype must be installed.")
     def test_rmi_registry(self):
         """Test of rmi_registry.py"""
 
