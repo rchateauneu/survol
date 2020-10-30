@@ -13,9 +13,9 @@ import lib_python
 from lib_properties import pc
 
 try:
-	import modulefinder
+    import modulefinder
 except ImportError:
-	pass
+    pass
 
 
 # TODO: Should do that only when executing ?? How to make the difference ??
@@ -23,49 +23,53 @@ propPythonVersion = lib_common.MakeProp("Version")
 propPythonRequires = lib_common.MakeProp("Requires")
 propPythonPackage = lib_common.MakeProp("Package")
 
+
 def EntityOntology():
-	return ( ["Id"], )
+    return (["Id"],)
+
 
 # TODO: Is the caption the best key ? Also: It should dependd on the Python version.
-def MakeUri(packageKey):
-	return lib_common.gUriGen.UriMake("python/package",packageKey)
+def MakeUri(package_key):
+    return lib_common.gUriGen.UriMake("python/package", package_key)
 
-# Display information about a Python package using what is returned by PIP.
-def FillOnePackage(grph,node,good_pckg):
-	# >>> dir(installed_packages[0])
-	# ['PKG_INFO', '__class__', '__delattr__', '__dict__', '__doc__', '__eq__', '__format__', '__ge__', '__getattr__', '__getattribute__',
-	#  '__gt__', '__hash__', '__init__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__',
-	#  '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_dep_map', '_get_metadata', '_key', '_provider', '_relo
-	# ad_version', '_version', '_warn_legacy_version', 'activate', 'as_requirement', 'check_version_conflict', 'clone', 'egg_name', 'extra
-	# s', 'from_filename', 'from_location', 'get_entry_info', 'get_entry_map', 'has_version', 'hashcmp', 'insert_on', 'key', 'load_entry_p
-	# oint', 'location', 'parsed_version', 'platform', 'precedence', 'project_name', 'py_version', 'requires', 'version']
 
-	grph.add( (node, propPythonVersion, lib_common.NodeLiteral(good_pckg.version) ) )
-	grph.add( (node, lib_common.MakeProp("Platform"), lib_common.NodeLiteral(good_pckg.platform) ) )
-	grph.add( (node, lib_common.MakeProp("project_name"), lib_common.NodeLiteral(good_pckg.project_name) ) )
+def _fill_one_package(grph, node, good_pckg):
+    """Display information about a Python package using what is returned by PIP."""
 
-	# >>> pip.get_installed_distributions()[1].requires()
-	# [Requirement.parse('distribute'), Requirement.parse('werkzeug'), Requirement.parse('mako')]
-	# '_Requirement__hash', '__contains__','__doc__', '__eq__', '__hash__','__init__', '__module__', '__ne__',
-	# '__repr__', '__str__', 'extras','hashCmp', 'key', 'marker_fn', 'parse','project_name', 'specifier', 'specs','unsafe_name'
-	# strReq = "+".join( [ str(dir(req)) for req in good_pckg.requires() ])
+    # >>> dir(installed_packages[0])
+    # ['PKG_INFO', '__class__', '__delattr__', '__dict__', '__doc__', '__eq__', '__format__', '__ge__', '__getattr__', '__getattribute__',
+    #  '__gt__', '__hash__', '__init__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__',
+    #  '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_dep_map', '_get_metadata', '_key', '_provider', '_relo
+    # ad_version', '_version', '_warn_legacy_version', 'activate', 'as_requirement', 'check_version_conflict', 'clone', 'egg_name', 'extra
+    # s', 'from_filename', 'from_location', 'get_entry_info', 'get_entry_map', 'has_version', 'hashcmp', 'insert_on', 'key', 'load_entry_p
+    # oint', 'location', 'parsed_version', 'platform', 'precedence', 'project_name', 'py_version', 'requires', 'version']
 
-	for subReq in good_pckg.requires():
-		subNode = MakeUri( subReq.key )
-		# [('>=', '4.0.0')]+[]+[('>=','4.0')]+[]
-		aSpecs = subReq.specs
-		if aSpecs:
-			grph.add( (subNode, lib_common.MakeProp("Condition"), lib_common.NodeLiteral( str(aSpecs) ) ) )
-		grph.add( (node, lib_common.MakeProp("requires"), subNode ) )
+    grph.add((node, propPythonVersion, lib_util.NodeLiteral(good_pckg.version)))
+    grph.add((node, lib_common.MakeProp("Platform"), lib_util.NodeLiteral(good_pckg.platform)))
+    grph.add((node, lib_common.MakeProp("project_name"), lib_util.NodeLiteral(good_pckg.project_name)))
 
-	grph.add( (node, lib_common.MakeProp("py_version"), lib_common.NodeLiteral(good_pckg.py_version) ) )
-	grph.add( (node, lib_common.MakeProp("precedence"), lib_common.NodeLiteral(good_pckg.precedence) ) )
-	grph.add( (node, lib_common.MakeProp("egg_name"), lib_common.NodeLiteral(good_pckg.egg_name()) ) )
+    # >>> pip.get_installed_distributions()[1].requires()
+    # [Requirement.parse('distribute'), Requirement.parse('werkzeug'), Requirement.parse('mako')]
+    # '_Requirement__hash', '__contains__','__doc__', '__eq__', '__hash__','__init__', '__module__', '__ne__',
+    # '__repr__', '__str__', 'extras','hashCmp', 'key', 'marker_fn', 'parse','project_name', 'specifier', 'specs','unsafe_name'
+    # strReq = "+".join( [ str(dir(req)) for req in good_pckg.requires() ])
 
-	# This might return location="c:\python27\lib\site-packages"
-	cleanLocaDir = lib_util.standardized_file_path(good_pckg.location)
-	nodeLocation = lib_common.gUriGen.DirectoryUri(cleanLocaDir)
-	grph.add( (node, lib_common.MakeProp("Location"),nodeLocation ) )
+    for sub_req in good_pckg.requires():
+        sub_node = MakeUri(sub_req.key)
+        # [('>=', '4.0.0')]+[]+[('>=','4.0')]+[]
+        a_specs = sub_req.specs
+        if a_specs:
+            grph.add((sub_node, lib_common.MakeProp("Condition"), lib_util.NodeLiteral(str(a_specs))))
+        grph.add((node, lib_common.MakeProp("requires"), sub_node))
+
+    grph.add((node, lib_common.MakeProp("py_version"), lib_util.NodeLiteral(good_pckg.py_version)))
+    grph.add((node, lib_common.MakeProp("precedence"), lib_util.NodeLiteral(good_pckg.precedence)))
+    grph.add((node, lib_common.MakeProp("egg_name"), lib_util.NodeLiteral(good_pckg.egg_name())))
+
+    # This might return location="c:\python27\lib\site-packages"
+    clean_loca_dir = lib_util.standardized_file_path(good_pckg.location)
+    node_location = lib_common.gUriGen.DirectoryUri(clean_loca_dir)
+    grph.add((node, lib_common.MakeProp("Location"), node_location))
 
 
 # http://stackoverflow.com/questions/247770/retrieving-python-module-path
@@ -77,155 +81,150 @@ def FillOnePackage(grph,node,good_pckg):
 #('.py', 'U', 1))
 
 
-# Each entity can have such a file with its name as file name.
-# Then in its file, by convention adds information to a node.
-def AddInfoFromPip(grph,node,packageKey):
-	try:
-		# TODO: What about several Python versions ?
-		installed_packages = lib_python.PipGetInstalledDistributions()
+def _add_info_from_pip(grph, node, package_key):
+    """Each entity can have such a file with its name as file name.
+    Then in its file, by convention adds information to a node."""
+    try:
+        # TODO: What about several Python versions ?
+        installed_packages = lib_python.PipGetInstalledDistributions()
 
-		# TODO: Maybe the version should be part of the key.
-		for pckg in installed_packages:
-			if packageKey == pckg.key:
-				FillOnePackage(grph, node, pckg)
-			else:
-				for subReq in pckg.requires():
-					# sys.stderr.write("subReq.key=%s pckg.key=%s\n"%(subReq.key,packageKey))
-					if subReq.key == packageKey:
-						subNode = MakeUri( pckg.key )
-						# [('>=', '4.0.0')]+[]+[('>=','4.0')]+[]
-						aSpecs = subReq.specs
-						if aSpecs:
-							# TODO: This should be displayed on the edge !!!
-							grph.add( (node, lib_common.MakeProp("Condition "+pckg.key), lib_common.NodeLiteral( str(aSpecs) ) ) )
-						grph.add( (subNode, propPythonRequires, node ) )
-						break
+        # TODO: Maybe the version should be part of the key.
+        for pckg in installed_packages:
+            if package_key == pckg.key:
+                _fill_one_package(grph, node, pckg)
+            else:
+                for sub_req in pckg.requires():
+                    # sys.stderr.write("sub_req.key=%s pckg.key=%s\n"%(sub_req.key,packageKey))
+                    if sub_req.key == package_key:
+                        subNode = MakeUri( pckg.key )
+                        # [('>=', '4.0.0')]+[]+[('>=','4.0')]+[]
+                        a_specs = sub_req.specs
+                        if a_specs:
+                            # TODO: This should be displayed on the edge !!!
+                            grph.add((node, lib_common.MakeProp("Condition "+pckg.key), lib_util.NodeLiteral(str(a_specs))))
+                        grph.add((subNode, propPythonRequires, node ))
+                        break
 
-	except Exception:
-		exc = sys.exc_info()[1]
-		grph.add( ( node, pc.property_information, lib_common.NodeLiteral(str(exc)) ) )
-
-# Displays general information about the module.
-def AddInfoFromImport(grph,packageNode,packageKey):
-	try:
-		the_module = importlib.import_module( packageKey )
-	except ImportError:
-		lib_common.ErrorMessageHtml("Importing %s: Error %s" % ( packageKey, str( sys.exc_info() ) ) )
-
-	try:
-		initFilNam = the_module.__file__
-		filNode = lib_common.gUriGen.FileUri(initFilNam)
-		grph.add( ( packageNode, propPythonPackage, filNode ) )
-
-	except AttributeError:
-		pass
-
-	try:
-		txtDoc = the_module.__doc__
-		if txtDoc:
-			txtDoc = txtDoc.strip()
-			grph.add( ( packageNode, pc.property_information, lib_common.NodeLiteral(txtDoc) ) )
-	except AttributeError:
-		pass
-
-	propsPackage = {"Author" : "__author__", "Version" : "__version__"}
-
-	for keyProp in propsPackage:
-		valProp = propsPackage[keyProp]
-		try:
-			txtVal = getattr( the_module, valProp )
-			if txtVal:
-				grph.add( ( packageNode, lib_common.MakeProp(keyProp), lib_common.NodeLiteral(txtVal) ) )
-		except AttributeError:
-			pass
-
-def AddInfo(grph,node,entity_ids_arr):
-	packageKey = entity_ids_arr[0]
-	DEBUG("AddInfo packageKey=%s",packageKey)
-
-	AddInfoFromPip(grph,node,packageKey)
-
-	AddInfoFromImport(grph,node,packageKey)
+    except Exception as exc:
+        grph.add((node, pc.property_information, lib_util.NodeLiteral(str(exc))))
 
 
+def _add_info_from_import(grph, package_node, package_key):
+    """Displays general information about the module."""
+    try:
+        the_module = importlib.import_module(package_key)
+    except ImportError:
+        lib_common.ErrorMessageHtml("Importing %s: Error %s" % (package_key, str(sys.exc_info())))
 
-# This adds to a node representing a Python package,
-# a node for each package recursively imported by this one.
-# TODO: At the moment, this is NOT RECURSIVE !!!
-def AddImportedModules(grph,node,filNam,maxDepth,dispPackages,dispFiles):
-	DEBUG("AddImportedModules filNam=%s dispPackages=%d dispFiles=%d",filNam,dispPackages,dispFiles)
-	filename, file_extension = os.path.splitext(filNam)
-	filextlo = file_extension.lower()
-	if filextlo not in [".py",".pyw"]:
-		return
+    try:
+        init_fil_nam = the_module.__file__
+        fil_node = lib_common.gUriGen.FileUri(init_fil_nam)
+        grph.add((package_node, propPythonPackage, fil_node))
+    except AttributeError:
+        pass
 
-	finder = modulefinder.ModuleFinder()
-	try:
-		finder.run_script(filNam)
-	except TypeError:
-		exc = sys.exc_info()[0]
-		lib_common.ErrorMessageHtml("Error loading Python script %s:%s" % ( filNam, str( exc ) ) )
+    try:
+        txt_doc = the_module.__doc__
+        if txt_doc:
+            txt_doc = txt_doc.strip()
+            grph.add((package_node, pc.property_information, lib_util.NodeLiteral(txt_doc)))
+    except AttributeError:
+        pass
 
-	AddImportedModules.dictModules = dict()
+    props_package = {"Author": "__author__", "Version": "__version__"}
 
-	# A cache which associates a node to a Python module name.
-	def GetModuNode(moduNam):
-		try:
-			moduNode = AddImportedModules.dictModules[moduNam]
-		except KeyError:
-			moduNode = MakeUri( moduNam )
-			AddImportedModules.dictModules[moduNam] = moduNode
-		return moduNode
-
-	AddImportedModules.dictFiles = dict()
-
-	# A cache which associates a node to a file name.
-	def GetFileNode(moduFil):
-		try:
-			fileNode = AddImportedModules.dictModules[moduFil]
-		except KeyError:
-			fileNode = lib_uris.gUriGen.FileUri(moduFil)
-			AddImportedModules.dictModules[moduFil] = fileNode
-		return fileNode
-
-	for moduNam, mod in six.iteritems( finder.modules ):
-		splitNam = moduNam.split(".")
-		# sys.stderr.write("splitNam=%s\n"%str(splitNam))
-		# sys.stderr.write("mod=%s\n"%str(mod))
-		moduFil = mod.__file__
-		# sys.stderr.write("moduFil=%s\n"%moduFil)
-
-		if len(splitNam) > maxDepth:
-			continue
-
-		if dispPackages:
-			moduNod = GetModuNode(moduNam)
-
-			if dispFiles and moduFil:
-				nodeFile = GetFileNode(moduFil)
-				# nodeFile is the result of lib_common.NodeUrl
-				grph.add( ( moduNod, pc.property_rdf_data_nolist2, nodeFile ) )
-
-			if len(splitNam) == 1:
-				grph.add( ( node, propPythonPackage, moduNod ) )
-				DEBUG("No parent: moduNam=%s",(moduNam))
-			else:
-				parentModuNam = ".".join(splitNam[:-1])
-				parentModuNod = GetModuNode(parentModuNam)
-				grph.add( ( parentModuNod, propPythonRequires, moduNod ) )
-				DEBUG("parentModuNam=%s moduNam=%s",parentModuNam,moduNam)
-
-		if dispFiles and not dispPackages:
-			if moduFil:
-				nodeFile = GetFileNode(moduFil)
-				if len(splitNam) == 1:
-					# TODO: Should be connected to the module.
-					grph.add( ( node, propPythonPackage, nodeFile ) )
-					# TODO: LE RAJOUTER QUAND MEME SINON ON NE VOIT RIEN !
-					pass
-				else:
-					parentModuNam = ".".join(splitNam[:-1])
-					parentModuNod = GetModuNode(parentModuNam)
-					grph.add( ( parentModuNod, propPythonRequires, nodeFile ) )
+    for key_prop in props_package:
+        val_prop = props_package[key_prop]
+        try:
+            txt_val = getattr(the_module, val_prop)
+            if txt_val:
+                grph.add((package_node, lib_common.MakeProp(key_prop), lib_util.NodeLiteral(txt_val)))
+        except AttributeError:
+            pass
 
 
+def AddInfo(grph,node, entity_ids_arr):
+    package_key = entity_ids_arr[0]
+    DEBUG("AddInfo package_key=%s",package_key)
+
+    _add_info_from_pip(grph, node, package_key)
+
+    _add_info_from_import(grph, node, package_key)
+
+
+def AddImportedModules(grph, node, fil_nam, max_depth, disp_packages, disp_files):
+    """This adds to a node representing a Python package,
+    a node for each package recursively imported by this one."""
+
+    # TODO: At the moment, this is NOT RECURSIVE !!!
+    DEBUG("AddImportedModules filNam=%s dispPackages=%d dispFiles=%d", fil_nam, disp_packages, disp_files)
+    filename, file_extension = os.path.splitext(fil_nam)
+    filextlo = file_extension.lower()
+    if filextlo not in [".py", ".pyw"]:
+        return
+
+    finder = modulefinder.ModuleFinder()
+    try:
+        finder.run_script(fil_nam)
+    except TypeError as exc:
+        lib_common.ErrorMessageHtml("Error loading Python script %s:%s" % (fil_nam, str(exc)))
+
+    AddImportedModules.dictModules = dict()
+
+    # A cache which associates a node to a Python module name.
+    def get_modu_node(modu_nam):
+        try:
+            modu_node = AddImportedModules.dictModules[modu_nam]
+        except KeyError:
+            modu_node = MakeUri(modu_nam)
+            AddImportedModules.dictModules[modu_nam] = modu_node
+        return modu_node
+
+    AddImportedModules.dictFiles = dict()
+
+    # A cache which associates a node to a file name.
+    def get_file_node(modu_fil):
+        try:
+            file_node = AddImportedModules.dictModules[modu_fil]
+        except KeyError:
+            file_node = lib_uris.gUriGen.FileUri(modu_fil)
+            AddImportedModules.dictModules[modu_fil] = file_node
+        return file_node
+
+    for modu_nam, mod in six.iteritems(finder.modules):
+        split_nam = modu_nam.split(".")
+        # sys.stderr.write("split_nam=%s\n"%str(split_nam))
+        # sys.stderr.write("mod=%s\n"%str(mod))
+        modu_fil = mod.__file__
+        # sys.stderr.write("modu_fil=%s\n"%modu_fil)
+
+        if len(split_nam) > max_depth:
+            continue
+
+        if disp_packages:
+            modu_nod = get_modu_node(modu_nam)
+
+            if disp_files and modu_fil:
+                node_file = get_file_node(modu_fil)
+                # node_file is the result of lib_common.NodeUrl
+                grph.add((modu_nod, pc.property_rdf_data_nolist2, node_file))
+
+            if len(split_nam) == 1:
+                grph.add((node, propPythonPackage, modu_nod))
+                DEBUG("No parent: modu_nam=%s", (modu_nam))
+            else:
+                parent_modu_nam = ".".join(split_nam[:-1])
+                parent_modu_nod = get_modu_node(parent_modu_nam)
+                grph.add((parent_modu_nod, propPythonRequires, modu_nod))
+                DEBUG("parent_modu_nam=%s modu_nam=%s", parent_modu_nam, modu_nam)
+
+        if disp_files and not disp_packages:
+            if modu_fil:
+                node_file = get_file_node(modu_fil)
+                if len(split_nam) == 1:
+                    # TODO: Should be connected to the module.
+                    grph.add((node, propPythonPackage, node_file))
+                else:
+                    parent_modu_nam = ".".join(split_nam[:-1])
+                    parent_modu_nod = get_modu_node(parent_modu_nam)
+                    grph.add((parent_modu_nod, propPythonRequires, node_file))
