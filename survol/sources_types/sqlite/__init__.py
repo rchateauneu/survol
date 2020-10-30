@@ -98,12 +98,12 @@ def AddNodesTablesViews(grph, fil_node, db_fil_nam):
                 continue
 
             theRootpage = the_row[3]
-            grph.add((name_nod, lib_common.MakeProp("Root page"), lib_common.NodeLiteral(theRootpage)))
-            grph.add((name_nod, lib_common.MakeProp("Type"), lib_common.NodeLiteral(the_type)))
+            grph.add((name_nod, lib_common.MakeProp("Root page"), lib_util.NodeLiteral(theRootpage)))
+            grph.add((name_nod, lib_common.MakeProp("Type"), lib_util.NodeLiteral(the_type)))
 
             # Do not print too much information in case there are too many tables.
             #theCmd = the_row[4]
-            #grph.add( ( tabNod, pc.property_information, lib_common.NodeLiteral(theCmd) ) )
+            #grph.add( ( tabNod, pc.property_information, lib_util.NodeLiteral(theCmd) ) )
     except sqlite3.DatabaseError as exc:
         lib_common.ErrorMessageHtml("Sqlite file:%s Caught:%s" % (db_fil_nam, str(exc)))
     except:
