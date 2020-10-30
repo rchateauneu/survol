@@ -35,7 +35,7 @@ def EntityName(entity_ids_arr):
 def AddPropIfThere(grph,compNode,elt_component,propNamXml,propRdf):
 	attr_xml = elt_component.getAttributeNode(propNamXml)
 	if attr_xml:
-		grph.add( ( compNode, propRdf, lib_common.NodeLiteral( attr_xml.value ) ) )
+		grph.add( ( compNode, propRdf, lib_util.NodeLiteral( attr_xml.value ) ) )
 
 def DecorateComponentWithXml(grph,compNode,elt_component):
 

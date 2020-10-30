@@ -43,7 +43,7 @@ def DispHosts(grph,configNode,ac2File):
 			attr_port = elt_host.getAttributeNode('port').value
 
 			nodeAddr = lib_common.gUriGen.AddrUri(attr_host,attr_port)
-			grph.add( ( nodeAddr, lib_common.MakeProp("Hostid"), lib_common.NodeLiteral( attr_hostid ) ) )
+			grph.add( ( nodeAddr, lib_common.MakeProp("Hostid"), lib_util.NodeLiteral( attr_hostid ) ) )
 
 			grph.add( ( configNode, lib_common.MakeProp("AC2 host"), nodeAddr ) )
 

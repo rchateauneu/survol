@@ -74,11 +74,11 @@ def DispCrons(dom,grph,configNode,configName):
 				# Many optional attributes.
 				attr_trigger_action = elt_trigger.getAttributeNode('action')
 				if attr_trigger_action:
-					grph.add( ( nodeTrigger, lib_common.MakeProp("action"), lib_common.NodeLiteral( attr_trigger_action.value ) ) )
+					grph.add( ( nodeTrigger, lib_common.MakeProp("action"), lib_util.NodeLiteral( attr_trigger_action.value ) ) )
 
 				attr_trigger_force = elt_trigger.getAttributeNode('force')
 				if attr_trigger_force:
-					grph.add( ( nodeTrigger, lib_common.MakeProp("force"), lib_common.NodeLiteral( attr_trigger_force.value ) ) )
+					grph.add( ( nodeTrigger, lib_common.MakeProp("force"), lib_util.NodeLiteral( attr_trigger_force.value ) ) )
 
 				attr_trigger_components = elt_trigger.getAttributeNode('components')
 				if attr_trigger_components:
@@ -89,11 +89,11 @@ def DispCrons(dom,grph,configNode,configName):
 
 				attr_trigger_propagate = elt_trigger.getAttributeNode('propagate')
 				if attr_trigger_propagate:
-					grph.add( ( nodeTrigger, lib_common.MakeProp("propagate"), lib_common.NodeLiteral( attr_trigger_propagate.value ) ) )
+					grph.add( ( nodeTrigger, lib_common.MakeProp("propagate"), lib_util.NodeLiteral( attr_trigger_propagate.value ) ) )
 
 				attr_trigger_expression = elt_trigger.getAttributeNode('expression')
 				if attr_trigger_expression:
-					grph.add( ( nodeTrigger, lib_common.MakeProp("expression"), lib_common.NodeLiteral( attr_trigger_expression.value ) ) )
+					grph.add( ( nodeTrigger, lib_common.MakeProp("expression"), lib_util.NodeLiteral( attr_trigger_expression.value ) ) )
 
 
 				grph.add( ( nodeCronrules, AC2.propTrigger, nodeTrigger ) )
