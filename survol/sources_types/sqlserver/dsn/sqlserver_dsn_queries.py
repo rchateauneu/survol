@@ -5,6 +5,7 @@ Queries running in SQL Server database (ODBC)
 """
 
 import sys
+import lib_util
 import lib_common
 from lib_properties import pc
 from sources_types.odbc import dsn as survol_odbc_dsn
@@ -62,10 +63,10 @@ def Main():
 			nodeSqlQuery = sql_query.MakeUri(queryClean,dsnNam)
 			grph.add((nodeSession, propSqlServerSqlQuery, nodeSqlQuery))
 			node_process = lib_common.RemoteBox(rowQry.host_name).PidUri(rowQry.host_process_id)
-			grph.add((node_process, pc.property_pid, lib_common.NodeLiteral(rowQry.host_process_id)))
+			grph.add((node_process, pc.property_pid, lib_util.NodeLiteral(rowQry.host_process_id)))
 
 			grph.add((nodeSession, propSqlServerHostProcess, node_process))
-			grph.add((nodeSession, propSqlServerStatus, lib_common.NodeLiteral(rowQry.status)))
+			grph.add((nodeSession, propSqlServerStatus, lib_util.NodeLiteral(rowQry.status)))
 
 	except Exception:
 		exc = sys.exc_info()[0]
