@@ -165,7 +165,7 @@ def AddDependency(grph, row, node_root, ora_database, direction):
 
 def AddLiteralNotNone(grph, node, txt, data):
     if data != None:
-        grph.add((node, lib_common.MakeProp(txt), lib_common.NodeLiteral(data)))
+        grph.add((node, lib_common.MakeProp(txt), lib_util.NodeLiteral(data)))
 
 
 def OraMachineToIp(ora_machine):

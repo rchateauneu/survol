@@ -350,19 +350,19 @@ def WmiAddClassQualifiers(grph, conn_wmi, wmi_class_node, class_name, with_props
         # No need to print this, at the moment.
         if False:
             klass_descr = str(dir(getattr(conn_wmi, class_name)))
-            grph.add((wmi_class_node, lib_common.MakeProp("dir"), lib_common.NodeLiteral(klass_descr)))
+            grph.add((wmi_class_node, lib_common.MakeProp("dir"), lib_util.NodeLiteral(klass_descr)))
 
             klass_descr = str(getattr(conn_wmi, class_name)._properties)
-            grph.add((wmi_class_node, lib_common.MakeProp("_properties"), lib_common.NodeLiteral(klass_descr)))
+            grph.add((wmi_class_node, lib_common.MakeProp("_properties"), lib_util.NodeLiteral(klass_descr)))
 
             klass_descr = str(getattr(conn_wmi, class_name).properties["Description"])
-            grph.add((wmi_class_node, lib_common.MakeProp("properties.Description"), lib_common.NodeLiteral(klass_descr)))
+            grph.add((wmi_class_node, lib_common.MakeProp("properties.Description"), lib_util.NodeLiteral(klass_descr)))
 
             klass_descr = str(getattr(conn_wmi, class_name).property_map)
             # Otherwise it crashes.
             # klassDescrClean = klass_descr.replace("{"," ").replace("}"," ")
             # sys.stderr.write("klass_descr=%s\n"%klass_descr)
-            grph.add((wmi_class_node, lib_common.MakeProp("property_map"), lib_common.NodeLiteral(klass_descr.replace("{", " ").replace("}", " "))))
+            grph.add((wmi_class_node, lib_common.MakeProp("property_map"), lib_util.NodeLiteral(klass_descr.replace("{", " ").replace("}", " "))))
 
         the_cls = GetWmiClassFlagUseAmendedQualifiersn(conn_wmi, class_name)
         if the_cls:
@@ -377,7 +377,7 @@ def WmiAddClassQualifiers(grph, conn_wmi, wmi_class_node, class_name, with_props
             # "CIM_DataFile is a type ... <B>The behavior ... e returned.<B>"
             str_klass_descr = str_klass_descr.replace("<B>", "")
 
-            grph.add((wmi_class_node, pc.property_information, lib_common.NodeLiteral(str_klass_descr)))
+            grph.add((wmi_class_node, pc.property_information, lib_util.NodeLiteral(str_klass_descr)))
 
             if with_props:
                 for prop_obj in the_cls.Properties_:
@@ -386,9 +386,9 @@ def WmiAddClassQualifiers(grph, conn_wmi, wmi_class_node, class_name, with_props
                     # Properties of different origins should not be mixed.
                     # Prefixes the property with a dot, so sorting displays it at the end.
                     # Surprisingly, the dot becomes invisible.
-                    grph.add((wmi_class_node, lib_common.MakeProp("." + prop_obj.Name), lib_common.NodeLiteral(prop_dsc)))
+                    grph.add((wmi_class_node, lib_common.MakeProp("." + prop_obj.Name), lib_util.NodeLiteral(prop_dsc)))
         else:
-            grph.add((wmi_class_node, pc.property_information, lib_common.NodeLiteral("No description for %s" % class_name)))
+            grph.add((wmi_class_node, pc.property_information, lib_util.NodeLiteral("No description for %s" % class_name)))
 
         klass_quals = getattr(conn_wmi, class_name).qualifiers
         for kla_qual_key in klass_quals :
@@ -405,7 +405,7 @@ def WmiAddClassQualifiers(grph, conn_wmi, wmi_class_node, class_name, with_props
                 grph.add((wmi_class_node, lib_common.MakeProp(kla_qual_key), nodeUUID))
                 continue
 
-            grph.add((wmi_class_node, lib_common.MakeProp(kla_qual_key), lib_common.NodeLiteral(kla_qual_val)))
+            grph.add((wmi_class_node, lib_common.MakeProp(kla_qual_key), lib_util.NodeLiteral(kla_qual_val)))
     except Exception as exc:
         try:
             # Dumped in json so that lists can be appropriately deserialized then displayed.
@@ -413,7 +413,7 @@ def WmiAddClassQualifiers(grph, conn_wmi, wmi_class_node, class_name, with_props
         except:
             # Might have caught: 'com_error' object is not iterable
             err_str = json.dumps("Non-iterable COM Error:"+str(exc))
-        grph.add((wmi_class_node, lib_common.MakeProp("WMI Error"), lib_common.NodeLiteral(err_str)))
+        grph.add((wmi_class_node, lib_common.MakeProp("WMI Error"), lib_util.NodeLiteral(err_str)))
 
 
 def ValidClassWmi(class_name):
@@ -756,7 +756,7 @@ def WmiKeyValues(conn_wmi, obj_wmi, display_none_values, class_name):
             value_replaced = lib_util.standardized_file_path(str(value))
             #sys.stderr.write("WmiKeyValues prp_name=%s className=%s value=%s value_replaced=%s\n"
             #                 % (prp_name, className, value, value_replaced))
-            yield prp_prop, lib_common.NodeLiteral(value_replaced)
+            yield prp_prop, lib_util.NodeLiteral(value_replaced)
         elif isinstance(value, lib_util.scalar_data_types):
             # Special backslash replacement otherwise:
             # "NT AUTHORITY\\\\NetworkService" displayed as "NT AUTHORITYnd_0etworkService"
@@ -765,7 +765,7 @@ def WmiKeyValues(conn_wmi, obj_wmi, display_none_values, class_name):
 
             if val_unit:
                 value_replaced = UnitConversion(value_replaced, val_unit)
-            yield prp_prop, lib_common.NodeLiteral(value_replaced)
+            yield prp_prop, lib_util.NodeLiteral(value_replaced)
         elif isinstance(value, tuple):
             # Special backslash replacement otherwise:
             # "NT AUTHORITY\\\\NetworkService" displayed as "NT AUTHORITYnd_0etworkService"
@@ -780,10 +780,10 @@ def WmiKeyValues(conn_wmi, obj_wmi, display_none_values, class_name):
             # CIM_ComputerSystem.Roles
             # "LM_Workstation ; LM_Server ; SQLServer ; NT ; Potential_Browser ; Master_Browser"
             clean_tuple = " ; ".join(tuple_replaced)
-            yield prp_prop, lib_common.NodeLiteral(clean_tuple)
+            yield prp_prop, lib_util.NodeLiteral(clean_tuple)
         elif value is None:
             if display_none_values:
-                yield prp_prop, lib_common.NodeLiteral("None")
+                yield prp_prop, lib_util.NodeLiteral("None")
         else:
             try:
                 ref_moniker = str(value.path())
@@ -791,7 +791,7 @@ def WmiKeyValues(conn_wmi, obj_wmi, display_none_values, class_name):
                 ref_instance_node = lib_common.NodeUrl(ref_instance_url)
                 yield prp_prop, ref_instance_node
             except AttributeError as exc:
-                yield prp_prop, lib_common.NodeLiteral(str(exc))
+                yield prp_prop, lib_util.NodeLiteral(str(exc))
 
 
 class WmiSparqlCallbackApi:
@@ -862,9 +862,9 @@ class WmiSparqlCallbackApi:
             list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, class_name)
             dict_key_values = {node_key: node_value for node_key, node_value in list_key_values}
 
-            dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_common.NodeLiteral("WMI")
+            dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_util.NodeLiteral("WMI")
             # Add it again, so the original Sparql query will work.
-            dict_key_values[lib_kbase.PredicateSeeAlso] = lib_common.NodeLiteral("WMI")
+            dict_key_values[lib_kbase.PredicateSeeAlso] = lib_util.NodeLiteral("WMI")
 
             # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeProp(class_name)
@@ -921,9 +921,9 @@ class WmiSparqlCallbackApi:
             list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, result_class_name)
             dict_key_values = {node_key:node_value for node_key, node_value in list_key_values}
 
-            dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_common.NodeLiteral("WMI")
+            dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_util.NodeLiteral("WMI")
             # Add it again, so the original Sparql query will work.
-            dict_key_values[lib_kbase.PredicateSeeAlso] = lib_common.NodeLiteral("WMI")
+            dict_key_values[lib_kbase.PredicateSeeAlso] = lib_util.NodeLiteral("WMI")
 
             # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"
             # p=http://www.w3.org/1999/02/22-rdf-syntax-ns#type
@@ -954,14 +954,14 @@ class WmiSparqlCallbackApi:
             class_path = "WmiClass:" + one_class_name
 
             dict_key_values = {}
-            dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_common.NodeLiteral("WMI")
+            dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_util.NodeLiteral("WMI")
             # Add it again, so the original Sparql query will work.
-            dict_key_values[lib_kbase.PredicateSeeAlso] = lib_common.NodeLiteral("WMI")
+            dict_key_values[lib_kbase.PredicateSeeAlso] = lib_util.NodeLiteral("WMI")
             dict_key_values[lib_kbase.PredicateType] = lib_kbase.PredicateType
-            nodeClassName = lib_common.NodeLiteral(one_class_name)
+            nodeClassName = lib_util.NodeLiteral(one_class_name)
             dict_key_values[lib_kbase.PredicateLabel] = nodeClassName
             # TODO: Is this useful ?
-            dict_key_values[lib_common.NodeLiteral("Name")] = nodeClassName
+            dict_key_values[lib_util.NodeLiteral("Name")] = nodeClassName
 
             class_node = lib_util.NodeUrl(class_path)
 

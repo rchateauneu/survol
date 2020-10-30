@@ -599,21 +599,21 @@ def WbemKeyValues(key_value_items, display_none_values = False):
     for wbem_key_name, wbem_value_literal in key_value_items:
         wbem_property = lib_properties.MakeProp(wbem_key_name)
         if isinstance(wbem_value_literal, lib_util.scalar_data_types):
-            wbem_value_node = lib_common.NodeLiteral(wbem_value_literal)
+            wbem_value_node = lib_util.NodeLiteral(wbem_value_literal)
         elif isinstance( wbem_value_literal, (tuple)):
             tuple_joined = " ; ".join(wbem_value_literal)
-            wbem_value_node = lib_common.NodeLiteral(tuple_joined)
+            wbem_value_node = lib_util.NodeLiteral(tuple_joined)
         elif wbem_value_literal is None:
             if display_none_values:
-                wbem_value_node = lib_common.NodeLiteral("None")
+                wbem_value_node = lib_util.NodeLiteral("None")
         else:
-            wbem_value_node = lib_common.NodeLiteral("type="+str(type(wbem_value_literal)) + ":" + str(wbem_value_literal))
+            wbem_value_node = lib_util.NodeLiteral("type="+str(type(wbem_value_literal)) + ":" + str(wbem_value_literal))
             #try:
             #    refMoniker = str(wbem_value_literal.path())
             #    instance_url = lib_util.EntityUrlFromMoniker(refMoniker)
             #    wbem_value_node = lib_common.NodeUrl(instance_url)
             #except AttributeError as exc:
-            #    wbem_value_node = lib_common.NodeLiteral(str(exc))
+            #    wbem_value_node = lib_util.NodeLiteral(str(exc))
 
         dict_key_values[wbem_property] = wbem_value_node
     return dict_key_values
@@ -657,9 +657,9 @@ class WbemSparqlCallbackApi:
             DEBUG ("object.path=%s", object_path)
             dict_key_values = WbemKeyValues(one_wbem_object.iteritems())
 
-            dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_common.NodeLiteral("WBEM")
+            dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_util.NodeLiteral("WBEM")
             # Add it again, so the original Sparql query will work.
-            dict_key_values[lib_kbase.PredicateSeeAlso] = lib_common.NodeLiteral("WBEM")
+            dict_key_values[lib_kbase.PredicateSeeAlso] = lib_util.NodeLiteral("WBEM")
 
         #     # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeProp(class_name)
@@ -708,11 +708,11 @@ class WbemSparqlCallbackApi:
         #     class_path = "WbemClass:" + one_class_name
         #
         #     dict_key_values = {}
-        #     dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_common.NodeLiteral("WBEM")
+        #     dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_util.NodeLiteral("WBEM")
         #     # Add it again, so the original Sparql query will work.
-        #     dict_key_values[lib_kbase.PredicateSeeAlso] = lib_common.NodeLiteral("WBEM")
+        #     dict_key_values[lib_kbase.PredicateSeeAlso] = lib_util.NodeLiteral("WBEM")
         #     dict_key_values[lib_kbase.PredicateType] = lib_kbase.PredicateType
-        #     dict_key_values[lib_common.NodeLiteral("Name")] = lib_common.NodeLiteral(one_class_name)
+        #     dict_key_values[lib_util.NodeLiteral("Name")] = lib_util.NodeLiteral(one_class_name)
         #
         #     class_node = lib_util.NodeUrl(class_path)
         #
