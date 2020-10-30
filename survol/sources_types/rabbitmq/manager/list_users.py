@@ -5,6 +5,7 @@ RabbitMQ users
 """
 
 import sys
+import lib_util
 import lib_common
 import lib_credentials
 from pyrabbit.api import Client
@@ -55,12 +56,12 @@ def Main():
 		nodeUser = survol_rabbitmq_user.MakeUri(configNam,namUser)
 
 		try:
-			grph.add( ( nodeUser, lib_common.MakeProp("Tags"), lib_common.NodeLiteral(objUser["tags"]) ) )
+			grph.add( ( nodeUser, lib_common.MakeProp("Tags"), lib_util.NodeLiteral(objUser["tags"]) ) )
 		except KeyError:
 			pass
 
 		try:
-			grph.add( ( nodeUser, lib_common.MakeProp("Hashing algorithm"), lib_common.NodeLiteral(objUser["hashing_algorithm"]) ) )
+			grph.add( ( nodeUser, lib_common.MakeProp("Hashing algorithm"), lib_util.NodeLiteral(objUser["hashing_algorithm"]) ) )
 		except KeyError:
 			pass
 
