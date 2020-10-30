@@ -47,13 +47,13 @@ def DisplayComponentDependencies(grph,ac2File,ac2App,ac2Comp):
 			AC2_application.DecorateAppWithXml(grph,appNode,elt_app)
 
 			#attr_version = elt_app.getAttributeNode('version').value
-			#grph.add( ( appNode, lib_common.MakeProp("Version"), lib_common.NodeLiteral( attr_version ) ) )
+			#grph.add( ( appNode, lib_common.MakeProp("Version"), lib_util.NodeLiteral( attr_version ) ) )
 
 			#attr_notifref = elt_app.getAttributeNode('notifref').value
-			#grph.add( ( appNode, lib_common.MakeProp("Notifref"), lib_common.NodeLiteral( attr_notifref ) ) )
+			#grph.add( ( appNode, lib_common.MakeProp("Notifref"), lib_util.NodeLiteral( attr_notifref ) ) )
 
 			#attr_cronref = elt_app.getAttributeNode('cronref').value
-			#grph.add( ( appNode, lib_common.MakeProp("Cronref"), lib_common.NodeLiteral( attr_cronref ) ) )
+			#grph.add( ( appNode, lib_common.MakeProp("Cronref"), lib_util.NodeLiteral( attr_cronref ) ) )
 
 			#appParent = None
 			#appChildren = []
@@ -66,15 +66,15 @@ def DisplayComponentDependencies(grph,ac2File,ac2App,ac2Comp):
 				if attr_component_name == ac2Comp:
 					attr_component_description = elt_component.getAttributeNode('description')
 					if attr_component_description:
-						grph.add( ( compNode, pc.property_information, lib_common.NodeLiteral( attr_component_description.value ) ) )
+						grph.add( ( compNode, pc.property_information, lib_util.NodeLiteral( attr_component_description.value ) ) )
 
 					attr_component_group = elt_component.getAttributeNode('group')
 					if attr_component_group:
-						grph.add( ( compNode, lib_common.MakeProp("Group"), lib_common.NodeLiteral( attr_component_group.value ) ) )
+						grph.add( ( compNode, lib_common.MakeProp("Group"), lib_util.NodeLiteral( attr_component_group.value ) ) )
 
 					attr_component_type = elt_component.getAttributeNode('type')
 					if attr_component_type:
-						grph.add( ( compNode, lib_common.MakeProp("Type"), lib_common.NodeLiteral( attr_component_type.value ) ) )
+						grph.add( ( compNode, lib_common.MakeProp("Type"), lib_util.NodeLiteral( attr_component_type.value ) ) )
 
 					nodeFather = None
 					for elt_father in elt_component.getElementsByTagName('father'):

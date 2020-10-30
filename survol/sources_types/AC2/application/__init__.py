@@ -28,13 +28,13 @@ def EntityName(entity_ids_arr):
 
 def DecorateAppWithXml(grph,appNode,elt_app):
 	attr_version = elt_app.getAttributeNode('version').value
-	grph.add( ( appNode, lib_common.MakeProp("Version"), lib_common.NodeLiteral( attr_version ) ) )
+	grph.add( ( appNode, lib_common.MakeProp("Version"), lib_util.NodeLiteral( attr_version ) ) )
 
 	attr_notifref = elt_app.getAttributeNode('notifref').value
-	grph.add( ( appNode, lib_common.MakeProp("Notifref"), lib_common.NodeLiteral( attr_notifref ) ) )
+	grph.add( ( appNode, lib_common.MakeProp("Notifref"), lib_util.NodeLiteral( attr_notifref ) ) )
 
 	attr_cronref = elt_app.getAttributeNode('cronref').value
-	grph.add( ( appNode, lib_common.MakeProp("Cronref"), lib_common.NodeLiteral( attr_cronref ) ) )
+	grph.add( ( appNode, lib_common.MakeProp("Cronref"), lib_util.NodeLiteral( attr_cronref ) ) )
 
 
 
