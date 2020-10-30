@@ -81,9 +81,9 @@ def Main():
         sess_program = row[10]
 
         node_session = oracle_session.MakeUri(cgiEnv.m_oraDatabase, str(row[0]))
-        grph.add((node_session, lib_common.MakeProp("Oracle user"), lib_common.NodeLiteral(ora_username)))
-        grph.add((node_session, lib_common.MakeProp("Schema"), lib_common.NodeLiteral(schema_name)))
-        grph.add((node_session, lib_common.MakeProp("Program"), lib_common.NodeLiteral(sess_program)))
+        grph.add((node_session, lib_common.MakeProp("Oracle user"), lib_util.NodeLiteral(ora_username)))
+        grph.add((node_session, lib_common.MakeProp("Schema"), lib_util.NodeLiteral(schema_name)))
+        grph.add((node_session, lib_common.MakeProp("Program"), lib_util.NodeLiteral(sess_program)))
 
         if schema_name != None:
             node_schema = oracle_schema.MakeUri(cgiEnv.m_oraDatabase, str(schema_name))
@@ -92,15 +92,15 @@ def Main():
 
         DEBUG("user_proc_id=%s user_machine=%s", user_proc_id, user_machine)
         node_process = the_machine_box.PidUri(sess_pid)
-        grph.add((node_process, lib_common.MakeProp("SystemPid"), lib_common.NodeLiteral(user_proc_id)))
-        grph.add((node_process, lib_common.MakeProp("OraclePid"), lib_common.NodeLiteral(process_pid)))
-        grph.add((node_process, lib_common.MakeProp("Terminal"), lib_common.NodeLiteral(proc_terminal)))
+        grph.add((node_process, lib_common.MakeProp("SystemPid"), lib_util.NodeLiteral(user_proc_id)))
+        grph.add((node_process, lib_common.MakeProp("OraclePid"), lib_util.NodeLiteral(process_pid)))
+        grph.add((node_process, lib_common.MakeProp("Terminal"), lib_util.NodeLiteral(proc_terminal)))
         grph.add((node_session, pc.property_oracle_session, node_process))
 
         if sess_osuser != None:
             DEBUG("user_machine=%s sess_osuser=%s", user_machine, sess_osuser)
             node_os_user = the_machine_box.UserUri(sess_osuser)
-            grph.add((node_os_user, lib_common.MakeProp("OsUser"), lib_common.NodeLiteral(sess_osuser)))
+            grph.add((node_os_user, lib_common.MakeProp("OsUser"), lib_util.NodeLiteral(sess_osuser)))
             grph.add((node_process, pc.property_user, node_os_user))
 
     cgiEnv.OutCgiRdf()
