@@ -5,6 +5,7 @@ RabbitMQ queues on all virtual hosts
 """
 
 import sys
+import lib_util
 import lib_common
 import lib_credentials
 from pyrabbit.api import Client
@@ -55,7 +56,7 @@ def Main():
 
 		nodeQueue = survol_rabbitmq_queue.MakeUri(configNam,namVHost,namQueue)
 
-		grph.add( ( nodeQueue, lib_common.MakeProp("vhost"), lib_common.NodeLiteral(namVHost) ) )
+		grph.add( ( nodeQueue, lib_common.MakeProp("vhost"), lib_util.NodeLiteral(namVHost) ) )
 		grph.add( ( nodeQueue, lib_common.MakeProp("vhost node"), nodVHost ) )
 
 		managementUrl = rabbitmq.ManagementUrlPrefix(configNam,"queues",namVHost,namQueue)

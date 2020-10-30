@@ -5,6 +5,7 @@ RabbitMQ virtual hosts
 """
 
 import sys
+import lib_util
 import lib_common
 import lib_credentials
 from pyrabbit.api import Client
@@ -61,12 +62,12 @@ def Main():
 		nodeVHost = survol_rabbitmq_vhost.MakeUri(configNam,namVHost)
 
 		try:
-			grph.add( ( nodeVHost, lib_common.MakeProp("tracing"), lib_common.NodeLiteral(objVHost["tracing"]) ) )
+			grph.add( ( nodeVHost, lib_common.MakeProp("tracing"), lib_util.NodeLiteral(objVHost["tracing"]) ) )
 		except KeyError:
 			pass
 
 		try:
-			grph.add( ( nodeVHost, lib_common.MakeProp("messages"), lib_common.NodeLiteral(objVHost["messages"]) ) )
+			grph.add( ( nodeVHost, lib_common.MakeProp("messages"), lib_util.NodeLiteral(objVHost["messages"]) ) )
 		except KeyError:
 			pass
 

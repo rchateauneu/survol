@@ -6,6 +6,7 @@ RabbitMQ connection properties
 
 import sys
 import six
+import lib_util
 import lib_common
 import lib_credentials
 from lib_properties import pc
@@ -75,12 +76,12 @@ def Main():
 			else:
 				pass
 
-			DEBUG("Literal=%s",lib_common.NodeLiteral(connectVal))
+			DEBUG("Literal=%s",lib_util.NodeLiteral(connectVal))
 
-			grph.add( ( nodConnection, lib_common.MakeProp(connectKey), lib_common.NodeLiteral(connectVal) ) )
+			grph.add( ( nodConnection, lib_common.MakeProp(connectKey), lib_util.NodeLiteral(connectVal) ) )
 
 			# Special processing ? Si on fait ca, tout les caracteres speciaux sont escapes.
-			# grph.add( ( nodConnection, pc.property_rdf_data_nolist1, lib_common.NodeLiteral(connectVal) ) )
+			# grph.add( ( nodConnection, pc.property_rdf_data_nolist1, lib_util.NodeLiteral(connectVal) ) )
 
 
 	# This is not useful apparently.

@@ -5,6 +5,7 @@ RabbitMQ connections
 """
 
 import sys
+import lib_util
 import lib_common
 import lib_credentials
 from pyrabbit.api import Client
@@ -63,12 +64,12 @@ def AddConnections(grph,listConnections,configNam,nodeManager):
 		nodeConnect = survol_rabbitmq_connection.MakeUri(configNam,namConnect)
 
 		try:
-			grph.add( ( nodeConnect, lib_common.MakeProp("Protocol"), lib_common.NodeLiteral(objConnect["protocol"]) ) )
+			grph.add( ( nodeConnect, lib_common.MakeProp("Protocol"), lib_util.NodeLiteral(objConnect["protocol"]) ) )
 		except KeyError:
 			pass
 
 		try:
-			grph.add( ( nodeConnect, lib_common.MakeProp("Node"), lib_common.NodeLiteral(objConnect["node"]) ) )
+			grph.add( ( nodeConnect, lib_common.MakeProp("Node"), lib_util.NodeLiteral(objConnect["node"]) ) )
 		except KeyError:
 			pass
 
