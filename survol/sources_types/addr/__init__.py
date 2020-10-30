@@ -83,7 +83,7 @@ def DecorateSocketNode(grph, socketNode, host, port, proto):
 	if port == 80 and proto == "tcp":
 		strUrl = "http://%s" % host
 		nodUrl = lib_common.NodeUrl(strUrl)
-		grph.add( ( nodUrl, pc.property_information, lib_common.NodeLiteral("HTTP url") ) )
+		grph.add( ( nodUrl, pc.property_information, lib_util.NodeLiteral("HTTP url") ) )
 
 		# Aller chercher des infos idealement ??
 
@@ -168,7 +168,7 @@ class PsutilAddSocketThread(threading.Thread):
 
 			# PAS CERTAIN: Qu'est ce qui dit qu une des sockets aboutit au host ?
 			self.grph.add( ( self.node_process, pc.property_has_socket, lsocketNode ) )
-			self.grph.add( ( lsocketNode, pc.property_information, lib_common.NodeLiteral(self.connect.status) ) )
+			self.grph.add( ( lsocketNode, pc.property_information, lib_util.NodeLiteral(self.connect.status) ) )
 		finally:
 			self.grph_lock.release()
 		# Some throttling, in case there are thousands of nodes.
@@ -212,7 +212,7 @@ def PsutilAddSocketToGraphOne(node_process,connect,grph):
 
 		# How can we be sure that one of the sockets is linked to the host ?
 		grph.add( ( node_process, pc.property_has_socket, lsocketNode ) )
-		grph.add( ( lsocketNode, pc.property_information, lib_common.NodeLiteral(connect.status) ) )
+		grph.add( ( lsocketNode, pc.property_information, lib_util.NodeLiteral(connect.status) ) )
 
 # On va peut-etre se debarrasser de ca si la version asynchrone est plus-rapide.
 def PsutilAddSocketToGraph(node_process,connects,grph):
