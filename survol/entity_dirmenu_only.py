@@ -68,7 +68,7 @@ def DirToMenu(callback_grph_add, parent_node, entity_type, entity_id, entity_hos
                     DEBUG("IsDirectoryUsable error_msg(1)=%s" ,error_msg)
                     # If set to True, the directory is displayed even if all its scripts
                     # are not usable. Surprisingly, the message is not displayed as a subdirectory, but in a separate square.
-                    return lib_common.NodeLiteral(error_msg)
+                    return lib_util.NodeLiteral(error_msg)
         except IndexError:
             # If we are at the top-level, no interest for the module.
             pass
@@ -213,7 +213,7 @@ def DirToMenu(callback_grph_add, parent_node, entity_type, entity_id, entity_hos
             callback_grph_add((rdf_node, pc.property_information, nod_modu), depth_call)
 
             if error_msg:
-                callback_grph_add((rdf_node, lib_common.MakeProp("Error"), lib_common.NodeLiteral(error_msg)), depth_call)
+                callback_grph_add((rdf_node, lib_common.MakeProp("Error"), lib_util.NodeLiteral(error_msg)), depth_call)
 
         # This tells if a script was added in this directory or one of the subdirs.
         return (rdf_node is not None) | contains_something
