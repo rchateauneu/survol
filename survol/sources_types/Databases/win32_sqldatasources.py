@@ -31,7 +31,7 @@ def DisplayDsns(grph,fetch_code,dsn_type):
 	odbc_iter_code = fetch_code
 
 	propDsnType = lib_common.MakeProp("Source type")
-	littDsnType = lib_common.NodeLiteral(dsn_type)
+	littDsnType = lib_util.NodeLiteral(dsn_type)
 
 	while True:
 		source = odbc.SQLDataSources(odbc_iter_code)
@@ -45,7 +45,7 @@ def DisplayDsns(grph,fetch_code,dsn_type):
 		# This creates a connection string.
 		nodeDsn = survol_odbc_dsn.MakeUri( "DSN=" + dsn )
 		grph.add( (lib_common.nodeMachine, pc.property_odbc_dsn, nodeDsn ) )
-		grph.add( (nodeDsn, pc.property_odbc_driver, lib_common.NodeLiteral(driver) ) )
+		grph.add( (nodeDsn, pc.property_odbc_driver, lib_util.NodeLiteral(driver) ) )
 		grph.add( (nodeDsn, propDsnType, littDsnType ) )
 
 

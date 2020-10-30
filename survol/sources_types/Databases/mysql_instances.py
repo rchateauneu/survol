@@ -42,7 +42,7 @@ def Main():
 
 		aCred = lib_credentials.GetCredentials( "MySql", instanceMySql )
 
-		grph.add( ( nodeInstance, lib_common.MakeProp("Mysql user")	, lib_common.NodeLiteral(aCred[0]) ) )
+		grph.add( ( nodeInstance, lib_common.MakeProp("Mysql user")	, lib_util.NodeLiteral(aCred[0]) ) )
 		grph.add( ( nodeInstance, lib_common.MakeProp("Mysql instance"), nodeHostMySql ) )
 
 	cgiEnv.OutCgiRdf()

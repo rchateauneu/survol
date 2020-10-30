@@ -29,7 +29,7 @@ def display_data_sources(grph):
 		# This creates a connection string.
 		nodeDsn = survol_odbc_dsn.MakeUri( "DSN=" + dsn )
 		grph.add( (lib_common.nodeMachine, pc.property_odbc_dsn, nodeDsn ) )
-		grph.add( (nodeDsn, pc.property_odbc_driver, lib_common.NodeLiteral(driver) ) )
+		grph.add( (nodeDsn, pc.property_odbc_driver, lib_util.NodeLiteral(driver) ) )
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
