@@ -5,6 +5,7 @@ System Properties
 """
 
 import sys
+lib_util
 import lib_common
 import lib_uris
 from sources_types import CIM_Process
@@ -43,9 +44,9 @@ def Main():
 			nodeDirectory = lib_common.gUriGen.DirectoryUri(dirNam)
 
 			# TODO: There should be one matrix per box.
-			# grph.add( ( nodeDirectory, lib_common.MakeProp("Property"), lib_common.NodeLiteral(keyJmxProp) ) )
+			# grph.add( ( nodeDirectory, lib_common.MakeProp("Property"), lib_util.NodeLiteral(keyJmxProp) ) )
 
-			grph.add( ( nodeDirectory, propOrder, lib_common.NodeLiteral(idxPath) ) )
+			grph.add( ( nodeDirectory, propOrder, lib_util.NodeLiteral(idxPath) ) )
 			grph.add( ( node_process, rdfProp, nodeDirectory ) )
 			idxPath += 1
 
@@ -95,7 +96,7 @@ def Main():
 		# Maybe a Java package ?????
 		# "sun.java.command"
 
-		grph.add( ( node_process, rdfProp, lib_common.NodeLiteral(valJmxProp) ) )
+		grph.add( ( node_process, rdfProp, lib_util.NodeLiteral(valJmxProp) ) )
 
 	cgiEnv.OutCgiRdf( "LAYOUT_RECT", propsMatrix)
 
