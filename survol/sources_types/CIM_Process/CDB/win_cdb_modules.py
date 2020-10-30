@@ -117,19 +117,19 @@ def Main():
 		match_lin = re.match( " *CompanyName: *(.*)", dot_line )
 		if match_lin:
 			companyName = match_lin.group(1)
-			grph.add( ( fileNode, lib_common.MakeProp("Company Name"), lib_common.NodeLiteral(companyName) ) )
+			grph.add( ( fileNode, lib_common.MakeProp("Company Name"), lib_util.NodeLiteral(companyName) ) )
 			continue
 
 		match_lin = re.match( " *File OS: *(.*)", dot_line )
 		if match_lin:
 			fileOS = match_lin.group(1)
-			grph.add( ( fileNode, lib_common.MakeProp("File OS"), lib_common.NodeLiteral(fileOS) ) )
+			grph.add( ( fileNode, lib_common.MakeProp("File OS"), lib_util.NodeLiteral(fileOS) ) )
 			continue
 
 		match_lin = re.match( " *FileDescription: *(.*)", dot_line )
 		if match_lin:
 			fileDescription = match_lin.group(1)
-			grph.add( ( fileNode, lib_common.MakeProp("Description"), lib_common.NodeLiteral(fileDescription) ) )
+			grph.add( ( fileNode, lib_common.MakeProp("Description"), lib_util.NodeLiteral(fileDescription) ) )
 			continue
 
 		# sys.stderr.write("dot_line=%s\n" % dot_line )
