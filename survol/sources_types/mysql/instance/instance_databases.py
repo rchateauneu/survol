@@ -67,7 +67,7 @@ def Main():
 		nodeMysqlDatabase = survol_mysql_database.MakeUri(instanceName,dbNam)
 
 		# Create a node for each database.
-		grph.add( ( nodeMysqlDatabase, pc.property_user, lib_common.NodeLiteral(aCred[0]) ) )
+		grph.add( ( nodeMysqlDatabase, pc.property_user, lib_util.NodeLiteral(aCred[0]) ) )
 		grph.add( ( instanceNode, propDb, nodeMysqlDatabase ) )
 
 	cursorMysql.close()

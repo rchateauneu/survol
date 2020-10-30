@@ -90,7 +90,7 @@ def Main():
 			nodeQuery = survol_mysql_query.MakeUri(instanceName,mysqlQuery)
 			grph.add( (sessionNode, lib_common.MakeProp("Mysql query"), nodeQuery ) )
 
-		grph.add( (sessionNode, lib_common.MakeProp("User"), lib_common.NodeLiteral(mysqlUser) ) )
+		grph.add( (sessionNode, lib_common.MakeProp("User"), lib_util.NodeLiteral(mysqlUser) ) )
 
 		grph.add( ( sessionNode, lib_common.MakeProp("Mysql session"), instanceNode ) )
 
