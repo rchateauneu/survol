@@ -94,9 +94,9 @@ def Main():
 
 		nodeMysqlTable = survol_mysql_table.MakeUri(hostname,dbNam, tableNam)
 
-		grph.add( (nodeMysqlTable, lib_common.MakeProp("Table type"), lib_common.NodeLiteral(tabInfo[3]) ) )
-		grph.add( (nodeMysqlTable, lib_common.MakeProp("Engine"), lib_common.NodeLiteral(tabInfo[4]) ) )
-		grph.add( (nodeMysqlTable, pc.property_information, lib_common.NodeLiteral(tabInfo[20]) ) )
+		grph.add( (nodeMysqlTable, lib_common.MakeProp("Table type"), lib_util.NodeLiteral(tabInfo[3]) ) )
+		grph.add( (nodeMysqlTable, lib_common.MakeProp("Engine"), lib_util.NodeLiteral(tabInfo[4]) ) )
+		grph.add( (nodeMysqlTable, pc.property_information, lib_util.NodeLiteral(tabInfo[20]) ) )
 
 		grph.add( ( nodeMysqlDatabase, propTable, nodeMysqlTable ) )
 

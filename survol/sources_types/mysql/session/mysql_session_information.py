@@ -84,10 +84,10 @@ def Main():
 			pass
 
 		mysqlDB = sessInfo[3]
-		grph.add( (sessionNode, lib_common.MakeProp("Database"), lib_common.NodeLiteral(mysqlDB) ) )
+		grph.add( (sessionNode, lib_common.MakeProp("Database"), lib_util.NodeLiteral(mysqlDB) ) )
 
 		mysqlTime = sessInfo[5]
-		grph.add( (sessionNode, lib_common.MakeProp("Time"), lib_common.NodeLiteral(mysqlTime) ) )
+		grph.add( (sessionNode, lib_common.MakeProp("Time"), lib_util.NodeLiteral(mysqlTime) ) )
 
 		# If there is a running query, then display it.
 		mysqlCommand = sessInfo[4]
@@ -98,11 +98,11 @@ def Main():
 			nodeQuery = survol_mysql_query.MakeUri(instanceName,mysqlQuery)
 			grph.add( (sessionNode, lib_common.MakeProp("Mysql query"), nodeQuery ) )
 
-		grph.add( (sessionNode, lib_common.MakeProp("Command"), lib_common.NodeLiteral(mysqlCommand) ) )
+		grph.add( (sessionNode, lib_common.MakeProp("Command"), lib_util.NodeLiteral(mysqlCommand) ) )
 
-		grph.add( (sessionNode, lib_common.MakeProp("State"), lib_common.NodeLiteral(mysqlState) ) )
+		grph.add( (sessionNode, lib_common.MakeProp("State"), lib_util.NodeLiteral(mysqlState) ) )
 
-		grph.add( (sessionNode, lib_common.MakeProp("User"), lib_common.NodeLiteral(mysqlUser) ) )
+		grph.add( (sessionNode, lib_common.MakeProp("User"), lib_util.NodeLiteral(mysqlUser) ) )
 
 		grph.add( ( sessionNode, lib_common.MakeProp("Mysql session"), instanceNode ) )
 
