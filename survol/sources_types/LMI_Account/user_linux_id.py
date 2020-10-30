@@ -76,13 +76,13 @@ def Main():
 
 	user_id = parse_id_name(first_split[0])[0]
 
-	grph.add((user_node, pc.property_userid, lib_common.NodeLiteral(user_id)))
+	grph.add((user_node, pc.property_userid, lib_util.NodeLiteral(user_id)))
 
 	for grp_str in first_split[2].split(b','):
 		sys.stderr.write("grp_str=%s\n" % grp_str)
 		(group_id, group_name) = parse_id_name(grp_str)
 		grpNode = lib_common.gUriGen.GroupUri(group_name)
-		grph.add( ( grpNode, pc.property_groupid, lib_common.NodeLiteral(group_id)))
+		grph.add( ( grpNode, pc.property_groupid, lib_util.NodeLiteral(group_id)))
 		grph.add( ( user_node, pc.property_group, grpNode))
 
 	cgiEnv.OutCgiRdf()

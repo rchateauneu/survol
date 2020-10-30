@@ -3,6 +3,7 @@ Unix-like user account
 """
 
 import sys
+import lib_util
 import lib_common
 from lib_properties import pc
 
@@ -28,7 +29,7 @@ def LoadEtcPasswd():
 		splitLin = lin.split(':')
 
 		# Comments might contain UTF8 accents.
-		# grph.add( ( userNode, pc.property_information, lib_common.NodeLiteral( splitLin[4].encode('utf-8') ) ) )
+		# grph.add( ( userNode, pc.property_information, lib_util.NodeLiteral( splitLin[4].encode('utf-8') ) ) )
 		try:
 			txt = splitLin[4].encode('utf-8')
 		except UnicodeDecodeError:
@@ -48,7 +49,7 @@ def AddInfo(grph,node,entity_ids_arr):
 		# "postfix:x:105:109::/var/spool/postfix:/bin/false"
 		usrComment = userSplit[4].strip()
 		if usrComment:
-			grph.add( ( node, pc.property_information, lib_common.NodeLiteral( usrComment ) ) )
+			grph.add( ( node, pc.property_information, lib_util.NodeLiteral( usrComment ) ) )
 
 		# We insert this link to the home directory because it should not
 		# imply an access to the file itself, so it cannot fail.
@@ -58,4 +59,4 @@ def AddInfo(grph,node,entity_ids_arr):
 		grph.add( ( node, pc.property_directory, homeDirNode ) )
 
 	except KeyError:
-		grph.add( ( node, pc.property_information, lib_common.NodeLiteral( "No information available" ) ) )
+		grph.add( ( node, pc.property_information, lib_util.NodeLiteral( "No information available" ) ) )
