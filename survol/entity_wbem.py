@@ -143,7 +143,7 @@ def Main():
     kla_descrip = lib_wbem.WbemClassDescription(conn, class_name, name_space)
     if not kla_descrip:
         kla_descrip = "Undefined class %s %s" % (name_space, class_name)
-    grph.add((root_node, pc.property_information, lib_common.NodeLiteral(kla_descrip)))
+    grph.add((root_node, pc.property_information, lib_util.NodeLiteral(kla_descrip)))
 
     split_monik = lib_util.SplitMoniker(cgiEnv.m_entity_id)
 
@@ -208,7 +208,7 @@ def Main():
             iname_val = dict_inst[iname_key]
             # TODO: If this is a reference, create a Node !!!!!!!
             if not iname_val is None:
-                grph.add((uri_inst, lib_common.MakeProp(iname_key), lib_common.NodeLiteral(iname_val)))
+                grph.add((uri_inst, lib_common.MakeProp(iname_key), lib_util.NodeLiteral(iname_val)))
 
         # TODO: Should call Associators(). Same for References().
 
