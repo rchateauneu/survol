@@ -5,6 +5,7 @@ Sessions in SQL Server database (ODBC)
 """
 
 import sys
+import lib_util
 import lib_common
 from lib_properties import pc
 from sources_types.odbc import dsn as survol_odbc_dsn
@@ -54,21 +55,21 @@ def Main():
 
 			if rowSess.host_process_id:
 				node_process = lib_common.RemoteBox(rowSess.host_name).PidUri(rowSess.host_process_id)
-				grph.add((node_process, pc.property_pid, lib_common.NodeLiteral(rowSess.host_process_id)))
+				grph.add((node_process, pc.property_pid, lib_util.NodeLiteral(rowSess.host_process_id)))
 				grph.add((nodeSession, propSqlServerHostProcess, node_process))
 
 			if rowSess.program_name:
-				grph.add((nodeSession, propSqlServerProgramName, lib_common.NodeLiteral(rowSess.program_name)))
+				grph.add((nodeSession, propSqlServerProgramName, lib_util.NodeLiteral(rowSess.program_name)))
 			if rowSess.client_interface_name:
-				grph.add((nodeSession, propSqlServerClientInterface, lib_common.NodeLiteral(rowSess.client_interface_name)))
+				grph.add((nodeSession, propSqlServerClientInterface, lib_util.NodeLiteral(rowSess.client_interface_name)))
 
 			# TODO: Make nodes with these:
 			if rowSess.original_login_name:
-				grph.add((nodeSession, propSqlServerOriginalLoginName, lib_common.NodeLiteral(rowSess.original_login_name)))
+				grph.add((nodeSession, propSqlServerOriginalLoginName, lib_util.NodeLiteral(rowSess.original_login_name)))
 			if rowSess.nt_domain:
-				grph.add((nodeSession, propSqlServerNTDomain, lib_common.NodeLiteral(rowSess.nt_domain)))
+				grph.add((nodeSession, propSqlServerNTDomain, lib_util.NodeLiteral(rowSess.nt_domain)))
 			if rowSess.nt_user_name:
-				grph.add((nodeSession, propSqlServerNTUserName, lib_common.NodeLiteral(rowSess.nt_user_name)))
+				grph.add((nodeSession, propSqlServerNTUserName, lib_util.NodeLiteral(rowSess.nt_user_name)))
 
 	except Exception:
 		exc = sys.exc_info()[0]
