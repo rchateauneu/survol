@@ -40,7 +40,7 @@ def Main():
 	listNotes = readelf.display_notes()
 	for pr in listNotes:
 		infoMsg = pr[0] + ":" + pr[1]
-		grph.add( ( nodeSharedLib, pc.property_information, lib_common.NodeLiteral(infoMsg) ) )
+		grph.add( ( nodeSharedLib, pc.property_information, lib_util.NodeLiteral(infoMsg) ) )
 
 	listSyms, setClasses = readelf.display_symbol_tables()
 
@@ -86,7 +86,7 @@ def Main():
 
 			# symNod = lib_common.gUriGen.SymbolUri( lib_util.EncodeUri(sym.m_name), fileSharedLib )
 			symNod = lib_common.gUriGen.SymbolUri( sym.m_name_demang, fileSharedLib )
-			grph.add( ( symNod, lib_common.MakeProp("Version"), lib_common.NodeLiteral(sym.m_vers) ) )
+			grph.add( ( symNod, lib_common.MakeProp("Version"), lib_util.NodeLiteral(sym.m_vers) ) )
 			if lenSplit > 1:
 				clsNod = ClassToNode( sym.m_splt, lenSplit - 1 )
 				grph.add( ( clsNod, pc.property_symbol_defined, symNod ) )

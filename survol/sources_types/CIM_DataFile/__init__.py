@@ -40,7 +40,7 @@ def AddMagic(grph, file_node, file_name):
 		ms.load()
 		mtype = ms.file(file_name)
 		ms.close()
-		grph.add((file_node, pc.property_information, lib_common.NodeLiteral(mtype)))
+		grph.add((file_node, pc.property_information, lib_util.NodeLiteral(mtype)))
 	except TypeError:
 		DEBUG("Type error:%s", file_name)
 		return
@@ -49,14 +49,14 @@ def AddMagic(grph, file_node, file_name):
 # Transforms a "stat" date into something which can be printed.
 def _int_to_date_literal(time_stamp):
 	dtStr = datetime.datetime.fromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
-	return lib_common.NodeLiteral(dtStr)
+	return lib_util.NodeLiteral(dtStr)
 
 
 # Adds to the node of a file some information taken from a call to stat().
 def AddStatNode(grph, file_node, info_stat):
 	# st_size: size of file, in bytes. The SI unit is mentioned.
 	siz_unit = lib_util.AddSIUnit(info_stat.st_size, "B")
-	grph.add((file_node, pc.property_file_size, lib_common.NodeLiteral(siz_unit)))
+	grph.add((file_node, pc.property_file_size, lib_util.NodeLiteral(siz_unit)))
 
 	grph.add((file_node, pc.property_last_access, _int_to_date_literal(info_stat.st_atime)))
 	grph.add((file_node, pc.property_last_change, _int_to_date_literal(info_stat.st_mtime)))
@@ -70,7 +70,7 @@ def AddStat(grph, file_node, file_name):
 	except Exception as exc:
 		# If there is an error, displays the message.
 		msg = str(exc)
-		grph.add((file_node, pc.property_information, lib_common.NodeLiteral(msg)))
+		grph.add((file_node, pc.property_information, lib_util.NodeLiteral(msg)))
 
 
 # BEWARE: This link always as a literal. So it is simpler to display in an embedded HTML table.
@@ -163,14 +163,14 @@ def AddFileProperties(grph, current_node, current_filename):
 				# 169	251	A9	10101001	"Copyright"	&#169;	&copy;	Copyright sign
 				# Might contain this: "LegalCopyright Copyright \u00a9 2010"
 				val = val.replace("\\","\\\\")
-			grph.add((current_node, lib_common.MakeProp(prp), lib_common.NodeLiteral(val)))
+			grph.add((current_node, lib_common.MakeProp(prp), lib_util.NodeLiteral(val)))
 	except ImportError:
 		pass
 
 	file_mime_type = lib_mime.FilenameToMime(current_filename)
 	if file_mime_type:
 		if file_mime_type[0]:
-			grph.add((current_node, lib_common.MakeProp("Mime type"), lib_common.NodeLiteral(str(file_mime_type))))
+			grph.add((current_node, lib_common.MakeProp("Mime type"), lib_util.NodeLiteral(str(file_mime_type))))
 
 
 def AffFileOwner(grph, file_node, file_name):
@@ -209,7 +209,7 @@ def AffFileOwner(grph, file_node, file_name):
 			sd = win32security.GetFileSecurity (file_name, win32security.OWNER_SECURITY_INFORMATION)
 		except Exception as exc:
 			msg = str(exc)
-			grph.add((file_node, pc.property_owner, lib_common.NodeLiteral(msg)))
+			grph.add((file_node, pc.property_owner, lib_util.NodeLiteral(msg)))
 			return
 
 		owner_sid = sd.GetSecurityDescriptorOwner ()
@@ -228,8 +228,8 @@ def AffFileOwner(grph, file_node, file_name):
 			account_node = Win32_UserAccount.MakeUri(account_name, domain_name)
 
 		# TODO: What can we do with the domain ?
-		grph.add((account_node, lib_common.MakeProp("Domain"), lib_common.NodeLiteral(domain_name)))
-		grph.add((account_node, lib_common.MakeProp("SID"), lib_common.NodeLiteral(typNam)))
+		grph.add((account_node, lib_common.MakeProp("Domain"), lib_util.NodeLiteral(domain_name)))
+		grph.add((account_node, lib_common.MakeProp("SID"), lib_util.NodeLiteral(typNam)))
 		grph.add((file_node, pc.property_owner, account_node))
 
 

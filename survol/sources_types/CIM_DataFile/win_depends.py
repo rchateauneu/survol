@@ -104,7 +104,7 @@ def Main():
         if linargs[0] != '?':
             cpu = linargs[8]
             if cpu not in ["", "CPU"]:
-                grph.add((node_dll, pc.property_library_cpu, lib_common.NodeLiteral(cpu)))
+                grph.add((node_dll, pc.property_library_cpu, lib_util.NodeLiteral(cpu)))
 
     # Temporary file removed by constructor.
     input_file.close()

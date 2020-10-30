@@ -66,7 +66,7 @@ def Main():
 
 			for oneStr in matchedStrs:
 				cntOccur += 1
-				grph.add( ( nodeFile, pc.property_string_occurrence, lib_common.NodeLiteral( oneStr + ";" + str(cntLines) + ";" + str(cntOccur) ) ) )
+				grph.add( ( nodeFile, pc.property_string_occurrence, lib_util.NodeLiteral( oneStr + ";" + str(cntLines) + ";" + str(cntOccur) ) ) )
 
 				# TODO: Add intermediary node, counts the number of occurrences.
 		opFil.close()

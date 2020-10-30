@@ -40,7 +40,7 @@ class EnvPeFile:
 			#sys.stderr.write("filNam=%s\n"%filNam)
 			rootNode = lib_common.gUriGen.FileUri( filNam )
 			versStr = lib_win32.VersionString(filNam)
-			self.grph.add( ( rootNode, pc.property_information, lib_common.NodeLiteral(versStr) ) )
+			self.grph.add( ( rootNode, pc.property_information, lib_util.NodeLiteral(versStr) ) )
 			self.cache_dll_to_imports[filNamLower] = rootNode
 
 			if maxLevel == 0:

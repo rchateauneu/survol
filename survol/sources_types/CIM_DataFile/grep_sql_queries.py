@@ -74,7 +74,7 @@ def Main():
 				# TODO: For the moment, we just print the query. How can it be related to a database ?
 				for sqlQry in matchedSqls:
 					# grph.add( ( node_process, pc.property_rdf_data_nolist1, nodePortalWbem ) )
-					grph.add( ( nodeFile, rgxProp, lib_common.NodeLiteral(sqlQry) ) )
+					grph.add( ( nodeFile, rgxProp, lib_util.NodeLiteral(sqlQry) ) )
 			opFil.close()
 
 	except Exception:

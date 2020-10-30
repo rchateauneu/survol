@@ -69,9 +69,9 @@ def Main():
 
 			symNod = lib_common.gUriGen.SymbolUri( ii_funcName, ieOtherDllPath )
 
-			grph.add( ( symNod, lib_common.MakeProp("plt"), lib_common.NodeLiteral(ii_plt) ) )
-			grph.add( ( symNod, lib_common.MakeProp("type"), lib_common.NodeLiteral(ii_type) ) )
-			grph.add( ( symNod, lib_common.MakeProp("bind"), lib_common.NodeLiteral(ii_bind) ) )
+			grph.add( ( symNod, lib_common.MakeProp("plt"), lib_util.NodeLiteral(ii_plt) ) )
+			grph.add( ( symNod, lib_common.MakeProp("type"), lib_util.NodeLiteral(ii_type) ) )
+			grph.add( ( symNod, lib_common.MakeProp("bind"), lib_util.NodeLiteral(ii_bind) ) )
 			grph.add( ( nodeExeOrDll, pc.property_symbol_defined, symNod ) )
 
 	cgiEnv.OutCgiRdf("LAYOUT_RECT",[ pc.property_symbol_defined ] )
