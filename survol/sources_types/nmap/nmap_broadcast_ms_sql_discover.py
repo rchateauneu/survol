@@ -92,14 +92,14 @@ def Main():
 			machNam = reMach.group(2)
 
 			nodeHost = lib_common.gUriGen.HostnameUri( machNam )
-			grph.add( ( nodeHost, lib_common.MakeProp("IP address"), lib_common.NodeLiteral( machIp ) ) )
+			grph.add( ( nodeHost, lib_common.MakeProp("IP address"), lib_util.NodeLiteral( machIp ) ) )
 		else:
 			nodeHost = lib_common.gUriGen.HostnameUri( theMachFull )
 			machIp = None
 			machNam = theMachFull
 
 		theNameDB = arrSplit[1].strip()
-		grph.add( ( nodeHost, lib_common.MakeProp("Sql server instance"), lib_common.NodeLiteral( theNameDB ) ) )
+		grph.add( ( nodeHost, lib_common.MakeProp("Sql server instance"), lib_util.NodeLiteral( theNameDB ) ) )
 
 		tcpPort = None
 		srvName = None
@@ -118,7 +118,7 @@ def Main():
 			if len(oneSplit) > 1:
 				oneVal = ":".join(oneSplit[1:])
 				# In case there would be more than one ":"
-				grph.add( ( nodeHost, lib_common.MakeProp(oneKey), lib_common.NodeLiteral( oneVal ) ) )
+				grph.add( ( nodeHost, lib_common.MakeProp(oneKey), lib_util.NodeLiteral( oneVal ) ) )
 				if oneKey == "TCP port":
 					tcpPort = oneVal
 				elif oneKey == "Name":
@@ -126,7 +126,7 @@ def Main():
 				else:
 					pass
 			else:
-				grph.add( ( nodeHost, pc.property_information, lib_common.NodeLiteral(oneKey) ) )
+				grph.add( ( nodeHost, pc.property_information, lib_util.NodeLiteral(oneKey) ) )
 
 
 

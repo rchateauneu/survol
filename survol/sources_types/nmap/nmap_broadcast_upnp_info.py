@@ -138,7 +138,7 @@ def Main():
 					# The value is something like "http://192.168.0.14:62240/"
 					grph.add( ( nodeHost, lib_common.MakeProp(aKey), lib_common.NodeUrl( aVal ) ) )
 				else:
-					grph.add( ( nodeHost, lib_common.MakeProp(aKey), lib_common.NodeLiteral( aVal ) ) )
+					grph.add( ( nodeHost, lib_common.MakeProp(aKey), lib_util.NodeLiteral( aVal ) ) )
 			else:
 				# TODO: Should translate the IP address into the machine name.
 				machIp = oneSplit[0]
@@ -147,12 +147,12 @@ def Main():
 					machName = socket.gethostbyaddr(machIp)[0]
 					nodeHost = lib_common.gUriGen.HostnameUri( machName )
 					if machName != machIp:
-						grph.add( ( nodeHost, pc.property_ip_addr, lib_common.NodeLiteral( machIp ) ) )
+						grph.add( ( nodeHost, pc.property_ip_addr, lib_util.NodeLiteral( machIp ) ) )
 				except:
 					# If unknown host or any other problem.
 					exc = sys.exc_info()[1]
 					nodeHost = lib_common.gUriGen.HostnameUri( machIp )
-					grph.add( ( nodeHost, pc.property_information, lib_common.NodeLiteral( str(exc) ) ) )
+					grph.add( ( nodeHost, pc.property_information, lib_util.NodeLiteral( str(exc) ) ) )
 
 
 	cgiEnv.OutCgiRdf()

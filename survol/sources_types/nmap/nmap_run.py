@@ -56,7 +56,7 @@ def Main():
 		for dhostname in dhost.getElementsByTagName('hostname'):
 			hostnam = dhostname.getAttributeNode('name').value
 		#	print("        hostnam="+hostnam)
-			grph.add( ( nodeHost, pc.property_hostname, lib_common.NodeLiteral( hostnam ) ) )
+			grph.add( ( nodeHost, pc.property_hostname, lib_util.NodeLiteral( hostnam ) ) )
 
 		#for dstatus in dhost.getElementsByTagName('status'):
 			# status : up...
@@ -72,11 +72,11 @@ def Main():
 			if not isGraphDisplay:
 				state = dport.getElementsByTagName('state')[0].getAttributeNode('state').value
 				#sys.stderr.write("state="+state+"\n")
-				grph.add( ( socketNode, lib_common.MakeProp("State"), lib_common.NodeLiteral(state) ) )
+				grph.add( ( socketNode, lib_common.MakeProp("State"), lib_util.NodeLiteral(state) ) )
 				
 				reason = dport.getElementsByTagName('state')[0].getAttributeNode('reason').value
 				#sys.stderr.write("reason="+reason)
-				grph.add( ( socketNode, lib_common.MakeProp("Reason"), lib_common.NodeLiteral(reason) ) )
+				grph.add( ( socketNode, lib_common.MakeProp("Reason"), lib_util.NodeLiteral(reason) ) )
 				# name if any
 				#for dname in dport.getElementsByTagName('service'):
 				#	name = dname.getAttributeNode('name').value
