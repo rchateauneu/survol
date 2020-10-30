@@ -1,5 +1,6 @@
 import os
 import sys
+import lib_util
 import lib_common
 from lib_properties import pc
 
@@ -55,6 +56,6 @@ def ComKeyLastName(result):
 def CreateComRegisteredTypeLibNode( grph, key, name, version ):
 	typelibNode = lib_common.gUriGen.ComRegisteredTypeLibUri( key )
 	strTypLibName = "%s / %.1f" % ( name , version )
-	grph.add( (typelibNode, pc.property_information, lib_common.NodeLiteral(strTypLibName) ) )
+	grph.add( (typelibNode, pc.property_information, lib_util.NodeLiteral(strTypLibName) ) )
 
 	return typelibNode
