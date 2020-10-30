@@ -97,7 +97,7 @@ def AddInfo(grph,node,entity_ids_arr):
 		cnxn = pyodbc.connect(ODBC_ConnectString)
 	except:
 		exc = sys.exc_info()[1]
-		grph.add( ( node, pc.property_information, lib_common.NodeLiteral(str(exc)) ) )
+		grph.add( ( node, pc.property_information, lib_util.NodeLiteral(str(exc)) ) )
 		return
 
 	dbEntityType = GetDatabaseEntityTypeFromConnection(cnxn)
@@ -117,7 +117,7 @@ def AddInfo(grph,node,entity_ids_arr):
 		grph.add( ( node, pc.property_sqlserver_db, node_sqlserverdb ) )
 		DEBUG("AddInfo dbEntityType=%s ADDING NODE", dbEntityType )
 
-		#grph.add( ( node, pc.property_pid, lib_common.NodeLiteral(pidProc) ) )
+		#grph.add( ( node, pc.property_pid, lib_util.NodeLiteral(pidProc) ) )
 
 # TODO: Maybe should decode ????
 def GetDsnNameFromCgi(cgiEnv):
