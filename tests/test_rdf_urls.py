@@ -7,6 +7,7 @@ from __future__ import print_function
 
 import os
 import sys
+import socket
 import unittest
 import rdflib
 import io
@@ -15,6 +16,22 @@ import lib_properties
 from lib_properties import pc
 
 from init import *
+
+_current_machine = socket.gethostname()
+
+def _check_script_rdf(self, agent_url, script_suffix):
+    """This runs a URL and returns the result as a rdflib graph"""
+    full_url = agent_url + script_suffix
+    if full_url.find("?") >= 0:
+        full_url += "&mode=rdf"
+    else:
+        full_url += "?mode=rdf"
+    print("full_url=", full_url)
+    # Some scripts take a long time to run.
+    rdf_url_response = portable_urlopen(full_url, timeout=30)
+    rdf_content = rdf_url_response.read()  # Py3:bytes, Py2:str
+    result_graph = rdflib.Graph().parse(data=rdf_content, format="application/rdf+xml")
+    return result_graph
 
 
 class RdfLocalAgentTest(unittest.TestCase):
@@ -31,18 +48,7 @@ class RdfLocalAgentTest(unittest.TestCase):
         stop_cgiserver(self._remote_rdf_test_agent)
 
     def _check_script(self, script_suffix):
-        """This runs a URL and returns the result as a rdflib graph"""
-        full_url = self._agent_url + script_suffix
-        if full_url.find("?") >= 0:
-            full_url += "&mode=rdf"
-        else:
-            full_url += "?mode=rdf"
-        print("full_url=", full_url)
-        # Some scripts take a long time to run.
-        rdf_url_response = portable_urlopen(full_url, timeout=30)
-        rdf_content = rdf_url_response.read()  # Py3:bytes, Py2:str
-        result_graph = rdflib.Graph().parse(data=rdf_content, format="application/rdf+xml")
-        return result_graph
+        return _check_script_rdf(self, self._agent_url, script_suffix)
 
     @unittest.skipIf(not is_platform_windows, "Windows only")
     def test_rdf_SMB_net_share(self):
@@ -304,6 +310,96 @@ class MimeWindowsResourceIconsTest(unittest.TestCase):
             self.assertEqual(img.format, "BMP")
             self.assertEqual(img.mode, "RGB")
             self.assertEqual(img.size, (256, 256))
+
+
+@unittest.skipIf(not is_platform_windows, "Windows only")
+class CIM_ComputerSystem_Win32Test(unittest.TestCase):
+    def setUp(self):
+        # If a Survol agent does not run on this machine with this port, this script starts a local one.
+        self._remote_rdf_test_agent, self._agent_url = start_cgiserver(RemoteRdf0TestServerPort)
+        print("AgentUrl=", self._agent_url)
+
+    def tearDown(self):
+        stop_cgiserver(self._remote_rdf_test_agent)
+
+    def _check_script(self, script_suffix):
+        return _check_script_rdf(self, self._agent_url, script_suffix)
+
+    def test_win32_NetSessionEnum(self):
+        """Test of win32_NetSessionEnum.py"""
+
+        win32_NetSessionEnum_result = self._check_script(
+            "/survol/sources_types/CIM_ComputerSystem/Win32/win32_NetSessionEnum.py?xid=CIM_ComputerSystem.Name=%s"
+            % _current_machine)
+
+        print("win32_NetSessionEnum_result=", win32_NetSessionEnum_result)
+
+    def test_win32_NetShareEnum(self):
+        """Test of win32_NetShareEnum.py"""
+
+        win32_NetShareEnum_result = self._check_script(
+            "/survol/sources_types/CIM_ComputerSystem/Win32/win32_NetShareEnum.py?xid=CIM_ComputerSystem.Name=%s"
+            % _current_machine)
+
+        print("win32_NetShareEnum_result=", win32_NetShareEnum_result)
+
+    def test_win32_NetUserEnum(self):
+        """Test of win32_NetUserEnum.py"""
+
+        win32_NetUserEnum_result = self._check_script(
+            "/survol/sources_types/CIM_ComputerSystem/Win32/win32_NetUserEnum.py?xid=CIM_ComputerSystem.Name=%s"
+            % _current_machine)
+
+        print("win32_NetUserEnum_result=", win32_NetUserEnum_result)
+
+    def test_win32_domain_machines(self):
+        """Test of win32_domain_machines.py"""
+
+        win32_domain_machines_result = self._check_script(
+            "/survol/sources_types/CIM_ComputerSystem/Win32/win32_domain_machines.py?xid=CIM_ComputerSystem.Name=%s"
+            % _current_machine)
+
+        print("win32_domain_machines_result=", win32_domain_machines_result)
+
+    def test_win32_host_local_groups(self):
+        """Test of win32_host_local_groups.py"""
+
+        win32_host_local_groups_result = self._check_script(
+            "/survol/sources_types/CIM_ComputerSystem/Win32/win32_host_local_groups.py?xid=CIM_ComputerSystem.Name=%s"
+            % _current_machine)
+
+        print("win32_host_local_groups_result=", win32_host_local_groups_result)
+
+    def test_win32_hostname_services(self):
+        """Test of win32_hostname_services.py"""
+
+        win32_hostname_services_result = self._check_script(
+            "/survol/sources_types/CIM_ComputerSystem/Win32/win32_hostname_services.py?xid=CIM_ComputerSystem.Name=%s"
+            % _current_machine)
+
+        print("win32_hostname_services_result=", win32_hostname_services_result)
+
+
+class CIM_ComputerSystem_JavaTest(unittest.TestCase):
+    def setUp(self):
+        # If a Survol agent does not run on this machine with this port, this script starts a local one.
+        self._remote_rdf_test_agent, self._agent_url = start_cgiserver(RemoteRdf0TestServerPort)
+        print("AgentUrl=", self._agent_url)
+
+    def tearDown(self):
+        stop_cgiserver(self._remote_rdf_test_agent)
+
+    def _check_script(self, script_suffix):
+        return _check_script_rdf(self, self._agent_url, script_suffix)
+
+    def test_rmi_registry(self):
+        """Test of rmi_registry.py"""
+
+        rmi_registry_result = self._check_script(
+            "/survol/sources_types/CIM_ComputerSystem/java/rmi_registry.py?xid=CIM_ComputerSystem.Name=%s"
+            % _current_machine)
+
+        print("rmi_registry_result=", rmi_registry_result)
 
 
 if __name__ == '__main__':
