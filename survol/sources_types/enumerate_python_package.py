@@ -58,7 +58,7 @@ def Main():
 			continue
 
 		packageNode = KeyToPckgNode( pckg.key )
-		grph.add( ( packageNode, package.propPythonVersion, lib_common.NodeLiteral(pckg.version) ) )
+		grph.add( ( packageNode, package.propPythonVersion, lib_util.NodeLiteral(pckg.version) ) )
 
 		reqPckg = pckg.requires()
 		if reqPckg:
@@ -69,7 +69,7 @@ def Main():
 				# [('>=', '4.0.0')]+[]+[('>=','4.0')]+[]
 				# aSpecs = subReq.specs
 				# if aSpecs:
-				#	grph.add( (subNode, lib_common.MakeProp("Condition"), lib_common.NodeLiteral( str(aSpecs) ) ) )
+				#	grph.add( (subNode, lib_common.MakeProp("Condition"), lib_util.NodeLiteral( str(aSpecs) ) ) )
 
 				grph.add( (packageNode, package.propPythonRequires, subNode ) )
 		else:

@@ -6,6 +6,7 @@ System-wide sockets
 
 import sys
 import psutil
+import lib_util
 import lib_common
 from sources_types import CIM_Process
 from sources_types import addr as survol_addr
@@ -44,7 +45,7 @@ def Main():
 
 				# Not sure this is the best plmace to add this edge.
 				grph.add( ( node_process, pc.property_host, lib_common.nodeMachine ) )
-				grph.add( ( node_process, pc.property_pid, lib_common.NodeLiteral(pid) ) )
+				grph.add( ( node_process, pc.property_pid, lib_util.NodeLiteral(pid) ) )
 
 				# Les deux fonctionnent sous Linux mais verifier sous Windows.
 				# Un peu plus lent en asynchrone si peu de sockets;
