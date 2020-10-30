@@ -110,7 +110,7 @@ def Main():
 		parent_node_process = PidToNode(processProperties.ParentProcessId)
 
 		grph.add( ( node_process, pc.property_ppid, parent_node_process ) )
-		#grph.add( ( node_process, pc.property_pid, lib_common.NodeLiteral(processProperties.ProcessId) ) )
+		#grph.add( ( node_process, pc.property_pid, lib_util.NodeLiteral(processProperties.ProcessId) ) )
 
 		# Si on laisse faire le code, ca va afficher:
 		# No such process:1292 at Titi
@@ -133,14 +133,14 @@ def Main():
 		# dowsVersion = "6.3.9600";\n\tWorkingSetSize = "4096";\n\tWriteOperationCount = "0";\n\tWriteTransferCount = "0";\n};\n'
 
 
-		grph.add( ( node_process, pc.property_information, lib_common.NodeLiteral(processProperties.Caption) ) )
+		grph.add( ( node_process, pc.property_information, lib_util.NodeLiteral(processProperties.Caption) ) )
 		if processProperties.Caption != processProperties.Description:
-			grph.add( ( node_process, lib_common.MakeProp("Description"), lib_common.NodeLiteral(processProperties.Description) ) )
+			grph.add( ( node_process, lib_common.MakeProp("Description"), lib_util.NodeLiteral(processProperties.Description) ) )
 
 		# AJOUTER LE LIEN WMI ICI ET DANS LA PAGE http://127.0.0.1:8000/survol/entity.py?xid=Titi@CIM_Process.Handle=6344
 
 		# All the rest is not needed yet, there would be too much things to display.
-		#grph.add( ( node_process, pc.property_command, lib_common.NodeLiteral(process.CommandLine) ) )
+		#grph.add( ( node_process, pc.property_command, lib_util.NodeLiteral(process.CommandLine) ) )
 		#
 		#exec_name = process.ExecutablePath
 		#if exec_name != None:

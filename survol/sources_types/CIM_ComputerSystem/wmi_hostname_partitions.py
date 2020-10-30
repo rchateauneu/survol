@@ -142,7 +142,7 @@ def Main():
 
 	for physical_disk in cnnct.Win32_DiskDrive ():
 		node_disk = serverBox.DiskUri( physical_disk.Name.replace('\\','/') )
-		grph.add( ( node_disk, pc.property_information, lib_common.NodeLiteral( physical_disk.MediaType ) ) )
+		grph.add( ( node_disk, pc.property_information, lib_util.NodeLiteral( physical_disk.MediaType ) ) )
 
 		for partition in physical_disk.associators ("Win32_DiskDriveToDiskPartition"):
 			for logical_disk in partition.associators ("Win32_LogicalDiskToPartition"):
@@ -150,9 +150,9 @@ def Main():
 				# This is not really important for this application,
 				# as long as there are two levels in a disk description.
 				node_partition = serverBox.DiskPartitionUri( logical_disk.Name )
-				grph.add( ( node_partition, pc.property_information, lib_common.NodeLiteral( logical_disk.Description ) ) )
+				grph.add( ( node_partition, pc.property_information, lib_util.NodeLiteral( logical_disk.Description ) ) )
 
-				grph.add( ( node_partition, pc.property_file_system_type, lib_common.NodeLiteral(logical_disk.FileSystem) ) )
+				grph.add( ( node_partition, pc.property_file_system_type, lib_util.NodeLiteral(logical_disk.FileSystem) ) )
 
 				# The logical disk name is the same as the mount point.
 				grph.add( ( node_partition, pc.property_partition, node_disk ) )
