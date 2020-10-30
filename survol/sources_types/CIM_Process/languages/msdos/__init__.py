@@ -36,11 +36,9 @@ def Usable(entity_type, entity_ids_arr):
     #
 
     # For all of these command lines, the path is always: "C:\Windows\System32\cmd.exe"
-    try:
-        proc_name = CIM_Process.PsutilProcToName(proc_obj)
-    except Exception as exc:
-        sys.stderr.write("Cannot get proc of:%s => %s\n" % (str(proc_obj), exc))
+    proc_executable, error_message = CIM_Process.PsutilProcToExe(proc_obj)
+    sys.stderr.write("proc_executable:%s\n" % proc_executable)
 
-    return proc_name.endswith("cmd.exe")
+    return proc_executable.endswith("cmd.exe")
 
 
