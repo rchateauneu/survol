@@ -131,7 +131,7 @@ def Main():
 	root_node = _class_to_node(wmi_namespace, cimom_url, entity_type)
 
 	# rootNodeNameSpace = _wmi_namespace_node(entity_type)
-	# grph.add( ( root_node, pc.property_rdf_data_nolist2, lib_common.NodeLiteral(rootNodeNameSpace) ) )
+	# grph.add( ( root_node, pc.property_rdf_data_nolist2, lib_util.NodeLiteral(rootNodeNameSpace) ) )
 	# def EntityClassNode(entity_type, entity_namespace = "", entity_host = "", category = ""):
 	root_generalised_class = lib_util.EntityClassNode(entity_type, wmi_namespace, cimom_url, "WMI")
 	grph.add((root_node, pc.property_rdf_data_nolist2, root_generalised_class))

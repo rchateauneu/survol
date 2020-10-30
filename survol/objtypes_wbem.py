@@ -10,116 +10,125 @@ import lib_wbem
 import lib_common
 from lib_properties import pc
 
-def WbemNamespaceNode( wbemNamespace, cimomUrl, clsNam ):
-	wbemUrl = lib_wbem.NamespaceUrl( wbemNamespace, cimomUrl, clsNam )
-	return lib_common.NodeUrl( wbemUrl )
+
+def _wbem_namespace_node(wbem_namespace, cimom_url, cls_nam):
+    wbemUrl = lib_wbem.NamespaceUrl(wbem_namespace, cimom_url, cls_nam)
+    return lib_common.NodeUrl(wbemUrl)
+
 
 # http://pywbem.github.io/yawn/index.html
 # "YAWN stands for "Yet Another WBEM Navigator"
 # and provides a way to access WBEM servers and to navigate between the CIM objects returned."
 # https://github.com/pywbem/yawn
 # TODO: Should check if "Yawn" is running on the target machine.
-def AddYawnNode(cimomUrl,topclassNam,wbemNamespace,grph,wbemNode):
-	# We could take lib_util.currentHostname but Yawn is more probably running on a machine where Pegasus is there.
-	cimomNoPort = cimomUrl.split(":")[1]
+def _add_yawn_node(cimom_url, topclass_nam, wbem_namespace, grph, wbem_node):
+    # We could take lib_util.currentHostname but Yawn is more probably running on a machine where Pegasus is there.
+    cimom_no_port = cimom_url.split(":")[1]
 
-	# The character "&" must be escaped TWICE ! ...
-	yawnUrl = "http:%s/yawn/GetClass/%s?url=%s&amp;amp;verify=0&amp;amp;ns=%s" % (cimomNoPort,topclassNam,lib_util.EncodeUri(cimomUrl),lib_util.EncodeUri(wbemNamespace))
+    # The character "&" must be escaped TWICE ! ...
+    yawn_url = "http:%s/yawn/GetClass/%s?url=%s&amp;amp;verify=0&amp;amp;ns=%s"\
+             % (cimom_no_port, topclass_nam, lib_util.EncodeUri(cimom_url), lib_util.EncodeUri(wbem_namespace))
 
-	# "http://192.168.1.88/yawn/GetClass/CIM_DeviceSAPImplementation?url=http%3A%2F%2F192.168.1.88%3A5988&verify=0&ns=root%2Fcimv2"
-	# sys.stderr.write("cimomNoPort=%s yawnUrl=%s\n"%(cimomNoPort,yawnUrl))
-	grph.add( ( wbemNode, pc.property_rdf_data_nolist3, lib_common.NodeUrl(yawnUrl) ) )
+    # "http://192.168.1.88/yawn/GetClass/CIM_DeviceSAPImplementation?url=http%3A%2F%2F192.168.1.88%3A5988&verify=0&ns=root%2Fcimv2"
+    # sys.stderr.write("cimom_no_port=%s yawn_url=%s\n"%(cimom_no_port,yawn_url))
+    grph.add((wbem_node, pc.property_rdf_data_nolist3, lib_common.NodeUrl(yawn_url)))
 
-# topclassNam is None at first call.
-def PrintClassRecu(grph, rootNode, tree_classes, topclassNam, depth, wbemNamespace, cimomUrl, maxDepth, withYawnUrls):
-	# sys.stderr.write("topclassNam=%s depth=%d\n" % (topclassNam,depth))
 
-	if depth > maxDepth	:
-		return
-	depth += 1
+def _print_class_recu(
+        grph, root_node, tree_classes, topclass_nam, depth, wbem_namespace, cimom_url, max_depth, with_yawn_urls):
+    """topclassNam is None at first call."""
+    # sys.stderr.write("topclassNam=%s depth=%d\n" % (topclassNam,depth))
 
-	wbemUrl = lib_wbem.ClassUrl( wbemNamespace, cimomUrl, topclassNam )
-	wbemNode = lib_common.NodeUrl( wbemUrl )
+    if depth > max_depth:
+        return
+    depth += 1
 
-	grph.add( ( rootNode, pc.property_cim_subclass, wbemNode ) )
+    wbem_url = lib_wbem.ClassUrl(wbem_namespace, cimom_url, topclass_nam)
+    wbem_node = lib_common.NodeUrl(wbem_url)
 
-	# The class is the starting point when displaying the class tree of the namespace.
-	wbemNodeSub = WbemNamespaceNode(wbemNamespace, cimomUrl, topclassNam)
-	grph.add( ( wbemNode, pc.property_rdf_data_nolist1, wbemNodeSub ) )
+    grph.add((root_node, pc.property_cim_subclass, wbem_node))
 
-	nodeGeneralisedClass = lib_util.EntityClassNode(topclassNam,wbemNamespace,cimomUrl,"WBEM")
-	grph.add( ( wbemNode, pc.property_rdf_data_nolist2, nodeGeneralisedClass ) )
+    # The class is the starting point when displaying the class tree of the namespace.
+    wbem_node_sub = _wbem_namespace_node(wbem_namespace, cimom_url, topclass_nam)
+    grph.add((wbem_node, pc.property_rdf_data_nolist1, wbem_node_sub))
 
-	if withYawnUrls:
-		AddYawnNode(cimomUrl,topclassNam,wbemNamespace,grph,wbemNode)
+    node_generalised_class = lib_util.EntityClassNode(topclass_nam, wbem_namespace, cimom_url, "WBEM")
+    grph.add((wbem_node, pc.property_rdf_data_nolist2, node_generalised_class))
 
-	try:
-		# TODO: This should be indexed with a en empty string !
-		if topclassNam == "":
-			topclassNam = None
-		for cl in tree_classes[topclassNam]:
-			PrintClassRecu(grph, wbemNode, tree_classes, cl.classname, depth, wbemNamespace, cimomUrl, maxDepth, withYawnUrls)
-	except KeyError:
-		pass # No subclass.
+    if with_yawn_urls:
+        _add_yawn_node(cimom_url, topclass_nam, wbem_namespace, grph, wbem_node)
+
+    try:
+        # TODO: This should be indexed with a en empty string !
+        if topclass_nam == "":
+            topclass_nam = None
+        for cl in tree_classes[topclass_nam]:
+            _print_class_recu(grph, wbem_node, tree_classes,
+                              cl.classname, depth, wbem_namespace, cimom_url, max_depth, with_yawn_urls)
+    except KeyError:
+        pass # No subclass.
+
 
 def Main():
-	paramkeyMaxDepth = "Maximum depth"
-	paramkeyYawnUrls = "Yawn urls"
+    paramkey_max_depth = "Maximum depth"
+    paramkey_yawn_urls = "Yawn urls"
 
-	# TODO: The type should really be an integer.
-	cgiEnv = lib_common.CgiEnv(
-					can_process_remote = True,
-					parameters = { paramkeyMaxDepth : 2, paramkeyYawnUrls:False })
+    # TODO: The type should really be an integer.
+    cgiEnv = lib_common.CgiEnv(
+                    can_process_remote=True,
+                    parameters={paramkey_max_depth: 2, paramkey_yawn_urls: False})
 
-	wbemNamespace, entity_type = cgiEnv.get_namespace_type()
+    wbem_namespace, entity_type = cgiEnv.get_namespace_type()
 
-	maxDepth = int(cgiEnv.get_parameters( paramkeyMaxDepth ))
-	withYawnUrls = int(cgiEnv.get_parameters( paramkeyYawnUrls ))
+    max_depth = int(cgiEnv.get_parameters(paramkey_max_depth))
+    with_yawn_urls = int(cgiEnv.get_parameters(paramkey_yawn_urls))
 
-	DEBUG("wbemNamespace=%s entity_type=%s maxDepth=%d", wbemNamespace, entity_type, maxDepth)
+    DEBUG("wbem_namespace=%s entity_type=%s max_depth=%d", wbem_namespace, entity_type, max_depth)
 
-	cimomUrl = cgiEnv.GetHost()
+    cimom_url = cgiEnv.GetHost()
 
-	if str(wbemNamespace) == "":
-		lib_common.ErrorMessageHtml("namespace should not be empty.")
+    if str(wbem_namespace) == "":
+        lib_common.ErrorMessageHtml("namespace should not be empty.")
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	try:
-		connWbem = lib_wbem.WbemConnection(cimomUrl)
-	except Exception as exc:
-		lib_common.ErrorMessageHtml("Connecting to :" + cimomUrl + " Caught:" + str(exc))
+    try:
+        conn_wbem = lib_wbem.WbemConnection(cimom_url)
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("Connecting to :" + cimom_url + " Caught:" + str(exc))
 
-	# entity_type might an empty string.
-	rootNode = WbemNamespaceNode(wbemNamespace, cimomUrl, entity_type)
+    # entity_type might an empty string.
+    root_node = _wbem_namespace_node(wbem_namespace, cimom_url, entity_type)
 
-	DEBUG("objtypes_wmi.py cimomUrl=%s entity_type=%s",cimomUrl,entity_type )
+    DEBUG("objtypes_wmi.py cimom_url=%s entity_type=%s", cimom_url, entity_type)
 
-	treeClassesFiltered = lib_wbem.GetClassesTreeInstrumented(connWbem,wbemNamespace)
+    tree_classes_filtered = lib_wbem.GetClassesTreeInstrumented(conn_wbem, wbem_namespace)
 
-	PrintClassRecu(grph, rootNode, treeClassesFiltered, entity_type, 0, wbemNamespace, cimomUrl, maxDepth, withYawnUrls)
+    _print_class_recu(grph, root_node, tree_classes_filtered,
+                      entity_type, 0, wbem_namespace, cimom_url, max_depth, with_yawn_urls)
 
-	DEBUG("entity_type=%s", entity_type)
+    DEBUG("entity_type=%s", entity_type)
 
-	# If we are not at the top of the tree:
-	if entity_type != "":
-		# Now, adds the base classes of this one, at least one one level.
-		wbemKlass = lib_wbem.WbemGetClassObj(connWbem,entity_type,wbemNamespace)
-		if wbemKlass:
-			superKlassName = wbemKlass.superclass
+    # If we are not at the top of the tree:
+    if entity_type != "":
+        # Now, adds the base classes of this one, at least one one level.
+        wbem_klass = lib_wbem.WbemGetClassObj(conn_wbem, entity_type, wbem_namespace)
+        if wbem_klass:
+            super_klass_name = wbem_klass.superclass
 
-			DEBUG("superKlassName=%s", superKlassName)
-			# An empty string or None.
-			if superKlassName:
-				wbemSuperNode = WbemNamespaceNode( wbemNamespace, cimomUrl, superKlassName )
-				grph.add( ( wbemSuperNode, pc.property_cim_subclass, rootNode ) )
-				klaDescrip = lib_wbem.WbemClassDescription(connWbem,superKlassName,wbemNamespace)
-				if not klaDescrip:
-					klaDescrip = "Undefined class %s %s" % ( wbemNamespace, superKlassName )
-				grph.add( ( wbemSuperNode, pc.property_information, lib_common.NodeLiteral(klaDescrip ) ) )
+            DEBUG("super_klass_name=%s", super_klass_name)
+            # An empty string or None.
+            if super_klass_name:
+                wbem_super_node = _wbem_namespace_node(wbem_namespace, cimom_url, super_klass_name)
+                grph.add((wbem_super_node, pc.property_cim_subclass, root_node))
+                kla_descrip = lib_wbem.WbemClassDescription(conn_wbem,super_klass_name,wbem_namespace)
+                if not kla_descrip:
+                    kla_descrip = "Undefined class %s %s" % (wbem_namespace, super_klass_name)
+                grph.add((wbem_super_node, pc.property_information, lib_util.NodeLiteral(kla_descrip)))
 
-	cgiEnv.OutCgiRdf("LAYOUT_RECT_TB",[pc.property_cim_subclass])
-	# cgiEnv.OutCgiRdf()
+    cgiEnv.OutCgiRdf("LAYOUT_RECT_TB", [pc.property_cim_subclass])
+    # cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
-	Main()
+    Main()
