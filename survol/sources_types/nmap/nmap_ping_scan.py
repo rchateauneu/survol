@@ -122,13 +122,13 @@ def Main():
 			
 		if nodeHost:
 			if addrVendor:
-				grph.add( ( nodeHost, lib_common.MakeProp("MAC address"), lib_common.NodeLiteral( macAddr ) ) )
-				grph.add( ( nodeHost, lib_common.MakeProp("Vendor"), lib_common.NodeLiteral( addrVendor ) ) )
+				grph.add( ( nodeHost, lib_common.MakeProp("MAC address"), lib_util.NodeLiteral( macAddr ) ) )
+				grph.add( ( nodeHost, lib_common.MakeProp("Vendor"), lib_util.NodeLiteral( addrVendor ) ) )
 		
 		for dhostname in dhost.getElementsByTagName('hostname'):
 			hostnam = dhostname.getAttributeNode('name').value
 			# sys.stderr.write("    hostnam=%s\n"%hostnam)
-			grph.add( ( nodeHost, pc.property_hostname, lib_common.NodeLiteral( hostnam ) ) )
+			grph.add( ( nodeHost, pc.property_hostname, lib_util.NodeLiteral( hostnam ) ) )
 
 				
 	cgiEnv.OutCgiRdf()
