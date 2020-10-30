@@ -82,8 +82,8 @@ def Main():
 
 		# We avoid duplicating the edges. Why would the RFD merge do?
 		grph.add( ( node_process, pc.property_ppid, parent_node_process ) )
-		grph.add( ( node_process, pc.property_pid, lib_common.NodeLiteral(pid) ) )
-		# grph.add( ( node_process, pc.property_information, lib_common.NodeLiteral(procUsername) ) )
+		grph.add( ( node_process, pc.property_pid, lib_util.NodeLiteral(pid) ) )
+		# grph.add( ( node_process, pc.property_information, lib_util.NodeLiteral(procUsername) ) )
 
 	cgiEnv.OutCgiRdf()
 

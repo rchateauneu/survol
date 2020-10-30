@@ -40,7 +40,7 @@ def Main():
         except IndexError:
             pass
 
-    grph.add( ( grpNode, pc.property_groupid, lib_common.NodeLiteral(grpId) ) )
+    grph.add( ( grpNode, pc.property_groupid, lib_util.NodeLiteral(grpId) ) )
 
     for user_name in split_users:
         if user_name:
