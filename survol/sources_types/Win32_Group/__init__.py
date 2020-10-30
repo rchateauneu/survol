@@ -3,6 +3,7 @@ Windows group
 """
 
 import sys
+import lib_util
 import lib_common
 from lib_properties import pc
 
@@ -44,7 +45,7 @@ def AddInfo(grph,node,entity_ids_arr):
 
 		dataGroup = win32net.NetLocalGroupGetInfo(None,groupName,1)
 		commentGroup = dataGroup['comment']
-		grph.add((node,pc.property_information, lib_common.NodeLiteral(commentGroup)))
+		grph.add((node,pc.property_information, lib_util.NodeLiteral(commentGroup)))
 	except:
 		# Maybe this module cannot be imported.
 		pass
