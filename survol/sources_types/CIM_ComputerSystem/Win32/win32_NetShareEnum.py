@@ -61,7 +61,7 @@ def Main():
 				grph.add( ( shareNode, pc.property_smbmount, mountNode ) )
 
 			if share_remark:
-				grph.add( ( shareNode, pc.property_information, lib_common.NodeLiteral(share_remark) ) )
+				grph.add( ( shareNode, pc.property_information, lib_util.NodeLiteral(share_remark) ) )
 
 		if not shareresume:
 			break

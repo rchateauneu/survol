@@ -63,7 +63,7 @@ def Main():
 					groupCommentMaxWidth = max( 80, len(groupName) )
 					if len(groupComment) > groupCommentMaxWidth:
 						groupComment = groupComment[:groupCommentMaxWidth] + "..."
-					grph.add( (nodeGroup, pc.property_information, lib_common.NodeLiteral(groupComment) ) )
+					grph.add( (nodeGroup, pc.property_information, lib_util.NodeLiteral(groupComment) ) )
 
 				memberresume = 0
 				while True:

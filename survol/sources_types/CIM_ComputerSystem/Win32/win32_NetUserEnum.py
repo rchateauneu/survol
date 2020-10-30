@@ -75,7 +75,7 @@ def Main():
 
 			try:
 				txtComment = usrElt['comment']
-				grph.add( ( nodeUser, pc.property_information, lib_common.NodeLiteral(txtComment) ) )
+				grph.add( ( nodeUser, pc.property_information, lib_util.NodeLiteral(txtComment) ) )
 			except KeyError:
 				pass
 		if resumeHandle == 0:

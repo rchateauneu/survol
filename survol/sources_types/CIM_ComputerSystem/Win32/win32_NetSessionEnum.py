@@ -35,7 +35,7 @@ def Main():
 	for eltLst in sessionList:
 		for keyLst in eltLst:
 			valLst = eltLst[keyLst]
-			grph.add( ( nodeHost, lib_common.MakeProp(keyLst), lib_common.NodeLiteral( valLst ) ) )
+			grph.add( ( nodeHost, lib_common.MakeProp(keyLst), lib_util.NodeLiteral( valLst ) ) )
 
 	cgiEnv.OutCgiRdf()
 
