@@ -25,12 +25,12 @@ def _add_default_nodes(grph, root_node, entity_host):
     current_node_hostname = lib_common.gUriGen.HostnameUri(lib_util.currentHostname)
     grph.add((current_node_hostname,
               pc.property_information,
-              lib_common.NodeLiteral("Current host:" + lib_util.currentHostname)))
+              lib_util.NodeLiteral("Current host:" + lib_util.currentHostname)))
     grph.add((root_node, pc.property_rdf_data_nolist2, current_node_hostname))
 
     curr_username = FunctionGetUser()
     current_node_user = lib_common.gUriGen.UserUri(curr_username)
-    grph.add((current_node_user, pc.property_information, lib_common.NodeLiteral("Current user:" + curr_username)))
+    grph.add((current_node_user, pc.property_information, lib_util.NodeLiteral("Current user:" + curr_username)))
     grph.add((root_node, pc.property_rdf_data_nolist2, current_node_user))
 
 
