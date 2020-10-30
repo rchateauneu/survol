@@ -42,7 +42,7 @@ def _add_windows_dir_change(grph, path_to_watch, updated_file, path_change):
     node_path = lib_common.gUriGen.FileUri( full_filename )
     grph.add( ( intermediate_node, pc.property_directory, node_path ) )
 
-    grph.add( ( node_path, pc.property_notified_file_change, lib_common.NodeLiteral(path_change) ) )
+    grph.add( ( node_path, pc.property_notified_file_change, lib_util.NodeLiteral(path_change) ) )
 
 
 ACTIONS = {

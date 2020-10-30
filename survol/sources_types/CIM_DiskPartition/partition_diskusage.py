@@ -23,8 +23,8 @@ def Main():
 
 	dskUsage = psutil.disk_usage(partitionNam)
 
-	grph.add( ( partitionNode, pc.property_disk_used, lib_common.NodeLiteral(dskUsage.used) ) )
-	grph.add( ( partitionNode, pc.property_disk_free, lib_common.NodeLiteral(dskUsage.free) ) )
+	grph.add( ( partitionNode, pc.property_disk_used, lib_util.NodeLiteral(dskUsage.used) ) )
+	grph.add( ( partitionNode, pc.property_disk_free, lib_util.NodeLiteral(dskUsage.free) ) )
 
 	cgiEnv.OutCgiRdf()
 
