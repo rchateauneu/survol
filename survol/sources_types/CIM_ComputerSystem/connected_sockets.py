@@ -49,13 +49,13 @@ def Main():
 					Main.node_process = lib_common.gUriGen.PidUri(pid)
 
 					grph.add( ( Main.node_process, pc.property_host, lib_common.nodeMachine ) )
-					grph.add( ( Main.node_process, pc.property_pid, lib_common.NodeLiteral(pid) ) )
+					grph.add( ( Main.node_process, pc.property_pid, lib_util.NodeLiteral(pid) ) )
 
 
 				lsocketNode = lib_common.gUriGen.AddrUri( larray[0], larray[1] )
-				grph.add( ( lsocketNode, pc.property_information, lib_common.NodeLiteral(cnt.status) ) )
+				grph.add( ( lsocketNode, pc.property_information, lib_util.NodeLiteral(cnt.status) ) )
 				rsocketNode = lib_common.gUriGen.AddrUri( rarray[0], rarray[1] )
-				grph.add( ( lsocketNode, pc.property_information, lib_common.NodeLiteral(cnt.status) ) )
+				grph.add( ( lsocketNode, pc.property_information, lib_util.NodeLiteral(cnt.status) ) )
 				grph.add( ( lsocketNode, pc.property_socket_end, rsocketNode ) )
 
 				grph.add( ( Main.node_process, pc.property_has_socket, rsocketNode ) )

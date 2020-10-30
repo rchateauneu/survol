@@ -88,12 +88,12 @@ def AddWbemServers(entity_host, name_space, entity_type, entity_id):
                 wbem_host_node = lib_common.gUriGen.HostnameUri(url_server[1])
 
                 map_wbem[wbem_node] = [
-                    (pc.property_information, lib_common.NodeLiteral(txt_literal)),
+                    (pc.property_information, lib_util.NodeLiteral(txt_literal)),
                     (pc.property_host, wbem_host_node)
                 ]
 
                 # TODO: This could try to pen a HTTP server on this machine, possibly with port 80.
-                # grph.add( ( wbem_host_node, pc.property_information, lib_common.NodeLiteral("Url to host") ) )
+                # grph.add( ( wbem_host_node, pc.property_information, lib_util.NodeLiteral("Url to host") ) )
     except ImportError:
         pass
     return map_wbem
@@ -120,7 +120,7 @@ def AddWmiServers(entity_host, name_space, entity_type, entity_id):
                 txtLiteral = "WMI url, current host, class=%s"%(entity_type)
 
             map_wmi[wmi_node] = [
-                (pc.property_information, lib_common.NodeLiteral(txtLiteral))
+                (pc.property_information, lib_util.NodeLiteral(txtLiteral))
             ]
 
             if entity_host:
@@ -160,7 +160,7 @@ def AddGeocoder(grph,node,ipv4):
         geoc = geocoder.ip(ipv4)
         for jsonKey,jsonVal in geoc.json.iteritems():
             # Conversion to str otherwise numbers are displayed as "float".
-            grph.add( ( node, lib_common.MakeProp(jsonKey), lib_common.NodeLiteral(str(jsonVal)) ) )
+            grph.add( ( node, lib_common.MakeProp(jsonKey), lib_util.NodeLiteral(str(jsonVal)) ) )
     except Exception:
         # This might be a simple time-out.
         return
@@ -173,13 +173,13 @@ def AddInfo(grph,node,entity_ids_arr):
     try:
         ipv4 = lib_util.GlobalGetHostByName(theHostname)
     except:
-        grph.add( ( node, pc.property_information, lib_common.NodeLiteral("Unknown machine") ) )
+        grph.add( ( node, pc.property_information, lib_util.NodeLiteral("Unknown machine") ) )
         return
 
-    grph.add( ( node, lib_common.MakeProp("IP address"), lib_common.NodeLiteral(ipv4) ) )
+    grph.add( ( node, lib_common.MakeProp("IP address"), lib_util.NodeLiteral(ipv4) ) )
 
     fqdn = socket.getfqdn(theHostname)
-    grph.add( ( node, lib_common.MakeProp("FQDN"), lib_common.NodeLiteral(fqdn) ) )
+    grph.add( ( node, lib_common.MakeProp("FQDN"), lib_util.NodeLiteral(fqdn) ) )
 
     # No need to do that, because it is done in entity.py if mode!=json.
     # nameSpace = ""

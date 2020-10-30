@@ -83,15 +83,15 @@ def Main():
 
 		grph.add( ( node_process, pc.property_ppid, parent_node_process ) )
 
-		grph.add( ( node_process, pc.property_information, lib_common.NodeLiteral(oneProc["Caption"]) ) )
+		grph.add( ( node_process, pc.property_information, lib_util.NodeLiteral(oneProc["Caption"]) ) )
 
 		if False:
 			if oneProc["Caption"] != oneProc["Description"]:
-				grph.add( ( node_process, lib_common.MakeProp("Description"), lib_common.NodeLiteral(oneProc["Description"]) ) )
+				grph.add( ( node_process, lib_common.MakeProp("Description"), lib_util.NodeLiteral(oneProc["Description"]) ) )
 
 			for prpNam in ["WorkingSetSize","KernelModeTime","ProcessNiceValue","OtherExecutionDescription"]:
 				try:
-					grph.add( ( node_process, lib_common.MakeProp(prpNam), lib_common.NodeLiteral(oneProc["prpNam"] ) ) )
+					grph.add( ( node_process, lib_common.MakeProp(prpNam), lib_util.NodeLiteral(oneProc["prpNam"] ) ) )
 				except KeyError:
 					pass
 
