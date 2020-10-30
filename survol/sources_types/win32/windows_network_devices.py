@@ -74,11 +74,11 @@ def Main():
 
 		diskNode = lib_common.gUriGen.SmbShareUri( "//" + hostName + "/" + devSplit[3] )
 
-		# grph.add( ( diskNode, pc.property_win_netdev, lib_common.NodeLiteral( devname ) ) )
+		# grph.add( ( diskNode, pc.property_win_netdev, lib_util.NodeLiteral( devname ) ) )
 
 		grph.add( ( lib_common.gUriGen.FileUri( devname + ':' ), pc.property_mount, diskNode ) )
 
-		grph.add( ( diskNode,  pc.property_file_system_type, lib_common.NodeLiteral( devtype ) ) )
+		grph.add( ( diskNode,  pc.property_file_system_type, lib_util.NodeLiteral( devtype ) ) )
 
 		grph.add( ( hostNode, pc.property_smbshare, diskNode) )
 

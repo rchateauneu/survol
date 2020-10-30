@@ -37,7 +37,7 @@ def Main():
 			nodPid = lib_common.gUriGen.PidUri(pid)
 			PidToNode.Cache[pid] = nodPid
 
-			grph.add( (nodPid, pc.property_pid, lib_common.NodeLiteral(pid) ) )
+			grph.add( (nodPid, pc.property_pid, lib_util.NodeLiteral(pid) ) )
 			grph.add( (rootNode, pc.property_host, nodPid ) )
 
 		return nodPid
@@ -61,7 +61,7 @@ def Main():
 			except:
 				# If Python 3, nothing to do>
 				pass
-			grph.add( (nodProcess, prpProcToWindow, lib_common.NodeLiteral(wnText) ) )
+			grph.add( (nodProcess, prpProcToWindow, lib_util.NodeLiteral(wnText) ) )
 
 	cgiEnv.OutCgiRdf("LAYOUT_RECT", [prpProcToWindow])
 
