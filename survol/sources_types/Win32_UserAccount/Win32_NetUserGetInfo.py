@@ -65,10 +65,10 @@ def Main():
 
 		try:
 			infoVal = infoList[infoKey]
-			grph.add( ( nodeUser, lib_common.MakeProp(infoKey), lib_common.NodeLiteral(infoVal) ) )
+			grph.add( ( nodeUser, lib_common.MakeProp(infoKey), lib_util.NodeLiteral(infoVal) ) )
 		except:
 			txtDisp = str( sys.exc_info()[1] )
-			grph.add( ( nodeUser, lib_common.MakeProp(infoKey), lib_common.NodeLiteral(txtDisp) ) )
+			grph.add( ( nodeUser, lib_common.MakeProp(infoKey), lib_util.NodeLiteral(txtDisp) ) )
 
 
 
