@@ -17,205 +17,194 @@ import pywbem # Might be pywbem or python3-pywbem.
 # TODO: Add link to http://schemas.dmtf.org/wbem/cim-html/2.49.0/CIM_Directory.html
 # Also consider https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.1.0/com.ibm.zos.v2r1.cfzu100/ibmzos_computersystem.htm
 
-def AssocReferenceToNode(nameSpace,entity_host,assocInst):
-	assocClass = assocInst.classname
 
-	assocKeyValPairs = assocInst.keybindings
+def _assoc_reference_to_node(name_space, entity_host, assoc_inst):
+	assoc_class = assoc_inst.classname
+
+	assoc_key_val_pairs = assoc_inst.keybindings
 
 	# The natural conversion to a string makes a perfect url, But we need to extract the components:
 	# str(valAssoc) = 'root/cimv2:LMI_DiskDrive.CreationClassName="LMI_DiskDrive",SystemName="Unknown-30-b5-c2-02-0c-b5-2.home"'
 
-	assoc_entity_id = ",".join( "%s=%s" % ( k, assocKeyValPairs[k] ) for k in assocKeyValPairs )
+	assoc_entity_id = ",".join("%s=%s" % (k, assoc_key_val_pairs[k]) for k in assoc_key_val_pairs)
 
 	# The association and the references are probably in the same namespace.
-	wbemAssocUrl = lib_wbem.WbemInstanceUrl( nameSpace, assocClass, assoc_entity_id, entity_host )
-	wbemAssocNode = lib_common.NodeUrl(wbemAssocUrl)
-	return wbemAssocNode
+	wbem_assoc_url = lib_wbem.WbemInstanceUrl(name_space, assoc_class, assoc_entity_id, entity_host)
+	wbem_assoc_node = lib_common.NodeUrl(wbem_assoc_url)
+	return wbem_assoc_node
 
-# Display the graph of associations.
-# It can work only if there are only two references in each instance.
-def DisplayAssociatorsAsNetwork(grph,inst_names,rootNode,nameSpace,entity_host,maxInstances,startIndex):
-	maxCnt = 0
+
+def _display_associators_as_network(grph, inst_names, root_node, name_space, entity_host, max_instances, start_index):
+	"""Display the graph of associations. It can work only if there are only two references in each instance."""
+	max_cnt = 0
 	for iname in inst_names:
-		if startIndex > 0:
-			startIndex -= 1
+		if start_index > 0:
+			start_index -= 1
 			continue
 
-		if maxCnt == maxInstances:
+		if max_cnt == max_instances:
 			break
-		maxCnt += 1
+		max_cnt += 1
 
 		# For the moment, references are not added to the Moniker, otherwise the syntax would be too complicated, like:
 		# wbemInstName=root/CIMv2:TUT_ProcessChild.Parent="root/cimv2:TUT_UnixProcess.Handle="1"",Child="root/cimv2:TUT_UnixProcess.Handle="621"",OSCreationClassName="Linux_OperatingSystem",CSName="Unknown-30-b5-c2-02-0c-b5-2.home",CSCreationClassName="Linux_ComputerSystem",CreationClassName="TUT_UnixProcess",OSName="Unknown-30-b5-c2-02-0c-b5-2.home"
 
 		# Do not care about the instance.
 
-		nodePrevious = None
-		keyPrevious = None
+		node_previous = None
+		key_previous = None
 
-		for keyAssoc in iname.keys():
-			assocInst = iname[keyAssoc]
+		for key_assoc in iname.keys():
+			assoc_inst = iname[key_assoc]
 
 			# If this happens, it could be used as a qualifier for the edge.
-			if not isinstance( assocInst, pywbem.CIMInstanceName ):
-				lib_common.ErrorMessageHtml("Inconsistency, members should be instances: __name__=%s" % type(assocInst).__name__)
+			if not isinstance(assoc_inst, pywbem.CIMInstanceName):
+				lib_common.ErrorMessageHtml("Inconsistency, members should be instances: __name__=%s" % type(assoc_inst).__name__)
 
-			wbemAssocNode = AssocReferenceToNode(nameSpace,entity_host,assocInst)
+			wbem_assoc_node = _assoc_reference_to_node(name_space, entity_host, assoc_inst)
 
 			# We lose the name of the previous property.
-			if not nodePrevious is None:
-				grph.add( ( nodePrevious, lib_common.MakeProp(keyPrevious + "-" + keyAssoc), wbemAssocNode ) )
+			if not node_previous is None:
+				grph.add((node_previous, lib_common.MakeProp(key_previous + "-" + key_assoc), wbem_assoc_node))
 
-			keyPrevious = keyAssoc
-			nodePrevious = wbemAssocNode
+			key_previous = key_assoc
+			node_previous = wbem_assoc_node
 
 
-# Display one line per instance of the class as members were literals.
-# This attempts to display the references as links. It does not really work yet,
-# because "special" properties" have to be used.
-def DisplayAssociatorsAsList(grph,inst_names,rootNode,nameSpace,entity_host, className,maxInstances,startIndex):
-	maxCnt = 0
+def _display_associators_as_list(grph, inst_names, root_node, name_space, entity_host, class_name, max_instances, start_index):
+	"""Display one line per instance of the class as members were literals.
+	This attempts to display the references as links. It does not really work yet,
+	because "special" properties" have to be used."""
+	max_cnt = 0
 	for iname in inst_names:
-		if startIndex > 0:
-			startIndex -= 1
+		if start_index > 0:
+			start_index -= 1
 			continue
 
-		if maxCnt == maxInstances:
+		if max_cnt == max_instances:
 			break
-		maxCnt += 1
+		max_cnt += 1
 
 		# For the moment, references are not added to the Moniker, otherwise the syntax would be too complicated, like:
 		# wbemInstName=root/CIMv2:TUT_ProcessChild.Parent="root/cimv2:TUT_UnixProcess.Handle="1"",Child="root/cimv2:TUT_UnixProcess.Handle="621"",OSCreationClassName="Linux_OperatingSystem",CSName="Unknown-30-b5-c2-02-0c-b5-2.home",CSCreationClassName="Linux_ComputerSystem",CreationClassName="TUT_UnixProcess",OSName="Unknown-30-b5-c2-02-0c-b5-2.home"
 
-		entity_id = ",".join( "%s=%s" % ( k, iname[k] ) for k in iname.keys() )
+		entity_id = ",".join("%s=%s" % (k, iname[k]) for k in iname.keys())
 
-		wbemInstanceUrl = lib_wbem.WbemInstanceUrl( nameSpace, className, entity_id, entity_host )
-		wbemInstanceNode = lib_common.NodeUrl(wbemInstanceUrl)
+		wbem_instance_url = lib_wbem.WbemInstanceUrl(name_space, class_name, entity_id, entity_host)
+		wbem_instance_node = lib_common.NodeUrl(wbem_instance_url)
 
 		# On va ajouter une colonne par reference.
-		for keyAssoc in iname.keys():
-			assocInst = iname[keyAssoc]
+		for key_assoc in iname.keys():
+			assoc_inst = iname[key_assoc]
 
-			wbemAssocNode = AssocReferenceToNode(nameSpace,entity_host,assocInst)
-			grph.add( ( wbemInstanceNode, lib_common.MakeProp(keyAssoc), wbemAssocNode ) )
+			wbem_assoc_node = _assoc_reference_to_node(name_space, entity_host, assoc_inst)
+			grph.add((wbem_instance_node, lib_common.MakeProp(key_assoc), wbem_assoc_node))
 
-			# On voudrait que la propriete soit un lien mais que ca soit afficher en colonne avec le bon nom, comme in lityeral.
-			# pc.property_rdf_data_nolist1 ??? pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2 ?????
+		grph.add((root_node, pc.property_class_instance, wbem_instance_node))
 
-			### TODO: BUG DAND L AFFICHAGE, DESFOIS CA RELIE AU NODE, DESFOIS CA RELIE A UN nd_0
 
-		grph.add( ( rootNode, pc.property_class_instance, wbemInstanceNode ) )
-
-		# TODO: PAS ICI, on va le mettre dans l ;affichage d une entite.
-		#for key,val in iname.iteritems():
-		#	grph.add( ( wbemInstanceNode, lib_common.MakeProp(key), lib_common.NodeLiteral(val) ) )
-
-# Display one line per instance of the class. Members are literals
-# because this is not an associator. Still, it works with an associator.
-def DisplayPlainClass(grph,inst_names,rootNode,nameSpace,entity_host, className,maxInstances,startIndex):
-	maxCnt = 0
+def _display_plain_class(grph, inst_names, root_node, name_space, entity_host, class_name, max_instances, start_index):
+	"""Display one line per instance of the class. Members are literals
+	because this is not an associator. Still, it works with an associator."""
+	max_cnt = 0
 
 	# This is for normal classes.
 	for iname in inst_names:
-		if startIndex > 0:
-			startIndex -= 1
+		if start_index > 0:
+			start_index -= 1
 			continue
 
-		if maxCnt == maxInstances:
+		if max_cnt == max_instances:
 			break
-		maxCnt += 1
+		max_cnt += 1
 
 		# This concatenates all the properties, even the ones which are not in the Survol ontology.
 		# This makes sense because we do not know if this class if known by Survol.
-		entity_id = ",".join( "%s=%s" % ( k, iname[k] ) for k in iname.keys() )
-		wbemInstanceUrl = lib_wbem.WbemInstanceUrl( nameSpace, className, entity_id, entity_host )
+		entity_id = ",".join("%s=%s" % (k, iname[k]) for k in iname.keys())
+		wbem_instance_url = lib_wbem.WbemInstanceUrl(name_space, class_name, entity_id, entity_host)
 
-		wbemInstanceNode = lib_common.NodeUrl(wbemInstanceUrl)
+		wbem_instance_node = lib_common.NodeUrl(wbem_instance_url)
 
-		grph.add( ( rootNode, pc.property_class_instance, wbemInstanceNode ) )
+		grph.add((root_node, pc.property_class_instance, wbem_instance_node))
 
 
 def Main():
-	paramkeyMaxInstances = "Max instances"
-	paramkeyStartIndex = "Start index"
+	paramkey_max_instances = "Max instances"
+	paramkey_start_index = "Start index"
 
 	# This can process remote hosts because it does not call any script, just shows them.
 	cgiEnv = lib_common.CgiEnv(can_process_remote = True,
-									parameters = { paramkeyMaxInstances : 80, paramkeyStartIndex: 0 })
+									parameters = {paramkey_max_instances: 80, paramkey_start_index: 0})
 
-	maxInstances = cgiEnv.get_parameters( paramkeyMaxInstances )
-	startIndex = cgiEnv.get_parameters( paramkeyStartIndex )
+	max_instances = cgiEnv.get_parameters(paramkey_max_instances)
+	start_index = cgiEnv.get_parameters(paramkey_start_index)
 
 	grph = cgiEnv.GetGraph()
 
-	nameSpace, className = cgiEnv.get_namespace_type()
-	DEBUG("nameSpace=%s className=%s", nameSpace, className)
+	name_space, class_name = cgiEnv.get_namespace_type()
+	DEBUG("name_space=%s class_name=%s", name_space, class_name)
 
 	entity_host = cgiEnv.GetHost()
 
-	rootNode = lib_util.EntityClassNode( className, nameSpace, entity_host, "WBEM" )
+	root_node = lib_util.EntityClassNode(class_name, name_space, entity_host, "WBEM")
 
 	# Hard-coded default namespace.
-	if nameSpace == "":
-		nameSpace = "root/CIMV2"
+	if name_space == "":
+		name_space = "root/CIMV2"
 
 	# This adds a link to the namespace of this WBEM class: It shows its inheritance graph.
-	urlNamespace = lib_wbem.NamespaceUrl( nameSpace, entity_host, className )
-	nodNamespace = lib_common.NodeUrl( urlNamespace )
-	grph.add( ( rootNode, pc.property_cim_subnamespace , nodNamespace ) )
+	url_namespace = lib_wbem.NamespaceUrl(name_space, entity_host, class_name)
+	nod_namespace = lib_common.NodeUrl(url_namespace)
+	grph.add((root_node, pc.property_cim_subnamespace, nod_namespace))
 
 	try:
-		connWbem = lib_wbem.WbemConnection(entity_host)
-		wbemKlass = connWbem.GetClass(className, namespace=nameSpace, LocalOnly=False, IncludeQualifiers=True)
-	except Exception:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("EnumerateInstanceNames: entity_host="+entity_host+" nameSpace="+nameSpace+" className="+className+". Caught:"+str(exc))
+		conn_wbem = lib_wbem.WbemConnection(entity_host)
+		wbem_klass = conn_wbem.GetClass(class_name, namespace=name_space, LocalOnly=False, IncludeQualifiers=True)
+	except Exception as exc:
+		lib_common.ErrorMessageHtml(
+			"EnumerateInstanceNames: entity_host=" + entity_host
+			+ " name_space="+name_space
+			+ " class_name="+class_name+". Caught:"+str(exc))
 
-	klaDescrip = lib_wbem.WbemClassDescrFromClass(wbemKlass)
-	grph.add( ( rootNode, pc.property_information, lib_common.NodeLiteral("WBEM description: "+klaDescrip ) ) )
-
-	# Pour afficher du texte: Remplacer le help statique.
-	# offset va etre un parametre. Helas ne pas se fairew d illusions sur "offset"
+	kla_descrip = lib_wbem.WbemClassDescrFromClass(wbem_klass)
+	grph.add((root_node, pc.property_information, lib_util.NodeLiteral("WBEM description: " + kla_descrip)))
 
 	# WBEM and WMI both have the annoying limitation that it is not possible to select only a range of instances.
 	try:
-		inst_names = connWbem.EnumerateInstanceNames(ClassName=className,namespace=nameSpace)
-	except Exception:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("EnumerateInstanceNames: entity_host="+entity_host+" nameSpace="+nameSpace+" className="+className+". Caught:"+str(exc))
+		inst_names = conn_wbem.EnumerateInstanceNames(ClassName=class_name, namespace=name_space)
+	except Exception as exc:
+		lib_common.ErrorMessageHtml(
+			"EnumerateInstanceNames: entity_host="+entity_host
+			+ " name_space="+name_space+" class_name="
+			+ class_name+". Caught:"+str(exc))
 
 	try:
-		isAssociation = wbemKlass.qualifiers['Association'].value
+		is_association = wbem_klass.qualifiers['Association'].value
 	except KeyError:
-		isAssociation = False
+		is_association = False
 
 	# It is possible to display an association like a normal class but it is useless.
-	if isAssociation:
+	if is_association:
 		if True:
-			DisplayAssociatorsAsNetwork(grph,inst_names,rootNode,nameSpace,entity_host,maxInstances,startIndex)
+			_display_associators_as_network(grph, inst_names, root_node, name_space, entity_host, max_instances, start_index)
 		else:
-			DisplayAssociatorsAsList(grph,inst_names,rootNode,nameSpace,entity_host, className,maxInstances,startIndex)
+			_display_associators_as_list(grph, inst_names, root_node, name_space, entity_host, class_name, max_instances, start_index)
 	else:
-		DisplayPlainClass(grph,inst_names,rootNode,nameSpace,entity_host, className,maxInstances,startIndex)
+		_display_plain_class(grph, inst_names, root_node, name_space, entity_host, class_name, max_instances, start_index)
 
-	numInstances = len(inst_names)
-	DEBUG("numInstances=%d startIndex=%d",numInstances,startIndex)
+	num_instances = len(inst_names)
+	DEBUG("num_instances=%d start_index=%d",num_instances,start_index)
 
 	# This displays one link on the same page, with specific values of these parameters.
 	# The other parameters are not changed.
 	# TODO, BEWARE: What is the total number of elements ?
-	if startIndex + maxInstances < numInstances:
-		cgiEnv.add_parameterized_links("Next", {paramkeyStartIndex: startIndex + maxInstances})
-	if startIndex > 0:
-		cgiEnv.add_parameterized_links("Previous", {paramkeyStartIndex: max(startIndex - maxInstances, 0)})
+	if start_index + max_instances < num_instances:
+		cgiEnv.add_parameterized_links("Next", {paramkey_start_index: start_index + max_instances})
+	if start_index > 0:
+		cgiEnv.add_parameterized_links("Previous", {paramkey_start_index: max(start_index - max_instances, 0)})
 
-
-	# TODO: On pourrait rassembler par classes,
-	# et aussi afficher les liens d'heritages des classes.
-
-
-	# cgiEnv.OutCgiRdf()
 	cgiEnv.OutCgiRdf("LAYOUT_RECT",[pc.property_class_instance])
+
 
 if __name__ == '__main__':
 	Main()
