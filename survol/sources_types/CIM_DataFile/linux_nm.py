@@ -17,7 +17,7 @@ Usable = lib_util.UsableLinuxBinary
 def AddKnown(grph, nodeSharedLib, symbolnam, file, type):
 	symbolNode = lib_common.gUriGen.SymbolUri( lib_util.EncodeUri(symbolnam), file )
 	grph.add( ( nodeSharedLib, pc.property_symbol_defined, symbolNode ) )
-	grph.add( ( symbolNode, pc.property_symbol_type, lib_common.NodeLiteral(type) ) )
+	grph.add( ( symbolNode, pc.property_symbol_type, lib_util.NodeLiteral(type) ) )
 
 def AddUnknown(grph, nodeSharedLib, symbolnam):
 	symbolNode = lib_common.gUriGen.SymbolUri( lib_util.EncodeUri(symbolnam), "*" )

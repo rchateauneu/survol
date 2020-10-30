@@ -6,6 +6,7 @@ PEFile information
 
 import sys
 import pefile
+import lib_util
 import lib_common
 
 from sources_types.CIM_DataFile.portable_executable import section as survol_pe_section
@@ -61,14 +62,14 @@ def Main():
 	propNumberOfLinenumbers = lib_common.MakeProp("Line numbers")
 
 	try:
-		grph.add( ( filNode, lib_common.MakeProp("Is a dll"), lib_common.NodeLiteral(pe.is_dll() )) )
-		grph.add( ( filNode, lib_common.MakeProp("Is a driver"), lib_common.NodeLiteral(pe.is_driver() )) )
-		grph.add( ( filNode, lib_common.MakeProp("Is an executable"), lib_common.NodeLiteral(pe.is_exe() )) )
-		grph.add( ( filNode, lib_common.MakeProp("Overlay data start offset"), lib_common.NodeLiteral(pe.get_overlay_data_start_offset() )) )
-		grph.add( ( filNode, lib_common.MakeProp("Resources strings"), lib_common.NodeLiteral(pe.get_resources_strings() )) )
-		grph.add( ( filNode, lib_common.MakeProp("Warnings"), lib_common.NodeLiteral(pe.get_warnings() ) ) )
-		grph.add( ( filNode, lib_common.MakeProp("DOS header"), lib_common.NodeLiteral(pe.DOS_HEADER) ) )
-		grph.add( ( filNode, lib_common.MakeProp("File header"), lib_common.NodeLiteral(pe.FILE_HEADER) ) )
+		grph.add( ( filNode, lib_common.MakeProp("Is a dll"), lib_util.NodeLiteral(pe.is_dll() )) )
+		grph.add( ( filNode, lib_common.MakeProp("Is a driver"), lib_util.NodeLiteral(pe.is_driver() )) )
+		grph.add( ( filNode, lib_common.MakeProp("Is an executable"), lib_util.NodeLiteral(pe.is_exe() )) )
+		grph.add( ( filNode, lib_common.MakeProp("Overlay data start offset"), lib_util.NodeLiteral(pe.get_overlay_data_start_offset() )) )
+		grph.add( ( filNode, lib_common.MakeProp("Resources strings"), lib_util.NodeLiteral(pe.get_resources_strings() )) )
+		grph.add( ( filNode, lib_common.MakeProp("Warnings"), lib_util.NodeLiteral(pe.get_warnings() ) ) )
+		grph.add( ( filNode, lib_common.MakeProp("DOS header"), lib_util.NodeLiteral(pe.DOS_HEADER) ) )
+		grph.add( ( filNode, lib_common.MakeProp("File header"), lib_util.NodeLiteral(pe.FILE_HEADER) ) )
 
 		for peSect in pe.sections:
 			# <Structure: [IMAGE_SECTION_HEADER] 0x178 0x0
@@ -90,10 +91,10 @@ def Main():
 			nodeSect = survol_pe_section.MakeUri(win_module,peSect.Name.rstrip("\0"))
 
 			grph.add( ( filNode, propSection, nodeSect ) )
-			grph.add( ( nodeSect, propVirtualAddress, lib_common.NodeLiteral(peSect.VirtualAddress)) )
-			grph.add( ( nodeSect, propSizeOfRawData, lib_common.NodeLiteral(peSect.SizeOfRawData)) )
-			grph.add( ( nodeSect, propNumberOfRelocations, lib_common.NodeLiteral(peSect.NumberOfRelocations)) )
-			grph.add( ( nodeSect, propNumberOfLinenumbers, lib_common.NodeLiteral(peSect.NumberOfLinenumbers)) )
+			grph.add( ( nodeSect, propVirtualAddress, lib_util.NodeLiteral(peSect.VirtualAddress)) )
+			grph.add( ( nodeSect, propSizeOfRawData, lib_util.NodeLiteral(peSect.SizeOfRawData)) )
+			grph.add( ( nodeSect, propNumberOfRelocations, lib_util.NodeLiteral(peSect.NumberOfRelocations)) )
+			grph.add( ( nodeSect, propNumberOfLinenumbers, lib_util.NodeLiteral(peSect.NumberOfLinenumbers)) )
 
 	except Exception:
 		exc = sys.exc_info()[1]

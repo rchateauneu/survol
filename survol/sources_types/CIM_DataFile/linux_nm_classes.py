@@ -73,7 +73,7 @@ def AddSymbolInClass( grph, nodeSharedLib, symbolnam, file, prop ):
 
 def AddKnown(grph, nodeSharedLib, symbolnam, file, type):
 	symbolNode = AddSymbolInClass( grph, nodeSharedLib, symbolnam, file, pc.property_symbol_defined )
-	grph.add( ( symbolNode, pc.property_symbol_type, lib_common.NodeLiteral(type) ) )
+	grph.add( ( symbolNode, pc.property_symbol_type, lib_util.NodeLiteral(type) ) )
 
 def AddUnknown(grph, nodeSharedLib, symbolnam):
 	symbolNode = AddSymbolInClass( grph, nodeSharedLib, symbolnam, "*", pc.property_symbol_undefined )

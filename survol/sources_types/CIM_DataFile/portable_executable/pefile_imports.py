@@ -27,7 +27,7 @@ class EnvPeFile:
 		# sys.stderr.write( "filNam=%s maxLevel=%d\n"%(filNam,maxLevel))
 		rootNode = lib_common.gUriGen.FileUri( filNam )
 		versStr = lib_win32.VersionString(filNam)
-		self.grph.add( ( rootNode, pc.property_information, lib_common.NodeLiteral(versStr) ) )
+		self.grph.add( ( rootNode, pc.property_information, lib_util.NodeLiteral(versStr) ) )
 
 		if maxLevel == 0:
 			return rootNode
