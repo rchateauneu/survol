@@ -11,6 +11,7 @@ import threading
 import time
 
 import lib_arp
+import lib_util
 import lib_common
 from lib_properties import pc
 
@@ -88,23 +89,23 @@ class LookupThread(threading.Thread):
 
 			hostNode = lib_common.gUriGen.HostnameUri( hostName )
 			if hstAddr != hostName:
-				self.grph.add( ( hostNode, lib_common.MakeProp("IP address"+labelExt), lib_common.NodeLiteral(hstAddr) ) )
+				self.grph.add( ( hostNode, lib_common.MakeProp("IP address"+labelExt), lib_util.NodeLiteral(hstAddr) ) )
 
 			if topDig == "224":
 				# TODO: Check multicast detection.
-				self.grph.add( ( hostNode, pc.property_information, lib_common.NodeLiteral("Multicast") ) )
+				self.grph.add( ( hostNode, pc.property_information, lib_util.NodeLiteral("Multicast") ) )
 			else:
 				if ncCompany:
-					self.grph.add( ( hostNode, lib_common.MakeProp("MAC"+labelExt), lib_common.NodeLiteral(macAddress) ) )
-					self.grph.add( ( hostNode, lib_common.MakeProp("Vendor"+labelExt), lib_common.NodeLiteral(ncCompany) ) )
+					self.grph.add( ( hostNode, lib_common.MakeProp("MAC"+labelExt), lib_util.NodeLiteral(macAddress) ) )
+					self.grph.add( ( hostNode, lib_common.MakeProp("Vendor"+labelExt), lib_util.NodeLiteral(ncCompany) ) )
 
 			# static/dynamic
 			if arpType != "":
-				self.grph.add( ( hostNode, lib_common.MakeProp("ARP_type"), lib_common.NodeLiteral(arpType) ) )
+				self.grph.add( ( hostNode, lib_common.MakeProp("ARP_type"), lib_util.NodeLiteral(arpType) ) )
 
 			# TODO: Create network interface class.
 			if hostItf:
-				self.grph.add( ( hostNode, lib_common.MakeProp("Interface"), lib_common.NodeLiteral(hostItf) ) )
+				self.grph.add( ( hostNode, lib_common.MakeProp("Interface"), lib_util.NodeLiteral(hostItf) ) )
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()

@@ -33,7 +33,7 @@ def AddFromWbemCimom(grph,cimomWbem):
 
 	wbemHostNode = lib_common.gUriGen.HostnameUri( hostWbem )
 
-	grph.add(( wbemNode, pc.property_information, lib_common.NodeLiteral(cimomWbem) ) )
+	grph.add(( wbemNode, pc.property_information, lib_util.NodeLiteral(cimomWbem) ) )
 	grph.add(( wbemNode, pc.property_host, wbemHostNode ) )
 
 	return wbemNode
@@ -50,7 +50,7 @@ def WbemServersDisplay(grph):
 		wbemNode = AddFromWbemCimom(grph,cimomWbem)
 		if not wbemNode:
 			continue
-		grph.add(( wbemNode, pc.property_information, lib_common.NodeLiteral("Static definition") ) )
+		grph.add(( wbemNode, pc.property_information, lib_util.NodeLiteral("Static definition") ) )
 
 
 
@@ -76,13 +76,13 @@ def Main():
 			if not wbemNode:
 				continue
 
-			grph.add(( wbemNode, pc.property_information, lib_common.NodeLiteral("Service Location Protocol") ) )
+			grph.add(( wbemNode, pc.property_information, lib_util.NodeLiteral("Service Location Protocol") ) )
 
 			attrsService = dictServices[keyService]
 			for keyAttr in attrsService:
 				propAttr = lib_common.MakeProp(keyAttr)
 				valAttr = attrsService[keyAttr]
-				grph.add( ( wbemNode, propAttr, lib_common.NodeLiteral(valAttr) ) )
+				grph.add( ( wbemNode, propAttr, lib_util.NodeLiteral(valAttr) ) )
 
 	cgiEnv.OutCgiRdf()
 
