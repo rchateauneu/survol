@@ -37,7 +37,7 @@ def AddInfo(grph,node,entity_ids_arr):
 # This simply iterates on processes, then on mapped files of each process.
 # This is not very efficient but there is no other way.
 def DisplayMappedProcesses(grph,fileName):
-	grph.add( ( lib_common.nodeMachine, pc.property_hostname, lib_common.NodeLiteral( lib_util.currentHostname ) ) )
+	grph.add( ( lib_common.nodeMachine, pc.property_hostname, lib_util.NodeLiteral( lib_util.currentHostname ) ) )
 
 	# This is also a file mapped into memory.
 	uriMappedFile = lib_common.gUriGen.FileUri( fileName )
@@ -48,11 +48,11 @@ def DisplayMappedProcesses(grph,fileName):
 		statinfo = os.stat(fileName)
 	except Exception:
 		exc = sys.exc_info()[1]
-		grph.add( ( uriMappedFile, lib_common.MakeProp("Error"), lib_common.NodeLiteral(str(exc)) ) )
+		grph.add( ( uriMappedFile, lib_common.MakeProp("Error"), lib_util.NodeLiteral(str(exc)) ) )
 		return
 
 	fileSize = lib_util.AddSIUnit(statinfo.st_size, "B")
-	grph.add( ( uriMappedFile, pc.property_file_size, lib_common.NodeLiteral(fileSize) ) )
+	grph.add( ( uriMappedFile, pc.property_file_size, lib_util.NodeLiteral(fileSize) ) )
 
 	propMemoryRSS = lib_common.MakeProp("Resident Set Size")
 	for proc in psutil.process_iter():
@@ -90,10 +90,10 @@ def DisplayMappedProcesses(grph,fileName):
 				nodeProcess = lib_common.gUriGen.PidUri(pid)
 				# The property is reversed because of display.
 				grph.add( ( uriMemMap, pc.property_memmap, nodeProcess ) )
-				grph.add( ( nodeProcess, pc.property_pid, lib_common.NodeLiteral(pid) ) )
+				grph.add( ( nodeProcess, pc.property_pid, lib_util.NodeLiteral(pid) ) )
 
 				# Displays the RSS only if different from the file size.
 				if map.rss != statinfo.st_size:
-					grph.add( ( nodeProcess, propMemoryRSS, lib_common.NodeLiteral(map.rss) ) )
+					grph.add( ( nodeProcess, propMemoryRSS, lib_util.NodeLiteral(map.rss) ) )
 
 

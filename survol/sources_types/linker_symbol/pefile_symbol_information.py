@@ -79,7 +79,7 @@ def Main():
 		filNode = lib_common.gUriGen.FileUri( filNam )
 		grph.add( ( filNode, pc.property_symbol_defined, symNode ) )
 		versStr = VersionString(filNam)
-		grph.add( ( filNode, pc.property_information, lib_common.NodeLiteral(versStr) ) )
+		grph.add( ( filNode, pc.property_information, lib_util.NodeLiteral(versStr) ) )
 
 		sym = FindPESymbol(filNam,symbolNam)
 
@@ -93,18 +93,18 @@ def Main():
 			# This string is filled with spaces and CR which are translated into "&#160;".
 			docTxt = re.sub( '\s+', ' ', docTxt ).strip()
 
-			grph.add( ( symNode, pc.property_information,lib_common.NodeLiteral( docTxt ) ) )
+			grph.add( ( symNode, pc.property_information,lib_util.NodeLiteral( docTxt ) ) )
 
 			# Possible values are "name","offset","ordinal","forwarder"
 			try:
 				fwrd = getattr(sym,"forwarder")
-				grph.add( ( symNode, lib_common.MakeProp("Forwarder"), lib_common.NodeLiteral( fwrd ) ) )
+				grph.add( ( symNode, lib_common.MakeProp("Forwarder"), lib_util.NodeLiteral( fwrd ) ) )
 			except:
 				pass
 
 			try:
 				fwrd = getattr(sym,"ordinal")
-				grph.add( ( symNode, lib_common.MakeProp("Ordinal"), lib_common.NodeLiteral( fwrd ) ) )
+				grph.add( ( symNode, lib_common.MakeProp("Ordinal"), lib_util.NodeLiteral( fwrd ) ) )
 			except:
 				pass
 
