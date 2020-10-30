@@ -223,7 +223,7 @@ def DispWmiReferences(grph, wmi_instance_node, obj_wmi, cgi_moniker):
                 grph.add((
                     ref_instance_node,
                     lib_common.MakeProp(key_litt),
-                    lib_common.NodeLiteral(literal_key_value[key_litt])))
+                    lib_util.NodeLiteral(literal_key_value[key_litt])))
 
 
 def Main():
@@ -284,14 +284,14 @@ def Main():
                 WARNING("entity_wmi.py Exception=%s", str(exc) )
         else:
             # Prefix with a dot so it is displayed first.
-            grph.add((wmi_instance_node, lib_common.MakeProp(".REFERENCES"), lib_common.NodeLiteral("DISABLED")))
+            grph.add((wmi_instance_node, lib_common.MakeProp(".REFERENCES"), lib_util.NodeLiteral("DISABLED")))
 
         # Displaying the associators is conditional because it slows things.
         # TODO: How to select this option with D3 ?????
         if display_associators:
             # This class appears everywhere, so not not display its references, it would be too long.
             if class_name == "Win32_ComputerSystem":
-                grph.add((wmi_instance_node, lib_common.MakeProp(".ASSOCIATORS"), lib_common.NodeLiteral("DISABLED")))
+                grph.add((wmi_instance_node, lib_common.MakeProp(".ASSOCIATORS"), lib_util.NodeLiteral("DISABLED")))
             else:
                 DisplayObjectAssociators(grph, wmi_instance_node, obj_wmi, cgi_moniker)
 
