@@ -94,12 +94,12 @@ def Main():
 			nodeSurvolUrl = CallbackNodeAdder(grph,keyService)
 			grph.add( ( nodeSurvolUrl,
 						pc.property_information,
-						lib_common.NodeLiteral("Service Location Protocol") ) )
+						lib_util.NodeLiteral("Service Location Protocol") ) )
 			attrsService = dictServices[keyService]
 			for keyAttr in attrsService:
 				propAttr = lib_common.MakeProp(keyAttr)
 				valAttr = attrsService[keyAttr]
-				grph.add( ( nodeSurvolUrl, propAttr, lib_common.NodeLiteral(valAttr) ) )
+				grph.add( ( nodeSurvolUrl, propAttr, lib_util.NodeLiteral(valAttr) ) )
 
 
 	cgiEnv.OutCgiRdf()
