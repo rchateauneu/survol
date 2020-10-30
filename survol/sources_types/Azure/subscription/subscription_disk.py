@@ -41,8 +41,8 @@ def Main():
 	subscriptionNode = subscription.MakeUri( subscriptionName )
 
 	# Some information printed
-	grph.add( ( subscriptionNode, lib_common.MakeProp(".requestid"), lib_common.NodeLiteral(sms.requestid)) )
-	grph.add( ( subscriptionNode, lib_common.MakeProp(".x_ms_version"), lib_common.NodeLiteral(sms.x_ms_version)) )
+	grph.add( ( subscriptionNode, lib_common.MakeProp(".requestid"), lib_util.NodeLiteral(sms.requestid)) )
+	grph.add( ( subscriptionNode, lib_common.MakeProp(".x_ms_version"), lib_util.NodeLiteral(sms.x_ms_version)) )
 
 	propDisk = lib_common.MakeProp("Disk")
 	propDiskLabel = lib_common.MakeProp("Label")
@@ -59,7 +59,7 @@ def Main():
 		DEBUG("dsk=%s",str(dir(dsk)))
 		nodeDisk = disk.MakeUri( dsk.name, subscriptionName )
 		grph.add( ( subscriptionNode, propDisk, nodeDisk ) )
-		grph.add( ( nodeDisk, lib_common.MakeProp("Size"), lib_common.NodeLiteral(dsk.logical_disk_size_in_gb )) )
+		grph.add( ( nodeDisk, lib_common.MakeProp("Size"), lib_util.NodeLiteral(dsk.logical_disk_size_in_gb )) )
 
 		# TODO: This www url does not work. WHY ???
 		urlDisk = dsk.media_link
@@ -67,17 +67,17 @@ def Main():
 
 		if dsk.affinity_group:
 			affGroup = dsk.affinity_group
-			grph.add( ( nodeDisk, lib_common.MakeProp("Affinity group"), lib_common.NodeLiteral(affGroup)) )
+			grph.add( ( nodeDisk, lib_common.MakeProp("Affinity group"), lib_util.NodeLiteral(affGroup)) )
 
-		grph.add( ( nodeDisk, lib_common.MakeProp("Source image name"), lib_common.NodeLiteral(dsk.source_image_name)) )
-		grph.add( ( nodeDisk, lib_common.NodeLiteral("Operating System"), lib_common.NodeLiteral(dsk.os)) )
-		# grph.add( ( nodeDisk, lib_common.NodeLiteral("Hosted Service Name"), lib_common.NodeLiteral(dsk.hosted_service_name)) )
+		grph.add( ( nodeDisk, lib_common.MakeProp("Source image name"), lib_util.NodeLiteral(dsk.source_image_name)) )
+		grph.add( ( nodeDisk, lib_util.NodeLiteral("Operating System"), lib_util.NodeLiteral(dsk.os)) )
+		# grph.add( ( nodeDisk, lib_util.NodeLiteral("Hosted Service Name"), lib_util.NodeLiteral(dsk.hosted_service_name)) )
 
 		if dsk.is_corrupted:
-			grph.add( ( nodeDisk, lib_common.NodeLiteral("Corrupted"), lib_common.NodeLiteral(dsk.is_corrupted)) )
+			grph.add( ( nodeDisk, lib_util.NodeLiteral("Corrupted"), lib_util.NodeLiteral(dsk.is_corrupted)) )
 
-		grph.add( ( nodeDisk, lib_common.NodeLiteral("Label"), lib_common.NodeLiteral(dsk.label)) )
-		# grph.add( ( nodeDisk, lib_common.MakeProp("Affinity group"), lib_common.NodeLiteral("dsk.affinity_group")) )
+		grph.add( ( nodeDisk, lib_util.NodeLiteral("Label"), lib_util.NodeLiteral(dsk.label)) )
+		# grph.add( ( nodeDisk, lib_common.MakeProp("Affinity group"), lib_util.NodeLiteral("dsk.affinity_group")) )
 		DEBUG("dsk.attached_to=%s",str(dir(dsk.attached_to)))
 
 		nodeLocation = location.MakeUri( dsk.location, subscriptionName )
