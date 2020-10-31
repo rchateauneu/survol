@@ -34,7 +34,6 @@ import lib_export_html
 import lib_daemon
 import lib_command_line
 
-from lib_util import NodeLiteral
 from lib_util import NodeUrl
 from lib_util import TimeStamp
 
