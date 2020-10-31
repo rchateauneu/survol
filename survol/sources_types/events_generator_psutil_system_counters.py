@@ -27,7 +27,7 @@ def Snapshot():
         for property_name in property_names:
             property_node = lib_properties.MakeProp("%s.%s" % (property_prefix, property_name))
             property_value = getattr(results_set, property_name)
-            grph.add((current_node_hostname, property_node, lib_common.NodeLiteral(property_value)))
+            grph.add((current_node_hostname, property_node, lib_util.NodeLiteral(property_value)))
 
     # sswap(total=2097147904L, used=886620160L, free=1210527744L, percent=42.3, sin=1050411008, sout=1906720768)
     add_property_values(psutil.swap_memory(),

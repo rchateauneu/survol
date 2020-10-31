@@ -32,10 +32,10 @@ def Snapshot():
 
     datetime_now = datetime.datetime.now()
     timestamp_literal = datetime_now.strftime("%Y-%m-%d %H:%M:%S")
-    grph.add((node_process, timestamp_property, lib_common.NodeLiteral(timestamp_literal)))
+    grph.add((node_process, timestamp_property, lib_util.NodeLiteral(timestamp_literal)))
 
-    grph.add((node_process, param_a_property, lib_common.NodeLiteral(parameter_a)))
-    grph.add((node_process, param_b_property, lib_common.NodeLiteral(parameter_b)))
+    grph.add((node_process, param_a_property, lib_util.NodeLiteral(parameter_a)))
+    grph.add((node_process, param_b_property, lib_util.NodeLiteral(parameter_b)))
 
     cgiEnv.OutCgiRdf()
 

@@ -23,7 +23,7 @@ def Snapshot():
     # This just returns one triple.
     grph = cgiEnv.GetGraph()
     process_node = lib_common.gUriGen.PidUri(process_id)
-    grph.add((process_node, pc.property_pid, lib_common.NodeLiteral(process_id)))
+    grph.add((process_node, pc.property_pid, lib_util.NodeLiteral(process_id)))
 
     cgiEnv.OutCgiRdf()
 

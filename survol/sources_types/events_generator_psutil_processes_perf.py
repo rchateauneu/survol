@@ -32,12 +32,12 @@ def Snapshot():
         node_process = lib_common.gUriGen.PidUri(proc.pid)
 
         cpu_percent = proc.cpu_percent(interval=0)
-        grph.add((node_process, cpu_property, lib_common.NodeLiteral(cpu_percent)))
+        grph.add((node_process, cpu_property, lib_util.NodeLiteral(cpu_percent)))
 
         try:
             memory_dict = proc.memory_full_info()
-            grph.add((node_process, rss_property, lib_common.NodeLiteral(memory_dict.rss)))
-            grph.add((node_process, vms_property, lib_common.NodeLiteral(memory_dict.vms)))
+            grph.add((node_process, rss_property, lib_util.NodeLiteral(memory_dict.rss)))
+            grph.add((node_process, vms_property, lib_util.NodeLiteral(memory_dict.vms)))
         except psutil.AccessDenied:
             pass
 
