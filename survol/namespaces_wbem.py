@@ -43,8 +43,8 @@ def Main():
 		wbemNode = lib_common.NodeUrl( wbemUrl )
 
 		grph.add( ( rootNode, pc.property_cim_subnamespace, wbemNode ) )
-		grph.add( ( wbemNode, pc.property_information, lib_common.NodeLiteral(nskey) ) )
-		grph.add( ( wbemNode, pc.property_information, lib_common.NodeLiteral(cnt) ) )
+		grph.add( ( wbemNode, pc.property_information, lib_util.NodeLiteral(nskey) ) )
+		grph.add( ( wbemNode, pc.property_information, lib_util.NodeLiteral(cnt) ) )
 
 	cgiEnv.OutCgiRdf("LAYOUT_RECT")
 
