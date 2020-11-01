@@ -225,11 +225,11 @@ map_types_CIM_to_XSD = {
 
 
 # owl_type: "xsd::string" etc... TODO: Transform this into XSD.string etc...
-def PropNameToXsdType(prop_type):
+def _prop_name_to_xsd_type(prop_type):
     try:
         xsd_type = map_types_CIM_to_XSD[prop_type]
     except:
-        INFO("PropNameToXsdType tp=%s",prop_type)
+        INFO("_prop_name_to_xsd_type tp=%s",prop_type)
         xsd_type = XSD.string
     return xsd_type
 
@@ -284,7 +284,7 @@ def CreateRdfsOntology(map_classes, map_attributes, graph=None):
         if property_description:
             the_graph.add((node_datatype_property, RDFS.comment, rdflib.Literal(property_description)))
         if property_type:
-            xsd_type = PropNameToXsdType(property_type)
+            xsd_type = _prop_name_to_xsd_type(property_type)
             the_graph.add((node_datatype_property, RDFS.range, xsd_type))
         if property_domain:
             node_domain_class = rdflib.URIRef(LDT[property_domain])
@@ -487,7 +487,10 @@ _events_storage_style = (None, )
 
 
 def set_storage_style(*storage_style_tuple):
-    """Resets the connection even if the new storage style is identical."""
+    """
+    This says if the graph should be stored in memory or in SQLAlchemy or something else.
+    Resets the connection even if the new storage style is identical.
+    """
     global _events_storage_style
     global _store_input
     global _events_conjunctive_graph
@@ -511,6 +514,7 @@ def set_storage_style(*storage_style_tuple):
 
 
 def _check_globals(function_name):
+    """Internal check."""
     if _store_input is None:
         raise Exception("%s _store_input should not be None" % function_name)
     if _events_conjunctive_graph is None:
@@ -600,7 +604,7 @@ def _url_to_context_node(the_url):
 
 
 def _log_db_access(function_name, access_type, step_name, url_name, data_size=-1):
-
+    """For debugging. It writes in a file what happens to the db."""
     if access_type:
         # If not init.
         _check_globals(function_name)
