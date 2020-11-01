@@ -251,8 +251,8 @@ regex_tab_nam = [
  ]
 
 
-# The input token contains a table name or an alias definition.
 def _parse_append(tok, result, margin):
+    """The input token contains a table name or an alias definition."""
     for rgx in regex_tab_nam:
         remtch = re.match(rgx, tok.value, re.IGNORECASE)
         if remtch:
@@ -266,7 +266,6 @@ def _is_noise(tok):
     return tok.ttype in [sqlparse.tokens.Whitespace, sqlparse.tokens.Punctuation, sqlparse.tokens.Whitespace.Newline]
 
 
-# The margin is only for debugging and display purpose.
 def _process_select_tokens(sql_obj, depth=0):
     result = []
     depth += 1
@@ -275,6 +274,7 @@ def _process_select_tokens(sql_obj, depth=0):
 
         in_from = False
         was_from = False
+        sql_keywords = ["FROM", "FULL JOIN", "INNER JOIN", "LEFT OUTER JOIN", "LEFT JOIN", "JOIN", "FULL OUTER JOIN"]
         for tok in sql_obj.tokens:
             if _is_noise(tok):
                 continue
@@ -308,8 +308,7 @@ def _process_select_tokens(sql_obj, depth=0):
                     #print("WHAT CAN I DO")
                     pass
 
-            in_from = (tok.ttype == sqlparse.tokens.Keyword) \
-                     and tok.value.upper() in ["FROM","FULL JOIN","INNER JOIN","LEFT OUTER JOIN","LEFT JOIN","JOIN","FULL OUTER JOIN"]
+            in_from = (tok.ttype == sqlparse.tokens.Keyword) and tok.value.upper() in sql_keywords
 
             result += _process_select_tokens(tok, depth)
 
@@ -317,7 +316,6 @@ def _process_select_tokens(sql_obj, depth=0):
 
 
 def _process_update_tokens(sql_obj, depth=0):
-    idx = 0
     keywrd_found = False
     for idx in range(0, len(sql_obj.tokens)):
         tok = sql_obj.tokens[idx]
@@ -374,8 +372,8 @@ statement_to_func = {
 }
 
 
-# Returns "SELECT" etc.. based on the query type.
 def _get_statement_type(sql_qry):
+    """Returns "SELECT" etc.. based on the query type."""
     for tok in sql_qry.tokens:
         if tok.ttype == sqlparse.tokens.Keyword.DML:
             return tok.value.upper()
@@ -383,8 +381,8 @@ def _get_statement_type(sql_qry):
     return ""
 
 
-# This returns the list of tables that a query depends on.
 def TableDependencies(sql_query):
+    """This returns the list of tables that a query depends on."""
     statements = list(sqlparse.parse(sql_query))
     all_tabs = []
     for sql_obj in statements:
@@ -416,10 +414,10 @@ def _is_sub_select(parsed):
     return False
 
 
-# It calls a function on each node, and recursively calls itself.
-# For debugging purpose, so we can display the nodes with a text margin
-# whose length is proportional to the node depth.
 def _sql_query_walk_nodes_recurs(parent_node, sql_obj, Func, depth):
+    """It calls a function on each node, and recursively calls itself.
+    For debugging purpose, so we can display the nodes with a text margin
+    whose length is proportional to the node depth."""
 
     is_sub = _is_sub_select(sql_obj)
     #print("Q="+sqlObj.value+" is_sub="+str(is_sub))
@@ -444,9 +442,9 @@ def _sql_query_walk_nodes_recurs(parent_node, sql_obj, Func, depth):
             _sql_query_walk_nodes_recurs(actual_parent, tok, Func, depth)
 
 
-# For debugging purpose only. It allows to visit each node
-# of the SQL query and display it.
 def SqlQueryWalkNodes(sql_query, Func):
+    """For debugging purpose only. It allows to visit each node
+    of the SQL query and display it."""
     statements = list(sqlparse.parse(sql_query))
     for sql_obj in statements:
         if sql_obj.value.strip() == "":

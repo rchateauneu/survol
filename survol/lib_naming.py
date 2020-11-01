@@ -1,26 +1,24 @@
 import lib_util
 import lib_mime
-import cgi
 import sys
 import os
 import re
 import lib_patterns
 
-################################################################################
 
 # TODO: Make this dynamic, less hard-coded.
 def UriToTitle(uprs):
-    # Maybe an external URI sending data in RDF, HTML etc...
-    # We could also load the URL and gets its title if it is in HTML.
-    # urlparse('http://www.cwi.nl:80/%7Eguido/Python.html')
-    # ParseResult(scheme='http', netloc='www.cwi.nl:80', path='/%7Eguido/Python.html', params='', query='', fragment='')
+    """Maybe an external URI sending data in RDF, HTML etc...
+    We could also load the URL and gets its title if it is in HTML.
+    urlparse('http://www.cwi.nl:80/%7Eguido/Python.html')
+    ParseResult(scheme='http', netloc='www.cwi.nl:80', path='/%7Eguido/Python.html', params='', query='', fragment='')
+    """
     basna = lib_util.EncodeUri( os.path.basename( uprs.path ) )
     if uprs.netloc != "":
         return uprs.netloc + "/" + basna
     else:
         return basna
 
-################################################################################
 
 def EntityArrToLabel(entity_type, entity_ids_arr):
     func_entity_name = lib_util.HierarchicalFunctionSearch(entity_type,"EntityName")
@@ -38,15 +36,16 @@ def EntityArrToLabel(entity_type, entity_ids_arr):
         return ent_ids_joined
 
 
-# This calls for an object, the class-specific function UniversalAlias, if it exists.
-# Otherwise, it generates a default string with the object's parameters.
-# The universal alias of an object is the same for all Survol agents no matter what
-# the host they are running on, or their URL.
-# Therefore, if several agents are running on the same machine but are hosted differently
-# (Apache, IIS, cgiserver.py script running with different accounts and different port numbers),
-# they will calculate the same universal alias for the same objects, even if
-# the URLs are different.
 def EntityArrToAlias(entity_type, entity_ids_arr, force_entity_ip_addr):
+    """This calls for an object, the class-specific function UniversalAlias, if it exists.
+    Otherwise, it generates a default string with the object's parameters.
+    The universal alias of an object is the same for all Survol agents no matter what
+    the host they are running on, or their URL.
+    Therefore, if several agents are running on the same machine but are hosted differently
+    (Apache, IIS, cgiserver.py script running with different accounts and different port numbers),
+    they will calculate the same universal alias for the same objects, even if
+    the URLs are different.
+    """
 
     func_universal_alias = lib_util.HierarchicalFunctionSearch(entity_type, "UniversalAlias")
 
@@ -64,10 +63,11 @@ def EntityArrToAlias(entity_type, entity_ids_arr, force_entity_ip_addr):
     return univ_alias
 
 
-# For an association, we might have:
-# entity_id=Dependent=root/cimv2:LMI_StorageExtent.CreationClassName="LMI_StorageExtent",SystemCreationClassName="PG_ComputerSystem" Antecedent=root/cimv2:LMI_DiskDrive.CreationClassName="LMI_DiskDrive",DeviceID="/dev/sda"
-# This is not easy to manage but avoids ambiguities.
 def EntityToLabel(entity_type, entity_ids_concat, force_entity_ip_addr):
+    """For an association, we might have:
+    entity_id=Dependent=root/cimv2:LMI_StorageExtent.CreationClassName="LMI_StorageExtent",SystemCreationClassName="PG_ComputerSystem" Antecedent=root/cimv2:LMI_DiskDrive.CreationClassName="LMI_DiskDrive",DeviceID="/dev/sda"
+    This is not easy to manage but avoids ambiguities.
+    """
     #sys.stderr.write("EntityToLabel entity_id=%s entity_type=%s\n" % ( entity_ids_concat, entity_type ) )
 
     # Specific case of objtypes.py
@@ -105,8 +105,9 @@ def EntityToLabel(entity_type, entity_ids_concat, force_entity_ip_addr):
     return entity_label
 
 
-# Called when using the specific CGI script.
 def ParseEntitySurvolUri(uprs, long_display, force_entity_ip_addr):
+    """Called when using the specific CGI script."""
+
     # sys.stderr.write("KnownScriptToTitle filScript=%s uprs=%s\n"%(filScript,str(uprs)))
     # uprs=ParseResult(
     #   scheme=u'http',
@@ -119,7 +120,6 @@ def ParseEntitySurvolUri(uprs, long_display, force_entity_ip_addr):
     uprs_query = uprs.query
     # Apparently the URL might contain "&amp;amp;" and "&" playing the same role.
     # It does not matter as it is purely cosmetic.
-    # uprs_query = uprs_query.replace("&amp;amp;","&")
     uprs_query = lib_util.UrlNoAmp(uprs_query)
     splt_cgi_args = uprs_query.split("&")
     query_rebuild = ""
@@ -164,7 +164,7 @@ scripts_to_titles = {
 
 
 def KnownScriptToTitle(fil_script, uri_mode, entity_host=None, entity_suffix=None):
-    # Extra information depending on the script.
+    """Extra information depending on the script."""
 
     # Special display if MIME URL
     if fil_script == "entity_mime.py":
