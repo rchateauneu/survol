@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+"""Various tests of top-level scripts about objects types and classes in Survol, WMI and WBEM."""
+
 from __future__ import print_function
 
 import os
@@ -29,15 +31,25 @@ class PortalsTest(unittest.TestCase):
     def test_portal_wbem_main(self):
         rdf_content = self._check_script("/survol/portal_wbem.py?mode=rdf")
         portal_graph = rdflib.Graph().parse(data=rdf_content, format="application/rdf+xml")
-
         self.assertTrue(portal_graph)
 
     @unittest.skipIf(is_platform_linux, "WMI on Windows only.")
     def test_portal_wmi_main(self):
         rdf_content = self._check_script("/survol/portal_wmi.py?mode=rdf")
         portal_graph = rdflib.Graph().parse(data=rdf_content, format="application/rdf+xml")
-
         self.assertTrue(portal_graph)
+
+    @unittest.skipIf(is_platform_linux, "WMI on Windows only.")
+    def test_namespaces_wmi_main(self):
+        rdf_content = self._check_script("/survol/namespaces_wmi.py?mode=rdf")
+        objtypes_graph = rdflib.Graph().parse(data=rdf_content, format="application/rdf+xml")
+        self.assertTrue(objtypes_graph)
+
+    @unittest.skip("Not implemented yet.")
+    def test_namespaces_wbem_main(self):
+        rdf_content = self._check_script("/survol/namespaces_wbem.py?mode=rdf")
+        objtypes_graph = rdflib.Graph().parse(data=rdf_content, format="application/rdf+xml")
+        self.assertTrue(objtypes_graph)
 
     @unittest.skipIf(is_platform_linux, "WMI on Windows only.")
     def test_objtypes_wmi_main(self):
