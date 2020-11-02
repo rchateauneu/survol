@@ -104,8 +104,8 @@ class InstallLibCommand(install_lib):
             self, infile, outfile,
             preserve_mode=1, preserve_times=1, preserve_symlinks=0, level=1
     ):
-        # This is called on, for the top-level infile='build\\lib'
-        if sys.platform.startswith("lin"):
+        # This is called on Linux and Darwin, from the top-level infile='build\\lib'
+        if sys.platform.startswith("lin") or sys.platform == "darwin":
             library_top = os.path.join(infile, "survol")
             for library_root, library_dirs, library_files in os.walk(library_top):
                 for one_file in library_files:
