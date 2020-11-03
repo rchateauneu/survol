@@ -115,8 +115,6 @@ def cgiserver_entry_point():
     atexit.register(_exit_handler)
 
     # The script must be started from a specific directory to match URLs.
-
-    # BEWARE: THIS DOES NOT WORK IF THIS IS TRANSFORMNED INTO A SCRIPT survolcgi.exe
     good_dir = os.path.join(os.path.dirname(__file__), "..", "..")
     os.chdir(good_dir)
 
