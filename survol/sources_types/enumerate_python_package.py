@@ -26,58 +26,60 @@ from sources_types.python import package
 # s', 'from_filename', 'from_location', 'get_entry_info', 'get_entry_map', 'has_version', 'hashcmp', 'insert_on', 'key', 'load_entry_p
 # oint', 'location', 'parsed_version', 'platform', 'precedence', 'project_name', 'py_version', 'requires', 'version']
 
+
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.CgiEnv()
 
-	Main.dictKeyToPckg = dict()
+    Main.dictKeyToPckg = dict()
 
-	def KeyToPckgNode(key):
-		try:
-			packageNode = Main.dictKeyToPckg[ key ]
-		except KeyError:
-			packageNode = package.MakeUri( key )
-			Main.dictKeyToPckg[ key ] = packageNode
-		return packageNode
+    def key_to_pckg_node(key):
+        try:
+            package_node = Main.dictKeyToPckg[key]
+        except KeyError:
+            package_node = package.MakeUri(key)
+            Main.dictKeyToPckg[ key ] = package_node
+        return package_node
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	# TODO: What about several Python versions ?
-	installed_packages = lib_python.PipGetInstalledDistributions()
+    # TODO: What about several Python versions ?
+    installed_packages = lib_python.PipGetInstalledDistributions()
 
-	cnt = 0
+    cnt = 0
 
-	# TODO: Maybe the version should be part of the key.
-	for pckg in installed_packages:
-		cnt += 1
+    # TODO: Maybe the version should be part of the key.
+    for pckg in installed_packages:
+        cnt += 1
 
-		DEBUG("cnt=%d key=%s", cnt,pckg.key)
+        DEBUG("cnt=%d key=%s", cnt,pckg.key)
 
-		# With this module, "dot" crashes...
-		# TODO: WHY IS THIS BROKEN ?????
-		if pckg.key in ["aff4-snappy"]:
-			continue
+        # With this module, "dot" crashes...
+        # TODO: WHY IS THIS BROKEN ?????
+        if pckg.key in ["aff4-snappy"]:
+            continue
 
-		packageNode = KeyToPckgNode( pckg.key )
-		grph.add( ( packageNode, package.propPythonVersion, lib_util.NodeLiteral(pckg.version) ) )
+        package_node = key_to_pckg_node(pckg.key)
+        grph.add((package_node, package.propPythonVersion, lib_util.NodeLiteral(pckg.version)))
 
-		reqPckg = pckg.requires()
-		if reqPckg:
-			for subReq in pckg.requires():
-				subNode = KeyToPckgNode( subReq.key )
+        req_pckg = pckg.requires()
+        if req_pckg:
+            for sub_req in pckg.requires():
+                sub_node = key_to_pckg_node(sub_req.key)
 
-				# TODO: Should do that on the edge !!!!!
-				# [('>=', '4.0.0')]+[]+[('>=','4.0')]+[]
-				# aSpecs = subReq.specs
-				# if aSpecs:
-				#	grph.add( (subNode, lib_common.MakeProp("Condition"), lib_util.NodeLiteral( str(aSpecs) ) ) )
+                # TODO: Should do that on the edge !!!!!
+                # [('>=', '4.0.0')]+[]+[('>=','4.0')]+[]
+                # aSpecs = sub_req.specs
+                # if aSpecs:
+                #    grph.add( (sub_node, lib_common.MakeProp("Condition"), lib_util.NodeLiteral( str(aSpecs) ) ) )
 
-				grph.add( (packageNode, package.propPythonRequires, subNode ) )
-		else:
-			grph.add( ( lib_common.nodeMachine, package.propPythonPackage, packageNode ) )
+                grph.add((package_node, package.propPythonRequires, sub_node))
+        else:
+            grph.add((lib_common.nodeMachine, package.propPythonPackage, package_node))
 
-	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
+    cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
+
 
 if __name__ == '__main__':
-	Main()
+    Main()
 
 
