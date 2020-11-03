@@ -352,15 +352,8 @@ def start_server_forever(verbose, server_name, port_number, current_dir=""):
         stream.flush()
 
     # The script must be started from a specific directory because of the URLs.
-    if current_dir:
-        os.chdir(current_dir)
-        sys.stderr.write("start_server_forever getcwd=%s\n" % os.getcwd() )
-    try:
-        filMyself = open("survol/scripts/wsgiserver.py")
-    except Exception as exc:
-        print("Script started from wrong directory %s: exc=%s" % (os.getcwd(), exc))
-        __print_wsgi_server_usage()
-        sys.exit()
+    good_dir = os.path.join(os.path.dirname(__file__), "..", "..")
+    os.chdir(good_dir)
 
     sys.path.append("survol")
     sys.stderr.write("path=%s\n" % str(sys.path))
