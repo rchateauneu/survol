@@ -33,7 +33,6 @@ def Main():
                 continue
 
             pid = proc.pid
-            sys.stderr.write("pid=%dzn" % pid)
 
             # TCP sockets only.
             all_connect = CIM_Process.PsutilProcConnections(proc)
