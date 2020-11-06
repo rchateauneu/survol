@@ -7,95 +7,107 @@ import sys
 import lib_util
 import lib_common
 
-# This behaves like a string plus some properties for serialization.
+
 class CgiPropertyB64(str):
-	# Python 2
-	def __new__(cls,propName):
-		#obj = str.__new__(self, propName)
-		#return obj
-		return super(CgiPropertyB64, cls).__new__(cls, propName)
+    """
+    This behaves like a string plus some properties for serialization.
+    """
+    
+    # TODO: It would be simpler to allow any string to be encoded in B64,
+    # TODO: ... and detect on-the-fly if is encoded or not.
+    # TODO: The consequence is that the encoding would be separate from the data,
+    # TODO: ... and it would not be necessary to have a special processing for any datatype
+    # TODO: ... whose representation cannot be stored in n URL.
+    def __new__(cls, prop_name):
+        return super(CgiPropertyB64, cls).__new__(cls, prop_name)
 
-	def ValueEncode(self,valueClear):
-		return lib_util.Base64Encode(valueClear)
+    def ValueEncode(self, value_clear):
+        return lib_util.Base64Encode(value_clear)
 
-	def ValueDecode(self,valueCoded):
-		return lib_util.Base64Decode(valueCoded)
+    def ValueDecode(self, value_coded):
+        return lib_util.Base64Decode(value_coded)
 
-	def ValueDisplay(self,valueClear):
-		return lib_util.html_escape(valueClear)
+    def ValueDisplay(self, value_clear):
+        return lib_util.html_escape(value_clear)
+
 
 # TODO: This is probably not the proper solution.
 class CgiPropertyQuery(CgiPropertyB64):
 
-	# Python 2
-	def __new__(cls):
-		return super(CgiPropertyQuery, cls).__new__(cls, "Query")
+    # Python 2
+    def __new__(cls):
+        return super(CgiPropertyQuery, cls).__new__(cls, "Query")
 
 
 # This array will be concatenated to other strings, depending of the origin of the query: database,
 # process memory, file content.
 def EntityOntology():
-	return ( [CgiPropertyQuery(),], )
+    return ([CgiPropertyQuery(), ], )
 
-# The SQL query is encoded in base 64 because it contains many special characters which would be too complicated to
-# encode as HTML entities. This is not visible as EntityName() does the reverse decoding.
-# TODO: This is called from other classes like that: sql_query.MakeUri( strQuery, "oracle/query", Db = theDb )
-# On voudrait davantage generaliser.
+
 def MakeUri(strQuery,derivedEntity = "sql/query", **kwargs):
-	# TODO: This should rather rely on CgiPropertyB64, or have a fully generic solution for CGI-incompatible strings.
-	strQueryEncoded = lib_util.Base64Encode(strQuery)
-	# The result might be: { "Query" : strQueryEncoded, "Pid" : thePid  }
+    """The SQL query is encoded in base 64 because it contains many special characters which are too complicated to
+    encode as HTML entities. This is not visible as EntityName() does the reverse decoding."""
 
-	# Rather CgiPropertyQuery() instead of "Query"
-	allKeyedArgs = { "Query" : strQueryEncoded }
-	allKeyedArgs.update( kwargs )
-	# Maybe we could take the calling module as derived entity ?
-	return lib_common.gUriGen.UriMakeFromDict(derivedEntity,allKeyedArgs )
+    # TODO: This is called from other classes like that: sql_query.MakeUri( strQuery, "oracle/query", Db = theDb )
+    # TODO: This should rather rely on CgiPropertyB64, or have a fully generic solution for CGI-incompatible strings.
+    str_query_encoded = lib_util.Base64Encode(strQuery)
+    # The result might be: { "Query" : str_query_encoded, "Pid" : thePid  }
 
-def AddInfo(grph,node,entity_ids_arr):
-	strQuery = entity_ids_arr[0]
+    # Rather CgiPropertyQuery() instead of "Query"
+    all_keyed_args = {"Query" : str_query_encoded}
+    all_keyed_args.update(kwargs)
+    # Maybe we could take the calling module as derived entity ?
+    return lib_common.gUriGen.UriMakeFromDict(derivedEntity,all_keyed_args )
+
+
+def AddInfo(grph, node, entity_ids_arr):
+    str_query = entity_ids_arr[0]
+
 
 # TODO: It should not strip blanks between simple-quotes.
 def stripblanks(text):
-	lst = text.split('"')
-	for i, item in enumerate(lst):
-		if not i % 2:
-			lst[i] = re.sub(r"\s+", " ", item)
-	return '"'.join(lst)
+    lst = text.split('"')
+    for i, item in enumerate(lst):
+        if not i % 2:
+            lst[i] = re.sub(r"\s+", " ", item)
+    return '"'.join(lst)
 
-# This is dynamically called from the function EntityArrToLabel() in lib_naming.py.
-# It returns a printable string, given the url arguments.T
-# TODO: Problem, this is not compatible with variable arguments.
+
 def EntityName(entity_ids_arr):
-	resu = lib_util.Base64Decode(entity_ids_arr[0])
-	resu = lib_util.html_escape(resu)
-	resu = stripblanks(resu)
-	return resu
+    """This is dynamically called from the function EntityArrToLabel() in lib_naming.py.
+    It returns a printable string, given the url arguments."""
 
-# This extracts the arguments from the URL. We make a function from it so that
-# it wraps the decoding.
+    # TODO: Problem, this is not compatible with variable arguments.
+    resu = lib_util.Base64Decode(entity_ids_arr[0])
+    resu = lib_util.html_escape(resu)
+    resu = stripblanks(resu)
+    return resu
+
+
 def GetEnvArgs(cgiEnv):
-	sqlQuery_encode = cgiEnv.m_entity_id_dict["Query"]
-	sqlQuery = lib_util.Base64Decode(sqlQuery_encode)
-	return ( sqlQuery )
+    """This extracts the arguments from the URL. We make a function from it so that it wraps the decoding."""
+    sql_query_encode = cgiEnv.m_entity_id_dict["Query"]
+    sql_query = lib_util.Base64Decode(sql_query_encode)
+    return sql_query
 
 
-# Only cosmetic reasons: The displayed text should not be too long, when used as a title.
-def EntityNameUtil(textPrefix,sqlQuery):
-	resu = lib_util.Base64Decode(sqlQuery)
-	resu = lib_util.html_escape(resu)
-	resu = stripblanks(resu)
+def EntityNameUtil(text_prefix, sql_query):
+    """Only cosmetic reasons: The displayed text should not be too long, when used as a title."""
+    resu = lib_util.Base64Decode(sql_query)
+    resu = lib_util.html_escape(resu)
+    resu = stripblanks(resu)
 
-	lenFilNam = len(textPrefix)
-	lenResu = len(resu)
-	lenTot = lenFilNam + lenResu
-	lenMaxi = 50
-	lenDiff = lenTot - lenMaxi
-	if lenDiff > 0:
-		lenResu -= lenDiff
-		if lenResu < 30:
-			lenResu = 30
+    len_fil_nam = len(text_prefix)
+    len_resu = len(resu)
+    len_tot = len_fil_nam + len_resu
+    len_maxi = 50
+    len_diff = len_tot - len_maxi
+    if len_diff > 0:
+        len_resu -= len_diff
+        if len_resu < 30:
+            len_resu = 30
 
-		return textPrefix + ":" + resu[:lenResu] + "..."
-	else:
-		return textPrefix + ":" + resu
+        return text_prefix + ":" + resu[:len_resu] + "..."
+    else:
+        return text_prefix + ":" + resu
