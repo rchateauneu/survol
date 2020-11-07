@@ -137,7 +137,7 @@ def _cim_urls_html_iterator():
     def w_map_to_html(the_map):
         DEBUG("w_map_to_html len=%d", len(the_map))
         for url_subj in the_map:
-            (subjText, subj_entity_graph_class, subj_entity_id) = lib_naming.ParseEntityUri(lib_util.urllib_unquote(url_subj))
+            subjText, subj_entity_graph_class, subj_entity_id = lib_naming.ParseEntityUri(lib_util.urllib_unquote(url_subj))
             yield "<tr>"
             yield "<td valign='top'><a href='%s'>%s</a></td>" % (str(url_subj), subjText)
             yield "<td>"
@@ -149,7 +149,7 @@ def _cim_urls_html_iterator():
                 if lib_kbase.IsLiteral(url_obj):
                     yield "<td>%s</td>" % str(url_obj)
                 else:
-                    (obj_text, obj_entity_graph_class, obj_entity_id) = lib_naming.ParseEntityUri(lib_util.urllib_unquote(url_obj))
+                    obj_text, obj_entity_graph_class, obj_entity_id = lib_naming.ParseEntityUri(lib_util.urllib_unquote(url_obj))
                     yield "<td><a href='%s'>%s</a></td>" % (str(url_obj), obj_text)
                 yield "</tr>"
             yield "</table>"
@@ -157,7 +157,7 @@ def _cim_urls_html_iterator():
         yield "</tr>"
 
     calling_url = lib_util.RequestUri()
-    (entity_label, entity_type, entity_id) = lib_naming.ParseEntityUri(calling_url, long_display=True)
+    entity_label, entity_type, entity_id = lib_naming.ParseEntityUri(calling_url, long_display=True)
     host_wbem_wmi = lib_util.currentHostname
     nameSpace = ""
 
@@ -352,7 +352,7 @@ def _create_objects_list(grph):
                 continue
 
         subj_str = str(a_subj)
-        (subj_title, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri(subj_str)
+        subj_title, entity_graphic_class, entity_id = lib_naming.ParseEntityUri(subj_str)
 
         try:
             dict_subj_prop_obj = dict_class_subj_prop_obj[entity_graphic_class]
@@ -403,7 +403,7 @@ def _display_class_objects_no_jinja(dict_subj_prop_obj):
     tuples_subjects_list = []
     for a_subj in dict_subj_prop_obj:
         subj_str = str(a_subj)
-        (subj_title, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri(subj_str)
+        subj_title, entity_graphic_class, entity_id = lib_naming.ParseEntityUri(subj_str)
         if subj_title:
             # The intention is to detect a specific test case with accented characters.
             if subj_title[0] == 'Y' and subj_title.find("Boulogne"):
