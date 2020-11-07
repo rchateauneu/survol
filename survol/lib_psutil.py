@@ -24,11 +24,11 @@ def PsutilGetProcObj(pid):
 def GetCurrentUser():
     """This returns the username, not prefixed by the hostname."""
     curr_proc = PsutilGetProcObj(os.getpid())
-    # u'rchateau-HP\\rchateau' on Windows and 'rchateau' on Linux.
+    # u'mymachine\\myuser' on Windows and 'myuser' on Linux.
     ps_user = PsutilProcToUser(curr_proc)
     # This truncates the hostname if there is one.
     # We do not want the hostname but instead the SERVER_NAME,
-    # which is "LCOALHOST" when running locally this library in lib_client.py
+    # which is "LOCALHOST" when running locally this library in lib_client.py
     if lib_util.isPlatformWindows:
         ps_user = ps_user.rpartition("\\")[2]
     return ps_user
