@@ -75,7 +75,7 @@ def stripblanks(text):
 
 
 def EntityName(entity_ids_arr):
-    """This is dynamically called from the function EntityArrToLabel() in lib_naming.py.
+    """This is dynamically called from the function _entity_array_to_label() in lib_naming.py.
     It returns a printable string, given the url arguments."""
 
     # TODO: Problem, this is not compatible with variable arguments.
