@@ -60,7 +60,7 @@ def is_useless_process(proc):
 
 ################################################################################
 
-def write_dot_header( page_title, layout_style, stream, grph ):
+def write_dot_header(page_title, layout_style, stream, grph):
     # Some cleanup.
     page_title_clean = page_title.strip()
     page_title_clean = page_title_clean.replace("\n", " ")
@@ -122,22 +122,25 @@ def write_dot_header( page_title, layout_style, stream, grph ):
 
 ################################################################################
 
-# Copies a file to standard output.
-# TODO: On Linux, consider splice.
-# See lib_kbase.triplestore_to_stream_xml for a similar situation.
+
 def copy_to_output_destination(logfil, svg_out_filnam, out_dest):
-    logfil.write( TimeStamp() + " Output without conversion: %s\n" % svg_out_filnam  )
-    infil = open(svg_out_filnam,'rb')
-    strInRead = infil.read()
+    """Copies a file to standard output."""
+
+    # TODO: On Linux, consider splice.
+    # See lib_kbase.triplestore_to_stream_xml for a similar situation.
+
+    logfil.write(TimeStamp() + " Output without conversion: %s\n" % svg_out_filnam)
+    infil = open(svg_out_filnam, 'rb')
+    str_in_read = infil.read()
     try:
-        nbOut = out_dest.write(strInRead)
+        nb_out = out_dest.write(str_in_read)
     except TypeError as exc:
         # This happens when:
         # Python 2 and wsgiref.simple_server: unicode argument expected, got 'str'
         # Python 3 and wsgiref.simple_server: string argument expected, got 'bytes'
-        nbOut = out_dest.write(strInRead.decode('latin1'))
+        nb_out = out_dest.write(str_in_read.decode('latin1'))
 
-    logfil.write( TimeStamp() + " End of output without conversion: %s chars\n" % str(nbOut) )
+    logfil.write(TimeStamp() + " End of output without conversion: %s chars\n" % str(nb_out))
     infil.close()
 
 ################################################################################
@@ -190,10 +193,10 @@ def _dot_to_svg(dot_filnam_after, logfil, viztype, out_dest):
     # On the other hand it is impossible to pipe the output because it would assume a SVG document.
 
     # https://stackoverflow.com/questions/5667576/can-i-set-the-html-title-of-a-pdf-file-served-by-my-apache-web-server
-    dictHttpProperties = [ ( "Content-Disposition", 'inline; filename="Survol_Download"') ]
+    dict_http_properties = [("Content-Disposition", 'inline; filename="Survol_Download"')]
 
     logfil.write(TimeStamp() + " Writing SVG header\n")
-    lib_util.WrtHeader("image/svg+xml", dictHttpProperties)
+    lib_util.WrtHeader("image/svg+xml", dict_http_properties)
 
     # Here, we are sure that the output file is closed.
     copy_to_output_destination(logfil, svg_out_filnam, out_dest)
@@ -203,7 +206,7 @@ def _dot_to_svg(dot_filnam_after, logfil, viztype, out_dest):
 
 # This transforms a RDF triplestore into a temporary DOT file, which is
 # transformed by GraphViz into a SVG file sent to the HTTP browser.
-def _graph_to_svg(page_title, error_msg, isSubServer, parameters, grph, parameterized_links, topUrl, dot_style):
+def _graph_to_svg(page_title, error_msg, is_sub_server, parameters, grph, parameterized_links, top_url, dot_style):
     tmp_log_fil = TmpFile("_graph_to_svg", "log")
     try:
         logfil = open(tmp_log_fil.Name, "w")
@@ -219,8 +222,8 @@ def _graph_to_svg(page_title, error_msg, isSubServer, parameters, grph, paramete
     logfil.write(TimeStamp() + " Created " + dot_filnam_after + "\n")
 
     dot_layout = write_dot_header(page_title, dot_style['layout_style'], rdfoutfil, grph)
-    lib_exports.WriteDotLegend(page_title, topUrl, error_msg, isSubServer, parameters, parameterized_links, rdfoutfil,
-                               grph)
+    lib_exports.WriteDotLegend(page_title, top_url, error_msg, is_sub_server,
+                               parameters, parameterized_links, rdfoutfil, grph)
     logfil.write(TimeStamp() + " Legend written\n")
     lib_export_dot.Rdf2Dot(grph, logfil, rdfoutfil, dot_style['collapsed_properties'])
     logfil.write(TimeStamp() + " About to close dot file\n")
@@ -242,7 +245,7 @@ def _graph_to_svg(page_title, error_msg, isSubServer, parameters, grph, paramete
 # The result can be sent to the Web browser in several formats.
 # TODO: The nodes should be displayed always in the same order.
 # THIS IS NOT THE CASE IN HTML AND SVG !!
-def OutCgiMode(theCgi, topUrl, mode, errorMsg = None, isSubServer=False):
+def OutCgiMode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
     theCgi._bind_identical_nodes()
 
     grph = theCgi.m_graph
@@ -253,11 +256,11 @@ def OutCgiMode(theCgi, topUrl, mode, errorMsg = None, isSubServer=False):
 
     if mode == "html":
         # Used rarely and performance not very important. This returns a HTML page.
-        lib_export_html.Grph2Html(theCgi, topUrl, errorMsg, isSubServer, globalCgiEnvList)
+        lib_export_html.Grph2Html(theCgi, top_url, error_msg, is_sub_server, globalCgiEnvList)
     elif mode == "json":
-        lib_exports.Grph2Json(page_title, errorMsg, isSubServer, parameters, grph)
+        lib_exports.Grph2Json(page_title, error_msg, is_sub_server, parameters, grph)
     elif mode == "menu":
-        lib_exports.Grph2Menu(page_title, errorMsg, isSubServer, parameters, grph)
+        lib_exports.Grph2Menu(page_title, error_msg, is_sub_server, parameters, grph)
     elif mode == "rdf":
         lib_export_ontology.Grph2Rdf(grph)
     elif mode == "daemon":
@@ -272,7 +275,7 @@ def OutCgiMode(theCgi, topUrl, mode, errorMsg = None, isSubServer=False):
             raise
     elif mode in ["svg", ""]:
         # Default mode, because graphviz did not like several CGI arguments in a SVG document (Bug ?).
-        _graph_to_svg(page_title, errorMsg, isSubServer, parameters, grph, parameterized_links, topUrl, dot_layout)
+        _graph_to_svg(page_title, error_msg, is_sub_server, parameters, grph, parameterized_links, top_url, dot_layout)
     else:
         ERROR("OutCgiMode invalid mode=%s", mode)
         ErrorMessageHtml("OutCgiMode invalid mode=%s" % mode)
@@ -296,9 +299,10 @@ def OutCgiMode(theCgi, topUrl, mode, errorMsg = None, isSubServer=False):
 
 
 def make_dot_layout(dot_layout, collapsed_properties):
-    return {'layout_style': dot_layout, 'collapsed_properties':collapsed_properties}
+    return {'layout_style': dot_layout, 'collapsed_properties': collapsed_properties}
 
 ################################################################################
+
 
 def _get_calling_module_doc():
     """
@@ -319,7 +323,7 @@ def _get_calling_module_doc():
             frame=frame.f_back.f_back
             code=frame.f_code
             filnam_caller = code.co_filename
-            filnam_caller = filnam_caller.replace("\\",".").replace("/",".")
+            filnam_caller = filnam_caller.replace("\\", ".").replace("/", ".")
             filnam_caller = filnam_caller[:-3] # Strings ".py" at the end.
             module_prefix = "survol."
             htbin_idx = filnam_caller.find(module_prefix)
@@ -377,9 +381,9 @@ def CgiEnvMergeMode():
     globalGraph = rdflib.Graph()
 
 
-# OutCgiRdf has been called by each script without writing anything,
-# but the specific parameters per script are stored inside.
-def MergeOutCgiRdf(theMode,cumulatedError):
+def MergeOutCgiRdf(the_mode, cumulated_error):
+    """OutCgiRdf has been called by each script without writing anything,
+    but the specific parameters per script are stored inside."""
     global globalMergeMode
     global globalCgiEnvList
     global globalGraph
@@ -405,9 +409,8 @@ def MergeOutCgiRdf(theMode,cumulatedError):
         try:
             cgi_params.update(theCgiEnv.m_parameters)
             cgi_param_links.update(theCgiEnv.m_parameterized_links)
-        except ValueError:
-            errorMsg = sys.exc_info()[1]
-            WARNING("Error:%s Parameters:%s",errorMsg,str(theCgiEnv.m_parameters))
+        except ValueError as error_msg:
+            WARNING("Error:%s Parameters:%s", error_msg, str(theCgiEnv.m_parameters))
 
     # Eliminate duplicates in the list of collapsed properties.
     my_list = layout_params['collapsed_properties']
@@ -431,7 +434,7 @@ def MergeOutCgiRdf(theMode,cumulatedError):
     pseudo_cgi.m_entity_host = ""
 
     # A single rendering of all RDF nodes and links merged from several scripts.
-    OutCgiMode(pseudo_cgi, top_url, theMode, errorMsg=cumulatedError)
+    OutCgiMode(pseudo_cgi, top_url, the_mode, error_msg=cumulated_error)
 
     return
 
@@ -667,14 +670,14 @@ class CgiEnv():
 
         print("<h3>%s</h3><br>"%self.m_page_title)
 
-        htmlForm = "".join(lib_edition_parameters.FormEditionParameters(form_action, self))
-        print(htmlForm)
+        html_form = "".join(lib_edition_parameters.FormEditionParameters(form_action, self))
+        print(html_form)
 
         print("</body>")
         print("</html>")
         sys.exit(0)
 
-    def get_parameters(self,paramkey):
+    def get_parameters(self, paramkey):
         """These are the parameters specific to the script, which are edit in our HTML form, in enter_edition_mode().
         They must have a default value. Maybe we could always have an edition mode when their value is not set.
         If the parameter is "cimom", it will extract the host of Uris like these: Wee GetHost()
@@ -696,7 +699,6 @@ class CgiEnv():
             # BEWARE !!! An empty argument triggers an exception !!!
             # Same problem if the same argument appears several times: This will be a list.
             param_val = self.m_arguments[paramkey].value
-            #sys.stderr.write("get_parameters paramkey='%s' param_val='%s' as CGI\n" % ( paramkey, param_val ) )
         except KeyError:
             DEBUG("get_parameters paramkey='%s' not as CGI", paramkey )
             has_arg_value = False
@@ -706,7 +708,6 @@ class CgiEnv():
             if has_arg_value:
                 param_typ = type(dflt_value)
                 param_val = param_typ(param_val)
-                #sys.stderr.write("get_parameters paramkey='%s' param_val='%s' after conversion to %s\n" % ( paramkey, param_val, str(param_typ) ) )
             else:
                 # If the parameters were edited but the value did not appear,
                 # it can only be a Boolean with a clear check box.
@@ -725,7 +726,6 @@ class CgiEnv():
                     DEBUG("get_parameters paramkey='%s' set to param_val='%s'", paramkey, param_val )
         else:
             if not has_arg_value:
-                #sys.stderr.write("get_parameters no value nor default for paramkey='%s' m_parameters=%s\n" % ( paramkey, str(self.m_parameters)))
                 param_val = ""
             else:
                 DEBUG("get_parameters nothing for paramkey='%s'", ( paramkey ))
@@ -751,10 +751,10 @@ class CgiEnv():
             # If this class is defined in our ontology, then we know the first property.
             ent_onto = lib_util.OntologyClassKeys(self.m_entity_type)
             if ent_onto:
-                keyFirst = ent_onto[0]
+                key_first = ent_onto[0]
                 # Only if this mandatory key is in the dict.
                 try:
-                    return split_kv[keyFirst]
+                    return split_kv[key_first]
                 except KeyError:
                     # This is a desperate case...
                     pass
@@ -787,7 +787,7 @@ class CgiEnv():
         DEBUG("OutCgiRdf globalMergeMode=%d m_calling_url=%s m_page_title=%s",
               globalMergeMode, self.m_calling_url, self.m_page_title.replace("\n", "<NL>"))
 
-        self.m_layoutParams = make_dot_layout( dot_layout, collapsed_properties )
+        self.m_layoutParams = make_dot_layout(dot_layout, collapsed_properties)
 
         mode = lib_util.GuessDisplayMode()
 
@@ -816,9 +816,9 @@ class CgiEnv():
         # Copy the existing parameters of the script. This will be updated.
         prms_copy = dict()
         for arg_k in cgi.FieldStorage():
-            argV = cgi.FieldStorage()[arg_k].value
-            # sys.stderr.write("add_parameterized_links arg_k=%s argV=%s\n"%(arg_k,argV))
-            prms_copy[arg_k] = lib_util.urllib_quote(argV)
+            arg_v = cgi.FieldStorage()[arg_k].value
+            # sys.stderr.write("add_parameterized_links arg_k=%s arg_v=%s\n"%(arg_k,arg_v))
+            prms_copy[arg_k] = lib_util.urllib_quote(arg_v)
 
         # Update these parameters with the values specific for this label.
         for param_key in params_map:
@@ -826,10 +826,10 @@ class CgiEnv():
             try:
                 self.m_parameters[param_key]
             except KeyError:
-                ErrorMessageHtml("Parameter %s should be defined for a link"%param_key)
+                ErrorMessageHtml("Parameter %s should be defined for a link" % param_key)
             prms_copy[param_key] = params_map[param_key]
 
-        DEBUG("prms_copy=%s",str(prms_copy))
+        DEBUG("prms_copy=%s", str(prms_copy))
 
         # Now create an URL with these updated params.
         idx_cgi = self.m_calling_url.find("?")
@@ -848,7 +848,7 @@ class CgiEnv():
             for param_key in prms_copy)
         labelled_url += "?" + kv_pairs_concat
 
-        DEBUG("labelled_url=%s",labelled_url)
+        DEBUG("labelled_url=%s", labelled_url)
 
         self.m_parameterized_links[url_label] = labelled_url
 
@@ -891,9 +891,9 @@ class CgiEnv():
             except KeyError:
                 dict_uni_to_objs[uni_descr] = {an_object}
 
-        for aSubj, aPred, anObj in self.m_graph:
-            _prepare_binding(aSubj)
-            _prepare_binding(anObj)
+        for a_subj, a_pred, an_obj in self.m_graph:
+            _prepare_binding(a_subj)
+            _prepare_binding(an_obj)
 
         for an_uni_descr in dict_uni_to_objs:
             related_nodes = dict_uni_to_objs[an_uni_descr]
@@ -916,11 +916,13 @@ class CgiEnv():
 
 globalErrorMessageEnabled = True
 
+
 # Used when merging several scripts, otherwise there is no way to find
 # which scripts produced an error.
 def enable_error_message(flag):
     global globalErrorMessageEnabled
     globalErrorMessageEnabled = flag
+
 
 def ErrorMessageHtml(message):
     """This is called by CGI scripts to leave with an error message.
@@ -928,7 +930,7 @@ def ErrorMessageHtml(message):
     Therefore, it is possible to return any MIME document.
     The challenge is to return an error message in the expected output format: html, json, rdf etc..."""
     if globalErrorMessageEnabled:
-        ERROR("ErrorMessageHtml %s. Exiting.",message)
+        ERROR("ErrorMessageHtml %s. Exiting.", message)
         try:
             # Use RequestUri() instead of "REQUEST_URI", because this CGI environment variable
             # is not set in minimal HTTP servers such as CGIHTTPServer.
@@ -968,17 +970,19 @@ def ErrorMessageHtml(message):
 
 ################################################################################
 
+
 def SubProcPOpen(command):
     try:
         ret_pipe = subprocess.Popen(command, bufsize=100000, shell=False,
-                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                    stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except OSError:
-        ErrorMessageHtml("Cannot run "+" ".join(command))
+        ErrorMessageHtml("Cannot run " + " ".join(command))
 
     # For the win32/script windows_network_devices.py,
     # we need shell=True, because it runs the command "wmic",
     # but this might be a security hole.
     return ret_pipe
+
 
 def SubProcCall(command):
     # For doxygen, we should have shell=True but this is NOT safe.
@@ -1091,21 +1095,20 @@ class TmpFile:
                         os.rmdir(os.path.join(root, name))
                         pass
 
-        except Exception:
-            exc = sys.exc_info()[1]
+        except Exception as exc:
             ERROR("__del__.Caught: %s. TmpDirToDel=%s Name=%s", str(exc), str(self.TmpDirToDel), str(self.Name))
         return
 
 
 ################################################################################
 
-# This is deprecated and was used to reduce the number fo displayed filed,
-# by hiding the ones which are not really interesting.
 def _is_shared_library(path):
+    """This is deprecated and was used to reduce the number fo displayed filed,
+    by hiding the ones which are not really interesting."""
 
     if lib_util.isPlatformWindows:
-        tmp, fileExt = os.path.splitext(path)
-        return fileExt.upper() in [ ".DLL" ]
+        tmp, file_ext = os.path.splitext(path)
+        return file_ext.upper() in [".DLL"]
 
     if lib_util.isPlatformLinux:
         # We could also check if this is really a shared library.
@@ -1114,40 +1117,50 @@ def _is_shared_library(path):
             return True
 
         # Not sure about "M" and "I". Also: Should precompile regexes.
-        for rgx in [ r'/lib/.*\.so\..*', r'/usr/lib/.*\.so\..*' ] :
-            if re.match( rgx, path, re.M|re.I):
+        for rgx in [r'/lib/.*\.so\..*', r'/usr/lib/.*\.so\..*']:
+            if re.match(rgx, path, re.M|re.I):
                 return True
 
-        for start in [ '/usr/share/locale/', '/usr/share/fonts/', '/etc/locale/', '/var/cache/fontconfig/', '/usr/lib/jvm/' ] :
-            if path.startswith( start ):
+        for start in [
+            '/usr/share/locale/',
+            '/usr/share/fonts/',
+            '/etc/locale/',
+            '/var/cache/fontconfig/',
+            '/usr/lib/jvm/']:
+            if path.startswith(start):
                 return True
 
     return False
 
-# A file containing fonts and other stuff not usefull to understand how a process works.
-# So by default they are ot displayed. This should be deprecated.
+
 def _is_fonts_file(path):
+    """A file containing fonts and other stuff not useful to understand how a process works.
+    So by default they are ot displayed. This should be deprecated."""
 
     if lib_util.isPlatformWindows:
-        tmp, fileExt = os.path.splitext(path)
-        # sys.stderr.write("_is_fonts_file fileExt=%s\n" % fileExt)
-        return fileExt in [ ".ttf", ".ttc" ]
+        tmp, file_ext = os.path.splitext(path)
+        # sys.stderr.write("_is_fonts_file file_ext=%s\n" % file_ext)
+        return file_ext in [ ".ttf", ".ttc" ]
 
     elif lib_util.isPlatformLinux:
-        for start in [ '/usr/share/locale/', '/usr/share/fonts/', '/etc/locale/', '/var/cache/fontconfig/', '/usr/lib/jvm/' ] :
-            if path.startswith( start ):
+        for start in [
+            '/usr/share/locale/',
+            '/usr/share/fonts/',
+            '/etc/locale/',
+            '/var/cache/fontconfig/',
+            '/usr/lib/jvm/'] :
+            if path.startswith(start):
                 return True
-
     return False
 
-# Used when displaying all files open by a process: There are many of them,
-# so the irrelevant files are hidden. This should be an option.
-def is_meaningless_file(path, removeSharedLibs, removeFontsFile):
-    if removeSharedLibs:
+def is_meaningless_file(path, remove_shared_libs, remove_fonts_file):
+    """Used when displaying all files open by a process: There are many of them,
+    so the irrelevant files are hidden. This should be an option."""
+    if remove_shared_libs:
         if _is_shared_library(path):
             return True
 
-    if removeFontsFile:
+    if remove_fonts_file:
         if _is_fonts_file(path):
             # sys.stderr.write("YES is_meaningless_file path=%s\n" % path)
             return True
