@@ -526,7 +526,7 @@ def EntHostToIpReally(entity_host):
 ################################################################################
 
 
-def ParseXidLocal(xid):
+def _parse_xid_local(xid):
     # A machine name can contain a domain name : "WORKGROUP\MYHOST-HP", the backslash cannot be at the beginning.
     # "WORKGROUP\MYHOST-HP@CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2"
     # "WORKGROUP\MYHOST-HP@oracle/table.Name=MY_TABLE"
@@ -553,7 +553,7 @@ def ParseXidLocal(xid):
     return None
 
 
-def ParseXidWMI(xid):
+def _parse_xid_wmi(xid):
     # WMI : \\MYHOST-HP\root\cimv2:Win32_Process.Handle="0"
     # Beware ! On Windows, namespaces are separated by backslashes.
     # WMI : \\MYHOST-HP\root\cimv2:Win32_Process.Handle="0"
@@ -604,7 +604,7 @@ def ParseXidWMI(xid):
     return None
 
 
-def ParseXidWBEM(xid):
+def _parse_xid_wbem(xid):
     # https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"
     # http://192.168.1.88:5988/root/PG_Internal:PG_WBEMSLPTemplate
     # "http://127.0.0.1:8000/survol/namespaces_wbem.py?xid=http://192.168.1.83:5988/."
@@ -642,18 +642,18 @@ def ParseXid(xid):
     # The type can be in several directories separated by slashes: "oracle/table"
     # If suffixed with "/", it means namespaces.
 
-    entity_triplet = ParseXidLocal(xid)
+    entity_triplet = _parse_xid_local(xid)
     if entity_triplet:
         return entity_triplet
 
     # Apparently it is not a problem for the plain old entities.
     xid = urllib_unquote(xid)
 
-    entity_triplet = ParseXidWMI(xid)
+    entity_triplet = _parse_xid_wmi(xid)
     if entity_triplet:
         return entity_triplet
 
-    entity_triplet = ParseXidWBEM(xid)
+    entity_triplet = _parse_xid_wbem(xid)
     if entity_triplet:
         return entity_triplet
 
@@ -1377,7 +1377,8 @@ def split_url_to_entity(calling_url):
     params = parse_qs(query)
 
     xid_param = params['xid'][0]
-    (entity_type, entity_id, entity_host) = ParseXid(xid_param)
+    entity_type, entity_id, entity_host = ParseXid(xid_param)
+    sys.stderr.write("split_url_to_entity entity_id=%s\n" % entity_id)
     entity_id_dict = SplitMoniker(entity_id)
 
     return parse_url.path, entity_type, entity_id_dict
