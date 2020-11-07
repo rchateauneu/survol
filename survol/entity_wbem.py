@@ -145,7 +145,7 @@ def Main():
         kla_descrip = "Undefined class %s %s" % (name_space, class_name)
     grph.add((root_node, pc.property_information, lib_util.NodeLiteral(kla_descrip)))
 
-    split_monik = lib_util.SplitMoniker(cgiEnv.m_entity_id)
+    split_monik = cgiEnv.m_entity_id_dict
 
     DEBUG("entity_wbem.py name_space=%s class_name=%s cimom_url=%s" ,name_space, class_name, cimom_url)
 
