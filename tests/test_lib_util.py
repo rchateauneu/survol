@@ -17,34 +17,74 @@ import lib_util
 
 class SurvolLibUtilTest(unittest.TestCase):
 
-    def test_parse_xid_local(self):
-        # "WORKGROUP\MYHOST-HP@CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2"
-        # "WORKGROUP\MYHOST-HP@oracle/table.Name=MY_TABLE"
-        # "http://rchateau-hp:8000/survol/entity.py?xid=CIM_DataFile.Name=C%3A%2F%2FUsers%2Frchateau%2FLes%20Ringards%20-%20Aldo%20Maccione%252C%20Mireille%20Darc%252C%20Julien%20Guiomar.avi
+    def test_parse_xid_trivial(self):
         entity_type, entity_id, entity_host = lib_util.ParseXid("")
         self.assertEqual(entity_type, "")
         self.assertEqual(entity_id, "")
         self.assertEqual(entity_host, "")
 
+    def test_parse_xid_local(self):
+        entity_type, entity_id, entity_host = lib_util.ParseXid("CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2")
+        self.assertEqual(entity_type, "CIM_ComputerSystem")
+        self.assertEqual(entity_id, "Name=Unknown-30-b5-c2-02-0c-b5-2")
+        self.assertEqual(entity_host, "")
+
+        entity_type, entity_id, entity_host = lib_util.ParseXid("oracle/table.Name=MY_TABLE")
+        self.assertEqual(entity_type, "oracle/table")
+        self.assertEqual(entity_id, "Name=MY_TABLE")
+        self.assertEqual(entity_host, "")
+
+        entity_type, entity_id, entity_host = lib_util.ParseXid(
+            "CIM_DataFile.Name=anyfile.txt")
+        self.assertEqual(entity_type, "CIM_DataFile")
+        self.assertEqual(entity_id, "Name=anyfile.txt")
+        self.assertEqual(entity_host, "")
+
+        entity_type, entity_id, entity_host = lib_util.ParseXid(
+            "CIM_DataFile.Name=C%3A%2F%2FUsers%2Fxyz%2FLes%20Ringards%20-%20Aldo%252C%20Mireille%252C%20Julien.txt")
+        self.assertEqual(entity_type, "CIM_DataFile")
+        self.assertEqual(entity_id, "Name=C://Users/xyz/Les Ringards - Aldo%2C Mireille%2C Julien.txt")
+        self.assertEqual(entity_host, "")
+
+        entity_type, entity_id, entity_host = lib_util.ParseXid(
+            "CIM_DummyClass.Name=C%3A%2F%2FUsers%2Fxyz%2FLes%20Ringards%20-%20Aldo%252C%20Mireille%252C%20Julien.txt"
+            + ",OtherArg=Something")
+        self.assertEqual(entity_type, "CIM_DummyClass")
+        self.assertEqual(entity_id, "Name=C://Users/xyz/Les Ringards - Aldo%2C Mireille%2C Julien.txt,OtherArg=Something")
+        self.assertEqual(entity_host, "")
+
+
     def test_parse_xid_wmi(self):
-        # http://127.0.0.1:8000/survol/objtypes_wmi.py?xid=\\myhost-HP\root\CIMV2\Applications%3A.
-        # http://127.0.0.1:8000/survol/class_wmi.py?xid=\\myhost-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.
-        # http://127.0.0.1:8000/survol/entity_wmi.py?xid=\\MYHOST-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.Name%3D%22Default%22
-        entity_type, entity_id, entity_host = lib_util.ParseXid("")
+        entity_type, entity_id, entity_host = lib_util.ParseXid("\\myhost-HP\root\CIMV2\Applications%3A.")
+        self.assertEqual(entity_type, "")
+        self.assertEqual(entity_id, "")
+        self.assertEqual(entity_host, "")
+
+        entity_type, entity_id, entity_host = lib_util.ParseXid("\\myhost-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.")
+        self.assertEqual(entity_type, "")
+        self.assertEqual(entity_id, "")
+        self.assertEqual(entity_host, "")
+
+        entity_type, entity_id, entity_host = lib_util.ParseXid("\\MYHOST-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.Name%3D%22Default%22")
         self.assertEqual(entity_type, "")
         self.assertEqual(entity_id, "")
         self.assertEqual(entity_host, "")
 
     def test_parse_xid_wbem(self):
-        # https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"
-        # http://192.168.1.88:5988/root/PG_Internal:PG_WBEMSLPTemplate
-        # "http://127.0.0.1:8000/survol/namespaces_wbem.py?xid=http://192.168.1.83:5988/."
-        # "xid=http://192.168.1.88:5988/."
-        entity_type, entity_id, entity_host = lib_util.ParseXid("")
+        entity_type, entity_id, entity_host = lib_util.ParseXid("https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name=\"Havana\",ProductName=\"Havana\",Version=\"1.0\"")
+        self.assertEqual(entity_type, "cimv2:Win32_SoftwareFeature")
+        self.assertEqual(entity_id, "Name=\"Havana\",ProductName=\"Havana\",Version=\"1.0\"")
+        self.assertEqual(entity_host, "https://jdd:test@acme.com:5959")
+
+        entity_type, entity_id, entity_host = lib_util.ParseXid("http://192.168.1.88:5988/root/PG_Internal:PG_WBEMSLPTemplate")
+        self.assertEqual(entity_type, "root/PG_Internal:PG_WBEMSLPTemplate")
+        self.assertEqual(entity_id, "")
+        self.assertEqual(entity_host, "http://192.168.1.88:5988")
+
+        entity_type, entity_id, entity_host = lib_util.ParseXid("http://192.168.1.88:5988/.")
         self.assertEqual(entity_type, "")
         self.assertEqual(entity_id, "")
-        self.assertEqual(entity_host, "")
-
+        self.assertEqual(entity_host, "http://192.168.1.88:5988")
 
 if __name__ == '__main__':
     unittest.main()
