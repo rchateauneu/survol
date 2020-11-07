@@ -34,10 +34,9 @@ def WmiReadWithMoniker( cgiEnv, cgiMoniker ):
 
 def WmiReadWithQuery(cgiEnv, conn_wmi, class_name):
     """
-        Maybe reading with the moniker does not work because not all properties.
-        This splits the moniker into key value paris, and uses a WQL query.
+        Maybe reading with the moniker does not work because properties are missing.
     """
-    split_monik = lib_util.SplitMoniker(cgiEnv.m_entity_id)
+    split_monik = cgiEnv.m_entity_id_dict
     a_qry = lib_util.SplitMonikToWQL(split_monik, class_name)
 
     try:
