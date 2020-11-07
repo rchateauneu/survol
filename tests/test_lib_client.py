@@ -25,13 +25,16 @@ import lib_properties
 RemoteAgentProcess = None
 _remote_general_test_agent = "http://%s:%d" % (CurrentMachine, RemoteGeneralTestServerPort)
 
+
 def setUpModule():
     global RemoteAgentProcess
     RemoteAgentProcess, _agent_url = start_cgiserver(RemoteGeneralTestServerPort)
 
+
 def tearDownModule():
     global RemoteAgentProcess
     stop_cgiserver(RemoteAgentProcess)
+
 
 isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 
