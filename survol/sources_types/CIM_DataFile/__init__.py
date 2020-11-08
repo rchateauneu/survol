@@ -46,14 +46,15 @@ def AddMagic(grph, file_node, file_name):
         return
 
 
-# Transforms a "stat" date into something which can be printed.
 def _int_to_date_literal(time_stamp):
-    dtStr = datetime.datetime.fromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
-    return lib_util.NodeLiteral(dtStr)
+    """Transforms a "stat" date into something which can be printed."""
+    dt_str = datetime.datetime.fromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
+    return lib_util.NodeLiteral(dt_str)
 
 
-# Adds to the node of a file some information taken from a call to stat().
 def AddStatNode(grph, file_node, info_stat):
+    """Adds to the node of a file some information taken from a call to stat()."""
+
     # st_size: size of file, in bytes. The SI unit is mentioned.
     siz_unit = lib_util.AddSIUnit(info_stat.st_size, "B")
     grph.add((file_node, pc.property_file_size, lib_util.NodeLiteral(siz_unit)))
@@ -88,8 +89,8 @@ def AddHtml(grph, file_node, file_name):
         lib_mime.AddMimeUrl(grph, file_node, "CIM_DataFile", mime_type, [file_name])
 
 
-# Display the node of the directory this file is in.
-def AddParentDir(grph, file_node, file_name):
+def _add_parent_dir(grph, file_node, file_name):
+    """Display the node of the directory this file is in."""
     dir_path = os.path.dirname(file_name)
     if dir_path and dir_path != file_name:
         # Possibly trunc last backslash such as in "C:\" as it crashes graphviz !
@@ -292,7 +293,7 @@ def AddInfo(grph, node, entity_ids_arr):
     AddMagic(grph, node, file_name)
     AddStat(grph, node, file_name)
     AddHtml(grph, node, file_name)
-    AddParentDir(grph, node, file_name)
+    _add_parent_dir(grph, node, file_name)
 
 
 # It receives as CGI arguments, the entity type which is "HttpUrl_MimeDocument", and the filename.
