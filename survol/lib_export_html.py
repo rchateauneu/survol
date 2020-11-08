@@ -472,6 +472,14 @@ def _display_class_objects_no_jinja(dict_subj_prop_obj):
                     sys.stderr.write("obj_title=%s\n"%obj_title)
                     continue
 
+                # Nasty encoding errors. Probably the string should have been encoded before.
+                if lib_util.isPlatformWindows and not lib_util.is_py3:
+                    try:
+                        dummy_str = obj_title.decode('ascii')
+                    except UnicodeDecodeError as exc:
+                        sys.stderr.write("UnicodeDecodeError obj_title=%s\n" % obj_title)
+                        obj_title = obj_title.decode('cp1252')
+
                 yield '<tr>'
 
                 if must_write_col_one_subj:
@@ -643,11 +651,11 @@ def _Grph2Html_jinja(theCgi, top_url, error_msg, is_sub_server, gblCgiEnvList):
     all_objects_list = []
     for url_class_with_mode, entity_graphic_class, color_class, dict_subj_prop_obj in _objects_triplets(dict_class_subj_prop_obj):
         one_class_html = "".join(_display_class_objects_no_jinja(dict_subj_prop_obj))
-        all_objects_list.append( (url_class_with_mode,entity_graphic_class,color_class,one_class_html))
+        all_objects_list.append((url_class_with_mode, entity_graphic_class, color_class, one_class_html))
 
     parameters_edition_html = "".join(_parameters_edition_html_iterator(theCgi))
 
-    scripts_tree_html = "".join( _scripts_tree_html_iterator(theCgi))
+    scripts_tree_html = "".join(_scripts_tree_html_iterator(theCgi))
 
     list_other_urls = _other_urls(top_url)
     html_cim_urls = "".join(_cim_urls_html_iterator())
