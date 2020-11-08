@@ -18,33 +18,32 @@ import lib_common
 from lib_properties import pc
 
 
-# This returns a nice name given the parameter of the object.
 def EntityName(entity_ids_arr):
+    """This returns a nice name given the parameter of the object."""
     entity_id = entity_ids_arr[0]
     return entity_id
 
 
-# We do not care about the entity_host as this is simply the machine from which
-# this machine was detected, so nothing more than a computer on the same network.
 def UniversalAlias(entity_ids_arr, entity_host, entity_class):
-    # TOO SLOW !!!
-    return "ThisComputer:"+entity_ids_arr[0].lower()
+    """This does not care about the entity_host as this is simply the machine from which
+    this machine was detected, so nothing more than a computer on the same network."""
+    return "ThisComputer:" + entity_ids_arr[0].lower()
 
-
+    # TODO: This is too slow and not used yet. Consider using a cache.
     try:
         # (entity_ids_arr=[u'desktop-ni99v8e'], entity_host='192.168.0.14', entity_class=u'CIM_ComputerSystem')
         # might possibly throw:
         # "[Errno 11004] getaddrinfo failed "
-        aHostName = lib_util.GlobalGetHostByName(entity_ids_arr[0])
+        a_host_name = lib_util.GlobalGetHostByName(entity_ids_arr[0])
     except:
-        aHostName = entity_host
+        a_host_name = entity_host
 
     # Hostnames are case-insensitive, RFC4343 https://tools.ietf.org/html/rfc4343
-    return "ThisComputer:"+aHostName.lower()
+    return "ThisComputer:" + a_host_name.lower()
 
 
-# This adds the WBEM and WMI urls related to the entity.
 def AddWbemWmiServers(grph, root_node, entity_host, name_space, entity_type, entity_id):
+    """This adds the WBEM and WMI urls related to the entity."""
     if entity_host:
         host_wbem_wmi = entity_host
     else:
@@ -53,10 +52,11 @@ def AddWbemWmiServers(grph, root_node, entity_host, name_space, entity_type, ent
     # This receives a map and a RDF property, and must add the correspknding nodes to the root_node
     # int the given graph. The same callback signature is used elsewhere to generate HTML tables.
     def add_w_map(the_map, prop_data):
-        for url_subj in the_map:
-            grph.add((root_node, prop_data, url_subj))
-            for the_prop, url_obj in the_map[url_subj]:
-                grph.add( ( url_subj, the_prop, url_obj ) )
+        if the_map:
+            for url_subj in the_map:
+                grph.add((root_node, prop_data, url_subj))
+                for the_prop, url_obj in the_map[url_subj]:
+                    grph.add((url_subj, the_prop, url_obj))
 
     map_wbem = AddWbemServers(host_wbem_wmi, name_space, entity_type, entity_id)
     add_w_map(map_wbem, pc.property_wbem_data)
@@ -115,24 +115,24 @@ def AddWmiServers(entity_host, name_space, entity_type, entity_id):
         if wmiurl:
             wmi_node = lib_common.NodeUrl(wmiurl)
             if entity_host:
-                txtLiteral = "WMI url, host=%s class=%s"%(entity_host,entity_type)
+                txt_literal = "WMI url, host=%s class=%s"%(entity_host,entity_type)
             else:
-                txtLiteral = "WMI url, current host, class=%s"%(entity_type)
+                txt_literal = "WMI url, current host, class=%s"%(entity_type)
 
             map_wmi[wmi_node] = [
-                (pc.property_information, lib_util.NodeLiteral(txtLiteral))
+                (pc.property_information, lib_util.NodeLiteral(txt_literal))
             ]
 
             if entity_host:
-                nodePortalWmi = lib_util.UrlPortalWmi(entity_host)
+                node_portal_wmi = lib_util.UrlPortalWmi(entity_host)
 
                 map_wmi[wmi_node].append(
-                    (pc.property_rdf_data_nolist2, nodePortalWmi)
+                    (pc.property_rdf_data_nolist2, node_portal_wmi)
                 )
     return map_wmi
 
 
-def AddSurvolServers(entity_host, nameSpace, entity_type, entity_id):
+def AddSurvolServers(entity_host, name_space, entity_type, entity_id):
     map_survol = dict()
 
     # TODO: Not implemented yet.
@@ -158,31 +158,31 @@ def AddGeocoder(grph,node,ipv4):
 
     try:
         geoc = geocoder.ip(ipv4)
-        for jsonKey,jsonVal in geoc.json.iteritems():
+        for json_key, json_val in geoc.json.iteritems():
             # Conversion to str otherwise numbers are displayed as "float".
-            grph.add( ( node, lib_common.MakeProp(jsonKey), lib_util.NodeLiteral(str(jsonVal)) ) )
+            grph.add((node, lib_common.MakeProp(json_key), lib_util.NodeLiteral(str(json_val))))
     except Exception:
         # This might be a simple time-out.
         return
 
 
-# The URL is hard-coded but very important because it allows to visit another host with WMI access.
-def AddInfo(grph,node,entity_ids_arr):
-    theHostname = entity_ids_arr[0]
+def AddInfo(grph,node, entity_ids_arr):
+    """The URL is hard-coded but very important because it allows to visit another host with WMI access."""
+    the_hostname = entity_ids_arr[0]
 
     try:
-        ipv4 = lib_util.GlobalGetHostByName(theHostname)
+        ipv4 = lib_util.GlobalGetHostByName(the_hostname)
     except:
-        grph.add( ( node, pc.property_information, lib_util.NodeLiteral("Unknown machine") ) )
+        grph.add((node, pc.property_information, lib_util.NodeLiteral("Unknown machine")))
         return
 
-    grph.add( ( node, lib_common.MakeProp("IP address"), lib_util.NodeLiteral(ipv4) ) )
+    grph.add((node, lib_common.MakeProp("IP address"), lib_util.NodeLiteral(ipv4)))
 
-    fqdn = socket.getfqdn(theHostname)
-    grph.add( ( node, lib_common.MakeProp("FQDN"), lib_util.NodeLiteral(fqdn) ) )
+    fqdn = socket.getfqdn(the_hostname)
+    grph.add((node, lib_common.MakeProp("FQDN"), lib_util.NodeLiteral(fqdn)))
 
     # No need to do that, because it is done in entity.py if mode!=json.
     # nameSpace = ""
-    # AddWbemWmiServers(grph,node,theHostname, nameSpace, "CIM_ComputerSystem", "Name="+theHostname)
+    # AddWbemWmiServers(grph,node,the_hostname, nameSpace, "CIM_ComputerSystem", "Name="+the_hostname)
 
     AddGeocoder(grph,node,ipv4)
