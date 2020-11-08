@@ -7,7 +7,7 @@ import lib_patterns
 
 
 # TODO: Make this dynamic, less hard-coded.
-def UriToTitle(uprs):
+def _uri_to_title(uprs):
     """Maybe an external URI sending data in RDF, HTML etc...
     We could also load the URL and gets its title if it is in HTML.
     urlparse('http://www.cwi.nl:80/%7Eguido/Python.html')
@@ -20,8 +20,9 @@ def UriToTitle(uprs):
         return basna
 
 
-def EntityArrToLabel(entity_type, entity_ids_arr):
-    func_entity_name = lib_util.HierarchicalFunctionSearch(entity_type,"EntityName")
+def _entity_array_to_label(entity_type, entity_ids_arr):
+    # This fetches in the module of the class, a function called "EntityName".
+    func_entity_name = lib_util.HierarchicalFunctionSearch(entity_type, "EntityName")
 
     if func_entity_name:
         entity_name = func_entity_name(entity_ids_arr)
@@ -36,7 +37,7 @@ def EntityArrToLabel(entity_type, entity_ids_arr):
         return ent_ids_joined
 
 
-def EntityArrToAlias(entity_type, entity_ids_arr, force_entity_ip_addr):
+def _entity_array_to_alias(entity_type, entity_ids_arr, force_entity_ip_addr):
     """This calls for an object, the class-specific function UniversalAlias, if it exists.
     Otherwise, it generates a default string with the object's parameters.
     The universal alias of an object is the same for all Survol agents no matter what
@@ -84,9 +85,9 @@ def EntityToLabel(entity_type, entity_ids_concat, force_entity_ip_addr):
     entity_ids_arr = [split_kv.get(key_onto, key_onto + "?") for key_onto in onto_keys]
 
     if force_entity_ip_addr:
-        entity_label = EntityArrToAlias(entity_type, entity_ids_arr, force_entity_ip_addr)
+        entity_label = _entity_array_to_alias(entity_type, entity_ids_arr, force_entity_ip_addr)
     else:
-        entity_label = EntityArrToLabel(entity_type, entity_ids_arr)
+        entity_label = _entity_array_to_label(entity_type, entity_ids_arr)
     # sys.stderr.write("EntityToLabel entity_label=%s\n" % entity_label )
 
     # There might be extra properties which are not in our ontology.
@@ -103,44 +104,6 @@ def EntityToLabel(entity_type, entity_ids_concat, force_entity_ip_addr):
             entity_label += " %s=%s" % (ext_prp_key, ext_prp_val)
 
     return entity_label
-
-
-def ParseEntitySurvolUri(uprs, long_display, force_entity_ip_addr):
-    """Called when using the specific CGI script."""
-
-    # sys.stderr.write("KnownScriptToTitle filScript=%s uprs=%s\n"%(filScript,str(uprs)))
-    # uprs=ParseResult(
-    #   scheme=u'http',
-    #   netloc=u'127.0.0.1:8000',
-    #   params='',
-    #   query=u'script=/entity.py&amp;amp;xid=Win32_UserAccount.Domain=rchateau-HP,Name=rchateau',
-    #   fragment='')
-    # Maybe the script is run in the CGI script.
-    # If so, we have to rebuild a valid URL.
-    uprs_query = uprs.query
-    # Apparently the URL might contain "&amp;amp;" and "&" playing the same role.
-    # It does not matter as it is purely cosmetic.
-    uprs_query = lib_util.UrlNoAmp(uprs_query)
-    splt_cgi_args = uprs_query.split("&")
-    query_rebuild = ""
-    query_delim = "?"
-    script_rebuilt = None
-    for one_splt in splt_cgi_args:
-        splt_kv = one_splt.split("=")
-        # sys.stderr.write("splt_kv=%s\n"%splt_kv)
-        if splt_kv[0] == "script":
-            script_rebuilt = "=".join(splt_kv[1:])
-        else:
-            query_rebuild += query_delim + one_splt
-            query_delim = "&"
-
-    if script_rebuilt:
-        url_rebuilt = uprs.scheme + "://" + uprs.netloc + script_rebuilt + query_rebuild
-        # sys.stderr.write("ParseEntitySurvolUri url_rebuilt=%s\n"%(url_rebuilt))
-
-        return ParseEntityUri(url_rebuilt, long_display, force_entity_ip_addr)
-    else:
-        return "Incomplete CGI script:" + str(uprs), "Unknown subjEntityGraphicClass", "Unknown entity_id"
 
 
 # TODO: Hard-coded but OK for the moment.
@@ -163,7 +126,7 @@ scripts_to_titles = {
 }
 
 
-def KnownScriptToTitle(fil_script, uri_mode, entity_host=None, entity_suffix=None):
+def _known_script_to_title(fil_script, uri_mode, entity_host=None, entity_suffix=None):
     """Extra information depending on the script."""
 
     # Special display if MIME URL
@@ -206,7 +169,7 @@ def KnownScriptToTitle(fil_script, uri_mode, entity_host=None, entity_suffix=Non
     return entity_label
 
 
-def CalcLabel(entity_host, entity_type, entity_id, force_entity_ip_addr, fil_script):
+def _calc_label(entity_host, entity_type, entity_id, force_entity_ip_addr, fil_script):
     nam_spac, entity_type_no_ns = lib_util.parse_namespace_type(entity_type)
 
     if not force_entity_ip_addr and not lib_util.IsLocalAddress(entity_host):
@@ -233,7 +196,7 @@ def CalcLabel(entity_host, entity_type, entity_id, force_entity_ip_addr, fil_scr
             entity_label = EntityToLabel(entity_type_no_ns, entity_id, entity_host)
 
     elif entity_type_no_ns or entity_id:
-        entity_label = EntityToLabel( entity_type_no_ns, entity_id, force_entity_ip_addr )
+        entity_label = EntityToLabel(entity_type_no_ns, entity_id, force_entity_ip_addr)
     else:
         # Only possibility to print something meaningful.
         entity_label = nam_spac
@@ -245,7 +208,7 @@ def CalcLabel(entity_host, entity_type, entity_id, force_entity_ip_addr, fil_scr
     return entity_label
 
 
-def ParseEntityUri(uri_with_mode, long_display=True, force_entity_ip_addr=None):
+def ParseEntityUriWithHost(uri_with_mode, long_display=True, force_entity_ip_addr=None):
     """Extracts the entity type and id from a URI, coming from a RDF document.
     This is used notably when transforming RDF into dot documents.
     The returned entity type is used for choosing graphic attributes
@@ -268,6 +231,8 @@ def ParseEntityUri(uri_with_mode, long_display=True, force_entity_ip_addr=None):
     uri_mode = lib_util.get_url_mode(uri_with_mode_clean)
 
     uprs = lib_util.survol_urlparse(uri)
+    # Default value.
+    entity_host = ""
 
     fil_script = os.path.basename(uprs.path)
 
@@ -283,11 +248,11 @@ def ParseEntityUri(uri_with_mode, long_display=True, force_entity_ip_addr=None):
 
         entity_graphic_class = entity_type
 
-        entity_label = CalcLabel(entity_host, entity_type, entity_id, force_entity_ip_addr, fil_script)
+        entity_label = _calc_label(entity_host, entity_type, entity_id, force_entity_ip_addr, fil_script)
 
         # TODO: Consider external_url_to_title, similar logic with different results.
         if long_display:
-            entity_label = KnownScriptToTitle(fil_script, uri_mode, entity_host, entity_label)
+            entity_label = _known_script_to_title(fil_script, uri_mode, entity_host, entity_label)
 
     # Maybe an internal script, but not entity.py
     # It has a special entity type as a display parameter
@@ -307,7 +272,7 @@ def ParseEntityUri(uri_with_mode, long_display=True, force_entity_ip_addr=None):
             entity_graphic_class = "provider_script"
             entity_id = ""
 
-            entity_label = KnownScriptToTitle(fil_script, uri_mode)
+            entity_label = _known_script_to_title(fil_script, uri_mode)
 
     elif uri.split(':')[0] in ["ftp", "http", "https", "urn", "mail"]:
         # Standard URLs. Example: lib_common.NodeUrl( "http://www.google.com" )
@@ -319,10 +284,17 @@ def ParseEntityUri(uri_with_mode, long_display=True, force_entity_ip_addr=None):
     else:
         entity_graphic_class = ""
         entity_id = "PLAINTEXTONLY"
-        entity_label = UriToTitle(uprs)
+        entity_label = _uri_to_title(uprs)
         # TODO: " " are replaced by "%20". Why ? So change back.
         entity_label = entity_label.replace("%20", " ")
 
+    return entity_label, entity_graphic_class, entity_id, entity_host
+
+
+def ParseEntityUri(uri_with_mode, long_display=True, force_entity_ip_addr=None):
+    """Nost of times, the host is not needed."""
+    entity_label, entity_graphic_class, entity_id, entity_host = ParseEntityUriWithHost(
+        uri_with_mode, long_display=long_display, force_entity_ip_addr=force_entity_ip_addr)
     return entity_label, entity_graphic_class, entity_id
 
 
