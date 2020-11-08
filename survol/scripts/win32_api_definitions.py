@@ -422,7 +422,6 @@ class Win32Hook_Manager(pydbg.pydbg):
         the_subclass._parse_text_definition()
 
         dll_canonic_name = self.canonic_dll_name(the_subclass.dll_name)
-        print("dll_canonic_name=", dll_canonic_name)
 
         dll_address = self.find_dll_base_address(dll_canonic_name)
 
