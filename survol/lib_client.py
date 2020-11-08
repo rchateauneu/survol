@@ -302,7 +302,7 @@ class SourceMerge (SourceBase):
 
             # TODO: Not optimal because it processes not only instances urls but also scripts urls.
             for instanceUrl in objsList:
-                ( entity_label, entity_graphic_class, entity_id ) = lib_naming.ParseEntityUri(instanceUrl)
+                entity_label, entity_graphic_class, entity_id = lib_naming.ParseEntityUri(instanceUrl)
                 if entity_label == self.m_srcB.m_class:
                     urlDerived = url_to_instance(instanceUrl)
                     triplestoreB = urlDerived.get_triplestore()
@@ -458,7 +458,8 @@ class BaseCIMClass(object):
         bag_of_words = set(self.__class__.__name__)
 
         # This is the minimal set of words.
-        dict_ids = lib_util.SplitMoniker(self.m_entity_id)
+        # dict_ids = lib_util.SplitMoniker(self.m_entity_id)
+        dict_ids = self.m_key_value_pairs
         for key_id in dict_ids:
             bag_of_words.add(key_id)
             val_id = dict_ids[key_id]
@@ -702,7 +703,7 @@ def url_to_instance(instance_url):
     # and therefore have the form "http://.../entity.py?xid=...",
     agent_url = instance_url_to_agent_url(instance_url)
 
-    (entity_label, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri(instance_url)
+    entity_label, entity_graphic_class, entity_id = lib_naming.ParseEntityUri(instance_url)
     # This extracts the host from the string "Key=Val,Name=xxxxxx,Key=Val"
     # TODO: Some arguments should be decoded from base64.
     # DEBUG("get_instances instanceUrl=%s entity_graphic_class=%s entity_id=%s",instanceUrl,entity_graphic_class,entity_id)
