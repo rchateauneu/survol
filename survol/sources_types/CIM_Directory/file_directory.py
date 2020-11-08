@@ -145,7 +145,9 @@ def Main():
 
             grph.add((fil_node, pc.property_directory, subfil_node))
 
+            # This adds size infoematon about the file.
             CIM_DataFile.AddStat(grph, subfil_node, full_file_path)
+            # This adds an URL displaying the file as a MIME document.
             CIM_DataFile.AddHtml(grph, subfil_node, full_file_path)
 
     cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_directory])
