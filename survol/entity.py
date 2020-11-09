@@ -4,6 +4,7 @@
 Overview
 """
 
+import sys
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -36,7 +37,7 @@ def _add_default_nodes(grph, root_node, entity_host):
 
 # TODO: Maybe the property should be property_script ??
 def _add_default_scripts(grph, root_node, entity_host):
-    DEBUG("entity.py _add_default_scripts entity_host=%s",entity_host)
+    DEBUG("entity.py _add_default_scripts entity_host=%s", entity_host)
     node_obj_types = lib_common.NodeUrl(lib_util.uriRoot + '/objtypes.py')
     grph.add((root_node, pc.property_rdf_data_nolist2, node_obj_types))
 
@@ -49,20 +50,48 @@ def _add_default_scripts(grph, root_node, entity_host):
     grph.add((root_node, pc.property_rdf_data_nolist2, node_portal_wmi))
 
 
-################################################################################
+def _add_wbem_wmi_servers(grph, root_node, entity_host, name_space, entity_type, entity_id):
+    """This adds the WBEM and WMI urls related to the entity:
+    URLs pointing to the class, to the object itself etc...
+    This is used to add as muich informaton as possible about an object.
+    A possible difficulty is the correct escaping of special characters in the definition. """
+
+    # Beware that commas and special characteres should be properly escaped.
+
+    if entity_host:
+        host_wbem_wmi = entity_host
+    else:
+        host_wbem_wmi = lib_util.currentHostname
+
+    # This receives a map and a RDF property, and must add the corresponding nodes to the root_node
+    # int the given graph. The same callback signature is used elsewhere to generate HTML tables.
+    def add_w_map(the_map, prop_data):
+        if the_map:
+            for url_subj in the_map:
+                grph.add((root_node, prop_data, url_subj))
+                for the_prop, url_obj in the_map[url_subj]:
+                    grph.add((url_subj, the_prop, url_obj))
+
+    map_wbem = CIM_ComputerSystem.AddWbemServers(host_wbem_wmi, name_space, entity_type, entity_id)
+    add_w_map(map_wbem, pc.property_wbem_data)
+    map_wmi = CIM_ComputerSystem.AddWmiServers(host_wbem_wmi, name_space, entity_type, entity_id)
+    add_w_map(map_wmi, pc.property_wmi_data)
+    map_survol = CIM_ComputerSystem.AddSurvolServers(host_wbem_wmi, name_space, entity_type, entity_id)
+    add_w_map(map_survol, pc.property_survol_agent)
+
+
 
 # Under the directory sources_types, each module is defined by its ontology,
-# or none. If a module has an ontology, then its represents a class.
-# An ontology is a small list of keywords, each representing an attribute
-# of the object of this class.
+# or none. If a module has an ontology, then it represents a class.
+# An ontology is a small list of keywords (most of times only one),
+# each representing an attribute of the object of this class.
 # If a module, in the directory sources_types, has no ontology, then it uses
-# the ontology of the upper directory, or more higher in the hierarchy etc...
+# the ontology of the upper directory, or higher in the hierarchy etc...
 # If, at the end, it still has no ontology, then it does not represent a class
-# but is simply used as a namespace. Fro example: "sources_types/Azure"
-# is not a class in itself but contains all the modules - and the classes - defined
-# by Azure: Location, subscription etc...
+# but is simply used as a namespace, or a domain of interest.
+# For example: "sources_types/Azure" is not a class in itself but contains
+# all the modules - and the classes - defined by Azure: Location, subscription etc...
 
-################################################################################
 
 def Main():
 
@@ -73,7 +102,7 @@ def Main():
     entity_id = cgiEnv.m_entity_id
     entity_host = cgiEnv.GetHost()
     DEBUG("entity_host=%s", entity_host)
-    flagShowAll = int(cgiEnv.get_parameters(lib_util.paramkeyShowAll))
+    flag_show_all = int(cgiEnv.get_parameters(lib_util.paramkeyShowAll))
 
     name_space, entity_type = cgiEnv.get_namespace_type()
 
@@ -113,17 +142,20 @@ def Main():
                 raise
 
         try:
-            entity_dirmenu_only.DirToMenu(callback_grph_add, root_node, entity_type, entity_id, entity_host, flagShowAll)
+            entity_dirmenu_only.DirToMenu(callback_grph_add, root_node, entity_type, entity_id, entity_host, flag_show_all)
         except Exception as exc:
             ERROR("entity.py caught in ForToMenu:%s", exc)
 
         # This adds WBEM and WMI urls related to the current object.
         if entity_type != "":
-            CIM_ComputerSystem.AddWbemWmiServers(grph, root_node, entity_host, name_space, entity_type, entity_id)
+            # This solves the case where one of the values of the ontology predicates contains commas.
+            # These commands were quoted, then separated of other arguments by a comma.
+            # TODO: It would be probably be  simpler to encode predicates values just like CGI arguments.
+            _add_wbem_wmi_servers(grph, root_node, entity_host, name_space, entity_type, entity_id)
 
         _add_default_scripts(grph, root_node, entity_host)
 
-        # Special case if the currententity we are displaying, is a machine,
+        # Special case if the current entity we are displaying, is a machine,
         # we might as well try to connect to its WMI or WBEM server, running on this machine.
         if entity_type == "CIM_ComputerSystem":
             _add_default_scripts(grph, root_node, entity_id)
@@ -131,6 +163,7 @@ def Main():
     _add_default_nodes(grph, root_node, entity_host)
 
     cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_directory, pc.property_script])
+
 
 if __name__ == '__main__':
     Main()
