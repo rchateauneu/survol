@@ -42,30 +42,6 @@ def UniversalAlias(entity_ids_arr, entity_host, entity_class):
     return "ThisComputer:" + a_host_name.lower()
 
 
-def AddWbemWmiServers(grph, root_node, entity_host, name_space, entity_type, entity_id):
-    """This adds the WBEM and WMI urls related to the entity."""
-    if entity_host:
-        host_wbem_wmi = entity_host
-    else:
-        host_wbem_wmi = lib_util.currentHostname
-
-    # This receives a map and a RDF property, and must add the correspknding nodes to the root_node
-    # int the given graph. The same callback signature is used elsewhere to generate HTML tables.
-    def add_w_map(the_map, prop_data):
-        if the_map:
-            for url_subj in the_map:
-                grph.add((root_node, prop_data, url_subj))
-                for the_prop, url_obj in the_map[url_subj]:
-                    grph.add((url_subj, the_prop, url_obj))
-
-    map_wbem = AddWbemServers(host_wbem_wmi, name_space, entity_type, entity_id)
-    add_w_map(map_wbem, pc.property_wbem_data)
-    map_wmi = AddWmiServers(host_wbem_wmi, name_space, entity_type, entity_id)
-    add_w_map(map_wmi, pc.property_wmi_data)
-    map_survol = AddSurvolServers(host_wbem_wmi, name_space, entity_type, entity_id)
-    add_w_map(map_survol, pc.property_survol_agent)
-
-
 def AddWbemServers(entity_host, name_space, entity_type, entity_id):
     map_wbem = dict()
     try:
@@ -81,9 +57,9 @@ def AddWbemServers(entity_host, name_space, entity_type, entity_id):
             if lib_wbem.ValidClassWbem(entity_type):
                 wbem_node = lib_common.NodeUrl(url_server[0])
                 if entity_host:
-                    txt_literal = "WBEM url, host=%s class=%s"%(entity_host,entity_type)
+                    txt_literal = "WBEM url, host=%s class=%s" % (entity_host, entity_type)
                 else:
-                    txt_literal = "WBEM url, current host, class=%s"%(entity_type)
+                    txt_literal = "WBEM url, current host, class=%s" % entity_type
 
                 wbem_host_node = lib_common.gUriGen.HostnameUri(url_server[1])
 
@@ -92,7 +68,7 @@ def AddWbemServers(entity_host, name_space, entity_type, entity_id):
                     (pc.property_host, wbem_host_node)
                 ]
 
-                # TODO: This could try to pen a HTTP server on this machine, possibly with port 80.
+                # TODO: This could try to open a HTTP server on this machine, possibly with port 80.
                 # grph.add( ( wbem_host_node, pc.property_information, lib_util.NodeLiteral("Url to host") ) )
     except ImportError:
         pass
@@ -100,6 +76,7 @@ def AddWbemServers(entity_host, name_space, entity_type, entity_id):
 
 
 def AddWmiServers(entity_host, name_space, entity_type, entity_id):
+    """This adds a couple of URL """
     map_wmi = dict()
 
     # No WMI implementation is available on Linux.
@@ -109,15 +86,15 @@ def AddWmiServers(entity_host, name_space, entity_type, entity_id):
     import lib_wmi
 
     if lib_wmi.ValidClassWmi(entity_type):
-        # TODO: We may also loop on all machines which may describe this object.
+        # TODO: This could loop on all machines possibly describing this object. How ?
         wmiurl = lib_wmi.GetWmiUrl(entity_host, name_space, entity_type, entity_id)
         # sys.stderr.write("wmiurl=%s\n" % str(wmiurl))
         if wmiurl:
             wmi_node = lib_common.NodeUrl(wmiurl)
             if entity_host:
-                txt_literal = "WMI url, host=%s class=%s"%(entity_host,entity_type)
+                txt_literal = "WMI url, host=%s class=%s" % (entity_host, entity_type)
             else:
-                txt_literal = "WMI url, current host, class=%s"%(entity_type)
+                txt_literal = "WMI url, current host, class=%s" % entity_type
 
             map_wmi[wmi_node] = [
                 (pc.property_information, lib_util.NodeLiteral(txt_literal))
@@ -183,6 +160,6 @@ def AddInfo(grph,node, entity_ids_arr):
 
     # No need to do that, because it is done in entity.py if mode!=json.
     # nameSpace = ""
-    # AddWbemWmiServers(grph,node,the_hostname, nameSpace, "CIM_ComputerSystem", "Name="+the_hostname)
+    # _add_wbem_wmi_servers(grph,node,the_hostname, nameSpace, "CIM_ComputerSystem", "Name="+the_hostname)
 
     AddGeocoder(grph,node,ipv4)
