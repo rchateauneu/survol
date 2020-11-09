@@ -1005,28 +1005,42 @@ class SurvolLocalJavaTest(unittest.TestCase):
 
         self.assertTrue(str_instances_set == set())
 
-class SurvolLocalUtf8Test(unittest.TestCase):
 
-    # FIXME: This filename: Yana e-trema lle et Constantin a-accent-grave Boulogne-sur-Mer.IMG-20190806-WA0000.jpg
-    @unittest.skip("Not implemented yet.")
-    def test_accented_filename(self):
-        # Create directory and file name with accents, depending on the platform: Windows/Linux.
+class SurvolSpecialCharactersTest(unittest.TestCase):
 
-        # Access the directory: file_directory.py
+    def _is_file_found(self, path_name):
+        full_path = os.path.join(os.path.dirname(__file__), "SampleDirSpecialCharacters", path_name)
 
-        # Check that the returned file matches the original one.
+        my_source_file_stat = lib_client.SourceRemote(
+            _remote_general_test_agent + "/survol/sources_types/CIM_DataFile/file_stat.py",
+            "CIM_DataFile",
+            Name=full_path)
+        json_content = my_source_file_stat.content_json()
 
-        # Properties: CIM_DataFile.file_stat.py
-        pass
+        for one_node in json_content['nodes']:
+            try:
+                found_file = one_node['entity_class'] == 'CIM_DataFile' and one_node['name'] == path_name
+                if found_file:
+                    return True
+            except:
+                pass
+        return False
 
-    # FIXME: This filename: Yana e-trema lle et Constantin a-accent-grave Boulogne-sur-Mer.IMG-20190806-WA0000.jpg
-    @unittest.skip("Not implemented yet.")
-    def test_accented_dirname(self):
-        pass
-        # Create directory and file name with accents, depending on the platform: Windows/Linux.
+    @unittest.skip("This test is broken.")
+    def test_filename_with_accents(self):
+        # TODO: Fix by simplifying URL: store predicate values in CGI parameters; Use B64 encoding for special chars.
+        filename_char_e_acute = "e_acute_\xc3\xa9.txt"
+        self.assertTrue(self._is_file_found(filename_char_e_acute))
 
-        # Properties: CIM_DataFile.dir_stat.py
-        # Properties: CIM_Directory.file_directory
+    @unittest.skip("This test is broken.")
+    def test_filename_with_commas(self):
+        # TODO: Fix by simplifying URL: store predicate values in CGI parameters; Use B64 encoding for special chars.
+        self.assertTrue(self._is_file_found("with,commas,in,file,name.txt"))
+
+    @unittest.skip("This test is broken.")
+    def test_filename_with_equals(self):
+        # TODO: Fix by simplifying URL: store predicate values in CGI parameters; Use B64 encoding for special chars.
+        self.assertTrue(self._is_file_found("with=equal=in=file=name.txt"))
 
 
 class SurvolLocalOntologiesTest(unittest.TestCase):
