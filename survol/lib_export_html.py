@@ -132,14 +132,15 @@ def _other_urls_html_iterator(top_url):
 
 
 def _cim_urls_html_iterator():
-    # This callback receives a RDF property (WBEM or WMI) and a map
-    # which represents the CIM links associated to the current object.
     def w_map_to_html(the_map):
+        """This callback receives a RDF property (WBEM or WMI) and a map
+        which represents the CIM links associated to the current object. """
         DEBUG("w_map_to_html len=%d", len(the_map))
         for url_subj in the_map:
-            subjText, subj_entity_graph_class, subj_entity_id = lib_naming.ParseEntityUri(lib_util.urllib_unquote(url_subj))
+            unquoted_subj = lib_util.urllib_unquote(url_subj)
+            subj_text, subj_entity_graph_class, subj_entity_id = lib_naming.ParseEntityUri(unquoted_subj)
             yield "<tr>"
-            yield "<td valign='top'><a href='%s'>%s</a></td>" % (str(url_subj), subjText)
+            yield "<td valign='top'><a href='%s'>%s</a></td>" % (str(url_subj), subj_text)
             yield "<td>"
             yield "<table border=0>"
             for the_prop, url_obj in the_map[url_subj]:
@@ -149,7 +150,8 @@ def _cim_urls_html_iterator():
                 if lib_kbase.IsLiteral(url_obj):
                     yield "<td>%s</td>" % str(url_obj)
                 else:
-                    obj_text, obj_entity_graph_class, obj_entity_id = lib_naming.ParseEntityUri(lib_util.urllib_unquote(url_obj))
+                    unquoted_obj = lib_util.urllib_unquote(url_obj)
+                    obj_text, obj_entity_graph_class, obj_entity_id = lib_naming.ParseEntityUri(unquoted_obj)
                     yield "<td><a href='%s'>%s</a></td>" % (str(url_obj), obj_text)
                 yield "</tr>"
             yield "</table>"
@@ -159,15 +161,15 @@ def _cim_urls_html_iterator():
     calling_url = lib_util.RequestUri()
     entity_label, entity_type, entity_id = lib_naming.ParseEntityUri(calling_url, long_display=True)
     host_wbem_wmi = lib_util.currentHostname
-    nameSpace = ""
+    name_space = ""
 
-    map_wbem = CIM_ComputerSystem.AddWbemServers(host_wbem_wmi, nameSpace, entity_type, entity_id)
+    map_wbem = CIM_ComputerSystem.AddWbemServers(host_wbem_wmi, name_space, entity_type, entity_id)
     for lin_html in w_map_to_html(map_wbem):
         yield lin_html
-    map_wmi = CIM_ComputerSystem.AddWmiServers(host_wbem_wmi, nameSpace, entity_type, entity_id)
+    map_wmi = CIM_ComputerSystem.AddWmiServers(host_wbem_wmi, name_space, entity_type, entity_id)
     for lin_html in w_map_to_html(map_wmi):
         yield lin_html
-    map_survol = CIM_ComputerSystem.AddSurvolServers(host_wbem_wmi, nameSpace, entity_type, entity_id)
+    map_survol = CIM_ComputerSystem.AddSurvolServers(host_wbem_wmi, name_space, entity_type, entity_id)
     for lin_html in w_map_to_html(map_survol):
         yield lin_html
 
