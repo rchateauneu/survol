@@ -1,0 +1,2 @@
+Comma "," also the separator of predicate values.
+It must be properly handled.
