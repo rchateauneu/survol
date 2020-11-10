@@ -11,10 +11,9 @@ from lib_properties import pc
 ################################################################################
 
 
-# This dumps the triplestore graph to the current output socket if called
-# in a HTTP server.
-# Otherwise it saves the result to a text file, for testing or debugging.
 def FlushOrSaveRdfGraph(grph, output_rdf_filename):
+    """This dumps the triplestore graph to the current output socket if called in a HTTP server.
+    Otherwise it saves the result to a text file, for testing or debugging."""
     INFO("FlushOrSaveRdfGraph l=%s sys.argv=%s",len(sys.argv),str(sys.argv))
 
     try:
@@ -87,8 +86,9 @@ def AddOntology(old_grph):
 
         return class_name
 
-    # This is needed for GraphDB which does not accept spaces and backslashes in URL.
     def _url_cleanup(url_node):
+        """This is needed for GraphDB which does not accept spaces and backslashes in URL.
+        With this, a graph can be uploaded in OntoText."""
         url_as_str = str(url_node)
         url_as_str = url_as_str.replace(" ","%20")
         url_as_str = url_as_str.replace("\\","%5C")
