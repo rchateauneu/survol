@@ -224,7 +224,7 @@ assert always_present_sub_file.startswith(always_present_sub_dir)
 ################################################################################
 
 
-# See lib_util.survol_urlopen
+# See lib_util.survol_urlopen which does something similar.
 try:
     # For Python 3.0 and later
     from urllib.request import urlopen as portable_urlopen
@@ -296,7 +296,7 @@ def _start_cgiserver_subprocess_portable(agent_port, current_dir):
 def _start_cgiserver_subprocess(agent_port):
     print("_start_cgiserver_subprocess: agent_port=%d hostname=%s" % (agent_port, agent_host))
     try:
-        # Running the tests scripts from PyCharm is from the current directory.
+        # PyCharm runs test scripts from the current directory, therefore this change.
         os.environ["PYCHARM_HELPERS_DIR"]
         current_dir = ".."
     except KeyError:
@@ -308,6 +308,9 @@ def _start_cgiserver_subprocess(agent_port):
 
 
 def start_cgiserver(agent_port):
+    """This is used to start a CGI HTTP server which runs cgiserver.py.
+    This processes executes Python scripts on request from the tests run by pytest.
+    These Python scripts are run as CGI scripts. """
     agent_url = "http://%s:%d" % (CurrentMachine, agent_port)
     print("start_cgiserver agent_url=%s agent_port=%d" % (agent_url, agent_port))
 
@@ -341,7 +344,7 @@ def start_cgiserver(agent_port):
         print("start_cgiserver: Using existing CGI Survol agent")
         _read_display_server_internal_data(response)
     except:
-        # No server with this port number, so this creates a process.
+        # No server with this port number, so there is o server, so this creates a process.
         agent_process = _start_cgiserver_subprocess(agent_port)
         print("_start_cgiserver_subprocess: Waiting for CGI agent to start")
         # This delay for the server to warmup.
@@ -349,16 +352,18 @@ def start_cgiserver(agent_port):
         time.sleep(0.5)
         atexit.register(__dump_server_content, logfile_name)
 
-        # It was using "entity.py" in the past, but it is slower.
-        local_agent_url = "http://%s:%s/survol/print_internal_data_as_json.py" % (agent_host, agent_port)
-        print("start_cgiserver local_agent_url=", local_agent_url)
-        try:
-            response = portable_urlopen(local_agent_url, timeout=5)
-            _read_display_server_internal_data(response)
-        except Exception as exc:
-            print("Caught:%s", exc)
-            __dump_server_content(logfile_name)
-            raise
+        # An optional extra test to ensure that the server is ready.
+        if is_travis_machine():
+            # It was using "entity.py" in the past, but it is slower.
+            local_agent_url = "http://%s:%s/survol/print_internal_data_as_json.py" % (agent_host, agent_port)
+            print("start_cgiserver local_agent_url=", local_agent_url)
+            try:
+                response = portable_urlopen(local_agent_url, timeout=5)
+                _read_display_server_internal_data(response)
+            except Exception as exc:
+                print("Caught:%s", exc)
+                __dump_server_content(logfile_name)
+                raise
 
     return agent_process, agent_url
 
@@ -370,6 +375,9 @@ def stop_cgiserver(agent_process):
 
 
 def start_wsgiserver(agent_url, agent_port):
+    """This is used to start a WSGI HTTP server which runs cgiserver.py.
+    This processes executes Python scripts on request from thet tests run by pytest.
+    These Python scripts are imported as Python module and run in WSGI. """
     try:
         # No SVG because Travis might not have dot/Graphviz. Also, the script must be compatible with WSGI.
         agent_process = None
