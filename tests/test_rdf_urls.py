@@ -403,6 +403,45 @@ class CIM_ComputerSystem_JavaTest(unittest.TestCase):
         print("rmi_registry_result=", rmi_registry_result)
 
 
+class OntologiesTest(unittest.TestCase):
+    def setUp(self):
+        # If a Survol agent does not run on this machine with this port, this script starts a local one.
+        self._remote_rdf_test_agent, self._agent_url = start_cgiserver(RemoteRdf0TestServerPort)
+        print("AgentUrl=", self._agent_url)
+
+    def tearDown(self):
+        stop_cgiserver(self._remote_rdf_test_agent)
+
+    def _check_script(self, script_suffix):
+        return _check_script_rdf(self, self._agent_url, script_suffix)
+
+    def test_ontology_survol(self):
+        """Test of Survol_RDFS.py"""
+
+        survol_ontology_result = self._check_script(
+            "/survol/ontologies/Survol_RDFS.py")
+
+        print("survol_ontology_result=", survol_ontology_result)
+
+    @unittest.skipIf(not is_platform_windows, "Windows only")
+    def test_ontology_wmi(self):
+        """Test of WMI_RDFS.py"""
+
+        wmi_ontology_result = self._check_script(
+            "/survol/ontologies/WMI_RDFS.py")
+
+        print("wmi_ontology_result=", wmi_ontology_result)
+
+    @unittest.skipIf(not is_platform_linux, "Linux only")
+    def test_ontology_wbem(self):
+        """Test of WBEM_RDFS.py"""
+
+        wbem_ontology_result = self._check_script(
+            "/survol/ontologies/WBEM_RDFS.py")
+
+        print("wbem_ontology_result=", wbem_ontology_result)
+
+
 if __name__ == '__main__':
     unittest.main()
 
