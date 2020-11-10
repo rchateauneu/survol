@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-# This creates a RDFSontology out of the Survol classes.
+"""This creates a RDFS ontology out of the Survol classes."""
+
 # It is part of a survol installation.
 # However, its classes and properties overlaps the ones created by WMI or WBEM.
 
@@ -11,6 +12,7 @@ import lib_export_ontology
 import lib_kbase
 import lib_util
 
+
 def Main():
     map_classes, map_attributes = lib_util.ExtractSurvolOntology()
     graph = lib_kbase.CreateRdfsOntology(map_classes, map_attributes)
@@ -18,6 +20,7 @@ def Main():
     # "Survol_RDFS_DL.rdfs"
     onto_filnam = os.path.splitext(__file__)[0] + ".rdfs"
     lib_export_ontology.FlushOrSaveRdfGraph(graph,onto_filnam)
+
 
 if __name__ == '__main__':
     Main()
