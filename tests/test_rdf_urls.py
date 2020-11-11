@@ -432,7 +432,7 @@ class OntologiesTest(unittest.TestCase):
 
         print("wmi_ontology_result=", wmi_ontology_result)
 
-    @unittest.skipIf(not is_platform_linux, "Linux only")
+    @unittest.skipIf(not is_linux_wbem(), "No WBEM.")
     def test_ontology_wbem(self):
         """Test of WBEM_RDFS.py"""
 

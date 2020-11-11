@@ -249,8 +249,8 @@ def WbemConnection(cgi_url):
     #https://github.com/Napsty/check_esxi_hardware/issues/7 """
     creden = lib_credentials.GetCredentials("WBEM", cgi_url)
 
-    if creden == ('', ''):
-        raise Exception("WbemConnection: No credentials for %s" % cgi_url)
+    #if creden == ('', ''):
+    #    raise Exception("WbemConnection: No credentials for %s" % cgi_url)
 
     DEBUG("WbemConnection creden=%s", str(creden))
     # Beware: If username/password is wrong, it will only be detected at the first data access.
