@@ -17,82 +17,82 @@ def WbemAllNamespacesUrl(srvr):
     return lib_util.ScriptizeCimom('/namespaces_wbem.py', "", srvr)
 
 
-def BuildWbemNamespaceClass(wbemNamespace, entity_type):
+def BuildWbemNamespaceClass(wbem_namespace, entity_type):
     # Normally we should check if this class is defined in this cimom.
     # For the moment, we assume, yes.
     # But the namespace is not taken into account if it is empty.
-    if wbemNamespace:
-        return wbemNamespace, entity_type, wbemNamespace + ":" + entity_type
+    if wbem_namespace:
+        return wbem_namespace, entity_type, wbem_namespace + ":" + entity_type
     else:
-        return wbemNamespace, entity_type, entity_type
+        return wbem_namespace, entity_type, entity_type
 
 
-def BuildWbemMoniker(hostname, namespac="", classNam=""):
+def BuildWbemMoniker(hostname, namespac="", class_nam=""):
     # Apparently the namespace is not correctly parsed. It should not matter as it is optional.
     # This also helps when this is a common class between WBEM, WMI and Survol.
     if namespac:
-        return "%s/%s:%s." % (hostname, namespac, classNam)
+        return "%s/%s:%s." % (hostname, namespac, class_nam)
     else:
-        return "%s/%s." % (hostname, classNam)
+        return "%s/%s." % (hostname, class_nam)
 
 
 # TODO: Build a moniker with cimom added at the beginning. Must check if really useful.
-def NamespaceUrl(nskey, cimomUrl, classNam=""):
-    wbemMoniker = BuildWbemMoniker( cimomUrl, nskey, classNam )
-    wbemInstanceUrl = lib_util.EntityUrlFromMoniker( wbemMoniker, True, True)
-    return wbemInstanceUrl
+def NamespaceUrl(nskey, cimom_url, class_nam=""):
+    wbem_moniker = BuildWbemMoniker(cimom_url, nskey, class_nam)
+    wbem_instance_url = lib_util.EntityUrlFromMoniker(wbem_moniker, True, True)
+    return wbem_instance_url
 
 
-def ClassUrl(nskey, cimomUrl, classNam):
-    wbemMoniker = BuildWbemMoniker(cimomUrl, nskey, classNam)
-    wbemInstanceUrl = lib_util.EntityUrlFromMoniker(wbemMoniker, True)
-    return wbemInstanceUrl
+def ClassUrl(nskey, cimom_url, class_nam):
+    wbem_moniker = BuildWbemMoniker(cimom_url, nskey, class_nam)
+    wbem_instance_url = lib_util.EntityUrlFromMoniker(wbem_moniker, True)
+    return wbem_instance_url
 
 
-def WbemBuildMonikerPath( entity_namespace, entity_type, entity_id ):
-    wbemNameSpace, wbemClass, fullClassPth = BuildWbemNamespaceClass( entity_namespace, entity_type )
-    return fullClassPth + "." + entity_id
+def WbemBuildMonikerPath( entity_namespace, entity_type, entity_id):
+    wbem_name_space, wbem_class, full_class_pth = BuildWbemNamespaceClass(entity_namespace, entity_type)
+    return full_class_pth + "." + entity_id
 
 
-def WbemInstanceUrl(entity_namespace, entity_type, entity_id, cimomSrv):
+def WbemInstanceUrl(entity_namespace, entity_type, entity_id, cimom_srv):
     # sys.stderr.write("WbemInstanceUrl %s %s %s %s\n" % (entity_namespace, entity_type, entity_id, cimomSrv))
 
-    wbemFullPath = WbemBuildMonikerPath( entity_namespace, entity_type, entity_id )
+    wbem_full_path = WbemBuildMonikerPath(entity_namespace, entity_type, entity_id)
 
-    if wbemFullPath is None:
+    if wbem_full_path is None:
         return None
 
     # 'https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"'
-    wbemMoniker = cimomSrv + "/" + wbemFullPath
+    wbem_moniker = cimom_srv + "/" + wbem_full_path
 
-    wbemInstanceUrl = lib_util.EntityUrlFromMoniker(wbemMoniker, entity_id == "")
-    return wbemInstanceUrl
+    wbem_instance_url = lib_util.EntityUrlFromMoniker(wbem_moniker, entity_id == "")
+    return wbem_instance_url
 
 
-def WbemGetClassKeys(wbemNameSpace, wbemClass, cimomSrv):
+def WbemGetClassKeys(wbem_name_space, wbem_class, cimom_srv):
     """Returns the list of a keys of a given WBEM class. This is is used if the key is not given for an entity.
     This could be stored in a cache for better performance."""
     try:
-        wbemCnnct = WbemConnection(cimomSrv)
-        return WbemGetClassKeysFromConnection(wbemNameSpace, wbemClass, wbemCnnct)
+        wbem_cnnct = WbemConnection(cimom_srv)
+        return WbemGetClassKeysFromConnection(wbem_name_space, wbem_class, wbem_cnnct)
     except Exception as exc:
-        WARNING("WbemGetClassKeys %s %s %s: Caught:%s", cimomSrv, wbemNameSpace, wbemClass, str(exc))
+        WARNING("WbemGetClassKeys %s %s %s: Caught:%s", cimom_srv, wbem_name_space, wbem_class, str(exc))
         return None
 
 
-def WbemGetClassKeysFromConnection(wbemNameSpace, wbemClass, wbemCnnct):
+def WbemGetClassKeysFromConnection(wbem_name_space, wbem_class, wbem_cnnct):
     # >>> conn = pywbem.WBEMConnection( "http://192.168.1.88:5988" , ('pegasus','toto') )
     # >>> conn.GetClass("CIM_MediaPresent",namespace="root/cimv2")
     # CIMClass(classname=u'CIM_MediaPresent', ...)
 
     # https://pywbem.github.io/pywbem/doc/0.8.4/doc/pywbem.cim_operations.WBEMConnection-class.html#GetClass
-    wbemClass = wbemCnnct.GetClass(wbemClass,
-            namespace=wbemNameSpace,
-            # Indicates that inherited properties, methods, and qualifiers are to be excluded from the returned class.
-            LocalOnly=False,
-            IncludeQualifiers=False)
+    wbem_class = wbem_cnnct.GetClass(wbem_class,
+                                     namespace=wbem_name_space,
+                                     # Indicates that inherited properties, methods, and qualifiers are to be excluded from the returned class.
+                                     LocalOnly=False,
+                                     IncludeQualifiers=False)
 
-    keys = wbemClass.properties.keys()
+    keys = wbem_class.properties.keys()
     # sys.stderr.write("WbemGetClassKeys keys=%s\n" % ( str(keys) ) )
     return keys
 
@@ -101,6 +101,7 @@ def WbemGetClassKeysFromConnection(wbemNameSpace, wbemClass, wbemCnnct):
 
 # TODO: Make SLP work properly.
 def slp_wbem_services():
+    """This returns accessible WBEM services as detected by SLP."""
     filter = "wbem"
     #  "/drives/c/Program Files (x86)/OpenSLP/slptool.exe"
     cmd = 'slptool findsrvs service:' + filter
@@ -111,18 +112,18 @@ def slp_wbem_services():
     stream = os.popen(cmd)
     # service:ftp.smallbox://192.168.100.1:21,65535
     for line in stream:
-        matchObj = re.match(r'service:([^:]*):/?/?([^,]*)(.*)', line, re.M|re.I)
-        if matchObj:
+        match_obj = re.match(r'service:([^:]*):/?/?([^,]*)(.*)', line, re.M|re.I)
+        if match_obj:
             yield {
-                    "name": matchObj.group(1), # "wbem"
-                    "url" : matchObj.group(2), # Starts with "http:" or "https:"
-                    "rest": matchObj.group(3)}
+                    "name": match_obj.group(1), # "wbem"
+                    "url" : match_obj.group(2), # Starts with "http:" or "https:"
+                    "rest": match_obj.group(3)}
         else:
-            raise Exception("Invalid line "+line)
+            raise Exception("Invalid line " + line)
     resu = stream.close()
 
     if resu is not None:
-        raise Exception("Error running "+cmd)
+        raise Exception("Error running " + cmd)
 
 
 # TODO: Alternate methods to discover WBEM servers:
@@ -135,17 +136,17 @@ def slp_wbem_services():
 # TODO: Emulate the protocol with Jquery and Javascript, if it is HTTP.
 # But for that, we would need a WBEM server sending Access-Control-Allow-Origin header.
 def WbemServersList():
-    lstWbemServers = []
-    credNames = lib_credentials.get_credentials_names("WBEM")
+    lst_wbem_servers = []
+    cred_names = lib_credentials.get_credentials_names("WBEM")
     DEBUG("WbemServersList")
-    for urlWbem in credNames:
+    for url_wbem in cred_names:
         # crdNam = "http://192.168.1.83:5988"
-        parsed_url = lib_util.survol_urlparse(urlWbem)
+        parsed_url = lib_util.survol_urlparse(url_wbem)
         the_host = parsed_url.hostname
         if the_host:
-            lstWbemServers.append((the_host, urlWbem))
+            lst_wbem_servers.append((the_host, url_wbem))
 
-    return lstWbemServers
+    return lst_wbem_servers
 
 
 def HostnameToWbemServer(hostname):
@@ -155,15 +156,15 @@ def HostnameToWbemServer(hostname):
     # TODO: This should prefer port 5988 over 5989 which does not work with pywbem anyway.
     entity_ip_addr = lib_util.EntHostToIpReally(hostname)
 
-    credNames = lib_credentials.get_credentials_names("WBEM")
-    for urlWbem in credNames:
-        # urlWbem = "http://192.168.1.83:5988"
-        parsed_url = lib_util.survol_urlparse(urlWbem)
+    cred_names = lib_credentials.get_credentials_names("WBEM")
+    for url_wbem in cred_names:
+        # url_wbem = "http://192.168.1.83:5988"
+        parsed_url = lib_util.survol_urlparse(url_wbem)
         the_host = parsed_url.hostname
         if the_host == hostname:
-            return urlWbem
+            return url_wbem
         if the_host == entity_ip_addr:
-            return urlWbem
+            return url_wbem
 
     # If no credential can be found, just return a default one.
     return "http://" + entity_ip_addr + ":5988"
@@ -181,18 +182,18 @@ def GetWbemUrls(entity_host, entity_namespace, entity_type, entity_id):
     # sys.stderr.write("GetWbemUrls entity_host=%s\n" % (entity_host))
 
     # TODO: Should check that the WBEM class exists in the server ?
-    for wbemServer in WbemServersList():
-        # wbemServer=(u'vps516494.ovh.net', u'http://vps516494.ovh.net:5988')
-        #sys.stderr.write("GetWbemUrls wbemServer=%s\n"%str(wbemServer))
+    for wbem_server in WbemServersList():
+        # wbem_server=(u'vps516494.ovh.net', u'http://vps516494.ovh.net:5988')
+        #sys.stderr.write("GetWbemUrls wbem_server=%s\n"%str(wbem_server))
         # If no host specified, returns everything.
         if entity_host:
-            # wbemServer[1].lower()=vps516494.ovh.net entity_host.lower()=http://vps516494.ovh.net:5988
-            if entity_host.lower() != wbemServer[0].lower():
-                #sys.stderr.write("GetWbemUrls different wbemServer=%s entity_host=%s\n"%(str(wbemServer[1].lower()),entity_host.lower()))
+            # wbem_server[1].lower()=vps516494.ovh.net entity_host.lower()=http://vps516494.ovh.net:5988
+            if entity_host.lower() != wbem_server[0].lower():
+                #sys.stderr.write("GetWbemUrls different wbem_server=%s entity_host=%s\n"%(str(wbem_server[1].lower()),entity_host.lower()))
                 continue
 
-        DEBUG("GetWbemUrls found wbemServer=%s", str(wbemServer))
-        theCimom = wbemServer[1]
+        DEBUG("GetWbemUrls found wbem_server=%s", str(wbem_server))
+        the_cimom = wbem_server[1]
 
         # TODO: When running from cgiserver.py, and if QUERY_STRING is finished by a dot ".", this dot
         # TODO: is removed. Workaround: Any CGI variable added after.
@@ -200,25 +201,25 @@ def GetWbemUrls(entity_host, entity_namespace, entity_type, entity_id):
         # TODO: Example: "xid=http://192.168.1.83:5988/." becomes "xid=http:/192.168.1.83:5988/"
         # TODO: Replace by "xid=http:%2F%2F192.168.1.83:5988/."
         # Maybe a bad collapsing of URL ?
-        theCimom = lib_credentials.key_url_cgi_encode(theCimom)
+        the_cimom = lib_credentials.key_url_cgi_encode(the_cimom)
 
         # On suppose que les classes sont les memes.
         if entity_type == "":
             # TODO: This should rather display all classes for this namespace.
-            wbemUrl = WbemAllNamespacesUrl(theCimom)
+            wbem_url = WbemAllNamespacesUrl(the_cimom)
         else:
             # Unique script for all types of entities.
             # TODO: Pass the cimom as a host !!!
-            wbemUrl = WbemInstanceUrl(entity_namespace, entity_type, entity_id, theCimom)
+            wbem_url = WbemInstanceUrl(entity_namespace, entity_type, entity_id, the_cimom)
 
-        if wbemUrl is None:
+        if wbem_url is None:
             continue
-        wbem_urls_list.append((wbemUrl, wbemServer[0]))
+        wbem_urls_list.append((wbem_url, wbem_server[0]))
 
     return wbem_urls_list
 
 
-def GetWbemUrlsTyped(entity_host, nameSpace, entity_type, entity_id):
+def GetWbemUrlsTyped(entity_host, name_space, entity_type, entity_id):
     """This also takes into account the entity type.
     If this is a CIM_ComputerSystem, it tries to connect to its WBEM server.
     This code is not really mature, but it does not harm."""
@@ -226,21 +227,21 @@ def GetWbemUrlsTyped(entity_host, nameSpace, entity_type, entity_id):
     #sys.stderr.write("GetWbemUrlsTyped entity_host=%s nameSpace=%s entity_type=%s entity_id=%s\n"%( entity_host, nameSpace, entity_type, entity_id ))
     # When displaying the WBEM of a computer, this attempts to point to the server of this distant machine.
     # The coding of another machine looks dodgy but is simply a CIM path.
-    if (entity_type == 'CIM_ComputerSystem'):
+    if entity_type == 'CIM_ComputerSystem':
         # TODO:  hostId="Unknown-30-b5-c2-02-0c-b5-2" does not work.
         # This return the WBEM servers associated to this machine.
         if entity_id:
             # Tries to extract the host from the string "Key=Val,Name=xxxxxx,Key=Val"
             # BEWARE: Some arguments should be decoded.
-            xidHost = {sp[0]:sp[1] for sp in [ss.split("=") for ss in entity_id.split(",") ] }["Name"]
+            xid_host = {sp[0]:sp[1] for sp in [ss.split("=") for ss in entity_id.split(",")]}["Name"]
 
-            wbem_urls_list = GetWbemUrls(xidHost, nameSpace, entity_type, entity_id)
+            wbem_urls_list = GetWbemUrls(xid_host, name_space, entity_type, entity_id)
         else:
             host_alt = lib_util.currentHostname
-            wbem_urls_list = GetWbemUrls(host_alt, nameSpace, entity_type, "Name=" + host_alt + ".home")
+            wbem_urls_list = GetWbemUrls(host_alt, name_space, entity_type, "Name=" + host_alt + ".home")
     else:
         # This returns the current url server of the current machine.
-        wbem_urls_list = GetWbemUrls(entity_host, nameSpace, entity_type, entity_id)
+        wbem_urls_list = GetWbemUrls(entity_host, name_space, entity_type, entity_id)
     return wbem_urls_list
 
 
@@ -258,10 +259,10 @@ def WbemConnection(cgi_url):
     return conn
 
 
-def WbemGetClassObj(connWbem, entity_type, wbemNamespace):
+def WbemGetClassObj(conn_wbem, entity_type, wbem_namespace):
     try:
-        wbemKlass = connWbem.GetClass(entity_type, namespace=wbemNamespace, LocalOnly=False, IncludeQualifiers=True)
-        return wbemKlass
+        wbem_klass = conn_wbem.GetClass(entity_type, namespace=wbem_namespace, LocalOnly=False, IncludeQualifiers=True)
+        return wbem_klass
     except Exception:
         return None
 
@@ -269,19 +270,19 @@ def WbemGetClassObj(connWbem, entity_type, wbemNamespace):
 ################################################################################
 
 
-def WbemClassDescrFromClass(wbemKlass):
+def WbemClassDescrFromClass(wbem_klass):
     try:
-        return wbemKlass.qualifiers['Description'].value
+        return wbem_klass.qualifiers['Description'].value
     except Exception as exc:
         return "Caught:" + str(exc)
 
 
-def WbemClassDescription(connWbem, entity_type, wbemNamespace):
+def WbemClassDescription(conn_wbem, entity_type, wbem_namespace):
     try:
-        wbemKlass = connWbem.GetClass(entity_type, namespace=wbemNamespace, LocalOnly=False, IncludeQualifiers=True)
+        wbem_klass = conn_wbem.GetClass(entity_type, namespace=wbem_namespace, LocalOnly=False, IncludeQualifiers=True)
     except Exception:
         return None
-    return WbemClassDescrFromClass(wbemKlass)
+    return WbemClassDescrFromClass(wbem_klass)
 
 ################################################################################
 
@@ -324,7 +325,7 @@ def NamespacesEnumeration(conn):
                     raise
             if len(nsinsts) > 0:
                 break
-    return (interopns, nsclass, nsinsts)
+    return interopns, nsclass, nsinsts
 
 
 def EnumNamespacesCapabilities(conn):
@@ -358,7 +359,7 @@ def EnumNamespacesCapabilities(conn):
     return nsd
 
 
-def GetCapabilitiesForInstrumentation(conn,namSpac):
+def GetCapabilitiesForInstrumentation(conn, nam_spac):
     """Classes might belong to several namespaces ?"""
     caps = None
     last_error = AssertionError("No interop namespace found")
@@ -382,20 +383,20 @@ def GetCapabilitiesForInstrumentation(conn,namSpac):
         raise last_error
     resu = []
     for cap in caps:
-        if namSpac in cap['Namespaces']:
+        if nam_spac in cap['Namespaces']:
             resu.append(cap['ClassName'])
     return resu
 
 ###################################################
 
 
-def EnumerateInstrumentedClasses(conn, namSpac):
+def EnumerateInstrumentedClasses(conn, nam_spac):
     """
     Enumerates only those class names, that are instrumented (there
     is a provider under broker implementing its interface.
     """
     fetched_classes = []
-    def get_class(conn,cname):
+    def get_class(conn, cname):
         """Obtain class from broker and store it in cache."""
         fetched_classes.append(cname)
         return conn.GetClass(ClassName=cname,
@@ -404,12 +405,12 @@ def EnumerateInstrumentedClasses(conn, namSpac):
 
     start_class = '.'
 
-    caps = GetCapabilitiesForInstrumentation(conn, namSpac)
+    caps = GetCapabilitiesForInstrumentation(conn, nam_spac)
 
     deep_dict = {start_class:[]}
 
     for cap in caps:
-        if namSpac not in cap['Namespaces']:
+        if nam_spac not in cap['Namespaces']:
             continue
         if cap['ClassName'] in fetched_classes:
             continue
@@ -438,15 +439,15 @@ def EnumerateInstrumentedClasses(conn, namSpac):
 ###################################################
 
 
-def GetClassesTree(conn,theNamSpace):
+def GetClassesTree(conn, the_nam_space):
     kwargs = {'DeepInheritance': True}
     # kwargs['ClassName'] = None
     kwargs['LocalOnly'] = True
     kwargs['IncludeQualifiers'] = False
     kwargs['IncludeClassOrigin'] = False
 
-    DEBUG("GetClassesTree theNamSpace=%s", theNamSpace)
-    klasses = conn.EnumerateClasses(namespace=theNamSpace, **kwargs)
+    DEBUG("GetClassesTree theNamSpace=%s", the_nam_space)
+    klasses = conn.EnumerateClasses(namespace=the_nam_space, **kwargs)
     DEBUG("GetClassesTree klasses %d elements", len(klasses))
 
     tree_classes = dict()
@@ -465,57 +466,56 @@ def GetClassesTree(conn,theNamSpace):
 ###################################################
 
 
-def MakeInstrumentedRecu(inTreeClass, outTreeClass, topclassNam, theNamSpac, instrCla):
+def MakeInstrumentedRecu(in_tree_class, out_tree_class, topclass_nam, the_nam_spac, instr_cla):
     """Fills with instrumented classes, i.e. classes with a provider."""
     try:
-        if topclassNam in instrCla:
+        if topclass_nam in instr_cla:
             # print("top "+topclassNam+" instrumented<br>")
-            outTreeClass[topclassNam] = []
-        for cl in inTreeClass[topclassNam]:
+            out_tree_class[topclass_nam] = []
+        for cl in in_tree_class[topclass_nam]:
             clnam = cl.classname
-            MakeInstrumentedRecu(inTreeClass, outTreeClass, clnam, theNamSpac, instrCla)
+            MakeInstrumentedRecu(in_tree_class, out_tree_class, clnam, the_nam_spac, instr_cla)
 
-            if clnam in instrCla or clnam in outTreeClass:
+            if clnam in instr_cla or clnam in out_tree_class:
                 # This does not work. WHY ?
                 # outTreeClass.get( klass.superclass, [] ).append( clnam )
                 try:
-                    outTreeClass[topclassNam].append(cl)
+                    out_tree_class[topclass_nam].append(cl)
                 except KeyError:
-                    outTreeClass[topclassNam] = [cl]
-
+                    out_tree_class[topclass_nam] = [cl]
     except KeyError:
         # No subclass.
         pass
 
 
-def GetClassesTreeInstrumented(conn, theNamSpace):
+def GetClassesTreeInstrumented(conn, the_nam_space):
     """This builds a dictionary indexes by class names, and the values are lists of classes objects,
     which are the subclasses of the key class. The root class name is None."""
-    DEBUG("GetClassesTreeInstrumented theNamSpace=%s", theNamSpace)
+    DEBUG("GetClassesTreeInstrumented theNamSpace=%s", the_nam_space)
 
     try:
-        inTreeClass = GetClassesTree(conn, theNamSpace)
+        in_tree_class = GetClassesTree(conn, the_nam_space)
         # sys.stderr.write("After GetClassesTree inTreeClass = %d elements\n" % len(inTreeClass))
-        outTreeClass = dict()
-        instrCla = GetCapabilitiesForInstrumentation(conn, theNamSpace)
-        # sys.stderr.write("After GetCapabilitiesForInstrumentation instrCla = %d elements\n" % len(instrCla))
-        MakeInstrumentedRecu(inTreeClass, outTreeClass, None, theNamSpace, instrCla)
+        out_tree_class = dict()
+        instr_cla = GetCapabilitiesForInstrumentation(conn, the_nam_space)
+        # sys.stderr.write("After GetCapabilitiesForInstrumentation instr_cla = %d elements\n" % len(instr_cla))
+        MakeInstrumentedRecu(in_tree_class, out_tree_class, None, the_nam_space, instr_cla)
     except Exception as exc:
-        lib_common.ErrorMessageHtml("Instrumented classes: ns=" + theNamSpace + " Caught:" + str(exc))
-    DEBUG("After MakeInstrumentedRecu outTreeClass = %d elements", len(outTreeClass))
+        lib_common.ErrorMessageHtml("Instrumented classes: ns=" + the_nam_space + " Caught:" + str(exc))
+    DEBUG("After MakeInstrumentedRecu out_tree_class = %d elements", len(out_tree_class))
 
-    # print("outTreeClass="+str(outTreeClass)+"<br>")
-    return outTreeClass
+    # print("out_tree_class="+str(out_tree_class)+"<br>")
+    return out_tree_class
 
 
-def ValidClassWbem(className):
+def ValidClassWbem(class_name):
     """Tells if this class for our ontology is in a given WBEM server, whatever the namespace is."""
-    tpSplit = className.split("_")
-    tpPrefix = tpSplit[0]
-    DEBUG("lib_wbem.ValidClassWbem className=%s tpPrefix=%s", className, tpPrefix)
+    tp_split = class_name.split("_")
+    tp_prefix = tp_split[0]
+    DEBUG("lib_wbem.ValidClassWbem className=%s tp_prefix=%s", class_name, tp_prefix)
     # "PG" is Open Pegasus: http://www.opengroup.org/subjectareas/management/openpegasus
     # "LMI" is OpenLmi: http://www.openlmi.org/
-    return tpPrefix in ["CIM", "PG", "LMI"]
+    return tp_prefix in ["CIM", "PG", "LMI"]
 
 
 # This must return the label of an url "entity_wmi.py".
@@ -556,7 +556,7 @@ def ExtractRemoteWbemOntology(wbem_connection):
     # Note: Survol assumes this namespace everywhere.
     wbem_name_space = 'root/cimv2'
 
-    class_tree = GetClassesTree(wbem_connection, theNamSpace=wbem_name_space)
+    class_tree = GetClassesTree(wbem_connection, the_nam_space=wbem_name_space)
 
     for super_class_name in class_tree:
         class_array = class_tree[super_class_name]
@@ -593,7 +593,7 @@ def ExtractRemoteWbemOntology(wbem_connection):
     return map_classes, map_attributes
 
 
-def WbemKeyValues(key_value_items, display_none_values = False):
+def WbemKeyValues(key_value_items, display_none_values=False):
     """This is conceptually similar to WmiKeyValues"""
     dict_key_values = {}
     for wbem_key_name, wbem_value_literal in key_value_items:
