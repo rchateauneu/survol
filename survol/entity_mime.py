@@ -35,10 +35,10 @@ def Main():
 
     try:
         entity_module.DisplayAsMime(grph, root_node, entity_ids_arr)
-    except:
-        exc = sys.exc_info()[1]
-        ERROR("entity_mime.py No DisplayAsMime for %s %s: %s", entity_type, entity_id, str(exc) )
-        lib_common.ErrorMessageHtml("entity_mime.py No DisplayAsMime for %s %s: %s\n"%( entity_type, entity_id, str(exc) ))
+    except Exception as exc:
+        lib_common.ErrorMessageHtml(
+            __file__ + " DisplayAsMime fails: %s %s: %s. File=%s.\n"
+            % (entity_type, entity_id, str(exc), entity_module.__file__))
 
 
 if __name__ == '__main__':
