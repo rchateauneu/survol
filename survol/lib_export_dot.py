@@ -17,6 +17,31 @@ import lib_properties
 from lib_properties import pc
 
 
+def _truncate_in_space(lab_text, max_len_lab):
+    """
+    This truncates a string to a given length but tries to cut
+    at a space position instead of splitting a word.
+    """
+    if len(lab_text) > max_len_lab:
+        idx = lab_text.find(" ", max_len_lab)
+        # sys.stderr.write("idx=%d\n"%idx)
+        if idx < 0:
+            idx = max_len_lab
+
+            # BEWARE: This must not fall in the middle of an html entity "&amp;", etc... ...
+            idx_semi_colon = lab_text.find(";", idx)
+            # sys.stderr.write("idx_semi_colon=%d\n"%idx_semi_colon)
+            if idx_semi_colon < 0:
+                idx = max_len_lab
+            else:
+                idx = idx_semi_colon + 1 # Just after the semi-colon.
+
+        # sys.stderr.write("labText=%s idx=%d\n"%(labText,idx))
+        return lab_text[:idx]
+    else:
+        return lab_text
+
+
 # TODO: Take the colors from the CSS html_exports.css
 # TODO: Add a tool tip. Also, adapt the color to the context.
 _pattern_edge_oriented = "\t%s -> %s [ color=%s, label=< <font point-size='10' " + \
@@ -27,7 +52,7 @@ _pattern_edge_bidirect = "\t%s -> %s [ dir=both color=%s, label=< <font point-si
 
 def external_url_to_title(ext_url):
     """Returns a string for an URL which might be different from "entity.py" etc...
-    Depending on where we come from, "%2F" instead of "/" ... ugly.
+    Depending on where it comes from, "%2F" instead of "/" ... ugly.
     BEWARE: This is completely experimental. See if "Yawn" is actually used."""
     if re.match( ".*/yawn/.*", ext_url) or re.match(".*%2Fyawn%2F.*", ext_url):
         return "Yawn"
@@ -69,7 +94,7 @@ def is_flat_property(key):
     return key in _flat_properties_list
 
 
-def Rdf2Dot(grph, logfil, stream, collapsed_properties):
+def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
     """Used for transforming into SVG format.
     If from entity.py, collapsed_properties = pc.property_directory,pc.property_script """
     fields_set = collections.defaultdict(list)
@@ -204,6 +229,8 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties):
     dict_props_collapsed_subjects_to_object_lists = {}
 
     for collaps_prop_obj in collapsed_properties:
+        # TODO: Les arguments CGI de l'URL ils servent peut-etre a trier.
+        # Donc on doit les garder pour trier une fois qu'on a rassemble.
         collaps_prop_nam = lib_exports.PropToShortPropNam(collaps_prop_obj)
         dict_props_collapsed_subjects_to_object_lists[collaps_prop_nam] = collections.defaultdict(list)
 
@@ -296,14 +323,13 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties):
 
             prp_col = lib_properties.prop_color(prop)
 
-            # TODO: GENERALIZE THIS TO ALL COMMUTATIVE PROPERTIES.
-            # THAT IS: PROPERTIES WHOSE TRIPLES ARE MERGED WHEN
-            # WE HAVE AT THE SAME TIME: (Subj,Prop,Obj) and (Obj,Prop,Subj).
-            # WHEN THIS HAPPENS, THE ARROW MUST BE BIDIRECTIONAL.
-            # TODO: All commutative relation have bidirectional arrows.
-            # At the moment, only one property can be bidirectional.
-            if prop == pc.property_socket_end:
-
+            # TODO: REMOVE THIS HARDCODE, GENERALIZE THIS TO ALL COMMUTATIVE PROPERTIES,
+            # TODO: PROPERTIES WHOSE TRIPLES ARE MERGED WHEN SIMULTANEOUSLY: (Subj,Prop,Obj) and (Obj,Prop,Subj).
+            # TODO: WHEN THIS HAPPENS, THE ARROW MUST BE BIDIRECTIONAL. Commutative triples have bidirectional arrows.
+            # TODO: Look for "commutative_property" and lib_properties.add_property_metadata_to_graph()
+            # TODO: At the moment, only one property can be bidirectional: property_socket_end
+            # if prop == pc.property_socket_end:
+            if prop in commutative_properties:
                 # BEWARE, MAYBE THIS IS A PORT INTO A TABLE. SO IT HAS TO BE PREFIXED BY THE RECORD NAME.
                 obj_nam = RdfNodeToDotLabelExtended(obj, prop)
                 if (obj, prop, subj) in grph :
@@ -372,14 +398,14 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties):
             lab_text, subj_entity_graphic_class, entity_id = lib_naming.ParseEntityUri(subj_url)
 
             # At the moment, two passes are necessary:
-            # * A first pass to create the compte list of fields, because they might be a bit different
-            #   from one record to the other. The column names pf these fields get an unique index number
+            # * A first pass to create the total list of fields, because they might be a bit different
+            #   from one record to the other. The column names of these fields get an unique index number
             #   and can therefore be sorted.
             # * A second pass uses these result, to display the lines.
             #
-            # This could be faster by assuming that the first ten columns have all the fields.
+            # This could be faster by assuming that the first ten or twenty columns have all the fields.
             # We could then start the second pass, and if an undetected column is found,
-            # then restart from scratch.
+            # then restart from the beginning, as it is done now.
 
             # Unique columns of the descendant of this subject.
             raw_fields_keys = set()
@@ -575,7 +601,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties):
             # TODO: Le title and the content are not necessarily of the same class.
             # lab_text_with_br is the first line of the table containing nodes linked with the
             # same property. Unfortunately we have lost this property.
-            lab_text = lib_exports.TruncateInSpace(lab_text, 30)
+            lab_text = _truncate_in_space(lab_text, 30)
             lab_text_with_br = lib_exports.StrWithBr(lab_text)
             lab_text_with_br += ": " + prop_nam
 
