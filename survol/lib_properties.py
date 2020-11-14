@@ -8,6 +8,7 @@ pc = rdflib.Namespace(primns)
 prefix_terminator = "#"
 primns_slash = primns + prefix_terminator
 
+
 # If prp contains a space, it is not properly parsed.
 # TODO: The extra parameter is not used yet.
 # The parameters are intended to pass more information with it.
@@ -26,7 +27,7 @@ primns_slash = primns + prefix_terminator
 # It tests that the key is in fact an array containing the properties.
 # We could add information in a given order: "information?key=1", "information?key=2",
 # Natural order should be OK. or add a sort function in the call to sorted().
-def MakeProp(*prps,**kvargs):
+def MakeProp(*prps, **kvargs):
     # The delimiter must be compatible with XML because for example, the tag:
     # "<ldt:odbc:column rdf:resource=..."
     # is rejected with the error: "SAXParseException: <unknown>:93:13: not well-formed (invalid token)"
@@ -34,7 +35,8 @@ def MakeProp(*prps,**kvargs):
     # It is a very rare situation at the moment, and might change.
     ret = primns_slash + "___".join(prps)
     if kvargs:
-        ret += "?" + "&amp;".join( "%s=%s" % (k,kvargs[k]) for k in kvargs )
+        ret += "?" + "&amp;".join( "%s=%s" % (k, kvargs[k]) for k in kvargs)
+
     # TODO: If the key contains a space or "\x20", the result gets prefixed by primns:
     # http://primhillcomputers.com/ontologies/swapnote\ futures
     # If the space is replaced by "%20", everything before it is erased.
@@ -42,7 +44,7 @@ def MakeProp(*prps,**kvargs):
     return rdflib.term.URIRef( url )
 
 
-MakeNodeForSparql = MakeProp
+#MakeNodeForSparql = MakeProp
 
 
 # See lib_kbase.qname
@@ -181,6 +183,10 @@ pc.property_cim_subclass         = MakeProp("cim subclass")
 pc.property_alias                = MakeProp("alias")
 pc.property_string_occurrence    = MakeProp("string occurrence")
 pc.property_error                = MakeProp("Error")
+pc.property_argv                 = MakeProp("argv")
+
+pc.meta_property_commutative     = MakeProp("commutative_property")
+pc.meta_property_collapsed       = MakeProp("collapsed_property")
 
 dictPropertiesGraphAttributes = {
     pc.property_script: "GREEN",
@@ -197,3 +203,33 @@ def prop_color(prop):
     except KeyError:
         return "PURPLE"
 
+
+_graphic_metadata_node = rdflib.URIRef("layout_style")
+
+
+def add_property_metadata_to_graph(grph, predicate_node, meta_property_node):
+    """
+    This adds to the graph, information about how to display some triples:
+    - If properties are commutative suh as sockets
+    - If properties are "collapsed", that is, if the triples of a common subject must be displayed
+      in tables (like in HTML) or in graph.
+
+    See lib_kbase.CreateRdfsOntology which also injects extra triples into a RDF graph, but for another reason.
+    """
+    grph.add((_graphic_metadata_node, predicate_node, meta_property_node))
+
+
+def _get_collapsed_properties(grph):
+    return [
+        the_predicate
+        for the_subject, the_predicate, the_object
+        in grph.triples((_graphic_metadata_node, None, pc.meta_property_collapsed))
+    ]
+
+
+def extract_properties_metadata(grph):
+    collapsed_properties = _get_collapsed_properties(grph)
+    # This is hard-coded for the moment.
+    commutative_properties = [pc.property_socket_end,]
+    grph.remove((_graphic_metadata_node, None, None))
+    return collapsed_properties, commutative_properties
