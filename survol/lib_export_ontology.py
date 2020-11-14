@@ -22,12 +22,12 @@ def FlushOrSaveRdfGraph(grph, output_rdf_filename):
         lib_util.WrtHeader('text/html')
 
         out_dest = lib_util.get_default_output_destination()
-        lib_kbase.triplestore_to_stream_xml(grph,out_dest,'pretty-xml')
+        lib_kbase.triplestore_to_stream_xml(grph,out_dest, 'pretty-xml')
 
     except KeyError:
         INFO("FlushOrSaveRdfGraph onto_filnam=%s",output_rdf_filename)
         outfil = open(output_rdf_filename, "w")
-        lib_kbase.triplestore_to_stream_xml(grph,outfil,'pretty-xml')
+        lib_kbase.triplestore_to_stream_xml(grph,outfil, 'pretty-xml')
         outfil.close()
 
 ################################################################################
@@ -59,7 +59,7 @@ def AddOntology(old_grph):
 
         # A class name with the WMI namespace might be produced with this kind of URL:
         # "http://www.primhillcomputers.com/survol#root\CIMV2:CIM_Process"
-        class_name = class_name.replace("\\","%5C")
+        class_name = class_name.replace("\\", "%5C")
 
         if class_name not in map_classes:
             if class_name == "":
@@ -75,7 +75,12 @@ def AddOntology(old_grph):
         for predicate_key in entity_id_dict:
             if predicate_key not in map_attributes:
                 # This function might also filter a duplicate and redundant insertion.
-                lib_util.AppendPropertySurvolOntology(predicate_key, "CIM key predicate %s" % predicate_key, class_name, None, map_attributes)
+                lib_util.AppendPropertySurvolOntology(
+                    predicate_key,
+                    "CIM key predicate %s" % predicate_key,
+                    class_name,
+                    None,
+                    map_attributes)
 
             # This value is explicitly added to the node.
             predicate_value = entity_id_dict[predicate_key]
@@ -90,12 +95,12 @@ def AddOntology(old_grph):
         """This is needed for GraphDB which does not accept spaces and backslashes in URL.
         With this, a graph can be uploaded in OntoText."""
         url_as_str = str(url_node)
-        url_as_str = url_as_str.replace(" ","%20")
-        url_as_str = url_as_str.replace("\\","%5C")
-        url_as_str = url_as_str.replace("[","%5B")
-        url_as_str = url_as_str.replace("]","%5D")
-        url_as_str = url_as_str.replace("{","%7B")
-        url_as_str = url_as_str.replace("}","%7D")
+        url_as_str = url_as_str.replace(" ", "%20")
+        url_as_str = url_as_str.replace("\\", "%5C")
+        url_as_str = url_as_str.replace("[", "%5B")
+        url_as_str = url_as_str.replace("]", "%5D")
+        url_as_str = url_as_str.replace("{", "%7B")
+        url_as_str = url_as_str.replace("}", "%7D")
         if lib_kbase.IsLiteral(url_node):
             url_node = rdflib.Literal(url_as_str)
         else:
@@ -116,7 +121,7 @@ def AddOntology(old_grph):
                     node_object_rdf = rdflib.term.URIRef(str_object_rdf)
                     new_grph.add( (node_subject, lib_kbase.PredicateSeeAlso, node_object_rdf))
         elif node_predicate == pc.property_information:
-            new_grph.add( (node_subject, lib_kbase.PredicateComment, node_object))
+            new_grph.add((node_subject, lib_kbase.PredicateComment, node_object))
         else:
             class_subject = _define_class_in_ontology(node_subject)
             if not lib_kbase.IsLiteral(node_object):
@@ -132,7 +137,8 @@ def AddOntology(old_grph):
 
             if class_subject and (name_predicate not in map_attributes):
                 # This function might also filter a duplicate and redundant insertion.
-                lib_util.AppendPropertySurvolOntology(name_predicate, description_predicate, class_subject, class_object, map_attributes)
+                lib_util.AppendPropertySurvolOntology(
+                    name_predicate, description_predicate, class_subject, class_object, map_attributes)
 
                 # TODO: Add the property type. Experimental because we know the class of the object, or if this is a literal.
             new_grph.add((node_subject, node_predicate, node_object))
@@ -144,9 +150,9 @@ def AddOntology(old_grph):
     return new_grph
 
 ################################################################################
-# Used by all CGI scripts when they have finished adding triples to the current RDF graph.
-# The RDF comment is specifically processed to be used by ontology editors such as Protege.
 def Grph2Rdf(grph):
+    """Used by all CGI scripts when they have finished adding triples to the current RDF graph.
+    The RDF comment is specifically processed to be used by ontology editors such as Protege."""
     DEBUG("Grph2Rdf entering")
 
     new_grph = AddOntology(grph)
@@ -183,7 +189,4 @@ def WriteRdfError(message, broken_url):
     out_dest = lib_util.get_default_output_destination()
 
     lib_kbase.triplestore_to_stream_xml(new_grph, out_dest, 'xml')
-
-
-################################################################################
 
