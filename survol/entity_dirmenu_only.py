@@ -5,7 +5,8 @@ Scripts hierarchy
 
 It is used by entity.py as a module, but also as a script with the CGI parameter mode=menu,
 by the D3 interface, to build contextual right-click menu.
-It is also used by the client library lib_client , to return all the scritps accessible from an object.
+It is also used by the client library lib_client, to return all the scripts accessible from an object.
+It is never displayed directly.
 """
 
 import os
@@ -16,20 +17,23 @@ import lib_common
 from lib_properties import pc
 
 
-# This returns None if a module of a script is usable, otherwise an errir message which explains
-# why this script cannot be used in this context: Wrong platform, unavailable resources etc...
-# PROBLEM: When an entire directory is not Usable because the file __init__.py
-# has a function Usable which returns False, then it still displays a directory, alone.
-# Unusable scripts are not displayed in the menu of the scripts of an entity,
-# except if a special flag is given, and in this case these error messages are displayed.
-def TestUsability(imported_module, entity_type, entity_ids_arr):
+def _test_usability(imported_module, entity_type, entity_ids_arr):
+    """
+    This returns None if a module of a script is usable, otherwise an error message which explains
+    why this script cannot be used in this context: Wrong platform, unavailable resources etc...
+    """
+
+    # PROBLEM: When an entire directory is not Usable because the file __init__.py
+    # has a function Usable which returns False, then it still displays a directory, alone.
+    # Unusable scripts are not displayed in the menu of the scripts of an entity,
+    #except if a special flag is given, and in this case these error messages are displayed.
     try:
-        isUsable = imported_module.Usable(entity_type, entity_ids_arr)
+        is_usable = imported_module.Usable(entity_type, entity_ids_arr)
     except :
         return None
 
-    # sys.stderr.write("Module %s : %d\n" %(importedMod.__name__,isUsable    ))
-    if isUsable:
+    # sys.stderr.write("Module %s : %d\n" %(importedMod.__name__,is_usable    ))
+    if is_usable:
         return None
 
     error_msg = imported_module.Usable.__doc__
@@ -53,7 +57,7 @@ def _dir_menu_report(depth_call, str_msg):
 # TODO: Only return json data, and this script will only return json, nothing else.
 def DirToMenu(callback_grph_add, parent_node, entity_type, entity_id, entity_host, flag_show_all):
 
-    def DirectoryUsabilityErrorNode(relative_dir, depthCall):
+    def directory_usability_error_node(relative_dir, depthCall):
         # Maybe there is a usability test in the current module.
         # The goal is to control all scripts in the subdirectories, from here.
         try:
@@ -62,7 +66,7 @@ def DirToMenu(callback_grph_add, parent_node, entity_type, entity_id, entity_hos
 
             imported_module = lib_util.GetEntityModule(entity_class)
             if imported_module:
-                error_msg = TestUsability(imported_module, entity_type, entity_ids_arr)
+                error_msg = _test_usability(imported_module, entity_type, entity_ids_arr)
                 # if flagShowAll and error_msg ???
                 if error_msg:
                     DEBUG("IsDirectoryUsable error_msg(1)=%s" ,error_msg)
@@ -76,9 +80,9 @@ def DirToMenu(callback_grph_add, parent_node, entity_type, entity_id, entity_hos
         return None
 
 
-    # This lists the scripts and generate RDF nodes.
-    # Returns True if something was added.
-    def DirToMenuAux(a_parent_node, grand_parent_node, curr_dir, relative_dir, depth_call=1):
+    def dir_to_menu_aux(a_parent_node, grand_parent_node, curr_dir, relative_dir, depth_call=1):
+        """This lists the scripts and generate RDF nodes. Returns True if something was added."""
+
         #_dir_menu_report( depthCall, "curr_dir=%s relative_dir=%s\n"%(curr_dir,relative_dir))
         # In case there is nothing.
         dirs = None
@@ -87,7 +91,7 @@ def DirToMenu(callback_grph_add, parent_node, entity_type, entity_id, entity_hos
 
         # Maybe this class is not defined in our ontology.
         if dirs == None:
-            WARNING("DirToMenuAux(2) No content in %s", curr_dir)
+            WARNING("dir_to_menu_aux(2) No content in %s", curr_dir)
             return False
 
         # Will still be None if nothing is added.
@@ -101,7 +105,7 @@ def DirToMenu(callback_grph_add, parent_node, entity_type, entity_id, entity_hos
         # If this is a remote host, all scripts are checked because they might have
         # the flag CanProcessRemote which is defined at the script level, not the directory level.
         if not entity_host:
-            err_dir_node = DirectoryUsabilityErrorNode(relative_dir, depth_call)
+            err_dir_node = directory_usability_error_node(relative_dir, depth_call)
             if err_dir_node:
                 if flag_show_all:
                     arg_dir_split = arg_dir.split(".")
@@ -140,7 +144,7 @@ def DirToMenu(callback_grph_add, parent_node, entity_type, entity_id, entity_hos
                 # BEWARE: NO MORE DEFAULT ONTOLOGY ["Id"]
                 continue
 
-            something_added = DirToMenuAux(curr_dir_node, a_parent_node, full_sub_dir, sub_relative_dir, depth_call + 1)
+            something_added = dir_to_menu_aux(curr_dir_node, a_parent_node, full_sub_dir, sub_relative_dir, depth_call + 1)
             # This adds the directory name only if it contains a script.
             if something_added:
                 # It works both ways, possibly with different properties.
@@ -163,7 +167,7 @@ def DirToMenu(callback_grph_add, parent_node, entity_type, entity_id, entity_hos
             try:
                 imported_mod = lib_util.GetScriptModule(arg_dir, fil)
             except Exception as error_msg:
-                #_dir_menu_report( depthCall, "DirToMenuAux Cannot import=%s. Caught: %s\n" % (script_path, error_msg ) )
+                #_dir_menu_report( depthCall, "dir_to_menu_aux Cannot import=%s. Caught: %s\n" % (script_path, error_msg ) )
                 imported_mod = None
                 if not flag_show_all:
                     continue
@@ -171,10 +175,10 @@ def DirToMenu(callback_grph_add, parent_node, entity_type, entity_id, entity_hos
             if not error_msg:
                 # Show only scripts which want to be shown. Each script can have an optional function
                 # called Usable(): If it is there and returns False, the script is not displayed.
-                error_msg = TestUsability(imported_mod, entity_type, entity_ids_arr)
+                error_msg = _test_usability(imported_mod, entity_type, entity_ids_arr)
                 if error_msg:
                     pass
-                    #DEBUG("DirToMenuAux error_msg(2)=%s",error_msg)
+                    #DEBUG("dir_to_menu_aux error_msg(2)=%s",error_msg)
 
             # If this is a local host
             if not flag_show_all and error_msg and not entity_host:
@@ -194,8 +198,6 @@ def DirToMenu(callback_grph_add, parent_node, entity_type, entity_id, entity_hos
                 if not can_process_remote:
                     if not error_msg:
                         error_msg = "%s is local" % entity_host
-                    # _dir_menu_report( depthCall, "Script %s %s cannot work on remote entities: %s at %s\n" % ( arg_dir, fil, encoded_entity_id , entity_host ) )
-                    #_dir_menu_report( depthCall, "Script %s %s cannot work on remote entities\n" % ( arg_dir, fil ) )
 
                     if not flag_show_all:
                         continue
@@ -220,7 +222,7 @@ def DirToMenu(callback_grph_add, parent_node, entity_type, entity_id, entity_hos
 
     if entity_host:
         DEBUG("entity_dir_menu.py DirToMenu entity_host=%s",entity_host)
-    encoded_entity_id=lib_util.EncodeUri(entity_id)
+    encoded_entity_id = lib_util.EncodeUri(entity_id)
     entity_ids_arr = lib_util.EntityIdToArray(entity_type, entity_id)
 
     if entity_type:
@@ -236,20 +238,19 @@ def DirToMenu(callback_grph_add, parent_node, entity_type, entity_id, entity_hos
     else:
         genObj = lib_common.gUriGen
 
-    DirToMenuAux(parent_node, None, directory, relative_dir, depth_call=1)
+    dir_to_menu_aux(parent_node, None, directory, relative_dir, depth_call=1)
 
 
 def Main():
-
     # This can process remote hosts because it does not call any script, just shows them.
     cgiEnv = lib_common.CgiEnv(
-                    can_process_remote = True,
-                    parameters = { lib_util.paramkeyShowAll : False })
+                    can_process_remote=True,
+                    parameters={lib_util.paramkeyShowAll : False})
     entity_id = cgiEnv.m_entity_id
     entity_host = cgiEnv.GetHost()
     flag_show_all = int(cgiEnv.get_parameters(lib_util.paramkeyShowAll))
 
-    nameSpace, entity_type = cgiEnv.get_namespace_type()
+    name_space, entity_type = cgiEnv.get_namespace_type()
 
     if lib_util.IsLocalAddress(entity_host):
         entity_host = ""
@@ -261,10 +262,10 @@ def Main():
     root_node = lib_util.RootUri()
 
     if entity_id != "" or entity_type == "":
-        def CallbackGrphAdd(tripl, depth_call):
+        def callback_grph_add(tripl, depth_call):
             grph.add(tripl)
 
-        DirToMenu(CallbackGrphAdd, root_node, entity_type, entity_id, entity_host, flag_show_all)
+        DirToMenu(callback_grph_add, root_node, entity_type, entity_id, entity_host, flag_show_all)
 
     cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_directory, pc.property_script])
 
