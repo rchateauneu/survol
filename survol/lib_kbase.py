@@ -252,13 +252,24 @@ def _rdfs_class_node(class_name):
 
 
 def AddNodeToRdfsClass(grph, node_object, class_name, entity_label):
-    nodeClass = _rdfs_class_node(class_name)
-    grph.add((node_object, RDF.type, nodeClass))
+    """
+    This adds to the RDF graph, some triples defining the class and label of an object.
+    It is used when exporting an ontology.
+    These triples are a RDF standard and can be used by other softwares.
+    """
+    node_class = _rdfs_class_node(class_name)
+    grph.add((node_object, RDF.type, node_class))
     grph.add((node_object, RDFS.label, rdflib.Literal(entity_label)))
 
 
 def CreateRdfsOntology(map_classes, map_attributes, graph=None):
-    """This receives an ontology described in a neutral way, and adds to the graph the RDFS nodes describing it."""
+    """
+    This receives an ontology described in a neutral way,
+    and adds to the graph the RDFS nodes describing it,
+    or returns a new graph.
+
+    This is used to translated Survol, WBEM or WMI ontology to RDF.
+    """
 
     # Add the RDFS class to the graph
     def add_class_to_rdfs_ontology(the_graph, the_class_name, the_base_class_name, text_description):
@@ -646,6 +657,85 @@ def _log_db_access(function_name, access_type, step_name, url_name, data_size=-1
 _log_db_access("Init", "", "0", "")
 
 
+"""
+On pourrait stocker un timestamp dans l URL.
+Ca permettrait de mettre un timestamp dans les literaux.
+Autrement dit:
+Quand on ecrit les events de l'url "/sources/types/toto.py", 
+on ecrit en fait "/sources/types/toto.py?timestamp=20101031:235959"
+et on associe:
+"/sources/types/toto.py" => "/sources/types/toto.py?timestamp=20101031:235959"
+
+Apres, on va chercher les url avec timestamp et on itere dessus.
+
+write_graph_to_events_timestamp()
+read_timestamp_url_to_graph(the_url, the_graph)
+
+Comment ca se passe pour le premier snapshot ?
+
+C est transparent pour rdflib
+
+A la lecture, on peut toujours lire par URL ou bien reconstruire des graphes.
+
+Ca permet d'ajouter des qualifiers car les infos sont brutes.
+
+Ca permet de renvoyer la derniere valeur connue pour une paire subject+predicate.
+
+Ca donne une dimension privilegiee au temps, et permet d'ecraser les valeurs invalides.
+
+En revanche, Sparql ne peut rien exploiter facilement.
+
+    # Permet d'aller chercher tous les contextes avec un triple,
+    # Et donc on peut specifier uniquement subject+predicate.
+    # Comment les enlever facilement ?
+    def contexts(self, triple=None): Iterate over all contexts in the graph
+    
+La partie delicate est l'extraction des triples du graphe: Sparql ne convient peut etre pas:
+- Le default context n est pas normalise.
+- On ne peut pas specifier plusieurs contextes.
+Eventuellement, ca permet d'avoir un graphe RDF en destination, avec un comportement different
+vis-a-vis des contextes.
+
+On pourrait du reste tout mettre dans des contextes avec time-stamp.
+
+============================================================
+Utiliser des BNodes, avec predicats "value" et "point in time",
+on prend les memes que Wikidata d'ailleurs.
+On peut meme prendre comme valeur le seul object literal.
+
+Par exemple, generer des blank nodes en sortie, quand on extrait les donnees.
+Si on change d'avis, on pourra les metter au moment du stockage:
+De toute facon, on maitrise le time-stamp donc on a le choix.
+
+L'idee est de remplacer les literaux a la volee.
+
+============================================================
+C est une bonne chose de ne pas imposer une insertion differente de la valeur literale:
+Ca permet de facon transparente d'inserer un time-stamp eventuellement partout,
+pas seulement pour les literaux.
+
+L idee est donc de stocker nativement le snapshot et de pouvoir generer au choix, a la demande:
+http://ceur-ws.org/Vol-1457/SSWS2015_paper3.pdf
+
+* standard reification (sr)whereby an RDF resource is used to denote thetriple itself,
+  denoting its subject, predicate and object as attributes andallowing additional meta-information to be added.
+* n-ary relations (nr)whereby an intermediate resource is used to denote the relationship,
+  allowing it to be annotated with meta-information.
+* singleton properties (sp)whereby a predicate unique to the statement is created,
+  which can be linked to the high-level predicate indicating the relaCreateRdfsOntologytion-ship,
+  and onto which can be added additional meta-information.
+* Named Graphs (ng)whereby triples (or sets thereof) can be identified in afourth field using, e.g.,
+  an IRI, onto which meta-information is added.
+
+A propos des quads:
+ConjunctiveGraphs have a quads() method which returns quads instead of triples,
+where the fourth item is the Graph (or subclass thereof) instance in which the triple was asserted.
+
+"""
+
+
+
+
 def write_graph_to_events(the_url, input_graph):
     # TODO: It would be faster to store the events in this named graph.
     # TODO: Also, it is faster to directly store the triples.
@@ -711,6 +801,7 @@ def retrieve_all_events_to_graph_then_clear(output_graph):
 
 
 def retrieve_events_to_graph(output_graph, entity_node):
+    """Events about a single entity."""
     _setup_global_graph()
     _log_db_access("retrieve_events_to_graph", "R", "1", str(entity_node), len(output_graph))
 

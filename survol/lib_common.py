@@ -48,10 +48,12 @@ nodeMachine = gUriGen.HostnameUri( lib_util.currentHostname )
 ################################################################################
 
 
-# Could be reused if we want to focus on some processes only.
-# proc in [ 'bash', 'gvim', 'konsole' ]
 def is_useless_process(proc):
+    # Could be reused if we want to focus on some processes only.
+    # proc in [ 'bash', 'gvim', 'konsole' ]
+    # FIXME: THIS IS DEPRECATED.
     return False
+
 
 ################################################################################
     
@@ -59,6 +61,7 @@ def is_useless_process(proc):
 ## HKEY_CLASSES_ROOT\.cgi\Shell\ExecCGI\Command\(Default) => C:\Perl\bin\perl.exe -wT
 
 ################################################################################
+
 
 def write_dot_header(page_title, layout_style, stream, grph):
     # Some cleanup.
@@ -153,7 +156,7 @@ def copy_to_output_destination(logfil, svg_out_filnam, out_dest):
 # Also, creating an intermediary files helps debugging.
 def _dot_to_svg(dot_filnam_after, logfil, viztype, out_dest):
     DEBUG("viztype=%s",viztype)
-    tmp_svg_fil = TmpFile("_dot_to_svg","svg")
+    tmp_svg_fil = TmpFile("_dot_to_svg", "svg")
     svg_out_filnam = tmp_svg_fil.Name
     # dot -Kneato
 
@@ -204,9 +207,11 @@ def _dot_to_svg(dot_filnam_after, logfil, viztype, out_dest):
 ################################################################################
 
 
-# This transforms a RDF triplestore into a temporary DOT file, which is
-# transformed by GraphViz into a SVG file sent to the HTTP browser.
-def _graph_to_svg(page_title, error_msg, is_sub_server, parameters, grph, parameterized_links, top_url, dot_style):
+def _graph_to_svg(
+        page_title, error_msg, is_sub_server, parameters, grph, parameterized_links, top_url,
+        layout_style, collapsed_properties, commutative_properties):
+    """This transforms a RDF triplestore into a temporary DOT file, which is
+    transformed by GraphViz into a SVG file sent to the HTTP browser. """
     tmp_log_fil = TmpFile("_graph_to_svg", "log")
     try:
         logfil = open(tmp_log_fil.Name, "w")
@@ -221,11 +226,11 @@ def _graph_to_svg(page_title, error_msg, is_sub_server, parameters, grph, parame
     rdfoutfil = open(dot_filnam_after, "w")
     logfil.write(TimeStamp() + " Created " + dot_filnam_after + "\n")
 
-    dot_layout = write_dot_header(page_title, dot_style['layout_style'], rdfoutfil, grph)
+    dot_layout = write_dot_header(page_title, layout_style, rdfoutfil, grph)
     lib_exports.WriteDotLegend(page_title, top_url, error_msg, is_sub_server,
                                parameters, parameterized_links, rdfoutfil, grph)
     logfil.write(TimeStamp() + " Legend written\n")
-    lib_export_dot.Rdf2Dot(grph, logfil, rdfoutfil, dot_style['collapsed_properties'])
+    lib_export_dot.Rdf2Dot(grph, logfil, rdfoutfil, collapsed_properties, commutative_properties)
     logfil.write(TimeStamp() + " About to close dot file\n")
 
     # BEWARE: Do this because the file is about to be reopened from another process.
@@ -250,9 +255,11 @@ def OutCgiMode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
 
     grph = theCgi.m_graph
     page_title = theCgi.m_page_title
-    dot_layout = theCgi.m_layoutParams
     parameters = theCgi.m_parameters
     parameterized_links = theCgi.m_parameterized_links
+
+    collapsed_properties, commutative_properties = lib_properties.extract_properties_metadata(grph)
+    collapsed_properties.extend(theCgi.m_collapsed_properties)
 
     if mode == "html":
         # Used rarely and performance not very important. This returns a HTML page.
@@ -264,18 +271,25 @@ def OutCgiMode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
     elif mode == "rdf":
         lib_export_ontology.Grph2Rdf(grph)
     elif mode == "daemon":
-        # This is the end of a loop, or events transaction, in the script which does not in CGI context,
-        # but in a separate daemon process.
-        # This sends the results to the Events directory. See EventsGeneratorDaemon
-
+        # This is the end of a loop, or events transaction, in the script which does not run in CGI context,
+        # but in a separate daemon process. This stores the results to the persistent graph database for events.
         try:
             triples_count = lib_kbase.write_graph_to_events(theCgi.m_url_without_mode, theCgi.m_graph)
         except Exception as exc:
             ERROR("OutCgiMode Exception exc=%s", exc)
             raise
     elif mode in ["svg", ""]:
-        # Default mode, because graphviz did not like several CGI arguments in a SVG document (Bug ?).
-        _graph_to_svg(page_title, error_msg, is_sub_server, parameters, grph, parameterized_links, top_url, dot_layout)
+        # Default mode, because graphviz did not like several CGI arguments in a SVG document (Bug ?),
+        # probably because of the ampersand which must be escaped, or had to be in old versions.
+
+        # This test holds because for the moment, all collapsed properties are known in advance.
+        # This will be more flexible.
+        sys.stderr.write("collapsed_properties=%s\n" % str(collapsed_properties))
+        sys.stderr.write("commutative_properties=%s\n" % str(commutative_properties))
+
+        _graph_to_svg(page_title, error_msg, is_sub_server, parameters, grph, parameterized_links, top_url,
+                      # theCgi.m_layout_style, theCgi.m_collapsed_properties)
+                      theCgi.m_layout_style, collapsed_properties, commutative_properties)
     else:
         ERROR("OutCgiMode invalid mode=%s", mode)
         ErrorMessageHtml("OutCgiMode invalid mode=%s" % mode)
@@ -294,12 +308,6 @@ def OutCgiMode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
     # The client, when reporting, must make a specific call to this script.
     # An acknowledgment and status HTML message is sent back to the caller.
 
-
-################################################################################
-
-
-def make_dot_layout(dot_layout, collapsed_properties):
-    return {'layout_style': dot_layout, 'collapsed_properties': collapsed_properties}
 
 ################################################################################
 
@@ -369,16 +377,23 @@ globalMergeMode = False
 globalCgiEnvList = []
 globalGraph = None
 
-# There is only one cgiEnv and "cgiEnv.OutCgiRdf()" does not generate anything.
-# It is related to WSGI in the extent that global variables should not harm things.
+
+def _global_create_graph():
+    """This creates a RDF triplestore. """
+    return rdflib.Graph()
+
+
 def CgiEnvMergeMode():
+    """There is only one cgiEnv and "cgiEnv.OutCgiRdf()" does not generate anything.
+    It is related to WSGI in the extent that global variables should not harm things.
+    """
     global globalMergeMode
     global globalCgiEnvList
     global globalGraph
 
     globalMergeMode = True
     globalCgiEnvList = []
-    globalGraph = rdflib.Graph()
+    globalGraph = _global_create_graph()
 
 
 def MergeOutCgiRdf(the_mode, cumulated_error):
@@ -390,8 +405,10 @@ def MergeOutCgiRdf(the_mode, cumulated_error):
 
     page_title = "Merge of %d scripts:\n" % len(globalCgiEnvList)
     delim_title = ""
+
     # This is equivalent to: make_dot_layout( "", [] )
-    layout_params = {'layout_style': "", 'collapsed_properties': []}
+    layout_style = ""
+    collapsed_properties = []
     cgi_params = {}
     cgi_param_links = {}
     for theCgiEnv in globalCgiEnvList:
@@ -402,8 +419,10 @@ def MergeOutCgiRdf(the_mode, cumulated_error):
             page_title += " (" + page_title_rest + ")"
         delim_title = ", "
 
-        layout_params['layout_style'] = theCgiEnv.m_layoutParams['layout_style']
-        layout_params['collapsed_properties'].extend( theCgiEnv.m_layoutParams['collapsed_properties'])
+        # TODO: The values will be overriden. Which one to keep ?
+        if layout_style == "":
+            layout_style = theCgiEnv.m_layout_style
+        collapsed_properties.extend(theCgiEnv.m_collapsed_properties)
 
         # The dictionaries of parameters and corresponding links are merged.
         try:
@@ -413,9 +432,8 @@ def MergeOutCgiRdf(the_mode, cumulated_error):
             WARNING("Error:%s Parameters:%s", error_msg, str(theCgiEnv.m_parameters))
 
     # Eliminate duplicates in the list of collapsed properties.
-    my_list = layout_params['collapsed_properties']
-    my_set = set(my_list)
-    layout_params['collapsed_properties'] = list(my_set)
+    my_set = set(collapsed_properties)
+    collapsed_properties = list(my_set)
 
     top_url = lib_util.TopUrl("", "")
 
@@ -423,7 +441,8 @@ def MergeOutCgiRdf(the_mode, cumulated_error):
     pseudo_cgi.m_graph = globalGraph
     pseudo_cgi.m_page_title = page_title
     pseudo_cgi.m_page_subtitle = ""
-    pseudo_cgi.m_layoutParams = layout_params
+    pseudo_cgi.m_layout_style = layout_style
+    pseudo_cgi.m_collapsed_properties = collapsed_properties
     # Not sure this is the best value, but this is usually done.
     # TODO: We should have a plain map for all m_arguments occurences.
     pseudo_cgi.m_arguments = cgi.FieldStorage()
@@ -431,6 +450,7 @@ def MergeOutCgiRdf(the_mode, cumulated_error):
     pseudo_cgi.m_parameterized_links = cgi_param_links
     pseudo_cgi.m_entity_type = ""
     pseudo_cgi.m_entity_id = ""
+    pseudo_cgi.m_entity_id_dict = {}
     pseudo_cgi.m_entity_host = ""
 
     # A single rendering of all RDF nodes and links merged from several scripts.
@@ -445,7 +465,11 @@ class CgiEnv():
     """
         This class parses the CGI environment variables which define an entity.
     """
-    def __init__(self, parameters={}, can_process_remote=False):
+    def __init__(self,
+                 parameters={},
+                 can_process_remote=False,
+                 layout_style="",
+                 collapsed_properties=[]):
         # It is possible to run these scripts as CGI scripts, so this transforms
         # command line arguments into CGI arguments. This is very helpful for debugging.
         # TODO: At the moment, the mode cannot be changed.
@@ -468,6 +492,9 @@ class CgiEnv():
 
         self.m_parameterized_links = dict()
 
+        self.m_layout_style = layout_style
+        self.m_collapsed_properties = collapsed_properties
+
         # When in merge mode, the display parameters must be stored in a place accessible by the graph.
 
         doc_modu_all = _get_calling_module_doc()
@@ -482,7 +509,18 @@ class CgiEnv():
         # use the same database. It makes sense, because the result should not depend in the agent.
         self.m_calling_url = lib_util.RequestUri()
         self.m_url_without_mode = lib_util.url_mode_replace(self.m_calling_url, "")
-        self._concatenate_entity_documentation()
+
+        full_title, entity_class, entity_id, entity_host = lib_naming.ParseEntityUriWithHost(
+            self.m_calling_url,
+            long_display=False,
+            force_entity_ip_addr=None)
+        # Here, the commas separating the CGI arguments are intact, but the commas in the arguments are encoded.
+        entity_id_dict = lib_util.SplitMoniker(entity_id)
+        sys.stderr.write(__file__ + " entity_id_dict=%s\n" % entity_id_dict)
+        #self.m_entity_id_dict = lib_util.SplitMoniker(self.m_entity_id)
+        sys.stderr.write(__file__ + " entity_id_dict=%s\n" % entity_id_dict)
+
+        self._concatenate_entity_documentation(full_title, entity_class, entity_id)
 
         # Global CanProcessRemote has precedence over parameter can_process_remote
         # which should probably be deprecated, although they do not have exactly the same role:
@@ -505,11 +543,12 @@ class CgiEnv():
 
         self.m_arguments = cgi.FieldStorage()
 
-        self.m_entity_type, self.m_entity_id, self.m_entity_host = self.GetXid()
-        #sys.stderr.write("CgiEnv m_entity_type=%s m_entity_id=%s m_entity_host=%s\n"%(self.m_entity_type,self.m_entity_id,self.m_entity_host))
-        self.m_entity_id_dict = lib_util.SplitMoniker(self.m_entity_id)
+        self.m_entity_type = entity_class
+        self.m_entity_id = entity_id
+        self.m_entity_host = entity_host
+        self.m_entity_id_dict = entity_id_dict
 
-        self._create_graph()
+        self._create_or_get_graph()
 
         # Depending on the caller module, maybe the arguments should be 64decoded. See "sql/query".
         # As the entity type is available, it is possible to import it and check if it encodes it arguments.
@@ -560,12 +599,8 @@ class CgiEnv():
             self.OutCgiRdf()
             exit(0)
 
-    def _concatenate_entity_documentation(self):
+    def _concatenate_entity_documentation(self, full_title, entity_class, entity_id):
         """This appends to the title, the documentation of the class of the object, if there is one. """
-        full_title, entity_class, entity_id = lib_naming.ParseEntityUri(
-            self.m_calling_url,
-            long_display=False,
-            force_entity_ip_addr=None)
         if entity_id:
             # If there is an object to display.
             # Practically, we are in the script "entity.py" and the single doc string is "Overview"
@@ -592,7 +627,7 @@ class CgiEnv():
 
         ErrorMessageHtml("Script %s cannot handle remote hosts on host=%s" % ( sys.argv[0], self.m_entity_host ) )
 
-    def _create_graph(self):
+    def _create_or_get_graph(self):
         global globalMergeMode
         try:
             assert self.m_graph
@@ -603,7 +638,7 @@ class CgiEnv():
             # When in merge mode, the same object must be always returned.
             self.m_graph = globalGraph
         else:
-            self.m_graph = rdflib.Graph()
+            self.m_graph = _global_create_graph()
         return self.m_graph
 
     def GetGraph(self):
@@ -618,35 +653,6 @@ class CgiEnv():
         self._create_graph()
         return self.m_graph
 
-    # We avoid several CGI arguments because Dot/Graphviz wants no ampersand "&" in the URLs.
-    # This might change because I suspect bugs in old versions of Graphviz.
-    def GetXid(self):
-        try:
-            # See variable xidCgiDelimiter.
-            # TODO: Consider base64 encoding all arguments with "Xid=".
-            # The benefit would be to have the same encoding for all arguments.
-            the_xid = self.m_arguments["xid"].value
-        except KeyError:
-            # See function enter_edition_mode
-            try:
-                return "", "", ""
-                # TODO: Not finished, useless or debugging purpose ?
-                entity_type = self.m_arguments["edimodtype"].value
-                monik_delim = ""
-                entity_id = ""
-                for edi_key in self.m_arguments:
-                    if edi_key[:11] == "edimodargs_":
-                        monik_key = edi_key[11:]
-                        monik_val = self.m_arguments[edi_key].value
-                        entity_id += monik_delim + monik_key + "=" + monik_val
-                        monik_delim = "&"
-
-                return (entity_type, entity_id, "")
-            except KeyError:
-                # No host, for the moment.
-                return "", "", ""
-        return lib_util.ParseXid(the_xid)
-    
     # TODO: If no arguments, allow to edit it.
     # TODO: Same font as in SVG mode.
     # TODO: Use Jinja or any other HTML library to edit the script parameters.
@@ -745,7 +751,7 @@ class CgiEnv():
             if self.m_entity_type == "":
                 return ""
 
-            split_kv = lib_util.SplitMoniker(self.m_entity_id)
+            split_kv = self.m_entity_id_dict
             DEBUG("GetId split_kv=%s", str( split_kv))
 
             # If this class is defined in our ontology, then we know the first property.
@@ -781,13 +787,16 @@ class CgiEnv():
     # When in merge mode, these parameters must be aggregated, and used only during
     # the unique generation of graphic data.
     # TODO: "OutCgiRdf" should be changed to a more appropriate name, such as "DisplayTripleStore"
-    # cgiEnv.OutCgiRdf() will fill self.GetGraph() with events returned by EventsGeneratorDaemon()
-    def OutCgiRdf(self, dot_layout="", collapsed_properties=[]):
+    # cgiEnv.OutCgiRdf() will fill self.GetGraph() with events returned by a script in daemon mode.
+    def OutCgiRdf(self, layout_style="", collapsed_properties=[]):
         global globalCgiEnvList
         DEBUG("OutCgiRdf globalMergeMode=%d m_calling_url=%s m_page_title=%s",
               globalMergeMode, self.m_calling_url, self.m_page_title.replace("\n", "<NL>"))
 
-        self.m_layoutParams = make_dot_layout(dot_layout, collapsed_properties)
+        # TODO: Get these values from the RDF document, if these were added on-the-fly by CGI scripts.
+        if layout_style:
+            self.m_layout_style = layout_style
+        self.m_collapsed_properties.extend(collapsed_properties)
 
         mode = lib_util.GuessDisplayMode()
 
@@ -806,8 +815,12 @@ class CgiEnv():
 
     # Example: cgiEnv.add_parameterized_links( "Next", { paramkeyStartIndex : startIndex + maxInstances } )
     def add_parameterized_links(self, url_label, params_map):
-        """This edits an URL by changing some CGI parameters. For example,
-        if the script displays a list, we wish to change the number of displayed items or the first and last index."""
+        """
+        This edits an URL by changing some CGI parameters. For example,
+        if the script displays a list, we wish to change the number of displayed items or the first and last index.
+        This is not used for objects (as it would create new objects because the URL would be different),
+        but only for scripts (and then, indeed the script is different because it returns different objects).
+        """
 
         # We want to display links associated to the parameters.
         # The use case is "Prev/Next" when paging between many values.
@@ -844,7 +857,7 @@ class CgiEnv():
         # KO http://rchateau-hp:8000/survol/class_wbem.py?xid=http%3A//192.168.0.17%3A5988/root/cimv2%3APG_UnixProcess.
         # Conversion to str() because of integer parameters.
         kv_pairs_concat = "&amp;amp;".join(
-            "%s=%s" % (param_key, str(prms_copy[param_key]).replace("/","%2F"))
+            "%s=%s" % (param_key, str(prms_copy[param_key]).replace("/", "%2F"))
             for param_key in prms_copy)
         labelled_url += "?" + kv_pairs_concat
 
@@ -862,19 +875,20 @@ class CgiEnv():
     # For this, we calculated for each node, its universal alias.
     # This is done, basically, by taking the URL, replacing the host name of where
     # the object sits, by an IP address.
-    # Nodes with the same
+    # Nodes with the same alias are graphically linked with a dashed red line.
     def _bind_identical_nodes(self):
 
         # This maps each universal alias to the set of nodes which have it.
-        # At the end, all nodes with the same universal alias are
-        # linked with a special property.
+        # At the end, all nodes with the same universal alias are linked with a special property.
         dict_uni_to_objs = dict()
 
         def _has_univ_alias(an_object):
             if lib_kbase.IsLiteral(an_object):
                 return False
 
-            if (an_object.find("entity.py") >= 0) or (an_object.find("entity_wbem.py") >= 0) or(an_object.find("entity_wmi.py") >= 0):
+            if (an_object.find("entity.py") >= 0) or \
+               (an_object.find("entity_wbem.py") >= 0) or \
+               (an_object.find("entity_wmi.py") >= 0):
                 return True
 
             return False
