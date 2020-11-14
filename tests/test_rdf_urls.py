@@ -297,12 +297,13 @@ class MimeWindowsResourceIconsTest(unittest.TestCase):
             "/survol/entity_mime.py?xid=win32/resource.Name=%s,GroupName=2&mode=mime:image/bmp"
             % file_path)
 
-        print("type(mime_content)=", type(mime_content))
+        print("type(mime_content)=", type(mime_content), " len(mime_content)=", len(mime_content))
 
         import PIL.Image
 
         # Test the image size: This icon is 256*256 pixels.
         file_image = io.BytesIO(mime_content)
+        print("type(file_image)=", type(file_image), " dir(file_image)=", dir(file_image))
         with PIL.Image.open(file_image) as img:
             print("img.format=", img.format)
             print("img.mode=", img.mode)
@@ -440,6 +441,62 @@ class OntologiesTest(unittest.TestCase):
             "/survol/ontologies/WBEM_RDFS.py")
 
         print("wbem_ontology_result=", wbem_ontology_result)
+
+
+class NmapTest(unittest.TestCase):
+    def setUp(self):
+        self._remote_rdf_test_agent, self._agent_url = start_cgiserver(RemoteRdf0TestServerPort)
+        print("AgentUrl=", self._agent_url)
+
+    def tearDown(self):
+        stop_cgiserver(self._remote_rdf_test_agent)
+
+    def _check_script(self, script_suffix):
+        return _check_script_rdf(self, self._agent_url, script_suffix)
+
+    def test_nmap_broadcast_upnp_info(self):
+        """Test of nmap_broadcast_upnp_info.py"""
+        nmap_broadcast_upnp_info_result = self._check_script(
+            "/survol/sources_types/nmap/nmap_broadcast_upnp_info.py")
+        print("nmap_broadcast_upnp_info_result=", nmap_broadcast_upnp_info_result)
+
+    def test_nmap_broadcast_ms_sql_discover(self):
+        """Test of nmap_broadcast_ms_sql_discover.py"""
+        nmap_broadcast_ms_sql_discover_result = self._check_script(
+            "/survol/sources_types/nmap/nmap_broadcast_ms_sql_discover.py")
+        print("nmap_broadcast_ms_sql_discover_result=", nmap_broadcast_ms_sql_discover_result)
+
+    def test_nmap_ping_scan(self):
+        """Test of nmap_ping_scan.py"""
+        nmap_ping_scan_result = self._check_script(
+            "/survol/sources_types/nmap/nmap_ping_scan.py")
+        print("nmap_ping_scan_result=", nmap_ping_scan_result)
+
+    def test_nmap_run(self):
+        """Test of nmap_run.py"""
+        nmap_run_result = self._check_script(
+            "/survol/sources_types/nmap/nmap_run.py")
+        print("nmap_run_result=", nmap_run_result)
+
+    def test_nmap_broadcast_netbios_master_browser(self):
+        """Test of nmap_broadcast_netbios_master_browser.py"""
+        nmap_broadcast_netbios_master_browser_result = self._check_script(
+            "/survol/sources_types/nmap/nmap_broadcast_netbios_master_browser.py")
+        print("nmap_broadcast_netbios_master_browser_result=", nmap_broadcast_netbios_master_browser_result)
+
+    def test_nmap_broadcast_upnp_info(self):
+        """Test of nmap_broadcast_upnp_info.py"""
+        nmap_broadcast_upnp_info_result = self._check_script(
+            "/survol/sources_types/nmap/nmap_broadcast_upnp_info.py")
+        print("nmap_broadcast_upnp_info_result=", nmap_broadcast_upnp_info_result)
+
+
+
+# sources_types/nmap/nmap_broadcast_ms_sql_discover.py
+# sources_types\nmap\nmap_ping_scan.py"
+# sources_types\nmap\nmap_run.py"
+# sources_types\nmap\nmap_broadcast_ms_sql_discover.py"
+# sources_types\nmap\nmap_broadcast_netbios_master_browser.py"
 
 
 if __name__ == '__main__':
