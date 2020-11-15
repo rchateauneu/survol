@@ -36,7 +36,6 @@ import lib_command_line
 
 from lib_util import NodeUrl
 from lib_util import TimeStamp
-from lib_util import TmpFile
 
 # Functions for creating uris are imported in the global namespace.
 from lib_uris import *
@@ -64,186 +63,10 @@ def is_useless_process(proc):
 ################################################################################
 
 
-def write_dot_header(page_title, layout_style, stream, grph):
-    # Some cleanup.
-    page_title_clean = page_title.strip()
-    page_title_clean = page_title_clean.replace("\n", " ")
-    # Title embedded in the page.
-    stream.write('digraph "' + page_title_clean + '" { \n')
-
-    # CSS style-sheet should be in the top-level directory ?
-    # Not implemented in 2010: http://graphviz.org/bugs/b1874.html
-    # Add a CSS-like "class" attribute
-    # stream.write(' stylesheet = "rdfmon.css" \n')
-
-    # Maybe the layout is forced.
-    # dot - "hierarchical" or layered drawings of directed graphs. This is the default tool to use if edges have directionality.
-    # neato - "spring model'' layouts.  This is the default tool to use if the graph is not too large (about 100 nodes) and you don't know anything else about it. Neato attempts to minimize a global energy function, which is equivalent to statistical multi-dimensional scaling.
-    # fdp - "spring model'' layouts similar to those of neato, but does this by reducing forces rather than working with energy.
-    # sfdp - multiscale version of fdp for the layout of large graphs.
-    # twopi - radial layouts, after Graham Wills 97. Nodes are placed on concentric circles depending their distance from a given root node.
-    # circo - circular layout, after Six and Tollis 99, Kauffman and Wiese 02. This is suitable for certain diagrams of multiple cyclic structures, such as certain telecommunications networks.
-    # This is a style more than a dot layout.
-    # sys.stderr.write("Lay=%s\n" % (layout_style) )
-    if layout_style == "LAYOUT_RECT":
-        dot_layout = "dot"
-        # Very long lists: Or very flat tree.
-        stream.write(" splines=\"ortho\"; \n")
-        stream.write(" rankdir=\"LR\"; \n")
-    elif layout_style == "LAYOUT_RECT_RL":
-        dot_layout = "dot"
-        # Very long lists: Or very flat tree.
-        stream.write(" splines=\"ortho\"; \n")
-        stream.write(" rankdir=\"RL\"; \n")
-    elif layout_style == "LAYOUT_RECT_TB":
-        dot_layout = "dot"
-        # Very long lists: Or very flat tree.
-        stream.write(" splines=\"ortho\"; \n")
-        # stream.write(" rank=\"source\"; \n")
-        stream.write(" rankdir=\"TB\"; \n")
-    elif layout_style == "LAYOUT_TWOPI":
-        # Used specifically for file/file_stat.py : The subdirectories
-        # are vertically stacked.
-        dot_layout = "twopi"
-        stream.write(" rankdir=\"LR\"; \n")
-    elif layout_style == "LAYOUT_SPLINE":
-        # Win32_Services, many interconnections.
-        dot_layout = "fdp"
-        # stream.write(" splines=\"curved\"; \n") # About as fast as straight lines
-        stream.write(" splines=\"spline\"; \n") # Slower than "curved" but acceptable.
-        stream.write(" rankdir=\"LR\"; \n")
-        # stream.write(" splines=\"compound\"; \n") ### TRES LENT
-    else:
-        dot_layout = "fdp" # Faster than "dot"
-        # TODO: Maybe we could use the number of elements len(grph)  ?
-        stream.write(" rankdir=\"LR\"; \n")
-    stream.write(" layout=\"" + dot_layout + "\"; \n")
-
-    # TODO: Take the font from the CSS html_exports.css
-    # Example on Windows: stream.write(" node [ fontname=\"DejaVu Sans\" ] ; \n")
-    stream.write(" node [ %s ] ; \n" % lib_exports.FontString() )
-    return dot_layout
-
 ################################################################################
 
 
-def copy_to_output_destination(logfil, svg_out_filnam, out_dest):
-    """Copies a file to standard output."""
 
-    # TODO: On Linux, consider splice.
-    # See lib_kbase.triplestore_to_stream_xml for a similar situation.
-
-    logfil.write(TimeStamp() + " Output without conversion: %s\n" % svg_out_filnam)
-    infil = open(svg_out_filnam, 'rb')
-    str_in_read = infil.read()
-    try:
-        nb_out = out_dest.write(str_in_read)
-    except TypeError as exc:
-        # This happens when:
-        # Python 2 and wsgiref.simple_server: unicode argument expected, got 'str'
-        # Python 3 and wsgiref.simple_server: string argument expected, got 'bytes'
-        nb_out = out_dest.write(str_in_read.decode('latin1'))
-
-    logfil.write(TimeStamp() + " End of output without conversion: %s chars\n" % str(nb_out))
-    infil.close()
-
-################################################################################
-
-
-# TODO: Consider using the Python module pygraphviz: Small speedup probably.
-# But the priority is to avoid graphes which are too long to route.
-# TODO: Consider using the Python module pydot,
-# but anyway it needs to have graphviz already installed.
-# Also, creating an intermediary files helps debugging.
-def _dot_to_svg(dot_filnam_after, logfil, viztype, out_dest):
-    DEBUG("viztype=%s",viztype)
-    tmp_svg_fil = lib_util.TmpFile("_dot_to_svg", "svg")
-    svg_out_filnam = tmp_svg_fil.Name
-    # dot -Kneato
-
-    # Dot/Graphviz no longer changes PATH at installation. It must be done BEFORE.
-    dot_path = "dot"
-
-    if lib_util.isPlatformLinux:
-        # TODO: This is arbitrary because old Graphviz version.
-        # TODO: Take the fonts from html_exports.css
-        # dot_fonts = ["-Gfontpath=/usr/share/fonts/TTF", "-Gfontnames=svg", "-Nfontname=VeraBd.ttf","-Efontname=VeraBd.ttf"]
-        dot_fonts = [
-                    # "-Gfontpath=/usr/share/fonts/dejavu", 
-                    "-Gfontpath=/usr/share/fonts", 
-                    "-Gfontnames=svg",
-                    "-Nfontname=DejaVuSans.ttf",
-                    "-Efontname=DejaVuSans.ttf"]
-    else:
-        dot_fonts = []
-
-    # Old versions of dot need the layout on the command line.
-    # This is maybe a bit faster than os.open because no shell and direct write to the output.
-    svg_command = [dot_path, "-K", viztype, "-Tsvg", dot_filnam_after, "-o", svg_out_filnam,
-                   "-v", "-Goverlap=false"] + dot_fonts
-    str_command = " ".join(svg_command)
-    logfil.write(TimeStamp()+" svg_command=" + str_command + "\n")
-
-    try:
-        ret = subprocess.call(svg_command, stdout=logfil, stderr=logfil, shell=False)
-    except Exception as exc:
-        ErrorMessageHtml("ERROR:%s raised:%s" % (str_command, str(exc)))
-    logfil.write(TimeStamp()+" Process ret=%d\n" % ret)
-
-    if not os.path.isfile(svg_out_filnam):
-        ErrorMessageHtml("SVG file " + svg_out_filnam + " could not be created.")
-
-    # TODO: If there is an error, we should write it as an HTML page.
-    # On the other hand it is impossible to pipe the output because it would assume a SVG document.
-
-    # https://stackoverflow.com/questions/5667576/can-i-set-the-html-title-of-a-pdf-file-served-by-my-apache-web-server
-    dict_http_properties = [("Content-Disposition", 'inline; filename="Survol_Download"')]
-
-    logfil.write(TimeStamp() + " Writing SVG header\n")
-    lib_util.WrtHeader("image/svg+xml", dict_http_properties)
-
-    # Here, we are sure that the output file is closed.
-    copy_to_output_destination(logfil, svg_out_filnam, out_dest)
-
-################################################################################
-
-
-def _graph_to_svg(
-        page_title, error_msg, is_sub_server, parameters, grph, parameterized_links, top_url,
-        layout_style, collapsed_properties, commutative_properties):
-    """This transforms a RDF triplestore into a temporary DOT file, which is
-    transformed by GraphViz into a SVG file sent to the HTTP browser. """
-    tmp_log_fil = lib_util.TmpFile("_graph_to_svg", "log")
-    try:
-        logfil = open(tmp_log_fil.Name, "w")
-    except Exception as exc:
-        ERROR("_graph_to_svg caught %s when opening:%s", str(exc), tmp_log_fil.Name)
-        ErrorMessageHtml("_graph_to_svg caught %s when opening:%s\n" % (str(exc), tmp_log_fil.Name))
-
-    logfil.write("Starting logging\n")
-
-    tmp_dot_fil = lib_util.TmpFile("Grph2Dot", "dot")
-    dot_filnam_after = tmp_dot_fil.Name
-    rdfoutfil = open(dot_filnam_after, "w")
-    logfil.write(TimeStamp() + " Created " + dot_filnam_after + "\n")
-
-    dot_layout = write_dot_header(page_title, layout_style, rdfoutfil, grph)
-    lib_exports.WriteDotLegend(page_title, top_url, error_msg, is_sub_server,
-                               parameters, parameterized_links, rdfoutfil, grph)
-    logfil.write(TimeStamp() + " Legend written\n")
-    lib_export_dot.Rdf2Dot(grph, logfil, rdfoutfil, collapsed_properties, commutative_properties)
-    logfil.write(TimeStamp() + " About to close dot file\n")
-
-    # BEWARE: Do this because the file is about to be reopened from another process.
-    rdfoutfil.flush()
-    os.fsync(rdfoutfil.fileno())
-    rdfoutfil.close()
-
-    out_dest = lib_util.get_default_output_destination()
-
-    _dot_to_svg(dot_filnam_after, logfil, dot_layout, out_dest)
-    logfil.write(TimeStamp() + " closing log file\n")
-    logfil.close()
 
 ################################################################################
 
@@ -288,8 +111,7 @@ def OutCgiMode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
         sys.stderr.write("collapsed_properties=%s\n" % str(collapsed_properties))
         sys.stderr.write("commutative_properties=%s\n" % str(commutative_properties))
 
-        _graph_to_svg(page_title, error_msg, is_sub_server, parameters, grph, parameterized_links, top_url,
-                      # theCgi.m_layout_style, theCgi.m_collapsed_properties)
+        lib_export_dot.GraphToSvg(page_title, error_msg, is_sub_server, parameters, grph, parameterized_links, top_url,
                       theCgi.m_layout_style, collapsed_properties, commutative_properties)
     else:
         ERROR("OutCgiMode invalid mode=%s", mode)
