@@ -45,117 +45,113 @@ Usable = lib_util.UsableWindows
 # 295cfb0c 00000000 ntdll!RtlInitializeExceptionChain+0x36
 # 0:160>
 
+
 def Main():
-	cgiEnv = lib_common.CgiEnv()
-	try:
-		the_pid = int(cgiEnv.GetId())
-	except Exception:
-		lib_common.ErrorMessageHtml("Must provide a pid")
+    cgiEnv = lib_common.CgiEnv()
+    try:
+        the_pid = int(cgiEnv.GetId())
+    except Exception:
+        lib_common.ErrorMessageHtml("Must provide a pid")
 
-	# If cannot be the current pid, otherwise it will block.
-	if the_pid == os.getpid():
-		lib_common.ErrorMessageHtml("Cannot debug current process")
+    # If cannot be the current pid, otherwise it will block.
+    if the_pid == os.getpid():
+        lib_common.ErrorMessageHtml("Cannot debug current process")
 
-	if not lib_util.isPlatformWindows:
-		lib_common.ErrorMessageHtml("This works only on Windows platforms")
+    if not lib_util.isPlatformWindows:
+        lib_common.ErrorMessageHtml("This works only on Windows platforms")
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	# Starts a second session
-	cdb_fil = lib_common.TmpFile("CdbCommand","cdb")
-	cdb_fd = open(cdb_fil.Name,"w")
-	cdb_fd.write("lm\n")  # List loaded modules
-	cdb_fd.write("k\n")   # Display stack backtrace.
-	cdb_fd.write("qd\n")  # Quit and detach.
-	cdb_fd.close()
+    # Starts a second session
+    cdb_fil = lib_util.TmpFile("CdbCommand", "cdb")
+    cdb_fd = open(cdb_fil.Name, "w")
+    cdb_fd.write("lm\n")  # List loaded modules
+    cdb_fd.write("k\n")   # Display stack backtrace.
+    cdb_fd.write("qd\n")  # Quit and detach.
+    cdb_fd.close()
 
-	cdb_cmd = "cdb -p " + str(the_pid) + " -cf " + cdb_fil.Name
+    cdb_cmd = "cdb -p " + str(the_pid) + " -cf " + cdb_fil.Name
 
+    proc_node = lib_common.gUriGen.PidUri(the_pid)
+    call_node_prev = None
 
-	procNode = lib_common.gUriGen.PidUri( the_pid )
-	callNodePrev = None
+    modules_map = {}
 
-	modules_map = {}
+    DEBUG("Starting cdb_cmd=%s", cdb_cmd)
+    try:
+        cdb_pipe = lib_common.SubProcPOpen(cdb_cmd)
+    except WindowsError as exc:
+        lib_common.ErrorMessageHtml("cdb not available: Caught:%s" % str(exc))
 
-	DEBUG("Starting cdb_cmd=%s", cdb_cmd )
-	try:
-		cdb_pipe = lib_common.SubProcPOpen(cdb_cmd)
-	except WindowsError:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml( "cdb not available: Caught:%s" % str(exc) )
+    DEBUG("Started cdb_cmd=%s", cdb_cmd)
 
-	DEBUG("Started cdb_cmd=%s", cdb_cmd )
+    cdb_output, cdb_err = cdb_pipe.communicate()
 
-	( cdb_output, cdb_err ) = cdb_pipe.communicate()
+    # Without decode, "TypeError: Type str does not support the buffer API"
+    cdb_str =  cdb_output.decode("utf-8")
 
-	# Without decode, "TypeError: Type str does not support the buffer API"
-	cdb_str =  cdb_output.decode("utf-8")
+    call_depth = 0
 
-	callDepth = 0
+    for dot_line in cdb_str.split('\n'):
+        # sys.stderr.write("Line=%s\n" % dot_line)
 
-	for dot_line in cdb_str.split('\n'):
-		# sys.stderr.write("Line=%s\n" % dot_line )
+        err_match = re.match(".*parameter is incorrect.*", dot_line)
+        if err_match:
+            lib_common.ErrorMessageHtml("CDB:"+dot_line)
 
-		err_match = re.match(".*parameter is incorrect.*", dot_line )
-		if err_match:
-			lib_common.ErrorMessageHtml("CDB:"+dot_line)
+        # 76590000 766a0000   kernel32   (export symbols)       C:\Windows\syswow64\kernel32.dll
+        match_lm = re.match(r"[0-9a-fA-F]+ [0-9a-fA-F]+ +([^ ]*) +\(export symbols\) +(.*)", dot_line )
+        if match_lm:
+            module_name = match_lm.group(1)
+            dll_name_raw = match_lm.group(2).strip()
+            dll_name = lib_util.standardized_file_path(dll_name_raw)
+            DEBUG("module_name=%s dll_name=%s", module_name, dll_name)
+            modules_map[module_name] = dll_name
+            continue
 
-		# 76590000 766a0000   kernel32   (export symbols)       C:\Windows\syswow64\kernel32.dll
-		match_lm = re.match(r"[0-9a-fA-F]+ [0-9a-fA-F]+ +([^ ]*) +\(export symbols\) +(.*)", dot_line )
-		if match_lm:
-			moduleName = match_lm.group(1)
-			dllNameRaw = match_lm.group(2).strip()
-			dllName = lib_util.standardized_file_path(dllNameRaw)
-			DEBUG("moduleName=%s dllName=%s", moduleName, dllName )
-			modules_map[ moduleName ] = dllName
-			continue
+        # 295cfb0c 00000000 ntdll!RtlInitializeExceptionChain+0x36
+        # Another format, maybe because of a 64 bits machine.
+        # 00000000`02edff90 00000000`00000000 ntdll!RtlUserThreadStart+0x21
+        match_k = re.match( "[`0-9a-fA-F]+ [`0-9a-fA-F]+ ([^!]*)!([^+]*)", dot_line)
+        if match_k:
+            module_name = match_k.group(1)
+            try:
+                dll_name = modules_map[module_name]
+            except KeyError:
+                dll_name = module_name
+            func_name = match_k.group(2).strip()
+            DEBUG("module_name=%s dll_name=%s func_name=%s", module_name, dll_name, func_name)
 
-		# 295cfb0c 00000000 ntdll!RtlInitializeExceptionChain+0x36
-		# Another format, maybe because of a 64 bits machine.
-		# 00000000`02edff90 00000000`00000000 ntdll!RtlUserThreadStart+0x21
-		match_k = re.match( "[`0-9a-fA-F]+ [`0-9a-fA-F]+ ([^!]*)!([^+]*)", dot_line )
-		if match_k:
-			moduleName = match_k.group(1)
-			try:
-				dllName = modules_map[ moduleName ]
-			except KeyError:
-				dllName = moduleName
-			funcName = match_k.group(2).strip()
-			DEBUG("moduleName=%s dllName=%s funcName=%s", moduleName, dllName, funcName )
+            dll_name = CDB.TestIfKnownDll(dll_name)
 
-			dllName = CDB.TestIfKnownDll(dllName)
+            call_node_prev = survol_symbol.AddFunctionCall(grph, call_node_prev, proc_node, func_name, dll_name)
+            grph.add((call_node_prev, lib_properties.MakeProp("Call_depth"), lib_util.NodeLiteral(call_depth)))
+            call_depth += 1
+            continue
 
-			callNodePrev = survol_symbol.AddFunctionCall( grph, callNodePrev, procNode, funcName, dllName )
-			grph.add( ( callNodePrev, lib_properties.MakeProp("Call_depth"), lib_util.NodeLiteral(callDepth) ) )
-			callDepth += 1
-			continue
+        DEBUG("dot_line=%s", dot_line)
 
-		DEBUG("dot_line=%s", dot_line )
+    DEBUG("Parsed cdb result")
 
-	DEBUG("Parsed cdb result")
+    call_node_prev = survol_symbol.AddFunctionCall(grph, call_node_prev, proc_node, None, None)
 
-	callNodePrev = survol_symbol.AddFunctionCall( grph, callNodePrev, procNode, None, None )
+    CIM_Process.AddInfo(grph, proc_node, [the_pid])
 
-	CIM_Process.AddInfo( grph, procNode, [ the_pid ] )
+    # http://msdn.microsoft.com/en-us/library/windows/hardware/ff539058(v=vs.85).aspx
+    #
+    # This section describes how to perform basic debugging tasks using
+    # the Microsoft Console Debugger (CDB) and Microsoft NT Symbolic Debugger (NTSD).
+    # CDB and NTSD are identical in every way, except that NTSD spawns
+    # a new text window when it is started, whereas CDB inherits
+    # the Command Prompt window from which it was invoked.
+    # The instructions in this section are given for CDB,
+    # but they work equally well for NTSD. For a discussion
+    # of when to use CDB or NTSD, see Debugging Environments.
 
-	# http://msdn.microsoft.com/en-us/library/windows/hardware/ff539058(v=vs.85).aspx
-	#
-	# This section describes how to perform basic debugging tasks using
-	# the Microsoft Console Debugger (CDB) and Microsoft NT Symbolic Debugger (NTSD).
-	# CDB and NTSD are identical in every way, except that NTSD spawns
-	# a new text window when it is started, whereas CDB inherits
-	# the Command Prompt window from which it was invoked.
-	# The instructions in this section are given for CDB,
-	# but they work equally well for NTSD. For a discussion
-	# of when to use CDB or NTSD, see Debugging Environments.
+    cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
-	################################################################################
-
-
-	# cgiEnv.OutCgiRdf()
-	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
 if __name__ == '__main__':
-	Main()
+    Main()
 
 

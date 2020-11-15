@@ -8,23 +8,25 @@ import lib_util
 
 Usable = lib_util.UsableWindows
 
-# It might be a Known DLL
-# HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\KnownDLLs"
-# All KnownDLLs are in the directory HKLM\System\CCS\Control\KnownDLLs\DllDirectory or
-# HKLM\System\CCS\Control\KnownDLLs\DllDirectory32, respectively "%SystemRoot%\system32"
-# or "%SystemRoot%\syswow64".
-def TestIfKnownDll(filNam):
-	DEBUG("TestIfKnownDll filNam=%s",filNam)
-	if not filNam.upper().endswith(".DLL"):
-		filNam += ".DLL"
 
-	if not os.path.isfile(filNam):
-		filNam32 = os.environ['SystemRoot'] + "\\system32\\" + filNam
-		if os.path.isfile(filNam32):
-			return filNam32
+def TestIfKnownDll(fil_nam):
+    """
+    It might be a Known DLL
+    HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\KnownDLLs"
+    All KnownDLLs are in the directory HKLM\System\CCS\Control\KnownDLLs\DllDirectory or
+    HKLM\System\CCS\Control\KnownDLLs\DllDirectory32, respectively "%SystemRoot%\system32" or "%SystemRoot%\syswow64".
+    """
+    DEBUG("TestIfKnownDll filNam=%s", fil_nam)
+    if not fil_nam.upper().endswith(".DLL"):
+        fil_nam += ".DLL"
 
-		filNam64 = os.environ['SystemRoot'] + "\\syswow64\\" + filNam
-		if os.path.isfile(filNam64):
-			return filNam64
+    if not os.path.isfile(fil_nam):
+        filNam32 = os.environ['SystemRoot'] + "\\system32\\" + fil_nam
+        if os.path.isfile(filNam32):
+            return filNam32
 
-	return filNam
+        filNam64 = os.environ['SystemRoot'] + "\\syswow64\\" + fil_nam
+        if os.path.isfile(filNam64):
+            return filNam64
+
+    return fil_nam

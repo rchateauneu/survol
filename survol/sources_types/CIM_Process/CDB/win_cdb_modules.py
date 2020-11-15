@@ -36,112 +36,110 @@ Usable = lib_util.UsableWindows
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
-	try:
-		the_pid = int(cgiEnv.GetId())
-	except Exception:
-		lib_common.ErrorMessageHtml("Must provide a pid")
+    cgiEnv = lib_common.CgiEnv()
+    try:
+        the_pid = int(cgiEnv.GetId())
+    except Exception:
+        lib_common.ErrorMessageHtml("Must provide a pid")
 
-	if not lib_util.isPlatformWindows:
-		lib_common.ErrorMessageHtml("This works only on Windows platforms")
+    if not lib_util.isPlatformWindows:
+        lib_common.ErrorMessageHtml("This works only on Windows platforms")
 
-	# If cannot be the current pid, otherwise it will block.
-	if the_pid == os.getpid():
-		lib_common.ErrorMessageHtml("Cannot debug current process")
+    # If cannot be the current pid, otherwise it will block.
+    if the_pid == os.getpid():
+        lib_common.ErrorMessageHtml("Cannot debug current process")
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	# Starts a second session
-	cdb_fil = lib_common.TmpFile("CdbCommand","cdb")
-	cdb_fd = open(cdb_fil.Name,"w")
-	cdb_fd.write("lmv\n")  # List loaded modules, verbose mode.
-	cdb_fd.write("qd\n")  # Quit and detach.
-	cdb_fd.close()
+    # Starts a second session
+    cdb_fil = lib_util.TmpFile("CdbCommand", "cdb")
+    cdb_fd = open(cdb_fil.Name, "w")
+    cdb_fd.write("lmv\n")  # List loaded modules, verbose mode.
+    cdb_fd.write("qd\n")  # Quit and detach.
+    cdb_fd.close()
 
-	cdb_cmd = "cdb -p " + str(the_pid) + " -cf " + cdb_fil.Name
+    cdb_cmd = "cdb -p " + str(the_pid) + " -cf " + cdb_fil.Name
 
-	procNode = lib_common.gUriGen.PidUri( the_pid )
+    proc_node = lib_common.gUriGen.PidUri(the_pid)
 
-	DEBUG("Starting cdb_cmd=%s", cdb_cmd )
-	try:
-		cdb_pipe = lib_common.SubProcPOpen(cdb_cmd)
-	except WindowsError:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml( "cdb not available: Caught:%s" % str(exc) )
+    DEBUG("Starting cdb_cmd=%s", cdb_cmd)
+    try:
+        cdb_pipe = lib_common.SubProcPOpen(cdb_cmd)
+    except WindowsError as exc:
+        lib_common.ErrorMessageHtml("cdb not available: Caught:%s" % str(exc))
 
-	DEBUG("Started cdb_cmd=%s", cdb_cmd )
+    DEBUG("Started cdb_cmd=%s", cdb_cmd )
 
-	( cdb_output, cdb_err ) = cdb_pipe.communicate()
+    cdb_output, cdb_err = cdb_pipe.communicate()
 
-	# Without decode, "TypeError: Type str does not support the buffer API"
-	cdb_str =  cdb_output.decode("utf-8","ignore")
+    # Without decode, "TypeError: Type str does not support the buffer API"
+    cdb_str =  cdb_output.decode("utf-8", "ignore")
 
-	PropLoadedModule = lib_common.MakeProp("Loaded module")
+    prop_loaded_module = lib_common.MakeProp("Loaded module")
 
-	for dot_line in cdb_str.split('\n'):
-		# sys.stderr.write("Line=%s\n" % dot_line )
+    for dot_line in cdb_str.split('\n'):
+        # sys.stderr.write("Line=%s\n" % dot_line )
 
-		# moduleName=uDWM moduleStatus=deferred fileName=
-		# dot_line=    Image path: C:\windows\system32\uDWM.dll
-		# dot_line=    Image name: uDWM.dll
-		# dot_line=    Timestamp:        Tue Jul 14 02:33:35 2009 (4A5BE06F)
-		# dot_line=    CheckSum:         0005E9A4
-		# dot_line=    ImageSize:        00057000
-		# dot_line=    File version:     6.1.7600.16385
-		# dot_line=    Product version:  6.1.7600.16385
-		# dot_line=    File flags:       0 (Mask 3F)
-		# dot_line=    File OS:          40004 NT Win32
-		# dot_line=    File type:        2.0 Dll
-		# dot_line=    File date:        00000000.00000000
-		# dot_line=    Translations:     0409.04b0
-		# dot_line=    CompanyName:      Microsoft Corporation
-		# dot_line=    ProductName:      Microsoft Windows Operating System
-		# dot_line=    InternalName:     udwm.dll
-		# dot_line=    OriginalFilename: udwm.dll
-		# dot_line=    ProductVersion:   6.1.7600.16385
-		# dot_line=    FileVersion:      6.1.7600.16385 (win7_rtm.090713-1255)
-		# dot_line=    FileDescription:  Microsoft Desktop Window Manager
-		# dot_line=    LegalCopyright:    Microsoft Corporation. All rights reserved.
+        # moduleName=uDWM moduleStatus=deferred file_name=
+        # dot_line=    Image path: C:\windows\system32\uDWM.dll
+        # dot_line=    Image name: uDWM.dll
+        # dot_line=    Timestamp:        Tue Jul 14 02:33:35 2009 (4A5BE06F)
+        # dot_line=    CheckSum:         0005E9A4
+        # dot_line=    ImageSize:        00057000
+        # dot_line=    File version:     6.1.7600.16385
+        # dot_line=    Product version:  6.1.7600.16385
+        # dot_line=    File flags:       0 (Mask 3F)
+        # dot_line=    File OS:          40004 NT Win32
+        # dot_line=    File type:        2.0 Dll
+        # dot_line=    File date:        00000000.00000000
+        # dot_line=    Translations:     0409.04b0
+        # dot_line=    CompanyName:      Microsoft Corporation
+        # dot_line=    ProductName:      Microsoft Windows Operating System
+        # dot_line=    InternalName:     udwm.dll
+        # dot_line=    OriginalFilename: udwm.dll
+        # dot_line=    ProductVersion:   6.1.7600.16385
+        # dot_line=    FileVersion:      6.1.7600.16385 (win7_rtm.090713-1255)
+        # dot_line=    FileDescription:  Microsoft Desktop Window Manager
+        # dot_line=    LegalCopyright:    Microsoft Corporation. All rights reserved.
 
-		match_lin = re.match( " *Image path: *(.*)", dot_line )
-		if match_lin:
+        match_lin = re.match(" *Image path: *(.*)", dot_line)
+        if match_lin:
 
-			fileName = match_lin.group(1)
-			fileName = CDB.TestIfKnownDll(fileName)
-			fileName = fileName.strip()
-			fileName = lib_util.standardized_file_path(fileName)
-			fileNode = lib_common.gUriGen.FileUri( fileName )
-			grph.add( ( procNode, PropLoadedModule, fileNode ) )
-			continue
+            file_name = match_lin.group(1)
+            file_name = CDB.TestIfKnownDll(file_name)
+            file_name = file_name.strip()
+            file_name = lib_util.standardized_file_path(file_name)
+            file_node = lib_common.gUriGen.FileUri( file_name)
+            grph.add((proc_node, prop_loaded_module, file_node))
+            continue
 
-		match_lin = re.match( " *CompanyName: *(.*)", dot_line )
-		if match_lin:
-			companyName = match_lin.group(1)
-			grph.add( ( fileNode, lib_common.MakeProp("Company Name"), lib_util.NodeLiteral(companyName) ) )
-			continue
+        match_lin = re.match( " *CompanyName: *(.*)", dot_line )
+        if match_lin:
+            companyName = match_lin.group(1)
+            grph.add((file_node, lib_common.MakeProp("Company Name"), lib_util.NodeLiteral(companyName)))
+            continue
 
-		match_lin = re.match( " *File OS: *(.*)", dot_line )
-		if match_lin:
-			fileOS = match_lin.group(1)
-			grph.add( ( fileNode, lib_common.MakeProp("File OS"), lib_util.NodeLiteral(fileOS) ) )
-			continue
+        match_lin = re.match(" *File OS: *(.*)", dot_line)
+        if match_lin:
+            file_os = match_lin.group(1)
+            grph.add((file_node, lib_common.MakeProp("File OS"), lib_util.NodeLiteral(file_os)))
+            continue
 
-		match_lin = re.match( " *FileDescription: *(.*)", dot_line )
-		if match_lin:
-			fileDescription = match_lin.group(1)
-			grph.add( ( fileNode, lib_common.MakeProp("Description"), lib_util.NodeLiteral(fileDescription) ) )
-			continue
+        match_lin = re.match(" *FileDescription: *(.*)", dot_line)
+        if match_lin:
+            file_description = match_lin.group(1)
+            grph.add((file_node, lib_common.MakeProp("Description"), lib_util.NodeLiteral(file_description)))
+            continue
 
-		# sys.stderr.write("dot_line=%s\n" % dot_line )
+        # sys.stderr.write("dot_line=%s\n" % dot_line )
 
-	DEBUG("Parsed cdb result")
+    DEBUG("Parsed cdb result")
 
-	CIM_Process.AddInfo( grph, procNode, [ the_pid ] )
+    CIM_Process.AddInfo(grph, proc_node, [the_pid])
 
-	# cgiEnv.OutCgiRdf()
-	cgiEnv.OutCgiRdf("LAYOUT_RECT",[PropLoadedModule])
+    # cgiEnv.OutCgiRdf()
+    cgiEnv.OutCgiRdf("LAYOUT_RECT", [prop_loaded_module])
+
 
 if __name__ == '__main__':
-	Main()
-
-
+    Main()
