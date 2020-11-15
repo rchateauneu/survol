@@ -1168,14 +1168,6 @@ def _concatenate_cgi_argument(url, keyvalpair):
         return url + "&" + keyvalpair
 
 
-# This is very primitive and maybe should be replaced by a standard function,
-# but lib_util.EncodeUri() replaces "too much", and SVG urls cannot encode an ampersand...
-# The problems comes from "&mode=edit" or "&mode=html" etc...
-# TODO: If we can fix this, then "xid" can be replaced by "entity_type/entity_id"
-def UrlToSvg(url):
-    return url.replace("&", "&amp;amp;")
-
-
 def UrlNoAmp(url):
     return url.replace("&amp;", "&").replace("&amp;", "&")
 

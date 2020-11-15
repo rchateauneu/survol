@@ -5,11 +5,13 @@ import re
 import collections
 import six
 import subprocess
-import lib_exports
+import cgi
+
 import lib_kbase
 import lib_naming
 import lib_patterns
 import lib_grammar
+import lib_exports
 
 import lib_util
 from lib_util import TimeStamp
@@ -167,18 +169,18 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
         except ValueError:
             # It is a string which cannot be converted to json.
             val = lib_util.html_escape(val)
-            return lib_exports.StrWithBr(val)
+            return _str_with_br(val)
         except TypeError:
             # "Expected a string or buffer"
             # It is not a string, so it could be a datetime.datetime
             val = lib_util.html_escape(str(val))
-            return lib_exports.StrWithBr(val)
+            return _str_with_br(val)
         return "_format_element failure"
 
     def _format_element(val, depth=0):
         if lib_kbase.IsLink(val):
             val_title = "_format_element " + external_url_to_title(val)
-            val_title_ul = lib_exports.DotUL(val_title)
+            val_title_ul = _dot_ul(val_title)
             return "<td align='left' balign='left' border='0' href='%s'>%s</td>" % (val, val_title_ul)
 
         res_str = _format_element_aux(val, depth)
@@ -186,7 +188,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
 
     # Prints a key-value pair as two TD tags, to go in an HTML table.
     def _format_pair(key, val, depth=0):
-        col_first = "<td align='left' valign='top' border='0'>%s</td>" % lib_exports.DotBold(key)
+        col_first = "<td align='left' valign='top' border='0'>%s</td>" % _dot_bold(key)
         col_second = _format_element(val, depth+1)
         return col_first + col_second
 
@@ -201,13 +203,13 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
             # This should come first, but it does not so we prefix with "----". Hack !
             if key == pc.property_information:
                 # Completely left-aligned. Col span is 2, approximate ratio.
-                val = lib_exports.StrWithBr(val, 2)
+                val = _str_with_br(val, 2)
                 curr_td = "<td align='left' balign='left' colspan='2'>%s</td>" % val
             elif is_flat_property(key) :
                 url_txt = lib_naming.ParseEntityUri(val)[0]
-                split_txt = lib_exports.StrWithBr(url_txt, 2)
+                split_txt = _str_with_br(url_txt, 2)
                 # The text of the link must be underlined.
-                curr_td = '<td href="%s" align="left" colspan="2">%s</td>' % (val, lib_exports.DotUL(split_txt))
+                curr_td = '<td href="%s" align="left" colspan="2">%s</td>' % (val, _dot_ul(split_txt))
             else:
                 key_qname = lib_kbase.qname(key, grph)
                 # This assumes: type(val) == 'rdflib.term.Literal'
@@ -237,18 +239,18 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
 
     logfil.write(lib_util.TimeStamp() + " Rdf2Dot: First pass\n")
 
-    # New intermediary node created.
-    def CollapsedLabel(collaps_prop_nam, subj_nam):
+    def collapsed_label(collaps_prop_nam, subj_nam):
+        """New intermediary node created."""
         assert collaps_prop_nam.find("#") < 0
         return "R_" + collaps_prop_nam + "_" + subj_nam
 
     # Called mainly from entity.py. If S points vers O, transforms "O" => "R_S:O"
     # Accordingly we create an edge: "S" => "R_S"
-    def SubjNamFromCollapsed(collaps_prop_nam, subj_nam):
+    def subj_nam_from_collapsed(collaps_prop_nam, subj_nam):
         #sys.stderr.write("ADDING1 subj_nam=%s collaps_prop_nam=%s\n" % (subj_nam,collaps_prop_nam))
         collapsed_subj_nam = dict_collapsed_object_labels_to_subject_labels[subj_nam][collaps_prop_nam]
         #sys.stderr.write("ADDING2 subj_nam=%s collaps_prop_nam=%s\n" % (subj_nam,collaps_prop_nam))
-        new_subj_nam = CollapsedLabel(collaps_prop_nam, collapsed_subj_nam) + ":" + subj_nam
+        new_subj_nam = collapsed_label(collaps_prop_nam, collapsed_subj_nam) + ":" + subj_nam
         #sys.stderr.write("ADDED collapsed_subj_nam=%s new_subj_nam=%s collaps_prop_nam=%s\n" % (collapsed_subj_nam,new_subj_nam,collaps_prop_nam))
         return new_subj_nam
 
@@ -310,7 +312,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
             # First property available.
             subj_nam = dict_of_props[sub_prop_nam]
 
-        new_obj_nam = CollapsedLabel(sub_prop_nam, subj_nam) + ":" + obj_nam
+        new_obj_nam = collapsed_label(sub_prop_nam, subj_nam) + ":" + obj_nam
         return new_obj_nam
 
     # Now we know that we have seen all nodes in a collapsed property.
@@ -357,7 +359,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
                 try:
                     # Syntax with colon required by DOT.
                     prop_nam = lib_exports.PropToShortPropNam(prop)
-                    subj_nam = SubjNamFromCollapsed(prop_nam, subj_nam)
+                    subj_nam = subj_nam_from_collapsed(prop_nam, subj_nam)
                 except KeyError:
                     # sys.stderr.write("PASS subj_nam=%s obj_nam=%s\n"%(subj_nam,obj_nam))
                     pass
@@ -385,10 +387,10 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
         for subj_url, nod_lst in six.iteritems(dict_collapsed_subjects_to_object_lists):
             subj_nam = _rdf_node_to_dot_label(subj_url)
 
-            subj_nam_tab = CollapsedLabel(prop_nam, subj_nam)
+            subj_nam_tab = collapsed_label(prop_nam, subj_nam)
             try:
                 # TODO: This logic adds an extra level of node: Try to flatten the tree.
-                subj_nam = SubjNamFromCollapsed(prop_nam, subj_nam)
+                subj_nam = subj_nam_from_collapsed(prop_nam, subj_nam)
             except KeyError:
                 pass
 
@@ -511,7 +513,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
                             except UnicodeEncodeError:
                                 val_title = "Not ascii"
 
-                            val_title_ul = lib_exports.DotUL(val_title)
+                            val_title_ul = _dot_ul(val_title)
                             tmp_cell = td_bgcolor + 'href="%s" align="left" >%s</td>' % (val, val_title_ul)
 
                     else:
@@ -520,7 +522,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
                             tmp_cell = td_bgcolor + 'align="right">%s</td>' % val
                         except:
                             # Wraps the string if too long. Can happen only with a literal.
-                            tmp_cell = td_bgcolor + 'align="left">%s</td>' % lib_exports.StrWithBr(val)
+                            tmp_cell = td_bgcolor + 'align="left">%s</td>' % _str_with_br(val)
 
                     idx_key = key_indices[key]
                     columns[idx_key] = tmp_cell
@@ -575,14 +577,14 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
 
             elt_nam_plural = lib_grammar.ToPlural(elt_nam, num_nod_lst)
             txt_elements = "%d %s" % (num_nod_lst, elt_nam_plural)
-            header = '<td border="1">' + lib_exports.DotBold(txt_elements) + "</td>"
+            header = '<td border="1">' + _dot_bold(txt_elements) + "</td>"
 
             # TODO: Replace each column name with a link which sorts the line based on this column.
             # The order of columns could be specified with an extra cgi argument with the columns names.
             for key in fields_keys:
                 column_title = lib_kbase.qname(key, grph)
                 column_title = column_title.replace("_"," ").capitalize()
-                header += "<td border='1'>" + lib_exports.DotBold(column_title) + "</td>"
+                header += "<td border='1'>" + _dot_bold(column_title) + "</td>"
             # With an empty key, it comes first when sorting.
             dict_html_lines[""] = header
 
@@ -603,7 +605,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
             # lab_text_with_br is the first line of the table containing nodes linked with the
             # same property. Unfortunately we have lost this property.
             lab_text = _truncate_in_space(lab_text, 30)
-            lab_text_with_br = lib_exports.StrWithBr(lab_text)
+            lab_text_with_br = _str_with_br(lab_text)
             lab_text_with_br += ": " + prop_nam
 
             # No object with this script.
@@ -650,7 +652,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
             lab_text, obj_entity_graph_class, entity_id = lib_naming.ParseEntityUri(
                 lib_util.urllib_unquote(obj_rdf_node))
         except UnicodeEncodeError:
-            WARNING("UnicodeEncodeError error:%s", obj_rdf_node )
+            WARNING("UnicodeEncodeError error:%s", obj_rdf_node)
 
         # WritePatterned receives an list of strings similar to "<td>jhh</td><td>jhh</td><td>jhh</td>"
         # This function adds <tr> and </tr> on both sides.
@@ -661,7 +663,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
         # This might be temporary until we replace CGI arguments by genuine WMI Monikers.
         lab_text_no_amp = lab_text.replace("&amp;amp;", " ")
         lab_text_no_amp = lab_text_no_amp.strip()
-        lab_text_clean = lib_exports.StrWithBr(lab_text_no_amp)
+        lab_text_clean = _str_with_br(lab_text_no_amp)
         # Two columns because it encompasses the key and the value.
 
         if obj_entity_graph_class:
@@ -777,6 +779,17 @@ def _dot_to_svg(dot_filnam_after, logfil, viztype, out_dest):
     copy_to_output_destination(logfil, svg_out_filnam, out_dest)
 
 
+def _font_string():
+    # fontname: "DejaVuSans.ttf" resolved to: (PangoCairoFcFont) "DejaVu Sans, Book" /usr/share/fonts/dejavu/DejaVuSans.ttf
+    # stream.write("node [shape=plaintext fontpath=\"/usr/share/fonts\" fontname=\"DejaVuSans\" ]")
+
+    if lib_util.isPlatformWindows:
+        return 'fontname="DejaVu Sans"'
+    else:
+        # fontname: "DejaVuSans.ttf" resolved to: (PangoCairoFcFont) "DejaVu Sans, Book" /usr/share/fonts/dejavu/DejaVuSans.ttf
+        return 'fontpath="/usr/share/fonts" fontname="DejaVuSans"'
+
+
 def write_dot_header(page_title, layout_style, stream, grph):
     # Some cleanup.
     page_title_clean = page_title.strip()
@@ -834,7 +847,7 @@ def write_dot_header(page_title, layout_style, stream, grph):
 
     # TODO: Take the font from the CSS html_exports.css
     # Example on Windows: stream.write(" node [ fontname=\"DejaVu Sans\" ] ; \n")
-    stream.write(" node [ %s ] ; \n" % lib_exports.FontString() )
+    stream.write(" node [ %s ] ; \n" % _font_string())
     return dot_layout
 
 
@@ -858,8 +871,8 @@ def GraphToSvg(
     logfil.write(lib_util.TimeStamp() + " Created " + dot_filnam_after + "\n")
 
     dot_layout = write_dot_header(page_title, layout_style, rdfoutfil, grph)
-    lib_exports.WriteDotLegend(page_title, top_url, error_msg, is_sub_server,
-                               parameters, parameterized_links, rdfoutfil, grph)
+    _write_dot_legend(page_title, top_url, error_msg, is_sub_server,
+                      parameters, parameterized_links, rdfoutfil, grph)
     logfil.write(lib_util.TimeStamp() + " Legend written\n")
     Rdf2Dot(grph, logfil, rdfoutfil, collapsed_properties, commutative_properties)
     logfil.write(lib_util.TimeStamp() + " About to close dot file\n")
@@ -875,3 +888,204 @@ def GraphToSvg(
     logfil.write(lib_util.TimeStamp() + " closing log file\n")
     logfil.close()
 
+
+def _url_to_svg(url):
+    """This is very primitive and maybe should be replaced by a standard function,
+    but lib_util.EncodeUri() replaces "too much", and SVG urls cannot encode an ampersand...
+    The problems comes from "&mode=edit" or "&mode=html" etc..."""
+
+    # TODO: If we can fix this, then "xid" can be replaced by "entity_type/entity_id"
+    return url.replace("&", "&amp;amp;")
+
+
+def _dot_bold(a_str):
+    if not a_str: return ""
+    return "<b>%s</b>" % a_str
+
+
+def _dot_ul(a_str):
+    if not a_str: return ""
+    return "<u>%s</u>" % a_str
+
+
+# Do not italicize empty string otherwise "Error: syntax error in line 1 ... <i></i> ..."
+def _dot_it(a_str):
+    if not a_str: return ""
+    return "<i>%s</i>" % a_str
+
+
+
+# To display long strings in HTML-like labels, when Graphviz creates SVG.
+_max_html_title_len_per_col = 40
+
+# This is a HTML-like tag for Graphviz only.
+_with_br_delim = '<BR ALIGN="LEFT" />'
+
+
+def _str_with_br(a_raw_str, colspan = 1):
+    """Inserts "<BR/>" in a string so it can be displayed in a HTML label.
+    Beware that it is not really HTML, but only an HTML-like subset.
+    See https://www.graphviz.org/doc/info/shapes.html#html """
+
+    # First thing: Cleanup possible HTML tags, otherwise Graphviz stops.
+    aStr = a_raw_str.replace("<", "&lt;").replace(">", "&gt;")
+
+    len_str = len(aStr)
+    max_html_title_len = colspan * _max_html_title_len_per_col
+    if len_str < max_html_title_len:
+        return aStr
+
+    splt = aStr.split(" ")
+    tot_len = 0
+    resu = ""
+    curr_line = ""
+    for curr_str in splt:
+        subLen = len(curr_str)
+        if tot_len + subLen < max_html_title_len:
+            curr_line += " " + curr_str
+            tot_len += subLen
+            continue
+        if resu:
+            resu += _with_br_delim
+        resu += curr_line
+        curr_line = curr_str
+        tot_len = subLen
+
+    if curr_line:
+        if resu != "":
+            resu += _with_br_delim
+        resu += curr_line
+    return resu
+
+
+
+def _write_dot_legend(page_title, top_url, errMsg, is_sub_server, parameters, parameterized_links, stream, grph):
+    """In SVG/Graphiz documents, this writes the little rectangle which contains various information."""
+
+    # This allows to enter directly the URL parameters, so we can access directly an object.
+    # This will allow to choose the entity type, and each parameter of the URL (Taken
+    # from the ontology). It also edits the parameters of the current URL.
+    # TODO: MUST FINISH THIS.
+    #def UrlDirectAccess():
+    #    return "direct_access.py"
+
+    # This adds links which can display the same content in a different output format.
+    def legend_add_alternate_display_links(stream):
+        # So we can change parameters of this CGI script.
+        url_html = lib_exports.ModedUrl("html")
+        url_json = lib_exports.ModedUrl("json")
+        url_rdf = lib_exports.ModedUrl("rdf")
+        urlD3 = lib_exports.UrlToMergeD3()
+
+        # Stupid replacement of dot: "\\" transformed into "\"
+        # Fix for : "http://rchateau-hp:8000/survol/class_wmi.py?xid=\\machine\root\CIMV2%3ACIM_Directory.&mode=html"
+        def UrlForDot(mdUrl):
+            mdUrl = mdUrl.replace("\\\\", "\\\\\\")
+            return _url_to_svg(mdUrl)
+
+        stream.write("<tr><td colspan='4'><table border='0'>")
+        stream.write(
+            "<tr>"
+            "<td>(</td>"
+            "<td align='left' href='" + UrlForDot( url_html ) + "'>" + _dot_ul("HTML") + "</td>"
+            "<td>,</td>"
+            "<td align='left' href='" + UrlForDot( url_json ) + "'>" + _dot_ul("JSON") + "</td>"
+            "<td>,</td>"
+            "<td align='left' href='" + UrlForDot( url_rdf ) + "'>" + _dot_ul("RDF") + "</td>"
+            "<td>,</td>"
+            "<td align='left' href='" + UrlForDot( urlD3 ) + "'>" + _dot_ul("D3") + "</td>"
+            "<td>)</td></tr>"
+        )
+        stream.write("</table></td></tr>")
+
+    def legend_add_parameters_links(stream, parameters, parameterized_links):
+        """This displays the parameters of the URL and a link allowing to edit them.
+        It assumes that it writes in the middle of a table with two columns."""
+
+        if parameters :
+            url_edit = lib_exports.ModedUrl("edit")
+            url_edit_replaced = _url_to_svg(url_edit)
+            stream.write("<tr><td colspan='4' href='" + url_edit_replaced + "' align='left'>"
+                         + _dot_bold(_dot_ul("Edit script parameters")) + "</td></tr>")
+
+            arguments = cgi.FieldStorage()
+            for key_param, val_param in parameters.items():
+                try:
+                    actual_param = arguments[key_param].value
+                except KeyError:
+                    actual_param = val_param
+                stream.write('<tr><td colspan="2">%s:</td><td colspan="2">%s</td></tr>' % (key_param, _dot_it(actual_param)))
+
+        # We want to display links associated to the parameters.
+        # The use case is "Prev/Next" when paging between many values.
+        # This could be nicely modelled by just specifying special set of values,
+        # and the links would be calculated here.
+        # For example: { "next" : { "index": curr + 80 }, "prev" : { "index": curr - 80 } }
+        # This simplifies the edition in Json.
+        # It might also simplify formatting.
+        # There will be a similar piece of code in Javascript and plain HTML:
+        # (1) The calling script provides the values to CgiEnv.
+        # (2) A method in CgiEnv calculates the URLS and returns a map
+        # of { "label":"urls" }
+
+        for url_label in parameterized_links:
+            param_url = parameterized_links[url_label]
+            stream.write("<tr><td colspan='4' href='" + param_url + "' align='left'>"
+                         + _dot_bold(_dot_ul(url_label)) + "</td></tr>")
+
+    def legend_footer():
+
+        url_help = _url_to_svg(lib_exports.UrlWWW("help.htm"))
+
+        stream.write("<tr>")
+        stream.write('<td align="left" href="' + top_url + '">' + _dot_bold(_dot_ul("Home")) + '</td>')
+        urlEdtConfiguration = lib_util.uriRoot + "/edit_configuration.py"
+        stream.write("<td href='" + urlEdtConfiguration + "' align='left'>" + _dot_bold(_dot_ul("Setup")) + "</td>")
+        urlEdtCredentials = lib_util.uriRoot + "/edit_credentials.py"
+        stream.write("<td href='" + urlEdtCredentials +"' align='left'>" + _dot_bold(_dot_ul("Credentials")) + "</td>")
+        stream.write("<td href='" + url_help +"' align='left'>" + _dot_bold(_dot_ul("Help")) + "</td>")
+        stream.write("</tr>")
+
+
+    # stream.write("node [shape=plaintext fontname=\"DejaVu Sans\" ]")
+    # fontname: "DejaVuSans.ttf" resolved to: (PangoCairoFcFont) "DejaVu Sans, Book" /usr/share/fonts/dejavu/DejaVuSans.ttf
+    # stream.write("node [shape=plaintext fontpath=\"/usr/share/fonts\" fontname=\"DejaVuSans\" ]")
+    stream.write("node [shape=plaintext %s ]" % _font_string())
+
+    # The first line is a title, the rest, more explanations.
+    # The first line also must be wrapped if it is too long.
+    # TODO: This logic should be factorised because it seems to be used when merging ?
+
+    page_title_first, page_title_rest = lib_util.SplitTextTitleRest(page_title)
+
+    page_title_first_wrapped = _str_with_br(page_title_first, 2)
+    page_title_rest_wrapped = _str_with_br(page_title_rest, 2)
+    page_title_full = _dot_bold(page_title_first_wrapped) + _with_br_delim + page_title_rest_wrapped
+
+    stream.write("""
+  subgraph cluster_01 {
+    subgraph_cluster_key [shape=none, label=<<table border="1" cellpadding="0" cellspacing="0" cellborder="0">""")
+
+    stream.write("<tr><td colspan='4'>" + page_title_full + "</td></tr>" )
+    legend_add_alternate_display_links(stream)
+    legend_add_parameters_links(stream,parameters,parameterized_links)
+
+    legend_footer()
+
+    # The error message could be None or an empty string.
+    if errMsg:
+        fullErrMsg = _dot_bold("Error: ") + errMsg
+        stream.write('<tr><td align="left"  balign="left" colspan="2">%s</td></tr>' % _str_with_br(fullErrMsg, 2))
+
+    if is_sub_server:
+        url_stop = lib_exports.ModedUrl("stop")
+        url_stop_replaced = _url_to_svg(url_stop)
+        stream.write('<tr><td colspan="2" href="' + url_stop_replaced + '">' + _dot_ul("Stop subserver") + '</td></tr>')
+        # TODO: Add an URL for subservers management, instead of simply "stop"
+        # Maybe "mode=ctrl".This will list the feeders with their entity_id.
+        # So they can be selectively stopped.
+
+    stream.write("""
+      </table>>]
+  }
+     """)
