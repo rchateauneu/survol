@@ -44,7 +44,7 @@ def Main():
 
     DEBUG("depends_bin=%s", depends_bin)
 
-    tmp_fil_obj = lib_common.TmpFile("depends")
+    tmp_fil_obj = lib_util.TmpFile("depends")
     tmp_out_fil = tmp_fil_obj.Name
     args = [depends_bin, "/c", "/OC:", tmp_out_fil, win_module]
 
