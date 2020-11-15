@@ -106,7 +106,7 @@ def IconToFile(hlib, group_name):
     img_fil_nam_prefix = "icon-%03dx%03d-%s-%03d" % (bminfo.bmWidth, bminfo.bmHeight, str(group_name), icon_name)
 
     # The destructor will remove the file.
-    obj_temp_file = lib_common.TmpFile(img_fil_nam_prefix, "bmp")
+    obj_temp_file = lib_util.TmpFile(img_fil_nam_prefix, "bmp")
 
     img_fil_nam = obj_temp_file.Name
     hbmp.SaveBitmapFile(hcdc, img_fil_nam)

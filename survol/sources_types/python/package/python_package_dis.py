@@ -9,6 +9,7 @@ Python properties
 import sys
 import importlib
 import lib_common
+import lib_util
 
 from sources_types import python as survol_python
 from sources_types.python import package as survol_python_package
@@ -46,7 +47,7 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	tmpPyFil = lib_common.TmpFile("py_package_deps","py")
+	tmpPyFil = lib_util.TmpFile("py_package_deps","py")
 	tmpPyFilName = tmpPyFil.Name
 
 	# This creates a temporary file which imports the package.
