@@ -7,151 +7,153 @@ from lib_properties import pc
 import xml.etree.cElementTree
 
 
-fileExtensionsDox = [
-	"c","cc","cxx","cpp","c++","java",
-	"ii","ixx","ipp","i++","inl","idl","ddl","odl",
-	"h","hh","hxx","hpp","h++","cs","d","php",
-	"php4","php5","phtml","inc","m","markdown","md","mm",
-	"dox","py","f90","f","for","tcl","vhd","vhdl","ucf","qsf","as","js",
+_file_extensions_dox = [
+    "c", "cc", "cxx", "cpp", "c++", "java",
+    "ii", "ixx", "ipp", "i++", "inl", "idl", "ddl", "odl",
+    "h", "hh", "hxx", "hpp", "h++", "cs", "d", "php",
+    "php4", "php5", "phtml", "inc", "m", "markdown", "md", "mm",
+    "dox", "py", "f90", "f", "for", "tcl", "vhd", "vhdl", "ucf", "qsf", "as", "js",
 ]
 
-# This works for directories and code files too, depending on their extension.
+
 def Usable(entity_type, entity_ids_arr):
-	if not lib_util.UsableWindows(entity_type, entity_ids_arr):
-		return False
+    """This works for directories and code files too, depending on their extension."""
+    if not lib_util.UsableWindows(entity_type, entity_ids_arr):
+        return False
 
-	pathNam = entity_ids_arr[0]
+    path_nam = entity_ids_arr[0]
 
-	if os.path.isdir(pathNam):
-		return True
+    if os.path.isdir(path_nam):
+        return True
 
-	filename, file_extension = os.path.splitext(pathNam)
-	fileExt = file_extension[1:].lower()
+    filename, file_extension = os.path.splitext(path_nam)
+    file_ext = file_extension[1:].lower()
 
-	return fileExt in fileExtensionsDox
-
-def DoTheStuff(outDir):
-	# http://stackoverflow.com/questions/651794/whats-the-best-way-to-initialize-a-dict-of-dicts-in-python
-	def makehash():
-		return collections.defaultdict(makehash)
-
-	objectsByLocation = makehash()
-
-	locationFile = "IMPOSSIBLE_LOCATION"
-	memberDefinition = "IMPOSSIBLE_DEFINITION"
-	for dirName, subdirList, fileList in os.walk(outDir):
-		for fname in fileList:
-			#sys.stderr.write("fname=%s\n" % fname)
-			xmlPath = dirName + "/" + fname
-			try:
-				for event, elem in xml.etree.cElementTree.iterparse(xmlPath, events=("start", "end")):
-					#sys.stderr.write("elem.tag=%s\n" % elem.tag)
-					#sys.stderr.write("elem.text=%s\n" % elem.text)
-
-					if event == "start":
-						if elem.tag == "compounddef":
-							compounddefKind = elem.attrib["kind"]
-						elif elem.tag == "compoundname":
-							compoundName = elem.text
-						elif elem.tag == "location":
-							locationFile = elem.attrib["file"]
-						elif elem.tag == "sectiondef":
-							sectionKind = elem.attrib["kind"]
-						elif elem.tag == "memberdef":
-							memberKind = elem.attrib["kind"]
-							memberStatic = elem.attrib["static"]
-							listTypes = []
-						elif elem.tag == "templateparamlist":
-							memberKind = None
-						elif elem.tag == "name":
-							memberName = elem.text
-						elif elem.tag == "definition":
-							memberDefinition = elem.text
-						elif elem.tag == "type":
-							# Can be the return type of the function or one of its arguments, or the variable type.
-							# But this could contain other tags:
-							# "SafePtr< <ref refid="class_s_t_r_s_index_rule_defaults_1_1_i_data" kindref="compound">STRSIndexRuleDefaults::IData</ref> >"
-							# instead of "SafePtr< STRSIndexRuleDefaults::IData >"
-							# https://docs.python.org/2/library/xml.etree.elementtree.html
-							if memberKind:
-								# Only types list defined in "memberdef"
-								listTypes.append("".join(elem.itertext()))
-
-					elif event == "end":
-						if elem.tag == "memberdef":
-							if memberKind == "function" and \
-									(memberName[0] == '~' or memberName.startswith(
-										"operator") or memberName == compoundName):
-								# No destructor or operator.
-								# TODO: Maybe constructor, depending on arguments ?
-								pass
-							elif memberKind == "variable" and memberStatic == "no":
-								# Only static members.
-								# TODO: Maybe members whose type is a class ? Points somewhere ?
-								pass
-							elif memberKind in ["typedef", "friend", "enum", "define"]:
-								pass
-							else:
-								if memberDefinition is None:
-									memberDefinition= memberName
-
-								# TODO: A-t-n vraiment de compounddefKind][compoundName][memberKind]
-								# TODO ... sachant qu on se donne la possibilite d exploser ou pas selon les classes ?
-								objectsByLocation[locationFile][compounddefKind][compoundName][memberKind][memberDefinition] = listTypes
-						# print(event)
-						# print(elem.tag)
-						# print(elem.tag)
-						# break
-			except Exception:
-				exc = sys.exc_info()[1]
-				WARNING("Caught:%s", str(exc))
-
-	return objectsByLocation
-
-def DisplayDefinition(grph,nodeFile,locationFile,symDef,paramExplodeClasses):
-	nodeVariable = lib_common.gUriGen.SymbolUri( symDef, locationFile )
-	if nodeFile:
-		grph.add( ( nodeFile, pc.property_member, nodeVariable ) )
-	return
-
-def CreateObjs(grph,rootNode,directoryName,objectsByLocation,paramExplodeClasses):
-	DEBUG("directoryName=%s num=%d", directoryName, len(objectsByLocation))
-
-	for (locationFile, v1) in lib_util.six_iteritems(objectsByLocation):
-		DEBUG("locationFile=%s",locationFile)
-
-		# TODO: Eventuellement exploser selon les sous-directorys
-		nodeFile = lib_common.gUriGen.FileUri( locationFile )
-		grph.add( ( rootNode, pc.property_directory, nodeFile ) )
-
-		for (compounddefKind, v2) in v1.items():
-			#sys.stderr.write("compounddefKind=%s\n"%compounddefKind)
-			for (compoundName, v3) in v2.items():
-				#sys.stderr.write("compoundName=%s\n"%compoundName)
-				for (memberKind, v4) in v3.items():
-					#sys.stderr.write("memberKind=%s\n"%memberKind)
-					for (memberDefinition, listTypes) in v4.items():
-						if memberKind == "function":
-							if( len(listTypes) > 1 ):
-								concatTypes = ",".join(listTypes[1:])
-							else:
-								concatTypes = ""
-							# funcName = listTypes[0] + " " + memberName + "(" + concatTypes + ")"
-							funcName = memberDefinition + "(" + concatTypes + ")"
-							#nodeFunction = lib_common.gUriGen.SymbolUri( funcName, locationFile )
-							#if nodeFile:
-							#	grph.add( ( nodeFile, pc.property_member, nodeFunction ) )
-							DisplayDefinition(grph,nodeFile,locationFile,funcName,paramExplodeClasses)
-						elif memberKind == "variable":
-							DisplayDefinition(grph,nodeFile,locationFile,memberDefinition,paramExplodeClasses)
-							# nodeVariable = lib_common.gUriGen.SymbolUri( memberName, locationFile )
-							#nodeVariable = lib_common.gUriGen.SymbolUri( memberDefinition, locationFile )
-							#if nodeFile:
-							#	grph.add( ( nodeFile, pc.property_member, nodeVariable ) )
-	return
+    return file_ext in _file_extensions_dox
 
 
-myDoxyfile = """
+def _generate_to_output_dir(out_dir):
+    # http://stackoverflow.com/questions/651794/whats-the-best-way-to-initialize-a-dict-of-dicts-in-python
+    def makehash():
+        return collections.defaultdict(makehash)
+
+    objects_by_location = makehash()
+
+    location_file = "IMPOSSIBLE_LOCATION"
+    member_definition = "IMPOSSIBLE_DEFINITION"
+    for dir_name, subdir_list, file_list in os.walk(out_dir):
+        for fname in file_list:
+            #sys.stderr.write("fname=%s\n" % fname)
+            xml_path = dir_name + "/" + fname
+            try:
+                for event, elem in xml.etree.cElementTree.iterparse(xml_path, events=("start", "end")):
+                    #sys.stderr.write("elem.tag=%s\n" % elem.tag)
+                    #sys.stderr.write("elem.text=%s\n" % elem.text)
+
+                    if event == "start":
+                        if elem.tag == "compounddef":
+                            compounddef_kind = elem.attrib["kind"]
+                        elif elem.tag == "compoundname":
+                            compound_name = elem.text
+                        elif elem.tag == "location":
+                            location_file = elem.attrib["file"]
+                        elif elem.tag == "sectiondef":
+                            section_kind = elem.attrib["kind"]
+                        elif elem.tag == "memberdef":
+                            member_kind = elem.attrib["kind"]
+                            member_static = elem.attrib["static"]
+                            list_types = []
+                        elif elem.tag == "templateparamlist":
+                            member_kind = None
+                        elif elem.tag == "name":
+                            member_name = elem.text
+                        elif elem.tag == "definition":
+                            member_definition = elem.text
+                        elif elem.tag == "type":
+                            # Can be the return type of the function or one of its arguments, or the variable type.
+                            # But this could contain other tags:
+                            # "SafePtr< <ref refid="class_s_t_r_s_index_rule_defaults_1_1_i_data" kindref="compound">STRSIndexRuleDefaults::IData</ref> >"
+                            # instead of "SafePtr< STRSIndexRuleDefaults::IData >"
+                            # https://docs.python.org/2/library/xml.etree.elementtree.html
+                            if member_kind:
+                                # Only types list defined in "memberdef"
+                                list_types.append("".join(elem.itertext()))
+
+                    elif event == "end":
+                        if elem.tag == "memberdef":
+                            if member_kind == "function" and \
+                                    (member_name[0] == '~' or member_name.startswith(
+                                        "operator") or member_name == compound_name):
+                                # No destructor or operator.
+                                # TODO: Maybe constructor, depending on arguments ?
+                                pass
+                            elif member_kind == "variable" and member_static == "no":
+                                # Only static members.
+                                # TODO: Maybe members whose type is a class ? Points somewhere ?
+                                pass
+                            elif member_kind in ["typedef", "friend", "enum", "define"]:
+                                pass
+                            else:
+                                if member_definition is None:
+                                    member_definition= member_name
+
+                                # TODO: A-t-n vraiment de compounddef_kind][compound_name][member_kind]
+                                # TODO ... sachant qu on se donne la possibilite d exploser ou pas selon les classes ?
+                                objects_by_location[location_file][compounddef_kind][compound_name][member_kind][member_definition] = list_types
+                        # print(event)
+                        # print(elem.tag)
+                        # print(elem.tag)
+                        # break
+            except Exception as exc:
+                WARNING("Caught:%s", str(exc))
+
+    return objects_by_location
+
+
+def _display_def(grph, node_file, location_file, sym_def, param_explode_classes):
+    node_variable = lib_common.gUriGen.SymbolUri(sym_def, location_file)
+    if node_file:
+        grph.add((node_file, pc.property_member, node_variable))
+    return
+
+
+def CreateObjs(grph, root_node, directory_name, objects_by_location, param_explode_classes):
+    DEBUG("directoryName=%s num=%d", directory_name, len(objects_by_location))
+
+    for location_file, v1 in lib_util.six_iteritems(objects_by_location):
+        DEBUG("location_file=%s", location_file)
+
+        node_file = lib_common.gUriGen.FileUri(location_file)
+        grph.add((root_node, pc.property_directory, node_file))
+
+        for compounddef_kind, v2 in v1.items():
+            #sys.stderr.write("compounddef_kind=%s\n"%compounddef_kind)
+            for compound_name, v3 in v2.items():
+                #sys.stderr.write("compound_name=%s\n"%compound_name)
+                for member_kind, v4 in v3.items():
+                    #sys.stderr.write("member_kind=%s\n"%member_kind)
+                    for member_definition, list_types in v4.items():
+                        if member_kind == "function":
+                            if len(list_types) > 1:
+                                concat_types = ",".join(list_types[1:])
+                            else:
+                                concat_types = ""
+                            # func_name = list_types[0] + " " + memberName + "(" + concat_types + ")"
+                            func_name = member_definition + "(" + concat_types + ")"
+                            #nodeFunction = lib_common.gUriGen.SymbolUri( func_name, location_file )
+                            #if node_file:
+                            #    grph.add( ( node_file, pc.property_member, nodeFunction ) )
+                            _display_def(grph, node_file, location_file, func_name, param_explode_classes)
+                        elif member_kind == "variable":
+                            _display_def(grph, node_file, location_file, member_definition, param_explode_classes)
+                            # nodeVariable = lib_common.gUriGen.SymbolUri( memberName, location_file )
+                            #nodeVariable = lib_common.gUriGen.SymbolUri( member_definition, location_file )
+                            #if node_file:
+                            #    grph.add( ( node_file, pc.property_member, nodeVariable ) )
+    return
+
+
+_my_doxyfile = """
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = Survol
 PROJECT_NUMBER         =
@@ -412,49 +414,44 @@ DOT_CLEANUP            = YES
 """
 
 
-def RunDoxy(doxyOUTPUT_DIRECTORY, doxyINPUT, doxyRECURSIVE):
+def _run_doxy(doxyOUTPUT_DIRECTORY, doxyINPUT, doxyRECURSIVE):
 
-	doxyFILE_PATTERNS = " ".join( "*.%s" % filExt for filExt in fileExtensionsDox )
+    doxyFILE_PATTERNS = " ".join("*.%s" % fil_ext for fil_ext in _file_extensions_dox)
 
-	# TODO: Create a tmp dir just for this purpose.
-	filCo = myDoxyfile % (doxyOUTPUT_DIRECTORY, doxyINPUT, doxyFILE_PATTERNS, doxyRECURSIVE)
+    # TODO: Create a tmp dir just for this purpose.
+    fil_co = _my_doxyfile % (doxyOUTPUT_DIRECTORY, doxyINPUT, doxyFILE_PATTERNS, doxyRECURSIVE)
 
-	tmpDoxyfileObj = lib_common.TmpFile("Doxygen")
-	doxynam = tmpDoxyfileObj.Name
-	doxyfi = open(doxynam, "w")
-	doxyfi.write(filCo)
-	doxyfi.close()
+    tmp_doxyfile_obj = lib_util.TmpFile("Doxygen")
+    doxynam = tmp_doxyfile_obj.Name
+    doxyfi = open(doxynam, "w")
+    doxyfi.write(fil_co)
+    doxyfi.close()
 
+    # https://www.stack.nl/~dimitri/doxygen/manual/customize.html
 
-	# tmpDoxygenFil = lib_common.TmpFile("Doxygen","xml")
-	# doxygen_out_filnam = tmpDoxygenFil.Name
+    doxygen_command = ["doxygen", doxynam]
 
-	# https://www.stack.nl/~dimitri/doxygen/manual/customize.html
-
-	doxygen_command = ["doxygen", doxynam]
-
-	# TODO: Use lib_common.SubProcPOpen
-	ret = lib_common.SubProcCall(doxygen_command)
-	DEBUG("doxyOUTPUT_DIRECTORY=%s", doxyOUTPUT_DIRECTORY)
+    # TODO: Use lib_common.SubProcPOpen
+    ret = lib_common.SubProcCall(doxygen_command)
+    DEBUG("doxyOUTPUT_DIRECTORY=%s", doxyOUTPUT_DIRECTORY)
 
 
-def DoxygenMain(paramRecursiveExploration,fileParam):
-	tmpDirObj = lib_common.TmpFile(prefix=None,suffix=None,subdir="DoxygenXml")
+def DoxygenMain(param_recursive_exploration, file_param):
+    tmp_dir_obj = lib_util.TmpFile(prefix=None,suffix=None,subdir="DoxygenXml")
 
-	doxyOUTPUT_DIRECTORY = tmpDirObj.TmpDirToDel
+    doxyOUTPUT_DIRECTORY = tmp_dir_obj.TmpDirToDel
 
-	if paramRecursiveExploration:
-		doxyRECURSIVE = "YES"
-	else:
-		doxyRECURSIVE = "NO"
+    if param_recursive_exploration:
+        doxyRECURSIVE = "YES"
+    else:
+        doxyRECURSIVE = "NO"
 
-	try:
-		RunDoxy(doxyOUTPUT_DIRECTORY, fileParam, doxyRECURSIVE)
-	except:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Doxygen: %s\n"%( str(exc) ))
+    try:
+        _run_doxy(doxyOUTPUT_DIRECTORY, file_param, doxyRECURSIVE)
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("Doxygen: %s\n" % str(exc))
 
-	doxyResultDir = doxyOUTPUT_DIRECTORY + "/xml"
-	objectsByLocation = DoTheStuff(doxyResultDir)
-	return objectsByLocation
+    doxy_result_dir = doxyOUTPUT_DIRECTORY + "/xml"
+    objects_by_location = _generate_to_output_dir(doxy_result_dir)
+    return objects_by_location
 
