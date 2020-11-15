@@ -759,7 +759,7 @@ def KWArgsToEntityId(className, **kwargsOntology):
             ERROR("KWArgsToEntityId className=%s. No key %s",className, arg_key)
             raise
 
-        # TODO: The values should be encoded !!!
+        # TODO: The values should be encoded when needed, probably with B64 !!!
         entity_id += delim + "%s=%s" % (arg_key, arg_val)
         delim = ","
     # The values might come from many different origins
@@ -779,7 +779,7 @@ def EntityUriDupl(entity_type, *entity_ids, **extra_args):
     keys = OntologyClassKeys(entity_type)
 
     if len(keys) != len(entity_ids):
-        WARNING("EntityUriDupl Different lens:%s and %s", str(keys), str(entity_ids))
+        WARNING("EntityUriDupl entity_type=%s Different lens:%s and %s", entity_type, str(keys), str(entity_ids))
     entity_id = ",".join("%s=%s" % pairKW for pairKW in zip(keys, entity_ids))
     
     # Extra arguments, differentiating duplicates.
@@ -1147,7 +1147,8 @@ def EntityIdToArray(entity_type, entity_id):
                 val_decod = a_key.ValueDecode(a_val_raw)
                 return val_decod
             except AttributeError:
-                return a_val_raw
+                return urllib_unquote(a_val_raw)
+                # return a_val_raw
         return [decode_cgi_arg(a_key) for a_key in onto_keys]
     except KeyError:
         gblLogger.error("EntityIdToArray missing key: type=%s id=%s onto=%s", entity_type, entity_id, str(onto_keys))
@@ -1735,13 +1736,14 @@ def AppendPropertySurvolOntology(
 
 # TODO: Should we get classes and properties descriptions from WMI and WBEM ?
 def AppendClassSurvolOntology(entity_type, map_classes, map_attributes):
-
-    # This receives a class name from Survol and translates it into a CIM class name.
-    # If this is a top-level class, then it is the same string.
-    # If this is hierarchical, there might be duplicates.
-    # To make thing simpler, slashes are translated into a dot.
-    # NOTE: A difference between Survol and CIM, is that survols carries
-    # the hierarchy of classes in their names, just like files.
+    """
+    This receives a class name from Survol and translates it into a CIM class name.
+    If this is a top-level class, then it is the same string.
+    If this is hierarchical, there might be duplicates.
+    To make thing simpler, slashes are translated into a dot.
+    NOTE: A difference between Survol and CIM, is that survols carries the hierarchy of classes in their names,
+    just like files.
+    """
     def survol_class_to_cim(name_survol_class):
         return name_survol_class.replace("/", ".")
 
@@ -1812,4 +1814,109 @@ def PathAndKeyValuePairsToRdf(grph, subject_path, dict_key_values):
     for key, val in dict_key_values.items():
         grph.add((subject_path_node, key, val))
 
+
+def __check_if_directory(the_dir):
+    if os.path.isdir(the_dir):
+        return standardized_file_path(the_dir)
+    raise Exception("Not a dir:" + the_dir)
+
+
+def get_temporary_directory():
+    """The temp directory as specified by the operating system."""
+
+    # TODO: The user "apache" used by httpd cannot write, on some Linux distributions, to the directory "/tmp"
+    # https://blog.lysender.com/2015/07/centos-7-selinux-php-apache-cannot-writeaccess-file-no-matter-what/
+    # This is a temporary fix. Maybe related to SELinux.
+    try:
+        if isPlatformLinux:
+            # 'SERVER_SOFTWARE': 'Apache/2.4.29 (Fedora)'
+            if os.environ["SERVER_SOFTWARE"].startswith("Apache/"):
+                # 'HTTP_HOST': 'vps516494.ovh.net'
+                if os.environ["HTTP_HOST"].startswith("vps516494."):
+                    return "/home/rchateau/tmp_apache"
+    except:
+        pass
+
+    try:
+        # Maybe these environment variables are undefined for Apache user.
+        return __check_if_directory(os.environ["TEMP"])
+    except Exception:
+        pass
+
+    try:
+        return __check_if_directory(os.environ["TMP"])
+    except Exception:
+        pass
+
+    if isPlatformWindows:
+        try:
+            return __check_if_directory(os.path.join(os.environ["USERPROFILE"], "AppData", "Local", "Temp"))
+        except Exception:
+            pass
+
+        try:
+            return __check_if_directory("C:/Windows/Temp")
+        except Exception:
+            pass
+
+        return __check_if_directory("C:/Temp")
+    else:
+        return __check_if_directory("/tmp")
+
+
+# This will not change during a process.
+global_temp_directory = get_temporary_directory()
+
+
+# TODO: Consider using the module tempfile.
+class TmpFile:
+    """Creates and automatically delete, a file and possibly a dir."""
+    def __init__(self, prefix="tmp", suffix="tmp", subdir=None):
+        proc_pid = os.getpid()
+        curr_dir = global_temp_directory
+
+        if subdir:
+            custom_dir = "/%s.%d" % (subdir, proc_pid)
+            curr_dir += custom_dir
+            if not os.path.isdir(curr_dir):
+                os.mkdir(curr_dir)
+            else:
+                # TODO: Cleanup ??
+                pass
+            self.TmpDirToDel = curr_dir
+        else:
+            self.TmpDirToDel = None
+
+        if prefix is None or suffix is None:
+            self.Name = None
+            return
+
+        self.Name = "%s/%s.%d.%s" % (curr_dir, prefix, proc_pid, suffix)
+        DEBUG("tmp=%s", self.Name )
+
+    def DbgDelFil(self, fil_nam):
+        if True:
+            DEBUG("Deleting=%s", fil_nam)
+            os.remove(fil_nam)
+        else:
+            WARNING("NOT Deleting=%s", fil_nam)
+
+    def __del__(self):
+        try:
+            if self.Name:
+                self.DbgDelFil(self.Name)
+
+            # Extra check, not to remove everything.
+            if self.TmpDirToDel not in [None,"/",""]:
+                DEBUG("About to del %s", self.TmpDirToDel )
+                for root, dirs, files in os.walk(self.TmpDirToDel, topdown=False):
+                    for name in files:
+                        self.DbgDelFil(os.path.join(root, name))
+                    for name in dirs:
+                        os.rmdir(os.path.join(root, name))
+                        pass
+
+        except Exception as exc:
+            ERROR("__del__.Caught: %s. TmpDirToDel=%s Name=%s", str(exc), str(self.TmpDirToDel), str(self.Name))
+        return
 
