@@ -283,6 +283,7 @@ def ParseEntityUriWithHost(uri_with_mode, long_display=True, force_entity_ip_add
 
     else:
         entity_graphic_class = ""
+        # This specific keyword used when no class is specified and there is no object. Easy to spot.
         entity_id = "PLAINTEXTONLY"
         entity_label = _uri_to_title(uprs)
         # TODO: " " are replaced by "%20". Why ? So change back.
