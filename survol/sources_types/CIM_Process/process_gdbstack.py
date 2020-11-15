@@ -16,7 +16,7 @@ Usable = lib_util.UsableLinux
 
 # Runs a gdb command and returns the output with some cleanup.
 def RunGdbCommand(the_pid,command):
-	tmpGdb = lib_common.TmpFile("gdbstack","gdb")
+	tmpGdb = lib_util.TmpFile("gdbstack","gdb")
 	gdbFilNam = tmpGdb.Name
 
 	gdbFil = open(gdbFilNam,"w")
