@@ -34,7 +34,8 @@ predicate_ParentProcessId = rdflib.term.URIRef(survol_url + "ParentProcessId")
 
 associator_CIM_DirectoryContainsFile = rdflib.term.URIRef(survol_url + "CIM_DirectoryContainsFile")
 associator_CIM_ProcessExecutable = rdflib.term.URIRef(survol_url + "CIM_ProcessExecutable")
-################################################################################
+
+
 def add_ontology(graph):
     graph.add((class_CIM_Process, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
     graph.add((class_CIM_Process, rdflib.namespace.RDFS.label, rdflib.Literal("CIM_Process")))
@@ -72,10 +73,10 @@ def add_ontology(graph):
     graph.add((associator_CIM_ProcessExecutable, rdflib.namespace.RDFS.range, class_CIM_DataFile))
     graph.add((associator_CIM_ProcessExecutable, rdflib.namespace.RDFS.label, rdflib.Literal("CIM_ProcessExecutable")))
 
-################################################################################
 
 is_platform_windows = sys.platform.startswith("win32")
 is_platform_linux = sys.platform.startswith("linux")
+
 
 def equal_paths(path_a, path_b):
     # print("process_executable=", process_executable, "executable_path=", executable_path)
@@ -87,8 +88,9 @@ def equal_paths(path_a, path_b):
     else:
         raise Exception("Invalid platform")
 
-# For testing and debugging purpose.
+
 def is_usable_file(file_path):
+    """For testing and debugging purpose."""
     if os.path.isfile(file_path):
         return True
     if is_platform_linux:
@@ -96,11 +98,13 @@ def is_usable_file(file_path):
             return True
     return False
 
-# For debugging pujrpose.
+
 def current_function():
+    """For debugging purpose."""
     return sys._getframe(1).f_code.co_name
 
 ################################################################################
+
 
 class Sparql_CIM_Object(object):
     def __init__(self, class_name, key_variable, ontology_keys):
@@ -128,13 +132,15 @@ class Sparql_CIM_Object(object):
         kw = ".".join(kw_pairs_subset)
         return "Sparql_CIM_Object:" + self.m_class_name + ":" + self.m_variable + ":" + kw
 
-    # The role of this virtual function is to return a dictionary of pairs made of a variable,
-    # or a tuple of variables, and a list of its possible values, or a tuple of list of values.
-    # The caller uses these key-value paris to create variables context and recursively instantiate objects,
-    # by trying all combinations.
-    # If variables are grouped in tuples, it means that they are correlated: For example a file path and its node id,
-    # or a process id and its command line.
     def FetchAllVariables(self, graph, variables_context):
+        """
+        The role of this virtual function is to return a dictionary of pairs made of a variable,
+        or a tuple of variables, and a list of its possible values, or a tuple of list of values.
+        The caller uses these key-value paris to create variables context and recursively instantiate objects,
+        by trying all combinations.
+        If variables are grouped in tuples, it means that they are correlated: For example a file path and its node id,
+        or a process id and its command line.
+        """
         sys.stderr.write("FetchAllVariables not implemented\n")
         raise NotImplementedError(current_function())
 
@@ -170,13 +176,16 @@ class Sparql_CIM_Object(object):
 
 class Sparql_CIM_DataFile(Sparql_CIM_Object):
     def __init__(self, class_name, node):
-        # Same key "Name" for its base class CIM_Directory.
+        """ Same key "Name" for its base class CIM_Directory. """
         super(Sparql_CIM_DataFile, self).__init__(class_name, node, ["Name"])
 
-    # This returns the node of the filename which uniquely identifies the object. It uses the literal properties,
-    # or the variable properties if these variables have a value in the context.
-    # This returns None if it cannot be done.
     def CreateFileNodeFromProperties(self, variables_context):
+        """
+        This returns the node of the filename which uniquely identifies the object. It uses the literal properties,
+        or the variable properties if these variables have a value in the context.
+        This returns None if it cannot be done.
+        """
+
         #sys.stderr.write("Sparql_CIM_DataFile.CreateFileNodeFromProperties\n")
         if predicate_Name in self.m_properties:
             # The path name is enough to fully define a data file or a directory.
@@ -184,7 +193,6 @@ class Sparql_CIM_DataFile(Sparql_CIM_Object):
         else:
             sys.stderr.write("Sparql_CIM_DataFile QUIT: No Name\n")
             return None
-
 
     def FetchFromDirectory(self, variables_context, file_path, graph, returned_variables, node_uri_ref):
         check_returned_variables(returned_variables)
@@ -253,6 +261,7 @@ class Sparql_CIM_DataFile(Sparql_CIM_Object):
 
         check_returned_variables(returned_variables)
         return returned_variables
+
 
 class Sparql_CIM_Directory(Sparql_CIM_DataFile):
     def __init__(self, class_name, node):
@@ -393,9 +402,9 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
             property_definition_ParentProcessId()
         ]
 
-    # If no property is usable, this returns all objects.
-    # This can work only for some classes, if there are not too many objects.
     def GetAllObjects(self):
+        """If no property is usable, this returns all objects.
+        This can work only for some classes, if there are not too many objects."""
         sys.stderr.write("Sparql_CIM_Process.GetAllObjects: Getting all processes\n")
         result_list = []
 
@@ -404,10 +413,11 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
             for proc in psutil.process_iter()]
         return (predicate_Handle, predicate_ParentProcessId), list_values
 
-    # This returns key-value pairs defining objects.
-	# It returns all properties defined in the instance,
-	# not only the properties of the ontology.
     def GetListOfOntologyProperties(self, variables_context):
+        """
+        This returns key-value pairs defining objects.
+        It returns all properties defined in the instance,
+        not only the properties of the ontology."""
         sys.stderr.write("GetListOfOntologyProperties\n")
         for one_property in self.PropertyDefinition.g_properties:
             sys.stderr.write("    GetListOfOntologyProperties one_property=%s\n" % one_property.s_property_node)
@@ -437,8 +447,8 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
             graph.add((node_uri_ref, node_predicate, node_value))
         return node_uri_ref
 
-    # Given the process id, it creates the file representing the executable being run.
     def DefineExecutableFromProcess(self, variables_context, process_id, graph, returned_variables, node_uri_ref):
+        """Given the process id, it creates the file representing the executable being run."""
         sys.stderr.write("Sparql_CIM_Process.DefineExecutableFromProcess process_id=%d\n" % process_id)
         if associator_CIM_ProcessExecutable in self.m_associators:
             associated_instance = self.m_associators[associator_CIM_ProcessExecutable]
@@ -481,8 +491,8 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
                 check_returned_variables(returned_variables)
             graph.add((associated_instance_url, predicate_Name, executable_path_node))
 
-    # Given a file name, it returns all processes executing it.
     def GetProcessesFromExecutable(self, graph, variables_context):
+        """Given a file name, it returns all processes executing it."""
 
         #sys.stderr.write("Sparql_CIM_Process.GetProcessesFromExecutable executable=%s\n" % sys.executable)
         associated_instance = self.m_associators[associator_CIM_ProcessExecutable]
@@ -563,8 +573,13 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
                 prop_value = self.m_properties[one_property]
                 if isinstance(prop_value, rdflib.term.Variable) and prop_value not in variables_context:
                     properties_indices.append(index_property)
-        new_properties_tuple = tuple(self.m_properties[properties_tuple[index_property]] for index_property in properties_indices)
-        new_values_list = [tuple(value_tuple[index_property] for index_property in properties_indices) for value_tuple in url_nodes_list]
+        new_properties_tuple = tuple(
+            self.m_properties[properties_tuple[index_property]]
+            for index_property in properties_indices)
+        new_values_list = [
+            tuple(value_tuple[index_property]
+                  for index_property in properties_indices)
+            for value_tuple in url_nodes_list]
         if properties_indices:
             returned_variables[new_properties_tuple] = new_values_list
             check_returned_variables(returned_variables)
@@ -586,9 +601,10 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
         check_returned_variables(returned_variables)
         return returned_variables
 
+
 def CreateSparql_CIM_Object(class_name, the_subject):
     class_name_to_class = {
-        "CIM_DataFile":Sparql_CIM_DataFile,
+        "CIM_DataFile": Sparql_CIM_DataFile,
         "CIM_Directory": Sparql_CIM_Directory,
         "CIM_Process": Sparql_CIM_Process,
     }
@@ -613,10 +629,12 @@ def _wmi_load_ontology():
         assert _wmi_load_ontology.attributes_map
         wmiExecutor = lib_wmi.WmiSparqlExecutor()
 
+
 _wmi_load_ontology.classes_map = None
 _wmi_load_ontology.attributes_map = None
 
 wmiExecutor = None
+
 
 class Sparql_WMI_GenericObject(Sparql_CIM_Object):
     def __init__(self, class_name, node):
@@ -717,8 +735,8 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         check_returned_variables(returned_variables)
         return returned_variables
 
-    # This parses the Survol path to build WMI path which is very similar but not completely.
     def BuildWmiPathFromSurvolPath(self, variables_context):
+        " This parses the Survol path to build WMI path which is very similar but not completely."
         # survol_path = 'http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_Directory.Name=c:/a/b/c.txt'
         survol_path = variables_context[self.m_variable]
         _, _, shortened_path = survol_path.partition("?xid=")
@@ -884,12 +902,15 @@ def CreateSparql_CIM_Object_Wmi(class_name, the_subject):
 
 ################################################################################
 
-# This takes the list of triples extracted from the Sparql query,
-# and returns a list of instances of CIM classes, each of them
-# containing the triples using its instances. The association is
-# done based on the variable representing the instance.
-# There might be several instances of the same class.
+
 def part_triples_to_instances_dict_function(part, sparql_instance_creator):
+    """
+    This takes the list of triples extracted from the Sparql query,
+    and returns a list of instances of CIM classes, each of them
+    containing the triples using its instances. The association is
+    done based on the variable representing the instance.
+    There might be several instances of the same class.
+    """
     instances_dict = dict()
     sys.stderr.write("len(triples)=%d\n" % len(part.triples))
     for part_subject, part_predicate, part_object in part.triples:
@@ -931,10 +952,15 @@ def part_triples_to_instances_dict_function(part, sparql_instance_creator):
 
     return instances_dict
 
-# Debugging purpose only.
-# This checks the content of something similar to:
-# {(rdflib.term.Variable(u'url_execfile'),): [(rdflib.term.URIRef(u'http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=c:/windows/system32/urlmon.dll'),), (r...,)]}
+
 def check_returned_variables(returned_variables):
+    """
+    Debugging purpose only.
+    This checks the content of something similar to:
+    {
+        (rdflib.term.Variable(u'url_execfile'),):
+        [(rdflib.term.URIRef(u'http://myhost:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=c:/windows/system32/urlmon.dll'),), (r...,)]}
+    """
     assert isinstance(returned_variables, dict)
     for first_key, values_list in returned_variables.items():
         assert isinstance(values_list, list)
@@ -946,12 +972,15 @@ def check_returned_variables(returned_variables):
             for one_value in one_value_tuple:
                 assert isinstance(one_value, (rdflib.term.Literal, rdflib.term.URIRef))
 
-# The input is a set of {variable: list-of-values.
-# It returns a set of {variable: value}, which is the set of combinations
-# of all possible values for each variable.
-# A variable can also be a tuple of rdflib variables.
-# In this case, the values must also be tuples.
-def product_variables_lists(returned_variables, iter_keys = None):
+
+def product_variables_lists(returned_variables, iter_keys=None):
+    """
+    The input is a set of {variable: list-of-values.
+    It returns a set of {variable: value}, which is the set of combinations
+    of all possible values for each variable.
+    A variable can also be a tuple of rdflib variables.
+    In this case, the values must also be tuples.
+    """
     check_returned_variables(returned_variables)
     try:
         if not iter_keys:
@@ -995,8 +1024,9 @@ def product_variables_lists(returned_variables, iter_keys = None):
     except StopIteration:
         yield {}
 
-# An instance which is completely known and can be used as a starting point.
+
 def findable_instance_key(instances_dict):
+    """An instance which is completely known and can be used as a starting point."""
     sys.stderr.write("findable_instance_key\n")
     for instance_key, one_instance in instances_dict.items():
         one_instance.CalculateVariablesNumber()
@@ -1018,8 +1048,10 @@ def findable_instance_key(instances_dict):
     for instance_key, one_instance in instances_dict.items():
         return instance_key
 
-# Exploration of the graph, starting by the ones which can be calculated without inference.
+
 def visit_all_nodes(instances_dict):
+    """ Exploration of the graph, starting by the ones which can be calculated without inference."""
+
     # Find a string point to walk the entire graph.
     start_instance_key = findable_instance_key(instances_dict)
     start_instance = instances_dict[start_instance_key]
@@ -1079,15 +1111,18 @@ def visit_all_nodes(instances_dict):
 def custom_eval_function(ctx, part):
     return custom_eval_function_generic(ctx, part, CreateSparql_CIM_Object)
 
+
 def custom_eval_function_wmi(ctx, part):
     return custom_eval_function_generic(ctx, part, CreateSparql_CIM_Object_Wmi)
+
 
 def custom_eval_function_wbem(ctx, part):
     return custom_eval_function_generic(ctx, part, None)
 
 
-# Inspired from https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html
 def custom_eval_function_generic(ctx, part, sparql_instance_creator):
+    """Inspired from https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html """
+
     # part.name = "SelectQuery", "Project", "BGP"
     if part.name == 'BGP':
         add_ontology(ctx.graph)
