@@ -10,50 +10,50 @@ import lib_util
 from lib_properties import pc
 from sources_types import LMI_Account as survol_user
 
+
 # TODO: https://docs.python.org/2/library/pwd.html might be simpler.
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.CgiEnv()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
+    users_dict = survol_user.LoadEtcPasswd()
 
+    # User name
+    # Information used to validate a user's password; in most modern uses.
+    # user identifier number.
+    # group identifier number.
+    # Gecos field, commentary that describes the person or account.
+    # Path to the user's home directory.
+    # Program that is started every time the user logs into the system.
+    #
+    # polkituser:x:17:17:system user for policykit:/:/sbin/nologin
+    # puppet:x:103:106:Puppet configuration management daemon,,,:/var/lib/puppet:/bin/false
+    for user_nam, split_lin in users_dict.items():
+        user_node = lib_common.gUriGen.UserUri(user_nam)
+        comment = split_lin[4]
+        # Sometimes the comment equals the user, so nothing to mention.
+        if comment != "" and comment != user_nam:
+            grph.add((user_node, pc.property_information, lib_util.NodeLiteral(comment)))
+        home_path = split_lin[5]
+        if home_path:
+            if home_path == "/nonexistent":
+                grph.add((user_node, pc.property_information, lib_util.NodeLiteral(home_path)))
+            else:
+                home_node = lib_common.gUriGen.DirectoryUri(home_path)
+                grph.add((user_node, pc.property_information, home_node))
+        exec_name = split_lin[6].strip()
+        if exec_name:
+            if exec_name == "/bin/false":
+                grph.add((user_node, pc.property_information, lib_util.NodeLiteral(exec_name)))
+            else:
+                exec_node = lib_common.gUriGen.FileUri(exec_name)
+                grph.add((user_node, pc.property_information, exec_node))
 
-	usersList = survol_user.LoadEtcPasswd()
+    cgiEnv.OutCgiRdf()
 
-	# User name
-	# Information used to validate a user's password; in most modern uses.
-	# user identifier number.
-	# group identifier number.
-	# Gecos field, commentary that describes the person or account.
-	# Path to the user's home directory.
-	# Program that is started every time the user logs into the system.
-	#
-	# polkituser:x:17:17:system user for policykit:/:/sbin/nologin
-	# puppet:x:103:106:Puppet configuration management daemon,,,:/var/lib/puppet:/bin/false
-	for userNam, splitLin in list( usersList.items() ):
-		userNode = lib_common.gUriGen.UserUri( userNam )
-		comment = splitLin[4]
-		# Sometimes the comment equals the user, so nothing to mention.
-		if comment != "" and comment != userNam:
-			grph.add( ( userNode, pc.property_information, lib_util.NodeLiteral( comment ) ) )
-		homePath = splitLin[5]
-		if homePath:
-			if homePath == "/nonexistent":
-				grph.add( ( userNode, pc.property_information, lib_util.NodeLiteral(homePath) ) )
-			else:
-				homeNode = lib_common.gUriGen.DirectoryUri( homePath )
-				grph.add( ( userNode, pc.property_information, homeNode ) )
-		execName = splitLin[6].strip()
-		if execName:
-			if execName == "/bin/false":
-				grph.add( ( userNode, pc.property_information, lib_util.NodeLiteral(execName) ) )
-			else:
-				execNode = lib_common.gUriGen.FileUri( execName )
-				grph.add( ( userNode, pc.property_information, execNode ) )
-
-	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
-	Main()
+    Main()
 
 
