@@ -31,6 +31,7 @@ import lib_exports
 import lib_export_ontology
 import lib_export_dot
 import lib_export_html
+import lib_export_json
 import lib_daemon
 import lib_command_line
 
@@ -63,14 +64,6 @@ def is_useless_process(proc):
 ################################################################################
 
 
-################################################################################
-
-
-
-
-################################################################################
-
-
 # The result can be sent to the Web browser in several formats.
 # TODO: The nodes should be displayed always in the same order.
 # THIS IS NOT THE CASE IN HTML AND SVG !!
@@ -89,9 +82,9 @@ def OutCgiMode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
         # Used rarely and performance not very important. This returns a HTML page.
         lib_export_html.Grph2Html(theCgi, top_url, error_msg, is_sub_server, globalCgiEnvList)
     elif mode == "json":
-        lib_exports.Grph2Json(page_title, error_msg, is_sub_server, parameters, grph)
+        lib_export_json.Grph2Json(page_title, error_msg, is_sub_server, parameters, grph)
     elif mode == "menu":
-        lib_exports.Grph2Menu(page_title, error_msg, is_sub_server, parameters, grph)
+        lib_export_json.Grph2Menu(page_title, error_msg, is_sub_server, parameters, grph)
     elif mode == "rdf":
         lib_export_ontology.Grph2Rdf(grph)
     elif mode == "daemon":
@@ -776,7 +769,7 @@ def ErrorMessageHtml(message):
             sys.stderr.write("ErrorMessageHtml request_uri=%s url_mode=%s\n" % (request_uri, url_mode))
             if url_mode == "json":
                 # If we are in Json mode, this returns a special json document with the error message.
-                lib_exports.WriteJsonError(message)
+                lib_export_json.WriteJsonError(message)
                 sys.exit(0)
             if url_mode == "rdf":
                 # If we are in Json mode, this returns a special RDF document with the error message.
