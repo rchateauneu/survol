@@ -36,6 +36,7 @@ import lib_command_line
 
 from lib_util import NodeUrl
 from lib_util import TimeStamp
+from lib_util import TmpFile
 
 # Functions for creating uris are imported in the global namespace.
 from lib_uris import *
@@ -156,7 +157,7 @@ def copy_to_output_destination(logfil, svg_out_filnam, out_dest):
 # Also, creating an intermediary files helps debugging.
 def _dot_to_svg(dot_filnam_after, logfil, viztype, out_dest):
     DEBUG("viztype=%s",viztype)
-    tmp_svg_fil = TmpFile("_dot_to_svg", "svg")
+    tmp_svg_fil = lib_util.TmpFile("_dot_to_svg", "svg")
     svg_out_filnam = tmp_svg_fil.Name
     # dot -Kneato
 
@@ -212,7 +213,7 @@ def _graph_to_svg(
         layout_style, collapsed_properties, commutative_properties):
     """This transforms a RDF triplestore into a temporary DOT file, which is
     transformed by GraphViz into a SVG file sent to the HTTP browser. """
-    tmp_log_fil = TmpFile("_graph_to_svg", "log")
+    tmp_log_fil = lib_util.TmpFile("_graph_to_svg", "log")
     try:
         logfil = open(tmp_log_fil.Name, "w")
     except Exception as exc:
@@ -221,7 +222,7 @@ def _graph_to_svg(
 
     logfil.write("Starting logging\n")
 
-    tmp_dot_fil = TmpFile("Grph2Dot", "dot")
+    tmp_dot_fil = lib_util.TmpFile("Grph2Dot", "dot")
     dot_filnam_after = tmp_dot_fil.Name
     rdfoutfil = open(dot_filnam_after, "w")
     logfil.write(TimeStamp() + " Created " + dot_filnam_after + "\n")
@@ -1006,112 +1007,6 @@ def SubProcCall(command):
     return ret
 
 ################################################################################
-
-
-def __check_if_directory(the_dir):
-    if os.path.isdir(the_dir):
-        return lib_util.standardized_file_path(the_dir)
-    raise Exception("Not a dir:" + the_dir)
-
-
-def get_temporary_directory():
-    """The temp directory as specified by the operating system."""
-
-    # TODO: The user "apache" used by httpd cannot write, on some Linux distributions, to the directory "/tmp"
-    # https://blog.lysender.com/2015/07/centos-7-selinux-php-apache-cannot-writeaccess-file-no-matter-what/
-    # This is a temporary fix. Maybe related to SELinux.
-    try:
-        if lib_util.isPlatformLinux:
-            # 'SERVER_SOFTWARE': 'Apache/2.4.29 (Fedora)'
-            if os.environ["SERVER_SOFTWARE"].startswith("Apache/"):
-                # 'HTTP_HOST': 'vps516494.ovh.net'
-                if os.environ["HTTP_HOST"].startswith("vps516494."):
-                    return "/home/rchateau/tmp_apache"
-    except:
-        pass
-
-    try:
-        # Maybe these environment variables are undefined for Apache user.
-        return __check_if_directory(os.environ["TEMP"])
-    except Exception:
-        pass
-
-    try:
-        return __check_if_directory(os.environ["TMP"])
-    except Exception:
-        pass
-
-    if lib_util.isPlatformWindows:
-        try:
-            return __check_if_directory(os.path.join(os.environ["USERPROFILE"], "AppData", "Local", "Temp"))
-        except Exception:
-            pass
-
-        try:
-            return __check_if_directory("C:/Windows/Temp")
-        except Exception:
-            pass
-
-        return __check_if_directory("C:/Temp")
-    else:
-        return __check_if_directory("/tmp")
-
-
-# This will not change during a process.
-global_temp_directory = get_temporary_directory()
-
-
-# Creates and automatically delete, a file and possibly a dir.
-# TODO: Consider using the module tempfile.
-class TmpFile:
-    def __init__(self, prefix="tmp", suffix="tmp", subdir=None):
-        proc_pid = os.getpid()
-        curr_dir = global_temp_directory
-
-        if subdir:
-            custom_dir = "/%s.%d" % (subdir, proc_pid)
-            curr_dir += custom_dir
-            if not os.path.isdir(curr_dir):
-                os.mkdir(curr_dir)
-            else:
-                # TODO: Cleanup ??
-                pass
-            self.TmpDirToDel = curr_dir
-        else:
-            self.TmpDirToDel = None
-
-        if prefix is None or suffix is None:
-            self.Name = None
-            return
-
-        self.Name = "%s/%s.%d.%s" % (curr_dir, prefix, proc_pid, suffix)
-        DEBUG("tmp=%s", self.Name )
-
-    def DbgDelFil(self, fil_nam):
-        if True:
-            DEBUG("Deleting=%s", fil_nam)
-            os.remove(fil_nam)
-        else:
-            WARNING("NOT Deleting=%s", fil_nam)
-
-    def __del__(self):
-        try:
-            if self.Name:
-                self.DbgDelFil(self.Name)
-
-            # Extra check, not to remove everything.
-            if self.TmpDirToDel not in [None,"/",""]:
-                DEBUG("About to del %s", self.TmpDirToDel )
-                for root, dirs, files in os.walk(self.TmpDirToDel, topdown=False):
-                    for name in files:
-                        self.DbgDelFil(os.path.join(root, name))
-                    for name in dirs:
-                        os.rmdir(os.path.join(root, name))
-                        pass
-
-        except Exception as exc:
-            ERROR("__del__.Caught: %s. TmpDirToDel=%s Name=%s", str(exc), str(self.TmpDirToDel), str(self.Name))
-        return
 
 
 ################################################################################
