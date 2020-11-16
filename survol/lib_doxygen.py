@@ -7,7 +7,7 @@ from lib_properties import pc
 import xml.etree.cElementTree
 
 
-_file_extensions_dox = [
+file_extensions_dox = [
     "c", "cc", "cxx", "cpp", "c++", "java",
     "ii", "ixx", "ipp", "i++", "inl", "idl", "ddl", "odl",
     "h", "hh", "hxx", "hpp", "h++", "cs", "d", "php",
@@ -29,7 +29,7 @@ def Usable(entity_type, entity_ids_arr):
     filename, file_extension = os.path.splitext(path_nam)
     file_ext = file_extension[1:].lower()
 
-    return file_ext in _file_extensions_dox
+    return file_ext in file_extensions_dox
 
 
 def _generate_to_output_dir(out_dir):
@@ -416,7 +416,7 @@ DOT_CLEANUP            = YES
 
 def _run_doxy(doxyOUTPUT_DIRECTORY, doxyINPUT, doxyRECURSIVE):
 
-    doxyFILE_PATTERNS = " ".join("*.%s" % fil_ext for fil_ext in _file_extensions_dox)
+    doxyFILE_PATTERNS = " ".join("*.%s" % fil_ext for fil_ext in file_extensions_dox)
 
     # TODO: Create a tmp dir just for this purpose.
     fil_co = _my_doxyfile % (doxyOUTPUT_DIRECTORY, doxyINPUT, doxyFILE_PATTERNS, doxyRECURSIVE)

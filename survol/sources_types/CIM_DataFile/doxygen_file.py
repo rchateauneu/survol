@@ -11,50 +11,41 @@ import lib_util
 from lib_properties import pc
 import lib_doxygen
 
-doxygenExtensions = [
-	".c",".cc",".cxx",".cpp",".c++",".java",".ii",".ixx",".ipp",".i++",
-	".inl",".idl",".ddl",".odl",
-	".h",".hh",".hxx",".hpp",".h++",
-	".cs",".d",".php",".php4",".php5",".phtml",".inc",
-	".m",".markdown",".md",".mm",".dox",
-	".py",".pyw",
-	".f90",".f",".for",
-	".tcl",".vhd",".vhdl",".ucf",".qsf",".as",".js"
-]
 
 def Usable(entity_type,entity_ids_arr):
-	"""Not a source file"""
-	filNam = entity_ids_arr[0]
-	filExt = os.path.splitext(filNam)[1]
-	if filExt.lower() in doxygenExtensions:
-		return True
+    """Not a source file"""
+    fil_nam = entity_ids_arr[0]
+    fil_ext = os.path.splitext(fil_nam)[1]
+    if fil_ext.lower() in lib_doxygen.file_extensions_dox:
+        return True
 
-	return os.path.isdir(filNam)
+    return os.path.isdir(fil_nam)
+
 
 def Main():
-	paramkeyRecursive = "Recursive exploration"
-	paramkeyExplodeClasses = "Explode classes members"
+    paramkey_recursive = "Recursive exploration"
+    paramkey_explode_classes = "Explode classes members"
 
-	cgiEnv = lib_common.CgiEnv(
-		parameters = { paramkeyRecursive : False, paramkeyExplodeClasses : False })
+    cgiEnv = lib_common.CgiEnv(
+        parameters={paramkey_recursive: False, paramkey_explode_classes: False})
 
-	paramExplodeClasses = int(cgiEnv.get_parameters( paramkeyExplodeClasses ))
+    param_explode_classes = int(cgiEnv.get_parameters(paramkey_explode_classes))
 
-	fileParam = cgiEnv.GetId()
+    file_param = cgiEnv.GetId()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	objectsByLocation = lib_doxygen.DoxygenMain(False,fileParam)
+    objects_by_location = lib_doxygen.DoxygenMain(False, file_param)
 
-	directoryName = os.path.dirname(fileParam)
-	rootNode = lib_common.gUriGen.FileUri( fileParam )
+    directory_name = os.path.dirname(file_param)
+    root_node = lib_common.gUriGen.FileUri(file_param)
 
-	lib_doxygen.CreateObjs(grph,rootNode,directoryName,objectsByLocation,paramExplodeClasses)
+    lib_doxygen.CreateObjs(grph, root_node, directory_name, objects_by_location, param_explode_classes)
 
-	# TODO: THE GENERATED GRAPH SHOULD BE MORE SIMILAR TO DOXYGEN'S.
+    # TODO: THE GENERATED GRAPH SHOULD BE MORE SIMILAR TO DOXYGEN'S.
 
-	cgiEnv.OutCgiRdf("LAYOUT_RECT",[ pc.property_symbol_defined, pc.property_member ] )
+    cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_symbol_defined, pc.property_member])
 
 
 if __name__ == '__main__':
-	Main()
+    Main()
