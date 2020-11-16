@@ -13,33 +13,23 @@ from lib_properties import pc
 
 # Similar to enumerate_user.py.
 
+
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.CgiEnv()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	# [suser(name='Remi', terminal=None, host='0.246.33.0', started=1411052436.0)]
+    # [suser(name='John', terminal=None, host='0.246.33.0', started=1411052436.0)]
+    users_list = psutil.users()
 
-	try:
-		# Windows XP, Python 3.
-		try:
-			# Windows XP, Python 3.4.
-			users_list = psutil.users()
-		except AttributeError:
-			# Linux and Python 2.5
-			# Windows 7, Python 3.2 : mais c'est la version de psutil qui compte.
-			users_list = psutil.get_users()
-	except AttributeError:
-		# AttributeError: 'module' object has no attribute 'users'
-		lib_common.ErrorMessageHtml("Function users() not available")
+    for user in users_list:
+        usr_nam = lib_common.format_username(user.name)
+        user_node = lib_common.gUriGen.UserUri(usr_nam)
 
-	for user in users_list:
-		usrNam = lib_common.format_username( user.name )
-		userNode = lib_common.gUriGen.UserUri( usrNam )
+        grph.add((lib_common.nodeMachine, pc.property_user, user_node))
 
-		grph.add( ( lib_common.nodeMachine, pc.property_user, userNode ) )
+    cgiEnv.OutCgiRdf()
 
-	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
-	Main()
+    Main()
