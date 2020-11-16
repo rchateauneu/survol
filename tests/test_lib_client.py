@@ -2521,7 +2521,7 @@ class SurvolSearchTest(unittest.TestCase):
             filter_instances=None,
             filter_predicates=None)
         list_triple = list(search_triple_store)
-        print("stl_list=",list_triple)
+        print("stl_list=", list_triple)
         for tpl in list_triple:
             # One occurrence is enough for this test.
             print(tpl)
