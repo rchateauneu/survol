@@ -7,8 +7,7 @@ import six
 import sys
 import json
 import heapq
-import urllib
-import traceback
+import rdflib
 
 import lib_util
 import lib_kbase
@@ -278,58 +277,58 @@ class SourceLocal (SourceCgi):
 
 
 class SourceMerge (SourceBase):
-    def __init__(self,srcA,srcB,operatorTripleStore):
-        if not srcA.is_cgi_complete():
+    def __init__(self, src_a, src_b, operator_triple_store):
+        if not src_a.is_cgi_complete():
             raise Exception("Left-hand-side URL must be complete")
-        self.m_srcA = srcA
-        self.m_srcB = srcB
+        self.m_srcA = src_a
+        self.m_srcB = src_b
         # Plus or minus
-        self.m_operatorTripleStore = operatorTripleStore
+        self.m_operatorTripleStore = operator_triple_store
         super(SourceMerge, self).__init__()
 
     def get_triplestore(self):
-        triplestoreA = self.m_srcA.get_triplestore()
+        triplestore_a = self.m_srcA.get_triplestore()
         if self.is_cgi_complete():
-            triplestoreB = self.m_srcB.get_triplestore()
+            triplestore_b = self.m_srcB.get_triplestore()
 
-            return self.m_operatorTripleStore(triplestoreA,triplestoreB)
+            return self.m_operatorTripleStore(triplestore_a, triplestore_b)
 
         else:
             # TODO: Was it ever used ?
             # The class cannot be None because the url is not complete
 
-            objsList = triplestoreA.enumerate_urls()
+            objs_list = triplestore_a.enumerate_urls()
 
             # TODO: Not optimal because it processes not only instances urls but also scripts urls.
-            for instanceUrl in objsList:
-                entity_label, entity_graphic_class, entity_id = lib_naming.ParseEntityUri(instanceUrl)
+            for instance_url in objs_list:
+                entity_label, entity_graphic_class, entity_id = lib_naming.ParseEntityUri(instance_url)
                 if entity_label == self.m_srcB.m_class:
-                    urlDerived = url_to_instance(instanceUrl)
-                    triplestoreB = urlDerived.get_triplestore()
-                    triplestoreA = self.m_operatorTripleStore(triplestoreA,triplestoreB)
-            return TripleStore(triplestoreA)
+                    url_derived = url_to_instance(instance_url)
+                    triplestore_b = url_derived.get_triplestore()
+                    triplestore_a = self.m_operatorTripleStore(triplestore_a,triplestore_b)
+            return TripleStore(triplestore_a)
 
     def get_content_moded(self,mode):
         tripstore = self.get_triplestore()
         if mode == "rdf":
-            strStrm = create_string_stream()
-            tripstore.to_stream_xml(strStrm)
-            strResult = strStrm.getvalue()
-            strStrm.close()
-            assert isinstance(strResult, six.binary_type)
-            return strResult
+            str_strm = create_string_stream()
+            tripstore.to_stream_xml(str_strm)
+            str_result = str_strm.getvalue()
+            str_strm.close()
+            assert isinstance(str_result, six.binary_type)
+            return str_result
 
         raise Exception("get_content_moded: Cannot yet convert to %s"%mode)
 
 
 class SourceMergePlus (SourceMerge):
-    def __init__(self,srcA,srcB):
-        super(SourceMergePlus, self).__init__(srcA,srcB,TripleStore.__add__)
+    def __init__(self, src_a, src_b):
+        super(SourceMergePlus, self).__init__(src_a, src_b, TripleStore.__add__)
 
 
 class SourceMergeMinus (SourceMerge):
-    def __init__(self,srcA,srcB):
-        super(SourceMergeMinus, self).__init__(srcA,srcB,TripleStore.__sub__)
+    def __init__(self, src_a, src_b):
+        super(SourceMergeMinus, self).__init__(src_a, src_b, TripleStore.__sub__)
 
 ################################################################################
 
@@ -341,14 +340,16 @@ class SourceMergeMinus (SourceMerge):
 #        return SourceLocal(script,className,**kwargsOntology)
 ################################################################################
 
+
 # http://LOCALHOST:80
 # http://rchateau-hp:8000
-def agent_to_host(agentUrl):
-    parsed_url = lib_util.survol_urlparse(agentUrl)
-    DEBUG("agent_to_host %s => %s",agentUrl,parsed_url.hostname)
+def agent_to_host(agent_url):
+    parsed_url = lib_util.survol_urlparse(agent_url)
+    DEBUG("agent_to_host %s => %s", agent_url, parsed_url.hostname)
     return parsed_url.hostname
 
 # https://stackoverflow.com/questions/15247075/how-can-i-dynamically-create-derived-classes-from-a-base-class
+
 
 class BaseCIMClass(object):
     def __init__(self, agent_url, entity_id, kwargs_ontology):
@@ -471,23 +472,26 @@ class BaseCIMClass(object):
 
         return bag_of_words
 
-    # This returns an iterator.
-    # TODO: This will be able to return elements being calculated by sub-processes.
-    # TODO: Filter with something similar to SparQL ??
-    # Test cases:
-    # - Look for a specific string to understand where it comes from,
-    #   its path. For example, where does an error message comes from ?
-    #   or a malformed string ?
-    #   Long-term goal: Actively wait after several processes, files, queues,
-    #   looking for the same string, and see it appear from several sources,
-    #    in the order it is processed.
-    # - Does an object X depends on and object Y: If an executable binary depends
-    #   on a configuration file ?
-    #
-    # Searching for an instance is very similar as long as it has a bag of words.
-    #
     def find_string_from_neighbour(self, search_string, max_depth, filter_instances, filter_predicates):
+        """
+        This returns an iterator.
+        Test cases:
+        - Look for a specific string to understand where it comes from,
+          its path. For example, where does an error message comes from ?
+          or a malformed string ?
+          Long-term goal: Actively wait after several processes, files, queues,
+          looking for the same string, and see it appear from several sources,
+           in the order it is processed.
+        - Does an object X depends on and object Y: If an executable binary depends
+          on a configuration file ?
+        Searching for an instance is very similar as long as it has a bag of words.
+
+        """
+
         # Heuristics and specialization per class.
+
+        # TODO: This will be able to return elements being calculated by sub-processes.
+        # TODO: Filter with something similar to SparQL ??
 
         # TODO: This is very raw...
         target_bag_of_words = set(search_string)
@@ -512,7 +516,7 @@ class BaseCIMClass(object):
                 self.m_words_bag = words_bag
                 self.m_estimation_to_target = bag_of_words_to_estimated_distance(words_bag, target_bag_of_words)
 
-            def __lt__(self, otherInstance):
+            def __lt__(self, other_instance):
                 """This is for the heap priority queue when walking on the triplestores graph.
 
                 Each node is associated to a bag of words containing keywords related
@@ -526,7 +530,7 @@ class BaseCIMClass(object):
                 possibly using Levenshtein distance for similar strings.
                 The next explored node is the closest of the target.
                 """
-                return self.m_estimation_to_target < otherInstance.m_estimation_to_target
+                return self.m_estimation_to_target < other_instance.m_estimation_to_target
 
             def __str__(self):
                 return "%s (Est=%d, depth=%d)" % (
@@ -545,7 +549,6 @@ class BaseCIMClass(object):
         # where n is the next node on the path, g(n) is the cost of the path from the start node to n,
         # and h(n) is a heuristic function that estimates the cost of the cheapest path from n to the goal.
         def fill_heap_with_instance_scripts(node_instance, curr_distance, curr_depth):
-            global heapq
             lst_scripts = node_instance.get_scripts()
             instance_bag_of_words = node_instance.get_instance_bag_of_words()
 
@@ -877,10 +880,6 @@ class TripleStore:
             if predicate_name == associator_key_name:
                 # class_object = source_object
                 object_instance = url_to_instance(source_object)
-                #if predicate_name.find("ppid") >= 0:
-                #    WARNING("filter_objects_with_predicate_class OKOKOKOK s=%s p=%s o=%s", str(source_subject), str(source_predicate), str(source_object))
-                #    WARNING("filter_objects_with_predicate_class object_instance=%s", dir(object_instance) )
-                #    WARNING("filter_objects_with_predicate_class object_instance.__class__.__name__=%s", object_instance.__class__.__name__)
                 if object_instance.__class__.__name__ == result_class_name:
                     dict_objects[source_object] = object_instance
 
@@ -892,16 +891,15 @@ class TripleStore:
             if source_subject in dict_objects:
                 predicate_name = lib_properties.PropToQName(source_predicate)
                 object_value = str(source_object)
-                #WARNING("TripleStore.ObjectFromPredicate predicate_name=%s object_value=%s", predicate_name, object_value)
                 dict_objects[source_subject].m_key_value_pairs[predicate_name] = object_value
 
         for dict_objects, object_instance in dict_objects.items():
             node_path = str(dict_objects)
-            #WARNING("TripleStore.ObjectFromPredicate node_path=%s", node_path)
             # The keys of the key-value dictionary must be nodes, not string,
             # for example: rdflib.term.URIRef(u'http://primhillcomputers.com/survol#runs')
             dict_nodes_keys_values = {
-                lib_properties.MakeProp(dict_key): dict_value for dict_key, dict_value in object_instance.m_key_value_pairs.items() }
+                lib_properties.MakeProp(dict_key): dict_value
+                for dict_key, dict_value in object_instance.m_key_value_pairs.items()}
             yield (node_path, dict_nodes_keys_values)
 
     def copy_to_graph(self, grph):
@@ -961,21 +959,15 @@ class Agent:
 
         class CallDispatcher(object):
             def __init__(self, caller, agent_url, name):
-                #sys.stdout.write("CallDispatcher.__init__ agent=%s name=%s\n"%(str(type(agent_url)),name))
-                #sys.stdout.flush()
                 self.m_name = name
                 self.m_caller = caller
                 self.m_agent_url = agent_url
 
             def __call__(self, *argsCall, **kwargsCall):
-                #sys.stdout.write("CallDispatcher.__call__ class=%s url=%s\n"%(self.m_name,str(type(self.m_agent_url))))
-                #sys.stdout.flush()
                 newInstance = create_CIM_class(self.m_agent_url, self.m_name, **kwargsCall)
                 return newInstance
 
             def __getattr__(self, attribute_name):
-                #sys.stdout.write("CallDispatcher.__getattr__ attr=%s\n"%(str(attribute_name)))
-                #sys.stdout.flush()
                 return CallDispatcher(self, self.m_agent_url, self.m_name + "/" + attribute_name)
 
         #sys.stdout.write("Agent.__getattr__ attr=%s\n"%(str(attribute_name)))
@@ -1001,8 +993,6 @@ class Agent:
 def check_ontology_graph(ontology_key, survol_agent=None):
     """This checks that a full ontology contains a minimal subset of classes and attributes.
     This is for testing purpose only."""
-
-    import rdflib
 
     url_script = {
             "survol": "ontologies/Survol_RDFS.py",
