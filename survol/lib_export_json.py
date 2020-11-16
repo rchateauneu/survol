@@ -2,16 +2,11 @@ import lib_kbase
 import lib_patterns
 import lib_naming
 import lib_util
-import lib_properties
 from lib_properties import pc
 import sys
 import six
-import time
-import cgi
-import re
 import os
 import json
-import socket
 import lib_exports
 
 _node_json_number = 0
