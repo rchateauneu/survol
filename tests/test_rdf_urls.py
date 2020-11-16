@@ -19,7 +19,7 @@ from init import *
 
 _current_machine = socket.gethostname()
 
-def _check_script_rdf(self, agent_url, script_suffix):
+def _check_script_rdf(agent_url, script_suffix):
     """This runs a URL and returns the result as a rdflib graph"""
     full_url = agent_url + script_suffix
     if full_url.find("?") >= 0:
@@ -31,6 +31,7 @@ def _check_script_rdf(self, agent_url, script_suffix):
     rdf_url_response = portable_urlopen(full_url, timeout=30)
     rdf_content = rdf_url_response.read()  # Py3:bytes, Py2:str
     result_graph = rdflib.Graph().parse(data=rdf_content, format="application/rdf+xml")
+
     return result_graph
 
 
@@ -48,7 +49,7 @@ class RdfLocalAgentTest(unittest.TestCase):
         stop_cgiserver(self._remote_rdf_test_agent)
 
     def _check_script(self, script_suffix):
-        return _check_script_rdf(self, self._agent_url, script_suffix)
+        return _check_script_rdf(self._agent_url, script_suffix)
 
     @unittest.skipIf(not is_platform_windows, "Windows only")
     def test_rdf_SMB_net_share(self):
@@ -324,7 +325,7 @@ class CIM_ComputerSystem_Win32Test(unittest.TestCase):
         stop_cgiserver(self._remote_rdf_test_agent)
 
     def _check_script(self, script_suffix):
-        return _check_script_rdf(self, self._agent_url, script_suffix)
+        return _check_script_rdf(self._agent_url, script_suffix)
 
     def test_win32_NetSessionEnum(self):
         """Test of win32_NetSessionEnum.py"""
@@ -391,7 +392,7 @@ class CIM_ComputerSystem_JavaTest(unittest.TestCase):
         stop_cgiserver(self._remote_rdf_test_agent)
 
     def _check_script(self, script_suffix):
-        return _check_script_rdf(self, self._agent_url, script_suffix)
+        return _check_script_rdf(self._agent_url, script_suffix)
 
     @unittest.skipIf(not pkgutil.find_loader('jpype'), "jpype must be installed.")
     def test_rmi_registry(self):
@@ -414,7 +415,7 @@ class OntologiesTest(unittest.TestCase):
         stop_cgiserver(self._remote_rdf_test_agent)
 
     def _check_script(self, script_suffix):
-        return _check_script_rdf(self, self._agent_url, script_suffix)
+        return _check_script_rdf(self._agent_url, script_suffix)
 
     def test_ontology_survol(self):
         """Test of Survol_RDFS.py"""
@@ -452,7 +453,7 @@ class NmapTest(unittest.TestCase):
         stop_cgiserver(self._remote_rdf_test_agent)
 
     def _check_script(self, script_suffix):
-        return _check_script_rdf(self, self._agent_url, script_suffix)
+        return _check_script_rdf(self._agent_url, script_suffix)
 
     def test_nmap_broadcast_upnp_info(self):
         """Test of nmap_broadcast_upnp_info.py"""
@@ -491,12 +492,36 @@ class NmapTest(unittest.TestCase):
         print("nmap_broadcast_upnp_info_result=", nmap_broadcast_upnp_info_result)
 
 
+@unittest.skipIf(not check_program_exists("doxygen"), "doxygen must be installed.")
+class DOxygenTest(unittest.TestCase):
+    def setUp(self):
+        self._remote_rdf_test_agent, self._agent_url = start_cgiserver(RemoteRdf0TestServerPort)
+        print("AgentUrl=", self._agent_url)
 
-# sources_types/nmap/nmap_broadcast_ms_sql_discover.py
-# sources_types\nmap\nmap_ping_scan.py"
-# sources_types\nmap\nmap_run.py"
-# sources_types\nmap\nmap_broadcast_ms_sql_discover.py"
-# sources_types\nmap\nmap_broadcast_netbios_master_browser.py"
+    def tearDown(self):
+        stop_cgiserver(self._remote_rdf_test_agent)
+
+    def _check_doxygen_script(self, script_suffix):
+        return _check_script_rdf(self._agent_url, script_suffix)
+
+    def test_doxygen_dir(self):
+        """Test of doxygen_dir.py"""
+        test_dir_path = os.path.join(
+            os.path.dirname(__file__),
+            "SampleDirScripts")
+        doxygen_dir_result = self._check_doxygen_script(
+            "/survol/sources_types/CIM_Directory/doxygen_dir.py?xid=CIM_Directory.Name=%s" % test_dir_path)
+        print("doxygen_dir_result=", doxygen_dir_result)
+
+    def test_doxygen_file(self):
+        """Test of doxygen_file.py"""
+        test_file_path = os.path.join(
+            os.path.dirname(__file__),
+            "SampleDirScripts",
+            "SamplePythonFile.py")
+        doxygen_file_result = self._check_doxygen_script(
+            "/survol/sources_types/CIM_Datafile/doxygen_file.py?xid=CIM_Datafile.Name=%s" % test_file_path)
+        print("doxygen_file_result=", doxygen_file_result)
 
 
 if __name__ == '__main__':
