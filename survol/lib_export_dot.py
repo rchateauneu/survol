@@ -740,7 +740,6 @@ def _dot_to_svg(dot_filnam_after, logfil, viztype, out_dest):
     if lib_util.isPlatformLinux:
         # TODO: This is arbitrary because old Graphviz version.
         # TODO: Take the fonts from html_exports.css
-        # dot_fonts = ["-Gfontpath=/usr/share/fonts/TTF", "-Gfontnames=svg", "-Nfontname=VeraBd.ttf","-Efontname=VeraBd.ttf"]
         dot_fonts = [
                     # "-Gfontpath=/usr/share/fonts/dejavu",
                     "-Gfontpath=/usr/share/fonts",
@@ -914,7 +913,6 @@ def _dot_it(a_str):
     return "<i>%s</i>" % a_str
 
 
-
 # To display long strings in HTML-like labels, when Graphviz creates SVG.
 _max_html_title_len_per_col = 40
 
@@ -922,7 +920,7 @@ _max_html_title_len_per_col = 40
 _with_br_delim = '<BR ALIGN="LEFT" />'
 
 
-def _str_with_br(a_raw_str, colspan = 1):
+def _str_with_br(a_raw_str, colspan=1):
     """Inserts "<BR/>" in a string so it can be displayed in a HTML label.
     Beware that it is not really HTML, but only an HTML-like subset.
     See https://www.graphviz.org/doc/info/shapes.html#html """
@@ -958,8 +956,7 @@ def _str_with_br(a_raw_str, colspan = 1):
     return resu
 
 
-
-def _write_dot_legend(page_title, top_url, errMsg, is_sub_server, parameters, parameterized_links, stream, grph):
+def _write_dot_legend(page_title, top_url, err_msg, is_sub_server, parameters, parameterized_links, stream, grph):
     """In SVG/Graphiz documents, this writes the little rectangle which contains various information."""
 
     # This allows to enter directly the URL parameters, so we can access directly an object.
@@ -979,21 +976,21 @@ def _write_dot_legend(page_title, top_url, errMsg, is_sub_server, parameters, pa
 
         # Stupid replacement of dot: "\\" transformed into "\"
         # Fix for : "http://rchateau-hp:8000/survol/class_wmi.py?xid=\\machine\root\CIMV2%3ACIM_Directory.&mode=html"
-        def UrlForDot(mdUrl):
-            mdUrl = mdUrl.replace("\\\\", "\\\\\\")
-            return _url_to_svg(mdUrl)
+        def url_for_dot(md_url):
+            md_url = md_url.replace("\\\\", "\\\\\\")
+            return _url_to_svg(md_url)
 
         stream.write("<tr><td colspan='4'><table border='0'>")
         stream.write(
             "<tr>"
             "<td>(</td>"
-            "<td align='left' href='" + UrlForDot( url_html ) + "'>" + _dot_ul("HTML") + "</td>"
+            "<td align='left' href='" + url_for_dot(url_html) + "'>" + _dot_ul("HTML") + "</td>"
             "<td>,</td>"
-            "<td align='left' href='" + UrlForDot( url_json ) + "'>" + _dot_ul("JSON") + "</td>"
+            "<td align='left' href='" + url_for_dot(url_json) + "'>" + _dot_ul("JSON") + "</td>"
             "<td>,</td>"
-            "<td align='left' href='" + UrlForDot( url_rdf ) + "'>" + _dot_ul("RDF") + "</td>"
+            "<td align='left' href='" + url_for_dot(url_rdf) + "'>" + _dot_ul("RDF") + "</td>"
             "<td>,</td>"
-            "<td align='left' href='" + UrlForDot( urlD3 ) + "'>" + _dot_ul("D3") + "</td>"
+            "<td align='left' href='" + url_for_dot(urlD3) + "'>" + _dot_ul("D3") + "</td>"
             "<td>)</td></tr>"
         )
         stream.write("</table></td></tr>")
@@ -1014,7 +1011,8 @@ def _write_dot_legend(page_title, top_url, errMsg, is_sub_server, parameters, pa
                     actual_param = arguments[key_param].value
                 except KeyError:
                     actual_param = val_param
-                stream.write('<tr><td colspan="2">%s:</td><td colspan="2">%s</td></tr>' % (key_param, _dot_it(actual_param)))
+                stream.write('<tr><td colspan="2">%s:</td><td colspan="2">%s</td></tr>'
+                             % (key_param, _dot_it(actual_param)))
 
         # We want to display links associated to the parameters.
         # The use case is "Prev/Next" when paging between many values.
@@ -1073,9 +1071,9 @@ def _write_dot_legend(page_title, top_url, errMsg, is_sub_server, parameters, pa
     legend_footer()
 
     # The error message could be None or an empty string.
-    if errMsg:
-        fullErrMsg = _dot_bold("Error: ") + errMsg
-        stream.write('<tr><td align="left"  balign="left" colspan="2">%s</td></tr>' % _str_with_br(fullErrMsg, 2))
+    if err_msg:
+        full_err_msg = _dot_bold("Error: ") + err_msg
+        stream.write('<tr><td align="left" balign="left" colspan="2">%s</td></tr>' % _str_with_br(full_err_msg, 2))
 
     if is_sub_server:
         url_stop = lib_exports.ModedUrl("stop")
