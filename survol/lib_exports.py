@@ -1,29 +1,17 @@
 # This library helps to generate the output of internal database (RDF-like)
 # to the DOT output format, transformed into SVG by Graphviz.
 
-import lib_kbase
-import lib_patterns
 import lib_naming
 import lib_util
 import lib_properties
-from lib_properties import pc
 import sys
-import six
-import time
-import cgi
-import re
 import os
-import json
-import socket
 
 
 # "http://primhillcomputers.com/ontologies/smbshare" = > "smbshare"
 # TODO: See also PropToShortPropNam()
 def AntiPredicateUri(uri):
     return uri[len(lib_properties.primns_slash):]
-
-
-################################################################################
 
 
 def ModedUrl(other_mode):
@@ -39,11 +27,9 @@ def NodeToUniversalAlias(an_object):
 
     def make_universal_alias_no_cache(an_object):
         # The prefix of the URL which contain the host name,
-        # maybe with a port number, maybe with a WBEM prefix, WMI machine,
-        # CGI script etc...
+        # maybe with a port number, maybe with a WBEM prefix, WMI machine, CGI script etc...
         # is simply replaced by the IP address of the machine.
-        # The resulting string is the same for all servers
-        # running on the same machine.
+        # The resulting string is the same for all servers running on the same machine.
         parsed_url = lib_util.survol_urlparse(an_object)
         #sys.stderr.write("make_universal_alias_no_cache parsed_url=%s\n"%str(parsed_url))
         # netloc=u'desktop-ni99v8e:8000'
@@ -94,12 +80,12 @@ def PropToShortPropNamAndDict(node_predicate):
     if idx_question == -1:
         dict_properties = None
         idx_last_slash = str_predicate.rfind(lib_properties.prefix_terminator)
-        short_nam = str_predicate[idx_last_slash+1:]
+        short_nam = str_predicate[idx_last_slash + 1:]
     else:
-        str_properties = str_predicate[idx_question+1:]
+        str_properties = str_predicate[idx_question + 1:]
         vec_properties = str_properties.split("&")
-        dict_properties = dict(one_s.split('=',1) for one_s in vec_properties)
-        idx_last_slash = str_predicate.rfind(lib_properties.prefix_terminator,0,idx_question)
+        dict_properties = dict(one_s.split('=', 1) for one_s in vec_properties)
+        idx_last_slash = str_predicate.rfind(lib_properties.prefix_terminator, 0, idx_question)
         short_nam = str_predicate[idx_last_slash+1:idx_question]
 
     # "sun.boot.class.path"
@@ -147,14 +133,12 @@ def UrlWWW(page_html):
 
 
 def UrlToMergeD3():
-    """This returns an URL to the Javascript D3 interface, editing the current data."""
+    """This returns an URL to the Javascript D3 interface URL, which displays the current url in Javascript."""
     calling_url = ModedUrl("")
     #sys.stderr.write("UrlToMergeD3 calling_url=%s\n"%(calling_url))
     htbin_idx = calling_url.find(_htbin_prefix_script)
     url_without_host = calling_url[htbin_idx:]
     #sys.stderr.write("UrlToMergeD3 url_without_host=%s\n"%(url_without_host))
-
-    # Consider lib_client.py
 
     # Maybe this URL is already a merge of B64-encoded URLs:
     htbin_prefix_merge_script = "/survol/merge_scripts.py"
@@ -173,6 +157,4 @@ def UrlToMergeD3():
     script_d3_url = UrlWWW("index.htm") + url_without_host_b64
     #sys.stderr.write("UrlToMergeD3 script_d3_url=%s\n"%script_d3_url)
     return script_d3_url
-
-
 
