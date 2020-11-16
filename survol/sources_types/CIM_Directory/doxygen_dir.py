@@ -13,30 +13,30 @@ import lib_doxygen
 
 
 def Main():
-	paramkeyRecursive = "Recursive exploration"
-	paramkeyExplodeClasses = "Explode classes members"
+    paramkey_recursive = "Recursive exploration"
+    paramkey_explode_classes = "Explode classes members"
 
-	cgiEnv = lib_common.CgiEnv(
-		parameters = { paramkeyRecursive : False, paramkeyExplodeClasses : False })
+    cgiEnv = lib_common.CgiEnv(
+        parameters={paramkey_recursive: False, paramkey_explode_classes: False})
 
-	paramRecursiveExploration = int(cgiEnv.get_parameters( paramkeyRecursive ))
-	paramExplodeClasses = int(cgiEnv.get_parameters( paramkeyExplodeClasses ))
+    param_recursive_exploration = int(cgiEnv.get_parameters(paramkey_recursive))
+    param_explode_classes = int(cgiEnv.get_parameters(paramkey_explode_classes))
 
-	fileParam = cgiEnv.GetId()
+    file_param = cgiEnv.GetId()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	objectsByLocation = lib_doxygen.DoxygenMain(paramRecursiveExploration,fileParam)
+    objects_by_location = lib_doxygen.DoxygenMain(param_recursive_exploration, file_param)
 
-	directoryName = fileParam
-	rootNode = lib_common.gUriGen.DirectoryUri( directoryName )
+    directory_name = file_param
+    root_node = lib_common.gUriGen.DirectoryUri(directory_name)
 
-	lib_doxygen.CreateObjs(grph,rootNode,directoryName,objectsByLocation,paramExplodeClasses)
+    lib_doxygen.CreateObjs(grph, root_node, directory_name, objects_by_location, param_explode_classes)
 
-	# TODO: THE GENERATED GRAPH SHOULD BE MORE SIMILAR TO DOXYGEN'S.
+    # TODO: THE GENERATED GRAPH SHOULD BE MORE SIMILAR TO DOXYGEN'S.
 
-	cgiEnv.OutCgiRdf("LAYOUT_RECT",[ pc.property_symbol_defined, pc.property_member ] )
+    cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_symbol_defined, pc.property_member])
 
 
 if __name__ == '__main__':
-	Main()
+    Main()
