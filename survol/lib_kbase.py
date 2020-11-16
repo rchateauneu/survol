@@ -1,4 +1,6 @@
 # This encapsulates rdflib features, and may help to implement differently triplestore features.
+from __future__ import print_function
+
 import sys
 import os
 import re
@@ -22,7 +24,7 @@ PredicateSeeAlso = RDFS.seeAlso
 PredicateIsDefinedBy = RDFS.isDefinedBy
 PredicateComment = RDFS.comment
 PredicateType = RDF.type
-PredicateClass = RDFS.Class
+#PredicateClass = RDFS.Class
 PredicateLabel = RDFS.label
 PredicateSubClassOf = RDFS.subClassOf
 
@@ -97,7 +99,7 @@ def get_urls_adjacency_list(grph, start_instance, filter_predicates):
     return adjacency_list
 
 
-# TODO: Consider using SparQL.
+# TODO: Consider using SPARQL.
 def triplestore_matching_strings(grph, search_string):
     """This returns a subset of a triplestore whose object matches a given string."""
     DEBUG("triplestore_matching_strings: search_string=%s" % search_string)
@@ -127,7 +129,7 @@ def triplestore_to_stream_xml(grph, out_dest, a_format):
     # grph.serialize( destination = out_dest, format="xml")
     # There might be a way to serialize directory to the socket.
     try:
-        str_xml = grph.serialize(destination = None, format=a_format)
+        str_xml = grph.serialize(destination=None, format=a_format)
     except Exception as exc:
         ERROR("triplestore_to_stream_xml Exception:%s", exc)
         raise
@@ -153,7 +155,7 @@ def triplestore_to_stream_xml(grph, out_dest, a_format):
 
 def triplestore_from_rdf_xml(doc_xml_rdf):
     """This reasonably assumes that the triplestore library is able to convert from RDF.
-    This transforms a serialize XML document into RDF.
+    This transforms a serialized XML document into RDF.
     See: https://rdflib.readthedocs.io/en/stable/apidocs/rdflib.html """
 
     # This is the inverse operation of: grph.serialize( destination = out_dest, format="xml")
@@ -423,6 +425,108 @@ def CheckMinimalRdsfOntology(ontology_graph):
             ERROR("CheckMinimalRdsfOntology missing triple:%s %s %s", * triple_name )
             missing_triples.append(triple_name)
         return missing_triples
+
+
+def check_rdf_ontology_conformance(rdf_graph):
+    """
+    All classes must be defined by RDF, for example:
+
+    <rdf:Description rdf:about="http://www.primhillcomputers.com/survol#Name">
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+    <rdfs:comment>Ontology predicate Name</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:domain rdf:resource="http://www.primhillcomputers.com/survol#CIM_Directory"/>
+    <rdfs:domain rdf:resource="http://www.primhillcomputers.com/survol#CIM_DataFile"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="http://www.primhillcomputers.com/survol#options">
+    <rdfs:comment>Predicate options</rdfs:comment>
+    <rdfs:domain rdf:resource="http://www.primhillcomputers.com/survol#CIM_Directory"/>
+    <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="http://www.primhillcomputers.com/survol#CIM_Directory">
+    <rdfs:label>CIM_Directory</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+    <rdfs:comment>Standard directory</rdfs:comment>
+    </rdf:Description>
+    """
+
+    dict_domains = dict()
+    dict_ranges = dict()
+    dict_objects = dict()
+    dict_labels = dict()
+    dict_comments = dict()
+
+    set_classes = set()
+    set_properties = set()
+
+    errors_list = []
+
+    non_ontology_graph = rdflib.Graph()
+
+    # First pass to build a dictionary of the content.
+    for the_subject, the_predicate, the_object in rdf_graph:
+        if the_predicate == RDF.type:
+            if the_object == RDFS.Class:
+                if the_subject in set_classes:
+                    errors_list.append("Duplicated class %s" % the_subject)
+                set_classes.add(the_subject)
+            elif the_object == RDF.Property:
+                if the_subject in set_properties:
+                    errors_list.append("Duplicated property %s" % the_subject)
+                set_properties.add(the_subject)
+            else:
+                if the_subject in dict_objects:
+                    errors_list.append("Duplicated type %s => %s" % (the_subject, dict_objects[the_subject]))
+                dict_objects[the_subject] = the_object
+        elif the_predicate == RDFS.range:
+            if the_subject in dict_ranges:
+                errors_list.append("Duplicated range %s => %s" % (the_subject, dict_ranges[the_subject]))
+            dict_ranges[the_subject] = the_object
+        elif the_predicate == RDFS.domain:
+            # Duplicated domains are allowed.
+            #if the_subject in dict_domains:
+            #    errors_list.append("Duplicated domain %s => %s" % (the_subject, dict_domains[the_subject]))
+            dict_domains[the_subject] = the_object
+        elif the_predicate == RDFS.label:
+            if the_subject in dict_labels:
+                errors_list.append("Duplicated label %s => %s" % (the_subject, dict_labels[the_subject]))
+            dict_labels[the_subject] = the_object
+        elif the_predicate == RDFS.comment:
+            if the_subject in dict_comments:
+                errors_list.append("Duplicated comment %s => %s" % (the_subject, dict_comments[the_subject]))
+            dict_comments[the_subject] = the_object
+        else:
+            non_ontology_graph.add((the_subject, the_predicate, the_object))
+            # print(str(the_subject), str(the_predicate), str(the_object))
+
+    print("")
+    print("Classes:", [str(a_class) for a_class in set_classes])
+    print("Properties:", [str(a_prop) for a_prop in set_properties])
+    # print("Objects:", [str(an_object) for an_object in dict_objects])
+
+    for an_object, its_class in dict_objects.items():
+        if its_class not in set_classes:
+            errors_list.append("Missing class %s for object %s" % (its_class, an_object))
+
+    # The remaining triples must use defined urls.
+    for the_subject, the_predicate, the_object in non_ontology_graph:
+        if the_predicate not in set_properties:
+            errors_list.append("Missing property %s for object %s" % (the_predicate, the_subject))
+
+    return errors_list
+        # if
+        #
+        #     PredicateSeeAlso = RDFS.seeAlso
+        #     PredicateIsDefinedBy = RDFS.isDefinedBy
+        #     PredicateComment = RDFS.comment
+        #     PredicateType = RDF.type
+        #     PredicateClass = RDFS.Class
+        #     PredicateLabel = RDFS.label
+        #     PredicateSubClassOf = RDFS.subClassOf
+
 
 ################################################################################
 
