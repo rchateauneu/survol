@@ -486,7 +486,7 @@ def check_rdf_ontology_conformance(rdf_graph):
                 errors_list.append("Duplicated range %s => %s" % (the_subject, dict_ranges[the_subject]))
             dict_ranges[the_subject] = the_object
         elif the_predicate == RDFS.domain:
-            # Duplicated domains are allowed.
+            # Duplicate domains are allowed.
             #if the_subject in dict_domains:
             #    errors_list.append("Duplicated domain %s => %s" % (the_subject, dict_domains[the_subject]))
             dict_domains[the_subject] = the_object
@@ -495,8 +495,9 @@ def check_rdf_ontology_conformance(rdf_graph):
                 errors_list.append("Duplicated label %s => %s" % (the_subject, dict_labels[the_subject]))
             dict_labels[the_subject] = the_object
         elif the_predicate == RDFS.comment:
-            if the_subject in dict_comments:
-                errors_list.append("Duplicated comment %s => %s" % (the_subject, dict_comments[the_subject]))
+            # Duplicate comments are allowed.
+            #if the_subject in dict_comments:
+            #    errors_list.append("Duplicated comment %s => %s" % (the_subject, dict_comments[the_subject]))
             dict_comments[the_subject] = the_object
         else:
             non_ontology_graph.add((the_subject, the_predicate, the_object))
@@ -517,15 +518,6 @@ def check_rdf_ontology_conformance(rdf_graph):
             errors_list.append("Missing property %s for object %s" % (the_predicate, the_subject))
 
     return errors_list
-        # if
-        #
-        #     PredicateSeeAlso = RDFS.seeAlso
-        #     PredicateIsDefinedBy = RDFS.isDefinedBy
-        #     PredicateComment = RDFS.comment
-        #     PredicateType = RDF.type
-        #     PredicateClass = RDFS.Class
-        #     PredicateLabel = RDFS.label
-        #     PredicateSubClassOf = RDFS.subClassOf
 
 
 ################################################################################
