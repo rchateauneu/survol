@@ -22,117 +22,118 @@ Usable = lib_util.UsableWindows
 
 CanProcessRemote = True
 
+
 def SidUsageToString(sidusage):
-	try:
-		return {
-			 1 : "SidTypeUser",
-			 2 : "SidTypeGroup",
-			 3 : "SidTypeDomain",
-			 4 : "SidTypeAlias",
-			 5 : "SidTypeWellKnownGroup",
-			 6 : "SidTypeDeletedAccount",
-			 7 : "SidTypeInvalid",
-			 8 : "SidTypeUnknown",
-			 9 : "SidTypeComputer",
-			10 : "SidTypeLabel"
-			}[int(sidusage)]
-	except KeyError:
-		return "Unknown SID usage:" + str(sidusage)
+    try:
+        return {
+             1: "SidTypeUser",
+             2: "SidTypeGroup",
+             3: "SidTypeDomain",
+             4: "SidTypeAlias",
+             5: "SidTypeWellKnownGroup",
+             6: "SidTypeDeletedAccount",
+             7: "SidTypeInvalid",
+             8: "SidTypeUnknown",
+             9: "SidTypeComputer",
+            10: "SidTypeLabel"
+            }[int(sidusage)]
+    except KeyError:
+        return "Unknown SID usage:" + str(sidusage)
 
-def MemberNameToNode(sidUsage,memberName,servName):
-	if sidUsage == 1 or sidUsage == 6:
-		memberNode = survol_Win32_UserAccount.MakeUri( memberName, servName )
-	elif sidUsage == 5 or sidUsage == 2:
-		memberNode = survol_Win32_Group.MakeUri( memberName, servName )
-	else:
-		serverNode = lib_common.gUriGen.HostnameUri(servName)
-	return memberNode
 
-def MemberNameToNodeRemote(sidUsage,memberName,servName,serverBox):
-	servName = servName.lower() # RFC4343
-	if sidUsage == 1 or sidUsage == 6:
-		memberNode = serverBox.UriMakeFromDict("Win32_UserAccount", { "Name" : memberName, "Domain" : servName } )
-	elif sidUsage == 5 or sidUsage == 2:
-		memberNode = serverBox.UriMakeFromDict("Win32_Group", { "Name" : memberName, "Domain" : servName } )
-	else:
-		memberNode = serverBox.HostnameUri(memberName)
-	return memberNode
+def _member_name_to_node(sid_usage, member_name, serv_name):
+    if sid_usage == 1 or sid_usage == 6:
+        member_node = survol_Win32_UserAccount.MakeUri(member_name, serv_name)
+    elif sid_usage == 5 or sid_usage == 2:
+        member_node = survol_Win32_Group.MakeUri(member_name, serv_name)
+    else:
+        serverNode = lib_common.gUriGen.HostnameUri(serv_name)
+    return member_node
+
+
+def _member_name_to_node_remote(sid_usage, member_name, serv_name, server_box):
+    serv_name = serv_name.lower() # RFC4343
+    if sid_usage == 1 or sid_usage == 6:
+        member_node = server_box.UriMakeFromDict("Win32_UserAccount", {"Name": member_name, "Domain": serv_name})
+    elif sid_usage == 5 or sid_usage == 2:
+        member_node = server_box.UriMakeFromDict("Win32_Group", {"Name": member_name, "Domain": serv_name})
+    else:
+        member_node = server_box.HostnameUri(member_name)
+    return member_node
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
+    cgiEnv = lib_common.CgiEnv(can_process_remote = True)
 
-	server = cgiEnv.m_entity_id_dict["Domain"]
-	groupName = cgiEnv.m_entity_id_dict["Name"]
+    server = cgiEnv.m_entity_id_dict["Domain"]
+    group_name = cgiEnv.m_entity_id_dict["Name"]
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	# http://www.math.uiuc.edu/~gfrancis/illimath/windows/aszgard_mini/movpy-2.0.0-py2.4.4/movpy/lib/win32/Demos/win32netdemo.py
+    try:
+        lib_win32.WNetAddConnect(server)
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("Server=%s Caught:%s" % (server, str(exc)))
 
-	# hostname = "Titi" for example
-	try:
-		lib_win32.WNetAddConnect(server)
-	except:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Server=%s Caught:%s" % ( server, str(exc) ) )
+    if not server or lib_util.IsLocalAddress(server):
+        servName_or_None = None
 
-	if not server or lib_util.IsLocalAddress( server ):
-		servName_or_None = None
+        # So it is compatible with WMI.
+        servNameNotNone = lib_uris.TruncateHostname(lib_util.currentHostname)
+        # .home
+        serverNode = lib_common.nodeMachine
+        serverBox = lib_common.gUriGen
+    else:
+        servName_or_None = server
+        servNameNotNone = server
+        serverNode = lib_common.gUriGen.HostnameUri(server)
+        serverBox = lib_common.RemoteBox(server)
 
-		# So it is compatible with WMI.
-		servNameNotNone = lib_uris.TruncateHostname(lib_util.currentHostname)
-		# .home
-		serverNode = lib_common.nodeMachine
-		serverBox = lib_common.gUriGen
-	else:
-		servName_or_None = server
-		servNameNotNone = server
-		serverNode = lib_common.gUriGen.HostnameUri(server)
-		serverBox = lib_common.RemoteBox(server)
+    # node_group = serverBox.GroupUri( group_name )
+    # node_group = survol_Win32_Group.MakeUri( group_name, servName_or_None )
+    node_group = survol_Win32_Group.MakeUri(group_name, servNameNotNone)
 
-	# nodeGroup = serverBox.GroupUri( groupName )
-	# nodeGroup = survol_Win32_Group.MakeUri( groupName, servName_or_None )
-	nodeGroup = survol_Win32_Group.MakeUri( groupName, servNameNotNone )
+    try:
+        memberresume = 0
+        while True:
+            member_data, total, member_resume = win32net.NetLocalGroupGetMembers(
+                servName_or_None, group_name, 2, memberresume)
 
-	try:
-		memberresume = 0
-		while True:
-			memberData, total, memberResume = win32net.NetLocalGroupGetMembers(servName_or_None, groupName, 2, memberresume)
-			for member in memberData:
-				sidUsage = member['sidusage']
-				# Converts Sid to username
-				try:
-					memberName, domain, type = win32security.LookupAccountSid(server, member['sid'])
-				except Exception:
-					exc = sys.exc_info()[1]
-					ERROR("Server=%s Caught:%s", server, str(exc) )
-					continue
+            prop_sid_usage = lib_common.MakeProp("SID Usage")
+            prop_security_identifier = lib_common.MakeProp("Security Identifier")
 
-				DEBUG("Member: %s:", str(member))
-				DEBUG("Lookup: %s: %s", memberName, member['domainandname'])
-				# nodeUser = serverBox.UserUri( userName )
+            for member in member_data:
+                sid_usage = member['sidusage']
+                # Converts Sid to username
+                try:
+                    member_name, domain, type = win32security.LookupAccountSid(server, member['sid'])
+                except Exception as exc:
+                    ERROR("Server=%s Caught:%s", server, str(exc))
+                    continue
 
-				DEBUG("servNameNotNone=%s",servNameNotNone)
-				memberNode = MemberNameToNode(sidUsage,memberName,servNameNotNone)
+                DEBUG("Member: %s:", str(member))
+                DEBUG("Lookup: %s: %s", member_name, member['domainandname'])
+                # nodeUser = serverBox.UserUri( userName )
 
-				grph.add( (memberNode, pc.property_group, nodeGroup ) )
-				grph.add( (memberNode, lib_common.MakeProp("SID Usage"), lib_util.NodeLiteral(SidUsageToString(sidUsage) ) ) )
-				grph.add( (memberNode, lib_common.MakeProp("Security Identifier"), lib_util.NodeLiteral(member['sid']) ) )
+                DEBUG("servNameNotNone=%s", servNameNotNone)
+                member_node = _member_name_to_node(sid_usage, member_name, servNameNotNone)
 
-				if servName_or_None:
-					nodeMemberRemote = MemberNameToNodeRemote(sidUsage,memberName,servName_or_None,serverBox)
-					# TODO: Instead, both object must have the same universal alias
-					grph.add( (memberNode, pc.property_alias, nodeMemberRemote ) )
+                grph.add((member_node, pc.property_group, node_group))
+                grph.add((member_node, prop_sid_usage, lib_util.NodeLiteral(SidUsageToString(sid_usage))))
+                grph.add((member_node, prop_security_identifier, lib_util.NodeLiteral(member['sid'])))
 
+                if servName_or_None:
+                    node_member_remote = _member_name_to_node_remote(sid_usage, member_name, servName_or_None, serverBox)
+                    # TODO: Instead, both object must have the same universal alias
+                    grph.add((member_node, pc.property_alias, node_member_remote))
 
+            if member_resume == 0:
+                break
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("win32 local groups:" + str(exc))
 
-			if memberResume==0:
-				break
-	except Exception:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("win32 local groups:"+str(exc))
+    cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
-	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
 if __name__ == '__main__':
-	Main()
+    Main()
