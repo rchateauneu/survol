@@ -11,6 +11,7 @@ import unittest
 
 from init import *
 
+
 class HtmlCommon(unittest.TestCase):
     def _check_script(self, script_suffix):
         full_url = self._agent_url + script_suffix
@@ -24,7 +25,7 @@ class HtmlCommon(unittest.TestCase):
         html_content = html_url_response.read()  # Py3:bytes, Py2:str
         return html_content
 
-    def _test_html_main(self):
+    def base_html_main(self):
         """This checks that the entry page of Survol is a correct HTML document.
         It does not intent to be very exact, but just checks that the HTML display runs.
         Some strings must be displayed."""
@@ -32,13 +33,20 @@ class HtmlCommon(unittest.TestCase):
 
         self.assertTrue(b'<title>Overview entity.py</title>' in html_page_content)
 
-    def _test_html_file_directory(self):
-        html_page_content = self._check_script("/survol/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name=/usr/lib")
-
+    def base_html_file_directory(self):
         """This checks that the entry page of Survol is a correct HTML document.
         It does not intent to be very exact, but just checks that the HTML display runs.
         Some strings must be displayed."""
+        html_page_content = self._check_script("/survol/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name=/usr/lib")
+
         self.assertTrue(b'<title>Files in directory' in html_page_content)
+
+    def base_html_edition(self):
+        """Minimal check to ensure that an edition returns a valid HTML page."""
+
+        # Any PID is OK.
+        html_page_content = self._check_script(
+            "/survol/entity.py?edimodargs_Handle=6744&Show+all+scripts=True&edimodtype=CIM_Process&xid=CIM_Process.Handle%3D6744&mode=html")
 
 
 # Graphviz/dot must be installed on the test platform, for example Travis.
@@ -57,11 +65,14 @@ class HtmlLocalAgentTest(HtmlCommon):
 
     def test_local_html(self):
         """This starts a local server on the test machine."""
-        self._test_html_main()
+        self.base_html_main()
 
     @unittest.skipIf(not is_platform_linux, "Linux only")
     def test_local_file_directory(self):
-        self._test_html_file_directory()
+        self.base_html_file_directory()
+
+    def test_html_edition(self):
+        self.base_html_edition()
 
 
 class HtmlRemoteAgentTest(HtmlCommon):
@@ -72,10 +83,14 @@ class HtmlRemoteAgentTest(HtmlCommon):
         self._agent_url = SurvolServerAgent
 
     def test_remote_html(self):
-        self._test_html_main()
+        self.base_html_main()
 
     def test_remote_file_directory(self):
-        self._test_html_file_directory()
+        self.base_html_file_directory()
+
+    def test_html_edition(self):
+        self.base_html_edition()
+
 
 if __name__ == '__main__':
     unittest.main()
