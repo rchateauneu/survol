@@ -70,7 +70,7 @@ class RdfOntologyConformanceSurvolLocaTest(unittest.TestCase):
             "sources_types/Win32_Group/win32_NetLocalGroupGetMembers.py",
             "Win32_Group",
             Name="Users",
-            Domain=CurrentMachine)
+            Domain=CurrentDomainWin32)
         print("test_conformance_win32_NetLocalGroupGetMembers: query=%s" % my_source_local.create_url_query())
         the_content_rdf = my_source_local.content_rdf()
         errors_list = self._check_rdf_url_ontology(the_content_rdf)
