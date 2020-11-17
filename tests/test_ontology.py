@@ -61,3 +61,18 @@ class RdfOntologyConformanceSurvolLocaTest(unittest.TestCase):
         errors_list = self._check_rdf_url_ontology(the_content_rdf)
         self.assertEqual(errors_list, [])
 
+    @unittest.skipIf(not is_platform_windows, "Windows only")
+    def test_conformance_win32_NetLocalGroupGetMembers(self):
+        """Test of win32_NetLocalGroupGetMembers.py"""
+
+        # The group "Users" is always here.
+        my_source_local = lib_client.SourceLocal(
+            "sources_types/Win32_Group/win32_NetLocalGroupGetMembers.py",
+            "Win32_Group",
+            Name="Users",
+            Domain=CurrentMachine)
+        print("test_conformance_win32_NetLocalGroupGetMembers: query=%s" % my_source_local.create_url_query())
+        the_content_rdf = my_source_local.content_rdf()
+        errors_list = self._check_rdf_url_ontology(the_content_rdf)
+        self.assertEqual(errors_list, [])
+
