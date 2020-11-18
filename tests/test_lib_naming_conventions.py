@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-"""Tests the ability to detect repetieion in sequences of symbols.
-This is designed for sequences of system calls.
+"""Tests the file lib_naming_conventions.py.
 """
 
 from __future__ import print_function
