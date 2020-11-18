@@ -134,11 +134,9 @@ try:
         try:
             orig_key = args['key']
             args['key'] = lambda in_param: natsort_key(orig_key(in_param))
-
         except KeyError:
             args['key'] = natsort_key
         one_list.sort(**args)
-
 except ImportError:
     WARNING("WritePatterned Module natsorted not available.")
     natural_sorted = sorted
@@ -169,19 +167,21 @@ NodeUrl = rdflib.term.URIRef
 ################################################################################
 
 
-# See xidCgiDelimiter = "?xid="
 def EncodeEntityId(entity_type, entity_id):
+    """See xidCgiDelimiter = "?xid=" """
     return "xid=%s.%s" % (entity_type, entity_id)
 
 ################################################################################
 
 
-# unitSI = "B", "b", "B/s" for example.
-# TODO: We need a way to describe a number of items, without unit.
-# This is different from an integer ID which should always be displayed "as is",
-# just like a string.
-# We might have units such as "B/B" which are without dimensions.
 def AddSIUnit(number, unitSI):
+    """
+    unitSI = "B", "b", "B/s" for example.
+    This is different from an integer ID which should always be displayed "as is", just like a string.
+    We might have units such as "B/B" which are without dimensions.
+    """
+
+    # TODO: We need a way to describe a number of items, without unit.
     if unitSI:
         return str(number) + " " + unitSI
     else:
@@ -358,9 +358,12 @@ except Exception:
     localIP = "127.0.0.1"
 
 
-# This is for example used by WMI, which does not accept credentials
-# for a local machine: We must therefore be sure that the machine is local or not.
 def IsLocalAddress(an_host_nam):
+    """
+    This is for example used by WMI, which does not accept credentials
+    for a local machine: We must therefore be sure that the machine is local or not.
+    """
+
     # Maybe entity_host="http://192.168.1.83:5988"
     host_only = EntHostToIp(an_host_nam)
     if host_only in [ None, "", "localhost", "127.0.0.1", currentHostname]:
@@ -395,10 +398,8 @@ def IsLocalAddress(an_host_nam):
 def SameHostOrLocal(srv, ent_host):
     if (ent_host == srv) or ((ent_host is None or ent_host in ["", "0.0.0.0"]) and (localIP == srv)):
         # We might add credentials.
-        DEBUG("SameHostOrLocal ent_host=%s localIP=%s srv=%s SAME", ent_host, localIP, srv)
         return True
     else:
-        DEBUG("SameHostOrLocal ent_host=%s localIP=%s srv=%s Different", ent_host, localIP, srv)
         return False
 
 ################################################################################
@@ -426,10 +427,13 @@ def TopUrl(entity_type, entity_id):
 ################################################################################
 
 
-# This, because graphviz transforms a "\L" (backslash-L) into "<TABLE>". Example:
-# http://127.0.0.1/PythonStyle/survol/entity.py?xid=com_type_lib:C%3A%5CWINDOWS%5Csystem32%5CLangWrbk.dll
-# Or if the url contains a file in "App\Local"
 def EncodeUri(an_str):
+    """
+    This, because graphviz transforms a "\L" (backslash-L) into "<TABLE>". Example:
+    http://127.0.0.1/PythonStyle/survol/entity.py?xid=com_type_lib:C%3A%5CWINDOWS%5Csystem32%5CLangWrbk.dll
+    Or if the url contains a file in "App\Local"
+    """
+
     # sys.stderr.write("EncodeUri str=%s\n" % str(anStr) )
 
     if an_str:
@@ -437,15 +441,14 @@ def EncodeUri(an_str):
     else:
         strTABLE = ""
 
-    # In Python 3, urllib.quote has been moved to urllib.parse.quote and it does handle unicode by default.
+    # In Python 3, urllib.quote is renamed urllib.parse.quote and handles unicode by default.
     if is_py3:
         return urllib_quote(strTABLE, '')
     else:
-
         # THIS SHOULD NORMALLY BE DONE. BUT WHAT ??
         ###strTABLE = strTABLE.replace("&","%26")
         # UnicodeDecodeError: 'ascii' codec can't decode byte 0xe9 in position 32
-        return urllib_quote(strTABLE,'ascii')
+        return urllib_quote(strTABLE, 'ascii')
 
 ################################################################################
 
@@ -495,7 +498,6 @@ def EntHostToIp(entity_host):
     The name is misleading because it returns a host name,
     which might or might not be an IP."""
 
-
     # WBEM: http://192.168.1.88:5988
     #       https://jdd:test@acme.com:5959
     #       http://192.168.1.88:5988
@@ -527,12 +529,15 @@ def EntHostToIpReally(entity_host):
 
 
 def _parse_xid_local(xid):
-    # A machine name can contain a domain name : "WORKGROUP\MYHOST-HP", the backslash cannot be at the beginning.
-    # "WORKGROUP\MYHOST-HP@CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2"
-    # "WORKGROUP\MYHOST-HP@oracle/table.Name=MY_TABLE"
-    # BEWARE: This must NOT match "http://127.0.0.1:8000/survol/namespaces_wbem.py?xid=http://192.168.1.83:5988/."
-    # that is "http://192.168.1.83:5988/."
-    # A class name starts with a letter. There are no consecutives slashes "/".
+    """
+    A machine name can contain a domain name : "WORKGROUP\MYHOST-HP", the backslash cannot be at the beginning.
+    "WORKGROUP\MYHOST-HP@CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2"
+    "WORKGROUP\MYHOST-HP@oracle/table.Name=MY_TABLE"
+    BEWARE: This must NOT match "http://127.0.0.1:8000/survol/namespaces_wbem.py?xid=http://192.168.1.83:5988/."
+    that is "http://192.168.1.83:5988/."
+    A class name starts with a letter. There are no consecutives slashes "/".
+    """
+
     # TODO: Filter when consecutives slashes.
     mtch_entity = re.match(r"([-0-9A-Za-z_]*\\?[-0-9A-Za-z_\.]*@)?([a-zA-Z_][a-z0-9A-Z_/]*)\.(.*)", xid)
 
@@ -628,14 +633,17 @@ def _parse_xid_wbem(xid):
     return None
 
 
-# This receives the xid value for, for example: "xid=@/:oracle_package."
-# It parses this string into three components and returns the class,
-# the concatenation of key=value pairs, and the host.
-# BEWARE: This cannot work if the hostname contains a ":", see IPV6. MUST BE VERY FAST !!!
-# TODO: Should also parse the namespace.
-# ParseXid xid=CIM_ComputerSystem.Name=rchateau-HP
-# ParseXid xid=CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2
 def ParseXid(xid):
+    """
+    This receives the xid value for, for example: "xid=@/:oracle_package."
+    It parses this string into three components and returns the class,
+    the concatenation of key=value pairs, and the host.
+    BEWARE: This cannot work if the hostname contains a ":", see IPV6. MUST BE VERY FAST !!!
+    TODO: Should also parse the namespace.
+    ParseXid xid=CIM_ComputerSystem.Name=rchateau-HP
+    ParseXid xid=CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2
+    """
+
     # sys.stderr.write( "ParseXid xid=%s\n" % (xid) )
 
     # First, we try to match our terminology.
@@ -743,20 +751,20 @@ def EntityClassNode(entity_type, entity_namespace="", entity_host="", category="
     return NodeUrl(url)
 
 
-def KWArgsToEntityId(className, **kwargsOntology):
+def KWArgsToEntityId(class_name, **kwargs_ontology):
     """From key-value pairs, this builds an entity_id in the good property order."""
     entity_id = ""
     delim = ""
-    keys_onto = OntologyClassKeys(className)
+    keys_onto = OntologyClassKeys(class_name)
 
     # The dictionary is not properly ordered because it depends
     # on the Python version, and these data are given by a user application.
 
     for arg_key in keys_onto:
         try:
-            arg_val = kwargsOntology[arg_key]
+            arg_val = kwargs_ontology[arg_key]
         except KeyError:
-            ERROR("KWArgsToEntityId className=%s. No key %s",className, arg_key)
+            ERROR("KWArgsToEntityId className=%s. No key %s", class_name, arg_key)
             raise
 
         # TODO: The values should be encoded when needed, probably with B64 !!!
@@ -923,8 +931,8 @@ def InfoMessageHtml(message):
 ################################################################################
 
 
-# Returns the list of available object types: ["process", "file," group", etc...]
 def ObjectTypesNoCache():
+    """Returns the list of available object types: ["process", "file," group", etc...]"""
     directory = gblTopScripts + "/sources_types"
     DEBUG("ObjectTypesNoCache directory=%s", directory)
 
@@ -1009,30 +1017,32 @@ def is_snapshot_behaviour():
 ################################################################################
 
 
-# For example gFuncName="Graphic_shape" etc... This seeks for a function in this name.
-# This searches in several modules, starting with the module of the entity,
-# then the upper module etc...
-def HierarchicalFunctionSearchNoCache(typeWithoutNS, gFuncName):
+def HierarchicalFunctionSearchNoCache(type_without_ns, g_func_name):
+    """
+    For example gFuncName="Graphic_shape" etc... This seeks for a function in this name.
+    This searches in several modules, starting with the module of the entity,
+    then the upper module etc...
+    """
 
-    # for the first loop it takes the entire string.
-    last_dot = len(typeWithoutNS)
+    # For the first loop it takes the entire string.
+    last_dot = len(type_without_ns)
     while last_dot > 0:
 
-        topModule = typeWithoutNS[:last_dot]
-        chopped_entity_type = typeWithoutNS[:last_dot]
+        topModule = type_without_ns[:last_dot]
+        chopped_entity_type = type_without_ns[:last_dot]
 
         # Load the module of this entity to see if it defines the graphic function.
         entity_module = GetEntityModule(chopped_entity_type)
 
         if entity_module:
             try:
-                gFuncAddr = getattr(entity_module,gFuncName)
+                gFuncAddr = getattr(entity_module, g_func_name)
                 return gFuncAddr
             except AttributeError:
                 pass
 
         # Then try the upper level module.
-        last_dot = typeWithoutNS.rfind(".",0,last_dot)
+        last_dot = type_without_ns.rfind(".", 0, last_dot)
 
     return None
 
@@ -1233,6 +1243,7 @@ def RootUri():
 
 ################################################################################
 
+
 # https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
 def get_url_mode(url):
     """Extracts the mode from an URL or QUERY_STRING."""
@@ -1329,10 +1340,10 @@ def SplitMonikToWQL(moniker_to_split, class_name):
 def Base64Encode(input_text):
     if is_py3:
         if isinstance(input_text, bytes):
-            txtToB64Encode = input_text
+            txt_to_b64_encode = input_text
         else:
-            txtToB64Encode = input_text.encode('utf-8')
-        return base64.urlsafe_b64encode(txtToB64Encode).decode('utf-8')
+            txt_to_b64_encode = input_text.encode('utf-8')
+        return base64.urlsafe_b64encode(txt_to_b64_encode).decode('utf-8')
     else:
         return base64.urlsafe_b64encode(input_text)
 
@@ -1388,6 +1399,7 @@ else:
 
 ################################################################################
 
+
 # This is for WSGI compatibility.
 class OutputMachineCgi:
     def __init__(self):
@@ -1421,8 +1433,8 @@ paramkeyShowAll = "Show all scripts"
 ################################################################################
 
 
-# Default destination for the RDF, HTML or SVG output.
 def get_default_output_destination():
+    """Default destination for the RDF, HTML or SVG output."""
     return globalOutMach.OutStream()
 
 
@@ -1439,6 +1451,8 @@ def SetGlobalOutMach(outmach_something):
 # This must be calculated each time because the WSGI server sets this environment
 # variable when an URL is loaded, after module init.
 is_wsgi_server_data = None
+
+
 def is_wsgi_server():
     global is_wsgi_server_data
     if not is_wsgi_server_data:
@@ -1498,8 +1512,8 @@ def HttpHeaderClassic(out_dest, content_type, extra_args=None):
     out_dest.write(stri.encode())
 
 
-def WrtHeader(mimeType, extraArgs=None):
-    globalOutMach.HeaderWriter(mimeType, extraArgs)
+def WrtHeader(mime_type, extra_args=None):
+    globalOutMach.HeaderWriter(mime_type, extra_args)
 
 ################################################################################
 
@@ -1552,9 +1566,12 @@ def _get_entity_module_without_cache(entity_type):
 _cache_entity_to_module = {"": None}
 
 
-# If it throws, the exception is not hidden.
-# If it does not throw, then try to load the module.
 def GetEntityModuleNoCatch(entity_type):
+    """
+    If it throws, the exception is not hidden.
+    If it does not throw, then try to load the module.
+    """
+
     # sys.stderr.write("_get_entity_module_without_cache entity_type=%s\n"%entity_type)
 
     # Do not throw KeyError exception.
@@ -1640,9 +1657,12 @@ def FromModuleToDoc(imported_module, fil_default_text):
     return node_module
 
 
-# This creates a non-clickable node. The text is taken from __doc__ if it exists,
-# otherwise the file name is beautifuled.
 def DirDocNode(arg_dir, the_dir):
+    """
+    This creates a non-clickable node. The text is taken from __doc__ if it exists,
+    otherwise the file name is 'beautifuled'.
+    """
+
     # sys.stderr.write("DirDocNode arg_dir=%s dir=%s\n"%(arg_dir,dir))
     full_module = arg_dir + "." + the_dir
 
@@ -1678,16 +1698,18 @@ def UrlPortalWmi(hostname=None):
     return node_portal
 
 
-# This is used to split a string made of several lines separated by a "\n",
-# following multi-line DocString convention.
-# "Multi-line docstrings consist of a summary line just like a one-line docstring,
-# followed by a blank line, followed by a more elaborate description.
-# The summary line may be used by automatic indexing tools;
-# it is important that it fits on one line and is separated from the rest of the docstring by a blank line.
-# The summary line may be on the same line as the opening quotes or on the next line.
-# The entire docstring is indented the same as the quotes at its first line (see example below)."
-# The only difference is that the blank line is not needed, but can be there.
 def SplitTextTitleRest(title):
+    """
+    This is used to split a string made of several lines separated by a "\n",
+    following multi-line DocString convention.
+    "Multi-line docstrings consist of a summary line just like a one-line docstring,
+    followed by a blank line, followed by a more elaborate description.
+    The summary line may be used by automatic indexing tools;
+    it is important that it fits on one line and is separated from the rest of the docstring by a blank line.
+    The summary line may be on the same line as the opening quotes or on the next line.
+    The entire docstring is indented the same as the quotes at its first line (see example below)."
+    The only difference is that the blank line is not needed, but can be there.
+    """
     title_split = title.strip().split("\n")
 
     page_title_first = title_split[0].strip()
