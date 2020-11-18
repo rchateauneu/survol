@@ -53,19 +53,18 @@ class SurvolLibUtilTest(unittest.TestCase):
         self.assertEqual(entity_id, "Name=C://Users/xyz/Les Ringards - Aldo%2C Mireille%2C Julien.txt,OtherArg=Something")
         self.assertEqual(entity_host, "")
 
-
     def test_parse_xid_wmi(self):
-        entity_type, entity_id, entity_host = lib_util.ParseXid("\\myhost-HP\root\CIMV2\Applications%3A.")
+        entity_type, entity_id, entity_host = lib_util.ParseXid(r"\\myhost-HP\root\CIMV2\Applications%3A.")
         self.assertEqual(entity_type, "")
         self.assertEqual(entity_id, "")
         self.assertEqual(entity_host, "")
 
-        entity_type, entity_id, entity_host = lib_util.ParseXid("\\myhost-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.")
+        entity_type, entity_id, entity_host = lib_util.ParseXid(r"\\myhost-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.")
         self.assertEqual(entity_type, "")
         self.assertEqual(entity_id, "")
         self.assertEqual(entity_host, "")
 
-        entity_type, entity_id, entity_host = lib_util.ParseXid("\\MYHOST-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.Name%3D%22Default%22")
+        entity_type, entity_id, entity_host = lib_util.ParseXid(r"\\MYHOST-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.Name%3D%22Default%22")
         self.assertEqual(entity_type, "")
         self.assertEqual(entity_id, "")
         self.assertEqual(entity_host, "")
