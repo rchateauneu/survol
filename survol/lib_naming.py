@@ -6,20 +6,6 @@ import re
 import lib_patterns
 
 
-# TODO: Make this dynamic, less hard-coded.
-def _uri_to_title(uprs):
-    """Maybe an external URI sending data in RDF, HTML etc...
-    We could also load the URL and gets its title if it is in HTML.
-    urlparse('http://www.cwi.nl:80/%7Eguido/Python.html')
-    ParseResult(scheme='http', netloc='www.cwi.nl:80', path='/%7Eguido/Python.html', params='', query='', fragment='')
-    """
-    basna = lib_util.EncodeUri( os.path.basename( uprs.path ) )
-    if uprs.netloc != "":
-        return uprs.netloc + "/" + basna
-    else:
-        return basna
-
-
 def _entity_array_to_label(entity_type, entity_ids_arr):
     # This fetches in the module of the class, a function called "EntityName".
     func_entity_name = lib_util.HierarchicalFunctionSearch(entity_type, "EntityName")
@@ -224,13 +210,26 @@ def ParseEntityUriWithHost(uri_with_mode, long_display=True, force_entity_ip_add
     # THIS CANNOT WORK WITH IPV6 ADDRESSES...
     # WE MAY USE SCP SYNTAX: scp -6 osis@\[2001:db8:0:1\]:/home/osis/test.file ./test.file
 
+    # This replaces "&amp;" by "&" up to two times if needed.
+    uri_with_mode_clean = lib_util.UrlNoAmp(uri_with_mode)
+
     # In the URI, we might have the CGI parameter "&mode=json". It must be removed otherwise
     # it could be taken in entity_id, and the result of EntityToLabel() would be wrong.
-    uri_with_mode_clean = lib_util.UrlNoAmp(uri_with_mode)
     uri = lib_util.url_mode_replace(uri_with_mode_clean, "")
+
+    # This extracts the mode.
     uri_mode = lib_util.get_url_mode(uri_with_mode_clean)
 
     uprs = lib_util.survol_urlparse(uri)
+
+    uprs_query = uprs.query
+    uprs_query_split_cgi = uprs_query.split("&")
+    cgi_arg_xid = None
+    for one_cgi_arg in uprs_query_split_cgi:
+        if one_cgi_arg.startswith("xid="):
+            cgi_arg_xid = one_cgi_arg[4:]
+            break
+
     # Default value.
     entity_host = ""
 
@@ -241,10 +240,14 @@ def ParseEntityUriWithHost(uri_with_mode, long_display=True, force_entity_ip_add
     # objtypes_wbem.py     Just extracts the namespace, as it prefixes the type: xid=namespace/type:id
 
     # See variable lib_util.xidCgiDelimiter="?xid="
-    if uprs.query.startswith("xid="):
+    # Possibly, the "xid" parameter does not come at the beginning.
+    # Only the first "=" delimiter counts for the CGI variable.
+    # if uprs.query.startswith("xid="):
+    if cgi_arg_xid is not None:
         # TODO: Maybe the chain contains HTML codes and therefore cannot be parsed.
         # Ex: "xid=%40%2F%3Aoracle_package." == "xid=@/:oracle_package."
-        entity_type, entity_id, entity_host = lib_util.ParseXid(uprs.query[4:])
+        # entity_type, entity_id, entity_host = lib_util.ParseXid(uprs.query[4:])
+        entity_type, entity_id, entity_host = lib_util.ParseXid(cgi_arg_xid)
 
         entity_graphic_class = entity_type
 
@@ -271,9 +274,7 @@ def ParseEntityUriWithHost(uri_with_mode, long_display=True, force_entity_ip_add
         else:
             entity_graphic_class = "provider_script"
             entity_id = ""
-
             entity_label = _known_script_to_title(fil_script, uri_mode)
-
     elif uri.split(':')[0] in ["ftp", "http", "https", "urn", "mail"]:
         # Standard URLs. Example: lib_common.NodeUrl( "http://www.google.com" )
         entity_graphic_class = ""
@@ -285,7 +286,15 @@ def ParseEntityUriWithHost(uri_with_mode, long_display=True, force_entity_ip_add
         entity_graphic_class = ""
         # This specific keyword used when no class is specified and there is no object. Easy to spot.
         entity_id = "PLAINTEXTONLY"
-        entity_label = _uri_to_title(uprs)
+
+        # Maybe an external URI sending data in RDF, HTML etc...
+        # We could also load the URL and gets its title if it is in HTML.
+        basna = lib_util.EncodeUri(fil_script)
+        if uprs.netloc != "":
+            entity_label = uprs.netloc + "/" + basna
+        else:
+            entity_label = basna
+
         # TODO: " " are replaced by "%20". Why ? So change back.
         entity_label = entity_label.replace("%20", " ")
 
