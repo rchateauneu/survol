@@ -19,9 +19,9 @@ from sources_types import CIM_ComputerSystem
 _list_props_td_double_col_span = [pc.property_information, pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist1]
 
 
-# This does not change the existing mode if there is one.
-# Otherwise it could erase the MIME type.
 def _url_in_html_mode(an_url):
+    """ This does not change the existing mode if there is one.
+    Otherwise it could erase the MIME type."""
     url_mode = lib_util.get_url_mode(an_url)
     if url_mode:
         return an_url
@@ -39,7 +39,7 @@ def _script_information_html_iterator(theCgi, gblCgiEnvList):
     # It does not matter because this is very fast.
     calling_url = lib_util.RequestUri()
     entity_label, entity_graphic_class, entity_id = lib_naming.ParseEntityUri(calling_url, long_display=True)
-    DEBUG("entity_label=%s entity_graphic_class=%s entity_id=%s", entity_label, entity_graphic_class, entity_id )
+    DEBUG("entity_label=%s entity_graphic_class=%s entity_id=%s", entity_label, entity_graphic_class, entity_id)
 
     yield '<table border="0">'
     if len(gblCgiEnvList):
@@ -573,7 +573,7 @@ def display_html_text_footer():
     yield wrt_txt
 
 
-def _Grph2Html_no_jinja(theCgi, top_url, error_msg, is_sub_server, gblCgiEnvList):
+def _Grph2Html_no_jinja(theCgi, top_url, error_msg, is_sub_server, gbl_cgi_env_list):
     """
         This transforms an internal data graph into a HTML document.
     """
@@ -584,7 +584,7 @@ def _Grph2Html_no_jinja(theCgi, top_url, error_msg, is_sub_server, gblCgiEnvList
 
     WrtAsUtf('<body>')
 
-    script_information = "".join(_script_information_html_iterator(theCgi, gblCgiEnvList))
+    script_information = "".join(_script_information_html_iterator(theCgi, gbl_cgi_env_list))
     WrtAsUtf(script_information)
     object_information = "".join(_object_information_html_iterator(theCgi))
     WrtAsUtf(object_information)
@@ -621,7 +621,7 @@ def _Grph2Html_no_jinja(theCgi, top_url, error_msg, is_sub_server, gblCgiEnvList
     WrtAsUtf("</html> ")
 
 
-def _Grph2Html_jinja(theCgi, top_url, error_msg, is_sub_server, gblCgiEnvList):
+def _Grph2Html_jinja(theCgi, top_url, error_msg, is_sub_server, gbl_cgi_env_list):
     this_dir = os.path.dirname(os.path.abspath(__file__))
     template_file_name = "www/export_html.template.htm"
 
@@ -643,7 +643,7 @@ def _Grph2Html_jinja(theCgi, top_url, error_msg, is_sub_server, gblCgiEnvList):
     jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(this_dir), trim_blocks=True)
     jinja_template = jinja_env.get_template(template_file_name)
 
-    script_information_html = "".join(_script_information_html_iterator(theCgi, gblCgiEnvList))
+    script_information_html = "".join(_script_information_html_iterator(theCgi, gbl_cgi_env_list))
     object_information_html = "".join(_object_information_html_iterator(theCgi))
 
     errors_table_html = "".join(_write_errors_no_jinja(error_msg, is_sub_server))
@@ -677,13 +677,14 @@ def _Grph2Html_jinja(theCgi, top_url, error_msg, is_sub_server, gblCgiEnvList):
     WrtAsUtf(jinja_render)
 
 
-# The list gblCgiEnvList contains a list of URL which are merged
-# into the current URLs. There are displayed for informational purpose.
-def Grph2Html(theCgi, top_url, error_msg, is_sub_server, gblCgiEnvList):
+def Grph2Html(theCgi, top_url, error_msg, is_sub_server, gbl_cgi_env_list):
+    """The list gbl_cgi_env_list contains a list of URL which are merged
+    into the current URLs. There are displayed for informational purpose.
+    """
     lib_util.WrtHeader('text/html')
     if lib_util.GetJinja2():
-        _Grph2Html_jinja(theCgi, top_url, error_msg, is_sub_server, gblCgiEnvList)
+        _Grph2Html_jinja(theCgi, top_url, error_msg, is_sub_server, gbl_cgi_env_list)
     else:
-        _Grph2Html_no_jinja(theCgi, top_url, error_msg, is_sub_server, gblCgiEnvList)
+        _Grph2Html_no_jinja(theCgi, top_url, error_msg, is_sub_server, gbl_cgi_env_list)
 
 ################################################################################
