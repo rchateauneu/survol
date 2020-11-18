@@ -55,19 +55,19 @@ class SurvolLibUtilTest(unittest.TestCase):
 
     def test_parse_xid_wmi(self):
         entity_type, entity_id, entity_host = lib_util.ParseXid(r"\\myhost-HP\root\CIMV2\Applications%3A.")
-        self.assertEqual(entity_type, "")
+        self.assertEqual(entity_type, r"root\CIMV2\Applications:")
         self.assertEqual(entity_id, "")
-        self.assertEqual(entity_host, "")
+        self.assertEqual(entity_host, "myhost-HP")
 
         entity_type, entity_id, entity_host = lib_util.ParseXid(r"\\myhost-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.")
-        self.assertEqual(entity_type, "")
+        self.assertEqual(entity_type, r"root\CIMV2:Win32_PerfFormattedData_Counters_IPHTTPSGlobal")
         self.assertEqual(entity_id, "")
-        self.assertEqual(entity_host, "")
+        self.assertEqual(entity_host, "myhost-HP")
 
         entity_type, entity_id, entity_host = lib_util.ParseXid(r"\\MYHOST-HP\root\CIMV2%3AWin32_PerfFormattedData_Counters_IPHTTPSGlobal.Name%3D%22Default%22")
-        self.assertEqual(entity_type, "")
-        self.assertEqual(entity_id, "")
-        self.assertEqual(entity_host, "")
+        self.assertEqual(entity_type, r"root\CIMV2:Win32_PerfFormattedData_Counters_IPHTTPSGlobal")
+        self.assertEqual(entity_id, 'Name="Default"')
+        self.assertEqual(entity_host, "MYHOST-HP")
 
     def test_parse_xid_wbem(self):
         entity_type, entity_id, entity_host = lib_util.ParseXid("https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name=\"Havana\",ProductName=\"Havana\",Version=\"1.0\"")
