@@ -26,12 +26,13 @@ class Impersonate:
             WARNING("win32security.ImpersonateLoggedOnUser: handle=%s Caught %s", str(self.m_handle), exc)
 
         DEBUG("Username=%s", win32api.GetUserName())
+
     def __del__(self):
         win32security.RevertToSelf()
         self.m_handle.Close()
 
 
-# TODO: It does not work OpenSCManager.
+# TODO: It does not work with OpenSCManager.
 # TODO: If this is not done: "(5, 'NetLocalGroupEnum', 'Access is denied.')"
 # TODO: If this is done, whatever the password: "(127, 'NetLocalGroupEnum', 'The specified procedure could not be found.')"
 # TODO: BEWARE: Apparently it does not work for remote machines before NetShareEnum. When using it,
@@ -83,8 +84,9 @@ def CheckWindowsModule(win_module):
         lib_common.ErrorMessageHtml("File '" + win_module + "' does not exist")
 
     filename, file_extension = os.path.splitext(win_module)
-    if not file_extension.upper() in ( '.EXE','.DLL' ):
-        lib_common.ErrorMessageHtml("File '" + win_module + "' should be a Windows module. Extension="+file_extension)
+    if not file_extension.upper() in ('.EXE', '.DLL'):
+        lib_common.ErrorMessageHtml(
+            "File '" + win_module + "' should be a Windows module. Extension=" + file_extension)
 
 
 # http://stackoverflow.com/questions/580924/python-windows-file-version-attribute
@@ -92,7 +94,8 @@ def getFileProperties(fname):
     """
     Read all properties of the given file return them as a dictionary.
     """
-    prop_names = ('Comments', 'InternalName', 'ProductName',
+    prop_names = (
+        'Comments', 'InternalName', 'ProductName',
         'CompanyName', 'LegalCopyright', 'ProductVersion',
         'FileDescription', 'LegalTrademarks', 'PrivateBuild',
         'FileVersion', 'OriginalFilename', 'SpecialBuild')
@@ -101,11 +104,11 @@ def getFileProperties(fname):
 
     try:
         # backslash as parm returns dictionary of numeric info corresponding to VS_FIXEDFILEINFO struc
-        fixedInfo = win32api.GetFileVersionInfo(fname, '\\')
-        props['FixedFileInfo'] = fixedInfo
-        props['FileVersion'] = "%d.%d.%d.%d" % (fixedInfo['FileVersionMS'] / 65536,
-                fixedInfo['FileVersionMS'] % 65536, fixedInfo['FileVersionLS'] / 65536,
-                fixedInfo['FileVersionLS'] % 65536)
+        fixed_info = win32api.GetFileVersionInfo(fname, '\\')
+        props['FixedFileInfo'] = fixed_info
+        props['FileVersion'] = "%d.%d.%d.%d" % (fixed_info['FileVersionMS'] / 65536,
+                fixed_info['FileVersionMS'] % 65536, fixed_info['FileVersionLS'] / 65536,
+                fixed_info['FileVersionLS'] % 65536)
 
         # \VarFileInfo\Translation returns list of available (language, codepage)
         # pairs that can be used to retreive string info. We are using only the first pair.
@@ -126,8 +129,8 @@ def getFileProperties(fname):
     return props
 
 
-# try paths as described in MSDN
 def WindowsCompletePath():
+    """Try paths as described in MSDN"""
     path = win32api.GetEnvironmentVariable('PATH')
     dirs = [os.getcwd(), win32api.GetSystemDirectory(), win32api.GetWindowsDirectory()] + path.split(';')
 
@@ -151,7 +154,8 @@ def WNetAddConnect(machine_name_no_backslash):
 
     mach_nam_with_backslash = "\\\\" + machine_name_no_backslash
 
-    win32wnet.WNetAddConnection2(win32netcon.RESOURCETYPE_ANY, None,mach_nam_with_backslash, None, usernam,passwd, 0)
+    win32wnet.WNetAddConnection2(win32netcon.RESOURCETYPE_ANY, None,
+                                 mach_nam_with_backslash, None, usernam, passwd, 0)
 
 
 def VersionString(fil_nam):
