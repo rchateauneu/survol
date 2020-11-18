@@ -4,15 +4,13 @@ import json
 import lib_util
 
 # TODO: Several accesses per machine or database ?
-# TODO: What if an access for "192.168.1.78" and "titi" ?
+# TODO: What if an access for "192.168.1.78" and "the_machine_name" ?
 
 
 def credentials_filename():
     """This returns the file name containing the credentials.
     The filename can be overloaded with an environment variable."""
     credentials_basname = "SurvolCredentials.json"
-
-    sys.stderr.write("credentials_filename\n")
 
     def _get_home_directory():
         if lib_util.isPlatformLinux:
@@ -75,24 +73,25 @@ def _credentials_document():
 _credentials_document.credentials = None
 
 
-# For example: GetCredentials("Oracle","XE") or GetCredentials("Login","192.168.1.78")
-# It returns the username and the password.
-def GetCredentials( credType, credName ):
-    if credName is None:
-        credName = ""
+def GetCredentials(cred_type, cred_name):
+    """For example: GetCredentials("Oracle","XE") or GetCredentials("Login","192.168.1.78")
+    It returns the username and the password.
+    """
+    if cred_name is None:
+        cred_name = ""
     credentials = _credentials_document()
-    DEBUG("GetCredentials credType=%s credName=%s credentials=%d elements",credType,credName,len(credentials))
+    DEBUG("GetCredentials cred_type=%s cred_name=%s credentials=%d elements", cred_type, cred_name, len(credentials))
     try:
         if not credentials:
-            return ('','')
-        arrType = credentials[credType]
+            return '', ''
+        arr_type = credentials[cred_type]
     except KeyError:
-        WARNING("GetCredentials Invalid type credType=%s credName=%s",credType,credName)
-        return None
+        WARNING("GetCredentials Invalid type credType=%s credName=%s", cred_type, cred_name)
+        return None, None
 
     # Try first without converting.
     try:
-        cred = arrType[credName]
+        cred = arr_type[cred_name]
         # sys.stderr.write("GetCredentials credType=%s credName=%s usr=%s pass=%s\n" % (credType,credName,cred[0],cred[1]))
         return cred
     except KeyError:
@@ -100,70 +99,72 @@ def GetCredentials( credType, credName ):
 
     # We must convert the machine names to uppercase because this is "sometimes" done by Windows.
     # Might be a problem if several entries are identical except the case.
-    keyVal = credentials[credType]
-    arrTypeUpper = { subKey.upper() : keyVal[subKey] for subKey in arrType }
+    key_val = credentials[cred_type]
+    arr_type_upper = {subKey.upper(): key_val[subKey] for subKey in arr_type}
 
-    credNameUpper = credName.upper()
+    cred_name_upper = cred_name.upper()
     try:
-        cred = arrTypeUpper[credNameUpper]
+        cred = arr_type_upper[cred_name_upper]
         # sys.stderr.write("GetCredentials credType=%s credName=%s usr=%s pass=%s\n" % (credType,credName,cred[0],cred[1]))
         return cred
     except KeyError:
-        WARNING("GetCredentials Unknown name credType=%s credName=%s",credType,credName)
-        return ('','')
+        WARNING("GetCredentials Unknown name credType=%s credName=%s", cred_type, cred_name)
+        return '', ''
 
 
-# For example, if "credType" == "Oracle", it will returned all databases defined in the credentials file.
-# TODO: For Oracle, consider exploring tnsnames.ora ?
-def get_credentials_names( credType ):
+def get_credentials_names(cred_type):
+    """For example, if "credType" == "Oracle", it will returned all databases defined in the credentials file."""
+
+    # TODO: For Oracle, consider exploring tnsnames.ora ?
     try:
-        credDict = _credentials_document()
-        arrType = credDict[credType]
-        return arrType.keys()
+        cred_dict = _credentials_document()
+        arr_type = cred_dict[cred_type]
+        return arr_type.keys()
     except KeyError:
-        ERROR("GetCredentials Invalid type credType=%s",credType)
+        ERROR("GetCredentials Invalid type credType=%s", cred_type)
         return []
 
 
 def get_credentials_types():
     """Returns the various credential types taken form the confidential file: """
     try:
-        credDict = _credentials_document()
-        return credDict.keys()
+        cred_dict = _credentials_document()
+        return cred_dict.keys()
     except KeyError:
         ERROR("GetCredentials Invalid document")
         return None
 
 
-def _dump_credentials_to_file(credDict):
-    filNam = credentials_filename()
-    filFil = open(filNam, 'w')
-    json.dump(credDict, filFil)
-    filFil.close()
+def _dump_credentials_to_file(cred_dict):
+    """Mostly for debugging purpose."""
+    fil_nam = credentials_filename()
+    fil_fil = open(fil_nam, 'w')
+    json.dump(cred_dict, fil_fil)
+    fil_fil.close()
 
 
-def add_one_credential(credType, credName, credUsr, credPwd):
-    credDict = _credentials_document()
+def add_one_credential(cred_type, cred_name, cred_usr, cred_pwd):
+    cred_dict = _credentials_document()
     try:
-        credDict[credType][credName] = [credUsr, credPwd]
+        cred_dict[cred_type][cred_name] = [cred_usr, cred_pwd]
     except KeyError:
         try:
-            credDict[credType] = {credName : [credUsr,credPwd]}
+            cred_dict[cred_type] = {cred_name : [cred_usr, cred_pwd]}
         except KeyError:
-            credDict = {credType: {credName : [credUsr,credPwd]}}
+            cred_dict = {cred_type: {cred_name : [cred_usr, cred_pwd]}}
 
-    _dump_credentials_to_file(credDict)
-
-
-def update_credentials(credMapOut):
-    credDict = dict()
-    for credType in credMapOut:
-        credDict[credType] = dict()
-        for credName in credMapOut[credType]:
-            cred = credMapOut[credType][credName]
-            credDict[credType][credName] = [ cred[0], cred[1] ]
-    _dump_credentials_to_file(credDict)
+    _dump_credentials_to_file(cred_dict)
 
 
-def key_url_cgi_encode(aKeyUrl):
-    return aKeyUrl.replace("http://","http:%2F%2F").replace("https://","https:%2F%2F")
+def update_credentials(cred_map_out):
+    cred_dict = dict()
+    for cred_type in cred_map_out:
+        cred_dict[cred_type] = dict()
+        for cred_name in cred_map_out[cred_type]:
+            cred = cred_map_out[cred_type][cred_name]
+            cred_dict[cred_type][cred_name] = [cred[0], cred[1]]
+    _dump_credentials_to_file(cred_dict)
+
+
+def key_url_cgi_encode(a_key_url):
+    return a_key_url.replace("http://", "http:%2F%2F").replace("https://", "https:%2F%2F")
