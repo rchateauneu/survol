@@ -282,10 +282,10 @@ class CgiEnv():
         This class parses the CGI environment variables which define an entity.
     """
     def __init__(self,
-                 parameters={},
+                 parameters=None,
                  can_process_remote=False,
                  layout_style="",
-                 collapsed_properties=[]):
+                 collapsed_properties=None):
         # It is possible to run these scripts as CGI scripts, so this transforms
         # command line arguments into CGI arguments. This is very helpful for debugging.
         # TODO: At the moment, the mode cannot be changed.
@@ -304,12 +304,12 @@ class CgiEnv():
         mode = lib_util.GuessDisplayMode()
 
         # Contains the optional arguments of the script, entered as CGI arguments..
-        self.m_parameters = parameters
+        self.m_parameters = parameters if parameters else {}
 
         self.m_parameterized_links = dict()
 
         self.m_layout_style = layout_style
-        self.m_collapsed_properties = collapsed_properties
+        self.m_collapsed_properties = collapsed_properties if collapsed_properties else []
 
         # When in merge mode, the display parameters must be stored in a place accessible by the graph.
 
@@ -332,9 +332,6 @@ class CgiEnv():
             force_entity_ip_addr=None)
         # Here, the commas separating the CGI arguments are intact, but the commas in the arguments are encoded.
         entity_id_dict = lib_util.SplitMoniker(entity_id)
-        sys.stderr.write(__file__ + " entity_id_dict=%s\n" % entity_id_dict)
-        #self.m_entity_id_dict = lib_util.SplitMoniker(self.m_entity_id)
-        sys.stderr.write(__file__ + " entity_id_dict=%s\n" % entity_id_dict)
 
         self._concatenate_entity_documentation(full_title, entity_class, entity_id)
 
@@ -488,6 +485,8 @@ class CgiEnv():
         # It uses the same CSS as in HTML mode.
         lib_export_html.display_html_text_header(self.m_page_title + " - parameters")
 
+
+        # TODO: Move this to lib_edition_parameters.py
         print("<body>")
 
         print("<h3>%s</h3><br>"%self.m_page_title)
