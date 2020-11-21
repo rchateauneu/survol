@@ -29,8 +29,8 @@ def Main():
 	nodeBus = lib_util.EntityUri( "dbus/bus", busAddr )
 
 	# This property should maybe stored at the central file.
-	localPropDbusConnect = lib_common.MakeProp("dbus connect")
-	localPropDbusWellKnown = lib_common.MakeProp("well known")
+	localPropDbusConnect = lib_util.MakeProp("dbus connect")
+	localPropDbusWellKnown = lib_util.MakeProp("well known")
 
 	Main.connectNameToNode = dict()
 

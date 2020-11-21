@@ -88,7 +88,7 @@ def DecorateSocketNode(grph, socketNode, host, port, proto):
 		# Aller chercher des infos idealement ??
 
 	if nodUrl:
-		grph.add( ( socketNode, lib_common.MakeProp("port"), nodUrl ) )
+		grph.add( ( socketNode, lib_util.MakeProp("port"), nodUrl ) )
 
 
 ################################################################################
