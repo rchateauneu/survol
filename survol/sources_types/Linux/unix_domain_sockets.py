@@ -33,10 +33,10 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	propPidPath = lib_common.MakeProp("Process")
-	propType = lib_common.MakeProp("Type")
-	propState = lib_common.MakeProp("State")
-	propINode = lib_common.MakeProp("INode")
+	propPidPath = lib_util.MakeProp("Process")
+	propType = lib_util.MakeProp("Type")
+	propState = lib_util.MakeProp("State")
+	propINode = lib_util.MakeProp("INode")
 
 	args = ["netstat", '-a', '--unix', '-p', ]
 	pOpNetstat = lib_common.SubProcPOpen(args)

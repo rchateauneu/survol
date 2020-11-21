@@ -22,7 +22,7 @@ def Main():
 	cgroupName = cgiEnv.GetId()
 	cgroupNode = survol_cgroup.MakeUri(cgroupName)
 
-	propCGroup = lib_common.MakeProp("cgroup")
+	propCGroup = lib_util.MakeProp("cgroup")
 
 	# This file contains all processes belonging to this cgroup.
 	# Example "/sys/fs/cgroup/cpuset/cgroup.procs"
