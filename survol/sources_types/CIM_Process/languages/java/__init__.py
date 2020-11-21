@@ -162,3 +162,20 @@ Java processes
 #
 # Avec jpype:
 # http://blog.nobugware.com/post/2010/11/08/jmx-query-python-cpython/
+
+from sources_types import CIM_Process
+
+def Usable(entity_type, entity_ids_arr):
+    """Java processes"""
+
+    pid_proc = entity_ids_arr[0]
+    proc_obj = CIM_Process.PsutilGetProcObj(pid_proc)
+
+    # Python 2
+    # cmd_arr=['C:\\Python27\\python.exe', 'test_survol_client_library.py', '--debug', 'SurvolLocalTest.test_msdos_current_batch']
+    # Python 3
+    # cmd_arr=['C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\Python36_64\\python.exe', 'test_survol_client_library.py', '--debug', 'SurvolLocalTest.test_msdos_current_batch']
+    argv_array = CIM_Process.PsutilProcToCmdlineArray(proc_obj)
+
+    return "java" in argv_array[0]
+    return True

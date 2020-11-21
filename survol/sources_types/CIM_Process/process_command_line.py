@@ -24,12 +24,6 @@ def Main():
 
     obj_proc = CIM_Process.PsutilGetProcObj(procid)
 
-    try:
-        # Psutil version after 4.0.0
-        envs_dict = obj_proc.environ()
-    except Exception as exc:
-        lib_common.ErrorMessageHtml("Error:" + str(exc))
-
     node_process = lib_common.gUriGen.PidUri(procid)
 
     CIM_Process.add_command_line_arguments(grph, node_process, obj_proc)

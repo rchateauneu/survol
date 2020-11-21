@@ -43,13 +43,9 @@ def Main():
 
     obj_proc = CIM_Process.PsutilGetProcObj(procid)
 
-    env_prop = lib_common.MakeProp("environment")
+    env_prop = lib_util.MakeProp("environment")
 
-    try:
-        # Psutil version after 4.0.0
-        envs_dict = obj_proc.environ()
-    except Exception as exc:
-        lib_common.ErrorMessageHtml("Error:" + str(exc))
+    envs_dict = obj_proc.environ()
 
     node_process = lib_common.gUriGen.PidUri(procid)
 

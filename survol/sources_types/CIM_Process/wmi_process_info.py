@@ -129,7 +129,7 @@ def Main():
 			except KeyError:
 				valUnit = ""
 			valProcUnit = lib_util.AddSIUnit( valProc, valUnit )
-			grph.add( ( node_process, lib_common.MakeProp(prpProc), lib_util.NodeLiteral( valProcUnit ) ) )
+			grph.add( ( node_process, lib_util.MakeProp(prpProc), lib_util.NodeLiteral( valProcUnit ) ) )
 
 		parent_node_process = serverBox.PidUri(wmiProc.ParentProcessId)
 		grph.add( ( node_process, pc.property_ppid, parent_node_process ) )

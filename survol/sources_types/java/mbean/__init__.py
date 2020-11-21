@@ -34,4 +34,4 @@ def MakeUri(pid,mbeanObjectName):
 #	dsnNam = entity_ids_arr[0]
 #	tabNam = entity_ids_arr[0]
 #	nodeTable = odbc_table.MakeUri(dsnNam,tabNam)
-#	grph.add( ( nodeTable, lib_common.MakeProp("ODBC table"), node ) )
+#	grph.add( ( nodeTable, lib_util.MakeProp("ODBC table"), node ) )

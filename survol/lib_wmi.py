@@ -350,19 +350,19 @@ def WmiAddClassQualifiers(grph, conn_wmi, wmi_class_node, class_name, with_props
         # No need to print this, at the moment.
         if False:
             klass_descr = str(dir(getattr(conn_wmi, class_name)))
-            grph.add((wmi_class_node, lib_common.MakeProp("dir"), lib_util.NodeLiteral(klass_descr)))
+            grph.add((wmi_class_node, lib_util.MakeProp("dir"), lib_util.NodeLiteral(klass_descr)))
 
             klass_descr = str(getattr(conn_wmi, class_name)._properties)
-            grph.add((wmi_class_node, lib_common.MakeProp("_properties"), lib_util.NodeLiteral(klass_descr)))
+            grph.add((wmi_class_node, lib_util.MakeProp("_properties"), lib_util.NodeLiteral(klass_descr)))
 
             klass_descr = str(getattr(conn_wmi, class_name).properties["Description"])
-            grph.add((wmi_class_node, lib_common.MakeProp("properties.Description"), lib_util.NodeLiteral(klass_descr)))
+            grph.add((wmi_class_node, lib_util.MakeProp("properties.Description"), lib_util.NodeLiteral(klass_descr)))
 
             klass_descr = str(getattr(conn_wmi, class_name).property_map)
             # Otherwise it crashes.
             # klassDescrClean = klass_descr.replace("{"," ").replace("}"," ")
             # sys.stderr.write("klass_descr=%s\n"%klass_descr)
-            grph.add((wmi_class_node, lib_common.MakeProp("property_map"), lib_util.NodeLiteral(klass_descr.replace("{", " ").replace("}", " "))))
+            grph.add((wmi_class_node, lib_util.MakeProp("property_map"), lib_util.NodeLiteral(klass_descr.replace("{", " ").replace("}", " "))))
 
         the_cls = GetWmiClassFlagUseAmendedQualifiersn(conn_wmi, class_name)
         if the_cls:
@@ -386,7 +386,7 @@ def WmiAddClassQualifiers(grph, conn_wmi, wmi_class_node, class_name, with_props
                     # Properties of different origins should not be mixed.
                     # Prefixes the property with a dot, so sorting displays it at the end.
                     # Surprisingly, the dot becomes invisible.
-                    grph.add((wmi_class_node, lib_common.MakeProp("." + prop_obj.Name), lib_util.NodeLiteral(prop_dsc)))
+                    grph.add((wmi_class_node, lib_util.MakeProp("." + prop_obj.Name), lib_util.NodeLiteral(prop_dsc)))
         else:
             grph.add((wmi_class_node, pc.property_information, lib_util.NodeLiteral("No description for %s" % class_name)))
 
@@ -402,10 +402,10 @@ def WmiAddClassQualifiers(grph, conn_wmi, wmi_class_node, class_name, with_props
             # We would like to have a clickable URL displayed in a table TD.
             if kla_qual_key == "UUID":
                 nodeUUID = lib_common.gUriGen.ComTypeLibUri(kla_qual_val)
-                grph.add((wmi_class_node, lib_common.MakeProp(kla_qual_key), nodeUUID))
+                grph.add((wmi_class_node, lib_util.MakeProp(kla_qual_key), nodeUUID))
                 continue
 
-            grph.add((wmi_class_node, lib_common.MakeProp(kla_qual_key), lib_util.NodeLiteral(kla_qual_val)))
+            grph.add((wmi_class_node, lib_util.MakeProp(kla_qual_key), lib_util.NodeLiteral(kla_qual_val)))
     except Exception as exc:
         try:
             # Dumped in json so that lists can be appropriately deserialized then displayed.
@@ -413,7 +413,7 @@ def WmiAddClassQualifiers(grph, conn_wmi, wmi_class_node, class_name, with_props
         except:
             # Might have caught: 'com_error' object is not iterable
             err_str = json.dumps("Non-iterable COM Error:"+str(exc))
-        grph.add((wmi_class_node, lib_common.MakeProp("WMI Error"), lib_util.NodeLiteral(err_str)))
+        grph.add((wmi_class_node, lib_util.MakeProp("WMI Error"), lib_util.NodeLiteral(err_str)))
 
 
 def ValidClassWmi(class_name):
@@ -700,7 +700,7 @@ def WmiKeyValues(conn_wmi, obj_wmi, display_none_values, class_name):
         if prp_name in ["OSName"]:
             continue
 
-        prp_prop = lib_common.MakeProp(prp_name)
+        prp_prop = lib_util.MakeProp(prp_name)
 
         try:
             val_unit = map_prop_units[prp_name]

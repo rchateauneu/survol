@@ -31,7 +31,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	nameMappedFile = entity_ids_arr[0]
 	# sys.stderr.write("AddInfo entity_id=%s\n" % pidProc )
 	exec_node = lib_common.gUriGen.FileUri( nameMappedFile )
-	grph.add( ( node, lib_common.MakeProp("Mapped file"), exec_node ) )
+	grph.add( ( node, lib_util.MakeProp("Mapped file"), exec_node ) )
 
 # This displays all processes mapping a given filename.
 # This simply iterates on processes, then on mapped files of each process.
@@ -48,13 +48,13 @@ def DisplayMappedProcesses(grph,fileName):
 		statinfo = os.stat(fileName)
 	except Exception:
 		exc = sys.exc_info()[1]
-		grph.add( ( uriMappedFile, lib_common.MakeProp("Error"), lib_util.NodeLiteral(str(exc)) ) )
+		grph.add( ( uriMappedFile, lib_util.MakeProp("Error"), lib_util.NodeLiteral(str(exc)) ) )
 		return
 
 	fileSize = lib_util.AddSIUnit(statinfo.st_size, "B")
 	grph.add( ( uriMappedFile, pc.property_file_size, lib_util.NodeLiteral(fileSize) ) )
 
-	propMemoryRSS = lib_common.MakeProp("Resident Set Size")
+	propMemoryRSS = lib_util.MakeProp("Resident Set Size")
 	for proc in psutil.process_iter():
 
 		if lib_common.is_useless_process(proc):

@@ -53,7 +53,7 @@ def Main():
 		# le meme nom a plusieurs adresses IP.
 		# nodeIP = lib_common.gUriGen.HostnameUri( host )
 
-		grph.add( ( nodeHost, lib_common.MakeProp("IP"), lib_util.NodeLiteral( nodeIP ) ) )
+		grph.add( ( nodeHost, lib_util.MakeProp("IP"), lib_util.NodeLiteral( nodeIP ) ) )
 		# PAS EXACTEMENT nodeHost: Ca affiche l IP (192.168.1.76) mais il faudrait "Titi"
 		### nodeHost = lib_common.gUriGen.HostnameUri(hostname)
 		# Et donc ca duplique le node.
@@ -63,7 +63,7 @@ def Main():
 
 			# grph.add( ( nodeHost, pc.property_hostname, lib_util.NodeLiteral( sub_hostnam ) ) )
 			# It should be the same as the main hostname, which is taken as reference to avoid ambiguities.
-			grph.add( ( nodeHost, lib_common.MakeProp("Hostname"), lib_util.NodeLiteral( sub_hostnam ) ) )
+			grph.add( ( nodeHost, lib_util.MakeProp("Hostname"), lib_util.NodeLiteral( sub_hostnam ) ) )
 
 		for dport in dhost.getElementsByTagName('port'):
 			proto = dport.getAttributeNode('protocol').value
@@ -74,10 +74,10 @@ def Main():
 			survol_addr.DecorateSocketNode(grph, socketNode, hostname, port, proto)
 
 			state = dport.getElementsByTagName('state')[0].getAttributeNode('state').value
-			grph.add( ( socketNode, lib_common.MakeProp("State"), lib_util.NodeLiteral(state) ) )
+			grph.add( ( socketNode, lib_util.MakeProp("State"), lib_util.NodeLiteral(state) ) )
 			
 			reason = dport.getElementsByTagName('state')[0].getAttributeNode('reason').value
-			grph.add( ( socketNode, lib_common.MakeProp("Reason"), lib_util.NodeLiteral(reason) ) )
+			grph.add( ( socketNode, lib_util.MakeProp("Reason"), lib_util.NodeLiteral(reason) ) )
 
 			# name if any
 			#for dname in dport.getElementsByTagName('service'):

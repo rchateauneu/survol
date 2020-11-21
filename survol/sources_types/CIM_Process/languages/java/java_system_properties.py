@@ -33,7 +33,7 @@ def Main():
 	# The properties which should be displayed in matrices instead of individual nodes.
 	propsMatrix = []
 
-	propOrder = lib_common.MakeProp("Order")
+	propOrder = lib_util.MakeProp("Order")
 
 	def ProcessPathes(keyJmxProp,valJmxProp,rdfProp):
 		propsMatrix.append(rdfProp)
@@ -44,7 +44,7 @@ def Main():
 			nodeDirectory = lib_common.gUriGen.DirectoryUri(dirNam)
 
 			# TODO: There should be one matrix per box.
-			# grph.add( ( nodeDirectory, lib_common.MakeProp("Property"), lib_util.NodeLiteral(keyJmxProp) ) )
+			# grph.add( ( nodeDirectory, lib_util.MakeProp("Property"), lib_util.NodeLiteral(keyJmxProp) ) )
 
 			grph.add( ( nodeDirectory, propOrder, lib_util.NodeLiteral(idxPath) ) )
 			grph.add( ( node_process, rdfProp, nodeDirectory ) )
@@ -52,7 +52,7 @@ def Main():
 
 	for keyJmxProp in jmxProps:
 		valJmxProp = jmxProps[keyJmxProp]
-		rdfProp = lib_common.MakeProp(keyJmxProp)
+		rdfProp = lib_util.MakeProp(keyJmxProp)
 
 		# These are list of directories separated by ";"
 		if keyJmxProp in ["sun.boot.class.path","java.library.path","java.ext.dirs","java.endorsed.dirs","java.class.path"]:
