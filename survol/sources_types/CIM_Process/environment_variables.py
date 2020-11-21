@@ -43,7 +43,7 @@ def Main():
 
     obj_proc = CIM_Process.PsutilGetProcObj(procid)
 
-    env_prop = lib_util.MakeProp("environment")
+    env_prop = lib_common.MakeProp("environment")
 
     envs_dict = obj_proc.environ()
 

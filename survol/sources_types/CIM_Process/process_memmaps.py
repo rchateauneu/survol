@@ -26,7 +26,7 @@ def Main():
     except Exception as exc:
         lib_common.ErrorMessageHtml("get_memory_maps Pid=%d. Caught %s\n" % (pid, str(exc)))
 
-    propMemoryRSS = lib_util.MakeProp("Resident Set Size")
+    propMemoryRSS = lib_common.MakeProp("Resident Set Size")
     for map in all_maps:
         # This, because all Windows paths are "standardized" by us.
         # TODO: clean_map_path = lib_util.standardized_file_path(map.path)

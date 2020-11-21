@@ -29,7 +29,7 @@ def AddInfo(grph,node,entity_ids_arr):
 
 	# TODO: PROBLEM, WHAT IF THE PACKAGE BODY DOES NOT EXIST ???
 	nodePackageBody = oracle_package_body.MakeUri( argDb , argSchema, argPackage )
-	grph.add( ( node, lib_util.MakeProp("Associated package body"), nodePackageBody ) )
+	grph.add( ( node, lib_common.MakeProp("Associated package body"), nodePackageBody ) )
 
 	node_oraschema = oracle_schema.MakeUri( argDb, argSchema )
 	grph.add( ( node_oraschema, pc.property_oracle_package, node ) )

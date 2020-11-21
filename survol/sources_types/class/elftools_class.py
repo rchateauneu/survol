@@ -107,7 +107,7 @@ def Main():
 			# symNam = sym.m_splt[-1]
 			# symNod = lib_common.gUriGen.SymbolUri( lib_util.EncodeUri(symNam), fileName )
 			symNod = lib_common.gUriGen.SymbolUri( sym.m_name, fileName )
-			grph.add( ( symNod, lib_util.MakeProp("Version"), lib_util.NodeLiteral(sym.m_vers) ) )
+			grph.add( ( symNod, lib_common.MakeProp("Version"), lib_util.NodeLiteral(sym.m_vers) ) )
 			if lenSplit > 1:
 				clsNod = ClassToNode( sym.m_splt, lenSplit - 1 )
 				grph.add( ( clsNod, pc.property_symbol_defined, symNod ) )

@@ -38,7 +38,7 @@ def Main():
 	hostNode = lib_common.gUriGen.HostnameUri(hostname)
 
 	# BEWARE: This is duplicated.
-	propDb = lib_util.MakeProp("Mysql database")
+	propDb = lib_common.MakeProp("Mysql database")
 
 	nodeMysqlDatabase = survol_mysql_database.MakeUri(instanceName,dbNam)
 	grph.add( ( hostNode, propDb, nodeMysqlDatabase ) )
@@ -52,7 +52,7 @@ def Main():
 	cursorMysql.execute("select * from information_schema.TABLES where TABLE_SCHEMA='%s'" %dbNam)
 
 
-	propTable = lib_util.MakeProp("Mysql table")
+	propTable = lib_common.MakeProp("Mysql table")
 
 	# >>> conn =  MySQLdb.connect(user="primhilltcsrvdb1",passwd="?????",host="primhilltcsrvdb1.mysql.db")
 	# >>> curs=conn.cursor()
@@ -94,8 +94,8 @@ def Main():
 
 		nodeMysqlTable = survol_mysql_table.MakeUri(hostname,dbNam, tableNam)
 
-		grph.add( (nodeMysqlTable, lib_util.MakeProp("Table type"), lib_util.NodeLiteral(tabInfo[3]) ) )
-		grph.add( (nodeMysqlTable, lib_util.MakeProp("Engine"), lib_util.NodeLiteral(tabInfo[4]) ) )
+		grph.add( (nodeMysqlTable, lib_common.MakeProp("Table type"), lib_util.NodeLiteral(tabInfo[3]) ) )
+		grph.add( (nodeMysqlTable, lib_common.MakeProp("Engine"), lib_util.NodeLiteral(tabInfo[4]) ) )
 		grph.add( (nodeMysqlTable, pc.property_information, lib_util.NodeLiteral(tabInfo[20]) ) )
 
 		grph.add( ( nodeMysqlDatabase, propTable, nodeMysqlTable ) )

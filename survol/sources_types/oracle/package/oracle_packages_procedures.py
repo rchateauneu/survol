@@ -32,7 +32,7 @@ def Main():
 	DEBUG("sql_query=%s", sql_query )
 	result = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(), sql_query)
 
-	propProcToPackage = lib_util.MakeProp("Package")
+	propProcToPackage = lib_common.MakeProp("Package")
 	for row in result:
 		procedureName = row[0]
 		procedureNode = oracle_procedure.MakeUri( cgiEnv.m_oraDatabase, oraSchema, procedureName )

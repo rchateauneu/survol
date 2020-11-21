@@ -20,99 +20,90 @@ from sources_types.mysql import query as survol_mysql_query
 
 def Main():
 
-	cgiEnv = lib_common.CgiEnv( )
+    cgiEnv = lib_common.CgiEnv( )
 
-	instanceName = cgiEnv.m_entity_id_dict["Instance"]
-	sessionId = cgiEnv.m_entity_id_dict["Id"]
+    instance_name = cgiEnv.m_entity_id_dict["Instance"]
+    session_id = cgiEnv.m_entity_id_dict["Id"]
 
-	instanceNode = survol_mysql_instance.MakeUri(instanceName)
+    instance_node = survol_mysql_instance.MakeUri(instance_name)
 
-	(hostname,hostport) = survol_mysql.InstanceToHostPort(instanceName)
+    hostname, hostport = survol_mysql.InstanceToHostPort(instance_name)
 
-	cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.CgiEnv()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	hostAddr = lib_util.GlobalGetHostByName(hostname)
+    # BEWARE: The rule whether we use the host name or the host IP is not very clear !
+    # The IP address would be unambiguous but less clear.
+    host_node = lib_common.gUriGen.HostnameUri(hostname)
 
-	# BEWARE: The rule whether we use the host name or the host IP is not very clear !
-	# The IP address would be unambiguous but less clear.
-	hostNode = lib_common.gUriGen.HostnameUri(hostname)
+    # BEWARE: This is duplicated.
+    propDb = lib_common.MakeProp("Mysql database")
 
-	# BEWARE: This is duplicated.
-	propDb = lib_util.MakeProp("Mysql database")
+    a_cred = lib_credentials.GetCredentials("MySql", instance_name)
 
-	#nodeMysqlDatabase = survol_mysql_database.MakeUri(instanceName,dbNam)
-	#grph.add( ( hostNode, propDb, nodeMysqlDatabase ) )
+    conn_mysql = survol_mysql.MysqlConnect(instance_name, aUser=a_cred[0], aPass=a_cred[1])
 
-	aCred = lib_credentials.GetCredentials("MySql", instanceName)
+    cursor_mysql = conn_mysql.cursor()
 
-	connMysql = survol_mysql.MysqlConnect(instanceName,aUser = aCred[0],aPass=aCred[1])
+    # mysql> select * from information_schema.processlist;
+    # +--------+------------------+------------------+------+---------+------+-----------+----------------------------------------------+
+    # | ID     | USER             | HOST             | DB   | COMMAND | TIME | STATE     | INFO                                         |
+    # +--------+------------------+------------------+------+---------+------+-----------+----------------------------------------------+
+    # | 439768 | primhilltcsrvdb1 | 10.2.123.9:52146 | NULL | Query   |    0 | executing | select * from information_schema.processlist |
+    # | 439765 | primhilltcsrvdb1 | 10.2.123.9:52062 | NULL | Sleep   |   13 |           | NULL                                         |
+    # +--------+------------------+------------------+------+---------+------+-----------+----------------------------------------------+
 
-	cursorMysql = connMysql.cursor()
+    cursor_mysql.execute("select * from information_schema.processlist where ID=%s" % session_id)
 
-	# mysql> select * from information_schema.processlist;
-	# +--------+------------------+------------------+------+---------+------+-----------+----------------------------------------------+
-	# | ID     | USER             | HOST             | DB   | COMMAND | TIME | STATE     | INFO                                         |
-	# +--------+------------------+------------------+------+---------+------+-----------+----------------------------------------------+
-	# | 439768 | primhilltcsrvdb1 | 10.2.123.9:52146 | NULL | Query   |    0 | executing | select * from information_schema.processlist |
-	# | 439765 | primhilltcsrvdb1 | 10.2.123.9:52062 | NULL | Sleep   |   13 |           | NULL                                         |
-	# +--------+------------------+------------------+------+---------+------+-----------+----------------------------------------------+
+    grph.add((host_node, lib_common.MakeProp("Mysql instance"), instance_node))
 
-	cursorMysql.execute("select * from information_schema.processlist where ID=%s"%sessionId)
+    # There should be one row only.
+    for sess_info in cursor_mysql:
+        DEBUG("sess_info=%s", str(sess_info))
 
-	propTable = lib_util.MakeProp("Mysql table")
+        mysql_session_id = sess_info[0]
+        mysql_user = sess_info[1]
 
-	grph.add( ( hostNode, lib_util.MakeProp("Mysql instance"), instanceNode ) )
+        session_node = survol_mysql_session.MakeUri(instance_name, mysql_session_id)
 
-	# There should be one row only.
-	for sessInfo in cursorMysql:
-		DEBUG("sessInfo=%s",str(sessInfo))
+        # If there is a proper socket, then create a name for it.
+        mysql_socket = sess_info[2]
+        try:
+            mysql_socket_host, mysql_socket_port = mysql_socket.split(":")
+            socket_node = lib_common.gUriGen.AddrUri(mysql_socket_host, mysql_socket_port)
+            grph.add((session_node, lib_common.MakeProp("Connection socket"), socket_node))
+        except:
+            pass
 
-		mysqlSessionId = sessInfo[0]
-		mysqlUser = sessInfo[1]
+        mysql_db = sess_info[3]
+        grph.add((session_node, lib_common.MakeProp("Database"), lib_util.NodeLiteral(mysql_db)))
 
-		sessionNode = survol_mysql_session.MakeUri(instanceName,mysqlSessionId)
+        mysql_time = sess_info[5]
+        grph.add((session_node, lib_common.MakeProp("Time"), lib_util.NodeLiteral(mysql_time)))
 
-		# If there is a proper socket, then create a name for it.
-		mysqlSocket = sessInfo[2]
-		try:
-			(mysqlSocketHost,mysqlSocketPort) = mysqlSocket.split(":")
-			socketNode = lib_common.gUriGen.AddrUri( mysqlSocketHost, mysqlSocketPort )
-			grph.add( (sessionNode, lib_util.MakeProp("Connection socket"), socketNode ) )
-		except:
-			pass
+        # If there is a running query, then display it.
+        mysql_command = sess_info[4]
+        mysql_state = sess_info[6]
+        if (mysql_command == "Query") and (mysql_state == "executing"):
+            mysql_query = sess_info[7]
 
-		mysqlDB = sessInfo[3]
-		grph.add( (sessionNode, lib_util.MakeProp("Database"), lib_util.NodeLiteral(mysqlDB) ) )
+            node_query = survol_mysql_query.MakeUri(instance_name,mysql_query)
+            grph.add((session_node, lib_common.MakeProp("Mysql query"), node_query))
 
-		mysqlTime = sessInfo[5]
-		grph.add( (sessionNode, lib_util.MakeProp("Time"), lib_util.NodeLiteral(mysqlTime) ) )
+        grph.add((session_node, lib_common.MakeProp("Command"), lib_util.NodeLiteral(mysql_command)))
 
-		# If there is a running query, then display it.
-		mysqlCommand = sessInfo[4]
-		mysqlState = sessInfo[6]
-		if (mysqlCommand == "Query") and (mysqlState == "executing"):
-			mysqlQuery = sessInfo[7]
+        grph.add((session_node, lib_common.MakeProp("State"), lib_util.NodeLiteral(mysql_state)))
 
-			nodeQuery = survol_mysql_query.MakeUri(instanceName,mysqlQuery)
-			grph.add( (sessionNode, lib_util.MakeProp("Mysql query"), nodeQuery ) )
+        grph.add((session_node, lib_common.MakeProp("User"), lib_util.NodeLiteral(mysql_user)))
 
-		grph.add( (sessionNode, lib_util.MakeProp("Command"), lib_util.NodeLiteral(mysqlCommand) ) )
+        grph.add(( session_node, lib_common.MakeProp("Mysql session"), instance_node))
 
-		grph.add( (sessionNode, lib_util.MakeProp("State"), lib_util.NodeLiteral(mysqlState) ) )
+    cursor_mysql.close()
+    conn_mysql.close()
 
-		grph.add( (sessionNode, lib_util.MakeProp("User"), lib_util.NodeLiteral(mysqlUser) ) )
-
-		grph.add( ( sessionNode, lib_util.MakeProp("Mysql session"), instanceNode ) )
-
-
-	cursorMysql.close()
-	connMysql.close()
-
-
-	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
+    cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
 
 if __name__ == '__main__':
-	Main()
+    Main()

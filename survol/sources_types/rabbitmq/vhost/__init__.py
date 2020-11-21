@@ -35,4 +35,4 @@ def AddInfo(grph,node,entity_ids_arr):
 	nodeManager = survol_rabbitmq_manager.MakeUri(namConfig)
 
 	# Inverted property for nicer display.
-	grph.add( ( node, lib_util.MakeProp("Configuration manager"), nodeManager ) )
+	grph.add( ( node, lib_common.MakeProp("Configuration manager"), nodeManager ) )

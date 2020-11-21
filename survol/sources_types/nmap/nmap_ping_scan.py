@@ -113,8 +113,8 @@ def Main():
 
         if node_host:
             if addr_vendor:
-                grph.add((node_host, lib_util.MakeProp("MAC address"), lib_util.NodeLiteral(mac_addr)))
-                grph.add((node_host, lib_util.MakeProp("Vendor"), lib_util.NodeLiteral(addr_vendor)))
+                grph.add((node_host, lib_common.MakeProp("MAC address"), lib_util.NodeLiteral(mac_addr)))
+                grph.add((node_host, lib_common.MakeProp("Vendor"), lib_util.NodeLiteral(addr_vendor)))
         
         for dhostname in dhost.getElementsByTagName('hostname'):
             hostnam = dhostname.getAttributeNode('name').value

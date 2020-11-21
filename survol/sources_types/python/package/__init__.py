@@ -19,9 +19,9 @@ except ImportError:
 
 
 # TODO: Should do that only when executing ?? How to make the difference ??
-propPythonVersion = lib_util.MakeProp("Version")
-propPythonRequires = lib_util.MakeProp("Requires")
-propPythonPackage = lib_util.MakeProp("Package")
+propPythonVersion = lib_common.MakeProp("Version")
+propPythonRequires = lib_common.MakeProp("Requires")
+propPythonPackage = lib_common.MakeProp("Package")
 
 
 def EntityOntology():
@@ -45,8 +45,8 @@ def _fill_one_package(grph, node, good_pckg):
     # oint', 'location', 'parsed_version', 'platform', 'precedence', 'project_name', 'py_version', 'requires', 'version']
 
     grph.add((node, propPythonVersion, lib_util.NodeLiteral(good_pckg.version)))
-    grph.add((node, lib_util.MakeProp("Platform"), lib_util.NodeLiteral(good_pckg.platform)))
-    grph.add((node, lib_util.MakeProp("project_name"), lib_util.NodeLiteral(good_pckg.project_name)))
+    grph.add((node, lib_common.MakeProp("Platform"), lib_util.NodeLiteral(good_pckg.platform)))
+    grph.add((node, lib_common.MakeProp("project_name"), lib_util.NodeLiteral(good_pckg.project_name)))
 
     # >>> pip.get_installed_distributions()[1].requires()
     # [Requirement.parse('distribute'), Requirement.parse('werkzeug'), Requirement.parse('mako')]
@@ -59,17 +59,17 @@ def _fill_one_package(grph, node, good_pckg):
         # [('>=', '4.0.0')]+[]+[('>=','4.0')]+[]
         a_specs = sub_req.specs
         if a_specs:
-            grph.add((sub_node, lib_util.MakeProp("Condition"), lib_util.NodeLiteral(str(a_specs))))
-        grph.add((node, lib_util.MakeProp("requires"), sub_node))
+            grph.add((sub_node, lib_common.MakeProp("Condition"), lib_util.NodeLiteral(str(a_specs))))
+        grph.add((node, lib_common.MakeProp("requires"), sub_node))
 
-    grph.add((node, lib_util.MakeProp("py_version"), lib_util.NodeLiteral(good_pckg.py_version)))
-    grph.add((node, lib_util.MakeProp("precedence"), lib_util.NodeLiteral(good_pckg.precedence)))
-    grph.add((node, lib_util.MakeProp("egg_name"), lib_util.NodeLiteral(good_pckg.egg_name())))
+    grph.add((node, lib_common.MakeProp("py_version"), lib_util.NodeLiteral(good_pckg.py_version)))
+    grph.add((node, lib_common.MakeProp("precedence"), lib_util.NodeLiteral(good_pckg.precedence)))
+    grph.add((node, lib_common.MakeProp("egg_name"), lib_util.NodeLiteral(good_pckg.egg_name())))
 
     # This might return location="c:\python27\lib\site-packages"
     clean_loca_dir = lib_util.standardized_file_path(good_pckg.location)
     node_location = lib_common.gUriGen.DirectoryUri(clean_loca_dir)
-    grph.add((node, lib_util.MakeProp("Location"), node_location))
+    grph.add((node, lib_common.MakeProp("Location"), node_location))
 
 
 # http://stackoverflow.com/questions/247770/retrieving-python-module-path
@@ -101,7 +101,7 @@ def _add_info_from_pip(grph, node, package_key):
                         a_specs = sub_req.specs
                         if a_specs:
                             # TODO: This should be displayed on the edge !!!
-                            grph.add((node, lib_util.MakeProp("Condition "+pckg.key), lib_util.NodeLiteral(str(a_specs))))
+                            grph.add((node, lib_common.MakeProp("Condition "+pckg.key), lib_util.NodeLiteral(str(a_specs))))
                         grph.add((subNode, propPythonRequires, node ))
                         break
 
@@ -138,7 +138,7 @@ def _add_info_from_import(grph, package_node, package_key):
         try:
             txt_val = getattr(the_module, val_prop)
             if txt_val:
-                grph.add((package_node, lib_util.MakeProp(key_prop), lib_util.NodeLiteral(txt_val)))
+                grph.add((package_node, lib_common.MakeProp(key_prop), lib_util.NodeLiteral(txt_val)))
         except AttributeError:
             pass
 

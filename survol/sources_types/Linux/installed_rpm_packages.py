@@ -39,7 +39,7 @@ def Main():
 
 	rpmProps = survol_rpm.RpmProps()
 
-	rpmPropName = lib_util.MakeProp("rpm")
+	rpmPropName = lib_common.MakeProp("rpm")
 
 	try:
 		ts = rpm.TransactionSet()

@@ -49,7 +49,7 @@ def Main():
 	hostNode = lib_common.gUriGen.HostnameUri(hostname)
 
 	# BEWARE: This is duplicated.
-	propDb = lib_util.MakeProp("Mysql database")
+	propDb = lib_common.MakeProp("Mysql database")
 
 	nodeMysqlDatabase = survol_mysql_database.MakeUri(instanceName,dbNam)
 	grph.add( ( hostNode, propDb, nodeMysqlDatabase ) )
@@ -62,20 +62,20 @@ def Main():
 
 	cursorMysql.execute("select * from information_schema.TABLES where TABLE_SCHEMA='%s'" %dbNam)
 
-	propTable = lib_util.MakeProp("Mysql table")
+	propTable = lib_common.MakeProp("Mysql table")
 
 	cursorMysql.execute("select TABLE_NAME, REFERENCED_TABLE_NAME, CONSTRAINT_NAME "
 	" from information_schema.referential_constraints"
 	" where CONSTRAINT_SCHEMA='%s' " %(dbNam))
 
-	propConstraint = lib_util.MakeProp("Table type")
+	propConstraint = lib_common.MakeProp("Table type")
 
 	# There should be only one row, maximum.
 	for constraintInfo in cursorMysql:
 		DEBUG("constraintInfo=%s",str(constraintInfo))
 		tableNam = constraintInfo[0]
 		tableNamRef = constraintInfo[1]
-		propConstraint = lib_util.MakeProp(constraintInfo[2])
+		propConstraint = lib_common.MakeProp(constraintInfo[2])
 		DEBUG("tableNam=%s",tableNam)
 
 		nodeMysqlTable = survol_mysql_table.MakeUri(hostname,dbNam, tableNam)

@@ -56,21 +56,21 @@ def Main():
 		nodeUser = survol_rabbitmq_user.MakeUri(configNam,namUser)
 
 		try:
-			grph.add( ( nodeUser, lib_util.MakeProp("Tags"), lib_util.NodeLiteral(objUser["tags"]) ) )
+			grph.add( ( nodeUser, lib_common.MakeProp("Tags"), lib_util.NodeLiteral(objUser["tags"]) ) )
 		except KeyError:
 			pass
 
 		try:
-			grph.add( ( nodeUser, lib_util.MakeProp("Hashing algorithm"), lib_util.NodeLiteral(objUser["hashing_algorithm"]) ) )
+			grph.add( ( nodeUser, lib_common.MakeProp("Hashing algorithm"), lib_util.NodeLiteral(objUser["hashing_algorithm"]) ) )
 		except KeyError:
 			pass
 
 		# http://127.0.0.1:12345/#/users/guest
 		managementUrl = rabbitmq.ManagementUrlPrefix(configNam,"users",namUser)
 
-		grph.add( ( nodeUser, lib_util.MakeProp("Management"), lib_common.NodeUrl(managementUrl) ) )
+		grph.add( ( nodeUser, lib_common.MakeProp("Management"), lib_common.NodeUrl(managementUrl) ) )
 
-		grph.add( ( nodeManager, lib_util.MakeProp("User"), nodeUser ) )
+		grph.add( ( nodeManager, lib_common.MakeProp("User"), nodeUser ) )
 
 
 	cgiEnv.OutCgiRdf()

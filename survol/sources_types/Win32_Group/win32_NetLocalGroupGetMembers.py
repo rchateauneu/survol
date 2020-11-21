@@ -99,8 +99,8 @@ def Main():
             member_data, total, member_resume = win32net.NetLocalGroupGetMembers(
                 servName_or_None, group_name, 2, memberresume)
 
-            prop_sid_usage = lib_util.MakeProp("SID Usage")
-            prop_security_identifier = lib_util.MakeProp("Security Identifier")
+            prop_sid_usage = lib_common.MakeProp("SID Usage")
+            prop_security_identifier = lib_common.MakeProp("Security Identifier")
 
             for member in member_data:
                 sid_usage = member['sidusage']

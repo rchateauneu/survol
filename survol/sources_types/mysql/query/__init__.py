@@ -23,7 +23,7 @@ def MakeUri(strQuery,instanceName):
 def AddInfo(grph,node,entity_ids_arr):
 	instanceName = entity_ids_arr[1]
 	nodeInstance = survol_mysql_instance.MakeUri(instanceName)
-	grph.add((node,lib_util.MakeProp("Instance"),nodeInstance))
+	grph.add((node,lib_common.MakeProp("Instance"),nodeInstance))
 
 # It receives a query and the list of tables or views it depends on,
 # and also the connection parameters to the database, which here is only a mysql instance,

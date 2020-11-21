@@ -111,7 +111,7 @@ def EntityOntology():
 def MakeUri(productIdentifyingNumber):
     return lib_common.gUriGen.UriMake("Win32_Product",productIdentifyingNumber)
 
-propProductInstallSource = lib_util.MakeProp("InstallSource")
+propProductInstallSource = lib_common.MakeProp("InstallSource")
 
 def AddInstallSource(grph,node,winProd):
 	# Windows file name, with backslashes replaced by convention in this software.
@@ -139,50 +139,50 @@ def AddInfo(grph,node,entity_ids_arr):
 		AddInstallSource(grph,node,winProd)
 
 		nodeLocalPackage = lib_common.gUriGen.FileUri( winProd.LocalPackage )
-		grph.add( (node, lib_util.MakeProp("LocalPackage"), nodeLocalPackage ) )
+		grph.add( (node, lib_common.MakeProp("LocalPackage"), nodeLocalPackage ) )
 
 		if winProd.RegCompany:
-			grph.add( (node, lib_util.MakeProp("Vendor"), lib_util.NodeLiteral(winProd.RegCompany) ) )
-		grph.add( (node, lib_util.MakeProp("Version"), lib_util.NodeLiteral(winProd.VersionString) ) )
-		grph.add( (node, lib_util.MakeProp("Name"), lib_util.NodeLiteral(winProd.ProductName) ) )
+			grph.add( (node, lib_common.MakeProp("Vendor"), lib_util.NodeLiteral(winProd.RegCompany) ) )
+		grph.add( (node, lib_common.MakeProp("Version"), lib_util.NodeLiteral(winProd.VersionString) ) )
+		grph.add( (node, lib_common.MakeProp("Name"), lib_util.NodeLiteral(winProd.ProductName) ) )
 
 		if winProd.RegOwner:
-			grph.add( (node, lib_util.MakeProp("RegOwner"), lib_util.NodeLiteral(winProd.RegOwner) ) )
+			grph.add( (node, lib_common.MakeProp("RegOwner"), lib_util.NodeLiteral(winProd.RegOwner) ) )
 		if winProd.ProductID:
-			grph.add( (node, lib_util.MakeProp("ProductID"), lib_util.NodeLiteral(winProd.ProductID) ) )
+			grph.add( (node, lib_common.MakeProp("ProductID"), lib_util.NodeLiteral(winProd.ProductID) ) )
 
 		if winProd.ProductIcon:
 			nodeProductIcon = lib_common.gUriGen.FileUri( winProd.ProductIcon )
-			grph.add( (node, lib_util.MakeProp("ProductIcon"), nodeProductIcon ) )
+			grph.add( (node, lib_common.MakeProp("ProductIcon"), nodeProductIcon ) )
 
-		grph.add( (node, lib_util.MakeProp("PackageName"), lib_util.NodeLiteral(winProd.PackageName) ) )
-		grph.add( (node, lib_util.MakeProp("PackageCode"), lib_util.NodeLiteral(winProd.PackageCode) ) )
+		grph.add( (node, lib_common.MakeProp("PackageName"), lib_util.NodeLiteral(winProd.PackageName) ) )
+		grph.add( (node, lib_common.MakeProp("PackageCode"), lib_util.NodeLiteral(winProd.PackageCode) ) )
 
 		if winProd.Transforms:
-			grph.add( (node, lib_util.MakeProp("Transforms"), lib_util.NodeLiteral(winProd.Transforms) ) )
-		grph.add( (node, lib_util.MakeProp("AssignmentType"), lib_util.NodeLiteral(winProd.AssignmentType) ) )
+			grph.add( (node, lib_common.MakeProp("Transforms"), lib_util.NodeLiteral(winProd.Transforms) ) )
+		grph.add( (node, lib_common.MakeProp("AssignmentType"), lib_util.NodeLiteral(winProd.AssignmentType) ) )
 
 		if winProd.InstallDate:
 			txtDate = winProd.InstallDate[0:4] + "-" + winProd.InstallDate[4:6] + "-" + winProd.InstallDate[6:8]
-			grph.add( (node, lib_util.MakeProp("InstallDate"), lib_util.NodeLiteral(txtDate) ) )
+			grph.add( (node, lib_common.MakeProp("InstallDate"), lib_util.NodeLiteral(txtDate) ) )
 
-		grph.add( (node, lib_util.MakeProp("Publisher"), lib_util.NodeLiteral(winProd.Publisher) ) )
+		grph.add( (node, lib_common.MakeProp("Publisher"), lib_util.NodeLiteral(winProd.Publisher) ) )
 
 		if winProd.HelpLink:
-			grph.add( (node, lib_util.MakeProp("HelpLink"), lib_common.NodeUrl(winProd.HelpLink) ) )
+			grph.add( (node, lib_common.MakeProp("HelpLink"), lib_common.NodeUrl(winProd.HelpLink) ) )
 		if winProd.HelpTelephone:
-			grph.add( (node, lib_util.MakeProp("HelpTelephone"), lib_util.NodeLiteral(winProd.HelpTelephone) ) )
+			grph.add( (node, lib_common.MakeProp("HelpTelephone"), lib_util.NodeLiteral(winProd.HelpTelephone) ) )
 
 		try:
 			if winProd.URLInfoAbout:
 				# This is an URL so we make it clickable
-				grph.add( (node, lib_util.MakeProp("URLInfoAbout"), lib_common.NodeUrl(winProd.URLInfoAbout) ) )
+				grph.add( (node, lib_common.MakeProp("URLInfoAbout"), lib_common.NodeUrl(winProd.URLInfoAbout) ) )
 		except AttributeError:
 			pass
 		try:
 			if winProd.URLUpdateInfo:
 				# This is an URL so we make it clickable
-				grph.add( (node, lib_util.MakeProp("URLUpdateInfo"), lib_common.NodeUrl(winProd.URLUpdateInfo) ) )
+				grph.add( (node, lib_common.MakeProp("URLUpdateInfo"), lib_common.NodeUrl(winProd.URLUpdateInfo) ) )
 		except AttributeError:
 			pass
 
@@ -249,26 +249,26 @@ def AddInfo_DEPRECATED(grph,node,entity_ids_arr):
 		if nbProds > 0:
 			winProd = winProds[0]
 			nodeInstallSource = lib_common.gUriGen.FileUri( winProd.InstallSource )
-			grph.add( (node, lib_util.MakeProp("InstallSource"), nodeInstallSource ) )
+			grph.add( (node, lib_common.MakeProp("InstallSource"), nodeInstallSource ) )
 
 			nodeLocalPackage = lib_common.gUriGen.FileUri( winProd.LocalPackage )
-			grph.add( (node, lib_util.MakeProp("LocalPackage"), nodeLocalPackage ) )
+			grph.add( (node, lib_common.MakeProp("LocalPackage"), nodeLocalPackage ) )
 
 			nodePackageCache = lib_common.gUriGen.FileUri( winProd.PackageCache )
-			grph.add( (nodePackageCache, lib_util.MakeProp("PackageName"), lib_util.NodeLiteral(winProd.PackageName) ) )
-			grph.add( (nodePackageCache, lib_util.MakeProp("PackageCode"), lib_util.NodeLiteral(winProd.PackageCode) ) )
-			grph.add( (node, lib_util.MakeProp("LocalPackage"), nodePackageCache ) )
+			grph.add( (nodePackageCache, lib_common.MakeProp("PackageName"), lib_util.NodeLiteral(winProd.PackageName) ) )
+			grph.add( (nodePackageCache, lib_common.MakeProp("PackageCode"), lib_util.NodeLiteral(winProd.PackageCode) ) )
+			grph.add( (node, lib_common.MakeProp("LocalPackage"), nodePackageCache ) )
 
-			grph.add( (node, lib_util.MakeProp("Vendor"), lib_util.NodeLiteral(winProd.Vendor) ) )
-			grph.add( (node, lib_util.MakeProp("Version"), lib_util.NodeLiteral(winProd.Version) ) )
-			grph.add( (node, lib_util.MakeProp("Name"), lib_util.NodeLiteral(winProd.Name) ) )
+			grph.add( (node, lib_common.MakeProp("Vendor"), lib_util.NodeLiteral(winProd.Vendor) ) )
+			grph.add( (node, lib_common.MakeProp("Version"), lib_util.NodeLiteral(winProd.Version) ) )
+			grph.add( (node, lib_common.MakeProp("Name"), lib_util.NodeLiteral(winProd.Name) ) )
 
 			try:
-				grph.add( (node, lib_util.MakeProp("URLInfoAbout"), lib_util.NodeLiteral(winProd.URLInfoAbout) ) )
+				grph.add( (node, lib_common.MakeProp("URLInfoAbout"), lib_util.NodeLiteral(winProd.URLInfoAbout) ) )
 			except AttributeError:
 				pass
 			try:
-				grph.add( (node, lib_util.MakeProp("URLUpdateInfo"), lib_util.NodeLiteral(winProd.URLUpdateInfo) ) )
+				grph.add( (node, lib_common.MakeProp("URLUpdateInfo"), lib_util.NodeLiteral(winProd.URLUpdateInfo) ) )
 			except AttributeError:
 				pass
 

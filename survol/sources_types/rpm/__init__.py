@@ -23,7 +23,7 @@ def RpmProps():
 	listProps = ["epoch", "version", "release", "arch"]
 
 	# Add a dot, so they come first.
-	rpmProps = { propKey: lib_util.MakeProp("."+propKey) for propKey in listProps }
+	rpmProps = { propKey: lib_common.MakeProp("."+propKey) for propKey in listProps }
 
 	return rpmProps
 

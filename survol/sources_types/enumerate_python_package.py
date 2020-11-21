@@ -70,7 +70,7 @@ def Main():
                 # [('>=', '4.0.0')]+[]+[('>=','4.0')]+[]
                 # aSpecs = sub_req.specs
                 # if aSpecs:
-                #    grph.add( (sub_node, lib_util.MakeProp("Condition"), lib_util.NodeLiteral( str(aSpecs) ) ) )
+                #    grph.add( (sub_node, lib_common.MakeProp("Condition"), lib_util.NodeLiteral( str(aSpecs) ) ) )
 
                 grph.add((package_node, package.propPythonRequires, sub_node))
         else:

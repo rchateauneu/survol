@@ -22,4 +22,4 @@ def AddInfo(grph,node,entity_ids_arr):
 	# groupName = entity_ids_arr[0]
 	domainName = entity_ids_arr[1]
 	nodeMachine = lib_common.gUriGen.HostnameUri( domainName )
-	grph.add((node,lib_util.MakeProp("Host"), nodeMachine))
+	grph.add((node,lib_common.MakeProp("Host"), nodeMachine))

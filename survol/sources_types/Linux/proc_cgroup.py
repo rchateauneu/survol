@@ -34,9 +34,9 @@ def Main():
 		enabled = split_cg[3]
 
 		cgrpNode = survol_cgroup.MakeUri( subsys_name )
-		grph.add( ( cgrpNode, lib_util.MakeProp("Hierarchy"), lib_util.NodeLiteral(hierarchy) ) )
-		grph.add( ( cgrpNode, lib_util.MakeProp("Num CGroups"), lib_util.NodeLiteral(num_cgroups) ) )
-		grph.add( ( cgrpNode, lib_util.MakeProp("Enabled"), lib_util.NodeLiteral(enabled) ) )
+		grph.add( ( cgrpNode, lib_common.MakeProp("Hierarchy"), lib_util.NodeLiteral(hierarchy) ) )
+		grph.add( ( cgrpNode, lib_common.MakeProp("Num CGroups"), lib_util.NodeLiteral(num_cgroups) ) )
+		grph.add( ( cgrpNode, lib_common.MakeProp("Enabled"), lib_util.NodeLiteral(enabled) ) )
 
 	cgiEnv.OutCgiRdf()
 
