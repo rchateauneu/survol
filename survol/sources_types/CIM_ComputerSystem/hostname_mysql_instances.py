@@ -30,7 +30,7 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	propInstance = lib_common.MakeProp("Mysql instance")
+	propInstance = lib_util.MakeProp("Mysql instance")
 
 	# Now it looks for Mysql instances which are hosted on this machine.
 	credList = lib_credentials.get_credentials_names("MySql")

@@ -34,7 +34,7 @@ def Main():
 					strVal = "No value"
 			DEBUG("%s = %s",theKey,strVal)
 
-			grph.add( ( node_process, lib_common.MakeProp(theKey), lib_util.NodeLiteral(strVal) ) )
+			grph.add( ( node_process, lib_util.MakeProp(theKey), lib_util.NodeLiteral(strVal) ) )
 
 	cgiEnv.OutCgiRdf()
 

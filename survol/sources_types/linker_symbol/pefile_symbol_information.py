@@ -98,13 +98,13 @@ def Main():
 			# Possible values are "name","offset","ordinal","forwarder"
 			try:
 				fwrd = getattr(sym,"forwarder")
-				grph.add( ( symNode, lib_common.MakeProp("Forwarder"), lib_util.NodeLiteral( fwrd ) ) )
+				grph.add( ( symNode, lib_util.MakeProp("Forwarder"), lib_util.NodeLiteral( fwrd ) ) )
 			except:
 				pass
 
 			try:
 				fwrd = getattr(sym,"ordinal")
-				grph.add( ( symNode, lib_common.MakeProp("Ordinal"), lib_util.NodeLiteral( fwrd ) ) )
+				grph.add( ( symNode, lib_util.MakeProp("Ordinal"), lib_util.NodeLiteral( fwrd ) ) )
 			except:
 				pass
 

@@ -45,9 +45,9 @@ def Main():
         for subsys_name in subsys_name_list.split(","):
             if subsys_name:
                 cgrpNode = survol_cgroup.MakeUri( subsys_name )
-                grph.add( ( node_process, lib_common.MakeProp("CGroup"), cgrpNode ) )
-                grph.add( ( cgrpNode, lib_common.MakeProp("Hierarchy"), lib_util.NodeLiteral(hierarchy) ) )
-                grph.add( ( cgrpNode, lib_common.MakeProp("Control group path"), mount_path_node ) )
+                grph.add( ( node_process, lib_util.MakeProp("CGroup"), cgrpNode ) )
+                grph.add( ( cgrpNode, lib_util.MakeProp("Hierarchy"), lib_util.NodeLiteral(hierarchy) ) )
+                grph.add( ( cgrpNode, lib_util.MakeProp("Control group path"), mount_path_node ) )
 
     cgiEnv.OutCgiRdf()
 

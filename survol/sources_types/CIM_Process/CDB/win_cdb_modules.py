@@ -75,7 +75,7 @@ def Main():
     # Without decode, "TypeError: Type str does not support the buffer API"
     cdb_str =  cdb_output.decode("utf-8", "ignore")
 
-    prop_loaded_module = lib_common.MakeProp("Loaded module")
+    prop_loaded_module = lib_util.MakeProp("Loaded module")
 
     for dot_line in cdb_str.split('\n'):
         # sys.stderr.write("Line=%s\n" % dot_line )
@@ -116,19 +116,19 @@ def Main():
         match_lin = re.match( " *CompanyName: *(.*)", dot_line )
         if match_lin:
             companyName = match_lin.group(1)
-            grph.add((file_node, lib_common.MakeProp("Company Name"), lib_util.NodeLiteral(companyName)))
+            grph.add((file_node, lib_util.MakeProp("Company Name"), lib_util.NodeLiteral(companyName)))
             continue
 
         match_lin = re.match(" *File OS: *(.*)", dot_line)
         if match_lin:
             file_os = match_lin.group(1)
-            grph.add((file_node, lib_common.MakeProp("File OS"), lib_util.NodeLiteral(file_os)))
+            grph.add((file_node, lib_util.MakeProp("File OS"), lib_util.NodeLiteral(file_os)))
             continue
 
         match_lin = re.match(" *FileDescription: *(.*)", dot_line)
         if match_lin:
             file_description = match_lin.group(1)
-            grph.add((file_node, lib_common.MakeProp("Description"), lib_util.NodeLiteral(file_description)))
+            grph.add((file_node, lib_util.MakeProp("Description"), lib_util.NodeLiteral(file_description)))
             continue
 
         # sys.stderr.write("dot_line=%s\n" % dot_line )

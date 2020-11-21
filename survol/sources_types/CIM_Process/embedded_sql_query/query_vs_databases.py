@@ -27,7 +27,7 @@ def Main():
 
 	list_of_tables = lib_sql.TableDependencies(sqlQuery)
 
-	propTypeDb = lib_common.MakeProp("Database type")
+	propTypeDb = lib_util.MakeProp("Database type")
 
 	arrProps = []
 
@@ -46,7 +46,7 @@ def Main():
 
 		# This creates a non-clickable node. TODO: DOES NOT WORK ??
 
-		propTypeThisDb = lib_common.MakeProp(namDbType)
+		propTypeThisDb = lib_util.MakeProp(namDbType)
 		arrProps.append(propTypeThisDb)
 
 		grph.add((nodeProcessQuery,propTypeDb,nodeTypeDb))
