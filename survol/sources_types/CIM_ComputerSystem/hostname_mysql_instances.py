@@ -16,40 +16,38 @@ from lib_properties import pc
 # This does not import genuine mysql packages so this will always work.
 from sources_types.mysql import instance as survol_mysql_instance
 
+
 def Main():
+    cgiEnv = lib_common.CgiEnv()
+    hostname = cgiEnv.GetId()
 
-	cgiEnv = lib_common.CgiEnv( )
-	# instanceName = cgiEnv.GetId()
-	# instanceName = cgiEnv.m_entity_id_dict["Instance"]
-	hostname = cgiEnv.GetId()
+    host_addr = lib_util.GlobalGetHostByName(hostname)
+    host_node = lib_common.gUriGen.HostnameUri(hostname)
 
-	hostAddr = lib_util.GlobalGetHostByName(hostname)
-	hostNode = lib_common.gUriGen.HostnameUri(hostname)
+    cgiEnv = lib_common.CgiEnv()
 
-	cgiEnv = lib_common.CgiEnv()
+    grph = cgiEnv.GetGraph()
 
-	grph = cgiEnv.GetGraph()
+    prop_instance = lib_common.MakeProp("Mysql instance")
 
-	propInstance = lib_util.MakeProp("Mysql instance")
+    # Now it looks for Mysql instances which are hosted on this machine.
+    cred_list = lib_credentials.get_credentials_names("MySql")
+    for instance_name in cred_list:
+        # This does not even need mysql package, so it can always detect instances.
+        sql_inst_host = instance_name.split(":")[0].strip()
 
-	# Now it looks for Mysql instances which are hosted on this machine.
-	credList = lib_credentials.get_credentials_names("MySql")
-	for instanceName in credList:
-		# This does not even need mysql package, so it can always detect instances.
-		sqlInstHost = instanceName.split(":")[0].strip()
+        if (sql_inst_host != hostname) and (sql_inst_host != host_addr):
+            sql_inst_addr = lib_util.GlobalGetHostByName(sql_inst_host)
+            if (sql_inst_addr != hostname) and (sql_inst_addr != host_addr):
+                continue
 
-		if ( sqlInstHost != hostname ) and ( sqlInstHost != hostAddr ):
-			sqlInstAddr = lib_util.GlobalGetHostByName(sqlInstHost)
-			if ( sqlInstAddr != hostname ) and ( sqlInstAddr != hostAddr ):
-				continue
+        # Intentionaly, it does not use mysql package.
+        node_instance = survol_mysql_instance.MakeUri(instance_name)
 
-		# Intentionaly, it does not use mysql package.
-		# nodeInstance = lib_common.gUriGen.UriMakeFromDict("mysql/instance", { "Instance": instanceName } )
-		nodeInstance = survol_mysql_instance.MakeUri(instanceName)
+        grph.add((host_node, prop_instance, node_instance))
 
-		grph.add( ( hostNode, propInstance, nodeInstance ) )
+    cgiEnv.OutCgiRdf()
 
-	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
-	Main()
+    Main()
