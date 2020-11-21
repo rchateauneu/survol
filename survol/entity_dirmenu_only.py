@@ -168,7 +168,8 @@ def DirToMenu(callback_grph_add, parent_node, entity_type, entity_id, entity_hos
 
             try:
                 imported_mod = lib_util.GetScriptModule(arg_dir, fil)
-            except Exception as error_msg:
+            except Exception as exc:
+                error_msg = exc
                 #_dir_menu_report( depthCall, "dir_to_menu_aux Cannot import=%s. Caught: %s\n" % (script_path, error_msg ) )
                 imported_mod = None
                 if not flag_show_all:
