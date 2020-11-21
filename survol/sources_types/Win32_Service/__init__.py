@@ -236,7 +236,7 @@ def AddInfo(grph,node,entity_ids_arr):
 			if int(valSrv) != 0:
 				nodeProc = lib_common.gUriGen.PidUri(valSrv)
 				grph.add( (nodeProc, pc.property_pid, lib_util.NodeLiteral(valSrv) ) )
-				grph.add( (node,lib_common.MakeProp(keySrv), nodeProc ) )
+				grph.add( (node,lib_util.MakeProp(keySrv), nodeProc ) )
 		elif keySrv == "ServiceType":
 			svcTypSrc = ""
 			svcTypInt = int(valSrv)
@@ -249,7 +249,7 @@ def AddInfo(grph,node,entity_ids_arr):
 			if svcTypInt & win32service.SERVICE_WIN32: svcTypSrc += "WIN32 "
 			if svcTypInt & win32service.SERVICE_INTERACTIVE_PROCESS: svcTypSrc += "INTERACTIVE_PROCESS "
 
-			grph.add( (node,lib_common.MakeProp(keySrv), lib_util.NodeLiteral(svcTypSrc) ) )
+			grph.add( (node,lib_util.MakeProp(keySrv), lib_util.NodeLiteral(svcTypSrc) ) )
 
 		elif keySrv == "CurrentState":
 			statesArray = (
@@ -267,9 +267,9 @@ def AddInfo(grph,node,entity_ids_arr):
 				if valSrv == getattr(win32service, srvStatVar):
 					srcStatSrc = srvStatVar
 					break
-			grph.add( (node,lib_common.MakeProp(keySrv), lib_util.NodeLiteral(srcStatSrc) ) )
+			grph.add( (node,lib_util.MakeProp(keySrv), lib_util.NodeLiteral(srcStatSrc) ) )
 
 		else:
-			grph.add( (node,lib_common.MakeProp(keySrv), lib_util.NodeLiteral(valSrv) ) )
+			grph.add( (node,lib_util.MakeProp(keySrv), lib_util.NodeLiteral(valSrv) ) )
 
 	return
