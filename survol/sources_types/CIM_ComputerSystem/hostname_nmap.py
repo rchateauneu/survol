@@ -14,86 +14,76 @@ from lib_properties import pc
 
 from sources_types import addr as survol_addr
 
+
 def Main():
-	paramkeyPortsRange = "Ports Range"
+    paramkeyPortsRange = "Ports Range"
 
-	cgiEnv = lib_common.CgiEnv(
-			{ paramkeyPortsRange : "22-443" } )
-	hostname = cgiEnv.GetId()
-	nodeHost = lib_common.gUriGen.HostnameUri( hostname )
+    cgiEnv = lib_common.CgiEnv({paramkeyPortsRange: "22-443"})
+    hostname = cgiEnv.GetId()
+    node_host = lib_common.gUriGen.HostnameUri(hostname)
 
-	# This is just a first experimentation with nmap.
-	# Ideally, the port range could be changed in edit mode of this script.
-	portsRange = cgiEnv.get_parameters( paramkeyPortsRange )
-	args = ['nmap', '-oX', '-', hostname, '-p', portsRange ]
+    # This is just a first experimentation with nmap.
+    # Ideally, the port range could be changed in edit mode of this script.
+    ports_range = cgiEnv.get_parameters(paramkeyPortsRange)
+    args = ['nmap', '-oX', '-', hostname, '-p', ports_range ]
 
-	# NOTE: This is completely similar to the script in the sources directory.
-	try:
-		p = lib_common.SubProcPOpen(args)
-	except Exception:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Cannot find nmap:"+str(exc))
+    # NOTE: This is completely similar to the script in the sources directory.
+    try:
+        p = lib_common.SubProcPOpen(args)
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("Cannot find nmap:"+str(exc))
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	( nmap_last_output, nmap_err) = p.communicate()
+    nmap_last_output, nmap_err = p.communicate()
 
-	try:
-		dom = xml.dom.minidom.parseString(nmap_last_output)
-	except xml.parsers.expat.ExpatError:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("XML error:"+nmap_last_output+", caught:" + str(exc) )
+    try:
+        dom = xml.dom.minidom.parseString(nmap_last_output)
+    except xml.parsers.expat.ExpatError as exc:
+        lib_common.ErrorMessageHtml("XML error:" + nmap_last_output+", caught:" + str(exc) )
 
-	for dhost in dom.getElementsByTagName('host'):
-		nodeIP = dhost.getElementsByTagName('address')[0].getAttributeNode('addr').value
-		# print("host="+host)
-		# Probleme: Ni l'adresse IP ni le nom ne sont uniques pour une machines.
-		# En realite une machine peut avoir plusieurs interfaces reseau, et chaque
-		# interface reseau peut avoir plusieurs noms. Mais une machine peut donner
-		# le meme nom a plusieurs adresses IP.
-		# nodeIP = lib_common.gUriGen.HostnameUri( host )
+    for dhost in dom.getElementsByTagName('host'):
+        node_ip = dhost.getElementsByTagName('address')[0].getAttributeNode('addr').value
 
-		grph.add( ( nodeHost, lib_util.MakeProp("IP"), lib_util.NodeLiteral( nodeIP ) ) )
-		# PAS EXACTEMENT nodeHost: Ca affiche l IP (192.168.1.76) mais il faudrait "Titi"
-		### nodeHost = lib_common.gUriGen.HostnameUri(hostname)
-		# Et donc ca duplique le node.
+        grph.add((node_host, lib_common.MakeProp("IP"), lib_util.NodeLiteral(node_ip)))
 
-		for dhostname in dhost.getElementsByTagName('hostname'):
-			sub_hostnam = dhostname.getAttributeNode('name').value
+        for dhostname in dhost.getElementsByTagName('hostname'):
+            sub_hostnam = dhostname.getAttributeNode('name').value
 
-			# grph.add( ( nodeHost, pc.property_hostname, lib_util.NodeLiteral( sub_hostnam ) ) )
-			# It should be the same as the main hostname, which is taken as reference to avoid ambiguities.
-			grph.add( ( nodeHost, lib_util.MakeProp("Hostname"), lib_util.NodeLiteral( sub_hostnam ) ) )
+            # grph.add( ( node_host, pc.property_hostname, lib_util.NodeLiteral( sub_hostnam ) ) )
+            # It should be the same as the main hostname, which is taken as reference to avoid ambiguities.
+            grph.add((node_host, lib_common.MakeProp("Hostname"), lib_util.NodeLiteral(sub_hostnam)))
 
-		for dport in dhost.getElementsByTagName('port'):
-			proto = dport.getAttributeNode('protocol').value
+        for dport in dhost.getElementsByTagName('port'):
+            proto = dport.getAttributeNode('protocol').value
 
-			# port number converted as integer
-			port = int(dport.getAttributeNode('portid').value)
-			socketNode = lib_common.gUriGen.AddrUri( hostname, port, proto )
-			survol_addr.DecorateSocketNode(grph, socketNode, hostname, port, proto)
+            # port number converted as integer
+            port = int(dport.getAttributeNode('portid').value)
+            socket_node = lib_common.gUriGen.AddrUri( hostname, port, proto)
+            survol_addr.DecorateSocketNode(grph, socket_node, hostname, port, proto)
 
-			state = dport.getElementsByTagName('state')[0].getAttributeNode('state').value
-			grph.add( ( socketNode, lib_util.MakeProp("State"), lib_util.NodeLiteral(state) ) )
-			
-			reason = dport.getElementsByTagName('state')[0].getAttributeNode('reason').value
-			grph.add( ( socketNode, lib_util.MakeProp("Reason"), lib_util.NodeLiteral(reason) ) )
+            state = dport.getElementsByTagName('state')[0].getAttributeNode('state').value
+            grph.add((socket_node, lib_common.MakeProp("State"), lib_util.NodeLiteral(state)))
+            
+            reason = dport.getElementsByTagName('state')[0].getAttributeNode('reason').value
+            grph.add((socket_node, lib_common.MakeProp("Reason"), lib_util.NodeLiteral(reason)))
 
-			# name if any
-			#for dname in dport.getElementsByTagName('service'):
-			#	name = dname.getAttributeNode('name').value
-			#	print("            name="+name)
+            # name if any
+            #for dname in dport.getElementsByTagName('service'):
+            #    name = dname.getAttributeNode('name').value
+            #    print("            name="+name)
 
-			#for dscript in dport.getElementsByTagName('script'):
-			#	script_id = dscript.getAttributeNode('id').value
-			#	script_out = dscript.getAttributeNode('output').value
-			#	print("script_id="+script_id)
-			#	print("script_out="+script_out)
+            #for dscript in dport.getElementsByTagName('script'):
+            #    script_id = dscript.getAttributeNode('id').value
+            #    script_out = dscript.getAttributeNode('output').value
+            #    print("script_id="+script_id)
+            #    print("script_out="+script_out)
 
-			# BEWARE: Normally the LHS node should be a process !!!
-			grph.add( ( nodeHost, pc.property_has_socket, socketNode ) )
+            # BEWARE: Normally the LHS node should be a process !!!
+            grph.add((node_host, pc.property_has_socket, socket_node))
 
-	cgiEnv.OutCgiRdf()
+    cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
-	Main()
+    Main()
