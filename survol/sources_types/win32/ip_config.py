@@ -73,86 +73,89 @@ from sources_types import CIM_NetworkAdapter
 #     NetBIOS over Tcpip : Enabled
 
 
-def CreateIpConfigData():
-	"""
-		This loads into a map the result of IPCONFIG command.
-	"""
-	mapIpconfigs = dict()
-	currItf = ""
-	proc = subprocess.Popen(['ipconfig','/all'],stdout=subprocess.PIPE)
-	for currLine in proc.stdout.readlines():
-		currLine = currLine.decode("utf-8").rstrip()
-		if currLine:
-			if currLine[0] != " ":
-				currItf = currLine.strip()
-				if currItf[-1] == ":":
-					currItf = currItf[:-1]
-				mapIpconfigs[currItf] = []
-			else:
-				idxColon = currLine.find(":")
-				if idxColon >= 0:
-					currKey = currLine[:idxColon].replace(". ","").strip()
-					currVal = currLine[idxColon+1:].strip()
-				else:
-					currVal = currLine.strip()
-				mapIpconfigs[currItf].append( (currKey, currVal))
-	return mapIpconfigs
+def _create_ip_config_data():
+    """
+        This loads into a map the result of IPCONFIG command.
+    """
+    map_ipconfigs = dict()
+    curr_itf = ""
+    proc = subprocess.Popen(['ipconfig', '/all'], stdout=subprocess.PIPE)
+    for curr_line in proc.stdout.readlines():
+        curr_line = curr_line.decode("utf-8").rstrip()
+        if curr_line:
+            if curr_line[0] != " ":
+                curr_itf = curr_line.strip()
+                if curr_itf[-1] == ":":
+                    curr_itf = curr_itf[:-1]
+                map_ipconfigs[curr_itf] = []
+            else:
+                idx_colon = curr_line.find(":")
+                if idx_colon >= 0:
+                    curr_key = curr_line[:idx_colon].replace(". ","").strip()
+                    curr_val = curr_line[idx_colon+1:].strip()
+                else:
+                    curr_val = curr_line.strip()
+                map_ipconfigs[curr_itf].append((curr_key, curr_val))
+    return map_ipconfigs
 
-def AddOneNodeIpConfig(grph,rootNode,keyMap,subMapIpconfigs):
 
-	txtDescription = None
+def add_one_node_ip_config(grph, rootNode, keyMap, sub_map_ipconfigs):
 
-	# if key.startswith("Ethernet adapter") or key.startswith("Wireless LAN adapter"):
-	for kvPair in subMapIpconfigs:
-		if kvPair[0] == "Description":
-			txtDescription = kvPair[1]
-			break
+    txt_description = None
 
-	if not txtDescription:
-		return None
+    # if key.startswith("Ethernet adapter") or key.startswith("Wireless LAN adapter"):
+    for kv_pair in sub_map_ipconfigs:
+        if kv_pair[0] == "Description":
+            txt_description = kv_pair[1]
+            break
 
-	naNode = CIM_NetworkAdapter.MakeUri(txtDescription)
+    if not txt_description:
+        return None
 
-	prpDHCP_Server = lib_common.MakeProp("DHCP Server")
-	prpDHCP_Server = lib_common.MakeProp("DHCP Server")
+    na_node = CIM_NetworkAdapter.MakeUri(txt_description)
 
-	# if key.startswith("Ethernet adapter") or key.startswith("Wireless LAN adapter"):
-	for kvPair in subMapIpconfigs:
-		propName = kvPair[0]
-		paramVal = kvPair[1]
-		prp = lib_common.MakeProp(propName)
+    prpDHCP_Server = lib_util.MakeProp("DHCP Server")
+    prpDHCP_Server = lib_util.MakeProp("DHCP Server")
 
-		if propName in ["IPv4 Address","DHCP Server","DNS Servers","Default Gateway"]:
-			ipAddr = paramVal.replace("(Preferred)","")
-			if ipAddr:
-				hostNode = lib_common.gUriGen.HostnameUri( ipAddr )
-				grph.add( (naNode, prp, hostNode ) )
-		else:
-			grph.add( (naNode, prp, lib_util.NodeLiteral(paramVal) ) )
+    # if key.startswith("Ethernet adapter") or key.startswith("Wireless LAN adapter"):
+    for kv_pair in sub_map_ipconfigs:
+        prop_name = kv_pair[0]
+        param_val = kv_pair[1]
+        prp = lib_util.MakeProp(prop_name)
 
-	return naNode
+        if prop_name in ["IPv4 Address", "DHCP Server", "DNS Servers", "Default Gateway"]:
+            ip_addr = param_val.replace("(Preferred)", "")
+            if ip_addr:
+                hostNode = lib_common.gUriGen.HostnameUri(ip_addr)
+                grph.add((na_node, prp, hostNode))
+        else:
+            grph.add((na_node, prp, lib_util.NodeLiteral(param_val)))
 
-def AddNodesIpConfig(grph,rootNode,mapIpconfigs):
+    return na_node
 
-	prpNetAdapt = lib_common.MakeProp("Network adapter")
-	for keyMap in mapIpconfigs:
-		subMapIpconfigs = mapIpconfigs[keyMap]
-		naNode = AddOneNodeIpConfig(grph,rootNode,keyMap,subMapIpconfigs)
-		if naNode:
-			grph.add( (rootNode, prpNetAdapt, naNode ) )
+
+def _add_nodes_ip_config(grph, root_node, map_ipconfigs):
+    prp_net_adapt = lib_util.MakeProp("Network adapter")
+    for key_map in map_ipconfigs:
+        sub_map_ipconfigs = map_ipconfigs[key_map]
+        na_node = add_one_node_ip_config(grph, root_node, key_map, sub_map_ipconfigs)
+        if na_node:
+            grph.add((root_node, prp_net_adapt, na_node))
+
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.CgiEnv()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	rootNode = lib_common.nodeMachine
-	mapIpconfigs = CreateIpConfigData()
+    root_node = lib_common.nodeMachine
+    map_ipconfigs = _create_ip_config_data()
 
-	AddNodesIpConfig(grph,rootNode,mapIpconfigs)
+    _add_nodes_ip_config(grph, root_node, map_ipconfigs)
 
-	cgiEnv.OutCgiRdf()
+    cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
-	Main()
+    Main()
 
