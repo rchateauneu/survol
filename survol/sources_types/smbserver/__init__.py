@@ -15,4 +15,4 @@ def AddInfo(grph,node,entity_ids_arr):
 	smbIP = lib_util.GlobalGetHostByName(smbNam)
 
 	nodeHost = lib_common.gUriGen.HostnameUri( smbIP )
-	grph.add( ( node, lib_common.MakeProp("SMB server"), nodeHost ) )
+	grph.add( ( node, lib_util.MakeProp("SMB server"), nodeHost ) )

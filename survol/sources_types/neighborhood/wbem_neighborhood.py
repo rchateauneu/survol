@@ -80,7 +80,7 @@ def Main():
 
 			attrsService = dictServices[keyService]
 			for keyAttr in attrsService:
-				propAttr = lib_common.MakeProp(keyAttr)
+				propAttr = lib_util.MakeProp(keyAttr)
 				valAttr = attrsService[keyAttr]
 				grph.add( ( wbemNode, propAttr, lib_util.NodeLiteral(valAttr) ) )
 

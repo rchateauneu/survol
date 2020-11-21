@@ -87,14 +87,14 @@ def Main():
             mach_nam = re_mach.group(2)
 
             node_host = lib_common.gUriGen.HostnameUri(mach_nam)
-            grph.add((node_host, lib_common.MakeProp("IP address"), lib_util.NodeLiteral(mach_ip)))
+            grph.add((node_host, lib_util.MakeProp("IP address"), lib_util.NodeLiteral(mach_ip)))
         else:
             node_host = lib_common.gUriGen.HostnameUri(the_mach_full)
             mach_ip = None
             mach_nam = the_mach_full
 
         the_name_db = arr_split[1].strip()
-        grph.add((node_host, lib_common.MakeProp("Sql server instance"), lib_util.NodeLiteral(the_name_db)))
+        grph.add((node_host, lib_util.MakeProp("Sql server instance"), lib_util.NodeLiteral(the_name_db)))
 
         tcp_port = None
         srv_name = None
@@ -113,7 +113,7 @@ def Main():
             if len(one_split) > 1:
                 one_val = ":".join(one_split[1:])
                 # In case there would be more than one ":"
-                grph.add((node_host, lib_common.MakeProp(one_key), lib_util.NodeLiteral(one_val)))
+                grph.add((node_host, lib_util.MakeProp(one_key), lib_util.NodeLiteral(one_val)))
                 if one_key == "TCP port":
                     tcp_port = one_val
                 elif one_key == "Name":

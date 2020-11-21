@@ -22,7 +22,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	argSchema = entity_ids_arr[1]
 
 	node_oraschema = oracle_schema.MakeUri( argDb, argSchema )
-	grph.add( ( node_oraschema, lib_common.MakeProp("Oracle synonym"), node ) )
+	grph.add( ( node_oraschema, lib_util.MakeProp("Oracle synonym"), node ) )
 
 def EntityName(entity_ids_arr):
 	return entity_ids_arr[0] + "." + entity_ids_arr[1] + "." + entity_ids_arr[2]

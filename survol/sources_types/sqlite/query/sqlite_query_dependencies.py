@@ -19,7 +19,7 @@ def Main():
 
 	nodeSqlQuery = sqlite_query.MakeUri(sqlQuery,filNam)
 
-	propSheetToQuery = lib_common.MakeProp("Table dependency")
+	propSheetToQuery = lib_util.MakeProp("Table dependency")
 
 	list_of_table_names = lib_sql.TableDependencies(sqlQuery)
 

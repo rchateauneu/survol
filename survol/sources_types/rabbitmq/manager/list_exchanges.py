@@ -46,13 +46,13 @@ def Main():
 		nodeExchange = survol_rabbitmq_exchange.MakeUri(configNam,namVHost,namExchange)
 
 		nodVHost = survol_rabbitmq_vhost.MakeUri(configNam,namVHost)
-		grph.add( ( nodeExchange, lib_common.MakeProp("virtual host node"), nodVHost ) )
+		grph.add( ( nodeExchange, lib_util.MakeProp("virtual host node"), nodVHost ) )
 
 		managementUrl = rabbitmq.ManagementUrlPrefix(configNam,"exchanges",namVHost,namExchange)
 
-		grph.add( ( nodeExchange, lib_common.MakeProp("Management"), lib_common.NodeUrl(managementUrl) ) )
+		grph.add( ( nodeExchange, lib_util.MakeProp("Management"), lib_common.NodeUrl(managementUrl) ) )
 
-		grph.add( ( nodVHost, lib_common.MakeProp("Exchange"), nodeExchange ) )
+		grph.add( ( nodVHost, lib_util.MakeProp("Exchange"), nodeExchange ) )
 
 
 	cgiEnv.OutCgiRdf()

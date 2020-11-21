@@ -31,7 +31,7 @@ def Main():
 
     node_sql_query = sql_query.MakeUri(the_sql_query)
 
-    prop_sheet_to_query = lib_common.MakeProp("Table dependency")
+    prop_sheet_to_query = lib_util.MakeProp("Table dependency")
 
     list_of_tables = lib_sql.TableDependencies(the_sql_query)
 

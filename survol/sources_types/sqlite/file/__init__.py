@@ -20,4 +20,4 @@ def EntityName(entity_ids_arr):
 def AddInfo(grph,node,entity_ids_arr):
 	fileName = entity_ids_arr[0]
 	nodeFile = lib_common.gUriGen.FileUri( fileName )
-	grph.add((node,lib_common.MakeProp("Path"),nodeFile))
+	grph.add((node,lib_util.MakeProp("Path"),nodeFile))

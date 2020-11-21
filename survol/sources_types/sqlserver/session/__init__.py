@@ -32,7 +32,7 @@ def AddInfo(grph,node,entity_ids_arr):
 
 	nodeDsn = survol_sqlserver_dsn.MakeUri(dsnNam)
 
-	grph.add( (nodeDsn, lib_common.MakeProp("DSN"), node ) )
+	grph.add( (nodeDsn, lib_util.MakeProp("DSN"), node ) )
 
 	#session_id	most_recent_session_id	connect_time	net_transport	protocol_type	protocol_version	endpoint_id	encrypt_option	auth_scheme	node_affinity	num_reads	num_writes	last_read	last_write	net_packet_size	client_net_address	client_tcp_port	local_net_address	local_tcp_port	connection_id	parent_connection_id	most_recent_sql_handle
 	#51	51	2016-10-05 22:39:24.080	Shared memory	TSQL	1946157060	2	FALSE	NTLM	0	13	13	2016-10-05 22:39:47.830	2016-10-05 22:39:47.847	4096	<local machine>	NULL	NULL	NULL	51D43D11-6A16-4E19-A253-0974EEDC634D	NULL	0x0200000016EF4D1B4BF65E91FF63A5D60122505E5DC8928000000000000000000000000000000000
@@ -53,12 +53,12 @@ def AddInfo(grph,node,entity_ids_arr):
 		""" % sessionId
 
 		for rowConnections in cursorConnections.execute(qryConnections):
-			grph.add( (node, lib_common.MakeProp("Net transport"), lib_util.NodeLiteral(rowConnections.net_transport) ) )
-			grph.add( (node, lib_common.MakeProp("Protocol type"), lib_util.NodeLiteral(rowConnections.protocol_type) ) )
-			grph.add( (node, lib_common.MakeProp("Auth scheme"), lib_util.NodeLiteral(rowConnections.auth_scheme) ) )
-			grph.add( (node, lib_common.MakeProp("Connect time"), lib_util.NodeLiteral(rowConnections.connect_time) ) )
-			grph.add( (node, lib_common.MakeProp("Last read"), lib_util.NodeLiteral(rowConnections.last_read) ) )
-			grph.add( (node, lib_common.MakeProp("Last write"), lib_util.NodeLiteral(rowConnections.last_write) ) )
+			grph.add( (node, lib_util.MakeProp("Net transport"), lib_util.NodeLiteral(rowConnections.net_transport) ) )
+			grph.add( (node, lib_util.MakeProp("Protocol type"), lib_util.NodeLiteral(rowConnections.protocol_type) ) )
+			grph.add( (node, lib_util.MakeProp("Auth scheme"), lib_util.NodeLiteral(rowConnections.auth_scheme) ) )
+			grph.add( (node, lib_util.MakeProp("Connect time"), lib_util.NodeLiteral(rowConnections.connect_time) ) )
+			grph.add( (node, lib_util.MakeProp("Last read"), lib_util.NodeLiteral(rowConnections.last_read) ) )
+			grph.add( (node, lib_util.MakeProp("Last write"), lib_util.NodeLiteral(rowConnections.last_write) ) )
 
 			if rowConnections.net_transport == "TCP":
 				lsocketNode = lib_common.gUriGen.AddrUri( rowConnections.local_net_address, rowConnections.local_tcp_port )

@@ -39,14 +39,14 @@ def Main():
 		FROM sys.dm_exec_sessions
 		"""
 
-		propSqlServerSession = lib_common.MakeProp("SqlServer session")
-		propSqlServerHostProcess = lib_common.MakeProp("Host process")
-		propSqlServerProgramName = lib_common.MakeProp("Program name")
-		propSqlServerClientInterface = lib_common.MakeProp("Client Interface")
+		propSqlServerSession = lib_util.MakeProp("SqlServer session")
+		propSqlServerHostProcess = lib_util.MakeProp("Host process")
+		propSqlServerProgramName = lib_util.MakeProp("Program name")
+		propSqlServerClientInterface = lib_util.MakeProp("Client Interface")
 
-		propSqlServerOriginalLoginName = lib_common.MakeProp("original_login_name")
-		propSqlServerNTDomain = lib_common.MakeProp("nt_domain")
-		propSqlServerNTUserName = lib_common.MakeProp("nt_user_name")
+		propSqlServerOriginalLoginName = lib_util.MakeProp("original_login_name")
+		propSqlServerNTDomain = lib_util.MakeProp("nt_domain")
+		propSqlServerNTUserName = lib_util.MakeProp("nt_user_name")
 
 		for rowSess in cursorSessions.execute(qrySessions):
 			DEBUG("rowSess.session_id=(%s)", rowSess.session_id)

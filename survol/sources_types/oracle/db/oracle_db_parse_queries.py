@@ -63,7 +63,7 @@ def Main():
        and sess.paddr = proc.addr
     """
 
-    prop_sql_query = lib_common.MakeProp("SQL query")
+    prop_sql_query = lib_util.MakeProp("SQL query")
 
     oraParser = OraCallbackParseQry(grph, database, prop_sql_query)
 
