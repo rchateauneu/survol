@@ -135,7 +135,7 @@ def Main():
 
 		grph.add( ( node_process, pc.property_information, lib_util.NodeLiteral(processProperties.Caption) ) )
 		if processProperties.Caption != processProperties.Description:
-			grph.add( ( node_process, lib_util.MakeProp("Description"), lib_util.NodeLiteral(processProperties.Description) ) )
+			grph.add( ( node_process, lib_common.MakeProp("Description"), lib_util.NodeLiteral(processProperties.Description) ) )
 
 		# AJOUTER LE LIEN WMI ICI ET DANS LA PAGE http://127.0.0.1:8000/survol/entity.py?xid=Titi@CIM_Process.Handle=6344
 

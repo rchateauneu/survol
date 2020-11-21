@@ -28,7 +28,7 @@ def Main():
 	filNode = lib_common.gUriGen.FileUri(dbFilNam )
 	sqliteNode = sqlite_file.MakeUri(dbFilNam)
 
-	grph.add( ( sqliteNode, lib_util.MakeProp("Storage file"), filNode ) )
+	grph.add( ( sqliteNode, lib_common.MakeProp("Storage file"), filNode ) )
 
 	sqlite.AddNodesTablesViews(grph,sqliteNode,dbFilNam)
 

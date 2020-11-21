@@ -146,7 +146,7 @@ def Main():
 			else:
 				continue
 
-			grph.add( ( symNod, lib_util.MakeProp("Call type"), lib_util.NodeLiteral(afljOne["calltype"]) ) )
+			grph.add( ( symNod, lib_common.MakeProp("Call type"), lib_util.NodeLiteral(afljOne["calltype"]) ) )
 			grph.add( ( nodeExeOrDll, pc.property_symbol_defined, symNod ) )
 
 	cgiEnv.OutCgiRdf("LAYOUT_RECT",[ pc.property_symbol_defined ] )
