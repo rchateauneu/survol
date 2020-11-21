@@ -176,6 +176,14 @@ class RdfLocalAgentTest(unittest.TestCase):
 
         print("win_depends_content=", win_depends_content)
 
+    @unittest.skipIf(not is_platform_windows, "Windows only")
+    def test_win32_ip_config(self):
+        """Test ip_config.py"""
+        win_depends_content = self._check_script(
+            "/survol/sources_types/win32/ip_config.py")
+
+        print("win_depends_content=", win_depends_content)
+
     def test_java_properties(self):
         """Investigate Java files"""
         file_path = os.path.join(os.path.dirname(__file__), "SampleDirScripts", "SampleJavaFile.java")
