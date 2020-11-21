@@ -55,21 +55,21 @@ def Main():
 	# 'set_dword_at_offset', 'set_dword_at_rva', 'set_qword_at_offset', 'set_qword_at_rva', 'set_word_at_offset',
 	# 'set_word_at_rva', 'show_warnings', 'trim', 'verify_checksum', 'write']
 
-	propSection = lib_util.MakeProp("Section")
-	propVirtualAddress = lib_util.MakeProp("Virtual address")
-	propSizeOfRawData = lib_util.MakeProp("Raw data size")
-	propNumberOfRelocations = lib_util.MakeProp("Relocations")
-	propNumberOfLinenumbers = lib_util.MakeProp("Line numbers")
+	propSection = lib_common.MakeProp("Section")
+	propVirtualAddress = lib_common.MakeProp("Virtual address")
+	propSizeOfRawData = lib_common.MakeProp("Raw data size")
+	propNumberOfRelocations = lib_common.MakeProp("Relocations")
+	propNumberOfLinenumbers = lib_common.MakeProp("Line numbers")
 
 	try:
-		grph.add( ( filNode, lib_util.MakeProp("Is a dll"), lib_util.NodeLiteral(pe.is_dll() )) )
-		grph.add( ( filNode, lib_util.MakeProp("Is a driver"), lib_util.NodeLiteral(pe.is_driver() )) )
-		grph.add( ( filNode, lib_util.MakeProp("Is an executable"), lib_util.NodeLiteral(pe.is_exe() )) )
-		grph.add( ( filNode, lib_util.MakeProp("Overlay data start offset"), lib_util.NodeLiteral(pe.get_overlay_data_start_offset() )) )
-		grph.add( ( filNode, lib_util.MakeProp("Resources strings"), lib_util.NodeLiteral(pe.get_resources_strings() )) )
-		grph.add( ( filNode, lib_util.MakeProp("Warnings"), lib_util.NodeLiteral(pe.get_warnings() ) ) )
-		grph.add( ( filNode, lib_util.MakeProp("DOS header"), lib_util.NodeLiteral(pe.DOS_HEADER) ) )
-		grph.add( ( filNode, lib_util.MakeProp("File header"), lib_util.NodeLiteral(pe.FILE_HEADER) ) )
+		grph.add( ( filNode, lib_common.MakeProp("Is a dll"), lib_util.NodeLiteral(pe.is_dll() )) )
+		grph.add( ( filNode, lib_common.MakeProp("Is a driver"), lib_util.NodeLiteral(pe.is_driver() )) )
+		grph.add( ( filNode, lib_common.MakeProp("Is an executable"), lib_util.NodeLiteral(pe.is_exe() )) )
+		grph.add( ( filNode, lib_common.MakeProp("Overlay data start offset"), lib_util.NodeLiteral(pe.get_overlay_data_start_offset() )) )
+		grph.add( ( filNode, lib_common.MakeProp("Resources strings"), lib_util.NodeLiteral(pe.get_resources_strings() )) )
+		grph.add( ( filNode, lib_common.MakeProp("Warnings"), lib_util.NodeLiteral(pe.get_warnings() ) ) )
+		grph.add( ( filNode, lib_common.MakeProp("DOS header"), lib_util.NodeLiteral(pe.DOS_HEADER) ) )
+		grph.add( ( filNode, lib_common.MakeProp("File header"), lib_util.NodeLiteral(pe.FILE_HEADER) ) )
 
 		for peSect in pe.sections:
 			# <Structure: [IMAGE_SECTION_HEADER] 0x178 0x0

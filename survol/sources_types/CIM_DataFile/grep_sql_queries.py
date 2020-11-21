@@ -62,7 +62,7 @@ def Main():
 		arrProps = []
 		for rgxKey in dictRegexSQL:
 			rgxSQL = dictRegexSQL[rgxKey]
-			rgxProp = lib_util.MakeProp(rgxKey)
+			rgxProp = lib_common.MakeProp(rgxKey)
 			arrProps.append(rgxProp)
 
 			compiledRgx = re.compile(rgxSQL, re.IGNORECASE)
