@@ -21,5 +21,5 @@ def AddInfo(grph,node,entity_ids_arr):
 	databaseName = entity_ids_arr[1]
 	nodeInstance = survol_mysql_instance.MakeUri(instanceMySql)
 	nodeDatabase = survol_mysql_database.MakeUri(instanceMySql,databaseName)
-	grph.add((node,lib_util.MakeProp("Instance"),nodeInstance))
-	grph.add((node,lib_util.MakeProp("Database"),nodeDatabase))
+	grph.add((node,lib_common.MakeProp("Instance"),nodeInstance))
+	grph.add((node,lib_common.MakeProp("Database"),nodeDatabase))

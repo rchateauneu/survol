@@ -56,15 +56,15 @@ def Main():
 
 		nodeQueue = survol_rabbitmq_queue.MakeUri(configNam,namVHost,namQueue)
 
-		grph.add( ( nodeQueue, lib_util.MakeProp("vhost"), lib_util.NodeLiteral(namVHost) ) )
-		grph.add( ( nodeQueue, lib_util.MakeProp("vhost node"), nodVHost ) )
+		grph.add( ( nodeQueue, lib_common.MakeProp("vhost"), lib_util.NodeLiteral(namVHost) ) )
+		grph.add( ( nodeQueue, lib_common.MakeProp("vhost node"), nodVHost ) )
 
 		managementUrl = rabbitmq.ManagementUrlPrefix(configNam,"queues",namVHost,namQueue)
 
-		grph.add( ( nodeQueue, lib_util.MakeProp("Management"), lib_common.NodeUrl(managementUrl) ) )
+		grph.add( ( nodeQueue, lib_common.MakeProp("Management"), lib_common.NodeUrl(managementUrl) ) )
 
 
-		grph.add( ( nodeManager, lib_util.MakeProp("Queue"), nodeQueue ) )
+		grph.add( ( nodeManager, lib_common.MakeProp("Queue"), nodeQueue ) )
 
 
 	cgiEnv.OutCgiRdf()

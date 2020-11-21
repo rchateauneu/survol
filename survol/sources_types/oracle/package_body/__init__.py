@@ -30,7 +30,7 @@ def AddInfo(grph,node, entity_ids_arr):
     argPackageBody = entity_ids_arr[2]
 
     node_package = oracle_package.MakeUri(arg_db , arg_schema, argPackageBody)
-    grph.add( ( node, lib_util.MakeProp("Associated package"), node_package))
+    grph.add( ( node, lib_common.MakeProp("Associated package"), node_package))
 
     node_oraschema = oracle_schema.MakeUri(arg_db, arg_schema)
     grph.add((node_oraschema, pc.property_oracle_package, node))

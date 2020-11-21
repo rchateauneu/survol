@@ -30,7 +30,7 @@ Usable = lib_util.UsableWindows
 def DisplayDsns(grph,fetch_code,dsn_type):
 	odbc_iter_code = fetch_code
 
-	propDsnType = lib_util.MakeProp("Source type")
+	propDsnType = lib_common.MakeProp("Source type")
 	littDsnType = lib_util.NodeLiteral(dsn_type)
 
 	while True:

@@ -136,9 +136,9 @@ def Main():
 				aVal = ":".join(oneSplit[1:])
 				if aKey == "Location":
 					# The value is something like "http://192.168.0.14:62240/"
-					grph.add( ( nodeHost, lib_util.MakeProp(aKey), lib_common.NodeUrl( aVal ) ) )
+					grph.add( ( nodeHost, lib_common.MakeProp(aKey), lib_common.NodeUrl( aVal ) ) )
 				else:
-					grph.add( ( nodeHost, lib_util.MakeProp(aKey), lib_util.NodeLiteral( aVal ) ) )
+					grph.add( ( nodeHost, lib_common.MakeProp(aKey), lib_util.NodeLiteral( aVal ) ) )
 			else:
 				# TODO: Should translate the IP address into the machine name.
 				machIp = oneSplit[0]

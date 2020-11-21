@@ -37,7 +37,7 @@ def Main():
 
 	for busName in listBuses:
 		uriBus = lib_util.EntityUri( "dbus/bus", busName )
-		grph.add( ( lib_common.nodeMachine, lib_util.MakeProp("DBus"), uriBus ) )
+		grph.add( ( lib_common.nodeMachine, lib_common.MakeProp("DBus"), uriBus ) )
 
 	cgiEnv.OutCgiRdf()
 

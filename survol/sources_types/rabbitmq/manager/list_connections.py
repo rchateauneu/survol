@@ -64,18 +64,18 @@ def AddConnections(grph,listConnections,configNam,nodeManager):
 		nodeConnect = survol_rabbitmq_connection.MakeUri(configNam,namConnect)
 
 		try:
-			grph.add( ( nodeConnect, lib_util.MakeProp("Protocol"), lib_util.NodeLiteral(objConnect["protocol"]) ) )
+			grph.add( ( nodeConnect, lib_common.MakeProp("Protocol"), lib_util.NodeLiteral(objConnect["protocol"]) ) )
 		except KeyError:
 			pass
 
 		try:
-			grph.add( ( nodeConnect, lib_util.MakeProp("Node"), lib_util.NodeLiteral(objConnect["node"]) ) )
+			grph.add( ( nodeConnect, lib_common.MakeProp("Node"), lib_util.NodeLiteral(objConnect["node"]) ) )
 		except KeyError:
 			pass
 
 		nodeUser = survol_rabbitmq_user.MakeUri(configNam,objConnect["user"])
 		try:
-			grph.add( ( nodeConnect, lib_util.MakeProp("User"), nodeUser ) )
+			grph.add( ( nodeConnect, lib_common.MakeProp("User"), nodeUser ) )
 		except KeyError:
 			pass
 
@@ -85,9 +85,9 @@ def AddConnections(grph,listConnections,configNam,nodeManager):
 		DEBUG("namConnectCgi=%s",namConnectCgi)
 		managementUrl = rabbitmq.ManagementUrlPrefix(configNam,"connections",namConnectCgi)
 
-		grph.add( ( nodeConnect, lib_util.MakeProp("Management"), lib_common.NodeUrl(managementUrl) ) )
+		grph.add( ( nodeConnect, lib_common.MakeProp("Management"), lib_common.NodeUrl(managementUrl) ) )
 
-		grph.add( ( nodeManager, lib_util.MakeProp("Connection"), nodeConnect ) )
+		grph.add( ( nodeManager, lib_common.MakeProp("Connection"), nodeConnect ) )
 
 
 

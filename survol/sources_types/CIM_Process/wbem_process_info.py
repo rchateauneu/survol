@@ -53,7 +53,7 @@ def Main():
         else:
             uri_inst = lib_common.RemoteBox(host_only).UriMakeFromDict(class_name, dict_props)
 
-        grph.add((root_node, lib_util.MakeProp(class_name), uri_inst))
+        grph.add((root_node, lib_common.MakeProp(class_name), uri_inst))
 
         url_namespace = lib_wbem.NamespaceUrl(name_space, cimom_url, class_name)
         nod_namespace = lib_common.NodeUrl(url_namespace)
@@ -64,7 +64,7 @@ def Main():
             iname_val = dict_inst[iname_key]
             # TODO: If this is a reference, create a Node !!!!!!!
             if not iname_val is None:
-                grph.add((uri_inst, lib_util.MakeProp(iname_key), lib_util.NodeLiteral(iname_val)))
+                grph.add((uri_inst, lib_common.MakeProp(iname_key), lib_util.NodeLiteral(iname_val)))
 
         # TODO: Call the method Associators(). Idem References().
 

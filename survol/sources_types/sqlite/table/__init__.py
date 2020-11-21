@@ -22,7 +22,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	filNam = entity_ids_arr[0]
 	# sys.stderr.write("AddInfo entity_id=%s\n" % pidProc )
 	filNod = lib_common.gUriGen.FileUri( filNam )
-	grph.add( ( node, lib_util.MakeProp("File"), filNod ) )
+	grph.add( ( node, lib_common.MakeProp("File"), filNod ) )
 
 	dbNod = sqlite_file.MakeUri( filNam )
-	grph.add( ( node, lib_util.MakeProp("Sqlite database"), dbNod ) )
+	grph.add( ( node, lib_common.MakeProp("Sqlite database"), dbNod ) )

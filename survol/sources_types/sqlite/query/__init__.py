@@ -23,10 +23,10 @@ def MakeUri(strQuery,fileName):
 def AddInfo(grph,node,entity_ids_arr):
 	fileName = entity_ids_arr[1]
 	nodeFile = lib_common.gUriGen.FileUri( fileName )
-	grph.add((node,lib_util.MakeProp("Path"),nodeFile))
+	grph.add((node,lib_common.MakeProp("Path"),nodeFile))
 
 	dbNod = sqlite_file.MakeUri( fileName )
-	grph.add( ( node, lib_util.MakeProp("Sqlite database"), dbNod ) )
+	grph.add( ( node, lib_common.MakeProp("Sqlite database"), dbNod ) )
 
 # It receives a query and the list of tables or views it depends on,
 # and also the connection parameters to the database, which here is only a sqlite file.

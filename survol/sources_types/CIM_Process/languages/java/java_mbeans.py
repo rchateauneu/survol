@@ -27,7 +27,7 @@ def Main():
 	except KeyError:
 		jmxDataMBeans = []
 
-	propMBean = lib_util.MakeProp("MBean")
+	propMBean = lib_common.MakeProp("MBean")
 
 	for jmxMBean in jmxDataMBeans:
 		clsNam = jmxMBean["className"]
@@ -38,7 +38,7 @@ def Main():
 
 		# Not sure about the file name
 		nodeClass = survol_mbean.MakeUri( pidInt, objNam)
-		grph.add( ( nodeClass, lib_util.MakeProp("Class name"), lib_util.NodeLiteral(clsNam) ) )
+		grph.add( ( nodeClass, lib_common.MakeProp("Class name"), lib_util.NodeLiteral(clsNam) ) )
 
 		grph.add( ( node_process, propMBean, nodeClass ) )
 

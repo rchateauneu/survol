@@ -85,7 +85,7 @@ def Main():
 	# TODO: Unfortunately it scans several times the memory process.
 	for rgx_key in dict_regex_sql:
 		rgx_sql = dict_regex_sql[rgx_key]
-		regex_predicate = lib_util.MakeProp(rgx_key)
+		regex_predicate = lib_common.MakeProp(rgx_key)
 		arr_props.append(regex_predicate)
 
 		try:

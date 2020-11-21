@@ -65,10 +65,10 @@ def DoRemote(grph, cimomSrv):
         try:
             product_node = Win32_Product.MakeUri(win_prod.Caption)
             grph.add((product_node, pc.property_information, lib_util.NodeLiteral(win_prod.Description)))
-            grph.add((product_node, lib_util.MakeProp("IdentifyingNumber"), lib_util.NodeLiteral(win_prod.IdentifyingNumber)))
+            grph.add((product_node, lib_common.MakeProp("IdentifyingNumber"), lib_util.NodeLiteral(win_prod.IdentifyingNumber)))
             Win32_Product.AddInstallSource(grph, product_node, win_prod)
 
-            grph.add((lib_common.nodeMachine, lib_util.MakeProp("Win32_Product"), product_node))
+            grph.add((lib_common.nodeMachine, lib_common.MakeProp("Win32_Product"), product_node))
 
         except Exception as exc:
             lib_common.ErrorMessageHtml("Caught:%s" % str(exc))
@@ -93,10 +93,10 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    prop_win32_version = lib_util.MakeProp("Version")
-    prop_win32_product = lib_util.MakeProp("Win32_Product")
-    prop_win32_package = lib_util.MakeProp("Package Name")
-    prop_identifying_number = lib_util.MakeProp("IdentifyingNumber")
+    prop_win32_version = lib_common.MakeProp("Version")
+    prop_win32_product = lib_common.MakeProp("Win32_Product")
+    prop_win32_package = lib_common.MakeProp("Package Name")
+    prop_identifying_number = lib_common.MakeProp("IdentifyingNumber")
 
     for puid in get_installed_products_uids():
         #sys.stderr.write("puid=%s\n"%puid)

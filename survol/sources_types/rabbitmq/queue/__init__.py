@@ -26,7 +26,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	nodeManager = survol_rabbitmq_manager.MakeUri(namConfig)
 
 	nodVHost = survol_rabbitmq_vhost.MakeUri(namConfig,namVHost)
-	grph.add( ( nodeManager, lib_util.MakeProp("virtual host node"), nodVHost ) )
+	grph.add( ( nodeManager, lib_common.MakeProp("virtual host node"), nodVHost ) )
 
-	grph.add( ( node, lib_util.MakeProp("Manager"), nodeManager ) )
-	grph.add( ( node, lib_util.MakeProp("Virtual host"), nodVHost ) )
+	grph.add( ( node, lib_common.MakeProp("Manager"), nodeManager ) )
+	grph.add( ( node, lib_common.MakeProp("Virtual host"), nodVHost ) )

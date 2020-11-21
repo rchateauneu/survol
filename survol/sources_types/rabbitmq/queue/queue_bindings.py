@@ -40,10 +40,10 @@ def Main():
 	grph = cgiEnv.GetGraph()
 
 	nodVHost = survol_rabbitmq_vhost.MakeUri(configNam,namVHost)
-	grph.add( ( nodeManager, lib_util.MakeProp("virtual host node"), nodVHost ) )
+	grph.add( ( nodeManager, lib_common.MakeProp("virtual host node"), nodVHost ) )
 
 	nodeQueue = survol_rabbitmq_queue.MakeUri(configNam,namVHost,namQueue)
-	grph.add( ( nodVHost, lib_util.MakeProp("Queue"), nodeQueue ) )
+	grph.add( ( nodVHost, lib_common.MakeProp("Queue"), nodeQueue ) )
 
 	# >>> cl.get_queue_bindings("/","aliveness-test")
 	# [{u'vhost': u'/', u'properties_key': u'aliveness-test', u'destination': u'aliveness-test', u'routing_key': u'aliveness-test', u'sour
@@ -54,7 +54,7 @@ def Main():
 		for keyBindings in sublstBindings:
 			valBindings = sublstBindings[keyBindings]
 			strDisp = str(valBindings).replace("{","").replace("}","")
-			grph.add( ( nodeQueue, lib_util.MakeProp(keyBindings), lib_util.NodeLiteral(strDisp ) ))
+			grph.add( ( nodeQueue, lib_common.MakeProp(keyBindings), lib_util.NodeLiteral(strDisp ) ))
 			DEBUG("keyBindings=%s valBindings=%s",keyBindings,valBindings)
 
 	cgiEnv.OutCgiRdf()

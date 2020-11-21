@@ -21,4 +21,4 @@ def AddInfo(grph,node,entity_ids_arr):
 	instanceMySql = entity_ids_arr[0]
 	instanceHost = instanceMySql.split(":")[0]
 	nodeHost = lib_common.gUriGen.HostnameUri( instanceHost )
-	grph.add((node,lib_util.MakeProp("Instance"),nodeHost))
+	grph.add((node,lib_common.MakeProp("Instance"),nodeHost))

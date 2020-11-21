@@ -39,11 +39,11 @@ def Main():
 
 			nodeAddr = lib_common.gUriGen.AddrUri(hostSplit[0],hostSplit[1])
 
-			grph.add( ( nodeAddr, lib_util.MakeProp("RabbitMQ manager"), nodeManager ) )
+			grph.add( ( nodeAddr, lib_common.MakeProp("RabbitMQ manager"), nodeManager ) )
 
 			# http://127.0.0.1:12345/#/
 			managementUrl = rabbitmq.ManagementUrlPrefix(configNam)
-			grph.add( ( nodeAddr, lib_util.MakeProp("Management"), lib_common.NodeUrl(managementUrl) ) )
+			grph.add( ( nodeAddr, lib_common.MakeProp("Management"), lib_common.NodeUrl(managementUrl) ) )
 
 			# TODO: Get and display the log files.
 			# Config file 	c:/Users/rchateau/AppData/Roaming/RabbitMQ/rabbitmq.config
