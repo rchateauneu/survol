@@ -53,8 +53,8 @@ def AddMySqlPort(grph,instanceMySql):
 
 	aCred = lib_credentials.GetCredentials( "MySql", instanceMySql )
 
-	grph.add( ( nodeInstance, lib_common.MakeProp("Mysql user"), lib_util.NodeLiteral(aCred[0]) ) )
-	grph.add( ( nodeInstance, lib_common.MakeProp("Mysql instance"), nodeHostMySql ) )
+	grph.add( ( nodeInstance, lib_util.MakeProp("Mysql user"), lib_util.NodeLiteral(aCred[0]) ) )
+	grph.add( ( nodeInstance, lib_util.MakeProp("Mysql instance"), nodeHostMySql ) )
 
 	mysql_cmd_lst = ["mysqladmin","-u",aCred[0],"-p%s"%aCred[1],"-h%s"%hostMySql,"processlist"]
 	mysql_cmd = " ".join(mysql_cmd_lst)
@@ -94,13 +94,13 @@ def AddMySqlPort(grph,instanceMySql):
 			# Otherwise, the merging will not bring anything.
 			sql_task_node = socketNode
 
-		grph.add( ( sql_task_node, lib_common.MakeProp("Mysql user"), lib_util.NodeLiteral(mysql_user) ) )
+		grph.add( ( sql_task_node, lib_util.MakeProp("Mysql user"), lib_util.NodeLiteral(mysql_user) ) )
 
 		# TODO: Add a specific node for the SQL query.
 		if mysql_command != "":
 			grph.add( ( sql_task_node, pc.property_information, lib_util.NodeLiteral(mysql_command) ) )
 
-		grph.add( ( nodeInstance, lib_common.MakeProp("Mysql session"), sql_task_node ) )
+		grph.add( ( nodeInstance, lib_util.MakeProp("Mysql session"), sql_task_node ) )
 
 	# phpmyadminUrl = "http://" + lib_util.currentHostname + "/phpmyadmin/"
 	# TODO: Is this the right port number ?
