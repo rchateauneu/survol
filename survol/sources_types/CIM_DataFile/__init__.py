@@ -99,7 +99,7 @@ def _add_parent_dir(grph, file_node, file_name):
         dir_node = lib_uris.gUriGen.DirectoryUri(dir_path)
         # We do not use the property pc.property_directory because it breaks the display.
         # Also, the direction is inverted so the current file is displayed on the left.
-        grph.add((file_node, lib_common.MakeProp("Top directory"), dir_node))
+        grph.add((file_node, lib_util.MakeProp("Top directory"), dir_node))
 
 
 # Plain call to stat with some filtering if the file does not exists.
@@ -167,14 +167,14 @@ def AddFileProperties(grph, current_node, current_filename):
                 # 169    251    A9    10101001    "Copyright"    &#169;    &copy;    Copyright sign
                 # Might contain this: "LegalCopyright Copyright \u00a9 2010"
                 val = val.replace("\\", "\\\\")
-            grph.add((current_node, lib_common.MakeProp(prp), lib_util.NodeLiteral(val)))
+            grph.add((current_node, lib_util.MakeProp(prp), lib_util.NodeLiteral(val)))
     except ImportError:
         pass
 
     file_mime_type = lib_mime.FilenameToMime(current_filename)
     if file_mime_type:
         if file_mime_type[0]:
-            grph.add((current_node, lib_common.MakeProp("Mime type"), lib_util.NodeLiteral(str(file_mime_type))))
+            grph.add((current_node, lib_util.MakeProp("Mime type"), lib_util.NodeLiteral(str(file_mime_type))))
 
 
 def AffFileOwner(grph, file_node, file_name):
@@ -232,8 +232,8 @@ def AffFileOwner(grph, file_node, file_name):
             account_node = Win32_UserAccount.MakeUri(account_name, domain_name)
 
         # TODO: What can we do with the domain ?
-        grph.add((account_node, lib_common.MakeProp("Domain"), lib_util.NodeLiteral(domain_name)))
-        grph.add((account_node, lib_common.MakeProp("SID"), lib_util.NodeLiteral(typ_nam)))
+        grph.add((account_node, lib_util.MakeProp("Domain"), lib_util.NodeLiteral(domain_name)))
+        grph.add((account_node, lib_util.MakeProp("SID"), lib_util.NodeLiteral(typ_nam)))
         grph.add((file_node, pc.property_owner, account_node))
 
 

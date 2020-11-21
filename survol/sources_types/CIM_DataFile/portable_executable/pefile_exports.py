@@ -39,7 +39,7 @@ def pefileDecorate( grph, rootNode, pe ):
 						# val = val.encode("utf-8", errors="replace")
 					# val = val[:2]
 					# sys.stderr.write("%s %s\n"% (key,val) )
-					grph.add( ( rootNode, lib_common.MakeProp(key), lib_util.NodeLiteral(val) ) )
+					grph.add( ( rootNode, lib_util.MakeProp(key), lib_util.NodeLiteral(val) ) )
 		return
 
 
@@ -90,9 +90,9 @@ def Main():
 	grph = cgiEnv.GetGraph()
 
 	try:
-		propForward = lib_common.MakeProp("Forward")
-		propAddress = lib_common.MakeProp("Address")
-		propOrdinal = lib_common.MakeProp("Ordinal")
+		propForward = lib_util.MakeProp("Forward")
+		propAddress = lib_util.MakeProp("Address")
+		propOrdinal = lib_util.MakeProp("Ordinal")
 		for exp in pe.DIRECTORY_ENTRY_EXPORT.symbols:
 			# sys.stderr.write("\t%s %s %d\n"% ( hex(pe.OPTIONAL_HEADER.ImageBase + exp.address), exp.name, exp.ordinal ) )
 
@@ -105,7 +105,7 @@ def Main():
 			grph.add( ( symNode, propForward, lib_util.NodeLiteral(forward) ) )
 			grph.add( ( symNode, propAddress, lib_util.NodeLiteral(hex(exp.address)) ) )
 			grph.add( ( symNode, propOrdinal, lib_util.NodeLiteral(hex(exp.ordinal)) ) )
-			# grph.add( ( symNode, lib_common.MakeProp("Rest"), lib_util.NodeLiteral(dir(exp)) ) )
+			# grph.add( ( symNode, lib_util.MakeProp("Rest"), lib_util.NodeLiteral(dir(exp)) ) )
 	except Exception:
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("File: %s. Exception:%s:" % ( filNam, str(exc)))

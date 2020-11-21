@@ -69,7 +69,7 @@ def Main():
 			continue
 
 		symNod = lib_common.gUriGen.SymbolUri( sym.m_name_demang, fileSharedLib )
-		grph.add( ( symNod, lib_common.MakeProp("Version"), lib_util.NodeLiteral(sym.m_vers) ) )
+		grph.add( ( symNod, lib_util.MakeProp("Version"), lib_util.NodeLiteral(sym.m_vers) ) )
 		lenSplit = len(sym.m_splt)
 		if lenSplit > 1:
 			clsNod = ClassToNode( sym.m_splt, lenSplit - 1 )

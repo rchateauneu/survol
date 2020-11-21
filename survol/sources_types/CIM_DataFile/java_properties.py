@@ -33,7 +33,7 @@ def _add_java_info_to_java(grph, node, fil_nam):
 
     if os.path.isfile(fil_assoc_nam):
         fil_assoc_node = lib_uris.gUriGen.FileUri(fil_assoc_nam)
-        grph.add((node, lib_common.MakeProp("Java class file"), fil_assoc_node))
+        grph.add((node, lib_util.MakeProp("Java class file"), fil_assoc_node))
 
 
 def _add_java_info_to_class(grph, node, fil_nam):
@@ -44,7 +44,7 @@ def _add_java_info_to_class(grph, node, fil_nam):
 
     if os.path.isfile(fil_assoc_nam):
         fil_assoc_node = lib_uris.gUriGen.FileUri(fil_assoc_nam)
-        grph.add((node, lib_common.MakeProp("Java source file"), fil_assoc_node))
+        grph.add((node, lib_util.MakeProp("Java source file"), fil_assoc_node))
 
 
 def _add_java_info_to_jar(grph, node, fil_nam):
@@ -59,11 +59,11 @@ def _add_java_info_to_jar(grph, node, fil_nam):
         # TODO: These files exist only in the jar.
         for one_file in list_of_files:
             fil_jar_node = lib_uris.gUriGen.FileUri(one_file)
-            grph.add((fil_jar_node, lib_common.MakeProp("Zipped"), lib_util.NodeLiteral(one_file.filename)))
-            grph.add((fil_jar_node, lib_common.MakeProp("Size"), lib_util.NodeLiteral(one_file.file_size)))
-            grph.add((fil_jar_node, lib_common.MakeProp("Creation time"), lib_util.NodeLiteral(one_file.date_time)))
-            grph.add((fil_jar_node, lib_common.MakeProp("Compress size"), lib_util.NodeLiteral(one_file.compress_size)))
-            grph.add((node, lib_common.MakeProp("Zipped file"), fil_jar_node))
+            grph.add((fil_jar_node, lib_util.MakeProp("Zipped"), lib_util.NodeLiteral(one_file.filename)))
+            grph.add((fil_jar_node, lib_util.MakeProp("Size"), lib_util.NodeLiteral(one_file.file_size)))
+            grph.add((fil_jar_node, lib_util.MakeProp("Creation time"), lib_util.NodeLiteral(one_file.date_time)))
+            grph.add((fil_jar_node, lib_util.MakeProp("Compress size"), lib_util.NodeLiteral(one_file.compress_size)))
+            grph.add((node, lib_util.MakeProp("Zipped file"), fil_jar_node))
 
 
 _java_extensions = {
