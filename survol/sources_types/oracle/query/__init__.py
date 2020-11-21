@@ -34,7 +34,7 @@ def MakeUri(strQuery,theDb):
 def AddInfo(grph,node,entity_ids_arr):
 	theDb = entity_ids_arr[1]
 	nodeDb = oracle_db.MakeUri(theDb)
-	grph.add((node,lib_common.MakeProp("Db"),nodeDb))
+	grph.add((node,lib_util.MakeProp("Db"),nodeDb))
 
 # For the moment, we assume that these are all table names, without checking.
 # TODO: Find a quick way to check if these are tables or views.

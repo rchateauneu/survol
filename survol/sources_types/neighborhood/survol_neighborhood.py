@@ -34,10 +34,10 @@ def AddSurvolNode(grph,hostSurvol,urlSurvolClean):
 
 		# This is the URL of the remote host, on the remote agent.
 		nodeRemoteHost = serverBox.HostnameUri(hostSurvol)
-		grph.add( ( survolHostNode, lib_common.MakeProp("Survol host"), nodeRemoteHost ) )
+		grph.add( ( survolHostNode, lib_util.MakeProp("Survol host"), nodeRemoteHost ) )
 
 		nodeSurvolUrl = lib_common.NodeUrl(urlSurvolClean)
-		grph.add( ( survolHostNode, lib_common.MakeProp("Survol agent"), nodeSurvolUrl ) )
+		grph.add( ( survolHostNode, lib_util.MakeProp("Survol agent"), nodeSurvolUrl ) )
 
 	else:
 		urlSurvolModed = lib_util.AnyUriModed(urlSurvolClean, currDispMode)
@@ -47,7 +47,7 @@ def AddSurvolNode(grph,hostSurvol,urlSurvolClean):
 		# Should check the URL to be sure it is valid.
 
 		# sys.stderr.write("AddSurvolNode urlSurvolModed=%s\n"%(urlSurvolModed))
-		grph.add( ( survolHostNode, lib_common.MakeProp("Survol agent"), nodeSurvolUrl ) )
+		grph.add( ( survolHostNode, lib_util.MakeProp("Survol agent"), nodeSurvolUrl ) )
 
 	return nodeSurvolUrl
 
@@ -97,7 +97,7 @@ def Main():
 						lib_util.NodeLiteral("Service Location Protocol") ) )
 			attrsService = dictServices[keyService]
 			for keyAttr in attrsService:
-				propAttr = lib_common.MakeProp(keyAttr)
+				propAttr = lib_util.MakeProp(keyAttr)
 				valAttr = attrsService[keyAttr]
 				grph.add( ( nodeSurvolUrl, propAttr, lib_util.NodeLiteral(valAttr) ) )
 

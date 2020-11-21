@@ -31,6 +31,6 @@ def AddAssociatedFiles(grph,node,filNam):
 			if os.path.isfile(filAssocNam):
 				DEBUG("Link filAssocNam=%s filNam=%s",filAssocNam,filNam)
 				filAssocNode = lib_uris.gUriGen.FileUri(filAssocNam)
-				grph.add( ( node, lib_common.MakeProp(pyExtensions[ext]), filAssocNode ) )
+				grph.add( ( node, lib_util.MakeProp(pyExtensions[ext]), filAssocNode ) )
 
 

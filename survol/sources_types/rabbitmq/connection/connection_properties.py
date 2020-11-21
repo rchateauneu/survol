@@ -39,7 +39,7 @@ def Main():
 	#nodConnection = survol_rabbitmq_connection.MakeUri(configNam,namConnectionDisplay)
 	nodConnection = survol_rabbitmq_connection.MakeUri(configNam,namConnection)
 
-	grph.add( ( nodeManager, lib_common.MakeProp("Connection"), nodConnection ) )
+	grph.add( ( nodeManager, lib_util.MakeProp("Connection"), nodConnection ) )
 
 	try:
 		connectList = cl.get_connection(namConnection)
@@ -52,13 +52,13 @@ def Main():
 
 		if connectKey == "vhost":
 			nodVHost = survol_rabbitmq_vhost.MakeUri(configNam,connectVal)
-			grph.add( ( nodConnection, lib_common.MakeProp("Virtual host"), nodVHost ) )
+			grph.add( ( nodConnection, lib_util.MakeProp("Virtual host"), nodVHost ) )
 		elif connectKey == "user":
 			nodUser = survol_rabbitmq_user.MakeUri(configNam,connectVal)
-			grph.add( ( nodConnection, lib_common.MakeProp("User"), nodUser ) )
+			grph.add( ( nodConnection, lib_util.MakeProp("User"), nodUser ) )
 		elif connectKey == "host":
 			nodHost = lib_common.gUriGen.HostnameUri(connectVal)
-			grph.add( ( nodConnection, lib_common.MakeProp("Host"), nodHost ) )
+			grph.add( ( nodConnection, lib_util.MakeProp("Host"), nodHost ) )
 		elif connectKey in ["name","peer_host","peer_port"]:
 			pass
 		else:
@@ -78,7 +78,7 @@ def Main():
 
 			DEBUG("Literal=%s",lib_util.NodeLiteral(connectVal))
 
-			grph.add( ( nodConnection, lib_common.MakeProp(connectKey), lib_util.NodeLiteral(connectVal) ) )
+			grph.add( ( nodConnection, lib_util.MakeProp(connectKey), lib_util.NodeLiteral(connectVal) ) )
 
 			# Special processing ? Si on fait ca, tout les caracteres speciaux sont escapes.
 			# grph.add( ( nodConnection, pc.property_rdf_data_nolist1, lib_util.NodeLiteral(connectVal) ) )
@@ -86,7 +86,7 @@ def Main():
 
 	# This is not useful apparently.
 	# peerSocketNode = lib_common.gUriGen.AddrUri( connectList["peer_host"], connectList["peer_port"] )
-	# grph.add( ( nodConnection, lib_common.MakeProp("Peer"), peerSocketNode ) )
+	# grph.add( ( nodConnection, lib_util.MakeProp("Peer"), peerSocketNode ) )
 
 	survol_rabbitmq_connection.AddSockets(grph,nodConnection,namConnection)
 

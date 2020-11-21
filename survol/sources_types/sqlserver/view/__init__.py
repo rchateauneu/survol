@@ -11,7 +11,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	schemaNam = entity_ids_arr[1]
 	nodeSchema = sqlserver_schema.MakeUri(dsnNam,schemaNam)
 
-	grph.add( ( nodeSchema, lib_common.MakeProp("sqlserver view"), node ) )
+	grph.add( ( nodeSchema, lib_util.MakeProp("sqlserver view"), node ) )
 
 def EntityOntology():
 	return ( ["Dsn", "Schema", "View"], )

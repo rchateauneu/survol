@@ -34,7 +34,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	# strQuery = entity_ids_arr[0]
 	theDsn = entity_ids_arr[1]
 	nodeDsn = sqlserver_dsn.MakeUri(theDsn)
-	grph.add((node,lib_common.MakeProp("Dsn"),nodeDsn))
+	grph.add((node,lib_util.MakeProp("Dsn"),nodeDsn))
 
 # This function must have the same signature for all databases.
 # For the moment, we assume that these are all table names, without checking.

@@ -38,100 +38,91 @@ from lib_properties import pc
 
 
 # Calculates a mask, similar to "192.168.1.0/24"
-#hostAddr = lib_util.GlobalGetHostByName(lib_util.currentHostname)
-#hostSplit = hostAddr.split('.')
-#hostSplit[3] = "0"
-#netMask = '.'.join( hostSplit ) + "/24"
-#
-#sys.stderr.write("hostName=%s hostAddr=%s netMask=%s\n" % ( lib_util.currentHostname, hostAddr, netMask ) )
-
 def Main():
-	paramkeyPortsRange = "Ports Range"
+    paramkeyPortsRange = "Ports Range"
 
-	cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.CgiEnv()
 
-	# netMask = "192.168.1.0/24"
+    # net_mask = "192.168.1.0/24"
 
-	# '10.102.235.173'
-	localIpAddr = lib_util.GlobalGetHostByName(socket.gethostname())
-	
-	splitIpAddr = localIpAddr.split(".")
-	
-	splitIpAddr[3] = "0"
-	netMask = ".".join(splitIpAddr) + "/24"
-	
-	# "sP" is ping scan.
-	# args = ["nmap", '-oX', '-', '-sP', '192.168.1.0/24', ]
-	args = ["nmap", '-oX', '-', '-sP', netMask, ]
+    # '10.102.235.173'
+    local_ip_addr = lib_util.GlobalGetHostByName(socket.gethostname())
+    
+    split_ip_addr = local_ip_addr.split(".")
+    
+    split_ip_addr[3] = "0"
+    net_mask = ".".join(split_ip_addr) + "/24"
+    
+    # "sP" is ping scan.
+    # args = ["nmap", '-oX', '-', '-sP', '192.168.1.0/24', ]
+    args = ["nmap", '-oX', '-', '-sP', net_mask,]
 
-	# TODO: Get the netmask for the interface.
+    # TODO: Get the netmask for the interface.
 
-	# The program nmap must be in the PATH.
-	p = lib_common.SubProcPOpen(args)
-	#except WindowsError: # On Windows, this cannot find "FileNotFoundError"
-	#	exc = sys.exc_info()[1]
-	#	lib_common.ErrorMessageHtml("Cannot find nmap:"+str(exc)+". Maybe a dependency problem")
-	#except FileNotFoundError:
-	#	lib_common.ErrorMessageHtml("Cannot find nmap")
-	#except : # On Windows, this cannot find "FileNotFoundError"
-	#	exc = sys.exc_info()
-	#	lib_common.ErrorMessageHtml("Cannot run nmap:"+str(exc))
+    # The program nmap must be in the PATH.
+    p = lib_common.SubProcPOpen(args)
+    #except WindowsError: # On Windows, this cannot find "FileNotFoundError"
+    #    exc = sys.exc_info()[1]
+    #    lib_common.ErrorMessageHtml("Cannot find nmap:"+str(exc)+". Maybe a dependency problem")
+    #except FileNotFoundError:
+    #    lib_common.ErrorMessageHtml("Cannot find nmap")
+    #except : # On Windows, this cannot find "FileNotFoundError"
+    #    exc = sys.exc_info()
+    #    lib_common.ErrorMessageHtml("Cannot run nmap:"+str(exc))
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	(nmap_last_output, nmap_err) = p.communicate()
+    nmap_last_output, nmap_err = p.communicate()
 
-	dom = xml.dom.minidom.parseString(nmap_last_output)
+    dom = xml.dom.minidom.parseString(nmap_last_output)
 
+    # <host><status state="down" reason="no-response"/>
+    # <address addr="192.168.1.67" addrtype="ipv4" />
+    # </host>
+    # <host><status state="up" reason="syn-ack"/>
+    # <address addr="192.168.1.68" addrtype="ipv4" />
+    # <hostnames><hostname name="Unknown-00-18-e7-08-02-81.home" type="PTR" /></hostnames>
+    # </host>
 
-	# <host><status state="down" reason="no-response"/>
-	# <address addr="192.168.1.67" addrtype="ipv4" />
-	# </host>
-	# <host><status state="up" reason="syn-ack"/>
-	# <address addr="192.168.1.68" addrtype="ipv4" />
-	# <hostnames><hostname name="Unknown-00-18-e7-08-02-81.home" type="PTR" /></hostnames>
-	# </host>
+    # Possibly
+    # <address addr="08:2E:5F:13:0E:48" addrtype="mac" vendor="Hewlett Packard"/>
 
-	# Possibly
-	# <address addr="08:2E:5F:13:0E:48" addrtype="mac" vendor="Hewlett Packard"/>
+    for dhost in dom.getElementsByTagName('host'):
+        status = dhost.getElementsByTagName('status')[0].getAttributeNode('state').value
+        
+        node_host = None
+        addr_vendor = None
+        
+        # TODO: This could be an option. Test this.
+        if status != "up":
+            continue
 
-	for dhost in dom.getElementsByTagName('host'):
-		status = dhost.getElementsByTagName('status')[0].getAttributeNode('state').value
-		
-		nodeHost = None
-		addrVendor = None
-		
-		# TODO: This could be an option. Test this.
-		if status != "up":
-			continue
+        for addr_element in dhost.getElementsByTagName('address'):
+            # "mac", "ipv4"
+            addr_type = addr_element.getAttributeNode('addrtype').value
+            if addr_type == "ipv4":
+                host = addr_element.getAttributeNode('addr').value
+                # sys.stderr.write("host=%s\n"%host)
+                node_host = lib_common.gUriGen.HostnameUri( host )
+            elif addr_type == "mac":
+                try:
+                    addr_vendor = addr_element.getAttributeNode('vendor').value
+                    mac_addr = addr_element.getAttributeNode('addr').value
+                except:
+                    addr_vendor = None
 
-		for addrElement in dhost.getElementsByTagName('address'):
-			# "mac", "ipv4"
-			addrType = addrElement.getAttributeNode('addrtype').value
-			if addrType == "ipv4":
-				host = addrElement.getAttributeNode('addr').value
-				# sys.stderr.write("host=%s\n"%host)
-				nodeHost = lib_common.gUriGen.HostnameUri( host )
-			elif addrType == "mac":
-				try:
-					addrVendor = addrElement.getAttributeNode('vendor').value
-					macAddr = addrElement.getAttributeNode('addr').value
-				except:
-					addrVendor = None
-				
-			
-		if nodeHost:
-			if addrVendor:
-				grph.add( ( nodeHost, lib_common.MakeProp("MAC address"), lib_util.NodeLiteral( macAddr ) ) )
-				grph.add( ( nodeHost, lib_common.MakeProp("Vendor"), lib_util.NodeLiteral( addrVendor ) ) )
-		
-		for dhostname in dhost.getElementsByTagName('hostname'):
-			hostnam = dhostname.getAttributeNode('name').value
-			# sys.stderr.write("    hostnam=%s\n"%hostnam)
-			grph.add( ( nodeHost, pc.property_hostname, lib_util.NodeLiteral( hostnam ) ) )
+        if node_host:
+            if addr_vendor:
+                grph.add((node_host, lib_util.MakeProp("MAC address"), lib_util.NodeLiteral(mac_addr)))
+                grph.add((node_host, lib_util.MakeProp("Vendor"), lib_util.NodeLiteral(addr_vendor)))
+        
+        for dhostname in dhost.getElementsByTagName('hostname'):
+            hostnam = dhostname.getAttributeNode('name').value
+            # sys.stderr.write("    hostnam=%s\n"%hostnam)
+            grph.add((node_host, pc.property_hostname, lib_util.NodeLiteral(hostnam)))
 
-				
-	cgiEnv.OutCgiRdf()
+    cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
-	Main()
+    Main()

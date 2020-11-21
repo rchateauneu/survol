@@ -62,8 +62,8 @@ def Main():
 		nameDomain = machSplit[2].strip()
 
 		nodeHost = lib_common.gUriGen.HostnameUri( machNam )
-		grph.add( ( nodeHost, lib_common.MakeProp("IP address"), lib_util.NodeLiteral( machIp ) ) )
-		grph.add( ( nodeHost, lib_common.MakeProp("Domain"), lib_util.NodeLiteral( nameDomain ) ) )
+		grph.add( ( nodeHost, lib_util.MakeProp("IP address"), lib_util.NodeLiteral( machIp ) ) )
+		grph.add( ( nodeHost, lib_util.MakeProp("Domain"), lib_util.NodeLiteral( nameDomain ) ) )
 		grph.add( ( nodeHost, pc.property_information, lib_util.NodeLiteral( arrSplit[0] ) ) )
 
 	cgiEnv.OutCgiRdf()

@@ -48,9 +48,9 @@ def Main():
 			where sess.session_id = req.session_id
 		"""
 
-		propSqlServerSqlQuery = lib_common.MakeProp("Sql query")
-		propSqlServerHostProcess = lib_common.MakeProp("Host process")
-		propSqlServerStatus = lib_common.MakeProp("Status")
+		propSqlServerSqlQuery = lib_util.MakeProp("Sql query")
+		propSqlServerHostProcess = lib_util.MakeProp("Host process")
+		propSqlServerStatus = lib_util.MakeProp("Status")
 
 		for rowQry in cursorQueries.execute(qryQueries):
 			DEBUG("rowQry.session_id=(%s)", rowQry.session_id)

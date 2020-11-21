@@ -31,7 +31,7 @@ def Main():
 
 	filNode = lib_common.gUriGen.FileUri(dbFilNam )
 	tabNod = sqlite_table.MakeUri(dbFilNam,tableName)
-	grph.add( ( tabNod, lib_common.MakeProp("Table"), filNode ) )
+	grph.add( ( tabNod, lib_util.MakeProp("Table"), filNode ) )
 
 	con = sqlite3.connect(dbFilNam)
 	cursor = con.cursor()
@@ -43,8 +43,8 @@ def Main():
 	try:
 		cursor.execute("PRAGMA table_info('%s')" % tableName )
 
-		propColumn = lib_common.MakeProp("Column")
-		propType = lib_common.MakeProp("Type")
+		propColumn = lib_util.MakeProp("Column")
+		propType = lib_util.MakeProp("Type")
 		for theRow in cursor.fetchall():
 			columnNam = theRow[1]
 			columnNod = sqlite_column.MakeUri(dbFilNam,tableName,columnNam)

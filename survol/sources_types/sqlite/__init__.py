@@ -90,16 +90,16 @@ def AddNodesTablesViews(grph, fil_node, db_fil_nam):
             the_name = the_row[1]
             if the_type == 'table':
                 name_nod = sqlite_table.MakeUri(db_fil_nam, the_name)
-                grph.add((fil_node, lib_common.MakeProp("Table"), name_nod))
+                grph.add((fil_node, lib_util.MakeProp("Table"), name_nod))
             elif the_type == 'view':
                 name_nod = sqlite_view.MakeUri(db_fil_nam, the_name)
-                grph.add((fil_node, lib_common.MakeProp("View"), name_nod))
+                grph.add((fil_node, lib_util.MakeProp("View"), name_nod))
             else:
                 continue
 
             theRootpage = the_row[3]
-            grph.add((name_nod, lib_common.MakeProp("Root page"), lib_util.NodeLiteral(theRootpage)))
-            grph.add((name_nod, lib_common.MakeProp("Type"), lib_util.NodeLiteral(the_type)))
+            grph.add((name_nod, lib_util.MakeProp("Root page"), lib_util.NodeLiteral(theRootpage)))
+            grph.add((name_nod, lib_util.MakeProp("Type"), lib_util.NodeLiteral(the_type)))
 
             # Do not print too much information in case there are too many tables.
             #theCmd = the_row[4]

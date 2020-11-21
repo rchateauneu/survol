@@ -45,7 +45,7 @@ def Main():
 
 			nicestr = prmstr[4:].replace("_"," ").capitalize()
 
-			prop = lib_common.MakeProp(nicestr)
+			prop = lib_util.MakeProp(nicestr)
 
 			try:
 				prm = getattr(pyodbc,prmstr)

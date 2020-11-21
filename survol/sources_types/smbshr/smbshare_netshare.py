@@ -82,7 +82,7 @@ def Main():
 
 	for propKey in propMap:
 		propVal = propMap[propKey]
-		grph.add((nodeSmbShr, lib_common.MakeProp(propKey), rdflib.Literal(propVal)))
+		grph.add((nodeSmbShr, lib_util.MakeProp(propKey), rdflib.Literal(propVal)))
 
 	if shrPath:
 		mountNode = lib_common.gUriGen.FileUri( "//" + lib_util.currentHostname + "/" + shrPath )
