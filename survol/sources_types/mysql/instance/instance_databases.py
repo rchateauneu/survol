@@ -34,7 +34,7 @@ def Main():
     # The IP address would be unambiguous but less clear.
     host_node = lib_common.gUriGen.HostnameUri(hostname)
 
-    prop_db = lib_common.MakeProp("Mysql database")
+    prop_db = lib_util.MakeProp("Mysql database")
 
     a_cred = lib_credentials.GetCredentials("MySql", instance_name)
 
@@ -49,7 +49,7 @@ def Main():
 
     cursor_mysql.execute("show databases")
 
-    grph.add((host_node, lib_common.MakeProp("Mysql instance"), instance_node))
+    grph.add((host_node, lib_util.MakeProp("Mysql instance"), instance_node))
 
     for db_info in cursor_mysql:
         #('information_schema',)
