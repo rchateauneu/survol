@@ -13,7 +13,7 @@ from lib_properties import pc
 
 from sources_types import CIM_NetworkAdapter
 
-# IP configuraton
+# IP configuration
 
 # >>> for n in w.Win32_NetworkAdapter():
 # ...     print(n)
@@ -114,20 +114,20 @@ def add_one_node_ip_config(grph, rootNode, keyMap, sub_map_ipconfigs):
 
     na_node = CIM_NetworkAdapter.MakeUri(txt_description)
 
-    prpDHCP_Server = lib_util.MakeProp("DHCP Server")
-    prpDHCP_Server = lib_util.MakeProp("DHCP Server")
-
     # if key.startswith("Ethernet adapter") or key.startswith("Wireless LAN adapter"):
     for kv_pair in sub_map_ipconfigs:
         prop_name = kv_pair[0]
         param_val = kv_pair[1]
-        prp = lib_util.MakeProp(prop_name)
+        prp = lib_common.MakeProp(prop_name)
 
         if prop_name in ["IPv4 Address", "DHCP Server", "DNS Servers", "Default Gateway"]:
             ip_addr = param_val.replace("(Preferred)", "")
             if ip_addr:
-                hostNode = lib_common.gUriGen.HostnameUri(ip_addr)
-                grph.add((na_node, prp, hostNode))
+                # ip_addr = ip_addr.replace("%", "&percnt;")
+                # An IPV6 address might be "fe80::2c38:c4c6:b033:af27%14": This is not the ideal solution.
+                ip_addr = ip_addr.replace("%", "(percnt)")
+                host_node = lib_common.gUriGen.HostnameUri(ip_addr)
+                grph.add((na_node, prp, host_node))
         else:
             grph.add((na_node, prp, lib_util.NodeLiteral(param_val)))
 
@@ -135,7 +135,7 @@ def add_one_node_ip_config(grph, rootNode, keyMap, sub_map_ipconfigs):
 
 
 def _add_nodes_ip_config(grph, root_node, map_ipconfigs):
-    prp_net_adapt = lib_util.MakeProp("Network adapter")
+    prp_net_adapt = lib_common.MakeProp("Network adapter")
     for key_map in map_ipconfigs:
         sub_map_ipconfigs = map_ipconfigs[key_map]
         na_node = add_one_node_ip_config(grph, root_node, key_map, sub_map_ipconfigs)
