@@ -38,7 +38,7 @@ def Main():
 	hostNode = lib_common.gUriGen.HostnameUri(hostname)
 
 	# BEWARE: This is duplicated.
-	propDb = lib_common.MakeProp("Mysql database")
+	propDb = lib_util.MakeProp("Mysql database")
 
 	nodeMysqlDatabase = survol_mysql_database.MakeUri(instanceName,dbNam)
 	grph.add( ( hostNode, propDb, nodeMysqlDatabase ) )
@@ -51,7 +51,7 @@ def Main():
 
 	cursorMysql.execute("select * from information_schema.TABLES where TABLE_SCHEMA='%s' and TABLE_NAME='%s'" %(dbNam.upper(),tableNam.upper()))
 
-	propTable = lib_common.MakeProp("Mysql table")
+	propTable = lib_util.MakeProp("Mysql table")
 
 	# >>> conn =  MySQLdb.connect(user="primhilltcsrvdb1",passwd="?????",host="primhilltcsrvdb1.mysql.db")
 	# >>> curs=conn.cursor()
@@ -94,23 +94,23 @@ def Main():
 
 		nodeMysqlTable = survol_mysql_table.MakeUri(hostname,dbNam, tableNam)
 
-		grph.add( (nodeMysqlTable, lib_common.MakeProp("Table type"), lib_util.NodeLiteral(tabInfo[3]) ) )
-		grph.add( (nodeMysqlTable, lib_common.MakeProp("Engine"), lib_util.NodeLiteral(tabInfo[4]) ) )
-		grph.add( (nodeMysqlTable, lib_common.MakeProp("Version"), lib_util.NodeLiteral(tabInfo[5]) ) )
-		grph.add( (nodeMysqlTable, lib_common.MakeProp("Row format"), lib_util.NodeLiteral(tabInfo[6]) ) )
-		grph.add( (nodeMysqlTable, lib_common.MakeProp("Table rows"), lib_util.NodeLiteral(tabInfo[7]) ) )
-		grph.add( (nodeMysqlTable, lib_common.MakeProp("Average row length"), lib_util.NodeLiteral(tabInfo[8]) ) )
-		grph.add( (nodeMysqlTable, lib_common.MakeProp("Data length"), lib_util.NodeLiteral(tabInfo[9]) ) )
-		grph.add( (nodeMysqlTable, lib_common.MakeProp("Maximum data length"), lib_util.NodeLiteral(tabInfo[10]) ) )
-		grph.add( (nodeMysqlTable, lib_common.MakeProp("Index length"), lib_util.NodeLiteral(tabInfo[11]) ) )
-		grph.add( (nodeMysqlTable, lib_common.MakeProp("Data free"), lib_util.NodeLiteral(tabInfo[12]) ) )
-		grph.add( (nodeMysqlTable, lib_common.MakeProp("Auto increment"), lib_util.NodeLiteral(tabInfo[13]) ) )
-		grph.add( (nodeMysqlTable, lib_common.MakeProp("Creation time"), lib_util.NodeLiteral(tabInfo[14]) ) )
-		grph.add( (nodeMysqlTable, lib_common.MakeProp("Update time"), lib_util.NodeLiteral(tabInfo[15]) ) )
-		grph.add( (nodeMysqlTable, lib_common.MakeProp("Check time"), lib_util.NodeLiteral(tabInfo[16]) ) )
-		grph.add( (nodeMysqlTable, lib_common.MakeProp("Table collation"), lib_util.NodeLiteral(tabInfo[17]) ) )
-		grph.add( (nodeMysqlTable, lib_common.MakeProp("Checksum"), lib_util.NodeLiteral(tabInfo[18]) ) )
-		grph.add( (nodeMysqlTable, lib_common.MakeProp("Create options"), lib_util.NodeLiteral(tabInfo[19]) ) )
+		grph.add( (nodeMysqlTable, lib_util.MakeProp("Table type"), lib_util.NodeLiteral(tabInfo[3]) ) )
+		grph.add( (nodeMysqlTable, lib_util.MakeProp("Engine"), lib_util.NodeLiteral(tabInfo[4]) ) )
+		grph.add( (nodeMysqlTable, lib_util.MakeProp("Version"), lib_util.NodeLiteral(tabInfo[5]) ) )
+		grph.add( (nodeMysqlTable, lib_util.MakeProp("Row format"), lib_util.NodeLiteral(tabInfo[6]) ) )
+		grph.add( (nodeMysqlTable, lib_util.MakeProp("Table rows"), lib_util.NodeLiteral(tabInfo[7]) ) )
+		grph.add( (nodeMysqlTable, lib_util.MakeProp("Average row length"), lib_util.NodeLiteral(tabInfo[8]) ) )
+		grph.add( (nodeMysqlTable, lib_util.MakeProp("Data length"), lib_util.NodeLiteral(tabInfo[9]) ) )
+		grph.add( (nodeMysqlTable, lib_util.MakeProp("Maximum data length"), lib_util.NodeLiteral(tabInfo[10]) ) )
+		grph.add( (nodeMysqlTable, lib_util.MakeProp("Index length"), lib_util.NodeLiteral(tabInfo[11]) ) )
+		grph.add( (nodeMysqlTable, lib_util.MakeProp("Data free"), lib_util.NodeLiteral(tabInfo[12]) ) )
+		grph.add( (nodeMysqlTable, lib_util.MakeProp("Auto increment"), lib_util.NodeLiteral(tabInfo[13]) ) )
+		grph.add( (nodeMysqlTable, lib_util.MakeProp("Creation time"), lib_util.NodeLiteral(tabInfo[14]) ) )
+		grph.add( (nodeMysqlTable, lib_util.MakeProp("Update time"), lib_util.NodeLiteral(tabInfo[15]) ) )
+		grph.add( (nodeMysqlTable, lib_util.MakeProp("Check time"), lib_util.NodeLiteral(tabInfo[16]) ) )
+		grph.add( (nodeMysqlTable, lib_util.MakeProp("Table collation"), lib_util.NodeLiteral(tabInfo[17]) ) )
+		grph.add( (nodeMysqlTable, lib_util.MakeProp("Checksum"), lib_util.NodeLiteral(tabInfo[18]) ) )
+		grph.add( (nodeMysqlTable, lib_util.MakeProp("Create options"), lib_util.NodeLiteral(tabInfo[19]) ) )
 		grph.add( (nodeMysqlTable, pc.property_information, lib_util.NodeLiteral(tabInfo[20]) ) )
 
 		grph.add( ( nodeMysqlDatabase, propTable, nodeMysqlTable ) )

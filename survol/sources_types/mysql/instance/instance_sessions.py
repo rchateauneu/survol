@@ -39,7 +39,7 @@ def Main():
 	hostNode = lib_common.gUriGen.HostnameUri(hostname)
 
 	# BEWARE: This is duplicated.
-	propDb = lib_common.MakeProp("Mysql database")
+	propDb = lib_util.MakeProp("Mysql database")
 
 	#nodeMysqlDatabase = survol_mysql_database.MakeUri(instanceName,dbNam)
 	#grph.add( ( hostNode, propDb, nodeMysqlDatabase ) )
@@ -60,9 +60,9 @@ def Main():
 
 	cursorMysql.execute("select * from information_schema.processlist")
 
-	propTable = lib_common.MakeProp("Mysql table")
+	propTable = lib_util.MakeProp("Mysql table")
 
-	grph.add( ( hostNode, lib_common.MakeProp("Mysql instance"), instanceNode ) )
+	grph.add( ( hostNode, lib_util.MakeProp("Mysql instance"), instanceNode ) )
 
 	for sessInfo in cursorMysql:
 		DEBUG("sessInfo=%s",str(sessInfo))
@@ -77,7 +77,7 @@ def Main():
 		try:
 			(mysqlSocketHost,mysqlSocketPort) = mysqlSocket.split(":")
 			socketNode = lib_common.gUriGen.AddrUri( mysqlSocketHost, mysqlSocketPort )
-			grph.add( (sessionNode, lib_common.MakeProp("Connection socket"), socketNode ) )
+			grph.add( (sessionNode, lib_util.MakeProp("Connection socket"), socketNode ) )
 		except:
 			pass
 
@@ -88,11 +88,11 @@ def Main():
 			mysqlQuery = sessInfo[7]
 
 			nodeQuery = survol_mysql_query.MakeUri(instanceName,mysqlQuery)
-			grph.add( (sessionNode, lib_common.MakeProp("Mysql query"), nodeQuery ) )
+			grph.add( (sessionNode, lib_util.MakeProp("Mysql query"), nodeQuery ) )
 
-		grph.add( (sessionNode, lib_common.MakeProp("User"), lib_util.NodeLiteral(mysqlUser) ) )
+		grph.add( (sessionNode, lib_util.MakeProp("User"), lib_util.NodeLiteral(mysqlUser) ) )
 
-		grph.add( ( sessionNode, lib_common.MakeProp("Mysql session"), instanceNode ) )
+		grph.add( ( sessionNode, lib_util.MakeProp("Mysql session"), instanceNode ) )
 
 
 	cursorMysql.close()

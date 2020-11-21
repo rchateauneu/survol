@@ -40,7 +40,7 @@ def Main():
 	hostNode = lib_common.gUriGen.HostnameUri(hostname)
 
 	# BEWARE: This is duplicated.
-	propDb = lib_common.MakeProp("Mysql database")
+	propDb = lib_util.MakeProp("Mysql database")
 
 	#nodeMysqlDatabase = survol_mysql_database.MakeUri(instanceName,dbNam)
 	#grph.add( ( hostNode, propDb, nodeMysqlDatabase ) )
@@ -61,9 +61,9 @@ def Main():
 
 	cursorMysql.execute("select * from information_schema.processlist where ID=%s"%sessionId)
 
-	propTable = lib_common.MakeProp("Mysql table")
+	propTable = lib_util.MakeProp("Mysql table")
 
-	grph.add( ( hostNode, lib_common.MakeProp("Mysql instance"), instanceNode ) )
+	grph.add( ( hostNode, lib_util.MakeProp("Mysql instance"), instanceNode ) )
 
 	# There should be one row only.
 	for sessInfo in cursorMysql:
@@ -79,15 +79,15 @@ def Main():
 		try:
 			(mysqlSocketHost,mysqlSocketPort) = mysqlSocket.split(":")
 			socketNode = lib_common.gUriGen.AddrUri( mysqlSocketHost, mysqlSocketPort )
-			grph.add( (sessionNode, lib_common.MakeProp("Connection socket"), socketNode ) )
+			grph.add( (sessionNode, lib_util.MakeProp("Connection socket"), socketNode ) )
 		except:
 			pass
 
 		mysqlDB = sessInfo[3]
-		grph.add( (sessionNode, lib_common.MakeProp("Database"), lib_util.NodeLiteral(mysqlDB) ) )
+		grph.add( (sessionNode, lib_util.MakeProp("Database"), lib_util.NodeLiteral(mysqlDB) ) )
 
 		mysqlTime = sessInfo[5]
-		grph.add( (sessionNode, lib_common.MakeProp("Time"), lib_util.NodeLiteral(mysqlTime) ) )
+		grph.add( (sessionNode, lib_util.MakeProp("Time"), lib_util.NodeLiteral(mysqlTime) ) )
 
 		# If there is a running query, then display it.
 		mysqlCommand = sessInfo[4]
@@ -96,15 +96,15 @@ def Main():
 			mysqlQuery = sessInfo[7]
 
 			nodeQuery = survol_mysql_query.MakeUri(instanceName,mysqlQuery)
-			grph.add( (sessionNode, lib_common.MakeProp("Mysql query"), nodeQuery ) )
+			grph.add( (sessionNode, lib_util.MakeProp("Mysql query"), nodeQuery ) )
 
-		grph.add( (sessionNode, lib_common.MakeProp("Command"), lib_util.NodeLiteral(mysqlCommand) ) )
+		grph.add( (sessionNode, lib_util.MakeProp("Command"), lib_util.NodeLiteral(mysqlCommand) ) )
 
-		grph.add( (sessionNode, lib_common.MakeProp("State"), lib_util.NodeLiteral(mysqlState) ) )
+		grph.add( (sessionNode, lib_util.MakeProp("State"), lib_util.NodeLiteral(mysqlState) ) )
 
-		grph.add( (sessionNode, lib_common.MakeProp("User"), lib_util.NodeLiteral(mysqlUser) ) )
+		grph.add( (sessionNode, lib_util.MakeProp("User"), lib_util.NodeLiteral(mysqlUser) ) )
 
-		grph.add( ( sessionNode, lib_common.MakeProp("Mysql session"), instanceNode ) )
+		grph.add( ( sessionNode, lib_util.MakeProp("Mysql session"), instanceNode ) )
 
 
 	cursorMysql.close()

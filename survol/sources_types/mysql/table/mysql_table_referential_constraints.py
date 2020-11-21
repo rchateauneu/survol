@@ -48,15 +48,15 @@ def Main():
 	hostNode = lib_common.gUriGen.HostnameUri(hostname)
 
 	# BEWARE: This is duplicated.
-	propDb = lib_common.MakeProp("Mysql database")
+	propDb = lib_util.MakeProp("Mysql database")
 
 	nodeMysqlDatabase = survol_mysql_database.MakeUri(instanceName,dbNam)
 	grph.add( ( hostNode, propDb, nodeMysqlDatabase ) )
 
 	aCred = lib_credentials.GetCredentials("MySql", instanceName)
 
-	propTable = lib_common.MakeProp("Mysql table")
-	propConstraint = lib_common.MakeProp("Table type")
+	propTable = lib_util.MakeProp("Mysql table")
+	propConstraint = lib_util.MakeProp("Table type")
 
 	connMysql = survol_mysql.MysqlConnect(instanceName,aUser = aCred[0],aPass=aCred[1])
 
