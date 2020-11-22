@@ -167,13 +167,6 @@ NodeUrl = rdflib.term.URIRef
 ################################################################################
 
 
-def EncodeEntityId(entity_type, entity_id):
-    """See xidCgiDelimiter = "?xid=" """
-    return "xid=%s.%s" % (entity_type, entity_id)
-
-################################################################################
-
-
 def AddSIUnit(number, unitSI):
     """
     unitSI = "B", "b", "B/s" for example.
@@ -429,9 +422,9 @@ def TopUrl(entity_type, entity_id):
 
 def EncodeUri(an_str):
     """
-    This, because graphviz transforms a "\L" (backslash-L) into "<TABLE>". Example:
+    This, because graphviz transforms a "\\L" (backslash-L) into "<TABLE>". Example:
     http://127.0.0.1/PythonStyle/survol/entity.py?xid=com_type_lib:C%3A%5CWINDOWS%5Csystem32%5CLangWrbk.dll
-    Or if the url contains a file in "App\Local"
+    Or if the url contains a file in "App\\Local"
     """
 
     # sys.stderr.write("EncodeUri str=%s\n" % str(anStr) )
@@ -530,9 +523,9 @@ def EntHostToIpReally(entity_host):
 
 def _parse_xid_local(xid):
     """
-    A machine name can contain a domain name : "WORKGROUP\MYHOST-HP", the backslash cannot be at the beginning.
-    "WORKGROUP\MYHOST-HP@CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2"
-    "WORKGROUP\MYHOST-HP@oracle/table.Name=MY_TABLE"
+    A machine name can contain a domain name : "WORKGROUP\\MYHOST-HP", the backslash cannot be at the beginning.
+    "WORKGROUP\\MYHOST-HP@CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2"
+    "WORKGROUP\\MYHOST-HP@oracle/table.Name=MY_TABLE"
     BEWARE: This must NOT match "http://127.0.0.1:8000/survol/namespaces_wbem.py?xid=http://192.168.1.83:5988/."
     that is "http://192.168.1.83:5988/."
     A class name starts with a letter. There are no consecutives slashes "/".
@@ -688,21 +681,26 @@ def parse_namespace_type(ns_entity_type):
 ################################################################################
 
 
+# TODO: Consider base64 encoding of all arguments, with "Xid="
+# This would give the same encoding for all parameters whetever their class.
+xidCgiDelimiter = "?xid="
+
+
+def _encode_entity_id(entity_type, entity_id):
+    """See xidCgiDelimiter = "?xid=" """
+    return "xid=%s.%s" % (entity_type, entity_id)
+
+
 def ScriptizeCimom(path, entity_type, cimom):
     """This is a adhoc solution, for a local use."""
-    return uriRoot + path + "?" + EncodeEntityId(cimom + "/" + entity_type, "")
+    return uriRoot + path + "?" + _encode_entity_id(cimom + "/" + entity_type, "")
 
 
 def Scriptize(path, entity_type, entity_id):
     """Properly encodes type and id into a URL."""
-    return uriRoot + path + "?" + EncodeEntityId(entity_type, entity_id)
+    return uriRoot + path + "?" + _encode_entity_id(entity_type, entity_id)
 
 ################################################################################
-
-
-# TODO: Consider base64 encoding of all arguments, with "Xid="
-# This would give the same encoding for all parameters whetever their class.
-xidCgiDelimiter = "?xid="
 
 
 def BuildWmiMoniker(hostname_wmi, namespac="", class_nam=""):
@@ -810,13 +808,13 @@ def EntityScriptFromPath(moniker_entity, is_class, is_namespace, is_hostname):
         ent_idx = 2
 
     if is_hostname:
-        return ('namespaces_wmi.py','namespaces_wbem.py','entity.py')[ent_idx]
+        return ('namespaces_wmi.py', 'namespaces_wbem.py', 'entity.py')[ent_idx]
     elif is_namespace:
-        return ('objtypes_wmi.py','objtypes_wbem.py','objtypes.py')[ent_idx]
+        return ('objtypes_wmi.py', 'objtypes_wbem.py', 'objtypes.py')[ent_idx]
     elif is_class:
-        return ('class_wmi.py','class_wbem.py','class_type_all.py')[ent_idx]
+        return ('class_wmi.py', 'class_wbem.py', 'class_type_all.py')[ent_idx]
     else:
-        return ('entity_wmi.py','entity_wbem.py','entity.py')[ent_idx]
+        return ('entity_wmi.py', 'entity_wbem.py', 'entity.py')[ent_idx]
 
 
 # WMI, WBEM and Survol have the similar monikers.
@@ -934,7 +932,6 @@ def InfoMessageHtml(message):
 def ObjectTypesNoCache():
     """Returns the list of available object types: ["process", "file," group", etc...]"""
     directory = gblTopScripts + "/sources_types"
-    DEBUG("ObjectTypesNoCache directory=%s", directory)
 
     ld = len(directory)
     for path, dirs, files in os.walk(directory):
@@ -1028,7 +1025,7 @@ def HierarchicalFunctionSearchNoCache(type_without_ns, g_func_name):
     last_dot = len(type_without_ns)
     while last_dot > 0:
 
-        topModule = type_without_ns[:last_dot]
+        #topModule = type_without_ns[:last_dot]
         chopped_entity_type = type_without_ns[:last_dot]
 
         # Load the module of this entity to see if it defines the graphic function.
@@ -1036,8 +1033,8 @@ def HierarchicalFunctionSearchNoCache(type_without_ns, g_func_name):
 
         if entity_module:
             try:
-                gFuncAddr = getattr(entity_module, g_func_name)
-                return gFuncAddr
+                g_func_addr = getattr(entity_module, g_func_name)
+                return g_func_addr
             except AttributeError:
                 pass
 
@@ -1067,12 +1064,12 @@ def HierarchicalFunctionSearch(type_without_ns, function_name):
     try:
         return _dict_hierarchical_function_search[function_name][type_without_ns]
     except KeyError:
-        funcObj = HierarchicalFunctionSearchNoCache(type_without_ns, function_name)
+        func_obj = HierarchicalFunctionSearchNoCache(type_without_ns, function_name)
         try:
-            _dict_hierarchical_function_search[function_name][type_without_ns] = funcObj
+            _dict_hierarchical_function_search[function_name][type_without_ns] = func_obj
         except KeyError:
-            _dict_hierarchical_function_search[function_name] = {type_without_ns : funcObj}
-        return funcObj
+            _dict_hierarchical_function_search[function_name] = {type_without_ns : func_obj}
+        return func_obj
 
 
 ################################################################################
@@ -1554,11 +1551,6 @@ def _get_entity_module_without_cache(entity_type):
         return _get_entity_module_without_cache_no_catch(entity_type)
     except ImportError as exc:
         gblLogger.error("_get_entity_module_without_cache entity_type=%s Caught:%s", entity_type, exc)
-
-        import traceback
-        gblLogger.error("Exception stack trace:%s", traceback.format_exc())
-        gblLogger.error("Current   stack trace:%s", "\n".join(traceback.format_stack()))
-
         return None
 
 
@@ -1921,7 +1913,7 @@ class TmpFile:
                 self.DbgDelFil(self.Name)
 
             # Extra check, not to remove everything.
-            if self.TmpDirToDel not in [None,"/",""]:
+            if self.TmpDirToDel not in [None, "/", ""]:
                 DEBUG("About to del %s", self.TmpDirToDel )
                 for root, dirs, files in os.walk(self.TmpDirToDel, topdown=False):
                     for name in files:
