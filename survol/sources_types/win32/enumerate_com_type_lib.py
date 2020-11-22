@@ -15,43 +15,38 @@ import win32con
 import lib_com_type_lib
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.CgiEnv()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	try:
-		num = 0
-		while True:
-			try:
-				# DO NOT close handle.
-				# (<class 'pywintypes.error'>, error(6, 'RegQueryInfoKey', 'The handle is invalid.')
-				keyName = win32api.RegEnumKey(lib_com_type_lib.TypeLibRegistryKey, num)
-			except win32api.error:
-				exc = sys.exc_info()
-				WARNING("RegEnumKey CAUGHT:%s",str(exc))
-				break
+    try:
+        num = 0
+        while True:
+            try:
+                # DO NOT close handle.
+                # (<class 'pywintypes.error'>, error(6, 'RegQueryInfoKey', 'The handle is invalid.')
+                key_name = win32api.RegEnumKey(lib_com_type_lib.TypeLibRegistryKey, num)
+            except win32api.error as exc:
+                WARNING("RegEnumKey CAUGHT:%s", str(exc))
+                break
 
-			versions = lib_com_type_lib.ComKeyAllNameVersion(lib_com_type_lib.TypeLibRegistryKey, keyName)
+            versions = lib_com_type_lib.ComKeyAllNameVersion(lib_com_type_lib.TypeLibRegistryKey, key_name)
 
-			# sys.stderr.write("key=%s\n" % keyName)
+            # Name of the last version.
+            best_typ_lib_name, best_version = lib_com_type_lib.ComKeyLastName(versions)
+            # sys.stderr.write("best_typ_lib_name=%s\n" % best_typ_lib_name)
 
-			# Name of the last version.
-			( bestTypLibName, bestVersion ) = lib_com_type_lib.ComKeyLastName(versions)
-			# sys.stderr.write("BestName=%s\n" % bestTypLibName )
+            # The name will be awful. First we must experiment a bit.
+            lib_com_type_lib.CreateComRegisteredTypeLibNode(grph, key_name, best_typ_lib_name, best_version)
 
-			# for vers, name in list( versions.items() ):
-			#	sys.stderr.write("    vers=%s name=%s\n" % (vers,name) )
+            num = num + 1
+    finally:
+        # This avoids:  error(6, 'RegQueryInfoKey', 'The handle is invalid.')
+        ERROR("DO NOT close handle")
+        # win32api.RegCloseKey(lib_com_type_lib.TypeLibRegistryKey
 
-			# The name will be awful. First we must experiment a bit.
-			typelibNode = lib_com_type_lib.CreateComRegisteredTypeLibNode( grph, keyName, bestTypLibName, bestVersion )
+    cgiEnv.OutCgiRdf()
 
-			num = num + 1
-	finally:
-		# This avoids:  error(6, 'RegQueryInfoKey', 'The handle is invalid.')
-		ERROR("DO NOT close handle")
-		# win32api.RegCloseKey(lib_com_type_lib.TypeLibRegistryKey
-
-	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
-	Main()
+    Main()
