@@ -179,10 +179,26 @@ class RdfLocalAgentTest(unittest.TestCase):
     @unittest.skipIf(not is_platform_windows, "Windows only")
     def test_win32_ip_config(self):
         """Test ip_config.py"""
-        win_depends_content = self._check_script(
+        ip_config_content = self._check_script(
             "/survol/sources_types/win32/ip_config.py")
 
-        print("win_depends_content=", win_depends_content)
+        print("ip_config_content=", ip_config_content)
+
+    @unittest.skipIf(not is_platform_windows, "Windows only")
+    def test_enumerate_com_type_lib(self):
+        """Test enumerate_com_type_lib_content.py"""
+        enumerate_com_type_lib_content = self._check_script(
+            "/survol/sources_types/win32/enumerate_com_type_lib.py")
+
+        print("enumerate_com_type_lib_content=", enumerate_com_type_lib_content)
+
+    @unittest.skipIf(not is_platform_windows, "Windows only")
+    def test_win32_enumerate_top_level_windows(self):
+        """Test enumerate_top_level_windows.py"""
+        enumerate_top_level_windows_content = self._check_script(
+            "/survol/sources_types/win32/enumerate_top_level_windows.py")
+
+        print("enumerate_top_level_windows_content=", enumerate_top_level_windows_content)
 
     def test_java_properties(self):
         """Investigate Java files"""
