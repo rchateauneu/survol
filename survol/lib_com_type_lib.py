@@ -7,55 +7,65 @@ from lib_properties import pc
 import win32con
 import win32api
 
+
 TypeLibRegistryKey = win32api.RegOpenKey(win32con.HKEY_CLASSES_ROOT, "TypeLib")
 
-def ComKeyAllNameVersion(key, keyName):
-	result = {}
-	DEBUG("ComKeyAllNameVersion key=%s keyName=%s", key,keyName)
 
-	try:
-		subKey = win32api.RegOpenKey(key, keyName)
-	except:
-		exc = sys.exc_info()
-		lib_common.ErrorMessageHtml("ComKeyAllNameVersion key=%s keyName=%s. Error:%s"%(key,keyName,str(exc)))
+def ComKeyAllNameVersion(key, key_name):
+    result = {}
+    DEBUG("ComKeyAllNameVersion key=%s keyName=%s", key, key_name)
 
-	try:
-			subNum = 0
-			bestVersion = 0.0
-			while 1:
-					try:
-							versionStr = win32api.RegEnumKey(subKey, subNum)
-					except win32api.error:
-							break
-					name = win32api.RegQueryValue(subKey, versionStr)
-					# sys.stderr.write("name=%s\n" % name)
+    try:
+        sub_key = win32api.RegOpenKey(key, key_name)
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("ComKeyAllNameVersion key=%s keyName=%s. Error:%s" % (key, key_name, str(exc)))
 
-					try:
-							versionFlt = float(versionStr)
-					except ValueError:
-							versionFlt = 0 # ????
+    try:
+        sub_num = 0
+        bestVersion = 0.0
+        while 1:
+            try:
+                version_str = win32api.RegEnumKey(sub_key, sub_num)
+            except win32api.error:
+                break
+            name = win32api.RegQueryValue(sub_key, version_str)
+            # sys.stderr.write("name=%s\n" % name)
 
-					result[ versionFlt ] = name
-					subNum = subNum + 1
-	finally:
-			win32api.RegCloseKey(subKey)
+            try:
+                version_flt = float(version_str)
+            except ValueError:
+                version_flt = 0 # ????
 
-	return result
+            result[version_flt] = name
+            sub_num = sub_num + 1
+    finally:
+        win32api.RegCloseKey(sub_key)
+
+    return result
+
 
 def ComKeyLastName(result):
-	bestVrs = -999.0
-	bestNam = ""
+    best_vrs = -999.0
+    best_nam = ""
 
-	for vers, name in list( result.items() ):
-		if vers > bestVrs:
-			bestVrs = vers
-			bestNam = name
-			
-	return ( bestNam, bestVrs )
+    for vers, name in result.items():
+        if vers > best_vrs:
+            best_vrs = vers
+            best_nam = name
+            
+    return best_nam, best_vrs
 
-def CreateComRegisteredTypeLibNode( grph, key, name, version ):
-	typelibNode = lib_common.gUriGen.ComRegisteredTypeLibUri( key )
-	strTypLibName = "%s / %.1f" % ( name , version )
-	grph.add( (typelibNode, pc.property_information, lib_util.NodeLiteral(strTypLibName) ) )
 
-	return typelibNode
+def _filter_non_printable(str):
+  return ''.join(c for c in str if ord(c) > 31 or ord(c) == 9)
+
+
+def CreateComRegisteredTypeLibNode(grph, key, name, version):
+    typelib_node = lib_common.gUriGen.ComRegisteredTypeLibUri(key)
+    # Just in case there would be characters breaking SVG conversion etc ...
+    name = _filter_non_printable(name)
+    str_typ_lib_name = "%s / %.1f" % (name, version)
+
+    grph.add((typelib_node, pc.property_information, lib_util.NodeLiteral(str_typ_lib_name)))
+
+    return typelib_node
