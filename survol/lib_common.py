@@ -475,7 +475,7 @@ class CgiEnv():
             del self.m_graph
         except AttributeError:
             pass
-        self._global_create_graph()
+        self._create_or_get_graph()
         return self.m_graph
 
     # TODO: If no arguments, allow to edit it.
