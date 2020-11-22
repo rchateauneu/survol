@@ -27,6 +27,7 @@ import lib_util
 import lib_naming
 import lib_properties
 from lib_properties import MakeProp
+from lib_properties import pc
 import lib_exports
 import lib_export_ontology
 import lib_export_dot
@@ -67,7 +68,7 @@ def is_useless_process(proc):
 # The result can be sent to the Web browser in several formats.
 # TODO: The nodes should be displayed always in the same order.
 # THIS IS NOT THE CASE IN HTML AND SVG !!
-def OutCgiMode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
+def _out_cgi_mode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
     theCgi._bind_identical_nodes()
 
     grph = theCgi.m_graph
@@ -75,8 +76,20 @@ def OutCgiMode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
     parameters = theCgi.m_parameters
     parameterized_links = theCgi.m_parameterized_links
 
+
+
     collapsed_properties, commutative_properties = lib_properties.extract_properties_metadata(grph)
+    sys.stderr.write("_out_cgi_mode from meta_data collapsed_properties=%s\n" % str(collapsed_properties))
+
+    # At this stage, maybe the meta_data properties are not saved in the graph.
+    # This is needed because they might come from OutCgiRdf when called from MergeRdf
+    for one_collapsed_property in theCgi.m_collapsed_properties:
+        lib_properties.add_property_metadata_to_graph(grph, one_collapsed_property, pc.meta_property_collapsed)
+
+    # Which this, all collapsed properties are in this list.
     collapsed_properties.extend(theCgi.m_collapsed_properties)
+
+
 
     if mode == "html":
         # Used rarely and performance not very important. This returns a HTML page.
@@ -93,7 +106,7 @@ def OutCgiMode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
         try:
             triples_count = lib_kbase.write_graph_to_events(theCgi.m_url_without_mode, theCgi.m_graph)
         except Exception as exc:
-            ERROR("OutCgiMode Exception exc=%s", exc)
+            ERROR("_out_cgi_mode Exception exc=%s", exc)
             raise
     elif mode in ["svg", ""]:
         # Default mode, because graphviz did not like several CGI arguments in a SVG document (Bug ?),
@@ -107,8 +120,8 @@ def OutCgiMode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
         lib_export_dot.GraphToSvg(page_title, error_msg, is_sub_server, parameters, grph, parameterized_links, top_url,
                       theCgi.m_layout_style, collapsed_properties, commutative_properties)
     else:
-        ERROR("OutCgiMode invalid mode=%s", mode)
-        ErrorMessageHtml("OutCgiMode invalid mode=%s" % mode)
+        ERROR("_out_cgi_mode invalid mode=%s", mode)
+        ErrorMessageHtml("_out_cgi_mode invalid mode=%s" % mode)
 
     # TODO: Add a special mode where the triplestore grph is simply returned, without serialization.
     # TODO: This is much faster when in the client library because no marshalling is needed.
@@ -270,7 +283,7 @@ def MergeOutCgiRdf(the_mode, cumulated_error):
     pseudo_cgi.m_entity_host = ""
 
     # A single rendering of all RDF nodes and links merged from several scripts.
-    OutCgiMode(pseudo_cgi, top_url, the_mode, error_msg=cumulated_error)
+    _out_cgi_mode(pseudo_cgi, top_url, the_mode, error_msg=cumulated_error)
 
     return
 
@@ -463,7 +476,7 @@ class CgiEnv():
             del self.m_graph
         except AttributeError:
             pass
-        self._create_graph()
+        self._global_create_graph()
         return self.m_graph
 
     # TODO: If no arguments, allow to edit it.
@@ -541,15 +554,15 @@ class CgiEnv():
                     # Sets the right value of the parameter because HTML form do not POST unchecked check boxes.
                     # Therefore, if in edit mode, a parameter is not returned, it can only be a False boolean.
                     self.m_parameters[paramkey] = param_val
-                    DEBUG("get_parameters paramkey='%s' set to FALSE", paramkey )
+                    DEBUG("get_parameters paramkey='%s' set to FALSE", paramkey)
                 except KeyError:
                     param_val = dflt_value
-                    DEBUG("get_parameters paramkey='%s' set to param_val='%s'", paramkey, param_val )
+                    DEBUG("get_parameters paramkey='%s' set to param_val='%s'", paramkey, param_val)
         else:
             if not has_arg_value:
                 param_val = ""
             else:
-                DEBUG("get_parameters nothing for paramkey='%s'", ( paramkey ))
+                DEBUG("get_parameters nothing for paramkey='%s'", paramkey)
 
         # TODO: Beware, empty strings are NOT send by the HTML form,
         # TODO: so an empty string must be equal to the default value.
@@ -560,7 +573,7 @@ class CgiEnv():
         """This is used for some scripts which have a single parameter (For example pid and file name).
         GetId() just returns the value of an unique key-value pair.
         """
-        DEBUG("GetId m_entity_type=%s m_entity_id=%s", self.m_entity_type, str( self.m_entity_id ) )
+        DEBUG("GetId m_entity_type=%s m_entity_id=%s", self.m_entity_type, str(self.m_entity_id))
         try:
             # If this is a top-level url, no object type, therefore no id.
             if self.m_entity_type == "":
@@ -587,6 +600,7 @@ class CgiEnv():
 
         # If no parameters is found, although one was requested.
         self.enter_edition_mode()
+        # TODO: This needs a cleaner exit.
         assert False
         return ""
 
@@ -623,10 +637,10 @@ class CgiEnv():
 
         # TODO: See if this can be used in lib_client.py and merge_scripts.py.
         if globalMergeMode:
-            # At the end, only one call to OutCgiMode() will be made.
+            # At the end, only one call to _out_cgi_mode() will be made.
             globalCgiEnvList.append(self)
         else:
-            OutCgiMode(self, top_url, mode)
+            _out_cgi_mode(self, top_url, mode)
 
     # Example: cgiEnv.add_parameterized_links( "Next", { paramkeyStartIndex : startIndex + maxInstances } )
     def add_parameterized_links(self, url_label, params_map):
@@ -737,7 +751,7 @@ class CgiEnv():
             # with all scripts of each object.
             for other_node in related_nodes:
                 if node_previous:
-                    self.m_graph.add((node_previous, lib_properties.pc.property_alias, other_node))
+                    self.m_graph.add((node_previous, pc.property_alias, other_node))
                 node_previous = other_node
 
 
