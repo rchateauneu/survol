@@ -11,6 +11,8 @@ import lib_util
 from lib_properties import pc
 import lib_properties
 
+from rdflib.namespace import RDF
+
 from lib_psutil import *
 
 
@@ -80,6 +82,8 @@ def _add_command_line_and_executable(grph, node, proc_obj):
 
 
 def _command_line_argument_to_node(process_cwd, file_path):
+    """This receives a string which is a command line argument and may be a path.
+    If proven so, it returns the node, otherwise None. """
     if process_cwd is None:
         return None
 
@@ -134,6 +138,7 @@ def add_command_line_arguments(grph, node, proc_obj):
 
     proc_cwd, proc_msg = PsutilProcCwd(proc_obj)
 
+    # This tells that argv values are displayed in tabular form, in a HTML table, instead of distinct nodes.
     lib_properties.add_property_metadata_to_graph(grph, pc.property_argv, pc.meta_property_collapsed)
 
     cmd_array = PsutilProcToCmdlineArray(proc_obj)
@@ -141,20 +146,44 @@ def add_command_line_arguments(grph, node, proc_obj):
         if argv_index == 0:
             # No need to display twice the command.
             continue
-        # On pourrait plutot adjoindre un node "key" a chaque node, et utiliser des BNode pour les literales ?
         argv_property = pc.property_argv # lib_properties.MakeProp("argv", key=argv_index)
 
         argv_node = _command_line_argument_to_node(proc_cwd, argv_value)
         if not argv_node:
             # Default literal value if it was not possible to create a node for the value.
-            argv_node = rdflib.Literal(argv_value)
-        grph.add((node_cmd_line, argv_property, argv_node))
 
-    # Comment renvoyer le fait qu'il faut afficher ainsi ?
-    # cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_directory])
-    # Et de plus, on veut a terme mettre les "collapsed properties" dans le CgiEnv qui est fabrique
-    # avant d'alimenter le graph ?
-    # See: add_property_metadata_to_graph(grph, pc.property_argv, pc.meta_property_collapsed)
+            # argv_node = rdflib.Literal(argv_value)
+
+            # RDFS = ClosedNamespace(
+            #     uri=URIRef("http://www.w3.org/2000/01/rdf-schema#"),
+            #     terms=[
+            #         "Resource", "Class", "subClassOf", "subPropertyOf", "comment", "label",
+            #         "domain", "range", "seeAlso", "isDefinedBy", "Literal", "Container",
+            #         "ContainerMembershipProperty", "member", "Datatype"]
+            # )
+
+            # https://www.w3.org/TR/rdf-schema/#ch_bag
+
+            # The rdf:Seq class is the class of RDF 'Sequence' containers.
+            # It is a subclass of rdfs:Container.
+            # Whilst formally it is no different from an rdf:Bag or an rdf:Alt,
+            # the rdf:Seq class is used conventionally to indicate to a human reader
+            # that the numerical ordering of the container membership properties of the container is intended to be significant.
+
+            # rdf:value is an instance of rdf:Property that may be used in describing structured values.
+            # pc.property_information is the key for sorting nodes of a given property and object.
+            # This could be a parameter of a collapsed property..
+
+            # TODO: This might also be ...
+            # TODO: ... an IP address.
+            # TODO: ... an IP address fillowed by a port number.
+
+            argv_node = rdflib.Literal(argv_value)
+        argv_keyed_node = rdflib.BNode()
+        grph.add((argv_keyed_node, RDF.value, argv_node))
+        grph.add((argv_keyed_node, pc.property_information, rdflib.Literal(argv_index)))
+
+        grph.add((node_cmd_line, argv_property, argv_keyed_node))
 
 
 def AddInfo(grph, node, entity_ids_arr):
