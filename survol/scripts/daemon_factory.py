@@ -221,13 +221,12 @@ def _local_supervisor_stop():
     else:
         sys.stderr.write("_local_supervisor_stop SHOULD BE RUNNING\n")
 
-    ### NOT YET ############### xmlrpc_server_proxy = _create_server_proxy()
-    ### NOT YET ############### xmlrpc_server_proxy.supervisor.shutdown()
-
     _supervisor_process.kill()
     _supervisor_process.communicate()
     try:
+        sys.stderr.write("_local_supervisor_stop being terminated\n")
         _supervisor_process.terminate()
+        sys.stderr.write("_local_supervisor_stop terminated\n")
     except Exception as exc:
         sys.stderr.write("_local_supervisor_stop terminating _supervisor_process.pid=%d: %s\n"
             % (_supervisor_process.pid, str(exc)))

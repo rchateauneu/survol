@@ -63,6 +63,10 @@ class SupervisorTest(unittest.TestCase):
         finally:
             status_stop = daemon_factory.supervisor_stop()
             self.assertTrue(status_stop)
+
+            # Give it time enough to stop for good. This is not needed anywhere except on Travis Windows 10.
+            if is_travis_machine():
+                time.sleep(1)
         self.assertFalse(psutil.pid_exists(supervisor_pid))
 
 
