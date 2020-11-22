@@ -8,14 +8,17 @@ from sources_types import odbc as survol_odbc
 # Does it avoid cyclic dependencies ??
 from sources_types.odbc import CgiPropertyDsn
 
-def EntityOntology():
-	return ( [survol_odbc.CgiPropertyDsn()], )
 
-def MakeUri(dsnName):
-	return lib_common.gUriGen.UriMakeFromDict("sqlserver/dsn", { survol_odbc.CgiPropertyDsn() : dsnName })
+def EntityOntology():
+    return ([survol_odbc.CgiPropertyDsn()],)
+
+
+def MakeUri(dsn_name):
+    return lib_common.gUriGen.UriMakeFromDict("sqlserver/dsn", {survol_odbc.CgiPropertyDsn(): dsn_name})
+
 
 # So the values of keys "PWD" and "PASSWORD" are replaced by "xxx" etc...
 def EntityName(entity_ids_arr):
-	# sys.stderr.write("EntityName entity_ids_arr=%s\n"%str(entity_ids_arr))
-	return survol_odbc.CgiPropertyDsn().ValueDisplay(entity_ids_arr[0])
+    # sys.stderr.write("EntityName entity_ids_arr=%s\n"%str(entity_ids_arr))
+    return survol_odbc.CgiPropertyDsn().ValueDisplay(entity_ids_arr[0])
 

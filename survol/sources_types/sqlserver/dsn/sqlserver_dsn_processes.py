@@ -15,68 +15,69 @@ from sources_types.sqlserver import dsn as survol_sqlserver_dsn
 from sources_types.sqlserver import session
 
 try:
-	import pyodbc
+    import pyodbc
 except ImportError:
-	lib_common.ErrorMessageHtml("pyodbc Python library not installed")
+    lib_common.ErrorMessageHtml("pyodbc Python library not installed")
+
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.CgiEnv()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	dsnNam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
+    dsn_nam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
 
-	DEBUG("dsn=(%s)", dsnNam)
+    DEBUG("dsn=(%s)", dsn_nam)
 
-	nodeDsn = survol_sqlserver_dsn.MakeUri(dsnNam)
+    node_dsn = survol_sqlserver_dsn.MakeUri(dsn_nam)
 
-	ODBC_ConnectString = survol_odbc_dsn.MakeOdbcConnectionString(dsnNam)
-	try:
-		cnxn = pyodbc.connect(ODBC_ConnectString)
-		DEBUG("Connected: %s", dsnNam)
-		cursorSessions = cnxn.cursor()
+    ODBC_ConnectString = survol_odbc_dsn.MakeOdbcConnectionString(dsn_nam)
+    try:
+        cnxn = pyodbc.connect(ODBC_ConnectString)
+        DEBUG("Connected: %s", dsn_nam)
+        cursor_sessions = cnxn.cursor()
 
-		qrySessions = """
-		SELECT host_name,host_process_id,session_id,program_name,client_interface_name,original_login_name,nt_domain,nt_user_name
-		FROM sys.dm_exec_sessions where host_process_id is not null
-		"""
+        qry_sessions = """
+        SELECT host_name,host_process_id,session_id,program_name,client_interface_name,original_login_name,nt_domain,nt_user_name
+        FROM sys.dm_exec_sessions where host_process_id is not null
+        """
 
-		propSqlServerSession = lib_common.MakeProp("SqlServer session")
-		propSqlServerHostProcess = lib_common.MakeProp("Host process")
-		propSqlServerProgramName = lib_common.MakeProp("Program name")
-		propSqlServerClientInterface = lib_common.MakeProp("Client Interface")
+        prop_sql_server_session = lib_common.MakeProp("SqlServer session")
+        prop_sql_server_host_process = lib_common.MakeProp("Host process")
+        prop_sql_server_program_name = lib_common.MakeProp("Program name")
+        prop_sql_server_client_interface = lib_common.MakeProp("Client Interface")
 
-		propSqlServerOriginalLoginName = lib_common.MakeProp("original_login_name")
-		propSqlServerNTDomain = lib_common.MakeProp("nt_domain")
-		propSqlServerNTUserName = lib_common.MakeProp("nt_user_name")
+        prop_sql_server_original_login_name = lib_common.MakeProp("original_login_name")
+        prop_sql_server_nt_domain = lib_common.MakeProp("nt_domain")
+        prop_sql_server_nt_user_name = lib_common.MakeProp("nt_user_name")
 
-		for rowSess in cursorSessions.execute(qrySessions):
-			DEBUG("rowSess.session_id=(%s)", rowSess.session_id)
-			nodeSession = session.MakeUri(dsnNam, rowSess.session_id)
-			grph.add((nodeDsn, propSqlServerSession, nodeSession))
+        for row_sess in cursor_sessions.execute(qry_sessions):
+            DEBUG("row_sess.session_id=(%s)", row_sess.session_id)
+            node_session = session.MakeUri(dsn_nam, row_sess.session_id)
+            grph.add((node_dsn, prop_sql_server_session, node_session))
 
-			node_process = lib_common.RemoteBox(rowSess.host_name).PidUri(rowSess.host_process_id)
-			grph.add((node_process, pc.property_pid, lib_util.NodeLiteral(rowSess.host_process_id)))
+            node_process = lib_common.RemoteBox(row_sess.host_name).PidUri(row_sess.host_process_id)
+            grph.add((node_process, pc.property_pid, lib_util.NodeLiteral(row_sess.host_process_id)))
 
-			grph.add((nodeSession, propSqlServerHostProcess, node_process))
-			grph.add((nodeSession, propSqlServerProgramName, lib_util.NodeLiteral(rowSess.program_name)))
-			grph.add((nodeSession, propSqlServerClientInterface, lib_util.NodeLiteral(rowSess.client_interface_name)))
+            grph.add((node_session, prop_sql_server_host_process, node_process))
+            grph.add((node_session, prop_sql_server_program_name, lib_util.NodeLiteral(row_sess.program_name)))
+            grph.add((node_session, prop_sql_server_client_interface, lib_util.NodeLiteral(row_sess.client_interface_name)))
 
-			# TODO: Make nodes with these:
+            # TODO: Make nodes with these:
 
-			grph.add(
-				(nodeSession, propSqlServerOriginalLoginName, lib_util.NodeLiteral(rowSess.original_login_name)))
-			grph.add((nodeSession, propSqlServerNTDomain, lib_util.NodeLiteral(rowSess.nt_domain)))
-			grph.add((nodeSession, propSqlServerNTUserName, lib_util.NodeLiteral(rowSess.nt_user_name)))
+            grph.add(
+                (node_session, prop_sql_server_original_login_name, lib_util.NodeLiteral(row_sess.original_login_name)))
+            grph.add((node_session, prop_sql_server_nt_domain, lib_util.NodeLiteral(row_sess.nt_domain)))
+            grph.add((node_session, prop_sql_server_nt_user_name, lib_util.NodeLiteral(row_sess.nt_user_name)))
 
-	except Exception:
-		exc = sys.exc_info()[0]
-		lib_common.ErrorMessageHtml(
-			"nodeDsn=%s Unexpected error:%s" % (dsnNam, str(sys.exc_info())))  # cgiEnv.OutCgiRdf()
+    except Exception as exc:
+        lib_common.ErrorMessageHtml(
+            "node_dsn=%s Unexpected error:%s" % (dsn_nam, str(sys.exc_info())))  # cgiEnv.OutCgiRdf()
 
-	cgiEnv.OutCgiRdf()
+    cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
-	Main()
+    Main()
 
 # http://www.easysoft.com/developer/languages/python/pyodbc.html

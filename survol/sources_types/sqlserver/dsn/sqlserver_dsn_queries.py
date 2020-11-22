@@ -15,69 +15,66 @@ from sources_types.sqlserver import query as sql_query
 
 
 try:
-	import pyodbc
+    import pyodbc
 except ImportError:
-	lib_common.ErrorMessageHtml("pyodbc Python library not installed")
+    lib_common.ErrorMessageHtml("pyodbc Python library not installed")
+
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.CgiEnv()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	dsnNam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
+    dsn_nam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
 
-	DEBUG("dsn=(%s)", dsnNam)
+    DEBUG("dsn=(%s)", dsn_nam)
 
-	nodeDsn = survol_sqlserver_dsn.MakeUri(dsnNam)
+    odbc_connect_string = survol_odbc_dsn.MakeOdbcConnectionString(dsn_nam)
+    try:
+        cnxn = pyodbc.connect(odbc_connect_string)
+        DEBUG("Connected: %s", dsn_nam)
+        cursor_queries = cnxn.cursor()
 
-	ODBC_ConnectString = survol_odbc_dsn.MakeOdbcConnectionString(dsnNam)
-	try:
-		cnxn = pyodbc.connect(ODBC_ConnectString)
-		DEBUG("Connected: %s", dsnNam)
-		cursorQueries = cnxn.cursor()
+        qry_queries = """
+            SELECT sqltext.TEXT,
+            req.session_id,
+            req.status,
+            sess.host_process_id,
+            sess.host_name
+            FROM sys.dm_exec_requests req
+            CROSS APPLY sys.dm_exec_sql_text(sql_handle) AS sqltext
+            , sys.dm_exec_sessions sess
+            where sess.session_id = req.session_id
+        """
 
-		qryQueries = """
-			SELECT sqltext.TEXT,
-			req.session_id,
-			req.status,
-			sess.host_process_id,
-			sess.host_name
-			FROM sys.dm_exec_requests req
-			CROSS APPLY sys.dm_exec_sql_text(sql_handle) AS sqltext
-			, sys.dm_exec_sessions sess
-			where sess.session_id = req.session_id
-		"""
+        prop_sql_server_sql_query = lib_common.MakeProp("Sql query")
+        prop_sql_server_host_process = lib_common.MakeProp("Host process")
+        prop_sql_server_status = lib_common.MakeProp("Status")
 
-		propSqlServerSqlQuery = lib_common.MakeProp("Sql query")
-		propSqlServerHostProcess = lib_common.MakeProp("Host process")
-		propSqlServerStatus = lib_common.MakeProp("Status")
+        for row_qry in cursor_queries.execute(qry_queries):
+            DEBUG("row_qry.session_id=(%s)", row_qry.session_id)
+            node_session = session.MakeUri(dsn_nam, row_qry.session_id)
 
-		for rowQry in cursorQueries.execute(qryQueries):
-			DEBUG("rowQry.session_id=(%s)", rowQry.session_id)
-			nodeSession = session.MakeUri(dsnNam, rowQry.session_id)
+            # A bit of cleanup.
+            query_clean = row_qry.TEXT.replace("\n", " ").strip()
 
-			# A bit of cleanup.
-			queryClean = rowQry.TEXT.replace("\n", " ").strip()
+            # TODO: Must add connection information so we can go from the tables to sqlserver itself.
+            node_sql_query = sql_query.MakeUri(query_clean,dsn_nam)
+            grph.add((node_session, prop_sql_server_sql_query, node_sql_query))
+            node_process = lib_common.RemoteBox(row_qry.host_name).PidUri(row_qry.host_process_id)
+            grph.add((node_process, pc.property_pid, lib_util.NodeLiteral(row_qry.host_process_id)))
 
-			# TODO: Must add connection information so we can go from the tables to sqlserver itself.
-			nodeSqlQuery = sql_query.MakeUri(queryClean,dsnNam)
-			grph.add((nodeSession, propSqlServerSqlQuery, nodeSqlQuery))
-			node_process = lib_common.RemoteBox(rowQry.host_name).PidUri(rowQry.host_process_id)
-			grph.add((node_process, pc.property_pid, lib_util.NodeLiteral(rowQry.host_process_id)))
+            grph.add((node_session, prop_sql_server_host_process, node_process))
+            grph.add((node_session, prop_sql_server_status, lib_util.NodeLiteral(row_qry.status)))
 
-			grph.add((nodeSession, propSqlServerHostProcess, node_process))
-			grph.add((nodeSession, propSqlServerStatus, lib_util.NodeLiteral(rowQry.status)))
+    except Exception as exc:
+        lib_common.ErrorMessageHtml(
+            "nodeDsn=%s Unexpected error:%s" % (dsn_nam, str(exc)))
 
-	except Exception:
-		exc = sys.exc_info()[0]
-		lib_common.ErrorMessageHtml(
-			"nodeDsn=%s Unexpected error:%s" % (dsnNam, str(sys.exc_info())))
+    cgiEnv.OutCgiRdf()
 
-	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
-	Main()
-
-
+    Main()
 
 # http://www.easysoft.com/developer/languages/python/pyodbc.html
