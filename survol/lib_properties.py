@@ -228,8 +228,14 @@ def _get_collapsed_properties(grph):
 
 
 def extract_properties_metadata(grph):
+    """
+    This reads from the graph meta data about properties which are used when display in DOT format.
+    It might be used in other display modes.
+    """
     collapsed_properties = _get_collapsed_properties(grph)
-    # This is hard-coded for the moment.
+
+    # This is hard-coded for the moment. It is the only know commutative property,
+    # whose edge is displayed as a double arrow.
     commutative_properties = [pc.property_socket_end,]
     grph.remove((_graphic_metadata_node, None, None))
     return collapsed_properties, commutative_properties
