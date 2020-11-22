@@ -15,6 +15,7 @@ import win32security
 from sources_types import Win32_Group as survol_Win32_Group
 from sources_types import Win32_UserAccount as survol_Win32_UserAccount
 
+
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
@@ -23,67 +24,59 @@ def Main():
 	# TODO: Try this on a remote machine.
 	server = None # Run on local machine for the moment.
 
-	# servName_or_None is for Windows functions where the local host must be None.
-	# servNameNotNone is for our URLs where the hostname must be explicit.
-	if not server or lib_util.IsLocalAddress( server ):
-		servName_or_None = None
+	# serv_name_or_none is for Windows functions where the local host must be None.
+	# serv_name_not_none is for our URLs where the hostname must be explicit.
+	if not server or lib_util.IsLocalAddress(server):
+		serv_name_or_none = None
 
 		# So it is compatible with WMI.
-		servNameNotNone = lib_uris.TruncateHostname(lib_util.currentHostname)
-		# .home
-		serverNode = lib_common.nodeMachine
-		serverBox = lib_common.gUriGen
+		serv_name_not_none = lib_uris.TruncateHostname(lib_util.currentHostname)
 	else:
-		servName_or_None = server
-		servNameNotNone = server
-		serverNode = lib_common.gUriGen.HostnameUri(server)
-		serverBox = lib_common.RemoteBox(server)
-
-
-
+		serv_name_or_none = server
+		serv_name_not_none = server
 
 	resume = 0
-	numMembers = 0
+	num_members = 0
 	while True:
 		level = 1
-		data, total, resume = win32net.NetLocalGroupEnum(servName_or_None, level, resume)
+		data, total, resume = win32net.NetLocalGroupEnum(serv_name_or_none, level, resume)
 		for group in data:
 			# sys.stderr.write("Group %(name)s:%(comment)s\n" % group)
 
 			# TODO: Not sure about the groupname syntax.
-			groupName = group['name']
-			# nodeGroup = lib_common.gUriGen.GroupUri( groupName )
-			nodeGroup = survol_Win32_Group.MakeUri( groupName, servNameNotNone )
+			group_name = group['name']
+			node_group = survol_Win32_Group.MakeUri(group_name, serv_name_not_none)
 
-			grph.add( ( nodeGroup, pc.property_host, lib_common.nodeMachine ) )
-			groupComment = group['comment']
-			if groupComment != "":
-				groupCommentMaxWidth = max( 80, len(groupName) )
-				if len(groupComment) > groupCommentMaxWidth:
-					groupComment = groupComment[:groupCommentMaxWidth] + "..."
-				grph.add( (nodeGroup, pc.property_information, lib_util.NodeLiteral(groupComment) ) )
+			grph.add((node_group, pc.property_host, lib_common.nodeMachine))
+			group_comment = group['comment']
+			if group_comment != "":
+				group_comment_max_width = max(80, len(group_name))
+				if len(group_comment) > group_comment_max_width:
+					group_comment = group_comment[:group_comment_max_width] + "..."
+				grph.add((node_group, pc.property_information, lib_util.NodeLiteral(group_comment)))
 
 			memberresume = 0
 			while True:
-				levelMember = 2
-				memberData, total, memberResume = win32net.NetLocalGroupGetMembers(server, group['name'], levelMember, memberresume)
-				for member in memberData:
+				level_member = 2
+				member_data, total, member_resume = win32net.NetLocalGroupGetMembers(
+					server, group['name'], level_member, memberresume)
+				for member in member_data:
 					# Converts Sid to username
-					userName, domain, type = win32security.LookupAccountSid(servName_or_None, member['sid'])
-					numMembers = numMembers + 1
+					userName, domain, type = win32security.LookupAccountSid(serv_name_or_none, member['sid'])
+					num_members = num_members + 1
 					# sys.stderr.write("    Member: %s: %s\n" % (userName, member['domainandname']))
-					# nodeUser = lib_common.gUriGen.UserUri( userName )
-					nodeUser = survol_Win32_UserAccount.MakeUri( userName, servNameNotNone )
+					node_user = survol_Win32_UserAccount.MakeUri(userName, serv_name_not_none)
 
 					# TODO: Not sure about the property.
 					# TODO: Not sure about the username syntax.
-					grph.add( (nodeUser, pc.property_group, nodeGroup ) )
-				if memberResume==0:
+					grph.add((node_user, pc.property_group, node_group))
+				if memberresume == 0:
 					break
 		if not resume:
 			break
 
 	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
+
 
 if __name__ == '__main__':
 	Main()
