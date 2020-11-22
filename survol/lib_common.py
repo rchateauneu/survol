@@ -76,20 +76,19 @@ def _out_cgi_mode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
     parameters = theCgi.m_parameters
     parameterized_links = theCgi.m_parameterized_links
 
-
-
-    collapsed_properties, commutative_properties = lib_properties.extract_properties_metadata(grph)
-    sys.stderr.write("_out_cgi_mode from meta_data collapsed_properties=%s\n" % str(collapsed_properties))
-
     # At this stage, maybe the meta_data properties are not saved in the graph.
     # This is needed because they might come from OutCgiRdf when called from MergeRdf
     for one_collapsed_property in theCgi.m_collapsed_properties:
         lib_properties.add_property_metadata_to_graph(grph, one_collapsed_property, pc.meta_property_collapsed)
 
+    # Now extract and remove all metadata, also the ones which were already here.
+    collapsed_properties, commutative_properties = lib_properties.extract_properties_metadata(grph)
+    sys.stderr.write("_out_cgi_mode from meta_data collapsed_properties=%s\n" % str(collapsed_properties))
+
     # Which this, all collapsed properties are in this list.
+    # It would not harm to leave them, but some tests which analyses the exact output content would break.
+    # Also: The meta data would be visible.
     collapsed_properties.extend(theCgi.m_collapsed_properties)
-
-
 
     if mode == "html":
         # Used rarely and performance not very important. This returns a HTML page.
