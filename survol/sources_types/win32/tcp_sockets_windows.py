@@ -28,77 +28,77 @@ from sources_types import addr as survol_addr
 #   TCP    [fe80::3c7a:339:64f0:2161%11]:1521  [fe80::3c7a:339:64f0:2161%11]:51769  ESTABLISHED     4316
 #   TCP    [fe80::3c7a:339:64f0:2161%11]:51769  [fe80::3c7a:339:64f0:2161%11]:1521  ESTABLISHED     4776
 
+
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.CgiEnv()
 
-	args = ["netstat", '-on', ]
+    args = ["netstat", '-on', ]
 
-	p = lib_common.SubProcPOpen(args)
+    p = lib_common.SubProcPOpen(args)
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	(netstat_last_output, netstat_err) = p.communicate()
+    netstat_last_output, netstat_err = p.communicate()
 
-	# Converts to string for Python3.
-	netstat_str = netstat_last_output.decode("utf-8")
-	netstat_lines = netstat_str.split('\n')
+    # Converts to string for Python3.
+    netstat_str = netstat_last_output.decode("utf-8")
+    netstat_lines = netstat_str.split('\n')
 
-	seenHeader = False
-	for lin in netstat_lines:
-		DEBUG("lin=%s",lin)
+    seen_header = False
+    for lin in netstat_lines:
+        DEBUG("lin=%s",lin)
 
-		# By default, consecutive spaces are treated as one.
-		linSplit = lin.split()
-		if len(linSplit) == 0:
-			continue
+        # By default, consecutive spaces are treated as one.
+        lin_split = lin.split()
+        if len(lin_split) == 0:
+            continue
 
-		DEBUG("linSplit=%s",str(linSplit))
+        DEBUG("lin_split=%s", str(lin_split))
 
-		if not seenHeader:
-			if len(linSplit) > 0 and linSplit[0] == "Proto":
-				seenHeader = True
-			continue
+        if not seen_header:
+            if len(lin_split) > 0 and lin_split[0] == "Proto":
+                seen_header = True
+            continue
 
-		if linSplit[0] != "TCP":
-			continue
+        if lin_split[0] != "TCP":
+            continue
 
-		sockStatus = linSplit[3]
-		if sockStatus != "ESTABLISHED":
-			continue
+        sock_status = lin_split[3]
+        if sock_status != "ESTABLISHED":
+            continue
 
-
-		addrLocal = linSplit[1]
-		ipLocal, portLocal = survol_addr.SplitAddrPort(addrLocal)
-
-
-		# It does not use survol_addr.PsutilAddSocketToGraphOne(node_process,cnt,grph)
-		# because sometimes we do not have the process id.
-
-		localSocketNode = lib_common.gUriGen.AddrUri( ipLocal, portLocal )
-		grph.add( ( localSocketNode, pc.property_information, lib_util.NodeLiteral(sockStatus) ) )
-
-		addrRemot = linSplit[2]
-		if addrRemot != "0.0.0.0:*":
-			ipRemot, portRemot = survol_addr.SplitAddrPort(addrRemot)
-			remotSocketNode = lib_common.gUriGen.AddrUri( ipRemot, portRemot )
-			grph.add( ( localSocketNode, pc.property_socket_end, remotSocketNode ) )
-
-		procPid = linSplit[4]
-		if procPid != "0":
-			procNode = lib_common.gUriGen.PidUri(procPid)
-
-			grph.add( ( procNode, pc.property_host, lib_common.nodeMachine ) )
-			grph.add( ( procNode, pc.property_pid, lib_util.NodeLiteral(procPid) ) )
-
-			grph.add( ( procNode, pc.property_has_socket, localSocketNode ) )
-
-		else:
-			# If the local process is not known, just link the local socket to the local machine.
-			grph.add( ( lib_common.nodeMachine, pc.property_host, localSocketNode ) )
+        addr_local = lin_split[1]
+        ip_local, port_local = survol_addr.SplitAddrPort(addr_local)
 
 
-	cgiEnv.OutCgiRdf()
+        # It does not use survol_addr.PsutilAddSocketToGraphOne(node_process,cnt,grph)
+        # because sometimes we do not have the process id.
+
+        local_socket_node = lib_common.gUriGen.AddrUri(ip_local, port_local)
+        grph.add((local_socket_node, pc.property_information, lib_util.NodeLiteral(sock_status)))
+
+        addr_remot = lin_split[2]
+        if addr_remot != "0.0.0.0:*":
+            ip_remot, port_remot = survol_addr.SplitAddrPort(addr_remot)
+            remot_socket_node = lib_common.gUriGen.AddrUri(ip_remot, port_remot)
+            grph.add((local_socket_node, pc.property_socket_end, remot_socket_node))
+
+        proc_pid = lin_split[4]
+        if proc_pid != "0":
+            proc_node = lib_common.gUriGen.PidUri(proc_pid)
+
+            grph.add((proc_node, pc.property_host, lib_common.nodeMachine))
+            grph.add((proc_node, pc.property_pid, lib_util.NodeLiteral(proc_pid)))
+
+            grph.add((proc_node, pc.property_has_socket, local_socket_node))
+
+        else:
+            # If the local process is not known, just link the local socket to the local machine.
+            grph.add((lib_common.nodeMachine, pc.property_host, local_socket_node))
+
+    cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
-	Main()
+    Main()
 
