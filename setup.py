@@ -82,7 +82,6 @@ class InstallLibCommand(install_lib):
 
         if len(file_content) == 0:
             log.info("InstallLibCommand empty file=%s" % one_path)
-            print("Empty file:", one_path)
             return
 
         # There must not be any CR character after this shebang line.
