@@ -80,6 +80,11 @@ class InstallLibCommand(install_lib):
         with open(one_path, 'rb') as input_stream:
             file_content = input_stream.readlines()
 
+        if len(file_content) == 0:
+            log.info("InstallLibCommand empty file=%s" % one_path)
+            print("Empty file:", one_path)
+            return
+
         # There must not be any CR character after this shebang line.
         if file_content[0].startswith(b"#!/usr/bin/env python"):
             log.info("Script file=%s l=%d" % (one_path, len(file_content)))
