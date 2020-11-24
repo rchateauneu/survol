@@ -6,25 +6,27 @@ for solving common situations.
 They focus on Linux only, to start with, with Primhill Computers demo machine
 but the concepts are easily applicable to other platforms:
 
-Oracle database:
-================
+Check what a user is doing:
+---------------------------
 
-The famous `TNSNAMES <filehttp://vps516494.ovh.net/Survol/survol/sources_types/Databases/oracle_tnsnames.py?xid=.PLAINTEXTONLY>`_
-contain the list of accessible Oracle DBs.
+See `list of users <http://vps516494.ovh.net/Survol/survol/sources_types/Linux/etc_passwd.py?xid=.PLAINTEXTONLY>`_
 
-See `Oracle Express <http://vps516494.ovh.net/Survol/survol/entity.py?xid=oracle/db.Db=XE>`_ scripts.
+See `user apache <http://vps516494.ovh.net/Survol/survol/entity.py?xid=LMI_Account.Name=apache,Domain=vps516494.ovh.net>`_.
+Due to security reason, this is the only one we can easily investigate (Because it runs
+the HTTP server and is therefore accessible).
 
-See `its schemas <http://vps516494.ovh.net/Survol/survol/sources_types/oracle/db/oracle_db_schemas.py?xid=oracle/db.Db%3DXE>`_
+Which process is run by `apache <http://vps516494.ovh.net/Survol/survol/sources_types/LMI_Account/user_processes.py?xid=LMI_Account.Name%3Dapache%2CDomain%3Dvps516494.ovh.net>`_ ?
 
-See `schema SYSTEM <http://vps516494.ovh.net/Survol/survol/entity.py?xid=oracle/schema.Db=XE,Schema=SYSTEM>`_
+It runs httpd servers and also a Python process for the current CGI script.
 
-`List of tables of schema SYSTEM <http://vps516494.ovh.net/Survol/survol/sources_types/oracle/schema/oracle_schema_tables.py?xid=oracle/schema.Db%3DXE%2CSchema%3DSYSTEM>`_
+See the `parent process <http://vps516494.ovh.net/Survol/survol/entity.py?xid=CIM_Process.Handle=302>`_
+(The one at the center).
 
-Back to the top of XE database, now see `running Oracle sessions <http://vps516494.ovh.net/Survol/survol/sources_types/oracle/db/oracle_db_processes.py?xid=oracle/db.Db%3DXE>`_
-Of course, the current process can be seen, running Python.
 
 Which other machines are used by a running application ?
 --------------------------------------------------------
+
+
 
 Fetch the process
 
@@ -35,6 +37,9 @@ Which external libraries are implied by an application ?
 
 Languages ?
 
+
+MySql
+-----
 
 Quelles librairies externes doivent etre installees.
 ----------------------------------------------------
@@ -82,4 +87,30 @@ List of `TCP sockets <http://vps516494.ovh.net/Survol/survol/sources_types/Linux
 Click on a `socket <http://vps516494.ovh.net/Survol/survol/entity.py?xid=addr.Id=165.227.96.127:47892>`_ to see where it points to.
 
 Some `information about this socket <http://vps516494.ovh.net/Survol/survol/sources_types/addr/socket_host.py?xid=addr.Id%3D165.227.96.127%3A47892>`_
+
+
+Oracle database:
+================
+
+The famous `TNSNAMES <filehttp://vps516494.ovh.net/Survol/survol/sources_types/Databases/oracle_tnsnames.py?xid=.PLAINTEXTONLY>`_
+contain the list of accessible Oracle DBs.
+
+See `Oracle Express <http://vps516494.ovh.net/Survol/survol/entity.py?xid=oracle/db.Db=XE>`_ scripts.
+
+See `its schemas <http://vps516494.ovh.net/Survol/survol/sources_types/oracle/db/oracle_db_schemas.py?xid=oracle/db.Db%3DXE>`_
+
+See `schema SYSTEM <http://vps516494.ovh.net/Survol/survol/entity.py?xid=oracle/schema.Db=XE,Schema=SYSTEM>`_
+
+`List of tables of schema SYSTEM <http://vps516494.ovh.net/Survol/survol/sources_types/oracle/schema/oracle_schema_tables.py?xid=oracle/schema.Db%3DXE%2CSchema%3DSYSTEM>`_
+
+Back to the top of XE database, now see `running Oracle sessions <http://vps516494.ovh.net/Survol/survol/sources_types/oracle/db/oracle_db_processes.py?xid=oracle/db.Db%3DXE>`_
+Of course, the current process can be seen, running Python.
+
+External machines:
+------------------
+
+Get `sockets with netstat <http://vps516494.ovh.net/Survol/survol/sources_types/Linux/tcp_sockets.py?xid=.PLAINTEXTONLY>`_
+
+Click on a `socket <http://vps516494.ovh.net/Survol/survol/entity.py?xid=addr.Id=90.254.241.42:52713>`_
+to see its owner.
 
