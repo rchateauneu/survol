@@ -45,7 +45,11 @@ def Main():
 
     env_prop = lib_common.MakeProp("environment")
 
-    envs_dict = obj_proc.environ()
+    try:
+        envs_dict = obj_proc.environ()
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("Caught:%s" % exc)
+
 
     node_process = lib_common.gUriGen.PidUri(procid)
 
