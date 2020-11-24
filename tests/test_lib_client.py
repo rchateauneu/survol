@@ -895,9 +895,9 @@ class SurvolRemoteWbemTest(unittest.TestCase):
         self.assertTrue(missing_triples == [], "Missing triples:%s" % str(missing_triples))
 
 
+@unittest.skipIf(not pkgutil.find_loader('jpype'), "jpype cannot be imported.")
 class SurvolLocalJavaTest(unittest.TestCase):
 
-    @unittest.skipIf(not pkgutil.find_loader('jpype'), "jpype cannot be imported. test_java_mbeans not executed.")
     def test_java_mbeans(self):
         """Java MBeans"""
 
@@ -944,7 +944,6 @@ class SurvolLocalJavaTest(unittest.TestCase):
         for one_str in list_required:
             self.assertTrue(one_str in str_instances_set)
 
-    @unittest.skipIf(not pkgutil.find_loader('jpype'), "test_java_system_properties needs jpype.")
     def test_java_system_properties(self):
         """Java system properties"""
 
@@ -990,7 +989,6 @@ class SurvolLocalJavaTest(unittest.TestCase):
                 print("Not there:",one_str)
             self.assertTrue(one_str in str_instances_set, "test_java_system_properties: Not there:%s" % str(one_str))
 
-    @unittest.skipIf(not pkgutil.find_loader('jpype'), "jpype cannot be imported. test_java_jdk_jstack not executed.")
     def test_java_jdk_jstack(self):
         """Information about JDK stack"""
 
