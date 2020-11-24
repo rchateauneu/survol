@@ -223,8 +223,8 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
             idx += 1
         return props
 
-    # Ca liste les labels des objects qui apparaissent dans les blocs,
-    # et pointent vers le nom du record.
+    # This lists the labels of objects which appear in the blocks,
+    # and point to the name of records.
     dict_collapsed_object_labels_to_subject_labels = {}
 
     # This contains, for each node (subject), the related node (object) linked
@@ -255,7 +255,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
         return new_subj_nam
 
     # This is sorted so the result is deterministic. Very small performance impact.
-    # Any order will do as long as the result is always the same.
+    # Any order will do as long as the result is always the same for the same URL, if the content is identical.
     sortedGrph = sorted(grph)
 
     # TODO: Loop only on the "collapsed" properties, the ones whose objects must be displayed
@@ -374,7 +374,8 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
             # Some specific properties cannot have children so they can be stored as literals?
             fields_set[subj].append((prop, obj))
 
-    logfil.write(lib_util.TimeStamp() + " Rdf2Dot: Replacing vectors: CollapsedProperties=%d.\n" % len(collapsed_properties))
+    logfil.write(lib_util.TimeStamp() + " Rdf2Dot: Replacing vectors.\n")
+    logfil.write(lib_util.TimeStamp() + " Rdf2Dot: Number of collapsed properties=%d.\n" % len(collapsed_properties))
 
     # Now, replaces each vector by a single object containg a HTML table.
     # TODO: Unfortunately, the prop is lost, which implies that all children are mixed together.
@@ -436,10 +437,10 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
                 except KeyError:
                     pass
 
-            # Appends rest of properties, sorted.
+            # Appends rest of properties which are the column names, alphabetically sorted.
             fields_keys = fields_keys_ordered + sorted(raw_fields_keys)
 
-            # This assumes that the header columns are sorted.
+            # This assumes that the header columns are sorted by alphabetical order.
             key_indices = {name_key: index_key for (index_key, name_key) in enumerate(fields_keys, 1)}
 
             number_keys = len(key_indices)+1
@@ -476,26 +477,29 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
                 td_bgcolor = td_bgcolor_plain
 
                 # Some columns might not have a value. The first column is for the key.
-                columns = [td_bgcolor + " ></td>"] * number_keys
+                html_columns = [td_bgcolor + " ></td>"] * number_keys
 
                 # Just used for the vertical order of lines, one line per object.
-                title = ""
+                concatenated_info_values = ""
 
-                # TODO: CGIPROP. This is not a dict, the same key can appear several times ?
                 for key, val in fields_set[obj_uri]:
+                    # TODO: This property is by default the sorting key:
+                    # TODO: This can be a parameter for lists of classes <MY_Class>
+                    # TODO: ... by adding triplets of the form: (<MY_Class>, sorting_key, pc.property_information)
                     if key == pc.property_information:
                         # This can be a short string only.
-                        title += val
+                        # Instead of concatenation, consider a list, or use an unique delimiter.
+                        concatenated_info_values += val
+                        # If there is a key, it overrides
+                        sub_entity_id = "NOT_" + "PLAINTEXTONLY" # val
                         continue
 
                     # TODO: This is hard-coded.
                     if is_flat_property(key) :
-
                         # In fact, it might also be an internal URL with "entity.py"
                         if lib_kbase.IsLiteral(val):
                             if isinstance(val.value, (list, tuple)):
                                 str_html = _format_element_aux(val.value)
-                                DEBUG("val.value=%s", str_html)
                                 tmp_cell = td_bgcolor + 'align="left">%s</td>' % str_html
                             else:
                                 tmp_cell = td_bgcolor + 'align="left">%s</td>' % val.value
@@ -515,7 +519,6 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
 
                             val_title_ul = _dot_ul(val_title)
                             tmp_cell = td_bgcolor + 'href="%s" align="left" >%s</td>' % (val, val_title_ul)
-
                     else:
                         try:
                             float(val)
@@ -525,20 +528,27 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
                             tmp_cell = td_bgcolor + 'align="left">%s</td>' % _str_with_br(val)
 
                     idx_key = key_indices[key]
-                    columns[idx_key] = tmp_cell
+                    html_columns[idx_key] = tmp_cell
 
-                if title:
-                    title_key = title
+                if concatenated_info_values:
+                    title_key = concatenated_info_values
                 else:
                     title_key = sub_obj_nam
 
                 # Maybe the first column is a literal, and not an object ?
                 if sub_entity_id != "PLAINTEXTONLY":
-                    # WE SHOULD PROBABLY ESCAPE HERE TOO.
-                    columns[0] = td_bgcolor_light + 'port="%s" href="%s" align="LEFT" >%s</td>' % (sub_obj_id, sub_nod_uri, title_key )
+                    # TODO: WE SHOULD PROBABLY ESCAPE HERE TOO.
+                    # For example, this displays the column labelled with pc.property_information
+                    html_columns[0] = td_bgcolor_light + 'port="%s" href="%s" align="LEFT" >%s</td>' % (sub_obj_id, sub_nod_uri, title_key)
                 else:
+                    sys.stderr.write("sub_entity_id=%s\n" % sub_entity_id)
+                    sys.stderr.write("sub_nod_uri=%s\n" % sub_nod_uri)
                     sub_nod_uri = lib_util.html_escape(sub_nod_uri)
-                    columns[0] = td_bgcolor_light + 'port="%s" align="LEFT" >%s</td>' % (sub_obj_id, sub_nod_uri)
+                    # For example, this displays the title of another table: Typically sub-scripts.
+                    # The title itself is not an URL.
+                    html_columns[0] = td_bgcolor_light + 'port="%s" align="LEFT" >%s</td>' % (sub_obj_id, sub_nod_uri)
+
+                # concatenated_info_values
 
                 # Several scripts might have the same help text, so add a number.
                 # "Title" => "Title"
@@ -546,16 +556,18 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
                 # "Title" => "Title/3" etc...
                 # Beware that it is quadratic with the number of scripts with identical info.
                 title_idx = 2
-                title_uniq = title_key
-                while title_uniq in dict_html_lines:
-                    title_uniq = "%s/%d" % (title_key, title_idx)
+                title_key_uniq = title_key
+                while title_key_uniq in dict_html_lines:
+                    title_key_uniq = "%s/%d" % (title_key, title_idx)
                     title_idx += 1
 
-                # TODO: L'ordre est base sur les chaines mais devrait etre base sur le contenu. Exemple:
-                # TODO: "(TUT_UnixProcess) Handle=10" vient avant "(TUT_UnixProcess) Handle=2"
-                # TODO: title_uniq devrait etre plutot la liste des proprietes.
+                # TODO: The sorting order is based on these strings but should rather be based on the content.
+                # TODO: For example, "(TUT_UnixProcess) Handle=10" comes before "(TUT_UnixProcess) Handle=2".
+                # TODO: This is later sorted by the function lib_util.natural_sort_list.
+                # TODO: Or: title_key_uniq should rather be replaced by the list of properties, for example.
                 # TODO: By clicking on the column names, we could change the order.
-                dict_html_lines[title_uniq] = "".join(columns)
+                # TODO: Another possibility is to have a "key" metadata which would replace title_key_uniq.
+                dict_html_lines[title_key_uniq] = "".join(html_columns)
 
             # Replace the first column by more useful information.
             num_nod_lst = len(nod_lst)
@@ -601,7 +613,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
             prop_nam_plural = lib_grammar.ToPlural(prop_nam, None)
             help_text = "List of " + prop_nam_plural + " in " + lab_text
 
-            # TODO: Le title and the content are not necessarily of the same class.
+            # TODO: The title and the content are not necessarily of the same class.
             # lab_text_with_br is the first line of the table containing nodes linked with the
             # same property. Unfortunately we have lost this property.
             lab_text = _truncate_in_space(lab_text, 30)
@@ -729,8 +741,8 @@ def copy_to_output_destination(logfil, svg_out_filnam, out_dest):
 # but anyway it needs to have graphviz already installed.
 # Also, creating an intermediary files helps debugging.
 def _dot_to_svg(dot_filnam_after, logfil, viztype, out_dest):
-    DEBUG("viztype=%s",viztype)
-    tmp_svg_fil = lib_util.TmpFile("_dot_to_svg", "svg")
+    DEBUG("viztype=%s", viztype)
+    tmp_svg_fil = lib_util.TmpFile("survol_graph_to_svg", "svg")
     svg_out_filnam = tmp_svg_fil.Name
     # dot -Kneato
 
@@ -855,7 +867,7 @@ def GraphToSvg(
         layout_style, collapsed_properties, commutative_properties):
     """This transforms a RDF triplestore into a temporary DOT file, which is
     transformed by GraphViz into a SVG file sent to the HTTP browser. """
-    tmp_log_fil = lib_util.TmpFile("_graph_to_svg", "log")
+    tmp_log_fil = lib_util.TmpFile("survol_graph_to_svg", "log")
     try:
         logfil = open(tmp_log_fil.Name, "w")
     except Exception as exc:
@@ -864,7 +876,7 @@ def GraphToSvg(
 
     logfil.write("Starting logging\n")
 
-    tmp_dot_fil = lib_util.TmpFile("Grph2Dot", "dot")
+    tmp_dot_fil = lib_util.TmpFile("survol_graph_to_svg", "dot")
     dot_filnam_after = tmp_dot_fil.Name
     rdfoutfil = open(dot_filnam_after, "w")
     logfil.write(lib_util.TimeStamp() + " Created " + dot_filnam_after + "\n")
