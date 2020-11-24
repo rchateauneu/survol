@@ -6,14 +6,22 @@ for solving common situations.
 They focus on Linux only, to start with, with Primhill Computers demo machine
 but the concepts are easily applicable to other platforms:
 
-Investigate interesting sockets on a machine:
----------------------------------------------
-List of `TCP sockets <http://vps516494.ovh.net/Survol/survol/sources_types/Linux/tcp_sockets.py?xid=.PLAINTEXTONLY>`_
+Oracle database:
+================
 
-Click on a `socket <http://vps516494.ovh.net/Survol/survol/entity.py?xid=addr.Id=165.227.96.127:47892>`_ to see where it points to.
+The famous `TNSNAMES <filehttp://vps516494.ovh.net/Survol/survol/sources_types/Databases/oracle_tnsnames.py?xid=.PLAINTEXTONLY>`_
+contain the list of accessible Oracle DBs.
 
-Some `information about this socket <http://vps516494.ovh.net/Survol/survol/sources_types/addr/socket_host.py?xid=addr.Id%3D165.227.96.127%3A47892>`_
+See `Oracle Express <http://vps516494.ovh.net/Survol/survol/entity.py?xid=oracle/db.Db=XE>`_ scripts.
 
+See `its schemas <http://vps516494.ovh.net/Survol/survol/sources_types/oracle/db/oracle_db_schemas.py?xid=oracle/db.Db%3DXE>`_
+
+See `schema SYSTEM <http://vps516494.ovh.net/Survol/survol/entity.py?xid=oracle/schema.Db=XE,Schema=SYSTEM>`_
+
+`List of tables of schema SYSTEM <http://vps516494.ovh.net/Survol/survol/sources_types/oracle/schema/oracle_schema_tables.py?xid=oracle/schema.Db%3DXE%2CSchema%3DSYSTEM>`_
+
+Back to the top of XE database, now see `running Oracle sessions <http://vps516494.ovh.net/Survol/survol/sources_types/oracle/db/oracle_db_processes.py?xid=oracle/db.Db%3DXE>`_
+Of course, the current process can be seen, running Python.
 
 Which other machines are used by a running application ?
 --------------------------------------------------------
@@ -66,4 +74,12 @@ Fetch the `shared libraries of the process <http://rchateau-hp:8000/survol/sourc
 
 And `memory mapped segments <http://rchateau-hp:8000/survol/sources_types/CIM_Process/process_memmaps.py?xid=CIM_Process.Handle%3D3888>`_
 (Which include dynamically loaded libraries):
+
+Investigate interesting sockets on a machine:
+---------------------------------------------
+List of `TCP sockets <http://vps516494.ovh.net/Survol/survol/sources_types/Linux/tcp_sockets.py?xid=.PLAINTEXTONLY>`_
+
+Click on a `socket <http://vps516494.ovh.net/Survol/survol/entity.py?xid=addr.Id=165.227.96.127:47892>`_ to see where it points to.
+
+Some `information about this socket <http://vps516494.ovh.net/Survol/survol/sources_types/addr/socket_host.py?xid=addr.Id%3D165.227.96.127%3A47892>`_
 

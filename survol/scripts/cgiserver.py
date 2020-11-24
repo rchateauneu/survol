@@ -88,7 +88,16 @@ def cgiserver_entry_point():
 
     server_name = socket.gethostname()
 
-    server_addr = socket.gethostbyname(server_name)
+    try:
+        server_addr = socket.gethostbyname(server_name)
+    except socket.gaierror as exc:
+        # socket.gaierror: [Errno 8] nodename nor servname provided, or not known
+        print("Caught", exc, ". Attempting to append '.local'")
+        try:
+            server_name += ".local"
+            server_addr = socket.gethostbyname(server_name)
+        except Exception as exc:
+            print("Caught", exc, ". Server name must be entered with option '-a'")
 
     verbose = False
     port_number = _port_number_default
