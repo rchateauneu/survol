@@ -3,13 +3,16 @@ import sys
 import json
 import lib_util
 
-# TODO: Several accesses per machine or database ?
-# TODO: What if an access for "192.168.1.78" and "the_machine_name" ?
-
 
 def credentials_filename():
-    """This returns the file name containing the credentials.
-    The filename can be overloaded with an environment variable."""
+    """
+    This returns the JSON file name containing the credentials.
+    
+    The logic is a bit complicated because it has to handle several environments with security constraints.
+    """
+
+    # TODO: Override this logic with an environment variable.
+
     credentials_basname = "SurvolCredentials.json"
 
     def _get_home_directory():
@@ -33,14 +36,24 @@ def credentials_filename():
                 return None
 
     home_directory = _get_home_directory()
+    sys.stderr.write(__file__ + " home_directory=%s\n" % home_directory)
     if home_directory:
         cred_name = os.path.join(home_directory, credentials_basname).strip()
         if os.path.isfile(cred_name):
             return cred_name
 
-    # The Travis tests do not store the credential file on the user's home directory
-    # because this is not clearly defined, and anyway, it would potentially a security breach.
-    cred_name = os.path.join(lib_util.gblTopScripts, "..", credentials_basname).strip()
+    if "TRAVIS" in os.environ:
+        # The Travis tests do not store the credential file on the user's home directory
+        # because this is not accessible, and anyway, it would potentially a security breach.
+        # So it simply uses the default credentials file of the distribution,
+        # which contains dummy and temporary user/pass pairs.
+        cred_name = os.path.join(lib_util.gblTopScripts, "..", credentials_basname).strip()
+    else:
+        # This is for Primhill Computers server running under Apache account.
+        # On this platform, Survol is not installed as a module, but from a git repository
+        # in the operator home directory.
+        # The credentials file is stored at the root of the operator home directory.
+        cred_name = os.path.join(lib_util.gblTopScripts, "..", "..", credentials_basname).strip()
 
     if os.path.isfile(cred_name):
         return cred_name
@@ -86,13 +99,12 @@ def GetCredentials(cred_type, cred_name):
             return '', ''
         arr_type = credentials[cred_type]
     except KeyError:
-        WARNING("GetCredentials Invalid type credType=%s credName=%s", cred_type, cred_name)
+        WARNING("GetCredentials %s Unknown type=%s name=%s", credentials_filename(), cred_type, cred_name)
         return None, None
 
     # Try first without converting.
     try:
         cred = arr_type[cred_name]
-        # sys.stderr.write("GetCredentials credType=%s credName=%s usr=%s pass=%s\n" % (credType,credName,cred[0],cred[1]))
         return cred
     except KeyError:
         pass
