@@ -418,7 +418,7 @@ class CgiEnv():
             sys.stderr.write("Cannot start daemon: When getting daemon status, caught:%s\n" % exc)
             return
 
-        if is_daemon_running:
+        if not is_daemon_running:
             # This is the case of a daemonizable script, normally run.
             lib_daemon.start_events_generator_daemon(self.m_url_without_mode)
             # After that, whether the daemon dedicated to the script and its parameters is started or not,
