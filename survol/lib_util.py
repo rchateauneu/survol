@@ -962,6 +962,7 @@ def ObjectTypes():
 # These functions are used in scripts, to tell if it is usable or not.
 
 isPlatformLinux = 'linux' in sys.platform
+isPlatformDarwin = 'darwin' in sys.platform
 isPlatformWindows = 'win32' in sys.platform
 
 
