@@ -373,24 +373,29 @@ class LocalBox:
     # |    |    |--- LMI_Group     Instance Names     Instances
     #
     # OpenPegasus/Windows:
-    # CIM_Account et CIM_Group pas definis sur OpenPegasus
+    # CIM_Account and CIM_Group not defined on OpenPegasus
     #
     # WMI:
     # Win32_Group: "Distributed COM users","Guests", "Backup Operators" etc...
     # Win32_Account: Win32_Group + Win32_SystemAccount + Win32_UserAccount
-    # Win32_UserAccount: "Administrator","Guest","HomeGroupUser$","rchateau"
-    # Win32_SystemAccount : Tres intern a Windows, on peut laisser de cote.
-    # Win32_GroupUser: "HomeUsers", "Administrator" : Association entre Win32_Group et un account
+    # Win32_UserAccount: "Administrator","Guest","HomeGroupUser$","my_user"
+    # Win32_SystemAccount : Very specific to Windows Windows.
+    # Win32_GroupUser: "HomeUsers", "Administrator" : Association between Win32_Group and an account
     #
     def UserUri(self, username):
         if lib_util.isPlatformLinux:
+            # Its base class is CIM_Account.
             user_tp = "LMI_Account"
         elif lib_util.isPlatformWindows:
             # TODO: DEPRECATED But this is called directly from entity.py.
             # TODO: Should be removed.
             user_tp = "Win32_UserAccount"
+        elif lib_util.isPlatformDarwin:
+            # CIM_Account is the information held by a SecurityService to track identity and privileges.
+            # Common examples of an Account are the entries in a UNIX /etc/passwd file.
+            user_tp = "CIM_Account"
         else:
-            user_tp = "this_should_not_happen"
+            user_tp = "UserUri_invalid_platform_%s" % username
 
         split_user = username.split("\\")
         if len(split_user) > 1:
