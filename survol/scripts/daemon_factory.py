@@ -469,7 +469,8 @@ def _get_user_process_info(process_name):
             return None
         # Otherwise it is an unexpected exception.
         raise
-    except xmlrpclib.Fault as exc:
+    except Exception as exc:
+        _log_supervisor_access("_get_user_process_info", "unexpected", exception=str(exc))
         raise
     #finally:
     #    del xmlrpc_server_proxy
