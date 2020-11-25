@@ -393,7 +393,9 @@ class LocalBox:
         elif lib_util.isPlatformDarwin:
             # CIM_Account is the information held by a SecurityService to track identity and privileges.
             # Common examples of an Account are the entries in a UNIX /etc/passwd file.
-            user_tp = "CIM_Account"
+
+            # Temporarily, to avoid entity_type=CIM_Account Caught:No module named CIM_Account
+            user_tp = "LMI_Account" # ""CIM_Account"
         else:
             user_tp = "UserUri_invalid_platform_%s" % username
 
