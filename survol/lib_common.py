@@ -409,7 +409,16 @@ class CgiEnv():
             # in CGI or WSGI.
             return
 
-        if not lib_daemon.is_events_generator_daemon_running(self.m_url_without_mode):
+        try:
+            # This may throw "[Errno 111] Connection refused"
+            is_daemon_running = lib_daemon.is_events_generator_daemon_running(self.m_url_without_mode)
+        except Exception as exc:
+            # Then display the content in snapshot mode, which is better than nothing.
+            self.report_error_message("Cannot start daemon, caught:%s\n" % exc)
+            sys.stderr.write("Cannot start daemon: When getting daemon status, caught:%s\n" % exc)
+            return
+
+        if is_daemon_running:
             # This is the case of a daemonizable script, normally run.
             lib_daemon.start_events_generator_daemon(self.m_url_without_mode)
             # After that, whether the daemon dedicated to the script and its parameters is started or not,
@@ -423,6 +432,10 @@ class CgiEnv():
             # TODO: Or ... simply go on with the script in snapshot mode ??
             self.OutCgiRdf()
             exit(0)
+
+    def report_error_message(self, error_message):
+        """This adds a node with an error message, which is visible in all output modes."""
+        self.GetGraph().add((rdflib.BNode(), MakeProp("Survol error"), lib_util.NodeLiteral(error_message)))
 
     def _concatenate_entity_documentation(self, full_title, entity_class, entity_id):
         """This appends to the title, the documentation of the class of the object, if there is one. """
@@ -450,7 +463,7 @@ class CgiEnv():
         if lib_util.IsLocalAddress(self.m_entity_host):
             return
 
-        ErrorMessageHtml("Script %s cannot handle remote hosts on host=%s" % ( sys.argv[0], self.m_entity_host ) )
+        ErrorMessageHtml("Script %s cannot handle remote hosts on host=%s" % (sys.argv[0], self.m_entity_host))
 
     def _create_or_get_graph(self):
         global globalMergeMode
@@ -835,8 +848,6 @@ def SubProcCall(command):
 
 ################################################################################
 
-
-################################################################################
 
 def _is_shared_library(path):
     """This is deprecated and was used to reduce the number fo displayed filed,
