@@ -123,7 +123,7 @@ def cgiserver_entry_point():
 
     atexit.register(_exit_handler)
 
-    # The script must be started from a specific directory to match URLs.
+    # The script must be started from a specific directory for URLs of CGI scripts.
     good_dir = os.path.join(os.path.dirname(__file__), "..", "..")
     os.chdir(good_dir)
 
@@ -147,7 +147,7 @@ def cgiserver_entry_point():
     # print("os.environ['SERVER_NAME']='%s'" % (os.environ['SERVER_NAME']) )
     print("Platform=%s" % sys.platform)
     print("Version:%s" % str(sys.version_info))
-    if 'win32' in sys.platform:
+    if sys.platform.startswith("win32"):
         print("os.sys.getwindowsversion()=", os.sys.getwindowsversion())
         print("platform.win32_ver()=", platform.win32_ver())
     print("platform.release()=", platform.release())
@@ -181,8 +181,10 @@ def start_server_forever(verbose, server_name, port_number, current_dir=""):
         sys.stderr.write("sys.executable=%s\n" % sys.executable)
         sys.stderr.write("sys.exec_prefix=%s\n" % sys.exec_prefix)
         sys.stderr.write("getpid=%d\n" % os.getpid())
+
+    # This sets PYTHONPATH for the CGI scripts.
     envPYTHONPATH = "PYTHONPATH"
-    if 'win32' in sys.platform:
+    if sys.platform.startswith("win32"):
         # This is necessary for lib_util which is otherwise not found.
         extra_path = "survol"
         try:
@@ -192,7 +194,13 @@ def start_server_forever(verbose, server_name, port_number, current_dir=""):
         os.environ.copy()
 
     # This also works on Windows and Python 3.
-    elif 'linux' in sys.platform:
+    elif sys.platform.startswith("linux"):
+        extra_path = "survol"
+        try:
+            os.environ[envPYTHONPATH] = os.environ[envPYTHONPATH] + os.pathsep + extra_path
+        except KeyError:
+            os.environ[envPYTHONPATH] = extra_path
+    elif sys.platform.startswith("darwin"):
         extra_path = "survol"
         try:
             os.environ[envPYTHONPATH] = os.environ[envPYTHONPATH] + os.pathsep + extra_path
