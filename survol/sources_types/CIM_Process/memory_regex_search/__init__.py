@@ -629,8 +629,15 @@ if sys.platform == "win32":
         DEBUG("MemMachine leaving")
         return mem_proc_functor
 
-else:
-    ## Partial interface to ptrace(2), only for PTRACE_ATTACH and PTRACE_DETACH.
+elif sys.platform.startswith("linux"):
+    # Partial interface to ptrace(2), only for PTRACE_ATTACH and PTRACE_DETACH.
+    #
+    # This might throw on darwin (but it does not work on thisplatform anyway):
+    # File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/ctypes/__init__.py", line 366, in _init_
+    # self._handle = _dlopen(self._name, mode)
+    # OSError: dlopen(libc.so.6, 6): no suitable image found. Did find:
+    # file system relative paths not allowed in hardened programs
+    #
     c_ptrace = ctypes.CDLL("libc.so.6").ptrace
     c_pid_t = ctypes.c_int32 # This assumes pid_t is int32_t
     c_ptrace.argtypes = [ctypes.c_int, c_pid_t, ctypes.c_void_p, ctypes.c_void_p]
@@ -749,6 +756,11 @@ else:
                 _linux_get_process_memory(pidint, addr_beg, addr_end, mem_proc_functor )
         DEBUG("MemMachine pidint=%d leaving",pidint)
         return mem_proc_functor
+
+else:
+    # This is not implemented yet for darwin/macOS.
+    pass
+
 
 # TODO: Should apply the extra validation before creating the dict.
 def CTypesStructToDict(struct):
