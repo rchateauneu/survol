@@ -160,8 +160,66 @@ def _triple_to_three_strings(*one_triple):
     return str(one_triple[0]), str(one_triple[1]), str(one_triple[2])
 
 
-def _graph_to_process_nodes(graph_result):
-    return sorted(set([str(subj) for subj, pred, obj in graph_result]))
+def _check_content_events_generator_psutil_processes_perf(test_object, text_message, result_graph):
+    """This checks the result of events_generator_psutil_processes_perf.py"""
+
+    test_object.assertTrue(result_graph)
+    print(text_message, "len(result_graph)=", len(result_graph))
+    property_process_perf = lib_properties.MakeProp("Processes performances")
+
+    def check_one_process(process_id):
+        # There should be at least one sample. Normally only one if this is a snapshot,
+        # but this is not an important constraint.
+        process_node = test_object._agent_box().UriMakeFromDict("CIM_Process", {"Handle": process_id})
+        samples_number = 0
+        for _, _, sample_root_node in result_graph.triples((process_node, property_process_perf, None)):
+            def check_present(property_name):
+                """Now look for some randomly-chosen counters which must be here on all platforms."""
+                property_node = lib_properties.MakeProp(property_name)
+                value_triples_list = list(result_graph.triples((sample_root_node, property_node, None)))
+                test_object.assertEqual(len(value_triples_list), 1)
+                test_object.assertEqual(type(value_triples_list[0][2]), rdflib.Literal)
+
+            check_present("cpu")
+            check_present("rss")
+            check_present("vms")
+            samples_number += 1
+        test_object.assertTrue(samples_number >= 1)
+        print(text_message, "pid=", process_id, "samples number=", samples_number)
+
+    # The node of the current process must be in the detected processes.
+    check_one_process(CurrentPid)
+
+    # The node of the parent process must be in the detected processes.
+    check_one_process(CurrentParentPid)
+
+
+def _check_content_events_generator_psutil_system_counters(test_object, text_message, result_graph):
+    """This checks the result of events_generator_psutil_system_counters.py"""
+
+    # The result should not be empty, and contain at least a couple of triples.
+    test_object.assertTrue(result_graph)
+    print(text_message, "len(result_graph)=", len(result_graph))
+
+    samples_number = 0
+
+    # There should be at least one sample. Normally only one if this is a snapshot,
+    # but this is not an important constraint.
+    property_system_counters = lib_properties.MakeProp("system_counters")
+    for host_node, _, sample_node in result_graph.triples((None, property_system_counters, None)):
+        def check_present(property_name):
+            """Now look for some randomly-chosen counters which must be here on all platforms."""
+            property_node = lib_properties.MakeProp(property_name)
+            value_triples_list = list(result_graph.triples((sample_node, property_node, None)))
+            test_object.assertEqual(len(value_triples_list), 1)
+            test_object.assertEqual(type(value_triples_list[0][2]), rdflib.Literal)
+
+        check_present("disk_io_counters.read_count")
+        check_present("virtual_memory.free")
+        check_present("net_io_counters.errin")
+        samples_number += 1
+    test_object.assertTrue(samples_number >= 1)
+    print(text_message, "samples number=", samples_number)
 
 
 class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
@@ -187,39 +245,18 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
         """This runs the script just once, in snapshot mode. The url must not contain the mode. """
         full_url = self._agent_url + "/survol/sources_types/" + script_suffix
         graph_daemon_result_snapshot = _run_daemon_script_in_snapshot_mode(full_url)
-
-        # The result should not be empty, and contain at least a couple of triples.
-        self.assertTrue(graph_daemon_result_snapshot)
-
         return graph_daemon_result_snapshot
 
     def test_events_generator_psutil_processes_perf(self):
         url_suffix = "events_generator_psutil_processes_perf.py"
         result_snapshot = self._run_script_as_snapshot(url_suffix)
-
-
-        print("len(result_snapshot)=", len(result_snapshot))
-
-        # The node of the current process must be in the result.
-        current_process_node = self._agent_box().UriMakeFromDict("CIM_Process", {"Handle": CurrentPid})
-        current_process_triples = list(result_snapshot.triples((current_process_node, None, None)))
-        self.assertTrue(len(current_process_triples) > 0)
-
-        # The node of the parent process must be in the result.
-        parent_process_node = self._agent_box().UriMakeFromDict("CIM_Process", {"Handle": CurrentParentPid})
-        parent_process_triples = list(result_snapshot.triples((parent_process_node, None, None)))
-        self.assertTrue(len(parent_process_triples) > 0)
+        _check_content_events_generator_psutil_processes_perf(self, "Snapshot only", result_snapshot)
 
     @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
     def test_events_generator_psutil_system_counters(self):
         url_suffix = "events_generator_psutil_system_counters.py"
         result_snapshot = self._run_script_as_snapshot(url_suffix)
-        self.assertTrue(result_snapshot)
-        triples_count = len(result_snapshot)
-        # result_snapshot= [a rdfg:Graph;rdflib:storage [a rdflib:Store;rdfs:label 'IOMemory']].
-        print("triples_count=", triples_count)
-        # Many counters: Memory, network etc....
-        self.assertTrue(triples_count > 10)
+        _check_content_events_generator_psutil_system_counters(self, "Snapshot only", result_snapshot)
 
     @unittest.skipIf(is_platform_windows and is_travis_machine(), "Windows and Travis do not work. WHY ? FIXME.")
     def test_events_generator_sockets_promiscuous_mode(self):
@@ -295,74 +332,6 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
         self.assertTrue(daemon_result)
 
 
-@unittest.skip("FIXME")
-class CgiScriptSQLAlchemyStartOnlyTest(unittest.TestCase):
-    """This tests some events generator with SQLite events storage."""
-
-    def setUp(self):
-        lib_common.set_events_credentials()
-
-
-        # Cleanup of a previous run.
-        lib_kbase.retrieve_all_events_to_graph_then_clear(rdflib.Graph())
-
-        # If a Survol agent does not run on this machine with this port, this script starts a local one.
-        self._rdf_test_agent, self._agent_url = start_cgiserver(RemoteRdf3TestServerPort)
-        print("AgentUrl=", self._agent_url)
-
-        # A shared database is needed because several processes use it simultaneously.
-        #database_path = create_temporary_sqlite_filename()
-        #sqlite_path = "sqlite:///%s?mode=memory&cache=shared" % database_path
-
-        #lib_kbase.set_storage_style("SQLAlchemy", sqlite_path)
-
-    def tearDown(self):
-        stop_cgiserver(self._rdf_test_agent)
-        lib_kbase.set_storage_style(None,)
-
-    def _agent_box(self):
-        agent_prefix = self._agent_url + "/survol"
-        return lib_common.OtherAgentBox(agent_prefix)
-
-    def _run_script_as_snapshot(self, script_suffix):
-        # The url must not contain the mode
-        full_url = self._agent_url + "/survol/sources_types/" + script_suffix
-        print("full_url=", full_url)
-        graph_daemon_result_snapshot = _run_daemon_script_in_snapshot_mode(full_url)
-
-        # The result should not be empty, and contain at least a couple of triples.
-        self.assertTrue(graph_daemon_result_snapshot)
-
-        return graph_daemon_result_snapshot
-
-    def test_events_generator_psutil_processes_perf_sqlalchemy(self):
-        """Results are stored in a SQLite database"""
-        url_suffix = "events_generator_psutil_processes_perf.py"
-        result_snapshot = self._run_script_as_snapshot(url_suffix)
-        print("len(result_snapshot)=", len(result_snapshot))
-
-        # The node of the current process must be in the result.
-        current_process_node = self._agent_box().UriMakeFromDict("CIM_Process", {"Handle": CurrentPid})
-        print("current_process_node=", current_process_node)
-        print("_graph_to_process_nodes(result_snapshot)=", _graph_to_process_nodes(result_snapshot))
-        self.assertTrue( str(current_process_node) in _graph_to_process_nodes(result_snapshot))
-
-
-        current_process_triples = list(result_snapshot.triples((current_process_node, None, None)))
-        print("Nodes of current process:", CurrentPid)
-        for s, p, o in current_process_triples:
-            print("    ", s, p, o)
-        self.assertTrue(len(current_process_triples) > 0)
-
-        # The node of the parent process must be in the result.
-        parent_process_node = self._agent_box().UriMakeFromDict("CIM_Process", {"Handle": CurrentParentPid})
-        parent_process_triples = list(result_snapshot.triples((parent_process_node, None, None)))
-        print("Nodes of current process:", CurrentParentPid)
-        for s, p, o in parent_process_triples:
-            print("    ", s, p, o)
-        self.assertTrue(len(parent_process_triples) > 0)
-
-
 class CgiScriptStartThenEventsTest(unittest.TestCase):
     """This tests scripts which also return events and stay running for a long time."""
 
@@ -382,7 +351,7 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
     def _agent_box(self):
         return lib_common.OtherAgentBox(self._agent_url + "/survol")
 
-    def _run_script_snapshot_then_events(self, script_suffix):
+    def _run_script_snapshot_then_events(self, script_suffix, events_delay):
         # Check that the supervisor is running, it is started by cgiserver.py.
 
         # The url must not contain the mode
@@ -395,7 +364,7 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
         # graph_daemon_result_snapshot= [a rdfg:Graph;rdflib:storage [a rdflib:Store;rdfs:label 'IOMemory']].
         print("graph_daemon_result_snapshot=", graph_daemon_result_snapshot)
 
-        time.sleep(20)
+        time.sleep(events_delay)
 
         # Now, the daemon process must have been started and must still be running.
         is_daemon_running = lib_daemon.is_events_generator_daemon_running(local_url)
@@ -409,19 +378,20 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
         # Now, loads events from the events graph. After a bit of time, some events might be there.
         return graph_daemon_result_snapshot, graph_daemon_result_events
 
-    @unittest.skip("FIXME. Temporarily disabled.")
+    #@unittest.skip("FIXME. Temporarily disabled.")
     def test_events_generator_psutil_processes_perf(self):
         url_suffix = "events_generator_psutil_processes_perf.py"
-        result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix)
-        self.assertTrue(result_snapshot)
-        self.assertTrue(result_events)
+        result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix, 30)
+        _check_content_events_generator_psutil_processes_perf(self, "Snapshot before events", result_snapshot)
+        _check_content_events_generator_psutil_processes_perf(self, "Events", result_events)
 
     @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
     def test_events_generator_psutil_system_counters(self):
+        """This script is already tested, as a snapshot."""
         url_suffix = "events_generator_psutil_system_counters.py"
-        result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix)
-        self.assertTrue(result_snapshot)
-        self.assertTrue(result_events)
+        result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix, 20)
+        _check_content_events_generator_psutil_system_counters(self, "Snapshot before events", result_snapshot)
+        _check_content_events_generator_psutil_system_counters(self, "Events", result_snapshot)
 
     @unittest.skip("Temporarily disabled")
     def test_events_generator_system_calls_loop(self):
