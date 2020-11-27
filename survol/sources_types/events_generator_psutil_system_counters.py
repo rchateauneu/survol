@@ -24,7 +24,7 @@ def _add_property_values(grph, root_node, results_set, property_names, property_
         grph.add((root_node, property_node, lib_util.NodeLiteral(property_value)))
 
 
-def _add_samples_to_node(grph, sample_node):
+def _add_system_counters_to_sample_node(grph, sample_node):
     # sswap(total=2097147904L, used=886620160L, free=1210527744L, percent=42.3, sin=1050411008, sout=1906720768)
     _add_property_values(
         grph,
@@ -70,14 +70,14 @@ def Snapshot():
     datetime_now = datetime.datetime.now()
     timestamp_literal = datetime_now.strftime("%Y-%m-%d %H:%M:%S")
 
-    _add_samples_to_node(grph, sample_root_node)
+    _add_system_counters_to_sample_node(grph, sample_root_node)
 
     property_system_counters = lib_properties.MakeProp("system_counters")
 
     current_node_hostname = lib_common.gUriGen.HostnameUri(lib_util.currentHostname)
 
     # TODO: pc.property_information is the default property for sorting.
-    # TODO: This could use a specififc timestamp property, for example "point in time" P585
+    # TODO: This could use a specific timestamp property, for example "point in time" P585
     grph.add((sample_root_node, pc.property_information, lib_util.NodeLiteral(timestamp_literal)))
     grph.add((current_node_hostname, property_system_counters, sample_root_node))
 
