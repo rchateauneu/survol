@@ -76,12 +76,15 @@ def _out_cgi_mode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
     parameters = theCgi.m_parameters
     parameterized_links = theCgi.m_parameterized_links
 
+    sys.stderr.write("_out_cgi_mode theCgi.m_collapsed_properties=%s\n" % str(theCgi.m_collapsed_properties))
+
     # At this stage, maybe the meta_data properties are not saved in the graph.
     # This is needed because they might come from OutCgiRdf when called from MergeRdf
-    for one_collapsed_property in theCgi.m_collapsed_properties:
-        lib_properties.add_property_metadata_to_graph(grph, one_collapsed_property, pc.meta_property_collapsed)
+    #for one_collapsed_property in theCgi.m_collapsed_properties:
+    #    lib_properties.add_property_metadata_to_graph(grph, one_collapsed_property, pc.meta_property_collapsed)
 
     # Now extract and remove all metadata, also the ones which were already here.
+    # They are not left in the graph, because they break some tests.
     collapsed_properties, commutative_properties = lib_properties.extract_properties_metadata(grph)
     sys.stderr.write("_out_cgi_mode from meta_data collapsed_properties=%s\n" % str(collapsed_properties))
 
@@ -100,6 +103,12 @@ def _out_cgi_mode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
     elif mode == "rdf":
         lib_export_ontology.Grph2Rdf(grph)
     elif mode == "daemon":
+        # Only in this output mode, all meta-data are injected in the graph, to be used at the next output.
+        for one_collapsed_property in collapsed_properties:
+            lib_properties.add_property_metadata_to_graph(grph, one_collapsed_property, pc.meta_property_collapsed)
+        for one_commutative_property in commutative_properties:
+            lib_properties.add_property_metadata_to_graph(grph, one_commutative_property, pc.meta_property_commutative)
+
         # This is the end of a loop, or events transaction, in the script which does not run in CGI context,
         # but in a separate daemon process. This stores the results to the persistent graph database for events.
         try:
