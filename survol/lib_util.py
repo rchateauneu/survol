@@ -421,18 +421,10 @@ def TopUrl(entity_type, entity_id):
 
 
 def EncodeUri(an_str):
-    """
-    This, because graphviz transforms a "\\L" (backslash-L) into "<TABLE>". Example:
-    http://127.0.0.1/PythonStyle/survol/entity.py?xid=com_type_lib:C%3A%5CWINDOWS%5Csystem32%5CLangWrbk.dll
-    Or if the url contains a file in "App\\Local"
-    """
-
-    # sys.stderr.write("EncodeUri str=%s\n" % str(anStr) )
-
-    if an_str:
-        strTABLE = an_str.replace("\\L", "\\\\L")
-    else:
-        strTABLE = ""
+    # This, because graphviz transforms a "\\L" (backslash-L) into "<TABLE>". Example:
+    # http://127.0.0.1/PythonStyle/survol/entity.py?xid=com_type_lib:C%3A%5CWINDOWS%5Csystem32%5CLangWrbk.dll
+    # Or if the url contains a file in "App\\Local"
+    strTABLE = an_str.replace("\\L", "\\\\L")
 
     # In Python 3, urllib.quote is renamed urllib.parse.quote and handles unicode by default.
     if is_py3:
