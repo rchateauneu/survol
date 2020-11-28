@@ -252,7 +252,7 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
         result_snapshot = self._run_script_as_snapshot(url_suffix)
         _check_content_events_generator_psutil_processes_perf(self, "Snapshot only", result_snapshot)
 
-    @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
+    #@unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
     def test_events_generator_psutil_system_counters(self):
         url_suffix = "events_generator_psutil_system_counters.py"
         result_snapshot = self._run_script_as_snapshot(url_suffix)
@@ -352,18 +352,21 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
         return lib_common.OtherAgentBox(self._agent_url + "/survol")
 
     def _run_script_snapshot_then_events(self, script_suffix, events_delay):
-        # Check that the supervisor is running, it is started by cgiserver.py.
-
         # The url must not contain the mode
         local_url = "/survol/sources_types/" + script_suffix
         full_url = self._agent_url + local_url
+
+        # This takes the first result as a snapshot. A supervisor deamon process is also styarted,
+        # running the same script in a loop, and storing the results in a graph database.
         graph_daemon_result_snapshot = _run_daemon_script_in_snapshot_mode(full_url)
 
         # The result should not be empty, and contain at least a couple of triples.
         self.assertTrue(graph_daemon_result_snapshot)
         # graph_daemon_result_snapshot= [a rdfg:Graph;rdflib:storage [a rdflib:Store;rdfs:label 'IOMemory']].
-        print("graph_daemon_result_snapshot=", graph_daemon_result_snapshot)
+        print("Snapshot triples count=", len(graph_daemon_result_snapshot))
 
+        # This gives time to the daemon process, to store events in the graph database.
+        print("Waiting", events_delay, "seconds.")
         time.sleep(events_delay)
 
         # Now, the daemon process must have been started and must still be running.
@@ -372,20 +375,21 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
 
         graph_daemon_result_events = rdflib.Graph()
 
+        # This fetches the events stored in the graph database by the daemon process.
         triples_count = lib_kbase.read_events_to_graph(local_url, graph_daemon_result_events)
-        print("triples_count=", triples_count)
+        print("Events return value=", triples_count)
+        print("Snapshot triples count=", len(graph_daemon_result_events))
 
-        # Now, loads events from the events graph. After a bit of time, some events might be there.
         return graph_daemon_result_snapshot, graph_daemon_result_events
 
     #@unittest.skip("FIXME. Temporarily disabled.")
     def test_events_generator_psutil_processes_perf(self):
         url_suffix = "events_generator_psutil_processes_perf.py"
-        result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix, 30)
+        result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix, 40)
         _check_content_events_generator_psutil_processes_perf(self, "Snapshot before events", result_snapshot)
         _check_content_events_generator_psutil_processes_perf(self, "Events", result_events)
 
-    @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
+    #@unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
     def test_events_generator_psutil_system_counters(self):
         """This script is already tested, as a snapshot."""
         url_suffix = "events_generator_psutil_system_counters.py"
