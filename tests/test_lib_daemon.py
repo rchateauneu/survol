@@ -165,6 +165,7 @@ def _check_content_events_generator_psutil_processes_perf(test_object, text_mess
 
     test_object.assertTrue(result_graph)
     print(text_message, "len(result_graph)=", len(result_graph))
+    print("CurrentPid=", CurrentPid, "CurrentParentPid=", CurrentParentPid)
     property_process_perf = lib_properties.MakeProp("Processes performances")
 
     def check_one_process(process_id):
@@ -189,6 +190,13 @@ def _check_content_events_generator_psutil_processes_perf(test_object, text_mess
             samples_number += 1
         test_object.assertTrue(samples_number >= 1)
         print(text_message, "pid=", process_id, "samples number=", samples_number)
+
+    property_process_handle = lib_properties.MakeProp("Handle")
+
+    process_ids_list = [
+        str(process_id)
+        for process_node, _, process_id in result_graph.triples((None, property_process_handle, None))]
+    print("Process ids=", process_ids_list)
 
     # The node of the current process must be in the detected processes.
     check_one_process(CurrentPid)
