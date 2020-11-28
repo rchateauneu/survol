@@ -252,7 +252,7 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
         result_snapshot = self._run_script_as_snapshot(url_suffix)
         _check_content_events_generator_psutil_processes_perf(self, "Snapshot only", result_snapshot)
 
-    #@unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
+    @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
     def test_events_generator_psutil_system_counters(self):
         url_suffix = "events_generator_psutil_system_counters.py"
         result_snapshot = self._run_script_as_snapshot(url_suffix)
@@ -382,14 +382,14 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
 
         return graph_daemon_result_snapshot, graph_daemon_result_events
 
-    #@unittest.skip("FIXME. Temporarily disabled.")
+    @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
     def test_events_generator_psutil_processes_perf(self):
         url_suffix = "events_generator_psutil_processes_perf.py"
         result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix, 40)
         _check_content_events_generator_psutil_processes_perf(self, "Snapshot before events", result_snapshot)
         _check_content_events_generator_psutil_processes_perf(self, "Events", result_events)
 
-    #@unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
+    @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
     def test_events_generator_psutil_system_counters(self):
         """This script is already tested, as a snapshot."""
         url_suffix = "events_generator_psutil_system_counters.py"
