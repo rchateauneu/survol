@@ -151,7 +151,7 @@ def _run_daemon_script_in_snapshot_mode(full_url):
         print("Cannot parse exc=", exc)
         print("rdf_content=", rdf_content)
         raise
-    print("len(result_graph)=", len(result_graph))
+    print("rdf_url=", rdf_url, "len(result_graph)=", len(result_graph))
     return result_graph
 
 
@@ -170,16 +170,19 @@ def _check_content_events_generator_psutil_processes_perf(test_object, text_mess
     def check_one_process(process_id):
         # There should be at least one sample. Normally only one if this is a snapshot,
         # but this is not an important constraint.
+        print("Checking process", process_id)
         process_node = test_object._agent_box().UriMakeFromDict("CIM_Process", {"Handle": process_id})
         samples_number = 0
         for _, _, sample_root_node in result_graph.triples((process_node, property_process_perf, None)):
             def check_present(property_name):
+                print("Checking property", property_name)
                 """Now look for some randomly-chosen counters which must be here on all platforms."""
                 property_node = lib_properties.MakeProp(property_name)
                 value_triples_list = list(result_graph.triples((sample_root_node, property_node, None)))
                 test_object.assertEqual(len(value_triples_list), 1)
                 test_object.assertEqual(type(value_triples_list[0][2]), rdflib.Literal)
 
+            print("Checking sample", sample_root_node)
             check_present("cpu")
             check_present("rss")
             check_present("vms")
