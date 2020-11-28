@@ -66,8 +66,6 @@ def is_useless_process(proc):
 
 
 # The result can be sent to the Web browser in several formats.
-# TODO: The nodes should be displayed always in the same order.
-# THIS IS NOT THE CASE IN HTML AND SVG !!
 def _out_cgi_mode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
     theCgi._bind_identical_nodes()
 
@@ -77,11 +75,6 @@ def _out_cgi_mode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
     parameterized_links = theCgi.m_parameterized_links
 
     sys.stderr.write("_out_cgi_mode theCgi.m_collapsed_properties=%s\n" % str(theCgi.m_collapsed_properties))
-
-    # At this stage, maybe the meta_data properties are not saved in the graph.
-    # This is needed because they might come from OutCgiRdf when called from MergeRdf
-    #for one_collapsed_property in theCgi.m_collapsed_properties:
-    #    lib_properties.add_property_metadata_to_graph(grph, one_collapsed_property, pc.meta_property_collapsed)
 
     # Now extract and remove all metadata, also the ones which were already here.
     # They are not left in the graph, because they break some tests.
@@ -189,8 +182,7 @@ def _get_calling_module_doc():
                 the_doc = ""
             #sys.stderr.write("_get_calling_module_doc  module_caller.__doc__=%s\n" % the_doc)
             return the_doc
-        except:
-            exc = sys.exc_info()[1]
+        except Exception as exc:
             WARNING("_get_calling_module_doc Caught when getting doc:%s",str(exc))
             return "Caught when getting doc:"+str(exc)
     else:
