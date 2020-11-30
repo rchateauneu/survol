@@ -213,22 +213,18 @@ def ParseEntityUriWithHost(uri_with_mode, long_display=True, force_entity_ip_add
     # This replaces "&amp;" by "&" up to two times if needed.
     uri_with_mode_clean = lib_util.UrlNoAmp(uri_with_mode)
 
-    # In the URI, we might have the CGI parameter "&mode=json". It must be removed otherwise
-    # it could be taken in entity_id, and the result of EntityToLabel() would be wrong.
-    uri = lib_util.url_mode_replace(uri_with_mode_clean, "")
 
-    # This extracts the mode.
-    uri_mode = lib_util.get_url_mode(uri_with_mode_clean)
-
-    uprs = lib_util.survol_urlparse(uri)
+    uprs = lib_util.survol_urlparse(uri_with_mode_clean)
 
     uprs_query = uprs.query
     uprs_query_split_cgi = uprs_query.split("&")
     cgi_arg_xid = None
+    uri_mode = ""
     for one_cgi_arg in uprs_query_split_cgi:
         if one_cgi_arg.startswith("xid="):
             cgi_arg_xid = one_cgi_arg[4:]
-            break
+        elif one_cgi_arg.startswith("mode="):
+            uri_mode = one_cgi_arg[5:]
 
     # Default value.
     entity_host = ""
@@ -259,12 +255,12 @@ def ParseEntityUriWithHost(uri_with_mode, long_display=True, force_entity_ip_add
 
     # Maybe an internal script, but not entity.py
     # It has a special entity type as a display parameter
-    elif uri.startswith(lib_util.uriRoot):
+    elif uri_with_mode_clean.startswith(lib_util.uriRoot):
         # This is a bit of a special case which allows to display something if we know only
         # the type of the entity but its id is undefined. Instead of displaying nothing,
         # this attempts to display all available entities of this given type.
         # source_top/enumerate_process.py etc... Not "." because this has a special role in Python.
-        mtch_enumerate = re.match(r"^.*/enumerate_([a-z0-9A-Z_]*)\.py$", uri)
+        mtch_enumerate = re.match(r"^.*/enumerate_([a-z0-9A-Z_]*)\.py$", uri_with_mode_clean)
         if mtch_enumerate:
             entity_graphic_class = mtch_enumerate.group(1)
             entity_id = ""
@@ -275,16 +271,17 @@ def ParseEntityUriWithHost(uri_with_mode, long_display=True, force_entity_ip_add
             entity_graphic_class = "provider_script"
             entity_id = ""
             entity_label = _known_script_to_title(fil_script, uri_mode)
-    elif uri.split(':')[0] in ["ftp", "http", "https", "urn", "mail"]:
+    elif uri_with_mode_clean.split(':')[0] in ["ftp", "http", "https", "urn", "mail"]:
         # Standard URLs. Example: lib_common.NodeUrl( "http://www.google.com" )
         entity_graphic_class = ""
         entity_id = ""
         # Display the complete URL, otherwise it is not clickable.
         entity_label = uri_with_mode
-
     else:
         entity_graphic_class = ""
-        # This specific keyword used when no class is specified and there is no object. Easy to spot.
+        # This specific keyword used when no class is specified and there is no object. It is easy to spot.
+        # It happens for example for blank nodes, BNode, used to created literal values with a key:
+        # Arguments of a function, successive values with a time-stamp.
         entity_id = "PLAINTEXTONLY"
 
         # Maybe an external URI sending data in RDF, HTML etc...
