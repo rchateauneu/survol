@@ -7,7 +7,6 @@ import sys
 import struct
 import subprocess
 import tempfile
-import platform
 import unittest
 
 try:
@@ -35,18 +34,17 @@ class BasicTest(unittest.TestCase):
 
     # This tests the callbacks which are used for good in other tests.
     # It starts a DOS process which attempts to remove a directory.
-    @unittest.skipIf(platform.architecture()[0] != '64bit', "Only on 64 bits machines.")
+    @unittest.skipIf(is_32_bits, "Only on 64 bits machines.")
     def test_Wow64_Self(self):
         is_wow64 = pydbg.process_is_wow64(pid=None)
         print("is_wow64=", is_wow64)
-        print("platform.architecture()=", platform.architecture())
 
         if windows_h.is_64bits:
             self.assertTrue(not is_wow64)
         else:
             self.assertTrue(is_wow64)
 
-    @unittest.skipIf(platform.architecture()[0] != '64bit', "Only on 64 bits machines.")
+    @unittest.skipIf(is_32_bits, "Only on 64 bits machines.")
     def test_Wow64_Other(self):
         """This starts a 32 bits process on a 64 bits platform"""
         tst_pydbg = pydbg.pydbg()
