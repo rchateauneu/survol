@@ -35,6 +35,15 @@ def tearDownModule():
     daemon_factory.supervisor_stop()
 
 
+def _supervisor_reset():
+    """This is used between tests involving the supervisor and evets processes,
+    because triples from the former tests might be written, if the daemons are still here."""
+    daemon_factory.supervisor_stop()
+    daemon_factory.supervisor_startup()
+    # So the scripts started in daemon mode write their events in a shared graph.
+    lib_common.set_events_credentials()
+
+
 class CgiScriptTest(unittest.TestCase):
     _dummy_url_prefix = "http://any.machine/any_directory/"
 
@@ -171,7 +180,7 @@ def _check_content_events_generator_psutil_processes_perf(test_object, text_mess
     def check_one_process(process_id):
         # There should be at least one sample. Normally only one if this is a snapshot,
         # but this is not an important constraint.
-        print("Checking process", process_id)
+        print(text_message, "Checking process", process_id)
         process_node = test_object._agent_box().UriMakeFromDict("CIM_Process", {"Handle": process_id})
         samples_number = 0
         for _, _, sample_root_node in result_graph.triples((process_node, property_process_perf, None)):
@@ -188,15 +197,35 @@ def _check_content_events_generator_psutil_processes_perf(test_object, text_mess
             check_present("rss")
             check_present("vms")
             samples_number += 1
-        test_object.assertTrue(samples_number >= 1)
         print(text_message, "pid=", process_id, "samples number=", samples_number)
+        if samples_number == 0:
+            def _simpler(the_node):
+                cleaner_str = str(the_node)
+                cleaner_str = cleaner_str.replace("http://www.primhillcomputers.com/survol", "")
+                cleaner_str = cleaner_str.replace(test_object._agent_url + "/survol", "")
+                return cleaner_str
+
+            for a, b, c in result_graph:
+                print("    ", _simpler(a), _simpler(b), _simpler(c))
+        test_object.assertTrue(samples_number >= 1)
 
     property_process_handle = lib_properties.MakeProp("Handle")
 
-    process_ids_list = [
-        str(process_id)
-        for process_node, _, process_id in result_graph.triples((None, property_process_handle, None))]
-    print("Process ids=", process_ids_list)
+    # This lists processes with available data.
+    process_handles_list = sorted([
+        int(process_id)
+        for process_node, _, process_id
+        in result_graph.triples((None, property_process_handle, None))])
+    print("Process handles=", len(process_handles_list), process_handles_list)
+
+    samples_list = sorted([
+        process_node
+        for process_node, _, sample_node
+        in result_graph.triples((None, property_process_perf, None))])
+    print("Samples=", len(samples_list))
+
+    test_object.assertTrue(CurrentPid in process_handles_list)
+    test_object.assertTrue(CurrentParentPid in process_handles_list)
 
     # The node of the current process must be in the detected processes.
     check_one_process(CurrentPid)
@@ -240,12 +269,15 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
 
     def setUp(self):
         # If a Survol agent does not run on this machine with this port, this script starts a local one.
+        _supervisor_reset()
+        lib_kbase.clear_all_events()
         self._rdf_test_agent, self._agent_url = start_cgiserver(RemoteRdf2TestServerPort)
         print("AgentUrl=", self._agent_url)
         lib_kbase.set_storage_style("IOMemory",)
 
     def tearDown(self):
         stop_cgiserver(self._rdf_test_agent)
+        lib_kbase.clear_all_events()
         lib_kbase.set_storage_style(None,)
 
     def _agent_box(self):
@@ -348,6 +380,8 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
 
     def setUp(self):
         # If a Survol agent does not run on this machine with this port, this script starts a local one.
+        _supervisor_reset()
+        lib_kbase.clear_all_events()
         self._rdf_test_agent, self._agent_url = start_cgiserver(RemoteRdf4TestServerPort)
         print("AgentUrl=", self._agent_url)
 
@@ -357,6 +391,7 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
 
     def tearDown(self):
         stop_cgiserver(self._rdf_test_agent)
+        lib_kbase.clear_all_events()
         lib_kbase.set_storage_style(None,)
 
     def _agent_box(self):
@@ -384,11 +419,9 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
         is_daemon_running = lib_daemon.is_events_generator_daemon_running(local_url)
         self.assertTrue(is_daemon_running)
 
-        graph_daemon_result_events = rdflib.Graph()
+        graph_daemon_result_events = _run_daemon_script_in_snapshot_mode(full_url)
 
         # This fetches the events stored in the graph database by the daemon process.
-        triples_count = lib_kbase.read_events_to_graph(local_url, graph_daemon_result_events)
-        print("Events return value=", triples_count)
         print("Snapshot triples count=", len(graph_daemon_result_events))
 
         return graph_daemon_result_snapshot, graph_daemon_result_events
@@ -396,7 +429,7 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
     @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
     def test_events_generator_psutil_processes_perf(self):
         url_suffix = "events_generator_psutil_processes_perf.py"
-        result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix, 40)
+        result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix, 20)
         _check_content_events_generator_psutil_processes_perf(self, "Snapshot before events", result_snapshot)
         _check_content_events_generator_psutil_processes_perf(self, "Events", result_events)
 
