@@ -876,7 +876,7 @@ def QueryToGraph(grph, sparql_query):
             for key, val in sparql_object.m_predicate_object_dict.items():
                 grph.add((subject_path_node, key, val))
 
-    # TODO: Adds the ontology: Classes and predicates. AddOntology(grph)
+    # TODO: Adds the ontology: Classes and predicates. _add_ontology(grph)
 
 ##################################################################################
 
