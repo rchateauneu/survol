@@ -61,7 +61,7 @@ def is_travis_machine():
     return "TRAVIS" in os.environ
 
 
-# Some tests start a DOS box process. The processes application is checked.
+# Some tests start a DOS box process. The processes application is checked. Beware of capitalizing.
 windows_system32_cmd_exe = r'C:\Windows\system32\cmd.exe' if is_windows10 else r'C:\windows\system32\cmd.exe'
 
 windows_wow64_cmd_exe = r"C:\Windows\SysWOW64\cmd.exe"
