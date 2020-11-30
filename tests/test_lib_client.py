@@ -27,8 +27,7 @@ _remote_general_test_agent = "http://%s:%d" % (CurrentMachine, RemoteGeneralTest
 
 is_platform_windows_and_wmi = is_platform_windows and pkgutil.find_loader('wmi')
 
-mandatory_cmd_exe = windows_wow64_cmd_exe if is_32_bits else windows_system32_cmd_exe
-mandatory_cmd_exe = mandatory_cmd_exe.replace("\\", "/")
+mandatory_cmd_exe = "C:/Windows/SysWOW64/cmd.exe" if is_32_bits else r'C:/Windows/System32/cmd.exe'
 
 def setUpModule():
     global RemoteAgentProcess
@@ -365,6 +364,7 @@ class SurvolLocalTest(unittest.TestCase):
 
         print("lst_mandatory_instances=", lst_mandatory_instances)
         for one_str in lst_mandatory_instances:
+            print("    ", one_str)
             self.assertTrue(one_str in str_instances_set)
 
         proc_open.communicate()
