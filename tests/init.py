@@ -20,8 +20,6 @@ import multiprocessing
 
 def update_test_path():
     """This loads the module from the source, so no need to install it, and no need of virtualenv."""
-    #if sys.path[0] != "../survol":
-    #    sys.path.insert(0, "../survol")
     if "../survol" not in sys.path:
         sys.path.append("../survol")
 
