@@ -25,6 +25,10 @@ import lib_properties
 RemoteAgentProcess = None
 _remote_general_test_agent = "http://%s:%d" % (CurrentMachine, RemoteGeneralTestServerPort)
 
+is_platform_windows_and_wmi = is_platform_windows and pkgutil.find_loader('wmi')
+
+mandatory_cmd_exe = windows_wow64_cmd_exe if is_32_bits else windows_system32_cmd_exe
+mandatory_cmd_exe = mandatory_cmd_exe.replace("\\", "/")
 
 def setUpModule():
     global RemoteAgentProcess
@@ -356,7 +360,7 @@ class SurvolLocalTest(unittest.TestCase):
         if is_platform_windows:
             lst_mandatory_instances += [
                     # Slashes instead of backslashes, as is always the case in Survol.
-                    "CIM_DataFile.Name=C:/Windows/System32/cmd.exe"]
+                    "CIM_DataFile.Name=%s" % mandatory_cmd_exe]
         # On Linux, we do not know which Shell is used to start the command.
 
         print("lst_mandatory_instances=", lst_mandatory_instances)
@@ -442,7 +446,7 @@ class SurvolLocalTest(unittest.TestCase):
             CurrentUserPath ]
         if is_platform_windows:
             lst_mandatory_instances += [
-                    "CIM_DataFile.Name=C:/Windows/System32/cmd.exe"]
+                    "CIM_DataFile.Name=%s" % mandatory_cmd_exe]
         else:
             lst_mandatory_instances += [
                     CurrentExecutablePath]
@@ -705,7 +709,7 @@ class SurvolLocalTest(unittest.TestCase):
         triple_objtypes = my_source_objtypes.get_triplestore()
         self.assertTrue(len(triple_objtypes) > 0)
 
-    @unittest.skipIf(not is_platform_windows, "WMI on Windows only.")
+    @unittest.skipIf(not is_platform_windows_and_wmi, "WMI on Windows only.")
     def test_objtypes_wmi(self):
         my_source_objtypes = lib_client.SourceLocal(
             "objtypes_wmi.py")
@@ -713,7 +717,7 @@ class SurvolLocalTest(unittest.TestCase):
         triple_objtypes = my_source_objtypes.get_triplestore()
         self.assertTrue(len(triple_objtypes) > 0)
 
-    @unittest.skipIf(not is_platform_windows, "WMI on Windows only.")
+    @unittest.skipIf(not is_platform_windows_and_wmi, "WMI on Windows only.")
     def test_class_wmi(self):
         my_source_objtypes = lib_client.SourceLocal(
             "class_wmi.py",
@@ -753,11 +757,11 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=CurrentPid)
 
-        str_instances_set = set([str(oneInst) for oneInst in my_source.get_triplestore().get_instances() ])
+        str_instances_set = set([str(oneInst) for oneInst in my_source.get_triplestore().get_instances()])
 
         # The result is empty but the script worked.
         print("Connections=", str_instances_set)
-        self.assertTrue(str_instances_set == set())
+        self.assertEqual(str_instances_set, set())
 
     def test_process_cwd(self):
         """process_cwd Information about current process"""
@@ -767,7 +771,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=CurrentPid)
 
-        str_instances_set = set( [str(oneInst) for oneInst in my_source.get_triplestore().get_instances() ])
+        str_instances_set = set([str(oneInst) for oneInst in my_source.get_triplestore().get_instances()])
         print("test_process_cwd: str_instances_set:", str_instances_set)
 
         print("test_process_cwd: CurrentExecutablePath:", CurrentExecutablePath)
@@ -781,6 +785,7 @@ class SurvolLocalTest(unittest.TestCase):
                 WARNING("one_str=%s str_instances_set=%s", one_str, str(str_instances_set) )
                 # assert 'CIM_DataFile.Name=c:/python27/python.exe' in set(['CIM_DataFile.Name=C:/Python27/python.exe'
                 self.assertTrue(one_str in str_instances_set)
+
 
 class SurvolLocalWbemTest(unittest.TestCase):
     """These tests do not need a Survol agent"""
