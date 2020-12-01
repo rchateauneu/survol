@@ -65,8 +65,8 @@ def is_useless_process(proc):
 ################################################################################
 
 
-# The result can be sent to the Web browser in several formats.
 def _out_cgi_mode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
+    """The result can be sent to the Web browser in several formats."""
     theCgi._bind_identical_nodes()
 
     grph = theCgi.m_graph
@@ -74,12 +74,12 @@ def _out_cgi_mode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
     parameters = theCgi.m_parameters
     parameterized_links = theCgi.m_parameterized_links
 
-    sys.stderr.write("_out_cgi_mode theCgi.m_collapsed_properties=%s\n" % str(theCgi.m_collapsed_properties))
+    #sys.stderr.write("_out_cgi_mode theCgi.m_collapsed_properties=%s\n" % str(theCgi.m_collapsed_properties))
 
     # Now extract and remove all metadata, also the ones which were already here.
     # They are not left in the graph, because they break some tests.
     collapsed_properties, commutative_properties = lib_properties.extract_properties_metadata(grph)
-    sys.stderr.write("_out_cgi_mode from meta_data collapsed_properties=%s\n" % str(collapsed_properties))
+    #sys.stderr.write("_out_cgi_mode from meta_data collapsed_properties=%s\n" % str(collapsed_properties))
 
     # Which this, all collapsed properties are in this list.
     # It would not harm to leave them, but some tests which analyses the exact output content would break.
@@ -115,8 +115,8 @@ def _out_cgi_mode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
 
         # This test holds because for the moment, all collapsed properties are known in advance.
         # This will be more flexible.
-        sys.stderr.write("collapsed_properties=%s\n" % str(collapsed_properties))
-        sys.stderr.write("commutative_properties=%s\n" % str(commutative_properties))
+        #sys.stderr.write("collapsed_properties=%s\n" % str(collapsed_properties))
+        #sys.stderr.write("commutative_properties=%s\n" % str(commutative_properties))
 
         lib_export_dot.GraphToSvg(page_title, error_msg, is_sub_server, parameters, grph, parameterized_links, top_url,
                       theCgi.m_layout_style, collapsed_properties, commutative_properties)
@@ -148,9 +148,6 @@ def _get_calling_module_doc():
         This is a global and can be fetched differently, if needed.
         It returns the whole content.
     """
-
-    #sys.stderr.write("_get_calling_module_doc Main module:%s\n"% str(sys.modules['__main__']))
-
 
     # If it uses an unique CGI script.
     if globalMergeMode or lib_util.is_wsgi_server():
@@ -242,7 +239,7 @@ def MergeOutCgiRdf(the_mode, cumulated_error):
     cgi_param_links = {}
     for theCgiEnv in globalCgiEnvList:
         # theCgiEnv.m_page_title contains just the first line.
-        (page_title_first, page_title_rest) = (theCgiEnv.m_page_title, theCgiEnv.m_page_subtitle)
+        page_title_first, page_title_rest = theCgiEnv.m_page_title, theCgiEnv.m_page_subtitle
         page_title += delim_title + page_title_first
         if page_title_rest:
             page_title += " (" + page_title_rest + ")"
@@ -302,6 +299,9 @@ class CgiEnv():
         # It is possible to run these scripts as CGI scripts, so this transforms
         # command line arguments into CGI arguments. This is very helpful for debugging.
         # TODO: At the moment, the mode cannot be changed.
+
+        sys.stderr.write("__init__\n")
+
         lib_command_line.command_line_to_cgi_args()
         assert "QUERY_STRING" in os.environ
 
