@@ -1001,8 +1001,15 @@ def UsableLinuxBinary(entity_type, entity_ids_arr):
 def is_snapshot_behaviour():
     """Used by scripts named like events_generator_*.py which can write a continuous flow of events.
     They also must be able to run in snapshot mode, by default, and return RDF triples."""
-    sys.stderr.write("is_snapshot_behaviour QUERY_STRING=%s\n" % os.environ["QUERY_STRING"])
-    return "mode=" + "daemon" not in os.environ["QUERY_STRING"]
+
+    try:
+        # Maybe this is started form the command line when testing.
+        query_string = os.environ["QUERY_STRING"]
+    except KeyError:
+        query_string = ""
+
+    sys.stderr.write("is_snapshot_behaviour QUERY_STRING=%s\n" % query_string)
+    return "mode=" + "daemon" not in query_string
 
 ################################################################################
 
