@@ -3,34 +3,11 @@ Use cases and scenarios:
 This document describes common use cases and usage scenarios of Survol, 
 for solving common situations.
 
-They focus on Linux only, to start with, with Primhill Computers demo machine
-but the concepts are easily applicable to other platforms:
+They focus on Linux only, to start with, running on Primhill Computers demo machine
+but the concepts are easily applicable to other platforms.
 
-Check what a user is doing:
----------------------------
-
-See `list of users <http://vps516494.ovh.net/Survol/survol/sources_types/Linux/etc_passwd.py?xid=.PLAINTEXTONLY>`_
-
-See `user apache <http://vps516494.ovh.net/Survol/survol/entity.py?xid=LMI_Account.Name=apache,Domain=vps516494.ovh.net>`_.
-Due to security reason, this is the only one we can easily investigate (Because it runs
-the HTTP server and is therefore accessible).
-
-Which process is run by `apache <http://vps516494.ovh.net/Survol/survol/sources_types/LMI_Account/user_processes.py?xid=LMI_Account.Name%3Dapache%2CDomain%3Dvps516494.ovh.net>`_ ?
-
-It runs httpd servers and also a Python process for the current CGI script.
-
-See the `parent process <http://vps516494.ovh.net/Survol/survol/entity.py?xid=CIM_Process.Handle=302>`_
-(The one at the center).
-
-
-Which other machines are used by a running application ?
---------------------------------------------------------
-
-
-
-Fetch the process
-
-Sockets ?
+TODO:
+=====
 
 Which external libraries are implied by an application ?
 --------------------------------------------------------
@@ -57,6 +34,9 @@ Quels schemas de bases de donnees ?
 -----------------------------------
 
 Quelles sockets avec numeros de ports douteux. Quels ports sont accedes ?
+
+DONE
+====
 
 Dependencies of a running application:
 --------------------------------------
@@ -90,7 +70,7 @@ Some `information about this socket <http://vps516494.ovh.net/Survol/survol/sour
 
 
 Oracle database:
-================
+----------------
 
 The famous `TNSNAMES <filehttp://vps516494.ovh.net/Survol/survol/sources_types/Databases/oracle_tnsnames.py?xid=.PLAINTEXTONLY>`_
 contain the list of accessible Oracle DBs.
@@ -111,6 +91,43 @@ External machines:
 
 Get `sockets with netstat <http://vps516494.ovh.net/Survol/survol/sources_types/Linux/tcp_sockets.py?xid=.PLAINTEXTONLY>`_
 
-Click on a `socket <http://vps516494.ovh.net/Survol/survol/entity.py?xid=addr.Id=90.254.241.42:52713>`_
-to see its owner.
+Click `socket icon <http://vps516494.ovh.net/Survol/survol/entity.py?xid=addr.Id=90.254.241.42:52713>`_
+to see its owner and other information.
+
+Check what a user is doing:
+---------------------------
+
+See `list of users <http://vps516494.ovh.net/Survol/survol/sources_types/Linux/etc_passwd.py?xid=.PLAINTEXTONLY>`_
+
+See `user apache <http://vps516494.ovh.net/Survol/survol/entity.py?xid=LMI_Account.Name=apache,Domain=vps516494.ovh.net>`_.
+Due to security reason, this is the only one we can easily investigate (Because it runs
+the HTTP server and is therefore accessible).
+
+Which process is run by `apache <http://vps516494.ovh.net/Survol/survol/sources_types/LMI_Account/user_processes.py?xid=LMI_Account.Name%3Dapache%2CDomain%3Dvps516494.ovh.net>`_ ?
+
+It runs httpd servers and also a Python process for the current CGI script.
+
+See the `parent process <http://vps516494.ovh.net/Survol/survol/entity.py?xid=CIM_Process.Handle=302>`_
+(The one at the center).
+
+Which other machines are used by a running application ?
+--------------------------------------------------------
+
+Note that this demo machine is higly secured and does not allow much detection.
+Still, various scripts are usable.
+
+* `Detect other machines on the LAN with ARP <http://vps516494.ovh.net/Survol/survol/sources_types/neighborhood/cgi_arp_async.py?xid=.PLAINTEXTONLY>`_
+* `ARP variant, but faster <http://vps516494.ovh.net/Survol/survol/sources_types/Linux/cgi_arp_linux.py?xid=.PLAINTEXTONLY>`_
+* `Neighboring WBEM agents <http://vps516494.ovh.net/Survol/survol/sources_types/neighborhood/wbem_neighborhood.py?xid=.PLAINTEXTONLY>`_ : In this demo, there are pre-registered, but it is possible to detect them with SLP. It is not necessary to install Survol on this distant machine if a WBEM agent is running on it, because Surol is able to query it.
+* `NMAP <http://vps516494.ovh.net/Survol/survol/sources_types/nmap/nmap_run.py?xid=.PLAINTEXTONLY>`_ : NMAP allows many different scripts to explore a network. Only some features are used in Survol at the moment.
+
+Once a machine is selected, other queries are possible.
+
+`Take the current machine as an example <http://vps516494.ovh.net/Survol/survol/entity.py?xid=CIM_ComputerSystem.Name=vps516494.ovh.net>`_
+
+`JAVA RMI can be used on a distant machine <http://vps516494.ovh.net/Survol/survol/sources_types/CIM_ComputerSystem/java/rmi_registry.py?xid=CIM_ComputerSystem.Name%3Dvps516494.ovh.net>`_. Here again, it is not needed to have a Survol agent running on a dstant machine if RMI is accessible, because Survol uses this protocol and translates the result into RDF representation.
+
+`WBEM can also be used locally <http://vps516494.ovh.net/Survol/survol/sources_types/CIM_ComputerSystem/wbem_hostname_processes.py?xid=CIM_ComputerSystem.Name%3Dvps516494.ovh.net>`_ : If a WBEM serveur is installed on a machine, it can be queried. Especially, the information of its providers is available without extra development.
+
+When on a Microsoft Windows machine, WMI offers the same features as WBEM on Linux.
 
