@@ -300,7 +300,7 @@ class CgiEnv():
         # command line arguments into CGI arguments. This is very helpful for debugging.
         # TODO: At the moment, the mode cannot be changed.
 
-        sys.stderr.write("__init__\n")
+        sys.stderr.write("CgiEnv.__init__\n")
 
         lib_command_line.command_line_to_cgi_args()
         assert "QUERY_STRING" in os.environ
