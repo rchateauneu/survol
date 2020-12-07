@@ -1,0 +1,15 @@
+The goal is to run spqral queries on a huge amount of data, coming from a stream.
+* A lot of data.
+* Endless data.
+* Impossible to decide when all data is available.
+
+The solution is to split Sparql queries into independent, smller queries, which are run on a stream
+of incoming data. This is not possible in the general case, only for some types of queries.
+* These Sparql queries input and output RDF triples: They can be piped.
+* Merge several pipes into one.
+* Sparql queries output less data than they input.
+* They store locall the data they might need further, in local RDF triples data stores.
+
+See C-SPARQL, and RSP (RDF stream processing).
+
+Possibly implement a new mode for existing scripts, with which they would push events to a C-Sparql engine.
