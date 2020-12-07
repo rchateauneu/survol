@@ -1,7 +1,21 @@
+/*
+This is a skeleton on a template which wraps a C++ data stcrture and can serialize its content in RDF format.
+The goal is to add to an existing program, RDF probes with minimal changes, transparently getting data from
+the core of an application.
+*/
+
 #include <type_traits>
 
 namespace semantic_layer {
 
+/*
+Consider using another format than RDF/XML:
+It would be fine to output small, atomic triples in UDP.
+
+Lightweight HTTP server. Embedded applications for example:
+https://stackoverflow.com/questions/4161257/lightweight-http-server-c
+
+*/
 class triple_store
 {
 public:
