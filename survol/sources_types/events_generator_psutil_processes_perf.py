@@ -15,8 +15,8 @@ import sys
 import time
 import psutil
 import rdflib
-import datetime
 
+import lib_kbase
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -39,12 +39,11 @@ def Snapshot():
         sample_root_node = rdflib.BNode()
         grph.add((node_process, property_process_perf, sample_root_node))
 
-        datetime_now = datetime.datetime.now()
-        timestamp_literal = datetime_now.strftime("%Y-%m-%d %H:%M:%S")
+        timestamp_node = lib_kbase.time_stamp_now_node()
 
         # TODO: pc.property_information is the default property for sorting.
         # TODO: This could use a specific timestamp property, for example "point in time" P585
-        grph.add((sample_root_node, pc.property_information, lib_util.NodeLiteral(timestamp_literal)))
+        grph.add((sample_root_node, pc.property_information, timestamp_node))
 
         cpu_percent = proc.cpu_percent(interval=0)
         grph.add((sample_root_node, cpu_property, lib_util.NodeLiteral(cpu_percent)))
