@@ -1,3 +1,15 @@
+"""Events, for Survol, are RDF triples inserted in a graph database by Python daemons, executing scripts
+in  the background. These scripts are the usual CGI scripts, executed in a daemon controlled by
+the Python module "supervisor" (supervisor-win" on Windows).
+Conclusion: Plain  CGI scripts which are norammly called by a HTTP server can also be used as daemons
+filling a graph database (RDFLIB and SqlAlchemy).
+These events are fetched when the same scripts are executed from a HTTP server: Then, instead of running
+in background, they fetch the events stored by their counterparts. These events are tagged in the database
+by the URL of the script.
+Conclusion: A CGI script returns the same type of events, possibly stored in a graph database by its counterpart,
+or immediately retried. Technically, these events are stored on RDF contexts, labelled by the URL.
+"""
+
 # This should avoid using lib_util, lib_common etc... because the intention of code
 # in the "scripts/" directory is to be stand-alone, as much as possible.
 import os
@@ -9,7 +21,8 @@ import datetime
 import tempfile
 import configparser
 
-# This is used to communicate with the supervisor.
+# xmlrpc is used to manage the supervisor: Creation of new programs, start/stop etc...
+# A new supervisor program is created for each URL.
 _is_py3 = sys.version_info >= (3,)
 if _is_py3:
     import xmlrpc.client as xmlrpclib
@@ -46,7 +59,7 @@ _supervisor_config_file = os.path.join(os.path.dirname(__file__), "supervisord.c
 
 
 def _log_supervisor_access(function_name, step_name, **kwargs):
-    """This writes into a file showing all accesses to the supervisor."""
+    """This writes into a file all accesses to the supervisor. For debugging. """
     # TODO: This file should be truncated when the CGI server starts.
     if "TRAVIS" in os.environ:
         log_supervisor_file = None
@@ -75,7 +88,7 @@ def _log_supervisor_access(function_name, step_name, **kwargs):
             db_log_file.close()
             break
         except Exception as exc:
-            sys.stderr.write("Did not work: %s. Retry\n" % exc)
+            sys.stderr.write("Could not open survol supervisor log: %s. Retry\n" % exc)
             time.sleep(1)
 
 
@@ -177,6 +190,7 @@ def _local_supervisor_start():
     sys.stderr.write("_local_supervisor_start supervisor_command=%s\n" % str(supervisor_command))
 
     if "TRAVIS" in os.environ:
+        # Travis does not give access to locally generated files.
         if _is_py3:
             null_device = subprocess.DEVNULL
         else:
@@ -195,8 +209,8 @@ def _local_supervisor_start():
     # BEWARE: DO NOT WRITE IN stdout AND stderr, it collides and blocks !!!
     _supervisor_process = subprocess.Popen(
         supervisor_command,
-        stdout=supervisor_stdout, # subprocess.PIPE,
-        stderr=supervisor_stderr, # subprocess.PIPE,
+        stdout=supervisor_stdout,
+        stderr=supervisor_stderr,
         shell=False)
 
     sys.stderr.write("_local_supervisor_start proc_popen.pid=%d\n" % _supervisor_process.pid)
@@ -254,7 +268,6 @@ def supervisor_startup():
         error_message = "supervisor_startup: Do not start. "
         sys.stderr.write(error_message + "\n")
         return None
-
 
     # Maybe this is a supervisor service, or a local process.
 
