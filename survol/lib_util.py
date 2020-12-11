@@ -1900,7 +1900,7 @@ class TmpFile:
         self.Name = "%s/%s.%d.%s" % (curr_dir, prefix, proc_pid, suffix)
         DEBUG("tmp=%s", self.Name )
 
-    def DbgDelFil(self, fil_nam):
+    def _remove_temp_file(self, fil_nam):
         if True:
             DEBUG("Deleting=%s", fil_nam)
             os.remove(fil_nam)
@@ -1910,17 +1910,20 @@ class TmpFile:
     def __del__(self):
         try:
             if self.Name:
-                self.DbgDelFil(self.Name)
+                self._remove_temp_file(self.Name)
 
             # Extra check, not to remove everything.
             if self.TmpDirToDel not in [None, "/", ""]:
-                DEBUG("About to del %s", self.TmpDirToDel )
+                # Extra-extra-check: Delete only survol temporary files.
+                assert os.path.basename(self.TmpDirToDel).startswith("_survol")
+                DEBUG("About to del %s", self.TmpDirToDel)
                 for root, dirs, files in os.walk(self.TmpDirToDel, topdown=False):
                     for name in files:
-                        self.DbgDelFil(os.path.join(root, name))
+                        self._remove_temp_file(os.path.join(root, name))
                     for name in dirs:
                         os.rmdir(os.path.join(root, name))
                         pass
+                os.rmdir(self.TmpDirToDel)
 
         except Exception as exc:
             ERROR("__del__.Caught: %s. TmpDirToDel=%s Name=%s", str(exc), str(self.TmpDirToDel), str(self.Name))
