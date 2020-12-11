@@ -1837,6 +1837,7 @@ def get_temporary_directory():
         if isPlatformLinux:
             # 'SERVER_SOFTWARE': 'Apache/2.4.29 (Fedora)'
             if os.environ["SERVER_SOFTWARE"].startswith("Apache/"):
+                # This is a very specific hardcode for Primhill Computers demo machine.
                 # 'HTTP_HOST': 'vps516494.ovh.net'
                 if os.environ["HTTP_HOST"].startswith("vps516494."):
                     return "/home/rchateau/tmp_apache"

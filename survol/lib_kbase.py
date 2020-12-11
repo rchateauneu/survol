@@ -852,3 +852,10 @@ def events_count():
     _log_db_access("events_count", "R", "2", "", len_graph)
     return len_graph
 
+
+def time_stamp_now_node():
+    # TODO: Use xsd:dateTimeStamp
+    datetime_now = datetime.datetime.now()
+    timestamp_literal = datetime_now.strftime("%Y-%m-%d %H:%M:%S")
+    return rdflib.Literal(timestamp_literal)
+

@@ -7,10 +7,10 @@ Continuous information about the operating system.
 import os
 import sys
 import time
-import datetime
 import psutil
 import rdflib
 
+import lib_kbase
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -67,8 +67,6 @@ def Snapshot():
     grph = cgiEnv.GetGraph()
 
     sample_root_node = rdflib.BNode()
-    datetime_now = datetime.datetime.now()
-    timestamp_literal = datetime_now.strftime("%Y-%m-%d %H:%M:%S")
 
     _add_system_counters_to_sample_node(grph, sample_root_node)
 
@@ -78,7 +76,8 @@ def Snapshot():
 
     # TODO: pc.property_information is the default property for sorting.
     # TODO: This could use a specific timestamp property, for example "point in time" P585
-    grph.add((sample_root_node, pc.property_information, lib_util.NodeLiteral(timestamp_literal)))
+    timestamp_node = lib_kbase.time_stamp_now_node()
+    grph.add((sample_root_node, pc.property_information, timestamp_node))
     grph.add((current_node_hostname, property_system_counters, sample_root_node))
 
     cgiEnv.OutCgiRdf("LAYOUT_RECT", [property_system_counters])
