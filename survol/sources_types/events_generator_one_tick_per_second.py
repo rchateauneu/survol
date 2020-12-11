@@ -7,9 +7,9 @@ Sends one event per second. Test purpose.
 import os
 import sys
 import time
-import datetime
 import rdflib
 
+import lib_kbase
 import lib_util
 import lib_common
 import lib_properties
@@ -41,10 +41,9 @@ def Snapshot():
     sample_root_node = rdflib.BNode()
 
     # TODO: pc.property_information is the default property for sorting by time-stamp.
-    # TODO: This could use a specififc timestamp property, for example "point in time" P585
-    datetime_now = datetime.datetime.now()
-    timestamp_literal = datetime_now.strftime("%Y-%m-%d %H:%M:%S")
-    grph.add((sample_root_node, pc.property_information, lib_util.NodeLiteral(timestamp_literal)))
+    # TODO: This could use a specific timestamp property, for example "point in time" P585
+    timestamp_node = lib_kbase.time_stamp_now_node()
+    grph.add((sample_root_node, pc.property_information, timestamp_node))
 
     grph.add((sample_root_node, param_a_property, lib_util.NodeLiteral(parameter_a)))
     grph.add((sample_root_node, param_b_property, lib_util.NodeLiteral(parameter_b)))
