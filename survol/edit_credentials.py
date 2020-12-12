@@ -339,18 +339,13 @@ def Main():
         raise
 
     # Hard-coded protection.
-    if addrRemote not in ["82.45.12.63", "192.168.0.14", "192.168.1.10", "127.0.0.1"]:
+    if addrRemote not in ["82.45.12.63", "192.168.0.14", "192.168.1.10", "192.168.56.1", "127.0.0.1"]:
         lib_common.ErrorMessageHtml("Access forbidden from %s"% addrRemote )
 
     _inserted_cred_map(cgiArguments)
     credMap = _updated_cred_map(cgiArguments)
     credTypesWellKnown = _cred_definitions()
     credTypeList = sorted(credTypesWellKnown.keys())
-
-    if lib_util.GetJinja2():
-        MainJinja(page_title,currHostNam,currHostAddr,addrRemote,credMap,formAction,credTypeList)
-    else:
-        MainNoJinja(page_title,currHostNam,currHostAddr,addrRemote,credMap,formAction,credTypeList)
 
     def main_no_jinja():
         """Simple HTML page if jinja2 is not installed."""
