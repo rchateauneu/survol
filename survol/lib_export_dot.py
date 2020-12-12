@@ -804,7 +804,8 @@ def _font_string():
 def write_dot_header(page_title, layout_style, stream, grph):
     # Some cleanup.
     page_title_clean = page_title.strip()
-    page_title_clean = page_title_clean.replace("\n", " ")
+    # Escape double-quotes.
+    page_title_clean = page_title_clean.replace("\n", " ").replace("\"", "\\\"")
     # Title embedded in the page.
     stream.write('digraph "' + page_title_clean + '" { \n')
 

@@ -12,22 +12,22 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
+
 def Main():
-	cgiEnv = lib_common.CgiEnv()
-	partitionNam = cgiEnv.GetId()
+    cgiEnv = lib_common.CgiEnv()
+    partition_nam = cgiEnv.GetId()
 
-	# partitionNode = lib_util.EntityUri('partition', partitionNam )
-	partitionNode = lib_common.gUriGen.DiskPartitionUri( partitionNam )
+    partition_node = lib_common.gUriGen.DiskPartitionUri(partition_nam)
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	dskUsage = psutil.disk_usage(partitionNam)
+    dsk_usage = psutil.disk_usage(partition_nam)
 
-	grph.add( ( partitionNode, pc.property_disk_used, lib_util.NodeLiteral(dskUsage.used) ) )
-	grph.add( ( partitionNode, pc.property_disk_free, lib_util.NodeLiteral(dskUsage.free) ) )
+    grph.add((partition_node, pc.property_disk_used, lib_util.NodeLiteral(dsk_usage.used)))
+    grph.add((partition_node, pc.property_disk_free, lib_util.NodeLiteral(dsk_usage.free)))
 
-	cgiEnv.OutCgiRdf()
+    cgiEnv.OutCgiRdf()
 
 
 if __name__ == '__main__':
-	Main()
+    Main()

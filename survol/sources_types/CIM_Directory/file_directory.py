@@ -130,7 +130,7 @@ def Main():
             full_file_path = fil_nam_slash + one_file
             # First replace the ampersand, then encode.
 
-            full_file_path = lib_util.urllib_quote(full_file_path, safe='/:! ')
+            full_file_path = lib_util.urllib_quote(full_file_path, safe='/:! ~+{}')
 
             file_path_replace_encoded = full_file_path.replace("&", "&amp;")
 

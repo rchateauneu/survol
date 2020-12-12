@@ -33,9 +33,18 @@ def FlushOrSaveRdfGraph(grph, output_rdf_filename):
 ################################################################################
 
 
-# FIXME: WHY CREATING A NEW GRAPH ?? Maybe because we could not remove some information ?? Which one ??
-# FIXME: Maybe to remove the scripts ?
-def AddOntology(old_grph):
+# FIXME: This does translation also.
+# FIXME: So it could be faster is Survol natively uses RDF model,
+# FIXME: ... for example RDFS.seeAlso for scripts, RDFS.comment for property_information.
+# FIXME: Ideally we should simply add extra data to the input graph, without trabsation..
+#
+# FIXME: A specific and standard  RDF property should be chosen for sort order, not RDFS.comment.
+# FIXME: Or add, for a collapsed/tabulated property, the property which gives its order, by default RDFS.comment.
+# FIXME: Instead of a list of collapsed properties, it would be a map whose value would be the key.
+# FIXME: Maybe it could be the "key" instead of the "order" ?
+# FIXME: Later, it can be interesting to change the ordering key for the children of a specific node only.
+#
+def _add_ontology(old_grph):
     """This receives a triplestore containing only the information from scripts.
     This adds the classes and the properties information,
     in order to send it to an external database or system. This returns a new graph."""
@@ -114,12 +123,12 @@ def AddOntology(old_grph):
             # The subject might be a literal directory containing provider script files.
             if not lib_kbase.IsLiteral(node_subject):
                 if lib_kbase.IsLiteral(node_object):
-                    new_grph.add( (node_subject, lib_kbase.PredicateSeeAlso, node_object))
+                    new_grph.add((node_subject, lib_kbase.PredicateSeeAlso, node_object))
                 else:
                     str_object = str(node_object)
                     str_object_rdf = str_object + "&mode=rdf"
                     node_object_rdf = rdflib.term.URIRef(str_object_rdf)
-                    new_grph.add( (node_subject, lib_kbase.PredicateSeeAlso, node_object_rdf))
+                    new_grph.add((node_subject, lib_kbase.PredicateSeeAlso, node_object_rdf))
         elif node_predicate == pc.property_information:
             new_grph.add((node_subject, lib_kbase.PredicateComment, node_object))
         else:
@@ -140,22 +149,22 @@ def AddOntology(old_grph):
                 lib_util.AppendPropertySurvolOntology(
                     name_predicate, description_predicate, class_subject, class_object, map_attributes)
 
-                # TODO: Add the property type. Experimental because we know the class of the object, or if this is a literal.
+            # TODO: Add the property type. Experimental because we know the class of the object, or if it is a literal.
             new_grph.add((node_subject, node_predicate, node_object))
 
     lib_kbase.CreateRdfsOntology(map_classes, map_attributes, new_grph)
-    DEBUG("AddOntology len(grph)=%d map_classes=%d map_attributes=%d len(new_grph)=%d",
+    DEBUG("_add_ontology len(grph)=%d map_classes=%d map_attributes=%d len(new_grph)=%d",
           len(new_grph), len(map_classes), len(map_attributes), len(new_grph))
 
     return new_grph
 
-################################################################################
+
 def Grph2Rdf(grph):
     """Used by all CGI scripts when they have finished adding triples to the current RDF graph.
     The RDF comment is specifically processed to be used by ontology editors such as Protege."""
     DEBUG("Grph2Rdf entering")
 
-    new_grph = AddOntology(grph)
+    new_grph = _add_ontology(grph)
 
     # Neither "xml/rdf" nor "text/rdf" are correct MIME-types.
     # It should be "application/xml+rdf" or possibly "application/xml" or "text/xml"

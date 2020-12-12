@@ -414,14 +414,15 @@ DOT_CLEANUP            = YES
 """
 
 
-def _run_doxy(doxyOUTPUT_DIRECTORY, doxyINPUT, doxyRECURSIVE):
-
-    doxyFILE_PATTERNS = " ".join("*.%s" % fil_ext for fil_ext in file_extensions_dox)
+def _run_doxy(doxy_out_dir, doxyINPUT, is_doxy_recursive):
+    """This runs the command "doxygen" on an input and writes the ouput XML files to a temporary directory. """
+    doxy_file_patterns = " ".join("*.%s" % fil_ext for fil_ext in file_extensions_dox)
 
     # TODO: Create a tmp dir just for this purpose.
-    fil_co = _my_doxyfile % (doxyOUTPUT_DIRECTORY, doxyINPUT, doxyFILE_PATTERNS, doxyRECURSIVE)
+    fil_co = _my_doxyfile % (doxy_out_dir, doxyINPUT, doxy_file_patterns, is_doxy_recursive)
 
-    tmp_doxyfile_obj = lib_util.TmpFile("Doxygen")
+    # This is the input file to Doxygen.
+    tmp_doxyfile_obj = lib_util.TmpFile("_survol_doxygen_config")
     doxynam = tmp_doxyfile_obj.Name
     doxyfi = open(doxynam, "w")
     doxyfi.write(fil_co)
@@ -433,25 +434,27 @@ def _run_doxy(doxyOUTPUT_DIRECTORY, doxyINPUT, doxyRECURSIVE):
 
     # TODO: Use lib_common.SubProcPOpen
     ret = lib_common.SubProcCall(doxygen_command)
-    DEBUG("doxyOUTPUT_DIRECTORY=%s", doxyOUTPUT_DIRECTORY)
+    DEBUG("doxy_out_dir=%s", doxy_out_dir)
 
 
 def DoxygenMain(param_recursive_exploration, file_param):
-    tmp_dir_obj = lib_util.TmpFile(prefix=None,suffix=None,subdir="DoxygenXml")
+    tmp_dir_obj = lib_util.TmpFile(prefix=None, suffix=None, subdir="_survol_doxygen_xml")
 
-    doxyOUTPUT_DIRECTORY = tmp_dir_obj.TmpDirToDel
+    doxy_output_directory = tmp_dir_obj.TmpDirToDel
 
     if param_recursive_exploration:
-        doxyRECURSIVE = "YES"
+        doxy_recursive = "YES"
     else:
-        doxyRECURSIVE = "NO"
+        doxy_recursive = "NO"
 
     try:
-        _run_doxy(doxyOUTPUT_DIRECTORY, file_param, doxyRECURSIVE)
+        _run_doxy(doxy_output_directory, file_param, doxy_recursive)
     except Exception as exc:
         lib_common.ErrorMessageHtml("Doxygen: %s\n" % str(exc))
 
-    doxy_result_dir = doxyOUTPUT_DIRECTORY + "/xml"
+    doxy_result_dir = doxy_output_directory + "/xml"
     objects_by_location = _generate_to_output_dir(doxy_result_dir)
+
+    # At this stage, the temporary directory will be removed.
     return objects_by_location
 

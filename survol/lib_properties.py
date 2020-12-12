@@ -141,7 +141,10 @@ pc.property_group                = MakeProp("group")
 pc.property_groupid              = MakeProp("groupid")
 pc.property_file_size            = MakeProp("file_size")
 pc.property_file_device          = MakeProp("file_device")
-pc.property_script               = MakeProp("script", property_description="Data source") # Used only in entity.py and the likes, to attach scripts to a node.
+# Used only in entity.py and the likes, to attach scripts to a node.
+# TODO: Should use RDFS.seeAlso
+# TODO: Is "property_description" really used ?
+pc.property_script               = MakeProp("script", property_description="Data source")
 pc.property_rdf_data_nolist1     = MakeProp("Data1") # These three have a special role.
 pc.property_rdf_data_nolist2     = MakeProp("Data2") # Names must all be different
 pc.property_rdf_data_nolist3     = MakeProp("Data3") # Names must all be different
@@ -149,11 +152,14 @@ pc.property_wbem_data            = MakeProp("wbem")
 pc.property_wmi_data             = MakeProp("wmi")
 pc.property_survol_agent         = MakeProp("survol_agent")
 pc.property_csv_data             = MakeProp("csv")
+# TODO: should use RDFS.comment instead, this would simplify lib_export_ontology._add_ontology
+# TODO: And it would be legitimate to have a specific ordering function, because this is a standard property.
 pc.property_information          = MakeProp(sortPrefix + "Information")
 pc.property_domain               = MakeProp("domain")
 pc.property_controller           = MakeProp("controller")
 pc.property_service              = MakeProp("service")
-# The "odbc" prefix is a kind of namespace.
+# TODO: The "odbc" prefix is a kind of namespace.
+# TODO: Should be defined in sources_types/odbc/__init__.py
 pc.property_odbc_driver          = MakeProp("odbc","driver")
 pc.property_odbc_dsn             = MakeProp("odbc","dsn")
 pc.property_odbc_table           = MakeProp("odbc","table")
@@ -175,7 +181,6 @@ pc.property_com_version          = MakeProp("com_version")
 pc.property_com_entry            = MakeProp("com_entry")
 pc.property_com_dll              = MakeProp("com_dll")
 pc.property_file_system_type     = MakeProp("file_system")
-pc.property_notified_file_change = MakeProp("change")
 pc.property_wbem_server          = MakeProp("wbem_server")
 pc.property_cim_subnamespace     = MakeProp("cim_namespace")
 pc.property_class_instance       = MakeProp("instance")

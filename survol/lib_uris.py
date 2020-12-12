@@ -5,30 +5,31 @@ import lib_util
 
 ################################################################################
 
-# This assumes that class names are unique: For WBEM and WMI,
-# it always assumes namespace=root/cimv2 : The other CIM namespaces
-# have no interest for our usage.
+# This assumes that class names are unique: For WBEM and WMI, it always assumes namespace=root/cimv2:
+# The other CIM namespaces have no interest for our usage.
 
 
-def TruncateHostname(hostDns):
+def TruncateHostname(host_dns):
     """See lib_util.HostName()
     WMI wants only the first part of the address on Windows (Same string for OpenPegasus and WMI).
     On Linux apparently, Name="Unknown-30-b5-c2-02-0c-b5-2.home"
-    Beware of a normal address such as: "wb-in-f95.1e100.net" """
+    Beware of a normal address such as: "wb-in-f95.1e100.net"
+    Similar problem on "darwin" with ".local" . See cgiserver.py
+    """
 
     # TODO: Fix this !
-    host_split = hostDns.split(".")
+    host_split = host_dns.split(".")
     if len(host_split) == 2 and host_split[1] == "home":
         # if isPlatformLinux:
         host_name = host_split[0]
     else:
-        host_name = hostDns
+        host_name = host_dns
     return host_name
 
 
 class LocalBox:
     def MakeTheNode(self, entity_type, entity_id):
-        return self.MakeTheNodeFromScript( "/entity.py", entity_type, entity_id)
+        return self.MakeTheNodeFromScript("/entity.py", entity_type, entity_id)
 
     def RootUrl(self):
         return lib_util.uriRoot
@@ -37,11 +38,9 @@ class LocalBox:
         url = self.RootUrl() + path + lib_util.xidCgiDelimiter + self.TypeMake() + entity_type + "." + entity_id
         # Depending on the code path, NodeUrl is sometimes called recursively, which is not detected
         # because its conversion to a string returns the same URL.
-        return lib_util.NodeUrl( url )
+        return lib_util.NodeUrl(url)
 
     def BuildEntity(self, entity_type, *entity_id_arr):
-        # sys.stderr.write("BuildEntity type=%s id_arr=%s Caller=%s\n" % (entity_type, str(entity_id_arr), sys._getframe(1).f_code.co_name ) )
-
         keys = lib_util.OntologyClassKeys(entity_type)
         #sys.stderr.write("UriMake keys=%s\n" % str(keys) )
 
@@ -63,24 +62,26 @@ class LocalBox:
         entity_id = self.BuildEntity(entity_type, *entity_id_arr)
         return self.MakeTheNodeFromScript(path, entity_type, entity_id)
 
-    # Example of call
-    # UriMakeFromDict("CIM_Datafile/portable_executable/section", { "Name" : fileName, "Section" : sectionName } )
-    # TODO: It would help to specific the entity_type from the current directory.
-    # So that, when the script is moved, it would not need to be changed.
-    # For example: UriMakeFromDictCurrentPackage({ "Name" : fileName, "Section" : sectionName })
-    # Or even: UriMakeFromDictCurrentPackage( Name = fileName, Section = sectionName )
-    # Or even: UriMakeFromDictCurrentPackage(fileName,sectionName)
     def UriMakeFromDict(self, entity_type, entity_id_dict):
-        def uri_pair_encode(keyIt, val_it):
+        """
+        Example of call
+        UriMakeFromDict("CIM_Datafile/portable_executable/section", {"Name": fileName, "Section": sectionName})
+        TODO: It would help to specific the entity_type from the current directory.
+        So that, when the script is moved, it would not need to be changed.
+        For example: UriMakeFromDictCurrentPackage({ "Name" : fileName, "Section" : sectionName })
+        Or even: UriMakeFromDictCurrentPackage( Name = fileName, Section = sectionName )
+        Or even: UriMakeFromDictCurrentPackage(fileName,sectionName)
+        """
+
+        def uri_pair_encode(key_it, val_it):
             try:
                 # Maybe this is a derived type from str, encoding the value.
-                encoded_val = keyIt.ValueEncode(val_it)
-                # sys.stderr.write("uri_pair_encode keyIt=%s typ=%s encoded_val=%s\n"%(keyIt,type(keyIt),encoded_val))
-                return (keyIt,encoded_val)
+                # TODO: This will be replaced by base64 encoding.
+                encoded_val = key_it.ValueEncode(val_it)
+                return key_it, encoded_val
             except AttributeError:
-                # sys.stderr.write("uri_pair_encode keyIt=%s typ=%s\n"%(keyIt,type(keyIt)))
-                # This is a plain str, no value encoding.
-                return (keyIt, val_it)
+                # This is a plain string, no value encoding needed.
+                return key_it, val_it
 
         entity_id = ",".join("%s=%s" % uri_pair_encode(*kw_items) for kw_items in entity_id_dict.items())
         # sys.stderr.write("UriMakeFromDict entity_id=%s\n"%entity_id)
@@ -125,12 +126,7 @@ class LocalBox:
         # WMI    : CIM_ComputerSystem => WIN32_ComputerSystem
         # OpenLMI: CIM_LogicalElement => CIM_System et CIM_ComputerSystem =>  CIM_UnitaryComputerSystem => PG_ComputerSystem
         # OpenPegasus: Idem.
-        # sys.stderr.write("HostnameUri=%s\n" % host_name )
-        try:
-            host_name = TruncateHostname(host_addr)
-        except Exception as exc:
-            DEBUG("HostnameUri host_addr=%s. Caught: %s", host_addr, str(exc))
-            host_name = host_addr
+        host_name = TruncateHostname(host_addr)
 
         # Hostnames are case-insensitive, RFC4343 https://tools.ietf.org/html/rfc4343
         host_name = host_name.lower()
@@ -192,7 +188,6 @@ class LocalBox:
         """This method should be in a module dedicated to this class, but it is used very often,
         so it is convenient to have it here."""
         return self.UriMake("CIM_DiskPartition", disk_name)
-        # return self.UriMake("CIM_LogicalDisk",disk_name)
 
     # For a hard-disk.
     # WMI
@@ -247,7 +242,7 @@ class LocalBox:
             fullnam = smbshare + "/" + smbfile
         else:
             fullnam = smbshare + smbfile
-        return self.UriMake("smbfile", fullnam )
+        return self.UriMake("smbfile", fullnam)
 
     # TODO: Services are also a process. Also, put this in its module.
     def ServiceUri(self, service):
@@ -307,7 +302,7 @@ class LocalBox:
         # If needed, they can always be replaced by a normal slash.
         #
         path = lib_util.standardized_file_path(path)
-        return self.UriMake("CIM_Directory" , lib_util.EncodeUri(path))
+        return self.UriMake("CIM_Directory", lib_util.EncodeUri(path))
 
     # This creates a node for a socket, so later it can be merged with the same socket.
     #
@@ -339,7 +334,7 @@ class LocalBox:
             # This will happen rarely.
             url += ":" + transport
         # TODO: THIS IS WHERE WE SHOULD MAYBE ALWAYS USE A RemoteBox().
-        return self.UriMake("addr",url)
+        return self.UriMake("addr", url)
 
     # TODO: Maybe this should be a file, nothing else.
     # TODO: This function should be moved to its module.
@@ -373,24 +368,31 @@ class LocalBox:
     # |    |    |--- LMI_Group     Instance Names     Instances
     #
     # OpenPegasus/Windows:
-    # CIM_Account et CIM_Group pas definis sur OpenPegasus
+    # CIM_Account and CIM_Group not defined on OpenPegasus
     #
     # WMI:
     # Win32_Group: "Distributed COM users","Guests", "Backup Operators" etc...
     # Win32_Account: Win32_Group + Win32_SystemAccount + Win32_UserAccount
-    # Win32_UserAccount: "Administrator","Guest","HomeGroupUser$","rchateau"
-    # Win32_SystemAccount : Tres intern a Windows, on peut laisser de cote.
-    # Win32_GroupUser: "HomeUsers", "Administrator" : Association entre Win32_Group et un account
+    # Win32_UserAccount: "Administrator","Guest","HomeGroupUser$","my_user"
+    # Win32_SystemAccount : Very specific to Windows Windows.
+    # Win32_GroupUser: "HomeUsers", "Administrator" : Association between Win32_Group and an account
     #
     def UserUri(self, username):
         if lib_util.isPlatformLinux:
+            # Its base class is CIM_Account.
             user_tp = "LMI_Account"
         elif lib_util.isPlatformWindows:
             # TODO: DEPRECATED But this is called directly from entity.py.
             # TODO: Should be removed.
             user_tp = "Win32_UserAccount"
+        elif lib_util.isPlatformDarwin:
+            # CIM_Account is the information held by a SecurityService to track identity and privileges.
+            # Common examples of an Account are the entries in a UNIX /etc/passwd file.
+
+            # Temporarily, to avoid entity_type=CIM_Account Caught:No module named CIM_Account
+            user_tp = "LMI_Account" # ""CIM_Account"
         else:
-            user_tp = "this_should_not_happen"
+            user_tp = "UserUri_invalid_platform_%s" % username
 
         split_user = username.split("\\")
         if len(split_user) > 1:
@@ -404,7 +406,6 @@ class LocalBox:
         # BEWARE: "Name","Domain"
         # UriMake must take into account the order of the ontology
         usr_uri = self.UriMake(user_tp, user_only, user_host)
-        DEBUG("UserUri usr_uri=%s", str(usr_uri))
         return usr_uri
 
     # TODO: This function should be moved to the module of the "group" class.
