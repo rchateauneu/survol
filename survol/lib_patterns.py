@@ -176,21 +176,22 @@ def _pattern_node(type_full):
         return patt_array
 
 
-def WritePatterned(stream, a_type, subj_nam_tab, help_text, color, lab_h_ref, num_fields, labText, dict_lines):
+def WritePatterned(stream, a_type, subj_nam_tab, help_text, color, lab_h_ref, num_fields, lab_text, dict_lines):
     patt_array = _pattern_node(a_type)
 
     # TODO: The title and the elements might not have the same color.
 
     # TODO: At least, < and > in labels are correctly displayed, but not really clickable.
     # The best is to avoid them in entities names and urls.
-    labText = help_text.replace("<", "&lt;").replace(">", "&gt;")
+    help_text = help_text.replace("\"", "&quot;")
+    lab_text = help_text.replace("<", "&lt;").replace(">", "&gt;")
     lab_h_ref = lab_h_ref.replace("<", "&lt;").replace(">", "&gt;")
 
     try:
         if lab_h_ref:
-            stream.write(patt_array[0] % (subj_nam_tab, help_text, color, lab_h_ref, num_fields, labText))
+            stream.write(patt_array[0] % (subj_nam_tab, help_text, color, lab_h_ref, num_fields, lab_text))
         else:
-            stream.write(patt_array[1] % (subj_nam_tab, help_text, color, num_fields, labText))
+            stream.write(patt_array[1] % (subj_nam_tab, help_text, color, num_fields, lab_text))
     except UnicodeEncodeError:
         DEBUG("WritePatterned UnicodeEncodeError: Encoding=%s", sys.getdefaultencoding())
         return
