@@ -948,7 +948,6 @@ class SummaryXMLTest(unittest.TestCase):
             verbose=False,
             map_params_summary=dockit.full_map_params_summary,
             summary_format="XML",
-            with_warning=False,
             with_dockerfile=False,
             update_server=None,
             aggregator=None)
@@ -1020,7 +1019,6 @@ class SummaryXMLTest(unittest.TestCase):
             verbose=False,
             map_params_summary=dockit.full_map_params_summary,
             summary_format="XML",
-            with_warning=False,
             with_dockerfile=False,
             update_server= None,
             aggregator=None)
@@ -1096,7 +1094,6 @@ class SummaryXMLTest(unittest.TestCase):
             verbose=False,
             map_params_summary=dockit.full_map_params_summary,
             summary_format="XML",
-            with_warning=False,
             with_dockerfile=False,
             update_server=None,
             aggregator=None)
@@ -1130,7 +1127,6 @@ class ReplaySessionsTest(unittest.TestCase):
             verbose=True,
             map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
             summary_format="TXT",
-            with_warning=False,
             with_dockerfile=False,
             update_server=None,
             aggregator="clusterize")
@@ -1149,7 +1145,6 @@ class ReplaySessionsTest(unittest.TestCase):
             verbose=True,
             map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
             summary_format="XML",
-            with_warning=False,
             with_dockerfile=True,
             update_server=None,
             aggregator="clusterize")
@@ -1169,7 +1164,6 @@ class ReplaySessionsTest(unittest.TestCase):
             verbose=True,
             map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
             summary_format="TXT",
-            with_warning=False,
             with_dockerfile=False,
             update_server=None,
             aggregator="clusterize")
@@ -1188,7 +1182,6 @@ class ReplaySessionsTest(unittest.TestCase):
             verbose=True,
             map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
             summary_format="TXT",
-            with_warning=False,
             with_dockerfile=True,
             update_server=None,
             aggregator="clusterize")
@@ -1211,7 +1204,6 @@ class ReplaySessionsTest(unittest.TestCase):
             verbose=True,
             map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
             summary_format="TXT",
-            with_warning=False,
             with_dockerfile=True,
             update_server=None,
             aggregator="clusterize")
@@ -1262,7 +1254,6 @@ class ReplaySessionsTest(unittest.TestCase):
                         verbose=False,
                         map_params_summary=dockit.full_map_params_summary,
                         summary_format="TXT",
-                        with_warning=False,
                         with_dockerfile=True,
                         update_server=None,
                         aggregator="clusterize")
@@ -1303,7 +1294,6 @@ class RunningLinuxProcessesTest(unittest.TestCase):
             verbose=True,
             map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
             summary_format="TXT",
-            with_warning=False,
             with_dockerfile=False,
             update_server=None,
             aggregator="clusterize")
@@ -1331,7 +1321,6 @@ class StoreToRDFTest(unittest.TestCase):
             verbose=True,
             map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
             summary_format="TXT",
-            with_warning=False,
             with_dockerfile=False,
             update_server= path_prefix_output_result("sample_shell_ltrace_tst_create_RDF.rdf"),
             aggregator="clusterize")
@@ -1407,7 +1396,6 @@ class EventsServerTest(unittest.TestCase):
             verbose=False,
             map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
             summary_format="TXT",
-            with_warning=False,
             with_dockerfile=False,
             update_server=_remote_events_test_agent + "/survol/event_put.py",
             aggregator="clusterize")
@@ -1439,7 +1427,6 @@ class EventsServerTest(unittest.TestCase):
             verbose=False,
             map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
             summary_format="TXT",
-            with_warning=False,
             with_dockerfile=False,
             update_server=_remote_events_test_agent + "/survol/event_put.py",
             aggregator="clusterize")
@@ -1469,7 +1456,6 @@ class EventsServerTest(unittest.TestCase):
             verbose=False,
             map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
             summary_format="TXT",
-            with_warning=False,
             with_dockerfile=False,
             update_server=_remote_events_test_agent + "/survol/event_put.py",
             aggregator="clusterize")
@@ -1500,7 +1486,6 @@ class EventsServerTest(unittest.TestCase):
             verbose=False,
             map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
             summary_format="TXT",
-            with_warning=False,
             with_dockerfile=False,
             update_server=_remote_events_test_agent + "/survol/event_put.py",
             aggregator="clusterize")
