@@ -9,7 +9,7 @@ import lib_common
 import lib_util
 import lib_properties
 
-Usable = lib_util.UsableLinux
+#Usable = lib_util.UsableLinux
 
 ################################################################################
 # Typical output of the iostat command:

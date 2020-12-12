@@ -47,79 +47,76 @@ from sources_types import addr as survol_addr
 # tcp6       0      0 localhost:ipp           [::]:*                  LISTEN      -
 # tcp6       0      0 [::]:telnet             [::]:*                  LISTEN      -
 
-#
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.CgiEnv()
 
-	args = ["netstat", '-aptn', ]
+    args = ["netstat", '-aptn',]
 
-	p = lib_common.SubProcPOpen(args)
+    p = lib_common.SubProcPOpen(args)
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	(netstat_last_output, netstat_err) = p.communicate()
+    netstat_last_output, netstat_err = p.communicate()
 
-	# Converts to string for Python3.
-	netstat_str = netstat_last_output.decode("utf-8")
-	netstat_lines = netstat_str.split('\n')
+    # Converts to string for Python3.
+    netstat_str = netstat_last_output.decode("utf-8")
+    netstat_lines = netstat_str.split('\n')
 
-	seenHeader = False
-	for lin in netstat_lines:
-		# By default, consecutive spaces are treated as one.
-		linSplit = lin.split()
+    seen_header = False
+    for lin in netstat_lines:
+        # By default, consecutive spaces are treated as one.
+        lin_split = lin.split()
 
-		if len(linSplit) == 0:
-			continue
+        if len(lin_split) == 0:
+            continue
 
-		if not seenHeader:
-			if linSplit[0] == "Proto":
-				seenHeader = True
-			continue
+        if not seen_header:
+            if lin_split[0] == "Proto":
+                seen_header = True
+            continue
 
-		# TODO: "tcp6"
-		if linSplit[0] != "tcp":
-			continue
+        # TODO: "tcp6"
+        if lin_split[0] != "tcp":
+            continue
 
-    		# sys.stderr.write("tcp_sockets.py lin=%s\n"%lin)
+        sock_status = lin_split[5]
+        if sock_status not in ["ESTABLISHED", "TIME_WAIT"]:
+            continue
 
-		sockStatus = linSplit[5]
-		if sockStatus not in ["ESTABLISHED","TIME_WAIT"]:
-			continue
+        addr_local = lin_split[3]
+        ip_local, port_local = survol_addr.SplitAddrPort(addr_local)
 
-		addrLocal = linSplit[3]
-		ipLocal, portLocal = survol_addr.SplitAddrPort(addrLocal)
+        # It does not use survol_addr.PsutilAddSocketToGraphOne(node_process,cnt,grph)
+        # because sometimes we do not have the process id.
 
-		# It does not use survol_addr.PsutilAddSocketToGraphOne(node_process,cnt,grph)
-		# because sometimes we do not have the process id.
+        local_socket_node = lib_common.gUriGen.AddrUri(ip_local, port_local)
+        grph.add((local_socket_node, pc.property_information, lib_util.NodeLiteral(sock_status)))
 
-		localSocketNode = lib_common.gUriGen.AddrUri( ipLocal, portLocal )
-		grph.add( ( localSocketNode, pc.property_information, lib_util.NodeLiteral(sockStatus) ) )
+        addr_remot = lin_split[4]
 
-		addrRemot = linSplit[4]
+        # This is different for IPV6
+        if addr_remot != "0.0.0.0:*":
+            ip_remot, port_remot = survol_addr.SplitAddrPort(addr_remot)
+            remot_socket_node = lib_common.gUriGen.AddrUri(ip_remot, port_remot)
+            grph.add((local_socket_node, pc.property_socket_end, remot_socket_node))
 
-		# This is different for IPV6
-		if addrRemot != "0.0.0.0:*":
-			ipRemot, portRemot = survol_addr.SplitAddrPort(addrRemot)
-			remotSocketNode = lib_common.gUriGen.AddrUri( ipRemot, portRemot )
-			grph.add( ( localSocketNode, pc.property_socket_end, remotSocketNode ) )
+        pid_command = lin_split[6]
+        if pid_command != "-":
+            proc_pid, proc_nam = pid_command.split("/")
+            proc_node = lib_common.gUriGen.PidUri(proc_pid)
 
-		pidCommand = linSplit[6]
-		if pidCommand != "-":
-			procPid, procNam = pidCommand.split("/")
-			procNode = lib_common.gUriGen.PidUri(procPid)
+            grph.add((proc_node, pc.property_host, lib_common.nodeMachine))
+            grph.add((proc_node, pc.property_pid, lib_util.NodeLiteral(proc_pid)))
 
-			grph.add( ( procNode, pc.property_host, lib_common.nodeMachine ) )
-			grph.add( ( procNode, pc.property_pid, lib_util.NodeLiteral(procPid) ) )
+            grph.add((proc_node, pc.property_has_socket, local_socket_node))
 
-			grph.add( ( procNode, pc.property_has_socket, localSocketNode ) )
+        else:
+            # If the local process is not known, just link the local socket to the local machine.
+            grph.add((lib_common.nodeMachine, pc.property_host, local_socket_node))
 
-		else:
-			# If the local process is not known, just link the local socket to the local machine.
-			grph.add( ( lib_common.nodeMachine, pc.property_host, localSocketNode ) )
+    cgiEnv.OutCgiRdf()
 
-
-	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
-	Main()
+    Main()

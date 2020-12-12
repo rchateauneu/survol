@@ -13,8 +13,6 @@ from sources_types import CIM_DataFile
 import lib_util
 from lib_properties import pc
 
-# The Python module psutil is not needed
-
 # $ netstat -a --unix -p
 # Active UNIX domain sockets (servers and established)
 # Proto RefCnt Flags       Type       State         I-Node   PID/Program name     Path
@@ -29,61 +27,60 @@ from lib_properties import pc
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.CgiEnv()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	propPidPath = lib_common.MakeProp("Process")
-	propType = lib_common.MakeProp("Type")
-	propState = lib_common.MakeProp("State")
-	propINode = lib_common.MakeProp("INode")
+    prop_pid_path = lib_common.MakeProp("Process")
+    prop_type = lib_common.MakeProp("Type")
+    prop_state = lib_common.MakeProp("State")
+    prop_inode = lib_common.MakeProp("INode")
 
-	args = ["netstat", '-a', '--unix', '-p', ]
-	pOpNetstat = lib_common.SubProcPOpen(args)
+    args = ["netstat", '-a', '--unix', '-p',]
+    pOpNetstat = lib_common.SubProcPOpen(args)
 
-	(netstat_last_output, netstat_err) = pOpNetstat.communicate()
+    netstat_last_output, netstat_err = pOpNetstat.communicate()
 
-	asstr = netstat_last_output.decode("utf-8")
+    asstr = netstat_last_output.decode("utf-8")
 
-	DEBUG("assstr:%s",asstr)
+    # Do not read the header on the first four lines.
+    for lin in asstr.split('\n')[4:]:
+        try:
+            sock_type = lin[25:36].strip()
+            # sys.stderr.write("sock_type %s\n"%sock_type)
+            sock_state = lin[36:50].strip()
+            # sys.stderr.write("sock_state %s\n"%sock_state)
+            sock_inode = lin[50:59].strip()
+            # sys.stderr.write("sock_inode %s\n"%sock_inode)
+            sock_path = lin[80:].strip()
+        except :
+            WARNING("Cannot parse:%s",lin)
+            continue
 
-	# Do not read the header on the first four lines.
-	for lin in asstr.split('\n')[4:]:
-		try:
-			sockType = lin[25:36].strip()
-			# sys.stderr.write("sockType %s\n"%sockType)
-			sockState = lin[36:50].strip()
-			# sys.stderr.write("sockState %s\n"%sockState)
-			sockINode = lin[50:59].strip()
-			# sys.stderr.write("sockINode %s\n"%sockINode)
-			sockPath = lin[80:].strip()
-		except :
-			WARNING("Cannot parse:%s",lin)
-			continue
+        if sock_path:
+            node_path = lib_common.gUriGen.FileUri(sock_path)
+            grph.add((node_path, prop_type, lib_util.NodeLiteral(sock_type)))
+            grph.add((node_path, prop_state, lib_util.NodeLiteral(sock_state)))
+            grph.add((node_path, prop_inode, lib_util.NodeLiteral(sock_inode)))
 
-		if sockPath:
-			nodePath = lib_common.gUriGen.FileUri(sockPath)
-			grph.add( ( nodePath, propType, lib_util.NodeLiteral(sockType) ) )
-			grph.add( ( nodePath, propState, lib_util.NodeLiteral(sockState) ) )
-			grph.add( ( nodePath, propINode, lib_util.NodeLiteral(sockINode) ) )
+        sock_pid_prog = lin[59:80].strip()
+        if sock_pid_prog not in ["-", ""]:
+            sock_pid_prog_split = sock_pid_prog.split("/")
+            sock_pid = sock_pid_prog_split[0]
+            # sys.stderr.write("sock_pid %s\n"%sock_pid)
 
-		sockPidProg = lin[59:80].strip()
-		if sockPidProg not in [ "-", "" ]:
-			sockPidProgSplit = sockPidProg.split("/")
-			sockPid = sockPidProgSplit[0]
-			# sys.stderr.write("sockPid %s\n"%sockPid)
+            # Not used, and index error on Python 3.
+            # sockProgNam = sock_pid_prog_split[1]
 
-			# Not used, and index error on Python 3.
-			# sockProgNam = sockPidProgSplit[1]
+            node_proc = lib_common.gUriGen.PidUri(sock_pid)
+            if sock_path:
+                grph.add((node_path, prop_pid_path, node_proc))
+            # grph.add( ( node_proc, pc.property_information, lib_util.NodeLiteral(sockProgNam) ) )
 
-			nodeProc = lib_common.gUriGen.PidUri(sockPid)
-			if sockPath:
-				grph.add( ( nodePath, propPidPath, nodeProc ) )
-			# grph.add( ( nodeProc, pc.property_information, lib_util.NodeLiteral(sockProgNam) ) )
+    cgiEnv.OutCgiRdf()
 
-	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
-	Main()
+    Main()
 
 
