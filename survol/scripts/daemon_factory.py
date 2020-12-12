@@ -22,7 +22,7 @@ import tempfile
 import configparser
 
 # xmlrpc is used to manage the supervisor: Creation of new programs, start/stop etc...
-# A new supervisor program is created for each URL.
+# A new supervisor program and daemon is created for each URL.
 _is_py3 = sys.version_info >= (3,)
 if _is_py3:
     import xmlrpc.client as xmlrpclib
