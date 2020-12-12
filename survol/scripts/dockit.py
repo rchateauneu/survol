@@ -8,7 +8,7 @@
 from __future__ import print_function
 
 __author__      = "Remi Chateauneu"
-__copyright__   = "Primhill Computers, 2018-2020"
+__copyright__   = "Primhill Computers, 2018-2021"
 __credits__ = ["","",""]
 __license__ = "GPL"
 __version__ = "0.0.1"
@@ -30,8 +30,7 @@ import shutil
 import tempfile
 import logging
 
-# This defines the CIM objects which are created when monitoring
-# a running process.
+# This defines the CIM objects which are created when monitoring a running process.
 if __package__:
     from . import cim_objects_definitions
 else:
@@ -66,7 +65,8 @@ if is_platform_windows:
 
 ################################################################################
 
-def print_dockit_usage(exit_code = 1, error_message = None):
+
+def print_dockit_usage(exit_code=1, error_message=None):
     if error_message:
         print(error_message)
 
@@ -114,13 +114,15 @@ def print_dockit_usage(exit_code = 1, error_message = None):
 ################################################################################
 
 
-# This receives an array of WMI/WBEM/CIM object paths:
-# 'Win32_LogicalDisk.DeviceID="C:"'
-# The values can be regular expressions.
-# key-value pairs in the expressions are matched one-to-one with objects.
-
-# Example: rgx_object_path = 'Win32_LogicalDisk.DeviceID="C:",Prop="Value",Prop="Regex"'
 def _parse_filter_CIM(rgx_object_path):
+    """
+    This receives an array of WMI/WBEM/CIM object paths:
+    'Win32_LogicalDisk.DeviceID="C:"'
+    The values can be regular expressions.
+    key-value pairs in the expressions are matched one-to-one with objects.
+
+    Example: rgx_object_path = 'Win32_LogicalDisk.DeviceID="C:",Prop="Value",Prop="Regex"'
+    """
     idx_dot = rgx_object_path.find(".")
     if idx_dot < 0 :
         return rgx_object_path, {}
@@ -161,8 +163,8 @@ def _generate_summary_txt(map_params_summary, fd_summary_file):
         class_obj.DisplaySummary(fd_summary_file, cim_key_value_pairs)
 
 
-# This stores various data related to the execution.
 def _generate_summary_xml(map_params_summary, fd_summary_file):
+    """This stores various data related to the execution."""
     fd_summary_file.write('<?xml version="1.0" encoding="UTF-8"?>\n')
     fd_summary_file.write('<Dockit>\n')
     if map_params_summary:
@@ -199,15 +201,17 @@ def _generate_summary(mapParamsSummary, summary_format, output_summary_file):
 
 ################################################################################
 
-# This stores, on Linux, the package from where a file came from.
-# So, in Docker, a file used by a process is not copied, but its package installed.
 class FileToPackage:
+    """
+    This stores, on Linux, the package from where a file came from.
+    So, in Docker, a file used by a process is not copied, but its package installed.
+    """
     def __init__(self):
         the_temp_dir = tempfile.gettempdir()
         # This file stores and reuses the map from file name to Linux package.
         self.m_cacheFileName = the_temp_dir + "/" + "FileToPackageCache." + socket.gethostname() + ".txt"
         try:
-            fdCache = open(self.m_cacheFileName,"r")
+            fd_cache = open(self.m_cacheFileName, "r")
         except:
             logging.info("Cannot open packages cache file:%s." % self.m_cacheFileName)
             self.m_cacheFilesToPackages = dict()
@@ -215,8 +219,8 @@ class FileToPackage:
             return
 
         try:
-            self.m_cacheFilesToPackages = json.load(fdCache)
-            fdCache.close()
+            self.m_cacheFilesToPackages = json.load(fd_cache)
+            fd_cache.close()
             self.m_dirtyCache = False
             logging.info("Loaded packages cache file:%s" % self.m_cacheFileName)
         except:
@@ -224,76 +228,81 @@ class FileToPackage:
             self.m_cacheFilesToPackages = dict()
             self.m_dirtyCache = True
 
-    # Dump cache to a file. It does not use __del__()
-    # because it cannot access some global names in recent versions of Python.
     def dump_cache_to_file(self):
+        """Dump cache to a file. It does not use __del__()
+        because it cannot access some global names in recent versions of Python."""
         if self.m_dirtyCache:
             try:
-                fdCache = open(self.m_cacheFileName,"w")
+                fd_cache = open(self.m_cacheFileName, "w")
                 logging.info("Dumping to packages cache file %s" % self.m_cacheFileName)
-                json.dump(self.m_cacheFilesToPackages,fdCache)
-                fdCache.close()
+                json.dump(self.m_cacheFilesToPackages, fd_cache)
+                fd_cache.close()
             except IOError:
-                raise Exception("Cannot dump packages cache file to %s"%self.m_cacheFileName)
+                raise Exception("Cannot dump packages cache file to %s" % self.m_cacheFileName)
 
     @staticmethod
-    def _one_file_to_linux_package_no_cache(oneFilNam):
+    def _one_file_to_linux_package_no_cache(one_fil_nam):
         if is_platform_linux:
-            aCmd = ['rpm', '-qf', oneFilNam]
+            a_cmd = ['rpm', '-qf', one_fil_nam]
 
             try:
-                aPop = subprocess.Popen(aCmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                anOut, anErr = aPop.communicate()
-                aPack = anOut
-                aPack = aPack.strip()
-                if aPack.endswith("is not owned by any package"):
-                    lstPacks = []
-                elif aPack == "":
-                    lstPacks = []
+                a_pop = subprocess.Popen(a_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                an_out, an_err = a_pop.communicate()
+                a_pack = an_out
+                a_pack = a_pack.strip()
+                if a_pack.endswith("is not owned by any package"):
+                    lst_packs = []
+                elif a_pack == "":
+                    lst_packs = []
                 else:
-                    lstPacks = aPack.split("\n")
-                    if lstPacks[0] == "":
+                    lst_packs = a_pack.split("\n")
+                    if lst_packs[0] == "":
                         raise Exception("Inserting invalid package")
-                return lstPacks
+                return lst_packs
             except:
                 return []
         else:
             return None
 
-    unpackagedPrefixes = ["/dev/","/home/","/proc/","/tmp/","/sys/","/var/cache/"] + cim_objects_definitions.CIM_DataFile.m_nonFilePrefixes
+    unpackaged_prefixes = [
+                             "/dev/",
+                             "/home/",
+                             "/proc/",
+                             "/tmp/",
+                             "/sys/",
+                             "/var/cache/"] + cim_objects_definitions.CIM_DataFile.m_nonFilePrefixes
 
     @staticmethod
-    def _cannot_be_packaged(filNam):
+    def _cannot_be_packaged(fil_nam):
         # Some files cannot be packaged, ever.
-        for pfx in FileToPackage.unpackagedPrefixes:
-            if filNam.startswith(pfx):
+        for pfx in FileToPackage.unpackaged_prefixes:
+            if fil_nam.startswith(pfx):
                 return True
         return False
 
-    def one_file_to_linux_package(self, oneFilObj):
-        oneFilNam = oneFilObj.Name
+    def one_file_to_linux_package(self, one_fil_obj):
+        one_fil_nam = one_fil_obj.Name
 
         # Very common case of a file which is only local.
-        if FileToPackage._cannot_be_packaged(oneFilNam):
+        if FileToPackage._cannot_be_packaged(one_fil_nam):
             return []
         try:
-            return self.m_cacheFilesToPackages[oneFilNam]
+            return self.m_cacheFilesToPackages[one_fil_nam]
         except KeyError:
-            lstPacks= self._one_file_to_linux_package_no_cache(oneFilNam)
+            lst_packs= self._one_file_to_linux_package_no_cache(one_fil_nam)
 
-            if lstPacks:
+            if lst_packs:
                 self.m_dirtyCache = True
 
             # TODO: Optimisation: Once we have detected a file of a package,
-            # this loads all files from this package because reasonably,
-            # there will be other files from it.
+            # TODO: this loads all files from this package because reasonably, there will be other files from it.
             # rpm -qf /usr/lib64/libselinux.so.1
             # rpm -q -l libselinux-2.6-6.fc26.x86_64
-            self.m_cacheFilesToPackages[oneFilNam] = lstPacks
+            self.m_cacheFilesToPackages[one_fil_nam] = lst_packs
 
-            return lstPacks
+            return lst_packs
 
-    def get_packages_list(self, lstPackagedFiles):
+    def get_packages_list(self, lst_packaged_files):
 
         # This command is very slow:
         # dnf provides /usr/bin/as
@@ -301,21 +310,21 @@ class FileToPackage:
         # This is quite fast:
         # rpm -qf /bin/ls
 
-        lstPackages = set()
-        unknownFiles = []
+        lst_packages = set()
+        unknown_files = []
 
-        for oneFil in lstPackagedFiles:
-            # sys.stdout.write("oneFil=%s tp=%s\n"%(oneFil,str(type(oneFil))))
-            lstPacks = self.one_file_to_linux_package(oneFil)
-            if lstPacks:
+        for one_fil in lst_packaged_files:
+            # sys.stdout.write("one_fil=%s tp=%s\n"%(one_fil,str(type(one_fil))))
+            lst_packs = self.one_file_to_linux_package(one_fil)
+            if lst_packs:
                 # BEWARE: This takes the first pack, randomly.
-                aPack = lstPacks[0]
-                if aPack == "":
-                    raise Exception("Invalid package for file=%s\n"%oneFil)
-                lstPackages.add(aPack)
+                a_pack = lst_packs[0]
+                if a_pack == "":
+                    raise Exception("Invalid package for file=%s\n" % one_fil)
+                lst_packages.add(a_pack)
             else:
-                unknownFiles.append(oneFil)
-        return lstPackages, unknownFiles
+                unknown_files.append(one_fil)
+        return lst_packages, unknown_files
 
 # We can keep the same cache for all simulations because
 # they were all run on the same machine.
@@ -354,8 +363,8 @@ class BatchDumperTXT(BatchDumperBase):
             flow_value = flow_kwargs[flow_key]
             self.m_strm.write("%s:%s\n" % (flow_key, flow_value))
 
-    def dump_batch_to_stream(self,batchLet):
-        self.m_strm.write("Pid=%6d {%4d/%s}%1s'%-20s' %s ==>> %s (%s,%s)\n" %(
+    def dump_batch_to_stream(self, batchLet):
+        self.m_strm.write("Pid=%6d {%4d/%s}%1s'%-20s' %s ==>> %s (%s,%s)\n" % (
             batchLet.m_core.m_pid,
             batchLet.m_occurrences,
             batchLet.m_style,
@@ -364,7 +373,7 @@ class BatchDumperTXT(BatchDumperBase):
             batchLet.get_significant_args(),
             batchLet.m_core._return_value,
             _format_time(batchLet.m_core._time_start),
-            _format_time(batchLet.m_core._time_end) ) )
+            _format_time(batchLet.m_core._time_end)))
 
 
 class BatchDumperCSV(BatchDumperBase):
@@ -620,11 +629,13 @@ def _exit_globals():
 
 ################################################################################
 
-# The role of an aggregator is to receive each function call and store it or not.
-# It can aggregate the calls or process them in anyway, on the fly or at the end.
-# There is one object for each execution flow, which is a process or a thread.
-# This method returns a class.
 def _calls_flow_class_factory(aggregator):
+    """
+    The role of an aggregator is to receive each function call and store it or not.
+    It can aggregate the calls or process them in anyway, on the fly or at the end.
+    There is one object for each execution flow, which is a process or a thread.
+    This method returns a class.
+    """
     if not aggregator:
         # This is the required interface for aggregators.
         # The default base class does minimal statistics.
@@ -663,11 +674,12 @@ def _calls_flow_class_factory(aggregator):
 ################################################################################
 
 
-# This receives a stream of lines, each of them is a function call,
-# possibly unfinished/resumed/interrupted by a signal.
 def _create_map_flow_from_stream(
         verbose,
         calls_stream, tracer, batch_constructor, aggregator):
+    """This receives a stream of lines, each of them is a function call,
+    possibly unfinished/resumed/interrupted by a signal."""
+
     # This is an event log as a stream, coming from a file (if testing), the output of strace or anything else.
     logging.error("_create_map_flow_from_stream")
 
