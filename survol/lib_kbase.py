@@ -142,7 +142,7 @@ def triplestore_to_stream_xml(grph, out_dest, a_format):
         #     'str': Py2
         #     '_io.BytesIO': Py3
 
-        sys.stderr.write("type(out_dest)=%s\n" % type(out_dest))
+        #sys.stderr.write("type(out_dest)=%s\n" % type(out_dest))
         grph.serialize(destination=out_dest, format=a_format)
     except Exception as exc:
         ERROR("triplestore_to_stream_xml Exception:%s", exc)
