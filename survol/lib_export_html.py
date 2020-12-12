@@ -555,16 +555,16 @@ def display_html_text_footer():
     # TODO: Probably useless.
     url_index = lib_exports.UrlWWW("index.htm")
     url_edt_configuration = lib_util.uriRoot + "/edit_configuration.py"
-    url_edt_supervisor = lib_util.uriRoot + "/edit_supervisor.py"
     url_edt_credentials = lib_util.uriRoot + "/edit_credentials.py"
+    url_edt_supervisor = lib_util.uriRoot + "/edit_supervisor.py"
 
     wrt_fmt = """
     <br>
     <table width="100%%"><tr>
     <td><a href="%s">Survol home</a></td>
     <td><a href="%s">Configuration</a></td>
-    <td><a href="%s">Events supervisor</a></td>
     <td><a href="%s">Credentials</a></td>
+    <td><a href="%s">Daemons</a></td>
     <td align="right">&copy; <a href="http://www.primhillcomputers.com">Primhill Computers</a> 2017-2020</i></td>
     </tr></table>
     """
