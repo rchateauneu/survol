@@ -22,7 +22,7 @@ def Main():
     grph = cgiEnv.GetGraph()
 
     try:
-        # TODO: Extends this to have machines as parameters.
+        # See also: sources_types/CIM_ComputerSystem/Win32/win32_domains_machines.py
         # domain_controller = win32net.NetGetDCName (None, None)
         # domain_controller = win32net.NetGetDCName (None, "")
         # ... throws: "Could not find domain controller for this domain."
@@ -31,11 +31,12 @@ def Main():
         # domain_controller = win32net.NetGetDCName ("192.168.1.83", "")
         # ... throws: "The service has not been started."
 
+        # NetGetDCName(ServerName, DomainName) returns the name of the primary domain controller
         domain_controller = win32net.NetGetDCName("", "")
     except pywintypes.error as exc:
         lib_common.ErrorMessageHtml(str(exc))
 
-    domain_name = win32net.NetUserModalsGet (domain_controller, 2)['domain_name']
+    domain_name = win32net.NetUserModalsGet(domain_controller, 2)['domain_name']
     DEBUG("Domain name:" + domain_name)
     DEBUG("Domaine Controller:" + domain_controller)
     DEBUG("Info=" + str(win32net.NetUserModalsGet (domain_controller, 2)))

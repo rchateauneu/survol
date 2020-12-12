@@ -40,6 +40,8 @@ is_py3 = sys.version_info >= (3,)
 import _ctypes
 
 ctypes._pointer_t_type_cache64 = {}
+
+
 def POINTER_64_T(pointee):
     # a pointer should have the same length as LONG
     fake_ptr_base_type = ctypes.c_uint64
@@ -51,6 +53,7 @@ def POINTER_64_T(pointee):
         clsname = pointee.__name__
     if clsname in ctypes._pointer_t_type_cache64:
         return ctypes._pointer_t_type_cache64[clsname]
+
     # make template
     class _T(_ctypes._SimpleCData,):
         # https://docs.python.org/2/library/ctypes.html?highlight=structure
@@ -60,19 +63,27 @@ def POINTER_64_T(pointee):
         # _type_ = 'L'
         _type_ = 'Q' # { 'Q', Q_set, Q_get, &ffi_type_uint64, Q_set_sw, Q_get_sw},
         _subtype_ = pointee
+
         def _sub_addr_(self):
             return self.value
+
         def __repr__(self):
             return '%s(%d)'%(clsname, self.value)
+
         def contents(self):
             raise TypeError('This is not a ctypes pointer.')
+
         def __init__(self, **args):
             raise TypeError('This is not a ctypes pointer. It is not instanciable.')
-    _class = type('LP_%d_%s'%(8, clsname), (_T,),{})
+
+    _class = type('LP_%d_%s'%(8, clsname), (_T,), {})
     ctypes._pointer_t_type_cache64[clsname] = _class
     return _class
 
+
 ctypes._pointer_t_type_cache32 = {}
+
+
 def POINTER_32_T(pointee):
     # a pointer should have the same length as LONG
     fake_ptr_base_type = ctypes.c_uint32
@@ -84,21 +95,28 @@ def POINTER_32_T(pointee):
         clsname = pointee.__name__
     if clsname in ctypes._pointer_t_type_cache32:
         return ctypes._pointer_t_type_cache32[clsname]
+
     # make template
     class _T(_ctypes._SimpleCData,):
         _type_ = 'L'
         _subtype_ = pointee
+
         def _sub_addr_(self):
             return self.value
+
         def __repr__(self):
             return '%s(%d)'%(clsname, self.value)
+
         def contents(self):
             raise TypeError('This is not a ctypes pointer.')
+
         def __init__(self, **args):
             raise TypeError('This is not a ctypes pointer. It is not instanciable.')
+
     _class = type('LP_%d_%s'%(4, clsname), (_T,),{})
     ctypes._pointer_t_type_cache32[clsname] = _class
     return _class
+
 
 c_int128 = ctypes.c_ubyte*16
 c_uint128 = c_int128
@@ -134,20 +152,22 @@ else:
 #print("POINTER_32_T =%s" % str(dir(POINTER_32_T(None))) )
 # exit(0)
 
-# Return the pointed type if this is a pointer, otherwise None.
+
 def PointedType(tp):
+    """Return the pointed type if this is a pointer, otherwise None."""
     tpNam = tp.__name__
 
     if tpNam.startswith("LP_"):
         if tpNam.startswith("LP_c_") or tpNam.startswith("LP_4_") or tpNam.startswith("LP_8_"):
             # print("TRUE:"+tpNam[ 5: ])
-            return tpNam[ 5: ]
+            return tpNam[5:]
         return None
 
     if tpNam == "c_void_p":
         return "void"
 
     return None
+
 
 # 32 or 64 bits. Pointer size in bytes, on this platform.
 def PointerSize():
@@ -161,24 +181,24 @@ def PointerSize():
 
 ################################################################################
 
-# This transforms a range of integer values into a regular expression
-# matching them in a binary buffer.
-# Width is typically one, two or four, but can be anything.
-def ValuesListToRegexp( valList, width ):
+def ValuesListToRegexp(valList, width):
+    """This transforms a range of integer values into a regular expression
+    matching them in a binary buffer.
+    Width is typically one, two or four, but can be anything."""
     maxVals = max(valList)
     if maxVals < 256:
-        subRegEx = "".join( r"\x%02x" % val for val in valList )
-        pad = r"\x00" * ( width - 1 )
+        subRegEx = "".join(r"\x%02x" % val for val in valList)
+        pad = r"\x00" * (width - 1)
         # Maybe the values are contiguous but we do not care.
         return "[" + subRegEx + "]" + pad
 
     # For the moment, the other cases are not treated.
     raise Exception("Not implemented now")
+
 ################################################################################
 
-# This transform a ctype class into a binary regular expression.
-# TODO: Quand un des champs est un tableau, on devrait aller chercher la classe correspondante de ses elements.
 def ConcatRegexes(theClass):
+    """This transform a ctype class into a binary regular expression."""
     pattern = ""
     try:
         clsRegex = theClass._regex_
@@ -187,69 +207,69 @@ def ConcatRegexes(theClass):
 
     for fld in theClass._fields_:
         fldNam = fld[0]
-        fldOffset = getattr(theClass,fldNam).offset
-        fldSize = getattr(theClass,fldNam).size
+        fldOffset = getattr(theClass, fldNam).offset
+        fldSize = getattr(theClass, fldNam).size
 
         try:
             # If there is a specific regular expression for this field.
-            cnstrs = theClass._regex_[ fldNam ]
+            cnstrs = theClass._regex_[fldNam  ]
             # We do not know the content of the regular expression, so better enclose it.
             # pattern += "(" + cnstrs + ")"
             pattern += cnstrs
         except Exception: # AttributeError or KeyError
             # Otherwise we add a general pattern based on the field data type.
-            if fld[1] in [ctypes.c_ushort,ctypes.c_short,ctypes.c_ulong,ctypes.c_long] :
+            if fld[1] in [ctypes.c_ushort, ctypes.c_short, ctypes.c_ulong, ctypes.c_long] :
                 pattern += "." * fldSize
             else:
                 pattern += "." * fldSize
 
     return pattern
 
+
 class MemoryProcessorStructs:
     # We can have: re_flags=re.IGNORECASE
-    def __init__(self,is64Bits,lstStructs,re_flags):
+    def __init__(self, is64Bits, lstStructs, re_flags):
         from six.moves import builtins
         builtins.CTYPES_POINTER_TARGET_64 = is64Bits
 
         class DefStruct:
             # We can have flags=re.IGNORECASE
-            def __init__(self,structPatt,re_flags):
+            def __init__(self, structPatt, re_flags):
                 self.m_rgxText = ConcatRegexes(structPatt)
-                self.m_rgxComp = re.compile(self.m_rgxText.encode('utf-8'),re_flags)
+                self.m_rgxComp = re.compile(self.m_rgxText.encode('utf-8'), re_flags)
                 self.m_foundStructs = {}
-                # TODO: On pourrait fabriquer une validation supplementaire si on connait
-                # le sens ses types de donnees: Adresse IP, nom d utilisateur etc...
+                # TODO: Add extravalidation based on the meaning: IP address, username etc...
                 try:
                     self.m_validation = structPatt._validation_
                 except AttributeError:
                     self.m_validation = None
 
             # TODO: Should work with a ctypes struct
-            def ValidDict(self,objDict):
+            def ValidDict(self, objDict):
                 if self.m_validation:
                     for keyMember in self.m_validation:
                         funcPtr = self.m_validation[keyMember]
                         # Should be there otherwise the validation is wrong.
                         objMember = objDict[keyMember]
-                        if not funcPtr( objMember ):
+                        if not funcPtr(objMember):
                             return False
                 # All members validated, or not validation needed.
                 return True
 
-        self.m_byStruct = { theStr : DefStruct(theStr,flags) for theStr in lstStructs }
+        self.m_byStruct = {theStr: DefStruct(theStr, re_flags) for theStr in lstStructs}
 
 
     # TODO: Consider alignment of pages like the struct.
-    def ParseSegment(self,addr_beg, bytes_array):
+    def ParseSegment(self, addr_beg, bytes_array):
         DEBUG("ParseSegment len=%d" % len(bytes_array)) 
         for keyStr in self.m_byStruct:
-            structDefinition = self.m_byStruct[ keyStr ]
+            structDefinition = self.m_byStruct[keyStr]
             structRegex = structDefinition.m_rgxComp
 
             # TODO: Performances:
             # TODO: Check only aligned addresses.
             # TODO: Use finditer
-            matches = structRegex.findall( bytes_array )
+            matches = structRegex.findall(bytes_array)
 
             if not matches:
                 continue
@@ -273,15 +293,14 @@ class MemoryProcessorStructs:
 
                     # TODO: Check that the type of the pointer is compatible with its alignment.
                     # TODO: The address just needs to be a multiple of the object size.
-                    # pointedTypNam = CTypesStructs.PointedType( fieldTyp )
-                    pointedTypNam = PointedType( fieldTyp )
+                    pointedTypNam = PointedType(fieldTyp)
                     # TODO: Fix this !!!
                     if False and pointedTypNam is not None:
-                        print("pointedTypNam="+str(pointedTypNam))
-                        pointedAddr = getattr( anObj, fieldNam )
-                        print("Pointer="+str(pointedAddr))
-                        print("Pointer="+str(dir(pointedAddr)))
-                        print("Pointer="+str(pointedAddr.from_param(pointedAddr)))
+                        print("pointedTypNam=" + str(pointedTypNam))
+                        pointedAddr = getattr(anObj, fieldNam)
+                        print("Pointer=" + str(pointedAddr))
+                        print("Pointer=" + str(dir(pointedAddr)))
+                        print("Pointer=" + str(pointedAddr.from_param(pointedAddr)))
 
                         if pointedTypNam == "char":
                             # Specific processing for a char pointer because this is probably a string.
@@ -290,10 +309,10 @@ class MemoryProcessorStructs:
                         else:
                             # pointedTypSiz = CTypesStructs.PointerSize()
                             pointedTypSiz = PointerSize()
-                            print("pointedTypSiz="+str(pointedTypSiz    ))
+                            print("pointedTypSiz=" + str(pointedTypSiz))
                             pointedTyp = type(pointedTypNam)
                             pointedObj = pointedTyp()
-                            ctypes.memmove(ctypes.addressof(pointedObj), mtch, pointedTypSiz )
+                            ctypes.memmove(ctypes.addressof(pointedObj), mtch, pointedTypSiz)
 
                         # Prendre l object avec le bon type et refaire ca recursivement.
                         # Faut mettre dans un cache les listes de champs pointeurs, par classe.
@@ -301,11 +320,12 @@ class MemoryProcessorStructs:
                         continue
 
                 # TODO: Should use the validation functions immediately.
-                structDefinition.m_foundStructs[ ctypes.addressof(anObj) ] = anObj
+                structDefinition.m_foundStructs[ctypes.addressof(anObj)] = anObj
 
             # print("Total NbMatches=%d after filter=%d" % ( len(matches), len(dictResult) ) )
 
 ################################################################################
+
 
 class MemoryProcessorRegex:
     # We can have: flags=re.IGNORECASE
@@ -340,12 +360,13 @@ class MemoryProcessorRegex:
 
 ################################################################################
 
+
 # re flags=re.IGNORECASE
 def MemoryProcessor(is64Bits,lstStructs_or_regex,re_flags):
-    if isinstance(lstStructs_or_regex,list ):
-        memory_processor = MemoryProcessorStructs(is64Bits,lstStructs_or_regex,re_flags)
+    if isinstance(lstStructs_or_regex, list):
+        memory_processor = MemoryProcessorStructs(is64Bits, lstStructs_or_regex, re_flags)
     else:
-        memory_processor = MemoryProcessorRegex(is64Bits,lstStructs_or_regex,re_flags)
+        memory_processor = MemoryProcessorRegex(is64Bits, lstStructs_or_regex, re_flags)
     # These counters are for debugging.
     memory_processor.pages_count = 0
     memory_processor.bytes_count = 0
@@ -476,7 +497,6 @@ if sys.platform == "win32":
         success = kernel32.ReadProcessMemory(process_handle, address, cbuffer, size, czero)
 
         if not success:
-            #print("ReadMemory Failed with success == %s and address == %s and size == %s.\n%s" % ( success, address, size, ctypes.WinError(ctypes.GetLastError())[1]))
             return None
         return cbuffer.raw
 
@@ -555,10 +575,10 @@ if sys.platform == "win32":
                     6:"PROCESSOR_ARCHITECTURE_IA64",
                     0:"PROCESSOR_ARCHITECTURE_INTEL",
                     0xffff:"PROCESSOR_ARCHITECTURE_UNKNOWN"
-                }[ getattr(si,"wProcessorArchitecture") ]
+                }[getattr(si,"wProcessorArchitecture")]
             except KeyError:
                 arch = "Unknown"
-            print("Architecture=%s" % arch )
+            print("Architecture=%s" % arch)
 
             try:
                 procType = {
@@ -567,16 +587,16 @@ if sys.platform == "win32":
                     586: "PROCESSOR_INTEL_PENTIUM",
                     2200: "PROCESSOR_INTEL_IA64",
                     8664: "PROCESSOR_AMD_X8664"
-                }[ getattr(si,"dwProcessorType") ]
+                }[getattr(si,"dwProcessorType")]
             except KeyError:
                 # PROCESSOR_ARM (Reserved)
                 prcType = "Unknown"
-            print("Processor type=%s" % procType )
+            print("Processor type=%s" % procType)
             print("")
 
-        return ( si.lpMinimumApplicationAddress, si.lpMaximumApplicationAddress )
+        return si.lpMinimumApplicationAddress, si.lpMaximumApplicationAddress
 
-    def MemMachine(pidint,lstStructs,re_flags):
+    def MemMachine(pidint, lstStructs, re_flags):
         kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
 
         # PROCESS_ALL_ACCESS, # alternative access right for debugging.
@@ -587,20 +607,20 @@ if sys.platform == "win32":
 
         # kernel32.OpenProcess.restype = ctypes.wintypes.HANDLE
 
-        DEBUG("MemMachine pidint=%s", str(pidint) )
-        phandle = kernel32.OpenProcess( ACCESS, False, pidint)
-        DEBUG("MemMachine phandle=%s", str(phandle) )
-        DEBUG("MemMachine GetLastError=%s" % str(ctypes.GetLastError()) )
+        DEBUG("MemMachine pidint=%s", str(pidint))
+        phandle = kernel32.OpenProcess(ACCESS, False, pidint)
+        DEBUG("MemMachine phandle=%s", str(phandle))
+        DEBUG("MemMachine GetLastError=%s" % str(ctypes.GetLastError()))
 
         # No need to prefix with ctypes on Python 3. Why ?
         assert phandle, "Failed to open process!\n%s" % ctypes.WinError(ctypes.GetLastError())[1]
 
         is64bits = _windows_is_64bits_process(phandle)
         DEBUG("MemMachine is64bits=%d", is64bits)
-        mem_proc_functor = MemoryProcessor(is64bits,lstStructs,re_flags)
+        mem_proc_functor = MemoryProcessor(is64bits, lstStructs, re_flags)
 
         # First address of the first page, and last address to scan.
-        ( base_address , max_address ) = _windows_get_address_range()
+        base_address , max_address = _windows_get_address_range()
         DEBUG("MemMachine base_address=%016x max_address=%016x", base_address , max_address)
 
         allFound = list()
@@ -614,7 +634,7 @@ if sys.platform == "win32":
                 break
             except Exception:
                 t, e = sys.exc_info()[:2]
-                ERROR("MemMachine Other exception:%s",str(e).replace("\n"," "))
+                ERROR("MemMachine Other exception:%s", str(e).replace("\n", " "))
                 break
 
             page_address = next_page
@@ -629,21 +649,28 @@ if sys.platform == "win32":
         DEBUG("MemMachine leaving")
         return mem_proc_functor
 
-else:
-    ## Partial interface to ptrace(2), only for PTRACE_ATTACH and PTRACE_DETACH.
+elif sys.platform.startswith("linux"):
+    # Partial interface to ptrace(2), only for PTRACE_ATTACH and PTRACE_DETACH.
+    #
+    # This might throw on darwin (but it does not work on thisplatform anyway):
+    # File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/ctypes/__init__.py", line 366, in _init_
+    # self._handle = _dlopen(self._name, mode)
+    # OSError: dlopen(libc.so.6, 6): no suitable image found. Did find:
+    # file system relative paths not allowed in hardened programs
+    #
     c_ptrace = ctypes.CDLL("libc.so.6").ptrace
     c_pid_t = ctypes.c_int32 # This assumes pid_t is int32_t
     c_ptrace.argtypes = [ctypes.c_int, c_pid_t, ctypes.c_void_p, ctypes.c_void_p]
 
     def _linux_call_ptrace(attach, pid):
-        op = ctypes.c_int(16 if attach else 17) #PTRACE_ATTACH or PTRACE_DETACH
+        op = ctypes.c_int(16 if attach else 17) # PTRACE_ATTACH or PTRACE_DETACH
         c_pid = c_pid_t(pid)
         null = ctypes.c_void_p()
         err = c_ptrace(op, c_pid, null, null)
-        if err != 0: raise Exception('_linux_call_ptrace' + str(err) )
+        if err != 0: raise Exception('_linux_call_ptrace' + str(err))
 
-    def _linux_get_process_memory(pidint,addr_beg,addr_end, mem_proc_functor):
-        DEBUG("_linux_get_process_memory pidint="+str(pidint))
+    def _linux_get_process_memory(pidint, addr_beg, addr_end, mem_proc_functor):
+        DEBUG("_linux_get_process_memory pidint=" + str(pidint))
         _linux_call_ptrace(True, pidint)
         try:
             # http://unix.stackexchange.com/questions/6301/how-do-i-read-from-proc-pid-mem-under-linux
@@ -651,7 +678,7 @@ else:
             # time.sleep(0.1)
             filnam = "/proc/%d/mem" % pidint
             statinfo = os.stat(filnam)
-            DEBUG("filnam="+filnam+" stats="+str(statinfo))
+            DEBUG("filnam=" + filnam + " stats=" + str(statinfo))
             # mem_file = open(filnam, 'r+b', 0)
             if is_py3:
                 # With Python 3, buffering would fail with "ValueError: can't have unbuffered text I/O"
@@ -671,7 +698,7 @@ else:
                 # Must read exactly the section, otherwise "Input/output error"
                 mem_file.seek(addr_beg)  # seek to region start
                 chunk = mem_file.read(len_addr)  # read region contents
-                mem_proc_functor.ParseSegment(addr_beg, chunk )
+                mem_proc_functor.ParseSegment(addr_beg, chunk)
             mem_proc_functor.pages_count += 1
             mem_proc_functor.bytes_count += len_addr
 
@@ -694,10 +721,10 @@ else:
             # New version.
             return p.memory_maps(grouped=False)
 
-    def MemMachine(pidint,lstStructs,re_flags):
+    def MemMachine(pidint, lstStructs, re_flags):
         # TODO: 64 bits by default :):):) ... Fix this !
-        DEBUG("MemMachine pidint=%d",pidint)
-        mem_proc_functor = MemoryProcessor(True,lstStructs,re_flags)
+        DEBUG("MemMachine pidint=%d", pidint)
+        mem_proc_functor = MemoryProcessor(True, lstStructs, re_flags)
         memmaps = _linux_get_memory_maps(pidint)
         # Typical content for map.path
         #
@@ -738,26 +765,31 @@ else:
         # s = shared
         # p = private (copy on write)
 
-        for map in memmaps:
+        for one_map in memmaps:
 
-            DEBUG("MemMachine map.path=%s" % str(map.path))
+            DEBUG("MemMachine map.path=%s" % str(one_map.path))
 
-            if map.path in ["[heap]",""] or map.path.startswith("[stack"):
-                addr_beg, addr_end = ( int( ad, 16 ) for ad in map.addr.split("-") )
+            if one_map.path in ["[heap]", ""] or one_map.path.startswith("[stack"):
+                addr_beg, addr_end = (int(ad, 16) for ad in one_map.addr.split("-"))
                 DEBUG("MemMachine addr_beg=%d addr_end=%d" % (addr_beg, addr_end))
                 # sys.stderr.write("MemMachine %d %d %s\n" % (addr_beg, addr_end, map.path) )
-                _linux_get_process_memory(pidint, addr_beg, addr_end, mem_proc_functor )
-        DEBUG("MemMachine pidint=%d leaving",pidint)
+                _linux_get_process_memory(pidint, addr_beg, addr_end, mem_proc_functor)
+        DEBUG("MemMachine pidint=%d leaving", pidint)
         return mem_proc_functor
+
+else:
+    # This is not implemented yet for darwin/macOS.
+    pass
+
 
 # TODO: Should apply the extra validation before creating the dict.
 def CTypesStructToDict(struct):
     def get_value(value):
-        if (type(value) in six.integer_types + (float, bool) ):
+        if type(value) in six.integer_types + (float, bool):
             return value
 
         if hasattr(value, "_length_") and hasattr(value, "_type_"):
-            if getattr(value, "_type_") in [ ctypes.c_ubyte, ctypes.c_char ]:
+            if getattr(value, "_type_") in [ctypes.c_ubyte, ctypes.c_char]:
                 strLen = getattr(value, "_length_")
                 ar = ""
                 for vv in value:
@@ -766,11 +798,11 @@ def CTypesStructToDict(struct):
                         break
                     ar += chr(gvv)
                 # Optionaly extends the string
-                ar += " " * ( strLen - len(ar))
+                ar += " " * (strLen - len(ar))
                 # return "[" + ar + "]"
                 return ar
             else:
-                return [ get_value(elt) for elt in value ]
+                return [get_value(elt) for elt in value]
 
         if hasattr(value, "_type_"):
             if getattr(value, "_type_") == ctypes.c_char:
@@ -795,8 +827,9 @@ def CTypesStructToDict(struct):
 
 ################################################################################
 
-# This returns all the strings matching the regular expression.
-def GetRegexMatches(pidint,the_regex,re_flags=0):
+
+def GetRegexMatches(pidint, the_regex, re_flags=0):
+    """This returns all the strings matching the regular expression."""
     import lib_util
     import logging
     lib_util.gblLogger.setLevel(logging.DEBUG)
@@ -809,23 +842,24 @@ def GetRegexMatches(pidint,the_regex,re_flags=0):
 ################################################################################
 
 
-def ProcessMemoryScan(pidint, lstStructs, maxDisplay,verbose):
+def ProcessMemoryScan(pidint, lstStructs, maxDisplay, verbose):
     if verbose:
         _process_memory_scan_verbose(pidint, lstStructs, maxDisplay)
     else:
         _process_memory_scan_non_verbose(pidint, lstStructs, maxDisplay)
 
+
 def _process_memory_scan_non_verbose(pidint, lstStructs, maxDisplay, re_flags=0):
-    mem_proc_functor = MemMachine( pidint, lstStructs, re_flags )
+    mem_proc_functor = MemMachine(pidint, lstStructs, re_flags)
     byStruct = mem_proc_functor.m_byStruct
 
     dictByStructs = dict()
 
-    # sys.stderr.write("Keys number:%d\n" % len(byStruct) )
+    # sys.stderr.write("Keys number:%d\n" % len(byStruct))
     for keyStr in byStruct:
         structDefinition = byStruct[keyStr]
         objsSet = structDefinition.m_foundStructs
-        DEBUG("%0.60s : %d occurences before validation", keyStr, len( objsSet ) )
+        DEBUG("%0.60s : %d occurences before validation", keyStr, len(objsSet))
 
         maxCnt = maxDisplay
 
@@ -848,15 +882,16 @@ def _process_memory_scan_non_verbose(pidint, lstStructs, maxDisplay, re_flags=0)
 
     DEBUG(str(dictByStructs))
 
-def _process_memory_scan_verbose(pidint, lstStructs, maxDisplay, re_flags = 0):
-    mem_proc_functor = MemMachine( pidint, lstStructs, re_flags )
+
+def _process_memory_scan_verbose(pidint, lstStructs, maxDisplay, re_flags=0):
+    mem_proc_functor = MemMachine(pidint, lstStructs, re_flags)
     byStruct = mem_proc_functor.m_byStruct
 
     # print("Keys number:%d" % len(byStruct) )
     for keyStr in byStruct:
         structDefinition = byStruct[keyStr]
         objsSet = structDefinition.m_foundStructs
-        print("%0.60s : %d occurences before validation" % (keyStr, len( objsSet ) ) )
+        print("%0.60s : %d occurences before validation" % (keyStr, len(objsSet)))
 
         maxCnt = maxDisplay
 
@@ -869,27 +904,28 @@ def _process_memory_scan_verbose(pidint, lstStructs, maxDisplay, re_flags = 0):
 
             anObj = objsSet[addrObj]
 
-            def PrintDict(margin,ddd):
+            def PrintDict(margin, ddd):
                 for k in ddd:
                     v = ddd[k]
-                    if isinstance( v, dict ):
-                        print("%s %-20s:" % ( margin, k ) )
-                        PrintDict(margin+"      ",v)
+                    if isinstance(v, dict):
+                        print("%s %-20s:" % (margin, k))
+                        PrintDict(margin+"      ", v)
                     else:
-                        print("%s %-20s: %-60s" % ( margin, k , v ) )
+                        print("%s %-20s: %-60s" % (margin, k , v))
 
             objDict = CTypesStructToDict(anObj)
 
             # TODO: Should be done before creating the object.
             if structDefinition.ValidDict(objDict):
                 # print("Valid")
-                print("Address:%0.16X"%addrObj)
-                PrintDict("      ",objDict)
+                print("Address:%0.16X" % addrObj)
+                PrintDict("      ", objDict)
 
 ################################################################################
 
-# Entry point for testing scripts.
-def DoAll(lstStructs,verbose=True):
+
+def DoAll(lstStructs, verbose=True):
+    """Entry point for testing scripts."""
     print("Starting")
     if len(sys.argv) > 1:
         maxDisplay = int(sys.argv[2])
@@ -899,21 +935,20 @@ def DoAll(lstStructs,verbose=True):
     # python -m cProfile mmapregex.py
     if len(sys.argv) > 2:
         pidint = int(sys.argv[1])
-        ProcessMemoryScan(pidint, lstStructs, maxDisplay,verbose)
+        ProcessMemoryScan(pidint, lstStructs, maxDisplay, verbose)
     else:
         for i in psutil.process_iter():
-            print("Pid=%d name=%s" % ( i.pid, i.name() ) )
+            print("Pid=%d name=%s" % (i.pid, i.name()))
             try:
-                ProcessMemoryScan(i.pid, lstStructs, maxDisplay,verbose)
+                ProcessMemoryScan(i.pid, lstStructs, maxDisplay, verbose)
                 print("")
             except Exception:
                 t, e = sys.exc_info()[:2]
-                print("    Caught:"+str(e).replace("\n"," "))
+                print("    Caught:" + str(e).replace("\n", " "))
                 print("")
 
 
-
-# Not used yet but kept as informaitonal purpose.
+# Not used yet but kept as informational purpose.
 # if sys.platform == "win32":
 #     # http://stackoverflow.com/questions/12712585/readprocessmemory-with-ctypes
 #
@@ -987,7 +1022,6 @@ def DoAll(lstStructs,verbose=True):
 #
 
 
-
 # re.match(b"\0x0000|\0x1000","\0x1000")
 # _sre.SRE_Match object at 0x0000000002A6F098>
 
@@ -999,10 +1033,10 @@ def DoAll(lstStructs,verbose=True):
 # print("|".join("\\0x%04x" % i for i in range(0,3))+"|\\0xF008")
 # \0x0000|\0x0001|\0x0002|\0xF008
 #
-# Ca marche.
+# This works.
 # re.match( "|".join("\\0x%04x" % i for i in range(0,1000))+"|\\0xF008", b"\0x2100")
 
-# Exmples d expressions regulieres:
+# Examples of regular expressions:
 # pat = re.compile(b'[a-f]+\d+')
 # If you want to check that the string contains only characters between chr(0) and chr(10), simply use
 # re.match('^[\0-\x0A]*$',data)

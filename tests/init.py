@@ -13,6 +13,7 @@ import psutil
 import pkgutil
 import atexit
 import time
+import platform
 import tempfile
 import subprocess
 import multiprocessing
@@ -20,8 +21,6 @@ import multiprocessing
 
 def update_test_path():
     """This loads the module from the source, so no need to install it, and no need of virtualenv."""
-    #if sys.path[0] != "../survol":
-    #    sys.path.insert(0, "../survol")
     if "../survol" not in sys.path:
         sys.path.append("../survol")
 
@@ -62,10 +61,12 @@ def is_travis_machine():
     return "TRAVIS" in os.environ
 
 
-# Some tests start a DOS box process. The processes application is checked.
+# Some tests start a DOS box process. The processes application is checked. Beware of capitalizing.
 windows_system32_cmd_exe = r'C:\Windows\system32\cmd.exe' if is_windows10 else r'C:\windows\system32\cmd.exe'
 
 windows_wow64_cmd_exe = r"C:\Windows\SysWOW64\cmd.exe"
+
+is_32_bits = platform.architecture()[0] != '64bit'
 
 ################################################################################
 
@@ -301,9 +302,10 @@ def _start_cgiserver_subprocess(agent_port):
         current_dir = ".."
     except KeyError:
         current_dir = ""
-    if is_platform_windows:
+    if is_platform_windows and pkgutil.find_loader('pywin32'):
         return _start_cgiserver_subprocess_windows(agent_port, current_dir)
     else:
+        # pywin32 is not available for Pypy on Windows.
         return _start_cgiserver_subprocess_portable(agent_port, current_dir)
 
 

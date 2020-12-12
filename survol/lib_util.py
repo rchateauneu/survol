@@ -421,18 +421,10 @@ def TopUrl(entity_type, entity_id):
 
 
 def EncodeUri(an_str):
-    """
-    This, because graphviz transforms a "\\L" (backslash-L) into "<TABLE>". Example:
-    http://127.0.0.1/PythonStyle/survol/entity.py?xid=com_type_lib:C%3A%5CWINDOWS%5Csystem32%5CLangWrbk.dll
-    Or if the url contains a file in "App\\Local"
-    """
-
-    # sys.stderr.write("EncodeUri str=%s\n" % str(anStr) )
-
-    if an_str:
-        strTABLE = an_str.replace("\\L", "\\\\L")
-    else:
-        strTABLE = ""
+    # This, because graphviz transforms a "\\L" (backslash-L) into "<TABLE>". Example:
+    # http://127.0.0.1/PythonStyle/survol/entity.py?xid=com_type_lib:C%3A%5CWINDOWS%5Csystem32%5CLangWrbk.dll
+    # Or if the url contains a file in "App\\Local"
+    strTABLE = an_str.replace("\\L", "\\\\L")
 
     # In Python 3, urllib.quote is renamed urllib.parse.quote and handles unicode by default.
     if is_py3:
@@ -962,6 +954,7 @@ def ObjectTypes():
 # These functions are used in scripts, to tell if it is usable or not.
 
 isPlatformLinux = 'linux' in sys.platform
+isPlatformDarwin = 'darwin' in sys.platform
 isPlatformWindows = 'win32' in sys.platform
 
 
@@ -1008,8 +1001,15 @@ def UsableLinuxBinary(entity_type, entity_ids_arr):
 def is_snapshot_behaviour():
     """Used by scripts named like events_generator_*.py which can write a continuous flow of events.
     They also must be able to run in snapshot mode, by default, and return RDF triples."""
-    sys.stderr.write("is_snapshot_behaviour QUERY_STRING=%s\n" % os.environ["QUERY_STRING"])
-    return "mode=" + "daemon" not in os.environ["QUERY_STRING"]
+
+    try:
+        # Maybe this is started form the command line when testing.
+        query_string = os.environ["QUERY_STRING"]
+    except KeyError:
+        query_string = ""
+
+    sys.stderr.write("is_snapshot_behaviour QUERY_STRING=%s\n" % query_string)
+    return "mode=" + "daemon" not in query_string
 
 ################################################################################
 
@@ -1837,6 +1837,7 @@ def get_temporary_directory():
         if isPlatformLinux:
             # 'SERVER_SOFTWARE': 'Apache/2.4.29 (Fedora)'
             if os.environ["SERVER_SOFTWARE"].startswith("Apache/"):
+                # This is a very specific hardcode for Primhill Computers demo machine.
                 # 'HTTP_HOST': 'vps516494.ovh.net'
                 if os.environ["HTTP_HOST"].startswith("vps516494."):
                     return "/home/rchateau/tmp_apache"
@@ -1900,7 +1901,7 @@ class TmpFile:
         self.Name = "%s/%s.%d.%s" % (curr_dir, prefix, proc_pid, suffix)
         DEBUG("tmp=%s", self.Name )
 
-    def DbgDelFil(self, fil_nam):
+    def _remove_temp_file(self, fil_nam):
         if True:
             DEBUG("Deleting=%s", fil_nam)
             os.remove(fil_nam)
@@ -1910,17 +1911,20 @@ class TmpFile:
     def __del__(self):
         try:
             if self.Name:
-                self.DbgDelFil(self.Name)
+                self._remove_temp_file(self.Name)
 
             # Extra check, not to remove everything.
             if self.TmpDirToDel not in [None, "/", ""]:
-                DEBUG("About to del %s", self.TmpDirToDel )
+                # Extra-extra-check: Delete only survol temporary files.
+                assert os.path.basename(self.TmpDirToDel).startswith("_survol")
+                DEBUG("About to del %s", self.TmpDirToDel)
                 for root, dirs, files in os.walk(self.TmpDirToDel, topdown=False):
                     for name in files:
-                        self.DbgDelFil(os.path.join(root, name))
+                        self._remove_temp_file(os.path.join(root, name))
                     for name in dirs:
                         os.rmdir(os.path.join(root, name))
                         pass
+                os.rmdir(self.TmpDirToDel)
 
         except Exception as exc:
             ERROR("__del__.Caught: %s. TmpDirToDel=%s Name=%s", str(exc), str(self.TmpDirToDel), str(self.Name))

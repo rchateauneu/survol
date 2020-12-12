@@ -88,12 +88,18 @@ def start_events_generator_daemon(script_url):
     server_port = os.environ.get("SERVER_PORT", 54321)
 
     # KEY1="value1",KEY2="value2"
-    environment_parameter = 'HTTP_HOST="%s",QUERY_STRING="%s",SCRIPT_NAME="%s",SERVER_PORT="%s",REQUEST_URI="%s",PYTHONPATH="survol"' % (
-        parsed_url.hostname,
-        query_string_with_daemon_mode,
+    actual_host = "" if parsed_url.hostname is None else parsed_url.hostname
+
+    # Percent character "%%" must be escaped, because if the strings contain "%", thenit throws an error like:
+    # 'HTTP_HOST="None",QUERY_STRING="xid=CIM_Directory.Name%3DC%3A%2FUsers%2Frchateau%2FAp ...
+    # faultString = 'INCORRECT_PARAMETERS: Format string \'HTTP_HOST="...\\survol\\\\scripts\\\\supervisord.conf\')'
+    environment_parameter = \
+        'HTTP_HOST="%s",QUERY_STRING="%s",SCRIPT_NAME="%s",SERVER_PORT="%s",REQUEST_URI="%s",PYTHONPATH="survol"' % (
+        actual_host,
+        query_string_with_daemon_mode.replace("%", "%%"),
         parsed_url.path,
         server_port,
-        request_uri)
+        request_uri.replace("%", "%%"))
 
     # The script might be a test script which needs its execution context.
     # Sometimes, the library behaviour is slightly different in test mode.

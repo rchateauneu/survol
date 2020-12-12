@@ -6,6 +6,8 @@ Some ideas about services discovery:
 * Consider using UPNP with drag'n'drop, for merging.
 
 ============================================================================================================
+Survol is equivalent to Sysinternals with semantic output.
+============================================================================================================
 Bookmarks taken from the "Summary" window.
 See display_bookmarks.py and lib_bookmark.py
 

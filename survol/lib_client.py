@@ -170,9 +170,10 @@ class SourceLocal (SourceCgi):
 
         return lib_util.GetScriptModule(moduNam, urlFilNam)
 
-    # This executes the script and return the data in the right format.
     def __execute_script_with_mode(self,mode):
-        # Sets an envirorment variable then imports the script and execute it.
+        """This executes the script and return the data in the right format."""
+
+        # Sets an environment variable then imports the script and execute it.
         # TODO: "?" or "&"
         modu = self.__get_local_module()
 

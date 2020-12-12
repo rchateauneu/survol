@@ -723,7 +723,7 @@ full_map_params_summary = [
 def _analyse_functions_calls_stream(
         verbose, calls_stream, tracer, output_format,
         output_files_prefix, map_params_summary, summary_format,
-        with_dockerfile, aggregator):
+        with_dockerfile, aggregator, output_makefile):
     if not output_files_prefix:
         output_files_prefix = "results"
     if summary_format:
@@ -783,13 +783,18 @@ def _analyse_functions_calls_stream(
         dockerFilename = docker_dir_name + "/Dockerfile"
         cim_objects_definitions.generate_dockerfile(dockerFilename)
 
+    if output_makefile:
+        # Create a makefile with the generated files, the inputs and the commands.
+        # For each process, have the two lists of the input and the output files.
+        sys.stdout.write("Output makefile %s not implemented yet\n" % output_makefile)
+
     return output_summary_file
 
 
-# Function called for unit tests by unittest.py
 def test_from_file(
         input_log_file, tracer, input_process_id, output_files_prefix, output_format, verbose, map_params_summary,
-        summary_format, with_warning, with_dockerfile, update_server, aggregator):
+        summary_format, with_dockerfile, update_server, aggregator, output_makefile=None):
+    """Function called for unit tests by unittest.py"""
     assert isinstance(input_process_id, int)
     cim_objects_definitions.G_UpdateServer = update_server
     calls_stream = _create_calls_stream([], input_process_id, input_log_file, tracer)
@@ -799,7 +804,7 @@ def test_from_file(
 
     output_summary_file = _analyse_functions_calls_stream(
         verbose, calls_stream, tracer, output_format, output_files_prefix,
-        map_params_summary, summary_format, with_dockerfile, aggregator)
+        map_params_summary, summary_format, with_dockerfile, aggregator, output_makefile)
     return output_summary_file
 
 
@@ -832,7 +837,9 @@ def _start_processing(global_parameters):
         global_parameters.map_params_summary,
         global_parameters.summary_format,
         global_parameters.with_dockerfile,
-        global_parameters.aggregator)
+        global_parameters.aggregator,
+        global_parameters.output_makefile)
+
 
 if __name__ == '__main__':
     class G_parameters:
@@ -848,6 +855,7 @@ if __name__ == '__main__':
         map_params_summary = full_map_params_summary
 
         with_dockerfile = None
+        output_makefile = None
 
         input_process_id = -1
         output_format = "TXT" # Default output format of the generated files.
@@ -877,6 +885,8 @@ if __name__ == '__main__':
             G_parameters.map_params_summary = G_parameters.map_params_summary + [a_value] if a_value else []
         elif an_option in ("-D", "--dockerfile"):
             G_parameters.with_dockerfile = True
+        elif an_option in ("-M", "--makefile"):
+            G_parameters.output_makefile = a_value
         elif an_option in ("-p", "--pid"):
             G_parameters.input_process_id = int(a_value)
         elif an_option in ("-f", "--format"):

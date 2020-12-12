@@ -123,34 +123,31 @@ def triplestore_all_strings(grph):
 
 
 def triplestore_to_stream_xml(grph, out_dest, a_format):
-    """This writes a triplestore to a stream which can be a socket or a file."""
+    """This writes a triplestore to a stream which can be a socket, file, a bytes or a str."""
 
-    # With Py2 and StringIO or BytesIO, it raises "TypeError: unicode argument expected, got 'str'"
-    # grph.serialize( destination = out_dest, format="xml")
-    # There might be a way to serialize directory to the socket.
     try:
-        str_xml = grph.serialize(destination=None, format=a_format)
+        # This is tested with RDF and D3 for:
+        # Windows
+        #   CGI (cgiserver.py)
+        #     '_io.FileIO': Py2 and Py3
+
+        #   WSGI (wsgiserver.py)
+        #     '_io.BytesIO': Py2 and Py3
+
+        # Linux
+        #   Apache
+        #   CGI (cgiserver.py)
+        #     'file': Py2 and Py3
+        #   WSGI (wsgiserver.py)
+        #     'str': Py2
+        #     '_io.BytesIO': Py3
+
+        #sys.stderr.write("type(out_dest)=%s\n" % type(out_dest))
+        grph.serialize(destination=out_dest, format=a_format)
     except Exception as exc:
         ERROR("triplestore_to_stream_xml Exception:%s", exc)
+        sys.stderr.write("ERROR:%s\n" % str(exc))
         raise
-    if sys.version_info >= (3,):
-        # Really horrible piece of code, because out_dest might expect a str or a bytes,
-        # depending on its type.
-        try:
-            out_dest.write(str_xml)
-        except TypeError as exc:
-            DEBUG("triple_store_to_stream_xml. tp=%s exc=%s.", str(type(str_xml)), str(exc))
-            try:
-                # TypeError: a bytes-like object is required, not 'str'
-                out_dest.write(str_xml.decode('latin1'))
-            except TypeError as exc:
-                ERROR("triple_store_to_stream_xml. tp=%s exc=%s. Cannot write:%s", str(type(str_xml)), str(exc), str_xml)
-                raise
-    else:
-        try:
-            out_dest.write(str_xml)
-        except:
-            out_dest.write(str_xml.decode('utf8'))
 
 
 def triplestore_from_rdf_xml(doc_xml_rdf):
@@ -753,85 +750,6 @@ def _log_db_access(function_name, access_type, step_name, url_name, data_size=-1
 _log_db_access("Init", "", "0", "")
 
 
-"""
-On pourrait stocker un timestamp dans l URL.
-Ca permettrait de mettre un timestamp dans les literaux.
-Autrement dit:
-Quand on ecrit les events de l'url "/sources/types/toto.py", 
-on ecrit en fait "/sources/types/toto.py?timestamp=20101031:235959"
-et on associe:
-"/sources/types/toto.py" => "/sources/types/toto.py?timestamp=20101031:235959"
-
-Apres, on va chercher les url avec timestamp et on itere dessus.
-
-write_graph_to_events_timestamp()
-read_timestamp_url_to_graph(the_url, the_graph)
-
-Comment ca se passe pour le premier snapshot ?
-
-C est transparent pour rdflib
-
-A la lecture, on peut toujours lire par URL ou bien reconstruire des graphes.
-
-Ca permet d'ajouter des qualifiers car les infos sont brutes.
-
-Ca permet de renvoyer la derniere valeur connue pour une paire subject+predicate.
-
-Ca donne une dimension privilegiee au temps, et permet d'ecraser les valeurs invalides.
-
-En revanche, Sparql ne peut rien exploiter facilement.
-
-    # Permet d'aller chercher tous les contextes avec un triple,
-    # Et donc on peut specifier uniquement subject+predicate.
-    # Comment les enlever facilement ?
-    def contexts(self, triple=None): Iterate over all contexts in the graph
-    
-La partie delicate est l'extraction des triples du graphe: Sparql ne convient peut etre pas:
-- Le default context n est pas normalise.
-- On ne peut pas specifier plusieurs contextes.
-Eventuellement, ca permet d'avoir un graphe RDF en destination, avec un comportement different
-vis-a-vis des contextes.
-
-On pourrait du reste tout mettre dans des contextes avec time-stamp.
-
-============================================================
-Utiliser des BNodes, avec predicats "value" et "point in time",
-on prend les memes que Wikidata d'ailleurs.
-On peut meme prendre comme valeur le seul object literal.
-
-Par exemple, generer des blank nodes en sortie, quand on extrait les donnees.
-Si on change d'avis, on pourra les metter au moment du stockage:
-De toute facon, on maitrise le time-stamp donc on a le choix.
-
-L'idee est de remplacer les literaux a la volee.
-
-============================================================
-C est une bonne chose de ne pas imposer une insertion differente de la valeur literale:
-Ca permet de facon transparente d'inserer un time-stamp eventuellement partout,
-pas seulement pour les literaux.
-
-L idee est donc de stocker nativement le snapshot et de pouvoir generer au choix, a la demande:
-http://ceur-ws.org/Vol-1457/SSWS2015_paper3.pdf
-
-* standard reification (sr)whereby an RDF resource is used to denote thetriple itself,
-  denoting its subject, predicate and object as attributes andallowing additional meta-information to be added.
-* n-ary relations (nr)whereby an intermediate resource is used to denote the relationship,
-  allowing it to be annotated with meta-information.
-* singleton properties (sp)whereby a predicate unique to the statement is created,
-  which can be linked to the high-level predicate indicating the relaCreateRdfsOntologytion-ship,
-  and onto which can be added additional meta-information.
-* Named Graphs (ng)whereby triples (or sets thereof) can be identified in afourth field using, e.g.,
-  an IRI, onto which meta-information is added.
-
-A propos des quads:
-ConjunctiveGraphs have a quads() method which returns quads instead of triples,
-where the fourth item is the Graph (or subclass thereof) instance in which the triple was asserted.
-
-"""
-
-
-
-
 def write_graph_to_events(the_url, input_graph):
     # TODO: It would be faster to store the events in this named graph.
     # TODO: Also, it is faster to directly store the triples.
@@ -882,6 +800,20 @@ def read_events_to_graph(the_url, the_graph):
     return len(the_graph)
 
 
+def clear_all_events():
+    global _events_conjunctive_graph
+    sys.stderr.write("clear_all_events: Clearing events\n" )
+    if _events_conjunctive_graph:
+        sys.stderr.write("clear_all_events: %d events\n" % len(_events_conjunctive_graph))
+        _events_conjunctive_graph.remove((None, None, None))
+        if _events_storage_style[0] == "SQLAlchemy":
+            _events_conjunctive_graph.commit()
+        _events_conjunctive_graph = None
+        sys.stderr.write("clear_all_events: Clearing events done\n")
+    else:
+        sys.stderr.write("clear_all_events: Nothing to clear\n")
+
+
 def retrieve_all_events_to_graph_then_clear(output_graph):
     _setup_global_graph()
     _log_db_access("retrieve_all_events_to_graph_then_clear", "R", "1", "")
@@ -919,4 +851,11 @@ def events_count():
 
     _log_db_access("events_count", "R", "2", "", len_graph)
     return len_graph
+
+
+def time_stamp_now_node():
+    # TODO: Use xsd:dateTimeStamp
+    datetime_now = datetime.datetime.now()
+    timestamp_literal = datetime_now.strftime("%Y-%m-%d %H:%M:%S")
+    return rdflib.Literal(timestamp_literal)
 
