@@ -1916,7 +1916,7 @@ class TmpFile:
             # Extra check, not to remove everything.
             if self.TmpDirToDel not in [None, "/", ""]:
                 # Extra-extra-check: Delete only survol temporary files.
-                assert os.path.basename(self.TmpDirToDel).startswith("_survol")
+                assert os.path.basename(self.TmpDirToDel).startswith("survol_")
                 DEBUG("About to del %s", self.TmpDirToDel)
                 for root, dirs, files in os.walk(self.TmpDirToDel, topdown=False):
                     for name in files:
