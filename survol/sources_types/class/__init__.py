@@ -5,6 +5,8 @@ Object class as defined in a software library.
 import lib_util
 import sys
 
+# TODO: See CIM_DataFile/linux_nm_classes and sources_types/com which are based on the same concept of class.
+
 def Graphic_colorbg():
 	return "#336699"
 

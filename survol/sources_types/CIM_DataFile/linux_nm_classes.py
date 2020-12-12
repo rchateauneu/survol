@@ -13,95 +13,100 @@ from lib_properties import pc
 
 Usable = lib_util.UsableLinuxBinary
 
-# TODO: Ca ne fonctionne pas encorer bien mais donne l'occasion de creer le type "class"
-# qu'on va peut-etre reutiliser dans COM, et qui peut servir a structurer la memoire d'un process.
+# TODO: This is not completely finished.
+# TODO: Should use the type "class" in "sources_types/class", and also "sources_types/com" for COM types.
 
 
-nodesByClass = {}
-
-# The symbols must have been demangled.
-def ExtractClass(symbolnam):
-	# Should be very close to the end.
-	last_par_close = symbolnam.rfind( ")" )
-	if last_par_close == -1:
-		return ""
-
-	# Searches for the parenthesis matching the last one.
-	cnt = 1
-	last_par_open = last_par_close - 1
-	while cnt != 0:
-		if last_par_open == 0:
-			return ""
-		if symbolnam[last_par_open] == ")":
-			cnt += 1
-		elif symbolnam[last_par_open] == "(":
-			cnt -= 1
-		last_par_open -= 1
+_nodes_by_class = {}
 
 
-	# double_colon = symbol.rfind( "::", last_par_open )
-	without_signature = symbolnam[ : last_par_open + 1 ]
-	double_colon = without_signature.rfind( "::" )
-	if double_colon == -1:
-		return ""
+def _extract_class_from_symbol(symbolnam):
+    """The symbols must have been demangled."""
 
-	last_space = symbolnam[ : double_colon ].rfind( " " )
-	if last_space == -1 :
-		last_space = 0
+    # Should be very close to the end.
+    last_par_close = symbolnam.rfind(")")
+    if last_par_close == -1:
+        return ""
 
-	# classNam = symbol[ double_colon + 1 : last_par_open ]
-	classNam = symbolnam[ last_space : double_colon ]
-	DEBUG( "symbol=%s without_signature=%s classNam=%s", symbolnam, without_signature, classNam )
-	return classNam
+    # Searches for the parenthesis matching the last one.
+    cnt = 1
+    last_par_open = last_par_close - 1
+    while cnt != 0:
+        if last_par_open == 0:
+            return ""
+        if symbolnam[last_par_open] == ")":
+            cnt += 1
+        elif symbolnam[last_par_open] == "(":
+            cnt -= 1
+        last_par_open -= 1
 
 
-def AddSymbolInClass( grph, nodeSharedLib, symbolnam, file, prop ):
-	symClass = ExtractClass( symbolnam )
+    # double_colon = symbol.rfind( "::", last_par_open )
+    without_signature = symbolnam[:last_par_open + 1]
+    double_colon = without_signature.rfind("::")
+    if double_colon == -1:
+        return ""
 
-	symbolNode = lib_common.gUriGen.SymbolUri( lib_util.EncodeUri(symbolnam), file )
-	if symClass != "":
-		try:
-			nodeClass = nodesByClass[symClass]
-		except KeyError:
-			nodeClass = lib_common.gUriGen.ClassUri( symClass, file )
-			nodesByClass[symClass] = nodeClass
-			grph.add( ( nodeSharedLib, pc.property_member, nodeClass ) )
-		grph.add( ( nodeClass, prop, symbolNode ) )
-	else:
-		grph.add( ( nodeSharedLib, prop, symbolNode ) )
-	return symbolNode
+    last_space = symbolnam[:double_colon].rfind(" ")
+    if last_space == -1:
+        last_space = 0
 
-def AddKnown(grph, nodeSharedLib, symbolnam, file, type):
-	symbolNode = AddSymbolInClass( grph, nodeSharedLib, symbolnam, file, pc.property_symbol_defined )
-	grph.add( ( symbolNode, pc.property_symbol_type, lib_util.NodeLiteral(type) ) )
+    # class_nam = symbol[ double_colon + 1 : last_par_open ]
+    class_nam = symbolnam[last_space:double_colon]
+    DEBUG("symbol=%s without_signature=%s class_nam=%s", symbolnam, without_signature, class_nam)
+    return class_nam
 
-def AddUnknown(grph, nodeSharedLib, symbolnam):
-	symbolNode = AddSymbolInClass( grph, nodeSharedLib, symbolnam, "*", pc.property_symbol_undefined )
+
+def _add_symbol_in_class(grph, node_shared_lib, symbolnam, file_name, prop):
+    sym_class = _extract_class_from_symbol(symbolnam)
+
+    symbol_node = lib_common.gUriGen.SymbolUri(lib_util.EncodeUri(symbolnam), file_name)
+    if sym_class != "":
+        try:
+            node_class = _nodes_by_class[sym_class]
+        except KeyError:
+            node_class = lib_common.gUriGen.ClassUri(sym_class, file_name)
+            _nodes_by_class[sym_class] = node_class
+            grph.add((node_shared_lib, pc.property_member, node_class))
+        grph.add((node_class, prop, symbol_node))
+    else:
+        grph.add((node_shared_lib, prop, symbol_node))
+    return symbol_node
+
+
+def _add_known_symbol(grph, nodeSharedLib, symbolnam, file_name, symbol_type):
+    symbolNode = _add_symbol_in_class(grph, nodeSharedLib, symbolnam, file_name, pc.property_symbol_defined)
+    grph.add((symbolNode, pc.property_symbol_type, lib_util.NodeLiteral(symbol_type)))
+
+
+def _add_unknown_symbol(grph, node_shared_lib, symbolnam):
+    symbol_node = _add_symbol_in_class(grph, node_shared_lib, symbolnam, "*", pc.property_symbol_undefined)
+
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
-	fileSharedLib = cgiEnv.GetId()
+    cgiEnv = lib_common.CgiEnv()
+    file_shared_lib = cgiEnv.GetId()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	nodeSharedLib = lib_common.gUriGen.FileUri( fileSharedLib )
+    node_shared_lib = lib_common.gUriGen.FileUri(file_shared_lib)
 
-	cnt = 0
-	for type,tail in lib_nm.GetSymbols(fileSharedLib):
-		if type == 'T' or type == 't':
-			AddKnown( grph, nodeSharedLib, tail, fileSharedLib, type )
-			#"U" The symbol is undefined.
-		elif type == 'U' :
-			AddUnknown( grph, nodeSharedLib, tail )
-		else:
-			# Does not display all symbols because it is too much information.
-			# AddKnown( tail, fileSharedLib, type )
-			pass
-		cnt += 1
+    cnt = 0
+    for symbol_type, tail in lib_nm.GetSymbols(file_shared_lib):
+        if symbol_type == 'T' or symbol_type == 't':
+            _add_known_symbol(grph, node_shared_lib, tail, file_shared_lib, symbol_type)
+            #"U" The symbol is undefined.
+        elif symbol_type == 'U':
+            _add_unknown_symbol(grph, node_shared_lib, tail)
+        else:
+            # Does not display all symbols because it is too much information.
+            # _add_known_symbol(tail, file_shared_lib, symbol_type)
+            pass
+        cnt += 1
 
-	DEBUG("Nm: Processed %d lines", cnt)
-	cgiEnv.OutCgiRdf("LAYOUT_RECT",[ pc.property_symbol_defined, pc.property_symbol_undefined] )
+    DEBUG("Nm: Processed %d lines", cnt)
+    cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_symbol_defined, pc.property_symbol_undefined])
 
 
 if __name__ == '__main__':
-	Main()
+    Main()

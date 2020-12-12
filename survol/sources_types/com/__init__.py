@@ -2,6 +2,10 @@
 Windows Component Object Model concepts
 """
 
+
+# TODO: See CIM_DataFile/linux_nm_classes and sources_types/class which are based on the same concept of class.
+
+
 #	"com/registered_type_lib"                : ( "none",      "#CC99FF", "#CC99FF", 1, False ),
 #	"com/type_lib"                           : ( "none",      "#99FF99", "#99FF99", 1, False ),
 #	"com/type_lib_entry"                     : ( "none",      "#CCCCCC", "#CCCCCC", 1, False ),
