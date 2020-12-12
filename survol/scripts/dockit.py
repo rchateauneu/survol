@@ -523,8 +523,8 @@ def _ini_file_create(output_files_prefix):
 
 ################################################################################
 
-# Rule-of-thumb method to deduce the tracer type given the log file.
 def default_tracer(input_log_file, tracer=None):
+    """Rule-of-thumb method to deduce the tracer type given the log file."""
     if not tracer:
         if input_log_file:
             # Maybe the pid is embedded in the log file.
@@ -550,23 +550,23 @@ def default_tracer(input_log_file, tracer=None):
     return tracer
 
 
-# This returns a stream with each line written by strace or ltrace.
 def _create_calls_stream(command_line, input_process_id, input_log_file, tracer):
+    """This returns a stream with each line written by strace or ltrace."""
     global G_Hostname
     global G_OSType
 
     # A command or a pid or an input log file, only one possibility.
     if command_line != []:
         if input_process_id > 0 or input_log_file:
-            print_dockit_usage(1,"When providing command, must not specify process id or input log file")
+            print_dockit_usage(1, "When providing command, must not specify process id or input log file")
     elif input_process_id> 0 :
         if command_line != []:
-            print_dockit_usage(1,"When providing process id, must not specify command or input log file")
+            print_dockit_usage(1, "When providing process id, must not specify command or input log file")
     elif input_log_file:
         if command_line != []:
-            print_dockit_usage(1,"When providing input file, must not specify command or process id")
+            print_dockit_usage(1, "When providing input file, must not specify command or process id")
     else:
-        print_dockit_usage(1,"Must provide command, pid or input file")
+        print_dockit_usage(1, "Must provide command, pid or input file")
 
     date_today_run = time.strftime("%Y-%m-%d")
     the_host_nam = socket.gethostname()
