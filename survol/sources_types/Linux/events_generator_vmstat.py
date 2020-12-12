@@ -4,63 +4,82 @@
 
 
 import os
-import re
 import sys
 import subprocess
+
+import rdflib
+
 import lib_common
 import lib_util
+import lib_kbase
 from lib_properties import pc
 import lib_properties
 
-Usable = lib_util.UsableLinux
+_vmstat_script = r"C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\Experimental\vmstat_simulation.py"
 
 
 def Main():
     proc_open = None
 
-    # TODO: The values are arbitrarily added to the node of the host, but a time-stamp should be somewhere.
-    current_node_hostname = lib_common.gUriGen.HostnameUri(lib_util.currentHostname)
-
     # procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
     #  r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
     #  0  0 217344 152232 112880 1573408    0    0     1    43    0    1  1  1 98  0  0
-    def _vmstat_to_graph(grph, vmstat_header, input_line):
-        split_header = re.split(' +', vmstat_header.strip())
-        split_line = re.split(' +', input_line.strip())
+    def _vmstat_to_graph(cgiEnv, vmstat_header, input_line):
+        grph = cgiEnv.ReinitGraph()
+        split_header = vmstat_header.split()
+        split_line = input_line.split()
 
         if len(split_header) != len(split_line):
-            sys.stderr.write("Different lengths: [%s] / [%s]\n" % (vmstat_header, input_line))
+            sys.stderr.write("Different lengths: [%s] / [%s]\n" % (split_header, split_line))
             return
+        sys.stderr.write("_vmstat_to_graph: [%s]\n" % split_line)
+
+        current_node_hostname = lib_common.gUriGen.HostnameUri(lib_util.currentHostname)
+        property_vmstat = lib_properties.MakeProp("vmstat")
+
+        sample_root_node = rdflib.BNode()
+        grph.add((current_node_hostname, property_vmstat, sample_root_node))
+
+        timestamp_node = lib_kbase.time_stamp_now_node()
+        grph.add((sample_root_node, pc.property_information, timestamp_node))
 
         for column_name, column_value in zip(split_header, split_line):
+            sys.stderr.write("column_name: [%s]\n" % column_name)
             if column_name == "":
                 continue
             property_node = lib_properties.MakeProp("vmstat.%s" % column_name)
             # TODO: Add a timestamp.
-            grph.add((current_node_hostname, property_node, lib_util.NodeLiteral(column_value)))
+            grph.add((sample_root_node, property_node, lib_util.NodeLiteral(column_value)))
+        cgiEnv.OutCgiRdf("LAYOUT_RECT", [property_vmstat])
 
     def main_snapshot():
         iostat_cmd = ["vmstat", ]
+        # iostat_cmd = [sys.executable, _vmstat_script, ]
 
         cgiEnv = lib_common.CgiEnv()
 
+        WARNING(__file__ + " Snapshot Starting process:%s" % str(iostat_cmd))
         Main.proc_popen = subprocess.Popen(iostat_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
         result_lines = Main.proc_popen.stdout.readlines()
-        grph = cgiEnv.GetGraph()
-        _vmstat_to_graph(grph, result_lines[1], result_lines[2])
+        _vmstat_to_graph(cgiEnv, result_lines[1], result_lines[2])
 
-        cgiEnv.OutCgiRdf()
+        #cgiEnv.OutCgiRdf()
 
     def main_events():
         # TODO: The delay could be a parameter.
         iostat_cmd = ["vmstat", "1", ]
+        # iostat_cmd = [sys.executable, _vmstat_script, "1"]
 
         cgiEnv = lib_common.CgiEnv()
 
+        WARNING(__file__ + " Events Starting process:%s" % str(iostat_cmd))
         Main.proc_popen = subprocess.Popen(iostat_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+        WARNING(__file__ + " Events Started")
 
         line_counter = 0
-        for current_line in Main.proc_popen.stdout.readlines():
+        while True:
+            current_line = Main.proc_popen.stdout.readline()
+            WARNING(__file__ + " Events Read:%s" % current_line)
             line_counter += 1
             if line_counter == 1:
                 continue
@@ -72,14 +91,13 @@ def Main():
             if not current_line:
                 continue
 
-            grph = cgiEnv.ReinitGraph()
-            _vmstat_to_graph(grph, vmstat_header, current_line)
-            cgiEnv.OutCgiRdf()
+            _vmstat_to_graph(cgiEnv, vmstat_header, current_line)
 
     try:
         if lib_util.is_snapshot_behaviour():
             main_snapshot()
         else:
+            WARNING(__file__ + " events")
             main_events()
     except Exception as exc:
         lib_common.ErrorMessageHtml("vmstat error:%s" % str(exc))
@@ -91,4 +109,5 @@ def Main():
 
 
 if __name__ == '__main__':
+    WARNING("Start "+__file__)
     Main()
