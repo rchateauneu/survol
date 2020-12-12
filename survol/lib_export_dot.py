@@ -1047,14 +1047,19 @@ def _write_dot_legend(page_title, top_url, err_msg, is_sub_server, parameters, p
     def legend_footer():
 
         url_help = _url_to_svg(lib_exports.UrlWWW("help.htm"))
+        url_edt_configuration = lib_util.uriRoot + "/edit_configuration.py"
+        url_edt_credentials = lib_util.uriRoot + "/edit_credentials.py"
+        url_edt_supervisor = lib_util.uriRoot + "/edit_supervisor.py"
+
+        def _to_title(txt):
+            return _dot_bold(_dot_ul(txt))
 
         stream.write("<tr>")
-        stream.write('<td align="left" href="' + top_url + '">' + _dot_bold(_dot_ul("Home")) + '</td>')
-        urlEdtConfiguration = lib_util.uriRoot + "/edit_configuration.py"
-        stream.write("<td href='" + urlEdtConfiguration + "' align='left'>" + _dot_bold(_dot_ul("Setup")) + "</td>")
-        urlEdtCredentials = lib_util.uriRoot + "/edit_credentials.py"
-        stream.write("<td href='" + urlEdtCredentials +"' align='left'>" + _dot_bold(_dot_ul("Credentials")) + "</td>")
-        stream.write("<td href='" + url_help +"' align='left'>" + _dot_bold(_dot_ul("Help")) + "</td>")
+        stream.write('<td align="left" href="' + top_url + '">' + _to_title("Home") + '</td>')
+        stream.write("<td href='" + url_edt_configuration + "' align='left'>" + _to_title("Setup") + "</td>")
+        stream.write("<td href='" + url_edt_credentials + "' align='left'>" + _to_title("Credentials") + "</td>")
+        stream.write("<td href='" + url_edt_supervisor + "' align='left'>" + _to_title("Daemons") + "</td>")
+        stream.write("<td href='" + url_help + "' align='left'>" + _to_title("Help") + "</td>")
         stream.write("</tr>")
 
 
