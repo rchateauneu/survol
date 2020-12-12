@@ -65,7 +65,7 @@ def _log_supervisor_access(function_name, step_name, **kwargs):
         log_supervisor_file = None
     else:
         tmp_dir = tempfile.gettempdir()
-        log_supervisor_file = os.path.join(tmp_dir, "_survol_supervisor.log")
+        log_supervisor_file = os.path.join(tmp_dir, "survol_supervisor.log")
 
     if not log_supervisor_file:
         return

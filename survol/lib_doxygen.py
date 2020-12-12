@@ -422,7 +422,7 @@ def _run_doxy(doxy_out_dir, doxyINPUT, is_doxy_recursive):
     fil_co = _my_doxyfile % (doxy_out_dir, doxyINPUT, doxy_file_patterns, is_doxy_recursive)
 
     # This is the input file to Doxygen.
-    tmp_doxyfile_obj = lib_util.TmpFile("_survol_doxygen_config")
+    tmp_doxyfile_obj = lib_util.TmpFile("survol_doxygen_config")
     doxynam = tmp_doxyfile_obj.Name
     doxyfi = open(doxynam, "w")
     doxyfi.write(fil_co)
@@ -438,7 +438,7 @@ def _run_doxy(doxy_out_dir, doxyINPUT, is_doxy_recursive):
 
 
 def DoxygenMain(param_recursive_exploration, file_param):
-    tmp_dir_obj = lib_util.TmpFile(prefix=None, suffix=None, subdir="_survol_doxygen_xml")
+    tmp_dir_obj = lib_util.TmpFile(prefix=None, suffix=None, subdir="survol_doxygen_xml")
 
     doxy_output_directory = tmp_dir_obj.TmpDirToDel
 

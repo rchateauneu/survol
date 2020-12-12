@@ -720,7 +720,7 @@ def _log_db_access(function_name, access_type, step_name, url_name, data_size=-1
         log_db_file = None
     else:
         tmp_dir = tempfile.gettempdir()
-        log_db_file = os.path.join(tmp_dir, "_survol_events_db.log")
+        log_db_file = os.path.join(tmp_dir, "survol_events_db.log")
 
     if not log_db_file:
         return
