@@ -169,7 +169,7 @@ def _triple_to_three_strings(*one_triple):
     return str(one_triple[0]), str(one_triple[1]), str(one_triple[2])
 
 
-def _check_content_events_generator_psutil_processes_perf(test_object, text_message, result_graph):
+def _check_events_generator_psutil_processes_perf(test_object, text_message, result_graph):
     """This checks the result of events_generator_psutil_processes_perf.py"""
 
     test_object.assertTrue(result_graph)
@@ -234,7 +234,7 @@ def _check_content_events_generator_psutil_processes_perf(test_object, text_mess
     check_one_process(CurrentParentPid)
 
 
-def _check_content_events_generator_psutil_system_counters(test_object, text_message, result_graph):
+def _check_events_generator_psutil_system_counters(test_object, text_message, result_graph):
     """This checks the result of events_generator_psutil_system_counters.py"""
 
     # The result should not be empty, and contain at least a couple of triples.
@@ -260,6 +260,26 @@ def _check_content_events_generator_psutil_system_counters(test_object, text_mes
         samples_number += 1
     test_object.assertTrue(samples_number >= 1)
     print(text_message, "samples number=", samples_number)
+
+
+def _check_events_generator_windows_directory_changes(test_object, text_message, result_graph, updated_files):
+    test_object.assertTrue(result_graph)
+    print(text_message, "len(result_graph)=", len(result_graph))
+    print("updated_files=", updated_files)
+
+    property_notified_file_change = lib_properties.MakeProp("file change")
+    property_notified_change_type = lib_properties.MakeProp("change type")
+
+    found_files = set()
+
+    for one_updated_file in updated_files:
+        print("one_updated_file=", one_updated_file)
+        node_path = test_object._agent_box().FileUri(one_updated_file)
+        for _, _, sample_root_node in result_graph.triples((node_path, property_notified_file_change, None)):
+            for _, _, action_node in result_graph.triples((sample_root_node, property_notified_change_type, None)):
+                print("Updated file:", one_updated_file, "action=", action_node)
+                found_files.add(one_updated_file)
+    test_object.assertEqual(sorted(updated_files), sorted(list(found_files)))
 
 
 class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
@@ -293,13 +313,13 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
     def test_events_generator_psutil_processes_perf(self):
         url_suffix = "events_generator_psutil_processes_perf.py"
         result_snapshot = self._run_script_as_snapshot(url_suffix)
-        _check_content_events_generator_psutil_processes_perf(self, "Snapshot only", result_snapshot)
+        _check_events_generator_psutil_processes_perf(self, "Snapshot only", result_snapshot)
 
     @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
     def test_events_generator_psutil_system_counters(self):
         url_suffix = "events_generator_psutil_system_counters.py"
         result_snapshot = self._run_script_as_snapshot(url_suffix)
-        _check_content_events_generator_psutil_system_counters(self, "Snapshot only", result_snapshot)
+        _check_events_generator_psutil_system_counters(self, "Snapshot only", result_snapshot)
 
     @unittest.skipIf(is_platform_windows and is_travis_machine(), "Windows and Travis do not work. WHY ? FIXME.")
     def test_events_generator_sockets_promiscuous_mode(self):
@@ -316,11 +336,9 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
     @unittest.skipIf(is_platform_linux or is_travis_machine(), "Windows only")
     def test_events_generator_windows_directory_changes(self):
         """There is not much activity in these directories: The goal is to test that the script starts correctly."""
-        if is_platform_linux:
-            checked_directory = "/tmp"
-        else:
-            checked_directory = r"C:\\Users"
-        url_suffix = "CIM_Directory/events_generator_windows_directory_changes.py?xid=CIM_Directory.Name=%s" % checked_directory
+        checked_directory = lib_util.global_temp_directory
+        url_suffix = "CIM_Directory/events_generator_windows_directory_changes.py?xid=CIM_Directory.Name=%s" \
+                   % checked_directory
         result_snapshot = self._run_script_as_snapshot(url_suffix)
         self.assertTrue(result_snapshot)
 
@@ -363,7 +381,8 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
                 proc_popen.communicate()
                 proc_popen.terminate()
 
-    @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
+    @unittest.skipIf(is_platform_windows, "Windows only")
+    @unittest.skipIf(is_travis_machine(), "FIXME: Broken Travis")
     def test_events_generator_iostat_all_disks(self):
         url_suffix = "Linux/events_generator_iostat_all_disks.py"
         daemon_result = self._run_script_as_snapshot(url_suffix)
@@ -430,16 +449,45 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
     def test_events_generator_psutil_processes_perf(self):
         url_suffix = "events_generator_psutil_processes_perf.py"
         result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix, 20)
-        _check_content_events_generator_psutil_processes_perf(self, "Snapshot before events", result_snapshot)
-        _check_content_events_generator_psutil_processes_perf(self, "Events", result_events)
+        _check_events_generator_psutil_processes_perf(self, "Snapshot before events", result_snapshot)
+        _check_events_generator_psutil_processes_perf(self, "Events", result_events)
 
     @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
     def test_events_generator_psutil_system_counters(self):
         """This script is already tested, as a snapshot."""
         url_suffix = "events_generator_psutil_system_counters.py"
         result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix, 20)
-        _check_content_events_generator_psutil_system_counters(self, "Snapshot before events", result_snapshot)
-        _check_content_events_generator_psutil_system_counters(self, "Events", result_snapshot)
+        _check_events_generator_psutil_system_counters(self, "Snapshot before events", result_snapshot)
+        _check_events_generator_psutil_system_counters(self, "Events", result_snapshot)
+
+    @unittest.skipIf(is_platform_linux or is_travis_machine(), "Windows only")
+    def test_events_generator_windows_directory_changes(self):
+        """This starts events_generator_windows_directory_changes, updates a file and checks if this is detected."""
+        checked_directory = lib_util.global_temp_directory
+        url_suffix = "CIM_Directory/events_generator_windows_directory_changes.py?xid=CIM_Directory.Name=%s" \
+                     % checked_directory
+
+        windows_changed_file = os.path.join(checked_directory, "file_created_%d.tmp" % os.getpid())
+        windows_changed_file = windows_changed_file.replace("\\", "/")
+        print("windows_changed_file=", windows_changed_file)
+
+        # This creates a subprocess which creates then updates a file several times.
+        py_cmd = "import time;[(time.sleep(1),open(r'%s','w'),print(i)) for i in range(20)]" % windows_changed_file
+        print("test_events_generator_windows_directory_changes py_cmd=%s" % py_cmd)
+        subprocess_command = [
+            sys.executable,
+            "-c",
+            py_cmd]
+        print("test_events_generator_windows_directory_changes supervisor_command=%s" % subprocess_command)
+
+        # No Shell, otherwise we cannot know which process is created.
+        proc_popen = subprocess.Popen(
+            subprocess_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+
+        result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix, 10)
+
+        _check_events_generator_windows_directory_changes(self, "Snapshot before events", result_snapshot, [])
+        _check_events_generator_windows_directory_changes(self, "Events", result_events, [windows_changed_file])
 
     @unittest.skip("Temporarily disabled")
     def test_events_generator_system_calls_loop(self):
@@ -450,7 +498,7 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
                 sys.executable,
                 "-c",
                 "import time;time.sleep(3)"]
-            sys.stderr.write("test_events_generator_system_calls supervisor_command=%s\n" % subprocess_command)
+            sys.stderr.write("test_events_generator_system_calls_loop supervisor_command=%s\n" % subprocess_command)
 
             # No Shell, otherwise we cannot know which process is created.
             proc_popen = subprocess.Popen(
