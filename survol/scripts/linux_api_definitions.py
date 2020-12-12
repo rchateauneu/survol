@@ -1615,6 +1615,7 @@ class BatchLetLib_getenv(BatchLetBase, object):
 
 ################################################################################
 
+
 class UnfinishedBatches:
     def __init__(self, with_warning):
         # This must be specific to processes.
@@ -1748,10 +1749,12 @@ G_stackUnfinishedBatches = None
 ################################################################################
 
 
-# This executes a Linux command and returns the stderr pipe.
-# It is used to get the return content of strace or ltrace, so it can be parsed.
-# stderr contains one line for each system function call.
 def _generate_linux_stream_from_command(linux_trace_command, process_id):
+    """
+    This executes a Linux command and returns the stderr pipe.
+    It is used to get the return content of strace or ltrace, so it can be parsed.
+    stderr contains one line for each system function call.
+    """
     def quote_argument(elt):
         # Quotes in command-line arguments must be escaped.
         elt = str(elt).replace('"', '\\"').replace("'", "\\'")
@@ -1798,11 +1801,14 @@ def signal_handler(signal, frame):
     G_Interrupt = True
 
 
-# This applies to strace and ltrace.
-# The input is a stream of lines coming from strace or ltrace.
-# It isolates single lines describing an individual function or system call.
-# This yields objects which model a function call.
-def _create_flows_from_generic_linux_log(logStream, tracer):
+def _create_flows_from_generic_linux_log(log_stream, tracer):
+    """
+    This applies to strace and ltrace.
+    The input is a stream of lines coming from strace or ltrace.
+    It isolates single lines describing an individual function or system call.
+    This yields objects which model a function call.
+    """
+
     # Generates output files if interrupt with control-C.
     original_sigint_handler = signal.getsignal(signal.SIGINT)
     signal.signal(signal.SIGINT, signal_handler)
@@ -1862,7 +1868,7 @@ def _create_flows_from_generic_linux_log(logStream, tracer):
         # FIXME: Problem if several processes.
         while not G_Interrupt:
             # sys.stdout.write("000:\n")
-            tmp_line = logStream.readline()
+            tmp_line = log_stream.readline()
             # sys.stdout.write("AAA:%s"%tmp_line)
             line_number += 1
             # sys.stdout.write("tmp_line after read=%s"%tmp_line)
