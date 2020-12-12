@@ -27,52 +27,49 @@ from lib_properties import pc
 #
 
 
-
-
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.CgiEnv()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	# TODO: The dependency network is huge, so we put a limit, for the moment.
-	maxCnt=0
+    # TODO: The dependency network is huge, so we put a limit, for the moment.
+    max_cnt = 0
 
-	try:
-		modudeps = lib_modules.Dependencies()
-	except:
-		errorMsg = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Caught:"+str(errorMsg))
+    try:
+        modudeps = lib_modules.Dependencies()
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("Caught:"+str(exc))
 
-	for module_name in modudeps:
+    for module_name in modudeps:
+        # NOT TOO MUCH NODES: BEYOND THIS, IT IS FAR TOO SLOW, UNUSABLE. HARDCODE_LIMIT
+        max_cnt += 1
+        if max_cnt > 2000:
+            sys.stderr.write("Too many modules to display. Break.\n")
+            break
 
-		# NOT TOO MUCH NODES: BEYOND THIS, IT IS FAR TOO SLOW, UNUSABLE.
-		# HARDCODE_LIMIT
-		maxCnt += 1
-		if maxCnt > 2000:
-			break
+        file_parent = lib_modules.ModuleToNode(module_name)
+        file_child = None
+        for module_dep in modudeps[module_name]:
 
-		file_parent = lib_modules.ModuleToNode(module_name)
-		file_child = None
-		for module_dep in modudeps[ module_name ]:
+            # print ( module_name + " => " + module_dep )
 
-			# print ( module_name + " => " + module_dep )
+            # This generates a directed acyclic graph,
+            # but not a tree in the general case.
+            file_child = lib_modules.ModuleToNode(module_dep)
 
-			# This generates a directed acyclic graph,
-			# but not a tree in the general case.
-			file_child = lib_modules.ModuleToNode(module_dep)
+            grph.add((file_parent, pc.property_module_dep, file_child))
+        # TODO: Ugly trick, otherwise nodes without connections are not displayed.
+        # TODO: I think this is a BUG in the dot file generation. Or in RDF ?...
+        if file_child is None:
+            grph.add((file_parent, pc.property_information, lib_util.NodeLiteral("")))
 
-			grph.add( ( file_parent, pc.property_module_dep, file_child ) )
-		# TODO: Ugly trick, otherwise nodes without connections are not displayed.
-		# TODO: I think this is a BUG in the dot file generation. Or in RDF ?...
-		if file_child is None:
-			grph.add( ( file_parent, pc.property_information, lib_util.NodeLiteral("") ) )
+    # Splines are rather slow.
+    if max_cnt > 100:
+        layout_type = "LAYOUT_XXX"
+    else:
+        layout_type = "LAYOUT_SPLINE"
+    cgiEnv.OutCgiRdf(layout_type)
 
-	# Splines are rather slow.
-	if maxCnt > 100:
-		layoutType = "LAYOUT_XXX"
-	else:
-		layoutType = "LAYOUT_SPLINE"
-	cgiEnv.OutCgiRdf( layoutType)
 
 if __name__ == '__main__':
-	Main()
+    Main()

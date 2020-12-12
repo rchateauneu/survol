@@ -14,9 +14,8 @@ import lib_common
 # udp        0      0 fedora22:39825          0.0.0.0:*                           2134/rygel
 # udp        0      0 fedora22:46107          0.0.0.0:*                           2134/rygel
 
-# TODO: IMPLEMENT THIS
+# TODO: NOT IMPLEMENTED YET
 
-# Usable = lib_util.UsableLinux
 
 def Main():
     cgiEnv = lib_common.CgiEnv()
@@ -24,8 +23,8 @@ def Main():
 
     lib_common.ErrorMessageHtml("Not implemented yet")
 
-
     cgiEnv.OutCgiRdf("LAYOUT_RECT")
+
 
 if __name__ == '__main__':
     Main()
