@@ -2,10 +2,10 @@
 
 import os
 import sys
-import datetime
 import rdflib
 import time
 
+import lib_kbase
 import lib_util
 import lib_common
 import lib_properties
@@ -30,7 +30,7 @@ property_notified_file_change = lib_properties.MakeProp("file change")
 property_notified_change_type = lib_properties.MakeProp("change type")
 
 
-def _add_windows_dir_change(grph, path_to_watch, updated_file, action_code, timestamp_literal):
+def _add_windows_dir_change(grph, path_to_watch, updated_file, action_code, timestamp_node):
     actions_codes = {
         1: "Created",
         2: "Deleted",
@@ -42,29 +42,13 @@ def _add_windows_dir_change(grph, path_to_watch, updated_file, action_code, time
     action_text = actions_codes.get(action_code, "Unknown")
     full_filename = os.path.join(path_to_watch, updated_file)
 
-    # TODO: Maybe show the intermediate first between this one and the script argument,
-    # IF THIS IS NOT ALREADY DONE ?
     node_path = lib_common.gUriGen.FileUri(full_filename)
-
-    if False:
-        split_path = full_filename.split('\\')
-        intermediate_path = path_to_watch
-
-        intermediate_node = lib_common.gUriGen.FileUri(intermediate_path)
-
-        for subdir in split_path[1:-1]:
-            subpath = intermediate_path + "\\" + subdir
-            sub_node = lib_common.gUriGen.FileUri(subpath)
-            grph.add((intermediate_node, pc.property_directory, sub_node))
-            intermediate_path = subpath
-            intermediate_node = sub_node
-
-        grph.add((intermediate_node, pc.property_directory, node_path))
 
     sample_root_node = rdflib.BNode()
     grph.add((node_path, property_notified_file_change, sample_root_node))
 
-    grph.add((sample_root_node, pc.property_information, lib_util.NodeLiteral(timestamp_literal)))
+    # FIXME: Use lib_kbase.time_tsamp_now_node()
+    grph.add((sample_root_node, pc.property_information, timestamp_node))
     grph.add((sample_root_node, property_notified_change_type, lib_util.NodeLiteral(action_text)))
 
 
@@ -99,7 +83,7 @@ def send_events_once():
 
     while True:
         # Not too fast.
-        time.sleep(10)
+        time.sleep(5)
         grph = cgiEnv.ReinitGraph()
 
         #
@@ -109,9 +93,13 @@ def send_events_once():
         # NB Tim Juchcinski reports that he needed to up the buffer size to be sure of picking up all
         # events when a large number of files were deleted at once.
         #
+        # TODO: Use asynchronous completion ?
+        # https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-readdirectorychangesw
+        # https://stackoverflow.com/questions/49799109/win32file-readdirectorychangesw-doesnt-find-all-moved-files
+
         results = win32file.ReadDirectoryChangesW(
             h_dir,
-            1024,
+            65536,
             True,
             win32con.FILE_NOTIFY_CHANGE_FILE_NAME |
             win32con.FILE_NOTIFY_CHANGE_DIR_NAME |
@@ -122,21 +110,25 @@ def send_events_once():
             None,
             None
         )
-        datetime_now = datetime.datetime.now()
-        timestamp_literal = datetime_now.strftime("%Y-%m-%d %H:%M:%S")
+
+        timestamp_node = lib_kbase.time_stamp_now_node()
         for action_code, updated_file in results:
-            _add_windows_dir_change(grph, path_to_watch, updated_file, action_code, timestamp_literal)
+            _add_windows_dir_change(grph, path_to_watch, updated_file, action_code, timestamp_node)
 
         cgiEnv.OutCgiRdf("LAYOUT_RECT", [property_notified_file_change])
-        #cgiEnv.OutCgiRdf()
 
 
 def Main():
+    sys.stderr.write(__file__ + "\n")
     if lib_util.is_snapshot_behaviour():
         Snapshot()
     else:
         while True:
-            send_events_once()
+            try:
+                send_events_once()
+            except Exception as exc:
+                sys.stderr.write(__file__ + " caught: %s" % exc)
+                WARNING("caught: %s\n" % exc)
 
 
 if __name__ == '__main__':

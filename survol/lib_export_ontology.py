@@ -36,8 +36,14 @@ def FlushOrSaveRdfGraph(grph, output_rdf_filename):
 # FIXME: This does translation also.
 # FIXME: So it could be faster is Survol natively uses RDF model,
 # FIXME: ... for example RDFS.seeAlso for scripts, RDFS.comment for property_information.
-# FIXME: A native RDF property should be chosen for sort order.
-# FIXME: Ideally we should simply add extra data to the input graph, without translating.
+# FIXME: Ideally we should simply add extra data to the input graph, without trabsation..
+#
+# FIXME: A specific and standard  RDF property should be chosen for sort order, not RDFS.comment.
+# FIXME: Or add, for a collapsed/tabulated property, the property which gives its order, by default RDFS.comment.
+# FIXME: Instead of a list of collapsed properties, it would be a map whose value would be the key.
+# FIXME: Maybe it could be the "key" instead of the "order" ?
+# FIXME: Later, it can be interesting to change the ordering key for the children of a specific node only.
+#
 def _add_ontology(old_grph):
     """This receives a triplestore containing only the information from scripts.
     This adds the classes and the properties information,
