@@ -417,8 +417,6 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
                 # One table per node.
                 raw_fields_keys.update(fld[0] for fld in fields_set[obj])
 
-            # sys.stderr.write("raw_fields_keys BEFORE =%s\n" % str(raw_fields_keys) )
-
             # Mandatory properties must come at the beginning of the columns of the header, with first indices.
             fields_keys_ordered = []
             for fld_priority in _flat_properties_list:
@@ -465,19 +463,18 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
                 # If this is a script, always displayed on white, even if related to a specific entity.
                 # THIS IS REALLY A SHAME BECAUSE WE JUST NEED THE ORIGINAL PROPERTY.
                 if obj_uri.find("entity.py") < 0:
-                    obj_color = "#FFFFFF"
+                    obj_color_plain = "#FFFFFF"
                 else:
-                    obj_color = lib_patterns.EntityClassToColor(sub_entity_graphic_class)
+                    obj_color_plain = lib_patterns.EntityClassToColor(sub_entity_graphic_class)
                 # This lighter cololor for the first column.
-                obj_color_light = lib_patterns.ColorLighter(obj_color)
+                obj_color_light = lib_patterns.ColorLighter(obj_color_plain)
 
                 # Some colors a bit clearer ? Or take the original color of the class ?
-                td_bgcolor_plain = '<td BGCOLOR="%s" ' % obj_color
+                td_bgcolor_plain = '<td BGCOLOR="%s" ' % obj_color_plain
                 td_bgcolor_light = '<td BGCOLOR="%s" ' % obj_color_light
-                td_bgcolor = td_bgcolor_plain
 
                 # Some columns might not have a value. The first column is for the key.
-                html_columns = [td_bgcolor + " ></td>"] * number_keys
+                html_columns = [td_bgcolor_plain + " ></td>"] * number_keys
 
                 # Just used for the vertical order of lines, one line per object.
                 concatenated_info_values = ""
@@ -500,9 +497,9 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
                         if lib_kbase.IsLiteral(val):
                             if isinstance(val.value, (list, tuple)):
                                 str_html = _format_element_aux(val.value)
-                                tmp_cell = td_bgcolor + 'align="left">%s</td>' % str_html
+                                tmp_cell = 'align="left">%s</td>' % str_html
                             else:
-                                tmp_cell = td_bgcolor + 'align="left">%s</td>' % val.value
+                                tmp_cell = 'align="left">%s</td>' % val.value
                         else:
                             # This displays objects in a table: The top-level object must be
                             # in the same host, so there is no need to display a long label.
@@ -518,17 +515,17 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
                                 val_title = "Not ascii"
 
                             val_title_ul = _dot_ul(val_title)
-                            tmp_cell = td_bgcolor + 'href="%s" align="left" >%s</td>' % (val, val_title_ul)
+                            tmp_cell = 'href="%s" align="left" >%s</td>' % (val, val_title_ul)
                     else:
                         try:
                             float(val)
-                            tmp_cell = td_bgcolor + 'align="right">%s</td>' % val
+                            tmp_cell = 'align="right">%s</td>' % val
                         except:
                             # Wraps the string if too long. Can happen only with a literal.
-                            tmp_cell = td_bgcolor + 'align="left">%s</td>' % _str_with_br(val)
+                            tmp_cell = 'align="left">%s</td>' % _str_with_br(val)
 
                     idx_key = key_indices[key]
-                    html_columns[idx_key] = tmp_cell
+                    html_columns[idx_key] = td_bgcolor_plain + tmp_cell
 
                 if concatenated_info_values:
                     title_key = concatenated_info_values
@@ -539,14 +536,13 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
                 if sub_entity_id != "PLAINTEXTONLY":
                     # TODO: WE SHOULD PROBABLY ESCAPE HERE TOO.
                     # For example, this displays the column labelled with pc.property_information
-                    html_columns[0] = td_bgcolor_light + 'port="%s" href="%s" align="LEFT" >%s</td>' % (sub_obj_id, sub_nod_uri, title_key)
+                    tmp_col_0 = 'port="%s" href="%s" align="LEFT" >%s</td>' % (sub_obj_id, sub_nod_uri, title_key)
                 else:
-                    sys.stderr.write("sub_entity_id=%s\n" % sub_entity_id)
-                    sys.stderr.write("sub_nod_uri=%s\n" % sub_nod_uri)
                     sub_nod_uri = lib_util.html_escape(sub_nod_uri)
                     # For example, this displays the title of another table: Typically sub-scripts.
                     # The title itself is not an URL.
-                    html_columns[0] = td_bgcolor_light + 'port="%s" align="LEFT" >%s</td>' % (sub_obj_id, sub_nod_uri)
+                    tmp_col_0 = 'port="%s" align="LEFT" >%s</td>' % (sub_obj_id, sub_nod_uri)
+                html_columns[0] = td_bgcolor_light + tmp_col_0
 
                 # concatenated_info_values
 
@@ -589,14 +585,14 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
 
             elt_nam_plural = lib_grammar.ToPlural(elt_nam, num_nod_lst)
             txt_elements = "%d %s" % (num_nod_lst, elt_nam_plural)
-            header = '<td border="1">' + _dot_bold(txt_elements) + "</td>"
+            header = '<td border="1">%s</td>' % _dot_bold(txt_elements)
 
             # TODO: Replace each column name with a link which sorts the line based on this column.
             # The order of columns could be specified with an extra cgi argument with the columns names.
             for key in fields_keys:
                 column_title = lib_kbase.qname(key, grph)
                 column_title = column_title.replace("_"," ").capitalize()
-                header += "<td border='1'>" + _dot_bold(column_title) + "</td>"
+                header += "<td border='1'>%s</td>" % _dot_bold(column_title)
             # With an empty key, it comes first when sorting.
             dict_html_lines[""] = header
 
@@ -656,7 +652,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
 
         obj_props_as_html = FieldsToHtmlVertical(grph, fields_set[obj_rdf_node])
 
-        labHRef = obj_rdf_node.replace('&', '&amp;')
+        lab_href = obj_rdf_node.replace('&', '&amp;')
 
         try:
             # TODO: The chain is already encoded for HTML, so the parsing is different
@@ -705,7 +701,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
             obj_label,
             help_text,
             '"#000000"',
-            labHRef,
+            lab_href,
             2,
             lab_text_clean,
             obj_props_as_html)
@@ -741,7 +737,6 @@ def copy_to_output_destination(logfil, svg_out_filnam, out_dest):
 # but anyway it needs to have graphviz already installed.
 # Also, creating an intermediary files helps debugging.
 def _dot_to_svg(dot_filnam_after, logfil, viztype, out_dest):
-    DEBUG("viztype=%s", viztype)
     tmp_svg_fil = lib_util.TmpFile("survol_graph_to_svg", "svg")
     svg_out_filnam = tmp_svg_fil.Name
     # dot -Kneato
@@ -766,7 +761,7 @@ def _dot_to_svg(dot_filnam_after, logfil, viztype, out_dest):
     svg_command = [dot_path, "-K", viztype, "-Tsvg", dot_filnam_after, "-o", svg_out_filnam,
                    "-v", "-Goverlap=false"] + dot_fonts
     str_command = " ".join(svg_command)
-    logfil.write(TimeStamp()+" svg_command=" + str_command + "\n")
+    logfil.write(TimeStamp() + " svg_command=" + str_command + "\n")
 
     try:
         ret = subprocess.call(svg_command, stdout=logfil, stderr=logfil, shell=False)
@@ -920,6 +915,11 @@ def _dot_ul(a_str):
     return "<u>%s</u>" % a_str
 
 
+def _dot_bold_ul(a_str):
+    if not a_str: return ""
+    return "<b><u>%s</u></b>" % a_str
+
+
 # Do not italicize empty string otherwise "Error: syntax error in line 1 ... <i></i> ..."
 def _dot_it(a_str):
     if not a_str: return ""
@@ -1015,8 +1015,8 @@ def _write_dot_legend(page_title, top_url, err_msg, is_sub_server, parameters, p
         if parameters :
             url_edit = lib_exports.ModedUrl("edit")
             url_edit_replaced = _url_to_svg(url_edit)
-            stream.write("<tr><td colspan='4' href='" + url_edit_replaced + "' align='left'>"
-                         + _dot_bold(_dot_ul("Edit script parameters")) + "</td></tr>")
+            stream.write("<tr><td colspan='4' href='%s' align='left'>%s</td></tr>"
+                         % (url_edit_replaced, _dot_bold_ul("Edit script parameters")))
 
             arguments = cgi.FieldStorage()
             for key_param, val_param in parameters.items():
@@ -1041,8 +1041,8 @@ def _write_dot_legend(page_title, top_url, err_msg, is_sub_server, parameters, p
 
         for url_label in parameterized_links:
             param_url = parameterized_links[url_label]
-            stream.write("<tr><td colspan='4' href='" + param_url + "' align='left'>"
-                         + _dot_bold(_dot_ul(url_label)) + "</td></tr>")
+            stream.write("<tr><td colspan='4' href='%s' align='left'>%s</td></tr>"
+                         % (param_url, _dot_bold_ul(url_label)))
 
     def legend_footer():
 
@@ -1051,15 +1051,12 @@ def _write_dot_legend(page_title, top_url, err_msg, is_sub_server, parameters, p
         url_edt_credentials = lib_util.uriRoot + "/edit_credentials.py"
         url_edt_supervisor = lib_util.uriRoot + "/edit_supervisor.py"
 
-        def _to_title(txt):
-            return _dot_bold(_dot_ul(txt))
-
         stream.write("<tr>")
-        stream.write('<td align="left" href="' + top_url + '">' + _to_title("Home") + '</td>')
-        stream.write("<td href='" + url_edt_configuration + "' align='left'>" + _to_title("Setup") + "</td>")
-        stream.write("<td href='" + url_edt_credentials + "' align='left'>" + _to_title("Credentials") + "</td>")
-        stream.write("<td href='" + url_edt_supervisor + "' align='left'>" + _to_title("Daemons") + "</td>")
-        stream.write("<td href='" + url_help + "' align='left'>" + _to_title("Help") + "</td>")
+        stream.write('<td align="left" href="' + top_url + '">' + _dot_bold_ul("Home") + '</td>')
+        stream.write("<td href='" + url_edt_configuration + "' align='left'>" + _dot_bold_ul("Setup") + "</td>")
+        stream.write("<td href='" + url_edt_credentials + "' align='left'>" + _dot_bold_ul("Credentials") + "</td>")
+        stream.write("<td href='" + url_edt_supervisor + "' align='left'>" + _dot_bold_ul("Daemons") + "</td>")
+        stream.write("<td href='" + url_help + "' align='left'>" + _dot_bold_ul("Help") + "</td>")
         stream.write("</tr>")
 
 
