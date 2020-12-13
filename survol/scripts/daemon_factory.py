@@ -199,8 +199,8 @@ def _local_supervisor_start():
         supervisor_stderr = null_device
     else:
         supervisor_files_directory = tempfile.gettempdir()
-        supervisor_stdout_name = os.path.join(supervisor_files_directory, "_supervisor_stdout.log")
-        supervisor_stderr_name = os.path.join(supervisor_files_directory, "_supervisor_stderr.log")
+        supervisor_stdout_name = os.path.join(supervisor_files_directory, "survol_supervisor_stdout.log")
+        supervisor_stderr_name = os.path.join(supervisor_files_directory, "survol_supervisor_stderr.log")
 
         supervisor_stdout = open(supervisor_stdout_name, "w")
         supervisor_stderr = open(supervisor_stderr_name, "w")
