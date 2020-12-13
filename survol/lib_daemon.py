@@ -26,6 +26,10 @@ def _url_to_process_name(script_url):
     # start_user_process: start_user_process exc=<Fault 2:
     # "INCORRECT_PARAMETERS: No closing quotation in section 'program:ama_123_paramb_START'
     # (file: 'survol/scripts/supervisord.conf')">
+
+    # Strips "_" at the beginning because it is confusing. It should not happen many times.
+    while script_url.startswith("_"):
+        script_url = script_url[1:]
     return script_url
 
 
