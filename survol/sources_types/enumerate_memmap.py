@@ -100,7 +100,7 @@ def function_process(map_to_proc, proc):
     try:
         all_maps = proc.memory_maps()
     except Exception as exc:
-        WARNING("get_memory_maps Pid=%d. Caught %s", pid,str(exc))
+        WARNING("get_memory_maps Pid=%d. Caught %s", pid, str(exc))
         return
 
     # This takes into account only maps accessed by several processes.
@@ -127,13 +127,11 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    grph.add((lib_common.nodeMachine, pc.property_hostname, lib_util.NodeLiteral( lib_util.currentHostname)))
+    grph.add((lib_common.nodeMachine, pc.property_hostname, lib_util.NodeLiteral(lib_util.currentHostname)))
 
     map_to_proc = {}
 
     for proc in psutil.process_iter():
-
-        # TODO: Instead, should test psutil version !!!
         try:
             function_process(map_to_proc, proc)
         except CIM_Process.AccessDenied:
@@ -146,7 +144,7 @@ def Main():
 
     # Now display only memory maps with more than one process linked to it.
     for map_path, proc_lst in lib_util.six_iteritems(map_to_proc):
-        if len(proc_lst) <= 0 :
+        if len(proc_lst) <= 0:
             continue
 
         uri_mem_map = lib_common.gUriGen.MemMapUri(map_path)
