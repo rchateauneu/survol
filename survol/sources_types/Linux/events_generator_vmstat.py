@@ -32,7 +32,7 @@ def Main():
         if len(split_header) != len(split_line):
             sys.stderr.write("Different lengths: [%s] / [%s]\n" % (split_header, split_line))
             return
-        sys.stderr.write("_vmstat_to_graph: [%s]\n" % split_line)
+        #sys.stderr.write("_vmstat_to_graph: [%s]\n" % split_line)
 
         current_node_hostname = lib_common.gUriGen.HostnameUri(lib_util.currentHostname)
         property_vmstat = lib_properties.MakeProp("vmstat")
@@ -44,17 +44,18 @@ def Main():
         grph.add((sample_root_node, pc.property_information, timestamp_node))
 
         for column_name, column_value in zip(split_header, split_line):
-            sys.stderr.write("column_name: [%s]\n" % column_name)
+            #sys.stderr.write("column_name: [%s]\n" % column_name.decode())
             if column_name == "":
                 continue
-            property_node = lib_properties.MakeProp("vmstat.%s" % column_name)
+            # Column name is binary and converted to unicode.
+            property_node = lib_properties.MakeProp("vmstat.%s" % column_name.decode())
             # TODO: Add a timestamp.
             grph.add((sample_root_node, property_node, lib_util.NodeLiteral(column_value)))
         cgiEnv.OutCgiRdf("LAYOUT_RECT", [property_vmstat])
 
     def main_snapshot():
         iostat_cmd = ["vmstat", ]
-        # iostat_cmd = [sys.executable, _vmstat_script, ]
+        iostat_cmd = [sys.executable, _vmstat_script, ]
 
         cgiEnv = lib_common.CgiEnv()
 
@@ -68,7 +69,7 @@ def Main():
     def main_events():
         # TODO: The delay could be a parameter.
         iostat_cmd = ["vmstat", "1", ]
-        # iostat_cmd = [sys.executable, _vmstat_script, "1"]
+        iostat_cmd = [sys.executable, _vmstat_script, "1"]
 
         cgiEnv = lib_common.CgiEnv()
 
