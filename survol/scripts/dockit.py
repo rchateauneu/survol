@@ -29,6 +29,8 @@ import atexit
 import shutil
 import tempfile
 import logging
+import platform
+import pkgutil
 
 # This defines the CIM objects which are created when monitoring a running process.
 if __package__:
@@ -39,6 +41,9 @@ else:
 is_platform_windows = sys.platform.startswith("win32")
 is_platform_linux = sys.platform.startswith("linux")
 is_py3 = sys.version_info >= (3,)
+
+# Another possible test is: pkgutil.find_loader('win32file')
+is_pypy = platform.python_implementation() == "PyPy"
 
 ################################################################################
 
@@ -54,7 +59,7 @@ else:
 G_traceToTracer["strace"] = linux_api_definitions.STraceTracer()
 G_traceToTracer["ltrace"] = linux_api_definitions.LTraceTracer()
 
-if is_platform_windows:
+if is_platform_windows and not is_pypy:
     # Definitions of Win32 systems calls to monitor.
     if __package__:
         from . import win32_api_definitions
@@ -192,7 +197,7 @@ def _generate_summary(mapParamsSummary, summary_format, output_summary_file):
     else:
         fd_summary_file = sys.stdout
 
-    summary_generator(mapParamsSummary,fd_summary_file)
+    summary_generator(mapParamsSummary, fd_summary_file)
 
     if output_summary_file:
         sys.stdout.write("Closing summary file:%s\n" % output_summary_file)
@@ -274,7 +279,7 @@ class FileToPackage:
 
     @staticmethod
     def _cannot_be_packaged(fil_nam):
-        # Some files cannot be packaged, ever.
+        """Some files cannot be packaged, ever: System files, devices etc..."""
         for pfx in FileToPackage.unpackaged_prefixes:
             if fil_nam.startswith(pfx):
                 return True
@@ -325,6 +330,7 @@ class FileToPackage:
             else:
                 unknown_files.append(one_fil)
         return lst_packages, unknown_files
+
 
 # We can keep the same cache for all simulations because
 # they were all run on the same machine.
@@ -792,8 +798,8 @@ def _analyse_functions_calls_stream(
             shutil.rmtree(docker_dir_name)
         os.makedirs(docker_dir_name)
 
-        dockerFilename = docker_dir_name + "/Dockerfile"
-        cim_objects_definitions.generate_dockerfile(dockerFilename)
+        docker_filename = docker_dir_name + "/Dockerfile"
+        cim_objects_definitions.generate_dockerfile(docker_filename)
 
     if output_makefile:
         # Create a makefile with the generated files, the inputs and the commands.
