@@ -258,20 +258,23 @@ G_SameMachine = None
 # to a file between its opening and closing by a process.
 G_cacheFileAccesses = {}
 
-# This models an open/read-or-write/close access from a process to a file.
-# The same process may access several times the same file,
-# producing several FileAccess objects.
-# This is displayed in XML as a single tag:
-# <FileAccess OpenTime="" CloseTime="" etc... />
+
 class FileAccess:
-    def __init__(self,objProcess,objDataFile):
+    """
+    This models an open/read-or-write/close access from a process to a file.
+    The same process may access several times the same file, producing several FileAccess objects.
+    If the same file is opened twice in the same process without being closed, behaviour is unspecified.
+    This is displayed in XML as a single tag:
+    <FileAccess OpenTime="" CloseTime="" etc... />
+    """
+    def __init__(self, obj_process, obj_data_file):
         self.OpenTime = None
         self.CloseTime = None
-        self.m_objectCIM_Process = objProcess
-        self.m_objectCIM_DataFile = objDataFile
+        self.m_objectCIM_Process = obj_process
+        self.m_objectCIM_DataFile = obj_data_file
 
-        objProcess.m_ProcessFileAccesses.append(self)
-        objDataFile.m_DataFileFileAccesses.append(self)
+        obj_process.m_ProcessFileAccesses.append(self)
+        obj_data_file.m_DataFileFileAccesses.append(self)
 
     def SetOpenTime(self, time_stamp):
         global G_cacheFileAccesses
@@ -427,13 +430,13 @@ class FileAccess:
         return filAcc
 
     @staticmethod
-    def serialize_list_to_XML(strm,vecFilesAccesses,margin,displayedFromProcess):
-        if not vecFilesAccesses:
+    def serialize_list_to_XML(strm, vec_files_accesses, margin, displayed_from_process):
+        if not vec_files_accesses:
             return
         subMargin = margin + "    "
         strm.write("%s<FileAccesses>\n" % margin)
-        for filAcc in vecFilesAccesses:
-            filAcc.TagXML(strm,subMargin,displayedFromProcess)
+        for filAcc in vec_files_accesses:
+            filAcc.TagXML(strm, subMargin, displayed_from_process)
         strm.write("%s</FileAccesses>\n" % margin)
 
 ################################################################################
