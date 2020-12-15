@@ -41,6 +41,8 @@ import lib_credentials
 
 is_platform_windows = sys.platform.startswith("win32")
 is_platform_linux = sys.platform.startswith("linux")
+# Another possible test is: pkgutil.find_loader('win32file')
+pytest_pypy = platform.python_implementation() == "PyPy"
 
 is_py3 = sys.version_info >= (3,)
 
