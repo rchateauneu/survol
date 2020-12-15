@@ -810,8 +810,11 @@ def _analyse_functions_calls_stream(
 
 
 def test_from_file(
-        input_log_file, tracer, input_process_id, output_files_prefix, output_format, verbose, map_params_summary,
-        summary_format, with_dockerfile, update_server, aggregator, output_makefile=None):
+        input_log_file, tracer, output_files_prefix, output_format,
+        summary_format,
+        map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
+        input_process_id=0,
+        verbose=0, with_dockerfile=None, update_server=None, aggregator=None, output_makefile=None):
     """Function called for unit tests by unittest.py"""
     assert isinstance(input_process_id, int)
     cim_objects_definitions.G_UpdateServer = update_server
