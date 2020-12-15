@@ -195,13 +195,13 @@ class BatchLetCore:
     def cim_context(self):
         return cim_objects_definitions.ObjectsContext(self.m_pid)
 
-    def _set_function(self, funcFull):
+    def _set_function(self, func_full):
         # With ltrace, systems calls are suffix with the string "@SYS".
         if self.m_tracer == "strace":
             # strace can only intercept system calls.
-            assert not funcFull.endswith("@SYS")
-            assert not funcFull.startswith("SYS_")
-            self._function_name = funcFull + "@SYS"
+            assert not func_full.endswith("@SYS")
+            assert not func_full.startswith("SYS_")
+            self._function_name = func_full + "@SYS"
         elif self.m_tracer == "ltrace":
 
             # This might be in a shared library, so this extracts the function name:
@@ -210,25 +210,28 @@ class BatchLetCore:
             # libclntsh.so.11.1->getenv
             # libclntsh.so.11.1->getenv
             # libpython2.7.so.1.0->getenv
-            funcFull = funcFull.split("->")[-1]
+            # gcc->getenv("PATH")
+            arrow_prefix, _, arrow_suffix = func_full.partition("->")
+            func_full = arrow_suffix if arrow_suffix else arrow_prefix
 
             # ltrace does not add "@SYS" when the function is resumed:
             #[pid 18316] 09:00:22.600426 rt_sigprocmask@SYS(0, 0x7ffea10cd370, 0x7ffea10cd3f0, 8 <unfinished ...>
             #[pid 18316] 09:00:22.600494 <... rt_sigprocmask resumed> ) = 0 <0.000068>
             if self.m_status == BatchStatus.resumed:
-                if funcFull.startswith("SYS_"):
-                    raise Exception("Wrong prefix:%s" % funcFull)
-                self._function_name = funcFull + "@SYS"
+                if func_full.startswith("SYS_"):
+                    raise Exception("Wrong prefix:%s" % func_full)
+                self._function_name = func_full + "@SYS"
             else:
                 # On RHEL4, the function is prefixed by "SYS_"
-                if funcFull.startswith("SYS_"):
-                    if funcFull.endswith("@SYS"):
-                        raise Exception("Wrong suffix:%s" % funcFull)
-                    self._function_name = funcFull[4:] + "@SYS"
+                if func_full.startswith("SYS_"):
+                    if func_full.endswith("@SYS"):
+                        raise Exception("Wrong suffix:%s" % func_full)
+                    self._function_name = func_full[4:] + "@SYS"
                 else:
-                    if not funcFull.endswith("@SYS"):
-                        raise Exception("Missing suffix:%s" % funcFull)
-                    self._function_name = funcFull
+                    # 'gcc->getenv("PATH")' does not need the prefix.
+                    if not func_full.endswith("@SYS") and not arrow_suffix:
+                        raise Exception("Missing suffix:%s" % func_full)
+                    self._function_name = func_full
 
             # It does not work with this:
             #[pid 4784] 16:42:10.781324 Py_Main(2, 0x7ffed52a8038, 0x7ffed52a8050, 0 <unfinished ...>
@@ -248,20 +251,29 @@ class BatchLetCore:
     # This parsing is specific to strace and ltrace.
     def _init_after_pid(self, one_line, idx_start):
         # "07:54:54.206113"
-        aTimeStamp = one_line[idx_start:idx_start + 15]
+        a_time_stamp = one_line[idx_start:idx_start + 15]
 
-        self._time_start = aTimeStamp
-        self._time_end = aTimeStamp
+        self._time_start = a_time_stamp
+        self._time_end = a_time_stamp
         the_call = one_line[idx_start + 16:]
 
-        # "--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=19332, si_uid=1000, si_status=1, si_utime=0, si_stime=0} ---"
+        # "--- SIGCHLD {si_signo=SIGCHLD, ... si_stime=0} ---"
+        # "--- SIGVTALRM {si_signo=SIGVTALRM, si_code=SI_TKILL, si_pid=22505, si_uid=1001} ---"
+        # "--- SIGSYS {si_signo=SIGSYS,...  si_arch=AUDIT_ARCH_X86_64} ---"
         if the_call.startswith("--- "):
+            # Informational purpose only, to detecet an unknown message.
+            if not the_call.startswith((
+                    "--- SIGCHLD ",
+                    "--- SIGALRM ",
+                    "--- SIGVTALRM ",
+                    "--- SIGSYS ",
+                    "--- Called exec() ---")):
+                print("the_call=", the_call)
             raise ExceptionIsExit()
 
         # "+++ exited with 1 +++ ['+++ exited with 1 +++']"
         if the_call.startswith("+++ "):
             raise ExceptionIsSignal()
-
 
         # Specific logic of interrupted calls.
         # [pid 12666] 14:50:45.609523 wait4@SYS(-1, 0x7ffd59a919e0, 0, 0 <unfinished ...>
@@ -284,16 +296,16 @@ class BatchLetCore:
         idx_lt = the_call.rfind("<", 0, idx_gt)
         self.m_status = BatchStatus.plain
         if idx_lt >= 0 :
-            exeTm = the_call[idx_lt+1:idx_gt]
-            if exeTm == "unfinished ...":
+            exe_tm = the_call[idx_lt+1:idx_gt]
+            if exe_tm == "unfinished ...":
                 self.m_execTim = ""
                 self.m_status = BatchStatus.unfinished
-            elif exeTm == "no return ...":
+            elif exe_tm == "no return ...":
                 # 18:10:13.109143 SYS_execve("/bin/sh", 0x9202d50, 0xff861d28 <no return ...>
                 self.m_execTim = ""
                 self.m_status = BatchStatus.no_return
             else:
-                self.m_execTim = exeTm
+                self.m_execTim = exe_tm
         else:
             self.m_execTim = ""
 
@@ -373,11 +385,11 @@ class BatchLetCore:
                         # read@SYS(8, "\003\363\r\n"|\314Vc", 4096) = 765 <0.000049>
                             raise Exception("No = from parenthesis: idx_last_par=%d. function=%s. Len=%d" % (idx_lt, the_call, len(the_call)))
 
-            if not(idx_eq >= 0 and idx_eq < idx_lt):
+            if idx_eq < 0 or idx_eq >= idx_lt:
                 # If this is the last line, not a problem
                 # 20:20:34.510927 exit_group(0)           = ?
-                if not the_call.startswith("exit_group"):
-                    raise Exception("idx_eq=%d idx_lt=%d function=%s" % (idx_eq, idx_lt, the_call.strip()))
+                if not the_call.startswith(("exit_group", "exit(")):
+                    raise Exception("idx_eq=%d idx_lt=%d function='%s'" % (idx_eq, idx_lt, the_call))
             self._return_value = the_call[idx_eq + 1:idx_lt].strip()
             # sys.stdout.write("idx_eq=%d idx_last_par=%d idx_lt=%d retValue=%s\n"%(idx_eq,idx_last_par,idx_lt,self._return_value))
 
@@ -463,18 +475,18 @@ class BatchMeta(type):
         global G_batchModels
 
         # This is for Linux system calls.
-        btchSysPrefix = "BatchLetSys_"
+        btch_sys_prefix = "BatchLetSys_"
 
         # This is for plain libraries functions: "__libc_start_main", "Py_Main" and
         # functions like "libpython2.7.so.1.0->getenv", "libperl.so.5.24->getenv" etc...
-        btchLibPrefix = "BatchLetLib_"
+        btch_lib_prefix = "BatchLetLib_"
 
-        if name.startswith(btchSysPrefix):
-            syscall_name = name[len(btchSysPrefix):] + "@SYS"
+        if name.startswith(btch_sys_prefix):
+            syscall_name = name[len(btch_sys_prefix):] + "@SYS"
             # sys.stdout.write("Registering sys function:%s\n"%syscall_name)
             G_batchModels[syscall_name] = cls
-        elif name.startswith(btchLibPrefix):
-            syscall_name = name[len(btchLibPrefix):]
+        elif name.startswith(btch_lib_prefix):
+            syscall_name = name[len(btch_lib_prefix):]
             # sys.stdout.write("Registering lib function:%s\n"%syscall_name)
             G_batchModels[syscall_name] = cls
         elif name not in ["NewBase", "BatchLetBase", "BatchLetSequence"]:
@@ -605,6 +617,9 @@ def _batchlet_factory(batchCore):
         # Default generic BatchLet, if the function is not associated to a derived class of BatchLetCore.
         if not batchCore._function_name in G_UnknownFunctions:
             sys.stdout.write("Undefined function %s\n" % batchCore._function_name)
+            if batchCore._function_name == "@SYS":
+                # Something is missing
+                sys.stdout.write("EMPTY FUNCTION\n")
 
             # Py_Main
             # readlink@SYS
@@ -690,15 +705,16 @@ def _batchlet_factory(batchCore):
     except AttributeError:
         return None
 
-
 ################################################################################
 
-# strace associates file descriptors to the original file or socket which created it.
-# Option "-y          Print paths associated with file descriptor arguments."
-# read ['3</usr/lib64/libc-2.21.so>']
-# This returns a WMI object path, which is self-descriptive.
-# FIXME: Are file descriptors shared between processes ?
+
 def _strace_stream_to_pathname(strm_str):
+    """strace associates file descriptors to the original file or socket which created it.
+    Option "-y          Print paths associated with file descriptor arguments."
+    read ['3</usr/lib64/libc-2.21.so>']
+    This returns a WMI object path, which is self-descriptive."""
+
+    # FIXME: Are file descriptors shared between processes ?
     idx_lt = strm_str.find("<")
     if idx_lt >= 0:
         path_name = strm_str[idx_lt + 1: -1]
@@ -860,10 +876,10 @@ class BatchLetSys_read(BatchLetBase, object):
         a_fil_acc.set_read_bytes_number(read_bytes_number, self.m_core.m_parsedArgs[1])
 
 
-# The process id is the return value but does not have the same format
-# with ltrace (hexadecimal) and strace (decimal).
-# Example: pread@SYS(256, 0x255a200, 0x4000, 0) = 0x4000
 def _convert_batch_core_return_value(batchCore):
+    """The process id is the return value but does not have the same format
+    with ltrace (hexadecimal) and strace (decimal).
+    Example: pread@SYS(256, 0x255a200, 0x4000, 0) = 0x4000"""
     if batchCore.m_tracer == "ltrace":
         return int(batchCore._return_value, 16)
     elif batchCore.m_tracer == "strace":
