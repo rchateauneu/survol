@@ -269,21 +269,16 @@ class FileToPackage:
         else:
             return None
 
-    unpackaged_prefixes = [
-                             "/dev/",
+    unpackaged_prefixes = (
                              "/home/",
-                             "/proc/",
                              "/tmp/",
                              "/sys/",
-                             "/var/cache/"] + cim_objects_definitions.CIM_DataFile.m_nonFilePrefixes
+                             "/var/cache/") + cim_objects_definitions.CIM_DataFile.m_non_file_prefixes
 
     @staticmethod
     def _cannot_be_packaged(fil_nam):
         """Some files cannot be packaged, ever: System files, devices etc..."""
-        for pfx in FileToPackage.unpackaged_prefixes:
-            if fil_nam.startswith(pfx):
-                return True
-        return False
+        return fil_nam.startswith(FileToPackage.unpackaged_prefixes)
 
     def one_file_to_linux_package(self, one_fil_obj):
         one_fil_nam = one_fil_obj.Name

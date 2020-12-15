@@ -320,7 +320,7 @@ class FileAccess:
             return
 
         # This does not apply to files.
-        if self.m_objectCIM_DataFile.is_plain_file():
+        if self.m_objectCIM_DataFile.Name and CIM_DataFile.is_plain_file(self.m_objectCIM_DataFile.Name):
             return
 
         if is_read:
@@ -1489,15 +1489,17 @@ class CIM_DataFile(CIM_LogicalFile):
                 pass
         return set_ports
 
-    m_nonFilePrefixes = ["UNIX:", "TCP:", "TCPv6:", "NETLINK:", "pipe:", "UDP:", "UDPv6:", ]
+    m_non_file_prefixes = (
+        "pipe:[", "TCP:", "TCPv6:[", "anon_inode:[", "NETLINK:[", "UDP:[", "UNIX:[", "UDPv6:",
+        "/dev/", "/proc/")
 
-    def is_plain_file(self):
-        if self.Name:
-            for pfx in CIM_DataFile.m_nonFilePrefixes:
-                if self.Name.startswith(pfx):
-                    return False
-            return True
-        return False
+    @staticmethod
+    def is_plain_file(file_basename):
+        return not file_basename.startswith(CIM_DataFile.m_non_file_prefixes)
+        #for file_prefix in CIM_DataFile.m_non_file_prefixes:
+        #    if file_basename.startswith(file_prefix):
+        #        return False
+        #return True
 
 
 # class CIM_Directory : CIM_LogicalFile
