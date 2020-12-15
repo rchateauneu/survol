@@ -2756,8 +2756,8 @@ class pydbg(object):
         # expected LP_MODULEENTRY32 instance instead of pointer to MODULEENTRY32
         # if not kernel32.Module32First(snapshot, byref(current_entry)):
         try:
-            sys.stderr.write("Module32First=%s\n" % Module32First)
-            sys.stderr.write("kernel32.Module32First=%s\n" % kernel32.Module32First)
+            #sys.stderr.write("Module32First=%s\n" % Module32First)
+            #sys.stderr.write("kernel32.Module32First=%s\n" % kernel32.Module32First)
             # BEWARE: One of the libraries change this signature, therefore it is done again here.
             kernel32.Module32First.argtypes = (wintypes.HANDLE, LP_MODULEENTRY32)
             # Module32First.argtypes = (wintypes.HANDLE, LP_MODULEENTRY32)
