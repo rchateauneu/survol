@@ -1379,7 +1379,7 @@ def split_url_to_entity(calling_url):
 
     xid_param = params['xid'][0]
     entity_type, entity_id, entity_host = ParseXid(xid_param)
-    sys.stderr.write("split_url_to_entity entity_id=%s\n" % entity_id)
+    #sys.stderr.write("split_url_to_entity entity_id=%s\n" % entity_id)
     entity_id_dict = SplitMoniker(entity_id)
 
     return parse_url.path, entity_type, entity_id_dict
