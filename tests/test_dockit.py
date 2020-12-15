@@ -116,8 +116,8 @@ def check_file_content(*file_path):
     return file_content
 
 
-# This checks that a file was NOT created.
 def check_file_missing(*file_path):
+    """This checks that a file was NOT created."""
     full_file_path = path_prefix_output_result(*file_path)
     try:
         open(full_file_path)
@@ -127,8 +127,8 @@ def check_file_missing(*file_path):
 
 
 def path_prefix_input_file(*file_path):
-    # Travis and PyCharm do not start this unit tests script from the same directory.
-    # The test files are alongside the script.
+    """Travis and PyCharm do not start this unit tests script from the same directory.
+    The test files are alongside the script."""
     return os.path.join( dock_input_files_path, *file_path)
 
 
@@ -245,8 +245,8 @@ class LowLevelComponentsTest(unittest.TestCase):
         dockit.print_dockit_usage(999)
 
 
-# This runs dockit as a command. Its returns the content of stdout.
 def _run_dockit_command(one_command):
+    """This runs dockit as a command. Its returns the content of stdout."""
     if is_platform_linux:
         dockit_command = "cd %s;%s dockit.py %s" % (dockit_dirname, sys.executable, one_command)
     else:
@@ -262,9 +262,10 @@ def _run_dockit_command(one_command):
     return output_content
 
 
-# This receives a rdflib graph and returns a list of tuples made only of literals,
-# which can easily be compared in tests.
 def _rdf_file_to_triples(rdf_file):
+    """This receives a rdflib graph and returns a list of tuples made only of literals,
+    which can easily be compared in tests."""
+
     # This RDF file contains the raw triples generated from events.
     # It does not contain semantic data necessary for SPARQL quries such as rdflib.namespace.RDF.type.
     rdf_content = check_file_content(rdf_file)
@@ -348,8 +349,8 @@ class CommandLineReplayTest(unittest.TestCase):
         # This file should not be created because "--duplicate" options is not set.
         check_file_missing(output_basename_prefix + ".log")
 
-    # This processes an existing input file by running the script dockit.py.
     def test_replay_sample_shell_strace(self):
+        """This processes an existing input file by running the script dockit.py."""
         input_log_file = path_prefix_input_file("sample_shell.strace.log")
         output_basename_prefix = "sample_shell.strace"
         output_prefix = path_prefix_output_result(output_basename_prefix)
@@ -413,19 +414,20 @@ class CommandLineReplayTest(unittest.TestCase):
         check_file_missing(output_basename_prefix + ".ini")
 
 
-# The script dockit.py can be used as a command line or as an imported module.
-# This test checks the script dockit.py from from command lines, and not from the internal function.
 class CommandLineLiveTest(unittest.TestCase):
+    """The script dockit.py can be used as a command line or as an imported module.
+    This test checks the script dockit.py from from command lines, and not from the internal function."""
 
     def test_usage(self):
         """This tests the help message displayed by dockit.py """
         command_result = _run_dockit_command("--help")
         self.assertTrue(command_result.startswith(b"DockIT"))
 
-# The script dockit.py can be used as a command line or as an imported module.
-# This test checks the script dockit.py from from command lines, and not from the internal function.
+
 @unittest.skipIf(is_platform_windows, "These tests are for Linux only.")
 class CommandLineLiveLinuxTest(unittest.TestCase):
+    """The script dockit.py can be used as a command line or as an imported module.
+    This test checks the script dockit.py from from command lines, and not from the internal function."""
     def test_run_linux_ls(self):
 
         output_basename_prefix = "test_linux_ls"
@@ -461,10 +463,10 @@ class CommandLineLiveLinuxTest(unittest.TestCase):
         check_file_missing(output_basename_prefix + ".log")
 
 
-# The script dockit.py can be used as a command line or as an imported module.
-# This test checks the script dockit.py from from command lines, and not from the internal function.
-@unittest.skipIf(is_platform_linux, "Windows only.")
+@unittest.skipIf(is_platform_linux or pytest_pypy, "Windows only but not PyPy.")
 class CommandLineLiveWin32Test(unittest.TestCase):
+    """The script dockit.py can be used as a command line or as an imported module.
+    This test checks the script dockit.py from from command lines, and not from the internal function."""
 
     def test_run_windows_ping_nowhere(self):
         """This runs "ping" and the command help must be print."""
@@ -482,7 +484,7 @@ class CommandLineLiveWin32Test(unittest.TestCase):
         self.assertTrue( command_result.find(b"Usage: ping") >= 0)
 
     def test_run_windows_ping_home(self):
-        # This test pings to a domain name.
+        """This test pings to a domain name."""
         output_basename_prefix = "test_run_windows_ping_home_%d" % CurrentPid
         output_prefix = path_prefix_output_result(output_basename_prefix)
         command_result = _run_dockit_command("--log=%s ping primhillcomputers.com" % output_prefix)
@@ -689,12 +691,6 @@ class CommandLineLiveWin32Test(unittest.TestCase):
         triples_as_string = _rdf_file_to_triples(created_rdf_file)
         print("triples_as_string=", triples_as_string)
 
-        # The created process points to its current directory
-        #self.assertTrue((
-        #                    ("CIM_Process", {"Handle": str(created_pid)}),
-        #                    "CurrentDirectory",
-        #                    dockit_dirname) in triples_as_string)
-
         # This file is read from by the process, so it must appear here.
         win32_cmd_standardized = lib_util.standardized_file_path(windows_system32_cmd_exe)
         self.assertTrue((
@@ -705,6 +701,7 @@ class CommandLineLiveWin32Test(unittest.TestCase):
         # FIXME: The written file should also be visible. But we do not know how "copy" works.
 
 
+@unittest.skipIf(is_platform_windows and pytest_pypy, "Not Pypy and Windows.")
 class CommandLineLivePythonTest(unittest.TestCase):
 
     def _run_python_script_rdf(self, output_basename_prefix, python_script):
@@ -935,7 +932,7 @@ class SummaryXMLTest(unittest.TestCase):
 12:43:54.608378 exit_group(0)           = ?
 """
 
-        tempfil_strace= tempfile.NamedTemporaryFile(mode='w+',delete=False)
+        tempfil_strace= tempfile.NamedTemporaryFile(mode='w+', delete=False)
         tempfil_strace.write(strace_logfile_content)
         tempfil_strace.close()
 
@@ -964,8 +961,9 @@ class SummaryXMLTest(unittest.TestCase):
         process_tree[19351][19355][19356]
 
 
-    # This loads a log file generated by strace and rebuilds the processes tree.
     def test_summary_XML_strace2(self):
+        """This loads a log file generated by strace and rebuilds the processes tree."""
+
         # For testing the creation of summary XML file from a strace log.
         strace_logfile_content = """
 19:37:50.321491 execve("/usr/bin/gcc", ["gcc", "-O3", "ProgsAndScriptsForUnitTests/HelloWorld.c"], 0x7ffdf59908e8 /* 30 vars */) = 0 <0.000170>
@@ -1006,7 +1004,7 @@ class SummaryXMLTest(unittest.TestCase):
 19:37:50.582490 exit_group(0)           = ?
 """
 
-        tempfil_strace = tempfile.NamedTemporaryFile(mode='w+',delete=False)
+        tempfil_strace = tempfile.NamedTemporaryFile(mode='w+', delete=False)
         tempfil_strace.write(strace_logfile_content)
         tempfil_strace.close()
 
@@ -1035,8 +1033,9 @@ class SummaryXMLTest(unittest.TestCase):
         process_tree[22033][22036]
         process_tree[22033][22036][22037]
 
-    # This loads a log file generated by ltrace and rebuilds the processes tree.
     def test_summary_XML_ltrace(self):
+        """This loads a log file generated by ltrace and rebuilds the processes tree."""
+
         # For testing the creation of summary XML file from a ltrace log.
         ltrace_logfile_content = """
 [pid 21256] 14:45:29.412869 vfork@SYS(0x463a43, 0, 0, 4 <unfinished ...>
@@ -1081,7 +1080,7 @@ class SummaryXMLTest(unittest.TestCase):
 [pid 21256] 14:45:29.863535 +++ exited (status 0) +++
 """
 
-        tempfil_ltrace = tempfile.NamedTemporaryFile(mode='w+',delete=False)
+        tempfil_ltrace = tempfile.NamedTemporaryFile(mode='w+', delete=False)
         tempfil_ltrace.write(ltrace_logfile_content)
         tempfil_ltrace.close()
 
@@ -1174,7 +1173,7 @@ class ReplaySessionsTest(unittest.TestCase):
     def test_replay_linux_ltrace_docker(self):
         output_basename_prefix = "sample_shell_ltrace_tst_docker"
         dockit.test_from_file(
-            input_log_file= path_prefix_input_file("sample_shell.ltrace.log"),
+            input_log_file=path_prefix_input_file("sample_shell.ltrace.log"),
             tracer="ltrace",
             input_process_id=0,
             output_files_prefix= path_prefix_output_result(output_basename_prefix),
@@ -1196,7 +1195,7 @@ class ReplaySessionsTest(unittest.TestCase):
     def test_replay_win32_dir(self):
         output_basename_prefix = "windows_dir_pydbg_45884"
         dockit.test_from_file(
-            input_log_file= path_prefix_input_file("windows_dir.pydbg.45884.log"),
+            input_log_file=path_prefix_input_file("windows_dir.pydbg.45884.log"),
             tracer="pydbg",
             input_process_id=0,
             output_files_prefix= path_prefix_output_result(output_basename_prefix),
@@ -1286,7 +1285,7 @@ class RunningLinuxProcessesTest(unittest.TestCase):
         output_basename_prefix = "result_ls_strace"
         sys.stdin = open(os.devnull)
         dockit.test_from_file(
-            input_log_file= None,
+            input_log_file=None,
             tracer="strace",
             input_process_id=sub_proc.pid,
             output_files_prefix=path_prefix_output_result(output_basename_prefix),
@@ -1299,7 +1298,7 @@ class RunningLinuxProcessesTest(unittest.TestCase):
             aggregator="clusterize")
 
         sub_proc.communicate()
-        self.assertTrue(sub_proc.returncode == 0)
+        self.assertEqual(sub_proc.returncode, 0)
 
         check_file_content(output_basename_prefix + ".txt")
         check_file_content(output_basename_prefix + ".summary.txt")
@@ -1329,7 +1328,7 @@ class StoreToRDFTest(unittest.TestCase):
         check_file_content(output_basename_prefix + ".summary.txt")
         check_file_content(output_basename_prefix + ".rdf")
 
-#@unittest.skipIf(is_platform_windows and is_py3 and not is_windows10, "BROKEN WITH PY3, WINDOWS AND LOCAL. WHY ??")
+
 class EventsServerTest(unittest.TestCase):
     """
     This tests the ability to parse a strace log and tranform it into events in Survol,
@@ -1353,16 +1352,16 @@ class EventsServerTest(unittest.TestCase):
 
         actual_types_dict = collections.defaultdict(lambda: 0)
 
-        while(num_loops > 0):
+        while num_loops > 0:
             events_response = portable_urlopen(url_events, timeout=20)
             events_content = events_response.read()  # Py3:bytes, Py2:str
             split_content = events_content.split(b"\n")
             events_content_trunc = b"".join(split_content)
 
             events_graph = rdflib.Graph()
-            print("events_content_trunc=", events_content_trunc)
+            # print("events_content_trunc=", events_content_trunc)
             result = events_graph.parse(data=events_content_trunc, format="application/rdf+xml")
-            print("len results=", len(result), "events_graph=", len(events_graph))
+            print("len results=", len(result), "len(events_graph)=", len(events_graph))
             for event_subject, event_predicate, event_object in events_graph:
                 # Given the input filename, this expects some specific data.
                 if event_predicate == rdflib.namespace.RDF.type:
@@ -1374,7 +1373,7 @@ class EventsServerTest(unittest.TestCase):
                     if class_name not in ['Class', 'Property']:
                         actual_types_dict[class_name] += 1
 
-            print("num_loops=", num_loops,"types_dict=", actual_types_dict)
+            print("num_loops=", num_loops, "types_dict=", actual_types_dict)
             if expected_types_list == actual_types_dict:
                 break
             time.sleep(2.0)
@@ -1388,7 +1387,7 @@ class EventsServerTest(unittest.TestCase):
         """This reruns the tracing of the Linux command "ps -ef" """
         output_basename_prefix = "dockit_events_ps_ef.strace"
         dockit.test_from_file(
-            input_log_file= path_prefix_input_file("dockit_ps_ef.strace.log"),
+            input_log_file=path_prefix_input_file("dockit_ps_ef.strace.log"),
             tracer="strace",
             input_process_id=0,
             output_files_prefix= path_prefix_output_result(output_basename_prefix),
@@ -1419,7 +1418,7 @@ class EventsServerTest(unittest.TestCase):
         This dockit session is replayed, and the detected objects must be correctly found. """
         output_basename_prefix = "dockit_events_sample_shell.ltrace"
         dockit.test_from_file(
-            input_log_file= path_prefix_input_file("dockit_sample_shell.ltrace.log"),
+            input_log_file=path_prefix_input_file("dockit_sample_shell.ltrace.log"),
             tracer="ltrace",
             input_process_id=0,
             output_files_prefix= path_prefix_output_result(output_basename_prefix),
@@ -1448,7 +1447,7 @@ class EventsServerTest(unittest.TestCase):
         """This reruns a dockit tracing of the execution of a FTP command."""
         output_basename_prefix = "dockit_events_proftpd.strace.26299"
         dockit.test_from_file(
-            input_log_file= path_prefix_input_file("dockit_proftpd.strace.26299.log"),
+            input_log_file=path_prefix_input_file("dockit_proftpd.strace.26299.log"),
             tracer="strace",
             input_process_id=0,
             output_files_prefix= path_prefix_output_result(output_basename_prefix),
@@ -1478,7 +1477,7 @@ class EventsServerTest(unittest.TestCase):
         """This replays the startup of a firefox process."""
         output_basename_prefix = "firefox_events_google.strace.22501"
         dockit.test_from_file(
-            input_log_file= path_prefix_input_file("firefox_google.strace.22501.log"),
+            input_log_file=path_prefix_input_file("firefox_google.strace.22501.log"),
             tracer="strace",
             input_process_id=0,
             output_files_prefix= path_prefix_output_result(output_basename_prefix),
