@@ -47,7 +47,7 @@ is_platform_linux = sys.platform.startswith("linux")
 
 ################################################################################
 
-def DecodeOctalEscapeSequence(input_buffer):
+def _decode_octal_escape_sequence(input_buffer):
     # An octal escape sequence consists of \ followed by one, two, or three octal digits.
     # The octal escape sequence ends when it either contains three octal digits already,
     # or the next character is not an octal digit.
@@ -68,6 +68,7 @@ def DecodeOctalEscapeSequence(input_buffer):
     else:
         dec_buf = input_buffer.decode('string_escape')
     return dec_buf
+
 
 ################################################################################
 
@@ -163,32 +164,35 @@ if lib_sql:
 
 ################################################################################
 
-# When strace or ltrace display a call to read() and write(), they also display
-# a fragment of the transferred bytes. It is needed to try to rebuild the entire
-# sequence between the opening and the closing, because some important information
-# that we want to parse, might be truncated.
-# Beware, there are severe limitations: The amount of displayed bytes is limited,
-# and it does not take into account fseek().
+
 class BufferConcatenator:
+    """
+    When strace or ltrace display a call to read() and write(), they also display
+    a fragment of the transferred bytes. It is needed to try to rebuild the entire
+    sequence between the opening and the closing, because some important information
+    that we want to parse, might be truncated.
+    Beware, there are severe limitations: The amount of displayed bytes is limited,
+    and it does not take into account fseek().
+    """
     def __init__(self):
         self.m_currentBuffer = None
         self.m_parsedData = None
 
-    def __analyse_io_buffer(self,aBuffer):
-        for scannerKey in _buffer_scanners:
-            scannerFunction = _buffer_scanners[scannerKey]
+    def __analyse_io_buffer(self, a_buffer):
+        for scanner_key in _buffer_scanners:
+            scanner_function = _buffer_scanners[scanner_key]
 
             # This returns a list of strings.
-            # TODO: In a second stage, this will return CIM objects.
-            lstResults = scannerFunction(aBuffer)
+            # TODO: In the future, this might return CIM objects.
+            lst_results = scanner_function(a_buffer)
 
-            if lstResults:
+            if lst_results:
                 if self.m_parsedData == None:
                     self.m_parsedData = {}
-                if scannerKey in self.m_parsedData:
-                    self.m_parsedData[scannerKey] += lstResults
+                if scanner_key in self.m_parsedData:
+                    self.m_parsedData[scanner_key] += lst_results
                 else:
-                    self.m_parsedData[scannerKey] = lstResults
+                    self.m_parsedData[scanner_key] = lst_results
 
     def has_parsed_data(self):
         return self.m_parsedData != None
@@ -196,22 +200,23 @@ class BufferConcatenator:
     def parsed_data_to_XML(self, strm, margin, direction):
         if self.m_parsedData:
             submargin = margin + "    "
-            for scannerKey in self.m_parsedData:
+            for scanner_key in self.m_parsedData:
                 # TODO: Have a specific tag for the list.
-                scannerKeySet = scannerKey + "_List"
-                strm.write("%s<%s direction='%s'>\n" % ( margin, scannerKeySet, direction ) )
-                scannerVal = self.m_parsedData[scannerKey]
-                for scanResult in scannerVal:
-                    strm.write("%s<%s>%s</%s>\n" % ( submargin, scannerKey, scanResult, scannerKey ) )
-                strm.write("%s</%s>\n" % ( margin, scannerKeySet ) )
+                scanner_key_set = scanner_key + "_List"
+                strm.write("%s<%s direction='%s'>\n" % (margin, scanner_key_set, direction))
+                scanner_val = self.m_parsedData[scanner_key]
+                for scanResult in scanner_val:
+                    strm.write("%s<%s>%s</%s>\n" % (submargin, scanner_key, scanResult, scanner_key))
+                strm.write("%s</%s>\n" % (margin, scanner_key_set))
 
 
-    # This receives all read() and write() buffers displayed by strace or ltrace,
-    # decodes them and tries to rebuild a complete logical message if it seems
-    # to be truncated.
-    # It then analyses the logical pieces.
-    def append_io_buffer(self, aFragment, szFragment = 0):
-        decodedFragment = DecodeOctalEscapeSequence(aFragment)
+    def append_io_buffer(self, a_fragment, sz_fragment=0):
+        """
+        This receives all read() and write() buffers displayed by strace or ltrace,
+        decodes them and tries to rebuild a complete logical message if it seems to be truncated.
+        It then analyses the logical pieces.
+        """
+        decoded_fragment = _decode_octal_escape_sequence(a_fragment)
 
         # Typical buffer size are multiple of 100x:
         #      256              100 #
@@ -221,17 +226,17 @@ class BufferConcatenator:
         #    65536            10000 #
         #   262144            40000 #
 
-        isSegment = \
-            ( ( szFragment % 0x100 == 0 ) and ( szFragment <= 0x1000) ) \
-        or ( ( szFragment % 0x1000 == 0 ) and ( szFragment <= 0x10000) ) \
-        or ( ( szFragment % 0x10000 == 0 ) and ( szFragment <= 0x100000) ) \
-        or ( ( szFragment % 0x100000 == 0 )  )
+        is_segment = (
+            ((sz_fragment % 0x100 == 0) and (sz_fragment <= 0x1000)) or
+            ((sz_fragment % 0x1000 == 0) and (sz_fragment <= 0x10000)) or
+            ((sz_fragment % 0x10000 == 0) and (sz_fragment <= 0x100000)) or
+            (sz_fragment % 0x100000 == 0))
 
-        if isSegment and (szFragment == len(decodedFragment)):
+        if is_segment and (sz_fragment == len(decoded_fragment)):
             if self.m_currentBuffer:
-                self.m_currentBuffer += decodedFragment
+                self.m_currentBuffer += decoded_fragment
             else:
-                self.m_currentBuffer = decodedFragment
+                self.m_currentBuffer = decoded_fragment
         else:
             if self.m_currentBuffer:
                 self.__analyse_io_buffer(self.m_currentBuffer)
@@ -239,9 +244,11 @@ class BufferConcatenator:
                 del self.m_currentBuffer
                 self.m_currentBuffer = None
 
-            self.__analyse_io_buffer(decodedFragment)
+            self.__analyse_io_buffer(decoded_fragment)
 
 ################################################################################
+
+
 G_FilesToPackagesCache = None
 
 G_SameMachine = None
@@ -266,37 +273,37 @@ class FileAccess:
         objProcess.m_ProcessFileAccesses.append(self)
         objDataFile.m_DataFileFileAccesses.append(self)
 
-    def SetOpenTime(self, timeStamp):
+    def SetOpenTime(self, time_stamp):
         global G_cacheFileAccesses
 
         try:
             self.NumOpen += 1
         except AttributeError:
             self.NumOpen = 1
-        if not self.OpenTime or (timeStamp < self.OpenTime):
-            self.OpenTime = timeStamp
+        if not self.OpenTime or (time_stamp < self.OpenTime):
+            self.OpenTime = time_stamp
 
             if G_SameMachine:
                 try:
-                    filStat = os.stat( self.m_objectCIM_DataFile.Name )
-                    self.OpenSize = filStat.st_size
+                    fil_stat = os.stat(self.m_objectCIM_DataFile.Name)
+                    self.OpenSize = fil_stat.st_size
                 except:
                     pass
 
         # Strictly speaking, from now on, this is accessible from the cache.
         G_cacheFileAccesses[self.m_objectCIM_Process][self.m_objectCIM_DataFile] = self
 
-    def SetCloseTime(self, timeStamp):
+    def SetCloseTime(self, time_stamp):
         global G_cacheFileAccesses
 
         # Maybe the file was never closed.
-        if not getattr(self,"CloseTime",0) or (timeStamp < self.CloseTime):
-            self.CloseTime = timeStamp
+        if not getattr(self,"CloseTime",0) or (time_stamp < self.CloseTime):
+            self.CloseTime = time_stamp
 
             if G_SameMachine:
                 try:
-                    filStat = os.stat( self.m_objectCIM_DataFile.Name )
-                    self.CloseSize = filStat.st_size
+                    fil_stat = os.stat(self.m_objectCIM_DataFile.Name)
+                    self.CloseSize = fil_stat.st_size
                 except:
                     pass
 
@@ -304,35 +311,41 @@ class FileAccess:
         # anymore from this process and this file because it is closed.
         del G_cacheFileAccesses[self.m_objectCIM_Process][self.m_objectCIM_DataFile]
 
-    def _analyze_new_buffer(self, isRead, buffer_size, aBuffer):
-        if not aBuffer:
+    def _analyze_new_buffer(self, is_read, buffer_size, a_buffer):
+        """Calling on a IO buffer ot a file or something."""
+        if not a_buffer:
             return
 
         # This does not apply to files.
         if self.m_objectCIM_DataFile.is_plain_file():
             return
 
-        if isRead:
+        if is_read:
             try:
                 self.m_bufConcatRead
             except AttributeError:
                 self.m_bufConcatRead = BufferConcatenator()
-            concatBuf = self.m_bufConcatRead
+            concat_buf = self.m_bufConcatRead
         else:
             try:
                 self.m_bufConcatWrite
             except AttributeError:
                 self.m_bufConcatWrite = BufferConcatenator()
-            concatBuf = self.m_bufConcatWrite
+            concat_buf = self.m_bufConcatWrite
 
         try:
-            concatBuf.append_io_buffer(aBuffer, buffer_size)
+            concat_buf.append_io_buffer(a_buffer, buffer_size)
         except Exception as exc:
             # Example: '[pid  5602] 19:59:20.590740 <... read resumed> "... end of read() content"..., 32768) = 4096 <0.037642>'
-            sys.stdout.write("Cannot parse:%s szBuffer=%s: %s\n" % (aBuffer, buffer_size, exc))
-            exit(1)
+            sys.stdout.write("Cannot parse buffer:%s size=%s: file=%s %s\n" % (
+                a_buffer,
+                buffer_size,
+                self.m_objectCIM_DataFile.Name,
+                exc))
+            # This is not a problem.
 
-    def set_read_bytes_number(self, read_bytes_number, bufferRead):
+    def set_read_bytes_number(self, read_bytes_number, buffer_read):
+        """This is called when reading a buffer from a file or something."""
         try:
             self.NumReads += 1
         except AttributeError:
@@ -341,9 +354,10 @@ class FileAccess:
             self.BytesRead += read_bytes_number
         except AttributeError:
             self.BytesRead = read_bytes_number
-        self._analyze_new_buffer(True, read_bytes_number, bufferRead)
+        self._analyze_new_buffer(True, read_bytes_number, buffer_read)
 
-    def set_written_bytes_number(self, written_bytes_number, bufferWrite):
+    def set_written_bytes_number(self, written_bytes_number, buffer_write):
+        """This is called when writing a buffer from a file or something."""
         try:
             self.NumWrites += 1
         except AttributeError:
@@ -352,50 +366,50 @@ class FileAccess:
             self.BytesWritten += written_bytes_number
         except AttributeError:
             self.BytesWritten = written_bytes_number
-        self._analyze_new_buffer(False, written_bytes_number, bufferWrite)
+        self._analyze_new_buffer(False, written_bytes_number, buffer_write)
 
-    def TagXML(self,strm,margin,displayedFromProcess):
-        strm.write("%s<Access" % ( margin ) )
+    def TagXML(self, strm, margin, displayed_from_process):
+        strm.write("%s<Access" % margin)
 
-        if displayedFromProcess:
+        if displayed_from_process:
             if self.m_objectCIM_Process:
-                strm.write(" Process='%s'" % ( self.m_objectCIM_Process.Handle ) )
+                strm.write(" Process='%s'" % self.m_objectCIM_Process.Handle)
         else:
             if self.m_objectCIM_DataFile:
-                strm.write(" File='%s'" % ( self.m_objectCIM_DataFile.Name ) )
+                strm.write(" File='%s'" % self.m_objectCIM_DataFile.Name)
 
         if self.OpenTime:
-            strm.write(" OpenTime='%s'" % _timestamp_to_str( self.OpenTime ) )
+            strm.write(" OpenTime='%s'" % _timestamp_to_str(self.OpenTime))
         if getattr(self,'OpenSize',0):
-            strm.write(" OpenSize='%s'" % ( self.OpenSize ) )
+            strm.write(" OpenSize='%s'" % self.OpenSize)
         if self.CloseTime:
-            strm.write(" CloseTime='%s'" % _timestamp_to_str( self.CloseTime ) )
+            strm.write(" CloseTime='%s'" % _timestamp_to_str(self.CloseTime))
         if getattr(self,'CloseSize',0):
-            strm.write(" CloseSize='%s'" % ( self.CloseSize ) )
+            strm.write(" CloseSize='%s'" % self.CloseSize)
         if getattr(self,'NumReads',0):
-            strm.write(" NumReads='%s'" % ( self.NumReads ) )
+            strm.write(" NumReads='%s'" % self.NumReads)
         if getattr(self,'BytesRead',0):
-            strm.write(" BytesRead='%s'" % ( self.BytesRead ) )
+            strm.write(" BytesRead='%s'" % self.BytesRead)
         if getattr(self,'NumWrites',0):
-            strm.write(" NumWrites='%s'" % ( self.NumWrites ) )
+            strm.write(" NumWrites='%s'" % self.NumWrites)
         if getattr(self,'BytesWritten',0):
-            strm.write(" BytesWritten='%s'" % ( self.BytesWritten ) )
+            strm.write(" BytesWritten='%s'" % self.BytesWritten)
 
-        accRead = getattr(self,'m_bufConcatRead',None)
-        accWrite = getattr(self,'m_bufConcatWrite',None)
+        acc_read = getattr(self, 'm_bufConcatRead', None)
+        acc_write = getattr(self, 'm_bufConcatWrite', None)
 
-        if (accRead and accRead.has_parsed_data()) or (accWrite and accWrite.has_parsed_data()):
-            strm.write(" >\n" )
+        if (acc_read and acc_read.has_parsed_data()) or (acc_write and acc_write.has_parsed_data()):
+            strm.write(" >\n")
 
             submargin = margin + "    "
-            if accRead and accRead.has_parsed_data():
-                accRead.parsed_data_to_XML(strm, submargin, "Read")
-            if accWrite and accWrite.has_parsed_data():
-                accWrite.parsed_data_to_XML(strm, submargin, "Write")
+            if acc_read and acc_read.has_parsed_data():
+                acc_read.parsed_data_to_XML(strm, submargin, "Read")
+            if acc_write and acc_write.has_parsed_data():
+                acc_write.parsed_data_to_XML(strm, submargin, "Write")
 
-            strm.write("%s</Access>\n" % ( margin ) )
+            strm.write("%s</Access>\n" % margin)
         else:
-            strm.write(" />\n" )
+            strm.write(" />\n")
 
     @staticmethod
     def lookup_file_access(objProcess,objDataFile):
@@ -417,10 +431,10 @@ class FileAccess:
         if not vecFilesAccesses:
             return
         subMargin = margin + "    "
-        strm.write("%s<FileAccesses>\n" % ( margin ) )
+        strm.write("%s<FileAccesses>\n" % margin)
         for filAcc in vecFilesAccesses:
             filAcc.TagXML(strm,subMargin,displayedFromProcess)
-        strm.write("%s</FileAccesses>\n" % ( margin ) )
+        strm.write("%s</FileAccesses>\n" % margin)
 
 ################################################################################
 
@@ -431,7 +445,7 @@ G_ReplayMode = False
 # The date where the test was run. Loaded from the ini file when replaying.
 G_Today = None
 
-def _timestamp_to_str(timStamp):
+def _timestamp_to_str(tim_stamp):
     # 0     tm_year     (for example, 1993)
     # 1     tm_mon      range [1, 12]
     # 2     tm_mday     range [1, 31]
@@ -443,8 +457,8 @@ def _timestamp_to_str(timStamp):
     # 8     tm_isdst    0, 1 or -1; see below
 
     # Today's date can change so we can reproduce a run.
-    if timStamp:
-        return G_Today + " " + timStamp
+    if tim_stamp:
+        return G_Today + " " + tim_stamp
     else:
         return G_Today + " 00:00:00.000000"
 
@@ -605,7 +619,6 @@ def http_triples_client_factory():
         return HttpTriplesClientNone()
 
 
-
 # This is the Survol server which is notified of all updates
 # of CIM objects. These updates can then be displayed in Survol Web clients.
 # It must be a plain Web server to be hosted by Apache or IIS.
@@ -613,144 +626,154 @@ G_UpdateServer = None
 
 ################################################################################
 
+
 # attr=AccessTime attrVal=1518262584.92 <type 'float'>
-def _time_t_to_datetime(stTimeT):
+def _time_t_to_datetime(st_time_t):
     # Or utcfromtimestamp
-    return datetime.datetime.strftime( datetime.datetime.fromtimestamp(stTimeT), "%H:%M:%S:%f")
+    return datetime.datetime.strftime(datetime.datetime.fromtimestamp(st_time_t), "%H:%M:%S:%f")
 
 ################################################################################
 
 
-# This returns only leaf classes.
 def leaf_derived_classes(the_class):
+    """This returns only leaf classes."""
     current_subclasses = the_class.__subclasses__()
     return set([sub_class for sub_class in current_subclasses if not leaf_derived_classes(sub_class)]).union(
         [sub_sub_class for sub_class in current_subclasses for sub_sub_class in leaf_derived_classes(sub_class)])
 
 
-# CIM classes are defined as plain Python classes plus their attributes.
-# Therefore, CIM attributes are mixed with Python ones.
-# This function is a rule-thumb test to check if an attribute of a class
-# is a CIM attribute. It works because there are very few non-CIM attributes.
-def IsCIM(attr, attr_val):
+def _is_CIM(attr, attr_val):
+    """
+    CIM classes are defined as plain Python classes plus their attributes.
+    Therefore, CIM attributes are mixed with Python ones.
+    This function is a rule-thumb test to check if an attribute of a class
+    is a CIM attribute. It works because there are very few non-CIM attributes.
+    """
     return not callable(attr_val) and not attr.startswith("__") and not attr.startswith("m_")
 
 
-# This identifies CIM attribute which is date or time and must be displayed as such.
 def _is_time_stamp(attr):
+    """
+    This identifies CIM attribute which is date or time and must be displayed as such.
+    """
     return attr.find("Date") > 0 or attr.find("Time") > 0
 
 
-# This is the base class of all CIM_xxx classes. It does the serialization
-# into XML and also sends updates events to the Survol server if there is one.
 class CIM_XmlMarshaller(object):
+    """
+    This is the base class of all CIM_xxx classes. It does the serialization
+    into XML and also sends updates events to the Survol server if there is one.
+    """
     def __init__(self):
         pass
 
-    def PlainToXML(self,strm,subMargin):
+    def plain_to_XML(self, strm, sub_margin):
         try:
             # Optional members order.
-            attrExtra = self.__class__.m_attributes_priorities
+            attr_extra = self.__class__.m_attributes_priorities
         except AttributeError:
-            attrExtra = []
+            attr_extra = []
 
-        start = len(attrExtra)
-        enumAttrs = {}
+        start = len(attr_extra)
+        enum_attrs = {}
         for elt in dir(self):
-            enumAttrs[ elt ] = start
+            enum_attrs[elt] = start
             start += 1
 
         start = 0
-        for elt in attrExtra:
-            enumAttrs[ elt ] = start
+        for elt in attr_extra:
+            enum_attrs[elt] = start
             start += 1
 
-        dictAttrs = dict((val,key) for (key,val) in enumAttrs.items())
-        for idx in sorted(dictAttrs.keys()):
-            attr = dictAttrs[idx]
+        dict_attrs = dict((val, key) for (key, val) in enum_attrs.items())
+        for idx in sorted(dict_attrs.keys()):
+            attr = dict_attrs[idx]
             try:
-                attrVal = getattr(self,attr)
+                attr_val = getattr(self, attr)
             except AttributeError:
                 continue
-            if IsCIM(attr,attrVal):
+            if _is_CIM(attr, attr_val):
                 # FIXME: Not very reliable.
                 if _is_time_stamp(attr):
-                    attrVal = _timestamp_to_str(attrVal)
-                if attrVal:
+                    attr_val = _timestamp_to_str(attr_val)
+                if attr_val:
                     # No need to write empty strings.
-                    strm.write("%s<%s>%s</%s>\n" % ( subMargin, attr, attrVal, attr ) )
+                    strm.write("%s<%s>%s</%s>\n" % (sub_margin, attr, attr_val, attr))
 
-    def HttpUpdateRequest(self,**objJson):
-        G_httpClient.queue_triples_for_sending(objJson)
+    def HttpUpdateRequest(self, **obj_json):
+        G_httpClient.queue_triples_for_sending(obj_json)
 
-    def send_update_to_server(self, attrNam, oldAttrVal, attrVal):
+    def send_update_to_server(self, attr_nam, old_attr_val, attr_val):
         # These are the properties which uniquely define the object.
         # There are always sent even if they did not change,
         # otherwise the object could not be identified.
-        theSubjMoniker = self.get_survol_moniker()
+        the_subj_moniker = self.get_survol_moniker()
 
         # TODO: If the attribute is part of the ontology, just inform about the object creation.
         # TODO: Some attributes could be the moniker of another object.
         # TODO: AND THEREFORE, SEND LINKS, NOT ONLY LITERALS !!!
         # OTHERWISE NO EDGES !!
 
-        if oldAttrVal and isinstance(oldAttrVal, CIM_XmlMarshaller):
+        if old_attr_val and isinstance(old_attr_val, CIM_XmlMarshaller):
             raise Exception("Not implemented yet")
-            obj_moniker_old = oldAttrVal.get_survol_moniker()
-            attrNamDelete = attrNam + "?predicate_delete"
-            self.HttpUpdateRequest(subject=theSubjMoniker,predicate=attrNam,object=obj_moniker_old )
+            obj_moniker_old = old_attr_val.get_survol_moniker()
+            #attrNamDelete = attr_nam + "?predicate_delete"
+            self.HttpUpdateRequest(subject=the_subj_moniker, predicate=attr_nam, object=obj_moniker_old)
 
 
         # For example a file being opened by a process, or a process started by a user etc...
-        if isinstance( attrVal, CIM_XmlMarshaller):
-            objMoniker = attrVal.get_survol_moniker()
-            self.HttpUpdateRequest(subject=theSubjMoniker,predicate=attrNam,object=objMoniker)
+        if isinstance(attr_val, CIM_XmlMarshaller):
+            objMoniker = attr_val.get_survol_moniker()
+            self.HttpUpdateRequest(subject=the_subj_moniker, predicate=attr_nam, object=objMoniker)
         else:
-            self.HttpUpdateRequest(subject=theSubjMoniker,predicate=attrNam,object=attrVal)
+            self.HttpUpdateRequest(subject=the_subj_moniker, predicate=attr_nam, object=attr_val)
 
     # Any object change is broadcast to a Survol server.
-    def __setattr__(self, attrNam, attrVal):
+    def __setattr__(self, attr_nam, attr_val):
         # First, change the value, because it might be needed to calculate the moniker.
 
         try:
-            oldAttrVal = self.__dict__[attrNam]
+            old_attr_val = self.__dict__[attr_nam]
         except:
-            oldAttrVal = None
+            old_attr_val = None
 
-        self.__dict__[attrNam] = attrVal
+        self.__dict__[attr_nam] = attr_val
 
         #https://stackoverflow.com/questions/8600161/executing-periodic-actions-in-python
 
         if G_UpdateServer:
-            if oldAttrVal != attrVal:
-                if IsCIM(attrNam,attrVal):
-                    self.send_update_to_server(attrNam, oldAttrVal, attrVal)
+            if old_attr_val != attr_val:
+                if _is_CIM(attr_nam, attr_val):
+                    self.send_update_to_server(attr_nam, old_attr_val, attr_val)
 
     @classmethod
-    def DisplaySummary(cls, fd_summary_file, cimKeyValuePairs):
+    def DisplaySummary(cls, fd_summary_file, cim_key_value_pairs):
         pass
 
     @classmethod
-    def XMLSummary(cls, fd_summary_file, cimKeyValuePairs):
-        namClass = cls.__name__
+    def XMLSummary(cls, fd_summary_file, cim_key_value_pairs):
+        nam_class = cls.__name__
         margin = "    "
-        subMargin = margin + margin
-        for objPath,objInstance in sorted(G_mapCacheObjects[namClass].items()):
-            fd_summary_file.write("%s<%s>\n" % (margin, namClass))
-            objInstance.PlainToXML(fd_summary_file, subMargin)
-            fd_summary_file.write("%s</%s>\n" % (margin, namClass))
+        sub_margin = margin + margin
+        for obj_path, obj_instance in sorted(G_mapCacheObjects[nam_class].items()):
+            fd_summary_file.write("%s<%s>\n" % (margin, nam_class))
+            obj_instance.plain_to_XML(fd_summary_file, sub_margin)
+            fd_summary_file.write("%s</%s>\n" % (margin, nam_class))
 
-    # This object has a class name, an ontology which is an ordered list
-    # of attributes names, and several attributes in the object itself.
-    # This method wraps the class name and these attributes and their values,
-    # into an object which is used to store an event related to this object.
-    # JSON escapes special characters in strings.
     def get_survol_moniker(self):
+        """
+        This object has a class name, an ontology which is an ordered list
+        of attributes names, and several attributes in the object itself.
+        This method wraps the class name and these attributes and their values,
+        into an object which is used to store an event related to this object.
+        JSON escapes special characters in strings.
+        """
         attributes_dict = {attribute_key: getattr(self, attribute_key) for attribute_key in self.cim_ontology_list}
-        return (self.__class__.__name__, attributes_dict)
+        return self.__class__.__name__, attributes_dict
 
     def __repr__(self):
-        mnk = self.__class__.__name__ + "." + ",".join( '%s="%s"' % (k,getattr(self,k)) for k in self.cim_ontology_list )
+        mnk = self.__class__.__name__ + "." + ",".join(
+            '%s="%s"' % (k, getattr(self, k)) for k in self.cim_ontology_list)
         # FIXME: WHY THIS ? IT CAN ONLY BE A STRING ??
         return "%s" % mnk
 
@@ -761,6 +784,7 @@ class CIM_XmlMarshaller(object):
         return cim_class_definition(*attributes_list)
 
 ################################################################################
+
 
 # Read from a real process or from the ini file when replaying a session.
 G_CurrentDirectory = u""
@@ -1018,60 +1042,61 @@ class CIM_Process(CIM_XmlMarshaller):
         self.m_isVisited = True
         strm.write("%s<CIM_Process Handle='%s'>\n" % (margin, self.Handle))
 
-        subMargin = margin + "    "
+        sub_margin = margin + "    "
 
-        self.PlainToXML(strm, subMargin)
+        self.plain_to_XML(strm, sub_margin)
 
-        FileAccess.serialize_list_to_XML(strm, self.m_ProcessFileAccesses, subMargin, False)
+        FileAccess.serialize_list_to_XML(strm, self.m_ProcessFileAccesses, sub_margin, False)
 
         for objInstance in self.m_subProcesses:
-            objInstance.XMLOneLevelSummary(strm, subMargin)
-        strm.write("%s</CIM_Process>\n" % (margin))
+            objInstance.XMLOneLevelSummary(strm, sub_margin)
+        strm.write("%s</CIM_Process>\n" % margin)
 
     @staticmethod
-    def TopProcessFromProc(objInstance):
+    def TopProcessFromProc(obj_instance):
         """This returns the top-level parent of a process."""
         while True:
-            parentProc = objInstance.m_parentProcess
-            if not parentProc: return objInstance
-            objInstance = parentProc
+            parent_proc = obj_instance.m_parentProcess
+            if not parent_proc:
+                return obj_instance
+            obj_instance = parent_proc
 
     @staticmethod
     def GetTopProcesses():
         """This returns a list of top-level processes, which have no parents."""
 
         # This contains all subprocesses.
-        setSubProcs = set()
-        for objPath, objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
-            for oneSub in objInstance.m_subProcesses:
-                setSubProcs.add(oneSub)
+        set_sub_procs = set()
+        for obj_path, obj_instance in G_mapCacheObjects[CIM_Process.__name__].items():
+            for one_sub in obj_instance.m_subProcesses:
+                set_sub_procs.add(one_sub)
 
-        lstTopLvl = []
-        for objPath, objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
-            if objInstance not in setSubProcs:
-                lstTopLvl.append(objInstance)
-        return lstTopLvl
+        lst_top_lvl = []
+        for obj_path, obj_instance in G_mapCacheObjects[CIM_Process.__name__].items():
+            if obj_instance not in set_sub_procs:
+                lst_top_lvl.append(obj_instance)
+        return lst_top_lvl
 
     # When parsing the last system call, it sets the termination date for all processes.
     @staticmethod
-    def GlobalTerminationDate(timeEnd):
-        for objPath, objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
-            if not objInstance.TerminationDate:
-                objInstance.TerminationDate = timeEnd
+    def GlobalTerminationDate(time_end):
+        for obj_path, obj_instance in G_mapCacheObjects[CIM_Process.__name__].items():
+            if not obj_instance.TerminationDate:
+                obj_instance.TerminationDate = time_end
 
     @classmethod
-    def XMLSummary(cls, fd_summary_file, cimKeyValuePairs):
+    def XMLSummary(cls, fd_summary_file, cim_key_value_pairs):
         # Find unvisited processes. It does not start from G_top_ProcessId
         # because maybe it contains several trees, or subtrees were missed etc...
-        for objPath, objInstance in sorted(G_mapCacheObjects[CIM_Process.__name__].items()):
+        for obj_path, obj_instance in sorted(G_mapCacheObjects[CIM_Process.__name__].items()):
             try:
-                objInstance.m_isVisited
+                obj_instance.m_isVisited
                 continue
             except AttributeError:
                 pass
 
-            topObjProc = CIM_Process.TopProcessFromProc(objInstance)
-            topObjProc.XMLOneLevelSummary(fd_summary_file)
+            top_obj_proc = CIM_Process.TopProcessFromProc(obj_instance)
+            top_obj_proc.XMLOneLevelSummary(fd_summary_file)
 
     # In text mode, with no special formatting.
     def Summarize(self, strm):
@@ -1082,11 +1107,11 @@ class CIM_Process(CIM_XmlMarshaller):
         except AttributeError:
             pass
         if self.CreationDate:
-            strStart = _timestamp_to_str(self.CreationDate)
-            strm.write("    Start time:%s\n" % strStart)
+            str_start = _timestamp_to_str(self.CreationDate)
+            strm.write("    Start time:%s\n" % str_start)
         if self.TerminationDate:
-            strEnd = _timestamp_to_str(self.TerminationDate)
-            strm.write("    End time:%s\n" % strEnd)
+            str_end = _timestamp_to_str(self.TerminationDate)
+            strm.write("    End time:%s\n" % str_end)
         if self.m_parentProcess:
             strm.write("    Parent:%s\n" % self.m_parentProcess.Handle)
 
@@ -1098,9 +1123,9 @@ class CIM_Process(CIM_XmlMarshaller):
         self.ParentProcessID = objCIM_Process.Handle
         objCIM_Process.m_subProcesses.add(self)
 
-    def WaitProcessEnd(self, timeStamp, objCIM_Process):
+    def WaitProcessEnd(self, time_stamp, objCIM_Process):
         # sys.stdout.write("WaitProcessEnd: %s linking to %s\n" % (self.Handle,objCIM_Process.Handle))
-        self.TerminationDate = timeStamp
+        self.TerminationDate = time_stamp
         if not self.m_parentProcess:
             self.SetParentProcess(objCIM_Process)
             # sys.stdout.write("WaitProcessEnd: %s not linked to %s\n" % (self.Handle,objCIM_Process.Handle))
@@ -1112,16 +1137,16 @@ class CIM_Process(CIM_XmlMarshaller):
             pass
 
     def set_executable_path(self, objCIM_DataFile):
-        assert (isinstance(objCIM_DataFile, CIM_DataFile))
+        assert isinstance(objCIM_DataFile, CIM_DataFile)
         self.Executable = objCIM_DataFile.Name
         self.m_ExecutableObject = objCIM_DataFile
 
-    def set_command_line(self, lstCmdLine):
+    def set_command_line(self, lst_cmd_line):
         # TypeError: sequence item 7: expected string, dict found
-        if lstCmdLine:
-            self.CommandLine = " ".join(map(str, lstCmdLine))
+        if lst_cmd_line:
+            self.CommandLine = " ".join(map(str, lst_cmd_line))
             # The command line as a list is needed by Dockerfile.
-            self.m_commandList = lstCmdLine
+            self.m_commandList = lst_cmd_line
 
     def GetCommandLine(self):
         try:
@@ -1131,10 +1156,10 @@ class CIM_Process(CIM_XmlMarshaller):
             pass
 
         try:
-            commandLine = self.Executable
+            command_line = self.Executable
         except AttributeError:
-            commandLine = ""
-        return commandLine
+            command_line = ""
+        return command_line
 
     def GetCommandList(self):
         try:
@@ -1144,18 +1169,18 @@ class CIM_Process(CIM_XmlMarshaller):
             pass
 
         try:
-            commandList = [self.Executable]
+            command_list = [self.Executable]
         except AttributeError:
-            commandList = []
-        return commandList
+            command_list = []
+        return command_list
 
     def SetThread(self):
         self.IsThread = True
 
     # Some system calls are relative to the current directory.
     # Therefore, this traces current dir changes due to system calls.
-    def set_process_current_directory(self, currDirObject):
-        self.CurrentDirectory = currDirObject.Name
+    def set_process_current_directory(self, curr_dir_object):
+        self.CurrentDirectory = curr_dir_object.Name
 
     def GetProcessCurrentDir(self):
         try:
@@ -1225,9 +1250,9 @@ class CIM_LogicalFile(CIM_XmlMarshaller):
         self.Name = path_name
         # File name without the file name extension. Example: "MyDataFile"
         try:
-            basNa = os.path.basename(path_name)
+            bas_na = os.path.basename(path_name)
             # There might be several dots, or none.
-            self.FileName = basNa.split(".")[0]
+            self.FileName = bas_na.split(".")[0]
         except:
             pass
         self.Category = _pathname_to_category(path_name)
@@ -1237,42 +1262,42 @@ class CIM_LogicalFile(CIM_XmlMarshaller):
         # Some information are meaningless because they vary between executions.
         if G_SameMachine:
             try:
-                objStat = os.stat(path_name)
+                obj_stat = os.stat(path_name)
             except:
-                objStat = None
+                obj_stat = None
 
-            if objStat:
-                self.FileSize = objStat.st_size
-                self.FileMode = objStat.st_mode
-                self.Inode = objStat.st_ino
-                self.DeviceId = objStat.st_dev
-                self.HardLinksNumber = objStat.st_nlink
-                self.OwnerUserId = objStat.st_uid
-                self.OwnerGroupId = objStat.st_gid
-                self.AccessTime = _time_t_to_datetime(objStat.st_atime)
-                self.ModifyTime = _time_t_to_datetime(objStat.st_mtime)
-                self.CreationTime = _time_t_to_datetime(objStat.st_ctime)
+            if obj_stat:
+                self.FileSize = obj_stat.st_size
+                self.FileMode = obj_stat.st_mode
+                self.Inode = obj_stat.st_ino
+                self.DeviceId = obj_stat.st_dev
+                self.HardLinksNumber = obj_stat.st_nlink
+                self.OwnerUserId = obj_stat.st_uid
+                self.OwnerGroupId = obj_stat.st_gid
+                self.AccessTime = _time_t_to_datetime(obj_stat.st_atime)
+                self.ModifyTime = _time_t_to_datetime(obj_stat.st_mtime)
+                self.CreationTime = _time_t_to_datetime(obj_stat.st_ctime)
                 try:
                     # This does not exist on Windows.
-                    self.DeviceType = objStat.st_rdev
+                    self.DeviceType = obj_stat.st_rdev
                 except AttributeError:
                     pass
 
                 # This is on Windows only.
-                # self.UserDefinedFlags = objStat.st_flags
-                # self.FileCreator = objStat.st_creator
-                # self.FileType = objStat.st_type
+                # self.UserDefinedFlags = obj_stat.st_flags
+                # self.FileCreator = obj_stat.st_creator
+                # self.FileType = obj_stat.st_type
 
         # If this is a connected socket:
         # 'TCP:[54.36.162.150:37415->82.45.12.63:63708]'
-        mtchSock = re.match(r"TCP:\[.*->(.*)\]", path_name)
-        if mtchSock:
-            self.SetAddrPort(mtchSock.group(1))
+        mtch_sock = re.match(r"TCP:\[.*->(.*)\]", path_name)
+        if mtch_sock:
+            self.SetAddrPort(mtch_sock.group(1))
         else:
             # 'TCPv6:[::ffff:54.36.162.150:21->::ffff:82.45.12.63:63703]'
-            mtchSock = re.match(r"TCPv6:\[.*->(.*)\]", path_name)
-            if mtchSock:
-                self.SetAddrPort(mtchSock.group(1))
+            mtch_sock = re.match(r"TCPv6:\[.*->(.*)\]", path_name)
+            if mtch_sock:
+                self.SetAddrPort(mtch_sock.group(1))
 
     cim_ontology_list = ['Name']
 
@@ -1322,35 +1347,36 @@ class CIM_DataFile(CIM_LogicalFile):
     # by an informal file category: DLL, data file etc...
     @staticmethod
     def SplitFilesByCategory():
-        mapFiles = G_mapCacheObjects[CIM_DataFile.__name__].items()
+        map_files = G_mapCacheObjects[CIM_DataFile.__name__].items()
 
         # TODO: Find a way to define the presentation as a parameter.
         # Maybe we can use the list of keys: Just mentioning a property
         # means that a sub-level must be displayed.
-        mapOfFilesMap = {rgxTuple[0]: {} for rgxTuple in G_lstFilters}
+        map_of_files_map = {rgxTuple[0]: {} for rgxTuple in G_lstFilters}
 
-        # objPath = 'CIM_DataFile.Name="/usr/lib64/libcap.so.2.24"'
-        for objPath, objInstance in mapFiles:
-            mapOfFilesMap[objInstance.Category][objPath] = objInstance
-        return mapOfFilesMap
+        # obj_path = 'CIM_DataFile.Name="/usr/lib64/libcap.so.2.24"'
+        for obj_path, obj_instance in map_files:
+            map_of_files_map[obj_instance.Category][obj_path] = obj_instance
+        return map_of_files_map
 
     @classmethod
-    def DisplaySummary(cls, fdSummaryFile, cimKeyValuePairs):
-        fdSummaryFile.write("Files:\n")
-        mapOfFilesMap = CIM_DataFile.SplitFilesByCategory()
+    def DisplaySummary(cls, fd_summary_file, cim_key_value_pairs):
+        fd_summary_file.write("Files:\n")
+        map_of_files_map = CIM_DataFile.SplitFilesByCategory()
 
         try:
-            filterCats = cimKeyValuePairs["Category"]
+            filter_cats = cim_key_value_pairs["Category"]
         except KeyError:
-            filterCats = None
+            filter_cats = None
 
-        for categoryFiles, mapFilesSub in sorted(mapOfFilesMap.items()):
-            fdSummaryFile.write("\n** %s\n" % categoryFiles)
-            if filterCats and (not categoryFiles in filterCats): continue
-            for objPath, objInstance in sorted(mapFilesSub.items()):
+        for category_files, map_files_sub in sorted(map_of_files_map.items()):
+            fd_summary_file.write("\n** %s\n" % category_files)
+            if filter_cats and category_files not in filter_cats:
+                continue
+            for objPath, objInstance in sorted(map_files_sub.items()):
                 # sys.stdout.write("Path=%s\n"%objPath)
-                objInstance.Summarize(fdSummaryFile)
-        fdSummaryFile.write("\n")
+                objInstance.Summarize(fd_summary_file)
+        fd_summary_file.write("\n")
 
     m_attributes_priorities = ["Name", "Category", "SocketAddress"]
 
@@ -1358,39 +1384,40 @@ class CIM_DataFile(CIM_LogicalFile):
         margin = "        "
         strm.write("%s<CIM_DataFile Name='%s'>\n" % (margin, self.Name))
 
-        subMargin = margin + "    "
+        sub_margin = margin + "    "
 
-        self.PlainToXML(strm, subMargin)
+        self.plain_to_XML(strm, sub_margin)
 
-        FileAccess.serialize_list_to_XML(strm, self.m_DataFileFileAccesses, subMargin, True)
+        FileAccess.serialize_list_to_XML(strm, self.m_DataFileFileAccesses, sub_margin, True)
 
-        strm.write("%s</CIM_DataFile>\n" % (margin))
+        strm.write("%s</CIM_DataFile>\n" % margin)
 
     @staticmethod
-    def XMLCategorySummary(fdSummaryFile, mapFilesSub):
-        for objPath, objInstance in sorted(mapFilesSub.items()):
+    def XMLCategorySummary(fd_summary_file, map_files_sub):
+        for objPath, objInstance in sorted(map_files_sub.items()):
             # sys.stdout.write("Path=%s\n"%objPath)
-            objInstance.XMLDisplay(fdSummaryFile)
+            objInstance.XMLDisplay(fd_summary_file)
 
     @classmethod
-    def XMLSummary(cls, fd_summary_file, cimKeyValuePairs):
+    def XMLSummary(cls, fd_summary_file, cim_key_value_pairs):
         """Top-level informations are categories of CIM_DataFile which are not technical
         but the regex-based filtering."""
-        mapOfFilesMap = CIM_DataFile.SplitFilesByCategory()
+        map_of_files_map = CIM_DataFile.SplitFilesByCategory()
 
         try:
-            filterCats = cimKeyValuePairs["Category"]
+            filter_cats = cim_key_value_pairs["Category"]
         except KeyError:
-            filterCats = None
+            filter_cats = None
 
-        for categoryFiles, mapFilesSub in sorted(mapOfFilesMap.items()):
-            if len(mapFilesSub) == 0:
+        for category_files, map_files_sub in sorted(map_of_files_map.items()):
+            if len(map_files_sub) == 0:
                 # No need to write a category name if it is empty.
                 continue
 
-            fd_summary_file.write("    <FilesCategory category='%s'>\n" % categoryFiles)
-            if filterCats and (not categoryFiles in filterCats): continue
-            CIM_DataFile.XMLCategorySummary(fd_summary_file, mapFilesSub)
+            fd_summary_file.write("    <FilesCategory category='%s'>\n" % category_files)
+            if filter_cats and category_files not in filter_cats:
+                continue
+            CIM_DataFile.XMLCategorySummary(fd_summary_file, map_files_sub)
             fd_summary_file.write("    </FilesCategory>\n")
 
     def Summarize(self, strm):
@@ -1402,20 +1429,19 @@ class CIM_DataFile(CIM_LogicalFile):
             pass
         strm.write("Path:%s\n" % self.Name)
 
-        for filAcc in self.m_DataFileFileAccesses:
-
-            if filAcc.OpenTime:
-                strOpen = _timestamp_to_str(filAcc.OpenTime)
-                strm.write("  Open:%s\n" % strOpen)
+        for fil_acc in self.m_DataFileFileAccesses:
+            if fil_acc.OpenTime:
+                str_open = _timestamp_to_str(fil_acc.OpenTime)
+                strm.write("  Open:%s\n" % str_open)
 
                 try:
-                    strm.write("  Open times:%d\n" % filAcc.NumOpen)
+                    strm.write("  Open times:%d\n" % fil_acc.NumOpen)
                 except AttributeError:
                     pass
 
-            if filAcc.CloseTime:
-                strClose = _timestamp_to_str(filAcc.CloseTime)
-                strm.write("  Close:%s\n" % strClose)
+            if fil_acc.CloseTime:
+                str_close = _timestamp_to_str(fil_acc.CloseTime)
+                strm.write("  Close:%s\n" % str_close)
 
         # Only if this is a socket.
         # The original socket parameters might have been passed as a dict like:
@@ -1424,8 +1450,8 @@ class CIM_DataFile(CIM_LogicalFile):
         # "['st_mode=S_IFREG|0644', 'st_size=121043', '...']"
         # So we are only sure that it is an array.
         try:
-            for saKeyValue in self.SocketAddress:
-                strm.write("    %s\n" % saKeyValue)
+            for sa_key_value in self.SocketAddress:
+                strm.write("    %s\n" % sa_key_value)
         except AttributeError:
             pass
 
@@ -1435,30 +1461,30 @@ class CIM_DataFile(CIM_LogicalFile):
     # The input could be IPV4 or IPV6:
     # '82.45.12.63:63708]'
     # '::ffff:82.45.12.63:63703]'
-    def SetAddrPort(self, pathIP):
-        ixEq = pathIP.rfind(":")
-        if ixEq < 0:
-            self.Destination = pathIP
+    def SetAddrPort(self, path_ip):
+        ix_eq = path_ip.rfind(":")
+        if ix_eq < 0:
+            self.Destination = path_ip
         else:
-            self.Port = pathIP[ixEq + 1:]
-            addrIP = pathIP[:ixEq]
+            self.Port = path_ip[ix_eq + 1:]
+            addr_ip = path_ip[:ix_eq]
             try:
-                self.Destination = socket.gethostbyaddr(addrIP)[0]
+                self.Destination = socket.gethostbyaddr(addr_ip)[0]
             except:
-                self.Destination = addrIP
+                self.Destination = addr_ip
 
     @staticmethod
     def GetExposedPorts():
         """this is is the list of all ports numbers whihc have to be open."""
 
-        mapFiles = G_mapCacheObjects[CIM_DataFile.__name__].items()
-        setPorts = set()
-        for objPath, objInstance in mapFiles:
+        map_files = G_mapCacheObjects[CIM_DataFile.__name__].items()
+        set_ports = set()
+        for obj_path, obj_instance in map_files:
             try:
-                setPorts.add(objInstance.Port)
+                set_ports.add(obj_instance.Port)
             except AttributeError:
                 pass
-        return setPorts
+        return set_ports
 
     m_nonFilePrefixes = ["UNIX:", "TCP:", "TCPv6:", "NETLINK:", "pipe:", "UDP:", "UDPv6:", ]
 
@@ -1514,10 +1540,10 @@ class CIM_Directory(CIM_LogicalFile):
 _class_name_to_subclass = {cls.__name__: cls for cls in leaf_derived_classes(CIM_XmlMarshaller)}
 
 
-# os.path.abspath removes things like . and .. from the path
-# giving a full path from the root of the directory tree to the named file (or symlink)
 def to_real_absolute_path(directory_path, file_basename):
-    # This conversion to avoid "TypeError: Can't mix strings and bytes in path components"
+    """os.path.abspath removes things like . and .. from the path
+    giving a full path from the root of the directory tree to the named file (or symlink)
+    This conversion to avoid "TypeError: Can't mix strings and bytes in path components" """
     if isinstance(directory_path, six.binary_type):
         directory_path = directory_path.decode("utf-8")
     if isinstance(file_basename, six.binary_type):
@@ -1548,13 +1574,16 @@ G_topProcessId = None
 
 ################################################################################
 
+# Warning message printed not too many times.
+_G_warnings_counter = 0
 
-# This helps creating CIM objects based on their class name a key-value pairs
-# defined from the ontology. The role of this context object is to contain
-# everything which is needed to create a CIM object without ambiguity.
-# For example, when creating a CIM_DataFile, only the relative path name
-# might ba available. So, the process current work dir is given by this context.
+
 class ObjectsContext:
+    """This helps creating CIM objects based on their class name a key-value pairs
+    defined from the ontology. The role of this context object is to contain
+    everything which is needed to create a CIM object without ambiguity.
+    For example, when creating a CIM_DataFile, only the relative path name
+    might ba available. So, the process current work dir is given by this context."""
     def __init__(self, process_id = None):
         self._process_id = process_id
 
@@ -1584,27 +1613,28 @@ class ObjectsContext:
             returned_object.SetParentProcess(parent_proc_obj)
         return returned_object
 
-    # It might be a Linux socket or an IP socket.
-    # The pid can be added so we know which process accesses this file.
-    def ToObjectPath_CIM_DataFile(self, pathName):
-        if isinstance(pathName, six.binary_type):
-            pathName = pathName.decode("utf-8")
-        assert isinstance(pathName, six.text_type)
+    def ToObjectPath_CIM_DataFile(self, path_name):
+        """It might be a Linux socket or an IP socket.
+        The pid can be added so we know which process accesses this file."""
+        if isinstance(path_name, six.binary_type):
+            path_name = path_name.decode("utf-8")
+        assert isinstance(path_name, six.text_type)
         if self._process_id:
             # Maybe this is a relative file, and to make it absolute, the process is needed.
-            objProcess = self.ToObjectPath_CIM_Process(self._process_id)
-            dirPath = objProcess.GetProcessCurrentDir()
+            obj_process = self.ToObjectPath_CIM_Process(self._process_id)
+            dir_path = obj_process.GetProcessCurrentDir()
         else:
             # At least it will suppress ".." etc...
-            dirPath = ""
+            dir_path = ""
 
-        pathName = to_real_absolute_path(dirPath, pathName)
+        path_name = to_real_absolute_path(dir_path, path_name)
 
-        objDataFile = self._class_model_to_object_path(CIM_DataFile, pathName)
-        return objDataFile
+        obj_data_file = self._class_model_to_object_path(CIM_DataFile, path_name)
+        return obj_data_file
 
     def _class_model_to_object_path(self, class_model, *ctor_args):
         global G_mapCacheObjects
+        global _G_warnings_counter
         map_objs = G_mapCacheObjects[class_model.__name__]
 
         # Here, this tuple in the order of the ontology is a key in a per-class dictionary.
@@ -1612,9 +1642,11 @@ class ObjectsContext:
         try:
             the_obj = map_objs[obj_path]
         except KeyError:
-            if class_model.__name__ == "CIM_Process":
+            if class_model.__name__ == "CIM_Process" and _G_warnings_counter < 10:
                 # FIXME: IT IS CALLED TOO OFTEN, FOR EACH CIM_DataFile !!
-                sys.stderr.write("_class_model_to_object_path %s CIM_Process args=%s\n" % (sys._getframe(1).f_code.co_name, str(*ctor_args)))
+                sys.stderr.write("_class_model_to_object_path %s CIM_Process args=%s\n"
+                                 % (sys._getframe(1).f_code.co_name, str(*ctor_args)))
+                _G_warnings_counter += 1
 
             the_obj = class_model(*ctor_args)
             map_objs[obj_path] = the_obj
@@ -1622,88 +1654,96 @@ class ObjectsContext:
 
 ################################################################################
 
-def generate_dockerfile(dockerFilename):
-    fdDockerFile = open(dockerFilename, "w")
 
-    # This write in the DockerFile, the environment variables accessed
+def generate_dockerfile(docker_filename):
+    """
+    This generates a dockerfile reproducing the sessions traced with dockit.
+    """
+    fd_docker_file = open(docker_filename, "w")
+
+    # This writes in the DockerFile, the environment variables accessed
     # by processes. For the moment, all env vars are mixed together,
     # which is inexact, strictly speaking.
     def _write_environment_variables():
-        for envNam in G_EnvironmentVariables:
-            envVal = G_EnvironmentVariables[envNam]
-            if envVal == "":
+        for env_nam in G_EnvironmentVariables:
+            env_val = G_EnvironmentVariables[env_nam]
+            if env_val == "":
                 # Error response from daemon: ENV must have two arguments
-                envVal = '""'
-            fdDockerFile.write("ENV %s %s\n" % (envNam, envVal))
+                env_val = '""'
+            fd_docker_file.write("ENV %s %s\n" % (env_nam, env_val))
 
-        fdDockerFile.write("\n")
+        fd_docker_file.write("\n")
 
     def _write_process_tree():
         """Only for documentation purpose"""
 
-        def WriteOneProcessSubTree(objProc, depth):
-            commandLine = objProc.GetCommandLine()
-            if not commandLine:
-                commandLine = "????"
-            fdDockerFile.write("# %s -> %s : %s %s\n" % (
-            _timestamp_to_str(objProc.CreationDate), _timestamp_to_str(objProc.TerminationDate), "    " * depth, commandLine))
+        def write_one_process_sub_tree(obj_proc, depth):
+            command_line = obj_proc.GetCommandLine()
+            if not command_line:
+                command_line = "*Unknown-command*"
+            fd_docker_file.write("# %s -> %s : %s %s\n" % (
+                _timestamp_to_str(obj_proc.CreationDate),
+                _timestamp_to_str(obj_proc.TerminationDate),
+                "    " * depth,
+                command_line)
+            )
 
-            for subProc in sorted(objProc.m_subProcesses, key=lambda x: x.Handle):
-                WriteOneProcessSubTree(subProc, depth + 1)
+            for sub_proc in sorted(obj_proc.m_subProcesses, key=lambda x: x.Handle):
+                write_one_process_sub_tree(sub_proc, depth + 1)
 
-        fdDockerFile.write("# Processes tree\n")
+        fd_docker_file.write("# Processes tree\n")
 
-        procsTopLevel = CIM_Process.GetTopProcesses()
-        for oneProc in sorted(procsTopLevel, key=lambda x: x.Handle):
-            WriteOneProcessSubTree(oneProc, 1)
-        fdDockerFile.write("\n")
+        procs_top_level = CIM_Process.GetTopProcesses()
+        for one_proc in sorted(procs_top_level, key=lambda x: x.Handle):
+            write_one_process_sub_tree(one_proc, 1)
+        fd_docker_file.write("\n")
 
-    currNow = datetime.datetime.now()
-    currDatTim = currNow.strftime("%Y-%m-%d %H:%M:%S:%f")
-    fdDockerFile.write("# Dockerfile generated %s\n" % currDatTim)
+    curr_now = datetime.datetime.now()
+    curr_dat_tim = curr_now.strftime("%Y-%m-%d %H:%M:%S:%f")
+    fd_docker_file.write("# Dockerfile generated %s\n" % curr_dat_tim)
 
-    dockerDirectory = os.path.dirname(dockerFilename)
-    fdDockerFile.write("# Directory %s\n" % dockerDirectory)
-    fdDockerFile.write("\n")
+    docker_directory = os.path.dirname(docker_filename)
+    fd_docker_file.write("# Directory %s\n" % docker_directory)
+    fd_docker_file.write("\n")
 
-    fdDockerFile.write("FROM docker.io/fedora\n")
-    fdDockerFile.write("\n")
+    fd_docker_file.write("FROM docker.io/fedora\n")
+    fd_docker_file.write("\n")
 
-    fdDockerFile.write("MAINTAINER contact@primhillcomputers.com\n")
-    fdDockerFile.write("\n")
+    fd_docker_file.write("MAINTAINER contact@primhillcomputers.com\n")
+    fd_docker_file.write("\n")
 
-    GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile)
+    _generate_docker_process_dependencies(docker_directory, fd_docker_file)
 
     # Top-level processes, which starts the other ones.
     # Probably there should be one only, but this is not a constraint.
-    procsTopLevel = CIM_Process.GetTopProcesses()
-    for oneProc in procsTopLevel:
+    procs_top_level = CIM_Process.GetTopProcesses()
+    for one_proc in procs_top_level:
         # TODO: Possibly add the command "VOLUME" ?
-        currDir = oneProc.GetProcessCurrentDir()
-        fdDockerFile.write("WORKDIR %s\n" % currDir)
+        curr_dir = one_proc.GetProcessCurrentDir()
+        fd_docker_file.write("WORKDIR %s\n" % curr_dir)
 
-        commandList = oneProc.GetCommandList()
-        if commandList:
+        command_list = one_proc.GetCommandList()
+        if command_list:
             # If the string length read by ltrace or strace is too short,
             # some arguments are truncated: 'CMD ["python TestProgs/big_mysql_..."]'
 
             # There should be one CMD command only !
-            strCmd = ",".join('"%s"' % wrd for wrd in commandList)
+            str_cmd = ",".join('"%s"' % wrd for wrd in command_list)
 
-            fdDockerFile.write("CMD [ %s ]\n" % strCmd)
-    fdDockerFile.write("\n")
+            fd_docker_file.write("CMD [ %s ]\n" % str_cmd)
+    fd_docker_file.write("\n")
 
-    portsList = CIM_DataFile.GetExposedPorts()
-    if portsList:
-        fdDockerFile.write("# Port numbers:\n")
-        for onePort in portsList:
+    ports_list = CIM_DataFile.GetExposedPorts()
+    if ports_list:
+        fd_docker_file.write("# Port numbers:\n")
+        for one_port in ports_list:
             try:
-                txtPort = socket.getservbyport(int(onePort))
-                fdDockerFile.write("# Service: %s\n" % txtPort)
+                txt_port = socket.getservbyport(int(one_port))
+                fd_docker_file.write("# Service: %s\n" % txt_port)
             except:
-                fdDockerFile.write("# Unknown service number: %s\n" % onePort)
-            fdDockerFile.write("EXPOSE %s\n" % onePort)
-        fdDockerFile.write("\n")
+                fd_docker_file.write("# Unknown service number: %s\n" % one_port)
+            fd_docker_file.write("EXPOSE %s\n" % one_port)
+        fd_docker_file.write("\n")
 
     _write_environment_variables()
 
@@ -1712,7 +1752,7 @@ def generate_dockerfile(dockerFilename):
     # More examples here:
     # https://github.com/kstaken/dockerfile-examples/blob/master/couchdb/Dockerfile
 
-    fdDockerFile.close()
+    fd_docker_file.close()
     return
 
 # Environment variables actually access by processes.
@@ -1808,146 +1848,124 @@ G_lstFilters = [
 ]
 
 
-def _pathname_to_category(pathName):
+def _pathname_to_category(path_name):
     """This match the path name againt the set of regular expressions
     defining broad categories of files: Sockets, libraries, temporary files...
     These categories are not technical but based on application best practices,
     rules of thumbs etc..."""
-    for rgxTuple in G_lstFilters:
-        for oneRgx in rgxTuple[1]:
+    for rgx_tuple in G_lstFilters:
+        for one_rgx in rgx_tuple[1]:
             # If the file matches a regular expression,
             # then it is classified in this category.
-            mtchRgx = re.match( oneRgx, pathName )
-            if mtchRgx:
-                return rgxTuple[0]
+            mtch_rgx = re.match(one_rgx, path_name)
+            if mtch_rgx:
+                return rgx_tuple[0]
     return "Others"
 
 ################################################################################
 
 # See https://github.com/nbeaver/pip_file_lookup
-pythonCache = {}
+_python_cache = {}
+
 
 def PathToPythonModuleOneFileMakeCache(path):
-    global pythonCache
+    global _python_cache
 
     try:
         import lib_python
-        pipInstalledDistributions = lib_python.PipGetInstalledDistributions()
-        if pipInstalledDistributions == None:
+        pip_installed_distributions = lib_python.PipGetInstalledDistributions()
+        if pip_installed_distributions == None:
             return
     except ImportError:
         return
 
-    for dist in pipInstalledDistributions:
+    for dist in pip_installed_distributions:
         # RECORDs should be part of .dist-info metadatas
         if dist.has_metadata('RECORD'):
             lines = dist.get_metadata_lines('RECORD')
             paths = [l.split(',')[0] for l in lines]
-            distDirectory = dist.location
+            dist_directory = dist.location
         # Otherwise use pip's log for .egg-info's
         elif dist.has_metadata('installed-files.txt'):
             paths = dist.get_metadata_lines('installed-files.txt')
-            distDirectory = dist.egg_info
+            dist_directory = dist.egg_info
         else:
-            distDirectory = None
+            dist_directory = None
 
-        if distDirectory:
+        if dist_directory:
             for p in paths:
-                normedPath = os.path.normpath( os.path.join(distDirectory, p) )
+                normed_path = os.path.normpath( os.path.join(dist_directory, p) )
                 try:
-                    pythonCache[normedPath].append( dist )
+                    _python_cache[normed_path].append(dist)
                 except KeyError:
-                    pythonCache[normedPath] = [ dist ]
+                    _python_cache[normed_path] = [dist]
 
-def PathToPythonModuleOneFile(path):
+
+def _path_to_python_module_one_file(path):
     try:
-        return pythonCache[path]
+        return _python_cache[path]
     except KeyError:
         return []
 
-def PathToPythonModuleOneFile_OldOldOldOld(path):
-    try:
-        import lib_python
-        pipInstalledDistributions = lib_python.PipGetInstalledDistributions()
-        if pipInstalledDistributions == None:
-            return
-    except ImportError:
-        return
 
-    for dist in pipInstalledDistributions:
-        # RECORDs should be part of .dist-info metadatas
-        if dist.has_metadata('RECORD'):
-            lines = dist.get_metadata_lines('RECORD')
-            paths = [l.split(',')[0] for l in lines]
-            distDirectory = dist.location
-        # Otherwise use pip's log for .egg-info's
-        elif dist.has_metadata('installed-files.txt'):
-            paths = dist.get_metadata_lines('installed-files.txt')
-            distDirectory = dist.egg_info
-        else:
-            distDirectory = None
+def _files_to_python_modules(unpackaged_data_files):
+    """
+    This takes as input a list of files, some of them installed by Python modules,
+    and others having nothing to do with Python. It returns two data structures:
+    - The set of unique Python modules, some files come from.
+    - The remaining list of files, not coming from any Python module.
+    This allow to reproduce an environment.
+    """
+    set_python_modules = set()
+    unknown_data_files = []
 
-        if distDirectory:
-            if path in [ os.path.normpath( os.path.join(distDirectory, p) ) for p in paths]:
-                yield dist
-
-# This takes as input a list of files, some of them installed by Python modules,
-# and others having nothing to do with Python. It returns two data structures:
-# - The set of unique Python modules, some files come from.
-# - The remaining list of files, not coming from any Python module.
-# This allow to reproduce an environment.
-def _files_to_python_modules(unpackagedDataFiles):
-    setPythonModules = set()
-    unknownDataFiles = []
-
-    for oneFilObj in unpackagedDataFiles:
-        lstModules = PathToPythonModuleOneFile(oneFilObj.Name)
+    for one_fil_obj in unpackaged_data_files:
+        lst_modules = _path_to_python_module_one_file(one_fil_obj.Name)
         # TODO: Maybe just take one module ?
-        # sys.stdout.write("path=%s mods=%s\n"%(oneFilObj.Name, str(list(lstModules))))
-        addedOne = False
-        for oneMod in lstModules:
-            setPythonModules.add( oneMod )
-            addedOne = True
-        if not addedOne:
-            unknownDataFiles.append( oneFilObj )
+        # sys.stdout.write("path=%s mods=%s\n"%(one_fil_obj.Name, str(list(lst_modules))))
+        added_one = False
+        for one_mod in lst_modules:
+            set_python_modules.add(one_mod)
+            added_one = True
+        if not added_one:
+            unknown_data_files.append(one_fil_obj)
 
-    return setPythonModules, unknownDataFiles
+    return set_python_modules, unknown_data_files
 
 
-################################################################################
+def _generate_docker_process_dependencies(docker_directory, fd_docker_file):
+    """
+    Display the dependencies of processes.
+    They might need the installation of libraries. modules etc...
+    Sometimes these dependencies are the same.
+    The type of process can be: "Binary", "Python", "Perl" etc...
+    and for each of these it receive a list of strings, each of them models
+    a dependency: a RPM package, a Python module etc...
+    Sometimes, they can be be similar and will therefore be loaded once.
+    The type of process contains some specific code which can generate
+    the Dockerfile commands for handling these dependencies.
+    """
 
-# Display the dependencies of process.
-# They might need the installation of libraries. modules etc...
-# Sometimes these dependencies are the same.
-# The type of process can be: "Binary", "Python", "Perl" etc...
-# and for each of these it receive a list of strings, each of them models
-# a dependency: a RPM package, a Python module etc...
-# Sometimes, they can be be similar and will therefore be loaded once.
-# The type of process contains some specific code which can generate
-# the Dockerfile commands for handling these dependencies.
-#
-def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
     # TODO: Do not duplicate Python modules installation.
-    def InstallPipModule(fdDockerFile, namePyModule):
-        fdDockerFile.write("RUN pip --disable-pip-version-check install %s\n" % namePyModule)
+    def install_pip_module(fd_docker_file, name_py_module):
+        fd_docker_file.write("RUN pip --disable-pip-version-check install %s\n" % name_py_module)
 
-    def InstallLinuxPackage(fdDockerFile, packageName):
-
+    def install_linux_package(fd_docker_file, package_name):
         # packageName = "mariadb-libs-10.1.30-2.fc26.x86_64"
         # RUN yum install mariadb-libs
-        if packageName in InstallLinuxPackage.InstalledPackages:
-            pckShort = InstallLinuxPackage.InstalledPackages[packageName]
-            fdDockerFile.write("# Already installed %s -> %s\n" % (pckShort, packageName))
+        if package_name in install_linux_package.InstalledPackages:
+            pck_short = install_linux_package.InstalledPackages[package_name]
+            fd_docker_file.write("# Already installed %s -> %s\n" % (pck_short, package_name))
             return
 
         # TODO: Maybe there are several versions of the same package.
-        mtch = re.search(r'(.*)-(.*)-(.*?)\.(.*)', packageName)
+        mtch = re.search(r'(.*)-(.*)-(.*?)\.(.*)', package_name)
         if mtch:
-            (pckShort, version, release, platform) = mtch.groups()
+            pck_short, version, release, the_platform = mtch.groups()
         else:
-            pckShort = packageName
+            pck_short = package_name
 
-        InstallLinuxPackage.InstalledPackages[packageName] = pckShort
+        install_linux_package.InstalledPackages[package_name] = pck_short
 
         # Step 4/7 : RUN yum -y install coreutils # coreutils-8.27-5.fc26.x86_64
         # Problem: problem with installed package coreutils-single-8.29-5.fc28.x86_64
@@ -1955,45 +1973,45 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
         # (try to add '--allowerasing' to command line to replace conflicting packages or '--skip-broken' to skip uninstallable packages)
 
         # For the moment, this is simpler.
-        if pckShort in ['coreutils']:
-            fdDockerFile.write("# Potential conflict with %s , %s\n" % (pckShort, packageName))
+        if pck_short in ['coreutils']:
+            fd_docker_file.write("# Potential conflict with %s , %s\n" % (pck_short, package_name))
         else:
-            fdDockerFile.write("RUN yum -y install %s # %s\n" % (pckShort, packageName))
+            fd_docker_file.write("RUN yum -y install %s # %s\n" % (pck_short, package_name))
 
     # Each package is installed only once.
-    InstallLinuxPackage.InstalledPackages = dict()
+    install_linux_package.InstalledPackages = dict()
 
     # FIXME: We could copy an entire directory tree. When ?
-    def AddToDockerDir(pathName, filComment=0):
+    def add_to_docker_dir(path_name, fil_comment=0):
         # Maybe the input file does not exist.
-        if not os.path.exists(pathName):
-            fdDockerFile.write("# Origin file does not exist:%s\n" % (pathName))
+        if not os.path.exists(path_name):
+            fd_docker_file.write("# Origin file does not exist:%s\n" % path_name)
             return
 
         # No need to copy directories.
-        if os.path.isdir(pathName):
+        if os.path.isdir(path_name):
             return
 
-        orgDir = os.path.dirname(pathName)
-        dstDir = dockerDirectory + "/" + orgDir
+        org_dir = os.path.dirname(path_name)
+        dst_dir = docker_directory + "/" + org_dir
 
-        if not os.path.exists(dstDir):
-            os.makedirs(dstDir)
-        dstPath = dockerDirectory + "/" + pathName
+        if not os.path.exists(dst_dir):
+            os.makedirs(dst_dir)
+        dst_path = docker_directory + "/" + path_name
         try:
             # Copy the file at the right place, so "docker build" can find it.
-            shutil.copy(pathName, dstPath)
+            shutil.copy(path_name, dst_path)
         except IOError:
-            sys.stdout.write("Failed copy %s to %s\n" % (pathName, dstPath))
+            sys.stdout.write("Failed copy %s to %s\n" % (path_name, dst_path))
             # Maybe the file is not there because this is in replay mode,
             # rerunning a session form the log file. This is not a problem.
-            fdDockerFile.write("# Cannot add non-existent file:%s\n" % (pathName))
+            fd_docker_file.write("# Cannot add non-existent file:%s\n" % path_name)
             return
 
-        if filComment:
-            fdDockerFile.write("# %s\n" % (filComment))
+        if fil_comment:
+            fd_docker_file.write("# %s\n" % fil_comment)
 
-        fdDockerFile.write("ADD %s %s\n" % (pathName, pathName))
+        fd_docker_file.write("ADD %s %s\n" % (path_name, path_name))
 
     # Code dependencies and data files dependencies are different.
 
@@ -2002,8 +2020,8 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
         def __init__(self):
             self.m_accessedCodeFiles = set()
 
-        def AddDep(self, pathName):
-            self.m_accessedCodeFiles.add(pathName)
+        def AddDep(self, path_name):
+            self.m_accessedCodeFiles.add(path_name)
 
     class DependencyPython(Dependency):
         DependencyName = "Python scripts"
@@ -2024,51 +2042,51 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
                 return False
 
         @staticmethod
-        def is_executable_file(objDataFile):
-            for file_extension in [".py", ".pyc", ".pyd"]:
-                if objDataFile.Name.endswith(file_extension):
-                    return True
-            return False
+        def is_executable_file(obj_data_file):
+            return obj_data_file.Name.endswith((".py", ".pyc", ".pyd"))
+            #for file_extension in [".py", ".pyc", ".pyd"]:
+            #    if obj_data_file.Name.endswith(file_extension):
+            #        return True
+            #return False
 
-        def generate_docker_dependencies(self, fdDockerFile):
-            # FIXME: TODO: Remove these hardcodes.
-            packagesToInstall = set()
+        def generate_docker_dependencies(self, fd_docker_file):
+            packages_to_install = set()
 
-            for objDataFile in self.m_accessedCodeFiles:
-                filNam = objDataFile.Name
-                if filNam.find("packages") >= 0:
+            for obj_data_file in self.m_accessedCodeFiles:
+                fil_nam = obj_data_file.Name
+                if fil_nam.find("packages") >= 0:
                     # Now this trucates the file name to extract the Python package name.
-                    # filNam = '/usr/lib64/python2.7/site-packages/MySQLdb/constants/CLIENT.pyc'
-                    splitFil = filNam.split("/")
+                    split_fil = fil_nam.split("/")
                     try:
-                        ixPack = splitFil.index("site-packages")
+                        ix_pack = split_fil.index("site-packages")
                     except ValueError:
                         try:
-                            ixPack = splitFil.index("dist-packages")
+                            ix_pack = split_fil.index("dist-packages")
                         except ValueError:
-                            ixPack = -1
+                            ix_pack = -1
                             pass
 
-                    if (ixPack >= 0) and (ixPack < len(splitFil) - 1):
-                        pckNam = splitFil[ixPack + 1]
-                        if not pckNam.endswith(".py") and not pckNam.endswith(".pyc"):
-                            # filNam = 'abrt_exception_handler.py'
-                            packagesToInstall.add(splitFil[ixPack + 1])
-                elif filNam.startswith("/usr/lib/python2.7/"):
+                    if (ix_pack >= 0) and (ix_pack < len(split_fil) - 1):
+                        pck_nam = split_fil[ix_pack + 1]
+                        # if not pck_nam.endswith(".py") and not pck_nam.endswith(".pyc"):
+                        if not pck_nam.endswith((".py", ".pyc")):
+                            packages_to_install.add(split_fil[ix_pack + 1])
+                elif fil_nam.startswith("/usr/lib/python2.7/"):
                     # Then a source file coming with Python: "/usr/lib/python2.7/string.py"
                     pass
                 else:
                     # Must avoid copying file from the standard installation and always available, such as:
                     # "ADD /usr/lib64/python2.7/cgitb.py /"
                     # TODO: Use the right path:
-                    if not filNam.startswith("/usr/lib64/python2.7"):
-                        AddToDockerDir(filNam)
+                    if not fil_nam.startswith("/usr/lib64/python2.7"):
+                        add_to_docker_dir(fil_nam)
 
-            if packagesToInstall or self.m_accessedCodeFiles:
-                InstallLinuxPackage(fdDockerFile, "python")
-            for onePckgNam in sorted(packagesToInstall):
+            if packages_to_install or self.m_accessedCodeFiles:
+                install_linux_package(fd_docker_file, "python")
+
+            for one_pckg_nam in sorted(packages_to_install):
                 # TODO: Do not duplicate Python modules installation.
-                InstallPipModule(fdDockerFile, onePckgNam)
+                install_pip_module(fd_docker_file, one_pckg_nam)
 
     class DependencyPerl(Dependency):
         DependencyName = "Perl scripts"
@@ -2077,21 +2095,21 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
             super(DependencyPerl, self).__init__()
 
         @staticmethod
-        def is_dependency_of(objInstance):
+        def is_dependency_of(obj_instance):
             try:
-                return objInstance.Executable.find("/perl") >= 0
+                return obj_instance.Executable.find("/perl") >= 0
             except AttributeError:
                 # We do not know the executable, or it is a thread.
                 return False
 
         @staticmethod
-        def is_executable_file(objDataFile):
-            return objDataFile.Name.endswith(".pl")
+        def is_executable_file(obj_data_file):
+            return obj_data_file.Name.endswith(".pl")
 
-        def generate_docker_dependencies(self, fdDockerFile):
-            for objDataFile in self.m_accessedCodeFiles:
-                filNam = objDataFile.Name
-                fdDockerFile.write("RUN cpanm %s\n" % filNam)
+        def generate_docker_dependencies(self, fd_docker_file):
+            for obj_data_file in self.m_accessedCodeFiles:
+                fil_nam = obj_data_file.Name
+                fd_docker_file.write("RUN cpanm %s\n" % fil_nam)
             pass
 
     class DependencyBinary(Dependency):
@@ -2101,47 +2119,46 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
             super(DependencyBinary, self).__init__()
 
         @staticmethod
-        def is_dependency_of(objInstance):
+        def is_dependency_of(obj_instance):
             # Always true because tested at the end as a default.
             # The executable should at least be an executable file.
             return True
 
         @staticmethod
-        def is_executable_file(objDataFile):
-            return objDataFile.Name.find(".so") > 0
+        def is_executable_file(obj_data_file):
+            return obj_data_file.Name.find(".so") > 0
 
         @staticmethod
-        # This detects the libraries which are always in the path.
-        #
-        def IsSystemLib(filNam):
-            basNam = os.path.basename(filNam)
-            if basNam in ["ld.so.cache", "ld.so.preload"]:
+        def IsSystemLib(fil_nam):
+            """This detects the libraries which are always in the path."""
+            bas_nam = os.path.basename(fil_nam)
+            if bas_nam in ["ld.so.cache", "ld.so.preload"]:
                 return True
 
             # Eliminates the extension and the version.
-            noExt = basNam[: basNam.find(".")]
-            noExt = noExt[: noExt.find("-")]
-            if noExt in ["libdl", "libc", "libacl", "libm", "libutil", "libpthread"]:
+            no_ext = bas_nam[:bas_nam.find(".")]
+            no_ext = no_ext[:no_ext.find("-")]
+            if no_ext in ["libdl", "libc", "libacl", "libm", "libutil", "libpthread"]:
                 return True
             return False
 
-        def generate_docker_dependencies(self, fdDockerFile):
+        def generate_docker_dependencies(self, fd_docker_file):
             # __libc_start_main([ "python", "TestProgs/mineit_mysql_select.py" ] <unfinished ...>
-            #    return objInstance.Executable.find("/python") >= 0 or objInstance.Executable.startswith("python")
+            #    return obj_instance.Executable.find("/python") >= 0 or obj_instance.Executable.startswith("python")
 
-            lstAccessedPackages, unpackagedAccessedCodeFiles = G_FilesToPackagesCache.get_packages_list(
+            lst_accessed_packages, unpackaged_accessed_code_files = G_FilesToPackagesCache.get_packages_list(
                 self.m_accessedCodeFiles)
 
-            fdDockerFile.write("# Package installations:\n")
-            for namPackage in sorted(lstAccessedPackages):
-                InstallLinuxPackage(fdDockerFile, namPackage)
-            fdDockerFile.write("\n")
+            fd_docker_file.write("# Package installations:\n")
+            for nam_package in sorted(lst_accessed_packages):
+                install_linux_package(fd_docker_file, nam_package)
+            fd_docker_file.write("\n")
 
-            fdDockerFile.write("# Non-packaged executable files copies:\n")
-            sortAccessedCodeFiles = sorted(unpackagedAccessedCodeFiles, key=lambda x: x.Name)
-            for objDataFile in sortAccessedCodeFiles:
-                filNam = objDataFile.Name
-                AddToDockerDir(filNam)
+            fd_docker_file.write("# Non-packaged executable files copies:\n")
+            sort_accessed_code_files = sorted(unpackaged_accessed_code_files, key=lambda x: x.Name)
+            for objDataFile in sort_accessed_code_files:
+                fil_nam = objDataFile.Name
+                add_to_docker_dir(fil_nam)
 
     _dependencies_list = [
         DependencyPython(),
@@ -2149,105 +2166,102 @@ def GenerateDockerProcessDependencies(dockerDirectory, fdDockerFile):
         DependencyBinary(),
     ]
 
-    accessedDataFiles = set()
+    accessed_data_files = set()
 
     # This is the complete list of extra executables which have to be installed.
-    lstBinaryExecutables = set()
+    lst_binary_executables = set()
 
     # This is a subset of _dependencies_list.
-    setUsefulDependencies = set()
+    set_useful_dependencies = set()
 
-    for objPath, objInstance in G_mapCacheObjects[CIM_Process.__name__].items():
-        for oneDep in _dependencies_list:
+    for obj_path, obj_instance in G_mapCacheObjects[CIM_Process.__name__].items():
+        for one_dep in _dependencies_list:
             # Based on the executable of the process,
             # this tells if we might have dependencies of this type: Python Perl etc...
-            if oneDep.is_dependency_of(objInstance):
-                setUsefulDependencies.add(oneDep)
+            if one_dep.is_dependency_of(obj_instance):
+                set_useful_dependencies.add(one_dep)
                 break
 
-        for filAcc in objInstance.m_ProcessFileAccesses:
-            oneFile = filAcc.m_objectCIM_DataFile
-            if oneDep and oneDep.is_executable_file(oneFile):
-                oneDep.AddDep(oneFile)
+        for fil_acc in obj_instance.m_ProcessFileAccesses:
+            one_file = fil_acc.m_objectCIM_DataFile
+            if one_dep and one_dep.is_executable_file(one_file):
+                one_dep.AddDep(one_file)
             else:
-                accessedDataFiles.add(oneFile)
+                accessed_data_files.add(one_file)
 
         try:
-            anExec = objInstance.m_ExecutableObject
-            # sys.stdout.write("Add exec=%s tp=%s\n" % (anExec,str(type(anExec))))
-            lstBinaryExecutables.add(anExec)
+            an_exec = obj_instance.m_ExecutableObject
+            # sys.stdout.write("Add exec=%s tp=%s\n" % (an_exec,str(type(an_exec))))
+            lst_binary_executables.add(an_exec)
         except AttributeError:
             pass
 
     # Install or copy the executables.
     # Beware that some of them are specifically installed: Python, Perl.
-    fdDockerFile.write("################################# Executables:\n")
-    lstPackages, unknownBinaries = G_FilesToPackagesCache.get_packages_list(lstBinaryExecutables)
-    for anExec in sorted(lstPackages):
-        InstallLinuxPackage(fdDockerFile, anExec)
-    fdDockerFile.write("\n")
+    fd_docker_file.write("################################# Executables:\n")
+    lst_packages, unknown_binaries = G_FilesToPackagesCache.get_packages_list(lst_binary_executables)
+    for an_exec in sorted(lst_packages):
+        install_linux_package(fd_docker_file, an_exec)
+    fd_docker_file.write("\n")
 
     # This must be done after the binaries are installed: For example installing Perl packages
     # with CPAN needs to install Perl.
-    fdDockerFile.write("################################# Dependencies by program type\n")
-    for oneDep in setUsefulDependencies:
-        fdDockerFile.write("# Dependencies: %s\n" % oneDep.DependencyName)
-        oneDep.generate_docker_dependencies(fdDockerFile)
-        fdDockerFile.write("\n")
+    fd_docker_file.write("################################# Dependencies by program type\n")
+    for one_dep in set_useful_dependencies:
+        fd_docker_file.write("# Dependencies: %s\n" % one_dep.DependencyName)
+        one_dep.generate_docker_dependencies(fd_docker_file)
+        fd_docker_file.write("\n")
 
     # These are not data files.
-    categoriesNotInclude = set([
+    categories_not_include = {
         "Temporary files",
         "Pipes and terminals",
         "Kernel file systems",
         "System config files",
         "Connected TCP sockets",
         "Other TCP/IP sockets",
-    ])
+    }
 
-    lstPackagesData, unpackagedDataFiles = G_FilesToPackagesCache.get_packages_list(accessedDataFiles)
+    lst_packages_data, unpackaged_data_files = G_FilesToPackagesCache.get_packages_list(accessed_data_files)
 
-    setPythonModules, unknownDataFiles = _files_to_python_modules(unpackagedDataFiles)
+    set_python_modules, unknown_data_files = _files_to_python_modules(unpackaged_data_files)
 
-    if setPythonModules:
-        fdDockerFile.write("# Python modules:\n")
-        for onePyModu in sorted(setPythonModules):
-            InstallPipModule(fdDockerFile, onePyModu)
-        fdDockerFile.write("\n")
+    if set_python_modules:
+        fd_docker_file.write("# Python modules:\n")
+        for one_py_modu in sorted(set_python_modules):
+            install_pip_module(fd_docker_file, one_py_modu)
+        fd_docker_file.write("\n")
 
-    fdDockerFile.write("# Data packages:\n")
+    fd_docker_file.write("# Data packages:\n")
     # TODO: Many of them are probably already installed.
-    for anExec in sorted(lstPackagesData):
-        InstallLinuxPackage(fdDockerFile, anExec)
-    fdDockerFile.write("\n")
+    for an_exec in sorted(lst_packages_data):
+        install_linux_package(fd_docker_file, an_exec)
+    fd_docker_file.write("\n")
 
-    if unknownDataFiles:
-        fdDockerFile.write("# Data files:\n")
+    if unknown_data_files:
+        fd_docker_file.write("# Data files:\n")
         # Sorted by alphabetical order.
         # It would be better to sort it after filtering.
-        sortedDatFils = sorted(unknownDataFiles, key=lambda x: x.Name)
-        for datFil in sortedDatFils:
+        sorted_dat_fils = sorted(unknown_data_files, key=lambda x: x.Name)
+        for dat_fil in sorted_dat_fils:
             # DO NOT ADD DIRECTORIES.
 
-            if datFil.Category in categoriesNotInclude:
+            if dat_fil.Category in categories_not_include:
                 continue
 
-            filNam = datFil.Name
-            if filNam.startswith("/usr/include/"):
+            fil_nam = dat_fil.Name
+            if fil_nam.startswith(("/usr/include/", "/usr/bin/", "UnknownFileDescr:")):
                 continue
-            if filNam.startswith("/usr/bin/"):
-                continue
-            if filNam.startswith("UnknownFileDescr:"):
-                continue
-            if filNam in ["-1", "stdin", "stdout", "stderr", "."]:
+            if fil_nam in ["-1", "stdin", "stdout", "stderr", "."]:
                 continue
 
             # Primitive tests so that directories are not copied.
-            if filNam.endswith("/.") or filNam.endswith("/"):
+            # if fil_nam.endswith("/.") or fil_nam.endswith("/"):
+            if fil_nam.endswith(("/.", "/")):
                 continue
 
-            AddToDockerDir(filNam, datFil.Category)
-    fdDockerFile.write("\n")
+            add_to_docker_dir(fil_nam, dat_fil.Category)
+    fd_docker_file.write("\n")
 
 ################################################################################
 
