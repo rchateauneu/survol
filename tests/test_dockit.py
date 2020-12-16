@@ -1424,6 +1424,7 @@ class EventsServerTest(unittest.TestCase):
         # Now read and test the events.
         self._check_read_triples(5, expected_types_list)
 
+    @unittest.skipIf(is_platform_windows and not is_windows10, "Does not work on Windows 7.")
     def test_file_events_firefox(self):
         """This replays the startup of a firefox process."""
         output_basename_prefix = "firefox_events_google.strace.22501"
@@ -1443,7 +1444,8 @@ class EventsServerTest(unittest.TestCase):
         # Linux: 1678
         # Win10: 1800
         # Win7 : 1791
-        files_number = 1678 if is_platform_linux else 1800 if is_windows10 else 1691
+        # files_number = 1678 if is_platform_linux else 1800 if is_windows10 else 1691
+        files_number = 1678 if is_platform_linux else 1800
 
         expected_types_list = {
             'CIM_Process': 174,
@@ -1454,6 +1456,54 @@ class EventsServerTest(unittest.TestCase):
 
         # Now read and test the events.
         self._check_read_triples(5, expected_types_list)
+
+
+class MakefileTest(unittest.TestCase):
+    """
+    Test the generation of makefiles.
+    """
+
+    def test_basic_makefile_gcc_hello_world(self):
+        output_basename_prefix = "test_basic_makefile_gcc_hello_world"
+        temp_makefile = path_prefix_output_result("makefile")
+        dockit.test_from_file(
+            input_log_file=path_prefix_input_file("dockit_gcc_hello_world.ltrace.log"),
+            tracer="ltrace",
+            output_files_prefix=path_prefix_output_result(output_basename_prefix),
+            output_format="JSON",
+            summary_format="TXT",
+            output_makefile=temp_makefile)
+
+        check_file_content(output_basename_prefix + ".json")
+        check_file_content(output_basename_prefix + ".summary.txt")
+        #check_file_content(output_basename_prefix + ".rdf")
+
+        print("")
+        print("temp_makefile=", temp_makefile)
+        print("")
+        with open(temp_makefile) as fd_makefile:
+            actual_makefile_content = "".join(fd_makefile.readlines())
+        print("actual_makefile_content=\n", actual_makefile_content)
+
+        expected_makefile_content = """\
+/tmp/ccCdYueX.s: /home/rchateau/survol/Experimental/RetroBatch/TestProgs/HelloWorld.c
+\t/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/cc1
+
+/tmp/ccWzHVOT.o: /tmp/ccCdYueX.s
+\t/usr/bin/as
+
+/home/rchateau/survol/Experimental/RetroBatch/a.out: /tmp/ccWzHVOT.o
+\t/usr/bin/ld
+
+/tmp/ccHPSU44.le: /tmp/ccWzHVOT.o
+\t/usr/bin/ld
+
+/tmp/ccumYu87.ld: /tmp/ccWzHVOT.o
+\t/usr/bin/ld
+
+"""
+        print("expected_makefile_content=\n", expected_makefile_content)
+        self.assertEqual(expected_makefile_content, actual_makefile_content)
 
 
 if __name__ == '__main__':

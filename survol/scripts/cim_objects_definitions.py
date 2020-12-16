@@ -256,7 +256,7 @@ G_SameMachine = None
 # This is a dictionary (indexed by processes) of dictionaries (indexed by files).
 # It containes files accesses, which are object representing what happens
 # to a file between its opening and closing by a process.
-G_cacheFileAccesses = {}
+_cache_file_accesses = collections.defaultdict(dict)
 
 
 class FileAccess:
@@ -267,18 +267,17 @@ class FileAccess:
     This is displayed in XML as a single tag:
     <FileAccess OpenTime="" CloseTime="" etc... />
     """
-    def __init__(self, obj_process, obj_data_file):
+    def __init__(self, obj_process, obj_data_file, open_flag):
         self.OpenTime = None
         self.CloseTime = None
         self.m_objectCIM_Process = obj_process
         self.m_objectCIM_DataFile = obj_data_file
+        self.m_openFlag = open_flag
 
         obj_process.m_ProcessFileAccesses.append(self)
         obj_data_file.m_DataFileFileAccesses.append(self)
 
     def SetOpenTime(self, time_stamp):
-        global G_cacheFileAccesses
-
         try:
             self.NumOpen += 1
         except AttributeError:
@@ -293,12 +292,7 @@ class FileAccess:
                 except:
                     pass
 
-        # Strictly speaking, from now on, this is accessible from the cache.
-        G_cacheFileAccesses[self.m_objectCIM_Process][self.m_objectCIM_DataFile] = self
-
     def SetCloseTime(self, time_stamp):
-        global G_cacheFileAccesses
-
         # Maybe the file was never closed.
         if not getattr(self,"CloseTime",0) or (time_stamp < self.CloseTime):
             self.CloseTime = time_stamp
@@ -309,10 +303,6 @@ class FileAccess:
                     self.CloseSize = fil_stat.st_size
                 except:
                     pass
-
-        # Then remove the object from the cache so it cannot be returned
-        # anymore from this process and this file because it is closed.
-        del G_cacheFileAccesses[self.m_objectCIM_Process][self.m_objectCIM_DataFile]
 
     def _analyze_new_buffer(self, is_read, buffer_size, a_buffer):
         """Calling on a IO buffer ot a file or something."""
@@ -415,19 +405,19 @@ class FileAccess:
             strm.write(" />\n")
 
     @staticmethod
-    def lookup_file_access(objProcess,objDataFile):
-        global G_cacheFileAccesses
-        assert G_cacheFileAccesses is not None
+    def lookup_file_access(obj_process, obj_data_file, open_flag):
+        """The file must not be already opened."""
+        global _cache_file_accesses
+        assert _cache_file_accesses is not None
 
         try:
-            filAcc = G_cacheFileAccesses[objProcess][objDataFile]
+            fil_acc = _cache_file_accesses[obj_process][obj_data_file]
+            if open_flag == "W":
+                fil_acc.m_openFlag = "W"
         except KeyError:
-            filAcc = FileAccess(objProcess,objDataFile)
-            try:
-                G_cacheFileAccesses[objProcess][objDataFile] = filAcc
-            except KeyError:
-                G_cacheFileAccesses[objProcess] = {objDataFile : filAcc}
-        return filAcc
+            fil_acc = FileAccess(obj_process, obj_data_file, open_flag)
+            _cache_file_accesses[obj_process][obj_data_file] = fil_acc
+        return fil_acc
 
     @staticmethod
     def serialize_list_to_XML(strm, vec_files_accesses, margin, displayed_from_process):
@@ -1192,12 +1182,13 @@ class CIM_Process(CIM_XmlMarshaller):
             # Maybe it could not be get because the process left too quickly.
             return "UnknownCwd"
 
-    # This returns an object indexed by the file name and the process id.
-    # A file might have been opened several times by the same process.
-    # Therefore, once a file has been closed, the associated file access
-    # cannot be returned again.
-    def get_file_access(self, objCIM_DataFile):
-        one_file_access = FileAccess.lookup_file_access(self, objCIM_DataFile)
+    def get_file_access(self, objCIM_DataFile, open_letter):
+        """
+        This returns an object indexed by the file name and the process id.
+        A file might have been opened several times by the same process.
+        Therefore, once a file has been closed, the associated file access cannot be returned again.
+        """
+        one_file_access = FileAccess.lookup_file_access(self, objCIM_DataFile, open_letter)
         return one_file_access
 
 
@@ -1496,10 +1487,6 @@ class CIM_DataFile(CIM_LogicalFile):
     @staticmethod
     def is_plain_file(file_basename):
         return not file_basename.startswith(CIM_DataFile.m_non_file_prefixes)
-        #for file_prefix in CIM_DataFile.m_non_file_prefixes:
-        #    if file_basename.startswith(file_prefix):
-        #        return False
-        #return True
 
 
 # class CIM_Directory : CIM_LogicalFile
@@ -1559,6 +1546,9 @@ def to_real_absolute_path(directory_path, file_basename):
         return file_basename
 
     if file_basename in [u"stdout", u"stdin", u"stderr"]:
+        return file_basename
+
+    if not CIM_DataFile.is_plain_file(file_basename):
         return file_basename
 
     join_path = os.path.join(directory_path, file_basename)
@@ -1759,6 +1749,80 @@ def generate_dockerfile(docker_filename):
 
     fd_docker_file.close()
     return
+
+
+def generate_makefile(output_makefile):
+    """
+    This generates a makefile with all input and output file dependencies,
+    and the command which generates them.
+    In this kind of context, a file should be created only once, and by one process only.
+    This does not work if a file is rewritten.
+
+    This is targeted at makefiles and C/C++ files for the moment.
+    Therefore, there are hard-coded file extensions etc...
+    """
+
+    def _is_standard_lib_file(file_name):
+        """Files from the standard library do not need to be included in makefiles. """
+        return file_name.startswith(("/usr/", "/lib64/", "/etc/"))
+
+    out_fd = open(output_makefile, "w")
+
+    # TODO: This does not work if a file is rewritten.
+
+    sys.stdout.write("Output makefile %s not implemented yet\n" % output_makefile)
+    cached_processes = G_mapCacheObjects[CIM_Process.__name__]
+    for obj_path in sorted(cached_processes.keys()):
+        obj_instance = cached_processes[obj_path]
+        try:
+            command_line = obj_instance.GetCommandLine()
+        except AttributeError:
+            command_line = "Unknown command line"
+
+        # This creates two input and output files of each process.
+        input_files = set()
+        output_files = set()
+
+        for fil_acc in obj_instance.m_ProcessFileAccesses:
+            one_file = fil_acc.m_objectCIM_DataFile
+
+            # Special files such as "/dev/" or "/proc/" are not taken into consideration.
+            if not CIM_DataFile.is_plain_file(one_file.Name):
+                continue
+
+            # Standard libraries and header files are not taken into consideration.
+            if _is_standard_lib_file(one_file.Name):
+                continue
+
+            # TODO: If a file is open rw, but without write access, what to do ?
+            if fil_acc.m_openFlag == "R":
+                input_files.add(one_file)
+            else:
+                output_files.add(one_file)
+
+        if not input_files:
+            continue
+
+        input_files = sorted(input_files, key=lambda obj_fil: obj_fil.Name)
+
+        # TODO: What of a file is written by several process ?
+        for one_out_file in sorted(output_files, key=lambda obj_fil: obj_fil.Name):
+            # TODO: Write the environment variables of the process.
+
+            # TODO: This filter is hard-coded but not a problem now.
+            depends_files = " ".join(
+                in_fil.Name
+                for in_fil in input_files
+                if not in_fil.Name.startswith(("/usr/", "/lib64/", "/dev/", "/proc/"))
+            )
+            out_fd.write("%s: %s\n" % (one_out_file.Name, depends_files))
+
+            # TODO: If there are several output files, it is a waste to run the same command several times.
+            out_fd.write("\t%s\n" % command_line)
+            out_fd.write("\n")
+
+    out_fd.close()
+
 
 # Environment variables actually access by processes.
 # Used to generate a Dockerfile.
