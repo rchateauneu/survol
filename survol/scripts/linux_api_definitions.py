@@ -754,6 +754,24 @@ def _invalid_returned_file_descriptor(file_des, tracer):
 ################################################################################
 
 
+def _open_flag_to_letter(open_flag):
+    if open_flag == '0x80000': # O_RDONLY|O_CLOEXEC
+        return "R"
+    if open_flag == '0': # O_RDONLY
+        return "R"
+    if open_flag == '0x100': # O_CREAT
+        return "R"
+    if open_flag == '0x241': # O_EXCL | O_WRONLY | ??
+        return "W"
+    if open_flag == '0x242': # O_EXCL | O_RDWR | ??
+        return "W"
+    if open_flag == '0xc2': # O_RDWR | ??
+        return "W"
+    if open_flag.startswith("????"):
+        return "R"
+    return "W"
+
+
 ##### File descriptor system calls.
 
 
@@ -793,9 +811,12 @@ class BatchLetSys_open(BatchLetBase, object):
             fil_obj = self.ToObjectPath_Accessed_CIM_DataFile(path_name)
         else:
             raise Exception("Tracer %s not supported yet" % batchCore.m_tracer)
+        open_flag = self.m_core.m_parsedArgs[1]
+
+        open_letter = _open_flag_to_letter(open_flag)
 
         self.m_significantArgs = [fil_obj]
-        a_fil_acc = self.m_core.m_objectProcess.get_file_access(fil_obj)
+        a_fil_acc = self.m_core.m_objectProcess.get_file_access(fil_obj, open_letter)
         a_fil_acc.SetOpenTime(self.m_core._time_start)
 
 
@@ -841,7 +862,7 @@ class BatchLetSys_close(BatchLetBase, object):
         # [pid 10624] 14:09:55.350002 close(2902) = -1 EBADF (Bad file descriptor) <0.000006>
         super(BatchLetSys_close, self).__init__(batchCore)
         self.m_significantArgs = self.get_stream_name()
-        a_fil_acc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0])
+        a_fil_acc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0], "C")
         a_fil_acc.SetOpenTime(self.m_core._time_start)
         if batchCore._return_value.find("EBADF") >= 0:
             return
@@ -871,7 +892,7 @@ class BatchLetSys_read(BatchLetBase, object):
         super(BatchLetSys_read, self).__init__(batchCore)
 
         self.m_significantArgs = self.get_stream_name()
-        a_fil_acc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0])
+        a_fil_acc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0], "R")
 
         a_fil_acc.set_read_bytes_number(read_bytes_number, self.m_core.m_parsedArgs[1])
 
@@ -896,7 +917,7 @@ class BatchLetSys_preadx(BatchLetBase, object):
         read_bytes_number = _convert_batch_core_return_value(batchCore)
 
         self.m_significantArgs = self.get_stream_name()
-        a_fil_acc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0])
+        a_fil_acc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0], "R")
         a_fil_acc.set_read_bytes_number(read_bytes_number)
 
 
@@ -907,7 +928,7 @@ class BatchLetSys_pread64x(BatchLetBase, object):
         read_bytes_number = _convert_batch_core_return_value(batchCore)
 
         self.m_significantArgs = self.get_stream_name()
-        a_fil_acc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0])
+        a_fil_acc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0], "R")
         a_fil_acc.set_read_bytes_number(read_bytes_number, self.m_core.m_parsedArgs[1])
 
 
@@ -916,7 +937,7 @@ class BatchLetSys_write(BatchLetBase, object):
         super(BatchLetSys_write, self).__init__(batchCore)
 
         self.m_significantArgs = self.get_stream_name()
-        a_fil_acc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0])
+        a_fil_acc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0], "W")
 
         try:
             written_bytes_number = int(self.m_core._return_value)
@@ -931,7 +952,7 @@ class BatchLetSys_writev(BatchLetBase, object):
         super(BatchLetSys_writev, self).__init__(batchCore)
 
         self.m_significantArgs = self.get_stream_name()
-        a_fil_acc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0])
+        a_fil_acc = self.m_core.m_objectProcess.get_file_access(self.m_significantArgs[0], "W")
 
         try:
             written_bytes_number = int(self.m_core._return_value)

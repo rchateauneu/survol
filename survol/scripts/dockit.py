@@ -799,7 +799,7 @@ def _analyse_functions_calls_stream(
     if output_makefile:
         # Create a makefile with the generated files, the inputs and the commands.
         # For each process, have the two lists of the input and the output files.
-        sys.stdout.write("Output makefile %s not implemented yet\n" % output_makefile)
+        cim_objects_definitions.generate_makefile(output_makefile)
 
     return output_summary_file
 
