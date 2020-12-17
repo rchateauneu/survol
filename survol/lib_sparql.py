@@ -1,5 +1,10 @@
 # This transforms a SPARQL query into a WMI/WBEM query.
 # This is extremely restricted.
+
+__author__      = "Remi Chateauneu"
+__copyright__   = "Copyright 2020, Primhill Computers"
+__license__     = "GPL"
+
 from __future__ import print_function
 
 import sys
@@ -9,6 +14,7 @@ import rdflib.plugins.sparql.parser
 import lib_kbase
 import lib_util
 import lib_properties
+
 
 # QUERY_STRING="query=%0A++++PREFIX+rdfs%3A+%3Chttp%3A/www.w3.org/2000/01/rdf-schema%23%3E%0A++++SELECT+%3Flabel%0A++++WHERE+%7B+%3Chttp%3A/dbpedia.org/resource/Asturias%3E+rdfs%3Alabel+%3Flabel+%7D%0A&output=json&results=json&format=json"
 

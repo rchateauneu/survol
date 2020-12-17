@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+__author__      = "Remi Chateauneu"
+__copyright__   = "Copyright 2020, Primhill Computers"
+__license__     = "GPL"
+
 import os
 import sys
 

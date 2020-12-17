@@ -1,3 +1,7 @@
+__author__      = "Remi Chateauneu"
+__copyright__   = "Copyright 2020, Primhill Computers"
+__license__     = "GPL"
+
 import os
 import re
 import sys
