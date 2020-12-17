@@ -101,17 +101,25 @@ except ImportError:
     sys.stderr.write("Cannot import optional module lib_sql\n")
     lib_sql = None
 
+
+def replay_standardized_file_path(file_path):
+    """This function must be used when lib_naming_conventions is not available,
+    but also when dockit reruns a test from a log file, therefore without accessing
+    operating system to enhance data, long after a tracing was done: This can happen
+    when testing or further investigations are done.
+    In this case, the PID is zero, and the command is "", because dockit runs nothing.
+    The setup of this fucntion must be made in dockit but also when analyzing the results. """
+    return file_path.replace("\\", "/")
+
 try:
     import lib_naming_conventions
 
-    def local_standardized_file_path(file_path):
-        return lib_naming_conventions.standardized_file_path(file_path)
+    local_standardized_file_path = lib_naming_conventions.standardized_file_path
 
 except ImportError:
     lib_naming_conventions = None
 
-    def local_standardized_file_path(file_path):
-        return file_path.replace("\\", "/")
+    local_standardized_file_path = replay_standardized_file_path
 
 
 def standardize_object_attributes(cim_class_name, cim_arguments):
@@ -980,7 +988,9 @@ class CIM_Process(CIM_XmlMarshaller):
                 # The process id is not needed because the path is absolute and the process CIM object
                 # should already be created. However, in the future it might reuse an existing context.
                 objects_context = ObjectsContext(proc_id)
+                print("exec_fil_nam=", exec_fil_nam)
                 exec_fil_obj = objects_context._class_model_to_object_path(CIM_DataFile, exec_fil_nam)
+                print("exec_fil_obj.Name=", exec_fil_obj.Name)
 
                 # The process id is not needed because the path is absolute.
                 # However, in the future it might reuse an existing context.

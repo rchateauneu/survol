@@ -464,9 +464,8 @@ G_OSType = None
 ################################################################################
 
 
-
-# This file contains some extra details to replay a session with a log file.
 def ini_file_load(ini_pathname):
+    """This file contains some extra details to replay a session with a log file."""
     assert ini_pathname.endswith(".ini")
     sys.stdout.write("Loading ini file:%s\n" % ini_pathname)
     ini_map_key_value_pairs = {}
@@ -491,8 +490,8 @@ def ini_file_load(ini_pathname):
     return ini_map_key_value_pairs
 
 
-# This is purely for debugging and testing.
 def ini_file_check(ini_pathname):
+    """This is purely for debugging and testing."""
     assert ini_pathname.endswith(".ini")
     ini_dict = ini_file_load(ini_pathname)
     assert int(ini_dict["TopProcessId"]) >= 0
@@ -560,12 +559,15 @@ def _create_calls_stream(command_line, input_process_id, input_log_file, tracer)
     if command_line != []:
         if input_process_id > 0 or input_log_file:
             print_dockit_usage(1, "When providing command, must not specify process id or input log file")
-    elif input_process_id> 0 :
+    elif input_process_id > 0:
         if command_line != []:
             print_dockit_usage(1, "When providing process id, must not specify command or input log file")
     elif input_log_file:
         if command_line != []:
             print_dockit_usage(1, "When providing input file, must not specify command or process id")
+        # This is a replay from a log file, possibly on another machine or operating system.
+        # It is not possible to enhance the log file informationm by querying the current machine.
+        cim_objects_definitions.local_standardized_file_path = cim_objects_definitions.replay_standardized_file_path
     else:
         print_dockit_usage(1, "Must provide command, pid or input file")
 
