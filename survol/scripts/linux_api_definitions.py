@@ -192,11 +192,20 @@ class BatchLetCore:
         if not self.m_objectProcess.CreationDate:
             self.m_objectProcess.CreationDate = self._time_start
 
+    _cache_cim_contexts = {}
+
     def cim_context(self):
-        return cim_objects_definitions.ObjectsContext(self.m_pid)
+        # TODO: The cache should be purged when a process dies, if the pid is later reused.
+        try:
+            return BatchLetCore._cache_cim_contexts[self.m_pid]
+        except KeyError:
+            the_cim_context = cim_objects_definitions.ObjectsContext(self.m_pid)
+            BatchLetCore._cache_cim_contexts[self.m_pid] = the_cim_context
+            return the_cim_context
+        # return cim_objects_definitions.ObjectsContext(self.m_pid)
 
     def _set_function(self, func_full):
-        # With ltrace, systems calls are suffix with the string "@SYS".
+        """With ltrace, systems calls are suffix with the string "@SYS"."""
         if self.m_tracer == "strace":
             # strace can only intercept system calls.
             assert not func_full.endswith("@SYS")
