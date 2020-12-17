@@ -567,7 +567,7 @@ def _create_calls_stream(command_line, input_process_id, input_log_file, tracer)
             print_dockit_usage(1, "When providing input file, must not specify command or process id")
         # This is a replay from a log file, possibly on another machine or operating system.
         # It is not possible to enhance the log file informationm by querying the current machine.
-        cim_objects_definitions.local_standardized_file_path = cim_objects_definitions.replay_standardized_file_path
+        cim_objects_definitions.local_standard_file_path = cim_objects_definitions.standardized_file_path_syntax_only
     else:
         print_dockit_usage(1, "Must provide command, pid or input file")
 

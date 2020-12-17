@@ -26,6 +26,29 @@ def standardized_file_path(file_path):
         return standard_path
 
 
+def _path_to_str(file_path):
+    if _is_py3:
+        if isinstance(file_path, bytes):
+            file_path = file_path.decode()
+    else:
+        if isinstance(file_path, unicode):
+            file_path = file_path.encode()
+    assert isinstance(file_path, str)
+    return file_path
+
+
+def standardized_file_path_syntax_only(file_path):
+    """This function must be used when lib_naming_conventions is not available,
+    but also when dockit reruns a test from a log file, therefore without accessing
+    operating system to enhance data, long after a tracing was done: This can happen
+    when testing or further investigations are done.
+    In this case, the PID is zero, and the command is "", because dockit does not start or attach to a process.
+    The setup of this function must be made in dockit but also when analyzing the results.
+    It is not needed to cache this value because it is very fast to compute. """
+    file_path_str = _path_to_str(file_path)
+    return file_path_str.replace("\\", "/")
+
+
 def _standardized_file_path_nocache(file_path):
     """
     Windows has two specific details with file path:
@@ -39,13 +62,7 @@ def _standardized_file_path_nocache(file_path):
 
     For example, this is needed because Sparql queries do not accept backslashes.
     """
-    if _is_py3:
-        if isinstance(file_path, bytes):
-            file_path = file_path.decode()
-    else:
-        if isinstance(file_path, unicode):
-            file_path = file_path.encode()
-    assert isinstance(file_path, str)
+    file_path = _path_to_str(file_path)
 
     if _is_windows:
         # FIXME: Symbolic link on Windows ? Not used yet. Beware of this:

@@ -102,24 +102,14 @@ except ImportError:
     lib_sql = None
 
 
-def replay_standardized_file_path(file_path):
-    """This function must be used when lib_naming_conventions is not available,
-    but also when dockit reruns a test from a log file, therefore without accessing
-    operating system to enhance data, long after a tracing was done: This can happen
-    when testing or further investigations are done.
-    In this case, the PID is zero, and the command is "", because dockit runs nothing.
-    The setup of this fucntion must be made in dockit but also when analyzing the results. """
-    return file_path.replace("\\", "/")
-
 try:
     import lib_naming_conventions
-
     local_standardized_file_path = lib_naming_conventions.standardized_file_path
-
 except ImportError:
     lib_naming_conventions = None
+    local_standardized_file_path = lib_naming_conventions.standardized_file_path_simple
 
-    local_standardized_file_path = replay_standardized_file_path
+standardized_file_path_syntax_only = lib_naming_conventions.standardized_file_path_syntax_only
 
 
 def standardize_object_attributes(cim_class_name, cim_arguments):
