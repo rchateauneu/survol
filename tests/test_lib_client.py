@@ -39,12 +39,12 @@ def tearDownModule():
     stop_cgiserver(RemoteAgentProcess)
 
 
-isVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
+_is_verbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 
 # This deletes the module so we can reload them each time.
 # Problem: survol modules are not detectable.
 # We could as well delete all modules except sys.
-allModules = [modu for modu in sys.modules if modu.startswith("survol") or modu.startswith("lib_")]
+## allModules = [modu for modu in sys.modules if modu.startswith(("survol","lib_"))]
 
 ClientObjectInstancesFromScript = lib_client.SourceLocal.get_object_instances_from_script
 
@@ -208,7 +208,7 @@ class SurvolLocalTest(unittest.TestCase):
             Name=CurrentUsername)
 
         list_scripts = my_instances_local.get_scripts()
-        if isVerbose:
+        if _is_verbose:
             sys.stdout.write("Scripts:\n")
             for one_scr in list_scripts:
                 sys.stdout.write("    %s\n"%one_scr)
@@ -270,7 +270,7 @@ class SurvolLocalTest(unittest.TestCase):
 
         list_scripts = my_instance_local.get_scripts()
 
-        if isVerbose:
+        if _is_verbose:
             sys.stdout.write("Scripts:\n")
             for one_scr in list_scripts:
                 sys.stdout.write("    %s\n"%one_scr)
@@ -284,7 +284,7 @@ class SurvolLocalTest(unittest.TestCase):
         instance_a = lib_client.Agent().CIM_Directory(Name="C:/Windows")
         instance_b = lib_client.Agent().CIM_Directory(Name="C:/Windows")
         instance_c = lib_client.create_CIM_class(None, "CIM_Directory", Name="C:/Windows")
-        if isVerbose:
+        if _is_verbose:
             sys.stdout.write("Class=%s\n" % instance_c.__class__.__name__)
             sys.stdout.write("Module=%s\n" % instance_c.__module__)
             sys.stdout.write("Dir=%s\n\n" % str(dir(lib_client)))
@@ -307,14 +307,14 @@ class SurvolLocalTest(unittest.TestCase):
             Name=sql_path_name)
 
         triple_sql_queries = mySourceSqlQueries.get_triplestore()
-        if isVerbose:
+        if _is_verbose:
             print("Len triple_sql_queries=",len(triple_sql_queries.m_triplestore))
 
         matching_triples = triple_sql_queries.get_all_strings_triples()
 
         lst_queries_only = sorted(matching_triples)
 
-        if isVerbose:
+        if _is_verbose:
             print("lst_queries_only:",lst_queries_only)
 
         # TODO: Eliminate the last double-quote.
@@ -1439,7 +1439,7 @@ class SurvolPyODBCTest(unittest.TestCase):
             Dsn="DSN~MS%20Access%20Database")
 
         list_scripts = instance_local_odbc.get_scripts()
-        if isVerbose:
+        if _is_verbose:
             sys.stdout.write("Scripts:\n")
             for one_scr in list_scripts:
                 sys.stdout.write("    %s\n" % one_scr)
@@ -1897,7 +1897,7 @@ class SurvolRemoteTest(unittest.TestCase):
         my_instances_remote_dir = my_agent.CIM_Directory(Name=AnyLogicalDisk)
         list_scripts_dir = my_instances_remote_dir.get_scripts()
 
-        if isVerbose:
+        if _is_verbose:
             for key_script in list_scripts_dir:
                 sys.stdout.write("    %s\n"%key_script)
         # There should be at least a couple of scripts.
