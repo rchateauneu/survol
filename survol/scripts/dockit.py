@@ -862,7 +862,7 @@ def _start_processing(global_parameters):
         global_parameters.output_makefile)
 
 
-if __name__ == '__main__':
+def dockit_entry_point():
     class G_parameters:
         verbose = 0
         with_warning = 0
@@ -938,6 +938,9 @@ if __name__ == '__main__':
 
     #logging.error("cim_objects_definitions.G_ReplayMode=%s" % cim_objects_definitions.G_ReplayMode)
     #print("cim_objects_definitions.G_ReplayMode=", cim_objects_definitions.G_ReplayMode)
+
+if __name__ == '__main__':
+    dockit_entry_point()
 
 
 ################################################################################
