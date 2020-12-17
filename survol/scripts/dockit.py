@@ -567,7 +567,7 @@ def _create_calls_stream(command_line, input_process_id, input_log_file, tracer)
             print_dockit_usage(1, "When providing input file, must not specify command or process id")
         # This is a replay from a log file, possibly on another machine or operating system.
         # It is not possible to enhance the log file informationm by querying the current machine.
-        cim_objects_definitions.local_standard_file_path = cim_objects_definitions.standardized_file_path_syntax_only
+        cim_objects_definitions.local_standardized_file_path = cim_objects_definitions.standardized_file_path_syntax_only
     else:
         print_dockit_usage(1, "Must provide command, pid or input file")
 
@@ -817,9 +817,12 @@ def test_from_file(
     cim_objects_definitions.G_UpdateServer = update_server
     calls_stream = _create_calls_stream([], input_process_id, input_log_file, tracer)
 
+    # Because a session is replayed with a log file, the target machine might be different.
+    # So, this forbids attenpts to bring more information by querying the operating system.
+    cim_objects_definitions.local_standardized_file_path = cim_objects_definitions.standardized_file_path_syntax_only
+
     # Check if there is a context file, which gives parameters such as the current directory,
     # necessary to reproduce the test in the same conditions.
-
     output_summary_file = _analyse_functions_calls_stream(
         verbose, calls_stream, tracer, output_format, output_files_prefix,
         map_params_summary, summary_format, with_dockerfile, aggregator, output_makefile)
