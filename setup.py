@@ -30,16 +30,16 @@ if is_py2:
 #
 # The following methods are called, see -v option:
 #    running install
-#    Running initialize_options
-#    The port number for install is: 12345
-#    Custom installation. Port: 12345
+#    Running initialize_options.
+
+
 class InstallCommand(install):
     # The html files can be copied at any place.
     # For example at ~/public_html on Unix, i.e. "Users Dir feature of Apache".
-    # TODO: This is not used yet.
+    # TODO: These options are not used yet.
     user_options = install.user_options + [
-        ('port=', 'p', 'CGI server port number'),
-        ('www=', 'w', 'Web UI destination directory'),
+        ('port=', 'p', 'CGI server port number'),       # Not used at the moment.
+        ('www=', 'w', 'Web UI destination directory'),  # Not used at the moment.
     ]
 
     def initialize_options(self):
@@ -62,7 +62,7 @@ class InstallCommand(install):
         install.finalize_options(self)
 
     def run(self):
-        # This must be given to a parameter file for cgiserver.
+        #This must be given to a parameter file for cgiserver.
         my_port = self.port
 
         # The HTML, css and js files must be copied at this place.
@@ -79,7 +79,12 @@ class InstallCommand(install):
 
 
 class InstallLibCommand(install_lib):
-    """On Linux, this converts Python files to proper Unix format, and sets the executable flag."""
+    """
+    On Linux and Darwin, this converts Python files to proper Unix format, and sets the executable flag.
+    This is needed because setup.py does not keep the executable flag information.
+    Also, files stored in Github have Windows lines terminators.
+    """
+
     def _transform_linux_script(self, one_path):
         with open(one_path, 'rb') as input_stream:
             file_content = input_stream.readlines()
@@ -88,6 +93,7 @@ class InstallLibCommand(install_lib):
             log.info("InstallLibCommand empty file=%s" % one_path)
             return
 
+        # By convention, all Survol CGI scritps start with this header line.
         # There must not be any CR character after this shebang line.
         if file_content[0].startswith(b"#!/usr/bin/env python"):
             log.info("Script file=%s l=%d" % (one_path, len(file_content)))
@@ -96,7 +102,7 @@ class InstallLibCommand(install_lib):
                 lines_number = 0
                 with open(one_path, 'wb') as output_stream:
                     for one_line in file_content:
-                        if one_line.endswith(b'\r\n') or one_line.endswith(b'\n\r') :
+                        if one_line.endswith((b'\r\n', b'\n\r')):
                             output_stream.write(b"%s\n" % one_line[:-2])
                         else:
                             output_stream.write(one_line)
@@ -112,7 +118,7 @@ class InstallLibCommand(install_lib):
             self, infile, outfile,
             preserve_mode=1, preserve_times=1, preserve_symlinks=0, level=1
     ):
-        # This is called on Linux and Darwin, from the top-level infile='build\\lib'
+        """This is called on Linux and Darwin, from the top-level infile='build\\lib' """
         if sys.platform.startswith("lin") or sys.platform == "darwin":
             library_top = os.path.join(infile, "survol")
             for library_root, library_dirs, library_files in os.walk(library_top):
@@ -134,7 +140,7 @@ class InstallLibCommand(install_lib):
 # The current directory is where setup.py is.
 def package_files(directory):
     paths = []
-    for (path, directories, filenames) in os.walk(directory):
+    for path, directories, filenames in os.walk(directory):
         for filename in filenames:
             paths.append(os.path.join('..', path, filename))
     return paths
@@ -177,6 +183,7 @@ setup(
     entry_points={'console_scripts': [
         'survolcgi = survol.scripts.cgiserver:cgiserver_entry_point',
         'survolwsgi = survol.scripts.wsgiserver:wsgiserver_entry_point',
+        'dockit = survol.scripts.wsgiserver:dockit_entry_point',
     ]},
     # These packages are not needed to run dockit.py which is strictly standalone.
     install_requires=required_packages,
@@ -185,7 +192,7 @@ setup(
         'install_lib': InstallLibCommand,
     },
 
-    scripts=['survol/scripts/cgiserver.py', 'survol/scripts/wsgiserver.py'],
+    scripts=['survol/scripts/cgiserver.py', 'survol/scripts/wsgiserver.py', 'survol/scripts/dockit.py'],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
