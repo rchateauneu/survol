@@ -188,7 +188,7 @@ class BatchLetCore:
         # If this process is just created, it receives the creation time-stamp.
         self.m_objectProcess = self.cim_context().ToObjectPath_CIM_Process(self.m_pid)
 
-        # If the creation date is uknown, it is at least equal to the current call time.
+        # If the creation date is unknown, it is at least equal to the current call time.
         if not self.m_objectProcess.CreationDate:
             self.m_objectProcess.CreationDate = self._time_start
 
@@ -379,7 +379,7 @@ class BatchLetCore:
                 idx_eq = the_call.find("=", idx_last_par)
                 if idx_eq < 0:
                     # This is acceptable in this circumstance only.
-                    if not the_call.endswith("<no return ...>\n") and not the_call.endswith("<detached ...>"):
+                    if not the_call.endswith(("<no return ...>\n", "<detached ...>")):
                         if self.m_tracer != "ltrace":
                         # This can happen with ltrace which does not escape double-quotes. Example:
                         # read@SYS(8, "\003\363\r\n"|\314Vc", 4096) = 765 <0.000049>
@@ -538,8 +538,8 @@ class BatchLetBase(my_with_metaclass(BatchMeta)):
 
     # This is very often used.
     def get_stream_name(self, idx=0):
-        aFil = self._strace_stream_to_file(self.m_core.m_parsedArgs[idx])
-        return [aFil]
+        a_fil = self._strace_stream_to_file(self.m_core.m_parsedArgs[idx])
+        return [a_fil]
 
     def is_same_call(self, another_batch):
         if self.m_core._function_name != another_batch.m_core._function_name:
@@ -572,9 +572,10 @@ class BatchLetBase(my_with_metaclass(BatchMeta)):
 
     invalid_hexadecimal_pathnames = set()
 
-    # Returns the file associated to this path, and creates it if needed.
-    # It also associates this file to the process.
     def ToObjectPath_Accessed_CIM_DataFile(self, path_name):
+        """Returns the file associated to this path, and creates it if needed.
+        It also associates this file to the process."""
+
         # With lstat and calls like access() or lstat(), the pathname is not given.
         if path_name.startswith("0x") and not path_name in self.invalid_hexadecimal_pathnames:
             # Signal the error once only.
@@ -612,7 +613,7 @@ G_UnknownFunctions = set()
 def _batchlet_factory(batchCore):
     try:
         # TODO: We will have to take the library into account.
-        aModel = G_batchModels[batchCore._function_name]
+        a_model = G_batchModels[batchCore._function_name]
     except KeyError:
         # Default generic BatchLet, if the function is not associated to a derived class of BatchLetCore.
         if not batchCore._function_name in G_UnknownFunctions:
@@ -652,7 +653,7 @@ def _batchlet_factory(batchCore):
         return BatchLetBase(batchCore)
 
     # Explicitely non-existent.
-    if aModel == None:
+    if a_model == None:
         return None
 
     # If this is an unfinished system call, it is not possible to build the correct derived class.
@@ -665,43 +666,43 @@ def _batchlet_factory(batchCore):
         # A function as __libc_start_main() is happy if it is not finished
         # as the input parameters contain enough information for us.
         try:
-            aModel.Incomplete_UnfinishedIsOk
-            btchLetDrv = aModel(batchCore)
+            a_model.Incomplete_UnfinishedIsOk
+            btch_let_drv = a_model(batchCore)
             # ResumedOnly
             # UnfinishedOnly
         except AttributeError:
             # We do not have the return value, and maybe not all the arguments,
             # so we simply store what we have and hope to merge
             # with the "resumed" part, later on.
-            btchLetDrv = BatchLetBase(batchCore)
+            btch_let_drv = BatchLetBase(batchCore)
 
             # To match later with the "resumed" line.
             G_stackUnfinishedBatches.push_unfinished_batch(batchCore)
     elif batchCore.m_status == BatchStatus.resumed:
         # We should have the "unfinished" part somewhere.
 
-        batchCoreMerged = G_stackUnfinishedBatches.merge_pop_resumed_batch(batchCore)
+        batch_core_merged = G_stackUnfinishedBatches.merge_pop_resumed_batch(batchCore)
 
-        if batchCoreMerged:
-            assert batchCoreMerged == batchCore
-            btchLetDrv = aModel(batchCoreMerged)
+        if batch_core_merged:
+            assert batch_core_merged == batchCore
+            btch_let_drv = a_model(batch_core_merged)
         else:
             # Could not find the matching unfinished batch.
             # Still we try the degraded mode if it is available.
             try:
-                aModel.Incomplete_ResumedWithoutUnfinishedIsOk
-                btchLetDrv = aModel(batchCore)
+                a_model.Incomplete_ResumedWithoutUnfinishedIsOk
+                btch_let_drv = a_model(batchCore)
             except AttributeError:
-                btchLetDrv = BatchLetBase(batchCore)
+                btch_let_drv = BatchLetBase(batchCore)
     else:
-        btchLetDrv = aModel(batchCore)
+        btch_let_drv = a_model(batchCore)
 
     # If the parameters makes it unusable anyway.
     try:
-        btchLetDrv.m_core
+        btch_let_drv.m_core
         # sys.stdout.write("batchCore=%s\n"%id(batchCore))
-        assert btchLetDrv.m_core == batchCore
-        return btchLetDrv
+        assert btch_let_drv.m_core == batchCore
+        return btch_let_drv
     except AttributeError:
         return None
 
@@ -722,7 +723,6 @@ def _strace_stream_to_pathname(strm_str):
         # If the option "-y" is not available, with ltrace or truss.
         # Theoretically the path name should be in the map.
         try:
-            assert G_mapFilDesToPathName is not None
             path_name = G_mapFilDesToPathName[strm_str]
         except KeyError:
             if strm_str == "-1": # Normal return value.
@@ -735,10 +735,11 @@ def _strace_stream_to_pathname(strm_str):
 
 ################################################################################
 
-# Some Linux functions return a file descriptor which can be invalid:
-# This is not shown the same way depending on the tracer: strace or ltrace.
-# On Linux, ENOENT = 2.
 def _invalid_returned_file_descriptor(file_des, tracer):
+    """Some Linux functions return a file descriptor which can be invalid:
+    This is not shown the same way depending on the tracer: strace or ltrace.
+    On Linux, ENOENT = 2.
+    """
     if tracer == "strace":
         # 09:18:26.452764 open("/usr/lib/python2.7/numbersmodule.so", O_RDONLY|O_LARGEFILE) = -1 ENOENT (No such file or directory) <0.000012>
         if file_des.find("ENOENT") >= 0:
