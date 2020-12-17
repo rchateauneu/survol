@@ -5,6 +5,11 @@
 import cgitb
 
 import os
+
+__author__      = "Remi Chateauneu"
+__copyright__   = "Copyright 2020, Primhill Computers"
+__license__     = "GPL"
+
 # This library is used by CGI scripts and command-line scripts.
 # Therefore, its behaviour is different in case of error.
 if os.getenv("SERVER_SOFTWARE"):
