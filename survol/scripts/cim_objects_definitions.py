@@ -1584,12 +1584,15 @@ _G_warnings_counter = 0
 
 
 class ObjectsContext:
-    """This helps creating CIM objects based on their class name a key-value pairs
+    """This helps creating CIM objects based on their class name and key-value pairs
     defined from the ontology. The role of this context object is to contain
     everything which is needed to create a CIM object without ambiguity.
-    For example, when creating a CIM_DataFile, only the relative path name
-    might ba available. So, the process current work dir is given by this context."""
-    def __init__(self, process_id = None):
+    The typical example is, when creating a CIM_DataFile, only the relative path name
+    might be available. So, the process current work directory is needed,
+    and given by this context."""
+
+    # TODO: Store these objects in a dictionary instead of re-creating them.
+    def __init__(self, process_id=None):
         self._process_id = process_id
 
     def attributes_to_cim_object(self, cim_class_name, **cim_attributes_dict):
@@ -1607,6 +1610,7 @@ class ObjectsContext:
     def ToObjectPath_CIM_Process(self, process_id):
         returned_object = self._class_model_to_object_path(CIM_Process, process_id)
 
+        # Dictionary of all processes, indexed by the tuple of their key-value
         map_procs = G_mapCacheObjects[CIM_Process.__name__]
 
         if process_id != self._process_id:
@@ -1625,19 +1629,23 @@ class ObjectsContext:
             path_name = path_name.decode("utf-8")
         assert isinstance(path_name, six.text_type)
         if self._process_id:
-            # Maybe this is a relative file, and to make it absolute, the process is needed.
+            # Maybe this is a relative file, and to make it absolute, the process is needed,
+            # because it gives the process current working directory.
             obj_process = self.ToObjectPath_CIM_Process(self._process_id)
             dir_path = obj_process.GetProcessCurrentDir()
         else:
             # At least it will suppress ".." etc...
             dir_path = ""
 
+        # On Windows, fix capitals in file name. On Linux, dereference symbolic links.
         path_name = to_real_absolute_path(dir_path, path_name)
 
         obj_data_file = self._class_model_to_object_path(CIM_DataFile, path_name)
         return obj_data_file
 
     def _class_model_to_object_path(self, class_model, *ctor_args):
+        """This receives a class name and a list of key-value pairs.
+        It returns the object, possibly cached."""
         global G_mapCacheObjects
         global _G_warnings_counter
         map_objs = G_mapCacheObjects[class_model.__name__]
