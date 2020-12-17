@@ -1,11 +1,11 @@
 # This transforms a SPARQL query into a WMI/WBEM query.
 # This is extremely restricted.
 
+from __future__ import print_function
+
 __author__      = "Remi Chateauneu"
 __copyright__   = "Copyright 2020, Primhill Computers"
 __license__     = "GPL"
-
-from __future__ import print_function
 
 import sys
 import functools
