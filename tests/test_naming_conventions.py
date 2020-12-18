@@ -13,9 +13,9 @@ import unittest
 
 from init import *
 
-from survol import lib_naming_conventions
+from survol.scripts import naming_conventions
 
-_sfp = lib_naming_conventions.standardized_file_path
+_sfp = naming_conventions.standardized_file_path
 
 @unittest.skipIf(is_platform_linux, "Windows.")
 class StandardizedFilePathWindowsTest(unittest.TestCase):

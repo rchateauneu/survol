@@ -101,15 +101,14 @@ except ImportError:
     sys.stderr.write("Cannot import optional module lib_sql\n")
     lib_sql = None
 
+if __package__:
+    from . import naming_conventions
+else:
+    import naming_conventions
 
-try:
-    import lib_naming_conventions
-    local_standardized_file_path = lib_naming_conventions.standardized_file_path
-except ImportError:
-    lib_naming_conventions = None
-    local_standardized_file_path = lib_naming_conventions.standardized_file_path_simple
+local_standardized_file_path = naming_conventions.standardized_file_path
 
-standardized_file_path_syntax_only = lib_naming_conventions.standardized_file_path_syntax_only
+standardized_file_path_syntax_only = naming_conventions.standardized_file_path_syntax_only
 
 
 def standardize_object_attributes(cim_class_name, cim_arguments):
@@ -292,7 +291,7 @@ class FileAccess:
 
     def SetCloseTime(self, time_stamp):
         # Maybe the file was never closed.
-        if not getattr(self,"CloseTime",0) or (time_stamp < self.CloseTime):
+        if not getattr(self, "CloseTime", 0) or (time_stamp < self.CloseTime):
             self.CloseTime = time_stamp
 
             if G_SameMachine:
@@ -371,19 +370,19 @@ class FileAccess:
 
         if self.OpenTime:
             strm.write(" OpenTime='%s'" % _timestamp_to_str(self.OpenTime))
-        if getattr(self,'OpenSize',0):
+        if getattr(self, 'OpenSize', 0):
             strm.write(" OpenSize='%s'" % self.OpenSize)
         if self.CloseTime:
             strm.write(" CloseTime='%s'" % _timestamp_to_str(self.CloseTime))
-        if getattr(self,'CloseSize',0):
+        if getattr(self, 'CloseSize', 0):
             strm.write(" CloseSize='%s'" % self.CloseSize)
-        if getattr(self,'NumReads',0):
+        if getattr(self, 'NumReads', 0):
             strm.write(" NumReads='%s'" % self.NumReads)
-        if getattr(self,'BytesRead',0):
+        if getattr(self, 'BytesRead', 0):
             strm.write(" BytesRead='%s'" % self.BytesRead)
-        if getattr(self,'NumWrites',0):
+        if getattr(self, 'NumWrites', 0):
             strm.write(" NumWrites='%s'" % self.NumWrites)
-        if getattr(self,'BytesWritten',0):
+        if getattr(self, 'BytesWritten', 0):
             strm.write(" BytesWritten='%s'" % self.BytesWritten)
 
         acc_read = getattr(self, 'm_bufConcatRead', None)
@@ -421,20 +420,20 @@ class FileAccess:
     def serialize_list_to_XML(strm, vec_files_accesses, margin, displayed_from_process):
         if not vec_files_accesses:
             return
-        subMargin = margin + "    "
+        sub_margin = margin + "    "
         strm.write("%s<FileAccesses>\n" % margin)
         for filAcc in vec_files_accesses:
-            filAcc.TagXML(strm, subMargin, displayed_from_process)
+            filAcc.TagXML(strm, sub_margin, displayed_from_process)
         strm.write("%s</FileAccesses>\n" % margin)
 
 ################################################################################
 
-# When replaying a session, it is not worth getting information about processes
-# because they do not exist anymore.
+# When replaying a session, it is not worth getting information about processes because they do not exist anymore.
 G_ReplayMode = False
 
 # The date where the test was run. Loaded from the ini file when replaying.
 G_Today = None
+
 
 def _timestamp_to_str(tim_stamp):
     # 0     tm_year     (for example, 1993)
@@ -478,7 +477,6 @@ class HttpTriplesClientFile(HttpTriplesClientNone):
         print("Stored RDF content to", G_UpdateServer)
 
     def queue_triples_for_sending(self, json_triple):
-        #assert not self._is_threaded_client
         # Just append the triple, no need to synchronise.
         self._triples_list.append(json_triple)
 
@@ -517,9 +515,10 @@ class HttpTriplesClientHttp(HttpTriplesClientNone):
 
     def _pop_triples_to_bytes(self):
         """ Dockit stores its triples in a list, not in with rdflib.
-        This function serializes this JSON list into bytes which is then sent to the server.
-        TODO: Instead of JSON, store and send RDF-XML format because it is more standard.
-        TODO: Also, have the server script event_get.py changed to natively deserialize RDF-XML. """
+        This function serializes this JSON list into bytes which is then sent to the server. """
+
+        #TODO: Instead of JSON, store and send RDF-XML format because it is more standard.
+        #TODO: Also, have the server script event_get.py changed to natively deserialize RDF-XML.
         triples_number = len(self._triples_list)
         if triples_number:
             triples_as_bytes = json.dumps(self._triples_list)
@@ -595,8 +594,9 @@ class HttpTriplesClientDaemon(HttpTriplesClientNone):
 
 
 def http_triples_client_factory():
-    # Tests if this a output RDF file, or rather None or the URL of a Survol agent.
+    """Tests if this a output RDF file, or rather None or the URL of a Survol agent."""
     if G_UpdateServer:
+        # This parameter is a function or a file name or an url.
         if callable(G_UpdateServer):
             return HttpTriplesClientDaemon()
         else:
@@ -640,7 +640,7 @@ def _is_CIM(attr, attr_val):
     This function is a rule-thumb test to check if an attribute of a class
     is a CIM attribute. It works because there are very few non-CIM attributes.
     """
-    return not callable(attr_val) and not attr.startswith("__") and not attr.startswith("m_")
+    return not callable(attr_val) and not attr.startswith(("__", "m_"))
 
 
 def _is_time_stamp(attr):
@@ -711,7 +711,6 @@ class CIM_XmlMarshaller(object):
             #attrNamDelete = attr_nam + "?predicate_delete"
             self.HttpUpdateRequest(subject=the_subj_moniker, predicate=attr_nam, object=obj_moniker_old)
 
-
         # For example a file being opened by a process, or a process started by a user etc...
         if isinstance(attr_val, CIM_XmlMarshaller):
             objMoniker = attr_val.get_survol_moniker()
@@ -765,8 +764,7 @@ class CIM_XmlMarshaller(object):
     def __repr__(self):
         mnk = self.__class__.__name__ + "." + ",".join(
             '%s="%s"' % (k, getattr(self, k)) for k in self.cim_ontology_list)
-        # FIXME: WHY THIS ? IT CAN ONLY BE A STRING ??
-        return "%s" % mnk
+        return mnk
 
     @staticmethod
     def create_instance_from_class_name(cim_class_name, **cim_attributes_dict):

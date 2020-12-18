@@ -38,8 +38,7 @@ def _path_to_str(file_path):
 
 
 def standardized_file_path_syntax_only(file_path):
-    """This function must be used when lib_naming_conventions is not available,
-    but also when dockit reruns a test from a log file, therefore without accessing
+    """This function must be used when dockit reruns a test from a log file, therefore without accessing
     operating system to enhance data, long after a tracing was done: This can happen
     when testing or further investigations are done.
     In this case, the PID is zero, and the command is "", because dockit does not start or attach to a process.
