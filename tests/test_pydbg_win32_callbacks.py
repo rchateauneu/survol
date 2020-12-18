@@ -32,12 +32,9 @@ if not is_platform_linux:
         def report_object_creation(self, cim_objects_context, cim_class_name, **cim_arguments):
             self.created_objects[cim_class_name].append(cim_arguments)
 
-################################################################################
+from survol import lib_util
 
 nonexistent_file = "NonExistentFile.xyz"
-
-
-################################################################################
 
 @unittest.skipIf(is_platform_linux, "Windows only.")
 class HooksManagerUtil(unittest.TestCase):
@@ -207,7 +204,6 @@ class DOSCommandsTest(HooksManagerUtil):
         print("test_dos_create_process created_objects=", win32_api_definitions.tracer_object.created_objects)
         self.assertTrue('CIM_Process' in win32_api_definitions.tracer_object.created_objects)
 
-    #@unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ?")
     def test_cmd_delete_file(self):
         num_loops = 3
 
