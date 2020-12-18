@@ -15,6 +15,7 @@ update_test_path()
 import lib_daemon
 import lib_common
 import lib_kbase
+import lib_util
 import lib_properties
 
 
@@ -472,7 +473,10 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
         print("windows_changed_file=", windows_changed_file)
 
         # This creates a subprocess which creates then updates a file several times.
-        py_cmd = "import time;[(time.sleep(1),open(r'%s','w'),print(i)) for i in range(20)]" % windows_changed_file
+        # It does not write to stdout, so no need of communicate().
+        # This processes starts immediately while we are querying the CGI script.
+        py_cmd = "import time;[(time.sleep(1),open(r'%s','w'),) for i in range(15)]" % windows_changed_file
+
         print("test_events_generator_windows_directory_changes py_cmd=%s" % py_cmd)
         subprocess_command = [
             sys.executable,
@@ -480,11 +484,10 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
             py_cmd]
         print("test_events_generator_windows_directory_changes supervisor_command=%s" % subprocess_command)
 
-        # No Shell, otherwise we cannot know which process is created.
         proc_popen = subprocess.Popen(
             subprocess_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 
-        result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix, 10)
+        result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix, 5)
 
         _check_events_generator_windows_directory_changes(self, "Snapshot before events", result_snapshot, [])
         _check_events_generator_windows_directory_changes(self, "Events", result_events, [windows_changed_file])
