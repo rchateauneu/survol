@@ -1316,14 +1316,16 @@ class EventsServerTest(unittest.TestCase):
         """
         url_events = _remote_events_test_agent + "/survol/sources_types/event_get_all.py?mode=rdf"
 
-        actual_types_dict = collections.defaultdict(lambda: 0)
-
         total_events_graph = rdflib.Graph()
 
         def is_finished(events_graph):
+            actual_types_dict = collections.defaultdict(lambda: 0)
             for rdf_triple in events_graph:
                 # Duplicates are eliminated.
-                total_events_graph.add(rdf_triple)
+                if rdf_triple not in total_events_graph:
+                    total_events_graph.add(rdf_triple)
+                else:
+                    print("Found duplicate")
 
             for event_subject, event_predicate, event_object in total_events_graph:
                 # Given the input filename, this expects some specific data.
@@ -1337,7 +1339,9 @@ class EventsServerTest(unittest.TestCase):
                         actual_types_dict[class_name] += 1
 
             print("num_loops=", num_loops, "types_dict=", actual_types_dict)
-            return expected_types_list == actual_types_dict
+            #print("expected_types_list=", expected_types_list)
+            #print("actual_types_dict=", actual_types_dict)
+            return actual_types_dict
 
         while num_loops > 0:
             events_response = portable_urlopen(url_events, timeout=20)
@@ -1348,7 +1352,8 @@ class EventsServerTest(unittest.TestCase):
             events_graph = rdflib.Graph()
             result = events_graph.parse(data=events_content_trunc, format="application/rdf+xml")
             print("len results=", len(result), "len(events_graph)=", len(events_graph))
-            if is_finished(events_graph):
+            actual_types_dict = is_finished(events_graph)
+            if expected_types_list == actual_types_dict:
                 break
             time.sleep(2.0)
             num_loops -= 1

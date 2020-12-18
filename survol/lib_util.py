@@ -28,8 +28,8 @@ import inspect
 import rdflib
 
 # This minimizes changes because it is used everywhere.
-from lib_naming_conventions import standardized_file_path
-from lib_naming_conventions import standardized_memmap_path
+from scripts.naming_conventions import standardized_file_path
+from scripts.naming_conventions import standardized_memmap_path
 
 is_py3 = sys.version_info >= (3,)
 
