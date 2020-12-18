@@ -41,28 +41,9 @@ from lib_util import TimeStamp
 
 # Functions for creating uris are imported in the global namespace.
 from lib_uris import *
-import lib_uris
-
-################################################################################
-
-nodeMachine = gUriGen.HostnameUri( lib_util.currentHostname )
-
-################################################################################
 
 
-def is_useless_process(proc):
-    # Could be reused if we want to focus on some processes only.
-    # proc in [ 'bash', 'gvim', 'konsole' ]
-    # FIXME: THIS IS DEPRECATED.
-    return False
-
-
-################################################################################
-    
-## Also, the Apache 2.2 docs have a slightly different location for the registry key:
-## HKEY_CLASSES_ROOT\.cgi\Shell\ExecCGI\Command\(Default) => C:\Perl\bin\perl.exe -wT
-
-################################################################################
+nodeMachine = gUriGen.HostnameUri(lib_util.currentHostname)
 
 
 def _out_cgi_mode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
@@ -88,7 +69,7 @@ def _out_cgi_mode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
 
     if mode == "html":
         # Used rarely and performance not very important. This returns a HTML page.
-        lib_export_html.Grph2Html(theCgi, top_url, error_msg, is_sub_server, globalCgiEnvList)
+        lib_export_html.Grph2Html(theCgi, top_url, error_msg, is_sub_server, _global_cgi_env_list)
     elif mode == "json":
         lib_export_json.Grph2Json(page_title, error_msg, is_sub_server, parameters, grph)
     elif mode == "menu":
@@ -150,7 +131,7 @@ def _get_calling_module_doc():
     """
 
     # If it uses an unique CGI script.
-    if globalMergeMode or lib_util.is_wsgi_server():
+    if _global_merge_mode or lib_util.is_wsgi_server():
         try:
             # This is a bit of a hack.
             import inspect
@@ -180,8 +161,8 @@ def _get_calling_module_doc():
             #sys.stderr.write("_get_calling_module_doc  module_caller.__doc__=%s\n" % the_doc)
             return the_doc
         except Exception as exc:
-            WARNING("_get_calling_module_doc Caught when getting doc:%s",str(exc))
-            return "Caught when getting doc:"+str(exc)
+            WARNING("_get_calling_module_doc Caught when getting doc:%s", str(exc))
+            return "Caught when getting doc:" + str(exc)
     else:
         try:
             # This does not work when in WSGI mode, nor when merging.
@@ -199,9 +180,9 @@ def _get_calling_module_doc():
 
 ################################################################################
 
-globalMergeMode = False
-globalCgiEnvList = []
-globalGraph = None
+_global_merge_mode = False
+_global_cgi_env_list = []
+_global_graph = None
 
 
 def _global_create_graph():
@@ -213,23 +194,23 @@ def CgiEnvMergeMode():
     """There is only one cgiEnv and "cgiEnv.OutCgiRdf()" does not generate anything.
     It is related to WSGI in the extent that global variables should not harm things.
     """
-    global globalMergeMode
-    global globalCgiEnvList
-    global globalGraph
+    global _global_merge_mode
+    global _global_cgi_env_list
+    global _global_graph
 
-    globalMergeMode = True
-    globalCgiEnvList = []
-    globalGraph = _global_create_graph()
+    _global_merge_mode = True
+    _global_cgi_env_list = []
+    _global_graph = _global_create_graph()
 
 
 def MergeOutCgiRdf(the_mode, cumulated_error):
     """OutCgiRdf has been called by each script without writing anything,
     but the specific parameters per script are stored inside."""
-    global globalMergeMode
-    global globalCgiEnvList
-    global globalGraph
+    global _global_merge_mode
+    global _global_cgi_env_list
+    global _global_graph
 
-    page_title = "Merge of %d scripts:\n" % len(globalCgiEnvList)
+    page_title = "Merge of %d scripts:\n" % len(_global_cgi_env_list)
     delim_title = ""
 
     # This is equivalent to: make_dot_layout( "", [] )
@@ -237,7 +218,7 @@ def MergeOutCgiRdf(the_mode, cumulated_error):
     collapsed_properties = []
     cgi_params = {}
     cgi_param_links = {}
-    for theCgiEnv in globalCgiEnvList:
+    for theCgiEnv in _global_cgi_env_list:
         # theCgiEnv.m_page_title contains just the first line.
         page_title_first, page_title_rest = theCgiEnv.m_page_title, theCgiEnv.m_page_subtitle
         page_title += delim_title + page_title_first
@@ -264,7 +245,7 @@ def MergeOutCgiRdf(the_mode, cumulated_error):
     top_url = lib_util.TopUrl("", "")
 
     pseudo_cgi = CgiEnv()
-    pseudo_cgi.m_graph = globalGraph
+    pseudo_cgi.m_graph = _global_graph
     pseudo_cgi.m_page_title = page_title
     pseudo_cgi.m_page_subtitle = ""
     pseudo_cgi.m_layout_style = layout_style
@@ -310,9 +291,9 @@ class CgiEnv():
         # TODO: is removed. Workaround: Any CGI variable added after.
         # TODO: Also: Several slashes "/" are merged into one.
         # TODO: Example: "xid=http://192.168.1.83:5988/." becomes "xid=http:/192.168.1.83:5988/"
-        # TODO: ... or "xx.py?xid=smbshr.Id=////WDMyCloudMirror///rchateau" become "xx.py?xid=smbshr.Id=/WDMyCloudMirror/rchateau"
+        # TODO: ... or "xx.py?xid=smbshr.Id=////WDMyCloudMirror///rchateau" ...
+        # TODO: ... becomes "xx.py?xid=smbshr.Id=/WDMyCloudMirror/rchateau"
         # TODO: Replace by "xid=http:%2F%2F192.168.1.83:5988/."
-        # Maybe a bad collapsing of URL ?
 
         mode = lib_util.GuessDisplayMode()
 
@@ -467,15 +448,15 @@ class CgiEnv():
         ErrorMessageHtml("Script %s cannot handle remote hosts on host=%s" % (sys.argv[0], self.m_entity_host))
 
     def _create_or_get_graph(self):
-        global globalMergeMode
+        global _global_merge_mode
         try:
             assert self.m_graph
             raise Exception("self.m_graph must not be defined")
         except AttributeError:
             pass
-        if globalMergeMode:
+        if _global_merge_mode:
             # When in merge mode, the same object must be always returned.
-            self.m_graph = globalGraph
+            self.m_graph = _global_graph
         else:
             self.m_graph = _global_create_graph()
         return self.m_graph
@@ -631,9 +612,9 @@ class CgiEnv():
     # TODO: "OutCgiRdf" should be changed to a more appropriate name, such as "DisplayTripleStore"
     # cgiEnv.OutCgiRdf() will fill self.GetGraph() with events returned by a script in daemon mode.
     def OutCgiRdf(self, layout_style="", collapsed_properties=[]):
-        global globalCgiEnvList
+        global _global_cgi_env_list
         DEBUG("OutCgiRdf globalMergeMode=%d m_calling_url=%s m_page_title=%s",
-              globalMergeMode, self.m_calling_url, self.m_page_title.replace("\n", "<NL>"))
+              _global_merge_mode, self.m_calling_url, self.m_page_title.replace("\n", "<NL>"))
 
         # TODO: Get these values from the RDF document, if these were added on-the-fly by CGI scripts.
         if layout_style:
@@ -649,9 +630,9 @@ class CgiEnv():
             self.m_page_subtitle = "PAGE SUBTITLE SHOULD BE SET"
 
         # TODO: See if this can be used in lib_client.py and merge_scripts.py.
-        if globalMergeMode:
+        if _global_merge_mode:
             # At the end, only one call to _out_cgi_mode() will be made.
-            globalCgiEnvList.append(self)
+            _global_cgi_env_list.append(self)
         else:
             _out_cgi_mode(self, top_url, mode)
 
@@ -707,18 +688,20 @@ class CgiEnv():
 
         self.m_parameterized_links[url_label] = labelled_url
 
-    # Graphs might contain the same entities calculated by different servers.
-    # This can happen here, when several URLs are merged.
-    # This can happen also in the JavaScript client, where several URLs
-    # are dragged and dropped in the same browser session.
-    # The same object will have different URLs depending on the server where it is detected.
-    # For example, a remote database might be seen from different machines.
-    # These different nodes, representing the same object, must be associated.
-    # For this, we calculated for each node, its universal alias.
-    # This is done, basically, by taking the URL, replacing the host name of where
-    # the object sits, by an IP address.
-    # Nodes with the same alias are graphically linked with a dashed red line.
     def _bind_identical_nodes(self):
+        """
+        Graphs might contain the same entities calculated by different servers.
+        This can happen here, when several URLs are merged.
+        This can happen also in the JavaScript client, where several URLs
+        are dragged and dropped in the same browser session.
+        The same object will have different URLs depending on the server where it is detected.
+        For example, a remote database might be seen from different machines.
+        These different nodes, representing the same object, must be associated.
+        For this, we calculated for each node, its universal alias.
+        This is done, basically, by taking the URL, replacing the host name of where
+        the object sits, by an IP address.
+        Nodes with the same alias are graphically linked with a dashed red line.
+        """
 
         # This maps each universal alias to the set of nodes which have it.
         # At the end, all nodes with the same universal alias are linked with a special property.
@@ -773,9 +756,9 @@ class CgiEnv():
 globalErrorMessageEnabled = True
 
 
-# Used when merging several scripts, otherwise there is no way to find
-# which scripts produced an error.
 def enable_error_message(flag):
+    """Used when merging several scripts, otherwise there is no way to find
+    which scripts produced an error."""
     global globalErrorMessageEnabled
     globalErrorMessageEnabled = flag
 
@@ -842,7 +825,7 @@ def SubProcPOpen(command):
 
 def SubProcCall(command):
     # For doxygen, we should have shell=True but this is NOT safe.
-        # Shell is however needed for unit tests.
+    # Shell is however needed for unit tests.
     DEBUG("command=%s", command)
     ret = subprocess.call(command, stdout=sys.stderr, stderr=sys.stderr, shell=True)
     return ret
@@ -888,18 +871,18 @@ def _is_fonts_file(path):
     if lib_util.isPlatformWindows:
         tmp, file_ext = os.path.splitext(path)
         # sys.stderr.write("_is_fonts_file file_ext=%s\n" % file_ext)
-        return file_ext in [ ".ttf", ".ttc" ]
+        return file_ext in [".ttf", ".ttc"]
 
     elif lib_util.isPlatformLinux:
-        for start in [
+        return path.startswith((
             '/usr/share/locale/',
             '/usr/share/fonts/',
             '/etc/locale/',
             '/var/cache/fontconfig/',
-            '/usr/lib/jvm/'] :
-            if path.startswith(start):
-                return True
+            '/usr/lib/jvm/'))
+    # Default value if the platform is unknown.
     return False
+
 
 def is_meaningless_file(path, remove_shared_libs, remove_fonts_file):
     """Used when displaying all files open by a process: There are many of them,
