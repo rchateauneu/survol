@@ -56,10 +56,6 @@ def DisplayMappedProcesses(grph,fileName):
 
 	propMemoryRSS = lib_common.MakeProp("Resident Set Size")
 	for proc in psutil.process_iter():
-
-		if lib_common.is_useless_process(proc):
-			continue
-
 		pid = proc.pid
 
 		try:
