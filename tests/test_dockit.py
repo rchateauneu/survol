@@ -1318,18 +1318,14 @@ class EventsServerTest(unittest.TestCase):
 
         actual_types_dict = collections.defaultdict(lambda: 0)
 
-        while num_loops > 0:
-            events_response = portable_urlopen(url_events, timeout=20)
-            events_content = events_response.read()  # Py3:bytes, Py2:str
-            split_content = events_content.split(b"\n")
-            events_content_trunc = b"".join(split_content)
+        total_events_graph = rdflib.Graph()
 
-            events_graph = rdflib.Graph()
-            new_elements = 0
-            # print("events_content_trunc=", events_content_trunc)
-            result = events_graph.parse(data=events_content_trunc, format="application/rdf+xml")
-            print("len results=", len(result), "len(events_graph)=", len(events_graph))
-            for event_subject, event_predicate, event_object in events_graph:
+        def is_finished(events_graph):
+            for rdf_triple in events_graph:
+                # Duplicates are eliminated.
+                total_events_graph.add(rdf_triple)
+
+            for event_subject, event_predicate, event_object in total_events_graph:
                 # Given the input filename, this expects some specific data.
                 if event_predicate == rdflib.namespace.RDF.type:
                     # 'http://www.primhillcomputers.com/survol#CIM_Process'
@@ -1339,10 +1335,20 @@ class EventsServerTest(unittest.TestCase):
                     # http://www.w3.org/1999/02/22-rdf-syntax-ns#Property
                     if class_name not in ['Class', 'Property']:
                         actual_types_dict[class_name] += 1
-                        new_elements += 1
 
-            print("num_loops=", num_loops, "new_elements=", new_elements, "types_dict=", actual_types_dict)
-            if expected_types_list == actual_types_dict:
+            print("num_loops=", num_loops, "types_dict=", actual_types_dict)
+            return expected_types_list == actual_types_dict
+
+        while num_loops > 0:
+            events_response = portable_urlopen(url_events, timeout=20)
+            events_content = events_response.read()  # Py3:bytes, Py2:str
+            split_content = events_content.split(b"\n")
+            events_content_trunc = b"".join(split_content)
+
+            events_graph = rdflib.Graph()
+            result = events_graph.parse(data=events_content_trunc, format="application/rdf+xml")
+            print("len results=", len(result), "len(events_graph)=", len(events_graph))
+            if is_finished(events_graph):
                 break
             time.sleep(2.0)
             num_loops -= 1
@@ -1430,8 +1436,6 @@ class EventsServerTest(unittest.TestCase):
         # Now read and test the events.
         self._check_read_triples(5, expected_types_list)
 
-    # @unittest.skipIf(is_platform_windows and not is_windows10, "Does not work on Windows 7.")
-    @unittest.skipIf(is_platform_windows, "This test is broken on Windows.")
     def test_file_events_firefox(self):
         """This replays the startup of a firefox process."""
         output_basename_prefix = "firefox_events_google.strace.22501"
