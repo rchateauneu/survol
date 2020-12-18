@@ -34,9 +34,6 @@ def Main():
 	# Similar code in "enumerate_sockets.py"
 	for proc in psutil.process_iter():
 		try:
-			if lib_common.is_useless_process(proc):
-				continue
-
 			pid = proc.pid
 
 			# TCP sockets only.

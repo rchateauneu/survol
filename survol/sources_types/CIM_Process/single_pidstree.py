@@ -26,9 +26,6 @@ def AddExtraInformationtoProcess(grph, node_process, proc_obj):
 
 
 def tree_subprocesses(grph, proc_obj):
-    if lib_common.is_useless_process(proc_obj):
-        return
-
     node_process = lib_common.gUriGen.PidUri(proc_obj.pid)
 
     try:
@@ -61,9 +58,6 @@ def tree_parent_process(grph, proc_obj, pids_seen_set):
         # Strange, but apparently it can happen.
         the_ppid = proc_obj.ppid()
         if the_ppid == 0:
-            return
-
-        if lib_common.is_useless_process(proc_obj):
             return
 
         node_process = lib_common.gUriGen.PidUri(the_pid)

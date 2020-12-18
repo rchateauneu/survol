@@ -37,9 +37,6 @@ def Main():
     # although it children processes are not reassigned (As it is the case on Unix).
     # This is a "non-existent process".
     for proc in psutil.process_iter():
-        if lib_common.is_useless_process(proc):
-            continue
-
         pid = proc.pid
         parent_pid = proc.ppid()
 

@@ -94,9 +94,6 @@ def function_process(map_to_proc, proc):
     # The process might have left in the meantime.
     pid = proc.pid
 
-    if lib_common.is_useless_process(proc):
-        return
-
     try:
         all_maps = proc.memory_maps()
     except Exception as exc:
