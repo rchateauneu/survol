@@ -89,11 +89,23 @@ def equal_paths(path_a, path_b):
         raise Exception("Invalid platform")
 
 
-def is_usable_file(file_path):
+def _is_readable_file(file_path):
     """For testing and debugging purpose."""
+
     if os.path.isfile(file_path):
         return True
-    if is_platform_linux:
+
+    if is_platform_windows:
+        try:
+            with open(file_path):
+                pass
+        except IOError as exc:
+            # Beware that the temp directory might contain shared memory "cubeb-shm" files, created by firefox.
+            # "Permission denied" if the file exists but is read protected.
+            return exc.errno == 13
+        assert False, "_is_readable_file cannot open:" + file_path
+        return False
+    else:
         if os.path.islink(file_path):
             return True
     return False
@@ -343,7 +355,7 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                         sub_path_name = lib_util.standardized_file_path(os.path.join(root_dir, one_file_name))
                         #sys.stderr.write("sub_path_name=%s\n" % sub_path_name)
                         # This must be a file, possibly unreadable due to access rights, or a symbolic link.
-                        assert is_usable_file(sub_path_name)
+                        assert _is_readable_file(sub_path_name)
 
                         sub_node_str = "Machine:CIM_DataFile?Name=" + sub_path_name
                         add_sub_node(sub_node_str, class_CIM_DataFile, sub_path_name)
