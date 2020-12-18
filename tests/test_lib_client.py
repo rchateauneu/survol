@@ -92,7 +92,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_DataFile",
             Name=always_present_file)
 
-        lib_common.globalErrorMessageEnabled = False
+        lib_common.enable_error_message(False)
 
         triple_file_stat_local = my_source_file_stat_local.get_triplestore()
         print("Len triple_file_stat_local=",len(triple_file_stat_local))
