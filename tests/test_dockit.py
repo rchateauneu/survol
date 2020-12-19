@@ -1502,19 +1502,26 @@ class MakefileTest(unittest.TestCase):
         print("actual_makefile_content=\n", actual_makefile_content)
 
         expected_makefile_content = """\
+# Generated makefile: 2018-05-08
+# Working directory:/home/rchateau/survol/Experimental/RetroBatch
 /tmp/ccCdYueX.s: /home/rchateau/survol/Experimental/RetroBatch/TestProgs/HelloWorld.c
+\t# Directory: /home/rchateau/survol/Experimental/RetroBatch
 \t/usr/libexec/gcc/x86_64-redhat-linux/5.3.1/cc1
 
 /tmp/ccWzHVOT.o: /tmp/ccCdYueX.s
+\t# Directory: /home/rchateau/survol/Experimental/RetroBatch
 \t/usr/bin/as
 
 /home/rchateau/survol/Experimental/RetroBatch/a.out: /tmp/ccWzHVOT.o
+\t# Directory: /home/rchateau/survol/Experimental/RetroBatch
 \t/usr/bin/ld
 
 /tmp/ccHPSU44.le: /tmp/ccWzHVOT.o
+\t# Directory: /home/rchateau/survol/Experimental/RetroBatch
 \t/usr/bin/ld
 
 /tmp/ccumYu87.ld: /tmp/ccWzHVOT.o
+\t# Directory: /home/rchateau/survol/Experimental/RetroBatch
 \t/usr/bin/ld
 
 """
