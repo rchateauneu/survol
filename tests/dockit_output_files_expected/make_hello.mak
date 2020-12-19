@@ -1,9 +1,5 @@
 # Generated makefile: 2020-12-19
 # Working directory:/home/rchateau/survol/Experimental/MakefileTests
-/home/rchateau/survol/Experimental/MakefileTests: /home/rchateau/survol/Experimental/MakefileTests/makefile
-	# Directory: /home/rchateau/survol/Experimental/MakefileTests
-	make -B
-
 /tmp/ccM07BAx.s: /home/rchateau/survol/Experimental/MakefileTests/hellomake.c /home/rchateau/survol/Experimental/MakefileTests/hellomake.h
 	# Directory: /home/rchateau/survol/Experimental/MakefileTests
 	/usr/libexec/gcc/x86_64-redhat-linux/7/cc1 -quiet -I . hellomake.c -quiet -dumpbase hellomake.c -mtune=generic -march=x86-64 -auxbase-strip hellomake.o -o /tmp/ccM07BAx.s
