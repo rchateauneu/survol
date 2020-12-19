@@ -1,15 +1,25 @@
-# This contains the definitions of CIM objects and their containers.
-# These containers are filled when functions calls detect the creation
-# or handling of such an object.
-# This modules contains specialized containers for these objects,
-# which are later used to create a Dockerfile.
-# These are many common objects with the sub-packages found in survol/sources_types/*/
-# However, information related to the same class are not stored together, because:
-# - When monitoring a running binary with dockit, we wish to import as few code as possible.
-# - The sub-packages related to a class in survol/sources_types/*/ contain
-#   many scripts and a lot of code, with possibly a lengthy init.
-# - Even if the classes are the same, the needed features are different:
-#   Here, it stores actual information about an object, to model the running application.
+"""
+This contains the definitions of CIM objects and their containers.
+These containers are filled when functions calls detect the creation
+or handling of such an object.
+This modules contains specialized containers for these objects,
+which are later used to create a Dockerfile.
+These are many common objects with the sub-packages found in survol/sources_types/*/
+However, information related to the same class are not stored together, because:
+- When monitoring a running binary with dockit, we wish to import as few code as possible.
+- The sub-packages related to a class in survol/sources_types/*/ contain
+  many scripts and a lot of code, with possibly a lengthy init.
+- Even if the classes are the same, the needed features are different:
+  Here, it stores actual information about an object, to model the running application.
+"""
+
+from __future__ import print_function
+
+__author__      = "Remi Chateauneu"
+__copyright__   = "Primhill Computers, 2018-2021"
+__license__ = "GPL"
+__maintainer__ = "Remi Chateauneu"
+__email__ = "contact@primhillcomputers.com"
 
 import os
 import re
@@ -121,12 +131,10 @@ def standardize_object_attributes(cim_class_name, cim_arguments):
 
 if lib_sql:
     # This creates the SQL queries scanner, it needs Survol code.
-    from survol import lib_sql
-
     dict_regex_sql = lib_sql.SqlRegularExpressions()
 
     dict_regex_sql_compiled = {
-        rgx_key : re.compile(dict_regex_sql[rgx_key], re.IGNORECASE)
+        rgx_key: re.compile(dict_regex_sql[rgx_key], re.IGNORECASE)
         for rgx_key in dict_regex_sql
     }
 
@@ -1773,23 +1781,20 @@ def generate_makefile(output_makefile):
         return file_name.startswith(("/usr/", "/lib64/", "/etc/"))
 
     out_fd = open(output_makefile, "w")
+    out_fd.write("# Generated makefile: %s\n" % str(G_Today))
+    out_fd.write("# Working directory:%s\n" % G_CurrentDirectory)
 
     # TODO: This does not work if a file is rewritten.
 
-    sys.stdout.write("Output makefile %s not implemented yet\n" % output_makefile)
     cached_processes = G_mapCacheObjects[CIM_Process.__name__]
     for obj_path in sorted(cached_processes.keys()):
-        obj_instance = cached_processes[obj_path]
-        try:
-            command_line = obj_instance.GetCommandLine()
-        except AttributeError:
-            command_line = "Unknown command line"
+        one_proc = cached_processes[obj_path]
 
         # This creates two input and output files of each process.
         input_files = set()
         output_files = set()
 
-        for fil_acc in obj_instance.m_ProcessFileAccesses:
+        for fil_acc in one_proc.m_ProcessFileAccesses:
             one_file = fil_acc.m_objectCIM_DataFile
 
             # Special files such as "/dev/" or "/proc/" are not taken into consideration.
@@ -1811,6 +1816,12 @@ def generate_makefile(output_makefile):
 
         input_files = sorted(input_files, key=lambda obj_fil: obj_fil.Name)
 
+        try:
+            command_line = one_proc.GetCommandLine()
+        except AttributeError:
+            command_line = "Unknown command line"
+        curr_dir = one_proc.GetProcessCurrentDir()
+
         # TODO: What of a file is written by several process ?
         for one_out_file in sorted(output_files, key=lambda obj_fil: obj_fil.Name):
             # TODO: Write the environment variables of the process.
@@ -1824,10 +1835,13 @@ def generate_makefile(output_makefile):
             out_fd.write("%s: %s\n" % (one_out_file.Name, depends_files))
 
             # TODO: If there are several output files, it is a waste to run the same command several times.
+            out_fd.write("\t# Directory: %s\n" % curr_dir)
             out_fd.write("\t%s\n" % command_line)
             out_fd.write("\n")
 
     out_fd.close()
+    print("Created makefile:", output_makefile)
+
 
 
 # Environment variables actually access by processes.

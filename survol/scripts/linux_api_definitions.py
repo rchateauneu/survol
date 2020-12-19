@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 __author__      = "Remi Chateauneu"
 __copyright__   = "Primhill Computers, 2018-2020"
 __credits__ = ["","",""]
@@ -765,21 +767,29 @@ def _invalid_returned_file_descriptor(file_des, tracer):
 
 
 def _open_flag_to_letter(open_flag):
-    if open_flag == '0x80000': # O_RDONLY|O_CLOEXEC
-        return "R"
-    if open_flag == '0': # O_RDONLY
-        return "R"
-    if open_flag == '0x100': # O_CREAT
-        return "R"
-    if open_flag == '0x241': # O_EXCL | O_WRONLY | ??
-        return "W"
-    if open_flag == '0x242': # O_EXCL | O_RDWR | ??
-        return "W"
-    if open_flag == '0xc2': # O_RDWR | ??
-        return "W"
+
     if open_flag.startswith("????"):
         return "R"
-    return "W"
+
+    dict_flag_to_letter = {
+        # ltrace values
+        '0x80000': "R", # O_RDONLY|O_CLOEXEC
+        '0': "R", # O_RDONLY
+        '0x100': "R", # O_CREAT
+        '0x241': "W", # O_EXCL | O_WRONLY | ??
+        '0x242': "W", # O_EXCL | O_RDWR | ??
+        '0xc2': "W", # O_RDWR | ??
+
+        # strace values
+        'O_RDONLY|O_CLOEXEC': "R",
+        'O_RDONLY': "R",
+        'O_RDONLY|O_NOCTTY': "R",
+        'O_RDWR|O_CREAT|O_EXCL': "W",
+        'O_WRONLY|O_CREAT|O_TRUNC': "W",
+        'O_RDWR|O_CREAT|O_TRUNC': "W",
+    }
+
+    return dict_flag_to_letter[open_flag]
 
 
 ##### File descriptor system calls.
