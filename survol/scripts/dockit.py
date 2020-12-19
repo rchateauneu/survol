@@ -86,7 +86,7 @@ def print_dockit_usage(exit_code=1, error_message=None):
         + "                                  Examples: -s 'Win32_LogicalDisk.DeviceID=\"C:\",Prop1=\"Value1\",Prop2=\"Value2\"'\n"
         + "                                            -s 'CIM_DataFile:Category=[\"Others\",\"Shared libraries\"]'" )
     print("  -D,--dockerfile                 Generates a dockerfile.")
-    print("  -M,--makefile                   Generates a makefile.")
+    print("  -M,--makefile <makefile name>   Generates a makefile.")
     print("  -p,--pid <pid>                  Monitors a running process instead of starting an executable.")
     print("  -f,--format TXT|CSV|JSON        Output format. Default is TXT.")
     print("  -F,--summary-format TXT|XML     Summary output format. Default is XML.")
@@ -890,14 +890,14 @@ def dockit_entry_point():
 
     try:
         command_options, G_parameters.command_line = getopt.getopt(sys.argv[1:],
-                "hvws:DMp:f:F:i:l:t:S:a:d",
+                "hvws:DM:p:f:F:i:l:t:S:a:d",
                 [
                 "help",
                 "verbose",
                 "warning",
                 "summary=",
                 "dockerfile", # Generates a dockerfile to rerun the session.
-                "makefile", # This generates a makefile for the files dependencies and the commands.
+                "makefile=", # This generates a makefile for the files dependencies and the commands.
                 "pid=", # Identifier of a process to attach to. Exclusive to a command and an input log file.
                 "format=",
                 "summary-format=",
