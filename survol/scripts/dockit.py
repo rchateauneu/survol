@@ -808,8 +808,8 @@ def _analyse_functions_calls_stream(
 
 
 def test_from_file(
-        input_log_file, tracer, output_files_prefix, output_format,
-        summary_format,
+        input_log_file, tracer, output_files_prefix=None, output_format=None,
+        summary_format=None,
         map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
         input_process_id=0,
         verbose=0, with_dockerfile=None, update_server=None, aggregator=None, output_makefile=None):
