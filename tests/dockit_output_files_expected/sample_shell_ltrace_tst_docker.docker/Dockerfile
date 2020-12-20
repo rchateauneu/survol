@@ -3,45 +3,41 @@ FROM docker.io/fedora
 MAINTAINER contact@primhillcomputers.com
 
 ################################# Executables:
+# Potential conflict with coreutils , coreutils-8.27-5.fc26.x86_64
 
 ################################# Dependencies by program type
 # Dependencies: Binary programs
 # Package installations:
+RUN yum -y install bzip2-libs # bzip2-libs-1.0.6-22.fc26.x86_64
+RUN yum -y install elfutils-libelf # elfutils-libelf-0.169-1.fc26.x86_64
+RUN yum -y install elfutils-libs # elfutils-libs-0.169-1.fc26.x86_64
+RUN yum -y install glibc # glibc-2.25-6.fc26.x86_64
+RUN yum -y install libacl # libacl-2.2.52-15.fc26.x86_64
+RUN yum -y install libattr # libattr-2.4.47-18.fc26.x86_64
+RUN yum -y install libcap # libcap-2.25-5.fc26.x86_64
+RUN yum -y install libgcc # libgcc-7.3.1-2.fc26.x86_64
+RUN yum -y install libgcrypt # libgcrypt-1.7.7-1.fc26.x86_64
+RUN yum -y install libgpg-error # libgpg-error-1.25-2.fc26.x86_64
+RUN yum -y install libselinux # libselinux-2.6-6.fc26.x86_64
+RUN yum -y install pcre # pcre-8.40-7.fc26.x86_64
+RUN yum -y install procps-ng # procps-ng-3.3.10-13.fc26.x86_64
+RUN yum -y install systemd-libs # systemd-libs-233-6.fc26.x86_64
+RUN yum -y install xz-libs # xz-libs-5.2.3-2.fc26.x86_64
+RUN yum -y install zlib # zlib-1.2.11-2.fc26.x86_64
 
 # Non-packaged executable files copies:
-# Origin file does not exist:/etc/ld.so.cache
-# Origin file does not exist:/lib64/libacl.so.1
-# Origin file does not exist:/lib64/libattr.so.1
-# Origin file does not exist:/lib64/libbz2.so.1
-# Origin file does not exist:/lib64/libc.so.6
-# Origin file does not exist:/lib64/libcap.so.2
-# Origin file does not exist:/lib64/libdl.so.2
-# Origin file does not exist:/lib64/libdw.so.1
-# Origin file does not exist:/lib64/libelf.so.1
-# Origin file does not exist:/lib64/libgcc_s.so.1
-# Origin file does not exist:/lib64/libgcrypt.so.20
-# Origin file does not exist:/lib64/libgpg-error.so.0
-# Origin file does not exist:/lib64/liblzma.so.5
-# Origin file does not exist:/lib64/libm.so.6
-# Origin file does not exist:/lib64/libnss_files.so.2
-# Origin file does not exist:/lib64/libpcre.so.1
-# Origin file does not exist:/lib64/libprocps.so.4
-# Origin file does not exist:/lib64/libpthread.so.0
-# Origin file does not exist:/lib64/libresolv.so.2
-# Origin file does not exist:/lib64/librt.so.1
-# Origin file does not exist:/lib64/libselinux.so.1
-# Origin file does not exist:/lib64/libsystemd.so.0
 # Origin file does not exist:/lib64/libtinfo.so.5
-# Origin file does not exist:/lib64/libz.so.1
 
 # Data packages:
+RUN yum -y install filesystem # filesystem-3.2-40.fc26.x86_64
+# Already installed glibc -> glibc-2.25-6.fc26.x86_64
+RUN yum -y install glibc-all-langpacks # glibc-all-langpacks-2.25-6.fc26.x86_64
+RUN yum -y install glibc-common # glibc-common-2.25-6.fc26.x86_64
+RUN yum -y install setup # setup-2.10.5-2.fc26.noarch
+RUN yum -y install systemd # systemd-233-6.fc26.x86_64
 
 # Data files:
 # Origin file does not exist:/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh
-# Origin file does not exist:/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:255
-# Origin file does not exist:/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:4
-# Origin file does not exist:/usr/lib/locale/locale-archive
-# Origin file does not exist:/usr/lib64/gconv/gconv-modules.cache
 
 WORKDIR /home/rchateau/rdfmon-code/Experimental/RetroBatch
 
