@@ -70,7 +70,7 @@ def _path_prefix_output_result(*file_path):
     return os.path.join(dockit_output_files_path, *file_path)
 
 
-def _check_file_validity(full_file_path):
+def _check_file_validity(test_object, full_file_path):
     """Check content if this is a valid file wrt its extension.
     Depending on the file extension, this tries to load the content of the file.
     """
@@ -95,11 +95,11 @@ def _check_file_validity(full_file_path):
         # In the general case, just check that the file can be read.
         with open(full_file_path) as fil_descr:
             file_content = fil_descr.readlines()
-    assert file_content is not None
+    test_object.assertIsNotNone(file_content)
     return file_content
 
 
-def _compare_file_with_expected(actual_file_path, expected_file_path):
+def _compare_file_with_expected(test_object, actual_file_path, expected_file_path):
     # Now compare this file with the expected one, if it is here.
     print("expected_file_path=", expected_file_path)
     try:
@@ -115,13 +115,13 @@ def _compare_file_with_expected(actual_file_path, expected_file_path):
         for expected_line, actual_line in zip(expected_content, actual_content):
             #print(expected_line)
             #print(actual_line)
-            assert expected_line == actual_line
+            test_object.assertEqual(expected_line, actual_line)
         print("Comparison OK with ", actual_file_path)
     except IOError:
         print("INFO: No comparison file:", expected_file_path)
 
 
-def check_file_content(*file_path):
+def _check_file_content(test_object, *file_path):
     """Check content of the generated files.
     Depending on the file extension, this tries to load the content of the file.
     it returns the parsed content, depending on the extension.
@@ -129,9 +129,12 @@ def check_file_content(*file_path):
     actual_file_path = _path_prefix_output_result(*file_path)
     expected_file_path = os.path.join(dockit_output_files_path_expected, *file_path)
 
-    _compare_file_with_expected(actual_file_path, expected_file_path)
+    # TODO: At the mment, cannot compare Dockerfile on Windows because the result is different anyway.
+    # TODO: A special comparison is needed.
+    if is_platform_linux:
+        _compare_file_with_expected(test_object, actual_file_path, expected_file_path)
 
-    return _check_file_validity(actual_file_path)
+    return _check_file_validity(test_object, actual_file_path)
 
 
 def check_file_missing(*file_path):
@@ -280,13 +283,13 @@ def _run_dockit_command(one_command):
     return output_content
 
 
-def _rdf_file_to_triples(rdf_file):
+def _rdf_file_to_triples(test_object, rdf_file):
     """This receives a rdflib graph and returns a list of tuples made only of literals,
     which can easily be compared in tests."""
 
     # This RDF file contains the raw triples generated from events.
     # It does not contain semantic data necessary for SPARQL quries such as rdflib.namespace.RDF.type.
-    rdf_content = check_file_content(rdf_file)
+    rdf_content = _check_file_content(test_object, rdf_file)
     # http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_NetworkAdapter.Name=192.168.1.10
     # http://www.primhillcomputers.com/survol#Name
     # 192.168.1.10
@@ -325,6 +328,37 @@ class CommandLineReplayTest(unittest.TestCase):
         except Exception as exc:
             print("exc=", exc)
 
+    def test_check_file_content(self):
+        """This tests that differences in files are detected.
+        It creates a copy of an expected file with given number of differences,
+        then it checks that this number is found."""
+        class PseudoTest:
+            def __init__(self):
+                self.diff_counter = 0
+            def assertIsNotNone(self, value):
+                return value is not None
+            def assertEqual(self, value_a, value_b):
+                if value_a != value_b:
+                    self.diff_counter+= 1
+
+        pseudo_test = PseudoTest()
+        output_basename = "test_check_file_content.log"
+        output_full_path = _path_prefix_output_result(output_basename)
+
+        expected_file_path = os.path.join(dockit_output_files_path_expected, output_basename)
+        with open(expected_file_path) as expected_fd:
+            expected_lines = expected_fd.readlines()
+        # Three lines arbitrarily changed.
+        expected_lines[0] = "Wrong_0\n"
+        expected_lines[2] = "Wrong_2\n"
+        expected_lines[4] = "Wrong_4\n"
+        with open(output_full_path, "w") as output_fd:
+            for one_modified_line in expected_lines:
+                output_fd.write(one_modified_line)
+
+        _check_file_content(pseudo_test, "test_check_file_content.log")
+        self.assertEqual(pseudo_test.diff_counter, 3)
+
     def test_replay_sample_shell_ltrace(self):
         input_log_file = path_prefix_input_file("sample_shell.ltrace.log")
         output_basename_prefix = "sample_shell.ltrace"
@@ -344,7 +378,7 @@ class CommandLineReplayTest(unittest.TestCase):
         check_file_missing(output_basename_prefix + ".ini")
 
         # This file must be created because "--duplicate" options is set.
-        check_file_content(output_basename_prefix + ".log")
+        _check_file_content(self, output_basename_prefix + ".log")
 
     def test_replay_oracle_db_data_strace(self):
         input_log_file = path_prefix_input_file("oracle_db_data.strace.5718.log")
@@ -359,7 +393,7 @@ class CommandLineReplayTest(unittest.TestCase):
         self.assertTrue(command_result.startswith(b"Loading ini file:"))
 
         # No ini file created because this is a replay session from a log file.
-        check_file_content(output_basename_prefix + ".txt")
+        _check_file_content(self, output_basename_prefix + ".txt")
 
         # No ini file created because this is a replay session from a log file.
         check_file_missing(output_basename_prefix + ".ini")
@@ -413,7 +447,7 @@ class CommandLineReplayTest(unittest.TestCase):
             output_prefix)
         command_result = _run_dockit_command(dockit_command)
 
-        check_file_content(output_basename_prefix + ".docker", "Dockerfile")
+        _check_file_content(self, output_basename_prefix + ".docker", "Dockerfile")
         check_file_missing(output_basename_prefix + ".ini")
 
     @unittest.skipIf(is_platform_linux, "Windows only.")
@@ -428,7 +462,7 @@ class CommandLineReplayTest(unittest.TestCase):
             output_prefix)
         command_result = _run_dockit_command(dockit_command)
 
-        check_file_content(output_basename_prefix + ".docker", "Dockerfile")
+        _check_file_content(self, output_basename_prefix + ".docker", "Dockerfile")
         check_file_missing(output_basename_prefix + ".ini")
 
 
@@ -453,10 +487,10 @@ class CommandLineLiveLinuxTest(unittest.TestCase):
         command_result = _run_dockit_command("-D -f JSON -F TXT -l %s ls" % output_prefix)
 
         # This creates files like ".../test_linux_ls.strace<pid>.ini"
-        check_file_content(output_basename_prefix + ".ini")
-        check_file_content(output_basename_prefix + ".json")
-        check_file_content(output_basename_prefix + ".summary.txt")
-        check_file_content(output_basename_prefix + ".docker", "Dockerfile")
+        _check_file_content(self, output_basename_prefix + ".ini")
+        _check_file_content(self, output_basename_prefix + ".json")
+        _check_file_content(self, output_basename_prefix + ".summary.txt")
+        _check_file_content(self, output_basename_prefix + ".docker", "Dockerfile")
 
         check_file_missing(output_basename_prefix + ".log")
 
@@ -472,7 +506,7 @@ class CommandLineLiveLinuxTest(unittest.TestCase):
         ini_content = dockit.ini_file_check(ini_file_default)
         created_pid = ini_content["TopProcessId"]
 
-        triples_as_string = _rdf_file_to_triples(created_rdf_file)
+        triples_as_string = _rdf_file_to_triples(self, created_rdf_file)
         print("triples_as_string=", triples_as_string)
 
         # check_file_missing(output_basename_prefix + ".ini")
@@ -508,8 +542,8 @@ class CommandLineLiveWin32Test(unittest.TestCase):
         command_result = _run_dockit_command("--log=%s ping primhillcomputers.com" % output_prefix)
 
         # The ini file is always created and store some parameters to replay the sessiosn.
-        check_file_content(output_basename_prefix + ".ini")
-        check_file_content(output_basename_prefix + ".txt")
+        _check_file_content(self, output_basename_prefix + ".ini")
+        _check_file_content(self, output_basename_prefix + ".txt")
 
         # The parameter to log the function calls is not given on the command line.
         check_file_missing(output_basename_prefix + ".log")
@@ -522,9 +556,9 @@ class CommandLineLiveWin32Test(unittest.TestCase):
         output_prefix = _path_prefix_output_result(output_basename_prefix)
         command_result = _run_dockit_command("--log=%s --duplicate ping github.com" % output_prefix)
 
-        check_file_content(output_basename_prefix + ".ini")
-        check_file_content(output_basename_prefix + ".txt")
-        check_file_content(output_basename_prefix + ".log")
+        _check_file_content(self, output_basename_prefix + ".ini")
+        _check_file_content(self, output_basename_prefix + ".txt")
+        _check_file_content(self, output_basename_prefix + ".log")
 
         check_file_missing(output_basename_prefix + ".docker", "Dockerfile")
 
@@ -561,8 +595,8 @@ class CommandLineLiveWin32Test(unittest.TestCase):
         dockit_command = "--log=%s --duplicate %s /c DIR" % (output_prefix, windows_system32_cmd_exe)
         command_result = _run_dockit_command(dockit_command)
 
-        check_file_content(output_basename_prefix + ".ini")
-        check_file_content(output_basename_prefix + ".log")
+        _check_file_content(self, output_basename_prefix + ".ini")
+        _check_file_content(self, output_basename_prefix + ".log")
 
     @unittest.skipIf(is_windows10, "FIXME: IOs function calls not detected on Windows 10.")
     def test_run_windows_mkdir_rdf(self):
@@ -588,7 +622,7 @@ class CommandLineLiveWin32Test(unittest.TestCase):
         # This RDF file contains the raw triples generated from events.
         # It does not contain semantic data necessary for SPARQL queries such as rdflib.namespace.RDF.type.
 
-        triples_as_string = _rdf_file_to_triples(created_rdf_file)
+        triples_as_string = _rdf_file_to_triples(self, created_rdf_file)
         print("triples_as_string=", triples_as_string)
 
         self.assertTrue((
@@ -627,7 +661,7 @@ class CommandLineLiveWin32Test(unittest.TestCase):
         ini_content = dockit.ini_file_check(ini_file_default)
         created_pid = ini_content["TopProcessId"]
 
-        triples_as_string = _rdf_file_to_triples(created_rdf_file)
+        triples_as_string = _rdf_file_to_triples(self, created_rdf_file)
 
         for rdf_subject, rdf_predicate, rdf_object in triples_as_string:
             if rdf_subject[0] != "CIM_DataFile":
@@ -706,7 +740,7 @@ class CommandLineLiveWin32Test(unittest.TestCase):
         # This RDF file contains the raw triples generated from events.
         # It does not contain semantic data necessary for SPARQL queries such as rdflib.namespace.RDF.type.
 
-        triples_as_string = _rdf_file_to_triples(created_rdf_file)
+        triples_as_string = _rdf_file_to_triples(self, created_rdf_file)
         print("triples_as_string=", triples_as_string)
 
         # This file is read from by the process, so it must appear here.
@@ -739,7 +773,7 @@ class CommandLineLivePythonTest(unittest.TestCase):
         ini_content = dockit.ini_file_check(ini_file_default)
         created_pid = ini_content["TopProcessId"]
 
-        triples_as_string = _rdf_file_to_triples(created_rdf_file)
+        triples_as_string = _rdf_file_to_triples(self, created_rdf_file)
 
         # This is the created process which runs dockit.py
         self.assertTrue((
@@ -1133,8 +1167,8 @@ class ReplaySessionsTest(unittest.TestCase):
             verbose=True,
             aggregator="clusterize")
 
-        check_file_content("sample_shell_strace_tst_txt.txt")
-        check_file_content("sample_shell_strace_tst_txt.summary.txt")
+        _check_file_content(self, "sample_shell_strace_tst_txt.txt")
+        _check_file_content(self, "sample_shell_strace_tst_txt.summary.txt")
 
     def test_replay_linux_strace_csv_docker(self):
         output_basename_prefix = "sample_shell_strace_tst_csv"
@@ -1148,10 +1182,9 @@ class ReplaySessionsTest(unittest.TestCase):
             with_dockerfile=True,
             aggregator="clusterize")
 
-        check_file_content(output_basename_prefix + ".csv")
-        # PLUS DIFFICLE A TESTER CAR ON NE CONTROLE PAS L ORDRE
-        #check_file_content(output_basename_prefix + ".summary.xml")
-        check_file_content(output_basename_prefix + ".docker", "Dockerfile")
+        _check_file_content(self, output_basename_prefix + ".csv")
+        _check_file_content(self, output_basename_prefix + ".summary.xml")
+        _check_file_content(self, output_basename_prefix + ".docker", "Dockerfile")
 
     def test_replay_linux_strace_json(self):
         output_basename_prefix = "sample_shell_strace_tst_json"
@@ -1164,8 +1197,8 @@ class ReplaySessionsTest(unittest.TestCase):
             verbose=True,
             aggregator="clusterize")
 
-        check_file_content(output_basename_prefix + ".json")
-        check_file_content(output_basename_prefix + ".summary.txt")
+        _check_file_content(self, output_basename_prefix + ".json")
+        _check_file_content(self, output_basename_prefix + ".summary.txt")
 
     def test_replay_linux_ltrace_docker(self):
         output_basename_prefix = "sample_shell_ltrace_tst_docker"
@@ -1179,9 +1212,9 @@ class ReplaySessionsTest(unittest.TestCase):
             with_dockerfile=True,
             aggregator="clusterize")
 
-        check_file_content(output_basename_prefix + ".json")
-        check_file_content(output_basename_prefix + ".summary.txt")
-        check_file_content(output_basename_prefix + ".docker", "Dockerfile")
+        _check_file_content(self, output_basename_prefix + ".json")
+        _check_file_content(self, output_basename_prefix + ".summary.txt")
+        _check_file_content(self, output_basename_prefix + ".docker", "Dockerfile")
 
     # TODO: This replay could theoretically run on Linux,
     # TODO: but win32_defs must be amended so that it can load some parts, on Linux boxes.
@@ -1198,9 +1231,9 @@ class ReplaySessionsTest(unittest.TestCase):
             with_dockerfile=True,
             aggregator="clusterize")
 
-        check_file_content(output_basename_prefix + ".json")
-        check_file_content(output_basename_prefix + ".summary.txt")
-        check_file_content(output_basename_prefix + ".docker", "Dockerfile")
+        _check_file_content(self, output_basename_prefix + ".json")
+        _check_file_content(self, output_basename_prefix + ".summary.txt")
+        _check_file_content(self, output_basename_prefix + ".docker", "Dockerfile")
 
     def test_replay_all_trace_files(self):
         """Iterates on all input test files
@@ -1252,7 +1285,7 @@ class ReplaySessionsTest(unittest.TestCase):
             # Files .log are not created because --duplicate option is not set.
             check_file_missing(output_basename_prefix + ".log")
 
-            check_file_content(output_basename_prefix + ".summary.txt")
+            _check_file_content(self, output_basename_prefix + ".summary.txt")
 
 
 class RunningLinuxProcessesTest(unittest.TestCase):
@@ -1286,8 +1319,8 @@ class RunningLinuxProcessesTest(unittest.TestCase):
         sub_proc.communicate()
         self.assertEqual(sub_proc.returncode, 0)
 
-        check_file_content(output_basename_prefix + ".txt")
-        check_file_content(output_basename_prefix + ".summary.txt")
+        _check_file_content(self, output_basename_prefix + ".txt")
+        _check_file_content(self, output_basename_prefix + ".summary.txt")
 
 
 class StoreToRDFTest(unittest.TestCase):
@@ -1307,9 +1340,9 @@ class StoreToRDFTest(unittest.TestCase):
             update_server= _path_prefix_output_result("sample_shell_ltrace_tst_create_RDF.rdf"),
             aggregator="clusterize")
 
-        check_file_content(output_basename_prefix + ".json")
-        check_file_content(output_basename_prefix + ".summary.txt")
-        check_file_content(output_basename_prefix + ".rdf")
+        _check_file_content(self, output_basename_prefix + ".json")
+        _check_file_content(self, output_basename_prefix + ".summary.txt")
+        _check_file_content(self, output_basename_prefix + ".rdf")
 
 
 class EventsServerTest(unittest.TestCase):
@@ -1392,8 +1425,8 @@ class EventsServerTest(unittest.TestCase):
             update_server=_remote_events_test_agent + "/survol/event_put.py",
             aggregator="clusterize")
 
-        check_file_content(output_basename_prefix + ".json")
-        check_file_content(output_basename_prefix + ".summary.txt")
+        _check_file_content(self, output_basename_prefix + ".json")
+        _check_file_content(self, output_basename_prefix + ".summary.txt")
 
         expected_types_list = {
             'CIM_Process': 1,
@@ -1419,8 +1452,8 @@ class EventsServerTest(unittest.TestCase):
             update_server=_remote_events_test_agent + "/survol/event_put.py",
             aggregator="clusterize")
 
-        check_file_content(output_basename_prefix + ".json")
-        check_file_content(output_basename_prefix + ".summary.txt")
+        _check_file_content(self, output_basename_prefix + ".json")
+        _check_file_content(self, output_basename_prefix + ".summary.txt")
 
         expected_types_list = {
             'CIM_Process': 5,
@@ -1444,8 +1477,8 @@ class EventsServerTest(unittest.TestCase):
             update_server=_remote_events_test_agent + "/survol/event_put.py",
             aggregator="clusterize")
 
-        check_file_content(output_basename_prefix + ".json")
-        check_file_content(output_basename_prefix + ".summary.txt")
+        _check_file_content(self, output_basename_prefix + ".json")
+        _check_file_content(self, output_basename_prefix + ".summary.txt")
 
         # This is a FTP command, which obviously involves many files and a network connection.
         expected_types_list = {
@@ -1470,8 +1503,8 @@ class EventsServerTest(unittest.TestCase):
             update_server=_remote_events_test_agent + "/survol/event_put.py",
             aggregator="clusterize")
 
-        check_file_content(output_basename_prefix + ".json")
-        check_file_content(output_basename_prefix + ".summary.txt")
+        _check_file_content(self, output_basename_prefix + ".json")
+        _check_file_content(self, output_basename_prefix + ".summary.txt")
 
         # TODO: WHY IS THIS DIFFERENT ???
         # Linux: 1678
@@ -1503,7 +1536,7 @@ class MakefileTest(unittest.TestCase):
             input_log_file=path_prefix_input_file("dockit_gcc_hello_world.ltrace.log"),
             tracer="ltrace",
             output_makefile=temp_makefile)
-        check_file_content(makefile_basename)
+        _check_file_content(self, makefile_basename)
 
     def test_makefile_gcc_hellofunc_strace(self):
         makefile_basename = "make_hello.mak"
@@ -1512,7 +1545,7 @@ class MakefileTest(unittest.TestCase):
             input_log_file=path_prefix_input_file("make_hello.strace.1338.log"),
             tracer="strace",
             output_makefile=temp_makefile)
-        check_file_content(makefile_basename)
+        _check_file_content(self, makefile_basename)
 
 
 if __name__ == '__main__':
