@@ -1,5 +1,3 @@
-# Directory C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\tests\dockit_output_files\sample_shell_strace_tst_csv.docker
-
 FROM docker.io/fedora
 
 MAINTAINER contact@primhillcomputers.com
