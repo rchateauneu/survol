@@ -25,6 +25,7 @@ if not is_platform_linux:
             self.created_objects = collections.defaultdict(list)
 
         def report_function_call(self, function_name, process_id):
+            assert isinstance(function_name, six.binary_type)
             # The main purpose of this virtual function is to check exactly what
             # was called, and by process, to help testing and debugging.
             self.calls_counter[process_id][function_name] += 1

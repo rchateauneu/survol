@@ -384,7 +384,7 @@ class BatchLetCore:
                 # So the closing parenthesis could not be found.
                 idx_eq = the_call.rfind("=", 0, idx_lt)
                 if idx_eq < 0:
-                    raise Exception("No = from end: idx_lt=%d. function=%s" % (idx_lt, the_call))
+                    raise Exception("No = from end: idx_lt=%d. function=[%s]" % (idx_lt, the_call))
             else:
                 # Normal case where the '=' equal sign comes after the clolsing parenthese of the args list.
                 idx_eq = the_call.find("=", idx_last_par)
@@ -394,7 +394,9 @@ class BatchLetCore:
                         if self.m_tracer != "ltrace":
                         # This can happen with ltrace which does not escape double-quotes. Example:
                         # read@SYS(8, "\003\363\r\n"|\314Vc", 4096) = 765 <0.000049>
-                            raise Exception("No = from parenthesis: idx_last_par=%d. function=%s. Len=%d" % (idx_lt, the_call, len(the_call)))
+                        # ... or if the last line is truncated.
+                            raise Exception("No = from parenthesis: idx_last_par=%d. function=[%s]. Len=%d, line=[%s]"
+                                            % (idx_lt, the_call, len(the_call), one_line))
 
             if idx_eq < 0 or idx_eq >= idx_lt:
                 # If this is the last line, not a problem
@@ -767,10 +769,13 @@ def _invalid_returned_file_descriptor(file_des, tracer):
 
 
 def _open_flag_to_letter(open_flag):
+    if open_flag is None:
+        return "R"
 
     if open_flag.startswith("????"):
         return "R"
 
+    # ltrace just displays the integer value of the flag.
     dict_flag_to_letter = {
         # ltrace values
         '0x80000': "R", # O_RDONLY|O_CLOEXEC
@@ -778,18 +783,25 @@ def _open_flag_to_letter(open_flag):
         '0x100': "R", # O_CREAT
         '0x241': "W", # O_EXCL | O_WRONLY | ??
         '0x242': "W", # O_EXCL | O_RDWR | ??
+        '0x802': "W", # O_EXCL | O_RDWR | ??
         '0xc2': "W", # O_RDWR | ??
-
-        # strace values
-        'O_RDONLY|O_CLOEXEC': "R",
-        'O_RDONLY': "R",
-        'O_RDONLY|O_NOCTTY': "R",
-        'O_RDWR|O_CREAT|O_EXCL': "W",
-        'O_WRONLY|O_CREAT|O_TRUNC': "W",
-        'O_RDWR|O_CREAT|O_TRUNC': "W",
     }
+    try:
+        return dict_flag_to_letter[open_flag]
+    except KeyError:
+        pass
 
-    return dict_flag_to_letter[open_flag]
+    # strace values: strace translates the integer value of the flag to the constant.
+    if open_flag.find("O_RDONLY") >= 0:
+        return "R"
+
+    if open_flag.find("O_RDWR") >= 0:
+        return "W"
+
+    if open_flag.find("O_WRONLY") >= 0:
+        return "W"
+
+    raise Exception("Unexpected open flag:" + open_flag)
 
 
 ##### File descriptor system calls.

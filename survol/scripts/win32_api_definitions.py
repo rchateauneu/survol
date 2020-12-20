@@ -59,6 +59,7 @@ else:
 # or an extension of CIM.
 class TracerBase(object):
     def report_function_call(self, function_name, process_id):
+        assert isinstance(function_name, six.binary_type)
         raise NotImplementedError("To be implemented")
 
     def report_object_creation(self, cim_objects_context, cim_class_name, **cim_arguments):
@@ -71,9 +72,10 @@ class PseudoTraceLineCore:
         self.m_pid = process_id
         # This is not applicable to Windows, yet.
         self.m_status = 999999
+        assert isinstance(function_name, six.binary_type)
         self._function_name = function_name
         self._return_value = 0
-        self._time_start = time.time()
+        self._time_start = 99999999.99 # time.time()
         self._time_end = self._time_start
 
     # TODO: Finish this list.
@@ -95,7 +97,7 @@ class PseudoTraceLine:
         # The style tells if this is a native call or an aggregate of function calls.
         self.m_style = "Breakpoint"
 
-    # This writes the content, so it can be deseriazied, to replay a session.
+    # This writes the content, so it can be deserialized, to replay a session.
     def write_to_file(self, file_descriptor):
         assert isinstance(self.m_core._function_name, six.binary_type)
         file_descriptor.write("%d %s\n" % (self.m_core.m_pid, self.m_core._function_name.decode('utf-8)')))
@@ -109,6 +111,8 @@ class PseudoTraceLine:
 
     # Process creations or setup are not aggregated.
     def is_same_call(self, another_object):
+        assert isinstance(self.m_core._function_name, six.binary_type)
+        assert isinstance(another_object.m_core._function_name, six.binary_type)
         return self.m_core._function_name == another_object.m_core._function_name \
                and not self.m_core.is_creating_process() \
                and not another_object.m_core.is_creating_process()
@@ -240,6 +244,7 @@ class Win32Tracer(TracerBase):
 
     def report_function_call(self, function_name, task_id):
         # This is called in the debugger context.
+        assert isinstance(function_name, six.binary_type)
         batch_core = PseudoTraceLine(task_id, function_name)
         self._queue.put(batch_core)
 
@@ -341,6 +346,7 @@ class Win32Hook_Manager(pydbg.pydbg):
             # This instance is a context for the results of anything done before the function call.
             subclass_instance.callback_before(function_arguments)
             function_arguments.append(subclass_instance)
+            assert isinstance(the_subclass.function_name, six.binary_type)
             tracer_object.report_function_call(the_subclass.function_name, object_pydbg.dbg.dwProcessId)
             subclass_instance.__class__._debug_counter_before += 1
             return defines.DBG_CONTINUE

@@ -419,6 +419,14 @@ class BatchDumperJSON(BatchDumperBase):
         self.m_top_delimiter = ","
 
     def dump_batch_to_stream(self, batchLet):
+        # TODO: This is needed because function names are always binary_types in win32.
+        # TODO: This should be changed to "str" on all platforms.
+        unicode_class = str if is_py3 else unicode
+        if isinstance(batchLet.m_core._function_name, unicode_class):
+            function_name = batchLet.m_core._function_name
+        else:
+            function_name = batchLet.m_core._function_name.decode("utf-8")
+
         self.m_strm.write(
             self.m_delimiter + '{\n'
             '   "pid" : %d,\n'
@@ -435,7 +443,7 @@ class BatchDumperJSON(BatchDumperBase):
             batchLet.m_occurrences,
             batchLet.m_style,
             batchLet.m_core.m_status,
-            batchLet.m_core._function_name,
+            function_name,
             json.dumps([str(arg) for arg in batchLet.get_significant_args()]),
             json.dumps(batchLet.m_core._return_value), # It may contain double-quotes
             _format_time(batchLet.m_core._time_start),

@@ -1,5 +1,3 @@
-# Directory C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\tests\dockit_output_files\sample_shell_ltrace_tst_docker.docker
-
 FROM docker.io/fedora
 
 MAINTAINER contact@primhillcomputers.com
@@ -47,19 +45,19 @@ MAINTAINER contact@primhillcomputers.com
 
 WORKDIR /home/rchateau/rdfmon-code/Experimental/RetroBatch
 
+ENV BLOCKSIZE ""
+ENV BLOCK_SIZE ""
+ENV CMD_ENV ""
+ENV COLUMNS ""
 ENV I_WANT_A_BROKEN_PS ""
-ENV QUOTING_STYLE ""
+ENV LINES ""
+ENV LS_BLOCK_SIZE ""
 ENV POSIX2 ""
 ENV POSIXLY_CORRECT ""
-ENV BLOCKSIZE ""
-ENV LS_BLOCK_SIZE ""
-ENV CMD_ENV ""
-ENV LINES ""
-ENV UNIX95 ""
-ENV TABSIZE ""
 ENV PS_PERSONALITY ""
-ENV BLOCK_SIZE ""
-ENV COLUMNS ""
+ENV QUOTING_STYLE ""
+ENV TABSIZE ""
+ENV UNIX95 ""
 
 # Processes tree
 # 2018-05-20 09:00:22.529684 -> 2018-05-20 09:00:23.657686 :      *Unknown-command*
