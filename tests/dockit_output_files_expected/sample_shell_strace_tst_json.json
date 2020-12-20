@@ -9892,7 +9892,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "close@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:4\""],
+   "arguments" : ["CIM_DataFile.Name=\"UnknownFileDescr:4\""],
    "return_value" : "-1 EBADF (Bad file descriptor)",
    "time_start" : "08:26:47.198831",
    "time_end" : "08:26:47.198831"
@@ -10081,7 +10081,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "fcntl@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:255\""],
+   "arguments" : ["CIM_DataFile.Name=\"UnknownFileDescr:255\""],
    "return_value" : "-1 EBADF (Bad file descriptor)",
    "time_start" : "08:26:47.183898",
    "time_end" : "08:26:47.183898"
@@ -10191,7 +10191,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "close@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:3\""],
+   "arguments" : ["CIM_DataFile.Name=\"UnknownFileDescr:3\""],
    "return_value" : "-1 EBADF (Bad file descriptor)",
    "time_start" : "08:26:47.544461",
    "time_end" : "08:26:47.544461"

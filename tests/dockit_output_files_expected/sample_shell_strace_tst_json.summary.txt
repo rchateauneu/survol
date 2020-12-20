@@ -58,11 +58,11 @@ Path:/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.s
   Open:2018-05-20 08:26:47.545842
   Open times:3
   Close:2018-05-20 08:26:47.545842
-Path:/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:255
-Path:/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:3
+Path:UnknownFileDescr:255
+Path:UnknownFileDescr:3
   Open:2018-05-20 08:26:47.544461
   Open times:1
-Path:/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:4
+Path:UnknownFileDescr:4
   Open:2018-05-20 08:26:47.198831
   Open times:1
 
