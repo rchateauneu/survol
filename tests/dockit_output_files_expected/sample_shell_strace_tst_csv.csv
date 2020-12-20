@@ -901,7 +901,7 @@ Pid,Occurrences,Style,Function,Arguments,Return,Start,End
 Pid,Occurrences,Style,Function,Arguments,Return,Start,End
 18193,1,Orig,2,wait4@SYS,['-1'],None,08:26:47.185933,08:26:47.185933
 18193,1,Orig,5,close@SYS,[CIM_DataFile.Name="pipe:[586559]"],0,08:26:47.198748,08:26:47.198748
-18193,1,Orig,1,close@SYS,[CIM_DataFile.Name="/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:4"],-1 EBADF (Bad file descriptor),08:26:47.198831,08:26:47.198831
+18193,1,Orig,1,close@SYS,[CIM_DataFile.Name="UnknownFileDescr:4"],-1 EBADF (Bad file descriptor),08:26:47.198831,08:26:47.198831
 18193,1,Orig,5,clone@SYS,[CIM_Process.Handle="18196"],18196,08:26:47.199213,08:26:47.199213
 18193,1,Orig,5,close@SYS,[CIM_DataFile.Name="pipe:[586559]"],0,08:26:47.199598,08:26:47.199598
 18193,1,Orig,5,wait4@SYS,[CIM_Process.Handle="18196"],18196,08:26:47.543412,08:26:47.543412
@@ -919,7 +919,7 @@ Pid,Occurrences,Style,Function,Arguments,Return,Start,End
 4401,1,Orig,1,munmap@SYS,[],0,08:26:47.181735,08:26:47.181735
 4401,1,Args,6,(open@SYS+fstat@SYS+mmap@SYS+close@SYS),[CIM_DataFile.Name="/usr/lib64/gconv/gconv-modules.cache"],N/A,08:26:47.182069,08:26:47.182316
 4401,1,Args,6,(open@SYS+ioctl@SYS+read@SYS),[CIM_DataFile.Name="/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh"],N/A,08:26:47.183346,08:26:47.183656
-4401,1,Orig,1,fcntl@SYS,[CIM_DataFile.Name="/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:255"],-1 EBADF (Bad file descriptor),08:26:47.183898,08:26:47.183898
+4401,1,Orig,1,fcntl@SYS,[CIM_DataFile.Name="UnknownFileDescr:255"],-1 EBADF (Bad file descriptor),08:26:47.183898,08:26:47.183898
 4401,1,Args,6,(dup2@SYS+close@SYS+fcntl@SYS+fstat@SYS+read@SYS),[CIM_DataFile.Name="/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh"],N/A,08:26:47.184002,08:26:47.184678
 4401,1,Orig,1,clone@SYS,[CIM_Process.Handle="18194"],18194,08:26:47.185552,08:26:47.185552
 4401,1,Orig,3,wait4@SYS,[[['WIFEXITED(s) && WEXITSTATUS(s) == 0']], '0', 'NULL'],18194,08:26:47.197164,08:26:47.197164
@@ -929,7 +929,7 @@ Pid,Occurrences,Style,Function,Arguments,Return,Start,End
 4401,1,Orig,1,pipe@SYS,[CIM_DataFile.Name="pipe:[586559]", CIM_DataFile.Name="pipe:[586559]"],0,08:26:47.198138,08:26:47.198138
 4401,1,Orig,1,clone@SYS,[CIM_Process.Handle="18195"],18195,08:26:47.198399,08:26:47.198399
 4401,1,Orig,3,wait4@SYS,[[['WIFEXITED(s) && WEXITSTATUS(s) == 0']], '0', 'NULL'],18195,08:26:47.544283,08:26:47.544283
-4401,1,Orig,1,close@SYS,[CIM_DataFile.Name="/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:3"],-1 EBADF (Bad file descriptor),08:26:47.544461,08:26:47.544461
+4401,1,Orig,1,close@SYS,[CIM_DataFile.Name="UnknownFileDescr:3"],-1 EBADF (Bad file descriptor),08:26:47.544461,08:26:47.544461
 4401,1,Orig,1,wait4@SYS,['-1', '0x7fff9a7a6cd0', 'WNOHANG', 'NULL'],-1 ECHILD (No child processes),08:26:47.544625,08:26:47.544625
 4401,1,Orig,1,read@SYS,[CIM_DataFile.Name="/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh"],8,08:26:47.544810,08:26:47.544810
 4401,1,Orig,1,clone@SYS,[CIM_Process.Handle="18198"],18198,08:26:47.545561,08:26:47.545561
