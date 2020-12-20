@@ -129,9 +129,9 @@ def _check_file_content(test_object, *file_path):
     actual_file_path = _path_prefix_output_result(*file_path)
     expected_file_path = os.path.join(dockit_output_files_path_expected, *file_path)
 
-    # TODO: At the mment, cannot compare Dockerfile on Windows because the result is different anyway.
+    # TODO: At the moment, cannot compare Dockerfile on Windows because the result is different anyway.
     # TODO: A special comparison is needed.
-    if is_platform_linux:
+    if file_path[-1] == "Dockerfile" and is_platform_linux:
         _compare_file_with_expected(test_object, actual_file_path, expected_file_path)
 
     return _check_file_validity(test_object, actual_file_path)
@@ -356,7 +356,7 @@ class CommandLineReplayTest(unittest.TestCase):
             for one_modified_line in expected_lines:
                 output_fd.write(one_modified_line)
 
-        _check_file_content(pseudo_test, "test_check_file_content.log")
+        _compare_file_with_expected(pseudo_test, output_full_path, expected_file_path)
         self.assertEqual(pseudo_test.diff_counter, 3)
 
     def test_replay_sample_shell_ltrace(self):
