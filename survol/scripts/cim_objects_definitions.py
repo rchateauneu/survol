@@ -1670,11 +1670,13 @@ def generate_dockerfile(docker_filename):
     """
     fd_docker_file = open(docker_filename, "w")
 
-    # This writes in the DockerFile, the environment variables accessed
-    # by processes. For the moment, all env vars are mixed together,
-    # which is inexact, strictly speaking.
     def _write_environment_variables():
-        for env_nam in G_EnvironmentVariables:
+        """This writes in the DockerFile, the environment variables accessed
+        by processes. For the moment, all env vars are mixed together,
+        which is inexact, strictly speaking."""
+
+        # Always written in the same order so the test can be reproduced.
+        for env_nam in sorted(G_EnvironmentVariables):
             env_val = G_EnvironmentVariables[env_nam]
             if env_val == "":
                 # Error response from daemon: ENV must have two arguments
@@ -1707,13 +1709,7 @@ def generate_dockerfile(docker_filename):
             write_one_process_sub_tree(one_proc, 1)
         fd_docker_file.write("\n")
 
-    curr_now = datetime.datetime.now()
-    curr_dat_tim = curr_now.strftime("%Y-%m-%d %H:%M:%S:%f")
-    fd_docker_file.write("# Dockerfile generated %s\n" % curr_dat_tim)
-
     docker_directory = os.path.dirname(docker_filename)
-    fd_docker_file.write("# Directory %s\n" % docker_directory)
-    fd_docker_file.write("\n")
 
     fd_docker_file.write("FROM docker.io/fedora\n")
     fd_docker_file.write("\n")
