@@ -6,7 +6,7 @@
    "style" : "Orig",
    "status" : 5,
    "function" : "close@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:255\""],
+   "arguments" : ["CIM_DataFile.Name=\"UnknownFileDescr:255\""],
    "return_value" : "0",
    "time_start" : "09:00:23.643245",
    "time_end" : "09:00:23.643245"
@@ -184,7 +184,7 @@
    "style" : "Orig",
    "status" : 5,
    "function" : "close@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:255\""],
+   "arguments" : ["CIM_DataFile.Name=\"UnknownFileDescr:255\""],
    "return_value" : "0",
    "time_start" : "09:00:22.600192",
    "time_end" : "09:00:22.600192"
@@ -582,7 +582,7 @@
    "style" : "Orig",
    "status" : 5,
    "function" : "close@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:255\""],
+   "arguments" : ["CIM_DataFile.Name=\"UnknownFileDescr:255\""],
    "return_value" : "0",
    "time_start" : "09:00:22.599360",
    "time_end" : "09:00:22.599360"
@@ -604,7 +604,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(dup2@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:4\""],
+   "arguments" : ["CIM_DataFile.Name=\"UnknownFileDescr:4\""],
    "return_value" : "N/A",
    "time_start" : "09:00:22.604093",
    "time_end" : "09:00:22.604181"
@@ -15621,7 +15621,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "close@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:255\""],
+   "arguments" : ["CIM_DataFile.Name=\"UnknownFileDescr:255\""],
    "return_value" : "0",
    "time_start" : "09:00:22.558338",
    "time_end" : "09:00:22.558338"
@@ -16074,7 +16074,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "fcntl@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:255\""],
+   "arguments" : ["CIM_DataFile.Name=\"UnknownFileDescr:255\""],
    "return_value" : "-9",
    "time_start" : "09:00:22.552287",
    "time_end" : "09:00:22.552287"
@@ -16096,7 +16096,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(fcntl@SYS+fstat@SYS+read@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:255\""],
+   "arguments" : ["CIM_DataFile.Name=\"UnknownFileDescr:255\""],
    "return_value" : "N/A",
    "time_start" : "09:00:22.552631",
    "time_end" : "09:00:22.553232"
@@ -16162,7 +16162,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "read@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:255\""],
+   "arguments" : ["CIM_DataFile.Name=\"UnknownFileDescr:255\""],
    "return_value" : "24",
    "time_start" : "09:00:22.597258",
    "time_end" : "09:00:22.597258"
@@ -16184,7 +16184,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "pipe@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"stdin\"", "CIM_DataFile.Name=\"/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:x\""],
+   "arguments" : ["CIM_DataFile.Name=\"stdin\"", "CIM_DataFile.Name=\"UnknownFileDescr:x\""],
    "return_value" : "0",
    "time_start" : "09:00:22.597785",
    "time_end" : "09:00:22.597785"
@@ -16206,7 +16206,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "close@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:4\""],
+   "arguments" : ["CIM_DataFile.Name=\"UnknownFileDescr:4\""],
    "return_value" : "0",
    "time_start" : "09:00:22.598491",
    "time_end" : "09:00:22.598491"
@@ -16283,7 +16283,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "read@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:255\""],
+   "arguments" : ["CIM_DataFile.Name=\"UnknownFileDescr:255\""],
    "return_value" : "8",
    "time_start" : "09:00:23.633289",
    "time_end" : "09:00:23.633289"
@@ -16349,7 +16349,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "read@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:255\""],
+   "arguments" : ["CIM_DataFile.Name=\"UnknownFileDescr:255\""],
    "return_value" : "0",
    "time_start" : "09:00:23.657372",
    "time_end" : "09:00:23.657372"
