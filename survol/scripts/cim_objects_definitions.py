@@ -1557,6 +1557,9 @@ def to_real_absolute_path(directory_path, file_basename):
     if not CIM_DataFile.is_plain_file(file_basename):
         return file_basename
 
+    if file_basename.startswith("UnknownFileDescr"):
+        return file_basename
+
     join_path = os.path.join(directory_path, file_basename)
 
     norm_path = local_standardized_file_path(join_path)
@@ -2140,7 +2143,7 @@ def _generate_docker_process_dependencies(docker_directory, fd_docker_file):
             for obj_data_file in self.m_accessedCodeFiles:
                 fil_nam = obj_data_file.Name
                 if fil_nam.find("packages") >= 0:
-                    # Now this trucates the file name to extract the Python package name.
+                    # Now this truncates the file name to extract the Python package name.
                     split_fil = fil_nam.split("/")
                     try:
                         ix_pack = split_fil.index("site-packages")
