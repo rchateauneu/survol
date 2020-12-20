@@ -741,6 +741,8 @@ def _strace_stream_to_pathname(strm_str):
             if strm_str == "-1": # Normal return value.
                 path_name = "Invalid device"
             else:
+                # This special string is used for unidentified file descriptors.
+                # Common values are "UnknownFileDescr:3", "UnknownFileDescr:4", or "UnknownFileDescr:255".
                 path_name = "UnknownFileDescr:%s" % strm_str
 
     return path_name
