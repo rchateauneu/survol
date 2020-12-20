@@ -3,16 +3,21 @@ FROM docker.io/fedora
 MAINTAINER contact@primhillcomputers.com
 
 ################################# Executables:
+RUN yum -y install bash # bash-4.4.12-5.fc26.x86_64
+# Potential conflict with coreutils , coreutils-8.27-5.fc26.x86_64
+RUN yum -y install procps-ng # procps-ng-3.3.10-13.fc26.x86_64
 
 ################################# Dependencies by program type
 # Dependencies: Binary programs
 # Package installations:
+RUN yum -y install bzip2-libs # bzip2-libs-1.0.6-22.fc26.x86_64
+RUN yum -y install glibc # glibc-2.25-6.fc26.x86_64
+RUN yum -y install libacl # libacl-2.2.52-15.fc26.x86_64
+RUN yum -y install libattr # libattr-2.4.47-18.fc26.x86_64
+RUN yum -y install libselinux # libselinux-2.6-6.fc26.x86_64
+# Already installed procps-ng -> procps-ng-3.3.10-13.fc26.x86_64
 
 # Non-packaged executable files copies:
-# Origin file does not exist:/etc/ld.so.cache
-# Origin file does not exist:/usr/lib64/libacl.so.1.1.0
-# Origin file does not exist:/usr/lib64/libattr.so.1.1.0
-# Origin file does not exist:/usr/lib64/libbz2.so.1.0.6
 # Origin file does not exist:/usr/lib64/libc-2.21.so
 # Origin file does not exist:/usr/lib64/libcap.so.2.24
 # Origin file does not exist:/usr/lib64/libdl-2.21.so
@@ -25,24 +30,24 @@ MAINTAINER contact@primhillcomputers.com
 # Origin file does not exist:/usr/lib64/libm-2.21.so
 # Origin file does not exist:/usr/lib64/libnss_files-2.21.so
 # Origin file does not exist:/usr/lib64/libpcre.so.1.2.7
-# Origin file does not exist:/usr/lib64/libprocps.so.4.0.0
 # Origin file does not exist:/usr/lib64/libpthread-2.21.so
 # Origin file does not exist:/usr/lib64/libresolv-2.21.so
 # Origin file does not exist:/usr/lib64/librt-2.21.so
-# Origin file does not exist:/usr/lib64/libselinux.so.1
 # Origin file does not exist:/usr/lib64/libsystemd.so.0.6.0
 # Origin file does not exist:/usr/lib64/libtinfo.so.5.9
 # Origin file does not exist:/usr/lib64/libz.so.1.2.8
 
 # Data packages:
+RUN yum -y install filesystem # filesystem-3.2-40.fc26.x86_64
+# Already installed glibc -> glibc-2.25-6.fc26.x86_64
+RUN yum -y install glibc-all-langpacks # glibc-all-langpacks-2.25-6.fc26.x86_64
+RUN yum -y install glibc-common # glibc-common-2.25-6.fc26.x86_64
+RUN yum -y install setup # setup-2.10.5-2.fc26.noarch
+RUN yum -y install tzdata # tzdata-2017b-1.fc26.noarch
 
 # Data files:
 # Origin file does not exist:/home/rchateau/rdfmon-code/Experimental/RetroBatch
 # Origin file does not exist:/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh
-# Origin file does not exist:/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:3
-# Origin file does not exist:/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:4
-# Origin file does not exist:/usr/lib/locale/locale-archive
-# Origin file does not exist:/usr/lib64/gconv/gconv-modules.cache
 
 WORKDIR /home/rchateau/rdfmon-code/Experimental/RetroBatch
 CMD [ "bash","TestProgs/sample_she..." ]
