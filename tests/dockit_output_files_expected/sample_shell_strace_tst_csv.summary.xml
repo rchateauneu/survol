@@ -7,8 +7,8 @@
     <CIM_OperatingSystem>
     </CIM_OperatingSystem>
     <CIM_NetworkAdapter>
-        <Name>192.168.56.1</Name>
-        <PermanentAddress>192.168.56.1</PermanentAddress>
+        <Name>127.0.0.1</Name>
+        <PermanentAddress>127.0.0.1</PermanentAddress>
         <cim_ontology_list>['Name']</cim_ontology_list>
     </CIM_NetworkAdapter>
     <CIM_Process Handle='4401'>

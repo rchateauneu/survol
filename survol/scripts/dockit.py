@@ -610,6 +610,7 @@ def _create_calls_stream(command_line, input_process_id, input_log_file, tracer)
         cim_objects_definitions.G_CurrentDirectory = map_env_init_values.get("CurrentDirectory", curr_wrk_dir)
         cim_objects_definitions.G_Today            = map_env_init_values.get("CurrentDate", date_today_run)
         G_Hostname                                 = map_env_init_values.get("CurrentHostname", the_host_nam)
+        the_ip_address                             = map_env_init_values.get("CurrentIPAddress", the_ip_address)
         G_OSType                                   = map_env_init_values.get("CurrentOSType", the_platform)
 
         sys.stdout.write("G_topProcessId=%d\n" % cim_objects_definitions.G_topProcessId)
