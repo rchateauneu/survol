@@ -31,8 +31,35 @@
             <Access File='/usr/lib64/gconv/gconv-modules.cache' OpenTime='2018-05-20 08:26:47.182069' CloseTime='2018-05-20 08:26:47.182316' />
             <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh' OpenTime='2018-05-20 08:26:47.183346' CloseTime='2018-05-20 08:26:47.184179' NumReads='5' BytesRead='645' />
             <Access File='pipe:[587230]' NumWrites='1' BytesWritten='51' />
-            <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:3' OpenTime='2018-05-20 08:26:47.544461' />
+            <Access File='UnknownFileDescr:3' OpenTime='2018-05-20 08:26:47.544461' />
         </FileAccesses>
+        <CIM_Process Handle='18194'>
+            <Handle>18194</Handle>
+            <Name>pid=18194</Name>
+            <CommandLine>ls</CommandLine>
+            <CreationDate>2018-05-20 08:26:47.185552</CreationDate>
+            <TerminationDate>2018-05-20 08:26:47.553096</TerminationDate>
+            <CurrentDirectory>/home/rchateau/rdfmon-code/Experimental/RetroBatch</CurrentDirectory>
+            <Executable>/usr/bin/ls</Executable>
+            <ParentProcessID>4401</ParentProcessID>
+            <cim_ontology_list>['Handle']</cim_ontology_list>
+            <FileAccesses>
+                <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh' OpenTime='2018-05-20 08:26:47.185841' CloseTime='2018-05-20 08:26:47.185841' />
+                <Access File='/etc/ld.so.cache' OpenTime='2018-05-20 08:26:47.186864' CloseTime='2018-05-20 08:26:47.187239' />
+                <Access File='/usr/lib64/libselinux.so.1' OpenTime='2018-05-20 08:26:47.187362' CloseTime='2018-05-20 08:26:47.188109' NumReads='1' BytesRead='832' />
+                <Access File='/usr/lib64/libcap.so.2.24' OpenTime='2018-05-20 08:26:47.188190' CloseTime='2018-05-20 08:26:47.188712' NumReads='1' BytesRead='832' />
+                <Access File='/usr/lib64/libacl.so.1.1.0' OpenTime='2018-05-20 08:26:47.188796' CloseTime='2018-05-20 08:26:47.189385' NumReads='1' BytesRead='832' />
+                <Access File='/usr/lib64/libc-2.21.so' OpenTime='2018-05-20 08:26:47.189463' CloseTime='2018-05-20 08:26:47.190066' NumReads='1' BytesRead='832' />
+                <Access File='/usr/lib64/libpcre.so.1.2.7' OpenTime='2018-05-20 08:26:47.190148' CloseTime='2018-05-20 08:26:47.190678' NumReads='1' BytesRead='832' />
+                <Access File='/usr/lib64/libdl-2.21.so' OpenTime='2018-05-20 08:26:47.190758' CloseTime='2018-05-20 08:26:47.191364' NumReads='1' BytesRead='832' />
+                <Access File='/usr/lib64/libattr.so.1.1.0' OpenTime='2018-05-20 08:26:47.191444' CloseTime='2018-05-20 08:26:47.191966' NumReads='1' BytesRead='832' />
+                <Access File='/usr/lib64/libpthread-2.21.so' OpenTime='2018-05-20 08:26:47.192045' CloseTime='2018-05-20 08:26:47.192733' NumReads='1' BytesRead='832' />
+                <Access File='/proc/filesystems' OpenTime='2018-05-20 08:26:47.194480' CloseTime='2018-05-20 08:26:47.195037' NumReads='2' BytesRead='356' />
+                <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-20 08:26:47.195258' CloseTime='2018-05-20 08:26:47.195604' />
+                <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch' OpenTime='2018-05-20 08:26:47.196315' CloseTime='2018-05-20 08:26:47.196315' />
+                <Access File='pipe:[587230]' OpenTime='2018-05-20 08:26:47.196710' CloseTime='2018-05-20 08:26:47.196710' NumWrites='1' BytesWritten='143' />
+            </FileAccesses>
+        </CIM_Process>
         <CIM_Process Handle='18195'>
             <Handle>18195</Handle>
             <Name>pid=18195</Name>
@@ -855,33 +882,6 @@
                 <Access File='pipe:[587230]' OpenTime='2018-05-20 08:26:47.552048' CloseTime='2018-05-20 08:26:47.552048' NumWrites='1' BytesWritten='533' />
             </FileAccesses>
         </CIM_Process>
-        <CIM_Process Handle='18194'>
-            <Handle>18194</Handle>
-            <Name>pid=18194</Name>
-            <CommandLine>ls</CommandLine>
-            <CreationDate>2018-05-20 08:26:47.185552</CreationDate>
-            <TerminationDate>2018-05-20 08:26:47.553096</TerminationDate>
-            <CurrentDirectory>/home/rchateau/rdfmon-code/Experimental/RetroBatch</CurrentDirectory>
-            <Executable>/usr/bin/ls</Executable>
-            <ParentProcessID>4401</ParentProcessID>
-            <cim_ontology_list>['Handle']</cim_ontology_list>
-            <FileAccesses>
-                <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh' OpenTime='2018-05-20 08:26:47.185841' CloseTime='2018-05-20 08:26:47.185841' />
-                <Access File='/etc/ld.so.cache' OpenTime='2018-05-20 08:26:47.186864' CloseTime='2018-05-20 08:26:47.187239' />
-                <Access File='/usr/lib64/libselinux.so.1' OpenTime='2018-05-20 08:26:47.187362' CloseTime='2018-05-20 08:26:47.188109' NumReads='1' BytesRead='832' />
-                <Access File='/usr/lib64/libcap.so.2.24' OpenTime='2018-05-20 08:26:47.188190' CloseTime='2018-05-20 08:26:47.188712' NumReads='1' BytesRead='832' />
-                <Access File='/usr/lib64/libacl.so.1.1.0' OpenTime='2018-05-20 08:26:47.188796' CloseTime='2018-05-20 08:26:47.189385' NumReads='1' BytesRead='832' />
-                <Access File='/usr/lib64/libc-2.21.so' OpenTime='2018-05-20 08:26:47.189463' CloseTime='2018-05-20 08:26:47.190066' NumReads='1' BytesRead='832' />
-                <Access File='/usr/lib64/libpcre.so.1.2.7' OpenTime='2018-05-20 08:26:47.190148' CloseTime='2018-05-20 08:26:47.190678' NumReads='1' BytesRead='832' />
-                <Access File='/usr/lib64/libdl-2.21.so' OpenTime='2018-05-20 08:26:47.190758' CloseTime='2018-05-20 08:26:47.191364' NumReads='1' BytesRead='832' />
-                <Access File='/usr/lib64/libattr.so.1.1.0' OpenTime='2018-05-20 08:26:47.191444' CloseTime='2018-05-20 08:26:47.191966' NumReads='1' BytesRead='832' />
-                <Access File='/usr/lib64/libpthread-2.21.so' OpenTime='2018-05-20 08:26:47.192045' CloseTime='2018-05-20 08:26:47.192733' NumReads='1' BytesRead='832' />
-                <Access File='/proc/filesystems' OpenTime='2018-05-20 08:26:47.194480' CloseTime='2018-05-20 08:26:47.195037' NumReads='2' BytesRead='356' />
-                <Access File='/usr/lib/locale/locale-archive' OpenTime='2018-05-20 08:26:47.195258' CloseTime='2018-05-20 08:26:47.195604' />
-                <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch' OpenTime='2018-05-20 08:26:47.196315' CloseTime='2018-05-20 08:26:47.196315' />
-                <Access File='pipe:[587230]' OpenTime='2018-05-20 08:26:47.196710' CloseTime='2018-05-20 08:26:47.196710' NumWrites='1' BytesWritten='143' />
-            </FileAccesses>
-        </CIM_Process>
     </CIM_Process>
     <CIM_Process Handle='18193'>
         <Handle>18193</Handle>
@@ -892,7 +892,7 @@
         <cim_ontology_list>['Handle']</cim_ontology_list>
         <FileAccesses>
             <Access File='pipe:[586559]' OpenTime='2018-05-20 08:26:47.198748' CloseTime='2018-05-20 08:26:47.198748' />
-            <Access File='/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:4' OpenTime='2018-05-20 08:26:47.198831' />
+            <Access File='UnknownFileDescr:4' OpenTime='2018-05-20 08:26:47.198831' />
         </FileAccesses>
         <CIM_Process Handle='18196'>
             <Handle>18196</Handle>
@@ -7782,14 +7782,14 @@
                 <Access Process='18198' OpenTime='2018-05-20 08:26:47.545842' CloseTime='2018-05-20 08:26:47.545842' NumReads='2' BytesRead='533' />
             </FileAccesses>
         </CIM_DataFile>
-        <CIM_DataFile Name='/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:255'>
-            <Name>/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:255</Name>
+        <CIM_DataFile Name='UnknownFileDescr:255'>
+            <Name>UnknownFileDescr:255</Name>
             <Category>Others</Category>
             <FileName>UnknownFileDescr:255</FileName>
             <cim_ontology_list>['Name']</cim_ontology_list>
         </CIM_DataFile>
-        <CIM_DataFile Name='/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:3'>
-            <Name>/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:3</Name>
+        <CIM_DataFile Name='UnknownFileDescr:3'>
+            <Name>UnknownFileDescr:3</Name>
             <Category>Others</Category>
             <FileName>UnknownFileDescr:3</FileName>
             <cim_ontology_list>['Name']</cim_ontology_list>
@@ -7797,8 +7797,8 @@
                 <Access Process='4401' OpenTime='2018-05-20 08:26:47.544461' />
             </FileAccesses>
         </CIM_DataFile>
-        <CIM_DataFile Name='/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:4'>
-            <Name>/home/rchateau/rdfmon-code/Experimental/RetroBatch/UnknownFileDescr:4</Name>
+        <CIM_DataFile Name='UnknownFileDescr:4'>
+            <Name>UnknownFileDescr:4</Name>
             <Category>Others</Category>
             <FileName>UnknownFileDescr:4</FileName>
             <cim_ontology_list>['Name']</cim_ontology_list>
