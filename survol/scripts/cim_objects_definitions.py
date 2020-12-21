@@ -1047,8 +1047,9 @@ class CIM_Process(CIM_XmlMarshaller):
 
         FileAccess.serialize_list_to_XML(strm, self.m_ProcessFileAccesses, sub_margin, False)
 
-        for objInstance in self.m_subProcesses:
-            objInstance.XMLOneLevelSummary(strm, sub_margin)
+        # The process are listed in the order of pids, stored in member Handle.
+        for obj_instance in sorted(self.m_subProcesses, key=lambda one_proc: one_proc.Handle):
+            obj_instance.XMLOneLevelSummary(strm, sub_margin)
         strm.write("%s</CIM_Process>\n" % margin)
 
     @staticmethod
@@ -1849,7 +1850,7 @@ def generate_makefile(output_makefile):
 G_EnvironmentVariables = None
 
 
-def init_global_objects():
+def init_global_objects(ini_key_value_pairs):
     global G_mapCacheObjects
     global G_httpClient
     global G_EnvironmentVariables

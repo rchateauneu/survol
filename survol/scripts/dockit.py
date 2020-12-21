@@ -130,7 +130,7 @@ def _parse_filter_CIM(rgx_object_path):
     Example: rgx_object_path = 'Win32_LogicalDisk.DeviceID="C:",Prop="Value",Prop="Regex"'
     """
     idx_dot = rgx_object_path.find(".")
-    if idx_dot < 0 :
+    if idx_dot < 0:
         return rgx_object_path, {}
 
     obj_class_name = rgx_object_path[:idx_dot]
@@ -164,7 +164,7 @@ def _parse_filter_CIM(rgx_object_path):
 # TODO: Probably not needed because noone wants this output format..
 def _generate_summary_txt(map_params_summary, fd_summary_file):
     for rgx_object_path in map_params_summary:
-        (cim_class_name, cim_key_value_pairs) = _parse_filter_CIM(rgx_object_path)
+        cim_class_name, cim_key_value_pairs = _parse_filter_CIM(rgx_object_path)
         class_obj = getattr(cim_objects_definitions, cim_class_name)
         class_obj.DisplaySummary(fd_summary_file, cim_key_value_pairs)
 
@@ -175,13 +175,13 @@ def _generate_summary_xml(map_params_summary, fd_summary_file):
     fd_summary_file.write('<Dockit>\n')
     if map_params_summary:
         for rgx_object_path in map_params_summary:
-            (cim_class_name, cim_key_value_pairs) = _parse_filter_CIM(rgx_object_path)
+            cim_class_name, cim_key_value_pairs = _parse_filter_CIM(rgx_object_path)
             class_obj = getattr(cim_objects_definitions, cim_class_name)
             class_obj.XMLSummary(fd_summary_file, cim_key_value_pairs)
     fd_summary_file.write('</Dockit>\n')
 
 
-def _generate_summary(mapParamsSummary, summary_format, output_summary_file):
+def _generate_summary(map_params_summary, summary_format, output_summary_file):
     if summary_format == "TXT":
         summary_generator = _generate_summary_txt
     elif summary_format == "XML":
@@ -198,7 +198,7 @@ def _generate_summary(mapParamsSummary, summary_format, output_summary_file):
     else:
         fd_summary_file = sys.stdout
 
-    summary_generator(mapParamsSummary, fd_summary_file)
+    summary_generator(map_params_summary, fd_summary_file)
 
     if output_summary_file:
         sys.stdout.write("Closing summary file:%s\n" % output_summary_file)
@@ -590,7 +590,7 @@ def _create_calls_stream(command_line, input_process_id, input_log_file, tracer)
     cim_objects_definitions.G_SameMachine = not cim_objects_definitions.G_ReplayMode or G_Hostname == socket.gethostname()
 
     with_warning = True # FIXME: Must be a parameter.
-    _init_globals(with_warning)
+    _init_globals(with_warning, {})
 
     current_tracer = G_traceToTracer[tracer]
     if cim_objects_definitions.G_ReplayMode:
@@ -622,17 +622,20 @@ def _create_calls_stream(command_line, input_process_id, input_log_file, tracer)
         G_OSType                                            = the_platform
         assert cim_objects_definitions.G_topProcessId >= 0, "_create_calls_stream G_topProcessId not set"
 
+    _init_globals(with_warning, {})
+
+
     # Another possibility is to start a process or a thread which will monitor
     # the target process, and will write output information in a stream.
 
     return calls_stream
 
 
-# Global variables which must be reinitialised before a run.
-def _init_globals(with_warning):
+# Global variables which must be reinitialised before a run, possibly from a ".ini" file.
+def _init_globals(with_warning, ini_key_value_pairs):
     linux_api_definitions.init_linux_globals(with_warning)
 
-    cim_objects_definitions.init_global_objects()
+    cim_objects_definitions.init_global_objects(ini_key_value_pairs)
 
 
 # Called after a run.

@@ -99,23 +99,57 @@ def _check_file_validity(test_object, full_file_path):
     return file_content
 
 
-def _compare_file_with_expected(test_object, actual_file_path, expected_file_path):
-    # Now compare this file with the expected one, if it is here.
-    print("expected_file_path=", expected_file_path)
-    try:
-        with open(expected_file_path) as expected_fil_descr:
-            expected_content = expected_fil_descr.readlines()
-        print("Checking content of:", expected_file_path)
+def _compare_lines_with_expected(test_object, actual_content, expected_content):
+    """Each test has an ini file used by the script dockit.ini, to force a given date.
+    So there is not need to replace the date by the current one."""
+    for actual_line, expected_line in zip(actual_content, expected_content):
+        test_object.assertEqual(actual_line, expected_line)
 
+
+def _filter_lines_for_docker(actual_content, expected_content):
+    """Depending on the context, only some Docker statements can be compared,
+    among "RUN", "FROM", "MAINTAINER", "WORKDIR", "CMD", "EXPOSE" etc ... """
+    if is_platform_linux:
+        print("Docker comparison Linux")
+        def strip_docker_comments(docker_content):
+            """Remove comments because they depend on the platform and cannot be reproduced."""
+            return [
+                docker_line.partition("#")[0]
+                for docker_line in docker_content
+                if not docker_line.strip().startswith("#")
+            ]
+        actual_content = strip_docker_comments(actual_content)
+        expected_content = strip_docker_comments(expected_content)
+    else:
+        print("Docker comparison Windows")
+        def strip_docker_non_title(docker_content):
+            """Just keep title information. Anyway this cannot be reproduced on Windows. """
+
+            # RUN yum -y install python # python
+            # RUN pip --disable-pip-version-check install MySQLdb
+            return [
+                docker_line.partition("#")[0]
+                for docker_line in docker_content
+                if docker_line.strip().split()[0:2] != ["RUN", "yum"] and not docker_line.strip().startswith("#")
+            ]
+        actual_content = strip_docker_non_title(actual_content)
+        expected_content = strip_docker_non_title(expected_content)
+    return actual_content, expected_content
+
+
+def _compare_file_with_expected(test_object, actual_file_path, expected_file_path, file_type=None):
+    """Compare this file with the expected one, if it is here."""
+    print("Comparing actual:", actual_file_path, "to expected", expected_file_path)
+    try:
         with open(actual_file_path) as actual_fil_descr:
             actual_content = actual_fil_descr.readlines()
+        with open(expected_file_path) as expected_fil_descr:
+            expected_content = expected_fil_descr.readlines()
 
-        # Each test has an ini file used by the script dockit.ini, to force a given date.
-        # So there is not need to replace the date by the current one.
-        for expected_line, actual_line in zip(expected_content, actual_content):
-            #print(expected_line)
-            #print(actual_line)
-            test_object.assertEqual(expected_line, actual_line)
+        if file_type == "Dockerfile":
+            actual_content, expected_content = _filter_lines_for_docker(actual_content, expected_content)
+
+        _compare_lines_with_expected(test_object, actual_content, expected_content)
         print("Comparison OK with ", actual_file_path)
     except IOError:
         print("INFO: No comparison file:", expected_file_path)
@@ -129,10 +163,7 @@ def _check_file_content(test_object, *file_path):
     actual_file_path = _path_prefix_output_result(*file_path)
     expected_file_path = os.path.join(dockit_output_files_path_expected, *file_path)
 
-    # TODO: At the moment, cannot compare Dockerfile on Windows because the result is different anyway.
-    # TODO: A special comparison is needed.
-    if file_path[-1] == "Dockerfile" and is_platform_linux:
-        _compare_file_with_expected(test_object, actual_file_path, expected_file_path)
+    _compare_file_with_expected(test_object, actual_file_path, expected_file_path, file_path[-1])
 
     return _check_file_validity(test_object, actual_file_path)
 
@@ -441,7 +472,6 @@ class CommandLineReplayTest(unittest.TestCase):
         input_log_file = path_prefix_input_file("sqlplus.strace.4401.log")
         output_basename_prefix = "sqlplus.strace.4401"
         output_prefix = _path_prefix_output_result(output_basename_prefix)
-
         dockit_command = "--input %s --dockerfile --log %s -t strace" % (
             input_log_file,
             output_prefix)
@@ -1479,6 +1509,7 @@ class EventsServerTest(unittest.TestCase):
 
         _check_file_content(self, output_basename_prefix + ".json")
         _check_file_content(self, output_basename_prefix + ".summary.txt")
+        _check_file_content(self, output_basename_prefix + ".docker", "Dockerfile")
 
         # This is a FTP command, which obviously involves many files and a network connection.
         expected_types_list = {
