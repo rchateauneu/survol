@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Dockit>
     <CIM_ComputerSystem>
-        <Name>rchateau-hp</Name>
+        <Name>fedora22</Name>
         <cim_ontology_list>['Name']</cim_ontology_list>
     </CIM_ComputerSystem>
     <CIM_OperatingSystem>

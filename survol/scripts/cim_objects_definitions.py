@@ -1843,14 +1843,13 @@ def generate_makefile(output_makefile):
     print("Created makefile:", output_makefile)
 
 
-
 # Environment variables actually access by processes.
 # Used to generate a Dockerfile.
 # As read from the strace or ltrace calls to getenv()
 G_EnvironmentVariables = None
 
 
-def init_global_objects(ini_key_value_pairs):
+def init_global_objects(the_hostname, the_ip_address):
     global G_mapCacheObjects
     global G_httpClient
     global G_EnvironmentVariables
@@ -1863,11 +1862,14 @@ def init_global_objects(ini_key_value_pairs):
     # As read from the strace or ltrace calls to getenv()
     G_EnvironmentVariables = {}
 
-    objects_context = ObjectsContext(os.getpid())
+    # Not os.getpid() because it might be a replay.
+    objects_context = ObjectsContext(G_topProcessId)
 
-    objects_context._class_model_to_object_path(CIM_ComputerSystem, socket.gethostname())
+    # This could be the current host name, or read from a file for a replay.
+    objects_context._class_model_to_object_path(CIM_ComputerSystem, the_hostname)
     objects_context._class_model_to_object_path(CIM_OperatingSystem)
-    objects_context._class_model_to_object_path(CIM_NetworkAdapter, socket.gethostbyname(socket.gethostname()))
+    # This could be the current host name, or read from a file for a replay.
+    objects_context._class_model_to_object_path(CIM_NetworkAdapter, the_ip_address)
 
 
 def exit_global_objects():
