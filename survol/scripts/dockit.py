@@ -582,6 +582,7 @@ def _create_calls_stream(command_line, input_process_id, input_log_file, tracer)
 
     date_today_run = time.strftime("%Y-%m-%d")
     the_host_nam = socket.gethostname()
+    the_ip_address = socket.gethostbyname(the_host_nam)
     the_platform = sys.platform
 
     curr_wrk_dir = os.getcwd()
@@ -590,7 +591,6 @@ def _create_calls_stream(command_line, input_process_id, input_log_file, tracer)
     cim_objects_definitions.G_SameMachine = not cim_objects_definitions.G_ReplayMode or G_Hostname == socket.gethostname()
 
     with_warning = True # FIXME: Must be a parameter.
-    _init_globals(with_warning, {})
 
     current_tracer = G_traceToTracer[tracer]
     if cim_objects_definitions.G_ReplayMode:
@@ -601,16 +601,16 @@ def _create_calls_stream(command_line, input_process_id, input_log_file, tracer)
 
         # There might be a context file with important information to reproduce the test.
         context_log_file = os.path.splitext(input_log_file)[0] + ".ini"
-        mapKV = ini_file_load(context_log_file)
+        map_env_init_values = ini_file_load(context_log_file)
 
         # The main process pid might be embedded in the log file name,
         # but preferably stored in the ini file.
-        cim_objects_definitions.G_topProcessId     = int(mapKV.get("TopProcessId", input_process_id))
+        cim_objects_definitions.G_topProcessId     = int(map_env_init_values.get("TopProcessId", input_process_id))
 
-        cim_objects_definitions.G_CurrentDirectory = mapKV.get("CurrentDirectory", curr_wrk_dir)
-        cim_objects_definitions.G_Today            = mapKV.get("CurrentDate", date_today_run)
-        G_Hostname                                 = mapKV.get("CurrentHostname", the_host_nam)
-        G_OSType                                   = mapKV.get("CurrentOSType", the_platform)
+        cim_objects_definitions.G_CurrentDirectory = map_env_init_values.get("CurrentDirectory", curr_wrk_dir)
+        cim_objects_definitions.G_Today            = map_env_init_values.get("CurrentDate", date_today_run)
+        G_Hostname                                 = map_env_init_values.get("CurrentHostname", the_host_nam)
+        G_OSType                                   = map_env_init_values.get("CurrentOSType", the_platform)
 
         sys.stdout.write("G_topProcessId=%d\n" % cim_objects_definitions.G_topProcessId)
     else:
@@ -622,8 +622,11 @@ def _create_calls_stream(command_line, input_process_id, input_log_file, tracer)
         G_OSType                                            = the_platform
         assert cim_objects_definitions.G_topProcessId >= 0, "_create_calls_stream G_topProcessId not set"
 
-    _init_globals(with_warning, {})
 
+    # Global variables which must be reinitialised before a run, possibly from a ".ini" file.
+    linux_api_definitions.init_linux_globals(with_warning)
+
+    cim_objects_definitions.init_global_objects(G_Hostname, the_ip_address)
 
     # Another possibility is to start a process or a thread which will monitor
     # the target process, and will write output information in a stream.
@@ -631,15 +634,8 @@ def _create_calls_stream(command_line, input_process_id, input_log_file, tracer)
     return calls_stream
 
 
-# Global variables which must be reinitialised before a run, possibly from a ".ini" file.
-def _init_globals(with_warning, ini_key_value_pairs):
-    linux_api_definitions.init_linux_globals(with_warning)
-
-    cim_objects_definitions.init_global_objects(ini_key_value_pairs)
-
-
-# Called after a run.
 def _exit_globals():
+    """Called after a run."""
     cim_objects_definitions.exit_global_objects()
 
 ################################################################################
