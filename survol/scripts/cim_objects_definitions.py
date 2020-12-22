@@ -510,17 +510,7 @@ class HttpTriplesClientHttp(HttpTriplesClientNone):
 
     def http_client_shutdown(self):
         print("HttpTriplesClientHttp.http_client_shutdown threaded=", self._is_threaded_client)
-        if self._is_threaded_client:
-            self._push_triples_to_server_threaded()
-        else:
-            # FIXME: The URL event_put.py sometimes times out, on Python 3 and only
-            # FIXME: ... if the server is started by the test program (pytest or unittest).
-            triples_as_bytes, sent_triples_number = self._pop_triples_to_bytes()
-            print("HttpTriplesClientHttp.http_client_shutdown sent_triples_number=", sent_triples_number)
-            if triples_as_bytes:
-                received_triples_number = self._send_bytes_to_server(triples_as_bytes)
-                if received_triples_number != sent_triples_number:
-                    raise Exception("Lost triples: %d != %d\n" % (received_triples_number, sent_triples_number))
+        self._push_triples_to_server()
 
     def _pop_triples_to_bytes(self):
         """ Dockit stores its triples in a list, not in with rdflib.
@@ -566,13 +556,17 @@ class HttpTriplesClientHttp(HttpTriplesClientNone):
             self._is_valid_http_client = False
             raise
 
-    def _push_triples_to_server_threaded(self):
-        assert self._is_threaded_client
-        self._shared_lock.acquire()
+    def _push_triples_to_server(self):
+        if self._is_threaded_client:
+            self._shared_lock.acquire()
         triples_as_bytes, sent_triples_number = self._pop_triples_to_bytes()
         # Immediately unlocked so no need to wait for the server.
-        self._shared_lock.release()
+        if self._is_threaded_client:
+            self._shared_lock.release()
 
+        # FIXME: In thread mode or not the URL event_put.py sometimes times out, on Python 3 and only
+        # FIXME: ... if the server is started by the test program (pytest or unittest).
+        # FIXME: This is not clear. Maybe the database is hanging.
         if triples_as_bytes:
             received_triples_number = self._send_bytes_to_server(triples_as_bytes)
             if received_triples_number != sent_triples_number:
@@ -584,7 +578,7 @@ class HttpTriplesClientHttp(HttpTriplesClientNone):
         assert self._is_threaded_client
         while True:
             time.sleep(2.0)
-            self._push_triples_to_server_threaded()
+            self._push_triples_to_server()
 
     def queue_triples_for_sending(self, json_triple):
         if self._is_threaded_client:
@@ -2234,7 +2228,7 @@ def _generate_docker_process_dependencies(docker_directory, fd_docker_file):
             sort_accessed_code_files = sorted(unpackaged_accessed_code_files, key=lambda x: x.Name)
             for objDataFile in sort_accessed_code_files:
                 fil_nam = objDataFile.Name
-                if not fil_nam.startswith("/etc/"):
+                if not fil_nam.startswith(("/etc/", "/usr/")):
                     add_to_docker_dir(fil_nam, "Binary dependency")
 
     _dependencies_list = [
