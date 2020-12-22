@@ -28,6 +28,12 @@ import lib_util
 
 _remote_events_test_agent = "http://%s:%d" % (CurrentMachine, RemoteEventsTestServerPort)
 
+# This is used by dockit to store events as soon as they are created from a running application.
+# Dockit traces a runing process with strace, ltrace or pydbg.
+# It detects file updates, processes creatiosn etc ... and creates a RDF triples as events.
+# These events can be sent to a databse which stores them in aRDF triple-store.
+_remote_events_database = _remote_events_test_agent + "/survol/event_put.py"
+
 dock_input_files_path = os.path.join(_current_file_dirname, "dockit_input_test_trace_files")
 
 dockit_output_files_path = os.path.join(_current_file_dirname, "dockit_output_files")
@@ -1448,7 +1454,7 @@ class EventsServerTest(unittest.TestCase):
             output_files_prefix=_path_prefix_output_result(output_basename_prefix),
             output_format="JSON",
             summary_format="TXT",
-            update_server=_remote_events_test_agent + "/survol/event_put.py",
+            update_server=_remote_events_database,
             aggregator="clusterize")
 
         _check_file_content(self, output_basename_prefix + ".json")
@@ -1475,7 +1481,7 @@ class EventsServerTest(unittest.TestCase):
             output_files_prefix=_path_prefix_output_result(output_basename_prefix),
             output_format="JSON",
             summary_format="TXT",
-            update_server=_remote_events_test_agent + "/survol/event_put.py",
+            update_server=_remote_events_database,
             aggregator="clusterize")
 
         _check_file_content(self, output_basename_prefix + ".json")
@@ -1501,7 +1507,7 @@ class EventsServerTest(unittest.TestCase):
             output_format="JSON",
             summary_format="TXT",
             with_dockerfile=True,
-            update_server=_remote_events_test_agent + "/survol/event_put.py")
+            update_server=_remote_events_database)
 
         _check_file_content(self, output_basename_prefix + ".json")
         _check_file_content(self, output_basename_prefix + ".summary.txt")
@@ -1527,7 +1533,7 @@ class EventsServerTest(unittest.TestCase):
             output_files_prefix=_path_prefix_output_result(output_basename_prefix),
             output_format="JSON",
             summary_format="TXT",
-            update_server=_remote_events_test_agent + "/survol/event_put.py")
+            update_server=_remote_events_database)
 
         _check_file_content(self, output_basename_prefix + ".json")
         _check_file_content(self, output_basename_prefix + ".summary.txt")
