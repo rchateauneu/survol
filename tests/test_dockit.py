@@ -109,31 +109,25 @@ def _compare_lines_with_expected(test_object, actual_content, expected_content):
 def _filter_lines_for_docker(actual_content, expected_content):
     """Depending on the context, only some Docker statements can be compared,
     among "RUN", "FROM", "MAINTAINER", "WORKDIR", "CMD", "EXPOSE" etc ... """
-    if is_platform_linux:
-        print("Docker comparison Linux")
-        def strip_docker_comments(docker_content):
-            """Remove comments because they depend on the platform and cannot be reproduced."""
-            return [
-                docker_line.partition("#")[0]
-                for docker_line in docker_content
-                if not docker_line.strip().startswith("#")
-            ]
-        actual_content = strip_docker_comments(actual_content)
-        expected_content = strip_docker_comments(expected_content)
-    else:
-        print("Docker comparison Windows")
-        def strip_docker_non_title(docker_content):
-            """Just keep title information. Anyway this cannot be reproduced on Windows. """
 
-            # RUN yum -y install python # python
-            # RUN pip --disable-pip-version-check install MySQLdb
-            return [
-                docker_line.partition("#")[0]
-                for docker_line in docker_content
-                if docker_line.strip().split()[0:2] != ["RUN", "yum"] and not docker_line.strip().startswith("#")
-            ]
-        actual_content = strip_docker_non_title(actual_content)
-        expected_content = strip_docker_non_title(expected_content)
+    def is_machine_independent(input_line):
+        """This tells if a line in a dockerfile is dependent on the machine."""
+
+        # Examples of lines.
+        # RUN yum -y install python # python
+        # RUN pip --disable-pip-version-check install MySQLdb
+        return input_line.strip().split()[0:2] != ["RUN", "yum"] and not input_line.strip().startswith("#")
+
+    def strip_docker_comments(docker_content):
+        """Remove comments and stuff because they depend on the platform and cannot be reproduced."""
+        return [
+            docker_line.partition("#")[0]
+            for docker_line in docker_content
+            if is_machine_independent(docker_line)
+        ]
+
+    actual_content = strip_docker_comments(actual_content)
+    expected_content = strip_docker_comments(expected_content)
     return actual_content, expected_content
 
 
