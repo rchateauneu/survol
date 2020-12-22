@@ -635,10 +635,6 @@ def _create_calls_stream(command_line, input_process_id, input_log_file, tracer)
     return calls_stream
 
 
-def _exit_globals():
-    """Called after a run."""
-    cim_objects_definitions.exit_global_objects()
-
 ################################################################################
 
 def _calls_flow_class_factory(aggregator):
@@ -725,7 +721,7 @@ def _create_map_flow_from_stream(
         if verbose > 0: sys.stdout.write("\n------------------ PID=%d\n" % the_pid)
         calls_flow.factorise_one_flow(verbose, batch_constructor)
 
-    _exit_globals()
+    cim_objects_definitions.exit_global_objects()
 
     # TODO: Should go in create_flows_from_calls_stream
     linux_api_definitions.G_stackUnfinishedBatches.display_unfinished_unmerged_batches(sys.stdout)
