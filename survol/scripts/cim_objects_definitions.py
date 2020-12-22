@@ -543,6 +543,7 @@ class HttpTriplesClientHttp(HttpTriplesClientNone):
         return triples_as_bytes, triples_number
 
     def _send_bytes_to_server(self, triples_as_bytes):
+        # The server URL is like: "http://my_machine:1234/survol/event_put.py"
         assert isinstance(triples_as_bytes, six.binary_type)
         print("_send_bytes_to_server G_UpdateServer=", G_UpdateServer)
         if not self._is_valid_http_client:
@@ -1958,10 +1959,12 @@ def _pathname_to_category(path_name):
 
 ################################################################################
 
+
 # See https://github.com/nbeaver/pip_file_lookup
 _python_cache = {}
 
 
+# TODO: Not used yet !!
 def PathToPythonModuleOneFileMakeCache(path):
     global _python_cache
 
@@ -2114,7 +2117,7 @@ def _generate_docker_process_dependencies(docker_directory, fd_docker_file):
         def __init__(self):
             self.m_accessedCodeFiles = set()
 
-        def AddDep(self, path_name):
+        def add_file_dependency(self, path_name):
             self.m_accessedCodeFiles.add(path_name)
 
     class DependencyPython(Dependency):
@@ -2164,7 +2167,7 @@ def _generate_docker_process_dependencies(docker_directory, fd_docker_file):
                 elif not fil_nam.startswith("/usr/"):
                     # Do not copy files from the standard installation and always available, such as:
                     # "ADD /usr/lib64/python2.7/cgitb.py /"
-                    add_to_docker_dir(fil_nam)
+                    add_to_docker_dir(fil_nam, "Python dependency")
                 else:
                     pass
 
@@ -2215,20 +2218,6 @@ def _generate_docker_process_dependencies(docker_directory, fd_docker_file):
         def is_executable_file(obj_data_file):
             return obj_data_file.Name.find(".so") > 0
 
-        @staticmethod
-        def IsSystemLib(fil_nam):
-            """This detects the libraries which are always in the path."""
-            bas_nam = os.path.basename(fil_nam)
-            if bas_nam in ["ld.so.cache", "ld.so.preload"]:
-                return True
-
-            # Eliminates the extension and the version.
-            no_ext = bas_nam[:bas_nam.find(".")]
-            no_ext = no_ext[:no_ext.find("-")]
-            if no_ext in ["libdl", "libc", "libacl", "libm", "libutil", "libpthread"]:
-                return True
-            return False
-
         def generate_docker_dependencies(self, fd_docker_file):
             # __libc_start_main([ "python", "TestProgs/mineit_mysql_select.py" ] <unfinished ...>
             #    return obj_instance.Executable.find("/python") >= 0 or obj_instance.Executable.startswith("python")
@@ -2245,7 +2234,8 @@ def _generate_docker_process_dependencies(docker_directory, fd_docker_file):
             sort_accessed_code_files = sorted(unpackaged_accessed_code_files, key=lambda x: x.Name)
             for objDataFile in sort_accessed_code_files:
                 fil_nam = objDataFile.Name
-                add_to_docker_dir(fil_nam)
+                if not fil_nam.startswith("/etc/"):
+                    add_to_docker_dir(fil_nam, "Binary dependency")
 
     _dependencies_list = [
         DependencyPython(),
@@ -2272,7 +2262,7 @@ def _generate_docker_process_dependencies(docker_directory, fd_docker_file):
         for fil_acc in obj_instance.m_ProcessFileAccesses:
             one_file = fil_acc.m_objectCIM_DataFile
             if one_dep and one_dep.is_executable_file(one_file):
-                one_dep.AddDep(one_file)
+                one_dep.add_file_dependency(one_file)
             else:
                 accessed_data_files.add(one_file)
 
