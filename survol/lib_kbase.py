@@ -764,13 +764,14 @@ def write_graph_to_events(the_url, input_graph):
         url_node = _url_to_context_node(the_url)
         named_graph = rdflib.Graph(store=_store_input, identifier=url_node)
         named_graph += input_graph
+    _log_db_access("write_graph_to_events", "W", "2", the_url, len(input_graph))
 
     if _events_storage_style[0] == "SQLAlchemy":
         _events_conjunctive_graph.commit()
 
     len_input_graph = len(input_graph)
 
-    _log_db_access("write_graph_to_events", "W", "2", the_url, len(input_graph))
+    _log_db_access("write_graph_to_events", "W", "3", the_url, len(input_graph))
     return len_input_graph
 
 
