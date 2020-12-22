@@ -106,42 +106,44 @@ def _compare_lines_with_expected(test_object, actual_content, expected_content):
         test_object.assertEqual(actual_line, expected_line)
 
 
-def _filter_lines_for_docker(actual_content, expected_content):
+def _filter_lines_for_docker(docker_content):
     """Depending on the context, only some Docker statements can be compared,
     among "RUN", "FROM", "MAINTAINER", "WORKDIR", "CMD", "EXPOSE" etc ... """
 
     def is_machine_independent(input_line):
         """This tells if a line in a dockerfile is dependent on the machine."""
 
-        # Examples of lines.
         # RUN yum -y install python # python
+
+        # Examples of lines which must be compared:
         # RUN pip --disable-pip-version-check install MySQLdb
-        return input_line.strip().split()[0:2] != ["RUN", "yum"] and not input_line.strip().startswith("#")
+        # ADD something something
+        line_strip = input_line.strip()
+        return line_strip.split()[0:2] != ["RUN", "yum"] and not line_strip.startswith("#")
 
-    def strip_docker_comments(docker_content):
-        """Remove comments and stuff because they depend on the platform and cannot be reproduced."""
-        return [
-            docker_line.partition("#")[0]
-            for docker_line in docker_content
-            if is_machine_independent(docker_line)
-        ]
+    return [
+        docker_line.partition("#")[0]
+        for docker_line in docker_content
+        if is_machine_independent(docker_line)
+    ]
 
-    actual_content = strip_docker_comments(actual_content)
-    expected_content = strip_docker_comments(expected_content)
-    return actual_content, expected_content
+
+def _filter_content(dockerfile_path, file_type):
+    """Loads the content of a generated file, and possibly filter its content which cannot be compared."""
+    with open(dockerfile_path) as dockerfile_fil_descr:
+        dockerfile_content = dockerfile_fil_descr.readlines()
+
+    if file_type == "Dockerfile":
+        dockerfile_content = _filter_lines_for_docker(dockerfile_content)
+    return dockerfile_content
 
 
 def _compare_file_with_expected(test_object, actual_file_path, expected_file_path, file_type=None):
     """Compare this file with the expected one, if it is here."""
     print("Comparing actual:", actual_file_path, "to expected", expected_file_path)
     try:
-        with open(actual_file_path) as actual_fil_descr:
-            actual_content = actual_fil_descr.readlines()
-        with open(expected_file_path) as expected_fil_descr:
-            expected_content = expected_fil_descr.readlines()
-
-        if file_type == "Dockerfile":
-            actual_content, expected_content = _filter_lines_for_docker(actual_content, expected_content)
+        actual_content = _filter_content(actual_file_path, file_type)
+        expected_content = _filter_content(expected_file_path, file_type)
 
         _compare_lines_with_expected(test_object, actual_content, expected_content)
         print("Comparison OK with ", actual_file_path)
@@ -1498,8 +1500,8 @@ class EventsServerTest(unittest.TestCase):
             output_files_prefix=_path_prefix_output_result(output_basename_prefix),
             output_format="JSON",
             summary_format="TXT",
-            update_server=_remote_events_test_agent + "/survol/event_put.py",
-            aggregator="clusterize")
+            with_dockerfile=True,
+            update_server=_remote_events_test_agent + "/survol/event_put.py")
 
         _check_file_content(self, output_basename_prefix + ".json")
         _check_file_content(self, output_basename_prefix + ".summary.txt")
@@ -1525,8 +1527,7 @@ class EventsServerTest(unittest.TestCase):
             output_files_prefix=_path_prefix_output_result(output_basename_prefix),
             output_format="JSON",
             summary_format="TXT",
-            update_server=_remote_events_test_agent + "/survol/event_put.py",
-            aggregator="clusterize")
+            update_server=_remote_events_test_agent + "/survol/event_put.py")
 
         _check_file_content(self, output_basename_prefix + ".json")
         _check_file_content(self, output_basename_prefix + ".summary.txt")
