@@ -478,7 +478,7 @@ class HttpTriplesClientFile(HttpTriplesClientNone):
         print("G_UpdateServer=", G_UpdateServer, " IS FILE")
 
     def http_client_shutdown(self):
-        print("HttpTriplesClient.http_client_shutdown")
+        print("HttpTriplesClientFile.http_client_shutdown G_UpdateServer=", G_UpdateServer)
         if not lib_event:
             raise Exception("lib_event was not imported")
         lib_event.json_triples_to_rdf(self._triples_list, G_UpdateServer)
@@ -509,13 +509,14 @@ class HttpTriplesClientHttp(HttpTriplesClientNone):
             self._client_thread.start()
 
     def http_client_shutdown(self):
-        print("HttpTriplesClient.http_client_shutdown")
+        print("HttpTriplesClientHttp.http_client_shutdown threaded=", self._is_threaded_client)
         if self._is_threaded_client:
             self._push_triples_to_server_threaded()
         else:
             # FIXME: The URL event_put.py sometimes times out, on Python 3 and only
             # FIXME: ... if the server is started by the test program (pytest or unittest).
             triples_as_bytes, sent_triples_number = self._pop_triples_to_bytes()
+            print("HttpTriplesClientHttp.http_client_shutdown sent_triples_number=", sent_triples_number)
             if triples_as_bytes:
                 received_triples_number = self._send_bytes_to_server(triples_as_bytes)
                 if received_triples_number != sent_triples_number:
@@ -543,18 +544,20 @@ class HttpTriplesClientHttp(HttpTriplesClientNone):
 
     def _send_bytes_to_server(self, triples_as_bytes):
         assert isinstance(triples_as_bytes, six.binary_type)
+        print("_send_bytes_to_server G_UpdateServer=", G_UpdateServer)
         if not self._is_valid_http_client:
             return -1
         try:
             req = urllib2.Request(G_UpdateServer)
-            print("len(triples_as_bytes)=%d\n" % len(triples_as_bytes))
-            urlopen_result = urllib2.urlopen(req, data=triples_as_bytes, timeout=30.0)
+            print("_send_bytes_to_server len(triples_as_bytes)=%d\n" % len(triples_as_bytes))
+            urlopen_result = urllib2.urlopen(req, data=triples_as_bytes, timeout=20.0)
 
             server_response = urlopen_result.read()
             json_response = json.loads(server_response)
             if json_response['success'] != 'true':
                 raise Exception("Event server error message=%s\n" % json_response['error_message'])
             received_triples_number = int(json_response['triples_number'])
+            print("_send_bytes_to_server received_triples_number=%d\n" % received_triples_number)
             return received_triples_number
 
         except Exception as server_exception:
@@ -2135,10 +2138,6 @@ def _generate_docker_process_dependencies(docker_directory, fd_docker_file):
         @staticmethod
         def is_executable_file(obj_data_file):
             return obj_data_file.Name.endswith((".py", ".pyc", ".pyd"))
-            #for file_extension in [".py", ".pyc", ".pyd"]:
-            #    if obj_data_file.Name.endswith(file_extension):
-            #        return True
-            #return False
 
         def generate_docker_dependencies(self, fd_docker_file):
             packages_to_install = set()
@@ -2162,15 +2161,12 @@ def _generate_docker_process_dependencies(docker_directory, fd_docker_file):
                         # if not pck_nam.endswith(".py") and not pck_nam.endswith(".pyc"):
                         if not pck_nam.endswith((".py", ".pyc")):
                             packages_to_install.add(split_fil[ix_pack + 1])
-                elif fil_nam.startswith("/usr/lib/python2.7/"):
-                    # Then a source file coming with Python: "/usr/lib/python2.7/string.py"
-                    pass
-                else:
-                    # Must avoid copying file from the standard installation and always available, such as:
+                elif not fil_nam.startswith("/usr/"):
+                    # Do not copy files from the standard installation and always available, such as:
                     # "ADD /usr/lib64/python2.7/cgitb.py /"
-                    # TODO: Use the right path:
-                    if not fil_nam.startswith("/usr/lib64/python2.7"):
-                        add_to_docker_dir(fil_nam)
+                    add_to_docker_dir(fil_nam)
+                else:
+                    pass
 
             if packages_to_install or self.m_accessedCodeFiles:
                 install_linux_package(fd_docker_file, "python")
@@ -2341,7 +2337,7 @@ def _generate_docker_process_dependencies(docker_directory, fd_docker_file):
                 continue
 
             fil_nam = dat_fil.Name
-            if fil_nam.startswith(("/usr/include/", "/usr/bin/", "UnknownFileDescr:")):
+            if fil_nam.startswith(("/usr/include/", "/usr/bin/", "/etc/", "UnknownFileDescr:")):
                 continue
             if fil_nam in ["-1", "stdin", "stdout", "stderr", "."]:
                 continue
