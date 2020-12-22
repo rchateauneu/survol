@@ -2223,7 +2223,7 @@ def _generate_docker_process_dependencies(docker_directory, fd_docker_file):
             for nam_package in sorted(lst_accessed_packages):
                 install_linux_package(fd_docker_file, nam_package)
             fd_docker_file.write("\n")
-
+            add_to_docker_dir
             fd_docker_file.write("# Non-packaged executable files copies:\n")
             sort_accessed_code_files = sorted(unpackaged_accessed_code_files, key=lambda x: x.Name)
             for objDataFile in sort_accessed_code_files:
@@ -2312,7 +2312,6 @@ def _generate_docker_process_dependencies(docker_directory, fd_docker_file):
     if unknown_data_files:
         fd_docker_file.write("# Data files:\n")
         # Sorted by alphabetical order.
-        # It would be better to sort it after filtering.
         sorted_dat_fils = sorted(unknown_data_files, key=lambda x: x.Name)
         for dat_fil in sorted_dat_fils:
             # DO NOT ADD DIRECTORIES.
@@ -2321,13 +2320,12 @@ def _generate_docker_process_dependencies(docker_directory, fd_docker_file):
                 continue
 
             fil_nam = dat_fil.Name
-            if fil_nam.startswith(("/usr/include/", "/usr/bin/", "/etc/", "UnknownFileDescr:")):
+            if fil_nam.startswith(("/usr/", "/etc/", "UnknownFileDescr:")):
                 continue
             if fil_nam in ["-1", "stdin", "stdout", "stderr", "."]:
                 continue
 
             # Primitive tests so that directories are not copied.
-            # if fil_nam.endswith("/.") or fil_nam.endswith("/"):
             if fil_nam.endswith(("/.", "/")):
                 continue
 
