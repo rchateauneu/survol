@@ -12,9 +12,7 @@ import lib_util
 import lib_kbase
 
 
-def _json_moniker_to_entity_class_and_dict(json_moniker):
-    assert len(json_moniker) == 2
-    entity_type, entity_attributes_dict = json_moniker
+def _json_moniker_to_entity_class_and_dict(entity_type, entity_attributes_dict):
     assert isinstance(entity_type, (six.binary_type, six.text_type))
     assert isinstance(entity_attributes_dict, dict)
 
@@ -24,39 +22,36 @@ def _json_moniker_to_entity_class_and_dict(json_moniker):
     # TODO: Make this faster by assuming this is a list of key-value pairs.
     entity_ids_dict = {ontology_attribute_name: entity_attributes_dict[ontology_attribute_name]
                        for ontology_attribute_name in ontology_list}
-    return entity_type, entity_ids_dict
+
+    rdf_url = lib_common.gUriGen.UriMakeFromDict(entity_type, entity_ids_dict)
+    return rdf_url
 
 
-def store_events_as_json_triples_list(json_data_list):
-    rdflib_graph = _json_triples_to_graph(json_data_list)
-    return lib_kbase.write_graph_to_events(None, rdflib_graph)
-
-
-def json_triple_to_rdf_triple(input_json_triple):
+def json_triple_to_rdf_triple(subject_value_json, predicate_value_json, object_value_json):
     """Transforms a triple in JSON representation, into the rdflib triple.
-    This JSON representation of triples, makes that dockit does not need rdflib
+    This JSON representation is also used for testing.
     """
-    def url_json_to_txt(json_value):
-        entity_type, entity_ids_dict = _json_moniker_to_entity_class_and_dict(json_value)
 
-        return lib_common.gUriGen.UriMakeFromDict(entity_type, entity_ids_dict)
-
-    subject_value_json = input_json_triple["subject"]
-    subject_value_text = url_json_to_txt(subject_value_json)
-
-    object_value_json = input_json_triple["object"]
+    assert isinstance(subject_value_json, tuple) and len(subject_value_json) == 2
+    subject_value_text = _json_moniker_to_entity_class_and_dict(*subject_value_json)
 
     # The object might be another CIM object or a literal.
     # We should check the form: ("string", {})
     if isinstance(object_value_json, tuple) and len(object_value_json) == 2:
-        object_value_text = url_json_to_txt(object_value_json)
+        object_value_text = _json_moniker_to_entity_class_and_dict(*object_value_json)
     else:
         object_value_text = rdflib.Literal(object_value_json)
-        #sys.stderr.write("_store_event_triple stored object.\n")
 
-    url_predicate = lib_common.MakeProp(input_json_triple["predicate"])
+    url_predicate = lib_common.MakeProp(predicate_value_json)
     rdf_triple = (subject_value_text, url_predicate, object_value_text)
     return rdf_triple
+
+
+def store_events_as_json_triples_list(json_data_list):
+    """Triples stored in JSON format are used when creating triples in dockit.
+    They are also used for testing."""
+    rdflib_graph = _json_triples_to_graph(json_data_list)
+    return lib_kbase.write_graph_to_events(None, rdflib_graph)
 
 
 def _json_triples_to_graph(json_triples):
@@ -70,7 +65,7 @@ def _json_triples_to_graph(json_triples):
     """
     rdflib_graph = rdflib.Graph()
     for tripl in json_triples:
-        rdf_triple = json_triple_to_rdf_triple(tripl)
+        rdf_triple = json_triple_to_rdf_triple(*tripl)
         rdflib_graph.add(rdf_triple)
     return rdflib_graph
 

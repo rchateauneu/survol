@@ -100,10 +100,7 @@ sys.path.append("../..")
 
 sys.path.append(r"../../survol")
 
-try:
-    from survol import lib_event
-except ImportError:
-    lib_event = None
+from survol import lib_event
 
 try:
     # This seems to work on Python 2 Linux but not Python 3
@@ -469,32 +466,27 @@ class HttpTriplesClientNone(object):
     def http_client_shutdown(self):
         pass
 
-    def queue_triples_for_sending(self, json_triple):
-        pass
-
 
 class HttpTriplesClientFile(HttpTriplesClientNone):
     """If the server name is a file, the RDF content is instead stored to this file by the object destructor."""
     def __init__(self):
-        self._triples_list = rdflib.Graph()
+        self._events_graph = rdflib.Graph()
         print("G_UpdateServer=", G_UpdateServer, " IS FILE")
 
     def http_client_shutdown(self):
         print("HttpTriplesClientFile.http_client_shutdown G_UpdateServer=", G_UpdateServer)
-        if not lib_event:
-            raise Exception("lib_event was not imported")
-        self._triples_list.serialize(destination=G_UpdateServer, format='pretty-xml')
+        self._events_graph.serialize(destination=G_UpdateServer, format='pretty-xml')
         print("Stored RDF content to", G_UpdateServer)
 
-    def queue_triples_for_sending(self, json_triple):
+    def enqueue_rdf_triple(self, rdf_triple):
         # Just append the triple, no need to synchronise.
-        self._triples_list.add(lib_event.json_triple_to_rdf_triple(json_triple))
+        self._events_graph.add(rdf_triple)
 
 
 class HttpTriplesClientHttp(HttpTriplesClientNone):
     """This objects groups triples to send to the HTTP server, and periodically wakes up to send them."""
     def __init__(self):
-        self._triples_list = rdflib.Graph()
+        self._events_graph = rdflib.Graph()
 
         # Threaded mode does not work when creating the server in the same process.
         # For safety, this reverts to a simpler mode where the triples are sent
@@ -519,10 +511,10 @@ class HttpTriplesClientHttp(HttpTriplesClientNone):
         This function serializes this JSON list into bytes which is then sent to the server. """
 
         bytes_stream = io.BytesIO()
-        self._triples_list.serialize(destination=bytes_stream, format='pretty-xml')
-        triples_as_bytes = bytes_stream.getvalue()
-        triples_number = len(triples_as_bytes)
-        return triples_as_bytes, triples_number
+        self._events_graph.serialize(destination=bytes_stream, format='pretty-xml')
+        events_as_bytes = bytes_stream.getvalue()
+        events_number = len(events_as_bytes)
+        return events_as_bytes, events_number
 
     def _send_bytes_to_server(self, triples_as_bytes):
         # The server URL is like: "http://my_machine:1234/survol/event_put.py"
@@ -569,7 +561,7 @@ class HttpTriplesClientHttp(HttpTriplesClientNone):
         # FIXME: This is not clear. Maybe the database is hanging.
         if triples_as_bytes:
             received_triples_number = self._send_bytes_to_server(triples_as_bytes)
-            if received_triples_number != len(self._triples_list):
+            if received_triples_number != len(self._events_graph):
                 raise Exception("Lost triples: %d != %d\n" % (received_triples_number, sent_triples_number))
 
     # This thread functor loops on the container of triples.
@@ -580,22 +572,21 @@ class HttpTriplesClientHttp(HttpTriplesClientNone):
             time.sleep(2.0)
             self._push_triples_to_server()
 
-    def queue_triples_for_sending(self, json_triple):
+    def enqueue_rdf_triple(self, rdf_triple):
         if self._is_threaded_client:
             self._shared_lock.acquire()
-            self._triples_list.add(lib_event.json_triple_to_rdf_triple(json_triple))
+            self._events_graph.add(rdf_triple)
             self._shared_lock.release()
         else:
-            self._triples_list.add(lib_event.json_triple_to_rdf_triple(json_triple))
+            self._events_graph.add(rdf_triple)
 
 
 class HttpTriplesClientDaemon(HttpTriplesClientNone):
     """This calls function for each generated triple which represents an event.
     These events are inserted in a global RDF graph which can be access by CGI scripts,
     started on-demand by users. There is no need to store these events. """
-    def queue_triples_for_sending(self, json_triple):
+    def enqueue_rdf_triple(self, rdf_triple):
         # TODO: Get rid of JSON triple format, and rather handle only RDF nodes and triples.
-        rdf_triple = lib_event.json_triple_to_rdf_triple(json_triple)
         G_UpdateServer(rdf_triple)
 
 
@@ -697,13 +688,17 @@ class CIM_XmlMarshaller(object):
                     # No need to write empty strings.
                     strm.write("%s<%s>%s</%s>\n" % (sub_margin, attr, attr_val, attr))
 
-    def HttpUpdateRequest(self, **obj_json):
-        G_httpClient.queue_triples_for_sending(obj_json)
+    def http_update_request(self, the_subject, the_predicate, the_object):
+        rdf_triple = lib_event.json_triple_to_rdf_triple(the_subject, the_predicate, the_object)
+        G_httpClient.enqueue_rdf_triple(rdf_triple)
 
     def send_update_to_server(self, attr_nam, old_attr_val, attr_val):
-        # These are the properties which uniquely define the object.
-        # There are always sent even if they did not change,
-        # otherwise the object could not be identified.
+        """For a given object and one of its attributes, this receives the former and the new value.
+        """
+
+        # In RDF, the subject is always an URL.
+        # This string uniquely defines an object: It contains the class and the key-value pairs
+        # of the properties of the ontology.
         the_subj_moniker = self.get_survol_moniker()
 
         # TODO: If the attribute is part of the ontology, just inform about the object creation.
@@ -714,20 +709,24 @@ class CIM_XmlMarshaller(object):
         if old_attr_val and isinstance(old_attr_val, CIM_XmlMarshaller):
             raise Exception("Not implemented yet")
             obj_moniker_old = old_attr_val.get_survol_moniker()
-            #attrNamDelete = attr_nam + "?predicate_delete"
-            self.HttpUpdateRequest(subject=the_subj_moniker, predicate=attr_nam, object=obj_moniker_old)
+            # TODO: Possibly manage object deletions with: attrNamDelete = attr_nam + "?predicate_delete"
+            self.http_update_request(the_subj_moniker, attr_nam, obj_moniker_old)
 
         # For example a file being opened by a process, or a process started by a user etc...
+        # Then it is an object which will become a RDF url.
         if isinstance(attr_val, CIM_XmlMarshaller):
-            objMoniker = attr_val.get_survol_moniker()
-            self.HttpUpdateRequest(subject=the_subj_moniker, predicate=attr_nam, object=objMoniker)
+            obj_moniker = attr_val.get_survol_moniker()
+            self.http_update_request(the_subj_moniker, attr_nam, obj_moniker)
         else:
-            self.HttpUpdateRequest(subject=the_subj_moniker, predicate=attr_nam, object=attr_val)
+            # Otherwise it is simply a literal.
+            self.http_update_request(the_subj_moniker, attr_nam, attr_val)
 
-    # Any object change is broadcast to a Survol server.
     def __setattr__(self, attr_nam, attr_val):
-        # First, change the value, because it might be needed to calculate the moniker.
+        """Any object creation or update is broadcast to a Survol server.
+        attr_nam is a string.
+        attr_val is a literal, or an object deriving from CIM_XmlMarshaller. """
 
+        # First, change the value, because it might be needed to calculate the moniker.
         try:
             old_attr_val = self.__dict__[attr_nam]
         except:
@@ -735,9 +734,8 @@ class CIM_XmlMarshaller(object):
 
         self.__dict__[attr_nam] = attr_val
 
-        #https://stackoverflow.com/questions/8600161/executing-periodic-actions-in-python
-
         if G_UpdateServer:
+            # If the value did not change, no need to send an update.
             if old_attr_val != attr_val:
                 if _is_CIM(attr_nam, attr_val):
                     self.send_update_to_server(attr_nam, old_attr_val, attr_val)
@@ -748,6 +746,7 @@ class CIM_XmlMarshaller(object):
 
     @classmethod
     def XMLSummary(cls, fd_summary_file, cim_key_value_pairs):
+        """Used to create a summary file of all created or updated objects in this run."""
         nam_class = cls.__name__
         margin = "    "
         sub_margin = margin + margin

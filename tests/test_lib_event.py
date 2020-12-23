@@ -45,16 +45,16 @@ class IndividualEventsTest(unittest.TestCase):
 
     def test_pure_memory_put_retrieve_events(self):
         triples_data_set = [
-            {
-                "subject": ("CIM_Process", {"Handle": 123}),
-                "predicate": "priority",
-                "object": 255
-            },
-            {
-                "subject": ("CIM_Process", {"Handle": 123}),
-                "predicate": "user",
-                "object": ("Win32_UserAccount", {"Name": "my_user", "Domain": "my_domain"}),
-            },
+            [
+                ("CIM_Process", {"Handle": 123}),
+                "priority",
+                255
+            ],
+            [
+                ("CIM_Process", {"Handle": 123}),
+                "user",
+                ("Win32_UserAccount", {"Name": "my_user", "Domain": "my_domain"}),
+            ],
             ]
         files_updates_total_number = lib_event.store_events_as_json_triples_list(triples_data_set)
         new_graph = rdflib.Graph()
@@ -291,17 +291,17 @@ class EventsGraphIOMemoryTest(unittest.TestCase):
 
     def test_write_read_graph_to_events_with_other_nodes(self):
         triples_data_set = [
-            {
-                "subject": ("CIM_Process", {"Handle": 123}),
-                "predicate": "ParentProcessId",
-                "object": 1
-            },
-            {
-                "subject": ("CIM_Directory", {"Name": "/tmp"}),
-                "predicate": "CIM_DirectoryContainsFile",
-                "object": ("CIM_DataFile", {"Name": "/tmp/anyfile.tmp"})
-            }
+            [
+                ("CIM_Process", {"Handle": 123}),
+                "ParentProcessId",
+                1
+            ],
+            [
+                ("CIM_Directory", {"Name": "/tmp"}),
+                "CIM_DirectoryContainsFile",
+                ("CIM_DataFile", {"Name": "/tmp/anyfile.tmp"})
             ]
+        ]
 
         updates_total_number = lib_event.store_events_as_json_triples_list(triples_data_set)
 
