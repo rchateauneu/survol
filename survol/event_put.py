@@ -5,15 +5,18 @@ Put an event about a CIM object
 """
 
 import os
+import io
 import six
 import sys
 import cgi
 import json
 import time
+import rdflib
 import traceback
 import lib_util
 import lib_common
 import lib_event
+import lib_kbase
 
 # This receives a CIM class and a pair of attributes which should be enough to create a CIM object.
 # In the temp directory, there is one sub-directory per CIM class, and in these,
@@ -27,11 +30,9 @@ def Main():
     time_start = time.time()
     http_content_length = int(os.environ['CONTENT_LENGTH'])
 
-
     # https://stackoverflow.com/questions/49171591/inets-httpd-cgi-script-how-do-you-retrieve-json-data
     # The script MUST NOT attempt to read more than CONTENT_LENGTH bytes, even if more data is available.
     sys.stderr.write("event_put.py http_content_length=%d time_start=%f\n" % (http_content_length, time_start))
-
 
     # FIXME: This can be a lot simplified. This code results of the research of an intermittent time-out
     # FIXME: ... on Windows and Python 3 and if the test agent is started by pytest.
@@ -54,8 +55,12 @@ def Main():
             if read_bytes_number >= http_content_length:
                 break
             loop_counter += 1
-            time.sleep(0.1)
-            if loop_counter > 1000:
+            time.sleep(0.5)
+            if loop_counter > 5:
+                # The end of the message might be lost. The beginning is OK.
+                # event_put.py chunk_length=24820
+                # ...
+                # event_put.py too many loops rest_to_read=725492
                 raise Exception(__file__ + " too many loops. read_bytes_number=%d" % read_bytes_number)
 
         if loop_counter > 1:
@@ -65,12 +70,14 @@ def Main():
             raise Exception("len(loaded_bytes)=%d http_content_length=%d" %(len(loaded_bytes), http_content_length))
         if read_bytes_number != http_content_length:
             raise Exception("read_bytes_number=%d http_content_length=%d" %(read_bytes_number, http_content_length))
-        # TODO: replace this by RDF-XML.
-        triples_json = json.loads(loaded_bytes)
+        bytes_stream = io.BytesIO(loaded_bytes)
         time_loaded = time.time()
-        triples_number = len(triples_json)
 
-        files_updates_total_number = lib_event.store_events_as_json_triples_list(triples_json)
+        rdflib_graph = rdflib.Graph()
+        rdflib_graph.parse(bytes_stream, format="application/rdf+xml")
+        triples_number = len(rdflib_graph)
+        files_updates_total_number = lib_kbase.write_graph_to_events(None, rdflib_graph)
+
         time_stored = time.time()
         sys.stderr.write("event_put.py time_stored=%f files_updates_total_number=%d\n" % (time_stored, files_updates_total_number))
 

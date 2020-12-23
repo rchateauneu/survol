@@ -23,6 +23,7 @@ __email__ = "contact@primhillcomputers.com"
 
 import os
 import re
+import io
 import six
 import sys
 import json
@@ -33,6 +34,7 @@ import shutil
 import threading
 import time
 import collections
+import rdflib
 import logging
 
 try:
@@ -474,25 +476,25 @@ class HttpTriplesClientNone(object):
 class HttpTriplesClientFile(HttpTriplesClientNone):
     """If the server name is a file, the RDF content is instead stored to this file by the object destructor."""
     def __init__(self):
-        self._triples_list = []
+        self._triples_list = rdflib.Graph()
         print("G_UpdateServer=", G_UpdateServer, " IS FILE")
 
     def http_client_shutdown(self):
         print("HttpTriplesClientFile.http_client_shutdown G_UpdateServer=", G_UpdateServer)
         if not lib_event:
             raise Exception("lib_event was not imported")
-        lib_event.json_triples_to_rdf(self._triples_list, G_UpdateServer)
+        self._triples_list.serialize(destination=G_UpdateServer, format='pretty-xml')
         print("Stored RDF content to", G_UpdateServer)
 
     def queue_triples_for_sending(self, json_triple):
         # Just append the triple, no need to synchronise.
-        self._triples_list.append(json_triple)
+        self._triples_list.add(lib_event.json_triple_to_rdf_triple(json_triple))
 
 
 class HttpTriplesClientHttp(HttpTriplesClientNone):
     """This objects groups triples to send to the HTTP server, and periodically wakes up to send them."""
     def __init__(self):
-        self._triples_list = []
+        self._triples_list = rdflib.Graph()
 
         # Threaded mode does not work when creating the server in the same process.
         # For safety, this reverts to a simpler mode where the triples are sent
@@ -516,20 +518,10 @@ class HttpTriplesClientHttp(HttpTriplesClientNone):
         """ Dockit stores its triples in a list, not in with rdflib.
         This function serializes this JSON list into bytes which is then sent to the server. """
 
-        #TODO: Instead of JSON, store and send RDF-XML format because it is more standard.
-        #TODO: Also, have the server script event_get.py changed to natively deserialize RDF-XML.
-        triples_number = len(self._triples_list)
-        if triples_number:
-            triples_as_bytes = json.dumps(self._triples_list)
-            if is_py3:
-                assert isinstance(triples_as_bytes, str)
-                triples_as_bytes = triples_as_bytes.encode('utf-8')
-                assert isinstance(triples_as_bytes, bytes)
-            else:
-                assert isinstance(triples_as_bytes, str)
-            self._triples_list = []
-        else:
-            triples_as_bytes = None
+        bytes_stream = io.BytesIO()
+        self._triples_list.serialize(destination=bytes_stream, format='pretty-xml')
+        triples_as_bytes = bytes_stream.getvalue()
+        triples_number = len(triples_as_bytes)
         return triples_as_bytes, triples_number
 
     def _send_bytes_to_server(self, triples_as_bytes):
@@ -539,9 +531,17 @@ class HttpTriplesClientHttp(HttpTriplesClientNone):
         if not self._is_valid_http_client:
             return -1
         try:
-            req = urllib2.Request(G_UpdateServer)
-            print("_send_bytes_to_server len(triples_as_bytes)=%d\n" % len(triples_as_bytes))
-            urlopen_result = urllib2.urlopen(req, data=triples_as_bytes, timeout=20.0)
+            if True:
+                cont_len = len(triples_as_bytes)
+                the_headers = {"Content-type": "application/xml:", 'Content-Length': cont_len}
+
+                req = urllib2.Request(G_UpdateServer, headers=the_headers)
+                #print("_send_bytes_to_server len(triples_as_bytes)=%d\n" % len(triples_as_bytes))
+                urlopen_result = urllib2.urlopen(req, data=triples_as_bytes, timeout=10.0)
+            else:
+                req = urllib2.Request(G_UpdateServer)
+                #print("_send_bytes_to_server len(triples_as_bytes)=%d\n" % len(triples_as_bytes))
+                urlopen_result = urllib2.urlopen(req, data=triples_as_bytes, timeout=10.0)
 
             server_response = urlopen_result.read()
             json_response = json.loads(server_response)
@@ -569,7 +569,7 @@ class HttpTriplesClientHttp(HttpTriplesClientNone):
         # FIXME: This is not clear. Maybe the database is hanging.
         if triples_as_bytes:
             received_triples_number = self._send_bytes_to_server(triples_as_bytes)
-            if received_triples_number != sent_triples_number:
+            if received_triples_number != len(self._triples_list):
                 raise Exception("Lost triples: %d != %d\n" % (received_triples_number, sent_triples_number))
 
     # This thread functor loops on the container of triples.
@@ -583,10 +583,10 @@ class HttpTriplesClientHttp(HttpTriplesClientNone):
     def queue_triples_for_sending(self, json_triple):
         if self._is_threaded_client:
             self._shared_lock.acquire()
-            self._triples_list.append(json_triple)
+            self._triples_list.add(lib_event.json_triple_to_rdf_triple(json_triple))
             self._shared_lock.release()
         else:
-            self._triples_list.append(json_triple)
+            self._triples_list.add(lib_event.json_triple_to_rdf_triple(json_triple))
 
 
 class HttpTriplesClientDaemon(HttpTriplesClientNone):
