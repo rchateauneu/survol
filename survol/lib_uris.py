@@ -36,11 +36,12 @@ class LocalBox:
 
     def MakeTheNodeFromScript(self, path, entity_type, entity_id):
         url = self.RootUrl() + path + lib_util.xidCgiDelimiter + self.TypeMake() + entity_type + "." + entity_id
-        # Depending on the code path, NodeUrl is sometimes called recursively, which is not detected
-        # because its conversion to a string returns the same URL.
+        # Depending on the code path, NodeUrl might be called on the result of NodeUrl,
+        # and this is not detected because it does not harm, just a waste of CPU.
         return lib_util.NodeUrl(url)
 
     def BuildEntity(self, entity_type, *entity_id_arr):
+        """This works only if the attribute values are in the same order as the ontology."""
         keys = lib_util.OntologyClassKeys(entity_type)
         #sys.stderr.write("UriMake keys=%s\n" % str(keys) )
 
@@ -48,8 +49,6 @@ class LocalBox:
         len_ent_ids = len(entity_id_arr)
 
         assert len_keys == len_ent_ids
-
-        # Sorted keys, same order for Python 2 et 3.
         entity_id = ",".join("%s=%s" % kw_items for kw_items in zip(keys, entity_id_arr))
 
         return entity_id
@@ -87,8 +86,8 @@ class LocalBox:
         # sys.stderr.write("UriMakeFromDict entity_id=%s\n"%entity_id)
         return self.MakeTheNode(entity_type, entity_id)
 
-    # This is a virtual method.
     def TypeMake(self):
+        # TODO: This virtual method deprecated and not reliable: Better relying on the Survol, WMI or WBEM agent url
         return ""
 
     ###################################################################################
@@ -436,12 +435,14 @@ class RemoteBox (LocalBox):
         self.m_mach = mach
 
     def TypeMake(self):
+        """This indicates the machine name as a prefix."""
+        # TODO: This is deprecated and not reliable: Better relying on the Survol, WMI or WBEM agent url
         return self.m_mach + "@"
 
 
-# For remote objects displayed by their corresponding remote agent.
-# At the moment, this can only be HTTP. Should be HTTPS also.
 class OtherAgentBox (LocalBox):
+    """For remote objects displayed by their corresponding remote agent.
+    At the moment, this can only be HTTP. Should be HTTPS also."""
     def __init__(self, url_root_agent):
         self.m_urlRootAgent = url_root_agent
 
