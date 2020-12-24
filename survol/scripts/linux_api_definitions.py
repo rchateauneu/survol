@@ -557,31 +557,7 @@ class BatchLetBase(my_with_metaclass(BatchMeta)):
     def is_same_call(self, another_batch):
         if self.m_core._function_name != another_batch.m_core._function_name:
             return False
-
-        return self._has_same_arguments(another_batch)
-
-    # This assumes that the function calls are the same.
-    # It compares the arguments one by one.
-    def _has_same_arguments(self, another_batch):
-        args1 = self.get_significant_args()
-        args2 = another_batch.get_significant_args()
-
-        # sys.stdout.write("%s args1=%s\n" % ( self.m_core._function_name, str(args1)) )
-        # sys.stdout.write("%s args2=%s\n" % ( another_batch.m_core._function_name, str(args2)) )
-
-        # At least they should have the same number of arguments.
-        if len(args1) != len(args2):
-            return False
-
-        idx = 0
-        for val1 in args1:
-            val2 = args2[idx]
-
-            if val1 != val2:
-                return False
-            idx += 1
-
-        return True
+        return self.get_significant_args() == another_batch.get_significant_args()
 
     invalid_hexadecimal_pathnames = set()
 
