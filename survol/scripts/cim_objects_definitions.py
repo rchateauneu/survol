@@ -92,13 +92,22 @@ _buffer_scanners = {}
 
 ################################################################################
 
-# Import this now, and not in the destructor, to avoid the error:
+# This avoids the error:
 # "sys.meta_path must be a list of import hooks"
 # This module is needed for storing the generated data into a RDF file.
+# TODO: This fails when a CGI script import something from survol/scripts,
+# TODO: ... which at its turn imports something from survol/survol.
+# TODO: Originally, all scripts in scripts should not have been dependent of the other
+# TODO: modules like survol/lib_*.py , so they could be copied on any machine
+# TODO: and do their work, especially dockit.py .
+# TODO: However, some imports like lib_event.py or, in the future, lib_sql.py ,
+# TODO: are necessary.
+# TODO: On top of that, files in survol/scripts are now used as libraries
+# TODO: for general scripts. This is not critical at all, but some files
+# TODO: need to be moved at other places.
 
 sys.path.append("../..")
-
-sys.path.append(r"../../survol")
+sys.path.append("../../survol")
 
 from survol import lib_event
 
