@@ -10,10 +10,17 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-# TODO: Make this cleaner.
-if ".." not in sys.path:
-    sys.path.append("..")
-from scripts import dockit
+if False:
+    # TODO: Make this cleaner.
+    # FIXME: This does not work yet because scripts/cim_objects_definitions.py needs survol/lib_event.py
+    # FIXME: ... which cannot be imported due to path issues.
+
+    if ".." not in sys.path:
+        sys.path.append("..")
+
+    from scripts import dockit
+else:
+    dockit = None
 
 
 def Snapshot():
@@ -28,11 +35,20 @@ def Snapshot():
     cgiEnv.OutCgiRdf()
 
 
-dockit_dirname = lib_util.standardized_file_path(os.path.dirname(dockit.__file__))
+# FIXME: Must finish this.
+if dockit:
+    dockit_dirname = lib_util.standardized_file_path(os.path.dirname(dockit.__file__))
 
 
 def SendEvents():
     """This is called in a subprocess."""
+
+
+    # FIXME:
+    if not dockit:
+        return
+
+
     cgiEnv = lib_common.CgiEnv()
     process_id = cgiEnv.GetId()
 
