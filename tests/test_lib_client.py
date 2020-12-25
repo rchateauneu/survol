@@ -1010,9 +1010,10 @@ class SurvolLocalJavaTest(unittest.TestCase):
 
 
 class SurvolSpecialCharactersTest(unittest.TestCase):
+    absolute_special_dir = os.path.join(os.path.dirname(__file__), "SampleDirSpecialCharacters")
 
     def _is_file_found(self, path_name):
-        full_path = os.path.join(os.path.dirname(__file__), "SampleDirSpecialCharacters", path_name)
+        full_path = os.path.join(self.absolute_special_dir, path_name)
 
         my_source_file_stat = lib_client.SourceRemote(
             _remote_general_test_agent + "/survol/sources_types/CIM_DataFile/file_stat.py",
@@ -1044,6 +1045,18 @@ class SurvolSpecialCharactersTest(unittest.TestCase):
     def test_filename_with_equals(self):
         # TODO: Fix by simplifying URL: store predicate values in CGI parameters; Use B64 encoding for special chars.
         self.assertTrue(self._is_file_found("with=equal=in=file=name.txt"))
+
+    def test_list_all_files(self):
+        for the_root, the_dirs, the_files in os.walk(self.absolute_special_dir):
+            for one_file in the_files:
+                full_path = os.path.join(the_root, one_file)
+                self.assertEqual(type(full_path), str)
+                self.assertTrue(os.path.isfile(full_path))
+                my_source = lib_client.SourceLocal(
+                    "entity.py",
+                    "CIM_DataFile",
+                    Name=full_path)
+                print("Source=", my_source)
 
 
 class SurvolLocalOntologiesTest(unittest.TestCase):
@@ -1425,9 +1438,7 @@ except ImportError as exc:
     pyodbc = None
     print("Detected ImportError:", exc)
 
-# https://stackoverflow.com/questions/23741133/if-condition-in-setup-ignore-test
-# This decorator at the class level does not work on Travis.
-# @unittest.skipIf( not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
+
 class SurvolPyODBCTest(unittest.TestCase):
 
     @unittest.skipIf(not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
@@ -2097,6 +2108,7 @@ class SurvolRabbitMQTest(unittest.TestCase):
         ]:
             print(one_str)
             self.assertTrue(one_str in str_instances_set)
+
 
 def _find_oracle_db():
     """Returns first Oracle connection from Credentials file"""
