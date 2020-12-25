@@ -964,28 +964,6 @@
 ,{
    "pid" : 18318,
    "occurrences" : 1,
-   "style" : "Orig",
-   "status" : 1,
-   "function" : "statfs@SYS",
-   "arguments" : ["/sys/fs/selinux", "0x7fffdb9a2570"],
-   "return_value" : "-2",
-   "time_start" : "09:00:22.644482",
-   "time_end" : "09:00:22.644482"
-}
-,{
-   "pid" : 18318,
-   "occurrences" : 1,
-   "style" : "Orig",
-   "status" : 1,
-   "function" : "statfs@SYS",
-   "arguments" : ["/selinux", "0x7fffdb9a2570"],
-   "return_value" : "-2",
-   "time_start" : "09:00:22.644637",
-   "time_end" : "09:00:22.644637"
-}
-,{
-   "pid" : 18318,
-   "occurrences" : 1,
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+fstat@SYS+read@SYS+close@SYS)",
@@ -1015,17 +993,6 @@
    "return_value" : "0",
    "time_start" : "09:00:22.645988",
    "time_end" : "09:00:22.645988"
-}
-,{
-   "pid" : 18318,
-   "occurrences" : 1,
-   "style" : "Orig",
-   "status" : 1,
-   "function" : "uname@SYS",
-   "arguments" : ["0x7fe210423080"],
-   "return_value" : "0",
-   "time_start" : "09:00:22.646149",
-   "time_end" : "09:00:22.646149"
 }
 ,{
    "pid" : 18318,
@@ -9964,17 +9931,6 @@
    "occurrences" : 1,
    "style" : "Orig",
    "status" : 1,
-   "function" : "readlink@SYS",
-   "arguments" : ["/proc/2101/fd/2", "/dev/pts", "127"],
-   "return_value" : "10",
-   "time_start" : "09:00:23.297516",
-   "time_end" : "09:00:23.297516"
-}
-,{
-   "pid" : 18318,
-   "occurrences" : 1,
-   "style" : "Orig",
-   "status" : 1,
    "function" : "stat@SYS",
    "arguments" : ["CIM_DataFile.Name=\"/dev/pts/0\""],
    "return_value" : "0",
@@ -10035,17 +9991,6 @@
    "return_value" : "N/A",
    "time_start" : "09:00:23.300071",
    "time_end" : "09:00:23.300333"
-}
-,{
-   "pid" : 18318,
-   "occurrences" : 1,
-   "style" : "Orig",
-   "status" : 1,
-   "function" : "readlink@SYS",
-   "arguments" : ["/proc/2200/fd/2", "/dev/pts", "127"],
-   "return_value" : "9",
-   "time_start" : "09:00:23.300406",
-   "time_end" : "09:00:23.300406"
 }
 ,{
    "pid" : 18318,
@@ -10178,17 +10123,6 @@
    "return_value" : "N/A",
    "time_start" : "09:00:23.305565",
    "time_end" : "09:00:23.305828"
-}
-,{
-   "pid" : 18318,
-   "occurrences" : 1,
-   "style" : "Orig",
-   "status" : 1,
-   "function" : "readlink@SYS",
-   "arguments" : ["/proc/2211/fd/2", "/dev/pts", "127"],
-   "return_value" : "9",
-   "time_start" : "09:00:23.305902",
-   "time_end" : "09:00:23.305902"
 }
 ,{
    "pid" : 18318,
@@ -14419,32 +14353,10 @@
    "occurrences" : 1,
    "style" : "Rept",
    "status" : 6,
-   "function" : "(stat@SYS+stat@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"/etc/localtime\"", "CIM_DataFile.Name=\"/dev/pts\""],
+   "function" : "((stat@SYS+stat@SYS)+stat@SYS)",
+   "arguments" : ["CIM_DataFile.Name=\"/etc/localtime\"", "CIM_DataFile.Name=\"/dev/pts\"", "CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "N/A",
    "time_start" : "09:00:23.575657",
-   "time_end" : "09:00:23.575925"
-}
-,{
-   "pid" : 18318,
-   "occurrences" : 1,
-   "style" : "Orig",
-   "status" : 1,
-   "function" : "readlink@SYS",
-   "arguments" : ["/proc/18314/fd/2", "/dev/pts", "127"],
-   "return_value" : "13",
-   "time_start" : "09:00:23.575999",
-   "time_end" : "09:00:23.575999"
-}
-,{
-   "pid" : 18318,
-   "occurrences" : 1,
-   "style" : "Orig",
-   "status" : 1,
-   "function" : "stat@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
-   "return_value" : "0",
-   "time_start" : "09:00:23.576213",
    "time_end" : "09:00:23.576213"
 }
 ,{
@@ -14496,32 +14408,10 @@
    "occurrences" : 1,
    "style" : "Rept",
    "status" : 6,
-   "function" : "(stat@SYS+stat@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"/etc/localtime\"", "CIM_DataFile.Name=\"/dev/pts\""],
+   "function" : "((stat@SYS+stat@SYS)+stat@SYS)",
+   "arguments" : ["CIM_DataFile.Name=\"/etc/localtime\"", "CIM_DataFile.Name=\"/dev/pts\"", "CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "N/A",
    "time_start" : "09:00:23.578608",
-   "time_end" : "09:00:23.578873"
-}
-,{
-   "pid" : 18318,
-   "occurrences" : 1,
-   "style" : "Orig",
-   "status" : 1,
-   "function" : "readlink@SYS",
-   "arguments" : ["/proc/18315/fd/2", "/dev/pts", "127"],
-   "return_value" : "10",
-   "time_start" : "09:00:23.578945",
-   "time_end" : "09:00:23.578945"
-}
-,{
-   "pid" : 18318,
-   "occurrences" : 1,
-   "style" : "Orig",
-   "status" : 1,
-   "function" : "stat@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
-   "return_value" : "0",
-   "time_start" : "09:00:23.579067",
    "time_end" : "09:00:23.579067"
 }
 ,{
@@ -14573,32 +14463,10 @@
    "occurrences" : 1,
    "style" : "Rept",
    "status" : 6,
-   "function" : "(stat@SYS+stat@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"/etc/localtime\"", "CIM_DataFile.Name=\"/dev/pts\""],
+   "function" : "((stat@SYS+stat@SYS)+stat@SYS)",
+   "arguments" : ["CIM_DataFile.Name=\"/etc/localtime\"", "CIM_DataFile.Name=\"/dev/pts\"", "CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "N/A",
    "time_start" : "09:00:23.581483",
-   "time_end" : "09:00:23.581744"
-}
-,{
-   "pid" : 18318,
-   "occurrences" : 1,
-   "style" : "Orig",
-   "status" : 1,
-   "function" : "readlink@SYS",
-   "arguments" : ["/proc/18316/fd/2", "/dev/pts", "127"],
-   "return_value" : "13",
-   "time_start" : "09:00:23.581830",
-   "time_end" : "09:00:23.581830"
-}
-,{
-   "pid" : 18318,
-   "occurrences" : 1,
-   "style" : "Orig",
-   "status" : 1,
-   "function" : "stat@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
-   "return_value" : "0",
-   "time_start" : "09:00:23.582038",
    "time_end" : "09:00:23.582038"
 }
 ,{
@@ -14650,32 +14518,10 @@
    "occurrences" : 1,
    "style" : "Rept",
    "status" : 6,
-   "function" : "(stat@SYS+stat@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"/etc/localtime\"", "CIM_DataFile.Name=\"/dev/pts\""],
+   "function" : "((stat@SYS+stat@SYS)+stat@SYS)",
+   "arguments" : ["CIM_DataFile.Name=\"/etc/localtime\"", "CIM_DataFile.Name=\"/dev/pts\"", "CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "N/A",
    "time_start" : "09:00:23.584429",
-   "time_end" : "09:00:23.584686"
-}
-,{
-   "pid" : 18318,
-   "occurrences" : 1,
-   "style" : "Orig",
-   "status" : 1,
-   "function" : "readlink@SYS",
-   "arguments" : ["/proc/18318/fd/2", "/dev/pts", "127"],
-   "return_value" : "13",
-   "time_start" : "09:00:23.584759",
-   "time_end" : "09:00:23.584759"
-}
-,{
-   "pid" : 18318,
-   "occurrences" : 1,
-   "style" : "Orig",
-   "status" : 1,
-   "function" : "stat@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
-   "return_value" : "0",
-   "time_start" : "09:00:23.584973",
    "time_end" : "09:00:23.584973"
 }
 ,{
@@ -14727,32 +14573,10 @@
    "occurrences" : 1,
    "style" : "Rept",
    "status" : 6,
-   "function" : "(stat@SYS+stat@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"/etc/localtime\"", "CIM_DataFile.Name=\"/dev/pts\""],
+   "function" : "((stat@SYS+stat@SYS)+stat@SYS)",
+   "arguments" : ["CIM_DataFile.Name=\"/etc/localtime\"", "CIM_DataFile.Name=\"/dev/pts\"", "CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "N/A",
    "time_start" : "09:00:23.587357",
-   "time_end" : "09:00:23.587619"
-}
-,{
-   "pid" : 18318,
-   "occurrences" : 1,
-   "style" : "Orig",
-   "status" : 1,
-   "function" : "readlink@SYS",
-   "arguments" : ["/proc/18319/fd/2", "/dev/pts", "127"],
-   "return_value" : "13",
-   "time_start" : "09:00:23.587692",
-   "time_end" : "09:00:23.587692"
-}
-,{
-   "pid" : 18318,
-   "occurrences" : 1,
-   "style" : "Orig",
-   "status" : 1,
-   "function" : "stat@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
-   "return_value" : "0",
-   "time_start" : "09:00:23.587911",
    "time_end" : "09:00:23.587911"
 }
 ,{
@@ -15084,17 +14908,6 @@
    "return_value" : "N/A",
    "time_start" : "09:00:23.602413",
    "time_end" : "09:00:23.602673"
-}
-,{
-   "pid" : 18318,
-   "occurrences" : 1,
-   "style" : "Orig",
-   "status" : 1,
-   "function" : "readlink@SYS",
-   "arguments" : ["/proc/25990/fd/2", "/dev/pts", "127"],
-   "return_value" : "10",
-   "time_start" : "09:00:23.602746",
-   "time_end" : "09:00:23.602746"
 }
 ,{
    "pid" : 18318,
@@ -15442,32 +15255,10 @@
    "occurrences" : 1,
    "style" : "Rept",
    "status" : 6,
-   "function" : "(stat@SYS+stat@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"/etc/localtime\"", "CIM_DataFile.Name=\"/dev/pts\""],
+   "function" : "((stat@SYS+stat@SYS)+stat@SYS)",
+   "arguments" : ["CIM_DataFile.Name=\"/etc/localtime\"", "CIM_DataFile.Name=\"/dev/pts\"", "CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "N/A",
    "time_start" : "09:00:23.626059",
-   "time_end" : "09:00:23.626407"
-}
-,{
-   "pid" : 18318,
-   "occurrences" : 1,
-   "style" : "Orig",
-   "status" : 1,
-   "function" : "readlink@SYS",
-   "arguments" : ["/proc/26531/fd/2", "/dev/pts", "127"],
-   "return_value" : "10",
-   "time_start" : "09:00:23.626503",
-   "time_end" : "09:00:23.626503"
-}
-,{
-   "pid" : 18318,
-   "occurrences" : 1,
-   "style" : "Orig",
-   "status" : 1,
-   "function" : "stat@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
-   "return_value" : "0",
-   "time_start" : "09:00:23.626662",
    "time_end" : "09:00:23.626662"
 }
 ,{
@@ -15524,17 +15315,6 @@
    "return_value" : "N/A",
    "time_start" : "09:00:23.629408",
    "time_end" : "09:00:23.629666"
-}
-,{
-   "pid" : 18318,
-   "occurrences" : 1,
-   "style" : "Orig",
-   "status" : 1,
-   "function" : "readlink@SYS",
-   "arguments" : ["/proc/31755/fd/2", "/dev/pts", "127"],
-   "return_value" : "10",
-   "time_start" : "09:00:23.629739",
-   "time_end" : "09:00:23.629739"
 }
 ,{
    "pid" : 18318,
@@ -15761,28 +15541,6 @@
 ,{
    "pid" : 18317,
    "occurrences" : 1,
-   "style" : "Orig",
-   "status" : 1,
-   "function" : "statfs@SYS",
-   "arguments" : ["/sys/fs/selinux", "0x7fffc142baf0"],
-   "return_value" : "-2",
-   "time_start" : "09:00:22.579686",
-   "time_end" : "09:00:22.579686"
-}
-,{
-   "pid" : 18317,
-   "occurrences" : 1,
-   "style" : "Orig",
-   "status" : 1,
-   "function" : "statfs@SYS",
-   "arguments" : ["/selinux", "0x7fffc142baf0"],
-   "return_value" : "-2",
-   "time_start" : "09:00:22.579893",
-   "time_end" : "09:00:22.579893"
-}
-,{
-   "pid" : 18317,
-   "occurrences" : 1,
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+fstat@SYS+read@SYS+close@SYS)",
@@ -16001,17 +15759,6 @@
    "return_value" : "0",
    "time_start" : "09:00:22.543764",
    "time_end" : "09:00:22.543764"
-}
-,{
-   "pid" : 18316,
-   "occurrences" : 1,
-   "style" : "Orig",
-   "status" : 1,
-   "function" : "uname@SYS",
-   "arguments" : ["0x7ffea10cd590"],
-   "return_value" : "0",
-   "time_start" : "09:00:22.545158",
-   "time_end" : "09:00:22.545158"
 }
 ,{
    "pid" : 18316,

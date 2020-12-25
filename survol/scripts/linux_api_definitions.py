@@ -596,55 +596,21 @@ def init_linux_globals(with_warning):
 
 ################################################################################
 
-# There are displayed once only.
-G_UnknownFunctions = set()
-
-
 def _batchlet_factory(batchCore):
     try:
         # TODO: We will have to take the library into account.
         a_model = G_batchModels[batchCore._function_name]
     except KeyError:
-        # Default generic BatchLet, if the function is not associated to a derived class of BatchLetCore.
-        if not batchCore._function_name in G_UnknownFunctions:
-            sys.stdout.write("Undefined function %s\n" % batchCore._function_name)
-            if batchCore._function_name == "@SYS":
-                # Something is missing
-                sys.stdout.write("EMPTY FUNCTION\n")
+        # This function name is not known. Do not do anything.
+        a_model = None
+        G_batchModels[batchCore._function_name] = None
 
-            # Py_Main
-            # readlink@SYS
-            # getcwd@SYS
-            # statfs@SYS
-            # Py_Main@SYS
-            # _llseek@SYS
-            # madvise@SYS
-            # _exit@SYS
-            # prlimit64@SYS
-            # ******->getenv
-            # setrlimit@SYS
-            # getrusage@SYS
-            # unlink@SYS
-            # umask@SYS
-            # chmod@SYS
-            # uname@SYS
-            # times@SYS
-            # mkdir@SYS
-            # clock_gettime@SYS
-            # sched_getaffinity@SYS
-            # gettid@SYS
-            # pipe2@SYS
-            # getsockopt@SYS
-            # clock_getres@SYS
-            # getresuid@SYS
-            # getresgid@SYS
-
-            G_UnknownFunctions.add(batchCore._function_name)
-        return BatchLetBase(batchCore)
-
-    # Explicitely non-existent.
-    if a_model == None:
+    # Maybe this function is not processed because it does not have any interesting
+    # side effect, such a accessing a file, creating a socket or a process.
+    # TODO: At the end of processing display the list of unknown functions.
+    if a_model is None:
         return None
+
 
     # If this is an unfinished system call, it is not possible to build the correct derived class.
     # Until the pair of unfinished and resumed BatchCore-s are merged, this simply creates a generic base class.
