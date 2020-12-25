@@ -228,21 +228,21 @@ class SourceLocal (SourceCgi):
         strResult = outmachString.GetStringContent()
         return strResult
 
-    # This returns a string.
-    # It runs locally: When using only the local node, no web server is needed.
-    # TODO: Replace __execute_script_with_mode
-    def get_content_moded(self,mode):
+    def get_content_moded(self, mode):
+        """This returns a string. It runs locally: When using only the local node, no web server is needed."""
+
+        # TODO: Replace __execute_script_with_mode
         data_content = self.__execute_script_with_mode(mode)
         assert isinstance(data_content, six.binary_type)
         return data_content
 
-    # This returns a bag of words which describe what this script does.
-    # This is much faster than executing this module. Also, it is probably already
-    # imported so the cost is minimal.
-    # TODO: Add the classes and predicates returns by this script when executed.
-    # TODO: Estimate the cost of calling this script.
-    # TODO: Store it in the object.
     def get_script_bag_of_words(self):
+        """This returns a bag of words which describe what this script does.
+        This is faster than executing this module. Also, it is probably already imported so the cost is minimal."""
+
+        # TODO: Add the classes and predicates returns by this script when executed.
+        # TODO: Estimate the cost of calling this script.
+        # TODO: Store it in the object.
         modu = self.__get_local_module()
         if modu.__doc__:
             return set( [ wrd.strip() for wrd in modu.__doc__.split() ])
@@ -255,15 +255,15 @@ class SourceLocal (SourceCgi):
     # TODO: and then this triplestore is looped on, to extract the instances.
     # TODO: It would be much faster to avoid this useless serialization/deserialization.
     def get_triplestore(self):
-        docXmlRdf = self.get_content_moded("rdf")
-        if not docXmlRdf:
+        doc_xml_rdf = self.get_content_moded("rdf")
+        if not doc_xml_rdf:
             return None
         # If the string is empty, it throws "<unknown>:1:0:"
-        grphKBase = lib_kbase.triplestore_from_rdf_xml(docXmlRdf)
-        return TripleStore(grphKBase)
+        grph_kbase = lib_kbase.triplestore_from_rdf_xml(doc_xml_rdf)
+        return TripleStore(grph_kbase)
 
     @staticmethod
-    def get_object_instances_from_script(script_name,class_name = None,**kwargs_ontology):
+    def get_object_instances_from_script(script_name, class_name=None, **kwargs_ontology):
         my_source = SourceLocal(script_name, class_name, **kwargs_ontology)
         my_triplestore = my_source.get_triplestore()
         list_instances = my_triplestore.get_instances()
@@ -309,7 +309,7 @@ class SourceMerge (SourceBase):
                     triplestore_a = self.m_operatorTripleStore(triplestore_a,triplestore_b)
             return TripleStore(triplestore_a)
 
-    def get_content_moded(self,mode):
+    def get_content_moded(self, mode):
         tripstore = self.get_triplestore()
         if mode == "rdf":
             str_strm = create_string_stream()
@@ -319,7 +319,7 @@ class SourceMerge (SourceBase):
             assert isinstance(str_result, six.binary_type)
             return str_result
 
-        raise Exception("get_content_moded: Cannot yet convert to %s"%mode)
+        raise Exception("get_content_moded: Cannot yet convert to %s" % mode)
 
 
 class SourceMergePlus (SourceMerge):
@@ -330,16 +330,6 @@ class SourceMergePlus (SourceMerge):
 class SourceMergeMinus (SourceMerge):
     def __init__(self, src_a, src_b):
         super(SourceMergeMinus, self).__init__(src_a, src_b, TripleStore.__sub__)
-
-################################################################################
-
-# A bit simpler because it is not needed to explicitely handle the url.
-#def CreateSource(script,className = None,urlRoot = None,**kwargsOntology):
-#    if urlRoot:
-#        return SourceRemote(urlRoot,className,**kwargsOntology)
-#    else:
-#        return SourceLocal(script,className,**kwargsOntology)
-################################################################################
 
 
 # http://LOCALHOST:80
@@ -387,12 +377,11 @@ class BaseCIMClass(object):
     def __str__(self):
         return self.__class__.__name__ + "." + self.m_entity_id
 
-    # This returns the list of Sources (URL or local sources) usable for this entity.
-    # This can be a tree ? Or a flat list ?
-    # Each source can return a triplestore.
-    # This allows the discovery of a machine and its neighbours,
-    # discovery with A* algorithm or any exploration heuristic etc....
     def get_scripts(self):
+        """This returns the list of Sources (URL or local sources) usable for this entity.
+        Each source can return a triplestore.
+        This allows the discovery of a machine and its neighbours,
+        discovery with A* algorithm or any exploration heuristic etc...."""
         if self.m_agent_url:
             return self.__get_scripts_remote()
         else:
@@ -422,9 +411,8 @@ class BaseCIMClass(object):
         list_sources = [script_url_to_source(one_scr) for one_scr in data_json]
         return list_sources
 
-    # This is much faster than using the URL of a local server.
-    # Also: Such a server is not necessary.
     def __get_scripts_local(self):
+        """This is much faster than using the URL of a local server. Also: Such a server is not necessary."""
         list_scripts = []
 
         # This function is called for each script which applies to the given entity.
@@ -456,13 +444,12 @@ class BaseCIMClass(object):
         list_sources = [script_url_to_source(one_scr) for one_scr in list_scripts]
         return list_sources
 
-    # This returns the set of words which describes an instance and allows to compare it to other instances.
     def get_instance_bag_of_words(self):
+        """This returns the set of words which describes an instance and allows to compare it to other instances."""
         # TODO: And the host ?
         bag_of_words = set(self.__class__.__name__)
 
         # This is the minimal set of words.
-        # dict_ids = lib_util.SplitMoniker(self.m_entity_id)
         dict_ids = self.m_key_value_pairs
         for key_id in dict_ids:
             bag_of_words.add(key_id)
@@ -502,7 +489,7 @@ class BaseCIMClass(object):
         def bag_of_words_to_estimated_distance(words_bag_a, words_bag_b):
             set_difference = words_bag_a.symmetric_difference(words_bag_b)
             set_union = words_bag_a.union(words_bag_b)
-            set_dist = len(set_difference)/len(set_union)
+            set_dist = len(set_difference) / len(set_union)
             return set_dist
 
         priority_queue = []
@@ -755,11 +742,11 @@ class TripleStore:
     def __add__(self, other_triple):
         """This merges two triplestores. The package rdflib does exactly that,
         but it is better to isolate from it, just in case another triplestores implementation would be preferable. """
-        return TripleStore(lib_kbase.triplestore_add(self.m_triplestore, other_triple.m_triplestore))
+        return TripleStore(self.m_triplestore + other_triple.m_triplestore)
 
     def __sub__(self, other_triple):
         """This removes our triples which also belong to another set."""
-        return TripleStore(lib_kbase.triplestore_sub(self.m_triplestore, other_triple.m_triplestore))
+        return TripleStore(self.m_triplestore - other_triple.m_triplestore)
 
     def __len__(self):
         return len(self.m_triplestore)
@@ -855,8 +842,8 @@ class TripleStore:
         return lib_kbase.triplestore_matching_strings(self.m_triplestore, search_string)
 
     def get_all_strings_triples(self):
-        for trpSubj,trpPred,trpObj in lib_kbase.triplestore_all_strings(self.m_triplestore):
-            yield lib_util.urllib_unquote(trpObj.value )
+        for trp_subj, trp_pred, trp_obj in lib_kbase.triplestore_all_strings(self.m_triplestore):
+            yield lib_util.urllib_unquote(trp_obj.value)
 
     def filter_objects_with_predicate_class(self, associator_key_name, result_class_name):
         """This returns only the objects of a given class and for a given predicate."""
@@ -905,16 +892,14 @@ class TripleStore:
 
     def copy_to_graph(self, grph):
         """This adds the triples to another triplestore."""
-        # TODO: This could be faster.
 
         # Maybe this is a test mode.
         if not grph:
             WARNING("copy_to_graph Graph is None. Leaving")
             return
 
-        WARNING("copy_to_graph Adding %d triples", len(self.m_triplestore))
-        for the_subject, the_predicate, the_object in self.m_triplestore:
-            grph.add((the_subject, the_predicate, the_object))
+        for the_triple in self.m_triplestore:
+            grph.add(the_triple)
 
 
 ################################################################################

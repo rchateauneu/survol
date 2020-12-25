@@ -176,18 +176,6 @@ def triplestore_from_rdf_xml(doc_xml_rdf):
     return grph
 
 
-# See https://rdflib.readthedocs.io/en/stable/merging.html for how it uses rdflib.
-def triplestore_add(triple_store_a, triple_store_b):
-    grph_result = triple_store_a + triple_store_b
-    return grph_result
-
-
-# See https://rdflib.readthedocs.io/en/stable/apidocs/rdflib.html which does qll the work.
-def triplestore_sub(triple_store_a, triple_store_b):
-    grph_result = triple_store_a - triple_store_b
-    return grph_result
-
-
 ################################################################################
 
 # "ref:CIM_LogicalElement"
