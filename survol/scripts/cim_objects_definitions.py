@@ -130,6 +130,8 @@ standardized_file_path_syntax_only = naming_conventions.standardized_file_path_s
 
 
 def standardize_object_attributes(cim_class_name, cim_arguments):
+    """Some very specific rules to format a file or directrory name:
+    Backslashes are replaced by slashes. Symbolic links are dereferenced."""
     if cim_class_name in ["CIM_DataFile", "CIM_Directory"]:
         path_file = cim_arguments["Name"]
         cim_arguments["Name"] = local_standardized_file_path(path_file)
@@ -221,7 +223,6 @@ class BufferConcatenator:
                 for scanResult in scanner_val:
                     strm.write("%s<%s>%s</%s>\n" % (submargin, scanner_key, scanResult, scanner_key))
                 strm.write("%s</%s>\n" % (margin, scanner_key_set))
-
 
     def append_io_buffer(self, a_fragment, sz_fragment=0):
         """
@@ -472,6 +473,17 @@ def _timestamp_to_str(tim_stamp):
 
 
 class HttpTriplesClientNone(object):
+    """This is the base of the classes which send events somewhere else.
+    Events are about CIM objects (processes, file, sockets, anything detected by strace.
+    These objects are described with an URL using CIM terminology and semantic web concepts.
+    An event is a triple made of such an URL, a property, and a value which can be a literal value
+    or the url of another CIM object.
+    These events can be sent to:
+    - A RDF file for further analysis.
+    - A URL which might for example store these events in a RDF triples store.
+    - Or a callback: This is used to store events in a local RDF triplestore, where they can be read
+      by another process.
+    """
     def http_client_shutdown(self):
         pass
 
@@ -573,9 +585,9 @@ class HttpTriplesClientHttp(HttpTriplesClientNone):
             if received_triples_number != len(self._events_graph):
                 raise Exception("Lost triples: %d != %d\n" % (received_triples_number, sent_triples_number))
 
-    # This thread functor loops on the container of triples.
-    # It formats them in JSON and sends them to the URL of the events server.
     def run(self):
+        """This thread functor loops on the container of triples.
+        It formats them in JSON and sends them to the URL of the events server."""
         assert self._is_threaded_client
         while True:
             time.sleep(2.0)
@@ -595,7 +607,6 @@ class HttpTriplesClientDaemon(HttpTriplesClientNone):
     These events are inserted in a global RDF graph which can be access by CGI scripts,
     started on-demand by users. There is no need to store these events. """
     def enqueue_rdf_triple(self, rdf_triple):
-        # TODO: Get rid of JSON triple format, and rather handle only RDF nodes and triples.
         G_UpdateServer(rdf_triple)
 
 
@@ -607,7 +618,7 @@ def http_triples_client_factory():
             return HttpTriplesClientDaemon()
         else:
             update_server_lower = G_UpdateServer.lower()
-            server_is_http = update_server_lower.startswith("http:") or update_server_lower.startswith("https:")
+            server_is_http = update_server_lower.startswith(("http:", "https:"))
             if server_is_http:
                 return HttpTriplesClientHttp()
             else:
@@ -667,6 +678,7 @@ class CIM_XmlMarshaller(object):
     def plain_to_XML(self, strm, sub_margin):
         try:
             # Optional members order.
+            # TODO: Why is it needed ?
             attr_extra = self.__class__.m_attributes_priorities
         except AttributeError:
             attr_extra = []
