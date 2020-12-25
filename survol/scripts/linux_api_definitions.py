@@ -478,9 +478,10 @@ G_ignoredSyscalls = [
 G_batchModels = {sysCll + "@SYS": None for sysCll in G_ignoredSyscalls}
 
 
-# This metaclass allows derived class of BatchLetBase to self-register their function name.
-# So, the name of a system call is used to lookup the class which represents it.
 class BatchMeta(type):
+    """This metaclass allows derived class of BatchLetBase to self-register their function name.
+    So, the name of a system call is used to lookup the class which represents it."""
+
     # This registers function names using the name of the derived class which is properly truncated.
     # TODO: It would be cleaner to add members in the class cls, instead of using the class name
     # to characterize the function.
@@ -509,14 +510,14 @@ class BatchMeta(type):
         super(BatchMeta, cls).__init__(name, bases, dct)
 
 
-# This is portable on Python 2 and Python 3.
-# No need to import the modules six or future.utils
 def my_with_metaclass(meta, *bases):
+    """This is portable on Python 2 and Python 3.
+    No need to import the modules six or future.utils"""
     return meta("NewBase", bases, {})
 
 
-# All class modeling a system call inherit from this.
 class BatchLetBase(my_with_metaclass(BatchMeta)):
+    """All class modeling a system call inherit from this."""
 
     # The style tells if this is a native call or an aggregate of function
     # calls, made with some style: Factorization etc...
@@ -1626,20 +1627,19 @@ class BatchLetSys_shutdown(BatchLetBase, object):
         self.m_significantArgs = self.get_stream_name()
 
 
-#####
-
-# This is detected by ltrace.
-# There can be several types of instantiations:
-# libaugeas.so.0->getenv("HOME")            = "/home/rchateau"
-# libaugeas.so.0->getenv("XDG_CACHE_HOME")  = nil
-# libclntsh.so.11.1->getenv("HOME")         = "/home/rchateau"
-# libclntsh.so.11.1->getenv("ORACLE_HOME")  = "/u01/app/oracle/product/11.2.0/xe"
-# libpython2.7.so.1.0->getenv("PYTHONHOME") = nil
-#
-# This assumes that all shared libraries instianting a function with this same
-# are actually doing the same thing. This might be wrong.
 class BatchLetLib_getenv(BatchLetBase, object):
+    """
+    This is detected by ltrace.
+    There can be several types of instantiations:
+    libaugeas.so.0->getenv("HOME")            = "/home/rchateau"
+    libaugeas.so.0->getenv("XDG_CACHE_HOME")  = nil
+    libclntsh.so.11.1->getenv("HOME")         = "/home/rchateau"
+    libclntsh.so.11.1->getenv("ORACLE_HOME")  = "/u01/app/oracle/product/11.2.0/xe"
+    libpython2.7.so.1.0->getenv("PYTHONHOME") = nil
 
+    This assumes that all shared libraries instianting a function with this same
+    are actually doing the same thing. This might be wrong.
+    """
     def __init__(self, batchCore):
         # We could also take the environment variables of each process but
         # It does not tell which ones are actually useful.
