@@ -798,6 +798,7 @@ def WmiKeyValues(conn_wmi, obj_wmi, display_none_values, class_name):
                 yield prp_prop, lib_util.NodeLiteral(str(exc))
 
 
+# TODO: DEPRECATED CLASS
 class WmiSparqlCallbackApi:
     def __init__(self):
         # Current host and default namespace.
