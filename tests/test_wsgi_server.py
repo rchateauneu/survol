@@ -14,26 +14,24 @@ update_test_path()
 
 # TODO: This should be a parameter.
 # It points to the Survol adhoc WSGI server: "http://rchateau-hp:9000"
-RemoteWsgiTestPort = 9000
-RemoteWsgiTestAgent = "http://%s:%d" % (CurrentMachine, RemoteWsgiTestPort)
+_remote_wsgi_test_port = 9000
+_remote_wsgi_test_agent = "http://%s:%d" % (CurrentMachine, _remote_wsgi_test_port)
 
 # If the Survol agent does not exist, this script starts a local one.
-RemoteWsgiAgentProcess = None
+_remote_wsgi_agent_process = None
 
 
 def setUpModule():
-    global RemoteWsgiAgentProcess
-    RemoteWsgiAgentProcess = start_wsgiserver(RemoteWsgiTestAgent, RemoteWsgiTestPort)
+    global _remote_wsgi_agent_process
+    _remote_wsgi_agent_process = start_wsgiserver(_remote_wsgi_test_agent, _remote_wsgi_test_port)
 
 
 def tearDownModule():
-    global RemoteWsgiAgentProcess
-    stop_wsgiserver(RemoteWsgiAgentProcess)
+    global _remote_wsgi_agent_process
+    stop_wsgiserver(_remote_wsgi_agent_process)
 
 
 import lib_client
-
-ClientObjectInstancesFromScript = lib_client.SourceLocal.get_object_instances_from_script
 
 # Otherwise, Python callstack would be displayed in HTML.
 cgitb.enable(format="txt")
@@ -52,18 +50,17 @@ class WsgiLocalTest(unittest.TestCase):
 
 class WsgiRemoteTest(unittest.TestCase):
     """Test involving remote Survol agents: The scripts executes scripts on remote machines
-    and examines the result. It might merge the output with local scripts or
-    scripts on different machines."""
+    and examines the result. It might merge the output with local scripts or scripts on different machines."""
 
     def test_wsgi_file_stat_json(self):
-        # http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
-        mySourceFileStatRemote = lib_client.SourceRemote(
-            RemoteWsgiTestAgent + "/survol/sources_types/CIM_DataFile/file_stat.py",
+        # http://the_host:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
+        my_source_file_stat_remote = lib_client.SourceRemote(
+            _remote_wsgi_test_agent + "/survol/sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
             Name=always_present_file)
-        print("URL=", mySourceFileStatRemote.Url())
-        print("Query=", mySourceFileStatRemote.create_url_query())
-        json_content = mySourceFileStatRemote.content_json()
+        print("URL=", my_source_file_stat_remote.Url())
+        print("Query=", my_source_file_stat_remote.create_url_query())
+        json_content = my_source_file_stat_remote.content_json()
 
         dir_file_always_there = os.path.basename(always_present_dir)
         base_file_always_there = os.path.basename(always_present_file)
@@ -80,12 +77,14 @@ class WsgiRemoteTest(unittest.TestCase):
         json_nodes = json_content['nodes']
         for one_node in json_nodes:
             print("test_wsgi_file_stat_json one_node=",one_node)
+            node_entity_class = one_node['entity_class']
+            node_name = one_node['name']
             if not found_file:
                 # {u'entity_class': u'CIM_DataFile', u'name': u'explorer.exe' }
-                found_file = one_node['entity_class'] == 'CIM_DataFile' and one_node['name'] == base_file_always_there
+                found_file = node_entity_class == 'CIM_DataFile' and node_name == base_file_always_there
             if not found_dir:
                 # {u'entity_class': u'CIM_Directory', u'name': u'Windows/'}
-                found_dir = one_node['entity_class'] == 'CIM_Directory' and one_node['name'] == dir_file_always_there + "/"
+                found_dir = node_entity_class == 'CIM_Directory' and node_name == dir_file_always_there + "/"
 
         self.assertTrue(found_file, "Could not find file:" + always_present_file)
         self.assertTrue(found_dir, "Could not find directory:" + dir_file_always_there)
@@ -109,7 +108,7 @@ class WsgiRemoteTest(unittest.TestCase):
     def test_wsgi_file_stat_rdf(self):
         # http://rchateau-hp:8000/survol/sources_types/CIM_DataFile/file_stat.py?xid=CIM_DataFile.Name%3DC%3A%2FWindows%2Fexplorer.exe
         my_source_file_stat_remote = lib_client.SourceRemote(
-            RemoteWsgiTestAgent + "/survol/sources_types/CIM_DataFile/file_stat.py",
+            _remote_wsgi_test_agent + "/survol/sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
             Name=always_present_file)
 
@@ -140,7 +139,7 @@ class WsgiRemoteTest(unittest.TestCase):
 
     def test_wsgi_file_directory(self):
         my_source_file_stat_remote = lib_client.SourceRemote(
-            RemoteWsgiTestAgent + "/survol/sources_types/CIM_Directory/file_directory.py",
+            _remote_wsgi_test_agent + "/survol/sources_types/CIM_Directory/file_directory.py",
             "CIM_Directory",
             Name=always_present_dir)
         triple_file_stat_remote = my_source_file_stat_remote.get_triplestore()
@@ -153,7 +152,7 @@ class WsgiRemoteTest(unittest.TestCase):
 class WsgiLinuxRemoteTest(unittest.TestCase):
     def test_etc_group(self):
         my_source_file_stat_remote = lib_client.SourceRemote(
-            RemoteWsgiTestAgent + "/survol/sources_types/Linux/etc_group.py")
+            _remote_wsgi_test_agent + "/survol/sources_types/Linux/etc_group.py")
         triple_file_stat_remote = my_source_file_stat_remote.get_triplestore()
         print("Len triple_file_stat_remote=", len(triple_file_stat_remote))
         # This should not be empty.
@@ -161,23 +160,23 @@ class WsgiLinuxRemoteTest(unittest.TestCase):
 
     def test_enumerate_user(self):
         my_source_file_stat_remote = lib_client.SourceRemote(
-            RemoteWsgiTestAgent + "/survol/sources_types/Linux/enumerate_user.py")
+            _remote_wsgi_test_agent + "/survol/sources_types/Linux/enumerate_user.py")
         triple_file_stat_remote = my_source_file_stat_remote.get_triplestore()
         print("Len triple_file_stat_remote=", len(triple_file_stat_remote))
         # This should not be empty.
-        self.assertTrue(len(triple_file_stat_remote)>=1)
+        self.assertTrue(len(triple_file_stat_remote) >= 1)
 
     def test_etc_mtab(self):
         my_source_file_stat_remote = lib_client.SourceRemote(
-            RemoteWsgiTestAgent + "/survol/sources_types/Linux/etc_mtab.py")
+            _remote_wsgi_test_agent + "/survol/sources_types/Linux/etc_mtab.py")
         triple_file_stat_remote = my_source_file_stat_remote.get_triplestore()
         print("Len triple_file_stat_remote=", len(triple_file_stat_remote))
         # This should not be empty.
-        self.assertTrue(len(triple_file_stat_remote)>=1)
+        self.assertTrue(len(triple_file_stat_remote) >= 1)
 
     def test_etc_passwd(self):
         my_source_file_stat_remote = lib_client.SourceRemote(
-            RemoteWsgiTestAgent + "/survol/sources_types/Linux/etc_passwd.py")
+            _remote_wsgi_test_agent + "/survol/sources_types/Linux/etc_passwd.py")
         triple_file_stat_remote = my_source_file_stat_remote.get_triplestore()
         print("Len triple_file_stat_remote=", len(triple_file_stat_remote))
         # This should not be empty.
@@ -186,15 +185,15 @@ class WsgiLinuxRemoteTest(unittest.TestCase):
     @unittest.skipIf(not pkgutil.find_loader('rpm'), "test_rpm_packages needs rpm package.")
     def test_rpm_packages(self):
         my_source_file_stat_remote = lib_client.SourceRemote(
-            RemoteWsgiTestAgent + "/survol/sources_types/Linux/installed_rpm_packages.py")
+            _remote_wsgi_test_agent + "/survol/sources_types/Linux/installed_rpm_packages.py")
         triple_file_stat_remote = my_source_file_stat_remote.get_triplestore()
         print("Len triple_file_stat_remote=", len(triple_file_stat_remote))
         # This should not be empty.
-        self.assertTrue(len(triple_file_stat_remote)>=1)
+        self.assertTrue(len(triple_file_stat_remote) >= 1)
 
     def test_modules_dependencies(self):
         my_source_file_stat_remote = lib_client.SourceRemote(
-            RemoteWsgiTestAgent + "/survol/sources_types/Linux/modules_dependencies.py")
+            _remote_wsgi_test_agent + "/survol/sources_types/Linux/modules_dependencies.py")
         triple_file_stat_remote = my_source_file_stat_remote.get_triplestore()
         print("Len triple_file_stat_remote=", len(triple_file_stat_remote))
         # This should not be empty.
@@ -202,27 +201,27 @@ class WsgiLinuxRemoteTest(unittest.TestCase):
 
     def test_proc_cgroup(self):
         my_source_file_stat_remote = lib_client.SourceRemote(
-            RemoteWsgiTestAgent + "/survol/sources_types/Linux/proc_cgroup.py")
+            _remote_wsgi_test_agent + "/survol/sources_types/Linux/proc_cgroup.py")
         triple_file_stat_remote = my_source_file_stat_remote.get_triplestore()
         print("Len triple_file_stat_remote=", len(triple_file_stat_remote))
         # This should not be empty.
-        self.assertTrue(len(triple_file_stat_remote)>=1)
+        self.assertTrue(len(triple_file_stat_remote) >= 1)
 
     def test_tcp_sockets(self):
         my_source_file_stat_remote = lib_client.SourceRemote(
-            RemoteWsgiTestAgent + "/survol/sources_types/Linux/tcp_sockets.py")
+            _remote_wsgi_test_agent + "/survol/sources_types/Linux/tcp_sockets.py")
         triple_file_stat_remote = my_source_file_stat_remote.get_triplestore()
         print("Len triple_file_stat_remote=", len(triple_file_stat_remote))
         # This should not be empty.
-        self.assertTrue(len(triple_file_stat_remote)>=1)
+        self.assertTrue(len(triple_file_stat_remote) >= 1)
 
     def test_unix_domain_sockets(self):
         my_source_file_stat_remote = lib_client.SourceRemote(
-            RemoteWsgiTestAgent + "/survol/sources_types/Linux/unix_domain_sockets.py")
+            _remote_wsgi_test_agent + "/survol/sources_types/Linux/unix_domain_sockets.py")
         triple_file_stat_remote = my_source_file_stat_remote.get_triplestore()
         print("Len triple_file_stat_remote=", len(triple_file_stat_remote))
         # This should not be empty.
-        self.assertTrue(len(triple_file_stat_remote)>=1)
+        self.assertTrue(len(triple_file_stat_remote) >= 1)
 
 
 if __name__ == '__main__':
