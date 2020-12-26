@@ -19,84 +19,84 @@ import entity_dirmenu_only
 
 ################################################################################
 
-# A SourceBase is a Survol URL or a script which returns a graph of urls
-# of CIM objects, linked by properties. This graph can be formatted in XML-RDF,
-# in JSON, in SVG, D3 etc...
-# This URL or this script has no arguments, or, it comes with a CIM class name
-# and the key-value pairs describing an unique CIM object.
+
 class SourceBase (object):
+    """
+    A SourceBase is a Survol URL or a script which returns a graph of urls
+    of CIM objects, linked by properties. This graph can be formatted in XML-RDF,
+    in JSON, in SVG, D3 etc...
+    This URL or this script has no arguments, or, it comes with a CIM class name
+    and the key-value pairs describing an unique CIM object.
+    """
     def __init__(self):
         self.m_current_triplestore = None
 
-    # This returns the merge of the two urls.
-    # Easy of two urls. What of one script and one url ?
-    # TODO: Modify merge_scripts.py so it can handle urls and scripts.
-    #
-    def __add__(self, otherSource):
-        return SourceMergePlus(self,otherSource)
+    def __add__(self, other_source):
+        """This returns the merge of the two urls.
+        Easy of two urls. What of one script and one url ?"""
+        #
+        # TODO: Modify merge_scripts.py so it can handle urls and scripts.
+        return SourceMergePlus(self, other_source)
 
-    def __sub__(self, otherSource):
-        return SourceMergeMinus(self,otherSource)
+    def __sub__(self, other_source):
+        return SourceMergeMinus(self, other_source)
 
-    # So it can be used with rdflib and its Sparql component.
     def content_rdf(self):
+        """So it can be used with rdflib and its Sparql component."""
         return self.get_content_moded("rdf")
 
-    # This returns a Json object.
     def content_json(self):
-        strJson = self.get_content_moded("json")
-        url_content = json.loads(strJson)
+        """This returns a Json object."""
+        str_json = self.get_content_moded("json")
+        url_content = json.loads(str_json)
         return url_content
 
-    # In the general case, it gets the content in RDF format and converts it
-    # again to a triplestore. This always works if this is a remote host.
     def get_triplestore(self):
-        docXmlRdf = self.get_content_moded("rdf")
+        """In the general case, it gets the content in RDF format and converts it
+        again to a triplestore. This always works if this is a remote host."""
+        doc_xml_rdf = self.get_content_moded("rdf")
 
-        grphKBase = lib_kbase.triplestore_from_rdf_xml(docXmlRdf)
-        return TripleStore(grphKBase)
+        grph_k_base = lib_kbase.triplestore_from_rdf_xml(doc_xml_rdf)
+        return TripleStore(grph_k_base)
 
-    # This is a hack when mapping Sparql to Survol.
-    # This helps avoiding scripts which are very slow and not usable in a loop.
     def is_very_slow(self):
+        """This is a hack when mapping Sparql to Survol.
+        This helps avoiding scripts which are very slow and not usable in a loop."""
         return False
 
-    # If it does not have the necessary CGI args,
-    # then loop on the existing objects of this class.
-    # It is always True for merged sources,
-    # because they do not have CGI arguments.
     def is_cgi_complete(self):
+        """If it does not have the necessary CGI args, then loop on the existing objects of this class.
+        It is always True for merged sources, because they do not have CGI arguments."""
         return True
 
 
-################################################################################
-# If it has a class, then it has CGI arguments.
 class SourceCgi(SourceBase):
-    def __init__(self,className = None,**kwargs):
-        self.m_className = className
+    """If it has a class, then it has CGI arguments."""
+    def __init__(self, class_name=None, **kwargs):
+        self.m_className = class_name
         self.m_kwargs = kwargs
         super(SourceCgi, self).__init__()
 
     def create_url_query(self, mode=None):
         # v might be an integer, a double, a string.
-        suffix = ",".join( [ "%s=%s" % (k,lib_util.urllib_quote(str(v))) for k,v in self.m_kwargs.items() ])
+        suffix = ",".join(["%s=%s" % (k, lib_util.urllib_quote(str(v))) for k,v in self.m_kwargs.items()])
         if self.m_className:
-            restQry = self.m_className + "." + suffix
+            rest_qry = self.m_className + "." + suffix
         else:
-            restQry = suffix
-        quotedRest = restQry
+            rest_qry = suffix
+        quoted_rest = rest_qry
 
         # TODO: See lib_util.xidCgiDelimiter = "?xid="
-        qryArgs = "xid=" + quotedRest
+        qry_args = "xid=" + quoted_rest
         if mode:
-            qryArgs += "&mode=" + mode
+            qry_args += "&mode=" + mode
 
-        return qryArgs
+        return qry_args
 
-    def create_url_query_with_question_mark(self,mode=None):
-        urlQry = self.create_url_query(mode)
-        if urlQry:
-            return "?" + urlQry
+    def create_url_query_with_question_mark(self, mode=None):
+        url_qry = self.create_url_query(mode)
+        if url_qry:
+            return "?" + url_qry
         else:
             return ""
 
@@ -124,9 +124,9 @@ def _load_moded_urls(url_moded):
 # Server("127.0.0.1:8000").CIM_Process(Handle=1234) and Server("192.168.0.1:8000").CIM_Datafile(Name='/tmp/toto.txt')
 #
 class SourceRemote (SourceCgi):
-    def __init__(self,anUrl,className = None,**kwargsOntology):
-        self.m_url = anUrl
-        super(SourceRemote, self).__init__(className,**kwargsOntology)
+    def __init__(self, an_url, class_name=None, **kwargs_ontology):
+        self.m_url = an_url
+        super(SourceRemote, self).__init__(class_name, **kwargs_ontology)
 
     def __str__(self):
         return "URL=" + self.Url()
@@ -134,10 +134,10 @@ class SourceRemote (SourceCgi):
     def Url(self):
         return self.m_url + self.create_url_query_with_question_mark()
 
-    def __url_with_mode(self,mode):
+    def __url_with_mode(self, mode):
         return self.m_url + self.create_url_query_with_question_mark(mode)
 
-    def get_content_moded(self,mode):
+    def get_content_moded(self, mode):
         the_url = self.__url_with_mode(mode)
         data = _load_moded_urls(the_url)
         assert isinstance(data, six.binary_type)
@@ -150,31 +150,29 @@ def create_string_stream():
 
 
 class SourceLocal (SourceCgi):
-    def __init__(self,aScript,className = None,**kwargsOntology):
-        self.m_script = aScript
-        super(SourceLocal, self).__init__(className,**kwargsOntology)
+    def __init__(self, a_script, class_name=None, **kwargs_ontology):
+        self.m_script = a_script
+        super(SourceLocal, self).__init__(class_name, **kwargs_ontology)
 
     def __str__(self):
         return self.m_script + self.create_url_query_with_question_mark()
 
     def __get_local_module(self):
-        # Sets an environment variable then imports the script and execute it.
-        # TODO: "?" or "&"
+        """Sets an environment variable then imports the script and execute it."""
 
-        urlDirNam = os.path.dirname(self.m_script)
+        url_dir_nam = os.path.dirname(self.m_script)
 
         # The directory of the script is used to build a Python module name.
-        moduNam = urlDirNam.replace("/",".")
+        modu_nam = url_dir_nam.replace("/", ".")
 
-        urlFilNam = os.path.basename(self.m_script)
+        url_fil_nam = os.path.basename(self.m_script)
 
-        return lib_util.GetScriptModule(moduNam, urlFilNam)
+        return lib_util.GetScriptModule(modu_nam, url_fil_nam)
 
-    def __execute_script_with_mode(self,mode):
+    def __execute_script_with_mode(self, mode):
         """This executes the script and return the data in the right format."""
 
         # Sets an environment variable then imports the script and execute it.
-        # TODO: "?" or "&"
         modu = self.__get_local_module()
 
         # SCRIPT_NAME=/survol/print_environment_variables.py
@@ -188,7 +186,7 @@ class SourceLocal (SourceCgi):
                 self.m_output = create_string_stream()
 
             # Do not write the header: This just wants the content.
-            def HeaderWriter(self,mimeType,extraArgs= None):
+            def HeaderWriter(self, mime_type, extra_args= None):
                 pass
 
             # The output will be available in a string.
@@ -196,15 +194,15 @@ class SourceLocal (SourceCgi):
                 return self.m_output
 
             def GetStringContent(self):
-                strResult = self.m_output.getvalue()
+                str_result = self.m_output.getvalue()
                 self.m_output.close()
-                return strResult
+                return str_result
 
         DEBUG("__execute_script_with_mode before calling module=%s",modu.__name__)
-        outmachString = OutputMachineString()
-        originalOutMach = lib_util.globalOutMach
+        outmach_string = OutputMachineString()
+        original_out_mach = lib_util.globalOutMach
 
-        lib_util.SetGlobalOutMach(outmachString)
+        lib_util.SetGlobalOutMach(outmach_string)
 
         # If there is an error, it will not exit but send a nice exception/
         lib_common.enable_error_message(False)
@@ -213,20 +211,20 @@ class SourceLocal (SourceCgi):
             modu.Main()
         except Exception as ex:
             # https://www.stefaanlippens.net/python-traceback-in-catch/
-            ERROR("__execute_script_with_mode with module=%s: Caught:%s",modu.__name__,ex, exc_info=True)
+            ERROR("__execute_script_with_mode with module=%s: Caught:%s", modu.__name__, ex, exc_info=True)
             lib_common.enable_error_message(True)
 
             # Restores the original stream.
-            lib_util.globalOutMach = originalOutMach
+            lib_util.globalOutMach = original_out_mach
             raise
 
         lib_common.enable_error_message(True)
 
         # Restores the original stream.
-        lib_util.globalOutMach = originalOutMach
+        lib_util.globalOutMach = original_out_mach
 
-        strResult = outmachString.GetStringContent()
-        return strResult
+        str_result = outmach_string.GetStringContent()
+        return str_result
 
     def get_content_moded(self, mode):
         """This returns a string. It runs locally: When using only the local node, no web server is needed."""
@@ -245,7 +243,7 @@ class SourceLocal (SourceCgi):
         # TODO: Store it in the object.
         modu = self.__get_local_module()
         if modu.__doc__:
-            return set( [ wrd.strip() for wrd in modu.__doc__.split() ])
+            return set([wrd.strip() for wrd in modu.__doc__.split()])
         else:
             # There is not much information we can return: Just the module name.
             return set(modu.__name__)
@@ -473,7 +471,6 @@ class BaseCIMClass(object):
         - Does an object X depends on and object Y: If an executable binary depends
           on a configuration file ?
         Searching for an instance is very similar as long as it has a bag of words.
-
         """
 
         # Heuristics and specialization per class.
@@ -525,7 +522,7 @@ class BaseCIMClass(object):
                     str(self.m_url_script), self.m_estimation_to_target, self.m_current_depth)
 
         if filter_instances and self in filter_instances:
-            INFO("Avoiding instance:%s",self)
+            INFO("Avoiding instance:%s", self)
             return
 
         # It does this by maintaining a tree of paths originating at the start node and extending
@@ -730,13 +727,8 @@ class TripleStore:
     # In this context, this is a rdflib graph.
     def __init__(self, grph_k_base=None):
         self.m_triplestore = grph_k_base
-        if grph_k_base:
-            DEBUG("TripleStore.__init__ len(grphKBase)=%d", len(grph_k_base))
-        else:
-            DEBUG("TripleStore.__init__ empty")
 
     def to_stream_xml(self, str_stream):
-        DEBUG("TripleStore.to_stream_xml")
         lib_kbase.triplestore_to_stream_xml(self.m_triplestore, str_stream, 'xml')
 
     def __add__(self, other_triple):
@@ -751,7 +743,7 @@ class TripleStore:
     def __len__(self):
         return len(self.m_triplestore)
 
-    def is_survol_url(self, an_url):
+    def _is_survol_url(self, an_url):
         """This keeps only Survol instances and scripts urls.
         For example, 'http://localhost:12345/#/vhosts/' is a RabbitMQ HTTP url."""
 
@@ -772,7 +764,7 @@ class TripleStore:
     def enumerate_urls(self):
         urls_dict = lib_kbase.unique_urls_dict(self.m_triplestore)
         for instance_url, key_value_list in urls_dict.items():
-            if self.is_survol_url(instance_url):
+            if self._is_survol_url(instance_url):
                 yield instance_url
 
     def get_instances(self):
@@ -785,7 +777,7 @@ class TripleStore:
 
         instances_list = []
         for instance_url, urls_key_value_dict in urls_dict.items():
-            if self.is_survol_url(instance_url):
+            if self._is_survol_url(instance_url):
                 new_instance = url_to_instance(instance_url)
                 if new_instance:
                     new_instance.graph_attributes = urls_key_value_dict
@@ -794,7 +786,7 @@ class TripleStore:
 
     def get_connected_instances(self, start_instance, filter_predicates):
         """This returns the set of all nodes connected directly or indirectly to the input."""
-        set_filter_predicates = {pc.property_script,pc.property_rdf_data_nolist2}
+        set_filter_predicates = {pc.property_script, pc.property_rdf_data_nolist2}
         if filter_predicates:
             set_filter_predicates.update(filter_predicates)
 
@@ -820,7 +812,6 @@ class TripleStore:
             """This recursively merges all nodes connected to this one."""
 
             if not one_instance in instances_adjacency_list:
-                #DEBUG("Already deleted oneInst=%s",oneInst)
                 return
 
             assert one_instance in instances_adjacency_list, "oneInst not there:%s" % one_instance
@@ -950,8 +941,8 @@ class Agent:
                 self.m_agent_url = agent_url
 
             def __call__(self, *argsCall, **kwargsCall):
-                newInstance = create_CIM_class(self.m_agent_url, self.m_name, **kwargsCall)
-                return newInstance
+                new_instance = create_CIM_class(self.m_agent_url, self.m_name, **kwargsCall)
+                return new_instance
 
             def __getattr__(self, attribute_name):
                 return CallDispatcher(self, self.m_agent_url, self.m_name + "/" + attribute_name)
