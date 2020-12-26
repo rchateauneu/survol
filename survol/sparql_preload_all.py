@@ -7,6 +7,8 @@ It extracts data from Survol, WMI or WBEM, then runs a Sparql query on the curre
 This triplestore can also be updated by events.
 """
 
+# TODO: DEPRECATED.
+
 import os
 import sys
 import logging
