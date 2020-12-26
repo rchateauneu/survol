@@ -1390,12 +1390,15 @@ class EventsServerTest(unittest.TestCase):
     def tearDown(self):
         stop_cgiserver(self._remote_events_test_agent)
 
-    def _check_read_triples(self, num_loops, expected_types_list):
+    def _check_read_triples(self, expected_types_list):
         """This reads all available events and do a simplified comparison of the results,
         by checking the number of instances of each class.
         Because the events are fed by another process running dockit, the reading is done
         in a number of loops, until all events are read.
         """
+
+        num_loops = 4
+
         url_events = _remote_events_test_agent + "/survol/sources_types/event_get_all.py?mode=rdf"
 
         total_events_graph = rdflib.Graph()
@@ -1468,7 +1471,7 @@ class EventsServerTest(unittest.TestCase):
         }
 
         # Now read and test the events.
-        self._check_read_triples(5, expected_types_list)
+        self._check_read_triples(expected_types_list)
 
     def test_file_events_shell(self):
         """This reruns the execution of a shell.
@@ -1495,7 +1498,7 @@ class EventsServerTest(unittest.TestCase):
         }
 
         # Now read and test the events.
-        self._check_read_triples(5, expected_types_list)
+        self._check_read_triples(expected_types_list)
 
     def test_file_events_proftpd(self):
         """This reruns a dockit tracing of the execution of a FTP command."""
@@ -1522,7 +1525,7 @@ class EventsServerTest(unittest.TestCase):
         }
 
         # Now read and test the events.
-        self._check_read_triples(5, expected_types_list)
+        self._check_read_triples(expected_types_list)
 
     def test_file_events_firefox(self):
         """This replays the startup of a firefox process."""
@@ -1553,7 +1556,7 @@ class EventsServerTest(unittest.TestCase):
         }
 
         # Now read and test the events.
-        self._check_read_triples(5, expected_types_list)
+        self._check_read_triples(expected_types_list)
 
 
 class MakefileTest(unittest.TestCase):
