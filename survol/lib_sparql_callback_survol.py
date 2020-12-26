@@ -5,9 +5,10 @@ import lib_kbase
 import lib_client
 import lib_properties
 
+# TODO: DEPRECATED FILE.
+
 ##################################################################################
 # This is the implementation of the callback object for the Survol ontology.
-# This callback interface
 # It is less generic than WBEM and WMI because it cannot implement
 # select queries and associators in the general case.
 # However, it is much faster.
@@ -95,7 +96,7 @@ class SurvolSparqlCallbackApi:
                 # Add it again, so the original Sparql query will work.
                 one_key_value_dict_nodes[lib_kbase.PredicateSeeAlso] = lib_util.NodeLiteral(predicate_prefix)
 
-                yield ( object_path, one_key_value_dict_nodes )
+                yield object_path, one_key_value_dict_nodes
 
 
     # Typical input:
