@@ -41,17 +41,10 @@ def tearDownModule():
 
 _is_verbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 
-# This deletes the module so we can reload them each time.
-# Problem: survol modules are not detectable.
-# We could as well delete all modules except sys.
-## allModules = [modu for modu in sys.modules if modu.startswith(("survol","lib_"))]
-
-ClientObjectInstancesFromScript = lib_client.SourceLocal.get_object_instances_from_script
+_client_object_instances_from_script = lib_client.SourceLocal.get_object_instances_from_script
 
 # Otherwise, Python callstack would be displayed in HTML.
 cgitb.enable(format="txt")
-
-# TODO: Prefix of url samples should be a parameter.
 
 
 class SurvolLocalTest(unittest.TestCase):
@@ -677,16 +670,16 @@ class SurvolLocalTest(unittest.TestCase):
         """List detectable users. Security might hide some of them"""
 
         # http://rchateau-hp:8000/survol/sources_types/enumerate_user.py?xid=.
-        mySourceUsers = lib_client.SourceLocal(
+        my_source_users = lib_client.SourceLocal(
             "sources_types/enumerate_user.py")
 
-        tripleUsers = mySourceUsers.get_triplestore()
-        instancesUsers = tripleUsers.get_instances()
-        strInstancesSet = set([str(oneInst) for oneInst in instancesUsers ])
+        triple_users = my_source_users.get_triplestore()
+        instances_users = triple_users.get_instances()
+        str_instances_set = set([str(one_inst) for one_inst in instances_users])
 
         # At least the current user must be found.
-        for oneStr in [ CurrentUserPath ]:
-            self.assertTrue(oneStr in strInstancesSet)
+        for one_str in [CurrentUserPath]:
+            self.assertTrue(one_str in str_instances_set)
 
     def test_enumerate_CIM_Process(self):
         """List detectable processes."""
@@ -1272,7 +1265,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
     def test_win32_services(self):
         """List of Win32 services"""
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/win32/enumerate_Win32_Service.py")
 
         str_instances_set = set([str(oneInst) for oneInst in lst_instances ])
@@ -1286,7 +1279,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
     def test_wmi_process_info(self):
         """WMI information about current process"""
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/CIM_Process/wmi_process_info.py",
             "CIM_Process",
             Handle=CurrentPid)
@@ -1303,7 +1296,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
     def test_win_process_modules(self):
         """Windows process modules"""
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/CIM_Process/win_process_modules.py",
             "CIM_Process",
             Handle=CurrentPid)
@@ -1348,20 +1341,51 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         self.assertTrue(not 'CIM_DataFile.Name=' in str_instances_set)
 
     def test_win32_products(self):
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/win32/enumerate_Win32_Product.py")
 
-        str_instances_lst = [str(oneInst) for oneInst in lst_instances ]
+        str_instances_lst = [str(one_inst) for one_inst in lst_instances]
         products_count = 0
         for one_instance in str_instances_lst:
             # Ex: 'Win32_Product.IdentifyingNumber={1AC6CC3D-7724-4D84-9270-798A2191AB1C}'
+            # IdentifyingNumber is the unique key of Win32_Product.
             if one_instance.startswith('Win32_Product.IdentifyingNumber='):
                 products_count += 1
 
-        print("lst_instances=",str_instances_lst[:3])
+        print("Some products: lst_instances=",str_instances_lst[:3])
 
         # Certainly, there a more that five products or any other small number.
         self.assertTrue(products_count > 5)
+
+    def test_win32_one_product(self):
+        """This test display information about the forst available product"""
+        lst_instances = _client_object_instances_from_script(
+            "sources_types/win32/enumerate_Win32_Product.py")
+
+        first_product_instance = None
+        for one_instance in lst_instances:
+            # Ex: 'Win32_Product.IdentifyingNumber={1AC6CC3D-7724-4D84-9270-798A2191AB1C}'
+            try:
+                one_instance.IdentifyingNumber
+                first_product_instance = one_instance
+                break
+            except AttributeError:
+                continue
+        self.assertTrue(first_product_instance is not None)
+
+        print("first_product_instance.IdentifyingNumber=", first_product_instance.IdentifyingNumber)
+
+        my_source = lib_client.SourceLocal(
+            "entity.py",
+            "Win32_Product",
+            IdentifyingNumber=first_product_instance.IdentifyingNumber)
+        the_triplestore = my_source.get_triplestore()
+        the_instances = the_triplestore.get_instances()
+        # Try to read the instance used as parameter of the script.
+        for loop_instance in the_instances:
+            if loop_instance.__class__ == "Win32_Product":
+                self.assertEqual(loop_instance.IdentifyingNumber, one_instance.IdentifyingNumber)
+
 
     def test_win_cdb_callstack(self):
         """win_cdb_callstack Information about current process"""
@@ -1393,7 +1417,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 
         # This cannot display specific information about the current MSDOS batch because there is none,
         # as it is a Python process. Still, this tests checks that the script runs properly.
-        list_instances = ClientObjectInstancesFromScript(
+        list_instances = _client_object_instances_from_script(
             "sources_types/CIM_Process/languages/msdos/current_batch.py",
             "CIM_Process",
             Handle=CurrentPid)
@@ -1461,7 +1485,7 @@ class SurvolPyODBCTest(unittest.TestCase):
     def test_pyodbc_sqldatasources(self):
         """Tests ODBC data sources"""
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/Databases/win32_sqldatasources_pyodbc.py")
 
         str_instances_set = set([str(oneInst) for oneInst in lst_instances ])
@@ -1484,7 +1508,7 @@ class SurvolPyODBCTest(unittest.TestCase):
     def test_pyodbc_dsn_tables(self):
         """Tests ODBC data sources"""
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/odbc/dsn/odbc_dsn_tables.py",
             "odbc/dsn",
             Dsn="DSN~SysDataSourceSQLServer")
@@ -1512,7 +1536,7 @@ class SurvolPyODBCTest(unittest.TestCase):
     def test_pyodbc_dsn_one_table_columns(self):
         """Tests ODBC table columns"""
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/odbc/table/odbc_table_columns.py",
             "odbc/table",
             Dsn="DSN~SysDataSourceSQLServer",
@@ -1565,9 +1589,9 @@ class SurvolSocketsTest(unittest.TestCase):
         print("Peer name of connection socket:",conn_http.sock.getpeername())
 
         if is_platform_windows:
-            lst_instances = ClientObjectInstancesFromScript("sources_types/win32/tcp_sockets_windows.py")
+            lst_instances = _client_object_instances_from_script("sources_types/win32/tcp_sockets_windows.py")
         else:
-            lst_instances = ClientObjectInstancesFromScript("sources_types/Linux/tcp_sockets.py")
+            lst_instances = _client_object_instances_from_script("sources_types/Linux/tcp_sockets.py")
 
         str_instances_set = set([str(oneInst) for oneInst in lst_instances ])
 
@@ -1608,7 +1632,7 @@ class SurvolSocketsTest(unittest.TestCase):
         peer_name = conn_http.sock.getpeername()
         peer_host = peer_name[0]
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/enumerate_socket.py")
 
         str_instances_list = [str(one_inst) for one_inst in lst_instances]
@@ -1668,7 +1692,7 @@ class SurvolSocketsTest(unittest.TestCase):
 
         print("Peer name of connection socket:",conn_http.sock.getpeername())
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/addr/socket_connected_processes.py",
             "addr",
             Id="%s:80" % peer_host)
@@ -1695,7 +1719,7 @@ class SurvolSocketsTest(unittest.TestCase):
 
         # This does not really test the content, because nothing is sure.
         # However, at least it tests that the script can be called.
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/SMB/net_use.py")
 
         str_instances_set = set([str(one_inst) for one_inst in lst_instances])
@@ -1715,7 +1739,7 @@ class SurvolSocketsTest(unittest.TestCase):
     def test_windows_network_devices(self):
         """Loads network devices on a Windows network"""
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/win32/windows_network_devices.py")
 
         str_instances_set = set([str(one_inst) for one_inst in lst_instances])
@@ -1927,7 +1951,7 @@ class SurvolAzureTest(unittest.TestCase):
             print("Module azure is not available so this test is not applicable")
             return None
 
-        instances_azure_subscriptions = ClientObjectInstancesFromScript(
+        instances_azure_subscriptions = _client_object_instances_from_script(
             "sources_types/Azure/enumerate_subscription.py")
 
         # ['Azure/subscription.Subscription=Visual Studio Professional', 'CIM_ComputerSystem.Name=localhost']
@@ -1950,7 +1974,7 @@ class SurvolAzureTest(unittest.TestCase):
     def test_azure_locations(self, azureSubscription):
         """This checks Azure locations."""
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/Azure/subscription/subscription_locations.py",
             "Azure/subscription",
             Subscription=azureSubscription)
@@ -1970,7 +1994,7 @@ class SurvolAzureTest(unittest.TestCase):
     def test_azure_subscription_disk(self, azureSubscription):
         """This checks Azure disks."""
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/Azure/subscription/subscription_disk.py",
             "Azure/subscription",
             Subscription=azureSubscription)
@@ -2006,7 +2030,7 @@ class SurvolRabbitMQTest(unittest.TestCase):
             print("Module pyrabbit is not available so this test is not applicable")
             return None
 
-        instances_configurations_rabbit_mq = ClientObjectInstancesFromScript(
+        instances_configurations_rabbit_mq = _client_object_instances_from_script(
             "sources_types/rabbitmq/list_configurations.py")
 
         # ['Azure/subscription.Subscription=Visual Studio Professional', 'CIM_ComputerSystem.Name=localhost']
@@ -2028,7 +2052,7 @@ class SurvolRabbitMQTest(unittest.TestCase):
     def test_rabbitmq_connections(self,rabbitmqManager):
         print("RabbitMQ:", rabbitmqManager)
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/rabbitmq/manager/list_connections.py",
             "rabbitmq/manager",
             Url=rabbitmqManager)
@@ -2053,7 +2077,7 @@ class SurvolRabbitMQTest(unittest.TestCase):
     def test_rabbitmq_exchanges(self, rabbitmq_manager):
         print("RabbitMQ:", rabbitmq_manager)
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/rabbitmq/manager/list_exchanges.py",
             "rabbitmq/manager",
             Url=rabbitmq_manager)
@@ -2079,7 +2103,7 @@ class SurvolRabbitMQTest(unittest.TestCase):
     def test_rabbitmq_queues(self, rabbitmq_manager):
         print("RabbitMQ:", rabbitmq_manager)
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/rabbitmq/manager/list_queues.py",
             "rabbitmq/manager",
             Url=rabbitmq_manager)
@@ -2094,7 +2118,7 @@ class SurvolRabbitMQTest(unittest.TestCase):
     def test_rabbitmq_users(self, rabbitmq_manager):
         print("RabbitMQ:", rabbitmq_manager)
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/rabbitmq/manager/list_users.py",
             "rabbitmq/manager",
             Url=rabbitmq_manager)
@@ -2118,7 +2142,7 @@ def _find_oracle_db():
         print("Module cx_Oracle is not available so this test is not applicable:")
         return None
 
-    instances_oracle_dbs = ClientObjectInstancesFromScript(
+    instances_oracle_dbs = _client_object_instances_from_script(
         "sources_types/Databases/oracle_tnsnames.py")
 
     # Typical content: 'addr.Id=127.0.0.1:1521', 'oracle/db.Db=XE_WINDOWS',
@@ -2141,6 +2165,7 @@ def _find_oracle_db():
 _global_oracle_db = _find_oracle_db()
 
 
+@unittest.skip("TEMP Oracle not available")
 @unittest.skipIf(_global_oracle_db is None, "Oracle not available")
 class SurvolOracleTest(unittest.TestCase):
     """Testing Oracle discovery"""
@@ -2150,7 +2175,7 @@ class SurvolOracleTest(unittest.TestCase):
     def test_oracle_schemas(self):
         print("Oracle:", self._oracle_db)
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/oracle/db/oracle_db_schemas.py",
             "oracle/db",
             Db=self._oracle_db)
@@ -2168,7 +2193,7 @@ class SurvolOracleTest(unittest.TestCase):
     def test_oracle_connected_processes(self):
         print("Oracle:", self._oracle_db)
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/oracle/db/oracle_db_processes.py",
             "oracle/db",
             Db=self._oracle_db)
@@ -2190,7 +2215,7 @@ class SurvolOracleTest(unittest.TestCase):
     def test_oracle_running_queries(self):
         print("Oracle:", self._oracle_db)
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/oracle/db/oracle_db_parse_queries.py",
             "oracle/db",
             Db=self._oracle_db)
@@ -2217,7 +2242,7 @@ class SurvolOracleTest(unittest.TestCase):
     def test_oracle_view_dependencies(self):
         """Dsplays dependencies of a very common view"""
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/oracle/view/oracle_view_dependencies.py",
             "oracle/db",
             Db=self._oracle_db,
@@ -2242,7 +2267,7 @@ class SurvolOracleTest(unittest.TestCase):
         """See functions of schema SYS"""
         print("Oracle:", self._oracle_db)
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/oracle/schema/oracle_schema_functions.py",
             "oracle/db",
             Db=self._oracle_db,
@@ -2262,7 +2287,7 @@ class SurvolOracleTest(unittest.TestCase):
         """See libraries of schema SYS"""
         print("Oracle:", self._oracle_db)
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/oracle/schema/oracle_schema_libraries.py",
             "oracle/db",
             Db=self._oracle_db,
@@ -2282,7 +2307,7 @@ class SurvolOracleTest(unittest.TestCase):
         """See package bodies of schema SYS"""
         print("Oracle:", self._oracle_db)
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/oracle/schema/oracle_schema_package_bodies.py",
             "oracle/db",
             Db=self._oracle_db,
@@ -2302,7 +2327,7 @@ class SurvolOracleTest(unittest.TestCase):
         """See packages of schema SYS"""
         print("Oracle:", self._oracle_db)
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/oracle/schema/oracle_schema_packages.py",
             "oracle/db",
             Db=self._oracle_db,
@@ -2322,7 +2347,7 @@ class SurvolOracleTest(unittest.TestCase):
         """See procedures of schema SYS"""
         print("Oracle:", self._oracle_db)
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/oracle/schema/oracle_schema_procedures.py",
             "oracle/db",
             Db=self._oracle_db,
@@ -2342,7 +2367,7 @@ class SurvolOracleTest(unittest.TestCase):
         """See sequences of schema SYS"""
         print("Oracle:", self._oracle_db)
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/oracle/schema/oracle_schema_sequences.py",
             "oracle/db",
             Db=self._oracle_db,
@@ -2362,7 +2387,7 @@ class SurvolOracleTest(unittest.TestCase):
         """See synonyms of schema SYS"""
         print("Oracle:", self._oracle_db)
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/oracle/schema/oracle_schema_synonyms.py",
             "oracle/db",
             Db=self._oracle_db,
@@ -2382,7 +2407,7 @@ class SurvolOracleTest(unittest.TestCase):
         """See functions of schema SYS"""
         print("Oracle:", self._oracle_db)
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/oracle/schema/oracle_schema_tables.py",
             "oracle/db",
             Db=self._oracle_db,
@@ -2402,7 +2427,7 @@ class SurvolOracleTest(unittest.TestCase):
         """See triggers of schema SYS"""
         print("Oracle:", self._oracle_db)
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/oracle/schema/oracle_schema_triggers.py",
             "oracle/db",
             Db=self._oracle_db,
@@ -2422,7 +2447,7 @@ class SurvolOracleTest(unittest.TestCase):
         """See types of schema SYS"""
         print("Oracle:", self._oracle_db)
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/oracle/schema/oracle_schema_types.py",
             "oracle/db",
             Db=self._oracle_db,
@@ -2441,7 +2466,7 @@ class SurvolOracleTest(unittest.TestCase):
     def test_oracle_schema_views(self):
         print("Oracle:", self._oracle_db)
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/oracle/schema/oracle_schema_views.py",
             "oracle/db",
             Db=self._oracle_db,
@@ -2469,7 +2494,7 @@ class SurvolPEFileTest(unittest.TestCase):
         # Very common DLL on usual Windows machines.
         dll_file_name = r"C:\Windows\System32\gdi32.dll"
 
-        lst_instances = ClientObjectInstancesFromScript(
+        lst_instances = _client_object_instances_from_script(
             "sources_types/CIM_DataFile/portable_executable/pefile_exports.py",
             "CIM_DataFile",
             Name=dll_file_name)
