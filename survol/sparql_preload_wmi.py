@@ -9,6 +9,8 @@ This RDF server translates SPARQL queries into WMI data model.
 import cgitb
 cgitb.enable(format="txt")
 
+# TODO: DEPRECATED.
+
 import lib_sparql
 import lib_wmi
 import lib_util

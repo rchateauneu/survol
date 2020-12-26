@@ -5,6 +5,8 @@ It extracts data from Survol only.
 This is used only for tests and returns RDF data.
 """
 
+# TODO: DEPRECATED.
+
 import os
 import sys
 import logging
