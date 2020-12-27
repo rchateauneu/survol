@@ -1897,20 +1897,11 @@ def _create_flows_from_generic_linux_log(log_stream, tracer):
             break
 
         # This parses the line into the basic parameters of a function call.
-
-        def _create_batch_core():
-            try:
-                batch_core = BatchLetCore()
-                batch_core.parse_line_to_object(one_new_line, tracer)
-                return batch_core
-            except ExceptionIsExit:
-                return None
-            except ExceptionIsSignal:
-                return None
-
         try:
-            # TODO: Simplify the two try/except blocks.
-            batch_core = _create_batch_core()
+            batch_core = BatchLetCore()
+            batch_core.parse_line_to_object(one_new_line, tracer)
+        except (ExceptionIsExit, ExceptionIsSignal):
+            continue
         except Exception as exc:
             if line_number == 2:
                 # If the command does not exist:
@@ -1924,23 +1915,21 @@ def _create_flows_from_generic_linux_log(log_stream, tracer):
                 # "Cannot attach to pid 11111: No such process"
                 if one_new_line.find("No such process") >= 0:
                     raise Exception("Invalid process id: %s" % exc)
-
             sys.stderr.write("ERROR '%s' Caught invalid line %d:%s\n" % (exc, line_number, one_new_line))
+            continue
 
         # Maybe the line cannot be parsed.
-        if batch_core:
-            last_time_stamp = batch_core._time_end
+        last_time_stamp = batch_core._time_end
 
-            # This creates a derived class deduced from the system call.
-            try:
-                new_batchlet = _batchlet_factory(batch_core)
-            except Exception as exc:
-                sys.stderr.write("ERROR '%s' Line:%d Error parsing:%s" % (exc, line_number, one_new_line))
+        # This creates a derived class deduced from the system call.
+        try:
+            new_batchlet = _batchlet_factory(batch_core)
+        except Exception as exc:
+            sys.stderr.write("ERROR '%s' Line:%d Error parsing:%s" % (exc, line_number, one_new_line))
 
-            # Some functions calls should simply be forgotten because there are
-            # no side effects, so simply forget them.
-            if new_batchlet:
-                yield new_batchlet
+        # Some functions are not processed because there are no side effects nor provide information.
+        if new_batchlet:
+            yield new_batchlet
 
     logging.info("Restoring SIGINT handler")
     signal.signal(signal.SIGINT, original_sigint_handler)
