@@ -1860,7 +1860,7 @@ def _create_flows_from_generic_linux_log(log_stream, tracer):
 
 
     # This is parsed from each line corresponding to a syztem call.
-    batchCore = None
+    batch_core = None
 
     last_time_stamp = 0
 
@@ -1909,7 +1909,7 @@ def _create_flows_from_generic_linux_log(log_stream, tracer):
 
         try:
             # TODO: Simplify the two try/except blocks.
-            batchCore = _create_batch_core()
+            batch_core = _create_batch_core()
         except Exception as exc:
             if line_number == 2:
                 # If the command does not exist:
@@ -1927,12 +1927,12 @@ def _create_flows_from_generic_linux_log(log_stream, tracer):
             sys.stderr.write("ERROR '%s' Caught invalid line %d:%s\n" % (exc, line_number, one_new_line))
 
         # Maybe the line cannot be parsed.
-        if batchCore:
-            last_time_stamp = batchCore._time_end
+        if batch_core:
+            last_time_stamp = batch_core._time_end
 
             # This creates a derived class deduced from the system call.
             try:
-                new_batchlet = _batchlet_factory(batchCore)
+                new_batchlet = _batchlet_factory(batch_core)
             except Exception as exc:
                 sys.stderr.write("ERROR '%s' Line:%d Error parsing:%s" % (exc, line_number, one_new_line))
 
