@@ -1002,9 +1002,7 @@ class CIM_Process(CIM_XmlMarshaller):
                 # The process id is not needed because the path is absolute and the process CIM object
                 # should already be created. However, in the future it might reuse an existing context.
                 objects_context = ObjectsContext(proc_id)
-                print("exec_fil_nam=", exec_fil_nam)
                 exec_fil_obj = objects_context._class_model_to_object_path(CIM_DataFile, exec_fil_nam)
-                print("exec_fil_obj.Name=", exec_fil_obj.Name)
 
                 # The process id is not needed because the path is absolute.
                 # However, in the future it might reuse an existing context.
@@ -1043,6 +1041,31 @@ class CIM_Process(CIM_XmlMarshaller):
         # In the general case, it is not possible to get the parent process,
         # because it might replay a session. So, it can only rely on the successive function calls.
         # Therefore, the parent processes must be stored before the subprocesses.
+
+    # TODO: Ontologies, i.e. list of clases and their attributes, should be stored in a RDF repository,
+    # TODO: ... accessible from any application.
+    # TODO: At the moment, these lists are stored in Python code and, when generating RDF data,
+    # TODO: there is an extra pass of adding rdfs triples such as property and classes etc...
+    # TODO: This pass is very simple and fast.
+    # TODO: The reason for storing ontologies along Python code is for simplicity and ease of installing
+    # TODO: ... new scripts and classes.
+    # TODO: So the new representation requirements are:
+    # TODO: - Must be granular, allowing the definition of new classes just by copying files.
+    # TODO: - Must be very fast.
+    # TODO: - Usable by any language.
+    # TODO: - Implicitly creates a RDF server.
+    # TODO: - The migration from the old to the new model can be done one at a time, withotu breaking change.
+    # TODO: - This must reduce the extra pass of RDF data creation when exporting RDF data.
+    #
+    # TODO: Possible implementation:
+    # TODO: - Each directory defining a class and its CGI script contains a RDF-XML file.
+    # TODO: - This RDF file is loaded by scripts, at will.
+    # TODO: - Python CGI scripts can transparently access the ontologies defined in these RDF files
+    # TODO:   with a cache avoiding duplicates.
+    # TODO: - Non-Python CGI scripts can directly load these files.
+    # TODO: - Ideally, the RDF url is just a server of static files.
+
+
     cim_ontology_list = ['Handle']
 
     @classmethod
@@ -1071,7 +1094,7 @@ class CIM_Process(CIM_XmlMarshaller):
         strm.write("%s</CIM_Process>\n" % margin)
 
     @staticmethod
-    def TopProcessFromProc(obj_instance):
+    def top_process_from_proc(obj_instance):
         """This returns the top-level parent of a process."""
         while True:
             parent_proc = obj_instance.m_parentProcess
@@ -1080,7 +1103,7 @@ class CIM_Process(CIM_XmlMarshaller):
             obj_instance = parent_proc
 
     @staticmethod
-    def GetTopProcesses():
+    def get_top_processes():
         """This returns a list of top-level processes, which have no parents."""
 
         # This contains all subprocesses.
@@ -1097,7 +1120,7 @@ class CIM_Process(CIM_XmlMarshaller):
 
     # When parsing the last system call, it sets the termination date for all processes.
     @staticmethod
-    def GlobalTerminationDate(time_end):
+    def global_termination_date(time_end):
         for obj_path, obj_instance in G_mapCacheObjects[CIM_Process.__name__].items():
             if not obj_instance.TerminationDate:
                 obj_instance.TerminationDate = time_end
@@ -1113,7 +1136,7 @@ class CIM_Process(CIM_XmlMarshaller):
             except AttributeError:
                 pass
 
-            top_obj_proc = CIM_Process.TopProcessFromProc(obj_instance)
+            top_obj_proc = CIM_Process.top_process_from_proc(obj_instance)
             top_obj_proc.XMLOneLevelSummary(fd_summary_file)
 
     # In text mode, with no special formatting.
@@ -1133,25 +1156,25 @@ class CIM_Process(CIM_XmlMarshaller):
         if self.m_parentProcess:
             strm.write("    Parent:%s\n" % self.m_parentProcess.Handle)
 
-    def SetParentProcess(self, objCIM_Process):
-        # sys.stdout.write("SetParentProcess proc=%s parent=%s\n" % ( self.Handle, objCIM_Process.Handle ) )
+    def set_parent_process(self, objCIM_Process):
+        # sys.stdout.write("set_parent_process proc=%s parent=%s\n" % ( self.Handle, objCIM_Process.Handle ) )
         if int(self.Handle) == int(objCIM_Process.Handle):
             raise Exception("Self-parent")
         self.m_parentProcess = objCIM_Process
         self.ParentProcessID = objCIM_Process.Handle
         objCIM_Process.m_subProcesses.add(self)
 
-    def WaitProcessEnd(self, time_stamp, objCIM_Process):
-        # sys.stdout.write("WaitProcessEnd: %s linking to %s\n" % (self.Handle,objCIM_Process.Handle))
+    def wait_process_end(self, time_stamp, objCIM_Process):
+        # sys.stdout.write("wait_process_end: %s linking to %s\n" % (self.Handle,objCIM_Process.Handle))
         self.TerminationDate = time_stamp
         if not self.m_parentProcess:
-            self.SetParentProcess(objCIM_Process)
-            # sys.stdout.write("WaitProcessEnd: %s not linked to %s\n" % (self.Handle,objCIM_Process.Handle))
+            self.set_parent_process(objCIM_Process)
+            # sys.stdout.write("wait_process_end: %s not linked to %s\n" % (self.Handle,objCIM_Process.Handle))
         elif self.m_parentProcess != objCIM_Process:
-            # sys.stdout.write("WaitProcessEnd: %s not %s\n" % (self.m_parentProcess.Handle,objCIM_Process.Handle))
+            # sys.stdout.write("wait_process_end: %s not %s\n" % (self.m_parentProcess.Handle,objCIM_Process.Handle))
             pass
         else:
-            # sys.stdout.write("WaitProcessEnd: %s already linked to %s\n" % (self.m_parentProcess.Handle,objCIM_Process.Handle))
+            # sys.stdout.write("wait_process_end: %s already linked to %s\n" % (self.m_parentProcess.Handle,objCIM_Process.Handle))
             pass
 
     def set_executable_path(self, objCIM_DataFile):
@@ -1166,7 +1189,7 @@ class CIM_Process(CIM_XmlMarshaller):
             # The command line as a list is needed by Dockerfile.
             self.m_commandList = lst_cmd_line
 
-    def GetCommandLine(self):
+    def get_command_line(self):
         try:
             if self.CommandLine:
                 return self.CommandLine
@@ -1179,7 +1202,7 @@ class CIM_Process(CIM_XmlMarshaller):
             command_line = ""
         return command_line
 
-    def GetCommandList(self):
+    def get_command_list(self):
         try:
             if self.m_commandList:
                 return self.m_commandList
@@ -1192,15 +1215,12 @@ class CIM_Process(CIM_XmlMarshaller):
             command_list = []
         return command_list
 
-    def SetThread(self):
-        self.IsThread = True
-
-    # Some system calls are relative to the current directory.
-    # Therefore, this traces current dir changes due to system calls.
     def set_process_current_directory(self, curr_dir_object):
+        """Some system calls are relative to the current directory.
+        Therefore, this traces current dir changes due to system calls."""
         self.CurrentDirectory = curr_dir_object.Name
 
-    def GetProcessCurrentDir(self):
+    def get_process_current_directory(self):
         try:
             return self.CurrentDirectory
         except AttributeError:
@@ -1637,7 +1657,7 @@ class ObjectsContext:
 
             parent_proc_obj = map_procs[context_process_obj_path]
 
-            returned_object.SetParentProcess(parent_proc_obj)
+            returned_object.set_parent_process(parent_proc_obj)
         return returned_object
 
     def ToObjectPath_CIM_DataFile(self, path_name):
@@ -1650,7 +1670,7 @@ class ObjectsContext:
             # Maybe this is a relative file, and to make it absolute, the process is needed,
             # because it gives the process current working directory.
             obj_process = self.ToObjectPath_CIM_Process(self._process_id)
-            dir_path = obj_process.GetProcessCurrentDir()
+            dir_path = obj_process.get_process_current_directory()
         else:
             # At least it will suppress ".." etc...
             dir_path = ""
@@ -1711,7 +1731,7 @@ def generate_dockerfile(docker_filename):
         """Only for documentation purpose"""
 
         def write_one_process_sub_tree(obj_proc, depth):
-            command_line = obj_proc.GetCommandLine()
+            command_line = obj_proc.get_command_line()
             if not command_line:
                 command_line = "*Unknown-command*"
             fd_docker_file.write("# %s -> %s : %s %s\n" % (
@@ -1726,7 +1746,7 @@ def generate_dockerfile(docker_filename):
 
         fd_docker_file.write("# Processes tree\n")
 
-        procs_top_level = CIM_Process.GetTopProcesses()
+        procs_top_level = CIM_Process.get_top_processes()
         for one_proc in sorted(procs_top_level, key=lambda x: x.Handle):
             write_one_process_sub_tree(one_proc, 1)
         fd_docker_file.write("\n")
@@ -1743,13 +1763,13 @@ def generate_dockerfile(docker_filename):
 
     # Top-level processes, which starts the other ones.
     # Probably there should be one only, but this is not a constraint.
-    procs_top_level = CIM_Process.GetTopProcesses()
+    procs_top_level = CIM_Process.get_top_processes()
     for one_proc in procs_top_level:
         # TODO: Possibly add the command "VOLUME" ?
-        curr_dir = one_proc.GetProcessCurrentDir()
+        curr_dir = one_proc.get_process_current_directory()
         fd_docker_file.write("WORKDIR %s\n" % curr_dir)
 
-        command_list = one_proc.GetCommandList()
+        command_list = one_proc.get_command_list()
         if command_list:
             # If the string length read by ltrace or strace is too short,
             # some arguments are truncated: 'CMD ["python TestProgs/big_mysql_..."]'
@@ -1835,10 +1855,10 @@ def generate_makefile(output_makefile):
         input_files = sorted(input_files, key=lambda obj_fil: obj_fil.Name)
 
         try:
-            command_line = one_proc.GetCommandLine()
+            command_line = one_proc.get_command_line()
         except AttributeError:
             command_line = "Unknown command line"
-        curr_dir = one_proc.GetProcessCurrentDir()
+        curr_dir = one_proc.get_process_current_directory()
 
         # TODO: What of a file is written by several process ?
         for one_out_file in sorted(output_files, key=lambda obj_fil: obj_fil.Name):
