@@ -1818,9 +1818,9 @@ def _create_flows_from_generic_linux_log(log_stream, tracer):
 
     def _is_log_ending(trace_line):
         """
-        This detects line from strace of ltrace which are not properly ended.
+        This detects line from strace or ltrace which are not properly ended.
         This happens for example when a process and its subprocesses mix their output lines.
-        It analyses corner cases very dependent on strace and ltrace outputs.
+        It analyses corner cases which are dependent on strace and ltrace outputs.
 
         "[pid 18196] 08:26:47.199313 close(255</tmp/shell.sh> <unfinished ...>"
         "08:26:47.197164 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18194 <0.011216>"
@@ -1867,7 +1867,7 @@ def _create_flows_from_generic_linux_log(log_stream, tracer):
     line_number = 0
     one_new_line = ""
     while True:
-        previous_line = one_new_line
+        # This is on the critical path.
         one_new_line = ""
 
         # There are several cases of line ending with strace.
@@ -1876,27 +1876,20 @@ def _create_flows_from_generic_linux_log(log_stream, tracer):
         # We cannot reliably count the double-quotes.
         # FIXME: Problem if several processes.
         while not G_Interrupt:
-            # sys.stdout.write("000:\n")
             tmp_line = log_stream.readline()
-            # sys.stdout.write("AAA:%s"%tmp_line)
             line_number += 1
-            # sys.stdout.write("tmp_line after read=%s"%tmp_line)
             if not tmp_line:
                 break
 
-            # Maybe a special unfinished function call ?
-            if _is_log_ending(tmp_line):
-                # TODO: The most common case is that the call is on one line only.
-                one_new_line += tmp_line
-                break
+            one_new_line += tmp_line
 
             # If the call is split on several lines, maybe because a write() contains a "\n".
-            one_new_line += tmp_line
+            # Maybe a special unfinished function call ? If so, then read next line and append it.
+            if _is_log_ending(tmp_line):
+                break
 
         if not one_new_line:
             # If this is the last line and therefore the last call.
-            sys.stdout.write("Last line=%s\n" % previous_line)
-
             # This is the terminate date of the last process still running.
             if last_time_stamp:
                 cim_objects_definitions.CIM_Process.global_termination_date(last_time_stamp)
@@ -1925,7 +1918,7 @@ def _create_flows_from_generic_linux_log(log_stream, tracer):
                 if one_new_line.find("No such file or directory") >= 0:
                     raise Exception("Invalid command: %s: %s" % (one_new_line, exc))
 
-                # If the pid is invalid, the scond contains "No such process"
+                # If the pid is invalid, the second line contains "No such process"
                 # "strace: attach: ptrace(PTRACE_SEIZE, 11111): No such process"
                 # "Cannot attach to pid 11111: No such process"
                 if one_new_line.find("No such process") >= 0:
