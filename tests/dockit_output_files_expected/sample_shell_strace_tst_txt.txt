@@ -930,4 +930,4 @@ Pid=  4401 {   1/Orig} 'clone@SYS           ' [CIM_Process.Handle="18198"] ==>> 
 Pid=  4401 {   1/Orig}R'wait4@SYS           ' [[['WIFEXITED(s) && WEXITSTATUS(s) == 0']], '0', 'NULL'] ==>> 18198 (08:26:47.552520,08:26:47.552520)
 Pid=  4401 {   1/Orig} 'wait4@SYS           ' ['-1', '0x7fff9a7a6cd0', 'WNOHANG', 'NULL'] ==>> -1 ECHILD (No child processes) (08:26:47.552687,08:26:47.552687)
 Pid=  4401 {   1/Orig} 'read@SYS            ' [CIM_DataFile.Name="/home/rchateau/rdfmon-code/Experimental/RetroBatch/TestProgs/sample_shell.sh"] ==>> 0 (08:26:47.552893,08:26:47.552893)
-Pid=  4401 {   1/Orig} 'exit_group@SYS      ' [] ==>>  (08:26:47.553096,08:26:47.553096)
+Pid=  4401 {   1/Orig} 'exit_group@SYS      ' [] ==>> ? (08:26:47.553096,08:26:47.553096)

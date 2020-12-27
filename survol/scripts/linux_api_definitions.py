@@ -174,6 +174,8 @@ class BatchLetCore:
 
     # tracer = "strace|ltrace"
     def parse_line_to_object(self, trace_line, tracer):
+        assert trace_line.endswith("\n")
+
         # sys.stdout.write("%s oneLine1=%s" % (id(self),oneLine ) )
         self.m_tracer = tracer
 
@@ -390,7 +392,7 @@ class BatchLetCore:
                 idx_eq = the_call.find("=", idx_last_par)
                 if idx_eq < 0:
                     # This is acceptable in this circumstance only.
-                    if not the_call.endswith(("<no return ...>\n", "<detached ...>")):
+                    if not the_call.endswith(("<no return ...>\n", "<detached ...>\n")):
                         if self.m_tracer != "ltrace":
                         # This can happen with ltrace which does not escape double-quotes. Example:
                         # read@SYS(8, "\003\363\r\n"|\314Vc", 4096) = 765 <0.000049>
@@ -1824,15 +1826,22 @@ def _create_flows_from_generic_linux_log(log_stream, tracer):
     signal.signal(signal.SIGINT, signal_handler)
     logging.info('Press Ctrl+C to exit cleanly')
 
-    # "[pid 18196] 08:26:47.199313 close(255</tmp/shell.sh> <unfinished ...>"
-    # "08:26:47.197164 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18194 <0.011216>"
-    # This test is not reliable because we cannot really control what a spurious output can be:
     def _is_log_ending(trace_line):
+        """
+        This detects line from strace of ltrace which are not properly ended.
+        This happens for example when a process and its subprocesses mix their output lines.
+        It analyses corner cases very dependent on strace and ltrace outputs.
+
+        "[pid 18196] 08:26:47.199313 close(255</tmp/shell.sh> <unfinished ...>"
+        "08:26:47.197164 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18194 <0.011216>"
+        This test is not reliable because we cannot really control what a spurious output can be:
+        """
         if trace_line.endswith(">\n"):
             ix_lt = trace_line.rfind("<")
             if ix_lt >= 0:
                 str_brack = trace_line[ix_lt + 1:-2]
                 try:
+                    # Is it a float with the execution time in it ?
                     flt = float(str_brack)
                     return True
                 except:
@@ -1885,16 +1894,14 @@ def _create_flows_from_generic_linux_log(log_stream, tracer):
             if not tmp_line:
                 break
 
-            # "[pid 18196] 08:26:47.199313 close(255</tmp/shell.sh> <unfinished ...>"
-            # "08:26:47.197164 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18194 <0.011216>"
-            # This test is not reliable because we cannot really control what a spurious output can be:
+            # Maybe a special unfinished function call ?
             if _is_log_ending(tmp_line):
                 # TODO: The most common case is that the call is on one line only.
                 one_new_line += tmp_line
                 break
 
             # If the call is split on several lines, maybe because a write() contains a "\n".
-            one_new_line += tmp_line[:-1]
+            one_new_line += tmp_line
 
         if not one_new_line:
             # If this is the last line and therefore the last call.
@@ -1903,7 +1910,6 @@ def _create_flows_from_generic_linux_log(log_stream, tracer):
             # This is the terminate date of the last process still running.
             if last_time_stamp:
                 cim_objects_definitions.CIM_Process.global_termination_date(last_time_stamp)
-
             break
 
         # This parses the line into the basic parameters of a function call.
