@@ -814,7 +814,7 @@ class BatchLetSys_openat(BatchLetBase, object):
             if dir_nam == "AT_FDCWD":
                 # A relative pathname is interpreted relative to the directory
                 # referred to by the file descriptor passed as first parameter.
-                dir_path = self.m_core.m_objectProcess.GetProcessCurrentDir()
+                dir_path = self.m_core.m_objectProcess.get_process_current_directory()
             else:
                 dir_path = self._strace_stream_to_file(dir_nam)
 
@@ -1175,9 +1175,6 @@ class BatchLetSys_clone(BatchLetBase, object):
         # This is the created process.
         obj_new_process = self.cim_context_core().ToObjectPath_CIM_Process(a_pid)
 
-        if is_thread:
-            obj_new_process.SetThread()
-
         self.m_significantArgs = [obj_new_process]
 
         obj_new_process.CreationDate = self.m_core._time_start
@@ -1325,7 +1322,7 @@ class BatchLetSys_wait4(BatchLetBase, object):
             # sys.stdout.write("WAIT=%d\n" % a_pid )
             waited_process = self.cim_context_core().ToObjectPath_CIM_Process(a_pid)
             self.m_significantArgs = [waited_process]
-            waited_process.WaitProcessEnd(self.m_core._time_start, self.m_core.m_objectProcess)
+            waited_process.wait_process_end(self.m_core._time_start, self.m_core.m_objectProcess)
 
 
 class BatchLetSys_exit_group(BatchLetBase, object):
@@ -1345,7 +1342,7 @@ class BatchLetSys_newfstatat(BatchLetBase, object):
         dirNam = self.m_core.m_parsedArgs[0]
 
         if dirNam == "AT_FDCWD":
-            dir_path = self.m_core.m_objectProcess.GetProcessCurrentDir()
+            dir_path = self.m_core.m_objectProcess.get_process_current_directory()
         else:
             dir_path = _strace_stream_to_pathname(dirNam)
             if not dir_path:
@@ -1905,7 +1902,7 @@ def _create_flows_from_generic_linux_log(log_stream, tracer):
 
             # This is the terminate date of the last process still running.
             if last_time_stamp:
-                cim_objects_definitions.CIM_Process.GlobalTerminationDate(last_time_stamp)
+                cim_objects_definitions.CIM_Process.global_termination_date(last_time_stamp)
 
             break
 
