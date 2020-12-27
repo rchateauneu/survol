@@ -10269,7 +10269,7 @@
    "status" : 1,
    "function" : "exit_group@SYS",
    "arguments" : [],
-   "return_value" : "",
+   "return_value" : "?",
    "time_start" : "08:26:47.553096",
    "time_end" : "08:26:47.553096"
 }
