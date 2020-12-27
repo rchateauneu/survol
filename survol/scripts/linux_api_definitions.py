@@ -366,7 +366,7 @@ class BatchLetCore:
                         self._set_default_on_error()
                         return
 
-                raise Exception("No function in:%s" % one_line)
+                raise Exception("No function in:%s." % one_line)
 
             self._set_function(the_call[:idx_par])
 
@@ -421,17 +421,6 @@ class ExceptionIsExit(Exception):
 
 class ExceptionIsSignal(Exception):
     pass
-
-
-def _create_batch_core(one_line, tracer):
-    try:
-        batch_core = BatchLetCore()
-        batch_core.parse_line_to_object(one_line, tracer)
-        return batch_core
-    except ExceptionIsExit:
-        return None
-    except ExceptionIsSignal:
-        return None
 
 
 ################################################################################
@@ -730,6 +719,7 @@ def _open_flag_to_letter(open_flag):
         '0x100': "R", # O_CREAT
         '0x241': "W", # O_EXCL | O_WRONLY | ??
         '0x242': "W", # O_EXCL | O_RDWR | ??
+        '0x441': "W", # O_NOCTTY | | O_WRONLY | ??
         '0x802': "W", # O_EXCL | O_RDWR | ??
         '0xc2': "W", # O_RDWR | ??
     }
@@ -1913,8 +1903,20 @@ def _create_flows_from_generic_linux_log(log_stream, tracer):
             break
 
         # This parses the line into the basic parameters of a function call.
+
+        def _create_batch_core():
+            try:
+                batch_core = BatchLetCore()
+                batch_core.parse_line_to_object(one_new_line, tracer)
+                return batch_core
+            except ExceptionIsExit:
+                return None
+            except ExceptionIsSignal:
+                return None
+
         try:
-            batchCore = _create_batch_core(one_new_line, tracer)
+            # TODO: Simplify the two try/except blocks.
+            batchCore = _create_batch_core()
         except Exception as exc:
             if line_number == 2:
                 # If the command does not exist:
