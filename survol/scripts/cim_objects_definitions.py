@@ -771,7 +771,7 @@ class CIM_XmlMarshaller(object):
         nam_class = cls.__name__
         margin = "    "
         sub_margin = margin + margin
-        for obj_path, obj_instance in sorted(G_mapCacheObjects[nam_class].items()):
+        for obj_path, obj_instance in sorted(_G_map_cache_objects[nam_class].items()):
             fd_summary_file.write("%s<%s>\n" % (margin, nam_class))
             obj_instance.plain_to_XML(fd_summary_file, sub_margin)
             fd_summary_file.write("%s</%s>\n" % (margin, nam_class))
@@ -1069,12 +1069,12 @@ class CIM_Process(CIM_XmlMarshaller):
     cim_ontology_list = ['Handle']
 
     @classmethod
-    def DisplaySummary(cls, fdSummaryFile, cimKeyValuePairs):
-        fdSummaryFile.write("Processes:\n")
-        list_CIM_Process = G_mapCacheObjects[CIM_Process.__name__]
-        for objPath, objInstance in sorted(list_CIM_Process.items()):
-            objInstance.Summarize(fdSummaryFile)
-        fdSummaryFile.write("\n")
+    def DisplaySummary(cls, fd_summary_file, cim_key_value_pairs):
+        fd_summary_file.write("Processes:\n")
+        list_CIM_Process = _G_map_cache_objects[CIM_Process.__name__]
+        for obj_path, obj_instance in sorted(list_CIM_Process.items()):
+            obj_instance.Summarize(fd_summary_file)
+        fd_summary_file.write("\n")
 
     m_attributes_priorities = ["Handle", "Name", "CommandLine", "CreationDate", "TerminationDate", "Priority"]
 
@@ -1108,12 +1108,12 @@ class CIM_Process(CIM_XmlMarshaller):
 
         # This contains all subprocesses.
         set_sub_procs = set()
-        for obj_path, obj_instance in G_mapCacheObjects[CIM_Process.__name__].items():
+        for obj_path, obj_instance in _G_map_cache_objects[CIM_Process.__name__].items():
             for one_sub in obj_instance.m_subProcesses:
                 set_sub_procs.add(one_sub)
 
         lst_top_lvl = []
-        for obj_path, obj_instance in G_mapCacheObjects[CIM_Process.__name__].items():
+        for obj_path, obj_instance in _G_map_cache_objects[CIM_Process.__name__].items():
             if obj_instance not in set_sub_procs:
                 lst_top_lvl.append(obj_instance)
         return lst_top_lvl
@@ -1121,7 +1121,7 @@ class CIM_Process(CIM_XmlMarshaller):
     # When parsing the last system call, it sets the termination date for all processes.
     @staticmethod
     def global_termination_date(time_end):
-        for obj_path, obj_instance in G_mapCacheObjects[CIM_Process.__name__].items():
+        for obj_path, obj_instance in _G_map_cache_objects[CIM_Process.__name__].items():
             if not obj_instance.TerminationDate:
                 obj_instance.TerminationDate = time_end
 
@@ -1129,7 +1129,7 @@ class CIM_Process(CIM_XmlMarshaller):
     def XMLSummary(cls, fd_summary_file, cim_key_value_pairs):
         # Find unvisited processes. It does not start from G_top_ProcessId
         # because maybe it contains several trees, or subtrees were missed etc...
-        for obj_path, obj_instance in sorted(G_mapCacheObjects[CIM_Process.__name__].items()):
+        for obj_path, obj_instance in sorted(_G_map_cache_objects[CIM_Process.__name__].items()):
             try:
                 obj_instance.m_isVisited
                 continue
@@ -1386,12 +1386,12 @@ class CIM_DataFile(CIM_LogicalFile):
     # by an informal file category: DLL, data file etc...
     @staticmethod
     def SplitFilesByCategory():
-        map_files = G_mapCacheObjects[CIM_DataFile.__name__].items()
+        map_files = _G_map_cache_objects[CIM_DataFile.__name__].items()
 
         # TODO: Find a way to define the presentation as a parameter.
         # Maybe we can use the list of keys: Just mentioning a property
         # means that a sub-level must be displayed.
-        map_of_files_map = {rgxTuple[0]: {} for rgxTuple in G_lstFilters}
+        map_of_files_map = {rgx_tuple[0]: {} for rgx_tuple in G_lstFilters}
 
         # obj_path = 'CIM_DataFile.Name="/usr/lib64/libcap.so.2.24"'
         for obj_path, obj_instance in map_files:
@@ -1412,9 +1412,8 @@ class CIM_DataFile(CIM_LogicalFile):
             fd_summary_file.write("\n** %s\n" % category_files)
             if filter_cats and category_files not in filter_cats:
                 continue
-            for objPath, objInstance in sorted(map_files_sub.items()):
-                # sys.stdout.write("Path=%s\n"%objPath)
-                objInstance.Summarize(fd_summary_file)
+            for obj_path, obj_instance in sorted(map_files_sub.items()):
+                obj_instance.Summarize(fd_summary_file)
         fd_summary_file.write("\n")
 
     m_attributes_priorities = ["Name", "Category", "SocketAddress"]
@@ -1433,9 +1432,8 @@ class CIM_DataFile(CIM_LogicalFile):
 
     @staticmethod
     def XMLCategorySummary(fd_summary_file, map_files_sub):
-        for objPath, objInstance in sorted(map_files_sub.items()):
-            # sys.stdout.write("Path=%s\n"%objPath)
-            objInstance.XMLDisplay(fd_summary_file)
+        for obj_path, obj_instance in sorted(map_files_sub.items()):
+            obj_instance.XMLDisplay(fd_summary_file)
 
     @classmethod
     def XMLSummary(cls, fd_summary_file, cim_key_value_pairs):
@@ -1516,7 +1514,7 @@ class CIM_DataFile(CIM_LogicalFile):
     def GetExposedPorts():
         """this is is the list of all ports numbers whihc have to be open."""
 
-        map_files = G_mapCacheObjects[CIM_DataFile.__name__].items()
+        map_files = _G_map_cache_objects[CIM_DataFile.__name__].items()
         set_ports = set()
         for obj_path, obj_instance in map_files:
             try:
@@ -1606,10 +1604,11 @@ def to_real_absolute_path(directory_path, file_basename):
 
 ################################################################################
 
+
 # This contains all CIM objects: CIM_Process, CIM_DataFile etc...
 # and is used to generate the summary. Each time an object is created,
 # updated or deleted, an event might be sent to a Survol server.
-G_mapCacheObjects = None
+_G_map_cache_objects = None
 
 # Read from a real process or from the log file name when replaying a session.
 # It is conceptually part of an ObjectsContext.
@@ -1649,7 +1648,7 @@ class ObjectsContext:
         returned_object = self._class_model_to_object_path(CIM_Process, process_id)
 
         # Dictionary of all processes, indexed by the tuple of their key-value
-        map_procs = G_mapCacheObjects[CIM_Process.__name__]
+        map_procs = _G_map_cache_objects[CIM_Process.__name__]
 
         if process_id != self._process_id:
             # The key is a tuple of the arguments in the order of the ontology.
@@ -1684,9 +1683,9 @@ class ObjectsContext:
     def _class_model_to_object_path(self, class_model, *ctor_args):
         """This receives a class name and a list of key-value pairs.
         It returns the object, possibly cached."""
-        global G_mapCacheObjects
+        global _G_map_cache_objects
         global _G_warnings_counter
-        map_objs = G_mapCacheObjects[class_model.__name__]
+        map_objs = _G_map_cache_objects[class_model.__name__]
 
         # Here, this tuple in the order of the ontology is a key in a per-class dictionary.
         obj_path = ctor_args
@@ -1824,7 +1823,7 @@ def generate_makefile(output_makefile):
 
     # TODO: This does not work if a file is rewritten.
 
-    cached_processes = G_mapCacheObjects[CIM_Process.__name__]
+    cached_processes = _G_map_cache_objects[CIM_Process.__name__]
     for obj_path in sorted(cached_processes.keys()):
         one_proc = cached_processes[obj_path]
 
@@ -1888,10 +1887,10 @@ G_EnvironmentVariables = None
 
 
 def init_global_objects(the_hostname, the_ip_address):
-    global G_mapCacheObjects
+    global _G_map_cache_objects
     global G_httpClient
     global G_EnvironmentVariables
-    G_mapCacheObjects = collections.defaultdict(dict)
+    _G_map_cache_objects = collections.defaultdict(dict)
 
     # This object is used to send triples to a Survol server.
     # It is also used to store the triples in a RDF file, which is created by the destructor.
@@ -2263,7 +2262,6 @@ def _generate_docker_process_dependencies(docker_directory, fd_docker_file):
             for nam_package in sorted(lst_accessed_packages):
                 install_linux_package(fd_docker_file, nam_package)
             fd_docker_file.write("\n")
-            add_to_docker_dir
             fd_docker_file.write("# Non-packaged executable files copies:\n")
             sort_accessed_code_files = sorted(unpackaged_accessed_code_files, key=lambda x: x.Name)
             for objDataFile in sort_accessed_code_files:
@@ -2285,7 +2283,7 @@ def _generate_docker_process_dependencies(docker_directory, fd_docker_file):
     # This is a subset of _dependencies_list.
     set_useful_dependencies = set()
 
-    for obj_path, obj_instance in G_mapCacheObjects[CIM_Process.__name__].items():
+    for obj_path, obj_instance in _G_map_cache_objects[CIM_Process.__name__].items():
         for one_dep in _dependencies_list:
             # Based on the executable of the process,
             # this tells if we might have dependencies of this type: Python Perl etc...
