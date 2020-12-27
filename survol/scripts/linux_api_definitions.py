@@ -587,14 +587,15 @@ def init_linux_globals(with_warning):
 
 ################################################################################
 
-def _batchlet_factory(batchCore):
+
+def _batchlet_factory(batch_core):
     try:
         # TODO: We will have to take the library into account.
-        a_model = G_batchModels[batchCore._function_name]
+        a_model = G_batchModels[batch_core._function_name]
     except KeyError:
         # This function name is not known. Do not do anything.
         a_model = None
-        G_batchModels[batchCore._function_name] = None
+        G_batchModels[batch_core._function_name] = None
 
     # Maybe this function is not processed because it does not have any interesting
     # side effect, such a accessing a file, creating a socket or a process.
@@ -608,47 +609,47 @@ def _batchlet_factory(batchCore):
     # [pid 12753] 14:56:54.296251 read(3 <unfinished ...>
     # [pid 12753] 14:56:54.296765 <... read resumed> , "#!/usr/bin/bash\n\n# Different ste"..., 131072) = 533 <0.000513>
 
-    if batchCore.m_status == BatchStatus.unfinished:
+    if batch_core.m_status == BatchStatus.unfinished:
 
         # A function as __libc_start_main() is happy if it is not finished
         # as the input parameters contain enough information for us.
         try:
             a_model.Incomplete_UnfinishedIsOk
-            btch_let_drv = a_model(batchCore)
+            btch_let_drv = a_model(batch_core)
             # ResumedOnly
             # UnfinishedOnly
         except AttributeError:
             # We do not have the return value, and maybe not all the arguments,
             # so we simply store what we have and hope to merge
             # with the "resumed" part, later on.
-            btch_let_drv = BatchLetBase(batchCore)
+            btch_let_drv = BatchLetBase(batch_core)
 
             # To match later with the "resumed" line.
-            G_stackUnfinishedBatches.push_unfinished_batch(batchCore)
-    elif batchCore.m_status == BatchStatus.resumed:
+            G_stackUnfinishedBatches.push_unfinished_batch(batch_core)
+    elif batch_core.m_status == BatchStatus.resumed:
         # We should have the "unfinished" part somewhere.
 
-        batch_core_merged = G_stackUnfinishedBatches.merge_pop_resumed_batch(batchCore)
+        batch_core_merged = G_stackUnfinishedBatches.merge_pop_resumed_batch(batch_core)
 
         if batch_core_merged:
-            assert batch_core_merged == batchCore
+            assert batch_core_merged == batch_core
             btch_let_drv = a_model(batch_core_merged)
         else:
             # Could not find the matching unfinished batch.
             # Still we try the degraded mode if it is available.
             try:
                 a_model.Incomplete_ResumedWithoutUnfinishedIsOk
-                btch_let_drv = a_model(batchCore)
+                btch_let_drv = a_model(batch_core)
             except AttributeError:
-                btch_let_drv = BatchLetBase(batchCore)
+                btch_let_drv = BatchLetBase(batch_core)
     else:
-        btch_let_drv = a_model(batchCore)
+        btch_let_drv = a_model(batch_core)
 
     # If the parameters makes it unusable anyway.
     try:
         btch_let_drv.m_core
         # sys.stdout.write("batchCore=%s\n"%id(batchCore))
-        assert btch_let_drv.m_core == batchCore
+        assert btch_let_drv.m_core == batch_core
         return btch_let_drv
     except AttributeError:
         return None
