@@ -24,6 +24,50 @@ import lib_kbase
 # These files are created by event_put, and read and deleted by event_get.py.
 # The type of the data stored in these files is exactly what can be returned by any scripts.
 
+
+# FIXME: This can be a lot simplified. This code results of the research of an intermittent time-out
+# FIXME: ... on Windows and Python 3 and if the test agent is started by pytest.
+def _get_graph_from_stdin(http_content_length):
+    """This reads stdin from the HTTP client and returns a rdflib graph."""
+    read_bytes_number = 0
+    loaded_bytes = b""
+    rest_to_read = http_content_length
+    loop_counter = 0
+    while True:
+        if lib_util.is_py3:
+            loaded_chunk = sys.stdin.buffer.read(rest_to_read)
+        else:
+            loaded_chunk = sys.stdin.read(rest_to_read)
+        assert isinstance(loaded_chunk, six.binary_type)
+        chunk_length = len(loaded_chunk)
+        loaded_bytes += loaded_chunk
+        rest_to_read -= chunk_length
+        read_bytes_number += chunk_length
+        if read_bytes_number >= http_content_length:
+            break
+        loop_counter += 1
+        time.sleep(0.5)
+        if loop_counter > 5:
+            # The end of the message might be lost. The beginning is OK.
+            # event_put.py chunk_length=24820
+            # ...
+            # event_put.py too many loops rest_to_read=725492
+            raise Exception(__file__ + " too many loops. read_bytes_number=%d" % read_bytes_number)
+
+    if loop_counter > 1:
+        sys.stderr.write("event_put.py BEWARE loop_counter=%d\n" % loop_counter)
+
+    if len(loaded_bytes) != http_content_length:
+        raise Exception("len(loaded_bytes)=%d http_content_length=%d" %(len(loaded_bytes), http_content_length))
+    if read_bytes_number != http_content_length:
+        raise Exception("read_bytes_number=%d http_content_length=%d" %(read_bytes_number, http_content_length))
+    bytes_stream = io.BytesIO(loaded_bytes)
+
+    rdflib_graph = rdflib.Graph()
+    rdflib_graph.parse(bytes_stream, format="application/rdf+xml")
+    return rdflib_graph
+
+
 def Main():
     lib_common.set_events_credentials()
 
@@ -34,47 +78,11 @@ def Main():
     # The script MUST NOT attempt to read more than CONTENT_LENGTH bytes, even if more data is available.
     sys.stderr.write("event_put.py http_content_length=%d time_start=%f\n" % (http_content_length, time_start))
 
-    # FIXME: This can be a lot simplified. This code results of the research of an intermittent time-out
-    # FIXME: ... on Windows and Python 3 and if the test agent is started by pytest.
     extra_error_status = ""
     try:
-        read_bytes_number = 0
-        loaded_bytes = b""
-        rest_to_read = http_content_length
-        loop_counter = 0
-        while True:
-            if lib_util.is_py3:
-                loaded_chunk = sys.stdin.buffer.read(rest_to_read)
-            else:
-                loaded_chunk = sys.stdin.read(rest_to_read)
-            assert isinstance(loaded_chunk, six.binary_type)
-            chunk_length = len(loaded_chunk)
-            loaded_bytes += loaded_chunk
-            rest_to_read -= chunk_length
-            read_bytes_number += chunk_length
-            if read_bytes_number >= http_content_length:
-                break
-            loop_counter += 1
-            time.sleep(0.5)
-            if loop_counter > 5:
-                # The end of the message might be lost. The beginning is OK.
-                # event_put.py chunk_length=24820
-                # ...
-                # event_put.py too many loops rest_to_read=725492
-                raise Exception(__file__ + " too many loops. read_bytes_number=%d" % read_bytes_number)
-
-        if loop_counter > 1:
-            sys.stderr.write("event_put.py BEWARE loop_counter=%d\n" % loop_counter)
-
-        if len(loaded_bytes) != http_content_length:
-            raise Exception("len(loaded_bytes)=%d http_content_length=%d" %(len(loaded_bytes), http_content_length))
-        if read_bytes_number != http_content_length:
-            raise Exception("read_bytes_number=%d http_content_length=%d" %(read_bytes_number, http_content_length))
-        bytes_stream = io.BytesIO(loaded_bytes)
+        rdflib_graph = _get_graph_from_stdin(http_content_length)
         time_loaded = time.time()
 
-        rdflib_graph = rdflib.Graph()
-        rdflib_graph.parse(bytes_stream, format="application/rdf+xml")
         triples_number = len(rdflib_graph)
         files_updates_total_number = lib_kbase.write_graph_to_events(None, rdflib_graph)
 
