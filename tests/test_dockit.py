@@ -1294,8 +1294,8 @@ class ReplaySessionsTest(unittest.TestCase):
                 # TODO: This is a hack to avoid replaying Windows sessions on Linux.
                 # TODO: This replay could theoretically run on Linux,
                 # TODO: but win32_defs must be amended so that it can load some parts, on Linux boxes.
-                if tracer == "pydbg" and is_platform_linux:
-                    print("DO NOT RUN FOR THE MOMENT:", input_log_file)
+                if tracer == "pydbg" and (is_platform_linux or pytest_pypy):
+                    print("Cannot replay pydbg tests on Linux or with Pypy3:", input_log_file)
                     continue
 
                 for output_format in ["JSON"]:
@@ -1311,13 +1311,13 @@ class ReplaySessionsTest(unittest.TestCase):
                         with_dockerfile=True,
                         aggregator="clusterize")
 
-            # Files .ini are not created for replay sessions.
-            check_file_missing(output_basename_prefix + ".ini")
+                # Files .ini are not created for replay sessions.
+                check_file_missing(output_basename_prefix + ".ini")
 
-            # Files .log are not created because --duplicate option is not set.
-            check_file_missing(output_basename_prefix + ".log")
+                # Files .log are not created because --duplicate option is not set.
+                check_file_missing(output_basename_prefix + ".log")
 
-            _check_file_content(self, output_basename_prefix + ".summary.txt")
+                _check_file_content(self, output_basename_prefix + ".summary.txt")
 
 
 class RunningLinuxProcessesTest(unittest.TestCase):
