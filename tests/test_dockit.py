@@ -1451,9 +1451,26 @@ class EventsServerTest(unittest.TestCase):
         print("actual_types_dict=", actual_types_dict)
         self.assertEqual(expected_types_list, actual_types_dict)
 
+    def _create_data_set(self, triples_count):
+        count_triples = 1000
+        any_url = "http://any.url/"
+        sent_triples = sorted([
+            (
+                rdflib.URIRef(any_url + "subject_%d" % idx),
+                rdflib.URIRef(any_url + "predicate_%d" % idx),
+                rdflib.URIRef(any_url + "obbject_%d" % idx)
+            ) for idx in range(triples_count)
+        ])
+        return sent_triples
+
     def test_basic_event_put(self):
-        """This just put a graph and checks that it is properly stored."""
+        """This stores a graph, and reads its content, then check the result."""
         the_graph = rdflib.Graph()
+
+        sent_triples = self._create_data_set(triples_count=100000)
+
+        for one_triple in sent_triples:
+            the_graph.add(one_triple)
 
         sent_triples_number = len(the_graph)
         received_triples_number = cim_objects_definitions.send_graph_to_url(the_graph, _remote_events_database)
@@ -1462,6 +1479,9 @@ class EventsServerTest(unittest.TestCase):
         events_graph = self._get_all_events_as_graph()
         received_graph_size = len(events_graph)
         self.assertEqual(received_triples_number, received_graph_size)
+
+        received_triples = sorted([the_triple for the_triple in events_graph])
+        self.assertEqual(received_triples, sent_triples)
 
     def test_file_events_ps_ef(self):
         """This reruns the tracing of the Linux command "ps -ef" """
