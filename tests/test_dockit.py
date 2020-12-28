@@ -1467,7 +1467,7 @@ class EventsServerTest(unittest.TestCase):
         """This stores a graph, and reads its content, then check the result."""
         the_graph = rdflib.Graph()
 
-        sent_triples = self._create_data_set(triples_count=100000)
+        sent_triples = self._create_data_set(triples_count=1000)
 
         for one_triple in sent_triples:
             the_graph.add(one_triple)
