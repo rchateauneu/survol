@@ -18,7 +18,11 @@ except ImportError:
 
 from init import *
 
-if not is_platform_linux:
+is_pydbg_available = is_platform_windows and not pytest_pypy
+
+pytest_skip_pydbg = unittest.skipIf(not is_pydbg_available, "pydbg must be available")
+
+if is_pydbg_available:
     from survol.scripts import pydbg
     from survol.scripts.pydbg import defines
     from survol.scripts.pydbg import utils
@@ -26,7 +30,7 @@ if not is_platform_linux:
 
 ################################################################################
 
-@unittest.skipIf(is_platform_linux, "Windows only.")
+@pytest_skip_pydbg
 class BasicTest(unittest.TestCase):
     """
     Test basic features.
@@ -77,7 +81,7 @@ class BasicTest(unittest.TestCase):
 
 ################################################################################
 
-@unittest.skipIf(is_platform_linux, "Windows only.")
+@pytest_skip_pydbg
 class WindowsDosCmdHooksTest(unittest.TestCase):
     """
     Test pydbg with DOS CMD processes.
@@ -508,7 +512,7 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
 
 
 # BEWARE: When running DOS tests first, then Python tests fail.
-@unittest.skipIf(is_platform_linux, "Windows only.")
+@pytest_skip_pydbg
 class PythonHooksTest(unittest.TestCase):
     """
     Test pydbg from Python processes.
@@ -901,7 +905,7 @@ for counter in range(3):
         self.assertTrue(Context.s_addr == socket.gethostbyname(server_domain))
 
 
-@unittest.skipIf(is_platform_linux, "Windows only.")
+@pytest_skip_pydbg
 @unittest.skipIf(pkgutil.find_loader('pywin32'), "Needs pywin32 module.")
 class Pywin32HooksTest(unittest.TestCase):
     """
