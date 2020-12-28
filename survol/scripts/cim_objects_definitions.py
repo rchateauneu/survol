@@ -504,6 +504,38 @@ class HttpTriplesClientFile(HttpTriplesClientNone):
         self._events_graph.add(rdf_triple)
 
 
+def send_graph_to_url(input_graph, events_url):
+    """This sends a rdflib Graph to an URL in RDF-XML format.
+    It checks the output and returns the number of inserted triples."""
+
+    # TODO: Ideally, should serialize the graph into the socket.
+    bytes_stream = io.BytesIO()
+    input_graph.serialize(destination=bytes_stream, format='pretty-xml')
+    events_as_bytes = bytes_stream.getvalue()
+    bytes_number = len(events_as_bytes)
+
+    try:
+        if True:
+            the_headers = {"Content-type": "application/xml:", 'Content-Length': bytes_number}
+            req = urllib2.Request(events_url, headers=the_headers)
+            urlopen_result = urllib2.urlopen(req, data=events_as_bytes, timeout=10.0)
+        else:
+            req = urllib2.Request(events_url)
+            urlopen_result = urllib2.urlopen(req, data=events_as_bytes, timeout=10.0)
+    except Exception as server_exception:
+        sys.stderr.write("Event server error=%s\n" % str(server_exception))
+        self._is_valid_http_client = False
+        raise
+
+    server_response = urlopen_result.read()
+    json_response = json.loads(server_response)
+    if json_response['success'] != 'true':
+        raise Exception("Event server error message=%s\n" % json_response['error_message'])
+    received_triples_number = int(json_response['triples_number'])
+    print("send_graph_to_url received_triples_number=%d\n" % received_triples_number)
+    return received_triples_number
+
+
 class HttpTriplesClientHttp(HttpTriplesClientNone):
     """This objects groups triples to send to the HTTP server, and periodically wakes up to send them."""
     def __init__(self):
@@ -527,63 +559,23 @@ class HttpTriplesClientHttp(HttpTriplesClientNone):
         print("HttpTriplesClientHttp.http_client_shutdown threaded=", self._is_threaded_client)
         self._push_triples_to_server()
 
-    def _pop_triples_to_bytes(self):
-        """ Dockit stores its triples in a list, not in with rdflib.
-        This function serializes this JSON list into bytes which is then sent to the server. """
-
-        bytes_stream = io.BytesIO()
-        self._events_graph.serialize(destination=bytes_stream, format='pretty-xml')
-        events_as_bytes = bytes_stream.getvalue()
-        events_number = len(events_as_bytes)
-        return events_as_bytes, events_number
-
-    def _send_bytes_to_server(self, triples_as_bytes):
-        # The server URL is like: "http://my_machine:1234/survol/event_put.py"
-        assert isinstance(triples_as_bytes, six.binary_type)
-        print("_send_bytes_to_server G_UpdateServer=", G_UpdateServer)
-        if not self._is_valid_http_client:
-            return -1
-        try:
-            if True:
-                cont_len = len(triples_as_bytes)
-                the_headers = {"Content-type": "application/xml:", 'Content-Length': cont_len}
-
-                req = urllib2.Request(G_UpdateServer, headers=the_headers)
-                #print("_send_bytes_to_server len(triples_as_bytes)=%d\n" % len(triples_as_bytes))
-                urlopen_result = urllib2.urlopen(req, data=triples_as_bytes, timeout=10.0)
-            else:
-                req = urllib2.Request(G_UpdateServer)
-                #print("_send_bytes_to_server len(triples_as_bytes)=%d\n" % len(triples_as_bytes))
-                urlopen_result = urllib2.urlopen(req, data=triples_as_bytes, timeout=10.0)
-
-            server_response = urlopen_result.read()
-            json_response = json.loads(server_response)
-            if json_response['success'] != 'true':
-                raise Exception("Event server error message=%s\n" % json_response['error_message'])
-            received_triples_number = int(json_response['triples_number'])
-            print("_send_bytes_to_server received_triples_number=%d\n" % received_triples_number)
-            return received_triples_number
-
-        except Exception as server_exception:
-            sys.stdout.write("Event server error=%s\n" % str(server_exception))
-            self._is_valid_http_client = False
-            raise
-
     def _push_triples_to_server(self):
+        """This sends the graph containing the events, to the HTTP server.
+        This HTTP server can for example store them in a triplestore.
+        """
         if self._is_threaded_client:
             self._shared_lock.acquire()
-        triples_as_bytes, sent_triples_number = self._pop_triples_to_bytes()
-        # Immediately unlocked so no need to wait for the server.
+        # Take a reference to the graph and create a new one. The reference now cannot be changed and is safe.
+        reference_to_graph = self._events_graph
+        self._events_graph = rdflib.Graph()
+        # Immediately unlocked so no need to wait for the url access.
         if self._is_threaded_client:
             self._shared_lock.release()
 
-        # FIXME: In thread mode or not the URL event_put.py sometimes times out, on Python 3 and only
-        # FIXME: ... if the server is started by the test program (pytest or unittest).
-        # FIXME: This is not clear. Maybe the database is hanging.
-        if triples_as_bytes:
-            received_triples_number = self._send_bytes_to_server(triples_as_bytes)
-            if received_triples_number != len(self._events_graph):
-                raise Exception("Lost triples: %d != %d\n" % (received_triples_number, sent_triples_number))
+        if reference_to_graph:
+            received_triples_number = send_graph_to_url(reference_to_graph, G_UpdateServer)
+            if received_triples_number != len(reference_to_graph):
+                raise Exception("Lost triples: %d != %d\n" % (received_triples_number, len(reference_to_graph)))
 
     def run(self):
         """This thread functor loops on the container of triples.

@@ -1386,9 +1386,21 @@ class EventsServerTest(unittest.TestCase):
     def setUp(self):
         # If a Survol agent does not run on this machine with this port, this script starts a local one.
         self._remote_events_test_agent, self._agent_url = start_cgiserver(RemoteEventsTestServerPort)
+        self.url_events = _remote_events_test_agent + "/survol/sources_types/event_get_all.py?mode=rdf"
 
     def tearDown(self):
         stop_cgiserver(self._remote_events_test_agent)
+
+    def _get_all_events_as_graph(self):
+        events_response = portable_urlopen(self.url_events, timeout=20)
+        events_content = events_response.read()  # Py3:bytes, Py2:str
+        split_content = events_content.split(b"\n")
+        events_content_trunc = b"".join(split_content)
+
+        events_graph = rdflib.Graph()
+        result = events_graph.parse(data=events_content_trunc, format="application/rdf+xml")
+        print("len results=", len(result), "len(events_graph)=", len(events_graph))
+        return events_graph
 
     def _check_read_triples(self, expected_types_list):
         """This reads all available events and do a simplified comparison of the results,
@@ -1398,8 +1410,6 @@ class EventsServerTest(unittest.TestCase):
         """
 
         num_loops = 4
-
-        url_events = _remote_events_test_agent + "/survol/sources_types/event_get_all.py?mode=rdf"
 
         total_events_graph = rdflib.Graph()
 
@@ -1429,14 +1439,7 @@ class EventsServerTest(unittest.TestCase):
             return actual_types_dict
 
         while num_loops > 0:
-            events_response = portable_urlopen(url_events, timeout=20)
-            events_content = events_response.read()  # Py3:bytes, Py2:str
-            split_content = events_content.split(b"\n")
-            events_content_trunc = b"".join(split_content)
-
-            events_graph = rdflib.Graph()
-            result = events_graph.parse(data=events_content_trunc, format="application/rdf+xml")
-            print("len results=", len(result), "len(events_graph)=", len(events_graph))
+            events_graph = self._get_all_events_as_graph()
             actual_types_dict = is_finished(events_graph)
             if expected_types_list == actual_types_dict:
                 break
@@ -1447,6 +1450,18 @@ class EventsServerTest(unittest.TestCase):
         print("expected_types_list=", expected_types_list)
         print("actual_types_dict=", actual_types_dict)
         self.assertEqual(expected_types_list, actual_types_dict)
+
+    def test_basic_event_put(self):
+        """This just put a graph and checks that it is properly stored."""
+        the_graph = rdflib.Graph()
+
+        sent_triples_number = len(the_graph)
+        received_triples_number = cim_objects_definitions.send_graph_to_url(the_graph, _remote_events_database)
+        self.assertEqual(received_triples_number, sent_triples_number)
+
+        events_graph = self._get_all_events_as_graph()
+        received_graph_size = len(events_graph)
+        self.assertEqual(received_triples_number, received_graph_size)
 
     def test_file_events_ps_ef(self):
         """This reruns the tracing of the Linux command "ps -ef" """
