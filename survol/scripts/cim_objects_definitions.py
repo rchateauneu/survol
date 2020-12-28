@@ -524,7 +524,6 @@ def send_graph_to_url(input_graph, events_url):
             urlopen_result = urllib2.urlopen(req, data=events_as_bytes, timeout=10.0)
     except Exception as server_exception:
         sys.stderr.write("Event server error=%s\n" % str(server_exception))
-        self._is_valid_http_client = False
         raise
 
     server_response = urlopen_result.read()
@@ -547,7 +546,6 @@ class HttpTriplesClientHttp(HttpTriplesClientNone):
         # TODO: Test this with thread mode.
         self._is_threaded_client = False
 
-        self._is_valid_http_client = True
         if self._is_threaded_client:
             self._shared_lock = threading.Lock()
             self._client_thread = threading.Thread(target = self.run)
