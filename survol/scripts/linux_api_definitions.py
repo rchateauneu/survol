@@ -510,9 +510,10 @@ def my_with_metaclass(meta, *bases):
 class BatchLetBase(my_with_metaclass(BatchMeta)):
     """All class modeling a system call inherit from this."""
 
-    # The style tells if this is a native call or an aggregate of function
-    # calls, made with some style: Factorization etc...
     def __init__(self, batchCore, style="Orig"):
+        """The style tells if this is a native call or an aggregate of function
+        calls, made with some style: Factorization etc...
+        It is exclusively used when aggregating calls. """
         self.m_core = batchCore
         self.m_occurrences = 1
         self.m_style = style
@@ -529,8 +530,8 @@ class BatchLetBase(my_with_metaclass(BatchMeta)):
     def cim_context_core(self):
         return self.m_core.cim_context()
 
-    # This is used to detect repetitions.
     def get_signature_without_args(self):
+        """This is used to detect repetitions."""
         return self.m_core._function_name
 
     def get_signature_with_args(self):
@@ -541,8 +542,8 @@ class BatchLetBase(my_with_metaclass(BatchMeta)):
             self.m_signatureWithArgs = self.m_core._function_name + ":" + "&".join(map(str, self.m_significantArgs))
             return self.m_signatureWithArgs
 
-    # This is very often used.
     def get_stream_name(self, idx=0):
+        """Beware: This is on the critical path. """
         a_fil = self._strace_stream_to_file(self.m_core.m_parsedArgs[idx])
         return [a_fil]
 
