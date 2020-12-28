@@ -12,7 +12,11 @@ import psutil
 
 from init import *
 
-if not is_platform_linux:
+is_pydbg_available = is_platform_windows and not pytest_pypy
+
+pytest_skip_pydbg = unittest.skipIf(not is_pydbg_available, "pydbg must be available")
+
+if is_pydbg_available:
     from survol.scripts import win32_api_definitions
 
     # This counts the system function calls, and the creation of objects such as files, processes etc...
@@ -37,7 +41,7 @@ from survol import lib_util
 
 nonexistent_file = "NonExistentFile.xyz"
 
-@unittest.skipIf(is_platform_linux, "Windows only.")
+@pytest_skip_pydbg
 class HooksManagerUtil(unittest.TestCase):
     """The role of this class is to create and delete the object
     which handles the debugging session and the break points. """
@@ -92,7 +96,7 @@ def _attach_pid_target_function(one_argument, num_loops):
     print('_attach_pid_target_function END.')
 
 
-@unittest.skipIf(is_platform_linux, "Windows only.")
+@pytest_skip_pydbg
 class PydbgAttachTest(HooksManagerUtil):
     """
     Test pydbg callbacks.
@@ -151,7 +155,7 @@ class PydbgAttachTest(HooksManagerUtil):
 ################################################################################
 
 
-@unittest.skipIf(is_platform_linux, "Windows only.")
+@pytest_skip_pydbg
 class DOSCommandsTest(HooksManagerUtil):
     """
     Test pydbg callbacks when running a DOS command.
@@ -355,7 +359,7 @@ class DOSCommandsTest(HooksManagerUtil):
 ################################################################################
 
 
-@unittest.skipIf(is_platform_linux, "Windows only.")
+@pytest_skip_pydbg
 class PythonScriptsTest(HooksManagerUtil):
     """
     Test python scripts created on-the-fly.
@@ -938,7 +942,7 @@ if __name__ == '__main__':
 ################################################################################
 
 
-@unittest.skipIf(is_platform_linux, "Windows only.")
+@pytest_skip_pydbg
 @unittest.skipIf(not check_program_exists("perl"), "Perl must be installed.")
 class PerlScriptsTest(HooksManagerUtil):
     """
