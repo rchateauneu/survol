@@ -54,10 +54,12 @@ class SparqlWmiBasicTest(unittest.TestCase):
 
 ################################################################################
 
-# This sets the CUSTOM_EVALS callback for all derived tests.
-# This callbask abalyses the SPARQL query statements and loads the RDF triples
-# from WMI data, by splitting the SPARQL query into nested WQL queries.
 class CUSTOM_EVALS_WMI_Base_Test(unittest.TestCase):
+    """
+    This sets the CUSTOM_EVALS callback for all derived tests.
+    This callbask analyses the SPARQL query statements and loads the RDF triples
+    from WMI data, by splitting the SPARQL query into nested WQL queries.
+    """
 
     def setUp(self):
         # add function directly, normally we would use setuptools and entry_points
