@@ -74,28 +74,28 @@ def add_ontology(graph):
     graph.add((associator_CIM_ProcessExecutable, rdflib.namespace.RDFS.label, rdflib.Literal("CIM_ProcessExecutable")))
 
 
-is_platform_windows = sys.platform.startswith("win32")
-is_platform_linux = sys.platform.startswith("linux")
-
-
 def equal_paths(path_a, path_b):
+    """This compares two file names irrespective of the platform."""
     # print("process_executable=", process_executable, "executable_path=", executable_path)
     # With pytest as a command line: "c:\python27\python.exe" != "C:\Python27\python.exe"
-    if is_platform_linux:
+
+    # TODO: Now that paths are standardized, this conversation may be replaced by a plain string comparison,
+    if lib_util.isPlatformLinux:
         return path_a == path_b
-    elif is_platform_windows:
+    elif lib_util.isPlatformWindows:
         return path_a.upper() == path_b.upper()
     else:
         raise Exception("Invalid platform")
 
 
 def _is_readable_file(file_path):
-    """For testing and debugging purpose."""
+    """For testing and debugging purpose. This is needed because file which are read protected can be listed,
+    but cannot be read-opened. """
 
     if os.path.isfile(file_path):
         return True
 
-    if is_platform_windows:
+    if lib_util.isPlatformWindows:
         try:
             with open(file_path):
                 pass
@@ -111,14 +111,34 @@ def _is_readable_file(file_path):
     return False
 
 
-def current_function():
-    """For debugging purpose."""
+def _current_function():
+    """For debugging purpose. Returns the current function name"""
     return sys._getframe(1).f_code.co_name
 
 ################################################################################
 
 
 class Sparql_CIM_Object(object):
+    """
+    This is the base class of a CIM object in the context of mapping Sparql queries to CIM.
+
+    This mapping assumes objects made of a class, with attributes as a dictionary of key-values.
+    For each class, there is a minimal set of keys which must have a value.
+    This list of keys is the ontology of a class, that is, the description of its properties.
+    The value types are always strings.
+
+    CIM objects are mapped to a Sparql variable and can be searched. They are not only a set of literal values.
+    Mapping Sparql to CIM implies for example  that CIM objects in these queries have an URI and a type.
+
+    As a consequence, this mapping transforms a Sparql query into a sequence of the CIM Query Language (CQL),
+    in its WMI or WBEM implementations, because they are structurally identical.
+
+    The performance can be poor, but the returned information is always up-to-date, without an intermediary cache.
+    This allows Sqarql to directly query information from the operating system.
+
+    Optimisations are possible, for specific classes, by short-cutting WMI/WBEM.
+    This is not done here, because the priority is to test the general case.
+    """
     def __init__(self, class_name, key_variable, ontology_keys):
         self.m_variable = key_variable
         self.m_class_name = class_name
@@ -130,7 +150,9 @@ class Sparql_CIM_Object(object):
         # print("__init__ ontology_keys=", ontology_keys)
 
     def __str__(self):
+        """This is used for debugging: It displays a string with the ontology key-value pairs. """
         def kw_to_str(property, value):
+            # This strips the prefix of the string.
             property_str = str(property)[len(survol_url):]
             value_str = str(value)
             return "%s=%s" % (property_str, value_str)
@@ -153,8 +175,8 @@ class Sparql_CIM_Object(object):
         If variables are grouped in tuples, it means that they are correlated: For example a file path and its node id,
         or a process id and its command line.
         """
-        sys.stderr.write("FetchAllVariables not implemented\n")
-        raise NotImplementedError(current_function())
+        sys.stderr.write("FetchAllVariables cannot be implemented in base class.\n")
+        raise NotImplementedError(_current_function())
 
     def CalculateVariablesNumber(self):
         self.m_number_variables = 0
@@ -521,10 +543,6 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
         executable_path = str(executable_node)
 
         # Because of backslashes transformed into slashes, which is necessary because of Sparql.
-        #executable_path = os.path.normpath(executable_path)
-        #if is_platform_linux:
-        #    executable_path = os.path.realpath(executable_path)
-        #    #sys.stderr.write("executable_path=%s\n" % executable_path)
         executable_path = lib_util.standardized_file_path(executable_path)
 
         process_urls_list = []
@@ -988,10 +1006,10 @@ def check_returned_variables(returned_variables):
 def product_variables_lists(returned_variables, iter_keys=None):
     """
     The input is a set of {variable: list-of-values.
-    It returns a set of {variable: value}, which is the set of combinations
-    of all possible values for each variable.
+    It returns a set of {variable: value}, which is the set of combinations of all possible values for each variable.
     A variable can also be a tuple of rdflib variables.
     In this case, the values must also be tuples.
+    This is used to explore all combinations of values when adding using custom evals in a Sparql query.
     """
     check_returned_variables(returned_variables)
     try:
