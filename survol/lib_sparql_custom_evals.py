@@ -679,6 +679,10 @@ wmiExecutor = None
 
 
 class Sparql_WMI_GenericObject(Sparql_CIM_Object):
+    """
+    This models any WMI object of any class.
+    The urls are the same with object created by pure Survol classes.
+    """
     def __init__(self, class_name, node):
         _wmi_load_ontology()
 
@@ -690,8 +694,8 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         # from WMI, no information is lost, even if the container.
         self.m_class_node = lib_kbase.RdfsPropertyNode(class_name)
 
-    def IteratorToObjects(self, rdflib_graph, iterator_objects):
-        #sys.stderr.write("IteratorToObjects\n")
+    def _iterator_to_objects(self, rdflib_graph, iterator_objects):
+        #sys.stderr.write("_iterator_to_objects\n")
 
         # Set by the first row.
         list_variables = []
@@ -702,7 +706,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         property_names_used = []
 
         list_current_values = []
-        #sys.stderr.write("IteratorToObjects %s self.m_properties.keys()=%s\n" % (str(self.m_variable), str(self.m_properties)))
+        #sys.stderr.write("_iterator_to_objects %s self.m_properties.keys()=%s\n" % (str(self.m_variable), str(self.m_properties)))
 
         for object_path, dict_key_values in iterator_objects:
 
@@ -710,7 +714,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
                 # The first object is used to create the list of attributes.
                 list_variables.append(self.m_variable)
                 for wql_key_node, wql_value_dummy in dict_key_values.items():
-                    #sys.stderr.write("IteratorToObjects wql_key_node=%s\n" % wql_key_node)
+                    #sys.stderr.write("_iterator_to_objects wql_key_node=%s\n" % wql_key_node)
                     assert isinstance(wql_key_node, rdflib.term.URIRef)
                     if wql_key_node not in self.m_properties:
                         continue
@@ -730,8 +734,8 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             # WMI returns object_path = '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="11568"'
             # Survol object URL must be like: http://rchateau-hp:8000/survol/entity.py?xid=CIM_Process.Handle=6936
             # Therefore, the WMI path cannot be used "as is", but instead use the original self.m_class_name.
-            # sys.stderr.write("IteratorToObjects object_path=%s\n" % object_path)
-            # sys.stderr.write("IteratorToObjects dict_key_values.keys()=%s\n"
+            # sys.stderr.write("_iterator_to_objects object_path=%s\n" % object_path)
+            # sys.stderr.write("_iterator_to_objects dict_key_values.keys()=%s\n"
             #                 % [lib_properties.PropToQName(one_uri_ref) for one_uri_ref in dict_key_values])
             uri_key_values = {}
             wmi_class_keys = self.class_keys()
@@ -754,11 +758,11 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             variable_values_tuple = tuple(variable_values_list)
             list_current_values.append(variable_values_tuple)
 
-        #sys.stderr.write("IteratorToObjects list_variables=%s\n" % list_variables)
+        #sys.stderr.write("_iterator_to_objects list_variables=%s\n" % list_variables)
         assert all((isinstance(one_variable, rdflib.term.Variable) for one_variable in list_variables))
         tuple_variables = tuple(list_variables)
         returned_variables = {tuple_variables: list_current_values}
-        #sys.stderr.write("IteratorToObjects END\n\n")
+        #sys.stderr.write("_iterator_to_objects END\n\n")
         check_returned_variables(returned_variables)
         return returned_variables
 
@@ -771,7 +775,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         #sys.stderr.write("SelectWmiObjectFromProperties filtered_where_key_values=%s\n" % str(filtered_where_key_values))
         iterator_objects = wmiExecutor.SelectObjectFromProperties(self.m_class_name, filtered_where_key_values)
         #####iterator_objects = list(iterator_objects)
-        returned_variables = self.IteratorToObjects(graph, iterator_objects)
+        returned_variables = self._iterator_to_objects(graph, iterator_objects)
         check_returned_variables(returned_variables)
         #sys.stderr.write("SelectWmiObjectFromProperties returned_variables=:\n")
         check_returned_variables(returned_variables)
@@ -848,7 +852,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
 
             # This returns a map of one element only. The key is a tuple of variables.
             # The value is a list of tuples of the same size.
-            returned_variables_one = self.IteratorToObjects(graph, iterator_objects)
+            returned_variables_one = self._iterator_to_objects(graph, iterator_objects)
             assert len(returned_variables_one) == 1
             first_key = next(iter(returned_variables_one))
             #sys.stderr.write("CreateAssociatorObjectsBidirectional first_key=%s\n"
@@ -881,7 +885,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
                 assert isinstance(one_tuple_url, tuple)
                 assert len(one_tuple_url) >= 1
                 object_url = one_tuple_url[index_url_key]
-                isinstance(object_url, rdflib.URIRef)
+                assert isinstance(object_url, rdflib.URIRef)
                 if role_index == 0:
                     graph.add((associated_variable_value, associator_predicate, object_url))
                 else:
@@ -1027,6 +1031,8 @@ def product_variables_lists(returned_variables, iter_keys=None):
     A variable can also be a tuple of rdflib variables.
     In this case, the values must also be tuples.
     This is used to explore all combinations of values when adding using custom evals in a Sparql query.
+
+    This recursive function returns an iterator so the input can be quite large.
     """
     check_returned_variables(returned_variables)
     try:
@@ -1062,6 +1068,8 @@ def product_variables_lists(returned_variables, iter_keys=None):
                 #sys.stderr.write("one_value.types:%s\n" % str([type(single_value) for single_value in one_value]))
                 assert all((isinstance(single_value, (rdflib.term.Literal, rdflib.term.URIRef)) for single_value in one_value))
 
+                # This receives new values for some variables only. The other variables are not touched.
+                # A possible optimisation would be to avoid the copy of untouched key-value paris.
                 new_dict.update(zip(first_key, one_value))
 
                 #sys.stderr.write("product_variables_lists first_key=%s\n" % str(first_key))
