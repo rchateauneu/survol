@@ -178,15 +178,17 @@ class Sparql_CIM_Object(object):
         sys.stderr.write("FetchAllVariables cannot be implemented in base class.\n")
         raise NotImplementedError(_current_function())
 
-    def CalculateVariablesNumber(self):
-        self.m_number_variables = 0
+    def calculate_literals_number(self):
+        #self.m_number_variables = 0
         self.m_number_literals = 0
         # FIXME: No need to list the associators which contains only instances. Logic should be different.
         for one_dict in [self.m_associators, self.m_associated, self.m_properties]:
             for key, value in one_dict.items():
-                if isinstance(value, rdflib.term.Variable):
-                    self.m_number_variables += 1
-                elif isinstance(value, rdflib.term.Literal):
+                #if isinstance(value, rdflib.term.Variable):
+                #    self.m_number_variables += 1
+                #elif isinstance(value, rdflib.term.Literal):
+                #    self.m_number_literals += 1
+                if isinstance(value, rdflib.term.Literal):
                     self.m_number_literals += 1
 
     def GetNodeValue(self, predicate_node, variables_context):
@@ -406,6 +408,7 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
 
 class Sparql_CIM_Process(Sparql_CIM_Object):
     def __init__(self, class_name, node):
+        # This is the list of required attributes for this object.
         super(Sparql_CIM_Process, self).__init__(class_name, node, ["Handle"])
 
     # Several properties can be used to return one or several objects.
@@ -632,7 +635,16 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
         return returned_variables
 
 
-def CreateSparql_CIM_Object(class_name, the_subject):
+def _sparql_factory_CIM_Object_Survol(class_name, the_subject):
+    """
+    This is a factory for the rdflib custom eval function which handles CIM objects created by Survol only.
+
+    :param class_name: a CIM class name. Strictly speaking, it is redundant
+                       because alreasy available in the URL.
+    :param the_subject: The RDF url node of the object.
+    :return: An instanciation of a derived class of Sparql_CIM_Object,
+            modelling the object whose URL is passed as parameter.
+    """
     class_name_to_class = {
         "CIM_DataFile": Sparql_CIM_DataFile,
         "CIM_Directory": Sparql_CIM_Directory,
@@ -926,7 +938,12 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         return returned_variables
 
 
-def CreateSparql_CIM_Object_Wmi(class_name, the_subject):
+def _sparql_factory_CIM_Object_Wmi(class_name, the_subject):
+    """
+    Given a class name and the rdflib node of an URL,
+    it returns an object which contains the attributes of this CIM object,
+    ready to ba handled in Sparql custom evals.
+    """
     the_instance = Sparql_WMI_GenericObject(class_name, the_subject)
     return the_instance
 
@@ -1059,14 +1076,11 @@ def findable_instance_key(instances_dict):
     """An instance which is completely known and can be used as a starting point."""
     sys.stderr.write("findable_instance_key\n")
     for instance_key, one_instance in instances_dict.items():
-        one_instance.CalculateVariablesNumber()
+        one_instance.calculate_literals_number()
         sys.stderr.write("    Key=%s Instance=%s\n" % (instance_key, one_instance))
-        # Maybe we could return the instance with the greatest number of
-        # literals ? Or the one whose implied instances are the fastest to find.
-        # if one_instance.m_number_variables == 0 and one_instance.m_number_literals > 0:
 
         # We want to be able to retrieve at least one object, and as fast as possible.
-        # This should check if wthe properties of the ontology are defined,
+        # This should check if the properties of the ontology are defined,
         # this is very important for WMI otherwise the performance can be awful.
         # On the other hand, in the general case, any property is enough, maybe none of them.
         # Realistically, in this examples, the ontologies properties are required.
@@ -1074,7 +1088,7 @@ def findable_instance_key(instances_dict):
             return instance_key
 
     # Could not find an instance with enough information.
-    # The only possibility is to list all object. So, return the first instance.
+    # The only possibility is to list all objects. So, return the first instance.
     for instance_key, one_instance in instances_dict.items():
         return instance_key
 
@@ -1139,19 +1153,44 @@ def visit_all_nodes(instances_dict):
 
 
 def custom_eval_function(ctx, part):
-    return custom_eval_function_generic(ctx, part, CreateSparql_CIM_Object)
+    """
+    This function matches the requirement of a rdflib custom evaluation function.
+    Used by the Sparql endpoint sparql.py
+
+    It uses an object factory which returns objectgs created by Survol only (Not WMI or WBEM)
+    """
+    return custom_eval_function_generic(ctx, part, _sparql_factory_CIM_Object_Survol)
 
 
 def custom_eval_function_wmi(ctx, part):
-    return custom_eval_function_generic(ctx, part, CreateSparql_CIM_Object_Wmi)
+    """
+    This function matches the requirement of a rdflib custom evaluation function.
+    Used by tests only.
+    """
+    return custom_eval_function_generic(ctx, part, _sparql_factory_CIM_Object_Wmi)
 
 
 def custom_eval_function_wbem(ctx, part):
+    """
+    This function matches the requirement of a rdflib custom evaluation function.
+    Not implemented yet.
+    This is very similar to WMI because the underlying CQL query language is structurally the same.
+    """
     return custom_eval_function_generic(ctx, part, None)
 
 
 def custom_eval_function_generic(ctx, part, sparql_instance_creator):
-    """Inspired from https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html """
+    """
+    Inspired from https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html
+
+    It takes as parameter a factory of objects. The factory of Survol or WMI objects have different
+    implementations but return the same objects for the same input arguments.
+
+    Their implementations are different because the WMI one exclusively uses WMI queries to retrieve objects.
+    Also, it can use any class handled by the installed WMI providers.
+
+    On the contrary, the Survol factory uses custom fucntkons, nuch faster but hard-coded by class type.
+    """
 
     # part.name = "SelectQuery", "Project", "BGP"
     if part.name == 'BGP':
