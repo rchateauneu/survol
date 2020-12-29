@@ -67,6 +67,19 @@ def _get_graph_from_stdin(http_content_length):
     rdflib_graph.parse(bytes_stream, format="application/rdf+xml")
     return rdflib_graph
 
+# Tested with Win7 py2.7
+def _get_graph_from_stdin_FASTER_DRAFT(http_content_length):
+    """This reads stdin from the HTTP client and returns a rdflib graph."""
+    if lib_util.is_py3:
+        #bytes_stream = sys.stdin.buffer
+        bytes_stream = sys.stdin
+    else:
+        bytes_stream = sys.stdin
+
+    rdflib_graph = rdflib.Graph()
+    rdflib_graph.parse(bytes_stream, format="application/rdf+xml")
+    return rdflib_graph
+
 
 def Main():
     lib_common.set_events_credentials()
