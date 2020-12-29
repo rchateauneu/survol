@@ -1049,6 +1049,12 @@ class WmiSparqlExecutor:
 
     @staticmethod
     def _cleanup_wmi_path(wmi_path):
+        """
+        This hardcode on class names because backslahes are not easily processed in Sparql queries.
+        Therefore, file paths are standardised by replacing backslahes by slashes.
+        :param wmi_path:
+        :return:
+        """
         # HACK: Temporary hard-code !! Same problem as WmiCallbackSelect
         # TODO: We must quadruple backslashes in Sparql queries.
         if "CIM_DataFile.Name" in wmi_path:
@@ -1064,10 +1070,17 @@ class WmiSparqlExecutor:
         return wmi_path
 
     def SelectBidirectionalAssociatorsFromObject(self, result_class_name, associator_key_name, wmi_path, role_index):
-        # subject_path = '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="31588"'
-        #sys.stderr.write("SelectAssociatorsFromObject subject_path=%s\n" % wmi_path)
-        # dummy, colon, wmi_path = subject_path.partition(":")
-        #DEBUG("WmiCallbackAssociator wmi_path=%s", wmi_path)
+        """
+        This runs an ASSOCIATOR WMI query.
+        It then returns an iterator of tuples, these tuples made of an URL and the key-value pairs.
+
+        :param result_class_name: The expected class name of the resulting associated objects.
+        :param associator_key_name: The name of the associator between the
+        :param wmi_path: The path of the object of which the associated objects are returned,
+        :param role_index: Index of the role of the associator. This solution is not entirely general
+                           and in some cases the roles are inverted.
+        :return: An iterator on url + key-value pairs.
+        """
 
         wmi_path = self._cleanup_wmi_path(wmi_path)
 
@@ -1082,8 +1095,10 @@ class WmiSparqlExecutor:
         sys.stderr.write("reference_class_properties=%s\n" % str(reference_class_properties))
         chosen_role = reference_class_properties[role_index][1]
 
+        # Examples:
         # 'ASSOCIATORS OF {Win32_Process.Handle="1780"} WHERE AssocClass=CIM_ProcessExecutable ResultClass=CIM_DataFile'
-        # 'ASSOCIATORS OF {CIM_DataFile.Name="c:\\program files\\mozilla firefox\\firefox.exe"} WHERE AssocClass = CIM_ProcessExecutable ResultClass = CIM_Process'
+        # 'ASSOCIATORS OF {CIM_DataFile.Name="c:\\program files\\mozilla firefox\\firefox.exe"}
+        #  WHERE AssocClass = CIM_ProcessExecutable ResultClass = CIM_Process'
         wmi_query = "ASSOCIATORS OF {%s} WHERE AssocClass=%s ResultClass=%s ResultRole=%s" % (
             wmi_path, associator_key_name, result_class_name, chosen_role)
 
@@ -1104,7 +1119,7 @@ class WmiSparqlExecutor:
             object_path = str(one_wmi_object.path())
             #DEBUG("WmiCallbackAssociator one_wmi_object.path=%s",object_path)
             list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, result_class_name)
-            dict_key_values = {node_key:node_value for node_key,node_value in list_key_values}
+            dict_key_values = {node_key: node_value for node_key, node_value in list_key_values}
 
             # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"
             # p=http://www.w3.org/1999/02/22-rdf-syntax-ns#type
