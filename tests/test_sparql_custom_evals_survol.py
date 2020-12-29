@@ -19,15 +19,14 @@ import lib_sparql_custom_evals
 
 survol_namespace = rdflib.Namespace(lib_sparql_custom_evals.survol_url)
 
-################################################################################
 
-# Not really used for the moment, but kept as a documentation.
 class SurvolStore(rdflib.plugins.memory.IOMemory):
+    """The derived class of a plain rdflib store helps debugging."""
     def __init__(self, configuration=None, identifier=None):
         super(SurvolStore, self).__init__(configuration)
 
     def triples(self, t_triple, context=None):
-        (t_subject, t_predicate, t_object) = t_triple
+        t_subject, t_predicate, t_object = t_triple
         # print("triples vals=",t_subject, t_predicate, t_object)
         # print("triples typs=",type(t_subject), type(t_predicate), type(t_object))
 
@@ -38,13 +37,14 @@ class SurvolStore(rdflib.plugins.memory.IOMemory):
 
         return super(SurvolStore, self).triples((t_subject, t_predicate, t_object), context)
 
-def CreateGraph():
+
+def _create_graph():
+    """The return value behaves exactly like a rdflib Graph plus ease of debuggign if needed"""
     survol_store = SurvolStore()
     rdflib_graph = rdflib.Graph(survol_store)
 
     return rdflib_graph
 
-################################################################################
 
 # This displays the correct case for a filename. This is necessary because
 # the variable sys.executable is not correctly cased with pytest on Windows.
@@ -90,19 +90,21 @@ sys_executable_case = lib_util.standardized_file_path(sys.executable)
 ################################################################################
 # Utilities functions.
 
-# Sparql does not like backslashes.
-TempDirPath = lib_util.standardized_file_path(tempfile.gettempdir())
+# Sparql does easily accept strings with backslahes. Therefore, it is simpler
+# to enforce a plain slash as file path separator for Windows.
+_temp_dir_path = lib_util.standardized_file_path(tempfile.gettempdir())
 
 
 def _create_temp_file():
     tmp_filename = "survol_temp_file_%d.tmp" % os.getpid()
-    tmp_pathname = os.path.join(TempDirPath, tmp_filename)
+    tmp_pathname = os.path.join(_temp_dir_path, tmp_filename)
     tmpfil = open(tmp_pathname, "w")
     tmpfil.close()
     return tmp_pathname
 
+
 # This generates an unique directory name.
-unique_string = "%d_%f" % (os.getpid(), time.time())
+_unique_string = "%d_%f" % (os.getpid(), time.time())
 
 
 def _print_subprocesses(proc_id, depth = 0):
@@ -126,6 +128,12 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         # itertools.product
 
         def make_var(input_var):
+            """
+            This tests the cartesians product of Sparql variables and their values.
+            This loops on all possible combinations.
+            :param input_var: This is a dictionary whose keys are tuples of strings representing Sparql variables.
+            :return:
+            """
             return_dict = {}
             for variables_tuple, values_list in input_var.items():
                 var_node = tuple(rdflib.term.Variable(variable_name) for variable_name in variables_tuple)
@@ -147,14 +155,14 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         self.assertEqual(num_results_actual, num_results_expected)
 
     def test_prod_variables(self):
-        self.one_return_tst(1, { ('a',):[('a1',)],('b',):[('b1',)],('c',):[('c1',)], })
-        self.one_return_tst(2, { ('a',):[('a1',)],('b',):[('b1',),('b2',)],('c',):[('c1',)], })
-        self.one_return_tst(6, { ('a',):[('a1',)],('b',):[('b1',),('b2',)],('c',):[('c1',),('c2',),('c3',)], })
-        self.one_return_tst(2, { ('a','aa'):[('a1','aa1')],('b',):[('b1',),('b2',)],('c',):[('c1',)], })
-        self.one_return_tst(4, { ('a','aa'):[('a1','aa1'), ('a2','aa2')],('b',):[('b1',),('b2',)],('c',):[('c1',)], })
+        self.one_return_tst(1, {('a',): [('a1',)], ('b',): [('b1',)], ('c',): [('c1',)],})
+        self.one_return_tst(2, {('a',): [('a1',)],('b',): [('b1',), ('b2',)], ('c',): [('c1',)], })
+        self.one_return_tst(6, {('a',): [('a1',)],('b',): [('b1',), ('b2',)], ('c',): [('c1',), ('c2',), ('c3',)],})
+        self.one_return_tst(2, {('a','aa'): [('a1', 'aa1')], ('b',): [('b1',), ('b2',)], ('c',): [('c1',)],})
+        self.one_return_tst(4, {('a','aa'): [('a1', 'aa1'), ('a2', 'aa2')], ('b',): [('b1',), ('b2',)], ('c',): [('c1',)],})
 
     def test_sparql_parent(self):
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
         # C:/Windows/temp\\survol_temp_file_12532.tmp'
         tmp_pathname = _create_temp_file()
@@ -174,11 +182,11 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         """ % (survol_namespace, tmp_pathname)
 
         query_result = list(rdflib_graph.query(sparql_query))
-        self.assertEqual(str(query_result[0][0]), TempDirPath)
+        self.assertEqual(str(query_result[0][0]), _temp_dir_path)
         print("Result=", query_result)
 
     def test_sparql_children_files(self):
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
         # C:/Windows/temp\\survol_temp_file_12532.tmp'
         tmp_pathname = lib_util.standardized_file_path(_create_temp_file())
@@ -192,14 +200,14 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
                 ?url_datafile survol:Name ?datafile_name .
                 ?url_directory survol:Name "%s" .
             }
-        """ % (survol_namespace, TempDirPath)
+        """ % (survol_namespace, _temp_dir_path)
 
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
         self.assertTrue(tmp_pathname in [str(node[0]) for node in query_result])
 
     def test_sparql_grandparent(self):
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
         # C:/Windows/temp\\survol_temp_file_12532.tmp'
         tmp_pathname = _create_temp_file()
@@ -222,7 +230,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
-        temp_dir_path_dir = lib_util.standardized_file_path(os.path.dirname(TempDirPath))
+        temp_dir_path_dir = lib_util.standardized_file_path(os.path.dirname(_temp_dir_path))
         self.assertEqual(str(query_result[0][0]), temp_dir_path_dir)
 
     def _create_files_tree(self, prefix, files_tree):
@@ -236,13 +244,13 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
                 else:
                     open(one_path, "w").close()
 
-        root_dir = os.path.join(TempDirPath, "survol_temp_%s_%s" % (prefix, unique_string) )
+        root_dir = os.path.join(_temp_dir_path, "survol_temp_%s_%s" % (prefix, _unique_string))
 
         _create_files_tree_aux(root_dir, files_tree)
         return root_dir
 
     def test_sparql_grandchildren_files(self):
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
         files_tree = {
             "dir_1" : { "dir_1_1" : { "file_1_1_1.txt": None}},
@@ -297,7 +305,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         self.assertEqual(actual_files, expected_files)
 
     def test_sparql_grandchildren_directories(self):
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -310,13 +318,13 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
                 ?url_grandparent survol:Name "%s" .
                 ?url_subdirectory survol:Name ?subdirectory_name .
             }
-        """ % (survol_namespace, TempDirPath)
+        """ % (survol_namespace, _temp_dir_path)
 
         query_result = list(rdflib_graph.query(sparql_query))
 
         expected_dirs = set()
-        for root_dir, dir_lists, files_list in os.walk(TempDirPath):
-            if lib_util.standardized_file_path(os.path.dirname(root_dir)) == TempDirPath:
+        for root_dir, dir_lists, files_list in os.walk(_temp_dir_path):
+            if lib_util.standardized_file_path(os.path.dirname(root_dir)) == _temp_dir_path:
                 for one_file_name in dir_lists:
                     sub_path_name = lib_util.standardized_file_path(os.path.join(root_dir, one_file_name))
                     expected_dirs.add(sub_path_name)
@@ -328,11 +336,11 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
     def test_sparql_subdirectory_2(self):
         """Tests that a second-level directory is detected. """
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
-        dir_path = os.path.join(TempDirPath,
-            "survol_temp_dir%s_1" % unique_string,
-            "survol_temp_dir%s_2" % unique_string)
+        dir_path = os.path.join(_temp_dir_path,
+            "survol_temp_dir%s_1" % _unique_string,
+            "survol_temp_dir%s_2" % _unique_string)
         os.makedirs(dir_path)
         dir_path = lib_util.standardized_file_path(dir_path)
 
@@ -347,7 +355,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
                 ?url_directory_0 survol:Name "%s" .
                 ?url_directory_2 survol:Name ?subdirectory_name .
             }
-        """ % (survol_namespace, TempDirPath)
+        """ % (survol_namespace, _temp_dir_path)
 
         query_result = list(rdflib_graph.query(sparql_query))
 
@@ -359,13 +367,13 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
     def test_sparql_subdirectory_3(self):
         """Tests that a third-level directory is detected. """
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
         dir_path = os.path.join(
-            TempDirPath,
-            "survol_temp_dir%s_1" % unique_string,
-            "survol_temp_dir%s_2" % unique_string,
-            "survol_temp_dir%s_3" % unique_string)
+            _temp_dir_path,
+            "survol_temp_dir%s_1" % _unique_string,
+            "survol_temp_dir%s_2" % _unique_string,
+            "survol_temp_dir%s_3" % _unique_string)
         os.makedirs(dir_path)
         # Must be called if the directory exists, otherwise, on Windows, it can be correctly capitalized.
         dir_path = lib_util.standardized_file_path(dir_path)
@@ -385,7 +393,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
                 ?url_directory_0 survol:Name "%s" .
                 ?url_directory_3 survol:Name ?subdirectory_name .
             }
-        """ % (survol_namespace, TempDirPath)
+        """ % (survol_namespace, _temp_dir_path)
 
         query_result = list(rdflib_graph.query(sparql_query))
 
@@ -397,14 +405,14 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
     def test_sparql_subdirectory_4(self):
         """Tests that a fourth-level directory is detected. """
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
         dir_path = os.path.join(
-            TempDirPath,
-            "survol_temp_dir%s_1" % unique_string,
-            "survol_temp_dir%s_2" % unique_string,
-            "survol_temp_dir%s_3" % unique_string,
-            "survol_temp_dir%s_4" % unique_string)
+            _temp_dir_path,
+            "survol_temp_dir%s_1" % _unique_string,
+            "survol_temp_dir%s_2" % _unique_string,
+            "survol_temp_dir%s_3" % _unique_string,
+            "survol_temp_dir%s_4" % _unique_string)
         os.makedirs(dir_path)
         dir_path = lib_util.standardized_file_path(dir_path)
 
@@ -425,7 +433,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
                 ?url_directory_0 survol:Name "%s" .
                 ?url_directory_4 survol:Name ?subdirectory_name .
             }
-        """ % (survol_namespace, TempDirPath)
+        """ % (survol_namespace, _temp_dir_path)
 
         query_result = list(rdflib_graph.query(sparql_query))
 
@@ -436,7 +444,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         self.assertTrue(dir_path in actual_files)
 
     def test_sparql_subdirectory_down_up_4(self):
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -461,7 +469,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
                 ?url_directory_0a survol:Name "%s" .
                 ?url_directory_0b survol:Name ?directory_name .
             }
-        """ % (survol_namespace, TempDirPath)
+        """ % (survol_namespace, _temp_dir_path)
 
         query_result = list(rdflib_graph.query(sparql_query))
 
@@ -469,7 +477,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
             lib_util.standardized_file_path(str(one_path_url[0]))
             for one_path_url in query_result]
         print("actual_files=", actual_files)
-        self.assertEqual(actual_files[0], TempDirPath)
+        self.assertEqual(actual_files[0], _temp_dir_path)
 
         # All directories must be identical.
         unique_set = set(actual_files)
@@ -477,7 +485,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
     def test_sparql_parent_process(self):
         """Display the parent process of the current one."""
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -499,7 +507,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
     def test_sparql_sub_processes(self):
         """All subprocesses of the current one."""
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -522,7 +530,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
     def test_sparql_all_processes(self):
         """All running processes on this machine."""
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -552,7 +560,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
     def test_sparql_grandparent_process(self):
         """Grand-parent process of the current one."""
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
         parent_pid = psutil.Process(CurrentPid).ppid()
         print("parent_pid=", parent_pid)
@@ -581,7 +589,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
     def test_sparql_executable_process(self):
         """Executable run by the current process."""
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -605,7 +613,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
     def test_sparql_processes_executing_python(self):
         """All processes running the current executable, i.e. Python"""
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
         # The Python variable sys.executable contains the currently running executable.
         sparql_query = """
@@ -634,7 +642,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
     def test_sparql_executable_process_dir(self):
         """Display the directory of the current process'executable."""
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -661,7 +669,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
     def test_sparql_files_in_executable_process_dir(self):
         """Display the files in the directory of the current process'executable."""
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -703,7 +711,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
     def test_sparql_executable_process_grand_dir(self):
         """Display the directory of the directory of the current process'executable."""
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -732,7 +740,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
     def test_sparql_executable_parent_process(self):
         """Executable of the parent process."""
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
         print("CurrentParentPid=", CurrentParentPid)
 
@@ -763,7 +771,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
     def test_sparql_sibling_processes(self):
         """Processes with the same parent process as the current one."""
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
         sparql_query = """
             PREFIX survol: <%s>
@@ -833,7 +841,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
     @unittest.skipIf(is_travis_machine(), "Different implementation of processes. Test skipped.")
     def test_sparql_sub2_processes(self):
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
         processes_list_first, pids_list = self.process_chain_creation(2)
 
@@ -867,7 +875,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
     @unittest.skipIf(is_travis_machine(), "Different implementation of processes. Test skipped.")
     def test_sparql_sub3_processes(self):
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
         processes_list_first, pids_list = self.process_chain_creation(3)
 
@@ -904,7 +912,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
     @unittest.skipIf(is_travis_machine(), "Different implementation of processes. Test skipped.")
     def test_sparql_sub4_processes(self):
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
         processes_list_first, pids_list = self.process_chain_creation(4)
 
@@ -944,7 +952,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
     @unittest.skipIf(is_travis_machine(), "Different implementation of processes. Test skipped.")
     def test_sparql_sub5_processes(self):
-        rdflib_graph = CreateGraph()
+        rdflib_graph = _create_graph()
 
         processes_list_first, pids_list = self.process_chain_creation(5)
 
