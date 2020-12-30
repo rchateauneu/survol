@@ -21,18 +21,29 @@ def filter_path_linux(path):
     For clarity, this eliminates many memory maps.
     A couple of these invisible memory maps are hard-coded: This is not an issue.
     """
-    useless_linux_maps = [
+    useless_linux_maps = {
         '/usr/bin/kdeinit',
         '/bin/bash',
         '/usr/lib/gconv/gconv-modules.cache',
         '[stack]',
         '[vdso]',
         '[heap]',
-        '[anon]' ]
+        '[anon]'}
 
     # We could also check if this is really a shared library.
     # file /lib/libm-2.7.so: ELF 32-bit LSB shared object etc...
     if path.endswith(".so"):
+        return False
+
+    if path.startswith(
+            ('/usr/share/locale/',
+             '/usr/share/fonts/',
+             '/etc/locale/',
+             '/var/cache/fontconfig/',
+             '/usr/bin/perl')):
+        return False
+
+    if path in useless_linux_maps:
         return False
 
     # Not sure about "M" and "I". Also: Should precompile regexes.
@@ -40,29 +51,11 @@ def filter_path_linux(path):
     if re.match(r'.*/lib/.*\.so\..*', path, re.M|re.I):
         return False
 
-    if path.startswith('/usr/share/locale/'):
-        return False
-
-    if path.startswith('/usr/share/fonts/'):
-        return False
-
-    if path.startswith('/etc/locale/'):
-        return False
-
-    if path.startswith('/var/cache/fontconfig/'):
-        return False
-
     # Specific to KDE.
     if re.match( r'/var/tmp/kdecache-.*/ksycoca', path, re.M|re.I):
         return False
 
     if re.match( r'/home/.*/.local/share/mime/mime.cache', path, re.M|re.I):
-        return False
-
-    if path.startswith('/usr/bin/perl'):
-        return False
-
-    if path in useless_linux_maps:
         return False
 
     return True
