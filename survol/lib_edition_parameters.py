@@ -1,6 +1,7 @@
 import sys
 import lib_util
 
+
 # Should simplify this by storing the input URL in a hidden value
 # So that the mode=edit trick would not be necessary anymore.
 
@@ -18,8 +19,19 @@ def FormEditionParameters(form_action_no_mode, theCgi):
 
     yield('<table class="table_script_parameters">')
 
-    # This is the list of parameters displayed and edited, which should not be
-    # input as hidden arguments.
+    # This is the list of parameters displayed and edited, which should not be input as hidden arguments.
+    # The key-value pairs of the object are displayed and can be updated:
+    # So it is possible to display another object.
+    # These values are returned by prefixing the keys with "edimodargs_" so there is no confusion.
+    # When displaying a CGI script, these edited arguments, passed on the command line on top of moniker,
+    # are used to updated the key-value pairs of the object.
+    # TODO: This implementation is not very clean.
+    # FIXME: ... and it does not work anymore.
+    #
+    # TODO: Next implementation:
+    # TODO: Some CGI parameters are prefixed with: "__updated__.", for example:
+    # TODO: "__updated__.__class__=CIM_Process&__updated__.Handle=1234"
+    # TODO: Parameters are passed like "__parameter__.show_all_scripts=True"
     lst_edimod_args = []
 
     if theCgi.m_entity_type != "":
@@ -61,8 +73,11 @@ def FormEditionParameters(form_action_no_mode, theCgi):
         yield("</tr>")
 
     yield("<tr><td colspan=2>")
+
     # Beware that unchecked checkboxes are not posted, so it says that we come from edition mode.
     # http://stackoverflow.com/questions/1809494/post-the-checkboxes-that-are-unchecked
+    # FIXME: The consequence is that it is not possible to have bnoolean parameters with a True default value.
+    # FIXME: It is always True.
 
     # Now the hidden arguments. Although entity_type can be deduced from the CGI script location.
     # TODO: MAYBE THIS IS NEVER NECESSARY ... ?
