@@ -27,7 +27,7 @@ import lib_kbase
 
 # FIXME: This can be a lot simplified. This code results of the research of an intermittent time-out
 # FIXME: ... on Windows and Python 3 and if the test agent is started by pytest.
-def _get_graph_from_stdin_OLD(http_content_length):
+def _get_graph_from_stdin(http_content_length):
     """This reads stdin from the HTTP client and returns a rdflib graph."""
     read_bytes_number = 0
     loaded_bytes = b""
@@ -68,7 +68,7 @@ def _get_graph_from_stdin_OLD(http_content_length):
     return rdflib_graph
 
 # Tested with Win7 py2.7
-def _get_graph_from_stdin(http_content_length):
+def _get_graph_from_stdin_DRAFT(http_content_length):
     """This reads stdin from the HTTP client and returns a rdflib graph."""
     if lib_util.is_py3:
         #bytes_stream = sys.stdin.buffer
