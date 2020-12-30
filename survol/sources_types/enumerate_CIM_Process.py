@@ -13,7 +13,13 @@ from lib_properties import pc
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    paramkey_hide_user_accounts = "Hide user accounts"
+
+    cgiEnv = lib_common.CgiEnv(
+        parameters={paramkey_hide_user_accounts: False}
+    )
+
+    flag_hide_user_accounts = bool(cgiEnv.get_parameters(paramkey_hide_user_accounts))
 
     grph = cgiEnv.GetGraph()
 
@@ -47,12 +53,14 @@ def Main():
         # We avoid duplicating the edges. Why would the RDF merge do?
         grph.add((node_process, pc.property_ppid, parent_node_process))
         grph.add((node_process, pc.property_pid, lib_util.NodeLiteral(pid)))
-        usr_nam = CIM_Process.PsutilProcToUser(proc, None)
-        if usr_nam:
-            # TODO: Maybe it would be more convenient to display the user as a simple string,
-            # TODO: such as lib_util.NodeLiteral(usr_nam)
-            user_node = lib_common.gUriGen.UserUri(usr_nam)
-            grph.add((node_process, pc.property_user, user_node))
+
+        if not flag_hide_user_accounts:
+            usr_nam = CIM_Process.PsutilProcToUser(proc, None)
+            if usr_nam:
+                # TODO: Maybe it would be more convenient to display the user as a simple string,
+                # TODO: such as lib_util.NodeLiteral(usr_nam)
+                user_node = lib_common.gUriGen.UserUri(usr_nam)
+                grph.add((node_process, pc.property_user, user_node))
 
         # TODO: Add the username as a property ? Change the color with the username ?
         # TODO: Get icons of users or programs, use their colors ?
