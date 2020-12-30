@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Shared memory segments.
+Memory-mapped files.
 
 System-wide shared memory segments, plus properties. DLLs and fonts are excluded.
 """
@@ -17,7 +17,10 @@ from sources_types import CIM_Process
 
 
 def filter_path_linux(path):
-    """For clarity, this eliminates many memory maps."""
+    """
+    For clarity, this eliminates many memory maps.
+    A couple of these invisible memory maps are hard-coded: This is not an issue.
+    """
     useless_linux_maps = [
         '/usr/bin/kdeinit',
         '/bin/bash',
@@ -66,26 +69,29 @@ def filter_path_linux(path):
 
 
 def _good_map(path):
-    """Not all memory maps are displayed."""
+    """
+    Not all memory maps are displayed.
+
+    This returns an empty string if this map should not be displayed.
+    Otherwise the display name which must be used.
+    """
 
     # TODO: Should resolve symbolic links, first.
     if lib_util.isPlatformLinux:
         if not filter_path_linux(path):
             return ""
+        if path.endswith( "(deleted)"):
+            path = path[:-9]
 
     # DLL are not displayed, because there would be too many of them,
     # and they are read-only, therefore less interesting.
     # OLB: data types and constants referenced by MS Office components.
     # NLS: language translation information to convert between different character sets.
     # TODO: This list in a drop-down menu.
-    if lib_util.isPlatformWindows:
+    elif lib_util.isPlatformWindows:
         file_extension = os.path.splitext(path)[1]
         if file_extension.upper() in [".DLL", ".EXE", ".PYD", ".TTF", ".TTC", ".NLS", ".OLB"]:
             return ""
-
-    # For Linux only.
-    if path.endswith( "(deleted)" ):
-        path = path[:-9]
 
     return path
 
@@ -126,17 +132,22 @@ def Main():
 
     grph.add((lib_common.nodeMachine, pc.property_hostname, lib_util.NodeLiteral(lib_util.currentHostname)))
 
+    # This is a dictionary of memory-mapped files to the processes using them.
     map_to_proc = {}
 
     for proc in psutil.process_iter():
         try:
+            # The pid is added to the list of each map used by this process.
+            # New maps are added, and also the pid is added to existing of new maps.
             function_process(map_to_proc, proc)
         except CIM_Process.AccessDenied:
+            # Most memory maps and processes cannot be access for security reasons.
             pass
         except Exception as exc:
             lib_common.ErrorMessageHtml("Unexpected error:" + exc)
     # sys.stderr.write( "Leaving processes enumeration\n" )
 
+    # This maps the pid to its rdf node.
     added_procs = {}
 
     # Now display only memory maps with more than one process linked to it.
