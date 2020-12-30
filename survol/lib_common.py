@@ -35,6 +35,7 @@ import lib_export_html
 import lib_export_json
 import lib_daemon
 import lib_command_line
+import lib_edition_parameters
 
 from lib_util import NodeUrl
 from lib_util import TimeStamp
@@ -481,8 +482,6 @@ class CgiEnv():
     # http://stackoverflow.com/questions/3499056/making-a-legend-key-in-graphviz
     def enter_edition_mode(self):
         """This allow to edit the CGI parameters when in SVG (Graphviz) mode"""
-        import lib_export_html
-        import lib_edition_parameters
 
         form_action = os.environ['SCRIPT_NAME']
         DEBUG("enter_edition_mode form_action=%s", form_action)
@@ -508,8 +507,6 @@ class CgiEnv():
     def get_parameters(self, paramkey):
         """These are the parameters specific to the script, which are edit in our HTML form, in enter_edition_mode().
         They must have a default value. Maybe we could always have an edition mode when their value is not set.
-        If the parameter is "cimom", it will extract the host of Uris like these: Wee GetHost()
-        https://jdd:test@acme.com:5959/cimv2:CIM_RegisteredProfile.InstanceID="acme:1"
         """
 
         # Default value if no CGI argument.
@@ -674,10 +671,6 @@ class CgiEnv():
         else:
             labelled_url = self.m_calling_url[:idx_cgi]
 
-        # FIXME: ENCODING PROBLEM HERE.
-        # OK http://127.0.0.1/Survol/survol/class_wbem.py?Start+index=0&Max+instances=800&xid=http%3A%2F%2Fprimhillcomputers.ddns.net%3A5988%2Froot%2Fcimv2%3APG_UnixProcess.&edimodtype=root%2Fcimv2%3APG_UnixProcess
-        # OK http://rchateau-hp:8000/survol/class_wbem.py?xid=http%3A%2F%2F192.168.0.17%3A5988%2Froot%2Fcimv2%3APG_UnixProcess.
-        # KO http://rchateau-hp:8000/survol/class_wbem.py?xid=http%3A//192.168.0.17%3A5988/root/cimv2%3APG_UnixProcess.
         # Conversion to str() because of integer parameters.
         kv_pairs_concat = "&amp;amp;".join(
             "%s=%s" % (param_key, str(prms_copy[param_key]).replace("/", "%2F"))
