@@ -1,13 +1,18 @@
-"""Events, for Survol, are RDF triples inserted in a graph database by Python daemons, executing scripts
-in  the background. These scripts are the usual CGI scripts, executed in a daemon controlled by
+"""
+Events, for Survol, are RDF triples inserted in a graph database by Python daemons, executing scripts
+in the background. These scripts are the usual CGI scripts, executed in a daemon controlled by
 the Python module "supervisor" (supervisor-win" on Windows).
-Conclusion: Plain  CGI scripts which are norammly called by a HTTP server can also be used as daemons
+Conclusion: Plain CGI scripts which are norammly called by a HTTP server can also be used as daemons
 filling a graph database (RDFLIB and SqlAlchemy).
+
 These events are fetched when the same scripts are executed from a HTTP server: Then, instead of running
 in background, they fetch the events stored by their counterparts. These events are tagged in the database
 by the URL of the script.
+
 Conclusion: A CGI script returns the same type of events, possibly stored in a graph database by its counterpart,
 or immediately retried. Technically, these events are stored on RDF contexts, labelled by the URL.
+
+This file has no knowledge of what scripts are doing, the object possible associated to a daemon etc...
 """
 
 # This should avoid using lib_util, lib_common etc... because the intention of code
@@ -41,8 +46,11 @@ except ImportError:
 
 
 def _must_start_factory():
-    # It is not started when run in pytest, except if explicitly asked.
-    # Also, it must NOT be started
+    """
+    When running in pytest, it starts a specific supervisor in a dedicated subprocess.
+    It has nothing to do with a possible sup[ervisor process whcih would be used for a reaql usage.
+    This dedicated subprocess is completely controlled, and it is started and stopped at will.
+    """
     if not supervisor:
         sys.stderr.write("Could not import supervisor\n")
         return False
@@ -59,7 +67,10 @@ _supervisor_config_file = os.path.join(os.path.dirname(__file__), "supervisord.c
 
 
 def _log_supervisor_access(function_name, step_name, **kwargs):
-    """This writes into a file all accesses to the supervisor. For debugging. """
+    """
+    This writes into a file all accesses to the supervisor.
+    This is a debugging helper because this log file gives a complete history of events creations and reads.
+    """
     # TODO: This file should be truncated when the CGI server starts.
     if "TRAVIS" in os.environ:
         log_supervisor_file = None
@@ -96,7 +107,10 @@ _log_supervisor_access("", "import")
 
 
 def _get_parsed_configuration():
-    """This parses the supervisord configuration file into a dict. It does not connect to anything. """
+    """
+    This parses the supervisord configuration file into a dict.
+    It does not connect to anything.
+    """
     parsed_config = configparser.ConfigParser()
     if not os.path.exists(_supervisor_config_file):
         raise Exception("Cannot find supervisor config file:" + _supervisor_config_file)
@@ -112,11 +126,13 @@ def _get_parsed_configuration():
     return parsed_config
 
 
-# https://bugs.python.org/issue27762
-# Python 2 bug when the value contains a semicolon after a space which normally should be stripped.
-# This can be avoided from Python 3.2 with ConfigParser(inline_comment_prefixes=';')
-# However, this portable function optimistically parses the value for hosts, usernames and passwords.
 def _clean_config_value(config_value):
+    """
+    https://bugs.python.org/issue27762
+    Python 2 bug when the value contains a semicolon after a space which normally should be stripped.
+    This can be avoided from Python 3.2 with ConfigParser(inline_comment_prefixes=';')
+    However, this portable function optimistically parses the value for hosts, usernames and passwords.
+    """
     config_value = config_value.strip()
     # TODO: Beware if a semicolon in the password.
     config_value = config_value.split(";")[0]
@@ -299,10 +315,12 @@ def supervisor_stop():
 
 
 def is_supervisor_running():
+    """
+    This tells if the supervisor process is running or not.
+    """
     _log_supervisor_access("is_supervisor_running", "entry")
     message_prefix = "is_supervisor_running pid=%d " % os.getpid()
     sys.stderr.write(message_prefix + " _supervisor_process.pid=%d\n" % _supervisor_process.pid)
-
 
     xmlrpc_server_proxy = None
     try:
@@ -332,6 +350,9 @@ _survol_group_name = "survol_group"
 
 
 def _display_configuration_file(configuration_file_name):
+    """
+    Used for debugging purpose.
+    """
     try:
         with open(configuration_file_name) as config_file:
             config_content = "".join(config_file.readlines())
@@ -343,8 +364,8 @@ def _display_configuration_file(configuration_file_name):
         sys.stderr.write("_display_configuration_file: Cannot read configuration exc=%s\n" % str(exc))
 
 
-def _add_and_start_program_to_group(process_name, user_command, environment_parameter, debug_stream=None):
-    # Add the program and starts it immediately: This is faster
+def _add_and_start_program_to_group(process_name, user_command, environment_parameter):
+    """Add the program and starts it immediately: This is faster."""
     program_options = {
         'command': user_command,
         'autostart': 'true',
@@ -420,7 +441,7 @@ def start_user_process(process_name, user_command, environment_parameter="", deb
     if process_info is None:
         # Maybe this program is not defined in the config file,
         # so let's define it automatically.
-        _add_and_start_program_to_group(process_name, user_command, environment_parameter, debug_stream)
+        _add_and_start_program_to_group(process_name, user_command, environment_parameter)
         process_info = xmlrpc_server_proxy.supervisor.getProcessInfo(full_process_name)
         if process_info is None:
             raise Exception("Cannot get process_info after adding program:%" % full_process_name)
@@ -526,11 +547,12 @@ def get_user_process_stderr(process_name):
 
 
 def stop_user_process(process_name):
-    _log_supervisor_access("stop_user_process", "entry", proc_name=process_name)
     """It stops a process, process group names are unique.
     It does not wait for the result.
     Consider killing the process if it does not stop after X seconds.
     It will protect against hanging. """
+
+    _log_supervisor_access("stop_user_process", "entry", proc_name=process_name)
     full_process_name = _survol_group_name + ":" + process_name
     xmlrpc_server_proxy = None
     try:
