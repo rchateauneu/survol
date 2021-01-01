@@ -7,7 +7,7 @@ This is designed for sequences of system calls.
 from __future__ import print_function
 
 __author__      = "Remi Chateauneu"
-__copyright__   = "Copyright 2020, Primhill Computers"
+__copyright__   = "Copyright 2020-2021, Primhill Computers"
 __license__ = "GPL"
 
 
