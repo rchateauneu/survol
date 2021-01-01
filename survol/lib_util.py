@@ -7,7 +7,7 @@ import cgitb
 import os
 
 __author__      = "Remi Chateauneu"
-__copyright__   = "Copyright 2020, Primhill Computers"
+__copyright__   = "Copyright 2020-2021, Primhill Computers"
 __license__     = "GPL"
 
 # This library is used by CGI scripts and command-line scripts.
