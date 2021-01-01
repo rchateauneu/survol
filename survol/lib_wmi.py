@@ -1,5 +1,5 @@
 __author__      = "Remi Chateauneu"
-__copyright__   = "Copyright 2020, Primhill Computers"
+__copyright__   = "Copyright 2020-2021, Primhill Computers"
 __license__     = "GPL"
 
 import os
