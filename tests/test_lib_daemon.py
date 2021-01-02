@@ -62,7 +62,13 @@ class CgiScriptTest(unittest.TestCase):
 
         test_url_b = self._dummy_url_prefix + "this_url_does_not_exist.py?arg=%d" % (os.getpid() + 2)
         process_name_b = lib_daemon._url_to_process_name(test_url_b)
-        self.assertTrue(process_name_a != process_name_b)
+        self.assertNotEqual(process_name_a, process_name_b)
+
+        result_url_a = lib_daemon._process_name_to_url(process_name_a)
+        self.assertEqual(test_url_a, result_url_a)
+
+        result_url_b = lib_daemon._process_name_to_url(process_name_b)
+        self.assertEqual(test_url_b, result_url_b)
 
     def test_is_events_generator_daemon_not_running(self):
         test_url = self._dummy_url_prefix + "non_existent_url.py?arg=%d" % os.getpid()
@@ -343,6 +349,7 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
         result_snapshot = self._run_script_as_snapshot(url_suffix)
         self.assertTrue(result_snapshot)
 
+    ##################
     @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
     def test_events_generator_system_calls_sleep(self):
         proc_open = None
@@ -492,6 +499,7 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
         _check_events_generator_windows_directory_changes(self, "Snapshot before events", result_snapshot, [])
         _check_events_generator_windows_directory_changes(self, "Events", result_events, [windows_changed_file])
 
+    ##################
     @unittest.skip("Temporarily disabled")
     def test_events_generator_system_calls_loop(self):
         proc_open = None
@@ -518,7 +526,7 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
 
             url_suffix = "CIM_Process/events_generator_system_calls.py?xid=CIM_Process.Handle=%d" % proc_popen.pid
             # This attaches to the subprocess and gets its system calls.
-            result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix)
+            result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix, 10)
 
             self.assertTrue(result_snapshot)
             #print("daemon_result=", daemon_result)
