@@ -379,6 +379,10 @@ def _add_and_start_program_to_group(process_name, user_command, environment_para
             _survol_group_name,
             process_name,
             program_options)
+    except xmlrpclib.ProtocolError as exc:
+        sys.stderr.write("Caught ProtocolError\n")
+        _display_configuration_file("survol/scripts/supervisord.conf")
+        raise
     except Exception as exc:
         # Possible exceptions:
         #
@@ -388,9 +392,10 @@ def _add_and_start_program_to_group(process_name, user_command, environment_para
         # 'program:ama_123_paramb_START' (file: 'survol/scripts/supervisord.conf')">
         #
 
-        if exc.faultCode == SupervisorFaults.BAD_NAME:
-            sys.stderr.write("POSSIBLY DOUBLE DEFINITION\n")
+        if hasattr(exc, "faultCode") and exc.faultCode == SupervisorFaults.BAD_NAME:
+            sys.stderr.write("POSSIBLY DOUBLE DEFINITION:%s\n" % exc)
         else:
+            sys.stderr.write("_add_and_start_program_to_group caught:%s\n" % exc)
             _display_configuration_file("survol/scripts/supervisord.conf")
             raise
     finally:
@@ -529,6 +534,9 @@ def is_user_process_running(process_name):
 
 
 def get_user_process_stdout(process_name):
+    """
+    This returns the text context of a daemon process stdout.
+    """
     process_info = _get_user_process_info(process_name)
     if process_info is None:
         return "No stdout for process_name=" + process_name
@@ -538,6 +546,9 @@ def get_user_process_stdout(process_name):
 
 
 def get_user_process_stderr(process_name):
+    """
+    This returns the text context of a daemon process stderr.
+    """
     process_info = _get_user_process_info(process_name)
     if process_info is None:
         return "No stderr for process_name=" + process_name
@@ -563,4 +574,37 @@ def stop_user_process(process_name):
     finally:
         del xmlrpc_server_proxy
     return True
+
+
+def get_all_user_processes():
+    xmlrpc_server_proxy = _create_server_proxy()
+    # This returns a list of structs containing the same elements as the struct returned by getProcessInfo:
+    # {'name':           'process name',
+    #  'group':          'group name',
+    #  'description':    'pid 18806, uptime 0:03:12'
+    #  'start':          1200361776,
+    #  'stop':           0,
+    #  'now':            1200361812,
+    #  'state':          20,
+    #  'statename':      'RUNNING',
+    #  'spawnerr':       '',
+    #  'exitstatus':     0,
+    #  'logfile':        '/path/to/stdout-log', # deprecated, b/c only
+    #  'stdout_logfile': '/path/to/stdout-log',
+    #  'stderr_logfile': '/path/to/stderr-log',
+    #  'pid':            1}
+    processes_list = xmlrpc_server_proxy.supervisor.getAllProcessInfo()
+    processes_dict = {}
+    expected_name_prefix = _survol_group_name + ":"
+    # The key is the process name identical to the input one.
+    for one_process in processes_list:
+        full_process_name = one_process['name']
+        if not full_process_name.startswith(expected_name_prefix):
+            sys.stderr.write("Process name:%s should be prefixed with:%s\n" % (full_process_name, expected_name_prefix))
+            continue
+        process_name = full_process_name[len(expected_name_prefix):]
+        processes_dict[process_name] = one_process
+    return processes_dict
+
+
 
