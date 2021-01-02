@@ -926,8 +926,9 @@ def InfoMessageHtml(message):
 ################################################################################
 
 
-def ObjectTypesNoCache():
-    """Returns the list of available object types: ["process", "file," group", etc...]"""
+def _object_types_no_cache():
+    """Returns the list of available object types:
+    ["CIM_Process", "CIM_DataFile" etc...]"""
     directory = gblTopScripts + "/sources_types"
 
     ld = len(directory)
@@ -944,12 +945,16 @@ def ObjectTypesNoCache():
 _gbl_object_types = None
 
 
-# TODO: Should concatenate this to localOntology. Default value is "Id".
 def ObjectTypes():
+    """This returns the list of objects types defined as directories.
+    Many of them are CIM types, as described by DMTF: https://www.dmtf.org/standards/cim/cim_schema_v2510
+    Many types are added, because CIM does not cover all the types needed by Survol.
+    Each time it is possible, Survol-specific types are replaced by new, standard DMTF types.
+    """
     global _gbl_object_types
 
     if _gbl_object_types is None:
-        _gbl_object_types = set(ObjectTypesNoCache())
+        _gbl_object_types = set(_object_types_no_cache())
         # sys.stderr.write("ObjectTypes glbObjectTypes="+str(glbObjectTypes)+"\n")
 
     return _gbl_object_types
@@ -964,7 +969,19 @@ isPlatformWindows = 'win32' in sys.platform
 
 
 def UsableLinux(entity_type, entity_ids_arr):
-    """Linux only"""
+    """Linux only
+    This function is used in CGI scripts to define when a script can be used or not.
+    When displaying an object, Survol looks for the CGI scripts which is related to it,
+    that is, which can be run with the object parameters.
+    Such a script can only in the directory of the class of the object.
+    Another condition to meet is that the script must be "usable" for this platform,
+    if some libraries are available etc...
+    This is formalised by having in each script, an optional function called "Usable",
+    which returns a boolean.
+    Some "Usable" functons are very common, for example if a cript can be run on Linux or Windows etc...
+
+    It is also possible to set a Usable function in a __init__.py file, and then it applies
+    to all scripts of the directory and sub-directories."""
     return isPlatformLinux
 
 
@@ -1029,8 +1046,6 @@ def HierarchicalFunctionSearchNoCache(type_without_ns, g_func_name):
     # For the first loop it takes the entire string.
     last_dot = len(type_without_ns)
     while last_dot > 0:
-
-        #topModule = type_without_ns[:last_dot]
         chopped_entity_type = type_without_ns[:last_dot]
 
         # Load the module of this entity to see if it defines the graphic function.
@@ -1186,11 +1201,13 @@ def UrlNoAmp(url):
 ################################################################################
 
 
-# In an URL, this replace the CGI parameter "http://....?mode=XXX" by "mode=YYY".
-# If there is no such parameter, then it is removed. If the input parameter is
-# an empty string, then it is removed from the URLs.
-# Used for example as the root in entity.py, obj_types.py and class_type_all.py.
 def request_uri_with_mode(other_mode):
+    """In an URL, this replace the CGI parameter "http://....?mode=XXX" by "mode=YYY".
+    If there is no such parameter, then it is removed. If the input parameter is
+    an empty string, then it is removed from the URLs.
+    Used for example as the root in entity.py, obj_types.py and class_type_all.py.
+    """
+
     # When in merge_scripts.py for merging several scripts,
     # the request uri is prefixed by a host:
     # HttpPrefix()=http://myhost-hp:8000
@@ -1206,7 +1223,7 @@ def request_uri_with_mode(other_mode):
 
 
 def url_mode_replace(script, other_mode):
-    """ In an Url, replaces, removes or adds the value of the argument "mode".
+    """ In an url, replaces, removes or adds the value of the argument "mode".
     This is a key argument for CGI scripts. """
 
     mtch_url = re.match(r"(.*)([\?\&])mode=[^\&]*(.*)", script)
@@ -1351,8 +1368,10 @@ def Base64Encode(input_text):
 
 
 def Base64Decode(input_text):
-    # The padding might be missing which is not a problem:
-    # https://stackoverflow.com/questions/2941995/python-ignore-incorrect-padding-error-when-base64-decoding
+    """
+    The padding might be missing which is not a problem:
+    https://stackoverflow.com/questions/2941995/python-ignore-incorrect-padding-error-when-base64-decoding
+    """
     missing_padding = len(input_text) % 4
 
     try:
@@ -1395,24 +1414,24 @@ def split_url_to_entity(calling_url):
 
 # Different stream behaviour due to string vs binary.
 if is_py3:
-    outputHttp = sys.stdout.buffer
+    _output_http = sys.stdout.buffer
 else:
-    outputHttp = sys.stdout
+    _output_http = sys.stdout
 
 ################################################################################
 
 
-# This is for WSGI compatibility.
 class OutputMachineCgi:
+    """This is for WSGI compatibility."""
     def __init__(self):
         pass
 
     def HeaderWriter(self, mime_type, extra_arguments=None):
         gblLogger.debug("OutputMachineCgi.WriteHeadContentType:%s", mime_type)
-        HttpHeaderClassic(outputHttp, mime_type, extra_arguments)
+        _http_header_classic(_output_http, mime_type, extra_arguments)
 
     def OutStream(self):
-        return outputHttp
+        return _output_http
 
 
 # WSGI changes this to another object with same interface.
@@ -1438,10 +1457,6 @@ paramkeyShowAll = "Show all scripts"
 def get_default_output_destination():
     """Default destination for the RDF, HTML or SVG output."""
     return globalOutMach.OutStream()
-
-
-def DfltOutMach():
-    return globalOutMach
 
 
 def SetGlobalOutMach(outmach_something):
@@ -1470,15 +1485,18 @@ def is_apache_server():
     return os.environ["SERVER_SOFTWARE"].startswith("Apache/")
 
 
-# Depending if the stream is a socket, a file or standard output,
-# if Python 2 or 3, Windows or Linux, some complicated tests or conversions are needed.
-# This writes to:
-# - Apache socket.
-# - WSGI stream.
-# - lib_client stream.
-# - CGI output.
-# FIXME: Should always send bytes (Py3) or str (Py2)
 def WrtAsUtf(input_str):
+    """
+    Depending if the stream is a socket, a file or standard output,
+    if Python 2 or 3, Windows or Linux, some complicated tests or conversions are needed.
+    This writes to:
+    - Apache socket.
+    - WSGI stream.
+    - lib_client stream.
+    - CGI output.
+    """
+
+    # FIXME: Should always send bytes (Py3) or str (Py2)
     my_output_stream = get_default_output_destination()
     try:
         my_output_stream.write(input_str)
@@ -1491,7 +1509,7 @@ def WrtAsUtf(input_str):
 
 
 # contentType = "text/rdf", "text/html", "image/svg+xml", "application/json" etc...
-def HttpHeaderClassic(out_dest, content_type, extra_args=None):
+def _http_header_classic(out_dest, content_type, extra_args=None):
     # sys.stderr.write("HttpHeader:%s\n"%content_type)
     # TODO: out_dest should always be the default output.
 
