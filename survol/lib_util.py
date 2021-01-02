@@ -773,21 +773,20 @@ def KWArgsToEntityId(class_name, **kwargs_ontology):
 
 
 def EntityUri(entity_type, *entity_ids):
-    return EntityUriDupl(entity_type, *entity_ids)
+    """
+    This receives a class name and values of attributes, and returns the url of the associated object.
+    This url is unique.
 
-
-def EntityUriDupl(entity_type, *entity_ids, **extra_args):
-    # sys.stderr.write("EntityUriDupl %s\n" % str(entity_ids))
-
+    :param entity_type: The class name of the object.
+    :param entity_ids: The values of the attributes of the object, in the order of the ontology.
+    :return:
+    """
     keys = OntologyClassKeys(entity_type)
 
     if len(keys) != len(entity_ids):
         WARNING("EntityUriDupl entity_type=%s Different lens:%s and %s", entity_type, str(keys), str(entity_ids))
-    entity_id = ",".join("%s=%s" % pairKW for pairKW in zip(keys, entity_ids))
+    entity_id = ",".join("%s=%s" % pair_kw for pair_kw in zip(keys, entity_ids))
     
-    # Extra arguments, differentiating duplicates.
-    entity_id += "".join(",%s=%s" % (ext_arg, extra_args[ext_arg]) for ext_arg in extra_args)
-
     url = Scriptize("/entity.py", entity_type, entity_id)
     return NodeUrl(url)
 
@@ -841,7 +840,11 @@ def ComposeTypes(*hierarchical_entity_types):
 
 
 def CopyFile(mime_type, file_name):
-    """Read and write by chunks, so that it does not use all memory."""
+    """
+    This copies the content of a file to standard output.
+    It is used to display files as MIME content.
+
+    Read and write by chunks, so that it does not use all memory."""
     sys.stderr.write("CopyFile type globalOutMach=%s\n" % type(globalOutMach))
 
     fil_des = open(file_name, "rb")
@@ -880,16 +883,15 @@ def CopyFile(mime_type, file_name):
 ################################################################################
 
 
-# By the way, when calling a RDF source, we should check the type of the
-# MIME document and if this is not RDF, the assumes it's an error 
-# which must be displayed.
-# This is used as a HTML page but also displayed in Javascript in a DIV block.
-# TODO: Change this for WSGI.
+# TODO: When calling a RDF source, we should check the type of the MIME document,
+# TODO: and if this is not RDF, the assumes it's an error which must be displayed.
+
 def InfoMessageHtml(message):
-    #gblLogger.warning("InfoMessageHtml:%s",message)
+    """This is used as a HTML page but also displayed in Javascript in a DIV block. """
+
+    # TODO: Change this for WSGI.
     globalOutMach.HeaderWriter("text/html")
 
-    #gblLogger.debug("InfoMessageHtml:Sending content")
     WrtAsUtf(
         "<html><head><title>Error: Process=%s</title></head>"
         % str(os.getpid()))
@@ -898,25 +900,24 @@ def InfoMessageHtml(message):
 
     WrtAsUtf("<b>" + message + "</b><br>")
 
-    # On Linux it says: "OSError: [Errno 2] No such file or directory"
     WrtAsUtf('<table>')
 
     if is_py3:
         WrtAsUtf("<tr><td>Login</td><td>%s</td></tr>"%os.getlogin())
 
     WrtAsUtf("<tr><td>Cwd</td><td>%s</td></tr>" % os.getcwd())
-    WrtAsUtf("<tr><td>OS</td><td>%s</td></tr>"%sys.platform)
-    WrtAsUtf("<tr><td>Version</td><td>%s</td></tr>"%sys.version)
+    WrtAsUtf("<tr><td>OS</td><td>%s</td></tr>" % sys.platform)
+    WrtAsUtf("<tr><td>Version</td><td>%s</td></tr>" % sys.version)
     
     WrtAsUtf('</table>')
 
     # http://desktop-ni99v8e:8000/survol/www/configuration.htm
-    configUrl = uriRoot + "/edit_configuration.py"
-    WrtAsUtf('<a href="%s">Setup</a>.<br>'%configUrl)
-    envsUrl = uriRoot + "/print_environment_variables.py"
-    WrtAsUtf('<a href="%s">Environment variables</a>.<br>'%envsUrl)
-    homeUrl = TopUrl("", "")
-    WrtAsUtf('<a href="%s">Return home</a>.<br>'%homeUrl)
+    config_url = uriRoot + "/edit_configuration.py"
+    WrtAsUtf('<a href="%s">Setup</a>.<br>' % config_url)
+    envs_url = uriRoot + "/print_environment_variables.py"
+    WrtAsUtf('<a href="%s">Environment variables</a>.<br>' % envs_url)
+    home_url = TopUrl("", "")
+    WrtAsUtf('<a href="%s">Return home</a>.<br>' % home_url)
 
     WrtAsUtf("""
     </body></html>
