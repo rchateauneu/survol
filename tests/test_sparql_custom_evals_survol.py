@@ -129,8 +129,10 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
         def make_var(input_var):
             """
-            This tests the cartesians product of Sparql variables and their values.
-            This loops on all possible combinations.
+            This receives input data for testing the enujmeration of all combinations of variables and values.
+            It just transforms the variable names into rdflib variable nodes, and values into rdflib literals.
+            This is needed to test the library function whch calculates the combinations.
+
             :param input_var: This is a dictionary whose keys are tuples of strings representing Sparql variables.
             :return:
             """
@@ -155,6 +157,11 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         self.assertEqual(num_results_actual, num_results_expected)
 
     def test_prod_variables(self):
+        """
+        This tests the enumeration of all possible combination of values or a set of input variables.
+        This tests the cartesians product of Sparql variables and their values.
+        This loops on all possible combinations.
+        """
         self.one_return_tst(1, {('a',): [('a1',)], ('b',): [('b1',)], ('c',): [('c1',)],})
         self.one_return_tst(2, {('a',): [('a1',)],('b',): [('b1',), ('b2',)], ('c',): [('c1',)], })
         self.one_return_tst(6, {('a',): [('a1',)],('b',): [('b1',), ('b2',)], ('c',): [('c1',), ('c2',), ('c3',)],})
