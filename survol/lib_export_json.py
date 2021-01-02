@@ -108,7 +108,6 @@ def _write_json_header(buf_json, with_content_length=False):
     lib_util.WrtHeader('application/json', arr_headers)
 
     # No text conversion.
-    # lib_util.outputHttp.write(bufJson)
     lib_util.WrtAsUtf(buf_json)
 
 
@@ -125,14 +124,6 @@ def WriteJsonError(message):
 
     # The only case where Content-Length is added.
     _write_json_header(json.dumps(json_err, indent=2), True)
-
-    # This closes manually the output, otherwise another thread is triggered
-    # and writes another error message, with the header, on the same output.
-    # And the client JSON parser does not like that:
-    # lib_util.outputHttp.close()
-
-    # "ValueError: I/O operation on closed file"
-    #sys.exit(0)
 
 
 def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
