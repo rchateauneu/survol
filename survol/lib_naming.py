@@ -7,7 +7,7 @@ import lib_patterns
 
 
 def _entity_array_to_label(entity_type, entity_ids_arr):
-    # This fetches in the module of the class, a function called "EntityName".
+    """This fetches in the module of the class, a function called "EntityName"."""
     func_entity_name = lib_util.HierarchicalFunctionSearch(entity_type, "EntityName")
 
     if func_entity_name:
@@ -212,7 +212,6 @@ def ParseEntityUriWithHost(uri_with_mode, long_display=True, force_entity_ip_add
 
     # This replaces "&amp;" by "&" up to two times if needed.
     uri_with_mode_clean = lib_util.UrlNoAmp(uri_with_mode)
-
 
     uprs = lib_util.survol_urlparse(uri_with_mode_clean)
 
