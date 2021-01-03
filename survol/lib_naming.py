@@ -92,9 +92,9 @@ def EntityToLabel(entity_type, entity_ids_concat, force_entity_ip_addr):
     return entity_label
 
 
-# TODO: Hard-coded but OK for the moment.
-# Use the "__doc__" string in each file.
-scripts_to_titles = {
+# This is used to display a clean title for some specific scripts.
+# TODO: Consider using the "__doc__" string in each file.
+_scripts_to_titles = {
     "portal_wbem.py": "WBEM server ",
     "portal_wmi.py": "WMI server ",
     "class_wbem.py": "WBEM class",
@@ -106,9 +106,9 @@ scripts_to_titles = {
     "objtypes_wmi.py": "WMI subclasses",
     "namespaces_wbem.py": "WBEM namespaces",
     "namespaces_wmi.py": "WMI namespaces",
-    "entity.py":"",
-    "entity_wbem.py":"WBEM",
-    "entity_wmi.py":"WMI",
+    "entity.py": "",
+    "entity_wbem.py": "WBEM",
+    "entity_wmi.py": "WMI",
 }
 
 
@@ -134,7 +134,7 @@ def _known_script_to_title(fil_script, uri_mode, entity_host=None, entity_suffix
         return entity_label
 
     try:
-        entity_label = scripts_to_titles[fil_script]
+        entity_label = _scripts_to_titles[fil_script]
     except KeyError:
         entity_label = fil_script + "..."
 
