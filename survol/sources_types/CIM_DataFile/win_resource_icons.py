@@ -33,13 +33,12 @@ def Main():
 
     fil_node = lib_common.gUriGen.FileUri(path_name)
 
-    #propNam = ( "/MIME_PROPERTY/" + survol_win32_resource.mimeTypeResource ).replace(" ","_")
-    #propIcon = lib_properties.MakeProp(survol_win32_resource.mimeTypeResource)
-
     for group_name in icon_groups:
         # TODO: Is it sorted in lib_export_html.py ??
-        lib_mime.AddMimeUrl(grph,fil_node, "win32/resource", survol_win32_resource.mimeTypeResource, [path_name, group_name])
+        # When clicking on these links, it typically displays an image.
+        lib_mime.AddMimeUrl(grph, fil_node, "win32/resource", survol_win32_resource.mimeTypeResource, [path_name, group_name])
 
+    # This displays a list of images file names.
     cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_rdf_data_nolist2] )
 
 
