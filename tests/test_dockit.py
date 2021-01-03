@@ -281,7 +281,7 @@ class LowLevelComponentsTest(unittest.TestCase):
             # The input string theoretically starts and ends with parenthesis,
             # but the closing one might not be there.
             # Therefore it should be tested with and without the closing parenthesis.
-            resu,idx = linux_api_definitions.parse_call_arguments(tupl[0])
+            resu, idx = linux_api_definitions.parse_call_arguments(tupl[0], 0)
             if resu != tupl[1]:
                 raise Exception("\n     Fail:%s\nSHOULD BE:%s" % ( str(resu),str(tupl[1])  ) )
 
@@ -1316,6 +1316,8 @@ class ReplaySessionsTest(unittest.TestCase):
 
                 # Files .log are not created because --duplicate option is not set.
                 check_file_missing(output_basename_prefix + ".log")
+
+                _check_file_content(self, output_basename_prefix + ".json")
 
                 _check_file_content(self, output_basename_prefix + ".summary.txt")
 
