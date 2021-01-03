@@ -607,10 +607,10 @@ class Win32Hook_GenericProcessCreation(Win32Hook_BaseClass):
     #   This data structure associated to a process also contains the hook logic to interrupt API functions calls.
 
     def callback_before(self, function_arguments):
-        raise NotImplementedYet("Win32Hook_GenericProcessCreation.callback_before")
+        raise NotImplementedError("Win32Hook_GenericProcessCreation.callback_before")
 
     def callback_after(self, function_arguments, function_result):
-        raise NotImplementedYet("Win32Hook_GenericProcessCreation.callback_after")
+        raise NotImplementedError("Win32Hook_GenericProcessCreation.callback_after")
 
     def callback_before_common(self, function_arguments):
         #print("callback_before_common self.win32_hook_manager.pid=", self.win32_hook_manager.pid)
