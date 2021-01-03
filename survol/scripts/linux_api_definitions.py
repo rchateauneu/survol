@@ -24,7 +24,7 @@ else:
 ################################################################################
 
 
-def parse_call_arguments(str_args, ix_start=0):
+def parse_call_arguments(str_args, ix_start):
     """Parsing of the arguments of the systems calls printed by strace and ltrace.
     This starts immediately after an open parenthesis or bracket.
     It returns an index on the closing parenthesis, or equal to the string length.
@@ -261,8 +261,9 @@ class BatchLetCore:
         self.m_parsedArgs = []
         self._return_value = None
 
-    # This parsing is specific to strace and ltrace.
     def _init_after_pid(self, one_line, idx_start):
+        """This parsing is specific to strace and ltrace."""
+
         # "07:54:54.206113"
         a_time_stamp = one_line[idx_start:idx_start + 15]
 
