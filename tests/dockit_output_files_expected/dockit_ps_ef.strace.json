@@ -6,7 +6,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "execve@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\usr\\bin\\ps\"", "['ps', '-ef']"],
+   "arguments" : ["CIM_DataFile.Name=\"/usr/bin/ps\"", "['ps', '-ef']"],
    "return_value" : "0",
    "time_start" : "08:42:12.295603",
    "time_end" : "08:42:12.295603"
@@ -17,7 +17,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+fstat@SYS+mmap@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\etc\\ld.so.cache\""],
+   "arguments" : ["CIM_DataFile.Name=\"/etc/ld.so.cache\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.296051",
    "time_end" : "08:42:12.296191"
@@ -28,7 +28,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\usr\\lib64\\libprocps.so.4.0.0\""],
+   "arguments" : ["CIM_DataFile.Name=\"/usr/lib64/libprocps.so.4.0.0\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.296217",
    "time_end" : "08:42:12.296501"
@@ -39,7 +39,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\usr\\lib64\\libsystemd.so.0.18.0\""],
+   "arguments" : ["CIM_DataFile.Name=\"/usr/lib64/libsystemd.so.0.18.0\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.296552",
    "time_end" : "08:42:12.296777"
@@ -50,7 +50,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\usr\\lib64\\libdl-2.25.so\""],
+   "arguments" : ["CIM_DataFile.Name=\"/usr/lib64/libdl-2.25.so\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.296813",
    "time_end" : "08:42:12.297050"
@@ -61,7 +61,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\usr\\lib64\\libc-2.25.so\""],
+   "arguments" : ["CIM_DataFile.Name=\"/usr/lib64/libc-2.25.so\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.297081",
    "time_end" : "08:42:12.297296"
@@ -72,7 +72,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\usr\\lib64\\libresolv-2.25.so\""],
+   "arguments" : ["CIM_DataFile.Name=\"/usr/lib64/libresolv-2.25.so\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.297347",
    "time_end" : "08:42:12.297577"
@@ -83,7 +83,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\usr\\lib64\\libselinux.so.1\""],
+   "arguments" : ["CIM_DataFile.Name=\"/usr/lib64/libselinux.so.1\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.297630",
    "time_end" : "08:42:12.297928"
@@ -94,7 +94,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\usr\\lib64\\libcap.so.2.25\""],
+   "arguments" : ["CIM_DataFile.Name=\"/usr/lib64/libcap.so.2.25\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.297962",
    "time_end" : "08:42:12.298173"
@@ -105,7 +105,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\usr\\lib64\\librt-2.25.so\""],
+   "arguments" : ["CIM_DataFile.Name=\"/usr/lib64/librt-2.25.so\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.298208",
    "time_end" : "08:42:12.298371"
@@ -116,7 +116,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\usr\\lib64\\liblzma.so.5.2.3\""],
+   "arguments" : ["CIM_DataFile.Name=\"/usr/lib64/liblzma.so.5.2.3\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.298418",
    "time_end" : "08:42:12.298687"
@@ -127,7 +127,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\usr\\lib64\\liblz4.so.1.7.5\""],
+   "arguments" : ["CIM_DataFile.Name=\"/usr/lib64/liblz4.so.1.7.5\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.298745",
    "time_end" : "08:42:12.299144"
@@ -138,7 +138,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\usr\\lib64\\libgcrypt.so.20.1.7\""],
+   "arguments" : ["CIM_DataFile.Name=\"/usr/lib64/libgcrypt.so.20.1.7\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.299203",
    "time_end" : "08:42:12.299449"
@@ -149,7 +149,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\usr\\lib64\\libgpg-error.so.0.20.0\""],
+   "arguments" : ["CIM_DataFile.Name=\"/usr/lib64/libgpg-error.so.0.20.0\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.299493",
    "time_end" : "08:42:12.299734"
@@ -160,7 +160,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\usr\\lib64\\libgcc_s-7-20180130.so.1\""],
+   "arguments" : ["CIM_DataFile.Name=\"/usr/lib64/libgcc_s-7-20180130.so.1\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.299770",
    "time_end" : "08:42:12.299986"
@@ -171,7 +171,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\usr\\lib64\\libpthread-2.25.so\""],
+   "arguments" : ["CIM_DataFile.Name=\"/usr/lib64/libpthread-2.25.so\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.300024",
    "time_end" : "08:42:12.300231"
@@ -182,7 +182,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\usr\\lib64\\libpcre.so.1.2.8\""],
+   "arguments" : ["CIM_DataFile.Name=\"/usr/lib64/libpcre.so.1.2.8\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.300279",
    "time_end" : "08:42:12.300451"
@@ -204,7 +204,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+fstat@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\13685\\auxv\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/13685/auxv\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.302345",
    "time_end" : "08:42:12.302526"
@@ -215,7 +215,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\sys\\devices\\system\\cpu\\online\""],
+   "arguments" : ["CIM_DataFile.Name=\"/sys/devices/system/cpu/online\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.302577",
    "time_end" : "08:42:12.302741"
@@ -226,7 +226,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+fstat@SYS+mmap@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\usr\\lib\\locale\\locale-archive\""],
+   "arguments" : ["CIM_DataFile.Name=\"/usr/lib/locale/locale-archive\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.302789",
    "time_end" : "08:42:12.302911"
@@ -237,7 +237,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\13685\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/13685/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.303148",
    "time_end" : "08:42:12.303231"
@@ -248,7 +248,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "ioctl@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "0",
    "time_start" : "08:42:12.303267",
    "time_end" : "08:42:12.303267"
@@ -259,7 +259,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\uptime\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/uptime\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.303342",
    "time_end" : "08:42:12.303410"
@@ -270,7 +270,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+fstat@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\usr\\share\\locale\\locale.alias\""],
+   "arguments" : ["CIM_DataFile.Name=\"/usr/share/locale/locale.alias\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.303452",
    "time_end" : "08:42:12.303603"
@@ -281,7 +281,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\sys\\kernel\\pid_max\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/sys/kernel/pid_max\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.303866",
    "time_end" : "08:42:12.304011"
@@ -292,7 +292,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\meminfo\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/meminfo\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.304162",
    "time_end" : "08:42:12.304274"
@@ -303,7 +303,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+fstat@SYS+getdents@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.304422",
    "time_end" : "08:42:12.304644"
@@ -314,7 +314,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\1\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/1/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.304996",
    "time_end" : "08:42:12.305117"
@@ -325,7 +325,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\1\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/1/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.305171",
    "time_end" : "08:42:12.305351"
@@ -358,7 +358,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+fstat@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\etc\\nsswitch.conf\""],
+   "arguments" : ["CIM_DataFile.Name=\"/etc/nsswitch.conf\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.306303",
    "time_end" : "08:42:12.306494"
@@ -369,7 +369,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+fstat@SYS+mmap@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\etc\\ld.so.cache\""],
+   "arguments" : ["CIM_DataFile.Name=\"/etc/ld.so.cache\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.306542",
    "time_end" : "08:42:12.306674"
@@ -380,7 +380,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\usr\\lib64\\libnss_sss.so.2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/usr/lib64/libnss_sss.so.2\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.306710",
    "time_end" : "08:42:12.306986"
@@ -402,7 +402,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+fstat@SYS+mmap@SYS+fstat@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\var\\lib\\sss\\mc\\passwd\""],
+   "arguments" : ["CIM_DataFile.Name=\"/var/lib/sss/mc/passwd\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.307174",
    "time_end" : "08:42:12.307321"
@@ -589,7 +589,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+fstat@SYS+mmap@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\etc\\ld.so.cache\""],
+   "arguments" : ["CIM_DataFile.Name=\"/etc/ld.so.cache\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.309507",
    "time_end" : "08:42:12.309646"
@@ -600,7 +600,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+fstat@SYS+mmap@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\usr\\lib64\\libnss_files-2.25.so\""],
+   "arguments" : ["CIM_DataFile.Name=\"/usr/lib64/libnss_files-2.25.so\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.309679",
    "time_end" : "08:42:12.309975"
@@ -622,7 +622,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+fstat@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\etc\\passwd\""],
+   "arguments" : ["CIM_DataFile.Name=\"/etc/passwd\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.310128",
    "time_end" : "08:42:12.310247"
@@ -633,7 +633,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\1\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/1/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.310280",
    "time_end" : "08:42:12.310397"
@@ -644,7 +644,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+fstat@SYS+mmap@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\usr\\lib64\\gconv\\gconv-modules.cache\""],
+   "arguments" : ["CIM_DataFile.Name=\"/usr/lib64/gconv/gconv-modules.cache\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.310431",
    "time_end" : "08:42:12.310537"
@@ -655,7 +655,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(fstat@SYS+write@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.310606",
    "time_end" : "08:42:12.310656"
@@ -666,7 +666,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+fstat@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\usr\\share\\zoneinfo\\Europe\\Paris\""],
+   "arguments" : ["CIM_DataFile.Name=\"/usr/share/zoneinfo/Europe/Paris\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.310912",
    "time_end" : "08:42:12.311124"
@@ -677,7 +677,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+fstat@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.311159",
    "time_end" : "08:42:12.311344"
@@ -688,7 +688,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "115",
    "time_start" : "08:42:12.311401",
    "time_end" : "08:42:12.311401"
@@ -699,7 +699,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\2\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/2/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.311580",
    "time_end" : "08:42:12.311662"
@@ -710,7 +710,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\2\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/2/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.311702",
    "time_end" : "08:42:12.311794"
@@ -721,7 +721,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\2\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/2/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.311854",
    "time_end" : "08:42:12.311934"
@@ -732,7 +732,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "59",
    "time_start" : "08:42:12.312007",
    "time_end" : "08:42:12.312007"
@@ -743,7 +743,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\4\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/4/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.312168",
    "time_end" : "08:42:12.312248"
@@ -754,7 +754,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\4\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/4/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.312297",
    "time_end" : "08:42:12.312373"
@@ -765,7 +765,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\4\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/4/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.312406",
    "time_end" : "08:42:12.312469"
@@ -776,7 +776,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "63",
    "time_start" : "08:42:12.312533",
    "time_end" : "08:42:12.312533"
@@ -787,7 +787,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\6\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/6/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.312705",
    "time_end" : "08:42:12.312785"
@@ -798,7 +798,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\6\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/6/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.312823",
    "time_end" : "08:42:12.312929"
@@ -809,7 +809,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\6\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/6/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.312964",
    "time_end" : "08:42:12.313029"
@@ -820,7 +820,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "63",
    "time_start" : "08:42:12.313096",
    "time_end" : "08:42:12.313096"
@@ -831,7 +831,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\7\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/7/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.313250",
    "time_end" : "08:42:12.313329"
@@ -842,7 +842,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\7\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/7/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.313367",
    "time_end" : "08:42:12.313456"
@@ -853,7 +853,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\7\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/7/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.313500",
    "time_end" : "08:42:12.313568"
@@ -864,7 +864,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "62",
    "time_start" : "08:42:12.313631",
    "time_end" : "08:42:12.313631"
@@ -875,7 +875,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\8\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/8/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.313765",
    "time_end" : "08:42:12.313845"
@@ -886,7 +886,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\8\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/8/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.313905",
    "time_end" : "08:42:12.313990"
@@ -897,7 +897,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\8\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/8/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.314025",
    "time_end" : "08:42:12.314101"
@@ -908,7 +908,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "60",
    "time_start" : "08:42:12.314165",
    "time_end" : "08:42:12.314165"
@@ -919,7 +919,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\9\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/9/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.314284",
    "time_end" : "08:42:12.314368"
@@ -930,7 +930,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\9\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/9/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.314404",
    "time_end" : "08:42:12.314492"
@@ -941,7 +941,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\9\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/9/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.314537",
    "time_end" : "08:42:12.314604"
@@ -952,7 +952,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "57",
    "time_start" : "08:42:12.314680",
    "time_end" : "08:42:12.314680"
@@ -963,7 +963,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.314795",
    "time_end" : "08:42:12.314873"
@@ -974,7 +974,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.314934",
    "time_end" : "08:42:12.315017"
@@ -985,7 +985,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.315051",
    "time_end" : "08:42:12.315117"
@@ -996,7 +996,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "58",
    "time_start" : "08:42:12.315182",
    "time_end" : "08:42:12.315182"
@@ -1007,7 +1007,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\11\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/11/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.315301",
    "time_end" : "08:42:12.315382"
@@ -1018,7 +1018,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\11\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/11/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.315418",
    "time_end" : "08:42:12.315505"
@@ -1029,7 +1029,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\11\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/11/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.315539",
    "time_end" : "08:42:12.315604"
@@ -1040,7 +1040,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "58",
    "time_start" : "08:42:12.315669",
    "time_end" : "08:42:12.315669"
@@ -1051,7 +1051,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\12\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/12/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.315774",
    "time_end" : "08:42:12.315875"
@@ -1062,7 +1062,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\12\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/12/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.315915",
    "time_end" : "08:42:12.316009"
@@ -1073,7 +1073,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\12\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/12/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.316044",
    "time_end" : "08:42:12.316109"
@@ -1084,7 +1084,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "62",
    "time_start" : "08:42:12.316176",
    "time_end" : "08:42:12.316176"
@@ -1095,7 +1095,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\13\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/13/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.316286",
    "time_end" : "08:42:12.316364"
@@ -1106,7 +1106,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\13\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/13/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.316465",
    "time_end" : "08:42:12.316557"
@@ -1117,7 +1117,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\13\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/13/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.316590",
    "time_end" : "08:42:12.316653"
@@ -1128,7 +1128,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "61",
    "time_start" : "08:42:12.316729",
    "time_end" : "08:42:12.316729"
@@ -1139,7 +1139,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\14\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/14/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.316842",
    "time_end" : "08:42:12.316946"
@@ -1150,7 +1150,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\14\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/14/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.316984",
    "time_end" : "08:42:12.317064"
@@ -1161,7 +1161,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\14\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/14/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.317098",
    "time_end" : "08:42:12.317174"
@@ -1172,7 +1172,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "58",
    "time_start" : "08:42:12.317250",
    "time_end" : "08:42:12.317250"
@@ -1183,7 +1183,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\15\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/15/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.317357",
    "time_end" : "08:42:12.317434"
@@ -1194,7 +1194,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\15\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/15/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.317472",
    "time_end" : "08:42:12.317549"
@@ -1205,7 +1205,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\15\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/15/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.317583",
    "time_end" : "08:42:12.317649"
@@ -1216,7 +1216,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "60",
    "time_start" : "08:42:12.317714",
    "time_end" : "08:42:12.317714"
@@ -1227,7 +1227,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\16\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/16/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.317824",
    "time_end" : "08:42:12.317931"
@@ -1238,7 +1238,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\16\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/16/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.317969",
    "time_end" : "08:42:12.318047"
@@ -1249,7 +1249,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\16\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/16/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.318081",
    "time_end" : "08:42:12.318146"
@@ -1260,7 +1260,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "56",
    "time_start" : "08:42:12.318211",
    "time_end" : "08:42:12.318211"
@@ -1271,7 +1271,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\17\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/17/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.318321",
    "time_end" : "08:42:12.318399"
@@ -1282,7 +1282,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\17\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/17/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.318437",
    "time_end" : "08:42:12.318514"
@@ -1293,7 +1293,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\17\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/17/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.318549",
    "time_end" : "08:42:12.318614"
@@ -1304,7 +1304,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "61",
    "time_start" : "08:42:12.318679",
    "time_end" : "08:42:12.318679"
@@ -1315,7 +1315,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\18\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/18/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.318787",
    "time_end" : "08:42:12.318889"
@@ -1326,7 +1326,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\18\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/18/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.318928",
    "time_end" : "08:42:12.319006"
@@ -1337,7 +1337,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\18\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/18/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.319039",
    "time_end" : "08:42:12.319111"
@@ -1348,7 +1348,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "60",
    "time_start" : "08:42:12.319178",
    "time_end" : "08:42:12.319178"
@@ -1359,7 +1359,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\19\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/19/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.319288",
    "time_end" : "08:42:12.319365"
@@ -1370,7 +1370,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\19\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/19/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.319403",
    "time_end" : "08:42:12.319479"
@@ -1381,7 +1381,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\19\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/19/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.319513",
    "time_end" : "08:42:12.319578"
@@ -1392,7 +1392,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "61",
    "time_start" : "08:42:12.319642",
    "time_end" : "08:42:12.319642"
@@ -1403,7 +1403,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\20\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/20/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.319749",
    "time_end" : "08:42:12.319849"
@@ -1414,7 +1414,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\20\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/20/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.319890",
    "time_end" : "08:42:12.319983"
@@ -1425,7 +1425,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\20\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/20/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.320018",
    "time_end" : "08:42:12.320097"
@@ -1436,7 +1436,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "55",
    "time_start" : "08:42:12.320164",
    "time_end" : "08:42:12.320164"
@@ -1447,7 +1447,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\21\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/21/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.320273",
    "time_end" : "08:42:12.320356"
@@ -1458,7 +1458,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\21\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/21/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.320393",
    "time_end" : "08:42:12.320471"
@@ -1469,7 +1469,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\21\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/21/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.320504",
    "time_end" : "08:42:12.320570"
@@ -1480,7 +1480,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "61",
    "time_start" : "08:42:12.320634",
    "time_end" : "08:42:12.320634"
@@ -1491,7 +1491,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\22\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/22/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.320764",
    "time_end" : "08:42:12.320860"
@@ -1502,7 +1502,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\22\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/22/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.320904",
    "time_end" : "08:42:12.320983"
@@ -1513,7 +1513,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\22\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/22/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.321017",
    "time_end" : "08:42:12.321082"
@@ -1524,7 +1524,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "57",
    "time_start" : "08:42:12.321147",
    "time_end" : "08:42:12.321147"
@@ -1535,7 +1535,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\23\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/23/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.321266",
    "time_end" : "08:42:12.321354"
@@ -1546,7 +1546,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\23\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/23/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.321391",
    "time_end" : "08:42:12.321469"
@@ -1557,7 +1557,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\23\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/23/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.321503",
    "time_end" : "08:42:12.321568"
@@ -1568,7 +1568,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "62",
    "time_start" : "08:42:12.321644",
    "time_end" : "08:42:12.321644"
@@ -1579,7 +1579,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\24\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/24/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.321749",
    "time_end" : "08:42:12.321835"
@@ -1590,7 +1590,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\24\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/24/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.321903",
    "time_end" : "08:42:12.321985"
@@ -1601,7 +1601,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\24\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/24/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.322019",
    "time_end" : "08:42:12.322085"
@@ -1612,7 +1612,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "57",
    "time_start" : "08:42:12.322150",
    "time_end" : "08:42:12.322150"
@@ -1623,7 +1623,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\25\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/25/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.322264",
    "time_end" : "08:42:12.322341"
@@ -1634,7 +1634,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\25\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/25/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.322378",
    "time_end" : "08:42:12.322456"
@@ -1645,7 +1645,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\25\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/25/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.322501",
    "time_end" : "08:42:12.322563"
@@ -1656,7 +1656,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "58",
    "time_start" : "08:42:12.322625",
    "time_end" : "08:42:12.322625"
@@ -1667,7 +1667,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\26\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/26/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.322738",
    "time_end" : "08:42:12.322814"
@@ -1678,7 +1678,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\26\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/26/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.322887",
    "time_end" : "08:42:12.322968"
@@ -1689,7 +1689,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\26\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/26/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.323003",
    "time_end" : "08:42:12.323069"
@@ -1700,7 +1700,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "58",
    "time_start" : "08:42:12.323134",
    "time_end" : "08:42:12.323134"
@@ -1711,7 +1711,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\27\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/27/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.323241",
    "time_end" : "08:42:12.323318"
@@ -1722,7 +1722,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\27\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/27/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.323367",
    "time_end" : "08:42:12.323450"
@@ -1733,7 +1733,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\27\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/27/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.323482",
    "time_end" : "08:42:12.323542"
@@ -1744,7 +1744,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "53",
    "time_start" : "08:42:12.323615",
    "time_end" : "08:42:12.323615"
@@ -1755,7 +1755,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\28\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/28/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.323718",
    "time_end" : "08:42:12.323793"
@@ -1766,7 +1766,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\28\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/28/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.323844",
    "time_end" : "08:42:12.323959"
@@ -1777,7 +1777,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\28\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/28/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.323996",
    "time_end" : "08:42:12.324063"
@@ -1788,7 +1788,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "61",
    "time_start" : "08:42:12.324131",
    "time_end" : "08:42:12.324131"
@@ -1799,7 +1799,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\29\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/29/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.324279",
    "time_end" : "08:42:12.324394"
@@ -1810,7 +1810,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\29\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/29/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.324444",
    "time_end" : "08:42:12.324551"
@@ -1821,7 +1821,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\29\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/29/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.324594",
    "time_end" : "08:42:12.324706"
@@ -1832,7 +1832,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "60",
    "time_start" : "08:42:12.324781",
    "time_end" : "08:42:12.324781"
@@ -1843,7 +1843,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\32\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/32/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.324932",
    "time_end" : "08:42:12.325021"
@@ -1854,7 +1854,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\32\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/32/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.325064",
    "time_end" : "08:42:12.325154"
@@ -1865,7 +1865,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\32\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/32/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.325193",
    "time_end" : "08:42:12.325268"
@@ -1876,7 +1876,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "58",
    "time_start" : "08:42:12.325343",
    "time_end" : "08:42:12.325343"
@@ -1887,7 +1887,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\33\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/33/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.325467",
    "time_end" : "08:42:12.325574"
@@ -1898,7 +1898,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\33\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/33/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.325629",
    "time_end" : "08:42:12.325725"
@@ -1909,7 +1909,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\33\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/33/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.325763",
    "time_end" : "08:42:12.325861"
@@ -1920,7 +1920,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "58",
    "time_start" : "08:42:12.325943",
    "time_end" : "08:42:12.325943"
@@ -1931,7 +1931,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\34\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/34/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.326064",
    "time_end" : "08:42:12.326153"
@@ -1942,7 +1942,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\34\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/34/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.326196",
    "time_end" : "08:42:12.326284"
@@ -1953,7 +1953,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\34\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/34/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.326324",
    "time_end" : "08:42:12.326398"
@@ -1964,7 +1964,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "57",
    "time_start" : "08:42:12.326471",
    "time_end" : "08:42:12.326471"
@@ -1975,7 +1975,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\81\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/81/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.326596",
    "time_end" : "08:42:12.326720"
@@ -1986,7 +1986,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\81\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/81/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.326769",
    "time_end" : "08:42:12.326887"
@@ -1997,7 +1997,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\81\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/81/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.326932",
    "time_end" : "08:42:12.327007"
@@ -2008,7 +2008,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "59",
    "time_start" : "08:42:12.327081",
    "time_end" : "08:42:12.327081"
@@ -2019,7 +2019,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\82\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/82/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.327203",
    "time_end" : "08:42:12.327291"
@@ -2030,7 +2030,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\82\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/82/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.327333",
    "time_end" : "08:42:12.327424"
@@ -2041,7 +2041,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\82\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/82/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.327463",
    "time_end" : "08:42:12.327548"
@@ -2052,7 +2052,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "66",
    "time_start" : "08:42:12.327644",
    "time_end" : "08:42:12.327644"
@@ -2063,7 +2063,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\83\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/83/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.327779",
    "time_end" : "08:42:12.327902"
@@ -2074,7 +2074,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\83\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/83/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.327959",
    "time_end" : "08:42:12.328052"
@@ -2085,7 +2085,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\83\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/83/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.328092",
    "time_end" : "08:42:12.328169"
@@ -2096,7 +2096,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "60",
    "time_start" : "08:42:12.328245",
    "time_end" : "08:42:12.328245"
@@ -2107,7 +2107,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\84\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/84/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.328371",
    "time_end" : "08:42:12.328460"
@@ -2118,7 +2118,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\84\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/84/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.328505",
    "time_end" : "08:42:12.328598"
@@ -2129,7 +2129,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\84\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/84/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.328648",
    "time_end" : "08:42:12.328743"
@@ -2140,7 +2140,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "61",
    "time_start" : "08:42:12.328851",
    "time_end" : "08:42:12.328851"
@@ -2151,7 +2151,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\85\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/85/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.329000",
    "time_end" : "08:42:12.329108"
@@ -2162,7 +2162,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\85\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/85/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.329163",
    "time_end" : "08:42:12.329277"
@@ -2173,7 +2173,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\85\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/85/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.329328",
    "time_end" : "08:42:12.329426"
@@ -2184,7 +2184,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "60",
    "time_start" : "08:42:12.329510",
    "time_end" : "08:42:12.329510"
@@ -2195,7 +2195,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\86\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/86/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.329645",
    "time_end" : "08:42:12.329742"
@@ -2206,7 +2206,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\86\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/86/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.329787",
    "time_end" : "08:42:12.329923"
@@ -2217,7 +2217,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\86\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/86/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.329969",
    "time_end" : "08:42:12.330057"
@@ -2228,7 +2228,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "61",
    "time_start" : "08:42:12.330144",
    "time_end" : "08:42:12.330144"
@@ -2239,7 +2239,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\88\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/88/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.330293",
    "time_end" : "08:42:12.330403"
@@ -2250,7 +2250,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\88\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/88/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.330459",
    "time_end" : "08:42:12.330574"
@@ -2261,7 +2261,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\88\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/88/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.330622",
    "time_end" : "08:42:12.330713"
@@ -2272,7 +2272,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "65",
    "time_start" : "08:42:12.330809",
    "time_end" : "08:42:12.330809"
@@ -2283,7 +2283,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\89\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/89/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.330974",
    "time_end" : "08:42:12.331070"
@@ -2294,7 +2294,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\89\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/89/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.331116",
    "time_end" : "08:42:12.331213"
@@ -2305,7 +2305,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\89\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/89/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.331255",
    "time_end" : "08:42:12.331346"
@@ -2316,7 +2316,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "64",
    "time_start" : "08:42:12.331425",
    "time_end" : "08:42:12.331425"
@@ -2327,7 +2327,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\227\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/227/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.331567",
    "time_end" : "08:42:12.331658"
@@ -2338,7 +2338,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\227\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/227/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.331702",
    "time_end" : "08:42:12.331807"
@@ -2349,7 +2349,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\227\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/227/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.331872",
    "time_end" : "08:42:12.331973"
@@ -2360,7 +2360,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "57",
    "time_start" : "08:42:12.332054",
    "time_end" : "08:42:12.332054"
@@ -2371,7 +2371,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\228\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/228/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.332180",
    "time_end" : "08:42:12.332275"
@@ -2382,7 +2382,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\228\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/228/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.332318",
    "time_end" : "08:42:12.332414"
@@ -2393,7 +2393,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\228\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/228/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.332454",
    "time_end" : "08:42:12.332532"
@@ -2404,7 +2404,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "60",
    "time_start" : "08:42:12.332611",
    "time_end" : "08:42:12.332611"
@@ -2415,7 +2415,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\229\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/229/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.332760",
    "time_end" : "08:42:12.332880"
@@ -2426,7 +2426,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\229\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/229/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.332928",
    "time_end" : "08:42:12.333024"
@@ -2437,7 +2437,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\229\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/229/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.333067",
    "time_end" : "08:42:12.333148"
@@ -2448,7 +2448,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "61",
    "time_start" : "08:42:12.333225",
    "time_end" : "08:42:12.333225"
@@ -2459,7 +2459,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\398\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/398/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.333448",
    "time_end" : "08:42:12.333541"
@@ -2470,7 +2470,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\398\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/398/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.333585",
    "time_end" : "08:42:12.333677"
@@ -2481,7 +2481,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\398\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/398/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.333717",
    "time_end" : "08:42:12.333794"
@@ -2492,7 +2492,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "63",
    "time_start" : "08:42:12.333913",
    "time_end" : "08:42:12.333913"
@@ -2503,7 +2503,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\462\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/462/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.334080",
    "time_end" : "08:42:12.334175"
@@ -2514,7 +2514,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\462\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/462/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.334221",
    "time_end" : "08:42:12.334315"
@@ -2525,7 +2525,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\462\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/462/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.334358",
    "time_end" : "08:42:12.334439"
@@ -2536,7 +2536,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "62",
    "time_start" : "08:42:12.334516",
    "time_end" : "08:42:12.334516"
@@ -2547,7 +2547,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\464\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/464/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.334712",
    "time_end" : "08:42:12.334828"
@@ -2558,7 +2558,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\464\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/464/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.334899",
    "time_end" : "08:42:12.334998"
@@ -2569,7 +2569,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\464\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/464/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.335040",
    "time_end" : "08:42:12.335120"
@@ -2580,7 +2580,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "66",
    "time_start" : "08:42:12.335199",
    "time_end" : "08:42:12.335199"
@@ -2591,7 +2591,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\549\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/549/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.335368",
    "time_end" : "08:42:12.335465"
@@ -2602,7 +2602,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\549\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/549/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.335512",
    "time_end" : "08:42:12.335617"
@@ -2613,7 +2613,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\549\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/549/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.335665",
    "time_end" : "08:42:12.335792"
@@ -2624,7 +2624,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "82",
    "time_start" : "08:42:12.335905",
    "time_end" : "08:42:12.335905"
@@ -2635,7 +2635,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\566\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/566/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.336088",
    "time_end" : "08:42:12.336187"
@@ -2646,7 +2646,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\566\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/566/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.336232",
    "time_end" : "08:42:12.336331"
@@ -2657,7 +2657,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\566\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/566/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.336373",
    "time_end" : "08:42:12.336496"
@@ -2668,7 +2668,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "79",
    "time_start" : "08:42:12.336576",
    "time_end" : "08:42:12.336576"
@@ -2679,7 +2679,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\586\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/586/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.336742",
    "time_end" : "08:42:12.336864"
@@ -2690,7 +2690,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\586\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/586/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.336912",
    "time_end" : "08:42:12.337012"
@@ -2701,7 +2701,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\586\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/586/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.337056",
    "time_end" : "08:42:12.337179"
@@ -2712,7 +2712,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "61",
    "time_start" : "08:42:12.337257",
    "time_end" : "08:42:12.337257"
@@ -2723,7 +2723,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\620\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/620/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.337416",
    "time_end" : "08:42:12.337511"
@@ -2734,7 +2734,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\620\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/620/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.337556",
    "time_end" : "08:42:12.337649"
@@ -2745,7 +2745,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\620\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/620/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.337692",
    "time_end" : "08:42:12.337770"
@@ -2756,7 +2756,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "59",
    "time_start" : "08:42:12.337873",
    "time_end" : "08:42:12.337873"
@@ -2767,7 +2767,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\632\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/632/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.338038",
    "time_end" : "08:42:12.338145"
@@ -2778,7 +2778,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\632\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/632/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.338192",
    "time_end" : "08:42:12.338291"
@@ -2789,7 +2789,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\632\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/632/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.338333",
    "time_end" : "08:42:12.338458"
@@ -2800,7 +2800,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "69",
    "time_start" : "08:42:12.338536",
    "time_end" : "08:42:12.338536"
@@ -2811,7 +2811,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\634\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/634/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.338702",
    "time_end" : "08:42:12.338796"
@@ -2822,7 +2822,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\634\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/634/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.338867",
    "time_end" : "08:42:12.338967"
@@ -2833,7 +2833,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "fstat@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\var\\lib\\sss\\mc\\passwd\""],
+   "arguments" : ["CIM_DataFile.Name=\"/var/lib/sss/mc/passwd\""],
    "return_value" : "0",
    "time_start" : "08:42:12.339014",
    "time_end" : "08:42:12.339014"
@@ -2844,7 +2844,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\634\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/634/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.339108",
    "time_end" : "08:42:12.339267"
@@ -2855,7 +2855,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "153",
    "time_start" : "08:42:12.339355",
    "time_end" : "08:42:12.339355"
@@ -2866,7 +2866,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\636\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/636/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.339509",
    "time_end" : "08:42:12.339620"
@@ -2877,7 +2877,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\636\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/636/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.339665",
    "time_end" : "08:42:12.339774"
@@ -2888,7 +2888,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "fstat@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\var\\lib\\sss\\mc\\passwd\""],
+   "arguments" : ["CIM_DataFile.Name=\"/var/lib/sss/mc/passwd\""],
    "return_value" : "0",
    "time_start" : "08:42:12.339818",
    "time_end" : "08:42:12.339818"
@@ -2899,7 +2899,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\636\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/636/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.339901",
    "time_end" : "08:42:12.340055"
@@ -2910,7 +2910,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "66",
    "time_start" : "08:42:12.340134",
    "time_end" : "08:42:12.340134"
@@ -2921,7 +2921,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\656\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/656/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.340268",
    "time_end" : "08:42:12.340363"
@@ -2932,7 +2932,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\656\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/656/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.340408",
    "time_end" : "08:42:12.340506"
@@ -2943,7 +2943,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\656\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/656/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.340549",
    "time_end" : "08:42:12.340688"
@@ -2954,7 +2954,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "131",
    "time_start" : "08:42:12.340774",
    "time_end" : "08:42:12.340774"
@@ -2965,7 +2965,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\710\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/710/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.340946",
    "time_end" : "08:42:12.341041"
@@ -2976,7 +2976,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\710\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/710/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.341092",
    "time_end" : "08:42:12.341196"
@@ -2987,7 +2987,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\710\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/710/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.341238",
    "time_end" : "08:42:12.341387"
@@ -2998,7 +2998,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "108",
    "time_start" : "08:42:12.341471",
    "time_end" : "08:42:12.341471"
@@ -3009,7 +3009,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\719\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/719/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.341618",
    "time_end" : "08:42:12.341715"
@@ -3020,7 +3020,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\719\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/719/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.341761",
    "time_end" : "08:42:12.341890"
@@ -3031,7 +3031,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\719\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/719/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.341933",
    "time_end" : "08:42:12.342057"
@@ -3042,7 +3042,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "80",
    "time_start" : "08:42:12.342144",
    "time_end" : "08:42:12.342144"
@@ -3053,7 +3053,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\816\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/816/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.342279",
    "time_end" : "08:42:12.342369"
@@ -3064,7 +3064,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\816\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/816/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.342413",
    "time_end" : "08:42:12.342505"
@@ -3075,7 +3075,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\816\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/816/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.342545",
    "time_end" : "08:42:12.342678"
@@ -3086,7 +3086,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "161",
    "time_start" : "08:42:12.342763",
    "time_end" : "08:42:12.342763"
@@ -3097,7 +3097,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\916\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/916/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.342944",
    "time_end" : "08:42:12.343050"
@@ -3108,7 +3108,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\916\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/916/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.343098",
    "time_end" : "08:42:12.343214"
@@ -3119,7 +3119,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\916\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/916/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.343264",
    "time_end" : "08:42:12.343406"
@@ -3130,7 +3130,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "66",
    "time_start" : "08:42:12.343484",
    "time_end" : "08:42:12.343484"
@@ -3141,7 +3141,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\919\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/919/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.343622",
    "time_end" : "08:42:12.343737"
@@ -3152,7 +3152,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\919\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/919/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.343787",
    "time_end" : "08:42:12.343989"
@@ -3163,7 +3163,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\919\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/919/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.344048",
    "time_end" : "08:42:12.344227"
@@ -3174,7 +3174,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\tty\\drivers\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/tty/drivers\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.344318",
    "time_end" : "08:42:12.344508"
@@ -3185,7 +3185,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "82",
    "time_start" : "08:42:12.344589",
    "time_end" : "08:42:12.344589"
@@ -3196,7 +3196,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\920\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/920/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.344759",
    "time_end" : "08:42:12.344923"
@@ -3207,7 +3207,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\920\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/920/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.344979",
    "time_end" : "08:42:12.345098"
@@ -3218,7 +3218,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\920\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/920/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.345150",
    "time_end" : "08:42:12.345331"
@@ -3229,7 +3229,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "103",
    "time_start" : "08:42:12.345488",
    "time_end" : "08:42:12.345488"
@@ -3240,7 +3240,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\921\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/921/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.345656",
    "time_end" : "08:42:12.345776"
@@ -3251,7 +3251,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\921\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/921/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.345862",
    "time_end" : "08:42:12.345996"
@@ -3262,7 +3262,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\921\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/921/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.346057",
    "time_end" : "08:42:12.346224"
@@ -3273,7 +3273,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "67",
    "time_start" : "08:42:12.346314",
    "time_end" : "08:42:12.346314"
@@ -3284,7 +3284,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\7504\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/7504/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.346439",
    "time_end" : "08:42:12.346502"
@@ -3295,7 +3295,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\7504\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/7504/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.346532",
    "time_end" : "08:42:12.346590"
@@ -3306,7 +3306,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\7504\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/7504/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.346616",
    "time_end" : "08:42:12.346663"
@@ -3317,7 +3317,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "63",
    "time_start" : "08:42:12.346729",
    "time_end" : "08:42:12.346729"
@@ -3328,7 +3328,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\7657\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/7657/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.346815",
    "time_end" : "08:42:12.346901"
@@ -3339,7 +3339,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\7657\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/7657/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.346929",
    "time_end" : "08:42:12.346986"
@@ -3350,7 +3350,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\7657\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/7657/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.347024",
    "time_end" : "08:42:12.347073"
@@ -3361,7 +3361,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "63",
    "time_start" : "08:42:12.347123",
    "time_end" : "08:42:12.347123"
@@ -3372,7 +3372,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10101\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10101/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.347207",
    "time_end" : "08:42:12.347265"
@@ -3383,7 +3383,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10101\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10101/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.347295",
    "time_end" : "08:42:12.347354"
@@ -3394,7 +3394,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10101\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10101/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.347380",
    "time_end" : "08:42:12.347452"
@@ -3405,7 +3405,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "66",
    "time_start" : "08:42:12.347501",
    "time_end" : "08:42:12.347501"
@@ -3416,7 +3416,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10105\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10105/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.347598",
    "time_end" : "08:42:12.347657"
@@ -3427,7 +3427,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10105\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10105/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.347686",
    "time_end" : "08:42:12.347757"
@@ -3438,7 +3438,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10105\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10105/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.347782",
    "time_end" : "08:42:12.347876"
@@ -3449,7 +3449,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "66",
    "time_start" : "08:42:12.347934",
    "time_end" : "08:42:12.347934"
@@ -3460,7 +3460,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10108\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10108/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.348038",
    "time_end" : "08:42:12.348097"
@@ -3471,7 +3471,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10108\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10108/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.348126",
    "time_end" : "08:42:12.348184"
@@ -3482,7 +3482,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10108\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10108/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.348211",
    "time_end" : "08:42:12.348284"
@@ -3493,7 +3493,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "65",
    "time_start" : "08:42:12.348334",
    "time_end" : "08:42:12.348334"
@@ -3504,7 +3504,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10111\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10111/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.348418",
    "time_end" : "08:42:12.348475"
@@ -3515,7 +3515,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10111\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10111/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.348503",
    "time_end" : "08:42:12.348561"
@@ -3526,7 +3526,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10111\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10111/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.348587",
    "time_end" : "08:42:12.348661"
@@ -3537,7 +3537,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "65",
    "time_start" : "08:42:12.348710",
    "time_end" : "08:42:12.348710"
@@ -3548,7 +3548,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10114\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10114/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.348790",
    "time_end" : "08:42:12.348872"
@@ -3559,7 +3559,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10114\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10114/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.348902",
    "time_end" : "08:42:12.348962"
@@ -3570,7 +3570,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10114\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10114/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.348988",
    "time_end" : "08:42:12.349060"
@@ -3581,7 +3581,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "81",
    "time_start" : "08:42:12.349111",
    "time_end" : "08:42:12.349111"
@@ -3592,7 +3592,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10125\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10125/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.349202",
    "time_end" : "08:42:12.349261"
@@ -3603,7 +3603,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10125\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10125/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.349290",
    "time_end" : "08:42:12.349348"
@@ -3614,7 +3614,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10125\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10125/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.349374",
    "time_end" : "08:42:12.349453"
@@ -3625,7 +3625,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "54",
    "time_start" : "08:42:12.349541",
    "time_end" : "08:42:12.349541"
@@ -3636,7 +3636,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10146\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10146/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.349640",
    "time_end" : "08:42:12.349698"
@@ -3647,7 +3647,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10146\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10146/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.349726",
    "time_end" : "08:42:12.349810"
@@ -3658,7 +3658,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10146\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10146/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.349836",
    "time_end" : "08:42:12.349960"
@@ -3669,7 +3669,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "62",
    "time_start" : "08:42:12.350047",
    "time_end" : "08:42:12.350047"
@@ -3680,7 +3680,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10147\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10147/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.350135",
    "time_end" : "08:42:12.350206"
@@ -3691,7 +3691,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10147\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10147/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.350238",
    "time_end" : "08:42:12.350297"
@@ -3702,7 +3702,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "fstat@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\var\\lib\\sss\\mc\\passwd\""],
+   "arguments" : ["CIM_DataFile.Name=\"/var/lib/sss/mc/passwd\""],
    "return_value" : "0",
    "time_start" : "08:42:12.350324",
    "time_end" : "08:42:12.350324"
@@ -3713,7 +3713,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10147\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10147/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.350361",
    "time_end" : "08:42:12.350434"
@@ -3724,7 +3724,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "54",
    "time_start" : "08:42:12.350521",
    "time_end" : "08:42:12.350521"
@@ -3735,7 +3735,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10172\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10172/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.350605",
    "time_end" : "08:42:12.350664"
@@ -3746,7 +3746,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10172\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10172/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.350692",
    "time_end" : "08:42:12.350750"
@@ -3757,7 +3757,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10172\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10172/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.350776",
    "time_end" : "08:42:12.350888"
@@ -3768,7 +3768,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "66",
    "time_start" : "08:42:12.350940",
    "time_end" : "08:42:12.350940"
@@ -3779,7 +3779,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10176\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10176/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.351023",
    "time_end" : "08:42:12.351082"
@@ -3790,7 +3790,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10176\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10176/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.351111",
    "time_end" : "08:42:12.351169"
@@ -3801,7 +3801,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10176\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10176/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.351196",
    "time_end" : "08:42:12.351281"
@@ -3812,7 +3812,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "66",
    "time_start" : "08:42:12.351331",
    "time_end" : "08:42:12.351331"
@@ -3823,7 +3823,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10178\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10178/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.351411",
    "time_end" : "08:42:12.351482"
@@ -3834,7 +3834,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10178\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10178/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.351512",
    "time_end" : "08:42:12.351571"
@@ -3845,7 +3845,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10178\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10178/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.351598",
    "time_end" : "08:42:12.351670"
@@ -3856,7 +3856,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "65",
    "time_start" : "08:42:12.351719",
    "time_end" : "08:42:12.351719"
@@ -3867,7 +3867,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10181\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10181/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.351799",
    "time_end" : "08:42:12.351881"
@@ -3878,7 +3878,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10181\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10181/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.351910",
    "time_end" : "08:42:12.351997"
@@ -3889,7 +3889,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10181\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10181/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.352024",
    "time_end" : "08:42:12.352099"
@@ -3900,7 +3900,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "65",
    "time_start" : "08:42:12.352148",
    "time_end" : "08:42:12.352148"
@@ -3911,7 +3911,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10182\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10182/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.352231",
    "time_end" : "08:42:12.352290"
@@ -3922,7 +3922,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10182\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10182/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.352318",
    "time_end" : "08:42:12.352376"
@@ -3933,7 +3933,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10182\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10182/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.352402",
    "time_end" : "08:42:12.352487"
@@ -3944,7 +3944,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "81",
    "time_start" : "08:42:12.352537",
    "time_end" : "08:42:12.352537"
@@ -3955,7 +3955,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10193\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10193/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.352618",
    "time_end" : "08:42:12.352677"
@@ -3966,7 +3966,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10193\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10193/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.352705",
    "time_end" : "08:42:12.352764"
@@ -3977,7 +3977,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10193\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10193/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.352790",
    "time_end" : "08:42:12.352898"
@@ -3988,7 +3988,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "54",
    "time_start" : "08:42:12.353010",
    "time_end" : "08:42:12.353010"
@@ -3999,7 +3999,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10214\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10214/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.353094",
    "time_end" : "08:42:12.353154"
@@ -4010,7 +4010,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10214\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10214/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.353182",
    "time_end" : "08:42:12.353240"
@@ -4021,7 +4021,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10214\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10214/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.353267",
    "time_end" : "08:42:12.353345"
@@ -4032,7 +4032,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "62",
    "time_start" : "08:42:12.353432",
    "time_end" : "08:42:12.353432"
@@ -4043,7 +4043,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10215\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10215/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.353514",
    "time_end" : "08:42:12.353575"
@@ -4054,7 +4054,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10215\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10215/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.353615",
    "time_end" : "08:42:12.353673"
@@ -4065,7 +4065,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10215\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10215/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.353699",
    "time_end" : "08:42:12.353782"
@@ -4076,7 +4076,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "54",
    "time_start" : "08:42:12.353886",
    "time_end" : "08:42:12.353886"
@@ -4087,7 +4087,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10243\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10243/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.353972",
    "time_end" : "08:42:12.354032"
@@ -4098,7 +4098,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10243\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10243/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.354061",
    "time_end" : "08:42:12.354119"
@@ -4109,7 +4109,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10243\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10243/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.354145",
    "time_end" : "08:42:12.354216"
@@ -4120,7 +4120,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "66",
    "time_start" : "08:42:12.354302",
    "time_end" : "08:42:12.354302"
@@ -4131,7 +4131,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10481\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10481/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.354383",
    "time_end" : "08:42:12.354442"
@@ -4142,7 +4142,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10481\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10481/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.354471",
    "time_end" : "08:42:12.354526"
@@ -4153,7 +4153,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\10481\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/10481/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.354552",
    "time_end" : "08:42:12.354598"
@@ -4164,7 +4164,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "62",
    "time_start" : "08:42:12.354647",
    "time_end" : "08:42:12.354647"
@@ -4175,7 +4175,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\13683\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/13683/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.354725",
    "time_end" : "08:42:12.354790"
@@ -4186,7 +4186,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\13683\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/13683/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.354837",
    "time_end" : "08:42:12.354919"
@@ -4197,7 +4197,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\13683\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/13683/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.354946",
    "time_end" : "08:42:12.355022"
@@ -4208,7 +4208,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "133",
    "time_start" : "08:42:12.355141",
    "time_end" : "08:42:12.355141"
@@ -4219,7 +4219,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\13685\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/13685/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.355235",
    "time_end" : "08:42:12.355294"
@@ -4230,7 +4230,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\13685\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/13685/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.355323",
    "time_end" : "08:42:12.355386"
@@ -4241,7 +4241,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\13685\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/13685/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.355412",
    "time_end" : "08:42:12.355508"
@@ -4252,7 +4252,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "55",
    "time_start" : "08:42:12.355605",
    "time_end" : "08:42:12.355605"
@@ -4263,7 +4263,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\25798\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/25798/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.355702",
    "time_end" : "08:42:12.355762"
@@ -4274,7 +4274,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\25798\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/25798/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.355791",
    "time_end" : "08:42:12.355875"
@@ -4285,7 +4285,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\25798\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/25798/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.355902",
    "time_end" : "08:42:12.355996"
@@ -4296,7 +4296,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "80",
    "time_start" : "08:42:12.356048",
    "time_end" : "08:42:12.356048"
@@ -4307,7 +4307,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\25800\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/25800/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.356132",
    "time_end" : "08:42:12.356191"
@@ -4318,7 +4318,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\25800\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/25800/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.356219",
    "time_end" : "08:42:12.356278"
@@ -4329,7 +4329,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\25800\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/25800/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.356304",
    "time_end" : "08:42:12.356399"
@@ -4340,7 +4340,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "57",
    "time_start" : "08:42:12.356451",
    "time_end" : "08:42:12.356451"
@@ -4351,7 +4351,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\32110\\stat\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/32110/stat\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.356535",
    "time_end" : "08:42:12.356593"
@@ -4362,7 +4362,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\32110\\status\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/32110/status\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.356621",
    "time_end" : "08:42:12.356689"
@@ -4373,7 +4373,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(open@SYS+read@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\\32110\\cmdline\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc/32110/cmdline\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.356714",
    "time_end" : "08:42:12.356759"
@@ -4384,7 +4384,7 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "write@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "62",
    "time_start" : "08:42:12.356806",
    "time_end" : "08:42:12.356806"
@@ -4395,7 +4395,7 @@
    "style" : "Args",
    "status" : 6,
    "function" : "(getdents@SYS+close@SYS)",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\proc\""],
+   "arguments" : ["CIM_DataFile.Name=\"/proc\""],
    "return_value" : "N/A",
    "time_start" : "08:42:12.356891",
    "time_end" : "08:42:12.356920"
@@ -4406,21 +4406,32 @@
    "style" : "Orig",
    "status" : 1,
    "function" : "close@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\dev\\pts\\2\""],
+   "arguments" : ["CIM_DataFile.Name=\"/dev/pts/2\""],
    "return_value" : "0",
    "time_start" : "08:42:12.356945",
    "time_end" : "08:42:12.356945"
 }
 ,{
    "pid" : 12345,
-   "occurrences" : 2,
+   "occurrences" : 1,
    "style" : "Orig",
    "status" : 1,
    "function" : "close@SYS",
-   "arguments" : ["CIM_DataFile.Name=\"C:\\home\\rchateau\\survol\\Experimental\\RetroBatch\\mineit_ps_ef.log\""],
+   "arguments" : ["CIM_DataFile.Name=\"/home/rchateau/survol/Experimental/RetroBatch/mineit_ps_ef.log\""],
    "return_value" : "0",
    "time_start" : "08:42:12.356966",
    "time_end" : "08:42:12.356966"
+}
+,{
+   "pid" : 12345,
+   "occurrences" : 1,
+   "style" : "Orig",
+   "status" : 1,
+   "function" : "exit_group@SYS",
+   "arguments" : [],
+   "return_value" : "?",
+   "time_start" : "08:42:12.357076",
+   "time_end" : "08:42:12.357076"
 }
 ]
 ]
