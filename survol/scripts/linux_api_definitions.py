@@ -15,12 +15,24 @@ import logging
 import signal
 import subprocess
 
+
+################################################################################
+# This boiler plate code is needed when compiling a module with Cython.
+
 try:
+    # Needed when used in interpreted mode, not compiled with Cython.
     import cython
 except ImportError:
-    from . import cython_shadow as cython
-    # It does not matter because it is not used, as cython is not installed.
+    if __package__:
+        from . import cython_shadow as cython
+    else:
+        import cython_shadow as cython
+
+    # This is not defined in cython shadow. Any value is OK,
+    # because it is not used, as cython is not installed.
     cython.str = str
+
+################################################################################
 
 if __package__:
     from . import cim_objects_definitions
@@ -48,7 +60,9 @@ def parse_call_arguments(str_args, ix_start):
     """Parsing of the arguments of the systems calls printed by strace and ltrace.
     This starts immediately after an open parenthesis or bracket.
     It returns an index on the closing parenthesis, or equal to the string length.
-    This is called for each line and is on the critical path."""
+
+    This is called for each line and is on the critical path.
+    Therefore it can be compiled with Cython."""
     len_str = len(str_args)
 
     the_result = []
