@@ -2,28 +2,66 @@ import setuptools  # important
 from distutils.core import setup
 from Cython.Build import cythonize
 import os
-src_file = os.path.join(os.path.dirname(__file__), "..", "..", "survol", "scripts", "linux_api_definitions.py")
-setup(ext_modules=cythonize(src_file, build_dir="build"),
-                                           script_args=['build'],
-                                           options={'build':{'build_lib':'.'}})
+import sys
+from shutil import copyfile
+
+survol_base_dir = os.path.join(os.path.dirname(__file__), "..", "..", "survol")
+
+# This is experimental for the moment.
+# Check that some files can be cythonized, then run pytest.
+
+def build_only_one_dir():
+    src_files = []
+
+    basenames_list = [
+        "linux_api_definitions",
+        "win32_api_definitions",
+        "cim_objects_definitions",
+        "naming_conventions",
+        "dockit",
+        "dockit_aggregate_clusterize",
+    ]
+
+    if sys.version_info >= (3,5):
+        # Not this one because it uses __file__which is not usable by extensions due to this Python bug:
+        # https://bugs.python.org/issue13429
+        basenames_list.append("daemon_factory")
+    ]
+    #basenames_list = ["linux_api_definitions", ]
+
+    for one_basename in basenames_list:
+        one_filename = one_basename + ".py"
+        one_path_name = os.path.join(survol_base_dir, "scripts", one_filename)
+        src_files.append(one_path_name)
+
+    cython_ext_modules = cythonize(src_files, build_dir="build",
+               compiler_directives={'language_level' : "2"})
+
+    # With "force", the C code is regenaretd each time. Otherwise, setup does not detect an input Python file change.
+    setup(ext_modules=cython_ext_modules, script_args=['build'],
+          options={
+              'build': {'build_lib': '.', 'force':1},
+          })
+
+    generated_base_dir = os.path.join(os.path.dirname(__file__), "survol")
+    for one_basename in basenames_list:
+        one_filename = one_basename + ".pyd"
+        one_generated_path_name = os.path.join(generated_base_dir, "scripts", one_filename)
+        one_destination_path_name = os.path.join(survol_base_dir, "scripts", one_filename)
+        copyfile(one_generated_path_name, one_destination_path_name)
+
+# Output files are created in ...\Experimental\tests_cython\survol\scripts
+
+build_only_one_dir()
 
 
-
-# Result on Windows:
-# C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\Experimental\tests_cython>python test_with_cython.py
-# Compiling ..\..\survol\scripts\linux_api_definitions.py because it changed.
-# [1/1] Cythonizing ..\..\survol\scripts\linux_api_definitions.py
-# running build
-# running build_ext
-# building 'survol.scripts.linux_api_definitions' extension
-# creating build
-# creating build\temp.win-amd64-2.7
-# creating build\temp.win-amd64-2.7\survol
-# creating build\temp.win-amd64-2.7\survol\scripts
-# C:\Users\rchateau\AppData\Local\Programs\Common\Microsoft\Visual C++ for Python\9.0\VC\Bin\amd64\cl.exe /c /nologo /Ox /MD /W3 /GS- /DNDEBUG -IC:\Python27\include -IC:\Python27\PC /Tcbuild\..\..\survol\scripts\linux_api_definitions.c /Fobuild\temp.win-amd64-2.7\Release\build\..\..\survol\scripts\linux_api_definitions.obj
-# linux_api_definitions.c
-# creating survol
-# creating survol\scripts
-# C:\Users\rchateau\AppData\Local\Programs\Common\Microsoft\Visual C++ for Python\9.0\VC\Bin\amd64\link.exe /DLL /nologo /INCREMENTAL:NO /LIBPATH:C:\Python27\libs /LIBPATH:C:\Python27\PCbuild\amd64 /EXPORT:initlinux_api_definitions build\temp.win-amd64-2.7\Release\b
-# uild\..\..\survol\scripts\linux_api_definitions.obj /OUT:.\survol\scripts\linux_api_definitions.pyd /IMPLIB:build\temp.win-amd64-2.7\Release\build\..\..\survol\scripts\linux_api_definitions.lib /MANIFESTFILE:build\temp.win-amd64-2.7\Release\build\..\..\survol\scripts\linux_api_definitions.pyd.manifestlinux_api_definitions.obj : warning LNK4197: export 'initlinux_api_definitions' specified multiple times; using first specification
-#    Creating library build\temp.win-amd64-2.7\Release\build\..\..\survol\scripts\linux_api_definitions.lib and object build\temp.win-amd64-2.7\Release\build\..\..\survol\scripts\linux_api_definitions.exp
+# In a typical Python installation, the ExtensionFileLoader class has precedence over the SourceFileLoader
+# that is used for .py files. It's the ExtensionFileLoader which handles imports of .pyd files,
+# and on a Windows machine you will find .pyd registered in importlib.machinery.EXTENSION_SUFFIXES
+# (note: on Linux/macOS it will have .so in there instead).
+#
+# So in the case of name collision within same directory (which means a "tie" when looking through sys.path in order),
+# the a.pyd file takes precedence over the a.py file. You may verify that when creating empty a.pyd and a.py files,
+# the statement import a attempts the DLL load (and fails, of course).
+#
+# To see the precedence in the CPython sources, look here in importlib._bootstrap_external. _get_supported_file_loaders:
