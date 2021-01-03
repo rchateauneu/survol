@@ -73,8 +73,12 @@ def AddMimeUrl(grph, fil_node, entity_type, mime_type, entity_id_arr):
     grph.add((fil_node, pc.property_rdf_data_nolist2, lib_util.NodeUrl(mime_node_with_mode)))
 
 
-# If the CGI parameter is for example: "...&mode=
 def ModeToMimeType(url_mode):
+    """This extracts the MIME type from a mode CGI parameter:
+    If the CGI parameter is for example: "...&mode=
+    This truncates the beginning of the tsring after "mime:", hence the length of five chars.
+    It sounds hard-coded byt in fact very stable and perfectly matches the need.
+    """
     return url_mode[5:]
 
 
