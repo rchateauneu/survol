@@ -1,0 +1,2 @@
+python -m cProfile -o tmp_profile.txt `which py.test` tests
+
