@@ -14,7 +14,11 @@ import sys
 import logging
 import signal
 import subprocess
-import six
+
+try:
+    import cython
+except ImportError:
+    import cython_shadow as cython
 
 if __package__:
     from . import cim_objects_definitions
@@ -24,6 +28,20 @@ else:
 ################################################################################
 
 
+@cython.returns(tuple)
+@cython.locals(
+    str_args=cython.str,
+    arg_clean=cython.str,
+    ix_start=cython.int,
+    ix_curr=cython.int,
+    ix_end=cython.int,
+    ix_unfinished=cython.int,
+    len_str=cython.int,
+    level_parent=cython.int,
+    finished=cython.bint,
+    in_quotes=cython.bint,
+    is_escaped=cython.bint,
+)
 def parse_call_arguments(str_args, ix_start):
     """Parsing of the arguments of the systems calls printed by strace and ltrace.
     This starts immediately after an open parenthesis or bracket.
@@ -261,6 +279,17 @@ class BatchLetCore:
         self.m_parsedArgs = []
         self._return_value = None
 
+    @cython.locals(
+        one_line=cython.str,
+        the_call=cython.str,
+        a_time_stamp=cython.str,
+        idx_start=cython.int,
+        idx_lt=cython.int,
+        idx_eq=cython.int,
+        idx_gt=cython.int,
+        idx_par=cython.int,
+        idx_last_par=cython.int
+    )
     def _init_after_pid(self, one_line, idx_start):
         """This parsing is specific to strace and ltrace."""
 
@@ -708,6 +737,8 @@ def _invalid_returned_file_descriptor(file_des, tracer):
 
 
 def _open_flag_to_letter(open_flag):
+    """This maps the flag used in a open()system call, to "R" or "W"
+    if this is a read or write access. Used to analyse dependencies. """
     if open_flag is None:
         return "R"
 
@@ -1773,8 +1804,8 @@ def _generate_linux_stream_from_command(linux_trace_command, process_id):
     sys.stdout.write("Starting trace command:%s\n" % " ".join(command_as_list))
 
     # If shell=True, the command must be passed as a single line.
-    kwargs = {"bufsize":100000, "shell":False,
-        "stdin":sys.stdin, "stdout":subprocess.PIPE, "stderr":subprocess.PIPE}
+    kwargs = {"bufsize": 100000, "shell": False,
+        "stdin": sys.stdin, "stdout": subprocess.PIPE, "stderr": subprocess.PIPE}
     if cim_objects_definitions.is_py3:
         kwargs["encoding"] = "utf-8"
     object_popen = subprocess.Popen(command_as_list, **kwargs)
@@ -1806,6 +1837,13 @@ def signal_handler(signal, frame):
     G_Interrupt = True
 
 
+@cython.locals(
+    tracer=cython.str,
+    one_new_line=cython.str,
+    tmp_line=cython.str,
+    ix_lt=cython.int,
+    line_number=cython.int,
+)
 def _create_flows_from_generic_linux_log(log_stream, tracer):
     """
     This applies to strace and ltrace.
@@ -1819,6 +1857,12 @@ def _create_flows_from_generic_linux_log(log_stream, tracer):
     signal.signal(signal.SIGINT, signal_handler)
     logging.info('Press Ctrl+C to exit cleanly')
 
+    @cython.returns(cython.bint)
+    @cython.locals(
+        trace_line=cython.str,
+        str_brack=cython.str,
+        ix_lt=cython.int,
+    )
     def _is_log_ending(trace_line):
         """
         This detects line from strace or ltrace which are not properly ended.
