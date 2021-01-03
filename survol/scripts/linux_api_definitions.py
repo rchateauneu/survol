@@ -18,7 +18,9 @@ import subprocess
 try:
     import cython
 except ImportError:
-    import cython_shadow as cython
+    from . import cython_shadow as cython
+    # It does not matter because it is not used, as cython is not installed.
+    cython.str = str
 
 if __package__:
     from . import cim_objects_definitions
