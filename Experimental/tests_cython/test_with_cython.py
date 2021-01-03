@@ -32,13 +32,15 @@ def build_only_one_dir():
         one_path_name = os.path.join(survol_base_dir, "scripts", one_filename)
         src_files.append(one_path_name)
 
-    cython_ext_modules = cythonize(src_files, build_dir="build",
-               compiler_directives={'language_level' : "2"})
+    language_level = "2" if sys.version_info < (3,) else "3"
 
-    # With "force", the C code is regenaretd each time. Otherwise, setup does not detect an input Python file change.
+    cython_ext_modules = cythonize(src_files, build_dir="build",
+               compiler_directives={'language_level' : language_level})
+
+    # With "force", the C code is regenerated each time. Otherwise, setup does not detect an input Python file change.
     setup(ext_modules=cython_ext_modules, script_args=['build'],
           options={
-              'build': {'build_lib': '.', 'force':1},
+              'build': {'build_lib': '.', 'force': 1},
           })
 
     generated_base_dir = os.path.join(os.path.dirname(__file__), "survol")
