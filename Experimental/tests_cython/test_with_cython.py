@@ -16,8 +16,11 @@ def build_only_one_dir():
     basenames_list = [
         "linux_api_definitions",
         "win32_api_definitions",
-        "cim_objects_definitions",
-        "naming_conventions",
+        #"cim_objects_definitions",
+        # Import problem with Python 3
+        ## "naming_conventions",
+
+        # Unexplained bug yet (In summarization of function calls).
         # "dockit",
         "dockit_aggregate_clusterize",
     ]
@@ -25,7 +28,10 @@ def build_only_one_dir():
     if sys.version_info >= (3,5):
         # Not this one because it uses __file__which is not usable by extensions due to this Python bug:
         # https://bugs.python.org/issue13429
-        basenames_list.append("daemon_factory")
+
+        pass
+        # Import problem with Python 3
+        ## basenames_list.append("daemon_factory")
 
     for one_basename in basenames_list:
         one_filename = one_basename + ".py"
