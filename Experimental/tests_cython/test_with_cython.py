@@ -18,7 +18,7 @@ def build_only_one_dir():
         "win32_api_definitions",
         "cim_objects_definitions",
         "naming_conventions",
-        "dockit",
+        # "dockit",
         "dockit_aggregate_clusterize",
     ]
 
@@ -26,8 +26,6 @@ def build_only_one_dir():
         # Not this one because it uses __file__which is not usable by extensions due to this Python bug:
         # https://bugs.python.org/issue13429
         basenames_list.append("daemon_factory")
-    ]
-    #basenames_list = ["linux_api_definitions", ]
 
     for one_basename in basenames_list:
         one_filename = one_basename + ".py"
