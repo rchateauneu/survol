@@ -595,14 +595,18 @@ def get_all_user_processes():
     #  'pid':            1}
     processes_list = xmlrpc_server_proxy.supervisor.getAllProcessInfo()
     processes_dict = {}
-    expected_name_prefix = _survol_group_name + ":"
     # The key is the process name identical to the input one.
     for one_process in processes_list:
-        full_process_name = one_process['name']
-        if not full_process_name.startswith(expected_name_prefix):
-            sys.stderr.write("Process name:%s should be prefixed with:%s\n" % (full_process_name, expected_name_prefix))
+        process_name = one_process['name']
+
+        # Difficulty: How to filter out the daemons which are not added by Survol ?
+        # For example, the supervisord configuraton file must contain a dummy program,
+        # otherwise it does not start.
+        if process_name == "survol_test_program":
             continue
-        process_name = full_process_name[len(expected_name_prefix):]
+
+        # A more general test is needed. Notable, it could check the the string "survol" can be found
+        # in the name
         processes_dict[process_name] = one_process
     return processes_dict
 
