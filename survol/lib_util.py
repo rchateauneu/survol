@@ -784,7 +784,9 @@ def EntityUri(entity_type, *entity_ids):
     keys = OntologyClassKeys(entity_type)
 
     if len(keys) != len(entity_ids):
-        WARNING("EntityUriDupl entity_type=%s Different lens:%s and %s", entity_type, str(keys), str(entity_ids))
+        WARNING("EntityUri entity_type=%s Different lens:%s and %s", entity_type, str(keys), str(entity_ids))
+
+    # TODO: Base64 encoding is needed in the general case.
     entity_id = ",".join("%s=%s" % pair_kw for pair_kw in zip(keys, entity_ids))
     
     url = Scriptize("/entity.py", entity_type, entity_id)
