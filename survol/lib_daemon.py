@@ -194,7 +194,7 @@ def get_running_daemons():
     """
     user_processes_dict = daemon_factory.get_all_user_processes()
     urls_dict = {}
-    for process_name, process_object in user_processes_dict:
+    for process_name, process_object in user_processes_dict.items():
         script_url = _process_name_to_url(process_name)
         urls_dict[script_url] = process_object
     return urls_dict
