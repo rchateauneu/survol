@@ -792,6 +792,8 @@ def read_events_to_graph(the_url, the_graph):
 def context_events_count(the_url):
     """This is the number of events inserted for a given URL.
     This is not destructive. """
+    global _events_conjunctive_graph
+
     _setup_global_graph()
     _log_db_access("context_events_count", "R", "1", the_url)
 
@@ -799,10 +801,10 @@ def context_events_count(the_url):
 
     named_graph = _events_conjunctive_graph.get_context(url_node)
 
-    events_count = len(named_graph)
+    url_events_count = len(named_graph)
 
-    _log_db_access("context_events_count", "R", "2", the_url, events_count)
-    return events_count
+    _log_db_access("context_events_count", "R", "2", the_url, url_events_count)
+    return url_events_count
 
 
 def clear_all_events():
