@@ -14,10 +14,10 @@ import sys
 import logging
 import signal
 import subprocess
-
+import six
 
 ################################################################################
-# This boiler plate code is needed when compiling a module with Cython.
+# This boilerplate code is needed when compiling a module with Cython.
 
 try:
     # Needed when used in interpreted mode, not compiled with Cython.
@@ -28,6 +28,10 @@ except ImportError:
     else:
         import cython_shadow as cython
 
+try:
+    # This can work only in Cython compiled code.
+    cython.str
+except AttributeError:
     # This is not defined in cython shadow. Any value is OK,
     # because it is not used, as cython is not installed.
     cython.str = str
@@ -547,13 +551,7 @@ class BatchMeta(type):
         super(BatchMeta, cls).__init__(name, bases, dct)
 
 
-def my_with_metaclass(meta, *bases):
-    """This is portable on Python 2 and Python 3.
-    No need to import the modules six or future.utils"""
-    return meta("NewBase", bases, {})
-
-
-class BatchLetBase(my_with_metaclass(BatchMeta)):
+class BatchLetBase(six.with_metaclass(BatchMeta)):
     """All class modeling a system call inherit from this."""
 
     def __init__(self, batchCore, style="Orig"):
@@ -1381,14 +1379,14 @@ class BatchLetSys_newfstatat(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_newfstatat, self).__init__(batchCore)
 
-        dirNam = self.m_core.m_parsedArgs[0]
+        dir_nam = self.m_core.m_parsedArgs[0]
 
-        if dirNam == "AT_FDCWD":
+        if dir_nam == "AT_FDCWD":
             dir_path = self.m_core.m_objectProcess.get_process_current_directory()
         else:
-            dir_path = _strace_stream_to_pathname(dirNam)
+            dir_path = _strace_stream_to_pathname(dir_nam)
             if not dir_path:
-                raise Exception("Invalid directory:%s" % dirNam)
+                raise Exception("Invalid directory:%s" % dir_nam)
 
         fil_nam = self.m_core.m_parsedArgs[1]
 
