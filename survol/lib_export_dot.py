@@ -193,7 +193,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
         return col_first + col_second
 
     # Display in the DOT node the list of its literal properties.
-    def FieldsToHtmlVertical(grph, the_fields):
+    def fields_to_html_vertical(grph, the_fields):
         props = {}
         idx = 0
         # TODO: The sort must put at first, some specific keys.
@@ -256,11 +256,11 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
 
     # This is sorted so the result is deterministic. Very small performance impact.
     # Any order will do as long as the result is always the same for the same URL, if the content is identical.
-    sortedGrph = sorted(grph)
+    sorted_grph = sorted(grph)
 
     # TODO: Loop only on the "collapsed" properties, the ones whose objects must be displayed
     # in tables, instead of links  - if only they have a single subject. Otherwise it cannot work.
-    for subj, prop, obj in sortedGrph:
+    for subj, prop, obj in sorted_grph:
 
         # Objects linked with these properties, are listed in a table, instead of distinct nodes in a graph.
         if prop in collapsed_properties:
@@ -280,17 +280,16 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
                 # associated to two properties and/or two parent node.
                 dict_collapsed_object_labels_to_subject_labels[obj_nam][prop_nam] = subj_nam
             except KeyError:
-                dict_collapsed_object_labels_to_subject_labels[obj_nam] = dict()
-                dict_collapsed_object_labels_to_subject_labels[obj_nam][prop_nam] = subj_nam
+                dict_collapsed_object_labels_to_subject_labels[obj_nam] = {prop_nam: subj_nam}
 
     # For getting the node of an object, as it might be in a table.
-    def RdfNodeToDotLabelExtended(obj, prop):
+    def rdf_node_to_dot_label_extended(obj, prop):
         obj_nam = _rdf_node_to_dot_label(obj)
 
         try:
             dict_of_props = dict_collapsed_object_labels_to_subject_labels[obj_nam]
         except KeyError:
-            # sys.stderr.write("RdfNodeToDotLabelExtended prop_nam=%s obj_nam=%s\n"%(prop_nam,obj_nam) )
+            # sys.stderr.write("rdf_node_to_dot_label_extended prop_nam=%s obj_nam=%s\n"%(prop_nam,obj_nam) )
             return obj_nam
 
         # Let's hope there is only one collapsed property for this node. Otherwise, it means
@@ -316,12 +315,12 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
         return new_obj_nam
 
     # Now we know that we have seen all nodes in a collapsed property.
-    for subj, prop, obj in sortedGrph:
+    for subj, prop, obj in sorted_grph:
         if prop in collapsed_properties:
             continue
 
         # Maybe the subject node belongs to a table, but the property is not known.
-        subj_nam = RdfNodeToDotLabelExtended(subj, None)
+        subj_nam = rdf_node_to_dot_label_extended(subj, None)
         if lib_kbase.IsLink(obj):
 
             prp_col = lib_properties.prop_color(prop)
@@ -334,7 +333,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
             # if prop == pc.property_socket_end:
             if prop in commutative_properties:
                 # BEWARE, MAYBE THIS IS A PORT INTO A TABLE. SO IT HAS TO BE PREFIXED BY THE RECORD NAME.
-                obj_nam = RdfNodeToDotLabelExtended(obj, prop)
+                obj_nam = rdf_node_to_dot_label_extended(obj, prop)
                 if (obj, prop, subj) in grph :
                     if subj_nam < obj_nam:
                         stream.write(
@@ -353,7 +352,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
                 # TODO: CGIPROP: Can it have several html or sub-rdf ?? It is necessary !
                 fields_set[subj].append((prop, obj))
             else:
-                obj_nam = RdfNodeToDotLabelExtended(obj, prop)
+                obj_nam = rdf_node_to_dot_label_extended(obj, prop)
                 # If subj_nam is in a list of dict_collapsed_subjects_to_object_lists,
                 # one must add at front, the record name, i.e. its subj_nam + "_table_rdf_data:".
                 try:
@@ -650,7 +649,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
         if obj_label in dict_collapsed_object_labels_to_subject_labels :
             continue
 
-        obj_props_as_html = FieldsToHtmlVertical(grph, fields_set[obj_rdf_node])
+        obj_props_as_html = fields_to_html_vertical(grph, fields_set[obj_rdf_node])
 
         lab_href = obj_rdf_node.replace('&', '&amp;')
 
