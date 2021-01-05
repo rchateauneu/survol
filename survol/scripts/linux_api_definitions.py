@@ -210,6 +210,7 @@ class BatchLetCore:
     )
     def parse_line_to_object(self, trace_line, tracer):
         assert trace_line.endswith("\n")
+        assert isinstance(trace_line, str)
 
         # sys.stdout.write("%s oneLine1=%s" % (id(self),oneLine ) )
         self.m_tracer = tracer
@@ -310,6 +311,8 @@ class BatchLetCore:
     )
     def _init_after_pid(self, one_line, idx_start):
         """This parsing is specific to strace and ltrace."""
+
+        assert isinstance(one_line, str)
 
         # "07:54:54.206113"
         a_time_stamp = one_line[idx_start:idx_start + 15]
@@ -616,6 +619,7 @@ class BatchLetBase(my_with_metaclass(BatchMeta)):
         return self.cim_context_core().ToObjectPath_CIM_DataFile(path_name)
 
     def _strace_stream_to_file(self, strm_str):
+        assert isinstance(strm_str, str)
         return self.cim_context_core().ToObjectPath_CIM_DataFile(_strace_stream_to_pathname(strm_str))
 
 
@@ -1851,7 +1855,6 @@ def _generate_linux_stream_from_command(linux_trace_command, process_id):
 G_Interrupt = False
 
 
-
 def signal_handler(signal, frame):
     print('You pressed Ctrl+C!')
     global G_Interrupt
@@ -1929,13 +1932,9 @@ def _create_flows_from_generic_linux_log(log_stream, tracer):
     signal.signal(signal.SIGINT, signal_handler)
     logging.info('Press Ctrl+C to exit cleanly')
 
-    # This is parsed from each line corresponding to a syztem call.
-    #batch_core = None
-
     last_time_stamp = 0
 
     line_number = 0
-    #one_new_line = ""
     while True:
         # This is on the critical path.
         one_new_line = ""
@@ -1947,6 +1946,7 @@ def _create_flows_from_generic_linux_log(log_stream, tracer):
         # FIXME: Problem if several processes.
         while not G_Interrupt:
             tmp_line = log_stream.readline()
+            assert isinstance(tmp_line, str)
             line_number += 1
             if not tmp_line:
                 break
