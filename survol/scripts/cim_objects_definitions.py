@@ -1221,8 +1221,10 @@ class CIM_Process(CIM_XmlMarshaller):
         """Some system calls are relative to the current directory.
         Therefore, this traces current dir changes due to system calls."""
         self.CurrentDirectory = curr_dir_object.Name
+        assert isinstance(self.CurrentDirectory, str)
 
     def get_process_current_directory(self):
+        assert isinstance(self.CurrentDirectory, str)
         return self.CurrentDirectory
 
     def get_file_access(self, objCIM_DataFile, open_letter):
@@ -1527,6 +1529,7 @@ class CIM_DataFile(CIM_LogicalFile):
 
     @staticmethod
     def is_plain_file(file_basename):
+        assert isinstance(file_basename, str)
         return not file_basename.startswith(CIM_DataFile.m_non_file_prefixes)
 
 
@@ -1575,14 +1578,12 @@ _class_name_to_subclass = {cls.__name__: cls for cls in leaf_derived_classes(CIM
 
 def to_real_absolute_path(directory_path, file_basename):
     """os.path.abspath removes things like . and .. from the path
-    giving a full path from the root of the directory tree to the named file (or symlink)
-    This conversion to avoid "TypeError: Can't mix strings and bytes in path components" """
-    if isinstance(directory_path, six.binary_type):
-        directory_path = directory_path.decode("utf-8")
-    if isinstance(file_basename, six.binary_type):
-        file_basename = file_basename.decode("utf-8")
+    giving a full path from the root of the directory tree to the named file (or symlink)"""
 
-    if file_basename in [u"stdout", u"stdin", u"stderr"]:
+    assert isinstance(directory_path, str)
+    assert isinstance(file_basename, str)
+
+    if file_basename in ["stdout", "stdin", "stderr"]:
         return file_basename
 
     if not CIM_DataFile.is_plain_file(file_basename):
@@ -1665,9 +1666,7 @@ class ObjectsContext:
         The pid can be added so we know which process accesses this file."""
 
         # TODO: All pathnames should be "str", to avoid conversions.
-        if isinstance(path_name, six.binary_type):
-            path_name = path_name.decode("utf-8")
-        assert isinstance(path_name, six.text_type)
+        assert isinstance(path_name, str)
 
         # TODO: If this is an absolute path name, the current directory of the processis not needed.
         if self._process_id:
