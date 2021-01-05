@@ -1619,6 +1619,11 @@ class ObjectsContext:
         self._process_id = process_id
 
     def attributes_to_cim_object(self, cim_class_name, **cim_attributes_dict):
+        """This is used by Windows pydbg callback, when an object creation is detected.
+        It calls this method with a class name, and a dict of key-values.
+        It is up to this generic routine to fill the internal data
+        which are used to generate execution reports.
+        The caller must be aware of correct class names and their attributes."""
         if cim_class_name == "CIM_Process":
             cim_key_handle = cim_attributes_dict['Handle']
             return self.ToObjectPath_CIM_Process(cim_key_handle)
@@ -1631,26 +1636,40 @@ class ObjectsContext:
         return cim_object_datafile
 
     def ToObjectPath_CIM_Process(self, process_id):
-        returned_object = self._class_model_to_object_path(CIM_Process, process_id)
+        """This returns the newly-created of cached object associated to a pid.
+        Thus function needs the parent process id, because it cannot be retrieved when replaying
+        a session, and it might be difficult even when tracing a real process.
+        Because the tracer gives the parent id when creating a subprocess,
+        it is simpler to use it in the context of the parent process.
+        """
 
         # Dictionary of all processes, indexed by the tuple of their key-value
         map_procs = CIM_Process._G_map_cache_objects
 
-        if process_id != self._process_id:
-            # The key is a tuple of the arguments in the order of the ontology.
-            context_process_obj_path = (self._process_id,)
-
-            parent_proc_obj = map_procs[context_process_obj_path]
-
-            returned_object.set_parent_process(parent_proc_obj)
+        try:
+            returned_object = map_procs[(process_id,)]
+        except KeyError:
+            # The initialisation is more complex than simply calling CIM_Process.__init__,
+            # because the object needs a reference to the parent process object.
+            returned_object = CIM_Process(process_id)
+            map_procs[(process_id,)] = returned_object
+            if process_id != self._process_id:
+                # The key is a tuple of the arguments in the order of the ontology.
+                parent_proc_obj = map_procs[(self._process_id,)]
+                returned_object.set_parent_process(parent_proc_obj)
+                assert hasattr(returned_object, 'ParentProcessID')
         return returned_object
 
     def ToObjectPath_CIM_DataFile(self, path_name):
         """It might be a Linux socket or an IP socket.
         The pid can be added so we know which process accesses this file."""
+
+        # TODO: All pathnames should be "str", to avoid conversions.
         if isinstance(path_name, six.binary_type):
             path_name = path_name.decode("utf-8")
         assert isinstance(path_name, six.text_type)
+
+        # TODO: If this is an absolute path name, the current directory of the processis not needed.
         if self._process_id:
             # Maybe this is a relative file, and to make it absolute, the process is needed,
             # because it gives the process current working directory.
