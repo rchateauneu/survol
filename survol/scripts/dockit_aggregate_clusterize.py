@@ -56,10 +56,22 @@ class BatchLetSequence(linux_api_definitions.BatchLetBase, object):
         batch_core._time_start = arr_batch[0].m_core._time_start
         batch_core._time_end = arr_batch[-1].m_core._time_end
 
-        def str_to_date_time(the_time):
-            return datetime.datetime.strptime(the_time, '%H:%M:%S.%f')
+        def exec_time_delta(time_end, time_start):
+            """
+            This is equivalent to this, but faster because locales are not used:
+                def str_to_date_time(the_time):
+                    return datetime.datetime.strptime(the_time, '%H:%M:%S.%f')
 
-        batch_core.m_execTim = str_to_date_time(batch_core._time_end) - str_to_date_time(batch_core._time_start)
+                return (str_to_date_time(time_end) - str_to_date_time(time_start)).total_seconds()
+            """
+            split_end = time_end.split(":")
+            split_start = time_end.split(":")
+            time_delta = 3600 * (int(split_end[0]) - int(split_start[0])) \
+                         + 60 * (int(split_end[1]) - int(split_start[1])) \
+                         + float(split_end[2]) - float(split_start[2])
+            return time_delta
+
+        batch_core.m_execTim = exec_time_delta(batch_core._time_end, batch_core._time_start)
 
         super(BatchLetSequence, self).__init__(batch_core,style)
 
