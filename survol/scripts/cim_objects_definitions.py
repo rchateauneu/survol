@@ -1581,10 +1581,6 @@ def to_real_absolute_path(directory_path, file_basename):
         directory_path = directory_path.decode("utf-8")
     if isinstance(file_basename, six.binary_type):
         file_basename = file_basename.decode("utf-8")
-    # This does not apply to pseudo-files such as: "pipe:", "TCPv6:" etc...
-    # It must not filter Windows paths such as "C:\\xxxxx"
-    if is_platform_linux and re.match(u"^[0-9a-zA-Z_]+:", file_basename):
-        return file_basename
 
     if file_basename in [u"stdout", u"stdin", u"stderr"]:
         return file_basename
@@ -1608,9 +1604,6 @@ def to_real_absolute_path(directory_path, file_basename):
 G_topProcessId = None
 
 ################################################################################
-
-# Warning message printed not too many times.
-_G_warnings_counter = 0
 
 
 class ObjectsContext:
@@ -1675,23 +1668,15 @@ class ObjectsContext:
 
     def _class_model_to_object_path(self, class_model, *ctor_args):
         """This receives a class name and a list of key-value pairs.
-        It returns the object, possibly cached."""
-        global _G_warnings_counter
+        It returns the object, possibly from a cache shared by all processes because it is in the class."""
         map_objs = class_model._G_map_cache_objects
 
         # Here, this tuple in the order of the ontology is a key in a per-class dictionary.
-        obj_path = ctor_args
         try:
-            the_obj = map_objs[obj_path]
+            the_obj = map_objs[ctor_args]
         except KeyError:
-            if class_model.__name__ == "CIM_Process" and _G_warnings_counter < 10:
-                # FIXME: IT IS CALLED TOO OFTEN, FOR EACH CIM_DataFile !!
-                sys.stderr.write("_class_model_to_object_path %s CIM_Process args=%s\n"
-                                 % (sys._getframe(1).f_code.co_name, str(*ctor_args)))
-                _G_warnings_counter += 1
-
             the_obj = class_model(*ctor_args)
-            map_objs[obj_path] = the_obj
+            map_objs[ctor_args] = the_obj
         return the_obj
 
 ################################################################################
