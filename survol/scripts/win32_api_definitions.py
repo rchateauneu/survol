@@ -233,7 +233,7 @@ class Win32Tracer(TracerBase):
             except queue.Empty:
                 logging.info("Win32Tracer.create_flows_from_calls_stream timeout. Waiting.")
                 continue
-            print("create_flows_from_calls_stream Function=", pseudo_trace_line.m_core._function_name)
+            #print("create_flows_from_calls_stream Function=", pseudo_trace_line.m_core._function_name)
             assert isinstance(pseudo_trace_line, PseudoTraceLine)
 
             if pseudo_trace_line.m_core._function_name == self._function_name_process_exit:
