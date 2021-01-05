@@ -1643,21 +1643,21 @@ class ObjectsContext:
         it is simpler to use it in the context of the parent process.
         """
 
-        # Dictionary of all processes, indexed by the tuple of their key-value
-        map_procs = CIM_Process._G_map_cache_objects
+        returned_object = self._class_model_to_object_path(CIM_Process, process_id)
 
-        try:
-            returned_object = map_procs[(process_id,)]
-        except KeyError:
-            # The initialisation is more complex than simply calling CIM_Process.__init__,
-            # because the object needs a reference to the parent process object.
-            returned_object = CIM_Process(process_id)
-            map_procs[(process_id,)] = returned_object
-            if process_id != self._process_id:
-                # The key is a tuple of the arguments in the order of the ontology.
-                parent_proc_obj = map_procs[(self._process_id,)]
-                returned_object.set_parent_process(parent_proc_obj)
-                assert hasattr(returned_object, 'ParentProcessID')
+        if process_id != self._process_id:
+            # Now the subprocess must be connected to its parent process.
+            # Maybe the subprocess was created but not "connected" to its parent process,
+            # because this relationship is detected after the return of the process creation in the parent process.
+            # Therefore, this checks that the parent process is specified.
+
+            # Dictionary of all processes, indexed by the tuple of their key-value
+            map_procs = CIM_Process._G_map_cache_objects
+
+            # The key is a tuple of the arguments in the order of the ontology.
+            parent_proc_obj = map_procs[(self._process_id,)]
+
+            returned_object.set_parent_process(parent_proc_obj)
         return returned_object
 
     def ToObjectPath_CIM_DataFile(self, path_name):
