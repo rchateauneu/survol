@@ -14,7 +14,6 @@ import sys
 import logging
 import signal
 import subprocess
-import six
 
 ################################################################################
 # This boilerplate code is needed when compiling a module with Cython.
@@ -28,13 +27,6 @@ except ImportError:
     else:
         import cython_shadow as cython
 
-try:
-    # This can work only in Cython compiled code.
-    cython.str
-except AttributeError:
-    # This is not defined in cython shadow. Any value is OK,
-    # because it is not used, as cython is not installed.
-    cython.str = str
 
 ################################################################################
 
@@ -48,8 +40,8 @@ else:
 
 @cython.returns(tuple)
 @cython.locals(
-    str_args=cython.str,
-    arg_clean=cython.str,
+    str_args=cython.basestring,
+    arg_clean=cython.basestring,
     ix_start=cython.int,
     ix_curr=cython.int,
     ix_end=cython.int,
@@ -211,6 +203,11 @@ class BatchLetCore:
         self.m_resumedBatch = None # If this is a matched batch.
 
     # tracer = "strace|ltrace"
+    @cython.locals(
+        trace_line=cython.basestring,
+        tracer=cython.basestring,
+        index_after_pid=cython.int,
+    )
     def parse_line_to_object(self, trace_line, tracer):
         assert trace_line.endswith("\n")
 
@@ -300,9 +297,10 @@ class BatchLetCore:
         self._return_value = None
 
     @cython.locals(
-        one_line=cython.str,
-        the_call=cython.str,
-        a_time_stamp=cython.str,
+        one_line=cython.basestring,
+        the_call=cython.basestring,
+        a_time_stamp=cython.basestring,
+        exe_tm=cython.basestring,
         idx_start=cython.int,
         idx_lt=cython.int,
         idx_eq=cython.int,
@@ -361,16 +359,16 @@ class BatchLetCore:
         if idx_lt >= 0 :
             exe_tm = the_call[idx_lt+1:idx_gt]
             if exe_tm == "unfinished ...":
-                self.m_execTim = ""
+                self.m_execTim = 0.0
                 self.m_status = BatchStatus.unfinished
             elif exe_tm == "no return ...":
                 # 18:10:13.109143 SYS_execve("/bin/sh", 0x9202d50, 0xff861d28 <no return ...>
-                self.m_execTim = ""
+                self.m_execTim = 0.0
                 self.m_status = BatchStatus.no_return
             else:
                 self.m_execTim = exe_tm
         else:
-            self.m_execTim = ""
+            self.m_execTim = 0.0
 
         # Another scenario:
         # [pid 11761] 10:56:39.125823 close@SYS(4 <unfinished ...>
@@ -551,7 +549,14 @@ class BatchMeta(type):
         super(BatchMeta, cls).__init__(name, bases, dct)
 
 
-class BatchLetBase(six.with_metaclass(BatchMeta)):
+def my_with_metaclass(meta, *bases):
+    """This is portable on Python 2 and Python 3.
+    No need to import the modules six or future.utils.
+    Also, this avoids Cython error:  type object 'BatchMeta' has no attribute '__prepare__' """
+    return meta("NewBase", bases, {})
+
+
+class BatchLetBase(my_with_metaclass(BatchMeta)):
     """All class modeling a system call inherit from this."""
 
     def __init__(self, batchCore, style="Orig"):
@@ -583,7 +588,8 @@ class BatchLetBase(six.with_metaclass(BatchMeta)):
             # This is costly so we calculate it once only.
             return self.m_signatureWithArgs
         except AttributeError:
-            self.m_signatureWithArgs = self.m_core._function_name + ":" + "&".join(map(str, self.m_significantArgs))
+            the_arguments = "&".join(str(one_arg) for one_arg in self.m_significantArgs)
+            self.m_signatureWithArgs = "%s:%s" % (self.m_core._function_name, the_arguments)
             return self.m_signatureWithArgs
 
     def get_stream_name(self, idx=0):
@@ -1845,17 +1851,69 @@ def _generate_linux_stream_from_command(linux_trace_command, process_id):
 G_Interrupt = False
 
 
+
 def signal_handler(signal, frame):
     print('You pressed Ctrl+C!')
     global G_Interrupt
     G_Interrupt = True
 
 
+@cython.cfunc
+@cython.inline
+@cython.returns(cython.bint)
 @cython.locals(
-    tracer=cython.str,
-    one_new_line=cython.str,
-    tmp_line=cython.str,
+    trace_line=cython.basestring,
+    str_brack=cython.basestring,
     ix_lt=cython.int,
+)
+def _is_log_ending(trace_line):
+    """
+    This detects line from strace or ltrace which are not properly ended.
+    This happens for example when a process and its subprocesses mix their output lines.
+    It analyses corner cases which are dependent on strace and ltrace outputs.
+
+    "[pid 18196] 08:26:47.199313 close(255</tmp/shell.sh> <unfinished ...>"
+    "08:26:47.197164 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18194 <0.011216>"
+    This test is not reliable because we cannot really control what a spurious output can be:
+    """
+
+    if trace_line.endswith(">\n"):
+        ix_lt = trace_line.rfind("<")
+        if ix_lt >= 0:
+            str_brack = trace_line[ix_lt + 1:-2]
+            try:
+                # Is it a float with the execution time in it ?
+                flt = float(str_brack)
+                return True
+            except:
+                pass
+
+            if str_brack == "unfinished ...":
+                return True
+
+            # This value occurs exclusively with ltrace. Examples:
+            # exit_group@SYS(0 <no return ...>
+            # execve@SYS("/usr/bin/as", 0xd1a138, 0xd1a2b0 <no return ...>
+            if str_brack == "no return ...":
+                return True
+    else:
+        # "[pid 18194] 08:26:47.197005 exit_group(0) = ?"
+        # Not reliable because this could be a plain string ending like this.
+        if trace_line.startswith("[pid ") and trace_line.endswith(" = ?\n"):
+            return True
+
+        # "08:26:47.197304 --- SIGCHLD {si_signo=SIGCHLD, si_status=0, si_utime=0, si_stime=0} ---"
+        # Not reliable because this could be a plain string ending like this.
+        if trace_line.endswith(" ---\n"):
+            return True
+
+    return False
+
+
+@cython.locals(
+    tracer=cython.basestring,
+    one_new_line=cython.basestring,
+    tmp_line=cython.basestring,
     line_number=cython.int,
 )
 def _create_flows_from_generic_linux_log(log_stream, tracer):
@@ -1871,62 +1929,13 @@ def _create_flows_from_generic_linux_log(log_stream, tracer):
     signal.signal(signal.SIGINT, signal_handler)
     logging.info('Press Ctrl+C to exit cleanly')
 
-    @cython.returns(cython.bint)
-    @cython.locals(
-        trace_line=cython.str,
-        str_brack=cython.str,
-        ix_lt=cython.int,
-    )
-    def _is_log_ending(trace_line):
-        """
-        This detects line from strace or ltrace which are not properly ended.
-        This happens for example when a process and its subprocesses mix their output lines.
-        It analyses corner cases which are dependent on strace and ltrace outputs.
-
-        "[pid 18196] 08:26:47.199313 close(255</tmp/shell.sh> <unfinished ...>"
-        "08:26:47.197164 <... wait4 resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 18194 <0.011216>"
-        This test is not reliable because we cannot really control what a spurious output can be:
-        """
-        if trace_line.endswith(">\n"):
-            ix_lt = trace_line.rfind("<")
-            if ix_lt >= 0:
-                str_brack = trace_line[ix_lt + 1:-2]
-                try:
-                    # Is it a float with the execution time in it ?
-                    flt = float(str_brack)
-                    return True
-                except:
-                    pass
-
-                if str_brack == "unfinished ...":
-                    return True
-
-                # This value occurs exclusively with ltrace. Examples:
-                # exit_group@SYS(0 <no return ...>
-                # execve@SYS("/usr/bin/as", 0xd1a138, 0xd1a2b0 <no return ...>
-                if str_brack == "no return ...":
-                    return True
-        else:
-            # "[pid 18194] 08:26:47.197005 exit_group(0) = ?"
-            # Not reliable because this could be a plain string ending like this.
-            if trace_line.startswith("[pid ") and trace_line.endswith(" = ?\n"):
-                return True
-
-            # "08:26:47.197304 --- SIGCHLD {si_signo=SIGCHLD, si_status=0, si_utime=0, si_stime=0} ---"
-            # Not reliable because this could be a plain string ending like this.
-            if trace_line.endswith(" ---\n"):
-                return True
-
-        return False
-
-
     # This is parsed from each line corresponding to a syztem call.
-    batch_core = None
+    #batch_core = None
 
     last_time_stamp = 0
 
     line_number = 0
-    one_new_line = ""
+    #one_new_line = ""
     while True:
         # This is on the critical path.
         one_new_line = ""
