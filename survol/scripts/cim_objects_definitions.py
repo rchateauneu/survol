@@ -106,10 +106,20 @@ _buffer_scanners = {}
 # TODO: for general scripts. This is not critical at all, but some files
 # TODO: need to be moved at other places.
 
-sys.path.append("../..")
-sys.path.append("../../survol")
+# TODO: UGLY LOGIC TO BE CHANGED.
+if "../.." not in sys.path:
+    sys.path.append("../..")
+if ".." not in sys.path:
+    sys.path.append("..")
+if "../survol" not in sys.path:
+    sys.path.append("../survol")
+if "../../survol" not in sys.path:
+    sys.path.append("../../survol")
 
-from survol import lib_event
+try:
+    from survol import lib_event
+except:
+    import lib_event
 
 try:
     # This seems to work on Python 2 Linux but not Python 3
@@ -691,6 +701,9 @@ class CIM_XmlMarshaller(object):
                 attr_val = getattr(self, attr)
             except AttributeError:
                 continue
+            if attr in ["_G_map_cache_objects"]:
+                # Do not serialize this class attribute.
+                continue
             if _is_CIM(attr, attr_val):
                 # FIXME: Not very reliable.
                 if _is_time_stamp(attr):
@@ -761,7 +774,7 @@ class CIM_XmlMarshaller(object):
         nam_class = cls.__name__
         margin = "    "
         sub_margin = margin + margin
-        for obj_path, obj_instance in sorted(_G_map_cache_objects[nam_class].items()):
+        for obj_path, obj_instance in sorted(cls._G_map_cache_objects.items()):
             fd_summary_file.write("%s<%s>\n" % (margin, nam_class))
             obj_instance.plain_to_XML(fd_summary_file, sub_margin)
             fd_summary_file.write("%s</%s>\n" % (margin, nam_class))
@@ -1015,7 +1028,6 @@ class CIM_Process(CIM_XmlMarshaller):
                 # psutil.ZombieProcess process still exists but it's a zombie
                 # Another possibility would be to use the parent process.
                 self.CurrentDirectory = G_CurrentDirectory
-
         else:
             if proc_id > 0:
                 self.Name = "pid=%s" % proc_id
@@ -1061,7 +1073,7 @@ class CIM_Process(CIM_XmlMarshaller):
     @classmethod
     def DisplaySummary(cls, fd_summary_file, cim_key_value_pairs):
         fd_summary_file.write("Processes:\n")
-        list_CIM_Process = _G_map_cache_objects[CIM_Process.__name__]
+        list_CIM_Process = CIM_Process._G_map_cache_objects
         for obj_path, obj_instance in sorted(list_CIM_Process.items()):
             obj_instance.Summarize(fd_summary_file)
         fd_summary_file.write("\n")
@@ -1098,12 +1110,12 @@ class CIM_Process(CIM_XmlMarshaller):
 
         # This contains all subprocesses.
         set_sub_procs = set()
-        for obj_path, obj_instance in _G_map_cache_objects[CIM_Process.__name__].items():
+        for obj_path, obj_instance in CIM_Process._G_map_cache_objects.items():
             for one_sub in obj_instance.m_subProcesses:
                 set_sub_procs.add(one_sub)
 
         lst_top_lvl = []
-        for obj_path, obj_instance in _G_map_cache_objects[CIM_Process.__name__].items():
+        for obj_path, obj_instance in CIM_Process._G_map_cache_objects.items():
             if obj_instance not in set_sub_procs:
                 lst_top_lvl.append(obj_instance)
         return lst_top_lvl
@@ -1111,15 +1123,15 @@ class CIM_Process(CIM_XmlMarshaller):
     # When parsing the last system call, it sets the termination date for all processes.
     @staticmethod
     def global_termination_date(time_end):
-        for obj_path, obj_instance in _G_map_cache_objects[CIM_Process.__name__].items():
+        for obj_path, obj_instance in CIM_Process._G_map_cache_objects.items():
             if not obj_instance.TerminationDate:
                 obj_instance.TerminationDate = time_end
 
     @classmethod
     def XMLSummary(cls, fd_summary_file, cim_key_value_pairs):
-        # Find unvisited processes. It does not start from G_top_ProcessId
-        # because maybe it contains several trees, or subtrees were missed etc...
-        for obj_path, obj_instance in sorted(_G_map_cache_objects[CIM_Process.__name__].items()):
+        """Find unvisited processes. It does not start from G_top_ProcessId
+        because maybe it contains several trees, or subtrees were missed etc..."""
+        for obj_path, obj_instance in sorted(CIM_Process._G_map_cache_objects.items()):
             try:
                 obj_instance.m_isVisited
                 continue
@@ -1211,11 +1223,7 @@ class CIM_Process(CIM_XmlMarshaller):
         self.CurrentDirectory = curr_dir_object.Name
 
     def get_process_current_directory(self):
-        try:
-            return self.CurrentDirectory
-        except AttributeError:
-            # Maybe it could not be get because the process left too quickly.
-            return "UnknownCwd"
+        return self.CurrentDirectory
 
     def get_file_access(self, objCIM_DataFile, open_letter):
         """
@@ -1376,7 +1384,7 @@ class CIM_DataFile(CIM_LogicalFile):
     # by an informal file category: DLL, data file etc...
     @staticmethod
     def SplitFilesByCategory():
-        map_files = _G_map_cache_objects[CIM_DataFile.__name__].items()
+        map_files = CIM_DataFile._G_map_cache_objects.items()
 
         # TODO: Find a way to define the presentation as a parameter.
         # Maybe we can use the list of keys: Just mentioning a property
@@ -1504,7 +1512,7 @@ class CIM_DataFile(CIM_LogicalFile):
     def GetExposedPorts():
         """this is is the list of all ports numbers whihc have to be open."""
 
-        map_files = _G_map_cache_objects[CIM_DataFile.__name__].items()
+        map_files = CIM_DataFile._G_map_cache_objects.items()
         set_ports = set()
         for obj_path, obj_instance in map_files:
             try:
@@ -1595,11 +1603,6 @@ def to_real_absolute_path(directory_path, file_basename):
 ################################################################################
 
 
-# This contains all CIM objects: CIM_Process, CIM_DataFile etc...
-# and is used to generate the summary. Each time an object is created,
-# updated or deleted, an event might be sent to a Survol server.
-_G_map_cache_objects = None
-
 # Read from a real process or from the log file name when replaying a session.
 # It is conceptually part of an ObjectsContext.
 G_topProcessId = None
@@ -1638,7 +1641,7 @@ class ObjectsContext:
         returned_object = self._class_model_to_object_path(CIM_Process, process_id)
 
         # Dictionary of all processes, indexed by the tuple of their key-value
-        map_procs = _G_map_cache_objects[CIM_Process.__name__]
+        map_procs = CIM_Process._G_map_cache_objects
 
         if process_id != self._process_id:
             # The key is a tuple of the arguments in the order of the ontology.
@@ -1673,9 +1676,8 @@ class ObjectsContext:
     def _class_model_to_object_path(self, class_model, *ctor_args):
         """This receives a class name and a list of key-value pairs.
         It returns the object, possibly cached."""
-        global _G_map_cache_objects
         global _G_warnings_counter
-        map_objs = _G_map_cache_objects[class_model.__name__]
+        map_objs = class_model._G_map_cache_objects
 
         # Here, this tuple in the order of the ontology is a key in a per-class dictionary.
         obj_path = ctor_args
@@ -1813,7 +1815,7 @@ def generate_makefile(output_makefile):
 
     # TODO: This does not work if a file is rewritten.
 
-    cached_processes = _G_map_cache_objects[CIM_Process.__name__]
+    cached_processes = CIM_Process._G_map_cache_objects
     for obj_path in sorted(cached_processes.keys()):
         one_proc = cached_processes[obj_path]
 
@@ -1877,10 +1879,21 @@ G_EnvironmentVariables = None
 
 
 def init_global_objects(the_hostname, the_ip_address):
-    global _G_map_cache_objects
     global G_httpClient
     global G_EnvironmentVariables
-    _G_map_cache_objects = collections.defaultdict(dict)
+
+
+    def reset_subclasses_instances(the_class):
+        # This is similar to leaf_derived_classes, but all subclasses are read.
+        for the_subclass in the_class.__subclasses__():
+            try:
+                del the_subclass._G_map_cache_objects
+            except AttributeError:
+                pass
+            the_subclass._G_map_cache_objects = {}
+            reset_subclasses_instances(the_subclass)
+
+    reset_subclasses_instances(CIM_XmlMarshaller)
 
     # This object is used to send triples to a Survol server.
     # It is also used to store the triples in a RDF file, which is created by the destructor.
@@ -2273,7 +2286,7 @@ def _generate_docker_process_dependencies(docker_directory, fd_docker_file):
     # This is a subset of _dependencies_list.
     set_useful_dependencies = set()
 
-    for obj_path, obj_instance in _G_map_cache_objects[CIM_Process.__name__].items():
+    for obj_path, obj_instance in CIM_Process._G_map_cache_objects.items():
         for one_dep in _dependencies_list:
             # Based on the executable of the process,
             # this tells if we might have dependencies of this type: Python Perl etc...
