@@ -30,73 +30,65 @@ import lib_smb
 Usable = lib_smb.UsableNetCommands
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.CgiEnv()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	net_use_cmd = [ "net", "use" ]
+    net_use_cmd = ["net", "use"]
 
-	net_use_pipe = lib_common.SubProcPOpen(net_use_cmd)
+    net_use_pipe = lib_common.SubProcPOpen(net_use_cmd)
 
-	( net_use_last_output, net_use_err ) = net_use_pipe.communicate()
+    net_use_last_output, net_use_err = net_use_pipe.communicate()
 
-	# Converts to string for Python3.
-	asstr = net_use_last_output.decode("utf-8")
-	lines = asstr.split('\n')
+    # Converts to string for Python3.
+    asstr = net_use_last_output.decode("utf-8")
+    lines = asstr.split('\n')
 
-	seenHyphens = False
+    seen_hyphens = False
 
-	# NOTHING VISIBLE FOR APACHE USER ?
-	# "There are no entries in the list"
+    # When the remote field is too long, the content is split into two lines.
+    curr_status = ''
+    curr_local = ''
+    curr_remote = ''
+    curr_network = ''
 
-	# print("Content-type: text/html\n\n<head></head><body>")
+    for lin in lines:
+        assert isinstance(lin, str)
+        if re.match(".*-------.*",lin):
+            seen_hyphens = True
+            continue
 
-	# When the remote field is too long, the content is split into two lines.
-	currStatus = ''
-	currLocal = ''
-	currRemote = ''
-	currNetwork = ''
+        if re.match(".*The command completed successfully.*",lin):
+            break
+        if not seen_hyphens:
+            continue
 
-	for lin in lines:
-		# NOT VISIBLE FOR APACHE USER ???????
-		# print("se="+str(seenHyphens)+" Lin=("+lin+")<br>")
-		if re.match(".*-------.*",lin):
-			seenHyphens = True
-			continue
+        if curr_local == '':
+            curr_status = lin[:12]
+            curr_local = lin[15:]
+            if lin[48] == ' ':
+                curr_remote = lin[16:47]
+                curr_network = lin[49:]
+            else:
+                curr_remote = lin[16:]
+                # Will read network at next line.
+                continue
+        else:
+            curr_network = lin[48:]
 
-		if re.match(".*The command completed successfully.*",lin):
-			break
-		#print("se="+str(seenHyphens)+" Lin1=("+lin+")")
-		if not seenHyphens:
-			continue
+        curr_remote = curr_remote.strip()
 
-		if currLocal == '':
-			currStatus = lin[:12]
-			currLocal = lin[15:]
-			if lin[48] == ' ':
-				currRemote = lin[16:47]
-				currNetwork = lin[49:]
-			else:
-				currRemote = lin[16:]
-				# Will read network at next line.
-				continue
-		else:
-			currNetwork = lin[48:]
+        # "\\192.168.0.15\rchateau   Microsoft Windows Network"
+        curr_local = curr_local.strip().split(" ")[0]
 
-		currRemote = currRemote.strip()
-		DEBUG("currRemote=%s",currRemote)
+        share_node = lib_common.gUriGen.SmbShareUri(curr_remote)
+        grph.add((lib_common.gUriGen.FileUri(curr_local + ':'), pc.property_mount, share_node))
 
-		# "\\192.168.0.15\rchateau   Microsoft Windows Network"
-		currLocal = currLocal.strip().split(" ")[0]
+        # Reset the line, will read next disk.
+        curr_local = ''
 
-		DEBUG("currLocal=%s",currLocal)
-		shareNode = lib_common.gUriGen.SmbShareUri( currRemote )
-		grph.add( ( lib_common.gUriGen.FileUri( currLocal + ':' ), pc.property_mount, shareNode ) )
+    cgiEnv.OutCgiRdf()
 
-		# Reset the line, will read next disk.
-		currLocal = ''
-
-	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
-	Main()
+    Main()
