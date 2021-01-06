@@ -1309,10 +1309,6 @@ class CIM_LogicalFile(CIM_XmlMarshaller):
         if G_SameMachine:
             try:
                 obj_stat = os.stat(path_name)
-            except:
-                obj_stat = None
-
-            if obj_stat:
                 self.FileSize = obj_stat.st_size
                 self.FileMode = obj_stat.st_mode
                 self.Inode = obj_stat.st_ino
@@ -1323,16 +1319,18 @@ class CIM_LogicalFile(CIM_XmlMarshaller):
                 self.AccessTime = _time_t_to_datetime(obj_stat.st_atime)
                 self.ModifyTime = _time_t_to_datetime(obj_stat.st_mtime)
                 self.CreationTime = _time_t_to_datetime(obj_stat.st_ctime)
-                try:
-                    # This does not exist on Windows.
-                    self.DeviceType = obj_stat.st_rdev
-                except AttributeError:
-                    pass
 
                 # This is on Windows only.
                 # self.UserDefinedFlags = obj_stat.st_flags
                 # self.FileCreator = obj_stat.st_creator
                 # self.FileType = obj_stat.st_type
+                try:
+                    # This does not exist on Windows.
+                    self.DeviceType = obj_stat.st_rdev
+                except AttributeError:
+                    pass
+            except:
+                pass
 
         # If this is a connected socket:
         # 'TCP:[54.36.162.150:37415->82.45.12.63:63708]'
