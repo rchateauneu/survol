@@ -792,6 +792,30 @@ def EntityUri(entity_type, *entity_ids):
     url = Scriptize("/entity.py", entity_type, entity_id)
     return NodeUrl(url)
 
+
+def EntityUriFromMoniker(entity_type, entity_id):
+    """
+    This helper function is needed because the key-value pairs defining an object
+    are stored in different ways, depending on the context:
+    * As a moniker, like on a URL.
+    * As a list of values, ordered by the ontology (list of attributes).
+    * As a dict of key-value pairs.
+
+    :param entity_type: The class of the object
+    :param entity_id: The key-value pairs concatenated into a single moniker string.
+    :return: The URL of the object.
+    """
+
+    # TODO: Some simplification could be done:
+    # TODO: * Use a moniker only when close to an URL.
+    # TODO: * Replace list of values by list of key-value pairs.
+    # TODO: * Use a dict of key-value pairs only when a lookup is needed.
+
+    entity_ids_arr = EntityIdToArray(entity_type, entity_id)
+    entity_url = EntityUri(entity_type, *entity_ids_arr)
+    return entity_url
+
+
 ################################################################################
 
 
