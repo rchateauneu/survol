@@ -656,6 +656,8 @@ def _is_CIM(attr, attr_val):
     Therefore, CIM attributes are mixed with Python ones.
     This function is a rule-thumb test to check if an attribute of a class
     is a CIM attribute. It works because there are very few non-CIM attributes.
+
+    TODO: Consider not serializing class members.
     """
     return not callable(attr_val) and not attr.startswith(("__", "m_"))
 
@@ -700,9 +702,6 @@ class CIM_XmlMarshaller(object):
             try:
                 attr_val = getattr(self, attr)
             except AttributeError:
-                continue
-            if attr in ["_G_map_cache_objects"]:
-                # Do not serialize this class attribute.
                 continue
             if _is_CIM(attr, attr_val):
                 # FIXME: Not very reliable.
@@ -774,7 +773,7 @@ class CIM_XmlMarshaller(object):
         nam_class = cls.__name__
         margin = "    "
         sub_margin = margin + margin
-        for obj_path, obj_instance in sorted(cls._G_map_cache_objects.items()):
+        for obj_path, obj_instance in sorted(cls.m_G_map_cache_objects.items()):
             fd_summary_file.write("%s<%s>\n" % (margin, nam_class))
             obj_instance.plain_to_XML(fd_summary_file, sub_margin)
             fd_summary_file.write("%s</%s>\n" % (margin, nam_class))
@@ -1073,7 +1072,7 @@ class CIM_Process(CIM_XmlMarshaller):
     @classmethod
     def DisplaySummary(cls, fd_summary_file, cim_key_value_pairs):
         fd_summary_file.write("Processes:\n")
-        list_CIM_Process = CIM_Process._G_map_cache_objects
+        list_CIM_Process = CIM_Process.m_G_map_cache_objects
         for obj_path, obj_instance in sorted(list_CIM_Process.items()):
             obj_instance.Summarize(fd_summary_file)
         fd_summary_file.write("\n")
@@ -1110,12 +1109,12 @@ class CIM_Process(CIM_XmlMarshaller):
 
         # This contains all subprocesses.
         set_sub_procs = set()
-        for obj_path, obj_instance in CIM_Process._G_map_cache_objects.items():
+        for obj_path, obj_instance in CIM_Process.m_G_map_cache_objects.items():
             for one_sub in obj_instance.m_subProcesses:
                 set_sub_procs.add(one_sub)
 
         lst_top_lvl = []
-        for obj_path, obj_instance in CIM_Process._G_map_cache_objects.items():
+        for obj_path, obj_instance in CIM_Process.m_G_map_cache_objects.items():
             if obj_instance not in set_sub_procs:
                 lst_top_lvl.append(obj_instance)
         return lst_top_lvl
@@ -1123,7 +1122,7 @@ class CIM_Process(CIM_XmlMarshaller):
     # When parsing the last system call, it sets the termination date for all processes.
     @staticmethod
     def global_termination_date(time_end):
-        for obj_path, obj_instance in CIM_Process._G_map_cache_objects.items():
+        for obj_path, obj_instance in CIM_Process.m_G_map_cache_objects.items():
             if not obj_instance.TerminationDate:
                 obj_instance.TerminationDate = time_end
 
@@ -1131,7 +1130,7 @@ class CIM_Process(CIM_XmlMarshaller):
     def XMLSummary(cls, fd_summary_file, cim_key_value_pairs):
         """Find unvisited processes. It does not start from G_top_ProcessId
         because maybe it contains several trees, or subtrees were missed etc..."""
-        for obj_path, obj_instance in sorted(CIM_Process._G_map_cache_objects.items()):
+        for obj_path, obj_instance in sorted(CIM_Process.m_G_map_cache_objects.items()):
             try:
                 obj_instance.m_isVisited
                 continue
@@ -1276,6 +1275,14 @@ class CIM_Process(CIM_XmlMarshaller):
 #   boolean  Writeable;
 # };
 class CIM_LogicalFile(CIM_XmlMarshaller):
+
+    # These regular expressions to extract port numbers of TCP sockets.
+    # They are prefixed with "m_" because of _is_CIM.
+    # 'TCP:[54.36.162.150:37415->82.45.12.63:63708]'
+    m_regex_tcp_v4_port = re.compile(r"TCP:\[.*->(.*)\]")
+    # 'TCPv6:[::ffff:54.36.162.150:21->::ffff:82.45.12.63:63703]'
+    m_regex_tcp_v6_port = re.compile(r"TCPv6:\[.*->(.*)\]")
+
     def __init__(self, path_name):
         super(CIM_LogicalFile, self).__init__()
 
@@ -1329,12 +1336,12 @@ class CIM_LogicalFile(CIM_XmlMarshaller):
 
         # If this is a connected socket:
         # 'TCP:[54.36.162.150:37415->82.45.12.63:63708]'
-        mtch_sock = re.match(r"TCP:\[.*->(.*)\]", path_name)
+        mtch_sock = self.m_regex_tcp_v4_port.match(path_name)
         if mtch_sock:
             self.SetAddrPort(mtch_sock.group(1))
         else:
             # 'TCPv6:[::ffff:54.36.162.150:21->::ffff:82.45.12.63:63703]'
-            mtch_sock = re.match(r"TCPv6:\[.*->(.*)\]", path_name)
+            mtch_sock = self.m_regex_tcp_v6_port.match(path_name)
             if mtch_sock:
                 self.SetAddrPort(mtch_sock.group(1))
 
@@ -1386,7 +1393,7 @@ class CIM_DataFile(CIM_LogicalFile):
     # by an informal file category: DLL, data file etc...
     @staticmethod
     def SplitFilesByCategory():
-        map_files = CIM_DataFile._G_map_cache_objects.items()
+        map_files = CIM_DataFile.m_G_map_cache_objects.items()
 
         # TODO: Find a way to define the presentation as a parameter.
         # Maybe we can use the list of keys: Just mentioning a property
@@ -1514,7 +1521,7 @@ class CIM_DataFile(CIM_LogicalFile):
     def GetExposedPorts():
         """this is is the list of all ports numbers whihc have to be open."""
 
-        map_files = CIM_DataFile._G_map_cache_objects.items()
+        map_files = CIM_DataFile.m_G_map_cache_objects.items()
         set_ports = set()
         for obj_path, obj_instance in map_files:
             try:
@@ -1653,7 +1660,7 @@ class ObjectsContext:
             # Therefore, this checks that the parent process is specified.
 
             # Dictionary of all processes, indexed by the tuple of their key-value
-            map_procs = CIM_Process._G_map_cache_objects
+            map_procs = CIM_Process.m_G_map_cache_objects
 
             # The key is a tuple of the arguments in the order of the ontology.
             parent_proc_obj = map_procs[(self._process_id,)]
@@ -1687,7 +1694,7 @@ class ObjectsContext:
     def _class_model_to_object_path(self, class_model, *ctor_args):
         """This receives a class name and a list of key-value pairs.
         It returns the object, possibly from a cache shared by all processes because it is in the class."""
-        map_objs = class_model._G_map_cache_objects
+        map_objs = class_model.m_G_map_cache_objects
 
         # Here, this tuple in the order of the ontology is a key in a per-class dictionary.
         try:
@@ -1818,7 +1825,7 @@ def generate_makefile(output_makefile):
 
     # TODO: This does not work if a file is rewritten.
 
-    cached_processes = CIM_Process._G_map_cache_objects
+    cached_processes = CIM_Process.m_G_map_cache_objects
     for obj_path in sorted(cached_processes.keys()):
         one_proc = cached_processes[obj_path]
 
@@ -1890,10 +1897,10 @@ def init_global_objects(the_hostname, the_ip_address):
         # This is similar to leaf_derived_classes, but all subclasses are read.
         for the_subclass in the_class.__subclasses__():
             try:
-                del the_subclass._G_map_cache_objects
+                del the_subclass.m_G_map_cache_objects
             except AttributeError:
                 pass
-            the_subclass._G_map_cache_objects = {}
+            the_subclass.m_G_map_cache_objects = {}
             reset_subclasses_instances(the_subclass)
 
     reset_subclasses_instances(CIM_XmlMarshaller)
@@ -2306,7 +2313,7 @@ def _generate_docker_process_dependencies(docker_directory, fd_docker_file):
     # This is a subset of _dependencies_list.
     set_useful_dependencies = set()
 
-    for obj_path, obj_instance in CIM_Process._G_map_cache_objects.items():
+    for obj_path, obj_instance in CIM_Process.m_G_map_cache_objects.items():
         for one_dep in _dependencies_list:
             # Based on the executable of the process,
             # this tells if we might have dependencies of this type: Python Perl etc...
