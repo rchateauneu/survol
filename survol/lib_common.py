@@ -403,6 +403,9 @@ class CgiEnv():
 
         if not is_daemon_running:
             # This is the case of a daemonizable script, normally run.
+            # TODO: Slight ambiguity here: The daemon could be intentionally stopped, and the user
+            # TODO: would like to see the existing events stored in the persistent triplestore,
+            # TODO: without restarting the daemon. We do not know hw to do tthis yet.
             lib_daemon.start_events_generator_daemon(self.m_url_without_mode)
             # After that, whether the daemon dedicated to the script and its parameters is started or not,
             # the script is then executed in normal, snapshot mode, as a CGI script.
