@@ -9,6 +9,20 @@ but the concepts are easily applicable to other platforms.
 TODO:
 =====
 
+Dockerfile:
+-----------
+The command dockit is able in a certain extent to cerate a Dockerfile reproducing the execution of a command.
+
+Makefile:
+---------
+
+Makefiles tend to grow with time, as their target application gets more and more new components.
+The dependencies can be very difficult to understand.
+These dependencies can be hidden: Some tools might implicitly create output files.
+
+The command dockit analyse a process and rebuilds a makefile.
+
+
 Which external libraries are implied by an application ?
 --------------------------------------------------------
 
@@ -34,6 +48,11 @@ Quels schemas de bases de donnees ?
 -----------------------------------
 
 Quelles sockets avec numeros de ports douteux. Quels ports sont accedes ?
+
+Dockerfile:
+-----------
+
+
 
 DONE
 ====
