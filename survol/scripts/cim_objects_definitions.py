@@ -1944,37 +1944,46 @@ G_lstFilters = [
         _lambda_regex_match(r"^/lib64/.*\.so"),
     ]),
     ("System config files", [
-        _lambda_regex_match("^/etc/"),
-        _lambda_regex_match("^/usr/share/fonts/"),
-        _lambda_regex_match("^/usr/share/fontconfig/"),
-        _lambda_regex_match("^/usr/share/locale/"),
-        _lambda_regex_match("^/usr/share/zoneinfo/"),
+        _lambda_starts_with((
+            "/etc/",
+            "/usr/share/fonts/",
+            "/usr/share/fontconfig/",
+            "/usr/share/locale/",
+            "/usr/share/zoneinfo/")),
     ]),
     ("Other libraries", [
-        _lambda_regex_match("^/usr/share/"),
-        _lambda_regex_match("^/usr/lib[^/]*/"),
-        _lambda_regex_match("^/var/lib[^/]*/"),
+        _lambda_starts_with((
+            "/usr/share/",
+            "/usr/lib/",
+            "/usr/lib64/",
+            "/var/lib/",
+            "/var/lib64/")),
     ]),
     ("System executables", [
-        _lambda_regex_match("^/bin/"),
-        _lambda_regex_match("^/usr/bin[^/]*/"),
-    ]),
+        _lambda_starts_with((
+            "/bin/",
+            "/usr/bin/",
+            "/usr/bin64/")),
+]),
     ("Kernel file systems", [
-        _lambda_regex_match("^/proc"),
-        _lambda_regex_match("^/run"),
+        _lambda_starts_with((
+            "/proc/",
+            "/run/")),
     ]),
     ("Temporary files", [
-        _lambda_regex_match("^/tmp/"),
-        _lambda_regex_match("^/var/log/"),
-        _lambda_regex_match("^/var/cache/"),
+        _lambda_starts_with((
+            "/tmp/",
+            "/var/log/",
+            "/var/cache/")),
     ]),
     ("Pipes and terminals", [
-        _lambda_regex_match("^/sys"),
-        _lambda_regex_match("^/dev"),
-        _lambda_regex_match("^pipe:"),
-        _lambda_regex_match("^socket:"),
-        _lambda_regex_match("^UNIX:"),
-        _lambda_regex_match("^NETLINK:"),
+        _lambda_starts_with((
+            "/sys",
+            "/dev",
+            "pipe:",
+            "socket:",
+            "UNIX:",
+            "NETLINK:")),
     ]),
     # TCP:[54.36.162.150:41039->82.45.12.63:63711]
     ("Connected TCP sockets", [
@@ -1982,12 +1991,12 @@ G_lstFilters = [
         _lambda_regex_match(r"^TCPv6:\[.*->.*\]"),
     ]),
     ("Other TCP/IP sockets", [
-        _lambda_regex_match("^TCP:"),
-        _lambda_regex_match("^TCPv6:"),
-        _lambda_regex_match("^UDP:"),
-        _lambda_regex_match("^UDPv6:"),
+        _lambda_starts_with((
+            "TCP:",
+            "TCPv6:",
+            "UDP:",
+            "UDPv6:")),
     ]),
-    ("Others", []),
 ]
 
 
