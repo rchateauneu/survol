@@ -1922,78 +1922,85 @@ def exit_global_objects():
     G_httpClient.http_client_shutdown()
 
 
+def _lambda_regex_match(regex_file_path):
+    compiled_regex = re.compile(regex_file_path)
+    return lambda file_path: compiled_regex.match(file_path)
+
+
+def _lambda_starts_with(path_prefix_tuple):
+    return lambda file_path: file_path.startswith(path_prefix_tuple)
+
+
 # This is not a map, it is not sorted.
-# It contains regular expression for classifying file names in categories:
+# It contains objects for classifying file names in categories:
 # Shared libraries, source files, scripts, Linux pipes etc...
+# They must be processed in this order because there is a priority.
 G_lstFilters = [
     ("Shared libraries", [
-        r"^/usr/lib[^/]*/.*\.so",
-        r"^/usr/lib[^/]*/.*\.so\..*",
-        r"^/var/lib[^/]*/.*\.so",
-        r"^/lib/.*\.so",
-        r"^/lib64/.*\.so",
+        _lambda_regex_match(r"^/usr/lib[^/]*/.*\.so"),
+        _lambda_regex_match(r"^/usr/lib[^/]*/.*\.so\..*"),
+        _lambda_regex_match(r"^/var/lib[^/]*/.*\.so"),
+        _lambda_regex_match(r"^/lib/.*\.so"),
+        _lambda_regex_match(r"^/lib64/.*\.so"),
     ]),
     ("System config files", [
-        "^/etc/",
-        "^/usr/share/fonts/",
-        "^/usr/share/fontconfig/",
-        "^/usr/share/fontconfig/",
-        "^/usr/share/locale/",
-        "^/usr/share/zoneinfo/",
+        _lambda_regex_match("^/etc/"),
+        _lambda_regex_match("^/usr/share/fonts/"),
+        _lambda_regex_match("^/usr/share/fontconfig/"),
+        _lambda_regex_match("^/usr/share/locale/"),
+        _lambda_regex_match("^/usr/share/zoneinfo/"),
     ]),
     ("Other libraries", [
-        "^/usr/share/",
-        "^/usr/lib[^/]*/",
-        "^/var/lib[^/]*/",
+        _lambda_regex_match("^/usr/share/"),
+        _lambda_regex_match("^/usr/lib[^/]*/"),
+        _lambda_regex_match("^/var/lib[^/]*/"),
     ]),
     ("System executables", [
-        "^/bin/",
-        "^/usr/bin[^/]*/",
+        _lambda_regex_match("^/bin/"),
+        _lambda_regex_match("^/usr/bin[^/]*/"),
     ]),
     ("Kernel file systems", [
-        "^/proc",
-        "^/run",
+        _lambda_regex_match("^/proc"),
+        _lambda_regex_match("^/run"),
     ]),
     ("Temporary files", [
-        "^/tmp/",
-        "^/var/log/",
-        "^/var/cache/",
+        _lambda_regex_match("^/tmp/"),
+        _lambda_regex_match("^/var/log/"),
+        _lambda_regex_match("^/var/cache/"),
     ]),
     ("Pipes and terminals", [
-        "^/sys",
-        "^/dev",
-        "^pipe:",
-        "^socket:",
-        "^UNIX:",
-        "^NETLINK:",
+        _lambda_regex_match("^/sys"),
+        _lambda_regex_match("^/dev"),
+        _lambda_regex_match("^pipe:"),
+        _lambda_regex_match("^socket:"),
+        _lambda_regex_match("^UNIX:"),
+        _lambda_regex_match("^NETLINK:"),
     ]),
     # TCP:[54.36.162.150:41039->82.45.12.63:63711]
     ("Connected TCP sockets", [
-        r"^TCP:\[.*->.*\]",
-        r"^TCPv6:\[.*->.*\]",
+        _lambda_regex_match(r"^TCP:\[.*->.*\]"),
+        _lambda_regex_match(r"^TCPv6:\[.*->.*\]"),
     ]),
     ("Other TCP/IP sockets", [
-        "^TCP:",
-        "^TCPv6:",
-        "^UDP:",
-        "^UDPv6:",
+        _lambda_regex_match("^TCP:"),
+        _lambda_regex_match("^TCPv6:"),
+        _lambda_regex_match("^UDP:"),
+        _lambda_regex_match("^UDPv6:"),
     ]),
     ("Others", []),
 ]
 
 
 def _pathname_to_category(path_name):
-    """This match the path name againt the set of regular expressions
+    """This matches the path name against the set of regular expressions
     defining broad categories of files: Sockets, libraries, temporary files...
     These categories are not technical but based on application best practices,
     rules of thumbs etc..."""
-    for rgx_tuple in G_lstFilters:
-        for one_rgx in rgx_tuple[1]:
-            # If the file matches a regular expression,
-            # then it is classified in this category.
-            mtch_rgx = re.match(one_rgx, path_name)
-            if mtch_rgx:
-                return rgx_tuple[0]
+    for category_key, lambda_list in G_lstFilters:
+        for one_lambda in lambda_list:
+            # If the file matches a regular expression, then it is classified in this category.
+            if one_lambda(path_name):
+                return category_key
     return "Others"
 
 ################################################################################
