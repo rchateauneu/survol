@@ -65,7 +65,7 @@ def Main():
         # Some are probably for Windows only.
         if env_key in ["PATH", "PSMODULEPATH", "PYPATH"]:
             val_split = env_val.split(os.pathsep)
-            nod_fil_arr = [lib_common.gUriGen.DirectoryUri(filNam) for filNam in val_split]
+            nod_fil_arr = [lib_common.gUriGen.DirectoryUri(fil_nam) for fil_nam in val_split]
             nod_fil_arr_nod = lib_util.NodeLiteral(nod_fil_arr)
             grph.add((node_env_nam, pc.property_rdf_data_nolist2, nod_fil_arr_nod))
         elif os.path.isdir(env_val):
