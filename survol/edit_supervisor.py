@@ -7,6 +7,7 @@ import lib_common
 import lib_util
 import lib_kbase
 import lib_naming
+import datetime
 
 from lib_util import WrtAsUtf
 
@@ -39,7 +40,6 @@ def _get_daemons_data():
 
     urls_daemons_dict = lib_daemon.get_running_daemons()
     for daemon_url, daemon_object in urls_daemons_dict.items():
-        #entity_type, entity_id, entity_host = lib_util.split_url_to_entity(daemon_url)
         sys.stderr.write("daemon_url=%s\n" % daemon_url)
 
         url_label, entity_type, entity_id = lib_naming.ParseEntityUri(daemon_url, long_display=True)
@@ -48,11 +48,16 @@ def _get_daemons_data():
         sys.stderr.write("entity_id=%s\n" % entity_id)
 
         daemon_object['url_title'] = url_label
-        daemon_object['object_url'] = lib_util.EntityUri(entity_type, entity_id)
+
+        # Now that we have the class and the key-value pairs of the object related to the script, builds its url.
+        entity_url = lib_util.EntityUriFromMoniker(entity_type, entity_id)
+        sys.stderr.write("entity_url=%s\n" % entity_url)
+        daemon_object['object_url'] = entity_url
         entity_label = lib_naming.EntityToLabel(entity_type, entity_id, lib_util.HostName())
         sys.stderr.write("entity_label=%s\n" % entity_label)
         daemon_object['object_title'] = entity_label
         daemon_object['triples_number'] = lib_kbase.context_events_count(daemon_url)
+        daemon_object['start_time'] = datetime.datetime.fromtimestamp(daemon_object['start']).strftime("%m/%d/%Y, %H:%M:%S")
 
     return urls_daemons_dict
 
@@ -73,19 +78,21 @@ def MainNoJinja(url_supervisor_control, urls_daemons_dict):
     WrtAsUtf("""
     <br><br>
     
-    <table border="1">
-    <tr><td>Daemon url</td><td>Object url</td><td>Triples number</td><td>Pid</td></tr>
+    <table border="1" width="100%">
+    <tr><td>Daemon url</td><td>Object url</td><td>Triples number</td><td>Start time</td><td>State</td><td>Pid</td></tr>
     """)
 
     for daemon_url, daemon_object in urls_daemons_dict.items():
         WrtAsUtf("""
-        <tr><td><a href="%s">%s</a></td><td><a href="%s">%s</a></td><td>%d</td><td>%d</td></tr>
+        <tr><td><a href="%s">%s</a></td><td><a href="%s">%s</a></td><td>%d</td><td>%s</td><td>%s</td><td>%d</td></tr>
         """ % (
             daemon_url,
             daemon_object['url_title'],
             daemon_object['object_url'],
             daemon_object['object_title'],
             daemon_object['triples_number'],
+            daemon_object['start_time'],
+            daemon_object['statename'],
             daemon_object['pid']
             ))
 
