@@ -1967,8 +1967,8 @@ G_lstFilters = [
 ]),
     ("Kernel file systems", [
         _lambda_starts_with((
-            "/proc/",
-            "/run/")),
+            "/proc",
+            "/run")),
     ]),
     ("Temporary files", [
         _lambda_starts_with((
@@ -1997,6 +1997,7 @@ G_lstFilters = [
             "UDP:",
             "UDPv6:")),
     ]),
+    ("Others", []),
 ]
 
 
