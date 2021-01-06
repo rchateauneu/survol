@@ -51,7 +51,10 @@ def _entity_array_to_alias(entity_type, entity_ids_arr, force_entity_ip_addr):
 
 
 def EntityToLabel(entity_type, entity_ids_concat, force_entity_ip_addr):
-    """For an association, we might have:
+    """
+    This returns the label of an URL which is a script plus CGI arguments defining an object.
+
+    For an association, we might have:
     entity_id=Dependent=root/cimv2:LMI_StorageExtent.CreationClassName="LMI_StorageExtent",SystemCreationClassName="PG_ComputerSystem" Antecedent=root/cimv2:LMI_DiskDrive.CreationClassName="LMI_DiskDrive",DeviceID="/dev/sda"
     This is not easy to manage but avoids ambiguities.
     """
