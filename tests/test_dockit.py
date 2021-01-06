@@ -298,6 +298,71 @@ class LowLevelComponentsTest(unittest.TestCase):
         # Conventional value 999 makes that this function does not exit.
         dockit.print_dockit_usage(999)
 
+    def test_pathname_to_category(self):
+        """Filenames are classfied for informaton purpose.
+        This is not very complicated, but is used to see which files are really importan tor unexpected.
+        This test checks that the classification works well."""
+        test_inputs = [
+            ("Shared libraries", [
+                "/usr/lib/xyz.so",
+                "/usr/lib64/abc.so",
+                "/var/lib64/xyz.so",
+                "/lib/xyz.so",
+                "/lib64/xyz.so",
+            ]),
+            ("System config files", [
+                "/etc/abc",
+                "/usr/share/fonts/abc",
+                "/usr/share/fontconfig/abc",
+                "/usr/share/fontconfig/abc",
+                "/usr/share/locale/abc",
+                "/usr/share/zoneinfo/abc",
+            ]),
+            ("Other libraries", [
+                "/usr/share/abc",
+                "/usr/lib64/abc",
+                "/var/lib64/abc",
+            ]),
+            ("System executables", [
+                "/bin/abc",
+                "/usr/bin64/abc",
+            ]),
+            ("Kernel file systems", [
+                "/proc/abc",
+                "/run/abc",
+            ]),
+            ("Temporary files", [
+                "/tmp/abc",
+                "/var/log/abc",
+                "/var/cache/abc",
+            ]),
+            ("Pipes and terminals", [
+                "/sys/abc",
+                "/dev/abc",
+                "pipe:123",
+                "socket:456",
+                "UNIX:789",
+                "NETLINK:101112",
+            ]),
+            # TCP:[54.36.162.150:41039->82.45.12.63:63711]
+            ("Connected TCP sockets", [
+                "TCP:[abc->xyz]",
+                "TCPv6:[xyz->abc]",
+            ]),
+            ("Other TCP/IP sockets", [
+                "TCP:abc",
+                "TCPv6:abc",
+                "UDP:abc",
+                "UDPv6:abc",
+            ]),
+            ("Others", []),
+        ]
+
+        for expected_category, file_path_list in test_inputs:
+            for file_path in file_path_list:
+                actual_category = cim_objects_definitions._pathname_to_category(file_path)
+                self.assertEqual(actual_category, expected_category)
+
 
 def _run_dockit_command(one_command):
     """This runs dockit as a command. Its returns the content of stdout."""
