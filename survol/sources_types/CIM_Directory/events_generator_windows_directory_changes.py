@@ -51,6 +51,11 @@ def _add_windows_dir_change(grph, path_to_watch, updated_file, action_code, time
     grph.add((sample_root_node, pc.property_information, timestamp_node))
     grph.add((sample_root_node, property_notified_change_type, lib_util.NodeLiteral(action_text)))
 
+    # TODO: How to detect which process has updated the file ?
+    # TODO: Consider lsof on Linux.
+    # TODO: Use the same property as dockit detection of file accesses.
+    # TODO: Add a new triplet with the process id doing the change, or change the semantics.
+
 
 # Thanks to Claudio Grondi for the correct set of numbers
 FILE_LIST_DIRECTORY = 0x0001
