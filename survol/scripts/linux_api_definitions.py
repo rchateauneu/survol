@@ -297,6 +297,8 @@ class BatchLetCore:
         self.m_parsedArgs = []
         self._return_value = None
 
+    m_regex_call_resumed = re.compile(r"<\.\.\. ([^ ]*) resumed> (.*)")
+
     @cython.locals(
         one_line=cython.basestring,
         the_call=cython.basestring,
@@ -378,7 +380,7 @@ class BatchLetCore:
         # [pid 11762] 10:56:39.125896 mmap@SYS(nil, 4096, 3, 34, -1, 0 <unfinished ...>
         # [pid 11761] 10:56:39.125939 <... close resumed> ) = 0 <0.000116>
         # [pid 11762] 10:56:39.125955 <... mmap resumed> ) = 0x7f75198d5000 <0.000063>
-        match_resume = re.match(r"<\.\.\. ([^ ]*) resumed> (.*)", the_call)
+        match_resume = self.m_regex_call_resumed.match(the_call)
         if match_resume:
             self.m_status = BatchStatus.resumed
             # TODO: Should check if this is the correct function name.
