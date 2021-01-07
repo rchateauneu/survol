@@ -17,7 +17,7 @@ from lib_psutil import *
 
 
 def GetEnvVarMap(the_pid):
-    """Returns the value of an environment variable of a given process."""
+    """Returns the dict of environment variables of a given process."""
 
     # TODO: Apparently, it exists in psutil.Process().environ() ??
     if lib_util.isPlatformLinux:
@@ -26,7 +26,7 @@ def GetEnvVarMap(the_pid):
         envlin = filproc.readlines()
         for li in envlin[0].split("\0"):
             pos_equ = li.find("=")
-            map_envs[li[:pos_equ] ] = li[pos_equ+1:]
+            map_envs[li[:pos_equ]] = li[pos_equ+1:]
         filproc.close()
         return map_envs
 
@@ -66,10 +66,11 @@ def EntityName(entity_ids_arr):
 
 
 def _add_command_line_and_executable(grph, node, proc_obj):
+    """This aadds to the node of a process, its command line and the name of the executable."""
     cmd_line = PsutilProcToCmdline(proc_obj)
 
     node_cmd_line = rdflib.Literal(cmd_line)
-    grph.add((node, pc.property_command, rdflib.Literal(cmd_line)))
+    grph.add((node, pc.property_command, node_cmd_line))
 
     exec_name, exec_err_msg = PsutilProcToExe(proc_obj)
     if exec_name == "":
