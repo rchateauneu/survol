@@ -69,7 +69,7 @@ def _exec_in_python_debugger_linux(my_pid, vec_instructions):
     DEBUG("_exec_in_python_debugger_linux filna=%s", filna)
 
     # This file will contain the result of the execution.
-    out_fil_na_pair = tempfile.mkstemp(suffix=".dat",text=True)
+    out_fil_na_pair = tempfile.mkstemp(suffix=".dat", text=True)
     out_fil_fd = out_fil_na_pair[0]
     # out_fil_fd.close()
     out_fil_na = out_fil_na_pair[1]
@@ -107,7 +107,7 @@ def _exec_in_python_debugger_linux(my_pid, vec_instructions):
     lib_common.SubProcCall(cmdline)
 
     fil_out_dat = open(out_fil_na, "r")
-    vec_result = fil_out_dat.readlines();
+    vec_result = fil_out_dat.readlines()
     fil_out_dat.close()
 
     return vec_result
