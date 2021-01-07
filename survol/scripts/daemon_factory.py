@@ -577,8 +577,11 @@ def stop_user_process(process_name):
 
 
 def get_all_user_processes():
+    """This returns a list of structs containing the same elements as the struct returned by getProcessInfo"""
+
     xmlrpc_server_proxy = _create_server_proxy()
-    # This returns a list of structs containing the same elements as the struct returned by getProcessInfo:
+
+    # Layout:
     # {'name':           'process name',
     #  'group':          'group name',
     #  'description':    'pid 18806, uptime 0:03:12'
