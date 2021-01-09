@@ -59,11 +59,17 @@ def SendEvents():
         cgiEnv.OutCgiRdf()
 
     class DockitParameters:
+        """
+        We want to monitor all system calls of the target process.
+        This class and its static values passed all parameters of the procvess to the module "dockit"
+        which monitors the calls by attaching to the process given its pid.
+        """
         verbose = 1
         with_warning = 1
         map_params_summary = dockit.full_map_params_summary
         with_dockerfile = True
         input_process_id = int(process_id)
+        command_line = []
         output_format = "TXT"
         summary_format = None
         input_log_file = None
@@ -72,6 +78,7 @@ def SendEvents():
         G_UpdateServer = dockit_events_callback
         aggregator = None
         duplicate_input_log = False
+        output_makefile = None
 
     dockit._start_processing(DockitParameters)
 
