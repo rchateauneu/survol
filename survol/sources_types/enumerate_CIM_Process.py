@@ -14,12 +14,16 @@ from lib_properties import pc
 
 def Main():
     paramkey_hide_user_accounts = "Hide user accounts"
+    paramkey_show_command_line = "Show command line"
 
     cgiEnv = lib_common.CgiEnv(
-        parameters={paramkey_hide_user_accounts: False}
+        parameters={
+            paramkey_hide_user_accounts: False,
+            paramkey_show_command_line: False}
     )
 
     flag_hide_user_accounts = bool(cgiEnv.get_parameters(paramkey_hide_user_accounts))
+    flag_show_command_line = bool(cgiEnv.get_parameters(paramkey_show_command_line))
 
     grph = cgiEnv.GetGraph()
 
@@ -61,6 +65,15 @@ def Main():
                 # TODO: such as lib_util.NodeLiteral(usr_nam)
                 user_node = lib_common.gUriGen.UserUri(usr_nam)
                 grph.add((node_process, pc.property_user, user_node))
+
+        if flag_show_command_line:
+            cmd_line = CIM_Process.PsutilProcToCmdline(proc)
+            if cmd_line and cmd_line != CIM_Process.ProcessAccessDenied:
+                # TODO: The command line should be clickable.
+                # TODO: ... but just display it as a string.
+                # TODO: See CIM_Process.add_command_line_arguments
+                node_cmd_line = lib_util.NodeLiteral(cmd_line)
+                grph.add((node_process, pc.property_command, node_cmd_line))
 
         # TODO: Add the username as a property ? Change the color with the username ?
         # TODO: Get icons of users or programs, use their colors ?
