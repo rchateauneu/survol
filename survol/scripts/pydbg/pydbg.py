@@ -286,13 +286,11 @@ class pydbg(object):
 
         # obtain necessary debug privileges.
         self.get_debug_privileges()
-        # self._log("After get_debug_privileges")
 
-        print("attach pid=", pid)
         self.pid = pid
         self.root_pid = pid
         self.open_process(pid)
-        self._log("attach After open_process pid=%d" % pid)
+        self._log("attach After open_process current_pid=%d pid=%d" % (os.getpid(), pid))
         self.pids_to_handle = {self.pid: self.h_process}
 
         self.debug_active_process(pid)
@@ -918,6 +916,9 @@ class pydbg(object):
         '''
 
         self._log("debug_active_process pid=%d" % pid)
+
+        # If the process does not exit, it throws this misleading error:
+        # E           pdx: [5] DebugActiveProcess(29228): Access is denied.
         if not kernel32.DebugActiveProcess(pid):
             raise pdx("DebugActiveProcess(%d)" % pid, True)
 
@@ -2382,15 +2383,19 @@ class pydbg(object):
         luid        = LUID()
         token_state = TOKEN_PRIVILEGES()
 
-        #self._log("get_debug_privileges()")
-
         if not advapi32.OpenProcessToken(kernel32.GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, byref(h_token)):
             raise pdx("Exception:OpenProcessToken()", True)
 
         if not advapi32.LookupPrivilegeValueA(0, b"seDebugPrivilege", byref(luid)):
             raise pdx("LookupPrivilegeValue()", True)
 
+        # If the debugging process has the SE_DEBUG_NAME privilege granted and enabled, it can debug any process.
         token_state.PrivilegeCount = 1
+
+        # https://docs.microsoft.com/en-us/windows/win32/secauthz/privilege-constants
+        # SE_DEBUG_NAME
+        # TEXT("SeDebugPrivilege")
+
         token_state.Privileges[0].Luid = luid
         token_state.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED
 
