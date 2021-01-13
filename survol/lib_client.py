@@ -677,8 +677,7 @@ def entity_id_to_instance(agent_url, class_name, entity_id):
     Example: xid="CIM_Process.Handle=2092"
     BEWARE: Some arguments should be decoded from Base64."""
 
-    # TODO: Should use lib_util.SplitMoniker() because parsing may be more complicated,
-    xid_dict = {sp[0]:sp[2] for sp in [ss.partition("=") for ss in entity_id.split(",")]}
+    xid_dict = lib_util.SplitMoniker(entity_id)
 
     new_instance = create_CIM_class(agent_url, class_name, **xid_dict)
     return new_instance
