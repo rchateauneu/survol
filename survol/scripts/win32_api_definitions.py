@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 __author__      = "Remi Chateauneu"
-__copyright__   = "Primhill Computers, 2018-2020"
+__copyright__   = "Primhill Computers, 2018-2021"
 __credits__ = ["", "", ""]
 __license__ = "GPL"
 __version__ = "0.0.1"
@@ -13,19 +13,14 @@ import re
 import os
 import sys
 import six
-import time
 import struct
 import logging
-import platform
 import threading
 import collections
 
 import win32file
 import win32con
 import win32process
-import pywintypes
-import win32api
-import win32event
 
 # FIXME: For tests only !!
 import psutil
@@ -60,14 +55,16 @@ else:
 class TracerBase(object):
     def report_function_call(self, function_name, process_id):
         assert isinstance(function_name, six.binary_type)
-        raise NotImplementedError("To be implemented")
+        raise NotImplementedError("Must not be implemented")
 
     def report_object_creation(self, cim_objects_context, cim_class_name, **cim_arguments):
-        raise NotImplementedError("To be implemented")
+        raise NotImplementedError("Must not be implemented")
 
 
-# This uses duck typing to behave like a BatchLetCore.
 class PseudoTraceLineCore:
+    """
+    This uses duck typing to behave like a BatchLetCore.
+    """
     def __init__(self, process_id, function_name):
         self.m_pid = process_id
         # This is not applicable to Windows, yet.
@@ -75,6 +72,7 @@ class PseudoTraceLineCore:
         assert isinstance(function_name, six.binary_type)
         self._function_name = function_name
         self._return_value = 0
+        # This is intentionaly an invalid value which is easy to spot if it is not properly initialised.
         self._time_start = 99999999.99 # time.time()
         self._time_end = self._time_start
 
@@ -85,9 +83,11 @@ class PseudoTraceLineCore:
         return self._function_name in self._functions_creating_processes
 
 
-# This is functionally equivalent to a line displayed by strace or ltrace:
-# It contains a process id, a function name and its arguments.
 class PseudoTraceLine:
+    """
+    This is functionally equivalent to a line displayed by strace or ltrace:
+    It contains a process id, a function name and its arguments.
+    """
     def __init__(self, process_id, function_name):
         assert isinstance(function_name, six.binary_type)
         self.m_core = PseudoTraceLineCore(process_id, function_name)
@@ -97,8 +97,8 @@ class PseudoTraceLine:
         # The style tells if this is a native call or an aggregate of function calls.
         self.m_style = "Breakpoint"
 
-    # This writes the content, so it can be deserialized, to replay a session.
     def write_to_file(self, file_descriptor):
+        """This writes the content, so it can be deserialized, to replay a session."""
         assert isinstance(self.m_core._function_name, six.binary_type)
         file_descriptor.write("%d %s\n" % (self.m_core.m_pid, self.m_core._function_name.decode('utf-8)')))
 
@@ -109,8 +109,8 @@ class PseudoTraceLine:
         function_name = function_call_line[1].encode()
         return PseudoTraceLine(process_id, function_name)
 
-    # Process creations or setup are not aggregated.
     def is_same_call(self, another_object):
+        """Process creations or setup are not aggregated."""
         assert isinstance(self.m_core._function_name, six.binary_type)
         assert isinstance(another_object.m_core._function_name, six.binary_type)
         return self.m_core._function_name == another_object.m_core._function_name \
@@ -123,7 +123,7 @@ class PseudoTraceLine:
 
 class Win32Tracer(TracerBase):
 
-    # This is a convention to indicate the program end.
+    # These function names are a convention to indicate the program start and end.
     _function_name_process_start = b"PYDBG_PROCESS_START"
     _function_name_process_exit = b"PYDBG_PROCESS_EXIT"
 
@@ -135,18 +135,27 @@ class Win32Tracer(TracerBase):
         batch_core = PseudoTraceLine(created_process_id, self._function_name_process_start)
         self._queue.put(batch_core)
 
-    def _start_debugging(self):
-        if self._input_process_id > 0:
-            logging.error("_start_debugging self._input_process_id=%d" % self._input_process_id)
-            assert not self._command_line
-            self._hooks_manager.attach_to_pid(self._input_process_id)
-        elif self._command_line:
-            logging.error("_start_debugging self._command_line=%s" % self._command_line)
-            command_as_string = " ".join(self._command_line)
-            self._root_pid = self._hooks_manager.attach_to_command(command_as_string, self._callback_process_creation)
-        else:
-            raise Exception("_start_debugging: command should not be None")
+    def _start_debugging_pid(self):
+        """This is executed in a Python thread which attaches to a running process."""
+        logging.debug("_start_debugging_pid")
+        assert self._input_process_id > 0
+        assert not self._command_line
+        logging.info("_start_debugging self._input_process_id=%d" % self._input_process_id)
+        self._hooks_manager.attach_to_pid(self._input_process_id)
 
+        # This signals the end of execution.
+        self.report_function_call(self._function_name_process_exit, 0)
+        # created_process.terminate()
+        # created_process.join()
+
+    def _start_debugging_cmd(self):
+        """This is executed in a Python thread which starts a command in a subprocess."""
+        assert self._input_process_id <= 0
+        logging.info("_start_debugging self._command_line=%s" % self._command_line)
+        command_as_string = " ".join(self._command_line)
+        self._root_pid = self._hooks_manager.attach_to_command(command_as_string, self._callback_process_creation)
+
+        # This signals the end of execution.
         self.report_function_call(self._function_name_process_exit, 0)
         # created_process.terminate()
         # created_process.join()
@@ -160,9 +169,10 @@ class Win32Tracer(TracerBase):
                 assert output_files_prefix[-1] != '.'
                 log_filename = output_files_prefix + ".log"
                 self._out_file_descriptor = open(log_filename, "w")
-                print("Creating log file:%s" % log_filename)
+                logging.info("Creating log file:%s" % log_filename)
 
             def get(self, block=True, timeout=None):
+                logging.info("get timeout:%s" % str(timeout))
                 next_function_call = self._log_stream.get(block, timeout)
                 assert isinstance(next_function_call, PseudoTraceLine)
                 # When replaying, each line is deserialized into a PseudoTraceLine.
@@ -172,16 +182,28 @@ class Win32Tracer(TracerBase):
         return TeeQueue()
 
     def create_logfile_stream(self, command_line, process_id):
-        print("Win32Tracer.create_logfile_stream")
-        print("Win32Tracer.create_logfile_stream command_line=", command_line)
-        print("Win32Tracer.create_logfile_stream process_id=", process_id)
+        """
+        This starts a a new process running a command, or attaches to a running process,
+        the returns the id of the process to debung, and a queue which receives all system function calls.
+        This is a virtual function which exists for tracer class, i.e. the objects yielding a queue
+        or a stream of the system calls of the debugged process.
+        This is not a very fast mechanism but is intended to monitor only a small set of key functions.
+
+        :param command_line: A command line to execute, or an empty list.
+        :param process_id: A process if, or a zero or negative number.
+        :return: Returns a tuple of the id of the running process, and a queue of the system function calls.
+        """
+        logging.info("create_logfile_stream command_line=%s process_id=%d" % (command_line, process_id))
+
         assert isinstance(command_line, list)
         assert isinstance(process_id, int)
         assert (command_line == []) ^ (process_id < 0)
-        logging.error("create_logfile_stream command_line=%s process_id=%d" % (command_line, process_id))
 
+        logging.info("Creating Win32Hook_Manager")
         self._hooks_manager = Win32Hook_Manager()
+        logging.info("Created Win32Hook_Manager")
         self._command_line = command_line
+        logging.info("Created Win32Hook_Manager self._command_line=%s" % str(self._command_line))
         self._queue = queue.Queue()
 
         self._input_process_id = process_id
@@ -189,26 +211,34 @@ class Win32Tracer(TracerBase):
             # It is possible to start the process in a Python thread and resume it in another,
             # because these are not real threads. It might be possible to do that
             # in different threads, but it is better not to take the risk.
-            logging.error("create_logfile_stream process will be started in thread")
-            ######### self._top_process_id = process_id * 100
-            self._debugging_thread = threading.Thread(target=self._start_debugging, args=())
+            logging.info("create_logfile_stream process will be started in thread")
+
+            self._debugging_thread = threading.Thread(target=self._start_debugging_cmd, args=())
             self._debugging_thread.start()
-            logging.error("Waiting for process id to be set")
+            logging.info("Waiting for process id to be set")
             process_start_timeout = 10.0
             first_function_call = self._queue.get(True, timeout=process_start_timeout)
             assert isinstance(first_function_call, PseudoTraceLine)
-            logging.error("first_function_call.m_core._function_name=%s" % first_function_call.m_core._function_name)
-            logging.error("self._function_name_process_start=%s" % self._function_name_process_start)
+            logging.info("first_function_call.m_core._function_name=%s" % first_function_call.m_core._function_name)
+            logging.info("self._function_name_process_start=%s" % self._function_name_process_start)
             assert first_function_call.m_core._function_name == self._function_name_process_start
             self._top_process_id = first_function_call.m_core.m_pid
         else:
+            logging.info("Process already set process_id=%d" % process_id)
             self._top_process_id = process_id
 
+            self._debugging_thread = threading.Thread(target=self._start_debugging_pid, args=())
+            self._debugging_thread.start()
+
+            # This does not specifically wait for the first function call because the process is already running.
+
+        logging.info("create_logfile_stream self._top_process_id=%d" % self._top_process_id)
         return self._top_process_id, self._queue
 
-    # Used when replaying a trace session. This returns an object, on which each read access
-    # return a conceptual function call, similar to what is returned when monitoring a process.
     def logfile_pathname_to_stream(self, input_log_file):
+        """Used when replaying a trace session. This returns an object, on which each read access
+        return a conceptual function call, similar to what is returned when monitoring a process.
+        """
         class ReplayStream:
             def __init__(self):
                 self._in_file_descriptor = open(input_log_file)
@@ -219,31 +249,34 @@ class Win32Tracer(TracerBase):
 
         return ReplayStream()
 
-    # This yields objects which model a function call.
     def create_flows_from_calls_stream(self, log_stream):
+        """This yields objects which model a function call."""
         # TODO: So why not simply returning self instead of the queue ?
-        logging.error("create_flows_from_calls_stream log_stream=%s" % log_stream.__class__.__name__)
+        logging.info("create_flows_from_calls_stream Starting")
 
-        queue_timeout = 10.0  # Seconds.
+        queue_timeout = 30.0  # Seconds.
 
         while True:
             try:
+                logging.debug("Waiting entering queue_timeout=%d" % queue_timeout)
                 # We could use the queue to signal the end of the loop.
                 pseudo_trace_line = log_stream.get(True, timeout=queue_timeout)
             except queue.Empty:
-                logging.info("Win32Tracer.create_flows_from_calls_stream timeout. Waiting.")
+                logging.warning("Waiting queue_timeout=%d" % queue_timeout)
                 continue
             #print("create_flows_from_calls_stream Function=", pseudo_trace_line.m_core._function_name)
             assert isinstance(pseudo_trace_line, PseudoTraceLine)
 
+            logging.warning("_function_name=%s" % pseudo_trace_line.m_core._function_name)
             if pseudo_trace_line.m_core._function_name == self._function_name_process_exit:
-                print("create_flows_from_calls_stream LEAVING")
+                logging.info("Exit detected")
                 return
 
             yield pseudo_trace_line
+        logging.info("Leaving")
 
     def report_function_call(self, function_name, task_id):
-        # This is called in the debugger context.
+        """This is called in the debugger context."""
         assert isinstance(function_name, six.binary_type)
         batch_core = PseudoTraceLine(task_id, function_name)
         self._queue.put(batch_core)
@@ -448,11 +481,12 @@ class Win32Hook_Manager(pydbg.pydbg):
         self._hook_api_functions_list(process_id)
         self.run()
 
-    # This receives a command line, starts the process in suspended mode,
-    # stores the desired breakpoints, in a map indexed by the DLL name, then resumes the process.
-    # When the DLLs are loaded, a callback sets their breakpoints. The callback is optional because of tests.
-    def attach_to_command(self, command_line, callback_process_creation = None):
-        logging.error("attach_to_command command_line=%s" % command_line)
+    def attach_to_command(self, command_line, callback_process_creation=None):
+        """This receives a command line, starts the process in suspended mode,
+        stores the desired breakpoints, in a map indexed by the DLL name, then resumes the process.
+        When the DLLs are loaded, a callback sets their breakpoints. The callback is optional because of tests.
+        """
+        logging.info("attach_to_command command_line=%s" % command_line)
 
         start_info = win32process.STARTUPINFO()
         start_info.dwFlags = win32con.STARTF_USESHOWWINDOW
@@ -507,10 +541,12 @@ def hook_metaclass(meta, *bases):
     return meta("CallsCounterMetaGenerator", bases, {})
 
 
-# Each derived class must have:
-# - The string api_definition="" which contains the signature of the Windows API
-#   function in Windows web site format.
 class Win32Hook_BaseClass(hook_metaclass(CallsCounterMeta)):
+    """
+    Each derived class must have:
+    - The string api_definition="" which contains the signature of the Windows API
+      function in Windows web site format.
+    """
 
     # The style tells if this is a native call or an aggregate of function
     # calls, made with some style: Factorization etc...
@@ -550,11 +586,13 @@ class Win32Hook_BaseClass(hook_metaclass(CallsCounterMeta)):
 
         return match_one.group(3).split(b",")
 
-    # The API signature is taken "as is" from Microsoft web site.
-    # There are many functions and copying their signature is error-prone.
-    # Therefore, one just needs to copy-paste the web site text.
     @classmethod
     def _parse_text_definition(cls):
+        """
+        The API signature is taken "as is" from Microsoft web site.
+        There are many functions and copying their signature is error-prone.
+        Therefore, one just needs to copy-paste the web site text.
+        """
         arguments_list = cls._split_into_return_arguments()
 
         cls.args_list = []
@@ -596,8 +634,8 @@ class Win32Hook_BaseClass(hook_metaclass(CallsCounterMeta)):
 
 ################################################################################
 
-# This is a base class for all functions which create a process.
 class Win32Hook_GenericProcessCreation(Win32Hook_BaseClass):
+    """This is a base class for all functions which create a process."""
 
     # API functions which create process have a specific behaviour:
     # - They set the process as suspended.
