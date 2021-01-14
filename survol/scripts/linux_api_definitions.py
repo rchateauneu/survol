@@ -37,6 +37,23 @@ else:
 
 ################################################################################
 
+# This is on the critical path and can be accelerated following this plan:
+# - Input log files for testing must have a Unix terminator.
+# - No conversion to UTF-8 when reading from strace/ltrace stderr, because its returns bytes by default.
+# - Parsed arguments and function names still in str as it is now.
+# - All derived classes of _create_flows_from_generic_linux_log are put in a separate modules,
+#   are unchanged, and see only str, just line now.
+#   These str-only classes must be seperated of bytes-aware functions like:
+#   parse_call_arguments, _init_after_pid, parse_line_to_object, _is_log_ending, _create_flows_from_generic_linux_log
+#   that is, all functions processing the strace/ltrace line and returning a BatchCore.
+# - All strings in BatchCore objects are str as they are now.
+# The goal is to process the input line in plain str, and benefit of Cython acceleration without much effort,
+# and few code changes.
+# The general idea is to reaceive a bytes object, and split in into individual str.
+# Using str is more convenient because of literals scattered in the code.
+# Possibly seperate "ltrace" and "strace".
+
+
 @cython.returns(tuple)
 @cython.locals(
     str_args=cython.basestring,
