@@ -725,6 +725,7 @@ def _strace_stream_to_pathname(strm_str):
     read ['3</usr/lib64/libc-2.21.so>']
     This returns a WMI object path, which is self-descriptive."""
 
+    assert isinstance(strm_str, str)
     # FIXME: Are file descriptors shared between processes ?
     idx_lt = strm_str.find("<")
     if idx_lt >= 0:
@@ -1837,8 +1838,12 @@ def _generate_linux_stream_from_command(linux_trace_command, process_id):
     # If shell=True, the command must be passed as a single line.
     kwargs = {"bufsize": 100000, "shell": False,
         "stdin": sys.stdin, "stdout": subprocess.PIPE, "stderr": subprocess.PIPE}
+
+    # subprocess returns bytes objects for stdout or stderr streams by default.
+    # With this parameters, it is str for Py2 and Py3.
     if cim_objects_definitions.is_py3:
         kwargs["encoding"] = "utf-8"
+
     object_popen = subprocess.Popen(command_as_list, **kwargs)
 
     # If shell argument is True, this is the process ID of the spawned shell.
