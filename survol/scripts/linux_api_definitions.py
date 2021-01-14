@@ -37,20 +37,10 @@ else:
 
 ################################################################################
 
-
 @cython.returns(tuple)
 @cython.locals(
     str_args=cython.basestring,
-    arg_clean=cython.basestring,
-    ix_start=cython.int,
-    ix_curr=cython.int,
-    ix_end=cython.int,
-    ix_unfinished=cython.int,
     len_str=cython.int,
-    level_parent=cython.int,
-    finished=cython.bint,
-    in_quotes=cython.bint,
-    is_escaped=cython.bint,
 )
 def parse_call_arguments(str_args, ix_start):
     """Parsing of the arguments of the systems calls printed by strace and ltrace.
@@ -59,8 +49,27 @@ def parse_call_arguments(str_args, ix_start):
 
     This is called for each line and is on the critical path.
     Therefore it can be compiled with Cython."""
-    len_str = len(str_args)
 
+    len_str = str_args.find("<unfinished ...>", ix_start)
+    if len_str < 0:
+        len_str = len(str_args)
+    return _parse_call_arguments_nolen(str_args, ix_start, len_str)
+
+
+@cython.returns(tuple)
+@cython.locals(
+    str_args=cython.basestring,
+    arg_clean=cython.basestring,
+    ix_start=cython.int,
+    ix_curr=cython.int,
+    ix_end=cython.int,
+    len_str=cython.int,
+    level_parent=cython.int,
+    finished=cython.bint,
+    in_quotes=cython.bint,
+    is_escaped=cython.bint,
+)
+def _parse_call_arguments_nolen(str_args, ix_start, len_str):
     the_result = []
     finished = False
     in_quotes = False
@@ -69,10 +78,6 @@ def parse_call_arguments(str_args, ix_start):
     while ix_start < len_str and str_args[ix_start] == ' ':
         ix_start += 1
     ix_curr = ix_start
-
-    ix_unfinished = str_args.find("<unfinished ...>", ix_start)
-    if ix_unfinished >= 0:
-        len_str = ix_unfinished
 
     while (ix_curr < len_str) and not finished:
 
@@ -101,7 +106,7 @@ def parse_call_arguments(str_args, ix_start):
         # This assumes that [] and {} are paired by strace so no need to check parity.
         if a_chr in '[{':
             if ix_curr == ix_start + 1:
-                obj_to_add, ix_start = parse_call_arguments(str_args, ix_curr)
+                obj_to_add, ix_start = _parse_call_arguments_nolen(str_args, ix_curr, len_str)
                 the_result.append(obj_to_add)
                 while ix_start < len_str and str_args[ix_start] in ' ,':
                     ix_start += 1
