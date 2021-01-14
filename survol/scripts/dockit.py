@@ -599,7 +599,6 @@ def _create_calls_stream(command_line, input_process_id, input_log_file, tracer)
 
     current_tracer = G_traceToTracer[tracer]
     if cim_objects_definitions.G_ReplayMode:
-        # calls_stream = open(input_log_file)
         calls_stream = current_tracer.logfile_pathname_to_stream(input_log_file)
         logging.info("File " + input_log_file)
         logging.info("Logfile %s pid=%s" % (input_log_file, input_process_id))
