@@ -56,10 +56,26 @@ def parse_call_arguments(str_args, ix_start):
     return _parse_call_arguments_nolen(str_args, ix_start, len_str)
 
 
+# https://docs.python.org/3/c-api/unicode.html
+# When dealing with single Unicode characters, use Py_UCS4.
+
+# This configuration works and the string is accessed with [] operator, but the input must be in bytes.
+# cython.p_char,
+# a_char=char
+
+# This configuration works but each character of the string is access with a function:
+# str_args=cython.basestring,
+# a_char=cython.Py_UCS4
+
+@cython.cfunc
 @cython.returns(tuple)
 @cython.locals(
+    #str_args=cython.p_char,
+    #str_args=cython.p_Py_UCS4,
+    #str_args=cython.p_char,
     str_args=cython.basestring,
     arg_clean=cython.basestring,
+    #arg_clean=cython.bytes,
     ix_start=cython.int,
     ix_curr=cython.int,
     ix_end=cython.int,
@@ -68,6 +84,7 @@ def parse_call_arguments(str_args, ix_start):
     finished=cython.bint,
     in_quotes=cython.bint,
     is_escaped=cython.bint,
+    a_char=cython.Py_UCS4,
 )
 def _parse_call_arguments_nolen(str_args, ix_start, len_str):
     the_result = []
@@ -2063,18 +2080,22 @@ class GenericTraceTracer:
             logging.info("Process %s\n" % process_id)
         return _generate_linux_stream_from_command(trace_command, process_id)
 
-    # Used when replaying a trace session. This returns an object, on which each read access
-    # return a conceptual function call, similar to what is returned when monitoring a process.
-    # For Linux, strace and ltrace returns one line for each function call.
-    # To replay these sessions, these lines are saved as is in a text file,
-    # which just needs to be open and read when replying a session.
     def logfile_pathname_to_stream(self, input_log_file):
+        """
+        Used when replaying a trace session. This returns an object, on which each read access
+        return a conceptual function call, similar to what is returned when monitoring a process.
+        For Linux, strace and ltrace returns one line for each function call.
+        To replay these sessions, these lines are saved as is in a text file,
+        which just needs to be open and read when replying a session.
+        """
         return open(input_log_file)
 
 
 class STraceTracer(GenericTraceTracer):
-    # The command options generate a specific output file format,
-    # and therefore parsing it is specific to these options.
+    """
+    The command options generate a specific output file format,
+    and therefore parsing it is specific to these options.
+    """
     def build_trace_command(self, external_command, a_pid):
         # -f  Trace  child  processes as a result of the fork, vfork and clone.
         trace_command = ["strace", "-q", "-qq", "-f", "-tt", "-T", "-s", G_StringSize]
