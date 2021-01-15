@@ -988,7 +988,7 @@ if __name__ == '__main__':
 
         temporary_files_prefix = unique_temporary_path(
             "test_python_%d_multiprocessing_flat",
-            ".txt_" % os.getpid())
+            ".txt_%d" % os.getpid())
 
         loops_number = 10
 
