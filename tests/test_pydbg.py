@@ -525,7 +525,8 @@ class PythonHooksTest(unittest.TestCase):
     def test_Python_CreateFile(self):
         tst_pydbg = pydbg.pydbg()
 
-        temp_file_name = "test_pydbg_tmp_create_%d_%d" % (CurrentPid, int(time.time()))
+        temp_file_name = unique_temporary_path("test_pydbg_tmp_create_%d_%d" % (CurrentPid, int(time.time())), ".txt")
+
         # The file is an Unicode string, to enforce CreateFileW() in Python 2.
         python_command = 'import time;time.sleep(2.0);f=open(u"%s", "w");f.close()' % temp_file_name
         creation_file_process = subprocess.Popen(
@@ -650,7 +651,7 @@ class PythonHooksTest(unittest.TestCase):
         """A Python process creates then removes a directory."""
         tst_pydbg = pydbg.pydbg()
 
-        temp_path = unique_temporary_path("test_tmp_directory", ".tmp")
+        temp_path = unique_temporary_path("test_tmp_directory", ".dir")
 
         python_command = "import time;import os;time.sleep(2.0);dn=r'%s';os.mkdir(dn);os.rmdir(dn)" % temp_path
         print("python_command=", python_command)
@@ -763,8 +764,11 @@ class PythonHooksTest(unittest.TestCase):
 
         python_command = 'print("Hello");import time;time.sleep(2.0)'
         process_command = [sys.executable, '-c', python_command]
-        print_shell_process = subprocess.Popen(process_command,
-                                                stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
+        print_shell_process = subprocess.Popen(
+            process_command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=True)
 
         # A bit of delay so the process can start.
         time.sleep(0.5)
@@ -810,7 +814,7 @@ class PythonHooksTest(unittest.TestCase):
         server_port = 80
 
         # A subprocess is about to loop on a socket connection to a remote machine.
-        temporary_python_file = tempfile.NamedTemporaryFile(suffix='.py', mode='w', delete=False)
+        temporary_python_file_name = unique_temporary_path("test_Python_connect", ".py")
         script_content = """
 import socket
 import time
@@ -823,14 +827,14 @@ for counter in range(3):
     s.close()
     time.sleep(2.0)
 """ % (server_domain, server_port)
-        temporary_python_file.write(script_content)
-        temporary_python_file.close()
+        with open(temporary_python_file_name, "w") as temporary_python_file_fd:
+            temporary_python_file_fd.write(script_content)
 
         tst_pydbg = pydbg.pydbg()
 
         url_process = subprocess.Popen(
-            [sys.executable, temporary_python_file.name],
-            stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = False)
+            [sys.executable, temporary_python_file_name],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
 
         # A bit of delay so the process can start before attaching to it.
         time.sleep(0.5)
@@ -878,7 +882,7 @@ for counter in range(3):
             s_addr_memory = object_pydbg.read_process_memory(sockaddr_address + 4, 4)
             s_addr_integer = struct.unpack(">I", s_addr_memory)[0]
 
-            Context.s_addr ="%d.%d.%d.%d" % (
+            Context.s_addr = "%d.%d.%d.%d" % (
                 (s_addr_integer & 0xFF000000)/0x1000000,
                 (s_addr_integer & 0x00FF0000)/0x10000,
                 (s_addr_integer & 0x0000FF00)/0x100,
@@ -897,7 +901,7 @@ for counter in range(3):
         object_hooks.add(tst_pydbg, hook_connect, 3, callback_in_connect, callback_out_connect)
 
         tst_pydbg.run()
-        os.remove(temporary_python_file.name)
+        os.remove(temporary_python_file_name)
         url_process.terminate()
 
         self.assertTrue(Context.sin_family == defines.AF_INET)
@@ -920,8 +924,9 @@ class Pywin32HooksTest(unittest.TestCase):
 
         temp_data_file_path = unique_temporary_path("test_win32_process_basic", ".txt")
 
-        temp_python_name = "test_win32_process_basic_%d_%d.py" % (CurrentPid, int(time.time()))
-        temp_python_path = os.path.join(tempfile.gettempdir(), temp_python_name)
+        temp_python_basename = "test_win32_process_basic_%d_%d" % (CurrentPid, int(time.time()))
+        temp_python_path = unique_temporary_path(temp_python_basename, ".py")
+
         result_message = "Hello_%d" % CurrentPid
         script_content = "open(r'%s', 'w').write('%s')" % (temp_data_file_path, result_message)
         with open(temp_python_path, "w") as temp_python_file:
