@@ -19,8 +19,8 @@ pytest_skip_pydbg = unittest.skipIf(not is_pydbg_available, "pydbg must be avail
 if is_pydbg_available:
     from survol.scripts import win32_api_definitions
 
-    # This counts the system function calls, and the creation of objects such as files, processes etc...
     class TracerForTests(win32_api_definitions.TracerBase):
+        """This counts the system function calls, and the creation of objects such as files, processes etc..."""
         def __init__(self):
             # The key is a process id, and the subkey a function name.
             self.calls_counter = collections.defaultdict(lambda:collections.defaultdict(lambda: 0))
@@ -179,8 +179,11 @@ class PydbgAttachTest(HooksManagerUtil):
         self.assertEqual(len(win32_api_definitions.tracer_object.created_objects['CIM_Process']), num_loops)
 
     @unittest.skipIf(is_windows10, "FIXME: Does not work on Windows 10. WHY ?")
-    def test_attach_pid_python_loop(self):
-        temp_file_name = "test_pydbg_tmp_create_%d_%d" % (CurrentPid, int(time.time()))
+    def test_attach_python_open_file(self):
+        temp_base_name = "test_attach_python_open_file_%d_%d" % (CurrentPid, int(time.time()))
+
+        temp_file_name = unique_temporary_path(temp_base_name, ".tmp")
+
         print("temp_file_name=", temp_file_name)
         # The file is an Unicode string, to enforce CreateFileW() in Python 2.
         python_command = 'import time;x=[(time.sleep(1),open(u"%s", "w").close()) for i in range(5)]' % temp_file_name
@@ -209,6 +212,52 @@ class PydbgAttachTest(HooksManagerUtil):
 
         unique_filename = list(set([one_object['Name'] for one_object in created_files]))
         self.assertEqual(unique_filename, [temp_file_name])
+
+    def test_attach_python_mkdir(self):
+        temp_base_name = "test_attach_python_mkdir_%d_%d" % (CurrentPid, int(time.time()))
+        temp_directory_name = unique_temporary_path(temp_base_name, ".dir")
+
+        temporary_python_file_name = unique_temporary_path("test_attach_python_mkdir", ".py")
+
+        script_content = """
+import os
+import time
+for counter in range(5):
+    dn = r'%s';
+    os.mkdir(dn);
+    os.rmdir(dn)
+    time.sleep(1.0)
+""" % temp_directory_name
+
+        with open(temporary_python_file_name, "w") as temporary_python_file_fd:
+            temporary_python_file_fd.write(script_content)
+
+        print("temporary_python_file_name=", temporary_python_file_name)
+        print("temp_directory_name=", temp_directory_name)
+
+        created_process = subprocess.Popen(
+            [sys.executable, temporary_python_file_name],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+
+        # Waits a bit until the process is correctly started.
+        time.sleep(1.0)
+
+        # Attach to the process.
+        self.hooks_manager.attach_to_pid(created_process.pid)
+
+        # It returns when the process finishes.
+
+        print("Created objects:", win32_api_definitions.tracer_object.created_objects)
+
+        # If this kind of operation is executed in dockit, the pathname is added
+        # in the context of the current working directory of the process.
+        # In this test, the method TracerForTests.report_object_creation() just stores the file name
+        # as detcted in the function call.
+        created_directories = win32_api_definitions.tracer_object.created_objects['CIM_Directory']
+        print("Created directories:", created_directories)
+
+        unique_dir_name = list(set([one_object['Name'] for one_object in created_directories]))
+        self.assertEqual(unique_dir_name, [temp_directory_name])
 
 
 
@@ -275,9 +324,16 @@ class DOSCommandsTest(HooksManagerUtil):
     def test_cmd_delete_file(self):
         num_loops = 3
 
-        # This is not standard but plain MSDOS syntax, otherwise the command would not work.
+        # This is not standard, and intentionaly does not use, because the file name needs MSDOS syntax,
+        # with backslashes, otherwise the command would not work.
         temp_path = os.path.join(tempfile.gettempdir(), "test_basic_delete_file.txt")
-        delete_file_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 1 127.0.0.1 > %s &del %s)" % (num_loops, temp_path, temp_path)
+
+        delete_file_command = \
+            windows_system32_cmd_exe + \
+            " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 1 127.0.0.1 > %s &del %s)" \
+            % (num_loops, temp_path, temp_path)
+
+        # Now, it can be standardized, with backslahes replaced by slashes.
         temp_path = lib_util.standardized_file_path(temp_path)
 
         dwProcessId = self.hooks_manager.attach_to_command(delete_file_command)
@@ -306,7 +362,9 @@ class DOSCommandsTest(HooksManagerUtil):
     @unittest.skip("TEMP")
     def test_cmd_ping_type(self):
         num_loops = 5
-        dir_command = windows_system32_cmd_exe + " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 1 1.2.3.4 & type something.xyz )" % num_loops
+        dir_command = \
+            windows_system32_cmd_exe + \
+            " /c "+ "FOR /L %%A IN (1,1,%d) DO ( ping -n 1 1.2.3.4 & type something.xyz )" % num_loops
 
         dwProcessId = self.hooks_manager.attach_to_command(dir_command)
 
@@ -351,6 +409,8 @@ class DOSCommandsTest(HooksManagerUtil):
         # This is not standard but plain MSDOS syntax, otherwise the command would not work.
         temp_path = os.path.join(tempfile.gettempdir(), "test_basic_delete_file.txt")
         dir_mk_rm_command = windows_system32_cmd_exe + " /c "+ "mkdir %s&rmdir %s" % (temp_path, temp_path)
+
+        # Now replace backslahes by slashes.
         temp_path = lib_util.standardized_file_path(temp_path)
 
         dwProcessId = self.hooks_manager.attach_to_command(dir_mk_rm_command)
@@ -926,9 +986,9 @@ if __name__ == '__main__':
         class_create_process._debug_counter_before = 0
         class_create_process._debug_counter_after = 0
 
-        temporary_files_prefix = os.path.join(tempfile.gettempdir(), "test_python_%d_multiprocessing_flat.txt_" % os.getpid())
-        # Python does not like backslashes.
-        temporary_files_prefix = lib_util.standardized_file_path(temporary_files_prefix)
+        temporary_files_prefix = unique_temporary_path(
+            "test_python_%d_multiprocessing_flat",
+            ".txt_" % os.getpid())
 
         loops_number = 10
 
