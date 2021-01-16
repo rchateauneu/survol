@@ -126,7 +126,7 @@ try:
     from survol import lib_sql
 except ImportError:
     # Do not write error message to stdout.
-    sys.stderr.write("Cannot import optional module lib_sql\n")
+    logging.warning("Cannot import optional module lib_sql")
     lib_sql = None
 
 if __package__:
