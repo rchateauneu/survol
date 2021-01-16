@@ -11,9 +11,12 @@ import six
 import os
 import re
 import psutil
+import logging
 
 from six.moves import builtins
 from sources_types import CIM_Process
+
+import lib_util
 
 is_py3 = sys.version_info >= (3,)
 
@@ -229,7 +232,6 @@ def ConcatRegexes(theClass):
 class MemoryProcessorStructs:
     # We can have: re_flags=re.IGNORECASE
     def __init__(self, is64Bits, lstStructs, re_flags):
-        from six.moves import builtins
         builtins.CTYPES_POINTER_TARGET_64 = is64Bits
 
         class DefStruct:
@@ -830,96 +832,93 @@ def CTypesStructToDict(struct):
 
 def GetRegexMatches(pidint, the_regex, re_flags=0):
     """This returns all the strings matching the regular expression."""
-    import lib_util
-    import logging
-    lib_util.gblLogger.setLevel(logging.DEBUG)
     mem_proc_functor = MemMachine( pidint, the_regex,re_flags)
-    print("pages_count=", mem_proc_functor.pages_count)
-    print("bytes_count=", mem_proc_functor.bytes_count)
-    print("error_count=", mem_proc_functor.error_count)
+    logging.debug("pages_count=%d" % mem_proc_functor.pages_count)
+    logging.debug("bytes_count=%d" % mem_proc_functor.bytes_count)
+    logging.debug("error_count=%d" % mem_proc_functor.error_count)
     return mem_proc_functor.m_matches
 
 ################################################################################
 
 
-def ProcessMemoryScan(pidint, lstStructs, maxDisplay, verbose):
+def _process_memory_scan(pidint, lst_structs, max_display, verbose):
     if verbose:
-        _process_memory_scan_verbose(pidint, lstStructs, maxDisplay)
+        _process_memory_scan_verbose(pidint, lst_structs, max_display)
     else:
-        _process_memory_scan_non_verbose(pidint, lstStructs, maxDisplay)
+        _process_memory_scan_non_verbose(pidint, lst_structs, max_display)
 
 
-def _process_memory_scan_non_verbose(pidint, lstStructs, maxDisplay, re_flags=0):
-    mem_proc_functor = MemMachine(pidint, lstStructs, re_flags)
-    byStruct = mem_proc_functor.m_byStruct
+def _process_memory_scan_non_verbose(pidint, lst_structs, max_display, re_flags=0):
+    mem_proc_functor = MemMachine(pidint, lst_structs, re_flags)
+    by_struct = mem_proc_functor.m_byStruct
 
-    dictByStructs = dict()
+    dict_by_structs = dict()
 
-    # sys.stderr.write("Keys number:%d\n" % len(byStruct))
-    for keyStr in byStruct:
-        structDefinition = byStruct[keyStr]
-        objsSet = structDefinition.m_foundStructs
-        DEBUG("%0.60s : %d occurences before validation", keyStr, len(objsSet))
+    # sys.stderr.write("Keys number:%d\n" % len(by_struct))
+    for key_str in by_struct:
+        struct_definition = by_struct[key_str]
+        objs_set = struct_definition.m_foundStructs
+        DEBUG("%0.60s : %d occurences before validation", key_str, len(objs_set))
 
-        maxCnt = maxDisplay
+        max_cnt = max_display
 
         # Sorted by address.
-        dictByAddrs = dict()
-        for addrObj in sorted(objsSet):
+        dict_by_addrs = dict()
+        for addr_obj in sorted(objs_set):
             # In case of too many data.
-            maxCnt -= 1
-            if maxCnt == 0:
+            max_cnt -= 1
+            if max_cnt == 0:
                 break
 
-            anObj = objsSet[addrObj]
+            an_obj = objs_set[addr_obj]
 
-            objDict = CTypesStructToDict(anObj)
+            obj_dict = CTypesStructToDict(an_obj)
 
             # TODO: Should be done before creating the object.
-            if structDefinition.ValidDict(objDict):
-                dictByAddrs[addrObj] = objDict
-        dictByStructs[keyStr] = dictByAddrs
+            if struct_definition.ValidDict(obj_dict):
+                dict_by_addrs[addr_obj] = obj_dict
+        dict_by_structs[key_str] = dict_by_addrs
 
-    DEBUG(str(dictByStructs))
+    DEBUG(str(dict_by_structs))
 
 
-def _process_memory_scan_verbose(pidint, lstStructs, maxDisplay, re_flags=0):
-    mem_proc_functor = MemMachine(pidint, lstStructs, re_flags)
-    byStruct = mem_proc_functor.m_byStruct
+def _process_memory_scan_verbose(pidint, lst_structs, max_display, re_flags=0):
+    mem_proc_functor = MemMachine(pidint, lst_structs, re_flags)
+    by_struct = mem_proc_functor.m_byStruct
 
-    # print("Keys number:%d" % len(byStruct) )
-    for keyStr in byStruct:
-        structDefinition = byStruct[keyStr]
-        objsSet = structDefinition.m_foundStructs
-        print("%0.60s : %d occurences before validation" % (keyStr, len(objsSet)))
+    # print("Keys number:%d" % len(by_struct) )
+    for key_str in by_struct:
+        struct_definition = by_struct[key_str]
+        objs_set = struct_definition.m_foundStructs
+        print("%0.60s : %d occurences before validation" % (key_str, len(objs_set)))
 
-        maxCnt = maxDisplay
+        max_cnt = max_display
 
         # Sorted by address.
-        for addrObj in sorted(objsSet):
+        for addr_obj in sorted(objs_set):
             # In case of too many data.
-            maxCnt -= 1
-            if maxCnt == 0:
+            max_cnt -= 1
+            if max_cnt == 0:
                 break
 
-            anObj = objsSet[addrObj]
+            an_obj = objs_set[addr_obj]
 
-            def PrintDict(margin, ddd):
+            def print_dict(margin, ddd):
                 for k in ddd:
                     v = ddd[k]
                     if isinstance(v, dict):
                         print("%s %-20s:" % (margin, k))
-                        PrintDict(margin+"      ", v)
+                        print_dict(margin+"      ", v)
                     else:
                         print("%s %-20s: %-60s" % (margin, k , v))
 
-            objDict = CTypesStructToDict(anObj)
+            obj_dict = CTypesStructToDict(an_obj)
 
             # TODO: Should be done before creating the object.
-            if structDefinition.ValidDict(objDict):
+            if struct_definition.ValidDict(obj_dict):
                 # print("Valid")
-                print("Address:%0.16X" % addrObj)
-                PrintDict("      ", objDict)
+                print("Address:%0.16X" % addr_obj)
+                print_dict("      ", obj_dict)
 
 ################################################################################
 
@@ -935,12 +934,12 @@ def DoAll(lstStructs, verbose=True):
     # python -m cProfile mmapregex.py
     if len(sys.argv) > 2:
         pidint = int(sys.argv[1])
-        ProcessMemoryScan(pidint, lstStructs, maxDisplay, verbose)
+        _process_memory_scan(pidint, lstStructs, maxDisplay, verbose)
     else:
         for i in psutil.process_iter():
             print("Pid=%d name=%s" % (i.pid, i.name()))
             try:
-                ProcessMemoryScan(i.pid, lstStructs, maxDisplay, verbose)
+                _process_memory_scan(i.pid, lstStructs, maxDisplay, verbose)
                 print("")
             except Exception:
                 t, e = sys.exc_info()[:2]
