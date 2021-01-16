@@ -32,6 +32,7 @@ import six
 import copy
 import signal
 import struct
+import logging
 try:
     import pydasm
 except ImportError:
@@ -257,6 +258,7 @@ class pydbg(object):
 
         found = None
 
+        logging.debug("address=%s" % str(address))
         for module in self.iterate_modules():
             if module.modBaseAddr < address < module.modBaseAddr + module.modBaseSize:
                 # we have to make a copy of the 'module' since it is an iterator and will be blown away.
@@ -265,6 +267,7 @@ class pydbg(object):
                 # so there...
                 found = copy.copy(module)
 
+        logging.debug("found=%s" % str(found))
         return found
 
 
@@ -942,10 +945,10 @@ class pydbg(object):
 
     ####################################################################################################################
 
-    def debug_event_iteration (self, loop_delay = 10000):
-        '''
+    def debug_event_iteration (self, loop_delay=10000):
+        """
         Check for and process a debug event.
-        '''
+        """
 
         continue_status = DBG_CONTINUE
         dbg             = DEBUG_EVENT()
@@ -985,9 +988,12 @@ class pydbg(object):
 
         #self._log("debug_event_iteration before WaitForDebugEvent")
         # wait for a debug event.
+        logging.debug("loop_delay=%f" % loop_delay)
+        logging.debug("self.pid=%d" % self.pid)
         if kernel32.WaitForDebugEvent(byref(dbg), loop_delay):
             self.debug_counter_WaitForDebugEvent += 1
 
+            logging.debug("dbg.dwProcessId=%d" % dbg.dwProcessId)
             if dbg.dwProcessId != self.pid:
                 self.switch_to_process(dbg.dwProcessId, debug_code_to_message(dbg.dwDebugEventCode))
 
@@ -1019,6 +1025,7 @@ class pydbg(object):
 
             elif dbg.dwDebugEventCode == LOAD_DLL_DEBUG_EVENT:
                 print("debug_event_iteration LOAD_DLL_DEBUG_EVENT dwProcessId=", dbg.dwProcessId, "dwThreadId=%d" % dbg.dwThreadId)
+                logging.info("LOAD_DLL_DEBUG_EVENT dwProcessId=%d dwThreadId=%d" % (dbg.dwProcessId, dbg.dwThreadId))
                 continue_status = self.event_handler_load_dll()
 
             elif dbg.dwDebugEventCode == UNLOAD_DLL_DEBUG_EVENT:
@@ -1078,6 +1085,7 @@ class pydbg(object):
 
         else:
             self._log("WaitForDebugEvent delay=%d ms" % loop_delay)
+            logging.debug("WaitForDebugEvent time-out delay=%d ms" % loop_delay)
             raise pdx("WaitForDebugEvent", True)
             # "The semaphore timeout period has expired."
             # self.win32_error("WaitForDebugEvent")
@@ -1121,6 +1129,7 @@ class pydbg(object):
             except:
                 exc = sys.exc_info()[0]
                 sys.stderr.write("debug_event_loop In loop on debugger_active: Caught:%s\n" % exc)
+                logging.error("Caught:%s" % exc)
                 raise
 
             # self._log("debug_event_loop Returning from debug_event_iteration")
@@ -1632,7 +1641,7 @@ class pydbg(object):
         @raise pdx: An exception is raised to denote process exit.
         '''
 
-		# Debugging stops only if the root process leaves. Otherwise, do on debugging.
+        # Debugging stops only if the root process leaves. Otherwise, do on debugging.
         if self.pid == self.root_pid:
             self.set_debugger_active(False)
 
@@ -2056,9 +2065,8 @@ class pydbg(object):
         self._log("func_resolve_debuggee func_name=%s module not found dll_name=%s" % (func_name, dll_name))
         return 0
 
-
     def canonic_dll_name(self, dll_name):
-        assert isinstance(dll_name, six.binary_type )
+        assert isinstance(dll_name, six.binary_type)
         dll_name = os.path.basename(dll_name)
         dll_name = dll_name.lower()
 
@@ -2078,6 +2086,15 @@ class pydbg(object):
                 base_address = int(cast(module.modBaseAddr, ctypes.c_void_p).value)
                 return base_address
         return 0
+
+    def get_base_address_dict(self):
+        logging.debug("get_base_address_dict")
+        base_address_dict = {}
+        for module in self.iterate_modules():
+            base_address = int(cast(module.modBaseAddr, ctypes.c_void_p).value)
+            base_address_dict[module.szModule.lower()] = base_address
+        logging.debug("get_base_address_dict %d elements" % len(base_address_dict))
+        return base_address_dict
 
 ####################################################################################################################
 
