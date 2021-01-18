@@ -564,6 +564,7 @@ def _create_calls_stream(command_line, input_process_id, input_log_file, tracer)
     global G_Hostname
     global G_OSType
 
+    logging.info("command_line=%s input_process_id=%d" % (command_line, input_process_id))
     # A command or a pid or an input log file, only one possibility.
     # A non-defined command is an empty list.
     assert isinstance(command_line, list)
@@ -852,6 +853,7 @@ def test_from_file(
 
 
 def start_processing(global_parameters):
+    logging.info("Creating calls_stream")
     calls_stream = _create_calls_stream(
         global_parameters.command_line,
         global_parameters.input_process_id,
@@ -859,7 +861,6 @@ def start_processing(global_parameters):
         global_parameters.tracer)
 
     logging.info("start_processing")
-
     assert cim_objects_definitions.G_topProcessId >= 0
 
     if global_parameters.duplicate_input_log:
@@ -912,6 +913,7 @@ def dockit_entry_point():
         aggregator = None
         duplicate_input_log = False
 
+    logging.info("Startup")
     try:
         command_options, G_parameters.command_line = getopt.getopt(sys.argv[1:],
                 "hvws:DM:p:f:F:i:l:t:S:a:d",
