@@ -1009,7 +1009,8 @@ class pydbg(object):
 
             # self._log("debug_event_iteration dbg.dwDebugEventCode=%d" % dbg.dwDebugEventCode)
             if dbg.dwDebugEventCode == CREATE_PROCESS_DEBUG_EVENT:
-                print("debug_event_iteration CREATE_PROCESS_DEBUG_EVENT self.pid=", self.pid, "dwProcessId=", dbg.dwProcessId)
+                self._log("debug_event_iteration CREATE_PROCESS_DEBUG_EVENT self.pid=%d dwProcessId=%d" \
+                          % (self.pid, dbg.dwProcessId))
                 continue_status = self.event_handler_create_process()
             elif dbg.dwDebugEventCode == CREATE_THREAD_DEBUG_EVENT:
                 self._log("debug_event_iteration CREATE_THREAD_DEBUG_EVENT dwThreadId=%d" % dbg.dwThreadId)
@@ -1024,7 +1025,7 @@ class pydbg(object):
                 continue_status = self.event_handler_exit_thread()
 
             elif dbg.dwDebugEventCode == LOAD_DLL_DEBUG_EVENT:
-                print("debug_event_iteration LOAD_DLL_DEBUG_EVENT dwProcessId=", dbg.dwProcessId, "dwThreadId=%d" % dbg.dwThreadId)
+                self._log("LOAD_DLL_DEBUG_EVENT dwProcessId=%d dwThreadId=%d" % (dbg.dwProcessId, dbg.dwThreadId))
                 logging.info("LOAD_DLL_DEBUG_EVENT dwProcessId=%d dwThreadId=%d" % (dbg.dwProcessId, dbg.dwThreadId))
                 continue_status = self.event_handler_load_dll()
 
@@ -1103,6 +1104,7 @@ class pydbg(object):
         debuggee quiting.
         '''
 
+        self._log("debug_event_loop entering. self.debugger_active=%d" % self.debugger_active)
         while self.debugger_active:
             #self._log("debug_event_loop In loop on debugger_active")
             # don't let the user interrupt us in the midst of handling a debug event.
@@ -1128,7 +1130,7 @@ class pydbg(object):
                 self.debug_event_iteration()
             except:
                 exc = sys.exc_info()[0]
-                sys.stderr.write("debug_event_loop In loop on debugger_active: Caught:%s\n" % exc)
+                self._log("debug_event_loop In loop on debugger_active: Caught:%s" % exc)
                 logging.error("Caught:%s" % exc)
                 raise
 
@@ -1642,12 +1644,16 @@ class pydbg(object):
         '''
 
         # Debugging stops only if the root process leaves. Otherwise, do on debugging.
+        self._log("event_handler_exit_process self.pid=%d self.root_pid=%d" % (self.pid, self.root_pid))
         if self.pid == self.root_pid:
+            self._log("event_handler_exit_process debugger now inactive")
             self.set_debugger_active(False)
 
         if EXIT_PROCESS_DEBUG_EVENT in self.callbacks:
+            self._log("event_handler_exit_process calling handler")
             return self.callbacks[EXIT_PROCESS_DEBUG_EVENT](self)
         else:
+            self._log("event_handler_exit_process no handler")
             return DBG_CONTINUE
 
 
