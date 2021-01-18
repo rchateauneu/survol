@@ -19,6 +19,7 @@ import cgi
 import os
 import re
 import time
+import logging
 import rdflib
 
 import lib_kbase
@@ -283,6 +284,7 @@ class CgiEnv():
         # TODO: At the moment, the mode cannot be changed.
 
         #sys.stderr.write("__init__\n")
+        #logging.getLogger().setLevel(logging.DEBUG)
 
         lib_command_line.command_line_to_cgi_args()
         assert "QUERY_STRING" in os.environ
@@ -297,6 +299,7 @@ class CgiEnv():
         # TODO: Replace by "xid=http:%2F%2F192.168.1.83:5988/."
 
         mode = lib_util.GuessDisplayMode()
+        logging.debug("mode=%s" % mode)
 
         # Contains the optional arguments of the script, entered as CGI arguments..
         self.m_parameters = parameters if parameters else {}
