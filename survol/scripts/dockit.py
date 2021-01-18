@@ -851,7 +851,7 @@ def test_from_file(
     return output_summary_file
 
 
-def _start_processing(global_parameters):
+def start_processing(global_parameters):
     calls_stream = _create_calls_stream(
         global_parameters.command_line,
         global_parameters.input_process_id,
@@ -973,7 +973,7 @@ def dockit_entry_point():
     # For Linux, default value is "strace".
     G_parameters.tracer = default_tracer(G_parameters.input_log_file, G_parameters.tracer)
 
-    _start_processing(G_parameters)
+    start_processing(G_parameters)
 
     #logging.error("cim_objects_definitions.G_ReplayMode=%s" % cim_objects_definitions.G_ReplayMode)
     #print("cim_objects_definitions.G_ReplayMode=", cim_objects_definitions.G_ReplayMode)
