@@ -5,6 +5,7 @@ This expects that the daemon factory, i.e. the supervisor, is running.
 
 import os
 import sys
+import logging
 from scripts import daemon_factory
 
 # BEWARE: This CANNOT import lib_common, otherwise circular reference.
@@ -103,13 +104,12 @@ def start_events_generator_daemon(script_url):
     parsed_url = lib_util.survol_urlparse(script_url)
 
     split_path = parsed_url.path.split("/")
-    sys.stderr.write("split_path=%s\n" % str(split_path))
+    logging.debug("split_path=%s" % str(split_path))
     # All scripts returning data are in this directory or subdirs. It should not fail.
     index_sources = split_path.index("sources_types")
-    sys.stderr.write("__file__=%s\n" % str(__file__))
     script_dir = os.path.dirname(__file__)
     script_relative_path = os.path.join(script_dir, *split_path[index_sources:])
-    sys.stderr.write("script_relative_path=%s\n" % str(script_relative_path))
+    logging.debug("script_relative_path=%s" % str(script_relative_path))
     assert script_relative_path.endswith(".py")
     assert os.path.isfile(script_relative_path)
 
@@ -156,8 +156,8 @@ def start_events_generator_daemon(script_url):
     if "PYTEST_CURRENT_TEST" in os.environ:
         environment_parameter += ',PYTEST_CURRENT_TEST="%s"' % os.environ["PYTEST_CURRENT_TEST"]
 
-    sys.stderr.write("python_command=%s\n" % python_command)
-    sys.stderr.write("environment_parameter=%s\n" % environment_parameter)
+    logging.debug("python_command=%s" % python_command)
+    logging.debug("environment_parameter=%s" % environment_parameter)
 
     created_process_id = daemon_factory.start_user_process(process_name, python_command, environment_parameter)
     return created_process_id
@@ -165,26 +165,26 @@ def start_events_generator_daemon(script_url):
 
 def is_events_generator_daemon_running(script_url):
     process_name = _url_to_process_name(script_url)
-    sys.stderr.write("is_events_generator_daemon_running process_name=%s\n" % process_name)
+    logging.debug("is_events_generator_daemon_running process_name=%s" % process_name)
     supervisor_pid = daemon_factory.is_user_process_running(process_name)
     return supervisor_pid
 
 
 def get_events_generator_stdout(script_url):
     process_name = _url_to_process_name(script_url)
-    sys.stderr.write("get_events_generator_stdout process_name=%s\n" % process_name)
+    logging.debug("get_events_generator_stdout process_name=%s" % process_name)
     return daemon_factory.get_user_process_stdout(process_name)
 
 
 def get_events_generator_stderr(script_url):
     process_name = _url_to_process_name(script_url)
-    sys.stderr.write("get_events_generator_stderr process_name=%s\n" % process_name)
+    logging.debug("get_events_generator_stderr process_name=%s" % process_name)
     return daemon_factory.get_user_process_stderr(process_name)
 
 
 def stop_events_generator_daemon(script_url):
     process_name = _url_to_process_name(script_url)
-    sys.stderr.write("stop_events_generator_daemon process_name=%s\n" % process_name)
+    logging.debug("stop_events_generator_daemon process_name=%s" % process_name)
     return daemon_factory.stop_user_process(process_name)
 
 
