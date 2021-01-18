@@ -18,6 +18,7 @@ import tempfile
 import subprocess
 import multiprocessing
 
+# The logging level is set in pytest.ini
 
 def update_test_path():
     """This loads the module from the source, so no need to install it, and no need of virtualenv."""
@@ -145,6 +146,7 @@ def is_pytest():
 
 
 def check_program_exists(program_name):
+    """This checks that an executable is in the current path and can be started without error."""
     if is_platform_windows:
         test_command = ["where", program_name]
     elif is_platform_linux:
@@ -158,6 +160,7 @@ def check_program_exists(program_name):
     return test_stdout_output.strip()
 
 
+# This sets the domain name on Windows. It is a bit clunky.
 # Problem on Travis: Domain = 'PACKER-5D93E860', machine='packer-5d93e860-43ba-c2e7-85d2-3ea0696b8fc8'
 if is_platform_windows:
     if is_travis_machine():
@@ -189,6 +192,10 @@ def has_wbem():
 
 
 def unique_temporary_path(prefix, extension):
+    """
+    "It is a wrapper around temporary file creation, and ensures that the resulting filename
+    can be used everywhere in Survol library.
+    """
     temp_file = "%s_%d_%d%s" % (prefix, CurrentPid, int(time.time()), extension)
 
     # This is done in two stages because the case of the file is OK, but not the directory.
