@@ -80,7 +80,7 @@ def SendEvents():
         duplicate_input_log = False
         output_makefile = None
 
-    dockit._start_processing(DockitParameters)
+    dockit.start_processing(DockitParameters)
 
 
 def Main():
