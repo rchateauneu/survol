@@ -51,6 +51,7 @@ class LibWmiTest(unittest.TestCase):
             if "Win32_Process" in property_dict["predicate_domain"]:
                 print("property_dict=", property_dict)
 
+    # TODO: DEPRECATED
     def test_sparql_callback_select(self):
         # TODO: Beware, this can be incredibly very slow depending on the properties.
         callback_object = lib_wmi.WmiSparqlCallbackApi()
@@ -95,6 +96,7 @@ class LibWmiTest(unittest.TestCase):
         self.assertTrue(GetElementAsString(one_dict, 'OSCreationClassName') == 'Win32_OperatingSystem')
         self.assertTrue(GetElementAsString(one_dict, 'Caption') == 'python.exe')
 
+    # TODO: DEPRECATED
     # ASSOCIATORS OF {CIM_Process.Handle=32360} WHERE AssocClass=CIM_ProcessExecutable ResultClass=CIM_DataFile
     def test_sparql_callback_associator_process(self):
         callback_object = lib_wmi.WmiSparqlCallbackApi()
@@ -139,6 +141,7 @@ class LibWmiTest(unittest.TestCase):
                 found_kernel32_dll = GetElementAsString(dict_key_values, 'Name').lower().endswith("kernel32.dll")
         self.assertTrue(found_kernel32_dll)
 
+    # TODO: DEPRECATED
     # ASSOCIATORS OF {Win32_LogicalDisk.DeviceID="C:"} WHERE AssocClass = Win32_SystemDevices
     def test_sparql_callback_associator_logical_disk(self):
         callback_object = lib_wmi.WmiSparqlCallbackApi()
@@ -175,6 +178,7 @@ class LibWmiTest(unittest.TestCase):
             # Problem on Travis: Name='PACKER-5D93E860', DNSHostName='packer-5d93e860-43ba-c2e7-85d2-3ea0696b8fc8'
             self.assertTrue(GetElementAsString(dict_key_values, 'Name').lower() == CurrentDomainWin32)
 
+    # TODO: DEPRECATED
     def test_sparql_callback_types(self):
         callback_object = lib_wmi.WmiSparqlCallbackApi()
         grph = rdflib.Graph()
