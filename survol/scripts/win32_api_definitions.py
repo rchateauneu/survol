@@ -17,6 +17,7 @@ import struct
 import logging
 import threading
 import collections
+import traceback
 
 import win32file
 import win32con
@@ -128,7 +129,7 @@ class Win32Tracer(TracerBase):
     _function_name_process_exit = b"PYDBG_PROCESS_EXIT"
 
     def _callback_process_creation(self, created_process_id):
-        logging.error("_callback_process_creation created_process_id=%d" % created_process_id)
+        logging.debug("_callback_process_creation created_process_id=%d" % created_process_id)
         # The first message of this queue is a conventional function call which contains the created process id.
         # After that, it contains only genuine function calls, plus the last one,
         # also conventional, which indicates the process end, and releases the main process.
@@ -291,12 +292,10 @@ tracer_object = None # Win32Tracer()
 
 ################################################################################
 class Win32Hook_Manager(pydbg.pydbg):
-    # The style tells if this is a native call or an aggregate of function
-    # calls, made with some style: Factorization etc...
     def __init__(self):
         super(Win32Hook_Manager, self).__init__()
         self.m_core = None
-        print("Win32Hook_Manager ctor")
+        logging.debug("Win32Hook_Manager ctor")
         assert self.pid == 0
 
         # This contains the list of dlls which were loaded.
@@ -313,10 +312,18 @@ class Win32Hook_Manager(pydbg.pydbg):
         # Indexed by the pid of subprocesses of the root pid, as a flattened tree.
         self.hooks_by_processes = collections.defaultdict(process_hooks_definition)
 
+        # TODO: Ideally this cache should be refreshed each time a new module is loaded,
+        # TODO: otherwise the entire list of modules must be reexplored when  a module does not exist.
+        # TODO: Still, this is a better solution.
+        self.dict_dll_to_base_address =  self.get_base_address_dict()
+
     def __del__(self):
         self.stop_cleanup()
 
     def debug_print_hooks_counter(self):
+        """
+        This is exclusively for debugging purpose.
+        """
         print("DLLs")
         for one_dll_name in sorted(self.dlls_set):
             print("    ", one_dll_name)
@@ -338,21 +345,23 @@ class Win32Hook_Manager(pydbg.pydbg):
                       the_hook.counter_proxy_on_exit))
 
     def stop_cleanup(self):
-        # This test on win32process, other, exiting the program might display the error message:
-        # Exception AttributeError: "'NoneType' object has no attribute 'GetProcessId'"
-        # in <bound method Win32Hook_Manager.__del__ of <survol.scripts.win32_api_definitions.Win32Hook_Manager
-        # object at 0x0000000003FF1C50>> ignored
+        """
+        This tests on win32process, otherwise, exiting the program might display the error message:
+        Exception AttributeError: "'NoneType' object has no attribute 'GetProcessId'"
+        in <bound method Win32Hook_Manager.__del__ of <survol.scripts.win32_api_definitions.Win32Hook_Manager
+        object at 0x0000000003FF1C50>> ignored
+        """
         if self.create_process_handle and win32process:
             # We cannot rely anymore on self.pid because it might point to a subprocess.
             created_process_id = win32process.GetProcessId(self.create_process_handle)
-            print("Current_Pid=", os.getpid())
+            logging.debug("Current_Pid=%d" % os.getpid())
 
             current_process = psutil.Process()
             children = current_process.children(recursive=True)
-            print("Killing subprocesses of created_process_id=", created_process_id)
+            logging.debug("Killing subprocesses of created_process_id=%d" % created_process_id)
             for child_process in children:
                 if child_process.pid != created_process_id:
-                    print('==== Killing child pid {}'.format(child_process.pid))
+                    logging.debug('==== Killing child pid {}'.format(child_process.pid))
                     pydbg.wait_for_process_exit(child_process.pid)
 
             pydbg.wait_for_process_exit(created_process_id)
@@ -362,15 +371,20 @@ class Win32Hook_Manager(pydbg.pydbg):
             self.create_process_handle = None
 
     def add_one_function_from_dll_address(self, hooked_pid, dll_address, the_subclass):
-        # This must use the process id self.pid, which is not the current process,
-        # and may be a subprocess of the target pid.
+        """
+        This must use the process id self.pid, which is not the current process,
+        and may be a subprocess of the target pid.
+        """
         the_subclass.function_address = self.func_resolve_from_dll(dll_address, the_subclass.function_name)
         assert the_subclass.function_address
 
-        # There is one such function per class associated to an API function.
-        # The arguments are stored per thread, and implictly form a stack.
         def hook_function_adapter_entry(object_pydbg, function_arguments):
-            logging.debug("hook_function_adapter_entry", the_subclass.__name__, function_arguments)
+            """
+            There is one such function per class associated to an API function.
+            The arguments are stored per thread, and implictly form a stack.
+            """
+
+            logging.debug("hook_function_adapter_entry class=%s args=%s" % (the_subclass.__name__, function_arguments))
             subclass_instance = the_subclass()
             subclass_instance.set_hook_manager(object_pydbg)
 
@@ -384,9 +398,10 @@ class Win32Hook_Manager(pydbg.pydbg):
             subclass_instance.__class__._debug_counter_before += 1
             return defines.DBG_CONTINUE
 
-        # There is one such function per class associated to an API function.
         def hook_function_adapter_exit(object_pydbg, function_arguments, function_result):
-            logging.debug("hook_function_adapter_exit", the_subclass.__name__, function_arguments, function_result)
+            """There is one such function per class associated to an API function."""
+            logging.debug("hook_function_adapter_exit class=%s args=%s result=%s"
+                          % (the_subclass.__name__, function_arguments, function_result))
             subclass_instance = function_arguments[-1]
             function_arguments.pop()
             # So we can use arguments stored before the actual function call.
@@ -413,7 +428,7 @@ class Win32Hook_Manager(pydbg.pydbg):
         dll_canonic_name = self.canonic_dll_name(dll_filename.encode('utf-8'))
 
         self.dlls_set.add(dll_canonic_name)
-        print("LOAD", dll_canonic_name)
+        logging.debug("LOAD:%s" % dll_canonic_name)
 
         unhooked_functions = self.hooks_by_processes[self.dbg.dwProcessId].unhooked_functions_by_dll[dll_canonic_name]
 
@@ -422,52 +437,66 @@ class Win32Hook_Manager(pydbg.pydbg):
         dll_address = self.dbg.u.LoadDll.lpBaseOfDll
         for one_subclass in unhooked_functions:
             if dll_canonic_name in [b'msvcrt.dll', b'ws2_32.dll']:
-                print("    function_name=", one_subclass.function_name)
+                logging.debug("    function_name=%s" % one_subclass.function_name)
             self.add_one_function_from_dll_address(self.dbg.dwProcessId, dll_address, one_subclass)
 
         return defines.DBG_CONTINUE
 
-    # Not necessary because creation of processes are detected by hooking CreatingProcessA and CreatingProcessW.
     @staticmethod
     def callback_event_handler_create_process(self):
+        """
+        This handler should not be necessary because creation of processes are detected
+        by hooking CreatingProcessA and CreatingProcessW
+        """
         created_process_id = win32process.GetProcessId(self.dbg.u.CreateProcessInfo.hProcess)
-        print("event_handler_create_process ",
-              "dwProcessId=", self.dbg.dwProcessId,
-              "created_process_id= ", created_process_id,
-              "self.pid= ", self.pid)
+        logging.debug("event_handler_create_process dwProcessId=%d created_process_id=%d self.pid=%d"
+                      % (self.dbg.dwProcessId, created_process_id, self.pid))
         return defines.DBG_CONTINUE
 
-    # When catching an access violaton, and to terminate the process,
-    # it is necessary to return DBG_CONTINUE to avoid a deadlock.
     @staticmethod
     def callback_event_handler_access_violation(self):
+        """
+        When catching an access violation, and to terminate the process,
+        it is necessary to return DBG_CONTINUE to avoid a deadlock.
+        """
         print("callback_event_handler_access_violation ACCESS VIOLATION")
         return defines.DBG_CONTINUE
+
+    @staticmethod
+    def callback_event_handler_exit_process_debug(self):
+        logging.info("Exit process debug handler EXIT_PROCESS_DEBUG_EVENT")
+        return defines.DBG_EXCEPTION_NOT_HANDLED
 
     def set_handlers(self):
         # TODO: It would be neater and faster to override pydbg methods.
         self.set_callback(defines.CREATE_PROCESS_DEBUG_EVENT, self.callback_event_handler_create_process)
         self.set_callback(defines.LOAD_DLL_DEBUG_EVENT,       self.callback_event_handler_load_dll)
         self.set_callback(defines.EXCEPTION_ACCESS_VIOLATION, self.callback_event_handler_access_violation)
+        #self.set_callback(defines.EXIT_PROCESS_DEBUG_EVENT,   self.callback_event_handler_exit_process_debug)
 
-    # This is called when looping on the list of semantically interesting functions.
     def _hook_api_function(self, the_subclass, process_id):
-        logging.debug("hook_api_function:%s process_id=%d" % (the_subclass.__name__, process_id))
+        """This is called when looping on the list of semantically interesting functions."""
+        logging.debug("subclass=%s process_id=%d" % (the_subclass.__name__, process_id))
         assert sorted(self.callbacks.keys()) == sorted([
             defines.CREATE_PROCESS_DEBUG_EVENT,
             defines.LOAD_DLL_DEBUG_EVENT,
-            defines.EXCEPTION_ACCESS_VIOLATION])
+            defines.EXCEPTION_ACCESS_VIOLATION,
+            #defines.EXIT_PROCESS_DEBUG_EVENT,
+		])
 
         the_subclass._parse_text_definition()
 
         dll_canonic_name = self.canonic_dll_name(the_subclass.dll_name)
+        logging.debug("dll_canonic_name=%s" % dll_canonic_name)
 
         dll_address = self.find_dll_base_address(dll_canonic_name)
 
         # If the DLL is already loaded.
         if dll_address:
+            logging.debug("DLL %s already loaded" % dll_canonic_name)
             self.add_one_function_from_dll_address(process_id, dll_address, the_subclass)
         else:
+            logging.debug("self.pid=%d" % self.pid)
             self.hooks_by_processes[self.pid].unhooked_functions_by_dll[dll_canonic_name].append(the_subclass)
 
     def _hook_api_functions_list(self, process_id):
@@ -475,9 +504,11 @@ class Win32Hook_Manager(pydbg.pydbg):
             self._hook_api_function(the_subclass, process_id)
 
     def attach_to_pid(self, process_id):
-        print("attach_to_pid process_id=", process_id)
+        logging.debug("attach_to_pid process_id=%d" % process_id)
         self.set_handlers()
+        logging.debug("before attach to process_id=%d" % process_id)
         self.attach(process_id)
+        logging.debug("before hook api to process_id=%d" % process_id)
         self._hook_api_functions_list(process_id)
         self.run()
 
@@ -499,7 +530,7 @@ class Win32Hook_Manager(pydbg.pydbg):
         # This is used for clean process termination.
         self.create_process_handle = hProcess
 
-        print("Created dwProcessId=", dwProcessId)
+        logging.info("Created dwProcessId=%d" % dwProcessId)
         if callback_process_creation:
             # This is needed to possibly inform a caller of the process id which is wrapped in the first element
             # stored in a queue, so we know the root process id.
@@ -582,7 +613,7 @@ class Win32Hook_BaseClass(hook_metaclass(CallsCounterMeta)):
 
         cls.return_type = match_one.group(1)
         cls.function_name = match_one.group(2)
-        logging.debug("_split_into_return_arguments %s" % cls.function_name)
+        logging.debug("function_name=%s" % cls.function_name)
 
         return match_one.group(3).split(b",")
 
@@ -617,6 +648,7 @@ class Win32Hook_BaseClass(hook_metaclass(CallsCounterMeta)):
 
             cls.args_list.append((match_pair.group(1), match_pair.group(2)))
 
+        logging.debug("args_list=%s" % cls.args_list)
         assert isinstance(cls.function_name, six.binary_type)
 
     def callback_create_object(self, cim_class_name, **cim_arguments):
@@ -806,8 +838,8 @@ class Win32Hook_CreateProcessW(Win32Hook_GenericProcessCreation):
 
     def callback_after(self, function_arguments, function_result):
         lpApplicationName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
-        lpCommandLine = self.win32_hook_manager.get_unicode_string(function_arguments[1])
-        print("callback_after lpCommandLine=", lpCommandLine, "function_result", function_result)
+        lp_command_line = self.win32_hook_manager.get_unicode_string(function_arguments[1])
+        logging.info("lp_command_line=%s function_result=%s" % (lp_command_line, function_result))
         self.callback_after_common(function_arguments, function_result)
 
 
@@ -989,13 +1021,13 @@ class Win32Hook_WriteFile(Win32Hook_BaseClass):
         );"""
     dll_name = b"KERNEL32.dll"
     def callback_after(self, function_arguments, function_result):
-        logging.debug("Win32Hook_WriteFile args=", function_arguments)
+        logging.debug("Win32Hook_WriteFile args=%s" % function_arguments)
 
         lpBuffer = function_arguments[1]
         nNumberOfBytesToWrite = function_arguments[2]
         # logging.debug("lpBuffer=", lpBuffer, "nNumberOfBytesToWrite=", nNumberOfBytesToWrite)
         buffer = self.win32_hook_manager.get_bytes_size(lpBuffer, nNumberOfBytesToWrite)
-        logging.debug("Buffer=", buffer)
+        logging.debug("Buffer=%s" % buffer)
 
 
 class Win32Hook_WriteFileEx(Win32Hook_BaseClass):
@@ -1165,6 +1197,7 @@ class Win32Hook_bind(Win32Hook_BaseClass):
 
 
 class Win32Hook_SQLDataSources(Win32Hook_BaseClass):
+    # TODO: Not implemented yet. Only detected.
     api_definition = b"""
         SQLRETURN SQLDataSources(
             SQLHENV          EnvironmentHandle,  
@@ -1180,6 +1213,7 @@ class Win32Hook_SQLDataSources(Win32Hook_BaseClass):
 
 
 class Win32Hook_fopen(Win32Hook_BaseClass):
+    # TODO: Not implemented yet. Only detected.
     api_definition = b"""
         FILE *fopen(
             const char *filename,
@@ -1189,6 +1223,7 @@ class Win32Hook_fopen(Win32Hook_BaseClass):
 
 
 class Win32Hook__wfopen(Win32Hook_BaseClass):
+    # TODO: Not implemented yet. Only detected.
     api_definition = b"""
         FILE *_wfopen(
             const wchar_t *filename,
@@ -1198,6 +1233,7 @@ class Win32Hook__wfopen(Win32Hook_BaseClass):
 
 
 class Win32Hook_fopen_s(Win32Hook_BaseClass):
+    # TODO: Not implemented yet. Only detected.
     api_definition = b"""
         errno_t fopen_s(
             FILE** pFile,
@@ -1208,6 +1244,7 @@ class Win32Hook_fopen_s(Win32Hook_BaseClass):
 
 
 class Win32Hook__wfopen_s(Win32Hook_BaseClass):
+    # TODO: Not implemented yet. Only detected.
     api_definition = b"""
         errno_t _wfopen_s(
             FILE** pFile,
@@ -1218,6 +1255,7 @@ class Win32Hook__wfopen_s(Win32Hook_BaseClass):
 
 
 class Win32Hook__fsopen(Win32Hook_BaseClass):
+    # TODO: Not implemented yet. Only detected.
     api_definition = b"""
         FILE *_fsopen(
             const char *filename,
@@ -1227,6 +1265,7 @@ class Win32Hook__fsopen(Win32Hook_BaseClass):
 
 
 class Win32Hook__wfsopen(Win32Hook_BaseClass):
+    # TODO: Not implemented yet. Only detected.
     api_definition = b"""
         FILE *_wfsopen(
             const wchar_t *filename,
@@ -1236,7 +1275,8 @@ class Win32Hook__wfsopen(Win32Hook_BaseClass):
     dll_name = b"msvcrt.dll"
 
 
-class Win32Hook__wfsopen(Win32Hook_BaseClass):
+class Win32Hook_freopen(Win32Hook_BaseClass):
+    # TODO: Not implemented yet. Only detected.
     api_definition = b"""
         FILE *freopen(
             const char *path,
@@ -1246,7 +1286,8 @@ class Win32Hook__wfsopen(Win32Hook_BaseClass):
     dll_name = b"msvcrt.dll"
 
 
-class Win32Hook__wfsopen(Win32Hook_BaseClass):
+class Win32Hook__wfreopen(Win32Hook_BaseClass):
+    # TODO: Not implemented yet. Only detected.
     api_definition = b"""
         FILE *_wfreopen(
             const wchar_t *path,
@@ -1256,7 +1297,8 @@ class Win32Hook__wfsopen(Win32Hook_BaseClass):
     dll_name = b"msvcrt.dll"
 
 
-class Win32Hook__wfsopen(Win32Hook_BaseClass):
+class Win32Hook_freopen(Win32Hook_BaseClass):
+    # TODO: Not implemented yet. Only detected.
     api_definition = b"""
         errno_t freopen(
             FILE** pFile,
@@ -1267,7 +1309,8 @@ class Win32Hook__wfsopen(Win32Hook_BaseClass):
     dll_name = b"msvcrt.dll"
 
 
-class Win32Hook__wfsopen(Win32Hook_BaseClass):
+class Win32Hook__wfreopen(Win32Hook_BaseClass):
+    # TODO: Not implemented yet. Only detected.
     api_definition = b"""
         errno_t _wfreopen(
             FILE** pFile,
@@ -1278,27 +1321,8 @@ class Win32Hook__wfsopen(Win32Hook_BaseClass):
     dll_name = b"msvcrt.dll"
 
 
-class Win32Hook__wfsopen(Win32Hook_BaseClass):
-    api_definition = b"""
-        FILE *_fsopen(
-            const char *filename,
-            const char *mode,
-            int shflag
-        );"""
-    dll_name = b"msvcrt.dll"
-
-
-class Win32Hook__wfsopen(Win32Hook_BaseClass):
-    api_definition = b"""
-        FILE *_wfsopen(
-            const wchar_t *filename,
-            const wchar_t *mode,
-            int shflag
-        );"""
-    dll_name = b"msvcrt.dll"
-
-
 class Win32Hook__fdopen(Win32Hook_BaseClass):
+    # TODO: Not implemented yet. Only detected.
     api_definition = b"""
         FILE *_fdopen(
             int fd,
@@ -1308,6 +1332,7 @@ class Win32Hook__fdopen(Win32Hook_BaseClass):
 
 
 class Win32Hook__wfdopen(Win32Hook_BaseClass):
+    # TODO: Not implemented yet. Only detected.
     api_definition = b"""
         FILE *_wfdopen(
             int fd,
@@ -1316,11 +1341,9 @@ class Win32Hook__wfdopen(Win32Hook_BaseClass):
     dll_name = b"msvcrt.dll"
 
 
-
-
 if False:
     class Win32Hook_ExitProcess(Win32Hook_BaseClass):
-        # FIXME: This crashes with the message:
+        # FIXME: Unexplained crash with the message:
         # python.exe - Entry Point Not Found
         # The procedure entry point <utf8>DLL.RtlExitUserProcess could not be located
         # in the dynamic link library API-MS-Win-Core-ProcessThreads-L1-1-0.dll.
