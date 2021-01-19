@@ -5,6 +5,7 @@ AC2 component dependencies
 """
 
 import sys
+import logging
 import lib_common
 import lib_util
 import lib_uris
@@ -33,13 +34,13 @@ def DisplayComponentDependencies(grph,ac2File,ac2App,ac2Comp):
 
 	# TODO: PROBLEME, ON DEVRAIT ALLER CHERCHER LES SOUS-NODES AU LIEU DE TOUT REPARCOURIR !!!!!!!!!!!
 	for elt_apps in dom.getElementsByTagName('apps'):
-		DEBUG("Founds apps\n")
+		logging.debug("Founds apps\n")
 
 		# TODO: ERROR: SHOULD FOCUS ON ONE APP ONLY.
 
 		for elt_app in elt_apps.getElementsByTagName('app'):
 			attr_app_name = elt_app.getAttributeNode('name').value
-			DEBUG("attr_app_name=%s",attr_app_name)
+			logging.debug("attr_app_name=%s",attr_app_name)
 
 			if attr_app_name != ac2App:
 				continue
@@ -61,7 +62,7 @@ def DisplayComponentDependencies(grph,ac2File,ac2App,ac2Comp):
 			for elt_component in elt_app.getElementsByTagName('component'):
 				attr_component_name = elt_component.getAttributeNode('name').value
 
-				DEBUG("attr_component_name=%s",attr_component_name)
+				logging.debug("attr_component_name=%s",attr_component_name)
 
 				if attr_component_name == ac2Comp:
 					attr_component_description = elt_component.getAttributeNode('description')
@@ -80,7 +81,7 @@ def DisplayComponentDependencies(grph,ac2File,ac2App,ac2Comp):
 					for elt_father in elt_component.getElementsByTagName('father'):
 						# There should be one parent only.
 						attr_father_name = elt_father.firstChild.nodeValue
-						DEBUG("attr_father_name=%s",attr_father_name)
+						logging.debug("attr_father_name=%s",attr_father_name)
 						nodeFather = ComponentNameToNode(ac2File,attr_app_name,attr_father_name)
 
 						grph.add( ( nodeFather, AC2.propParent, compNode ) )
@@ -95,7 +96,7 @@ def DisplayComponentDependencies(grph,ac2File,ac2App,ac2Comp):
 						attr_father_name = elt_father.firstChild.nodeValue
 
 						if attr_father_name == ac2Comp:
-							DEBUG("ac2Comp attr_father_name=%s",attr_father_name)
+							logging.debug("ac2Comp attr_father_name=%s",attr_father_name)
 							nodeChild = ComponentNameToNode(ac2File,attr_app_name,attr_father_name)
 
 							grph.add( ( compNode, AC2.propParent, currCompNode ) )
@@ -111,7 +112,7 @@ def Main():
 	ac2App = cgiEnv.m_entity_id_dict["App"]
 	ac2Comp = cgiEnv.m_entity_id_dict["Comp"]
 
-	DEBUG("ac2File=%s ac2App=%s ac2Comp=%s", ac2File,ac2App,ac2Comp)
+	logging.debug("ac2File=%s ac2App=%s ac2Comp=%s", ac2File,ac2App,ac2Comp)
 
 	grph = cgiEnv.GetGraph()
 
