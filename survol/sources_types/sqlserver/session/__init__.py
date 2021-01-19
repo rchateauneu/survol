@@ -3,6 +3,7 @@ Sqlserver session
 """
 
 import six
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -17,10 +18,10 @@ except ImportError:
 	pyodbcOk = False
 
 
-
 # This is called by OntologyClassKeys(entity_type) when it needs the parameters f an tneity type.
 def EntityOntology():
 	return ( [survol_sqlserver_dsn.CgiPropertyDsn(),"SessionId"], )
+
 
 def MakeUri(dsn,sessionId):
 	return lib_common.gUriGen.UriMake("sqlserver/session",dsn,sessionId)
@@ -43,7 +44,7 @@ def AddInfo(grph,node,entity_ids_arr):
 	if pyodbcOk:
 		ODBC_ConnectString = survol_odbc_dsn.MakeOdbcConnectionString(dsnNam)
 		cnxn = pyodbc.connect(ODBC_ConnectString)
-		DEBUG("Connected: %s", dsnNam)
+		logging.debug("Connected: %s", dsnNam)
 		cursorConnections = cnxn.cursor()
 
 		qryConnections = """

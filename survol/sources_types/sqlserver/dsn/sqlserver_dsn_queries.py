@@ -5,6 +5,7 @@ Queries running in SQL Server database (ODBC)
 """
 
 import sys
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -27,12 +28,12 @@ def Main():
 
     dsn_nam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
 
-    DEBUG("dsn=(%s)", dsn_nam)
+    logging.debug("dsn=(%s)", dsn_nam)
 
     odbc_connect_string = survol_odbc_dsn.MakeOdbcConnectionString(dsn_nam)
     try:
         cnxn = pyodbc.connect(odbc_connect_string)
-        DEBUG("Connected: %s", dsn_nam)
+        logging.debug("Connected: %s", dsn_nam)
         cursor_queries = cnxn.cursor()
 
         qry_queries = """
@@ -52,7 +53,7 @@ def Main():
         prop_sql_server_status = lib_common.MakeProp("Status")
 
         for row_qry in cursor_queries.execute(qry_queries):
-            DEBUG("row_qry.session_id=(%s)", row_qry.session_id)
+            logging.debug("row_qry.session_id=(%s)", row_qry.session_id)
             node_session = session.MakeUri(dsn_nam, row_qry.session_id)
 
             # A bit of cleanup.
