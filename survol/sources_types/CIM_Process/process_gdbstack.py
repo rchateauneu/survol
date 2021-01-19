@@ -6,6 +6,7 @@ Process callstack with gdb
 
 import re
 import sys
+import logging
 import lib_util
 import lib_common
 from sources_types import CIM_Process
@@ -13,6 +14,7 @@ from sources_types import linker_symbol as survol_symbol
 from lib_properties import pc
 
 Usable = lib_util.UsableLinux
+
 
 # Runs a gdb command and returns the output with some cleanup.
 def RunGdbCommand(the_pid,command):
@@ -26,7 +28,7 @@ def RunGdbCommand(the_pid,command):
 
 	# TODO: See python/__init__.py which also runs a gdb command.
 	gdb_cmd = [ "gdb", "-q", "-p", str(the_pid), "-x", gdbFilNam ]
-	DEBUG( "gdb command=%s", " ".join( gdb_cmd ) )
+	logging.debug( "gdb command=%s", " ".join( gdb_cmd ) )
 
 	try:
 		gdb_pipe = lib_common.SubProcPOpen(gdb_cmd)
@@ -50,7 +52,7 @@ def RunGdbCommand(the_pid,command):
 		if lib_util.is_py3:
 			# This return a bytes.
 			lin = lin.decode("utf-8")
-		DEBUG("rungdb:%s", lin )
+		logging.debug("rungdb:%s", lin )
 		# Not sure the prompt is displayed when in non-interactive mode.
 		if lin.startswith("(gdb)"): continue
 		if lin.startswith("Reading symbols "): continue
@@ -59,10 +61,11 @@ def RunGdbCommand(the_pid,command):
 
 
 	if len(gdb_err) != 0:
-		DEBUG("Err:%s", gdb_err)
+		logging.debug("Err:%s", gdb_err)
 		lib_common.ErrorMessageHtml("No gdb output:"+gdb_err)
 
 	return resu
+
 
 def CallParse( execName, grph, procNode, callNodePrev, lin ):
 	# TODO: See the content of the parenthesis. Can it be the arguments?
@@ -85,6 +88,7 @@ def CallParse( execName, grph, procNode, callNodePrev, lin ):
 	# TODO: Should add the address or the line number as last parameter.
 	return survol_symbol.AddFunctionCall( grph, callNodePrev, procNode, funcName, fileName )
 
+
 def PassThreads(the_pid, execName, grph, procNode):
 	currThr = -1
 	callNodePrev = None
@@ -92,7 +96,7 @@ def PassThreads(the_pid, execName, grph, procNode):
 	lines = RunGdbCommand( the_pid, "thread apply all bt" )
 
 	for lin in lines:
-		DEBUG("Gdb1:%s", lin )
+		logging.debug("Gdb1:%s", lin )
 
 		# TODO: On Linux, the light weight process is another process.
 		# Thread 1 (Thread -1237260592 (LWP 6513)):
@@ -111,21 +115,23 @@ def PassThreads(the_pid, execName, grph, procNode):
 		if callNodePrev == None:
 			currThr = -1
 
+
 def PassNoThreads(the_pid, execName, grph, procNode):
 	callNodePrev = None
 
 	lines = RunGdbCommand( the_pid, "bt" )
 
 	for lin in lines:
-		DEBUG("Gdb2:%s", lin )
+		logging.debug("Gdb2:%s", lin )
 
 		callNodeNew = CallParse( execName, grph, procNode, callNodePrev, lin )
 
 		# Reached the end of the call stack.
 		if callNodeNew == None and callNodePrev != None:
-			DEBUG("End2")
+			logging.debug("End2")
 			break
 		callNodePrev = callNodeNew
+
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -154,6 +160,7 @@ def Main():
 		PassNoThreads( the_pid, execName, grph, procNode)
 
 	cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
 	Main()
