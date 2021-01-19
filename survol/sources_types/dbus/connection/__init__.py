@@ -4,10 +4,12 @@ Desktop Bus connection
 
 import sys
 import pwd
+import logging
 import lib_dbus
 import lib_common
 import dbus
 from lib_properties import pc
+
 
 def EntityOntology():
     return (["Bus", "Connect"],)
@@ -38,7 +40,7 @@ def AddInfo(grph, node, entity_ids_arr):
         # sys.stderr.write("AddInfo pid=%s uid=%s\n" % (pid, uid))
     except dbus.exceptions.DBusException as exc:
         # Could be: "org.freedesktop.DBus.Error.AccessDenied"
-        WARNING("AddInfo Caught=%s", str(exc))
+        logging.warning("AddInfo Caught=%s", str(exc))
         # Apparently happens with the first line.
         return
     usrnam = pwd.getpwuid(uid).pw_name

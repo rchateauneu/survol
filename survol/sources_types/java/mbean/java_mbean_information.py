@@ -5,12 +5,14 @@ MBean information
 """
 
 import sys
+import logging
 import lib_util
 import lib_common
 from sources_types import CIM_Process
 from sources_types import java as survol_java
 from sources_types.java import mbean as survol_mbean
 from lib_properties import pc
+
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -42,10 +44,10 @@ def Main():
 		objNam = jmxMBean["objectName"]
 
 		if objNam != mbeanObjNam:
-			ERROR("THIS SHOULD NOT HAPPEN: %s != %s",objNam,mbeanObjNam)
+			logging.error("THIS SHOULD NOT HAPPEN: %s != %s",objNam,mbeanObjNam)
 
 		# "=sun.management.ManagementFactoryHelper$1[java.nio:type=BufferPool,name=mapped]"
-		DEBUG("jmxMBean=%s",jmxMBean)
+		logging.debug("jmxMBean=%s",jmxMBean)
 
 		# Not sure about the file name
 		nodeClass = survol_mbean.MakeUri( pidInt, clsNam)
@@ -63,6 +65,7 @@ def Main():
 	# sys.stderr.write("jmxData=%s\n"%jmxData)
 	cgiEnv.OutCgiRdf()
 	# cgiEnv.OutCgiRdf( "LAYOUT_RECT", [propMBean])
+
 
 if __name__ == '__main__':
     Main()

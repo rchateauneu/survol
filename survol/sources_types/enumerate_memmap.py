@@ -9,6 +9,7 @@ System-wide shared memory segments, plus properties. DLLs and fonts are excluded
 import os
 import re
 import sys
+import logging
 import psutil
 import lib_util
 import lib_common
@@ -96,7 +97,7 @@ def function_process(map_to_proc, proc):
     try:
         all_maps = proc.memory_maps()
     except Exception as exc:
-        WARNING("get_memory_maps Pid=%d. Caught %s", pid, str(exc))
+        logging.warning("get_memory_maps Pid=%d. Caught %s", pid, str(exc))
         return
 
     # This takes into account only maps accessed by several processes.
