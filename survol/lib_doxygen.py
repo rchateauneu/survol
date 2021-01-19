@@ -1,6 +1,7 @@
 import os
 import sys
 import collections
+import logging
 import lib_common
 import lib_util
 from lib_properties import pc
@@ -105,7 +106,7 @@ def _generate_to_output_dir(out_dir):
                         # print(elem.tag)
                         # break
             except Exception as exc:
-                WARNING("Caught:%s", str(exc))
+                logging.warning("Caught:%s", str(exc))
 
     return objects_by_location
 
@@ -118,10 +119,10 @@ def _display_def(grph, node_file, location_file, sym_def, param_explode_classes)
 
 
 def CreateObjs(grph, root_node, directory_name, objects_by_location, param_explode_classes):
-    DEBUG("directoryName=%s num=%d", directory_name, len(objects_by_location))
+    logging.debug("directoryName=%s num=%d", directory_name, len(objects_by_location))
 
     for location_file, v1 in lib_util.six_iteritems(objects_by_location):
-        DEBUG("location_file=%s", location_file)
+        logging.debug("location_file=%s", location_file)
 
         node_file = lib_common.gUriGen.FileUri(location_file)
         grph.add((root_node, pc.property_directory, node_file))
@@ -434,7 +435,7 @@ def _run_doxy(doxy_out_dir, doxyINPUT, is_doxy_recursive):
 
     # TODO: Use lib_common.SubProcPOpen
     ret = lib_common.SubProcCall(doxygen_command)
-    DEBUG("doxy_out_dir=%s", doxy_out_dir)
+    logging.debug("doxy_out_dir=%s", doxy_out_dir)
 
 
 def DoxygenMain(param_recursive_exploration, file_param):

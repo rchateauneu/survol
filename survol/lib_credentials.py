@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import logging
 import lib_util
 
 
@@ -72,7 +73,7 @@ def _build_credentials_document():
 
         return json_creds
     except Exception as exc:
-        WARNING("_build_credentials_document no credentials %s: %s", file_name, str(exc))
+        logging.warning("_build_credentials_document no credentials %s: %s", file_name, str(exc))
         return dict()
 
 
@@ -93,13 +94,13 @@ def GetCredentials(cred_type, cred_name):
     if cred_name is None:
         cred_name = ""
     credentials = _credentials_document()
-    DEBUG("GetCredentials cred_type=%s cred_name=%s credentials=%d elements", cred_type, cred_name, len(credentials))
+    logging.debug("GetCredentials cred_type=%s cred_name=%s credentials=%d elements", cred_type, cred_name, len(credentials))
     try:
         if not credentials:
             return '', ''
         arr_type = credentials[cred_type]
     except KeyError:
-        WARNING("GetCredentials %s Unknown type=%s name=%s", credentials_filename(), cred_type, cred_name)
+        logging.warning("GetCredentials %s Unknown type=%s name=%s", credentials_filename(), cred_type, cred_name)
         return None, None
 
     # Try first without converting.
@@ -120,7 +121,7 @@ def GetCredentials(cred_type, cred_name):
         # sys.stderr.write("GetCredentials credType=%s credName=%s usr=%s pass=%s\n" % (credType,credName,cred[0],cred[1]))
         return cred
     except KeyError:
-        WARNING("GetCredentials Unknown name credType=%s credName=%s", cred_type, cred_name)
+        logging.warning("GetCredentials Unknown name credType=%s credName=%s", cred_type, cred_name)
         return '', ''
 
 
