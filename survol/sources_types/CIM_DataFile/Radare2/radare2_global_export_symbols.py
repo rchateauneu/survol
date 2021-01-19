@@ -7,8 +7,10 @@ Global export symbols (Radare2)
 import os
 import json
 import subprocess
+import logging
 import lib_common
 from lib_properties import pc
+
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -20,16 +22,15 @@ def Main():
 	nodeExeOrDll = lib_common.gUriGen.FileUri( fileExeOrDll )
 
 	cmdR2 = ['radare2','-A','-q','-c','"iEj"', fileExeOrDll]
-	DEBUG("cmdR2=%s\n"%str(cmdR2))
+	logging.debug("cmdR2=%s\n"%str(cmdR2))
 
 	r2Pipe = subprocess.Popen(cmdR2, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	r2Output, r2Err = r2Pipe.communicate()
 	rc = r2Pipe.returncode
 
-	DEBUG("r2Err=%s\n"%r2Err)
-	DEBUG("rc=%s\n"%rc)
-	DEBUG("r2Output=%s\n"%r2Output)
-
+	logging.debug("r2Err=%s\n"%r2Err)
+	logging.debug("rc=%s\n"%rc)
+	logging.debug("r2Output=%s\n"%r2Output)
 
 	#{
 	#	"name":"SqlServerSpatial140.dll_?m_Points1@SampleDescriptor@@2QBNB",
@@ -66,7 +67,8 @@ def Main():
 			grph.add( ( symNod, lib_common.MakeProp("bind"), lib_util.NodeLiteral(iE_bind) ) )
 			grph.add( ( nodeExeOrDll, pc.property_symbol_defined, symNod ) )
 
-	cgiEnv.OutCgiRdf("LAYOUT_RECT",[ pc.property_symbol_defined ] )
+	cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_symbol_defined])
+
 
 if __name__ == '__main__':
 	Main()

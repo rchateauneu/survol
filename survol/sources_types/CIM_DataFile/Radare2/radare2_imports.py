@@ -6,9 +6,11 @@ Import symbols detected by Radare2
 
 import json
 import subprocess
+import logging
 import lib_common
 import lib_shared_lib_path
 from lib_properties import pc
+
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -20,16 +22,15 @@ def Main():
 	nodeExeOrDll = lib_common.gUriGen.FileUri( fileExeOrDll )
 
 	cmdR2 = ['radare2','-A','-q','-c','"iij"', fileExeOrDll]
-	DEBUG("cmdR2=%s\n"%str(cmdR2))
+	logging.debug("cmdR2=%s\n"%str(cmdR2))
 
 	r2Pipe = subprocess.Popen(cmdR2, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	r2Output, r2Err = r2Pipe.communicate()
 	rc = r2Pipe.returncode
 
-	DEBUG("r2Err=%s\n"%r2Err)
-	DEBUG("rc=%s\n"%rc)
-	DEBUG("r2Output=%s\n"%r2Output)
-
+	logging.debug("r2Err=%s\n"%r2Err)
+	logging.debug("rc=%s\n"%rc)
+	logging.debug("r2Output=%s\n"%r2Output)
 
 	#
 	# {
@@ -55,14 +56,13 @@ def Main():
 			ii_type = iijOne["type"]
 			ii_bind = iijOne["bind"]
 
-
 			try:
 				nodeExeOrDll = dictDllToNode[ii_OtherShortDllName]
 			except KeyError:
 				ii_OtherDllName = ii_OtherShortDllName + ".dll"
 				ieOtherDllPath = lib_shared_lib_path.FindPathFromSharedLibraryName(ii_OtherDllName)
 				if ieOtherDllPath is None:
-					WARNING("Cannot find library for ii_OtherShortDllName=%s",ii_OtherDllName)
+					logging.warning("Cannot find library for ii_OtherShortDllName=%s",ii_OtherDllName)
 					ieOtherDllPath = ii_OtherDllName
 				nodeExeOrDll = lib_common.gUriGen.FileUri( ieOtherDllPath )
 				dictDllToNode[ii_OtherShortDllName] = nodeExeOrDll
@@ -75,6 +75,7 @@ def Main():
 			grph.add( ( nodeExeOrDll, pc.property_symbol_defined, symNod ) )
 
 	cgiEnv.OutCgiRdf("LAYOUT_RECT",[ pc.property_symbol_defined ] )
+
 
 if __name__ == '__main__':
 	Main()
