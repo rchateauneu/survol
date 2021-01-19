@@ -115,7 +115,7 @@ def _load_moded_urls(url_moded):
         # Very long timeout to read WBEM ontology.
         response = lib_util.survol_urlopen(url_moded, timeout=120)
     except Exception as exc:
-        ERROR("_load_moded_urls urlModed=%s. Caught:%s", url_moded, str(exc))
+        logging.error("_load_moded_urls urlModed=%s. Caught:%s", url_moded, str(exc))
         raise
     data = response.read()
     assert isinstance(data, six.binary_type)
@@ -212,7 +212,7 @@ class SourceLocal (SourceCgi):
             modu.Main()
         except Exception as ex:
             # https://www.stefaanlippens.net/python-traceback-in-catch/
-            ERROR("__execute_script_with_mode with module=%s: Caught:%s", modu.__name__, ex, exc_info=True)
+            logging.error("__execute_script_with_mode with module=%s: Caught:%s", modu.__name__, ex, exc_info=True)
             lib_common.enable_error_message(True)
 
             # Restores the original stream.
@@ -597,7 +597,7 @@ class BaseCIMClass(object):
                     # TODO: Give a high cost when a node is on a remote machine.
                     lst_instances = triple_store.get_connected_instances(best_edge.m_node_instance, filter_predicates)
                 except Exception as ex:
-                    ERROR("find_string_from_neighbour: %s", ex)
+                    logging.error("find_string_from_neighbour: %s", ex)
                     raise
 
                 lib_common.enable_error_message(True)

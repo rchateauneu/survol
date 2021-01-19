@@ -139,13 +139,13 @@ def Main():
             try:
                 grph.add(tripl)
             except Exception as exc:
-                ERROR("callback_grph_add: tripl=%s exception=%s" % (str(tripl), str(exc)))
+                logging.error("callback_grph_add: tripl=%s exception=%s" % (str(tripl), str(exc)))
                 raise
 
         try:
             entity_dirmenu_only.DirToMenu(callback_grph_add, root_node, entity_type, entity_id, entity_host, flag_show_all)
         except Exception as exc:
-            ERROR("entity.py caught in ForToMenu:%s", exc)
+            logging.error("entity.py caught in ForToMenu:%s", exc)
 
         # This adds WBEM and WMI urls related to the current object.
         if entity_type != "":

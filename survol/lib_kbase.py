@@ -143,11 +143,9 @@ def triplestore_to_stream_xml(grph, out_dest, a_format):
         #     'str': Py2
         #     '_io.BytesIO': Py3
 
-        #sys.stderr.write("type(out_dest)=%s\n" % type(out_dest))
         grph.serialize(destination=out_dest, format=a_format)
     except Exception as exc:
-        ERROR("triplestore_to_stream_xml Exception:%s", exc)
-        sys.stderr.write("ERROR:%s\n" % str(exc))
+        logging.error("triplestore_to_stream_xml Exception:%s", exc)
         raise
 
 
@@ -170,9 +168,9 @@ def triplestore_from_rdf_xml(doc_xml_rdf):
             column_index = int(exception_split[2])
             document_by_lines = doc_xml_rdf.split("\n")
             faulty_line = document_by_lines[line_index]
-            ERROR("triplestore_from_rdf_xml index=%d faulty_line=%s", column_index, faulty_line)
+            logging.error("triplestore_from_rdf_xml index=%d faulty_line=%s", column_index, faulty_line)
         else:
-            ERROR("triplestore_from_rdf_xml exc=%s docXmlRdf...=%s", exc, doc_xml_rdf[:20])
+            logging.error("triplestore_from_rdf_xml exc=%s docXmlRdf...=%s", exc, doc_xml_rdf[:20])
         raise
     return grph
 
@@ -408,7 +406,7 @@ def CheckMinimalRdsfOntology(ontology_graph):
         triple_find = (subject_node, predicate_node, object_node)
         if not triple_find in ontology_graph:
             triple_name = (subject_name, predicate_name, object_name)
-            ERROR("CheckMinimalRdsfOntology missing triple:%s %s %s", * triple_name )
+            logging.error("CheckMinimalRdsfOntology missing triple:%s %s %s", * triple_name )
             missing_triples.append(triple_name)
         return missing_triples
 

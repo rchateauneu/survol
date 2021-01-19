@@ -134,7 +134,7 @@ def get_credentials_names(cred_type):
         arr_type = cred_dict[cred_type]
         return arr_type.keys()
     except KeyError:
-        ERROR("GetCredentials Invalid type credType=%s", cred_type)
+        logging.error("GetCredentials Invalid type credType=%s", cred_type)
         return []
 
 
@@ -144,7 +144,7 @@ def get_credentials_types():
         cred_dict = _credentials_document()
         return cred_dict.keys()
     except KeyError:
-        ERROR("GetCredentials Invalid document")
+        logging.error("GetCredentials Invalid document")
         return None
 
 
