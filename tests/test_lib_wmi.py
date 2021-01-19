@@ -64,8 +64,8 @@ class LibWmiTest(unittest.TestCase):
         list_objects = list(iterator_objects)
 
         for object_path, dict_key_values in list_objects:
-            DEBUG(object_path)
-            DEBUG(dict_key_values)
+            logging.debug(object_path)
+            logging.debug(dict_key_values)
             print(object_path)
             print(dict_key_values)
         self.assertTrue(len(list_objects) == 1)

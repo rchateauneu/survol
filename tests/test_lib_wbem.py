@@ -80,8 +80,8 @@ class LibWbemTest(unittest.TestCase):
         list_objects = list(iterator_objects)
 
         for object_path, dict_key_values in list_objects:
-            DEBUG(object_path)
-            DEBUG(dict_key_values)
+            logging.debug(object_path)
+            logging.debug(dict_key_values)
         self.assertTrue(len(list_objects) == 1)
 
         # object.path=//vps516494.ovh.net/root/cimv2:PG_UnixProcess.CSName="vps516494.localdomain",Handle="23446",OSCreationClassName="CIM_OperatingSystem",CreationClassName="PG_UnixProcess",CSCreationClassName="CIM_UnitaryComputerSystem",OSName="Fedora"
@@ -131,8 +131,8 @@ class LibWbemTest(unittest.TestCase):
         currentIP = socket.gethostbyname(CurrentMachine)
         self.assertTrue(len(list_objects) == 1)
         for object_path, dict_key_values in list_objects:
-            DEBUG(object_path)
-            DEBUG(dict_key_values)
+            logging.debug(object_path)
+            logging.debug(dict_key_values)
 
             self.assertTrue(GetElementAsString(dict_key_values, 'Status') == "OK")
             self.assertTrue(GetElementAsString(dict_key_values, 'ElementName') == "Computer System")
@@ -155,8 +155,8 @@ class LibWbemTest(unittest.TestCase):
                 associator_key_name="CIM_ComputerSystem",
                 subject_path=r'//%s/root/cimv2:CIM_ComputerSystem.Name="%s"' % (CurrentMachine, CurrentMachine))
         for object_path, dict_key_values in iterator_objects:
-            DEBUG("object_path=%s", object_path)
-            DEBUG("dict_key_values=%s", str(dict_key_values))
+            logging.debug("object_path=%s", object_path)
+            logging.debug("dict_key_values=%s", str(dict_key_values))
 
     def test_sparql_callback_types(self):
         callback_object = lib_wbem.WbemSparqlCallbackApi()

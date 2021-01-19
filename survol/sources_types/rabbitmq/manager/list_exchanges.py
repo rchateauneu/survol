@@ -5,6 +5,7 @@ RabbitMQ exchanges
 """
 
 import sys
+import logging
 import lib_common
 import lib_credentials
 from pyrabbit.api import Client
@@ -40,7 +41,7 @@ def Main():
 
 	for objExchange in listExchanges:
 		namExchange = objExchange["name"]
-		DEBUG("namExchange=%s",namExchange)
+		logging.debug("namExchange=%s",namExchange)
 
 		namVHost = objExchange["vhost"]
 		nodeExchange = survol_rabbitmq_exchange.MakeUri(configNam,namVHost,namExchange)

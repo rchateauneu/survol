@@ -607,7 +607,7 @@ class SurvolLocalTest(unittest.TestCase):
         lst_instances = triple_python_package.get_instances()
         str_instances_set = set([str(oneInst) for oneInst in lst_instances ])
 
-        DEBUG("str_instances_set=%s", str_instances_set)
+        logging.debug("str_instances_set=%s", str_instances_set)
 
         # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
         for one_str in [
@@ -616,7 +616,7 @@ class SurvolLocalTest(unittest.TestCase):
             'python/package.Id=pyparsing',
             'python/package.Id=rdflib',
             CurrentUserPath ]:
-            DEBUG("one_str=%s", one_str)
+            logging.debug("one_str=%s", one_str)
             self.assertTrue(one_str in str_instances_set)
 
     def test_python_current_script(self):
@@ -649,7 +649,7 @@ class SurvolLocalTest(unittest.TestCase):
 
         lst_instances = triple_py_script.get_instances()
         str_instances_set = set([str(one_inst) for one_inst in lst_instances])
-        DEBUG("str_instances_set=%s", str(str_instances_set))
+        logging.debug("str_instances_set=%s", str(str_instances_set))
 
         sql_path_name_absolute = os.path.abspath(sql_path_name)
         sql_path_name_clean = lib_util.standardized_file_path(sql_path_name_absolute)

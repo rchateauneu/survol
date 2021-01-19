@@ -5,6 +5,7 @@ RabbitMQ users
 """
 
 import sys
+import logging
 import lib_util
 import lib_common
 import lib_credentials
@@ -51,7 +52,7 @@ def Main():
 
 	for objUser in listUsers:
 		namUser = objUser["name"]
-		DEBUG("q=%s",namUser)
+		logging.debug("q=%s",namUser)
 
 		nodeUser = survol_rabbitmq_user.MakeUri(configNam,namUser)
 
