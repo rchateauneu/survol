@@ -7,6 +7,7 @@ WMI class portal
 import sys
 import cgi
 import urllib
+import logging
 import lib_util
 import lib_common
 import lib_wmi
@@ -66,7 +67,7 @@ def Main():
     # class CIM_Directory : CIM_LogicalFile
     # {
     # };
-    DEBUG("wmi_class=%s", str(wmi_class))
+    logging.debug("wmi_class=%s", str(wmi_class))
 
     # Some examples of WMI queries.
     # http://timgolden.me.uk/python/wmi/tutorial.html
@@ -97,7 +98,7 @@ def Main():
             lib_common.ErrorMessageHtml("Caught when getting list of %s\n" % class_name)
 
         num_lst_obj = len(lst_obj)
-        DEBUG("class_name=%s type(wmi_class)=%s len=%d", class_name, str(type(wmi_class)), num_lst_obj)
+        logging.debug("class_name=%s type(wmi_class)=%s len=%d", class_name, str(type(wmi_class)), num_lst_obj)
 
         if num_lst_obj == 0:
             grph.add((root_node, pc.property_information, lib_util.NodeLiteral("No instances in this class")))
@@ -111,16 +112,16 @@ def Main():
                 full_pth = str(wmi_obj.path())
             except UnicodeEncodeError as exc:
                 # UnicodeEncodeError: 'ascii' codec can't encode characters in position 104-108: ordinal not in range(128)
-                WARNING("Exception %s", str(exc))
+                logging.warning("Exception %s", str(exc))
                 continue
 
             # sys.stderr.write("full_pth=%s\n" % full_pth)
 
             if full_pth == "":
-                WARNING("Empty path wmi_obj=%s", str(wmi_obj))
+                logging.warning("Empty path wmi_obj=%s", str(wmi_obj))
                 # The class Win32_PnPSignedDriver (Maybe others) generates dozens of these messages.
                 # This is not really an issue as this class should be hidden from applications.
-                # WARNING Empty path wmi_obj=
+                # logging.warning Empty path wmi_obj=
                 # instance of Win32_PnPSignedDriver
                 # {
                 #         ClassGuid = NULL;
@@ -145,7 +146,7 @@ def Main():
             # full_pth=\\RCHATEAU-HP\root\CIMV2:Win32_SoundDevice.DeviceID="HDAUDIO\\FUNC_01&VEN_10EC&DEV_0221&SUBSYS_103C18E9&REV_1000\\4&3BC582&0&0001"
             full_pth = full_pth.replace("&", "&amp;")
             wmi_instance_url = lib_util.EntityUrlFromMoniker(full_pth)
-            DEBUG("wmi_instance_url=%s", wmi_instance_url)
+            logging.debug("wmi_instance_url=%s", wmi_instance_url)
 
             wmi_instance_node = lib_common.NodeUrl(wmi_instance_url)
 
