@@ -3,6 +3,7 @@ ODBC Data Source Name
 """
 
 import sys
+import logging
 import lib_common
 import lib_util
 import lib_credentials
@@ -16,8 +17,10 @@ from sources_types.oracle import db as oracle_db
 # yum install unixODBC-devel
 # https://stackoverflow.com/questions/31353137/sql-h-not-found-when-installing-pyodbc-on-heroku
 
+
 def Graphic_colorfill():
 	return "#CCFF11"
+
 
 def Graphic_colorbg():
 	return "#CCFF11"
@@ -26,13 +29,16 @@ def Graphic_colorbg():
 def EntityOntology():
 	return ( [ survol_odbc.CgiPropertyDsn() ], )
 
+
 def MakeUri(dsnName):
 	# sys.stderr.write("MakeUri dsnName=%s\n"%dsnName)
 	return lib_common.gUriGen.UriMakeFromDict("odbc/dsn", { survol_odbc.CgiPropertyDsn() : dsnName })
 
+
 def EntityName(entity_ids_arr):
 	# sys.stderr.write("EntityName entity_ids_arr=%s\n"%str(entity_ids_arr))
 	return survol_odbc.CgiPropertyDsn().ValueDisplay(entity_ids_arr[0])
+
 
 # This expects a DSN as a simple string.
 def MakeOdbcConnectionStringFromDsn(dsnNam):
@@ -64,6 +70,7 @@ def MakeOdbcConnectionString(dsnNam):
 	# Otherwise it assumes a connection string, returned "as is".
 	return dsnNam
 
+
 def GetDatabaseEntityTypeFromConnection(cnxn):
 	# "Oracle", "Microsoft SQL Server"
 	prm_value = cnxn.getinfo(pyodbc.SQL_DBMS_NAME)
@@ -79,12 +86,14 @@ def GetDatabaseEntityTypeFromConnection(cnxn):
 		# TODO: Or maybe return "sql" to be consistent with the concept of vendor-neutral database.
 		return ""
 
+
 def GetDatabaseEntityType(dsnNam):
 	ODBC_ConnectString = MakeOdbcConnectionString(dsnNam)
 
 	cnxn = pyodbc.connect(ODBC_ConnectString)
 
 	return GetDatabaseEntityTypeFromConnection(cnxn)
+
 
 # This displays abort link to the Oracle database, but not seen from ODBC,
 # so we can have more specific queries.
@@ -102,7 +111,7 @@ def AddInfo(grph,node,entity_ids_arr):
 
 	dbEntityType = GetDatabaseEntityTypeFromConnection(cnxn)
 
-	DEBUG("AddInfo dbEntityType=%s", dbEntityType )
+	logging.debug("AddInfo dbEntityType=%s", dbEntityType )
 	if dbEntityType == "oracle":
 		# For example "XE".
 		server_name = cnxn.getinfo(pyodbc.SQL_SERVER_NAME)
@@ -115,9 +124,10 @@ def AddInfo(grph,node,entity_ids_arr):
 		node_sqlserverdb = survol_sqlserver_dsn.MakeUri( dsnNam )
 
 		grph.add( ( node, pc.property_sqlserver_db, node_sqlserverdb ) )
-		DEBUG("AddInfo dbEntityType=%s ADDING NODE", dbEntityType )
+		logging.debug("AddInfo dbEntityType=%s ADDING NODE", dbEntityType )
 
 		#grph.add( ( node, pc.property_pid, lib_util.NodeLiteral(pidProc) ) )
+
 
 # TODO: Maybe should decode ????
 def GetDsnNameFromCgi(cgiEnv):
@@ -127,6 +137,7 @@ def GetDsnNameFromCgi(cgiEnv):
 
 	# sys.stderr.write("GetDsnNameFromCgi dsnCoded=%s dsnDecoded=%s\n"%(dsnCoded,dsnDecoded))
 	return dsnDecoded
+
 
 def DatabaseEnvParams(processId):
 	# TODO: We could use the process id to check if the process executable is linked
@@ -151,4 +162,3 @@ def DatabaseEnvParams(processId):
 	dsnList = ( { survol_odbc.CgiPropertyDsn(): "DSN=" + dsn } for dsn in sourcesData )
 
 	return ( "sqlserver/query", dsnList )
-

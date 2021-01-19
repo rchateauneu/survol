@@ -4,6 +4,7 @@ Browse neighborhood services and agents
 
 import re
 import sys
+import logging
 import lib_common
 
 # There is no WMI neighborhood because all Windows machine have WMI.
@@ -32,6 +33,7 @@ import lib_common
 
 # It could probably use the Python3 module pyslp.
 
+
 # This returns a map containing the key-value pairs of the attributes
 # of this service.
 def GetSLPAttributes(serviceName,slpHost):
@@ -46,7 +48,7 @@ def GetSLPAttributes(serviceName,slpHost):
 	splitResuFindAttrs = outStreamFindAttrs.split("\n")
 
 	for linResuFindAttrs in splitResuFindAttrs:
-		DEBUG("GetSLPAttributes slpHost=%s linResuFindAttrs=%s",slpHost,linResuFindAttrs)
+		logging.debug("GetSLPAttributes slpHost=%s linResuFindAttrs=%s",slpHost,linResuFindAttrs)
 		# service:survol:http://rchateau-hp:8000/survol/entity.py,65535
 		# service:wbem:http://rchateau-hp,65535
 		mtchFindAttrs = re.match( r'\(([^=]*)=([^)]*)\)', linResuFindAttrs )
@@ -55,9 +57,10 @@ def GetSLPAttributes(serviceName,slpHost):
 			slpAttrVal = mtchFindAttrs.group(2)
 			dictAttributes[slpAttrKey] = slpAttrVal
 		else:
-			DEBUG("No match for attributes:%s",linResuFindAttrs)
+			logging.debug("No match for attributes:%s",linResuFindAttrs)
 
 	return dictAttributes
+
 
 def GetSLPServices(serviceName):
 	dictServices = {}
@@ -71,7 +74,7 @@ def GetSLPServices(serviceName):
 	splitResuSlpTool = outStreamSlpTool.split("\n")
 
 	for linResuSlpTool in splitResuSlpTool:
-		DEBUG("GetSLPServices serviceName=%s linResuSlpTool=%s",serviceName,linResuSlpTool)
+		logging.debug("GetSLPServices serviceName=%s linResuSlpTool=%s",serviceName,linResuSlpTool)
 		# service:survol:http://rchateau-hp:8000/survol/entity.py,65535
 		# service:wbem:http://rchateau-hp,65535
 		mtchSplTool = re.match( r'service:[^:]*:([^,]*)(.*)', linResuSlpTool )
@@ -80,6 +83,6 @@ def GetSLPServices(serviceName):
 			slpAttrs = GetSLPAttributes(serviceName,slpHost)
 			dictServices[slpHost] = slpAttrs
 		else:
-			DEBUG("No match:%s",linResuSlpTool)
+			logging.debug("No match:%s",linResuSlpTool)
 
 	return dictServices

@@ -9,11 +9,13 @@ import re
 import socket
 import threading
 import time
+import logging
 
 import lib_arp
 import lib_util
 import lib_common
 from lib_properties import pc
+
 
 def GetMacVendor(macAddress):
 	"""
@@ -47,6 +49,7 @@ def GetMacVendor(macAddress):
 
 # TODO: Add an option to make it asynchronous or synchronous or without DNS.
 # Otherwise we must maintain several versions.
+
 
 class LookupThread(threading.Thread):
 	"""
@@ -107,6 +110,7 @@ class LookupThread(threading.Thread):
 			if hostItf:
 				self.grph.add( ( hostNode, lib_common.MakeProp("Interface"), lib_util.NodeLiteral(hostItf) ) )
 
+
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
@@ -127,7 +131,7 @@ def Main():
 		if ipAddr in setIps:
 			continue
 		setIps.add(ipAddr)
-		DEBUG("linSplit=%s",str(linSplit))
+		logging.debug("linSplit=%s",str(linSplit))
 		thr = LookupThread( linSplit, grph, grph_lock, map_hostnames_ipcount )
 		thr.start()
 		lookup_threads.append( thr )
@@ -137,6 +141,7 @@ def Main():
 		thread.join()
 
 	cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
 	Main()

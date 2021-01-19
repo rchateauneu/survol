@@ -8,14 +8,16 @@ Set the Service Location Protocol flag to enable this detection.
 """
 
 import sys
+import logging
 import lib_util
 import lib_common
 import lib_credentials
 from lib_properties import pc
 from sources_types import neighborhood as survol_neighborhood
 
+
 def AddSurvolNode(grph,hostSurvol,urlSurvolClean):
-	DEBUG("AddSurvolNode hostSurvol=%s",hostSurvol)
+	logging.debug("AddSurvolNode hostSurvol=%s",hostSurvol)
 	survolHostNode = lib_common.gUriGen.HostnameUri( hostSurvol )
 
 	currDispMode = lib_util.GuessDisplayMode()
@@ -66,7 +68,7 @@ def CallbackNodeAdder(grph,urlSurvol):
 def SurvolServersDisplay(grph):
 	lstSurvolServers = []
 	credNames = lib_credentials.get_credentials_names( "Survol" )
-	DEBUG("SurvolServersDisplay")
+	logging.debug("SurvolServersDisplay")
 	for urlSurvol in credNames:
 		# sys.stderr.write("SurvolServersDisplay urlSurvol=%s\n"%(urlSurvol))
 
@@ -100,7 +102,6 @@ def Main():
 				propAttr = lib_common.MakeProp(keyAttr)
 				valAttr = attrsService[keyAttr]
 				grph.add( ( nodeSurvolUrl, propAttr, lib_util.NodeLiteral(valAttr) ) )
-
 
 	cgiEnv.OutCgiRdf()
 
