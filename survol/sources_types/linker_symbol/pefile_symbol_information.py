@@ -8,6 +8,7 @@ import re
 import os
 import os.path
 import sys
+import logging
 import lib_uris
 import lib_util
 import lib_win32
@@ -19,6 +20,7 @@ from lib_properties import pc
 
 import pefile
 import win32api
+
 
 # This can run on a PE file only.
 def Usable(entity_type,entity_ids_arr):
@@ -32,6 +34,7 @@ def Usable(entity_type,entity_ids_arr):
 	except Exception:
 		return False
 
+
 def VersionString(filNam):
 	try:
 		info = win32api.GetFileVersionInfo (filNam, "\\")
@@ -40,6 +43,7 @@ def VersionString(filNam):
 		return "%d.%d.%d.%d" % ( win32api.HIWORD (ms), win32api.LOWORD (ms), win32api.HIWORD (ls), win32api.LOWORD (ls) )
 	except:
 		return None
+
 
 def FindPESymbol(filNam,symbolNam):
 	try:
@@ -51,10 +55,10 @@ def FindPESymbol(filNam,symbolNam):
 			# if sym.name.lower() == symbol.lower():
 			if  lib_pefile.UndecorateSymbol( sym.name ) == symbolNam:
 				return sym
-	except Exception:
-		exc = sys.exc_info()[1]
+	except Exception as exc:
 		lib_common.ErrorMessageHtml("FindPESymbol %s %s. Caught:%s" % ( filNam, symbolNam, str(exc) ) )
 	return None
+
 
 def Main():
 
@@ -69,7 +73,7 @@ def Main():
 	symbolNam = lib_util.Base64Decode(symbol_encode)
 	filNam = cgiEnv.m_entity_id_dict["File"]
 
-	DEBUG("symbol=%s filNam=%s", symbolNam,filNam)
+	logging.debug("symbol=%s filNam=%s", symbolNam,filNam)
 
 	grph = cgiEnv.GetGraph()
 
@@ -117,6 +121,6 @@ def Main():
 
 	cgiEnv.OutCgiRdf( "LAYOUT_RECT", [pc.property_argument] )
 
+
 if __name__ == '__main__':
 	Main()
-

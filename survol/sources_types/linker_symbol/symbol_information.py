@@ -7,11 +7,13 @@ Symbol information.
 import os
 import os.path
 import sys
+import logging
 import lib_uris
 import lib_util
 import lib_common
 import lib_symbol
 from lib_properties import pc
+
 
 # It does not need the pefile library.
 def Main():
@@ -28,7 +30,7 @@ def Main():
 	symbolNam = lib_util.Base64Decode(symbol_encode)
 	filNam = cgiEnv.m_entity_id_dict["File"]
 
-	DEBUG("symbol=%s filNam=%s", symbolNam,filNam)
+	logging.debug("symbol=%s filNam=%s", symbolNam,filNam)
 
 	grph = cgiEnv.GetGraph()
 
@@ -46,6 +48,6 @@ def Main():
 
 	cgiEnv.OutCgiRdf( "LAYOUT_RECT", [pc.property_argument] )
 
+
 if __name__ == '__main__':
 	Main()
-
