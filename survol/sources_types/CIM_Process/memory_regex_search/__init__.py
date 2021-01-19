@@ -632,17 +632,17 @@ if sys.platform == "win32":
             try:
                 next_page = _windows_scan_from_page(phandle, page_address, mem_proc_functor)
             except ctypes.ArgumentError as exc:
-                ERROR("MemMachine ArgumentError: %s: %s", str(page_address), exc)
+                logging.error("MemMachine ArgumentError: %s: %s", str(page_address), exc)
                 break
             except Exception:
                 t, e = sys.exc_info()[:2]
-                ERROR("MemMachine Other exception:%s", str(e).replace("\n", " "))
+                logging.error("MemMachine Other exception:%s", str(e).replace("\n", " "))
                 break
 
             page_address = next_page
 
             if not is64bits and page_address == 0x7FFF0000:
-                ERROR("MemMachine End of 32bits process memory on Windows")
+                logging.error("MemMachine End of 32bits process memory on Windows")
                 break
 
             if len(allFound) >= 1000000:
@@ -708,7 +708,7 @@ elif sys.platform.startswith("linux"):
             # TODO: Close the file.
 
         except Exception as exc:
-            ERROR("_linux_get_process_memory len_addr=%d Exception:%s", len_addr, str(exc))
+            logging.error("_linux_get_process_memory len_addr=%d Exception:%s", len_addr, str(exc))
             mem_proc_functor.error_count += 1
         _linux_call_ptrace(False, pidint)
 

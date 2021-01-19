@@ -7,7 +7,7 @@ Processes in a cgroup
 import sys
 import re
 import socket
-import socket
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -36,7 +36,7 @@ def Main():
 
 			grph.add( ( cgroupNode, propCGroup, procNode ) )
 	except:
-		ERROR("Invalid cgroup:%s",cgroupName)
+		logging.error("Invalid cgroup:%s",cgroupName)
 		lib_common.ErrorMessageHtml("Invalid cgroup:%s"%cgroupName)
 
 	# This lists processes in a table instead of scattered nodes.
