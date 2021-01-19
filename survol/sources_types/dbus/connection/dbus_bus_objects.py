@@ -7,6 +7,7 @@ DBus connection objects
 import os
 import sys
 import dbus
+import logging
 import lib_common
 import lib_util
 import lib_dbus
@@ -15,9 +16,10 @@ from lib_properties import pc
 
 Usable = lib_util.UsableLinux
 
+
 # http://unix.stackexchange.com/questions/203410/how-to-list-all-object-paths-under-a-dbus-service
 def RecursiveObjWalk(grph,object_path, rootNode):
-	DEBUG("RecursiveObjWalk %s", object_path)
+	logging.debug("RecursiveObjWalk %s", object_path)
 	objNode = lib_util.EntityUri( "dbus/object", Main.busAddr, Main.connectName, object_path )
 	grph.add( (rootNode, Main.localPropDbusPath, objNode ) )
 
@@ -31,6 +33,7 @@ def RecursiveObjWalk(grph,object_path, rootNode):
 		if child.tag == 'node':
 			new_path = '/'.join((object_path, child.attrib['name']))
 			RecursiveObjWalk( grph, new_path, objNode)
+
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -60,14 +63,12 @@ def Main():
 	try:
 		RecursiveObjWalk( grph, "/", connectNode )
 	except dbus.exceptions.DBusException as exc:
-		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Caught DBusException busAddr=%s %s" % ( Main.busAddr, str(exc) ) )
 	except dbus.proxies as exc:
-		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Caught proxies busAddr=%s %s" % (Main. busAddr, str(exc) ) )
 
-
 	cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
 	Main()
