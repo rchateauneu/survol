@@ -7,6 +7,7 @@ File names in process memory.
 import os
 import sys
 import re
+import logging
 
 import lib_util
 import lib_common
@@ -96,7 +97,7 @@ def _check_unique_filenames(a_fil_nam, unique_filenames, paramCheckExistence):
     if a_fil_nam in unique_filenames:
         return
 
-    #WARNING("cleanup_filename a_fil_nam=%s", a_fil_nam)
+    #logging.warning("cleanup_filename a_fil_nam=%s", a_fil_nam)
 
     # The file must exist. If we cannot access it does not matter.
     # TODO: Must accept if we can access it or not.
@@ -104,13 +105,12 @@ def _check_unique_filenames(a_fil_nam, unique_filenames, paramCheckExistence):
 
         # TODO: Test existence of relative files by prefixing with current directory.
         if not os.path.isdir(a_fil_nam) and not os.path.isfile(a_fil_nam):
-            WARNING("File DOES NOT EXIST: %s" % a_fil_nam)
+            logging.warning("File DOES NOT EXIST: %s" % a_fil_nam)
             pass
         else:
             unique_filenames.add(a_fil_nam)
 
     unique_filenames.add(a_fil_nam)
-
 
 
 def Main():
@@ -138,7 +138,7 @@ def Main():
     try:
         obj_parser = _filename_parser_generator()
         rgx_fil_nam = obj_parser.create_regex(paramMiniDepth, paramWithRelative)
-        WARNING("rgx_fil_nam=%s", rgx_fil_nam)
+        logging.warning("rgx_fil_nam=%s", rgx_fil_nam)
 
         resu_fil_nams = memory_regex_search.GetRegexMatches(pid_as_integer, rgx_fil_nam)
 
@@ -159,7 +159,7 @@ def Main():
             if is_path:
                 # This is just a list of directories. This could be an interesting information,
                 # but it does not imply the creation or access of actual files and cirectories.
-                #WARNING("THIS IS JUST A PATH:%s", str(a_fil_nam_list))
+                #logging.warning("THIS IS JUST A PATH:%s", str(a_fil_nam_list))
                 pass
             else:
                 # These files might actuqally be used.
@@ -172,16 +172,17 @@ def Main():
                     _check_unique_filenames(one_filename, unique_filenames, paramCheckExistence)
 
         for a_fil_nam in unique_filenames:
-            #DEBUG("a_fil_nam=%s",a_fil_nam)
+            #logging.debug("a_fil_nam=%s",a_fil_nam)
             node_filnam = lib_common.gUriGen.FileUri(a_fil_nam)
             grph.add((node_process, pc.property_rdf_data_nolist1, node_filnam))
 
-        WARNING("unique file numbers=%d", len(unique_filenames))
+        logging.warning("unique file numbers=%d", len(unique_filenames))
 
     except Exception as exc:
         lib_common.ErrorMessageHtml("Error:%s. Protection ?" % str(exc))
 
     cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
     Main()
