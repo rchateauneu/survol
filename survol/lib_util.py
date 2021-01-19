@@ -143,7 +143,7 @@ try:
             args['key'] = natsort_key
         one_list.sort(**args)
 except ImportError:
-    WARNING("WritePatterned Module natsorted not available.")
+    logging.warning("WritePatterned Module natsorted not available.")
     natural_sorted = sorted
 
     def natural_sort_list(one_list, **args):
@@ -784,7 +784,7 @@ def EntityUri(entity_type, *entity_ids):
     keys = OntologyClassKeys(entity_type)
 
     if len(keys) != len(entity_ids):
-        WARNING("EntityUri entity_type=%s Different lens:%s and %s", entity_type, str(keys), str(entity_ids))
+        logging.warning("EntityUri entity_type=%s Different lens:%s and %s", entity_type, str(keys), str(entity_ids))
 
     # TODO: Base64 encoding is needed in the general case.
     entity_id = ",".join("%s=%s" % pair_kw for pair_kw in zip(keys, entity_ids))
@@ -1292,7 +1292,7 @@ def url_mode_replace(script, other_mode):
 def RootUri():
     calling_url = request_uri_with_mode("")
     calling_url = calling_url.replace("&", "&amp;")
-    DEBUG("RootUri calling_url=%s", calling_url)
+    logging.debug("RootUri calling_url=%s", calling_url)
     return NodeUrl(calling_url)
 
 ################################################################################
@@ -1660,14 +1660,14 @@ def GetScriptModule(current_module, fil):
     file_base_name = fil[:-3] # Without the ".py" extension.
     if is_py3:
         # Example: importlib.import_module("sources_top.Databases.mysql_processlist")
-        #DEBUG("currentModule=%s fil=%s subClass=%s",currentModule,fil,subClass)
+        #logging.debug("currentModule=%s fil=%s subClass=%s",currentModule,fil,subClass)
         if current_module:
             imported_mod = importlib.import_module(current_module + "." + file_base_name)
         else:
             imported_mod = importlib.import_module(file_base_name)
     else:
         if current_module:
-            DEBUG("GetScriptModule file_base_name=%s currentModule=%s", file_base_name, current_module)
+            logging.debug("GetScriptModule file_base_name=%s currentModule=%s", file_base_name, current_module)
             imported_mod = importlib.import_module("." + file_base_name, current_module)
         else:
             imported_mod = importlib.import_module(file_base_name)
@@ -1957,14 +1957,14 @@ class TmpFile:
             return
 
         self.Name = "%s/%s.%d.%s" % (curr_dir, prefix, proc_pid, suffix)
-        DEBUG("tmp=%s", self.Name )
+        logging.debug("tmp=%s", self.Name )
 
     def _remove_temp_file(self, fil_nam):
         if True:
-            DEBUG("Deleting=%s", fil_nam)
+            logging.debug("Deleting=%s", fil_nam)
             os.remove(fil_nam)
         else:
-            WARNING("NOT Deleting=%s", fil_nam)
+            logging.warning("NOT Deleting=%s", fil_nam)
 
     def __del__(self):
         try:
@@ -1975,7 +1975,7 @@ class TmpFile:
             if self.TmpDirToDel not in [None, "/", ""]:
                 # Extra-extra-check: Delete only survol temporary files.
                 assert os.path.basename(self.TmpDirToDel).startswith("survol_")
-                DEBUG("About to del %s", self.TmpDirToDel)
+                logging.debug("About to del %s", self.TmpDirToDel)
                 for root, dirs, files in os.walk(self.TmpDirToDel, topdown=False):
                     for name in files:
                         self._remove_temp_file(os.path.join(root, name))
