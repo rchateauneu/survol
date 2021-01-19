@@ -1,5 +1,6 @@
 import os
 import sys
+import logging
 import rdflib
 import lib_util
 import lib_kbase
@@ -153,7 +154,7 @@ def _add_ontology(old_grph):
             new_grph.add((node_subject, node_predicate, node_object))
 
     lib_kbase.CreateRdfsOntology(map_classes, map_attributes, new_grph)
-    DEBUG("_add_ontology len(grph)=%d map_classes=%d map_attributes=%d len(new_grph)=%d",
+    logging.debug("_add_ontology len(grph)=%d map_classes=%d map_attributes=%d len(new_grph)=%d",
           len(new_grph), len(map_classes), len(map_attributes), len(new_grph))
 
     return new_grph
@@ -162,7 +163,7 @@ def _add_ontology(old_grph):
 def Grph2Rdf(grph):
     """Used by all CGI scripts when they have finished adding triples to the current RDF graph.
     The RDF comment is specifically processed to be used by ontology editors such as Protege."""
-    DEBUG("Grph2Rdf entering")
+    logging.debug("Grph2Rdf entering")
 
     new_grph = _add_ontology(grph)
 
@@ -175,7 +176,7 @@ def Grph2Rdf(grph):
     out_dest = lib_util.get_default_output_destination()
 
     lib_kbase.triplestore_to_stream_xml(new_grph, out_dest, 'xml')
-    DEBUG("Grph2Rdf leaving")
+    logging.debug("Grph2Rdf leaving")
 
 
 def WriteRdfError(message, broken_url):
