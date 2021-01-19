@@ -5,6 +5,7 @@ ODBC Data sources (ODBC module)
 """
 
 import sys
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -39,7 +40,7 @@ def DisplayDsns(grph,fetch_code,dsn_type):
 			break
 		# TODO: Prints the description and other data.
 		dsn, driver = source
-		DEBUG("dsn=%s driver=%s type=%s", dsn, driver, dsn_type)
+		logging.debug("dsn=%s driver=%s type=%s", dsn, driver, dsn_type)
 		odbc_iter_code = odbc.SQL_FETCH_NEXT
 
 		# This creates a connection string.
@@ -50,7 +51,7 @@ def DisplayDsns(grph,fetch_code,dsn_type):
 
 
 def show_odbc_sources(grph):
-	DEBUG("odbc=%s", str(dir(odbc)) )
+	logging.debug("odbc=%s", str(dir(odbc)) )
 
 	DisplayDsns(grph,odbc.SQL_FETCH_FIRST_USER,"User")
 	DisplayDsns(grph,odbc.SQL_FETCH_FIRST_SYSTEM,"System")
