@@ -5,6 +5,7 @@ RabbitMQ virtual hosts queues
 """
 
 import sys
+import logging
 import lib_common
 import lib_credentials
 from pyrabbit.api import Client
@@ -44,7 +45,7 @@ def Main():
 
 	for quList in cl.get_queues(namVHost):
 		namQueue = quList["name"]
-		DEBUG("q=%s",namQueue)
+		logging.debug("q=%s",namQueue)
 
 		nodeQueue = survol_rabbitmq_queue.MakeUri(configNam,namVHost,namQueue)
 

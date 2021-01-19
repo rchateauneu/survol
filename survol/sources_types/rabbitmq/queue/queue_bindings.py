@@ -5,6 +5,7 @@ RabbitMQ queue bindings
 """
 
 import sys
+import logging
 import lib_util
 import lib_common
 import lib_credentials
@@ -55,7 +56,7 @@ def Main():
 			valBindings = sublstBindings[keyBindings]
 			strDisp = str(valBindings).replace("{","").replace("}","")
 			grph.add( ( nodeQueue, lib_common.MakeProp(keyBindings), lib_util.NodeLiteral(strDisp ) ))
-			DEBUG("keyBindings=%s valBindings=%s",keyBindings,valBindings)
+			logging.debug("keyBindings=%s valBindings=%s",keyBindings,valBindings)
 
 	cgiEnv.OutCgiRdf()
 
