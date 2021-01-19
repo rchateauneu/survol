@@ -5,11 +5,13 @@ Parse Sqlite database
 """
 
 import sys
+import logging
 import lib_common
 from sources_types import sqlite
 from sources_types.sqlite import file as sqlite_file
 
-def Usable(entity_type,entity_ids_arr):
+
+def Usable(entity_type, entity_ids_arr):
 	"""Can run on a Sqlite database only"""
 	filNam = entity_ids_arr[0]
 	return sqlite.IsSqliteDatabase(filNam)
@@ -21,18 +23,19 @@ def Main():
 
 	dbFilNam = cgiEnv.GetId()
 
-	DEBUG("dbFilNam=%s",dbFilNam)
+	logging.debug("dbFilNam=%s", dbFilNam)
 
 	grph = cgiEnv.GetGraph()
 
-	filNode = lib_common.gUriGen.FileUri(dbFilNam )
+	filNode = lib_common.gUriGen.FileUri(dbFilNam)
 	sqliteNode = sqlite_file.MakeUri(dbFilNam)
 
-	grph.add( ( sqliteNode, lib_common.MakeProp("Storage file"), filNode ) )
+	grph.add((sqliteNode, lib_common.MakeProp("Storage file"), filNode))
 
 	sqlite.AddNodesTablesViews(grph,sqliteNode,dbFilNam)
 
 	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
+
 
 if __name__ == '__main__':
 	Main()

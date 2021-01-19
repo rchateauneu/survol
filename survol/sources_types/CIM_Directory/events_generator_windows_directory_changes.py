@@ -4,6 +4,7 @@ import os
 import sys
 import rdflib
 import time
+import logging
 
 import lib_kbase
 import lib_util
@@ -133,7 +134,7 @@ def Main():
                 send_events_once()
             except Exception as exc:
                 sys.stderr.write(__file__ + " caught: %s" % exc)
-                WARNING("caught: %s\n" % exc)
+                logging.warning("caught: %s\n" % exc)
 
 
 if __name__ == '__main__':

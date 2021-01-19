@@ -7,6 +7,7 @@ Files in directory
 import os
 import re
 import sys
+import logging
 import lib_uris
 import lib_common
 from sources_types import CIM_DataFile
@@ -83,11 +84,11 @@ def Main():
     else:
         is_top_directory = False
 
-    DEBUG("file_directory.py fil_nam=%s is_top_directory=%d", fil_nam, is_top_directory)
+    logging.debug("file_directory.py fil_nam=%s is_top_directory=%d", fil_nam, is_top_directory)
 
     if not is_top_directory:
         topdir = os.path.dirname(fil_nam)
-        DEBUG("topdir=%s", topdir)
+        logging.debug("topdir=%s", topdir)
         if topdir:
             topdir_node = lib_common.gUriGen.DirectoryUri(topdir)
             grph.add((topdir_node, pc.property_directory, fil_node))
@@ -153,7 +154,6 @@ def Main():
     cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_directory])
     # cgiEnv.OutCgiRdf("LAYOUT_RECT", [] )
 
+
 if __name__ == '__main__':
     Main()
-
-
