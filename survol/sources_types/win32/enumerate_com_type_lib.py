@@ -6,6 +6,7 @@ Registered COM type libraries
 
 import os
 import sys
+import logging
 import lib_common
 from lib_properties import pc
 
@@ -27,7 +28,7 @@ def Main():
                 # (<class 'pywintypes.error'>, error(6, 'RegQueryInfoKey', 'The handle is invalid.')
                 key_name = win32api.RegEnumKey(lib_com_type_lib.TypeLibRegistryKey, num)
             except win32api.error as exc:
-                WARNING("RegEnumKey CAUGHT:%s", str(exc))
+                logging.warning("RegEnumKey CAUGHT:%s", str(exc))
                 break
 
             versions = lib_com_type_lib.ComKeyAllNameVersion(lib_com_type_lib.TypeLibRegistryKey, key_name)
