@@ -33,6 +33,7 @@ mysql sessions
 import os
 import subprocess
 import sys
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -40,6 +41,7 @@ import lib_credentials
 
 # This does not import genuine mysql packages so this will always work.
 from sources_types.mysql import instance as survol_mysql_instance
+
 
 def AddMySqlPort(grph,instanceMySql):
 
@@ -58,18 +60,18 @@ def AddMySqlPort(grph,instanceMySql):
 
 	mysql_cmd_lst = ["mysqladmin","-u",aCred[0],"-p%s"%aCred[1],"-h%s"%hostMySql,"processlist"]
 	mysql_cmd = " ".join(mysql_cmd_lst)
-	DEBUG("mysql_cmd=%s",mysql_cmd)
+	logging.debug("mysql_cmd=%s",mysql_cmd)
 
 	command = subprocess.Popen(mysql_cmd_lst, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 	(cmd_output, cmd_error) = command.communicate()
-	DEBUG("mysql_cmd cmd_error=%s",cmd_error)
+	logging.debug("mysql_cmd cmd_error=%s",cmd_error)
 
 	# [Warning] Using a password on the command line interface can be insecure.
 	if cmd_error and cmd_error.find(""):
 		lib_common.ErrorMessageHtml("Error running mysqladmin:"+ cmd_error)
 
 	for linSql in cmd_output.split("\n"):
-		DEBUG("linSql="+linSql)
+		logging.debug("linSql="+linSql)
 		words_arr = linSql.split('|')
 		if len(words_arr) < 4:
 			continue
@@ -82,7 +84,7 @@ def AddMySqlPort(grph,instanceMySql):
 		mysql_command = words_arr[8].strip()
 		if mysql_host == 'Host':
 			continue
-		DEBUG("host="+mysql_host)
+		logging.debug("host="+mysql_host)
 
 		mysql_addr_arr = mysql_host.split(':')
 		mysql_id_node = lib_common.NodeUrl('urn://' + mysql_host + '/mysql/' + str(mysql_id) )
@@ -117,13 +119,13 @@ def Main():
 	credNames = lib_credentials.get_credentials_names( "MySql" )
 
 	for instanceMySql in credNames:
-		DEBUG("MySql servers instanceMySql=%s",instanceMySql)
+		logging.debug("MySql servers instanceMySql=%s",instanceMySql)
 
 		phpmyadminNode = AddMySqlPort(grph,instanceMySql)
 		grph.add( ( lib_common.nodeMachine, pc.property_rdf_data_nolist1, phpmyadminNode ) )
 
-
 	cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
 	Main()
