@@ -17,6 +17,7 @@ import platform
 import tempfile
 import subprocess
 import multiprocessing
+import logging
 
 # The logging level is set in pytest.ini
 
@@ -24,7 +25,6 @@ def update_test_path():
     """This loads the module from the source, so no need to install it, and no need of virtualenv."""
     if "../survol" not in sys.path:
         sys.path.append("../survol")
-
 
 if ".." not in sys.path:
     sys.path.append("..")
@@ -418,7 +418,7 @@ def start_wsgiserver(agent_url, agent_port):
         try:
             response = portable_urlopen(local_agent_url, timeout=5)
         except Exception as exc:
-            ERROR("Caught:%s", exc)
+            logging.error("Caught:%s", exc)
             __dump_server_content(scripts.wsgiserver.WsgiServerLogFileName)
             raise
 
@@ -458,7 +458,7 @@ def __queries_entities_to_value_pairs(iter_entities_dicts):
 
 
 def query_see_also_key_value_pairs(grph, sparql_query):
-    WARNING("query_see_also_key_value_pairs")
+    logging.warning("query_see_also_key_value_pairs")
     iter_entities_dicts = lib_sparql.QuerySeeAlsoEntities(grph, sparql_query)
     iter_dict_objects = __queries_entities_to_value_pairs(iter_entities_dicts)
     list_dict_objects = list(iter_dict_objects)
