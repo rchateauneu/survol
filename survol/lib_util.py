@@ -82,7 +82,7 @@ SetLoggingConfig(logging.WARNING)
 # Avoid this message:
 # 2018-09-18 21:57:54,868  WARNING rdflib.term term.py 207: http://L... does not look like a valid URI, trying to serialize this will break.
 loggerRdflib = logging.getLogger("rdflib.term")
-loggerRdflib.setLevel(logging.ERROR)
+loggerRdflib.setLevel(logging.WARNING)
 
 # This is the general purpose logger.
 if is_py3:
@@ -1005,7 +1005,7 @@ def UsableLinux(entity_type, entity_ids_arr):
     if some libraries are available etc...
     This is formalised by having in each script, an optional function called "Usable",
     which returns a boolean.
-    Some "Usable" functons are very common, for example if a cript can be run on Linux or Windows etc...
+    Some "Usable" functions are very common, for example if a cript can be run on Linux or Windows etc...
 
     It is also possible to set a Usable function in a __init__.py file, and then it applies
     to all scripts of the directory and sub-directories."""
@@ -1045,11 +1045,13 @@ def UsableLinuxBinary(entity_type, entity_ids_arr):
         return True
     # TODO: Finish this. Use "magic" module ??
     return True
-    
+
 
 def is_snapshot_behaviour():
-    """Used by scripts named like events_generator_*.py which can write a continuous flow of events.
-    They also must be able to run in snapshot mode, by default, and return RDF triples."""
+    """
+    Used by scripts named like events_generator_*.py which can write a continuous flow of events.
+    They also must be able to run in snapshot mode, by default, and return RDF triples.
+    """
 
     try:
         # Maybe this is started form the command line when testing.
@@ -1057,8 +1059,14 @@ def is_snapshot_behaviour():
     except KeyError:
         query_string = ""
 
-    sys.stderr.write("is_snapshot_behaviour QUERY_STRING=%s\n" % query_string)
-    return "mode=" + "daemon" not in query_string
+    logging.debug("is_snapshot_behaviour QUERY_STRING=%s" % query_string)
+    is_snapshot = "mode=" + "daemon" not in query_string
+    if is_snapshot:
+        logging.debug("In snapshot mode")
+    else:
+        logging.debug("Not in snapshot mode")
+    return is_snapshot
+
 
 ################################################################################
 
