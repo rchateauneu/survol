@@ -6,6 +6,7 @@ Windows service dependencies
 
 import os
 import sys
+imrpot logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -16,9 +17,11 @@ from sources_types import Win32_Service
 
 Usable = lib_util.UsableWindows
 
+
 def TimeStamp():
 	ts = time.time()
 	return datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S') + ":"
+
 
 def Main():
 	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
@@ -26,7 +29,7 @@ def Main():
 	serviceHost = cgiEnv.GetHost()
 	grph = cgiEnv.GetGraph()
 
-	DEBUG("serviceName=%s", serviceName )
+	logging.debug("serviceName=%s", serviceName )
 
 	# Unfortunately we build the complete network for just one service.
 	dictServiceMap = Win32_Service.BuildSrvNetwork( serviceHost )
@@ -35,7 +38,7 @@ def Main():
 	# BEWARE: Do not print str(dictServiceMap) because it hangs about ten minutes !!!!!!!!!!!!
 	# BEWARE: Do not print str(dictServiceMap) because it hangs about ten minutes !!!!!!!!!!!!
 
-	DEBUG(TimeStamp()+ "serviceName=%s dictServiceMap=%s", serviceName, "str(dictServiceMap)" )
+	logging.debug(TimeStamp()+ "serviceName=%s dictServiceMap=%s", serviceName, "str(dictServiceMap)" )
 
 	serviceDict = dictServiceMap[ serviceName ]
 
@@ -62,6 +65,7 @@ def Main():
 	# cgiEnv.OutCgiRdf("LAYOUT_RECT")
 	# cgiEnv.OutCgiRdf()
 	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
+
 
 if __name__ == '__main__':
 	Main()
