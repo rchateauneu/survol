@@ -9,6 +9,7 @@ import rdflib
 import time
 import datetime
 import tempfile
+import logging
 from rdflib.namespace import RDF, RDFS, XSD
 from rdflib import URIRef
 
@@ -60,7 +61,7 @@ def unique_urls_dict(grph):
 def get_urls_adjacency_list(grph, start_instance, filter_predicates):
     """It has to build an intermediary map because we have no simple way to find all edges
     starting from a node. Otherwise, we could use a classical algorithm (Dijkstra ?)"""
-    DEBUG("startInstance=%s type=%s", str(start_instance), str(type(start_instance)))
+    logging.debug("startInstance=%s type=%s", str(start_instance), str(type(start_instance)))
 
     # Each node maps to the list of the nodes it is directly connected to.
     adjacency_list = dict()
@@ -82,7 +83,7 @@ def get_urls_adjacency_list(grph, start_instance, filter_predicates):
             except KeyError:
                 adjacency_list[url_start] = set([url_end])
 
-    DEBUG("len(grph)=%d",len(grph))
+    logging.debug("len(grph)=%d",len(grph))
 
     # Connected in both directions.
     for k_sub, k_pred, k_obj in grph:
@@ -94,7 +95,7 @@ def get_urls_adjacency_list(grph, start_instance, filter_predicates):
         if (not IsLiteral(k_sub)) and (not IsLiteral(k_obj)):
             _insert_edge(k_sub, k_obj)
             _insert_edge(k_obj, k_sub)
-    #DEBUG("str(adjacency_list)=%s",str(adjacency_list))
+    #logging.debug("str(adjacency_list)=%s",str(adjacency_list))
 
     return adjacency_list
 
@@ -102,7 +103,7 @@ def get_urls_adjacency_list(grph, start_instance, filter_predicates):
 # TODO: Consider using SPARQL.
 def triplestore_matching_strings(grph, search_string):
     """This returns a subset of a triplestore whose object matches a given string."""
-    DEBUG("triplestore_matching_strings: search_string=%s" % search_string)
+    logging.debug("triplestore_matching_strings: search_string=%s" % search_string)
     # Beware that the order might change each time.
     compiled_rgx = re.compile(search_string)
     for k_sub, k_pred, k_obj in grph:
@@ -114,7 +115,7 @@ def triplestore_matching_strings(grph, search_string):
 
 
 def triplestore_all_strings(grph):
-    DEBUG("triplestore_all_strings")
+    logging.debug("triplestore_all_strings")
     # Beware that the order might change each time.
     for k_sub, k_pred, k_obj in grph:
         if IsLiteral(k_obj):
