@@ -6,17 +6,19 @@ PEFile information
 
 import sys
 import pefile
+import logging
 import lib_util
 import lib_common
 
 from sources_types.CIM_DataFile.portable_executable import section as survol_pe_section
+
 
 def Main():
 	cgiEnv = lib_common.CgiEnv(	)
 
 	win_module = cgiEnv.GetId()
 
-	DEBUG("win_module=%s",win_module)
+	logging.debug("win_module=%s",win_module)
 
 	grph = cgiEnv.GetGraph()
 
@@ -31,7 +33,7 @@ def Main():
 	# ['DIRECTORY_ENTRY_BASERELOC', 'DIRECTORY_ENTRY_EXPORT', 'DIRECTORY_ENTRY_IMPORT', 'DOS_HEADER', 'FILE_HEADER',
 	# 'NT_HEADERS', 'OPTIONAL_HEADER', 'PE_TYPE', 'RICH_HEADER', '_PE__from_file', '_PE__warnings',
 	# '__IMAGE_BASE_RELOCATION_ENTRY_format__', '__IMAGE_BASE_RELOCATION_format__', '__IMAGE_BOUND_FORWARDER_REF_format__',
-	# '__IMAGE_BOUND_IMPORT_DESCRIPTOR_format__', '__IMAGE_DATA_DIRECTORY_format__', '__IMAGE_DEBUG_DIRECTORY_format__',
+	# '__IMAGE_BOUND_IMPORT_DESCRIPTOR_format__', '__IMAGE_DATA_DIRECTORY_format__', '__IMAGE_logging.debug_DIRECTORY_format__',
 	# '__IMAGE_DELAY_IMPORT_DESCRIPTOR_format__', '__IMAGE_DOS_HEADER_format__', '__IMAGE_EXPORT_DIRECTORY_format__',
 	# '__IMAGE_FILE_HEADER_format__', '__IMAGE_IMPORT_DESCRIPTOR_format__', '__IMAGE_LOAD_CONFIG_DIRECTORY64_format__',
 	# '__IMAGE_LOAD_CONFIG_DIRECTORY_format__', '__IMAGE_NT_HEADERS_format__', '__IMAGE_OPTIONAL_HEADER64_format__',
@@ -96,12 +98,12 @@ def Main():
 			grph.add( ( nodeSect, propNumberOfRelocations, lib_util.NodeLiteral(peSect.NumberOfRelocations)) )
 			grph.add( ( nodeSect, propNumberOfLinenumbers, lib_util.NodeLiteral(peSect.NumberOfLinenumbers)) )
 
-	except Exception:
-		exc = sys.exc_info()[1]
+	except Exception as exc:
 		lib_common.ErrorMessageHtml("File: %s. Exception:%s:" % ( win_module, str(exc)))
 
 	# cgiEnv.OutCgiRdf()
 	cgiEnv.OutCgiRdf("LAYOUT_RECT",[propSection])
+
 
 if __name__ == '__main__':
 	Main()

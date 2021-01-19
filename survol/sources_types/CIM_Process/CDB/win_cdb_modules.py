@@ -7,6 +7,7 @@ Windows process loaded modules
 import re
 import os
 import sys
+import logging
 import lib_util
 import lib_common
 from sources_types import CIM_Process
@@ -62,13 +63,13 @@ def Main():
 
     proc_node = lib_common.gUriGen.PidUri(the_pid)
 
-    DEBUG("Starting cdb_cmd=%s", cdb_cmd)
+    logging.debug("Starting cdb_cmd=%s", cdb_cmd)
     try:
         cdb_pipe = lib_common.SubProcPOpen(cdb_cmd)
     except WindowsError as exc:
         lib_common.ErrorMessageHtml("cdb not available: Caught:%s" % str(exc))
 
-    DEBUG("Started cdb_cmd=%s", cdb_cmd )
+    logging.debug("Started cdb_cmd=%s", cdb_cmd )
 
     cdb_output, cdb_err = cdb_pipe.communicate()
 
@@ -133,7 +134,7 @@ def Main():
 
         # sys.stderr.write("dot_line=%s\n" % dot_line )
 
-    DEBUG("Parsed cdb result")
+    logging.debug("Parsed cdb result")
 
     CIM_Process.AddInfo(grph, proc_node, [the_pid])
 

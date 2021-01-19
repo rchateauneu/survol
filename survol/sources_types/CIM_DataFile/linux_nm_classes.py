@@ -6,6 +6,7 @@ Classes methods from nm command
 
 import os
 import sys
+import logging
 import lib_nm
 import lib_util
 import lib_common
@@ -53,7 +54,7 @@ def _extract_class_from_symbol(symbolnam):
 
     # class_nam = symbol[ double_colon + 1 : last_par_open ]
     class_nam = symbolnam[last_space:double_colon]
-    DEBUG("symbol=%s without_signature=%s class_nam=%s", symbolnam, without_signature, class_nam)
+    logging.debug("symbol=%s without_signature=%s class_nam=%s", symbolnam, without_signature, class_nam)
     return class_nam
 
 
@@ -104,7 +105,7 @@ def Main():
             pass
         cnt += 1
 
-    DEBUG("Nm: Processed %d lines", cnt)
+    logging.debug("Nm: Processed %d lines", cnt)
     cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_symbol_defined, pc.property_symbol_undefined])
 
 

@@ -22,10 +22,12 @@ import os
 import os.path
 import re
 import sys
+import logging
 import lib_util
 import lib_common
 import lib_properties
 from lib_properties import pc
+
 
 def Main():
 	paramkeyMaxOccurrences = "Maximum number of occurrences"
@@ -43,7 +45,7 @@ def Main():
 	regExpr = cgiEnv.get_parameters( paramkeyRegularExpression )
 
 	filNam = cgiEnv.GetId()
-	DEBUG("filNam=%s regExpr=%s",filNam,regExpr)
+	logging.debug("filNam=%s regExpr=%s",filNam,regExpr)
 
 	grph = cgiEnv.GetGraph()
 
@@ -74,7 +76,7 @@ def Main():
 		exc = sys.exc_info()[1]
 		lib_common.ErrorMessageHtml("Error:%s. Protection ?"%str(exc))
 
-	DEBUG("cntLines=%d cntOccur=%d",cntLines,cntOccur)
+	logging.debug("cntLines=%d cntOccur=%d",cntLines,cntOccur)
 
 	# TODO: Add an URL to the next and previous occurrences and lines, so it is possible to
 	# TODO: ... search the entire file, once only, just be clicking: "Extra information"

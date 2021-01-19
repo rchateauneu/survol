@@ -6,6 +6,7 @@ import os
 import sys
 import psutil
 import rdflib
+import logging
 import lib_common
 import lib_util
 from lib_properties import pc
@@ -236,7 +237,7 @@ def SelectFromWhere(where_key_values):
     if the minimal set of properties is there."""
 
     # TODO: Add "select_attributes"
-    DEBUG("CIM_Process SelectFromWhere where_key_values=%s", str(where_key_values))
+    logging.debug("CIM_Process SelectFromWhere where_key_values=%s", str(where_key_values))
     for proc_obj in psutil.process_iter():
         user_name = PsutilProcToUser(proc_obj,None)
         if user_name:

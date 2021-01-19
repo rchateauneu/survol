@@ -8,6 +8,7 @@ import os
 import re
 import sys
 import time
+import logging
 import lib_util
 import lib_win32
 import lib_common
@@ -42,13 +43,13 @@ def Main():
     # This has to be in the path. Is it the 32 bits or 64 bits one ?
     depends_bin = "depends.exe"
 
-    DEBUG("depends_bin=%s", depends_bin)
+    logging.debug("depends_bin=%s", depends_bin)
 
     tmp_fil_obj = lib_util.TmpFile("depends")
     tmp_out_fil = tmp_fil_obj.Name
     args = [depends_bin, "/c", "/OC:", tmp_out_fil, win_module]
 
-    DEBUG("Depends command=%s",str(args))
+    logging.debug("Depends command=%s",str(args))
 
     grph = cgiEnv.GetGraph()
 
@@ -63,7 +64,7 @@ def Main():
         # Wait for the end, otherwise the file will not be ready.
 
     try:
-        DEBUG("Depends tmp_out_fil=%s", tmp_out_fil)
+        logging.debug("Depends tmp_out_fil=%s", tmp_out_fil)
         input_file = open(tmp_out_fil, 'r')
     except Exception as exc:
         lib_common.ErrorMessageHtml("Caught " + str(exc) + " when processing:" + tmp_out_fil)
