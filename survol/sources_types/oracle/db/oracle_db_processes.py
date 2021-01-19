@@ -5,6 +5,7 @@ Oracle database's connected processes
 """
 
 import sys
+import logging
 import lib_common
 import lib_util
 from lib_properties import pc
@@ -90,7 +91,7 @@ def Main():
             grph.add((node_session, pc.property_oracle_schema, node_schema))
             grph.add((node_oradb, pc.property_oracle_db, node_schema))
 
-        DEBUG("user_proc_id=%s user_machine=%s", user_proc_id, user_machine)
+        logging.debug("user_proc_id=%s user_machine=%s", user_proc_id, user_machine)
         node_process = the_machine_box.PidUri(sess_pid)
         grph.add((node_process, lib_common.MakeProp("SystemPid"), lib_util.NodeLiteral(user_proc_id)))
         grph.add((node_process, lib_common.MakeProp("OraclePid"), lib_util.NodeLiteral(process_pid)))
@@ -98,7 +99,7 @@ def Main():
         grph.add((node_session, pc.property_oracle_session, node_process))
 
         if sess_osuser != None:
-            DEBUG("user_machine=%s sess_osuser=%s", user_machine, sess_osuser)
+            logging.debug("user_machine=%s sess_osuser=%s", user_machine, sess_osuser)
             node_os_user = the_machine_box.UserUri(sess_osuser)
             grph.add((node_os_user, lib_common.MakeProp("OsUser"), lib_util.NodeLiteral(sess_osuser)))
             grph.add((node_process, pc.property_user, node_os_user))

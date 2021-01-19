@@ -14,26 +14,6 @@ from sources_types.oracle import schema as oracle_schema
 from sources_types.oracle import session as oracle_session
 
 
-# Associer a chaque table oracle une classe dynamique (Ce que ne peut pas faire wbem et wmi)
-# C est une autre definition. Eventuellement en parallele.
-# ( Idem : Les schemas Oracle deviennent des namespaces (Je vois moins l interet). )
-# L interet est que du WQL est identique fonctionnellement a du SQL.
-#
-# Il faudrait comprendre  les liens entre tables, avec les requetes et les index.
-# Autre application du parsing des requetes :
-# - On voit que tel process depend de telle table,
-# - on visualise la table avec ses champs
-# - On fait pointer les champs vers les champs d autres tables,
-# si une query fait une jointure sur ces deux champs.
-# C est dans la meme logique d explorer grossierement des relations entre des composants logiciels.
-# On pourrait aussi grepper avec "strings" les requetes statiques dans un .exe ou une dll.
-#
-# Donc l execution d un process va envoyer toutes sortes d infos en vrac,
-# pas forcement des choses qui le concerne directement (Comme les requetes SQL et les liens entre tables)
-#
-# J y pense : Qu est ce que on peut faire avec l analyse statique du code ?
-#
-#	"oracle_session"      : ( ["Db","Session"], ),
 def Main():
 	cgiEnv = lib_oracle.OracleEnv()
 	oraSession = cgiEnv.m_entity_id_dict["Session"]
@@ -42,12 +22,12 @@ def Main():
 
 	# TYPE = "VIEW", "TABLE", "PACKAGE BODY"
 	sql_query = "select SID,STATUS,USERNAME,SERVER,SCHEMANAME,COMMAND,MACHINE,PORT,OSUSER,PROCESS,SERVICE_NAME,ACTION from V$SESSION where SID='%s'" % oraSession
-	DEBUG("sql_query=%s", sql_query )
+	logging.debug("sql_query=%s", sql_query)
 	result = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(), sql_query)
 
 	# There should be only one.
 	for row in result:
-		DEBUG("SID=%s", row[0] )
+		logging.debug("SID=%s", row[0] )
 
 		grph.add( ( node_oraSession, lib_common.MakeProp("Status"), lib_util.NodeLiteral(row[1]) ) )
 		grph.add( ( node_oraSession, lib_common.MakeProp("Username"), lib_util.NodeLiteral(row[2]) ) )

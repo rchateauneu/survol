@@ -5,6 +5,7 @@ Oracle package bodies
 """
 
 import sys
+import logging
 from lib_properties import pc
 import lib_oracle
 import lib_common
@@ -20,13 +21,13 @@ def Main():
     grph = cgiEnv.GetGraph()
 
     sql_query = "SELECT OBJECT_NAME,STATUS,CREATED FROM ALL_OBJECTS WHERE OBJECT_TYPE = 'PACKAGE BODY' AND OWNER = '" + ora_schema + "'"
-    DEBUG("sql_query=%s", sql_query)
+    logging.debug("sql_query=%s", sql_query)
 
     node_oraschema = oracle_schema.MakeUri(cgiEnv.m_oraDatabase, ora_schema)
 
     result = lib_oracle.ExecuteQuery(cgiEnv.ConnectStr(), sql_query)
     num_package_bodies = len(result)
-    DEBUG("num_package_bodies=%d", num_package_bodies)
+    logging.debug("num_package_bodies=%d", num_package_bodies)
 
     for row in result:
         package_body_name = str(row[0])
