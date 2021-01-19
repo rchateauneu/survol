@@ -7,6 +7,7 @@ Python stack
 import os
 import re
 import sys
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -28,8 +29,10 @@ def Usable(entity_type, entity_ids_arr):
 
 
 def _get_remote_stack(the_pid):
-    # These Python instructions will be executed by a debugger in the context of a Python process.
-    # The result is a vector of strings, the output of the execution.
+    """
+    These Python instructions will be executed by a debugger in the context of a Python process.
+    The result is a vector of strings, the output of the execution.
+    """
     vec_instructions = [
         'import json',
         'import traceback',
@@ -63,7 +66,7 @@ def Main():
             # == File=../essai.py line=6 module=<module>
             # == File=<string> line=1 module=<module>
             # == File=/tmp/tmpw14tgJ.py line=9 module=<module>
-            DEBUG("File=%s line=%d module=%s", st[0], st[1], st[2])
+            logging.debug("File=%s line=%d module=%s", st[0], st[1], st[2])
 
             short_fil_nam = st[0]
             if short_fil_nam == "<string>":
@@ -80,7 +83,7 @@ def Main():
             if func_name is None:
                 # Maybe an intermediate call
                 if file_name is None:
-                    DEBUG("Intermediate call")
+                    logging.debug("Intermediate call")
                     continue
                 # Maybe the main program ?
                 func_name = "__main__"
@@ -99,7 +102,7 @@ def Main():
             if not call_node_prev:
                 break
     else:
-        WARNING("No stack visible")
+        logging.warning("No stack visible")
 
     cgiEnv.OutCgiRdf()
 
