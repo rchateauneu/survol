@@ -7,6 +7,7 @@ Information about a mysql session
 import sys
 import re
 import socket
+import logging
 import lib_util
 import lib_common
 import lib_credentials
@@ -17,6 +18,7 @@ from sources_types import mysql as survol_mysql
 from sources_types.mysql import instance as survol_mysql_instance
 from sources_types.mysql import session as survol_mysql_session
 from sources_types.mysql import query as survol_mysql_query
+
 
 def Main():
 
@@ -60,7 +62,7 @@ def Main():
 
     # There should be one row only.
     for sess_info in cursor_mysql:
-        DEBUG("sess_info=%s", str(sess_info))
+        logging.debug("sess_info=%s", str(sess_info))
 
         mysql_session_id = sess_info[0]
         mysql_user = sess_info[1]

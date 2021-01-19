@@ -8,6 +8,7 @@ Sessions in a MySql instance
 import sys
 import re
 import socket
+import logging
 import lib_util
 import lib_common
 import lib_credentials
@@ -18,6 +19,7 @@ from sources_types import mysql as survol_mysql
 from sources_types.mysql import instance as survol_mysql_instance
 from sources_types.mysql import session as survol_mysql_session
 from sources_types.mysql import query as survol_mysql_query
+
 
 def Main():
 
@@ -65,7 +67,7 @@ def Main():
 	grph.add( ( hostNode, lib_common.MakeProp("Mysql instance"), instanceNode ) )
 
 	for sessInfo in cursorMysql:
-		DEBUG("sessInfo=%s",str(sessInfo))
+		logging.debug("sessInfo=%s",str(sessInfo))
 
 		mysqlSessionId = sessInfo[0]
 		mysqlUser = sessInfo[1]
@@ -94,10 +96,8 @@ def Main():
 
 		grph.add( ( sessionNode, lib_common.MakeProp("Mysql session"), instanceNode ) )
 
-
 	cursorMysql.close()
 	connMysql.close()
-
 
 	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 

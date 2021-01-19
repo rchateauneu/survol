@@ -7,6 +7,7 @@ Mysql table information
 import sys
 import re
 import socket
+import logging
 import lib_util
 import lib_common
 import lib_credentials
@@ -16,6 +17,7 @@ from lib_properties import pc
 from sources_types import mysql as survol_mysql
 from sources_types.mysql import database as survol_mysql_database
 from sources_types.mysql import table as survol_mysql_table
+
 
 def Main():
 
@@ -89,7 +91,7 @@ def Main():
 
 	# There should be only one row, maximum.
 	for tabInfo in cursorMysql:
-		DEBUG("tabInfo=%s",str(tabInfo))
+		logging.debug("tabInfo=%s",str(tabInfo))
 		tableNam = tabInfo[2]
 
 		nodeMysqlTable = survol_mysql_table.MakeUri(hostname,dbNam, tableNam)
