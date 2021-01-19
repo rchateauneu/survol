@@ -7,6 +7,7 @@ Overview
 import os
 import re
 import sys
+import logging
 import lib_kbase
 import lib_util
 import lib_common
@@ -51,7 +52,7 @@ def AddInformation(grph, root_node, entity_id, entity_type):
             except AttributeError as exc:
                 ERROR("No AddInfo for %s %s: %s", entity_type, entity_id, str(exc) )
     else:
-        WARNING("No lib_entities for %s %s", entity_type, entity_id)
+        logging.warning("No lib_entities for %s %s", entity_type, entity_id)
 
 
 def Main():

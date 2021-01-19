@@ -12,6 +12,7 @@ It is never displayed directly.
 import os
 import re
 import sys
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -55,7 +56,7 @@ def _test_usability(imported_module, entity_type, entity_ids_arr):
 def _dir_menu_report(depth_call, str_msg):
     """For debugging purpose only."""
     txt_margin = "    " * depth_call
-    DEBUG(txt_margin + str_msg)
+    logging.debug(txt_margin + str_msg)
 
 
 # TODO: Only return json data, and this script will only return json, nothing else.
@@ -111,7 +112,7 @@ def DirToMenu(callback_grph_add, parent_node, entity_type, entity_id, entity_hos
 
         # Maybe this class is not defined in our ontology.
         if dirs == None:
-            WARNING("dir_to_menu_aux(2) No content in %s", curr_dir)
+            logging.warning("dir_to_menu_aux(2) No content in %s", curr_dir)
             return False
 
         # Will still be None if nothing is added.
@@ -239,7 +240,7 @@ def DirToMenu(callback_grph_add, parent_node, entity_type, entity_id, entity_hos
         return (rdf_node is not None) | contains_something
 
     if entity_host:
-        DEBUG("entity_dir_menu.py DirToMenu entity_host=%s",entity_host)
+        logging.debug("entity_dir_menu.py DirToMenu entity_host=%s",entity_host)
     encoded_entity_id = lib_util.EncodeUri(entity_id)
     entity_ids_arr = lib_util.EntityIdToArray(entity_type, entity_id)
 
@@ -273,7 +274,7 @@ def Main():
     if lib_util.IsLocalAddress(entity_host):
         entity_host = ""
 
-    DEBUG("entity: entity_host=%s entity_type=%s entity_id=%s", entity_host, entity_type, entity_id )
+    logging.debug("entity: entity_host=%s entity_type=%s entity_id=%s", entity_host, entity_type, entity_id )
 
     grph = cgiEnv.GetGraph()
 
