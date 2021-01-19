@@ -631,7 +631,7 @@ class WbemSparqlCallbackApi:
     # Note: The class CIM_DataFile with the property Name triggers the exception message:
     # "CIMError: 7: CIM_ERR_NOT_SUPPORTED: No provider or repository defined for class"
     def CallbackSelect(self, grph, class_name, predicate_prefix, filtered_where_key_values):
-        INFO("WbemSparqlCallbackApi.CallbackSelect class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
+        logging.info("WbemSparqlCallbackApi.CallbackSelect class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
         assert class_name
        
         # This comes from such a Sparql triple: " ?variable rdf:type rdf:type"
@@ -676,7 +676,7 @@ class WbemSparqlCallbackApi:
             predicate_prefix,
             associator_key_name,
             subject_path):
-        INFO("WbemSparqlCallbackApi.CallbackAssociator subject_path=%s result_class_name=%s associator_key_name=%s",
+        logging.info("WbemSparqlCallbackApi.CallbackAssociator subject_path=%s result_class_name=%s associator_key_name=%s",
                 subject_path,
                 result_class_name,
                 associator_key_name)

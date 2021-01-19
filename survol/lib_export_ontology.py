@@ -15,18 +15,18 @@ from lib_properties import pc
 def FlushOrSaveRdfGraph(grph, output_rdf_filename):
     """This dumps the triplestore graph to the current output socket if called in a HTTP server.
     Otherwise it saves the result to a text file, for testing or debugging."""
-    INFO("FlushOrSaveRdfGraph l=%s sys.argv=%s",len(sys.argv),str(sys.argv))
+    logging.info("FlushOrSaveRdfGraph l=%s sys.argv=%s",len(sys.argv),str(sys.argv))
 
     try:
         os.environ["QUERY_STRING"]
-        INFO("FlushOrSaveRdfGraph to stream")
+        logging.info("FlushOrSaveRdfGraph to stream")
         lib_util.WrtHeader('text/html')
 
         out_dest = lib_util.get_default_output_destination()
         lib_kbase.triplestore_to_stream_xml(grph,out_dest, 'pretty-xml')
 
     except KeyError:
-        INFO("FlushOrSaveRdfGraph onto_filnam=%s",output_rdf_filename)
+        logging.info("FlushOrSaveRdfGraph onto_filnam=%s",output_rdf_filename)
         outfil = open(output_rdf_filename, "w")
         lib_kbase.triplestore_to_stream_xml(grph,outfil, 'pretty-xml')
         outfil.close()

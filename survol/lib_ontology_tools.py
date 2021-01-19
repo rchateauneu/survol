@@ -17,7 +17,7 @@ def ManageLocalOntologyCache(ontology_name, ontology_extractor):
     path_attributes = "%s/ontology_attributes.%s.%s.json" % (tmp_dir, ontology_name, date_string)
 
     try:
-        INFO("ManageOntologyCache %s: Loading cached ontology from %s and %s",
+        logging.info("ManageOntologyCache %s: Loading cached ontology from %s and %s",
              ontology_name, path_classes, path_attributes)
         fd_classes = open(path_classes)
         map_classes = json.load(fd_classes)
@@ -27,14 +27,14 @@ def ManageLocalOntologyCache(ontology_name, ontology_extractor):
         map_attributes = json.load(fd_attributes)
         fd_attributes.close()
 
-        INFO("ExtractWmiOntology %s: Loaded cached ontology from %s and %s",
+        logging.info("ExtractWmiOntology %s: Loaded cached ontology from %s and %s",
              ontology_name, path_classes, path_attributes)
         return map_classes, map_attributes
     except Exception as exc:
-        INFO("ManageOntologyCache %s: Caught: %s. Creating cache file.", ontology_name, exc)
+        logging.info("ManageOntologyCache %s: Caught: %s. Creating cache file.", ontology_name, exc)
 
     map_classes, map_attributes = ontology_extractor()
-    INFO("ManageOntologyCache %s: Saving ontology to %s and %s",
+    logging.info("ManageOntologyCache %s: Saving ontology to %s and %s",
         ontology_name, path_classes, path_attributes)
 
     fd_classes = open(path_classes, "w")

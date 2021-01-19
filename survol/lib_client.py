@@ -523,7 +523,7 @@ class BaseCIMClass(object):
                     str(self.m_url_script), self.m_estimation_to_target, self.m_current_depth)
 
         if filter_instances and self in filter_instances:
-            INFO("Avoiding instance:%s", self)
+            logging.info("Avoiding instance:%s", self)
             return
 
         # It does this by maintaining a tree of paths originating at the start node and extending
@@ -566,7 +566,7 @@ class BaseCIMClass(object):
             # TODO: the cost of scripts.
             curr_distance = best_edge.m_current_distance + 1
 
-            INFO("Selecting edge:%s", best_edge)
+            logging.info("Selecting edge:%s", best_edge)
 
             if curr_depth <= max_depth:
                 lib_common.enable_error_message(False)
@@ -603,11 +603,11 @@ class BaseCIMClass(object):
                 lib_common.enable_error_message(True)
                 for one_instance in lst_instances:
                     if filter_instances and one_instance in filter_instances:
-                        INFO("Avoiding instance:%s",one_instance)
+                        logging.info("Avoiding instance:%s",one_instance)
                         continue
 
                     if one_instance in visited_instances:
-                        INFO("Already visited instance:%s", one_instance)
+                        logging.info("Already visited instance:%s", one_instance)
                         continue
 
                     #logging.debug("Adding one_instance=%s curr_depth=%d",one_instance,curr_depth)
@@ -826,7 +826,7 @@ class TripleStore:
         __merge_connected_instances_to(start_instance)
 
         # All the nodes connected to the input one.
-        INFO("startInstance=%s len(set_connected_instances)=%d", start_instance, len(set_connected_instances))
+        logging.info("startInstance=%s len(set_connected_instances)=%d", start_instance, len(set_connected_instances))
         return set_connected_instances
 
     def get_matching_strings_triples(self, search_string):

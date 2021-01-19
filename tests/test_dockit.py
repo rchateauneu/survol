@@ -1408,7 +1408,7 @@ class RunningLinuxProcessesTest(unittest.TestCase):
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
-        INFO("Started process is:%d", sub_proc.pid)
+        logging.info("Started process is:%d", sub_proc.pid)
 
         time.sleep(2.0)
 

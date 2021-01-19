@@ -215,7 +215,7 @@ def _prop_name_to_xsd_type(prop_type):
     try:
         xsd_type = map_types_CIM_to_XSD[prop_type]
     except:
-        INFO("_prop_name_to_xsd_type tp=%s",prop_type)
+        logging.info("_prop_name_to_xsd_type tp=%s",prop_type)
         xsd_type = XSD.string
     return xsd_type
 

@@ -1257,7 +1257,7 @@ def custom_eval_function_generic(ctx, part, sparql_instance_creator):
 
         recursive_instantiation(0)
 
-        INFO("Graph after recursive_instantiation: %d triples", len(ctx.graph))
+        logging.info("Graph after recursive_instantiation: %d triples", len(ctx.graph))
         if False:
             sys.stderr.write("Graph after recursive_instantiation: %d triples\n" % len(ctx.graph))
             for s,p,o in ctx.graph:

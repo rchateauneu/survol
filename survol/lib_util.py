@@ -94,21 +94,6 @@ else:
 
 gblLogger = logging.getLogger(logger_name)
 
-if is_py3:
-    import builtins
-    builtins.DEBUG = gblLogger.debug
-    builtins.WARNING = gblLogger.warning
-    builtins.ERROR = gblLogger.error
-    builtins.INFO = gblLogger.info
-    builtins.CRITICAL = gblLogger.critical
-else:
-    import __builtin__
-    __builtin__.DEBUG = gblLogger.debug
-    __builtin__.WARNING = gblLogger.warning
-    __builtin__.ERROR = gblLogger.error
-    __builtin__.INFO = gblLogger.info
-    __builtin__.CRITICAL = gblLogger.critical
-
 ################################################################################
 
 # Returns None even if jinja2 is available but configuration does not use it.
@@ -1654,6 +1639,7 @@ def GetEntityModule(entity_type):
 def GetScriptModule(current_module, fil):
     """This loads a script as a module. Example:
     currentModule="sources_types.win32" fil="enumerate_top_level_windows.py" """
+    logging.debug("current_module=%s fil=%s", current_module, fil)
     if not fil.endswith(".py"):
         logging.error("GetScriptModule module=%s fil=%s not a Python script", current_module, fil)
         return None
@@ -1671,6 +1657,7 @@ def GetScriptModule(current_module, fil):
             imported_mod = importlib.import_module("." + file_base_name, current_module)
         else:
             imported_mod = importlib.import_module(file_base_name)
+    logging.debug("current_module=%s import OK", current_module)
     return imported_mod
 
 ################################################################################
