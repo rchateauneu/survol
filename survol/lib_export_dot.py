@@ -6,6 +6,7 @@ import collections
 import six
 import subprocess
 import cgi
+import logging
 
 import lib_kbase
 import lib_naming
@@ -454,7 +455,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
                 try:
                     sub_obj_nam, sub_entity_graphic_class, sub_entity_id = lib_naming.ParseEntityUriShort(obj_uri)
                 except UnicodeEncodeError:
-                    WARNING("UnicodeEncodeError error:%s", obj_uri)
+                    logging.warning("UnicodeEncodeError error:%s", obj_uri)
                     sub_obj_nam, sub_entity_graphic_class, sub_entity_id = ("Utf err 1", "Utf err 2", "Utf err 3")
 
                 # sys.stderr.write("sub_entity_graphic_class=%s\n"%sub_entity_graphic_class)
@@ -659,7 +660,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
             lab_text, obj_entity_graph_class, entity_id = lib_naming.ParseEntityUri(
                 lib_util.urllib_unquote(obj_rdf_node))
         except UnicodeEncodeError:
-            WARNING("UnicodeEncodeError error:%s", obj_rdf_node)
+            logging.warning("UnicodeEncodeError error:%s", obj_rdf_node)
 
         # WritePatterned receives an list of strings similar to "<td>jhh</td><td>jhh</td><td>jhh</td>"
         # This function adds <tr> and </tr> on both sides.
