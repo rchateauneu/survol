@@ -6,6 +6,7 @@ Groups of a Linux user
 
 import re
 import sys
+import logging
 import lib_common
 import lib_util
 from lib_properties import pc
@@ -66,8 +67,7 @@ def Main():
     (id_last_output, id_err) = id_pipe.communicate()
 
     lines = id_last_output.split(b'\n')
-    sys.stderr.write("lines=%s\n" % lines)
-    DEBUG("id=" + user_name + " lines="+str(lines))
+    logging.debug("id=" + user_name + " lines="+str(lines))
 
     # $ id my_user
     # uid=500(my_user) gid=500(guest) groupes=500(guest),81(audio)
@@ -81,7 +81,6 @@ def Main():
     grph.add((user_node, pc.property_userid, lib_util.NodeLiteral(user_id)))
 
     for grp_str in first_split[2].split(b','):
-        sys.stderr.write("grp_str=%s\n" % grp_str)
         group_id, group_name = parse_id_name(grp_str)
         grp_node = lib_common.gUriGen.GroupUri(group_name)
         grph.add((grp_node, pc.property_groupid, lib_util.NodeLiteral(group_id)))
