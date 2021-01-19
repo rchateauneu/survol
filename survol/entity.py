@@ -5,6 +5,7 @@ Overview
 """
 
 import sys
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -22,7 +23,7 @@ FunctionGetUser = CIM_Process.GetCurrentUser
 
 
 def _add_default_nodes(grph, root_node, entity_host):
-    DEBUG("entity.py _add_default_nodes entity_host=%s", entity_host)
+    logging.debug("entity.py _add_default_nodes entity_host=%s", entity_host)
     current_node_hostname = lib_common.gUriGen.HostnameUri(lib_util.currentHostname)
     grph.add((current_node_hostname,
               pc.property_information,
@@ -37,7 +38,7 @@ def _add_default_nodes(grph, root_node, entity_host):
 
 # TODO: Maybe the property should be property_script ??
 def _add_default_scripts(grph, root_node, entity_host):
-    DEBUG("entity.py _add_default_scripts entity_host=%s", entity_host)
+    logging.debug("entity.py _add_default_scripts entity_host=%s", entity_host)
     node_obj_types = lib_common.NodeUrl(lib_util.uriRoot + '/objtypes.py')
     grph.add((root_node, pc.property_rdf_data_nolist2, node_obj_types))
 
@@ -101,7 +102,7 @@ def Main():
                     parameters={lib_util.paramkeyShowAll: False})
     entity_id = cgiEnv.m_entity_id
     entity_host = cgiEnv.GetHost()
-    DEBUG("entity_host=%s", entity_host)
+    logging.debug("entity_host=%s", entity_host)
     flag_show_all = int(cgiEnv.get_parameters(lib_util.paramkeyShowAll))
 
     name_space, entity_type = cgiEnv.get_namespace_type()
@@ -109,7 +110,7 @@ def Main():
     grph = cgiEnv.GetGraph()
 
     root_node = lib_util.RootUri()
-    DEBUG("root_node=%s", root_node)
+    logging.debug("root_node=%s", root_node)
 
     entity_ids_arr = lib_util.EntityIdToArray(entity_type, entity_id)
 
