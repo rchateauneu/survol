@@ -6,6 +6,7 @@ Top-level windows
 
 import sys
 import socket
+import logging
 import lib_common
 import lib_util
 from lib_properties import pc
@@ -50,7 +51,7 @@ def Main():
         wn_text = win32gui.GetWindowText(hwnd)
         thr_id, proc_id = win32process.GetWindowThreadProcessId(hwnd)
         nod_process = pid_to_node(proc_id)
-        DEBUG("proc_id=%d wn_text=%s",proc_id,wn_text)
+        logging.debug("proc_id=%d wn_text=%s",proc_id,wn_text)
         if wn_text:
             # wn_text = wn_text.encode("ascii" ,errors='replace')
             # It drops the accent: "Livres, BD, Vidos"

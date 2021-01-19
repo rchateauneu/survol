@@ -7,6 +7,7 @@ Windows domain machines
 import os
 import sys
 import socket
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -37,9 +38,9 @@ def Main():
         lib_common.ErrorMessageHtml(str(exc))
 
     domain_name = win32net.NetUserModalsGet(domain_controller, 2)['domain_name']
-    DEBUG("Domain name:" + domain_name)
-    DEBUG("Domaine Controller:" + domain_controller)
-    DEBUG("Info=" + str(win32net.NetUserModalsGet (domain_controller, 2)))
+    logging.debug("Domain name:" + domain_name)
+    logging.debug("Domaine Controller:" + domain_controller)
+    logging.debug("Info=" + str(win32net.NetUserModalsGet (domain_controller, 2)))
 
     node_domain = lib_common.gUriGen.SmbDomainUri(domain_name)
     node_controller = lib_common.gUriGen.HostnameUri(domain_controller)
