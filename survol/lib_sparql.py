@@ -9,6 +9,7 @@ __license__     = "GPL"
 
 import sys
 import functools
+import logging
 import rdflib.plugins.sparql.parser
 
 import lib_kbase
@@ -335,7 +336,7 @@ def __triples_to_input_entities(lst_triples):
     # Objects for associators must also appear as triple subjects.
     variable_counter = 0
     for one_triple in lst_triples:
-        #WARNING("one_triple=%s", str(one_triple))
+        #logging.debug("one_triple=%s", str(one_triple))
         variable_name = one_triple[0][1]
         if variable_name in dict_key_value_pairs_by_subject:
             continue
@@ -347,11 +348,11 @@ def __triples_to_input_entities(lst_triples):
 
         dict_key_value_pairs_by_subject[variable_name] = ObjectKeyValues(variable_name, variable_counter)
         variable_counter += 1
-    #WARNING("dict_key_value_pairs_by_subject=%s", str(dict_key_value_pairs_by_subject.keys()))
+    #logging.debug("dict_key_value_pairs_by_subject=%s", str(dict_key_value_pairs_by_subject.keys()))
 
     # Gathers attributes of objects.
     for one_triple in lst_triples:
-        WARNING("one_triple=%s", one_triple)
+        logging.debug("one_triple=%s", one_triple)
         variable_name = one_triple[0][1]
         try:
             input_subject = dict_key_value_pairs_by_subject[variable_name]
@@ -367,19 +368,19 @@ def __triples_to_input_entities(lst_triples):
         elif object_parsed_type == "TRPL_VARIABLE":
             # The object is also a subject, a variable: This is similar to the logic of associators.
             try:
-                WARNING("attribute_content=%s", attribute_content)
+                logging.debug("attribute_content=%s", attribute_content)
                 attribute_as_subject = dict_key_value_pairs_by_subject[attribute_content]
                 # This is evaluated as an associator which needs all attributes of input_subject
                 attribute_as_subject.m_associator_subject = input_subject
-                WARNING("input_subject=%s", input_subject)
+                logging.debug("input_subject=%s", input_subject)
                 # For example: attribute_key="rdfs:subClassOf"
                 attribute_as_subject.m_associator_key_name = attribute_key
-                WARNING("attribute_key=%s", attribute_key)
+                logging.debug("attribute_key=%s", attribute_key)
             except KeyError:
                 attribute_value = QueryVariable( attribute_content )
                 input_subject.add_key_value_pair(attribute_key, attribute_value)
         else:
-            WARNING("__triples_to_input_entities object_parsed_type=%s", object_parsed_type)
+            logging.debug("__triples_to_input_entities object_parsed_type=%s", object_parsed_type)
 
     # This is a list of ObjectKeyValues. Some of them have their class defined with rdf:type,
     # and can be transformed into a WQL query, or the execution of a Survol script.
@@ -392,15 +393,15 @@ def __triples_to_input_entities(lst_triples):
         # This extracts the class name, the seeAlso scripts etc...
         one_entity_by_variable.prepare_for_evaluation()
 
-    #WARNING("m_associator_subject=%s", attribute_as_subject.m_associator_subject)
-    #WARNING("m_associator_key_name=%s", attribute_as_subject.m_associator_key_name)
-    #WARNING("dict_key_value_pairs_by_subject=%s", dict_key_value_pairs_by_subject)
+    #logging.warning("m_associator_subject=%s", attribute_as_subject.m_associator_subject)
+    #logging.warning("m_associator_key_name=%s", attribute_as_subject.m_associator_key_name)
+    #logging.warning("dict_key_value_pairs_by_subject=%s", dict_key_value_pairs_by_subject)
 
     # TODO: Sort them using m_associator_subject and also the other variables.
     def compare_ObjectKeyValues(okv1,okv2):
         if okv1.m_associator_subject:
             if okv1.m_associator_key_name == "rdfs:subClassOf" and okv1.m_associator_subject == okv2:
-                WARNING("A SubClass before class")
+                logging.warning("A SubClass before class")
                 return -1
 
             if okv2.m_associator_subject:
@@ -412,7 +413,7 @@ def __triples_to_input_entities(lst_triples):
             assert not okv1.m_associator_key_name
             if okv2.m_associator_subject:
                 if okv2.m_associator_key_name == "rdfs:subClassOf" and okv2.m_associator_subject == okv1:
-                    WARNING("B SubClass before class")
+                    logging.warning("B SubClass before class")
                     return 1
 
                 return -1
@@ -429,7 +430,7 @@ def __triples_to_input_entities(lst_triples):
     # - Performance impact: This is a secondary criteria.
     sort_entities_by_variable = sorted(list_entities_by_variable, key=functools.cmp_to_key(compare_ObjectKeyValues))
 
-    WARNING("After sort=%s", str([one_ent.m_object_variable_name for one_ent in sort_entities_by_variable]))
+    logging.debug("After sort=%s", str([one_ent.m_object_variable_name for one_ent in sort_entities_by_variable]))
     return sort_entities_by_variable
 
 # This receives a Sparql query and returns a list of objects defined
@@ -478,7 +479,7 @@ class ObjectKeyValues:
     def __init__(self, variable_name, variable_counter):
         self.m_object_variable_name = variable_name
         self.m_raw_key_value_pairs = []
-        DEBUG("self.m_object_variable_name=%s", self.m_object_variable_name)
+        logging.debug("self.m_object_variable_name=%s", self.m_object_variable_name)
 
         # This is used for sorting, to keep by default the user order of triples.
         self.m_variable_counter = variable_counter
@@ -491,32 +492,32 @@ class ObjectKeyValues:
         self.m_associator_key_name = None
 
     def add_key_value_pair(self, key, value):
-        DEBUG("key=%s value=%s",key,value)
+        logging.debug("key=%s value=%s",key,value)
         self.m_raw_key_value_pairs.append((key, value))
 
     def prepare_for_evaluation(self):
         self.m_lst_seeAlso = []
         self.m_key_values = {}
 
-        DEBUG("self.m_raw_key_value_pairs=%s", self.m_raw_key_value_pairs)
+        logging.debug("self.m_raw_key_value_pairs=%s", self.m_raw_key_value_pairs)
         class_name = None
         for lst_key, lst_val in self.m_raw_key_value_pairs:
             if lst_key == "rdfs:seeAlso":
                 self.m_lst_seeAlso.append(lst_val)
             elif lst_key == "rdf:type":
                 # If the object is a class:
-                WARNING("lst_val=%s / %s / %s / %d", lst_val, str(type(lst_val)), lib_kbase.PredicateType, lib_kbase.PredicateType == lst_val)
+                logging.warning("lst_val=%s / %s / %s / %d", lst_val, str(type(lst_val)), lib_kbase.PredicateType, lib_kbase.PredicateType == lst_val)
                 class_name = str(lst_val)
             else:
                 self.m_key_values[lst_key] = lst_val
 
-        DEBUG("class_name=%s",class_name)
+        logging.debug("class_name=%s",class_name)
         if class_name:
             self.m_source_prefix, colon, self.m_class_name =  class_name.rpartition(":")
         else:
             self.m_source_prefix, self.m_class_name = (None, None)
 
-        DEBUG("prefix:%s", self.m_source_prefix)
+        logging.debug("prefix:%s", self.m_source_prefix)
 
     def __repr__(self):
         title = "ObjectKeyValues:" + self.m_object_variable_name + ":"
@@ -598,7 +599,7 @@ def _run_callback_on_entities(
         query_callback_object):
 
     def _evaluate_current_entity(index, known_variables, tuple_result_input):
-        WARNING("_evaluate_current_entity index=%d known_variables=%s tuple_result_input=%s", index, known_variables, tuple_result_input)
+        logging.warning("_evaluate_current_entity index=%d known_variables=%s tuple_result_input=%s", index, known_variables, tuple_result_input)
         if index == len(lst_input_object_key_values):
             # Deepest level, last entity is reached, so return a result set.
             yield tuple_result_input
@@ -606,7 +607,7 @@ def _run_callback_on_entities(
         curr_input_entity = lst_input_object_key_values[index]
 
         # assert curr_input_entity.m_object_path
-        # WARNING("_evaluate_current_entity index=%d curr_input_entity=%s", index, curr_input_entity)
+        # logging.warning("_evaluate_current_entity index=%d curr_input_entity=%s", index, curr_input_entity)
 
         # This set contains all "seeAlso" values, which are sources of data.
         # This could be the string "WMI", or Survol scripts filenames, or variables,
@@ -646,20 +647,19 @@ def _run_callback_on_entities(
 
         where_key_values_replaced = {}
         dict_variable_to_attribute = {}
-        WARNING("curr_input_entity.m_key_values.keys=%s", curr_input_entity.m_key_values.keys())
+        logging.debug("curr_input_entity.m_key_values.keys=%s", curr_input_entity.m_key_values.keys())
         for key_as_str, value_attribute in curr_input_entity.m_key_values.items():
-            WARNING("key_as_str=%s value_attribute=%s type=%s", key_as_str, value_attribute, str(type(value_attribute)))
+            logging.debug("key_as_str=%s value_attribute=%s type=%s", key_as_str, value_attribute, str(type(value_attribute)))
             if isinstance(value_attribute, QueryVariable):
                 variable_name = value_attribute.m_query_variable_name
                 if variable_name in known_variables:
                     where_key_values_replaced[key_as_str] = known_variables[variable_name]
                 else:
                     # Variable is not known yet. CA NE DEVRAIT PAS ARRIVER ???
-                    WARNING("IS THIS OK ? NOT KNOWN YET key_as_str=%s value_attribute=%s", key_as_str, value_attribute)
+                    logging.debug("IS THIS OK ? NOT KNOWN YET key_as_str=%s value_attribute=%s", key_as_str, value_attribute)
                     dict_variable_to_attribute[variable_name] = key_as_str
             else:
                 where_key_values_replaced[key_as_str] = value_attribute
-        # SI PAS DE SUBSTITUTION, STOCKER LE RESULTAT UNE BONNE FOIS POUR TOUTES DANS LE TABLEAU lst_input_object_key_values[index]
 
         # TODO: Difficulty mapping property names to nodes.
         def _property_name_to_node(attribute_key):
@@ -670,15 +670,15 @@ def _run_callback_on_entities(
             # This calculates the qname and should use the graph. Is it what we want ?
             return lib_properties.MakeProp(attribute_key_without_prefix)
 
-        DEBUG("dict_variable_to_attribute=%s", str(dict_variable_to_attribute))
+        logging.debug("dict_variable_to_attribute=%s", str(dict_variable_to_attribute))
 
         # TODO: Reuse result if same input values, instead of calling again.
 
         # m_associator_subject=ObjectKeyValues:url_subclass:Class*NoAssoc@ m_associator_key_name=rdfs:subClassOf
 
-        # WARNING("curr_input_entity.m_associator_key_name=%s", curr_input_entity.m_associator_key_name)
-        # WARNING("curr_input_entity.m_associator_subject=%s", curr_input_entity.m_associator_subject)
-        # WARNING("dir(curr_input_entity.m_associator_subject)=%s", dir(curr_input_entity.m_associator_subject))
+        # logging.warning("curr_input_entity.m_associator_key_name=%s", curr_input_entity.m_associator_key_name)
+        # logging.warning("curr_input_entity.m_associator_subject=%s", curr_input_entity.m_associator_subject)
+        # logging.warning("dir(curr_input_entity.m_associator_subject)=%s", dir(curr_input_entity.m_associator_subject))
 
         # When looking for subclasses, this is not realy an associator, but related to types.
         if curr_input_entity.m_associator_key_name == "rdfs:subClassOf":
@@ -691,16 +691,16 @@ def _run_callback_on_entities(
             def _callback_subclasses_of():
                 for one_see_also in evaluate_see_also_sources(curr_input_entity.m_associator_subject):
                     # one_see_also=WMI assoc_key=rdfs:subClassOf path=WmiClass:CIM_Action
-                    DEBUG("_callback_subclasses_of one_see_also=%s assoc_key=%s path=%s",
+                    logging.debug("_callback_subclasses_of one_see_also=%s assoc_key=%s path=%s",
                             one_see_also,
                             curr_input_entity.m_associator_key_name,
                             curr_input_entity.m_associator_subject.m_object_path)
 
                     # 'm_associator_key_name', 'm_associator_subject', 'm_class_name', 'm_key_values', 'm_lst_seeAlso', 'm_object_path', 'm_object_variable_name'
-                    DEBUG("_callback_subclasses_of dir(curr_input_entity.m_associator_subject)=%s", dir(curr_input_entity.m_associator_subject))
-                    DEBUG("_callback_subclasses_of curr_input_entity.m_associator_key_name=%s", curr_input_entity.m_associator_key_name)
-                    DEBUG("_callback_subclasses_of curr_input_entity.m_class_name=%s", curr_input_entity.m_class_name)
-                    DEBUG("_callback_subclasses_of curr_input_entity.m_key_values=%s", curr_input_entity.m_key_values)
+                    logging.debug("_callback_subclasses_of dir(curr_input_entity.m_associator_subject)=%s", dir(curr_input_entity.m_associator_subject))
+                    logging.debug("_callback_subclasses_of curr_input_entity.m_associator_key_name=%s", curr_input_entity.m_associator_key_name)
+                    logging.debug("_callback_subclasses_of curr_input_entity.m_class_name=%s", curr_input_entity.m_class_name)
+                    logging.debug("_callback_subclasses_of curr_input_entity.m_key_values=%s", curr_input_entity.m_key_values)
 
                     iter_types_results = query_callback_object.CallbackTypeTree(
                         grph,
@@ -713,14 +713,14 @@ def _run_callback_on_entities(
 
         elif curr_input_entity.m_associator_subject:
             assert curr_input_entity.m_associator_key_name
-            WARNING("evaluate_see_also_sources m_associator_subject=%s m_associator_key_name=%s",
+            logging.debug("evaluate_see_also_sources m_associator_subject=%s m_associator_key_name=%s",
                     curr_input_entity.m_associator_subject, curr_input_entity.m_associator_key_name)
 
             short_associator_class_name = chop_namespace(curr_input_entity.m_associator_key_name)
 
             def _callback_filter_all_sources_associators():
                 for one_see_also in evaluate_see_also_sources(curr_input_entity.m_associator_subject):
-                    WARNING("_callback_filter_all_sources_associators one_see_also=%s assoc_key=%s path=%s",
+                    logging.debug("_callback_filter_all_sources_associators one_see_also=%s assoc_key=%s path=%s",
                             one_see_also,
                             curr_input_entity.m_associator_key_name,
                             curr_input_entity.m_associator_subject.m_object_path)
@@ -741,10 +741,10 @@ def _run_callback_on_entities(
 
         else:
             assert not curr_input_entity.m_associator_key_name
-            WARNING("evaluate_see_also_sources curr_input_entity.m_associator_subject NOT SET")
+            logging.debug("evaluate_see_also_sources curr_input_entity.m_associator_subject NOT SET")
 
             def _callback_types_list():
-                WARNING("_callback_types_list where_key_values_replaced=%s", where_key_values_replaced)
+                logging.debug("_callback_types_list where_key_values_replaced=%s", where_key_values_replaced)
                 for one_see_also in evaluate_see_also_sources(curr_input_entity):
                     iter_types_results = query_callback_object.CallbackTypes(grph, one_see_also, where_key_values_replaced)
 
@@ -753,7 +753,7 @@ def _run_callback_on_entities(
 
             def _callback_filter_all_sources_select():
                 for one_see_also in evaluate_see_also_sources(curr_input_entity):
-                    WARNING("_callback_filter_all_sources_select one_see_also=%s", one_see_also)
+                    logging.debug("_callback_filter_all_sources_select one_see_also=%s", one_see_also)
 
                     # one_see_also can be "WMI" or a script like "survol:CIM_DataFile/...".
                     # predicate_prefix, colon, dummy = one_see_also.partition(":")
@@ -768,9 +768,9 @@ def _run_callback_on_entities(
                     for one_node_dict_pair in iter_select_results:
                         yield one_node_dict_pair
 
-            WARNING("_callback_filter_all_sources_select m_source_prefix=%s m_class_name=%s",
+            logging.debug("_callback_filter_all_sources_select m_source_prefix=%s m_class_name=%s",
                     curr_input_entity.m_source_prefix, curr_input_entity.m_class_name)
-            WARNING("_callback_filter_all_sources_select where_key_values_replaced=%s dict_variable_to_attribute=%s",
+            logging.debug("_callback_filter_all_sources_select where_key_values_replaced=%s dict_variable_to_attribute=%s",
                     str(where_key_values_replaced), str(dict_variable_to_attribute))
             if curr_input_entity.m_source_prefix == "rdfs" and curr_input_entity.m_class_name == "Class":
                 iter_recursive_results = _callback_types_list()
@@ -779,12 +779,12 @@ def _run_callback_on_entities(
 
         # If there are several associators, they might have returned duplicate objects.
         unique_recursive_results = {}
-        WARNING("iter_recursive_results.keys=%s", iter_recursive_results.keys())
+        logging.debug("iter_recursive_results.keys=%s", iter_recursive_results.keys())
         for object_path, dict_key_values in iter_recursive_results:
             try:
                 short_base_class_name
                 if short_base_class_name == "CIM_LogicalDevice":
-                    WARNING("A object_path=%s", object_path)
+                    logging.debug("A object_path=%s", object_path)
             except:
                 pass
 
@@ -797,12 +797,12 @@ def _run_callback_on_entities(
             # The result is made of URL to CIM objects.
             output_entity = PathPredicateObject(object_path, curr_input_entity.m_class_name, dict_key_values)
             #print("From callback: output_entity=",output_entity)
-            # WARNING("B object_path=%s output_entity=%s", object_path, output_entity)
+            # logging.debug("B object_path=%s output_entity=%s", object_path, output_entity)
 
             for variable_name, attribute_key in dict_variable_to_attribute.items():
-                #WARNING("index=%d variable_name=%s attribute_key=%s", index, variable_name, attribute_key)
+                #logging.debug("index=%d variable_name=%s attribute_key=%s", index, variable_name, attribute_key)
                 attribute_key_node = _property_name_to_node(attribute_key)
-                WARNING("output_entity.m_predicate_object_dict=%s", str(output_entity.m_predicate_object_dict))
+                logging.debug("output_entity.m_predicate_object_dict=%s", str(output_entity.m_predicate_object_dict))
                 known_variables[variable_name] = output_entity.m_predicate_object_dict[attribute_key_node]
             tuple_result_extended = tuple_result_input + (output_entity,)
 
@@ -831,7 +831,7 @@ def QueryEntities(grph, sparql_query):
     # This returns a list of ObjectKeyValues
     object_key_values = _parse_query_to_key_value_pairs_list(sparql_query)
 
-    WARNING("QueryEntities object_key_values=%s", str(object_key_values))
+    logging.info("QueryEntities object_key_values=%s", str(object_key_values))
 
     # This is a list of variables representing URLs of objects with key-values, fetched from WQL or Survol scripts.
     input_keys = [ entity_by_variable.m_object_variable_name for entity_by_variable in object_key_values ]
@@ -910,13 +910,13 @@ class SwitchCallbackApi:
         return callback_object.CallbackAssociator(grph, result_class_name, see_also, associator_key_name, subject_path)
 
     def CallbackTypes(self, grph, see_also, where_key_values):
-        WARNING("SwitchCallbackApi.CallbackTypes see_also=%s", see_also)
+        logging.info("SwitchCallbackApi.CallbackTypes see_also=%s", see_also)
         predicate_prefix, colon, see_also_script = see_also.partition(":")
         callback_object = self.m_prefix_to_callbacks[predicate_prefix]
         return callback_object.CallbackTypes(grph, see_also, where_key_values)
 
     def CallbackTypeTree(self, grph, see_also, class_name, associator_subject):
-        #WARNING("SwitchCallbackApi.CallbackTypes see_also=%s", see_also)
+        #logging.info("SwitchCallbackApi.CallbackTypes see_also=%s", see_also)
         predicate_prefix, colon, see_also_script = see_also.partition(":")
         callback_object = self.m_prefix_to_callbacks[predicate_prefix]
         return callback_object.CallbackTypeTree(grph, see_also, class_name, associator_subject)
