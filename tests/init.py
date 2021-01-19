@@ -295,7 +295,7 @@ def _start_cgiserver_subprocess_portable(agent_port, current_dir):
     It is theoretically portable. """
     agent_process = multiprocessing.Process(
         target=scripts.cgiserver.start_server_forever,
-        args=(True, agent_host, agent_port, current_dir))
+        args=(agent_host, agent_port, current_dir))
     agent_process.start()
 
     print("agent_process.pid=", agent_process.pid)
@@ -408,7 +408,7 @@ def start_wsgiserver(agent_url, agent_port):
 
         agent_process = multiprocessing.Process(
             target=scripts.wsgiserver.start_server_forever,
-            args=(True, agent_host, agent_port, current_dir))
+            args=(agent_host, agent_port, current_dir))
         agent_process.start()
         atexit.register(__dump_server_content, scripts.wsgiserver.WsgiServerLogFileName)
         INFO("Waiting for WSGI agent ready")

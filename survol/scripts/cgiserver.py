@@ -28,6 +28,7 @@ import socket
 import datetime
 import atexit
 import webbrowser
+import logging
 
 if __package__:
     from . import daemon_factory
@@ -41,7 +42,7 @@ except ImportError:
 
 
 def __run_server_forever(server):
-    sys.stderr.write("__run_server_forever\n")
+    logging.info("__run_server_forever\n")
     server.serve_forever()
 
 
@@ -59,7 +60,7 @@ def __print_cgi_server_usage():
     print("    -p,--port=<number>        TCP/IP port number. Default is %d." % _port_number_default)
     # Ex: -b "C:\Program Files (x86)\Mozilla Firefox\firefox.exe"
     print("    -b,--browser              Starts a browser.")
-    print("    -v,--verbose              Verbose mode.")
+    print("    -l,--log                  Log level.")
     print("")
 
 
@@ -71,8 +72,10 @@ def _exit_handler():
 def cgiserver_entry_point():
     """Note: It is also possible to call the script from command line."""
 
+    logging.debug("cgiserver_entry_point")
+
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ha:p:bv", ["help", "address=", "port=", "browser", "verbose"])
+        opts, args = getopt.getopt(sys.argv[1:], "ha:p:bl:", ["help", "address=", "port=", "browser", "log"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(err)  # will print something like "option -a not recognized"
@@ -99,13 +102,13 @@ def cgiserver_entry_point():
         except Exception as exc:
             print("Caught", exc, ". Server name must be entered with option '-a'")
 
-    verbose = False
     port_number = _port_number_default
     start_browser = False
 
     for an_opt, a_val in opts:
-        if an_opt in ("-v", "--verbose"):
-            verbose = True
+        if an_opt in ("-l", "--log"):
+            logging.getLogger().setLevel(a_val.upper())
+            os.environ["SURVOL_LOGGING_LEVEL"] = a_val.upper()
         elif an_opt in ("-a", "--address"):
             server_name = a_val
         elif an_opt in ("-p", "--port"):
@@ -154,7 +157,12 @@ def cgiserver_entry_point():
     print("Server address:%s" % server_addr)
     print("Opening %s:%d" % (server_name, port_number))
 
-    start_server_forever(verbose, server_name, port_number)
+    logging.debug("server_name=%s port_number=%d" % (server_name, port_number))
+    logging.debug("sys.executable=%s" % sys.executable)
+    logging.debug("sys.exec_prefix=%s" % sys.exec_prefix)
+    logging.debug("getpid=%d" % os.getpid())
+
+    start_server_forever(server_name, port_number)
 
 
 def cgi_server_logfile_name(port_number):
@@ -162,9 +170,12 @@ def cgi_server_logfile_name(port_number):
     return "cgiserver.execution.%d.log" % port_number
 
 
-def start_server_forever(verbose, server_name, port_number, current_dir=""):
-    """Setup (setup.py) creates a binary script which directly calls this function.
-    The current directory can be set, this is used when this is called from multiprocessing."""
+def start_server_forever(server_name, port_number, current_dir=""):
+    """
+    Setup (setup.py) creates a binary script which directly calls this function.
+    The current directory can be set, this is used when this is called from multiprocessing.
+    """
+
     logfil = open(cgi_server_logfile_name(port_number), "w")
     logfil.write(__file__ + " " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "\n")
     logfil.write(__file__ + " startup server_name=%s port_number=%d\n" % (server_name, port_number))
@@ -176,11 +187,6 @@ def start_server_forever(verbose, server_name, port_number, current_dir=""):
     if "SERVER_PORT" not in os.environ:
         os.environ["SERVER_PORT"] = str(port_number)
 
-    if verbose:
-        sys.stderr.write("server_name=%s port_number=%d\n" % (server_name, port_number))
-        sys.stderr.write("sys.executable=%s\n" % sys.executable)
-        sys.stderr.write("sys.exec_prefix=%s\n" % sys.exec_prefix)
-        sys.stderr.write("getpid=%d\n" % os.getpid())
 
     # This sets PYTHONPATH for the CGI scripts.
     envPYTHONPATH = "PYTHONPATH"
@@ -218,6 +224,7 @@ def start_server_forever(verbose, server_name, port_number, current_dir=""):
         os.chdir(current_dir)
         sys.stderr.write("getcwd=%s\n" % os.getcwd())
     if sys.version_info[0] < 3:
+        import logging
         import CGIHTTPServer
         from BaseHTTPServer import HTTPServer
         from CGIHTTPServer import _url_collapse_path
@@ -225,9 +232,8 @@ def start_server_forever(verbose, server_name, port_number, current_dir=""):
         class MyCGIHTTPServer(CGIHTTPServer.CGIHTTPRequestHandler):
             def is_cgi(self):
                 collapsed_path = _url_collapse_path(self.path)
-                if verbose:
-                    sys.stderr.write("is_cgi getpid=%d\n" % os.getpid())
-                    sys.stderr.write("is_cgi collapsed_path=%s getcwd=%s\n" % (collapsed_path, os.getcwd()))
+                logging.debug("is_cgi getpid=%d" % os.getpid())
+                logging.debug("is_cgi collapsed_path=%s getcwd=%s" % (collapsed_path, os.getcwd()))
 
                 uprs = urlparse(collapsed_path)
                 path_only = uprs.path
@@ -266,12 +272,13 @@ def start_server_forever(verbose, server_name, port_number, current_dir=""):
         __run_server_forever(server)
 
     else:
+        # For an obscure reason, the module logging must be imported again.
+        import logging
         from http.server import CGIHTTPRequestHandler, HTTPServer
 
         class MyCGIHTTPServer(CGIHTTPRequestHandler):
             def is_cgi(self):
-                if verbose:
-                    sys.stderr.write("is_cgi self.path=%s\n" % self.path)
+                logging.debug("is_cgi self.path=%s" % self.path)
 
                 # https://stackoverflow.com/questions/17618084/python-cgihttpserver-default-directories
                 self.cgi_info = '', self.path[1:]
@@ -289,11 +296,22 @@ def start_server_forever(verbose, server_name, port_number, current_dir=""):
             def run_cgi(self):
                 super(MyCGIHTTPServer, self).run_cgi()
 
-        # Purpose is to understand why it does not interpret cr-nl.
-        import logging
-        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s', datefmt='%H:%M:%S')
-        logging.info(__file__ + ' test logging.\n')
-        #logging.info('\n')
+            def log_error(self, format, *args):
+                """Overrides BaseHTTPRequestHandler.log_error
+
+                Needed because \r\n are escaped on Python 3.
+                This is true for stderr and also logging.
+                """
+
+                if sys.platform.startswith("win32"):
+                    message_string = format % args
+                    message_split = message_string.split(r"\r\n")
+                    for one_message in message_split:
+                        sys.stderr.write(one_message + "\n")
+                else:
+                    # TODO: Check what is the behaviour on Linux.
+                    super(MyCGIHTTPServer, self).log_error(format, *args)
+
 
         handler = MyCGIHTTPServer
         server = HTTPServer((server_name, port_number), handler)

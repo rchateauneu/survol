@@ -10,6 +10,7 @@ import traceback
 import importlib
 import wsgiref.simple_server as server
 import webbrowser
+import logging
 
 if __package__:
     from . import daemon_factory
@@ -262,7 +263,7 @@ def __print_wsgi_server_usage():
     print("    -a,--address=<IP address> TCP/IP address.")
     print("    -p,--port=<number>        TCP/IP port number. Default is %d." % _port_number_default)
     print("    -b,--browser              Starts a browser.")
-    print("    -v,--verbose              Verbose mode.")
+    print("    -l,--log                  Log level.")
     print("")
     print("Script must be started with command: survol/scripts/wsgiserver.py")
 
@@ -271,8 +272,8 @@ def wsgiserver_entry_point():
     try:
         opts, args = getopt.getopt(
             sys.argv[1:],
-            "ha:p:bv",
-            ["help", "address=", "port=", "browser=", "verbose"])
+            "ha:p:bl:",
+            ["help", "address=", "port=", "browser=", "log"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(err)  # will print something like "option -a not recognized"
@@ -288,13 +289,13 @@ def wsgiserver_entry_point():
 
     server_name = socket.gethostname()
 
-    verbose = False
     port_number = _port_number_default
     start_browser = False
 
     for an_opt, a_val in opts:
-        if an_opt in ("-v", "--verbose"):
-            verbose = True
+        if an_opt in ("-l", "--log"):
+            logging.basicConfig(level=a_val.upper())
+            os.environ["SURVOL_LOGGING_LEVEL"] = a_val.upper()
         elif an_opt in ("-a", "--address"):
             server_name = a_val
         elif an_opt in ("-p", "--port"):
@@ -311,8 +312,7 @@ def wsgiserver_entry_point():
     daemon_factory.supervisor_startup()
 
     curr_dir = os.getcwd()
-    if verbose:
-        print("cwd=%s path=%s"% (curr_dir, str(sys.path)))
+    logging.debug("cwd=%s path=%s"% (curr_dir, str(sys.path)))
 
     the_url = "http://" + server_name
     if port_number:
@@ -325,31 +325,25 @@ def wsgiserver_entry_point():
         webbrowser.open(the_url, new=0, autoraise=True)
         print("Browser started to:" + the_url)
 
-    start_server_forever(verbose, server_name, port_number, current_dir="")
+    start_server_forever(server_name, port_number, current_dir="")
 
 WsgiServerLogFileName = "wsgiserver.execution.log"
 
 
-def start_server_forever(verbose, server_name, port_number, current_dir=""):
+def start_server_forever(server_name, port_number, current_dir=""):
     logfil = open(WsgiServerLogFileName, "w")
     logfil.write(__file__ + " startup\n")
     logfil.flush()
 
-    if verbose:
-        sys.stderr = logfil
-        sys.stderr.write(__file__ + " redirection stderr\n")
-        logfil.write(__file__ + " redirection stderr\n")
-        logfil.flush()
+    logging.debug(__file__ + " redirection stderr\n")
 
     server_addr = socket.gethostbyname(server_name)
 
-    def log_information(stream):
-        stream.write("Platform=%s\n" % sys.platform)
-        stream.write("Version:%s\n" % str(sys.version_info))
-        stream.write("Server address:%s\n" % server_addr)
-        stream.write("sys.path:%s\n" % str(sys.path))
-        stream.write("Opening %s:%d\n" % (server_name, port_number))
-        stream.flush()
+    logging.debug("Platform=%s" % sys.platform)
+    logging.debug("Version:%s" % str(sys.version_info))
+    logging.debug("Server address:%s" % server_addr)
+    logging.debug("sys.path:%s" % str(sys.path))
+    logging.debug("Opening %s:%d" % (server_name, port_number))
 
     # The script must be started from a specific directory because of the URLs.
     good_dir = os.path.join(os.path.dirname(__file__), "..", "..")
@@ -360,11 +354,8 @@ def start_server_forever(verbose, server_name, port_number, current_dir=""):
 
     # This expects that environment variables are propagated to subprocesses.
     os.environ["SURVOL_SERVER_NAME"] = server_name
-    sys.stderr.write(__file__ + " server_name=%s\n"% server_name)
+    logging.info("server_name=%s" % server_name)
 
-    if verbose:
-        log_information(sys.stdout)
-    log_information(logfil)
     logfil.flush()
 
     httpd = server.make_server('', port_number, application)
