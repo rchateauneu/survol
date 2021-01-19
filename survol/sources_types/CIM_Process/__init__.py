@@ -216,7 +216,7 @@ def AddInfo(grph, node, entity_ids_arr):
         grph.add((node, lib_common.MakeProp("Virtual Memory Size"), rdflib.Literal(sz_virst_mem_sz)))
 
     except Exception as exc:
-        ERROR("CIM_Process.AddInfo. Caught:%s", exc)
+        logging.error("CIM_Process.AddInfo. Caught:%s", exc)
         grph.add((node, pc.property_information, rdflib.Literal(str(exc))))
 
     # Needed for other operations.
