@@ -9,6 +9,7 @@ Windows domain machines
 import os
 import sys
 import socket
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -41,7 +42,7 @@ def Main():
 			machSplit = None
 		else:
 			machSplit = machineName.split('.')[0]
-		WARNING("machineName:%s machSplit:%s",machineName,machSplit)
+		logging.warning("machineName:%s machSplit:%s",machineName,machSplit)
 		domainController = win32net.NetGetDCName (machSplit, None)
 	except pywintypes.error:
 		exc = sys.exc_info()[1]
@@ -49,9 +50,9 @@ def Main():
 
 	# This returns the domain name, for example "EURO".
 	domainName = win32net.NetUserModalsGet (domainController, 2)['domain_name']
-	DEBUG("Domain name:%s",domainName)
-	DEBUG("Domaine Controller:%s",domainController)
-	DEBUG("Info=%s",str(win32net.NetUserModalsGet (domainController, 2)))
+	logging.debug("Domain name:%s",domainName)
+	logging.debug("Domaine Controller:%s",domainController)
+	logging.debug("Info=%s",str(win32net.NetUserModalsGet (domainController, 2)))
 
 	nodeDomain = lib_common.gUriGen.SmbDomainUri( domainName )
 	nodeController = lib_common.gUriGen.HostnameUri( domainController )
@@ -71,14 +72,14 @@ def Main():
 		if machine.Name[0] == '$':
 			continue
 
-		DEBUG("machineName=%s",machine.Name)
+		logging.debug("machineName=%s",machine.Name)
 		nodeMachine = lib_common.gUriGen.HostnameUri( machine.Name )
 		grph.add( (nodeDomain, pc.property_domain, nodeMachine ) )
 		cnt += 1
 		# TODO: It works fine until 1000 nodes, but after that takes ages to run. What can we do ?????
 		# HARDCODE_LIMIT
 		if cnt > 1000:
-			WARNING("COULD NOT RUN IT TILL THE END")
+			logging.warning("COULD NOT RUN IT TILL THE END")
 			break
 
 	cgiEnv.OutCgiRdf()
