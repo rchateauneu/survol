@@ -7,6 +7,7 @@ __license__ = "GPL"
 import sys
 import re
 import socket
+import logging
 import lib_util
 import lib_common
 
@@ -88,7 +89,7 @@ def GetArpEntriesLinux():
 		if linSplit[1] == "<incomplete>":
 			linSplit[1] = ""
 
-		DEBUG("Split=%s",str(linSplit))
+		logging.debug("Split=%s", str(linSplit))
 
 		yield( linSplit )
 

@@ -6,13 +6,14 @@ import sys
 import socket
 import urllib
 import platform
+import logging
 import lib_util
 import lib_common
 
 def GetSymbols(fileSharedLib):
 
 	if os.path.isfile(fileSharedLib):
-		DEBUG("File %s exists", fileSharedLib)
+		logging.debug("File %s exists", fileSharedLib)
 	else:
 		lib_common.ErrorMessageHtml("File %s does not exist" % fileSharedLib)
 
