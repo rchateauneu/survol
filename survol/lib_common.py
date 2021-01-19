@@ -280,13 +280,13 @@ class CgiEnv():
         # It is possible to run these scripts as CGI scripts, so this transforms
         # command line arguments into CGI arguments. This is very helpful for debugging.
 
-        # This logging level applies to all CGI scripts from this moment.
+        # The HTTP server can set the logging level with the environment variable SURVOL_LOGGING_LEVEL.
         try:
             logging_level = os.environ["SURVOL_LOGGING_LEVEL"]
+            logging.getLogger().setLevel(logging_level)
+            logging.info("logging_level set with SURVOL_LOGGING_LEVEL=%s" % logging_level)
         except KeyError:
-            logging_level = "INFO"
-        logging.getLogger().setLevel(logging_level)
-        logging.info("logging_level=%s" % logging_level)
+            logging.info("logging_level is not forced with SURVOL_LOGGING_LEVEL.")
 
         lib_command_line.command_line_to_cgi_args()
         assert "QUERY_STRING" in os.environ
