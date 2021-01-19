@@ -6,6 +6,7 @@ System-wide open files
 
 import sys
 import psutil
+import logging
 import lib_util
 import lib_common
 from sources_types import CIM_Process
@@ -98,7 +99,7 @@ def Main():
                     _add_pid_file_link(grph, node_process, fil.path)
 
         except Exception as exc:
-            WARNING("Exception:%s", str(exc))
+            logging.warning("Exception:%s", str(exc))
             pass
 
     cgiEnv.OutCgiRdf("LAYOUT_SPLINE")

@@ -5,6 +5,7 @@ Python package
 import os
 import sys
 import six
+import logging
 import importlib
 import lib_common
 import lib_uris
@@ -145,7 +146,7 @@ def _add_info_from_import(grph, package_node, package_key):
 
 def AddInfo(grph,node, entity_ids_arr):
     package_key = entity_ids_arr[0]
-    DEBUG("AddInfo package_key=%s",package_key)
+    logging.debug("AddInfo package_key=%s",package_key)
 
     _add_info_from_pip(grph, node, package_key)
 
@@ -157,7 +158,7 @@ def AddImportedModules(grph, node, fil_nam, max_depth, disp_packages, disp_files
     a node for each package recursively imported by this one."""
 
     # TODO: At the moment, this is NOT RECURSIVE !!!
-    DEBUG("AddImportedModules filNam=%s dispPackages=%d dispFiles=%d", fil_nam, disp_packages, disp_files)
+    logging.debug("AddImportedModules filNam=%s dispPackages=%d dispFiles=%d", fil_nam, disp_packages, disp_files)
     filename, file_extension = os.path.splitext(fil_nam)
     filextlo = file_extension.lower()
     if filextlo not in [".py", ".pyw"]:
@@ -211,12 +212,12 @@ def AddImportedModules(grph, node, fil_nam, max_depth, disp_packages, disp_files
 
             if len(split_nam) == 1:
                 grph.add((node, propPythonPackage, modu_nod))
-                DEBUG("No parent: modu_nam=%s", (modu_nam))
+                logging.debug("No parent: modu_nam=%s", (modu_nam))
             else:
                 parent_modu_nam = ".".join(split_nam[:-1])
                 parent_modu_nod = get_modu_node(parent_modu_nam)
                 grph.add((parent_modu_nod, propPythonRequires, modu_nod))
-                DEBUG("parent_modu_nam=%s modu_nam=%s", parent_modu_nam, modu_nam)
+                logging.debug("parent_modu_nam=%s modu_nam=%s", parent_modu_nam, modu_nam)
 
         if disp_files and not disp_packages:
             if modu_fil:

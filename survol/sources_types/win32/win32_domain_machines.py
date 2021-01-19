@@ -65,7 +65,7 @@ def Main():
         # TODO: It works fine until 1000 nodes, but after that takes ages to run. What can we do ?????
         # HARDCODE_LIMIT
         if cnt > 1000:
-            ERROR("COULD NOT RUN IT TILL THE END")
+            logging.error("COULD NOT RUN IT TILL THE END")
             break
 
     cgiEnv.OutCgiRdf()
