@@ -7,9 +7,11 @@ Socket information
 import re
 import sys
 import socket
+import logging
 
 import lib_common
 from lib_properties import pc
+
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -40,7 +42,7 @@ def Main():
 	except IndexError:
 		socketTransport = "tcp"
 
-	DEBUG("socketAddr=%s socketPort=%d",socketAddr,socketPort)
+	logging.debug("socketAddr=%s socketPort=%d",socketAddr,socketPort)
 	# It uses the host name for the machine but an IP address for the socket.
 	nodeHost = lib_common.gUriGen.HostnameUri(socketHost)
 	socketNode = lib_common.gUriGen.AddrUri(socketAddr, socketPort )
@@ -48,6 +50,7 @@ def Main():
 	grph.add( ( nodeHost, pc.property_has_socket, socketNode ) )
 
 	cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
 	Main()

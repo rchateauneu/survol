@@ -4,6 +4,7 @@ Windows software product
 
 import sys
 import six
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -129,11 +130,11 @@ def AddInstallSource(grph, node, win_prod):
 def AddInfo(grph, node, entity_ids_arr):
     product_identifying_number = six.u(entity_ids_arr[0])
 
-    DEBUG("productIdentifyingNumber=%s",str(product_identifying_number))
+    logging.debug("productIdentifyingNumber=%s",str(product_identifying_number))
     try:
         win_prod = populate_product(product_identifying_number)
 
-        DEBUG("win_prod=%s",str(win_prod))
+        logging.debug("win_prod=%s",str(win_prod))
 
         AddInstallSource(grph,node,win_prod)
 
@@ -242,7 +243,7 @@ def AddInfo_DEPRECATED(grph,node,entity_ids_arr):
         winProds = wmiCnnct.Win32_Product(Caption=productCaption)
 
         nbProds = len(winProds)
-        DEBUG("nbProds=%d",nbProds)
+        logging.debug("nbProds=%d", nbProds)
         if nbProds > 0:
             winProd = winProds[0]
             nodeInstallSource = lib_common.gUriGen.FileUri( winProd.InstallSource )

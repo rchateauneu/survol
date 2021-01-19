@@ -8,12 +8,14 @@ import re
 import sys
 import socket
 import psutil
+import logging
 import lib_util
 import lib_common
 from sources_types import CIM_Process
 from sources_types import addr as survol_addr
 
 from lib_properties import pc
+
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -43,8 +45,7 @@ def Main():
 	except ValueError:
 		socketPort = socket.getservbyname(socketPortString)
 
-
-	DEBUG("socketName=%s socketAddr=%s socketPort=%d", socketName, socketAddr, socketPort )
+	logging.debug("socketName=%s socketAddr=%s socketPort=%d", socketName, socketAddr, socketPort )
 
 	# TBH, I do not understand why a local address is sometimes displayed as "192.168.1.83",
 	# "127.0.0.1", "0.0.0.0" etc...
@@ -95,13 +96,13 @@ def Main():
 				continue
 
 			try:
-				DEBUG("l[0]=%16s l[1]=%5d r[0]=%16s r[1]=%5d",
+				logging.debug("l[0]=%16s l[1]=%5d r[0]=%16s r[1]=%5d",
 								 larray[0], larray[1], rarray[0], rarray[1] )
 			except IndexError:
 				try:
-					DEBUG("l[0]=%16s l[1]=%5d NO END", larray[0], larray[1] )
+					logging.debug("l[0]=%16s l[1]=%5d NO END", larray[0], larray[1] )
 				except IndexError:
-					DEBUG("No socket")
+					logging.debug("No socket")
 
 			isTheSock = IsGoodSocket(larray) or IsGoodSocket(rarray)
 
@@ -118,6 +119,7 @@ def Main():
 				survol_addr.PsutilAddSocketToGraphOne(node_process,cnt,grph)
 
 	cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
 	Main()

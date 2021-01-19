@@ -7,14 +7,17 @@ import socket
 import threading
 import time
 import socket
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
+
 
 def EntityOntology():
 	return ( ["Id"],)
 
 # TODO: Add the network card.
+
 
 # This returns a nice name given the parameter of the object.
 def EntityName(entity_ids_arr):
@@ -29,6 +32,7 @@ def EntityName(entity_ids_arr):
 
 	return "%s:%s" % (hostName,portNam)
 
+
 def AddInfo(grph,node,entity_ids_arr):
 	timeStart = time.time()
 	socketNam = entity_ids_arr[0]
@@ -39,11 +43,12 @@ def AddInfo(grph,node,entity_ids_arr):
 	sockIP = lib_util.GlobalGetHostByName(socketAddr)
 	timeEnd = time.time()
 	timeDelta = timeEnd - timeStart
-	DEBUG("addr.AddInfo tm=%f sockIP=%s",timeDelta,sockIP)
+	logging.debug("addr.AddInfo tm=%f sockIP=%s",timeDelta,sockIP)
 
 	nodeHost = lib_common.gUriGen.HostnameUri( sockIP )
 	# Should be the otherway round, but it makes the graph ugly.
 	grph.add( ( node, pc.property_has_socket, nodeHost ) )
+
 
 def UniversalAlias(entity_ids_arr,entity_host,entity_class):
 	# If IPV4, "host:port". Could be IPv6
@@ -93,11 +98,13 @@ def DecorateSocketNode(grph, socketNode, host, port, proto):
 
 ################################################################################
 
+
 def JoinThreads(threads):
-	DEBUG("JoinThreads: %d threads to return.", len(threads))
+	logging.debug("JoinThreads: %d threads to return.", len(threads))
 	for thread in threads:
 		# sys.stderr.write('Joining %s\n' % thread.getName())
 		thread.join()
+
 
 # This returns retrieves the host information corresponding to a network address.
 # It might take a long time due to DNS delay, therefore one thread is started per host.
@@ -106,6 +113,7 @@ def GetHost(addr):
 		return socket.gethostbyaddr(addr)
 	except socket.herror:
 		return [ addr, [] ]
+
 
 # Different interfaces according to the psutil version.
 def SocketToPair(connect):
@@ -117,6 +125,7 @@ def SocketToPair(connect):
 		larray = connect.local_address
 		rarray = connect.remote_address
 	return (larray,rarray)
+
 
 # The input could be '192.168.0.17:22' or '[fe80::3c7a:339:64f0:2161%11]:51769'
 # If IPV6, it removes the surrounding square brackets.
@@ -149,7 +158,7 @@ class PsutilAddSocketThread(threading.Thread):
 		threading.Thread.__init__(self)
 
 	# TODO: We might, in the future, have one single object instead of two.
-	# For example "socket_pair". Not sure.
+	# For example "socket_pair".
 	def run(self):
 		# Now we create a node in rdflib, and we need a mutex for that.
 		try:
@@ -171,8 +180,7 @@ class PsutilAddSocketThread(threading.Thread):
 			self.grph.add( ( lsocketNode, pc.property_information, lib_util.NodeLiteral(self.connect.status) ) )
 		finally:
 			self.grph_lock.release()
-		# Some throttling, in case there are thousands of nodes.
-		# time.sleep(0.001)
+
 
 def PsutilAddSocketToGraphAsync(node_process,connects,grph,flagShowUnconnected):
 	threadsArr = []
@@ -188,6 +196,7 @@ def PsutilAddSocketToGraphAsync(node_process,connects,grph,flagShowUnconnected):
 			threadsArr.append( thr )
 
 	JoinThreads(threadsArr)
+
 
 # TODO: We might, in the future, have one single object instead of two.
 # TODO: Remove this hardcode !!!
@@ -214,9 +223,8 @@ def PsutilAddSocketToGraphOne(node_process,connect,grph):
 		grph.add( ( node_process, pc.property_has_socket, lsocketNode ) )
 		grph.add( ( lsocketNode, pc.property_information, lib_util.NodeLiteral(connect.status) ) )
 
-# On va peut-etre se debarrasser de ca si la version asynchrone est plus-rapide.
+
 def PsutilAddSocketToGraph(node_process,connects,grph):
 	for cnt in connects:
 		PsutilAddSocketToGraphOne(node_process,cnt,grph)
-
 

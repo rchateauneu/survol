@@ -30,6 +30,7 @@ Groups of a Windows user
 """
 
 import sys
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -43,6 +44,7 @@ from sources_types import Win32_UserAccount as survol_Win32_UserAccount
 Usable = lib_util.UsableWindows
 
 CanProcessRemote = True
+
 
 def Main():
 	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
@@ -71,7 +73,7 @@ def Main():
 
 	userName = cgiEnv.m_entity_id_dict["Name"]
 
-	DEBUG("hostName=%s userName=%s",hostName,userName)
+	logging.debug("hostName=%s userName=%s",hostName,userName)
 
 	grph = cgiEnv.GetGraph()
 
@@ -94,9 +96,8 @@ def Main():
 			# TODO: Instead, both object must have the same universal alias
 			grph.add( (nodeGroup, pc.property_alias, nodeGroupRemote ) )
 
-
-
 	cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
 	Main()
