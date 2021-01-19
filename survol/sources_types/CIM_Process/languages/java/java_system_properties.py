@@ -5,12 +5,14 @@ System Properties
 """
 
 import sys
+import logging
 import lib_util
 import lib_common
 import lib_uris
 from sources_types import CIM_Process
 from sources_types import java as survol_java
 from lib_properties import pc
+
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -23,7 +25,7 @@ def Main():
 
 	jmxProps = survol_java.JavaJmxSystemProperties(pidInt)
 
-	DEBUG("jmxProps=%s",str(jmxProps))
+	logging.debug("jmxProps=%s",str(jmxProps))
 
 	try:
 		pathSeparator = jmxProps["path.separator"]
@@ -99,6 +101,7 @@ def Main():
 		grph.add( ( node_process, rdfProp, lib_util.NodeLiteral(valJmxProp) ) )
 
 	cgiEnv.OutCgiRdf( "LAYOUT_RECT", propsMatrix)
+
 
 if __name__ == '__main__':
 	Main()

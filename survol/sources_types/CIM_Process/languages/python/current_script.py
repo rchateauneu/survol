@@ -7,6 +7,7 @@ Current script
 import os
 import re
 import sys
+import logging
 import lib_util
 import lib_common
 import getopt
@@ -20,7 +21,7 @@ Usable = survol_python.Usable
 # Options and arguments (and corresponding environment variables):
 # -B     : don't write .py[co] files on import; also PYTHONDONTWRITEBYTECODE=x
 # -c cmd : program passed in as string (terminates option list)
-# -d     : debug output from parser; also PYTHONDEBUG=x
+# -d     : debug output from parser; also PYTHONlogging.debug=x
 # -E     : ignore PYTHON* environment variables (such as PYTHONPATH)
 # -h     : print this help message and exit (also --help)
 # -i     : inspect interactively after running script; forces a prompt even
@@ -71,7 +72,7 @@ def _py_fil_node(proc_obj, fil_nam, ignore_envs):
         # Check if the file exists in the current directory.
         curr_pwd, err_msg = CIM_Process.PsutilProcCwd(proc_obj)
         if not curr_pwd:
-            DEBUG("_py_fil_node: %s",err_msg)
+            logging.debug("_py_fil_node: %s",err_msg)
             return None
 
         all_dirs_to_search = [curr_pwd]
@@ -111,14 +112,14 @@ def _add_nodes_from_command_line(argv_array, grph, node_process, proc_obj):
 
     # Now, the current argument should be a Python command.
     if argv_array[idx_command].find("python") < 0:
-        DEBUG("Command does not contain Python:%s", str(argv_array))
+        logging.debug("Command does not contain Python:%s", str(argv_array))
         return
 
     # Now removes options of Python command.
     # Options and arguments (and corresponding environment variables):
     # -B     : don't write .py[co] files on import; also PYTHONDONTWRITEBYTECODE=x
     # -c cmd : program passed in as string (terminates option list)
-    # -d     : debug output from parser; also PYTHONDEBUG=x
+    # -d     : debug output from parser; also PYTHONlogging.debug=x
     # -E     : ignore PYTHON* environment variables (such as PYTHONPATH)
     # -h     : print this help message and exit (also --help)
     # -i     : inspect interactively after running script; forces a prompt even
@@ -181,7 +182,7 @@ def Main():
     # Now we are parsing the command line.
     argv_array = CIM_Process.PsutilProcToCmdlineArray(proc_obj)
 
-    DEBUG("argv_array=%s",str(argv_array))
+    logging.debug("argv_array=%s",str(argv_array))
 
     # The difficulty is that filenames with spaces are split.
     # Therefore, entire filenames must be rebuilt from pieces.

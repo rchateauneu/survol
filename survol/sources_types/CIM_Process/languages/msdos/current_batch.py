@@ -7,6 +7,7 @@ Current batch file
 import os
 import re
 import sys
+import logging
 import lib_util
 import lib_common
 import getopt
@@ -55,7 +56,7 @@ def Main():
     # Python 3
     # cmd_arr=['C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\Python36_64\\python.exe', 'test_survol_client_library.py', '--debug', 'SurvolLocalTest.test_msdos_current_batch']
     argv_array = CIM_Process.PsutilProcToCmdlineArray(proc_obj)
-    DEBUG("argv_array=%s", str(argv_array))
+    logging.debug("argv_array=%s", str(argv_array))
 
     # This extracts the command file name and creates a node for it.
     for the_arg in argv_array[1:]:
@@ -76,9 +77,9 @@ def Main():
         # Now tries all possible dirs, starting with current directory.
         for a_dir in all_dirs_to_search:
             full_script_path = os.path.join(a_dir, the_arg)
-            DEBUG("full_script_path=%s", full_script_path)
+            logging.debug("full_script_path=%s", full_script_path)
             if os.path.isfile(full_script_path):
-                DEBUG("full_script_path=%s",full_script_path)
+                logging.debug("full_script_path=%s",full_script_path)
                 script_node = lib_common.gUriGen.FileUri(full_script_path)
                 grph.add( (node_process, pc.property_runs, script_node))
                 break

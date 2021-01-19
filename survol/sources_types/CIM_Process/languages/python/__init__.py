@@ -5,6 +5,7 @@ Python processes
 import os
 import sys
 import json
+import logging
 import psutil
 import lib_util
 import lib_common
@@ -66,7 +67,7 @@ def _exec_in_python_debugger_linux(my_pid, vec_instructions):
     """
     filna_pair = tempfile.mkstemp(suffix=".py", text=True)
     filna = filna_pair[1]
-    DEBUG("_exec_in_python_debugger_linux filna=%s", filna)
+    logging.debug("_exec_in_python_debugger_linux filna=%s", filna)
 
     # This file will contain the result of the execution.
     out_fil_na_pair = tempfile.mkstemp(suffix=".dat", text=True)
@@ -98,11 +99,11 @@ def _exec_in_python_debugger_linux(my_pid, vec_instructions):
     ]
 
     big_args = ' '.join(["-eval-command='call %s'" % cmd for cmd in gdb_cmds_filout])
-    DEBUG("big_args=%s\n", big_args)
+    logging.debug("big_args=%s\n", big_args)
 
     # TODO: See process_gdbstack.py which similarly runs a gdb command.
     cmdline = 'gdb -p %d -batch %s' % (my_pid, big_args)
-    DEBUG("cmdline=%s out_fil_na=%s\n", cmdline, out_fil_na)
+    logging.debug("cmdline=%s out_fil_na=%s\n", cmdline, out_fil_na)
 
     lib_common.SubProcCall(cmdline)
 
@@ -123,7 +124,7 @@ def ExecInPythonDebugger(the_pid, vec_instructions):
 
     vec_resu = debugger_python(the_pid, vec_instructions)
     if len(vec_resu) != 1:
-        WARNING("ExecInPythonDebugger: Err:%s", str(vec_resu) )
+        logging.warning("ExecInPythonDebugger: Err:%s", str(vec_resu) )
         return None
 
     str_resu = vec_resu[0]
