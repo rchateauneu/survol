@@ -1,4 +1,5 @@
 import sys
+import logging
 import lib_util
 import lib_common
 import lib_kbase
@@ -21,25 +22,25 @@ class SurvolSparqlCallbackApi:
     # Each object is modelled by a key-value dictionary.
     # No need to return the class name because it is an input parameter.
     def CallbackSelect(self, grph, class_name, predicate_prefix, filtered_where_key_values):
-        DEBUG("SurvolCallbackSelect class_name=%s predicate_prefix=%s where_key_values=%s",
+        logging.debug("SurvolCallbackSelect class_name=%s predicate_prefix=%s where_key_values=%s",
                 class_name, predicate_prefix, str(filtered_where_key_values))
 
         # Maybe there is a script: predicate_prefix="survol:CIM_DataFile/mapping_processes"
         prefix, colon, script_nickname = predicate_prefix.partition(":")
-        DEBUG("SurvolCallbackSelect script_nickname=%s", script_nickname)
+        logging.debug("SurvolCallbackSelect script_nickname=%s", script_nickname)
 
         if script_nickname:
             # For example: script_nickname="CIM_DataFile/mapping_processes"
             # Wildcards or directories are not accepted yet.
             script_name = "sources_types/" + script_nickname + ".py"
-            DEBUG("SurvolCallbackSelect script_name=%s filtered_where_key_values=%s",
+            logging.debug("SurvolCallbackSelect script_name=%s filtered_where_key_values=%s",
                     script_name,
                     str(filtered_where_key_values))
 
             # TODO: Check that there are enough parameters for this script ?
 
             my_source = lib_client.SourceLocal(script_name, class_name, **filtered_where_key_values)
-            DEBUG("SurvolCallbackSelect my_source=%s", my_source)
+            logging.debug("SurvolCallbackSelect my_source=%s", my_source)
             my_triplestore = my_source.get_triplestore()
 
             # This is returned anyway, as a triplestore that rdflib Sparql can work on.
@@ -50,10 +51,10 @@ class SurvolSparqlCallbackApi:
             # TODO: We filter only the objects of the right type,
             # TODO: ... but we lose all the other objects which could be stored in the output triplestore !!...
 
-            DEBUG("SurvolCallbackSelect tp=%s class_name=%s", type(list_instances), class_name)
-            DEBUG("SurvolCallbackSelect list_instances=%s", str(list_instances))
+            logging.debug("SurvolCallbackSelect tp=%s class_name=%s", type(list_instances), class_name)
+            logging.debug("SurvolCallbackSelect list_instances=%s", str(list_instances))
             for one_instance in list_instances:
-                WARNING("SurvolCallbackSelect one_instance.__class__.__name__=%s", one_instance.__class__.__name__)
+                logging.warning("SurvolCallbackSelect one_instance.__class__.__name__=%s", one_instance.__class__.__name__)
                 if one_instance.__class__.__name__ == class_name:
                     # 'CIM_DataFile.Name=/usr/lib/systemd/systemd-journald'
                     instance_url = one_instance.__class__.__name__ + "." + one_instance.m_entity_id
@@ -61,7 +62,7 @@ class SurvolSparqlCallbackApi:
                     one_instance.m_key_value_pairs[lib_kbase.PredicateIsDefinedBy] = lib_util.NodeLiteral(predicate_prefix)
                     # Add it again, so the original Sparql query will work.
                     one_instance.m_key_value_pairs[lib_kbase.PredicateSeeAlso] = lib_util.NodeLiteral(predicate_prefix)
-                    DEBUG("SurvolCallbackSelect instance_url=%s", instance_url)
+                    logging.debug("SurvolCallbackSelect instance_url=%s", instance_url)
                     yield (instance_url, one_instance.m_key_value_pairs)
 
         else:
@@ -71,9 +72,8 @@ class SurvolSparqlCallbackApi:
 
             try:
                 enumerate_function = entity_module.SelectFromWhere
-            except AttributeError:
-                exc = sys.exc_info()[1]
-                WARNING("No Enumerate for %s:%s", class_name, str(exc) )
+            except AttributeError as exc:
+                logging.warning("No Enumerate for %s:%s", class_name, str(exc) )
                 return
 
             iter_enumeration = enumerate_function( filtered_where_key_values )
@@ -115,7 +115,7 @@ class SurvolSparqlCallbackApi:
         associator_key_name,
         subject_path):
 
-        DEBUG("SurvolCallbackAssociator result_class_name=%s "
+        logging.debug("SurvolCallbackAssociator result_class_name=%s "
             + "predicate_prefix=%s associator_key_name=%s subject_path=%s.",
               result_class_name,
               predicate_prefix,
@@ -143,7 +143,7 @@ class SurvolSparqlCallbackApi:
             except Exception as ex:
                 # We have no idea about the script, because we run every possible script,
                 # so it is not an issue it it fails.
-                WARNING("Script:%s Exception:%s",str(my_source),ex)
+                logging.warning("Script:%s Exception:%s", str(my_source), ex)
                 continue
 
             # mysource="Script:sources_types/CIM_Process/xyz.py?xid=CIM_Process.Handle=7652"
@@ -155,7 +155,7 @@ class SurvolSparqlCallbackApi:
             iter_objects = my_triplestore.filter_objects_with_predicate_class(associator_key_name, result_class_name)
 
             for object_path, one_key_value_dict_nodes in iter_objects:
-                DEBUG("SurvolCallbackAssociator object_path=%s one_key_value_dict_nodes=%s",
+                logging.debug("SurvolCallbackAssociator object_path=%s one_key_value_dict_nodes=%s",
                         object_path,
                         one_key_value_dict_nodes)
                 yield (object_path, one_key_value_dict_nodes)
