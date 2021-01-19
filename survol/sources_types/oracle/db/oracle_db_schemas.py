@@ -5,6 +5,7 @@ Oracle database schemas
 """
 
 import sys
+import logging
 import lib_common
 from lib_properties import pc
 import lib_oracle
@@ -37,7 +38,7 @@ def _list_dba_users(cgiEnv, node_oradb, grph):
 
     for row in result:
         # row=('ORACLE_OCM', 21, 'EXPIRED & LOCKED')
-        DEBUG("row=" + str(row))
+        logging.debug("row=" + str(row))
         node_schema = oracle_schema.MakeUri(cgiEnv.m_oraDatabase, str(row[0]))
         grph.add((node_oradb, pc.property_oracle_schema, node_schema))
 
@@ -59,7 +60,7 @@ def _list_all_users(cgiEnv, node_oradb, grph):
     result = lib_oracle.ExecuteQueryThrow(cgiEnv.ConnectStr(), qry_dba_users)
 
     for row in result:
-        DEBUG("row=" + str(row))
+        logging.debug("row=" + str(row))
         node_schema = oracle_schema.MakeUri(cgiEnv.m_oraDatabase, str(row[0]))
         grph.add((node_oradb, pc.property_oracle_schema, node_schema))
 

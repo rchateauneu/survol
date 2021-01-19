@@ -6,11 +6,13 @@ Oracle view dependencies
 
 import re
 import sys
+import logging
 import lib_common
 from lib_properties import pc
 import lib_oracle
 from sources_types.oracle import schema as oracle_schema
 from sources_types.oracle import view as oracle_view
+
 
 def Main():
 	cgiEnv = lib_oracle.OracleEnv()
@@ -28,14 +30,14 @@ def Main():
 
 	# TYPE = "VIEW", "TABLE", "PACKAGE BODY"
 	sql_query = "select owner,name,type from all_dependencies where REFERENCED_TYPE = 'VIEW' AND REFERENCED_NAME = '" + oraView + "' and referenced_owner='" + oraSchema + "'"
-	DEBUG("sql_query=%s", sql_query )
+	logging.debug("sql_query=%s", sql_query )
 	result = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(), sql_query)
 
 	for row in result:
 		lib_oracle.AddDependency( grph, row, node_oraView, oraDatabase, True )
 
 	sql_query_inv = "select referenced_owner,referenced_name,referenced_type from all_dependencies where type='VIEW' and NAME = '" + oraView + "' and OWNER='" + oraSchema + "'"
-	DEBUG("sql_query_inv=%s", sql_query_inv )
+	logging.debug("sql_query_inv=%s", sql_query_inv )
 	result_inv = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(), sql_query_inv)
 
 	for row in result_inv:

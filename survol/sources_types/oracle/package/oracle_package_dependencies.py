@@ -5,6 +5,7 @@ Oracle package dependencies
 """
 
 import sys
+import logging
 from lib_properties import pc
 import lib_oracle
 import lib_common
@@ -27,7 +28,7 @@ def Main():
 	# TYPE = "VIEW", "TABLE", "PACKAGE BODY"
 	sql_query = "select owner,name,type from dba_dependencies where REFERENCED_TYPE = 'PACKAGE' AND REFERENCED_NAME = '"\
 				+ oraPackage + "' and referenced_owner='" + oraSchema + "'"
-	DEBUG("sql_query=%s", sql_query )
+	logging.debug("sql_query=%s", sql_query )
 	result = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(), sql_query)
 
 	for row in result:
@@ -35,7 +36,7 @@ def Main():
 
 	sql_query_inv = "select referenced_owner,referenced_name,referenced_type from dba_dependencies where type='PACKAGE' and NAME = '"\
 					+ oraPackage + "' and OWNER='" + oraSchema + "'"
-	DEBUG("sql_query_inv=%s", sql_query_inv )
+	logging.debug("sql_query_inv=%s", sql_query_inv )
 	result_inv = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(), sql_query_inv)
 
 	for row in result_inv:
