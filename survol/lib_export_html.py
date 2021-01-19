@@ -351,7 +351,7 @@ def _create_objects_list(grph):
             # 'ascii' codec can't encode character u'\xf3' in position 17: ordinal not in range(128)
             # u'SDK de comprobaci\xf3n de Visual Studio 2012 - esn'
             except UnicodeEncodeError as exc:
-                ERROR("Exception %s",str(exc))
+                logging.warning("Exception %s", str(exc))
                 continue
 
         subj_str = str(a_subj)

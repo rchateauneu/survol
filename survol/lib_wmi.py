@@ -29,7 +29,7 @@ try:
     wmi_imported = True
 except ImportError as exc:
     wmi_imported = False
-    ERROR("Some modules could not be imported:%s",str(exc))
+    logging.error("Some modules could not be imported:%s", str(exc))
 
 
 # TODO: Just a reminder that WMI can run on Linux, in a certain extent.
@@ -131,7 +131,7 @@ def WmiConnect(mach_with_back_slashes, wmi_namspac, throw_if_error=True):
         # Could not connect, maybe the namespace is wrong.
             lib_common.ErrorMessageHtml("WmiConnect Cannot connect to WMI server with params:%s.Exc=%s" % (str(dict_params),str(sys.exc_info())))
         else:
-            ERROR("WmiConnect Cannot connect to WMI server with params:%s.Exc=%s", str(dict_params),str(sys.exc_info()))
+            logging.error("WmiConnect Cannot connect to WMI server with params:%s.Exc=%s", str(dict_params), str(sys.exc_info()))
             return None
 
     #sys.stderr.write("WmiConnect returning\n" )
@@ -151,7 +151,7 @@ def WmiGetClassKeys(wmi_name_space, wmi_class, cimom_srv):
         wmi_cnnct = wmi.WMI(cimom_srv)
         wmi_class = getattr(wmi_cnnct, wmi_class)
     except Exception as exc:
-        ERROR("WmiGetClassKeys %s %s %s: Caught:%s", cimom_srv, wmi_name_space, wmi_class, str(exc))
+        logging.error("WmiGetClassKeys %s %s %s: Caught:%s", cimom_srv, wmi_name_space, wmi_class, str(exc))
         return None
 
     wmi_keys = wmi_class.keys
@@ -839,7 +839,7 @@ class WmiSparqlCallbackApi:
         #    ?url_property rdfs:seeAlso "WMI" .
         # filtered_where_key_values={u'domain': u'survol:CIM_Process'}
         if class_name == "Property":
-            ERROR("WmiCallbackSelect TEST class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
+            logging.error("WmiCallbackSelect TEST class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
             return
 
         # HACK: Temporary hard-code !!
@@ -858,7 +858,7 @@ class WmiSparqlCallbackApi:
         try:
             wmi_objects = self.m_wmi_connection.query(wmi_query)
         except Exception as exc:
-            ERROR("WmiSparqlCallbackApi.CallbackSelect wmi_query='%s': Caught:%s" %(wmi_query, exc))
+            logging.error("WmiSparqlCallbackApi.CallbackSelect wmi_query='%s': Caught:%s" %(wmi_query, exc))
             raise
 
         for one_wmi_object in wmi_objects:
@@ -1029,7 +1029,7 @@ class WmiSparqlExecutor:
         try:
             wmi_objects = self.m_wmi_connection.query(wmi_query)
         except Exception as exc:
-            ERROR("WmiSparqlExecutor.SelectObjectFromProperties wmi_query='%s': Caught:%s" % (wmi_query, exc))
+            logging.error("WmiSparqlExecutor.SelectObjectFromProperties wmi_query='%s': Caught:%s" % (wmi_query, exc))
             raise
 
         sys.stderr.write("SelectObjectFromProperties num=%d\n" % len(wmi_objects))

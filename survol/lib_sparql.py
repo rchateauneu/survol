@@ -206,7 +206,7 @@ def __decode_parsed_predicate(pred):
         try:
             one_part = pred['part']
         except KeyError:
-            ERROR("__decode_parsed_predicate pred=%s",pred)
+            logging.error("__decode_parsed_predicate pred=%s", pred)
             raise
         if isinstance(one_part,rdflib.plugins.sparql.parserutils.plist):
             assert(len(one_part)==1)
@@ -230,7 +230,7 @@ def __decode_parsed_predicate(pred):
     elif isinstance(pred,rdflib.term.BNode):
         return("TRPL_NODE",pred)
     else:
-        ERROR("Error pred:",type(pred))
+        logging.error("Error pred:", type(pred))
         raise Exception("Cannot parse")
 
 

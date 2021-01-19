@@ -867,7 +867,7 @@ def GraphToSvg(
     try:
         logfil = open(tmp_log_fil.Name, "w")
     except Exception as exc:
-        ERROR("_graph_to_svg caught %s when opening:%s", str(exc), tmp_log_fil.Name)
+        logging.error("_graph_to_svg caught %s when opening:%s", str(exc), tmp_log_fil.Name)
         raise Exception("_graph_to_svg caught %s when opening:%s\n" % (str(exc), tmp_log_fil.Name))
 
     logfil.write("Starting logging\n")

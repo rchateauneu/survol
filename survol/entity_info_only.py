@@ -50,7 +50,7 @@ def AddInformation(grph, root_node, entity_id, entity_type):
                 entity_module.AddInfo(pseudo_graph, root_node, entity_ids_arr)
 
             except AttributeError as exc:
-                ERROR("No AddInfo for %s %s: %s", entity_type, entity_id, str(exc) )
+                logging.error("No AddInfo for %s %s: %s", entity_type, entity_id, str(exc) )
     else:
         logging.warning("No lib_entities for %s %s", entity_type, entity_id)
 

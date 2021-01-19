@@ -12,7 +12,7 @@ def FormEditionParameters(form_action_no_mode, theCgi):
     """
 
     form_action = form_action_no_mode
-    ERROR("FormEditionParameters formActionNoMode=%s form_action=%s", form_action, form_action_no_mode)
+    logging.info("FormEditionParameters formActionNoMode=%s form_action=%s", form_action, form_action_no_mode)
     yield('<form name="myform" action="' + form_action + '" method="GET">')
 
     # arg_keys are the names of arguments passed as CGI parameters.

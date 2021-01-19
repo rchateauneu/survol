@@ -374,7 +374,7 @@ def GetCapabilitiesForInstrumentation(conn, nam_spac):
             # sys.stderr.write("GetCapabilitiesForInstrumentation len=%d caps=%s\n" % ( len(caps), str(caps) ) )
             break
         except Exception as exc:
-            ERROR("GetCapabilitiesForInstrumentation exc=%s", str(exc))
+            logging.error("GetCapabilitiesForInstrumentation exc=%s", str(exc))
             arg = exc.args
             # TODO Python 3
             if arg[0] != pywbem.CIM_ERR_INVALID_NAMESPACE:

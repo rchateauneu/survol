@@ -205,7 +205,7 @@ def HttpPrefix():
         # 'REMOTE_HOST'] => "rchateau-HP"
 
     except KeyError:
-        ERROR("HttpPrefix SERVER_NAME MUST BE DEFINED")
+        logging.error("HttpPrefix SERVER_NAME MUST BE DEFINED")
         sys.exit(1)
     
     try:
@@ -759,7 +759,7 @@ def KWArgsToEntityId(class_name, **kwargs_ontology):
         try:
             arg_val = kwargs_ontology[arg_key]
         except KeyError:
-            ERROR("KWArgsToEntityId className=%s. No key %s", class_name, arg_key)
+            logging.error("KWArgsToEntityId className=%s. No key %s", class_name, arg_key)
             raise
 
         # TODO: The values should be encoded when needed, probably with B64 !!!
@@ -1655,7 +1655,7 @@ def GetScriptModule(current_module, fil):
     """This loads a script as a module. Example:
     currentModule="sources_types.win32" fil="enumerate_top_level_windows.py" """
     if not fil.endswith(".py"):
-        ERROR("GetScriptModule module=%s fil=%s not a Python script", current_module, fil)
+        logging.error("GetScriptModule module=%s fil=%s not a Python script", current_module, fil)
         return None
     file_base_name = fil[:-3] # Without the ".py" extension.
     if is_py3:
@@ -1985,6 +1985,6 @@ class TmpFile:
                 os.rmdir(self.TmpDirToDel)
 
         except Exception as exc:
-            ERROR("__del__.Caught: %s. TmpDirToDel=%s Name=%s", str(exc), str(self.TmpDirToDel), str(self.Name))
+            logging.error("__del__.Caught: %s. TmpDirToDel=%s Name=%s", str(exc), str(self.TmpDirToDel), str(self.Name))
         return
 
