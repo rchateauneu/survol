@@ -63,7 +63,7 @@ class FilenameParserWindows:
         # file() argument 1 must be encoded string without NULL bytes, not str
         idx_zero = a_filename.find(b'\0')
         if idx_zero >= 0:
-            # ERROR("ZERO ZERO ZERO")
+            # logging.error("ZERO ZERO ZERO")
             a_filename = a_filename[:idx_zero]
 
         # Keep only allowed chars in a filename.
@@ -164,7 +164,7 @@ def Main():
             else:
                 # These files might actuqally be used.
                 for one_filename in a_fil_nam_list:
-                    #ERROR("ADDING %s", one_filename)
+                    #logging.error("ADDING %s", one_filename)
                     if lib_util.is_py3:
                         assert isinstance(one_filename, str)
                     else:
