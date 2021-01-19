@@ -31,7 +31,7 @@ def Main():
     grph = cgiEnv.GetGraph()
 
     name_space, class_name = cgiEnv.get_namespace_type()
-    INFO("name_space=%s class_name=%s", name_space, class_name)
+    logging.info("name_space=%s class_name=%s", name_space, class_name)
 
     # If name_space is not provided, it is set to "root/CIMV2" by default.
     if not class_name:

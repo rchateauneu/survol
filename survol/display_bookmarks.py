@@ -13,6 +13,7 @@
 
 import os
 import sys
+import logging
 import lib_util
 import lib_bookmark
 
@@ -32,7 +33,7 @@ def PrettyBkMrks(aDict, indent=0):
 		theName = aDict["name"]
 	except KeyError:
 		theName = "No name"
-		INFO("theName=%s",theName)
+		logging.info("theName=%s",theName)
 
 	try:
 		urlHRef = str(aDict["HREF"])
@@ -103,7 +104,7 @@ def Main():
 		currDir = os.path.dirname(__file__)
 		filNam = os.path.join( currDir, "..", "docs", "bookmarks.html")
 
-	INFO("filNam=%s",filNam)
+	logging.info("filNam=%s",filNam)
 
         # Send the HTTP header before any output,
         # otherwise error messages are superseded by other errors.

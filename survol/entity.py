@@ -122,11 +122,11 @@ def Main():
             try:
                 entity_module.AddInfo(grph, root_node, entity_ids_arr)
             except AttributeError as exc:
-                INFO("entity.py No AddInfo for %s %s: %s", entity_type, entity_id, str(exc))
+                logging.info("entity.py No AddInfo for %s %s: %s", entity_type, entity_id, str(exc))
             except Exception as exc:
-                INFO("entity.py Unexpected exception for %s %s: %s", entity_type, entity_id, str(exc))
+                logging.info("entity.py Unexpected exception for %s %s: %s", entity_type, entity_id, str(exc))
     else:
-        INFO("No lib_entities for %s %s", entity_type, entity_id)
+        logging.info("No lib_entities for %s %s", entity_type, entity_id)
 
     # When displaying in json mode, the scripts are shown with a contextual menu, not with D3 modes..
     if lib_util.GuessDisplayMode() not in ["json", "html"]:

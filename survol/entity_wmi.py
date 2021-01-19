@@ -96,7 +96,7 @@ def AddSurvolObjectFromWmi(grph, wmi_instance_node, conn_wmi, class_name, obj_li
             try:
                 wmi_val = getattr(obj_wmi, surv_key)
             except KeyError:
-                INFO("AddSurvolObjectFromWmi className=%s no value for key=%s", class_name, surv_key)
+                logging.info("AddSurvolObjectFromWmi className=%s no value for key=%s", class_name, surv_key)
                 wmi_val = ""
             prop_values_array.append(wmi_val)
 

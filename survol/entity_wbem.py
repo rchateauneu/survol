@@ -128,7 +128,7 @@ def Main():
 
     if name_space == "":
         name_space = "root/cimv2"
-        INFO("Setting namespace to default value\n")
+        logging.info("Setting namespace to default value\n")
 
     if class_name == "":
         lib_common.ErrorMessageHtml("No class name. entity_id=%s" % entity_id)

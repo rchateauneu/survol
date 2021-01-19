@@ -824,7 +824,7 @@ class WmiSparqlCallbackApi:
         return self.m_subclasses
 
     def CallbackSelect(self, grph, class_name, predicate_prefix, filtered_where_key_values):
-        INFO("WmiCallbackSelect class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
+        logging.info("WmiCallbackSelect class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
         assert class_name
 
         # This comes from such a Sparql triple: " ?variable rdf:type rdf:type"
@@ -1013,7 +1013,7 @@ class WmiSparqlExecutor:
         self.m_wmi_connection = WmiConnect("", "")
 
     def SelectObjectFromProperties(self, class_name, filtered_where_key_values):
-        INFO("WmiSparqlExecutor.SelectObjectFromProperties class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
+        logging.info("WmiSparqlExecutor.SelectObjectFromProperties class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
         assert class_name
 
         # HACK: Temporary hard-code !!

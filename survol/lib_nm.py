@@ -20,7 +20,7 @@ def GetSymbols(fileSharedLib):
 	if not lib_util.isPlatformLinux:
 		lib_common.ErrorMessageHtml("NM on Linux platform only")
 	nmCmd = "nm -DC " + fileSharedLib
-	INFO("Running %s", nmCmd)
+	logging.info("Running %s", nmCmd)
 	stream = os.popen(nmCmd)
 
 	# Just to have a sort of clean switch.

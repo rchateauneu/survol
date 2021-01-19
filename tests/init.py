@@ -393,9 +393,9 @@ def start_wsgiserver(agent_url, agent_port):
         # No SVG because Travis might not have dot/Graphviz. Also, the script must be compatible with WSGI.
         agent_process = None
         response = portable_urlopen(agent_url + "/survol/entity.py?mode=json", timeout=5)
-        INFO("start_wsgiserver: Using existing WSGI Survol agent")
+        logging.info("start_wsgiserver: Using existing WSGI Survol agent")
     except:
-        INFO("Starting test survol agent_url=%s hostnqme=%s", agent_url, agent_host)
+        logging.info("Starting test survol agent_url=%s hostnqme=%s", agent_url, agent_host)
 
         try:
             # Running the tests scripts from PyCharm is from the current directory.
@@ -403,15 +403,15 @@ def start_wsgiserver(agent_url, agent_port):
             current_dir = ".."
         except KeyError:
             current_dir = ""
-        INFO("current_dir=%s", current_dir)
-        INFO("sys.path=%s", str(sys.path))
+        logging.info("current_dir=%s", current_dir)
+        logging.info("sys.path=%s", str(sys.path))
 
         agent_process = multiprocessing.Process(
             target=scripts.wsgiserver.start_server_forever,
             args=(agent_host, agent_port, current_dir))
         agent_process.start()
         atexit.register(__dump_server_content, scripts.wsgiserver.WsgiServerLogFileName)
-        INFO("Waiting for WSGI agent ready")
+        logging.info("Waiting for WSGI agent ready")
         time.sleep(8.0)
         # Check again if the server is started. This can be done only with scripts compatible with WSGI.
         local_agent_url = "http://%s:%s/survol/entity.py?mode=json" % (agent_host, agent_port)
