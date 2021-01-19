@@ -6,10 +6,10 @@ Nmap broadcast UPNP information
 Extract system information from the UPnP service by sending a multicast query,
 """
 
-
 import re
 import sys
 import socket
+import logging
 import xml.dom.minidom
 import lib_util
 import lib_common
@@ -79,10 +79,9 @@ from lib_properties import pc
 # |         Model Descr: CyberLink UPnP Media Server
 # |         Model Name: CyberLink Media Server
 # |_        Model Version: 12.0
-# WARNING: No targets were specified, so 0 hosts scanned.
+# logging.warning: No targets were specified, so 0 hosts scanned.
 # Nmap done: 0 IP addresses (0 hosts up) scanned in 10.80 seconds
 #
-
 
 
 def Main():
@@ -121,13 +120,13 @@ def Main():
 	# Just in case there would be several "script" elements but we expect only one.
 	for aScript in dom.getElementsByTagName('script'):
 		anOutput = aScript.getAttributeNode('output').value.strip()
-		DEBUG("anOutput=%s",str(anOutput))
+		logging.debug("anOutput=%s",str(anOutput))
 		arrSplit = [ aWrd.strip() for aWrd in anOutput.split("\n") ]
 
-		DEBUG("arrSplit=%s",str(arrSplit))
+		logging.debug("arrSplit=%s",str(arrSplit))
 
 		for oneWrd in arrSplit:
-			DEBUG("oneWrd=%s",oneWrd)
+			logging.debug("oneWrd=%s",oneWrd)
 			oneSplit = [ aSplit.strip() for aSplit in oneWrd.split(":") ]
 
 			if len(oneSplit) > 1:
@@ -142,7 +141,7 @@ def Main():
 			else:
 				# TODO: Should translate the IP address into the machine name.
 				machIp = oneSplit[0]
-				DEBUG("machIp=%s",machIp)
+				logging.debug("machIp=%s",machIp)
 				try:
 					machName = socket.gethostbyaddr(machIp)[0]
 					nodeHost = lib_common.gUriGen.HostnameUri( machName )
@@ -154,8 +153,8 @@ def Main():
 					nodeHost = lib_common.gUriGen.HostnameUri( machIp )
 					grph.add( ( nodeHost, pc.property_information, lib_util.NodeLiteral( str(exc) ) ) )
 
-
 	cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
 	Main()

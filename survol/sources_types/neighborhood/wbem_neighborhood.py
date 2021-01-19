@@ -5,6 +5,7 @@ Neighboring WBEM agents.
 """
 
 import sys
+import logging
 import lib_util
 import lib_wbem
 import lib_common
@@ -17,16 +18,17 @@ from sources_types import neighborhood as survol_neighborhood
 # - This script uses SLP.
 # - This script can only give top-level URLs.
 
+
 def AddFromWbemCimom(grph,cimomWbem):
 	parsed_url = lib_util.survol_urlparse( cimomWbem )
 	hostWbem = parsed_url.hostname
-	DEBUG("WbemServersDisplay hostWbem=%s",hostWbem)
+	logging.debug("WbemServersDisplay hostWbem=%s",hostWbem)
 	if not hostWbem:
 		return None
 
 	# http://rchateau-hp:8000/survol/namespaces_wbem.py?xid=http:%2F%2F192.168.0.17:5988/.
 	cimomWbemCgi = cimomWbem.replace("//","%2f%2f")
-	DEBUG("cimomWbem=%s cimomWbemCgi=%s",cimomWbem,cimomWbemCgi)
+	logging.debug("cimomWbem=%s cimomWbemCgi=%s",cimomWbem,cimomWbemCgi)
 
 	urlWbem = lib_wbem.WbemAllNamespacesUrl(cimomWbemCgi)
 	wbemNode = lib_common.NodeUrl(urlWbem)
@@ -38,12 +40,13 @@ def AddFromWbemCimom(grph,cimomWbem):
 
 	return wbemNode
 
+
 def WbemServersDisplay(grph):
 	lstWbemServers = []
 	credNames = lib_credentials.get_credentials_names( "WBEM" )
-	DEBUG("WbemServersDisplay")
+	logging.debug("WbemServersDisplay")
 	for cimomWbem in credNames:
-		DEBUG("WbemServersDisplay cimomWbem=%s",cimomWbem)
+		logging.debug("WbemServersDisplay cimomWbem=%s",cimomWbem)
 
 		# The credentials are not needed until a Survol agent uses HTTPS.
 
@@ -51,7 +54,6 @@ def WbemServersDisplay(grph):
 		if not wbemNode:
 			continue
 		grph.add(( wbemNode, pc.property_information, lib_util.NodeLiteral("Static definition") ) )
-
 
 
 def Main():

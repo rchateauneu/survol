@@ -5,6 +5,7 @@ Information about an ODBC connection.
 """
 
 import sys
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -15,6 +16,7 @@ try:
 except ImportError:
 	lib_common.ErrorMessageHtml("pyodbc Python library not installed")
 
+
 def Main():
 
 	cgiEnv = lib_common.CgiEnv()
@@ -23,7 +25,7 @@ def Main():
 
 	dsnNam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
 
-	DEBUG("dsn=(%s)", dsnNam )
+	logging.debug("dsn=(%s)", dsnNam )
 
 	nodeDsn = survol_odbc_dsn.MakeUri( dsnNam )
 
@@ -31,7 +33,7 @@ def Main():
 
 	try:
 		cnxn = pyodbc.connect(ODBC_ConnectString)
-		DEBUG("Connected: %s", dsnNam)
+		logging.debug("Connected: %s", dsnNam)
 
 		# for prmstr in sqlgetinfo_params:
 		for prmstr in dir(pyodbc):
@@ -49,7 +51,6 @@ def Main():
 
 			try:
 				prm = getattr(pyodbc,prmstr)
-			# except AttributeError:
 			except:
 				grph.add( (nodeDsn, prop, lib_util.NodeLiteral("Unavailable") ) )
 				continue
@@ -57,14 +58,12 @@ def Main():
 			try:
 				prm_value = cnxn.getinfo(prm)
 			except:
-				#txt = str( sys.exc_info()[1] )
-				#grph.add( (nodeDsn, prop, lib_util.NodeLiteral(txt) ) )
 				continue
 
 			try:
 				grph.add( (nodeDsn, prop, lib_util.NodeLiteral(prm_value) ) )
-			except:
-				txt = str( sys.exc_info()[1] )
+			except Exception as exc:
+				txt = str(exc)
 				grph.add( (nodeDsn, prop, lib_util.NodeLiteral(txt) ) )
 				continue
 
@@ -73,6 +72,7 @@ def Main():
 		lib_common.ErrorMessageHtml("nodeDsn=%s Unexpected error:%s" % ( dsnNam, str( sys.exc_info() ) ) )
 
 	cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
 	Main()
