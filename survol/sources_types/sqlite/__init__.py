@@ -107,7 +107,7 @@ def AddNodesTablesViews(grph, fil_node, db_fil_nam):
             #grph.add( ( tabNod, pc.property_information, lib_util.NodeLiteral(theCmd) ) )
     except sqlite3.DatabaseError as exc:
         lib_common.ErrorMessageHtml("Sqlite file:%s Caught:%s" % (db_fil_nam, str(exc)))
-    except as exc:
+    except Exception as exc:
         lib_common.ErrorMessageHtml("Sqlite file:%s Unexpected error:%s" % (db_fil_nam, str(exc)))
 
 
