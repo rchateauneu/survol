@@ -5,6 +5,7 @@ from __future__ import print_function
 import cgitb
 import unittest
 import subprocess
+import logging
 import sys
 import os
 import re
@@ -1756,17 +1757,19 @@ class SurvolSocketsTest(unittest.TestCase):
         set_ip_addresses = set()
         smbshr_disk = set()
         for one_inst in str_instances_set:
-            ( the_class,dummy_dot, the_entity_id) = one_inst.partition(".")
+            the_class, dummy_dot, the_entity_id = one_inst.partition(".")
             if the_class == "CIM_ComputerSystem":
                 pred_name, dummy_equal, ip_address = the_entity_id.partition("=")
-                set_ip_addresses.add(ip_address)
+                set_ip_addresses.add(ip_address.upper())
             elif the_class == "smbshr":
                 pred_name, dummy_equal, disk_name = the_entity_id.partition("=")
                 smbshr_disk.add(disk_name)
 
-        # Check that all machines hosting a disk have their
+        logging.debug("set_ip_addresses=%s", set_ip_addresses)
+        logging.debug("smbshr_disk=%s", smbshr_disk)
         for disk_name in smbshr_disk:
             # For example, "//192.168.0.15/public"
+
             host_name = disk_name.split("/")[2]
             self.assertTrue(host_name in set_ip_addresses)
 
