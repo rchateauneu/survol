@@ -11,7 +11,7 @@ Usable = lib_util.UsableWindows
 
 
 def TestIfKnownDll(fil_nam):
-    """
+    r"""
     It might be a Known DLL
     HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\KnownDLLs"
     All KnownDLLs are in the directory HKLM\System\CCS\Control\KnownDLLs\DllDirectory or
