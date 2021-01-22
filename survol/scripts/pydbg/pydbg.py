@@ -89,10 +89,11 @@ def wait_for_process_exit(process_id):
     elif result == 258: # WAIT_TIMEOUT:
         pass # print("wait_for_process_exit timeout stopping pid=", process_id, "err=", result)
         result_terminate = kernel32.TerminateProcess(process_handle, 12345)
-        self._log("wait_for_process_exit terminate pid%d= result_terminate=%s" % (process_id, result_terminate))
+        pass # self._log("wait_for_process_exit terminate pid%d= result_terminate=%s" % (process_id, result_terminate))
         # raise pdx("Cannot terminate %d" % process_id, True)
     else:
-        self._log("wait_for_process_exit cannot stop pid=%d result=%d" % (process_id, result))
+        # self._log("wait_for_process_exit cannot stop pid=%d result=%d" % (process_id, result))
+        pass
 
 # This data structure relates to the memory specae of a process.
 class memory_space:
