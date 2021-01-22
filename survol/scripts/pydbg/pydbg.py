@@ -89,10 +89,10 @@ def wait_for_process_exit(process_id):
     elif result == 258: # WAIT_TIMEOUT:
         pass # print("wait_for_process_exit timeout stopping pid=", process_id, "err=", result)
         result_terminate = kernel32.TerminateProcess(process_handle, 12345)
-        print("wait_for_process_exit terminate pid=", process_id, "result_terminate=", result_terminate)
+        self._log("wait_for_process_exit terminate pid%d= result_terminate=%s" % (process_id, result_terminate))
         # raise pdx("Cannot terminate %d" % process_id, True)
     else:
-        print("wait_for_process_exit cannot stop pid=", process_id, "err=", result)
+        self._log("wait_for_process_exit cannot stop pid=%d result=%d" % (process_id, result))
 
 # This data structure relates to the memory specae of a process.
 class memory_space:
@@ -648,7 +648,7 @@ class pydbg(object):
             except Exception as exc:
                 raise pdx("Failed setting breakpoint at %016x : %s" % (address, exc))
         else:
-            print("bp_set ALREADY BREAKPOINT in %d" % self.pid)
+            self._log("bp_set ALREADY BREAKPOINT in %d" % self.pid)
 
         return self.ret_self()
 
@@ -928,10 +928,8 @@ class pydbg(object):
 
     ####################################################################################################################
     def switch_to_process(self, process_id, message):
-        print("+++++++++ switch_to_process", message,
-              "FROM self.pid=", self.pid,
-              "TO process_id=", process_id,
-              "root_pid=", self.root_pid)
+        self._log("switch_to_process message=%s FROM self.pid=%d TO process_id=%d root_pid=%d"
+                 % (message, self.pid, process_id, self.root_pid))
         self.pid = process_id
         self.open_process(process_id)
         if False:
@@ -970,6 +968,11 @@ class pydbg(object):
         #   } u;
         # }
 
+        def _status_to_str(continue_status):
+            return {
+                DBG_CONTINUE: "DBG_CONTINUE",
+                DBG_EXCEPTION_NOT_HANDLED: "DBG_EXCEPTION_NOT_HANDLED",
+            }[continue_status]
 
         def debug_code_to_message(debug_code):
             try:
@@ -988,8 +991,7 @@ class pydbg(object):
 
         #self._log("debug_event_iteration before WaitForDebugEvent")
         # wait for a debug event.
-        logging.debug("loop_delay=%f" % loop_delay)
-        logging.debug("self.pid=%d" % self.pid)
+        logging.debug("loop_delay=%f self.pid=%d" % (loop_delay, self.pid))
         if kernel32.WaitForDebugEvent(byref(dbg), loop_delay):
             self.debug_counter_WaitForDebugEvent += 1
 
@@ -1026,7 +1028,6 @@ class pydbg(object):
 
             elif dbg.dwDebugEventCode == LOAD_DLL_DEBUG_EVENT:
                 self._log("LOAD_DLL_DEBUG_EVENT dwProcessId=%d dwThreadId=%d" % (dbg.dwProcessId, dbg.dwThreadId))
-                logging.info("LOAD_DLL_DEBUG_EVENT dwProcessId=%d dwThreadId=%d" % (dbg.dwProcessId, dbg.dwThreadId))
                 continue_status = self.event_handler_load_dll()
 
             elif dbg.dwDebugEventCode == UNLOAD_DLL_DEBUG_EVENT:
@@ -1080,7 +1081,7 @@ class pydbg(object):
             # close the opened thread handle and resume executing the thread that triggered the debug event.
             self.close_handle(self.h_thread)
             #self._log("debug_event_iteration BEFORE ContinueDebugEvent dbg.dwProcessId=%d" % (dbg.dwProcessId))
-            #self._log("ContinueDebugEvent DBG_CONTINUE=%08x" % DBG_CONTINUE)
+            self._log("ContinueDebugEvent continue_status=%s" % _status_to_str(continue_status))
             if not kernel32.ContinueDebugEvent(dbg.dwProcessId, dbg.dwThreadId, continue_status):
                 raise pdx("ContinueDebugEvent(p=%d t=%d)" % (dbg.dwProcessId, dbg.dwThreadId), True)
 
@@ -1106,40 +1107,30 @@ class pydbg(object):
 
         self._log("debug_event_loop entering. self.debugger_active=%d" % self.debugger_active)
         while self.debugger_active:
-            #self._log("debug_event_loop In loop on debugger_active")
             # don't let the user interrupt us in the midst of handling a debug event.
             try:
                 def_sigint_handler = None
-                #self._log("debug_event_loop In loop on debugger_active A")
                 def_sigint_handler = signal.signal(signal.SIGINT, self.sigint_handler)
-                #self._log("debug_event_loop In loop on debugger_active A1")
             except:
                 pass
 
             # if a user callback was specified, call it.
-            #self._log("debug_event_loop In loop on debugger_active A2")
             if USER_CALLBACK_DEBUG_EVENT in self.callbacks:
                 # user callbacks do not / should not access debugger or contextual information.
-                #self._log("debug_event_loop In loop on debugger_active B")
                 self.dbg = self.context = None
                 self.callbacks[USER_CALLBACK_DEBUG_EVENT](self)
-                #self._log("debug_event_loop In loop on debugger_active C")
 
             # iterate through a debug event.
             try:
                 self.debug_event_iteration()
-            except:
-                exc = sys.exc_info()[0]
+            except Exception as exc:
                 self._log("debug_event_loop In loop on debugger_active: Caught:%s" % exc)
                 logging.error("Caught:%s" % exc)
                 raise
 
-            # self._log("debug_event_loop Returning from debug_event_iteration")
-
             # resume keyboard interruptability.
             if def_sigint_handler:
                 signal.signal(signal.SIGINT, def_sigint_handler)
-        #self._log("debug_event_loop END loop on debugger_active")
 
         # close the global process handle.
         self.close_handle(self.h_process)
@@ -2094,6 +2085,7 @@ class pydbg(object):
         return 0
 
     def get_base_address_dict(self):
+        # TODO: Must be used at a specific moment.
         logging.debug("get_base_address_dict")
         base_address_dict = {}
         for module in self.iterate_modules():
@@ -2171,7 +2163,12 @@ class pydbg(object):
         # Section 1, 2, 3 etc...
 
         assert self.h_process
-        dos_header = self.read_process_memory(base_address, 0x40)
+        try:
+            dos_header = self.read_process_memory(base_address, 0x40)
+        except:
+            self._log("Exception reading from %s" % func_name)
+            raise
+
 
         # check validity of DOS header.
         if len(dos_header) != 0x40 or dos_header[:2] != b"MZ":
