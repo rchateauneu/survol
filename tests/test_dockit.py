@@ -32,7 +32,7 @@ _remote_events_test_agent = "http://%s:%d" % (CurrentMachine, RemoteEventsTestSe
 # This is used by dockit to store events as soon as they are created from a running application.
 # Dockit traces a runing process with strace, ltrace or pydbg.
 # It detects file updates, processes creations etc ... and creates a RDF triples as events.
-# These events can be sent to a databse which stores them in aRDF triple-store.
+# These events can be sent to a database which stores them in a RDF triple-store.
 _remote_events_database = _remote_events_test_agent + "/survol/event_put.py"
 
 dock_input_files_path = os.path.join(_current_file_dirname, "dockit_input_test_trace_files")
@@ -1461,7 +1461,11 @@ class EventsServerTest(unittest.TestCase):
     """
 
     def setUp(self):
-        # If a Survol agent does not run on this machine with this port, this script starts a local one.
+        """
+        This starts a HTTP server running Survol agent.
+        If a Survol agent does not run on this machine with this port, this script starts a local one.
+        So, it is possible to start this server in advance, to have a better control.
+        """
         self._remote_events_test_agent, self._agent_url = start_cgiserver(RemoteEventsTestServerPort)
         self.url_events = _remote_events_test_agent + "/survol/sources_types/event_get_all.py?mode=rdf"
 
