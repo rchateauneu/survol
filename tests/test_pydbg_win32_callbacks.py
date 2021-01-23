@@ -486,11 +486,10 @@ class DOSCommandsTest(HooksManagerUtil):
         input_data_file = __file__
 
         # This temporary file does not use __init__.unique_temporary_path because Windows COPY command needs
-        # backslahes in commands.
+        # backslashes in commands.
         output_data_file = os.path.join(tempfile.gettempdir(), "test_copy_cmd_exe_rdf.tmp")
 
         # It copies the current script elsewhere. Any file would be OK.
-        # copy_dos_command = r"copy %s %s" % (input_data_file, output_data_file)
         copy_dos_command = windows_system32_cmd_exe + " /c " + "copy %s %s" % (input_data_file, output_data_file)
         dwProcessId = self.hooks_manager.attach_to_command(copy_dos_command)
 
@@ -498,7 +497,7 @@ class DOSCommandsTest(HooksManagerUtil):
         self.assertTrue(filecmp.cmp(input_data_file, output_data_file, shallow=False))
 
         created_objects = win32_api_definitions.tracer_object.created_objects
-        print("test_DOS_nslookup created_objects=", created_objects)
+        print("test_copy_cmd_exe_rdf created_objects=", created_objects)
         input_data_file_standard = lib_util.standardized_file_path(input_data_file)
         output_data_file_standard = lib_util.standardized_file_path(output_data_file)
         self.assertTrue({'Name': input_data_file_standard} in created_objects['CIM_DataFile'])
@@ -1018,7 +1017,7 @@ if __name__ == '__main__':
 
         loops_number = 10
 
-        # Each subprocess writes in a specific file, is index and process id.
+        # Each subprocess writes in a specific file, its index and process id.
         script_content = """
 from __future__ import print_function
 import multiprocessing
