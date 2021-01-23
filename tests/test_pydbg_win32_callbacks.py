@@ -503,6 +503,13 @@ class DOSCommandsTest(HooksManagerUtil):
         self.assertTrue({'Name': input_data_file_standard} in created_objects['CIM_DataFile'])
         self.assertTrue({'Name': output_data_file_standard} in created_objects['CIM_DataFile'])
 
+        called_functions = win32_api_definitions.tracer_object.calls_counter
+        print("Calls:", win32_api_definitions.tracer_object.calls_counter)
+        self.assertTrue(dwProcessId in called_functions)
+        called_functions_created_process = called_functions[dwProcessId]
+        if is_windows10:
+            self.assertEqual(called_functions_created_process[b'CopyFileExW'], 1)
+
 
 ################################################################################
 
