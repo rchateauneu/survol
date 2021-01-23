@@ -268,7 +268,7 @@ class Win32Tracer(TracerBase):
             #print("create_flows_from_calls_stream Function=", pseudo_trace_line.m_core._function_name)
             assert isinstance(pseudo_trace_line, PseudoTraceLine)
 
-            logging.warning("_function_name=%s" % pseudo_trace_line.m_core._function_name)
+            logging.debug("_function_name=%s" % pseudo_trace_line.m_core._function_name)
             if pseudo_trace_line.m_core._function_name == self._function_name_process_exit:
                 logging.info("Exit detected")
                 return
@@ -315,7 +315,10 @@ class Win32Hook_Manager(pydbg.pydbg):
         # TODO: Ideally this cache should be refreshed each time a new module is loaded,
         # TODO: otherwise the entire list of modules must be reexplored when  a module does not exist.
         # TODO: Still, this is a better solution.
-        self.dict_dll_to_base_address =  self.get_base_address_dict()
+        # FIXME: On Windows 7, this does not work for some tests and fails with:
+        # [487] VirtualProtectEx(0000000077150000, 64, 00000040): b'Attempt to access invalid address
+        # Probably a race condition on slow machines.
+        ## self.dict_dll_to_base_address =  self.get_base_address_dict() ##
 
     def __del__(self):
         self.stop_cleanup()
@@ -482,14 +485,27 @@ class Win32Hook_Manager(pydbg.pydbg):
             defines.LOAD_DLL_DEBUG_EVENT,
             defines.EXCEPTION_ACCESS_VIOLATION,
             #defines.EXIT_PROCESS_DEBUG_EVENT,
-		])
+        ])
 
         the_subclass._parse_text_definition()
 
         dll_canonic_name = self.canonic_dll_name(the_subclass.dll_name)
         logging.debug("dll_canonic_name=%s" % dll_canonic_name)
 
-        dll_address = self.find_dll_base_address(dll_canonic_name)
+        try:
+            # This speedup does not work for some tests, maybe because the dictionary 
+            # contains invalid DLLs base addresses.
+            # FIXME: On Windows 7, this does not work for some tests and fails with:
+            # [487] VirtualProtectEx(0000000077150000, 64, 00000040): b'Attempt to access invalid address
+            # Probably a race condition on slow machines.
+            # For the moment, prefer the slow solution which works.
+            ###dll_address = self.dict_dll_to_base_address[dll_canonic_name]
+
+            dll_address = self.find_dll_base_address(dll_canonic_name)
+            ##logging.debug("dll_address=%d faster_dll_address=%d" % (dll_address, faster_dll_address))
+        except Exception as exc:
+            logging.debug("Caught exc=%s getting address for %s at %s" % (exc, dll_canonic_name, traceback.format_exc()))
+            dll_address = None
 
         # If the DLL is already loaded.
         if dll_address:
@@ -510,7 +526,25 @@ class Win32Hook_Manager(pydbg.pydbg):
         self.attach(process_id)
         logging.debug("before hook api to process_id=%d" % process_id)
         self._hook_api_functions_list(process_id)
-        self.run()
+        logging.debug("Before run process_id=%d" % process_id)
+        try:
+            logging.debug("About to run")
+            self.run()
+        except Exception as exc:
+            logging.error("Caught %s/%s. LOOPING AGAIN" % (exc, traceback.format_exc()))
+        if not self.debugger_active:
+            logging.info("Leaving debug loop because debugger_active is False ")
+
+        #while True:
+        #    try:
+        #        logging.debug("About to run")
+        #        self.run()
+        #    except Exception as exc:
+        #        logging.error("Caught %s/%s. LOOPING AGAIN" % (exc, traceback.format_exc()))
+        #        break
+        #    if not self.debugger_active:
+        #        logging.info("Leaving debug loop because debugger_active is False ")
+        logging.debug("after run process_id=%d" % process_id)
 
     def attach_to_command(self, command_line, callback_process_creation=None):
         """This receives a command line, starts the process in suspended mode,
