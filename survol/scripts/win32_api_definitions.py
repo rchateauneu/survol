@@ -1398,7 +1398,6 @@ if False:
 is_windows10 = os.sys.getwindowsversion()[0] == 10
 
 
-# Not validated yet.
 if is_windows10:
     class Win32Hook_CopyFileA(Win32Hook_BaseClass):
         api_definition = b"""
@@ -1410,7 +1409,7 @@ if is_windows10:
         dll_name = b"KERNEL32.dll"
         def callback_after(self, function_arguments, function_result):
             lpExistingFileName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
-            lpNewFileName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
+            lpNewFileName = self.win32_hook_manager.get_bytes_string(function_arguments[1])
             self.callback_create_object("CIM_DataFile", Name=lpExistingFileName)
             self.callback_create_object("CIM_DataFile", Name=lpNewFileName)
 
@@ -1428,7 +1427,7 @@ if is_windows10:
         dll_name = b"KERNEL32.dll"
         def callback_after(self, function_arguments, function_result):
             lpExistingFileName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
-            lpNewFileName = self.win32_hook_manager.get_bytes_string(function_arguments[0])
+            lpNewFileName = self.win32_hook_manager.get_bytes_string(function_arguments[1])
             self.callback_create_object("CIM_DataFile", Name=lpExistingFileName)
             self.callback_create_object("CIM_DataFile", Name=lpNewFileName)
 
@@ -1446,7 +1445,7 @@ if is_windows10:
         dll_name = b"KERNEL32.dll"
         def callback_after(self, function_arguments, function_result):
             lpExistingFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
-            lpNewFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
+            lpNewFileName = self.win32_hook_manager.get_unicode_string(function_arguments[1])
             self.callback_create_object("CIM_DataFile", Name=lpExistingFileName)
             self.callback_create_object("CIM_DataFile", Name=lpNewFileName)
 
@@ -1461,7 +1460,7 @@ if is_windows10:
         dll_name = b"KERNEL32.dll"
         def callback_after(self, function_arguments, function_result):
             lpExistingFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
-            lpNewFileName = self.win32_hook_manager.get_unicode_string(function_arguments[0])
+            lpNewFileName = self.win32_hook_manager.get_unicode_string(function_arguments[1])
             self.callback_create_object("CIM_DataFile", Name=lpExistingFileName)
             self.callback_create_object("CIM_DataFile", Name=lpNewFileName)
 
