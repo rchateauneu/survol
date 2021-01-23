@@ -1463,6 +1463,11 @@ except ImportError as exc:
     pyodbc = None
     print("Detected ImportError:", exc)
 
+# FIXME: Because there is no database (Temporary).
+if CurrentMachine.lower() == "laptop-r89kg6v1":
+    logging.warning("Disabling odbc tests")
+    pyodbc = None
+
 
 class SurvolPyODBCTest(unittest.TestCase):
 
@@ -2211,7 +2216,7 @@ class SurvolOracleTest(unittest.TestCase):
         for one_str in [
             CurrentProcessPath,
             'oracle/db.Db=%s' % self._oracle_db,
-            'Win32_UserAccount.Name=%s,Domain=%s' % ( CurrentUsername, CurrentMachine),
+            'Win32_UserAccount.Name=%s,Domain=%s' % (CurrentUsername, CurrentMachine),
         ]:
             self.assertTrue(one_str in str_instances_set)
 
@@ -2673,7 +2678,7 @@ class SurvolInternalTest(unittest.TestCase):
                 "vps516494.localdomain": SurvolServerAgent}[CurrentMachine]
             self.check_internal_values(RemoteTestApacheAgent)
         except KeyError:
-            print("test_internal_apache cannot be run on machine:",CurrentMachine)
+            print("test_internal_apache cannot be run on machine:", CurrentMachine)
             return True
         # TODO: Check this.
 
