@@ -166,7 +166,10 @@ def cgiserver_entry_point():
 
 
 def cgi_server_logfile_name(port_number):
-    """This is used when testing on Travis, when output cannot be read."""
+    """
+    This is used when testing on Travis, when output cannot be read.
+    This is a last-chance solution, when the logging module is not enough.
+    """
     return "cgiserver.execution.%d.log" % port_number
 
 
@@ -175,6 +178,8 @@ def start_server_forever(server_name, port_number, current_dir=""):
     Setup (setup.py) creates a binary script which directly calls this function.
     The current directory can be set, this is used when this is called from multiprocessing.
     """
+
+    import logging
 
     logfil = open(cgi_server_logfile_name(port_number), "w")
     logfil.write(__file__ + " " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "\n")
@@ -216,15 +221,14 @@ def start_server_forever(server_name, port_number, current_dir=""):
         print("Unsupported platform:%s" % sys.platform)
 
     try:
-        sys.stderr.write("os.environ['%s']=%s\n" % (envPYTHONPATH, os.environ[envPYTHONPATH]))
+        logging.debug("os.environ['%s']=%s" % (envPYTHONPATH, os.environ[envPYTHONPATH]))
     except KeyError:
-        print("os.environ['%s']=%s" % (envPYTHONPATH, "Not defined"))
+        logging.debug("os.environ['%s']=%s" % (envPYTHONPATH, "Not defined"))
 
     if current_dir:
         os.chdir(current_dir)
-        sys.stderr.write("getcwd=%s\n" % os.getcwd())
+        logging.debug("getcwd=%s" % os.getcwd())
     if sys.version_info[0] < 3:
-        import logging
         import CGIHTTPServer
         from BaseHTTPServer import HTTPServer
         from CGIHTTPServer import _url_collapse_path
@@ -265,9 +269,7 @@ def start_server_forever(server_name, port_number, current_dir=""):
         # Same for Windows Py2 and an Internet provider ("hostname.broadband")
         server.server_name = server_name
 
-        sys.stderr.write("server.server_name=%s\n" % server.server_name)
-        logfil.write("server.server_name=%s\n" % server.server_name)
-        logfil.flush()
+        logging.info("server.server_name=%s" % server.server_name)
 
         __run_server_forever(server)
 
@@ -292,15 +294,18 @@ def start_server_forever(server_name, port_number, current_dir=""):
                 file_name, file_extension = os.path.splitext(path_only)
                 return file_extension == ".py"
 
-            # Not strictly necessary, but useful hook for debugging.
             def run_cgi(self):
+                """
+                Not strictly necessary, because it just calls the base class method, but useful hook for debugging.
+                """
                 super(MyCGIHTTPServer, self).run_cgi()
 
             def log_error(self, format, *args):
-                """Overrides BaseHTTPRequestHandler.log_error
+                """
+                This method overrides BaseHTTPRequestHandler.log_error
 
                 Needed because \r\n are escaped on Python 3.
-                This is true for stderr and also logging.
+                This is true for stderr output and also logging.
                 """
 
                 if sys.platform.startswith("win32"):
@@ -317,21 +322,9 @@ def start_server_forever(server_name, port_number, current_dir=""):
         server = HTTPServer((server_name, port_number), handler)
 
         # Testing Win10 and Python 3
-        logfil.write(__file__ + " sys.platform=%s\n" % sys.platform)
-        logfil.flush()
+        logging.info(__file__ + " sys.platform=%s" % sys.platform)
 
         server.server_name = server_name
-
-        # FIXME: Win3 and carriage return, in Pycharm..
-        if 'win32' in sys.platform:
-            import msvcrt
-            # msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
-            # It does not work either. Problem is that it receives binary strings.
-            msvcrt.setmode(sys.stdout.fileno(), os.O_TEXT)
-
-            # With this, still it does not interpret carriage-returns.
-            # Maybe it is open as binary and should be reopen as text ?
-            # sys.stderr = sys.stdout
 
         server.serve_forever()
     logfil.close()
