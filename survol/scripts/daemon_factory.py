@@ -58,7 +58,7 @@ def _must_start_factory():
         return False
 
     # This is for performance reasons.
-    # PYTEST_CURRENT_TEST= tests/test_lib_daemon.py::CgiScriptTest::test_start_events_generator_daemon
+    # PYTEST_CURRENT_TEST= tests/test_lib_daemon.py::CgiScriptTest::test_start_events_feeder_daemon
     return "PYTEST_CURRENT_TEST" not in os.environ or "START_DAEMON_FACTORY" in os.environ
 
 
@@ -408,7 +408,7 @@ def _add_and_start_program_to_group(process_name, user_command, environment_para
     except Exception as exc:
         # Possible exceptions:
         #
-        # Fault: <Fault 10: 'BAD_NAME: http___any_machine_any_directory__survol_sources_types_events_generator_one_tick_per_second_py_parama_123_paramb_START'>
+        # Fault: <Fault 10: 'BAD_NAME: http___any_machine_any_directory__survol_sources_types_events_feeder_one_tick_per_second_py_parama_123_paramb_START'>
         #
         # <Fault 2: "INCORRECT_PARAMETERS: No closing quotation in section
         # 'program:ama_123_paramb_START' (file: 'survol/scripts/supervisord.conf')">

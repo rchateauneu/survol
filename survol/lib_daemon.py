@@ -88,7 +88,7 @@ def _process_name_to_url(process_name):
     return script_url
 
 
-def start_events_generator_daemon(script_url):
+def start_events_feeder_daemon(script_url):
     """
     This starts a daemon running the url, but in daemon mode instaed of snapshot mode.
     This url is a CGI script plus CGI arguments defining an object: The class and the attributes values.
@@ -172,28 +172,28 @@ def start_events_generator_daemon(script_url):
     return created_process_id
 
 
-def is_events_generator_daemon_running(script_url):
+def is_events_feeder_daemon_running(script_url):
     process_name = _url_to_process_name(script_url)
-    logging.debug("is_events_generator_daemon_running process_name=%s" % process_name)
+    logging.debug("is_events_feeder_daemon_running process_name=%s" % process_name)
     supervisor_pid = daemon_factory.is_user_process_running(process_name)
     return supervisor_pid
 
 
-def get_events_generator_stdout(script_url):
+def get_events_feeder_stdout(script_url):
     process_name = _url_to_process_name(script_url)
-    logging.debug("get_events_generator_stdout process_name=%s" % process_name)
+    logging.debug("get_events_feeder_stdout process_name=%s" % process_name)
     return daemon_factory.get_user_process_stdout(process_name)
 
 
-def get_events_generator_stderr(script_url):
+def get_events_feeder_stderr(script_url):
     process_name = _url_to_process_name(script_url)
-    logging.debug("get_events_generator_stderr process_name=%s" % process_name)
+    logging.debug("get_events_feeder_stderr process_name=%s" % process_name)
     return daemon_factory.get_user_process_stderr(process_name)
 
 
-def stop_events_generator_daemon(script_url):
+def stop_events_feeder_daemon(script_url):
     process_name = _url_to_process_name(script_url)
-    logging.debug("stop_events_generator_daemon process_name=%s" % process_name)
+    logging.debug("stop_events_feeder_daemon process_name=%s" % process_name)
     return daemon_factory.stop_user_process(process_name)
 
 
