@@ -12,7 +12,10 @@ __license__     = "GPL"
 
 # This library is used by CGI scripts and command-line scripts.
 # Therefore, its behaviour is different in case of error.
-if os.getenv("SERVER_SOFTWARE"):
+if "PYTEST_CURRENT_TEST" in os.environ:
+    # Do this when called in a deamon or pytest. Otherwise it is not readable
+    cgitb.enable(format="txt")
+elif os.getenv("SERVER_SOFTWARE"):
     cgitb.enable()
 
 import re
