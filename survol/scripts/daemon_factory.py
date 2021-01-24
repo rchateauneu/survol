@@ -26,6 +26,7 @@ import datetime
 import tempfile
 import configparser
 import logging
+import traceback
 
 # xmlrpc is used to manage the supervisor: Creation of new programs, start/stop etc...
 # A new supervisor program and daemon is created for each URL.
@@ -379,7 +380,29 @@ def _add_and_start_program_to_group(process_name, user_command, environment_para
             process_name,
             program_options)
     except xmlrpclib.ProtocolError as exc:
-        logging.error("Caught ProtocolError")
+        # exc=<ProtocolError for survol_user:password@local
+        # host:9001/RPC2: 500 Internal Server Error>
+        # A possible problem is that a log file is too long, at least on Windows 7.
+        # The log file name created by supervisor is given in the configation file supervisor.conf.
+        # This file might contain a message similar to:
+        #
+        # OSError: [Errno 2] No such file or directory: 'c:\\users\\rchateau\\appdata\\local\\temp\\_2fsurvol
+        # _2fsources_5ftypes_2fCIM_5fDirectory_2fevents_5fgenerator_5fwindows_5fdirectory_5fchanges_2epy_3fxi
+        # d_3dCIM_5fDirectory_2eName_3dC_3a_2fUsers_2frchateau_2fAppData_2fLocal_2fTemp-stdout---survol_super
+        # visor-vj060s.log'
+        #
+        # A remedy is to shorten this path with shorter script names etc...
+        # See function _url_to_process_name
+        logging.error("Caught ProtocolError: exc=%s" % exc)
+        logging.error("Exception stack=%s" % traceback.format_exc())
+        logging.error("dir(exc)=%s" % dir(exc))
+        logging.error("exc.args=%s" % str(exc.args))
+        logging.error("exc.errcode=%s" % exc.errcode)
+        logging.error("exc.errmsg=%s" % exc.errmsg)
+        logging.error("exc.headers=%s" % exc.headers)
+        logging.error("exc.message=%s" % exc.message)
+        logging.error("exc.url=%s" % exc.url)
+
         _display_configuration_file("survol/scripts/supervisord.conf")
         raise
     except Exception as exc:
@@ -448,6 +471,7 @@ def start_user_process(process_name, user_command, environment_parameter="", deb
         _add_and_start_program_to_group(process_name, user_command, environment_parameter)
         process_info = xmlrpc_server_proxy.supervisor.getProcessInfo(full_process_name)
         if process_info is None:
+            logging.error("full_process_name=%s" % full_process_name)
             raise Exception("Cannot get process_info after adding program:%" % full_process_name)
         created_process_id = process_info['pid']
         _log_supervisor_access("start_user_process", "created", created_pid=created_process_id)
@@ -503,6 +527,7 @@ def _get_user_process_info(process_name):
         # xmlrpc.client.Fault: <Fault 10: 'BAD_NAME: survol_group:non_existent_url.py?arg=11132'>
         _log_supervisor_access("_get_user_process_info", "exit", exception=str(exc))
         if "BAD_NAME" in str(exc):
+            # This simply means that the process is not added, so it is not an error in this context.
             logging.error("BAD NAME:%s. Exc=%s" % (full_process_name, exc))
             return None
         # Otherwise it is an unexpected exception.
