@@ -29,12 +29,12 @@ _forbidden_chars = ":/\\?=&+*()[]{}%." + "_"
 
 def _url_to_process_name(script_url):
     """
-    This is one of the isolation layer between Survol daemons and urls one one side,
+    This is one of the isolation layers between Survol daemons and urls on one side,
     and supervisor processes on the other side.
 
     Survol needs to run a daemon for some scripts plus their CGI arguments: These CGI arguments
     define an unique object: Its class and the attributes defined in the ontology.
-    On the other hand, the supervisor library has no idea of what urls does, it just knowns process names.
+    On the other hand, the supervisor library has no idea of what urls do, it just knowns process names.
 
     Some characters are not accepted by process names by supervisor, which throws for example:
     <Fault 2: "INCORRECT_PARAMETERS: Invalid name: 'http://vps516494.ovh.net/x/y/z/script.py?param=24880'
@@ -42,6 +42,15 @@ def _url_to_process_name(script_url):
 
     Also, the process name is used to create stdout and stderr log file names,
     so the process name must contain only chars allowed in filenames.
+
+    FIXME: Unfortunately there is a very strong limitation on Windows because this process name is used
+    FIXME: to create a log file whose length is limited to 250 characters approximately.
+    FIXME: See xmlrpclib.ProtocolError. The resulting filename is something like:
+    _2fsurvol_2fsources_5ftypes_2fCIM_5fDirectory_2fevents_5fgenerator_5fwindows_5fdirectory_
+    5fchanges_2epy_3fxid_3dCIM_5fDirectory_2eName_3dC_3a_2fUsers_2frchateau_2fAppData_2fLocal
+    _2fTemp-stdout----vj060.log
+
+    FIXME: If it is too long, it throws an internal error which is difficult to detect.
     """
 
     process_name = ""
