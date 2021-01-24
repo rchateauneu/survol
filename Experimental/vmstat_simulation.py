@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # This simulation script behaves like vmstat but with fake numbers.
-# It is made to test sources_types/Linux/events_generator_vmstat.py on Windows.
+# It is made to test sources_types/Linux/events_feeder_vmstat.py on Windows.
 
 import sys
 import time

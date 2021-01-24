@@ -1037,7 +1037,7 @@ def UsableLinuxBinary(entity_type, entity_ids_arr):
 
 def is_snapshot_behaviour():
     """
-    Used by scripts named like events_generator_*.py which can write a continuous flow of events.
+    Used by scripts named like events_feeder_*.py which can write a continuous flow of events.
     They also must be able to run in snapshot mode, by default, and return RDF triples.
     """
 

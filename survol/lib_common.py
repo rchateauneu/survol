@@ -374,12 +374,12 @@ class CgiEnv():
             self.enter_edition_mode()
             assert False
 
-        # Scripts which can run as events generator must have their name starting with "events_generator_".
+        # Scripts which can run as events feeders must have their name starting with "events_feeder_".
         # This allows to use CGI programs as events genetors not written in Python.
         # TODO: Using the script name is enough, the module is not necessary.
         full_script_path, _, _ = self.m_calling_url.partition("?")
         script_basename = os.path.basename(full_script_path)
-        daemonizable_script = os.path.basename(script_basename).startswith("events_generator_")
+        daemonizable_script = os.path.basename(script_basename).startswith("events_feeder_")
 
         if not daemonizable_script:
             # This would be absurd to have a normal CGI script started in this mode.
@@ -399,7 +399,7 @@ class CgiEnv():
 
         try:
             # This may throw "[Errno 111] Connection refused"
-            is_daemon_running = lib_daemon.is_events_generator_daemon_running(self.m_url_without_mode)
+            is_daemon_running = lib_daemon.is_events_feeder_daemon_running(self.m_url_without_mode)
         except Exception as exc:
             # Then display the content in snapshot mode, which is better than nothing.
             self.report_error_message("Cannot start daemon, caught:%s\n" % exc)
@@ -411,7 +411,7 @@ class CgiEnv():
             # TODO: Slight ambiguity here: The daemon could be intentionally stopped, and the user
             # TODO: would like to see the existing events stored in the persistent triplestore,
             # TODO: without restarting the daemon. We do not know hw to do tthis yet.
-            lib_daemon.start_events_generator_daemon(self.m_url_without_mode)
+            lib_daemon.start_events_feeder_daemon(self.m_url_without_mode)
             # After that, whether the daemon dedicated to the script and its parameters is started or not,
             # the script is then executed in normal, snapshot mode, as a CGI script.
         else:
