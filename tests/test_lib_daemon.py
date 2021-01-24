@@ -468,7 +468,8 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
         _check_events_generator_psutil_system_counters(self, "Snapshot before events", result_snapshot)
         _check_events_generator_psutil_system_counters(self, "Events", result_snapshot)
 
-    @unittest.skipIf(is_platform_linux or is_travis_machine(), "Windows only")
+    # @unittest.skipIf(is_platform_linux or is_travis_machine(), "Windows only")
+    @unittest.skipIf(is_platform_linux, "Windows only")
     def test_events_generator_win32_dir_changes(self):
         """This starts events_generator_win32_dir_changes, updates a file and checks if this is detected."""
         checked_directory = lib_util.global_temp_directory
@@ -482,7 +483,7 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
         # This creates a subprocess which creates then updates a file several times.
         # It does not write to stdout, so no need of communicate().
         # This processes starts immediately while we are querying the CGI script.
-        py_cmd = "import time;[(time.sleep(1),open(r'%s','w'),) for i in range(15)]" % windows_changed_file
+        py_cmd = "import time;[(time.sleep(1),open(r'%s','w'),) for i in range(30)]" % windows_changed_file
 
         print("test_events_generator_win32_dir_changes py_cmd=%s" % py_cmd)
         subprocess_command = [
