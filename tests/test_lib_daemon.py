@@ -269,7 +269,7 @@ def _check_events_generator_psutil_system_counters(test_object, text_message, re
     print(text_message, "samples number=", samples_number)
 
 
-def _check_events_generator_windows_directory_changes(test_object, text_message, result_graph, updated_files):
+def _check_events_generator_win32_dir_changes(test_object, text_message, result_graph, updated_files):
     test_object.assertTrue(result_graph)
     print(text_message, "len(result_graph)=", len(result_graph))
     print("updated_files=", updated_files)
@@ -341,10 +341,10 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
         self.assertTrue(result_snapshot)
 
     @unittest.skipIf(is_platform_linux or is_travis_machine(), "Windows only")
-    def test_events_generator_windows_directory_changes(self):
+    def test_events_generator_win32_dir_changes(self):
         """There is not much activity in these directories: The goal is to test that the script starts correctly."""
         checked_directory = lib_util.global_temp_directory
-        url_suffix = "CIM_Directory/events_generator_windows_directory_changes.py?xid=CIM_Directory.Name=%s" \
+        url_suffix = "CIM_Directory/events_generator_win32_dir_changes.py?xid=CIM_Directory.Name=%s" \
                    % checked_directory
         result_snapshot = self._run_script_as_snapshot(url_suffix)
         self.assertTrue(result_snapshot)
@@ -469,10 +469,10 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
         _check_events_generator_psutil_system_counters(self, "Events", result_snapshot)
 
     @unittest.skipIf(is_platform_linux or is_travis_machine(), "Windows only")
-    def test_events_generator_windows_directory_changes(self):
-        """This starts events_generator_windows_directory_changes, updates a file and checks if this is detected."""
+    def test_events_generator_win32_dir_changes(self):
+        """This starts events_generator_win32_dir_changes, updates a file and checks if this is detected."""
         checked_directory = lib_util.global_temp_directory
-        url_suffix = "CIM_Directory/events_generator_windows_directory_changes.py?xid=CIM_Directory.Name=%s" \
+        url_suffix = "CIM_Directory/events_generator_win32_dir_changes.py?xid=CIM_Directory.Name=%s" \
                      % checked_directory
 
         windows_changed_file = os.path.join(checked_directory, "file_created_%d.tmp" % os.getpid())
@@ -484,20 +484,20 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
         # This processes starts immediately while we are querying the CGI script.
         py_cmd = "import time;[(time.sleep(1),open(r'%s','w'),) for i in range(15)]" % windows_changed_file
 
-        print("test_events_generator_windows_directory_changes py_cmd=%s" % py_cmd)
+        print("test_events_generator_win32_dir_changes py_cmd=%s" % py_cmd)
         subprocess_command = [
             sys.executable,
             "-c",
             py_cmd]
-        print("test_events_generator_windows_directory_changes supervisor_command=%s" % subprocess_command)
+        print("test_events_generator_win32_dir_changes supervisor_command=%s" % subprocess_command)
 
         proc_popen = subprocess.Popen(
             subprocess_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 
         result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix, 5)
 
-        _check_events_generator_windows_directory_changes(self, "Snapshot before events", result_snapshot, [])
-        _check_events_generator_windows_directory_changes(self, "Events", result_events, [windows_changed_file])
+        _check_events_generator_win32_dir_changes(self, "Snapshot before events", result_snapshot, [])
+        _check_events_generator_win32_dir_changes(self, "Events", result_events, [windows_changed_file])
 
     ##################
     @unittest.skip("Temporarily disabled")

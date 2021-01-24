@@ -127,8 +127,30 @@ def send_events_once():
 def Main():
     sys.stderr.write(__file__ + "\n")
     if lib_util.is_snapshot_behaviour():
+        logger = logging.getLogger()
+        logger.setLevel(logging.DEBUG)
         Snapshot()
     else:
+        with open(r'c:\tmp\logs_aux.log', 'w') as logfd:
+            logfd.write("OK\n")
+
+        # This runs in the daemon process.
+        logger = logging.getLogger()
+        logger.setLevel(logging.DEBUG)
+        log_format = '%(asctime)s %(levelname)s: %(process)d %(filename)s %(funcName)s:%(lineno)d %(message)s'
+        formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+
+        #stdout_handler = logging.StreamHandler(sys.stdout)
+        #stdout_handler.setLevel(logging.DEBUG)
+        #stdout_handler.setFormatter(formatter)
+
+        file_handler = logging.FileHandler(r'c:\tmp\logs.log')
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(formatter)
+
+        logger.addHandler(file_handler)
+        #logger.addHandler(stdout_handler)
+
         while True:
             try:
                 send_events_once()
