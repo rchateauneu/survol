@@ -467,8 +467,8 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
         _check_events_feeder_psutil_system_counters(self, "Snapshot before events", result_snapshot)
         _check_events_feeder_psutil_system_counters(self, "Events", result_snapshot)
 
-    # @unittest.skipIf(is_platform_linux or is_travis_machine(), "Windows only")
-    @unittest.skipIf(is_platform_linux, "Windows only")
+    @unittest.skipIf(is_platform_linux or is_travis_machine(), "Windows only")
+    #@unittest.skipIf(is_platform_linux, "Windows only")
     def test_events_feeder_win32_dir_changes(self):
         """This starts events_feeder_win32_dir_changes, updates a file and checks if this is detected."""
         checked_directory = lib_util.global_temp_directory
@@ -499,7 +499,7 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
         _check_events_feeder_win32_dir_changes(self, "Snapshot before events", result_snapshot, [])
         _check_events_feeder_win32_dir_changes(self, "Events", result_events, [windows_changed_file])
 
-    @unittest.skipIf(is_travis_machine(), "Not on Travis yet")
+    #@unittest.skipIf(is_travis_machine(), "Not on Travis yet")
     def test_events_feeder_system_calls_loop(self):
         proc_open = None
         try:
