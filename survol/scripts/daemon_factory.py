@@ -437,14 +437,10 @@ def _display_process_files(process_info):
             process_info['logfile'], process_info['stdout_logfile']))
 
 
-def start_user_process(process_name, user_command, environment_parameter="", debug_stream=None):
+def start_user_process(process_name, user_command, environment_parameter=""):
     """This returns the newly created process id."""
     _log_supervisor_access("start_user_process", "entry", proc_name=process_name, command=user_command)
     logging.info("start_user_process: python_command=%s" % user_command)
-    #sys.stderr.write("start_user_process: _xmlrpc_error=%s\n" % _xmlrpc_error)
-    #if _xmlrpc_server_proxy is None:
-    #    sys.stderr.write("start_user_process: Server proxy not set: " + _xmlrpc_error)
-    #    return None
 
     full_process_name = _survol_group_name + ":" + process_name
 
@@ -463,11 +459,11 @@ def start_user_process(process_name, user_command, environment_parameter="", deb
         xmlrpc_server_proxy = _create_server_proxy()
         process_info = xmlrpc_server_proxy.supervisor.getProcessInfo(full_process_name)
     except Exception as exc:
+        logging.warning("start_user_process: getProcessInfo raised exc=%s" % exc)
         process_info = None
 
     if process_info is None:
-        # Maybe this program is not defined in the config file,
-        # so let's define it automatically.
+        # Maybe this program is not defined in the config file, so let's define it automatically.
         _add_and_start_program_to_group(process_name, user_command, environment_parameter)
         process_info = xmlrpc_server_proxy.supervisor.getProcessInfo(full_process_name)
         if process_info is None:
@@ -489,11 +485,11 @@ def start_user_process(process_name, user_command, environment_parameter="", deb
             try:
                 start_result = xmlrpc_server_proxy.supervisor.startProcess(full_process_name)
             except Exception as exc:
-                logging.error("StartProcess raised:%s" % str(exc))
+                logging.error("startProcess raised:%s" % str(exc))
                 raise
             
             if start_result:
-                logging.info("StartProcess OK")
+                logging.info("start_user_process: OK")
             else:
                 raise Exception("Error restarting %s" % full_process_name)
             process_info = xmlrpc_server_proxy.supervisor.getProcessInfo(full_process_name)
