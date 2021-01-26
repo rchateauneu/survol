@@ -15,7 +15,7 @@ from lib_properties import pc
 def FlushOrSaveRdfGraph(grph, output_rdf_filename):
     """This dumps the triplestore graph to the current output socket if called in a HTTP server.
     Otherwise it saves the result to a text file, for testing or debugging."""
-    logging.info("FlushOrSaveRdfGraph l=%s sys.argv=%s",len(sys.argv),str(sys.argv))
+    logging.info("FlushOrSaveRdfGraph l=%s sys.argv=%s", len(sys.argv), str(sys.argv))
 
     try:
         os.environ["QUERY_STRING"]
@@ -26,7 +26,7 @@ def FlushOrSaveRdfGraph(grph, output_rdf_filename):
         lib_kbase.triplestore_to_stream_xml(grph,out_dest, 'pretty-xml')
 
     except KeyError:
-        logging.info("FlushOrSaveRdfGraph onto_filnam=%s",output_rdf_filename)
+        logging.info("FlushOrSaveRdfGraph onto_filnam=%s", output_rdf_filename)
         outfil = open(output_rdf_filename, "w")
         lib_kbase.triplestore_to_stream_xml(grph,outfil, 'pretty-xml')
         outfil.close()
@@ -46,9 +46,11 @@ def FlushOrSaveRdfGraph(grph, output_rdf_filename):
 # FIXME: Later, it can be interesting to change the ordering key for the children of a specific node only.
 #
 def _add_ontology(old_grph):
-    """This receives a triplestore containing only the information from scripts.
+    """
+    This receives a triplestore containing only the information from scripts.
     This adds the classes and the properties information,
-    in order to send it to an external database or system. This returns a new graph."""
+    in order to send it to an external database or system. This returns a new graph.
+    """
 
     map_classes = {}
     map_attributes = {}
