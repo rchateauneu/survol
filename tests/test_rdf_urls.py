@@ -228,6 +228,13 @@ class RdfLocalAgentTest(unittest.TestCase):
 
         print("python_file_dis=", python_file_dis)
 
+    def _find_from_dir_with_extension(self, dir_path, file_extension):
+        for root_dir, dirs, files in os.walk(dir_path):
+            for name in files:
+                if name.endswith(file_extension):
+                    return os.path.join(root_dir)
+        return None
+
     # Surprisingly, it fails only in this case.
     # @unittest.skipIf(is_travis_machine() and not is_py3, "Not implemented yet")
     @unittest.skipIf(not is_platform_linux, "Linux only")
@@ -239,14 +246,18 @@ class RdfLocalAgentTest(unittest.TestCase):
         proc_version = subprocess.check_output(['uname', '-r'])
         print("proc_version=", proc_version)
 
-        # Any module will be ok.
-        file_path = "/lib/modules/%s/kernel/net/sunrpc/sunrpc.ko.xz" % proc_version
+        dir_modules = "/lib/modules/%s/kernel/" % proc_version
 
         # Otherwise it cannot work.
-        self.assertTrue(os.path.isfile(file_path))
+        self.assertTrue(os.path.isdir(dir_modules))
+
+        # Any module will be ok. For example "/lib/modules/%s/kernel/net/sunrpc/sunrpc.ko.xz" % proc_version
+        module_path = self._find_from_dir_with_extension(dir_modules, ".ko.xz")
+        print("module_path=", module_path)
+
         module_deps = self._check_script(
             "/survol/sources_types/CIM_DataFile/module_deps.py?xid=CIM_DataFile.Name=%s"
-            % file_path)
+            % module_path)
 
         print("module_deps=", module_deps)
 
