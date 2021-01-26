@@ -20,8 +20,9 @@ from sources_types import CIM_Process
 def filter_path_linux(path):
     """
     For clarity, this eliminates many memory maps.
-    A couple of these invisible memory maps are hard-coded: This is not an issue.
     """
+
+    # TODO: Remove some hard-codes (but it cannot harm yet).
     useless_linux_maps = {
         '/usr/bin/kdeinit',
         '/bin/bash',
@@ -36,6 +37,7 @@ def filter_path_linux(path):
     if path.endswith(".so"):
         return False
 
+    # TODO: These hard-coded filters must be properly parameterised.
     if path.startswith(
             ('/usr/share/locale/',
              '/usr/share/fonts/',
@@ -47,12 +49,13 @@ def filter_path_linux(path):
     if path in useless_linux_maps:
         return False
 
-    # Not sure about "M" and "I". Also: Should precompile regexes.
+    # Not sure about "M" and "I".
     # And if the shared file is read-only, not very interesting, probably (But it depends).
-    if re.match(r'.*/lib/.*\.so\..*', path, re.M|re.I):
+    # TODO: Precompile regexes.
+    if re.match(r'.*/lib/.*\.so\..*', path, re.M | re.I):
         return False
 
-    # Specific to KDE.
+    # TODO: Specific for local on KDE. It does not harm, but should be cleaned up.
     if re.match( r'/var/tmp/kdecache-.*/ksycoca', path, re.M|re.I):
         return False
 
@@ -74,7 +77,7 @@ def _good_map(path):
     if lib_util.isPlatformLinux:
         if not filter_path_linux(path):
             return ""
-        if path.endswith( "(deleted)"):
+        if path.endswith("(deleted)"):
             path = path[:-9]
 
     # DLL are not displayed, because there would be too many of them,
@@ -104,14 +107,11 @@ def function_process(map_to_proc, proc):
     # TODO: What about files on a shared drive?
     # To make things simple, for the moment mapped memory is processed like files.
 
-    # sys.stderr.write("NbMaps=%d\n" % len(all_maps) )
-
-    for map in all_maps:
-        clean_path = _good_map(map.path)
+    for the_map in all_maps:
+        clean_path = _good_map(the_map.path)
         if clean_path == "":
             continue
 
-        # sys.stderr.write( "Adding clean_path=%s\n" % clean_path )
         try:
             the_list = map_to_proc[clean_path]
             the_list.append(pid)
@@ -139,7 +139,6 @@ def Main():
             pass
         except Exception as exc:
             lib_common.ErrorMessageHtml("Unexpected error:" + exc)
-    # sys.stderr.write( "Leaving processes enumeration\n" )
 
     # This maps the pid to its rdf node.
     added_procs = {}
@@ -159,7 +158,6 @@ def Main():
                 added_procs[pid] = node_process
 
             grph.add((node_process, pc.property_memmap, uri_mem_map))
-    # sys.stderr.write( "Leaving second maps enumeration\n" )
 
     # TODO: They could also be displayed based on the hierarchy of their associated file in the directory tree.
 
