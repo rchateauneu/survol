@@ -477,14 +477,14 @@ def start_user_process(process_name, user_command, environment_parameter=""):
             try:
                 logging.error("start_user_process: stdout_logfile")
                 with open(process_info['stdout_logfile']) as stdout_logfile:
-                    for one_line in stdout_logfile.read():
+                    for one_line in stdout_logfile.readlines():
                         logging.error("stdout_logfile:%s" % one_line)
             except:
                 logging.error("start_user_process: Cannot open stdout_logfile")
             try:
                 logging.error("start_user_process: stderr_logfile")
                 with open(process_info['stderr_logfile']) as stderr_logfile:
-                    for one_line in stderr_logfile.read():
+                    for one_line in stderr_logfile.readlines():
                         logging.error("stderr_logfile:%s" % one_line)
             except:
                 logging.error("start_user_process: Cannot open stdout_logfile")
