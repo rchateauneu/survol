@@ -10,7 +10,8 @@ matrix:
           packages:
             - graphviz
       before_install:
-        - pip install supervisor  # Optional, needed for events generators.
+        - pip install supervisor # Optional, needed for events generators.
+        - pip install demangler pyelftools
     - name: "Python 3.6 Linux"
       os: linux
       python: 3.6
@@ -20,6 +21,7 @@ matrix:
             - graphviz
       before_install:
         - pip install supervisor  # Optional, needed for events generators.
+        - pip install demangler pyelftools
     - name: "Python 3.7.5 on Windows"
       os: windows           # Windows 10.0.17134 N/A Build 17134
       language: shell       # 'language: python' is an error on Travis CI Windows
