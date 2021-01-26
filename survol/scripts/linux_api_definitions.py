@@ -228,10 +228,9 @@ class BatchLetCore:
     # [pid  7639] 09:35:56.202303 wait4(7778,  <unfinished ...>
     #
     # It works with ltrace, in a certain extent.
-    # [pid 3916] 13:20:17.215298 open@SYS("/usr/lib64/python2.7/site-packages/_mysql.so", 0, 0666)                      = 4 <0.000249>
-    # [pid 3916] 13:20:17.215576 fstat@SYS(4, 0x7ffd2f04fd50)                                                           = 0 <0.000038>
-    # [pid 3916] 13:20:17.215671 open@SYS("/usr/lib64/python2.7/site-packages/_mysql.so", 0x80000, 01674553140)         = 5 <0.000256>
-    # [pid 3916] 13:20:17.216004 read@SYS(5, "\177ELF\002\001\001", 832)                                                = 832 <0.000042>
+    # [pid 3916] 13:20:17.215298 open@SYS("/usr/lib64/python2.7/site-packages/_mysql.so", 0, 0666) = 4 <0.000249>
+    # [pid 3916] 13:20:17.215576 fstat@SYS(4, 0x7ffd2f04fd50) = 0 <0.000038>
+    # [pid 3916] 13:20:17.216004 read@SYS(5, "\177ELF\002\001\001", 832) = 832 <0.000042>
 
     def __init__(self):
         self._return_value = "N/A"
@@ -441,7 +440,7 @@ class BatchLetCore:
                 # one_line='error: maximum array length seems negative, "\236\245\v", 8192) = -21'
                 if self.m_tracer == "ltrace":
                     if one_line.startswith("error:"):
-                        sys.stdout.write("Warning ltrace:%s\n" % one_line)
+                        logging.warning("ltrace:%s" % one_line)
                         self._set_default_on_error()
                         return
 
@@ -449,12 +448,12 @@ class BatchLetCore:
                 # Special case, when it is leaving:
                 elif self.m_tracer == "strace":
                     if one_line.find("<... exit resumed>) = ?") >= 0:
-                        sys.stdout.write("Warning strace exit:%s" % one_line)
+                        logging.warning("strace exit:%s" % one_line)
                         self._set_default_on_error()
                         return
 
                     if one_line.find("<... exit_group resumed>) = ?") >= 0:
-                        sys.stdout.write("Warning strace exit_group:%s\n" % one_line)
+                        logging.warning("strace exit_group:%s" % one_line)
                         self._set_default_on_error()
                         return
 
@@ -498,7 +497,6 @@ class BatchLetCore:
                 if not the_call.startswith(("exit_group", "exit(")):
                     raise Exception("idx_eq=%d idx_lt=%d function='%s'" % (idx_eq, idx_lt, the_call))
             self._return_value = the_call[idx_eq + 1:idx_lt].strip()
-            # sys.stdout.write("idx_eq=%d idx_last_par=%d idx_lt=%d retValue=%s\n"%(idx_eq,idx_last_par,idx_lt,self._return_value))
 
     def convert_to_string(self):
         return "%s %s s=%s" % (
@@ -580,11 +578,9 @@ class BatchMeta(type):
 
         if name.startswith(btch_sys_prefix):
             syscall_name = name[len(btch_sys_prefix):] + "@SYS"
-            # sys.stdout.write("Registering sys function:%s\n"%syscall_name)
             G_batchModels[syscall_name] = cls
         elif name.startswith(btch_lib_prefix):
             syscall_name = name[len(btch_lib_prefix):]
-            # sys.stdout.write("Registering lib function:%s\n"%syscall_name)
             G_batchModels[syscall_name] = cls
         elif name not in ["NewBase", "BatchLetBase", "BatchLetSequence"]:
             # Enumerate the list of legal base classes, for safety only.
@@ -955,7 +951,7 @@ class BatchLetSys_read(BatchLetBase, object):
             # TODO: Should be processed specifically.
             # This happens if the buffer contains a double-quote. Example:
             # Error parsing retValue=read@SYS(8, "\003\363\r\n"|\314Vc", 4096) = 765
-            sys.stdout.write("Error parsing retValue=%s\n" % (batchCore._return_value))
+            logging.error("Error parsing retValue=%s" % (batchCore._return_value))
             return
 
         super(BatchLetSys_read, self).__init__(batchCore)
@@ -1262,8 +1258,6 @@ class BatchLetSys_clone(BatchLetBase, object):
         else:
             raise Exception("Tracer %s not supported yet" % batchCore.m_tracer)
 
-        # sys.stdout.write("CLONE %s %s PID=%d\n" % ( batchCore.m_tracer, self.m_core._return_value, a_pid) )
-
         # This is the created process.
         obj_new_process = self.cim_context_core().ToObjectPath_CIM_Process(a_pid)
 
@@ -1382,9 +1376,6 @@ class BatchLetSys_wait4(BatchLetBase, object):
     def __init__(self, batchCore):
         super(BatchLetSys_wait4, self).__init__(batchCore)
 
-        # sys.stdout.write("CLONE %s %s PID=%d\n" % ( batchCore.m_tracer, self.m_core._return_value, a_pid) )
-
-        # sys.stdout.write("WAIT A=%s\n" % self.m_core._return_value )
         # This is the terminated pid.
         if batchCore.m_tracer == "ltrace":
             if self.m_core._return_value.find("-10") >= 0:
@@ -1394,7 +1385,6 @@ class BatchLetSys_wait4(BatchLetBase, object):
             else:
                 # <... wait4 resumed> ) = 0x2df2
                 a_pid = int(self.m_core._return_value, 16)
-                # sys.stdout.write("WAITzzz=%d\n" % a_pid )
         elif batchCore.m_tracer == "strace":
             if self.m_core._return_value.find("ECHILD") >= 0:
                 # wait4(-1, 0x7fff9a7a6cd0, WNOHANG, NULL) = -1 ECHILD (No child processes)
@@ -1404,14 +1394,12 @@ class BatchLetSys_wait4(BatchLetBase, object):
                 try:
                     a_pid = int(self.m_core._return_value.split(" ")[0])
                 except ValueError:
-                    sys.stdout.write("wait4: Cannot decode pid from:%s\n" % self.m_core._return_value)
+                    logging.warning("wait4: Cannot decode pid from:%s" % self.m_core._return_value)
                     a_pid = None
-                # sys.stdout.write("WAITxxx=%d\n" % a_pid )
         else:
             raise Exception("Tracer %s not supported yet" % batchCore.m_tracer)
 
         if a_pid:
-            # sys.stdout.write("WAIT=%d\n" % a_pid )
             waited_process = self.cim_context_core().ToObjectPath_CIM_Process(a_pid)
             self.m_significantArgs = [waited_process]
             waited_process.wait_process_end(self.m_core._time_start, self.m_core.m_objectProcess)
@@ -2106,6 +2094,8 @@ class GenericTraceTracer:
         which just needs to be open and read when replying a session.
         """
         return open(input_log_file)
+        # The line terminator cannot be controlled, but binary mode is used because of performance.
+        # return open(input_log_file, "rb")
 
 
 class STraceTracer(GenericTraceTracer):
