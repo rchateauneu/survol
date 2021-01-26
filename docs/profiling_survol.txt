@@ -1,2 +1,21 @@
-python -m cProfile -o tmp_profile.txt `which py.test` tests
+# https://docs.python.org/3/library/profile.html
+
+# python -m cProfile -o tmp_profile.txt `which py.test` tests
+
+# This creates an output format.
+# python -m cProfile -o profile.all_trace.tottime.prof -s tottime `which py.test` tests/test_dockit.py::ReplaySessionsTest::test_replay_all_trace_files
+
+# pyprof2calltree -i script.profile -o script.calltree
+# kcachegrind script.calltree
+
+pip install gprof2dot
+# gprof2dot -f pstats profile.all_trace.tottime.prof | dot -Tpng -o output.png && eog output.png
+gprof2dot -f pstats profile.all_trace.tottime.prof | dot -Tpng -o output.png
+
+
+# Simple stdout result.
+python -m cProfile -s tottime `which py.test` tests/test_dockit.py::ReplaySessionsTest::test_replay_all_trace_files 2>&1 | tee profile.all_trace.tottime.txt
+
+python -m cProfile -o profile.all_trace.tottime.3.prof -s tottime `which py.test` tests/test_dockit.py::ReplaySessionsTest::test_replay_all_trace_files
+gprof2dot -f pstats profile.all_trace.tottime.3.prof | dot -Tpng -o output.3.png
 
