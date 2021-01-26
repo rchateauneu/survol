@@ -9,14 +9,15 @@ from sources_types import memmap
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
-	memmap_name = cgiEnv.GetId()
+    cgiEnv = lib_common.CgiEnv()
+    memmap_name = cgiEnv.GetId()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	memmap.DisplayMappedProcesses(grph, memmap_name)
+    memmap.DisplayMappedProcesses(grph, memmap_name)
 
-	cgiEnv.OutCgiRdf()
+    cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
-	Main()
+    Main()

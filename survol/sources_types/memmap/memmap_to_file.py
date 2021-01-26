@@ -10,14 +10,18 @@ from sources_types import CIM_DataFile
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
-	memmap_name = cgiEnv.GetId()
+    cgiEnv = lib_common.CgiEnv()
+    memmap_name = cgiEnv.GetId()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	CIM_DataFile.AddInfo(grph, memmap_name)
+    uri_memmap = lib_common.gUriGen.MemMapUri(memmap_name)
 
-	cgiEnv.OutCgiRdf()
+    CIM_DataFile.AddInfo(grph, uri_memmap, [memmap_name])
+
+    cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
-	Main()
+    Main()
+
