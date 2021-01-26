@@ -262,8 +262,8 @@ class RdfLocalAgentTest(unittest.TestCase):
 
         print("ldd_depends=", ldd_depends)
 
-
-    @unittest.skipIf(not is_platform_linux, "Linux only")
+    # @unittest.skipIf(not is_platform_linux, "Linux only")
+    @unittest.skip("Not ready yet")
     def test_elftools_parse_classes(self):
         """
         Classes in an ELF file
@@ -271,14 +271,13 @@ class RdfLocalAgentTest(unittest.TestCase):
         This just tests if the script can be called.
         """
 
-        # This does not work with all files. Many throw with "Magic number do not match"
+        # This does not work with all files. May throw with "Magic number do not match"
         file_path = "/usr/lib64/libebtc.so"
         elftools_parse_classes = self._check_script(
             "/survol/sources_types/CIM_DataFile/elftools_parse_classes.py?xid=CIM_DataFile.Name=%s"
             % file_path)
 
         print("elftools_parse_classes=", elftools_parse_classes)
-
 
     @unittest.skip("Not implemented yet")
     @unittest.skipIf(not is_platform_linux, "Linux only")
