@@ -84,5 +84,6 @@ def DisplayMappedProcesses(grph, file_name):
                 grph.add((node_process, pc.property_pid, lib_util.NodeLiteral(pid)))
 
                 # Displays the RSS only if different from the file size.
-                if map.rss != statinfo.st_size:
-                    grph.add((node_process, prop_memory_rss, lib_util.NodeLiteral(map.rss)))
+                if the_map.rss != statinfo.st_size:
+                    grph.add((node_process, prop_memory_rss, lib_util.NodeLiteral(the_map.rss)))
+
