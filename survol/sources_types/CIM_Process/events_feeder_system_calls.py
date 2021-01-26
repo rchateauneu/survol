@@ -135,6 +135,7 @@ def SendEvents():
     try:
         dockit.start_processing(DockitParameters)
     except Exception as exc:
+        logging.error("SendEvents caught (stderr): %s\n" % exc)
         sys.stderr.write("SendEvents caught (stderr): %s\n" % exc)
         errfd.write("SendEvents caught (file): %s\n" % exc)
         errfd.write("SendEvents traceback=%s\n" % traceback.format_exc())
@@ -143,28 +144,13 @@ def SendEvents():
 
 
 def Main():
+    # Temporary setting of logging level to the max.
     logging.getLogger().setLevel(logging.DEBUG)
     if lib_util.is_snapshot_behaviour():
         logging.debug("system calls snapshot")
         Snapshot()
     else:
         logging.debug("system calls events")
-        if False:
-            log_fil_name = r'C:\Users\rchateau\AppData\Local\Temp\events_feeder_system_calls.log'
-            log_format = '%(asctime)s %(levelname)s: %(process)d %(filename)s %(funcName)s:%(lineno)d %(message)s'
-
-            logging.debug("Daemon log_fil_name=%s" % log_fil_name)
-
-            logger = logging.getLogger()
-            fh = logging.FileHandler(log_fil_name, mode='a')
-            fh.setLevel(logging.logging.debug)
-            formatter = logging.Formatter(log_format)
-            fh.setFormatter(formatter)
-            logger.addHandler(fh)
-
-            # This is different than just setting the level of the file handler.
-            logging.getLogger().setLevel(logging.logging.debug)
-
         try:
             SendEvents()
         except Exception as err:
