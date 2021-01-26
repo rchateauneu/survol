@@ -472,8 +472,20 @@ def start_user_process(process_name, user_command, environment_parameter=""):
         created_process_id = process_info['pid']
         _log_supervisor_access("start_user_process", "created", created_pid=created_process_id)
         if not psutil.pid_exists(created_process_id):
-            raise Exception("start_user_process: New process not successfully started. process_info=%s\n"
-                            % str(process_info))
+            logging.error("start_user_process: Process not started process_info=%s" % process_info)
+            try:
+                with open(process_info['stdout_logfile']) as stdout_logfile:
+                    stdout_content = "\n".join(stdout_logfile.readlines())
+                    logging.error("start_user_process: stdout_content=%s" % stdout_content)
+            except:
+                logging.error("start_user_process: Cannot open stdout_logfile")
+            try:
+                with open(process_info['stderr_logfile']) as stderr_logfile:
+                    stderr_content = "\n".join(stderr_logfile.readlines())
+                    logging.error("start_user_process: stderr_content=%s" % stderr_content)
+            except:
+                logging.error("start_user_process: Cannot open stdout_logfile")
+            raise Exception("start_user_process: Could not start process. process_info=%s\n" % str(process_info))
     else:
         created_process_id = process_info['pid']
         _log_supervisor_access("start_user_process", "exists", created_pid=created_process_id)
