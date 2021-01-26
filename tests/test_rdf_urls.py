@@ -288,7 +288,8 @@ class RdfLocalAgentTest(unittest.TestCase):
             break
         return one_map.path
 
-    @unittest.skipIf(is_platform_windows or is_travis_machine(), "Linux only but not on Travis yet")
+    @unittest.skipIf(is_platform_windows, "Linux only")
+    # @unittest.skipIf(is_platform_windows or is_travis_machine(), "Linux only but not on Travis yet")
     def test_memmap_processes(self):
         """
         Processes connected to a memory map
@@ -301,7 +302,8 @@ class RdfLocalAgentTest(unittest.TestCase):
         print("memmap_processes=", memmap_processes)
         # TODO: Current process should be in this processes list.
 
-    @unittest.skipIf(is_platform_windows or is_travis_machine(), "Linux only but not on Travis yet")
+    @unittest.skipIf(is_platform_windows, "Linux only")
+    # @unittest.skipIf(is_platform_windows or is_travis_machine(), "Linux only but not on Travis yet")
     def test_memmap_to_file(self):
         """File associated to a memory map"""
         file_path = self._get_arbitrary_mmap()
