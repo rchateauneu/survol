@@ -472,13 +472,6 @@ def start_user_process(process_name, user_command, environment_parameter=""):
         created_process_id = process_info['pid']
         _log_supervisor_access("start_user_process", "created", created_pid=created_process_id)
 
-        # FIXME: This tolerates that maybe the process did not start yet.
-        # FIXME: This happens only on Travis and for some tests.
-        if not psutil.pid_exists(created_process_id) and process_info['statename'] == 'STARTING':
-            logging.warning("start_user_process: Process not started yes process_info=%s" % process_info)
-            # FIXME: Extra wait, but this is suspicious. Why would a script take so much time to start ?
-            time.sleep(1.0)
-
         if not psutil.pid_exists(created_process_id):
             logging.error("start_user_process: Process not started process_info=%s" % process_info)
             try:

@@ -66,23 +66,17 @@ def _atexit_handler_detach(process_id):
     sys.stderr.write("_atexit_handler process_id=%d\n" % process_id)
 
 
-log_file = r"C:\Users\rchateau\AppData\Local\Temp\survol_events.log"
-
-
 def SendEvents():
-    """This is called in a subprocess."""
+    """This is called in a subprocess started by the Python module supervisor."""
 
     logging.info("SendEvents")
 
-    errfd = open(log_file, "w", 0)
     sys.stderr.write("SendEvent events\n")
-    errfd.write("SendEvent events\n")
 
     # FIXME:
     if not dockit:
         logging.error("dockit not available")
         sys.stderr.write("File=" + __file__ + " dockit not loaded" + "\n")
-        errfd.write("File=" + __file__ + " dockit not loaded" + "\n")
         return
 
     logging.info("dockit available")
@@ -90,18 +84,15 @@ def SendEvents():
     process_id = cgiEnv.GetId()
     logging.info("process_id=%s" % process_id)
     sys.stderr.write("SendEvents process_id=%s\n" % process_id)
-    errfd.write("SendEvents process_id=%s\n" % process_id)
 
     atexit.register(_atexit_handler_detach, process_id)
     logging.info("atexit handler set")
-    errfd.write("SendEvents after register process_id=%s\n" % process_id)
 
     # This is called by dockit with one of event to be inserted in the global events graph.
     def dockit_events_callback(rdf_triple):
         grph = cgiEnv.ReinitGraph()
         logging.info("dockit_events_callback")
         sys.stderr.write("dockit_events_callback rdf_triple=%s\n" % rdf_triple)
-        errfd.write("SendEvents callback process_id=%s\n" % process_id)
         grph.add(rdf_triple)
         cgiEnv.OutCgiRdf()
 
@@ -128,7 +119,6 @@ def SendEvents():
         output_makefile = None
 
     sys.stderr.write("SendEvents process_id=%s DockitParameters (s) reated\n" % process_id)
-    errfd.write("SendEvents process_id=%s DockitParameters (f) created\n" % process_id)
 
     # TODO: How to release the target process when this leaves ?
 
@@ -137,8 +127,6 @@ def SendEvents():
     except Exception as exc:
         logging.error("SendEvents caught (stderr): %s\n" % exc)
         sys.stderr.write("SendEvents caught (stderr): %s\n" % exc)
-        errfd.write("SendEvents caught (file): %s\n" % exc)
-        errfd.write("SendEvents traceback=%s\n" % traceback.format_exc())
 
     sys.stderr.write("SendEvents after processing\n")
 
@@ -154,6 +142,7 @@ def Main():
         try:
             SendEvents()
         except Exception as err:
+            sys.stderr.write("Caught:%s\n" % err)
             logging.error("Caught:%s" % err)
             raise
 
