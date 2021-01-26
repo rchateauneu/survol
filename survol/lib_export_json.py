@@ -127,9 +127,12 @@ def WriteJsonError(message):
     _write_json_header(json.dumps(json_err, indent=2), True)
 
 
-def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
-    """Transforms a RDF graph into a JSON document.
-    This returns a graph made of Json objects."""
+def Grph2Json(page_title, error_msg, parameters, grph):
+    """
+    Transforms a RDF graph into a JSON document.
+
+    This returns a graph made of Json objects which are suitable for visualisation in D3.
+    """
 
     # Must be reset to zero between several executions, when run by WSGI.
     global _node_json_number
@@ -233,7 +236,7 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
     # print(json.dumps(graph, indent=2))
 
 
-def Grph2Menu(page_title, error_msg, isSubServer, parameters, grph):
+def Grph2Menu(page_title, error_msg, parameters, grph):
     """This returns a tree of scripts, usable as a contextual menu.
     The RDF content is already created, so this keeps only the nodes related to scripts.
     TODO: It would be faster to keep only the tree of scripts. The script "entity.py"

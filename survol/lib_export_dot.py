@@ -859,10 +859,12 @@ def write_dot_header(page_title, layout_style, stream, grph):
 
 
 def GraphToSvg(
-        page_title, error_msg, is_sub_server, parameters, grph, parameterized_links, top_url,
+        page_title, error_msg, parameters, grph, parameterized_links, top_url,
         layout_style, collapsed_properties, commutative_properties):
-    """This transforms a RDF triplestore into a temporary DOT file, which is
-    transformed by GraphViz into a SVG file sent to the HTTP browser. """
+    """
+    This transforms a RDF triplestore into a temporary DOT file, which is
+    transformed by GraphViz into a SVG file sent to the HTTP browser.
+    """
     tmp_log_fil = lib_util.TmpFile("survol_graph_to_svg", "log")
     try:
         logfil = open(tmp_log_fil.Name, "w")
@@ -878,7 +880,7 @@ def GraphToSvg(
     logfil.write(lib_util.TimeStamp() + " Created " + dot_filnam_after + "\n")
 
     dot_layout = write_dot_header(page_title, layout_style, rdfoutfil, grph)
-    _write_dot_legend(page_title, top_url, error_msg, is_sub_server,
+    _write_dot_legend(page_title, top_url, error_msg,
                       parameters, parameterized_links, rdfoutfil, grph)
     logfil.write(lib_util.TimeStamp() + " Legend written\n")
     Rdf2Dot(grph, logfil, rdfoutfil, collapsed_properties, commutative_properties)
@@ -969,7 +971,7 @@ def _str_with_br(a_raw_str, colspan=1):
     return resu
 
 
-def _write_dot_legend(page_title, top_url, err_msg, is_sub_server, parameters, parameterized_links, stream, grph):
+def _write_dot_legend(page_title, top_url, err_msg, parameters, parameterized_links, stream, grph):
     """In SVG/Graphiz documents, this writes the little rectangle which contains various information."""
 
     # This allows to enter directly the URL parameters, so we can access directly an object.
@@ -1089,14 +1091,6 @@ def _write_dot_legend(page_title, top_url, err_msg, is_sub_server, parameters, p
     if err_msg:
         full_err_msg = _dot_bold("Error: ") + err_msg
         stream.write('<tr><td align="left" balign="left" colspan="2">%s</td></tr>' % _str_with_br(full_err_msg, 2))
-
-    if is_sub_server:
-        url_stop = lib_exports.ModedUrl("stop")
-        url_stop_replaced = _url_to_svg(url_stop)
-        stream.write('<tr><td colspan="2" href="' + url_stop_replaced + '">' + _dot_ul("Stop subserver") + '</td></tr>')
-        # TODO: Add an URL for subservers management, instead of simply "stop"
-        # Maybe "mode=ctrl".This will list the feeders with their entity_id.
-        # So they can be selectively stopped.
 
     stream.write("""
       </table>>]

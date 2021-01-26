@@ -315,16 +315,13 @@ def _scripts_tree_html_iterator(theCgi):
         yield lin_html
 
 
-def _write_errors_no_jinja(error_msg, is_sub_server):
-    if error_msg or is_sub_server:
+def _write_errors_no_jinja(error_msg):
+    if error_msg:
         yield '<table border="0">'
 
         if error_msg:
             yield '<tr><td bgcolor="#DDDDDD" align="center" color="#FF0000"><b></b></td></tr>'
             yield '<tr><td bgcolor="#DDDDDD"><b>ERROR MESSAGE:%s</b></td></tr>' % error_msg
-
-        if is_sub_server:
-            yield '<tr><td><a href="' + lib_exports.ModedUrl("stop") + '">Stop subserver</a></td></tr>'
         yield " </table><br>"
 
 
@@ -574,7 +571,7 @@ def display_html_text_footer():
     yield wrt_txt
 
 
-def _Grph2Html_no_jinja(theCgi, top_url, error_msg, is_sub_server, gbl_cgi_env_list):
+def _Grph2Html_no_jinja(theCgi, top_url, error_msg, gbl_cgi_env_list):
     """
         This transforms an internal data graph into a HTML document.
     """
@@ -590,7 +587,7 @@ def _Grph2Html_no_jinja(theCgi, top_url, error_msg, is_sub_server, gbl_cgi_env_l
     object_information = "".join(_object_information_html_iterator(theCgi))
     WrtAsUtf(object_information)
 
-    WrtAsUtf("".join(_write_errors_no_jinja(error_msg, is_sub_server)))
+    WrtAsUtf("".join(_write_errors_no_jinja(error_msg)))
 
     dict_class_subj_prop_obj = _create_objects_list(grph)
 
@@ -622,7 +619,7 @@ def _Grph2Html_no_jinja(theCgi, top_url, error_msg, is_sub_server, gbl_cgi_env_l
     WrtAsUtf("</html> ")
 
 
-def _Grph2Html_jinja(theCgi, top_url, error_msg, is_sub_server, gbl_cgi_env_list):
+def _Grph2Html_jinja(theCgi, top_url, error_msg, gbl_cgi_env_list):
     this_dir = os.path.dirname(os.path.abspath(__file__))
     template_file_name = "www/export_html.template.htm"
 
@@ -647,7 +644,7 @@ def _Grph2Html_jinja(theCgi, top_url, error_msg, is_sub_server, gbl_cgi_env_list
     script_information_html = "".join(_script_information_html_iterator(theCgi, gbl_cgi_env_list))
     object_information_html = "".join(_object_information_html_iterator(theCgi))
 
-    errors_table_html = "".join(_write_errors_no_jinja(error_msg, is_sub_server))
+    errors_table_html = "".join(_write_errors_no_jinja(error_msg))
 
     dict_class_subj_prop_obj = _create_objects_list(theCgi.m_graph)
 
@@ -678,14 +675,14 @@ def _Grph2Html_jinja(theCgi, top_url, error_msg, is_sub_server, gbl_cgi_env_list
     WrtAsUtf(jinja_render)
 
 
-def Grph2Html(theCgi, top_url, error_msg, is_sub_server, gbl_cgi_env_list):
+def Grph2Html(theCgi, top_url, error_msg, gbl_cgi_env_list):
     """The list gbl_cgi_env_list contains a list of URL which are merged
     into the current URLs. There are displayed for informational purpose.
     """
     lib_util.WrtHeader('text/html')
     if lib_util.GetJinja2():
-        _Grph2Html_jinja(theCgi, top_url, error_msg, is_sub_server, gbl_cgi_env_list)
+        _Grph2Html_jinja(theCgi, top_url, error_msg, gbl_cgi_env_list)
     else:
-        _Grph2Html_no_jinja(theCgi, top_url, error_msg, is_sub_server, gbl_cgi_env_list)
+        _Grph2Html_no_jinja(theCgi, top_url, error_msg, gbl_cgi_env_list)
 
 ################################################################################

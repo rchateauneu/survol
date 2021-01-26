@@ -48,8 +48,10 @@ from lib_uris import *
 nodeMachine = gUriGen.HostnameUri(lib_util.currentHostname)
 
 
-def _out_cgi_mode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
-    """The result can be sent to the Web browser in several formats."""
+def _out_cgi_mode(theCgi, top_url, mode, error_msg=None):
+    """
+    The result can be sent to the Web browser in several formats.
+    """
     theCgi._bind_identical_nodes()
 
     grph = theCgi.m_graph
@@ -71,11 +73,11 @@ def _out_cgi_mode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
 
     if mode == "html":
         # Used rarely and performance not very important. This returns a HTML page.
-        lib_export_html.Grph2Html(theCgi, top_url, error_msg, is_sub_server, _global_cgi_env_list)
+        lib_export_html.Grph2Html(theCgi, top_url, error_msg, _global_cgi_env_list)
     elif mode == "json":
-        lib_export_json.Grph2Json(page_title, error_msg, is_sub_server, parameters, grph)
+        lib_export_json.Grph2Json(page_title, error_msg, parameters, grph)
     elif mode == "menu":
-        lib_export_json.Grph2Menu(page_title, error_msg, is_sub_server, parameters, grph)
+        lib_export_json.Grph2Menu(page_title, error_msg, parameters, grph)
     elif mode == "rdf":
         lib_export_ontology.Grph2Rdf(grph)
     elif mode == "daemon":
@@ -101,7 +103,7 @@ def _out_cgi_mode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
         #sys.stderr.write("collapsed_properties=%s\n" % str(collapsed_properties))
         #sys.stderr.write("commutative_properties=%s\n" % str(commutative_properties))
 
-        lib_export_dot.GraphToSvg(page_title, error_msg, is_sub_server, parameters, grph, parameterized_links, top_url,
+        lib_export_dot.GraphToSvg(page_title, error_msg, parameters, grph, parameterized_links, top_url,
                       theCgi.m_layout_style, collapsed_properties, commutative_properties)
     else:
         logging.error("_out_cgi_mode invalid mode=%s", mode)
