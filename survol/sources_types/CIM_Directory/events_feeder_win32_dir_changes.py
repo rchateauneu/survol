@@ -77,6 +77,8 @@ def send_events_once():
     cgiEnv = lib_common.CgiEnv()
     path_to_watch = cgiEnv.GetId()
 
+    logging.info("path_to_watch=%s" % path_to_watch)
+
     h_dir = win32file.CreateFile(
         path_to_watch,
         FILE_LIST_DIRECTORY,
@@ -131,25 +133,9 @@ def Main():
         logger.setLevel(logging.DEBUG)
         Snapshot()
     else:
-        with open(r'c:\tmp\logs_aux.log', 'w') as logfd:
-            logfd.write("OK\n")
-
         # This runs in the daemon process.
         logger = logging.getLogger()
         logger.setLevel(logging.DEBUG)
-        log_format = '%(asctime)s %(levelname)s: %(process)d %(filename)s %(funcName)s:%(lineno)d %(message)s'
-        formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
-
-        #stdout_handler = logging.StreamHandler(sys.stdout)
-        #stdout_handler.setLevel(logging.DEBUG)
-        #stdout_handler.setFormatter(formatter)
-
-        file_handler = logging.FileHandler(r'c:\tmp\logs.log')
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(formatter)
-
-        logger.addHandler(file_handler)
-        #logger.addHandler(stdout_handler)
 
         while True:
             try:
