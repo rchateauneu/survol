@@ -6,6 +6,7 @@ Entry points displayed from nm command
 
 import os
 import sys
+import logging
 
 import lib_nm
 import lib_util
@@ -48,7 +49,7 @@ def Main():
             pass
         cnt += 1
 
-    DEBUG("Nm: Processed %d lines", cnt)
+    logging.debug("Nm: Processed %d lines", cnt)
     cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_symbol_defined, pc.property_symbol_undefined])
 
 

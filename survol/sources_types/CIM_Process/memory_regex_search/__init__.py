@@ -11,9 +11,12 @@ import six
 import os
 import re
 import psutil
+import logging
 
 from six.moves import builtins
 from sources_types import CIM_Process
+
+import lib_util
 
 is_py3 = sys.version_info >= (3,)
 
@@ -229,7 +232,6 @@ def ConcatRegexes(theClass):
 class MemoryProcessorStructs:
     # We can have: re_flags=re.IGNORECASE
     def __init__(self, is64Bits, lstStructs, re_flags):
-        from six.moves import builtins
         builtins.CTYPES_POINTER_TARGET_64 = is64Bits
 
         class DefStruct:
@@ -261,7 +263,7 @@ class MemoryProcessorStructs:
 
     # TODO: Consider alignment of pages like the struct.
     def ParseSegment(self, addr_beg, bytes_array):
-        DEBUG("ParseSegment len=%d" % len(bytes_array)) 
+        logging.debug("ParseSegment len=%d" % len(bytes_array)) 
         for keyStr in self.m_byStruct:
             structDefinition = self.m_byStruct[keyStr]
             structRegex = structDefinition.m_rgxComp
@@ -330,15 +332,15 @@ class MemoryProcessorStructs:
 class MemoryProcessorRegex:
     # We can have: flags=re.IGNORECASE
     def __init__(self, is64Bits, a_regex, re_flags):
-        DEBUG("aRegex=%s", a_regex)
-        DEBUG("aRegex=%s", type(a_regex))
+        logging.debug("aRegex=%s", a_regex)
+        logging.debug("aRegex=%s", type(a_regex))
         self.m_rgxComp = re.compile(a_regex.encode('utf-8'), re_flags)
         self.m_matches = dict()
 
     def ParseSegment(self, addr_beg, bytes_array):
         #print("MemoryProcessorRegex.ParseSegment len=", len(bytes_array))
-        DEBUG("ParseSegment len=%d" % len(bytes_array)) 
-        DEBUG("ParseSegment type=%s" % type(bytes_array)) 
+        logging.debug("ParseSegment len=%d" % len(bytes_array)) 
+        logging.debug("ParseSegment type=%s" % type(bytes_array)) 
 
         if False:
             # This is for debugging.
@@ -355,7 +357,7 @@ class MemoryProcessorRegex:
             mem_offset = addr_beg + mtch.start()
             self.m_matches[mem_offset] = mtch.group()
             matches_count += 1
-        DEBUG("MATCHES:" + str(matches_count))
+        logging.debug("MATCHES:" + str(matches_count))
 
 
 ################################################################################
@@ -433,7 +435,7 @@ if sys.platform == "win32":
             self.Type = MEMORY_TYPES.get(self.MBI.Type, self.MBI.Type)
 
     def _virtual_query_ex(process_handle, address):
-        DEBUG("_virtual_query_ex Address=%0.16X %d", address, address)
+        logging.debug("_virtual_query_ex Address=%0.16X %d", address, address)
         one_MBI = MEMORY_BASIC_INFORMATION()
         MBI_pointer = ctypes.byref(one_MBI)
         size = ctypes.sizeof(one_MBI)
@@ -452,14 +454,14 @@ if sys.platform == "win32":
             ctypes.c_size_t]
         kernel32.VirtualQueryEx.restype = ctypes.c_size_t
 
-        #DEBUG("_virtual_query_ex kernel32.VirtualQueryEx: %s", str(kernel32.VirtualQueryEx.argtypes))
+        #logging.debug("_virtual_query_ex kernel32.VirtualQueryEx: %s", str(kernel32.VirtualQueryEx.argtypes))
         ptr = ctypes.cast(address, wintypes.LPCVOID)
         success = kernel32.VirtualQueryEx(
             process_handle,
             ptr, # address,
             MBI_pointer,
             size)
-        DEBUG("After _virtual_query_ex size=%d" % size)
+        logging.debug("After _virtual_query_ex size=%d" % size)
         if not success:
             err_knl = kernel32.GetLastError()
             err_txt = str(ctypes.WinError(err_knl))
@@ -468,7 +470,7 @@ if sys.platform == "win32":
         if success != size:
             raise Exception("_virtual_query_ex Failed because not all data was written.")
 
-        DEBUG("_virtual_query_ex leaving")
+        logging.debug("_virtual_query_ex leaving")
         return PyMEMORY_BASIC_INFORMATION(one_MBI)
 
     # Returns an array of bytes
@@ -493,7 +495,7 @@ if sys.platform == "win32":
             ctypes.c_size_t,
             ctypes.POINTER(ctypes.c_size_t)]
         kernel32.ReadProcessMemory.restype = wintypes.BOOL
-        DEBUG("_windows_read_memory kernel32.ReadProcessMemory: %s", str(kernel32.ReadProcessMemory.argtypes))
+        logging.debug("_windows_read_memory kernel32.ReadProcessMemory: %s", str(kernel32.ReadProcessMemory.argtypes))
         success = kernel32.ReadProcessMemory(process_handle, address, cbuffer, size, czero)
 
         if not success:
@@ -501,7 +503,7 @@ if sys.platform == "win32":
         return cbuffer.raw
 
     def _windows_scan_from_page(process_handle, page_address, mem_proc_functor):
-        DEBUG("_windows_scan_from_page page_address=%d" % page_address)
+        logging.debug("_windows_scan_from_page page_address=%d" % page_address)
         information = _virtual_query_ex(process_handle, page_address)
         base_address = information.BaseAddress
         region_size = information.RegionSize
@@ -607,21 +609,21 @@ if sys.platform == "win32":
 
         # kernel32.OpenProcess.restype = ctypes.wintypes.HANDLE
 
-        DEBUG("MemMachine pidint=%s", str(pidint))
+        logging.debug("MemMachine pidint=%s", str(pidint))
         phandle = kernel32.OpenProcess(ACCESS, False, pidint)
-        DEBUG("MemMachine phandle=%s", str(phandle))
-        DEBUG("MemMachine GetLastError=%s" % str(ctypes.GetLastError()))
+        logging.debug("MemMachine phandle=%s", str(phandle))
+        logging.debug("MemMachine GetLastError=%s" % str(ctypes.GetLastError()))
 
         # No need to prefix with ctypes on Python 3. Why ?
         assert phandle, "Failed to open process!\n%s" % ctypes.WinError(ctypes.GetLastError())[1]
 
         is64bits = _windows_is_64bits_process(phandle)
-        DEBUG("MemMachine is64bits=%d", is64bits)
+        logging.debug("MemMachine is64bits=%d", is64bits)
         mem_proc_functor = MemoryProcessor(is64bits, lstStructs, re_flags)
 
         # First address of the first page, and last address to scan.
         base_address , max_address = _windows_get_address_range()
-        DEBUG("MemMachine base_address=%016x max_address=%016x", base_address , max_address)
+        logging.debug("MemMachine base_address=%016x max_address=%016x", base_address , max_address)
 
         allFound = list()
         page_address = base_address
@@ -630,23 +632,23 @@ if sys.platform == "win32":
             try:
                 next_page = _windows_scan_from_page(phandle, page_address, mem_proc_functor)
             except ctypes.ArgumentError as exc:
-                ERROR("MemMachine ArgumentError: %s: %s", str(page_address), exc)
+                logging.error("MemMachine ArgumentError: %s: %s", str(page_address), exc)
                 break
             except Exception:
                 t, e = sys.exc_info()[:2]
-                ERROR("MemMachine Other exception:%s", str(e).replace("\n", " "))
+                logging.error("MemMachine Other exception:%s", str(e).replace("\n", " "))
                 break
 
             page_address = next_page
 
             if not is64bits and page_address == 0x7FFF0000:
-                ERROR("MemMachine End of 32bits process memory on Windows")
+                logging.error("MemMachine End of 32bits process memory on Windows")
                 break
 
             if len(allFound) >= 1000000:
-                WARNING("[Warning] Scan ended early because too many addresses were found to hold the target data.")
+                logging.warning("[Warning] Scan ended early because too many addresses were found to hold the target data.")
                 break
-        DEBUG("MemMachine leaving")
+        logging.debug("MemMachine leaving")
         return mem_proc_functor
 
 elif sys.platform.startswith("linux"):
@@ -670,7 +672,7 @@ elif sys.platform.startswith("linux"):
         if err != 0: raise Exception('_linux_call_ptrace' + str(err))
 
     def _linux_get_process_memory(pidint, addr_beg, addr_end, mem_proc_functor):
-        DEBUG("_linux_get_process_memory pidint=" + str(pidint))
+        logging.debug("_linux_get_process_memory pidint=" + str(pidint))
         _linux_call_ptrace(True, pidint)
         try:
             # http://unix.stackexchange.com/questions/6301/how-do-i-read-from-proc-pid-mem-under-linux
@@ -678,7 +680,7 @@ elif sys.platform.startswith("linux"):
             # time.sleep(0.1)
             filnam = "/proc/%d/mem" % pidint
             statinfo = os.stat(filnam)
-            DEBUG("filnam=" + filnam + " stats=" + str(statinfo))
+            logging.debug("filnam=" + filnam + " stats=" + str(statinfo))
             # mem_file = open(filnam, 'r+b', 0)
             if is_py3:
                 # With Python 3, buffering would fail with "ValueError: can't have unbuffered text I/O"
@@ -688,7 +690,7 @@ elif sys.platform.startswith("linux"):
                 # FIXME: Maybe buffering is not necessary.
                 mem_file = open(filnam, 'r', 0)
             len_addr = addr_end - addr_beg
-            DEBUG("len=%d", len_addr)
+            logging.debug("len=%d", len_addr)
             if False:
                 # Exception:mmap length is greater than file size
                 # Maybe it is possible to prevent a control of the size.
@@ -706,7 +708,7 @@ elif sys.platform.startswith("linux"):
             # TODO: Close the file.
 
         except Exception as exc:
-            ERROR("_linux_get_process_memory len_addr=%d Exception:%s", len_addr, str(exc))
+            logging.error("_linux_get_process_memory len_addr=%d Exception:%s", len_addr, str(exc))
             mem_proc_functor.error_count += 1
         _linux_call_ptrace(False, pidint)
 
@@ -723,7 +725,7 @@ elif sys.platform.startswith("linux"):
 
     def MemMachine(pidint, lstStructs, re_flags):
         # TODO: 64 bits by default :):):) ... Fix this !
-        DEBUG("MemMachine pidint=%d", pidint)
+        logging.debug("MemMachine pidint=%d", pidint)
         mem_proc_functor = MemoryProcessor(True, lstStructs, re_flags)
         memmaps = _linux_get_memory_maps(pidint)
         # Typical content for map.path
@@ -767,14 +769,14 @@ elif sys.platform.startswith("linux"):
 
         for one_map in memmaps:
 
-            DEBUG("MemMachine map.path=%s" % str(one_map.path))
+            logging.debug("MemMachine map.path=%s" % str(one_map.path))
 
             if one_map.path in ["[heap]", ""] or one_map.path.startswith("[stack"):
                 addr_beg, addr_end = (int(ad, 16) for ad in one_map.addr.split("-"))
-                DEBUG("MemMachine addr_beg=%d addr_end=%d" % (addr_beg, addr_end))
+                logging.debug("MemMachine addr_beg=%d addr_end=%d" % (addr_beg, addr_end))
                 # sys.stderr.write("MemMachine %d %d %s\n" % (addr_beg, addr_end, map.path) )
                 _linux_get_process_memory(pidint, addr_beg, addr_end, mem_proc_functor)
-        DEBUG("MemMachine pidint=%d leaving", pidint)
+        logging.debug("MemMachine pidint=%d leaving", pidint)
         return mem_proc_functor
 
 else:
@@ -830,96 +832,93 @@ def CTypesStructToDict(struct):
 
 def GetRegexMatches(pidint, the_regex, re_flags=0):
     """This returns all the strings matching the regular expression."""
-    import lib_util
-    import logging
-    lib_util.gblLogger.setLevel(logging.DEBUG)
     mem_proc_functor = MemMachine( pidint, the_regex,re_flags)
-    print("pages_count=", mem_proc_functor.pages_count)
-    print("bytes_count=", mem_proc_functor.bytes_count)
-    print("error_count=", mem_proc_functor.error_count)
+    logging.debug("pages_count=%d" % mem_proc_functor.pages_count)
+    logging.debug("bytes_count=%d" % mem_proc_functor.bytes_count)
+    logging.debug("error_count=%d" % mem_proc_functor.error_count)
     return mem_proc_functor.m_matches
 
 ################################################################################
 
 
-def ProcessMemoryScan(pidint, lstStructs, maxDisplay, verbose):
+def _process_memory_scan(pidint, lst_structs, max_display, verbose):
     if verbose:
-        _process_memory_scan_verbose(pidint, lstStructs, maxDisplay)
+        _process_memory_scan_verbose(pidint, lst_structs, max_display)
     else:
-        _process_memory_scan_non_verbose(pidint, lstStructs, maxDisplay)
+        _process_memory_scan_non_verbose(pidint, lst_structs, max_display)
 
 
-def _process_memory_scan_non_verbose(pidint, lstStructs, maxDisplay, re_flags=0):
-    mem_proc_functor = MemMachine(pidint, lstStructs, re_flags)
-    byStruct = mem_proc_functor.m_byStruct
+def _process_memory_scan_non_verbose(pidint, lst_structs, max_display, re_flags=0):
+    mem_proc_functor = MemMachine(pidint, lst_structs, re_flags)
+    by_struct = mem_proc_functor.m_byStruct
 
-    dictByStructs = dict()
+    dict_by_structs = dict()
 
-    # sys.stderr.write("Keys number:%d\n" % len(byStruct))
-    for keyStr in byStruct:
-        structDefinition = byStruct[keyStr]
-        objsSet = structDefinition.m_foundStructs
-        DEBUG("%0.60s : %d occurences before validation", keyStr, len(objsSet))
+    # sys.stderr.write("Keys number:%d\n" % len(by_struct))
+    for key_str in by_struct:
+        struct_definition = by_struct[key_str]
+        objs_set = struct_definition.m_foundStructs
+        logging.debug("%0.60s : %d occurences before validation", key_str, len(objs_set))
 
-        maxCnt = maxDisplay
+        max_cnt = max_display
 
         # Sorted by address.
-        dictByAddrs = dict()
-        for addrObj in sorted(objsSet):
+        dict_by_addrs = dict()
+        for addr_obj in sorted(objs_set):
             # In case of too many data.
-            maxCnt -= 1
-            if maxCnt == 0:
+            max_cnt -= 1
+            if max_cnt == 0:
                 break
 
-            anObj = objsSet[addrObj]
+            an_obj = objs_set[addr_obj]
 
-            objDict = CTypesStructToDict(anObj)
+            obj_dict = CTypesStructToDict(an_obj)
 
             # TODO: Should be done before creating the object.
-            if structDefinition.ValidDict(objDict):
-                dictByAddrs[addrObj] = objDict
-        dictByStructs[keyStr] = dictByAddrs
+            if struct_definition.ValidDict(obj_dict):
+                dict_by_addrs[addr_obj] = obj_dict
+        dict_by_structs[key_str] = dict_by_addrs
 
-    DEBUG(str(dictByStructs))
+    logging.debug(str(dict_by_structs))
 
 
-def _process_memory_scan_verbose(pidint, lstStructs, maxDisplay, re_flags=0):
-    mem_proc_functor = MemMachine(pidint, lstStructs, re_flags)
-    byStruct = mem_proc_functor.m_byStruct
+def _process_memory_scan_verbose(pidint, lst_structs, max_display, re_flags=0):
+    mem_proc_functor = MemMachine(pidint, lst_structs, re_flags)
+    by_struct = mem_proc_functor.m_byStruct
 
-    # print("Keys number:%d" % len(byStruct) )
-    for keyStr in byStruct:
-        structDefinition = byStruct[keyStr]
-        objsSet = structDefinition.m_foundStructs
-        print("%0.60s : %d occurences before validation" % (keyStr, len(objsSet)))
+    # print("Keys number:%d" % len(by_struct) )
+    for key_str in by_struct:
+        struct_definition = by_struct[key_str]
+        objs_set = struct_definition.m_foundStructs
+        print("%0.60s : %d occurences before validation" % (key_str, len(objs_set)))
 
-        maxCnt = maxDisplay
+        max_cnt = max_display
 
         # Sorted by address.
-        for addrObj in sorted(objsSet):
+        for addr_obj in sorted(objs_set):
             # In case of too many data.
-            maxCnt -= 1
-            if maxCnt == 0:
+            max_cnt -= 1
+            if max_cnt == 0:
                 break
 
-            anObj = objsSet[addrObj]
+            an_obj = objs_set[addr_obj]
 
-            def PrintDict(margin, ddd):
+            def print_dict(margin, ddd):
                 for k in ddd:
                     v = ddd[k]
                     if isinstance(v, dict):
                         print("%s %-20s:" % (margin, k))
-                        PrintDict(margin+"      ", v)
+                        print_dict(margin+"      ", v)
                     else:
                         print("%s %-20s: %-60s" % (margin, k , v))
 
-            objDict = CTypesStructToDict(anObj)
+            obj_dict = CTypesStructToDict(an_obj)
 
             # TODO: Should be done before creating the object.
-            if structDefinition.ValidDict(objDict):
+            if struct_definition.ValidDict(obj_dict):
                 # print("Valid")
-                print("Address:%0.16X" % addrObj)
-                PrintDict("      ", objDict)
+                print("Address:%0.16X" % addr_obj)
+                print_dict("      ", obj_dict)
 
 ################################################################################
 
@@ -935,12 +934,12 @@ def DoAll(lstStructs, verbose=True):
     # python -m cProfile mmapregex.py
     if len(sys.argv) > 2:
         pidint = int(sys.argv[1])
-        ProcessMemoryScan(pidint, lstStructs, maxDisplay, verbose)
+        _process_memory_scan(pidint, lstStructs, maxDisplay, verbose)
     else:
         for i in psutil.process_iter():
             print("Pid=%d name=%s" % (i.pid, i.name()))
             try:
-                ProcessMemoryScan(i.pid, lstStructs, maxDisplay, verbose)
+                _process_memory_scan(i.pid, lstStructs, maxDisplay, verbose)
                 print("")
             except Exception:
                 t, e = sys.exc_info()[:2]

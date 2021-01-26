@@ -6,6 +6,7 @@ Information about an Azure service
 
 import sys
 import socket
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -40,10 +41,10 @@ def Main():
 
 	srv = sms.get_hosted_service_properties(serviceName)
 
-	DEBUG("srv=%s", str(dir(srv)))
-	DEBUG("deployments=%s",str(srv.deployments))
-	DEBUG("srv.hosted_service_properties=%s", str(dir(srv.hosted_service_properties)))
-	DEBUG("srv.hosted_service_properties.extended_properties=%s", str(dir(srv.hosted_service_properties.extended_properties)))
+	logging.debug("srv=%s", str(dir(srv)))
+	logging.debug("deployments=%s",str(srv.deployments))
+	logging.debug("srv.hosted_service_properties=%s", str(dir(srv.hosted_service_properties)))
+	logging.debug("srv.hosted_service_properties.extended_properties=%s", str(dir(srv.hosted_service_properties.extended_properties)))
 
 	servNode = service.MakeUri( srv.service_name, subscriptionName )
 	grph.add( ( subscriptionNode, lib_common.MakeProp("Service"), servNode ) )

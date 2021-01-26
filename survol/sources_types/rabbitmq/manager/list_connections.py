@@ -5,6 +5,7 @@ RabbitMQ connections
 """
 
 import sys
+import logging
 import lib_util
 import lib_common
 import lib_credentials
@@ -59,7 +60,7 @@ def AddConnections(grph,listConnections,configNam,nodeManager):
 	for objConnect in listConnections:
 		namConnect = objConnect["name"]
 
-		DEBUG("namConnect=%s",namConnect)
+		logging.debug("namConnect=%s",namConnect)
 
 		nodeConnect = survol_rabbitmq_connection.MakeUri(configNam,namConnect)
 
@@ -82,7 +83,7 @@ def AddConnections(grph,listConnections,configNam,nodeManager):
 		# '127.0.0.1:51532 -> 127.0.0.1:5672'
 		# http://localhost:12345/#/connections/127.0.0.1%3A51532%20-%3E%20127.0.0.1%3A5672
 		namConnectCgi = namConnect.replace(">","&gt;")
-		DEBUG("namConnectCgi=%s",namConnectCgi)
+		logging.debug("namConnectCgi=%s",namConnectCgi)
 		managementUrl = rabbitmq.ManagementUrlPrefix(configNam,"connections",namConnectCgi)
 
 		grph.add( ( nodeConnect, lib_common.MakeProp("Management"), lib_common.NodeUrl(managementUrl) ) )

@@ -5,6 +5,7 @@ ODBC table columns
 """
 
 import sys
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -17,6 +18,7 @@ try:
 except ImportError:
     lib_common.ErrorMessageHtml("pyodbc Python library not installed")
 
+
 def Main():
     cgiEnv = lib_common.CgiEnv()
 
@@ -25,7 +27,7 @@ def Main():
     dsnNam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
     tabNam = cgiEnv.m_entity_id_dict["Table"]
 
-    DEBUG("dsn=%s tabNam=%s", dsnNam, tabNam )
+    logging.debug("dsn=%s tabNam=%s", dsnNam, tabNam )
 
     nodTab = survol_odbc_table.MakeUri( dsnNam, tabNam )
 
@@ -35,11 +37,11 @@ def Main():
 
     try:
         cnxn = pyodbc.connect(ODBC_ConnectString)
-        DEBUG("Connected: %s", dsnNam)
+        logging.debug("Connected: %s", dsnNam)
         cursor = cnxn.cursor()
 
         cursor.columns(table=tabNam)
-        DEBUG("Tables OK: %s", dsnNam)
+        logging.debug("Tables OK: %s", dsnNam)
         rows = cursor.fetchall()
 
         # http://pyodbc.googlecode.com/git/web/docs.html
@@ -87,6 +89,7 @@ def Main():
 
     # cgiEnv.OutCgiRdf()
     cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_odbc_column] )
+
 
 if __name__ == '__main__':
 	Main()

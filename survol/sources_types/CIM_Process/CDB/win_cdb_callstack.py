@@ -7,6 +7,7 @@ Windows process call stack
 import re
 import os
 import sys
+import logging
 import lib_util
 import lib_common
 from sources_types import CIM_Process
@@ -38,7 +39,7 @@ Usable = lib_util.UsableWindows
 
 # 0:160> k
 # ChildEBP RetAddr
-# WARNING: Stack unwind information not available. Following frames may be wrong.
+# logging.warning: Stack unwind information not available. Following frames may be wrong.
 # 295cfaa8 765a338a ntdll!DbgBreakPoint
 # 295cfab4 77d79f72 kernel32!BaseThreadInitThunk+0x12
 # 295cfaf4 77d79f45 ntdll!RtlInitializeExceptionChain+0x63
@@ -77,13 +78,13 @@ def Main():
 
     modules_map = {}
 
-    DEBUG("Starting cdb_cmd=%s", cdb_cmd)
+    logging.debug("Starting cdb_cmd=%s", cdb_cmd)
     try:
         cdb_pipe = lib_common.SubProcPOpen(cdb_cmd)
     except WindowsError as exc:
         lib_common.ErrorMessageHtml("cdb not available: Caught:%s" % str(exc))
 
-    DEBUG("Started cdb_cmd=%s", cdb_cmd)
+    logging.debug("Started cdb_cmd=%s", cdb_cmd)
 
     cdb_output, cdb_err = cdb_pipe.communicate()
 
@@ -105,7 +106,7 @@ def Main():
             module_name = match_lm.group(1)
             dll_name_raw = match_lm.group(2).strip()
             dll_name = lib_util.standardized_file_path(dll_name_raw)
-            DEBUG("module_name=%s dll_name=%s", module_name, dll_name)
+            logging.debug("module_name=%s dll_name=%s", module_name, dll_name)
             modules_map[module_name] = dll_name
             continue
 
@@ -120,7 +121,7 @@ def Main():
             except KeyError:
                 dll_name = module_name
             func_name = match_k.group(2).strip()
-            DEBUG("module_name=%s dll_name=%s func_name=%s", module_name, dll_name, func_name)
+            logging.debug("module_name=%s dll_name=%s func_name=%s", module_name, dll_name, func_name)
 
             dll_name = CDB.TestIfKnownDll(dll_name)
 
@@ -129,9 +130,9 @@ def Main():
             call_depth += 1
             continue
 
-        DEBUG("dot_line=%s", dot_line)
+        logging.debug("dot_line=%s", dot_line)
 
-    DEBUG("Parsed cdb result")
+    logging.debug("Parsed cdb result")
 
     call_node_prev = survol_symbol.AddFunctionCall(grph, call_node_prev, proc_node, None, None)
 

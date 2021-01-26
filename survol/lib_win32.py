@@ -1,5 +1,6 @@
 import os
 import sys
+import logging
 import lib_util
 import lib_common
 import lib_credentials
@@ -16,16 +17,16 @@ class Impersonate:
     def __init__(self, login, password, domain):
         # LOGON32_LOGON_NETWORK
         # win32con.LOGON32_LOGON_INTERACTIVE
-        DEBUG("Impersonate login=%s domain=%s", login, domain)
+        logging.debug("Impersonate login=%s domain=%s", login, domain)
         self.m_handle=win32security.LogonUser(
             login, domain, password, win32con.LOGON32_LOGON_NETWORK, win32con.LOGON32_PROVIDER_DEFAULT)
-        DEBUG("After win32security.LogonUser handle=%s ", str(self.m_handle))
+        logging.debug("After win32security.LogonUser handle=%s ", str(self.m_handle))
         try:
             win32security.ImpersonateLoggedOnUser(self.m_handle)
         except Exception as exc:
-            WARNING("win32security.ImpersonateLoggedOnUser: handle=%s Caught %s", str(self.m_handle), exc)
+            logging.warning("win32security.ImpersonateLoggedOnUser: handle=%s Caught %s", str(self.m_handle), exc)
 
-        DEBUG("Username=%s", win32api.GetUserName())
+        logging.debug("Username=%s", win32api.GetUserName())
 
     def __del__(self):
         win32security.RevertToSelf()
@@ -42,24 +43,24 @@ def MakeImpersonate(machine_name):
         return None, None
 
     current_user_name = win32api.GetUserName()
-    DEBUG("MakeImpersonate: machineName=%s current_user_name=%s", machine_name, current_user_name)
+    logging.debug("MakeImpersonate: machineName=%s current_user_name=%s", machine_name, current_user_name)
 
     # "machinename" or "Machinename" ? Arp returns "Machinename".
     usernam, passwd = lib_credentials.GetCredentials("Login", machine_name)
-    DEBUG("MakeImpersonate: usernam=%s", usernam )
+    logging.debug("MakeImpersonate: usernam=%s", usernam )
 
     if usernam != '':
         if usernam == current_user_name:
-            DEBUG("MakeImpersonate: Already %s", current_user_name)
+            logging.debug("MakeImpersonate: Already %s", current_user_name)
             imper = None
         else:
             try:
                 imper = Impersonate(usernam, passwd, machine_name)
             except Exception as exc:
-                WARNING("MakeImpersonate: Caught %s", exc)
+                logging.warning("MakeImpersonate: Caught %s", exc)
                 imper = None
     else:
-        DEBUG("MakeImpersonate: No impersonate on %s. Returning None.", machine_name)
+        logging.debug("MakeImpersonate: No impersonate on %s. Returning None.", machine_name)
         imper = None
 
     # If running on the local machine, pass the host as None otherwise authorization is checked

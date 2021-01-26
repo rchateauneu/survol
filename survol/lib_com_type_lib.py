@@ -1,5 +1,6 @@
 import os
 import sys
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -13,7 +14,7 @@ TypeLibRegistryKey = win32api.RegOpenKey(win32con.HKEY_CLASSES_ROOT, "TypeLib")
 
 def ComKeyAllNameVersion(key, key_name):
     result = {}
-    DEBUG("ComKeyAllNameVersion key=%s keyName=%s", key, key_name)
+    logging.debug("ComKeyAllNameVersion key=%s keyName=%s", key, key_name)
 
     try:
         sub_key = win32api.RegOpenKey(key, key_name)

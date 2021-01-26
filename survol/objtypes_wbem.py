@@ -5,6 +5,7 @@ WBEM classes in namespace
 """
 
 import sys
+import logging
 import lib_util
 import lib_wbem
 import lib_common
@@ -83,7 +84,7 @@ def Main():
     max_depth = int(cgiEnv.get_parameters(paramkey_max_depth))
     with_yawn_urls = int(cgiEnv.get_parameters(paramkey_yawn_urls))
 
-    DEBUG("wbem_namespace=%s entity_type=%s max_depth=%d", wbem_namespace, entity_type, max_depth)
+    logging.debug("wbem_namespace=%s entity_type=%s max_depth=%d", wbem_namespace, entity_type, max_depth)
 
     cimom_url = cgiEnv.GetHost()
 
@@ -100,14 +101,14 @@ def Main():
     # entity_type might an empty string.
     root_node = _wbem_namespace_node(wbem_namespace, cimom_url, entity_type)
 
-    DEBUG("objtypes_wmi.py cimom_url=%s entity_type=%s", cimom_url, entity_type)
+    logging.debug("objtypes_wmi.py cimom_url=%s entity_type=%s", cimom_url, entity_type)
 
     tree_classes_filtered = lib_wbem.GetClassesTreeInstrumented(conn_wbem, wbem_namespace)
 
     _print_class_recu(grph, root_node, tree_classes_filtered,
                       entity_type, 0, wbem_namespace, cimom_url, max_depth, with_yawn_urls)
 
-    DEBUG("entity_type=%s", entity_type)
+    logging.debug("entity_type=%s", entity_type)
 
     # If we are not at the top of the tree:
     if entity_type != "":
@@ -116,7 +117,7 @@ def Main():
         if wbem_klass:
             super_klass_name = wbem_klass.superclass
 
-            DEBUG("super_klass_name=%s", super_klass_name)
+            logging.debug("super_klass_name=%s", super_klass_name)
             # An empty string or None.
             if super_klass_name:
                 wbem_super_node = _wbem_namespace_node(wbem_namespace, cimom_url, super_klass_name)

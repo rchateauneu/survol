@@ -6,6 +6,7 @@ WBEM CIM_Process information.
 
 import sys
 import lib_util
+import logging
 import lib_common
 import lib_wbem
 from lib_properties import pc
@@ -13,6 +14,7 @@ from lib_properties import pc
 Usable = lib_util.UsableLinux
 
 CanProcessRemote = True
+
 
 def Main():
     # TODO: can_process_remote should be suppressed because it duplicates CanProcessRemote
@@ -24,7 +26,7 @@ def Main():
 
     cimom_url = lib_wbem.HostnameToWbemServer(machine_name)
 
-    DEBUG("wbem_process_info.py currentHostname=%s pid=%d machine_name=%s cimom_url=%s",
+    logging.debug("wbem_process_info.py currentHostname=%s pid=%d machine_name=%s cimom_url=%s",
           lib_util.currentHostname, pid, machine_name, cimom_url)
 
     try:
@@ -69,6 +71,7 @@ def Main():
         # TODO: Call the method Associators(). Idem References().
 
     cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
     Main()

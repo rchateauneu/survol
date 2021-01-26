@@ -1,4 +1,5 @@
 import sys
+import logging
 import lib_util
 
 
@@ -11,7 +12,7 @@ def FormEditionParameters(form_action_no_mode, theCgi):
     """
 
     form_action = form_action_no_mode
-    ERROR("FormEditionParameters formActionNoMode=%s form_action=%s", form_action, form_action_no_mode)
+    logging.info("FormEditionParameters formActionNoMode=%s form_action=%s", form_action, form_action_no_mode)
     yield('<form name="myform" action="' + form_action + '" method="GET">')
 
     # arg_keys are the names of arguments passed as CGI parameters.
@@ -43,7 +44,7 @@ def FormEditionParameters(form_action_no_mode, theCgi):
             yield('<td>' + kv_key + '</td>')
             edi_nam = "edimodargs_" + kv_key
             lst_edimod_args.append(edi_nam)
-            DEBUG("FormEditionParameters edi_nam=%s",edi_nam)
+            logging.debug("FormEditionParameters edi_nam=%s",edi_nam)
             yield('<td><input type="text" name="%s" value="%s"></td>' % (edi_nam,kv_val) )
             yield("</tr>")
 
@@ -52,7 +53,7 @@ def FormEditionParameters(form_action_no_mode, theCgi):
     # Now the parameters specific to the script, if they are not passed also as CGI params.
     # param_key is the display string of the variable, and also a HTML form variable name.
     for param_key in theCgi.m_parameters:
-        DEBUG("FormEditionParameters param_key=%s",param_key)
+        logging.debug("FormEditionParameters param_key=%s",param_key)
         yield("<tr>")
         yield('<td>' + param_key + '</td>')
         param_val = theCgi.get_parameters( param_key )
@@ -85,7 +86,7 @@ def FormEditionParameters(form_action_no_mode, theCgi):
         yield('<input type="hidden" name="edimodtype" value="' + theCgi.m_entity_type + '">')
 
     for key in arg_keys:
-        DEBUG("FormEditionParameters key=%s",key)
+        logging.debug("FormEditionParameters key=%s",key)
         # These keys are processed differently.
         if key in theCgi.m_parameters:
             continue

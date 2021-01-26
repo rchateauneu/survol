@@ -7,6 +7,7 @@ Overview
 import os
 import re
 import sys
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -24,7 +25,7 @@ def Main():
     entity_ids_arr = lib_util.EntityIdToArray(entity_type, entity_id)
 
     mode_disp = lib_util.GuessDisplayMode()
-    DEBUG("entity_mime.py entity_type=%s mode_disp=%s", entity_type, mode_disp)
+    logging.debug("entity_mime.py entity_type=%s mode_disp=%s", entity_type, mode_disp)
 
     if not entity_type:
         lib_common.ErrorMessageHtml("entity_mime.py needs an object")

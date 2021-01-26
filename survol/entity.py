@@ -5,6 +5,7 @@ Overview
 """
 
 import sys
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -22,7 +23,7 @@ FunctionGetUser = CIM_Process.GetCurrentUser
 
 
 def _add_default_nodes(grph, root_node, entity_host):
-    DEBUG("entity.py _add_default_nodes entity_host=%s", entity_host)
+    logging.debug("entity.py _add_default_nodes entity_host=%s", entity_host)
     current_node_hostname = lib_common.gUriGen.HostnameUri(lib_util.currentHostname)
     grph.add((current_node_hostname,
               pc.property_information,
@@ -37,7 +38,7 @@ def _add_default_nodes(grph, root_node, entity_host):
 
 # TODO: Maybe the property should be property_script ??
 def _add_default_scripts(grph, root_node, entity_host):
-    DEBUG("entity.py _add_default_scripts entity_host=%s", entity_host)
+    logging.debug("entity.py _add_default_scripts entity_host=%s", entity_host)
     node_obj_types = lib_common.NodeUrl(lib_util.uriRoot + '/objtypes.py')
     grph.add((root_node, pc.property_rdf_data_nolist2, node_obj_types))
 
@@ -101,7 +102,7 @@ def Main():
                     parameters={lib_util.paramkeyShowAll: False})
     entity_id = cgiEnv.m_entity_id
     entity_host = cgiEnv.GetHost()
-    DEBUG("entity_host=%s", entity_host)
+    logging.debug("entity_host=%s", entity_host)
     flag_show_all = int(cgiEnv.get_parameters(lib_util.paramkeyShowAll))
 
     name_space, entity_type = cgiEnv.get_namespace_type()
@@ -109,7 +110,7 @@ def Main():
     grph = cgiEnv.GetGraph()
 
     root_node = lib_util.RootUri()
-    DEBUG("root_node=%s", root_node)
+    logging.debug("root_node=%s", root_node)
 
     entity_ids_arr = lib_util.EntityIdToArray(entity_type, entity_id)
 
@@ -121,11 +122,11 @@ def Main():
             try:
                 entity_module.AddInfo(grph, root_node, entity_ids_arr)
             except AttributeError as exc:
-                INFO("entity.py No AddInfo for %s %s: %s", entity_type, entity_id, str(exc))
+                logging.info("entity.py No AddInfo for %s %s: %s", entity_type, entity_id, str(exc))
             except Exception as exc:
-                INFO("entity.py Unexpected exception for %s %s: %s", entity_type, entity_id, str(exc))
+                logging.info("entity.py Unexpected exception for %s %s: %s", entity_type, entity_id, str(exc))
     else:
-        INFO("No lib_entities for %s %s", entity_type, entity_id)
+        logging.info("No lib_entities for %s %s", entity_type, entity_id)
 
     # When displaying in json mode, the scripts are shown with a contextual menu, not with D3 modes..
     if lib_util.GuessDisplayMode() not in ["json", "html"]:
@@ -138,13 +139,13 @@ def Main():
             try:
                 grph.add(tripl)
             except Exception as exc:
-                ERROR("callback_grph_add: tripl=%s exception=%s" % (str(tripl), str(exc)))
+                logging.error("callback_grph_add: tripl=%s exception=%s" % (str(tripl), str(exc)))
                 raise
 
         try:
             entity_dirmenu_only.DirToMenu(callback_grph_add, root_node, entity_type, entity_id, entity_host, flag_show_all)
         except Exception as exc:
-            ERROR("entity.py caught in ForToMenu:%s", exc)
+            logging.error("entity.py caught in ForToMenu:%s", exc)
 
         # This adds WBEM and WMI urls related to the current object.
         if entity_type != "":

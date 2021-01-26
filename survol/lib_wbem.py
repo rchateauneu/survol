@@ -2,6 +2,7 @@ import re
 import os
 import sys
 import socket
+import logging
 import pywbem # Might be pywbem or python3-pywbem.
 import lib_util
 import lib_kbase
@@ -76,7 +77,7 @@ def WbemGetClassKeys(wbem_name_space, wbem_class, cimom_srv):
         wbem_cnnct = WbemConnection(cimom_srv)
         return WbemGetClassKeysFromConnection(wbem_name_space, wbem_class, wbem_cnnct)
     except Exception as exc:
-        WARNING("WbemGetClassKeys %s %s %s: Caught:%s", cimom_srv, wbem_name_space, wbem_class, str(exc))
+        logging.warning("WbemGetClassKeys %s %s %s: Caught:%s", cimom_srv, wbem_name_space, wbem_class, str(exc))
         return None
 
 
@@ -106,7 +107,7 @@ def slp_wbem_services():
     #  "/drives/c/Program Files (x86)/OpenSLP/slptool.exe"
     cmd = 'slptool findsrvs service:' + filter
 
-    # TODO: DEBUGGING PURPOSE. FIX THIS.
+    # TODO: logging.debugGING PURPOSE. FIX THIS.
     cmd = '"C:/Program Files (x86)/OpenSLP/slptool.exe" findsrvs service:' + filter
 
     stream = os.popen(cmd)
@@ -138,7 +139,7 @@ def slp_wbem_services():
 def WbemServersList():
     lst_wbem_servers = []
     cred_names = lib_credentials.get_credentials_names("WBEM")
-    DEBUG("WbemServersList")
+    logging.debug("WbemServersList")
     for url_wbem in cred_names:
         # crdNam = "http://192.168.1.83:5988"
         parsed_url = lib_util.survol_urlparse(url_wbem)
@@ -174,7 +175,7 @@ def HostnameToWbemServer(hostname):
 
 def GetWbemUrls(entity_host, entity_namespace, entity_type, entity_id):
     """This returns a list of URLs. entity_type can be None."""
-    DEBUG("GetWbemUrls h=%s ns=%s t=%s i=%s",entity_host, entity_namespace, entity_type, entity_id)
+    logging.debug("GetWbemUrls h=%s ns=%s t=%s i=%s",entity_host, entity_namespace, entity_type, entity_id)
     wbem_urls_list = []
 
     # FIXME: entity_namespace might have a wrong separator, slash or backslash.
@@ -192,7 +193,7 @@ def GetWbemUrls(entity_host, entity_namespace, entity_type, entity_id):
                 #sys.stderr.write("GetWbemUrls different wbem_server=%s entity_host=%s\n"%(str(wbem_server[1].lower()),entity_host.lower()))
                 continue
 
-        DEBUG("GetWbemUrls found wbem_server=%s", str(wbem_server))
+        logging.debug("GetWbemUrls found wbem_server=%s", str(wbem_server))
         the_cimom = wbem_server[1]
 
         # TODO: When running from cgiserver.py, and if QUERY_STRING is finished by a dot ".", this dot
@@ -253,7 +254,7 @@ def WbemConnection(cgi_url):
     #if creden == ('', ''):
     #    raise Exception("WbemConnection: No credentials for %s" % cgi_url)
 
-    DEBUG("WbemConnection creden=%s", str(creden))
+    logging.debug("WbemConnection creden=%s", str(creden))
     # Beware: If username/password is wrong, it will only be detected at the first data access.
     conn = pywbem.WBEMConnection(cgi_url, creden)
     return conn
@@ -373,7 +374,7 @@ def GetCapabilitiesForInstrumentation(conn, nam_spac):
             # sys.stderr.write("GetCapabilitiesForInstrumentation len=%d caps=%s\n" % ( len(caps), str(caps) ) )
             break
         except Exception as exc:
-            ERROR("GetCapabilitiesForInstrumentation exc=%s", str(exc))
+            logging.error("GetCapabilitiesForInstrumentation exc=%s", str(exc))
             arg = exc.args
             # TODO Python 3
             if arg[0] != pywbem.CIM_ERR_INVALID_NAMESPACE:
@@ -446,21 +447,21 @@ def GetClassesTree(conn, the_nam_space):
     kwargs['IncludeQualifiers'] = False
     kwargs['IncludeClassOrigin'] = False
 
-    DEBUG("GetClassesTree theNamSpace=%s", the_nam_space)
+    logging.debug("GetClassesTree theNamSpace=%s", the_nam_space)
     klasses = conn.EnumerateClasses(namespace=the_nam_space, **kwargs)
-    DEBUG("GetClassesTree klasses %d elements", len(klasses))
+    logging.debug("GetClassesTree klasses %d elements", len(klasses))
 
     tree_classes = dict()
     for klass in klasses:
         # This does not work. WHY ?
         # tree_classes.get( klass.superclass, [] ).append( klass )
-        DEBUG("klass=%s super=%s", klass.classname, klass.superclass)
+        logging.debug("klass=%s super=%s", klass.classname, klass.superclass)
         try:
             tree_classes[klass.superclass].append(klass)
         except KeyError:
             tree_classes[klass.superclass] = [klass]
 
-    DEBUG("GetClassesTree tree_classes %d elements", len(tree_classes))
+    logging.debug("GetClassesTree tree_classes %d elements", len(tree_classes))
     return tree_classes
 
 ###################################################
@@ -491,7 +492,7 @@ def MakeInstrumentedRecu(in_tree_class, out_tree_class, topclass_nam, the_nam_sp
 def GetClassesTreeInstrumented(conn, the_nam_space):
     """This builds a dictionary indexes by class names, and the values are lists of classes objects,
     which are the subclasses of the key class. The root class name is None."""
-    DEBUG("GetClassesTreeInstrumented theNamSpace=%s", the_nam_space)
+    logging.debug("GetClassesTreeInstrumented theNamSpace=%s", the_nam_space)
 
     try:
         in_tree_class = GetClassesTree(conn, the_nam_space)
@@ -502,7 +503,7 @@ def GetClassesTreeInstrumented(conn, the_nam_space):
         MakeInstrumentedRecu(in_tree_class, out_tree_class, None, the_nam_space, instr_cla)
     except Exception as exc:
         lib_common.ErrorMessageHtml("Instrumented classes: ns=" + the_nam_space + " Caught:" + str(exc))
-    DEBUG("After MakeInstrumentedRecu out_tree_class = %d elements", len(out_tree_class))
+    logging.debug("After MakeInstrumentedRecu out_tree_class = %d elements", len(out_tree_class))
 
     # print("out_tree_class="+str(out_tree_class)+"<br>")
     return out_tree_class
@@ -512,7 +513,7 @@ def ValidClassWbem(class_name):
     """Tells if this class for our ontology is in a given WBEM server, whatever the namespace is."""
     tp_split = class_name.split("_")
     tp_prefix = tp_split[0]
-    DEBUG("lib_wbem.ValidClassWbem className=%s tp_prefix=%s", class_name, tp_prefix)
+    logging.debug("lib_wbem.ValidClassWbem className=%s tp_prefix=%s", class_name, tp_prefix)
     # "PG" is Open Pegasus: http://www.opengroup.org/subjectareas/management/openpegasus
     # "LMI" is OpenLmi: http://www.openlmi.org/
     return tp_prefix in ["CIM", "PG", "LMI"]
@@ -563,7 +564,7 @@ def ExtractRemoteWbemOntology(wbem_connection):
         for class_object in class_array:
             class_name = class_object.classname
 
-            DEBUG("class_name=%s", class_name)
+            logging.debug("class_name=%s", class_name)
             if super_class_name:
                 top_class_name = super_class_name
                 concat_class_name = super_class_name + "." + class_name
@@ -630,7 +631,7 @@ class WbemSparqlCallbackApi:
     # Note: The class CIM_DataFile with the property Name triggers the exception message:
     # "CIMError: 7: CIM_ERR_NOT_SUPPORTED: No provider or repository defined for class"
     def CallbackSelect(self, grph, class_name, predicate_prefix, filtered_where_key_values):
-        INFO("WbemSparqlCallbackApi.CallbackSelect class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
+        logging.info("WbemSparqlCallbackApi.CallbackSelect class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
         assert class_name
        
         # This comes from such a Sparql triple: " ?variable rdf:type rdf:type"
@@ -638,7 +639,7 @@ class WbemSparqlCallbackApi:
             return
        
         wbem_query = lib_util.SplitMonikToWQL(filtered_where_key_values, class_name)
-        DEBUG("WbemSparqlCallbackApi.CallbackSelect wbem_query=%s", wbem_query)
+        logging.debug("WbemSparqlCallbackApi.CallbackSelect wbem_query=%s", wbem_query)
 
         wbem_objects = self.m_wbem_connection.ExecQuery("WQL", wbem_query, "root/cimv2")
 
@@ -654,7 +655,7 @@ class WbemSparqlCallbackApi:
             object_path = one_wbem_object.path.to_wbem_uri()
             # u'//vps516494.ovh.net/root/cimv2:PG_UnixProcess.CSName="vps516494.localdomain",Handle="1",OSCreationClassName="CIM_OperatingSystem",CreationClassName="PG_UnixProcess",CSCreationClassName="CIM_UnitaryComputerSystem",OSName="Fedora"'
 
-            DEBUG("object.path=%s", object_path)
+            logging.debug("object.path=%s", object_path)
             dict_key_values = WbemKeyValues(one_wbem_object.iteritems())
 
             dict_key_values[lib_kbase.PredicateIsDefinedBy] = lib_util.NodeLiteral("WBEM")
@@ -664,7 +665,7 @@ class WbemSparqlCallbackApi:
         #     # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeProp(class_name)
 
-            DEBUG("dict_key_values=%s", dict_key_values)
+            logging.debug("dict_key_values=%s", dict_key_values)
             lib_util.PathAndKeyValuePairsToRdf(grph, object_path, dict_key_values)
             yield (object_path, dict_key_values)
 
@@ -675,7 +676,7 @@ class WbemSparqlCallbackApi:
             predicate_prefix,
             associator_key_name,
             subject_path):
-        INFO("WbemSparqlCallbackApi.CallbackAssociator subject_path=%s result_class_name=%s associator_key_name=%s",
+        logging.info("WbemSparqlCallbackApi.CallbackAssociator subject_path=%s result_class_name=%s associator_key_name=%s",
                 subject_path,
                 result_class_name,
                 associator_key_name)

@@ -7,6 +7,7 @@ Databases in a MySql instance
 import sys
 import re
 import socket
+import logging
 import lib_util
 import lib_common
 import lib_credentials
@@ -54,7 +55,7 @@ def Main():
     for db_info in cursor_mysql:
         #('information_schema',)
         #('primhilltcsrvdb1',)
-        DEBUG("db_info=%s", str(db_info))
+        logging.debug("db_info=%s", str(db_info))
         db_nam = db_info[0]
 
         node_mysql_database = survol_mysql_database.MakeUri(instance_name, db_nam)

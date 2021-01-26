@@ -5,6 +5,7 @@ ODBC Data sources (pyODBC module)
 """
 
 import sys
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -18,18 +19,20 @@ Usable = lib_util.UsableWindows
 
 # http://code.activestate.com/recipes/578815-printing-list-of-odbc-data-sources-with-pyodbc-mod/
 
+
 def display_data_sources(grph):
 	sources = pyodbc.dataSources()
 
 	for dsn in sources:
 		driver = sources[dsn]
 
-		DEBUG("dsn=%s driver=%s", dsn, driver )
+		logging.debug("dsn=%s driver=%s", dsn, driver )
 
 		# This creates a connection string.
 		nodeDsn = survol_odbc_dsn.MakeUri( "DSN=" + dsn )
 		grph.add( (lib_common.nodeMachine, pc.property_odbc_dsn, nodeDsn ) )
 		grph.add( (nodeDsn, pc.property_odbc_driver, lib_util.NodeLiteral(driver) ) )
+
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -38,6 +41,7 @@ def Main():
 	display_data_sources(grph)
 
 	cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
 	Main()

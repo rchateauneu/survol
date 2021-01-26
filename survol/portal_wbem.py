@@ -5,37 +5,39 @@ WBEM portal
 """
 
 import sys
+import logging
 import lib_common
 
 try:
-	import lib_wbem
+    import lib_wbem
 except ImportError:
-	lib_common.ErrorMessageHtml("WBEM not available")
+    lib_common.ErrorMessageHtml("WBEM not available")
 from lib_properties import pc
 
+
 def Main():
+    """This can process remote hosts because it does not call any script, just shows them."""
+    cgiEnv = lib_common.CgiEnv()
 
-	# This can process remote hosts because it does not call any script, just shows them.
-	cgiEnv = lib_common.CgiEnv()
+    grph = cgiEnv.GetGraph()
 
-	grph = cgiEnv.GetGraph()
+    name_space, entity_type = cgiEnv.get_namespace_type()
 
-	nameSpace, entity_type = cgiEnv.get_namespace_type()
+    entity_host = cgiEnv.GetHost()
+    host_id = cgiEnv.GetId()
+    logging.debug("entity_host=%s entity_type=%s hostname=%s", entity_host, entity_type, host_id)
 
-	entity_host = cgiEnv.GetHost()
-	hostId = cgiEnv.GetId()
-	DEBUG("entity_host=%s entity_type=%s hostname=%s",entity_host,entity_type,hostId)
+    wbem_urls_list = lib_wbem.GetWbemUrlsTyped(entity_host, name_space, entity_type, host_id)
 
-	wbem_urls_list = lib_wbem.GetWbemUrlsTyped( entity_host, nameSpace, entity_type, hostId )
+    # Maybe some of these servers are not able to display anything about this object.
+    for url_wbem, wbem_host in wbem_urls_list:
+        logging.debug("url_wbem=%s wbem_host=%s", url_wbem, wbem_host)
+        wbem_node = lib_common.NodeUrl(url_wbem)
+        host_node = lib_common.gUriGen.HostnameUri(wbem_host)
+        grph.add((host_node, pc.property_information, wbem_node))
 
-	# Maybe some of these servers are not able to display anything about this object.
-	for ( url_wbem, wbemHost ) in wbem_urls_list:
-		DEBUG("url_wbem=%s wbemHost=%s",url_wbem,wbemHost)
-		wbemNode = lib_common.NodeUrl(url_wbem)
-		hostNode = lib_common.gUriGen.HostnameUri( wbemHost )
-		grph.add( ( hostNode, pc.property_information, wbemNode ) )
+    cgiEnv.OutCgiRdf()
 
-	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
-	Main()
+    Main()

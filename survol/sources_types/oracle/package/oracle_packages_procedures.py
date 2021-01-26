@@ -5,6 +5,7 @@ Oracle procedures in a package
 """
 
 import sys
+import logging
 import lib_common
 from lib_properties import pc
 import lib_oracle
@@ -29,7 +30,7 @@ def Main():
 	# TODO: But when joining with ALL_OBJECTS, most rows are gone. So what to do ?
 	sql_query = "select distinct procedure_name from all_procedures where object_type='PACKAGE' " \
 				"and owner='" + oraSchema + "' and object_name='" + oraPackage + "'"
-	DEBUG("sql_query=%s", sql_query )
+	logging.debug("sql_query=%s", sql_query )
 	result = lib_oracle.ExecuteQuery( cgiEnv.ConnectStr(), sql_query)
 
 	propProcToPackage = lib_common.MakeProp("Package")

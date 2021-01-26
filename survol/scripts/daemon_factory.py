@@ -25,6 +25,8 @@ import time
 import datetime
 import tempfile
 import configparser
+import logging
+import traceback
 
 # xmlrpc is used to manage the supervisor: Creation of new programs, start/stop etc...
 # A new supervisor program and daemon is created for each URL.
@@ -52,11 +54,11 @@ def _must_start_factory():
     This dedicated subprocess is completely controlled, and it is started and stopped at will.
     """
     if not supervisor:
-        sys.stderr.write("Could not import supervisor\n")
+        logging.error("Could not import supervisor")
         return False
 
     # This is for performance reasons.
-    # PYTEST_CURRENT_TEST= tests/test_lib_daemon.py::CgiScriptTest::test_start_events_generator_daemon
+    # PYTEST_CURRENT_TEST= tests/test_lib_daemon.py::CgiScriptTest::test_start_events_feeder_daemon
     return "PYTEST_CURRENT_TEST" not in os.environ or "START_DAEMON_FACTORY" in os.environ
 
 
@@ -99,7 +101,7 @@ def _log_supervisor_access(function_name, step_name, **kwargs):
             db_log_file.close()
             break
         except Exception as exc:
-            sys.stderr.write("Could not open survol supervisor log: %s. Retry\n" % exc)
+            logging.error("Could not open survol supervisor log: %s. Retry" % exc)
             time.sleep(1)
 
 
@@ -114,15 +116,15 @@ def _get_parsed_configuration():
     parsed_config = configparser.ConfigParser()
     if not os.path.exists(_supervisor_config_file):
         raise Exception("Cannot find supervisor config file:" + _supervisor_config_file)
-    sys.stderr.write("_get_supervisor_url config_file=%s\n" % _supervisor_config_file)
+    logging.info("config_file=%s" % _supervisor_config_file)
     if _is_py3:
         config_status = parsed_config.read(_supervisor_config_file)
     else:
         config_status = parsed_config.read(_supervisor_config_file.decode())
     if not config_status:
         raise Exception("config_status should be True")
-    sys.stderr.write("config_status=%s\n" % config_status)
-    sys.stderr.write("Sections=%s\n" % parsed_config.sections())
+    logging.info("config_status=%s" % config_status)
+    logging.info("Sections=\n" % parsed_config.sections())
     return parsed_config
 
 
@@ -188,22 +190,22 @@ _supervisor_process = None
 def _local_supervisor_start():
     """This starts a local supervisor process."""
     global _supervisor_process
-    sys.stderr.write("_local_supervisor_start begin\n")
+    logging.info("begin")
 
     # Maybe it is already started.
     if not _supervisor_process is None:
         # TODO: Should check that it is still there.
-        sys.stderr.write("_local_supervisor_start leaving _supervisor_process.pid=%d\n" % _supervisor_process.pid)
+        logging.info("leaving _supervisor_process.pid=%d" % _supervisor_process.pid)
         is_running = psutil.pid_exists(_supervisor_process.pid)
         if is_running:
-            sys.stderr.write("_local_supervisor_start running fine\n")
+            logging.info("running fine")
         else:
-            sys.stderr.write("_local_supervisor_start SHOULD BE RUNNING\n")
+            logging.warning("SHOULD BE RUNNING")
             process_stdout, process_stderr = _supervisor_process.communicate()
         return
 
     supervisor_command = [sys.executable, "-m", "supervisor.supervisord", "-c", _supervisor_config_file]
-    sys.stderr.write("_local_supervisor_start supervisor_command=%s\n" % str(supervisor_command))
+    logging.info("supervisor_command=%s" % str(supervisor_command))
 
     if "TRAVIS" in os.environ:
         # Travis does not give access to locally generated files.
@@ -229,7 +231,7 @@ def _local_supervisor_start():
         stderr=supervisor_stderr,
         shell=False)
 
-    sys.stderr.write("_local_supervisor_start proc_popen.pid=%d\n" % _supervisor_process.pid)
+    logging.info("proc_popen.pid=%d" % _supervisor_process.pid)
 
 
 def _local_supervisor_stop():
@@ -240,26 +242,25 @@ def _local_supervisor_stop():
     _log_supervisor_access("_local_supervisor_stop", "entry")
 
     if _supervisor_process is None:
-        sys.stderr.write("_local_supervisor_stop already stopped\n")
+        logging.info("Already stopped")
         return
 
-    sys.stderr.write("_local_supervisor_stop _supervisor_process.pid=%d\n" % _supervisor_process.pid)
+    logging.info("_supervisor_process.pid=%d" % _supervisor_process.pid)
 
     is_running = psutil.pid_exists(_supervisor_process.pid)
     if is_running:
-        sys.stderr.write("_local_supervisor_stop running fine\n")
+        logging.info("Running fine")
     else:
-        sys.stderr.write("_local_supervisor_stop SHOULD BE RUNNING\n")
+        logging.error("SHOULD BE RUNNING")
 
     _supervisor_process.kill()
     _supervisor_process.communicate()
     try:
-        sys.stderr.write("_local_supervisor_stop being terminated\n")
+        logging.info("being terminated")
         _supervisor_process.terminate()
-        sys.stderr.write("_local_supervisor_stop terminated\n")
+        logging.info("terminated")
     except Exception as exc:
-        sys.stderr.write("_local_supervisor_stop terminating _supervisor_process.pid=%d: %s\n"
-            % (_supervisor_process.pid, str(exc)))
+        logging.error("_supervisor_process.pid=%d: %s" % (_supervisor_process.pid, str(exc)))
 
     if _supervisor_process is not None:
         del _supervisor_process
@@ -282,21 +283,21 @@ def supervisor_startup():
     # - The Python package supervisor is not available.
     if not _must_start_factory():
         error_message = "supervisor_startup: Do not start. "
-        sys.stderr.write(error_message + "\n")
+        logging.info(error_message)
         return None
 
     # Maybe this is a supervisor service, or a local process.
 
     # TODO: The process should not be started if a service is already runing supervisor
-    sys.stderr.write("supervisor_startup about to start _supervisor_process\n")
+    logging.info("about to start _supervisor_process")
     _local_supervisor_start()
 
-    sys.stderr.write("supervisor_startup _supervisor_process.pid=%d\n" % _supervisor_process.pid)
+    logging.info("supervisor_startup _supervisor_process.pid=%d" % _supervisor_process.pid)
     # Extra test to be sure that supervisor is running.
     if not psutil.pid_exists(_supervisor_process.pid):
-        error_message = "supervisor_startup not running _supervisor_process.pid=%d\n" % _supervisor_process.pid
-        sys.stderr.write(error_message + "\n")
-        raise Exception("supervisor_startup did not start _supervisor_process.pid=%d\n" % _supervisor_process.pid)
+        error_message = "supervisor_startup not running _supervisor_process.pid=%d" % _supervisor_process.pid
+        logging.error(error_message)
+        raise Exception("supervisor_startup did not start _supervisor_process.pid=%d" % _supervisor_process.pid)
 
     _log_supervisor_access("supervisor_startup", "entry", pid=_supervisor_process.pid)
     return _supervisor_process.pid
@@ -306,7 +307,7 @@ def supervisor_stop():
     global _supervisor_process
 
     _log_supervisor_access("supervisor_stop", "entry")
-    sys.stderr.write("supervisor_stop\n")
+    logging.info("supervisor_stop")
 
     # TODO: In the general case, detect a global supervisor started by somethign else.
     _local_supervisor_stop()
@@ -319,29 +320,28 @@ def is_supervisor_running():
     This tells if the supervisor process is running or not.
     """
     _log_supervisor_access("is_supervisor_running", "entry")
-    message_prefix = "is_supervisor_running pid=%d " % os.getpid()
-    sys.stderr.write(message_prefix + " _supervisor_process.pid=%d\n" % _supervisor_process.pid)
+    logging.info(" _supervisor_process.pid=%d" % _supervisor_process.pid)
 
     xmlrpc_server_proxy = None
     try:
         xmlrpc_server_proxy = _create_server_proxy()
         api_version = xmlrpc_server_proxy.supervisor.getAPIVersion()
-        sys.stderr.write(message_prefix + "api_version=%s\n" % api_version)
+        logging.info("api_version=%s" % api_version)
     except Exception as exc:
-        sys.stderr.write(message_prefix + "exc=%s\n" % exc)
+        logging.error("exc=%s" % exc)
         api_version = None
     finally:
         del xmlrpc_server_proxy
 
     if _supervisor_process is None:
-        sys.stderr.write(message_prefix + "SUPERVISOR NOT CREATED\n")
+        logging.error("SUPERVISOR NOT CREATED")
     else:
         if psutil.pid_exists(_supervisor_process.pid):
-            sys.stderr.write(message_prefix + "OK _supervisor_process.pid=%d\n" % _supervisor_process.pid)
+            logging.info("OK _supervisor_process.pid=%d" % _supervisor_process.pid)
         else:
-            sys.stderr.write(message_prefix + "NOT HERE _supervisor_process.pid=%d\n" % _supervisor_process.pid)
+            logging.error("NOT HERE _supervisor_process.pid=%d" % _supervisor_process.pid)
 
-    sys.stderr.write(message_prefix + " api_version=%s\n" % api_version)
+    logging.info("api_version=%s" % api_version)
     _log_supervisor_access("is_supervisor_running", "exit", api_version=api_version)
     return api_version
 
@@ -356,12 +356,12 @@ def _display_configuration_file(configuration_file_name):
     try:
         with open(configuration_file_name) as config_file:
             config_content = "".join(config_file.readlines())
-        sys.stderr.write("_display_configuration_file: _survol_group_name=%s\n" % _survol_group_name)
-        sys.stderr.write("_display_configuration_file: Configuration start ================================\n")
-        sys.stderr.write("%s\n" % config_content)
-        sys.stderr.write("_display_configuration_file: Configuration end   ================================\n")
+        logging.info("_display_configuration_file: _survol_group_name=%s" % _survol_group_name)
+        logging.info("_display_configuration_file: Configuration start ================================")
+        logging.info("%s\n" % config_content)
+        logging.info("_display_configuration_file: Configuration end   ================================")
     except Exception as exc:
-        sys.stderr.write("_display_configuration_file: Cannot read configuration exc=%s\n" % str(exc))
+        logging.error("_display_configuration_file: Cannot read configuration exc=%s" % str(exc))
 
 
 def _add_and_start_program_to_group(process_name, user_command, environment_parameter):
@@ -380,22 +380,44 @@ def _add_and_start_program_to_group(process_name, user_command, environment_para
             process_name,
             program_options)
     except xmlrpclib.ProtocolError as exc:
-        sys.stderr.write("Caught ProtocolError\n")
+        # exc=<ProtocolError for survol_user:password@local
+        # host:9001/RPC2: 500 Internal Server Error>
+        # A possible problem is that a log file is too long, at least on Windows 7.
+        # The log file name created by supervisor is given in the configation file supervisor.conf.
+        # This file might contain a message similar to:
+        #
+        # OSError: [Errno 2] No such file or directory: 'c:\\users\\rchateau\\appdata\\local\\temp\\_2fsurvol
+        # _2fsources_5ftypes_2fCIM_5fDirectory_2fevents_5fgenerator_5fwindows_5fdirectory_5fchanges_2epy_3fxi
+        # d_3dCIM_5fDirectory_2eName_3dC_3a_2fUsers_2frchateau_2fAppData_2fLocal_2fTemp-stdout---survol_super
+        # visor-vj060s.log'
+        #
+        # A remedy is to shorten this path with shorter script names etc...
+        # See function _url_to_process_name
+        logging.error("Caught ProtocolError: exc=%s" % exc)
+        logging.error("Exception stack=%s" % traceback.format_exc())
+        logging.error("dir(exc)=%s" % dir(exc))
+        logging.error("exc.args=%s" % str(exc.args))
+        logging.error("exc.errcode=%s" % exc.errcode)
+        logging.error("exc.errmsg=%s" % exc.errmsg)
+        logging.error("exc.headers=%s" % exc.headers)
+        logging.error("exc.message=%s" % exc.message)
+        logging.error("exc.url=%s" % exc.url)
+
         _display_configuration_file("survol/scripts/supervisord.conf")
         raise
     except Exception as exc:
         # Possible exceptions:
         #
-        # Fault: <Fault 10: 'BAD_NAME: http___any_machine_any_directory__survol_sources_types_events_generator_one_tick_per_second_py_parama_123_paramb_START'>
+        # Fault: <Fault 10: 'BAD_NAME: http___any_machine_any_directory__survol_sources_types_events_feeder_one_tick_per_second_py_parama_123_paramb_START'>
         #
         # <Fault 2: "INCORRECT_PARAMETERS: No closing quotation in section
         # 'program:ama_123_paramb_START' (file: 'survol/scripts/supervisord.conf')">
         #
 
         if hasattr(exc, "faultCode") and exc.faultCode == SupervisorFaults.BAD_NAME:
-            sys.stderr.write("POSSIBLY DOUBLE DEFINITION:%s\n" % exc)
+            logging.warning("POSSIBLY DOUBLE DEFINITION:%s" % exc)
         else:
-            sys.stderr.write("_add_and_start_program_to_group caught:%s\n" % exc)
+            logging.error("_add_and_start_program_to_group caught:%s" % exc)
             _display_configuration_file("survol/scripts/supervisord.conf")
             raise
     finally:
@@ -415,14 +437,10 @@ def _display_process_files(process_info):
             process_info['logfile'], process_info['stdout_logfile']))
 
 
-def start_user_process(process_name, user_command, environment_parameter="", debug_stream=None):
+def start_user_process(process_name, user_command, environment_parameter=""):
     """This returns the newly created process id."""
     _log_supervisor_access("start_user_process", "entry", proc_name=process_name, command=user_command)
-    sys.stderr.write("start_user_process: python_command=%s\n" % user_command)
-    #sys.stderr.write("start_user_process: _xmlrpc_error=%s\n" % _xmlrpc_error)
-    #if _xmlrpc_server_proxy is None:
-    #    sys.stderr.write("start_user_process: Server proxy not set: " + _xmlrpc_error)
-    #    return None
+    logging.info("start_user_process: python_command=%s" % user_command)
 
     full_process_name = _survol_group_name + ":" + process_name
 
@@ -441,20 +459,33 @@ def start_user_process(process_name, user_command, environment_parameter="", deb
         xmlrpc_server_proxy = _create_server_proxy()
         process_info = xmlrpc_server_proxy.supervisor.getProcessInfo(full_process_name)
     except Exception as exc:
+        logging.warning("start_user_process: getProcessInfo raised exc=%s" % exc)
         process_info = None
 
     if process_info is None:
-        # Maybe this program is not defined in the config file,
-        # so let's define it automatically.
+        # Maybe this program is not defined in the config file, so let's define it automatically.
         _add_and_start_program_to_group(process_name, user_command, environment_parameter)
         process_info = xmlrpc_server_proxy.supervisor.getProcessInfo(full_process_name)
         if process_info is None:
+            logging.error("full_process_name=%s" % full_process_name)
             raise Exception("Cannot get process_info after adding program:%" % full_process_name)
         created_process_id = process_info['pid']
         _log_supervisor_access("start_user_process", "created", created_pid=created_process_id)
         if not psutil.pid_exists(created_process_id):
-            raise Exception("start_user_process: New process not successfully started. process_info=%s\n"
-                            % str(process_info))
+            logging.error("start_user_process: Process not started process_info=%s" % process_info)
+            try:
+                with open(process_info['stdout_logfile']) as stdout_logfile:
+                    stdout_content = "\n".join(stdout_logfile.readlines())
+                    logging.error("start_user_process: stdout_content=%s" % stdout_content)
+            except:
+                logging.error("start_user_process: Cannot open stdout_logfile")
+            try:
+                with open(process_info['stderr_logfile']) as stderr_logfile:
+                    stderr_content = "\n".join(stderr_logfile.readlines())
+                    logging.error("start_user_process: stderr_content=%s" % stderr_content)
+            except:
+                logging.error("start_user_process: Cannot open stdout_logfile")
+            raise Exception("start_user_process: Could not start process. process_info=%s\n" % str(process_info))
     else:
         created_process_id = process_info['pid']
         _log_supervisor_access("start_user_process", "exists", created_pid=created_process_id)
@@ -466,11 +497,11 @@ def start_user_process(process_name, user_command, environment_parameter="", deb
             try:
                 start_result = xmlrpc_server_proxy.supervisor.startProcess(full_process_name)
             except Exception as exc:
-                sys.stderr.write("start_user_process: StartProcess raised:%s\n" % str(exc))
+                logging.error("startProcess raised:%s" % str(exc))
                 raise
             
             if start_result:
-                sys.stderr.write("start_user_process: StartProcess OK\n")
+                logging.info("start_user_process: OK")
             else:
                 raise Exception("Error restarting %s" % full_process_name)
             process_info = xmlrpc_server_proxy.supervisor.getProcessInfo(full_process_name)
@@ -504,7 +535,8 @@ def _get_user_process_info(process_name):
         # xmlrpc.client.Fault: <Fault 10: 'BAD_NAME: survol_group:non_existent_url.py?arg=11132'>
         _log_supervisor_access("_get_user_process_info", "exit", exception=str(exc))
         if "BAD_NAME" in str(exc):
-            sys.stderr.write(message_prefix + "BAD NAME:%s. Exc=%s\n" % (full_process_name, exc))
+            # This simply means that the process is not added, so it is not an error in this context.
+            logging.error("BAD NAME:%s. Exc=%s" % (full_process_name, exc))
             return None
         # Otherwise it is an unexpected exception.
         raise
@@ -523,7 +555,7 @@ def is_user_process_running(process_name):
     _log_supervisor_access("is_user_process_running", "entry", proc_name=process_name)
     process_info = _get_user_process_info(process_name)
     if process_info is None:
-        sys.stderr.write("is_user_process_running: No proxy")
+        logging.error("is_user_process_running: No proxy")
         return False
     is_stopped = process_info['statename'] != 'STOPPED'
 
@@ -577,8 +609,11 @@ def stop_user_process(process_name):
 
 
 def get_all_user_processes():
+    """This returns a list of structs containing the same elements as the struct returned by getProcessInfo"""
+
     xmlrpc_server_proxy = _create_server_proxy()
-    # This returns a list of structs containing the same elements as the struct returned by getProcessInfo:
+
+    # Layout:
     # {'name':           'process name',
     #  'group':          'group name',
     #  'description':    'pid 18806, uptime 0:03:12'

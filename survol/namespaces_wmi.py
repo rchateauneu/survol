@@ -5,6 +5,7 @@ WMI namespaces.
 """
 
 import sys
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -54,12 +55,12 @@ def _sub_namespace(root_node, grph, nskey, cimom_url, ns_depth=1):
         if not conn_wmi:
             return
     except wmi.x_wmi as exc:
-        WARNING("WMI: Cannot connect to nskey=%s Caught:%s", nskey, str(exc))
+        logging.warning("WMI: Cannot connect to nskey=%s Caught:%s", nskey, str(exc))
         return
 
     # If the maximum level is not controlled, it loops endlessly.
     # _sub_namespace cimomUrl=rchateau-HP nskey=aspnet\Security\Security\Security\Security\Security\Security\Security\Security\Security\Secu
-    DEBUG("_sub_namespace cimomUrl=%s nskey=%s", cimom_url, nskey)
+    logging.debug("_sub_namespace cimomUrl=%s nskey=%s", cimom_url, nskey)
 
     wmi_url = lib_wmi.NamespaceUrl("root\\" + nskey, cimom_url)
     wmi_node = lib_common.NodeUrl( wmi_url)
@@ -68,7 +69,7 @@ def _sub_namespace(root_node, grph, nskey, cimom_url, ns_depth=1):
 
     try:
         lst_namespaces = conn_wmi.__NAMESPACE()
-        DEBUG("lst_namespaces=%s", lst_namespaces)
+        logging.debug("lst_namespaces=%s", lst_namespaces)
         # lst_namespaces=[<_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:__NAMESPACE.Name="Security">, <_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:__NAMESPA
         # CE.Name="power">, <_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:__NAMESPACE.Name="ms_409">, <_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:__NAMESP
         # ACE.Name="TerminalServices">, <_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:__NAMESPACE.Name="Applications">]
@@ -84,12 +85,12 @@ def Main():
 
     entity_host = cgiEnv.GetHost()
 
-    DEBUG("entity_host=%s", entity_host)
+    logging.debug("entity_host=%s", entity_host)
     entity_host = lib_wmi.NormalHostName(entity_host)
 
     cimom_url = entity_host
 
-    DEBUG("namespaces_wmi.py cimom_url=%s", cimom_url)
+    logging.debug("namespaces_wmi.py cimom_url=%s", cimom_url)
 
     grph = cgiEnv.GetGraph()
 

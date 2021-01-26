@@ -6,6 +6,7 @@ WBEM class portal: Display all instances of a given WBEM class
 
 import sys
 import cgi
+import logging
 import urllib
 import lib_util
 import lib_common
@@ -142,7 +143,7 @@ def Main():
 	grph = cgiEnv.GetGraph()
 
 	name_space, class_name = cgiEnv.get_namespace_type()
-	DEBUG("name_space=%s class_name=%s", name_space, class_name)
+	logging.debug("name_space=%s class_name=%s", name_space, class_name)
 
 	entity_host = cgiEnv.GetHost()
 
@@ -193,7 +194,7 @@ def Main():
 		_display_plain_class(grph, inst_names, root_node, name_space, entity_host, class_name, max_instances, start_index)
 
 	num_instances = len(inst_names)
-	DEBUG("num_instances=%d start_index=%d",num_instances,start_index)
+	logging.debug("num_instances=%d start_index=%d",num_instances,start_index)
 
 	# This displays one link on the same page, with specific values of these parameters.
 	# The other parameters are not changed.

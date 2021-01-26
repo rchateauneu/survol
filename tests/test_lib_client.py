@@ -5,6 +5,7 @@ from __future__ import print_function
 import cgitb
 import unittest
 import subprocess
+import logging
 import sys
 import os
 import re
@@ -607,7 +608,7 @@ class SurvolLocalTest(unittest.TestCase):
         lst_instances = triple_python_package.get_instances()
         str_instances_set = set([str(oneInst) for oneInst in lst_instances ])
 
-        DEBUG("str_instances_set=%s", str_instances_set)
+        logging.debug("str_instances_set=%s", str_instances_set)
 
         # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
         for one_str in [
@@ -616,7 +617,7 @@ class SurvolLocalTest(unittest.TestCase):
             'python/package.Id=pyparsing',
             'python/package.Id=rdflib',
             CurrentUserPath ]:
-            DEBUG("one_str=%s", one_str)
+            logging.debug("one_str=%s", one_str)
             self.assertTrue(one_str in str_instances_set)
 
     def test_python_current_script(self):
@@ -649,7 +650,7 @@ class SurvolLocalTest(unittest.TestCase):
 
         lst_instances = triple_py_script.get_instances()
         str_instances_set = set([str(one_inst) for one_inst in lst_instances])
-        DEBUG("str_instances_set=%s", str(str_instances_set))
+        logging.debug("str_instances_set=%s", str(str_instances_set))
 
         sql_path_name_absolute = os.path.abspath(sql_path_name)
         sql_path_name_clean = lib_util.standardized_file_path(sql_path_name_absolute)
@@ -1462,6 +1463,11 @@ except ImportError as exc:
     pyodbc = None
     print("Detected ImportError:", exc)
 
+# FIXME: Because there is no database (Temporary).
+if CurrentMachine.lower() == "laptop-r89kg6v1":
+    logging.warning("Disabling odbc tests")
+    pyodbc = None
+
 
 class SurvolPyODBCTest(unittest.TestCase):
 
@@ -1756,17 +1762,19 @@ class SurvolSocketsTest(unittest.TestCase):
         set_ip_addresses = set()
         smbshr_disk = set()
         for one_inst in str_instances_set:
-            ( the_class,dummy_dot, the_entity_id) = one_inst.partition(".")
+            the_class, dummy_dot, the_entity_id = one_inst.partition(".")
             if the_class == "CIM_ComputerSystem":
                 pred_name, dummy_equal, ip_address = the_entity_id.partition("=")
-                set_ip_addresses.add(ip_address)
+                set_ip_addresses.add(ip_address.upper())
             elif the_class == "smbshr":
                 pred_name, dummy_equal, disk_name = the_entity_id.partition("=")
                 smbshr_disk.add(disk_name)
 
-        # Check that all machines hosting a disk have their
+        logging.debug("set_ip_addresses=%s", set_ip_addresses)
+        logging.debug("smbshr_disk=%s", smbshr_disk)
         for disk_name in smbshr_disk:
             # For example, "//192.168.0.15/public"
+
             host_name = disk_name.split("/")[2]
             self.assertTrue(host_name in set_ip_addresses)
 
@@ -2208,7 +2216,7 @@ class SurvolOracleTest(unittest.TestCase):
         for one_str in [
             CurrentProcessPath,
             'oracle/db.Db=%s' % self._oracle_db,
-            'Win32_UserAccount.Name=%s,Domain=%s' % ( CurrentUsername, CurrentMachine),
+            'Win32_UserAccount.Name=%s,Domain=%s' % (CurrentUsername, CurrentMachine),
         ]:
             self.assertTrue(one_str in str_instances_set)
 
@@ -2670,7 +2678,7 @@ class SurvolInternalTest(unittest.TestCase):
                 "vps516494.localdomain": SurvolServerAgent}[CurrentMachine]
             self.check_internal_values(RemoteTestApacheAgent)
         except KeyError:
-            print("test_internal_apache cannot be run on machine:",CurrentMachine)
+            print("test_internal_apache cannot be run on machine:", CurrentMachine)
             return True
         # TODO: Check this.
 

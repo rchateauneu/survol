@@ -6,6 +6,7 @@ Configurations detected in the private credentials file.
 """
 
 import sys
+import logging
 import lib_common
 import lib_util
 import lib_credentials
@@ -29,7 +30,7 @@ def Main():
 			# Nothing else but a host and a port. The host is case insensitive: RFC4343.
 			configNam = configNam.lower()
 
-			DEBUG("configNam=%s",configNam)
+			logging.debug("configNam=%s",configNam)
 			nodeManager = survol_rabbitmq_manager.MakeUri(configNam)
 
 			hostSplit = configNam.split(":")

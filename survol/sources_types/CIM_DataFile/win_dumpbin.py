@@ -7,12 +7,15 @@ Dumpbin DLL symbols
 import os
 import re
 import sys
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
 
+
 # This script works only on a Windows executable or DLL etc...
 Usable = lib_util.UsableWindowsBinary
+
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -29,7 +32,7 @@ def Main():
 	# For example: dll_file = "C:/Program Files (x86)/IBM/WebSphere MQ/bin/amqmdnet.dll"
 	dumpbin_cmd = [ dumpbin_exe, dll_file, "/exports" ]
 
-	DEBUG("dumpbin_cmd=%s",str(dumpbin_cmd))
+	logging.debug("dumpbin_cmd=%s",str(dumpbin_cmd))
 
 	try:
 		dumpbin_pipe = lib_common.SubProcPOpen(dumpbin_cmd)
@@ -38,19 +41,19 @@ def Main():
 		lib_common.ErrorMessageHtml("Windows error executing:"+" ".join(dumpbin_cmd)+":"+str(exc))
 		# TODO: "Access is denied". Why ???
 
-	( dumpbin_out, dumpbin_err ) = dumpbin_pipe.communicate()
+	dumpbin_out, dumpbin_err = dumpbin_pipe.communicate()
 
 	err_asstr = dumpbin_err.decode("utf-8")
 	err_lines = err_asstr.split('\n')
 
-	DEBUG("err_asstr=%s",str(err_asstr))
+	logging.debug("err_asstr=%s",str(err_asstr))
 	# lib_common.ErrorMessageHtml("Err="+str(err_lines))
 
 	# Converts to string for Python3.
 	out_asstr = dumpbin_out.decode("utf-8")
 	out_lines = out_asstr.split('\n')
 
-	DEBUG("out_asstr=%s",str(out_asstr))
+	logging.debug("out_asstr=%s",str(out_asstr))
 
 	grph = cgiEnv.GetGraph()
 
@@ -114,6 +117,7 @@ def Main():
 			# print( "OK :" + matchObj.group(1) )
 
 	cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_symbol_defined])
+
 
 if __name__ == '__main__':
 	Main()

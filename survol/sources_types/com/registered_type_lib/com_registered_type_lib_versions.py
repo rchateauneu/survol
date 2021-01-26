@@ -6,6 +6,7 @@ Versions of registered COM type libraries
 
 import os
 import sys
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -30,7 +31,7 @@ def Main():
     ###################  See Win32_ComClass !!!!
 
     for version_str, name in versions.items():
-        DEBUG("Vers=%s Name=%s", version_str,name)
+        logging.debug("Vers=%s Name=%s", version_str,name)
 
         # TODO: The top of the tree does not make sense.
 
@@ -81,10 +82,6 @@ def Main():
                                     fname = win32api.ExpandEnvironmentStrings(fname)
                             except win32api.error:
                                 fname = ""
-
-                            # Ligne 189
-                            # collected.append((lcid, platform, fname))
-                            # ret.append(HLITypeLib(fname, "Type Library" + extraDesc))
 
                             fname_mystery_node = lib_common.gUriGen.ComTypeLibUri(fname)
                             lcid_node = lib_util.NodeLiteral("lcid=%d" % lcid)

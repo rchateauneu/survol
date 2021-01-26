@@ -5,6 +5,7 @@ RabbitMQ virtual hosts
 """
 
 import sys
+import logging
 import lib_util
 import lib_common
 import lib_credentials
@@ -57,7 +58,7 @@ def Main():
 
 	for objVHost in listVHosts:
 		namVHost = objVHost["name"]
-		DEBUG("q=%s",namVHost)
+		logging.debug("q=%s",namVHost)
 
 		nodeVHost = survol_rabbitmq_vhost.MakeUri(configNam,namVHost)
 

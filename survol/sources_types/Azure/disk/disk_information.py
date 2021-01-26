@@ -6,6 +6,7 @@ Information about an Azure disk
 
 import sys
 import socket
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -42,7 +43,7 @@ def Main():
 
 	dsk = sms.get_disk(diskName)
 
-	DEBUG("dsk=%s", str(dir(dsk)))
+	logging.debug("dsk=%s", str(dir(dsk)))
 
 	diskNode = disk.MakeUri( diskName, subscriptionName )
 	grph.add( ( subscriptionNode, lib_common.MakeProp("Service"), diskNode ) )

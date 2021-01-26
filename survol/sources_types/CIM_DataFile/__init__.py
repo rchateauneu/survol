@@ -5,6 +5,7 @@ Standard data file.
 import os
 import sys
 import datetime
+import logging
 import lib_common
 import lib_util
 import lib_uris
@@ -32,7 +33,7 @@ def AddMagic(grph, file_node, file_name):
     try:
         import magic
     except ImportError:
-        DEBUG("File magic unavailable:%s", file_name)
+        logging.debug("File magic unavailable:%s", file_name)
         return
 
     try:
@@ -42,7 +43,7 @@ def AddMagic(grph, file_node, file_name):
         ms.close()
         grph.add((file_node, pc.property_information, lib_util.NodeLiteral(mtype)))
     except TypeError:
-        DEBUG("Type error:%s", file_name)
+        logging.debug("Type error:%s", file_name)
         return
 
 
@@ -219,7 +220,7 @@ def AffFileOwner(grph, file_node, file_name):
         owner_sid = sd.GetSecurityDescriptorOwner ()
         account_name, domain_name, typeCode = win32security.LookupAccountSid(None, owner_sid)
         typ_nam = SID_CodeToName(typeCode)
-        DEBUG("Domain=%s Name=%s Type=%s", domain_name, account_name, typ_nam)
+        logging.debug("Domain=%s Name=%s Type=%s", domain_name, account_name, typ_nam)
 
         if typeCode == win32security.SidTypeUser:
             account_node = Win32_UserAccount.MakeUri(account_name, domain_name)
@@ -271,7 +272,7 @@ def AffFileOwner(grph, file_node, file_name):
         elif lib_util.isPlatformLinux:
             add_file_owner_linux()
         else:
-            WARNING("unknown OS")
+            logging.warning("unknown OS")
             pass
     except:
         raise
@@ -303,7 +304,7 @@ def DisplayAsMime(grph,node, entity_ids_arr):
 
     mime_stuff = lib_mime.FilenameToMime(file_name)
 
-    DEBUG("DisplayAsMime fileName=%s MIME:%s", file_name, str(mime_stuff))
+    logging.debug("DisplayAsMime fileName=%s MIME:%s", file_name, str(mime_stuff))
 
     mime_type = mime_stuff[0]
 

@@ -9,6 +9,7 @@ Discovers master browsers and their managed domains.
 import re
 import sys
 import socket
+import logging
 import xml.dom.minidom
 import lib_util
 import lib_common
@@ -21,10 +22,9 @@ from lib_properties import pc
 # | broadcast-netbios-master-browser:
 # | ip            server           domain
 # |_192.168.0.15  WDMYCLOUDMIRROR  WORKGROUP
-# WARNING: No targets were specified, so 0 hosts scanned.
+# logging.warning: No targets were specified, so 0 hosts scanned.
 # Nmap done: 0 IP addresses (0 hosts up) scanned in 4.32 seconds
 #
-
 
 
 def Main():
@@ -48,15 +48,15 @@ def Main():
 	for aScript in dom.getElementsByTagName('script'):
 		# output="&#xa;ip server domain&#xa;192.168.0.15  WDMYCLOUDMIRROR  WORKGROUP&#xa;"
 		anOutput = aScript.getAttributeNode('output').value.strip()
-		DEBUG("anOutput=%s",str(anOutput))
+		logging.debug("anOutput=%s",str(anOutput))
 		arrSplit = [ aWrd.strip() for aWrd in anOutput.split("\n") ]
 
-		DEBUG("arrSplit=%s",str(arrSplit))
+		logging.debug("arrSplit=%s",str(arrSplit))
 
 		theMachFull = arrSplit[1].strip()
-		DEBUG("theMachFull=%s",str(theMachFull))
+		logging.debug("theMachFull=%s",str(theMachFull))
 		machSplit = re.split( "[\t ]+", theMachFull )
-		DEBUG("machSplit=%s",str(machSplit))
+		logging.debug("machSplit=%s",str(machSplit))
 		machIp = machSplit[0].strip()
 		machNam = machSplit[1].strip()
 		nameDomain = machSplit[2].strip()
@@ -67,6 +67,7 @@ def Main():
 		grph.add( ( nodeHost, pc.property_information, lib_util.NodeLiteral( arrSplit[0] ) ) )
 
 	cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
 	Main()

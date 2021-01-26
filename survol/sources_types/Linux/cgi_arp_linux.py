@@ -8,10 +8,11 @@ ARP command for Linux
 import sys
 import re
 import socket
-import socket
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
+
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -34,8 +35,7 @@ def Main():
 	cnt = 0
 
 	for lin in lines:
-		DEBUG("Lin=%s",lin)
-		#print("se="+str(seenHyphens)+" Lin=("+lin+")")
+		logging.debug("Lin=%s", lin)
 
 		# Maybe should check if other interfaces ??
 		# Maybe should create the entity "network interface",
@@ -53,6 +53,7 @@ def Main():
 		grph.add( ( hostNode, pc.property_information, lib_util.NodeLiteral(mtch_arp.group(3)) ) )
 
 	cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
 	Main()

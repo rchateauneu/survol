@@ -3,14 +3,17 @@ Callable or data library symbol
 """
 
 import sys
+import logging
 import lib_properties
 from lib_properties import pc
 import lib_uris
 import lib_util
 import lib_common
 
+
 def EntityOntology():
 	return ( ["Name","File"], )
+
 
 def EntityName(entity_ids_arr):
 	entity_id = entity_ids_arr[0]
@@ -23,7 +26,7 @@ def EntityName(entity_ids_arr):
 		return resu
 	except TypeError:
 		exc = sys.exc_info()[1]
-		ERROR("CANNOT DECODE: symbol=(%s):%s",entity_id,str(exc))
+		logging.error("CANNOT DECODE: symbol=(%s):%s",entity_id,str(exc))
 		return entity_id
 
 
@@ -41,11 +44,12 @@ def AddInfo(grph,node,entity_ids_arr):
 	fileNode = lib_common.gUriGen.FileUri( file )
 	grph.add( ( fileNode, pc.property_symbol_defined, node ) )
 
+
 # This adds a function call which is modelled with a function name and a file.
 # This is used with plain code and with Python.
 # This should include a line number or an address.
 def AddFunctionCall( grph, callNodePrev, procNode, callName, fileName, codeLocation = None ):
-	DEBUG("AddFunctionCall fileName=%s",fileName)
+	logging.debug("AddFunctionCall fileName=%s",fileName)
 	if callName != None:
 		callNodeNew = lib_common.gUriGen.SymbolUri( callName, fileName )
 		if not callNodePrev is None:

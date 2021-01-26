@@ -22,6 +22,7 @@ NET USE command
 import sys
 import re
 import socket
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -41,7 +42,11 @@ def Main():
     net_use_last_output, net_use_err = net_use_pipe.communicate()
 
     # Converts to string for Python3.
-    asstr = net_use_last_output.decode("utf-8")
+    if lib_util.is_py3:
+        asstr = net_use_last_output.decode("utf-8")
+    else:
+        asstr = net_use_last_output
+    assert isinstance(asstr, str)
     lines = asstr.split('\n')
 
     seen_hyphens = False
@@ -53,8 +58,9 @@ def Main():
     curr_network = ''
 
     for lin in lines:
+        logging.debug("lin=%s", lin)
         assert isinstance(lin, str)
-        if re.match(".*-------.*",lin):
+        if re.match(".*-------.*", lin):
             seen_hyphens = True
             continue
 

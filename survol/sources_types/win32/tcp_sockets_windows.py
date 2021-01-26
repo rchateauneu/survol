@@ -13,6 +13,7 @@ TCP Windows sockets with netstat
 import re
 import sys
 import socket
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -46,14 +47,14 @@ def Main():
 
     seen_header = False
     for lin in netstat_lines:
-        DEBUG("lin=%s",lin)
+        logging.debug("lin=%s",lin)
 
         # By default, consecutive spaces are treated as one.
         lin_split = lin.split()
         if len(lin_split) == 0:
             continue
 
-        DEBUG("lin_split=%s", str(lin_split))
+        logging.debug("lin_split=%s", str(lin_split))
 
         if not seen_header:
             if len(lin_split) > 0 and lin_split[0] == "Proto":

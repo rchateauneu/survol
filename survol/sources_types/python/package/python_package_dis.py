@@ -7,6 +7,7 @@ Python properties
 """
 
 import sys
+import logging
 import importlib
 import lib_common
 import lib_util
@@ -43,7 +44,7 @@ def Main():
 
 	packageNode = survol_python_package.MakeUri( packageNam )
 
-	DEBUG("packageNam=%s",packageNam)
+	logging.debug("packageNam=%s",packageNam)
 
 	grph = cgiEnv.GetGraph()
 
@@ -77,6 +78,7 @@ def Main():
 		pass
 
 	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
+
 
 if __name__ == '__main__':
 	Main()

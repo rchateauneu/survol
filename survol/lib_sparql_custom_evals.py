@@ -3,6 +3,7 @@ from __future__ import print_function
 import os
 import sys
 import six
+import logging
 import psutil
 import rdflib
 # Probably needed to force rdflib to load its plugins ?
@@ -349,7 +350,7 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
 
             def add_sub_node(sub_node_str, cim_class, sub_path_name):
                 # print("Sparql_CIM_Directory.FetchAllVariables add_sub_node ", sub_node_str, "sub_path_name=", sub_path_name)
-                # WARNING("Sparql_CIM_Directory.FetchAllVariables add_sub_node %s / path=%s" % (sub_node_str, sub_path_name))
+                # logging.warning("Sparql_CIM_Directory.FetchAllVariables add_sub_node %s / path=%s" % (sub_node_str, sub_path_name))
                 assert cim_class in (class_CIM_Directory, class_CIM_DataFile)
                 sub_node_uri_ref = rdflib.term.URIRef(sub_node_str)
                 graph.add((sub_node_uri_ref, rdflib.namespace.RDF.type, cim_class))
@@ -1155,7 +1156,7 @@ def visit_all_nodes(instances_dict):
 
     if len(unvisited_instances) > 0:
         visited_instances += unvisited_instances
-        WARNING("visit_all_nodes len(unvisited_instances)=%d", len(unvisited_instances))
+        logging.warning("visit_all_nodes len(unvisited_instances)=%d", len(unvisited_instances))
     assert len(visited_instances) == len(instances_dict)
     return visited_instances
 
@@ -1256,7 +1257,7 @@ def custom_eval_function_generic(ctx, part, sparql_instance_creator):
 
         recursive_instantiation(0)
 
-        INFO("Graph after recursive_instantiation: %d triples", len(ctx.graph))
+        logging.info("Graph after recursive_instantiation: %d triples", len(ctx.graph))
         if False:
             sys.stderr.write("Graph after recursive_instantiation: %d triples\n" % len(ctx.graph))
             for s,p,o in ctx.graph:

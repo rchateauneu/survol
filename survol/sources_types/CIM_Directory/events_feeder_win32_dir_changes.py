@@ -4,6 +4,7 @@ import os
 import sys
 import rdflib
 import time
+import logging
 
 import lib_kbase
 import lib_util
@@ -50,6 +51,11 @@ def _add_windows_dir_change(grph, path_to_watch, updated_file, action_code, time
     # FIXME: Use lib_kbase.time_tsamp_now_node()
     grph.add((sample_root_node, pc.property_information, timestamp_node))
     grph.add((sample_root_node, property_notified_change_type, lib_util.NodeLiteral(action_text)))
+
+    # TODO: How to detect which process has updated the file ?
+    # TODO: Consider lsof on Linux.
+    # TODO: Use the same property as dockit detection of file accesses.
+    # TODO: Add a new triplet with the process id doing the change, or change the semantics.
 
 
 # Thanks to Claudio Grondi for the correct set of numbers
@@ -121,14 +127,36 @@ def send_events_once():
 def Main():
     sys.stderr.write(__file__ + "\n")
     if lib_util.is_snapshot_behaviour():
+        logger = logging.getLogger()
+        logger.setLevel(logging.DEBUG)
         Snapshot()
     else:
+        with open(r'c:\tmp\logs_aux.log', 'w') as logfd:
+            logfd.write("OK\n")
+
+        # This runs in the daemon process.
+        logger = logging.getLogger()
+        logger.setLevel(logging.DEBUG)
+        log_format = '%(asctime)s %(levelname)s: %(process)d %(filename)s %(funcName)s:%(lineno)d %(message)s'
+        formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+
+        #stdout_handler = logging.StreamHandler(sys.stdout)
+        #stdout_handler.setLevel(logging.DEBUG)
+        #stdout_handler.setFormatter(formatter)
+
+        file_handler = logging.FileHandler(r'c:\tmp\logs.log')
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(formatter)
+
+        logger.addHandler(file_handler)
+        #logger.addHandler(stdout_handler)
+
         while True:
             try:
                 send_events_once()
             except Exception as exc:
                 sys.stderr.write(__file__ + " caught: %s" % exc)
-                WARNING("caught: %s\n" % exc)
+                logging.warning("caught: %s\n" % exc)
 
 
 if __name__ == '__main__':

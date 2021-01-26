@@ -3,6 +3,7 @@
 """
 import os
 import sys
+import logging
 import lib_util
 import lib_mime
 import lib_exports
@@ -33,17 +34,17 @@ def _script_information_html_iterator(theCgi, gblCgiEnvList):
     """
         This displays general information about this script and the object if there is one.
     """
-    DEBUG("_script_information_html_iterator entity_type=%s", theCgi.m_entity_type)
+    logging.debug("_script_information_html_iterator entity_type=%s", theCgi.m_entity_type)
 
     # This is already called in lib_common, when creating CgiEnv.
     # It does not matter because this is very fast.
     calling_url = lib_util.RequestUri()
     entity_label, entity_graphic_class, entity_id = lib_naming.ParseEntityUri(calling_url, long_display=True)
-    DEBUG("entity_label=%s entity_graphic_class=%s entity_id=%s", entity_label, entity_graphic_class, entity_id)
+    logging.debug("entity_label=%s entity_graphic_class=%s entity_id=%s", entity_label, entity_graphic_class, entity_id)
 
     yield '<table border="0">'
     if len(gblCgiEnvList):
-        DEBUG("gblCgiEnvList=%s", str(gblCgiEnvList))
+        logging.debug("gblCgiEnvList=%s", str(gblCgiEnvList))
         # This step is dedicated to the merging of several scripts.
 
         yield(
@@ -135,7 +136,7 @@ def _cim_urls_html_iterator():
     def w_map_to_html(the_map):
         """This callback receives a RDF property (WBEM or WMI) and a map
         which represents the CIM links associated to the current object. """
-        DEBUG("w_map_to_html len=%d", len(the_map))
+        logging.debug("w_map_to_html len=%d", len(the_map))
         for url_subj in the_map:
             unquoted_subj = lib_util.urllib_unquote(url_subj)
             subj_text, subj_entity_graph_class, subj_entity_id = lib_naming.ParseEntityUri(unquoted_subj)
@@ -187,7 +188,7 @@ def _scripts_tree_html_iterator(theCgi):
         return
 
     flag_val = theCgi.get_parameters(lib_util.paramkeyShowAll)
-    DEBUG("WriteScriptsTree flagVal=%s", flag_val)
+    logging.debug("WriteScriptsTree flagVal=%s", flag_val)
     # This happens when merging scripts.
     if flag_val == "":
         flag_show_all = 0
@@ -215,7 +216,7 @@ def _scripts_tree_html_iterator(theCgi):
         except KeyError:
             dict_scripts[subj] = {prop: [obj]}
 
-    DEBUG("WriteScriptsTree entity_type=%s flag_show_all=%d", theCgi.m_entity_type, flag_show_all)
+    logging.debug("WriteScriptsTree entity_type=%s flag_show_all=%d", theCgi.m_entity_type, flag_show_all)
     entity_dirmenu_only.DirToMenu(
         callback_grph_add,
         root_node,
@@ -350,7 +351,7 @@ def _create_objects_list(grph):
             # 'ascii' codec can't encode character u'\xf3' in position 17: ordinal not in range(128)
             # u'SDK de comprobaci\xf3n de Visual Studio 2012 - esn'
             except UnicodeEncodeError as exc:
-                ERROR("Exception %s",str(exc))
+                logging.warning("Exception %s", str(exc))
                 continue
 
         subj_str = str(a_subj)

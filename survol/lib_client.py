@@ -8,6 +8,7 @@ import sys
 import json
 import heapq
 import rdflib
+import logging
 
 import lib_util
 import lib_kbase
@@ -109,12 +110,12 @@ class SourceCgi(SourceBase):
 
 
 def _load_moded_urls(url_moded):
-    DEBUG("_load_moded_urls urlModed=%s", url_moded)
+    logging.debug("_load_moded_urls urlModed=%s", url_moded)
     try:
         # Very long timeout to read WBEM ontology.
         response = lib_util.survol_urlopen(url_moded, timeout=120)
     except Exception as exc:
-        ERROR("_load_moded_urls urlModed=%s. Caught:%s", url_moded, str(exc))
+        logging.error("_load_moded_urls urlModed=%s. Caught:%s", url_moded, str(exc))
         raise
     data = response.read()
     assert isinstance(data, six.binary_type)
@@ -198,7 +199,7 @@ class SourceLocal (SourceCgi):
                 self.m_output.close()
                 return str_result
 
-        DEBUG("__execute_script_with_mode before calling module=%s",modu.__name__)
+        logging.debug("__execute_script_with_mode before calling module=%s",modu.__name__)
         outmach_string = OutputMachineString()
         original_out_mach = lib_util.globalOutMach
 
@@ -211,7 +212,7 @@ class SourceLocal (SourceCgi):
             modu.Main()
         except Exception as ex:
             # https://www.stefaanlippens.net/python-traceback-in-catch/
-            ERROR("__execute_script_with_mode with module=%s: Caught:%s", modu.__name__, ex, exc_info=True)
+            logging.error("__execute_script_with_mode with module=%s: Caught:%s", modu.__name__, ex, exc_info=True)
             lib_common.enable_error_message(True)
 
             # Restores the original stream.
@@ -334,7 +335,7 @@ class SourceMergeMinus (SourceMerge):
 # http://rchateau-hp:8000
 def agent_to_host(agent_url):
     parsed_url = lib_util.survol_urlparse(agent_url)
-    DEBUG("agent_to_host %s => %s", agent_url, parsed_url.hostname)
+    logging.debug("agent_to_host %s => %s", agent_url, parsed_url.hostname)
     return parsed_url.hostname
 
 # https://stackoverflow.com/questions/15247075/how-can-i-dynamically-create-derived-classes-from-a-base-class
@@ -522,7 +523,7 @@ class BaseCIMClass(object):
                     str(self.m_url_script), self.m_estimation_to_target, self.m_current_depth)
 
         if filter_instances and self in filter_instances:
-            INFO("Avoiding instance:%s", self)
+            logging.info("Avoiding instance:%s", self)
             return
 
         # It does this by maintaining a tree of paths originating at the start node and extending
@@ -537,7 +538,7 @@ class BaseCIMClass(object):
             lst_scripts = node_instance.get_scripts()
             instance_bag_of_words = node_instance.get_instance_bag_of_words()
 
-            #DEBUG("nodeInstance=%s type(nodeInstance)=%s",nodeInstance,str(type(nodeInstance)))
+            #logging.debug("nodeInstance=%s type(nodeInstance)=%s",nodeInstance,str(type(nodeInstance)))
             for one_script in lst_scripts:
                 script_bag_of_words = one_script.get_script_bag_of_words()
                 common_bag_of_words = set.union(instance_bag_of_words, script_bag_of_words)
@@ -565,7 +566,7 @@ class BaseCIMClass(object):
             # TODO: the cost of scripts.
             curr_distance = best_edge.m_current_distance + 1
 
-            INFO("Selecting edge:%s", best_edge)
+            logging.info("Selecting edge:%s", best_edge)
 
             if curr_depth <= max_depth:
                 lib_common.enable_error_message(False)
@@ -574,7 +575,7 @@ class BaseCIMClass(object):
                 try:
                     triple_store = best_edge.m_url_script.get_triplestore()
                 except Exception as exc:
-                    WARNING("find_string_from_neighbour:%s", str(exc))
+                    logging.warning("find_string_from_neighbour:%s", str(exc))
                     continue
 
                 if triple_store is None:
@@ -596,20 +597,20 @@ class BaseCIMClass(object):
                     # TODO: Give a high cost when a node is on a remote machine.
                     lst_instances = triple_store.get_connected_instances(best_edge.m_node_instance, filter_predicates)
                 except Exception as ex:
-                    ERROR("find_string_from_neighbour: %s", ex)
+                    logging.error("find_string_from_neighbour: %s", ex)
                     raise
 
                 lib_common.enable_error_message(True)
                 for one_instance in lst_instances:
                     if filter_instances and one_instance in filter_instances:
-                        INFO("Avoiding instance:%s",one_instance)
+                        logging.info("Avoiding instance:%s",one_instance)
                         continue
 
                     if one_instance in visited_instances:
-                        INFO("Already visited instance:%s", one_instance)
+                        logging.info("Already visited instance:%s", one_instance)
                         continue
 
-                    #DEBUG("Adding one_instance=%s curr_depth=%d",one_instance,curr_depth)
+                    #logging.debug("Adding one_instance=%s curr_depth=%d",one_instance,curr_depth)
                     try:
                         # If the node is already seen, and closer as expected.
                         # We might have rejected it before ?
@@ -651,11 +652,11 @@ def create_CIM_class(agent_url, class_name, **kwargs_ontology):
     entity_id = lib_util.KWArgsToEntityId(class_name, **kwargs_ontology)
 
     # No need to use the class in the key, because the cache is class-specific.
-    DEBUG("create_CIM_class agentUrl=%s className=%s entity_id=%s", agent_url, class_name, entity_id)
+    logging.debug("create_CIM_class agentUrl=%s className=%s entity_id=%s", agent_url, class_name, entity_id)
 
     try:
         new_cim_class = _cache_cim_classes[class_name]
-        #DEBUG("Found existing className=%s",className)
+        #logging.debug("Found existing className=%s",className)
     except KeyError:
         # This class is not yet created.
         # TODO: If entity_label contains slashes, submodules must be imported.
@@ -677,8 +678,7 @@ def entity_id_to_instance(agent_url, class_name, entity_id):
     Example: xid="CIM_Process.Handle=2092"
     BEWARE: Some arguments should be decoded from Base64."""
 
-    # TODO: Should use lib_util.SplitMoniker() because parsing may be more complicated,
-    xid_dict = {sp[0]:sp[2] for sp in [ss.partition("=") for ss in entity_id.split(",")]}
+    xid_dict = lib_util.SplitMoniker(entity_id)
 
     new_instance = create_CIM_class(agent_url, class_name, **xid_dict)
     return new_instance
@@ -716,7 +716,7 @@ def instance_url_to_agent_url(instance_url):
         idx_survol = instance_url.find("/survol")
         agent_url = instance_url[:idx_survol]
 
-    DEBUG("instance_url_to_agent_url instanceUrl=%s agent_url=%s", instance_url, agent_url)
+    logging.debug("instance_url_to_agent_url instanceUrl=%s agent_url=%s", instance_url, agent_url)
     return agent_url
 
 
@@ -826,7 +826,7 @@ class TripleStore:
         __merge_connected_instances_to(start_instance)
 
         # All the nodes connected to the input one.
-        INFO("startInstance=%s len(set_connected_instances)=%d", start_instance, len(set_connected_instances))
+        logging.info("startInstance=%s len(set_connected_instances)=%d", start_instance, len(set_connected_instances))
         return set_connected_instances
 
     def get_matching_strings_triples(self, search_string):
@@ -838,20 +838,20 @@ class TripleStore:
 
     def filter_objects_with_predicate_class(self, associator_key_name, result_class_name):
         """This returns only the objects of a given class and for a given predicate."""
-        WARNING("TripleStore.ObjectFromPredicate associator_key_name=%s, result_class_name=%s",
+        logging.warning("TripleStore.ObjectFromPredicate associator_key_name=%s, result_class_name=%s",
                 associator_key_name, result_class_name)
 
         dict_objects = {}
 
         # First pass to filter the objects nodes of a given class labelled with the predicate..
         for source_subject, source_predicate, source_object in self.m_triplestore:
-            #WARNING("TripleStore.ObjectFromPredicate s=%s, p=%s, o=%s",
+            #logging.warning("TripleStore.ObjectFromPredicate s=%s, p=%s, o=%s",
             #        source_subject, source_predicate, source_object)
 
             # This transforms for example "http://primhillcomputers.com/survol#Domain" into "Domain"
             predicate_name = lib_properties.PropToQName(source_predicate)
 
-            # WARNING("filter_objects_with_predicate_class predicate_name=%s",predicate_name)
+            # logging.warning("filter_objects_with_predicate_class predicate_name=%s",predicate_name)
             # s=http://LOCALHOST:80/LocalExecution/entity.py?xid=CIM_Process.Handle=2544
             # p=http://primhillcomputers.com/survol#ppid
             # o=http://LOCALHOST:80/LocalExecution/entity.py?xid=CIM_Process.Handle=2092
@@ -886,7 +886,7 @@ class TripleStore:
 
         # Maybe this is a test mode.
         if not grph:
-            WARNING("copy_to_graph Graph is None. Leaving")
+            logging.warning("copy_to_graph Graph is None. Leaving")
             return
 
         for the_triple in self.m_triplestore:
@@ -953,7 +953,7 @@ class Agent:
     def exec_http_script(self, a_script):
         if self.m_agent_url:
             an_url = self.m_agent_url + a_script
-            DEBUG("get_internal_data an_url=%s" % an_url)
+            logging.debug("get_internal_data an_url=%s" % an_url)
             url_content = _load_moded_urls(an_url)
             return url_content
         else:

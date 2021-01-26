@@ -9,6 +9,7 @@ import rdflib
 import time
 import datetime
 import tempfile
+import logging
 from rdflib.namespace import RDF, RDFS, XSD
 from rdflib import URIRef
 
@@ -60,7 +61,7 @@ def unique_urls_dict(grph):
 def get_urls_adjacency_list(grph, start_instance, filter_predicates):
     """It has to build an intermediary map because we have no simple way to find all edges
     starting from a node. Otherwise, we could use a classical algorithm (Dijkstra ?)"""
-    DEBUG("startInstance=%s type=%s", str(start_instance), str(type(start_instance)))
+    logging.debug("startInstance=%s type=%s", str(start_instance), str(type(start_instance)))
 
     # Each node maps to the list of the nodes it is directly connected to.
     adjacency_list = dict()
@@ -82,7 +83,7 @@ def get_urls_adjacency_list(grph, start_instance, filter_predicates):
             except KeyError:
                 adjacency_list[url_start] = set([url_end])
 
-    DEBUG("len(grph)=%d",len(grph))
+    logging.debug("len(grph)=%d",len(grph))
 
     # Connected in both directions.
     for k_sub, k_pred, k_obj in grph:
@@ -94,7 +95,7 @@ def get_urls_adjacency_list(grph, start_instance, filter_predicates):
         if (not IsLiteral(k_sub)) and (not IsLiteral(k_obj)):
             _insert_edge(k_sub, k_obj)
             _insert_edge(k_obj, k_sub)
-    #DEBUG("str(adjacency_list)=%s",str(adjacency_list))
+    #logging.debug("str(adjacency_list)=%s",str(adjacency_list))
 
     return adjacency_list
 
@@ -102,7 +103,7 @@ def get_urls_adjacency_list(grph, start_instance, filter_predicates):
 # TODO: Consider using SPARQL.
 def triplestore_matching_strings(grph, search_string):
     """This returns a subset of a triplestore whose object matches a given string."""
-    DEBUG("triplestore_matching_strings: search_string=%s" % search_string)
+    logging.debug("triplestore_matching_strings: search_string=%s" % search_string)
     # Beware that the order might change each time.
     compiled_rgx = re.compile(search_string)
     for k_sub, k_pred, k_obj in grph:
@@ -114,7 +115,7 @@ def triplestore_matching_strings(grph, search_string):
 
 
 def triplestore_all_strings(grph):
-    DEBUG("triplestore_all_strings")
+    logging.debug("triplestore_all_strings")
     # Beware that the order might change each time.
     for k_sub, k_pred, k_obj in grph:
         if IsLiteral(k_obj):
@@ -142,11 +143,9 @@ def triplestore_to_stream_xml(grph, out_dest, a_format):
         #     'str': Py2
         #     '_io.BytesIO': Py3
 
-        #sys.stderr.write("type(out_dest)=%s\n" % type(out_dest))
         grph.serialize(destination=out_dest, format=a_format)
     except Exception as exc:
-        ERROR("triplestore_to_stream_xml Exception:%s", exc)
-        sys.stderr.write("ERROR:%s\n" % str(exc))
+        logging.error("triplestore_to_stream_xml Exception:%s", exc)
         raise
 
 
@@ -169,9 +168,9 @@ def triplestore_from_rdf_xml(doc_xml_rdf):
             column_index = int(exception_split[2])
             document_by_lines = doc_xml_rdf.split("\n")
             faulty_line = document_by_lines[line_index]
-            ERROR("triplestore_from_rdf_xml index=%d faulty_line=%s", column_index, faulty_line)
+            logging.error("triplestore_from_rdf_xml index=%d faulty_line=%s", column_index, faulty_line)
         else:
-            ERROR("triplestore_from_rdf_xml exc=%s docXmlRdf...=%s", exc, doc_xml_rdf[:20])
+            logging.error("triplestore_from_rdf_xml exc=%s docXmlRdf...=%s", exc, doc_xml_rdf[:20])
         raise
     return grph
 
@@ -216,7 +215,7 @@ def _prop_name_to_xsd_type(prop_type):
     try:
         xsd_type = map_types_CIM_to_XSD[prop_type]
     except:
-        INFO("_prop_name_to_xsd_type tp=%s",prop_type)
+        logging.info("_prop_name_to_xsd_type tp=%s",prop_type)
         xsd_type = XSD.string
     return xsd_type
 
@@ -407,7 +406,7 @@ def CheckMinimalRdsfOntology(ontology_graph):
         triple_find = (subject_node, predicate_node, object_node)
         if not triple_find in ontology_graph:
             triple_name = (subject_name, predicate_name, object_name)
-            ERROR("CheckMinimalRdsfOntology missing triple:%s %s %s", * triple_name )
+            logging.error("CheckMinimalRdsfOntology missing triple:%s %s %s", * triple_name )
             missing_triples.append(triple_name)
         return missing_triples
 
