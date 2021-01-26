@@ -322,7 +322,7 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
         result_snapshot = self._run_script_as_snapshot(url_suffix)
         _check_events_feeder_psutil_processes_perf(self, "Snapshot only", result_snapshot)
 
-    @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
+    # @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
     def test_events_feeder_psutil_system_counters(self):
         url_suffix = "events_feeder_psutil_system_counters.py"
         result_snapshot = self._run_script_as_snapshot(url_suffix)
