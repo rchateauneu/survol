@@ -5,11 +5,13 @@ Parent and sub-processes
 """
 
 import psutil
+import logging
 
 import lib_common
 from sources_types import CIM_Process
 from sources_types import CIM_DataFile as lib_entity_file
 from lib_properties import pc
+
 
 def AddExtraInformationtoProcess(grph, node_process, proc_obj):
     CIM_Process.AddInfo(grph, node_process, [str(proc_obj.pid)])
@@ -51,7 +53,7 @@ def tree_parent_process(grph, proc_obj, pids_seen_set):
 
         # A circular processes hierarchy can happen on Windows.
         if the_pid in pids_seen_set:
-            WARNING("Circular pids tree:%d", the_pid)
+            logging.warning("Circular pids tree:%d", the_pid)
             return
         pids_seen_set.add(the_pid)
 
@@ -100,4 +102,3 @@ def Main():
 
 if __name__ == '__main__':
     Main()
-

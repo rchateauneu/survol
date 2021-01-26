@@ -64,7 +64,11 @@ def Main():
     else:
         while True:
             Snapshot()
-            time.sleep(10)
+            # TODO: This should be a parameter. How to modify it when the process is started ?
+            # TODO: For deamons, the parameters could simply be written in a file each time they
+            # TODO: are updated, then they would be read again: This is very fast and reliable.
+            # TODO: Possibly store the parameters in the triple-store.
+            time.sleep(20)
 
 
 if __name__ == '__main__':

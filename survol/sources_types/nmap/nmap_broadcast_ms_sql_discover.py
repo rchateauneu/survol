@@ -9,6 +9,7 @@ Discovers Microsoft SQL servers in the same broadcast domain.
 import re
 import sys
 import socket
+import logging
 import xml.dom.minidom
 import lib_util
 import lib_common
@@ -34,7 +35,7 @@ except ImportError:
 # |       Product: Microsoft SQL Server 2012
 # |       TCP port: 1433
 # |_      Named pipe: \\192.168.0.14\pipe\MSSQL$SQLEXPRESS\sql\query
-# WARNING: No targets were specified, so 0 hosts scanned.
+# logging.warning: No targets were specified, so 0 hosts scanned.
 # Nmap done: 0 IP addresses (0 hosts up) scanned in 5.76 seconds
 #
 def AddOdbcNode(grph, mach_nam, srv_name, tcp_port):
@@ -46,12 +47,12 @@ def AddOdbcNode(grph, mach_nam, srv_name, tcp_port):
 
     # For example "MYMACHINE\\SQLEXPRESS"
     cred_key = "%s\\%s" % (mach_nam, srv_name)
-    DEBUG("cred_key=%s", cred_key)
+    logging.debug("cred_key=%s", cred_key)
     a_cred = lib_credentials.GetCredentials("SqlExpress", cred_key)
 
     if a_cred:
         str_dsn = 'DRIVER={%s};SERVER=%s;PORT=%s;UID=%s;PWD=%s' % (driver_name, mach_nam, tcp_port, a_cred[0], a_cred[1])
-        DEBUG("str_dsn=%s", str_dsn)
+        logging.debug("str_dsn=%s", str_dsn)
 
         node_dsn = survol_odbc_dsn.MakeUri(str_dsn)
         grph.add((lib_common.nodeMachine, pc.property_odbc_dsn, node_dsn))
@@ -74,10 +75,10 @@ def Main():
     # <script id="broadcast-ms-sql-discover" output="&#xa; 192.168.0.14 (RCHATEAU-HP)&#xa; [192.168.0.14\SQLEXPRESS]&#xa; Name: SQLEXPRESS&#xa; Product: Microsoft SQL Server 2012&#xa; TCP port: 1433&#xa; Named pipe: \\192.168.0.14\pipe\MSSQL$SQLEXPRESS\sql\query&#xa;"/>
     for a_script in dom.getElementsByTagName('script'):
         an_output = a_script.getAttributeNode('output').value.strip()
-        DEBUG("an_output=%s", str(an_output))
+        logging.debug("an_output=%s", str(an_output))
         arr_split = [a_wrd.strip() for a_wrd in an_output.split("\n")]
 
-        DEBUG("arr_split=%s", str(arr_split))
+        logging.debug("arr_split=%s", str(arr_split))
 
         # "192.168.0.14 (RCHATEAU-HP)"
         the_mach_full = arr_split[0].strip()
@@ -106,7 +107,7 @@ def Main():
         # Sql_server_instance    [192.168.0.14\SQLEXPRESS]
         # TCP_port    1433
         for one_wrd in arr_split[2:]:
-            DEBUG("one_wrd=%s", one_wrd)
+            logging.debug("one_wrd=%s", one_wrd)
             one_split = [a_split.strip() for a_split in one_wrd.split(":")]
             one_key = one_split[0]
 

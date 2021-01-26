@@ -7,6 +7,7 @@ Unix domain sockets
 import os
 import re
 import sys
+import logging
 import lib_uris
 import lib_common
 from sources_types import CIM_DataFile
@@ -54,7 +55,7 @@ def Main():
             # sys.stderr.write("sock_inode %s\n"%sock_inode)
             sock_path = lin[80:].strip()
         except :
-            WARNING("Cannot parse:%s",lin)
+            logging.warning("Cannot parse:%s",lin)
             continue
 
         if sock_path:

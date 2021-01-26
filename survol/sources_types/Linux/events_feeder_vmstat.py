@@ -6,7 +6,7 @@
 import os
 import sys
 import subprocess
-
+import logging
 import rdflib
 
 import lib_common
@@ -59,7 +59,7 @@ def Main():
 
         cgiEnv = lib_common.CgiEnv()
 
-        WARNING(__file__ + " Snapshot Starting process:%s" % str(iostat_cmd))
+        logging.debug(__file__ + " Snapshot Starting process:%s" % str(iostat_cmd))
         Main.proc_popen = subprocess.Popen(iostat_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
         result_lines = Main.proc_popen.stdout.readlines()
         _vmstat_to_graph(cgiEnv, result_lines[1], result_lines[2])
@@ -73,14 +73,14 @@ def Main():
 
         cgiEnv = lib_common.CgiEnv()
 
-        WARNING(__file__ + " Events Starting process:%s" % str(iostat_cmd))
+        logging.debug(__file__ + " Events Starting process:%s" % str(iostat_cmd))
         Main.proc_popen = subprocess.Popen(iostat_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
-        WARNING(__file__ + " Events Started")
+        logging.debug(__file__ + " Events Started")
 
         line_counter = 0
         while True:
             current_line = Main.proc_popen.stdout.readline()
-            WARNING(__file__ + " Events Read:%s" % current_line)
+            logging.debug(__file__ + " Events Read:%s" % current_line)
             line_counter += 1
             if line_counter == 1:
                 continue
@@ -98,7 +98,7 @@ def Main():
         if lib_util.is_snapshot_behaviour():
             main_snapshot()
         else:
-            WARNING(__file__ + " events")
+            logging.debug(__file__ + " events")
             main_events()
     except Exception as exc:
         lib_common.ErrorMessageHtml("vmstat error:%s" % str(exc))
@@ -110,5 +110,5 @@ def Main():
 
 
 if __name__ == '__main__':
-    WARNING("Start "+__file__)
+    logging.debug("Start "+__file__)
     Main()

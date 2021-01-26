@@ -564,18 +564,24 @@ def _create_calls_stream(command_line, input_process_id, input_log_file, tracer)
     global G_Hostname
     global G_OSType
 
+    logging.info("command_line=%s input_process_id=%d" % (command_line, input_process_id))
     # A command or a pid or an input log file, only one possibility.
-    if command_line != []:
+    # A non-defined command is an empty list.
+    assert isinstance(command_line, list)
+    if command_line:
         if input_process_id > 0 or input_log_file:
             print_dockit_usage(1, "When providing command, must not specify process id or input log file")
+        logging.info("_create_calls_stream command line mode")
     elif input_process_id > 0:
-        if command_line != []:
+        if command_line:
             print_dockit_usage(1, "When providing process id, must not specify command or input log file")
+        logging.info("_create_calls_stream command attach mode")
     elif input_log_file:
-        if command_line != []:
+        if command_line:
             print_dockit_usage(1, "When providing input file, must not specify command or process id")
         # This is a replay from a log file, possibly on another machine or operating system.
         # It is not possible to enhance the log file informationm by querying the current machine.
+        logging.info("_create_calls_stream command replay mode")
         cim_objects_definitions.local_standardized_file_path = cim_objects_definitions.standardized_file_path_syntax_only
     else:
         print_dockit_usage(1, "Must provide command, pid or input file")
@@ -594,7 +600,6 @@ def _create_calls_stream(command_line, input_process_id, input_log_file, tracer)
 
     current_tracer = G_traceToTracer[tracer]
     if cim_objects_definitions.G_ReplayMode:
-        # calls_stream = open(input_log_file)
         calls_stream = current_tracer.logfile_pathname_to_stream(input_log_file)
         logging.info("File " + input_log_file)
         logging.info("Logfile %s pid=%s" % (input_log_file, input_process_id))
@@ -623,11 +628,13 @@ def _create_calls_stream(command_line, input_process_id, input_log_file, tracer)
         G_OSType                                            = the_platform
         assert cim_objects_definitions.G_topProcessId >= 0, "_create_calls_stream G_topProcessId not set"
 
-
+    logging.info("Before init_linux_globals")
     # Global variables which must be reinitialised before a run, possibly from a ".ini" file.
     linux_api_definitions.init_linux_globals(with_warning)
 
+    logging.info("Before init_global_objects")
     cim_objects_definitions.init_global_objects(G_Hostname, the_ip_address)
+    logging.info("After init_global_objects")
 
     # Another possibility is to start a process or a thread which will monitor
     # the target process, and will write output information in a stream.
@@ -644,6 +651,8 @@ def _calls_flow_class_factory(aggregator):
     There is one object for each execution flow, which is a process or a thread.
     This method returns a class.
     """
+
+    logging.info("aggregator=%s" % aggregator)
     if not aggregator:
         # This is the required interface for aggregators.
         # The default base class does minimal statistics.
@@ -665,6 +674,7 @@ def _calls_flow_class_factory(aggregator):
                 # FIXME: extra_header is probably never used.
                 # batchDump.m_strm.write("%s\n" % extra_header)
                 # batchDump.m_strm.write("Number of function calls: %d\n" % self.m_calls_number)
+                logging.info("self.m_calls_number=%d" % self.m_calls_number)
                 batch_dump.flow_footer()
 
         return BatchFlowVoid
@@ -689,11 +699,13 @@ def _create_map_flow_from_stream(
     possibly unfinished/resumed/interrupted by a signal."""
 
     # This is an event log as a stream, coming from a file (if testing), the output of strace or anything else.
-    logging.error("_create_map_flow_from_stream")
+    logging.info("tracer=%s" % tracer)
 
     map_flows = {}
 
     CallsFlowClass = _calls_flow_class_factory(aggregator)
+
+    logging.info("Created aggregator class")
 
     # This generator creates individual BatchLet objects on-the-fly.
     # At this stage, "resumed" calls are matched with the previously received "unfinished" line for the same call.
@@ -706,6 +718,7 @@ def _create_map_flow_from_stream(
     for one_function_call in map_flows_generator:
         a_core = one_function_call.m_core
         the_pid = a_core.m_pid
+        logging.debug("the_pid=%s" % the_pid)
         try:
             calls_flow = map_flows[the_pid]
         except KeyError:
@@ -761,6 +774,7 @@ def _analyse_functions_calls_stream(
 
     map_flows = _create_map_flow_from_stream(verbose, calls_stream, tracer, batch_constructor, aggregator)
 
+    logging.info("_analyse_functions_calls_stream")
     if output_files_prefix and output_format:
         assert output_files_prefix[-1] != '.'
         assert output_format[0] != '.'
@@ -784,6 +798,8 @@ def _analyse_functions_calls_stream(
     # Generating a docker file needs some data calculated with the summaries.
     if with_dockerfile:
         map_params_summary = full_map_params_summary
+
+    logging.info("Generating summary")
 
     _generate_summary(map_params_summary, summary_format, output_summary_file)
     
@@ -819,6 +835,8 @@ def test_from_file(
         verbose=0, with_dockerfile=None, update_server=None, aggregator=None, output_makefile=None):
     """Function called for unit tests by unittest.py"""
     assert isinstance(input_process_id, int)
+
+    logging.info("input_log_file=%s" % input_log_file)
     cim_objects_definitions.G_UpdateServer = update_server
     calls_stream = _create_calls_stream([], input_process_id, input_log_file, tracer)
 
@@ -834,17 +852,20 @@ def test_from_file(
     return output_summary_file
 
 
-def _start_processing(global_parameters):
+def start_processing(global_parameters):
+    logging.info("Creating calls_stream")
     calls_stream = _create_calls_stream(
         global_parameters.command_line,
         global_parameters.input_process_id,
         global_parameters.input_log_file,
         global_parameters.tracer)
 
+    logging.info("start_processing")
     assert cim_objects_definitions.G_topProcessId >= 0
 
     if global_parameters.duplicate_input_log:
-        calls_stream = G_traceToTracer[global_parameters.tracer].tee_calls_stream(calls_stream, global_parameters.output_files_prefix)
+        tracer_object = G_traceToTracer[global_parameters.tracer]
+        calls_stream = tracer_object.tee_calls_stream(calls_stream, global_parameters.output_files_prefix)
 
     # If not replaying, saves all parameters in an ini file, with all parameters needed for a replay.
     assert cim_objects_definitions.G_ReplayMode in [False, True]
@@ -892,6 +913,7 @@ def dockit_entry_point():
         aggregator = None
         duplicate_input_log = False
 
+    logging.info("Startup")
     try:
         command_options, G_parameters.command_line = getopt.getopt(sys.argv[1:],
                 "hvws:DM:p:f:F:i:l:t:S:a:d",
@@ -953,7 +975,7 @@ def dockit_entry_point():
     # For Linux, default value is "strace".
     G_parameters.tracer = default_tracer(G_parameters.input_log_file, G_parameters.tracer)
 
-    _start_processing(G_parameters)
+    start_processing(G_parameters)
 
     #logging.error("cim_objects_definitions.G_ReplayMode=%s" % cim_objects_definitions.G_ReplayMode)
     #print("cim_objects_definitions.G_ReplayMode=", cim_objects_definitions.G_ReplayMode)

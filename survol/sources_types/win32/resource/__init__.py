@@ -7,6 +7,7 @@ Resource embedded in a Windows file.
 from __future__ import unicode_literals
 
 import sys
+import logging
 import win32con
 import win32api
 import win32file
@@ -157,5 +158,5 @@ def DisplayAsMime(grph, node, entity_ids_arr):
     try:
         lib_util.CopyFile(mimeTypeResource, rsrc_fil_nam)
     except Exception as exc:
-        ERROR("Copy rsrc_fil_nam=%s FAILED", rsrc_fil_nam)
+        logging.error("Copy rsrc_fil_nam=%s FAILED", rsrc_fil_nam)
         lib_common.ErrorMessageHtml("DisplayAsMime rsrc_fil_nam=%s, caught:%s" % (rsrc_fil_nam, str(exc)))

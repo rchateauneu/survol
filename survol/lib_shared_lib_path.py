@@ -1,4 +1,5 @@
 import os
+import logging
 import lib_util
 
 # This returns the full path name of a shared library file name.
@@ -30,7 +31,7 @@ def FindPathFromSharedLibraryName(dll_filename):
     for a_dir in library_search_path:
         dll_path = os.path.join(a_dir, dll_filename)
         if os.path.exists(dll_path):
-            DEBUG("FindPathFromSharedLibraryName dll_path=%s", dll_path)
+            logging.debug("FindPathFromSharedLibraryName dll_path=%s", dll_path)
             return dll_path
-    DEBUG("FindPathFromSharedLibraryName cannot find dllFilename=%s", dll_filename)
+    logging.debug("FindPathFromSharedLibraryName cannot find dllFilename=%s", dll_filename)
     return None

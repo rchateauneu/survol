@@ -12,7 +12,10 @@ __license__     = "GPL"
 
 # This library is used by CGI scripts and command-line scripts.
 # Therefore, its behaviour is different in case of error.
-if os.getenv("SERVER_SOFTWARE"):
+if "PYTEST_CURRENT_TEST" in os.environ:
+    # Do this when called in a deamon or pytest. Otherwise it is not readable
+    cgitb.enable(format="txt")
+elif os.getenv("SERVER_SOFTWARE"):
     cgitb.enable()
 
 import re
@@ -82,7 +85,7 @@ SetLoggingConfig(logging.WARNING)
 # Avoid this message:
 # 2018-09-18 21:57:54,868  WARNING rdflib.term term.py 207: http://L... does not look like a valid URI, trying to serialize this will break.
 loggerRdflib = logging.getLogger("rdflib.term")
-loggerRdflib.setLevel(logging.ERROR)
+loggerRdflib.setLevel(logging.WARNING)
 
 # This is the general purpose logger.
 if is_py3:
@@ -93,21 +96,6 @@ else:
     logger_name = mod.__name__
 
 gblLogger = logging.getLogger(logger_name)
-
-if is_py3:
-    import builtins
-    builtins.DEBUG = gblLogger.debug
-    builtins.WARNING = gblLogger.warning
-    builtins.ERROR = gblLogger.error
-    builtins.INFO = gblLogger.info
-    builtins.CRITICAL = gblLogger.critical
-else:
-    import __builtin__
-    __builtin__.DEBUG = gblLogger.debug
-    __builtin__.WARNING = gblLogger.warning
-    __builtin__.ERROR = gblLogger.error
-    __builtin__.INFO = gblLogger.info
-    __builtin__.CRITICAL = gblLogger.critical
 
 ################################################################################
 
@@ -143,7 +131,7 @@ try:
             args['key'] = natsort_key
         one_list.sort(**args)
 except ImportError:
-    WARNING("WritePatterned Module natsorted not available.")
+    logging.warning("WritePatterned Module natsorted not available.")
     natural_sorted = sorted
 
     def natural_sort_list(one_list, **args):
@@ -205,7 +193,7 @@ def HttpPrefix():
         # 'REMOTE_HOST'] => "rchateau-HP"
 
     except KeyError:
-        ERROR("HttpPrefix SERVER_NAME MUST BE DEFINED")
+        logging.error("HttpPrefix SERVER_NAME MUST BE DEFINED")
         sys.exit(1)
     
     try:
@@ -759,7 +747,7 @@ def KWArgsToEntityId(class_name, **kwargs_ontology):
         try:
             arg_val = kwargs_ontology[arg_key]
         except KeyError:
-            ERROR("KWArgsToEntityId className=%s. No key %s", class_name, arg_key)
+            logging.error("KWArgsToEntityId className=%s. No key %s", class_name, arg_key)
             raise
 
         # TODO: The values should be encoded when needed, probably with B64 !!!
@@ -784,13 +772,37 @@ def EntityUri(entity_type, *entity_ids):
     keys = OntologyClassKeys(entity_type)
 
     if len(keys) != len(entity_ids):
-        WARNING("EntityUri entity_type=%s Different lens:%s and %s", entity_type, str(keys), str(entity_ids))
+        logging.warning("EntityUri entity_type=%s Different lens:%s and %s", entity_type, str(keys), str(entity_ids))
 
     # TODO: Base64 encoding is needed in the general case.
     entity_id = ",".join("%s=%s" % pair_kw for pair_kw in zip(keys, entity_ids))
     
     url = Scriptize("/entity.py", entity_type, entity_id)
     return NodeUrl(url)
+
+
+def EntityUriFromMoniker(entity_type, entity_id):
+    """
+    This helper function is needed because the key-value pairs defining an object
+    are stored in different ways, depending on the context:
+    * As a moniker, like on a URL.
+    * As a list of values, ordered by the ontology (list of attributes).
+    * As a dict of key-value pairs.
+
+    :param entity_type: The class of the object
+    :param entity_id: The key-value pairs concatenated into a single moniker string.
+    :return: The URL of the object.
+    """
+
+    # TODO: Some simplification could be done:
+    # TODO: * Use a moniker only when close to an URL.
+    # TODO: * Replace list of values by list of key-value pairs.
+    # TODO: * Use a dict of key-value pairs only when a lookup is needed.
+
+    entity_ids_arr = EntityIdToArray(entity_type, entity_id)
+    entity_url = EntityUri(entity_type, *entity_ids_arr)
+    return entity_url
+
 
 ################################################################################
 
@@ -981,7 +993,7 @@ def UsableLinux(entity_type, entity_ids_arr):
     if some libraries are available etc...
     This is formalised by having in each script, an optional function called "Usable",
     which returns a boolean.
-    Some "Usable" functons are very common, for example if a cript can be run on Linux or Windows etc...
+    Some "Usable" functions are very common, for example if a cript can be run on Linux or Windows etc...
 
     It is also possible to set a Usable function in a __init__.py file, and then it applies
     to all scripts of the directory and sub-directories."""
@@ -1021,11 +1033,13 @@ def UsableLinuxBinary(entity_type, entity_ids_arr):
         return True
     # TODO: Finish this. Use "magic" module ??
     return True
-    
+
 
 def is_snapshot_behaviour():
-    """Used by scripts named like events_generator_*.py which can write a continuous flow of events.
-    They also must be able to run in snapshot mode, by default, and return RDF triples."""
+    """
+    Used by scripts named like events_feeder_*.py which can write a continuous flow of events.
+    They also must be able to run in snapshot mode, by default, and return RDF triples.
+    """
 
     try:
         # Maybe this is started form the command line when testing.
@@ -1033,8 +1047,14 @@ def is_snapshot_behaviour():
     except KeyError:
         query_string = ""
 
-    sys.stderr.write("is_snapshot_behaviour QUERY_STRING=%s\n" % query_string)
-    return "mode=" + "daemon" not in query_string
+    logging.debug("is_snapshot_behaviour QUERY_STRING=%s" % query_string)
+    is_snapshot = "mode=" + "daemon" not in query_string
+    if is_snapshot:
+        logging.debug("In snapshot mode")
+    else:
+        logging.debug("Not in snapshot mode")
+    return is_snapshot
+
 
 ################################################################################
 
@@ -1260,7 +1280,7 @@ def url_mode_replace(script, other_mode):
 def RootUri():
     calling_url = request_uri_with_mode("")
     calling_url = calling_url.replace("&", "&amp;")
-    DEBUG("RootUri calling_url=%s", calling_url)
+    logging.debug("RootUri calling_url=%s", calling_url)
     return NodeUrl(calling_url)
 
 ################################################################################
@@ -1622,23 +1642,25 @@ def GetEntityModule(entity_type):
 def GetScriptModule(current_module, fil):
     """This loads a script as a module. Example:
     currentModule="sources_types.win32" fil="enumerate_top_level_windows.py" """
+    logging.debug("current_module=%s fil=%s", current_module, fil)
     if not fil.endswith(".py"):
-        ERROR("GetScriptModule module=%s fil=%s not a Python script", current_module, fil)
+        logging.error("GetScriptModule module=%s fil=%s not a Python script", current_module, fil)
         return None
     file_base_name = fil[:-3] # Without the ".py" extension.
     if is_py3:
         # Example: importlib.import_module("sources_top.Databases.mysql_processlist")
-        #DEBUG("currentModule=%s fil=%s subClass=%s",currentModule,fil,subClass)
+        #logging.debug("currentModule=%s fil=%s subClass=%s",currentModule,fil,subClass)
         if current_module:
             imported_mod = importlib.import_module(current_module + "." + file_base_name)
         else:
             imported_mod = importlib.import_module(file_base_name)
     else:
         if current_module:
-            DEBUG("GetScriptModule file_base_name=%s currentModule=%s", file_base_name, current_module)
+            logging.debug("GetScriptModule file_base_name=%s currentModule=%s", file_base_name, current_module)
             imported_mod = importlib.import_module("." + file_base_name, current_module)
         else:
             imported_mod = importlib.import_module(file_base_name)
+    logging.debug("current_module=%s import OK", current_module)
     return imported_mod
 
 ################################################################################
@@ -1925,14 +1947,14 @@ class TmpFile:
             return
 
         self.Name = "%s/%s.%d.%s" % (curr_dir, prefix, proc_pid, suffix)
-        DEBUG("tmp=%s", self.Name )
+        logging.debug("tmp=%s", self.Name )
 
     def _remove_temp_file(self, fil_nam):
         if True:
-            DEBUG("Deleting=%s", fil_nam)
+            logging.debug("Deleting=%s", fil_nam)
             os.remove(fil_nam)
         else:
-            WARNING("NOT Deleting=%s", fil_nam)
+            logging.warning("NOT Deleting=%s", fil_nam)
 
     def __del__(self):
         try:
@@ -1943,7 +1965,7 @@ class TmpFile:
             if self.TmpDirToDel not in [None, "/", ""]:
                 # Extra-extra-check: Delete only survol temporary files.
                 assert os.path.basename(self.TmpDirToDel).startswith("survol_")
-                DEBUG("About to del %s", self.TmpDirToDel)
+                logging.debug("About to del %s", self.TmpDirToDel)
                 for root, dirs, files in os.walk(self.TmpDirToDel, topdown=False):
                     for name in files:
                         self._remove_temp_file(os.path.join(root, name))
@@ -1953,6 +1975,6 @@ class TmpFile:
                 os.rmdir(self.TmpDirToDel)
 
         except Exception as exc:
-            ERROR("__del__.Caught: %s. TmpDirToDel=%s Name=%s", str(exc), str(self.TmpDirToDel), str(self.Name))
+            logging.error("__del__.Caught: %s. TmpDirToDel=%s Name=%s", str(exc), str(self.TmpDirToDel), str(self.Name))
         return
 

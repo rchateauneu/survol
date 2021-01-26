@@ -5,6 +5,7 @@ Processes returned by WBEM
 """
 
 import sys
+import logging
 import lib_util
 import lib_wbem
 import lib_common
@@ -27,7 +28,7 @@ def Main():
 
     cimom_url = lib_wbem.HostnameToWbemServer(machine_name)
 
-    DEBUG("wbem_hostname_processes.py machine_name=%s cimom_url=%s", machine_name, cimom_url)
+    logging.debug("wbem_hostname_processes.py machine_name=%s cimom_url=%s", machine_name, cimom_url)
 
     # If running on the local machine, pass the host as None otherwise authorization is checked
     # just like a remote machine, which means User Account Control (UAC) disabling,
@@ -39,12 +40,12 @@ def Main():
 
     # >>> conn = pywbem.WBEMConnection("http://192.168.1.88:5988" , ('pe***us','t*t*') )
     try:
-        connWbem = lib_wbem.WbemConnection(cimom_url)
+        conn_wbem = lib_wbem.WbemConnection(cimom_url)
     except Exception as exc:
         lib_common.ErrorMessageHtml("Connecting to :" + cimom_url + " Caught:" + str(exc))
 
     try:
-        lst_proc = connWbem.EnumerateInstances(ClassName="PG_UnixProcess", namespace="root/cimv2")
+        lst_proc = conn_wbem.EnumerateInstances(ClassName="PG_UnixProcess", namespace="root/cimv2")
     except Exception as exc:
         lib_common.ErrorMessageHtml("Error:" + str(exc))
 
@@ -66,7 +67,7 @@ def Main():
     Main.dictWbemPidToNode = {}
 
     def wbem_pid_to_node(proc_id):
-        DEBUG("procId=%s", proc_id)
+        logging.debug("procId=%s", proc_id)
         try:
             return Main.dictWbemPidToNode[proc_id]
         except KeyError:

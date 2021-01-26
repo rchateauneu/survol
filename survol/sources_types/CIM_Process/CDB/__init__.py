@@ -4,19 +4,20 @@ CDB Windows debugger
 
 import os
 import sys
+import logging
 import lib_util
 
 Usable = lib_util.UsableWindows
 
 
 def TestIfKnownDll(fil_nam):
-    """
+    r"""
     It might be a Known DLL
     HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\KnownDLLs"
     All KnownDLLs are in the directory HKLM\System\CCS\Control\KnownDLLs\DllDirectory or
     HKLM\System\CCS\Control\KnownDLLs\DllDirectory32, respectively "%SystemRoot%\system32" or "%SystemRoot%\syswow64".
     """
-    DEBUG("TestIfKnownDll filNam=%s", fil_nam)
+    logging.debug("TestIfKnownDll filNam=%s", fil_nam)
     if not fil_nam.upper().endswith(".DLL"):
         fil_nam += ".DLL"
 

@@ -70,72 +70,72 @@ class CgiScriptTest(unittest.TestCase):
         result_url_b = lib_daemon._process_name_to_url(process_name_b)
         self.assertEqual(test_url_b, result_url_b)
 
-    def test_is_events_generator_daemon_not_running(self):
+    def test_is_events_feeder_daemon_not_running(self):
         test_url = self._dummy_url_prefix + "non_existent_url.py?arg=%d" % os.getpid()
-        status_running = lib_daemon.is_events_generator_daemon_running(test_url)
+        status_running = lib_daemon.is_events_feeder_daemon_running(test_url)
         self.assertTrue(not status_running)
 
     @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: This hangs")
-    def test_start_events_generator_daemon(self):
+    def test_start_events_feeder_daemon(self):
         # http://vps516494.ovh.net/Survol/survol/sources_types/enumerate_CIM_Process.py?xid=.
-        test_url = self._dummy_url_prefix + "/survol/sources_types/events_generator_one_tick_per_second.py?parama=123&paramb=START"
+        test_url = self._dummy_url_prefix + "/survol/sources_types/events_feeder_one_tick_per_second.py?parama=123&paramb=START"
 
-        created_process_id = lib_daemon.start_events_generator_daemon(test_url)
+        created_process_id = lib_daemon.start_events_feeder_daemon(test_url)
 
-        content_stdout = lib_daemon.get_events_generator_stdout(test_url)
+        content_stdout = lib_daemon.get_events_feeder_stdout(test_url)
         print("content_stdout=", content_stdout)
 
-        content_stderr = lib_daemon.get_events_generator_stderr(test_url)
+        content_stderr = lib_daemon.get_events_feeder_stderr(test_url)
         print("content_stderr=", content_stderr)
 
         self.assertTrue(psutil.pid_exists(created_process_id))
 
-        # PYTEST_CURRENT_TEST= tests/test_lib_daemon.py::CgiScriptTest::test_start_events_generator_daemon
+        # PYTEST_CURRENT_TEST= tests/test_lib_daemon.py::CgiScriptTest::test_start_events_feeder_daemon
         print("PYTEST_CURRENT_TEST=", os.environ["PYTEST_CURRENT_TEST"])
 
         self.assertTrue(created_process_id)
 
-        status_running = lib_daemon.is_events_generator_daemon_running(test_url)
-        content_stdout = lib_daemon.get_events_generator_stdout(test_url)
+        status_running = lib_daemon.is_events_feeder_daemon_running(test_url)
+        content_stdout = lib_daemon.get_events_feeder_stdout(test_url)
         print("content_stdout=", content_stdout)
 
-        content_stderr = lib_daemon.get_events_generator_stderr(test_url)
+        content_stderr = lib_daemon.get_events_feeder_stderr(test_url)
         print("content_stderr=", content_stderr)
 
         self.assertTrue(status_running)
-        content_stdout = lib_daemon.get_events_generator_stdout(test_url)
+        content_stdout = lib_daemon.get_events_feeder_stdout(test_url)
         print("content_stdout=", content_stdout)
 
-        content_stderr = lib_daemon.get_events_generator_stderr(test_url)
+        content_stderr = lib_daemon.get_events_feeder_stderr(test_url)
         print("content_stderr=", content_stderr)
 
         self.assertTrue(psutil.pid_exists(created_process_id))
         time.sleep(1)
-        content_stdout = lib_daemon.get_events_generator_stdout(test_url)
+        content_stdout = lib_daemon.get_events_feeder_stdout(test_url)
         print("content_stdout=", content_stdout)
 
-        content_stderr = lib_daemon.get_events_generator_stderr(test_url)
+        content_stderr = lib_daemon.get_events_feeder_stderr(test_url)
         print("content_stderr=", content_stderr)
 
         self.assertTrue(psutil.pid_exists(created_process_id))
 
-        content_stdout = lib_daemon.get_events_generator_stdout(test_url)
+        content_stdout = lib_daemon.get_events_feeder_stdout(test_url)
         print("content_stdout=", content_stdout)
 
-        content_stderr = lib_daemon.get_events_generator_stderr(test_url)
+        content_stderr = lib_daemon.get_events_feeder_stderr(test_url)
         print("content_stderr=", content_stderr)
 
-        status_stopped = lib_daemon.stop_events_generator_daemon(test_url)
+        status_stopped = lib_daemon.stop_events_feeder_daemon(test_url)
         self.assertTrue(status_stopped)
         # Supervisor may need a bit of time to stop the user process.
         time.sleep(3)
         self.assertFalse(psutil.pid_exists(created_process_id))
 
-    def test_start_events_generator_non_daemon(self):
+    def test_start_events_feeder_non_daemon(self):
         """Events generator must return something even if started in non-daemon mode."""
         # http://vps516494.ovh.net/Survol/survol/sources_types/enumerate_CIM_Process.py?xid=.
 
-        script_suffix = "events_generator_one_tick_per_second.py?parama=456&paramb=START&mode=html"
+        script_suffix = "events_feeder_one_tick_per_second.py?parama=456&paramb=START&mode=html"
         test_url = self._agent_url + "/survol/sources_types/" + script_suffix
         html_url_response = portable_urlopen(test_url, timeout=10)
         html_content = html_url_response.read()  # Py3:bytes, Py2:str
@@ -176,8 +176,8 @@ def _triple_to_three_strings(*one_triple):
     return str(one_triple[0]), str(one_triple[1]), str(one_triple[2])
 
 
-def _check_events_generator_psutil_processes_perf(test_object, text_message, result_graph):
-    """This checks the result of events_generator_psutil_processes_perf.py"""
+def _check_events_feeder_psutil_processes_perf(test_object, text_message, result_graph):
+    """This checks the result of events_feeder_psutil_processes_perf.py"""
 
     test_object.assertTrue(result_graph)
     print(text_message, "len(result_graph)=", len(result_graph))
@@ -241,8 +241,8 @@ def _check_events_generator_psutil_processes_perf(test_object, text_message, res
     check_one_process(CurrentParentPid)
 
 
-def _check_events_generator_psutil_system_counters(test_object, text_message, result_graph):
-    """This checks the result of events_generator_psutil_system_counters.py"""
+def _check_events_feeder_psutil_system_counters(test_object, text_message, result_graph):
+    """This checks the result of events_feeder_psutil_system_counters.py"""
 
     # The result should not be empty, and contain at least a couple of triples.
     test_object.assertTrue(result_graph)
@@ -269,7 +269,7 @@ def _check_events_generator_psutil_system_counters(test_object, text_message, re
     print(text_message, "samples number=", samples_number)
 
 
-def _check_events_generator_windows_directory_changes(test_object, text_message, result_graph, updated_files):
+def _check_events_feeder_win32_dir_changes(test_object, text_message, result_graph, updated_files):
     test_object.assertTrue(result_graph)
     print(text_message, "len(result_graph)=", len(result_graph))
     print("updated_files=", updated_files)
@@ -317,41 +317,40 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
         graph_daemon_result_snapshot = _run_daemon_script_in_snapshot_mode(full_url)
         return graph_daemon_result_snapshot
 
-    def test_events_generator_psutil_processes_perf(self):
-        url_suffix = "events_generator_psutil_processes_perf.py"
+    def test_events_feeder_psutil_processes_perf(self):
+        url_suffix = "events_feeder_psutil_processes_perf.py"
         result_snapshot = self._run_script_as_snapshot(url_suffix)
-        _check_events_generator_psutil_processes_perf(self, "Snapshot only", result_snapshot)
+        _check_events_feeder_psutil_processes_perf(self, "Snapshot only", result_snapshot)
 
     @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
-    def test_events_generator_psutil_system_counters(self):
-        url_suffix = "events_generator_psutil_system_counters.py"
+    def test_events_feeder_psutil_system_counters(self):
+        url_suffix = "events_feeder_psutil_system_counters.py"
         result_snapshot = self._run_script_as_snapshot(url_suffix)
-        _check_events_generator_psutil_system_counters(self, "Snapshot only", result_snapshot)
+        _check_events_feeder_psutil_system_counters(self, "Snapshot only", result_snapshot)
 
     @unittest.skipIf(is_platform_windows and is_travis_machine(), "Windows and Travis do not work. WHY ? FIXME.")
-    def test_events_generator_sockets_promiscuous_mode(self):
-        url_suffix = "events_generator_sockets_promiscuous_mode.py"
+    def test_events_feeder_sockets_promiscuous_mode(self):
+        url_suffix = "events_feeder_sockets_promiscuous_mode.py"
         result_snapshot = self._run_script_as_snapshot(url_suffix)
         self.assertTrue(result_snapshot)
 
     @unittest.skipIf(is_platform_linux and is_travis_machine(), "Linux and Travis do not work. WHY ? FIXME.")
-    def test_events_generator_tcpdump(self):
-        url_suffix = "events_generator_tcpdump.py"
+    def test_events_feeder_tcpdump(self):
+        url_suffix = "events_feeder_tcpdump.py"
         result_snapshot = self._run_script_as_snapshot(url_suffix)
         self.assertTrue(result_snapshot)
 
     @unittest.skipIf(is_platform_linux or is_travis_machine(), "Windows only")
-    def test_events_generator_windows_directory_changes(self):
+    def test_events_feeder_win32_dir_changes(self):
         """There is not much activity in these directories: The goal is to test that the script starts correctly."""
         checked_directory = lib_util.global_temp_directory
-        url_suffix = "CIM_Directory/events_generator_windows_directory_changes.py?xid=CIM_Directory.Name=%s" \
+        url_suffix = "CIM_Directory/events_feeder_win32_dir_changes.py?xid=CIM_Directory.Name=%s" \
                    % checked_directory
         result_snapshot = self._run_script_as_snapshot(url_suffix)
         self.assertTrue(result_snapshot)
 
-    ##################
     @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
-    def test_events_generator_system_calls_sleep(self):
+    def test_events_feeder_system_calls_sleep(self):
         proc_open = None
         try:
             # This starts a dummy process, whose system calls will be monitored.
@@ -359,7 +358,7 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
                 sys.executable,
                 "-c",
                 "import time;time.sleep(5)"]
-            sys.stderr.write("test_events_generator_system_calls supervisor_command=%s\n" % subprocess_command)
+            sys.stderr.write("test_events_feeder_system_calls supervisor_command=%s\n" % subprocess_command)
 
             # No Shell, otherwise we cannot know which process is created.
             proc_popen = subprocess.Popen(
@@ -372,7 +371,7 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
             created_process_node = self._agent_box().UriMakeFromDict("CIM_Process", {"Handle": proc_popen.pid})
             literal_pid = rdflib.Literal(proc_popen.pid)
 
-            url_suffix = "CIM_Process/events_generator_system_calls.py?xid=CIM_Process.Handle=%d" % proc_popen.pid
+            url_suffix = "CIM_Process/events_feeder_system_calls.py?xid=CIM_Process.Handle=%d" % proc_popen.pid
             # This attaches to the subprocess and gets its system calls.
             result_snapshot = self._run_script_as_snapshot(url_suffix)
 
@@ -391,13 +390,13 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
 
     @unittest.skipIf(is_platform_windows, "Windows only")
     @unittest.skipIf(is_travis_machine(), "FIXME: Broken Travis")
-    def test_events_generator_iostat_all_disks(self):
-        url_suffix = "Linux/events_generator_iostat_all_disks.py"
+    def test_events_feeder_iostat_all_disks(self):
+        url_suffix = "Linux/events_feeder_iostat_all_disks.py"
         daemon_result = self._run_script_as_snapshot(url_suffix)
         self.assertTrue(daemon_result)
 
-    def test_events_generator_vmstat(self):
-        url_suffix = "Linux/events_generator_vmstat.py"
+    def test_events_feeder_vmstat(self):
+        url_suffix = "Linux/events_feeder_vmstat.py"
         daemon_result = self._run_script_as_snapshot(url_suffix)
         self.assertTrue(daemon_result)
 
@@ -443,7 +442,7 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
         time.sleep(events_delay)
 
         # Now, the daemon process must have been started and must still be running.
-        is_daemon_running = lib_daemon.is_events_generator_daemon_running(local_url)
+        is_daemon_running = lib_daemon.is_events_feeder_daemon_running(local_url)
         self.assertTrue(is_daemon_running)
 
         graph_daemon_result_events = _run_daemon_script_in_snapshot_mode(full_url)
@@ -454,25 +453,26 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
         return graph_daemon_result_snapshot, graph_daemon_result_events
 
     @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
-    def test_events_generator_psutil_processes_perf(self):
-        url_suffix = "events_generator_psutil_processes_perf.py"
+    def test_events_feeder_psutil_processes_perf(self):
+        url_suffix = "events_feeder_psutil_processes_perf.py"
         result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix, 20)
-        _check_events_generator_psutil_processes_perf(self, "Snapshot before events", result_snapshot)
-        _check_events_generator_psutil_processes_perf(self, "Events", result_events)
+        _check_events_feeder_psutil_processes_perf(self, "Snapshot before events", result_snapshot)
+        _check_events_feeder_psutil_processes_perf(self, "Events", result_events)
 
     @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
-    def test_events_generator_psutil_system_counters(self):
+    def test_events_feeder_psutil_system_counters(self):
         """This script is already tested, as a snapshot."""
-        url_suffix = "events_generator_psutil_system_counters.py"
+        url_suffix = "events_feeder_psutil_system_counters.py"
         result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix, 20)
-        _check_events_generator_psutil_system_counters(self, "Snapshot before events", result_snapshot)
-        _check_events_generator_psutil_system_counters(self, "Events", result_snapshot)
+        _check_events_feeder_psutil_system_counters(self, "Snapshot before events", result_snapshot)
+        _check_events_feeder_psutil_system_counters(self, "Events", result_snapshot)
 
     @unittest.skipIf(is_platform_linux or is_travis_machine(), "Windows only")
-    def test_events_generator_windows_directory_changes(self):
-        """This starts events_generator_windows_directory_changes, updates a file and checks if this is detected."""
+    #@unittest.skipIf(is_platform_linux, "Windows only")
+    def test_events_feeder_win32_dir_changes(self):
+        """This starts events_feeder_win32_dir_changes, updates a file and checks if this is detected."""
         checked_directory = lib_util.global_temp_directory
-        url_suffix = "CIM_Directory/events_generator_windows_directory_changes.py?xid=CIM_Directory.Name=%s" \
+        url_suffix = "CIM_Directory/events_feeder_win32_dir_changes.py?xid=CIM_Directory.Name=%s" \
                      % checked_directory
 
         windows_changed_file = os.path.join(checked_directory, "file_created_%d.tmp" % os.getpid())
@@ -482,34 +482,42 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
         # This creates a subprocess which creates then updates a file several times.
         # It does not write to stdout, so no need of communicate().
         # This processes starts immediately while we are querying the CGI script.
-        py_cmd = "import time;[(time.sleep(1),open(r'%s','w'),) for i in range(15)]" % windows_changed_file
+        py_cmd = "import time;[(time.sleep(1),open(r'%s','w'),) for i in range(30)]" % windows_changed_file
 
-        print("test_events_generator_windows_directory_changes py_cmd=%s" % py_cmd)
+        print("test_events_feeder_win32_dir_changes py_cmd=%s" % py_cmd)
         subprocess_command = [
             sys.executable,
             "-c",
             py_cmd]
-        print("test_events_generator_windows_directory_changes supervisor_command=%s" % subprocess_command)
+        print("test_events_feeder_win32_dir_changes supervisor_command=%s" % subprocess_command)
 
         proc_popen = subprocess.Popen(
             subprocess_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 
         result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix, 5)
 
-        _check_events_generator_windows_directory_changes(self, "Snapshot before events", result_snapshot, [])
-        _check_events_generator_windows_directory_changes(self, "Events", result_events, [windows_changed_file])
+        _check_events_feeder_win32_dir_changes(self, "Snapshot before events", result_snapshot, [])
+        _check_events_feeder_win32_dir_changes(self, "Events", result_events, [windows_changed_file])
 
-    ##################
-    @unittest.skip("Temporarily disabled")
-    def test_events_generator_system_calls_loop(self):
+    #@unittest.skipIf(is_travis_machine(), "Not on Travis yet")
+    def test_events_feeder_system_calls_loop(self):
         proc_open = None
         try:
             # This starts a dummy process, whose system calls will be monitored.
+            temporary_python_file_name = unique_temporary_path("test_events_feeder_system_calls_loop", ".py")
+            script_content = """\
+import time
+time.sleep(10)
+import os
+print("cwd=", os.getcwd())
+"""
+            with open(temporary_python_file_name, "w") as temporary_python_file_fd:
+                temporary_python_file_fd.write(script_content)
+
             subprocess_command = [
                 sys.executable,
-                "-c",
-                "import time;time.sleep(3)"]
-            sys.stderr.write("test_events_generator_system_calls_loop supervisor_command=%s\n" % subprocess_command)
+                temporary_python_file_name]
+            print("test_events_feeder_system_calls_loop supervisor_command=%s" % subprocess_command)
 
             # No Shell, otherwise we cannot know which process is created.
             proc_popen = subprocess.Popen(
@@ -524,15 +532,9 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
                 "CIM_Process", {"Handle": proc_popen.pid})
             literal_pid = rdflib.Literal(proc_popen.pid)
 
-            url_suffix = "CIM_Process/events_generator_system_calls.py?xid=CIM_Process.Handle=%d" % proc_popen.pid
+            url_suffix = "CIM_Process/events_feeder_system_calls.py?xid=CIM_Process.Handle=%d" % proc_popen.pid
             # This attaches to the subprocess and gets its system calls.
             result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix, 10)
-
-            self.assertTrue(result_snapshot)
-            #print("daemon_result=", daemon_result)
-            for daemon_subject, daemon_predicate, daemon_object in result_snapshot:
-                if str(daemon_object) == str(proc_popen.pid):
-                    print("xxxxxx=", daemon_subject, daemon_predicate, daemon_object)
 
             print("Triple=", created_process_node, lib_properties.pc.property_pid, literal_pid)
 
@@ -548,7 +550,9 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
                 triple_to_three_strings(created_process_node, lib_properties.pc.property_pid, literal_pid)
                 in [triple_to_three_strings(*one_triple) for one_triple in result_snapshot])
 
-            self.assertTrue(result_events)
+            print("result_events=", result_events)
+            for a, b, c in result_events:
+                print("    ", a, b, c)
 
         finally:
             # The subprocess will exit anyway.

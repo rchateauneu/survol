@@ -19,6 +19,7 @@ import cgi
 import os
 import re
 import time
+import logging
 import rdflib
 
 import lib_kbase
@@ -89,7 +90,7 @@ def _out_cgi_mode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
         try:
             triples_count = lib_kbase.write_graph_to_events(theCgi.m_url_without_mode, theCgi.m_graph)
         except Exception as exc:
-            ERROR("_out_cgi_mode Exception exc=%s", exc)
+            logging.error("_out_cgi_mode Exception exc=%s", exc)
             raise
     elif mode in ["svg", ""]:
         # Default mode, because graphviz did not like several CGI arguments in a SVG document (Bug ?),
@@ -103,7 +104,7 @@ def _out_cgi_mode(theCgi, top_url, mode, error_msg=None, is_sub_server=False):
         lib_export_dot.GraphToSvg(page_title, error_msg, is_sub_server, parameters, grph, parameterized_links, top_url,
                       theCgi.m_layout_style, collapsed_properties, commutative_properties)
     else:
-        ERROR("_out_cgi_mode invalid mode=%s", mode)
+        logging.error("_out_cgi_mode invalid mode=%s", mode)
         ErrorMessageHtml("_out_cgi_mode invalid mode=%s" % mode)
 
     # TODO: Add a special mode where the triplestore grph is simply returned, without serialization.
@@ -159,16 +160,14 @@ def _get_calling_module_doc():
                 the_doc = the_doc.strip()
             else:
                 the_doc = ""
-            #sys.stderr.write("_get_calling_module_doc  module_caller.__doc__=%s\n" % the_doc)
             return the_doc
         except Exception as exc:
-            WARNING("_get_calling_module_doc Caught when getting doc:%s", str(exc))
+            logging.warning("_get_calling_module_doc Caught when getting doc:%s", str(exc))
             return "Caught when getting doc:" + str(exc)
     else:
         try:
             # This does not work when in WSGI mode, nor when merging.
             main_modu = sys.modules['__main__']
-            #sys.stderr.write("_get_calling_module_doc Main module:%s\n"% main_modu.__name__ )
             page_title = main_modu.__doc__
             if page_title:
                 page_title = page_title.strip()
@@ -237,7 +236,7 @@ def MergeOutCgiRdf(the_mode, cumulated_error):
             cgi_params.update(theCgiEnv.m_parameters)
             cgi_param_links.update(theCgiEnv.m_parameterized_links)
         except ValueError as error_msg:
-            WARNING("Error:%s Parameters:%s", error_msg, str(theCgiEnv.m_parameters))
+            logging.warning("Error:%s Parameters:%s", error_msg, str(theCgiEnv.m_parameters))
 
     # Eliminate duplicates in the list of collapsed properties.
     my_set = set(collapsed_properties)
@@ -280,9 +279,14 @@ class CgiEnv():
                  collapsed_properties=None):
         # It is possible to run these scripts as CGI scripts, so this transforms
         # command line arguments into CGI arguments. This is very helpful for debugging.
-        # TODO: At the moment, the mode cannot be changed.
 
-        #sys.stderr.write("__init__\n")
+        # The HTTP server can set the logging level with the environment variable SURVOL_LOGGING_LEVEL.
+        try:
+            logging_level = os.environ["SURVOL_LOGGING_LEVEL"]
+            logging.getLogger().setLevel(logging_level)
+            logging.info("logging_level set with SURVOL_LOGGING_LEVEL=%s" % logging_level)
+        except KeyError:
+            logging.info("logging_level is not forced with SURVOL_LOGGING_LEVEL.")
 
         lib_command_line.command_line_to_cgi_args()
         assert "QUERY_STRING" in os.environ
@@ -297,6 +301,7 @@ class CgiEnv():
         # TODO: Replace by "xid=http:%2F%2F192.168.1.83:5988/."
 
         mode = lib_util.GuessDisplayMode()
+        logging.debug("mode=%s" % mode)
 
         # Contains the optional arguments of the script, entered as CGI arguments..
         self.m_parameters = parameters if parameters else {}
@@ -344,7 +349,7 @@ class CgiEnv():
             globalCanProcessRemote = False
 
         if can_process_remote != globalCanProcessRemote:
-            # sys.stderr.write("INCONSISTENCY CanProcessRemote\n") # ... which is not an issue.
+            # "INCONSISTENCY CanProcessRemote ... which is not an issue.
             can_process_remote = True
 
         self.m_can_process_remote = can_process_remote
@@ -369,12 +374,12 @@ class CgiEnv():
             self.enter_edition_mode()
             assert False
 
-        # Scripts which can run as events generator must have their name starting with "events_generator_".
+        # Scripts which can run as events feeders must have their name starting with "events_feeder_".
         # This allows to use CGI programs as events genetors not written in Python.
         # TODO: Using the script name is enough, the module is not necessary.
         full_script_path, _, _ = self.m_calling_url.partition("?")
         script_basename = os.path.basename(full_script_path)
-        daemonizable_script = os.path.basename(script_basename).startswith("events_generator_")
+        daemonizable_script = os.path.basename(script_basename).startswith("events_feeder_")
 
         if not daemonizable_script:
             # This would be absurd to have a normal CGI script started in this mode.
@@ -394,7 +399,7 @@ class CgiEnv():
 
         try:
             # This may throw "[Errno 111] Connection refused"
-            is_daemon_running = lib_daemon.is_events_generator_daemon_running(self.m_url_without_mode)
+            is_daemon_running = lib_daemon.is_events_feeder_daemon_running(self.m_url_without_mode)
         except Exception as exc:
             # Then display the content in snapshot mode, which is better than nothing.
             self.report_error_message("Cannot start daemon, caught:%s\n" % exc)
@@ -403,7 +408,10 @@ class CgiEnv():
 
         if not is_daemon_running:
             # This is the case of a daemonizable script, normally run.
-            lib_daemon.start_events_generator_daemon(self.m_url_without_mode)
+            # TODO: Slight ambiguity here: The daemon could be intentionally stopped, and the user
+            # TODO: would like to see the existing events stored in the persistent triplestore,
+            # TODO: without restarting the daemon. We do not know how to do this yet.
+            lib_daemon.start_events_feeder_daemon(self.m_url_without_mode)
             # After that, whether the daemon dedicated to the script and its parameters is started or not,
             # the script is then executed in normal, snapshot mode, as a CGI script.
         else:
@@ -484,7 +492,7 @@ class CgiEnv():
         """This allow to edit the CGI parameters when in SVG (Graphviz) mode"""
 
         form_action = os.environ['SCRIPT_NAME']
-        DEBUG("enter_edition_mode form_action=%s", form_action)
+        logging.debug("enter_edition_mode form_action=%s", form_action)
 
         lib_util.WrtHeader('text/html')
 
@@ -525,7 +533,7 @@ class CgiEnv():
             # Same problem if the same argument appears several times: This will be a list.
             param_val = self.m_arguments[paramkey].value
         except KeyError:
-            DEBUG("get_parameters paramkey='%s' not as CGI", paramkey )
+            logging.debug("get_parameters paramkey='%s' not as CGI", paramkey )
             has_arg_value = False
 
         # Now converts it to the type of the default value. Otherwise untouched.
@@ -545,15 +553,15 @@ class CgiEnv():
                     # Sets the right value of the parameter because HTML form do not POST unchecked check boxes.
                     # Therefore, if in edit mode, a parameter is not returned, it can only be a False boolean.
                     self.m_parameters[paramkey] = param_val
-                    DEBUG("get_parameters paramkey='%s' set to FALSE", paramkey)
+                    logging.debug("get_parameters paramkey='%s' set to FALSE", paramkey)
                 except KeyError:
                     param_val = dflt_value
-                    DEBUG("get_parameters paramkey='%s' set to param_val='%s'", paramkey, param_val)
+                    logging.debug("get_parameters paramkey='%s' set to param_val='%s'", paramkey, param_val)
         else:
             if not has_arg_value:
                 param_val = ""
             else:
-                DEBUG("get_parameters nothing for paramkey='%s'", paramkey)
+                logging.debug("get_parameters nothing for paramkey='%s'", paramkey)
 
         # TODO: Beware, empty strings are NOT send by the HTML form,
         # TODO: so an empty string must be equal to the default value.
@@ -564,14 +572,14 @@ class CgiEnv():
         """This is used for some scripts which have a single parameter (For example pid and file name).
         GetId() just returns the value of an unique key-value pair.
         """
-        DEBUG("GetId m_entity_type=%s m_entity_id=%s", self.m_entity_type, str(self.m_entity_id))
+        logging.debug("GetId m_entity_type=%s m_entity_id=%s", self.m_entity_type, str(self.m_entity_id))
         try:
             # If this is a top-level url, no object type, therefore no id.
             if self.m_entity_type == "":
                 return ""
 
             split_kv = self.m_entity_id_dict
-            DEBUG("GetId split_kv=%s", str( split_kv))
+            logging.debug("GetId split_kv=%s", str( split_kv))
 
             # If this class is defined in our ontology, then we know the first property.
             ent_onto = lib_util.OntologyClassKeys(self.m_entity_type)
@@ -610,7 +618,7 @@ class CgiEnv():
     # cgiEnv.OutCgiRdf() will fill self.GetGraph() with events returned by a script in daemon mode.
     def OutCgiRdf(self, layout_style="", collapsed_properties=[]):
         global _global_cgi_env_list
-        DEBUG("OutCgiRdf globalMergeMode=%d m_calling_url=%s m_page_title=%s",
+        logging.debug("OutCgiRdf globalMergeMode=%d m_calling_url=%s m_page_title=%s",
               _global_merge_mode, self.m_calling_url, self.m_page_title.replace("\n", "<NL>"))
 
         # TODO: Get these values from the RDF document, if these were added on-the-fly by CGI scripts.
@@ -662,7 +670,7 @@ class CgiEnv():
                 ErrorMessageHtml("Parameter %s should be defined for a link" % param_key)
             prms_copy[param_key] = params_map[param_key]
 
-        DEBUG("prms_copy=%s", str(prms_copy))
+        logging.debug("prms_copy=%s", str(prms_copy))
 
         # Now create an URL with these updated params.
         idx_cgi = self.m_calling_url.find("?")
@@ -677,7 +685,7 @@ class CgiEnv():
             for param_key in prms_copy)
         labelled_url += "?" + kv_pairs_concat
 
-        DEBUG("labelled_url=%s", labelled_url)
+        logging.debug("labelled_url=%s", labelled_url)
 
         self.m_parameterized_links[url_label] = labelled_url
 
@@ -762,7 +770,7 @@ def ErrorMessageHtml(message):
     Therefore, it is possible to return any MIME document.
     The challenge is to return an error message in the expected output format: html, json, rdf etc..."""
     if globalErrorMessageEnabled:
-        ERROR("ErrorMessageHtml %s. Exiting.", message)
+        logging.error("ErrorMessageHtml %s. Exiting.", message)
         try:
             # Use RequestUri() instead of "REQUEST_URI", because this CGI environment variable
             # is not set in minimal HTTP servers such as CGIHTTPServer.
@@ -786,7 +794,7 @@ def ErrorMessageHtml(message):
         except KeyError:
             server_software = "Unknown_SERVER_SOFTWARE"
         lib_util.InfoMessageHtml(message)
-        DEBUG("ErrorMessageHtml about to leave. server_software=%s" % server_software)
+        logging.debug("ErrorMessageHtml about to leave. server_software=%s" % server_software)
 
         if server_software.find('WSGIServer') >= 0:
             # WSGI server is persistent and should not exit.
@@ -795,7 +803,7 @@ def ErrorMessageHtml(message):
             sys.exit(0)
     else:
         # Instead of exiting, it throws an exception which can be used by merge_scripts.py
-        DEBUG("ErrorMessageHtml DISABLED")
+        logging.debug("ErrorMessageHtml DISABLED")
         # It might be displayed in a HTML document.
         message_clean = lib_util.html_escape(message)
         raise Exception("ErrorMessageHtml raised:%s\n" % message_clean)
@@ -819,7 +827,7 @@ def SubProcPOpen(command):
 def SubProcCall(command):
     # For doxygen, we should have shell=True but this is NOT safe.
     # Shell is however needed for unit tests.
-    DEBUG("command=%s", command)
+    logging.debug("command=%s", command)
     ret = subprocess.call(command, stdout=sys.stderr, stderr=sys.stderr, shell=True)
     return ret
 

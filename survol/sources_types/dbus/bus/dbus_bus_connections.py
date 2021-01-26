@@ -7,12 +7,14 @@ DBus Bus connections
 import os
 import sys
 import dbus
+import logging
 import lib_common
 import lib_util
 import lib_dbus
 from lib_properties import pc
 
 Usable = lib_util.UsableLinux
+
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -22,8 +24,7 @@ def Main():
 
 	try:
 		theBus = lib_dbus.MakeBusFromAddress( busAddr )
-	except Exception:
-		exc = sys.exc_info()[1]
+	except Exception as exc:
 		lib_common.ErrorMessageHtml("busAddr=%s Caught:%s" % ( busAddr, str(exc) ) )
 
 	nodeBus = lib_util.EntityUri( "dbus/bus", busAddr )
@@ -47,22 +48,22 @@ def Main():
 
 		try:
 			ownrNam = theBus.get_name_owner(connectName)
-			DEBUG("connectName=%s ownr=%s", connectName,ownrNam)
+			logging.debug("connectName=%s ownr=%s", connectName, ownrNam)
 			if connectName != ownrNam:
 				ownrNode = GetConnectNode( busAddr, ownrNam )
-				DEBUG("TO CONNECT %s", connectName)
+				logging.debug("TO CONNECT %s", connectName)
 
 				# TODO: BUG, Display does not work if "Well Known" property.
 				# grph.add( (ownrNode, localPropDbusWellKnown, connectNode ) )
 				grph.add( (ownrNode, localPropDbusConnect, connectNode ) )
 		except ValueError:
-			DEBUG("22 CONNECT %s", connectName)
+			logging.debug("22 CONNECT %s", connectName)
 			grph.add( (nodeBus, localPropDbusConnect, connectNode ) )
-
 
 	# TODO: The ordering is: 1.1,1.11,1.2, so we should have a special sort function.
 
 	cgiEnv.OutCgiRdf( "LAYOUT_RECT", [ localPropDbusConnect, localPropDbusWellKnown ])
+
 
 if __name__ == '__main__':
 	Main()

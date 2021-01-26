@@ -5,6 +5,7 @@ AC2 components tree
 """
 
 import sys
+import logging
 import lib_common
 import lib_util
 import lib_uris
@@ -56,11 +57,11 @@ def DisplayComponentsTree(grph,configName,ac2App):
 	# TODO: PROBLEME, ON DEVRAIT ALLER CHERCHER LES SOUS-NODES AU LIEU DE TOUT REPARCOURIR !!!!!!!!!!!
 	for elt_apps in dom.getElementsByTagName('apps'):
 		# There should be one only.
-		DEBUG("Founds apps")
+		logging.debug("Founds apps")
 
 		for elt_app in elt_apps.getElementsByTagName('app'):
 			attr_name = elt_app.getAttributeNode('name').value
-			DEBUG("attr_name=%s",attr_name)
+			logging.debug("attr_name=%s",attr_name)
 
 			if attr_name != ac2App:
 				continue
@@ -73,14 +74,14 @@ def DisplayComponentsTree(grph,configName,ac2App):
 				attr_component_name = elt_component.getAttributeNode('name').value
 				nodeComponent = ComponentNameToNode(configName,attr_name,attr_component_name)
 
-				DEBUG("attr_component_name=%s",attr_component_name)
+				logging.debug("attr_component_name=%s",attr_component_name)
 
 				AC2_component.DecorateComponentWithXml(grph,nodeComponent,elt_component)
 
 				fatherFound = False
 				for elt_father in elt_component.getElementsByTagName('father'):
 					attr_father_name = elt_father.firstChild.nodeValue
-					DEBUG("attr_father_name=%s",attr_father_name)
+					logging.debug("attr_father_name=%s",attr_father_name)
 					nodeFather = ComponentNameToNode(configName,attr_name,attr_father_name)
 
 					grph.add( ( nodeFather, AC2.propParent, nodeComponent ) )
@@ -97,7 +98,7 @@ def Main():
 
 	ac2App = cgiEnv.m_entity_id_dict["App"]
 
-	DEBUG("ac2File=%s ac2App=%s", ac2File,ac2App)
+	logging.debug("ac2File=%s ac2App=%s", ac2File,ac2App)
 
 	grph = cgiEnv.GetGraph()
 

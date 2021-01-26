@@ -1,6 +1,7 @@
 import lib_util
 import dbus
 import sys
+import logging
 
 # Bus / address              : "unix:path=/var/run/dbus/system_bus_socket"
 # Connection / bus name      : ":34-907" (unique) or "com.mycompany.TextEditor (well-known)"
@@ -11,7 +12,7 @@ import sys
  
 
 def MakeBusFromAddress( busAddr ):
-	DEBUG("MakeBusFromAddress busAddr=%s", busAddr )
+	logging.debug("MakeBusFromAddress busAddr=%s", busAddr )
 	if busAddr == "system":
 		return dbus.SystemBus()
 	if busAddr == "session":

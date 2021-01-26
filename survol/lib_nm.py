@@ -6,20 +6,21 @@ import sys
 import socket
 import urllib
 import platform
+import logging
 import lib_util
 import lib_common
 
 def GetSymbols(fileSharedLib):
 
 	if os.path.isfile(fileSharedLib):
-		DEBUG("File %s exists", fileSharedLib)
+		logging.debug("File %s exists", fileSharedLib)
 	else:
 		lib_common.ErrorMessageHtml("File %s does not exist" % fileSharedLib)
 
 	if not lib_util.isPlatformLinux:
 		lib_common.ErrorMessageHtml("NM on Linux platform only")
 	nmCmd = "nm -DC " + fileSharedLib
-	INFO("Running %s", nmCmd)
+	logging.info("Running %s", nmCmd)
 	stream = os.popen(nmCmd)
 
 	# Just to have a sort of clean switch.

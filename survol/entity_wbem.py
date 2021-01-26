@@ -6,6 +6,7 @@ Display generic properties of a WBEM object.
 """
 
 import sys
+import logging
 import lib_common
 import lib_util
 from lib_properties import pc
@@ -20,7 +21,7 @@ except ImportError:
 # If ExecQuery is not supported like on OpenPegasus, try to build one instance.
 def WbemPlainExecQuery(conn, class_name, split_monik, name_space):
     a_qry = lib_util.SplitMonikToWQL(split_monik, class_name)
-    DEBUG("WbemPlainExecQuery nameSpace=%s a_qry=%s", name_space, a_qry)
+    logging.debug("WbemPlainExecQuery nameSpace=%s a_qry=%s", name_space, a_qry)
     # a_qry = 'select * from CIM_System'
     # a_qry = 'select * from CIM_ComputerSystem'
     try:
@@ -32,7 +33,7 @@ def WbemPlainExecQuery(conn, class_name, split_monik, name_space):
 		# where CreationClassName="PG_ComputerSystem" ...
 		# and Name="rchateau-HP". ns=root/cimv2. Caught:(7, u'CIM_ERR_NOT_SUPPORTED')
         msg_exc_first = str(exc)
-        WARNING("WbemPlainExecQuery a_qry=%s Exc=%s", a_qry, msg_exc_first)
+        logging.warning("WbemPlainExecQuery a_qry=%s Exc=%s", a_qry, msg_exc_first)
         return None
 
 
@@ -46,14 +47,14 @@ def WbemNoQueryOneInst(conn, class_name, split_monik, name_space):
         # ns=. Caught:(4, u'CIM_ERR_INVALID_PARAMETER: Wrong number of keys')
 
         wbem_inst_name = pywbem.CIMInstanceName(class_name, keybindings=key_bnds, namespace="root/CIMv2")
-        DEBUG("key_bnds=%s wbem_inst_name=%s", str(key_bnds), str(wbem_inst_name))
+        logging.debug("key_bnds=%s wbem_inst_name=%s", str(key_bnds), str(wbem_inst_name))
 
         wbem_inst_obj = conn.GetInstance(wbem_inst_name)
 
         return [wbem_inst_obj]
     except:
         exc = sys.exc_info()[1]
-        WARNING("WbemNoQueryOneInst className=" + str(class_name) + ". ns=" + name_space + ".\nCaught:" + str(exc))
+        logging.warning("WbemNoQueryOneInst className=" + str(class_name) + ". ns=" + name_space + ".\nCaught:" + str(exc))
         return None
 
 
@@ -115,7 +116,7 @@ def Main():
     cgiEnv = lib_common.CgiEnv(can_process_remote=True)
 
     entity_id = cgiEnv.GetId()
-    DEBUG("entity_id=%s", entity_id)
+    logging.debug("entity_id=%s", entity_id)
     if entity_id == "":
         lib_common.ErrorMessageHtml("No entity_id")
 
@@ -123,11 +124,11 @@ def Main():
     cimom_url = cgiEnv.GetHost()
 
     name_space, class_name = cgiEnv.get_namespace_type()
-    DEBUG("entity_wbem.py cimom_url=%s name_space=%s class_name=%s", cimom_url, name_space, class_name)
+    logging.debug("entity_wbem.py cimom_url=%s name_space=%s class_name=%s", cimom_url, name_space, class_name)
 
     if name_space == "":
         name_space = "root/cimv2"
-        INFO("Setting namespace to default value\n")
+        logging.info("Setting namespace to default value\n")
 
     if class_name == "":
         lib_common.ErrorMessageHtml("No class name. entity_id=%s" % entity_id)
@@ -147,7 +148,7 @@ def Main():
 
     split_monik = cgiEnv.m_entity_id_dict
 
-    DEBUG("entity_wbem.py name_space=%s class_name=%s cimom_url=%s" ,name_space, class_name, cimom_url)
+    logging.debug("entity_wbem.py name_space=%s class_name=%s cimom_url=%s" ,name_space, class_name, cimom_url)
 
     # This works:
     # conn = pywbem.WBEMConnection("http://192.168.0.17:5988",("pegasus","toto"))
@@ -157,7 +158,7 @@ def Main():
     # select * from CIM_Directory or CIM_DataFile does not return anything.
 
     inst_lists = WbemPlainExecQuery(conn, class_name, split_monik, name_space)
-    DEBUG("entity_wbem.py inst_lists=%s", str(inst_lists))
+    logging.debug("entity_wbem.py inst_lists=%s", str(inst_lists))
     if inst_lists is None:
         inst_lists = WbemNoQueryOneInst(conn, class_name, split_monik, name_space)
         if inst_lists is None:

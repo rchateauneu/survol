@@ -9,6 +9,7 @@ import os
 import sys
 import cgi
 import socket
+import logging
 import lib_common
 import lib_util
 import lib_credentials
@@ -312,7 +313,7 @@ def _cred_type_name_to_url(credType, credName):
         # Maybe the key is not defined ...
         # ... or the generator does not work
         exc = sys.exc_info()[1]
-        WARNING("nodeGenerator exception:%s",str(exc))
+        logging.warning("nodeGenerator exception:%s",str(exc))
         credNameUrl = None
     return credNameUrl
 
@@ -334,7 +335,7 @@ def Main():
     try:
         addrRemote = os.environ['REMOTE_ADDR']
     except KeyError:
-        #ERROR("edit_credentials.py: Cannot get REMOTE_ADDR")
+        #logging.error("edit_credentials.py: Cannot get REMOTE_ADDR")
         sys.stderr.write("edit_credentials.py: Cannot get REMOTE_ADDR\n")
         raise
 

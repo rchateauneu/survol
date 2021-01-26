@@ -6,6 +6,7 @@ import os
 import sys
 import psutil
 import rdflib
+import logging
 import lib_common
 import lib_util
 from lib_properties import pc
@@ -17,7 +18,7 @@ from lib_psutil import *
 
 
 def GetEnvVarMap(the_pid):
-    """Returns the value of an environment variable of a given process."""
+    """Returns the dict of environment variables of a given process."""
 
     # TODO: Apparently, it exists in psutil.Process().environ() ??
     if lib_util.isPlatformLinux:
@@ -26,7 +27,7 @@ def GetEnvVarMap(the_pid):
         envlin = filproc.readlines()
         for li in envlin[0].split("\0"):
             pos_equ = li.find("=")
-            map_envs[li[:pos_equ] ] = li[pos_equ+1:]
+            map_envs[li[:pos_equ]] = li[pos_equ+1:]
         filproc.close()
         return map_envs
 
@@ -66,10 +67,11 @@ def EntityName(entity_ids_arr):
 
 
 def _add_command_line_and_executable(grph, node, proc_obj):
+    """This aadds to the node of a process, its command line and the name of the executable."""
     cmd_line = PsutilProcToCmdline(proc_obj)
 
     node_cmd_line = rdflib.Literal(cmd_line)
-    grph.add((node, pc.property_command, rdflib.Literal(cmd_line)))
+    grph.add((node, pc.property_command, node_cmd_line))
 
     exec_name, exec_err_msg = PsutilProcToExe(proc_obj)
     if exec_name == "":
@@ -214,7 +216,7 @@ def AddInfo(grph, node, entity_ids_arr):
         grph.add((node, lib_common.MakeProp("Virtual Memory Size"), rdflib.Literal(sz_virst_mem_sz)))
 
     except Exception as exc:
-        ERROR("CIM_Process.AddInfo. Caught:%s", exc)
+        logging.error("CIM_Process.AddInfo. Caught:%s", exc)
         grph.add((node, pc.property_information, rdflib.Literal(str(exc))))
 
     # Needed for other operations.
@@ -235,7 +237,7 @@ def SelectFromWhere(where_key_values):
     if the minimal set of properties is there."""
 
     # TODO: Add "select_attributes"
-    DEBUG("CIM_Process SelectFromWhere where_key_values=%s", str(where_key_values))
+    logging.debug("CIM_Process SelectFromWhere where_key_values=%s", str(where_key_values))
     for proc_obj in psutil.process_iter():
         user_name = PsutilProcToUser(proc_obj,None)
         if user_name:

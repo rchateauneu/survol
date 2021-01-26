@@ -8,6 +8,7 @@ import os
 import re
 import sys
 import psutil
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -27,7 +28,7 @@ def versiontuple(v):
 def Usable(entity_type, entity_ids_arr):
     """Psutil version must be at least 4.0.0"""
     usab = versiontuple(psutil.__version__) >= versiontuple("4.0.0")
-    DEBUG("psutil.__version__=%s usab=%d", psutil.__version__, usab)
+    logging.debug("psutil.__version__=%s usab=%d", psutil.__version__, usab)
     return usab
 
 
@@ -55,7 +56,7 @@ def Main():
 
     for env_key in envs_dict :
         env_val = envs_dict[env_key]
-        DEBUG("env_key=%s env_val=%s", env_key, env_val)
+        logging.debug("env_key=%s env_val=%s", env_key, env_val)
         node_env_nam = lib_util.NodeLiteral(env_key)
 
         # When a file or a directory displayed with a node,

@@ -6,6 +6,7 @@ Windows local groups
 
 from __future__ import generators
 import sys
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -43,16 +44,16 @@ def Main():
         while True:
             data, total, resume = win32net.NetLocalGroupEnum(serv_name_or_none, 1, resume)
             for group in data:
-                DEBUG("Group %(name)s:%(comment)s", group)
+                logging.debug("Group %(name)s:%(comment)s", group)
 
                 # TODO: Not sure about the groupname syntax.
                 group_name = group['name']
-                DEBUG("group_name=%s", group_name)
+                logging.debug("group_name=%s", group_name)
                 node_group = survol_Win32_Group.MakeUri(group_name, server)
 
                 grph.add((node_group, pc.property_host, server_node))
                 group_comment = group['comment']
-                DEBUG("group_comment=%s", group_comment)
+                logging.debug("group_comment=%s", group_comment)
                 if group_comment != "":
                     group_comment_max_width = max(80, len(group_name))
                     if len(group_comment) > group_comment_max_width:
@@ -69,10 +70,10 @@ def Main():
                         try:
                             user_name, domain, the_type = win32security.LookupAccountSid(server, member['sid'])
                         except Exception as exc:
-                            WARNING("Server=%s LookupAccountSid Caught:%s", server, str(exc))
+                            logging.warning("Server=%s LookupAccountSid Caught:%s", server, str(exc))
                             continue
 
-                        DEBUG("Member: %s: %s server=%s", user_name, member['domainandname'], server)
+                        logging.debug("Member: %s: %s server=%s", user_name, member['domainandname'], server)
                         # node_user = serverBox.UserUri( user_name )
                         node_user = survol_Win32_UserAccount.MakeUri(user_name, server)
 

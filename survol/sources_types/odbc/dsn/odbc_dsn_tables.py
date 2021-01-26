@@ -5,6 +5,7 @@ Tables for ODBC DSN
 """
 
 import sys
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -16,6 +17,7 @@ try:
 except ImportError:
     lib_common.ErrorMessageHtml("pyodbc Python library not installed")
 
+
 def Main():
     cgiEnv = lib_common.CgiEnv()
 
@@ -23,7 +25,7 @@ def Main():
 
     dsnNam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
 
-    DEBUG("dsn=(%s)", dsnNam )
+    logging.debug("dsn=(%s)", dsnNam )
 
     nodeDsn = survol_odbc_dsn.MakeUri( dsnNam )
 
@@ -31,7 +33,7 @@ def Main():
 
     try:
         cnxn = pyodbc.connect(ODBC_ConnectString)
-        DEBUG("Connected: %s", dsnNam)
+        logging.debug("Connected: %s", dsnNam)
         cursor = cnxn.cursor()
 
         # http://pyodbc.googlecode.com/git/web/docs.html
@@ -57,7 +59,7 @@ def Main():
                 grph.add( (nodTab, predicateNode, lib_util.NodeLiteral(row[idxCol]) ) )
 
     except Exception:
-        WARNING("tabNam=%s", str(sys.exc_info()))
+        logging.warning("tabNam=%s", str(sys.exc_info()))
         exc = sys.exc_info()[0]
         lib_common.ErrorMessageHtml("nodeDsn=%s Unexpected error:%s" % ( dsnNam, str( sys.exc_info() ) ) )
 
@@ -65,9 +67,8 @@ def Main():
     # cgiEnv.OutCgiRdf()
     cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_odbc_table] )
 
+
 if __name__ == '__main__':
 	Main()
-
-
 
 # http://www.easysoft.com/developer/languages/python/pyodbc.html

@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 __author__      = "Remi Chateauneu"
-__copyright__   = "Primhill Computers, 2018-2020"
+__copyright__   = "Primhill Computers, 2018-2021"
 __credits__ = ["","",""]
 __license__ = "GPL"
 __version__ = "0.0.1"
@@ -37,20 +37,27 @@ else:
 
 ################################################################################
 
+# This is on the critical path and can be accelerated following this plan:
+# - Input log files for testing must have a Unix terminator.
+# - No conversion to UTF-8 when reading from strace/ltrace stderr, because its returns bytes by default.
+# - Parsed arguments and function names still in str as it is now.
+# - All derived classes of _create_flows_from_generic_linux_log are put in a separate modules,
+#   are unchanged, and see only str, just line now.
+#   These str-only classes must be seperated of bytes-aware functions like:
+#   parse_call_arguments, _init_after_pid, parse_line_to_object, _is_log_ending, _create_flows_from_generic_linux_log
+#   that is, all functions processing the strace/ltrace line and returning a BatchCore.
+# - All strings in BatchCore objects are str as they are now.
+# The goal is to process the input line in plain str, and benefit of Cython acceleration without much effort,
+# and few code changes.
+# The general idea is to reaceive a bytes object, and split in into individual str.
+# Using str is more convenient because of literals scattered in the code.
+# Possibly seperate "ltrace" and "strace".
+
 
 @cython.returns(tuple)
 @cython.locals(
     str_args=cython.basestring,
-    arg_clean=cython.basestring,
-    ix_start=cython.int,
-    ix_curr=cython.int,
-    ix_end=cython.int,
-    ix_unfinished=cython.int,
     len_str=cython.int,
-    level_parent=cython.int,
-    finished=cython.bint,
-    in_quotes=cython.bint,
-    is_escaped=cython.bint,
 )
 def parse_call_arguments(str_args, ix_start):
     """Parsing of the arguments of the systems calls printed by strace and ltrace.
@@ -59,8 +66,44 @@ def parse_call_arguments(str_args, ix_start):
 
     This is called for each line and is on the critical path.
     Therefore it can be compiled with Cython."""
-    len_str = len(str_args)
 
+    len_str = str_args.find("<unfinished ...>", ix_start)
+    if len_str < 0:
+        len_str = len(str_args)
+    return _parse_call_arguments_nolen(str_args, ix_start, len_str)
+
+
+# https://docs.python.org/3/c-api/unicode.html
+# When dealing with single Unicode characters, use Py_UCS4.
+
+# This configuration works and the string is accessed with [] operator, but the input must be in bytes.
+# cython.p_char,
+# a_char=char
+
+# This configuration works but each character of the string is access with a function:
+# str_args=cython.basestring,
+# a_char=cython.Py_UCS4
+
+@cython.cfunc
+@cython.returns(tuple)
+@cython.locals(
+    #str_args=cython.p_char,
+    #str_args=cython.p_Py_UCS4,
+    #str_args=cython.p_char,
+    str_args=cython.basestring,
+    arg_clean=cython.basestring,
+    #arg_clean=cython.bytes,
+    ix_start=cython.int,
+    ix_curr=cython.int,
+    ix_end=cython.int,
+    len_str=cython.int,
+    level_parent=cython.int,
+    finished=cython.bint,
+    in_quotes=cython.bint,
+    is_escaped=cython.bint,
+    a_char=cython.Py_UCS4,
+)
+def _parse_call_arguments_nolen(str_args, ix_start, len_str):
     the_result = []
     finished = False
     in_quotes = False
@@ -69,10 +112,6 @@ def parse_call_arguments(str_args, ix_start):
     while ix_start < len_str and str_args[ix_start] == ' ':
         ix_start += 1
     ix_curr = ix_start
-
-    ix_unfinished = str_args.find("<unfinished ...>", ix_start)
-    if ix_unfinished >= 0:
-        len_str = ix_unfinished
 
     while (ix_curr < len_str) and not finished:
 
@@ -101,7 +140,7 @@ def parse_call_arguments(str_args, ix_start):
         # This assumes that [] and {} are paired by strace so no need to check parity.
         if a_chr in '[{':
             if ix_curr == ix_start + 1:
-                obj_to_add, ix_start = parse_call_arguments(str_args, ix_curr)
+                obj_to_add, ix_start = _parse_call_arguments_nolen(str_args, ix_curr, len_str)
                 the_result.append(obj_to_add)
                 while ix_start < len_str and str_args[ix_start] in ' ,':
                     ix_start += 1
@@ -720,6 +759,7 @@ def _strace_stream_to_pathname(strm_str):
     read ['3</usr/lib64/libc-2.21.so>']
     This returns a WMI object path, which is self-descriptive."""
 
+    assert isinstance(strm_str, str)
     # FIXME: Are file descriptors shared between processes ?
     idx_lt = strm_str.find("<")
     if idx_lt >= 0:
@@ -1832,8 +1872,12 @@ def _generate_linux_stream_from_command(linux_trace_command, process_id):
     # If shell=True, the command must be passed as a single line.
     kwargs = {"bufsize": 100000, "shell": False,
         "stdin": sys.stdin, "stdout": subprocess.PIPE, "stderr": subprocess.PIPE}
+
+    # subprocess returns bytes objects for stdout or stderr streams by default.
+    # With this parameters, it is str for Py2 and Py3.
     if cim_objects_definitions.is_py3:
         kwargs["encoding"] = "utf-8"
+
     object_popen = subprocess.Popen(command_as_list, **kwargs)
 
     # If shell argument is True, this is the process ID of the spawned shell.
@@ -2053,18 +2097,22 @@ class GenericTraceTracer:
             logging.info("Process %s\n" % process_id)
         return _generate_linux_stream_from_command(trace_command, process_id)
 
-    # Used when replaying a trace session. This returns an object, on which each read access
-    # return a conceptual function call, similar to what is returned when monitoring a process.
-    # For Linux, strace and ltrace returns one line for each function call.
-    # To replay these sessions, these lines are saved as is in a text file,
-    # which just needs to be open and read when replying a session.
     def logfile_pathname_to_stream(self, input_log_file):
+        """
+        Used when replaying a trace session. This returns an object, on which each read access
+        return a conceptual function call, similar to what is returned when monitoring a process.
+        For Linux, strace and ltrace returns one line for each function call.
+        To replay these sessions, these lines are saved as is in a text file,
+        which just needs to be open and read when replying a session.
+        """
         return open(input_log_file)
 
 
 class STraceTracer(GenericTraceTracer):
-    # The command options generate a specific output file format,
-    # and therefore parsing it is specific to these options.
+    """
+    The command options generate a specific output file format,
+    and therefore parsing it is specific to these options.
+    """
     def build_trace_command(self, external_command, a_pid):
         # -f  Trace  child  processes as a result of the fork, vfork and clone.
         trace_command = ["strace", "-q", "-qq", "-f", "-tt", "-T", "-s", G_StringSize]

@@ -5,6 +5,7 @@ Windows users
 """
 
 import sys
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -35,7 +36,7 @@ def Main():
     else:
         level = 2 # 1,2
 
-    DEBUG("hostname=%s level=%d", hostname, level)
+    logging.debug("hostname=%s level=%d", hostname, level)
 
     resume_handle = 0
 

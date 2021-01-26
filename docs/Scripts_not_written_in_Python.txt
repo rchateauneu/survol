@@ -20,7 +20,7 @@ When Survol analyses available scripts, Survol must check if a script is executa
 
 It should be able to call the generation of RDF or
 
-CGI programs whose name starts with "events_generator_" fit in the category of not using Python features.
+CGI programs whose name starts with "events_feeder_" fit in the category of not using Python features.
 Other technical details:
 - The ontology of classes could be written in json files instead of the Python file __init__.py associated to the class.
 - The function Usable which tells if a class or a script is usable could be implemented differently ?

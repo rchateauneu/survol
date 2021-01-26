@@ -8,6 +8,7 @@ import os
 import sys
 import lib_util
 import lib_common
+import logging
 
 try:
     import lib_wbem
@@ -38,7 +39,7 @@ def _wbem_add_base_class(grph, conn_wbem, wbem_node, entity_host, wbem_namespace
 
     # TODO: Which one should we take, http or https ???
     wbem_super_url = wbem_super_urls_list[0][0]
-    DEBUG("WBEM wbem_super_url=%s", wbem_super_url)
+    logging.debug("WBEM wbem_super_url=%s", wbem_super_url)
 
     wbem_super_node = lib_common.NodeUrl(wbem_super_url)
 
@@ -187,7 +188,7 @@ def _create_our_node(grph, root_node, entity_host, name_space, class_name, entit
 
             short_dir = dirpath[len(lib_util.gblTopScripts):]
             full_script_nam = lib_util.standardized_file_path(os.path.join(short_dir, filename))
-            DEBUG("full_script_nam=%s", full_script_nam)
+            logging.debug("full_script_nam=%s", full_script_nam)
 
             # TODO: Maybe remove the beginning of the file.
             local_class_url = lib_util.ScriptizeCimom(full_script_nam, class_name, entity_host)
@@ -214,7 +215,7 @@ def Main():
     entity_id = cgiEnv.m_entity_id
 
     # QUERY_STRING=xid=http%3A%2F%2F192.168.1.88%3A5988%2Froot%2FPG_Internal%3APG_WBEMSLPTemplate
-    DEBUG("class_type_all entity_host=%s entity_id=%s", entity_host, entity_id )
+    logging.debug("class_type_all entity_host=%s entity_id=%s", entity_host, entity_id )
 
     grph = cgiEnv.GetGraph()
 

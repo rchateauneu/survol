@@ -17,13 +17,14 @@ import platform
 import tempfile
 import subprocess
 import multiprocessing
+import logging
 
+# The logging level is set in pytest.ini
 
 def update_test_path():
     """This loads the module from the source, so no need to install it, and no need of virtualenv."""
     if "../survol" not in sys.path:
         sys.path.append("../survol")
-
 
 if ".." not in sys.path:
     sys.path.append("..")
@@ -145,6 +146,7 @@ def is_pytest():
 
 
 def check_program_exists(program_name):
+    """This checks that an executable is in the current path and can be started without error."""
     if is_platform_windows:
         test_command = ["where", program_name]
     elif is_platform_linux:
@@ -158,6 +160,7 @@ def check_program_exists(program_name):
     return test_stdout_output.strip()
 
 
+# This sets the domain name on Windows. It is a bit clunky.
 # Problem on Travis: Domain = 'PACKER-5D93E860', machine='packer-5d93e860-43ba-c2e7-85d2-3ea0696b8fc8'
 if is_platform_windows:
     if is_travis_machine():
@@ -189,6 +192,10 @@ def has_wbem():
 
 
 def unique_temporary_path(prefix, extension):
+    """
+    "It is a wrapper around temporary file creation, and ensures that the resulting filename
+    can be used everywhere in Survol library.
+    """
     temp_file = "%s_%d_%d%s" % (prefix, CurrentPid, int(time.time()), extension)
 
     # This is done in two stages because the case of the file is OK, but not the directory.
@@ -288,7 +295,7 @@ def _start_cgiserver_subprocess_portable(agent_port, current_dir):
     It is theoretically portable. """
     agent_process = multiprocessing.Process(
         target=scripts.cgiserver.start_server_forever,
-        args=(True, agent_host, agent_port, current_dir))
+        args=(agent_host, agent_port, current_dir))
     agent_process.start()
 
     print("agent_process.pid=", agent_process.pid)
@@ -386,9 +393,9 @@ def start_wsgiserver(agent_url, agent_port):
         # No SVG because Travis might not have dot/Graphviz. Also, the script must be compatible with WSGI.
         agent_process = None
         response = portable_urlopen(agent_url + "/survol/entity.py?mode=json", timeout=5)
-        INFO("start_wsgiserver: Using existing WSGI Survol agent")
+        logging.info("start_wsgiserver: Using existing WSGI Survol agent")
     except:
-        INFO("Starting test survol agent_url=%s hostnqme=%s", agent_url, agent_host)
+        logging.info("Starting test survol agent_url=%s hostnqme=%s", agent_url, agent_host)
 
         try:
             # Running the tests scripts from PyCharm is from the current directory.
@@ -396,22 +403,22 @@ def start_wsgiserver(agent_url, agent_port):
             current_dir = ".."
         except KeyError:
             current_dir = ""
-        INFO("current_dir=%s", current_dir)
-        INFO("sys.path=%s", str(sys.path))
+        logging.info("current_dir=%s", current_dir)
+        logging.info("sys.path=%s", str(sys.path))
 
         agent_process = multiprocessing.Process(
             target=scripts.wsgiserver.start_server_forever,
-            args=(True, agent_host, agent_port, current_dir))
+            args=(agent_host, agent_port, current_dir))
         agent_process.start()
         atexit.register(__dump_server_content, scripts.wsgiserver.WsgiServerLogFileName)
-        INFO("Waiting for WSGI agent ready")
+        logging.info("Waiting for WSGI agent ready")
         time.sleep(8.0)
         # Check again if the server is started. This can be done only with scripts compatible with WSGI.
         local_agent_url = "http://%s:%s/survol/entity.py?mode=json" % (agent_host, agent_port)
         try:
             response = portable_urlopen(local_agent_url, timeout=5)
         except Exception as exc:
-            ERROR("Caught:%s", exc)
+            logging.error("Caught:%s", exc)
             __dump_server_content(scripts.wsgiserver.WsgiServerLogFileName)
             raise
 
@@ -451,7 +458,7 @@ def __queries_entities_to_value_pairs(iter_entities_dicts):
 
 
 def query_see_also_key_value_pairs(grph, sparql_query):
-    WARNING("query_see_also_key_value_pairs")
+    logging.warning("query_see_also_key_value_pairs")
     iter_entities_dicts = lib_sparql.QuerySeeAlsoEntities(grph, sparql_query)
     iter_dict_objects = __queries_entities_to_value_pairs(iter_entities_dicts)
     list_dict_objects = list(iter_dict_objects)

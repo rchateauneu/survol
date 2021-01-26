@@ -6,6 +6,7 @@ Registered COM type libraries
 
 import os
 import sys
+import logging
 import lib_common
 from lib_properties import pc
 
@@ -13,6 +14,7 @@ import win32api
 import win32con
 
 import lib_com_type_lib
+
 
 def Main():
     cgiEnv = lib_common.CgiEnv()
@@ -27,7 +29,7 @@ def Main():
                 # (<class 'pywintypes.error'>, error(6, 'RegQueryInfoKey', 'The handle is invalid.')
                 key_name = win32api.RegEnumKey(lib_com_type_lib.TypeLibRegistryKey, num)
             except win32api.error as exc:
-                WARNING("RegEnumKey CAUGHT:%s", str(exc))
+                logging.warning("RegEnumKey CAUGHT:%s", str(exc))
                 break
 
             versions = lib_com_type_lib.ComKeyAllNameVersion(lib_com_type_lib.TypeLibRegistryKey, key_name)
@@ -42,7 +44,7 @@ def Main():
             num = num + 1
     finally:
         # This avoids:  error(6, 'RegQueryInfoKey', 'The handle is invalid.')
-        ERROR("DO NOT close handle")
+        logging.error("DO NOT close handle")
         # win32api.RegCloseKey(lib_com_type_lib.TypeLibRegistryKey
 
     cgiEnv.OutCgiRdf()

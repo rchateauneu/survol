@@ -1,6 +1,7 @@
 # RGB colors here: http://www.pagetutor.com/common/bgcolors216.html
 
 import sys
+import logging
 import lib_util
 
 
@@ -193,7 +194,7 @@ def WritePatterned(stream, a_type, subj_nam_tab, help_text, color, lab_h_ref, nu
         else:
             stream.write(patt_array[1] % (subj_nam_tab, help_text, color, num_fields, lab_text))
     except UnicodeEncodeError:
-        DEBUG("WritePatterned UnicodeEncodeError: Encoding=%s", sys.getdefaultencoding())
+        logging.debug("WritePatterned UnicodeEncodeError: Encoding=%s", sys.getdefaultencoding())
         return
 
     for key in lib_util.natural_sorted(dict_lines):

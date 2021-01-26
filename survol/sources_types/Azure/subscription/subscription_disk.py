@@ -6,6 +6,7 @@ Azure subscription disks
 
 import sys
 import socket
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -19,11 +20,6 @@ from sources_types.Azure import disk
 from sources_types.Azure import location
 
 Usable = lib_util.UsableWindows
-
-
-# TODO: L affichage deconne quand on essaye defaire des colonnes.
-
-# TODO: Il faudrait ramener un disque Azure a un disque normal, peut-etre ?
 
 
 def Main():
@@ -56,7 +52,7 @@ def Main():
 		lib_common.ErrorMessageHtml("Unexpected error:" + str( sys.exc_info() ) )
 
 	for dsk in lstDisks:
-		DEBUG("dsk=%s",str(dir(dsk)))
+		logging.debug("dsk=%s",str(dir(dsk)))
 		nodeDisk = disk.MakeUri( dsk.name, subscriptionName )
 		grph.add( ( subscriptionNode, propDisk, nodeDisk ) )
 		grph.add( ( nodeDisk, lib_common.MakeProp("Size"), lib_util.NodeLiteral(dsk.logical_disk_size_in_gb )) )
@@ -78,7 +74,7 @@ def Main():
 
 		grph.add( ( nodeDisk, lib_util.NodeLiteral("Label"), lib_util.NodeLiteral(dsk.label)) )
 		# grph.add( ( nodeDisk, lib_common.MakeProp("Affinity group"), lib_util.NodeLiteral("dsk.affinity_group")) )
-		DEBUG("dsk.attached_to=%s",str(dir(dsk.attached_to)))
+		logging.debug("dsk.attached_to=%s",str(dir(dsk.attached_to)))
 
 		nodeLocation = location.MakeUri( dsk.location, subscriptionName )
 		grph.add( ( nodeDisk, propDiskLocation, nodeLocation ) )
@@ -87,6 +83,7 @@ def Main():
 	# cgiEnv.OutCgiRdf("LAYOUT_RECT",[propDisk,propDiskLocation])
 	# cgiEnv.OutCgiRdf("LAYOUT_RECT",[propDisk])
 	cgiEnv.OutCgiRdf("LAYOUT_RECT_TB")
+
 
 if __name__ == '__main__':
 	Main()

@@ -5,6 +5,7 @@ WMI object types
 """
 
 import sys
+import logging
 import lib_util
 import rdflib
 import lib_common
@@ -113,7 +114,7 @@ def Main():
 
 	wmi_namespace, entity_type = cgiEnv.get_namespace_type()
 
-	DEBUG("wmi_namespace=%s entity_type=%s", wmi_namespace,entity_type)
+	logging.debug("wmi_namespace=%s entity_type=%s", wmi_namespace,entity_type)
 
 	cimom_url = cgiEnv.GetHost()
 

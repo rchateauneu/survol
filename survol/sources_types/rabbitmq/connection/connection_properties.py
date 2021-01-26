@@ -6,6 +6,7 @@ RabbitMQ connection properties
 
 import sys
 import six
+import logging
 import lib_util
 import lib_common
 import lib_credentials
@@ -33,7 +34,7 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	DEBUG("namConnection=%s",namConnection)
+	logging.debug("namConnection=%s",namConnection)
 
 	#namConnectionDisplay = namConnection.replace(">","&gt;")
 	#nodConnection = survol_rabbitmq_connection.MakeUri(configNam,namConnectionDisplay)
@@ -66,7 +67,7 @@ def Main():
 			if isinstance(connectVal, six.string_types):
 				connectVal = connectVal.replace(">","@") # .replace("{","@").replace("}","@")
 
-				DEBUG("connectKey=%s connectVal=%s",connectKey,connectVal)
+				logging.debug("connectKey=%s connectVal=%s",connectKey,connectVal)
 			elif isinstance(connectVal, dict):
 				pass
 			elif isinstance(connectVal, tuple):
@@ -76,7 +77,7 @@ def Main():
 			else:
 				pass
 
-			DEBUG("Literal=%s",lib_util.NodeLiteral(connectVal))
+			logging.debug("Literal=%s",lib_util.NodeLiteral(connectVal))
 
 			grph.add( ( nodConnection, lib_common.MakeProp(connectKey), lib_util.NodeLiteral(connectVal) ) )
 

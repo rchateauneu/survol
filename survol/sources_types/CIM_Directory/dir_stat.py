@@ -9,6 +9,7 @@ Directory stat information
 # "Fatal Python error: Py_Initialize: can't initialize sys standard streams"
 
 import os
+import logging
 from sources_types import CIM_DataFile
 import lib_util
 import lib_common
@@ -50,7 +51,7 @@ def Main():
             break
         dir_node = lib_common.gUriGen.DirectoryUri(dir_path)
         grph.add((dir_node, pc.property_directory, curr_node))
-        DEBUG("dir_path=%s", dir_path)
+        logging.debug("dir_path=%s", dir_path)
         stat_path = os.stat(dir_path)
         CIM_DataFile.AddStatNode(grph, dir_node, stat_path)
 

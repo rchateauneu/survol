@@ -4,8 +4,9 @@
 PEFile imported entries and modules
 """
 
-	
+
 import sys
+import logging
 import lib_util
 import lib_uris
 import lib_win32
@@ -18,74 +19,74 @@ import pefile
 # TODO: THIS SHOULD USE THE ENVIRONMENT VARIABLE "PATH" OF THE RUNNING PROCESS.
 # TODO: INSTEAD, IT IS USING THE CURRENT PROCESS'ONE, WHICH IS WRONG.
 
+
 class EnvPeFile:
+    def __init__(self, grph):
+        self.grph = grph
 
-	def __init__(self,grph):
-		self.grph = grph
+    def RecursiveDepends(self, fil_nam, max_level):
+        # sys.stderr.write( "filNam=%s maxLevel=%d\n"%(filNam,maxLevel))
+        root_node = lib_common.gUriGen.FileUri(fil_nam)
+        vers_str = lib_win32.VersionString(fil_nam)
+        self.grph.add((root_node, pc.property_information, lib_util.NodeLiteral(vers_str)))
 
-	def RecursiveDepends(self,filNam,maxLevel):
-		# sys.stderr.write( "filNam=%s maxLevel=%d\n"%(filNam,maxLevel))
-		rootNode = lib_common.gUriGen.FileUri( filNam )
-		versStr = lib_win32.VersionString(filNam)
-		self.grph.add( ( rootNode, pc.property_information, lib_util.NodeLiteral(versStr) ) )
+        if max_level == 0:
+            return root_node
 
-		if maxLevel == 0:
-			return rootNode
+        # TODO: Consider a cache for this value. Beware of case for filNam.
+        pe = pefile.PE(fil_nam)
 
-		# TODO: Consider a cache for this value. Beware of case for filNam.
-		pe = pefile.PE(filNam)
+        try:
+            for entry in pe.DIRECTORY_ENTRY_IMPORT:
+                if lib_util.is_py3:
+                    entry_dll = entry.dll.encode('utf-8')
+                else:
+                    entry_dll = entry.dll
+                # sys.stderr.write( "entry.dll=%s\n"%entry_dll)
 
-		try:
-			for entry in pe.DIRECTORY_ENTRY_IMPORT:
-				if lib_util.is_py3:
-					entry_dll = entry.dll.encode('utf-8')
-				else:
-					entry_dll = entry.dll
-				# sys.stderr.write( "entry.dll=%s\n"%entry_dll)
+                # sys.stderr.write("entry=%s\n"%str(entry.struct))
+                dll_path = lib_shared_lib_path.FindPathFromSharedLibraryName(entry_dll)
+                if dll_path:
+                    sub_node = self.RecursiveDepends(dll_path, max_level - 1)
+                    self.grph.add((root_node, pc.property_library_depends, sub_node))
 
-				# sys.stderr.write("entry=%s\n"%str(entry.struct))
-				dllPath = lib_shared_lib_path.FindPathFromSharedLibraryName(entry_dll)
-				if dllPath:
-					subNode = self.RecursiveDepends( dllPath, maxLevel - 1)
-					self.grph.add( ( rootNode, pc.property_library_depends, subNode ) )
+                    for imp in entry.imports:
+                        # sys.stderr.write("\t%s %s\n"% (hex(imp.address), imp.name) )
+                        if imp.name is not None:
+                            sym_node = lib_uris.gUriGen.SymbolUri(imp.name, dll_path)
+                            self.grph.add((sub_node, pc.property_symbol_declared, sym_node))
 
-					for imp in entry.imports:
-						# sys.stderr.write("\t%s %s\n"% (hex(imp.address), imp.name) )
-						if imp.name is not None:
-							symNode = lib_uris.gUriGen.SymbolUri( imp.name, dllPath )
-							self.grph.add( ( subNode, pc.property_symbol_declared, symNode ) )
+                        break
+        except AttributeError:
+            pass
 
-						break
-		except AttributeError:
-			# sys.stderr.write("EXCEPTION\n")
-			pass
-
-		return rootNode
+        return root_node
 
 
 def Main():
 
-	paramkeyMaximumDepth = "Maximum depth"
+    paramkey_maximum_depth = "Maximum depth"
 
-	cgiEnv = lib_common.CgiEnv(	parameters = { paramkeyMaximumDepth : 3 })
+    cgiEnv = lib_common.CgiEnv(parameters = {paramkey_maximum_depth: 3})
 
-	maxDepth = int(cgiEnv.get_parameters( paramkeyMaximumDepth ))
+    max_depth = int(cgiEnv.get_parameters(paramkey_maximum_depth))
 
-	win_module = cgiEnv.GetId()
+    win_module = cgiEnv.GetId()
 
-	DEBUG("win_module=%s",win_module)
+    logging.debug("win_module=%s", win_module)
 
-	lib_win32.CheckWindowsModule(win_module)
+    lib_win32.CheckWindowsModule(win_module)
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	env = EnvPeFile(grph)
+    env = EnvPeFile(grph)
 
-	rootNode = env.RecursiveDepends( win_module, maxDepth )
+    rootNode = env.RecursiveDepends(win_module, max_depth)
 
-	cgiEnv.OutCgiRdf("LAYOUT_RECT",[pc.property_symbol_declared])
-	# cgiEnv.OutCgiRdf()
+    cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_symbol_declared])
+    # cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
-	Main()
+    Main()
 

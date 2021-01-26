@@ -6,6 +6,7 @@ Windows local group members
 
 from __future__ import generators
 import sys
+import logging
 import lib_util
 import lib_uris
 import lib_common
@@ -108,14 +109,13 @@ def Main():
                 try:
                     member_name, domain, type = win32security.LookupAccountSid(server, member['sid'])
                 except Exception as exc:
-                    ERROR("Server=%s Caught:%s", server, str(exc))
+                    logging.error("Server=%s Caught:%s", server, str(exc))
                     continue
 
-                DEBUG("Member: %s:", str(member))
-                DEBUG("Lookup: %s: %s", member_name, member['domainandname'])
-                # nodeUser = serverBox.UserUri( userName )
+                logging.debug("Member: %s:", str(member))
+                logging.debug("Lookup: %s: %s", member_name, member['domainandname'])
 
-                DEBUG("servNameNotNone=%s", servNameNotNone)
+                logging.debug("servNameNotNone=%s", servNameNotNone)
                 member_node = _member_name_to_node(sid_usage, member_name, servNameNotNone)
 
                 grph.add((member_node, pc.property_group, node_group))

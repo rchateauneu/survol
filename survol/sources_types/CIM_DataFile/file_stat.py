@@ -11,6 +11,7 @@ This returns general information about a non-directory data file.
 # "Fatal Python error: Py_Initialize: can't initialize sys standard streams"
 
 import os
+import logging
 from sources_types import CIM_DataFile
 import lib_common
 from lib_properties import pc
@@ -20,7 +21,7 @@ def Main():
     cgiEnv = lib_common.CgiEnv()
     file_name = cgiEnv.GetId()
 
-    DEBUG("file_stat.py file_name=%s", file_name)
+    logging.debug("file_stat.py file_name=%s", file_name)
 
     file_node = lib_common.gUriGen.FileUri(file_name)
 
@@ -52,7 +53,7 @@ def Main():
             break
         dir_node = lib_common.gUriGen.DirectoryUri(dir_path)
         grph.add((dir_node, pc.property_directory, current_node))
-        DEBUG("file_stat.py dir_path=%s", dir_path)
+        logging.debug("file_stat.py dir_path=%s", dir_path)
         stat_path = os.stat(dir_path)
         CIM_DataFile.AddStatNode( grph, dir_node, stat_path)
 

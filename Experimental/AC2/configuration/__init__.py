@@ -33,7 +33,7 @@ def GetDom(configName):
 	# Because of Windows: "C:/AC2\Application_Sample.xml"
 	configFile = configName.replace("\\","/")
 
-	DEBUG("configFile=%s",configFile)
+	logging.debug("configFile=%s",configFile)
 
 	try:
 		dom = xml.dom.minidom.parse(configFile)

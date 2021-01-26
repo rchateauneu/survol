@@ -8,6 +8,7 @@ CIM_LogicalDisk objects.
 
 import sys
 import socket
+import logging
 import psutil
 import lib_util
 import lib_common
@@ -38,13 +39,12 @@ from lib_properties import pc
 #string MountPointPath;
 #Path to a directory where the device is mounted.
 
-
-
 # Windows
 # [sdiskpart(device='C:\\', mountpoint='C:\\', fstype='NTFS', opts='rw,fixed'),
 # sdiskpart(device='D:\\', mountpoint='D:\\', fstype='NTFS', opts='rw,fixed')]
 # Linux
 # [partition(device='/dev/sda1', mountpoint='/', fstype='ext3', opts='rw'), partition(device='/dev/sda6', mountpoint='/home', fstype='ext3', opts='rw'), partition(device='/dev/sdb1', mountpoint='/samsung', fstype='ext2', opts='rw')]
+
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -53,8 +53,8 @@ def Main():
 
 	for part in psutil.disk_partitions():
 		# partition(device='D:\\\\', mountpoint='D:\\\\', fstype='NTFS', opts='rw,fixed')
-		DEBUG("device=%s fstype=%s", part.device,part.fstype)
-		DEBUG("All=%s", str(part) )
+		logging.debug("device=%s fstype=%s", part.device,part.fstype)
+		logging.debug("All=%s", str(part) )
 
 		# BEWARE: This is not very clear.
 		if lib_util.isPlatformWindows:
@@ -102,6 +102,6 @@ def Main():
 
 	cgiEnv.OutCgiRdf()
 
+
 if __name__ == '__main__':
 	Main()
-

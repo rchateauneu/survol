@@ -7,6 +7,7 @@ Scan process memory for ODBC connection strings
 import os
 import sys
 import re
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -60,7 +61,7 @@ def GetAggregDsns(pidint,mapRgx):
 		rgxDSN = "|".join([ "[; ]*" + key + " *= *" + mapRgx[key] + " *" for key in mapRgx ])
 		# This works also. Both are very slow.
 		# rgxDSN = "|".join([ ";? *" + key + " *= *" + survol_odbc.mapRgxODBC[key] + " *" for key in survol_odbc.mapRgxODBC ])
-		DEBUG("rgxDSN=%s",rgxDSN)
+		logging.debug("rgxDSN=%s",rgxDSN)
 
 
 		# TODO: OPTIONALLY ADD NON-ASCII CHAR AT THE VERY BEGINNING. SLIGHTLY SAFER AND FASTER.
@@ -77,7 +78,7 @@ def GetAggregDsns(pidint,mapRgx):
 		for matchedOffset in resuMatches:
 			matchedStr = resuMatches[matchedOffset]
 			dsnToken = str(matchedOffset) + " = " + matchedStr + " = " + str(matchedOffset + len(matchedStr))
-			DEBUG("dsnODBC=%s",dsnToken)
+			logging.debug("dsnODBC=%s",dsnToken)
 
 		sortedKeys = sorted(resuMatches.keys())
 		aggregDsns = dict()
@@ -86,7 +87,7 @@ def GetAggregDsns(pidint,mapRgx):
 		for theOff in sortedKeys:
 			currMtch = resuMatches[theOff]
 			nextOffset = theOff + len(currMtch)
-			DEBUG("lastOffset=%d nextOffset=%d currMtch=%s",lastOffset,nextOffset,currMtch)
+			logging.debug("lastOffset=%d nextOffset=%d currMtch=%s",lastOffset,nextOffset,currMtch)
 			#if lastOffset == 0:
 			#	lastOffset = nextOffset
 			#	aggregDsns[lastOffset] = currMtch
@@ -164,7 +165,7 @@ def Main():
 		# Do not take the character before the keyword.
 		aggregDSN = aggregDsns[aggregOffset]
 		dsnFull = str(aggregOffset) + ": " + aggregDSN
-		DEBUG("aggregOffset=%s dsnFull=%s",aggregOffset,dsnFull)
+		logging.debug("aggregOffset=%s dsnFull=%s",aggregOffset,dsnFull)
 		grph.add( ( node_process, pc.property_information, lib_util.NodeLiteral(dsnFull) ) )
 
 		### NO! Confusion between DSN and connection string.

@@ -8,6 +8,7 @@ import sys
 import six
 import json
 import socket
+import logging
 import lib_util
 import lib_common
 import lib_credentials
@@ -28,7 +29,7 @@ try:
     wmi_imported = True
 except ImportError as exc:
     wmi_imported = False
-    ERROR("Some modules could not be imported:%s",str(exc))
+    logging.error("Some modules could not be imported:%s", str(exc))
 
 
 # TODO: Just a reminder that WMI can run on Linux, in a certain extent.
@@ -119,7 +120,7 @@ def WmiConnect(mach_with_back_slashes, wmi_namspac, throw_if_error=True):
     if not lib_util.SameHostOrLocal(wmi_machine, None ):
         dict_params['computer'] = wmi_machine
 
-    DEBUG("WmiConnect wmi_machine=%s wmiNamspac=%s dict_params=%s", wmi_machine, wmi_namspac, str(dict_params))
+    logging.debug("WmiConnect wmi_machine=%s wmiNamspac=%s dict_params=%s", wmi_machine, wmi_namspac, str(dict_params))
 
     try:
         conn_wmi = wmi.WMI(**dict_params)
@@ -130,7 +131,7 @@ def WmiConnect(mach_with_back_slashes, wmi_namspac, throw_if_error=True):
         # Could not connect, maybe the namespace is wrong.
             lib_common.ErrorMessageHtml("WmiConnect Cannot connect to WMI server with params:%s.Exc=%s" % (str(dict_params),str(sys.exc_info())))
         else:
-            ERROR("WmiConnect Cannot connect to WMI server with params:%s.Exc=%s", str(dict_params),str(sys.exc_info()))
+            logging.error("WmiConnect Cannot connect to WMI server with params:%s.Exc=%s", str(dict_params), str(sys.exc_info()))
             return None
 
     #sys.stderr.write("WmiConnect returning\n" )
@@ -142,7 +143,7 @@ def WmiConnect(mach_with_back_slashes, wmi_namspac, throw_if_error=True):
 def WmiGetClassKeys(wmi_name_space, wmi_class, cimom_srv):
     """Returns the list of a keys of a given WBEM class. This is is used if the key is not given
     for an entity. This could be stored in a cache for better performance."""
-    DEBUG("WmiGetClassKeys wmiNameSpace=%s wmiClass=%s cimomSrv=%s", wmi_name_space, wmi_class, cimom_srv)
+    logging.debug("WmiGetClassKeys wmiNameSpace=%s wmiClass=%s cimomSrv=%s", wmi_name_space, wmi_class, cimom_srv)
 
     try:
         # TODO: Choose the namespace, remove "root\\" at the beginning.
@@ -150,7 +151,7 @@ def WmiGetClassKeys(wmi_name_space, wmi_class, cimom_srv):
         wmi_cnnct = wmi.WMI(cimom_srv)
         wmi_class = getattr(wmi_cnnct, wmi_class)
     except Exception as exc:
-        ERROR("WmiGetClassKeys %s %s %s: Caught:%s", cimom_srv, wmi_name_space, wmi_class, str(exc))
+        logging.error("WmiGetClassKeys %s %s %s: Caught:%s", cimom_srv, wmi_name_space, wmi_class, str(exc))
         return None
 
     wmi_keys = wmi_class.keys
@@ -718,7 +719,7 @@ def WmiKeyValues(conn_wmi, obj_wmi, display_none_values, class_name):
             do_not_display = False
 
         if do_not_display:
-            WARNING("Cannot display:%s", str(getattr(obj_wmi, prp_name)))
+            logging.warning("Cannot display:%s", str(getattr(obj_wmi, prp_name)))
             value = "Cannot be displayed"
         else:
             # BEWARE, it could be None.
@@ -823,7 +824,7 @@ class WmiSparqlCallbackApi:
         return self.m_subclasses
 
     def CallbackSelect(self, grph, class_name, predicate_prefix, filtered_where_key_values):
-        INFO("WmiCallbackSelect class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
+        logging.info("WmiCallbackSelect class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
         assert class_name
 
         # This comes from such a Sparql triple: " ?variable rdf:type rdf:type"
@@ -838,32 +839,32 @@ class WmiSparqlCallbackApi:
         #    ?url_property rdfs:seeAlso "WMI" .
         # filtered_where_key_values={u'domain': u'survol:CIM_Process'}
         if class_name == "Property":
-            ERROR("WmiCallbackSelect TEST class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
+            logging.error("WmiCallbackSelect TEST class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
             return
 
         # HACK: Temporary hard-code !!
         if class_name == "CIM_DataFile" and "Name" in filtered_where_key_values:
             filnam = filtered_where_key_values["Name"]
             filtered_where_key_values["Name"] = filnam.replace("/", "\\")
-            DEBUG("WmiCallbackSelect REPLACED CIM_DataFile where_key_values=%s", filtered_where_key_values)
+            logging.debug("WmiCallbackSelect REPLACED CIM_DataFile where_key_values=%s", filtered_where_key_values)
         elif class_name == "CIM_Directory" and "Name" in filtered_where_key_values:
             filnam = filtered_where_key_values["Name"]
             filtered_where_key_values["Name"] = filnam.replace("/", "\\")
-            DEBUG("WmiCallbackSelect REPLACED CIM_Directory where_key_values=%s", filtered_where_key_values)
+            logging.debug("WmiCallbackSelect REPLACED CIM_Directory where_key_values=%s", filtered_where_key_values)
 
         wmi_query = lib_util.SplitMonikToWQL(filtered_where_key_values, class_name)
-        DEBUG("WmiCallbackSelect wmi_query=%s", wmi_query)
+        logging.debug("WmiCallbackSelect wmi_query=%s", wmi_query)
 
         try:
             wmi_objects = self.m_wmi_connection.query(wmi_query)
         except Exception as exc:
-            ERROR("WmiSparqlCallbackApi.CallbackSelect wmi_query='%s': Caught:%s" %(wmi_query, exc))
+            logging.error("WmiSparqlCallbackApi.CallbackSelect wmi_query='%s': Caught:%s" %(wmi_query, exc))
             raise
 
         for one_wmi_object in wmi_objects:
             # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
             object_path = str(one_wmi_object.path())
-            DEBUG("one_wmi_object.path=%s", object_path)
+            logging.debug("one_wmi_object.path=%s", object_path)
             list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, class_name)
             dict_key_values = {node_key: node_value for node_key, node_value in list_key_values}
 
@@ -874,7 +875,7 @@ class WmiSparqlCallbackApi:
             # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeProp(class_name)
 
-            DEBUG("dict_key_values=%s", dict_key_values)
+            logging.debug("dict_key_values=%s", dict_key_values)
             lib_util.PathAndKeyValuePairsToRdf(grph, object_path, dict_key_values)
             yield object_path, dict_key_values
 
@@ -888,7 +889,7 @@ class WmiSparqlCallbackApi:
         associator_key_name,
         subject_path):
         # subject_path_node as previously returned by WmiCallbackSelect
-        WARNING("WmiCallbackAssociator subject_path=%s result_class_name=%s associator_key_name=%s",
+        logging.warning("WmiCallbackAssociator subject_path=%s result_class_name=%s associator_key_name=%s",
                 subject_path,
                 result_class_name,
                 associator_key_name)
@@ -896,33 +897,33 @@ class WmiSparqlCallbackApi:
 
         # subject_path = '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="31588"'
         dummy, colon, wmi_path = subject_path.partition(":")
-        DEBUG("WmiCallbackAssociator wmi_path=%s", wmi_path)
+        logging.debug("WmiCallbackAssociator wmi_path=%s", wmi_path)
 
         # HACK: Temporary hard-code !! Same problem as WmiCallbackSelect
         # TODO: We must quadruple backslashes in Sparql queries.
         if "CIM_DataFile.Name" in wmi_path:
             wmi_path = wmi_path.replace("\\\\", "\\")
-            DEBUG("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
+            logging.debug("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
         elif "CIM_Directory.Name" in wmi_path:
             wmi_path = wmi_path.replace("\\\\", "\\")
-            DEBUG("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
+            logging.debug("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
         elif "Win32_Directory.Name" in wmi_path:
             wmi_path = wmi_path.replace("\\\\", "\\")
-            DEBUG("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
+            logging.debug("WmiCallbackAssociator wmi_path=%s REPLACED", wmi_path)
         assert wmi_path
 
         # 'ASSOCIATORS OF {Win32_Process.Handle="1780"} WHERE AssocClass=CIM_ProcessExecutable ResultClass=CIM_DataFile'
         # 'ASSOCIATORS OF {CIM_DataFile.Name="c:\\program files\\mozilla firefox\\firefox.exe"} WHERE AssocClass = CIM_ProcessExecutable ResultClass = CIM_Process'
         wmi_query = "ASSOCIATORS OF {%s} WHERE AssocClass=%s ResultClass=%s" % (wmi_path, associator_key_name, result_class_name)
 
-        DEBUG("WmiCallbackAssociator wmi_query=%s", wmi_query)
+        logging.debug("WmiCallbackAssociator wmi_query=%s", wmi_query)
 
         wmi_objects = self.m_wmi_connection.query(wmi_query)
 
         for one_wmi_object in wmi_objects:
             # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
             object_path = str(one_wmi_object.path())
-            DEBUG("WmiCallbackAssociator one_wmi_object.path=%s",object_path)
+            logging.debug("WmiCallbackAssociator one_wmi_object.path=%s",object_path)
             list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, result_class_name)
             dict_key_values = {node_key:node_value for node_key, node_value in list_key_values}
 
@@ -935,7 +936,7 @@ class WmiSparqlCallbackApi:
             # o=http://primhillcomputers.com/survol/Win32_UserAccount
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeNodeForSparql(result_class_name)
 
-            DEBUG("WmiCallbackAssociator dict_key_values=%s", dict_key_values)
+            logging.debug("WmiCallbackAssociator dict_key_values=%s", dict_key_values)
             lib_util.PathAndKeyValuePairsToRdf(grph, object_path, dict_key_values)
             yield object_path, dict_key_values
 
@@ -944,7 +945,7 @@ class WmiSparqlCallbackApi:
     # see_also="WMI"
     # where_key_values={u'rdfs:label': 'CIM_Process'} or {}
     def CallbackTypes(self, grph, see_also, where_key_values):
-        WARNING("CallbackTypes see_also=%s where_key_values=%s", see_also, where_key_values)
+        logging.warning("CallbackTypes see_also=%s where_key_values=%s", see_also, where_key_values)
 
         # At the moment, the only possible filter is the class name.
         if where_key_values:
@@ -982,7 +983,7 @@ class WmiSparqlCallbackApi:
         assert class_name
         # class_name="CIM_Action"
         if class_name == "CIM_LogicalDevice":
-            WARNING("CallbackTypeTree class_name=%s associator_subject=%s", class_name, associator_subject)
+            logging.warning("CallbackTypeTree class_name=%s associator_subject=%s", class_name, associator_subject)
 
         class_path = "WmiClass:" + class_name
         class_node = lib_util.NodeUrl(class_path)
@@ -993,7 +994,7 @@ class WmiSparqlCallbackApi:
             list_subclasses = []
         for one_subclass_name in list_subclasses:
             if class_name == "CIM_LogicalDevice":
-                WARNING("CallbackTypeTree one_subclass_name=%s", one_subclass_name)
+                logging.warning("CallbackTypeTree one_subclass_name=%s", one_subclass_name)
             subclass_path = "WmiClass:" + one_subclass_name
             subclass_node = lib_util.NodeUrl(subclass_path)
             dict_key_values = {
@@ -1012,23 +1013,23 @@ class WmiSparqlExecutor:
         self.m_wmi_connection = WmiConnect("", "")
 
     def SelectObjectFromProperties(self, class_name, filtered_where_key_values):
-        INFO("WmiSparqlExecutor.SelectObjectFromProperties class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
+        logging.info("WmiSparqlExecutor.SelectObjectFromProperties class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
         assert class_name
 
         # HACK: Temporary hard-code !!
         if class_name in ["CIM_DataFile", "CIM_Directory"] and "Name" in filtered_where_key_values:
             filnam = filtered_where_key_values["Name"]
             filtered_where_key_values["Name"] = filnam.replace("/", "\\")
-            DEBUG("SelectObjectFromProperties REPLACED CIM_DataFile where_key_values=%s", filtered_where_key_values)
+            logging.debug("SelectObjectFromProperties REPLACED CIM_DataFile where_key_values=%s", filtered_where_key_values)
 
         wmi_query = lib_util.SplitMonikToWQL(filtered_where_key_values, class_name)
         sys.stderr.write("SelectObjectFromProperties wmi_query=%s\n" % wmi_query)
-        DEBUG("WmiCallbackSelect wmi_query=%s", wmi_query)
+        logging.debug("WmiCallbackSelect wmi_query=%s", wmi_query)
 
         try:
             wmi_objects = self.m_wmi_connection.query(wmi_query)
         except Exception as exc:
-            ERROR("WmiSparqlExecutor.SelectObjectFromProperties wmi_query='%s': Caught:%s" % (wmi_query, exc))
+            logging.error("WmiSparqlExecutor.SelectObjectFromProperties wmi_query='%s': Caught:%s" % (wmi_query, exc))
             raise
 
         sys.stderr.write("SelectObjectFromProperties num=%d\n" % len(wmi_objects))
@@ -1037,7 +1038,7 @@ class WmiSparqlExecutor:
             # and the prefix containing the Windows host, must rather contain a Survol agent.
             # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
             object_path = str(one_wmi_object.path())
-            #DEBUG("one_wmi_object.path=%s",object_path)
+            #logging.debug("one_wmi_object.path=%s",object_path)
             list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, class_name)
             dict_key_values = {node_key: node_value for node_key, node_value in list_key_values}
 
@@ -1059,13 +1060,13 @@ class WmiSparqlExecutor:
         # TODO: We must quadruple backslashes in Sparql queries.
         if "CIM_DataFile.Name" in wmi_path:
             wmi_path = wmi_path.replace("\\\\", "\\").replace("/", "\\")
-            DEBUG("_cleanup_wmi_path wmi_path=%s REPLACED", wmi_path)
+            logging.debug("_cleanup_wmi_path wmi_path=%s REPLACED", wmi_path)
         elif "CIM_Directory.Name" in wmi_path:
             wmi_path = wmi_path.replace("\\\\", "\\").replace("/", "\\")
-            DEBUG("_cleanup_wmi_path wmi_path=%s REPLACED", wmi_path)
+            logging.debug("_cleanup_wmi_path wmi_path=%s REPLACED", wmi_path)
         elif "Win32_Directory.Name" in wmi_path:
             wmi_path = wmi_path.replace("\\\\", "\\").replace("/", "\\")
-            DEBUG("_cleanup_wmi_path wmi_path=%s REPLACED", wmi_path)
+            logging.debug("_cleanup_wmi_path wmi_path=%s REPLACED", wmi_path)
         assert wmi_path
         return wmi_path
 
@@ -1102,7 +1103,7 @@ class WmiSparqlExecutor:
         wmi_query = "ASSOCIATORS OF {%s} WHERE AssocClass=%s ResultClass=%s ResultRole=%s" % (
             wmi_path, associator_key_name, result_class_name, chosen_role)
 
-        #DEBUG("WmiCallbackAssociator wmi_query=%s", wmi_query)
+        #logging.debug("WmiCallbackAssociator wmi_query=%s", wmi_query)
         #sys.stderr.write("SelectAssociatorsFromObject wmi_query=%s\n" % wmi_query)
 
         try:
@@ -1117,7 +1118,7 @@ class WmiSparqlExecutor:
         for one_wmi_object in wmi_objects:
             # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
             object_path = str(one_wmi_object.path())
-            #DEBUG("WmiCallbackAssociator one_wmi_object.path=%s",object_path)
+            #logging.debug("WmiCallbackAssociator one_wmi_object.path=%s",object_path)
             list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, result_class_name)
             dict_key_values = {node_key: node_value for node_key, node_value in list_key_values}
 
@@ -1126,7 +1127,7 @@ class WmiSparqlExecutor:
             # o=http://primhillcomputers.com/survol/Win32_UserAccount
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeNodeForSparql(result_class_name)
 
-            #DEBUG("WmiCallbackAssociator dict_key_values=%s", dict_key_values)
+            #logging.debug("WmiCallbackAssociator dict_key_values=%s", dict_key_values)
             yield (object_path, dict_key_values)
 
     def AssociatorKeys(self, associator_name):

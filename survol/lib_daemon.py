@@ -5,6 +5,7 @@ This expects that the daemon factory, i.e. the supervisor, is running.
 
 import os
 import sys
+import logging
 from scripts import daemon_factory
 
 # BEWARE: This CANNOT import lib_common, otherwise circular reference.
@@ -28,12 +29,12 @@ _forbidden_chars = ":/\\?=&+*()[]{}%." + "_"
 
 def _url_to_process_name(script_url):
     """
-    This is one of the isolation layer between Survol daemons and urls one one side,
+    This is one of the isolation layers between Survol daemons and urls on one side,
     and supervisor processes on the other side.
 
     Survol needs to run a daemon for some scripts plus their CGI arguments: These CGI arguments
     define an unique object: Its class and the attributes defined in the ontology.
-    On the other hand, the supervisor library has no idea of what urls does, it just knowns process names.
+    On the other hand, the supervisor library has no idea of what urls do, it just knowns process names.
 
     Some characters are not accepted by process names by supervisor, which throws for example:
     <Fault 2: "INCORRECT_PARAMETERS: Invalid name: 'http://vps516494.ovh.net/x/y/z/script.py?param=24880'
@@ -41,6 +42,15 @@ def _url_to_process_name(script_url):
 
     Also, the process name is used to create stdout and stderr log file names,
     so the process name must contain only chars allowed in filenames.
+
+    FIXME: Unfortunately there is a very strong limitation on Windows because this process name is used
+    FIXME: to create a log file whose length is limited to 250 characters approximately.
+    FIXME: See xmlrpclib.ProtocolError. The resulting filename is something like:
+    _2fsurvol_2fsources_5ftypes_2fCIM_5fDirectory_2fevents_5fgenerator_5fwindows_5fdirectory_
+    5fchanges_2epy_3fxid_3dCIM_5fDirectory_2eName_3dC_3a_2fUsers_2frchateau_2fAppData_2fLocal
+    _2fTemp-stdout----vj060.log
+
+    FIXME: If it is too long, it throws an internal error which is difficult to detect.
     """
 
     process_name = ""
@@ -78,7 +88,7 @@ def _process_name_to_url(process_name):
     return script_url
 
 
-def start_events_generator_daemon(script_url):
+def start_events_feeder_daemon(script_url):
     """
     This starts a daemon running the url, but in daemon mode instaed of snapshot mode.
     This url is a CGI script plus CGI arguments defining an object: The class and the attributes values.
@@ -103,13 +113,12 @@ def start_events_generator_daemon(script_url):
     parsed_url = lib_util.survol_urlparse(script_url)
 
     split_path = parsed_url.path.split("/")
-    sys.stderr.write("split_path=%s\n" % str(split_path))
+    logging.debug("split_path=%s" % str(split_path))
     # All scripts returning data are in this directory or subdirs. It should not fail.
     index_sources = split_path.index("sources_types")
-    sys.stderr.write("__file__=%s\n" % str(__file__))
     script_dir = os.path.dirname(__file__)
     script_relative_path = os.path.join(script_dir, *split_path[index_sources:])
-    sys.stderr.write("script_relative_path=%s\n" % str(script_relative_path))
+    logging.debug("script_relative_path=%s" % str(script_relative_path))
     assert script_relative_path.endswith(".py")
     assert os.path.isfile(script_relative_path)
 
@@ -156,35 +165,35 @@ def start_events_generator_daemon(script_url):
     if "PYTEST_CURRENT_TEST" in os.environ:
         environment_parameter += ',PYTEST_CURRENT_TEST="%s"' % os.environ["PYTEST_CURRENT_TEST"]
 
-    sys.stderr.write("python_command=%s\n" % python_command)
-    sys.stderr.write("environment_parameter=%s\n" % environment_parameter)
+    logging.debug("python_command=%s" % python_command)
+    logging.debug("environment_parameter=%s" % environment_parameter)
 
     created_process_id = daemon_factory.start_user_process(process_name, python_command, environment_parameter)
     return created_process_id
 
 
-def is_events_generator_daemon_running(script_url):
+def is_events_feeder_daemon_running(script_url):
     process_name = _url_to_process_name(script_url)
-    sys.stderr.write("is_events_generator_daemon_running process_name=%s\n" % process_name)
+    logging.debug("is_events_feeder_daemon_running process_name=%s" % process_name)
     supervisor_pid = daemon_factory.is_user_process_running(process_name)
     return supervisor_pid
 
 
-def get_events_generator_stdout(script_url):
+def get_events_feeder_stdout(script_url):
     process_name = _url_to_process_name(script_url)
-    sys.stderr.write("get_events_generator_stdout process_name=%s\n" % process_name)
+    logging.debug("get_events_feeder_stdout process_name=%s" % process_name)
     return daemon_factory.get_user_process_stdout(process_name)
 
 
-def get_events_generator_stderr(script_url):
+def get_events_feeder_stderr(script_url):
     process_name = _url_to_process_name(script_url)
-    sys.stderr.write("get_events_generator_stderr process_name=%s\n" % process_name)
+    logging.debug("get_events_feeder_stderr process_name=%s" % process_name)
     return daemon_factory.get_user_process_stderr(process_name)
 
 
-def stop_events_generator_daemon(script_url):
+def stop_events_feeder_daemon(script_url):
     process_name = _url_to_process_name(script_url)
-    sys.stderr.write("stop_events_generator_daemon process_name=%s\n" % process_name)
+    logging.debug("stop_events_feeder_daemon process_name=%s" % process_name)
     return daemon_factory.stop_user_process(process_name)
 
 

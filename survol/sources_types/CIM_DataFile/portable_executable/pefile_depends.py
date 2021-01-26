@@ -7,6 +7,7 @@ Windows pefile dependencies (exe, dll, ocx, sys...)
 import os
 import os.path
 import sys
+import logging
 import lib_util
 import lib_win32
 import lib_common
@@ -20,6 +21,7 @@ import win32api
 # BEWARE: The PATH is different for Apache user and the results are less meaningful.
 # TODO: HOW TO PROPERLY SET THE PATH ???
 
+
 class EnvPeFile:
 
 	def __init__(self,grph):
@@ -30,7 +32,7 @@ class EnvPeFile:
 
 		self.cache_dll_to_imports = dict()
 
-	def RecursiveDepends(self,filNam,maxLevel):
+	def RecursiveDepends(self, filNam, maxLevel):
 		filNamLower = filNam.lower()
 
 		if filNamLower in self.cache_dll_to_imports:
@@ -74,7 +76,7 @@ def Main():
 
 	win_module = cgiEnv.GetId()
 
-	DEBUG("win_module=%s",win_module)
+	logging.debug("win_module=%s",win_module)
 
 	lib_win32.CheckWindowsModule(win_module)
 
@@ -90,6 +92,7 @@ def Main():
 
 	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 	# cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
 	Main()

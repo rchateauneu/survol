@@ -5,6 +5,7 @@ Network shares
 """
 
 import sys
+import logging
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -41,7 +42,7 @@ def Main():
 			lib_common.ErrorMessageHtml("Hostname="+hostname+". Exception:"+str(exc))
 
 		for share in sharedata:
-			DEBUG("share=%s", str(share) )
+			logging.debug("share=%s", str(share) )
 			# share={'remark': 'Remote Admin', 'passwd': None, 'current_uses': 0, 'netname': 'ADMIN$', 'max_uses': 4294967295, 'path': 'C:\\\\Windows', 'type': 2147483648, 'permissions': 0}
 			share_netname = share['netname']
 			try:

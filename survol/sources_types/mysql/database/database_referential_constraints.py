@@ -7,6 +7,7 @@ Referential constraints
 import sys
 import re
 import socket
+import logging
 import lib_util
 import lib_common
 import lib_credentials
@@ -72,11 +73,11 @@ def Main():
 
 	# There should be only one row, maximum.
 	for constraintInfo in cursorMysql:
-		DEBUG("constraintInfo=%s",str(constraintInfo))
+		logging.debug("constraintInfo=%s",str(constraintInfo))
 		tableNam = constraintInfo[0]
 		tableNamRef = constraintInfo[1]
 		propConstraint = lib_common.MakeProp(constraintInfo[2])
-		DEBUG("tableNam=%s",tableNam)
+		logging.debug("tableNam=%s",tableNam)
 
 		nodeMysqlTable = survol_mysql_table.MakeUri(hostname,dbNam, tableNam)
 		nodeMysqlTableRef = survol_mysql_table.MakeUri(hostname,dbNam, tableNamRef)
@@ -85,11 +86,11 @@ def Main():
 
 		#grph.add( ( nodeMysqlDatabase, propTable, nodeMysqlTable ) )
 
-
 	cursorMysql.close()
 	connMysql.close()
 
 	cgiEnv.OutCgiRdf("LAYOUT_SPLINE" )
+
 
 if __name__ == '__main__':
 	Main()

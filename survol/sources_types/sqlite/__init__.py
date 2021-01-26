@@ -4,6 +4,7 @@ sqlite objects
 
 import os
 import sys
+import logging
 import lib_common
 import lib_util
 from lib_properties import pc
@@ -43,7 +44,7 @@ def DatabaseEnvParams(process_id):
     # This is imported here to avoid circular references.
     from sources_types import CIM_Process
 
-    DEBUG("\nDatabaseEnvParams process_id=%s", str(process_id))
+    logging.debug("\nDatabaseEnvParams process_id=%s", str(process_id))
     # Get the list of files open by the process.
     try:
         proc_obj = CIM_Process.PsutilGetProcObj(int(process_id))
@@ -54,14 +55,14 @@ def DatabaseEnvParams(process_id):
     list_args = []
     for fil_obj in fillist:
         fil_nam = fil_obj.path
-        DEBUG("DatabaseEnvParams process_id=%s fil_nam=%s", str(process_id), fil_nam)
+        logging.debug("DatabaseEnvParams process_id=%s fil_nam=%s", str(process_id), fil_nam)
         if IsSqliteDatabase(fil_nam):
-            DEBUG("DatabaseEnvParams ADDING fil_nam=%s", fil_nam)
+            logging.debug("DatabaseEnvParams ADDING fil_nam=%s", fil_nam)
             filNamClean = lib_util.standardized_file_path(fil_nam)
             filDef = {"File": filNamClean}
             list_args.append(filDef)
 
-    DEBUG("DatabaseEnvParams len=%d\n", len(list_args))
+    logging.debug("DatabaseEnvParams len=%d\n", len(list_args))
 
     return ("sqlite/query", list_args)
 
@@ -72,7 +73,7 @@ def AddNodesTablesViews(grph, fil_node, db_fil_nam):
     from sources_types.sqlite import table as sqlite_table
     from sources_types.sqlite import view as sqlite_view
 
-    DEBUG("AddNodesTablesViews db_fil_nam=%s", db_fil_nam)
+    logging.debug("AddNodesTablesViews db_fil_nam=%s", db_fil_nam)
     try:
         con = sqlite3.connect(db_fil_nam)
         cursor = con.cursor()
@@ -106,12 +107,10 @@ def AddNodesTablesViews(grph, fil_node, db_fil_nam):
             #grph.add( ( tabNod, pc.property_information, lib_util.NodeLiteral(theCmd) ) )
     except sqlite3.DatabaseError as exc:
         lib_common.ErrorMessageHtml("Sqlite file:%s Caught:%s" % (db_fil_nam, str(exc)))
-    except:
-        exc = sys.exc_info()[0]
+    except Exception as exc:
         lib_common.ErrorMessageHtml("Sqlite file:%s Unexpected error:%s" % (db_fil_nam, str(exc)))
 
 
 # Because sqlite filename are very long so we shorten name when displaying.
 def ShortenSqliteFilename(file_name):
     return os.path.basename(file_name)
-

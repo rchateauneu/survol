@@ -6,6 +6,7 @@ Installed Python packages
 
 import sys
 import socket
+import logging
 import lib_util
 import lib_common
 import lib_python
@@ -51,7 +52,7 @@ def Main():
     for pckg in installed_packages:
         cnt += 1
 
-        DEBUG("cnt=%d key=%s", cnt,pckg.key)
+        logging.debug("cnt=%d key=%s", cnt,pckg.key)
 
         # With this module, "dot" crashes...
         # TODO: WHY IS THIS BROKEN ?????
@@ -81,5 +82,3 @@ def Main():
 
 if __name__ == '__main__':
     Main()
-
-

@@ -12,6 +12,7 @@ mysql instances
 import os
 import sys
 import re
+import logging
 
 import lib_util
 import lib_common
@@ -21,16 +22,17 @@ from lib_properties import pc
 # This does not import genuine mysql packages so this will always work.
 from sources_types.mysql import instance as survol_mysql_instance
 
+
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 
 	grph = cgiEnv.GetGraph()
 
 	credNames = lib_credentials.get_credentials_names( "MySql" )
-	DEBUG("Mysql servers")
+	logging.debug("Mysql servers")
 
 	for instanceMySql in credNames:
-		DEBUG("MySql servers instanceMySql=%s",instanceMySql)
+		logging.debug("MySql servers instanceMySql=%s",instanceMySql)
 
 		# Do not use sources_types.mysql
 		hostMySql = instanceMySql.split(":")[0]
@@ -46,6 +48,7 @@ def Main():
 		grph.add( ( nodeInstance, lib_common.MakeProp("Mysql instance"), nodeHostMySql ) )
 
 	cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
 	Main()

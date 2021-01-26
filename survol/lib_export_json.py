@@ -7,6 +7,7 @@ import sys
 import six
 import os
 import json
+import logging
 import lib_exports
 
 _node_json_number = 0
@@ -117,7 +118,7 @@ def WriteJsonError(message):
     The error message is formatted in the standard for returning errors.
     http://labs.omniti.com/labs/jsend
     """
-    WARNING("WriteJsonError message="+message)
+    logging.warning("WriteJsonError message="+message)
     json_err = {}
     json_err["status"] = "error"
     json_err["message"] = message
@@ -152,7 +153,7 @@ def Grph2Json(page_title, error_msg, isSubServer, parameters, grph):
 
         # TODO: Should probably also eliminate pc.property_rdf_data_nolist2 etc ... See lib_client.
         if pred == pc.property_script:
-            DEBUG("continue subj=%s obj=%s",subj,obj)
+            logging.debug("continue subj=%s obj=%s",subj,obj)
             continue
 
         # Normal data scripts are not accepted. This should apply only to file_directory.py and file_to_mime.py

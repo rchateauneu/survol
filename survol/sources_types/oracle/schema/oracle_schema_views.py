@@ -5,6 +5,7 @@ Oracle views
 """
 
 import sys
+import logging
 import lib_common
 from lib_properties import pc
 import lib_oracle
@@ -21,7 +22,7 @@ def Main():
     grph = cgiEnv.GetGraph()
 
     sql_query = "SELECT OBJECT_NAME,STATUS,CREATED FROM ALL_OBJECTS WHERE OBJECT_TYPE = 'VIEW' AND OWNER = '" + ora_schema + "'"
-    DEBUG("sql_query=%s", sql_query)
+    logging.debug("sql_query=%s", sql_query)
 
     node_oraschema = oracle_schema.MakeUri(cgiEnv.m_oraDatabase, ora_schema)
 

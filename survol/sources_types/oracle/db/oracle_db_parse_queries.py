@@ -8,6 +8,7 @@ Oracle running queries
 # http://stackoverflow.com/questions/199508/how-do-i-show-running-processes-in-oracle-db
 
 import sys
+import logging
 import lib_common
 import lib_oracle
 import lib_credentials
@@ -33,7 +34,7 @@ class OraCallbackParseQry:
         if len(sql_text) == 1000:
             sql_text = str(row[4])
 
-        DEBUG("self.m_database=%s sql_text=%s", self.m_database_name, sql_text)
+        logging.debug("self.m_database=%s sql_text=%s", self.m_database_name, sql_text)
 
         node_sql_query = oracle_query.MakeUri(sql_text, self.m_database_name)
 

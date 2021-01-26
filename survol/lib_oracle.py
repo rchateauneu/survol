@@ -5,6 +5,7 @@ from lib_properties import pc
 
 import sys
 import re
+import logging
 import lib_util
 import lib_credentials
 
@@ -52,7 +53,7 @@ def OracleConnectionClose(conn):
         # cx_oracle throws "DPI-1054: connection cannot be closed when open statements or LOBs exist" during django migration
         err_msg = str(exc)
         if err_msg.find("connection cannot be closed when open statements") >= 0:
-            WARNING("OracleConnectionClose LOBs exist: exception:%s.", err_msg)
+            logging.warning("OracleConnectionClose LOBs exist: exception:%s.", err_msg)
             pass
         else:
             lib_common.ErrorMessageHtml("OracleConnectionClose caught:%s."% (err_msg))
@@ -63,7 +64,7 @@ def ExecuteQueryThrow(conn_str, sql_query):
     conn = GetOraConnect(conn_str)
     a_cursor = conn.cursor()
 
-    DEBUG("ExecuteQuery %s", sql_query)
+    logging.debug("ExecuteQuery %s", sql_query)
 
     _execute_safe_query(a_cursor, sql_query)
     try:

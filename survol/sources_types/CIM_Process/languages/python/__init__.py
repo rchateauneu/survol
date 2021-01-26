@@ -5,37 +5,36 @@ Python processes
 import os
 import sys
 import json
+import logging
 import psutil
 import lib_util
 import lib_common
 import tempfile
 from sources_types import CIM_Process
 
+
 # This tells if this is a Python process, by checking if this runs a python interpreter.
 # TODO: What id a plain C program starts a Python interpreter from inside ?
-def Usable(entity_type,entity_ids_arr):
+def Usable(entity_type, entity_ids_arr):
     """Python processes"""
 
-    pidProc = entity_ids_arr[0]
+    pid_proc = entity_ids_arr[0]
     try:
         # Any error, no display.
-        proc_obj = psutil.Process(int(pidProc))
+        proc_obj = psutil.Process(int(pid_proc))
     except:
         return False
 
     cmd_line = CIM_Process.PsutilProcToCmdline(proc_obj)
 
-    cmdlinSplit = cmd_line.split(" ")
-    execNam = cmdlinSplit[0]
-    basNam = os.path.basename(execNam)
+    cmdlin_split = cmd_line.split(" ")
+    exec_nam = cmdlin_split[0]
+    bas_nam = os.path.basename(exec_nam)
 
     # This is a python process because of the executable.
-    return basNam.startswith("python")
-
-
+    return bas_nam.startswith("python")
 
 # This is more than strongly inspired from the module pyrasite.
-
 
 # cdb -p pid
 # https://blogs.msdn.microsoft.com/oldnewthing/20070427-00/?p=27083
@@ -57,31 +56,34 @@ def Usable(entity_type,entity_ids_arr):
 #That error message is the debugger's somewhat confusing way of saying:
 #"I don't have enough information available to make that function call."
 #
-def ExecInPythonDebuggerWindows(my_pid,vecInstructions):
+def _exec_in_python_debugger_windows(my_pid, vec_instructions):
     return []
 
-# This creates a Python file executing some commands.
-# The result must be displayed on the debugger's window.
-def ExecInPythonDebuggerLinux(my_pid,vecInstructions):
-    filnaPair = tempfile.mkstemp(suffix=".py",text=True)
-    filna = filnaPair[1]
-    DEBUG("ExecInPythonDebuggerLinux filna=%s", filna)
+
+def _exec_in_python_debugger_linux(my_pid, vec_instructions):
+    """
+    This creates a Python file executing some commands.
+    The result must be displayed on the debugger's window.
+    """
+    filna_pair = tempfile.mkstemp(suffix=".py", text=True)
+    filna = filna_pair[1]
+    logging.debug("_exec_in_python_debugger_linux filna=%s", filna)
 
     # This file will contain the result of the execution.
-    outFilNaPair = tempfile.mkstemp(suffix=".dat",text=True)
-    outFilFd = outFilNaPair[0]
-    # outFilFd.close()
-    outFilNa = outFilNaPair[1]
+    out_fil_na_pair = tempfile.mkstemp(suffix=".dat", text=True)
+    out_fil_fd = out_fil_na_pair[0]
+    # out_fil_fd.close()
+    out_fil_na = out_fil_na_pair[1]
 
     fi = open(filna,"w")
     fi.write("import sys\n")
     fi.write("tmpout = sys.stdout\n")
     fi.write("tmperr = sys.stderr\n")
-    fi.write("filout = open('%s','w')\n" % outFilNa )
+    fi.write("filout = open('%s','w')\n" % out_fil_na)
     fi.write("sys.stdout = filout\n")
     fi.write("sys.stderr = filout\n")
 
-    for instFi in vecInstructions:
+    for instFi in vec_instructions:
         fi.write("%s\n"% instFi)
 
     fi.write("sys.stdout = tmpout\n")
@@ -97,41 +99,35 @@ def ExecInPythonDebuggerLinux(my_pid,vecInstructions):
     ]
 
     big_args = ' '.join(["-eval-command='call %s'" % cmd for cmd in gdb_cmds_filout])
-    DEBUG("big_args=%s\n", big_args)
+    logging.debug("big_args=%s\n", big_args)
 
     # TODO: See process_gdbstack.py which similarly runs a gdb command.
-    cmdline = 'gdb -p %d -batch %s' % (my_pid, big_args )
-    DEBUG("cmdline=%s outFilNa=%s\n", cmdline, outFilNa)
+    cmdline = 'gdb -p %d -batch %s' % (my_pid, big_args)
+    logging.debug("cmdline=%s out_fil_na=%s\n", cmdline, out_fil_na)
 
-    # TODO: Must use lib_common.SubProcPOpen
-    # TODO is shell=True necessary ?????
-    # subprocess.call(cmdline, shell=True)
     lib_common.SubProcCall(cmdline)
 
-    filOutDat = open(outFilNa,"r")
-    vecResult = filOutDat.readlines();
-    filOutDat.close()
+    fil_out_dat = open(out_fil_na, "r")
+    vec_result = fil_out_dat.readlines()
+    fil_out_dat.close()
 
-    return vecResult
+    return vec_result
 
 
-def ExecInPythonDebugger(thePid, vecInstructions):
-    vecInstructions.append( 'print(json.dumps(retobj))' )
+def ExecInPythonDebugger(the_pid, vec_instructions):
+    vec_instructions.append('print(json.dumps(retobj))')
 
     if lib_util.isPlatformWindows:
-        DebuggerPython = ExecInPythonDebuggerWindows
+        debugger_python = _exec_in_python_debugger_windows
     else:
-        DebuggerPython = ExecInPythonDebuggerLinux
+        debugger_python = _exec_in_python_debugger_linux
 
-    vecResu = DebuggerPython(thePid, vecInstructions)
-    if len(vecResu) != 1:
-        WARNING("ExecInPythonDebugger: Err:%s", str(vecResu) )
+    vec_resu = debugger_python(the_pid, vec_instructions)
+    if len(vec_resu) != 1:
+        logging.warning("ExecInPythonDebugger: Err:%s", str(vec_resu) )
         return None
 
-    strResu = vecResu[0]
-    objResu = json.loads(strResu)
-    return objResu
+    str_resu = vec_resu[0]
+    obj_resu = json.loads(str_resu)
+    return obj_resu
 
-
-# Print the stack content with this:
-# sys._getframe(1).f_code.co_name

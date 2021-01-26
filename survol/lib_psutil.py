@@ -68,18 +68,21 @@ def PsutilProcToUser(proc, dflt_user="AccessDenied"):
         return "usr" + str(proc.pid)
 
 
+# This can be used to detect the return status fo the command.
+ProcessAccessDenied = "Access denied"
+
 def PsutilProcToExe(proc):
     try:
         return proc.exe(), ""
     except AccessDenied:
-        return "", "Access denied"
+        return "", ProcessAccessDenied
 
 
 def PsutilProcToCmdlineArray(proc):
     try:
         return proc.cmdline()
     except AccessDenied:
-        return ["Access denied"]
+        return [ProcessAccessDenied]
 
 
 def PsutilProcToCmdline(proc):
