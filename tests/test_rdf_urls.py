@@ -262,8 +262,7 @@ class RdfLocalAgentTest(unittest.TestCase):
 
         print("ldd_depends=", ldd_depends)
 
-    # @unittest.skipIf(not is_platform_linux, "Linux only")
-    @unittest.skip("Not ready yet")
+    @unittest.skipIf(is_platform_windows or is_travis_machine(), "Linux only but not on Travis yet")
     def test_elftools_parse_classes(self):
         """
         Classes in an ELF file
@@ -279,31 +278,39 @@ class RdfLocalAgentTest(unittest.TestCase):
 
         print("elftools_parse_classes=", elftools_parse_classes)
 
-    @unittest.skip("Not implemented yet")
-    @unittest.skipIf(not is_platform_linux, "Linux only")
+    def _get_arbitrary_mmap(self):
+        """
+        This returns an arbitraru memory-mapped file which can be used for testing.
+        """
+        current_proc_obj = psutil.Process()
+        all_maps = current_proc_obj.memory_maps()
+        for one_map in all_maps:
+            break
+        return one_map.path
+
+    @unittest.skipIf(is_platform_windows or is_travis_machine(), "Linux only but not on Travis yet")
     def test_memmap_processes(self):
-        """Processes connected to a memory map"""
-        file_path = "C:/Windows/System32/notepad.exe"
+        """
+        Processes connected to a memory map
+        """
+        file_path = self._get_arbitrary_mmap()
         memmap_processes = self._check_script(
             "/survol/sources_types/memmap/memmap_processes.py?xid=memmap.Name=%s"
             % file_path)
 
         print("memmap_processes=", memmap_processes)
+        # TODO: Current process should be in this processes list.
 
-    @unittest.skip("Not implemented yet")
-    @unittest.skipIf(not is_platform_linux, "Linux only")
+    @unittest.skipIf(is_platform_windows or is_travis_machine(), "Linux only but not on Travis yet")
     def test_memmap_to_file(self):
         """File associated to a memory map"""
-        file_path = "C:/Windows/System32/notepad.exe"
+        file_path = self._get_arbitrary_mmap()
         memmap_to_file = self._check_script(
             "/survol/sources_types/memmap/memmap_to_file.py?xid=memmap.Name=%s"
             % file_path)
 
         print("memmap_to_file=", memmap_to_file)
-
-
-
-
+        # TODO: This file must be accessible because it is mapped to the current process.
 
 
 @unittest.skipIf(not is_platform_windows, "Windows only")
