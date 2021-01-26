@@ -580,7 +580,10 @@ def _create_calls_stream(command_line, input_process_id, input_log_file, tracer)
         if command_line:
             print_dockit_usage(1, "When providing input file, must not specify command or process id")
         # This is a replay from a log file, possibly on another machine or operating system.
-        # It is not possible to enhance the log file informationm by querying the current machine.
+        # It is not possible to enhance the log file information by querying the current machine.
+        # Therefore, to replay the test, some extra information might be stored in the .ini file.
+        # Also, it is not possible to control the line terminator of the log file which may be
+        # a Unix or a Windows line terminator. This might be changed by GOT or a text editor.
         logging.info("_create_calls_stream command replay mode")
         cim_objects_definitions.local_standardized_file_path = cim_objects_definitions.standardized_file_path_syntax_only
     else:
