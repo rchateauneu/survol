@@ -471,6 +471,7 @@ def start_user_process(process_name, user_command, environment_parameter=""):
             raise Exception("Cannot get process_info after adding program:%" % full_process_name)
         created_process_id = process_info['pid']
         _log_supervisor_access("start_user_process", "created", created_pid=created_process_id)
+
         if not psutil.pid_exists(created_process_id):
             logging.error("start_user_process: Process not started process_info=%s" % process_info)
             try:
