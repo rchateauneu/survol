@@ -248,7 +248,11 @@ class RdfLocalAgentTest(unittest.TestCase):
 
     @unittest.skipIf(not is_platform_linux, "Linux only")
     def test_ldd_depends(self):
-        """Dependencies of a Linux shared library"""
+        """
+        Dependencies of a Linux shared library
+
+        This just tests if the script can be called.
+        """
 
         # Any shared object is ok.
         file_path = "/usr/lib/libr_util.so"
@@ -257,6 +261,24 @@ class RdfLocalAgentTest(unittest.TestCase):
             % file_path)
 
         print("ldd_depends=", ldd_depends)
+
+
+    @unittest.skipIf(not is_platform_linux, "Linux only")
+    def test_elftools_parse_classes(self):
+        """
+        Classes in an ELF file
+
+        This just tests if the script can be called.
+        """
+
+        # This does not work with all files. Many throw with "Magic number do not match"
+        file_path = "/usr/lib64/libebtc.so"
+        elftools_parse_classes = self._check_script(
+            "/survol/sources_types/CIM_DataFile/elftools_parse_classes.py?xid=CIM_DataFile.Name=%s"
+            % file_path)
+
+        print("elftools_parse_classes=", elftools_parse_classes)
+
 
     @unittest.skip("Not implemented yet")
     @unittest.skipIf(not is_platform_linux, "Linux only")
@@ -279,6 +301,10 @@ class RdfLocalAgentTest(unittest.TestCase):
             % file_path)
 
         print("memmap_to_file=", memmap_to_file)
+
+
+
+
 
 
 @unittest.skipIf(not is_platform_windows, "Windows only")
