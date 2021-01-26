@@ -229,7 +229,7 @@ class RdfLocalAgentTest(unittest.TestCase):
         print("python_file_dis=", python_file_dis)
 
     # Surprisingly, it fails only in this case.
-    @unittest.skipIf(is_travis_machine() and not is_py3, "Not implemented yet")
+    # @unittest.skipIf(is_travis_machine() and not is_py3, "Not implemented yet")
     @unittest.skipIf(not is_platform_linux, "Linux only")
     def test_module_deps(self):
         """Linux modules dependencies"""
@@ -237,9 +237,13 @@ class RdfLocalAgentTest(unittest.TestCase):
         # $ uname -r
         # 4.11.8-300.fc26.x86_64
         proc_version = subprocess.check_output(['uname', '-r'])
+        print("proc_version=", proc_version)
 
         # Any module will be ok.
         file_path = "/lib/modules/%s/kernel/net/sunrpc/sunrpc.ko.xz" % proc_version
+
+        # Otherwise it cannot work.
+        self.assertTrue(os.path.isfile(file_path))
         module_deps = self._check_script(
             "/survol/sources_types/CIM_DataFile/module_deps.py?xid=CIM_DataFile.Name=%s"
             % file_path)
@@ -289,7 +293,6 @@ class RdfLocalAgentTest(unittest.TestCase):
         return one_map.path
 
     @unittest.skipIf(is_platform_windows, "Linux only")
-    # @unittest.skipIf(is_platform_windows or is_travis_machine(), "Linux only but not on Travis yet")
     def test_memmap_processes(self):
         """
         Processes connected to a memory map
@@ -303,7 +306,6 @@ class RdfLocalAgentTest(unittest.TestCase):
         # TODO: Current process should be in this processes list.
 
     @unittest.skipIf(is_platform_windows, "Linux only")
-    # @unittest.skipIf(is_platform_windows or is_travis_machine(), "Linux only but not on Travis yet")
     def test_memmap_to_file(self):
         """File associated to a memory map"""
         file_path = self._get_arbitrary_mmap()
