@@ -499,7 +499,6 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
         _check_events_feeder_win32_dir_changes(self, "Snapshot before events", result_snapshot, [])
         _check_events_feeder_win32_dir_changes(self, "Events", result_events, [windows_changed_file])
 
-    #@unittest.skipIf(is_travis_machine(), "Not on Travis yet")
     def test_events_feeder_system_calls_loop(self):
         proc_open = None
         try:
