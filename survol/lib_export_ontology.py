@@ -126,6 +126,7 @@ def _add_ontology(old_grph):
                 if lib_kbase.IsLiteral(node_object):
                     new_grph.add((node_subject, lib_kbase.PredicateSeeAlso, node_object))
                 else:
+                    # FIXME: Maybe it already contains a mode, maybe it has no CGI args yet.
                     str_object = str(node_object)
                     str_object_rdf = str_object + "&mode=rdf"
                     node_object_rdf = rdflib.term.URIRef(str_object_rdf)
