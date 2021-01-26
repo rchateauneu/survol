@@ -475,15 +475,17 @@ def start_user_process(process_name, user_command, environment_parameter=""):
         if not psutil.pid_exists(created_process_id):
             logging.error("start_user_process: Process not started process_info=%s" % process_info)
             try:
+                logging.error("start_user_process: stdout_logfile")
                 with open(process_info['stdout_logfile']) as stdout_logfile:
-                    stdout_content = "\n".join(stdout_logfile.readlines())
-                    logging.error("start_user_process: stdout_content=%s" % stdout_content)
+                    for one_line in stdout_logfile.read():
+                        logging.error("stdout_logfile:%s" % one_line)
             except:
                 logging.error("start_user_process: Cannot open stdout_logfile")
             try:
+                logging.error("start_user_process: stderr_logfile")
                 with open(process_info['stderr_logfile']) as stderr_logfile:
-                    stderr_content = "\n".join(stderr_logfile.readlines())
-                    logging.error("start_user_process: stderr_content=%s" % stderr_content)
+                    for one_line in stderr_logfile.read():
+                        logging.error("stderr_logfile:%s" % one_line)
             except:
                 logging.error("start_user_process: Cannot open stdout_logfile")
             raise Exception("start_user_process: Could not start process. process_info=%s\n" % str(process_info))
