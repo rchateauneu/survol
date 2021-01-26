@@ -243,10 +243,12 @@ class RdfLocalAgentTest(unittest.TestCase):
 
         # $ uname -r
         # 4.11.8-300.fc26.x86_64
-        proc_version = subprocess.check_output(['uname', '-r'])
+        proc_version = subprocess.check_output(['uname', '-r']).strip()
+        proc_version = proc_version.decode()
         print("proc_version=", proc_version)
 
         dir_modules = "/lib/modules/%s/kernel/" % proc_version
+        print("dir_modules=", dir_modules)
 
         # Otherwise it cannot work.
         self.assertTrue(os.path.isdir(dir_modules))
