@@ -30,7 +30,7 @@ def EntityName(entity_ids_arr):
         return file_basename
 
 
-def AddInfo(grph,node,entity_ids_arr):
+def AddInfo(grph, node, entity_ids_arr):
     """A map file is associated to a file."""
     name_mapped_file = entity_ids_arr[0]
 
@@ -68,9 +68,9 @@ def DisplayMappedProcesses(grph, file_name):
             # Probably psutil.AccessDenied
             continue
 
-        for map in all_maps:
+        for the_map in all_maps:
             # This, because all Windows paths are "standardized" by us.
-            same_fil = lib_util.standardized_file_path(map.path) == lib_util.standardized_file_path(file_name)
+            same_fil = lib_util.standardized_file_path(the_map.path) == lib_util.standardized_file_path(file_name)
 
             if same_fil:
                 # Maybe this is the first mapping we have found.
@@ -86,5 +86,3 @@ def DisplayMappedProcesses(grph, file_name):
                 # Displays the RSS only if different from the file size.
                 if map.rss != statinfo.st_size:
                     grph.add((node_process, prop_memory_rss, lib_util.NodeLiteral(map.rss)))
-
-
