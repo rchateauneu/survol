@@ -9,6 +9,7 @@ import sys
 import time
 import psutil
 import rdflib
+import logging
 
 import lib_kbase
 import lib_util
@@ -19,6 +20,7 @@ import lib_properties
 
 def _add_property_values(grph, root_node, results_set, property_names, property_prefix):
     for property_name in property_names:
+        logging.debug("property_name=%s" % property_name)
         property_node = lib_properties.MakeProp("%s.%s" % (property_prefix, property_name))
         property_value = getattr(results_set, property_name)
         grph.add((root_node, property_node, lib_util.NodeLiteral(property_value)))
@@ -26,6 +28,7 @@ def _add_property_values(grph, root_node, results_set, property_names, property_
 
 def _add_system_counters_to_sample_node(grph, sample_node):
     # sswap(total=2097147904L, used=886620160L, free=1210527744L, percent=42.3, sin=1050411008, sout=1906720768)
+    logging.debug("swap_memory")
     _add_property_values(
         grph,
         sample_node,
@@ -35,6 +38,7 @@ def _add_system_counters_to_sample_node(grph, sample_node):
 
     # svmem(total=10367352832, available=6472179712, percent=37.6, used=8186245120, free=2181107712,
     # active=4748992512, inactive=2758115328, buffers=790724608, cached=3500347392, shared=787554304, slab=199348224)
+    logging.debug("virtual_memory")
     _add_property_values(
         grph,
         sample_node,
@@ -44,6 +48,7 @@ def _add_system_counters_to_sample_node(grph, sample_node):
 
     # sdiskio(read_count=8141, write_count=2431, read_bytes=290203,
     # write_bytes=537676, read_time=5868, write_time=94922)
+    logging.debug("disk_io_counters")
     _add_property_values(
         grph,
         sample_node,
@@ -53,6 +58,7 @@ def _add_system_counters_to_sample_node(grph, sample_node):
 
     # snetio(bytes_sent=14508483, bytes_recv=62749361, packets_sent=84311,
     # packets_recv=94888, errin=0, errout=0, dropin=0, dropout=0)
+    logging.debug("net_io_counters")
     _add_property_values(
         grph,
         sample_node,
@@ -68,7 +74,12 @@ def Snapshot():
 
     sample_root_node = rdflib.BNode()
 
-    _add_system_counters_to_sample_node(grph, sample_root_node)
+    logging.debug("Adding net_io_counters")
+    try:
+        _add_system_counters_to_sample_node(grph, sample_root_node)
+    except Exception as exc:
+        logging.error("Caught:%s" % exc)
+    logging.debug("Added net_io_counters")
 
     property_system_counters = lib_properties.MakeProp("system_counters")
 
