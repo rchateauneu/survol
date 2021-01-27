@@ -19,11 +19,15 @@ import lib_properties
 
 
 def _add_property_values(grph, root_node, results_set, property_names, property_prefix):
+    logging.debug("attributes=%s" % dir(results_set))
     for property_name in property_names:
         logging.debug("property_name=%s" % property_name)
         property_node = lib_properties.MakeProp("%s.%s" % (property_prefix, property_name))
-        property_value = getattr(results_set, property_name)
-        grph.add((root_node, property_node, lib_util.NodeLiteral(property_value)))
+        try:
+            property_value = getattr(results_set, property_name)
+            grph.add((root_node, property_node, lib_util.NodeLiteral(property_value)))
+        except Exception as exc:
+            logging.error("Cannot get property_name=%s: %s" % (property_name, exc))
 
 
 def _add_system_counters_to_sample_node(grph, sample_node):
