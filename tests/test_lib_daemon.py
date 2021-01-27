@@ -343,7 +343,8 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
         result_snapshot = self._run_script_as_snapshot(url_suffix)
         self.assertTrue(result_snapshot)
 
-    @unittest.skipIf(is_platform_linux or is_travis_machine(), "Windows only")
+    # @unittest.skipIf(is_platform_linux or is_travis_machine(), "Windows only")
+    @unittest.skipIf(is_platform_linux, "Windows only")
     def test_events_feeder_win32_dir_changes(self):
         """There is not much activity in these directories: The goal is to test that the script starts correctly."""
         checked_directory = lib_util.global_temp_directory
