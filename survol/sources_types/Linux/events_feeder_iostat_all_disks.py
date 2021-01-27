@@ -8,8 +8,8 @@ import subprocess
 import lib_common
 import lib_util
 import lib_properties
+import logging
 
-#Usable = lib_util.UsableLinux
 
 ################################################################################
 # Typical output of the iostat command:
@@ -36,8 +36,11 @@ def _io_stat_to_graph(grph, spl, iostat_header):
 
 def Main(loop_number=1):
     """This runs iostat and parses its output."""
+
     # TODO: The delay could be a parameter.
-    iostat_cmd = ["iostat",  "-d", "1"]
+    iostat_cmd = ["iostat", "-d", "1"]
+
+    logging.debug("iostat_cmd=%s" % str(iostat_cmd))
 
     # Contains the last header read.
     iostat_header = []
@@ -50,6 +53,7 @@ def Main(loop_number=1):
         for lin in proc_popen.stdout.readlines():
             if not lin:
                 continue
+            logging.debug("lin=%s" % lin)
 
             # We transfer also the header.
             spl = re.split(' +', lin)
@@ -68,6 +72,7 @@ def Main(loop_number=1):
             if loop_number == 0:
                 break
     except Exception as exc:
+        logging.error("Caught:%s" % exc)
         lib_common.ErrorMessageHtml("iostat error:%s" % str(exc))
     finally:
         if proc_open:
