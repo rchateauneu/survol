@@ -32,10 +32,12 @@ def credentials_filename():
                 home_path = os.environ["HOMEPATH"]
                 return os.path.join(home_drive, home_path)
             except KeyError:
-                logging.error("_get_home_directory: No HOME dir")
-                available_envs = sorted([key for key in os.environ])
-                for one_key in available_envs:
-                    logging.error("_get_home_directory: env[%s] = %s" % (one_key, os.environ[one_key]))
+                logging.warning("_get_home_directory: No HOME dir")
+                if False:
+                    # Slow complete print.
+                    available_envs = sorted([key for key in os.environ])
+                    for one_key in available_envs:
+                        logging.warning("_get_home_directory: env[%s] = %s" % (one_key, os.environ[one_key]))
 
                 return None
 
