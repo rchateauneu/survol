@@ -12,6 +12,10 @@ from lib_properties import pc
 import lib_doxygen
 
 
+def Usable(entity_type, entity_ids_arr):
+    return lib_util.check_program_exists("doxygen")
+
+
 def Main():
     paramkey_recursive = "Recursive exploration"
     paramkey_explode_classes = "Explode classes members"

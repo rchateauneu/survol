@@ -14,6 +14,10 @@ import lib_doxygen
 
 def Usable(entity_type,entity_ids_arr):
     """Not a source file"""
+
+    if not lib_util.check_program_exists("doxygen"):
+        return False
+
     fil_nam = entity_ids_arr[0]
     fil_ext = os.path.splitext(fil_nam)[1]
     if fil_ext.lower() in lib_doxygen.file_extensions_dox:
