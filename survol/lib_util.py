@@ -29,6 +29,7 @@ import importlib
 import logging
 import inspect
 import rdflib
+import subprocess
 
 # This minimizes changes because it is used everywhere.
 from scripts.naming_conventions import standardized_file_path
@@ -1033,6 +1034,21 @@ def UsableLinuxBinary(entity_type, entity_ids_arr):
         return True
     # TODO: Finish this. Use "magic" module ??
     return True
+
+
+def check_program_exists(program_name):
+    """This checks that an executable is in the current path and can be started without error."""
+    if isPlatformWindows:
+        test_command = ["where", program_name]
+    elif isPlatformLinux or isPlatformDarwin:
+        test_command = ["which", program_name]
+    else:
+        pass
+    popen_object = subprocess.Popen(test_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    test_stdout_output, test_stderr = popen_object.communicate()
+    if test_stderr:
+        return None
+    return test_stdout_output.strip()
 
 
 def is_snapshot_behaviour():
