@@ -394,6 +394,7 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
 
     #@unittest.skipIf(is_platform_windows, "Windows only")
     #@unittest.skipIf(is_travis_machine(), "FIXME: Broken Travis")
+    @unittest.skipIf(not check_program_exists("iostat"), "iostat must be installed.")
     def test_events_feeder_iostat_all_disks(self):
         url_suffix = "Linux/events_feeder_iostat_all_disks.py"
         daemon_result = self._run_script_as_snapshot(url_suffix)
