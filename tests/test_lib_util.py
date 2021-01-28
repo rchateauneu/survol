@@ -89,10 +89,10 @@ class SurvolLibUtilTest(unittest.TestCase):
         """
         This tests the presence or absence of a command.
         """
-        self.assertTrue(check_program_exists(sys.executable))
-        self.assertTrue(check_program_exists("python"))
-        self.assertTrue(check_program_exists("pytest"))
-        self.assertFalse(check_program_exists("this__program_does_not_exist"))
+        self.assertTrue(lib_util.check_program_exists(sys.executable))
+        self.assertTrue(lib_util.check_program_exists("python"))
+        self.assertTrue(lib_util.check_program_exists("pytest"))
+        self.assertFalse(lib_util.check_program_exists("this__program_does_not_exist"))
 
 
 if __name__ == '__main__':
