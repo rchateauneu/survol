@@ -32,15 +32,20 @@ def credentials_filename():
                 home_path = os.environ["HOMEPATH"]
                 return os.path.join(home_drive, home_path)
             except KeyError:
-                available_envs = os.environ.keys()
-                sys.stderr.write("_get_home_directory: Available environment variables:%s\n" % str(available_envs))
+                logging.error("_get_home_directory: No HOME dir")
+                available_envs = sorted([key for key in os.environ])
+                for one_key in available_envs:
+                    logging.error("_get_home_directory: env[%s] = %s" % (one_key, available_envs[one_key]))
+
                 return None
 
     home_directory = _get_home_directory()
-    sys.stderr.write(__file__ + " home_directory=%s\n" % home_directory)
+    logging.debug("home_directory=%s" % home_directory)
+
     if home_directory:
         cred_name = os.path.join(home_directory, credentials_basname).strip()
         if os.path.isfile(cred_name):
+            logging.debug("cred_name=%s" % cred_name)
             return cred_name
 
     if "TRAVIS" in os.environ:
@@ -57,8 +62,10 @@ def credentials_filename():
         cred_name = os.path.join(lib_util.gblTopScripts, "..", "..", credentials_basname).strip()
 
     if os.path.isfile(cred_name):
+        logging.debug("Credentials filename:%s" % cred_name)
         return cred_name
 
+    logging.error("Cannot find a credentials filename:%s" % cred_name)
     raise Exception("credentials_filename: Cannot find a credentials filename:%s" % cred_name)
 
 
