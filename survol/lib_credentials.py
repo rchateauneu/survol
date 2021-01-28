@@ -35,7 +35,7 @@ def credentials_filename():
                 logging.error("_get_home_directory: No HOME dir")
                 available_envs = sorted([key for key in os.environ])
                 for one_key in available_envs:
-                    logging.error("_get_home_directory: env[%s] = %s" % (one_key, available_envs[one_key]))
+                    logging.error("_get_home_directory: env[%s] = %s" % (one_key, os.environ[one_key]))
 
                 return None
 
@@ -43,6 +43,7 @@ def credentials_filename():
     logging.debug("home_directory=%s" % home_directory)
 
     if home_directory:
+        # Important: On Travis, the username is "travis" and we have no control on its home directory.
         cred_name = os.path.join(home_directory, credentials_basname).strip()
         if os.path.isfile(cred_name):
             logging.debug("cred_name=%s" % cred_name)
