@@ -15,7 +15,6 @@ import lib_symlink
 from lib_properties import pc
 
 
-
 def Usable(entity_type, entity_ids_arr):
     """Directory must be a symbolic link"""
     fil_nam = entity_ids_arr[0]
@@ -24,7 +23,6 @@ def Usable(entity_type, entity_ids_arr):
         return True
     except:
         return False
-
 
 
 def Main():
