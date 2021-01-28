@@ -11,6 +11,10 @@ import lib_properties
 import logging
 
 
+def Usable(entity_type, entity_ids_arr):
+    return lib_util.check_program_exists("iostat")
+
+
 ################################################################################
 # Typical output of the iostat command:
 
@@ -82,6 +86,7 @@ def Main(loop_number=1):
 
 
 if __name__ == '__main__':
+    logging.debug("Starting")
     if lib_util.is_snapshot_behaviour():
         Main()
     else:
