@@ -40,8 +40,9 @@ import lib_credentials
 
 ################################################################################
 
-is_platform_windows = sys.platform.startswith("win32")
-is_platform_linux = sys.platform.startswith("linux")
+is_platform_windows = lib_util.isPlatformWindows
+is_platform_linux = lib_util.isPlatformLinux
+
 # Another possible test is: pkgutil.find_loader('win32file')
 pytest_pypy = platform.python_implementation() == "PyPy"
 
@@ -145,19 +146,7 @@ def is_pytest():
     return False
 
 
-def check_program_exists(program_name):
-    """This checks that an executable is in the current path and can be started without error."""
-    if is_platform_windows:
-        test_command = ["where", program_name]
-    elif is_platform_linux:
-        test_command = ["which", program_name]
-    else:
-        pass
-    popen_object = subprocess.Popen(test_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    test_stdout_output, test_stderr = popen_object.communicate()
-    if test_stderr:
-        return None
-    return test_stdout_output.strip()
+check_program_exists = lib_util.check_program_exists
 
 
 # This sets the domain name on Windows. It is a bit clunky.
