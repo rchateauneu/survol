@@ -1037,7 +1037,23 @@ def UsableLinuxBinary(entity_type, entity_ids_arr):
 
 
 def check_program_exists(program_name):
-    """This checks that an executable is in the current path and can be started without error."""
+    """
+    This checks that an executable is in the current path and can be started without error.
+
+    It might be used for perl, doxygen, iostat.
+    """
+    # TODO: Use a cache to do these tests once only.
+
+    if os.path.isfile(program_name):
+        # "where 'the full python path" does not work on Windows, therefore this specific test.
+        # Also, it is more specific.
+        return program_name
+
+    return _where_command(program_name)
+    logging.info("program_name=%s" % program_name)
+
+
+def _where_command(program_name):
     if isPlatformWindows:
         test_command = ["where", program_name]
     elif isPlatformLinux or isPlatformDarwin:
@@ -1047,8 +1063,11 @@ def check_program_exists(program_name):
     popen_object = subprocess.Popen(test_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     test_stdout_output, test_stderr = popen_object.communicate()
     if test_stderr:
+        logging.info("test_stderr=%s" % test_stderr)
         return None
-    return test_stdout_output.strip()
+    full_path = test_stdout_output.strip()
+    logging.info("full_path=%s" % full_path)
+    return full_path
 
 
 def is_snapshot_behaviour():
