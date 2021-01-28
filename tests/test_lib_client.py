@@ -52,6 +52,9 @@ class SurvolLocalTest(unittest.TestCase):
     """These tests do not need a Survol agent"""
 
     def test_create_source_local_json(self):
+        """
+        This tests the general correctness of a script which get stat info of a file, plus conversion to JSON.
+        """
         my_source_file_stat_local = lib_client.SourceLocal(
             "sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
@@ -62,6 +65,9 @@ class SurvolLocalTest(unittest.TestCase):
         self.assertTrue(the_content_json['page_title'].startswith("File stat information"))
 
     def test_create_source_local_rdf(self):
+        """
+        This tests the general correctness of a script which get stat info of a file, plus conversion to RDF.
+        """
         my_source_file_stat_local = lib_client.SourceLocal(
             "sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
