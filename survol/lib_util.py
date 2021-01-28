@@ -1037,6 +1037,17 @@ def UsableLinuxBinary(entity_type, entity_ids_arr):
 
 
 def check_program_exists(program_name):
+    try:
+        return check_program_exists.dict_program_to_existence[program_name]
+    except KeyError:
+        does_exist = _check_program_exists_nocache(program_name)
+        check_program_exists.dict_program_to_existence[program_name] = does_exist
+    return does_exist
+check_program_exists.dict_program_to_existence = {}
+
+
+def _check_program_exists_nocache(program_name):
+
     """
     This checks that an executable is in the current path and can be started without error.
 
