@@ -894,7 +894,7 @@ class SurvolRemoteWbemTest(unittest.TestCase):
         self.assertTrue(num_exit_processes < 10)
 
     # This test is very slow and should not fail Travis.
-    @unittest.skipIf(not has_wbem() or is_travis_machine(), "pywbem cannot be imported. test_remote_ontology_wbem not executed.")
+    @unittest.skipIf(not has_wbem() or is_travis_machine(), "pywbem cannot be imported.")
     def test_remote_ontology_wbem(self):
         missing_triples = lib_client.check_ontology_graph("wbem", SurvolServerAgent)
         self.assertTrue(missing_triples == [], "Missing triples:%s" % str(missing_triples))
@@ -1324,9 +1324,6 @@ class SurvolLocalWindowsTest(unittest.TestCase):
                 # 'C:/Users/rchat/AppData/Local/Programs/Python/Python36/DLLs/_ctypes.pyd'
                 list_option = []
                 packages_dir = os.path.dirname(CurrentExecutable)
-                #if is_travis_machine():
-                #    # FIXME: On Travis, "C:/users" in lowercase. Why ?
-                #    packages_dir = packages_dir.lower()
                 extra_file = os.path.join(packages_dir, 'lib', 'site-packages', 'win32', 'win32api.pyd')
                 extra_file = lib_util.standardized_file_path(extra_file)
                 list_option.append('CIM_DataFile.Name=%s' % extra_file)
@@ -1392,7 +1389,6 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         for loop_instance in the_instances:
             if loop_instance.__class__ == "Win32_Product":
                 self.assertEqual(loop_instance.IdentifyingNumber, one_instance.IdentifyingNumber)
-
 
     def test_win_cdb_callstack(self):
         """win_cdb_callstack Information about current process"""
@@ -1526,7 +1522,6 @@ class SurvolPyODBCTest(unittest.TestCase):
             Dsn="DSN~SysDataSourceSQLServer")
 
         strInstancesSet = set([str(oneInst) for oneInst in lst_instances])
-        #print("Instances:",strInstancesSet)
 
         # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
         for one_str in [
@@ -1543,7 +1538,6 @@ class SurvolPyODBCTest(unittest.TestCase):
             ]:
             self.assertTrue(one_str in strInstancesSet)
 
-
     @unittest.skipIf(not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
     def test_pyodbc_dsn_one_table_columns(self):
         """Tests ODBC table columns"""
@@ -1554,8 +1548,7 @@ class SurvolPyODBCTest(unittest.TestCase):
             Dsn="DSN~SysDataSourceSQLServer",
             Table="dm_os_windows_info")
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances ])
-        #print("Instances:",str_instances_set)
+        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
 
         # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
         for one_str in [
@@ -1655,7 +1648,6 @@ class SurvolSocketsTest(unittest.TestCase):
 
         found_socket = False
         for one_instance in str_instances_list:
-            #print("one_instance=", one_instance)
             match_address = re.match("addr.Id=(.*):([0-9]*)", one_instance)
             if match_address:
                 instance_host = match_address.group(1)
@@ -1664,7 +1656,6 @@ class SurvolSocketsTest(unittest.TestCase):
                     continue
                 try:
                     instance_addr = socket.gethostbyname(instance_host)
-                    #print("instance_addr=", instance_addr)
                     found_socket = instance_addr == peer_host and instance_port == str(expected_port)
                     if found_socket:
                         break
@@ -1685,7 +1676,7 @@ class SurvolSocketsTest(unittest.TestCase):
 
         print("")
         sockHost = socket.gethostbyname(http_host_name)
-        print("gethostbyname(%s)=%s"%(http_host_name, sockHost))
+        print("gethostbyname(%s)=%s" % (http_host_name, sockHost))
 
         # This opens a connection to a specific machine, then checks that the socket can be found.
         if is_py3:
@@ -1744,9 +1735,6 @@ class SurvolSocketsTest(unittest.TestCase):
         # 'smbshr.Id=\\\\192.168.0.15\\rchateau',
         # 'smbshr.Id=\\\\localhost\\IPC$'
 
-        # TODO: This cannot be tested on Travis.
-
-
     @unittest.skipIf(not is_platform_windows, "test_windows_network_devices for Windows only.")
     def test_windows_network_devices(self):
         """Loads network devices on a Windows network"""
@@ -1780,9 +1768,9 @@ class SurvolSocketsTest(unittest.TestCase):
         logging.debug("smbshr_disk=%s", smbshr_disk)
         for disk_name in smbshr_disk:
             # For example, "//192.168.0.15/public"
-
             host_name = disk_name.split("/")[2]
             self.assertTrue(host_name in set_ip_addresses)
+
 
 class SurvolRemoteTest(unittest.TestCase):
     """Test involving remote Survol agents: The scripts executes scripts on remote machines
@@ -1851,7 +1839,7 @@ class SurvolRemoteTest(unittest.TestCase):
         # This Python module must be there because it is needed by Survol.
         self.assertTrue(len_instances>=1)
 
-    @unittest.skipIf(not pkgutil.find_loader('jpype'), "jpype cannot be imported. test_remote_instances_java not executed.")
+    @unittest.skipIf(not pkgutil.find_loader('jpype'), "jpype cannot be imported.")
     def test_remote_instances_java(self):
         """Loads Java processes. There is at least one Java process, the one doing the test"""
         my_source_java_remote = lib_client.SourceRemote(
@@ -2024,12 +2012,6 @@ class SurvolAzureTest(unittest.TestCase):
 class SurvolRabbitMQTest(unittest.TestCase):
     """Testing RabbitMQ discovery"""
 
-    def setUp(self):
-        time.sleep(2)
-
-    def tearDown(self):
-        time.sleep(2)
-
     # Beware that it is called anyway for each function it is applied to,
     # even if the function is not called.
     def decorator_rabbitmq_subscription(test_func):
@@ -2038,7 +2020,7 @@ class SurvolRabbitMQTest(unittest.TestCase):
         try:
             import pyrabbit
 
-            # NOT RELIABLE.
+            # FIXME: NOT RELIABLE.
             return None
         except ImportError:
             print("Module pyrabbit is not available so this test is not applicable")
