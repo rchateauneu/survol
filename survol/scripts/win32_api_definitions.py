@@ -451,6 +451,7 @@ class Win32Hook_Manager(pydbg.pydbg):
         This handler should not be necessary because creation of processes are detected
         by hooking CreatingProcessA and CreatingProcessW
         """
+        logging.debug("Getting process id")
         created_process_id = win32process.GetProcessId(self.dbg.u.CreateProcessInfo.hProcess)
         logging.debug("event_handler_create_process dwProcessId=%d created_process_id=%d self.pid=%d"
                       % (self.dbg.dwProcessId, created_process_id, self.pid))
@@ -462,7 +463,7 @@ class Win32Hook_Manager(pydbg.pydbg):
         When catching an access violation, and to terminate the process,
         it is necessary to return DBG_CONTINUE to avoid a deadlock.
         """
-        print("callback_event_handler_access_violation ACCESS VIOLATION")
+        logging.debug("callback_event_handler_access_violation ACCESS VIOLATION")
         return defines.DBG_CONTINUE
 
     @staticmethod
