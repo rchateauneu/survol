@@ -1552,6 +1552,7 @@ class pydbg(object):
 
         # don't need this.
         self.close_handle(self.dbg.u.CreateProcessInfo.hFile)
+        self._log("Closed handle")
 
         # self.dbg.u.CreateProcessInfo.hProcess
 
@@ -1560,6 +1561,7 @@ class pydbg(object):
             return DBG_CONTINUE
 
         if CREATE_PROCESS_DEBUG_EVENT in self.callbacks:
+            self._log("Calling create process handler")
             return self.callbacks[CREATE_PROCESS_DEBUG_EVENT](self)
         else:
             return DBG_CONTINUE
