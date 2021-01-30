@@ -38,6 +38,9 @@ associator_CIM_ProcessExecutable = rdflib.term.URIRef(survol_url + "CIM_ProcessE
 
 
 def add_ontology(graph):
+    """
+    TODO: Add all WMI classes, dynamically.
+    """
     graph.add((class_CIM_Process, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
     graph.add((class_CIM_Process, rdflib.namespace.RDFS.label, rdflib.Literal("CIM_Process")))
     graph.add((class_CIM_Directory, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
@@ -139,8 +142,10 @@ class Sparql_CIM_Object(object):
 
     Optimisations are possible, for specific classes, by short-cutting WMI/WBEM.
     This is not done here, because the priority is to test the general case.
+    Still, it is specialised for Sparql_CIM_DataFile and Sparql_CIM_Process.
     """
     def __init__(self, class_name, key_variable, ontology_keys):
+        assert isinstance(key_variable, rdflib.term.Variable)
         self.m_variable = key_variable
         self.m_class_name = class_name
         self.m_associators = {}
@@ -180,15 +185,15 @@ class Sparql_CIM_Object(object):
         raise NotImplementedError(_current_function())
 
     def calculate_literals_number(self):
-        #self.m_number_variables = 0
+        """
+        This calculates the number of known properties or associators.
+        It is used to find which is the best instance to start woth, when enumerating instances with the BGP.
+        The bigger the number of literals, the easier it is.
+        """
         self.m_number_literals = 0
         # FIXME: No need to list the associators which contains only instances. Logic should be different.
         for one_dict in [self.m_associators, self.m_associated, self.m_properties]:
             for key, value in one_dict.items():
-                #if isinstance(value, rdflib.term.Variable):
-                #    self.m_number_variables += 1
-                #elif isinstance(value, rdflib.term.Literal):
-                #    self.m_number_literals += 1
                 if isinstance(value, rdflib.term.Literal):
                     self.m_number_literals += 1
 
@@ -685,6 +690,8 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
     The urls are the same with object created by pure Survol classes.
     """
     def __init__(self, class_name, node):
+        assert isinstance(node, rdflib.term.Variable)
+
         _wmi_load_ontology()
 
         # This contains the leys of the class, for example["Handle"] if Win32_Process.
@@ -707,7 +714,8 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         property_names_used = []
 
         list_current_values = []
-        #sys.stderr.write("_iterator_to_objects %s self.m_properties.keys()=%s\n" % (str(self.m_variable), str(self.m_properties)))
+        #sys.stderr.write("_iterator_to_objects %s self.m_properties.keys()=%s\n"
+        # % (str(self.m_variable), str(self.m_properties)))
 
         for object_path, dict_key_values in iterator_objects:
 
@@ -955,39 +963,61 @@ def _sparql_factory_CIM_Object_Wmi(class_name, the_subject):
 ################################################################################
 
 
-def part_triples_to_instances_dict_function(part, sparql_instance_creator):
+def _part_triples_to_instances_dict_function(part, sparql_instance_creator):
     """
-    This takes the list of triples extracted from the Sparql query,
-    and returns a list of instances of CIM classes, each of them
-    containing the triples using its instances. The association is
-    done based on the variable representing the instance.
+    This takes the basic graph pattern (BGP), which is the list of triples patterns
+    extracted from the Sparql query, and returns a list of instances of CIM classes,
+    each of them containing the triples using its instances.
+    The association is done based on the variable representing the instance.
     There might be several instances of the same class.
+
+    Basically, this groups triple patterns by instances.
+    This requires that the class of instances is known,
+    which is reasonable because Sparql Survol queries are not abstract:
+    A file cannot be a process or a socket etc...
     """
     instances_dict = dict()
-    sys.stderr.write("len(triples)=%d\n" % len(part.triples))
+    logging.debug("len(triples)=%d" % len(part.triples))
     for part_subject, part_predicate, part_object in part.triples:
-        sys.stderr.write("    spo=%s %s %s\n" % (part_subject, part_predicate, part_object))
+        logging.debug("    spo=%s %s %s" % (part_subject, part_predicate, part_object))
         if part_predicate == rdflib.namespace.RDF.type:
             if isinstance(part_subject, rdflib.term.Variable):
                 class_as_str = str(part_object)
-                sys.stderr.write("class_as_str=%s\n" % class_as_str)
-                sys.stderr.write("survol_url=%s\n" % survol_url)
+                logging.debug("class_as_str=%s" % class_as_str)
+                logging.debug("survol_url=%s" % survol_url)
                 if class_as_str.startswith(survol_url):
+                    # This is the class name without the Survol prefix which is not useful here.
                     class_short = class_as_str[len(survol_url):]
-                    sys.stderr.write("Class OK\n")
+                    logging.debug("Class OK")
                     # sparql_instance_creator can also tell the difference between an associator and a property
                     instances_dict[part_subject] = sparql_instance_creator(class_short, part_subject)
 
-    assert instances_dict
-    sys.stderr.write("Created instances:%s\n" % instances_dict.keys())
+    if not instances_dict:
+        # If it does not contain any instance defined by a type which can be mapped to a WMI class,
+        # then this query applies to non-instance content, which can only be the WMI ontology.
+        # This ontology should be returned anyway: Classes, properties etc...
+        logging.error("No instance found")
+        return instances_dict
+        # raise Exception("No instance found")
+    logging.debug("Created instances:%s" % instances_dict.keys())
 
+    # Second pass on the BGP: The keys of instances_dict are URL variables whose values must be found.
+    # TODO: This could be slightly faster because only the keys of instance_dict are of interest,
+    # TODO: ... but this is a small list anyway.
     for part_subject, part_predicate, part_object in part.triples:
         current_instance = instances_dict.get(part_subject, None)
-        if not current_instance: continue
+        if not current_instance:
+            # This is not the pattern of a Survol instance,
+            # so we do not care because we cannot do anything with it.
+            continue
         assert isinstance(current_instance, Sparql_CIM_Object)
-        if part_predicate == rdflib.namespace.RDF.type: continue
+        if part_predicate == rdflib.namespace.RDF.type:
+            # OK, this is a sSurvol object, as expected.
+            continue
 
-        if part_predicate == rdflib.namespace.RDFS.seeAlso: continue
+        if part_predicate == rdflib.namespace.RDFS.seeAlso:
+            # This is a URL, for example of a script returning more data about this object.
+            continue
 
         associator_instance = instances_dict.get(part_object, None)
         if associator_instance:
@@ -1081,18 +1111,22 @@ def product_variables_lists(returned_variables, iter_keys=None):
         yield {}
 
 
-def findable_instance_key(instances_dict):
-    """An instance which is completely known and can be used as a starting point."""
-    sys.stderr.write("findable_instance_key\n")
+def _findable_instance_key(instances_dict):
+    """
+    An instance which is completely known and can be used as a starting point.
+    """
+    logging.debug("_findable_instance_key")
     for instance_key, one_instance in instances_dict.items():
         one_instance.calculate_literals_number()
-        sys.stderr.write("    Key=%s Instance=%s\n" % (instance_key, one_instance))
+        logging.debug("    Key=%s Instance=%s" % (instance_key, one_instance))
 
         # We want to be able to retrieve at least one object, and as fast as possible.
         # This should check if the properties of the ontology are defined,
         # this is very important for WMI otherwise the performance can be awful.
         # On the other hand, in the general case, any property is enough, maybe none of them.
         # Realistically, in this examples, the ontologies properties are required.
+        # TODO: Maybe, start with the instance with the bigger number of known properties,
+        # TODO: i.e. number of literals.
         if one_instance.m_number_literals > 0:
             return instance_key
 
@@ -1102,20 +1136,31 @@ def findable_instance_key(instances_dict):
         return instance_key
 
 
-def visit_all_nodes(instances_dict):
-    """ Exploration of the graph, starting by the ones which can be calculated without inference."""
+def _visit_all_nodes(instances_dict):
+    """
+    Exploration of the graph, starting by the instances which can be calculated without inference.
+    """
 
-    # Find a string point to walk the entire graph.
-    start_instance_key = findable_instance_key(instances_dict)
+    # Find the start instance to walk the entire graph.
+    # This should be the most known instance.
+    start_instance_key = _findable_instance_key(instances_dict)
     start_instance = instances_dict[start_instance_key]
 
     for instance_key, one_instance in instances_dict.items():
         one_instance.m_visited = False
 
+    # At the end, this contains the list of instance in the order allowing to enumerate
+    # on variables and deduce the following instances.
     visited_instances = []
+    # Ideally this should be empty at the end, otherwise some variables are not known,
+    # so Cartesian product etc... Not sure we can do that now.
     unvisited_instances = set([one_instance for one_instance in instances_dict.values()])
 
     def instance_recursive_visit(one_instance):
+        """
+        This recursively visits the network of instances, starting by best known one,
+        using associators as links between instances.
+        """
         assert isinstance(one_instance, Sparql_CIM_Object)
         one_instance.m_visited = True
         visited_instances.append(one_instance)
@@ -1130,13 +1175,27 @@ def visit_all_nodes(instances_dict):
     instance_recursive_visit(start_instance)
 
     def get_property_variables_list(one_instance):
+        """
+        Here, an instance has properties whose value is known, or is a rdflib variable.
+        This returns tyhe set of properties whose value is a variable, i.e. not known.
+        TODO: Check which list of properties is used.
+        """
         return set([property_value
                     for property_value in one_instance.m_properties.values()
                     if isinstance(property_value, rdflib.term.Variable)])
 
+    # The number of instances is the same.
     assert len(visited_instances) + len(unvisited_instances) == len(instances_dict)
-    all_properties_set = set.union(*[get_property_variables_list(one_instance) for one_instance in visited_instances])
 
+    # All variables to enumerate like a Cartesian product, or so.
+    all_properties_set = set.union(
+        *[get_property_variables_list(one_instance)
+          for one_instance in visited_instances])
+
+    # This enumerates the instances which are not linked to the start instance with associators.
+    # This hopes that the variables of the properties of the unvisited instances,
+    # are in the properties of the visited instances,
+    # which implies that the unvisited ones can be deduced with the visited ones.
     while True:
         closest_properties_set = None
         biggest_intersection_num = 0
@@ -1156,7 +1215,8 @@ def visit_all_nodes(instances_dict):
 
     if len(unvisited_instances) > 0:
         visited_instances += unvisited_instances
-        logging.warning("visit_all_nodes len(unvisited_instances)=%d", len(unvisited_instances))
+        # This implies a Cartesian product I think.
+        logging.warning("_visit_all_nodes len(unvisited_instances)=%d", len(unvisited_instances))
     assert len(visited_instances) == len(instances_dict)
     return visited_instances
 
@@ -1188,6 +1248,89 @@ def custom_eval_function_wbem(ctx, part):
     return custom_eval_function_generic(ctx, part, None)
 
 
+def _custom_eval_function_generic_instances(ctx, instances_dict):
+    """
+    This feeds the graph with triples calculated with nested evaluations of instances.
+    """
+
+    visited_nodes = _visit_all_nodes(instances_dict)
+    assert len(instances_dict) == len(visited_nodes)
+
+    # This is a dictionary of variables.
+    variables_context = {}
+
+    def display_variables_context(margin):
+        for k, v in variables_context.items():
+            sys.stderr.write("%s k=%s v=%s\n" % (margin, k, v))
+
+    def recursive_instantiation(instance_index):
+        if instance_index == len(visited_nodes):
+            return
+        logging.debug(
+            "recursive_instantiation: ix=%d visited nodes=%s"
+            % (instance_index, str([nod.m_variable for nod in visited_nodes])))
+
+        # This returns the first instance which is completely kown, i.e. its parameters
+        # are iterals, or variables whose values are known in the current context.
+        one_instance = visited_nodes[instance_index]
+        #margin = " " + str(instance_index) + "    " * (instance_index + 1)
+        #sys.stderr.write(margin + "one_instance=%s\n" % one_instance)
+
+        #sys.stderr.write(margin + "variables_context BEFORE\n")
+        #display_variables_context(margin)
+        returned_variables = one_instance.FetchAllVariables(ctx.graph, variables_context)
+        #sys.stderr.write(margin + "variables_context AFTER\n")
+        #display_variables_context(margin)
+        check_returned_variables(returned_variables)
+
+        #sys.stderr.write(margin + "returned_variables=%s\n" % str(returned_variables))
+
+        variables_combinations_iter = product_variables_lists(returned_variables)
+        variables_context_backup = variables_context.copy()
+        for one_subset in variables_combinations_iter:
+            variables_context.update(one_subset)
+            #sys.stderr.write(margin + "recursive_instantiation instance_index=%d variables_context.keys()=%s\n"
+            #                 % (instance_index, ",".join(str(key) for key in variables_context.keys())))
+            #sys.stderr.write(margin + "recursive_instantiation instance_index=%d variables_context_backup.keys()=%s\n"
+            #                 % (instance_index, ",".join(str(key) for key in variables_context_backup.keys())))
+            #sys.stderr.write(margin + "recursive_instantiation one_subset=%s\n" % str(one_subset))
+            recursive_instantiation(instance_index+1)
+        variables_context.clear()
+        variables_context.update(variables_context_backup)
+
+    recursive_instantiation(0)
+
+    logging.info("Graph after recursive_instantiation: %d triples", len(ctx.graph))
+    if False:
+        sys.stderr.write("Graph after recursive_instantiation: %d triples\n" % len(ctx.graph))
+        for s,p,o in ctx.graph:
+            sys.stderr.write("   s=%s p=%s o=%s\n" % (s, p, o))
+
+
+def _custom_eval_function_generic_aux(ctx, part, sparql_instance_creator):
+    """
+    Actual evaluation of the BGP.
+    """
+
+    # part.name = "SelectQuery", "Project", "BGP"
+    # BGP stands for "Basic Graph Pattern", which is a set of triple patterns.
+    # A triple pattern is a triple:
+    # RDF-term or value, IRI or value, RDF term or value.
+
+    add_ontology(ctx.graph)
+
+    logging.debug("Instances:")
+    instances_dict = _part_triples_to_instances_dict_function(part, sparql_instance_creator)
+    logging.debug("Instances before sort:%d" % len(instances_dict))
+    for instance_key, one_instance in instances_dict.items():
+        logging.debug("    Key=%s Instance=%s" % (instance_key, one_instance))
+
+    if instances_dict:
+        _custom_eval_function_generic_instances(ctx, instances_dict)
+    else:
+        logging.warning("No instances")
+
+
 def custom_eval_function_generic(ctx, part, sparql_instance_creator):
     """
     Inspired from https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html
@@ -1198,72 +1341,18 @@ def custom_eval_function_generic(ctx, part, sparql_instance_creator):
     Their implementations are different because the WMI one exclusively uses WMI queries to retrieve objects.
     Also, it can use any class handled by the installed WMI providers.
 
-    On the contrary, the Survol factory uses custom fucntkons, nuch faster but hard-coded by class type.
+    On the contrary, the Survol factory uses custom functions, nuch faster but hard-coded by class type.
     """
 
     # part.name = "SelectQuery", "Project", "BGP"
+    # BGP stands for "Basic Graph Pattern", which is a set of triple patterns.
+    # A triple pattern is a triple:
+    # RDF-term or value, IRI or value, RDF term or value.
     if part.name == 'BGP':
-        add_ontology(ctx.graph)
+        # This inserts triples in the graph.
+        _custom_eval_function_generic_aux(ctx, part, sparql_instance_creator)
 
-        sys.stderr.write("Instances:\n")
-        instances_dict = part_triples_to_instances_dict_function(part, sparql_instance_creator)
-        sys.stderr.write("Instances before sort:%d\n" % len(instances_dict))
-        for instance_key, one_instance in instances_dict.items():
-            sys.stderr.write("    Key=%s Instance=%s\n" % (instance_key, one_instance))
-
-        visited_nodes = visit_all_nodes(instances_dict)
-        assert len(instances_dict) == len(visited_nodes)
-
-        # This is a dictionary of variables.
-        variables_context = {}
-
-        def display_variables_context(margin):
-            for k, v in variables_context.items():
-                sys.stderr.write("%s k=%s v=%s\n" % (margin, k, v))
-
-        def recursive_instantiation(instance_index):
-            if instance_index == len(visited_nodes):
-                return
-            sys.stderr.write("recursive_instantiation: ix=%d visited nodes=%s\n"
-                             % (instance_index, str([nod.m_variable for nod in visited_nodes])))
-
-            # This returns the first instance which is completely kown, i.e. its parameters
-            # are iterals, or variables whose values are known in the current context.
-            one_instance = visited_nodes[instance_index]
-            #margin = " " + str(instance_index) + "    " * (instance_index + 1)
-            #sys.stderr.write(margin + "one_instance=%s\n" % one_instance)
-
-            #sys.stderr.write(margin + "variables_context BEFORE\n")
-            #display_variables_context(margin)
-            returned_variables = one_instance.FetchAllVariables(ctx.graph, variables_context)
-            #sys.stderr.write(margin + "variables_context AFTER\n")
-            #display_variables_context(margin)
-            check_returned_variables(returned_variables)
-
-            #sys.stderr.write(margin + "returned_variables=%s\n" % str(returned_variables))
-
-            variables_combinations_iter = product_variables_lists(returned_variables)
-            variables_context_backup = variables_context.copy()
-            for one_subset in variables_combinations_iter:
-                variables_context.update(one_subset)
-                #sys.stderr.write(margin + "recursive_instantiation instance_index=%d variables_context.keys()=%s\n"
-                #                 % (instance_index, ",".join(str(key) for key in variables_context.keys())))
-                #sys.stderr.write(margin + "recursive_instantiation instance_index=%d variables_context_backup.keys()=%s\n"
-                #                 % (instance_index, ",".join(str(key) for key in variables_context_backup.keys())))
-                #sys.stderr.write(margin + "recursive_instantiation one_subset=%s\n" % str(one_subset))
-                recursive_instantiation(instance_index+1)
-            variables_context.clear()
-            variables_context.update(variables_context_backup)
-
-        recursive_instantiation(0)
-
-        logging.info("Graph after recursive_instantiation: %d triples", len(ctx.graph))
-        if False:
-            sys.stderr.write("Graph after recursive_instantiation: %d triples\n" % len(ctx.graph))
-            for s,p,o in ctx.graph:
-                sys.stderr.write("   s=%s p=%s o=%s\n" % (s, p, o))
-        #sys.stderr.flush()
-
+        # Normal execution of the Sparql engine on the graph with many more triples.
         # <type 'generator'>
         ret_BGP = rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
         return ret_BGP
