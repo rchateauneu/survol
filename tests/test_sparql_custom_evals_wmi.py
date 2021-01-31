@@ -1231,7 +1231,7 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
     These tests focus on classes and properties, not on the objects.
     """
     def test_all_classes(self):
-        "All WMI classes."
+        """All WMI classes."""
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?url_class
@@ -1248,7 +1248,7 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue((lib_sparql_custom_evals.class_CIM_DataFile,) in query_result)
 
     def test_all_process_properties(self):
-        "This returns all properties of the class CIM_Process."
+        """This returns all properties of the class CIM_Process."""
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?url_property
@@ -1262,9 +1262,8 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue((lib_sparql_custom_evals.predicate_Handle,) in query_result)
         self.assertTrue((lib_sparql_custom_evals.predicate_ParentProcessId,) in query_result)
 
-    @unittest.skip("NOT IMPLEMENTED YET")
-    def test_labelled_class(self):
-        "One WMI class with a given name."
+    def test_class_by_label(self):
+        """Query WMI class whose name is 'CIM_Process'."""
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?url_class
@@ -1273,8 +1272,24 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
               ?url_class rdfs:label "CIM_Process" .
             }""" % (survol_namespace)
         rdflib_graph = rdflib.Graph()
+        query_result = set(rdflib_graph.query(sparql_query))
+        print("List of classes=", query_result)
+        self.assertTrue((lib_sparql_custom_evals.class_CIM_Process,) in query_result)
+
+    def test_process_property_by_label(self):
+        "This returns the property named 'Handle' of the class CIM_Process."
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_property
+            WHERE
+            { ?url_property rdf:type rdf:Property .
+              ?url_property rdfs:domain survol:CIM_Process .
+              ?url_property rdfs:label "Handle" .
+            }""" % (survol_namespace)
+        rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
+        print("Properties of CIM_Process by name=", query_result)
+        self.assertTrue((lib_sparql_custom_evals.predicate_Handle,) in query_result)
 
     @unittest.skip("NOT IMPLEMENTED YET")
     def test_all_sub_classes(self):
@@ -1331,20 +1346,6 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
             SELECT ?url_attribute
             WHERE
             { ?url_attribute rdf:type rdf:Property .
-            }""" % (survol_namespace)
-        rdflib_graph = rdflib.Graph()
-        query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
-
-    @unittest.skip("NOT IMPLEMENTED YET")
-    def test_all_process_named_property(self):
-        "This returns the property named 'Handle' of the class CIM_Process."
-        sparql_query = """
-            SELECT ?url_property
-            WHERE
-            { ?url_property rdf:type rdf:Property .
-              ?url_property rdfs:domain survol:CIM_Process .
-              ?url_property rdfs:label "Handle" .
             }""" % (survol_namespace)
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
