@@ -39,7 +39,9 @@ associator_CIM_ProcessExecutable = rdflib.term.URIRef(survol_url + "CIM_ProcessE
 
 def add_ontology(graph):
     """
+    This is a minimal hard-coded ontology, which applies to WMI and WBEM.
     TODO: Add all WMI classes, dynamically.
+    TODO: Or simply: ExtractWmiOntology wmi: Loaded cached ontology
     """
     graph.add((class_CIM_Process, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
     graph.add((class_CIM_Process, rdflib.namespace.RDFS.label, rdflib.Literal("CIM_Process")))
@@ -181,7 +183,7 @@ class Sparql_CIM_Object(object):
         If variables are grouped in tuples, it means that they are correlated: For example a file path and its node id,
         or a process id and its command line.
         """
-        sys.stderr.write("FetchAllVariables cannot be implemented in base class.\n")
+        logging.error("FetchAllVariables cannot be implemented in base class.")
         raise NotImplementedError(_current_function())
 
     def calculate_literals_number(self):
@@ -197,21 +199,22 @@ class Sparql_CIM_Object(object):
                 if isinstance(value, rdflib.term.Literal):
                     self.m_number_literals += 1
 
-    def GetNodeValue(self, predicate_node, variables_context):
+    def get_node_value(self, predicate_node, variables_context):
         try:
             predicate_variable = self.m_properties[predicate_node]
         except KeyError:
-            sys.stderr.write("GetNodeValue %s not in %s. variables_context.keys=%s\n"
-                             % (predicate_node, str(self.m_properties), str(variables_context.keys())))
+            logging.error("predicate node=%s not in properties=%s. Context keys=%s"
+                          % (predicate_node, str(self.m_properties), str(variables_context.keys())))
             raise
         if isinstance(predicate_variable, rdflib.term.Literal):
             node_value = predicate_variable
         elif isinstance(predicate_variable, rdflib.term.Variable):
             if predicate_variable not in variables_context:
-                sys.stderr.write("GetNodeValue QUIT: %s not in%s\n" % (predicate_variable, str(variables_context.keys())))
+                logging.error("QUIT: predicate=%s not in context keys=%s"
+                              % (predicate_variable, str(variables_context.keys())))
                 return None
             node_value = variables_context[predicate_variable]
-            sys.stderr.write("predicate_variable=%s node_value=%s\n" % (predicate_variable, node_value))
+            logging.debug("predicate_variable=%s node_value=%s" % (predicate_variable, node_value))
             assert isinstance(node_value, rdflib.term.Literal)
         return node_value
 
@@ -231,7 +234,7 @@ class Sparql_CIM_DataFile(Sparql_CIM_Object):
         #sys.stderr.write("Sparql_CIM_DataFile.CreateFileNodeFromProperties\n")
         if predicate_Name in self.m_properties:
             # The path name is enough to fully define a data file or a directory.
-            return self.GetNodeValue(predicate_Name, variables_context)
+            return self.get_node_value(predicate_Name, variables_context)
         else:
             sys.stderr.write("Sparql_CIM_DataFile QUIT: No Name\n")
             return None
@@ -465,7 +468,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
         for one_property in self.PropertyDefinition.g_properties:
             sys.stderr.write("    GetListOfOntologyProperties one_property=%s\n" % one_property.s_property_node)
             if one_property.s_property_node in self.m_properties:
-                node_value = self.GetNodeValue(one_property.s_property_node, variables_context)
+                node_value = self.get_node_value(one_property.s_property_node, variables_context)
                 if node_value:
                     assert isinstance(node_value, rdflib.term.Literal)
                     url_nodes_list = one_property.IfLiteralOrDefinedVariable(node_value)
@@ -547,7 +550,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
 
         #sys.stderr.write("Sparql_CIM_Process.GetProcessesFromExecutable variables_context=%s\n" % variables_context)
         #sys.stderr.write("associated_instance.m_variable=%s\n" % associated_instance.m_variable)
-        executable_node = associated_instance.GetNodeValue(predicate_Name, variables_context)
+        executable_node = associated_instance.get_node_value(predicate_Name, variables_context)
         assert isinstance(executable_node, rdflib.term.Literal)
         executable_path = str(executable_node)
 
@@ -928,7 +931,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
 
         for predicate_node in self.m_properties:
             predicate_name = lib_properties.PropToQName(predicate_node)
-            value_node = self.GetNodeValue(predicate_node, variables_context)
+            value_node = self.get_node_value(predicate_node, variables_context)
             #sys.stderr.write("FetchAllVariables predicate_node=%s\n" % predicate_node)
             if value_node:
                 filtered_where_key_values[predicate_name] = str(value_node)
@@ -941,7 +944,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         #sys.stderr.write("associated:%d associators:%d\n" % (len(self.m_associated), len(self.m_associators)))
 
         if not filtered_where_key_values and not self.m_associated and not self.m_associators:
-            sys.stderr.write("FetchAllVariables BEWARE FULL SELECT: %s\n" % self.m_class_name)
+            logging.warning("FetchAllVariables BEWARE FULL SELECT: %s" % self.m_class_name)
             returned_variables = self.SelectWmiObjectFromProperties(graph, variables_context, filtered_where_key_values)
             check_returned_variables(returned_variables)
             return returned_variables
