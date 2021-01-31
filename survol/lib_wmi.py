@@ -1023,8 +1023,7 @@ class WmiSparqlExecutor:
             logging.debug("SelectObjectFromProperties REPLACED CIM_DataFile where_key_values=%s", filtered_where_key_values)
 
         wmi_query = lib_util.SplitMonikToWQL(filtered_where_key_values, class_name)
-        sys.stderr.write("SelectObjectFromProperties wmi_query=%s\n" % wmi_query)
-        logging.debug("WmiCallbackSelect wmi_query=%s", wmi_query)
+        logging.debug("SelectObjectFromProperties wmi_query=%s" % wmi_query)
 
         try:
             wmi_objects = self.m_wmi_connection.query(wmi_query)
@@ -1032,12 +1031,13 @@ class WmiSparqlExecutor:
             logging.error("WmiSparqlExecutor.SelectObjectFromProperties wmi_query='%s': Caught:%s" % (wmi_query, exc))
             raise
 
-        sys.stderr.write("SelectObjectFromProperties num=%d\n" % len(wmi_objects))
+        logging.debug("SelectObjectFromProperties num=%d" % len(wmi_objects))
         for one_wmi_object in wmi_objects:
             # The WMI path is not a correct path for Survol: The class could be a derived class of the CIM standard,
             # and the prefix containing the Windows host, must rather contain a Survol agent.
             # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
             object_path = str(one_wmi_object.path())
+            logging.debug("object_path=%s" % object_path)
             #logging.debug("one_wmi_object.path=%s",object_path)
             list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, class_name)
             dict_key_values = {node_key: node_value for node_key, node_value in list_key_values}
