@@ -1276,6 +1276,22 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
         print("List of classes=", query_result)
         self.assertTrue((lib_sparql_custom_evals.class_CIM_Process,) in query_result)
 
+    def test_class_by_filtered_label(self):
+        """Query WMI class whose name is 'CIM_Process'."""
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_class
+            WHERE
+            { ?url_class rdf:type rdfs:Class .
+              ?url_class rdfs:label ?class_label .
+              FILTER regex(?class_label, "^CIM_D.*") 
+            }""" % (survol_namespace)
+        rdflib_graph = rdflib.Graph()
+        query_result = set(rdflib_graph.query(sparql_query))
+        print("List of classes=", query_result)
+        self.assertTrue((lib_sparql_custom_evals.class_CIM_Directory,) in query_result)
+        self.assertTrue((lib_sparql_custom_evals.class_CIM_DataFile,) in query_result)
+
     def test_process_property_by_label(self):
         "This returns the property named 'Handle' of the class CIM_Process."
         sparql_query = """
