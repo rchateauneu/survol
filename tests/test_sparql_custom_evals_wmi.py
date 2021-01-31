@@ -1092,7 +1092,7 @@ class SparqlWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
                 ?url_user survol:Win32_GroupUser ?url_group .
                 ?url_group rdf:type survol:Win32_Group .
                 ?url_group survol:Name ?name_group .
-            }""" % (survol_namespace)
+            }""" % survol_namespace
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
@@ -1110,7 +1110,7 @@ class SparqlWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
                 ?url_user survol:Win32_GroupUser ?url_group .
                 ?url_group rdf:type survol:Win32_Group .
                 ?url_group survol:Name 'Guests' .
-            }""" % (survol_namespace)
+            }""" % survol_namespace
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
@@ -1136,6 +1136,7 @@ class SparqlWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue('Guest' in usernames_only)
         self.assertTrue('Administrator' in usernames_only)
 
+
 @unittest.skip("NOT IMPLEMENTED YET")
 class SparqlSeeAlsoTest(CUSTOM_EVALS_WMI_Base_Test):
     def test_see_also_data_file(self):
@@ -1160,7 +1161,7 @@ class SparqlSeeAlsoTest(CUSTOM_EVALS_WMI_Base_Test):
             { ?url_proc survol:Name "/usr/lib/systemd/systemd-journald" .
               ?url_proc rdf:type survol:CIM_DataFile .
               ?url_proc rdfs:seeAlso "survol:CIM_DataFile/mapping_processes" .
-            }""" % (survol_namespace)
+            }""" % survol_namespace
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
@@ -1173,7 +1174,7 @@ class SparqlSeeAlsoTest(CUSTOM_EVALS_WMI_Base_Test):
             { ?url_proc survol:Handle %d  .
               ?url_proc rdf:type survol:CIM_Process .
               ?url_proc rdfs:seeAlso <http://vps516494.ovh.net/Survol/survol/entity.py?xid=CIM_Process.Handle=29&mode=rdf> .
-            }""" % (survol_namespace)
+            }""" % survol_namespace
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
@@ -1188,7 +1189,7 @@ class SparqlSeeAlsoTest(CUSTOM_EVALS_WMI_Base_Test):
               ?url_proc rdfs:seeAlso "survol:CIM_Process/process_open_files" .
               ?url_proc rdfs:seeAlso "survol:CIM_Process/single_pidstree" .
               ?url_proc rdfs:seeAlso "survol:CIM_Process/languages/python/current_script" .
-            }""" % (survol_namespace)
+            }""" % survol_namespace
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
@@ -1255,12 +1256,34 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
             WHERE
             { ?url_property rdf:type rdf:Property .
               ?url_property rdfs:domain survol:CIM_Process .
-            }""" % (survol_namespace)
+            }""" % survol_namespace
         rdflib_graph = rdflib.Graph()
         query_result = set(rdflib_graph.query(sparql_query))
         print("Properties of CIM_Process=", query_result)
         self.assertTrue((lib_sparql_custom_evals.predicate_Handle,) in query_result)
         self.assertTrue((lib_sparql_custom_evals.predicate_ParentProcessId,) in query_result)
+
+    def test_all_properties_classes_union(self):
+        """This returns all properties of the class CIM_Process."""
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_property
+            WHERE
+            {
+            { ?url_property rdf:type rdf:Property .
+              ?url_property rdfs:domain survol:CIM_DataFile .
+            }
+            UNION
+            { ?url_property rdf:type rdf:Property .
+              ?url_property rdfs:domain survol:CIM_Directory .
+            }
+            }
+            """ % survol_namespace
+        rdflib_graph = rdflib.Graph()
+        query_result = set(rdflib_graph.query(sparql_query))
+        print("Union of properties of CIM_DataFile and CIM_Directory=", query_result)
+        self.assertTrue((lib_sparql_custom_evals.predicate_Name,) in query_result)
+        self.assertTrue((lib_sparql_custom_evals.associator_CIM_DirectoryContainsFile,) in query_result)
 
     def test_class_by_label(self):
         """Query WMI class whose name is 'CIM_Process'."""
