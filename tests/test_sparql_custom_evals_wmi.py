@@ -1404,19 +1404,6 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
 
-    @unittest.skip("NOT IMPLEMENTED YET")
-    def test_server_survol_wmi_meta(self):
-        sparql_query = """
-            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-            SELECT ?url_class
-            WHERE
-            { ?url_class rdf:type rdfs:Class .
-            }
-            """
-        rdflib_graph = rdflib.Graph()
-        query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
-
     # Some query examples taken from https://codyburleson.com/sparql-examples-list-classes/
     # TODO: Test rdfs:range
 
