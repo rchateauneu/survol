@@ -2093,6 +2093,14 @@ class GenericTraceTracer:
         To replay these sessions, these lines are saved as is in a text file,
         which just needs to be open and read when replying a session.
         """
+
+        # The input log files are terminated by "\n" on Linux and "\r\n" on Windows, because of GIT.
+        # For performance reason, it is much preferable to handle binary files, but they all should have
+        # the same line terminator.
+
+        # The stream must behave like reading the output of strace or ltrace with subprocess.Popen,
+        # which returns untouched lines of bytes: This is the most important mode,
+        # that we want to emulate with text files.
         return open(input_log_file)
         # The line terminator cannot be controlled, but binary mode is used because of performance.
         # return open(input_log_file, "rb")
@@ -2137,8 +2145,8 @@ class STraceTracer(GenericTraceTracer):
 
 
 class LTraceTracer(GenericTraceTracer):
-    # The command options generate a specific output file format,
-    # and therefore parsing it is specific to these options.
+    """The command options generate a specific output file format,
+    and therefore parsing it is specific to these options."""
     def build_trace_command(self, external_command, a_pid):
         # This selects:
         # libpython2.7.so.1.0->getenv, cx_Oracle.so->getenv, libclntsh.so.11.1->getenv, libresolv.so.2->getenv etc...
@@ -2207,4 +2215,3 @@ class LTraceTracer(GenericTraceTracer):
         if ltrace_version_str[-1] == '.':
             ltrace_version_str = ltrace_version_str[:-1]
         return tuple(map(int, ltrace_version_str.split('.')))
-
