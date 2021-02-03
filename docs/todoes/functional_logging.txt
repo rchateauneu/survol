@@ -1,0 +1,8 @@
+Transform method calls into RDF triples.
+
+The subject is the instance class, the class is the class of course, the predicate is the method,
+the parameters make literals or objects.
+The call itself is reified, so metatada such as a timestamp can be added.
+Possibly use the object address to build a IRI ?
+This can logically work only if subset of the instance properties are immutable.
+It depends on the class semantics, if an instance is uniquely defined by its properties.

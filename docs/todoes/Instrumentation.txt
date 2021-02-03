@@ -1,4 +1,4 @@
-Instrument an application by detection important calls, and then send away RDF events.
+Instrument an application by detection of important calls, and then send away RDF events.
 Possibly instrument the process, just like pydbg do with binary applications.
 https://docs.python.org/3/howto/instrumentation.html
 
