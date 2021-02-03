@@ -497,7 +497,14 @@ def EntityToLabelWmi(nam_spac, entity_type_NoNS, entity_id, entity_host):
 #
 # In the three cases, Survol, WMI and WBEM, ontologies are implemented with a dictionary.
 # TODO: How to display the information of associators and references ?
+
 def ExtractWmiOntologyLocal():
+    """
+    This returns a tuple of two maps.
+    - A map of class names to various properties including their base class name,
+    i.e. the first element of their derivation, and the list of their properties.
+    - A map of properties to their attributes.
+    """
     cnn = wmi.WMI()
 
     map_classes = {}
@@ -518,8 +525,8 @@ def ExtractWmiOntologyLocal():
         text_descr = ""
         if the_cls:
             try:
-                textDsc = the_cls.Qualifiers_("Description")
-                text_descr = six.text_type(textDsc)
+                text_dsc = the_cls.Qualifiers_("Description")
+                text_descr = six.text_type(text_dsc)
                 # pywintypes.com_error: (-2147352567, 'Exception occurred.', (0, u'SWbemQualifierSet', u'Not found ', None, 0, -2147217406), None)
             except pywintypes.com_error:
                 pass
@@ -1016,7 +1023,7 @@ class WmiSparqlExecutor:
         logging.info("WmiSparqlExecutor.SelectObjectFromProperties class_name=%s where_key_values=%s", class_name, filtered_where_key_values)
         assert class_name
 
-        # HACK: Temporary hard-code !!
+        # FIXME: HACK: Temporary hard-code !!
         if class_name in ["CIM_DataFile", "CIM_Directory"] and "Name" in filtered_where_key_values:
             filnam = filtered_where_key_values["Name"]
             filtered_where_key_values["Name"] = filnam.replace("/", "\\")
