@@ -1,6 +1,6 @@
 A quick note about scripts written in another language than Python.
 
-A possible architecture is to to create exexcutables, which are also Python module:
+A possible architecture is to to create executables, which are also Python module:
 That is, they export a function called "PyInit_something"
 for Python 3 and "initsomething" for Python2.
 Is it possible to use the same DLL for Python 2 and Python 3 ? This would simplify Survol installation.
