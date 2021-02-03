@@ -4,12 +4,15 @@ import json
 import logging
 
 ################################################################################
-# This caches data in files for performance.
-# Extracting the entire ontology takes time.
 def ManageLocalOntologyCache(ontology_name, ontology_extractor):
+    """
+    This caches data in files for performance.
+    Extracting the entire ontology takes time.
+    """
     tmp_dir = lib_util.get_temporary_directory()
 
-    # A cache can hold an entire month.
+    # A cache is valid for an entire month.
+    # This cache is needed because WMI ontology extractors takes a lot of time.
     today_date = datetime.date.today()
     date_string = today_date.strftime("%Y%m")
 
