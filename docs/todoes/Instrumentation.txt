@@ -2,3 +2,4 @@ Instrument an application by detection of important calls, and then send away RD
 Possibly instrument the process, just like pydbg do with binary applications.
 https://docs.python.org/3/howto/instrumentation.html
 
+Possibly use a garbage collector which is abe to detect allocated pointers, hence objects.
