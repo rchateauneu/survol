@@ -143,6 +143,7 @@ def _script_to_cgi_executable(one_path):
         except Exception as exc:
             log.error("Script err=%s" % exc)
 
+is_linux_or_darwin = sys.platform.startswith("lin") or sys.platform == "darwin"
 
 class InstallLibCommand(install_lib):
     """
@@ -157,7 +158,7 @@ class InstallLibCommand(install_lib):
             preserve_mode=1, preserve_times=1, preserve_symlinks=0, level=1
     ):
         """This is called on Linux and Darwin, from the top-level infile='build\\lib' """
-        if sys.platform.startswith("lin") or sys.platform == "darwin":
+        if is_linux_or_darwin:
             library_top = os.path.join(infile, "survol")
             for library_root, library_dirs, library_files in os.walk(library_top):
                 for one_file in library_files:
@@ -188,12 +189,6 @@ def _cythonizable_source_files():
         # Unexplained bug yet (In summarization of function calls).
         # "dockit",
         "scripts/dockit_aggregate_clusterize.py",
-
-        "lib_common.py",
-        "lib_export_dot.py",
-        "lib_export_html.py",
-        "lib_export_json.py",
-        "lib_export_ontology.py",
     ]
 
     for root, dir, top_level_files in os.walk(survol_base_dir):
@@ -206,6 +201,8 @@ def _cythonizable_source_files():
         "lib_client.py",
         # LINK : error LNK2001: unresolved external symbol init__init__
         "__init__.py"
+
+        # Possible issue with lib_common.py due to a global.
     ])
     for one_file in top_level_files:
         if one_file.endswith(".py") and one_file not in not_compiled_files:
@@ -254,29 +251,24 @@ class CleanCommand(clean):
 
     description = 'Clean build including in-place built extensions.'
 
-    #def initialize_options(self):
-    #    print("clean.initialize_options")
-    #    clean.initialize_options(self)
-
-    #def finalize_options(self):
-    #    """Post-process options."""
-    #    print("clean.finalize_options")
-    #    clean.finalize_options(self)
-
     def _cleanup_libs(self):
         src_files = _cythonizable_source_files()
         for one_file in src_files:
             assert one_file.endswith(".py")
-            lib_path = one_file + "d" # .pyd
+            file_without_extension = os.path.splitext(one_file)[0]
+            if is_linux_or_darwin:
+                lib_path = file_without_extension + ".so"
+            else:
+                lib_path = file_without_extension + ".pyd"
             try:
                 os.remove(lib_path)
-                print("Removed", lib_path)
+                print("Removed cythonized file:", lib_path)
             except:
+                print("Cannot remove:", lib_path)
                 pass
 
     def run(self):
         """Run command."""
-        print("clean.run")
         print("Removing in-place built libs")
         self._cleanup_libs()
         clean.run(self)
@@ -431,4 +423,3 @@ setup(**setup_options)
 
 ################################################################################
 
-# TODO: How to display optional modules ? Which features do they provide ?
