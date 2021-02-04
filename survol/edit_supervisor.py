@@ -2,12 +2,14 @@
 
 import os
 import sys
+import datetime
+import logging
+
 import lib_export_html
 import lib_common
 import lib_util
 import lib_kbase
 import lib_naming
-import datetime
 
 from lib_util import WrtAsUtf
 
@@ -130,7 +132,12 @@ def MainJinja(url_supervisor_control, urls_daemons_dict):
 def Main():
     lib_common.set_events_credentials()
     url_supervisor_control = daemon_factory.supervisorctl_url()
-    urls_daemons_dict = _get_daemons_data()
+    logging.info("url_supervisor_control=%s" % url_supervisor_control)
+    try:
+        urls_daemons_dict = _get_daemons_data()
+    except Exception as exc:
+        logging.error("Caught exc=%s" % exc)
+        lib_common.ErrorMessageHtml("Supervisor %s display: Caught:%s" % (url_supervisor_control, exc))
     if lib_util.GetJinja2():
         MainJinja(url_supervisor_control, urls_daemons_dict)
     else:
