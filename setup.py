@@ -174,7 +174,7 @@ def _cythonizable_source_files():
     """
     This returns the list of absolute paths of files to be cythonized.
 
-    Only a sbuset of files are 
+    Only a subset of files are compiled.
     """
     survol_base_dir = os.path.join(os.path.dirname(__file__), "survol")
     src_files = []
@@ -206,7 +206,6 @@ def _cythonizable_source_files():
     ])
     for one_file in top_level_files:
         if one_file.endswith(".py") and one_file not in not_compiled_files:
-            print("Adding:", one_file)
             basenames_list.append(one_file)
 
     for one_filename in basenames_list:
