@@ -89,12 +89,7 @@ loggerRdflib = logging.getLogger("rdflib.term")
 loggerRdflib.setLevel(logging.WARNING)
 
 # This is the general purpose logger.
-if is_py3:
-    logger_name = "inspect"
-else:
-    frm = inspect.stack()[1]
-    mod = inspect.getmodule(frm[0])
-    logger_name = mod.__name__
+logger_name = "survol_logger"
 
 gblLogger = logging.getLogger(logger_name)
 
@@ -468,6 +463,21 @@ def RequestUri():
 
 
 # This assumes that this file is at the top of "survol" package.
+
+# This fails with Cython due to a bug in Python 2,
+# with <type 'exceptions.NameError'>: name '__file__' is not defined
+# https://stackoverflow.com/questions/19630634/python-file-is-not-defined
+
+# In Python modules, the top-level module code sees the __file__ variable
+# and can use it to refer to resources in package subdirectories, for example.
+# This is not currently possible in extension modules,
+# because __file__ is only set after running the module init function,
+# and the module has no way to find out its runtime location.
+#
+# CPython should set __file__ directly in PyModule_Create2(),
+# based on information provided by the shared library loader.
+# This would let PyModule_GetFilenameObject() work immediately with the newly created module object.
+
 gblTopScripts = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(gblTopScripts)
 
@@ -1060,8 +1070,8 @@ def _check_program_exists_nocache(program_name):
         # Also, it is more specific.
         return program_name
 
-    return _where_command(program_name)
     logging.info("program_name=%s" % program_name)
+    return _where_command(program_name)
 
 
 def _where_command(program_name):
