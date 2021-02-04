@@ -6,8 +6,6 @@
 """
 This RDF server translates SPARQL queries into WMI data model.
 """
-import cgitb
-cgitb.enable(format="txt")
 
 # TODO: DEPRECATED.
 
