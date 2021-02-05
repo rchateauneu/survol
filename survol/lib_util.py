@@ -870,7 +870,7 @@ def CopyFile(mime_type, file_name):
     It is used to display files as MIME content.
 
     Read and write by chunks, so that it does not use all memory."""
-    sys.stderr.write("CopyFile type globalOutMach=%s\n" % type(globalOutMach))
+    logging.debug("CopyFile type globalOutMach=%s" % type(globalOutMach))
 
     fil_des = open(file_name, "rb")
 
