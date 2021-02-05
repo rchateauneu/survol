@@ -532,7 +532,7 @@ def WbemLocalConnection():
     """By default, current machine. However, WBEM does not give the possibility
     to connect to the local server with the host set to None."""
     machine_name = socket.gethostname()
-    sys.stderr.write("WbemLocalConnection machine_name=%s\n" % machine_name)
+    logging.info("WbemLocalConnection machine_name=%s" % machine_name)
 
     cimom_url = HostnameToWbemServer(machine_name)
 
@@ -552,7 +552,7 @@ def ExtractRemoteWbemOntology(wbem_connection):
     map_classes = {}
     map_attributes = {}
 
-    sys.stderr.write("ExtractRemoteWbemOntology: Getting class tree.\n")
+    logging.info("ExtractRemoteWbemOntology: Getting class tree.")
 
     # Note: Survol assumes this namespace everywhere.
     wbem_name_space = 'root/cimv2'
