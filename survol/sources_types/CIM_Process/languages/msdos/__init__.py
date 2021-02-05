@@ -6,6 +6,7 @@ import os
 import sys
 import json
 import tempfile
+import logging
 import psutil
 import lib_util
 from sources_types import CIM_Process
@@ -37,7 +38,7 @@ def Usable(entity_type, entity_ids_arr):
 
     # For all of these command lines, the path is always: "C:\Windows\System32\cmd.exe"
     proc_executable, error_message = CIM_Process.PsutilProcToExe(proc_obj)
-    sys.stderr.write("proc_executable:%s\n" % proc_executable)
+    logging.debug("proc_executable:%s" % proc_executable)
 
     return proc_executable.endswith("cmd.exe")
 
