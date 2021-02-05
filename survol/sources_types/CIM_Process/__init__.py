@@ -97,16 +97,16 @@ def _command_line_argument_to_node(process_cwd, file_path):
     full_path = os.path.join(process_cwd, file_path)
 
     # TODO: Should simply try if the path is valid.
-    sys.stderr.write("_command_line_argument_to_node full_path=%s\n" % full_path)
+    logging.debug("_command_line_argument_to_node full_path=%s" % full_path)
     if os.path.exists(full_path):
         if os.path.isdir(full_path):
-            sys.stderr.write("_command_line_argument_to_node DIR:%s\n" % full_path)
+            logging.debug("_command_line_argument_to_node DIR:%s" % full_path)
             return lib_common.gUriGen.DirectoryUri(full_path)
         elif os.path.isfile(full_path):
-            sys.stderr.write("_command_line_argument_to_node FILE:%s\n" % full_path)
+            logging.debug("_command_line_argument_to_node FILE:%s" % full_path)
             return lib_common.gUriGen.FileUri(full_path)
         else:
-            sys.stderr.write("_command_line_argument_to_node INVALID:%s\n" % full_path)
+            logging.warning("_command_line_argument_to_node INVALID:%s" % full_path)
     return None
 
 
