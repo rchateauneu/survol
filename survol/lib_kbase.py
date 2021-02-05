@@ -595,7 +595,7 @@ def set_storage_style(*storage_style_tuple):
             try:
                 _events_conjunctive_graph.close()
             except Exception as exc:
-                sys.stderr.write("set_storage_style Exception=%s\n" % exc)
+                logging.error("set_storage_style Exception=%s" % exc)
         del _events_conjunctive_graph
         _events_conjunctive_graph = None
 
@@ -665,7 +665,7 @@ def _setup_global_graph():
                 _log_db_access("_setup_global_graph", "O", "1", sqlite_uri)
                 rt = _events_conjunctive_graph.open(sqlite_uri, create=False)
             except Exception as exc:
-                sys.stderr.write("sqlite_uri=%s. Exception=%s\n" % (sqlite_uri, exc))
+                logging.error("sqlite_uri=%s. Exception=%s" % (sqlite_uri, exc))
 
                 # According to the documentation, it should rather return this value instead of throwing.
                 rt = rdflib.store.NO_STORE
@@ -730,7 +730,7 @@ def _log_db_access(function_name, access_type, step_name, url_name, data_size=-1
             db_log_file.close()
             break
         except Exception as exc:
-            sys.stderr.write("Did not work: %s. Retry\n" % exc)
+            logging.error("Did not work: %s. Retry" % exc)
             time.sleep(1)
 
 
@@ -808,16 +808,16 @@ def context_events_count(the_url):
 
 def clear_all_events():
     global _events_conjunctive_graph
-    sys.stderr.write("clear_all_events: Clearing events\n" )
+    logging.info("clear_all_events: Clearing events" )
     if _events_conjunctive_graph:
-        sys.stderr.write("clear_all_events: %d events\n" % len(_events_conjunctive_graph))
+        logging.info("clear_all_events: %d events" % len(_events_conjunctive_graph))
         _events_conjunctive_graph.remove((None, None, None))
         if _events_storage_style[0] == "SQLAlchemy":
             _events_conjunctive_graph.commit()
         _events_conjunctive_graph = None
-        sys.stderr.write("clear_all_events: Clearing events done\n")
+        logging.info("clear_all_events: Clearing events done")
     else:
-        sys.stderr.write("clear_all_events: Nothing to clear\n")
+        logging.info("clear_all_events: Nothing to clear")
 
 
 def retrieve_all_events_to_graph_then_clear(output_graph):
