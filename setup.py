@@ -200,9 +200,9 @@ def _cythonizable_source_files():
         # survol\lib_client.py:875:63: Compiler crash in AnalyseExpressionsTransform
         "lib_client.py",
         # LINK : error LNK2001: unresolved external symbol init__init__
-        "__init__.py"
-
-        # Possible issue with lib_common.py due to a global.
+        "__init__.py",
+        # AttributeError: 'module' object has no attribute 'gUriGen'
+        "lib_common.py",
     ])
     for one_file in top_level_files:
         if one_file.endswith(".py") and one_file not in not_compiled_files:
