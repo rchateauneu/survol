@@ -405,7 +405,7 @@ class CgiEnv():
         except Exception as exc:
             # Then display the content in snapshot mode, which is better than nothing.
             self.report_error_message("Cannot start daemon, caught:%s\n" % exc)
-            sys.stderr.write("Cannot start daemon: When getting daemon status, caught:%s\n" % exc)
+            logging.error("Cannot start daemon: When getting daemon status, caught:%s" % exc)
             return
 
         if not is_daemon_running:
@@ -778,7 +778,7 @@ def ErrorMessageHtml(message):
             # is not set in minimal HTTP servers such as CGIHTTPServer.
             request_uri = lib_util.RequestUri()
             url_mode = lib_util.get_url_mode(request_uri)
-            sys.stderr.write("ErrorMessageHtml request_uri=%s url_mode=%s\n" % (request_uri, url_mode))
+            logging.error("ErrorMessageHtml request_uri=%s url_mode=%s" % (request_uri, url_mode))
             if url_mode == "json":
                 # If we are in Json mode, this returns a special json document with the error message.
                 lib_export_json.WriteJsonError(message)
