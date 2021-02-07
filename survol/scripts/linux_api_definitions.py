@@ -283,7 +283,12 @@ class BatchLetCore:
         # return cim_objects_definitions.ObjectsContext(self.m_pid)
 
     def _set_function(self, func_full):
-        """With ltrace, systems calls are suffix with the string "@SYS"."""
+        """
+        With ltrace, systems calls are suffix with the string "@SYS".
+
+        TODO: Consider sys.intern because the function names are not that many
+        https://stackabuse.com/guide-to-string-interning-in-python/
+        """
         if self.m_tracer == "strace":
             # strace can only intercept system calls.
             assert not func_full.endswith("@SYS")
