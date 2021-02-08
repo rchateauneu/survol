@@ -210,8 +210,8 @@ class Sparql_CIM_Object(object):
             node_value = predicate_variable
         elif isinstance(predicate_variable, rdflib.term.Variable):
             if predicate_variable not in variables_context:
-                logging.error("QUIT: predicate=%s not in context keys=%s"
-                              % (predicate_variable, str(variables_context.keys())))
+                logging.error("QUIT: predicate node=%s. predicate=%s not in context keys=%s"
+                              % (predicate_node, predicate_variable, str(variables_context.keys())))
                 return None
             node_value = variables_context[predicate_variable]
             logging.debug("predicate_variable=%s node_value=%s" % (predicate_variable, node_value))
@@ -236,7 +236,7 @@ class Sparql_CIM_DataFile(Sparql_CIM_Object):
             # The path name is enough to fully define a data file or a directory.
             return self.get_node_value(predicate_Name, variables_context)
         else:
-            sys.stderr.write("Sparql_CIM_DataFile QUIT: No Name\n")
+            logging.error("Sparql_CIM_DataFile QUIT: No Name")
             return None
 
     def FetchFromDirectory(self, variables_context, file_path, graph, returned_variables, node_uri_ref):
@@ -248,7 +248,7 @@ class Sparql_CIM_DataFile(Sparql_CIM_Object):
             assert isinstance(associator_instance.m_variable, rdflib.term.Variable)
 
             if associator_instance.m_variable in variables_context:
-                sys.stderr.write("ALREADY DEFINED ?? %s\n" % associator_instance.m_variable)
+                logging.error("ALREADY DEFINED ?? %s" % associator_instance.m_variable)
                 return
 
             dir_file_path = lib_util.standardized_file_path(os.path.dirname(file_path))
@@ -451,8 +451,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
     def GetAllObjects(self):
         """If no property is usable, this returns all objects.
         This can work only for some classes, if there are not too many objects."""
-        sys.stderr.write("Sparql_CIM_Process.GetAllObjects: Getting all processes\n")
-        result_list = []
+        logging.debug("Sparql_CIM_Process.GetAllObjects: Getting all processes")
 
         list_values = [
             (rdflib.term.Literal(proc.pid), rdflib.term.Literal(proc.ppid()))
@@ -464,7 +463,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
         This returns key-value pairs defining objects.
         It returns all properties defined in the instance,
         not only the properties of the ontology."""
-        sys.stderr.write("GetListOfOntologyProperties\n")
+        logging.debug("GetListOfOntologyProperties")
         for one_property in self.PropertyDefinition.g_properties:
             sys.stderr.write("    GetListOfOntologyProperties one_property=%s\n" % one_property.s_property_node)
             if one_property.s_property_node in self.m_properties:
@@ -473,7 +472,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
                     assert isinstance(node_value, rdflib.term.Literal)
                     url_nodes_list = one_property.IfLiteralOrDefinedVariable(node_value)
                     return url_nodes_list
-        sys.stderr.write("GetListOfOntologyProperties leaving: Cannot find anything.\n")
+        logging.debug("GetListOfOntologyProperties leaving: Cannot find anything.")
         return None, None
 
     def CreateURIRef(self, graph, class_name, class_node, dict_predicates_to_values):
@@ -484,7 +483,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
             str_value = str(node_value)
             url_as_str += delimiter + "%s=%s" % (predicate_name, str_value)
             delimiter = "."
-        sys.stderr.write("CreateURIRef url_as_str=%s\n" % url_as_str)
+        logging.debug("url_as_str=%s" % url_as_str)
         node_uri_ref = rdflib.term.URIRef(url_as_str)
         graph.add((node_uri_ref, rdflib.namespace.RDF.type, class_node))
 
@@ -495,7 +494,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
 
     def DefineExecutableFromProcess(self, variables_context, process_id, graph, returned_variables, node_uri_ref):
         """Given the process id, it creates the file representing the executable being run."""
-        sys.stderr.write("Sparql_CIM_Process.DefineExecutableFromProcess process_id=%d\n" % process_id)
+        logging.debug("Sparql_CIM_Process.DefineExecutableFromProcess process_id=%d" % process_id)
         if associator_CIM_ProcessExecutable in self.m_associators:
             associated_instance = self.m_associators[associator_CIM_ProcessExecutable]
             assert isinstance(associated_instance, Sparql_CIM_DataFile)
@@ -507,7 +506,6 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
 
             # TODO: This could also explore DLLs, not only the main executable.
             executable_path = lib_util.standardized_file_path(psutil.Process(process_id).exe())
-            #executable_path = psutil.Process(process_id).exe()
             executable_path_node = rdflib.term.Literal(executable_path)
 
             associated_instance_url = self.CreateURIRef(graph, "CIM_DataFile", class_CIM_DataFile,
@@ -562,7 +560,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
             try:
                 process_executable = lib_util.standardized_file_path(one_process.exe())
             except psutil.AccessDenied as exc:
-                sys.stderr.write("GetProcessesFromExecutable Caught:%s\n" % str(exc))
+                logging.error("GetProcessesFromExecutable Caught:%s" % str(exc))
                 continue
             # print("process_executable=", process_executable, "executable_path=", executable_path)
             # With pytest as a command line: "c:\python27\python.exe" != "C:\Python27\python.exe"
@@ -721,7 +719,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         # % (str(self.m_variable), str(self.m_properties)))
 
         for object_path, dict_key_values in iterator_objects:
-
+            logging.debug("object_path=%s" % object_path)
             if not list_variables:
                 # The first object is used to create the list of attributes.
                 list_variables.append(self.m_variable)
@@ -784,7 +782,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         return wmi_class_keys
 
     def SelectWmiObjectFromProperties(self, graph, variables_context, filtered_where_key_values):
-        #sys.stderr.write("SelectWmiObjectFromProperties filtered_where_key_values=%s\n" % str(filtered_where_key_values))
+        logging.debug("class=%s filtered_where_key_values=%s" % (self.m_class_name, str(filtered_where_key_values)))
         iterator_objects = wmiExecutor.SelectObjectFromProperties(self.m_class_name, filtered_where_key_values)
         #####iterator_objects = list(iterator_objects)
         returned_variables = self._iterator_to_objects(graph, iterator_objects)
@@ -1262,10 +1260,6 @@ def _custom_eval_function_generic_instances(ctx, instances_dict):
     # This is a dictionary of variables.
     variables_context = {}
 
-    def display_variables_context(margin):
-        for k, v in variables_context.items():
-            sys.stderr.write("%s k=%s v=%s\n" % (margin, k, v))
-
     def recursive_instantiation(instance_index):
         if instance_index == len(visited_nodes):
             return
@@ -1280,10 +1274,8 @@ def _custom_eval_function_generic_instances(ctx, instances_dict):
         #sys.stderr.write(margin + "one_instance=%s\n" % one_instance)
 
         #sys.stderr.write(margin + "variables_context BEFORE\n")
-        #display_variables_context(margin)
         returned_variables = one_instance.FetchAllVariables(ctx.graph, variables_context)
         #sys.stderr.write(margin + "variables_context AFTER\n")
-        #display_variables_context(margin)
         check_returned_variables(returned_variables)
 
         #sys.stderr.write(margin + "returned_variables=%s\n" % str(returned_variables))
@@ -1304,10 +1296,6 @@ def _custom_eval_function_generic_instances(ctx, instances_dict):
     recursive_instantiation(0)
 
     logging.info("Graph after recursive_instantiation: %d triples", len(ctx.graph))
-    if False:
-        sys.stderr.write("Graph after recursive_instantiation: %d triples\n" % len(ctx.graph))
-        for s,p,o in ctx.graph:
-            sys.stderr.write("   s=%s p=%s o=%s\n" % (s, p, o))
 
 
 def _custom_eval_function_generic_aux(ctx, part, sparql_instance_creator):
