@@ -251,6 +251,9 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue(str(CurrentPid) in only_pids)
 
     def test_Win32_Process_Description_to_Pid(self):
+        """
+        This selects pids of processes whose description is "python.exe"
+        """
         sparql_query = """
             PREFIX survol: <%s>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
@@ -269,6 +272,9 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue(str(CurrentPid) in only_pids)
 
     def test_Win32_Process_Pid_to_ParentPid(self):
+        """
+        This selects the pid of the parent of the current process.
+        """
         sparql_query = """
             PREFIX survol: <%s>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
@@ -287,6 +293,9 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertEqual(str(CurrentParentPid), only_parent_pids[0])
 
     def test_Win32_Process_Pid_to_ParentProcess(self):
+        """
+        This selects the description of the parent process.
+        """
         sparql_query = """
             PREFIX survol: <%s>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
@@ -309,6 +318,11 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         print("Description=%s", only_descriptions[0])
 
     def test_Win32_Process_ParentPid_to_Pid(self):
+        """
+        This selects the sub-process of the parent of the current process, that is, its siblings.
+        The parent pid is known in advance.
+        The current process must be in this siblings list.
+        """
         sparql_query = """
             PREFIX survol: <%s>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
@@ -328,6 +342,11 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue(str(CurrentPid) in only_pids)
 
     def test_Win32_Process_Pid_to_ParentPid_to_Children(self):
+        """
+        This selects the sub-process of the parent of the current process, that is, its siblings.
+        The parent pid is not known in advance and also selected in the query.
+        The current process must be in this siblings list.
+        """
         sparql_query = """
             PREFIX survol: <%s>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
@@ -351,6 +370,9 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue(str(CurrentPid) in only_pids)
 
     def test_Win32_Process_all(self):
+        """
+        This select the pids of all processes. The current pid and its parent must be found.
+        """
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?pid WHERE {
@@ -363,9 +385,13 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         only_pids = [str(one_result[0]) for one_result in query_result]
         print("only_pids=", only_pids)
         self.assertTrue(str(CurrentPid) in only_pids)
+        self.assertTrue(str(CurrentParentPid) in only_pids)
 
     def test_select_Win32_Process_siblings(self):
-        """Win32_Process.ParentProcessId is defined."""
+        """
+        Siblings if the current pid. The complete list is checked.
+        It might not work if a sibling process is created and exits, but this is rare.
+        """
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?sibling_pid
@@ -385,22 +411,62 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         actual_sibling_pids = set([int(str(one_tuple[0])) for one_tuple in query_result])
 
         # Comparaison with the list of sub-processes of the current one.
+        # This is done as quickly as possible to match the processes snapshot taken in the query evaluation.
         expected_sibling_pids = set([proc.pid for proc in psutil.Process(CurrentParentPid).children(recursive=False)])
         print("expected_sibling_pids=", expected_sibling_pids)
 
         self.assertEqual(expected_sibling_pids, actual_sibling_pids)
 
-    def test_select_CIM_DiskDrive(self):
+    def test_select_Win32_DiskDrive(self):
+        """
+        This selects all disks. They are defined by DeviceID.
+        """
         sparql_query = """
             PREFIX survol: <%s>
-            SELECT ?url_disk
+            SELECT ?url_disk ?device_id
+            WHERE
+            {
+              ?url_disk rdf:type survol:Win32_DiskDrive .
+              ?url_disk survol:DeviceID ?device_id .
+            }
+        """ % survol_namespace
+        rdflib_graph = rdflib.Graph()
+        query_result = list(rdflib_graph.query(sparql_query))
+        # The first disk has the index 0 and there must be at least one.
+        self.assertTrue(len(query_result) > 0)
+        first_disk = sorted(query_result)[0]
+        print("First disk=", first_disk)
+        first_disk_device_id = str(first_disk[1])
+        print("first_disk_device_id=", first_disk_device_id)
+        self.assertTrue(first_disk[0].endswith(r'xid=Win32_DiskDrive.DeviceID=\\\\.\\PHYSICALDRIVE0'))
+        self.assertEqual(first_disk_device_id, r'\\\\.\\PHYSICALDRIVE0')
+
+    def test_select_CIM_DiskDrive(self):
+        """
+        This selects all disks. CIM_DiskDrive is a base class of Win32_DiskDrive.
+
+        The attribute DeviceID is not set !
+        Win32_DiskDrive is a derived class of CIM_DiskDrive and has the attribute DeviceID.
+        CIM_DiskDrive odes not have this attribute.
+        So the returned URL is "http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DiskDrive."
+        """
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_disk ?device_id
             WHERE
             { ?url_disk rdf:type survol:CIM_DiskDrive .
+              ?url_disk survol:DeviceID ?device_id .
             }
         """ % survol_namespace
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
+        first_disk = sorted(query_result)[0]
+        print("First disk=", first_disk)
+        first_disk_device_id = str(first_disk[1])
+        print("first_disk_device_id=", first_disk_device_id)
+        self.assertTrue(first_disk[0].endswith(r'xid=CIM_DiskDrive.'))
+        self.assertEqual(first_disk_device_id, r'\\\\.\\PHYSICALDRIVE0')
 
     def test_CIM_DataFile_Name(self):
         file_name = lib_util.standardized_file_path(always_present_file)
