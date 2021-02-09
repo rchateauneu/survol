@@ -550,6 +550,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
 
         # Comparison with the list of all processes.. This list must be built as close as possible
         # to the query execution, so the list do not change too much.
+        # Very rarely, it might fail because of this rae condition. In this case, just rerun the test.
         expected_pids = set([proc.pid for proc in psutil.process_iter()])
         query_result = list(rdflib_graph.query(sparql_query))
 
