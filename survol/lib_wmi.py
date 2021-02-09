@@ -1015,8 +1015,12 @@ class WmiSparqlExecutor:
             # Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeProp(class_name)
 
-            if one_wmi_object.CreationClassName != class_name:
-                logging.warning("CreationClassName=%s" % one_wmi_object.CreationClassName)
+            try:
+                if one_wmi_object.CreationClassName != class_name:
+                    logging.warning("CreationClassName=%s" % one_wmi_object.CreationClassName)
+            except AttributeError:
+                # Maybe this is not a problem at all.
+                logging.warning("Class %s does not have CreationClassName" % class_name)
             yield object_path, dict_key_values
 
     @staticmethod
