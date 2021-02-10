@@ -113,7 +113,10 @@ def _print_subprocesses(proc_id, depth = 0):
         _print_subprocesses(one_proc.pid, depth+1)
 
 
-class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
+class CUSTOM_EVALS_Survol_Base_Test(unittest.TestCase):
+    """
+    This sets the CUSTOM_EVALS callback for all derived tests.
+    """
 
     def setUp(self):
         # add function directly, normally we would use setuptools and entry_points
@@ -123,7 +126,10 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         if 'custom_eval_function' in rdflib.plugins.sparql.CUSTOM_EVALS:
             del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_function']
 
-    def one_return_tst(self, num_results_expected, return_variables):
+
+class Rdflib_CUSTOM_EVALS_Test(CUSTOM_EVALS_Survol_Base_Test):
+
+    def _one_return_tst(self, num_results_expected, return_variables):
         # https://docs.python.org/3/library/itertools.html#itertools.combinations
         # itertools.product
 
@@ -162,11 +168,11 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         This tests the cartesians product of Sparql variables and their values.
         This loops on all possible combinations.
         """
-        self.one_return_tst(1, {('a',): [('a1',)], ('b',): [('b1',)], ('c',): [('c1',)],})
-        self.one_return_tst(2, {('a',): [('a1',)],('b',): [('b1',), ('b2',)], ('c',): [('c1',)], })
-        self.one_return_tst(6, {('a',): [('a1',)],('b',): [('b1',), ('b2',)], ('c',): [('c1',), ('c2',), ('c3',)],})
-        self.one_return_tst(2, {('a','aa'): [('a1', 'aa1')], ('b',): [('b1',), ('b2',)], ('c',): [('c1',)],})
-        self.one_return_tst(4, {('a','aa'): [('a1', 'aa1'), ('a2', 'aa2')], ('b',): [('b1',), ('b2',)], ('c',): [('c1',)],})
+        self._one_return_tst(1, {('a',): [('a1',)], ('b',): [('b1',)], ('c',): [('c1',)], })
+        self._one_return_tst(2, {('a',): [('a1',)], ('b',): [('b1',), ('b2',)], ('c',): [('c1',)], })
+        self._one_return_tst(6, {('a',): [('a1',)], ('b',): [('b1',), ('b2',)], ('c',): [('c1',), ('c2',), ('c3',)], })
+        self._one_return_tst(2, {('a', 'aa'): [('a1', 'aa1')], ('b',): [('b1',), ('b2',)], ('c',): [('c1',)], })
+        self._one_return_tst(4, {('a', 'aa'): [('a1', 'aa1'), ('a2', 'aa2')], ('b',): [('b1',), ('b2',)], ('c',): [('c1',)], })
 
     def test_sparql_parent(self):
         rdflib_graph = _create_graph()
@@ -847,7 +853,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         pids_list = [pids_dict[index] for index in range(depth_processes, 0, -1)]
         return processes_list_first, pids_list
 
-    @unittest.skipIf(is_travis_machine(), "Different implementation of processes. Test skipped.")
+    ####@unittest.skipIf(is_travis_machine(), "Different implementation of processes. Test skipped.")
     def test_sparql_sub2_processes(self):
         rdflib_graph = _create_graph()
 
@@ -881,7 +887,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         processes_list_first.terminate()
         processes_list_first.wait()
 
-    @unittest.skipIf(is_travis_machine(), "Different implementation of processes. Test skipped.")
+    ####@unittest.skipIf(is_travis_machine(), "Different implementation of processes. Test skipped.")
     def test_sparql_sub3_processes(self):
         rdflib_graph = _create_graph()
 
@@ -918,7 +924,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         processes_list_first.terminate()
         processes_list_first.wait()
 
-    @unittest.skipIf(is_travis_machine(), "Different implementation of processes. Test skipped.")
+    ####@unittest.skipIf(is_travis_machine(), "Different implementation of processes. Test skipped.")
     def test_sparql_sub4_processes(self):
         rdflib_graph = _create_graph()
 
@@ -958,7 +964,7 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         processes_list_first.terminate()
         processes_list_first.wait()
 
-    @unittest.skipIf(is_travis_machine(), "Different implementation of processes. Test skipped.")
+    ###@unittest.skipIf(is_travis_machine(), "Different implementation of processes. Test skipped.")
     def test_sparql_sub5_processes(self):
         rdflib_graph = _create_graph()
 
@@ -1000,6 +1006,29 @@ class Rdflib_CUSTOM_EVALS_Test(unittest.TestCase):
         self.assertTrue(pids_list in actual_pids_list)
         processes_list_first.terminate()
         processes_list_first.wait()
+
+
+class SparqlMetaTest(CUSTOM_EVALS_Survol_Base_Test):
+    """
+    These tests focus on classes and properties, not on the objects.
+    """
+
+    def test_all_classes(self):
+        """All Survol classes."""
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_class
+            WHERE
+            { ?url_class rdf:type rdfs:Class .
+            }""" % survol_namespace
+        rdflib_graph = rdflib.Graph()
+        query_result = set(rdflib_graph.query(sparql_query))
+        print("Selected classes=", query_result)
+
+        # A minimal set of classes must be present.
+        self.assertTrue((lib_sparql_custom_evals.class_CIM_Process,) in query_result)
+        self.assertTrue((lib_sparql_custom_evals.class_CIM_Directory,) in query_result)
+        self.assertTrue((lib_sparql_custom_evals.class_CIM_DataFile,) in query_result)
 
 
 if __name__ == '__main__':
