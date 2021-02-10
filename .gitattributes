@@ -1,0 +1,6 @@
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+
+# Log files in survol/tests/dockit_input_test_trace_files need the LF line ending,
+# because they are expected to behave like the output of subprocess.Popen.communicate()
+*.log text eol=lf
