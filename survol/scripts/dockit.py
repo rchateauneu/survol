@@ -721,7 +721,6 @@ def _create_map_flow_from_stream(
     for one_function_call in map_flows_generator:
         a_core = one_function_call.m_core
         the_pid = a_core.m_pid
-        logging.debug("the_pid=%s" % the_pid)
         try:
             calls_flow = map_flows[the_pid]
         except KeyError:
