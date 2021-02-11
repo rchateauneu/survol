@@ -354,7 +354,7 @@ class FileAccess:
             concat_buf.append_io_buffer(a_buffer, buffer_size)
         except Exception as exc:
             # Example: '[pid  5602] 19:59:20.590740 <... read resumed> "... end of read() content"..., 32768) = 4096 <0.037642>'
-            sys.stdout.write("Cannot parse buffer:%s size=%s: file=%s %s\n" % (
+            logging.info("Cannot parse buffer:%s size=%s: file=%s %s" % (
                 a_buffer,
                 buffer_size,
                 self.m_objectCIM_DataFile.Name,
@@ -533,7 +533,7 @@ def send_graph_to_url(input_graph, events_url):
             req = urllib2.Request(events_url)
             urlopen_result = urllib2.urlopen(req, data=events_as_bytes, timeout=10.0)
     except Exception as server_exception:
-        sys.stderr.write("Event server error=%s\n" % str(server_exception))
+        logging.error("Event server error=%s" % str(server_exception))
         raise
 
     server_response = urlopen_result.read()
@@ -2160,7 +2160,7 @@ def _generate_docker_process_dependencies(docker_directory, fd_docker_file):
             # Copy the file at the right place, so "docker build" can find it.
             shutil.copy(path_name, dst_path)
         except IOError:
-            sys.stdout.write("Failed copy %s to %s\n" % (path_name, dst_path))
+            logging.error("Failed copy %s to %s" % (path_name, dst_path))
             # Maybe the file is not there because this is in replay mode,
             # rerunning a session form the log file. This is not a problem.
             fd_docker_file.write("# Cannot add non-existent file:%s\n" % path_name)
