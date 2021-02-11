@@ -954,8 +954,9 @@ class BatchLetSys_read(BatchLetBase, object):
 
             # Or: "read(0</dev/pts/2>,  <detached ...>"
             # TODO: Should be processed specifically.
-            # This happens if the buffer contains a double-quote. Example:
+            # This happens if the buffer contains a double-quote or other situations. Examples:
             # Error parsing retValue=read@SYS(8, "\003\363\r\n"|\314Vc", 4096) = 765
+            # Error parsing retValue=? ERESTARTSYS (To be restarted if SA_RESTART is set)
             logging.error("Error parsing retValue=%s" % (batchCore._return_value))
             return
 
