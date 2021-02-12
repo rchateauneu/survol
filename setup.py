@@ -9,6 +9,7 @@ __license__ = "GPL"
 import os
 import sys
 import ast
+import importlib
 
 is_py2 = sys.version_info < (3,)
 
@@ -251,20 +252,26 @@ class CleanCommand(clean):
     description = 'Clean build including in-place built extensions.'
 
     def _cleanup_libs(self):
+        def remove_lib_file(lib_path):
+            try:
+                os.remove(lib_path)
+                print("removed cythonized file:", lib_path)
+            except:
+                print("Cannot remove:", lib_path)
+
         src_files = _cythonizable_source_files()
         for one_file in src_files:
             assert one_file.endswith(".py")
             file_without_extension = os.path.splitext(one_file)[0]
-            if is_linux_or_darwin:
+            if sys.platform.startswith("lin") or sys.platform == "darwin":
                 lib_path = file_without_extension + ".so"
+                remove_lib_file(lib_path)
             else:
-                lib_path = file_without_extension + ".pyd"
-            try:
-                os.remove(lib_path)
-                print("Removed cythonized file:", lib_path)
-            except:
-                print("Cannot remove:", lib_path)
-                pass
+                # for example: ['.cp36-win_amd64.pyd', '.pyd']
+                for one_suffix in importlib.machinery.EXTENSION_SUFFIXES:
+                    # The file name might be something like: "collection.cp36-win_amd64.pyd"
+                    lib_path = file_without_extension + one_suffix
+                    remove_lib_file(lib_path)
 
     def run(self):
         """Run command."""
