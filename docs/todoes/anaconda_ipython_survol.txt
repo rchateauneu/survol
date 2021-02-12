@@ -1,0 +1,2 @@
+Retester des ipynb important Survol, notamment l'affichage graphique.
+Installer un kernel anaconda sur le serveur ?

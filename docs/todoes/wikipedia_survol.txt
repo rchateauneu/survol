@@ -1,0 +1,24 @@
+Avoir un mode qui renvoie des markps  au format Wikipedia ?
+Transformer du RDF en https://en.wikipedia.org/wiki/Help:Wikitext .
+Il faudrait que Wikipedia rafraichisse les documents en wikitexte avant de les afficher.
+Ajouter une extension a Mediawiki.
+Special pages: Located n their own namespace and are not editable.
+rdf2smw : Convert RDF data into a semantic mediawiki.
+See Semantic Mediawiki.
+RDFIO extension qui sert a afficher le resultat d'une requete Spqrql.
+Voir comment ca affiche les seeAlso.
+On veut aussi afficher du graphique: SVG etc...
+On pourrait installer semantic wikipedia sur le serveur, pointant vers le sparql endpoint de survol.
+Apparemment, rien apres 2015.
+"Semantic mediawiki graph" en D3 : Mais pas maintenue.
+
+Pendant que nous y sommes, extension WMI et WBEM.
+
+Comment ca marche:
+https://commons.wikimedia.org/wiki/Streets_in_Joinville-le-Pont
+
+https://commons.wikimedia.org/wiki/Monuments_%C3%A0_l%27inventaire_%C3%A0_Asni%C3%A8res-sur-Seine
+Visible dans:
+https://commons.wikimedia.org/wiki/Category:Asni%C3%A8res-sur-Seine
+
+Mais pourquoi pas de graphisme comme pour Joinville-le-Pont ?
