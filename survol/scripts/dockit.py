@@ -560,7 +560,11 @@ def default_tracer(input_log_file, tracer=None):
 
 
 def _create_calls_stream(command_line, input_process_id, input_log_file, tracer):
-    """This returns a stream with each line written by strace or ltrace."""
+    """
+    This returns a stream with each line written by strace or ltrace,
+    or a mock "stream" when tracing Windows processes.
+    This stream needs only the method readline(), exactly like reading from subprocess.communicate.
+    """
     global G_Hostname
     global G_OSType
 
@@ -623,8 +627,9 @@ def _create_calls_stream(command_line, input_process_id, input_log_file, tracer)
 
         sys.stdout.write("G_topProcessId=%d\n" % cim_objects_definitions.G_topProcessId)
     else:
-        # FIXME: G_topProcessId is set elsewhere, at the creation of the subprocess ?
-        cim_objects_definitions.G_topProcessId, calls_stream= current_tracer.create_logfile_stream(command_line, input_process_id)
+        cim_objects_definitions.G_topProcessId, calls_stream= current_tracer.create_logfile_stream(
+            command_line,
+            input_process_id)
         cim_objects_definitions.G_CurrentDirectory          = curr_wrk_dir
         cim_objects_definitions.G_Today                     = date_today_run
         G_Hostname                                          = the_host_nam
@@ -698,8 +703,11 @@ def _calls_flow_class_factory(aggregator):
 def _create_map_flow_from_stream(
         verbose,
         calls_stream, tracer, batch_constructor, aggregator):
-    """This receives a stream of lines, each of them is a function call,
-    possibly unfinished/resumed/interrupted by a signal."""
+    """
+    This receives a stream of lines, each of them is a function call,
+    possibly unfinished/resumed/interrupted by a signal.
+    These lines might also be read from a log file, to replay a session.
+    """
 
     # This is an event log as a stream, coming from a file (if testing), the output of strace or anything else.
     logging.info("tracer=%s" % tracer)
@@ -835,7 +843,10 @@ def test_from_file(
         map_params_summary=["CIM_Process", "CIM_DataFile.Category=['Others','Shared libraries']"],
         input_process_id=0,
         verbose=0, with_dockerfile=None, update_server=None, aggregator=None, output_makefile=None):
-    """Function called for unit tests by unittest.py"""
+    """
+    Function called for unit tests by unittest.py and only used for testing purpose.
+    Its behaviour is very close to the command-line behaviour.
+    """
     assert isinstance(input_process_id, int)
 
     logging.info("input_log_file=%s" % input_log_file)
