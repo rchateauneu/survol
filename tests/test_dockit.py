@@ -291,11 +291,11 @@ class LowLevelComponentsTest(unittest.TestCase):
             # Therefore it should be tested with and without the closing parenthesis.
             resu, idx = linux_api_definitions.parse_call_arguments(tupl[0], 0)
             if resu != tupl[1]:
-                raise Exception("\n     Fail:%s\nSHOULD BE:%s" % ( str(resu),str(tupl[1])  ) )
+                raise Exception("\n     Fail:%s\nSHOULD BE:%s" % (str(resu), str(tupl[1])))
 
             # This must be the position of the end of the arguments.
             if idx != tupl[2]:
-                raise Exception("Fail idx: %d SHOULD BE:%d" % ( idx, tupl[2] ) )
+                raise Exception("Fail idx: %d SHOULD BE:%d" % (idx, tupl[2]))
 
             if idx != len(tupl[0]):
                 if not tupl[0][idx:].startswith("<unfinished ...>"):
