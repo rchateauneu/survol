@@ -165,6 +165,11 @@ class Win32Tracer(TracerBase):
         assert isinstance(log_stream, queue.Queue)
 
         class TeeQueue:
+            """
+            This behaves similarly to the Linux tee command.
+            This allows to save a Windows tracing session into a log file, so it can be later replayed.
+            The created logfile contains one line for each traced function call.
+            """
             def __init__(self):
                 self._log_stream = log_stream
                 assert output_files_prefix[-1] != '.'
