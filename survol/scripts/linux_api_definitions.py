@@ -57,6 +57,7 @@ else:
 @cython.returns(tuple)
 @cython.locals(
     str_args=cython.basestring,
+    ix_start=cython.int,
     len_str=cython.int,
 )
 def parse_call_arguments(str_args, ix_start):
@@ -102,6 +103,7 @@ def parse_call_arguments(str_args, ix_start):
     in_quotes=cython.bint,
     is_escaped=cython.bint,
     a_char=cython.Py_UCS4,
+    the_result=list,
 )
 def _parse_call_arguments_nolen(str_args, ix_start, len_str):
     the_result = []
@@ -289,6 +291,8 @@ class BatchLetCore:
         TODO: Consider sys.intern because the function names are not that many
         https://stackabuse.com/guide-to-string-interning-in-python/
         """
+
+        assert isinstance(func_full, str)
         if self.m_tracer == "strace":
             # strace can only intercept system calls.
             assert not func_full.endswith("@SYS")
@@ -331,7 +335,7 @@ class BatchLetCore:
             #
             # The only thing we can do is register the function names which have been seen as unfinished,
             # store their prefix and use this to correctly suffix them or not.
-
+            assert isinstance(self._function_name, str)
         else:
             raise Exception("_set_function tracer %s unsupported" % self.m_trace)
 
@@ -890,9 +894,12 @@ class BatchLetSys_open(BatchLetBase, object):
         a_fil_acc.SetOpenTime(self.m_core._time_start)
 
 
-# The important file descriptor is the returned value.
-# openat(AT_FDCWD, "../list_machines_in_domain.py", O_RDONLY|O_NOCTTY) = 3</home/rchateau/survol/Experimental/list_machines_in_domain.py> <0.000019>
 class BatchLetSys_openat(BatchLetBase, object):
+    """
+    The important file descriptor is the returned value.
+      openat(AT_FDCWD, "../list_machines_in_domain.py",
+            O_RDONLY|O_NOCTTY) = 3</home/rchateau/survol/Experimental/list_machines_in_domain.py> <0.000019>
+    """
     def __init__(self, batchCore):
         global G_mapFilDesToPathName
 
@@ -980,8 +987,10 @@ def _convert_batch_core_return_value(batchCore):
         raise Exception("Invalid tracer")
 
 
-# Pread() is like read() but reads from the specified position in the file without modifying the file pointer.
 class BatchLetSys_preadx(BatchLetBase, object):
+    """
+    Pread() is like read() but reads from the specified position in the file without modifying the file pointer.
+    """
     def __init__(self, batchCore):
         super(BatchLetSys_preadx, self).__init__(batchCore)
 
@@ -2082,8 +2091,12 @@ class GenericTraceTracer:
         calls_stream = TeeStream()
         return calls_stream
 
-    # This returns a pair of a process id and a stream of lines, each modelling a function call.
     def create_logfile_stream(self, external_command, process_id):
+        """
+        This returns a pair of a process id and a stream of lines, each modelling a function call.
+        This is the pid of the created process, or the process attached to.
+        The stream of lines is stderr of strace or ltrace command tracing the target process.
+        """
         trace_command = self.build_trace_command(external_command, process_id)
         if external_command:
             logging.info("Command " + " ".join(external_command))
