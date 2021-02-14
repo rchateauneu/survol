@@ -1,6 +1,6 @@
-A quick note about scripts written in another language than Python.
-
-A possible architecture is to to create executables, which are also Python module:
+CGI scripts as Python modules:
+------------------------------
+A possible architecture is to create executables, which are also Python module:
 That is, they export a function called "PyInit_something"
 for Python 3 and "initsomething" for Python2.
 Is it possible to use the same DLL for Python 2 and Python 3 ? This would simplify Survol installation.
@@ -12,16 +12,21 @@ The advantages of this solution is that:
 The drawbacks are:
 - It must call Python, hence possibly slow.
 - It can only be written in C or C++, pratically.
+Cython allows to transform Python modules into C libraries which are transformed into pyd or so files in setup.py
 
+Plain, general CGI scripts:
+---------------------------
 On the other hand, it is tempting to be able to use any stand-alone program as long as it can write data to stdout,
 so it would not need to call Python lib_common.
 When called as a script, it just needs to adapt its output to mode=rdf, json, html, svg.
 When Survol analyses available scripts, Survol must check if a script is executable, and wraps it into something.
 
-It should be able to call the generation of RDF or
-
+Special case of events feeders:
+-------------------------------
 CGI programs whose name starts with "events_feeder_" fit in the category of not using Python features.
-Other technical details:
+
+Other technical details related to CGI scripts and Python modules in Survol:
+----------------------------------------------------------------------------
 - The ontology of classes could be written in json files instead of the Python file __init__.py associated to the class.
 - The function Usable which tells if a class or a script is usable could be implemented differently ?
 A script could possibly use embedded Python in some extreme cases.
