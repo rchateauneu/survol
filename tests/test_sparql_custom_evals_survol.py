@@ -15,9 +15,10 @@ from init import *
 update_test_path()
 
 import lib_util
+import lib_kbase
 import lib_sparql_custom_evals
 
-survol_namespace = rdflib.Namespace(lib_sparql_custom_evals.survol_url)
+survol_namespace = lib_kbase.LDT
 
 
 class SurvolStore(rdflib.plugins.memory.IOMemory):
