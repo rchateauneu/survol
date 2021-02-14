@@ -1,0 +1,6 @@
+See d3sparql
+http://biohackathon.org/d3sparql/
+The d3sparql.js library provides functions executing a SPARQL query by Ajax call (XMLHttpRequest)
+and visualizing results by the D3 library.
+Basically, this library transforms the SPARQL Query Results JSON Format (aka. application/sparql-results+json)
+into several JSON formats which major D3 layouts can accept.
