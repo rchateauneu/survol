@@ -28,8 +28,10 @@ if pkgutil.find_loader('pywbem'):
     import lib_wbem
 
 import lib_sparql_custom_evals
+import lib_kbase
 
-survol_namespace = rdflib.Namespace(lib_sparql_custom_evals.survol_url)
+survol_namespace = lib_kbase.LDT
+
 ################################################################################
 
 class CUSTOM_EVALS_WBEM_Base_Test(unittest.TestCase):
