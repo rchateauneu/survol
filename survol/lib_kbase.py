@@ -224,7 +224,8 @@ def _prop_name_to_xsd_type(prop_type):
 # Construct the linked data tools namespace
 # See lib_properties.py: primns = "http://primhillcomputers.com/survol"
 # Beware that this URL is scattered at several places.
-LDT = rdflib.Namespace("http://www.primhillcomputers.com/survol#")
+survol_url = "http://www.primhillcomputers.com/survol#"
+LDT = rdflib.Namespace(survol_url)
 
 
 def RdfsPropertyNode(property_name):
