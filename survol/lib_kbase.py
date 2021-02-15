@@ -42,6 +42,10 @@ def IsLink(obj):
     return isinstance(obj , (rdflib.URIRef, rdflib.BNode))
 
 
+def class_node_uriref(class_name):
+    return rdflib.term.URIRef(survol_url + class_name)
+
+
 def unique_urls_dict(grph):
     """The returns the set of unique subjects or objects, instances and scripts, but no literals."""
 
