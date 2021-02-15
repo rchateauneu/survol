@@ -158,9 +158,14 @@ def run_remote_sparql_query(sparql_query, format_str):
 class SparqlServerSurvolTest(unittest.TestCase):
     """
     Test the Sparql server which works on Survol data.
+
+    These queries are already tested locally.
     """
 
     def test_server_CIM_Process_xml(self):
+        """
+        This gets the pif of the current process and gets the result in RDF-XML.
+        """
         sparql_query = """
             PREFIX survol:  <http://www.primhillcomputers.com/survol#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
@@ -177,6 +182,9 @@ class SparqlServerSurvolTest(unittest.TestCase):
         self.assertEqual(sparql_result_json["head"]["vars"][0], "pid")
 
     def test_server_CIM_Process_json(self):
+        """
+        This gets the pid of the current process and gets the result in JSON.
+        """
         sparql_query = """
             PREFIX survol:  <http://www.primhillcomputers.com/survol#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
@@ -193,6 +201,9 @@ class SparqlServerSurvolTest(unittest.TestCase):
         self.assertEqual(sparql_result_json["head"]["vars"][0], "pid")
 
     def test_server_all_CIM_Process_json(self):
+        """
+        This tests the ability to read all remote process ids in JSON format.
+        """
         sparql_query = """
             PREFIX survol:  <http://www.primhillcomputers.com/survol#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
