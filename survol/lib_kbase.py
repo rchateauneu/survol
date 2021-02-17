@@ -45,7 +45,6 @@ def IsLink(obj):
 def class_node_uriref(class_name):
     return rdflib.term.URIRef(survol_url + class_name)
 
-
 def unique_urls_dict(grph):
     """The returns the set of unique subjects or objects, instances and scripts, but no literals."""
 
@@ -230,7 +229,7 @@ def _prop_name_to_xsd_type(prop_type):
 # Beware that this URL is scattered at several places.
 survol_url = "http://www.primhillcomputers.com/survol#"
 LDT = rdflib.Namespace(survol_url)
-
+prefix_terminator = "#"
 
 def RdfsPropertyNode(property_name):
     return rdflib.URIRef(LDT[property_name])
