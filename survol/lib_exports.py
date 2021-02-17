@@ -1,17 +1,22 @@
-# This library helps to generate the output of internal database (RDF-like)
-# to the DOT output format, transformed into SVG by Graphviz.
+"""
+This library helps to generate the output of internal database (RDF-like)
+to the DOT output format, transformed into SVG by Graphviz.
+"""
 
 import lib_naming
 import lib_util
+import lib_kbase
 import lib_properties
 import sys
 import os
 
 
-# "http://primhillcomputers.com/ontologies/smbshare" = > "smbshare"
-# TODO: See also PropToShortPropNam()
 def AntiPredicateUri(uri):
-    return uri[len(lib_properties.primns_slash):]
+    """
+    "http://primhillcomputers.com/ontologies/smbshare" = > "smbshare"
+    TODO: See also PropToShortPropNam()
+    """
+    return uri[len(lib_kbase.survol_url):]
 
 
 def ModedUrl(other_mode):
@@ -24,7 +29,9 @@ _dict_node_to_universal_alias = {}
 
 
 def NodeToUniversalAlias(an_object):
-
+    """
+    This helps in having the same node when naming the same objects on different machines.
+    """
     def make_universal_alias_no_cache(an_object):
         # The prefix of the URL which contain the host name,
         # maybe with a port number, maybe with a WBEM prefix, WMI machine, CGI script etc...
@@ -79,13 +86,13 @@ def PropToShortPropNamAndDict(node_predicate):
     idx_question = str_predicate.rfind("?")
     if idx_question == -1:
         dict_properties = None
-        idx_last_slash = str_predicate.rfind(lib_properties.prefix_terminator)
+        idx_last_slash = str_predicate.rfind(lib_kbase.prefix_terminator)
         short_nam = str_predicate[idx_last_slash + 1:]
     else:
         str_properties = str_predicate[idx_question + 1:]
         vec_properties = str_properties.split("&")
         dict_properties = dict(one_s.split('=', 1) for one_s in vec_properties)
-        idx_last_slash = str_predicate.rfind(lib_properties.prefix_terminator, 0, idx_question)
+        idx_last_slash = str_predicate.rfind(lib_kbase.prefix_terminator, 0, idx_question)
         short_nam = str_predicate[idx_last_slash+1:idx_question]
 
     # "sun.boot.class.path"
