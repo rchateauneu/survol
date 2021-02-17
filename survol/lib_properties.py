@@ -1,13 +1,12 @@
+import lib_kbase
 import rdflib
 
 # This is an RDF prefix.
-primns = "http://www.primhillcomputers.com/survol"
+# TODO: See lib_kbase.survol_namespace and lib_kbase.LDT
+survol_namespace = "http://www.primhillcomputers.com/survol#"
 
-pc = rdflib.Namespace(primns)
-
-prefix_terminator = "#"
-primns_slash = primns + prefix_terminator
-
+# TODO: This is not necessary.
+class pc: pass
 
 # If prp contains a space, it is not properly parsed.
 # TODO: The extra parameter is not used yet.
@@ -28,30 +27,35 @@ primns_slash = primns + prefix_terminator
 # We could add information in a given order: "information?key=1", "information?key=2",
 # Natural order should be OK. or add a sort function in the call to sorted().
 def MakeProp(*prps, **kvargs):
-    # The delimiter must be compatible with XML because for example, the tag:
+    """
+    The delimiter must be compatible with XML because for example, the tag:
     # "<ldt:odbc:column rdf:resource=..."
     # is rejected with the error: "SAXParseException: <unknown>:93:13: not well-formed (invalid token)"
     # The convention is that triple-underscore can only be a separator.
     # It is a very rare situation at the moment, and might change.
-    ret = primns_slash + "___".join(prps)
+
+    Important: If there is a single string as argument, and iof this string does not contain spaces or hyphens,
+    the result must be identical to rdflib.term.URIRef(lib_kbase.survol_url + "Handle")
+    """
+    built_uri = "___".join(prps)
     if kvargs:
-        ret += "?" + "&amp;".join( "%s=%s" % (k, kvargs[k]) for k in kvargs)
+        # Consider using base64 encoding.
+        built_uri += "?" + "&amp;".join("%s=%s" % (k, kvargs[k]) for k in kvargs)
 
     # TODO: If the key contains a space or "\x20", the result gets prefixed by primns:
     # http://primhillcomputers.com/ontologies/swapnote\ futures
     # If the space is replaced by "%20", everything before it is erased.
-    url = ret.replace(" ","_").replace("-","_")
-    return rdflib.term.URIRef( url )
+    built_uri = built_uri.replace(" ", "_").replace("-", "_")
+    return lib_kbase.class_node_uriref(built_uri)
 
 
-#MakeNodeForSparql = MakeProp
-
-
-# See lib_kbase.qname
 # ... and lib_sparql_custom_evals.survol_url = "http://www.primhillcomputers.com/survol#"
 def PropToQName(property_node):
-    # property_node is a <class 'rdflib.term.URIRef'>, ex "rdflib.term.URIRef(u'http://primhillcomputers.com/survol/QuotaPagedPoolUsage')"
-    # TODO: Should call compute_qname ?
+    """
+    property_node is a <class 'rdflib.term.URIRef'>,
+    ex "rdflib.term.URIRef(u'http://primhillcomputers.com/survol/QuotaPagedPoolUsage')"
+    TODO: Should call compute_qname ?
+    """
     str_prop = str(property_node).rpartition("/")[2]
     # If "survol#Handle" for example.
     if str_prop.startswith("survol#"):
@@ -60,8 +64,11 @@ def PropToQName(property_node):
 
 
 def MakeNodeForSparql(property_node):
-    # property_node is a <class 'rdflib.term.URIRef'>, ex "rdflib.term.URIRef(u'http://primhillcomputers.com/survol/QuotaPagedPoolUsage')"
+    """
+    property_node is a <class 'rdflib.term.URIRef'>,
+    # ex "rdflib.term.URIRef(u'http://primhillcomputers.com/survol/QuotaPagedPoolUsage')"
     # TODO: Should call compute_qname ?
+    """
     str_prop = str(property_node).rpartition("/")[2]
     return str_prop
 
