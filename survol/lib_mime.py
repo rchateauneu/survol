@@ -12,13 +12,16 @@ except ImportError:
 
 
 def FilenameToMime(path_name):
+    """
+    This returns the MIME type of a file
+    """
     # sys.stderr.write("FilenameToMime pathName=%s\n"%pathName)
 
-    # No risk of course. Ideally the file should not be visible.
+    # Avoid access to the credentials file, just in case. Ideally the file should not be visible.
     if path_name.upper().find("CREDENTIALS") >= 0:
         return [None, None]
 
-    # On Linux, we want to read text files in the /proc filesystem
+    # On Linux, we can read text files in /proc filesystem.
     if path_name.startswith("/proc/"):
         return ['text/plain', None]
 
@@ -83,6 +86,10 @@ def ModeToMimeType(url_mode):
 
 
 def GetMimeTypeFromUrl(url):
+    """
+    This deduces the mime type of the document returned by an URL.
+    This is intended for Survol urls only.
+    """
     url_mode = lib_util.get_url_mode(url)
     if url_mode and url_mode.startswith(_mime_mode_prefix):
         return ModeToMimeType(url_mode)
