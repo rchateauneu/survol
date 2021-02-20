@@ -15,8 +15,6 @@ import lib_kbase
 from lib_properties import pc
 import lib_properties
 
-_vmstat_script = r"C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\Experimental\vmstat_simulation.py"
-
 
 def Main():
     proc_open = None
@@ -54,13 +52,12 @@ def Main():
         cgiEnv.OutCgiRdf("LAYOUT_RECT", [property_vmstat])
 
     def main_snapshot():
-        iostat_cmd = ["vmstat", ]
-        iostat_cmd = [sys.executable, _vmstat_script, ]
+        vmstat_cmd = ["vmstat", ]
 
         cgiEnv = lib_common.CgiEnv()
 
-        logging.debug(__file__ + " Snapshot Starting process:%s" % str(iostat_cmd))
-        Main.proc_popen = subprocess.Popen(iostat_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+        logging.debug(__file__ + " Snapshot Starting process:%s" % str(vmstat_cmd))
+        Main.proc_popen = subprocess.Popen(vmstat_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
         result_lines = Main.proc_popen.stdout.readlines()
         _vmstat_to_graph(cgiEnv, result_lines[1], result_lines[2])
 
@@ -68,13 +65,12 @@ def Main():
 
     def main_events():
         # TODO: The delay could be a parameter.
-        iostat_cmd = ["vmstat", "1", ]
-        iostat_cmd = [sys.executable, _vmstat_script, "1"]
+        vmstat_cmd = ["vmstat", "1",]
 
         cgiEnv = lib_common.CgiEnv()
 
-        logging.debug(__file__ + " Events Starting process:%s" % str(iostat_cmd))
-        Main.proc_popen = subprocess.Popen(iostat_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+        logging.debug(__file__ + " Events Starting process:%s" % str(vmstat_cmd))
+        Main.proc_popen = subprocess.Popen(vmstat_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
         logging.debug(__file__ + " Events Started")
 
         line_counter = 0
