@@ -20,6 +20,7 @@ import os
 import re
 import time
 import logging
+import traceback
 import rdflib
 
 import lib_kbase
@@ -767,10 +768,16 @@ def enable_error_message(flag):
 
 
 def ErrorMessageHtml(message):
-    """This is called by CGI scripts to leave with an error message.
+    """
+    This is called by CGI scripts to leave with an error message.
     At this stage, the CGI scripts did not write anything to stdout.
     Therefore, it is possible to return any MIME document.
-    The challenge is to return an error message in the expected output format: html, json, rdf etc..."""
+    The challenge is to return an error message in the expected output format: html, json, rdf etc...
+    """
+    exc_stack = traceback.format_exc()
+    for one_line in exc_stack.split("\n"):
+        logging.error("Exception line: %s", one_line)
+
     if globalErrorMessageEnabled:
         logging.error("ErrorMessageHtml %s. Exiting.", message)
         try:
