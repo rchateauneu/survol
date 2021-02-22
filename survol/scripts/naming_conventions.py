@@ -1,5 +1,6 @@
 import os
 import sys
+import logging
 
 _is_py3 = sys.version_info >= (3,)
 _is_windows = 'win32' in sys.platform
@@ -27,12 +28,34 @@ def standardized_file_path(file_path):
 
 
 def _path_to_str(file_path):
+    """
+    This receives a filename and sorts out bytes-str conversion problems.
+    Non-ascii characters are not allowed in URLs in some libraries.
+    For programming simplicity and ensure that all used libraries accept the output string,
+    the output is a "str". Therefore, Python 2 cannot properly handle accented characters.
+    """
     if _is_py3:
         if isinstance(file_path, bytes):
+            logging.warning("File path should not be bytes: %s" % file_path)
             file_path = file_path.decode()
     else:
         if isinstance(file_path, unicode):
+            logging.warning("File path should not be Unicode: %s is not ascii" % file_path)
             file_path = file_path.encode()
+        else:
+            if _is_windows:
+                try:
+                    file_path.decode('ascii')
+                except Exception as exc:
+                    logging.warning("File path: %s is not ascii: %s" % (file_path, exc))
+                    # https://en.wikipedia.org/wiki/Code_page_437
+                    # For example, filename with Circonflex-a = xE2
+                    try:
+                        # Could try: 'iso-8859-1'
+                        file_path = file_path.decode('cp1252').encode('unicode-escape')
+                    except Exception as exc:
+                        logging.warning("File path: %s cannot be escaped: %s" % (file_path, exc))
+                        raise
     assert isinstance(file_path, str)
     return file_path
 
