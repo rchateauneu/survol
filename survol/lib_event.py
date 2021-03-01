@@ -80,5 +80,5 @@ def json_triples_to_rdf(json_triples, rdf_file_path):
     TODO: The idea was to be independent of rdflib, but this is not necessary.
     """
     rdflib_graph = _json_triples_to_graph(json_triples)
-    rdflib_graph.serialize(destination=rdf_file_path, format='pretty-xml')
+    rdflib_graph.serialize(destination=rdf_file_path, format='xml')
 
