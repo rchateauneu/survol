@@ -506,7 +506,7 @@ class HttpTriplesClientFile(HttpTriplesClientNone):
 
     def http_client_shutdown(self):
         print("HttpTriplesClientFile.http_client_shutdown G_UpdateServer=", G_UpdateServer)
-        self._events_graph.serialize(destination=G_UpdateServer, format='pretty-xml')
+        self._events_graph.serialize(destination=G_UpdateServer, format='xml')
         print("Stored RDF content to", G_UpdateServer)
 
     def enqueue_rdf_triple(self, rdf_triple):
@@ -520,7 +520,7 @@ def send_graph_to_url(input_graph, events_url):
 
     # TODO: Ideally, should serialize the graph into the socket.
     bytes_stream = io.BytesIO()
-    input_graph.serialize(destination=bytes_stream, format='pretty-xml')
+    input_graph.serialize(destination=bytes_stream, format='xml')
     events_as_bytes = bytes_stream.getvalue()
     bytes_number = len(events_as_bytes)
 
