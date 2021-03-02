@@ -14,7 +14,7 @@ import lib_util
 
 
 def Main():
-    map_classes, map_attributes = lib_util.ExtractSurvolOntology()
+    map_classes, map_attributes = lib_util.extract_specific_ontology_survol()
     graph = lib_kbase.CreateRdfsOntology(map_classes, map_attributes)
 
     # "Survol_RDFS_DL.rdfs"

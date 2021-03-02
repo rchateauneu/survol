@@ -1894,7 +1894,7 @@ def AppendClassSurvolOntology(entity_type, map_classes, map_attributes):
         idx = next_slash
 
 
-def ExtractSurvolOntology():
+def extract_specific_ontology_survol():
     """This iterates on all the classes defined by Survol files tree,
     and returns two dictionaries which define classes and predicates,
     compatible with insertion into RDF triplestore."""
