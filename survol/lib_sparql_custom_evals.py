@@ -174,7 +174,7 @@ class Sparql_CIM_Object(object):
         kw = ".".join(kw_pairs_subset)
         return "Sparql_CIM_Object:" + self.m_class_name + ":" + self.m_variable + ":" + kw
 
-    def FetchAllVariables(self, graph, variables_context):
+    def fetch_all_variables(self, graph, variables_context):
         """
         The role of this virtual function is to return a dictionary of pairs made of a variable,
         or a tuple of variables, and a list of its possible values, or a tuple of list of values.
@@ -183,7 +183,7 @@ class Sparql_CIM_Object(object):
         If variables are grouped in tuples, it means that they are correlated: For example a file path and its node id,
         or a process id and its command line.
         """
-        logging.error("FetchAllVariables cannot be implemented in base class.")
+        logging.error("fetch_all_variables cannot be implemented in base class.")
         raise NotImplementedError(_current_function())
 
     def calculate_literals_number(self):
@@ -224,14 +224,14 @@ class Sparql_CIM_DataFile(Sparql_CIM_Object):
         """ Same key "Name" for its base class CIM_Directory. """
         super(Sparql_CIM_DataFile, self).__init__(class_name, node, ["Name"])
 
-    def CreateFileNodeFromProperties(self, variables_context):
+    def create_file_node_from_properties(self, variables_context):
         """
         This returns the node of the filename which uniquely identifies the object. It uses the literal properties,
         or the variable properties if these variables have a value in the context.
         This returns None if it cannot be done.
         """
 
-        #sys.stderr.write("Sparql_CIM_DataFile.CreateFileNodeFromProperties\n")
+        #sys.stderr.write("Sparql_CIM_DataFile.create_file_node_from_properties\n")
         if predicate_Name in self.m_properties:
             # The path name is enough to fully define a data file or a directory.
             return self.get_node_value(predicate_Name, variables_context)
@@ -239,9 +239,9 @@ class Sparql_CIM_DataFile(Sparql_CIM_Object):
             logging.error("Sparql_CIM_DataFile QUIT: No Name")
             return None
 
-    def FetchFromDirectory(self, variables_context, file_path, graph, returned_variables, node_uri_ref):
+    def _fetch_from_directory(self, variables_context, file_path, graph, returned_variables, node_uri_ref):
         check_returned_variables(returned_variables)
-        #sys.stderr.write("Sparql_CIM_DataFile.FetchFromDirectory file_path=%s\n" % file_path)
+        #sys.stderr.write("Sparql_CIM_DataFile._fetch_from_directory file_path=%s\n" % file_path)
         if associator_CIM_DirectoryContainsFile in self.m_associated:
             associator_instance = self.m_associated[associator_CIM_DirectoryContainsFile]
             assert isinstance(associator_instance, Sparql_CIM_Directory)
@@ -278,8 +278,8 @@ class Sparql_CIM_DataFile(Sparql_CIM_Object):
             check_returned_variables(returned_variables)
             graph.add((associator_instance_url, predicate_Name, dir_file_path_node))
 
-    def FetchAllVariables(self, graph, variables_context):
-        node_file_path = self.CreateFileNodeFromProperties(variables_context)
+    def fetch_all_variables(self, graph, variables_context):
+        node_file_path = self.create_file_node_from_properties(variables_context)
         if not node_file_path:
             return {}
         file_path = str(node_file_path)
@@ -300,7 +300,7 @@ class Sparql_CIM_DataFile(Sparql_CIM_Object):
 
         assert associator_CIM_DirectoryContainsFile not in self.m_associators
 
-        self.FetchFromDirectory(variables_context, file_path, graph, returned_variables, node_uri_ref)
+        self._fetch_from_directory(variables_context, file_path, graph, returned_variables, node_uri_ref)
 
         # TODO: If there are no properties and no directory, this should return ALL FILES OF THE FILE SYSTEM.
 
@@ -312,10 +312,10 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
     def __init__(self, class_name, node):
         super(Sparql_CIM_Directory, self).__init__(class_name, node)
 
-    def FetchAllVariables(self, graph, variables_context):
-        node_file_path = self.CreateFileNodeFromProperties(variables_context)
+    def fetch_all_variables(self, graph, variables_context):
+        node_file_path = self.create_file_node_from_properties(variables_context)
         if not node_file_path:
-            #sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables LEAVING DOING NOTHING !!!!!\n")
+            #sys.stderr.write("Sparql_CIM_Directory.fetch_all_variables LEAVING DOING NOTHING !!!!!\n")
             return {}
         file_path = str(node_file_path)
         returned_variables = {}
@@ -333,7 +333,7 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
         assert node_file_path
         graph.add((node_uri_ref, predicate_Name, node_file_path))
 
-        self.FetchFromDirectory(variables_context, file_path, graph, returned_variables, node_uri_ref)
+        self._fetch_from_directory(variables_context, file_path, graph, returned_variables, node_uri_ref)
         check_returned_variables(returned_variables)
 
         if associator_CIM_DirectoryContainsFile in self.m_associators:
@@ -346,7 +346,7 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
             if predicate_Name in associated_instance.m_properties:
                 dir_path_variable = associated_instance.m_properties[predicate_Name]
                 #sys.stderr.write("dir_path_variable=%s\n" % dir_path_variable)
-                #sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables dir_path_variable=%s\n" % dir_path_variable)
+                #sys.stderr.write("Sparql_CIM_Directory.fetch_all_variables dir_path_variable=%s\n" % dir_path_variable)
             else:
                 # This creates a temporary variable to store the name because
                 # it might be necessary to identify this associated instance.
@@ -354,11 +354,11 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                 variable_name = str(associated_instance.m_variable) + "_dummy_subname"
                 dir_path_variable = rdflib.term.Variable(variable_name)
                 associated_instance.m_properties[predicate_Name] = dir_path_variable
-                #sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables Created dummy variable:%s\n" % variable_name)
+                #sys.stderr.write("Sparql_CIM_Directory.fetch_all_variables Created dummy variable:%s\n" % variable_name)
 
             def add_sub_node(sub_node_str, cim_class, sub_path_name):
-                # print("Sparql_CIM_Directory.FetchAllVariables add_sub_node ", sub_node_str, "sub_path_name=", sub_path_name)
-                # logging.warning("Sparql_CIM_Directory.FetchAllVariables add_sub_node %s / path=%s" % (sub_node_str, sub_path_name))
+                # print("Sparql_CIM_Directory.fetch_all_variables add_sub_node ", sub_node_str, "sub_path_name=", sub_path_name)
+                # logging.warning("Sparql_CIM_Directory.fetch_all_variables add_sub_node %s / path=%s" % (sub_node_str, sub_path_name))
                 assert cim_class in (class_CIM_Directory, class_CIM_DataFile)
                 sub_node_uri_ref = rdflib.term.URIRef(sub_node_str)
                 graph.add((sub_node_uri_ref, rdflib.namespace.RDF.type, cim_class))
@@ -374,7 +374,7 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                     assert isinstance(dir_path_variable, rdflib.term.Literal)
                     #print("Associated object Name is literal:", dir_path_variable)
 
-            #sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables file_path=%s\n" % file_path)
+            #sys.stderr.write("Sparql_CIM_Directory.fetch_all_variables file_path=%s\n" % file_path)
             for root_dir, dir_lists, files_list in os.walk(file_path):
                 if associated_instance.m_class_name == "CIM_Directory":
                     for one_file_name in dir_lists:
@@ -399,15 +399,15 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
 
             #sys.stderr.write("Sparql_CIM_Directory.FetchAll return_values_list=%s\n" % return_values_list)
             if isinstance(dir_path_variable, rdflib.term.Variable):
-                #sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables Returning variables pair:%s\n" % associated_instance.m_variable)
+                #sys.stderr.write("Sparql_CIM_Directory.fetch_all_variables Returning variables pair:%s\n" % associated_instance.m_variable)
                 returned_variables[(associated_instance.m_variable, dir_path_variable)] = return_values_list
                 check_returned_variables(returned_variables)
             else:
-                #sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables Returning variable:%s\n" % associated_instance.m_variable)
+                #sys.stderr.write("Sparql_CIM_Directory.fetch_all_variables Returning variable:%s\n" % associated_instance.m_variable)
                 returned_variables[(associated_instance.m_variable,)] = return_values_list
                 check_returned_variables(returned_variables)
 
-            #sys.stderr.write("Sparql_CIM_Directory.FetchAllVariables returned_variables=%s\n" % returned_variables)
+            #sys.stderr.write("Sparql_CIM_Directory.fetch_all_variables returned_variables=%s\n" % returned_variables)
 
         # TODO: If there are no properties and no directory and no sub-files or sub-directories,
         # TODO: this should return ALL DIRECTORIES OF THE FILE SYSTEM.
@@ -458,24 +458,24 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
             for proc in psutil.process_iter()]
         return (predicate_Handle, predicate_ParentProcessId), list_values
 
-    def GetListOfOntologyProperties(self, variables_context):
+    def _get_list_of_ontology_properties(self, variables_context):
         """
         This returns key-value pairs defining objects.
         It returns all properties defined in the instance,
         not only the properties of the ontology."""
-        logging.debug("GetListOfOntologyProperties")
+        logging.debug("_get_list_of_ontology_properties")
         for one_property in self.PropertyDefinition.g_properties:
-            sys.stderr.write("    GetListOfOntologyProperties one_property=%s\n" % one_property.s_property_node)
+            sys.stderr.write("    _get_list_of_ontology_properties one_property=%s\n" % one_property.s_property_node)
             if one_property.s_property_node in self.m_properties:
                 node_value = self.get_node_value(one_property.s_property_node, variables_context)
                 if node_value:
                     assert isinstance(node_value, rdflib.term.Literal)
                     url_nodes_list = one_property.IfLiteralOrDefinedVariable(node_value)
                     return url_nodes_list
-        logging.debug("GetListOfOntologyProperties leaving: Cannot find anything.")
+        logging.debug("_get_list_of_ontology_properties leaving: Cannot find anything.")
         return None, None
 
-    def CreateURIRef(self, graph, class_name, class_node, dict_predicates_to_values):
+    def _create_uri_ref(self, graph, class_name, class_node, dict_predicates_to_values):
         url_as_str = "Machine:" + class_name
         delimiter = "?"
         for node_predicate, node_value in dict_predicates_to_values.items():
@@ -492,9 +492,9 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
             graph.add((node_uri_ref, node_predicate, node_value))
         return node_uri_ref
 
-    def DefineExecutableFromProcess(self, variables_context, process_id, graph, returned_variables, node_uri_ref):
+    def _define_executable_from_process(self, variables_context, process_id, graph, returned_variables, node_uri_ref):
         """Given the process id, it creates the file representing the executable being run."""
-        logging.debug("Sparql_CIM_Process.DefineExecutableFromProcess process_id=%d" % process_id)
+        logging.debug("Sparql_CIM_Process._define_executable_from_process process_id=%d" % process_id)
         if associator_CIM_ProcessExecutable in self.m_associators:
             associated_instance = self.m_associators[associator_CIM_ProcessExecutable]
             assert isinstance(associated_instance, Sparql_CIM_DataFile)
@@ -508,7 +508,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
             executable_path = lib_util.standardized_file_path(psutil.Process(process_id).exe())
             executable_path_node = rdflib.term.Literal(executable_path)
 
-            associated_instance_url = self.CreateURIRef(graph, "CIM_DataFile", class_CIM_DataFile,
+            associated_instance_url = self._create_uri_ref(graph, "CIM_DataFile", class_CIM_DataFile,
                          {predicate_Name: executable_path_node})
 
             graph.add((node_uri_ref, associator_CIM_ProcessExecutable, associated_instance_url))
@@ -535,10 +535,10 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
                 check_returned_variables(returned_variables)
             graph.add((associated_instance_url, predicate_Name, executable_path_node))
 
-    def GetProcessesFromExecutable(self, graph, variables_context):
+    def _get_processes_from_executable(self, graph, variables_context):
         """Given a file name, it returns all processes executing it."""
 
-        #sys.stderr.write("Sparql_CIM_Process.GetProcessesFromExecutable executable=%s\n" % sys.executable)
+        #sys.stderr.write("Sparql_CIM_Process._get_processes_from_executable executable=%s\n" % sys.executable)
         associated_instance = self.m_associators[associator_CIM_ProcessExecutable]
         assert isinstance(associated_instance, Sparql_CIM_DataFile)
         assert isinstance(associated_instance.m_variable, rdflib.term.Variable)
@@ -546,7 +546,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
         associated_executable_node = variables_context[associated_instance.m_variable]
         assert isinstance(associated_executable_node, rdflib.term.URIRef)
 
-        #sys.stderr.write("Sparql_CIM_Process.GetProcessesFromExecutable variables_context=%s\n" % variables_context)
+        #sys.stderr.write("Sparql_CIM_Process._get_processes_from_executable variables_context=%s\n" % variables_context)
         #sys.stderr.write("associated_instance.m_variable=%s\n" % associated_instance.m_variable)
         executable_node = associated_instance.get_node_value(predicate_Name, variables_context)
         assert isinstance(executable_node, rdflib.term.Literal)
@@ -560,30 +560,30 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
             try:
                 process_executable = lib_util.standardized_file_path(one_process.exe())
             except psutil.AccessDenied as exc:
-                logging.error("GetProcessesFromExecutable Caught:%s" % str(exc))
+                logging.error("_get_processes_from_executable Caught:%s" % str(exc))
                 continue
             # print("process_executable=", process_executable, "executable_path=", executable_path)
             # With pytest as a command line: "c:\python27\python.exe" != "C:\Python27\python.exe"
 
             # On Linux, it might be a symbolic link: /usr/bin/python3 and /usr/bin/python3.6
             if equal_paths(executable_path, process_executable):
-                process_url = self.CreateURIRef(
+                process_url = self._create_uri_ref(
                     graph, "CIM_Process", class_CIM_Process,
                     {predicate_Handle: rdflib.term.Literal(one_process.pid)})
                 #sys.stderr.write("Adding process %s\n" % str(process_url))
                 graph.add((process_url, associator_CIM_ProcessExecutable, associated_executable_node))
                 process_urls_list.append(process_url)
-        #sys.stderr.write("GetProcessesFromExecutable process_urls_list=%\n" % str(process_urls_list))
+        #sys.stderr.write("_get_processes_from_executable process_urls_list=%\n" % str(process_urls_list))
         return process_urls_list
 
-    def FetchAllVariables(self, graph, variables_context):
-        #sys.stderr.write("Sparql_CIM_Process.FetchAllVariables variables_context=%s\n" % str(variables_context))
-        properties_tuple, url_nodes_list = self.GetListOfOntologyProperties(variables_context)
+    def fetch_all_variables(self, graph, variables_context):
+        #sys.stderr.write("Sparql_CIM_Process.fetch_all_variables variables_context=%s\n" % str(variables_context))
+        properties_tuple, url_nodes_list = self._get_list_of_ontology_properties(variables_context)
 
         returned_variables = {}
 
         if isinstance(url_nodes_list, list) and len(url_nodes_list) == 0:
-            #sys.stderr.write("FetchAllVariables No such process with self.m_properties:%s\n" % str(self.m_properties))
+            #sys.stderr.write("fetch_all_variables No such process with self.m_properties:%s\n" % str(self.m_properties))
             # No such process.
             return returned_variables
 
@@ -593,7 +593,7 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
             if associated_instance.m_variable in variables_context:
                 if url_nodes_list is not None:
                     raise Exception("BUG: Contradiction with non-empty processes list")
-                node_uri_refs_list = self.GetProcessesFromExecutable(graph, variables_context)
+                node_uri_refs_list = self._get_processes_from_executable(graph, variables_context)
                 returned_variables[(self.m_variable,)] = [(node_uri_refs,) for node_uri_refs in node_uri_refs_list]
                 check_returned_variables(returned_variables)
                 return returned_variables
@@ -629,11 +629,11 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
         for values_tuple in url_nodes_list:
             assert len(values_tuple) == len(properties_tuple)
             properties_dict = dict(zip(properties_tuple, values_tuple))
-            node_uri_ref = self.CreateURIRef(graph, "CIM_Process", class_CIM_Process, properties_dict)
+            node_uri_ref = self._create_uri_ref(graph, "CIM_Process", class_CIM_Process, properties_dict)
             node_uri_refs_list.append((node_uri_ref,))
 
             process_id = int(properties_dict[predicate_Handle])
-            self.DefineExecutableFromProcess(variables_context, process_id, graph, returned_variables, node_uri_ref)
+            self._define_executable_from_process(variables_context, process_id, graph, returned_variables, node_uri_ref)
 
         assert isinstance(self.m_variable, rdflib.term.Variable)
         assert self.m_variable not in returned_variables
@@ -921,16 +921,16 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             sys.stderr.write("Nothing found in associators")
         return returned_variables
 
-    def FetchAllVariables(self, graph, variables_context):
+    def fetch_all_variables(self, graph, variables_context):
         filtered_where_key_values = dict()
 
-        #sys.stderr.write("FetchAllVariables variables_context=%s\n" % " , ".join("%s=%s" % (str(k), str(v)) for k, v in variables_context.items()))
-        #sys.stderr.write("FetchAllVariables self.m_properties=%s\n" % " , ".join("%s=%s" % (str(k), str(v)) for k, v in self.m_properties.items()))
+        #sys.stderr.write("fetch_all_variables variables_context=%s\n" % " , ".join("%s=%s" % (str(k), str(v)) for k, v in variables_context.items()))
+        #sys.stderr.write("fetch_all_variables self.m_properties=%s\n" % " , ".join("%s=%s" % (str(k), str(v)) for k, v in self.m_properties.items()))
 
         for predicate_node in self.m_properties:
             predicate_name = lib_properties.PropToQName(predicate_node)
             value_node = self.get_node_value(predicate_node, variables_context)
-            #sys.stderr.write("FetchAllVariables predicate_node=%s\n" % predicate_node)
+            #sys.stderr.write("fetch_all_variables predicate_node=%s\n" % predicate_node)
             if value_node:
                 filtered_where_key_values[predicate_name] = str(value_node)
 
@@ -942,7 +942,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         #sys.stderr.write("associated:%d associators:%d\n" % (len(self.m_associated), len(self.m_associators)))
 
         if not filtered_where_key_values and not self.m_associated and not self.m_associators:
-            logging.warning("FetchAllVariables BEWARE FULL SELECT: %s" % self.m_class_name)
+            logging.warning("fetch_all_variables BEWARE FULL SELECT: %s" % self.m_class_name)
             returned_variables = self.SelectWmiObjectFromProperties(graph, variables_context, filtered_where_key_values)
             check_returned_variables(returned_variables)
             return returned_variables
@@ -1274,7 +1274,7 @@ def _custom_eval_function_generic_instances(ctx, instances_dict):
         #sys.stderr.write(margin + "one_instance=%s\n" % one_instance)
 
         #sys.stderr.write(margin + "variables_context BEFORE\n")
-        returned_variables = one_instance.FetchAllVariables(ctx.graph, variables_context)
+        returned_variables = one_instance.fetch_all_variables(ctx.graph, variables_context)
         #sys.stderr.write(margin + "variables_context AFTER\n")
         check_returned_variables(returned_variables)
 
