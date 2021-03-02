@@ -44,7 +44,7 @@ def setUpModule():
 class LibWbemTest(unittest.TestCase):
     def test_local_ontology(self):
         # This test can run only if the local machine has a WBEM server.
-        map_classes, map_attributes = lib_wbem.ExtractWbemOntology()
+        map_classes, map_attributes = lib_wbem.extract_specific_ontology_wbem()
         self.assertTrue("CIM_Process" in map_classes)
         self.assertTrue("CIM_DataFile" in map_classes)
         self.assertTrue("CIM_Directory" in map_classes)
@@ -60,7 +60,7 @@ class LibWbemTest(unittest.TestCase):
         # this test directly connects to the remote Cimom.
         wbem_connection = lib_wbem.WbemConnection(SurvolWbemCimom)
 
-        map_classes, map_attributes = lib_wbem.ExtractRemoteWbemOntology(wbem_connection)
+        map_classes, map_attributes = lib_wbem._extract_wbem_ontology_from_connection(wbem_connection)
         self.assertTrue( "CIM_Process" in map_classes)
         self.assertTrue("Handle" in map_attributes)
 

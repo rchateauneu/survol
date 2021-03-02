@@ -540,19 +540,19 @@ def WbemLocalConnection():
     return wbem_connection
 
 
-def ExtractWbemOntology():
+def extract_specific_ontology_wbem():
     """This returns an abstract ontology, which is later transformed into RDFS.
     cimomUrl="http://192.168.1.83:5988" or "http://rchateau-HP:5988" """
     wbem_connection = WbemLocalConnection()
-    return ExtractRemoteWbemOntology(wbem_connection)
+    return _extract_wbem_ontology_from_connection(wbem_connection)
 
 
-def ExtractRemoteWbemOntology(wbem_connection):
+def _extract_wbem_ontology_from_connection(wbem_connection):
 
     map_classes = {}
     map_attributes = {}
 
-    logging.info("ExtractRemoteWbemOntology: Getting class tree.")
+    logging.info("_extract_wbem_ontology_from_connection: Getting class tree.")
 
     # Note: Survol assumes this namespace everywhere.
     wbem_name_space = 'root/cimv2'
