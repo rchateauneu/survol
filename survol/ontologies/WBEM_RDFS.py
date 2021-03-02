@@ -21,7 +21,7 @@ import lib_common
 def Main():
     # This extracts the classes and attributes of a WBEM server and translates them into RDF.
     try:
-        map_classes, map_attributes = lib_ontology_tools.ManageLocalOntologyCache("wbem", lib_wbem.ExtractWbemOntology)
+        map_classes, map_attributes = lib_ontology_tools.ManageLocalOntologyCache("wbem", lib_wbem.extract_specific_ontology_wbem)
     except Exception as exc:
         lib_common.ErrorMessageHtml("Caught:" + str(exc))
 
