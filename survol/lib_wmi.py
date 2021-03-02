@@ -253,6 +253,10 @@ _dict_base_class_to_sub_class = {}
 
 
 def _get_wmi_class_flag_use_amended_qualifiers_aux(conn_wmi, class_nam, base_class):
+    """
+    This returns the list of base classes of the input class.
+    It uses an internal cache for speed.
+    """
     try:
         subclasses_dict = _dict_base_class_to_sub_class[base_class]
     except KeyError:
@@ -319,6 +323,7 @@ def __wmi_dict_properties_unit_no_cache(conn_wmi, class_name):
     #for qual in prop_obj.Qualifiers_:
     #    sys.stderr.write("        qual=%s => %s \n"%(qual.Name,qual.Value))
 
+    # This enumerates all properties of a class and return a dict for the unit of each them if there is any.
     for prop_obj in the_cls.Properties_:
         try:
             prop_nam = prop_obj.Name # 'str(prop_obj.Qualifiers_("DisplayName"))'
@@ -340,6 +345,9 @@ __cache_wmi_dict_properties_unit = {}
 
 
 def WmiDictPropertiesUnit(conn_wmi, class_name):
+    """
+    Same as __cache_wmi_dict_properties_unit but with a cache because of speed.
+    """
     try:
         map_prop_units = __cache_wmi_dict_properties_unit[class_name]
     except KeyError:
@@ -481,6 +489,27 @@ def EntityToLabelWmi(nam_spac, entity_type_NoNS, entity_id, entity_host):
 
     logging.warning("Implement this: entity_id=%s" % entity_id)
     return None
+
+
+def _convert_wmi_type_to_xsd_type(predicate_type_name):
+    """
+    This converts a WMI type name to the equivalent XSD type, as a string.
+    Later, the conversion to a 'real' XSD type is straightforward.
+    The point of this conversion is that it does not need rdflib.
+
+    WMI types: https://powershell.one/wmi/datatypes
+    RDF types: https://rdflib.readthedocs.io/en/stable/rdf_terms.html
+    """
+    if predicate_type_name.lower() == 'string':
+        return "string" # rdflib.namespace.XSD.string
+    elif predicate_type_name.lower() in ('sint64', 'sint32', 'sint16', 'sint8', 'uint64', 'uint32', 'uint16', 'uint8'):
+        return "integer"
+    elif predicate_type_name.lower() == "datetime":
+        return "dateTime"
+    elif predicate_type_name.lower() == "boolean":
+        return "boolean"
+    else:
+        raise Exception("Unknown WMI type %s" % predicate_type_name)
 
 
 # Survol contains three different ontologies: The ontology of classes defined by Survol,
