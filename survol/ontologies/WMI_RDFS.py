@@ -20,7 +20,7 @@ import lib_wmi
 
 def Main():
     # This extracts the WMI classes and attributes and translates them into RDF.
-    map_classes, map_attributes = lib_ontology_tools.ManageLocalOntologyCache("wmi", lib_wmi.ExtractWmiOntologyLocal)
+    map_classes, map_attributes = lib_ontology_tools.ManageLocalOntologyCache("wmi", lib_wmi.extract_specific_ontology_wmi)
     graph = lib_kbase.CreateRdfsOntology(map_classes, map_attributes)
 
     onto_filnam = os.path.splitext(__file__)[0] + ".rdfs"
