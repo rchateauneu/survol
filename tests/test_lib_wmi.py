@@ -34,7 +34,7 @@ class LibWmiTest(unittest.TestCase):
     @unittest.skipIf(is_windows10, "FIXME: Broken or very slow on Windows 7")
     def test_local_ontology(self):
         # This test is very slow because it does not use the cache.
-        map_classes, map_attributes = lib_wmi.ExtractWmiOntologyLocal()
+        map_classes, map_attributes = lib_wmi.extract_specific_ontology_wmi()
         print("map_classes=", map_classes)
         # print("map_attributes=", map_attributes)
         self.assertTrue("CIM_Process" in map_classes)

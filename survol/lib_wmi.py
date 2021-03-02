@@ -503,7 +503,7 @@ def EntityToLabelWmi(nam_spac, entity_type_NoNS, entity_id, entity_host):
 # In the three cases, Survol, WMI and WBEM, ontologies are implemented with a dictionary.
 # TODO: How to display the information of associators and references ?
 
-def ExtractWmiOntologyLocal():
+def extract_specific_ontology_wmi():
     """
     This returns a tuple of two maps.
     - A map of class names to various properties including their base class name,

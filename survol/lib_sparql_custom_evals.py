@@ -673,7 +673,7 @@ def _wmi_load_ontology():
     import lib_wmi
     if _wmi_load_ontology.classes_map is None:
         _wmi_load_ontology.classes_map, _wmi_load_ontology.attributes_map = lib_ontology_tools.ManageLocalOntologyCache(
-            "wmi", lib_wmi.ExtractWmiOntologyLocal)
+            "wmi", lib_wmi.extract_specific_ontology_wmi)
         assert _wmi_load_ontology.classes_map
         assert _wmi_load_ontology.attributes_map
         wmiExecutor = lib_wmi.WmiSparqlExecutor()
