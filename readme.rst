@@ -29,3 +29,7 @@ More information is available at `Primhill Computers
 
 Continuous integration is at: `Survol on Travis CI
 <https://travis-ci.org/rchateauneu/survol>`_ .
+
+Coverage with Coveralls:
+.. image:: https://coveralls.io/repos/github/rchateauneu/survol/badge.svg?branch=master
+:target: https://coveralls.io/github/rchateauneu/survol?branch=master
