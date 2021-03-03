@@ -1252,7 +1252,7 @@ def custom_eval_function(ctx, part):
 
     It uses an object factory which returns objectgs created by Survol only (Not WMI or WBEM)
     """
-    return custom_eval_function_generic(ctx, part, _sparql_factory_CIM_Object_Survol)
+    return _custom_eval_function_generic(ctx, part, _sparql_factory_CIM_Object_Survol)
 
 
 def custom_eval_function_wmi(ctx, part):
@@ -1260,7 +1260,7 @@ def custom_eval_function_wmi(ctx, part):
     This function matches the requirement of a rdflib custom evaluation function.
     Used by tests only.
     """
-    return custom_eval_function_generic(ctx, part, _sparql_factory_CIM_Object_Wmi)
+    return _custom_eval_function_generic(ctx, part, _sparql_factory_CIM_Object_Wmi)
 
 
 def custom_eval_function_wbem(ctx, part):
@@ -1269,7 +1269,7 @@ def custom_eval_function_wbem(ctx, part):
     Not implemented yet.
     This is very similar to WMI because the underlying CQL query language is structurally the same.
     """
-    return custom_eval_function_generic(ctx, part, None)
+    return _custom_eval_function_generic(ctx, part, None)
 
 
 def _custom_eval_function_generic_instances(ctx, instances_dict):
@@ -1337,7 +1337,7 @@ def _custom_eval_function_generic_aux(ctx, part, sparql_instance_creator):
         logging.warning("No instances")
 
 
-def custom_eval_function_generic(ctx, part, sparql_instance_creator):
+def _custom_eval_function_generic(ctx, part, sparql_instance_creator):
     """
     Inspired from https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html
 
