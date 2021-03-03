@@ -38,7 +38,7 @@ associator_CIM_DirectoryContainsFile = rdflib.term.URIRef(lib_kbase.survol_url +
 associator_CIM_ProcessExecutable = rdflib.term.URIRef(lib_kbase.survol_url + "CIM_ProcessExecutable")
 
 
-def add_ontology(graph):
+def _serialize_extra_ontology(graph):
     """
     This is a minimal hard-coded ontology, which applies to WMI and WBEM.
     TODO: Add all WMI classes, dynamically.
@@ -46,29 +46,29 @@ def add_ontology(graph):
 
     TODO: Problem of extra attributes ... Voir "class_extra_keys_list"
     """
-    graph.add((class_CIM_Process, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
-    graph.add((class_CIM_Process, rdflib.namespace.RDFS.label, rdflib.Literal("CIM_Process")))
-    graph.add((class_CIM_Directory, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
-    graph.add((class_CIM_Directory, rdflib.namespace.RDFS.label, rdflib.Literal("CIM_Directory")))
-    graph.add((class_CIM_DataFile, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
-    graph.add((class_CIM_DataFile, rdflib.namespace.RDFS.label, rdflib.Literal("CIM_DataFile")))
+    #graph.add((class_CIM_Process, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
+    #graph.add((class_CIM_Process, rdflib.namespace.RDFS.label, rdflib.Literal("CIM_Process")))
+    #graph.add((class_CIM_Directory, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
+    #graph.add((class_CIM_Directory, rdflib.namespace.RDFS.label, rdflib.Literal("CIM_Directory")))
+    #graph.add((class_CIM_DataFile, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
+    #graph.add((class_CIM_DataFile, rdflib.namespace.RDFS.label, rdflib.Literal("CIM_DataFile")))
 
-    graph.add((predicate_Handle, rdflib.namespace.RDF.type, rdflib.namespace.RDF.Property))
-    graph.add((predicate_Handle, rdflib.namespace.RDFS.domain, class_CIM_Process))
-    graph.add((predicate_Handle, rdflib.namespace.RDFS.range, rdflib.namespace.XSD.integer))
-    graph.add((predicate_Handle, rdflib.namespace.RDFS.label, rdflib.Literal("Handle")))
-    graph.add((predicate_Handle, rdflib.namespace.RDFS.range, rdflib.namespace.XSD.integer))
+    #graph.add((predicate_Handle, rdflib.namespace.RDF.type, rdflib.namespace.RDF.Property))
+    #graph.add((predicate_Handle, rdflib.namespace.RDFS.domain, class_CIM_Process))
+    #graph.add((predicate_Handle, rdflib.namespace.RDFS.range, rdflib.namespace.XSD.integer))
+    #graph.add((predicate_Handle, rdflib.namespace.RDFS.label, rdflib.Literal("Handle")))
+    #graph.add((predicate_Handle, rdflib.namespace.RDFS.range, rdflib.namespace.XSD.integer))
 
     graph.add((predicate_ParentProcessId, rdflib.namespace.RDF.type, rdflib.namespace.RDF.Property))
     graph.add((predicate_ParentProcessId, rdflib.namespace.RDFS.domain, class_CIM_Process))
     graph.add((predicate_ParentProcessId, rdflib.namespace.RDFS.range, rdflib.namespace.XSD.string))
     graph.add((predicate_ParentProcessId, rdflib.namespace.RDFS.label, rdflib.Literal("ParentProcessId")))
 
-    graph.add((predicate_Name, rdflib.namespace.RDF.type, rdflib.namespace.RDF.Property))
-    graph.add((predicate_Name, rdflib.namespace.RDFS.domain, class_CIM_Directory))
-    graph.add((predicate_Name, rdflib.namespace.RDFS.domain, class_CIM_DataFile))
-    graph.add((predicate_Name, rdflib.namespace.RDFS.range, rdflib.namespace.XSD.string))
-    graph.add((predicate_Name, rdflib.namespace.RDFS.label, rdflib.Literal("Name")))
+    #graph.add((predicate_Name, rdflib.namespace.RDF.type, rdflib.namespace.RDF.Property))
+    #graph.add((predicate_Name, rdflib.namespace.RDFS.domain, class_CIM_Directory))
+    #graph.add((predicate_Name, rdflib.namespace.RDFS.domain, class_CIM_DataFile))
+    #graph.add((predicate_Name, rdflib.namespace.RDFS.range, rdflib.namespace.XSD.string))
+    #graph.add((predicate_Name, rdflib.namespace.RDFS.label, rdflib.Literal("Name")))
 
     graph.add((associator_CIM_DirectoryContainsFile, rdflib.namespace.RDF.type, rdflib.namespace.RDF.Property))
     graph.add((associator_CIM_DirectoryContainsFile, rdflib.namespace.RDFS.domain, class_CIM_Directory))
@@ -309,7 +309,7 @@ class Sparql_CIM_DataFile(Sparql_CIM_Object):
                 # TODO: See ONE_VARIABLE_TUPLE. The key should be a tuple.
                 logging.error("m_variable SHOULD BE A TUPLE")
                 returned_variables[associator_instance.m_variable] = [associator_instance_url]
-            check_returned_variables(returned_variables)
+                check_returned_variables(returned_variables)
             graph.add((associator_instance_url, predicate_Name, dir_file_path_node))
 
     def fetch_all_variables(self, graph, variables_context):
@@ -688,47 +688,41 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
         return returned_variables
 
 
-def _sparql_factory_CIM_Object_Survol(class_name, the_subject):
-    """
-    This is a factory for the rdflib custom eval function which handles CIM objects created by Survol only.
+class _sparql_model_CIM_Object_Survol:
+    @staticmethod
+    def write_ontology_to_graph(rdf_graph):
+        lib_ontology_tools.serialize_ontology_to_graph("wmi", lib_wmi.extract_specific_ontology_wmi, rdf_graph)
 
-    :param class_name: a CIM class name. Strictly speaking, it is redundant
-                       because alreasy available in the URL.
-    :param the_subject: The RDF url node of the object.
-    :return: An instanciation of a derived class of Sparql_CIM_Object,
-            modelling the object whose URL is passed as parameter.
-    """
-    class_name_to_class = {
-        "CIM_DataFile": Sparql_CIM_DataFile,
-        "CIM_Directory": Sparql_CIM_Directory,
-        "CIM_Process": Sparql_CIM_Process,
-    }
+        # There is an overlap.
+        lib_ontology_tools.serialize_ontology_to_graph("survol", lib_util.extract_specific_ontology_survol, rdf_graph)
 
-    the_class = class_name_to_class[class_name]
-    the_instance = the_class(class_name, the_subject)
-    return the_instance
+        _serialize_extra_ontology(rdf_graph)
+
+    @staticmethod
+    def object_factory(class_name, the_subject):
+        """
+        This is a factory for the rdflib custom eval function which handles CIM objects created by Survol only.
+
+        :param class_name: a CIM class name. Strictly speaking, it is redundant
+                           because alreasy available in the URL.
+        :param the_subject: The RDF url node of the object.
+        :return: An instanciation of a derived class of Sparql_CIM_Object,
+                modelling the object whose URL is passed as parameter.
+        """
+        class_name_to_class = {
+            "CIM_DataFile": Sparql_CIM_DataFile,
+            "CIM_Directory": Sparql_CIM_Directory,
+            "CIM_Process": Sparql_CIM_Process,
+        }
+
+        the_class = class_name_to_class[class_name]
+
+        # Si c'est une autre classe, renvoyer Sparql_WMI_GenericObject
+
+        the_instance = the_class(class_name, the_subject)
+        return the_instance
 
 ################################################################################
-
-
-def _wmi_load_ontology():
-    # classes_map[class_name] = {"base_class": base_class_name, "class_description": text_descr}
-    # map_attributes[prop_obj.name] = { "predicate_type": prop_obj.type,"predicate_domain": class_name}
-    global wmiExecutor
-
-    import lib_wmi
-    if _wmi_load_ontology.classes_map is None:
-        _wmi_load_ontology.classes_map, _wmi_load_ontology.attributes_map = lib_ontology_tools.ManageLocalOntologyCache(
-            "wmi", lib_wmi.extract_specific_ontology_wmi)
-        assert _wmi_load_ontology.classes_map
-        assert _wmi_load_ontology.attributes_map
-        wmiExecutor = lib_wmi.WmiSparqlExecutor()
-
-
-_wmi_load_ontology.classes_map = None
-_wmi_load_ontology.attributes_map = None
-
-wmiExecutor = None
 
 
 class Sparql_WMI_GenericObject(Sparql_CIM_Object):
@@ -736,13 +730,18 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
     This models any WMI object of any class.
     The urls are the same with object created by pure Survol classes.
     """
+
+    wmi_executor = lib_wmi.WmiSparqlExecutor()
+
+    # The list of attributes of classes is needed.
+    classes_map, _, _ = lib_ontology_tools.get_named_ontology(
+        "wmi", lib_wmi.extract_specific_ontology_wmi)
+
     def __init__(self, class_name, node):
         assert isinstance(node, rdflib.term.Variable)
 
-        _wmi_load_ontology()
-
         # This contains the leys of the class, for example["Handle"] if Win32_Process.
-        ontology_keys = _wmi_load_ontology.classes_map[class_name]["class_keys_list"]
+        ontology_keys = Sparql_WMI_GenericObject.classes_map[class_name]["class_keys_list"]
         super(Sparql_WMI_GenericObject, self).__init__(class_name, node, ontology_keys)
 
         # We could also use the ontology stored in RDF, but by sticking to the data structure created
@@ -814,14 +813,14 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         return returned_variables
 
     def class_keys(self):
-        wmi_class_keys = _wmi_load_ontology.classes_map[self.m_class_name]["class_keys_list"]
+        wmi_class_keys = Sparql_WMI_GenericObject.classes_map[self.m_class_name]["class_keys_list"]
         assert all([isinstance(one_class_key, six.text_type) for one_class_key in wmi_class_keys])
         return wmi_class_keys
 
     def SelectWmiObjectFromProperties(self, graph, variables_context, filtered_where_key_values):
         logging.debug("class=%s filtered_where_key_values=%s" % (self.m_class_name, str(filtered_where_key_values)))
-        iterator_objects = wmiExecutor.SelectObjectFromProperties(self.m_class_name, filtered_where_key_values)
-        #####iterator_objects = list(iterator_objects)
+        iterator_objects = Sparql_WMI_GenericObject.wmi_executor.SelectObjectFromProperties(
+            self.m_class_name, filtered_where_key_values)
         returned_variables = self._iterator_to_objects(graph, iterator_objects)
         check_returned_variables(returned_variables)
         check_returned_variables(returned_variables)
@@ -894,7 +893,8 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
 
             associator_path = associated_instance.BuildWmiPathFromSurvolPath(variables_context)
 
-            iterator_objects = wmiExecutor.SelectBidirectionalAssociatorsFromObject(self.m_class_name, associator_name, associator_path, role_index)
+            iterator_objects = Sparql_WMI_GenericObject.wmi_executor.SelectBidirectionalAssociatorsFromObject(
+                self.m_class_name, associator_name, associator_path, role_index)
 
             # This returns a map of one element only. The key is a tuple of variables.
             # The value is a list of tuples of the same size.
@@ -985,14 +985,26 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         return returned_variables
 
 
-def _sparql_factory_CIM_Object_Wmi(class_name, the_subject):
-    """
-    Given a class name and the rdflib node of an URL,
-    it returns an object which contains the attributes of this CIM object,
-    ready to ba handled in Sparql custom evals.
-    """
-    the_instance = Sparql_WMI_GenericObject(class_name, the_subject)
-    return the_instance
+class _sparql_model_CIM_Object_Wmi:
+    @staticmethod
+    def write_ontology_to_graph(rdf_graph):
+        # get_ontology
+        #raise
+        # lib_ontology_tools.get_named_ontology(
+        #         "wmi", lib_wmi.extract_specific_ontology_wmi)
+
+        lib_ontology_tools.serialize_ontology_to_graph("wmi", lib_wmi.extract_specific_ontology_wmi, rdf_graph)
+        _serialize_extra_ontology(rdf_graph)
+
+    @staticmethod
+    def object_factory(class_name, the_subject):
+        """
+        Given a class name and the rdflib node of an URL,
+        it returns an object which contains the attributes of this CIM object,
+        ready to ba handled in Sparql custom evals.
+        """
+        the_instance = Sparql_WMI_GenericObject(class_name, the_subject)
+        return the_instance
 
 ################################################################################
 
@@ -1264,7 +1276,7 @@ def custom_eval_function(ctx, part):
 
     It uses an object factory which returns objectgs created by Survol only (Not WMI or WBEM)
     """
-    return _custom_eval_function_generic(ctx, part, _sparql_factory_CIM_Object_Survol)
+    return _custom_eval_function_generic(ctx, part, _sparql_model_CIM_Object_Survol)
 
 
 def custom_eval_function_wmi(ctx, part):
@@ -1272,7 +1284,7 @@ def custom_eval_function_wmi(ctx, part):
     This function matches the requirement of a rdflib custom evaluation function.
     Used by tests only.
     """
-    return _custom_eval_function_generic(ctx, part, _sparql_factory_CIM_Object_Wmi)
+    return _custom_eval_function_generic(ctx, part, _sparql_model_CIM_Object_Wmi)
 
 
 def custom_eval_function_wbem(ctx, part):
@@ -1323,7 +1335,7 @@ def _custom_eval_function_generic_instances(ctx, instances_dict):
     logging.info("Graph after recursive_instantiation: %d triples", len(ctx.graph))
 
 
-def _custom_eval_function_generic_aux(ctx, part, sparql_instance_creator):
+def _custom_eval_function_generic_aux(ctx, part, sparql_model_definition):
     """
     Actual evaluation of the BGP.
 
@@ -1335,10 +1347,10 @@ def _custom_eval_function_generic_aux(ctx, part, sparql_instance_creator):
     # A triple pattern is a triple:
     # RDF-term or value, IRI or value, RDF term or value.
 
-    add_ontology(ctx.graph)
+    sparql_model_definition.write_ontology_to_graph(ctx.graph)
 
     logging.debug("Instances:")
-    instances_dict = _part_triples_to_instances_dict_function(part, sparql_instance_creator)
+    instances_dict = _part_triples_to_instances_dict_function(part, sparql_model_definition.object_factory)
     logging.debug("Instances before sort:%d" % len(instances_dict))
     for instance_key, one_instance in instances_dict.items():
         logging.debug("    Key=%s Instance=%s" % (instance_key, one_instance))
@@ -1349,7 +1361,7 @@ def _custom_eval_function_generic_aux(ctx, part, sparql_instance_creator):
         logging.warning("No instances")
 
 
-def _custom_eval_function_generic(ctx, part, sparql_instance_creator):
+def _custom_eval_function_generic(ctx, part, sparql_model_definition):
     """
     Inspired from https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html
 
@@ -1368,7 +1380,7 @@ def _custom_eval_function_generic(ctx, part, sparql_instance_creator):
     # RDF-term or value, IRI or value, RDF term or value.
     if part.name == 'BGP':
         # This inserts triples in the graph.
-        _custom_eval_function_generic_aux(ctx, part, sparql_instance_creator)
+        _custom_eval_function_generic_aux(ctx, part, sparql_model_definition)
 
         # Normal execution of the Sparql engine on the graph with many more triples.
         # <type 'generator'>
