@@ -692,9 +692,11 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
 class _sparql_model_CIM_Object_Survol:
     @staticmethod
     def write_ontology_to_graph(rdf_graph):
-        lib_ontology_tools.serialize_ontology_to_graph("wmi", lib_wmi.extract_specific_ontology_wmi, rdf_graph)
+        if lib_util.isPlatformWindows:
+            lib_ontology_tools.serialize_ontology_to_graph("wmi", lib_wmi.extract_specific_ontology_wmi, rdf_graph)
+        # TODO: Should add WBEM if available and Linux.
 
-        # There is an overlap.
+        # There might be duplicate classes and properties with WMI, but they must not contradict.
         lib_ontology_tools.serialize_ontology_to_graph("survol", lib_util.extract_specific_ontology_survol, rdf_graph)
 
         _serialize_extra_ontology(rdf_graph)
