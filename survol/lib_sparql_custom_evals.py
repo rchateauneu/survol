@@ -18,13 +18,14 @@ import lib_ontology_tools
 import lib_kbase
 import lib_properties
 
+# TODO: This should be conditional.
+import lib_wmi
+
 ################################################################################
 
-# FIXME: This url is often hardcoded in the tests.
-survol_url = "http://www.primhillcomputers.com/survol#"
-class_CIM_Process = rdflib.term.URIRef(survol_url + "CIM_Process")
-class_CIM_Directory = rdflib.term.URIRef(survol_url + "CIM_Directory")
-class_CIM_DataFile = rdflib.term.URIRef(survol_url + "CIM_DataFile")
+class_CIM_Process = lib_kbase.class_node_uriref("CIM_Process")
+class_CIM_Directory = lib_kbase.class_node_uriref("CIM_Directory")
+class_CIM_DataFile = lib_kbase.class_node_uriref("CIM_DataFile")
 
 predicate_Handle = rdflib.term.URIRef(lib_kbase.survol_url + "Handle")
 predicate_Name = rdflib.term.URIRef(lib_kbase.survol_url + "Name")
@@ -395,7 +396,15 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                 # print("Sparql_CIM_Directory.fetch_all_variables add_sub_node ", sub_node_str, "sub_path_name=", sub_path_name)
                 # logging.warning("Sparql_CIM_Directory.fetch_all_variables add_sub_node %s / path=%s" % (sub_node_str, sub_path_name))
                 assert cim_class in (class_CIM_Directory, class_CIM_DataFile)
-                sub_node_uri_ref = rdflib.term.URIRef(sub_node_str)
+
+                # Frequent errors due to non-utf8 characters in filenames, for example with Python 2:
+                # 'Machine:CIM_DataFile?Name=C:/Users/abcdxyz/AppData/Local/Temp/Vive le v\xe9lo.mp4'
+                # UnicodeDecodeError: 'utf8' codec can't decode byte 0xe9 in position 72: invalid continuation byte
+                try:
+                    sub_node_uri_ref = rdflib.term.URIRef(sub_node_str)
+                except UnicodeDecodeError:
+                    logging.error("file=%s type=%s" % (sub_node_str, type(sub_node_str)))
+                    raise
                 graph.add((sub_node_uri_ref, rdflib.namespace.RDF.type, cim_class))
                 #sub_uri_ref_list.append(sub_node_uri_ref)
                 sub_path_name_url = rdflib.term.Literal(sub_path_name)
@@ -423,7 +432,10 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                         sub_path_name = lib_util.standardized_file_path(os.path.join(root_dir, one_file_name))
                         #sys.stderr.write("sub_path_name=%s\n" % sub_path_name)
                         # This must be a file, possibly unreadable due to access rights, or a symbolic link.
-                        assert _is_readable_file(sub_path_name)
+                        if not _is_readable_file(sub_path_name):
+                        # Another possible reason is the wrong encoding of a non-Ascii file name.
+                            logging.error("File %s is not readable" % sub_path_name)
+                            raise Exception("File %s is not readable" % sub_path_name)
 
                         sub_node_str = "Machine:CIM_DataFile?Name=" + sub_path_name
                         add_sub_node(sub_node_str, class_CIM_DataFile, sub_path_name)
@@ -985,7 +997,7 @@ def _sparql_factory_CIM_Object_Wmi(class_name, the_subject):
 ################################################################################
 
 
-def _part_triples_to_instances_dict_function(part, sparql_instance_creator):
+def _part_triples_to_instances_dict_function(part, object_factory):
     """
     This takes the basic graph pattern (BGP), which is the list of triples patterns
     extracted from the Sparql query, and returns a list of instances of CIM classes,
@@ -1011,8 +1023,8 @@ def _part_triples_to_instances_dict_function(part, sparql_instance_creator):
                     # This is the class name without the Survol prefix which is not useful here.
                     class_short = class_as_str[len(lib_kbase.survol_url):]
                     logging.debug("Class OK")
-                    # sparql_instance_creator can also tell the difference between an associator and a property
-                    instances_dict[part_subject] = sparql_instance_creator(class_short, part_subject)
+                    # object_factory can also tell the difference between an associator and a property
+                    instances_dict[part_subject] = object_factory(class_short, part_subject)
 
     if not instances_dict:
         # If it does not contain any instance defined by a type which can be mapped to a WMI class,
