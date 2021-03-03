@@ -19,7 +19,8 @@ import lib_kbase
 import lib_properties
 
 # TODO: This should be conditional.
-import lib_wmi
+if lib_util.isPlatformWindows:
+    import lib_wmi
 
 ################################################################################
 
@@ -731,11 +732,12 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
     The urls are the same with object created by pure Survol classes.
     """
 
-    wmi_executor = lib_wmi.WmiSparqlExecutor()
+    if lib_util.isPlatformWindows:
+        wmi_executor = lib_wmi.WmiSparqlExecutor()
 
-    # The list of attributes of classes is needed.
-    classes_map, _, _ = lib_ontology_tools.get_named_ontology(
-        "wmi", lib_wmi.extract_specific_ontology_wmi)
+        # The list of attributes of classes is needed.
+        classes_map, _, _ = lib_ontology_tools.get_named_ontology(
+            "wmi", lib_wmi.extract_specific_ontology_wmi)
 
     def __init__(self, class_name, node):
         assert isinstance(node, rdflib.term.Variable)
