@@ -78,19 +78,23 @@ def ManageLocalOntologyCache(ontology_name, ontology_extractor):
         map_attributes = json.load(fd_attributes)
         fd_attributes.close()
 
-        ontology_graph = rdflib.Graph()
-        with open(path_rdf_ontology) as rdf_fd:
-            ontology_graph.parse(rdf_fd, format='xml')
+        if True:
+            logging.info("ExtractWmiOntology %s: Loaded cached ontology from %s and %s",
+                 ontology_name, path_classes, path_attributes)
+        else:
+            ontology_graph = rdflib.Graph()
+            with open(path_rdf_ontology) as rdf_fd:
+                ontology_graph.parse(rdf_fd, format='xml')
 
-        logging.info("ExtractWmiOntology %s: Loaded cached ontology from %s, %s and %s",
-             ontology_name, path_classes, path_attributes, path_rdf_ontology)
+            logging.info("ExtractWmiOntology %s: Loaded cached ontology from %s, %s and %s",
+                 ontology_name, path_classes, path_attributes, path_rdf_ontology)
 
         return map_classes, map_attributes
     except Exception as exc:
         logging.info("ManageOntologyCache %s: Caught: %s. Creating cache file.", ontology_name, exc)
 
     map_classes, map_attributes = ontology_extractor()
-    logging.info("ManageOntologyCache %s: Saving internal ontology to %s and %s",
+    logging.info("ManageOntologyCache %s: Saving ontology to %s and %s",
         ontology_name, path_classes, path_attributes)
 
     fd_classes = open(path_classes, "w")
@@ -101,12 +105,13 @@ def ManageLocalOntologyCache(ontology_name, ontology_extractor):
     json.dump(map_attributes, fd_attributes)
     fd_attributes.close()
 
-    # Also, regenerate the file containing the ontology in RDF format.
-    ontology_graph = rdflib.Graph()
-    _convert_ontology_to_rdf(map_classes, map_attributes, ontology_graph)
-    logging.info("ManageOntologyCache %s: Saving RDF ontology to %s", ontology_name, path_rdf_ontology)
-    ontology_graph.serialize(destination=path_rdf_ontology, format='xml')
-    logging.info("ManageOntologyCache %s: Ontology caches recreated.", ontology_name)
+    if False:
+        # Also, regenerate the file containing the ontology in RDF format.
+        ontology_graph = rdflib.Graph()
+        _convert_ontology_to_rdf(map_classes, map_attributes, ontology_graph)
+        logging.info("ManageOntologyCache %s: Saving RDF ontology to %s", ontology_name, path_rdf_ontology)
+        ontology_graph.serialize(destination=path_rdf_ontology, format='xml')
+        logging.info("ManageOntologyCache %s: Ontology caches recreated.", ontology_name)
 
     return map_classes, map_attributes
 
