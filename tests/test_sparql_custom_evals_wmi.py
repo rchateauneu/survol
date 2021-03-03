@@ -41,7 +41,7 @@ def setUpModule():
 
 ################################################################################
 
-survol_namespace = rdflib.Namespace(lib_sparql_custom_evals.survol_url)
+survol_namespace = lib_kbase.LDT
 
 ################################################################################
 
@@ -57,7 +57,7 @@ class SparqlWmiBasicTest(unittest.TestCase):
 class CUSTOM_EVALS_WMI_Base_Test(unittest.TestCase):
     """
     This sets the CUSTOM_EVALS callback for all derived tests.
-    This callbask analyses the SPARQL query statements and loads the RDF triples
+    This callback analyses the SPARQL query statements and loads the RDF triples
     from WMI data, by splitting the SPARQL query into nested WQL queries.
     """
 
@@ -1297,8 +1297,11 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
     """
     These tests focus on classes and properties, not on the objects.
     """
-    def test_all_classes(self):
-        """All WMI classes."""
+
+    def _get_wmi_class_list(self):
+        """
+        This is a utility function to return the list of classes
+        """
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?url_class
@@ -1307,7 +1310,15 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
             }""" % survol_namespace
         rdflib_graph = rdflib.Graph()
         query_result = set(rdflib_graph.query(sparql_query))
-        print("Selected classes=", query_result)
+        #print("Selected classes=", query_result)
+        return query_result
+
+    def test_cim_core_classes(self):
+        """
+        Minimum set of classes.
+        These classes are also defined by CIM, WMI and WBEM.
+        """
+        query_result = self._get_wmi_class_list()
 
         # A minimal set of classes must be present.
         self.assertTrue((lib_sparql_custom_evals.class_CIM_Process,) in query_result)
