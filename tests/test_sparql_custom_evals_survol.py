@@ -117,6 +117,11 @@ def _print_subprocesses(proc_id, depth = 0):
 class CUSTOM_EVALS_Survol_Base_Test(unittest.TestCase):
     """
     This sets the CUSTOM_EVALS callback for all derived tests.
+    It is mandatory to define which sets of classes are used to create CIM objects.
+    There might be several representations, with an overlap of plain CIM classes:
+    - WMI: Classes and instances are listed with WMI calls exclusively. This is for Windows.
+    - WBEM: Classes and instances are listed with WBEM and pywbem calls exclusively. This is for Linux.
+    - Survol: Which derived from WMI or WBEM and adds it owns classes which are not represented yet in CIM, WMI or WBEM.
     """
 
     def setUp(self):
@@ -128,7 +133,10 @@ class CUSTOM_EVALS_Survol_Base_Test(unittest.TestCase):
             del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_function']
 
 
-class Rdflib_CUSTOM_EVALS_Test(CUSTOM_EVALS_Survol_Base_Test):
+class CUSTOM_EVALS_Low_Level_Test(CUSTOM_EVALS_Survol_Base_Test):
+    """
+    This tests low-level and internal features.
+    """
 
     def _one_return_tst(self, num_results_expected, return_variables):
         # https://docs.python.org/3/library/itertools.html#itertools.combinations
@@ -165,8 +173,8 @@ class Rdflib_CUSTOM_EVALS_Test(CUSTOM_EVALS_Survol_Base_Test):
 
     def test_prod_variables(self):
         """
-        This tests the enumeration of all possible combination of values or a set of input variables.
-        This tests the cartesians product of Sparql variables and their values.
+        This tests the enumeration of all possible combination of values or a set of input variables,
+        that is, the cartesians product of Sparql variables and their values.
         This loops on all possible combinations.
         """
         self._one_return_tst(1, {('a',): [('a1',)], ('b',): [('b1',)], ('c',): [('c1',)], })
@@ -174,6 +182,9 @@ class Rdflib_CUSTOM_EVALS_Test(CUSTOM_EVALS_Survol_Base_Test):
         self._one_return_tst(6, {('a',): [('a1',)], ('b',): [('b1',), ('b2',)], ('c',): [('c1',), ('c2',), ('c3',)], })
         self._one_return_tst(2, {('a', 'aa'): [('a1', 'aa1')], ('b',): [('b1',), ('b2',)], ('c',): [('c1',)], })
         self._one_return_tst(4, {('a', 'aa'): [('a1', 'aa1'), ('a2', 'aa2')], ('b',): [('b1',), ('b2',)], ('c',): [('c1',)], })
+
+
+class CUSTOM_EVALS_Basic_Sparql_Queries_Test(CUSTOM_EVALS_Survol_Base_Test):
 
     def test_sparql_parent(self):
         rdflib_graph = _create_graph()
@@ -1020,8 +1031,10 @@ class SparqlMetaTest(CUSTOM_EVALS_Survol_Base_Test):
     These tests focus on classes and properties, not on the objects.
     """
 
-    def test_all_classes(self):
-        """All Survol classes."""
+    def _get_survol_class_list(self):
+        """
+        This is a utility function to return the list of classes
+        """
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?url_class
@@ -1030,7 +1043,17 @@ class SparqlMetaTest(CUSTOM_EVALS_Survol_Base_Test):
             }""" % survol_namespace
         rdflib_graph = rdflib.Graph()
         query_result = set(rdflib_graph.query(sparql_query))
-        print("Selected classes=", query_result)
+        if False:
+            class_names = [str(class_name[0]).rpartition("#")[2] for class_name in query_result]
+            print("class_names=", sorted(class_names))
+        return query_result
+
+    def test_cim_core_classes(self):
+        """
+        Minimum set of classes.
+        These classes are also defined by CIM, WMI and WBEM.
+        """
+        query_result = self._get_survol_class_list()
 
         # A minimal set of classes must be present.
         self.assertTrue((lib_sparql_custom_evals.class_CIM_Process,) in query_result)
