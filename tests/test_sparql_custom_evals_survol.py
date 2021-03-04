@@ -1124,6 +1124,7 @@ class SparqlMetaTest(CUSTOM_EVALS_Survol_Base_Test):
         self.assertTrue((lib_sparql_custom_evals.class_CIM_Directory,) in query_result)
         self.assertTrue((lib_sparql_custom_evals.class_CIM_DataFile,) in query_result)
 
+    @unittest.skipIf(not is_platform_windows, "No Windows classes on Linux")
     def test_win32_classes(self):
         """
         Classes which are specific to WIN32.
