@@ -44,9 +44,9 @@ class ProcessMemorySqlQueryTest(unittest.TestCase):
     """This searches with regular expressions in the memory of a running process.
     It does not need a Survol agent"""
 
-    # This searches the content of a process memory which contains a SQL memory.
     @unittest.skip("TODO: Not working now")
     def test_from_batch(self):
+        """This searches the content of a process memory which contains a SQL memory."""
         proc_open = _start_subprocess(sample_batch_script)
 
         (child_stdin, child_stdout_and_stderr) = (proc_open.stdin, proc_open.stdout)
@@ -70,9 +70,12 @@ class ProcessMemorySqlQueryTest(unittest.TestCase):
         print(lst_matches)
         proc_open.communicate()
 
-    # This searches the content of a process memory which contains a SQL memory.
     @unittest.skipIf(is_platform_linux, "TODO: Broken on Linux")
     def test_from_python(self):
+        """
+        This searches the content of a process memory which contains a SQL memory.
+        """
+
         # Runs this process: It allocates a variable containing a SQL query, then it waits.
         proc_open = _start_subprocess(sys.executable, sample_python_script)
 
@@ -105,9 +108,9 @@ class ProcessMemorySqlQueryTest(unittest.TestCase):
 
         proc_open.communicate()
 
-    # This searches the content of a process memory which contains a SQL memory.
     @unittest.skipIf(not _perl_path, "Perl must be installed.")
     def test_from_perl(self):
+        """This searches the content of a process memory which contains a SQL memory."""
         proc_open = _start_subprocess(_perl_path, sample_perl_script)
 
         my_source_sql_queries = lib_client.SourceLocal(
@@ -137,9 +140,9 @@ class ProcessMemoryCOMClassesTest(unittest.TestCase):
     """This searches with regular expressions in the memory of a running process.
     It does not need a Survol agent"""
 
-    # This searches COM classes ids in a process memory.
     @unittest.skipIf(is_travis_machine(), "TODO: Fix this on Travis")
     def test_from_python(self):
+        """This searches COM classes ids in a process memory."""
         proc_open = _start_subprocess(sys.executable, sample_python_script)
 
         my_source_com_classes = lib_client.SourceLocal(
@@ -152,9 +155,9 @@ class ProcessMemoryCOMClassesTest(unittest.TestCase):
 
         proc_open.communicate()
 
-    # This searches COM classes ids in a process memory.
     @unittest.skipIf(not _perl_path, "Perl must be installed.")
     def test_from_perl(self):
+        """This searches COM classes ids in a process memory."""
         proc_open = _start_subprocess(_perl_path, sample_perl_script)
 
         my_source_com_classes = lib_client.SourceLocal(
@@ -173,8 +176,8 @@ class ProcessMemoryConnectionStringsTest(unittest.TestCase):
     """This searches with regular expressions in the mmemory of a running process.
     It does not need a Survol agent"""
 
-    # This searches the content of a process memory which contains ODBC connection strings.
     def test_from_python(self):
+        """This searches the content of a process memory which contains ODBC connection strings."""
         proc_open = _start_subprocess(sys.executable, sample_python_script)
 
         my_source_connection_strings = lib_client.SourceLocal(
@@ -187,9 +190,9 @@ class ProcessMemoryConnectionStringsTest(unittest.TestCase):
 
         proc_open.communicate()
 
-    # This searches the content of a process memory which contains ODBC connection strings.
     @unittest.skipIf(not _perl_path, "Perl must be installed.")
     def test_from_perl(self):
+        """This searches the content of a process memory which contains ODBC connection strings."""
         proc_open = _start_subprocess(_perl_path, sample_perl_script)
 
         my_source_connection_strings = lib_client.SourceLocal(
@@ -207,10 +210,10 @@ class ProcessMemoryFilenamesTest(unittest.TestCase):
     """This searches with regular expressions in the memory of a running process.
     It does not need a Survol agent"""
 
-    # This searches the content of a process memory which contains a SQL memory.
     @unittest.skipIf(is_platform_linux, "TODO: Not working on Linux yet")
     @unittest.skipIf(is_py3 or is_platform_linux, "TODO: Not working on Python 3")
     def test_from_python2(self):
+        """This searches the content of a process memory which contains a SQL memory."""
         proc_open = _start_subprocess(sys.executable, sample_python_script)
 
         my_source_filenames = lib_client.SourceLocal(
@@ -238,12 +241,11 @@ class ProcessMemoryFilenamesTest(unittest.TestCase):
         tst_stdout, tst_stderr = proc_open.communicate()
         self.assertEqual(tst_stderr, None)
 
-    # This searches the content of a process memory which contains a SQL memory.
-    #@unittest.skip("FIXME: Not working yet")
     @unittest.skipIf(is_travis_machine(), "FIXME: Should work on Travis too.")
     @unittest.skipIf(is_platform_linux, "TODO: Not working on Linux yet")
     @unittest.skipIf(not _perl_path, "Perl must be installed.")
     def test_from_perl(self):
+        """This searches the content of a process memory which contains a SQL memory."""
         proc_open = _start_subprocess(_perl_path, sample_perl_script)
 
         my_source_filenames = lib_client.SourceLocal(
@@ -273,8 +275,8 @@ class ProcessMemoryUrlsTest(unittest.TestCase):
     """This searches with regular expressions in the memory of a running process.
     It does not need a Survol agent"""
 
-    # This searches the content of a process memory which contains a SQL memory.
     def _get_urls_from_python_process(self):
+        """This searches the content of a process memory which contains a SQL memory."""
         proc_open = _start_subprocess(sys.executable, sample_python_script)
         # Short delay so the process has time enough to start and declare fill its memory space.
         time.sleep(0.5)
@@ -337,9 +339,9 @@ class ProcessMemoryUrlsTest(unittest.TestCase):
         self.assertTrue("https://www.perl.org" in urls_set)
         self.assertTrue("http://www.gnu.org" in urls_set)
 
-    # This searches URLs in a process memory.
     @unittest.skipIf(not _perl_path, "Perl must be installed.")
     def test_from_perl(self):
+        """This searches URLs in a process memory."""
         proc_open = _start_subprocess(_perl_path, sample_perl_script)
 
         my_source_urls = lib_client.SourceLocal(
