@@ -858,14 +858,13 @@ class CUSTOM_EVALS_Basic_Sparql_Queries_Test(CUSTOM_EVALS_Survol_Base_Test):
         proc.terminate()
         proc.wait()
 
-    # This helper function creates a chain of subprocesses which is used
-    # to check the detection of processes trees.
     def process_chain_creation(self, depth_processes):
+        """This helper function creates a chain of subprocesses which is used
+        to check the detection of processes trees."""
         processes_list_first, pids_dict = self.create_process_tree_popen(depth_processes)
         pids_list = [pids_dict[index] for index in range(depth_processes, 0, -1)]
         return processes_list_first, pids_list
 
-    ####@unittest.skipIf(is_travis_machine(), "Different implementation of processes. Test skipped.")
     def test_sparql_sub2_processes(self):
         rdflib_graph = _create_graph()
 
@@ -899,7 +898,6 @@ class CUSTOM_EVALS_Basic_Sparql_Queries_Test(CUSTOM_EVALS_Survol_Base_Test):
         processes_list_first.terminate()
         processes_list_first.wait()
 
-    ####@unittest.skipIf(is_travis_machine(), "Different implementation of processes. Test skipped.")
     def test_sparql_sub3_processes(self):
         rdflib_graph = _create_graph()
 
