@@ -28,8 +28,4 @@ More information is available at `Primhill Computers
 <http://vps516494.ovh.net/Survol/survol/www/index.htm>`_ .
 
 Continuous integration is at: `Survol on Travis CI
-<https://travis-ci.org/rchateauneu/survol>`_ .
-
-Coverage with Coveralls:
-.. image:: https://coveralls.io/repos/github/rchateauneu/survol/badge.svg?branch=master
-:target: https://coveralls.io/github/rchateauneu/survol?branch=master
+<https://travis-ci.com/rchateauneu/survol>`_ .
