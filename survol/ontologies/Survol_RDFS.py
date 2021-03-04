@@ -8,18 +8,24 @@
 # https://stackoverflow.com/questions/24017320/using-owlclass-prefix-with-rdflib-and-xml-serialization
 
 import os
+import rdflib
+
 import lib_export_ontology
-import lib_kbase
+import lib_ontology_tools
+import lib_common
 import lib_util
 
 
 def Main():
-    map_classes, map_attributes = lib_util.extract_specific_ontology_survol()
-    graph = lib_kbase.CreateRdfsOntology(map_classes, map_attributes)
+    try:
+        graph = rdflib.Graph()
+        lib_ontology_tools.serialize_ontology_to_graph("survol", lib_util.extract_specific_ontology_survol, graph)
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("Caught:" + str(exc))
 
     # "Survol_RDFS_DL.rdfs"
     onto_filnam = os.path.splitext(__file__)[0] + ".rdfs"
-    lib_export_ontology.FlushOrSaveRdfGraph(graph,onto_filnam)
+    lib_export_ontology.FlushOrSaveRdfGraph(graph, onto_filnam)
 
 
 if __name__ == '__main__':
