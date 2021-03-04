@@ -1325,13 +1325,16 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue((lib_sparql_custom_evals.class_CIM_Directory,) in query_result)
         self.assertTrue((lib_sparql_custom_evals.class_CIM_DataFile,) in query_result)
 
-    @unittest.skipIf(is_platform_linux, "No Windows classes on Linux")
+    @unittest.skipIf(not is_platform_windows, "No Windows classes on Linux")
     def test_win32_classes(self):
         """
         Classes which are specific to WIN32.
         """
         query_result = self._get_wmi_class_list()
 
+        print("is_platform_windows=", is_platform_windows,
+              "is_platform_linux=", is_platform_linux,
+              "sys.platform=", sys.platform)
         self.assertTrue((lib_kbase.class_node_uriref("Win32_Process"),) in query_result)
         self.assertTrue((lib_kbase.class_node_uriref("CIM_DiskDrive"),) in query_result)
         self.assertTrue((lib_kbase.class_node_uriref("Win32_Group"),) in query_result)
