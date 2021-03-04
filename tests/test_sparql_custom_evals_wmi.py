@@ -1335,6 +1335,8 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
         print("is_platform_windows=", is_platform_windows,
               "is_platform_linux=", is_platform_linux,
               "sys.platform=", sys.platform)
+        logging.error("is_platform_windows=%d is_platform_linux=%d sys.platform==%s",
+                      is_platform_windows, is_platform_linux, sys.platform)
         self.assertTrue((lib_kbase.class_node_uriref("Win32_Process"),) in query_result)
         self.assertTrue((lib_kbase.class_node_uriref("CIM_DiskDrive"),) in query_result)
         self.assertTrue((lib_kbase.class_node_uriref("Win32_Group"),) in query_result)
