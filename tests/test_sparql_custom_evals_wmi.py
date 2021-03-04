@@ -1325,7 +1325,20 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue((lib_sparql_custom_evals.class_CIM_Directory,) in query_result)
         self.assertTrue((lib_sparql_custom_evals.class_CIM_DataFile,) in query_result)
 
-    def test_all_process_properties(self):
+    def test_win32_classes(self):
+        """
+        Clases which are specific to WIN32.
+        """
+        query_result = self._get_wmi_class_list()
+
+        self.assertTrue((lib_kbase.class_node_uriref("Win32_Process"),) in query_result)
+        self.assertTrue((lib_kbase.class_node_uriref("CIM_DiskDrive"),) in query_result)
+        self.assertTrue((lib_kbase.class_node_uriref("Win32_Group"),) in query_result)
+        self.assertTrue((lib_kbase.class_node_uriref("Win32_Process"),) in query_result)
+        self.assertTrue((lib_kbase.class_node_uriref("Win32_Service"),) in query_result)
+        self.assertTrue((lib_kbase.class_node_uriref("Win32_UserAccount"),) in query_result)
+
+    def test_process_properties(self):
         """This returns all properties of the class CIM_Process."""
         sparql_query = """
             PREFIX survol: <%s>
@@ -1339,6 +1352,25 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
         print("Properties of CIM_Process=", query_result)
         self.assertTrue((lib_sparql_custom_evals.predicate_Handle,) in query_result)
         self.assertTrue((lib_sparql_custom_evals.predicate_ParentProcessId,) in query_result)
+
+    def test_user_account_process_properties(self):
+        """This returns all properties of the class Win32_UserAccount."""
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_property
+            WHERE
+            { ?url_property rdf:type rdf:Property .
+              ?url_property rdfs:domain survol:Win32_UserAccount .
+            }""" % survol_namespace
+        rdflib_graph = rdflib.Graph()
+        query_result = set(rdflib_graph.query(sparql_query))
+        print("Properties of CIM_Process=", query_result)
+
+        predicate_Domain = rdflib.term.URIRef(lib_kbase.survol_url + "Domain")
+        predicate_Name = rdflib.term.URIRef(lib_kbase.survol_url + "Name")
+
+        self.assertTrue((predicate_Domain,) in query_result)
+        self.assertTrue((predicate_Name,) in query_result)
 
     def test_all_properties_classes_union(self):
         """This returns all properties of the class CIM_Process."""
