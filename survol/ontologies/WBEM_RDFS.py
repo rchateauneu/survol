@@ -11,9 +11,9 @@
 
 import os
 import sys
+import rdflib
 import lib_ontology_tools
 import lib_export_ontology
-import lib_kbase
 import lib_wbem
 import lib_common
 
@@ -21,11 +21,10 @@ import lib_common
 def Main():
     # This extracts the classes and attributes of a WBEM server and translates them into RDF.
     try:
-        map_classes, map_attributes = lib_ontology_tools.ManageLocalOntologyCache("wbem", lib_wbem.extract_specific_ontology_wbem)
+        graph = rdflib.Graph()
+        lib_ontology_tools.serialize_ontology_to_graph("wbem", lib_wbem.extract_specific_ontology_wbem, graph)
     except Exception as exc:
         lib_common.ErrorMessageHtml("Caught:" + str(exc))
-
-    graph = lib_kbase.CreateRdfsOntology(map_classes, map_attributes)
 
     onto_filnam = os.path.splitext(__file__)[0] + ".rdfs"
     lib_export_ontology.FlushOrSaveRdfGraph(graph, onto_filnam)
