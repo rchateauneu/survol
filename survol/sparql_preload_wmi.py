@@ -19,6 +19,7 @@ import rdflib
 # It loads data from WMI unconditionally.
 # This returns RDF data, which is different of what a Sparql endpoint returns
 def Main():
+    logging.critical("THIS IS DEPRECATED")
     lib_util.SetLoggingConfig(logging.ERROR)
     envSparql = lib_sparql.SparqlEnvironment()
 
