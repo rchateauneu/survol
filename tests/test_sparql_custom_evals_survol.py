@@ -1026,6 +1026,72 @@ class CUSTOM_EVALS_Basic_Sparql_Queries_Test(CUSTOM_EVALS_Survol_Base_Test):
         processes_list_first.wait()
 
 
+@unittest.skip("Not implemented yet.")
+class Query_CIM_DataFile_find_Test(CUSTOM_EVALS_Survol_Base_Test):
+    """
+    This finds files using the linux command "find".
+
+    These tests do not use custom filters.
+    """
+
+    def test_find_file(self):
+        rdflib_graph = _create_graph()
+
+    def test_find_filter_file(self):
+        rdflib_graph = _create_graph()
+
+
+@unittest.skip("Not implemented yet.")
+class SelectEnumerationFromAttributes_CIM_DataFile_Test(CUSTOM_EVALS_Survol_Base_Test):
+    """
+    This uses Linux commands for querying and filtering CIM objects, or any other tool,
+    implemented in the optional function SelectEnumerationFromAttributes in the Survol class definition.
+    For example:
+    - grep.
+    """
+
+    def test_Name(self):
+        from sources_types import CIM_DataFile
+        file_nodes = CIM_DataFile.SelectEnumerationFromAttributes(Name="abc.tmp")
+        assert file_nodes is not None
+
+
+@unittest.skip("Not implemented yet.")
+class SelectEnumerationFromAttributes_CIM_Directory_Test(CUSTOM_EVALS_Survol_Base_Test):
+    """
+    This uses Linux commands for querying and filtering CIM objects, or any other tool,
+    implemented in the optional function SelectEnumerationFromAttributes in the Survol class definition.
+    For example:
+    - grep.
+    """
+
+    def test_Name(self):
+        from sources_types import CIM_Directory
+        dir_nodes = CIM_Directory.SelectEnumerationFromAttributes(Name="abc.tmp")
+        assert dir_nodes is not None
+
+
+@unittest.skip("Not implemented yet.")
+class SelectEnumerationFromAttributes_CIM_Process_Test(CUSTOM_EVALS_Survol_Base_Test):
+    """
+    This uses Linux commands for querying and filtering CIM objects, or any other tool,
+    implemented in the optional function SelectEnumerationFromAttributes in the Survol class definition.
+    For example:
+    - grep.
+    """
+
+    def test_Handle(self):
+        from sources_types import CIM_Process
+        dir_nodes = CIM_Process.SelectEnumerationFromAttributes(Handle=os.getpid())
+        assert dir_nodes is not None
+
+
+    def test_dParentProcessI(self):
+        from sources_types import CIM_Process
+        dir_nodes = CIM_Process.SelectEnumerationFromAttributes(ParentProcessId=os.getpid())
+        assert dir_nodes is not None
+
+
 class SparqlMetaTest(CUSTOM_EVALS_Survol_Base_Test):
     """
     These tests focus on classes and properties, not on the objects.
@@ -1059,6 +1125,129 @@ class SparqlMetaTest(CUSTOM_EVALS_Survol_Base_Test):
         self.assertTrue((lib_sparql_custom_evals.class_CIM_Process,) in query_result)
         self.assertTrue((lib_sparql_custom_evals.class_CIM_Directory,) in query_result)
         self.assertTrue((lib_sparql_custom_evals.class_CIM_DataFile,) in query_result)
+
+    def test_win32_classes(self):
+        """
+        Classes which are specific to WIN32.
+        """
+        query_result = self._get_survol_class_list()
+
+        self.assertTrue((lib_kbase.class_node_uriref("Win32_Process"),) in query_result)
+
+    def test_many_classes(self):
+        """
+        This tests the presence of classes which are specific to Survol,
+        and are not defined by CIM, WMI, WBEM.
+        """
+        query_result = self._get_survol_class_list()
+
+        # A minimal set of classes must be present.
+        self.assertTrue((lib_kbase.class_node_uriref("addr"),) in query_result)
+        self.assertTrue((lib_kbase.class_node_uriref("linker_symbol"),) in query_result)
+        self.assertTrue((lib_kbase.class_node_uriref("memmap"),) in query_result)
+
+    def test_nested_classes(self):
+        """
+        This tests the presence of classes which are specific to Survol,
+        and are not defined by CIM, WMI, WBEM.
+        """
+        query_result = self._get_survol_class_list()
+
+        list_of_classes = [
+            "com.registered_type_lib",
+            "com.type_lib",
+            "com.type_lib_entry",
+            "com.type_lib_entry.coclass",
+            "com.type_lib_entry.dispatch",
+            "com.type_lib_entry.enumeration",
+            "com.type_lib_entry.module",
+
+            "dbus.bus",
+            "dbus.connection",
+            "dbus.interface",
+            "dbus.object",
+
+            "java.mbean",
+
+            "mysql.database",
+            "mysql.instance",
+            "mysql.query",
+            "mysql.session",
+            "mysql.table",
+
+            "odbc",
+            "odbc.column",
+            "odbc.dsn",
+            "odbc.procedure",
+            "odbc.table",
+
+            "oracle",
+            "oracle.db",
+            "oracle.function",
+            "oracle.library",
+            "oracle.package",
+            "oracle.package_body",
+            "oracle.procedure",
+            "oracle.query",
+            "oracle.schema",
+            "oracle.sequence",
+            "oracle.session",
+            "oracle.synonym",
+            "oracle.table",
+            "oracle.trigger",
+            "oracle.type",
+            "oracle.view",
+
+            "python.package",
+
+            "rabbitmq",
+            "rabbitmq.connection",
+            "rabbitmq.exchange",
+            "rabbitmq.manager",
+            "rabbitmq.queue",
+            "rabbitmq.user",
+            "rabbitmq.vhost",
+
+            "sql",
+            "sql.query",
+            "sql.sheet",
+
+            "sqlite",
+            "sqlite.column",
+            "sqlite.file",
+            "sqlite.query",
+            "sqlite.table",
+            "sqlite.view",
+
+            "sqlserver",
+            "sqlserver.dsn",
+            "sqlserver.query",
+            "sqlserver.schema",
+            "sqlserver.session",
+            "sqlserver.table",
+            "sqlserver.view",
+        ]
+
+        for one_class in list_of_classes:
+            self.assertTrue((lib_kbase.class_node_uriref(one_class),) in query_result)
+
+
+    def test_smbshr_properties(self):
+        """This returns all properties of the class smbshr."""
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_property
+            WHERE
+            { ?url_property rdf:type rdf:Property .
+              ?url_property rdfs:domain survol:smbshr .
+            }""" % survol_namespace
+        rdflib_graph = rdflib.Graph()
+        query_result = set(rdflib_graph.query(sparql_query))
+        print("Properties of smbshr=", query_result)
+
+        predicate_Id = rdflib.term.URIRef(lib_kbase.survol_url + "Id")
+
+        self.assertTrue((predicate_Id,) in query_result)
 
 
 if __name__ == '__main__':
