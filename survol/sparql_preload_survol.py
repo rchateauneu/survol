@@ -25,6 +25,7 @@ lib_util.SetLoggingConfig(logging.DEBUG)
 
 # This is a SPARQL server which executes the query with WMI data.
 def Main():
+    logging.critical("THIS IS DEPRECATED")
     lib_util.SetLoggingConfig(logging.ERROR)
     envSparql = lib_sparql.SparqlEnvironment()
 
