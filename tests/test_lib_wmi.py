@@ -17,39 +17,58 @@ update_test_path()
 import lib_wmi
 import lib_properties
 
-################################################################################
 
-# Similar function in test_lib_wbem.py
 def GetElementAsString(one_dict, property_name):
+    """
+    There is a similar function in test_lib_wbem.py
+    """
     property_node = lib_properties.MakeProp(property_name)
     value_node = one_dict[property_node]
     value_literal = str(value_node)
     return value_literal
-    # qname_key = lib_properties.PropToQName(key_node)
 
 
 @unittest.skipIf(not pkgutil.find_loader('wmi'), "LibWmiTest needs wmi package.")
 class LibWmiTest(unittest.TestCase):
 
-    @unittest.skipIf(is_windows10, "FIXME: Broken or very slow on Windows 7")
     def test_local_ontology(self):
-        # This test is very slow because it does not use the cache.
+        """
+        This test creates the two dictionaries of classes and their attributes from WMI.
+        It is slow because it does not use the three caches for each ontology models (WMI, WBEM, Survol).
+        """
         map_classes, map_attributes = lib_wmi.extract_specific_ontology_wmi()
-        print("map_classes=", map_classes)
-        # print("map_attributes=", map_attributes)
         self.assertTrue("CIM_Process" in map_classes)
         self.assertTrue("CIM_DataFile" in map_classes)
         self.assertTrue("CIM_Directory" in map_classes)
-        print(sorted(map_attributes.keys()))
+
+        self.assertTrue("Win32_Process" in map_classes)
+        win32_process_attributes = map_classes["Win32_Process"]
+
         self.assertTrue("Handle" in map_attributes)
         self.assertTrue("Name" in map_attributes)
         # 'Caption' is not a key.
         self.assertTrue("Caption" not in map_attributes)
 
-        print("Everything about Win32_Process")
-        for property_name, property_dict in map_attributes.items():
-            if "Win32_Process" in property_dict["predicate_domain"]:
-                print("property_dict=", property_dict)
+        # This checks the presence of a select list of attributes and their classes.
+        self.assertTrue("Win32_LogonSession" in map_attributes["LogonId"]["predicate_domain"])
+        self.assertTrue("Win32_PingStatus" in map_attributes["Address"]["predicate_domain"])
+        self.assertTrue("CIM_SoftwareFeature" in map_attributes["ProductName"]["predicate_domain"])
+        self.assertTrue("Win32_Binary" in map_attributes["ProductCode"]["predicate_domain"])
+        self.assertTrue("Win32_StartupCommand" in map_attributes["Command"]["predicate_domain"])
+        self.assertTrue("Win32_StartupCommand" in map_attributes["Location"]["predicate_domain"])
+        self.assertTrue("Win32_Group" in map_attributes["Domain"]["predicate_domain"])
+        self.assertTrue("Win32_Account" in map_attributes["Domain"]["predicate_domain"])
+        self.assertTrue("Win32_UserAccount" in map_attributes["Domain"]["predicate_domain"])
+        self.assertTrue("Win32_SystemAccount" in map_attributes["Domain"]["predicate_domain"])
+        self.assertTrue("Win32_MountPoint" in map_attributes["Directory"]["predicate_domain"])
+        self.assertTrue("Win32_ShareToDirectory" in map_attributes["Share"]["predicate_domain"])
+        self.assertTrue("Win32_ShareToDirectory" in map_attributes["SharedElement"]["predicate_domain"])
+        self.assertTrue("Win32_ScheduledJob" in map_attributes["JobId"]["predicate_domain"])
+
+        # This is specific to WMI only.
+        handle_attribute_dict = map_attributes["Handle"]
+        self.assertEqual(handle_attribute_dict["predicate_type"], "string")
+        self.assertTrue("Win32_Process" in handle_attribute_dict["predicate_domain"])
 
     # TODO: DEPRECATED
     def test_sparql_callback_select(self):
@@ -70,7 +89,7 @@ class LibWmiTest(unittest.TestCase):
             print(dict_key_values)
         self.assertTrue(len(list_objects) == 1)
         # Example: Only some properties are displayed.
-        # '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="164944"'
+        # '\\MY_MACHINE\root\cimv2:Win32_Process.Handle="164944"'
         # '{rdflib.term.URIRef(u'http://primhillcomputers.com/survol#OtherTransferCount'): rdflib.term.Literal(u'733244'),
         # rdflib.term.URIRef(u'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'): rdflib.term.URIRef(u'http://primhillcomputers.com/survol#CIM_Process'),
         # rdflib.term.URIRef(u'http://primhillcomputers.com/survol#QuotaNonPagedPoolUsage'): rdflib.term.Literal(u'18'),
