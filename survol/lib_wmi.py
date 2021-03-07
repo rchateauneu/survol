@@ -560,11 +560,15 @@ def extract_specific_ontology_wmi():
     map_classes = {}
     map_attributes = {}
 
-    for class_name in cnn.classes:
+    def wmi_string_to_str(wmi_string):
         if not lib_util.is_py3:
-            assert isinstance(class_name, unicode)
-            class_name = class_name.encode()
-            assert isinstance(class_name, str)
+            assert isinstance(wmi_string, unicode)
+            wmi_string = wmi_string.encode()
+            assert isinstance(wmi_string, str)
+        return wmi_string
+
+    for class_name in cnn.classes:
+        class_name = wmi_string_to_str(class_name)
         cls_obj = getattr(cnn, class_name)
 
         drv_list = cls_obj.derivation()
@@ -599,33 +603,29 @@ def extract_specific_ontology_wmi():
         # for p in cls_obj.properties:
         for p in cls_obj.keys:
             prop_obj = cls_obj.wmi_property(p)
+            prop_obj_name = wmi_string_to_str(prop_obj.name)
 
             try:
-                prop_dict = map_attributes[prop_obj.name]
+                prop_dict = map_attributes[prop_obj_name]
             except KeyError:
-                prop_obj_type = prop_obj.type
-                if prop_obj_type.startswith("ref:"):
+                clean_type_name = wmi_string_to_str(prop_obj.type)
+                if clean_type_name.startswith("ref:"):
+                    pass
                     # Other possible values: "ref:__Provider", "ref:Win32_LogicalFileSecuritySetting",
                     # "ref:Win32_ComputerSystem",
                     # "ref:CIM_DataFile", "ref:__EventConsumer", "ref:CIM_LogicalElement",
                     # "ref:CIM_Directory" but also "ref:Win32_Directory".
                     # "Win32_DataFile" never appears.
-                    clean_type_name = prop_obj_type
-                    if not lib_util.is_py3:
-                        assert isinstance(clean_type_name, unicode)
-                        clean_type_name = clean_type_name.encode()
-                        assert isinstance(clean_type_name, str)
-                    assert isinstance(clean_type_name, str)
                     # assert isinstance(clean_type_name, six.text_type)
                 else:
                     # Sometimes the datatype is wrongly cased: "string", "String, "STRING".
-                    clean_type_name = _convert_wmi_type_to_xsd_type(prop_obj_type)
+                    clean_type_name = _convert_wmi_type_to_xsd_type(clean_type_name)
                     assert isinstance(clean_type_name, str)
                     # assert isinstance(clean_type_name, six.text_type)
                 # At this stage, the type name is consistent for WMI, WBEM or Survol.
 
                 prop_dict = {"predicate_type": clean_type_name, "predicate_domain": []}
-                map_attributes[prop_obj.name] = prop_dict
+                map_attributes[prop_obj_name] = prop_dict
 
             prop_dict["predicate_domain"].append(class_name)
             map_classes[class_name]["class_keys_list"].append(prop_obj.name)
@@ -641,6 +641,17 @@ def extract_specific_ontology_wmi():
             #         "predicate_domain": class_name }
 
         # TODO: Try this: Second enumeration of properties, different style.
+
+        logging.debug("class_name=%s" % class_name)
+        """
+        Mettre quelque part les attributes qui ne sont pas obligatoires,
+        comme ParentProcessId ou CIM_DirectoryContainsFile ou CIM_ProcessExecutable.
+        
+        Ajouter dans:
+        map_classes[class_name]["class_extra_keys_list"] = []
+        et en vrac dans map_attributes
+        """
+
         if False and the_cls:
             for prop_obj in the_cls.Properties_:
                 try:
@@ -933,8 +944,7 @@ class WmiSparqlCallbackApi:
 
         # 'ASSOCIATORS OF {Win32_Process.Handle="1780"} WHERE AssocClass=CIM_ProcessExecutable ResultClass=CIM_DataFile'
         # 'ASSOCIATORS OF {CIM_DataFile.Name="c:\\program files\\mozilla firefox\\firefox.exe"} WHERE AssocClass = CIM_ProcessExecutable ResultClass = CIM_Process'
-        wmi_query = "ASSOCIATORS OF {%s} WHERE AssocClass=%s ResultClass=%s" % (
-        wmi_path, associator_key_name, result_class_name)
+        wmi_query = "ASSOCIATORS OF {%s} WHERE AssocClass=%s ResultClass=%s" % (wmi_path, associator_key_name, result_class_name)
 
         logging.debug("WmiCallbackAssociator wmi_query=%s", wmi_query)
 
