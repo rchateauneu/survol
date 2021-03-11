@@ -39,51 +39,6 @@ associator_CIM_DirectoryContainsFile = rdflib.term.URIRef(lib_kbase.survol_url +
 associator_CIM_ProcessExecutable = rdflib.term.URIRef(lib_kbase.survol_url + "CIM_ProcessExecutable")
 
 
-def _serialize_extra_ontology(graph):
-    """
-    This is a minimal hard-coded ontology, which applies to WMI and WBEM.
-    TODO: Add all WMI classes, dynamically.
-    TODO: Or simply: ExtractWmiOntology wmi: Loaded cached ontology
-
-    TODO: Problem of extra attributes ... Voir "class_extra_keys_list"
-    """
-    #graph.add((class_CIM_Process, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
-    #graph.add((class_CIM_Process, rdflib.namespace.RDFS.label, rdflib.Literal("CIM_Process")))
-    #graph.add((class_CIM_Directory, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
-    #graph.add((class_CIM_Directory, rdflib.namespace.RDFS.label, rdflib.Literal("CIM_Directory")))
-    #graph.add((class_CIM_DataFile, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
-    #graph.add((class_CIM_DataFile, rdflib.namespace.RDFS.label, rdflib.Literal("CIM_DataFile")))
-
-    #graph.add((predicate_Handle, rdflib.namespace.RDF.type, rdflib.namespace.RDF.Property))
-    #graph.add((predicate_Handle, rdflib.namespace.RDFS.domain, class_CIM_Process))
-    #graph.add((predicate_Handle, rdflib.namespace.RDFS.range, rdflib.namespace.XSD.integer))
-    #graph.add((predicate_Handle, rdflib.namespace.RDFS.label, rdflib.Literal("Handle")))
-    #graph.add((predicate_Handle, rdflib.namespace.RDFS.range, rdflib.namespace.XSD.integer))
-
-    graph.add((predicate_ParentProcessId, rdflib.namespace.RDF.type, rdflib.namespace.RDF.Property))
-    graph.add((predicate_ParentProcessId, rdflib.namespace.RDFS.domain, class_CIM_Process))
-    graph.add((predicate_ParentProcessId, rdflib.namespace.RDFS.range, rdflib.namespace.XSD.string))
-    graph.add((predicate_ParentProcessId, rdflib.namespace.RDFS.label, rdflib.Literal("ParentProcessId")))
-
-    #graph.add((predicate_Name, rdflib.namespace.RDF.type, rdflib.namespace.RDF.Property))
-    #graph.add((predicate_Name, rdflib.namespace.RDFS.domain, class_CIM_Directory))
-    #graph.add((predicate_Name, rdflib.namespace.RDFS.domain, class_CIM_DataFile))
-    #graph.add((predicate_Name, rdflib.namespace.RDFS.range, rdflib.namespace.XSD.string))
-    #graph.add((predicate_Name, rdflib.namespace.RDFS.label, rdflib.Literal("Name")))
-
-    graph.add((associator_CIM_DirectoryContainsFile, rdflib.namespace.RDF.type, rdflib.namespace.RDF.Property))
-    graph.add((associator_CIM_DirectoryContainsFile, rdflib.namespace.RDFS.domain, class_CIM_Directory))
-    graph.add((associator_CIM_DirectoryContainsFile, rdflib.namespace.RDFS.range, class_CIM_DataFile))
-    graph.add((associator_CIM_DirectoryContainsFile, rdflib.namespace.RDFS.range, class_CIM_Directory))
-    graph.add((associator_CIM_DirectoryContainsFile, rdflib.namespace.RDFS.range, rdflib.namespace.XSD.string))
-    graph.add((associator_CIM_DirectoryContainsFile, rdflib.namespace.RDFS.label, rdflib.Literal("CIM_DirectoryContainsFile")))
-
-    graph.add((associator_CIM_ProcessExecutable, rdflib.namespace.RDF.type, rdflib.namespace.RDF.Property))
-    graph.add((associator_CIM_ProcessExecutable, rdflib.namespace.RDFS.domain, class_CIM_Process))
-    graph.add((associator_CIM_ProcessExecutable, rdflib.namespace.RDFS.range, class_CIM_DataFile))
-    graph.add((associator_CIM_ProcessExecutable, rdflib.namespace.RDFS.label, rdflib.Literal("CIM_ProcessExecutable")))
-
-
 def equal_paths(path_a, path_b):
     """This compares two file names irrespective of the platform."""
     # print("process_executable=", process_executable, "executable_path=", executable_path)
@@ -699,8 +654,6 @@ class _sparql_model_CIM_Object_Survol:
         # There might be duplicate classes and properties with WMI, but they must not contradict.
         lib_ontology_tools.serialize_ontology_to_graph("survol", lib_util.extract_specific_ontology_survol, rdf_graph)
 
-        _serialize_extra_ontology(rdf_graph)
-
     @staticmethod
     def object_factory(class_name, the_subject):
         """
@@ -998,7 +951,6 @@ class _sparql_model_CIM_Object_Wmi:
         #         "wmi", lib_wmi.extract_specific_ontology_wmi)
 
         lib_ontology_tools.serialize_ontology_to_graph("wmi", lib_wmi.extract_specific_ontology_wmi, rdf_graph)
-        _serialize_extra_ontology(rdf_graph)
 
     @staticmethod
     def object_factory(class_name, the_subject):
