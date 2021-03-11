@@ -39,11 +39,8 @@ def IsURIRef(obj_rdf):
 
 
 def IsLink(obj):
-    return isinstance(obj , (rdflib.URIRef, rdflib.BNode))
+    return isinstance(obj, (rdflib.URIRef, rdflib.BNode))
 
-
-def class_node_uriref(class_name):
-    return rdflib.term.URIRef(survol_url + class_name)
 
 def unique_urls_dict(grph):
     """The returns the set of unique subjects or objects, instances and scripts, but no literals."""
@@ -231,14 +228,24 @@ survol_url = "http://www.primhillcomputers.com/survol#"
 LDT = rdflib.Namespace(survol_url)
 prefix_terminator = "#"
 
+# TOOD: Remove these duplicates.
+
 def RdfsPropertyNode(property_name):
     return rdflib.URIRef(LDT[property_name])
-
 
 def _rdfs_class_node(class_name):
     """Create the node to add to the Graph
     Example: "http://www.primhillcomputers.com/survol#CIM_DataFile" """
     return rdflib.URIRef(LDT[class_name])
+
+def class_node_uriref(class_name):
+    return rdflib.term.URIRef(survol_url + class_name)
+
+
+def property_node_uriref(class_name):
+    return rdflib.term.URIRef(survol_url + class_name)
+
+################################################################################
 
 
 def AddNodeToRdfsClass(grph, node_object, class_name, entity_label):
@@ -252,8 +259,10 @@ def AddNodeToRdfsClass(grph, node_object, class_name, entity_label):
     grph.add((node_object, RDFS.label, rdflib.Literal(entity_label)))
 
 
-def CreateRdfsOntology(map_classes, map_attributes, graph=None):
+def CreateRdfsOntology(map_classes, map_attributes, graph):
     """
+    TODO: Near duplicate of _convert_ontology_to_rdf
+
     This receives an ontology described in a neutral way,
     and adds to the graph the RDFS nodes describing it,
     or returns a new graph.
