@@ -24,19 +24,33 @@ if lib_util.isPlatformWindows:
 
 ################################################################################
 
+# These classes and attributes are defined in WMI, WBEM and Survol ontologies.
 class_CIM_Process = lib_kbase.class_node_uriref("CIM_Process")
 class_CIM_Directory = lib_kbase.class_node_uriref("CIM_Directory")
 class_CIM_DataFile = lib_kbase.class_node_uriref("CIM_DataFile")
 
-predicate_Handle = rdflib.term.URIRef(lib_kbase.survol_url + "Handle")
-predicate_Name = rdflib.term.URIRef(lib_kbase.survol_url + "Name")
+predicate_Handle = lib_kbase.property_node_uriref("Handle")
+predicate_Name = lib_kbase.property_node_uriref("Name")
 
-# This is not part of the ontology but allows to return several processes,
-# based on their parent process id.
-predicate_ParentProcessId = rdflib.term.URIRef(lib_kbase.survol_url + "ParentProcessId")
+################################################################################
 
-associator_CIM_DirectoryContainsFile = rdflib.term.URIRef(lib_kbase.survol_url + "CIM_DirectoryContainsFile")
-associator_CIM_ProcessExecutable = rdflib.term.URIRef(lib_kbase.survol_url + "CIM_ProcessExecutable")
+# WMI defines this property only to WMI Win32_Process, not to CIM_Process.
+# TODO: Survol must add it to be able to run Sparql queries using it.
+predicate_ParentProcessId = lib_kbase.property_node_uriref("ParentProcessId")
+
+# This applies only to Windows WMI ontology.
+
+# TODO: This should not be used, or with a default suffix.
+associator_CIM_DirectoryContainsFile = \
+    lib_kbase.property_node_uriref("CIM_DirectoryContainsFile")
+associator_CIM_DirectoryContainsFile_GroupComponent = \
+    lib_kbase.property_node_uriref("CIM_DirectoryContainsFile.GroupComponent")
+associator_CIM_DirectoryContainsFile_PartComponent = \
+    lib_kbase.property_node_uriref("CIM_DirectoryContainsFile.PartComponent")
+
+associator_CIM_ProcessExecutable = lib_kbase.property_node_uriref("CIM_ProcessExecutable")
+
+################################################################################
 
 
 def equal_paths(path_a, path_b):
@@ -228,7 +242,7 @@ class Sparql_CIM_DataFile(Sparql_CIM_Object):
         :return: Nothing.
         """
         check_returned_variables(returned_variables)
-        #sys.stderr.write("Sparql_CIM_DataFile._fetch_from_directory file_path=%s\n" % file_path)
+        # CIM_DirectoryContainsFile.GroupComponent or CIM_DirectoryContainsFile.PartComponent
         if associator_CIM_DirectoryContainsFile in self.m_associated:
             associator_instance = self.m_associated[associator_CIM_DirectoryContainsFile]
             assert isinstance(associator_instance, Sparql_CIM_Directory)
@@ -244,6 +258,7 @@ class Sparql_CIM_DataFile(Sparql_CIM_Object):
             dir_node_str = "Machine:CIM_Directory?Name=" + dir_file_path
             associator_instance_url = rdflib.term.URIRef(dir_node_str)
             graph.add((associator_instance_url, rdflib.namespace.RDF.type, class_CIM_Directory))
+            # CIM_DirectoryContainsFile.GroupComponent or CIM_DirectoryContainsFile.PartComponent
             graph.add((associator_instance_url, associator_CIM_DirectoryContainsFile, node_uri_ref))
 
             if predicate_Name in associator_instance.m_properties:
@@ -365,6 +380,7 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                 #sub_uri_ref_list.append(sub_node_uri_ref)
                 sub_path_name_url = rdflib.term.Literal(sub_path_name)
                 graph.add((sub_node_uri_ref, predicate_Name, sub_path_name_url))
+                # CIM_DirectoryContainsFile.GroupComponent or CIM_DirectoryContainsFile.PartComponent
                 graph.add((node_uri_ref, associator_CIM_DirectoryContainsFile, sub_node_uri_ref))
 
                 if isinstance(dir_path_variable, rdflib.term.Variable):
@@ -945,11 +961,6 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
 class _sparql_model_CIM_Object_Wmi:
     @staticmethod
     def write_ontology_to_graph(rdf_graph):
-        # get_ontology
-        #raise
-        # lib_ontology_tools.get_named_ontology(
-        #         "wmi", lib_wmi.extract_specific_ontology_wmi)
-
         lib_ontology_tools.serialize_ontology_to_graph("wmi", lib_wmi.extract_specific_ontology_wmi, rdf_graph)
 
     @staticmethod
@@ -998,7 +1009,7 @@ def _part_triples_to_instances_dict_function(part, object_factory):
         # If it does not contain any instance defined by a type which can be mapped to a WMI class,
         # then this query applies to non-instance content, which can only be the WMI ontology.
         # This ontology should be returned anyway: Classes, properties etc...
-        logging.error("No instance found")
+        logging.warning("No instance found. Possibly a meta-data query.")
         return instances_dict
         # raise Exception("No instance found")
     logging.debug("Created instances:%s" % instances_dict.keys())
@@ -1314,7 +1325,7 @@ def _custom_eval_function_generic_aux(ctx, part, sparql_model_definition):
     if instances_dict:
         _custom_eval_function_generic_instances(ctx, instances_dict)
     else:
-        logging.warning("No instances")
+        logging.warning("No instances. Maybe a meta-data query.")
 
 
 def _custom_eval_function_generic(ctx, part, sparql_model_definition):

@@ -585,7 +585,7 @@ def _extract_wbem_ontology_from_connection(wbem_connection):
                     key_attributes = map_attributes[key_name]
                 except KeyError:
                     key_attributes = {
-                        "predicate_type": "string",
+                        "predicate_type": "survol_string",
                         "predicate_description": "Attribute WBEM %s" % key_name,
                         "predicate_domain": []}
                     map_attributes[key_name] = key_attributes

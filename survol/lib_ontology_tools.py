@@ -110,51 +110,57 @@ def _get_named_ontology_from_file(ontology_name, ontology_extractor):
 
 
 def _convert_ontology_to_rdf(map_classes, map_attributes, rdf_graph):
+    """
+    TODO: Near duplicate of CreateRdfsOntology
+
+    This creates a RDF graph containing the ontology described in Survol internal format
+    made of two dicts, one fpr the class, the other for the attributes.
+    This internal format works for WMI, WBEM and Survol ontology (which is much simpler).
+    """
 
     # classes_map[class_name] = {"base_class": base_class_name, "class_description": text_descr}
     for class_name, class_dict in map_classes.items():
-        class_node = rdflib.term.URIRef(lib_kbase.survol_url + class_name)
+        #class_node = rdflib.term.URIRef(lib_kbase.survol_url + class_name)
+        class_node = lib_kbase.class_node_uriref(class_name)
         rdf_graph.add((class_node, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
         rdf_graph.add((class_node, rdflib.namespace.RDFS.label, rdflib.Literal(class_name)))
         # TODO: The description "class_description" should be used.
 
     for property_name, property_dict in map_attributes.items():
-        property_node = rdflib.term.URIRef(lib_kbase.survol_url + property_name)
-        rdf_graph.add((property_node, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
+        property_node = lib_kbase.property_node_uriref(property_name)
         rdf_graph.add((property_node, rdflib.namespace.RDFS.label, rdflib.Literal(class_name)))
 
         rdf_graph.add((property_node, rdflib.namespace.RDF.type, rdflib.namespace.RDF.Property))
         attribute_domain = property_dict['predicate_domain']
         assert isinstance(attribute_domain, list)
         for domain_class_name in attribute_domain:
-            #sys.stderr.write("domain_class_name=%s\n" % domain_class_name)
-            #sys.stderr.write("domain_class_name=%s\n" % type(domain_class_name))
-            #logging.debug("domain_class_name=%s" % domain_class_name)
             assert isinstance(domain_class_name, str)
-            class_node = rdflib.term.URIRef(lib_kbase.survol_url + domain_class_name)
+            class_node = lib_kbase.class_node_uriref(domain_class_name)
             rdf_graph.add((property_node, rdflib.namespace.RDFS.domain, class_node))
         predicate_type_name = property_dict['predicate_type']
-        #sys.stderr.write("predicate_type_name=%s\n" % predicate_type_name)
-        #sys.stderr.write("predicate_type_name=%s\n" % type(predicate_type_name))
         assert isinstance(predicate_type_name, str)
 
-        # This maps WMI types to RDF types. This could be generated automatically,
+        # This maps WMI-like types to RDF types. This could be generated automatically,
         # because it is intentionaly a one-to-one mapping from string to type.
         # Only a small subset is used by Survol, the ones which are absolutely necessary from WMI.
         dict_rdf_str_to_type = {
-            "string": rdflib.namespace.XSD.string,
-            "integer": rdflib.namespace.XSD.integer,
-            "boolean": rdflib.namespace.XSD.boolean,
-            "double": rdflib.namespace.XSD.double,
-            "dateTime": rdflib.namespace.XSD.dateTime,
+            "survol_string": rdflib.namespace.XSD.string,
+            "survol_integer": rdflib.namespace.XSD.integer,
+            "survol_boolean": rdflib.namespace.XSD.boolean,
+            "survol_double": rdflib.namespace.XSD.double,
+            "survol_dateTime": rdflib.namespace.XSD.dateTime,
         }
         # Could be: property_name="Antecedent" predicate_type_name="ref:Win32_ServerSession"
         if predicate_type_name.startswith("ref:"):
             predicate_type_class_name = predicate_type_name[4:]
-            # Then it must be a class
-            predicate_type = rdflib.term.URIRef(lib_kbase.survol_url + predicate_type_class_name)
+            # Then it can only be a class
+            predicate_type = lib_kbase.class_node_uriref(predicate_type_class_name)
         else:
-            predicate_type = dict_rdf_str_to_type[predicate_type_name]
+            try:
+                predicate_type = dict_rdf_str_to_type[predicate_type_name]
+            except KeyError as exc:
+                logging.error("Cannot map literal type:%s" % predicate_type_name)
+                raise
         rdf_graph.add((property_node, rdflib.namespace.RDFS.range, predicate_type))
         rdf_graph.add((property_node, rdflib.namespace.RDFS.label, rdflib.Literal(property_name)))
         # TODO: The description should be used.

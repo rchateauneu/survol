@@ -1313,6 +1313,20 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
         #print("Selected classes=", query_result)
         return query_result
 
+    def _get_wmi_property_list(self):
+        """
+        This is a utility function to return the list of classes
+        """
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_property
+            WHERE
+            { ?url_property rdf:type rdf:Property .
+            }""" % survol_namespace
+        rdflib_graph = rdflib.Graph()
+        query_result = set(rdflib_graph.query(sparql_query))
+        return query_result
+
     def test_cim_core_classes(self):
         """
         Minimum set of classes.
@@ -1324,6 +1338,9 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue((lib_sparql_custom_evals.class_CIM_Process,) in query_result)
         self.assertTrue((lib_sparql_custom_evals.class_CIM_Directory,) in query_result)
         self.assertTrue((lib_sparql_custom_evals.class_CIM_DataFile,) in query_result)
+
+        # No confusions between classes and properties.
+        self.assertTrue((lib_sparql_custom_evals.predicate_Name,) not in query_result)
 
     @unittest.skipIf(not is_platform_windows, "No Windows classes on Linux")
     def test_win32_classes(self):
@@ -1339,7 +1356,25 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue((lib_kbase.class_node_uriref("Win32_Service"),) in query_result)
         self.assertTrue((lib_kbase.class_node_uriref("Win32_UserAccount"),) in query_result)
 
-    def test_process_properties(self):
+    @unittest.skipIf(not is_platform_windows, "No Windows classes on Linux")
+    def test_win32_properties(self):
+        """
+        Properties which are specific to WIN32.
+        """
+        query_result = self._get_wmi_property_list()
+        print("Properties:")
+        for qqq in sorted(query_result):
+            if qqq[0].find("Conta") > 0:
+                print("   ", qqq[0])
+
+        self.assertTrue((lib_sparql_custom_evals.associator_CIM_DirectoryContainsFile_GroupComponent,) in query_result)
+        self.assertTrue((lib_sparql_custom_evals.associator_CIM_DirectoryContainsFile_PartComponent,) in query_result)
+        self.assertTrue((lib_sparql_custom_evals.predicate_ParentProcessId,) in query_result)
+
+        # No confusions between classes and properties.
+        self.assertTrue((lib_sparql_custom_evals.class_CIM_Process,) not in query_result)
+
+    def test_cim_process_properties(self):
         """This returns all properties of the class CIM_Process."""
         sparql_query = """
             PREFIX survol: <%s>
@@ -1351,9 +1386,51 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
         rdflib_graph = rdflib.Graph()
         query_result = set(rdflib_graph.query(sparql_query))
         print("Properties of CIM_Process=", query_result)
+        for one_prop in query_result:
+            print("    ", one_prop)
         self.assertTrue((lib_sparql_custom_evals.predicate_Handle,) in query_result)
-        #### TEMP REMOVAL
-        #### self.assertTrue((lib_sparql_custom_evals.predicate_ParentProcessId,) in query_result)
+        self.assertTrue((lib_sparql_custom_evals.predicate_Name,) in query_result)
+
+    def test_current_process_properties(self):
+        """This returns values of all properties of the current process."""
+        current_pid = os.getpid()
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_property ?the_value
+            WHERE
+            {
+            ?url_process rdf:type survol:CIM_Process .
+            ?url_process ?url_property ?the_value .
+            ?url_process survol:Handle "%d" .
+            ?url_property rdf:type rdf:Property .
+            ?url_property rdfs:domain survol:CIM_Process .
+            }""" % (survol_namespace, current_pid)
+        rdflib_graph = rdflib.Graph()
+        query_result = set(rdflib_graph.query(sparql_query))
+        print("Properties and values of CIM_Process")
+        for one_prop in query_result:
+            print("    ", str(one_prop[0]), str(one_prop[1]))
+        self.assertTrue((lib_sparql_custom_evals.predicate_Handle, rdflib.term.Literal(str(current_pid))) in query_result)
+        # TODO: More properties should be tested.
+
+    @unittest.skipIf(not is_platform_windows, "No Windows classes on Linux")
+    def test_win32_process_properties(self):
+        """This returns all properties of the class Win32_Process."""
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_property
+            WHERE
+            { ?url_property rdf:type rdf:Property .
+              ?url_property rdfs:domain survol:Win32_Process .
+            }""" % survol_namespace
+        rdflib_graph = rdflib.Graph()
+        query_result = set(rdflib_graph.query(sparql_query))
+        print("Properties of CIM_Process=", query_result)
+        for one_prop in query_result:
+            print("    ", one_prop)
+        self.assertTrue((lib_sparql_custom_evals.predicate_Handle,) in query_result)
+        self.assertTrue((lib_sparql_custom_evals.predicate_Name,) in query_result)
+        self.assertTrue((lib_sparql_custom_evals.predicate_ParentProcessId,) in query_result)
 
     def test_user_account_process_properties(self):
         """This returns all properties of the class Win32_UserAccount."""
@@ -1374,6 +1451,7 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
         self.assertTrue((predicate_Domain,) in query_result)
         self.assertTrue((predicate_Name,) in query_result)
 
+    @unittest.skipIf(not is_platform_windows, "No Windows classes on Linux")
     def test_all_properties_classes_union(self):
         """This returns all properties of the class CIM_Process."""
         sparql_query = """
@@ -1392,10 +1470,41 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
             """ % survol_namespace
         rdflib_graph = rdflib.Graph()
         query_result = set(rdflib_graph.query(sparql_query))
-        print("Union of properties of CIM_DataFile and CIM_Directory=", query_result)
         self.assertTrue((lib_sparql_custom_evals.predicate_Name,) in query_result)
-        ### TEMP REMOVE
-        ### self.assertTrue((lib_sparql_custom_evals.associator_CIM_DirectoryContainsFile,) in query_result)
+        self.assertTrue((lib_sparql_custom_evals.associator_CIM_DirectoryContainsFile_GroupComponent,) in query_result)
+        self.assertTrue((lib_sparql_custom_evals.associator_CIM_DirectoryContainsFile_PartComponent,) in query_result)
+
+    def test_all_properties_classes_intersection(self):
+        """This returns all properties of the class CIM_Process."""
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_property
+            WHERE
+            {
+            ?url_property rdf:type rdf:Property .
+            ?url_property rdfs:domain survol:CIM_DataFile .
+            ?url_property rdfs:domain survol:CIM_Directory .
+            }
+            """ % survol_namespace
+        rdflib_graph = rdflib.Graph()
+        query_result = set(rdflib_graph.query(sparql_query))
+        self.assertTrue((lib_sparql_custom_evals.predicate_Name,) in query_result)
+
+    def test_all_properties_classes_intersection(self):
+        """This returns all properties of the class CIM_Process."""
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_property
+            WHERE
+            {
+            ?url_property rdf:type rdf:Property .
+            ?url_property rdfs:domain survol:CIM_DataFile .
+            ?url_property rdfs:domain survol:CIM_Directory .
+            }
+            """ % survol_namespace
+        rdflib_graph = rdflib.Graph()
+        query_result = set(rdflib_graph.query(sparql_query))
+        self.assertTrue((lib_sparql_custom_evals.predicate_Name,) in query_result)
 
     def test_class_by_label(self):
         """Query WMI class whose name is 'CIM_Process'."""
@@ -1498,43 +1607,11 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
 
-    @unittest.skip("NOT IMPLEMENTED YET")
-    def test_all_properties(self):
-        """
-        This returns all WMI properties of classes.
-        It should return also associators.
-        """
-        sparql_query = """
-            PREFIX survol: <%s>
-            SELECT ?url_attribute
-            WHERE
-            { ?url_attribute rdf:type rdf:Property .
-            }""" % (survol_namespace)
-        rdflib_graph = rdflib.Graph()
-        query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
-
-    @unittest.skip("NOT IMPLEMENTED YET")
-    def test_all_process_dynamic_property(self):
-        """
-        This returns all objects with a dynamic property.
-        TODO: Not sure of the concept: How to fit in RDF the concept of mandatory properties, and the others ?
-        TODO: Survol uses the mandatory properties of WMI model, but RDF does not make any difference.
-        TODO: Associators should also be returned.
-        """
-        sparql_query = """
-            PREFIX survol: <%s>
-            SELECT ?url_property
-            WHERE
-            { ?url_property rdf:type rdf:Property .
-              ?url_property rdfs:domain survol:CIM_Process .
-            }""" % (survol_namespace)
-        rdflib_graph = rdflib.Graph()
-        query_result = list(rdflib_graph.query(sparql_query))
-        print("Result=", query_result)
 
     # Some query examples taken from https://codyburleson.com/sparql-examples-list-classes/
     # TODO: Test rdfs:range
+
+
 
 ################################################################################
 
