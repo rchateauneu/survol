@@ -156,6 +156,7 @@ def _add_ontology(old_grph):
             # TODO: Add the property type. Experimental because we know the class of the object, or if it is a literal.
             new_grph.add((node_subject, node_predicate, node_object))
 
+    # TODO: SHOULD CALL _convert_ontology_to_rdf which should do the same.
     lib_kbase.CreateRdfsOntology(map_classes, map_attributes, new_grph)
     logging.debug("_add_ontology len(grph)=%d map_classes=%d map_attributes=%d len(new_grph)=%d",
           len(new_grph), len(map_classes), len(map_attributes), len(new_grph))
