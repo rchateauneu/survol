@@ -453,7 +453,7 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
         graph_daemon_result_events = _run_daemon_script_in_snapshot_mode(full_url)
 
         # This fetches the events stored in the graph database by the daemon process.
-        print("Snapshot triples count=", len(graph_daemon_result_events))
+        print("Events triples count=", len(graph_daemon_result_events))
 
         return graph_daemon_result_snapshot, graph_daemon_result_events
 
@@ -496,10 +496,12 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
             py_cmd]
         print("test_events_feeder_win32_dir_changes supervisor_command=%s" % subprocess_command)
 
+        self.assertTrue(not os.path.isfile(windows_changed_file))
         proc_popen = subprocess.Popen(
             subprocess_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 
         result_snapshot, result_events = self._run_script_snapshot_then_events(url_suffix, 5)
+        self.assertTrue(os.path.isfile(windows_changed_file))
 
         _check_events_feeder_win32_dir_changes(self, "Snapshot before events", result_snapshot, [])
         _check_events_feeder_win32_dir_changes(self, "Events", result_events, [windows_changed_file])
