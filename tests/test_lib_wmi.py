@@ -31,7 +31,7 @@ def GetElementAsString(one_dict, property_name):
 @unittest.skipIf(not pkgutil.find_loader('wmi'), "LibWmiTest needs wmi package.")
 class LibWmiTest(unittest.TestCase):
 
-    def test_local_ontology(self):
+    def test_wmi_classes_and_attributes(self):
         """
         This test creates the two dictionaries of classes and their attributes from WMI.
         It is slow because it does not use the three caches for each ontology models (WMI, WBEM, Survol).
@@ -47,7 +47,7 @@ class LibWmiTest(unittest.TestCase):
         self.assertTrue("Handle" in map_attributes)
         self.assertTrue("Name" in map_attributes)
         # 'Caption' is not a key.
-        self.assertTrue("Caption" not in map_attributes)
+        #self.assertTrue("Caption" not in map_attributes)
 
         # This checks the presence of a select list of attributes and their classes.
         self.assertTrue("Win32_LogonSession" in map_attributes["LogonId"]["predicate_domain"])
@@ -60,14 +60,26 @@ class LibWmiTest(unittest.TestCase):
         self.assertTrue("Win32_Account" in map_attributes["Domain"]["predicate_domain"])
         self.assertTrue("Win32_UserAccount" in map_attributes["Domain"]["predicate_domain"])
         self.assertTrue("Win32_SystemAccount" in map_attributes["Domain"]["predicate_domain"])
-        self.assertTrue("Win32_MountPoint" in map_attributes["Directory"]["predicate_domain"])
-        self.assertTrue("Win32_ShareToDirectory" in map_attributes["Share"]["predicate_domain"])
-        self.assertTrue("Win32_ShareToDirectory" in map_attributes["SharedElement"]["predicate_domain"])
-        self.assertTrue("Win32_ScheduledJob" in map_attributes["JobId"]["predicate_domain"])
+
+        # Associators
+        self.assertEqual(map_attributes["Win32_MountPoint.Directory"],
+            {"predicate_type": "ref:Win32_Directory", "predicate_domain": ["Win32_Volume"]})
+        self.assertEqual(map_attributes["Win32_MountPoint.Volume"],
+            {"predicate_type": "ref:Win32_Volume", "predicate_domain": ["Win32_Directory"]})
+
+        self.assertEqual(map_attributes["CIM_ProcessExecutable.Antecedent"],
+            {"predicate_type": "ref:CIM_DataFile", "predicate_domain": ["CIM_Process"]})
+        self.assertEqual(map_attributes["CIM_ProcessExecutable.Dependent"],
+            {"predicate_type": "ref:CIM_Process", "predicate_domain": ["CIM_DataFile"]})
+
+        self.assertEqual(map_attributes["CIM_DirectoryContainsFile.GroupComponent"],
+            {"predicate_type": "ref:CIM_Directory", "predicate_domain": ["CIM_DataFile"]})
+        self.assertEqual(map_attributes["CIM_DirectoryContainsFile.PartComponent"],
+            {"predicate_type": "ref:CIM_DataFile", "predicate_domain": ["CIM_Directory"]})
 
         # This is specific to WMI only.
         handle_attribute_dict = map_attributes["Handle"]
-        self.assertEqual(handle_attribute_dict["predicate_type"], "string")
+        self.assertEqual(handle_attribute_dict["predicate_type"], "survol_string")
         self.assertTrue("Win32_Process" in handle_attribute_dict["predicate_domain"])
 
     # TODO: DEPRECATED
@@ -258,6 +270,7 @@ class WmiSparqlExecutorTest(unittest.TestCase):
 
         wmi_path_directory = 'CIM_Directory.Name="%s"' % directory_name
 
+        # CIM_DirectoryContainsFile.GroupComponent or CIM_DirectoryContainsFile.PartComponent
         iter_results = wmiExecutor.SelectBidirectionalAssociatorsFromObject(
             "CIM_DataFile", "CIM_DirectoryContainsFile", wmi_path_directory, 1)
         list_results = list(iter_results)

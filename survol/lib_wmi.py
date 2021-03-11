@@ -31,16 +31,14 @@ except ImportError as exc:
     wmi_imported = False
     logging.error("Some modules could not be imported:%s", str(exc))
 
-# TODO: Just a reminder that WMI can run on Linux, in a certain extent.
-# https://pypi.python.org/pypi/wmi-client-wrapper
-
 
 if False:
     if lib_util.isPlatformLinux:
+        # Some notes about using WMI on a Linux box.
+        # http://www.tomsitpro.com/articles/issue-wmi-queries-from-linux,1-3436.html
+        # https://pypi.python.org/pypi/wmi-client-wrapper
         import wmi_client_wrapper as wmilnx
-
         wmic = wmilnx.WmiClientWrapper(username="Administrator", password="password", host="192.168.1.149", )
-
         output = wmic.query("SELECT * FROM Win32_Processor")
 
 
@@ -71,7 +69,7 @@ def ClassUrl(nskey, hostname_wmi, class_nam):
 ################################################################################
 
 
-def GetWmiUserPass(mach_with_back_slashes):
+def _get_wmi_user_pass(mach_with_back_slashes):
     # WmiConnect cimom=\\\\rchateau-HP\\:. wmiNamspace=aspnet
     clean_mach_nam = mach_with_back_slashes.replace("\\", "")
 
@@ -101,13 +99,12 @@ def GetWmiUserPass(mach_with_back_slashes):
 
 
 def WmiConnect(mach_with_back_slashes, wmi_namspac, throw_if_error=True):
-    # sys.stderr.write("WmiConnect cimom=%s wmiNamspace=%s\n" % ( machWithBackSlashes, wmiNamspac ) )
     # WmiConnect cimom=\\\\rchateau-HP\\:. wmiNamspace=aspnet
 
     if not mach_with_back_slashes or lib_util.IsLocalAddress(mach_with_back_slashes):
         return wmi.WMI(find_classes=False)
 
-    wmi_machine, wmi_user, wmi_pass = GetWmiUserPass(mach_with_back_slashes)
+    wmi_machine, wmi_user, wmi_pass = _get_wmi_user_pass(mach_with_back_slashes)
 
     dict_params = {}
     if wmi_namspac:
@@ -125,19 +122,16 @@ def WmiConnect(mach_with_back_slashes, wmi_namspac, throw_if_error=True):
 
     try:
         conn_wmi = wmi.WMI(**dict_params)
-        # sys.stderr.write("WmiConnect after connection\n" )
-    except:
+    except Exception as exc:
         dict_params['password'] = "XXXYYYZZZ"  # Security.
+        error_message = "Cannot connect to WMI server with params:%s. Exc=%s", str(dict_params), str(exc)
         if throw_if_error:
             # Could not connect, maybe the namespace is wrong.
-            lib_common.ErrorMessageHtml("WmiConnect Cannot connect to WMI server with params:%s.Exc=%s" % (
-            str(dict_params), str(sys.exc_info())))
+            lib_common.ErrorMessageHtml(error_message)
         else:
-            logging.error("WmiConnect Cannot connect to WMI server with params:%s.Exc=%s", str(dict_params),
-                          str(sys.exc_info()))
+            logging.error(error_message)
             return None
 
-    # sys.stderr.write("WmiConnect returning\n" )
     return conn_wmi
 
 
@@ -175,51 +169,42 @@ def BuildWmiNamespaceClass(entity_namespace, entity_type):
 def WmiBuildMonikerPath(entity_namespace, entity_type, entity_id):
     wmi_name_space, wmi_class, full_class_pth = BuildWmiNamespaceClass(entity_namespace, entity_type)
 
-    # sys.stderr.write("WmiBuildMonikerPath wmi_name_space=%s entity_namespace=%s entity_id=%s\n" % (wmi_name_space, entity_namespace, str(entity_id)))
-
     return full_class_pth + "." + entity_id
 
 
 def WmiInstanceUrl(entity_namespace, entity_type, entity_id, entity_host):
-    # sys.stderr.write("WmiInstanceUrl %s %s %s %s\n" % (entity_namespace, entity_type, entity_id, entity_host))
-
     wmi_full_path = WmiBuildMonikerPath(entity_namespace, entity_type, entity_id)
 
     if wmi_full_path is None:
         return None
 
-    # sys.stderr.write("WmiInstanceUrl wmi_full_path=%s\n" % (wmi_full_path))
-
     # 'https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"'
     wmi_moniker = "\\\\" + entity_host + "\\" + wmi_full_path
     wmi_instance_url = lib_util.EntityUrlFromMoniker(wmi_moniker, entity_id == "")
 
-    # sys.stderr.write("WmiInstanceUrl wmi_instance_url=%s\n" % (wmi_instance_url))
     return wmi_instance_url
 
 
 ################################################################################
 
 def NormalHostName(entity_host):
+    """
+    This typically returns "MY_MACHINE".
+    It could also use platform.node() or socket.gethostname() or os.environ["COMPUTERNAME"]
+    """
     if entity_host == "":
-        # Typically returns "RCHATEAU-HP".
-        # Could also use platform.node() or socket.gethostname() or os.environ["COMPUTERNAME"]
         entity_host = socket.gethostname()
     return lib_util.EntHostToIp(entity_host)
 
 
-# WMI from a Linux box
-# http://www.tomsitpro.com/articles/issue-wmi-queries-from-linux,1-3436.html
-
-
 def GetWmiUrl(entity_host, entity_namespace, entity_type, entity_id):
-    """This returns a list of URLS."""
+    """
+    This returns an URL associated to an instance or a class. Display purpose.
+    """
     if not wmi_imported:
         return None
 
     entity_host = NormalHostName(entity_host)
-
-    # sys.stderr.write("GetWmiUrl NormalHostName=%s ns=%s type=%s id=%s\n" % (entity_host, entity_namespace, entity_type, entity_id))
 
     # TODO: entity_host = NONE si current.
 
@@ -229,12 +214,14 @@ def GetWmiUrl(entity_host, entity_namespace, entity_type, entity_id):
     else:
         wmi_url = WmiInstanceUrl(entity_namespace, entity_type, entity_id, entity_host)
 
-    # sys.stderr.write("GetWmiUrl %s %s %s %s wmi_url=%s\n" % (entity_host, entity_namespace, entity_type, entity_id, wmi_url))
     return wmi_url
 
 
 def WmiTooManyInstances(class_name):
-    """These classes have too many members to be listed or even counted, let alone displayed."""
+    """
+    These classes have too many members to be displayed, listed or even counted.
+    Therefore they must accessed with great care, and never enumerated.
+    """
     # TODO: This list Should also include their base classes.
     # TODO: Have a mechanism to stop the process when it takes too long to return.
     return class_name in ['Win32_ComputerSystem', 'PG_ComputerSystem', 'CIM_UnitaryComputerSystem',
@@ -243,7 +230,7 @@ def WmiTooManyInstances(class_name):
                           'CIM_SoftwareElement', 'CIM_Directory', 'CIM_DataFile']
 
 
-def GetWmiClassFlagUseAmendedQualifiersn(conn_wmi, class_nam):
+def _get_wmi_class_flag_use_amended_qualifiers(conn_wmi, class_nam):
     cls_obj = getattr(conn_wmi, class_nam)
     drv = cls_obj.derivation()
     try:
@@ -261,11 +248,13 @@ def _get_wmi_class_flag_use_amended_qualifiers_aux(conn_wmi, class_nam, base_cla
     """
     This returns the list of base classes of the input class.
     It uses an internal cache for speed.
+    This could probably be done with derivation().
     """
     try:
         subclasses_dict = _dict_base_class_to_sub_class[base_class]
     except KeyError:
         try:
+            # wbemFlagUseAmendedQualifiers WMI to return class amendment data along with the base class definition.
             subclasses = conn_wmi.SubclassesOf(base_class, win32com.client.constants.wbemFlagUseAmendedQualifiers)
             subclasses_dict = {c.Path_.Class: c for c in subclasses}
         except pywintypes.com_error:
@@ -320,7 +309,7 @@ def _get_wmi_class_flag_use_amended_qualifiers_aux(conn_wmi, class_nam, base_cla
 # "PeakPageFileUsage" : Page
 #
 def __wmi_dict_properties_unit_no_cache(conn_wmi, class_name):
-    the_cls = GetWmiClassFlagUseAmendedQualifiersn(conn_wmi, class_name)
+    the_cls = _get_wmi_class_flag_use_amended_qualifiers(conn_wmi, class_name)
 
     map_prop_units = {}
 
@@ -377,12 +366,10 @@ def WmiAddClassQualifiers(grph, conn_wmi, wmi_class_node, class_name, with_props
 
             klass_descr = str(getattr(conn_wmi, class_name).property_map)
             # Otherwise it crashes.
-            # klassDescrClean = klass_descr.replace("{"," ").replace("}"," ")
-            # sys.stderr.write("klass_descr=%s\n"%klass_descr)
-            grph.add((wmi_class_node, lib_common.MakeProp("property_map"),
-                      lib_util.NodeLiteral(klass_descr.replace("{", " ").replace("}", " "))))
+            klass_descr_dlean = klass_descr.replace("{"," ").replace("}"," ")
+            grph.add((wmi_class_node, lib_common.MakeProp("property_map"), lib_util.NodeLiteral(klass_descr_dlean)))
 
-        the_cls = GetWmiClassFlagUseAmendedQualifiersn(conn_wmi, class_name)
+        the_cls = _get_wmi_class_flag_use_amended_qualifiers(conn_wmi, class_name)
         if the_cls:
             # https://docs.microsoft.com/en-us/windows-hardware/drivers/kernel/wmi-class-qualifiers
             # Specifies a description of the block for the locale specified by the Locale qualifier.
@@ -412,7 +399,6 @@ def WmiAddClassQualifiers(grph, conn_wmi, wmi_class_node, class_name, with_props
         klass_quals = getattr(conn_wmi, class_name).qualifiers
         for kla_qual_key in klass_quals:
             kla_qual_val = klass_quals[kla_qual_key]
-            # sys.stderr.write("WmiAddClassQualifiers kla_qual_val=%s / %s\n"%(str(kla_qual_val),str(type(kla_qual_val))))
             if isinstance(kla_qual_val, tuple):
                 kla_qual_val = "{ " + ",".join(kla_qual_val) + " }"
 
@@ -470,7 +456,7 @@ def WmiBaseClasses(conn_wmi, class_name):
 
 def WmiAddBaseClasses(grph, conn_wmi, wmi_node, entity_host, name_space, class_name):
     """
-    Adds the list of base classes. Returns the list of pairs (name node),
+    Adds the list of base classes. Returns the list of pairs (base_class_name => node),
     so it can be matched againt another inheritance tree.
     """
     pairs_name_node = dict()
@@ -507,16 +493,25 @@ def _convert_wmi_type_to_xsd_type(predicate_type_name):
     WMI types: https://powershell.one/wmi/datatypes
     RDF types: https://rdflib.readthedocs.io/en/stable/rdf_terms.html
     """
-    if predicate_type_name.lower() == 'string':
-        return "string"  # rdflib.namespace.XSD.string
-    elif predicate_type_name.lower() in ('sint64', 'sint32', 'sint16', 'sint8', 'uint64', 'uint32', 'uint16', 'uint8'):
-        return "integer"
-    elif predicate_type_name.lower() == "datetime":
-        return "dateTime"
-    elif predicate_type_name.lower() == "boolean":
-        return "boolean"
-    else:
-        raise Exception("Unknown WMI type %s" % predicate_type_name)
+    wmi_type_to_xsd = {
+        'string': "survol_string", # rdflib.namespace.XSD.string
+        'boolean': 'survol_boolean',
+        'datetime': 'survol_dateTime',
+        'sint64': 'survol_integer',
+        'sint32': 'survol_integer',
+        'sint16': 'survol_integer',
+        'sint8': 'survol_integer',
+        'uint64': 'survol_integer',
+        'uint32': 'survol_integer',
+        'uint16': 'survol_integer',
+        'uint8': 'survol_integer',
+        'real64': 'survol_double',
+        'real32': 'survol_double',
+    }
+    try:
+        return wmi_type_to_xsd[predicate_type_name.lower()]
+    except KeyError:
+        return None
 
 
 # Survol contains three different ontologies: The ontology of classes defined by Survol,
@@ -557,8 +552,8 @@ def extract_specific_ontology_wmi():
 
     cnn = wmi.WMI()
 
-    map_classes = {}
-    map_attributes = {}
+    list_plain_classes = {}
+    list_associations = {}
 
     def wmi_string_to_str(wmi_string):
         if not lib_util.is_py3:
@@ -568,10 +563,26 @@ def extract_specific_ontology_wmi():
         return wmi_string
 
     for class_name in cnn.classes:
+        logging.debug("class_name=%s" % class_name)
+        wmi_class_obj = getattr(cnn, class_name)
         class_name = wmi_string_to_str(class_name)
-        cls_obj = getattr(cnn, class_name)
 
-        drv_list = cls_obj.derivation()
+        try:
+            is_association = wmi_class_obj.qualifiers['Association']
+        except KeyError:
+            is_association = False
+
+        if is_association:
+            list_associations[class_name] = wmi_class_obj
+        else:
+            list_plain_classes[class_name] = wmi_class_obj
+
+    map_classes = {}
+    map_attributes = {}
+
+    for class_name, wmi_class_obj in list_plain_classes.items():
+        logging.debug("class_name=%s" % class_name)
+        drv_list = wmi_class_obj.derivation()
         # If this is a top-level class, the derivation list is empty.
         # Otherwise, it is the list of base classes names going to the top.
         if drv_list:
@@ -593,56 +604,56 @@ def extract_specific_ontology_wmi():
         map_classes[class_name] = {
             "base_class": base_class_name,
             "class_description": text_descr,
-            "class_keys_list": [],
-            "class_extra_keys_list": []}
+            "class_keys_list": [], # These are the WMI keys
+            "non_key_properties_list": [] # These are the WMI properties
+        }
+
+        def store_prop_name(prop_obj):
+            prop_obj_name = wmi_string_to_str(prop_obj.name)
+            assert isinstance(prop_obj_name, str)
+            logging.debug("prop_obj_name=%s" % prop_obj_name)
+            try:
+                prop_dict = map_attributes[prop_obj_name]
+            except KeyError:
+                clean_type_name = wmi_string_to_str(prop_obj.type)
+                if not clean_type_name.startswith("ref:"):
+                    # Other possible values: "ref:__Provider", "ref:Win32_LogicalFileSecuritySetting",
+                    # "ref:Win32_ComputerSystem",
+                    # "ref:CIM_DataFile", "ref:__EventConsumer", "ref:CIM_LogicalElement",
+                    # "ref:CIM_Directory" but also "ref:Win32_Directory".
+                    # "Win32_DataFile" never appears.
+
+                    # Sometimes the datatype is wrongly cased: "string", "String, "STRING".
+                    clean_xsd_type_name = _convert_wmi_type_to_xsd_type(clean_type_name)
+                    if clean_xsd_type_name is None:
+                        logging.warning("Unknown WMI type=%s Property=%s" % (clean_type_name, prop_obj_name))
+                        return None
+                    clean_type_name = clean_xsd_type_name
+
+                # At this stage, the type name is consistent for WMI, WBEM or Survol.
+                assert isinstance(clean_type_name, str)
+                prop_dict = {"predicate_type": clean_type_name, "predicate_domain": []}
+                map_attributes[prop_obj_name] = prop_dict
+
+            prop_dict["predicate_domain"].append(class_name)
+            return prop_obj_name
 
         # http://timgolden.me.uk/python/wmi/wmi.html
         # A WMI object is uniquely defined by a set of properties which constitute its keys.
         # The function keys() lazily retrieves the keys for this instance or class.
         # ... whereas cls_obj.properties return the properties, that is any attribute of an object of this class.
         # for p in cls_obj.properties:
-        for p in cls_obj.keys:
-            prop_obj = cls_obj.wmi_property(p)
-            prop_obj_name = wmi_string_to_str(prop_obj.name)
+        for the_key in wmi_class_obj.keys:
+            prop_obj = wmi_class_obj.wmi_property(the_key)
+            prop_obj_name = store_prop_name(prop_obj)
+            map_classes[class_name]["class_keys_list"].append(prop_obj_name)
 
-            try:
-                prop_dict = map_attributes[prop_obj_name]
-            except KeyError:
-                clean_type_name = wmi_string_to_str(prop_obj.type)
-                if clean_type_name.startswith("ref:"):
-                    pass
-                    # Other possible values: "ref:__Provider", "ref:Win32_LogicalFileSecuritySetting",
-                    # "ref:Win32_ComputerSystem",
-                    # "ref:CIM_DataFile", "ref:__EventConsumer", "ref:CIM_LogicalElement",
-                    # "ref:CIM_Directory" but also "ref:Win32_Directory".
-                    # "Win32_DataFile" never appears.
-                    # assert isinstance(clean_type_name, six.text_type)
-                else:
-                    # Sometimes the datatype is wrongly cased: "string", "String, "STRING".
-                    clean_type_name = _convert_wmi_type_to_xsd_type(clean_type_name)
-                    assert isinstance(clean_type_name, str)
-                    # assert isinstance(clean_type_name, six.text_type)
-                # At this stage, the type name is consistent for WMI, WBEM or Survol.
+        for the_prop in wmi_class_obj.properties:
+            prop_obj = wmi_class_obj.wmi_property(the_prop)
+            prop_obj_name = store_prop_name(prop_obj)
+            if prop_obj_name is not None:
+                map_classes[class_name]["non_key_properties_list"].append(prop_obj_name)
 
-                prop_dict = {"predicate_type": clean_type_name, "predicate_domain": []}
-                map_attributes[prop_obj_name] = prop_dict
-
-            prop_dict["predicate_domain"].append(class_name)
-            map_classes[class_name]["class_keys_list"].append(prop_obj.name)
-
-            # try:
-            #     only_read = prop_obj.qualifiers['read']
-            # except:
-            #     only_read = False
-            # # if not only_read:
-            # if only_read:
-            #     map_attributes[prop_obj.name] = {
-            #         "predicate_type": prop_obj.type,
-            #         "predicate_domain": class_name }
-
-        # TODO: Try this: Second enumeration of properties, different style.
-
-        logging.debug("class_name=%s" % class_name)
         """
         Mettre quelque part les attributes qui ne sont pas obligatoires,
         comme ParentProcessId ou CIM_DirectoryContainsFile ou CIM_ProcessExecutable.
@@ -652,23 +663,102 @@ def extract_specific_ontology_wmi():
         et en vrac dans map_attributes
         """
 
-        if False and the_cls:
-            for prop_obj in the_cls.Properties_:
-                try:
-                    map_attributes[prop_obj.Name]["predicate_description"]
-                    continue
-                except KeyError:
-                    pass
-                try:
-                    # UnicodeEncodeError: 'ascii' codec can't encode character u'\xa0' in position 178: ordinal not in range(128)
-                    prop_dsc = prop_obj.Qualifiers_("Description")
-                    prop_txt = six.text_type(prop_dsc)
-                    map_attributes.get(prop_obj.Name, {})["predicate_description"] = prop_txt
-                except pywintypes.com_error:
-                    # pywintypes.com_error: (-2147352567, 'Exception occurred.', (0, u'SWbemQualifierSet',
-                    # u'Not found ', None, 0, -2147217406), None)
-                    pass
+    # Examples of WMI associators:
+    # class_name=CIM_DirectoryContainsFile
+    #     the_key=GroupComponent tp=ref:CIM_Directory
+    #     the_key=PartComponent tp=ref:CIM_DataFile
+    # class_name=Win32_SessionConnection
+    #     the_key=Antecedent tp=ref:Win32_ServerSession
+    #     the_key=Dependent tp=ref:Win32_ServerConnection
+    # class_name=Win32_SystemUsers
+    #     the_key=GroupComponent tp=ref:Win32_ComputerSystem
+    #     the_key=PartComponent tp=ref:Win32_UserAccount
+    # class_name=Win32_COMApplicationClasses
+    #     the_key=GroupComponent tp=ref:Win32_COMApplication
+    #     the_key=PartComponent tp=ref:Win32_COMClass
+    # class_name=Win32_SystemServices
+    #     the_key=GroupComponent tp=ref:Win32_ComputerSystem
+    #     the_key=PartComponent tp=ref:Win32_Service
+    # class_name=Win32_ApplicationCommandLine
+    #     the_key=Antecedent tp=ref:Win32_ApplicationService
+    #     the_key=Dependent tp=ref:Win32_CommandLineAccess
+    # class_name=Win32_GroupInDomain
+    #     the_key=GroupComponent tp=ref:Win32_NTDomain
+    #     the_key=PartComponent tp=ref:Win32_Group
+    # class_name=Win32_ClassicCOMApplicationClasses
+    #     the_key=GroupComponent tp=ref:Win32_DCOMApplication
+    #     the_key=PartComponent tp=ref:Win32_ClassicCOMClass
+    # class_name=Win32_ShareToDirectory
+    #     the_key=Share tp=ref:Win32_Share
+    #     the_key=SharedElement tp=ref:CIM_Directory
+    # class_name=Win32_SubDirectory
+    #     the_key=GroupComponent tp=ref:Win32_Directory
+    #     the_key=PartComponent tp=ref:Win32_Directory
+    # class_name=CIM_ProcessExecutable
+    #     the_key=Antecedent tp=ref:CIM_DataFile
+    #     the_key=Dependent tp=ref:CIM_Process
+    """
+    These relations are not oriented: Without the property name, it is not possible 
+    to determine which object is what, in a triple like this one:
+    <file> CIM_ProcessExecutable <process>
+    
+    Because special characters are allowed in Sparql terms, two properties are create for each associator.
+    For example:
+    CIM_ProcessExecutable.Antecedent domain=CIM_DataFile range=CIM_Process
+    CIM_ProcessExecutable.Dependent domain=CIM_Process range=CIM_DataFile
+    This is possible only if there are two classes in the associator, which is always the case (or zero classes).
+    """
 
+    for associator_name, wmi_class_obj in list_associations.items():
+
+        def key_to_dotted_property(the_key):
+            prop_obj = wmi_class_obj.wmi_property(the_key)
+            class_name_as_type = wmi_string_to_str(prop_obj.type)
+            # All properties point to instances of plain classes which must have been created in the previous loop.
+            if not class_name_as_type.startswith("ref:"):
+                raise Exception("Invalid key type:%s", class_name_as_type)
+            _, _, referenced_class_name = class_name_as_type.partition(":")
+
+            prop_obj_name = store_prop_name(prop_obj)
+            if referenced_class_name in list_associations:
+                raise Exception("Class %s should not be in associations" % referenced_class_name)
+            if referenced_class_name not in list_plain_classes:
+                raise Exception("Class %s referenced by %s is not defined" % (referenced_class_name, associator_name))
+
+            # For example: "CIM_ProcessExecutable.Antecedent"
+            full_property_name = associator_name + "." + prop_obj_name
+            return class_name_as_type, referenced_class_name, full_property_name
+
+        if len(wmi_class_obj.keys) != 2:
+            logging.warning("Non-standard keys number for class %s: %s" % (associator_name, str(wmi_class_obj.keys)))
+            continue
+
+        try:
+            class_as_type_a, class_name_a, property_a = key_to_dotted_property(wmi_class_obj.keys[0])
+            class_as_type_b, class_name_b, property_b = key_to_dotted_property(wmi_class_obj.keys[1])
+        except Exception as exc:
+            logging.warning("Caught:" + str(exc))
+            continue
+
+        # Check existence of both classes before adding double property.
+        if class_name_a not in map_classes:
+            logging.warning("Non-existent class %s cannot get property %s" % (class_name_a, property_b))
+            continue
+        if class_name_b not in map_classes:
+            logging.warning("Non-existent class %s cannot get property %s" % (class_name_b, property_a))
+            continue
+
+        map_classes[class_name_a]["non_key_properties_list"].append(property_b)
+        map_classes[class_name_b]["non_key_properties_list"].append(property_a)
+
+        # Class names as type by WMI are prefixed with the string "ref:", this convention is kept in Survol.
+        # This must be later truncated because in RDF, this becomes the node of the class.
+        assert class_as_type_a.startswith("ref:")
+        assert class_as_type_b.startswith("ref:")
+        map_attributes[property_a] = {"predicate_type": class_as_type_a, "predicate_domain": [class_name_b]}
+        map_attributes[property_b] = {"predicate_type": class_as_type_b, "predicate_domain": [class_name_a]}
+
+        #logging.error("map_attributes=%s" % str(map_attributes.keys()))
     return map_classes, map_attributes
 
 

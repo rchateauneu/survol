@@ -1831,7 +1831,7 @@ def AppendPropertySurvolOntology(
     if range_predicate:
         data_type = None
     else:
-        data_type = "string"
+        data_type = "survol_string"
     if not description_predicate:
         description_predicate = "Predicate %s" % name_predicate
     if name_predicate in map_attributes:

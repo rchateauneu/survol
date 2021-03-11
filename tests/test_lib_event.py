@@ -298,6 +298,7 @@ class EventsGraphIOMemoryTest(unittest.TestCase):
             ],
             [
                 ("CIM_Directory", {"Name": "/tmp"}),
+                # CIM_DirectoryContainsFile.GroupComponent or CIM_DirectoryContainsFile.PartComponent
                 "CIM_DirectoryContainsFile",
                 ("CIM_DataFile", {"Name": "/tmp/anyfile.tmp"})
             ]
