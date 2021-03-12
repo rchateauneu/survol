@@ -323,7 +323,7 @@ class LocalBox:
             socket_port_number = int(socket_port)
 
         # addr could be "LOCALHOST"
-        if lib_util.IsLocalAddress(addr):
+        if lib_util.is_local_address(addr):
             # TODO: Should use the actual IP address.
             addr = "127.0.0.1"
 
@@ -452,7 +452,7 @@ class OtherAgentBox (LocalBox):
 
 def MachineBox(mach):
     """mach could be an IP address, a machine name, None, "localhost" etc..."""
-    if lib_util.IsLocalAddress(mach):
+    if lib_util.is_local_address(mach):
         the_machine_box = LocalBox()
     else:
         the_machine_box = RemoteBox(mach)

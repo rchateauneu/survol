@@ -17,7 +17,7 @@ from lib_properties import pc
 def Main():
 	cgiEnv = lib_common.CgiEnv()
 	machineName = cgiEnv.GetId()
-	if lib_util.IsLocalAddress( machineName ):
+	if lib_util.is_local_address( machineName ):
 		machineName = None
 
 	if not lib_util.isPlatformWindows:

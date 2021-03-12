@@ -107,7 +107,7 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    if lib_util.IsLocalAddress(machine_name):
+    if lib_util.is_local_address(machine_name):
         mach_name_or_none = None
         server_box = lib_common.gUriGen
     else:

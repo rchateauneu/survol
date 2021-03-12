@@ -101,7 +101,7 @@ def _get_wmi_user_pass(mach_with_back_slashes):
 def WmiConnect(mach_with_back_slashes, wmi_namspac, throw_if_error=True):
     # WmiConnect cimom=\\\\rchateau-HP\\:. wmiNamspace=aspnet
 
-    if not mach_with_back_slashes or lib_util.IsLocalAddress(mach_with_back_slashes):
+    if not mach_with_back_slashes or lib_util.is_local_address(mach_with_back_slashes):
         return wmi.WMI(find_classes=False)
 
     wmi_machine, wmi_user, wmi_pass = _get_wmi_user_pass(mach_with_back_slashes)

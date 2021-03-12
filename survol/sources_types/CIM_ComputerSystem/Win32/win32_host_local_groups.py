@@ -25,7 +25,7 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    if lib_util.IsLocalAddress(server):
+    if lib_util.is_local_address(server):
         serv_name_or_none = None
         server_node = lib_common.nodeMachine
     else:
