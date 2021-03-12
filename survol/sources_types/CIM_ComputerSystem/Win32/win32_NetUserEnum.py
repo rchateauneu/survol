@@ -31,7 +31,7 @@ def Main():
         lib_common.ErrorMessageHtml("NetUserEnum:" + str(exc))
 
     # This could be a parameter. Hard-coded value for the moment.
-    if lib_util.IsLocalAddress(hostname):
+    if lib_util.is_local_address(hostname):
         level = 2 # 1,2
     else:
         level = 2 # 1,2

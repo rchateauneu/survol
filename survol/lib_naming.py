@@ -149,7 +149,7 @@ def _known_script_to_title(fil_script, uri_mode, entity_host=None, entity_suffix
 
     # Maybe hostname is a CIMOM address (For WBEM) or a machine name.
     if entity_host:
-        if not lib_util.IsLocalAddress(entity_host):
+        if not lib_util.is_local_address(entity_host):
             # If this is a CIMOM, make it shorter: "http://vps516494.ovh.net:5988" or ""https://vps516494.ovh.net:5989"
             host_only = lib_util.EntHostToIp(entity_host)
             entity_label += " at " + host_only
@@ -161,7 +161,7 @@ def _known_script_to_title(fil_script, uri_mode, entity_host=None, entity_suffix
 def _calc_label(entity_host, entity_type, entity_id, force_entity_ip_addr, fil_script):
     nam_spac, entity_type_no_ns = lib_util.parse_namespace_type(entity_type)
 
-    if not force_entity_ip_addr and not lib_util.IsLocalAddress(entity_host):
+    if not force_entity_ip_addr and not lib_util.is_local_address(entity_host):
         entity_label = None
         if fil_script == "entity_wbem.py":
             import lib_wbem
