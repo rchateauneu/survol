@@ -719,7 +719,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
 
         # We could also use the ontology stored in RDF, but by sticking to the data structure created
         # from WMI, no information is lost, even if the container.
-        self.m_class_node = lib_kbase.RdfsPropertyNode(class_name)
+        self.m_class_node = lib_kbase.property_node_uriref(class_name)
 
     def _iterator_to_objects(self, rdflib_graph, iterator_objects):
         # Set by the first row.
@@ -761,7 +761,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             uri_key_values = {}
             wmi_class_keys = self.class_keys()
             for one_class_key in wmi_class_keys:
-                one_class_key_node = lib_kbase.RdfsPropertyNode(one_class_key)
+                one_class_key_node = lib_kbase.property_node_uriref(one_class_key)
                 uri_key_values[one_class_key] = dict_key_values[one_class_key_node]
             node_uri_ref = lib_common.gUriGen.UriMakeFromDict(self.m_class_name, uri_key_values)
 
