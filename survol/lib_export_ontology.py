@@ -6,6 +6,7 @@ import lib_util
 import lib_kbase
 import lib_naming
 import lib_exports
+import lib_ontology_tools
 import lib_properties
 from lib_properties import pc
 
@@ -72,6 +73,7 @@ def _add_ontology(old_grph):
         # A class name with the WMI namespace might be produced with this kind of URL:
         # "http://www.primhillcomputers.com/survol#root\CIMV2:CIM_Process"
         class_name = class_name.replace("\\", "%5C")
+        assert isinstance(class_name, str)
 
         if class_name not in map_classes:
             if class_name == "":
@@ -81,13 +83,13 @@ def _add_ontology(old_grph):
             # This function might also filter duplicate and redundant insertions.
             lib_util.AppendClassSurvolOntology(class_name, map_classes, map_attributes)
 
-        # The entity_id is a concatenation of CIM properties and define an unique object.
+        # The entity_id is a concatenation of CIM property-value paris, and define an unique object.
         # They are different of the triples, but might overlap.
         entity_id_dict = lib_util.SplitMoniker(entity_id)
         for predicate_key in entity_id_dict:
             if predicate_key not in map_attributes:
                 # This function might also filter a duplicate and redundant insertion.
-                lib_util.AppendPropertySurvolOntology(
+                lib_util.append_property_survol_ontology(
                     predicate_key,
                     "CIM key predicate %s" % predicate_key,
                     class_name,
@@ -150,14 +152,15 @@ def _add_ontology(old_grph):
 
             if class_subject and (name_predicate not in map_attributes):
                 # This function might also filter a duplicate and redundant insertion.
-                lib_util.AppendPropertySurvolOntology(
+                assert isinstance(class_subject, str)
+                lib_util.append_property_survol_ontology(
                     name_predicate, description_predicate, class_subject, class_object, map_attributes)
 
             # TODO: Add the property type. Experimental because we know the class of the object, or if it is a literal.
             new_grph.add((node_subject, node_predicate, node_object))
 
     # TODO: SHOULD CALL _convert_ontology_to_rdf which should do the same.
-    lib_kbase.CreateRdfsOntology(map_classes, map_attributes, new_grph)
+    lib_ontology_tools._convert_ontology_to_rdf(map_classes, map_attributes, new_grph)
     logging.debug("_add_ontology len(grph)=%d map_classes=%d map_attributes=%d len(new_grph)=%d",
           len(new_grph), len(map_classes), len(map_attributes), len(new_grph))
 

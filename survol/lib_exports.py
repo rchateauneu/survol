@@ -33,11 +33,13 @@ def NodeToUniversalAlias(an_object):
     This helps in having the same node when naming the same objects on different machines.
     """
     def make_universal_alias_no_cache(an_object):
+        # It is a rdflib.term.URIRef
         # The prefix of the URL which contain the host name,
         # maybe with a port number, maybe with a WBEM prefix, WMI machine, CGI script etc...
         # is simply replaced by the IP address of the machine.
         # The resulting string is the same for all servers running on the same machine.
-        parsed_url = lib_util.survol_urlparse(an_object)
+        an_object_as_str = str(an_object)
+        parsed_url = lib_util.survol_urlparse(an_object_as_str)
         #sys.stderr.write("make_universal_alias_no_cache parsed_url=%s\n"%str(parsed_url))
         # netloc=u'desktop-ni99v8e:8000'
         entity_host = parsed_url.netloc.split(":")[0]
@@ -58,7 +60,7 @@ def NodeToUniversalAlias(an_object):
 
         # TODO: Many things are calculated several times.
         lab_text, subj_entity_graphic_class, entity_id = lib_naming.ParseEntityUri(
-            an_object, long_display=True, force_entity_ip_addr=entity_ip_addr)
+            an_object_as_str, long_display=True, force_entity_ip_addr=entity_ip_addr)
 
         # sys.stderr.write("make_universal_alias_no_cache anObject=%s lab_text=%s\n"%(str(anObject),lab_text))
         return lab_text

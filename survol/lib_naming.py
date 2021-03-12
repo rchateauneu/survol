@@ -213,6 +213,10 @@ def ParseEntityUriWithHost(uri_with_mode, long_display=True, force_entity_ip_add
     # THIS CANNOT WORK WITH IPV6 ADDRESSES...
     # WE MAY USE SCP SYNTAX: scp -6 osis@\[2001:db8:0:1\]:/home/osis/test.file ./test.file
 
+    # This conversion because it might be called with rdflib.term.URIRef
+    if not isinstance(uri_with_mode, str):
+        uri_with_mode = str(uri_with_mode)
+
     # This replaces "&amp;" by "&" up to two times if needed.
     uri_with_mode_clean = lib_util.UrlNoAmp(uri_with_mode)
 
@@ -297,6 +301,7 @@ def ParseEntityUriWithHost(uri_with_mode, long_display=True, force_entity_ip_add
         # TODO: " " are replaced by "%20". Why ? So change back.
         entity_label = entity_label.replace("%20", " ")
 
+    assert isinstance(entity_graphic_class, str)
     return entity_label, entity_graphic_class, entity_id, entity_host
 
 

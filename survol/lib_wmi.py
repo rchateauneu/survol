@@ -635,6 +635,7 @@ def extract_specific_ontology_wmi():
                 prop_dict = {"predicate_type": clean_type_name, "predicate_domain": []}
                 map_attributes[prop_obj_name] = prop_dict
 
+            assert isinstance(class_name, str)
             prop_dict["predicate_domain"].append(class_name)
             return prop_obj_name
 
@@ -755,6 +756,8 @@ def extract_specific_ontology_wmi():
         # This must be later truncated because in RDF, this becomes the node of the class.
         assert class_as_type_a.startswith("ref:")
         assert class_as_type_b.startswith("ref:")
+        assert isinstance(class_name_a, str)
+        assert isinstance(class_name_b, str)
         map_attributes[property_a] = {"predicate_type": class_as_type_a, "predicate_domain": [class_name_b]}
         map_attributes[property_b] = {"predicate_type": class_as_type_b, "predicate_domain": [class_name_a]}
 

@@ -589,6 +589,7 @@ def _extract_wbem_ontology_from_connection(wbem_connection):
                         "predicate_description": "Attribute WBEM %s" % key_name,
                         "predicate_domain": []}
                     map_attributes[key_name] = key_attributes
+                assert isinstance(concat_class_name, str)
                 key_attributes["predicate_domain"].append(concat_class_name)
 
     return map_classes, map_attributes
