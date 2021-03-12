@@ -987,7 +987,7 @@ def check_ontology_graph(ontology_key, survol_agent=None):
     ontology_graph = rdflib.Graph()
     result = ontology_graph.parse(data=ontology_survol, format="application/rdf+xml")
 
-    return lib_kbase.CheckMinimalRdsfOntology(ontology_graph)
+    return lib_kbase.check_minimal_rdsf_ontology(ontology_graph)
 
 ################################################################################
 

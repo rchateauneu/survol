@@ -99,7 +99,7 @@ def _add_ontology(old_grph):
             new_grph.add((url_node, lib_properties.MakeProp(predicate_key), rdflib.Literal(predicate_value)))
 
         # This adds a triple specifying that this node belongs to this RDFS class.
-        lib_kbase.AddNodeToRdfsClass(new_grph, url_node, class_name, entity_label)
+        lib_kbase.add_node_to_rdfs_class(new_grph, url_node, class_name, entity_label)
 
         return class_name
 

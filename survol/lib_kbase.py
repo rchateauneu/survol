@@ -228,33 +228,29 @@ survol_url = "http://www.primhillcomputers.com/survol#"
 LDT = rdflib.Namespace(survol_url)
 prefix_terminator = "#"
 
-# TOOD: Remove these duplicates.
 
-def RdfsPropertyNode(property_name):
+def property_node_uriref(property_name):
+    """
+    Create a Survol property node.
+    """
     return rdflib.URIRef(LDT[property_name])
 
-def _rdfs_class_node(class_name):
-    """Create the node to add to the Graph
-    Example: "http://www.primhillcomputers.com/survol#CIM_DataFile" """
-    return rdflib.URIRef(LDT[class_name])
 
 def class_node_uriref(class_name):
-    return rdflib.term.URIRef(survol_url + class_name)
+    """
+    Create a Survol class node.
+    Example: "http://www.primhillcomputers.com/survol#CIM_DataFile"
+    """
+    return rdflib.URIRef(LDT[class_name])
 
 
-def property_node_uriref(class_name):
-    return rdflib.term.URIRef(survol_url + class_name)
-
-################################################################################
-
-
-def AddNodeToRdfsClass(grph, node_object, class_name, entity_label):
+def add_node_to_rdfs_class(grph, node_object, class_name, entity_label):
     """
     This adds to the RDF graph, some triples defining the class and label of an object.
     It is used when exporting an ontology.
     These triples are a RDF standard and can be used by other softwares.
     """
-    node_class = _rdfs_class_node(class_name)
+    node_class = class_node_uriref(class_name)
     grph.add((node_object, RDF.type, node_class))
     grph.add((node_object, RDFS.label, rdflib.Literal(entity_label)))
 
@@ -276,12 +272,12 @@ def CreateRdfsOntology(map_classes, map_attributes, graph):
         if not the_class_name:
             raise Exception("Empty class name")
 
-        node_class = _rdfs_class_node(the_class_name)
+        node_class = class_node_uriref(the_class_name)
 
         the_graph.add((node_class, RDF.type, RDFS.Class))
         if the_base_class_name:
             # Empty string if top-level class.
-            my_base_class_node = _rdfs_class_node(the_base_class_name)
+            my_base_class_node = class_node_uriref(the_base_class_name)
             the_graph.add((node_class, RDFS.subClassOf, my_base_class_node))
         the_graph.add((node_class, RDFS.label, rdflib.Literal(the_class_name)))
         if text_description:
@@ -333,7 +329,7 @@ def CreateRdfsOntology(map_classes, map_attributes, graph):
 ################################################################################
 
 
-def CheckMinimalRdsfOntology(ontology_graph):
+def check_minimal_rdsf_ontology(ontology_graph):
     """This is only for testing purpose.
     It checks that a minimal subset of classes and predicates are defined."""
 
@@ -412,9 +408,9 @@ def CheckMinimalRdsfOntology(ontology_graph):
 
     missing_triples = []
     for subject_name, predicate_name, object_name in shared_classes:
-        subject_node = _rdfs_class_node(subject_name) if subject_name else None
-        predicate_node = _rdfs_class_node(predicate_name) if predicate_name else None
-        object_node = _rdfs_class_node(object_name) if object_name else None
+        subject_node = class_node_uriref(subject_name) if subject_name else None
+        predicate_node = class_node_uriref(predicate_name) if predicate_name else None
+        object_node = class_node_uriref(object_name) if object_name else None
 
         triple_find = (subject_node, predicate_node, object_node)
         if not triple_find in ontology_graph:
