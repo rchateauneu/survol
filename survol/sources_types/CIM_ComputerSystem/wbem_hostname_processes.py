@@ -33,7 +33,7 @@ def Main():
     # If running on the local machine, pass the host as None otherwise authorization is checked
     # just like a remote machine, which means User Account Control (UAC) disabling,
     # and maybe setting LocalAccountTokenFilterPolicy=1
-    if lib_util.IsLocalAddress(machine_name):
+    if lib_util.is_local_address(machine_name):
         server_box = lib_common.gUriGen
     else:
         server_box = lib_common.RemoteBox(machine_name)

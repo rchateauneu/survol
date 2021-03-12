@@ -26,7 +26,7 @@ def Main():
 
 	# serv_name_or_none is for Windows functions where the local host must be None.
 	# serv_name_not_none is for our URLs where the hostname must be explicit.
-	if not server or lib_util.IsLocalAddress(server):
+	if not server or lib_util.is_local_address(server):
 		serv_name_or_none = None
 
 		# So it is compatible with WMI.

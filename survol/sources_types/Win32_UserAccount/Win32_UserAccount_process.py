@@ -36,7 +36,7 @@ def Main():
 
 	if userHost:
 		# if userHost != lib_util.currentHostname:
-		if not lib_util.IsLocalAddress( userHost ):
+		if not lib_util.is_local_address( userHost ):
 			# TODO: Should interrogate other host with "finger" protocol.
 			# Cannot get user properties on different host:rchateau-HP than rchateau-HP.home
 			lib_common.ErrorMessageHtml("Cannot get user properties on different host:%s than %s" % ( userHost, lib_util.currentHostname ))

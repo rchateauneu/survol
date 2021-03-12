@@ -454,7 +454,7 @@ class CgiEnv():
         if can_process_remote or self.m_entity_host is None:
             return
 
-        if lib_util.IsLocalAddress(self.m_entity_host):
+        if lib_util.is_local_address(self.m_entity_host):
             return
 
         ErrorMessageHtml("Script %s cannot handle remote hosts on host=%s" % (sys.argv[0], self.m_entity_host))

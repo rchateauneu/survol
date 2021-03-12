@@ -218,7 +218,6 @@ def UriRootHelper():
     try:
         # Checks of this environment variable is defined.
         os.environ["SERVER_NAME"]
-        # sys.stderr.write("SERVER_NAME=%s gethostname=%s\n" % (os.environ["SERVER_NAME"], socket.gethostname()))
     except KeyError:
         # This is necessary when returning objects for example from get_instances()
         # in the client library lib_client.py. The local objects need a hostname,
@@ -227,7 +226,6 @@ def UriRootHelper():
         # on-the-fly by the actual host name.
         # An alternative is to specify the right hostname here.
         os.environ["SERVER_NAME"] = socket.gethostname().lower()
-        # sys.stderr.write("SERVER_NAME=%s FIXED\n" % os.environ["SERVER_NAME"])
     try:
         # SCRIPT_NAME=/PythonStyle/survol/internals/print.py
         # SCRIPT_NAME=/survol/print_environment_variables.py
@@ -238,7 +236,6 @@ def UriRootHelper():
         else:
             # Should not happen.
             root = "/NON_SURVOL_URL/" + scriptNam
-        # sys.stderr.write("UriRootHelper scriptNam=%s root=%s\n"%(scriptNam,root))
 
     except KeyError:
         # If this runs from the command line and not as a CGI script,
@@ -246,7 +243,6 @@ def UriRootHelper():
         # Just like SERVER_NAME, it should test that the caller is lib_client.py.
         root = prefixLocalExecution
     urh = HttpPrefix() + root
-    # sys.stderr.write("UriRootHelper urh=%s\n"%urh)
     return urh
 
 
@@ -324,10 +320,8 @@ currentHostname = HostName()
 def GlobalGetHostByName(host_nam):
     try:
         the_ip = socket.gethostbyname(host_nam)
-        # sys.stderr.write("GlobalGetHostByName tm=%f OK host_nam=%s the_ip=%s\n"%(time.time()-timeStart,host_nam,the_ip))
         return the_ip
     except Exception:
-        # sys.stderr.write("GlobalGetHostByName tm=%f FAIL host_nam=%s\n"%(time.time()-timeStart,host_nam))
         return host_nam
 
 
@@ -340,7 +334,7 @@ except Exception:
     localIP = "127.0.0.1"
 
 
-def IsLocalAddress(an_host_nam):
+def is_local_address(an_host_nam):
     """
     This is for example used by WMI, which does not accept credentials
     for a local machine: We must therefore be sure that the machine is local or not.
@@ -349,7 +343,6 @@ def IsLocalAddress(an_host_nam):
     # Maybe entity_host="http://192.168.1.83:5988"
     host_only = EntHostToIp(an_host_nam)
     if host_only in [ None, "", "localhost", "127.0.0.1", currentHostname]:
-        # sys.stderr.write("IsLocalAddress %s TRUE\n"%an_host_nam)
         return True
 
     try:
@@ -357,20 +350,16 @@ def IsLocalAddress(an_host_nam):
     # socket.gaierror
     except Exception as exc:
         # Unknown machine
-        # sys.stderr.write("IsLocalAddress an_host_nam=%s:%s FALSE\n" % ( an_host_nam, str(exc) ) )
         return False
 
-    # IsLocalAddress MYHOST-HP ip_only=192.168.0.14 localIP=127.0.0.1 currentHostname=127.0.0.1
+    # is_local_address MYHOST-HP ip_only=192.168.0.14 localIP=127.0.0.1 currentHostname=127.0.0.1
     if ip_only in ["0.0.0.0", "127.0.0.1", localIP]:
-        # sys.stderr.write("IsLocalAddress %s TRUE\n"%an_host_nam)
         return True
 
     # "MYHOST-HP" and "myhost-HP" ??
-    # sys.stderr.write("IsLocalAddress %s socket.gethostname()=%s\n"%(an_host_nam,socket.gethostname()))
     if an_host_nam.lower() == socket.gethostname().lower():
         return True
 
-    # sys.stderr.write("IsLocalAddress %s FALSE\n"%an_host_nam)
     return False
 
 

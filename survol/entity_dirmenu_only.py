@@ -271,7 +271,7 @@ def Main():
 
     name_space, entity_type = cgiEnv.get_namespace_type()
 
-    if lib_util.IsLocalAddress(entity_host):
+    if lib_util.is_local_address(entity_host):
         entity_host = ""
 
     logging.debug("entity: entity_host=%s entity_type=%s entity_id=%s", entity_host, entity_type, entity_id )
