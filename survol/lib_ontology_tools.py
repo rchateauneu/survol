@@ -138,7 +138,7 @@ def _convert_ontology_to_rdf(map_classes, map_attributes, rdf_graph):
             class_node = lib_kbase.class_node_uriref(domain_class_name)
             rdf_graph.add((property_node, rdflib.namespace.RDFS.domain, class_node))
         predicate_type_name = property_dict['predicate_type']
-        assert isinstance(predicate_type_name, str)
+        assert isinstance(predicate_type_name, str), "Should not be %s" % str(type(predicate_type_name))
 
         # This maps WMI-like types to RDF types. This could be generated automatically,
         # because it is intentionaly a one-to-one mapping from string to type.
