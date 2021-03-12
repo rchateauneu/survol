@@ -527,7 +527,9 @@ def _parse_xid_local(xid):
     A class name starts with a letter. There are no consecutives slashes "/".
     """
 
-    # TODO: Filter when consecutives slashes.
+    assert isinstance(xid, str), "Type should not be %s" % str(type(xid))
+
+    # TODO: Filter when consecutives slashes. Pre-compile this regular expression.
     mtch_entity = re.match(r"([-0-9A-Za-z_]*\\?[-0-9A-Za-z_\.]*@)?([a-zA-Z_][a-z0-9A-Z_/]*)\.(.*)", xid)
 
     if mtch_entity:
@@ -633,12 +635,10 @@ def ParseXid(xid):
     ParseXid xid=CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2
     """
 
-    # sys.stderr.write( "ParseXid xid=%s\n" % (xid) )
-
     # First, we try to match our terminology.
     # The type can be in several directories separated by slashes: "oracle/table"
     # If suffixed with "/", it means namespaces.
-
+    assert isinstance(xid, str), "Type should not be %s" % str(type(xid))
     entity_triplet = _parse_xid_local(xid)
     if entity_triplet:
         return entity_triplet
@@ -654,7 +654,6 @@ def ParseXid(xid):
     if entity_triplet:
         return entity_triplet
 
-    # sys.stderr.write( "ParseXid=%s RETURNS NOTHING\n" % (xid) )
     return "", "", ""
 
 ################################################################################
@@ -664,7 +663,6 @@ def ParseXid(xid):
 # '\\\\MYHOST-HP\\root\\cimv2:Win32_Process.Handle="0"'  => "root\\cimv2:Win32_Process"
 # https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"  => ""
 def parse_namespace_type(ns_entity_type):
-    # sys.stderr.write("ParseEntityType entity_type=%s\n" % ns_entity_type )
     ns_split = ns_entity_type.split(":")
     if len(ns_split) == 1:
         entity_namespace = ""
@@ -849,7 +847,6 @@ def EntityScriptFromPath(moniker_entity, is_class, is_namespace, is_hostname):
 def EntityUrlFromMoniker(moniker_entity, is_class=False, is_namespace=False, is_hostname=False):
     script_path = EntityScriptFromPath(moniker_entity, is_class, is_namespace, is_hostname)
 
-    # sys.stderr.write("EntityUrlFromMoniker script_path=%s\n"%script_path)
     url = uriRoot + "/" + script_path + xidCgiDelimiter + EncodeUri(moniker_entity)
     return url
 
@@ -1474,15 +1471,13 @@ def split_url_to_entity(calling_url):
     http://LOCAL_MODE:80/LocalExecution/sources_types/Win32_UserAccount/Win32_NetUserGetGroups.py?xid=Win32_UserAccount.Domain%3Dthe_machine%2CName%3Drchateau"
     "http://the_machine:8000/survol/sources_types/CIM_Directory/doxygen_dir.py?xid=CIM_Directory.Name%3DD%3A"
     """
-
+    assert isinstance(calling_url, str), "Type should not be %s" % str(type(calling_url))
     parse_url = survol_urlparse(calling_url)
     query = parse_url.query
 
     params = parse_qs(query)
-
     xid_param = params['xid'][0]
     entity_type, entity_id, entity_host = ParseXid(xid_param)
-    #sys.stderr.write("split_url_to_entity entity_id=%s\n" % entity_id)
     entity_id_dict = SplitMoniker(entity_id)
 
     return parse_url.path, entity_type, entity_id_dict
@@ -1630,18 +1625,15 @@ def _get_entity_module_without_cache_no_catch(entity_type):
     else:
         entity_package = "sources_types"
         entity_name = "." + entity_type
-    # sys.stderr.write("Loading from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
     if (sys.platform.startswith("win32") and sys.version_info >= (3, 2) and sys.version_info < (3, 3) ) \
     or (sys.platform.startswith("lin") and sys.version_info >= (3, 2) ):
         entity_module = importlib.import_module(entity_package + entity_name)
     else:
         entity_module = importlib.import_module(entity_name, entity_package)
-    # sys.stderr.write("Loaded OK from new hierarchy entity_name=%s entity_package=%s\n:"%(entity_name,entity_package))
     return entity_module
 
 
 def _get_entity_module_without_cache(entity_type):
-    # sys.stderr.write("_get_entity_module_without_cache entity_type=%s\n"%entity_type)
 
     # Temporary hack to avoid an annoying warning message. This type of entity is used for Survol scripts
     # which return information. It is usefull to display them, so they need a special type,
@@ -1666,8 +1658,6 @@ def GetEntityModuleNoCatch(entity_type):
     If it does not throw, then try to load the module.
     """
 
-    # sys.stderr.write("_get_entity_module_without_cache entity_type=%s\n"%entity_type)
-
     # Do not throw KeyError exception.
     if entity_type in _cache_entity_to_module:
         return _cache_entity_to_module[ entity_type]
@@ -1681,10 +1671,6 @@ def GetEntityModuleNoCatch(entity_type):
 # Or:  GetEntityModuleFunction(entity_type,functionName):
 # ... which would explore from bottom to top.
 def GetEntityModule(entity_type):
-    # sys.stderr.write("PYTHONPATH="+os.environ['PYTHONPATH']+"\n")
-    # sys.stderr.write("sys.path="+str(sys.path)+"\n")
-    # sys.stderr.write("GetEntityModule entity_type=%s Caller=%s\n"%(entity_type, sys._getframe(1).f_code.co_name))
-
     try:
         # Might be None if the module does not exist.
         return _cache_entity_to_module[entity_type]
@@ -1759,7 +1745,6 @@ def DirDocNode(arg_dir, the_dir):
     otherwise the file name is 'beautifuled'.
     """
 
-    # sys.stderr.write("DirDocNode arg_dir=%s dir=%s\n"%(arg_dir,dir))
     full_module = arg_dir + "." + the_dir
 
     try:
@@ -1822,19 +1807,21 @@ def TimeStamp():
 # TODO: Check for double insertion.
 # domainPredicate and rangePredicate are class names.
 # TODO: The data type is not correct.
-def AppendPropertySurvolOntology(
+def append_property_survol_ontology(
         name_predicate,
         description_predicate,
         domain_predicate,
         range_predicate,
         map_attributes):
     if range_predicate:
-        data_type = None
+        data_type = "ref:" + range_predicate # This is the WMI way to indicate a class.
     else:
+        # Default type for scalar values for Survol.
         data_type = "survol_string"
     if not description_predicate:
         description_predicate = "Predicate %s" % name_predicate
     if name_predicate in map_attributes:
+        assert isinstance(domain_predicate, str)
         map_attributes[name_predicate]["predicate_domain"].append(domain_predicate)
     else:
         map_attributes[name_predicate] = {
@@ -1889,7 +1876,7 @@ def AppendClassSurvolOntology(entity_type, map_classes, map_attributes):
         onto_list = OntologyClassKeys(entity_type)
         # We do not have any other information about ontology keys.
         for onto_key in onto_list:
-            AppendPropertySurvolOntology(onto_key, "Ontology predicate %s"%onto_key, class_name_cim, None, map_attributes)
+            append_property_survol_ontology(onto_key, "Ontology predicate %s" % onto_key, class_name_cim, None, map_attributes)
 
         idx = next_slash
 
