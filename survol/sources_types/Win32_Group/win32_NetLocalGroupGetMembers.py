@@ -76,7 +76,7 @@ def Main():
     except Exception as exc:
         lib_common.ErrorMessageHtml("Server=%s Caught:%s" % (server, str(exc)))
 
-    if not server or lib_util.IsLocalAddress(server):
+    if not server or lib_util.is_local_address(server):
         servName_or_None = None
 
         # So it is compatible with WMI.

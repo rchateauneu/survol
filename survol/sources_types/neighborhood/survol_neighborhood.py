@@ -27,7 +27,7 @@ def AddSurvolNode(grph,hostSurvol,urlSurvolClean):
 	# - If we are in D3 mode, this should return a JSON object from the other agent.
 	if currDispMode == "json":
 
-		if lib_util.IsLocalAddress( hostSurvol ):
+		if lib_util.is_local_address( hostSurvol ):
 			machName_or_None = None
 			serverBox = lib_common.gUriGen
 		else:
