@@ -15,7 +15,6 @@ def FilenameToMime(path_name):
     """
     This returns the MIME type of a file
     """
-    # sys.stderr.write("FilenameToMime pathName=%s\n"%pathName)
 
     # Avoid access to the credentials file, just in case. Ideally the file should not be visible.
     if path_name.upper().find("CREDENTIALS") >= 0:

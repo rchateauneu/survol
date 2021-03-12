@@ -60,12 +60,9 @@ def _out_cgi_mode(theCgi, top_url, mode, error_msg=None):
     parameters = theCgi.m_parameters
     parameterized_links = theCgi.m_parameterized_links
 
-    #sys.stderr.write("_out_cgi_mode theCgi.m_collapsed_properties=%s\n" % str(theCgi.m_collapsed_properties))
-
     # Now extract and remove all metadata, also the ones which were already here.
     # They are not left in the graph, because they break some tests.
     collapsed_properties, commutative_properties = lib_properties.extract_properties_metadata(grph)
-    #sys.stderr.write("_out_cgi_mode from meta_data collapsed_properties=%s\n" % str(collapsed_properties))
 
     # Which this, all collapsed properties are in this list.
     # It would not harm to leave them, but some tests which analyses the exact output content would break.
@@ -98,11 +95,8 @@ def _out_cgi_mode(theCgi, top_url, mode, error_msg=None):
     elif mode in ["svg", ""]:
         # Default mode, because graphviz did not like several CGI arguments in a SVG document (Bug ?),
         # probably because of the ampersand which must be escaped, or had to be in old versions.
-
         # This test holds because for the moment, all collapsed properties are known in advance.
         # This will be more flexible.
-        #sys.stderr.write("collapsed_properties=%s\n" % str(collapsed_properties))
-        #sys.stderr.write("commutative_properties=%s\n" % str(commutative_properties))
 
         lib_export_dot.GraphToSvg(page_title, error_msg, parameters, grph, parameterized_links, top_url,
                       theCgi.m_layout_style, collapsed_properties, commutative_properties)
@@ -523,7 +517,6 @@ class CgiEnv():
         # Default value if no CGI argument.
         try:
             dflt_value = self.m_parameters[paramkey]
-            # sys.stderr.write("get_parameters %s Default=%s\n" % ( paramkey, dflt_value ) )
             has_dflt_val = True
         except KeyError:
             has_dflt_val = False
@@ -661,7 +654,6 @@ class CgiEnv():
         prms_copy = dict()
         for arg_k in cgi.FieldStorage():
             arg_v = cgi.FieldStorage()[arg_k].value
-            # sys.stderr.write("add_parameterized_links arg_k=%s arg_v=%s\n"%(arg_k,arg_v))
             prms_copy[arg_k] = lib_util.urllib_quote(arg_v)
 
         # Update these parameters with the values specific for this label.
@@ -834,8 +826,10 @@ def SubProcPOpen(command):
 
 
 def SubProcCall(command):
-    # For doxygen, we should have shell=True but this is NOT safe.
-    # Shell is however needed for unit tests.
+    """
+    For doxygen, we should have shell=True but this is NOT safe.
+    Shell is however needed for unit tests.
+    """
     logging.debug("command=%s", command)
     ret = subprocess.call(command, stdout=sys.stderr, stderr=sys.stderr, shell=True)
     return ret
@@ -880,7 +874,6 @@ def _is_fonts_file(path):
 
     if lib_util.isPlatformWindows:
         tmp, file_ext = os.path.splitext(path)
-        # sys.stderr.write("_is_fonts_file file_ext=%s\n" % file_ext)
         return file_ext in [".ttf", ".ttc"]
 
     elif lib_util.isPlatformLinux:
@@ -903,7 +896,6 @@ def is_meaningless_file(path, remove_shared_libs, remove_fonts_file):
 
     if remove_fonts_file:
         if _is_fonts_file(path):
-            # sys.stderr.write("YES is_meaningless_file path=%s\n" % path)
             return True
 
     return False

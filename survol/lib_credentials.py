@@ -34,7 +34,7 @@ def credentials_filename():
             except KeyError:
                 logging.warning("_get_home_directory: No HOME dir")
                 if False:
-                    # Slow complete print.
+                    # Slow and complete print, for debugging.
                     available_envs = sorted([key for key in os.environ])
                     for one_key in available_envs:
                         logging.warning("_get_home_directory: env[%s] = %s" % (one_key, os.environ[one_key]))
@@ -128,7 +128,6 @@ def GetCredentials(cred_type, cred_name):
     cred_name_upper = cred_name.upper()
     try:
         cred = arr_type_upper[cred_name_upper]
-        # sys.stderr.write("GetCredentials credType=%s credName=%s usr=%s pass=%s\n" % (credType,credName,cred[0],cred[1]))
         return cred
     except KeyError:
         logging.warning("GetCredentials Unknown name credType=%s credName=%s", cred_type, cred_name)
