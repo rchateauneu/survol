@@ -407,7 +407,7 @@ class BaseCIMClass(object):
         data_json = json.loads(data_json_str)
 
         # The scripts urls are the keys of the Json object.
-        list_sources = [script_url_to_source(one_scr) for one_scr in data_json]
+        list_sources = [script_url_to_source(str(one_scr)) for one_scr in data_json]
         return list_sources
 
     def __get_scripts_local(self):
@@ -440,7 +440,7 @@ class BaseCIMClass(object):
             entity_host,
             flag_show_all)
 
-        list_sources = [script_url_to_source(one_scr) for one_scr in list_scripts]
+        list_sources = [script_url_to_source(str(one_scr)) for one_scr in list_scripts]
         return list_sources
 
     def get_instance_bag_of_words(self):
