@@ -6,12 +6,11 @@ Scan process for HTTP urls.
 
 import os
 import sys
+import logging
 
-import lib_util
 import lib_common
 from lib_properties import pc
 
-from sources_types import CIM_Process
 from sources_types.CIM_Process import memory_regex_search
 
 SlowScript = True
@@ -49,9 +48,9 @@ def Main():
             resu_clean.add(url_http)
 
         for url_http in resu_clean:
-            # sys.stderr.write("url_http=%s\n"%url_http)
             node_portal_web = lib_common.NodeUrl(url_http)
             grph.add((node_process, pc.property_rdf_data_nolist1, node_portal_web))
+        logging.debug("Added %d nodes, len_graph=%d", len(resu_clean), len(grph))
 
     except Exception as exc:
         lib_common.ErrorMessageHtml("Error:%s. Protection ?" % str(exc))
