@@ -366,7 +366,7 @@ def is_local_address(an_host_nam):
 # Beware: lib_util.currentHostname="Unknown-30-b5-c2-02-0c-b5-2.home"
 # socket.gethostname() = 'Unknown-30-b5-c2-02-0c-b5-2.home'
 # socket.gethostbyaddr(hst) = ('Unknown-30-b5-c2-02-0c-b5-2.home', [], ['192.168.1.88'])
-def SameHostOrLocal(srv, ent_host):
+def same_host_or_local(srv, ent_host):
     if (ent_host == srv) or ((ent_host is None or ent_host in ["", "0.0.0.0"]) and (localIP == srv)):
         # We might add credentials.
         return True

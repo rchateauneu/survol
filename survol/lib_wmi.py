@@ -115,7 +115,7 @@ def WmiConnect(mach_with_back_slashes, wmi_namspac, throw_if_error=True):
         dict_params['password'] = wmi_pass
 
     # TODO: THIS DOES NOT MAKE SENSE AND SHOULD BE CHANGED LIKE lib_wbem.py.
-    if not lib_util.SameHostOrLocal(wmi_machine, None):
+    if not lib_util.same_host_or_local(wmi_machine, None):
         dict_params['computer'] = wmi_machine
 
     logging.debug("WmiConnect wmi_machine=%s wmiNamspac=%s dict_params=%s", wmi_machine, wmi_namspac, str(dict_params))
