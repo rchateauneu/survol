@@ -297,7 +297,7 @@ class ProcessMemoryUrlsTest(unittest.TestCase):
 
                 # This flag because the URLs are added with the predicate pc.property_rdf_data_nolist1
                 # This is some sort of hard-code but it does not matter yet in a test program.
-                urls_list = one_instance.graph_attributes['ldt:Data1']
+                urls_list = one_instance.graph_attributes['ns1:Data1']
                 print("urls_list=", urls_list)
                 # There should be one process only.
                 self.assertTrue( urls_set is None)
