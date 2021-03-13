@@ -49,6 +49,10 @@ associator_CIM_DirectoryContainsFile_PartComponent = \
     lib_kbase.property_node_uriref("CIM_DirectoryContainsFile.PartComponent")
 
 associator_CIM_ProcessExecutable = lib_kbase.property_node_uriref("CIM_ProcessExecutable")
+associator_CIM_ProcessExecutable_Antecedent = \
+    lib_kbase.property_node_uriref("CIM_ProcessExecutable.Antecedent")
+associator_CIM_ProcessExecutable_Dependent = \
+    lib_kbase.property_node_uriref("CIM_ProcessExecutable.Dependent")
 
 ################################################################################
 
