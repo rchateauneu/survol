@@ -128,7 +128,7 @@ def _convert_ontology_to_rdf(map_classes, map_attributes, rdf_graph):
 
     for property_name, property_dict in map_attributes.items():
         property_node = lib_kbase.property_node_uriref(property_name)
-        rdf_graph.add((property_node, rdflib.namespace.RDFS.label, rdflib.Literal(class_name)))
+        rdf_graph.add((property_node, rdflib.namespace.RDFS.label, rdflib.Literal(property_name)))
 
         rdf_graph.add((property_node, rdflib.namespace.RDF.type, rdflib.namespace.RDF.Property))
         attribute_domain = property_dict['predicate_domain']
