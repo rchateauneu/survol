@@ -17,6 +17,7 @@ from sources_types import CIM_ComputerSystem
 
 # TODO: Use descriptions provided by lib_bookmark.py
 
+# TODO: Consider using _flat_properties_list
 _list_props_td_double_col_span = [pc.property_information, pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist1]
 
 
