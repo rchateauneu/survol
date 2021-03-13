@@ -61,6 +61,7 @@ def _get_named_ontology_from_file(ontology_name, ontology_extractor):
     today_date = datetime.date.today()
     date_string = today_date.strftime("%Y%m")
 
+    # These files contain the ontology are a valid for one month.
     path_classes = "%s/survol_ontology_classes.%s.%s.json" % (tmp_dir, ontology_name, date_string)
     path_attributes = "%s/survol_ontology_attributes.%s.%s.json" % (tmp_dir, ontology_name, date_string)
     path_rdf_ontology = "%s/survol_ontology_rdf.%s.%s.xml" % (tmp_dir, ontology_name, date_string)
@@ -118,9 +119,7 @@ def _convert_ontology_to_rdf(map_classes, map_attributes, rdf_graph):
     This internal format works for WMI, WBEM and Survol ontology (which is much simpler).
     """
 
-    # classes_map[class_name] = {"base_class": base_class_name, "class_description": text_descr}
     for class_name, class_dict in map_classes.items():
-        #class_node = rdflib.term.URIRef(lib_kbase.survol_url + class_name)
         class_node = lib_kbase.class_node_uriref(class_name)
         rdf_graph.add((class_node, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
         rdf_graph.add((class_node, rdflib.namespace.RDFS.label, rdflib.Literal(class_name)))
