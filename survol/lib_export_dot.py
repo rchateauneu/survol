@@ -345,7 +345,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
                     stream.write(
                         _pattern_edge_oriented
                         % (subj_nam, obj_nam, prp_col, lib_kbase.qname(prop, grph)))
-            elif prop in [pc.property_rdf_data_nolist1, pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist3]:
+            elif prop in _flat_properties_list:
                 # HTML and images urls can be "flattened" because the nodes have no descendants.
                 # Do not create a node for this.
                 # MIME links displayed in the same column as sub-directory.
