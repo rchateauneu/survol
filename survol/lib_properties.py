@@ -152,6 +152,8 @@ pc.property_file_device          = MakeProp("file_device")
 # TODO: Should use RDFS.seeAlso
 # TODO: Is "property_description" really used ?
 pc.property_script               = MakeProp("script", property_description="Data source")
+# TODO: These properties in _flat_properties_list are differently displayed in SVG.
+# TODO: They are displayed like literal values (without a node) but as a URL.
 pc.property_rdf_data_nolist1     = MakeProp("Data1") # These three have a special role.
 pc.property_rdf_data_nolist2     = MakeProp("Data2") # Names must all be different
 pc.property_rdf_data_nolist3     = MakeProp("Data3") # Names must all be different
