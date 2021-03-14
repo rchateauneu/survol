@@ -225,7 +225,7 @@ def recursive_walk_on_scripts(callback_grph_add, parent_node, entity_type, entit
             callback_grph_add((a_parent_node, pc.property_script, rdf_node), depth_call)
 
             # Default doc text is file name minus the ".py" extension.
-            nod_modu = lib_util.FromModuleToDoc(imported_mod, fil[:-3])
+            nod_modu = lib_util.module_doc_string(imported_mod, fil[:-3])
 
             callback_grph_add((rdf_node, pc.property_information, nod_modu), depth_call)
 

@@ -1700,7 +1700,7 @@ def GetScriptModule(current_module, fil):
 ################################################################################
 
 
-def FromModuleToDoc(imported_module, fil_default_text):
+def module_doc_string(imported_module, fil_default_text):
     """
         Returns the doc string of a module as a literal node. Possibly truncated
         so it can be displayed.
@@ -1713,8 +1713,8 @@ def FromModuleToDoc(imported_module, fil_default_text):
         doc_modu_split = doc_modu_all.split("\n")
         doc_modu = None
         for doc_modu in doc_modu_split:
-            if doc_modu     :
-                # sys.stderr.write("DOC="+docModu)
+            if doc_modu:
+                # Arbitrary truncation string length.
                 max_len = 40
                 if len(doc_modu) > max_len:
                     doc_modu = doc_modu[0:max_len] + "..."
@@ -1745,7 +1745,7 @@ def DirDocNode(arg_dir, the_dir):
         return None
 
     # Add three characters otherwise it is truncated just like a Python file extension.
-    return FromModuleToDoc(imported_mod, the_dir)
+    return module_doc_string(imported_mod, the_dir)
 
 
 def _append_not_none_hostname(script, hostname):
