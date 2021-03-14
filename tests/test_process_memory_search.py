@@ -171,7 +171,6 @@ class ProcessMemoryCOMClassesTest(unittest.TestCase):
         proc_open.communicate()
 
 
-@unittest.skip("TODO: Not implemented yet")
 class ProcessMemoryConnectionStringsTest(unittest.TestCase):
     """This searches with regular expressions in the mmemory of a running process.
     It does not need a Survol agent"""
@@ -323,8 +322,9 @@ class ProcessMemoryUrlsTest(unittest.TestCase):
         print("tst_stdout=", tst_stdout)
         return urls_set
 
+    # TODO: Remove this redundant test.
     @unittest.skipIf(is_platform_linux, "TODO: Not working on Linux yet")
-    @unittest.skipIf(not is_py3, "TODO: Windows only.")
+    @unittest.skipIf(not is_py3, "FIXME: Python 3 only.")
     def test_from_python23(self):
         urls_set = self._get_urls_from_python_process()
         self.assertTrue("https://pypi.org" in urls_set)
