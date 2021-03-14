@@ -432,7 +432,7 @@ class BaseCIMClass(object):
         entity_host = None # To start with
         root_node = None # The top-level is script is not necessary.
 
-        entity_dirmenu_only.DirToMenu(
+        entity_dirmenu_only.recursive_walk_on_scripts(
             callback_grph_add,
             root_node,
             entity_type,
