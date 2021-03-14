@@ -42,7 +42,7 @@ def Main():
 
 		moduleDbType = lib_util.GetScriptModule(namDbType, scriptNam)
 		# This removes the ".py" file extension.
-		nodeTypeDb = lib_util.FromModuleToDoc(moduleDbType,scriptNam[:-3])
+		nodeTypeDb = lib_util.module_doc_string(moduleDbType, scriptNam[:-3])
 
 		# This creates a non-clickable node. TODO: DOES NOT WORK ??
 
