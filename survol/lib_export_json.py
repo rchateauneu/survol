@@ -127,15 +127,13 @@ def _write_json_header(buf_json, with_content_length=False):
 def write_json_error(message):
     """
     This is called only by ErrorMessageHtml when an error is detected and the output format is JSON,
-    for the D£ Survol interface.
+    for the D3 Survol interface.
     After that, the calling function makes an exit.
     The error message is formatted in the standard for returning errors.
     http://labs.omniti.com/labs/jsend
     """
     logging.warning("WriteJsonError message="+message)
-    json_err = {}
-    json_err["status"] = "error"
-    json_err["message"] = message
+    json_err = {"status": "error", "message": message}
 
     # The only case where Content-Length is added.
     _write_json_header(json.dumps(json_err, indent=2), True)
@@ -241,10 +239,11 @@ def output_rdf_graph_as_json_d3(page_title, error_msg, parameters, grph):
             'survol_info_dict'       : nod_obj.m_info_dict
         }
 
-    graph = {}
-    graph["page_title"] = page_title
-    graph["nodes"] = nodes
-    graph["links"] = links
+    # This is the graph displayed by D3.
+    graph = {
+        "page_title": page_title,
+        "nodes": nodes,
+        "links": links}
 
     _write_json_header(json.dumps(graph, indent=2))
 
@@ -305,10 +304,10 @@ def output_rdf_graph_as_json_menu(page_title, error_msg, parameters, grph):
         list_json_items = {}
 
         for one_rdf_nod in the_nod_list:
-            one_json_nod = {}
+            one_json_nod = {
+                "name": nodes_to_names.get(one_rdf_nod, "No name"),
+                "url": one_rdf_nod}
             # This should be the sort key.
-            one_json_nod["name"] = nodes_to_names.get(one_rdf_nod, "No name")
-            one_json_nod["url"] = one_rdf_nod
 
             # Maybe it does not have subitems.
             try:
