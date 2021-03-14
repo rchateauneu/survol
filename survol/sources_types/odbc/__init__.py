@@ -220,23 +220,21 @@ class CgiPropertyDsn(str):
         # sys.stderr.write("ValueEncode connectStrClear=%s\n"%connectStrClear)
         vec_keywrd = re.split(" *; *", connect_str_clear)
 
-        def KeyValuePairEncode(kv_pair):
-            a_key_wrd, a_val = re.split(" *= *", kv_pair)
-            # sys.stderr.write("KeyValuePairEncode a_key_wrd=%s\n"%a_key_wrd)
-            if a_key_wrd in _odbc_keys_confidential:
-                a_val = lib_util.html_escape(a_val) # SHOULD BE CRYPTED
-            elif a_key_wrd not in _odbc_keys_uncoded:
-                a_val = lib_util.html_escape(a_val)
+        def key_value_pair_encode(kv_pair):
             try:
+                a_key_wrd, a_val = re.split(" *= *", kv_pair)
+                # sys.stderr.write("key_value_pair_encode a_key_wrd=%s\n"%a_key_wrd)
+                if a_key_wrd in _odbc_keys_confidential:
+                    a_val = lib_util.html_escape(a_val) # SHOULD BE CRYPTED
+                elif a_key_wrd not in _odbc_keys_uncoded:
+                    a_val = lib_util.html_escape(a_val)
                 return a_key_wrd.upper() + "~" + a_val
             except Exception as exc:
-                logging.error("Cannot encode: %s", str(vec_keywrd))
+                logging.error("%s: Cannot process: %s", exc, str(kv_pair))
                 raise
 
-        # return "-".join( KeyValuePairEncode(aKeyW.upper(),vec_keywrd[aKeyW]) for aKeyW in vec_keywrd )
-
-        # Cannot use "-" as it is accepted in server names.
-        return _delimiter_connection_string_odbc.join(KeyValuePairEncode(kv_pair) for kv_pair in vec_keywrd)
+        # Cannot use the separator "-" as it can be used in server names.
+        return _delimiter_connection_string_odbc.join(key_value_pair_encode(kv_pair) for kv_pair in vec_keywrd)
 
     def ValueDecode(self, connect_str_coded):
         # PROBLEM "SERVER=\MY_MACHINE"
