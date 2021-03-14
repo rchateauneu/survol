@@ -172,6 +172,7 @@ class ProcessMemoryCOMClassesTest(unittest.TestCase):
 
 
 @unittest.skipIf(is_platform_linux, "TODO: Not working on Linux yet")
+@unittest.skipIf(not pkgutil.find_loader('pyodbc'), "pyodbc is needed")
 class ProcessMemoryConnectionStringsTest(unittest.TestCase):
     """This searches with regular expressions in the mmemory of a running process.
     It does not need a Survol agent"""
