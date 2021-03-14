@@ -160,7 +160,6 @@ def _run_daemon_script_in_snapshot_mode(full_url):
     # Some scripts take a long time to run.
     rdf_url_response = portable_urlopen(rdf_url, timeout=20)
     rdf_content = rdf_url_response.read()
-    #print("rdf_content=", rdf_content)
     try:
         result_graph = rdflib.Graph().parse(data=rdf_content, format="application/rdf+xml")
     except Exception as exc:
@@ -325,7 +324,6 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
         result_snapshot = self._run_script_as_snapshot(url_suffix)
         _check_events_feeder_psutil_processes_perf(self, "Snapshot only", result_snapshot)
 
-    # @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
     def test_events_feeder_psutil_system_counters(self):
         url_suffix = "events_feeder_psutil_system_counters.py"
         result_snapshot = self._run_script_as_snapshot(url_suffix)
@@ -343,7 +341,6 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
         result_snapshot = self._run_script_as_snapshot(url_suffix)
         self.assertTrue(result_snapshot)
 
-    # @unittest.skipIf(is_platform_linux or is_travis_machine(), "Windows only")
     @unittest.skipIf(is_platform_linux, "Windows only")
     def test_events_feeder_win32_dir_changes(self):
         """There is not much activity in these directories: The goal is to test that the script starts correctly."""
@@ -392,8 +389,6 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
                 proc_popen.communicate()
                 proc_popen.terminate()
 
-    #@unittest.skipIf(is_platform_windows, "Windows only")
-    #@unittest.skipIf(is_travis_machine(), "FIXME: Broken Travis")
     @unittest.skipIf(not check_program_exists("iostat"), "iostat must be installed.")
     def test_events_feeder_iostat_all_disks(self):
         url_suffix = "Linux/events_feeder_iostat_all_disks.py"
@@ -472,7 +467,6 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
         _check_events_feeder_psutil_system_counters(self, "Snapshot before events", result_snapshot)
         _check_events_feeder_psutil_system_counters(self, "Events", result_snapshot)
 
-    #@unittest.skipIf(is_platform_linux or is_travis_machine(), "Windows only")
     @unittest.skipIf(is_platform_linux, "Windows only")
     def test_events_feeder_win32_dir_changes(self):
         """This starts events_feeder_win32_dir_changes, updates a file and checks if this is detected."""
