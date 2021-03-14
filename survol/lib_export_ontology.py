@@ -128,7 +128,8 @@ def _add_ontology(old_grph):
             # The subject might be a literal directory containing provider script files.
             if not lib_kbase.IsLiteral(node_subject):
                 if lib_kbase.IsLiteral(node_object):
-                    raise Exception("seeAlso objects cannot be a literal")
+                    # Things like: subject='Languages', object='CDB%20Windows%20debugger'
+                    logging.warning("RDF object %s is a literal. Subject=%s", node_object, node_subject)
                     new_grph.add((node_subject, lib_kbase.PredicateSeeAlso, node_object))
                 else:
                     # FIXME: Maybe it already contains a mode, maybe it has no CGI args yet.
@@ -137,7 +138,8 @@ def _add_ontology(old_grph):
                     node_object_rdf = rdflib.term.URIRef(str_object_rdf)
                     new_grph.add((node_subject, lib_kbase.PredicateSeeAlso, node_object_rdf))
             else:
-                raise Exception("RDF subject cannot be a literal")
+                # Things like: subject='Languages', object='Python%20processes'
+                logging.warning("RDF subject %s is a literal. Object=%s", node_subject, node_object)
         elif node_predicate == pc.property_information:
             new_grph.add((node_subject, lib_kbase.PredicateComment, node_object))
         else:
