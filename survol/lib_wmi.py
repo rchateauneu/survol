@@ -655,15 +655,6 @@ def extract_specific_ontology_wmi():
             if prop_obj_name is not None:
                 map_classes[class_name]["non_key_properties_list"].append(prop_obj_name)
 
-        """
-        Mettre quelque part les attributes qui ne sont pas obligatoires,
-        comme ParentProcessId ou CIM_DirectoryContainsFile ou CIM_ProcessExecutable.
-        
-        Ajouter dans:
-        map_classes[class_name]["class_extra_keys_list"] = []
-        et en vrac dans map_attributes
-        """
-
     # Examples of WMI associators:
     # class_name=CIM_DirectoryContainsFile
     #     the_key=GroupComponent tp=ref:CIM_Directory
