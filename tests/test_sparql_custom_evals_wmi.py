@@ -1369,6 +1369,8 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
 
         self.assertTrue((lib_sparql_custom_evals.associator_CIM_DirectoryContainsFile_GroupComponent,) in query_result)
         self.assertTrue((lib_sparql_custom_evals.associator_CIM_DirectoryContainsFile_PartComponent,) in query_result)
+        self.assertTrue((lib_sparql_custom_evals.associator_CIM_ProcessExecutable_Antecedent,) in query_result)
+        self.assertTrue((lib_sparql_custom_evals.associator_CIM_ProcessExecutable_Dependent,) in query_result)
         self.assertTrue((lib_sparql_custom_evals.predicate_ParentProcessId,) in query_result)
 
         # No confusions between classes and properties.
@@ -1390,6 +1392,26 @@ class SparqlMetaTest(CUSTOM_EVALS_WMI_Base_Test):
             print("    ", one_prop)
         self.assertTrue((lib_sparql_custom_evals.predicate_Handle,) in query_result)
         self.assertTrue((lib_sparql_custom_evals.predicate_Name,) in query_result)
+        self.assertTrue((lib_sparql_custom_evals.associator_CIM_ProcessExecutable_Antecedent,) in query_result)
+        self.assertTrue((lib_sparql_custom_evals.associator_CIM_ProcessExecutable_Dependent,) not in query_result)
+
+    def test_cim_datafile_properties(self):
+        """This returns all properties of the class CIM_Process."""
+        sparql_query = """
+            PREFIX survol: <%s>
+            SELECT ?url_property
+            WHERE
+            { ?url_property rdf:type rdf:Property .
+              ?url_property rdfs:domain survol:CIM_DataFile .
+            }""" % survol_namespace
+        rdflib_graph = rdflib.Graph()
+        query_result = set(rdflib_graph.query(sparql_query))
+        print("Properties of CIM_DataFile=", query_result)
+        for one_prop in query_result:
+            print("    ", one_prop)
+        self.assertTrue((lib_sparql_custom_evals.predicate_Name,) in query_result)
+        self.assertTrue((lib_sparql_custom_evals.associator_CIM_ProcessExecutable_Antecedent,) not in query_result)
+        self.assertTrue((lib_sparql_custom_evals.associator_CIM_ProcessExecutable_Dependent,) in query_result)
 
     def test_current_process_properties(self):
         """This returns values of all properties of the current process."""

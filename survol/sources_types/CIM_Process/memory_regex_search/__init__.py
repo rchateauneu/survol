@@ -156,24 +156,23 @@ else:
 # exit(0)
 
 
-def PointedType(tp):
+def _pointed_type(tp):
     """Return the pointed type if this is a pointer, otherwise None."""
-    tpNam = tp.__name__
+    tp_nam = tp.__name__
 
-    if tpNam.startswith("LP_"):
-        if tpNam.startswith("LP_c_") or tpNam.startswith("LP_4_") or tpNam.startswith("LP_8_"):
-            # print("TRUE:"+tpNam[ 5: ])
-            return tpNam[5:]
+    if tp_nam.startswith("LP_"):
+        if tp_nam.startswith("LP_c_") or tp_nam.startswith("LP_4_") or tp_nam.startswith("LP_8_"):
+            return tp_nam[5:]
         return None
 
-    if tpNam == "c_void_p":
+    if tp_nam == "c_void_p":
         return "void"
 
     return None
 
 
-# 32 or 64 bits. Pointer size in bytes, on this platform.
-def PointerSize():
+def _pointer_size():
+    """32 or 64 bits. Pointer size in bytes, on this platform."""
     if isPtr64Target == iPtr64Platform:
         return ctypes.sizeof(ctypes.c_void_p)
     else:
@@ -215,7 +214,7 @@ def ConcatRegexes(theClass):
 
         try:
             # If there is a specific regular expression for this field.
-            cnstrs = theClass._regex_[fldNam  ]
+            cnstrs = theClass._regex_[fldNam]
             # We do not know the content of the regular expression, so better enclose it.
             # pattern += "(" + cnstrs + ")"
             pattern += cnstrs
@@ -240,7 +239,7 @@ class MemoryProcessorStructs:
                 self.m_rgxText = ConcatRegexes(structPatt)
                 self.m_rgxComp = re.compile(self.m_rgxText.encode('utf-8'), re_flags)
                 self.m_foundStructs = {}
-                # TODO: Add extravalidation based on the meaning: IP address, username etc...
+                # TODO: Add extra validation based on the meaning: IP address, username etc...
                 try:
                     self.m_validation = structPatt._validation_
                 except AttributeError:
@@ -260,46 +259,40 @@ class MemoryProcessorStructs:
 
         self.m_byStruct = {theStr: DefStruct(theStr, re_flags) for theStr in lstStructs}
 
-
     # TODO: Consider alignment of pages like the struct.
     def ParseSegment(self, addr_beg, bytes_array):
         logging.debug("ParseSegment len=%d" % len(bytes_array)) 
-        for keyStr in self.m_byStruct:
-            structDefinition = self.m_byStruct[keyStr]
-            structRegex = structDefinition.m_rgxComp
+        for key_str in self.m_byStruct:
+            struct_definition = self.m_byStruct[key_str]
+            struct_regex = struct_definition.m_rgxComp
 
             # TODO: Performances:
             # TODO: Check only aligned addresses.
             # TODO: Use finditer
-            matches = structRegex.findall(bytes_array)
+            matches = struct_regex.findall(bytes_array)
 
             if not matches:
                 continue
 
-            #print("Structure=%s" % str(keyStr) )
-            #print("Pattern=%s" % patt )
-
             for mtch in matches:
                 # TODO: Reject non-aligned addresses.
-                anObj = keyStr()
-                fit = min(len(mtch), ctypes.sizeof(anObj))
-                ctypes.memmove(ctypes.addressof(anObj), mtch, fit)
+                an_obj = key_str()
+                fit = min(len(mtch), ctypes.sizeof(an_obj))
+                ctypes.memmove(ctypes.addressof(an_obj), mtch, fit)
 
                 # Maybe this object contains pointers.
                 # TODO: Do that once only.
-                for fld in keyStr._fields_:
+                for fld in key_str._fields_:
                     fieldNam = fld[0]
                     fieldTyp = fld[1]
 
-                    # print("Nam="+fieldNam)
-
                     # TODO: Check that the type of the pointer is compatible with its alignment.
                     # TODO: The address just needs to be a multiple of the object size.
-                    pointedTypNam = PointedType(fieldTyp)
+                    pointedTypNam = _pointed_type(fieldTyp)
                     # TODO: Fix this !!!
                     if False and pointedTypNam is not None:
                         print("pointedTypNam=" + str(pointedTypNam))
-                        pointedAddr = getattr(anObj, fieldNam)
+                        pointedAddr = getattr(an_obj, fieldNam)
                         print("Pointer=" + str(pointedAddr))
                         print("Pointer=" + str(dir(pointedAddr)))
                         print("Pointer=" + str(pointedAddr.from_param(pointedAddr)))
@@ -310,7 +303,7 @@ class MemoryProcessorStructs:
                             ctypes.memmove(rgb_buffer, getRgbBuffer(), buffer_size)
                         else:
                             # pointedTypSiz = CTypesStructs.PointerSize()
-                            pointedTypSiz = PointerSize()
+                            pointedTypSiz = _pointer_size()
                             print("pointedTypSiz=" + str(pointedTypSiz))
                             pointedTyp = type(pointedTypNam)
                             pointedObj = pointedTyp()
@@ -322,9 +315,7 @@ class MemoryProcessorStructs:
                         continue
 
                 # TODO: Should use the validation functions immediately.
-                structDefinition.m_foundStructs[ctypes.addressof(anObj)] = anObj
-
-            # print("Total NbMatches=%d after filter=%d" % ( len(matches), len(dictResult) ) )
+                struct_definition.m_foundStructs[ctypes.addressof(an_obj)] = an_obj
 
 ################################################################################
 
@@ -338,9 +329,7 @@ class MemoryProcessorRegex:
         self.m_matches = dict()
 
     def ParseSegment(self, addr_beg, bytes_array):
-        #print("MemoryProcessorRegex.ParseSegment len=", len(bytes_array))
-        logging.debug("ParseSegment len=%d" % len(bytes_array)) 
-        logging.debug("ParseSegment type=%s" % type(bytes_array)) 
+        logging.debug("ParseSegment len=%d type=%s" % (len(bytes_array), type(bytes_array)))
 
         if False:
             # This is for debugging.
@@ -357,14 +346,14 @@ class MemoryProcessorRegex:
             mem_offset = addr_beg + mtch.start()
             self.m_matches[mem_offset] = mtch.group()
             matches_count += 1
-        logging.debug("MATCHES:" + str(matches_count))
+        logging.debug("MATCHES:%d" % matches_count)
 
 
 ################################################################################
 
 
 # re flags=re.IGNORECASE
-def MemoryProcessor(is64Bits,lstStructs_or_regex,re_flags):
+def MemoryProcessor(is64Bits, lstStructs_or_regex, re_flags):
     if isinstance(lstStructs_or_regex, list):
         memory_processor = MemoryProcessorStructs(is64Bits, lstStructs_or_regex, re_flags)
     else:
@@ -435,11 +424,10 @@ if sys.platform == "win32":
             self.Type = MEMORY_TYPES.get(self.MBI.Type, self.MBI.Type)
 
     def _virtual_query_ex(process_handle, address):
-        logging.debug("_virtual_query_ex Address=%0.16X %d", address, address)
         one_MBI = MEMORY_BASIC_INFORMATION()
         MBI_pointer = ctypes.byref(one_MBI)
         size = ctypes.sizeof(one_MBI)
-
+        logging.debug("_virtual_query_ex Address=%0.16X %d", address, size)
 
         # SIZE_T VirtualQueryEx(
         #   HANDLE                    hProcess,
@@ -503,7 +491,7 @@ if sys.platform == "win32":
         return cbuffer.raw
 
     def _windows_scan_from_page(process_handle, page_address, mem_proc_functor):
-        logging.debug("_windows_scan_from_page page_address=%d" % page_address)
+        logging.debug("_windows_scan_from_page page_address=%0.16X" % page_address)
         information = _virtual_query_ex(process_handle, page_address)
         base_address = information.BaseAddress
         region_size = information.RegionSize
@@ -534,13 +522,11 @@ if sys.platform == "win32":
             del page_bytes  # free the buffer
         else:
             mem_proc_functor.error_count += 1
-        # print("_windows_scan_from_page leaving")
         return next_region
 
     def _windows_is_64bits_process(phandle):
         is_os64bits = platform.architecture()[0] == '64bit'
 
-        # if ctypes.sizeof(ctypes.c_void_p) == 8:
         if is_os64bits:
             ret_val = ctypes.c_int()
             kernel32.IsWow64Process(phandle, ctypes.byref(ret_val))
@@ -832,10 +818,11 @@ def CTypesStructToDict(struct):
 
 def GetRegexMatches(pidint, the_regex, re_flags=0):
     """This returns all the strings matching the regular expression."""
-    mem_proc_functor = MemMachine( pidint, the_regex,re_flags)
+    mem_proc_functor = MemMachine(pidint, the_regex, re_flags)
     logging.debug("pages_count=%d" % mem_proc_functor.pages_count)
     logging.debug("bytes_count=%d" % mem_proc_functor.bytes_count)
     logging.debug("error_count=%d" % mem_proc_functor.error_count)
+    logging.debug("matches=%d" % len(mem_proc_functor.m_matches))
     return mem_proc_functor.m_matches
 
 ################################################################################
