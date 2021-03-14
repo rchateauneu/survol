@@ -171,6 +171,7 @@ class ProcessMemoryCOMClassesTest(unittest.TestCase):
         proc_open.communicate()
 
 
+@unittest.skipIf(is_platform_linux, "TODO: Not working on Linux yet")
 class ProcessMemoryConnectionStringsTest(unittest.TestCase):
     """This searches with regular expressions in the mmemory of a running process.
     It does not need a Survol agent"""
@@ -205,12 +206,12 @@ class ProcessMemoryConnectionStringsTest(unittest.TestCase):
         proc_open.communicate()
 
 
+@unittest.skipIf(is_platform_linux, "TODO: Not working on Linux yet")
 class ProcessMemoryFilenamesTest(unittest.TestCase):
     """This searches with regular expressions in the memory of a running process.
     It does not need a Survol agent"""
 
-    @unittest.skipIf(is_platform_linux, "TODO: Not working on Linux yet")
-    @unittest.skipIf(is_py3 or is_platform_linux, "TODO: Not working on Python 3")
+    @unittest.skipIf(is_py3, "TODO: Not working on Python 3")
     def test_from_python2(self):
         """This searches the content of a process memory which contains a SQL memory."""
         proc_open = _start_subprocess(sys.executable, sample_python_script)
@@ -241,7 +242,6 @@ class ProcessMemoryFilenamesTest(unittest.TestCase):
         self.assertEqual(tst_stderr, None)
 
     @unittest.skipIf(is_travis_machine(), "FIXME: Should work on Travis too.")
-    @unittest.skipIf(is_platform_linux, "TODO: Not working on Linux yet")
     @unittest.skipIf(not _perl_path, "Perl must be installed.")
     def test_from_perl(self):
         """This searches the content of a process memory which contains a SQL memory."""
