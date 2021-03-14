@@ -44,7 +44,7 @@ SlowScript = True
 #  *= *[a-zA-Z01]* *|[; ]*INTEGRATEDSECURITY *= *[a-zA-Z01]* *|[; ]*CONNECTION ?LIFETIME *= *\d+ *
 
 
-def GetAggregDsns(pidint,mapRgx):
+def _get_aggreg_dsns(pidint, map_rgx):
 # "Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes;"
 # 34515015 = "Driver={SQL Server}"
 # 34515035 = "Server=.\SQLEXPRESS"
@@ -55,162 +55,156 @@ def GetAggregDsns(pidint,mapRgx):
 # 35634943 = "Database=ExpressDB"
 # 35634962 = "Trusted_Connection=yes"
 
-	try:
+    try:
+        # Not letter, then the keyword, then "=", then the value regex, then possibly the delimiter.
+        rgx_dsn = "|".join(["[; ]*" + key + " *= *" + map_rgx[key] + " *" for key in map_rgx])
+        # This works also. Both are very slow.
+        # rgx_dsn = "|".join([ ";? *" + key + " *= *" + survol_odbc.mapRgxODBC[key] + " *" for key in survol_odbc.mapRgxODBC ])
+        logging.debug("rgx_dsn=%s", rgx_dsn)
 
-		# Not letter, then the keyword, then "=", then the value regex, then possibly the delimiter.
-		rgxDSN = "|".join([ "[; ]*" + key + " *= *" + mapRgx[key] + " *" for key in mapRgx ])
-		# This works also. Both are very slow.
-		# rgxDSN = "|".join([ ";? *" + key + " *= *" + survol_odbc.mapRgxODBC[key] + " *" for key in survol_odbc.mapRgxODBC ])
-		logging.debug("rgxDSN=%s",rgxDSN)
+        # TODO: OPTIONALLY ADD NON-ASCII CHAR AT THE VERY BEGINNING. SLIGHTLY SAFER AND FASTER.
+        # rgx_dsn = "[^a-zA-Z]" + regDSN
 
+        # Here we receive the matched keywords and their offset in memory.
+        # We try to aggregate them if they are contiguous.
+        # This will work less if we used a smaller set of DSN connecton strings keywords.
+        # This could be fixed with theese remarks:
+        # (1) If the difference of offsets is small.
+        # (2) Try to extensively scan the memory (All DSN keywords) in the interval of detected common keywords.
+        resu_matches = memory_regex_search.GetRegexMatches(pidint, rgx_dsn, re.IGNORECASE)
 
-		# TODO: OPTIONALLY ADD NON-ASCII CHAR AT THE VERY BEGINNING. SLIGHTLY SAFER AND FASTER.
-		# rgxDSN = "[^a-zA-Z]" + regDSN
+        for matched_offset in resu_matches:
+            matched_str = resu_matches[matched_offset]
+            matched_str = matched_str.decode()
+            dsn_token = str(matched_offset) + " = " + matched_str + " = " + str(matched_offset + len(matched_str))
+            logging.debug("dsnODBC=%s", dsn_token)
 
-		# Here we receive the matched keywords and their offset in memory.
-		# We try to aggregate them if they are contiguous.
-		# This will work less if we used a smaller set of DSN connecton strings keywords.
-		# This could be fixed with theese remarks:
-		# (1) If the difference of offsets is small.
-		# (2) Try to extensively scan the memory (All DSN keywords) in the interval of detected common keywords.
-		resuMatches = memory_regex_search.GetRegexMatches(pidint,rgxDSN, re.IGNORECASE)
+        sorted_keys = sorted(resu_matches.keys())
+        aggreg_dsns = dict()
+        last_offset = 0
+        curr_offset = 0
+        for the_off in sorted_keys:
+            curr_mtch = resu_matches[the_off]
+            next_offset = the_off + len(curr_mtch)
+            logging.debug("lastOffset=%d next_offset=%d curr_mtch=%s", last_offset, next_offset, curr_mtch)
+            #if lastOffset == 0:
+            #    lastOffset = next_offset
+            #    aggregDsns[lastOffset] = curr_mtch
+            #    continue
+            if last_offset == the_off:
+                aggreg_dsns[curr_offset] += curr_mtch
+            else:
+                # This starts a new DSN string.
+                curr_offset = the_off
+                aggreg_dsns[curr_offset] = curr_mtch
+            last_offset = next_offset
 
-		for matchedOffset in resuMatches:
-			matchedStr = resuMatches[matchedOffset]
-			dsnToken = str(matchedOffset) + " = " + matchedStr + " = " + str(matchedOffset + len(matchedStr))
-			logging.debug("dsnODBC=%s",dsnToken)
+        # TODO: Eliminate aggrehated strings containing one or two tokens,
+        # because they cannot be genuine DSNs.
+        # 29812569: SERVER=\RCHATEAU-HP
+        # 34515016: Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes
+        # 34801013: SERVER=\RCHATEAU-HP
+        # 35634904: Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes
 
-		sortedKeys = sorted(resuMatches.keys())
-		aggregDsns = dict()
-		lastOffset = 0
-		currOffset = 0
-		for theOff in sortedKeys:
-			currMtch = resuMatches[theOff]
-			nextOffset = theOff + len(currMtch)
-			logging.debug("lastOffset=%d nextOffset=%d currMtch=%s",lastOffset,nextOffset,currMtch)
-			#if lastOffset == 0:
-			#	lastOffset = nextOffset
-			#	aggregDsns[lastOffset] = currMtch
-			#	continue
-			if lastOffset == theOff:
-				aggregDsns[currOffset] += currMtch
-			else:
-				# This starts a new DSN string.
-				currOffset = theOff
-				aggregDsns[currOffset] = currMtch
-			lastOffset = nextOffset
+        return aggreg_dsns
 
-		# TODO: Eliminate aggrehated strings containing one or two tokens,
-		# because they cannot be genuine DSNs.
-		# 29812569: SERVER=\RCHATEAU-HP
-		# 34515016: Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes
-		# 34801013: SERVER=\RCHATEAU-HP
-		# 35634904: Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes
+        # Last pass after aggregation:
+        # If several tokens were aggregated and are still separated by a few chars (20, 30 etc...),
+        # we can assume that they are part of the same connection string,
+        # especially they contain complementary keywords (UID them PWD etc...)
+        # So, it does not really matter if some rare keywords are not known.
+        # We could have a last pass to extract these keywords: Although we are by definition unable
+        # able to use their content explicitely, a complete connection string can still be used
+        # to connect to ODBC.
 
-		return aggregDsns
+        # http://www.dofactory.com/reference/connection-strings
 
-		# Last pass after aggregation:
-		# If several tokens were aggregated and are still separated by a few chars (20, 30 etc...),
-		# we can assume that they are part of the same connection string,
-		# especially they contain complementary keywords (UID them PWD etc...)
-		# So, it does not really matter if some rare keywords are not known.
-		# We could have a last pass to extract these keywords: Although we are by definition unable
-		# able to use their content explicitely, a complete connection string can still be used
-		# to connect to ODBC.
+        # TODO: Instead of just displaying the DSN, connect to it, list tables etc...
 
-		# http://www.dofactory.com/reference/connection-strings
-
-		# TODO: Instead of just displaying the DSN, connect to it, list tables etc...
-
-	except Exception:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Error:%s. Protection ?"%str(exc))
-
-
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("Error:%s. Protection ?" % str(exc))
 
 
 def Main():
-	paramkeyExtensiveScan = "Extensive scan"
+    paramkey_extensive_scan = "Extensive scan"
 
-	# Beware that unchecked checkboxes are not posted, i.e. boolean variables set to False.
-	# http://stackoverflow.com/questions/1809494/post-the-checkboxes-that-are-unchecked
-	cgiEnv = lib_common.CgiEnv( parameters = { paramkeyExtensiveScan : False })
-	pidint = int( cgiEnv.GetId() )
+    # Beware that unchecked checkboxes are not posted, i.e. boolean variables set to False.
+    # http://stackoverflow.com/questions/1809494/post-the-checkboxes-that-are-unchecked
+    cgiEnv = lib_common.CgiEnv(parameters = {paramkey_extensive_scan: False})
+    pidint = int(cgiEnv.GetId())
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	paramExtensiveScan = cgiEnv.get_parameters( paramkeyExtensiveScan )
+    paramExtensiveScan = cgiEnv.get_parameters(paramkey_extensive_scan)
 
-	# By default, uses a small map of possible connection strings keyword.
-	# Otherwise it is very slow to scan the whole process memory.
-	if paramExtensiveScan:
-		mapRgx = survol_odbc.mapRgxODBC
-	else:
-		mapRgx = survol_odbc.mapRgxODBC_Light
+    # By default, uses a small map of possible connection strings keyword.
+    # Otherwise it is very slow to scan the whole process memory.
+    if paramExtensiveScan:
+        map_rgx = survol_odbc.mapRgxODBC
+    else:
+        map_rgx = survol_odbc.mapRgxODBC_Light
 
-	aggregDsns = GetAggregDsns(pidint,mapRgx)
+    aggreg_dsns = _get_aggreg_dsns(pidint, map_rgx)
 
-	node_process = lib_common.gUriGen.PidUri(pidint)
+    node_process = lib_common.gUriGen.PidUri(pidint)
 
-	# TODO: Add a parameter to choose between light and heavy connection string definition.
+    # TODO: Add a parameter to choose between light and heavy connection string definition.
 
-	# TODO: Eliminate aggregated strings containing one or two tokens,
-	# because they cannot be genuine DSNs.
-	# 29812569: SERVER=\RCHATEAU-HP
-	# 34515016: Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes
-	# 34801013: SERVER=\RCHATEAU-HP
-	# 35634904: Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes
+    # TODO: Eliminate aggregated strings containing one or two tokens,
+    # because they cannot be genuine DSNs.
+    # 29812569: SERVER=\RCHATEAU-HP
+    # 34515016: Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes
+    # 34801013: SERVER=\RCHATEAU-HP
+    # 35634904: Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes
 
-	for aggregOffset in aggregDsns:
-		# Do not take the character before the keyword.
-		aggregDSN = aggregDsns[aggregOffset]
-		dsnFull = str(aggregOffset) + ": " + aggregDSN
-		logging.debug("aggregOffset=%s dsnFull=%s",aggregOffset,dsnFull)
-		grph.add( ( node_process, pc.property_information, lib_util.NodeLiteral(dsnFull) ) )
+    for aggreg_offset in aggreg_dsns:
+        # Do not take the character before the keyword.
+        aggreg_dsn = aggreg_dsns[aggreg_offset]
+        aggreg_dsn = aggreg_dsn.decode()
+        dsn_full = str(aggreg_offset) + ": " + aggreg_dsn
+        logging.debug("aggreg_offset=%s dsn_full=%s", aggreg_offset, dsn_full)
+        grph.add((node_process, pc.property_information, lib_util.NodeLiteral(dsn_full)))
 
-		### NO! Confusion between DSN and connection string.
-		# All the existing code does: ODBC_ConnectString = survol_odbc_dsn.MakeOdbcConnectionString(dsnNam)
-		# which basically creates "DSN=dsvNam;PWD=..." but here we already have the connection string.
-		# TODO: Should we assimilate both ???
-		nodeDsn = survol_odbc_dsn.MakeUri( aggregDSN )
-		grph.add( (node_process, pc.property_odbc_dsn, nodeDsn ) )
-		# Fix this message.
-		grph.add( (nodeDsn, pc.property_odbc_driver, lib_util.NodeLiteral("ODBC driver") ) )
+        ### NO! Confusion between DSN and connection string.
+        # All the existing code does: ODBC_ConnectString = survol_odbc_dsn.MakeOdbcConnectionString(dsnNam)
+        # which basically creates "DSN=dsvNam;PWD=..." but here we already have the connection string.
+        # TODO: Should we assimilate both ???
+        node_dsn = survol_odbc_dsn.MakeUri(aggreg_dsn)
+        grph.add((node_process, pc.property_odbc_dsn, node_dsn))
+        # Fix this message.
+        grph.add((node_dsn, pc.property_odbc_driver, lib_util.NodeLiteral("ODBC driver")))
+
+    cgiEnv.OutCgiRdf()
 
 
-
-	cgiEnv.OutCgiRdf()
-
-# This is used by query_vs_databases.py, to associate connection strigns with queries found in memory.
 def DatabaseEnvParams(processId):
+    """
+    This is used by query_vs_databases.py, to associate connection strigns with queries found in memory.
+    """
+    dsn_list = []
+    aggreg_dsns = _get_aggreg_dsns(int(processId))
 
-	dsnList = []
-	aggregDsns = GetAggregDsns(int(processId))
+    for aggreg_offset in aggreg_dsns:
+        # Do not take the character before the keyword.
+        agg_dsn = aggreg_dsns[aggreg_offset]
 
-	for aggregOffset in aggregDsns:
-		# Do not take the character before the keyword.
-		aggDSN = aggregDsns[aggregOffset]
+        # TODO: Passwords are not crypted here, so decrypting will not work.
 
-		# TODO: Passwords are not crypted here, so decrypting will not work.
+        dsn_list.append({survol_odbc.CgiPropertyDsn(): agg_dsn})
 
-		dsnList.append( { survol_odbc.CgiPropertyDsn(): aggDSN } )
-
-	# Should be odbc.
-	return ( "sqlserver/query", dsnList )
-
+    # Should be odbc.
+    return "sqlserver/query", dsn_list
 
 
 if __name__ == '__main__':
-	Main()
+    Main()
 
-
-
-# RECHERCHE DE CHAINES DE CONNEXION OLE DB
+# Searching for OLE connections strings.
 #
 # https://www.connectionstrings.com/formating-rules-for-connection-strings/
 #
-# Donc on cherche des paires clef-valeur, separees par ";". Il peut y avoir des espaces de part et d autre du ";".
-# Certains parametres vont entrainer la creation de noeuds (C est meme le but de l operation).
+# Looking for key-value pairs, sparated by ";". Possibly spaces betfore and after the semicolon.
+# Some parameters imply the creation of nodes.
 #
 # Provider = SQLOLEDB.1; Initial Catalog = scnXYZliv; Persist Security Info = False; Data Source = HOSTNAME\SC4NXYZ;User ID=yyyyy;Password=xxxxx;Trusted_Connection=False;
 #
