@@ -75,7 +75,9 @@ def _get_aggreg_dsns(pidint, map_rgx):
 
         for matched_offset in resu_matches:
             matched_str = resu_matches[matched_offset]
-            matched_str = matched_str.decode()
+            # This should contain Ascii, convertible to UTF-8, but if the regular expression catch something else,
+            # this decode throw: 'utf-8' codec can't decode bytes in position 3768-3769: invalid continuation byte.
+            matched_str = matched_str.decode("utf-8", "ignore")
             dsn_token = str(matched_offset) + " = " + matched_str + " = " + str(matched_offset + len(matched_str))
             logging.debug("dsnODBC=%s", dsn_token)
 
