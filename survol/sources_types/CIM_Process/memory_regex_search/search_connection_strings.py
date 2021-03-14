@@ -162,7 +162,9 @@ def Main():
     for aggreg_offset in aggreg_dsns:
         # Do not take the character before the keyword.
         aggreg_dsn = aggreg_dsns[aggreg_offset]
-        aggreg_dsn = aggreg_dsn.decode()
+        # This should contain Ascii, convertible to UTF-8, but if the regular expression catch something else,
+        # this decode throw: 'utf-8' codec can't decode bytes in position 3768-3769: invalid continuation byte.
+        aggreg_dsn = aggreg_dsn.decode("utf-8", "ignore")
         dsn_full = str(aggreg_offset) + ": " + aggreg_dsn
         logging.debug("aggreg_offset=%s dsn_full=%s", aggreg_offset, dsn_full)
         grph.add((node_process, pc.property_information, lib_util.NodeLiteral(dsn_full)))
