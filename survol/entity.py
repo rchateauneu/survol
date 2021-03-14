@@ -143,7 +143,7 @@ def Main():
                 raise
 
         try:
-            entity_dirmenu_only.DirToMenu(callback_grph_add, root_node, entity_type, entity_id, entity_host, flag_show_all)
+            entity_dirmenu_only.recursive_walk_on_scripts(callback_grph_add, root_node, entity_type, entity_id, entity_host, flag_show_all)
         except Exception as exc:
             logging.error("entity.py caught in ForToMenu:%s", exc)
 

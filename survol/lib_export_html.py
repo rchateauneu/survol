@@ -218,7 +218,7 @@ def _scripts_tree_html_iterator(theCgi):
             dict_scripts[subj] = {prop: [obj]}
 
     logging.debug("WriteScriptsTree entity_type=%s flag_show_all=%d", theCgi.m_entity_type, flag_show_all)
-    entity_dirmenu_only.DirToMenu(
+    entity_dirmenu_only.recursive_walk_on_scripts(
         callback_grph_add,
         root_node,
         theCgi.m_entity_type,
