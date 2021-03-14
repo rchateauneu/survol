@@ -10,7 +10,7 @@ import time
 # This filename must appear in the process memory.
 filepath_a = os.path.join(os.path.dirname(sys.executable), "this_is_a_file_name_with_slashes.cpp").replace("\\", "/")
 
-# This url must appear in the process memory.
+# These urls must appear in the process memory.
 url_http_str = u"http://www.gnu.org/gnu/gnu.html"
 url_http_bytes = b"https://pypi.org/help/"
 url_https_bytes = b"https://www.python.org/about/"
@@ -26,6 +26,7 @@ sys.stdout.write("select something from somewhere\n")
 sys.stdout.write("Starting subprocess: %s\n" % __file__)
 sys.stdout.flush()
 
+print("Pid=", os.getpid())
 print(sql_query1)
 print(sql_query2)
 print(sql_query3)
