@@ -128,6 +128,7 @@ def _add_ontology(old_grph):
             # The subject might be a literal directory containing provider script files.
             if not lib_kbase.IsLiteral(node_subject):
                 if lib_kbase.IsLiteral(node_object):
+                    raise Exception("seeAlso objects cannot be a literal")
                     new_grph.add((node_subject, lib_kbase.PredicateSeeAlso, node_object))
                 else:
                     # FIXME: Maybe it already contains a mode, maybe it has no CGI args yet.
@@ -135,6 +136,8 @@ def _add_ontology(old_grph):
                     str_object_rdf = str_object + "&mode=rdf"
                     node_object_rdf = rdflib.term.URIRef(str_object_rdf)
                     new_grph.add((node_subject, lib_kbase.PredicateSeeAlso, node_object_rdf))
+            else:
+                raise Exception("RDF subject cannot be a literal")
         elif node_predicate == pc.property_information:
             new_grph.add((node_subject, lib_kbase.PredicateComment, node_object))
         else:
@@ -167,7 +170,7 @@ def _add_ontology(old_grph):
     return new_grph
 
 
-def Grph2Rdf(grph):
+def output_rdf_graph_as_rdf(grph):
     """Used by all CGI scripts when they have finished adding triples to the current RDF graph.
     The RDF comment is specifically processed to be used by ontology editors such as Protege."""
     logging.debug("Grph2Rdf entering, len_graph=%d", len(grph))

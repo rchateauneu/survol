@@ -71,13 +71,13 @@ def _out_cgi_mode(theCgi, top_url, mode, error_msg=None):
 
     if mode == "html":
         # Used rarely and performance not very important. This returns a HTML page.
-        lib_export_html.Grph2Html(theCgi, top_url, error_msg, _global_cgi_env_list)
+        lib_export_html.output_rdf_graph_as_html(theCgi, top_url, error_msg, _global_cgi_env_list)
     elif mode == "json":
-        lib_export_json.Grph2Json(page_title, error_msg, parameters, grph)
+        lib_export_json.output_rdf_graph_as_json_d3(page_title, error_msg, parameters, grph)
     elif mode == "menu":
-        lib_export_json.Grph2Menu(page_title, error_msg, parameters, grph)
+        lib_export_json.output_rdf_graph_as_json_menu(page_title, error_msg, parameters, grph)
     elif mode == "rdf":
-        lib_export_ontology.Grph2Rdf(grph)
+        lib_export_ontology.output_rdf_graph_as_rdf(grph)
     elif mode == "daemon":
         # Only in this output mode, all meta-data are injected in the graph, to be used at the next output.
         for one_collapsed_property in collapsed_properties:
@@ -98,8 +98,8 @@ def _out_cgi_mode(theCgi, top_url, mode, error_msg=None):
         # This test holds because for the moment, all collapsed properties are known in advance.
         # This will be more flexible.
 
-        lib_export_dot.GraphToSvg(page_title, error_msg, parameters, grph, parameterized_links, top_url,
-                      theCgi.m_layout_style, collapsed_properties, commutative_properties)
+        lib_export_dot.output_rdf_graph_as_svg(page_title, error_msg, parameters, grph, parameterized_links, top_url,
+                                               theCgi.m_layout_style, collapsed_properties, commutative_properties)
     else:
         logging.error("_out_cgi_mode invalid mode=%s", mode)
         ErrorMessageHtml("_out_cgi_mode invalid mode=%s" % mode)
@@ -780,7 +780,7 @@ def ErrorMessageHtml(message):
             logging.error("ErrorMessageHtml request_uri=%s url_mode=%s" % (request_uri, url_mode))
             if url_mode == "json":
                 # If we are in Json mode, this returns a special json document with the error message.
-                lib_export_json.WriteJsonError(message)
+                lib_export_json.write_json_error(message)
                 sys.exit(0)
             if url_mode == "rdf":
                 # If we are in Json mode, this returns a special RDF document with the error message.

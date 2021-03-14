@@ -572,7 +572,7 @@ def display_html_text_footer():
     yield wrt_txt
 
 
-def _Grph2Html_no_jinja(theCgi, top_url, error_msg, gbl_cgi_env_list):
+def _output_rdf_graph_as_html_no_jinja(theCgi, top_url, error_msg, gbl_cgi_env_list):
     """
         This transforms an internal data graph into a HTML document.
     """
@@ -620,7 +620,7 @@ def _Grph2Html_no_jinja(theCgi, top_url, error_msg, gbl_cgi_env_list):
     WrtAsUtf("</html> ")
 
 
-def _Grph2Html_jinja(theCgi, top_url, error_msg, gbl_cgi_env_list):
+def output_rdf_graph_as_html_jinja(theCgi, top_url, error_msg, gbl_cgi_env_list):
     this_dir = os.path.dirname(os.path.abspath(__file__))
     template_file_name = "www/export_html.template.htm"
 
@@ -676,14 +676,14 @@ def _Grph2Html_jinja(theCgi, top_url, error_msg, gbl_cgi_env_list):
     WrtAsUtf(jinja_render)
 
 
-def Grph2Html(theCgi, top_url, error_msg, gbl_cgi_env_list):
+def output_rdf_graph_as_html(theCgi, top_url, error_msg, gbl_cgi_env_list):
     """The list gbl_cgi_env_list contains a list of URL which are merged
     into the current URLs. There are displayed for informational purpose.
     """
     lib_util.WrtHeader('text/html')
     if lib_util.GetJinja2():
-        _Grph2Html_jinja(theCgi, top_url, error_msg, gbl_cgi_env_list)
+        output_rdf_graph_as_html_jinja(theCgi, top_url, error_msg, gbl_cgi_env_list)
     else:
-        _Grph2Html_no_jinja(theCgi, top_url, error_msg, gbl_cgi_env_list)
+        _output_rdf_graph_as_html_no_jinja(theCgi, top_url, error_msg, gbl_cgi_env_list)
 
 ################################################################################
