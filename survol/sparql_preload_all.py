@@ -49,9 +49,6 @@ def Main():
 
     lib_sparql.QueryToGraph(grph, sparql_query, objectCallback)
 
-    # See lib_common.py : This added to any RDF document.
-    ###########lib_export_ontology.Grph2Rdf(grph)
-
     # At this stage, we must run the Sparql query on the generated RDF triplestore.
 
     envSparql.WriteTripleStoreAsString(grph)

@@ -858,7 +858,7 @@ def write_dot_header(page_title, layout_style, stream, grph):
     return dot_layout
 
 
-def GraphToSvg(
+def output_rdf_graph_as_svg(
         page_title, error_msg, parameters, grph, parameterized_links, top_url,
         layout_style, collapsed_properties, commutative_properties):
     """

@@ -49,7 +49,7 @@ class NodeJson:
 # root=http://rchateau-HP:8000/survol
 # url=http://rchateau-HP:8000/survol/class_type_all.py?xid=com.
 # url=http://rchateau-HP:8000/survol/objtypes.py
-# This must be a tuple because of startswith
+# This must be a tuple because of startswith.
 _urls_for_json = (
     "/entity.py",
     "/entity_wmi.py",
@@ -62,12 +62,19 @@ _urls_for_json = (
     # TODO: Maybe pass portal_wbem.py and portal_wmi.py ??
 )
 
-# This avoids creating a node form some URLs used for returning information. For example:
-# http://rchateau-HP:8000/survol/entity_mime.py?xid=CIM_DataFile.Name=C://smh_installer.log&amp;amp;mode=mime:text/plain
-# http://rchateau-HP:8000/survol/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name=C%3A%2F%2Fpkg
-def _script_for_json(url):
-    #sys.stderr.write("_script_for_json url=%s root=%s\n"%(url,lib_util.uriRoot))
 
+def _script_for_json(url):
+    """
+    This tells if an URL should appear in the RDF graph displayed by the D3 interface to Survol.
+    This avoids creating a node for the "seel also" urls which returns another graph.
+    In other words, it selects URL which designate an instance, not the URL returning a graph about an instance.
+
+    On the other hand, scripts returning a graph of informatons about an instance are displayed
+    in the contextual menu of a node (associated to an instance).
+
+    http://rchateau-HP:8000/survol/entity_mime.py?xid=CIM_DataFile.Name=C://smh_installer.log&amp;amp;mode=mime:text/plain
+    http://rchateau-HP:8000/survol/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name=C%3A%2F%2Fpkg
+    """
     if url.startswith(lib_util.uriRoot):
         # Where the script starts from.
         idx_script = len(lib_util.uriRoot)
@@ -77,18 +84,23 @@ def _script_for_json(url):
     return True
 
 
-# What must be avoided: Cross-Origin Request Blocked:
-# The Same Origin Policy disallows reading the remote resource at
-# http://192.168.0.17/Survol/survol/sources_types/enumerate_CIM_Process.py?xid=.&mode=json.
-# (Reason: CORS header 'Access-Control-Allow-Origin' missing)
-#
-# https://stackoverflow.com/questions/5027705/error-in-chrome-content-type-is-not-allowed-by-access-control-allow-headers
-# The body of the reply is base-64 encoded.
 def _write_json_header(buf_json, with_content_length=False):
+    """
+    This writes to the output a JSON content with the appropriate HTTP header.
+    It for example used by the Javascript interface, to get a contextual menu.
+
+    What must be avoided: Cross-Origin Request Blocked:
+    The Same Origin Policy disallows reading the remote resource at
+    http://192.168.0.17/Survol/survol/sources_types/enumerate_CIM_Process.py?xid=.&mode=json.
+    (Reason: CORS header 'Access-Control-Allow-Origin' missing)
+
+    https://stackoverflow.com/questions/5027705/error-in-chrome-content-type-is-not-allowed-by-access-control-allow-headers
+    The body of the reply is base-64 encoded.
+    """
     arr_headers = [
-        ('Access-Control-Allow-Origin','*'),
-        ('Access-Control-Allow-Methods','POST,GET,OPTIONS'),
-        ('Access-Control-Allow-Headers','Origin, X-Requested-With, Content-Type, Accept'),
+        ('Access-Control-Allow-Origin', '*'),
+        ('Access-Control-Allow-Methods', 'POST,GET,OPTIONS'),
+        ('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'),
     ]
 
     # It is difficult to calculate the length because the output is encoded
@@ -112,8 +124,10 @@ def _write_json_header(buf_json, with_content_length=False):
     lib_util.WrtAsUtf(buf_json)
 
 
-def WriteJsonError(message):
-    """This is called only by ErrorMessageHtml when an error is detected and the output format is JSON.
+def write_json_error(message):
+    """
+    This is called only by ErrorMessageHtml when an error is detected and the output format is JSON,
+    for the D£ Survol interface.
     After that, the calling function makes an exit.
     The error message is formatted in the standard for returning errors.
     http://labs.omniti.com/labs/jsend
@@ -127,11 +141,12 @@ def WriteJsonError(message):
     _write_json_header(json.dumps(json_err, indent=2), True)
 
 
-def Grph2Json(page_title, error_msg, parameters, grph):
+def output_rdf_graph_as_json_d3(page_title, error_msg, parameters, grph):
     """
     Transforms a RDF graph into a JSON document.
 
-    This returns a graph made of Json objects which are suitable for visualisation in D3.
+    This returns a graph made of Json objects which are suitable for visualisation in the Javascript
+    interface to Survol, which is based on D3.
     """
 
     # Must be reset to zero between several executions, when run by WSGI.
@@ -199,7 +214,6 @@ def Grph2Json(page_title, error_msg, parameters, grph):
 
     # Now, this creates the nodes sent as json objects.
     num_nodes = len(node_to_json_obj.dictNod2Json)
-    # sys.stderr.write("Grph2Json num_nodes=%d\n"%num_nodes)
     nodes = [None] * num_nodes
     for nod in node_to_json_obj.dictNod2Json:
         nod_obj = node_to_json_obj.dictNod2Json[nod]
@@ -233,11 +247,12 @@ def Grph2Json(page_title, error_msg, parameters, grph):
     graph["links"] = links
 
     _write_json_header(json.dumps(graph, indent=2))
-    # print(json.dumps(graph, indent=2))
 
 
-def Grph2Menu(page_title, error_msg, parameters, grph):
-    """This returns a tree of scripts, usable as a contextual menu.
+def output_rdf_graph_as_json_menu(page_title, error_msg, parameters, grph):
+    """
+    This returns a tree of scripts, usable as the contextual menu of a node displayed
+    in the D3 Javascript interface to Survol.
     The RDF content is already created, so this keeps only the nodes related to scripts.
     TODO: It would be faster to keep only the tree of scripts. The script "entity.py"
     should have a different output when mode=json.
@@ -264,8 +279,6 @@ def Grph2Menu(page_title, error_msg, parameters, grph):
 
     for subj, pred, obj in grph:
         if pred == pc.property_script:
-            #sys.stderr.write("subj=%s\n"%str(subj))
-            #sys.stderr.write("obj=%s\n"%str(obj))
             try:
                 nodes_to_items[subj].append(obj)
             except KeyError:
@@ -273,15 +286,12 @@ def Grph2Menu(page_title, error_msg, parameters, grph):
 
             if lib_kbase.IsLiteral(obj):
                 # This is the name of a subdirectory containing scripts.
-                # sys.stderr.write("obj LITERAL=%s\n"%str(subj))
                 nodes_to_names[obj] = obj
 
             nodes_with_parent.add(obj)
             subject_nodes.add(subj)
         elif pred == pc.property_information:
             if lib_kbase.IsLiteral(obj):
-                #sys.stderr.write("subj=%s\n"%str(subj))
-                #sys.stderr.write("obj.value=%s\n"%obj.value)
                 nodes_to_names[subj] = obj.value
             else:
                 raise Exception("Cannot happen here also")
@@ -295,11 +305,9 @@ def Grph2Menu(page_title, error_msg, parameters, grph):
         list_json_items = {}
 
         for one_rdf_nod in the_nod_list:
-            #sys.stderr.write("one_rdf_nod=%s\n"%one_rdf_nod)
             one_json_nod = {}
             # This should be the sort key.
             one_json_nod["name"] = nodes_to_names.get(one_rdf_nod, "No name")
-            # sys.stderr.write( (" " * depth) + "name=%s\n" % (one_json_nod["name"]) )
             one_json_nod["url"] = one_rdf_nod
 
             # Maybe it does not have subitems.
@@ -314,16 +322,12 @@ def Grph2Menu(page_title, error_msg, parameters, grph):
 
     menu_json = add_stuff(top_level_nodes)
 
-    # sys.stderr.write("menu_json=%s\n"%str(menu_json))
-
     # There is only one top-level element.
     one_menu_val = {}
     for one_menu_key in menu_json:
         one_menu_val = menu_json[one_menu_key]["items"]
         break
 
-    #sys.stderr.write("menu_json=%s\n"%str(one_menu_val))
-
+    # Writes the content to the HTTP client.
     _write_json_header(json.dumps(one_menu_val, sort_keys=True, indent=2))
-    # print(json.dumps(one_menu_val, sort_keys = True, indent=2))
 
