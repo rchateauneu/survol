@@ -43,7 +43,7 @@ def Main():
             split_dots = url_http.split(".")
             top_level = split_dots[-1]
             # Primitive way to remove apparently broken URLs.
-            if(len(top_level) > 4):
+            if len(top_level) > 4:
                 continue
             resu_clean.add(url_http)
 
