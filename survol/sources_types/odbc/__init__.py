@@ -91,7 +91,7 @@ mapRgxODBC = {
     "CERTIFICATE THUMBPRINT"      : _rgx_hexa,                   # "479436009a40f3017a145cf8479e7694d7aadef0"
     "CERTIFICATEFILE"             : _rgx_file_name,              # "C:\folder\client.pfx"
     "CERTIFICATEPASSWORD"         : _rgx_password,
-    "CHARSET"                     : "\w+",                       # "utf8"
+    "CHARSET"                     : r"\w+",                      # "utf8"
     "CHECKPARAMETERS"             : _rgx_true_false,             #
     "COMMAND LOGGING"             : _rgx_true_false,             #
     "CONNECTION ?LIFETIME"        : _rgx_number,                 # " " character is optional.
@@ -108,8 +108,8 @@ mapRgxODBC = {
     "DECR POOL SIZE"              : _rgx_number,                 #
     "DEFAULT COMMAND TIMEOUT"     : _rgx_number,                 #
     "DEFAULTTABLECACHEAGE"        : _rgx_number,                 #
-    "DRIVER"                      : "\{[^}]*\}",                 # "{Microsoft Access Driver (*.mdb, *.accdb)}"
-    "DSN"                         : "\w+",                       # "MY_DSN_ORA12"
+    "DRIVER"                      : r"\{[^}]*\}",                # "{Microsoft Access Driver (*.mdb, *.accdb)}"
+    "DSN"                         : r"\w+",                      # "MY_DSN_ORA12"
     "ENCRYPT"                     : _rgx_true_false,             # "true"
     "EXCLUSIVE"                   : _rgx_true_false,             # "1"
     "EXTENDEDANSISQL"             : _rgx_true_false,             # "1"
@@ -121,7 +121,7 @@ mapRgxODBC = {
     "INTEGRATEDSECURITY"          : _rgx_true_false,             #
     "JET OLEDB:DATABASE PASSWORD" : _rgx_password,
     "KEEPALIVE"                   : _rgx_number,                 #
-    "LOCALE IDENTIFIER"           : "\d+",                       # "2057" is en-gb locale identifier
+    "LOCALE IDENTIFIER"           : r"\d+",                      # "2057" is en-gb locale identifier
     "LOAD BALANCING"              : _rgx_true_false,             #
     "MAX POOL SIZE"               : _rgx_number,                 #
     "MIN POOL SIZE"               : _rgx_number,                 #
@@ -137,21 +137,21 @@ mapRgxODBC = {
     "PERSIST SECURITY INFO"       : _rgx_true_false,
     "PIPENAME"                    : "\w+",                       # If "Protocol" = "pipe".
     "POOLING"                     : _rgx_true_false,             #
-    "PORT"                        : "\d+",                       # TODO: Five numbers or less.
+    "PORT"                        : r"\d+",                      # TODO: Five numbers or less.
     "PROCEDURECACHESIZE"          : _rgx_number,                 #
-    "PROTOCOL"                    : "\w+",                       # "socket|memory|pipe"
+    "PROTOCOL"                    : r"\w+",                      # "socket|memory|pipe"
     "PROVIDER"                    : "[ a-zA-Z0-9._]+",           # "Microsoft.ACE.OLEDB.12.0"
     "PWD"                         : _rgx_password,
     "REMOTE SERVER"               : _rgx_anything,               # "http://server.adress.com"
-    "SERVER"                      : "[- a-zA-Z0-9\._\\\]+",      # "serverAddress1, serverAddress2, serverAddress3"
+    "SERVER"                      : r"[- a-zA-Z0-9\._\\\]+",     # "serverAddress1, serverAddress2, serverAddress3"
                                                                  # This Oracle omission of tnsnames.ora is not taken into account.
                                                                  # "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=MyHost)(PORT=MyPort))(CONNECT_DATA=(SERVICE_NAME=MyOracleSID)))"
-    "SHARED MEMORY NAME"          : "\w+",                       # "MYSQL" for example. If "Protocol" = "memory".
+    "SHARED MEMORY NAME"          : r"\w+",                      # "MYSQL" for example. If "Protocol" = "memory".
     "SOCKET"                      : _rgx_anything,               #
     "SQLSERVERMODE"               : _rgx_true_false,             #
     "SSLCERT"                     : _rgx_file_name,              # "c:\client-cert.pem"
     "SSLKEY"                      : _rgx_file_name,              # "c:\client-key.pem"
-    "SSLMODE"                     : "\w+",                       # "Preferred|Required"
+    "SSLMODE"                     : r"\w+",                      # "Preferred|Required"
     "SSLVERIFY"                   : _rgx_true_false,             # "1"
     "STMT"                        : _rgx_anything,               #
     "SYSTEMDB"                    : _rgx_anything,               # "C:\mydatabase.mdw"
@@ -213,17 +213,18 @@ class CgiPropertyDsn(str):
     def __new__(cls):
         return super(CgiPropertyDsn, cls).__new__(cls, "Dsn")
 
-    def SplitPlain(connect_str_clear):
-        return re.split(" *; *", connect_str_clear)
-
     def ValueEncode(self, connect_str_clear):
-        # sys.stderr.write("ValueEncode connectStrClear=%s\n"%connectStrClear)
+        # TODO: Also split the string with non-ascii characters such as these samples:
+        # 'PWD=C:/Users/travis/build\\x00\\x00\\x92\\x00\\x03\\x00TRAVIS_ENABLE_INFRA_DETECTIO...00\\x00\\x00\\x00\\t\\x00TRAVIS_ROOT=C:/program files/git/\\x00\\x00\u0455\\x00'
+        # 'PWD=C:/Users/travis/build\x00OS=Windows_NT\x00PAGER=cat\x00PATH=c:\\python37\\lib\\site-packages\\pywin32_system32'
         vec_keywrd = re.split(" *; *", connect_str_clear)
 
         def key_value_pair_encode(kv_pair):
             try:
-                a_key_wrd, a_val = re.split(" *= *", kv_pair)
-                # sys.stderr.write("key_value_pair_encode a_key_wrd=%s\n"%a_key_wrd)
+                # partition() is more robust than split(), if the value contains "=" equal signs.
+                # Also, the string might contain non-Ascii characters.
+                a_key_wrd, _, a_val = kv_pair.partition("=")
+
                 if a_key_wrd in _odbc_keys_confidential:
                     a_val = lib_util.html_escape(a_val) # SHOULD BE CRYPTED
                 elif a_key_wrd not in _odbc_keys_uncoded:
@@ -242,9 +243,8 @@ class CgiPropertyDsn(str):
 
         vec_tok_pairs = re.split(_delimiter_connection_string_odbc, connect_str_coded)
 
-        def TokenDecode(a_tok):
-            # DecodeUri inverse de EncodeUri mais ca n existe pas !!!!
-            def TokenLocalDecode(aVal):
+        def token_decode(a_tok):
+            def token_local_decode(aVal):
                 return aVal
 
             try:
@@ -253,13 +253,13 @@ class CgiPropertyDsn(str):
                 return "Key=Cannot decode:"+str(a_tok)
 
             if a_key_wrd in _odbc_keys_confidential:
-                a_val = TokenLocalDecode(a_val) # SHOULD BE CRYPTED
+                a_val = token_local_decode(a_val) # SHOULD BE CRYPTED
             elif a_key_wrd not in _odbc_keys_uncoded:
-                a_val = TokenLocalDecode(a_val)
-            # sys.stderr.write("TokenDecode a_val=%s\n"%a_val)
+                a_val = token_local_decode(a_val)
+            # sys.stderr.write("token_decode a_val=%s\n"%a_val)
             return a_key_wrd + "=" + a_val
 
-        return ";".join(TokenDecode(a_tok) for a_tok in vec_tok_pairs)
+        return ";".join(token_decode(a_tok) for a_tok in vec_tok_pairs)
 
     # Same thing as displaying but the password must be hidden.
     def ValueDisplay(self, connect_str_coded):
@@ -269,11 +269,12 @@ class CgiPropertyDsn(str):
         connect_str_hidden = re.sub("PASSWORD=[^;]+", "PASSWORD=xxxxxxx", connect_str_hidden, re.IGNORECASE)
         return connect_str_hidden
 
-    # This must be very fast because used in loops.
-    # It abbreviates the DSN especially if this is a connection string.
     def ValueShortDisplay(self, connect_str_coded):
+        """
+        This must be very fast because used in loops.
+        It abbreviates the DSN especially if this is a connection string.
+        """
         connect_str_clear = self.ValueDecode(connect_str_coded)
-        # sys.stderr.write("ValueShortDisplay connectStrCoded=%s connect_str_clear=%s\n"%(connectStrCoded,connect_str_clear))
         mtch_dsn = re.match(".*DSN=([^;]+).*", connect_str_clear, re.IGNORECASE)
         if mtch_dsn:
             return mtch_dsn.group(1)
