@@ -135,7 +135,7 @@ mapRgxODBC = {
     "OSAUTHENT"                   : _rgx_true_false,             # "1"
     "PASSWORD"                    : _rgx_password,
     "PERSIST SECURITY INFO"       : _rgx_true_false,
-    "PIPENAME"                    : "\w+",                       # If "Protocol" = "pipe".
+    "PIPENAME"                    : r"\w+",                      # If "Protocol" = "pipe".
     "POOLING"                     : _rgx_true_false,             #
     "PORT"                        : r"\d+",                      # TODO: Five numbers or less.
     "PROCEDURECACHESIZE"          : _rgx_number,                 #
