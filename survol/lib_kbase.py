@@ -4,6 +4,7 @@ from __future__ import print_function
 import sys
 import os
 import re
+import six
 import collections
 import rdflib
 import time
@@ -166,7 +167,8 @@ def triplestore_from_rdf_xml(doc_xml_rdf):
         if len(exception_split) >= 4 and exception_split[0] == "<unknown>":
             line_index = int(exception_split[1])
             column_index = int(exception_split[2])
-            document_by_lines = doc_xml_rdf.split("\n")
+            line_delimiter = b"\n" if isinstance(doc_xml_rdf, six.binary_type) else "\n"
+            document_by_lines = doc_xml_rdf.split(line_delimiter)
             faulty_line = document_by_lines[line_index]
             logging.error("triplestore_from_rdf_xml index=%d faulty_line=%s", column_index, faulty_line)
         else:
