@@ -132,7 +132,7 @@ def Main():
 
     # Beware that unchecked checkboxes are not posted, i.e. boolean variables set to False.
     # http://stackoverflow.com/questions/1809494/post-the-checkboxes-that-are-unchecked
-    cgiEnv = lib_common.CgiEnv(parameters = {paramkey_extensive_scan: False})
+    cgiEnv = lib_common.CgiEnv(parameters={paramkey_extensive_scan: False})
     pidint = int(cgiEnv.GetId())
 
     grph = cgiEnv.GetGraph()
@@ -161,7 +161,12 @@ def Main():
 
     for aggreg_offset in aggreg_dsns:
         # Do not take the character before the keyword.
-        aggreg_dsn = aggreg_dsns[aggreg_offset]
+        aggreg_dsn_raw = aggreg_dsns[aggreg_offset]
+
+        # Replaces all non-printable characters by spaces.
+        # This should be done now by the regular expressions, but better be sure.
+        aggreg_dsn = re.sub(b'[\x00-\x1f\x7f-\xff]+', b' ', aggreg_dsn_raw)
+
         # This should contain Ascii, convertible to UTF-8, but if the regular expression catch something else,
         # this decode throw: 'utf-8' codec can't decode bytes in position 3768-3769: invalid continuation byte.
         aggreg_dsn = aggreg_dsn.decode("utf-8", "ignore")
