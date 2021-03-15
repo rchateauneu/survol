@@ -39,13 +39,14 @@ matrix:
       env:
         - PATH=/c/Python37:/c/Python37/Scripts:$PATH
 install:
-  - pip install psutil            # Mandatory
-  - pip install rdflib            # Mandatory
-  - pip install rdflib-sqlalchemy # Optional, needed for events generators.
-  - pip install SPARQLWrapper     # Optional
-  - pip install pywbem            # Optional
-  - pip install sqlparse          # Optional
-  - pip install natsort           # Optional, needed for nicer sorts.
+  - pip install psutil               # Mandatory
+  - pip install rdflib               # Mandatory
+  - pip install SQLAlchemy==1.3.23   # 1.4 does not work
+  - pip install rdflib-sqlalchemy    # Optional, needed for events generators.
+  - pip install SPARQLWrapper        # Optional
+  - pip install pywbem               # Optional
+  - pip install sqlparse             # Optional
+  - pip install natsort              # Optional, needed for nicer sorts.
 script:
   - pwd
   - pytest -v --durations=30 tests
