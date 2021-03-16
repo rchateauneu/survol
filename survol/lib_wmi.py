@@ -73,11 +73,7 @@ def _get_wmi_user_pass(mach_with_back_slashes):
     # WmiConnect cimom=\\\\rchateau-HP\\:. wmiNamspace=aspnet
     clean_mach_nam = mach_with_back_slashes.replace("\\", "")
 
-    # sys.stderr.write("GetWmiUserPass cimom=%s clean_mach_nam=%s\n" % ( machWithBackSlashes, clean_mach_nam ) )
-
     wmi_user_pass = lib_credentials.GetCredentials("WMI", clean_mach_nam)
-
-    # sys.stderr.write("GetWmiUserPass wmi_user_pass=%s\n" % ( str(wmi_user_pass) ) )
 
     if wmi_user_pass[0]:
         return clean_mach_nam, wmi_user_pass[0], wmi_user_pass[1]
@@ -86,9 +82,7 @@ def _get_wmi_user_pass(mach_with_back_slashes):
     try:
         mach_ip = lib_util.GlobalGetHostByName(clean_mach_nam)
     except Exception as exc:
-        lib_common.ErrorMessageHtml("GetWmiUserPass: Cannot connect to WMI server:%s" % clean_mach_nam)
-
-    # sys.stderr.write("GetWmiUserPass mach_ip=%s\n" % ( mach_ip ) )
+        lib_common.ErrorMessageHtml("GetWmiUserPass: Cannot connect to WMI server:%s. %s" % (clean_mach_nam, exc))
 
     wmi_user_pass = lib_credentials.GetCredentials("WMI", mach_ip)
     return mach_ip, wmi_user_pass[0], wmi_user_pass[1]
@@ -153,7 +147,6 @@ def WmiGetClassKeys(wmi_name_space, wmi_class, cimom_srv):
         return None
 
     wmi_keys = wmi_class.keys
-    # sys.stderr.write("WmiGetClassKeys keys=%s\n" % ( str(wmi_keys) ) )
     return wmi_keys
 
 
@@ -871,7 +864,7 @@ def WmiKeyValues(conn_wmi, obj_wmi, display_none_values, class_name):
 
         if prp_name == "Name" and class_name in ["CIM_DataFile", "CIM_Directory"]:
             # sys.stderr.write("WmiKeyValues prp_name=%s className=%s value=%s\n" % (prp_name, className, value))
-            # Needed because Sparql does not seem to accept backslashes.
+            # TODO: This hard-code is needed because Sparql does not seem to accept backslashes.
             value_replaced = lib_util.standardized_file_path(str(value))
             # sys.stderr.write("WmiKeyValues prp_name=%s className=%s value=%s value_replaced=%s\n"
             #                 % (prp_name, className, value, value_replaced))
@@ -1236,7 +1229,7 @@ class WmiSparqlExecutor:
         reference_class_properties = self.AssociatorKeys(associator_key_name)
 
         # If reference_class_name="CIM_DirectoryContainsFile", then ['GroupComponent', 'PartComponent']
-        sys.stderr.write("reference_class_properties=%s\n" % str(reference_class_properties))
+        logging.debug("reference_class_properties=%s" % str(reference_class_properties))
         chosen_role = reference_class_properties[role_index][1]
 
         # Examples:
@@ -1247,15 +1240,12 @@ class WmiSparqlExecutor:
             wmi_path, associator_key_name, result_class_name, chosen_role)
 
         # logging.debug("WmiCallbackAssociator wmi_query=%s", wmi_query)
-        # sys.stderr.write("SelectAssociatorsFromObject wmi_query=%s\n" % wmi_query)
 
         try:
             wmi_objects = self.m_wmi_connection.query(wmi_query)
         except Exception as exc:
             # Probably com_error
-            sys.stderr.write("============================================================\n")
-            sys.stderr.write("WmiCallbackAssociator Caught: %s\n" % exc)
-            sys.stderr.write("============================================================\n")
+            logging.error("WmiCallbackAssociator Caught: %s" % exc)
             return
 
         for one_wmi_object in wmi_objects:
