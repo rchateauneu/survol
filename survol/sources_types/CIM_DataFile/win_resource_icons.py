@@ -10,7 +10,6 @@ import sys
 import time
 import lib_mime
 import lib_util
-import lib_uris
 import lib_kbase
 import lib_win32
 import lib_common
