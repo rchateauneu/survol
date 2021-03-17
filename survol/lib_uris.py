@@ -225,10 +225,10 @@ class LocalBox:
     def SmbShareUri(self, smbshare):
         """This method should be in a module dedicated to this class, but it is used very often,
         so it is convenient to have it here."""
-        if smbshare[0:2] == "//":
-            # Maybe we should cgiescape the whole string.
-            smbshare = "%2F%2F" + smbshare[2:]
-        return self.UriMake("smbshr", smbshare)
+        #if smbshare[0:2] == "//":
+        #    # Maybe we should cgiescape the whole string.
+        #    smbshare = "%2F%2F" + smbshare[2:]
+        return self.UriMake("Win32_Share", smbshare)
 
     # TODO: IN FACT THIS IS SIMPLY A MACHINE. MAYBE WE SHOULD SUBCLASS TYPES ?????
     # OR MAYBE ADD SEVERAL CLASS NAMES ??? "smbserver+hostname" ?
@@ -268,7 +268,7 @@ class LocalBox:
     # This can also be a Pythonor Perl class: This is a logical concept, whose implementation
     # depends on the language of the file path.
     # TODO: Move that to class/__init__.py and see sources_types.sql.query.MakeUri
-    def ClassUri(self,class_name, path = ""):
+    def ClassUri(self, class_name, path = ""):
         # The URL should never contain the chars "<" or ">".
         class_name = lib_util.Base64Encode(class_name)
         path = lib_util.standardized_file_path(path)
@@ -437,7 +437,13 @@ class RemoteBox (LocalBox):
     def TypeMake(self):
         """This indicates the machine name as a prefix."""
         # TODO: This is deprecated and not reliable: Better relying on the Survol, WMI or WBEM agent url
-        return self.m_mach + "@"
+
+        # What does WMI:
+        # Share            : \\MY-MACHINE\root\cimv2:Win32_Share.Name="ADMIN$"
+        # SharedElement    : \\MY-MACHINE\root\CIMV2:Win32_Directory.Name="c:\\windows"
+        #
+        # By default, the machine name is the agent machine. The default namespace is /root/cimv2.
+        return "//" + self.m_mach + ":"
 
 
 class OtherAgentBox (LocalBox):
@@ -453,7 +459,7 @@ class OtherAgentBox (LocalBox):
 def MachineBox(mach):
     """mach could be an IP address, a machine name, None, "localhost" etc..."""
     if lib_util.is_local_address(mach):
-        the_machine_box = LocalBox()
+        the_machine_box = gUriGen
     else:
         the_machine_box = RemoteBox(mach)
     return the_machine_box
