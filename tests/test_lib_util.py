@@ -94,6 +94,18 @@ class SurvolLibUtilTest(unittest.TestCase):
         self.assertTrue(lib_util.check_program_exists("pytest"))
         self.assertFalse(lib_util.check_program_exists("this__program_does_not_exist"))
 
+    def test_is_local_address(self):
+        """
+        This tests if a local address is correctly detected.
+        """
+        self.assertTrue(lib_util.is_local_address(None))
+        self.assertTrue(lib_util.is_local_address("localhost"))
+        self.assertTrue(lib_util.is_local_address("127.0.0.1"))
+        self.assertTrue(lib_util.is_local_address(socket.gethostname()))
+
+        self.assertFalse(lib_util.is_local_address("1.2.3.4"))
+        self.assertFalse(lib_util.is_local_address("www.google.com"))
+
 
 if __name__ == '__main__':
     unittest.main()
