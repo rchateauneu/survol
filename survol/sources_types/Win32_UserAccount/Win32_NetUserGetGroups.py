@@ -55,7 +55,7 @@ def Main():
 	except KeyError:
 		hostName = None
 
-	if not hostName or lib_util.is_local_address( hostName ):
+	if lib_util.is_local_address(hostName):
 		serverBox = lib_common.gUriGen
 		serverNode = lib_common.nodeMachine
 		servName_or_None = None
