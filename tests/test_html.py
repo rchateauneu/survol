@@ -48,8 +48,15 @@ class HtmlCommon(unittest.TestCase):
         html_page_content = self._check_script(
             "/survol/entity.py?edimodargs_Handle=6744&Show+all+scripts=True&edimodtype=CIM_Process&xid=CIM_Process.Handle%3D6744&mode=html")
 
+    def base_hostname_shares_smbclient(self):
+        """This script might often return an error depending on the platform.
+        But it must always return a correct page HTML."""
 
-# Graphviz/dot must be installed on the test platform, for example Travis.
+        html_page_content = self._check_script(
+            "/survol/sources_types/CIM_ComputerSystem/hostname_shares_smbclient.py")
+
+
+# Graphviz/dot does not have to be installed on the test platform.
 class HtmlLocalAgentTest(HtmlCommon):
     """
     Test parsing of the HTML output on an agent locally running.
@@ -74,6 +81,9 @@ class HtmlLocalAgentTest(HtmlCommon):
     def test_html_edition(self):
         self.base_html_edition()
 
+    def test_hostname_shares_smbclient(self):
+        self.base_hostname_shares_smbclient()
+
 
 class HtmlRemoteAgentTest(HtmlCommon):
     """
@@ -90,6 +100,9 @@ class HtmlRemoteAgentTest(HtmlCommon):
 
     def test_html_edition(self):
         self.base_html_edition()
+
+    def test_hostname_shares_smbclient(self):
+        self.base_hostname_shares_smbclient()
 
 
 if __name__ == '__main__':
