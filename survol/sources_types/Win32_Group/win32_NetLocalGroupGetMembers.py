@@ -24,7 +24,7 @@ Usable = lib_util.UsableWindows
 CanProcessRemote = True
 
 
-def SidUsageToString(sidusage):
+def _sid_usage_to_string(sidusage):
     try:
         return {
              1: "SidTypeUser",
@@ -52,7 +52,7 @@ def _member_name_to_node(sid_usage, member_name, serv_name):
     return member_node
 
 
-def _member_name_to_node_remote(sid_usage, member_name, serv_name, server_box):
+def _member_to_node_remote(sid_usage, member_name, serv_name, server_box):
     serv_name = serv_name.lower() # RFC4343
     if sid_usage == 1 or sid_usage == 6:
         member_node = server_box.UriMakeFromDict("Win32_UserAccount", {"Name": member_name, "Domain": serv_name})
@@ -76,29 +76,25 @@ def Main():
     except Exception as exc:
         lib_common.ErrorMessageHtml("Server=%s Caught:%s" % (server, str(exc)))
 
-    if not server or lib_util.is_local_address(server):
-        servName_or_None = None
+    if lib_util.is_local_address(server):
+        serv_name_or_none = None
 
-        # So it is compatible with WMI.
-        servNameNotNone = lib_uris.TruncateHostname(lib_util.currentHostname)
-        # .home
-        serverNode = lib_common.nodeMachine
-        serverBox = lib_common.gUriGen
+        # So it is compatible with WMI: ".home" removal.
+        serv_name_not_none = lib_uris.TruncateHostname(lib_util.currentHostname)
     else:
-        servName_or_None = server
-        servNameNotNone = server
-        serverNode = lib_common.gUriGen.HostnameUri(server)
-        serverBox = lib_common.RemoteBox(server)
+        serv_name_or_none = server
+        serv_name_not_none = server
+    server_box = lib_uris.MachineBox(server)
 
-    # node_group = serverBox.GroupUri( group_name )
-    # node_group = survol_Win32_Group.MakeUri( group_name, servName_or_None )
-    node_group = survol_Win32_Group.MakeUri(group_name, servNameNotNone)
+    # node_group = server_box.GroupUri( group_name )
+    # node_group = survol_Win32_Group.MakeUri( group_name, serv_name_or_none )
+    node_group = survol_Win32_Group.MakeUri(group_name, serv_name_not_none)
 
     try:
         memberresume = 0
         while True:
             member_data, total, member_resume = win32net.NetLocalGroupGetMembers(
-                servName_or_None, group_name, 2, memberresume)
+                serv_name_or_none, group_name, 2, memberresume)
 
             prop_sid_usage = lib_common.MakeProp("SID Usage")
             prop_security_identifier = lib_common.MakeProp("Security Identifier")
@@ -115,15 +111,14 @@ def Main():
                 logging.debug("Member: %s:", str(member))
                 logging.debug("Lookup: %s: %s", member_name, member['domainandname'])
 
-                logging.debug("servNameNotNone=%s", servNameNotNone)
-                member_node = _member_name_to_node(sid_usage, member_name, servNameNotNone)
+                member_node = _member_name_to_node(sid_usage, member_name, serv_name_not_none)
 
                 grph.add((member_node, pc.property_group, node_group))
-                grph.add((member_node, prop_sid_usage, lib_util.NodeLiteral(SidUsageToString(sid_usage))))
+                grph.add((member_node, prop_sid_usage, lib_util.NodeLiteral(_sid_usage_to_string(sid_usage))))
                 grph.add((member_node, prop_security_identifier, lib_util.NodeLiteral(member['sid'])))
 
-                if servName_or_None:
-                    node_member_remote = _member_name_to_node_remote(sid_usage, member_name, servName_or_None, serverBox)
+                if serv_name_or_none:
+                    node_member_remote = serv_name_or_none(sid_usage, member_name, serv_name_or_none, server_box)
                     # TODO: Instead, both object must have the same universal alias
                     grph.add((member_node, pc.property_alias, node_member_remote))
 
