@@ -228,7 +228,7 @@ class LocalBox:
         #if smbshare[0:2] == "//":
         #    # Maybe we should cgiescape the whole string.
         #    smbshare = "%2F%2F" + smbshare[2:]
-        return self.UriMake("Win32_Share", smbshare)
+        return self.UriMake("smbshr", smbshare)
 
     # TODO: IN FACT THIS IS SIMPLY A MACHINE. MAYBE WE SHOULD SUBCLASS TYPES ?????
     # OR MAYBE ADD SEVERAL CLASS NAMES ??? "smbserver+hostname" ?
