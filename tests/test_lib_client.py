@@ -183,6 +183,17 @@ class SurvolLocalTest(unittest.TestCase):
         print("Len triple_minus=",len(triple_minus.get_instances()))
         self.assertEqual(len(triple_minus.get_instances()), 0)
 
+    @unittest.skipIf(not pkgutil.find_loader('win32api'), "Cannot import win32api. test_merge_duplicate not run.")
+    def test_net_user_get_info(self):
+        """Just tests a specific URL"""
+        my_source_dupl = lib_client.SourceLocal(
+            "sources_types/Win32_UserAccount/Win32_NetUserGetInfo.py",
+            "Win32_UserAccount",
+            Domain=CurrentMachine,
+            Name=CurrentUsername)
+        triple_dupl = my_source_dupl.get_triplestore()
+        print("Len triple_dupl=",len(triple_dupl.get_instances()))
+
     def test_exception_bad_source(self):
         """This tests if errors are properly displayed and an exception is raised."""
         my_source_bad = lib_client.SourceLocal(
