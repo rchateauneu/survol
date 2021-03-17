@@ -1737,7 +1737,7 @@ class SurvolSocketsTest(unittest.TestCase):
             "sources_types/SMB/net_use.py")
 
         str_instances_set = set([str(one_inst) for one_inst in lst_instances])
-        print(str_instances_set)
+        print("NET USE result:", str_instances_set)
         # Typical content:
         # 'CIM_DataFile.Name=//192.168.0.15/public:',
         # 'CIM_DataFile.Name=//192.168.0.15/rchateau:',
@@ -1745,6 +1745,30 @@ class SurvolSocketsTest(unittest.TestCase):
         # 'CIM_DataFile.Name=//localhost/IPC$:',
         # 'smbshr.Id=\\\\192.168.0.15\\rchateau',
         # 'smbshr.Id=\\\\localhost\\IPC$'
+
+    @unittest.skipIf(not is_platform_windows, "test_net_share for Windows only.")
+    def test_net_share(self):
+        """Just test that the command NET SHARE runs"""
+
+        # This does not really test the content, because nothing is sure.
+        # However, at least it tests that the script can be called.
+        lst_instances = _client_object_instances_from_script(
+            "sources_types/SMB/net_share.py")
+
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
+        print(str_instances_set)
+
+    @unittest.skipIf(not is_platform_windows, "test_net_view for Windows only.")
+    def test_net_view(self):
+        """Just test that the command NET VIEW runs"""
+
+        # This does not really test the content, because nothing is sure.
+        # However, at least it tests that the script can be called.
+        lst_instances = _client_object_instances_from_script(
+            "sources_types/SMB/net_view.py")
+
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
+        print(str_instances_set)
 
     @unittest.skipIf(not is_platform_windows, "test_windows_network_devices for Windows only.")
     def test_windows_network_devices(self):
