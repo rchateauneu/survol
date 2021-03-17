@@ -4,15 +4,10 @@
 Unix domain sockets
 """
 
-import os
-import re
 import sys
 import logging
-import lib_uris
 import lib_common
-from sources_types import CIM_DataFile
 import lib_util
-from lib_properties import pc
 
 # $ netstat -a --unix -p
 # Active UNIX domain sockets (servers and established)
@@ -68,7 +63,6 @@ def Main():
         if sock_pid_prog not in ["-", ""]:
             sock_pid_prog_split = sock_pid_prog.split("/")
             sock_pid = sock_pid_prog_split[0]
-            # sys.stderr.write("sock_pid %s\n"%sock_pid)
 
             # Not used, and index error on Python 3.
             # sockProgNam = sock_pid_prog_split[1]
