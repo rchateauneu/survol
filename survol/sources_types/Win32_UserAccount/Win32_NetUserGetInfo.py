@@ -26,7 +26,7 @@ Usable = lib_util.UsableWindows
 CanProcessRemote = True
 
 def Main():
-	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
+	cgiEnv = lib_common.CgiEnv(can_process_remote=True)
 
 	try:
 		# Exception if local machine.
@@ -34,7 +34,7 @@ def Main():
 	except KeyError:
 		hostName = None
 
-	if not hostName or lib_util.is_local_address( hostName ):
+	if lib_util.is_local_address(hostName):
 		serverBox = lib_common.gUriGen
 		serverNode = lib_common.nodeMachine
 		servName_or_None = None
@@ -42,13 +42,6 @@ def Main():
 		serverBox = lib_common.RemoteBox(hostName)
 		serverNode = lib_common.gUriGen.HostnameUri(hostName)
 		servName_or_None = hostName
-
-		# hostname = "Titi" for example
-		# lib_win32.WNetAddConnect(hostName)
-
-
-
-
 
 	userName = cgiEnv.m_entity_id_dict["Name"]
 
