@@ -10,7 +10,6 @@ import os
 import os.path
 import sys
 import lib_util
-import lib_uris
 import lib_common
 from lib_properties import pc
 
@@ -52,8 +51,6 @@ def Main():
 
     java_fil_nam = cgiEnv.GetId()
 
-    # sys.stderr.write("dbFilNam=%s\n"%dbFilNam)
-
     grph = cgiEnv.GetGraph()
 
     fil_node = lib_common.gUriGen.FileUri(java_fil_nam)
@@ -63,8 +60,8 @@ def Main():
     except Exception as exc:
         lib_common.ErrorMessageHtml("File:%s Unexpected error:%s" % (java_fil_nam, str(exc)))
 
-
     cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
+
 
 if __name__ == '__main__':
     Main()
