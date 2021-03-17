@@ -9,6 +9,7 @@ import sys
 import logging
 import lib_util
 import lib_common
+import lib_uris
 import lib_wmi
 from lib_properties import pc
 
@@ -73,21 +74,17 @@ def Main():
     # If running on the local machine, pass the host as None otherwise authorization is checked
     # just like a remote machine, which means User Account Control (UAC) disabling,
     # and maybe setting LocalAccountTokenFilterPolicy=1
-    if not machine_name or lib_util.is_local_address(machine_name):
+    if lib_util.is_local_address(machine_name):
         mach_name_not_none = lib_util.currentHostname
-        server_box = lib_common.gUriGen
+        server_box = lib_uris.gUriGen
     else:
         mach_name_not_none = machine_name
-        server_box = lib_common.RemoteBox(machine_name)
+        server_box = lib_uris.RemoteBox(machine_name)
 
     try:
         logging.debug("Explicit WMI connection machine_name=%s", mach_name_not_none)
 
         cnnct = lib_wmi.WmiConnect(mach_name_not_none, "/root/cimv2")
-
-        #(wmiUser,wmiPass) = lib_credentials.GetCredentials("WMI",machine_name)
-        #sys.stderr.write("machine_name= %wmiUser=%s\n" % ( machine_name, wmiUser ) )
-        #cnnct = wmi.WMI(wmi=wmi.connect_server(server=machine_name, namespace="/root/cimv2", user=wmiUser, password=wmiPass))
     except Exception:
         lib_common.ErrorMessageHtml("WMI " + machine_name + " processes. Caught:" + str(sys.exc_info()))
 
