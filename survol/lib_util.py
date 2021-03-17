@@ -342,7 +342,7 @@ def is_local_address(an_host_nam):
 
     # Maybe entity_host="http://192.168.1.83:5988"
     host_only = EntHostToIp(an_host_nam)
-    if host_only in [ None, "", "localhost", "127.0.0.1", currentHostname]:
+    if host_only in [None, "", "localhost", "127.0.0.1", currentHostname]:
         return True
 
     try:
@@ -476,22 +476,22 @@ def EntHostToIp(entity_host):
     The name is misleading because it returns a host name,
     which might or might not be an IP."""
 
+    if entity_host is None:
+        return None
+
     # WBEM: http://192.168.1.88:5988
     #       https://jdd:test@acme.com:5959
     #       http://192.168.1.88:5988
     # TODO: Not sure this will work with IPV6
     mtch_host_wbem = re.match("https?://([^/:]*).*", entity_host)
     if mtch_host_wbem:
-        #sys.stderr.write("EntHostToIp WBEM=%s\n" % mtch_host_wbem.group(1) )
         return mtch_host_wbem.group(1)
 
     # WMI : \\MYHOST-HP
     mtch_host_wmi = re.match(r"\\\\([-0-9A-Za-z_\.]*)", entity_host)
     if mtch_host_wmi:
-        #sys.stderr.write("EntHostToIp WBEM=%s\n" % mtch_host_wmi.group(1) )
         return mtch_host_wmi.group(1)
 
-    # sys.stderr.write("EntHostToIp Custom=%s\n" % entity_host )
     return entity_host
 
 
