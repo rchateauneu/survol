@@ -20,14 +20,12 @@ NET VIEW command
 
 import sys
 import re
-import socket
 import lib_util
 import lib_uris
 import lib_common
 from lib_properties import pc
-import lib_smb
 
-Usable = lib_smb.UsableWindows
+Usable = lib_util.UsableWindows
 
 
 def Main():
