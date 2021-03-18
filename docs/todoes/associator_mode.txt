@@ -1,0 +1,6 @@
+Exclusive GUI mode to WMI instances only:
+Right-clicking on a node would display the list of its associators.
+Then for an associator: Return its elements.
+This can be implemented with returning the list of associators in a sub-list of the menu.
+Plus a special script, "association.py" taking as parameters the path of the input instance,
+the name of its property in the associator, and the associator name.
