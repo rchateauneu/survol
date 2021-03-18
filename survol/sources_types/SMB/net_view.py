@@ -27,7 +27,7 @@ import lib_common
 from lib_properties import pc
 import lib_smb
 
-Usable = lib_smb.UsableNetCommands
+Usable = lib_smb.UsableWindows
 
 
 def Main():
