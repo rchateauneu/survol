@@ -8,6 +8,7 @@ survol_namespace = "http://www.primhillcomputers.com/survol#"
 # TODO: This is not necessary.
 class pc: pass
 
+
 # If prp contains a space, it is not properly parsed.
 # TODO: The extra parameter is not used yet.
 # The parameters are intended to pass more information with it.
@@ -86,8 +87,8 @@ sortPrefix = "____"
 
 # All the properties for creating RDF triples.
 # Names must all be different because they are used as keys.
-pc.property_pid                  = MakeProp("pid") # TODO: Replace "pid" by "Handle" which is CIM standard.
-pc.property_ppid                 = MakeProp("ppid") # TODO: Rename "parent" or "parent_process". See "ParentProcessId".
+pc.property_pid                  = MakeProp("pid")  # TODO: Replace "pid" by "Handle" which is CIM standard.
+pc.property_ppid                 = MakeProp("ppid")  # TODO: Rename "parent" or "parent_process". See "ParentProcessId".
 pc.property_command              = MakeProp("command")
 pc.property_host                 = MakeProp("host")
 pc.property_hostname             = MakeProp("hostname")
@@ -154,9 +155,9 @@ pc.property_file_device          = MakeProp("file_device")
 pc.property_script               = MakeProp("script", property_description="Data source")
 # TODO: These properties in _flat_properties_list are differently displayed in SVG.
 # TODO: They are displayed like literal values (without a node) but as a URL.
-pc.property_rdf_data_nolist1     = MakeProp("Data1") # These three have a special role.
-pc.property_rdf_data_nolist2     = MakeProp("Data2") # Names must all be different
-pc.property_rdf_data_nolist3     = MakeProp("Data3") # Names must all be different
+pc.property_rdf_data_nolist1     = MakeProp("Data1")  # These three have a special role.
+pc.property_rdf_data_nolist2     = MakeProp("Data2")  # Names must all be different
+pc.property_rdf_data_nolist3     = MakeProp("Data3")  # Names must all be different
 pc.property_wbem_data            = MakeProp("wbem")
 pc.property_wmi_data             = MakeProp("wmi")
 pc.property_survol_agent         = MakeProp("survol_agent")
@@ -169,18 +170,18 @@ pc.property_controller           = MakeProp("controller")
 pc.property_service              = MakeProp("service")
 # TODO: The "odbc" prefix is a kind of namespace.
 # TODO: Should be defined in sources_types/odbc/__init__.py
-pc.property_odbc_driver          = MakeProp("odbc","driver")
-pc.property_odbc_dsn             = MakeProp("odbc","dsn")
-pc.property_odbc_table           = MakeProp("odbc","table")
-pc.property_odbc_column          = MakeProp("odbc","column")
-pc.property_odbc_procedure       = MakeProp("odbc","procedure")
-pc.property_odbc_catalog         = MakeProp("odbc","catalog")
-pc.property_odbc_schema          = MakeProp("odbc","schema")
-pc.property_odbc_inputs          = MakeProp("odbc","inputs")
-pc.property_odbc_outputs         = MakeProp("odbc","outputs")
-pc.property_odbc_result          = MakeProp("odbc","result")
-pc.property_odbc_remarks         = MakeProp("odbc","remarks")
-pc.property_odbc_type            = MakeProp("odbc","type")
+pc.property_odbc_driver          = MakeProp("odbc", "driver")
+pc.property_odbc_dsn             = MakeProp("odbc", "dsn")
+pc.property_odbc_table           = MakeProp("odbc", "table")
+pc.property_odbc_column          = MakeProp("odbc", "column")
+pc.property_odbc_procedure       = MakeProp("odbc", "procedure")
+pc.property_odbc_catalog         = MakeProp("odbc", "catalog")
+pc.property_odbc_schema          = MakeProp("odbc", "schema")
+pc.property_odbc_inputs          = MakeProp("odbc", "inputs")
+pc.property_odbc_outputs         = MakeProp("odbc", "outputs")
+pc.property_odbc_result          = MakeProp("odbc", "result")
+pc.property_odbc_remarks         = MakeProp("odbc", "remarks")
+pc.property_odbc_type            = MakeProp("odbc", "type")
 pc.property_sqlserver_db         = MakeProp("sqlserver DB")
 pc.property_last_access          = MakeProp("last_access")
 pc.property_last_change          = MakeProp("last_update")
@@ -203,18 +204,19 @@ pc.property_argv                 = MakeProp("argv")
 pc.meta_property_commutative     = MakeProp("commutative_property")
 pc.meta_property_collapsed       = MakeProp("collapsed_property")
 
-dictPropertiesGraphAttributes = {
+_dict_properties_graph_attributes = {
     pc.property_script: "GREEN",
     pc.property_rdf_data_nolist1: "BLUE",
     pc.property_socket_end: "ORANGE",
     pc.property_alias: "RED"
 }
 
+
 # TODO: It should be used for tables columns colors.
 # TODO: Change the color based on arguments.
 def prop_color(prop):
     try:
-        return dictPropertiesGraphAttributes[prop]
+        return _dict_properties_graph_attributes[prop]
     except KeyError:
         return "PURPLE"
 
@@ -251,6 +253,6 @@ def extract_properties_metadata(grph):
 
     # This is hard-coded for the moment. It is the only know commutative property,
     # whose edge is displayed as a double arrow.
-    commutative_properties = [pc.property_socket_end,]
+    commutative_properties = [pc.property_socket_end, ]
     grph.remove((_graphic_metadata_node, None, None))
     return collapsed_properties, commutative_properties
