@@ -127,7 +127,8 @@ def _add_ontology(old_grph):
         if node_predicate == pc.property_script:
             # The subject might be a literal directory containing provider script files.
             if not lib_kbase.IsLiteral(node_subject):
-                if lib_kbase.IsLiteral(node_object):
+                # The object might be a literal title of a sublist of scripts.
+                if not lib_kbase.IsLiteral(node_object):
                     # Things like: subject='Languages', object='CDB%20Windows%20debugger'
                     logging.warning("RDF object %s is a literal. Subject=%s", node_object, node_subject)
                     new_grph.add((node_subject, lib_kbase.PredicateSeeAlso, node_object))
