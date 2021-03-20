@@ -228,9 +228,14 @@ class LocalBox:
         #if smbshare[0:2] == "//":
         #    # Maybe we should cgiescape the whole string.
         #    smbshare = "%2F%2F" + smbshare[2:]
-        return self.UriMake("smbshr", smbshare)
+        return self.UriMake("Win32_Share", smbshare)
 
-    # TODO: IN FACT THIS IS SIMPLY A MACHINE. MAYBE WE SHOULD SUBCLASS TYPES ?????
+    def Win32_NetworkConnectionUri(self, disk_name):
+        """This method should be in a module dedicated to this class, but it is used very often,
+        so it is convenient to have it here."""
+        return self.UriMake("Win32_NetworkConnection", disk_name)
+
+        # TODO: IN FACT THIS IS SIMPLY A MACHINE. MAYBE WE SHOULD SUBCLASS TYPES ?????
     # OR MAYBE ADD SEVERAL CLASS NAMES ??? "smbserver+hostname" ?
     # OR MAYBE THE ABSTRACT CONCEPT OF A SERVER, POINTING TO THE MACHINE ITSELF?
     def SmbServerUri(self,smbserver):

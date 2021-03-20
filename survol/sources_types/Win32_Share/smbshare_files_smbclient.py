@@ -26,29 +26,32 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
+
 Usable = lib_util.UsableLinux
 
+
 def Main():
-	paramkeyPassword = "Password"
+    paramkey_password = "Password"
 
-	cgiEnv = lib_common.CgiEnv(
-		{ paramkeyPassword : "" } )
+    cgiEnv = lib_common.CgiEnv(
+        { paramkey_password : "" } )
 
-	if lib_util.isPlatformWindows:
-		lib_common.ErrorMessageHtml("smbclient not available on Windows")
+    if lib_util.isPlatformWindows:
+        lib_common.ErrorMessageHtml("smbclient not available on Windows")
 
-	smbShr = cgiEnv.GetId()
-	password = cgiEnv.get_parameters( paramkeyPassword )
+    smb_shr = cgiEnv.GetId()
+    password = cgiEnv.get_parameters(paramkey_password)
 
-	nodeSmbShr = lib_common.gUriGen.SmbShareUri( smbShr )
+    node_smb_shr = lib_common.gUriGen.SmbShareUri(smb_shr)
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	smbDir = ""
+    smb_dir = ""
 
-	lib_smbclient.AddFromSmbClient( grph, smbDir, smbShr, password, nodeSmbShr )
+    lib_smbclient.AddFromSmbClient(grph, smb_dir, smb_shr, password, node_smb_shr)
 
-	cgiEnv.OutCgiRdf()
+    cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
-	Main()
+    Main()

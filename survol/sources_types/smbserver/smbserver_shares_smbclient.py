@@ -95,9 +95,9 @@ def Main():
 			if mtch_share:
 				shareName = mtch_share.group(1)
 
-				shareNode = lib_common.gUriGen.SmbShareUri( "//" + smbServer + "/" + shareName )
+				shareNode = lib_uris.MachineBox(smbServer).SmbShareUri(shareName)
 
-				grph.add( ( nodeSmbShr, pc.property_smbshare, shareNode ) )
+				grph.add((nodeSmbShr, pc.property_smbshare, shareNode))
 
 	cgiEnv.OutCgiRdf()
 

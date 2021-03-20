@@ -22,99 +22,99 @@ Samba shares
 # querying DUOLNX on 192.168.1.255
 # 192.168.1.68 DUOLNX<00>
 
-import sys
+#import sys
 import re
-import socket
+#import socket
 import lib_util
 import lib_common
 from lib_properties import pc
-import lib_smb
+#import lib_smb
+#import lib_uris
+
+
+# Necessary otherwise it is displayed on Linux machines.
+Usable = lib_util.UsableLinux
 
 
 # This returns the IP address of a netbios machine name.
 def NetBiosLookupHelper(machine):
-	nmblookup_cmd = [ "nmblookup", "--debuglevel=0", machine ]
+    nmblookup_cmd = ["nmblookup", "--debuglevel=0", machine]
 
-	nmblookup_pipe = lib_common.SubProcPOpen(nmblookup_cmd)
+    nmblookup_pipe = lib_common.SubProcPOpen(nmblookup_cmd)
 
-	( nmblookup_last_output, nmblookup_err ) = nmblookup_pipe.communicate()
+    nmblookup_last_output, nmblookup_err = nmblookup_pipe.communicate()
 
-	lines = nmblookup_last_output.split('\n')
+    lines = nmblookup_last_output.split('\n')
 
-	mtch = re.match( r'^([^ \t]*)', lines[1] )
+    mtch = re.match(r'^([^ \t]*)', lines[1])
 
-	if mtch:
-		return mtch.group(1)
+    if mtch:
+        return mtch.group(1)
 
-	return "0.0.0.0"
+    return "0.0.0.0"
 
 netbios_cache = {}
 
 # See http://support.microsoft.com/kb/163409 for details.
 def NetBiosLookup(machine):
-	global netbios_cache
+    global netbios_cache
 
-	try:
-		addr = netbios_cache[ machine ]
-	except KeyError:
-		addr = NetBiosLookupHelper(machine)
-		netbios_cache[ machine ] = addr
+    try:
+        addr = netbios_cache[machine]
+    except KeyError:
+        addr = NetBiosLookupHelper(machine)
+        netbios_cache[machine] = addr
 
-	return addr
+    return addr
+
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.CgiEnv()
 
-	# TODO: Should test Linux instead ?
-	if lib_util.isPlatformWindows:
-		lib_common.ErrorMessageHtml("smbtree not available on Windows")
+    # TODO: Should test Linux instead ?
+    if lib_util.isPlatformWindows:
+        lib_common.ErrorMessageHtml("smbtree not available on Windows")
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	smbtree_cmd = [ "smbtree", "-N", "-b", "--debuglevel=0" ]
+    smbtree_cmd = ["smbtree", "-N", "-b", "--debuglevel=0"]
 
-	smbtree_pipe = lib_common.SubProcPOpen(smbtree_cmd)
+    smbtree_pipe = lib_common.SubProcPOpen(smbtree_cmd)
 
-	( smbtree_last_output, smbtree_err ) = smbtree_pipe.communicate()
+    smbtree_last_output, smbtree_err = smbtree_pipe.communicate()
 
-	lines = smbtree_last_output.split('\n')
+    lines = smbtree_last_output.split('\n')
 
-	for lin in lines:
-		# print(lin)
+    for lin in lines:
+        tst_domain = re.match(r'^([A-Z]+) *', lin)
+        if tst_domain:
+            domain = tst_domain.group(1)
+            continue
 
-		tst_domain = re.match( r'^([A-Z]+) *', lin )
-		if tst_domain:
-			domain = tst_domain.group(1)
-			# print( "Domain=" + tst_domain.group(1) )
+        tst_machine = re.match(r'^[ \t]+\\\\([A-Z0-9_]+)[ \t]+([^\t].*)', lin)
+        if tst_machine:
+            machine = tst_machine.group(1)
+            addr = NetBiosLookup(machine)
 
-			continue
+            node_host = lib_common.gUriGen.HostnameUri(addr)
+            grph.add((node_host, pc.property_netbios, lib_common.gUriGen.SmbServerUri(machine)))
+            # TODO: Maybe will create a specific node for a domain.
+            grph.add((node_host, pc.property_domain, lib_common.gUriGen.SmbDomainUri(domain)))
 
-		tst_machine = re.match( r'^[ \t]+\\\\([A-Z0-9_]+)[ \t]+([^\t].*)', lin )
-		if tst_machine:
-			machine = tst_machine.group(1)
-			addr = NetBiosLookup( machine )
-			# print( "Machine=" + tst_machine.group(1) + " Comment=" + tst_machine.group(2) )
+            continue
 
-			nodeHost = lib_common.gUriGen.HostnameUri( addr )
-			grph.add( ( nodeHost, pc.property_netbios, lib_common.gUriGen.SmbServerUri(machine) ) )
-			# TODO: Maybe will create a specific node for a domain.
-			grph.add( ( nodeHost, pc.property_domain, lib_common.gUriGen.SmbDomainUri(domain) ) )
+        tst_share = re.match(r'^[ \t]+\\\\([A-Z0-9_]+)\\([^ \t]+)[ \t]+([^\t].*)', lin)
+        if tst_share:
+            machine = tst_share.group(1)
+            share = tst_share.group(2)
 
-			continue
+            share_node = lib_uris.MachineBox(machine).SmbShareUri(share)
+            grph.add((node_host, pc.property_smbshare, share_node))
 
-		tst_share = re.match( r'^[ \t]+\\\\([A-Z0-9_]+)\\([^ \t]+)[ \t]+([^\t].*)', lin )
-		if tst_share:
-			machine = tst_share.group(1)
-			share = tst_share.group(2)
+            continue
 
-			shareNode = lib_common.gUriGen.SmbShareUri( "//" + machine + "/" + share )
-			grph.add( ( nodeHost, pc.property_smbshare, shareNode ) )
+    cgiEnv.OutCgiRdf()
 
-			continue
-
-	# print( smbtree_last_output )
-
-	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
-	Main()
+    Main()

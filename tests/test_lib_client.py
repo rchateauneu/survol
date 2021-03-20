@@ -1795,7 +1795,7 @@ class SurvolSocketsTest(unittest.TestCase):
             if the_class == "CIM_ComputerSystem":
                 pred_name, dummy_equal, ip_address = the_entity_id.partition("=")
                 set_ip_addresses.add(ip_address.upper())
-            elif the_class == "smbshr":
+            elif the_class == "Win32_Share":
                 pred_name, dummy_equal, disk_name = the_entity_id.partition("=")
                 smbshr_disk.add(disk_name)
 

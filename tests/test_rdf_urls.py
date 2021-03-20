@@ -59,7 +59,7 @@ class RdfLocalAgentTest(unittest.TestCase):
         shares_set = set()
         for url_subject, url_predicate, url_object in result_graph.triples((None, pc.property_smbshare, None)):
             url_path, entity_type, entity_id_dict = lib_util.split_url_to_entity(url_object)
-            shares_set.add(entity_id_dict['Id'])
+            shares_set.add(entity_id_dict['Name'])
         print("Shares=", shares_set)
 
         # Typical SMB shares which are found on many Windows machines:
@@ -67,8 +67,8 @@ class RdfLocalAgentTest(unittest.TestCase):
         # smbshr.Id=//machine-name/C$
         # smbshr.Id=//machine-name/Users
         # smbshr.Id=//machine-name/ADMIN$
-        self.assertTrue( "//%s/IPC$" % lib_util.currentHostname in shares_set)
-        self.assertTrue( "//%s/C$" % lib_util.currentHostname in shares_set)
+        self.assertTrue("IPC$" in shares_set)
+        self.assertTrue("C$" in shares_set)
 
     @unittest.skipIf(not is_platform_windows, "Windows only")
     def test_rdf_windows_resource_icons(self):
