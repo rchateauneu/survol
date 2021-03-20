@@ -95,7 +95,6 @@ class SurvolLocalTest(unittest.TestCase):
         lib_common.enable_error_message(False)
 
         triple_file_stat_local = my_source_file_stat_local.get_triplestore()
-        print("Len triple_file_stat_local=",len(triple_file_stat_local))
 
         # Typical output:
         #     Win32_Group.Domain=NT SERVICE,Name=TrustedInstaller
@@ -105,9 +104,6 @@ class SurvolLocalTest(unittest.TestCase):
         instances_file_stat_local = triple_file_stat_local.get_instances()
 
         len_instances = len(instances_file_stat_local)
-        sys.stdout.write("Len triple_file_stat_local=%s\n"%len_instances)
-        for one_inst in instances_file_stat_local:
-            sys.stdout.write("    %s\n"%str(one_inst))
         # This file should be there on any Windows machine.
         self.assertTrue(len_instances >= 1)
 
@@ -119,7 +115,7 @@ class SurvolLocalTest(unittest.TestCase):
             DeviceID=AnyLogicalDisk)
 
         content1 = my_source1.content_json()
-        print( "content1=", str(content1.keys()))
+        print("content1=", str(content1.keys()))
         self.assertEqual(sorted(content1.keys()), ['links', 'nodes', 'page_title'])
 
     def test_merge_add_local(self):
@@ -127,18 +123,19 @@ class SurvolLocalTest(unittest.TestCase):
             "entity.py",
             "CIM_DataFile",
             Name=always_present_file)
+
         # The current process is always available.
-        mySource2 = lib_client.SourceLocal(
+        my_source2 = lib_client.SourceLocal(
             "entity.py",
             "CIM_Process",
             Handle=CurrentPid)
 
-        my_src_merge_plus = my_source1 + mySource2
+        my_src_merge_plus = my_source1 + my_source2
         triple_plus = my_src_merge_plus.get_triplestore()
-        print("Len triple_plus:",len(triple_plus))
+        print("Len triple_plus:", len(triple_plus))
 
         len_source1 = len(my_source1.get_triplestore().get_instances())
-        len_source2 = len(mySource2.get_triplestore().get_instances())
+        len_source2 = len(my_source2.get_triplestore().get_instances())
         len_plus = len(triple_plus.get_instances())
         # In the merged link, there cannot be more instances than in the input sources.
         self.assertTrue(len_plus <= len_source1 + len_source2)
