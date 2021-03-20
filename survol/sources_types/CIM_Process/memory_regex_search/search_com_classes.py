@@ -18,7 +18,7 @@ from sources_types.CIM_Process import memory_regex_search
 SlowScript = True
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 	pidint = int( cgiEnv.GetId() )
 
 	grph = cgiEnv.GetGraph()

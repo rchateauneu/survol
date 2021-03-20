@@ -54,7 +54,7 @@ def Main():
     def main_snapshot():
         vmstat_cmd = ["vmstat", ]
 
-        cgiEnv = lib_common.CgiEnv()
+        cgiEnv = lib_common.ScriptEnvironment()
 
         logging.debug(__file__ + " Snapshot Starting process:%s" % str(vmstat_cmd))
         Main.proc_popen = subprocess.Popen(vmstat_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
@@ -67,7 +67,7 @@ def Main():
         # TODO: The delay could be a parameter.
         vmstat_cmd = ["vmstat", "1",]
 
-        cgiEnv = lib_common.CgiEnv()
+        cgiEnv = lib_common.ScriptEnvironment()
 
         logging.debug(__file__ + " Events Starting process:%s" % str(vmstat_cmd))
         Main.proc_popen = subprocess.Popen(vmstat_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)

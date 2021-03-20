@@ -19,7 +19,7 @@ def Usable(entity_type, entity_ids_arr):
 
 # We could simply in AddInfo, add a link to "sqlite/file".
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	dbFilNam = cgiEnv.GetId()
 

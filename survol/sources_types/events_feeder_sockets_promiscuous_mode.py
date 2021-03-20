@@ -88,7 +88,7 @@ def _promiscuous_win(loop_number):
     s.ioctl(socket.SIO_RCVALL, socket.RCVALL_ON)
 
     bufferSize=4096
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     while loop_number:
         loop_number -= 1
         grph = cgiEnv.ReinitGraph()
@@ -109,7 +109,7 @@ def _promiscuous_win(loop_number):
 def _promiscuous_linux(loop_number):
     rawSocket=socket.socket(socket.PF_PACKET,socket.SOCK_RAW,socket.htons(0x0800))
 
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     while loop_number:
         loop_number -= 1
 

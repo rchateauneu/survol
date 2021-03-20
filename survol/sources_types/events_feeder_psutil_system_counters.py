@@ -72,7 +72,7 @@ def _add_system_counters_to_sample_node(grph, sample_node):
 
 
 def Snapshot():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
 
     grph = cgiEnv.GetGraph()
 

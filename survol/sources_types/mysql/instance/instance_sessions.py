@@ -23,14 +23,14 @@ from sources_types.mysql import query as survol_mysql_query
 
 def Main():
 
-	cgiEnv = lib_common.CgiEnv( )
+	cgiEnv = lib_common.ScriptEnvironment( )
 
 	instanceName = cgiEnv.m_entity_id_dict["Instance"]
 	instanceNode = survol_mysql_instance.MakeUri(instanceName)
 
 	(hostname,hostport) = survol_mysql.InstanceToHostPort(instanceName)
 
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	grph = cgiEnv.GetGraph()
 

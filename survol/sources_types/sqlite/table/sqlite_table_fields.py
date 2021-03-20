@@ -20,7 +20,7 @@ def Usable(entity_type,entity_ids_arr):
 	return sqlite.IsSqliteDatabase(filNam)
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	tableName = cgiEnv.m_entity_id_dict["Table"]
 	dbFilNam = cgiEnv.m_entity_id_dict["File"]

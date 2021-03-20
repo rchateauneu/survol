@@ -12,7 +12,7 @@ from lib_properties import pc
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv(can_process_remote=True)
+    cgiEnv = lib_common.ScriptEnvironment(can_process_remote=True)
 
     cimom_url = cgiEnv.GetHost()
 

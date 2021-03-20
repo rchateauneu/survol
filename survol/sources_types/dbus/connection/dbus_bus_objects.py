@@ -36,7 +36,7 @@ def RecursiveObjWalk(grph,object_path, rootNode):
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	entity_type = "dbus/connection"
 	# entity_id = cgiEnv.m_entity_id

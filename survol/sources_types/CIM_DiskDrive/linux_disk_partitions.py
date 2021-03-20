@@ -15,7 +15,7 @@ Usable = lib_util.UsableLinux
 # Must finish this.
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
 
     grph = cgiEnv.GetGraph()
 

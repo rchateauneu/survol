@@ -22,7 +22,7 @@ from sources_types.Azure import service
 Usable = lib_util.UsableWindows
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	# TODO: The subscription will become a parameter with a default value.
 	# serviceName = cgiEnv.GetId()

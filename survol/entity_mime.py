@@ -13,7 +13,7 @@ import lib_common
 from lib_properties import pc
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     entity_id = cgiEnv.m_entity_id
 
     name_space, entity_type = cgiEnv.get_namespace_type()

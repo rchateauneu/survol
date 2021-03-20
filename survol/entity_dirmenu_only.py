@@ -258,7 +258,7 @@ def recursive_walk_on_scripts(callback_grph_add, parent_node, entity_type, entit
 
 def Main():
     # This can process remote hosts because it does not call any script, just shows them.
-    cgiEnv = lib_common.CgiEnv(
+    cgiEnv = lib_common.ScriptEnvironment(
                     can_process_remote=True,
                     parameters={lib_util.paramkeyShowAll: False})
     entity_id = cgiEnv.m_entity_id

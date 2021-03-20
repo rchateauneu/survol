@@ -51,7 +51,7 @@ def _get_tcmp_dump_command():
 def Snapshot(loop_number=1):
     tcpdump_cmd = _get_tcmp_dump_command()
 
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     proc_open = None
     try:
         sys.stderr.write("tcpdump_cmd=%s\n" % str(tcpdump_cmd))

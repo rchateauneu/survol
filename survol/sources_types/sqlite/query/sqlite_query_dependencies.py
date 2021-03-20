@@ -10,7 +10,7 @@ from sources_types.sql import query as sql_query
 from sources_types.sqlite import query as sqlite_query
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	grph = cgiEnv.GetGraph()
 

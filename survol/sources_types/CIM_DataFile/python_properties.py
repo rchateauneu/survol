@@ -27,7 +27,7 @@ def Main():
     paramkey_disp_packages = "Display packages"
     paramkey_disp_files = "Display files"
 
-    cgiEnv = lib_common.CgiEnv({
+    cgiEnv = lib_common.ScriptEnvironment({
         paramkey_max_depth: 1,
         paramkey_disp_packages: True,
         paramkey_disp_files: False})

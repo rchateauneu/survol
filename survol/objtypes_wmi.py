@@ -106,7 +106,7 @@ def Main():
 
 	paramkey_max_depth = "Maximum depth"
 
-	cgiEnv = lib_common.CgiEnv(
+	cgiEnv = lib_common.ScriptEnvironment(
 		can_process_remote=True,
 		parameters={paramkey_max_depth: 3})
 

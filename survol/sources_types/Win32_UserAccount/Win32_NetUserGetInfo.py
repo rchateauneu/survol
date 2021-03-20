@@ -26,7 +26,7 @@ Usable = lib_util.UsableWindows
 CanProcessRemote = True
 
 def Main():
-	cgiEnv = lib_common.CgiEnv(can_process_remote=True)
+	cgiEnv = lib_common.ScriptEnvironment(can_process_remote=True)
 
 	try:
 		# Exception if local machine.

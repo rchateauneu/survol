@@ -14,7 +14,7 @@ from lib_properties import pc
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     partition_nam = cgiEnv.GetId()
 
     partition_node = lib_common.gUriGen.DiskPartitionUri(partition_nam)

@@ -171,7 +171,7 @@ def _add_nodes_from_command_line(argv_array, grph, node_process, proc_obj):
         idx_command += 1
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     pid_proc = int(cgiEnv.GetId())
 
     grph = cgiEnv.GetGraph()

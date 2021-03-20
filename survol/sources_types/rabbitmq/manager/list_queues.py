@@ -25,7 +25,7 @@ from sources_types.rabbitmq import vhost as survol_rabbitmq_vhost
 
 def Main():
 
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	configNam = cgiEnv.GetId()
 

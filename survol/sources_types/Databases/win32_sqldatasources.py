@@ -57,7 +57,7 @@ def show_odbc_sources(grph):
 	DisplayDsns(grph,odbc.SQL_FETCH_FIRST_SYSTEM,"System")
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	grph = cgiEnv.GetGraph()
 	show_odbc_sources(grph)

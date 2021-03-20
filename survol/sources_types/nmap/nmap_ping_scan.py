@@ -41,7 +41,7 @@ from lib_properties import pc
 def Main():
     paramkeyPortsRange = "Ports Range"
 
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
 
     # net_mask = "192.168.1.0/24"
 

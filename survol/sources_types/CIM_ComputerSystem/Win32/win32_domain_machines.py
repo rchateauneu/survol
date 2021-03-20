@@ -15,7 +15,7 @@ import lib_common
 from lib_properties import pc
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 	machineName = cgiEnv.GetId()
 	if lib_util.is_local_address( machineName ):
 		machineName = None

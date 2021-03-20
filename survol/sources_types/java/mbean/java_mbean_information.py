@@ -15,7 +15,7 @@ from lib_properties import pc
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 	pidInt = int( cgiEnv.GetId() )
 
 	pidMBean = cgiEnv.m_entity_id_dict["Handle"]

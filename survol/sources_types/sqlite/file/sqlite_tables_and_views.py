@@ -15,7 +15,7 @@ def Usable(entity_type,entity_ids_arr):
 
 # Similar to CIM_DataFile/db_sqllite
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	dbFilNam = cgiEnv.GetId()
 

@@ -22,7 +22,7 @@
 # from sources_types.win32 import resource as survol_win32_resource
 #
 # def Main():
-# 	cgiEnv = lib_common.CgiEnv()
+# 	cgiEnv = lib_common.ScriptEnvironment()
 #
 # 	arguments = cgi.FieldStorage()
 # 	fileName = arguments["filename"].value

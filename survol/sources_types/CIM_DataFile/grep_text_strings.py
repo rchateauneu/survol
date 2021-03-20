@@ -33,7 +33,7 @@ def Main():
 	paramkeyMaxOccurrences = "Maximum number of occurrences"
 	paramkeyRegularExpression = "Regular expression"
 
-	cgiEnv = lib_common.CgiEnv(
+	cgiEnv = lib_common.ScriptEnvironment(
 			parameters = { paramkeyMaxOccurrences : 1000, paramkeyRegularExpression: "[a-zA-Z0-9]{5,}" } )
 
 	# TODO: This must also return urls to display the next 1000 and previous 1000 words,

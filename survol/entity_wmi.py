@@ -229,7 +229,7 @@ def DispWmiReferences(grph, wmi_instance_node, obj_wmi, cgi_moniker):
 def Main():
     paramkey_display_none = "Display none values"
     paramkey_display_associators = "Display Associators"
-    cgiEnv = lib_common.CgiEnv(can_process_remote=True,
+    cgiEnv = lib_common.ScriptEnvironment(can_process_remote=True,
                                parameters = {paramkey_display_none: False, paramkey_display_associators: False})
 
     display_none_values = bool(cgiEnv.get_parameters(paramkey_display_none))

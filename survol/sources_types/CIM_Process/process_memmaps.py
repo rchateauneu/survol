@@ -12,7 +12,7 @@ from lib_properties import pc
 from sources_types import CIM_Process
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     pid = int(cgiEnv.GetId())
 
     grph = cgiEnv.GetGraph()

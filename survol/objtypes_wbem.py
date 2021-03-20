@@ -75,7 +75,7 @@ def Main():
     paramkey_yawn_urls = "Yawn urls"
 
     # TODO: The type should really be an integer.
-    cgiEnv = lib_common.CgiEnv(
+    cgiEnv = lib_common.ScriptEnvironment(
                     can_process_remote=True,
                     parameters={paramkey_max_depth: 2, paramkey_yawn_urls: False})
 

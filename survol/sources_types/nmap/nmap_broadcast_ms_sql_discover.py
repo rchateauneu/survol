@@ -59,7 +59,7 @@ def AddOdbcNode(grph, mach_nam, srv_name, tcp_port):
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
 
     args = ["nmap", '-oX', '-', '--script', "broadcast-ms-sql-discover",]
 

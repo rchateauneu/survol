@@ -64,7 +64,7 @@ def _member_to_node_remote(sid_usage, member_name, serv_name, server_box):
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv(can_process_remote = True)
+    cgiEnv = lib_common.ScriptEnvironment(can_process_remote = True)
 
     server = cgiEnv.m_entity_id_dict["Domain"]
     group_name = cgiEnv.m_entity_id_dict["Name"]

@@ -57,7 +57,7 @@ def AddInformation(grph, root_node, entity_id, entity_type):
 
 def Main():
     # This can process remote hosts because it does not call any script, just shows them.
-    cgiEnv = lib_common.CgiEnv(can_process_remote=True)
+    cgiEnv = lib_common.ScriptEnvironment(can_process_remote=True)
     entity_id = cgiEnv.m_entity_id
 
     name_space, entity_type = cgiEnv.get_namespace_type()

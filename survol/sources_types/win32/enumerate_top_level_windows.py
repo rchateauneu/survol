@@ -22,7 +22,7 @@ def _window_enumeration_handler(hwnd, top_windows_hnd):
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
 
     grph = cgiEnv.GetGraph()
 

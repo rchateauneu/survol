@@ -11,7 +11,7 @@ from lib_properties import pc
 from sources_types import Win32_Service
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 	machineName = cgiEnv.GetId()
 
 	grph = cgiEnv.GetGraph()

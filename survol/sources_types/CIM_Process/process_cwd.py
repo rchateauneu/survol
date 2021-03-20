@@ -11,7 +11,7 @@ from sources_types import CIM_Process
 from lib_properties import pc
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 	try:
 		top_pid = int( cgiEnv.GetId() )
 	except Exception:

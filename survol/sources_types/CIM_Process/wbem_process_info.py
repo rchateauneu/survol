@@ -18,7 +18,7 @@ CanProcessRemote = True
 
 def Main():
     # TODO: can_process_remote should be suppressed because it duplicates CanProcessRemote
-    cgiEnv = lib_common.CgiEnv(can_process_remote=True)
+    cgiEnv = lib_common.ScriptEnvironment(can_process_remote=True)
     pid = int(cgiEnv.GetId())
     machine_name = cgiEnv.GetHost()
 

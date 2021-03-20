@@ -63,7 +63,7 @@ FILE_LIST_DIRECTORY = 0x0001
 
 
 def Snapshot():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     path_to_watch = cgiEnv.GetId()
 
     grph = cgiEnv.GetGraph()
@@ -74,7 +74,7 @@ def Snapshot():
 
 
 def send_events_once():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     path_to_watch = cgiEnv.GetId()
 
     logging.info("path_to_watch=%s" % path_to_watch)

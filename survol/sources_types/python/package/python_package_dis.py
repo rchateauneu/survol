@@ -33,7 +33,7 @@ def Main():
 	paramkeyDispPackages = "Display packages"
 	paramkeyDispFiles = "Display files"
 
-	cgiEnv = lib_common.CgiEnv(
+	cgiEnv = lib_common.ScriptEnvironment(
 			{ paramkeyMaxDepth : 1, paramkeyDispPackages: True, paramkeyDispFiles: False} )
 
 	packageNam = cgiEnv.GetId()

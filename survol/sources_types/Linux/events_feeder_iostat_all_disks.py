@@ -49,7 +49,7 @@ def Main(loop_number=1):
     # Contains the last header read.
     iostat_header = []
 
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
 
     proc_open = None
     try:

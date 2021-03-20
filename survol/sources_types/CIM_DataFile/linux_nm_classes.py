@@ -85,7 +85,7 @@ def _add_unknown_symbol(grph, node_shared_lib, symbolnam):
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     file_shared_lib = cgiEnv.GetId()
 
     grph = cgiEnv.GetGraph()

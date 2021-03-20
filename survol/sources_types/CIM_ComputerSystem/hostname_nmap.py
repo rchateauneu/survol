@@ -18,7 +18,7 @@ from sources_types import addr as survol_addr
 def Main():
     paramkeyPortsRange = "Ports Range"
 
-    cgiEnv = lib_common.CgiEnv({paramkeyPortsRange: "22-443"})
+    cgiEnv = lib_common.ScriptEnvironment({paramkeyPortsRange: "22-443"})
     hostname = cgiEnv.GetId()
     node_host = lib_common.gUriGen.HostnameUri(hostname)
 

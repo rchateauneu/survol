@@ -43,7 +43,7 @@ Usable = survol_msdos.Usable
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     pid_proc = int(cgiEnv.GetId())
 
     grph = cgiEnv.GetGraph()

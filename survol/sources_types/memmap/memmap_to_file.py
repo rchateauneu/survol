@@ -10,7 +10,7 @@ from sources_types import CIM_DataFile
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     memmap_name = cgiEnv.GetId()
 
     grph = cgiEnv.GetGraph()

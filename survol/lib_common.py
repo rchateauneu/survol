@@ -241,7 +241,7 @@ def MergeOutCgiRdf(the_mode, cumulated_error):
 
     top_url = lib_util.TopUrl("", "")
 
-    pseudo_cgi = CgiEnv()
+    pseudo_cgi = ScriptEnvironment()
     pseudo_cgi.m_graph = _global_graph
     pseudo_cgi.m_page_title = page_title
     pseudo_cgi.m_page_subtitle = ""
@@ -265,7 +265,7 @@ def MergeOutCgiRdf(the_mode, cumulated_error):
 ################################################################################
 
 
-class CgiEnv():
+class ScriptEnvironment():
     """
         This class parses the CGI environment variables which define an entity.
     """

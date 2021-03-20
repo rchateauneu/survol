@@ -43,7 +43,7 @@ class OraCallbackParseQry:
 
 def Main():
     cgiEnv = lib_oracle.OracleEnv()
-    # cgiEnv = lib_common.CgiEnv()
+    # cgiEnv = lib_common.ScriptEnvironment()
 
     grph = cgiEnv.GetGraph()
 

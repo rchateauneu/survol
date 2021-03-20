@@ -78,7 +78,7 @@ def tree_parent_process(grph, proc_obj, pids_seen_set):
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     try:
         root_pid = int(cgiEnv.GetId())
     except KeyError:

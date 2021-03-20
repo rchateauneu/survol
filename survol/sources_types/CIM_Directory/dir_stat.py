@@ -17,7 +17,7 @@ from lib_properties import pc
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     fil_nam = cgiEnv.GetId()
     fil_nam = lib_util.standardized_file_path(fil_nam)
 

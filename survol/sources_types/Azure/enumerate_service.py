@@ -44,7 +44,7 @@ def EnumServices(grph,subscriptionName):
 		grph.add( ( servNode, pc.property_rdf_data_nolist1, lib_common.NodeUrl(srv.url) ) )
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	grph = cgiEnv.GetGraph()
 

@@ -85,7 +85,7 @@ from lib_properties import pc
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	args = ["nmap", '-oX', '-', '-sV', '--script', "broadcast-upnp-info", ]
 

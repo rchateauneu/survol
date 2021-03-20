@@ -24,7 +24,7 @@ def TimeStamp():
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv(can_process_remote = True)
+	cgiEnv = lib_common.ScriptEnvironment(can_process_remote = True)
 	serviceName = cgiEnv.GetId()
 	serviceHost = cgiEnv.GetHost()
 	grph = cgiEnv.GetGraph()

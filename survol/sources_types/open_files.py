@@ -52,7 +52,7 @@ def Main():
 
     # TODO: At the moment, only uses false default values for boolean parameters,
     # TODO: because CGI and the CGI lib do not send empty strings.
-    cgiEnv = lib_common.CgiEnv(
+    cgiEnv = lib_common.ScriptEnvironment(
         parameters = {paramkey_show_shared_lib: False,
                       paramkey_show_font_files: False,
                       paramkey_show_non_shared: False}

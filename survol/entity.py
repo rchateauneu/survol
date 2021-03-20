@@ -97,7 +97,7 @@ def _add_wbem_wmi_servers(grph, root_node, entity_host, name_space, entity_type,
 def Main():
 
     # This can process remote hosts because it does not call any script, just shows them.
-    cgiEnv = lib_common.CgiEnv(
+    cgiEnv = lib_common.ScriptEnvironment(
                     can_process_remote=True,
                     parameters={lib_util.paramkeyShowAll: False})
     entity_id = cgiEnv.m_entity_id

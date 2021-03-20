@@ -24,7 +24,7 @@ from sources_types.mysql import instance as survol_mysql_instance
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	grph = cgiEnv.GetGraph()
 

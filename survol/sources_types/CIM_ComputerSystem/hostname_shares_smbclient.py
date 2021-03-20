@@ -44,7 +44,7 @@ def Main():
     This is similar to the script displaying shares for a given SMB server.
     Maybe in the future it will have to be different.
     """
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     host_name = cgiEnv.GetId()
 
     grph = cgiEnv.GetGraph()

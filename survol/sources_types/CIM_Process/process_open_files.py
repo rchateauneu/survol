@@ -15,7 +15,7 @@ def Main():
     paramkey_show_shared_lib = "Show shared libraries"
     paramkey_show_font_files = "Show font files"
 
-    cgiEnv = lib_common.CgiEnv(
+    cgiEnv = lib_common.ScriptEnvironment(
         parameters = { paramkey_show_shared_lib : False,
                        paramkey_show_font_files : False }
     )

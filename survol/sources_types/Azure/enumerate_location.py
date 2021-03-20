@@ -38,7 +38,7 @@ def EnumLoca(grph,subscriptionName):
 		grph.add( ( subscriptionNode, lib_common.MakeProp("Location"), locaNode ) )
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	grph = cgiEnv.GetGraph()
 

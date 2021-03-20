@@ -18,7 +18,7 @@ import lib_common
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     grph = cgiEnv.GetGraph()
 
     lib_common.ErrorMessageHtml("Not implemented yet")

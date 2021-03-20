@@ -123,12 +123,12 @@ entre un script normal qui renvoie toujours les memes donnees,
 et un script asynchrone qui ne renvoie que les dernieres donnees,
 en donnant un nom special aux scripts asynchrones.
 monscript.ASYNC.py
-Du coup, pas besoin de preciser dans CgiEnv.
+Du coup, pas besoin de preciser dans ScriptEnvironment.
 
 D3 refuse de faire des refresh immediats de scripts qui n'ont pas le nom *.ASYNC.py.
 On peut eventuellement se deconnecter d'un script asynchrone, car ca peut faire beaucoup de donnees.
 
-Par ailleurs, CgiEnv refuse de traiter le parametre "&from_timestamp=" pour ces memes scripts.
+Par ailleurs, ScriptEnvironment refuse de traiter le parametre "&from_timestamp=" pour ces memes scripts.
 
 De plus, si script asynchrone, on ne va pas tout virer,
 mais seulement ajouter des updates (et des nodes "deleted").
@@ -244,10 +244,10 @@ http://www.openrce.org/forums/posts/274
 https://github.com/OpenRCE/pydbg
 https://www.malwaretech.com/2015/04/intercepting-all-system-calls-by.html
 
-“Usually I don’t post things like this, but because KiFastSystemCall
-hooking only works on x86 systems and doesn’t work on Windows 8 or above,
+ï¿½Usually I donï¿½t post things like this, but because KiFastSystemCall
+hooking only works on x86 systems and doesnï¿½t work on Windows 8 or above,
 it no longer has much use in malware.
-There are also multiple public implementations for this method, just not very elegant, which I hope to correct.”
+There are also multiple public implementations for this method, just not very elegant, which I hope to correct.ï¿½
 
 https://github.com/OpenRCE/paimei/tree/master/utils
 https://github.com/OpenRCE/pydbg
@@ -259,9 +259,9 @@ For this example the script hook nspr4.dll which encrypt datas for SSL
 It uses pydbg.
 
 http://www.openrce.org/forums/posts/274
-“Usually I don’t post things like this, but because KiFastSystemCall hooking only works on x86 systems
-and doesn’t work on Windows 8 or above, it no longer has much use in malware.
-There are also multiple public implementations for this method, just not very elegant, which I hope to correct.”
+ï¿½Usually I donï¿½t post things like this, but because KiFastSystemCall hooking only works on x86 systems
+and doesnï¿½t work on Windows 8 or above, it no longer has much use in malware.
+There are also multiple public implementations for this method, just not very elegant, which I hope to correct.ï¿½
 
 "Official" project repository:
 ==============================
@@ -271,9 +271,9 @@ https://github.com/rchateauneu/mineit
 Reducing event logs size:
 =========================
 
-« Frequent Itemset and Association Rule Mining.
+ï¿½ Frequent Itemset and Association Rule Mining.
 Frequent item-set mining is an interesting branch of data mining
-that focuses on looking at sequences of actions or events”
+that focuses on looking at sequences of actions or eventsï¿½
 https://en.wikipedia.org/wiki/Sequential_pattern_mining
 
 "Trace Clustering in Process Mining"
@@ -322,8 +322,8 @@ https://pypi.python.org/pypi/apyori/1.1.1 Simple Apriori algorithm Implementatio
 
 http://www.borgelt.net/pyfim.html Frequent Item Set Mining for Python
 https://pypi.python.org/pypi/fim Frequent Item Set Mining and Association Rule Induction for Python
-« Frequent Itemset and Association Rule Mining.
-Frequent item-set mining is an interesting branch of data mining that focuses on looking at sequences of actions or events”
+ï¿½ Frequent Itemset and Association Rule Mining.
+Frequent item-set mining is an interesting branch of data mining that focuses on looking at sequences of actions or eventsï¿½
 
 
 https://en.wikipedia.org/wiki/Sequential_pattern_mining
@@ -338,6 +338,6 @@ Various TODOes:
 ===============
 LOG FILE : Que des writes, aucun read, aucun fseek ou bien a la fin.
 
-Indiquer S’il y a beaucoup de fseek et donc si ca vaut la peine d utiliser un ssd.
+Indiquer Sï¿½il y a beaucoup de fseek et donc si ca vaut la peine d utiliser un ssd.
 
 

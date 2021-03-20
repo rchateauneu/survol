@@ -37,7 +37,7 @@ def _script_information_html_iterator(theCgi, gblCgiEnvList):
     """
     logging.debug("_script_information_html_iterator entity_type=%s", theCgi.m_entity_type)
 
-    # This is already called in lib_common, when creating CgiEnv.
+    # This is already called in lib_common, when creating ScriptEnvironment.
     # It does not matter because this is very fast.
     calling_url = lib_util.RequestUri()
     entity_label, entity_graphic_class, entity_id = lib_naming.ParseEntityUri(calling_url, long_display=True)

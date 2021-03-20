@@ -26,7 +26,7 @@ from lib_properties import pc
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     # Ex: "//LONW00052257.euro.net.intra/D$"
     smb_shr = cgiEnv.GetId()
 

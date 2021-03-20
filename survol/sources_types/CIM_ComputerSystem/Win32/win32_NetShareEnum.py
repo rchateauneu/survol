@@ -15,7 +15,7 @@ import win32net
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 	hostname = cgiEnv.GetId()
 
 	nodeHost = lib_common.gUriGen.HostnameUri(hostname)

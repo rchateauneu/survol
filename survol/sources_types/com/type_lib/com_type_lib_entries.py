@@ -19,7 +19,7 @@ import lib_com_type_lib
 Usable = lib_util.UsableWindows
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 	fname = cgiEnv.GetId()
 
 	grph = cgiEnv.GetGraph()

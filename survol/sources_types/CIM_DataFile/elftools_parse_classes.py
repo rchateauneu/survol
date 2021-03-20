@@ -19,7 +19,7 @@ Usable = lib_util.UsableLinuxBinary
 def Main():
     paramkeyMaxDepth = "Maximum depth"
 
-    cgiEnv = lib_common.CgiEnv(
+    cgiEnv = lib_common.ScriptEnvironment(
         parameters = {paramkeyMaxDepth: 1})
 
     maxDepth = int(cgiEnv.get_parameters(paramkeyMaxDepth))

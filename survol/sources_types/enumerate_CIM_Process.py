@@ -16,7 +16,7 @@ def Main():
     paramkey_hide_user_accounts = "Hide user accounts"
     paramkey_show_command_line = "Show command line"
 
-    cgiEnv = lib_common.CgiEnv(
+    cgiEnv = lib_common.ScriptEnvironment(
         parameters={
             paramkey_hide_user_accounts: False,
             paramkey_show_command_line: False}

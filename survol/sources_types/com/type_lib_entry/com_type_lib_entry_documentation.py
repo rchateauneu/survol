@@ -16,7 +16,7 @@ import lib_com_type_lib
 
 Usable = lib_util.UsableWindows
 
-cgiEnv = lib_common.CgiEnv()
+cgiEnv = lib_common.ScriptEnvironment()
 fname_i = cgiEnv.GetId()
 
 # Same structure for all entities. This is annoying but too early to have something more generic.
