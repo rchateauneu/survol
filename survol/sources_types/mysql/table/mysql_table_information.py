@@ -21,7 +21,7 @@ from sources_types.mysql import table as survol_mysql_table
 
 def Main():
 
-	cgiEnv = lib_common.CgiEnv( )
+	cgiEnv = lib_common.ScriptEnvironment( )
 
 	instanceName = cgiEnv.m_entity_id_dict["Instance"]
 	dbNam = cgiEnv.m_entity_id_dict["Database"]
@@ -29,7 +29,7 @@ def Main():
 
 	(hostname,hostport) = survol_mysql.InstanceToHostPort(instanceName)
 
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	grph = cgiEnv.GetGraph()
 

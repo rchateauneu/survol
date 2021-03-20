@@ -12,7 +12,7 @@ from lib_properties import pc
 Usable = lib_util.UsableLinux
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     groupName = cgiEnv.GetId()
 
     if not lib_util.isPlatformLinux:

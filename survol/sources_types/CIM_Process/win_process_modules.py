@@ -19,7 +19,7 @@ kernel = windll.kernel32
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     pid = int(cgiEnv.GetId())
 
     # TODO: These are probably in win32com or a similar module.

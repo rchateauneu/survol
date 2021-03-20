@@ -19,7 +19,7 @@ CanProcessRemote = True
 
 def Main():
     # TODO: The type should really be an integer.
-    cgiEnv = lib_common.CgiEnv(can_process_remote=True)
+    cgiEnv = lib_common.ScriptEnvironment(can_process_remote=True)
 
     # http://192.168.1.88
     machine_name = cgiEnv.GetId()

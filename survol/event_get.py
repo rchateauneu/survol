@@ -17,7 +17,7 @@ def Main():
 	lib_common.set_events_credentials()
 
 	# This can process remote hosts because it does not call any script, just shows them.
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 	entity_id = cgiEnv.m_entity_id
 
 	name_space, entity_type = cgiEnv.get_namespace_type()

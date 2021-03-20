@@ -21,7 +21,7 @@ def Usable(entity_type,entity_ids_arr):
 def Main():
 	paramkeyMaxDepth = "Maximum depth"
 
-	cgiEnv = lib_common.CgiEnv(
+	cgiEnv = lib_common.ScriptEnvironment(
 		parameters = { paramkeyMaxDepth : 2 })
 
 	maxDepth = int(cgiEnv.get_parameters( paramkeyMaxDepth ))

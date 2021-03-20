@@ -30,7 +30,7 @@ from lib_properties import pc
 def Main():
 	paramkeyPassword = "Password"
 
-	cgiEnv = lib_common.CgiEnv(
+	cgiEnv = lib_common.ScriptEnvironment(
 		"",
 		{ paramkeyPassword : "" } )
 

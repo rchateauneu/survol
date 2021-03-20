@@ -49,7 +49,7 @@ from sources_types import addr as survol_addr
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
 
     args = ["netstat", '-aptn',]
 

@@ -13,7 +13,7 @@ import lib_com_type_lib
 
 # SISMILAR TO com_registered_type_lib_versions.py. WHY ???
 
-cgiEnv = lib_common.CgiEnv("Versions of registered COM type libraries")
+cgiEnv = lib_common.ScriptEnvironment("Versions of registered COM type libraries")
 clsidstr = cgiEnv.GetId()
 
 grph = cgiEnv.GetGraph()

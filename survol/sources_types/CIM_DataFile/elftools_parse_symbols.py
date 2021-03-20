@@ -15,7 +15,7 @@ from lib_properties import pc
 Usable = lib_util.UsableLinuxBinary
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	fileSharedLib = cgiEnv.GetId()
 

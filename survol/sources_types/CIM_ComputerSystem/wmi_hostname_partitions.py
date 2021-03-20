@@ -102,7 +102,7 @@ import wmi
 #};
 
 def Main():
-    cgiEnv = lib_common.CgiEnv(can_process_remote = True)
+    cgiEnv = lib_common.ScriptEnvironment(can_process_remote = True)
     machine_name = cgiEnv.GetId()
 
     grph = cgiEnv.GetGraph()

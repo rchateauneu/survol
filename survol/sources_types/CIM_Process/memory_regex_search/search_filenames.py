@@ -123,7 +123,7 @@ def Main():
 
     keyCheckExistence = "Check file existence"
 
-    cgiEnv = lib_common.CgiEnv(parameters={keyMiniDepth: 3, keyWithRelative: False, keyCheckExistence: True})
+    cgiEnv = lib_common.ScriptEnvironment(parameters={keyMiniDepth: 3, keyWithRelative: False, keyCheckExistence: True})
 
     pid_as_integer = int(cgiEnv.GetId())
 

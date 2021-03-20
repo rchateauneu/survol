@@ -16,7 +16,7 @@ def Main():
 	paramkeyPortsRange = "Ports Range"
 	paramkeyGraphDisplay = "Graph display"
 
-	cgiEnv = lib_common.CgiEnv(
+	cgiEnv = lib_common.ScriptEnvironment(
 			{ paramkeyPortsRange : "22-443", paramkeyGraphDisplay: False} )
 
 	# This is just a first experimentation with nmap.

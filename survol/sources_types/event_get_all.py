@@ -19,7 +19,7 @@ def Main():
     lib_common.set_events_credentials()
 
     # This can process remote hosts because it does not call any script, just shows them.
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     logging.debug("event_get_all.py")
 
     grph = cgiEnv.GetGraph()

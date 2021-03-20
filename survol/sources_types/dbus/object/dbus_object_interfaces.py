@@ -15,7 +15,7 @@ from lib_properties import pc
 Usable = lib_util.UsableLinux
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 	connectionName = cgiEnv.GetId()
 
 	grph = cgiEnv.GetGraph()

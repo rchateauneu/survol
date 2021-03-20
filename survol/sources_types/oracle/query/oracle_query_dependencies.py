@@ -11,7 +11,7 @@ from sources_types.sql import query as sql_query
 from sources_types.oracle import query as oracle_query
 
 def Main():
-	# cgiEnv = lib_common.CgiEnv()
+	# cgiEnv = lib_common.ScriptEnvironment()
 	cgiEnv = lib_oracle.OracleEnv()
 
 

@@ -15,7 +15,7 @@ from sources_types import rabbitmq
 from sources_types.rabbitmq import manager as survol_rabbitmq_manager
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	#"RabbitMQ" : {
 	#	"localhost:12345" : [ "guest", "guest" ]

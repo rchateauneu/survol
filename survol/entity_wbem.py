@@ -113,7 +113,7 @@ def AddNamespaceLink(grph, root_node, name_space, cimom_url, class_name):
 
 def Main():
 
-    cgiEnv = lib_common.CgiEnv(can_process_remote=True)
+    cgiEnv = lib_common.ScriptEnvironment(can_process_remote=True)
 
     entity_id = cgiEnv.GetId()
     logging.debug("entity_id=%s", entity_id)

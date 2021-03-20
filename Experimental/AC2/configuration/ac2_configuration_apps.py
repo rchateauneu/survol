@@ -53,7 +53,7 @@ def DispApp(grph,configNode,configName):
 
 def Main():
 
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	ac2File = cgiEnv.m_entity_id_dict["File"]
 

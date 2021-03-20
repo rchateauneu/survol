@@ -30,7 +30,7 @@ def Main():
     paramkey_recursive = "Recursive exploration"
     paramkey_explode_classes = "Explode classes members"
 
-    cgiEnv = lib_common.CgiEnv(
+    cgiEnv = lib_common.ScriptEnvironment(
         parameters={paramkey_recursive: False, paramkey_explode_classes: False})
 
     param_explode_classes = int(cgiEnv.get_parameters(paramkey_explode_classes))

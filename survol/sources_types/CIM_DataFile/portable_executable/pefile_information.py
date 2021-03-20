@@ -14,7 +14,7 @@ from sources_types.CIM_DataFile.portable_executable import section as survol_pe_
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv(	)
+	cgiEnv = lib_common.ScriptEnvironment(	)
 
 	win_module = cgiEnv.GetId()
 

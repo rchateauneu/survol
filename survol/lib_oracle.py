@@ -109,9 +109,9 @@ def CallbackQuery(conn_str, sql_query, the_callback):
 # CREATE SYNONYM emp_table FOR oe.employees@remote.us.oracle.com;
 # schema.object_name.object_part@dblink
 
-class OracleEnv (lib_common.CgiEnv):
+class OracleEnv (lib_common.ScriptEnvironment):
     def __init__(self):
-        lib_common.CgiEnv.__init__(self)
+        lib_common.ScriptEnvironment.__init__(self)
 
         self.m_oraDatabase = self.m_entity_id_dict["Db"]
 

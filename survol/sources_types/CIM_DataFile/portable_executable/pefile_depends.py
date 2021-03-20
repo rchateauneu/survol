@@ -72,7 +72,7 @@ class EnvPeFile:
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	win_module = cgiEnv.GetId()
 

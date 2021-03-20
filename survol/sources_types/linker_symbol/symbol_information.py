@@ -18,7 +18,7 @@ from lib_properties import pc
 # It does not need the pefile library.
 def Main():
 
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	# "NtOpenObjectAuditAlarm%40C%3A\windows\system32\ntdll.dll"
 	# Filename is optional.

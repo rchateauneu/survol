@@ -29,7 +29,7 @@ from sources_types.python import package
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
 
     Main.dictKeyToPckg = dict()
 

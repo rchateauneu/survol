@@ -20,14 +20,14 @@ from sources_types.mysql import instance as survol_mysql_instance
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv( )
+    cgiEnv = lib_common.ScriptEnvironment( )
 
     instance_name = cgiEnv.m_entity_id_dict["Instance"]
     instance_node = survol_mysql_instance.MakeUri(instance_name)
 
     hostname, hostport = survol_mysql.InstanceToHostPort(instance_name)
 
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
 
     grph = cgiEnv.GetGraph()
 

@@ -42,7 +42,7 @@ def _pefile_decorate(grph, root_node, pe):
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     fil_nam = cgiEnv.GetId()
     logging.debug("fil_nam=%s", fil_nam)
 

@@ -39,7 +39,7 @@ def split_id(one_string):
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     user_name_with_host = cgiEnv.GetId()
 
     # Usernames have the syntax user@host

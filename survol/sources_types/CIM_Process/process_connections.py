@@ -10,7 +10,7 @@ from sources_types import CIM_Process
 from sources_types import addr as survol_addr
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 	pid = int( cgiEnv.GetId() )
 
 	grph = cgiEnv.GetGraph()

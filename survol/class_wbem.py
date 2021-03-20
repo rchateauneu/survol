@@ -134,7 +134,7 @@ def Main():
 	paramkey_start_index = "Start index"
 
 	# This can process remote hosts because it does not call any script, just shows them.
-	cgiEnv = lib_common.CgiEnv(can_process_remote = True,
+	cgiEnv = lib_common.ScriptEnvironment(can_process_remote = True,
 									parameters = {paramkey_max_instances: 80, paramkey_start_index: 0})
 
 	max_instances = cgiEnv.get_parameters(paramkey_max_instances)

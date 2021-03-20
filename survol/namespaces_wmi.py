@@ -81,7 +81,7 @@ def _sub_namespace(root_node, grph, nskey, cimom_url, ns_depth=1):
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv(can_process_remote=True)
+    cgiEnv = lib_common.ScriptEnvironment(can_process_remote=True)
 
     entity_host = cgiEnv.GetHost()
 

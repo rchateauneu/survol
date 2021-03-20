@@ -20,7 +20,7 @@ import lib_win32
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv(can_process_remote=True)
+    cgiEnv = lib_common.ScriptEnvironment(can_process_remote=True)
     server = cgiEnv.GetId()
 
     grph = cgiEnv.GetGraph()

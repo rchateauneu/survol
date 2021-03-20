@@ -60,7 +60,7 @@ def _uri_directory_direct_script(dir_nam):
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     fil_nam = cgiEnv.GetId()
 
     # Maybe this is a disk name, on Windows, such as "A:", "C:" etc...

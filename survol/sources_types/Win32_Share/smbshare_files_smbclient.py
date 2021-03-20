@@ -33,7 +33,7 @@ Usable = lib_util.UsableLinux
 def Main():
     paramkey_password = "Password"
 
-    cgiEnv = lib_common.CgiEnv(
+    cgiEnv = lib_common.ScriptEnvironment(
         { paramkey_password : "" } )
 
     if lib_util.isPlatformWindows:

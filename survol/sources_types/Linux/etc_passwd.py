@@ -13,7 +13,7 @@ from sources_types import LMI_Account as survol_user
 
 # TODO: https://docs.python.org/2/library/pwd.html might be simpler.
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
 
     grph = cgiEnv.GetGraph()
 

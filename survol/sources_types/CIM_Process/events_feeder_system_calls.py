@@ -41,7 +41,7 @@ def Snapshot():
     sys.stderr.write("Snapshot File=" + __file__ + "\n")
     logging.info("Snapshot mode")
 
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     process_id = cgiEnv.GetId()
 
     logging.debug("Snapshot process_id=%s" % process_id)
@@ -80,7 +80,7 @@ def SendEvents():
         return
 
     logging.info("dockit available")
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     process_id = cgiEnv.GetId()
     logging.info("process_id=%s" % process_id)
     sys.stderr.write("SendEvents process_id=%s\n" % process_id)

@@ -144,7 +144,7 @@ def _add_nodes_ip_config(grph, root_node, map_ipconfigs):
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
 
     grph = cgiEnv.GetGraph()
 

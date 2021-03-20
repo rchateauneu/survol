@@ -22,7 +22,7 @@ def Usable(entity_type,entity_ids_arr):
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
 
     modu_fil_nam = cgiEnv.GetId()
 

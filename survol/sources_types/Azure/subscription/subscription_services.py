@@ -21,7 +21,7 @@ from sources_types.Azure import service
 Usable = lib_util.UsableWindows
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	grph = cgiEnv.GetGraph()
 

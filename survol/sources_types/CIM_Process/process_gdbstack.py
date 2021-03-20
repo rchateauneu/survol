@@ -134,7 +134,7 @@ def PassNoThreads(the_pid, execName, grph, procNode):
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 	try:
 		the_pid = int(cgiEnv.GetId())
 	except KeyError:

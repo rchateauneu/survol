@@ -199,7 +199,7 @@ def _create_our_node(grph, root_node, entity_host, name_space, class_name, entit
 
 def Main():
     """This should be able to process remote hosts because it calls scripts which can access remote data."""
-    cgiEnv = lib_common.CgiEnv(can_process_remote=True)
+    cgiEnv = lib_common.ScriptEnvironment(can_process_remote=True)
 
     name_space, class_name = cgiEnv.get_namespace_type()
 

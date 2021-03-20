@@ -69,7 +69,7 @@ def NetBiosLookup(machine):
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
 
     # TODO: Should test Linux instead ?
     if lib_util.isPlatformWindows:

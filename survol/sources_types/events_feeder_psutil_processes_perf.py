@@ -24,7 +24,7 @@ import lib_properties
 
 
 def Snapshot():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
 
     grph = cgiEnv.GetGraph()
     cpu_property = lib_properties.MakeProp("cpu")

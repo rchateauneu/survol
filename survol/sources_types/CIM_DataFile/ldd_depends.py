@@ -30,7 +30,7 @@ def AddDepends(grph, node_shared_lib, library):
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 	file_shared_lib = cgiEnv.GetId()
 
 	if not lib_util.isPlatformLinux:

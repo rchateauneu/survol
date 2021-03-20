@@ -19,7 +19,7 @@ from sources_types.Linux import cgroup as survol_cgroup
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     try:
         the_pid = int(cgiEnv.GetId())
     except Exception:

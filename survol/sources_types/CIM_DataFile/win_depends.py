@@ -32,7 +32,7 @@ Usable = lib_util.UsableWindowsBinary
 def Main():
     paramkey_group_by_dirs = "Group by directories"
 
-    cgiEnv = lib_common.CgiEnv(parameters={paramkey_group_by_dirs: True})
+    cgiEnv = lib_common.ScriptEnvironment(parameters={paramkey_group_by_dirs: True})
 
     flag_group_by_dirs = bool(cgiEnv.get_parameters(paramkey_group_by_dirs))
 

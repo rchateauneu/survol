@@ -24,7 +24,7 @@ def _add_extra_nodes(grph, root_node):
 def Main():
     paramkey_enum_instances = "Enumerate instances"
 
-    cgiEnv = lib_common.CgiEnv(parameters={paramkey_enum_instances: False})
+    cgiEnv = lib_common.ScriptEnvironment(parameters={paramkey_enum_instances: False})
 
     flag_enum_instances = bool(cgiEnv.get_parameters(paramkey_enum_instances))
 

@@ -29,7 +29,7 @@ Usable = lib_util.UsableLinux
 # Pour le moment on fait comme ca mais on va rajouter les autres processes.
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	grph = cgiEnv.GetGraph()
 

@@ -132,7 +132,7 @@ def Main():
 
     # Beware that unchecked checkboxes are not posted, i.e. boolean variables set to False.
     # http://stackoverflow.com/questions/1809494/post-the-checkboxes-that-are-unchecked
-    cgiEnv = lib_common.CgiEnv(parameters={paramkey_extensive_scan: False})
+    cgiEnv = lib_common.ScriptEnvironment(parameters={paramkey_extensive_scan: False})
     pidint = int(cgiEnv.GetId())
 
     grph = cgiEnv.GetGraph()

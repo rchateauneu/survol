@@ -25,7 +25,7 @@ from sources_types.rabbitmq import user as survol_rabbitmq_user
 
 def Main():
 
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	configNam = cgiEnv.GetId()
 

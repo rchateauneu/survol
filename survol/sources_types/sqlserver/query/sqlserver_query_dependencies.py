@@ -13,7 +13,7 @@ from sources_types.sqlserver import query as sqlserver_query
 from sources_types.odbc import dsn as survol_odbc_dsn
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	grph = cgiEnv.GetGraph()
 

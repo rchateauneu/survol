@@ -106,7 +106,7 @@ def DisplayComponentDependencies(grph,ac2File,ac2App,ac2Comp):
 
 def Main():
 
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	ac2File = cgiEnv.m_entity_id_dict["File"]
 	ac2App = cgiEnv.m_entity_id_dict["App"]

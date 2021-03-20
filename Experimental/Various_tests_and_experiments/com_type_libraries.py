@@ -16,7 +16,7 @@ import win32api
 import lib_com_type_lib
 
 
-cgiEnv = lib_common.CgiEnv("Registered COM type libraries")
+cgiEnv = lib_common.ScriptEnvironment("Registered COM type libraries")
 
 grph = cgiEnv.GetGraph()
 

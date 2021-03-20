@@ -1037,8 +1037,8 @@ def _write_dot_legend(page_title, top_url, err_msg, parameters, parameterized_li
         # This simplifies the edition in Json.
         # It might also simplify formatting.
         # There will be a similar piece of code in Javascript and plain HTML:
-        # (1) The calling script provides the values to CgiEnv.
-        # (2) A method in CgiEnv calculates the URLS and returns a map
+        # (1) The calling script provides the values to ScriptEnvironment.
+        # (2) A method in ScriptEnvironment calculates the URLS and returns a map
         # of { "label":"urls" }
 
         for url_label in parameterized_links:

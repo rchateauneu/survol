@@ -15,7 +15,7 @@ from sources_types.Azure import subscription as azure_subscription
 Usable = lib_util.UsableWindows
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	grph = cgiEnv.GetGraph()
 

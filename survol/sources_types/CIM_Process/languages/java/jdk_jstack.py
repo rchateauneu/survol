@@ -13,7 +13,7 @@ from lib_properties import pc
 # Not implemented yet.
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     pidInt = int( cgiEnv.GetId() )
 
     grph = cgiEnv.GetGraph()

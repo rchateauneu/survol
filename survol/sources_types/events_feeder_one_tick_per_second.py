@@ -22,7 +22,7 @@ _global_counter = 1
 
 def Snapshot():
     global _global_counter
-    cgiEnv = lib_common.CgiEnv(parameters={_param_a: _global_counter, _param_b: "Two"})
+    cgiEnv = lib_common.ScriptEnvironment(parameters={_param_a: _global_counter, _param_b: "Two"})
 
     _global_counter += 1
 

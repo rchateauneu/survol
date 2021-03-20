@@ -24,7 +24,7 @@ def Usable(entity_type, entity_ids_arr):
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     fil_nam = cgiEnv.GetId()
 
     fil_node = lib_common.gUriGen.FileUri(fil_nam)

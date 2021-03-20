@@ -18,7 +18,7 @@ from lib_properties import pc
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     file_name = cgiEnv.GetId()
 
     logging.debug("file_stat.py file_name=%s", file_name)

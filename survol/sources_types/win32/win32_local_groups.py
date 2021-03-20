@@ -17,7 +17,7 @@ from sources_types import Win32_UserAccount as survol_Win32_UserAccount
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	grph = cgiEnv.GetGraph()
 

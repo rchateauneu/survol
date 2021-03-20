@@ -26,7 +26,7 @@ def Usable(entity_type,entity_ids_arr):
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
     file_path = cgiEnv.GetId()
 
     grph = cgiEnv.GetGraph()

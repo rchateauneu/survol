@@ -18,7 +18,7 @@ Usable = lib_util.UsableWindows
 # This script can work locally only.
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 
 	# userNameWithHost = cgiEnv.GetId()
 	# Usernames have the syntax user@host

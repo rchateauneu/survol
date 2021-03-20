@@ -80,7 +80,7 @@ def Main():
 	# If this flag is set, the script uses SLP to discover Survol Agents.
 	paramkeySLP = "Service Location Protocol"
 
-	cgiEnv = lib_common.CgiEnv(
+	cgiEnv = lib_common.ScriptEnvironment(
 		parameters = { paramkeySLP : False }
 	)
 

@@ -71,7 +71,7 @@ def _generate_from_sql_queries(grph, node_process, regex_predicate, queries_set,
 # TODO: What is annoying is that it is in a sub-directory, but it does not have
 # TODO: a specific ontology etc ...
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 	pid_as_integer = int(cgiEnv.GetId())
 
 	grph = cgiEnv.GetGraph()

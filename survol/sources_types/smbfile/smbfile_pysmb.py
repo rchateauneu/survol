@@ -23,7 +23,7 @@ from smb.SMBConnection import SMBConnection
 
 
 def Main():
-	cgiEnv = lib_common.CgiEnv()
+	cgiEnv = lib_common.ScriptEnvironment()
 	# Top directory, not just the share name.
 	# smbFile= cgiEnv.GetId("//DUOLNX/IncomingCopied/")
 	# xid=smbfile.Id=////londata002/westdev/westdocs/testdata

@@ -79,7 +79,7 @@ def _add_java_associated_files(grph, node, fil_nam):
 
 
 def Main():
-    cgiEnv = lib_common.CgiEnv()
+    cgiEnv = lib_common.ScriptEnvironment()
 
     java_fil_nam = cgiEnv.GetId()
 
