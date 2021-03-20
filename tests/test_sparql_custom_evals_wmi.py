@@ -24,7 +24,6 @@ from init import *
 
 update_test_path()
 
-import lib_sparql
 import lib_util
 import lib_common
 import lib_properties
