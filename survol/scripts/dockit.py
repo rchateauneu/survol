@@ -625,7 +625,7 @@ def _create_calls_stream(command_line, input_process_id, input_log_file, tracer)
         the_ip_address                             = map_env_init_values.get("CurrentIPAddress", the_ip_address)
         G_OSType                                   = map_env_init_values.get("CurrentOSType", the_platform)
 
-        sys.stdout.write("G_topProcessId=%d\n" % cim_objects_definitions.G_topProcessId)
+        logging.info("G_topProcessId=%d" % cim_objects_definitions.G_topProcessId)
     else:
         cim_objects_definitions.G_topProcessId, calls_stream= current_tracer.create_logfile_stream(
             command_line,
