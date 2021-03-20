@@ -252,7 +252,6 @@ class BatchLetCore:
         assert trace_line.endswith("\n")
         assert isinstance(trace_line, str)
 
-        # sys.stdout.write("%s oneLine1=%s" % (id(self),oneLine ) )
         self.m_tracer = tracer
 
         if trace_line.startswith("[pid "):
@@ -381,7 +380,7 @@ class BatchLetCore:
                     "--- SIGVTALRM ",
                     "--- SIGSYS ",
                     "--- Called exec() ---")):
-                print("the_call=", the_call)
+                logging.warning("the_call=%s", the_call)
             raise ExceptionIsExit()
 
         # "+++ exited with 1 +++ ['+++ exited with 1 +++']"
@@ -749,7 +748,6 @@ def _batchlet_factory(batch_core):
     # If the parameters makes it unusable anyway.
     try:
         btch_let_drv.m_core
-        # sys.stdout.write("batchCore=%s\n"%id(batchCore))
         assert btch_let_drv.m_core == batch_core
         return btch_let_drv
     except AttributeError:
@@ -1534,7 +1532,7 @@ class BatchLetSys_poll(BatchLetBase, object):
                 self.m_significantArgs = [ret_list]
             else:
                 # It might be the string "NULL":
-                sys.stdout.write("poll: Unexpected arr_strms=%s\n" % str(arr_strms))
+                logging.warning("poll: Unexpected arr_strms=%s" % str(arr_strms))
                 self.m_significantArgs = []
         else:
             self.m_significantArgs = []
@@ -1564,7 +1562,6 @@ class BatchLetSys_select(BatchLetBase, object):
                 else:
                     # The delimiter is a space:
                     # "1 arrStrms=['0<TCPv6:[:::21]> 12<pipe:[10567127]>']"
-                    # sys.stdout.write("%d arrStrms=%s\n"%(len(arrStrms),str(arrStrms)))
                     fil_strms = []
                     for fdName in file_descriptors_list:
                         # Most of times there should be one element only.
@@ -1748,7 +1745,7 @@ class UnfinishedBatches:
             stack_per_func = self._map_stacks[batch_core_resumed.m_pid][batch_core_resumed._function_name]
         except KeyError:
             if self.m_withWarning > 1:
-                sys.stdout.write("Resuming %s: cannot find unfinished call\n" % batch_core_resumed._function_name)
+                logging.warning("Resuming %s: cannot find unfinished call" % batch_core_resumed._function_name)
             return None
 
         # They should have the same pid.
@@ -1756,7 +1753,7 @@ class UnfinishedBatches:
             batch_core_unfinished = stack_per_func[-1]
         except IndexError:
             if self.m_withWarning > 1:
-                sys.stdout.write("merge_pop_resumed_batch pid=%d _function_name=%s cannot find call\n"
+                logging.warning("merge_pop_resumed_batch pid=%d _function_name=%s cannot find call"
                                  % (batch_core_resumed.m_pid, batch_core_resumed._function_name))
             # Same problem, we could not find the unfinished call.
             return None
@@ -1870,7 +1867,7 @@ def _generate_linux_stream_from_command(linux_trace_command, process_id):
 
     command_as_list = [quote_argument(elt) for elt in linux_trace_command]
     assert isinstance(process_id, int)
-    sys.stdout.write("Starting trace command:%s\n" % " ".join(command_as_list))
+    logging.info("Starting trace command:%s" % " ".join(command_as_list))
 
     # If shell=True, the command must be passed as a single line.
     kwargs = {"bufsize": 100000, "shell": False,
@@ -2033,7 +2030,7 @@ def _create_flows_from_generic_linux_log(log_stream, tracer):
                 # "Cannot attach to pid 11111: No such process"
                 if one_new_line.find("No such process") >= 0:
                     raise Exception("Invalid process id: %s" % exc)
-            sys.stderr.write("ERROR '%s' Caught invalid line %d:%s\n" % (exc, line_number, one_new_line))
+            logging.error("ERROR '%s' Caught invalid line %d:%s" % (exc, line_number, one_new_line))
             continue
 
         # Maybe the line cannot be parsed.
@@ -2043,7 +2040,7 @@ def _create_flows_from_generic_linux_log(log_stream, tracer):
         try:
             new_batchlet = _batchlet_factory(batch_core)
         except Exception as exc:
-            sys.stderr.write("ERROR '%s' Line:%d Error parsing:%s" % (exc, line_number, one_new_line))
+            logging.error("ERROR '%s' Line:%d Error parsing:%s" % (exc, line_number, one_new_line))
 
         # Some functions are not processed because there are no side effects nor provide information.
         if new_batchlet:
@@ -2079,11 +2076,10 @@ class GenericTraceTracer:
                 assert output_files_prefix[-1] != '.'
                 log_filename = output_files_prefix + ".log"
                 self._out_file_descriptor = open(log_filename, "w")
-                print("Creating log file:%s" % log_filename)
+                logging.info("Creating log file:%s" % log_filename)
 
             def readline(self):
                 duplicate_line = self._log_stream.readline()
-                # sys.stdout.write("tee=%s" % aLin)
                 # This is will be read during a replay session.
                 self._out_file_descriptor.write(duplicate_line)
                 return duplicate_line
