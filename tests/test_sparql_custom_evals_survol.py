@@ -1231,22 +1231,22 @@ class SparqlMetaTest(CUSTOM_EVALS_Survol_Base_Test):
             self.assertTrue((lib_kbase.class_node_uriref(one_class),) in query_result)
 
 
-    def test_smbshr_properties(self):
-        """This returns all properties of the class smbshr."""
+    def test_win32_share_properties(self):
+        """This returns all properties of the class Win32_Share."""
         sparql_query = """
             PREFIX survol: <%s>
             SELECT ?url_property
             WHERE
             { ?url_property rdf:type rdf:Property .
-              ?url_property rdfs:domain survol:smbshr .
+              ?url_property rdfs:domain survol:Win32_Share .
             }""" % survol_namespace
         rdflib_graph = rdflib.Graph()
         query_result = set(rdflib_graph.query(sparql_query))
-        print("Properties of smbshr=", query_result)
+        print("Properties of Win32_Share=", query_result)
 
-        predicate_Id = rdflib.term.URIRef(lib_kbase.survol_url + "Id")
+        predicate_Name = rdflib.term.URIRef(lib_kbase.survol_url + "Name")
 
-        self.assertTrue((predicate_Id,) in query_result)
+        self.assertTrue((predicate_Name,) in query_result)
 
 
 if __name__ == '__main__':

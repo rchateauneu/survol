@@ -18,8 +18,9 @@ except ImportError:
 	except ImportError:
 		lib_common.ErrorMessageHtml("pysmb module not installed")
 
-# import tempfile
+import tempfile
 from smb.SMBConnection import SMBConnection
+
 
 def Main():
 	cgiEnv = lib_common.CgiEnv()
@@ -51,9 +52,8 @@ def Main():
 	# to read from the beginning
 	file_obj.close()
 
-
 	for x in z:
-		shareNode = lib_common.gUriGen.SmbShareUri( "//" + smbServer + "/" + x )
+		shareNode = lib_uris.MachineBox(smbServer).SmbShareUri(x)
 
 		grph.add( ( nodeSmbShr, pc.property_smbshare, shareNode ) )
 

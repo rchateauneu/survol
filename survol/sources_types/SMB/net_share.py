@@ -21,51 +21,64 @@ NET SHARE command
 #
 # -------------------------------------------------------------------------------
 # IPC$                                         Remote IPC
-# Remi         C:\Documents and Settings\Remi
+# MySelf         C:\Documents and Settings\MySelf
 # SharedDocs   C:\DOCUMENTS AND SETTINGS\ALL USERS\DOCUMENTS
 #
 # The command completed successfully.
+
+
+# PS C:\Users\myself> Get-WmiObject -Query "select * from Win32_Share"
+#
+# Name                                    Path                                    Description
+# ----                                    ----                                    -----------
+# ADMIN$                                  C:\windows                              Remote Admin
+# C$                                      C:\                                     Default share
+# D$                                      D:\                                     Default share
+# E$                                      E:\                                     Default share
+# IPC$                                                                            Remote IPC
+# SharedProviderTutorial                  C:\Users\rchateau\Developpement\Reve...
+# ShrProvTuto                             C:\Users\rchateau\Developpement\Reve...
+# Users                                   C:\Users
 
 import sys
 import re
 import lib_util
 import lib_common
+import lib_uris
 from lib_properties import pc
 import lib_smb
 
-Usable = lib_smb.UsableNetCommands
+Usable = lib_util.UsableWindows
+
 
 def Main():
     cgiEnv = lib_common.CgiEnv()
 
     grph = cgiEnv.GetGraph()
 
-    net_share_cmd = [ "net", "share" ]
+    net_share_cmd = ["net", "share"]
 
     net_share_pipe = lib_common.SubProcPOpen(net_share_cmd)
 
-    (net_share_last_output, net_share_err) = net_share_pipe.communicate()
+    net_share_last_output, net_share_err = net_share_pipe.communicate()
 
     # Converts to string for Python3.
     as_str = net_share_last_output.decode("utf-8")
-    #print("Str="+as_str)
+
     lines = as_str.split('\n')
 
     seen_hyphens = False
 
     for lin in lines:
-        #print("se="+str(seen_hyphens)+" Lin=("+lin+")")
         if re.match(".*-------.*", lin):
             seen_hyphens = True
             continue
 
         if re.match(".*The command completed successfully.*", lin):
             break
-        #print("se="+str(seen_hyphens)+" Lin1=("+lin+")")
         if not seen_hyphens:
             continue
 
-        #print("se="+str(seen_hyphens)+" Lin2=("+lin+")")
         tst_share = re.match(r'^([A-Za-z0-9_$]+) +([^ ]+).*', lin)
         if not tst_share:
             continue
@@ -83,7 +96,7 @@ def Main():
         else:
             shr_res = lin[13:]
 
-        share_node = lib_common.gUriGen.SmbShareUri("//" + lib_util.currentHostname + "/" + shr_nam)
+        share_node = lib_uris.gUriGen.SmbShareUri(shr_nam)
         grph.add((lib_common.nodeMachine, pc.property_smbshare, share_node))
 
         # mount_node = lib_common.gUriGen.FileUri( "//" + lib_util.currentHostname + "/" + shr_res )
@@ -93,6 +106,7 @@ def Main():
         grph.add((share_node, pc.property_smbmount, mount_node))
 
     cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
     Main()

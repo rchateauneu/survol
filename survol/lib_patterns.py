@@ -20,7 +20,7 @@ _dict_graph_params = {
     "CIM_LogicalDisk"                        : ("box3d",     "#FFCCFF", "#FFCC66", 0, False),
     "smbfile"                                : ("tab",       "#99CCFF", "#FFCC66", 0, True),
     "smbserver"                              : ("tab",       "#99CCFF", "#FFCC66", 0, True),
-    "smbshr"                                 : ("tab",       "#99CCFF", "#FFCC66", 0, True),
+    "Win32_Share"                            : ("tab",       "#99CCFF", "#FFCC66", 0, True),
     "linker_symbol"                          : ("none",      "#99FFCC", "#FFCC66", 0, False),
     "LMI_Account"                            : ("octagon",   "#EEAAAA", "#FFCC66", 0, False),
     "Win32_Service"                          : ("component", "#EEAAAA", "#FFCC66", 0, False),

@@ -21,14 +21,36 @@ NET USE command
 
 import sys
 import re
-import socket
 import logging
+import lib_uris
 import lib_util
 import lib_common
+import lib_properties
 from lib_properties import pc
 import lib_smb
 
-Usable = lib_smb.UsableNetCommands
+# PS C:\Users\myself> Get-WmiObject -Query "select * from Win32_NetworkConnection"
+#
+# LocalName                     RemoteName                    ConnectionState               Status
+# ---------                     ----------                    ---------------               ------
+# Y:                            \\192.168.1.115\EmuleDownload Connected                     OK
+# Z:                            \\192.168.1.61\Public         Connected                     OK
+#                               \\mymachine\IPC$               Disconnected                  Degraded
+
+# PS C:\Users\myself> net use
+# New connections will be remembered.
+#
+#
+# Status       Local     Remote                    Network
+#
+# -------------------------------------------------------------------------------
+# OK           Y:        \\192.168.1.115\EmuleDownload
+#                                                 Microsoft Windows Network
+# OK           Z:        \\192.168.1.61\Public     Microsoft Windows Network
+# OK                     \\mymachine\IPC$          Microsoft Windows Network
+
+Usable = lib_util.UsableWindows
+
 
 def Main():
     cgiEnv = lib_common.CgiEnv()
@@ -52,10 +74,6 @@ def Main():
     seen_hyphens = False
 
     # When the remote field is too long, the content is split into two lines.
-    curr_status = ''
-    curr_local = ''
-    curr_remote = ''
-    curr_network = ''
 
     for lin in lines:
         logging.debug("lin=%s", lin)
@@ -69,29 +87,49 @@ def Main():
         if not seen_hyphens:
             continue
 
-        if curr_local == '':
-            curr_status = lin[:12]
-            curr_local = lin[15:]
-            if lin[48] == ' ':
-                curr_remote = lin[16:47]
-                curr_network = lin[49:]
-            else:
-                curr_remote = lin[16:]
-                # Will read network at next line.
-                continue
+        lin = lin.strip()
+        if lin.startswith("Microsoft Windows Network"):
+            # End of the previous line.
+            continue
+
+        lin_split = lin.split()
+        if lin_split[0] not in ["OK", "Disconnected"]:
+            lib_common.ErrorMessageHtml("Line is not ok:" + str(lin_split))
+
+        if re.match("[A-Z]:", lin_split[1]):
+            the_disk = lin_split[1][0].upper()
+            the_path = lin_split[2]
         else:
-            curr_network = lin[48:]
+            the_disk = ""
+            the_path = lin_split[1]
 
-        curr_remote = curr_remote.strip()
+        if not the_path.startswith("\\\\"):
+            # "\\192.168.0.15\the_directory"
+            lib_common.ErrorMessageHtml("Invalid path:" + the_path)
 
-        # "\\192.168.0.15\rchateau   Microsoft Windows Network"
-        curr_local = curr_local.strip().split(" ")[0]
+        the_path_split = the_path.split("\\")
+        try:
+            share_host = the_path_split[2]
+            share_name = the_path_split[3]
+        except IndexError:
+            lib_common.ErrorMessageHtml("Cannot parse the_path=%s", the_path)
 
-        share_node = lib_common.gUriGen.SmbShareUri(curr_remote)
-        grph.add((lib_common.gUriGen.FileUri(curr_local + ':'), pc.property_mount, share_node))
+        # "\\192.168.0.15\the_directory   Microsoft Windows Network"
 
-        # Reset the line, will read next disk.
-        curr_local = ''
+        # This is a normal share but on a remote machine.
+        share_box = lib_uris.MachineBox(share_host)
+        remote_share_node = share_box.SmbShareUri(share_host)
+
+        remote_server_node = lib_uris.gUriGen.HostnameUri(share_host)
+
+        # Win32_NetworkConnection: The key is the disk name.
+        connected_disk_node = lib_uris.gUriGen.Win32_NetworkConnectionUri(the_disk)
+        connected_file_node = lib_uris.gUriGen.FileUri(the_disk)
+        logging.debug("share_name=%s", share_name)
+        logging.debug("share_box=%s", share_box)
+        grph.add((connected_disk_node, pc.property_mount, remote_share_node))
+        grph.add((remote_server_node, pc.property_smbshare, remote_share_node))
+
 
     cgiEnv.OutCgiRdf()
 

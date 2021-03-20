@@ -3,11 +3,6 @@ import lib_common
 import lib_uris
 
 
-def UsableNetCommands(entity_type, entity_ids_arr):
-    """NET command must be available. This can be the case on Linux."""
-    return True
-
-
 def SmbBothUriSplit(smb_both):
     """This receives a SMB share and returns its node, plus the share and the directory."""
     shr_mtch = re.match("//([^/]+)/([^/]+)/(.*)", smb_both)
