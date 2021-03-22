@@ -996,7 +996,7 @@ class pydbg(object):
         if kernel32.WaitForDebugEvent(byref(dbg), loop_delay):
             self.debug_counter_WaitForDebugEvent += 1
 
-            logging.debug("dbg.dwProcessId=%d" % dbg.dwProcessId)
+            #logging.debug("dbg.dwProcessId=%d" % dbg.dwProcessId)
             if dbg.dwProcessId != self.pid:
                 self.switch_to_process(dbg.dwProcessId, debug_code_to_message(dbg.dwDebugEventCode))
 
