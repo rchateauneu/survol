@@ -5,6 +5,8 @@ Shareable memory segment
 import os
 import sys
 import psutil
+
+import lib_uris
 import lib_util
 import lib_common
 
@@ -34,7 +36,7 @@ def AddInfo(grph, node, entity_ids_arr):
     """A map file is associated to a file."""
     name_mapped_file = entity_ids_arr[0]
 
-    exec_node = lib_common.gUriGen.FileUri(name_mapped_file)
+    exec_node = lib_uris.gUriGen.FileUri(name_mapped_file)
     grph.add((node, lib_common.MakeProp("Mapped file"), exec_node))
 
 
@@ -45,7 +47,7 @@ def DisplayMappedProcesses(grph, file_name):
     grph.add((lib_common.nodeMachine, pc.property_hostname, lib_util.NodeLiteral(lib_util.currentHostname)))
 
     # This is also a file mapped into memory.
-    uri_mapped_file = lib_common.gUriGen.FileUri(file_name)
+    uri_mapped_file = lib_uris.gUriGen.FileUri(file_name)
 
     uri_mem_map = None
 
@@ -75,9 +77,9 @@ def DisplayMappedProcesses(grph, file_name):
             if same_fil:
                 # Maybe this is the first mapping we have found.
                 if uri_mem_map == None:
-                    uri_mem_map = lib_common.gUriGen.MemMapUri(file_name)
+                    uri_mem_map = lib_uris.gUriGen.MemMapUri(file_name)
                     grph.add((uri_mapped_file, pc.property_mapped, uri_mem_map))
-                node_process = lib_common.gUriGen.PidUri(pid)
+                node_process = lib_uris.gUriGen.PidUri(pid)
 
                 # The property is reversed because of display.
                 grph.add((uri_mem_map, pc.property_memmap, node_process))

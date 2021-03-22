@@ -66,13 +66,6 @@ def Main():
         grph.add((connected_disk_node, pc.property_mount, remote_share_node))
         grph.add((host_node, pc.property_smbshare, remote_share_node))
 
-
-        #host_node = lib_common.gUriGen.HostnameUri(host_name)
-        #disk_node = lib_uris.gUriGen.SmbShareUri(share_name)
-        #grph.add((lib_common.gUriGen.FileUri(devname + ':'), pc.property_mount, disk_node))
-        #grph.add((disk_node, pc.property_file_system_type, lib_util.NodeLiteral(devtype)))
-        #grph.add((host_node, pc.property_smbshare, disk_node))
-
     cgiEnv.OutCgiRdf()
 
 
