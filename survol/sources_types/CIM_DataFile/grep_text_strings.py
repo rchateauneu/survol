@@ -23,6 +23,7 @@ import os.path
 import re
 import sys
 import logging
+import lib_uris
 import lib_util
 import lib_common
 import lib_properties
@@ -49,7 +50,7 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	nodeFile = lib_common.gUriGen.FileUri(filNam)
+	nodeFile = lib_uris.gUriGen.FileUri(filNam)
 
 	try:
 		# TODO: Flag "Ignore case": re.compile(rgxSQL, re.IGNORECASE)
