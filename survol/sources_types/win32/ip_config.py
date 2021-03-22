@@ -7,6 +7,8 @@ IP configuration
 import os
 import sys
 import subprocess
+
+import lib_uris
 import lib_common
 import lib_util
 from lib_properties import pc
@@ -126,7 +128,7 @@ def add_one_node_ip_config(grph, rootNode, keyMap, sub_map_ipconfigs):
                 # ip_addr = ip_addr.replace("%", "&percnt;")
                 # An IPV6 address might be "fe80::2c38:c4c6:b033:af27%14": This is not the ideal solution.
                 ip_addr = ip_addr.replace("%", "(percnt)")
-                host_node = lib_common.gUriGen.HostnameUri(ip_addr)
+                host_node = lib_uris.gUriGen.HostnameUri(ip_addr)
                 grph.add((na_node, prp, host_node))
         else:
             grph.add((na_node, prp, lib_util.NodeLiteral(param_val)))

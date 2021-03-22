@@ -5,6 +5,8 @@
 """
 
 import sys
+
+import lib_uris
 import lib_common
 import lib_util
 from lib_properties import pc
@@ -30,7 +32,7 @@ def Main():
     # polkituser:x:17:17:system user for policykit:/:/sbin/nologin
     # puppet:x:103:106:Puppet configuration management daemon,,,:/var/lib/puppet:/bin/false
     for user_nam, split_lin in users_dict.items():
-        user_node = lib_common.gUriGen.UserUri(user_nam)
+        user_node = lib_uris.gUriGen.UserUri(user_nam)
         comment = split_lin[4]
         # Sometimes the comment equals the user, so nothing to mention.
         if comment != "" and comment != user_nam:
@@ -40,14 +42,14 @@ def Main():
             if home_path == "/nonexistent":
                 grph.add((user_node, pc.property_information, lib_util.NodeLiteral(home_path)))
             else:
-                home_node = lib_common.gUriGen.DirectoryUri(home_path)
+                home_node = lib_uris.gUriGen.DirectoryUri(home_path)
                 grph.add((user_node, pc.property_information, home_node))
         exec_name = split_lin[6].strip()
         if exec_name:
             if exec_name == "/bin/false":
                 grph.add((user_node, pc.property_information, lib_util.NodeLiteral(exec_name)))
             else:
-                exec_node = lib_common.gUriGen.FileUri(exec_name)
+                exec_node = lib_uris.gUriGen.FileUri(exec_name)
                 grph.add((user_node, pc.property_information, exec_node))
 
     cgiEnv.OutCgiRdf()

@@ -8,6 +8,8 @@ import sys
 import re
 import socket
 import logging
+
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -32,7 +34,7 @@ def Main():
 	try:
 		for lin_cg in open(filNamCGroup):
 			procId = int(lin_cg)
-			procNode = lib_common.gUriGen.PidUri(procId)
+			procNode = lib_uris.gUriGen.PidUri(procId)
 
 			grph.add( ( cgroupNode, propCGroup, procNode ) )
 	except:

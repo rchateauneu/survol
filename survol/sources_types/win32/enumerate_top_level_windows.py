@@ -37,7 +37,7 @@ def Main():
         try:
             nod_pid = pid_to_node.Cache[pid]
         except KeyError:
-            nod_pid = lib_common.gUriGen.PidUri(pid)
+            nod_pid = lib_uris.gUriGen.PidUri(pid)
             pid_to_node.Cache[pid] = nod_pid
 
             grph.add((nod_pid, pc.property_pid, lib_util.NodeLiteral(pid)))
