@@ -12,6 +12,7 @@ import rdflib
 import rdflib.plugins.memory
 import rdflib.plugins.sparql
 
+import lib_uris
 import lib_util
 import lib_common
 import lib_ontology_tools
@@ -767,7 +768,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             for one_class_key in wmi_class_keys:
                 one_class_key_node = lib_kbase.property_node_uriref(one_class_key)
                 uri_key_values[one_class_key] = dict_key_values[one_class_key_node]
-            node_uri_ref = lib_common.gUriGen.UriMakeFromDict(self.m_class_name, uri_key_values)
+            node_uri_ref = lib_uris.gUriGen.UriMakeFromDict(self.m_class_name, uri_key_values)
 
             rdflib_graph.add((node_uri_ref, rdflib.namespace.RDF.type, self.m_class_node))
 

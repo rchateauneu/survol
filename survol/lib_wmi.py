@@ -9,6 +9,8 @@ import six
 import json
 import socket
 import logging
+
+import lib_uris
 import lib_util
 import lib_common
 import lib_credentials
@@ -399,7 +401,7 @@ def WmiAddClassQualifiers(grph, conn_wmi, wmi_class_node, class_name, with_props
             # IT WORKS BUT IT IS NOT NICE AS IT IS A SEPARATE NODE.
             # We would like to have a clickable URL displayed in a table TD.
             if kla_qual_key == "UUID":
-                nodeUUID = lib_common.gUriGen.ComTypeLibUri(kla_qual_val)
+                nodeUUID = lib_uris.gUriGen.ComTypeLibUri(kla_qual_val)
                 grph.add((wmi_class_node, lib_common.MakeProp(kla_qual_key), nodeUUID))
                 continue
 
