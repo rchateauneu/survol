@@ -11,137 +11,130 @@ import threading
 import time
 import logging
 
+import lib_uris
 import lib_arp
 import lib_util
 import lib_common
 from lib_properties import pc
 
 
-def GetMacVendor(macAddress):
-	"""
-		This returns the vendor name of this mac address.
-		There is no garantee that this website is reliable, so there is a strict time-out.
-		It returns something like: "Hewlett Packard"|"B0:5A:DA"|"11445 Compaq Center Drive,Houston 77070,US"|"B05ADA000000"|"B05ADAFFFFFF"|"US"|"MA-L"
-	"""
-	urlMac = "https://macvendors.co/api/%s/pipe" % macAddress
-	if macAddress in ["","FF-FF-FF-FF-FF-FF"]:
-		return None
+def GetMacVendor(mac_address):
+    """
+    This returns the vendor name of this mac address.
+    There is no garantee that this website is reliable, so there is a strict time-out.
+    It returns something like:
+    "Hewlett Packard"|"B0:5A:DA"|"11445 Compaq Center Drive,Houston 77070,US"|"B05ADA000000"|"B05ADAFFFFFF"|"US"|"MA-L"
+    """
+    url_mac = "https://macvendors.co/api/%s/pipe" % mac_address
+    if mac_address in ["", "FF-FF-FF-FF-FF-FF"]:
+        return None
 
-	try:
-		#sys.stderr.write("urlMac=%s\n"%urlMac)
+    try:
+        import urllib2
+        req = urllib2.Request(url_mac)
+        req.add_header('User-Agent', "API Browser")
+        resp = urllib2.urlopen(req)
+        content = resp.readlines()[0]
 
-		import urllib2
-		req = urllib2.Request(urlMac)
-		req.add_header('User-Agent', "API Browser")
-		resp = urllib2.urlopen(req)
-		content = resp.readlines()[0]
-
-		#sys.stderr.write("content=%s\n"%content)
-		#sys.stderr.write("content=%s\n"%str(type(content)))
-		splitMac = content.split("|")
-		#sys.stderr.write("splitMac[0]=%s\n"%splitMac[0])
-		return splitMac[0]
-	except:
-		exc = sys.exc_info()[1]
-		#sys.stderr.write("Caught %s\n"%str(exc))
-		# Any error returns a none strng: Thisinformation is not that important.
-		return "Cannot determine vendor"
+        split_mac = content.split("|")
+        return split_mac[0]
+    except Exception as exc:
+        logging.error("Caught: %s" % exc)
+        # Any error returns a none strng: Thisinformation is not that important.
+        return "Cannot determine vendor"
 
 # TODO: Add an option to make it asynchronous or synchronous or without DNS.
 # Otherwise we must maintain several versions.
 
 
 class LookupThread(threading.Thread):
-	"""
-		This thread class gets an IP address, does a dns lookup,
-		then creates RDF lookup.
-		Asynchronous lookups are much faster when there are done in parallel.
-	"""
-	def __init__(self, linSplit, grph, grph_lock, map_hostnames_ipcount):
-		self.linSplit = linSplit
-		self.grph = grph
-		self.grph_lock = grph_lock
-		self.map_hostnames_ipcount = map_hostnames_ipcount
+    """
+        This thread class gets an IP address, does a dns lookup,
+        then creates RDF lookup.
+        Asynchronous lookups are much faster when there are done in parallel.
+    """
+    def __init__(self, linSplit, grph, grph_lock, map_hostnames_ipcount):
+        self.linSplit = linSplit
+        self.grph = grph
+        self.grph_lock = grph_lock
+        self.map_hostnames_ipcount = map_hostnames_ipcount
 
-		threading.Thread.__init__(self)
+        threading.Thread.__init__(self)
 
-	def run(self):
-		hstAddr, hostName, aliases = lib_arp.GetArpHostAliases(self.linSplit[0])
-		topDig = hstAddr.split(".")[0]
-		macAddress = self.linSplit[1].upper()
-		ncCompany = GetMacVendor(macAddress)
-		arpType = self.linSplit[2]
-		hostItf = self.linSplit[3].split()
+    def run(self):
+        hst_addr, host_name, aliases = lib_arp.GetArpHostAliases(self.linSplit[0])
+        top_dig = hst_addr.split(".")[0]
+        mac_address = self.linSplit[1].upper()
+        nc_company = GetMacVendor(mac_address)
+        arp_type = self.linSplit[2]
+        host_itf = self.linSplit[3].split()
 
-		# Now we create a node in rdflib, and we need a mutex for that.
-		with self.grph_lock:
-			try:
-				lstIpAddrs = self.map_hostnames_ipcount[hostName]
+        # Now we create a node in rdflib, and we need a mutex for that.
+        with self.grph_lock:
+            try:
+                lst_ip_addrs = self.map_hostnames_ipcount[host_name]
 
-				if hstAddr in lstIpAddrs:
-					#sys.stderr.write("+++++++++++++++ hostName=%s hstAddr=%s AGAIN num=%d\n"%(hostName,hstAddr,len(self.map_hostnames_ipcount)))
-					return
+                if hst_addr in lst_ip_addrs:
+                    return
 
-				lstIpAddrs.add(hstAddr)
-				labelExt = "_%d" % len(lstIpAddrs)
-				#sys.stderr.write("+++++++++++++++ hostName=%s hstAddr=%s OTHER num=%d\n"%(hostName,hstAddr,len(self.map_hostnames_ipcount)))
-			except KeyError:
-				#sys.stderr.write("+++++++++++++++ hostName=%s hstAddr=%s FIRST num=%d\n"%(hostName,hstAddr,len(self.map_hostnames_ipcount)))
-				self.map_hostnames_ipcount[hostName] = {hstAddr}
-				labelExt = ""
+                lst_ip_addrs.add(hst_addr)
+                label_ext = "_%d" % len(lst_ip_addrs)
+            except KeyError:
+                self.map_hostnames_ipcount[host_name] = {hst_addr}
+                label_ext = ""
 
-			hostNode = lib_common.gUriGen.HostnameUri( hostName )
-			if hstAddr != hostName:
-				self.grph.add( ( hostNode, lib_common.MakeProp("IP address"+labelExt), lib_util.NodeLiteral(hstAddr) ) )
+            host_node = lib_uris.gUriGen.HostnameUri(host_name)
+            if hst_addr != host_name:
+                self.grph.add((host_node, lib_common.MakeProp("IP address"+label_ext), lib_util.NodeLiteral(hst_addr)))
 
-			if topDig == "224":
-				# TODO: Check multicast detection.
-				self.grph.add( ( hostNode, pc.property_information, lib_util.NodeLiteral("Multicast") ) )
-			else:
-				if ncCompany:
-					self.grph.add( ( hostNode, lib_common.MakeProp("MAC"+labelExt), lib_util.NodeLiteral(macAddress) ) )
-					self.grph.add( ( hostNode, lib_common.MakeProp("Vendor"+labelExt), lib_util.NodeLiteral(ncCompany) ) )
+            if top_dig == "224":
+                # TODO: Check multicast detection.
+                self.grph.add((host_node, pc.property_information, lib_util.NodeLiteral("Multicast")))
+            else:
+                if nc_company:
+                    self.grph.add((host_node, lib_common.MakeProp("MAC"+label_ext), lib_util.NodeLiteral(mac_address)))
+                    self.grph.add((host_node, lib_common.MakeProp("Vendor"+label_ext), lib_util.NodeLiteral(nc_company)))
 
-			# static/dynamic
-			if arpType != "":
-				self.grph.add( ( hostNode, lib_common.MakeProp("ARP_type"), lib_util.NodeLiteral(arpType) ) )
+            # static/dynamic
+            if arp_type != "":
+                self.grph.add((host_node, lib_common.MakeProp("ARP_type"), lib_util.NodeLiteral(arp_type)))
 
-			# TODO: Create network interface class.
-			if hostItf:
-				self.grph.add( ( hostNode, lib_common.MakeProp("Interface"), lib_util.NodeLiteral(hostItf) ) )
+            # TODO: Create network interface class.
+            if host_itf:
+                self.grph.add((host_node, lib_common.MakeProp("Interface"), lib_util.NodeLiteral(host_itf)))
 
 
 def Main():
-	cgiEnv = lib_common.ScriptEnvironment()
+    cgiEnv = lib_common.ScriptEnvironment()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	# Several threads can add nodes at the same time.
-	grph_lock = threading.Lock()
+    # Several threads can add nodes at the same time.
+    grph_lock = threading.Lock()
 
-	map_hostnames_ipcount = dict()
+    map_hostnames_ipcount = dict()
 
-	lookup_threads = []
+    lookup_threads = []
 
-	setIps = set()
+    set_ips = set()
 
-	for linSplit in lib_arp.GetArpEntries():
-		ipAddr = linSplit[0]
-		# Remove possible duplicates.
-		if ipAddr in setIps:
-			continue
-		setIps.add(ipAddr)
-		logging.debug("linSplit=%s",str(linSplit))
-		thr = LookupThread( linSplit, grph, grph_lock, map_hostnames_ipcount )
-		thr.start()
-		lookup_threads.append( thr )
+    for lin_split in lib_arp.GetArpEntries():
+        ip_addr = lin_split[0]
+        # Remove possible duplicates.
+        if ip_addr in set_ips:
+            continue
+        set_ips.add(ip_addr)
+        logging.debug("lin_split=%s", str(lin_split))
+        thr = LookupThread(lin_split, grph, grph_lock, map_hostnames_ipcount)
+        thr.start()
+        lookup_threads.append(thr)
 
-	for thread in lookup_threads:
-		# sys.stderr.write('Joining %s\n' % thread.getName())
-		thread.join()
+    for thread in lookup_threads:
+        # sys.stderr.write('Joining %s\n' % thread.getName())
+        thread.join()
 
-	cgiEnv.OutCgiRdf()
+    cgiEnv.OutCgiRdf()
 
 
 if __name__ == '__main__':
-	Main()
+    Main()

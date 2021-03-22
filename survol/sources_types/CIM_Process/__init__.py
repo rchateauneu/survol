@@ -6,14 +6,14 @@ import os
 import sys
 import psutil
 import rdflib
+from rdflib.namespace import RDF
 import logging
+
+import lib_uris
 import lib_common
 import lib_util
 from lib_properties import pc
 import lib_properties
-
-from rdflib.namespace import RDF
-
 from lib_psutil import *
 
 
@@ -77,7 +77,7 @@ def _add_command_line_and_executable(grph, node, proc_obj):
     if exec_name == "":
         grph.add((node, pc.property_runs, rdflib.Literal("Executable error:" + exec_err_msg)))
     else:
-        exec_node = lib_common.gUriGen.FileUri(exec_name)
+        exec_node = lib_uris.gUriGen.FileUri(exec_name)
         grph.add((node, pc.property_runs, exec_node))
 
     return node_cmd_line
@@ -101,10 +101,10 @@ def _command_line_argument_to_node(process_cwd, file_path):
     if os.path.exists(full_path):
         if os.path.isdir(full_path):
             logging.debug("_command_line_argument_to_node DIR:%s" % full_path)
-            return lib_common.gUriGen.DirectoryUri(full_path)
+            return lib_uris.gUriGen.DirectoryUri(full_path)
         elif os.path.isfile(full_path):
             logging.debug("_command_line_argument_to_node FILE:%s" % full_path)
-            return lib_common.gUriGen.FileUri(full_path)
+            return lib_uris.gUriGen.FileUri(full_path)
         else:
             logging.warning("_command_line_argument_to_node INVALID:%s" % full_path)
     return None
@@ -206,7 +206,7 @@ def AddInfo(grph, node, entity_ids_arr):
 
         # TODO: Should add the hostname to the user ???
         user_name_host = lib_common.format_username(user_name)
-        user_node = lib_common.gUriGen.UserUri(user_name_host)
+        user_node = lib_uris.gUriGen.UserUri(user_name_host)
         grph.add((node, pc.property_user, user_node))
 
         sz_resid_set_sz = PsutilResidentSetSize(proc_obj)
