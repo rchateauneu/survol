@@ -31,7 +31,7 @@ def EntityOntology():
 
 # TODO: Is the caption the best key ? Also: It should dependd on the Python version.
 def MakeUri(package_key):
-    return lib_common.gUriGen.UriMake("python/package", package_key)
+    return lib_uris.gUriGen.UriMake("python/package", package_key)
 
 
 def _fill_one_package(grph, node, good_pckg):
@@ -53,7 +53,6 @@ def _fill_one_package(grph, node, good_pckg):
     # [Requirement.parse('distribute'), Requirement.parse('werkzeug'), Requirement.parse('mako')]
     # '_Requirement__hash', '__contains__','__doc__', '__eq__', '__hash__','__init__', '__module__', '__ne__',
     # '__repr__', '__str__', 'extras','hashCmp', 'key', 'marker_fn', 'parse','project_name', 'specifier', 'specs','unsafe_name'
-    # strReq = "+".join( [ str(dir(req)) for req in good_pckg.requires() ])
 
     for sub_req in good_pckg.requires():
         sub_node = MakeUri(sub_req.key)
@@ -69,8 +68,8 @@ def _fill_one_package(grph, node, good_pckg):
 
     # This might return location="c:\python27\lib\site-packages"
     clean_loca_dir = lib_util.standardized_file_path(good_pckg.location)
-    node_location = lib_common.gUriGen.DirectoryUri(clean_loca_dir)
-    grph.add((node, lib_common.MakeProp("Location"), node_location))
+    node_location = lib_uris.gUriGen.DirectoryUri(clean_loca_dir)
+    grph.add((node, lib_uris.MakeProp("Location"), node_location))
 
 
 # http://stackoverflow.com/questions/247770/retrieving-python-module-path
@@ -102,8 +101,11 @@ def _add_info_from_pip(grph, node, package_key):
                         a_specs = sub_req.specs
                         if a_specs:
                             # TODO: This should be displayed on the edge !!!
-                            grph.add((node, lib_common.MakeProp("Condition "+pckg.key), lib_util.NodeLiteral(str(a_specs))))
-                        grph.add((subNode, propPythonRequires, node ))
+                            grph.add((
+                                node,
+                                lib_common.MakeProp("Condition " + pckg.key),
+                                lib_util.NodeLiteral(str(a_specs))))
+                        grph.add((subNode, propPythonRequires, node))
                         break
 
     except Exception as exc:
@@ -119,7 +121,7 @@ def _add_info_from_import(grph, package_node, package_key):
 
     try:
         init_fil_nam = the_module.__file__
-        fil_node = lib_common.gUriGen.FileUri(init_fil_nam)
+        fil_node = lib_uris.gUriGen.FileUri(init_fil_nam)
         grph.add((package_node, propPythonPackage, fil_node))
     except AttributeError:
         pass
