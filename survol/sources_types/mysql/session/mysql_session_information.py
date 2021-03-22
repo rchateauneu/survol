@@ -8,6 +8,8 @@ import sys
 import re
 import socket
 import logging
+
+import lib_uris
 import lib_util
 import lib_common
 import lib_credentials
@@ -37,7 +39,7 @@ def Main():
 
     # BEWARE: The rule whether we use the host name or the host IP is not very clear !
     # The IP address would be unambiguous but less clear.
-    host_node = lib_common.gUriGen.HostnameUri(hostname)
+    host_node = lib_uris.gUriGen.HostnameUri(hostname)
 
     # BEWARE: This is duplicated.
     propDb = lib_common.MakeProp("Mysql database")
@@ -73,7 +75,7 @@ def Main():
         mysql_socket = sess_info[2]
         try:
             mysql_socket_host, mysql_socket_port = mysql_socket.split(":")
-            socket_node = lib_common.gUriGen.AddrUri(mysql_socket_host, mysql_socket_port)
+            socket_node = lib_uris.gUriGen.AddrUri(mysql_socket_host, mysql_socket_port)
             grph.add((session_node, lib_common.MakeProp("Connection socket"), socket_node))
         except:
             pass
