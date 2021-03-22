@@ -22,38 +22,39 @@ import lib_common
 #  255.255.255.255       ff-ff-ff-ff-ff-ff     static
 #
 # TODO: Maybe there is one output per interface.
-def GetArpEntriesWindows():
-	arp_cmd = [ "arp", "-a" ]
+def _get_arp_entries_windows():
+    arp_cmd = ["arp", "-a"]
 
-	arp_pipe = lib_common.SubProcPOpen(arp_cmd)
+    arp_pipe = lib_common.SubProcPOpen(arp_cmd)
 
-	( arp_last_output, arp_err ) = arp_pipe.communicate()
+    arp_last_output, arp_err = arp_pipe.communicate()
 
-	# Converts to string for Python3.
-	asstr = arp_last_output.decode("utf-8")
-	lines = asstr.split('\n')
+    # Converts to string for Python3.
+    asstr = arp_last_output.decode("utf-8")
+    lines = asstr.split('\n')
 
-	for lin in lines:
-		# Maybe should check if other interfaces ??
-		# Maybe should create the entity "network interface",
-		# instead of this confusion between machines and addresses.
+    for lin in lines:
+        # Maybe should check if other interfaces ??
+        # Maybe should create the entity "network interface",
+        # instead of this confusion between machines and addresses.
 
-		# ['255.255.255.255', 'ff-ff-ff-ff-ff-ff', 'static', '\\r']
-		linSplit = re.findall(r"[^ ]+",lin)
+        # ['255.255.255.255', 'ff-ff-ff-ff-ff-ff', 'static', '\\r']
+        lin_split = re.findall(r"[^ ]+", lin)
 
-		# sys.stderr.write("GetArpEntriesWindows Split=%s\n"%str(linSplit))
+        # sys.stderr.write("GetArpEntriesWindows Split=%s\n"%str(lin_split))
 
-		# Probably not the best test.
-		if len(linSplit) != 4:
-			continue
+        # Probably not the best test.
+        if len(lin_split) != 4:
+            continue
 
-		if linSplit[0] == "Interface:":
-			continue
+        if lin_split[0] == "Interface:":
+            continue
 
-		# Network interface.
-		linSplit.append("")
+        # Network interface.
+        lin_split.append("")
 
-		yield( linSplit )
+        yield( lin_split )
+
 
 # /sbin/arp -an
 # ? (192.168.1.10) at f0:82:61:38:20:5d [ether] on wlp8s4
@@ -61,53 +62,55 @@ def GetArpEntriesWindows():
 # ? (192.168.1.17) at 54:be:f7:91:34:0d [ether] on wlp8s4
 # ? (192.168.1.83) at <incomplete> on wlp8s4
 # ? (192.168.1.11) at f0:cb:a1:61:c7:23 [ether] on wlp8s4
-def GetArpEntriesLinux():
-	arp_cmd = [ "/sbin/arp", "-an" ]
+def _get_arp_entries_linux():
+    arp_cmd = ["/sbin/arp", "-an"]
 
-	arp_pipe = lib_common.SubProcPOpen(arp_cmd)
+    arp_pipe = lib_common.SubProcPOpen(arp_cmd)
 
-	( arp_last_output, arp_err ) = arp_pipe.communicate()
+    arp_last_output, arp_err = arp_pipe.communicate()
 
-	# TODO/ Should be a generator !
-	# Converts to string for Python3.
-	asstr = arp_last_output.decode("utf-8")
-	lines = asstr.split('\n')
+    # TODO/ Should be a generator !
+    # Converts to string for Python3.
+    asstr = arp_last_output.decode("utf-8")
+    lines = asstr.split('\n')
 
-	for lin in lines:
-		tmpSplit = re.findall(r"[^ ]+",lin)
+    for lin in lines:
+        tmp_split = re.findall(r"[^ ]+", lin)
 
-		if len(tmpSplit) < 4:
-			continue
+        if len(tmp_split) < 4:
+            continue
 
-		if tmpSplit[4] == "on":
-			linSplit = [ tmpSplit[1][1:-1], tmpSplit[3], "", tmpSplit[5] ]
-		elif tmpSplit[5] == "on":
-			linSplit = [ tmpSplit[1][1:-1], tmpSplit[3], "", tmpSplit[6] ]
-		else:
-			continue
+        if tmp_split[4] == "on":
+            lin_split = [tmp_split[1][1:-1], tmp_split[3], "", tmp_split[5]]
+        elif tmp_split[5] == "on":
+            lin_split = [tmp_split[1][1:-1], tmp_split[3], "", tmp_split[6]]
+        else:
+            continue
 
-		if linSplit[1] == "<incomplete>":
-			linSplit[1] = ""
+        if lin_split[1] == "<incomplete>":
+            lin_split[1] = ""
 
-		logging.debug("Split=%s", str(linSplit))
+        logging.debug("Split=%s", str(lin_split))
 
-		yield( linSplit )
+        yield( lin_split )
+
 
 def GetArpEntries():
-	if lib_util.isPlatformWindows:
-		return GetArpEntriesWindows()
-	if lib_util.isPlatformLinux:
-		return GetArpEntriesLinux()
+    if lib_util.isPlatformWindows:
+        return _get_arp_entries_windows()
+    if lib_util.isPlatformLinux:
+        return _get_arp_entries_linux()
 
-	lib_common.ErrorMessageHtml("Undefined platform:"+sys.platform)
+    lib_common.ErrorMessageHtml("Undefined platform:"+sys.platform)
 
-def GetArpHostAliases(hstAddr):
-	"""This must be thread-safe"""
-	try:
-		hostName, aliases, _ = socket.gethostbyaddr(hstAddr)
-	except socket.herror:
-		hostName = hstAddr
-		aliases = []
 
-	return (hstAddr, hostName, aliases)
+def GetArpHostAliases(hst_addr):
+    """This must be thread-safe"""
+    try:
+        host_name, aliases, _ = socket.gethostbyaddr(hst_addr)
+    except socket.herror:
+        host_name = hst_addr
+        aliases = []
+
+    return (hst_addr, host_name, aliases)
 

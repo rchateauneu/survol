@@ -6,6 +6,8 @@ Scripts related to the class CIM_ComputerSystem.
 
 import sys
 import socket
+
+import lib_uris
 import lib_util
 
 
@@ -61,7 +63,7 @@ def AddWbemServers(entity_host, name_space, entity_type, entity_id):
                 else:
                     txt_literal = "WBEM url, current host, class=%s" % entity_type
 
-                wbem_host_node = lib_common.gUriGen.HostnameUri(url_server[1])
+                wbem_host_node = lib_uris.gUriGen.HostnameUri(url_server[1])
 
                 map_wbem[wbem_node] = [
                     (pc.property_information, lib_util.NodeLiteral(txt_literal)),

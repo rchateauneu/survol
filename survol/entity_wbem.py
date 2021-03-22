@@ -7,6 +7,7 @@ Display generic properties of a WBEM object.
 
 import sys
 import logging
+import lib_uris
 import lib_common
 import lib_util
 from lib_properties import pc
@@ -192,10 +193,7 @@ def Main():
             dict_props = split_monik
 
         host_only = lib_util.EntHostToIp(cimom_url)
-        if lib_util.is_local_address(host_only):
-            uri_inst = lib_common.gUriGen.UriMakeFromDict(class_name, dict_props)
-        else:
-            uri_inst = lib_common.RemoteBox(host_only).UriMakeFromDict(class_name, dict_props)
+        uri_inst = lib_common.MachineBox(host_only).UriMakeFromDict(class_name, dict_props)
 
         grph.add((root_node, lib_common.MakeProp(class_name), uri_inst))
 

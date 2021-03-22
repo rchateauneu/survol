@@ -7,6 +7,7 @@ Parent and sub-processes
 import psutil
 import logging
 
+import lib_uris
 import lib_common
 from sources_types import CIM_Process
 from sources_types import CIM_DataFile as lib_entity_file
@@ -17,18 +18,18 @@ def AddExtraInformationtoProcess(grph, node_process, proc_obj):
     CIM_Process.AddInfo(grph, node_process, [str(proc_obj.pid)])
 
     usr_nam = lib_common.format_username(CIM_Process.PsutilProcToUser(proc_obj))
-    user_node = lib_common.gUriGen.UserUri(usr_nam)
+    user_node = lib_uris.gUriGen.UserUri(usr_nam)
     grph.add((user_node, pc.property_owner, node_process))
 
     (exec_name, exec_err_msg) = CIM_Process.PsutilProcToExe(proc_obj)
     if exec_name != "":
-        exec_nod = lib_common.gUriGen.FileUri(exec_name)
+        exec_nod = lib_uris.gUriGen.FileUri(exec_name)
         grph.add((node_process, pc.property_runs, exec_nod))
         lib_entity_file.AddInfo(grph, exec_nod, [exec_name])
 
 
 def tree_subprocesses(grph, proc_obj):
-    node_process = lib_common.gUriGen.PidUri(proc_obj.pid)
+    node_process = lib_uris.gUriGen.PidUri(proc_obj.pid)
 
     try:
         # Old versions of psutil
@@ -38,7 +39,7 @@ def tree_subprocesses(grph, proc_obj):
         subprocs = proc_obj.children(recursive=False)
 
     for child in subprocs:
-        node_child = lib_common.gUriGen.PidUri(child.pid)
+        node_child = lib_uris.gUriGen.PidUri(child.pid)
         grph.add((node_process, pc.property_ppid, node_child))
         AddExtraInformationtoProcess(grph, node_child, child)
         tree_subprocesses(grph, child)
@@ -62,8 +63,8 @@ def tree_parent_process(grph, proc_obj, pids_seen_set):
         if the_ppid == 0:
             return
 
-        node_process = lib_common.gUriGen.PidUri(the_pid)
-        node_pprocess = lib_common.gUriGen.PidUri(the_ppid)
+        node_process = lib_uris.gUriGen.PidUri(the_pid)
+        node_pprocess = lib_uris.gUriGen.PidUri(the_ppid)
         grph.add((node_pprocess, pc.property_ppid, node_process))
         CIM_Process.AddInfo(grph, node_pprocess, [str(the_ppid)])
 

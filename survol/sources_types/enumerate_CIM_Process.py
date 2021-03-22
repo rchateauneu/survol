@@ -6,6 +6,7 @@ Processes tree
 
 import sys
 import psutil
+import lib_uris
 import lib_util
 import lib_common
 from sources_types import CIM_Process
@@ -37,7 +38,7 @@ def Main():
         try:
             return Main.dict__pid_to_node[the_pid]
         except KeyError:
-            node = lib_common.gUriGen.PidUri(the_pid)
+            node = lib_uris.gUriGen.PidUri(the_pid)
             Main.dict__pid_to_node[the_pid] = node
             return node
 
@@ -63,7 +64,7 @@ def Main():
             if usr_nam:
                 # TODO: Maybe it would be more convenient to display the user as a simple string,
                 # TODO: such as lib_util.NodeLiteral(usr_nam)
-                user_node = lib_common.gUriGen.UserUri(usr_nam)
+                user_node = lib_uris.gUriGen.UserUri(usr_nam)
                 grph.add((node_process, pc.property_user, user_node))
 
         if flag_show_command_line:
