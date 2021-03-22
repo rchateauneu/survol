@@ -7,6 +7,7 @@ Overview
 import sys
 import logging
 import lib_util
+import lib_uris
 import lib_common
 from lib_properties import pc
 import entity_dirmenu_only # Also used with the CGI parameter mode=menu
@@ -24,14 +25,14 @@ FunctionGetUser = CIM_Process.GetCurrentUser
 
 def _add_default_nodes(grph, root_node, entity_host):
     logging.debug("entity.py _add_default_nodes entity_host=%s", entity_host)
-    current_node_hostname = lib_common.gUriGen.HostnameUri(lib_util.currentHostname)
+    current_node_hostname = lib_uris.gUriGen.HostnameUri(lib_util.currentHostname)
     grph.add((current_node_hostname,
               pc.property_information,
               lib_util.NodeLiteral("Current host:" + lib_util.currentHostname)))
     grph.add((root_node, pc.property_rdf_data_nolist2, current_node_hostname))
 
     curr_username = FunctionGetUser()
-    current_node_user = lib_common.gUriGen.UserUri(curr_username)
+    current_node_user = lib_uris.gUriGen.UserUri(curr_username)
     grph.add((current_node_user, pc.property_information, lib_util.NodeLiteral("Current user:" + curr_username)))
     grph.add((root_node, pc.property_rdf_data_nolist2, current_node_user))
 
