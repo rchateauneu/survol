@@ -11,6 +11,8 @@ import re
 import sys
 import logging
 import psutil
+
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -52,7 +54,7 @@ def filter_path_linux(path):
     # Not sure about "M" and "I".
     # And if the shared file is read-only, not very interesting, probably (But it depends).
     # TODO: Precompile regexes.
-    if re.match(r'.*/lib/.*\.so\..*', path, re.M | re.I):
+    if re.match(r'.*/lib/.*\.so\..*', path, re.M|re.I):
         return False
 
     # TODO: Specific for local on KDE. It does not harm, but should be cleaned up.
@@ -148,13 +150,13 @@ def Main():
         if len(proc_lst) <= 0:
             continue
 
-        uri_mem_map = lib_common.gUriGen.MemMapUri(map_path)
+        uri_mem_map = lib_uris.gUriGen.MemMapUri(map_path)
 
         for pid in proc_lst:
             try:
                 node_process = added_procs[pid]
             except KeyError:
-                node_process = lib_common.gUriGen.PidUri(pid)
+                node_process = lib_uris.gUriGen.PidUri(pid)
                 added_procs[pid] = node_process
 
             grph.add((node_process, pc.property_memmap, uri_mem_map))

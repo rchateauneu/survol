@@ -10,6 +10,8 @@ import sys
 import socket
 import logging
 import psutil
+
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -47,61 +49,62 @@ from lib_properties import pc
 
 
 def Main():
-	cgiEnv = lib_common.ScriptEnvironment()
+    cgiEnv = lib_common.ScriptEnvironment()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	for part in psutil.disk_partitions():
-		# partition(device='D:\\\\', mountpoint='D:\\\\', fstype='NTFS', opts='rw,fixed')
-		logging.debug("device=%s fstype=%s", part.device,part.fstype)
-		logging.debug("All=%s", str(part) )
+    for part in psutil.disk_partitions():
+        # partition(device='D:\\\\', mountpoint='D:\\\\', fstype='NTFS', opts='rw,fixed')
+        logging.debug("device=%s fstype=%s", part.device,part.fstype)
+        logging.debug("All=%s", str(part) )
 
-		# BEWARE: This is not very clear.
-		if lib_util.isPlatformWindows:
-			# sdiskpart(device='C:\\', mountpoint='C:\\', fstype='NTFS', opts='rw,fixed')
-			# DeviceID     : X:
-			# DriveType    : 4
-			# ProviderName : \\192.168.1.81\rchateau
-			# FreeSpace    : 170954825728
-			# Size         : 2949169561600
-			# VolumeName   : rchateau
-			#
-			# WMI does not want a backslash at the end: "C:".
-			# Replacing backslashes is necessary on Windows.
-			partition_name = part.device.replace('\\','')
+        # BEWARE: This is not very clear.
+        if lib_util.isPlatformWindows:
+            # sdiskpart(device='C:\\', mountpoint='C:\\', fstype='NTFS', opts='rw,fixed')
+            # DeviceID     : X:
+            # DriveType    : 4
+            # ProviderName : \\192.168.1.81\rchateau
+            # FreeSpace    : 170954825728
+            # Size         : 2949169561600
+            # VolumeName   : rchateau
+            #
+            # WMI does not want a backslash at the end: "C:".
+            # Replacing backslashes is necessary on Windows.
+            partition_name = part.device.replace('\\', '')
 
-			# We could as well take "Win32_LogicalDisk" because it inherits from "CIM_LogicalDisk"
-			nodePartition = lib_common.gUriGen.UriMake("CIM_LogicalDisk",partition_name)
-		else:
-			# The class CIM_LogicalDisk represents a contiguous range of logical blocks
-			# that is identifiable by a FileSystem via the Disk's DeviceId (key) field.
-			# Each storage extent with the capability of or already hosting a file system
-			# is represented as a sub-class of CIM_LogicalDisk.
-			# The class CIM_LogicalDisk is the connector between File Systems and Storage Extents
+            # We could as well take "Win32_LogicalDisk" because it inherits from "CIM_LogicalDisk"
+            node_partition = lib_uris.gUriGen.UriMake("CIM_LogicalDisk", partition_name)
+        else:
+            # The class CIM_LogicalDisk represents a contiguous range of logical blocks
+            # that is identifiable by a FileSystem via the Disk's DeviceId (key) field.
+            # Each storage extent with the capability of or already hosting a file system
+            # is represented as a sub-class of CIM_LogicalDisk.
+            # The class CIM_LogicalDisk is the connector between File Systems and Storage Extents
 
-			# [sdiskpart(device='/dev/vda1', mountpoint='/var/lib/docker/containers', fstype='ext4', opts='rw,seclabel,relatime,data=ordered'),]
+            # [sdiskpart(device='/dev/vda1', mountpoint='/var/lib/docker/containers',
+            #            fstype='ext4', opts='rw,seclabel,relatime,data=ordered'),]
 
 
-			# This does not really work on Windows because WMI expects
-			# something like 'Win32_DiskPartition.DeviceID="Disk #0.Partition #0"'
-			partition_name = part.device
+            # This does not really work on Windows because WMI expects
+            # something like 'Win32_DiskPartition.DeviceID="Disk #0.Partition #0"'
+            partition_name = part.device
 
-			nodePartition = lib_common.gUriGen.DiskPartitionUri( partition_name )
+            node_partition = lib_uris.gUriGen.DiskPartitionUri(partition_name)
 
-		mount_point = part.mountpoint.replace('\\','/')
-		nodeMount = lib_common.gUriGen.DirectoryUri( mount_point )
+        mount_point = part.mountpoint.replace('\\', '/')
+        node_mount = lib_uris.gUriGen.DirectoryUri(mount_point)
 
-		# TODO: Check this list.
-		if part.fstype != "":
-			# partition(device='T:\\\\', mountpoint='T:\\\\', fstype='', opts='cdrom')
-			grph.add( ( nodePartition, pc.property_file_system_type, lib_util.NodeLiteral(part.fstype) ) )
-			grph.add( ( nodeMount, pc.property_mount, nodePartition ) )
+        # TODO: Check this list.
+        if part.fstype != "":
+            # partition(device='T:\\\\', mountpoint='T:\\\\', fstype='', opts='cdrom')
+            grph.add((node_partition, pc.property_file_system_type, lib_util.NodeLiteral(part.fstype)))
+            grph.add((node_mount, pc.property_mount, node_partition))
 
-		if part.opts != "":
-			grph.add( ( nodeMount, pc.property_mount_options,  lib_util.NodeLiteral(part.opts) ) )
+        if part.opts != "":
+            grph.add((node_mount, pc.property_mount_options, lib_util.NodeLiteral(part.opts)))
 
-	cgiEnv.OutCgiRdf()
+    cgiEnv.OutCgiRdf()
 
 
 if __name__ == '__main__':
-	Main()
+    Main()
