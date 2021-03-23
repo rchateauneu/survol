@@ -5,6 +5,7 @@ Get an event about a CIM object
 """
 
 import sys
+import lib_uris
 import lib_common
 import lib_kbase
 
@@ -27,7 +28,7 @@ def Main():
 	if entity_type:
 		lib_common.ErrorMessageHtml(__file__ + " objects events retrieval not supported yet.")
 
-	entity_node = lib_common.gUriGen.UriMake(entity_type, *entity_id)
+	entity_node = lib_uris.gUriGen.UriMake(entity_type, *entity_id)
 
 	num_triples = lib_kbase.retrieve_events_to_graph(grph, entity_node)
 	sys.stderr.write("%s num_triples=%d\n" % (__file__, num_triples))

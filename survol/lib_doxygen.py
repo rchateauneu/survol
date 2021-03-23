@@ -2,10 +2,13 @@ import os
 import sys
 import collections
 import logging
+
+import xml.etree.cElementTree
+
+import lib_uris
 import lib_common
 import lib_util
 from lib_properties import pc
-import xml.etree.cElementTree
 
 
 file_extensions_dox = [
@@ -44,13 +47,9 @@ def _generate_to_output_dir(out_dir):
     member_definition = "IMPOSSIBLE_DEFINITION"
     for dir_name, subdir_list, file_list in os.walk(out_dir):
         for fname in file_list:
-            #sys.stderr.write("fname=%s\n" % fname)
             xml_path = dir_name + "/" + fname
             try:
                 for event, elem in xml.etree.cElementTree.iterparse(xml_path, events=("start", "end")):
-                    #sys.stderr.write("elem.tag=%s\n" % elem.tag)
-                    #sys.stderr.write("elem.text=%s\n" % elem.text)
-
                     if event == "start":
                         if elem.tag == "compounddef":
                             compounddef_kind = elem.attrib["kind"]
@@ -101,10 +100,6 @@ def _generate_to_output_dir(out_dir):
                                 # TODO: A-t-n vraiment de compounddef_kind][compound_name][member_kind]
                                 # TODO ... sachant qu on se donne la possibilite d exploser ou pas selon les classes ?
                                 objects_by_location[location_file][compounddef_kind][compound_name][member_kind][member_definition] = list_types
-                        # print(event)
-                        # print(elem.tag)
-                        # print(elem.tag)
-                        # break
             except Exception as exc:
                 logging.warning("Caught:%s", str(exc))
 
@@ -112,7 +107,7 @@ def _generate_to_output_dir(out_dir):
 
 
 def _display_def(grph, node_file, location_file, sym_def, param_explode_classes):
-    node_variable = lib_common.gUriGen.SymbolUri(sym_def, location_file)
+    node_variable = lib_uris.gUriGen.SymbolUri(sym_def, location_file)
     if node_file:
         grph.add((node_file, pc.property_member, node_variable))
     return
@@ -124,7 +119,7 @@ def CreateObjs(grph, root_node, directory_name, objects_by_location, param_explo
     for location_file, v1 in lib_util.six_iteritems(objects_by_location):
         logging.debug("location_file=%s", location_file)
 
-        node_file = lib_common.gUriGen.FileUri(location_file)
+        node_file = lib_uris.gUriGen.FileUri(location_file)
         grph.add((root_node, pc.property_directory, node_file))
 
         for compounddef_kind, v2 in v1.items():
@@ -141,14 +136,14 @@ def CreateObjs(grph, root_node, directory_name, objects_by_location, param_explo
                                 concat_types = ""
                             # func_name = list_types[0] + " " + memberName + "(" + concat_types + ")"
                             func_name = member_definition + "(" + concat_types + ")"
-                            #nodeFunction = lib_common.gUriGen.SymbolUri( func_name, location_file )
+                            #nodeFunction = lib_uris.gUriGen.SymbolUri( func_name, location_file )
                             #if node_file:
                             #    grph.add( ( node_file, pc.property_member, nodeFunction ) )
                             _display_def(grph, node_file, location_file, func_name, param_explode_classes)
                         elif member_kind == "variable":
                             _display_def(grph, node_file, location_file, member_definition, param_explode_classes)
-                            # nodeVariable = lib_common.gUriGen.SymbolUri( memberName, location_file )
-                            #nodeVariable = lib_common.gUriGen.SymbolUri( member_definition, location_file )
+                            # nodeVariable = lib_uris.gUriGen.SymbolUri( memberName, location_file )
+                            #nodeVariable = lib_uris.gUriGen.SymbolUri( member_definition, location_file )
                             #if node_file:
                             #    grph.add( ( node_file, pc.property_member, nodeVariable ) )
     return

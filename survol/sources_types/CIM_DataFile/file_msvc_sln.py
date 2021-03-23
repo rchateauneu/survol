@@ -11,7 +11,9 @@ This returns general information about a Visual Studio solution file.
 
 import os
 import sys
+
 from sources_types import CIM_DataFile
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -27,7 +29,7 @@ def Main():
 	cgiEnv = lib_common.ScriptEnvironment()
 	fil_nam = cgiEnv.GetId()
 
-	fil_node = lib_common.gUriGen.FileUri(fil_nam)
+	fil_node = lib_uris.gUriGen.FileUri(fil_nam)
 
 	grph = cgiEnv.GetGraph()
 
