@@ -20,7 +20,7 @@ from sources_types.mysql import instance as survol_mysql_instance
 
 
 def Main():
-    cgiEnv = lib_common.ScriptEnvironment( )
+    cgiEnv = lib_common.ScriptEnvironment()
 
     instance_name = cgiEnv.m_entity_id_dict["Instance"]
     instance_node = survol_mysql_instance.MakeUri(instance_name)
