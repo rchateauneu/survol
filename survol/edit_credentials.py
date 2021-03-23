@@ -10,6 +10,8 @@ import sys
 import cgi
 import socket
 import logging
+
+import lib_uris
 import lib_common
 import lib_util
 import lib_credentials
@@ -20,37 +22,41 @@ from lib_util import WrtAsUtf
 def _create_credentials_map():
     """This lists the content of credentials and associates a variable name to each element.
     This variable name which must be unique, is later used to build a HTML form."""
-    credTypeList = lib_credentials.get_credentials_types()
+    cred_type_list = lib_credentials.get_credentials_types()
 
-    credTypesDict = dict()
+    cred_types_dict = dict()
 
-    for credType in sorted(credTypeList):
+    for cred_type in sorted(cred_type_list):
 
-        credTypesDict[credType] = dict()
+        cred_types_dict[cred_type] = dict()
 
         # This is a homogeneous list, for example of machines names, or databases.
-        credNams = lib_credentials.get_credentials_names( credType )
+        cred_nams = lib_credentials.get_credentials_names(cred_type)
 
-        for credName in sorted(credNams):
+        for cred_name in sorted(cred_nams):
+            cred = lib_credentials.GetCredentials(cred_type, cred_name)
 
-            cred = lib_credentials.GetCredentials( credType, credName )
+            cred_input_prefix = cred_type + "_" + cred_name + "_" + cred[0]
+            cred_input_password = cred_input_prefix + "_UPDATE_PASSWORD"
+            cred_input_name_del = cred_input_prefix + "_DELETE_CREDENTIAL"
 
-            credInputPrefix = credType + "_" + credName + "_" + cred[0]
-            credInputPassword = credInputPrefix + "_UPDATE_PASSWORD"
-            credInputNameDel = credInputPrefix + "_DELETE_CREDENTIAL"
+            cred_name_url = _cred_type_name_to_url(cred_type, cred_name)
 
-            credNameUrl = _cred_type_name_to_url(credType, credName)
+            cred_types_dict[cred_type][cred_name] = [
+                cred[0],
+                cred[1],
+                cred_input_password,
+                cred_input_name_del,
+                cred_name_url]
 
-            credTypesDict[credType][credName] = [cred[0],cred[1],credInputPassword,credInputNameDel,credNameUrl]
-
-    return credTypesDict
+    return cred_types_dict
 
 
-def _form_update_credentials_no_jinja(formAction, credMap):
+def _form_update_credentials_no_jinja(form_action, cred_map):
     """This applies only if the jinja2 module is not there."""
     WrtAsUtf("""
     <form method="post" action="%s" name="ServerCredentials">
-    """%(formAction))
+    """ % (form_action))
 
     WrtAsUtf("""<tr>
     <td><b>Resource</b></td>
@@ -60,29 +66,29 @@ def _form_update_credentials_no_jinja(formAction, credMap):
     </tr>
     """)
 
-    for credType in sorted(credMap):
+    for cred_type in sorted(cred_map):
         # This is a type of access: Oracle databse, Linux machine, Windows account etc...
-        WrtAsUtf("<tr><td colspan=4><b>%s</b></td></tr>" % (credType))
+        WrtAsUtf("<tr><td colspan=4><b>%s</b></td></tr>" % cred_type)
 
         # This is a homogeneous list, for example of machines names, or databases.
-        credNams = credMap[ credType ]
-        for credName in sorted(credNams):
+        cred_nams = cred_map[cred_type]
+        for cred_name in sorted(cred_nams):
             # For a machine, this accepts only one user.
             # Same for a given database: Only one user. The reason is that the scripts
             # do not have to chosse when they need to display information about something.
             # Read-only access rights are enough.
-            cred = credNams[credName]
+            cred = cred_nams[cred_name]
 
-            credNameUrl = cred[4]
+            cred_name_url = cred[4]
 
-            if credNameUrl:
+            if cred_name_url:
                 WrtAsUtf("""<tr>
                 <td><a href="%s">%s</a></td>
                 <td>%s</td>
                 <td><input name="%s" value="%s"></td>
                 <td><input type="checkbox" name="%s"></td>
                 </tr>
-                """%(credNameUrl,credName,cred[0],cred[2],cred[1],cred[3]))
+                """ % (cred_name_url, cred_name, cred[0], cred[2], cred[1], cred[3]))
             else:
                 # If no URL can be created. For example of the map misses a function
                 # for a given credential type.
@@ -92,7 +98,7 @@ def _form_update_credentials_no_jinja(formAction, credMap):
                 <td><input name="%s" value="%s"></td>
                 <td><input type="checkbox" name="%s"></td>
                 </tr>
-                """%(credName,cred[0],cred[2],cred[1],cred[3]))
+                """ % (cred_name, cred[0], cred[2], cred[1], cred[3]))
 
     WrtAsUtf("""<tr>""")
     WrtAsUtf("""<td colspan=4>""")
@@ -106,25 +112,25 @@ def _form_update_credentials_no_jinja(formAction, credMap):
     """)
 
 
-def _form_insert_credentials_no_jinja(formAction, credTypeList):
+def _form_insert_credentials_no_jinja(form_action, cred_type_list):
     WrtAsUtf("""
     <form method="post" action="edit_credentials.py" name="ServerCredentials">
     """)
 
-    credInputAddPrefix = "credentials_add_"
-    credInputAddType = credInputAddPrefix + "type"
-    credInputAddName = credInputAddPrefix + "name"
-    credInputAddUsr = credInputAddPrefix + "usr"
-    credInputAddPwd = credInputAddPrefix + "pwd"
+    cred_input_add_prefix = "credentials_add_"
+    cred_input_add_type = cred_input_add_prefix + "type"
+    cred_input_add_name = cred_input_add_prefix + "name"
+    cred_input_add_usr = cred_input_add_prefix + "usr"
+    cred_input_add_pwd = cred_input_add_prefix + "pwd"
 
     WrtAsUtf("""<tr>""")
     WrtAsUtf("""<td colspan=4><b>Credentials creation</b></td>""")
     WrtAsUtf("""</tr>""")
 
     WrtAsUtf("""<tr>""")
-    WrtAsUtf("""<td colspan=4><select name="%s">"""%(credInputAddType))
-    for credType in credTypeList:
-        WrtAsUtf("""<option value='%s'>%s</option>""" % (credType, credType ))
+    WrtAsUtf("""<td colspan=4><select name="%s">""" % cred_input_add_type)
+    for cred_type in cred_type_list:
+        WrtAsUtf("""<option value='%s'>%s</option>""" % (cred_type, cred_type))
     WrtAsUtf("""</select></td>""")
     WrtAsUtf("""</tr>""")
 
@@ -134,7 +140,7 @@ def _form_insert_credentials_no_jinja(formAction, credTypeList):
     <td><input name="%s"></td>
     <td><input name="%s"></td>
     </tr>
-    """ % (credInputAddName,credInputAddUsr,credInputAddPwd))
+    """ % (cred_input_add_name, cred_input_add_usr, cred_input_add_pwd))
 
     WrtAsUtf("""<tr>""")
     WrtAsUtf("""<td colspan=4>""")
@@ -149,45 +155,45 @@ def _form_insert_credentials_no_jinja(formAction, credTypeList):
     """)
 
 
-def _inserted_cred_map(cgiArguments):
+def _inserted_cred_map(cgi_arguments):
     """This is called if the form tries to insert a new credential"""
     try:
-        cgiArguments["SubmitCredAddName"]
-        credType = cgiArguments["credentials_add_type"].value
-        credName = cgiArguments["credentials_add_name"].value
-        credUsr = cgiArguments["credentials_add_usr"].value
-        credPwd = cgiArguments["credentials_add_pwd"].value
+        cgi_arguments["SubmitCredAddName"]
+        cred_type = cgi_arguments["credentials_add_type"].value
+        cred_name = cgi_arguments["credentials_add_name"].value
+        cred_usr = cgi_arguments["credentials_add_usr"].value
+        cred_pwd = cgi_arguments["credentials_add_pwd"].value
 
-        lib_credentials.add_one_credential(credType, credName, credUsr, credPwd)
+        lib_credentials.add_one_credential(cred_type, cred_name, cred_usr, cred_pwd)
 
     except KeyError:
         pass
 
 
-def _updated_cred_map(cgiArguments):
+def _updated_cred_map(cgi_arguments):
     """
     This takes the list on input cgi variables and uses it to update the passwords
     or delete entire rows of credentials (user+pass).
     """
-    credMap = _create_credentials_map()
+    cred_map = _create_credentials_map()
 
-    credMapOut = dict()
+    cred_map_out = dict()
 
     # Writes to the output file only if the credentials are really changed.
-    wasChanged = False
+    was_changed = False
     try:
-        cgiArguments["SubmitCredUpdName"]
+        cgi_arguments["SubmitCredUpdName"]
 
-        for credType in sorted(credMap):
-            credMapOut[credType] = dict()
-            credNams = credMap[credType]
-            for credName in sorted(credNams):
-                cred = credNams[credName]
+        for cred_type in sorted(cred_map):
+            cred_map_out[cred_type] = dict()
+            cred_nams = cred_map[cred_type]
+            for cred_name in sorted(cred_nams):
+                cred = cred_nams[cred_name]
 
                 try:
                     # If the "_del" variable is ticked, do not copy the credentials.
-                    cgiArguments[cred[3]]
-                    wasChanged = True
+                    cgi_arguments[cred[3]]
+                    was_changed = True
                     continue
                 except:
                     pass
@@ -196,24 +202,23 @@ def _updated_cred_map(cgiArguments):
                     # If the "_upd" variable is ticked, copy the credentials with a new password.
                     # BEWARE / TODO / FIXME: If the password is empty, it is not taken into account.
                     # It does not seem possible to have an empty password.
-                    updPassword = cgiArguments[cred[2]].value
-                    if updPassword != cred[1]:
-                        wasChanged = True
-                        #   WrtAsUtf("Name=%s: Replace %s by %s<br>"%(cred[0],cred[1],updPassword))
-                        cred[1] = updPassword
+                    upd_password = cgi_arguments[cred[2]].value
+                    if upd_password != cred[1]:
+                        was_changed = True
+                        #   WrtAsUtf("Name=%s: Replace %s by %s<br>"%(cred[0],cred[1],upd_password))
+                        cred[1] = upd_password
                 except:
                     pass
 
-                credMapOut[credType][credName] = cred
+                cred_map_out[cred_type][cred_name] = cred
 
     except KeyError:
-        credMapOut = credMap
-        pass
+        cred_map_out = cred_map
 
-    if wasChanged:
+    if was_changed:
         # Change the file only if something really changed.
-        lib_credentials.update_credentials(credMapOut)
-    return credMapOut
+        lib_credentials.update_credentials(cred_map_out)
+    return cred_map_out
 
 
 def _cred_definitions():
@@ -222,15 +227,15 @@ def _cred_definitions():
     a function which creates a URL for a credential resource name.
     """
 
-    def CredUrlLogin(credName_Machine):
+    def CredUrlLogin(cred_name_machine):
         """ Return a node given a machine name"""
         # Example: credName_Machine="titi\\rchateauneu@hotmail.com"
-        serverNode = lib_common.gUriGen.HostnameUri(credName_Machine)
-        return serverNode
+        server_node = lib_uris.gUriGen.HostnameUri(cred_name_machine)
+        return server_node
 
     def CredUrlWMI(hostname):
-        nodeWmi = lib_util.UrlPortalWmi(hostname)
-        return nodeWmi
+        node_wmi = lib_util.UrlPortalWmi(hostname)
+        return node_wmi
 
     def CredUrlOracle(dbName):
         # Example: dbName = "XE", which must be defined in tnsnames-ora
@@ -248,105 +253,102 @@ def _cred_definitions():
         # TODO: Finish this
         return None
 
-    def CredUrlMySql(instanceMySql):
+    def CredUrlMySql(instance_my_sql):
         from sources_types.mysql import instance as survol_mysql_instance
-        nodeInstance = survol_mysql_instance.MakeUri(instanceMySql)
-        return nodeInstance
+        node_instance = survol_mysql_instance.MakeUri(instance_my_sql)
+        return node_instance
 
     def CredUrlWBEM(cimomUrl):
         # Example: urlWbem = "http://192.168.0.17:5989"
         if False:
             hostname = cimomUrl[7:]
-            nodeWbem = lib_util.UrlPortalWbem(cimomUrl)
-            return nodeWbem
+            node_wbem = lib_util.UrlPortalWbem(cimomUrl)
+            return node_wbem
         else:
             import lib_wbem
-            theCimom = lib_credentials.key_url_cgi_encode(cimomUrl)
-            nodeWbem = lib_wbem.WbemAllNamespacesUrl(theCimom)
-            return nodeWbem
+            the_cimom = lib_credentials.key_url_cgi_encode(cimomUrl)
+            node_wbem = lib_wbem.WbemAllNamespacesUrl(the_cimom)
+            return node_wbem
 
-    def CredUrlSurvol(survolUrl):
-        nodeSurvol = lib_common.NodeUrl(survolUrl)
-        return nodeSurvol
+    def CredUrlSurvol(survol_url):
+        node_survol = lib_common.NodeUrl(survol_url)
+        return node_survol
 
-    def CredUrlRabbitMQ(configNam):
+    def CredUrlRabbitMQ(config_nam):
         from sources_types.rabbitmq import manager as survol_rabbitmq_manager
-        nodeManager = survol_rabbitmq_manager.MakeUri(configNam)
-        return nodeManager
+        node_manager = survol_rabbitmq_manager.MakeUri(config_nam)
+        return node_manager
 
-    def CredUrlAzure(subscriptionName):
+    def CredUrlAzure(subscription_name):
         # Example: subscriptionName = "Visual Studio Professional"
         from sources_types.Azure import subscription as azure_subscription
-        subscriptionNode = azure_subscription.MakeUri( subscriptionName )
-        return subscriptionNode
+        subscription_node = azure_subscription.MakeUri(subscription_name)
+        return subscription_node
 
     def CredUrlODBC(dsn):
         from sources_types.odbc import dsn as survol_odbc_dsn
-        nodeDsn = survol_odbc_dsn.MakeUri( "DSN=" + dsn )
-        return nodeDsn
+        node_dsn = survol_odbc_dsn.MakeUri( "DSN=" + dsn )
+        return node_dsn
 
     # This hard-coded list allows also to create credentials for the first time.
-    credTypesWellKnown = {
-        "Login" : CredUrlLogin,
-        "WMI" : CredUrlWMI,
-        "Oracle" : CredUrlOracle,
-        "SqlExpress" : CredUrlSqlExpress,
-        "MySql" : CredUrlMySql,
-        "WBEM" : CredUrlWBEM,
-        "Survol" : CredUrlSurvol,
-        "RabbitMQ" : CredUrlRabbitMQ,
-        "Azure" : CredUrlAzure,
-        "ODBC" : CredUrlODBC,
+    cred_types_well_known = {
+        "Login": CredUrlLogin,
+        "WMI": CredUrlWMI,
+        "Oracle": CredUrlOracle,
+        "SqlExpress": CredUrlSqlExpress,
+        "MySql": CredUrlMySql,
+        "WBEM": CredUrlWBEM,
+        "Survol": CredUrlSurvol,
+        "RabbitMQ": CredUrlRabbitMQ,
+        "Azure": CredUrlAzure,
+        "ODBC": CredUrlODBC,
     }
 
-    return credTypesWellKnown
+    return cred_types_well_known
 
 
-def _cred_type_name_to_url(credType, credName):
+def _cred_type_name_to_url(cred_type, cred_name):
     try:
         # Maybe we can create a URL for a credName of a given credType.
         # For example a machine name if 'Login', a database if 'Oracle',
         # an access to a WBEM server if 'WBEM' etc...
-        nodeGenerator = _cred_definitions()[credType]
-        credNameUrl = nodeGenerator(credName)
-    except:
-        # Maybe the key is not defined ...
-        # ... or the generator does not work
-        exc = sys.exc_info()[1]
-        logging.warning("nodeGenerator exception:%s",str(exc))
-        credNameUrl = None
-    return credNameUrl
+        node_generator = _cred_definitions()[cred_type]
+        cred_name_url = node_generator(cred_name)
+    except Exception as exc:
+        # Maybe the key is not defined or the generator does not work
+        logging.warning("node_generator exception:%s", str(exc))
+        cred_name_url = None
+    return cred_name_url
 
 
 def Main():
-    formAction = os.environ['SCRIPT_NAME']
+    form_action = os.environ['SCRIPT_NAME']
 
-    cgiArguments = cgi.FieldStorage()
+    cgi_arguments = cgi.FieldStorage()
 
-    credFilename = os.path.normpath(lib_credentials.credentials_filename())
-    page_title = "Edit Survol credentials in %s" % credFilename
+    cred_filename = os.path.normpath(lib_credentials.credentials_filename())
+    page_title = "Edit Survol credentials in %s" % cred_filename
 
     # Hostname=Unknown-30-b5-c2-02-0c-b5-2.home
     # Host address=192.168.0.17
     # Remote client=82.45.12.63
 
-    currHostNam = socket.gethostname()
-    currHostAddr = lib_util.GlobalGetHostByName(currHostNam)
+    curr_host_nam = socket.gethostname()
+    curr_host_addr = lib_util.GlobalGetHostByName(curr_host_nam)
     try:
-        addrRemote = os.environ['REMOTE_ADDR']
+        addr_remote = os.environ['REMOTE_ADDR']
     except KeyError:
-        #logging.error("edit_credentials.py: Cannot get REMOTE_ADDR")
-        sys.stderr.write("edit_credentials.py: Cannot get REMOTE_ADDR\n")
+        logging.error("edit_credentials.py: Cannot get REMOTE_ADDR")
         raise
 
     # Hard-coded protection.
-    if addrRemote not in ["82.45.12.63", "192.168.0.14", "192.168.1.10", "192.168.56.1", "127.0.0.1"]:
-        lib_common.ErrorMessageHtml("Access forbidden from %s"% addrRemote )
+    if addr_remote not in ["82.45.12.63", "192.168.0.14", "192.168.1.10", "192.168.56.1", "127.0.0.1"]:
+        lib_common.ErrorMessageHtml("Access forbidden from %s" % addr_remote)
 
-    _inserted_cred_map(cgiArguments)
-    credMap = _updated_cred_map(cgiArguments)
-    credTypesWellKnown = _cred_definitions()
-    credTypeList = sorted(credTypesWellKnown.keys())
+    _inserted_cred_map(cgi_arguments)
+    cred_map = _updated_cred_map(cgi_arguments)
+    cred_types_well_known = _cred_definitions()
+    cred_type_list = sorted(cred_types_well_known.keys())
 
     def main_no_jinja():
         """Simple HTML page if jinja2 is not installed."""
@@ -362,17 +364,17 @@ def Main():
         <tr><td><b>Host name</b></td><td>%s</td></tr>
         <tr><td><b>Host address</b></td><td>%s</td></tr>
         <tr><td><b>Remote address</b></td><td>%s</td></tr>
-        """ %(currHostNam,currHostAddr,addrRemote))
+        """ % (curr_host_nam, curr_host_addr, addr_remote))
 
         WrtAsUtf("""<table border="1" width='100%%'>""")
-        if credMap:
-            _form_update_credentials_no_jinja(formAction, credMap)
+        if cred_map:
+            _form_update_credentials_no_jinja(form_action, cred_map)
 
-        _form_insert_credentials_no_jinja(formAction, credTypeList)
+        _form_insert_credentials_no_jinja(form_action, cred_type_list)
         WrtAsUtf("""</table>""")
 
-        htmlFooter = "".join(lib_export_html.display_html_text_footer())
-        WrtAsUtf(htmlFooter)
+        html_footer = "".join(lib_export_html.display_html_text_footer())
+        WrtAsUtf(html_footer)
 
         WrtAsUtf("</body></html>")
 
@@ -388,27 +390,28 @@ def Main():
 
         import collections
 
-        orderedMap = collections.OrderedDict()
-        for credType in sorted(credMap):
-            subOrderedMap = collections.OrderedDict()
-            for credNam in sorted(credMap[credType]):
-                subOrderedMap[credNam] = credMap[credType][credNam]
-            orderedMap[credType] = subOrderedMap
+        ordered_map = collections.OrderedDict()
+        for cred_type in sorted(cred_map):
+            sub_ordered_map = collections.OrderedDict()
+            for cred_nam in sorted(cred_map[cred_type]):
+                sub_ordered_map[cred_nam] = cred_map[cred_type][cred_nam]
+            ordered_map[cred_type] = sub_ordered_map
 
         jinja_render = jinja_template.render(
             page_title=page_title,
-            currHostNam=currHostNam,
-            currHostAddr=currHostAddr,
-            addrRemote=addrRemote,
-            credMap=orderedMap,
-            credTypeList=credTypeList )
+            currHostNam=curr_host_nam,
+            currHostAddr=curr_host_addr,
+            addrRemote=addr_remote,
+            credMap=ordered_map,
+            credTypeList=cred_type_list )
         lib_util.WrtHeader('text/html')
-        WrtAsUtf( jinja_render )
+        WrtAsUtf(jinja_render)
 
     if lib_util.GetJinja2():
         main_jinja()
     else:
         main_no_jinja()
+
 
 if __name__ == '__main__':
     Main()
