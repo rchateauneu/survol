@@ -42,11 +42,13 @@ NET SHARE command
 
 import sys
 import re
+
+import lib_uris
 import lib_util
 import lib_common
 import lib_uris
 from lib_properties import pc
-import lib_smb
+
 
 Usable = lib_util.UsableWindows
 
@@ -99,10 +101,10 @@ def Main():
         share_node = lib_uris.gUriGen.SmbShareUri(shr_nam)
         grph.add((lib_common.nodeMachine, pc.property_smbshare, share_node))
 
-        # mount_node = lib_common.gUriGen.FileUri( "//" + lib_util.currentHostname + "/" + shr_res )
+        # mount_node = lib_uris.gUriGen.FileUri( "//" + lib_util.currentHostname + "/" + shr_res )
         shr_res = shr_res.strip()
         shr_res = lib_util.standardized_file_path(shr_res)
-        mount_node = lib_common.gUriGen.DirectoryUri(shr_res)
+        mount_node = lib_uris.gUriGen.DirectoryUri(shr_res)
         grph.add((share_node, pc.property_smbmount, mount_node))
 
     cgiEnv.OutCgiRdf()

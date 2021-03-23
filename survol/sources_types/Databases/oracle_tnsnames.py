@@ -9,6 +9,7 @@ import sys
 import re
 import logging
 
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -17,13 +18,12 @@ from sources_types.oracle import db as oracle_db
 
 ###########################################################################################    
     
-def parse_one(grph,database_dicts,database):
+def parse_one(grph, database_dicts, database):
     # Get the database name and a set of (name, value) pairs.
     try:
         name = re.match(r'(\w+)', database).group(1)
     except AttributeError:
         # AttributeError: 'NoneType' object has no attribute 'group'
-        # print("Cannot parse:"+database)
         return
 
     names_and_values = re.findall(r'(?i)([a-z]+)\s*=\s*([a-z0-9-\.]+)', database)
@@ -39,15 +39,14 @@ def parse_one(grph,database_dicts,database):
     database_dict = dict(names_and_values)
 
     try:
-        node_addr = lib_common.gUriGen.AddrUri( database_dict['HOST'], database_dict['PORT'] )
+        node_addr = lib_uris.gUriGen.AddrUri(database_dict['HOST'], database_dict['PORT'])
     except KeyError:
-        # pprint.pprint(database_dict)
         return
     
     # Here we should do something better, for example getting more information about this database.
-    node_oradb = oracle_db.MakeUri( name )
+    node_oradb = oracle_db.MakeUri(name)
 
-    grph.add( ( node_addr, pc.property_oracle_db, node_oradb ) )
+    grph.add((node_addr, pc.property_oracle_db, node_oradb))
 
     
 def parse_all(grph, text):
@@ -145,8 +144,7 @@ def GetTnsNamesWindows():
             # KEY_WOW64_32KEY 64-bit application on the 32-bit registry view.
             # Default is ( *,*, 0, winreg.KEY_READ )
             aKey = winreg.OpenKey(aReg, r"SOFTWARE\ORACLE\KEY_HOME4",0, winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
-        except Exception: # Probably WindowsError but we must be portable.
-            exc = sys.exc_info()[1]
+        except Exception as exc: # Probably WindowsError but we must be portable.
             lib_common.ErrorMessageHtml("Caught %s" % str(exc))
 
     oraHome = None
@@ -182,6 +180,7 @@ def GetTnsNamesEnvVar():
             lib_common.ErrorMessageHtml("No ORACLE_HOME nor TNS_ADMIN environment variables, cannot get tnsnames.ora location")
     return tnsnam
 
+
 def GetTnsNames():
 
     if lib_util.isPlatformWindows:
@@ -195,6 +194,7 @@ def GetTnsNames():
 
     return tnsnam
 
+
 def Main():
     cgiEnv = lib_common.ScriptEnvironment()
 
@@ -205,19 +205,19 @@ def Main():
     ###########################################################################################
 
     try:
-        # Ca ne marche pas du tout, aucune idee pourquoi.
+        # This does not work.
         # tnsnam = r"F:\Orac\Config\tnsnames.ora"
         # tnsnam=F:\Orac\Config\tnsnames.ora err=[Errno 2]
         # No such file or directory: 'F:\\Orac\\Config\\tnsnames.ora'
         # Beware that Apache might have no access right to it: 'F:\\Orac\\Config\\tnsnames.ora'
         logging.debug("tnsnam=%s", tnsnam)
-        myfile = open(tnsnam,"r")
-    except Exception:
-        exc = sys.exc_info()[1]
-        lib_common.ErrorMessageHtml("tnsnam="+tnsnam+" err="+str(exc))
+        myfile = open(tnsnam, "r")
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("tnsnam=" + tnsnam + " err=" + str(exc))
 
     parse_all(grph, myfile.read())
     cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
     Main()

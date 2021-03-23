@@ -41,97 +41,97 @@ def JPypeLocalStartJVM():
 
 def JPypeLocalStartJVMLinux():
     # Example: '/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.91-2.b14.fc22.x86_64/jre/lib/amd64/server/libjvm.so'
-    dfltPath = jpype.getDefaultJVMPath()
+    dflt_path = jpype.getDefaultJVMPath()
 
     # getDefaultJVMPath=C:\Program Files\Java\jre1.8.0_121\bin\server\jvm.dll
-    logging.debug("getDefaultJVMPath=%s", dfltPath)
+    logging.debug("getDefaultJVMPath=%s", dflt_path)
 
     # Now extracts the version, which will be used for the JDK directionary.
-    baseDfltJVM = os.path.dirname(dfltPath)
+    baseDfltJVM = os.path.dirname(dflt_path)
     baseJreRelative = os.path.join( baseDfltJVM, "..", ".." )
 
-    baseJreAbs = os.path.abspath(baseJreRelative)
-    # baseJreAbs=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.91-2.b14.fc22.x86_64/jre/lib
-    logging.debug("baseJreAbs=%s", baseJreAbs)
+    base_jre_abs = os.path.abspath(baseJreRelative)
+    # base_jre_abs=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.91-2.b14.fc22.x86_64/jre/lib
+    logging.debug("base_jre_abs=%s", base_jre_abs)
 
-    JavaDirPrefix = os.path.join( baseJreAbs, "../.." )
+    java_dir_prefix = os.path.join(base_jre_abs, "../..")
 
     # We need to open tools.jar which is in /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.91-2.b14.fc22.x86_64/lib/tools.jar
-    # jpype.startJVM(dfltPath,"-Djava.class.path=/usr/lib ... /tools.jar")
-    jpype.startJVM(dfltPath,"-Djava.class.path=" + JavaDirPrefix + "/lib/tools.jar")
+    # jpype.startJVM(dflt_path,"-Djava.class.path=/usr/lib ... /tools.jar")
+    jpype.startJVM(dflt_path, "-Djava.class.path=" + java_dir_prefix + "/lib/tools.jar")
 
     #jvPck = jpype.JPackage('sun').tools.attach.WindowsVirtualMachine
-    VirtualMachine = jpype.JPackage('com').sun.tools.attach.VirtualMachine
+    virtual_machine = jpype.JPackage('com').sun.tools.attach.VirtualMachine
 
-    return VirtualMachine
+    return virtual_machine
 
 
 def JPypeLocalStartJVMWindows():
     # u'C:\\Program Files\\Java\\jre1.8.0_121\\bin\\server\\jvm.dll'
-    dfltPath = jpype.getDefaultJVMPath()
+    dflt_path = jpype.getDefaultJVMPath()
 
     # getDefaultJVMPath=C:\Program Files\Java\jre1.8.0_121\bin\server\jvm.dll
-    logging.debug("getDefaultJVMPath=%s", dfltPath)
+    logging.debug("getDefaultJVMPath=%s", dflt_path)
 
     # Now extracts the version, which will be used for the JDK directionary.
-    baseDfltJVM = os.path.dirname(dfltPath)
-    baseJreRelative = os.path.join( baseDfltJVM, "..", ".." )
+    baseDfltJVM = os.path.dirname(dflt_path)
+    base_jre_relative = os.path.join(baseDfltJVM, "..", "..")
 
-    baseJreAbs = os.path.abspath(baseJreRelative)
-    # baseJreAbs=C:\Program Files\Java\jre1.8.0_121
-    logging.debug("baseJreAbs=%s", baseJreAbs)
+    base_jre_abs = os.path.abspath(base_jre_relative)
+    # base_jre_abs=C:\Program Files\Java\jre1.8.0_121
+    logging.debug("base_jre_abs=%s", base_jre_abs)
 
-    dirJre = os.path.basename(baseJreAbs)
-    # dirJre=jre1.8.0_121
-    logging.debug("dirJre=%s", dirJre)
+    dir_jre = os.path.basename(base_jre_abs)
+    # dir_jre=jre1.8.0_121
+    logging.debug("dir_jre=%s", dir_jre)
 
-    strJre = dirJre[:3]
-    if strJre != "jre":
+    str_jre = dir_jre[:3]
+    if str_jre != "jre":
         # Our assumption on the directory syntax is wrong.
-        logging.debug("Invalid strJre=%s", strJre)
+        logging.debug("Invalid str_jre=%s", str_jre)
         return None
 
-    baseJava = os.path.dirname(baseJreAbs)
-    dirJdk = "jdk" + dirJre[3:]
+    base_java = os.path.dirname(base_jre_abs)
+    dir_jdk = "jdk" + dir_jre[3:]
 
-    JavaDirPrefix = os.path.join( baseJava, dirJdk )
-    # JavaDirPrefix=C:\Program Files\Java\jdk1.8.0_121
-    logging.debug("JavaDirPrefix=%s", JavaDirPrefix)
+    java_dir_prefix = os.path.join(base_java, dir_jdk)
+    # java_dir_prefix=C:\Program Files\Java\jdk1.8.0_121
+    logging.debug("java_dir_prefix=%s", java_dir_prefix)
 
-    osPath = os.environ["PATH"]
+    os_path = os.environ["PATH"]
 
-    # JavaDirPrefix = "C:\\Program Files\\Java\\jdk1.8.0_121"
+    # java_dir_prefix = "C:\\Program Files\\Java\\jdk1.8.0_121"
 
     # "attach.dll" is not in the jre.
-    #sys.stdout.write("PATH=%s\n"%osPath)
-    # pathAttachDll = "C:\\Program Files\\Java\\jdk1.8.0_121\\jre\\bin"
-    pathAttachDll = JavaDirPrefix + "\\jre\\bin"
+    #sys.stdout.write("PATH=%s\n"%os_path)
+    # path_attach_dll = "C:\\Program Files\\Java\\jdk1.8.0_121\\jre\\bin"
+    path_attach_dll = java_dir_prefix + "\\jre\\bin"
 
-    pathOriginal = os.environ["PATH"]
+    path_original = os.environ["PATH"]
 
-    os.environ["PATH"] = osPath + ";" + pathAttachDll
+    os.environ["PATH"] = os_path + ";" + path_attach_dll
 
     # We need to open tools.jar which is in C:\Program Files\Java\jdk1.8.0_121\lib
-    # jpype.startJVM(dfltPath,attachPath,"-Djava.class.path=C:/Program Files/Java/jdk1.8.0_121/lib/tools.jar")
-    # jpype.startJVM(dfltPath,"-Djava.class.path=C:/Program Files/Java/jdk1.8.0_121/lib/tools.jar")
-    jpype.startJVM(dfltPath,"-Djava.class.path=" + JavaDirPrefix + "\\lib\\tools.jar")
+    # jpype.startJVM(dflt_path,attachPath,"-Djava.class.path=C:/Program Files/Java/jdk1.8.0_121/lib/tools.jar")
+    # jpype.startJVM(dflt_path,"-Djava.class.path=C:/Program Files/Java/jdk1.8.0_121/lib/tools.jar")
+    jpype.startJVM(dflt_path, "-Djava.class.path=" + java_dir_prefix + "\\lib\\tools.jar")
 
     #jvPck = jpype.JPackage('sun').tools.attach.WindowsVirtualMachine
     VirtualMachine = jpype.JPackage('com').sun.tools.attach.VirtualMachine
 
-    os.environ["PATH"] = pathOriginal
+    os.environ["PATH"] = path_original
 
     return VirtualMachine
 
 
 # Attaching to a process is riskier, so we do not do it when listing all Java processes.
 # This procedure needs to attache and might fail sometimes.
-def JavaJmxPidMBeansAttach(pid,jvPckVM,mbeanObjNam = None):
+def JavaJmxPidMBeansAttach(pid, jvPckVM, mbean_obj_nam=None):
     CONNECTOR_ADDRESS = "com.sun.management.jmxremote.localConnectorAddress"
 
-    dictResult = {}
+    dict_result = {}
 
-    logging.debug("JavaJmxPidMBeansAttach Attaching to pid=%s type=%s",pid,type(pid))
+    logging.debug("JavaJmxPidMBeansAttach Attaching to pid=%s type=%s", pid, type(pid))
     # jpype._jexception.AttachNotSupportedExceptionPyRaisable:
     # com.sun.tools.attach.AttachNotSupportedException:
     # Unable to attach to 32-bit process running under WOW64
@@ -139,40 +139,36 @@ def JavaJmxPidMBeansAttach(pid,jvPckVM,mbeanObjNam = None):
     # This exception is caught with pytest and many tests.
     # It works fine with few tests or with PyCharm.
     try:
-        virtMach = jvPckVM.attach(str(pid))
-    except:
-        exc = sys.exc_info()
-        logging.warning("Exception:%s",str(exc))
-        return dictResult
+        virt_mach = jvPckVM.attach(str(pid))
+    except Exception as exc:
+        logging.warning("Exception:%s", str(exc))
+        return dict_result
 
-    logging.debug("Attached to pid=%s",pid)
-    connectorAddress = virtMach.getAgentProperties().getProperty(CONNECTOR_ADDRESS)
+    logging.debug("Attached to pid=%s", pid)
+    connectorAddress = virt_mach.getAgentProperties().getProperty(CONNECTOR_ADDRESS)
 
     if not connectorAddress:
         # fileSeparator = "\\"
         # agent=C:\Program Files\Java\jre1.8.0_121\lib\management-agent.jar
-        # agent = virtMach.getSystemProperties().getProperty("java.home") + fileSeparator + "lib" + fileSeparator + "management-agent.jar"
+        # agent = virt_mach.getSystemProperties().getProperty("java.home") + fileSeparator + "lib" + fileSeparator + "management-agent.jar"
 
-        agent = os.path.join( virtMach.getSystemProperties().getProperty("java.home"), "lib", "management-agent.jar" )
+        agent = os.path.join(virt_mach.getSystemProperties().getProperty("java.home"), "lib", "management-agent.jar")
 
-        logging.debug("agent=%s",str(agent))
-        virtMach.loadAgent(agent)
+        logging.debug("agent=%s", str(agent))
+        virt_mach.loadAgent(agent)
         # agent is started, get the connector address
-        connectorAddress = virtMach.getAgentProperties().getProperty(CONNECTOR_ADDRESS)
+        connectorAddress = virt_mach.getAgentProperties().getProperty(CONNECTOR_ADDRESS)
 
-    dictResult["connector"] = connectorAddress
+    dict_result["connector"] = connectorAddress
 
     # "service:jmx:rmi://127.0.0.1/stub/rO0ABXN9AAAAAQ..."
-    # sys.stdout.write("connectorAddress=%s\n"%str(connectorAddress))
-    # sys.stdout.write("connectorAddress=%s\n"%str(dir(connectorAddress)))
 
-    jmxUrl = javax.management.remote.JMXServiceURL(connectorAddress)
-    jmxSoc = javax.management.remote.JMXConnectorFactory.connect(jmxUrl)
+    jmx_url = javax.management.remote.JMXServiceURL(connectorAddress)
+    jmx_soc = javax.management.remote.JMXConnectorFactory.connect(jmx_url)
     # This interface represents a way to talk to an MBean server, whether local or remote.
     # The MBeanServer interface, representing a local MBean server, extends this interface.
-    connectMBean = jmxSoc.getMBeanServerConnection()
+    connectMBean = jmx_soc.getMBeanServerConnection()
 
-    # sys.stderr.write("connectMBean=%s\n"%str(connectMBean))
     # connectMBean=['addNotificationListener', 'class', 'createMBean', 'defaultDomain',
     #  'delegationSubject', 'domains', 'equals', 'getAttribute', 'getAttributes', 'getClass',
     #  'getDefaultDomain', 'getDomains', 'getMBeanCount', 'getMBeanInfo', 'getObjectInstance',
@@ -180,21 +176,18 @@ def JavaJmxPidMBeansAttach(pid,jvPckVM,mbeanObjNam = None):
     #  'queryMBeans', 'queryNames', 'removeNotificationListener', 'setAttribute', 'setAttributes',
     #  'this$0', 'toString', 'unregisterMBean', 'wait']
 
-    # sys.stderr.write("connectMBean.getDefaultDomain=%s\n"%str(connectMBean.getDefaultDomain()))
-    # sys.stderr.write("connectMBean.getDomains=%s\n"%str(connectMBean.getDomains()))
-
     # mbeanObjNam = "com.sun.management:type=HotSpotDiagnostic"
-    if mbeanObjNam:
-        logging.debug("mbeanObjNam=%s",mbeanObjNam)
-        jvxObjNam = javax.management.ObjectName(mbeanObjNam)
+    if mbean_obj_nam:
+        logging.debug("mbeanObjNam=%s", mbean_obj_nam)
+        jvxObjNam = javax.management.ObjectName(mbean_obj_nam)
     else:
         jvxObjNam = None
 
     # jpype._jexception.MalformedObjectNameExceptionPyRaisable: javax.management.MalformedObjectNameException: Key properties cannot be empty
-    allMBeans = connectMBean.queryMBeans(jvxObjNam,None)
+    allMBeans = connectMBean.queryMBeans(jvxObjNam, None)
 
     # allMBeans=[sun.management.OperatingSystemImpl[java.lang:type=OperatingSystem], sun.management.MemoryManagerImpl[java.
-    logging.debug("allMBeans=%s",str(allMBeans))
+    logging.debug("allMBeans=%s", str(allMBeans))
 
     vectMBeans = []
 
@@ -202,8 +195,8 @@ def JavaJmxPidMBeansAttach(pid,jvPckVM,mbeanObjNam = None):
     for eltMBean in allMBeans:
         mbeanObjectName = eltMBean.getObjectName()
         oneMBean = {
-            "className" : eltMBean.getClassName(),
-            "objectName" : str(mbeanObjectName)
+            "className": eltMBean.getClassName(),
+            "objectName": str(mbeanObjectName)
         }
 
         # TODO: To save time, we could do that only if mbeanObjNam is not None.
@@ -217,35 +210,35 @@ def JavaJmxPidMBeansAttach(pid,jvPckVM,mbeanObjNam = None):
         oneMBean["info"] = dictMBeanInfoDescr
 
         for attr in oneMBeanInfo.getAttributes():
-            logging.debug("attr=%s",str(attr))
-            logging.debug("attr.getName()=%s",attr.getName())
-            logging.debug("attr.getType()=%s",attr.getType())
-            logging.debug("attr.getDescription()=%s",attr.getDescription())
+            logging.debug("attr=%s", str(attr))
+            logging.debug("attr.getName()=%s", attr.getName())
+            logging.debug("attr.getType()=%s", attr.getType())
+            logging.debug("attr.getDescription()=%s", attr.getDescription())
 
         attrsMBeanInfo = oneMBeanInfo.getAttributes()
         dictMBeanInfo = {}
-        for oneAttr in attrsMBeanInfo:
-            keyAttr = oneAttr.getName()
+        for one_attr in attrsMBeanInfo:
+            key_attr = one_attr.getName()
             # int=<class'jpype._jclass.java.lang.Integer'>\
-            getTp = oneAttr.getType()
+            get_tp = one_attr.getType()
             try:
-                getAttr = connectMBean.getAttribute(mbeanObjectName,keyAttr)
+                get_attr = connectMBean.getAttribute(mbeanObjectName, key_attr)
                 # Without a concatenation, it prints "1" instead of boolean True.
-                valAttr = str(getAttr) + " (%s)" % getTp
+                val_attr = str(get_attr) + " (%s)" % get_tp
             except:
-                valAttr = "N/A"
-            dictMBeanInfo[keyAttr] = valAttr
+                val_attr = "N/A"
+            dictMBeanInfo[key_attr] = val_attr
         oneMBean["attrs"] = dictMBeanInfo
 
-        vectMBeans.append( oneMBean )
+        vectMBeans.append(oneMBean)
 
-    dictResult["allMBeans"] = vectMBeans
+    dict_result["allMBeans"] = vectMBeans
 
     # When detaching, all the intermediary objects created by connectMBean are deleted.
     # This is why their content must be stored.
-    virtMach.detach()
+    virt_mach.detach()
 
-    return dictResult
+    return dict_result
 
 # https://www.jtips.info/index.php?title=JMX/Remote
 
@@ -254,24 +247,23 @@ def JavaJmxSystemProperties(pid):
     jvPckVM = JPypeLocalStartJVM()
 
     try:
-        virtMach = jvPckVM.attach(str(pid))
-    except:
-        exc = sys.exc_info()
-        vmSysProps = {
-            "jvPckVM" : str(jvPckVM),
-            "JMX error" : str(exc),
-            "Pid" : str(pid) }
-        return vmSysProps
+        virt_mach = jvPckVM.attach(str(pid))
+    except Exception as exc:
+        vm_sys_props = {
+            "jvPckVM": str(jvPckVM),
+            "JMX error": str(exc),
+            "Pid": str(pid) }
+        return vm_sys_props
 
     try:
-        gsp = virtMach.getSystemProperties()
-        vmSysProps = {}
+        gsp = virt_mach.getSystemProperties()
+        vm_sys_props = {}
 
         for k in gsp:
             v = gsp[k]
-            vmSysProps[k] = v
+            vm_sys_props[k] = v
 
-        # J ai tout le temps cette erreur alors que ca marche en programme de test:
+        # TODO: Frequent error:
         #
         # (<type 'exceptions.RuntimeError'>,
         # RuntimeError('No matching overloads found.
@@ -279,56 +271,54 @@ def JavaJmxSystemProperties(pid):
         # <traceback object at
         # 0x0000000004ADAC48>\
 
-        virtMach.detach()
-    except:
-        exc = sys.exc_info()
-        vmSysProps = {
-            "VM" : str(virtMach),
-            "JMX error" : str(exc),
-            "Pid" : str(pid) }
+        virt_mach.detach()
+    except Exception as exc:
+        vm_sys_props = {
+            "VM": str(virt_mach),
+            "JMX error": str(exc),
+            "Pid": str(pid) }
 
     # Shutdown the VM at the end
     QuietShutdown()
-    return vmSysProps
+    return vm_sys_props
 
 
 # This returns a list of processes without attaching to them,
 # so it is simpler and faster.
 # The result is a map indexed by pids.
 def JPypeListVMs(jvPckVM):
-    resuProcs = dict()
+    resu_procs = dict()
     if not jvPckVM:
-        return resuProcs
+        return resu_procs
 
     listVMs = jvPckVM.list()
 
-    logging.debug("VirtualMachine.dir=%s",str(dir(listVMs)))
-    # sys.stderr.write("VirtualMachine.list=:\n")
+    logging.debug("VirtualMachine.dir=%s", str(dir(listVMs)))
     for oneVM in listVMs:
-        dicByProps = dict()
-        logging.debug("%s",oneVM)
-        logging.debug("%s",str(dir(oneVM)))
-        logging.debug("id=%s",str(oneVM.id()))
-        logging.debug("displayName=%s",str(oneVM.displayName()))
-        logging.debug("getClass=%s",str(oneVM.getClass()))
-        logging.debug("provider=%s",str(oneVM.provider()))
-        logging.debug("isAttachable=%s",str(oneVM.isAttachable()))
-        logging.debug("toString=%s",str(oneVM.toString()))
+        dic_by_props = dict()
+        logging.debug("%s", oneVM)
+        logging.debug("%s", str(dir(oneVM)))
+        logging.debug("id=%s", str(oneVM.id()))
+        logging.debug("displayName=%s", str(oneVM.displayName()))
+        logging.debug("getClass=%s", str(oneVM.getClass()))
+        logging.debug("provider=%s", str(oneVM.provider()))
+        logging.debug("isAttachable=%s", str(oneVM.isAttachable()))
+        logging.debug("toString=%s", str(oneVM.toString()))
         # JavaJmxPidMBeansAttach(oneVM.id(),jvPckVM)
 
-        dicByProps["class"] = oneVM.getClass()
-        dicByProps["provider"] = oneVM.provider()
-        dicByProps["isAttachable"] = oneVM.isAttachable()
+        dic_by_props["class"] = oneVM.getClass()
+        dic_by_props["provider"] = oneVM.provider()
+        dic_by_props["isAttachable"] = oneVM.isAttachable()
 
         # sun.tools.attach.WindowsAttachProvider@3f99bd52: 8084 sun.tools.jconsole.JConsole
-        dicByProps["toString"] = oneVM.toString()
+        dic_by_props["toString"] = oneVM.toString()
 
         # Same as "toString"
-        # dicByProps["str"] = str(oneVM)
+        # dic_by_props["str"] = str(oneVM)
 
-        resuProcs[oneVM.id()] = dicByProps
+        resu_procs[oneVM.id()] = dic_by_props
 
-    return resuProcs
+    return resu_procs
 
 
 # This fails on Linux.
@@ -356,10 +346,10 @@ def ListJavaProcesses():
 
 # TODO: This could work on a remote machine if we have the Java RMI port number and user/pass.
 # If mbeanObjNam is None, returns data for all MBeans.
-def GetJavaDataFromJmx(thePid,mbeanObjNam = None):
+def GetJavaDataFromJmx(the_pid, mbean_obj_nam=None):
     jvPckVM = JPypeLocalStartJVM()
 
-    javaResults = JavaJmxPidMBeansAttach(thePid,jvPckVM,mbeanObjNam)
+    java_results = JavaJmxPidMBeansAttach(the_pid, jvPckVM, mbean_obj_nam)
 
     # Some extra data to add ??
     # jvValDict = jvPckVM[thePid]
@@ -368,8 +358,7 @@ def GetJavaDataFromJmx(thePid,mbeanObjNam = None):
     # Shutdown the VM at the end
     QuietShutdown()
 
-    return javaResults
-
+    return java_results
 
 
 # Development notes:

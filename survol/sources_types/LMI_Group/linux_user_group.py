@@ -5,49 +5,50 @@ Linux group users
 """
 
 import sys
+
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
 
 Usable = lib_util.UsableLinux
 
+
 def Main():
     cgiEnv = lib_common.ScriptEnvironment()
-    groupName = cgiEnv.GetId()
-
-    if not lib_util.isPlatformLinux:
-        lib_common.ErrorMessageHtml("/etc/group on Linux only")
+    group_name = cgiEnv.GetId()
 
     etc_group = open("/etc/group")
 
     grph = cgiEnv.GetGraph()
 
     split_users = []
-    grpNode = lib_common.gUriGen.GroupUri( groupName )
+    grp_node = lib_uris.gUriGen.GroupUri(group_name)
 
-    grpId = "UnknownGroup:"+groupName
+    grp_id = "UnknownGroup:" + group_name
 
     # tcpdump:x:72:
-    # rchateau:x:1000:rchateau
+    # the_user:x:1000:the_user
     for lin_gr in etc_group:
         split_gr = lin_gr.split(':')
         try:
-            if split_gr[0] == groupName:
+            if split_gr[0] == group_name:
                 users_list = split_gr[3].strip()
-                grpId = split_gr[2]
+                grp_id = split_gr[2]
                 split_users = users_list.split(',')
                 break
         except IndexError:
             pass
 
-    grph.add( ( grpNode, pc.property_groupid, lib_util.NodeLiteral(grpId) ) )
+    grph.add((grp_node, pc.property_groupid, lib_util.NodeLiteral(grp_id)))
 
     for user_name in split_users:
         if user_name:
-            user_node = lib_common.gUriGen.UserUri( user_name )
-            grph.add( ( user_node, pc.property_group, grpNode ) )
+            user_node = lib_uris.gUriGen.UserUri(user_name)
+            grph.add((user_node, pc.property_group, grp_node))
 
     cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
     Main()

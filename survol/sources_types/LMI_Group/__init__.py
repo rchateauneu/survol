@@ -6,6 +6,6 @@ Unix-like users group
 # https://rrakus.fedorapeople.org/openlmi-account/doc/usage.html
 
 def EntityOntology():
-    return ( ["Name"], )
+    return (["Name"],)
 
 
