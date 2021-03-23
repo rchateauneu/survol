@@ -7,6 +7,8 @@ Versions of registered COM type libraries
 import os
 import sys
 import logging
+
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -36,8 +38,6 @@ def Main():
         # TODO: The top of the tree does not make sense.
 
         typelib_node = lib_com_type_lib.CreateComRegisteredTypeLibNode(grph, clsidstr, name, version_str)
-
-        helpPath = ""
 
         try:
             key = win32api.RegOpenKey(win32con.HKEY_CLASSES_ROOT, "TypeLib\\%s\\%s" % (clsidstr, version_str))
@@ -83,7 +83,7 @@ def Main():
                             except win32api.error:
                                 fname = ""
 
-                            fname_mystery_node = lib_common.gUriGen.ComTypeLibUri(fname)
+                            fname_mystery_node = lib_uris.gUriGen.ComTypeLibUri(fname)
                             lcid_node = lib_util.NodeLiteral("lcid=%d" % lcid)
                             grph.add((fname_mystery_node, pc.property_information, lcid_node))
                             platform_node = lib_util.NodeLiteral("platform=" + platform)

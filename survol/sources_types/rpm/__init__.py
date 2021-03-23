@@ -6,41 +6,45 @@ import rdflib
 from rdflib.namespace import XSD
 
 import rpm
+
+import lib_uris
 import lib_util
 import lib_common
 
 def EntityOntology():
-	return ( ["Rpm",], )
+    return (["Rpm",],)
 
-def MakeUri(rpmName):
-	return lib_common.gUriGen.UriMakeFromDict("rpm", { "Rpm" : rpmName } )
+
+def MakeUri(rpm_name):
+    return lib_uris.gUriGen.UriMakeFromDict("rpm", {"Rpm": rpm_name})
+
 
 def EntityName(entity_ids_arr):
-	return entity_ids_arr[0]
+    return entity_ids_arr[0]
 
 
 def RpmProps():
-	listProps = ["epoch", "version", "release", "arch"]
+    list_props = ["epoch", "version", "release", "arch"]
 
-	# Add a dot, so they come first.
-	rpmProps = { propKey: lib_common.MakeProp("."+propKey) for propKey in listProps }
+    # Add a dot, so they come first.
+    rpm_props = {propKey: lib_common.MakeProp("." + propKey) for propKey in list_props}
 
-	return rpmProps
+    return rpm_props
 
 
-def AddInfo(grph,node,entity_ids_arr):
-	rpmName = entity_ids_arr[0]
+def AddInfo(grph, node, entity_ids_arr):
+    rpm_name = entity_ids_arr[0]
 
-	rpmProps = RpmProps()
+    rpm_props = RpmProps()
 
-	ts = rpm.TransactionSet()
-	mi = ts.dbMatch('name',rpmName)
-	for h in mi:
-		for propKey in rpmProps:
-			propRpm = rpmProps[propKey]
-			# The value might be None.
-			propVal = h[ propKey ] or ""
-			grph.add((node, propRpm, lib_util.NodeLiteral(propVal)))
+    ts = rpm.TransactionSet()
+    mi = ts.dbMatch('name',rpm_name)
+    for h in mi:
+        for prop_key in rpm_props:
+            prop_rpm = rpm_props[prop_key]
+            # The value might be None.
+            prop_val = h[prop_key] or ""
+            grph.add((node, prop_rpm, lib_util.NodeLiteral(prop_val)))
 
 
 

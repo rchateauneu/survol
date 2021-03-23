@@ -4,6 +4,8 @@ Abstract SQL query
 
 import re
 import sys
+
+import lib_uris
 import lib_util
 import lib_common
 
@@ -33,8 +35,6 @@ class CgiPropertyB64(str):
 
 # TODO: This is probably not the proper solution.
 class CgiPropertyQuery(CgiPropertyB64):
-
-    # Python 2
     def __new__(cls):
         return super(CgiPropertyQuery, cls).__new__(cls, "Query")
 
@@ -42,10 +42,10 @@ class CgiPropertyQuery(CgiPropertyB64):
 # This array will be concatenated to other strings, depending of the origin of the query: database,
 # process memory, file content.
 def EntityOntology():
-    return ([CgiPropertyQuery(), ], )
+    return ([CgiPropertyQuery(),],)
 
 
-def MakeUri(strQuery,derivedEntity = "sql/query", **kwargs):
+def MakeUri(strQuery, derivedEntity="sql/query", **kwargs):
     """The SQL query is encoded in base 64 because it contains many special characters which are too complicated to
     encode as HTML entities. This is not visible as EntityName() does the reverse decoding."""
 
@@ -55,10 +55,10 @@ def MakeUri(strQuery,derivedEntity = "sql/query", **kwargs):
     # The result might be: { "Query" : str_query_encoded, "Pid" : thePid  }
 
     # Rather CgiPropertyQuery() instead of "Query"
-    all_keyed_args = {"Query" : str_query_encoded}
+    all_keyed_args = {"Query": str_query_encoded}
     all_keyed_args.update(kwargs)
     # Maybe we could take the calling module as derived entity ?
-    return lib_common.gUriGen.UriMakeFromDict(derivedEntity,all_keyed_args )
+    return lib_uris.gUriGen.UriMakeFromDict(derivedEntity, all_keyed_args)
 
 
 def AddInfo(grph, node, entity_ids_arr):

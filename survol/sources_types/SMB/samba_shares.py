@@ -24,12 +24,11 @@ Samba shares
 
 #import sys
 import re
-#import socket
+
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
-#import lib_smb
-#import lib_uris
 
 
 # Necessary otherwise it is displayed on Linux machines.
@@ -53,7 +52,9 @@ def NetBiosLookupHelper(machine):
 
     return "0.0.0.0"
 
+
 netbios_cache = {}
+
 
 # See http://support.microsoft.com/kb/163409 for details.
 def NetBiosLookup(machine):
@@ -96,10 +97,10 @@ def Main():
             machine = tst_machine.group(1)
             addr = NetBiosLookup(machine)
 
-            node_host = lib_common.gUriGen.HostnameUri(addr)
-            grph.add((node_host, pc.property_netbios, lib_common.gUriGen.SmbServerUri(machine)))
+            node_host = lib_uris.gUriGen.HostnameUri(addr)
+            grph.add((node_host, pc.property_netbios, lib_uris.gUriGen.SmbServerUri(machine)))
             # TODO: Maybe will create a specific node for a domain.
-            grph.add((node_host, pc.property_domain, lib_common.gUriGen.SmbDomainUri(domain)))
+            grph.add((node_host, pc.property_domain, lib_uris.gUriGen.SmbDomainUri(domain)))
 
             continue
 

@@ -2,11 +2,13 @@
 Abstract SQL table/view
 """
 
-import lib_common
+import lib_uris
+
 
 def EntityOntology():
-	return ( ["Name"], )
+    return (["Name"],)
 
-def MakeUri(sheetNam):
-	return lib_common.gUriGen.UriMakeFromDict("sql/sheet",{ "Name":sheetNam })
+
+def MakeUri(sheet_nam):
+    return lib_uris.gUriGen.UriMakeFromDict("sql/sheet", {"Name": sheet_nam})
 
