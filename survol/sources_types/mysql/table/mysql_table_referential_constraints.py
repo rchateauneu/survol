@@ -32,62 +32,62 @@ from sources_types.mysql import table as survol_mysql_table
 
 def Main():
 
-	cgiEnv = lib_common.ScriptEnvironment( )
+    cgiEnv = lib_common.ScriptEnvironment( )
 
-	instanceName = cgiEnv.m_entity_id_dict["Instance"]
-	dbNam = cgiEnv.m_entity_id_dict["Database"].upper()
-	tableNam = cgiEnv.m_entity_id_dict["Table"].upper()
+    instance_name = cgiEnv.m_entity_id_dict["Instance"]
+    db_nam = cgiEnv.m_entity_id_dict["Database"].upper()
+    table_nam = cgiEnv.m_entity_id_dict["Table"].upper()
 
-	(hostname,hostport) = survol_mysql.InstanceToHostPort(instanceName)
+    hostname, hostport = survol_mysql.InstanceToHostPort(instance_name)
 
-	cgiEnv = lib_common.ScriptEnvironment()
+    cgiEnv = lib_common.ScriptEnvironment()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	hostAddr = lib_util.GlobalGetHostByName(hostname)
+    hostAddr = lib_util.GlobalGetHostByName(hostname)
 
-	# BEWARE: The rule whether we use the host name or the host IP is not very clear !
-	# The IP address would be unambiguous but less clear.
-	hostNode = lib_uris.gUriGen.HostnameUri(hostname)
+    # BEWARE: The rule whether we use the host name or the host IP is not very clear !
+    # The IP address would be unambiguous but less clear.
+    host_node = lib_uris.gUriGen.HostnameUri(hostname)
 
-	# BEWARE: This is duplicated.
-	propDb = lib_common.MakeProp("Mysql database")
+    # BEWARE: This is duplicated.
+    prop_db = lib_common.MakeProp("Mysql database")
 
-	nodeMysqlDatabase = survol_mysql_database.MakeUri(instanceName,dbNam)
-	grph.add( ( hostNode, propDb, nodeMysqlDatabase ) )
+    node_mysql_database = survol_mysql_database.MakeUri(instance_name, db_nam)
+    grph.add((host_node, prop_db, node_mysql_database))
 
-	aCred = lib_credentials.GetCredentials("MySql", instanceName)
+    a_cred = lib_credentials.GetCredentials("MySql", instance_name)
 
-	propTable = lib_common.MakeProp("Mysql table")
-	propConstraint = lib_common.MakeProp("Table type")
+    prop_table = lib_common.MakeProp("Mysql table")
+    prop_constraint = lib_common.MakeProp("Table type")
 
-	connMysql = survol_mysql.MysqlConnect(instanceName,aUser = aCred[0],aPass=aCred[1])
+    conn_mysql = survol_mysql.MysqlConnect(instance_name, aUser=a_cred[0], aPass=a_cred[1])
 
-	cursorMysql = connMysql.cursor()
+    cursor_mysql = conn_mysql.cursor()
 
-	cursorMysql.execute("select TABLE_NAME, REFERENCED_TABLE_NAME from information_schema.referential_constraints"
-	" where CONSTRAINT_SCHEMA='%s' "
-	" and ( TABLE_NAME='%s' or REFERENCED_TABLE_NAME='%s' ) " %(dbNam,tableNam,tableNam))
+    cursor_mysql.execute("select TABLE_NAME, REFERENCED_TABLE_NAME from information_schema.referential_constraints"
+    " where CONSTRAINT_SCHEMA='%s' "
+    " and ( TABLE_NAME='%s' or REFERENCED_TABLE_NAME='%s' ) " % (db_nam,table_nam,table_nam))
 
-	# There should be only one row, maximum.
-	for constraintInfo in cursorMysql:
-		logging.debug("constraintInfo=%s", str(constraintInfo))
-		tableNam = constraintInfo[0]
-		tableNamRef = constraintInfo[1]
-		logging.debug("tableNam=%s", tableNam)
+    # There should be only one row, maximum.
+    for constraint_info in cursor_mysql:
+        logging.debug("constraint_info=%s", str(constraint_info))
+        table_nam = constraint_info[0]
+        table_nam_ref = constraint_info[1]
+        logging.debug("table_nam=%s", table_nam)
 
-		nodeMysqlTable = survol_mysql_table.MakeUri(hostname,dbNam, tableNam)
-		nodeMysqlTableRef = survol_mysql_table.MakeUri(hostname,dbNam, tableNamRef)
+        node_mysql_table = survol_mysql_table.MakeUri(hostname,db_nam, table_nam)
+        node_mysql_table_ref = survol_mysql_table.MakeUri(hostname,db_nam, table_nam_ref)
 
-		grph.add( (nodeMysqlTable, propConstraint, nodeMysqlTableRef ) )
+        grph.add((node_mysql_table, prop_constraint, node_mysql_table_ref))
 
-		grph.add( ( nodeMysqlDatabase, propTable, nodeMysqlTable ) )
+        grph.add((node_mysql_database, prop_table, node_mysql_table))
 
-	cursorMysql.close()
-	connMysql.close()
+    cursor_mysql.close()
+    conn_mysql.close()
 
-	cgiEnv.OutCgiRdf("LAYOUT_RECT_TB" )
+    cgiEnv.OutCgiRdf("LAYOUT_RECT_TB")
 
 
 if __name__ == '__main__':
-	Main()
+    Main()

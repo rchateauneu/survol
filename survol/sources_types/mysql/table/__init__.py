@@ -9,18 +9,23 @@ from sources_types.mysql import instance as survol_mysql_instance
 from sources_types.mysql import database as survol_mysql_database
 
 def EntityOntology():
-	return ( ["Instance","Database","Table",], )
+    return (["Instance","Database","Table",],)
 
-def MakeUri(instanceName,dbName,tableName):
-	return lib_uris.gUriGen.UriMakeFromDict("mysql/table", { "Instance": instanceName, "Database" : dbName, "Table" : tableName } )
+
+def MakeUri(instance_name, db_name, table_name):
+    return lib_uris.gUriGen.UriMakeFromDict(
+                                            "mysql/table",
+                                            {"Instance": instance_name, "Database": db_name, "Table": table_name})
+
 
 def EntityName(entity_ids_arr):
-	return entity_ids_arr[1] + "." + entity_ids_arr[2] + "@" + entity_ids_arr[0]
+    return entity_ids_arr[1] + "." + entity_ids_arr[2] + "@" + entity_ids_arr[0]
 
-def AddInfo(grph,node,entity_ids_arr):
-	instanceMySql = entity_ids_arr[0]
-	databaseName = entity_ids_arr[1]
-	nodeInstance = survol_mysql_instance.MakeUri(instanceMySql)
-	nodeDatabase = survol_mysql_database.MakeUri(instanceMySql,databaseName)
-	grph.add((node,lib_common.MakeProp("Instance"),nodeInstance))
-	grph.add((node,lib_common.MakeProp("Database"),nodeDatabase))
+
+def AddInfo(grph, node, entity_ids_arr):
+    instance_my_sql = entity_ids_arr[0]
+    database_name = entity_ids_arr[1]
+    node_instance = survol_mysql_instance.MakeUri(instance_my_sql)
+    node_database = survol_mysql_database.MakeUri(instance_my_sql, database_name)
+    grph.add((node,lib_common.MakeProp("Instance"), node_instance))
+    grph.add((node,lib_common.MakeProp("Database"), node_database))

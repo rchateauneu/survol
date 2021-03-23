@@ -9,7 +9,7 @@ from sources_types.mysql import instance as survol_mysql_instance
 
 
 def EntityOntology():
-    return (["Instance","Id",],)
+    return (["Instance", "Id",],)
 
 
 def MakeUri(instance_name, session_id):

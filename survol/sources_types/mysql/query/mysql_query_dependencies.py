@@ -10,27 +10,28 @@ from sources_types.sql import query as sql_query
 from sources_types.sqlite import query as sqlite_query
 
 def Main():
-	cgiEnv = lib_common.ScriptEnvironment()
+    cgiEnv = lib_common.ScriptEnvironment()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	sqlQuery = sql_query.GetEnvArgs(cgiEnv)
-	filNam = cgiEnv.m_entity_id_dict["File"]
+    sql_query = sql_query.GetEnvArgs(cgiEnv)
+    fil_nam = cgiEnv.m_entity_id_dict["File"]
 
-	nodeSqlQuery = sqlite_query.MakeUri(sqlQuery,filNam)
+    node_sql_query = sqlite_query.MakeUri(sql_query,fil_nam)
 
-	propSheetToQuery = lib_common.MakeProp("Table dependency")
+    prop_sheet_to_query = lib_common.MakeProp("Table dependency")
 
-	list_of_table_names = lib_sql.TableDependencies(sqlQuery)
+    list_of_table_names = lib_sql.TableDependencies(sql_query)
 
-	list_of_nodes = sqlite_query.QueryToNodesList(sqlQuery,{"File":filNam },list_of_table_names)
+    list_of_nodes = sqlite_query.QueryToNodesList(sql_query, {"File": fil_nam}, list_of_table_names)
 
-	for nodTab in list_of_nodes:
-		grph.add( ( nodeSqlQuery, propSheetToQuery, nodTab ) )
+    for nod_tab in list_of_nodes:
+        grph.add((node_sql_query, prop_sheet_to_query, nod_tab))
 
-	cgiEnv.OutCgiRdf()
+    cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
-	Main()
+    Main()
 
 

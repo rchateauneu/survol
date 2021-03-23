@@ -14,6 +14,7 @@ import sys
 import re
 import logging
 
+import lib_uris
 import lib_util
 import lib_common
 import lib_credentials
@@ -24,31 +25,31 @@ from sources_types.mysql import instance as survol_mysql_instance
 
 
 def Main():
-	cgiEnv = lib_common.ScriptEnvironment()
+    cgiEnv = lib_common.ScriptEnvironment()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	credNames = lib_credentials.get_credentials_names( "MySql" )
-	logging.debug("Mysql servers")
+    cred_names = lib_credentials.get_credentials_names("MySql")
+    logging.debug("Mysql servers")
 
-	for instanceMySql in credNames:
-		logging.debug("MySql servers instanceMySql=%s",instanceMySql)
+    for instance_my_sql in cred_names:
+        logging.debug("MySql servers instance_my_sql=%s", instance_my_sql)
 
-		# Do not use sources_types.mysql
-		hostMySql = instanceMySql.split(":")[0]
+        # Do not use sources_types.mysql
+        host_my_sql = instance_my_sql.split(":")[0]
 
-		# TODO: Display the connection socket ?
-		nodeHostMySql = lib_common.gUriGen.HostnameUri( hostMySql )
+        # TODO: Display the connection socket ?
+        node_host_my_sql = lib_uris.gUriGen.HostnameUri(host_my_sql)
 
-		nodeInstance = survol_mysql_instance.MakeUri(instanceMySql)
+        node_instance = survol_mysql_instance.MakeUri(instance_my_sql)
 
-		aCred = lib_credentials.GetCredentials( "MySql", instanceMySql )
+        a_cred = lib_credentials.GetCredentials("MySql", instance_my_sql)
 
-		grph.add( ( nodeInstance, lib_common.MakeProp("Mysql user")	, lib_util.NodeLiteral(aCred[0]) ) )
-		grph.add( ( nodeInstance, lib_common.MakeProp("Mysql instance"), nodeHostMySql ) )
+        grph.add((node_instance, lib_common.MakeProp("Mysql user"), lib_util.NodeLiteral(a_cred[0])))
+        grph.add((node_instance, lib_common.MakeProp("Mysql instance"), node_host_my_sql))
 
-	cgiEnv.OutCgiRdf()
+    cgiEnv.OutCgiRdf()
 
 
 if __name__ == '__main__':
-	Main()
+    Main()
