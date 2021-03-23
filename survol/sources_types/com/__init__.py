@@ -11,16 +11,19 @@ Windows Component Object Model concepts
 #	"com/type_lib_entry"                     : ( "none",      "#CCCCCC", "#CCCCCC", 1, False ),
 
 def Graphic_shape():
-	return "box"
+    return "box"
+
 
 def Graphic_colorfill():
-	return "#C0C0C0"
+    return "#C0C0C0"
+
 
 def Graphic_colorbg():
-	return "#C0C0C0"
+    return "#C0C0C0"
+
 
 def Graphic_border():
-	return 0
+    return 0
 
 def Graphic_is_rounded():
-	return True
+    return True

@@ -6,11 +6,12 @@ System-wide sockets
 
 import sys
 import psutil
+
+import lib_uris
 import lib_util
 import lib_common
 from sources_types import CIM_Process
 from sources_types import addr as survol_addr
-
 from lib_properties import pc
 
 
@@ -34,7 +35,7 @@ def Main():
             # TCP sockets only.
             all_connect = CIM_Process.PsutilProcConnections(proc)
             if all_connect:
-                node_process = lib_common.gUriGen.PidUri(pid)
+                node_process = lib_uris.gUriGen.PidUri(pid)
 
                 # Not sure this is the best plmace to add this edge.
                 grph.add((node_process, pc.property_host, lib_common.nodeMachine))
@@ -47,8 +48,7 @@ def Main():
             # This is for psutil.AccessDenied and psutil.NoSuchProcess but we do not want to import the module
             exc_str = str(exc)
             if (exc_str.find("AccessDenied") < 0) and (exc_str.find("NoSuchProcess") < 0):
-                lib_common.ErrorMessageHtml("Caught:" + exc_str )
-                raise
+                lib_common.ErrorMessageHtml("Caught:" + exc_str)
 
     cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 

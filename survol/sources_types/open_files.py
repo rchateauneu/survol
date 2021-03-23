@@ -7,6 +7,8 @@ System-wide open files
 import sys
 import psutil
 import logging
+
+import lib_uris
 import lib_util
 import lib_common
 from sources_types import CIM_Process
@@ -17,9 +19,9 @@ def _path_to_nod(path):
     try:
         return Main.dictPathToNod[path]
     except KeyError:
-        filNod = lib_common.gUriGen.FileUri( path )
-        Main.dictPathToNod[path] = filNod
-        return filNod
+        fil_nod = lib_uris.gUriGen.FileUri(path)
+        Main.dictPathToNod[path] = fil_nod
+        return fil_nod
 
 
 def _add_pid_file_link(grph, node_process, path):
@@ -39,7 +41,7 @@ def _add_pid_file_link(grph, node_process, path):
             grph.add((previous_process_node, pc.property_open_file, file_node))
             # Can use the path as a key as it runs on the current node only.
             _add_pid_file_link.dictFiles[path] = "Done"
-        grph.add( ( node_process, pc.property_open_file, file_node ) )
+        grph.add((node_process, pc.property_open_file, file_node))
     else:
         # Just store the node. Will see later if accessed by more than two process.
         _add_pid_file_link.dictFiles[path] = node_process
@@ -87,7 +89,7 @@ def Main():
 
                 # Adds the process node only if it has at least one open file.
                 if node_process == None:
-                    node_process = lib_common.gUriGen.PidUri(pid)
+                    node_process = lib_uris.gUriGen.PidUri(pid)
                     grph.add((node_process, pc.property_pid, lib_util.NodeLiteral(pid)))
 
                 # TODO: What about files on a shared drive?
@@ -103,7 +105,6 @@ def Main():
             pass
 
     cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
-    # cgiEnv.OutCgiRdf()
 
 
 if __name__ == '__main__':
