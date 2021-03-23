@@ -6,6 +6,8 @@ Generalised class: Displays data sources for a class
 
 import os
 import sys
+
+import lib_uris
 import lib_util
 import lib_common
 import logging
@@ -27,7 +29,6 @@ def _wbem_add_base_class(grph, conn_wbem, wbem_node, entity_host, wbem_namespace
 
     super_klass_name = wbem_klass.superclass
 
-    # sys.stderr.write("WBEM super_klass_name=%s\n" % super_klass_name)
     # An empty string or None.
     if not super_klass_name:
         return None, None
@@ -35,7 +36,7 @@ def _wbem_add_base_class(grph, conn_wbem, wbem_node, entity_host, wbem_namespace
     # TODO: Should be changed, this is slow and inconvenient.
     wbem_super_urls_list = lib_wbem.GetWbemUrls(entity_host, wbem_namespace, super_klass_name, "")
     if not wbem_super_urls_list:
-        return ( None, None )
+        return None, None
 
     # TODO: Which one should we take, http or https ???
     wbem_super_url = wbem_super_urls_list[0][0]
@@ -76,8 +77,8 @@ def _create_wbem_node(grph, root_node, entity_host, name_space, class_name, enti
         wbem_node = lib_common.NodeUrl(url_server[0])
         grph.add((root_node, pc.property_wbem_data, wbem_node))
 
-        wbemHostNode = lib_common.gUriGen.HostnameUri(url_server[1])
-        grph.add( ( wbem_node, pc.property_host, wbemHostNode))
+        wbemHostNode = lib_uris.gUriGen.HostnameUri(url_server[1])
+        grph.add((wbem_node, pc.property_host, wbemHostNode))
 
         # TODO: Add a Yawn server ??
         grph.add((wbem_node, pc.property_wbem_server, lib_util.NodeLiteral(url_server[1])))
@@ -86,7 +87,7 @@ def _create_wbem_node(grph, root_node, entity_host, name_space, class_name, enti
         try:
             conn_wbem = lib_wbem.WbemConnection(entity_host)
         except Exception as exc:
-            sys.stderr.write("WbemConnection throw:%s\n" % str(exc))
+            logging.error("WbemConnection throw:%s" % str(exc))
             continue
 
         kla_descrip = lib_wbem.WbemClassDescription(conn_wbem, class_name, wbem_namespace)
@@ -104,7 +105,7 @@ def _create_wbem_node(grph, root_node, entity_host, name_space, class_name, enti
 
         if ok_wbem_class and wbem_ok and name_space != "" and entity_host != "":
             namespace_url = lib_wbem.NamespaceUrl(name_space, entity_host, class_name)
-            namespace_node = lib_common.NodeUrl( namespace_url )
+            namespace_node = lib_common.NodeUrl(namespace_url)
             grph.add((wbem_node, pc.property_information, namespace_node))
 
     # TODO: This is a bit absurd because we return just one list.
@@ -136,12 +137,12 @@ def _create_wmi_node(grph, root_node, entity_host, name_space, class_name, entit
     except Exception as exc:
         pair_name_node = None
         # TODO: If the class is not defined, maybe do not display it.
-        err_msg = "WMI connection %s: %s" % (ip_only,str(exc))
+        err_msg = "WMI connection %s: %s" % (ip_only, str(exc))
         grph.add((wmi_node, lib_common.MakeProp("WMI Error"), lib_util.NodeLiteral(err_msg)))
 
     url_name_space = lib_wmi.NamespaceUrl(name_space, ip_only, class_name)
     # sys.stderr.write("entity_host=%s url_name_space=%s\n"%(entity_host,url_name_space))
-    grph.add( ( wmi_node, pc.property_information, lib_common.NodeUrl(url_name_space) ) )
+    grph.add((wmi_node, pc.property_information, lib_common.NodeUrl(url_name_space)))
 
     return pair_name_node
 
@@ -177,14 +178,12 @@ def _create_our_node(grph, root_node, entity_host, name_space, class_name, entit
     """This try to find a correct url for an entity type, without an entity id.
     At the moment, we just expect a file called "enumerate_<entity>.py" """
     enumerate_script = "enumerate_" + class_name + ".py"
-    # sys.stderr.write("enumerate_script=%s\n" % enumerate_script)
 
     base_dir = lib_util.gblTopScripts + "/sources_types"
 
     # TODO: This is absurd !!! Why looping, because the filename is already known !?!?
     for dirpath, dirnames, filenames in os.walk(base_dir):
-        # sys.stderr.write("dirpath=%s\n" % dirpath)
-        for filename in [f for f in filenames if f == enumerate_script ]:
+        for filename in [f for f in filenames if f == enumerate_script]:
 
             short_dir = dirpath[len(lib_util.gblTopScripts):]
             full_script_nam = lib_util.standardized_file_path(os.path.join(short_dir, filename))
@@ -215,7 +214,7 @@ def Main():
     entity_id = cgiEnv.m_entity_id
 
     # QUERY_STRING=xid=http%3A%2F%2F192.168.1.88%3A5988%2Froot%2FPG_Internal%3APG_WBEMSLPTemplate
-    logging.debug("class_type_all entity_host=%s entity_id=%s", entity_host, entity_id )
+    logging.debug("class_type_all entity_host=%s entity_id=%s", entity_host, entity_id)
 
     grph = cgiEnv.GetGraph()
 

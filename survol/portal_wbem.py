@@ -6,6 +6,8 @@ WBEM portal
 
 import sys
 import logging
+
+import lib_uris
 import lib_common
 
 try:
@@ -33,7 +35,7 @@ def Main():
     for url_wbem, wbem_host in wbem_urls_list:
         logging.debug("url_wbem=%s wbem_host=%s", url_wbem, wbem_host)
         wbem_node = lib_common.NodeUrl(url_wbem)
-        host_node = lib_common.gUriGen.HostnameUri(wbem_host)
+        host_node = lib_uris.gUriGen.HostnameUri(wbem_host)
         grph.add((host_node, pc.property_information, wbem_node))
 
     cgiEnv.OutCgiRdf()
