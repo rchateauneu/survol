@@ -250,7 +250,7 @@ def recursive_walk_on_scripts(callback_grph_add, parent_node, entity_type, entit
 
     directory = lib_util.gblTopScripts + relative_dir
 
-    gen_obj = lib_uris.Machine(entity_host)
+    gen_obj = lib_uris.MachineBox(entity_host)
 
     recursive_walk_aux(parent_node, None, directory, relative_dir, depth_call=1)
 
