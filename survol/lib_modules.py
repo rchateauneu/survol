@@ -1,4 +1,4 @@
-import lib_common
+import lib_uris
 
 
 # /usr/lib/modules/4.1.4-200.fc22.x86_64/kernel/drivers/media/usb/gspca/stv06xx/gspca_stv06xx.ko.xz
@@ -33,7 +33,7 @@ def ModuleToNode(modnam):
     try:
         return _gbl_dict_modules[modnam]
     except KeyError:
-        nod = lib_common.gUriGen.FileUri(modnam)
+        nod = lib_uris.gUriGen.FileUri(modnam)
         _gbl_dict_modules[modnam] = nod
         return nod
 
@@ -66,8 +66,3 @@ def Dependencies():
 
     modules_file.close()
     return result
-
-
-
-
-
