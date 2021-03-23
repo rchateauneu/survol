@@ -33,65 +33,59 @@ from sources_types.mysql import table as survol_mysql_table
 
 def Main():
 
-	cgiEnv = lib_common.ScriptEnvironment( )
+    cgiEnv = lib_common.ScriptEnvironment()
 
-	instanceName = cgiEnv.m_entity_id_dict["Instance"]
-	dbNam = cgiEnv.m_entity_id_dict["Database"]
+    instance_name = cgiEnv.m_entity_id_dict["Instance"]
+    db_nam = cgiEnv.m_entity_id_dict["Database"]
 
-	(hostname,hostport) = survol_mysql.InstanceToHostPort(instanceName)
+    hostname, hostport = survol_mysql.InstanceToHostPort(instance_name)
 
-	cgiEnv = lib_common.ScriptEnvironment()
+    cgiEnv = lib_common.ScriptEnvironment()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	hostAddr = lib_util.GlobalGetHostByName(hostname)
+    host_node = lib_uris.gUriGen.HostnameUri(hostname)
 
-	# BEWARE: The rule whether we use the host name or the host IP is not very clear !
-	# The IP address would be unambiguous but less clear.
-	hostNode = lib_uris.gUriGen.HostnameUri(hostname)
+    # BEWARE: This is duplicated.
+    prop_db = lib_common.MakeProp("Mysql database")
 
-	# BEWARE: This is duplicated.
-	propDb = lib_common.MakeProp("Mysql database")
+    node_mysql_database = survol_mysql_database.MakeUri(instance_name, db_nam)
+    grph.add((host_node, prop_db, node_mysql_database))
 
-	nodeMysqlDatabase = survol_mysql_database.MakeUri(instanceName,dbNam)
-	grph.add( ( hostNode, propDb, nodeMysqlDatabase ) )
+    a_cred = lib_credentials.GetCredentials("MySql", instance_name)
 
-	aCred = lib_credentials.GetCredentials("MySql", instanceName)
+    conn_mysql = survol_mysql.MysqlConnect(instance_name, aUser=a_cred[0], aPass=a_cred[1])
 
-	connMysql = survol_mysql.MysqlConnect(instanceName,aUser = aCred[0],aPass=aCred[1])
+    cursor_mysql = conn_mysql.cursor()
 
-	cursorMysql = connMysql.cursor()
+    cursor_mysql.execute("select * from information_schema.TABLES where TABLE_SCHEMA='%s'" % db_nam)
 
-	cursorMysql.execute("select * from information_schema.TABLES where TABLE_SCHEMA='%s'" %dbNam)
+    propTable = lib_common.MakeProp("Mysql table")
 
-	propTable = lib_common.MakeProp("Mysql table")
+    cursor_mysql.execute("select TABLE_NAME, REFERENCED_TABLE_NAME, CONSTRAINT_NAME "
+    " from information_schema.referential_constraints"
+    " where CONSTRAINT_SCHEMA='%s' " % db_nam)
 
-	cursorMysql.execute("select TABLE_NAME, REFERENCED_TABLE_NAME, CONSTRAINT_NAME "
-	" from information_schema.referential_constraints"
-	" where CONSTRAINT_SCHEMA='%s' " %(dbNam))
+    # There should be only one row, maximum.
+    for constraint_info in cursor_mysql:
+        logging.debug("constraint_info=%s", str(constraint_info))
+        table_nam = constraint_info[0]
+        table_nam_ref = constraint_info[1]
+        prop_constraint = lib_common.MakeProp(constraint_info[2])
+        logging.debug("table_nam=%s", table_nam)
 
-	propConstraint = lib_common.MakeProp("Table type")
+        node_mysql_table = survol_mysql_table.MakeUri(hostname,db_nam, table_nam)
+        node_mysql_table_ref = survol_mysql_table.MakeUri(hostname,db_nam, table_nam_ref)
 
-	# There should be only one row, maximum.
-	for constraintInfo in cursorMysql:
-		logging.debug("constraintInfo=%s",str(constraintInfo))
-		tableNam = constraintInfo[0]
-		tableNamRef = constraintInfo[1]
-		propConstraint = lib_common.MakeProp(constraintInfo[2])
-		logging.debug("tableNam=%s",tableNam)
+        grph.add((node_mysql_table, prop_constraint, node_mysql_table_ref))
 
-		nodeMysqlTable = survol_mysql_table.MakeUri(hostname,dbNam, tableNam)
-		nodeMysqlTableRef = survol_mysql_table.MakeUri(hostname,dbNam, tableNamRef)
+        #grph.add( ( node_mysql_database, propTable, node_mysql_table ) )
 
-		grph.add( (nodeMysqlTable, propConstraint, nodeMysqlTableRef ) )
+    cursor_mysql.close()
+    conn_mysql.close()
 
-		#grph.add( ( nodeMysqlDatabase, propTable, nodeMysqlTable ) )
-
-	cursorMysql.close()
-	connMysql.close()
-
-	cgiEnv.OutCgiRdf("LAYOUT_SPLINE" )
+    cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
 
 if __name__ == '__main__':
-	Main()
+    Main()
