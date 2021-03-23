@@ -1,13 +1,14 @@
 import os
 import sys
 import logging
-import lib_util
-import lib_common
-from lib_properties import pc
 
 import win32con
 import win32api
 
+import lib_uris
+import lib_util
+import lib_common
+from lib_properties import pc
 
 TypeLibRegistryKey = win32api.RegOpenKey(win32con.HKEY_CLASSES_ROOT, "TypeLib")
 
@@ -62,7 +63,7 @@ def _filter_non_printable(str):
 
 
 def CreateComRegisteredTypeLibNode(grph, key, name, version):
-    typelib_node = lib_common.gUriGen.ComRegisteredTypeLibUri(key)
+    typelib_node = lib_uris.gUriGen.ComRegisteredTypeLibUri(key)
     # Just in case there would be characters breaking SVG conversion etc ...
     name = _filter_non_printable(name)
     str_typ_lib_name = "%s / %.1f" % (name, version)

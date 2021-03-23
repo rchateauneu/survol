@@ -860,7 +860,7 @@ def WmiKeyValues(conn_wmi, obj_wmi, display_none_values, class_name):
         # The "GUID" property is very specific in WMI.
         if prp_name == "GUID":
             # Example: "{CF185B35-1F88-46CF-A6CE-BDECFBB59B4F}"
-            nodeGUID = lib_common.gUriGen.ComTypeLibUri(value)
+            nodeGUID = lib_uris.gUriGen.ComTypeLibUri(value)
             yield prp_prop, nodeGUID
             continue
 
