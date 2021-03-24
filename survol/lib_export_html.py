@@ -245,7 +245,7 @@ def _scripts_tree_html_iterator(theCgi):
         # <type 'exceptions.RuntimeError'>: maximum recursion depth exceeded while calling a Python object
         #
         # Which happens if None is always returned.
-        # http://rchateau-hp:8000/survol/entity.py?edimodargs_Handle=6744&Show+all+scripts=True&edimodtype=CIM_Process&xid=CIM_Process.Handle%3D6744&mode=html
+        # http://mymachine:8000/survol/entity.py?edimodargs_Handle=6744&Show+all+scripts=True&edimodtype=CIM_Process&xid=CIM_Process.Handle%3D6744&mode=html
         # An invalid PID does the same so it is easy to reproduce
         def extract_title_from_map_props(argument_map_props):
             if len(argument_map_props) != 1:

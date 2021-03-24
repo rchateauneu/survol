@@ -84,7 +84,7 @@ def cgiserver_entry_point():
 
     # It must be the same address whether it is local or guessed from another machine.
     # Equivalent to os.environ['SERVER_NAME']
-    # server_name = "rchateau-HP"
+    # server_name = "mymachine"
     # server_name = "DESKTOP-NI99V8E"
     # It is possible to force this address to "localhost" or "127.0.0.1" for example.
     # Consider also: socket.gethostbyname(socket.getfqdn())
@@ -143,9 +143,9 @@ def cgiserver_entry_point():
 
     # Apache sets these environment variables.
     # SERVER_SOFTWARE=Apache/2.4.12 (Win64) OpenSSL/1.0.1m mod_wsgi/4.4.12 Python/2.7.10
-    # SERVER_NAME=rchateau-hp
+    # SERVER_NAME=mymachine
     # SERVER_ADDR=fe80::3c7a:339:64f0:2161
-    # HTTP_HOST=rchateau-hp
+    # HTTP_HOST=mymachine
 
     # print("os.environ['SERVER_NAME']='%s'" % (os.environ['SERVER_NAME']) )
     print("Platform=%s" % sys.platform)

@@ -122,7 +122,7 @@ _htbin_prefix_script = "/survol"
 def UrlWWW(page_html):
     """Link to help page:
     http://www.primhillcomputers.com/ui/help.htm
-    http://rchateau-hp:8000/survol/www/help.htm
+    http://mymachine:8000/survol/www/help.htm
     http://127.0.0.1/Survol/survol/www/help.htm
     http://primhillcomputers.ddns.net/Survol/survol/www/help.htm
     """

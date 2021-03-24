@@ -1904,8 +1904,8 @@ function DisplayD3Layout(divItselfG,newData,w,h)
                 return null;
             }
 
-            // var urlWMI = "http://rchateau-hp:8000/survol/entity_wmi.py?xid=\\rchateau-hp\root\CIMV2%3ACIM_Process.Handle%3D8200&mode=json";
-            var subsPrefix = aSurvolUrl.substring(0, posQuestion ); // "http://rchateau-hp:8000/survol/"
+            // var urlWMI = "http://mymachine:8000/survol/entity_wmi.py?xid=\\mymachine\root\CIMV2%3ACIM_Process.Handle%3D8200&mode=json";
+            var subsPrefix = aSurvolUrl.substring(0, posQuestion ); // "http://mymachine:8000/survol/"
             console.log("CreateUrlWMI subsPrefix="+subsPrefix);
             var subsMoniker = aSurvolUrl.substring( posQuestion + strDelim.length ); // "rabbitmq/connection.Url=LOCALHOST:12"
             var posDot = subsMoniker.indexOf(".");
@@ -1934,7 +1934,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
                 return null;
             }
 
-            // myHost = "rchateau-hp:8000"
+            // myHost = "mymachine:8000"
             var myHost = GetHostFromUrl(aSurvolUrl);
             var posColon = myHost.indexOf(":");
             if(posColon >= 0)
@@ -1943,13 +1943,13 @@ function DisplayD3Layout(divItselfG,newData,w,h)
             }
             // ":" == "%3A"
 
-            // Expected result: "http://rchateau-hp:8000/survol/entity_wmi.py?xid=CIM_Process.Handle=1200&mode=json"
+            // Expected result: "http://mymachine:8000/survol/entity_wmi.py?xid=CIM_Process.Handle=1200&mode=json"
             // The WMI host and namespace are not taken into account.
             var urlWMI = subsPrefix + "entity_wmi.py?xid=" + subsMoniker;
             console.log("CreateUrlWMI urlWMI="+urlWMI);
 
-            // http://rchateau-hp:8000/survol/entity_wmi.py?xid=CIM_Process.Handle=1200&mode=json
-            // http://rchateau-hp:8000/survol/entity_wmi?xid=CIM_Process.Handle=1200&mode=json
+            // http://mymachine:8000/survol/entity_wmi.py?xid=CIM_Process.Handle=1200&mode=json
+            // http://mymachine:8000/survol/entity_wmi?xid=CIM_Process.Handle=1200&mode=json
 
             return urlWMI;
         }
@@ -1965,7 +1965,7 @@ function DisplayD3Layout(divItselfG,newData,w,h)
 
 
         var urlWBEM = null;
-        // var urlWBEM = "http://rchateau-hp:8000/survol/entity_wbem.py?xid=\\rchateau-hp\root\CIMV2%3ACIM_Process.Handle%3D8200&mode=json";
+        // var urlWBEM = "http://mymachine:8000/survol/entity_wbem.py?xid=\\mymachine\root\CIMV2%3ACIM_Process.Handle%3D8200&mode=json";
         if(urlWBEM) {
             TheItems[urlWBEM] = {
                 "name": "WBEM server-side",

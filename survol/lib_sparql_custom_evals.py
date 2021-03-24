@@ -761,7 +761,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             # { ?url_proc survol:Handle %d  .
             #  ?url_proc rdf:type survol:CIM_Process . }
             # WMI returns object_path = '\\MYMACHINE\root\cimv2:Win32_Process.Handle="11568"'
-            # Survol object URL must be like: http://rchateau-hp:8000/survol/entity.py?xid=CIM_Process.Handle=6936
+            # Survol object URL must be like: http://mymachine:8000/survol/entity.py?xid=CIM_Process.Handle=6936
             # Therefore, the WMI path cannot be used "as is", but instead use the original self.m_class_name.
             uri_key_values = {}
             wmi_class_keys = self.class_keys()
@@ -806,7 +806,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
 
     def BuildWmiPathFromSurvolPath(self, variables_context):
         """ This parses the Survol path to build WMI path which is very similar but not completely."""
-        # survol_path = 'http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_Directory.Name=c:/a/b/c.txt'
+        # survol_path = 'http://mymachine:80/LocalExecution/entity.py?xid=CIM_Directory.Name=c:/a/b/c.txt'
         survol_path = variables_context[self.m_variable]
         _, _, shortened_path = survol_path.partition("?xid=")
         class_name, _, kw_pairs_as_str = shortened_path.partition(".")
@@ -819,20 +819,17 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             ('%s="%s"' % (prop_key, prop_value) for prop_key, prop_value in entity_id_dict.items())
         )
 
-        #sys.stderr.write("BuildWmiPathFromSurvolPath associator_path=%s\n" % associator_path)
         return associator_path
 
     def CreateAssociatorObjects(self, graph, variables_context):
         if self.m_associated:
             returned_variables = self.CreateAssociatorObjectsBidirectional(graph, variables_context, self.m_associated, 0)
             if returned_variables:
-                #sys.stderr.write("CreateAssociatorObjects m_associated. returned_variables=%s\n" % returned_variables.keys())
                 check_returned_variables(returned_variables)
                 return returned_variables
         if self.m_associators:
             returned_variables = self.CreateAssociatorObjectsBidirectional(graph, variables_context, self.m_associators, 1)
             if returned_variables:
-                #sys.stderr.write("CreateAssociatorObjects m_associators. returned_variables=%s\n" % returned_variables.keys())
                 check_returned_variables(returned_variables)
                 return returned_variables
         return {}
@@ -848,25 +845,18 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         keys_set_first_associator = None
 
         for associator_predicate, associated_instance in assoc_list.items():
-            #sys.stderr.write("CreateAssociatorObjectsBidirectional associator_predicate=%s associated_instance=%s\n"
-            #                 % (associator_predicate, associated_instance))
             assert isinstance(associator_predicate, rdflib.term.URIRef)
             assert isinstance(associated_instance, Sparql_CIM_Object)
 
             associated_variable = associated_instance.m_variable
             assert isinstance(associated_variable, rdflib.term.Variable)
-            #sys.stderr.write("CreateAssociatorObjectsBidirectional role_index=%d associated_variable=%s\n" % (role_index, associated_variable))
-            #sys.stderr.write("CreateAssociatorObjectsBidirectional variables_context.keys()=%s\n" % str(variables_context.keys()))
 
             if associated_variable not in variables_context:
-                #sys.stderr.write("CreateAssociatorObjectsBidirectional Cannot find in variables_context: associated_variable=%s\n" % associated_variable)
                 continue
 
             associator_name = lib_properties.PropToQName(associator_predicate)
-            #sys.stderr.write("CreateAssociatorObjectsBidirectional associator_name=%s\n" % associator_name)
 
             associated_variable_value = variables_context[associated_variable]
-            #sys.stderr.write("CreateAssociatorObjectsBidirectional associated_variable_value=%s\n" % associated_variable_value)
             assert isinstance(associated_variable_value, rdflib.URIRef)
 
             associator_path = associated_instance.BuildWmiPathFromSurvolPath(variables_context)
@@ -879,12 +869,8 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             returned_variables_one = self._iterator_to_objects(graph, iterator_objects)
             assert len(returned_variables_one) == 1
             first_key = next(iter(returned_variables_one))
-            #sys.stderr.write("CreateAssociatorObjectsBidirectional first_key=%s\n"
-            #                 % [str(one_key) for one_key in first_key])
 
             if not first_key:
-                #sys.stderr.write("CreateAssociatorObjectsBidirectional no selection from %s/%s/%s/%s\n"
-                #                 % (self.m_class_name, associator_name, associator_path, role_index))
                 continue
 
             if keys_set_first_associator:
@@ -893,8 +879,6 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
                 keys_set_first_associator = first_key
 
             # The variable containing the url must be there.
-            #sys.stderr.write("CreateAssociatorObjectsBidirectional first_key=%s\n" % str(first_key))
-            #sys.stderr.write("CreateAssociatorObjectsBidirectional self.m_variable=%s\n" % self.m_variable)
             index_url_key = first_key.index(self.m_variable)
             # This is most probably the first key.
             assert index_url_key == 0

@@ -4,7 +4,7 @@ REM Needed
 REM This works on 192.168.0.14 WIn7 but not on Win10
 REM It displays:
 REM Server address=192.168.0.14
-REM Opening rchateau-HP:8000
+REM Opening mymachine:8000
 python survol\scripts\cgiserver.py -b
 
 REM From win10 192.168.0.14, here is the result of the command IPCONFIG:
