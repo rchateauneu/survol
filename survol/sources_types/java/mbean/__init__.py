@@ -3,6 +3,9 @@ Java MBean
 """
 
 import cgi
+import sys
+
+import lib_uris
 import lib_util
 import lib_common
 import sys
@@ -26,7 +29,7 @@ def EntityName(entity_ids_arr):
 
 def MakeUri(pid, mbean_object_name):
     mbean_object_name = mbean_object_name.replace("=", "-").replace(",", "*")
-    return lib_common.gUriGen.UriMakeFromDict("java/mbean", {"Handle": pid, "Name": mbean_object_name})
+    return lib_uris.gUriGen.UriMakeFromDict("java/mbean", {"Handle": pid, "Name": mbean_object_name})
 
 
 #def AddInfo(grph,node,entity_ids_arr):

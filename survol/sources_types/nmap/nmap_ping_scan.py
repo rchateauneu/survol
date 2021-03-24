@@ -8,6 +8,8 @@ LAN ping (256 addresses)
 import sys
 import socket
 import xml.dom.minidom
+
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -102,8 +104,7 @@ def Main():
             addr_type = addr_element.getAttributeNode('addrtype').value
             if addr_type == "ipv4":
                 host = addr_element.getAttributeNode('addr').value
-                # sys.stderr.write("host=%s\n"%host)
-                node_host = lib_common.gUriGen.HostnameUri( host )
+                node_host = lib_uris.gUriGen.HostnameUri( host )
             elif addr_type == "mac":
                 try:
                     addr_vendor = addr_element.getAttributeNode('vendor').value

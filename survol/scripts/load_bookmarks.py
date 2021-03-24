@@ -4,31 +4,31 @@
 import os
 import sys
 import signal
-import socket
+
 
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
-filRoot = ".."
-if sys.path[0] != filRoot:
-	sys.path.insert(0,filRoot)
+fil_root = ".."
+if sys.path[0] != fil_root:
+	sys.path.insert(0, fil_root)
 
-# sys.stdout.write("Cwd=%s\n"%os.getcwd())
-# sys.stdout.write("Path=%s\n"%sys.path)
 
 import lib_bookmark
 
+
 ################################################################################
-def GetContent(urlHRef,time_out):
+def GetContent(urlHRef, time_out):
 	if sys.version_info >= (3,):
 		from urllib.request import urlopen
 		f = urlopen(urlHRef,None,time_out)
 	else:
 		from urllib2 import urlopen
 		try:
-			f = urlopen(urlHRef,timeout=time_out)
+			f = urlopen(urlHRef, timeout=time_out)
 		except:
 			return None
 
 	return f
+
 ################################################################################
 counterSuccess = 0
 counterFailure = 0
@@ -43,7 +43,8 @@ G_Interrupt = False
 
 ################################################################################
 
-def RecursiveBookmarksProcessing(aDict, indent=0):
+
+def RecursiveBookmarksProcessing(a_dict, indent=0):
 	global counterSuccess
 	global counterFailure
 	global counterTimeout
@@ -53,19 +54,19 @@ def RecursiveBookmarksProcessing(aDict, indent=0):
 
 	def Truncate(value):
 		value = value.strip()
-		strVal = str(value)
-		return strVal
+		str_val = str(value)
+		return str_val
 
 	try:
-		theName = aDict["name"]
+		the_name = a_dict["name"]
 	except KeyError:
-		theName = "No name"
+		the_name = "No name"
 
 	try:
-		urlHRef = str(aDict["HREF"])
+		urlHRef = str(a_dict["HREF"])
 	except KeyError:
 		# If no URL
-		strVal = Truncate(theName)
+		strVal = Truncate(the_name)
 		urlHRef = None
 
 	# Temporary filter because this URL does not work anymore.
@@ -73,7 +74,7 @@ def RecursiveBookmarksProcessing(aDict, indent=0):
 		urlHRef = None
 
 	if urlHRef:
-		sys.stdout.write("URL:%s\n"%urlHRef)
+		sys.stdout.write("URL:%s\n" % urlHRef)
 		try:
 			f = GetContent(urlHRef,time_out=10)
 			if not f:
@@ -86,13 +87,13 @@ def RecursiveBookmarksProcessing(aDict, indent=0):
 		except IOError:
 			counterFailure += 1
 
-	for keyDict in sorted(aDict.keys()):
-		if keyDict not in ["children","HREF","name"]:
-			valDict = aDict[keyDict]
+	for key_dict in sorted(a_dict.keys()):
+		if key_dict not in ["children", "HREF", "name"]:
+			valDict = a_dict[key_dict]
 
 	try:
-		for oneObj in aDict["children"]:
-			resu = RecursiveBookmarksProcessing(oneObj, indent+1)
+		for one_obj in a_dict["children"]:
+			resu = RecursiveBookmarksProcessing(one_obj, indent+1)
 			if not resu:
 				break
 	except KeyError:
@@ -114,23 +115,21 @@ def Main():
 	print('Press Ctrl+C to exit cleanly')
 
 	try:
-		filNam = sys.argv[1]
+		fil_nam = sys.argv[1]
 	except:
-		# TODO: The directory should not be hard-coded.
-		# filNam = r"C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\Docs\bookmarks_projets_survol_26_03_2018.html"
-		filNam = r"C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\Docs\bookmarks.html"
+		fil_nam = os.path.join(os.path.dirname(__file__), "..", "..",  "Docs", "bookmarks.html")
 
 	# Google bookmark is another possible source of bookmarks.
 	# urlNam = "https://www.google.com/bookmarks/bookmarks.html?hl=fr"
 
-	dictBookmarks = lib_bookmark.ImportBookmarkFile(filNam)
+	dict_bookmarks = lib_bookmark.ImportBookmarkFile(fil_nam)
 
-	RecursiveBookmarksProcessing(dictBookmarks)
+	RecursiveBookmarksProcessing(dict_bookmarks)
 
+	sys.stdout.write("Successes:%d\n" % counterSuccess)
+	sys.stdout.write("Failures :%d\n" % counterFailure)
+	sys.stdout.write("Time-outs:%d\n" % counterTimeout)
 
-	sys.stdout.write("Successes:%d\n"%counterSuccess)
-	sys.stdout.write("Failures :%d\n"%counterFailure)
-	sys.stdout.write("Time-outs:%d\n"%counterTimeout)
 
 if __name__ == '__main__':
 	Main()
