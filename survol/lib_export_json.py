@@ -46,9 +46,9 @@ class NodeJson:
 
 # Only some scripts and urls are exported to Json.
 # The most frequent should come first.
-# root=http://rchateau-HP:8000/survol
-# url=http://rchateau-HP:8000/survol/class_type_all.py?xid=com.
-# url=http://rchateau-HP:8000/survol/objtypes.py
+# root=http://mymachine:8000/survol
+# url=http://mymachine:8000/survol/class_type_all.py?xid=com.
+# url=http://mymachine:8000/survol/objtypes.py
 # This must be a tuple because of startswith.
 _urls_for_json = (
     "/entity.py",
@@ -72,8 +72,8 @@ def _script_for_json(url):
     On the other hand, scripts returning a graph of informatons about an instance are displayed
     in the contextual menu of a node (associated to an instance).
 
-    http://rchateau-HP:8000/survol/entity_mime.py?xid=CIM_DataFile.Name=C://smh_installer.log&amp;amp;mode=mime:text/plain
-    http://rchateau-HP:8000/survol/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name=C%3A%2F%2Fpkg
+    http://mymachine:8000/survol/entity_mime.py?xid=CIM_DataFile.Name=C://smh_installer.log&amp;amp;mode=mime:text/plain
+    http://mymachine:8000/survol/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name=C%3A%2F%2Fpkg
     """
     if url.startswith(lib_util.uriRoot):
         # Where the script starts from.

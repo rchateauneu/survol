@@ -40,7 +40,7 @@ def Main():
 	# size': 46422}, u'peer_cert_validity': None, u'channels': 42, u'auth_mechanism': u'PLAIN', u'peer_cert_issuer': None, u'peer_cert_sub
 	# ject': None, u'port': 5672, u'recv_oct_details': {u'rate': 29.4}, u'channel_max': 0, u'send_oct_details': {u'rate': 1140.8}, u'recv_
 	# cnt': 69333, u'send_oct': 56500718, u'peer_host': u'127.0.0.1', u'state': u'running', u'ssl_cipher': None, u'type': u'network', u'no
-	# de': u'rabbit@rchateau-HP', u'send_cnt': 69409, u'peer_port': 51532, u'ssl_hash': None, u'host': u'127.0.0.1', u'connected_at': 1486
+	# de': u'rabbit@mymachine', u'send_cnt': 69409, u'peer_port': 51532, u'ssl_hash': None, u'host': u'127.0.0.1', u'connected_at': 1486
 	# 974214456L, u'user': u'guest', u'name': u'127.0.0.1:51532 -> 127.0.0.1:5672', u'ssl': False, u'vhost': u'/', u'recv_oct': 1461716, u
 	# 'timeout': 60, u'ssl_key_exchange': None, u'reductions_details': {u'rate': 197.4}}
 
@@ -89,7 +89,6 @@ def AddConnections(grph,listConnections,configNam,nodeManager):
 		grph.add( ( nodeConnect, lib_common.MakeProp("Management"), lib_common.NodeUrl(managementUrl) ) )
 
 		grph.add( ( nodeManager, lib_common.MakeProp("Connection"), nodeConnect ) )
-
 
 
 if __name__ == '__main__':

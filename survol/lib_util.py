@@ -174,7 +174,7 @@ def AddSIUnit(number, unitSI):
 
 def HttpPrefix():
     """This is the protocol, the server address followed by the port:
-     "http://192.168.0.14:80", "http://rchateau-hp:8000" """
+     "http://192.168.0.14:80", "http://mymachine:8000" """
 
     # Default values for ease of testing, so CGI scripts can be run as is from command line..
     try:
@@ -185,8 +185,8 @@ def HttpPrefix():
             server_addr = server_addr.lower()
 
         # 'REMOTE_ADDR'] => "127.0.0.1"
-        # 'SERVER_NAME'] => "rchateau-HP"
-        # 'REMOTE_HOST'] => "rchateau-HP"
+        # 'SERVER_NAME'] => "mymachine"
+        # 'REMOTE_HOST'] => "mymachine"
 
     except KeyError:
         logging.error("HttpPrefix SERVER_NAME MUST BE DEFINED")
@@ -257,21 +257,21 @@ uriRoot = UriRootHelper()
 #
 # socket.gethostname()                 socket.gethostbyaddr(socket.gethostname()) 
 # fedora22                             ('advancedsearch.virginmedia.com', [], ['81.200.64.50'])
-# rchateau-HP                          ('rchateau-HP', [], ['fe80::3c7a:339:64f0:2161'])
+# mymachine                          ('mymachine', [], ['fe80::3c7a:339:64f0:2161'])
 # ssh02.cluster023.gra.hosting.ovh.net ('ssh02.cluster023.gra.hosting.ovh.net', ['ssh02'], ['10.23.90.2'])
 #
 # Some example of the values of important CGI variables:
-# rchateau-hp IP address is 192.168.0.14
+# mymachine IP address is 192.168.0.14
 #
-# http://rchateau-hp:8000/survol/print_environment_variables.py
+# http://mymachine:8000/survol/print_environment_variables.py
 # SERVER_SOFTWARE=SimpleHTTP/0.6 Python/2.7.10
-# SERVER_NAME=rchateau-HP
+# SERVER_NAME=mymachine
 #
-# http://rchateau-hp/Survol/survol/print_environment_variables.py
+# http://mymachine/Survol/survol/print_environment_variables.py
 # SERVER_SOFTWARE=Apache/2.4.12 (Win64) OpenSSL/1.0.1m mod_wsgi/4.4.12 Python/2.7.10
-# SERVER_NAME=rchateau-hp
+# SERVER_NAME=mymachine
 # SERVER_ADDR=fe80::3c7a:339:64f0:2161
-# HTTP_HOST=rchateau-hp
+# HTTP_HOST=mymachine
 #
 # http://127.0.0.1/Survol/survol/print_environment_variables.py
 # SERVER_SOFTWARE=Apache/2.4.12 (Win64) OpenSSL/1.0.1m mod_wsgi/4.4.12 Python/2.7.10
@@ -620,7 +620,7 @@ def ParseXid(xid):
     the concatenation of key=value pairs, and the host.
     BEWARE: This cannot work if the hostname contains a ":", see IPV6. MUST BE VERY FAST !!!
     TODO: Should also parse the namespace.
-    ParseXid xid=CIM_ComputerSystem.Name=rchateau-HP
+    ParseXid xid=CIM_ComputerSystem.Name=mymachine
     ParseXid xid=CIM_ComputerSystem.Name=Unknown-30-b5-c2-02-0c-b5-2
     """
 

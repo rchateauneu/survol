@@ -118,7 +118,7 @@ class LocalBox:
         return self.UriMake('CIM_Process', str(pid))
 
     # TODO: Necessaire car CIM_ComputerSystem veut un nom de machine.
-    # socket.gethostbyaddr("192.168.1.83")     => ('rchateau-HP.home', [], ['192.168.1.83'])
+    # socket.gethostbyaddr("192.168.1.83")     => ('mymachine.home', [], ['192.168.1.83'])
     # socket.gethostbyaddr("192.168.1.88")     => ('Unknown-30-b5-c2-02-0c-b5-2.home', [], ['192.168.1.88'])
     # socket.gethostbyaddr("192.168.1.81")     => ('WDMyCloudMirror.home', [], ['192.168.1.81'])
     def HostnameUri(self, host_addr):
@@ -403,7 +403,7 @@ class LocalBox:
             user_host = split_user[0]
             user_only = split_user[1]
         else:
-            # This transforms "rchateau-hp.home" into "rchateau-hp"
+            # This transforms "mymachine.home" into "mymachine"
             user_host = TruncateHostname(lib_util.currentHostname)
             user_only = username
         user_host = user_host.lower() # RFC4343

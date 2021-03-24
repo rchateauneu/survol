@@ -18,7 +18,7 @@ from lib_properties import pc
 
 # ([dict, ...], total, resumeHandle) = NetLocalGroupGetMembers(server, groupName , level , resumeHandle , prefLen )
 #>>> win32net.NetLocalGroupGetMembers(None,"Administrators",2,0)
-#([{'sidusage': 1L, 'domainandname': u'rchateau-HP\\Administrator', 'sid': <PySID object at 0x00000000024C8D30>}, {'sidusage': 1L, 'domainandname': u'rchateau-HP\\rchateau', 'sid': <PySID object at 0x00000000024C8D70>}], 2, 0)
+#([{'sidusage': 1L, 'domainandname': u'mymachine\\Administrator', 'sid': <PySID object at 0x00000000024C8D30>}, {'sidusage': 1L, 'domainandname': u'mymachine\\rchateau', 'sid': <PySID object at 0x00000000024C8D70>}], 2, 0)
 
 
 def EntityOntology():

@@ -282,7 +282,7 @@ def wsgiserver_entry_point():
 
     # It must be the same address whether it is local or guessed from another machine.
     # Equivalent to os.environ['SERVER_NAME']
-    # server_name = "rchateau-HP"
+    # server_name = "mymachine"
     # server_name = "DESKTOP-NI99V8E"
     # It is possible to force this address to "localhost" or "127.0.0.1" for example.
     # Consider also: socket.gethostbyname(socket.getfqdn())

@@ -542,7 +542,7 @@ def WbemLocalConnection():
 
 def extract_specific_ontology_wbem():
     """This returns an abstract ontology, which is later transformed into RDFS.
-    cimomUrl="http://192.168.1.83:5988" or "http://rchateau-HP:5988" """
+    cimomUrl="http://192.168.1.83:5988" or "http://mymachine:5988" """
     wbem_connection = WbemLocalConnection()
     return _extract_wbem_ontology_from_connection(wbem_connection)
 
@@ -663,7 +663,7 @@ class WbemSparqlCallbackApi:
             # Add it again, so the original Sparql query will work.
             dict_key_values[lib_kbase.PredicateSeeAlso] = lib_util.NodeLiteral("WBEM")
 
-        #     # s=\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
+        #     # s=\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeProp(class_name)
 
             logging.debug("dict_key_values=%s", dict_key_values)

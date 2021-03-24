@@ -59,7 +59,7 @@ def _sub_namespace(root_node, grph, nskey, cimom_url, ns_depth=1):
         return
 
     # If the maximum level is not controlled, it loops endlessly.
-    # _sub_namespace cimomUrl=rchateau-HP nskey=aspnet\Security\Security\Security\Security\Security\Security\Security\Security\Security\Secu
+    # _sub_namespace cimomUrl=mymachine nskey=aspnet\Security\Security\Security\Security\Security\Security\Security\Security\Security\Secu
     logging.debug("_sub_namespace cimomUrl=%s nskey=%s", cimom_url, nskey)
 
     wmi_url = lib_wmi.NamespaceUrl("root\\" + nskey, cimom_url)

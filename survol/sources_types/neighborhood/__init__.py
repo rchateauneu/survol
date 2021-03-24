@@ -11,11 +11,11 @@ import lib_common
 
 # Typical configuration in slp.reg file.
 #
-# service:wbem:http://rchateau-hp,en,65535
+# service:wbem:http://mymachine,en,65535
 # description=OpenPegasus sous Windows 7
 #
 # # Definitions must be separated by an empty line.
-# service:survol:http://rchateau-hp:8000/survol/entity.py,en,65535
+# service:survol:http://mymachine:8000/survol/entity.py,en,65535
 # description=Survol Windows 7
 #
 # $ slptool findsrvtypes
@@ -23,9 +23,9 @@ import lib_common
 # service:survol:http
 #
 # $ slptool findsrvs service:survol
-# service:survol:http://rchateau-hp:8000/survol/entity.py,65535
+# service:survol:http://mymachine:8000/survol/entity.py,65535
 #
-# $ slptool findattrs service:wbem:http://rchateau-hp
+# $ slptool findattrs service:wbem:http://mymachine
 # (description=OpenPegasus sous Windows 7)
 # (description=OpenPegasus sous Windows 7)
 # (description=OpenPegasus sous Windows 7)
@@ -49,8 +49,8 @@ def GetSLPAttributes(serviceName,slpHost):
 
 	for linResuFindAttrs in splitResuFindAttrs:
 		logging.debug("GetSLPAttributes slpHost=%s linResuFindAttrs=%s",slpHost,linResuFindAttrs)
-		# service:survol:http://rchateau-hp:8000/survol/entity.py,65535
-		# service:wbem:http://rchateau-hp,65535
+		# service:survol:http://mymachine:8000/survol/entity.py,65535
+		# service:wbem:http://mymachine,65535
 		mtchFindAttrs = re.match( r'\(([^=]*)=([^)]*)\)', linResuFindAttrs )
 		if mtchFindAttrs:
 			slpAttrKey = mtchFindAttrs.group(1)
@@ -75,8 +75,8 @@ def GetSLPServices(serviceName):
 
 	for linResuSlpTool in splitResuSlpTool:
 		logging.debug("GetSLPServices serviceName=%s linResuSlpTool=%s",serviceName,linResuSlpTool)
-		# service:survol:http://rchateau-hp:8000/survol/entity.py,65535
-		# service:wbem:http://rchateau-hp,65535
+		# service:survol:http://mymachine:8000/survol/entity.py,65535
+		# service:wbem:http://mymachine,65535
 		mtchSplTool = re.match( r'service:[^:]*:([^,]*)(.*)', linResuSlpTool )
 		if mtchSplTool:
 			slpHost = mtchSplTool.group(1)

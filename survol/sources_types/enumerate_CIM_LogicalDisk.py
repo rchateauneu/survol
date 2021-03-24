@@ -19,7 +19,7 @@ from lib_properties import pc
 # TODO: On Windows, it seems only to enumerate mount points.
 # Win32_MountPoint
 # This is an association between Win32_Directory and Win32_Volume:
-# http://127.0.0.1/Survol/survol/class_wmi.py?xid=\\rchateau-HP\root\CIMV2%3AWin32_MountPoint.
+# http://127.0.0.1/Survol/survol/class_wmi.py?xid=\\mymachine\root\CIMV2%3AWin32_MountPoint.
 #
 #
 # BETTER: Win32_LogicalDisk also derives from CIM_LogicalDisk, CIM_StorageExtent

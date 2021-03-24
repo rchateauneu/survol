@@ -350,7 +350,7 @@ oracle_view      Les views du schema courant.                       schemas de l
 partition        Les partitions de la machine courante.             hostname machine.
 process          Process au-dessus                                  idem
 service          Idem services. Peut-etre le niveau d'en haut ?
-smbfile          les smbshr de la machine.
+smbfile          les Win32_Share de la machine.
 smbserver        IMPOSSIBLE. Sauf si machine courante ?
 smbshr           Les shares de la machine courante ?
 user             Les utilisateurs de la machine courante.

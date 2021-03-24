@@ -990,7 +990,7 @@ def _write_dot_legend(page_title, top_url, err_msg, parameters, parameterized_li
         urlD3 = lib_exports.UrlToMergeD3()
 
         # Stupid replacement of dot: "\\" transformed into "\"
-        # Fix for : "http://rchateau-hp:8000/survol/class_wmi.py?xid=\\machine\root\CIMV2%3ACIM_Directory.&mode=html"
+        # Fix for : "http://mymachine:8000/survol/class_wmi.py?xid=\\machine\root\CIMV2%3ACIM_Directory.&mode=html"
         def url_for_dot(md_url):
             md_url = md_url.replace("\\\\", "\\\\\\")
             return _url_to_svg(md_url)

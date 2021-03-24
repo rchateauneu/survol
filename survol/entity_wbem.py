@@ -32,7 +32,7 @@ def WbemPlainExecQuery(conn, class_name, split_monik, name_space):
         # Problem on Windows with OpenPegasus.
         # a_qry=select * from CIM_UnitaryComputerSystem ...
 		# where CreationClassName="PG_ComputerSystem" ...
-		# and Name="rchateau-HP". ns=root/cimv2. Caught:(7, u'CIM_ERR_NOT_SUPPORTED')
+		# and Name="mymachine". ns=root/cimv2. Caught:(7, u'CIM_ERR_NOT_SUPPORTED')
         msg_exc_first = str(exc)
         logging.warning("WbemPlainExecQuery a_qry=%s Exc=%s", a_qry, msg_exc_first)
         return None
@@ -44,7 +44,7 @@ def WbemNoQueryOneInst(conn, class_name, split_monik, name_space):
         key_bnds = pywbem.cim_obj.NocaseDict(split_monik)
 
         # FIXME: Problem with parameters: msgExcFirst=CIMError: header-mismatch, PGErrorDetail:
-        # Empty CIMObject value. wbem_inst_name=root/CIMv2:CIM_ComputerSystem.Name="rchateau-HP".
+        # Empty CIMObject value. wbem_inst_name=root/CIMv2:CIM_ComputerSystem.Name="mymachine".
         # ns=. Caught:(4, u'CIM_ERR_INVALID_PARAMETER: Wrong number of keys')
 
         wbem_inst_name = pywbem.CIMInstanceName(class_name, keybindings=key_bnds, namespace="root/CIMv2")

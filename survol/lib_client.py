@@ -332,7 +332,7 @@ class SourceMergeMinus (SourceMerge):
 
 
 # http://LOCALHOST:80
-# http://rchateau-hp:8000
+# http://mymachine:8000
 def agent_to_host(agent_url):
     parsed_url = lib_util.survol_urlparse(agent_url)
     logging.debug("agent_to_host %s => %s", agent_url, parsed_url.hostname)
@@ -394,13 +394,13 @@ class BaseCIMClass(object):
 
         # Typical content:
         # {
-        #     "http://rchateau-HP:8000/survol/sources_types/CIM_Directory/dir_stat.py?xid=CIM_Directory.Name%3DD%3A": {
+        #     "http://mymachine:8000/survol/sources_types/CIM_Directory/dir_stat.py?xid=CIM_Directory.Name%3DD%3A": {
         #         "name": "Directory stat information",
-        #         "url": "http://rchateau-HP:8000/survol/sources_types/CIM_Directory/dir_stat.py?xid=CIM_Directory.Name%3DD%3A"
+        #         "url": "http://mymachine:8000/survol/sources_types/CIM_Directory/dir_stat.py?xid=CIM_Directory.Name%3DD%3A"
         #     },
-        #     "http://rchateau-HP:8000/survol/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name%3DD%3A": {
+        #     "http://mymachine:8000/survol/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name%3DD%3A": {
         #         "name": "Files in directory",
-        #         "url": "http://rchateau-HP:8000/survol/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name%3DD%3A"
+        #         "url": "http://mymachine:8000/survol/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name%3DD%3A"
         #     }
         # }
         data_json_str = _load_moded_urls(url_scripts)
@@ -707,7 +707,7 @@ def url_to_instance(instance_url):
 
 # instanceUrl="http://LOCAL_MODE:80/LocalExecution/entity.py?xid=Win32_Group.Domain=local_mode,Name=Replicator"
 # instanceUrl=http://LOCALHOST:80/LocalExecution/entity.py?xid=addr.Id=127.0.0.1:427
-# instanceUrl="http://rchateau-hp:8000/survol/sources_types/memmap/memmap_processes.py?xid=memmap.Id%3DC%3A%2FWindows%2FSystem32%2Fen-US%2Fkernel32.dll.mui"
+# instanceUrl="http://mymachine:8000/survol/sources_types/memmap/memmap_processes.py?xid=memmap.Id%3DC%3A%2FWindows%2FSystem32%2Fen-US%2Fkernel32.dll.mui"
 def instance_url_to_agent_url(instance_url):
     parse_url = lib_util.survol_urlparse(instance_url)
     if parse_url.path.startswith(lib_util.prefixLocalExecution):

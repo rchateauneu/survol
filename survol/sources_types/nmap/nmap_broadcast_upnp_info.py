@@ -28,7 +28,7 @@ from lib_properties import pc
 # |       Server: WINDOWS, UPnP/1.0, Intel MicroStack/1.0.1497
 # |       Location: http://192.168.0.14:62240/
 # |         Webserver: WINDOWS, UPnP/1.0, Intel MicroStack/1.0.1497
-# |         Name: rchateau-HP
+# |         Name: mymachine
 # |         Manufacturer: CyberLink Corporation
 # |         Model Descr: CyberLink UPnP Media Server
 # |         Model Name: CyberLink Media Server
@@ -76,7 +76,7 @@ from lib_properties import pc
 # |       Server: WINDOWS, UPnP/1.0, Intel MicroStack/1.0.1497
 # |       Location: http://192.168.0.20:62240/
 # |         Webserver: WINDOWS, UPnP/1.0, Intel MicroStack/1.0.1497
-# |         Name: rchateau-HP
+# |         Name: mymachine
 # |         Manufacturer: CyberLink Corporation
 # |         Model Descr: CyberLink UPnP Media Server
 # |         Model Name: CyberLink Media Server
@@ -102,7 +102,7 @@ def Main():
 
     # <script id="broadcast-upnp-info" output="&#xa;  192.168.0.20&#xa;      Server: WINDOWS, UPnP/1.0, Intel MicroStack/1.0.14
     # 97&#xa;      Location: http://192.168.0.20:62240/&#xa;        Webserver: WINDOWS, UPnP/1.0, Intel MicroStack/1.0.1497&#xa;        Na
-    # me: rchateau-HP&#xa;        Manufacturer: CyberLink Corporation&#xa;        Model Descr: CyberLink UPnP Media Server&#xa;        Mod
+    # me: mymachine&#xa;        Manufacturer: CyberLink Corporation&#xa;        Model Descr: CyberLink UPnP Media Server&#xa;        Mod
     # el Name: CyberLink Media Server&#xa;        Model Version: 12.0&#xa;  192.168.0.13&#xa;      Server: Microsoft-Windows/6.3 UPnP/1.0
     # UPnP-Device-Host/1.0&#xa;      Location: http://192.168.0.13:2869/upnphost/udhisapi.dll?content=uuid:21a44432-6249-4b80-bd85-65baea0
     # 06cfa&#xa;        Webserver: Microsoft-Windows/6.3 UPnP/1.0 UPnP-Device-Host/1.0 Microsoft-HTTPAPI/2.0&#xa;  192.168.0.15&#xa;

@@ -26,7 +26,7 @@ def AddFromWbemCimom(grph,cimomWbem):
 	if not hostWbem:
 		return None
 
-	# http://rchateau-hp:8000/survol/namespaces_wbem.py?xid=http:%2F%2F192.168.0.17:5988/.
+	# http://mymachine:8000/survol/namespaces_wbem.py?xid=http:%2F%2F192.168.0.17:5988/.
 	cimomWbemCgi = cimomWbem.replace("//","%2f%2f")
 	logging.debug("cimomWbem=%s cimomWbemCgi=%s",cimomWbem,cimomWbemCgi)
 

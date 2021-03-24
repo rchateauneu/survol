@@ -52,8 +52,8 @@ def Main():
         lib_common.ErrorMessageHtml("WMI Connecting to cimom_url=%s name_space=%s Caught:%s\n"
                                     % (cimom_url, name_space, str(exc)))
 
-    # http://rchateau-hp:8000/survol/class_wmi.py?xid=\\rchateau-HP\root\CIMV2%3ACIM_Directory.
-    # http://rchateau-hp:8000/survol/class_wmi.py?xid=\rchateau-HP\root\CIMV2%3ACIM_Directory.&mode=html
+    # http://mymachine:8000/survol/class_wmi.py?xid=\\mymachine\root\CIMV2%3ACIM_Directory.
+    # http://mymachine:8000/survol/class_wmi.py?xid=\mymachine\root\CIMV2%3ACIM_Directory.&mode=html
 
     lib_wmi.WmiAddClassQualifiers(grph, conn_wmi, root_node, class_name, True)
 

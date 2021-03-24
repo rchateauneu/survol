@@ -72,7 +72,7 @@ def ClassUrl(nskey, hostname_wmi, class_nam):
 
 
 def _get_wmi_user_pass(mach_with_back_slashes):
-    # WmiConnect cimom=\\\\rchateau-HP\\:. wmiNamspace=aspnet
+    # WmiConnect cimom=\\\\mymachine\\:. wmiNamspace=aspnet
     clean_mach_nam = mach_with_back_slashes.replace("\\", "")
 
     wmi_user_pass = lib_credentials.GetCredentials("WMI", clean_mach_nam)
@@ -95,7 +95,7 @@ def _get_wmi_user_pass(mach_with_back_slashes):
 
 
 def WmiConnect(mach_with_back_slashes, wmi_namspac, throw_if_error=True):
-    # WmiConnect cimom=\\\\rchateau-HP\\:. wmiNamspace=aspnet
+    # WmiConnect cimom=\\\\mymachine\\:. wmiNamspace=aspnet
 
     if not mach_with_back_slashes or lib_util.is_local_address(mach_with_back_slashes):
         return wmi.WMI(find_classes=False)
@@ -972,7 +972,7 @@ class WmiSparqlCallbackApi:
             raise
 
         for one_wmi_object in wmi_objects:
-            # Path='\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
+            # Path='\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="rchateau"'
             object_path = str(one_wmi_object.path())
             logging.debug("one_wmi_object.path=%s", object_path)
             list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, class_name)
@@ -982,7 +982,7 @@ class WmiSparqlCallbackApi:
             # Add it again, so the original Sparql query will work.
             dict_key_values[lib_kbase.PredicateSeeAlso] = lib_util.NodeLiteral("WMI")
 
-            # s=\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
+            # s=\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeProp(class_name)
 
             logging.debug("dict_key_values=%s", dict_key_values)
