@@ -597,6 +597,50 @@ class DOxygenTest(unittest.TestCase):
         print("doxygen_file_result=", doxygen_file_result)
 
 
+@unittest.skipIf(not check_program_exists("nmap"), "nmap must be installed.")
+class NMapTest(unittest.TestCase):
+    """In most of these scripts, it tests if the execution worked and the result a correct RDF document."""
+    def setUp(self):
+        self._remote_rdf_test_agent, self._agent_url = start_cgiserver(RemoteRdf0TestServerPort)
+        print("AgentUrl=", self._agent_url)
+
+    def tearDown(self):
+        stop_cgiserver(self._remote_rdf_test_agent)
+
+    def _check_nmap_script(self, script_suffix):
+        return _check_script_rdf(self._agent_url, script_suffix)
+
+    def test_nmap_broadcast_ms_sql_discover(self):
+        """Test of nmap_broadcast_ms_sql_discover.py"""
+        nmap_result = self._check_nmap_script(
+            "/survol/sources_types/nmap/nmap_broadcast_ms_sql_discover.py")
+        print("nmap_result=", nmap_result)
+
+    def test_nmap_broadcast_netbios_master_browser(self):
+        """Test of nmap_broadcast_netbios_master_browser.py"""
+        nmap_result = self._check_nmap_script(
+            "/survol/sources_types/nmap/nmap_broadcast_netbios_master_browser.py")
+        print("nmap_result=", nmap_result)
+
+    def test_nmap_broadcast_upnp_info(self):
+        """Test of nmap_broadcast_upnp_info.py"""
+        nmap_result = self._check_nmap_script(
+            "/survol/sources_types/nmap/nmap_broadcast_upnp_info.py")
+        print("nmap_result=", nmap_result)
+
+    def test_nmap_ping_scan(self):
+        """Test of nmap_ping_scan.py"""
+        nmap_result = self._check_nmap_script(
+            "/survol/sources_types/nmap/nmap_ping_scan.py")
+        print("nmap_result=", nmap_result)
+
+    def test_nmap_run(self):
+        """Test of nmap_run.py"""
+        nmap_result = self._check_nmap_script(
+            "/survol/sources_types/nmap/nmap_run.py")
+        print("nmap_result=", nmap_result)
+
+
 if __name__ == '__main__':
     unittest.main()
 

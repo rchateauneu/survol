@@ -11,6 +11,8 @@ import sys
 import socket
 import logging
 import xml.dom.minidom
+
+import lib_uris
 import lib_util
 import lib_common
 import lib_credentials
@@ -29,7 +31,7 @@ except ImportError:
 # Starting Nmap 7.12 ( https://nmap.org ) at 2017-11-30 07:45 GMT
 # Pre-scan script results:
 # | broadcast-ms-sql-discover:
-# |   192.168.0.14 (RCHATEAU-HP)
+# |   192.168.0.14 (MYMACHINE)
 # |     [192.168.0.14\SQLEXPRESS]
 # |       Name: SQLEXPRESS
 # |       Product: Microsoft SQL Server 2012
@@ -61,7 +63,7 @@ def AddOdbcNode(grph, mach_nam, srv_name, tcp_port):
 def Main():
     cgiEnv = lib_common.ScriptEnvironment()
 
-    args = ["nmap", '-oX', '-', '--script', "broadcast-ms-sql-discover",]
+    args = ["nmap", '-oX', '-', '--script', "broadcast-ms-sql-discover", ]
 
     # The returned IP address is wrong when launched from a Windows machine where the DB is running.
     p = lib_common.SubProcPOpen(args)
@@ -80,17 +82,17 @@ def Main():
 
         logging.debug("arr_split=%s", str(arr_split))
 
-        # "192.168.0.14 (RCHATEAU-HP)"
+        # "192.168.0.14 (MYMACHINE)"
         the_mach_full = arr_split[0].strip()
         re_mach = re.match(r"([^ ]*) *\(([^)]*)\)", the_mach_full)
         if re_mach:
             mach_ip = re_mach.group(1)
             mach_nam = re_mach.group(2)
 
-            node_host = lib_common.gUriGen.HostnameUri(mach_nam)
+            node_host = lib_uris.gUriGen.HostnameUri(mach_nam)
             grph.add((node_host, lib_common.MakeProp("IP address"), lib_util.NodeLiteral(mach_ip)))
         else:
-            node_host = lib_common.gUriGen.HostnameUri(the_mach_full)
+            node_host = lib_uris.gUriGen.HostnameUri(the_mach_full)
             mach_ip = None
             mach_nam = the_mach_full
 
@@ -100,7 +102,7 @@ def Main():
         tcp_port = None
         srv_name = None
 
-        # RCHATEAU-HP    IP_address    192.168.0.14
+        # MYMACHINE    IP_address    192.168.0.14
         # Name    SQLEXPRESS
         # Named_pipe    \\192.168.0.14\pipe\MSSQL$SQLEXPRESS\sql\query
         # Product    Microsoft SQL Server 2012

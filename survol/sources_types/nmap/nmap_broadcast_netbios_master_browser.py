@@ -28,46 +28,46 @@ from lib_properties import pc
 
 
 def Main():
-	cgiEnv = lib_common.ScriptEnvironment()
+    cgiEnv = lib_common.ScriptEnvironment()
 
-	args = ["nmap", '-oX', '-', '--script', "broadcast-netbios-master-browser", ]
+    args = ["nmap", '-oX', '-', '--script', "broadcast-netbios-master-browser", ]
 
-	# The returned IP address is wrong when launched from a Windows machine where the DB is running.
-	p = lib_common.SubProcPOpen(args)
+    # The returned IP address is wrong when launched from a Windows machine where the DB is running.
+    p = lib_common.SubProcPOpen(args)
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	(nmap_last_output, nmap_err) = p.communicate()
+    nmap_last_output, nmap_err = p.communicate()
 
-	dom = xml.dom.minidom.parseString(nmap_last_output)
+    dom = xml.dom.minidom.parseString(nmap_last_output)
 
-	# <script id="broadcast-netbios-master-browser" output="..."/>
+    # <script id="broadcast-netbios-master-browser" output="..."/>
 
-	# TODO: Remove line "ip server domain"
+    # TODO: Remove line "ip server domain"
 
-	for aScript in dom.getElementsByTagName('script'):
-		# output="&#xa;ip server domain&#xa;192.168.0.15  WDMYCLOUDMIRROR  WORKGROUP&#xa;"
-		anOutput = aScript.getAttributeNode('output').value.strip()
-		logging.debug("anOutput=%s",str(anOutput))
-		arrSplit = [ aWrd.strip() for aWrd in anOutput.split("\n") ]
+    for a_script in dom.getElementsByTagName('script'):
+        # output="&#xa;ip server domain&#xa;192.168.0.15  WDMYCLOUDMIRROR  WORKGROUP&#xa;"
+        an_output = a_script.getAttributeNode('output').value.strip()
+        logging.debug("an_output=%s", str(an_output))
+        arr_split = [a_wrd.strip() for a_wrd in an_output.split("\n")]
 
-		logging.debug("arrSplit=%s",str(arrSplit))
+        logging.debug("arr_split=%s", str(arr_split))
 
-		theMachFull = arrSplit[1].strip()
-		logging.debug("theMachFull=%s",str(theMachFull))
-		machSplit = re.split( "[\t ]+", theMachFull )
-		logging.debug("machSplit=%s",str(machSplit))
-		machIp = machSplit[0].strip()
-		machNam = machSplit[1].strip()
-		nameDomain = machSplit[2].strip()
+        the_mach_full = arr_split[1].strip()
+        logging.debug("the_mach_full=%s", str(the_mach_full))
+        mach_split = re.split( "[\t ]+", the_mach_full)
+        logging.debug("mach_split=%s", str(mach_split))
+        mach_ip = mach_split[0].strip()
+        mach_nam = mach_split[1].strip()
+        name_domain = mach_split[2].strip()
 
-		nodeHost = lib_common.gUriGen.HostnameUri( machNam )
-		grph.add( ( nodeHost, lib_common.MakeProp("IP address"), lib_util.NodeLiteral( machIp ) ) )
-		grph.add( ( nodeHost, lib_common.MakeProp("Domain"), lib_util.NodeLiteral( nameDomain ) ) )
-		grph.add( ( nodeHost, pc.property_information, lib_util.NodeLiteral( arrSplit[0] ) ) )
+        node_host = lib_common.gUriGen.HostnameUri(mach_nam)
+        grph.add((node_host, lib_common.MakeProp("IP address"), lib_util.NodeLiteral(mach_ip)))
+        grph.add((node_host, lib_common.MakeProp("Domain"), lib_util.NodeLiteral(name_domain)))
+        grph.add((node_host, pc.property_information, lib_util.NodeLiteral(arr_split[0])))
 
-	cgiEnv.OutCgiRdf()
+    cgiEnv.OutCgiRdf()
 
 
 if __name__ == '__main__':
-	Main()
+    Main()
