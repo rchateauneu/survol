@@ -121,7 +121,7 @@ def Main():
         else:
             # persistent net connection
             # This works:
-            # >>> c = wmi.WMI(wmi=wmi.connect_server(server='Titi', namespace="/root/cimv2", user='rchateauneu@hotmail.com', password='xxxx'))
+            # >>> c = wmi.WMI(wmi=wmi.connect_server(server='Titi', namespace="/root/cimv2", user='john.smith@hotmail.com', password='xxxx'))
 
             logging.debug("Explicit WMI connection machine_name=%s", machine_name)
 

@@ -30,8 +30,8 @@ def Usable(entity_type, entity_ids_arr):
         return False
 
     # The command line can be something like:
-    # C:\windows\system32\cmd.exe /c ""C:\Users\rchateau\Developpement\ReverseEngineeringApps\StartCgiServer.cmd" "
-    # "cmd.exe" /s /k pushd "C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\Tests"
+    # C:\windows\system32\cmd.exe /c ""C:\Users\jsmith\Developpement\ReverseEngineeringApps\StartCgiServer.cmd" "
+    # "cmd.exe" /s /k pushd "C:\Users\jsmith\Developpement\ReverseEngineeringApps\PythonStyle\Tests"
     # cmd  /help
     # "C:\windows\system32\cmd.exe"
     #

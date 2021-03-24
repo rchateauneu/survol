@@ -24,8 +24,8 @@ def Usable(entity_type, entity_ids_arr):
 # This returns an url which displays a directory in HTML.
 # This can work only if the HTTP server allows so. Purely experimental.
 # Apache option:
-# Alias /Maison "C:/Users/rchateau"
-# <Directory "C:/Users/rchateau/>
+# Alias /MyHome "C:/Users/jsmith"
+# <Directory "C:/Users/jsmith/>
 #     Options +Indexes
 # </Directory>
 #

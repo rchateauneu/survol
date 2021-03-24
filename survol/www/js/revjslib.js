@@ -263,7 +263,7 @@ function RdfNodeToHRef(node)
 	else
 	{
 		// Horrible hack because not sure of why this happens.
-		//   file:/~rchateau/RevPython/survol/entity.py?mode=rdf&_=1416074608413
+		//   file:/~jsmith/RevPython/survol/entity.py?mode=rdf&_=1416074608413
 		if ( node_value.substring( 0, 6 ) == "file:/" )
 		{
 			node_value = "http://localhost/" + node_value.substring( 6 );
@@ -273,8 +273,8 @@ function RdfNodeToHRef(node)
 		var res_entity = regex_entity.exec( node_value );
 
 		// TODO: Other strings to shorten:
-		// "?xid=file:%2Fhome%2Frchateau%2FDeveloppement%2FReverseEngineeringApps ..."
-		// "http://192.168.1.68:80/~rchateau/RevPython/survol/sources/top/tcpdump.py?xid=:"
+		// "?xid=file:%2Fhome%2Fjsmith%2FDeveloppement%2FReverseEngineeringApps ..."
+		// "http://192.168.1.68:80/~jsmith/RevPython/survol/sources/top/tcpdump.py?xid=:"
 
 		// If this is an URL to an entity, try to display the id.
 		if ( res_entity )

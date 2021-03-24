@@ -205,7 +205,7 @@ def _parse_call_arguments_nolen(str_args, ix_start, len_str):
 # Typical strings displayed by strace:
 # [pid  7492] 07:54:54.205073 wait4(18381, [{WIFEXITED(s) && WEXITSTATUS(s) == 1}], 0, NULL) = 18381 <0.000894>
 # [pid  7492] 07:54:54.206000 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=18381, si_uid=1000, si_status=1, si_utime=0, si_stime=0 } ---
-# [pid  7492] 07:54:54.206031 newfstatat(7</home/rchateau/rdfmon-code/primhill>, "Survol", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLIN K_NOFOLLOW) = 0 <0.000012>
+# [pid  7492] 07:54:54.206031 newfstatat(7</home/jsmith/rdfmon-code/primhill>, "Survol", {st_mode=S_IFDIR|0775, st_size=4096, ...}, AT_SYMLIN K_NOFOLLOW) = 0 <0.000012>
 # [pid  7492] 07:54:54.206113 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fb0d303fad0) = 18382 <0.000065>
 # [pid  7492] 07:54:54.206217 wait4(18382, grep: ../../primhill/Survol: Is a directory
 # [pid  7492] [{WIFEXITED(s) && WEXITSTATUS(s) == 2}], 0, NULL) = 18382 <0.000904>
@@ -896,7 +896,7 @@ class BatchLetSys_openat(BatchLetBase, object):
     """
     The important file descriptor is the returned value.
       openat(AT_FDCWD, "../list_machines_in_domain.py",
-            O_RDONLY|O_NOCTTY) = 3</home/rchateau/survol/Experimental/list_machines_in_domain.py> <0.000019>
+            O_RDONLY|O_NOCTTY) = 3</home/jsmith/survol/Experimental/list_machines_in_domain.py> <0.000019>
     """
     def __init__(self, batchCore):
         global G_mapFilDesToPathName
@@ -1686,9 +1686,9 @@ class BatchLetLib_getenv(BatchLetBase, object):
     """
     This is detected by ltrace.
     There can be several types of instantiations:
-    libaugeas.so.0->getenv("HOME")            = "/home/rchateau"
+    libaugeas.so.0->getenv("HOME")            = "/home/jsmith"
     libaugeas.so.0->getenv("XDG_CACHE_HOME")  = nil
-    libclntsh.so.11.1->getenv("HOME")         = "/home/rchateau"
+    libclntsh.so.11.1->getenv("HOME")         = "/home/jsmith"
     libclntsh.so.11.1->getenv("ORACLE_HOME")  = "/u01/app/oracle/product/11.2.0/xe"
     libpython2.7.so.1.0->getenv("PYTHONHOME") = nil
 

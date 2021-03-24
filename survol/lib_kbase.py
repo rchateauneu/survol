@@ -482,18 +482,6 @@ def _setup_global_graph():
             # OK
 
             sqlite_ident = rdflib.URIRef("rdflib_survol")
-            # https://docs.sqlalchemy.org/en/13/dialects/sqlite.html#module-sqlalchemy.dialects.sqlite.pysqlite
-            # _sqlite_uri = rdflib.Literal("sqlite://")
-            # driver://user:pass@host/database
-            # sqlite+pysqlite:///file_path
-            # # absolute path on Windows
-            # e = create_engine('sqlite:///C:\\path\\to\\database.db')
-            # in-memory database
-            # e = create_engine('sqlite://')
-            # _sqlite_uri = rdflib.Literal("sqlite://")
-            # engine=create_engine('sqlite:///:memory:')
-            #sqlite_filename = r"C:\Users\rchateau\survol_events.sqlite"
-            #_sqlite_uri = rdflib.Literal(r"sqlite:///%s" % sqlite_filename)
 
             sqlite_path = _events_storage_style[1]
             # This path might contain environment variables.

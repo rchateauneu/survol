@@ -386,9 +386,9 @@ def _add_and_start_program_to_group(process_name, user_command, environment_para
         # The log file name created by supervisor is given in the configation file supervisor.conf.
         # This file might contain a message similar to:
         #
-        # OSError: [Errno 2] No such file or directory: 'c:\\users\\rchateau\\appdata\\local\\temp\\_2fsurvol
+        # OSError: [Errno 2] No such file or directory: 'c:\\users\\jsmith\\appdata\\local\\temp\\_2fsurvol
         # _2fsources_5ftypes_2fCIM_5fDirectory_2fevents_5fgenerator_5fwindows_5fdirectory_5fchanges_2epy_3fxi
-        # d_3dCIM_5fDirectory_2eName_3dC_3a_2fUsers_2frchateau_2fAppData_2fLocal_2fTemp-stdout---survol_super
+        # d_3dCIM_5fDirectory_2eName_3dC_3a_2fUsers_2fjsmith_2fAppData_2fLocal_2fTemp-stdout---survol_super
         # visor-vj060s.log'
         #
         # A remedy is to shorten this path with shorter script names etc...
@@ -444,7 +444,7 @@ def start_user_process(process_name, user_command, environment_parameter=""):
 
     full_process_name = _survol_group_name + ":" + process_name
 
-    # 'logfile': 'C:\\Users\\rchateau\\AppData\\Local\\Temp\\survol_url_1597910058-stdout---survol_supervisor-g1bg9mxg.log',
+    # 'logfile': 'C:\\Users\\jsmith\\AppData\\Local\\Temp\\survol_url_1597910058-stdout---survol_supervisor-g1bg9mxg.log',
     # 'name': 'survol_url_1597910058',
     # 'now': 1597910059,
     # 'pid': 0,
@@ -452,8 +452,8 @@ def start_user_process(process_name, user_command, environment_parameter=""):
     # 'start': 0,
     # 'state': 0,
     # 'statename': 'STOPPED',
-    # 'stderr_logfile': 'C:\\Users\\rchateau\\AppData\\Local\\Temp\\survol_url_1597910058-stderr---survol_supervisor-1k6bm7jz.log',
-    # 'stdout_logfile': 'C:\\Users\\rchateau\\AppData\\Local\\Temp\\survol_url_1597910058-stdout---survol_supervisor-g1bg9mxg.log',
+    # 'stderr_logfile': 'C:\\Users\\jsmith\\AppData\\Local\\Temp\\survol_url_1597910058-stderr---survol_supervisor-1k6bm7jz.log',
+    # 'stdout_logfile': 'C:\\Users\\jsmith\\AppData\\Local\\Temp\\survol_url_1597910058-stdout---survol_supervisor-g1bg9mxg.log',
     _log_supervisor_access("start_user_process", "creation", full_proc_name=full_process_name)
     try:
         xmlrpc_server_proxy = _create_server_proxy()

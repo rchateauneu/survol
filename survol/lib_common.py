@@ -293,8 +293,8 @@ class ScriptEnvironment():
         # TODO: is removed. Workaround: Any CGI variable added after.
         # TODO: Also: Several slashes "/" are merged into one.
         # TODO: Example: "xid=http://192.168.1.83:5988/." becomes "xid=http:/192.168.1.83:5988/"
-        # TODO: ... or "xx.py?xid=smbshr.Id=////WDMyCloudMirror///rchateau" ...
-        # TODO: ... becomes "xx.py?xid=smbshr.Id=/WDMyCloudMirror/rchateau"
+        # TODO: ... or "xx.py?xid=smbshr.Id=////WDMyCloudMirror///jsmith" ...
+        # TODO: ... becomes "xx.py?xid=smbshr.Id=/WDMyCloudMirror/jsmith"
         # TODO: Replace by "xid=http:%2F%2F192.168.1.83:5988/."
 
         mode = lib_util.GuessDisplayMode()

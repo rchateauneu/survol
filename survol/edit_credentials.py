@@ -229,7 +229,7 @@ def _cred_definitions():
 
     def CredUrlLogin(cred_name_machine):
         """ Return a node given a machine name"""
-        # Example: credName_Machine="titi\\rchateauneu@hotmail.com"
+        # Example: credName_Machine="titi\\john.smith@hotmail.com"
         server_node = lib_uris.gUriGen.HostnameUri(cred_name_machine)
         return server_node
 

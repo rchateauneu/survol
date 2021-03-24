@@ -91,8 +91,8 @@ def BookmarksHTML(dictBookmarks):
 def Main():
 
 	# Bookmark file for Chrome can be used: "AppData\Local\Google\Chrome\User Data\Default."
-	# "C:\Users\rchateau\AppData\Roaming\Microsoft\Windows\Recent\bookmarks.html.lnk"
-	# "C:\Users\rchateau\AppData\Roaming\Thunderbird\Profiles\xgv4ydxm.default\bookmarks.html"
+	# "C:\Users\jsmith\AppData\Roaming\Microsoft\Windows\Recent\bookmarks.html.lnk"
+	# "C:\Users\jsmith\AppData\Roaming\Thunderbird\Profiles\xgv4ydxm.default\bookmarks.html"
 	# Google bookmark is another possible source of bookmarks.
 	# urlNam = "https://www.google.com/bookmarks/bookmarks.html?hl=fr"
 	try:

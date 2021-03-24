@@ -64,7 +64,7 @@ def Main():
     asstr = net_share_last_output.decode("utf-8")
 
     # Share name        ShrProvTuto
-    # Path              C:\Users\rchateau\Developpement\ReverseEngineeringApps\SharedProviderTutorial
+    # Path              C:\Users\jsmith\Developpement\ReverseEngineeringApps\SharedProviderTutorial
     # Remark
     # Maximum users     No limit
 
