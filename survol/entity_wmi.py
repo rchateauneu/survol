@@ -137,7 +137,7 @@ def DisplayObjectAssociators(grph, wmi_instance_node, obj_wmi, cgiMoniker):
     logging.debug("DisplayObjectAssociators\n")
     # It is possible to restrict the associators to a specific class only.
     for an_assoc in obj_wmi.associators():
-        # assoc_moniker=\\RCHATEAU-HP\root\cimv2:Win32_ComputerSystem.Name="RCHATEAU-HP"
+        # assoc_moniker=\\MYMACHINE\root\cimv2:Win32_ComputerSystem.Name="MYMACHINE"
         assoc_moniker = str(an_assoc.path())
         logging.debug("DisplayObjectAssociators an_assoc Moniker=%s",assoc_moniker)
 
@@ -170,11 +170,11 @@ def DisplayObjectAssociators(grph, wmi_instance_node, obj_wmi, cgiMoniker):
 # The Name property must also contain a string that begins with a letter.
 # All other characters in the string can be letters, digits, or underscores.
 # All characters are case-insensitive.
-# refMoniker='\\RCHATEAU-HP\root\cimv2:CIM_DataFile.Name="c:\\windows\\system32\\sspicli.dll"'
-# cgiMoniker='\\RCHATEAU-HP\root\CIMV2:CIM_DataFile.Name="c:\\windows\\system32\\sspicli.dll"'
+# refMoniker='\\MYMACHINE\root\cimv2:CIM_DataFile.Name="c:\\windows\\system32\\sspicli.dll"'
+# cgiMoniker='\\MYMACHINE\root\CIMV2:CIM_DataFile.Name="c:\\windows\\system32\\sspicli.dll"'
 #
-# '\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="RCHATEAU-HP",Name="Administrator"'
-# '\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="Administrator"'
+# '\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="MYMACHINE",Name="Administrator"'
+# '\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="Administrator"'
 #
 def EqualMonikers(monik_a, monik_b):
     split_a = monik_a.split(':')
@@ -203,7 +203,7 @@ def DispWmiReferences(grph, wmi_instance_node, obj_wmi, cgi_moniker):
                 if not EqualMonikers(ref_moniker, cgi_moniker):
                     # TODO: Disabled for the moment because we do not understand the logic.
                     if False and ref_instance_node is not None:
-                        # Inconsistency:\\RCHATEAU-HP\root\cimv2:Win32_LogonSession.LogonId="195361"
+                        # Inconsistency:\\MYMACHINE\root\cimv2:Win32_LogonSession.LogonId="195361"
                         # != \\192.168.1.83\root\CIMV2:CIM_Process.Handle=7120
                         lib_common.ErrorMessageHtml("Inconsistency:" + ref_moniker + " != " + cgi_moniker)
                     ref_instance_url = lib_util.EntityUrlFromMoniker(ref_moniker)
@@ -244,7 +244,7 @@ def Main():
 
     wmi_host = cgiEnv.GetHost()
 
-    # wmi_host=RCHATEAU-HP ns=root\cimv2 cls=Win32_ComputerSystem id=Name="RCHATEAU-HP"
+    # wmi_host=MYMACHINE ns=root\cimv2 cls=Win32_ComputerSystem id=Name="MYMACHINE"
     logging.debug("wmi_host=%s ns=%s cls=%s id=%s", wmi_host, name_space, class_name, cgiEnv.m_entity_id)
 
     grph = cgiEnv.GetGraph()

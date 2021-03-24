@@ -39,7 +39,7 @@ def Main():
 
 		grph.add( ( node_oraSession, lib_common.MakeProp("Command"), lib_util.NodeLiteral(row[5]) ) )
 
-		# This returns an IP address from "WORKGROUP\RCHATEAU-HP"
+		# This returns an IP address from "WORKGROUP\MYMACHINE"
 		user_machine = lib_oracle.OraMachineToIp(row[6])
 		nodeMachine = lib_common.gUriGen.HostnameUri(user_machine)
 		grph.add( ( nodeMachine, pc.property_information, lib_util.NodeLiteral(row[6]) ) )

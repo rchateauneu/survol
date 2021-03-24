@@ -71,7 +71,7 @@ def Main():
         process_pid = row[4]
         sess_osuser = row[5]
 
-        # This returns an IP address from "WORKGROUP\RCHATEAU-HP"
+        # This returns an IP address from "WORKGROUP\MYMACHINE"
         user_machine = lib_oracle.OraMachineToIp(row[6])
         the_machine_box = lib_common.MachineBox(user_machine)
 

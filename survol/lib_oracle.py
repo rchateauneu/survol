@@ -171,6 +171,6 @@ def AddLiteralNotNone(grph, node, txt, data):
 
 def OraMachineToIp(ora_machine):
     """This returns an IP address."""
-    # Maybe different on Linux ???  "WORKGROUP\RCHATEAU-HP"
+    # Maybe different on Linux ???  "WORKGROUP\MYMACHINE"
     user_machine = lib_util.GlobalGetHostByName(ora_machine.split("\\")[-1])
     return user_machine

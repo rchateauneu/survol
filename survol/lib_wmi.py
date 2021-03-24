@@ -275,7 +275,7 @@ def _get_wmi_class_flag_use_amended_qualifiers_aux(conn_wmi, class_nam, base_cla
 #
 # There are unit conversions which are specific to WMI.
 # Example when displaying a Win32_Process:
-# http://rchateau-hp:8000/survol/entity_wmi.py?xid=%5C%5CRCHATEAU-HP%5Croot%5Ccimv2%3A3AWin32_Process.Handle%3D%221988%22
+# http://mymachine:8000/survol/entity_wmi.py?xid=%5C%5CMYMACHINE%5Croot%5Ccimv2%3A3AWin32_Process.Handle%3D%221988%22
 #
 # CSCreationClassName Win32_ComputerSystem
 # KernelModeTime      407006609 100 nanoseconds
@@ -765,7 +765,7 @@ _prp_cannot_be_displayed = {
 
 # There are unit conversions which are specific to WMI.
 # Example when displaying a Win32_Process:
-# http://rchateau-hp:8000/survol/entity_wmi.py?xid=%5C%5CRCHATEAU-HP%5Croot%5Ccimv2%3A3AWin32_Process.Handle%3D%221988%22
+# http://mymachine:8000/survol/entity_wmi.py?xid=%5C%5CMYMACHINE%5Croot%5Ccimv2%3A3AWin32_Process.Handle%3D%221988%22
 #
 # CSCreationClassName Win32_ComputerSystem
 # KernelModeTime      407006609 100 nanoseconds
@@ -972,7 +972,7 @@ class WmiSparqlCallbackApi:
             raise
 
         for one_wmi_object in wmi_objects:
-            # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
+            # Path='\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
             object_path = str(one_wmi_object.path())
             logging.debug("one_wmi_object.path=%s", object_path)
             list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, class_name)
@@ -982,7 +982,7 @@ class WmiSparqlCallbackApi:
             # Add it again, so the original Sparql query will work.
             dict_key_values[lib_kbase.PredicateSeeAlso] = lib_util.NodeLiteral("WMI")
 
-            # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
+            # s=\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeProp(class_name)
 
             logging.debug("dict_key_values=%s", dict_key_values)
@@ -1004,7 +1004,7 @@ class WmiSparqlCallbackApi:
                         associator_key_name)
         assert subject_path
 
-        # subject_path = '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="31588"'
+        # subject_path = '\\MYMACHINE\root\cimv2:Win32_Process.Handle="31588"'
         dummy, colon, wmi_path = subject_path.partition(":")
         logging.debug("WmiCallbackAssociator wmi_path=%s", wmi_path)
 
@@ -1030,7 +1030,7 @@ class WmiSparqlCallbackApi:
         wmi_objects = self.m_wmi_connection.query(wmi_query)
 
         for one_wmi_object in wmi_objects:
-            # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
+            # Path='\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="rchateau"'
             object_path = str(one_wmi_object.path())
             logging.debug("WmiCallbackAssociator one_wmi_object.path=%s", object_path)
             list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, result_class_name)
@@ -1040,7 +1040,7 @@ class WmiSparqlCallbackApi:
             # Add it again, so the original Sparql query will work.
             dict_key_values[lib_kbase.PredicateSeeAlso] = lib_util.NodeLiteral("WMI")
 
-            # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"
+            # s=\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="rchateau"
             # p=http://www.w3.org/1999/02/22-rdf-syntax-ns#type
             # o=http://primhillcomputers.com/survol/Win32_UserAccount
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeNodeForSparql(result_class_name)
@@ -1143,7 +1143,7 @@ class WmiSparqlExecutor:
 
         # FIXME: select * from CIM_DiskDrive
         # FIXME: ... might return:
-        # FIXME: \\RCHATEAU-HP\root\cimv2:Win32_DiskDrive.DeviceID="\\\\.\\PHYSICALDRIVE0"
+        # FIXME: \\MYMACHINE\root\cimv2:Win32_DiskDrive.DeviceID="\\\\.\\PHYSICALDRIVE0"
         # FIXME:
         # FIXME: "Win32_DiskDrive" is derived class of "CIM_DiskDrive"
         # FIXME: "Win32_DiskDrive" has the property "DeviceID" but "CIM_DiskDrive" has none.
@@ -1161,7 +1161,7 @@ class WmiSparqlExecutor:
         for one_wmi_object in wmi_objects:
             # The WMI path is not a correct path for Survol: The class could be a derived class of the CIM standard,
             # and the prefix containing the Windows host, must rather contain a Survol agent.
-            # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
+            # Path='\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="rchateau"'
             object_path = str(one_wmi_object.path())
 
             # DEBUG    root:lib_wmi.py:1025 object_path=['__doc__', '__eq__', '__getattr__', '__hash__', '__init__',
@@ -1174,7 +1174,7 @@ class WmiSparqlExecutor:
             list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, class_name)
             dict_key_values = {node_key: node_value for node_key, node_value in list_key_values}
 
-            # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP", ...
+            # s=\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine", ...
             # Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeProp(class_name)
 
@@ -1251,13 +1251,13 @@ class WmiSparqlExecutor:
             return
 
         for one_wmi_object in wmi_objects:
-            # Path='\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"'
+            # Path='\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="rchateau"'
             object_path = str(one_wmi_object.path())
             # logging.debug("WmiCallbackAssociator one_wmi_object.path=%s",object_path)
             list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, result_class_name)
             dict_key_values = {node_key: node_value for node_key, node_value in list_key_values}
 
-            # s=\\RCHATEAU-HP\root\cimv2:Win32_UserAccount.Domain="rchateau-HP",Name="rchateau"
+            # s=\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="rchateau"
             # p=http://www.w3.org/1999/02/22-rdf-syntax-ns#type
             # o=http://primhillcomputers.com/survol/Win32_UserAccount
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeNodeForSparql(result_class_name)

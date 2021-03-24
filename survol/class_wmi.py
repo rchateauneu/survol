@@ -105,7 +105,7 @@ def Main():
 
         for wmi_obj in lst_obj:
             # Full natural path: We must try to merge it with WBEM Uris.
-            # '\\\\RCHATEAU-HP\\root\\cimv2:Win32_Process.Handle="0"'
+            # '\\\\MYMACHINE\\root\\cimv2:Win32_Process.Handle="0"'
             # https://jdd:test@acme.com:5959/cimv2:Win32_SoftwareFeature.Name="Havana",ProductName="Havana",Version="1.0"
 
             try:
@@ -143,7 +143,7 @@ def Main():
                 # };
                 continue
 
-            # full_pth=\\RCHATEAU-HP\root\CIMV2:Win32_SoundDevice.DeviceID="HDAUDIO\\FUNC_01&VEN_10EC&DEV_0221&SUBSYS_103C18E9&REV_1000\\4&3BC582&0&0001"
+            # full_pth=\\MYMACHINE\root\CIMV2:Win32_SoundDevice.DeviceID="HDAUDIO\\FUNC_01&VEN_10EC&DEV_0221&SUBSYS_103C18E9&REV_1000\\4&3BC582&0&0001"
             full_pth = full_pth.replace("&", "&amp;")
             wmi_instance_url = lib_util.EntityUrlFromMoniker(full_pth)
             logging.debug("wmi_instance_url=%s", wmi_instance_url)

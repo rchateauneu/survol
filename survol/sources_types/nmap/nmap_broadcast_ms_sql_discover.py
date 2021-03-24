@@ -74,7 +74,7 @@ def Main():
 
     dom = xml.dom.minidom.parseString(nmap_last_output)
 
-    # <script id="broadcast-ms-sql-discover" output="&#xa; 192.168.0.14 (RCHATEAU-HP)&#xa; [192.168.0.14\SQLEXPRESS]&#xa; Name: SQLEXPRESS&#xa; Product: Microsoft SQL Server 2012&#xa; TCP port: 1433&#xa; Named pipe: \\192.168.0.14\pipe\MSSQL$SQLEXPRESS\sql\query&#xa;"/>
+    # <script id="broadcast-ms-sql-discover" output="&#xa; 192.168.0.14 (MYMACHINE)&#xa; [192.168.0.14\SQLEXPRESS]&#xa; Name: SQLEXPRESS&#xa; Product: Microsoft SQL Server 2012&#xa; TCP port: 1433&#xa; Named pipe: \\192.168.0.14\pipe\MSSQL$SQLEXPRESS\sql\query&#xa;"/>
     for a_script in dom.getElementsByTagName('script'):
         an_output = a_script.getAttributeNode('output').value.strip()
         logging.debug("an_output=%s", str(an_output))

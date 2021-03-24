@@ -760,7 +760,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             # The Sparql query is:
             # { ?url_proc survol:Handle %d  .
             #  ?url_proc rdf:type survol:CIM_Process . }
-            # WMI returns object_path = '\\RCHATEAU-HP\root\cimv2:Win32_Process.Handle="11568"'
+            # WMI returns object_path = '\\MYMACHINE\root\cimv2:Win32_Process.Handle="11568"'
             # Survol object URL must be like: http://rchateau-hp:8000/survol/entity.py?xid=CIM_Process.Handle=6936
             # Therefore, the WMI path cannot be used "as is", but instead use the original self.m_class_name.
             uri_key_values = {}

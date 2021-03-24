@@ -70,9 +70,9 @@ def _sub_namespace(root_node, grph, nskey, cimom_url, ns_depth=1):
     try:
         lst_namespaces = conn_wmi.__NAMESPACE()
         logging.debug("lst_namespaces=%s", lst_namespaces)
-        # lst_namespaces=[<_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:__NAMESPACE.Name="Security">, <_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:__NAMESPA
-        # CE.Name="power">, <_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:__NAMESPACE.Name="ms_409">, <_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:__NAMESP
-        # ACE.Name="TerminalServices">, <_wmi_object: \\RCHATEAU-HP\ROOT\cimv2:__NAMESPACE.Name="Applications">]
+        # lst_namespaces=[<_wmi_object: \\MYMACHINE\ROOT\cimv2:__NAMESPACE.Name="Security">, <_wmi_object: \\MYMACHINE\ROOT\cimv2:__NAMESPA
+        # CE.Name="power">, <_wmi_object: \\MYMACHINE\ROOT\cimv2:__NAMESPACE.Name="ms_409">, <_wmi_object: \\MYMACHINE\ROOT\cimv2:__NAMESP
+        # ACE.Name="TerminalServices">, <_wmi_object: \\MYMACHINE\ROOT\cimv2:__NAMESPACE.Name="Applications">]
 
         for subnamespace in lst_namespaces:
             _sub_namespace(wmi_node, grph, nskey + "\\" + subnamespace.Name, cimom_url, ns_depth + 1)
