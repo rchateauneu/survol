@@ -91,7 +91,7 @@ def _get_wmi_user_pass(mach_with_back_slashes):
 
 
 # This works. Before a given version, had to use server="xyz" instead of computer="xyz"
-# c = wmi.WMI(computer="titi",user="titi\\rchateauneu@hotmail.com",password="my_hotmail_pass")
+# c = wmi.WMI(computer="titi",user="titi\\john.smith@hotmail.com",password="my_hotmail_pass")
 
 
 def WmiConnect(mach_with_back_slashes, wmi_namspac, throw_if_error=True):
@@ -972,7 +972,7 @@ class WmiSparqlCallbackApi:
             raise
 
         for one_wmi_object in wmi_objects:
-            # Path='\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="rchateau"'
+            # Path='\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="jsmith"'
             object_path = str(one_wmi_object.path())
             logging.debug("one_wmi_object.path=%s", object_path)
             list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, class_name)
@@ -982,7 +982,7 @@ class WmiSparqlCallbackApi:
             # Add it again, so the original Sparql query will work.
             dict_key_values[lib_kbase.PredicateSeeAlso] = lib_util.NodeLiteral("WMI")
 
-            # s=\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
+            # s=\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="jsmith" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeProp(class_name)
 
             logging.debug("dict_key_values=%s", dict_key_values)
@@ -1030,7 +1030,7 @@ class WmiSparqlCallbackApi:
         wmi_objects = self.m_wmi_connection.query(wmi_query)
 
         for one_wmi_object in wmi_objects:
-            # Path='\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="rchateau"'
+            # Path='\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="jsmith"'
             object_path = str(one_wmi_object.path())
             logging.debug("WmiCallbackAssociator one_wmi_object.path=%s", object_path)
             list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, result_class_name)
@@ -1040,7 +1040,7 @@ class WmiSparqlCallbackApi:
             # Add it again, so the original Sparql query will work.
             dict_key_values[lib_kbase.PredicateSeeAlso] = lib_util.NodeLiteral("WMI")
 
-            # s=\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="rchateau"
+            # s=\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="jsmith"
             # p=http://www.w3.org/1999/02/22-rdf-syntax-ns#type
             # o=http://primhillcomputers.com/survol/Win32_UserAccount
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeNodeForSparql(result_class_name)
@@ -1161,7 +1161,7 @@ class WmiSparqlExecutor:
         for one_wmi_object in wmi_objects:
             # The WMI path is not a correct path for Survol: The class could be a derived class of the CIM standard,
             # and the prefix containing the Windows host, must rather contain a Survol agent.
-            # Path='\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="rchateau"'
+            # Path='\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="jsmith"'
             object_path = str(one_wmi_object.path())
 
             # DEBUG    root:lib_wmi.py:1025 object_path=['__doc__', '__eq__', '__getattr__', '__hash__', '__init__',
@@ -1175,7 +1175,7 @@ class WmiSparqlExecutor:
             dict_key_values = {node_key: node_value for node_key, node_value in list_key_values}
 
             # s=\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine", ...
-            # Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
+            # Name="jsmith" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeProp(class_name)
 
             try:
@@ -1251,13 +1251,13 @@ class WmiSparqlExecutor:
             return
 
         for one_wmi_object in wmi_objects:
-            # Path='\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="rchateau"'
+            # Path='\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="jsmith"'
             object_path = str(one_wmi_object.path())
             # logging.debug("WmiCallbackAssociator one_wmi_object.path=%s",object_path)
             list_key_values = WmiKeyValues(self.m_wmi_connection, one_wmi_object, False, result_class_name)
             dict_key_values = {node_key: node_value for node_key, node_value in list_key_values}
 
-            # s=\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="rchateau"
+            # s=\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="jsmith"
             # p=http://www.w3.org/1999/02/22-rdf-syntax-ns#type
             # o=http://primhillcomputers.com/survol/Win32_UserAccount
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeNodeForSparql(result_class_name)

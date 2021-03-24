@@ -91,7 +91,7 @@ def _standardized_file_path_nocache(file_path):
         # FIXME: os.path.realpath('c:') => 'C:\Users\the_current_user'
 
         # When running in PyCharm with virtualenv, the path is correct:
-        # "C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle/venv/Scripts/python.exe"
+        # "C:/Users/jsmith/Developpement/ReverseEngineeringApps/PythonStyle/venv/Scripts/python.exe"
         # When running from pytest, it is converted to lowercase.
         # "c:/python27/python.exe" instead of "C:/Python27/python.exe"
         #

@@ -663,7 +663,6 @@ class WbemSparqlCallbackApi:
             # Add it again, so the original Sparql query will work.
             dict_key_values[lib_kbase.PredicateSeeAlso] = lib_util.NodeLiteral("WBEM")
 
-        #     # s=\\MYMACHINE\root\cimv2:Win32_UserAccount.Domain="mymachine",Name="rchateau" phttp://www.w3.org/1999/02/22-rdf-syntax-ns#type o=Win32_UserAccount
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeProp(class_name)
 
             logging.debug("dict_key_values=%s", dict_key_values)

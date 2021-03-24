@@ -58,7 +58,7 @@ def Main():
 
         # Typical result:
         # [
-        #     ["/home/rchateau/survol/tests/SampleDirScripts/SampleSqlFile.py", 17, "<module>", "xx = sys.stdin.read(1)"],
+        #     ["/home/jsmith/survol/tests/SampleDirScripts/SampleSqlFile.py", 17, "<module>", "xx = sys.stdin.read(1)"],
         #     ["<string>", 1, "<module>", null],
         #     ["/tmp/tmpIcWP2j.py", 9, "<module>", "retobj = traceback.extract_stack()"]
         # ]

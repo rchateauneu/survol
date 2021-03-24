@@ -63,10 +63,10 @@ def Main():
             # sdiskpart(device='C:\\', mountpoint='C:\\', fstype='NTFS', opts='rw,fixed')
             # DeviceID     : X:
             # DriveType    : 4
-            # ProviderName : \\192.168.1.81\rchateau
+            # ProviderName : \\192.168.1.81\jsmith
             # FreeSpace    : 170954825728
             # Size         : 2949169561600
-            # VolumeName   : rchateau
+            # VolumeName   : jsmith
             #
             # WMI does not want a backslash at the end: "C:".
             # Replacing backslashes is necessary on Windows.

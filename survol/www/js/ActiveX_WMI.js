@@ -414,8 +414,8 @@ function GetUserPass(hostName)
 	var userPass = globalCredentials[hostName];
 
 	return {
-		m_user:"rchateauneu@hotmail.com",
-		m_pass: "troulala" };
+		m_user:"john.smith@hotmail.com",
+		m_pass: "********" };
 }
 
 /* This returns an object which can be called to create a connection to Wbem:
@@ -458,7 +458,6 @@ function ConnectWbemServer(hostName, strClass, dictProperties)
 	if(hostName != "" ) {
 		console.log("ConnectWbemServer: WMI connect to explicit hostName:"+hostName);
 		return CreateWbemConnector(hostName);
-		// svcWbem = wbemLocat.ConnectServer(hostName, "root\\cimv2", "rchateauneu@hotmail.com", "troulala");
 	}
 
 	// Possibly other cases depending on the class name.
@@ -469,7 +468,6 @@ function ConnectWbemServer(hostName, strClass, dictProperties)
 		var remoteHostname = dictProperties["Name"];
 		console.log("ConnectWbemServer: WMI connect to CIM_ComputerSystem remoteHostname="+remoteHostname);
 		return CreateWbemConnector(remoteHostname);
-		// svcWbem = wbemLocat.ConnectServer(wmiHostname, "root\\cimv2", "rchateauneu@hotmail.com", "troulala");
 	}
 
 	console.log("ConnectWbemServer: WMI connect local");

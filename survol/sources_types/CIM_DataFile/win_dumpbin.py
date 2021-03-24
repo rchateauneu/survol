@@ -59,7 +59,7 @@ def Main():
 
 	nodeDLL = lib_common.gUriGen.FileUri( dll_file )
 
-	# C:\Users\rchateau>dumpbin.exe "C:/Program Files (x86)/NETGEAR/WNDA3100v3/ICSDHCP.dll" /exports
+	# C:\Users\jsmith>dumpbin.exe "C:/Program Files (x86)/NETGEAR/WNDA3100v3/ICSDHCP.dll" /exports
 	# Microsoft (R) COFF/PE Dumper Version 12.00.31101.0
 	# Copyright (C) Microsoft Corporation.  All rights reserved.
 	#

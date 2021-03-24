@@ -45,7 +45,7 @@ def RunGdbCommand(the_pid,command):
 	resu = []
 
 	# Removes the heading information and the lines beginning with a prompt.
-	# [rchateau@DuoLnx BY_process]$ gdb  -q -p 6513 -x stack.gdb
+	# [jsmith@DuoLnx BY_process]$ gdb  -q -p 6513 -x stack.gdb
 	# Attaching to process 6513
 	# Reading symbols from /usr/bin/kdeinit...(no debugging symbols found)...done.
 	for lin in gdb_last_output.split(b'\n'):

@@ -21,7 +21,7 @@ import lib_common
 from lib_properties import pc
 from sources_types import addr as survol_addr
 
-# C:\Users\rchateau>netstat -on
+# C:\Users\jsmith>netstat -on
 #
 # Active Connections
 #

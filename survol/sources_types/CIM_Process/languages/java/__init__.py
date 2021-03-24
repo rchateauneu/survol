@@ -33,7 +33,7 @@ Java processes
 #
 # The jps command will report the local VM identifier, or lvmid, for each instrumented JVM found on the target system.
 # The lvmid is typically, but not necessarily, the operating system's process identifier for the JVM process.
-# C:\Users\rchateau>jps -lvm
+# C:\Users\jsmith>jps -lvm
 # 7792 sun.tools.jps.Jps -lvm -Dapplication.home=C:\Program Files\Java\jdk1.8.0_121 -Xms8m
 # 3832  -Xms128m -Xmx512m -XX:MaxPermSize=250m -XX:ReservedCodeCacheSize=150m -XX:+UseConcMarkSweepGC -XX:SoftRefLRUPolicyMSPerMB=50 -ea -Dsun.io.useCanonCaches=false -Djava.net.preferIPv4Stack=true -Djb.vmOptions=C:\Program Files (x86)\JetBrains\PyCharm Community Edition 4.5.4\bin\pycharm.exe.vmoptions -Xbootclasspath/a:C:\Program Files (x86)\JetBrains\PyCharm Community Edition 4.5.4\lib\boot.jar -Didea.platform.prefix=PyCharmCore -Didea.no.jre.check=true -Didea.paths.selector=PyCharm40
 # 8824 sun.tools.jconsole.JConsole -Dapplication.home=C:\Program Files\Java\jdk1.8.0_121 -Xms8m -Djconsole.showOutputViewer
@@ -47,7 +47,7 @@ Java processes
 # Il doit donc y avoir quelque partune ressource partagee par tous les processes java.
 #
 #
-# C:\Users\rchateau>jinfo -sysprops 8824
+# C:\Users\jsmith>jinfo -sysprops 8824
 # Attaching to process ID 8824, please wait...
 # Debugger attached successfully.
 # Server compiler detected.
@@ -64,7 +64,7 @@ Java processes
 # sun.java.launcher = SUN_STANDARD
 # user.script =
 # user.country = GB
-# user.dir = C:\Users\rchateau
+# user.dir = C:\Users\jsmith
 # java.vm.specification.name = Java Virtual Machine Specification
 # java.runtime.version = 1.8.0_121-b13
 # java.awt.graphicsenv = sun.awt.Win32GraphicsEnvironment
@@ -72,7 +72,7 @@ Java processes
 # java.endorsed.dirs = C:\Program Files\Java\jdk1.8.0_121\jre\lib\endorsed
 # line.separator =
 #
-# java.io.tmpdir = C:\Users\rchateau\AppData\Local\Temp\
+# java.io.tmpdir = C:\Users\jsmith\AppData\Local\Temp\
 # java.vm.specification.vendor = Oracle Corporation
 # user.variant =
 # os.name = Windows 7
@@ -99,12 +99,12 @@ Java processes
 # sun.management.compiler = HotSpot 64-Bit Tiered Compilers
 # jconsole.showOutputViewer =
 # os.version = 6.1
-# user.home = C:\Users\rchateau
+# user.home = C:\Users\jsmith
 # user.timezone =
 # java.awt.printerjob = sun.awt.windows.WPrinterJob
 # file.encoding = Cp1252
 # java.specification.version = 1.8
-# user.name = rchateau
+# user.name = jsmith
 # java.class.path = C:\Program Files\Java\jdk1.8.0_121/lib/jconsole.jar;C:\Program Files\Java\jdk1.8.0_121/lib/tools.jar;C:\Program Files\Java\jdk1.8.0_121/classes
 # java.vm.specification.version = 1.8
 # sun.arch.data.model = 64
@@ -129,7 +129,7 @@ Java processes
 # sun.cpu.isalist = amd64
 #
 #
-# C:\Users\rchateau>jinfo -flags 8824
+# C:\Users\jsmith>jinfo -flags 8824
 # Attaching to process ID 8824, please wait...
 # Debugger attached successfully.
 # Server compiler detected.
@@ -141,7 +141,7 @@ Java processes
 # Peut-etre est-ce parce que jinfo et pycharm ne fonctionnent pas avec le meme Java ?
 # Toutefois jps liste pycharm ?
 #
-# C:\Users\rchateau>where java
+# C:\Users\jsmith>where java
 # C:\ProgramData\Oracle\Java\javapath\java.exe
 # C:\Program Files\Java\jdk1.8.0_121\bin\java.exe
 #

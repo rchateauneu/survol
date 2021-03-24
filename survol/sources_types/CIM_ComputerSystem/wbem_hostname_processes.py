@@ -53,7 +53,7 @@ def Main():
     # Python 2.7, pywbem.__version__ '0.8.0-dev'
     # >>> conn = pywbem.WBEMConnection("https://192.168.1.88:5989" , ('my-user','my-pass') )
     # >>> lst = conn.EnumerateInstanceNames(ClassName="CIM_Process",namespace="root/cimv2")
-    # ...pywbem.cim_operations.CIMError: (1, u'CIM_ERR_FAILED: Error initializing CMPI MI /home/rchateau/TestProviderOpenLMI/tutorial_final/T
+    # ...pywbem.cim_operations.CIMError: (1, u'CIM_ERR_FAILED: Error initializing CMPI MI /home/jsmith/TestProviderOpenLMI/tutorial_final/T
     # UT_UnixProcess.py, the following MI factory function(s) returned an error: _Generic_Create_InstanceMI, message was: cmpi:Traceback (
     # most recent call last):<br>  File "/usr/lib64/python2.7/site-packages/cmpi_pywbem_bindings.py", line 34, in <module><br>    from pyw
     # bem.cim_provider2 import ProviderProxy<br>ImportError: No module named cim_provider2<br>')

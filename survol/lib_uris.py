@@ -284,7 +284,6 @@ class LocalBox:
     # This must be a complete path name.
     # If there is a backslash-L, it will be replaced by "<TABLE>" in graphviz:
     # XML Parsing Error: not well-formed
-    # Location: http://127.0.0.1/Survol/survol/entity.py?xid=file:C%3A%5CUsers%5Crchateau%5CAppData%5CLocal%5CMicrosoft%5CWindows%5CExplorer%5CThumbCacheToDelete%5Cthm9798.tmp
     def FileUri(self, path):
         path = lib_util.standardized_file_path(path)
         return self.UriMake("CIM_DataFile", lib_util.EncodeUri(path))

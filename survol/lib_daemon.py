@@ -47,7 +47,7 @@ def _url_to_process_name(script_url):
     FIXME: to create a log file whose length is limited to 250 characters approximately.
     FIXME: See xmlrpclib.ProtocolError. The resulting filename is something like:
     _2fsurvol_2fsources_5ftypes_2fCIM_5fDirectory_2fevents_5fgenerator_5fwindows_5fdirectory_
-    5fchanges_2epy_3fxid_3dCIM_5fDirectory_2eName_3dC_3a_2fUsers_2frchateau_2fAppData_2fLocal
+    5fchanges_2epy_3fxid_3dCIM_5fDirectory_2eName_3dC_3a_2fUsers_2fjsmith_2fAppData_2fLocal
     _2fTemp-stdout----vj060.log
 
     FIXME: If it is too long, it throws an internal error which is difficult to detect.
@@ -99,7 +99,7 @@ def start_events_feeder_daemon(script_url):
 
     # http://vps516494.ovh.net/Survol/survol/print_environment_variables.py?toto=1&tutu=2
     # QUERY_STRING	toto=1&tutu=2
-    # SCRIPT_FILENAME	/home/rchateau/survol/survol/print_environment_variables.py
+    # SCRIPT_FILENAME	/home/jsmith/survol/survol/print_environment_variables.py
     # HTTP_HOST	vps516494.ovh.net
     # SCRIPT_NAME	/Survol/survol/print_environment_variables.py
     # REQUEST_URI	/Survol/survol/print_environment_variables.py?toto=1&tutu=2
@@ -150,7 +150,7 @@ def start_events_feeder_daemon(script_url):
     actual_host = "" if parsed_url.hostname is None else parsed_url.hostname
 
     # Percent character "%%" must be escaped, because if the strings contain "%", thenit throws an error like:
-    # 'HTTP_HOST="None",QUERY_STRING="xid=CIM_Directory.Name%3DC%3A%2FUsers%2Frchateau%2FAp ...
+    # 'HTTP_HOST="None",QUERY_STRING="xid=CIM_Directory.Name%3DC%3A%2FUsers%2Fjsmith%2FAp ...
     # faultString = 'INCORRECT_PARAMETERS: Format string \'HTTP_HOST="...\\survol\\\\scripts\\\\supervisord.conf\')'
     environment_parameter = \
         'HTTP_HOST="%s",QUERY_STRING="%s",SCRIPT_NAME="%s",SERVER_PORT="%s",REQUEST_URI="%s",PYTHONPATH="survol"' % (

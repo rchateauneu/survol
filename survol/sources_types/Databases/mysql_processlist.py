@@ -8,7 +8,7 @@ mysql sessions
 # Note: There is no space between the option "-p" and the password.
 # https://stackoverflow.com/questions/12665522/is-there-a-way-to-pass-the-db-user-password-into-the-command-line-tool-mysqladmi
 #
-# C:\Users\rchateau>mysqladmin -u MyUser -pMyPassword processlist
+# C:\Users\jsmith>mysqladmin -u MyUser -pMyPassword processlist
 # mysqladmin: [Warning] Using a password on the command line interface can be insecure.
 # +------+----------------------+---------------------+----+---------+------+-------+------------------+
 # | Id   | User                 | Host                | db | Command | Time | State | Info             |
@@ -17,7 +17,7 @@ mysql sessions
 # | 1909 | unauthenticated user | 192.168.1.103:46047 |    | Connect |      | login |                  |
 # | 1910 | unauthenticated user | 192.168.1.103:46048 |    | Connect |      | login |
 #
-# C:\Users\rchateau>mysqladmin -u usrXYZ -ppwdXYZ processlist -hvps516494.ovh.net
+# C:\Users\jsmith>mysqladmin -u usrXYZ -ppwdXYZ processlist -hvps516494.ovh.net
 # mysqladmin: [Warning] Using a password on the command line interface can be insecure.
 # +------+--------+---------------------------------------------------------+----+---------+------+-------+------------------+---------+
 # | Id   | User   | Host                                                    | db | Command | Time | State | Info             | Progres |

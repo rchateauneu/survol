@@ -3,7 +3,7 @@
 # [(groupName, attribute), ...] = NetUserGetGroups(serverName, userName )
 # Returns a list of groups,attributes for all groups for the user.
 
-# >>> win32net.NetUserGetGroups(None,"rchateau")
+# >>> win32net.NetUserGetGroups(None,"jsmith")
 # [(u'None', 7)]
 # >>> win32net.NetUserGetGroups("TITI","vero")
 # [(u'None', 7)]
@@ -15,7 +15,7 @@
 # [u'Guests']
 # >>> win32net.NetUserGetLocalGroups("TITI","vero")
 # [u'HomeUsers', u'Users']
-# >>> win32net.NetUserGetLocalGroups(None,"rchateau")
+# >>> win32net.NetUserGetLocalGroups(None,"jsmith")
 # [u'HomeUsers', u'ORA_DBA', u'TelnetClients', u'Administrators', u'Performance Log Users']
 # >>> win32net.NetUserGetGroups("Titi","rchat_000")
 # [(u'None', 7)]

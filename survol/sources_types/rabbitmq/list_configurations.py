@@ -47,10 +47,10 @@ def Main():
 			grph.add( ( nodeAddr, lib_common.MakeProp("Management"), lib_common.NodeUrl(managementUrl) ) )
 
 			# TODO: Get and display the log files.
-			# Config file 	c:/Users/rchateau/AppData/Roaming/RabbitMQ/rabbitmq.config
-			# Database directory 	c:/Users/rchateau/AppData/Roaming/RabbitMQ/db/RABBIT~1
-			# Log file 	C:/Users/rchateau/AppData/Roaming/RabbitMQ/log/RABBIT~1.LOG
-			# SASL log file 	C:/Users/rchateau/AppData/Roaming/RabbitMQ/log/RABBIT~2.LOG
+			# Config file 	c:/Users/jsmith/AppData/Roaming/RabbitMQ/rabbitmq.config
+			# Database directory 	c:/Users/jsmith/AppData/Roaming/RabbitMQ/db/RABBIT~1
+			# Log file 	C:/Users/jsmith/AppData/Roaming/RabbitMQ/log/RABBIT~1.LOG
+			# SASL log file 	C:/Users/jsmith/AppData/Roaming/RabbitMQ/log/RABBIT~2.LOG
 
 	cgiEnv.OutCgiRdf()
 
