@@ -49,7 +49,7 @@ from sources_types import CIM_NetworkAdapter
 #         ServiceName = "RTL8167";
 #         Speed = "100000000";
 #         SystemCreationClassName = "Win32_ComputerSystem";
-#         SystemName = "RCHATEAU-HP";
+#         SystemName = "MYMACHINE";
 #         TimeOfLastReset = "20171014214032.375199+060";
 # };
 #

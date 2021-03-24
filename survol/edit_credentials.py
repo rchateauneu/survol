@@ -244,7 +244,7 @@ def _cred_definitions():
         return node_oradb
 
     def CredUrlSqlExpress(dbName):
-        # Example: dbName = "RCHATEAU-HP\\SQLEXPRESS". It contains the server name.
+        # Example: dbName = "MYMACHINE\\SQLEXPRESS". It contains the server name.
         # Connection with ODBC.
         # conn = pyodbc.connect('DRIVER={ODBC Driver 13 for SQL Server};SERVER=192.168.0.14;PORT=1433;DATABASE=ExpressDB;UID=essaisql;PWD=tralala')
         # The ODBC connection string can be, from Fedora Linux:

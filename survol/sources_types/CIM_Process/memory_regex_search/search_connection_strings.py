@@ -103,9 +103,9 @@ def _get_aggreg_dsns(pidint, map_rgx):
 
         # TODO: Eliminate aggrehated strings containing one or two tokens,
         # because they cannot be genuine DSNs.
-        # 29812569: SERVER=\RCHATEAU-HP
+        # 29812569: SERVER=\MYMACHINE
         # 34515016: Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes
-        # 34801013: SERVER=\RCHATEAU-HP
+        # 34801013: SERVER=\MYMACHINE
         # 35634904: Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes
 
         return aggreg_dsns
@@ -154,9 +154,9 @@ def Main():
 
     # TODO: Eliminate aggregated strings containing one or two tokens,
     # because they cannot be genuine DSNs.
-    # 29812569: SERVER=\RCHATEAU-HP
+    # 29812569: SERVER=\MYMACHINE
     # 34515016: Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes
-    # 34801013: SERVER=\RCHATEAU-HP
+    # 34801013: SERVER=\MYMACHINE
     # 35634904: Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes
 
     for aggreg_offset in aggreg_dsns:
