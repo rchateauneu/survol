@@ -190,20 +190,20 @@ function CallbackAssociatorsWMI(svcWbem,wqlQueryAssociators,objectSvg,funcD3Disp
 			 // Class	"Win32_ComputerSystem"
 			 console.log("objWmiAssocs.Path_.Class="+objWmiAssocs.Path_.Class);
 
-			// Path	"\\\\RCHATEAU-HP\\root\\cimv2:Win32_ComputerSystem.Name=\"RCHATEAU-HP\""
+			// Path	"\\\\MYMACHINE\\root\\cimv2:Win32_ComputerSystem.Name=\"MYMACHINE\""
 			console.log("objWmiAssocs.Path_.Path="+objWmiAssocs.Path_.Path);
 
-			// RelPath	"Win32_ComputerSystem.Name=\"RCHATEAU-HP\""
+			// RelPath	"Win32_ComputerSystem.Name=\"MYMACHINE\""
 			console.log("objWmiAssocs.Path_.RelPath="+objWmiAssocs.Path_.RelPath);
 
-			// DisplayName	"WINMGMTS:{authenticationLevel=pktPrivacy,impersonationLevel=impersonate}!\\\\RCHATEAU-HP\\root\\cimv2:Win32_ComputerSystem.Name=\"RCHATEAU-HP\""
+			// DisplayName	"WINMGMTS:{authenticationLevel=pktPrivacy,impersonationLevel=impersonate}!\\\\MYMACHINE\\root\\cimv2:Win32_ComputerSystem.Name=\"MYMACHINE\""
 			console.log("objWmiAssocs.Path_.DisplayName="+objWmiAssocs.Path_.DisplayName);
 
-			// '\\RCHATEAU-HP\root\cimv2:Win32_ComputerSystem.Name="RCHATEAU-HP"'
+			// '\\MYMACHINE\root\cimv2:Win32_ComputerSystem.Name="MYMACHINE"'
 			// Most of times, we must explore Derivation_ to find a super-class defined in our terminology.
 			console.log("objWmiAssocs.Path_.Path="+objWmiAssocs.Path_.Path);
 
-			// 'Win32_ComputerSystem.Name="RCHATEAU-HP"'
+			// 'Win32_ComputerSystem.Name="MYMACHINE"'
 			console.log("objWmiAssocs.Path_.RelPath="+objWmiAssocs.Path_.RelPath);
 
 			// We have to create an object name, just like what the Python scripts do.
