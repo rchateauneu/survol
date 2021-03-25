@@ -3,30 +3,32 @@ Open Database Connectivity table
 """
 
 import sys
-import lib_util
-import lib_common
+
+import lib_uris
 from lib_properties import pc
 from sources_types import odbc as survol_odbc
 from sources_types.odbc import dsn as survol_odbc_dsn
 
+
 def Graphic_colorbg():
-	return "#66FF33"
+    return "#66FF33"
+
 
 def EntityOntology():
-	return ( [survol_odbc.CgiPropertyDsn(), "Table"], )
+    return ([survol_odbc.CgiPropertyDsn(), "Table"],)
 
-def MakeUri(dsnName,tableNam):
-	return lib_common.gUriGen.UriMakeFromDict("odbc/table", { survol_odbc.CgiPropertyDsn() : dsnName, "Table" : tableNam })
+
+def MakeUri(dsn_name, table_nam):
+    return lib_uris.gUriGen.UriMakeFromDict("odbc/table", {survol_odbc.CgiPropertyDsn(): dsn_name, "Table": table_nam})
+
 
 def EntityName(entity_ids_arr):
-	# sys.stderr.write("EntityName entity_ids_arr=%s\n"%str(entity_ids_arr))
-	return survol_odbc.CgiPropertyDsn().ValueShortDisplay(entity_ids_arr[0]) + "::" + entity_ids_arr[1]
+    return survol_odbc.CgiPropertyDsn().ValueShortDisplay(entity_ids_arr[0]) + "::" + entity_ids_arr[1]
 
-def AddInfo(grph,node,entity_ids_arr):
-	dsnNam = entity_ids_arr[0]
-	# tabNam = entity_ids_arr[1]
 
-	nodeDsn = survol_odbc_dsn.MakeUri( dsnNam )
+def AddInfo(grph, node, entity_ids_arr):
+    dsn_nam = entity_ids_arr[0]
 
-	grph.add((node,pc.property_odbc_table, nodeDsn))
+    node_dsn = survol_odbc_dsn.MakeUri(dsn_nam)
 
+    grph.add((node, pc.property_odbc_table, node_dsn))

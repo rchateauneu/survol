@@ -24,24 +24,24 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    dsnNam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
-    tabNam = cgiEnv.m_entity_id_dict["Table"]
+    dsn_nam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
+    tab_nam = cgiEnv.m_entity_id_dict["Table"]
 
-    logging.debug("dsn=%s tabNam=%s", dsnNam, tabNam )
+    logging.debug("dsn=%s tab_nam=%s", dsn_nam, tab_nam)
 
-    nodTab = survol_odbc_table.MakeUri( dsnNam, tabNam )
+    nodTab = survol_odbc_table.MakeUri( dsn_nam, tab_nam)
 
     # ('C:\\Program Files (x86)\\Microsoft Visual Studio 8\\Crystal Reports\\Samples\\en\\Databases\\xtreme', None, 'MSysAccessObjects', 'SYSTEM TABLE', None)
 
-    ODBC_ConnectString = survol_odbc_dsn.MakeOdbcConnectionString(dsnNam)
+    odbc_connect_string = survol_odbc_dsn.MakeOdbcConnectionString(dsn_nam)
 
     try:
-        cnxn = pyodbc.connect(ODBC_ConnectString)
-        logging.debug("Connected: %s", dsnNam)
+        cnxn = pyodbc.connect(odbc_connect_string)
+        logging.debug("Connected: %s", dsn_nam)
         cursor = cnxn.cursor()
 
-        cursor.columns(table=tabNam)
-        logging.debug("Tables OK: %s", dsnNam)
+        cursor.columns(table=tab_nam)
+        logging.debug("Tables OK: %s", dsn_nam)
         rows = cursor.fetchall()
 
         # http://pyodbc.googlecode.com/git/web/docs.html
@@ -66,32 +66,29 @@ def Main():
         # is_nullable: One of SQL_NULLABLE, SQL_NO_NULLS, SQL_NULLS_UNKNOWN.
 
         # or a data source-specific type name.
-        colList = ( "Catalog", "Schema", "Table", "Column", "Data type",
+        col_list = ("Catalog", "Schema", "Table", "Column", "Data type",
                     "Type","Size","Length","Digits", "Radix",
                     "Nullable","Remarks", "Column def", "Sql type", "Datetime sub",
                     "char octet length", "Ordinal", "is nullable")
 
         for row in rows:
             # TODO: What are the other properties ??
-            tabNam = row.table_name
-            # sys.stderr.write("tabNam=%s\n" % tabNam)
+            tab_nam = row.table_name
+            # sys.stderr.write("tab_nam=%s\n" % tab_nam)
 
-            nodColumn = survol_odbc_column.MakeUri( dsnNam, tabNam, row[3] )
-            grph.add( (nodTab, pc.property_odbc_column, nodColumn ) )
+            nod_column = survol_odbc_column.MakeUri(dsn_nam, tab_nam, row[3])
+            grph.add((nodTab, pc.property_odbc_column, nod_column))
 
-            for idxCol in ( 5, 11, 12, 13, 17):
-                grph.add( (nodColumn, lib_common.MakeProp(colList[idxCol]), lib_util.NodeLiteral(row[idxCol]) ) )
+            for idx_col in (5, 11, 12, 13, 17):
+                grph.add((nod_column, lib_common.MakeProp(col_list[idx_col]), lib_util.NodeLiteral(row[idx_col])))
 
-    except Exception:
-        exc = sys.exc_info()[0]
-        lib_common.ErrorMessageHtml("dsnNam=%s Unexpected error:%s" % ( dsnNam, str( exc ) ) )
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("dsn_nam=%s Unexpected error:%s" % (dsn_nam, str(exc)))
 
-
-    # cgiEnv.OutCgiRdf()
-    cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_odbc_column] )
+    cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_odbc_column])
 
 
 if __name__ == '__main__':
-	Main()
+    Main()
 
 # http://www.easysoft.com/developer/languages/python/pyodbc.html

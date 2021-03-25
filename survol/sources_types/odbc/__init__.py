@@ -30,14 +30,18 @@ import logging
 def Graphic_shape():
     return "tab"
 
+
 def Graphic_colorfill():
     return "#CCFF11"
+
 
 def Graphic_colorbg():
     return "#CCFF11"
 
+
 def Graphic_border():
     return 0
+
 
 def Graphic_is_rounded():
     return True

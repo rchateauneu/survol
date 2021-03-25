@@ -12,68 +12,65 @@ from lib_properties import pc
 from sources_types.odbc import dsn as survol_odbc_dsn
 
 try:
-	import pyodbc
+    import pyodbc
 except ImportError:
-	lib_common.ErrorMessageHtml("pyodbc Python library not installed")
+    lib_common.ErrorMessageHtml("pyodbc Python library not installed")
 
 
 def Main():
 
-	cgiEnv = lib_common.ScriptEnvironment()
+    cgiEnv = lib_common.ScriptEnvironment()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	dsnNam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
+    dsn_nam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
 
-	logging.debug("dsn=(%s)", dsnNam )
+    logging.debug("dsn=(%s)", dsn_nam)
 
-	nodeDsn = survol_odbc_dsn.MakeUri( dsnNam )
+    node_dsn = survol_odbc_dsn.MakeUri(dsn_nam)
 
-	ODBC_ConnectString = survol_odbc_dsn.MakeOdbcConnectionString(dsnNam)
+    odbc_connect_string = survol_odbc_dsn.MakeOdbcConnectionString(dsn_nam)
 
-	try:
-		cnxn = pyodbc.connect(ODBC_ConnectString)
-		logging.debug("Connected: %s", dsnNam)
+    try:
+        cnxn = pyodbc.connect(odbc_connect_string)
+        logging.debug("Connected: %s", dsn_nam)
 
-		# for prmstr in sqlgetinfo_params:
-		for prmstr in dir(pyodbc):
-			if not prmstr.startswith("SQL_"):
-				continue
-			#sys.stderr.write("prmstr: %s\n" % prmstr)
+        for prmstr in dir(pyodbc):
+            if not prmstr.startswith("SQL_"):
+                continue
 
-			# Some keywords are not interesting. This is a bit arbitrary.
-			if prmstr in ["SQL_KEYWORDS"]:
-				continue
+            # Some keywords are not interesting. This is a bit arbitrary.
+            if prmstr in ["SQL_KEYWORDS"]:
+                continue
 
-			nicestr = prmstr[4:].replace("_"," ").capitalize()
+            nicestr = prmstr[4:].replace("_", " ").capitalize()
 
-			prop = lib_common.MakeProp(nicestr)
+            prop = lib_common.MakeProp(nicestr)
 
-			try:
-				prm = getattr(pyodbc,prmstr)
-			except:
-				grph.add( (nodeDsn, prop, lib_util.NodeLiteral("Unavailable") ) )
-				continue
+            try:
+                prm = getattr(pyodbc, prmstr)
+            except:
+                grph.add((node_dsn, prop, lib_util.NodeLiteral("Unavailable")))
+                continue
 
-			try:
-				prm_value = cnxn.getinfo(prm)
-			except:
-				continue
+            try:
+                prm_value = cnxn.getinfo(prm)
+            except:
+                continue
 
-			try:
-				grph.add( (nodeDsn, prop, lib_util.NodeLiteral(prm_value) ) )
-			except Exception as exc:
-				txt = str(exc)
-				grph.add( (nodeDsn, prop, lib_util.NodeLiteral(txt) ) )
-				continue
+            try:
+                grph.add((node_dsn, prop, lib_util.NodeLiteral(prm_value)))
+            except Exception as exc:
+                txt = str(exc)
+                grph.add((node_dsn, prop, lib_util.NodeLiteral(txt)))
+                continue
 
-	except Exception:
-		exc = sys.exc_info()[0]
-		lib_common.ErrorMessageHtml("nodeDsn=%s Unexpected error:%s" % ( dsnNam, str( sys.exc_info() ) ) )
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("node_dsn=%s Unexpected error:%s" % (dsn_nam, str(exc)))
 
-	cgiEnv.OutCgiRdf()
+    cgiEnv.OutCgiRdf()
 
 
 if __name__ == '__main__':
-	Main()
+    Main()
 

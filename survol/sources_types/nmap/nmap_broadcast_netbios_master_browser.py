@@ -11,6 +11,7 @@ import sys
 import socket
 import logging
 import xml.dom.minidom
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -61,7 +62,7 @@ def Main():
         mach_nam = mach_split[1].strip()
         name_domain = mach_split[2].strip()
 
-        node_host = lib_common.gUriGen.HostnameUri(mach_nam)
+        node_host = lib_uris.gUriGen.HostnameUri(mach_nam)
         grph.add((node_host, lib_common.MakeProp("IP address"), lib_util.NodeLiteral(mach_ip)))
         grph.add((node_host, lib_common.MakeProp("Domain"), lib_util.NodeLiteral(name_domain)))
         grph.add((node_host, pc.property_information, lib_util.NodeLiteral(arr_split[0])))
