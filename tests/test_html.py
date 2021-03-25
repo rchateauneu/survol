@@ -116,7 +116,7 @@ class HtmlParametersEdition(unittest.TestCase):
 
         html_page_content = self._check_edition_script(
             "/survol/entity.py?xid=CIM_LogicalDisk.DeviceID=C:&mode=edit")
-        self.assertTrue(html_page_content.find('<input type="submit" value="Submit">') >= 0)
+        self.assertTrue(html_page_content.find(b'<input type="submit" value="Submit">') >= 0)
 
     @unittest.skipIf(not is_platform_windows, "base_html_edition_cim_datafile_html for Windows only.")
     def test_html_edition_cim_logical_disk_html(self):
@@ -124,7 +124,7 @@ class HtmlParametersEdition(unittest.TestCase):
 
         html_page_content = self._check_edition_script(
             "/survol/entity.py?edimodargs_DeviceID=C%3A&xid=CIM_LogicalDisk.DeviceID%3DC%3A&mode=html&edimodtype=CIM_LogicalDisk")
-        self.assertTrue(html_page_content.find('Script parameters') >= 0)
+        self.assertTrue(html_page_content.find(b'Script parameters') >= 0)
 
     def test_html_edition_cim_process_form(self):
         """This is the URL after validation of parameters edition."""
@@ -132,7 +132,7 @@ class HtmlParametersEdition(unittest.TestCase):
         # Any PID is OK.
         html_page_content = self._check_edition_script(
             "/survol/entity.py?xid=CIM_Process.Handle=6744&mode=edit")
-        self.assertTrue(html_page_content.find('<input type="submit" value="Submit">') >= 0)
+        self.assertTrue(html_page_content.find(b'<input type="submit" value="Submit">') >= 0)
 
     def test_html_edition_cim_process_html(self):
         """This is the URL after validation of parameters edition."""
@@ -140,7 +140,7 @@ class HtmlParametersEdition(unittest.TestCase):
         # Any PID is OK.
         html_page_content = self._check_edition_script(
             "/survol/entity.py?edimodargs_Handle=6744&Show+all+scripts=True&edimodtype=CIM_Process&xid=CIM_Process.Handle%3D6744&mode=html")
-        self.assertTrue(html_page_content.find('Script parameters') >= 0)
+        self.assertTrue(html_page_content.find(b'Script parameters') >= 0)
 
 
 if __name__ == '__main__':
