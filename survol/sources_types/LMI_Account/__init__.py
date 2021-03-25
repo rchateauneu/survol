@@ -4,7 +4,7 @@ Unix-like user account
 
 import sys
 import lib_util
-import lib_common
+import lib_uris
 from lib_properties import pc
 
 
@@ -57,7 +57,7 @@ def AddInfo(grph, node, entity_ids_arr):
         # We insert this link to the home directory because it should not
         # imply an access to the file itself, so it cannot fail.
         home_dir = user_split[5]
-        home_dir_node = lib_common.gUriGen.DirectoryUri(home_dir)
+        home_dir_node = lib_uris.gUriGen.DirectoryUri(home_dir)
 
         grph.add((node, pc.property_directory, home_dir_node))
 

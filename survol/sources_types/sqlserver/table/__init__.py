@@ -3,6 +3,8 @@ Sqlserver table
 """
 
 import sys
+
+import lib_uris
 import lib_common
 from sources_types.sqlserver  import dsn as sqlserver_dsn
 from sources_types.sqlserver import schema as sqlserver_schema
@@ -23,7 +25,7 @@ def EntityOntology():
 # Beware of the possible confusion with normal users.
 def MakeUri(dsn_nam, schema_name, table_name):
     # sys.stderr.write("sqlserver/table tableName=%s\n"%tableName)
-    return lib_common.gUriGen.UriMakeFromDict("sqlserver/table", {
+    return lib_uris.gUriGen.UriMakeFromDict("sqlserver/table", {
         sqlserver_dsn.CgiPropertyDsn(): dsn_nam,
         "Schema": schema_name,
         "Table": table_name})
