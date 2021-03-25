@@ -37,7 +37,7 @@ class HtmlCommon(unittest.TestCase):
         """This checks that the entry page of Survol is a correct HTML document.
         It does not intent to be very exact, but just checks that the HTML display runs.
         Some strings must be displayed."""
-        html_page_content = self._check_edition_script(
+        html_page_content = self._check_script(
             "/survol/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name=/usr/lib")
 
         self.assertTrue(b'<title>Files in directory' in html_page_content)
