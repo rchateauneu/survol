@@ -9,6 +9,8 @@ import re
 import sys
 import psutil
 import logging
+
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -51,8 +53,7 @@ def Main():
     except Exception as exc:
         lib_common.ErrorMessageHtml("Caught:%s" % exc)
 
-
-    node_process = lib_common.gUriGen.PidUri(procid)
+    node_process = lib_uris.gUriGen.PidUri(procid)
 
     for env_key in envs_dict :
         env_val = envs_dict[env_key]
@@ -66,14 +67,14 @@ def Main():
         # Some are probably for Windows only.
         if env_key in ["PATH", "PSMODULEPATH", "PYPATH"]:
             val_split = env_val.split(os.pathsep)
-            nod_fil_arr = [lib_common.gUriGen.DirectoryUri(fil_nam) for fil_nam in val_split]
+            nod_fil_arr = [lib_uris.gUriGen.DirectoryUri(fil_nam) for fil_nam in val_split]
             nod_fil_arr_nod = lib_util.NodeLiteral(nod_fil_arr)
             grph.add((node_env_nam, pc.property_rdf_data_nolist2, nod_fil_arr_nod))
         elif os.path.isdir(env_val):
-            nod_fil = lib_common.gUriGen.DirectoryUri(env_val)
+            nod_fil = lib_uris.gUriGen.DirectoryUri(env_val)
             grph.add((node_env_nam, pc.property_rdf_data_nolist2, nod_fil))
         elif os.path.exists(env_val):
-            nod_fil = lib_common.gUriGen.FileUri(env_val)
+            nod_fil = lib_uris.gUriGen.FileUri(env_val)
             grph.add((node_env_nam, pc.property_rdf_data_nolist2, nod_fil))
         else:
             # TODO: Beware that "\L" is transformed into "<TABLE>" by Graphviz !!!
