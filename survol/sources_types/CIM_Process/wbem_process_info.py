@@ -5,8 +5,10 @@ WBEM CIM_Process information.
 """
 
 import sys
-import lib_util
 import logging
+
+import lib_uris
+import lib_util
 import lib_common
 import lib_wbem
 from lib_properties import pc
@@ -37,8 +39,8 @@ def Main():
     name_space = "root/cimv2"
     try:
         inst_lists = conn_wbem.ExecQuery("WQL", 'select * from CIM_Process  where Handle="%s"' % pid, name_space)
-    except:
-        lib_common.ErrorMessageHtml("Error:" + str(sys.exc_info()))
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("Error:" + str(exc))
 
     class_name = "CIM_Process"
     dict_props = {"Handle": pid}
@@ -50,10 +52,7 @@ def Main():
         dict_inst = dict(an_inst)
 
         host_only = lib_util.EntHostToIp(cimom_url)
-        if lib_util.is_local_address(host_only):
-            uri_inst = lib_common.gUriGen.UriMakeFromDict(class_name, dict_props)
-        else:
-            uri_inst = lib_common.RemoteBox(host_only).UriMakeFromDict(class_name, dict_props)
+        uri_inst = lib_uris.MachineBox(host_only).UriMakeFromDict(class_name, dict_props)
 
         grph.add((root_node, lib_common.MakeProp(class_name), uri_inst))
 

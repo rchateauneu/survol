@@ -8,6 +8,8 @@ import sys
 import re
 import socket
 import logging
+
+import lib_uris
 import lib_util
 import lib_common
 import lib_credentials
@@ -32,7 +34,7 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    host_node = lib_common.gUriGen.HostnameUri(hostname)
+    host_node = lib_uris.gUriGen.HostnameUri(hostname)
 
     # BEWARE: This is duplicated.
     prop_db = lib_common.MakeProp("Mysql database")
@@ -42,7 +44,7 @@ def Main():
 
     a_cred = lib_credentials.GetCredentials("MySql", instance_name)
 
-    conn_mysql = survol_mysql.MysqlConnect(instance_name, aUser = a_cred[0], aPass=a_cred[1])
+    conn_mysql = survol_mysql.MysqlConnect(instance_name, aUser=a_cred[0], aPass=a_cred[1])
 
     cursor_mysql = conn_mysql.cursor()
 
@@ -88,7 +90,7 @@ def Main():
         logging.debug("tab_info=%s", str(tab_info))
         table_nam = tab_info[2]
 
-        node_mysql_table = survol_mysql_table.MakeUri(hostname,db_nam, table_nam)
+        node_mysql_table = survol_mysql_table.MakeUri(hostname, db_nam, table_nam)
 
         grph.add((node_mysql_table, lib_common.MakeProp("Table type"), lib_util.NodeLiteral(tab_info[3])))
         grph.add((node_mysql_table, lib_common.MakeProp("Engine"), lib_util.NodeLiteral(tab_info[4])))
