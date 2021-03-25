@@ -6,6 +6,8 @@ Unix domain sockets
 
 import sys
 import logging
+
+import lib_uris
 import lib_common
 import lib_util
 
@@ -54,7 +56,7 @@ def Main():
             continue
 
         if sock_path:
-            node_path = lib_common.gUriGen.FileUri(sock_path)
+            node_path = lib_uris.gUriGen.FileUri(sock_path)
             grph.add((node_path, prop_type, lib_util.NodeLiteral(sock_type)))
             grph.add((node_path, prop_state, lib_util.NodeLiteral(sock_state)))
             grph.add((node_path, prop_inode, lib_util.NodeLiteral(sock_inode)))
@@ -64,13 +66,9 @@ def Main():
             sock_pid_prog_split = sock_pid_prog.split("/")
             sock_pid = sock_pid_prog_split[0]
 
-            # Not used, and index error on Python 3.
-            # sockProgNam = sock_pid_prog_split[1]
-
-            node_proc = lib_common.gUriGen.PidUri(sock_pid)
+            node_proc = lib_uris.gUriGen.PidUri(sock_pid)
             if sock_path:
                 grph.add((node_path, prop_pid_path, node_proc))
-            # grph.add( ( node_proc, pc.property_information, lib_util.NodeLiteral(sockProgNam) ) )
 
     cgiEnv.OutCgiRdf()
 

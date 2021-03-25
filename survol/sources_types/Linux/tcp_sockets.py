@@ -7,6 +7,9 @@ TCP Linux sockets with netstat
 import re
 import sys
 import socket
+
+import lib_uris
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -90,7 +93,7 @@ def Main():
         # It does not use survol_addr.PsutilAddSocketToGraphOne(node_process,cnt,grph)
         # because sometimes we do not have the process id.
 
-        local_socket_node = lib_common.gUriGen.AddrUri(ip_local, port_local)
+        local_socket_node = lib_uris.gUriGen.AddrUri(ip_local, port_local)
         grph.add((local_socket_node, pc.property_information, lib_util.NodeLiteral(sock_status)))
 
         addr_remot = lin_split[4]
@@ -98,13 +101,13 @@ def Main():
         # This is different for IPV6
         if addr_remot != "0.0.0.0:*":
             ip_remot, port_remot = survol_addr.SplitAddrPort(addr_remot)
-            remot_socket_node = lib_common.gUriGen.AddrUri(ip_remot, port_remot)
+            remot_socket_node = lib_uris.gUriGen.AddrUri(ip_remot, port_remot)
             grph.add((local_socket_node, pc.property_socket_end, remot_socket_node))
 
         pid_command = lin_split[6]
         if pid_command != "-":
             proc_pid, proc_nam = pid_command.split("/")
-            proc_node = lib_common.gUriGen.PidUri(proc_pid)
+            proc_node = lib_uris.gUriGen.PidUri(proc_pid)
 
             grph.add((proc_node, pc.property_host, lib_common.nodeMachine))
             grph.add((proc_node, pc.property_pid, lib_util.NodeLiteral(proc_pid)))
