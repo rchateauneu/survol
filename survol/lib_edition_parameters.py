@@ -6,13 +6,12 @@ import lib_util
 # Should simplify this by storing the input URL in a hidden value
 # So that the mode=edit trick would not be necessary anymore.
 
-def FormEditionParameters(form_action_no_mode, theCgi):
+def FormEditionParameters(form_action, theCgi):
     """
     This creates a HTML form for editing parameters of a script.
     """
 
-    form_action = form_action_no_mode
-    logging.info("FormEditionParameters formActionNoMode=%s form_action=%s", form_action, form_action_no_mode)
+    logging.info("FormEditionParameters form_action=%s", form_action)
     yield('<form name="myform" action="' + form_action + '" method="GET">')
 
     # arg_keys are the names of arguments passed as CGI parameters.
@@ -44,8 +43,8 @@ def FormEditionParameters(form_action_no_mode, theCgi):
             yield('<td>' + kv_key + '</td>')
             edi_nam = "edimodargs_" + kv_key
             lst_edimod_args.append(edi_nam)
-            logging.debug("FormEditionParameters edi_nam=%s",edi_nam)
-            yield('<td><input type="text" name="%s" value="%s"></td>' % (edi_nam,kv_val) )
+            logging.debug("edi_nam=%s", edi_nam)
+            yield('<td><input type="text" name="%s" value="%s"></td>' % (edi_nam, kv_val))
             yield("</tr>")
 
     check_boxes_parameters = []
@@ -53,10 +52,10 @@ def FormEditionParameters(form_action_no_mode, theCgi):
     # Now the parameters specific to the script, if they are not passed also as CGI params.
     # param_key is the display string of the variable, and also a HTML form variable name.
     for param_key in theCgi.m_parameters:
-        logging.debug("FormEditionParameters param_key=%s",param_key)
+        logging.debug("param_key=%s", param_key)
         yield("<tr>")
         yield('<td>' + param_key + '</td>')
-        param_val = theCgi.get_parameters( param_key )
+        param_val = theCgi.get_parameters(param_key)
         # TODO: Encode the value.
         if isinstance(param_val, bool):
             # Beware that unchecked checkboxes are not posted, i.e. boolean variables set to False.
@@ -77,7 +76,7 @@ def FormEditionParameters(form_action_no_mode, theCgi):
 
     # Beware that unchecked checkboxes are not posted, so it says that we come from edition mode.
     # http://stackoverflow.com/questions/1809494/post-the-checkboxes-that-are-unchecked
-    # FIXME: The consequence is that it is not possible to have bnoolean parameters with a True default value.
+    # FIXME: The consequence is that it is not possible to have boolean parameters with a True default value.
     # FIXME: It is always True.
 
     # Now the hidden arguments. Although entity_type can be deduced from the CGI script location.
@@ -107,14 +106,14 @@ def FormEditionParameters(form_action_no_mode, theCgi):
                 continue
 
         # TODO: Values should be encoded.
-        # BEWARE ... if the values contains simgle quotes !
+        # BEWARE ... if the values contains single quotes !
         # Or remove enclosing quotes.
         if len(arg_list) == 1:
-            yield('<input type="hidden" name="' + key + '" value=\''+arg_list[0] + '\'>')
+            yield('<input type="hidden" name="' + key + '" value=\'' + arg_list[0] + '\'>')
         else:
             for val in arg_list:
                 # Note the "[]" to pass several values.
-                yield('<input type="hidden" name="' + key + '[]" value=\''+val + '\'>')
+                yield('<input type="hidden" name="' + key + '[]" value=\'' + val + '\'>')
 
     yield('<input type="submit" value="Submit">')
     yield("</form>")
@@ -123,3 +122,16 @@ def FormEditionParameters(form_action_no_mode, theCgi):
     yield("</table>")
 
     return
+
+
+def DisplayEditionParametersPage(form_action, theCgi):
+    logging.debug("form_action=%s title=%s", form_action, theCgi.m_page_title)
+    print("<body>")
+
+    print("<h3>%s</h3><br>" % theCgi.m_page_title)
+
+    for one_html_line in FormEditionParameters(form_action, theCgi):
+        print(one_html_line)
+
+    print("</body>")
+    print("</html>")

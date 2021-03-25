@@ -253,7 +253,7 @@ def _scripts_tree_html_iterator(theCgi):
             for one_prop in argument_map_props:
                 lst_str = argument_map_props[one_prop]
 
-                # This is to prevent an infinite recursion of a title cannot be found.
+                # This is to prevent an infinite recursion if a title cannot be found.
                 # This happens when displaying all scripts with "Show all scripts" flag.
                 if one_prop == pc.property_error:
                     return str(lst_str)
@@ -268,11 +268,22 @@ def _scripts_tree_html_iterator(theCgi):
                     return None
 
                 return str(ret_str)
+            logging.critical("Should not be here. argument_map_props=%s", str(argument_map_props))
 
         yield('<tr>')
         depth_menu += 1
+        if depth_menu > 10:
+            logging.critical(
+                """
+                FIXME: Infinite loop when the __doc__ string of a script is the same as the title string
+                of its Usable() function.
+                """)
+            # FIXME: Cannot find the problem.
+            return
 
+        logging.info("map_props=%s", map_props)
         subj_uniq_title = extract_title_from_map_props(map_props)
+        logging.info("subj_uniq_title=%s depth_menu=%d", subj_uniq_title, depth_menu)
 
         if subj:
             subj_str = str(subj)
@@ -289,8 +300,10 @@ def _scripts_tree_html_iterator(theCgi):
             yield "</td>"
 
         if not subj_uniq_title:
+            logging.info("len(map_props)=%d", len(map_props))
             for one_prop in map_props:
                 lst_objs = map_props[one_prop]
+                logging.info("one_prop=%s len(lst_objs)=%d", one_prop, len(lst_objs))
 
                 yield '<td class="scripts_tree_class">'
                 yield '<table>'
@@ -300,6 +313,7 @@ def _scripts_tree_html_iterator(theCgi):
                     yield '<tr>'
                     yield '<td class="scripts_tree_class">'
                     try:
+                        logging.info("depth_menu=%d", depth_menu)
                         for table_lin_html in _display_level_table(one_obj, depth_menu):
                             yield table_lin_html
                     except KeyError:

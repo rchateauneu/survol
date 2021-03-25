@@ -37,16 +37,11 @@ class HtmlCommon(unittest.TestCase):
         """This checks that the entry page of Survol is a correct HTML document.
         It does not intent to be very exact, but just checks that the HTML display runs.
         Some strings must be displayed."""
-        html_page_content = self._check_script("/survol/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name=/usr/lib")
+        html_page_content = self._check_edition_script(
+            "/survol/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name=/usr/lib")
 
         self.assertTrue(b'<title>Files in directory' in html_page_content)
 
-    def base_html_edition(self):
-        """Minimal check to ensure that an edition returns a valid HTML page."""
-
-        # Any PID is OK.
-        html_page_content = self._check_script(
-            "/survol/entity.py?edimodargs_Handle=6744&Show+all+scripts=True&edimodtype=CIM_Process&xid=CIM_Process.Handle%3D6744&mode=html")
 
     def base_hostname_shares_smbclient(self):
         """This script might often return an error depending on the platform.
@@ -78,9 +73,6 @@ class HtmlLocalAgentTest(HtmlCommon):
     def test_local_file_directory(self):
         self.base_html_file_directory()
 
-    def test_html_edition(self):
-        self.base_html_edition()
-
     def test_hostname_shares_smbclient(self):
         self.base_hostname_shares_smbclient()
 
@@ -98,11 +90,57 @@ class HtmlRemoteAgentTest(HtmlCommon):
     def test_remote_file_directory(self):
         self.base_html_file_directory()
 
-    def test_html_edition(self):
-        self.base_html_edition()
-
     def test_hostname_shares_smbclient(self):
         self.base_hostname_shares_smbclient()
+
+
+class HtmlParametersEdition(unittest.TestCase):
+    def setUp(self):
+        """If a Survol agent does not run on this machine with this port, this script starts a local one."""
+        self._remote_html_test_agent, self._agent_url = start_cgiserver(RemoteHtmlTestServerPort)
+        print("AgentUrl=", self._agent_url)
+
+    def tearDown(self):
+        stop_cgiserver(self._remote_html_test_agent)
+
+    def _check_edition_script(self, script_suffix):
+        full_url = self._agent_url + script_suffix
+        print("full_url=", full_url)
+        html_url_response = portable_urlopen(full_url, timeout=10)
+        html_content = html_url_response.read()  # Py3:bytes, Py2:str
+        return html_content
+
+    @unittest.skipIf(not is_platform_windows, "base_html_edition_cim_datafile_form for Windows only.")
+    def test_html_edition_cim_logical_disk_form(self):
+        """Minimal check to ensure that an edition returns a valid HTML page."""
+
+        html_page_content = self._check_edition_script(
+            "/survol/entity.py?xid=CIM_LogicalDisk.DeviceID=C:&mode=edit")
+        self.assertTrue(html_page_content.find('<input type="submit" value="Submit">') >= 0)
+
+    @unittest.skipIf(not is_platform_windows, "base_html_edition_cim_datafile_html for Windows only.")
+    def test_html_edition_cim_logical_disk_html(self):
+        """Minimal check to ensure that an edition returns a valid HTML page."""
+
+        html_page_content = self._check_edition_script(
+            "/survol/entity.py?edimodargs_DeviceID=C%3A&xid=CIM_LogicalDisk.DeviceID%3DC%3A&mode=html&edimodtype=CIM_LogicalDisk")
+        self.assertTrue(html_page_content.find('Script parameters') >= 0)
+
+    def test_html_edition_cim_process_form(self):
+        """This is the URL after validation of parameters edition."""
+
+        # Any PID is OK.
+        html_page_content = self._check_edition_script(
+            "/survol/entity.py?xid=CIM_Process.Handle=6744&mode=edit")
+        self.assertTrue(html_page_content.find('<input type="submit" value="Submit">') >= 0)
+
+    def test_html_edition_cim_process_html(self):
+        """This is the URL after validation of parameters edition."""
+
+        # Any PID is OK.
+        html_page_content = self._check_edition_script(
+            "/survol/entity.py?edimodargs_Handle=6744&Show+all+scripts=True&edimodtype=CIM_Process&xid=CIM_Process.Handle%3D6744&mode=html")
+        self.assertTrue(html_page_content.find('Script parameters') >= 0)
 
 
 if __name__ == '__main__':
