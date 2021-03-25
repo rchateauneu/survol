@@ -3,9 +3,11 @@ Open Database Connectivity table column
 """
 
 import lib_util
+import lib_uris
 import lib_common
 from sources_types import odbc as survol_odbc
 from sources_types.odbc import table as odbc_table
+
 
 def Graphic_colorbg():
     return "#FF6633"
@@ -16,7 +18,7 @@ def EntityOntology():
 
 
 def MakeUri(dsn_name, table_nam, column_nam):
-    return lib_common.gUriGen.UriMakeFromDict(
+    return lib_uris.gUriGen.UriMakeFromDict(
         "odbc/column", {survol_odbc.CgiPropertyDsn(): dsn_name, "Table": table_nam, "Column": column_nam})
 
 

@@ -6,6 +6,7 @@ Mounted disks on Linux machines
 
 import sys
 import socket
+
 import lib_util
 import lib_uris
 import lib_common
@@ -46,10 +47,10 @@ def Main():
 
         mnt_type = mnt_split[2]
         if mnt_type == 'cifs':
-            node_mount = lib_common.gUriGen.SmbShareUri(partition_name)
+            node_mount = lib_uris.gUriGen.SmbShareUri(partition_name)
         else:
-            node_mount = lib_common.gUriGen.DiskPartitionUri(partition_name)
-        grph.add((node_mount, pc.property_mount, lib_common.gUriGen.FileUri(mnt_point)))
+            node_mount = lib_uris.gUriGen.DiskPartitionUri(partition_name)
+        grph.add((node_mount, pc.property_mount, lib_uris.gUriGen.FileUri(mnt_point)))
         grph.add((node_mount, pc.property_file_system, lib_util.NodeLiteral(mnt_type)))
 
     cgiEnv.OutCgiRdf()

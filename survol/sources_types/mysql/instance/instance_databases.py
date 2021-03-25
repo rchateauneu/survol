@@ -8,6 +8,8 @@ import sys
 import re
 import socket
 import logging
+
+import lib_uris
 import lib_util
 import lib_common
 import lib_credentials
@@ -33,7 +35,7 @@ def Main():
 
     # BEWARE: The rule whether we use the host name or the host IP is not very clear !
     # The IP address would be unambiguous but less clear.
-    host_node = lib_common.gUriGen.HostnameUri(hostname)
+    host_node = lib_uris.gUriGen.HostnameUri(hostname)
 
     prop_db = lib_common.MakeProp("Mysql database")
 
@@ -61,7 +63,7 @@ def Main():
         node_mysql_database = survol_mysql_database.MakeUri(instance_name, db_nam)
 
         # Create a node for each database.
-        user_node = lib_common.gUriGen.UserUri(a_cred[0])
+        user_node = lib_uris.gUriGen.UserUri(a_cred[0])
         grph.add((node_mysql_database, pc.property_user, user_node))
         grph.add((instance_node, prop_db, node_mysql_database))
 

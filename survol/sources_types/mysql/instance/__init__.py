@@ -2,6 +2,8 @@
 MySql instance
 """
 
+
+import lib_uris
 import lib_common
 
 
@@ -15,15 +17,15 @@ def EntityOntology():
 
 
 def MakeUri(instance_name):
-    return lib_common.gUriGen.UriMakeFromDict("mysql/instance", {"Instance": instance_name})
+    return lib_uris.gUriGen.UriMakeFromDict("mysql/instance", {"Instance": instance_name})
 
 
 #def EntityName(entity_ids_arr):
 #    return entity_ids_arr[1]+ "@" + entity_ids_arr[0]
 
 
-def AddInfo(grph,node, entity_ids_arr):
+def AddInfo(grph, node, entity_ids_arr):
     instance_my_sql = entity_ids_arr[0]
     instance_host = instance_my_sql.split(":")[0]
-    node_host = lib_common.gUriGen.HostnameUri(instance_host)
+    node_host = lib_uris.gUriGen.HostnameUri(instance_host)
     grph.add((node, lib_common.MakeProp("Instance"), node_host))

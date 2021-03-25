@@ -9,6 +9,8 @@ import sys
 import re
 import socket
 import logging
+
+import lib_uris
 import lib_util
 import lib_common
 import lib_credentials
@@ -32,13 +34,10 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    host_node = lib_common.gUriGen.HostnameUri(hostname)
+    host_node = lib_uris.gUriGen.HostnameUri(hostname)
 
     # BEWARE: This is duplicated.
     propDb = lib_common.MakeProp("Mysql database")
-
-    #nodeMysqlDatabase = survol_mysql_database.MakeUri(instance_name,dbNam)
-    #grph.add( ( host_node, propDb, nodeMysqlDatabase ) )
 
     a_cred = lib_credentials.GetCredentials("MySql", instance_name)
 
@@ -72,7 +71,7 @@ def Main():
         mysql_socket = sess_info[2]
         try:
             mysql_socket_host, mysql_socket_port = mysql_socket.split(":")
-            socket_node = lib_common.gUriGen.AddrUri(mysql_socket_host, mysql_socket_port)
+            socket_node = lib_uris.gUriGen.AddrUri(mysql_socket_host, mysql_socket_port)
             grph.add((session_node, lib_common.MakeProp("Connection socket"), socket_node))
         except:
             pass

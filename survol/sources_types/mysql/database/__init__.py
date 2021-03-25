@@ -2,6 +2,7 @@
 MySql database
 """
 
+import lib_uris
 import lib_common
 from sources_types import mysql as survol_mysql
 from sources_types.mysql import instance as survol_mysql_instance
@@ -12,7 +13,7 @@ def EntityOntology():
 
 
 def MakeUri(instance_name, db_name):
-    return lib_common.gUriGen.UriMakeFromDict("mysql/database", {"Instance": instance_name, "Database" : db_name})
+    return lib_uris.gUriGen.UriMakeFromDict("mysql/database", {"Instance": instance_name, "Database" : db_name})
 
 
 def EntityName(entity_ids_arr):
