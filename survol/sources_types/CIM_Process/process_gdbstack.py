@@ -7,6 +7,8 @@ Process callstack with gdb
 import re
 import sys
 import logging
+
+import lib_uris
 import lib_util
 import lib_common
 from sources_types import CIM_Process
@@ -144,7 +146,7 @@ def Main():
 
 	proc_obj = CIM_Process.PsutilGetProcObj(the_pid)
 
-	procNode = lib_common.gUriGen.PidUri( the_pid )
+	procNode = lib_uris.gUriGen.PidUri( the_pid )
 	CIM_Process.AddInfo( grph, procNode, [ str(the_pid) ] )
 
 	( execName, execErrMsg ) = CIM_Process.PsutilProcToExe( proc_obj )

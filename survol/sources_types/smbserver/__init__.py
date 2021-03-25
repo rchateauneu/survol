@@ -3,16 +3,20 @@ Samba protocol server
 """
 
 import socket
+
+import lib_util
+import lib_uris
 import lib_common
-from lib_properties import pc
+
 
 def EntityOntology():
-	return ( ["Id"], )
+	return (["Id"],)
 
-def AddInfo(grph,node,entity_ids_arr):
-	smbNam = entity_ids_arr[0]
 
-	smbIP = lib_util.GlobalGetHostByName(smbNam)
+def AddInfo(grph, node, entity_ids_arr):
+	smb_nam = entity_ids_arr[0]
 
-	nodeHost = lib_common.gUriGen.HostnameUri( smbIP )
-	grph.add( ( node, lib_common.MakeProp("SMB server"), nodeHost ) )
+	smb_ip = lib_util.GlobalGetHostByName(smb_nam)
+
+	node_host = lib_uris.gUriGen.HostnameUri(smb_ip)
+	grph.add((node, lib_common.MakeProp("SMB server"), node_host))

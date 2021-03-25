@@ -33,74 +33,67 @@ Samba server shares
 import re
 import os
 import sys
+
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
 
+
+Usable = lib_util.UsableWindows
+
 def Main():
-	cgiEnv = lib_common.ScriptEnvironment()
-	smbServer = cgiEnv.GetId()
+    cgiEnv = lib_common.ScriptEnvironment()
+    smb_server = cgiEnv.GetId()
 
-	if lib_util.isPlatformWindows:
-		lib_common.ErrorMessageHtml("smbclient not available on Windows")
+    grph = cgiEnv.GetGraph()
 
-	grph = cgiEnv.GetGraph()
+    node_smb_shr = lib_uris.gUriGen.SmbServerUri(smb_server)
 
-	nodeSmbShr = lib_common.gUriGen.SmbServerUri( smbServer )
+    smbclient_cmd = ["smbclient", "-L", smb_server, "-N"]
 
-	smbclient_cmd = [ "smbclient", "-L", smbServer, "-N" ]
+    smbclient_pipe = lib_common.SubProcPOpen(smbclient_cmd)
 
-	# This print is temporary until we know how to display smb-shared files.
-	# print("Content-Type: text/html")
-	# print("")
-	# print("Command="+str(smbclient_cmd))
-	# print("<br>")
+    smbclient_last_output, smbclient_err = smbclient_pipe.communicate()
 
-	smbclient_pipe = lib_common.SubProcPOpen(smbclient_cmd)
+    lines = smbclient_last_output.split('\n')
 
-	( smbclient_last_output, smbclient_err ) = smbclient_pipe.communicate()
+    mode_shared_list = False
+    for lin in lines:
+        # Normally this is only the first line
+        # session setup failed: NT_STATUS_LOGON_FAILURE
+        mtch_net = re.match(r"^.*(NT_STATUS_.*)", lin)
+        if mtch_net:
+            lib_common.ErrorMessageHtml("Smb failure: " + mtch_net.group(1) + " to smb share:" + smb_server)
 
-	lines = smbclient_last_output.split('\n')
+        if re.match(r"^\sServer\s+Comment", lin):
+            mode_shared_list = False
+            continue
 
-	modeSharedList = False
-	for lin in lines:
-		# print( "l="+lin+"<br>" )
-		# Normally this is only the first line
-		# session setup failed: NT_STATUS_LOGON_FAILURE
-		mtch_net = re.match(r"^.*(NT_STATUS_.*)", lin)
-		if mtch_net:
-			# print("OK<br>")
-			lib_common.ErrorMessageHtml("Smb failure: " + mtch_net.group(1) + " to smb share:" + smbServer)
+        if re.match(r"^\sWorkgroup\s+Master", lin):
+            mode_shared_list = False
+            continue
 
-		if re.match(r"^\sServer\s+Comment", lin):
-			modeSharedList = False
-			continue
+        if re.match(r"^\sSharename\s+Type\s+Comment", lin):
+            mode_shared_list = True
+            continue
 
-		if re.match(r"^\sWorkgroup\s+Master", lin):
-			modeSharedList = False
-			continue
+        if re.match (r"^\s*----+ +---+ +", lin ):
+            continue
 
-		if re.match(r"^\sSharename\s+Type\s+Comment", lin):
-			modeSharedList = True
-			continue
+        if mode_shared_list:
+            # The type can be "Disk", "Printer" or "IPC".
+            mtch_share = re.match(r"^\s+([^\s]+)\s+Disk\s+(.*)$", lin)
+            if mtch_share:
+                share_name = mtch_share.group(1)
 
-		if re.match (r"^\s*----+ +---+ +", lin ):
-			continue
+                share_node = lib_uris.MachineBox(smb_server).SmbShareUri(share_name)
 
-		# print("m="+str(modeSharedList))
-		# print("l="+lin)
-		if modeSharedList:
-			# The type can be "Disk", "Printer" or "IPC".
-			mtch_share = re.match(r"^\s+([^\s]+)\s+Disk\s+(.*)$", lin)
-			if mtch_share:
-				shareName = mtch_share.group(1)
+                grph.add((node_smb_shr, pc.property_smbshare, share_node))
 
-				shareNode = lib_uris.MachineBox(smbServer).SmbShareUri(shareName)
+    cgiEnv.OutCgiRdf()
 
-				grph.add((nodeSmbShr, pc.property_smbshare, shareNode))
-
-	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
-	Main()
+    Main()
 

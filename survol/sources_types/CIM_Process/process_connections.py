@@ -21,7 +21,7 @@ def Main():
 	# pconn(fd=117, family=2, type=1, laddr=('10.0.0.1', 43761), raddr=('72.14.234.100', 80), status='CLOSING'),
 	# pconn(fd=119, family=2, type=1, laddr=('10.0.0.1', 60759), raddr=('72.14.234.104', 80), status='ESTABLISHED'),
 
-	node_process = lib_common.gUriGen.PidUri(pid)
+	node_process = lib_uris.gUriGen.PidUri(pid)
 
 	try:
 		connects = CIM_Process.PsutilProcConnections(proc_obj,'all')
