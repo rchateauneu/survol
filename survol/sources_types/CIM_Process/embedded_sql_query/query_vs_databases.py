@@ -8,116 +8,101 @@ import sys
 import logging
 import lib_common
 import lib_util
-from sources_types.sql import query as sql_query
+from sources_types.sql import query as sql_query_module
 from sources_types.CIM_Process import embedded_sql_query
 import lib_sql
 
 
 def Main():
-	cgiEnv = lib_common.ScriptEnvironment()
+    cgiEnv = lib_common.ScriptEnvironment()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	sqlQuery = sql_query.GetEnvArgs(cgiEnv)
+    sql_query = sql_query_module.GetEnvArgs(cgiEnv)
 
-	# TODO: It would be nicer to use a new function CIM_Process.GetEnvArgs. Not urgent.
-	processId = cgiEnv.m_entity_id_dict["Handle"]
+    # TODO: It would be nicer to use a new function CIM_Process.GetEnvArgs.
+    process_id = cgiEnv.m_entity_id_dict["Handle"]
 
-	nodeProcessQuery = embedded_sql_query.MakeUri(sqlQuery,processId)
+    node_process_query = embedded_sql_query.MakeUri(sql_query, process_id)
 
-	list_of_tables = lib_sql.TableDependencies(sqlQuery)
+    list_of_tables = lib_sql.TableDependencies(sql_query)
 
-	propTypeDb = lib_common.MakeProp("Database type")
+    prop_type_db = lib_common.MakeProp("Database type")
 
-	arrProps = []
+    arr_props = []
 
-	#listModulesUsingSqlQueries = [
-	#	("sources_types.oracle","__init__.py"),
-	#	...
-	#	("sources_types.CIM_Process.memory_regex_search","search_connection_strings.py") ...
-	for ( namDbType, scriptNam ) in lib_sql.listModulesUsingSqlQueries :
-		logging.debug("namDbType=%s scriptNam=%s",namDbType,scriptNam)
-		# TODO: We should check if the syntax of the query is conformant to the database.
-		# TODO: We should check if the process is linked with this database.
+    #listModulesUsingSqlQueries = [
+    #    ("sources_types.oracle","__init__.py"),
+    #    ...
+    #    ("sources_types.CIM_Process.memory_regex_search","search_connection_strings.py") ...
+    for nam_db_type, script_nam in lib_sql.listModulesUsingSqlQueries:
+        logging.debug("nam_db_type=%s script_nam=%s", nam_db_type, script_nam)
+        # TODO: We should check if the syntax of the query is conformant to the database.
+        # TODO: We should check if the process is linked with this database.
 
-		moduleDbType = lib_util.GetScriptModule(namDbType, scriptNam)
-		# This removes the ".py" file extension.
-		nodeTypeDb = lib_util.module_doc_string(moduleDbType, scriptNam[:-3])
+        module_db_type = lib_util.GetScriptModule(nam_db_type, script_nam)
+        # This removes the ".py" file extension.
+        node_type_db = lib_util.module_doc_string(module_db_type, script_nam[:-3])
 
-		# This creates a non-clickable node. TODO: DOES NOT WORK ??
+        # This creates a non-clickable node. TODO: DOES NOT WORK ??
 
-		propTypeThisDb = lib_common.MakeProp(namDbType)
-		arrProps.append(propTypeThisDb)
+        prop_type_this_db = lib_common.MakeProp(nam_db_type)
+        arr_props.append(prop_type_this_db)
 
-		grph.add((nodeProcessQuery,propTypeDb,nodeTypeDb))
-		try:
+        grph.add((node_process_query, prop_type_db, node_type_db))
+        try:
 
-			# Now transforms the list of tables or views into nodes for this database.
-			if not moduleDbType:
-				logging.debug("No module for namDbType=%s",namDbType)
-				continue
+            # Now transforms the list of tables or views into nodes for this database.
+            if not module_db_type:
+                logging.debug("No module for nam_db_type=%s", nam_db_type)
+                continue
 
-			try:
-				# This returns the possible database credentials for this database type.
-				# This returns also a module name. Maybe a schema, in the future.
-				# "oracle.DatabaseEnvParams()" defined in "oracle/__init__.py"
-				dbTp_envParams = moduleDbType.DatabaseEnvParams(processId)
-			except AttributeError:
-				exc = sys.exc_info()[1]
-				# Maybe the function is not defined in this module or other error.
-				logging.debug("Caught: %s",str(exc))
-				continue
+            try:
+                # This returns the possible database credentials for this database type.
+                # This returns also a module name. Maybe a schema, in the future.
+                # "oracle.DatabaseEnvParams()" defined in "oracle/__init__.py"
+                db_tp_env_params = module_db_type.DatabaseEnvParams(process_id)
+            except AttributeError as exc:
+                # Maybe the function is not defined in this module or other error.
+                logging.debug("Caught: %s", str(exc))
+                continue
 
-			if not dbTp_envParams:
-				continue
+            if not db_tp_env_params:
+                continue
 
+            query_entity = db_tp_env_params[0]
+            module_query_entity = lib_util.GetEntityModule(query_entity)
+            if not module_query_entity:
+                # Should not happen, otherwise how can we get the parameters for this ?
+                logging.debug("query_entity=%s. No module", query_entity)
+                continue
 
-			queryEntity = dbTp_envParams[0]
-			moduleQueryEntity = lib_util.GetEntityModule(queryEntity)
-			if not moduleQueryEntity:
-				# Should not happen, otherwise how can we get the parameters for this ?
-				logging.debug("queryEntity=%s. No module",queryEntity)
-				continue
+            list_args = db_tp_env_params[1]
 
-			listArgs = dbTp_envParams[1]
+            # For example ( "oracle/query", ( { "Db":"XE" } ) )
+            for connection_kw in list_args:
+                try:
+                    list_table_nodes = module_query_entity.QueryToNodesList(sql_query,connection_kw, list_of_tables)
+                except Exception as exc:
+                    logging.warning("query_entity=%s Caught %s", query_entity,str(exc))
+                    continue
 
-			# For example ( "oracle/query", ( { "Db":"XE" } ) )
-			for connectionKW in listArgs:
+                if not list_table_nodes:
+                    logging.debug("No nodes")
+                    continue
 
-				# sys.stderr.write("queryEntity=%s connectionKW=%s\n"%(queryEntity,connectionKW))
+                # We know this is a valid query for this connection, so we add a link to it.
+                node_db_query = sql_query.MakeUri(sql_query, query_entity, **connection_kw)
 
+                grph.add((node_type_db, prop_type_this_db, node_db_query))
+        except Exception as exc:
+            lib_common.ErrorMessageHtml("Unexpected exception:%s" % str(exc))
 
-				try:
-					# HELAS ON FAIT LE TRAVAIL DEUX FOIS, DE TESTER SI LES SHEETS SONT DES TABLES OU DES VIEWS.
-					# Il faudrait un mode degrade ou on ne fait que tester.
-					# "oracle.query.QueryToNodesList()" defined in "oracle/query/__init__.py"
-					# sys.stderr.write("queryEntity=%s moduleQueryEntity=%s\n"%(queryEntity,str(moduleQueryEntity)))
-					listTableNodes = moduleQueryEntity.QueryToNodesList(sqlQuery,connectionKW,list_of_tables)
-				except Exception:
-					exc = sys.exc_info()[0]
-					logging.warning("queryEntity=%s Caught %s", queryEntity,str(exc))
-					continue
+    cgiEnv.OutCgiRdf("LAYOUT_RECT", arr_props)
 
-				if not listTableNodes:
-					logging.debug("No nodes")
-					continue
-
-				# We know this is a valid query for this connection, so we add a link to it.
-				# Dans le lien on devra retester si vraiment valide.
-				# C est la ou on voit qu il vaudrait mieux avoir des dict.
-				nodeDbQuery = sql_query.MakeUri(sqlQuery,queryEntity,**connectionKW)
-
-				grph.add((nodeTypeDb,propTypeThisDb,nodeDbQuery))
-
-		except Exception:
-			exc = sys.exc_info()[0]
-			lib_common.ErrorMessageHtml(
-				"Unexpected exception:%s" % ( str(sys.exc_info())))  # cgiEnv.OutCgiRdf()
-
-	cgiEnv.OutCgiRdf("LAYOUT_RECT",arrProps)
 
 if __name__ == '__main__':
-	Main()
+    Main()
 
 # http://www.easysoft.com/developer/languages/python/pyodbc.html
 
