@@ -16,7 +16,7 @@ from sources_types import CIM_Process
 # This tells if this is a Python process, by checking if this runs a python interpreter.
 # TODO: What id a plain C program starts a Python interpreter from inside ?
 def Usable(entity_type, entity_ids_arr):
-    """Python processes"""
+    """Python processes only"""
 
     pid_proc = entity_ids_arr[0]
     try:
