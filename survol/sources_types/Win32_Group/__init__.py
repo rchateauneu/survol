@@ -3,6 +3,8 @@ Windows group
 """
 
 import sys
+
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -22,34 +24,36 @@ from lib_properties import pc
 
 
 def EntityOntology():
-	return ( ["Name","Domain"], )
+    return (["Name","Domain"],)
 
-def MakeUri(groupName,domainName):
-	if domainName is None:
-		domainName = ""
-	return lib_common.gUriGen.UriMakeFromDict("Win32_Group", { "Name" : groupName, "Domain" : domainName } )
+
+def MakeUri(group_name, domain_name):
+    if domain_name is None:
+        domain_name = ""
+    return lib_uris.gUriGen.UriMakeFromDict("Win32_Group", {"Name": group_name, "Domain": domain_name})
+
 
 def EntityName(entity_ids_arr):
-	if entity_ids_arr[1]:
-		return entity_ids_arr[1] + "\\\\" + entity_ids_arr[0]
-	else:
-		return entity_ids_arr[0]
+    if entity_ids_arr[1]:
+        return entity_ids_arr[1] + "\\\\" + entity_ids_arr[0]
+    else:
+        return entity_ids_arr[0]
 
-def AddInfo(grph,node,entity_ids_arr):
-	groupName = entity_ids_arr[0]
-	# sys.stderr.write("Win32_Group.AddInfo entity_ids_arr=%s\n"%str(entity_ids_arr))
-	domainName = entity_ids_arr[1]
 
-	try:
-		import win32net
+def AddInfo(grph, node, entity_ids_arr):
+    group_name = entity_ids_arr[0]
+    domain_name = entity_ids_arr[1]
 
-		dataGroup = win32net.NetLocalGroupGetInfo(None,groupName,1)
-		commentGroup = dataGroup['comment']
-		grph.add((node,pc.property_information, lib_util.NodeLiteral(commentGroup)))
-	except:
-		# Maybe this module cannot be imported.
-		pass
+    try:
+        import win32net
 
-	if domainName != "NT SERVICE":
-		nodeMachine = lib_common.gUriGen.HostnameUri( domainName )
-		grph.add((node,lib_common.MakeProp("Host"), nodeMachine))
+        data_group = win32net.NetLocalGroupGetInfo(None, group_name, 1)
+        comment_group = data_group['comment']
+        grph.add((node, pc.property_information, lib_util.NodeLiteral(comment_group)))
+    except:
+        # Maybe this module cannot be imported.
+        pass
+
+    if domain_name != "NT SERVICE":
+        node_machine = lib_common.gUriGen.HostnameUri(domain_name)
+        grph.add((node, lib_common.MakeProp("Host"), node_machine))

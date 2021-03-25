@@ -47,8 +47,6 @@ def _member_name_to_node(sid_usage, member_name, serv_name):
         member_node = survol_Win32_UserAccount.MakeUri(member_name, serv_name)
     elif sid_usage == 5 or sid_usage == 2:
         member_node = survol_Win32_Group.MakeUri(member_name, serv_name)
-    else:
-        serverNode = lib_common.gUriGen.HostnameUri(serv_name)
     return member_node
 
 
@@ -86,8 +84,6 @@ def Main():
         serv_name_not_none = server
     server_box = lib_uris.MachineBox(server)
 
-    # node_group = server_box.GroupUri( group_name )
-    # node_group = survol_Win32_Group.MakeUri( group_name, serv_name_or_none )
     node_group = survol_Win32_Group.MakeUri(group_name, serv_name_not_none)
 
     try:
