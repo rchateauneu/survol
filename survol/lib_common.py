@@ -491,26 +491,21 @@ class ScriptEnvironment():
         form_action = os.environ['SCRIPT_NAME']
         logging.debug("enter_edition_mode form_action=%s", form_action)
 
+        # HTTP header.
         lib_util.WrtHeader('text/html')
 
-        # It uses the same CSS as in HTML mode.
+        # HTML <HEAD> tag. It uses the same CSS as in HTML mode.
         lib_export_html.display_html_text_header(self.m_page_title + " - parameters")
 
+        # Display the HTML page for editing the parameters of the script.
+        lib_edition_parameters.DisplayEditionParametersPage(form_action, self)
 
-        # TODO: Move this to lib_edition_parameters.py
-        print("<body>")
-
-        print("<h3>%s</h3><br>"%self.m_page_title)
-
-        html_form = "".join(lib_edition_parameters.FormEditionParameters(form_action, self))
-        print(html_form)
-
-        print("</body>")
-        print("</html>")
+        # Now leave: The user will edit the parameters and click "submit".
         sys.exit(0)
 
     def get_parameters(self, paramkey):
-        """These are the parameters specific to the script, which are edit in our HTML form, in enter_edition_mode().
+        """
+        These are the parameters specific to the script, which are edit in our HTML form, in enter_edition_mode().
         They must have a default value. Maybe we could always have an edition mode when their value is not set.
         """
 
