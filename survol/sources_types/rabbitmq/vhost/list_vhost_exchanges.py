@@ -5,6 +5,8 @@ RabbitMQ virtual hosts exchanges
 """
 
 import sys
+import logging
+
 import lib_common
 import lib_credentials
 from pyrabbit.api import Client
@@ -13,40 +15,39 @@ from sources_types.rabbitmq import manager as survol_rabbitmq_manager
 from sources_types.rabbitmq import exchange as survol_rabbitmq_exchange
 from sources_types.rabbitmq import vhost as survol_rabbitmq_vhost
 
+
 def Main():
+    cgiEnv = lib_common.ScriptEnvironment()
 
-	cgiEnv = lib_common.ScriptEnvironment()
+    config_nam = cgiEnv.m_entity_id_dict["Url"]
+    nam_v_host = cgiEnv.m_entity_id_dict["VHost"]
 
-	configNam = cgiEnv.m_entity_id_dict["Url"]
-	namVHost = cgiEnv.m_entity_id_dict["VHost"]
+    node_manager = survol_rabbitmq_manager.MakeUri(config_nam)
 
+    creds = lib_credentials.GetCredentials("RabbitMQ", config_nam)
 
-	nodeManager = survol_rabbitmq_manager.MakeUri(configNam)
+    # cl = Client('localhost:12345', 'guest', '*****')
+    cl = Client(config_nam, creds[0], creds[1])
 
-	creds = lib_credentials.GetCredentials( "RabbitMQ", configNam )
+    grph = cgiEnv.GetGraph()
 
-	# cl = Client('localhost:12345', 'guest', 'guest')
-	cl = Client(configNam, creds[0], creds[1])
+    nod_v_host = survol_rabbitmq_vhost.MakeUri(config_nam, nam_v_host)
+    grph.add((node_manager, lib_common.MakeProp("virtual host node"), nod_v_host))
 
-	grph = cgiEnv.GetGraph()
+    for obj_exchange in cl.get_exchanges(nam_v_host):
+        nam_exchange = obj_exchange["name"]
+        logging.debug("nam_exchange=%s", nam_exchange)
 
-	nodVHost = survol_rabbitmq_vhost.MakeUri(configNam,namVHost)
-	grph.add( ( nodeManager, lib_common.MakeProp("virtual host node"), nodVHost ) )
+        node_exchange = survol_rabbitmq_exchange.MakeUri(config_nam, nam_v_host, nam_exchange)
 
-	for objExchange in cl.get_exchanges(namVHost):
-		namExchange = objExchange["name"]
-		logging.debug("namExchange=%s",namExchange)
+        management_url = rabbitmq.ManagementUrlPrefix(config_nam, "exchanges", nam_v_host, nam_exchange)
 
-		nodeExchange = survol_rabbitmq_exchange.MakeUri(configNam,namVHost,namExchange)
+        grph.add((node_exchange, lib_common.MakeProp("Management"), lib_common.NodeUrl(management_url)))
 
-		managementUrl = rabbitmq.ManagementUrlPrefix(configNam,"exchanges",namVHost,namExchange)
+        grph.add((nod_v_host, lib_common.MakeProp("Exchange"), node_exchange))
 
-		grph.add( ( nodeExchange, lib_common.MakeProp("Management"), lib_common.NodeUrl(managementUrl) ) )
+    cgiEnv.OutCgiRdf()
 
-		grph.add( ( nodVHost, lib_common.MakeProp("Exchange"), nodeExchange ) )
-
-
-	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
-	Main()
+    Main()

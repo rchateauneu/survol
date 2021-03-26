@@ -23,40 +23,39 @@ from sources_types.rabbitmq import vhost as survol_rabbitmq_vhost
 
 # rabbitmq-plugins enable rabbitmq_management
 
+
 def Main():
+    cgiEnv = lib_common.ScriptEnvironment()
 
-	cgiEnv = lib_common.ScriptEnvironment()
+    config_nam = cgiEnv.m_entity_id_dict["Url"]
+    nam_v_host = cgiEnv.m_entity_id_dict["VHost"]
 
-	configNam = cgiEnv.m_entity_id_dict["Url"]
-	namVHost = cgiEnv.m_entity_id_dict["VHost"]
+    node_manager = survol_rabbitmq_manager.MakeUri(config_nam)
 
+    creds = lib_credentials.GetCredentials("RabbitMQ", config_nam)
 
-	nodeManager = survol_rabbitmq_manager.MakeUri(configNam)
+    # cl = Client('localhost:12345', 'guest', '*****')
+    cl = Client(config_nam, creds[0], creds[1])
 
-	creds = lib_credentials.GetCredentials( "RabbitMQ", configNam )
+    grph = cgiEnv.GetGraph()
 
-	# cl = Client('localhost:12345', 'guest', 'guest')
-	cl = Client(configNam, creds[0], creds[1])
+    nod_v_host = survol_rabbitmq_vhost.MakeUri(config_nam, nam_v_host)
+    grph.add((node_manager, lib_common.MakeProp("virtual host node"), nod_v_host))
 
-	grph = cgiEnv.GetGraph()
+    for qu_list in cl.get_queues(nam_v_host):
+        nam_queue = qu_list["name"]
+        logging.debug("q=%s", nam_queue)
 
-	nodVHost = survol_rabbitmq_vhost.MakeUri(configNam,namVHost)
-	grph.add( ( nodeManager, lib_common.MakeProp("virtual host node"), nodVHost ) )
+        node_queue = survol_rabbitmq_queue.MakeUri(config_nam, nam_v_host, nam_queue)
 
-	for quList in cl.get_queues(namVHost):
-		namQueue = quList["name"]
-		logging.debug("q=%s",namQueue)
+        management_url = rabbitmq.ManagementUrlPrefix(config_nam, "queues", nam_v_host, nam_queue)
 
-		nodeQueue = survol_rabbitmq_queue.MakeUri(configNam,namVHost,namQueue)
+        grph.add((node_queue, lib_common.MakeProp("Management"), lib_common.NodeUrl(management_url)))
 
-		managementUrl = rabbitmq.ManagementUrlPrefix(configNam,"queues",namVHost,namQueue)
+        grph.add((nod_v_host, lib_common.MakeProp("Queue"), node_queue))
 
-		grph.add( ( nodeQueue, lib_common.MakeProp("Management"), lib_common.NodeUrl(managementUrl) ) )
+    cgiEnv.OutCgiRdf()
 
-		grph.add( ( nodVHost, lib_common.MakeProp("Queue"), nodeQueue ) )
-
-
-	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
-	Main()
+    Main()

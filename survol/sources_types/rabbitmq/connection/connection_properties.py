@@ -18,80 +18,68 @@ from sources_types.rabbitmq import connection as survol_rabbitmq_connection
 from sources_types.rabbitmq import vhost as survol_rabbitmq_vhost
 from sources_types.rabbitmq import user as survol_rabbitmq_user
 
+
 def Main():
+    cgiEnv = lib_common.ScriptEnvironment()
 
-	cgiEnv = lib_common.ScriptEnvironment()
+    config_nam = cgiEnv.m_entity_id_dict["Url"]
+    nam_connection = cgiEnv.m_entity_id_dict["Connection"]
 
-	configNam = cgiEnv.m_entity_id_dict["Url"]
-	namConnection = cgiEnv.m_entity_id_dict["Connection"]
+    node_manager = survol_rabbitmq_manager.MakeUri(config_nam)
 
-	nodeManager = survol_rabbitmq_manager.MakeUri(configNam)
+    creds = lib_credentials.GetCredentials("RabbitMQ", config_nam)
 
-	creds = lib_credentials.GetCredentials( "RabbitMQ", configNam )
+    cl = Client(config_nam, creds[0], creds[1])
 
-	# cl = Client('localhost:12345', 'guest', 'guest')
-	cl = Client(configNam, creds[0], creds[1])
+    grph = cgiEnv.GetGraph()
 
-	grph = cgiEnv.GetGraph()
+    logging.debug("nam_connection=%s", nam_connection)
 
-	logging.debug("namConnection=%s",namConnection)
+    nod_connection = survol_rabbitmq_connection.MakeUri(config_nam, nam_connection)
 
-	#namConnectionDisplay = namConnection.replace(">","&gt;")
-	#nodConnection = survol_rabbitmq_connection.MakeUri(configNam,namConnectionDisplay)
-	nodConnection = survol_rabbitmq_connection.MakeUri(configNam,namConnection)
+    grph.add((node_manager, lib_common.MakeProp("Connection"), nod_connection))
 
-	grph.add( ( nodeManager, lib_common.MakeProp("Connection"), nodConnection ) )
+    try:
+        connect_list = cl.get_connection(nam_connection)
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("Caught:" + str(exc))
 
-	try:
-		connectList = cl.get_connection(namConnection)
-	except:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Caught:"+str(exc))
+    for connect_key in connect_list:
+        connect_val = connect_list[connect_key]
 
-	for connectKey in connectList:
-		connectVal = connectList[connectKey]
+        if connect_key == "vhost":
+            nod_v_host = survol_rabbitmq_vhost.MakeUri(config_nam, connect_val)
+            grph.add((nod_connection, lib_common.MakeProp("Virtual host"), nod_v_host))
+        elif connect_key == "user":
+            nod_user = survol_rabbitmq_user.MakeUri(config_nam, connect_val)
+            grph.add((nod_connection, lib_common.MakeProp("User"), nod_user))
+        elif connect_key == "host":
+            nod_host = lib_common.gUriGen.HostnameUri(connect_val)
+            grph.add((nod_connection, lib_common.MakeProp("Host"), nod_host))
+        elif connect_key in ["name", "peer_host", "peer_port"]:
+            pass
+        else:
+            if isinstance(connect_val, six.string_types):
+                connect_val = connect_val.replace(">", "@")
 
-		if connectKey == "vhost":
-			nodVHost = survol_rabbitmq_vhost.MakeUri(configNam,connectVal)
-			grph.add( ( nodConnection, lib_common.MakeProp("Virtual host"), nodVHost ) )
-		elif connectKey == "user":
-			nodUser = survol_rabbitmq_user.MakeUri(configNam,connectVal)
-			grph.add( ( nodConnection, lib_common.MakeProp("User"), nodUser ) )
-		elif connectKey == "host":
-			nodHost = lib_common.gUriGen.HostnameUri(connectVal)
-			grph.add( ( nodConnection, lib_common.MakeProp("Host"), nodHost ) )
-		elif connectKey in ["name","peer_host","peer_port"]:
-			pass
-		else:
+                logging.debug("connect_key=%s connect_val=%s", connect_key, connect_val)
+            elif isinstance(connect_val, dict):
+                pass
+            elif isinstance(connect_val, tuple):
+                pass
+            elif isinstance(connect_val, list):
+                pass
+            else:
+                pass
 
-			if isinstance(connectVal, six.string_types):
-				connectVal = connectVal.replace(">","@") # .replace("{","@").replace("}","@")
+            logging.debug("Literal=%s", lib_util.NodeLiteral(connect_val))
 
-				logging.debug("connectKey=%s connectVal=%s",connectKey,connectVal)
-			elif isinstance(connectVal, dict):
-				pass
-			elif isinstance(connectVal, tuple):
-				pass
-			elif isinstance(connectVal, list):
-				pass
-			else:
-				pass
+            grph.add((nod_connection, lib_common.MakeProp(connect_key), lib_util.NodeLiteral(connect_val)))
 
-			logging.debug("Literal=%s",lib_util.NodeLiteral(connectVal))
+    survol_rabbitmq_connection.AddSockets(grph, nod_connection, nam_connection)
 
-			grph.add( ( nodConnection, lib_common.MakeProp(connectKey), lib_util.NodeLiteral(connectVal) ) )
+    cgiEnv.OutCgiRdf()
 
-			# Special processing ? Si on fait ca, tout les caracteres speciaux sont escapes.
-			# grph.add( ( nodConnection, pc.property_rdf_data_nolist1, lib_util.NodeLiteral(connectVal) ) )
-
-
-	# This is not useful apparently.
-	# peerSocketNode = lib_common.gUriGen.AddrUri( connectList["peer_host"], connectList["peer_port"] )
-	# grph.add( ( nodConnection, lib_common.MakeProp("Peer"), peerSocketNode ) )
-
-	survol_rabbitmq_connection.AddSockets(grph,nodConnection,namConnection)
-
-	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
-	Main()
+    Main()
