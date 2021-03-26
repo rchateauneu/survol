@@ -101,7 +101,7 @@ def Main():
 
         grph.add((session_node, lib_common.MakeProp("User"), lib_util.NodeLiteral(mysql_user)))
 
-        grph.add(( session_node, lib_common.MakeProp("Mysql session"), instance_node))
+        grph.add((session_node, lib_common.MakeProp("Mysql session"), instance_node))
 
     cursor_mysql.close()
     conn_mysql.close()
