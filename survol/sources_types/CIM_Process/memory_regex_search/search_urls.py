@@ -8,6 +8,7 @@ import os
 import sys
 import logging
 
+import lib_uris
 import lib_common
 from lib_properties import pc
 
@@ -21,7 +22,7 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    node_process = lib_common.gUriGen.PidUri(pidint)
+    node_process = lib_uris.gUriGen.PidUri(pidint)
 
     try:
         # http://daringfireball.net/2010/07/improved_regex_for_matching_urls
@@ -56,6 +57,7 @@ def Main():
         lib_common.ErrorMessageHtml("Error:%s. Protection ?" % str(exc))
 
     cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
     Main()

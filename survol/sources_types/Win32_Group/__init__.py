@@ -24,7 +24,7 @@ from lib_properties import pc
 
 
 def EntityOntology():
-    return (["Name","Domain"],)
+    return (["Name", "Domain"],)
 
 
 def MakeUri(group_name, domain_name):
@@ -55,5 +55,5 @@ def AddInfo(grph, node, entity_ids_arr):
         pass
 
     if domain_name != "NT SERVICE":
-        node_machine = lib_common.gUriGen.HostnameUri(domain_name)
+        node_machine = lib_uris.gUriGen.HostnameUri(domain_name)
         grph.add((node, lib_common.MakeProp("Host"), node_machine))

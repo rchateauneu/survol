@@ -6,6 +6,8 @@ Parse Sqlite database
 
 import sys
 import logging
+
+import lib_uris
 import lib_common
 from sources_types import sqlite
 from sources_types.sqlite import file as sqlite_file
@@ -13,26 +15,26 @@ from sources_types.sqlite import file as sqlite_file
 
 def Usable(entity_type, entity_ids_arr):
 	"""Can run on a Sqlite database only"""
-	filNam = entity_ids_arr[0]
-	return sqlite.IsSqliteDatabase(filNam)
+	fil_nam = entity_ids_arr[0]
+	return sqlite.IsSqliteDatabase(fil_nam)
 
 
 # We could simply in AddInfo, add a link to "sqlite/file".
 def Main():
 	cgiEnv = lib_common.ScriptEnvironment()
 
-	dbFilNam = cgiEnv.GetId()
+	db_fil_nam = cgiEnv.GetId()
 
-	logging.debug("dbFilNam=%s", dbFilNam)
+	logging.debug("db_fil_nam=%s", db_fil_nam)
 
 	grph = cgiEnv.GetGraph()
 
-	filNode = lib_common.gUriGen.FileUri(dbFilNam)
-	sqliteNode = sqlite_file.MakeUri(dbFilNam)
+	fil_node = lib_uris.gUriGen.FileUri(db_fil_nam)
+	sqlite_node = sqlite_file.MakeUri(db_fil_nam)
 
-	grph.add((sqliteNode, lib_common.MakeProp("Storage file"), filNode))
+	grph.add((sqlite_node, lib_common.MakeProp("Storage file"), fil_node))
 
-	sqlite.AddNodesTablesViews(grph,sqliteNode,dbFilNam)
+	sqlite.AddNodesTablesViews(grph,sqlite_node, db_fil_nam)
 
 	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 

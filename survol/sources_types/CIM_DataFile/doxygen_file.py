@@ -6,6 +6,8 @@ DOxygen parsing
 
 import os
 import sys
+
+import lib_uris
 import lib_common
 import lib_util
 from lib_properties import pc
@@ -42,7 +44,7 @@ def Main():
     objects_by_location = lib_doxygen.DoxygenMain(False, file_param)
 
     directory_name = os.path.dirname(file_param)
-    root_node = lib_common.gUriGen.FileUri(file_param)
+    root_node = lib_uris.gUriGen.FileUri(file_param)
 
     lib_doxygen.CreateObjs(grph, root_node, directory_name, objects_by_location, param_explode_classes)
 
