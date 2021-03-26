@@ -25,40 +25,41 @@ from sources_types.rabbitmq import vhost as survol_rabbitmq_vhost
 
 def Main():
 
-	cgiEnv = lib_common.ScriptEnvironment()
+    cgiEnv = lib_common.ScriptEnvironment()
 
-	configNam = cgiEnv.m_entity_id_dict["Url"]
-	namVHost = cgiEnv.m_entity_id_dict["VHost"]
-	namQueue = cgiEnv.m_entity_id_dict["Queue"]
+    config_nam = cgiEnv.m_entity_id_dict["Url"]
+    nam_v_host = cgiEnv.m_entity_id_dict["VHost"]
+    nam_queue = cgiEnv.m_entity_id_dict["Queue"]
 
-	nodeManager = survol_rabbitmq_manager.MakeUri(configNam)
+    node_manager = survol_rabbitmq_manager.MakeUri(config_nam)
 
-	creds = lib_credentials.GetCredentials( "RabbitMQ", configNam )
+    creds = lib_credentials.GetCredentials("RabbitMQ", config_nam )
 
-	# cl = Client('localhost:12345', 'guest', 'guest')
-	cl = Client(configNam, creds[0], creds[1])
+    # cl = Client('localhost:12345', 'guest', '*****')
+    cl = Client(config_nam, creds[0], creds[1])
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	nodVHost = survol_rabbitmq_vhost.MakeUri(configNam,namVHost)
-	grph.add( ( nodeManager, lib_common.MakeProp("virtual host node"), nodVHost ) )
+    nod_v_host = survol_rabbitmq_vhost.MakeUri(config_nam, nam_v_host)
+    grph.add((node_manager, lib_common.MakeProp("virtual host node"), nod_v_host))
 
-	nodeQueue = survol_rabbitmq_queue.MakeUri(configNam,namVHost,namQueue)
-	grph.add( ( nodVHost, lib_common.MakeProp("Queue"), nodeQueue ) )
+    node_queue = survol_rabbitmq_queue.MakeUri(config_nam, nam_v_host, nam_queue)
+    grph.add((nod_v_host, lib_common.MakeProp("Queue"), node_queue))
 
-	# >>> cl.get_queue_bindings("/","aliveness-test")
-	# [{u'vhost': u'/', u'properties_key': u'aliveness-test', u'destination': u'aliveness-test', u'routing_key': u'aliveness-test', u'sour
-	# ce': u'', u'arguments': {}, u'destination_type': u'queue'}]
-	lstBindings = cl.get_queue_bindings(namVHost,namQueue)
+    # >>> cl.get_queue_bindings("/","aliveness-test")
+    # [{u'vhost': u'/', u'properties_key': u'aliveness-test', u'destination': u'aliveness-test', u'routing_key': u'aliveness-test', u'sour
+    # ce': u'', u'arguments': {}, u'destination_type': u'queue'}]
+    lst_bindings = cl.get_queue_bindings(nam_v_host, nam_queue)
 
-	for sublstBindings in lstBindings:
-		for keyBindings in sublstBindings:
-			valBindings = sublstBindings[keyBindings]
-			strDisp = str(valBindings).replace("{","").replace("}","")
-			grph.add( ( nodeQueue, lib_common.MakeProp(keyBindings), lib_util.NodeLiteral(strDisp ) ))
-			logging.debug("keyBindings=%s valBindings=%s",keyBindings,valBindings)
+    for sublst_bindings in lst_bindings:
+        for key_bindings in sublst_bindings:
+            val_bindings = sublst_bindings[key_bindings]
+            str_disp = str(val_bindings).replace("{", "").replace("}", "")
+            grph.add((node_queue, lib_common.MakeProp(key_bindings), lib_util.NodeLiteral(str_disp)))
+            logging.debug("key_bindings=%s val_bindings=%s", key_bindings, val_bindings)
 
-	cgiEnv.OutCgiRdf()
+    cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
-	Main()
+    Main()
