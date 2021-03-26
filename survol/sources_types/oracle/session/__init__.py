@@ -2,16 +2,19 @@
 Oracle session
 """
 
-import lib_common
+import lib_uris
 
 def Graphic_colorbg():
-	return "#FFCC66"
+    return "#FFCC66"
+
 
 def EntityOntology():
-	return ( ["Db", "Session"], )
+    return (["Db", "Session"],)
 
-def MakeUri(dbName,sessionId):
-	return lib_common.gUriGen.UriMakeFromDict("oracle/session", { "Db" : dbName, "Session" : sessionId } )
+
+def MakeUri(db_name, session_id):
+    return lib_uris.gUriGen.UriMakeFromDict("oracle/session", {"Db": db_name, "Session": session_id})
+
 
 def EntityName(entity_ids_arr):
-	return entity_ids_arr[0] + "." + entity_ids_arr[1]
+    return entity_ids_arr[0] + "." + entity_ids_arr[1]

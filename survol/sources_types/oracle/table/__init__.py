@@ -9,26 +9,25 @@ from sources_types.oracle import schema as oracle_schema
 
 
 def Graphic_colorbg():
-	return "#66CC33"
+    return "#66CC33"
 
 
 def AddInfo(grph,node, entity_ids_arr):
-	# TODO: Ca serait quand meme mieux de passer au AddInfo un dict plutot qu un tableau.
-	dbNam = entity_ids_arr[0]
-	schemaNam = entity_ids_arr[1]
-	nodeSchema = oracle_schema.MakeUri(dbNam,schemaNam)
+    db_nam = entity_ids_arr[0]
+    schema_nam = entity_ids_arr[1]
+    nodeSchema = oracle_schema.MakeUri(db_nam, schema_nam)
 
-	grph.add((nodeSchema, pc.property_oracle_table, node))
+    grph.add((nodeSchema, pc.property_oracle_table, node))
 
 
 def EntityOntology():
-	return (["Db", "Schema", "Table"],)
+    return (["Db", "Schema", "Table"],)
 
 
 # Beware of the possible confusion with normal users.
-def MakeUri(dbName,schemaName,tableName):
-	return lib_uris.gUriGen.UriMakeFromDict("oracle/table", {"Db": dbName, "Schema": schemaName, "Table": tableName})
+def MakeUri(db_name, schema_name, table_name):
+    return lib_uris.gUriGen.UriMakeFromDict("oracle/table", {"Db": db_name, "Schema": schema_name, "Table": table_name})
 
 
 def EntityName(entity_ids_arr):
-	return entity_ids_arr[0] + "." + entity_ids_arr[1] + "." + entity_ids_arr[2]
+    return entity_ids_arr[0] + "." + entity_ids_arr[1] + "." + entity_ids_arr[2]

@@ -7,11 +7,11 @@ Oracle session details
 import sys
 import logging
 
+import lib_uris
 import lib_util
 import lib_oracle
 import lib_common
 from lib_properties import pc
-
 from sources_types.oracle import schema as oracle_schema
 from sources_types.oracle import session as oracle_session
 
@@ -35,7 +35,6 @@ def Main():
 		grph.add((node_ora_session, lib_common.MakeProp("Username"), lib_util.NodeLiteral(row[2])))
 		grph.add((node_ora_session, lib_common.MakeProp("Server"), lib_util.NodeLiteral(row[3])))
 
-		# grph.add( ( node_ora_session, lib_common.MakeProp("Schema"), lib_util.NodeLiteral(row[4])))
 		node_schema = oracle_schema.MakeUri(cgiEnv.m_oraDatabase, str(row[4]))
 		grph.add((node_ora_session, pc.property_oracle_schema, node_schema))
 
@@ -43,15 +42,14 @@ def Main():
 
 		# This returns an IP address from "WORKGROUP\MYMACHINE"
 		user_machine = lib_oracle.OraMachineToIp(row[6])
-		node_machine = lib_common.gUriGen.HostnameUri(user_machine)
+		node_machine = lib_uris.gUriGen.HostnameUri(user_machine)
 		grph.add((node_machine, pc.property_information, lib_util.NodeLiteral(row[6])))
 
 		grph.add((node_ora_session, lib_common.MakeProp("Port"), lib_util.NodeLiteral(row[7])))
 		grph.add((node_ora_session, lib_common.MakeProp("OsUser"), lib_util.NodeLiteral(row[8])))
-		# grph.add((node_ora_session, lib_common.MakeProp("Process"), lib_util.NodeLiteral(row[9])))
 		sess_pid_tid = row[9] # 7120:4784
 		sess_pid = sess_pid_tid.split(":")[0]
-		node_process = lib_common.RemoteBox(user_machine).PidUri(sess_pid)
+		node_process = lib_uris.RemoteBox(user_machine).PidUri(sess_pid)
 		grph.add((node_process, lib_common.MakeProp("Pid"), lib_util.NodeLiteral(sess_pid)))
 		grph.add((node_ora_session, pc.property_oracle_session, node_process))
 

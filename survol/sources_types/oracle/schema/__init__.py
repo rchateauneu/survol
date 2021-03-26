@@ -4,33 +4,33 @@ Oracle database schema
 
 import lib_uris
 import lib_common
+
 from lib_properties import pc
 from sources_types.oracle import db as oracle_db
 
 
 def Graphic_colorbg():
-	return "#CC99FF"
+    return "#CC99FF"
 
 
 def EntityOntology():
-	return (["Db", "Schema"],)
+    return (["Db", "Schema"],)
 
 
 # Beware of the possible confusion with normal users.
-def MakeUri(dbName,schemaName):
-	return lib_uris.gUriGen.UriMakeFromDict("oracle/schema", {"Db" : dbName, "Schema": schemaName})
+def MakeUri(db_name, schema_name):
+    return lib_uris.gUriGen.UriMakeFromDict("oracle/schema", {"Db" : db_name, "Schema": schema_name})
 
 
-def AddInfo(grph,node,entity_ids_arr):
-	# TODO: Ca serait quand meme mieux de passer au AddInfo un dict plutot qu un tableau.
-	dbNam = entity_ids_arr[0]
-	nodeDb = oracle_db.MakeUri(dbNam)
+def AddInfo(grph, node, entity_ids_arr):
+    db_nam = entity_ids_arr[0]
+    node_db = oracle_db.MakeUri(db_nam)
 
-	grph.add((nodeDb, pc.property_oracle_schema, node))
+    grph.add((node_db, pc.property_oracle_schema, node))
 
 
 def EntityName(entity_ids_arr):
-	return entity_ids_arr[0] + "." + entity_ids_arr[1]
+    return entity_ids_arr[0] + "." + entity_ids_arr[1]
 
 # SQL> select distinct object_type from dba_objects;
 #
