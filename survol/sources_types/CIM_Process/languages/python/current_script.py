@@ -5,12 +5,12 @@ Current script
 """
 
 import os
-import re
 import sys
 import logging
+
+import lib_uris
 import lib_util
 import lib_common
-import getopt
 from lib_properties import pc
 from sources_types import CIM_Process
 from sources_types.CIM_Process.languages import python as survol_python
@@ -72,14 +72,14 @@ def _py_fil_node(proc_obj, fil_nam, ignore_envs):
         # Check if the file exists in the current directory.
         curr_pwd, err_msg = CIM_Process.PsutilProcCwd(proc_obj)
         if not curr_pwd:
-            logging.debug("_py_fil_node: %s",err_msg)
+            logging.debug("_py_fil_node: %s", err_msg)
             return None
 
         all_dirs_to_search = [curr_pwd]
 
         # With this option, do not use environment variable.
         if not ignore_envs:
-            path_python = CIM_Process.GetEnvVarProcess("PYTHONPATH",proc_obj.pid)
+            path_python = CIM_Process.GetEnvVarProcess("PYTHONPATH", proc_obj.pid)
             if path_python:
                 path_python_split = path_python.split(":")
                 all_dirs_to_search += path_python_split
@@ -92,7 +92,7 @@ def _py_fil_node(proc_obj, fil_nam, ignore_envs):
                 break
 
     if full_file_name:
-        fil_node = lib_common.gUriGen.FileUri(full_file_name)
+        fil_node = lib_uris.gUriGen.FileUri(full_file_name)
         return fil_node
     else:
         return None
@@ -176,19 +176,20 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    node_process = lib_common.gUriGen.PidUri(pid_proc)
+    node_process = lib_uris.gUriGen.PidUri(pid_proc)
     proc_obj = CIM_Process.PsutilGetProcObj(int(pid_proc))
 
     # Now we are parsing the command line.
     argv_array = CIM_Process.PsutilProcToCmdlineArray(proc_obj)
 
-    logging.debug("argv_array=%s",str(argv_array))
+    logging.debug("argv_array=%s", str(argv_array))
 
     # The difficulty is that filenames with spaces are split.
     # Therefore, entire filenames must be rebuilt from pieces.
     _add_nodes_from_command_line(argv_array, grph, node_process, proc_obj)
 
     cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
     Main()

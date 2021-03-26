@@ -5,12 +5,12 @@ Current batch file
 """
 
 import os
-import re
 import sys
 import logging
+
+import lib_uris
 import lib_util
 import lib_common
-import getopt
 from lib_properties import pc
 from sources_types import CIM_Process
 from sources_types.CIM_Process.languages import msdos as survol_msdos
@@ -48,13 +48,9 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    node_process = lib_common.gUriGen.PidUri(pid_proc)
+    node_process = lib_uris.gUriGen.PidUri(pid_proc)
     proc_obj = CIM_Process.PsutilGetProcObj(pid_proc)
 
-    # Python 2
-    # cmd_arr=['C:\\Python27\\python.exe', 'test_survol_client_library.py', '--debug', 'SurvolLocalTest.test_msdos_current_batch']
-    # Python 3
-    # cmd_arr=['C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\Python36_64\\python.exe', 'test_survol_client_library.py', '--debug', 'SurvolLocalTest.test_msdos_current_batch']
     argv_array = CIM_Process.PsutilProcToCmdlineArray(proc_obj)
     logging.debug("argv_array=%s", str(argv_array))
 
@@ -79,9 +75,8 @@ def Main():
             full_script_path = os.path.join(a_dir, the_arg)
             logging.debug("full_script_path=%s", full_script_path)
             if os.path.isfile(full_script_path):
-                logging.debug("full_script_path=%s",full_script_path)
-                script_node = lib_common.gUriGen.FileUri(full_script_path)
-                grph.add( (node_process, pc.property_runs, script_node))
+                script_node = lib_uris.gUriGen.FileUri(full_script_path)
+                grph.add((node_process, pc.property_runs, script_node))
                 break
 
         break

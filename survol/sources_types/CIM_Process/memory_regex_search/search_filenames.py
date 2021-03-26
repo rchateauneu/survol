@@ -9,6 +9,7 @@ import sys
 import re
 import logging
 
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -26,10 +27,7 @@ class FilenameParserLinux:
     def create_regex(self, minimum_depth, withRelat):
 
         rgx_fil_nam = ""
-        # rgx_fil_nam += "/[^/]+" * minimum_depth
-        # rgx_fil_nam += "/[a-zA-Z0-9]+" * minimum_depth
         rgx_fil_nam += r"/[-a-zA-Z0-9\._\+]{3,50}" * minimum_depth
-        #rgx_fil_nam = "kademlia"
         return rgx_fil_nam
 
     def cleanup_filename(self, a_filename):
@@ -93,7 +91,7 @@ def _filename_parser_generator():
     lib_common.ErrorMessageHtml("No operating system")
 
 
-def _check_unique_filenames(a_fil_nam, unique_filenames, paramCheckExistence):
+def _check_unique_filenames(a_fil_nam, unique_filenames, param_check_existence):
     if a_fil_nam in unique_filenames:
         return
 
@@ -101,7 +99,7 @@ def _check_unique_filenames(a_fil_nam, unique_filenames, paramCheckExistence):
 
     # The file must exist. If we cannot access it does not matter.
     # TODO: Must accept if we can access it or not.
-    if paramCheckExistence:
+    if param_check_existence:
 
         # TODO: Test existence of relative files by prefixing with current directory.
         if not os.path.isdir(a_fil_nam) and not os.path.isfile(a_fil_nam):
@@ -116,28 +114,29 @@ def _check_unique_filenames(a_fil_nam, unique_filenames, paramCheckExistence):
 def Main():
     # Parameter for the minimal depth of the regular expression.
     # min=3, otherwise any string with a "/" will match.
-    keyMiniDepth = "Minimum filename depth"
+    key_mini_depth = "Minimum filename depth"
 
     # Otherwise, only look for absolute filenames.
-    keyWithRelative = "Search relative filenames"
+    key_with_relative = "Search relative filenames"
 
-    keyCheckExistence = "Check file existence"
+    key_check_existence = "Check file existence"
 
-    cgiEnv = lib_common.ScriptEnvironment(parameters={keyMiniDepth: 3, keyWithRelative: False, keyCheckExistence: True})
+    cgiEnv = lib_common.ScriptEnvironment(
+        parameters={key_mini_depth: 3, key_with_relative: False, key_check_existence: True})
 
     pid_as_integer = int(cgiEnv.GetId())
 
-    paramMiniDepth = int(cgiEnv.get_parameters(keyMiniDepth))
-    paramWithRelative = bool(cgiEnv.get_parameters(keyWithRelative))
-    paramCheckExistence = bool(cgiEnv.get_parameters(keyCheckExistence))
+    param_mini_depth = int(cgiEnv.get_parameters(key_mini_depth))
+    param_with_relative = bool(cgiEnv.get_parameters(key_with_relative))
+    param_check_existence = bool(cgiEnv.get_parameters(key_check_existence))
 
     grph = cgiEnv.GetGraph()
 
-    node_process = lib_common.gUriGen.PidUri(pid_as_integer)
+    node_process = lib_uris.gUriGen.PidUri(pid_as_integer)
 
     try:
         obj_parser = _filename_parser_generator()
-        rgx_fil_nam = obj_parser.create_regex(paramMiniDepth, paramWithRelative)
+        rgx_fil_nam = obj_parser.create_regex(param_mini_depth, param_with_relative)
         logging.warning("rgx_fil_nam=%s", rgx_fil_nam)
 
         resu_fil_nams = memory_regex_search.GetRegexMatches(pid_as_integer, rgx_fil_nam)
@@ -155,7 +154,6 @@ def Main():
                 assert isinstance(a_fil_nam_buffer, str)
             is_path, a_fil_nam_list = obj_parser.cleanup_filename(a_fil_nam_buffer)
 
-            # print("a_fil_nam_list %s", str(a_fil_nam_list))
             if is_path:
                 # This is just a list of directories. This could be an interesting information,
                 # but it does not imply the creation or access of actual files and cirectories.
@@ -169,11 +167,11 @@ def Main():
                         assert isinstance(one_filename, str)
                     else:
                         assert isinstance(one_filename, unicode)
-                    _check_unique_filenames(one_filename, unique_filenames, paramCheckExistence)
+                    _check_unique_filenames(one_filename, unique_filenames, param_check_existence)
 
         for a_fil_nam in unique_filenames:
             #logging.debug("a_fil_nam=%s",a_fil_nam)
-            node_filnam = lib_common.gUriGen.FileUri(a_fil_nam)
+            node_filnam = lib_uris.gUriGen.FileUri(a_fil_nam)
             grph.add((node_process, pc.property_rdf_data_nolist1, node_filnam))
 
         logging.warning("unique file numbers=%d", len(unique_filenames))

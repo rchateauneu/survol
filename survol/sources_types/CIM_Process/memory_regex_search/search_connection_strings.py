@@ -8,6 +8,8 @@ import os
 import sys
 import re
 import logging
+
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -148,7 +150,7 @@ def Main():
 
     aggreg_dsns = _get_aggreg_dsns(pidint, map_rgx)
 
-    node_process = lib_common.gUriGen.PidUri(pidint)
+    node_process = lib_uris.gUriGen.PidUri(pidint)
 
     # TODO: Add a parameter to choose between light and heavy connection string definition.
 

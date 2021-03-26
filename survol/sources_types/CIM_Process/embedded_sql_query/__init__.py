@@ -14,32 +14,27 @@ import lib_util
 # The result should be ["Query","Handle"]
 # We do not know if CIM_Process.EntityOntology() is available.
 def EntityOntology():
-	# return ( sql_query.EntityOntology() + lib_util.OntologyClassKeys("CIM_Process") )
-	return ( ["Query","Handle"],)
+    return (["Query", "Handle"],)
 
 
 # The SQL query is encoded in base 64 because it contains many special characters which would be too complicated to
 # encode as HTML entities. This is not visible as EntityName() does the reverse decoding.
-def MakeUri(strQuery,thePid):
-	#strQueryEncoded = lib_util.Base64Encode(strQuery)
-	# TODO: We have hard-coded the process definition with "Handle".
-	# TODO: The entity parameter should be passed differently, more elegant. Not sure.
-	#return lib_common.gUriGen.UriMakeFromDict("sql/query",{ "Query" : strQueryEncoded, "Handle" : thePid })
-	# return sql_query.MakeUri( strQuery, "CIM_Process/embedded_sql_query", { "Handle" : thePid } )
-	return sql_query.MakeUri( strQuery, "CIM_Process/embedded_sql_query", Handle = thePid )
+def MakeUri(str_query, the_pid):
+    # TODO: We have hard-coded the process definition with "Handle".
+    # TODO: The entity parameter should be passed differently, more elegant. Not sure.
+    return sql_query.MakeUri(str_query, "CIM_Process/embedded_sql_query", Handle=the_pid)
 
-def AddInfo(grph,node,entity_ids_arr):
-	strQuery = entity_ids_arr[0]
-	pid = entity_ids_arr[1]
+
+def AddInfo(grph, node, entity_ids_arr):
+    strQuery = entity_ids_arr[0]
+    pid = entity_ids_arr[1]
+
 
 def EntityName(entity_ids_arr):
-	thePid = entity_ids_arr[1]
-	# sys.stderr.write("thePid=%s\n"%thePid)
-	sqlQuery = entity_ids_arr[0]
-	resu = lib_util.Base64Decode(sqlQuery)
+    the_pid = entity_ids_arr[1]
+    sql_query = entity_ids_arr[0]
+    resu = lib_util.Base64Decode(sql_query)
 
-	# If the query contains double-quotes, it crashes Graphviz
-	resu = resu.replace('"',"'")
-	# resu = resu.replace('"','\\"')
-	return "Pid " + str(thePid) + ":" + resu
-	# return resu
+    # If the query contains double-quotes, it crashes Graphviz
+    resu = resu.replace('"', "'")
+    return "Pid " + str(the_pid) + ":" + resu
