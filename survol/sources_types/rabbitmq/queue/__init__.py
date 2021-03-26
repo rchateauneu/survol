@@ -2,9 +2,11 @@
 RabbitMQ queue
 """
 
+import lib_uris
 import lib_common
 from sources_types.rabbitmq import manager as survol_rabbitmq_manager
 from sources_types.rabbitmq import vhost as survol_rabbitmq_vhost
+
 
 def Graphic_colorbg():
     return "#CCCC66"
@@ -16,7 +18,7 @@ def EntityOntology():
 
 def MakeUri(url_name, vhost_name, queue_name):
     vhost_name = vhost_name.lower() # RFC4343
-    return lib_common.gUriGen.UriMakeFromDict(
+    return lib_uris.gUriGen.UriMakeFromDict(
         "rabbitmq/queue", {"Url": url_name, "VHost": vhost_name, "Queue": queue_name})
 
 

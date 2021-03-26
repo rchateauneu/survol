@@ -3,6 +3,8 @@ RabbitMQ client connection
 """
 
 import sys
+
+import lib_uris
 import lib_common
 from lib_properties import pc
 from sources_types.rabbitmq import manager as survol_rabbitmq_manager
@@ -22,7 +24,7 @@ def MakeUri(url_name, connection_name):
     # Needed because RabbitMQ connecton names are like:
     # "Url=LOCALHOST:12345,Connection=127.0.0.1:51748 -> 127.0.0.1:5672"
     connection_name = connection_name.replace(">", "&gt;")
-    return lib_common.gUriGen.UriMakeFromDict("rabbitmq/connection", {"Url": url_name, "Connection": connection_name})
+    return lib_uris.gUriGen.UriMakeFromDict("rabbitmq/connection", {"Url": url_name, "Connection": connection_name})
 
 
 # '127.0.0.1:51532 -> 127.0.0.1:5672'
@@ -39,7 +41,7 @@ def AddSockets(grph, node, nam_connection):
     def make_socket_node(host_colon_port):
         # "127.0.0.1:51532"
         socket_split = host_colon_port.strip().split(":")
-        socket_node = lib_common.gUriGen.AddrUri(socket_split[0], socket_split[1])
+        socket_node = lib_uris.gUriGen.AddrUri(socket_split[0], socket_split[1])
         return socket_node
 
     lsocket_node = make_socket_node(nam_connect_split[0])
