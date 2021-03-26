@@ -93,7 +93,7 @@ def Main():
             continue
 
         lin_split = lin.split()
-        if lin_split[0] not in ["OK", "Disconnected"]:
+        if lin_split[0] not in ["OK", "Disconnected", "Unavailable"]:
             lib_common.ErrorMessageHtml("Line is not ok:" + str(lin_split))
 
         if re.match("[A-Z]:", lin_split[1]):
