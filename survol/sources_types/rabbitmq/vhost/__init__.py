@@ -2,6 +2,7 @@
 RabbitMQ user
 """
 
+import lib_uris
 import lib_common
 from sources_types.rabbitmq import manager as survol_rabbitmq_manager
 
@@ -15,7 +16,7 @@ def EntityOntology():
 
 
 def MakeUri(url_name, vhost_name):
-    return lib_common.gUriGen.UriMakeFromDict("rabbitmq/vhost", {"Url": url_name, "VHost": vhost_name})
+    return lib_uris.gUriGen.UriMakeFromDict("rabbitmq/vhost", {"Url": url_name, "VHost": vhost_name})
 
 
 # According to the API documentation:

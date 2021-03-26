@@ -7,11 +7,14 @@ RabbitMQ connection properties
 import sys
 import six
 import logging
+
+from pyrabbit.api import Client
+
+import lib_uris
 import lib_util
 import lib_common
 import lib_credentials
 from lib_properties import pc
-from pyrabbit.api import Client
 from sources_types import rabbitmq
 from sources_types.rabbitmq import manager as survol_rabbitmq_manager
 from sources_types.rabbitmq import connection as survol_rabbitmq_connection
@@ -54,7 +57,7 @@ def Main():
             nod_user = survol_rabbitmq_user.MakeUri(config_nam, connect_val)
             grph.add((nod_connection, lib_common.MakeProp("User"), nod_user))
         elif connect_key == "host":
-            nod_host = lib_common.gUriGen.HostnameUri(connect_val)
+            nod_host = lib_uris.gUriGen.HostnameUri(connect_val)
             grph.add((nod_connection, lib_common.MakeProp("Host"), nod_host))
         elif connect_key in ["name", "peer_host", "peer_port"]:
             pass

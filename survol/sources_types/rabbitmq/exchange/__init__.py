@@ -2,7 +2,7 @@
 RabbitMQ exchange
 """
 
-import lib_common
+import lib_uris
 
 
 def Graphic_colorbg():
@@ -15,7 +15,7 @@ def EntityOntology():
 
 def MakeUri(url_name, vhost_name, exchange_name):
     vhost_name = vhost_name.lower() # RFC4343
-    return lib_common.gUriGen.UriMakeFromDict(
+    return lib_uris.gUriGen.UriMakeFromDict(
         "rabbitmq/exchange", {"Url": url_name, "VHost": vhost_name, "Exchange": exchange_name})
 
 
