@@ -39,7 +39,7 @@ def Main():
             com_class_id = str(com_class_id)
 
             # comClass = "{DB7A405D-208F-4E88-BA0A-132ACFA0B5B6}" for example.
-            typelib_node = lib_common.gUriGen.ComRegisteredTypeLibUri(com_class_id)
+            typelib_node = lib_uris.gUriGen.ComRegisteredTypeLibUri(com_class_id)
             grph.add((node_process, prop_com_class, typelib_node))
 
     except Exception as exc:

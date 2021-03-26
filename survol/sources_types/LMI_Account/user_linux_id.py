@@ -7,6 +7,8 @@ Groups of a Linux user
 import re
 import sys
 import logging
+
+import lib_uris
 import lib_common
 import lib_util
 from lib_properties import pc
@@ -57,17 +59,17 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    user_node = lib_common.gUriGen.UserUri(user_name)
+    user_node = lib_uris.gUriGen.UserUri(user_name)
 
     # It runs this Linux command which returns a single line.
     id_cmd = ["id", user_name]
 
     id_pipe = lib_common.SubProcPOpen(id_cmd)
 
-    (id_last_output, id_err) = id_pipe.communicate()
+    id_last_output, id_err = id_pipe.communicate()
 
     lines = id_last_output.split(b'\n')
-    logging.debug("id=" + user_name + " lines="+str(lines))
+    logging.debug("id=" + user_name + " lines=" + str(lines))
 
     # $ id my_user
     # uid=500(my_user) gid=500(guest) groupes=500(guest),81(audio)
@@ -82,7 +84,7 @@ def Main():
 
     for grp_str in first_split[2].split(b','):
         group_id, group_name = parse_id_name(grp_str)
-        grp_node = lib_common.gUriGen.GroupUri(group_name)
+        grp_node = lib_uris.gUriGen.GroupUri(group_name)
         grph.add((grp_node, pc.property_groupid, lib_util.NodeLiteral(group_id)))
         grph.add((user_node, pc.property_group, grp_node))
 
