@@ -7,56 +7,58 @@ Columns of Sqlite table.
 import os
 import os.path
 import sys
+
+import sqlite3
+
+import lib_uris
 import lib_util
 import lib_common
-import sqlite3
 from sources_types import sqlite
 from sources_types.sqlite import table as sqlite_table
 from sources_types.sqlite import column as sqlite_column
 
+
 def Usable(entity_type,entity_ids_arr):
-	"""Can run on a Sqlite database only"""
-	filNam = entity_ids_arr[0]
-	return sqlite.IsSqliteDatabase(filNam)
+    """Can run on a Sqlite database only"""
+    fil_nam = entity_ids_arr[0]
+    return sqlite.IsSqliteDatabase(fil_nam)
+
 
 def Main():
-	cgiEnv = lib_common.ScriptEnvironment()
+    cgiEnv = lib_common.ScriptEnvironment()
 
-	tableName = cgiEnv.m_entity_id_dict["Table"]
-	dbFilNam = cgiEnv.m_entity_id_dict["File"]
+    table_name = cgiEnv.m_entity_id_dict["Table"]
+    db_fil_nam = cgiEnv.m_entity_id_dict["File"]
 
-	# sys.stderr.write("dbFilNam=%s\n"%dbFilNam)
+    grph = cgiEnv.GetGraph()
 
-	grph = cgiEnv.GetGraph()
+    fil_node = lib_uris.gUriGen.FileUri(db_fil_nam)
+    tab_nod = sqlite_table.MakeUri(db_fil_nam, table_name)
+    grph.add((tab_nod, lib_common.MakeProp("Table"), fil_node))
 
-	filNode = lib_common.gUriGen.FileUri(dbFilNam )
-	tabNod = sqlite_table.MakeUri(dbFilNam,tableName)
-	grph.add( ( tabNod, lib_common.MakeProp("Table"), filNode ) )
+    con = sqlite3.connect(db_fil_nam)
+    cursor = con.cursor()
 
-	con = sqlite3.connect(dbFilNam)
-	cursor = con.cursor()
+    #>>> eta = curs.execute("PRAGMA table_info('tz_data')")
+    #(0, u'tzid', u'TEXT', 0, None, 0)
+    #(1, u'alias', u'TEXT', 0, None, 0)
 
-	#>>> eta = curs.execute("PRAGMA table_info('tz_data')")
-	#(0, u'tzid', u'TEXT', 0, None, 0)
-	#(1, u'alias', u'TEXT', 0, None, 0)
+    try:
+        cursor.execute("PRAGMA table_info('%s')" % table_name)
 
-	try:
-		cursor.execute("PRAGMA table_info('%s')" % tableName )
+        prop_column = lib_common.MakeProp("Column")
+        prop_type = lib_common.MakeProp("Type")
+        for the_row in cursor.fetchall():
+            column_nam = the_row[1]
+            column_nod = sqlite_column.MakeUri(db_fil_nam, table_name, column_nam)
+            grph.add((tab_nod, prop_column, column_nod))
+            type_nam = the_row[2]
+            grph.add((column_nod, prop_type, lib_util.NodeLiteral(type_nam)))
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("Error %s:%s" % (db_fil_nam, str(exc)))
 
-		propColumn = lib_common.MakeProp("Column")
-		propType = lib_common.MakeProp("Type")
-		for theRow in cursor.fetchall():
-			columnNam = theRow[1]
-			columnNod = sqlite_column.MakeUri(dbFilNam,tableName,columnNam)
-			grph.add( ( tabNod, propColumn, columnNod ) )
-			typeNam = theRow[2]
-			grph.add( ( columnNod, propType, lib_util.NodeLiteral(typeNam) ) )
-	except Exception:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Error %s:%s"%(dbFilNam,str(exc)))
+    cgiEnv.OutCgiRdf("LAYOUT_RECT", [prop_column])
 
-
-	cgiEnv.OutCgiRdf("LAYOUT_RECT",[propColumn])
 
 if __name__ == '__main__':
-	Main()
+    Main()

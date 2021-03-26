@@ -2,22 +2,28 @@
 Sqlite file
 """
 
+import lib_uris
 import lib_common
 from sources_types import sqlite as survol_sqlite
 
+
 def Graphic_colorbg():
-	return "#FFCC66"
+    return "#FFCC66"
+
 
 def EntityOntology():
-	return ( ["File"], )
+    return (["File"],)
 
-def MakeUri(fileName):
-	return lib_common.gUriGen.UriMakeFromDict("sqlite/file", { "File" : fileName } )
+
+def MakeUri(file_name):
+    return lib_uris.gUriGen.UriMakeFromDict("sqlite/file", {"File": file_name})
+
 
 def EntityName(entity_ids_arr):
-	return survol_sqlite.ShortenSqliteFilename(entity_ids_arr[0])
+    return survol_sqlite.ShortenSqliteFilename(entity_ids_arr[0])
 
-def AddInfo(grph,node,entity_ids_arr):
-	fileName = entity_ids_arr[0]
-	nodeFile = lib_common.gUriGen.FileUri( fileName )
-	grph.add((node,lib_common.MakeProp("Path"),nodeFile))
+
+def AddInfo(grph,node, entity_ids_arr):
+    file_name = entity_ids_arr[0]
+    node_file = lib_uris.gUriGen.FileUri(file_name)
+    grph.add((node, lib_common.MakeProp("Path"), node_file))
