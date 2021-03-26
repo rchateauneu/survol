@@ -9,26 +9,25 @@ from sources_types.oracle import schema as oracle_schema
 
 
 def Graphic_colorbg():
-	return "#FF3366"
+    return "#FF3366"
 
 
 def EntityOntology():
-	return (["Db", "Schema", "View"],)
+    return (["Db", "Schema", "View"],)
 
 
 # Ambiguity with tables, oracle or normal users.
-def MakeUri(dbName, schemaName, viewName):
-	return lib_uris.gUriGen.UriMakeFromDict("oracle/view", {"Db": dbName, "Schema": schemaName, "View": viewName})
+def MakeUri(db_name, schema_name, view_name):
+    return lib_uris.gUriGen.UriMakeFromDict("oracle/view", {"Db": db_name, "Schema": schema_name, "View": view_name})
 
 
 def EntityName(entity_ids_arr):
-	return entity_ids_arr[1] + "." + entity_ids_arr[2] + "." + entity_ids_arr[0]
+    return entity_ids_arr[1] + "." + entity_ids_arr[2] + "." + entity_ids_arr[0]
 
 
-def AddInfo(grph,node,entity_ids_arr):
-	# TODO: Ca serait quand meme mieux de passer au AddInfo un dict plutot qu un tableau.
-	dbNam = entity_ids_arr[0]
-	schemaNam = entity_ids_arr[1]
-	nodeSchema = oracle_schema.MakeUri(dbNam,schemaNam)
+def AddInfo(grph, node, entity_ids_arr):
+    db_nam = entity_ids_arr[0]
+    schema_nam = entity_ids_arr[1]
+    node_schema = oracle_schema.MakeUri(db_nam, schema_nam)
 
-	grph.add((nodeSchema, pc.property_oracle_view, node))
+    grph.add((node_schema, pc.property_oracle_view, node))

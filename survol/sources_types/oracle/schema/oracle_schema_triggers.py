@@ -6,10 +6,10 @@ Oracle triggers
 
 import sys
 import logging
+
 import lib_common
 from lib_properties import pc
 import lib_oracle
-
 from sources_types.oracle import schema as oracle_schema
 from sources_types.oracle import trigger as oracle_trigger
 
@@ -36,8 +36,7 @@ def Main():
         lib_oracle.AddLiteralNotNone(grph, node_trigger, "Status", row[1])
         lib_oracle.AddLiteralNotNone(grph, node_trigger, "Creation", row[2])
 
-    # It cannot work if there are too many views.
-    # cgiEnv.OutCgiRdf("LAYOUT_RECT")
+    # "Collapsing", clustering nodes is needed if there are many objects.
     cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_oracle_trigger])
 
 

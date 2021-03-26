@@ -6,12 +6,13 @@ Oracle package bodies
 
 import sys
 import logging
+
 from lib_properties import pc
 import lib_oracle
 import lib_common
-
 from sources_types.oracle import schema as oracle_schema
 from sources_types.oracle import package_body as oracle_package_body
+
 
 def Main():
     cgiEnv = lib_oracle.OracleEnv()
@@ -37,8 +38,8 @@ def Main():
         lib_oracle.AddLiteralNotNone(grph, node_package_body, "Status", row[1])
         lib_oracle.AddLiteralNotNone(grph, node_package_body, "Creation", row[2])
 
-    # cgiEnv.OutCgiRdf("LAYOUT_RECT")
     cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_oracle_package_body])
+
 
 if __name__ == '__main__':
     Main()

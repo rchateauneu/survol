@@ -9,6 +9,7 @@ Oracle running queries
 
 import sys
 import logging
+
 import lib_common
 import lib_oracle
 import lib_credentials
@@ -43,7 +44,6 @@ class OraCallbackParseQry:
 
 def Main():
     cgiEnv = lib_oracle.OracleEnv()
-    # cgiEnv = lib_common.ScriptEnvironment()
 
     grph = cgiEnv.GetGraph()
 
@@ -66,13 +66,13 @@ def Main():
 
     prop_sql_query = lib_common.MakeProp("SQL query")
 
-    oraParser = OraCallbackParseQry(grph, database, prop_sql_query)
+    ora_parser = OraCallbackParseQry(grph, database, prop_sql_query)
 
     # This calls the callback for each retrieved row.
     try:
-        lib_oracle.CallbackQuery(conn_str, qry_select, oraParser.oracallback)
+        lib_oracle.CallbackQuery(conn_str, qry_select, ora_parser.oracallback)
     except Exception as exc:
-        lib_common.ErrorMessageHtml("CallbackQuery exception:%s in %s"% (str(exc), qry_select))
+        lib_common.ErrorMessageHtml("CallbackQuery exception:%s in %s" % (str(exc), qry_select))
 
     cgiEnv.OutCgiRdf("LAYOUT_RECT", [prop_sql_query])
 

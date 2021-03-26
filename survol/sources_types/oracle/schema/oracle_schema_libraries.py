@@ -6,10 +6,10 @@ Oracle libraries in schema
 
 import sys
 import logging
+
 from lib_properties import pc
 import lib_oracle
 import lib_common
-
 from sources_types.oracle import schema as oracle_schema
 from sources_types.oracle import library as oracle_library
 
@@ -30,7 +30,7 @@ def Main():
 
     for row in result:
         library_name = str(row[0])
-        node_library = oracle_library.MakeUri(cgiEnv.m_oraDatabase , ora_schema, library_name)
+        node_library = oracle_library.MakeUri(cgiEnv.m_oraDatabase, ora_schema, library_name)
         grph.add((node_oraschema, pc.property_oracle_library, node_library))
 
         lib_oracle.AddLiteralNotNone(grph, node_library, "Status", row[1])

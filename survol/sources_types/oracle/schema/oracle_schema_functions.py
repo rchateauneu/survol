@@ -6,10 +6,10 @@ Oracle functions in schema
 
 import sys
 import logging
+
 from lib_properties import pc
 import lib_oracle
 import lib_common
-
 from sources_types.oracle import schema as oracle_schema
 from sources_types.oracle import function as oracle_function
 
@@ -30,7 +30,7 @@ def Main():
 
     for row in result:
         function_name = str(row[0])
-        node_function = oracle_function.MakeUri(cgiEnv.m_oraDatabase , ora_schema, function_name)
+        node_function = oracle_function.MakeUri(cgiEnv.m_oraDatabase, ora_schema, function_name)
         grph.add((node_oraschema, pc.property_oracle_function, node_function))
 
         lib_oracle.AddLiteralNotNone(grph, node_function, "Status", row[1])
