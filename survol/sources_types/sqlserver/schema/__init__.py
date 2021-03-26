@@ -25,7 +25,8 @@ def EntityOntology():
 
 # Beware of the possible confusion with normal users.
 def MakeUri(dsn_name, schema_name):
-    return lib_uris.gUriGen.UriMakeFromDict("sqlserver/schema", {sqlserver_dsn.CgiPropertyDsn(): dsn_name, "Schema": schema_name})
+    return lib_uris.gUriGen.UriMakeFromDict(
+        "sqlserver/schema", {sqlserver_dsn.CgiPropertyDsn(): dsn_name, "Schema": schema_name})
 
 
 def EntityName(entity_ids_arr):

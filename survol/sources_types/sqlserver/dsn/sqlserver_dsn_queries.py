@@ -12,7 +12,7 @@ from lib_properties import pc
 from sources_types.odbc import dsn as survol_odbc_dsn
 from sources_types.sqlserver import dsn as survol_sqlserver_dsn
 from sources_types.sqlserver import session
-from sources_types.sqlserver import query as sql_query
+from sources_types.sqlserver import query as sql_query_module
 
 
 try:
@@ -60,7 +60,7 @@ def Main():
             query_clean = row_qry.TEXT.replace("\n", " ").strip()
 
             # TODO: Must add connection information so we can go from the tables to sqlserver itself.
-            node_sql_query = sql_query.MakeUri(query_clean,dsn_nam)
+            node_sql_query = sql_query_module.MakeUri(query_clean, dsn_nam)
             grph.add((node_session, prop_sql_server_sql_query, node_sql_query))
             node_process = lib_common.RemoteBox(row_qry.host_name).PidUri(row_qry.host_process_id)
             grph.add((node_process, pc.property_pid, lib_util.NodeLiteral(row_qry.host_process_id)))

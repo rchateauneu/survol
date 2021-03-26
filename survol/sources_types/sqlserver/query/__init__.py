@@ -2,7 +2,7 @@
 Sqlserver query
 """
 
-from sources_types.sql import query as sql_query
+from sources_types.sql import query as sql_query_module
 from sources_types.sqlserver import dsn as sqlserver_dsn
 from sources_types.sqlserver import table as sqlserver_table
 from sources_types.sqlserver import view as sqlserver_view
@@ -21,51 +21,52 @@ import lib_common
 # The result should be ["Query","Dsn"]
 # We do not know if CIM_Process.EntityOntology() is available.
 def EntityOntology():
-	logging.debug("EntityOntology sql_query.CgiPropertyQuery()=%s",str(sql_query.CgiPropertyQuery()))
-	logging.debug("EntityOntology survol_odbc.CgiPropertyDsn()=%s"%str(survol_odbc.CgiPropertyDsn()))
-	return ( [sql_query.CgiPropertyQuery(),survol_odbc.CgiPropertyDsn()],)
+    logging.debug("sql_query_module.CgiPropertyQuery()=%s", str(sql_query_module.CgiPropertyQuery()))
+    logging.debug("survol_odbc.CgiPropertyDsn()=%s" % str(survol_odbc.CgiPropertyDsn()))
+    return ([sql_query_module.CgiPropertyQuery(),survol_odbc.CgiPropertyDsn()],)
 
 
 # The SQL query is encoded in base 64 because it contains many special characters which would be too complicated to
 # encode as HTML entities. This is not visible as EntityName() does the reverse decoding.
-def MakeUri(strQuery,theDsn):
-	# TODO: The right thing todo ?
-	return sql_query.MakeUri( strQuery, "sqlserver/query", Dsn = theDsn )
+def MakeUri(str_query, the_dsn):
+    # TODO: The right thing todo ?
+    return sql_query_module.MakeUri(str_query, "sqlserver/query", Dsn=the_dsn)
 
 
-def AddInfo(grph,node,entity_ids_arr):
-	# strQuery = entity_ids_arr[0]
-	theDsn = entity_ids_arr[1]
-	nodeDsn = sqlserver_dsn.MakeUri(theDsn)
-	grph.add((node,lib_common.MakeProp("Dsn"),nodeDsn))
+def AddInfo(grph, node, entity_ids_arr):
+    # strQuery = entity_ids_arr[0]
+    the_dsn = entity_ids_arr[1]
+    node_dsn = sqlserver_dsn.MakeUri(the_dsn)
+    grph.add((node, lib_common.MakeProp("Dsn"), node_dsn))
 
 
 # This function must have the same signature for all databases.
 # For the moment, we assume that these are all table names, without checking.
 # TODO: Find a quick way to check if these are tables or views.
-def QueryToNodesList(sqlQuery,connectionKW,list_of_tables,defaultSchemaName=None):
-	logging.debug("QueryToNodesList entering sqlQuery=%s",sqlQuery)
-	nodesList = []
-	if not defaultSchemaName:
-		defaultSchemaName = "SqlServerDefaultSchema"
-	for tabNam in list_of_tables:
-		logging.debug("QueryToNodesList tabNam=%s",tabNam)
-		spltTabNam = tabNam.split(".")
-		if len(spltTabNam) == 2:
-			schemaName = spltTabNam[0]
-			tableNameNoSchema = spltTabNam[1]
-		else:
-			schemaName = defaultSchemaName
-			tableNameNoSchema = tabNam
-		logging.debug("QueryToNodesList tabNam=%s before MakeUri",tabNam)
-		tmpNode = sqlserver_table.MakeUri( connectionKW["Dsn"], schemaName, tableNameNoSchema )
-		logging.debug("QueryToNodesList tabNam=%s after MakeUri",tabNam)
-		nodesList.append( tmpNode )
-	logging.debug("QueryToNodesList leaving sqlQuery=%s",sqlQuery)
-	return nodesList
+def QueryToNodesList(sql_query, connection_kw, list_of_tables, default_schema_name=None):
+    logging.debug("QueryToNodesList entering sqlQuery=%s", sql_query)
+    nodes_list = []
+    if not default_schema_name:
+        default_schema_name = "SqlServerDefaultSchema"
+    for tab_nam in list_of_tables:
+        logging.debug("QueryToNodesList tab_nam=%s", tab_nam)
+        splt_tab_nam = tab_nam.split(".")
+        if len(splt_tab_nam) == 2:
+            schema_name = splt_tab_nam[0]
+            table_name_no_schema = splt_tab_nam[1]
+        else:
+            schema_name = default_schema_name
+            table_name_no_schema = tab_nam
+        logging.debug("QueryToNodesList tab_nam=%s before MakeUri", tab_nam)
+        tmp_node = sqlserver_table.MakeUri(connection_kw["Dsn"], schema_name, table_name_no_schema)
+        logging.debug("QueryToNodesList tab_nam=%s after MakeUri",tab_nam)
+        nodes_list.append(tmp_node)
+    logging.debug("QueryToNodesList leaving sqlQuery=%s", sql_query)
+    return nodes_list
+
 
 def EntityName(entity_ids_arr):
-	logging.debug("EntityName entity_ids_arr=%s",str(entity_ids_arr))
-	sqlQuery = entity_ids_arr[0]
-	dsnNam = entity_ids_arr[1]
-	return sql_query.EntityNameUtil( "Database " + dsnNam,sqlQuery)
+    logging.debug("EntityName entity_ids_arr=%s", str(entity_ids_arr))
+    sql_query = entity_ids_arr[0]
+    dsn_nam = entity_ids_arr[1]
+    return sql_query_module.EntityNameUtil("Database " + dsn_nam, sql_query)
