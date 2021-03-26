@@ -642,7 +642,7 @@ class CommandLineLiveWin32Test(unittest.TestCase):
 
     def test_run_windows_ping_home(self):
         """This test pings to a domain name."""
-        output_basename_prefix = "test_run_windows_ping_home_%d" % CurrentPid
+        output_basename_prefix = "output_test_run_windows_ping_home_%d" % CurrentPid
         output_prefix = _path_prefix_output_result(output_basename_prefix)
         command_result = _run_dockit_command("--log=%s ping primhillcomputers.com" % output_prefix)
 
@@ -657,7 +657,7 @@ class CommandLineLiveWin32Test(unittest.TestCase):
         check_file_missing(output_basename_prefix + ".docker", "Dockerfile")
 
     def test_run_windows_ping_github(self):
-        output_basename_prefix = "test_run_windows_ping_github_%d" % CurrentPid
+        output_basename_prefix = "output_test_run_windows_ping_github_%d" % CurrentPid
         output_prefix = _path_prefix_output_result(output_basename_prefix)
         command_result = _run_dockit_command("--log=%s --duplicate ping github.com" % output_prefix)
 
@@ -668,7 +668,7 @@ class CommandLineLiveWin32Test(unittest.TestCase):
         check_file_missing(output_basename_prefix + ".docker", "Dockerfile")
 
     def test_run_windows_echo(self):
-        output_basename_prefix = "test_run_windows_echo_%d" % CurrentPid
+        output_basename_prefix = "output_test_run_windows_echo_%d" % CurrentPid
         output_prefix = _path_prefix_output_result(output_basename_prefix)
 
         output_tmpfile = output_prefix + ".tmp.txt"
@@ -694,7 +694,7 @@ class CommandLineLiveWin32Test(unittest.TestCase):
 
     def test_run_windows_dir(self):
         """This generates a replay filename and reuses it immediately."""
-        output_basename_prefix = "test_run_windows_dir"
+        output_basename_prefix = "output_test_run_windows_dir"
         output_prefix = _path_prefix_output_result(output_basename_prefix)
 
         dockit_command = "--log=%s --duplicate %s /c DIR" % (output_prefix, windows_system32_cmd_exe)
@@ -706,7 +706,7 @@ class CommandLineLiveWin32Test(unittest.TestCase):
     @unittest.skipIf(is_windows10, "FIXME: IOs function calls not detected on Windows 10.")
     def test_run_windows_mkdir_rdf(self):
         """This checks the events generated in a RDF file. It must contain the directory."""
-        output_basename_prefix = "test_run_windows_mkdir_rdf"
+        output_basename_prefix = "output_test_run_windows_mkdir_rdf"
         created_rdf_file = _path_prefix_output_result(output_basename_prefix + ".rdf")
         created_directory = _path_prefix_output_result(output_basename_prefix + ".dir")
 
@@ -755,7 +755,7 @@ class CommandLineLiveWin32Test(unittest.TestCase):
 
     def test_run_windows_python_print_rdf(self):
         """This checks the events generated in a RDF file. It must contain the directory."""
-        output_basename_prefix = "test_run_windows_python_print_rdf"
+        output_basename_prefix = "output_test_run_windows_python_print_rdf"
         created_rdf_file = _path_prefix_output_result(output_basename_prefix + ".rdf")
 
         dockit_command = "--server=%s %s -c \"print('Hello')\"" % (created_rdf_file, sys.executable)
@@ -825,7 +825,7 @@ class CommandLineLiveWin32Test(unittest.TestCase):
         """
         This checks the events generated in a RDF file, during a file copy.
         """
-        output_basename_prefix = "test_run_windows_copy_cmd_exe_rdf"
+        output_basename_prefix = "output_test_run_windows_copy_cmd_exe_rdf"
         created_rdf_file = _path_prefix_output_result(output_basename_prefix + ".rdf")
         copied_file = _path_prefix_output_result(output_basename_prefix + ".exe")
 
@@ -921,7 +921,7 @@ print("Hello")
     @unittest.skipIf(is_platform_linux, "These tests are for Windows only.")
     def test_run_python_rdf_os_system_python(self):
         """This creates a subprocess."""
-        output_basename_prefix = "test_run_python_rdf_os_system_python"
+        output_basename_prefix = "output_test_run_python_rdf_os_system_python"
         output_text_name = output_basename_prefix + ".txt"
         output_text_path = os.path.join(dockit_dirname, output_text_name)
 
