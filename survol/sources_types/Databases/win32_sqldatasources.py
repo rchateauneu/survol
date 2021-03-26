@@ -28,11 +28,11 @@ Usable = lib_util.UsableWindows
 # conn = pyodbc.connect(r'DSN=mynewdsn;UID=user;PWD=password')
 
 # The code would be odbc.SQL_FETCH_FIRST to get all DSNs.
-def DisplayDsns(grph,fetch_code,dsn_type):
+def _display_dsns(grph, fetch_code, dsn_type):
 	odbc_iter_code = fetch_code
 
-	propDsnType = lib_common.MakeProp("Source type")
-	littDsnType = lib_util.NodeLiteral(dsn_type)
+	prop_dsn_type = lib_common.MakeProp("Source type")
+	litt_dsn_type = lib_util.NodeLiteral(dsn_type)
 
 	while True:
 		source = odbc.SQLDataSources(odbc_iter_code)
@@ -44,17 +44,18 @@ def DisplayDsns(grph,fetch_code,dsn_type):
 		odbc_iter_code = odbc.SQL_FETCH_NEXT
 
 		# This creates a connection string.
-		nodeDsn = survol_odbc_dsn.MakeUri( "DSN=" + dsn )
-		grph.add( (lib_common.nodeMachine, pc.property_odbc_dsn, nodeDsn ) )
-		grph.add( (nodeDsn, pc.property_odbc_driver, lib_util.NodeLiteral(driver) ) )
-		grph.add( (nodeDsn, propDsnType, littDsnType ) )
+		node_dsn = survol_odbc_dsn.MakeUri("DSN=" + dsn)
+		grph.add((lib_common.nodeMachine, pc.property_odbc_dsn, node_dsn))
+		grph.add((node_dsn, pc.property_odbc_driver, lib_util.NodeLiteral(driver)))
+		grph.add((node_dsn, prop_dsn_type, litt_dsn_type))
 
 
 def show_odbc_sources(grph):
-	logging.debug("odbc=%s", str(dir(odbc)) )
+	logging.debug("odbc=%s", str(dir(odbc)))
 
-	DisplayDsns(grph,odbc.SQL_FETCH_FIRST_USER,"User")
-	DisplayDsns(grph,odbc.SQL_FETCH_FIRST_SYSTEM,"System")
+	_display_dsns(grph, odbc.SQL_FETCH_FIRST_USER, "User")
+	_display_dsns(grph, odbc.SQL_FETCH_FIRST_SYSTEM, "System")
+
 
 def Main():
 	cgiEnv = lib_common.ScriptEnvironment()

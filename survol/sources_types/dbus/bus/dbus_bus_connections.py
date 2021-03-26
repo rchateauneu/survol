@@ -17,53 +17,53 @@ Usable = lib_util.UsableLinux
 
 
 def Main():
-	cgiEnv = lib_common.ScriptEnvironment()
-	busAddr = cgiEnv.GetId()
+    cgiEnv = lib_common.ScriptEnvironment()
+    bus_addr = cgiEnv.GetId()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	try:
-		theBus = lib_dbus.MakeBusFromAddress( busAddr )
-	except Exception as exc:
-		lib_common.ErrorMessageHtml("busAddr=%s Caught:%s" % ( busAddr, str(exc) ) )
+    try:
+        the_bus = lib_dbus.MakeBusFromAddress(bus_addr)
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("bus_addr=%s Caught:%s" % (bus_addr, str(exc)))
 
-	nodeBus = lib_util.EntityUri( "dbus/bus", busAddr )
+    node_bus = lib_util.EntityUri("dbus/bus", bus_addr)
 
-	# This property should maybe stored at the central file.
-	localPropDbusConnect = lib_common.MakeProp("dbus connect")
-	localPropDbusWellKnown = lib_common.MakeProp("well known")
+    # This property should maybe stored at the central file.
+    local_prop_dbus_connect = lib_common.MakeProp("dbus connect")
+    local_prop_dbus_well_known = lib_common.MakeProp("well known")
 
-	Main.connectNameToNode = dict()
+    Main.connectNameToNode = dict()
 
-	def GetConnectNode(busAddr,connectName):
-		try:
-			return Main.connectNameToNode[ connectName ]
-		except KeyError:
-			connectNode = lib_util.EntityUri( "dbus/connection", busAddr, connectName )
-			Main.connectNameToNode[ connectName ] = connectNode
-			return connectNode
+    def get_connect_node(bus_addr, connect_name):
+        try:
+            return Main.connectNameToNode[connect_name]
+        except KeyError:
+            connectNode = lib_util.EntityUri("dbus/connection", bus_addr, connect_name)
+            Main.connectNameToNode[connect_name] = connectNode
+            return connectNode
 
-	for connectName in theBus.list_names():
-		connectNode = GetConnectNode( busAddr, connectName )
+    for connect_name in the_bus.list_names():
+        connect_node = get_connect_node(bus_addr, connect_name )
 
-		try:
-			ownrNam = theBus.get_name_owner(connectName)
-			logging.debug("connectName=%s ownr=%s", connectName, ownrNam)
-			if connectName != ownrNam:
-				ownrNode = GetConnectNode( busAddr, ownrNam )
-				logging.debug("TO CONNECT %s", connectName)
+        try:
+            ownr_nam = the_bus.get_name_owner(connect_name)
+            logging.debug("connect_name=%s ownr=%s", connect_name, ownr_nam)
+            if connect_name != ownr_nam:
+                ownr_node = get_connect_node(bus_addr, ownr_nam)
+                logging.debug("TO CONNECT %s", connect_name)
 
-				# TODO: BUG, Display does not work if "Well Known" property.
-				# grph.add( (ownrNode, localPropDbusWellKnown, connectNode ) )
-				grph.add( (ownrNode, localPropDbusConnect, connectNode ) )
-		except ValueError:
-			logging.debug("22 CONNECT %s", connectName)
-			grph.add( (nodeBus, localPropDbusConnect, connectNode ) )
+                # TODO: BUG, Display does not work if "Well Known" property.
+                # grph.add((ownr_node, local_prop_dbus_well_known, connect_node))
+                grph.add((ownr_node, local_prop_dbus_connect, connect_node))
+        except ValueError:
+            logging.debug("22 CONNECT %s", connect_name)
+            grph.add((node_bus, local_prop_dbus_connect, connect_node))
 
-	# TODO: The ordering is: 1.1,1.11,1.2, so we should have a special sort function.
+    # TODO: The ordering is: 1.1,1.11,1.2, so we should use natsort.
 
-	cgiEnv.OutCgiRdf( "LAYOUT_RECT", [ localPropDbusConnect, localPropDbusWellKnown ])
+    cgiEnv.OutCgiRdf("LAYOUT_RECT", [local_prop_dbus_connect, local_prop_dbus_well_known])
 
 
 if __name__ == '__main__':
-	Main()
+    Main()

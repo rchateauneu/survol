@@ -26,12 +26,12 @@ def display_data_sources(grph):
 	for dsn in sources:
 		driver = sources[dsn]
 
-		logging.debug("dsn=%s driver=%s", dsn, driver )
+		logging.debug("dsn=%s driver=%s", dsn, driver)
 
 		# This creates a connection string.
-		nodeDsn = survol_odbc_dsn.MakeUri( "DSN=" + dsn )
-		grph.add( (lib_common.nodeMachine, pc.property_odbc_dsn, nodeDsn ) )
-		grph.add( (nodeDsn, pc.property_odbc_driver, lib_util.NodeLiteral(driver) ) )
+		node_dsn = survol_odbc_dsn.MakeUri("DSN=" + dsn)
+		grph.add((lib_common.nodeMachine, pc.property_odbc_dsn, node_dsn))
+		grph.add((node_dsn, pc.property_odbc_driver, lib_util.NodeLiteral(driver)))
 
 
 def Main():

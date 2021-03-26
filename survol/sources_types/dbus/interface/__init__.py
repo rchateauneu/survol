@@ -3,5 +3,5 @@ Desktop Bus interface
 """
 
 def EntityOntology():
-	return ( ["Bus","Connect","Obj","Itf"], )
+    return (["Bus", "Connect", "Obj", "Itf"],)
 
