@@ -35,7 +35,7 @@ def Graphic_is_rounded():
 def IsSqliteDatabase(fil_nam):
     # TODO: Checking the file extension may not be enough and we should check the content.
     filExt = os.path.splitext(fil_nam)[1]
-    return filExt.upper() in [".SQLITE",".SQLITE2",".SQLITE3",".DB"]
+    return filExt.upper() in [".SQLITE", ".SQLITE2", ".SQLITE3", ".DB"]
 
 
 # This basically returns a list of the sqlite files accessed by the process.
@@ -64,7 +64,7 @@ def DatabaseEnvParams(process_id):
 
     logging.debug("DatabaseEnvParams len=%d\n", len(list_args))
 
-    return ("sqlite/query", list_args)
+    return "sqlite/query", list_args
 
 
 def AddNodesTablesViews(grph, fil_node, db_fil_nam):

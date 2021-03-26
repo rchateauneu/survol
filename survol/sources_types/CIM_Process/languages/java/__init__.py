@@ -2,8 +2,6 @@
 Java processes
 """
 
-# On l implemente en Java appele par du Python car de toute facon Java est necessaire.
-#
 # (1) http://stackoverflow.com/questions/376201/debug-a-java-application-without-starting-the-jvm-with-debug-arguments
 # http://docs.oracle.com/cd/E19205-01/819-5257/blabw/index.html
 #
@@ -24,12 +22,6 @@ Java processes
 #
 # http://stackoverflow.com/questions/5317152/getting-the-parameters-of-a-running-jvm
 # JConsole can do it. Also you can use a powerful jvisualVM tool, which also is included in JDK since 1.6.0.8.
-#
-# On pourrait donc: Lister les process Java.
-# Attention a ce qu'il peut y avoir plusieurs jps ? Comment cette liste est-elle creee ?
-# Et s'il y a plusieurs JDK ?
-# jps peut fonctionner avec une machine remote.
-# Mais on est oblige de deviner le numero de port. Comment faire ? Est-ce que nmap pourrait le trouver ?
 #
 # The jps command will report the local VM identifier, or lvmid, for each instrumented JVM found on the target system.
 # The lvmid is typically, but not necessarily, the operating system's process identifier for the JVM process.
@@ -137,16 +129,11 @@ Java processes
 # Non-default VM flags: -XX:CICompilerCount=2 -XX:InitialHeapSize=8388608 -XX:MaxHeapSize=1054867456 -XX:MaxNewSize=351272960 -XX:MinHeapDeltaBytes=524288 -XX:NewSize=2621440 -XX:OldSize=5767168 -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -XX:+UseFastUnorderedTimeStamps -XX:-UseLargePagesIndividualAllocation -XX:+UseParallelGC
 # Command line:  -Dapplication.home=C:\Program Files\Java\jdk1.8.0_121 -Xms8m -Djconsole.showOutputViewer
 #
-# Ca plante avec le process pycharm.
-# Peut-etre est-ce parce que jinfo et pycharm ne fonctionnent pas avec le meme Java ?
-# Toutefois jps liste pycharm ?
-#
 # C:\Users\jsmith>where java
 # C:\ProgramData\Oracle\Java\javapath\java.exe
 # C:\Program Files\Java\jdk1.8.0_121\bin\java.exe
 #
 #
-# jconsole donne des statistiques. Peut-etre en ligne de commande ?
 # http://stackoverflow.com/questions/12595277/is-there-cli-version-of-jconsole
 # jConsole is just a wrapper around MBeans which you can access directly through the API.
 # http://docs.oracle.com/javase/tutorial/jmx/mbeans/standard.html
@@ -157,13 +144,14 @@ Java processes
 # In the API, classes can be dynamically loaded and instantiated.
 # Managing and monitoring applications can be designed and developed using the Java Dynamic Management Kit.
 #
-# Avec Jolokia:
+# With Jolokia:
 # http://blog.swisstech.net/2013/01/simple-generic-python-script-to-access.html
 #
-# Avec jpype:
+# With jpype:
 # http://blog.nobugware.com/post/2010/11/08/jmx-query-python-cpython/
 
 from sources_types import CIM_Process
+
 
 def Usable(entity_type, entity_ids_arr):
     """Java processes"""
@@ -171,11 +159,6 @@ def Usable(entity_type, entity_ids_arr):
     pid_proc = entity_ids_arr[0]
     proc_obj = CIM_Process.PsutilGetProcObj(pid_proc)
 
-    # Python 2
-    # cmd_arr=['C:\\Python27\\python.exe', 'test_survol_client_library.py', '--debug', 'SurvolLocalTest.test_msdos_current_batch']
-    # Python 3
-    # cmd_arr=['C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\Python36_64\\python.exe', 'test_survol_client_library.py', '--debug', 'SurvolLocalTest.test_msdos_current_batch']
     argv_array = CIM_Process.PsutilProcToCmdlineArray(proc_obj)
 
     return "java" in argv_array[0]
-    return True

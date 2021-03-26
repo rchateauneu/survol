@@ -9,6 +9,8 @@ Python properties
 import sys
 import logging
 import importlib
+
+import lib_uris
 import lib_common
 import lib_util
 
@@ -16,69 +18,67 @@ from sources_types import python as survol_python
 from sources_types.python import package as survol_python_package
 
 try:
-	import dis
+    import dis
 except ImportError:
-	pass
+    pass
 
 #def Usable(entity_type,entity_ids_arr):
-#	"""Can run with Python files only"""
+#    """Can run with Python files only"""
 #
-#	packageNam = entity_ids_arr[0]
+#    packageNam = entity_ids_arr[0]
 #
-#	return False
+#    return False
 
 
 def Main():
-	paramkeyMaxDepth = "Maximum depth"
-	paramkeyDispPackages = "Display packages"
-	paramkeyDispFiles = "Display files"
+    paramkey_max_depth = "Maximum depth"
+    paramkey_disp_packages = "Display packages"
+    paramkey_disp_files = "Display files"
 
-	cgiEnv = lib_common.ScriptEnvironment(
-			{ paramkeyMaxDepth : 1, paramkeyDispPackages: True, paramkeyDispFiles: False} )
+    cgiEnv = lib_common.ScriptEnvironment(
+            {paramkey_max_depth: 1, paramkey_disp_packages: True, paramkey_disp_files: False})
 
-	packageNam = cgiEnv.GetId()
+    package_nam = cgiEnv.GetId()
 
-	maxDepth = cgiEnv.get_parameters( paramkeyMaxDepth )
-	dispPackages= cgiEnv.get_parameters( paramkeyDispPackages )
-	dispFiles = cgiEnv.get_parameters( paramkeyDispFiles )
+    max_depth = cgiEnv.get_parameters(paramkey_max_depth)
+    disp_packages= cgiEnv.get_parameters(paramkey_disp_packages)
+    disp_files = cgiEnv.get_parameters(paramkey_disp_files)
 
-	packageNode = survol_python_package.MakeUri( packageNam )
+    package_node = survol_python_package.MakeUri(package_nam)
 
-	logging.debug("packageNam=%s",packageNam)
+    logging.debug("package_nam=%s", package_nam)
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	tmpPyFil = lib_util.TmpFile("py_package_deps","py")
-	tmpPyFilName = tmpPyFil.Name
+    tmp_py_fil = lib_util.TmpFile("py_package_deps", "py")
+    tmp_py_fil_name = tmp_py_fil.Name
 
-	# This creates a temporary file which imports the package.
-	tmpFd = open(tmpPyFilName,"w")
-	tmpFd.write("import %s\n"%packageNam)
-	tmpFd.close()
+    # This creates a temporary file which imports the package.
+    tmp_fd = open(tmp_py_fil_name, "w")
+    tmp_fd.write("import %s\n" % package_nam)
+    tmp_fd.close()
 
-	survol_python_package.AddImportedModules(grph,packageNode,tmpPyFilName,maxDepth,dispPackages,dispFiles)
+    survol_python_package.AddImportedModules(grph, package_node, tmp_py_fil_name, max_depth, disp_packages, disp_files)
 
-	try:
-		the_module = importlib.import_module( packageNam )
-	except:
-		exc = sys.exc_info()[0]
-		lib_common.ErrorMessageHtml("Package:%s Unexpected error:%s" % ( packageNam, str( exc ) ) )
+    try:
+        the_module = importlib.import_module(package_nam)
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("Package:%s Unexpected error:%s" % (package_nam, str(exc)))
 
-	try:
-		initFilNam = the_module.__file__
-		filNode = lib_common.gUriGen.FileUri(initFilNam)
-		grph.add( ( packageNode, survol_python_package.propPythonPackage, filNode ) )
+    try:
+        init_fil_nam = the_module.__file__
+        fil_node = lib_uris.gUriGen.FileUri(init_fil_nam)
+        grph.add((package_node, survol_python_package.propPythonPackage, fil_node))
 
-		try:
-			survol_python.AddAssociatedFiles(grph,filNode,initFilNam)
-		except:
-			exc = sys.exc_info()[0]
-			lib_common.ErrorMessageHtml("File:%s Unexpected error:%s" % ( initFilNam, str( exc ) ) )
-	except AttributeError:
-		pass
+        try:
+            survol_python.AddAssociatedFiles(grph,fil_node, init_fil_nam)
+        except Exception as exc:
+            lib_common.ErrorMessageHtml("File:%s Unexpected error:%s" % (init_fil_nam, str(exc)))
+    except AttributeError:
+        pass
 
-	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
+    cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
 
 if __name__ == '__main__':
-	Main()
+    Main()

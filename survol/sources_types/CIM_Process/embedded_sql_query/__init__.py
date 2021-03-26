@@ -2,7 +2,7 @@
 Extraction of SQL queries from process memory.
 """
 
-from sources_types.sql import query as sql_query
+from sources_types.sql import query as sql_query_module
 
 import lib_util
 
@@ -22,7 +22,7 @@ def EntityOntology():
 def MakeUri(str_query, the_pid):
     # TODO: We have hard-coded the process definition with "Handle".
     # TODO: The entity parameter should be passed differently, more elegant. Not sure.
-    return sql_query.MakeUri(str_query, "CIM_Process/embedded_sql_query", Handle=the_pid)
+    return sql_query_module.MakeUri(str_query, "CIM_Process/embedded_sql_query", Handle=the_pid)
 
 
 def AddInfo(grph, node, entity_ids_arr):
