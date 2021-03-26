@@ -8,6 +8,8 @@ import re
 import os
 import sys
 import logging
+
+import lib_uris
 import lib_util
 import lib_common
 from sources_types import CIM_Process
@@ -61,7 +63,7 @@ def Main():
 
     cdb_cmd = "cdb -p " + str(the_pid) + " -cf " + cdb_fil.Name
 
-    proc_node = lib_common.gUriGen.PidUri(the_pid)
+    proc_node = lib_uris.gUriGen.PidUri(the_pid)
 
     logging.debug("Starting cdb_cmd=%s", cdb_cmd)
     try:
@@ -69,7 +71,7 @@ def Main():
     except WindowsError as exc:
         lib_common.ErrorMessageHtml("cdb not available: Caught:%s" % str(exc))
 
-    logging.debug("Started cdb_cmd=%s", cdb_cmd )
+    logging.debug("Started cdb_cmd=%s", cdb_cmd)
 
     cdb_output, cdb_err = cdb_pipe.communicate()
 
@@ -79,8 +81,6 @@ def Main():
     prop_loaded_module = lib_common.MakeProp("Loaded module")
 
     for dot_line in cdb_str.split('\n'):
-        # sys.stderr.write("Line=%s\n" % dot_line )
-
         # moduleName=uDWM moduleStatus=deferred file_name=
         # dot_line=    Image path: C:\windows\system32\uDWM.dll
         # dot_line=    Image name: uDWM.dll
@@ -110,14 +110,14 @@ def Main():
             file_name = CDB.TestIfKnownDll(file_name)
             file_name = file_name.strip()
             file_name = lib_util.standardized_file_path(file_name)
-            file_node = lib_common.gUriGen.FileUri( file_name)
+            file_node = lib_uris.gUriGen.FileUri( file_name)
             grph.add((proc_node, prop_loaded_module, file_node))
             continue
 
-        match_lin = re.match( " *CompanyName: *(.*)", dot_line )
+        match_lin = re.match(" *CompanyName: *(.*)", dot_line)
         if match_lin:
-            companyName = match_lin.group(1)
-            grph.add((file_node, lib_common.MakeProp("Company Name"), lib_util.NodeLiteral(companyName)))
+            company_name = match_lin.group(1)
+            grph.add((file_node, lib_common.MakeProp("Company Name"), lib_util.NodeLiteral(company_name)))
             continue
 
         match_lin = re.match(" *File OS: *(.*)", dot_line)
@@ -132,13 +132,10 @@ def Main():
             grph.add((file_node, lib_common.MakeProp("Description"), lib_util.NodeLiteral(file_description)))
             continue
 
-        # sys.stderr.write("dot_line=%s\n" % dot_line )
-
     logging.debug("Parsed cdb result")
 
     CIM_Process.AddInfo(grph, proc_node, [the_pid])
 
-    # cgiEnv.OutCgiRdf()
     cgiEnv.OutCgiRdf("LAYOUT_RECT", [prop_loaded_module])
 
 

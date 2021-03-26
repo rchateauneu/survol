@@ -8,6 +8,8 @@ import re
 import os
 import sys
 import logging
+
+import lib_uris
 import lib_util
 import lib_common
 from sources_types import CIM_Process
@@ -73,7 +75,7 @@ def Main():
 
     cdb_cmd = "cdb -p " + str(the_pid) + " -cf " + cdb_fil.Name
 
-    proc_node = lib_common.gUriGen.PidUri(the_pid)
+    proc_node = lib_uris.gUriGen.PidUri(the_pid)
     call_node_prev = None
 
     modules_map = {}
@@ -89,7 +91,7 @@ def Main():
     cdb_output, cdb_err = cdb_pipe.communicate()
 
     # Without decode, "TypeError: Type str does not support the buffer API"
-    cdb_str =  cdb_output.decode("utf-8")
+    cdb_str = cdb_output.decode("utf-8")
 
     call_depth = 0
 
@@ -113,7 +115,7 @@ def Main():
         # 295cfb0c 00000000 ntdll!RtlInitializeExceptionChain+0x36
         # Another format, maybe because of a 64 bits machine.
         # 00000000`02edff90 00000000`00000000 ntdll!RtlUserThreadStart+0x21
-        match_k = re.match( "[`0-9a-fA-F]+ [`0-9a-fA-F]+ ([^!]*)!([^+]*)", dot_line)
+        match_k = re.match("[`0-9a-fA-F]+ [`0-9a-fA-F]+ ([^!]*)!([^+]*)", dot_line)
         if match_k:
             module_name = match_k.group(1)
             try:

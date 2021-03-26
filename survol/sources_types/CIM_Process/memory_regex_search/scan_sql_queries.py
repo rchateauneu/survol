@@ -15,12 +15,13 @@ Extract SQL queries from process heap memory
 
 import re
 import sys
+
+import lib_uris
 import lib_sql
 import lib_util
 import lib_common
 
 from sources_types.CIM_Process import memory_regex_search
-# from sources_types.sql import query as sql_query
 from sources_types.CIM_Process import embedded_sql_query
 
 SlowScript = True
@@ -42,14 +43,11 @@ SlowScript = True
 #
 # Beware of the side effect of scanning firefox memory which contains previous execution.
 def _process_scanned_sql_query(raw_sql_query, queries_set):
-	#sys.stderr.write("sqlQry=%s\n"%sqlQry)
-
 	# Reasonably, at least three "Z": This is a rule-of-thumb.
 	all_qrys = re.split(b"ZZZ*", raw_sql_query)
 
 	for one_qry in all_qrys:
 		one_qry.strip()
-		#sys.stderr.write("       one_qry=%s\n"%one_qry)
 		# Remove the last chars if they are identical and repeated several times.
 		len_qry = len(one_qry)
 		if len_qry < 10: # Too short to be a SQL query
@@ -76,7 +74,7 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	node_process = lib_common.gUriGen.PidUri(pid_as_integer)
+	node_process = lib_uris.gUriGen.PidUri(pid_as_integer)
 
 	dict_regex_sql = lib_sql.SqlRegularExpressions()
 
@@ -103,7 +101,8 @@ def Main():
 
 		_generate_from_sql_queries(grph, node_process, regex_predicate, all_queries_set, pid_as_integer)
 
-	cgiEnv.OutCgiRdf("LAYOUT_RECT",arr_props)
+	cgiEnv.OutCgiRdf("LAYOUT_RECT", arr_props)
+
 
 if __name__ == '__main__':
 	Main()

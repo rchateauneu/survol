@@ -8,6 +8,8 @@ import os
 import re
 import sys
 import logging
+
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -49,7 +51,7 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    proc_node = lib_common.gUriGen.PidUri(pid)
+    proc_node = lib_uris.gUriGen.PidUri(pid)
 
     rem_sta = _get_remote_stack(pid)
 

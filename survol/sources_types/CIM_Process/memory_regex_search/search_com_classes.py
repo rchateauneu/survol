@@ -7,6 +7,7 @@ Scan process for COM classes
 import os
 import sys
 
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -17,37 +18,36 @@ from sources_types.CIM_Process import memory_regex_search
 
 SlowScript = True
 
+
 def Main():
-	cgiEnv = lib_common.ScriptEnvironment()
-	pidint = int( cgiEnv.GetId() )
+    cgiEnv = lib_common.ScriptEnvironment()
+    pidint = int(cgiEnv.GetId())
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	node_process = lib_common.gUriGen.PidUri(pidint)
+    node_process = lib_uris.gUriGen.PidUri(pidint)
 
-	try:
-		rgxHttp = r"\{[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}\}"
+    try:
+        rgx_http = r"\{[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}\}"
 
-		resuComClasses = memory_regex_search.GetRegexMatches(pidint,rgxHttp)
+        resu_com_classes = memory_regex_search.GetRegexMatches(pidint, rgx_http)
 
-		resuClean = set()
+        prop_com_class = lib_common.MakeProp("COM class")
+        for class_idx in resu_com_classes:
+            com_class_id = resu_com_classes[class_idx]
+            # On Python3, this is a bytes which must be converted to str.
+            com_class_id = str(com_class_id)
 
-		propComClass = lib_common.MakeProp("COM class")
-		for classIdx in resuComClasses:
-			comClassId = resuComClasses[classIdx]
-			# On Python3, this is a bytes which must be converted to str.
-			comClassId = str(comClassId)
+            # comClass = "{DB7A405D-208F-4E88-BA0A-132ACFA0B5B6}" for example.
+            typelib_node = lib_common.gUriGen.ComRegisteredTypeLibUri(com_class_id)
+            grph.add((node_process, prop_com_class, typelib_node))
 
-			# comClass = "{DB7A405D-208F-4E88-BA0A-132ACFA0B5B6}" for example.
-			typelibNode = lib_common.gUriGen.ComRegisteredTypeLibUri( comClassId )
-			grph.add( ( node_process, propComClass, typelibNode ) )
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("Error:%s. Protection ?" % str(exc))
 
-	except Exception:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Error:%s. Protection ?"%str(exc))
+    cgiEnv.OutCgiRdf()
 
-	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
-	Main()
+    Main()
 

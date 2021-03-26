@@ -6,6 +6,8 @@ Process MBeans
 
 import sys
 import logging
+
+import lib_uris
 import lib_util
 import lib_common
 from sources_types import CIM_Process
@@ -15,38 +17,35 @@ from lib_properties import pc
 
 
 def Main():
-	cgiEnv = lib_common.ScriptEnvironment()
-	pidInt = int( cgiEnv.GetId() )
+    cgiEnv = lib_common.ScriptEnvironment()
+    pid_int = int(cgiEnv.GetId())
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	node_process = lib_common.gUriGen.PidUri(pidInt)
-	# proc_obj = psutil.Process(pidInt)
+    node_process = lib_uris.gUriGen.PidUri(pid_int)
 
-	jmxData = survol_java.GetJavaDataFromJmx(pidInt)
-	try:
-		jmxDataMBeans = jmxData["allMBeans"]
-	except KeyError:
-		jmxDataMBeans = []
+    jmx_data = survol_java.GetJavaDataFromJmx(pid_int)
+    try:
+        jmx_data_m_beans = jmx_data["allMBeans"]
+    except KeyError:
+        jmx_data_m_beans = []
 
-	propMBean = lib_common.MakeProp("MBean")
+    prop_m_bean = lib_common.MakeProp("MBean")
 
-	for jmxMBean in jmxDataMBeans:
-		clsNam = jmxMBean["className"]
-		objNam = jmxMBean["objectName"]
+    for jmx_m_bean in jmx_data_m_beans:
+        cls_nam = jmx_m_bean["className"]
+        obj_nam = jmx_m_bean["objectName"]
 
-		# "=sun.management.ManagementFactoryHelper$1[java.nio:type=BufferPool,name=mapped]"
-		logging.debug("jmxMBean=%s", jmxMBean)
+        # "=sun.management.ManagementFactoryHelper$1[java.nio:type=BufferPool,name=mapped]"
+        logging.debug("jmx_m_bean=%s", jmx_m_bean)
 
-		# Not sure about the file name
-		nodeClass = survol_mbean.MakeUri( pidInt, objNam)
-		grph.add( ( nodeClass, lib_common.MakeProp("Class name"), lib_util.NodeLiteral(clsNam) ) )
+        # Not sure about the file name
+        node_class = survol_mbean.MakeUri( pid_int, obj_nam)
+        grph.add((node_class, lib_common.MakeProp("Class name"), lib_util.NodeLiteral(cls_nam)))
 
-		grph.add( ( node_process, propMBean, nodeClass ) )
+        grph.add((node_process, prop_m_bean, node_class))
 
-	# sys.stderr.write("jmxData=%s\n"%jmxData)
-	# cgiEnv.OutCgiRdf()
-	cgiEnv.OutCgiRdf( "LAYOUT_RECT", [propMBean])
+    cgiEnv.OutCgiRdf( "LAYOUT_RECT", [prop_m_bean])
 
 
 if __name__ == '__main__':
