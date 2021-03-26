@@ -8,43 +8,38 @@ import lib_common
 import lib_util
 import lib_sql
 from sources_types import sql
-from sources_types.sql import query as sql_query
+from sources_types.sql import query as sql_query_module
 from sources_types.sqlserver import query as sqlserver_query
 from sources_types.odbc import dsn as survol_odbc_dsn
 
+
 def Main():
-	cgiEnv = lib_common.ScriptEnvironment()
+    cgiEnv = lib_common.ScriptEnvironment()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	#pidNum = cgiEnv.m_entity_id_dict["Pid"]
-	#filNam = cgiEnv.m_entity_id_dict["File"]
-	#sqlQuery_encode = cgiEnv.m_entity_id_dict["Query"]
+    sql_query = sql_query_module.GetEnvArgs(cgiEnv)
+    dsn_nam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
 
-	# sqlQuery_encode = cgiEnv.GetId()
-	# TODO: This should be packaged in sql/__init__.py.
-	#sqlQuery = lib_util.Base64Decode(sqlQuery_encode)
+    node_sql_query = sqlserver_query.MakeUri(sql_query, dsn_nam)
 
-	sqlQuery = sql_query.GetEnvArgs(cgiEnv)
-	dsnNam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
+    propSheetToQuery = lib_common.MakeProp("Table dependency")
 
-	nodeSqlQuery = sqlserver_query.MakeUri(sqlQuery,dsnNam)
+    list_of_table_names = lib_sql.TableDependencies(sql_query)
 
-	propSheetToQuery = lib_common.MakeProp("Table dependency")
+    # Based on the pid and the filnam, find which database connection it is.
 
-	list_of_table_names = lib_sql.TableDependencies(sqlQuery)
+    # What is the schema ??
+    list_of_nodes = sqlserver_query.QueryToNodesList(
+        sql_query, {"Dsn": dsn_nam}, list_of_table_names, dsn_nam + ":SqlServerSchema")
 
-	# Based on the pid and the filnam, find which database connection it is.
+    for nod_tab in list_of_nodes:
+        grph.add((node_sql_query, propSheetToQuery, nod_tab))
 
-	# What is the schema ??
-	list_of_nodes = sqlserver_query.QueryToNodesList(sqlQuery,{"Dsn":dsnNam },list_of_table_names,dsnNam+":SqlServerSchema")
+    cgiEnv.OutCgiRdf()
 
-	for nodTab in list_of_nodes:
-		grph.add( ( nodeSqlQuery, propSheetToQuery, nodTab ) )
-
-	cgiEnv.OutCgiRdf()
 
 if __name__ == '__main__':
-	Main()
+    Main()
 
 

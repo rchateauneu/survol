@@ -73,7 +73,7 @@ def Main():
 
     except Exception as exc:
         lib_common.ErrorMessageHtml(
-            "node_dsn=%s Unexpected error:%s" % (dsn_nam, str(sys.exc_info())))  # cgiEnv.OutCgiRdf()
+            "node_dsn=%s Unexpected error:%s" % (dsn_nam, str(exc)))
 
     cgiEnv.OutCgiRdf()
 

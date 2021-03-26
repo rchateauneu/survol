@@ -30,9 +30,9 @@ def Main():
 
     node_dsn = survol_sqlserver_dsn.MakeUri(dsn_nam)
 
-    ODBC_ConnectString = survol_odbc_dsn.MakeOdbcConnectionString(dsn_nam)
+    odbc_connect_string = survol_odbc_dsn.MakeOdbcConnectionString(dsn_nam)
     try:
-        cnxn = pyodbc.connect(ODBC_ConnectString)
+        cnxn = pyodbc.connect(odbc_connect_string)
         logging.debug("Connected: %s", dsn_nam)
         cursor_sessions = cnxn.cursor()
 
@@ -75,7 +75,7 @@ def Main():
 
     except Exception as exc:
         lib_common.ErrorMessageHtml(
-            "node_dsn=%s Unexpected error:%s" % (dsn_nam, str(exc)))  # cgiEnv.OutCgiRdf()
+            "node_dsn=%s Unexpected error:%s" % (dsn_nam, str(exc)))
 
     cgiEnv.OutCgiRdf("LAYOUT_RECT",[prop_sql_server_session,prop_sql_server_host_process])
 
