@@ -2,7 +2,7 @@
 Mysql query
 """
 
-from sources_types.sql import query as sql_query
+from sources_types.sql import query as sql_query_module
 
 from sources_types.mysql import table as mysql_table
 from sources_types import mysql as survol_mysql
@@ -13,13 +13,13 @@ import lib_common
 
 # We do not know if CIM_Process.EntityOntology() is available.
 def EntityOntology():
-    return (["Query","Instance",],)
+    return (["Query", "Instance",],)
 
 
 # The SQL query is encoded in base 64 because it contains many special characters which would be too complicated to
 # encode as HTML entities. This is not visible as EntityName() does the reverse decoding.
 def MakeUri(str_query, instance_name):
-    return sql_query.MakeUri(str_query, "mysql/query", Instance=instance_name)
+    return sql_query_module.MakeUri(str_query, "mysql/query", Instance=instance_name)
 
 
 # TODO: Ce serait mieux de passer un dictionnaire plutot qu un tableau.
@@ -38,15 +38,15 @@ def AddInfo(grph,node, entity_ids_arr):
 # TODO: This is not tested.
 # FIXME: This is not tested.
 def QueryToNodesList(sqlQuery, connectionKW, list_of_tables, defaultSchemaName=None):
-    nodesList = []
-    for tabNam in list_of_tables:
-        tmpNode = sqlite_table.MakeUri( connectionKW["Instance"], tabNam)
-        nodesList.append( tmpNode )
-    return nodesList
+    nodes_list = []
+    for tab_nam in list_of_tables:
+        tmp_node = mysql_table.MakeUri(connectionKW["Instance"], tab_nam)
+        nodes_list.append(tmp_node)
+    return nodes_list
 
 
 def EntityName(entity_ids_arr):
     sql_query = entity_ids_arr[0]
     instance_name = entity_ids_arr[1]
-    return sql_query.EntityNameUtil("Instance " + instance_name, sql_query)
+    return sql_query_module.EntityNameUtil("Instance " + instance_name, sql_query)
 

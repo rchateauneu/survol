@@ -92,7 +92,7 @@ def Main():
                     continue
 
                 # We know this is a valid query for this connection, so we add a link to it.
-                node_db_query = sql_query.MakeUri(sql_query, query_entity, **connection_kw)
+                node_db_query = sql_query_module.MakeUri(sql_query, query_entity, **connection_kw)
 
                 grph.add((node_type_db, prop_type_this_db, node_db_query))
         except Exception as exc:

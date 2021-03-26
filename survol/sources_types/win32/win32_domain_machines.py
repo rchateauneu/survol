@@ -44,8 +44,8 @@ def Main():
     logging.debug("Domaine Controller:" + domain_controller)
     logging.debug("Info=" + str(win32net.NetUserModalsGet (domain_controller, 2)))
 
-    node_domain = lib_common.gUriGen.SmbDomainUri(domain_name)
-    node_controller = lib_common.gUriGen.HostnameUri(domain_controller)
+    node_domain = lib_uris.gUriGen.SmbDomainUri(domain_name)
+    node_controller = lib_uris.gUriGen.HostnameUri(domain_controller)
 
     grph.add((node_domain, pc.property_controller, node_controller))
 
@@ -61,7 +61,7 @@ def Main():
             continue
 
         # Prefer not to print them because of possible race condition.
-        node_machine = lib_common.gUriGen.HostnameUri(machine.Name)
+        node_machine = lib_uris.gUriGen.HostnameUri(machine.Name)
         grph.add((node_domain, pc.property_domain, node_machine))
         cnt += 1
         # TODO: It works fine until 1000 nodes, but after that takes ages to run. What can we do ?????
