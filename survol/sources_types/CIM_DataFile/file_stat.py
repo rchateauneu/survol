@@ -12,6 +12,8 @@ This returns general information about a non-directory data file.
 
 import os
 import logging
+
+import lib_uris
 from sources_types import CIM_DataFile
 import lib_common
 from lib_properties import pc
@@ -23,7 +25,7 @@ def Main():
 
     logging.debug("file_stat.py file_name=%s", file_name)
 
-    file_node = lib_common.gUriGen.FileUri(file_name)
+    file_node = lib_uris.gUriGen.FileUri(file_name)
 
     grph = cgiEnv.GetGraph()
 
@@ -42,7 +44,7 @@ def Main():
 
     CIM_DataFile.AffFileOwner(grph, file_node, file_name)
 
-    # Displays the file and the parent directories/
+    # Displays the file and the parent directories.
     current_file_name = file_name
     current_node = file_node
     while True:
@@ -51,11 +53,11 @@ def Main():
             break
         if dir_path == "":
             break
-        dir_node = lib_common.gUriGen.DirectoryUri(dir_path)
+        dir_node = lib_uris.gUriGen.DirectoryUri(dir_path)
         grph.add((dir_node, pc.property_directory, current_node))
         logging.debug("file_stat.py dir_path=%s", dir_path)
         stat_path = os.stat(dir_path)
-        CIM_DataFile.AddStatNode( grph, dir_node, stat_path)
+        CIM_DataFile.AddStatNode(grph, dir_node, stat_path)
 
         CIM_DataFile.AddFileProperties(grph, current_node, current_file_name)
 
@@ -65,8 +67,6 @@ def Main():
     # If windows, print more information: DLL version etc...
     # http://stackoverflow.com/questions/580924/python-windows-file-version-attribute
 
-    # cgiEnv.OutCgiRdf()
-    # cgiEnv.OutCgiRdf("LAYOUT_TWOPI")
     cgiEnv.OutCgiRdf("LAYOUT_RECT_RL")
 
 

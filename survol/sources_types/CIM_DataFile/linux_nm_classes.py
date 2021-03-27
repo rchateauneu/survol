@@ -7,6 +7,8 @@ Classes methods from nm command
 import os
 import sys
 import logging
+
+import lib_uris
 import lib_nm
 import lib_util
 import lib_common
@@ -41,8 +43,6 @@ def _extract_class_from_symbol(symbolnam):
             cnt -= 1
         last_par_open -= 1
 
-
-    # double_colon = symbol.rfind( "::", last_par_open )
     without_signature = symbolnam[:last_par_open + 1]
     double_colon = without_signature.rfind("::")
     if double_colon == -1:
@@ -52,7 +52,6 @@ def _extract_class_from_symbol(symbolnam):
     if last_space == -1:
         last_space = 0
 
-    # class_nam = symbol[ double_colon + 1 : last_par_open ]
     class_nam = symbolnam[last_space:double_colon]
     logging.debug("symbol=%s without_signature=%s class_nam=%s", symbolnam, without_signature, class_nam)
     return class_nam
@@ -61,12 +60,12 @@ def _extract_class_from_symbol(symbolnam):
 def _add_symbol_in_class(grph, node_shared_lib, symbolnam, file_name, prop):
     sym_class = _extract_class_from_symbol(symbolnam)
 
-    symbol_node = lib_common.gUriGen.SymbolUri(lib_util.EncodeUri(symbolnam), file_name)
+    symbol_node = lib_uris.gUriGen.SymbolUri(lib_util.EncodeUri(symbolnam), file_name)
     if sym_class != "":
         try:
             node_class = _nodes_by_class[sym_class]
         except KeyError:
-            node_class = lib_common.gUriGen.ClassUri(sym_class, file_name)
+            node_class = lib_uris.gUriGen.ClassUri(sym_class, file_name)
             _nodes_by_class[sym_class] = node_class
             grph.add((node_shared_lib, pc.property_member, node_class))
         grph.add((node_class, prop, symbol_node))
@@ -75,8 +74,8 @@ def _add_symbol_in_class(grph, node_shared_lib, symbolnam, file_name, prop):
     return symbol_node
 
 
-def _add_known_symbol(grph, nodeSharedLib, symbolnam, file_name, symbol_type):
-    symbolNode = _add_symbol_in_class(grph, nodeSharedLib, symbolnam, file_name, pc.property_symbol_defined)
+def _add_known_symbol(grph, node_shared_lib, symbolnam, file_name, symbol_type):
+    symbolNode = _add_symbol_in_class(grph, node_shared_lib, symbolnam, file_name, pc.property_symbol_defined)
     grph.add((symbolNode, pc.property_symbol_type, lib_util.NodeLiteral(symbol_type)))
 
 
@@ -90,7 +89,7 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    node_shared_lib = lib_common.gUriGen.FileUri(file_shared_lib)
+    node_shared_lib = lib_uris.gUriGen.FileUri(file_shared_lib)
 
     cnt = 0
     for symbol_type, tail in lib_nm.GetSymbols(file_shared_lib):

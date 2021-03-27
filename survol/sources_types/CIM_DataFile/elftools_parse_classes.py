@@ -7,6 +7,7 @@ Classes in ELF files
 import os
 import sys
 
+import lib_uris
 import lib_elf
 import lib_util
 import lib_common
@@ -28,9 +29,9 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    node_shared_lib = lib_common.gUriGen.FileUri(file_shared_lib)
+    node_shared_lib = lib_uris.gUriGen.FileUri(file_shared_lib)
 
-    node_global_namespace = lib_common.gUriGen.ClassUri("__global_namespace", file_shared_lib)
+    node_global_namespace = lib_uris.gUriGen.ClassUri("__global_namespace", file_shared_lib)
     grph.add((node_shared_lib, pc.property_member, node_global_namespace))
 
     try:
@@ -52,13 +53,13 @@ def Main():
         try:
             node_class = Main.nodesByClass[cls_nam]
         except KeyError:
-            node_class = lib_common.gUriGen.ClassUri(cls_nam, file_shared_lib)
+            node_class = lib_uris.gUriGen.ClassUri(cls_nam, file_shared_lib)
             # TODO: Create base classes ?
             Main.nodesByClass[cls_nam] = node_class
 
             if idx > 1:
-                nodeBaseClass = class_to_node(class_split, idx - 1)
-                grph.add((nodeBaseClass, pc.property_member, node_class))
+                node_base_class = class_to_node(class_split, idx - 1)
+                grph.add((node_base_class, pc.property_member, node_class))
             else:
                 grph.add((node_shared_lib, pc.property_member, node_class))
 
@@ -82,9 +83,7 @@ def Main():
 
             # It is already linked to its ancestors.
         else:
-            splt_short = sym.m_splt
-
-            sym_nod = lib_common.gUriGen.SymbolUri(sym.m_name_demang, file_shared_lib)
+            sym_nod = lib_uris.gUriGen.SymbolUri(sym.m_name_demang, file_shared_lib)
             grph.add((sym_nod, lib_common.MakeProp("Version"), lib_util.NodeLiteral(sym.m_vers)))
             if len_split > 1:
                 cls_nod = class_to_node(sym.m_splt, len_split - 1)

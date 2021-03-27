@@ -7,8 +7,8 @@ Shared library dependencies (Linux)
 import os
 import re
 import sys
-import socket
-import urllib
+
+import lib_uris
 import lib_util
 from sources_types import CIM_DataFile
 import lib_common
@@ -22,7 +22,7 @@ def DoNothing():
 
 
 def AddDepends(grph, node_shared_lib, library):
-	lib_node = lib_common.gUriGen.SharedLibUri(library)
+	lib_node = lib_uris.gUriGen.SharedLibUri(library)
 	grph.add((node_shared_lib, pc.property_library_depends, lib_node))
 	# This assumes that shared libraries are a special sort of file.
 	# This is true, but not completely used.
@@ -42,8 +42,8 @@ def Main():
 	if file_shared_lib[0] != '/':
 		file_shared_lib = os.getcwd() + '/' + file_shared_lib
 
-	node_shared_lib = lib_common.gUriGen.SharedLibUri(file_shared_lib)
-	CIM_DataFile.AddInfo( grph, node_shared_lib, [file_shared_lib])
+	node_shared_lib = lib_uris.gUriGen.SharedLibUri(file_shared_lib)
+	CIM_DataFile.AddInfo(grph, node_shared_lib, [file_shared_lib])
 
 	stream = os.popen("ldd " + file_shared_lib)
 

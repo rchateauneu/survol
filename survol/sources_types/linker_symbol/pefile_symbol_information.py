@@ -24,103 +24,87 @@ import win32api
 
 # This can run on a PE file only.
 def Usable(entity_type,entity_ids_arr):
-	"""Can run on a pe file only"""
+    """Can run on a pe file only"""
 
-	try:
-		# This is a bit hard-coded, the file comes second, and is not mandatory.
-		filNam = entity_ids_arr[1]
-		pe = pefile.PE(filNam)
-		return True
-	except Exception:
-		return False
-
-
-def VersionString(filNam):
-	try:
-		info = win32api.GetFileVersionInfo (filNam, "\\")
-		ms = info['FileVersionMS']
-		ls = info['FileVersionLS']
-		return "%d.%d.%d.%d" % ( win32api.HIWORD (ms), win32api.LOWORD (ms), win32api.HIWORD (ls), win32api.LOWORD (ls) )
-	except:
-		return None
+    try:
+        # This is a bit hard-coded, the file comes second, and is not mandatory.
+        fil_nam = entity_ids_arr[1]
+        pe = pefile.PE(fil_nam)
+        return True
+    except Exception:
+        return False
 
 
-def FindPESymbol(filNam,symbolNam):
-	try:
-		pe = pefile.PE(filNam)
+def FindPESymbol(fil_nam, symbol_nam):
+    try:
+        pe = pefile.PE(fil_nam)
 
-		for sym in pe.DIRECTORY_ENTRY_EXPORT.symbols:
-			# sys.stderr.write("sym=%s\n"%sym)
-			# sys.stderr.write("entry=%s\n"%str(entry.struct))
-			# if sym.name.lower() == symbol.lower():
-			if  lib_pefile.UndecorateSymbol( sym.name ) == symbolNam:
-				return sym
-	except Exception as exc:
-		lib_common.ErrorMessageHtml("FindPESymbol %s %s. Caught:%s" % ( filNam, symbolNam, str(exc) ) )
-	return None
+        for sym in pe.DIRECTORY_ENTRY_EXPORT.symbols:
+            if  lib_pefile.UndecorateSymbol(sym.name) == symbol_nam:
+                return sym
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("FindPESymbol %s %s. Caught:%s" % (fil_nam, symbol_nam, str(exc)))
+    return None
 
 
 def Main():
 
-	cgiEnv = lib_common.ScriptEnvironment()
+    cgiEnv = lib_common.ScriptEnvironment()
 
-	# "NtOpenObjectAuditAlarm%40C%3A\windows\system32\ntdll.dll"
-	# Filename is optional.
+    # "NtOpenObjectAuditAlarm%40C%3A\windows\system32\ntdll.dll"
+    # Filename is optional.
 
-	# The symbol is already demangled.
-	symbol_encode = cgiEnv.m_entity_id_dict["Name"]
-	# TODO: This should be packaged in lib_symbol.
-	symbolNam = lib_util.Base64Decode(symbol_encode)
-	filNam = cgiEnv.m_entity_id_dict["File"]
+    # The symbol is already demangled.
+    symbol_encode = cgiEnv.m_entity_id_dict["Name"]
+    # TODO: This should be packaged in lib_symbol.
+    symbol_nam = lib_util.Base64Decode(symbol_encode)
+    fil_nam = cgiEnv.m_entity_id_dict["File"]
 
-	logging.debug("symbol=%s filNam=%s", symbolNam,filNam)
+    logging.debug("symbol=%s fil_nam=%s", symbol_nam, fil_nam)
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	symNode = lib_uris.gUriGen.SymbolUri( symbolNam, filNam )
+    sym_node = lib_uris.gUriGen.SymbolUri(symbol_nam, fil_nam)
 
-	if filNam:
-		filNode = lib_common.gUriGen.FileUri( filNam )
-		grph.add( ( filNode, pc.property_symbol_defined, symNode ) )
-		versStr = VersionString(filNam)
-		grph.add( ( filNode, pc.property_information, lib_util.NodeLiteral(versStr) ) )
+    if fil_nam:
+        fil_node = lib_common.gUriGen.FileUri( fil_nam )
+        grph.add((fil_node, pc.property_symbol_defined, sym_node))
+        vers_str = lib_win32.VersionString(fil_nam)
+        grph.add((fil_node, pc.property_information, lib_util.NodeLiteral(vers_str)))
 
-		sym = FindPESymbol(filNam,symbolNam)
+        sym = FindPESymbol(fil_nam, symbol_nam)
 
-		if sym is not None:
-			# docTxt = getattr(sym,"__doc__").replace(r"&#160;","")
-			# Non-breaking space: A0	10100000	 	&#160;	&nbsp;
-			# docTxt = getattr(sym,"__doc__").replace(chr(160),"")
-			# TODO: Test this again ...
-			docTxt = getattr(sym,"__doc__")
+        if sym is not None:
+            # Non-breaking space: A0    10100000         &#160;    &nbsp;
+            doc_txt = getattr(sym, "__doc__")
 
-			# This string is filled with spaces and CR which are translated into "&#160;".
-			docTxt = re.sub( '\s+', ' ', docTxt ).strip()
+            # This string is filled with spaces and CR which are translated into "&#160;".
+            doc_txt = re.sub(r'\s+', ' ', doc_txt).strip()
 
-			grph.add( ( symNode, pc.property_information,lib_util.NodeLiteral( docTxt ) ) )
+            grph.add((sym_node, pc.property_information,lib_util.NodeLiteral(doc_txt)))
 
-			# Possible values are "name","offset","ordinal","forwarder"
-			try:
-				fwrd = getattr(sym,"forwarder")
-				grph.add( ( symNode, lib_common.MakeProp("Forwarder"), lib_util.NodeLiteral( fwrd ) ) )
-			except:
-				pass
+            # Possible values are "name","offset","ordinal","forwarder"
+            try:
+                fwrd = getattr(sym, "forwarder")
+                grph.add((sym_node, lib_common.MakeProp("Forwarder"), lib_util.NodeLiteral(fwrd)))
+            except:
+                pass
 
-			try:
-				fwrd = getattr(sym,"ordinal")
-				grph.add( ( symNode, lib_common.MakeProp("Ordinal"), lib_util.NodeLiteral( fwrd ) ) )
-			except:
-				pass
+            try:
+                fwrd = getattr(sym,"ordinal")
+                grph.add((sym_node, lib_common.MakeProp("Ordinal"), lib_util.NodeLiteral(fwrd)))
+            except:
+                pass
 
-			( fulNam, lstArgs ) = lib_symbol.SymToArgs(symbolNam)
-			if lstArgs:
-				for arg in lstArgs:
-					# TODO: Order of arguments must not be changed.
-					argNode = lib_uris.gUriGen.ClassUri( arg, filNam )
-					grph.add( ( symNode, pc.property_argument, argNode ) )
+            ful_nam, lst_args = lib_symbol.SymToArgs(symbol_nam)
+            if lst_args:
+                for arg in lst_args:
+                    # TODO: Order of arguments must not be changed.
+                    arg_node = lib_uris.gUriGen.ClassUri(arg, fil_nam)
+                    grph.add((sym_node, pc.property_argument, arg_node))
 
-	cgiEnv.OutCgiRdf( "LAYOUT_RECT", [pc.property_argument] )
+    cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_argument])
 
 
 if __name__ == '__main__':
-	Main()
+    Main()

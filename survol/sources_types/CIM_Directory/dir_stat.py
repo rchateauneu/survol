@@ -10,6 +10,8 @@ Directory stat information
 
 import os
 import logging
+
+import lib_uris
 from sources_types import CIM_DataFile
 import lib_util
 import lib_common
@@ -21,7 +23,7 @@ def Main():
     fil_nam = cgiEnv.GetId()
     fil_nam = lib_util.standardized_file_path(fil_nam)
 
-    fil_node = lib_common.gUriGen.DirectoryUri(fil_nam)
+    fil_node = lib_uris.gUriGen.DirectoryUri(fil_nam)
 
     grph = cgiEnv.GetGraph()
 
@@ -31,7 +33,7 @@ def Main():
     # st_ino: inode number.
 
     # st_dev: device.
-    CIM_DataFile.AddDevice(grph,fil_node,info)
+    CIM_DataFile.AddDevice(grph, fil_node, info)
 
     CIM_DataFile.AddStatNode(grph, fil_node, info)
     CIM_DataFile.AddMagic(grph, fil_node, fil_nam)
@@ -49,7 +51,7 @@ def Main():
             break
         if dir_path == "":
             break
-        dir_node = lib_common.gUriGen.DirectoryUri(dir_path)
+        dir_node = lib_uris.gUriGen.DirectoryUri(dir_path)
         grph.add((dir_node, pc.property_directory, curr_node))
         logging.debug("dir_path=%s", dir_path)
         stat_path = os.stat(dir_path)
@@ -63,7 +65,6 @@ def Main():
     # If windows, print more information: DLL version etc...
     # http://stackoverflow.com/questions/580924/python-windows-file-version-attribute
 
-    # cgiEnv.OutCgiRdf()
     cgiEnv.OutCgiRdf("LAYOUT_TWOPI")
 
 

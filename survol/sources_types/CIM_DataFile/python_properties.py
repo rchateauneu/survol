@@ -6,8 +6,9 @@ Python package dependencies
 
 import os
 import sys
-import lib_common
 
+import lib_uris
+import lib_common
 from sources_types import python as survol_python
 from sources_types.python import package as survol_python_package
 
@@ -40,7 +41,7 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    fil_node = lib_common.gUriGen.FileUri(py_fil_nam)
+    fil_node = lib_uris.gUriGen.FileUri(py_fil_nam)
 
     try:
         survol_python.AddAssociatedFiles(grph, fil_node, py_fil_nam)

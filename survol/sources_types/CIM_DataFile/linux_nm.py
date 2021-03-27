@@ -8,6 +8,7 @@ import os
 import sys
 import logging
 
+import lib_uris
 import lib_nm
 import lib_util
 import lib_common
@@ -18,13 +19,13 @@ Usable = lib_util.UsableLinuxBinary
 
 
 def _add_known_symbol(grph, node_shared_lib, symbolnam, file_name, type):
-    symbol_node = lib_common.gUriGen.SymbolUri(lib_util.EncodeUri(symbolnam), file_name)
+    symbol_node = lib_uris.gUriGen.SymbolUri(lib_util.EncodeUri(symbolnam), file_name)
     grph.add((node_shared_lib, pc.property_symbol_defined, symbol_node))
     grph.add((symbol_node, pc.property_symbol_type, lib_util.NodeLiteral(type)))
 
 
 def _add_unknown_symbol(grph, node_shared_lib, symbolnam):
-    symbol_node = lib_common.gUriGen.SymbolUri(lib_util.EncodeUri(symbolnam), "*")
+    symbol_node = lib_uris.gUriGen.SymbolUri(lib_util.EncodeUri(symbolnam), "*")
     grph.add((node_shared_lib, pc.property_symbol_undefined, symbol_node))
 
 
@@ -34,7 +35,7 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    node_shared_lib = lib_common.gUriGen.FileUri(file_shared_lib)
+    node_shared_lib = lib_uris.gUriGen.FileUri(file_shared_lib)
 
     cnt = 0
     for symbol_type, tail in lib_nm.GetSymbols(file_shared_lib):
