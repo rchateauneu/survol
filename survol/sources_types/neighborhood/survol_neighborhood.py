@@ -9,6 +9,8 @@ Set the Service Location Protocol flag to enable this detection.
 
 import sys
 import logging
+
+import lib_uris
 import lib_util
 import lib_common
 import lib_credentials
@@ -16,95 +18,82 @@ from lib_properties import pc
 from sources_types import neighborhood as survol_neighborhood
 
 
-def AddSurvolNode(grph,hostSurvol,urlSurvolClean):
-	logging.debug("AddSurvolNode hostSurvol=%s",hostSurvol)
-	survolHostNode = lib_common.gUriGen.HostnameUri( hostSurvol )
+def _add_survol_node(grph, host_survol, url_survol_clean):
+    logging.debug("AddSurvolNode hostSurvol=%s", host_survol)
+    survol_host_node = lib_common.gUriGen.HostnameUri(host_survol)
 
-	currDispMode = lib_util.GuessDisplayMode()
+    curr_disp_mode = lib_util.GuessDisplayMode()
 
-	# Several possibilities:
-	# - Open a new HTML page with this URL. Or SVG, passed on the current mode.
-	# - If we are in D3 mode, this should return a JSON object from the other agent.
-	if currDispMode == "json":
+    # Several possibilities:
+    # - Open a new HTML page with this URL. Or SVG, passed on the current mode.
+    # - If we are in D3 mode, this should return a JSON object from the other agent.
+    if curr_disp_mode == "json":
+        server_box = lib_uris.OtherAgentBox(host_survol)
 
-		if lib_util.is_local_address( hostSurvol ):
-			machName_or_None = None
-			serverBox = lib_common.gUriGen
-		else:
-			machName_or_None = hostSurvol
-			serverBox = lib_common.OtherAgentBox(urlSurvolClean)
+        # This is the URL of the remote host, on the remote agent.
+        node_remote_host = server_box.HostnameUri(host_survol)
+        grph.add((survol_host_node, lib_common.MakeProp("Survol host"), node_remote_host))
 
-		# This is the URL of the remote host, on the remote agent.
-		nodeRemoteHost = serverBox.HostnameUri(hostSurvol)
-		grph.add( ( survolHostNode, lib_common.MakeProp("Survol host"), nodeRemoteHost ) )
+        node_survol_url = lib_common.NodeUrl(url_survol_clean)
+        grph.add((survol_host_node, lib_common.MakeProp("Survol agent"), node_survol_url))
+    else:
+        url_survol_moded = lib_util.AnyUriModed(url_survol_clean, curr_disp_mode)
 
-		nodeSurvolUrl = lib_common.NodeUrl(urlSurvolClean)
-		grph.add( ( survolHostNode, lib_common.MakeProp("Survol agent"), nodeSurvolUrl ) )
+        node_survol_url = lib_common.NodeUrl(url_survol_moded)
 
-	else:
-		urlSurvolModed = lib_util.AnyUriModed(urlSurvolClean, currDispMode)
+        # Should check the URL to be sure it is valid.
+        grph.add((survol_host_node, lib_common.MakeProp("Survol agent"), node_survol_url))
 
-		nodeSurvolUrl = lib_common.NodeUrl(urlSurvolModed)
-
-		# Should check the URL to be sure it is valid.
-
-		# sys.stderr.write("AddSurvolNode urlSurvolModed=%s\n"%(urlSurvolModed))
-		grph.add( ( survolHostNode, lib_common.MakeProp("Survol agent"), nodeSurvolUrl ) )
-
-	return nodeSurvolUrl
+    return node_survol_url
 
 
-def CallbackNodeAdder(grph,urlSurvol):
-	parsed_url = lib_util.survol_urlparse( urlSurvol )
-	hostSurvol = parsed_url.hostname
-	# sys.stderr.write("SurvolServersDisplay hostSurvol=%s\n"%(hostSurvol))
-	if hostSurvol:
-		nodeSurvolUrl = AddSurvolNode(grph,hostSurvol,urlSurvol)
-		return nodeSurvolUrl
-	else:
-		return None
+def _callback_node_adder(grph, url_survol):
+    parsed_url = lib_util.survol_urlparse(url_survol)
+    host_survol = parsed_url.hostname
+    if host_survol:
+        node_survol_url = _add_survol_node(grph, host_survol, url_survol)
+        return node_survol_url
+    else:
+        return None
 
 
-def SurvolServersDisplay(grph):
-	lstSurvolServers = []
-	credNames = lib_credentials.get_credentials_names( "Survol" )
-	logging.debug("SurvolServersDisplay")
-	for urlSurvol in credNames:
-		# sys.stderr.write("SurvolServersDisplay urlSurvol=%s\n"%(urlSurvol))
-
-		# The credentials are not needed until a Survol agent uses HTTPS.
-		CallbackNodeAdder(grph,urlSurvol)
+def _survol_servers_display(grph):
+    cred_names = lib_credentials.get_credentials_names("Survol")
+    logging.debug("SurvolServersDisplay")
+    for url_survol in cred_names:
+        # The credentials are not needed until a Survol agent uses HTTPS.
+        _callback_node_adder(grph, url_survol)
 
 
 def Main():
-	# If this flag is set, the script uses SLP to discover Survol Agents.
-	paramkeySLP = "Service Location Protocol"
+    # If this flag is set, the script uses SLP to discover Survol Agents.
+    paramkey_slp = "Service Location Protocol"
 
-	cgiEnv = lib_common.ScriptEnvironment(
-		parameters = { paramkeySLP : False }
-	)
+    cgiEnv = lib_common.ScriptEnvironment(
+        parameters = {paramkey_slp: False }
+    )
 
-	flagSLP = bool(cgiEnv.get_parameters( paramkeySLP ))
+    flag_slp = bool(cgiEnv.get_parameters(paramkey_slp))
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	SurvolServersDisplay(grph)
+    _survol_servers_display(grph)
 
-	if flagSLP:
-		dictServices = survol_neighborhood.GetSLPServices("survol")
-		for keyService in dictServices:
-			nodeSurvolUrl = CallbackNodeAdder(grph,keyService)
-			grph.add( ( nodeSurvolUrl,
-						pc.property_information,
-						lib_util.NodeLiteral("Service Location Protocol") ) )
-			attrsService = dictServices[keyService]
-			for keyAttr in attrsService:
-				propAttr = lib_common.MakeProp(keyAttr)
-				valAttr = attrsService[keyAttr]
-				grph.add( ( nodeSurvolUrl, propAttr, lib_util.NodeLiteral(valAttr) ) )
+    if flag_slp:
+        dict_services = survol_neighborhood.GetSLPServices("survol")
+        for key_service in dict_services:
+            node_survol_url = _callback_node_adder(grph, key_service)
+            grph.add((node_survol_url,
+                      pc.property_information,
+                      lib_util.NodeLiteral("Service Location Protocol")))
+            attrs_service = dict_services[key_service]
+            for key_attr in attrs_service:
+                prop_attr = lib_common.MakeProp(key_attr)
+                val_attr = attrs_service[key_attr]
+                grph.add((node_survol_url, prop_attr, lib_util.NodeLiteral(val_attr)))
 
-	cgiEnv.OutCgiRdf()
+    cgiEnv.OutCgiRdf()
 
 
 if __name__ == '__main__':
-	Main()
+    Main()

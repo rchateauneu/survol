@@ -13,6 +13,8 @@ import time
 import socket
 import binascii
 import struct
+
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -35,8 +37,8 @@ def _bytes_to_addr(pck, offset):
 
 def _insert_packet(grph, protoc , sourceAddr, sourcePort, destinationAddr, destinationPort):
     if protoc == 6:
-        lsocketNode = lib_common.gUriGen.AddrUri(sourceAddr, sourcePort )
-        rsocketNode = lib_common.gUriGen.AddrUri(destinationAddr, destinationPort )
+        lsocketNode = lib_uris.gUriGen.AddrUri(sourceAddr, sourcePort )
+        rsocketNode = lib_uris.gUriGen.AddrUri(destinationAddr, destinationPort )
         grph.add((lsocketNode, pc.property_socket_end, rsocketNode))
 
 ################################################################################

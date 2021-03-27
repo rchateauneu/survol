@@ -56,8 +56,8 @@ class EnvPeFile:
                     for a_dir in self.dirs_norm:
                         dll_path = os.path.join(a_dir, entry_dll)
                         if os.path.exists(dll_path):
-                            subNode = self.recursive_depends(dll_path, max_level - 1)
-                            self.grph.add((root_node, pc.property_library_depends, subNode))
+                            sub_node = self.recursive_depends(dll_path, max_level - 1)
+                            self.grph.add((root_node, pc.property_library_depends, sub_node))
                             break
             except AttributeError:
                 pass
