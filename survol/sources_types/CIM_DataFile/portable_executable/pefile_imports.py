@@ -25,8 +25,7 @@ class EnvPeFile:
         self.grph = grph
 
     def RecursiveDepends(self, fil_nam, max_level):
-        # sys.stderr.write( "filNam=%s maxLevel=%d\n"%(filNam,maxLevel))
-        root_node = lib_common.gUriGen.FileUri(fil_nam)
+        root_node = lib_uris.gUriGen.FileUri(fil_nam)
         vers_str = lib_win32.VersionString(fil_nam)
         self.grph.add((root_node, pc.property_information, lib_util.NodeLiteral(vers_str)))
 
@@ -42,20 +41,16 @@ class EnvPeFile:
                     entry_dll = entry.dll.encode('utf-8')
                 else:
                     entry_dll = entry.dll
-                # sys.stderr.write( "entry.dll=%s\n"%entry_dll)
 
-                # sys.stderr.write("entry=%s\n"%str(entry.struct))
                 dll_path = lib_shared_lib_path.FindPathFromSharedLibraryName(entry_dll)
                 if dll_path:
                     sub_node = self.RecursiveDepends(dll_path, max_level - 1)
                     self.grph.add((root_node, pc.property_library_depends, sub_node))
 
                     for imp in entry.imports:
-                        # sys.stderr.write("\t%s %s\n"% (hex(imp.address), imp.name) )
                         if imp.name is not None:
                             sym_node = lib_uris.gUriGen.SymbolUri(imp.name, dll_path)
                             self.grph.add((sub_node, pc.property_symbol_declared, sym_node))
-
                         break
         except AttributeError:
             pass
@@ -64,7 +59,6 @@ class EnvPeFile:
 
 
 def Main():
-
     paramkey_maximum_depth = "Maximum depth"
 
     cgiEnv = lib_common.ScriptEnvironment(parameters = {paramkey_maximum_depth: 3})
@@ -84,7 +78,6 @@ def Main():
     rootNode = env.RecursiveDepends(win_module, max_depth)
 
     cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_symbol_declared])
-    # cgiEnv.OutCgiRdf()
 
 
 if __name__ == '__main__':
