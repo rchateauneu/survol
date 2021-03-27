@@ -5,10 +5,12 @@
 import os
 import re
 import subprocess
+import logging
+
+import lib_uris
 import lib_common
 import lib_util
 import lib_properties
-import logging
 
 
 def Usable(entity_type, entity_ids_arr):
@@ -26,7 +28,7 @@ def Usable(entity_type, entity_ids_arr):
 def _io_stat_to_graph(grph, spl, iostat_header):
     """This runs in the HTTP server and uses the data from the queue.
     This reads a record from the queue and builds a RDF relation with it."""
-    device_node = lib_common.gUriGen.DiskUri(spl[0])
+    device_node = lib_uris.gUriGen.DiskUri(spl[0])
     property_name_to_node = dict()
 
     for idx in range(1, len(spl)):

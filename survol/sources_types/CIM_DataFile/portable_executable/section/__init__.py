@@ -3,18 +3,24 @@ PE file section
 """
 
 import os
+
+import lib_uris
 import lib_common
 
+
 def EntityOntology():
-	return ( ["Name","Section"], )
+    return (["Name", "Section"],)
+
 
 def EntityName(entity_ids_arr):
-	fileName = entity_ids_arr[0]
-	sectionName = entity_ids_arr[1]
+    file_name = entity_ids_arr[0]
+    section_name = entity_ids_arr[1]
 
-	# A file name can be very long, so it is truncated.
-	fileNameBase = os.path.basename(fileName)
-	return fileNameBase + ":" + sectionName
+    # A file name can be very long, so it is truncated.
+    file_name_base = os.path.basename(file_name)
+    return file_name_base + ":" + section_name
 
-def MakeUri(fileName, sectionName):
-	return lib_common.gUriGen.UriMakeFromDict("CIM_DataFile/portable_executable/section", { "Name" : fileName, "Section" : sectionName } )
+
+def MakeUri(file_name, section_name):
+    return lib_uris.gUriGen.UriMakeFromDict(
+        "CIM_DataFile/portable_executable/section", {"Name" : file_name, "Section": section_name})

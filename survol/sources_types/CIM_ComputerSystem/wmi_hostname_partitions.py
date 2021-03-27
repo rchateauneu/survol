@@ -6,6 +6,8 @@ WMI: Remote machine partitions
 
 import sys
 import logging
+
+import lib_uris
 import lib_common
 import lib_util
 import lib_wmi
@@ -109,10 +111,10 @@ def Main():
 
     if lib_util.is_local_address(machine_name):
         mach_name_or_none = None
-        server_box = lib_common.gUriGen
+        server_box = lib_uris.gUriGen
     else:
         mach_name_or_none = machine_name
-        server_box = lib_common.RemoteBox(machine_name)
+        server_box = lib_uris.RemoteBox(machine_name)
 
     try:
         login_implicit = False # IF FACT, WHY SHOULD IT BE SET ????????
