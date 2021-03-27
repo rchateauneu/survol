@@ -6,6 +6,8 @@ Processes returned by WBEM
 
 import sys
 import logging
+
+import lib_uris
 import lib_util
 import lib_wbem
 import lib_common
@@ -33,10 +35,7 @@ def Main():
     # If running on the local machine, pass the host as None otherwise authorization is checked
     # just like a remote machine, which means User Account Control (UAC) disabling,
     # and maybe setting LocalAccountTokenFilterPolicy=1
-    if lib_util.is_local_address(machine_name):
-        server_box = lib_common.gUriGen
-    else:
-        server_box = lib_common.RemoteBox(machine_name)
+    server_box = lib_common.MachineBox(machine_name)
 
     # >>> conn = pywbem.WBEMConnection("http://192.168.1.88:5988" , ('pe***us','t*t*') )
     try:

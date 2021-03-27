@@ -8,6 +8,7 @@ import os
 import sys
 import logging
 
+import lib_uris
 import lib_elf
 import lib_util
 import lib_common
@@ -24,7 +25,7 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    node_shared_lib = lib_common.gUriGen.FileUri(file_shared_lib)
+    node_shared_lib = lib_uris.gUriGen.FileUri(file_shared_lib)
 
     try:
         readelf = lib_elf.ReadElf(file_shared_lib)
@@ -45,7 +46,7 @@ def Main():
         try:
             node_class = Main.nodesByClass[cls_nam]
         except KeyError:
-            node_class = lib_common.gUriGen.ClassUri(cls_nam, file_shared_lib)
+            node_class = lib_uris.gUriGen.ClassUri(cls_nam, file_shared_lib)
             # TODO: Create base classes ?
             Main.nodesByClass[cls_nam] = node_class
 
@@ -69,7 +70,7 @@ def Main():
         if not sym.m_splt[0].startswith("std"):
             continue
 
-        sym_nod = lib_common.gUriGen.SymbolUri(sym.m_name_demang, file_shared_lib)
+        sym_nod = lib_uris.gUriGen.SymbolUri(sym.m_name_demang, file_shared_lib)
         grph.add((sym_nod, lib_common.MakeProp("Version"), lib_util.NodeLiteral(sym.m_vers)))
         len_split = len(sym.m_splt)
         if len_split > 1:

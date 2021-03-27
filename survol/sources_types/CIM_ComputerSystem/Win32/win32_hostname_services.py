@@ -10,26 +10,22 @@ import lib_common
 from lib_properties import pc
 from sources_types import Win32_Service
 
+
 def Main():
-	cgiEnv = lib_common.ScriptEnvironment()
-	machineName = cgiEnv.GetId()
+    cgiEnv = lib_common.ScriptEnvironment()
+    machine_name = cgiEnv.GetId()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	# hostname = "Titi" for example
-	# lib_win32.WNetAddConnect(machineName)
+    try:
+        Win32_Service.FullServiceNetwork(grph, machine_name)
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("win32 " + machine_name + " services:" + str(exc))
 
-	try:
-		Win32_Service.FullServiceNetwork(grph,machineName)
-	except Exception:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("win32 "+machineName+" services:"+str(exc))
+    cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
-	# cgiEnv.OutCgiRdf("LAYOUT_RECT")
-	# cgiEnv.OutCgiRdf()
-	cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
 if __name__ == '__main__':
-	Main()
+    Main()
 
   
