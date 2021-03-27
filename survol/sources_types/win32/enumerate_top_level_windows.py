@@ -7,6 +7,8 @@ Top-level windows
 import sys
 import socket
 import logging
+
+import lib_uris
 import lib_common
 import lib_util
 from lib_properties import pc
