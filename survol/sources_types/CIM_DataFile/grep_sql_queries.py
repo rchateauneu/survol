@@ -8,81 +8,82 @@ import os
 import os.path
 import re
 import sys
+
+import lib_uris
 import lib_sql
 import lib_util
 import lib_common
-# import lib_modules
-from lib_properties import pc
 
-# Any type of source file can contain SQL queries.
-extensionsSQLSourcesFiles = [
-	".c",".cc",".cxx",".cpp",".c++",".java",".ii",".ixx",".ipp",".i++",
-	".pc",".pcc"
-	".inl",".idl",".ddl",".odl",
-	".h",".hh",".hxx",".hpp",".h++",
-	".cs",".d",".php",".php4",".php5",".phtml",".inc",
-	".py",".pyw",
-	".f90",".f",".for",
-	".tcl",".as",".js",
-	".sh",".csh",".bash",
-	".sql",".pls",".pks"
+
+# Many types of source file may contain SQL queries.
+# Files matching these extensions are parsed with regular expressions, to find bits if SQL queries.
+_extensions_sql_sources_files = [
+    ".c", ".cc", ".cxx", ".cpp", ".c++", ".java", ".ii", ".ixx", ".ipp", ".i++",
+    ".pc", ".pcc"
+    ".inl", ".idl", ".ddl", ".odl",
+    ".h", ".hh", ".hxx", ".hpp", ".h++",
+    ".cs", ".d", ".php", ".php4", ".php5", ".phtml", ".inc",
+    ".py", ".pyw",
+    ".f90", ".f", ".for",
+    ".tcl", ".as", ".js",
+    ".sh", ".csh", ".bash",
+    ".sql", ".pls", ".pks"
 ]
 
-def Usable(entity_type,entity_ids_arr):
-	"""Filename must have proper file extension"""
-	filNam = entity_ids_arr[0]
-	filExt = os.path.splitext(filNam)[1]
-	if filExt.lower() in extensionsSQLSourcesFiles:
-		return True
 
-	# On Unix, we could also check if the file is a Shell script, whatever the extension is.
-	return os.path.isdir(filNam)
+def Usable(entity_type, entity_ids_arr):
+    """Filename must have proper file extension"""
+    fil_nam = entity_ids_arr[0]
+    fil_ext = os.path.splitext(fil_nam)[1]
+    if fil_ext.lower() in _extensions_sql_sources_files:
+        return True
+
+    # On Unix, we could also check if the file is a Shell script, whatever the extension is.
+    return os.path.isdir(fil_nam)
 
 # There must be another script for object files and libraries,
 # because the search should not be done in the entire file,
 # but only in the DATA segment.
 
 
-
 def Main():
-	cgiEnv = lib_common.ScriptEnvironment()
-	filNam = cgiEnv.GetId()
+    cgiEnv = lib_common.ScriptEnvironment()
+    fil_nam = cgiEnv.GetId()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	nodeFile = lib_common.gUriGen.FileUri(filNam)
+    node_file = lib_uris.gUriGen.FileUri(fil_nam)
 
-	try:
-		# The regular expressions are indexed with a key such as "INSERT", "SELECT" etc...
-		# which gives a hint about what the query does, and is transformed into a RDF property.
-		# TODO: Store the compiled regular expressions.
-		# This creates a dictionary mapping the RDF property to the compiled regular expression.
-		dictRegexSQL = lib_sql.SqlRegularExpressions()
+    try:
+        # The regular expressions are indexed with a key such as "INSERT", "SELECT" etc...
+        # which gives a hint about what the query does, and is transformed into a RDF property.
+        # TODO: Store the compiled regular expressions.
+        # This creates a dictionary mapping the RDF property to the compiled regular expression.
+        dict_regex_sql = lib_sql.SqlRegularExpressions()
 
-		arrProps = []
-		for rgxKey in dictRegexSQL:
-			rgxSQL = dictRegexSQL[rgxKey]
-			rgxProp = lib_common.MakeProp(rgxKey)
-			arrProps.append(rgxProp)
+        arr_props = []
+        for rgx_key in dict_regex_sql:
+            rgx_sql = dict_regex_sql[rgx_key]
+            rgx_prop = lib_common.MakeProp(rgx_key)
+            arr_props.append(rgx_prop)
 
-			compiledRgx = re.compile(rgxSQL, re.IGNORECASE)
+            compiled_rgx = re.compile(rgx_sql, re.IGNORECASE)
 
-			opFil = open(filNam, 'r')
-			for linFil in opFil:
-				matchedSqls = compiledRgx.findall(linFil)
+            op_fil = open(fil_nam, 'r')
+            for lin_fil in op_fil:
+                matched_sqls = compiled_rgx.findall(lin_fil)
 
-				# TODO: For the moment, we just print the query. How can it be related to a database ?
-				for sqlQry in matchedSqls:
-					# grph.add( ( node_process, pc.property_rdf_data_nolist1, nodePortalWbem ) )
-					grph.add( ( nodeFile, rgxProp, lib_util.NodeLiteral(sqlQry) ) )
-			opFil.close()
+                # TODO: For the moment, we just print the query. How can it be related to a database ?
+                for sql_qry in matched_sqls:
+                    grph.add((node_file, rgx_prop, lib_util.NodeLiteral(sql_qry)))
+            op_fil.close()
 
-	except Exception:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Error:%s. Protection ?"%str(exc))
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("Error:%s. Protection ?" % str(exc))
 
-	cgiEnv.OutCgiRdf("LAYOUT_RECT",arrProps)
+    cgiEnv.OutCgiRdf("LAYOUT_RECT", arr_props)
+
 
 if __name__ == '__main__':
-	Main()
+    Main()
 

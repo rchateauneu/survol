@@ -8,6 +8,8 @@ import os
 import re
 import sys
 import time
+
+import lib_uris
 import lib_mime
 import lib_util
 import lib_kbase
@@ -30,7 +32,7 @@ def Main():
 
     icon_groups = survol_win32_resource.GetIconNamesList(path_name)
 
-    fil_node = lib_common.gUriGen.FileUri(path_name)
+    fil_node = lib_uris.gUriGen.FileUri(path_name)
 
     for group_name in icon_groups:
         # TODO: Is it sorted in lib_export_html.py ??

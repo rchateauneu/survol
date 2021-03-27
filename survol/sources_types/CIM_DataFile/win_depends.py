@@ -9,6 +9,8 @@ import re
 import sys
 import time
 import logging
+
+import lib_uris
 import lib_util
 import lib_win32
 import lib_common
@@ -53,7 +55,7 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    node_dll = lib_common.gUriGen.FileUri(win_module)
+    node_dll = lib_uris.gUriGen.FileUri(win_module)
 
     # TODO: Check the return value.
     # http://www.dependencywalker.com/help/html/hidr_command_line_help.htm
@@ -84,7 +86,7 @@ def Main():
         module = linargs[1]
         # The library filename is enclosed in double-quotes, that we must remove.
         modul_nam = module[1:-1]
-        lib_node = lib_common.gUriGen.SharedLibUri(modul_nam)
+        lib_node = lib_uris.gUriGen.SharedLibUri(modul_nam)
 
         # If the libraries are displayed in groups belnging to a dir, this is clearer.
         if flag_group_by_dirs:
@@ -95,7 +97,7 @@ def Main():
                 dir_nod = dirs_to_nodes[dir_nam]
             except KeyError:
                 # TODO: Beware, in fact this is a directory.
-                dir_nod = lib_common.gUriGen.FileUri(dir_nam)
+                dir_nod = lib_uris.gUriGen.FileUri(dir_nam)
                 grph.add((node_dll, pc.property_library_depends, dir_nod))
                 dirs_to_nodes[dir_nam] = dir_nod
             grph.add((dir_nod, pc.property_library_depends, lib_node))

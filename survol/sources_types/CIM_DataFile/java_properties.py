@@ -83,19 +83,17 @@ def Main():
 
     java_fil_nam = cgiEnv.GetId()
 
-    # sys.stderr.write("dbFilNam=%s\n"%dbFilNam)
-
     grph = cgiEnv.GetGraph()
 
-    fil_node = lib_common.gUriGen.FileUri(java_fil_nam)
+    fil_node = lib_uris.gUriGen.FileUri(java_fil_nam)
 
     try:
         _add_java_associated_files(grph, fil_node, java_fil_nam)
     except Exception as exc:
         lib_common.ErrorMessageHtml("File:%s Unexpected error:%s" % (java_fil_nam, str(exc)))
 
-
     cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
+
 
 if __name__ == '__main__':
     Main()

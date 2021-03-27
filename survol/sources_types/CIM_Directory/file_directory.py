@@ -8,6 +8,7 @@ import os
 import re
 import sys
 import logging
+
 import lib_uris
 import lib_common
 from sources_types import CIM_DataFile
@@ -72,7 +73,7 @@ def Main():
         if re.match("^[a-zA-Z]:$", fil_nam):
             fil_nam += "/"
 
-    fil_node = lib_common.gUriGen.DirectoryUri(fil_nam)
+    fil_node = lib_uris.gUriGen.DirectoryUri(fil_nam)
 
     grph = cgiEnv.GetGraph()
 
@@ -90,15 +91,13 @@ def Main():
         topdir = os.path.dirname(fil_nam)
         logging.debug("topdir=%s", topdir)
         if topdir:
-            topdir_node = lib_common.gUriGen.DirectoryUri(topdir)
+            topdir_node = lib_uris.gUriGen.DirectoryUri(topdir)
             grph.add((topdir_node, pc.property_directory, fil_node))
 
             url_mime = _uri_directory_direct_script(topdir)
             grph.add((topdir_node, pc.property_rdf_data_nolist2, lib_common.NodeUrl(url_mime)))
 
     if os.path.isdir(fil_nam):
-        # sys.stderr.write("fil_nam=%s\n"%(fil_nam))
-
         # In case we do not loop at all, the value must be set.
         dirs = None
 
@@ -116,7 +115,7 @@ def Main():
 
         for one_directory in dirs:
             full_dir_path = fil_nam_slash + one_directory
-            subdir_node = lib_common.gUriGen.DirectoryUri(full_dir_path.replace("&", "&amp;"))
+            subdir_node = lib_uris.gUriGen.DirectoryUri(full_dir_path.replace("&", "&amp;"))
             grph.add((fil_node, pc.property_directory, subdir_node))
 
             url_dir_node = _url_to_directory(full_dir_path)
@@ -142,7 +141,7 @@ def Main():
             # Error: not well-formed (invalid token) in line 1
             # ... <u>Yana (e trema) lle et Constantin (a grave accent) Boulogne-sur-Mer.IMG-20190806-WA0000.jpg ...
 
-            subfil_node = lib_common.gUriGen.FileUri(file_path_replace_encoded)
+            subfil_node = lib_uris.gUriGen.FileUri(file_path_replace_encoded)
 
             grph.add((fil_node, pc.property_directory, subfil_node))
 
@@ -152,7 +151,6 @@ def Main():
             CIM_DataFile.AddHtml(grph, subfil_node, full_file_path)
 
     cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_directory])
-    # cgiEnv.OutCgiRdf("LAYOUT_RECT", [] )
 
 
 if __name__ == '__main__':
