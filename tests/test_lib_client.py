@@ -107,6 +107,20 @@ class SurvolLocalTest(unittest.TestCase):
         # This file should be there on any Windows machine.
         self.assertTrue(len_instances >= 1)
 
+    def test_entity_info_only(self):
+        # Test merge of heterogeneous data sources.
+        my_source = lib_client.SourceLocal(
+            "entity_info_only.py",
+            "CIM_Process",
+            Handle=CurrentPid)
+
+        content = my_source.content_json()
+        print("content=", str(content.keys()))
+        self.assertEqual(sorted(content.keys()), ['links', 'nodes', 'page_title'])
+        print("content=", str(content))
+        self.assertTrue(content['page_title'].startswith('Overview python'))
+        self.assertEqual(len(content['nodes']), 1)
+
     def test_local_json(self):
         # Test merge of heterogeneous data sources.
         my_source1 = lib_client.SourceLocal(

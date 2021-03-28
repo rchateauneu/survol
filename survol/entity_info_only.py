@@ -13,9 +13,12 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
+# This is used from the javascript interface only.
 
-# We want only literal information which can be displayed in a table.
-def AddInformation(grph, root_node, entity_id, entity_type):
+def _add_information(grph, root_node, entity_id, entity_type):
+    """
+    This returns only literal information which can be displayed in a table.
+    """
     entity_ids_arr = lib_util.EntityIdToArray(entity_type, entity_id)
 
     # Each entity type ("process","file" etc... ) can have a small library
@@ -50,7 +53,7 @@ def AddInformation(grph, root_node, entity_id, entity_type):
                 entity_module.AddInfo(pseudo_graph, root_node, entity_ids_arr)
 
             except AttributeError as exc:
-                logging.error("No AddInfo for %s %s: %s", entity_type, entity_id, str(exc) )
+                logging.error("No AddInfo for %s %s: %s", entity_type, entity_id, str(exc))
     else:
         logging.warning("No lib_entities for %s %s", entity_type, entity_id)
 
@@ -66,9 +69,10 @@ def Main():
 
     root_node = lib_util.RootUri()
 
-    AddInformation(grph, root_node, entity_id, entity_type)
+    _add_information(grph, root_node, entity_id, entity_type)
 
     cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
     Main()
