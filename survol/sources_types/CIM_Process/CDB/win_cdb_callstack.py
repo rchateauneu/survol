@@ -96,8 +96,6 @@ def Main():
     call_depth = 0
 
     for dot_line in cdb_str.split('\n'):
-        # sys.stderr.write("Line=%s\n" % dot_line)
-
         err_match = re.match(".*parameter is incorrect.*", dot_line)
         if err_match:
             lib_common.ErrorMessageHtml("CDB:"+dot_line)

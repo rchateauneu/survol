@@ -31,14 +31,12 @@ def _add_yawn_node(cimom_url, topclass_nam, wbem_namespace, grph, wbem_node):
              % (cimom_no_port, topclass_nam, lib_util.EncodeUri(cimom_url), lib_util.EncodeUri(wbem_namespace))
 
     # "http://192.168.1.88/yawn/GetClass/CIM_DeviceSAPImplementation?url=http%3A%2F%2F192.168.1.88%3A5988&verify=0&ns=root%2Fcimv2"
-    # sys.stderr.write("cimom_no_port=%s yawn_url=%s\n"%(cimom_no_port,yawn_url))
     grph.add((wbem_node, pc.property_rdf_data_nolist3, lib_common.NodeUrl(yawn_url)))
 
 
 def _print_class_recu(
         grph, root_node, tree_classes, topclass_nam, depth, wbem_namespace, cimom_url, max_depth, with_yawn_urls):
     """topclassNam is None at first call."""
-    # sys.stderr.write("topclassNam=%s depth=%d\n" % (topclassNam,depth))
 
     if depth > max_depth:
         return

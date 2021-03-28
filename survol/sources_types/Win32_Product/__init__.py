@@ -5,11 +5,6 @@ Windows software product
 import sys
 import six
 import logging
-import lib_util
-import lib_common
-from lib_properties import pc
-
-# http://ashishpython.blogspot.co.uk/2013/12/listing-all-installed-applications-on.html
 
 # This scripts allows to get a list of all installed products in a windows
 # machine. The code uses ctypes becuase there were a number of issues when
@@ -17,6 +12,13 @@ from lib_properties import pc
 from collections import namedtuple
 from ctypes import byref, create_unicode_buffer, windll
 from ctypes.wintypes import DWORD
+
+import lib_uris
+import lib_util
+import lib_common
+from lib_properties import pc
+
+# http://ashishpython.blogspot.co.uk/2013/12/listing-all-installed-applications-on.html
 
 # defined at http://msdn.microsoft.com/en-us/library/aa370101(v=VS.85).aspx
 PROPERTY_BUFFER_SIZE = 256
@@ -97,7 +99,6 @@ def _get_property_for_product(product, property, buf_size=PROPERTY_BUFFER_SIZE):
 
 
 def populate_product(uid):
-    # sys.stderr.write("populate_product uid=%s type=%s\n" % (uid,type(uid)))
     properties = []
     for the_property in PRODUCT_PROPERTIES:
         properties.append(_get_property_for_product(uid, the_property))
@@ -110,8 +111,8 @@ def EntityOntology():
 
 
 # TODO: Is the caption the best key ?
-def MakeUri(productIdentifyingNumber):
-    return lib_common.gUriGen.UriMake("Win32_Product",productIdentifyingNumber)
+def MakeUri(product_identifying_number):
+    return lib_uris.gUriGen.UriMake("Win32_Product", product_identifying_number)
 
 
 _prop_product_install_source = lib_common.MakeProp("InstallSource")
@@ -123,22 +124,22 @@ def AddInstallSource(grph, node, win_prod):
 
     clean_install_source += win_prod.PackageName
 
-    node_install_source = lib_common.gUriGen.FileUri( clean_install_source )
+    node_install_source = lib_uris.gUriGen.FileUri(clean_install_source)
     grph.add((node, _prop_product_install_source, node_install_source))
 
 
 def AddInfo(grph, node, entity_ids_arr):
     product_identifying_number = six.u(entity_ids_arr[0])
 
-    logging.debug("productIdentifyingNumber=%s",str(product_identifying_number))
+    logging.debug("productIdentifyingNumber=%s", str(product_identifying_number))
     try:
         win_prod = populate_product(product_identifying_number)
 
-        logging.debug("win_prod=%s",str(win_prod))
+        logging.debug("win_prod=%s", str(win_prod))
 
         AddInstallSource(grph,node,win_prod)
 
-        node_local_package = lib_common.gUriGen.FileUri(win_prod.LocalPackage)
+        node_local_package = lib_uris.gUriGen.FileUri(win_prod.LocalPackage)
         grph.add((node, lib_common.MakeProp("LocalPackage"), node_local_package))
 
         if win_prod.RegCompany:
@@ -152,7 +153,7 @@ def AddInfo(grph, node, entity_ids_arr):
             grph.add((node, lib_common.MakeProp("ProductID"), lib_util.NodeLiteral(win_prod.ProductID)))
 
         if win_prod.ProductIcon:
-            node_product_icon = lib_common.gUriGen.FileUri(win_prod.ProductIcon)
+            node_product_icon = lib_uris.gUriGen.FileUri(win_prod.ProductIcon)
             grph.add((node, lib_common.MakeProp("ProductIcon"), node_product_icon))
 
         grph.add((node, lib_common.MakeProp("PackageName"), lib_util.NodeLiteral(win_prod.PackageName)))
@@ -192,7 +193,7 @@ def AddInfo(grph, node, entity_ids_arr):
 
 # Each entity can have such a file with its name as file name.
 # Then in its file, by convention adds information to a node.
-def AddInfo_DEPRECATED(grph,node,entity_ids_arr):
+def AddInfo_DEPRECATED(grph,node, entity_ids_arr):
     productCaption = entity_ids_arr[0]
 
     try:
@@ -246,13 +247,13 @@ def AddInfo_DEPRECATED(grph,node,entity_ids_arr):
         logging.debug("nbProds=%d", nbProds)
         if nbProds > 0:
             winProd = winProds[0]
-            nodeInstallSource = lib_common.gUriGen.FileUri( winProd.InstallSource )
+            nodeInstallSource = lib_uris.gUriGen.FileUri( winProd.InstallSource )
             grph.add((node, lib_common.MakeProp("InstallSource"), nodeInstallSource ) )
 
-            nodeLocalPackage = lib_common.gUriGen.FileUri( winProd.LocalPackage)
+            nodeLocalPackage = lib_uris.gUriGen.FileUri( winProd.LocalPackage)
             grph.add((node, lib_common.MakeProp("LocalPackage"), nodeLocalPackage))
 
-            nodePackageCache = lib_common.gUriGen.FileUri( winProd.PackageCache)
+            nodePackageCache = lib_uris.gUriGen.FileUri( winProd.PackageCache)
             grph.add((nodePackageCache, lib_common.MakeProp("PackageName"), lib_util.NodeLiteral(winProd.PackageName)))
             grph.add((nodePackageCache, lib_common.MakeProp("PackageCode"), lib_util.NodeLiteral(winProd.PackageCode)))
             grph.add((node, lib_common.MakeProp("LocalPackage"), nodePackageCache ) )

@@ -35,8 +35,6 @@ def Main():
 
     py_fil_nam = cgiEnv.GetId()
 
-    # sys.stderr.write("dbFilNam=%s\n"%dbFilNam)
-
     grph = cgiEnv.GetGraph()
 
     # filNode = lib_uris.gUriGen.FileUri(py_fil_nam)

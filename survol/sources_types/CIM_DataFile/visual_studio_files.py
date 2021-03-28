@@ -9,6 +9,8 @@ Visual studio files.
 import os
 import os.path
 import sys
+
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -53,7 +55,7 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    fil_node = lib_common.gUriGen.FileUri(java_fil_nam)
+    fil_node = lib_uris.gUriGen.FileUri(java_fil_nam)
 
     try:
         _add_java_associated_files(grph, fil_node, java_fil_nam)
