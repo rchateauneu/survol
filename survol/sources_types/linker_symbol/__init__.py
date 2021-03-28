@@ -40,7 +40,7 @@ def AddInfo(grph, node, entity_ids_arr):
         file_name = ""
 
     # WRONG, TODO: Must check the node ???
-    file_node = lib_common.gUriGen.FileUri(file_name)
+    file_node = lib_uris.gUriGen.FileUri(file_name)
     grph.add((file_node, pc.property_symbol_defined, node))
 
 
@@ -50,7 +50,7 @@ def AddInfo(grph, node, entity_ids_arr):
 def AddFunctionCall(grph, call_node_prev, proc_node, call_name, file_name, code_location=None):
     logging.debug("file_name=%s", file_name)
     if call_name != None:
-        call_node_new = lib_common.gUriGen.SymbolUri(call_name, file_name)
+        call_node_new = lib_uris.gUriGen.SymbolUri(call_name, file_name)
         if not call_node_prev is None:
             # Intermediary function in the callstack.
             grph.add((call_node_new, pc.property_calls, call_node_prev))

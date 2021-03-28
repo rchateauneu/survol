@@ -21,6 +21,7 @@ import re
 import os
 import sys
 
+import lib_uris
 import lib_smbclient
 import lib_util
 import lib_common
@@ -34,7 +35,7 @@ def Main():
     paramkey_password = "Password"
 
     cgiEnv = lib_common.ScriptEnvironment(
-        { paramkey_password : "" } )
+        {paramkey_password: "" })
 
     if lib_util.isPlatformWindows:
         lib_common.ErrorMessageHtml("smbclient not available on Windows")
@@ -42,7 +43,7 @@ def Main():
     smb_shr = cgiEnv.GetId()
     password = cgiEnv.get_parameters(paramkey_password)
 
-    node_smb_shr = lib_common.gUriGen.SmbShareUri(smb_shr)
+    node_smb_shr = lib_uris.gUriGen.SmbShareUri(smb_shr)
 
     grph = cgiEnv.GetGraph()
 

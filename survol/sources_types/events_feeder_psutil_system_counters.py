@@ -11,6 +11,7 @@ import psutil
 import rdflib
 import logging
 
+import lib_uris
 import lib_kbase
 import lib_util
 import lib_common
@@ -87,7 +88,7 @@ def Snapshot():
 
     property_system_counters = lib_properties.MakeProp("system_counters")
 
-    current_node_hostname = lib_common.gUriGen.HostnameUri(lib_util.currentHostname)
+    current_node_hostname = lib_uris.gUriGen.HostnameUri(lib_util.currentHostname)
 
     # TODO: pc.property_information is the default property for sorting.
     # TODO: This could use a specific timestamp property, for example "point in time" P585
