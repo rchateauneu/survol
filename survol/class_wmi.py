@@ -115,8 +115,6 @@ def Main():
                 logging.warning("Exception %s", str(exc))
                 continue
 
-            # sys.stderr.write("full_pth=%s\n" % full_pth)
-
             if full_pth == "":
                 logging.warning("Empty path wmi_obj=%s", str(wmi_obj))
                 # The class Win32_PnPSignedDriver (Maybe others) generates dozens of these messages.

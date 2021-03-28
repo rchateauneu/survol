@@ -634,7 +634,6 @@ def CIM_class_factory_no_cache(class_name):
         # Python 2 does not want Unicode class name.
         class_name = class_name.encode()
 
-    # sys.stderr.write("className: %s/%s\n"%(str(type(className)),className))
     newclass = type(class_name, (BaseCIMClass,), {"__init__": Derived__init__})
     newclass.m_instances_cache = {}
     return newclass

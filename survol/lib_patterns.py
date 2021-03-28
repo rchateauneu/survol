@@ -80,8 +80,6 @@ ColorLighter.CacheMap = dict()
 # For example "Win32_Service", "oracle/package"
 # TODO: Should use lib_util.HierarchicalFunctionSearch
 def TypeToGraphParams(type_without_ns):
-    # sys.stderr.write("lib_patterns.TypeToGraphParams type_without_ns=%s keys=%s\n"%(type_without_ns,str(_dict_graph_params.keys())))
-
     # Safety check.
     if type_without_ns.find(".") >= 0:
         raise "Invalid type_without_ns=%s" % type_without_ns

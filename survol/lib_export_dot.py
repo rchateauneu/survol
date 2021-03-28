@@ -28,19 +28,16 @@ def _truncate_in_space(lab_text, max_len_lab):
     """
     if len(lab_text) > max_len_lab:
         idx = lab_text.find(" ", max_len_lab)
-        # sys.stderr.write("idx=%d\n"%idx)
         if idx < 0:
             idx = max_len_lab
 
             # BEWARE: This must not fall in the middle of an html entity "&amp;", etc... ...
             idx_semi_colon = lab_text.find(";", idx)
-            # sys.stderr.write("idx_semi_colon=%d\n"%idx_semi_colon)
             if idx_semi_colon < 0:
                 idx = max_len_lab
             else:
                 idx = idx_semi_colon + 1 # Just after the semi-colon.
 
-        # sys.stderr.write("labText=%s idx=%d\n"%(labText,idx))
         return lab_text[:idx]
     else:
         return lab_text
@@ -147,7 +144,6 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
         if isinstance(val, (list, tuple)):
             # If this is an empty list or tuple.
             if not val:
-                # return "(Empty)"
                 # Empty set character in UTF8
                 return "{" + "&#x2205;" + "}"
             if depth % 2 == 0:
@@ -214,7 +210,6 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
             else:
                 key_qname = lib_kbase.qname(key, grph)
                 # This assumes: type(val) == 'rdflib.term.Literal'
-                # sys.stderr.write("FORMAT ELEMENT: %s\n" %(dir(val)))
                 if lib_kbase.IsLiteral(val):
                     curr_td = _format_pair(key_qname, val.value)
                 else:
@@ -248,11 +243,8 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
     # Called mainly from entity.py. If S points vers O, transforms "O" => "R_S:O"
     # Accordingly we create an edge: "S" => "R_S"
     def subj_nam_from_collapsed(collaps_prop_nam, subj_nam):
-        #sys.stderr.write("ADDING1 subj_nam=%s collaps_prop_nam=%s\n" % (subj_nam,collaps_prop_nam))
         collapsed_subj_nam = dict_collapsed_object_labels_to_subject_labels[subj_nam][collaps_prop_nam]
-        #sys.stderr.write("ADDING2 subj_nam=%s collaps_prop_nam=%s\n" % (subj_nam,collaps_prop_nam))
         new_subj_nam = collapsed_label(collaps_prop_nam, collapsed_subj_nam) + ":" + subj_nam
-        #sys.stderr.write("ADDED collapsed_subj_nam=%s new_subj_nam=%s collaps_prop_nam=%s\n" % (collapsed_subj_nam,new_subj_nam,collaps_prop_nam))
         return new_subj_nam
 
     # This is sorted so the result is deterministic. Very small performance impact.
@@ -361,7 +353,6 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
                     prop_nam = lib_exports.PropToShortPropNam(prop)
                     subj_nam = subj_nam_from_collapsed(prop_nam, subj_nam)
                 except KeyError:
-                    # sys.stderr.write("PASS subj_nam=%s obj_nam=%s\n"%(subj_nam,obj_nam))
                     pass
 
                 stream.write(_pattern_edge_oriented % (subj_nam, obj_nam, prp_col, lib_kbase.qname(prop, grph)))
@@ -817,7 +808,7 @@ def write_dot_header(page_title, layout_style, stream, grph):
     # twopi - radial layouts, after Graham Wills 97. Nodes are placed on concentric circles depending their distance from a given root node.
     # circo - circular layout, after Six and Tollis 99, Kauffman and Wiese 02. This is suitable for certain diagrams of multiple cyclic structures, such as certain telecommunications networks.
     # This is a style more than a dot layout.
-    # sys.stderr.write("Lay=%s\n" % (layout_style) )
+
     if layout_style == "LAYOUT_RECT":
         dot_layout = "dot"
         # Very long lists: Or very flat tree.
