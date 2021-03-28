@@ -8,6 +8,8 @@ import os
 import os.path
 import sys
 import logging
+
+import lib_uris
 import lib_util
 import lib_win32
 import lib_common
