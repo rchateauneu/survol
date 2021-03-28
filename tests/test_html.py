@@ -30,7 +30,6 @@ class HtmlCommon(unittest.TestCase):
         It does not intent to be very exact, but just checks that the HTML display runs.
         Some strings must be displayed."""
         html_page_content = self._check_script("/survol/entity.py")
-
         self.assertTrue(b'<title>Overview entity.py</title>' in html_page_content)
 
     def base_html_file_directory(self):
@@ -39,14 +38,11 @@ class HtmlCommon(unittest.TestCase):
         Some strings must be displayed."""
         html_page_content = self._check_script(
             "/survol/sources_types/CIM_Directory/file_directory.py?xid=CIM_Directory.Name=/usr/lib")
-
         self.assertTrue(b'<title>Files in directory' in html_page_content)
-
 
     def base_hostname_shares_smbclient(self):
         """This script might often return an error depending on the platform.
         But it must always return a correct page HTML."""
-
         html_page_content = self._check_script(
             "/survol/sources_types/CIM_ComputerSystem/hostname_shares_smbclient.py")
 
@@ -75,6 +71,21 @@ class HtmlLocalAgentTest(HtmlCommon):
 
     def test_hostname_shares_smbclient(self):
         self.base_hostname_shares_smbclient()
+
+    def test_edit_configuration(self):
+        html_page_content = self._check_script(
+            "/survol/edit_configuration.py")
+        self.assertTrue(b'Edit Survol configuration' in html_page_content)
+
+    def test_edit_credentials(self):
+        html_page_content = self._check_script(
+            "/survol/edit_credentials.py")
+        # This might return an error page if the supervisor is not started but it must respond.
+
+    def test_edit_supervisor(self):
+        html_page_content = self._check_script(
+            "/survol/edit_supervisor.py")
+        # This might return an error page but it must respond.
 
 
 class HtmlRemoteAgentTest(HtmlCommon):
