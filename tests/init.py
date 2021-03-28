@@ -127,15 +127,22 @@ CurrentExecutablePath = 'CIM_DataFile.Name=%s' % CurrentExecutable
 def __dump_server_content(log_filename):
     """This is called at the end of the execution of a Survol agent created here for tests.
     It displays the content of a log file created by this agent."""
-    sys.stdout.write("Agent log file: %s\n" % log_filename)
     try:
         agent_stream = open(log_filename)
-        for line_stream in agent_stream:
+        log_lines = agent_stream.readlines()
+
+        # Maybe nothing special happened so it is not worth printing the content.
+        if len(log_lines) == 2 \
+                and log_lines[0].startswith("survol\scripts\cgiserver.py") \
+                and log_lines[1].startswith("survol\scripts\cgiserver.py startup"):
+            return
+        sys.stdout.write("Agent log file: %s\n" % log_filename)
+        for line_stream in log_lines:
             sys.stdout.write(">>> %s" % line_stream)
         agent_stream.close()
         sys.stdout.write("Agent log file end\n")
     except Exception as exc:
-        sys.stdout.write("No agent log file:%s\n" % exc)
+        logging.error("No agent log file:%s" % exc)
 
 
 def is_pytest():
