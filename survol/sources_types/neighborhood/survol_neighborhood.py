@@ -20,7 +20,7 @@ from sources_types import neighborhood as survol_neighborhood
 
 def _add_survol_node(grph, host_survol, url_survol_clean):
     logging.debug("AddSurvolNode hostSurvol=%s", host_survol)
-    survol_host_node = lib_common.gUriGen.HostnameUri(host_survol)
+    survol_host_node = lib_uris.gUriGen.HostnameUri(host_survol)
 
     curr_disp_mode = lib_util.GuessDisplayMode()
 

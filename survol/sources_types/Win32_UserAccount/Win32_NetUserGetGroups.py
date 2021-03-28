@@ -31,12 +31,14 @@ Groups of a Windows user
 
 import sys
 import logging
+
+import win32net
+
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
 import lib_win32
-
-import win32net
 
 from sources_types import Win32_Group as survol_Win32_Group
 from sources_types import Win32_UserAccount as survol_Win32_UserAccount
@@ -47,59 +49,56 @@ CanProcessRemote = True
 
 
 def Main():
-	cgiEnv = lib_common.ScriptEnvironment(can_process_remote = True)
+    cgiEnv = lib_common.ScriptEnvironment(can_process_remote=True)
 
-	try:
-		# Exception if local machine.
-		hostName = cgiEnv.m_entity_id_dict["Domain"]
-	except KeyError:
-		hostName = None
+    try:
+        # Exception if local machine.
+        host_name = cgiEnv.m_entity_id_dict["Domain"]
+    except KeyError:
+        host_name = None
 
-	if lib_util.is_local_address(hostName):
-		serverBox = lib_common.gUriGen
-		serverNode = lib_common.nodeMachine
-		servName_or_None = None
-	else:
-		serverBox = lib_common.RemoteBox(hostName)
-		serverNode = lib_common.gUriGen.HostnameUri(hostName)
-		servName_or_None = hostName
+    if lib_util.is_local_address(host_name):
+        server_box = lib_uris.gUriGen
+        serv_name_or_none = None
+    else:
+        server_box = lib_common.RemoteBox(host_name)
+        serv_name_or_none = host_name
 
-		# hostname = "Titi" for example
-		try:
-			lib_win32.WNetAddConnect(hostName)
-		except:
-			lib_common.ErrorMessageHtml("Error WNetAddConnect %s:%s"%(hostName,str(sys.exc_info())))
+        try:
+            lib_win32.WNetAddConnect(host_name)
+        except Exception as exc:
+            lib_common.ErrorMessageHtml("Error WNetAddConnect %s:%s" % (host_name, str(exc)))
 
+    user_name = cgiEnv.m_entity_id_dict["Name"]
 
-	userName = cgiEnv.m_entity_id_dict["Name"]
+    logging.debug("host_name=%s user_name=%s", host_name, user_name)
 
-	logging.debug("hostName=%s userName=%s",hostName,userName)
+    grph = cgiEnv.GetGraph()
 
-	grph = cgiEnv.GetGraph()
+    node_user = survol_Win32_UserAccount.MakeUri(user_name, host_name)
 
-	nodeUser = survol_Win32_UserAccount.MakeUri( userName, hostName )
+    # TODO: And NetUserGetGroups ??
 
-	# TODO: Quid de NetUserGetGroups ??
+    # [(group_name, attribute), ...] = NetUserGetGroups(serverName, user_name )
+    try:
+        resu_list = win32net.NetUserGetLocalGroups(serv_name_or_none, user_name)
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("Error:user_name=" + user_name
+                                + ":serv_name_or_none=" + str(serv_name_or_none) + ":" + str(exc))
 
-	# [(groupName, attribute), ...] = NetUserGetGroups(serverName, userName )
-	try:
-		resuList = win32net.NetUserGetLocalGroups(servName_or_None,userName)
-	except:
-		lib_common.ErrorMessageHtml("Error:userName="+userName+":servName_or_None="+str(servName_or_None)+":"+str(sys.exc_info()))
+    for group_name in resu_list:
+        node_group = survol_Win32_Group.MakeUri(group_name, host_name)
+        grph.add((node_user, pc.property_group, node_group))
 
-	for groupName in resuList:
-		nodeGroup = survol_Win32_Group.MakeUri( groupName, hostName )
-		grph.add( ( nodeUser, pc.property_group, nodeGroup ) )
+        if host_name:
+            node_group_remote = server_box.UriMakeFromDict("Win32_Group", {"Name": group_name, "Domain": host_name})
+            # TODO: Instead, both object must have the same universal alias
+            grph.add((node_group, pc.property_alias, node_group_remote))
 
-		if hostName:
-			nodeGroupRemote = serverBox.UriMakeFromDict("Win32_Group", { "Name" : groupName, "Domain" : hostName } )
-			# TODO: Instead, both object must have the same universal alias
-			grph.add( (nodeGroup, pc.property_alias, nodeGroupRemote ) )
-
-	cgiEnv.OutCgiRdf()
+    cgiEnv.OutCgiRdf()
 
 
 if __name__ == '__main__':
-	Main()
+    Main()
 
 

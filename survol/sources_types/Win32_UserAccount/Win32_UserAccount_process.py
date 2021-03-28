@@ -18,10 +18,10 @@ Usable = lib_util.UsableWindows
 
 # This script can work locally only.
 
+
 def Main():
     cgiEnv = lib_common.ScriptEnvironment()
 
-    # userNameWithHost = cgiEnv.GetId()
     # Usernames have the syntax user@host
     # Example: UK936025@LONW00052257.euro.net.intra
 
@@ -34,7 +34,7 @@ def Main():
         user_host = lib_util.currentHostname
 
     if user_host:
-        if not lib_util.is_local_address( user_host ):
+        if not lib_util.is_local_address(user_host):
             # TODO: Should interrogate other host with "finger" protocol.
             # Cannot get user properties on different host:mymachine than mymachine.home
             lib_common.ErrorMessageHtml("Cannot get user properties on different host:%s than %s"
@@ -86,10 +86,10 @@ def Main():
         # We avoid duplicating the edges. Why would the RFD merge do?
         grph.add((node_process, pc.property_ppid, parent_node_process))
         grph.add((node_process, pc.property_pid, lib_util.NodeLiteral(pid)))
-        # grph.add( ( node_process, pc.property_information, lib_util.NodeLiteral(proc_username) ) )
+        # grph.add((node_process, pc.property_information, lib_util.NodeLiteral(proc_username)))
 
     # We avoid duplicating the edges. Why would the RFD merge do?
-    ############ grph.add( ( node_process, pc.property_ppid, parent_node_process ) )
+    ############ grph.add((node_process, pc.property_ppid, parent_node_process))
 
     cgiEnv.OutCgiRdf()
 

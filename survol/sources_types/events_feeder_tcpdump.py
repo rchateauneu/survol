@@ -10,10 +10,13 @@ import os
 import re
 import sys
 import time
+
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
 import subprocess
+
 
 # This parses the output of "tcpdump" or "WinDump.exe" if on Windows.
 def _parse_tcpdump_line(grph, line):
@@ -22,20 +25,20 @@ def _parse_tcpdump_line(grph, line):
     # 22:39:56.713245 IP BThomehub.home.domain > Unknown-00-18-e7-08-02-81.home.47676: 52407* 1/0/0 (87)
     if spl[1] == 'IP':
 
-        addrRegex = r'(.*)\.([^.]*)'
+        addr_regex = r'(.*)\.([^.]*)'
 
         # Maybe we should have a commutative relation?
-        lMatchAddr = re.match( addrRegex, spl[2], re.M|re.I)
-        if not lMatchAddr:
+        l_match_addr = re.match(addr_regex, spl[2], re.M|re.I)
+        if not l_match_addr:
             return
-        lsocketNode = lib_common.gUriGen.AddrUri( lMatchAddr.group(1), int(lMatchAddr.group(2)) )
+        lsocket_node = lib_uris.gUriGen.AddrUri(l_match_addr.group(1), int(l_match_addr.group(2)))
 
-        rMatchAddr = re.match( addrRegex, spl[4][:-1], re.M|re.I)
-        if not rMatchAddr:
+        r_match_addr = re.match(addr_regex, spl[4][:-1], re.M|re.I)
+        if not r_match_addr:
             return
-        rsocketNode = lib_common.gUriGen.AddrUri( rMatchAddr.group(1), int(rMatchAddr.group(2)) )
+        rsocket_node = lib_uris.gUriGen.AddrUri(r_match_addr.group(1), int(r_match_addr.group(2)))
 
-        grph.add( ( lsocketNode, pc.property_socket_end, rsocketNode ) )
+        grph.add((lsocket_node, pc.property_socket_end, rsocket_node))
 
 
 def _get_tcmp_dump_command():
@@ -54,9 +57,9 @@ def Snapshot(loop_number=1):
     cgiEnv = lib_common.ScriptEnvironment()
     proc_open = None
     try:
-        sys.stderr.write("tcpdump_cmd=%s\n" % str(tcpdump_cmd))
+        logging.debug("tcpdump_cmd=%s" % str(tcpdump_cmd))
         proc_popen = subprocess.Popen(tcpdump_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
-        sys.stderr.write("tcpdump started pid=i%d\n" % proc_open.pid)
+        logging.debug("tcpdump started pid=i%d" % proc_open.pid)
         for lin in proc_popen.stdout.readlines():
             if not lin:
                 continue
@@ -68,19 +71,19 @@ def Snapshot(loop_number=1):
             if loop_number == 0:
                 break
     except Exception as exc:
-        sys.stderr.write("tcpdump. Caught:%s\n" % str(exc))
+        logging.debug("tcpdump. Caught:%s" % str(exc))
         lib_common.ErrorMessageHtml("tcpdump error:%s" % str(exc))
     finally:
-        sys.stderr.write("tcpdump. Ending\n")
+        logging.debug("tcpdump. Ending")
         if proc_open:
-            sys.stderr.write("tcpdump. Killing subprocess\n")
+            logging.debug("tcpdump. Killing subprocess")
             proc_open.kill()
             stdout_data, stderr_data = proc_open.communicate()
-            sys.stderr.write("tcpdump. stdout_data=%s\n" % stdout_data)
-            sys.stderr.write("tcpdump. stderr_data=%s\n" % stderr_data)
+            logging.debug("tcpdump. stdout_data=%s" % stdout_data)
+            logging.debug("tcpdump. stderr_data=%s" % stderr_data)
             proc_open.terminate()
         else:
-            sys.stderr.write("tcpdump. Subprocess not started\n")
+            logging.debug("tcpdump. Subprocess not started")
 
 
 def Main():
