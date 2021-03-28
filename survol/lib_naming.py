@@ -58,7 +58,6 @@ def EntityToLabel(entity_type, entity_ids_concat, force_entity_ip_addr):
     entity_id=Dependent=root/cimv2:LMI_StorageExtent.CreationClassName="LMI_StorageExtent",SystemCreationClassName="PG_ComputerSystem" Antecedent=root/cimv2:LMI_DiskDrive.CreationClassName="LMI_DiskDrive",DeviceID="/dev/sda"
     This is not easy to manage but avoids ambiguities.
     """
-    #sys.stderr.write("EntityToLabel entity_id=%s entity_type=%s\n" % ( entity_ids_concat, entity_type ) )
 
     # Specific case of objtypes.py
     if not entity_ids_concat:
@@ -206,7 +205,6 @@ def ParseEntityUriWithHost(uri_with_mode, long_display=True, force_entity_ip_add
     Example:
     (labText, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri(the_url)
     """
-    #sys.stderr.write("ParseEntityUri uri_with_mode=%s\n"%uri_with_mode)
 
     # Maybe there is a host name before the entity type. It can contain letters, numbers,
     # hyphens, dots etc... but no ":" or "@".

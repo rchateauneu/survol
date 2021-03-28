@@ -56,8 +56,6 @@ def WbemBuildMonikerPath( entity_namespace, entity_type, entity_id):
 
 
 def WbemInstanceUrl(entity_namespace, entity_type, entity_id, cimom_srv):
-    # sys.stderr.write("WbemInstanceUrl %s %s %s %s\n" % (entity_namespace, entity_type, entity_id, cimomSrv))
-
     wbem_full_path = WbemBuildMonikerPath(entity_namespace, entity_type, entity_id)
 
     if wbem_full_path is None:
@@ -180,17 +178,13 @@ def GetWbemUrls(entity_host, entity_namespace, entity_type, entity_id):
 
     # FIXME: entity_namespace might have a wrong separator, slash or backslash.
 
-    # sys.stderr.write("GetWbemUrls entity_host=%s\n" % (entity_host))
-
     # TODO: Should check that the WBEM class exists in the server ?
     for wbem_server in WbemServersList():
         # wbem_server=(u'vps516494.ovh.net', u'http://vps516494.ovh.net:5988')
-        #sys.stderr.write("GetWbemUrls wbem_server=%s\n"%str(wbem_server))
         # If no host specified, returns everything.
         if entity_host:
             # wbem_server[1].lower()=vps516494.ovh.net entity_host.lower()=http://vps516494.ovh.net:5988
             if entity_host.lower() != wbem_server[0].lower():
-                #sys.stderr.write("GetWbemUrls different wbem_server=%s entity_host=%s\n"%(str(wbem_server[1].lower()),entity_host.lower()))
                 continue
 
         logging.debug("GetWbemUrls found wbem_server=%s", str(wbem_server))
@@ -204,7 +198,6 @@ def GetWbemUrls(entity_host, entity_namespace, entity_type, entity_id):
         # Maybe a bad collapsing of URL ?
         the_cimom = lib_credentials.key_url_cgi_encode(the_cimom)
 
-        # On suppose que les classes sont les memes.
         if entity_type == "":
             # TODO: This should rather display all classes for this namespace.
             wbem_url = WbemAllNamespacesUrl(the_cimom)
@@ -322,7 +315,6 @@ def NamespacesEnumeration(conn):
                     continue
                 else:
                     # Caught local variable 'url_' referenced before assignment
-                    #sys.stderr.write("NamespacesEnumeration Caught %s\n"%str(arg[0]))
                     raise
             if len(nsinsts) > 0:
                 break
@@ -366,12 +358,10 @@ def GetCapabilitiesForInstrumentation(conn, nam_spac):
     last_error = AssertionError("No interop namespace found")
     for interopns in ('root/PG_InterOp', 'root/interop'):
         try:
-            # sys.stderr.write("GetCapabilitiesForInstrumentation namSpac=%s interopns=%s\n" % (namSpac,interopns))
             caps = conn.EnumerateInstances(
                             ClassName='PG_ProviderCapabilities',
                             namespace=interopns,
                             PropertyList=['Namespaces', 'ClassName'])
-            # sys.stderr.write("GetCapabilitiesForInstrumentation len=%d caps=%s\n" % ( len(caps), str(caps) ) )
             break
         except Exception as exc:
             logging.error("GetCapabilitiesForInstrumentation exc=%s", str(exc))
@@ -499,7 +489,6 @@ def GetClassesTreeInstrumented(conn, the_nam_space):
         # sys.stderr.write("After GetClassesTree inTreeClass = %d elements\n" % len(inTreeClass))
         out_tree_class = dict()
         instr_cla = GetCapabilitiesForInstrumentation(conn, the_nam_space)
-        # sys.stderr.write("After GetCapabilitiesForInstrumentation instr_cla = %d elements\n" % len(instr_cla))
         MakeInstrumentedRecu(in_tree_class, out_tree_class, None, the_nam_space, instr_cla)
     except Exception as exc:
         lib_common.ErrorMessageHtml("Instrumented classes: ns=" + the_nam_space + " Caught:" + str(exc))

@@ -141,7 +141,6 @@ def _create_wmi_node(grph, root_node, entity_host, name_space, class_name, entit
         grph.add((wmi_node, lib_common.MakeProp("WMI Error"), lib_util.NodeLiteral(err_msg)))
 
     url_name_space = lib_wmi.NamespaceUrl(name_space, ip_only, class_name)
-    # sys.stderr.write("entity_host=%s url_name_space=%s\n"%(entity_host,url_name_space))
     grph.add((wmi_node, pc.property_information, lib_common.NodeUrl(url_name_space)))
 
     return pair_name_node

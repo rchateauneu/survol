@@ -204,7 +204,6 @@ def HttpPrefix():
     # does not look like a valid URI, trying to serialize this will break.
     # But if we do not add "http:" etc... SVG adds its prefix "127.0.0.1" etc...
     prfx = 'http://' + server_addr + ':' + server_port
-    # sys.stderr.write("HttpPrefix server_addr=%s prfx=%s\n"%(server_addr,prfx))
     return prfx
 
 
@@ -229,13 +228,13 @@ def UriRootHelper():
     try:
         # SCRIPT_NAME=/PythonStyle/survol/internals/print.py
         # SCRIPT_NAME=/survol/print_environment_variables.py
-        scriptNam=os.environ['SCRIPT_NAME']
-        idx = scriptNam.find('survol')
+        script_nam = os.environ['SCRIPT_NAME']
+        idx = script_nam.find('survol')
         if idx >= 0:
-            root = scriptNam[:idx] + 'survol'
+            root = script_nam[:idx] + 'survol'
         else:
             # Should not happen.
-            root = "/NON_SURVOL_URL/" + scriptNam
+            root = "/NON_SURVOL_URL/" + script_nam
 
     except KeyError:
         # If this runs from the command line and not as a CGI script,
@@ -557,14 +556,11 @@ def _parse_xid_wmi(xid):
         entity_host = grp[0]
         entity_type = grp[1] + "\\" + grp[2]
         entity_id_quoted = grp[3]
-        # ( entity_host, entity_type, entity_id_quoted ) = grp
         if entity_id_quoted is None:
             entity_id = ""
-            # sys.stderr.write("WMI Class Cimom=%s ns_type=%s\n" % ( entity_host, entity_type ))
         else:
             # Remove the dot which comes after the class name.
             entity_id = urllib_unquote(entity_id_quoted)[1:]
-            # sys.stderr.write("WMI Object Cimom=%s ns_type=%s path=%s\n" % ( entity_host, entity_type, entity_id ))
 
         return entity_type, entity_id, entity_host
 
@@ -578,11 +574,9 @@ def _parse_xid_wmi(xid):
         entity_id_quoted = grp[2]
         if entity_id_quoted is None:
             entity_id = ""
-            # sys.stderr.write("WMI Class Cimom=%s ns_type=%s\n" % ( entity_host, entity_type ))
         else:
             # Remove the dot which comes after the class name.
             entity_id = urllib_unquote(entity_id_quoted)[1:]
-            # sys.stderr.write("WMI Object Cimom=%s ns_type=%s path=%s\n" % ( entity_host, entity_type, entity_id ))
 
         return entity_type, entity_id, entity_host
 
@@ -596,17 +590,14 @@ def _parse_xid_wbem(xid):
     # "xid=http://192.168.1.88:5988/."
     mtch_ent_wbem = re.match(r"(https?://[^/]*)/([^.]*)(\..*)?", xid)
     if mtch_ent_wbem:
-        #sys.stderr.write("mtch_ent_wbem\n")
         grp = mtch_ent_wbem.groups()
-        (entity_host, entity_type, entity_id_quoted) = grp
+        entity_host, entity_type, entity_id_quoted = grp
         # TODO: SAME LOGIC FOR THE TWO OTHER CASES !!!!!!!!!!!!!!
         if entity_id_quoted is None:
             entity_id = ""
-            # sys.stderr.write("WBEM Class Cimom=%s ns_type=%s\n" % ( entity_host, entity_type ))
         else:
             # Remove the dot which comes after the class name.
             entity_id = urllib_unquote(entity_id_quoted)[1:]
-            # sys.stderr.write("WBEM Object Cimom=%s ns_type=%s path=%s\n" % ( entity_host, entity_type, entity_id ))
 
         return entity_type, entity_id, entity_host
 
@@ -1200,8 +1191,6 @@ _local_ontology = {
 
 
 def OntologyClassKeys(entity_type):
-    # sys.stderr.write("OntologyClassKeys entity_type=%s Caller=%s\n"%(entity_type, sys._getframe(1).f_code.co_name))
-
     try:
         # TODO: If cannot find it, load the associated module and retry.
         return _local_ontology[entity_type][0]
@@ -1227,9 +1216,7 @@ def EntityIdToArray(entity_type, entity_id):
     """Used for calling ArrayInfo. The order of arguments is strictly the ontology's.
     It extracts the values of the ontology parameters and returns them in a list."""
     onto_keys = OntologyClassKeys(entity_type)
-    #sys.stderr.write("lib_util.EntityIdToArray entity_type=%s entity_id=%s\n"%(entity_type,entity_id))
     dict_ids = SplitMoniker(entity_id)
-    # sys.stderr.write("EntityIdToArray dict_ids=%s\n" % ( str(dict_ids) ) )
     # For the moment, this assumes that all keys are here.
     # Later, drop this constraint and allow WQL queries.
     try:
@@ -1240,7 +1227,6 @@ def EntityIdToArray(entity_type, entity_id):
                 return val_decod
             except AttributeError:
                 return urllib_unquote(a_val_raw)
-                # return a_val_raw
         return [decode_cgi_arg(a_key) for a_key in onto_keys]
     except KeyError:
         gblLogger.error("EntityIdToArray missing key: type=%s id=%s onto=%s", entity_type, entity_id, str(onto_keys))
@@ -1401,8 +1387,6 @@ def SplitMoniker(xid):
             mtch_equal_no_quote = re.match(r'([A-Z0-9a-z_]+)=(.*)', splt_wrd)
             if mtch_equal_no_quote:
                 resu[mtch_equal_no_quote.group(1)] = mtch_equal_no_quote.group(2)
-
-    # sys.stderr.write("SplitMoniker resu=%s\n" % str(resu) )
 
     return resu
 
