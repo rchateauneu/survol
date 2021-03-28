@@ -7,6 +7,8 @@ PEFile information
 import sys
 import pefile
 import logging
+
+import lib_uris
 import lib_util
 import lib_common
 
@@ -89,7 +91,7 @@ def Main():
             # sys.stderr.write("pe_sect.Name=%s\n"%pe_sect.Name)
 
             # Without the string: "Section=.data\0\0\0"
-            node_sect = survol_pe_section.MakeUri(win_module,pe_sect.Name.rstrip("\0"))
+            node_sect = survol_pe_section.MakeUri(win_module,pe_sect.Name.rstrip(b"\0"))
 
             grph.add((fil_node, prop_section, node_sect))
             grph.add((node_sect, prop_virtual_address, lib_util.NodeLiteral(pe_sect.VirtualAddress)))
