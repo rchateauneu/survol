@@ -128,11 +128,6 @@ def Main():
             logging.debug("Explicit WMI connection machine_name=%s", machine_name)
 
             cnnct = lib_wmi.WmiConnect(machine_name, "/root/cimv2")
-
-            #(wmiUser,wmiPass) = lib_credentials.GetCredentials("WMI",machine_name)
-            #sys.stderr.write("machine_name= %wmiUser=%s\n" % ( machine_name, wmiUser ) )
-            #cnnct = wmi.WMI(wmi=wmi.connect_server(server=machine_name, namespace="/root/cimv2", user=wmiUser, password=wmiPass))
-
     except Exception as exc:
         lib_common.ErrorMessageHtml("WMI " + machine_name + " partitions:" + str(exc))
 
@@ -155,7 +150,7 @@ def Main():
                 grph.add((server_box.DirectoryUri(logical_disk.Name), pc.property_mount, node_partition))
 
     cgiEnv.OutCgiRdf()
-  
+
 
 if __name__ == '__main__':
     Main()

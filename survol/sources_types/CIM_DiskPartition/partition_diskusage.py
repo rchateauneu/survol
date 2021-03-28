@@ -8,6 +8,8 @@ import os
 import sys
 import time
 import psutil
+
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -17,7 +19,7 @@ def Main():
     cgiEnv = lib_common.ScriptEnvironment()
     partition_nam = cgiEnv.GetId()
 
-    partition_node = lib_common.gUriGen.DiskPartitionUri(partition_nam)
+    partition_node = lib_uris.gUriGen.DiskPartitionUri(partition_nam)
 
     grph = cgiEnv.GetGraph()
 

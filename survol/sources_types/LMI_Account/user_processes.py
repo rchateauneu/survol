@@ -57,7 +57,6 @@ def Main():
     for proc in psutil.process_iter():
         proc_username = CIM_Process.PsutilProcToUser(proc)
 
-        # sys.stderr.write("proc_username=%s user_name=%s\n" % ( proc_username, user_name ) )
         # proc_username=EURO\\UK936025 user_name=UK936025
         # proc_username=NT AUTHORITY\\NETWORK SERVICE
         # proc_username=NT AUTHORITY\\SYSTEM

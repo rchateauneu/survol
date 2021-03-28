@@ -61,7 +61,7 @@ class EnvPeFile:
 def Main():
     paramkey_maximum_depth = "Maximum depth"
 
-    cgiEnv = lib_common.ScriptEnvironment(parameters = {paramkey_maximum_depth: 3})
+    cgiEnv = lib_common.ScriptEnvironment(parameters={paramkey_maximum_depth: 3})
 
     max_depth = int(cgiEnv.get_parameters(paramkey_maximum_depth))
 

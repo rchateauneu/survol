@@ -51,10 +51,8 @@ def AddWbemServers(entity_host, name_space, entity_type, entity_id):
         import lib_wbem
 
         wbem_servers_desc_list = lib_wbem.GetWbemUrlsTyped(entity_host, name_space, entity_type, entity_id)
-        # sys.stderr.write("wbem_servers_desc_list len=%d\n" % len(wbem_servers_desc_list))
         for url_server in wbem_servers_desc_list:
             # TODO: Filter only entity_host
-            # sys.stderr.write("url_server=%s\n" % str(url_server))
 
             if lib_wbem.ValidClassWbem(entity_type):
                 wbem_node = lib_common.NodeUrl(url_server[0])
