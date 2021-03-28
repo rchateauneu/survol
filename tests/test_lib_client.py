@@ -118,7 +118,8 @@ class SurvolLocalTest(unittest.TestCase):
         print("content=", str(content.keys()))
         self.assertEqual(sorted(content.keys()), ['links', 'nodes', 'page_title'])
         print("content=", str(content))
-        self.assertTrue(content['page_title'].startswith('Overview python'))
+        # It might be "Overview python" or "Overview pytest"
+        self.assertTrue(content['page_title'].startswith('Overview '))
         self.assertEqual(len(content['nodes']), 1)
 
     def test_local_json(self):
