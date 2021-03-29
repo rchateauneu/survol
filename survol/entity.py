@@ -146,7 +146,7 @@ def Main():
         try:
             entity_dirmenu_only.recursive_walk_on_scripts(callback_grph_add, root_node, entity_type, entity_id, entity_host, flag_show_all)
         except Exception as exc:
-            logging.error("entity.py caught in ForToMenu:%s", exc)
+            logging.error("Caught in recursive_walk_on_scripts:%s", exc)
 
         # This adds WBEM and WMI urls related to the current object.
         if entity_type != "":
