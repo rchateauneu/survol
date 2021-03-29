@@ -31,7 +31,6 @@ def ComKeyAllNameVersion(key, key_name):
             except win32api.error:
                 break
             name = win32api.RegQueryValue(sub_key, version_str)
-            # sys.stderr.write("name=%s\n" % name)
 
             try:
                 version_flt = float(version_str)

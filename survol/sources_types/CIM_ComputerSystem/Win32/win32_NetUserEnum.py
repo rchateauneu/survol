@@ -6,14 +6,15 @@ Windows users
 
 import sys
 import logging
-import lib_util
-import lib_common
-from lib_properties import pc
 
-import lib_win32
 import win32net
 import win32netcon
 
+import lib_uris
+import lib_util
+import lib_common
+from lib_properties import pc
+import lib_win32
 from sources_types import Win32_UserAccount as survol_Win32_UserAccount
 
 
@@ -21,7 +22,7 @@ def Main():
     cgiEnv = lib_common.ScriptEnvironment()
     hostname = cgiEnv.GetId()
 
-    node_host = lib_common.gUriGen.HostnameUri(hostname)
+    node_host = lib_uris.gUriGen.HostnameUri(hostname)
 
     grph = cgiEnv.GetGraph()
 

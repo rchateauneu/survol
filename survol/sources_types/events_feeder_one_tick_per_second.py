@@ -9,6 +9,7 @@ import sys
 import time
 import rdflib
 
+import lib_uris
 import lib_kbase
 import lib_util
 import lib_common
@@ -33,7 +34,7 @@ def Snapshot():
     grph = cgiEnv.ReinitGraph()
 
     current_pid = os.getpid()
-    node_process = lib_common.gUriGen.PidUri(current_pid)
+    node_process = lib_uris.gUriGen.PidUri(current_pid)
 
     param_a_property = lib_properties.MakeProp(_param_a)
     param_b_property = lib_properties.MakeProp(_param_b)

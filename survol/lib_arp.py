@@ -41,8 +41,6 @@ def _get_arp_entries_windows():
         # ['255.255.255.255', 'ff-ff-ff-ff-ff-ff', 'static', '\\r']
         lin_split = re.findall(r"[^ ]+", lin)
 
-        # sys.stderr.write("GetArpEntriesWindows Split=%s\n"%str(lin_split))
-
         # Probably not the best test.
         if len(lin_split) != 4:
             continue

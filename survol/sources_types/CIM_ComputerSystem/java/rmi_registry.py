@@ -12,9 +12,7 @@ import lib_util
 import lib_common
 
 # TODO: This script is not used yet.
-
 from sources_types import java as survol_java
-
 from lib_properties import pc
 
 
@@ -29,7 +27,7 @@ def Main():
 
     hostAddr = lib_util.GlobalGetHostByName(hostname)
 
-    hostNode = lib_common.gUriGen.HostnameUri(hostname)
+    hostNode = lib_uris.gUriGen.HostnameUri(hostname)
 
     for the_proc in psutil.process_iter():
         the_pid = the_proc.pid

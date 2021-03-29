@@ -12,15 +12,16 @@ import os
 import sys
 import time
 import logging
+
+# This can work only on Windows and with exe files.
+import pefile
+
+import lib_pefile
 import lib_util
 import lib_uris
 import lib_common
 import lib_properties
 from lib_properties import pc
-
-# This can work only on Windows and with exe files.
-import pefile
-import lib_pefile
 
 
 def _pefile_decorate(grph, root_node, pe):
@@ -30,7 +31,6 @@ def _pefile_decorate(grph, root_node, pe):
             for st in fileinfo.StringTable:
                 for entry in st.entries.items():
                     #UnicodeEncodeError: 'ascii' codec can't encode character u'\xa9' in position 16: ordinal not in range(128)
-                    # sys.stderr.write("%s %s\n"% (entry[0], entry[1]) )
                     key = entry[0]
                     val = entry[1]
                     if val is None:
@@ -46,7 +46,7 @@ def Main():
     fil_nam = cgiEnv.GetId()
     logging.debug("fil_nam=%s", fil_nam)
 
-    fil_node = lib_common.gUriGen.FileUri(fil_nam)
+    fil_node = lib_uris.gUriGen.FileUri(fil_nam)
 
     try:
         pe = pefile.PE(fil_nam)
@@ -103,8 +103,6 @@ def Main():
     except Exception as exc:
         lib_common.ErrorMessageHtml("File: %s. Exception:%s:" % (fil_nam, str(exc)))
 
-    # cgiEnv.OutCgiRdf()
-    # cgiEnv.OutCgiRdf("LAYOUT_TWOPI")
     cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_symbol_defined])
 
 

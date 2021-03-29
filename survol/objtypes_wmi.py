@@ -59,7 +59,6 @@ def _draw_from_this_base(root_node, wmi_namespace, cimom_url, cls_nam, grph, cls
 	if len(cls_deriv) == 0:
 		grph.add((root_node, pc.property_cim_subclass, previous_node))
 	else:
-		# sys.stderr.write("cls_nam=%s cls_deriv=%s\n" % ( cls_nam, str(cls_deriv) ))
 		for base_class_nam in cls_deriv:
 
 			wmi_base_node = _class_to_node(wmi_namespace, cimom_url, base_class_nam)

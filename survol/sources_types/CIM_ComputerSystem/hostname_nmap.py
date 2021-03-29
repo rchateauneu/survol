@@ -8,30 +8,31 @@ import sys
 import re
 import socket
 import xml.dom.minidom
+
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
-
 from sources_types import addr as survol_addr
 
 
 def Main():
-    paramkeyPortsRange = "Ports Range"
+    paramkey_ports_range = "Ports Range"
 
-    cgiEnv = lib_common.ScriptEnvironment({paramkeyPortsRange: "22-443"})
+    cgiEnv = lib_common.ScriptEnvironment({paramkey_ports_range: "22-443"})
     hostname = cgiEnv.GetId()
-    node_host = lib_common.gUriGen.HostnameUri(hostname)
+    node_host = lib_uris.gUriGen.HostnameUri(hostname)
 
     # This is just a first experimentation with nmap.
     # Ideally, the port range could be changed in edit mode of this script.
-    ports_range = cgiEnv.get_parameters(paramkeyPortsRange)
-    args = ['nmap', '-oX', '-', hostname, '-p', ports_range ]
+    ports_range = cgiEnv.get_parameters(paramkey_ports_range)
+    args = ['nmap', '-oX', '-', hostname, '-p', ports_range]
 
     # NOTE: This is completely similar to the script in the sources directory.
     try:
         p = lib_common.SubProcPOpen(args)
     except Exception as exc:
-        lib_common.ErrorMessageHtml("Cannot find nmap:"+str(exc))
+        lib_common.ErrorMessageHtml("Cannot find nmap:" + str(exc))
 
     grph = cgiEnv.GetGraph()
 
@@ -40,7 +41,7 @@ def Main():
     try:
         dom = xml.dom.minidom.parseString(nmap_last_output)
     except xml.parsers.expat.ExpatError as exc:
-        lib_common.ErrorMessageHtml("XML error:" + nmap_last_output+", caught:" + str(exc) )
+        lib_common.ErrorMessageHtml("XML error:" + nmap_last_output + ", caught:" + str(exc))
 
     for dhost in dom.getElementsByTagName('host'):
         node_ip = dhost.getElementsByTagName('address')[0].getAttributeNode('addr').value
@@ -50,7 +51,6 @@ def Main():
         for dhostname in dhost.getElementsByTagName('hostname'):
             sub_hostnam = dhostname.getAttributeNode('name').value
 
-            # grph.add( ( node_host, pc.property_hostname, lib_util.NodeLiteral( sub_hostnam ) ) )
             # It should be the same as the main hostname, which is taken as reference to avoid ambiguities.
             grph.add((node_host, lib_common.MakeProp("Hostname"), lib_util.NodeLiteral(sub_hostnam)))
 
@@ -59,7 +59,7 @@ def Main():
 
             # port number converted as integer
             port = int(dport.getAttributeNode('portid').value)
-            socket_node = lib_common.gUriGen.AddrUri( hostname, port, proto)
+            socket_node = lib_uris.gUriGen.AddrUri(hostname, port, proto)
             survol_addr.DecorateSocketNode(grph, socket_node, hostname, port, proto)
 
             state = dport.getElementsByTagName('state')[0].getAttributeNode('state').value

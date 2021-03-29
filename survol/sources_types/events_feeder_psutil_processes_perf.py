@@ -16,6 +16,7 @@ import time
 import psutil
 import rdflib
 
+import lib_uris
 import lib_kbase
 import lib_util
 import lib_common
@@ -34,7 +35,7 @@ def Snapshot():
     property_process_perf = lib_properties.MakeProp("Processes performances")
 
     for proc in psutil.process_iter():
-        node_process = lib_common.gUriGen.PidUri(proc.pid)
+        node_process = lib_uris.gUriGen.PidUri(proc.pid)
 
         sample_root_node = rdflib.BNode()
         grph.add((node_process, property_process_perf, sample_root_node))

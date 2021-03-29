@@ -67,7 +67,7 @@ def Main():
     sym_node = lib_uris.gUriGen.SymbolUri(symbol_nam, fil_nam)
 
     if fil_nam:
-        fil_node = lib_common.gUriGen.FileUri( fil_nam )
+        fil_node = lib_uris.gUriGen.FileUri( fil_nam )
         grph.add((fil_node, pc.property_symbol_defined, sym_node))
         vers_str = lib_win32.VersionString(fil_nam)
         grph.add((fil_node, pc.property_information, lib_util.NodeLiteral(vers_str)))

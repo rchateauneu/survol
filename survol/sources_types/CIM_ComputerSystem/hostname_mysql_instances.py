@@ -7,10 +7,11 @@ mysql instances on a server
 import sys
 import re
 import socket
+
+import lib_uris
 import lib_util
 import lib_common
 import lib_credentials
-
 from lib_properties import pc
 
 # This does not import genuine mysql packages so this will always work.
@@ -22,7 +23,7 @@ def Main():
     hostname = cgiEnv.GetId()
 
     host_addr = lib_util.GlobalGetHostByName(hostname)
-    host_node = lib_common.gUriGen.HostnameUri(hostname)
+    host_node = lib_uris.gUriGen.HostnameUri(hostname)
 
     cgiEnv = lib_common.ScriptEnvironment()
 

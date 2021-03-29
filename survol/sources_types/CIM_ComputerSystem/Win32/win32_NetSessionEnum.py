@@ -5,18 +5,21 @@ Windows sessions established on a server
 """
 
 import sys
+
+import win32net
+
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
-
 import lib_win32
-import win32net
+
 
 def Main():
     cgiEnv = lib_common.ScriptEnvironment()
     hostname = cgiEnv.GetId()
 
-    node_host = lib_common.gUriGen.HostnameUri(hostname)
+    node_host = lib_uris.gUriGen.HostnameUri(hostname)
 
     grph = cgiEnv.GetGraph()
 
@@ -29,7 +32,7 @@ def Main():
 
         session_list = win32net.NetSessionEnum(level, hostname)
     except Exception as exc:
-        lib_common.ErrorMessageHtml("Hostname="+hostname+". Exception:"+str(exc))
+        lib_common.ErrorMessageHtml("Hostname=" + hostname + ". Exception:" + str(exc))
 
     for elt_lst in session_list:
         for key_lst in elt_lst:

@@ -116,12 +116,10 @@ class SparqlEnvironment:
             # pip install rdflib-jsonld
             # No plugin registered for (json-ld, <class 'rdflib.serializer.Serializer'>)
             # rdflib_format = "pretty-xml"
-            # sys.stderr.write("len grph=%d\n"%len(grph))
             strRdf = grph.serialize(format=self.m_rdflib_format)
         except Exception as exc:
-            sys.stderr.write("Caught:%s\n"%exc)
+            logging.error("Caught:%s" % exc)
             return
-        # sys.stderr.write("strRdf=%s\n"%strRdf)
         lib_util.WrtAsUtf(strRdf)
 
 ################################################################################
@@ -872,10 +870,7 @@ def QueryToGraph(grph, sparql_query):
     # FIXME: On the other hand, WMI returns objects but cannot natively create RDF triples.
     # FIXME: Therefore, it makes sense to create triples from the objects.
 
-    # sys.stderr.write("QueryToGraph len(iter_entities_dicts)=%s\n" % len(iter_entities_dicts))
-
     for one_dict_entity in iter_entities_dicts:
-        #sys.stderr.write("QueryToGraph one_dict_entity=%s\n"%one_dict_entity)
         for variable_name, sparql_object in one_dict_entity.items():
             # Dictionary of variable names to PathPredicateObject
             subject_path_node = lib_util.NodeUrl(sparql_object.m_subject_path)

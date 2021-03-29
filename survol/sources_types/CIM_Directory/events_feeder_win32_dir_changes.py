@@ -6,6 +6,7 @@ import rdflib
 import time
 import logging
 
+import lib_uris
 import lib_kbase
 import lib_util
 import lib_common
@@ -43,7 +44,7 @@ def _add_windows_dir_change(grph, path_to_watch, updated_file, action_code, time
     action_text = actions_codes.get(action_code, "Unknown")
     full_filename = os.path.join(path_to_watch, updated_file)
 
-    node_path = lib_common.gUriGen.FileUri(full_filename)
+    node_path = lib_uris.gUriGen.FileUri(full_filename)
 
     sample_root_node = rdflib.BNode()
     grph.add((node_path, property_notified_file_change, sample_root_node))
@@ -67,7 +68,7 @@ def Snapshot():
     path_to_watch = cgiEnv.GetId()
 
     grph = cgiEnv.GetGraph()
-    directory_node = lib_common.gUriGen.DirectoryUri(path_to_watch)
+    directory_node = lib_uris.gUriGen.DirectoryUri(path_to_watch)
     CIM_Directory.AddInfo(grph, directory_node, [path_to_watch],)
 
     cgiEnv.OutCgiRdf()

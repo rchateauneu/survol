@@ -40,10 +40,8 @@ def NodeToUniversalAlias(an_object):
         # The resulting string is the same for all servers running on the same machine.
         an_object_as_str = str(an_object)
         parsed_url = lib_util.survol_urlparse(an_object_as_str)
-        #sys.stderr.write("make_universal_alias_no_cache parsed_url=%s\n"%str(parsed_url))
         # netloc=u'desktop-ni99v8e:8000'
         entity_host = parsed_url.netloc.split(":")[0]
-        #sys.stderr.write("make_universal_alias_no_cache entity_host=%s\n"%str(entity_host))
 
         # FIXME: This is very slow.
         if False:
@@ -127,27 +125,22 @@ def UrlWWW(page_html):
     http://primhillcomputers.ddns.net/Survol/survol/www/help.htm
     """
     calling_url = ModedUrl("")
-    #sys.stderr.write("UrlToMergeD3 calling_url=%s\n"%(calling_url))
     htbin_idx = calling_url.find(_htbin_prefix_script)
 
     # We needs the beginning of the URL.
     url_host = calling_url[:htbin_idx]
-    #sys.stderr.write("UrlToMergeD3 url_host=%s\n"%(url_host))
 
     d3_url_dir = "/survol/www"
 
     script_d3_url = url_host + d3_url_dir + "/" + page_html
-    #sys.stderr.write("UrlToMergeD3 script_d3_url=%s\n"%script_d3_url)
     return script_d3_url
 
 
 def UrlToMergeD3():
     """This returns an URL to the Javascript D3 interface URL, which displays the current url in Javascript."""
     calling_url = ModedUrl("")
-    #sys.stderr.write("UrlToMergeD3 calling_url=%s\n"%(calling_url))
     htbin_idx = calling_url.find(_htbin_prefix_script)
     url_without_host = calling_url[htbin_idx:]
-    #sys.stderr.write("UrlToMergeD3 url_without_host=%s\n"%(url_without_host))
 
     # Maybe this URL is already a merge of B64-encoded URLs:
     htbin_prefix_merge_script = "/survol/merge_scripts.py"
@@ -161,9 +154,7 @@ def UrlToMergeD3():
         # of where the useful part of the URL starts.
         # This works on Linux with Apache.
         url_without_host_b64 = "?url=" + lib_util.Base64Encode(calling_url)
-    #sys.stderr.write("UrlToMergeD3 url_without_host_b64=%s\n"%url_without_host_b64)
 
     script_d3_url = UrlWWW("index.htm") + url_without_host_b64
-    #sys.stderr.write("UrlToMergeD3 script_d3_url=%s\n"%script_d3_url)
     return script_d3_url
 

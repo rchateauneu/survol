@@ -7,15 +7,16 @@ Windows local groups
 from __future__ import generators
 import sys
 import logging
-import lib_util
-import lib_common
-from lib_properties import pc
 
 import win32net
 import win32security
+
+import lib_uris
+import lib_util
+import lib_common
+from lib_properties import pc
 from sources_types import Win32_Group as survol_Win32_Group
 from sources_types import Win32_UserAccount as survol_Win32_UserAccount
-
 import lib_win32
 
 
@@ -30,7 +31,7 @@ def Main():
         server_node = lib_common.nodeMachine
     else:
         serv_name_or_none = server
-        server_node = lib_common.gUriGen.HostnameUri(server)
+        server_node = lib_uris.gUriGen.HostnameUri(server)
 
     try:
         lib_win32.WNetAddConnect(serv_name_or_none)
