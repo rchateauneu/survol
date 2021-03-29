@@ -18,6 +18,7 @@ from init import *
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 update_test_path()
 
+import lib_util
 import lib_client
 import lib_common
 import lib_properties
@@ -1433,7 +1434,6 @@ class SurvolLocalWindowsTest(unittest.TestCase):
             # Should throw "Exception: ErrorMessageHtml raised:Cannot debug current process"
             my_source.get_triplestore()
 
-    @unittest.skipIf(is_pytest(), "This msdos test cannot run in pytest.")
     def test_msdos_current_batch(self):
         """Displays information a MSDOS current batch"""
 
@@ -1446,12 +1446,13 @@ class SurvolLocalWindowsTest(unittest.TestCase):
 
         # If running in pytest:
         # ['CIM_DataFile.Name=C:/Python27/Scripts/pytest.exe', 'CIM_Process.Handle=74620']
-        str_instances_set = set([str(oneInst) for oneInst in list_instances ])
+        str_instances_set = set([str(one_inst) for one_inst in list_instances])
 
-        list_required =  [
-            CurrentProcessPath,
-        ]
-        print("list_required=", list_required)
+        if is_pytest():
+            # This does not return a cmd under pytest but at least the script is tested.
+            list_required = []
+        else:
+            list_required = [CurrentProcessPath, ]
 
         for one_str in list_required:
             self.assertTrue(one_str in str_instances_set)
