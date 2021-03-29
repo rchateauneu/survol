@@ -108,6 +108,21 @@ class SurvolLocalTest(unittest.TestCase):
         # This file should be there on any Windows machine.
         self.assertTrue(len_instances >= 1)
 
+    def test_entity_info_only(self):
+        # Test merge of heterogeneous data sources.
+        my_source = lib_client.SourceLocal(
+            "entity_info_only.py",
+            "CIM_Process",
+            Handle=CurrentPid)
+
+        content = my_source.content_json()
+        print("content=", str(content.keys()))
+        self.assertEqual(sorted(content.keys()), ['links', 'nodes', 'page_title'])
+        print("content=", str(content))
+        # It might be "Overview python" or "Overview pytest"
+        self.assertTrue(content['page_title'].startswith('Overview '))
+        self.assertEqual(len(content['nodes']), 1)
+
     def test_local_json(self):
         # Test merge of heterogeneous data sources.
         my_source1 = lib_client.SourceLocal(
@@ -386,7 +401,6 @@ class SurvolLocalTest(unittest.TestCase):
         for one_str in lst_mandatory_instances:
             print("    ", one_str)
             self.assertTrue(one_str in str_instances_set)
-
         proc_open.communicate()
 
     def test_open_files_from_python_without_shell(self):
@@ -2524,10 +2538,10 @@ class SurvolOracleTest(unittest.TestCase):
             self.assertTrue(one_str in str_instances_set)
 
 
+@unittest.skipIf(not pkgutil.find_loader('pefile'), "pefile cannot be imported. test_pefile_exports not run.")
 class SurvolPEFileTest(unittest.TestCase):
     """Testing pefile features"""
 
-    @unittest.skipIf(not pkgutil.find_loader('pefile'), "pefile cannot be imported. test_pefile_exports not run.")
     def test_pefile_exports(self):
         """Tests exported functions of a DLL."""
 
@@ -2558,6 +2572,59 @@ class SurvolPEFileTest(unittest.TestCase):
             "OffsetViewportOrgEx",
         ]:
             self.assertTrue(one_str in names_instance)
+
+    def test_pefile_imports(self):
+        """Tests imported functions of a DLL."""
+
+        # Very common DLL on usual Windows machines.
+        dll_file_name = r"C:\Windows\System32\gdi32.dll"
+
+        lst_instances = _client_object_instances_from_script(
+            "sources_types/CIM_DataFile/portable_executable/pefile_imports.py",
+            "CIM_DataFile",
+            Name=dll_file_name)
+
+        filenames = set()
+        for one_inst in lst_instances:
+            if one_inst.__class__.__name__ == 'CIM_DataFile':
+                filenames.add(os.path.basename(one_inst.Name).lower())
+        print("filenames=", filenames)
+        for one_str in [
+            "ntdll.dll",
+            # "win32u.dll", # Not on all Windows versions.
+        ]:
+            self.assertTrue(one_str in filenames)
+
+    def test_pefile_depends(self):
+        """Tests dependencies of a DLL."""
+
+        # Very common DLL on usual Windows machines.
+        dll_file_name = r"C:\Windows\System32\gdi32.dll"
+
+        lst_instances = _client_object_instances_from_script(
+            "sources_types/CIM_DataFile/portable_executable/pefile_depends.py",
+            "CIM_DataFile",
+            Name=dll_file_name)
+        filenames = set()
+        for one_inst in lst_instances:
+            if one_inst.__class__.__name__ == 'CIM_DataFile':
+                filenames.add(os.path.basename(one_inst.Name).lower())
+        for one_str in [
+            "gdi32.dll",
+        ]:
+            self.assertTrue(one_str in filenames)
+
+    def test_pefile_information(self):
+        """Tests dependencies of a DLL."""
+
+        # Very common DLL on usual Windows machines.
+        dll_file_name = r"C:\Windows\System32\gdi32.dll"
+
+        lst_instances = _client_object_instances_from_script(
+            "sources_types/CIM_DataFile/portable_executable/pefile_information.py",
+            "CIM_DataFile",
+            Name=dll_file_name)
+        print("lst_instances=", lst_instances)
 
 
 class SurvolSearchTest(unittest.TestCase):

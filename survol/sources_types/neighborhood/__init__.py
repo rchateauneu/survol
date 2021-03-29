@@ -36,53 +36,53 @@ import lib_common
 
 # This returns a map containing the key-value pairs of the attributes
 # of this service.
-def GetSLPAttributes(serviceName,slpHost):
-	dictAttributes = {}
+def GetSLPAttributes(service_name, slp_host):
+    dict_attributes = {}
 
-	cmdSlpFindAttrs = ["slptool", 'findattrs', 'service:%s:%s' %( serviceName, slpHost) , ]
+    cmd_slp_find_attrs = ["slptool", 'findattrs', 'service:%s:%s' % (service_name, slp_host), ]
 
-	resuFindAttrs = lib_common.SubProcPOpen(cmdSlpFindAttrs)
+    resu_find_attrs = lib_common.SubProcPOpen(cmd_slp_find_attrs)
 
-	(outStreamFindAttrs, errStreamFindAttrs) = resuFindAttrs.communicate()
+    out_stream_find_attrs, err_stream_find_attrs = resu_find_attrs.communicate()
 
-	splitResuFindAttrs = outStreamFindAttrs.split("\n")
+    split_resu_find_attrs = out_stream_find_attrs.split("\n")
 
-	for linResuFindAttrs in splitResuFindAttrs:
-		logging.debug("GetSLPAttributes slpHost=%s linResuFindAttrs=%s",slpHost,linResuFindAttrs)
-		# service:survol:http://mymachine:8000/survol/entity.py,65535
-		# service:wbem:http://mymachine,65535
-		mtchFindAttrs = re.match( r'\(([^=]*)=([^)]*)\)', linResuFindAttrs )
-		if mtchFindAttrs:
-			slpAttrKey = mtchFindAttrs.group(1)
-			slpAttrVal = mtchFindAttrs.group(2)
-			dictAttributes[slpAttrKey] = slpAttrVal
-		else:
-			logging.debug("No match for attributes:%s",linResuFindAttrs)
+    for lin_resu_find_attrs in split_resu_find_attrs:
+        logging.debug("GetSLPAttributes slpHost=%s lin_resu_find_attrs=%s", slp_host, lin_resu_find_attrs)
+        # service:survol:http://mymachine:8000/survol/entity.py,65535
+        # service:wbem:http://mymachine,65535
+        mtch_find_attrs = re.match(r'\(([^=]*)=([^)]*)\)', lin_resu_find_attrs)
+        if mtch_find_attrs:
+            slp_attr_key = mtch_find_attrs.group(1)
+            slp_attr_val = mtch_find_attrs.group(2)
+            dict_attributes[slp_attr_key] = slp_attr_val
+        else:
+            logging.debug("No match for attributes:%s", lin_resu_find_attrs)
 
-	return dictAttributes
+    return dict_attributes
 
 
-def GetSLPServices(serviceName):
-	dictServices = {}
+def GetSLPServices(service_name):
+    dict_services = {}
 
-	cmdSlpTool = ["slptool", 'findsrvs', 'service:' + serviceName, ]
+    cmd_slp_tool = ["slptool", 'findsrvs', 'service:' + service_name,]
 
-	resuPOpen = lib_common.SubProcPOpen(cmdSlpTool)
+    resu_p_open = lib_common.SubProcPOpen(cmd_slp_tool)
 
-	(outStreamSlpTool, errStreamSlpTool) = resuPOpen.communicate()
+    out_stream_slp_tool, err_stream_slp_tool = resu_p_open.communicate()
 
-	splitResuSlpTool = outStreamSlpTool.split("\n")
+    split_resu_slp_tool = out_stream_slp_tool.split("\n")
 
-	for linResuSlpTool in splitResuSlpTool:
-		logging.debug("GetSLPServices serviceName=%s linResuSlpTool=%s",serviceName,linResuSlpTool)
-		# service:survol:http://mymachine:8000/survol/entity.py,65535
-		# service:wbem:http://mymachine,65535
-		mtchSplTool = re.match( r'service:[^:]*:([^,]*)(.*)', linResuSlpTool )
-		if mtchSplTool:
-			slpHost = mtchSplTool.group(1)
-			slpAttrs = GetSLPAttributes(serviceName,slpHost)
-			dictServices[slpHost] = slpAttrs
-		else:
-			logging.debug("No match:%s",linResuSlpTool)
+    for lin_resu_slp_tool in split_resu_slp_tool:
+        logging.debug("GetSLPServices serviceName=%s lin_resu_slp_tool=%s", service_name, lin_resu_slp_tool)
+        # service:survol:http://mymachine:8000/survol/entity.py,65535
+        # service:wbem:http://mymachine,65535
+        mtch_spl_tool = re.match(r'service:[^:]*:([^,]*)(.*)', lin_resu_slp_tool)
+        if mtch_spl_tool:
+            slp_host = mtch_spl_tool.group(1)
+            slp_attrs = GetSLPAttributes(service_name, slp_host)
+            dict_services[slp_host] = slp_attrs
+        else:
+            logging.debug("No match:%s", lin_resu_slp_tool)
 
-	return dictServices
+    return dict_services

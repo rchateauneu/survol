@@ -9,11 +9,11 @@ Python properties
 import os
 import os.path
 import sys
+
 import lib_util
 import lib_uris
 import lib_common
 from lib_properties import pc
-
 from sources_types import python
 from sources_types.python import package
 
@@ -35,11 +35,9 @@ def Main():
 
     py_fil_nam = cgiEnv.GetId()
 
-    # sys.stderr.write("dbFilNam=%s\n"%dbFilNam)
-
     grph = cgiEnv.GetGraph()
 
-    # filNode = lib_common.gUriGen.FileUri(py_fil_nam)
+    # filNode = lib_uris.gUriGen.FileUri(py_fil_nam)
     # 
     # try:
     # 

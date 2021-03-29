@@ -207,7 +207,6 @@ def _scripts_tree_html_iterator(theCgi):
     def callback_grph_add(trpl, depthCall):
         subj, prop, obj = trpl
 
-        # sys.stderr.write("callback_grph_add subj=%s\n"%str(subj))
         try:
             map_props = dict_scripts[subj]
             try:

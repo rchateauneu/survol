@@ -97,8 +97,6 @@ def _generate_to_output_dir(out_dir):
                                 if member_definition is None:
                                     member_definition= member_name
 
-                                # TODO: A-t-n vraiment de compounddef_kind][compound_name][member_kind]
-                                # TODO ... sachant qu on se donne la possibilite d exploser ou pas selon les classes ?
                                 objects_by_location[location_file][compounddef_kind][compound_name][member_kind][member_definition] = list_types
             except Exception as exc:
                 logging.warning("Caught:%s", str(exc))
@@ -123,29 +121,18 @@ def CreateObjs(grph, root_node, directory_name, objects_by_location, param_explo
         grph.add((root_node, pc.property_directory, node_file))
 
         for compounddef_kind, v2 in v1.items():
-            #sys.stderr.write("compounddef_kind=%s\n"%compounddef_kind)
             for compound_name, v3 in v2.items():
-                #sys.stderr.write("compound_name=%s\n"%compound_name)
                 for member_kind, v4 in v3.items():
-                    #sys.stderr.write("member_kind=%s\n"%member_kind)
                     for member_definition, list_types in v4.items():
                         if member_kind == "function":
                             if len(list_types) > 1:
                                 concat_types = ",".join(list_types[1:])
                             else:
                                 concat_types = ""
-                            # func_name = list_types[0] + " " + memberName + "(" + concat_types + ")"
                             func_name = member_definition + "(" + concat_types + ")"
-                            #nodeFunction = lib_uris.gUriGen.SymbolUri( func_name, location_file )
-                            #if node_file:
-                            #    grph.add( ( node_file, pc.property_member, nodeFunction ) )
                             _display_def(grph, node_file, location_file, func_name, param_explode_classes)
                         elif member_kind == "variable":
                             _display_def(grph, node_file, location_file, member_definition, param_explode_classes)
-                            # nodeVariable = lib_uris.gUriGen.SymbolUri( memberName, location_file )
-                            #nodeVariable = lib_uris.gUriGen.SymbolUri( member_definition, location_file )
-                            #if node_file:
-                            #    grph.add( ( node_file, pc.property_member, nodeVariable ) )
     return
 
 

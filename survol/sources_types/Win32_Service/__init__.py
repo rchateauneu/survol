@@ -5,9 +5,6 @@ Windows service
 import os
 import sys
 import logging
-import lib_util
-import lib_common
-from lib_properties import pc
 
 # Python for Windows extensions: pywin32
 # https://sourceforge.net/projects/pywin32/
@@ -17,260 +14,255 @@ import win32api
 import win32security
 
 import lib_win32
+import lib_uris
+import lib_util
+import lib_common
+from lib_properties import pc
+
 
 def EntityOntology():
-	return ( ["Name"],)
+    return (["Name"],)
 
-state_dictionary = ('Unknown', 'Stopped', 'Starting', 'Stopping', 'Running',
-						'Continuing', 'Pausing', 'Paused')
+_state_dictionary = ('Unknown', 'Stopped', 'Starting', 'Stopping', 'Running',
+                        'Continuing', 'Pausing', 'Paused')
 
 # Enumerate Service Control Manager DB
-typeFilter = win32service.SERVICE_WIN32
-stateFilter = win32service.SERVICE_STATE_ALL
+_type_filter = win32service.SERVICE_WIN32
+_state_filter = win32service.SERVICE_STATE_ALL
 
 # Maybe similar to SC_MANAGER_ENUMERATE_SERVICE ?
 accessSCM = win32con.GENERIC_READ
 
 # It creates a dictionary containing all services keyed by their names.
-def BuildSrvDict( hscm, machineName ):
+def _build_srv_dict(hscm, machineName):
 
-	# One node for each service name.
-	dictServiceToNode = {}
+    # One node for each service name.
+    dict_service_to_node = {}
 
-	try:
-		# Old versions of this library do not have this function.
-		statuses = win32service.EnumServicesStatusEx(hscm, typeFilter, stateFilter)
-		# li={'ControlsAccepted': 0, 'ServiceType': 32, 'DisplayName': 'WWAN AutoConfig', 'ServiceSpecificExitCode': 0, 'ProcessId': 0, 'ServiceFlags': 0, 'CheckPoint': 0, 'ServiceName': 'WwanSvc', 'Win32ExitCode': 1077, 'WaitHint': 0, 'CurrentState': 1},
-		for lst in statuses:
-			# sys.stderr.write("lst="+str(lst)+"\n")
+    try:
+        # Old versions of this library do not have this function.
+        statuses = win32service.EnumServicesStatusEx(hscm, _type_filter, _state_filter)
+        # li={'ControlsAccepted': 0, 'ServiceType': 32, 'DisplayName': 'WWAN AutoConfig', 'ServiceSpecificExitCode': 0,
+        # 'ProcessId': 0, 'ServiceFlags': 0, 'CheckPoint': 0, 'ServiceName': 'WwanSvc', 'Win32ExitCode': 1077,
+        # 'WaitHint': 0, 'CurrentState': 1},
+        for lst in statuses:
+            service_name = lst['ServiceName']
+            lst["depends_in"] = []
+            lst["depends_out"] = []
 
-			serviceName = lst['ServiceName']
-			lst["depends_in"] = []
-			lst["depends_out"] = []
+            dict_service_to_node[service_name] = lst
 
-			dictServiceToNode[ serviceName ] = lst
+    # except AttributeError:
+    except Exception:
+        statuses = win32service.EnumServicesStatus(hscm, _type_filter, _state_filter)
+        # li=('wuauserv', 'Windows Update', (32, 4, 453, 0, 0, 0, 0))
+        for svc in statuses:
+            logging.debug("service=%s", str(svc))
+            # TODO: This must match the keys of EnumServicesStatusEx
+            # lst = { "ServiceName":service_name, "DisplayName":descript, "CurrentState": status}
+            lst = {"ServiceName":svc[0], "DisplayName":svc[1], "CurrentState": svc[2][1]}
+            lst["depends_in"] = []
+            lst["depends_out"] = []
+            # A Win32 service status object is represented by a tuple
+            # 0: serviceType
+            # 1: serviceState
+            # 2: controlsAccepted
+            # 3: win32ExitCode
+            # 4: serviceSpecificErrorCode
+            # 5: checkPoint
+            # 6: waitHint
 
-	# except AttributeError:
-	except Exception:
-		statuses = win32service.EnumServicesStatus(hscm, typeFilter, stateFilter)
-		# li=('wuauserv', 'Windows Update', (32, 4, 453, 0, 0, 0, 0))
-		for svc in statuses:
-			logging.debug("service=%s", str(svc))
-			# TODO: This must match the keys of EnumServicesStatusEx
-			# lst = { "ServiceName":serviceName, "DisplayName":descript, "CurrentState": status}
-			lst = { "ServiceName":svc[0], "DisplayName":svc[1], "CurrentState": svc[2][1]}
-			lst["depends_in"] = []
-			lst["depends_out"] = []
-			# A Win32 service status object is represented by a tuple
-			# 0: serviceType
-			# 1: serviceState
-			# 2: controlsAccepted
-			# 3: win32ExitCode
-			# 4: serviceSpecificErrorCode
-			# 5: checkPoint
-			# 6: waitHint
+            dict_service_to_node[svc[0]] = lst
 
-			dictServiceToNode[ svc[0] ] = lst
+            try:
+                hsvc = win32service.OpenService(hscm, svc[0], win32service.SERVICE_CHANGE_CONFIG)
 
-			try:
-				hsvc=win32service.OpenService(hscm, svc[0], win32service.SERVICE_CHANGE_CONFIG)
+                # TODO: WHY DOING THIS ????? MAYBE FOR TESTING THE SERVICE PRESENCE ??
 
-				# TODO: WHY DOING THIS ????? MAYBE FOR TESTING THE SERVICE PRESENCE ??
+                #win32service.ChangeServiceConfig(hsvc, win32service.SERVICE_NO_CHANGE,
+                #    win32service.SERVICE_DISABLED, win32service.SERVICE_NO_CHANGE, None, None,0,
+                #    None,None,None,None)
+                win32service.CloseServiceHandle(hsvc)
+            except Exception:
+                # Might receive "Access is denied" if this is on a remote machine.
+                lst["ProcessId"] = 999999
+                pass
 
-				#win32service.ChangeServiceConfig(hsvc, win32service.SERVICE_NO_CHANGE,
-				#	win32service.SERVICE_DISABLED, win32service.SERVICE_NO_CHANGE, None, None,0,
-				#	None,None,None,None)
-				win32service.CloseServiceHandle(hsvc)
-			except Exception:
-				# Might receive "Access is denied" if this is on a remote machine.
-				lst["ProcessId"] = 999999
-				pass
+    return dict_service_to_node
 
-	return dictServiceToNode
 
-# This builds the network of services dependencies.
-# This is really a hack but ok for prototyping. Why? Performances ?
-# tmplog because a timeout prevents Apache log to display sys.stderr.
-def BuildSrvNetwork( machineName ):
-	logging.debug("BuildSrvNetwork machineName=%s localhost=%s", machineName,lib_util.currentHostname)
+# This is a first approach to build the network of services dependencies.
+def BuildSrvNetwork(machine_name):
+    logging.debug("BuildSrvNetwork machineName=%s localhost=%s", machine_name, lib_util.currentHostname)
 
-	machName_or_None, imper = lib_win32.MakeImpersonate(machineName)
+    mach_name_or_none, imper = lib_win32.MakeImpersonate(machine_name)
 
-	# SC_MANAGER_ENUMERATE_SERVICE
-	hscm = win32service.OpenSCManager(machName_or_None, None, accessSCM)
+    # SC_MANAGER_ENUMERATE_SERVICE
+    hscm = win32service.OpenSCManager(mach_name_or_none, None, accessSCM)
 
-	dictServiceToNode = BuildSrvDict( hscm, machineName )
+    dict_service_to_node = _build_srv_dict(hscm, machine_name)
 
-	# Now links the services together.
-	for serviceName in dictServiceToNode:
-		# nodeService = dictServiceToNode[ serviceName ]
-		# sys.stderr.write("BuildSrvNetwork serviceName=%s\n" % (serviceName))
+    # Now links the services together.
+    for service_name in dict_service_to_node:
+        # nodeService = dict_service_to_node[ service_name ]
 
-		try:
-			hdnSrv = win32service.OpenService( hscm, serviceName, win32service.SERVICE_ENUMERATE_DEPENDENTS )
-			depSrvLst = win32service.EnumDependentServices( hdnSrv, win32service.SERVICE_STATE_ALL )
+        try:
+            hdn_srv = win32service.OpenService(hscm, service_name, win32service.SERVICE_ENUMERATE_DEPENDENTS)
+            dep_srv_lst = win32service.EnumDependentServices(hdn_srv, win32service.SERVICE_STATE_ALL)
 
-			for depSrv in depSrvLst:
-				# sys.stderr.write("depSrv=%s\n" % ( depSrv[0] ) )
-				subServiceName = depSrv[0]
-				try:
-					nodeSubService = dictServiceToNode[ subServiceName ]
-				except KeyError:
-					logging.warning("Main=%s Sub=%s NOT CREATED", serviceName, subServiceName )
-					continue
+            for dep_srv in dep_srv_lst:
+                sub_service_name = dep_srv[0]
+                try:
+                    nodeSubService = dict_service_to_node[sub_service_name]
+                except KeyError:
+                    logging.warning("Main=%s Sub=%s NOT CREATED", service_name, sub_service_name)
+                    continue
 
-				dictServiceToNode[ subServiceName ]["depends_in"].append( serviceName )
-				dictServiceToNode[ serviceName ]["depends_out"].append( subServiceName )
+                dict_service_to_node[sub_service_name]["depends_in"].append(service_name)
+                dict_service_to_node[service_name]["depends_out"].append(sub_service_name)
+            win32service.CloseServiceHandle(hdn_srv)
+        except Exception as exc:
+            # With wsgi and maybe cgi, many dependencies not seen. OK with Apache.
+            # Why especially these ones which have a lot of dependencies ?
+            # BuildSrvNetwork service_name=RpcSs:
+            # BuildSrvNetwork service_name=RpcEptMapper
+            # BuildSrvNetwork service_name=DcomLaunch:
+            # BuildSrvNetwork service_name=pla:
+            logging.warning("BuildSrvNetwork service_name=%s: Caught: %s", service_name, str(exc) )
+            # pywintypes.error: (5, 'OpenService', 'Access is denied.')
 
-			# NOT SURE ABOUT THIS, NEVER TESTED BUT SEEMS NECESSARY.
-			win32service.CloseServiceHandle(hdnSrv)
-		except:
-			exc = sys.exc_info()
-			# With wsgi and maybe cgi, many dependencies not seen. OK with Apache.
-			# Why especially these ones which have a lot of dependencies ?
-			# BuildSrvNetwork serviceName=RpcSs:
-			# BuildSrvNetwork serviceName=RpcEptMapper
-			# BuildSrvNetwork serviceName=DcomLaunch:
-			# BuildSrvNetwork serviceName=pla:
-			logging.warning("BuildSrvNetwork serviceName=%s: Caught: %s", serviceName, str(exc) )
-			# pywintypes.error: (5, 'OpenService', 'Access is denied.')
+            pass
 
-			pass
+    return dict_service_to_node
 
-	return dictServiceToNode
 
 # Writes the key-values dicts of a service into a RDF node.
-def DictServiceToNode( grph, serviceDict, machineName = None ):
-	# sys.stderr.write("DictServiceToNode machineName=%s enter.\n" % str(machineName))
+def DictServiceToNode(grph, service_dict, machine_name=None):
+    # TODO: This is a process but not only. How to display that?
+    service_name = service_dict['ServiceName']
 
-	# TODO: This is a process but not only. How to display that?
-	serviceName = serviceDict['ServiceName']
+    # NOTE: SOON, ALL ENTITIES WILL HAVE THEIR HOSTNAME.
+    if machine_name in [None, ""]:
+        node_service = lib_uris.gUriGen.ServiceUri(service_name)
+    else:
+        node_service = lib_common.RemoteBox(machine_name).ServiceUri(service_name)
 
-	# NOTE: SOON, ALL ENTITIES WILL HAVE THEIR HOSTNAME.
-	if machineName in [ None, ""]:
-		nodeService = lib_common.gUriGen.ServiceUri( serviceName )
-	else:
-		nodeService = lib_common.RemoteBox(machineName).ServiceUri( serviceName )
+    try:
+        current_state_idx = service_dict['CurrentState']
+        current_state_nam = _state_dictionary[current_state_idx]
+    except KeyError:
+        current_state_nam = "Unknown state key"
+    except IndexError:
+        current_state_nam = "Unknown state index"
 
-	try:
-		currentStateIdx = serviceDict['CurrentState']
-		currentStateNam = state_dictionary[ currentStateIdx ]
-	except KeyError:
-		currentStateNam = "Unknown state key"
-	except IndexError:
-		currentStateNam = "Unknown state index"
+    grph.add((node_service, pc.property_information, lib_util.NodeLiteral(service_dict['DisplayName'])))
+    # TODO: Change color with the state. ASSOCIATE COLOR TO PAIRS (Property + Literal value) ? SPECIALLY CODED VALUE WITH HTML TAGS ?
 
-	grph.add( (nodeService, pc.property_information, lib_util.NodeLiteral(serviceDict['DisplayName']) ) )
-	# TODO: Change color with the state. ASSOCIATE COLOR TO PAIRS (Property + Literal value) ? SPECIALLY CODED VALUE WITH HTML TAGS ?
+    service_pid = service_dict['ProcessId']
 
-	servicePid = serviceDict['ProcessId']
-
-	# Display is as compact as possible to help routing. Informaitonal only.
-	if servicePid != 0:
-		# TODO: Plutot mettre un lien vers le process mais afficher comme un literal.
-		state_string = str(servicePid) + "/" + currentStateNam
-		# grph.add( (nodeService, pc.property_pid, lib_util.NodeLiteral(servicePid) ) )
-		grph.add( (nodeService, pc.property_pid, lib_util.NodeLiteral(state_string) ) )
-	else:
-		# grph.add( (nodeService, pc.property_service_state, lib_util.NodeLiteral(currentStateNam) ) )
-		grph.add( (nodeService, pc.property_service_state, lib_util.NodeLiteral(currentStateNam) ) )
-	return nodeService
+    # Display is as compact as possible to help routing. Informaitonal only.
+    if service_pid != 0:
+        # TODO: Plutot mettre un lien vers le process mais afficher comme un literal.
+        state_string = str(service_pid) + "/" + current_state_nam
+        # grph.add((node_service, pc.property_pid, lib_util.NodeLiteral(service_pid)))
+        grph.add((node_service, pc.property_pid, lib_util.NodeLiteral(state_string)))
+    else:
+        # grph.add((node_service, pc.property_service_state, lib_util.NodeLiteral(current_state_nam)))
+        grph.add((node_service, pc.property_service_state, lib_util.NodeLiteral(current_state_nam)))
+    return node_service
 
 
-def FullServiceNetwork(grph,machineName):
-	logging.debug("FullServiceNetwork machineName=%s enter.", str(machineName))
-	dictServiceToNode = {}
-	dictServiceMap = BuildSrvNetwork( machineName )
+def FullServiceNetwork(grph, machine_name):
+    logging.debug("FullServiceNetwork machineName=%s enter.", str(machine_name))
+    dict_service_to_node = {}
+    dict_service_map = BuildSrvNetwork(machine_name)
 
-	# Creates all the RDF nodes.
-	for serviceName in dictServiceMap:
-		serviceDict = dictServiceMap[ serviceName ]
-		dictServiceToNode[ serviceName ] = DictServiceToNode( grph, serviceDict, machineName )
+    # Creates all the RDF nodes.
+    for service_name in dict_service_map:
+        service_dict = dict_service_map[service_name]
+        dict_service_to_node[service_name] = DictServiceToNode(grph, service_dict, machine_name)
 
-	# Now links the services together.
-	for serviceName in dictServiceMap:
-		serviceDict = dictServiceMap[ serviceName ]
-		nodeService = dictServiceToNode[ serviceName ]
-		for subServiceName in serviceDict["depends_in"]:
-			nodeSubService = dictServiceToNode[ subServiceName ]
-			grph.add( (nodeService, pc.property_service, nodeSubService ) )
-	logging.debug("FullServiceNetwork machineName=%s leaving.", str(machineName))
+    # Now links the services together.
+    for service_name in dict_service_map:
+        service_dict = dict_service_map[service_name]
+        node_service = dict_service_to_node[service_name]
+        for sub_service_name in service_dict["depends_in"]:
+            node_sub_service = dict_service_to_node[sub_service_name]
+            grph.add((node_service, pc.property_service, node_sub_service))
+    logging.debug("FullServiceNetwork machineName=%s leaving.", str(machine_name))
 
 
-# Ajoute des informations variees autour du node d'un service.
-# N'a pas besoin d'etre extremement rapide.
-def AddInfo(grph,node,entity_ids_arr):
-	serviceNam = entity_ids_arr[0]
-	logging.debug("AddInfo serviceNam=%s", serviceNam )
+def AddInfo(grph,node, entity_ids_arr):
+    service_nam = entity_ids_arr[0]
+    logging.debug("AddInfo service_nam=%s", service_nam)
 
-	machName_or_None, imper = lib_win32.MakeImpersonate("")
-	hscm = win32service.OpenSCManager(machName_or_None, None, accessSCM)
+    mach_name_or_none, imper = lib_win32.MakeImpersonate("")
+    hscm = win32service.OpenSCManager(mach_name_or_none, None, accessSCM)
 
-	try:
-		status = win32service.SERVICE_QUERY_CONFIG|win32service.SERVICE_QUERY_STATUS|win32service.SERVICE_INTERROGATE|win32service.SERVICE_ENUMERATE_DEPENDENTS
-		hdnSrv = win32service.OpenService( hscm, serviceNam, status )
-		lstSrvPairs = win32service.QueryServiceStatusEx(hdnSrv)
-		win32service.CloseServiceHandle(hdnSrv)
-	except Exception:
-		exc = sys.exc_info()[1]
-		# Probably "Access is denied"
-		logging.warning("AddInfo Caught:%s", str(exc) )
-		lstSrvPairs = dict()
-		try:
-			lstSrvPairs[ "Status" ] = str(exc[2])
-		except:
-			lstSrvPairs[ "Status" ] = str(exc)
+    try:
+        status = win32service.SERVICE_QUERY_CONFIG|win32service.SERVICE_QUERY_STATUS|win32service.SERVICE_INTERROGATE|win32service.SERVICE_ENUMERATE_DEPENDENTS
+        hdn_srv = win32service.OpenService( hscm, service_nam, status )
+        lst_srv_pairs = win32service.QueryServiceStatusEx(hdn_srv)
+        win32service.CloseServiceHandle(hdn_srv)
+    except Exception as exc:
+        # Probably "Access is denied"
+        logging.warning("AddInfo Caught:%s", str(exc))
+        lst_srv_pairs = dict()
+        try:
+            lst_srv_pairs["Status"] = str(exc[2])
+        except:
+            lst_srv_pairs["Status"] = str(exc)
 
-	# CheckPoint                0
-	# ControlsAccepted          1
-	# CurrentState              4
-	# ProcessId              3176
-	# ServiceFlags              0
-	# ServiceSpecificExitCode	0
-	# ServiceType              16
-	# WaitHint                  0
-	# Win32ExitCode             0
-	for keySrv in lstSrvPairs:
-		logging.debug("AddInfo keySrv:%s", keySrv )
-		valSrv = lstSrvPairs[ keySrv ]
-		if keySrv == "ProcessId":
-			if int(valSrv) != 0:
-				nodeProc = lib_common.gUriGen.PidUri(valSrv)
-				grph.add( (nodeProc, pc.property_pid, lib_util.NodeLiteral(valSrv) ) )
-				grph.add( (node,lib_common.MakeProp(keySrv), nodeProc ) )
-		elif keySrv == "ServiceType":
-			svcTypSrc = ""
-			svcTypInt = int(valSrv)
-			if svcTypInt & win32service.SERVICE_KERNEL_DRIVER: svcTypSrc += "KERNEL_DRIVER "
-			if svcTypInt & win32service.SERVICE_FILE_SYSTEM_DRIVER: svcTypSrc += "FILE_SYSTEM_DRIVER "
-			#if svcTypInt & win32service.SERVICE_ADAPTER: svcTypSrc += "ADAPTER "
-			#if svcTypInt & win32service.SERVICE_RECOGNIZER_DRIVER: svcTypSrc += "RECOGNIZER_DRIVER "
-			if svcTypInt & win32service.SERVICE_WIN32_OWN_PROCESS: svcTypSrc += "WIN32_OWN_PROCESS "
-			if svcTypInt & win32service.SERVICE_WIN32_SHARE_PROCESS: svcTypSrc += "WIN32_SHARE_PROCESS "
-			if svcTypInt & win32service.SERVICE_WIN32: svcTypSrc += "WIN32 "
-			if svcTypInt & win32service.SERVICE_INTERACTIVE_PROCESS: svcTypSrc += "INTERACTIVE_PROCESS "
+    # CheckPoint                0
+    # ControlsAccepted          1
+    # CurrentState              4
+    # ProcessId              3176
+    # ServiceFlags              0
+    # ServiceSpecificExitCode    0
+    # ServiceType              16
+    # WaitHint                  0
+    # Win32ExitCode             0
+    for key_srv in lst_srv_pairs:
+        logging.debug("AddInfo key_srv:%s", key_srv)
+        val_srv = lst_srv_pairs[key_srv]
+        if key_srv == "ProcessId":
+            if int(val_srv) != 0:
+                node_proc = lib_uris.gUriGen.PidUri(val_srv)
+                grph.add((node_proc, pc.property_pid, lib_util.NodeLiteral(val_srv)))
+                grph.add((node, lib_common.MakeProp(key_srv), node_proc))
+        elif key_srv == "ServiceType":
+            svc_typ_src = ""
+            svc_typ_int = int(val_srv)
+            if svc_typ_int & win32service.SERVICE_KERNEL_DRIVER: svc_typ_src += "KERNEL_DRIVER "
+            if svc_typ_int & win32service.SERVICE_FILE_SYSTEM_DRIVER: svc_typ_src += "FILE_SYSTEM_DRIVER "
+            #if svc_typ_int & win32service.SERVICE_ADAPTER: svc_typ_src += "ADAPTER "
+            #if svc_typ_int & win32service.SERVICE_RECOGNIZER_DRIVER: svc_typ_src += "RECOGNIZER_DRIVER "
+            if svc_typ_int & win32service.SERVICE_WIN32_OWN_PROCESS: svc_typ_src += "WIN32_OWN_PROCESS "
+            if svc_typ_int & win32service.SERVICE_WIN32_SHARE_PROCESS: svc_typ_src += "WIN32_SHARE_PROCESS "
+            if svc_typ_int & win32service.SERVICE_WIN32: svc_typ_src += "WIN32 "
+            if svc_typ_int & win32service.SERVICE_INTERACTIVE_PROCESS: svc_typ_src += "INTERACTIVE_PROCESS "
 
-			grph.add( (node,lib_common.MakeProp(keySrv), lib_util.NodeLiteral(svcTypSrc) ) )
+            grph.add((node, lib_common.MakeProp(key_srv), lib_util.NodeLiteral(svc_typ_src)))
 
-		elif keySrv == "CurrentState":
-			statesArray = (
-				"SERVICE_STOPPED",
-				"SERVICE_START_PENDING",
-				"SERVICE_STOP_PENDING",
-				"SERVICE_RUNNING",
-				"SERVICE_CONTINUE_PENDING",
-				"SERVICE_PAUSE_PENDING",
-				"SERVICE_PAUSED" )
+        elif key_srv == "CurrentState":
+            states_array = (
+                "SERVICE_STOPPED",
+                "SERVICE_START_PENDING",
+                "SERVICE_STOP_PENDING",
+                "SERVICE_RUNNING",
+                "SERVICE_CONTINUE_PENDING",
+                "SERVICE_PAUSE_PENDING",
+                "SERVICE_PAUSED" )
 
-			# Fetches from the module a constant with this value.
-			srcStatSrc = valSrv
-			for srvStatVar in statesArray:
-				if valSrv == getattr(win32service, srvStatVar):
-					srcStatSrc = srvStatVar
-					break
-			grph.add( (node,lib_common.MakeProp(keySrv), lib_util.NodeLiteral(srcStatSrc) ) )
+            # Fetches from the module a constant with this value.
+            src_stat_src = val_srv
+            for srv_stat_var in states_array:
+                if val_srv == getattr(win32service, srv_stat_var):
+                    src_stat_src = srv_stat_var
+                    break
+            grph.add((node, lib_common.MakeProp(key_srv), lib_util.NodeLiteral(src_stat_src)))
 
-		else:
-			grph.add( (node,lib_common.MakeProp(keySrv), lib_util.NodeLiteral(valSrv) ) )
+        else:
+            grph.add((node, lib_common.MakeProp(key_srv), lib_util.NodeLiteral(val_srv)))
 
-	return
+    return

@@ -130,7 +130,6 @@ def Main():
         lookup_threads.append(thr)
 
     for thread in lookup_threads:
-        # sys.stderr.write('Joining %s\n' % thread.getName())
         thread.join()
 
     cgiEnv.OutCgiRdf()

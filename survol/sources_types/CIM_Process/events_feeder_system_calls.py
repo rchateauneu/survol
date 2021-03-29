@@ -10,6 +10,7 @@ import atexit
 import logging
 import traceback
 
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -29,16 +30,13 @@ if True:
     try:
         from scripts import dockit
     except Exception as exc:
-        sys.stderr.write("exc=%s\n" % exc)
-        sys.stderr.flush()
+        logging.error("exc=%s" % exc)
         raise
 else:
     dockit = None
 
 
 def Snapshot():
-    logging.getLogger().setLevel(logging.DEBUG)
-    sys.stderr.write("Snapshot File=" + __file__ + "\n")
     logging.info("Snapshot mode")
 
     cgiEnv = lib_common.ScriptEnvironment()
@@ -48,7 +46,7 @@ def Snapshot():
 
     # This just returns one triple.
     grph = cgiEnv.GetGraph()
-    process_node = lib_common.gUriGen.PidUri(process_id)
+    process_node = lib_uris.gUriGen.PidUri(process_id)
     grph.add((process_node, pc.property_pid, lib_util.NodeLiteral(process_id)))
 
     cgiEnv.OutCgiRdf()
@@ -57,13 +55,13 @@ def Snapshot():
 # FIXME: Must finish this.
 if dockit:
     dockit_dirname = lib_util.standardized_file_path(os.path.dirname(dockit.__file__))
-    sys.stderr.write("File=" + __file__ + " dockit_dirname=" + dockit_dirname + "\n")
+    logging.debug("File=" + __file__ + " dockit_dirname=" + dockit_dirname)
 
 
 def _atexit_handler_detach(process_id):
     """This is called when this CGI script leaves for any reason.
     Its purpose is to detach from the target process."""
-    sys.stderr.write("_atexit_handler process_id=%d\n" % process_id)
+    logging.info("_atexit_handler process_id=%d" % process_id)
 
 
 def SendEvents():
@@ -71,19 +69,15 @@ def SendEvents():
 
     logging.info("SendEvents")
 
-    sys.stderr.write("SendEvent events\n")
-
     # FIXME:
     if not dockit:
         logging.error("dockit not available")
-        sys.stderr.write("File=" + __file__ + " dockit not loaded" + "\n")
         return
 
     logging.info("dockit available")
     cgiEnv = lib_common.ScriptEnvironment()
     process_id = cgiEnv.GetId()
     logging.info("process_id=%s" % process_id)
-    sys.stderr.write("SendEvents process_id=%s\n" % process_id)
 
     atexit.register(_atexit_handler_detach, process_id)
     logging.info("atexit handler set")
@@ -91,8 +85,7 @@ def SendEvents():
     # This is called by dockit with one of event to be inserted in the global events graph.
     def dockit_events_callback(rdf_triple):
         grph = cgiEnv.ReinitGraph()
-        logging.info("dockit_events_callback")
-        sys.stderr.write("dockit_events_callback rdf_triple=%s\n" % rdf_triple)
+        logging.info("dockit_events_callback rdf_triple=%s" % rdf_triple)
         grph.add(rdf_triple)
         cgiEnv.OutCgiRdf()
 
@@ -118,22 +111,19 @@ def SendEvents():
         duplicate_input_log = False
         output_makefile = None
 
-    sys.stderr.write("SendEvents process_id=%s DockitParameters (s) reated\n" % process_id)
+    logging.debug("SendEvents process_id=%s DockitParameters (s) created" % process_id)
 
     # TODO: How to release the target process when this leaves ?
 
     try:
         dockit.start_processing(DockitParameters)
     except Exception as exc:
-        logging.error("SendEvents caught (stderr): %s\n" % exc)
-        sys.stderr.write("SendEvents caught (stderr): %s\n" % exc)
+        logging.error("SendEvents caught (stderr): %s" % exc)
 
-    sys.stderr.write("SendEvents after processing\n")
+    logging.info("SendEvents after processing")
 
 
 def Main():
-    # Temporary setting of logging level to the max.
-    logging.getLogger().setLevel(logging.DEBUG)
     if lib_util.is_snapshot_behaviour():
         logging.debug("system calls snapshot")
         Snapshot()
@@ -142,7 +132,6 @@ def Main():
         try:
             SendEvents()
         except Exception as err:
-            sys.stderr.write("Caught:%s\n" % err)
             logging.error("Caught:%s" % err)
             raise
 

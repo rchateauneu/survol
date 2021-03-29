@@ -88,8 +88,6 @@ def AddSurvolObjectFromWmi(grph, wmi_instance_node, conn_wmi, class_name, obj_li
     set_survol_urls = set()
 
     for obj_wmi in obj_list:
-        # sys.stderr.write("obj_wmi=[%s]\n" % str(obj_wmi) )
-
         prop_values_array = []
 
         # For each property of the survol ontology, picks the value returned by WMI.

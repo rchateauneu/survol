@@ -34,6 +34,8 @@ import re
 import os
 import sys
 import cgi        # One of the CGI arguments is the name of the Samba server
+
+import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -49,7 +51,7 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    node_smb_shr = lib_common.gUriGen.SmbServerUri(host_name)
+    node_smb_shr = lib_uris.gUriGen.SmbServerUri(host_name)
 
     smbclient_cmd = ["smbclient", "-L", host_name, "-N"]
 
@@ -69,7 +71,6 @@ def Main():
         # session setup failed: NT_STATUS_LOGON_FAILURE
         mtch_net = re.match(r"^.*(NT_STATUS_.*)", lin)
         if mtch_net:
-            # print("OK<br>")
             lib_common.ErrorMessageHtml("Smb failure: " + mtch_net.group(1) + " to smb share:" + node_smb_shr)
 
         if re.match(r"^\sServer\s+Comment", lin):
@@ -87,8 +88,6 @@ def Main():
         if re.match (r"^\s*----+ +---+ +", lin):
             continue
 
-        # print("m="+str(mode_shared_list))
-        # print("l="+lin)
         if mode_shared_list:
             # The type can be "Disk", "Printer" or "IPC".
             mtch_share = re.match(r"^\s+([^\s]+)\s+Disk\s+(.*)$", lin)

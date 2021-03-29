@@ -6,13 +6,14 @@ import os
 import sys
 import datetime
 import logging
+import json
+
 import lib_common
 import lib_util
 import lib_uris
 import lib_properties
 from lib_properties import pc
 import lib_mime
-import json
 
 
 def EntityOntology():
@@ -147,7 +148,7 @@ def AddDevice(grph, file_node, info):
                 break
         file_mounts.close()
 
-        device_node = lib_common.gUriGen.DiskPartitionUri(device_name)
+        device_node = lib_uris.gUriGen.DiskPartitionUri(device_name)
         grph.add((file_node, pc.property_file_device, device_node))
 
 
@@ -248,7 +249,7 @@ def AffFileOwner(grph, file_node, file_name):
             import pwd
             user = pwd.getpwuid(info.st_uid)
             user_name = user[0]
-            user_node = lib_common.gUriGen.UserUri(user_name)
+            user_node = lib_uris.gUriGen.UserUri(user_name)
             grph.add((file_node, pc.property_owner, user_node))
         except ImportError:
             pass
@@ -259,7 +260,7 @@ def AffFileOwner(grph, file_node, file_name):
             import grp
             group = grp.getgrgid( info.st_gid )
             group_name = group[0]
-            group_node = lib_common.gUriGen.GroupUri(group_name)
+            group_node = lib_uris.gUriGen.GroupUri(group_name)
             grph.add((file_node, pc.property_group, group_node))
         except ImportError:
             pass

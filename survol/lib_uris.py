@@ -43,7 +43,6 @@ class LocalBox:
     def BuildEntity(self, entity_type, *entity_id_arr):
         """This works only if the attribute values are in the same order as the ontology."""
         keys = lib_util.OntologyClassKeys(entity_type)
-        #sys.stderr.write("UriMake keys=%s\n" % str(keys) )
 
         len_keys = len(keys)
         len_ent_ids = len(entity_id_arr)
@@ -83,7 +82,6 @@ class LocalBox:
                 return key_it, val_it
 
         entity_id = ",".join("%s=%s" % uri_pair_encode(*kw_items) for kw_items in entity_id_dict.items())
-        # sys.stderr.write("UriMakeFromDict entity_id=%s\n"%entity_id)
         return self.MakeTheNode(entity_type, entity_id)
 
     def TypeMake(self):

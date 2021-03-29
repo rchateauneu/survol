@@ -28,7 +28,6 @@ def LoadEtcPasswd():
 
     # polkituser:x:17:17:system user for policykit:/:/sbin/nologin
     for lin in passwd_fil:
-        # sys.stderr.write("User:"+lin)
         split_lin = lin.split(':')
 
         # Comments might contain UTF8 accents.

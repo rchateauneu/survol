@@ -22,7 +22,7 @@ import rdflib
 import lib_util
 import lib_common
 from lib_properties import pc
-#import lib_uris
+import lib_uris
 
 
 def Main():
@@ -44,12 +44,11 @@ def Main():
             lib_common.ErrorMessageHtml("Invalid share name:%s" % smb_shr)
 
     host_name = shr_match.group(1)
-    host_node = lib_common.gUriGen.HostnameUri(host_name)
+    host_node = lib_uris.gUriGen.HostnameUri(host_name)
 
-    #sys.stderr.write("smb_shr=%s\n"%smb_shr)
     shr_nam = shr_match.group(2)
 
-    node_smb_shr = lib_common.gUriGen.SmbShareUri(smb_shr)
+    node_smb_shr = lib_uris.gUriGen.SmbShareUri(smb_shr)
 
     grph = cgiEnv.GetGraph()
 
