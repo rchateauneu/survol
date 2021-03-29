@@ -2590,7 +2590,7 @@ class SurvolPEFileTest(unittest.TestCase):
         print("filenames=", filenames)
         for one_str in [
             "ntdll.dll",
-            "win32u.dll",
+            # "win32u.dll", # Not on all Windows versions.
         ]:
             self.assertTrue(one_str in filenames)
 
