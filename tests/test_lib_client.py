@@ -2604,7 +2604,14 @@ class SurvolPEFileTest(unittest.TestCase):
             "sources_types/CIM_DataFile/portable_executable/pefile_depends.py",
             "CIM_DataFile",
             Name=dll_file_name)
-        print("lst_instances=", lst_instances)
+        filenames = set()
+        for one_inst in lst_instances:
+            if one_inst.__class__.__name__ == 'CIM_DataFile':
+                filenames.add(os.path.basename(one_inst.Name).lower())
+        for one_str in [
+            "gdi32.dll",
+        ]:
+            self.assertTrue(one_str in filenames)
 
     def test_pefile_information(self):
         """Tests dependencies of a DLL."""
