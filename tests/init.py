@@ -133,8 +133,8 @@ def __dump_server_content(log_filename):
 
         # Maybe nothing special happened so it is not worth printing the content.
         if len(log_lines) == 2 \
-                and log_lines[0].startswith("survol\scripts\cgiserver.py") \
-                and log_lines[1].startswith("survol\scripts\cgiserver.py startup"):
+                and log_lines[0].startswith(r"survol\scripts\cgiserver.py") \
+                and log_lines[1].startswith(r"survol\scripts\cgiserver.py startup"):
             return
         sys.stdout.write("Agent log file: %s\n" % log_filename)
         for line_stream in log_lines:
