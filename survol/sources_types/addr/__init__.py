@@ -76,9 +76,10 @@ def UniversalAlias(entity_ids_arr, entity_host, entity_class):
     return uni_alias
 
 
-# Add the real url corresponding to this socket so we can nicely click on it.
-# This is a bit expeimental.
 def DecorateSocketNode(grph, socket_node, host, port, proto):
+    """
+    Add the real url corresponding to this socket so we can nicely click on it.
+    """
     socket_node = lib_uris.gUriGen.AddrUri(host, port, proto)
 
     nod_url = None
@@ -95,39 +96,31 @@ def DecorateSocketNode(grph, socket_node, host, port, proto):
 ################################################################################
 
 
-def JoinThreads(threads):
+def _join_threads(threads):
     logging.debug("JoinThreads: %d threads to return.", len(threads))
     for thread in threads:
         thread.join()
 
 
-# This returns retrieves the host information corresponding to a network address.
-# It might take a long time due to DNS delay, therefore one thread is started per host.
-def GetHost(addr):
+def _get_socket_host(addr):
+    """
+    This retrieves the host information corresponding to a network address.
+    It might take a long time due to DNS delay, therefore one thread is started per host.
+    """
     try:
         return socket.gethostbyaddr(addr)
     except socket.herror:
         return [addr, []]
 
 
-# Different interfaces according to the psutil version.
-def SocketToPair(connect):
-    try:
-        larray = connect.laddr
-        rarray = connect.raddr
-    except AttributeError:
-        # Old psutil versions.
-        larray = connect.local_address
-        rarray = connect.remote_address
-    return larray, rarray
-
-
-# The input could be '192.168.0.17:22' or '[fe80::3c7a:339:64f0:2161%11]:51769'
-# If IPV6, it removes the surrounding square brackets.
 def SplitAddrPort(addr):
+    """
+    The input could be '192.168.0.17:22' or '[fe80::3c7a:339:64f0:2161%11]:51769'
+    If IPV6, it removes the surrounding square brackets.
+    """
     idx_col = addr.rfind(":")
     if idx_col < 0:
-        return ("", 0)
+        return "", 0
 
     if addr[0] == '[':
         the_host = addr[1:idx_col-1]
@@ -160,13 +153,13 @@ class PsutilAddSocketThread(threading.Thread):
         # Now we create a node in rdflib, and we need a mutex for that.
         try:
             self.grph_lock.acquire()
-            larray, rarray = SocketToPair(self.connect)
+            larray, rarray = self.connect.laddr, self.connect.raddr
 
-            lhost = GetHost(larray[0])[0]
+            lhost = _get_socket_host(larray[0])[0]
             lsocket_node = lib_uris.gUriGen.AddrUri(lhost, larray[1])
 
             try:
-                rhost = GetHost(rarray[0])[0]
+                rhost = _get_socket_host(rarray[0])[0]
                 rsocket_node = lib_uris.gUriGen.AddrUri(rhost, rarray[1])
                 self.grph.add((lsocket_node, pc.property_socket_end, rsocket_node))
             except IndexError:
@@ -184,6 +177,7 @@ def PsutilAddSocketToGraphAsync(node_process, connects, grph, flag_show_unconnec
     grph_lock = threading.Lock()
 
     for cnt in connects:
+        logging.debug("cnt.family=%d type=%d status=%s", cnt.family, cnt.type, cnt.status)
         if( (cnt.family == socket.AF_INET)
         and (cnt.type == socket.SOCK_STREAM)
         and (flag_show_unconnected or (cnt.status == 'ESTABLISHED'))
@@ -192,17 +186,18 @@ def PsutilAddSocketToGraphAsync(node_process, connects, grph, flag_show_unconnec
             thr.start()
             threads_arr.append(thr)
 
-    JoinThreads(threads_arr)
+    _join_threads(threads_arr)
 
 
 # TODO: We might, in the future, have one single object instead of two.
 # TODO: Remove this hardcode !!!
 # For example "socket_pair". Not sure.
 def PsutilAddSocketToGraphOne(node_process, connect, grph):
+    logging.debug("connect.family=%d", connect.family)
     if((connect.family == 2) and (connect.type == 1)):
     #and ( connect.status == 'ESTABLISHED' )
 
-        larray, rarray = SocketToPair(connect)
+        larray, rarray = connect.laddr, connect.raddr
         lsocket_node = lib_uris.gUriGen.AddrUri(larray[0], larray[1])
         try:
             rsocket_node = lib_uris.gUriGen.AddrUri(rarray[0], rarray[1])
