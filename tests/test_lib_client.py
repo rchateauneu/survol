@@ -1600,12 +1600,7 @@ class SurvolSocketsTest(unittest.TestCase):
     and examines the result. It might merge the output with local scripts or
     scripts on different machines."""
 
-    def test_netstat_sockets(self):
-
-        # Not many web sites in HTTP these days. This one is very stable.
-        # http://w2.vatican.va/content/vatican/it.html is on port 80=http
-        http_host_name = 'w2.vatican.va'
-
+    def _create_socket_connection(self, http_host_name, url_query):
         sock_host = socket.gethostbyname(http_host_name)
         print("gethostbyname(%s)=%s" % (http_host_name, sock_host))
 
@@ -1616,23 +1611,32 @@ class SurvolSocketsTest(unittest.TestCase):
         else:
             import httplib
             conn_http = httplib.HTTPConnection(http_host_name, 80, timeout=60)
-        print("Connection to %s OK"%http_host_name)
+        print("Connection to %s OK" % http_host_name)
         # Legacy and backward compatibility.
-        conn_http.request("GET", "/latin/latin_index.html")
+        conn_http.request("GET", url_query)
         resp = conn_http.getresponse()
         if (resp.status, resp.reason) not in [(200, "OK"), (302, "Found")]:
             raise Exception("Hostname %s not ok. Status=%d, reason=%s." % (http_host_name, resp.status, resp.reason))
+        return conn_http
+
+    def test_netstat_sockets(self):
+
+        # Not many web sites in HTTP these days. This one is very stable.
+        # http://w2.vatican.va/content/vatican/it.html is on port 80=http
+        http_host_name = 'w2.vatican.va'
+
+        conn_http = self._create_socket_connection(http_host_name, "/latin/latin_index.html")
         peer_name = conn_http.sock.getpeername()
         peer_host = peer_name[0]
 
-        print("Peer name of connection socket:",conn_http.sock.getpeername())
+        print("Peer name of connection socket:", conn_http.sock.getpeername())
 
         if is_platform_windows:
             lst_instances = _client_object_instances_from_script("sources_types/win32/tcp_sockets_windows.py")
         else:
             lst_instances = _client_object_instances_from_script("sources_types/Linux/tcp_sockets.py")
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances ])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances ])
 
         addr_expected = "addr.Id=%s:80" % peer_host
         print("addr_expected=", addr_expected)
@@ -1640,34 +1644,16 @@ class SurvolSocketsTest(unittest.TestCase):
 
         conn_http.close()
 
-    @unittest.skip("THIS WORKS ONLY SOMETIMES")
+    # FIXME: Fix this.
+    @unittest.skip("Test is not reliable")
     def test_enumerate_sockets(self):
         """List of sockets opened on the host machine"""
 
         # This site was registered on September the 18th, 1986. It is very stable.
         http_host_name = 'www.itcorp.com'
 
-        sock_host = socket.gethostbyname(http_host_name)
-        print("gethostbyname(%s)=%s"%(http_host_name,sock_host))
+        conn_http = self._create_socket_connection(http_host_name, "/")
 
-        # This opens a connection to a specific machine, then checks that the socket can be found.
-        expected_port = 80
-        if is_py3:
-            import http.client
-            conn_http = http.client.HTTPConnection(http_host_name, expected_port, timeout=60)
-        else:
-            import httplib
-            conn_http = httplib.HTTPConnection(http_host_name, expected_port, timeout=60)
-        print("Connection to %s OK"%http_host_name)
-
-        print("Requesting content")
-        conn_http.request(method="GET", url="/")
-        print("Peer name of connection socket:",conn_http.sock.getpeername())
-
-        resp = conn_http.getresponse()
-
-        if resp.status != 200 or resp.reason != "OK":
-            raise Exception("Hostname %s not ok. Status=%d, reason=%s." % (http_host_name, resp.status, resp.reason))
         peer_name = conn_http.sock.getpeername()
         peer_host = peer_name[0]
 
@@ -1708,22 +1694,8 @@ class SurvolSocketsTest(unittest.TestCase):
         # This URL doesn't redirect http to https.
         http_host_name = 'eu.httpbin.org'
 
-        print("")
-        sockHost = socket.gethostbyname(http_host_name)
-        print("gethostbyname(%s)=%s" % (http_host_name, sockHost))
+        conn_http = self._create_socket_connection(http_host_name, "")
 
-        # This opens a connection to a specific machine, then checks that the socket can be found.
-        if is_py3:
-            import http.client
-            conn_http = http.client.HTTPConnection(http_host_name, 80, timeout=60)
-        else:
-            import httplib
-            conn_http = httplib.HTTPConnection(http_host_name, 80, timeout=60)
-        print("Connection to %s OK"%http_host_name)
-        conn_http.request("GET", "")
-        resp = conn_http.getresponse()
-        if resp.status != 200 or resp.reason != "OK":
-            raise Exception("Hostname %s not ok. Status=%d, reason=%s." % (http_host_name, resp.status, resp.reason))
         peer_name = conn_http.sock.getpeername()
         peer_host = peer_name[0]
 
@@ -1734,7 +1706,7 @@ class SurvolSocketsTest(unittest.TestCase):
             "addr",
             Id="%s:80" % peer_host)
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         # Because the current process has created this socket,
         # it must be found in the socket's connected processes.
@@ -1749,6 +1721,34 @@ class SurvolSocketsTest(unittest.TestCase):
         self.assertTrue(proc_expected in str_instances_set)
 
         conn_http.close()
+
+    def test_socket_host(self):
+        http_host_name = 'eu.httpbin.org'
+
+        conn_http = self._create_socket_connection(http_host_name, "")
+
+        peer_name = conn_http.sock.getpeername()
+        peer_host = peer_name[0]
+
+        print("Peer name of connection socket:",conn_http.sock.getpeername())
+
+        lst_instances = _client_object_instances_from_script(
+            "sources_types/addr/socket_host.py",
+            "addr",
+            Id="%s:80" % peer_host)
+
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
+
+        addr_expected = "addr.Id=%s:80" % peer_host
+
+        print("addr_expected=", addr_expected)
+
+        self.assertTrue(addr_expected in str_instances_set)
+
+        conn_http.close()
+
+
+class SurvolNetworkTest(unittest.TestCase):
 
     @unittest.skipIf(not is_platform_windows, "test_net_use for Windows only.")
     def test_net_use(self):
