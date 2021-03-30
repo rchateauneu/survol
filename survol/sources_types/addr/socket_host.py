@@ -4,7 +4,6 @@
 Socket information
 """
 
-import re
 import sys
 import socket
 import logging
