@@ -62,7 +62,7 @@ def Main():
                 and (cnt.type == socket.SOCK_STREAM)
                 and (cnt.status == 'ESTABLISHED')
                 ):
-                    larray, rarray = survol_addr.SocketToPair(cnt)
+                    larray, rarray = cnt.laddr, cnt.raddr
 
                     if host_addr == larray[0]:
                         associate_with_sockets(grph, larray, rarray)
