@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Process open sockets
+Sockets opened by the process
 """
 
 import sys
@@ -35,7 +35,7 @@ def Main():
         except Exception as exc:
             lib_common.ErrorMessageHtml("Error:" + str(exc))
 
-    survol_addr.PsutilAddSocketToGraph(node_process, connects,grph)
+    survol_addr.PsutilAddSocketToGraph(node_process, connects, grph)
 
     cgiEnv.OutCgiRdf()
 
