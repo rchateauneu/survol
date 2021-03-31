@@ -110,12 +110,12 @@ class SourceCgi(SourceBase):
 
 
 def _load_moded_urls(url_moded):
-    logging.debug("_load_moded_urls urlModed=%s", url_moded)
+    logging.debug("url_moded=%s", url_moded)
     try:
         # Very long timeout to read WBEM ontology.
         response = lib_util.survol_urlopen(url_moded, timeout=120)
     except Exception as exc:
-        logging.error("_load_moded_urls urlModed=%s. Caught:%s", url_moded, str(exc))
+        logging.error("url_moded=%s. Caught:%s", url_moded, str(exc))
         raise
     data = response.read()
     assert isinstance(data, six.binary_type)
@@ -199,7 +199,7 @@ class SourceLocal (SourceCgi):
                 self.m_output.close()
                 return str_result
 
-        logging.debug("__execute_script_with_mode before calling module=%s",modu.__name__)
+        logging.debug("before calling module=%s",modu.__name__)
         outmach_string = OutputMachineString()
         original_out_mach = lib_util.globalOutMach
 
@@ -212,7 +212,7 @@ class SourceLocal (SourceCgi):
             modu.Main()
         except Exception as ex:
             # https://www.stefaanlippens.net/python-traceback-in-catch/
-            logging.error("__execute_script_with_mode with module=%s: Caught:%s", modu.__name__, ex, exc_info=True)
+            logging.error("module=%s: Caught:%s", modu.__name__, ex, exc_info=True)
             lib_common.enable_error_message(True)
 
             # Restores the original stream.
@@ -335,7 +335,7 @@ class SourceMergeMinus (SourceMerge):
 # http://mymachine:8000
 def agent_to_host(agent_url):
     parsed_url = lib_util.survol_urlparse(agent_url)
-    logging.debug("agent_to_host %s => %s", agent_url, parsed_url.hostname)
+    logging.debug("%s => %s", agent_url, parsed_url.hostname)
     return parsed_url.hostname
 
 # https://stackoverflow.com/questions/15247075/how-can-i-dynamically-create-derived-classes-from-a-base-class
@@ -651,7 +651,7 @@ def create_CIM_class(agent_url, class_name, **kwargs_ontology):
     entity_id = lib_util.KWArgsToEntityId(class_name, **kwargs_ontology)
 
     # No need to use the class in the key, because the cache is class-specific.
-    logging.debug("create_CIM_class agentUrl=%s className=%s entity_id=%s", agent_url, class_name, entity_id)
+    logging.debug("agent_url=%s class_name=%s entity_id=%s", agent_url, class_name, entity_id)
 
     try:
         new_cim_class = _cache_cim_classes[class_name]
@@ -715,7 +715,7 @@ def instance_url_to_agent_url(instance_url):
         idx_survol = instance_url.find("/survol")
         agent_url = instance_url[:idx_survol]
 
-    logging.debug("instance_url_to_agent_url instanceUrl=%s agent_url=%s", instance_url, agent_url)
+    logging.debug("instanceUrl=%s agent_url=%s", instance_url, agent_url)
     return agent_url
 
 
@@ -837,7 +837,7 @@ class TripleStore:
 
     def filter_objects_with_predicate_class(self, associator_key_name, result_class_name):
         """This returns only the objects of a given class and for a given predicate."""
-        logging.warning("TripleStore.ObjectFromPredicate associator_key_name=%s, result_class_name=%s",
+        logging.debug("associator_key_name=%s, result_class_name=%s",
                 associator_key_name, result_class_name)
 
         dict_objects = {}
@@ -883,9 +883,9 @@ class TripleStore:
     def copy_to_graph(self, grph):
         """This adds the triples to another triplestore."""
 
-        # Maybe this is a test mode.
+        # Maybe this is in test mode.
         if not grph:
-            logging.warning("copy_to_graph Graph is None. Leaving")
+            logging.warning("Graph is None. Leaving")
             return
 
         for the_triple in self.m_triplestore:
@@ -939,20 +939,19 @@ class Agent:
                 self.m_caller = caller
                 self.m_agent_url = agent_url
 
-            def __call__(self, *argsCall, **kwargsCall):
-                new_instance = create_CIM_class(self.m_agent_url, self.m_name, **kwargsCall)
+            def __call__(self, *args_call, **kwargs_call):
+                new_instance = create_CIM_class(self.m_agent_url, self.m_name, **kwargs_call)
                 return new_instance
 
             def __getattr__(self, attribute_name):
                 return CallDispatcher(self, self.m_agent_url, self.m_name + "/" + attribute_name)
 
-        #sys.stdout.write("Agent.__getattr__ attr=%s\n"%(str(attribute_name)))
         return CallDispatcher(self, self.m_agent_url, attribute_name)
 
     def exec_http_script(self, a_script):
         if self.m_agent_url:
             an_url = self.m_agent_url + a_script
-            logging.debug("get_internal_data an_url=%s" % an_url)
+            logging.debug("an_url=%s" % an_url)
             url_content = _load_moded_urls(an_url)
             return url_content
         else:
