@@ -1644,27 +1644,25 @@ class SurvolSocketsTest(unittest.TestCase):
 
         conn_http.close()
 
-    # FIXME: Fix this.
-    @unittest.skip("Test is not reliable")
     def test_enumerate_sockets(self):
         """List of sockets opened on the host machine"""
 
-        # This site was registered on September the 18th, 1986. It is very stable.
-        http_host_name = 'www.itcorp.com'
+        http_host_name = 'python.org'
 
-        conn_http = self._create_socket_connection(http_host_name, "/")
+        conn_http = self._create_socket_connection_without_query(http_host_name)
 
-        peer_name = conn_http.sock.getpeername()
-        peer_host = peer_name[0]
+        the_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # now connect to the web server on port 80 - the normal http port
+        the_socket.connect((http_host_name, 80))
+
+        peer_host = socket.gethostbyname(http_host_name)
 
         lst_instances = _client_object_instances_from_script(
             "sources_types/enumerate_socket.py")
 
         str_instances_list = [str(one_inst) for one_inst in lst_instances]
 
-        print("sock_host=", sock_host)
-        print("peer_host=", peer_host)
-        print("expected_port=", expected_port)
+        logging.debug("peer_host=%s", peer_host)
 
         found_socket = False
         for one_instance in str_instances_list:
@@ -1676,7 +1674,8 @@ class SurvolSocketsTest(unittest.TestCase):
                     continue
                 try:
                     instance_addr = socket.gethostbyname(instance_host)
-                    found_socket = instance_addr == peer_host and instance_port == str(expected_port)
+                    logging.debug("host=%s port=%s addr=%s", instance_host, instance_port, instance_addr)
+                    found_socket = instance_addr == peer_host
                     if found_socket:
                         break
                 except socket.gaierror:
