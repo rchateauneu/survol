@@ -1649,8 +1649,6 @@ class SurvolSocketsTest(unittest.TestCase):
 
         http_host_name = 'python.org'
 
-        conn_http = self._create_socket_connection_without_query(http_host_name)
-
         the_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # now connect to the web server on port 80 - the normal http port
         the_socket.connect((http_host_name, 80))
@@ -1682,7 +1680,6 @@ class SurvolSocketsTest(unittest.TestCase):
                     pass
 
         self.assertTrue(found_socket)
-        conn_http.close()
 
     def test_socket_connected_processes(self):
         """List of processes connected to a given socket"""
