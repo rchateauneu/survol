@@ -11,18 +11,12 @@ import importlib
 import wsgiref.simple_server as server
 import webbrowser
 import logging
+import io
 
 if __package__:
     from . import daemon_factory
 else:
     import daemon_factory
-
-
-# See lib_client.py with similar code which cannot be imported here.
-# This expects bytes (Py3) or str (Py2).
-def _create_string_stream():
-    from io import BytesIO
-    return BytesIO()
 
 
 # This models the output of the header and the content.
@@ -36,7 +30,7 @@ class OutputMachineWsgi:
         # FIXME: then converted to a string, then written to the socket.
         # FIXME: Ideally, this should be written in one go from for example lib_common.copy_to_output_destination,
         # FIXME: to the output socket.
-        self.m_output = _create_string_stream()
+        self.m_output = io.BytesIO()
         self.m_start_response = start_response
         self.m_header_called = False
 
@@ -47,7 +41,7 @@ class OutputMachineWsgi:
 
     def Content(self):
         if not self.m_header_called:
-            sys.stderr.write("Content: Warning OutputMachineWsgi.Content HeaderWriter not called.\n")
+            logging.error("Warning OutputMachineWsgi.Content HeaderWriter not called.")
         self.m_header_called = False
         str_value = self.m_output.getvalue()
         if sys.version_info >= (3,):
@@ -59,13 +53,13 @@ class OutputMachineWsgi:
         return str_value
 
     # extraArgs is an array of key-value tuples.
-    def HeaderWriter(self, mimeType, extraArgs= None):
+    def HeaderWriter(self, mime_type, extraArgs= None):
         if self.m_header_called:
-            sys.stderr.write("OutputMachineWsgi.HeaderWriter already called: mimeType=%s. RETURNING.\n"%mimeType)
+            logging.error("OutputMachineWsgi.HeaderWriter already called: mimeType=%s. RETURNING." % mime_type)
             return
         self.m_header_called = True
         status = '200 OK'
-        response_headers = [('Content-type', mimeType)]
+        response_headers = [('Content-type', mime_type)]
         self.m_start_response(status, response_headers)
 
     def OutStream(self):
@@ -74,7 +68,7 @@ class OutputMachineWsgi:
 
 def app_serve_file(path_info, start_response):
     file_name = path_info[1:]
-    sys.stderr.write("app_serve_file file_name:%s cwd=%s\n" % (file_name, os.getcwd()))
+    logging.debug("app_serve_file file_name:%s cwd=%s", file_name, os.getcwd())
     # Just serve a plain HTML or CSS file.
     response_headers = [('Content-type', 'text/html')]
 
@@ -82,17 +76,17 @@ def app_serve_file(path_info, start_response):
         of = open(file_name, "rb")
         file_content = of.read()
         of.close()
-        sys.stderr.write("app_serve_file file read OK\n")
-        sys.stderr.write("Writing type=%s\n" % type(file_content))
+        logging.debug("app_serve_file file read OK")
+        logging.debug("Writing type=%s" % type(file_content))
 
         start_response('200 OK', response_headers)
 
-        sys.stderr.write("Writing %d bytes\n" % len(file_content))
+        logging.debug("Writing %d bytes" % len(file_content))
 
         return [file_content]
     except Exception as exc:
         start_response('200 OK', response_headers)
-        sys.stderr.write("app_serve_file caught %s\n" % str(exc))
+        logging.error("app_serve_file caught %s" % exc)
         return ["<html><head></head><body>app_serve_file file_name=%s: Caught:%s</body></html>" % (file_name, exc)]
 
 
@@ -115,13 +109,9 @@ def application_ok(environ, start_response):
     global global_module
 
     if verbose_debug_mode:
-        sys.stderr.write("application_ok: environ\n")
+        logging.debug("environ")
         for key in sorted(environ.keys()):
-            sys.stderr.write("application_ok:environ[%-20s]=%-20s\n"%(key,environ[key]))
-
-        sys.stderr.write("application_ok: os.environ\n")
-        for key in sorted(os.environ.keys()):
-            sys.stderr.write("application_ok:os.environ[%-20s]=%-20s\n"%(key,os.environ[key]))
+            logging.debug("environ[%-20s]=%-20s", key, environ[key])
 
     # Must be done BEFORE IMPORTING, so the modules can have the good environment at init time.
     for key in ["QUERY_STRING","SERVER_PORT"]:
@@ -160,11 +150,11 @@ def application_ok(environ, start_response):
     # This must be done only when environment variables are properly set.
     if not global_module:
         global_module = importlib.import_module("entity")
-        sys.stderr.write("application_ok: Loaded global module")
+        logging.debug("Loaded global module")
 
     # If "http://127.0.0.1:8000/survol/sources_top/enumerate_CIM_LogicalDisk.py?xid=."
     # then "/survol/sources_top/enumerate_CIM_LogicalDisk.py"
-    sys.stderr.write("application_ok: path_info=%s\n" % path_info)
+    logging.debug("path_info=%s" % path_info)
 
     # Example: path_info=/survol/www/index.htm
     if path_info.find("/survol/www/") >= 0 \
@@ -172,73 +162,73 @@ def application_ok(environ, start_response):
             or path_info == '/favicon.ico':
         return app_serve_file(path_info, start_response)
 
-    path_info = path_info.replace("/",".")
+    path_info = path_info.replace("/", ".")
 
     module_prefix = "survol."
     htbin_index = path_info.find(module_prefix)
 
     if not path_info.endswith(".py"):
-        sys.stderr.write("application_ok (1): path_info=%s should be a Python script\n" % path_info)
+        logging.error("path_info=%s should be a Python script" % path_info)
         raise Exception("application_ok: path_info=%s is not a Python script" % path_info)
 
     path_info = path_info[htbin_index + len(module_prefix):-3] # "Strips ".py" at the end.
 
     # ["sources_types","enumerate_CIM_LogicalDisk"]
-    splitPathInfo = path_info.split(".")
+    split_path_info = path_info.split(".")
 
     import lib_util
 
     # This is the needed interface so all our Python machinery can write to the WSGI server.
-    theOutMach = OutputMachineWsgi(start_response)
+    the_out_mach = OutputMachineWsgi(start_response)
 
-    if len(splitPathInfo) > 1:
-        modulesPrefix = ".".join( splitPathInfo[:-1] )
+    if len(split_path_info) > 1:
+        modules_prefix = ".".join(split_path_info[:-1])
 
         # Tested with Python2 on Windows and Linux.
         # Example: entity_type = "Azure.location"
         # entity_module = importlib.import_module( ".subscription", "sources_types.Azure")
-        moduleName = "." + splitPathInfo[-1]
-        sys.stderr.write("application_ok: moduleName=%s modulesPrefix=%s\n" % (moduleName,modulesPrefix))
+        module_name = "." + split_path_info[-1]
+        logging.error("module_name=%s modules_prefix=%s", module_name, modules_prefix)
         try:
-            the_module = importlib.import_module(moduleName, modulesPrefix)
+            the_module = importlib.import_module(module_name, modules_prefix)
         except Exception as exc:
-            sys.stderr.write("application_ok: caught=%s\n" % (str(exc)))
+            logging.error("Caught=%s" % exc)
             raise
 
         # TODO: Apparently, if lib_util is imported again, it seems its globals are initialised again. NOT SURE...
-        lib_util.globalOutMach = theOutMach
+        lib_util.globalOutMach = the_out_mach
 
     else:
-        sys.stderr.write("application_ok: Not dot in path_info=%s\n" % path_info)
+        logging.error("Not dot in path_info=%s" % path_info)
         the_module = importlib.import_module(path_info)
 
-        lib_util.globalOutMach = theOutMach
+        lib_util.globalOutMach = the_out_mach
 
     script_name = os.environ['SCRIPT_NAME']
-    sys.stderr.write("application_ok: scriptNam=%s\n" % script_name)
+    logging.debug("script_name=%s" % script_name)
 
     try:
         # TODO: Rename this to a more visible name like MainEntryPoint.
         the_module.Main()
     except RuntimeError as exc:
-    # Minor error thrown by ErrorMessageHtml
-        sys.stderr.write(__file__ + ": application_ok runtime-error caught %s in Main()\n" % exc)
-        sys.stderr.write(__file__ + ": application_ok runtime-error exception=%s\n" % traceback.format_exc())
+        # Minor error thrown by ErrorMessageHtml
+        logging.error("Caught %s in Main()" % exc)
+        logging.error("Exception=%s" % traceback.format_exc())
     except Exception as exc:
-        sys.stderr.write(__file__ + ": application_ok caught %s in Main()\n" % exc)
-        sys.stderr.write(__file__ + ": application_ok exception=%s\n" % traceback.format_exc() )
+        logging.error("Caught %s in Main()" % exc)
+        logging.error("Exception=%s" % traceback.format_exc() )
         raise
 
     try:
         # TODO: Use yield for better performance.
         module_content = lib_util.globalOutMach.Content()
     except Exception as exc:
-        sys.stderr.write(__file__  + ":application_ok: caught from Content():%s\n" % exc)
+        logging.error("Caught from Content():%s" % exc)
         # The HTTP header is not written because of the exception. This calls start_response.
         lib_util.globalOutMach.HeaderWriter('text/html')
         module_content = "Message: application_ok caught:%s\n" % exc
 
-    return [ module_content ]
+    return [module_content]
 
 
 def application(environ, start_response):
@@ -312,7 +302,7 @@ def wsgiserver_entry_point():
     daemon_factory.supervisor_startup()
 
     curr_dir = os.getcwd()
-    logging.debug("cwd=%s path=%s"% (curr_dir, str(sys.path)))
+    logging.debug("cwd=%s path=%s", curr_dir, str(sys.path))
 
     the_url = "http://" + server_name
     if port_number:
@@ -335,7 +325,7 @@ def start_server_forever(server_name, port_number, current_dir=""):
     logfil.write(__file__ + " startup\n")
     logfil.flush()
 
-    logging.debug(__file__ + " redirection stderr\n")
+    logging.debug(__file__ + " redirection stderr")
 
     server_addr = socket.gethostbyname(server_name)
 
@@ -343,14 +333,14 @@ def start_server_forever(server_name, port_number, current_dir=""):
     logging.debug("Version:%s" % str(sys.version_info))
     logging.debug("Server address:%s" % server_addr)
     logging.debug("sys.path:%s" % str(sys.path))
-    logging.debug("Opening %s:%d" % (server_name, port_number))
+    logging.debug("Opening %s:%d", server_name, port_number)
 
     # The script must be started from a specific directory because of the URLs.
     good_dir = os.path.join(os.path.dirname(__file__), "..", "..")
     os.chdir(good_dir)
 
     sys.path.append("survol")
-    sys.stderr.write("path=%s\n" % str(sys.path))
+    logging.info("path=%s" % str(sys.path))
 
     # This expects that environment variables are propagated to subprocesses.
     os.environ["SURVOL_SERVER_NAME"] = server_name
