@@ -249,16 +249,16 @@ def _local_supervisor_stop():
 
     is_running = psutil.pid_exists(_supervisor_process.pid)
     if is_running:
-        logging.info("Running fine. Pid=%d", _supervisor_process)
+        logging.info("Running fine. Pid=%d", _supervisor_process.pid)
     else:
         logging.error("SHOULD BE RUNNING")
 
     _supervisor_process.kill()
     _supervisor_process.communicate()
     try:
-        logging.info("being terminated. Pid=%d", _supervisor_process)
+        logging.info("being terminated. Pid=%d", _supervisor_process.pid)
         _supervisor_process.terminate()
-        logging.info("terminated. Pid=%d", _supervisor_process)
+        logging.info("terminated. Pid=%d", _supervisor_process.pid)
     except Exception as exc:
         logging.error("_supervisor_process. Pid=%d: %s" % (_supervisor_process.pid, str(exc)))
 
