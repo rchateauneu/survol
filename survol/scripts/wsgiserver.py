@@ -19,12 +19,11 @@ else:
     import daemon_factory
 
 
-# This models the output of the header and the content.
-# See the class lib_util.OutputMachineCgi
-# TODO: We could have a much simpler implementation by changing the value of sys.stdout.
-# TODO: We would detect the end of the header on the fly.
-# TODO: The advantage is that it would work with plain CGI scripts.
 class OutputMachineWsgi:
+    """
+    This models the output of the header and the content.
+    See the class lib_util.OutputMachineCgi
+    """
     def __init__(self, start_response):
         # FIXME: This is not efficient because Survol creates a string stored in the stream,
         # FIXME: then converted to a string, then written to the socket.
@@ -35,8 +34,9 @@ class OutputMachineWsgi:
         self.m_header_called = False
 
     def __del__(self):
-        # Close object and discard memory buffer --
-        # .getvalue() will now raise an exception.
+        """
+        Close object and discard memory buffer.
+        """
         self.m_output.close()
 
     def Content(self):
@@ -52,8 +52,10 @@ class OutputMachineWsgi:
                 str_value = str_value.encode()
         return str_value
 
-    # extraArgs is an array of key-value tuples.
     def HeaderWriter(self, mime_type, extraArgs= None):
+        """
+        extraArgs is an array of key-value tuples.
+        """
         if self.m_header_called:
             logging.error("OutputMachineWsgi.HeaderWriter already called: mimeType=%s. RETURNING." % mime_type)
             return
@@ -90,9 +92,7 @@ def app_serve_file(path_info, start_response):
         return ["<html><head></head><body>app_serve_file file_name=%s: Caught:%s</body></html>" % (file_name, exc)]
 
 
-global_module = None
-
-verbose_debug_mode = False
+_global_module = None
 
 
 # environ[SERVER_SOFTWARE]=WSGIServer/0.1 Python/2.7.10
@@ -106,12 +106,11 @@ verbose_debug_mode = False
 # environ[wsgi.url_scheme     ]=http
 # environ[wsgi.version        ]=(1, 0)
 def application_ok(environ, start_response):
-    global global_module
+    global _global_module
 
-    if verbose_debug_mode:
-        logging.debug("environ")
-        for key in sorted(environ.keys()):
-            logging.debug("environ[%-20s]=%-20s", key, environ[key])
+    logging.debug("environ")
+    for key in sorted(environ.keys()):
+        logging.debug("environ[%-20s]=%-20s", key, environ[key])
 
     # Must be done BEFORE IMPORTING, so the modules can have the good environment at init time.
     for key in ["QUERY_STRING","SERVER_PORT"]:
@@ -129,7 +128,7 @@ def application_ok(environ, start_response):
     # The wsgi Python module sets a value for SERVER_NAME that we do not want.
     os.environ["SERVER_NAME"] = os.environ["SURVOL_SERVER_NAME"]
 
-    os.environ["PYTHONPATH"] = "survol" # Not needed if installed ??
+    os.environ["PYTHONPATH"] = "survol" # Not needed if the package is installed.
 
     # FIXME: Is this needed on all platforms.
     os.environ.copy()
@@ -148,8 +147,8 @@ def application_ok(environ, start_response):
     # The path is imported but if it tries to import another module, the initialisation code
     # of this module will be run only when leaving the first imported module; which is too late.
     # This must be done only when environment variables are properly set.
-    if not global_module:
-        global_module = importlib.import_module("entity")
+    if not _global_module:
+        _global_module = importlib.import_module("entity")
         logging.debug("Loaded global module")
 
     # If "http://127.0.0.1:8000/survol/sources_top/enumerate_CIM_LogicalDisk.py?xid=."
@@ -184,9 +183,7 @@ def application_ok(environ, start_response):
     if len(split_path_info) > 1:
         modules_prefix = ".".join(split_path_info[:-1])
 
-        # Tested with Python2 on Windows and Linux.
         # Example: entity_type = "Azure.location"
-        # entity_module = importlib.import_module( ".subscription", "sources_types.Azure")
         module_name = "." + split_path_info[-1]
         logging.error("module_name=%s modules_prefix=%s", module_name, modules_prefix)
         try:
@@ -195,9 +192,7 @@ def application_ok(environ, start_response):
             logging.error("Caught=%s" % exc)
             raise
 
-        # TODO: Apparently, if lib_util is imported again, it seems its globals are initialised again. NOT SURE...
         lib_util.globalOutMach = the_out_mach
-
     else:
         logging.error("Not dot in path_info=%s" % path_info)
         the_module = importlib.import_module(path_info)
@@ -216,7 +211,7 @@ def application_ok(environ, start_response):
         logging.error("Exception=%s" % traceback.format_exc())
     except Exception as exc:
         logging.error("Caught %s in Main()" % exc)
-        logging.error("Exception=%s" % traceback.format_exc() )
+        logging.error("Exception=%s" % traceback.format_exc())
         raise
 
     try:
@@ -231,8 +226,18 @@ def application_ok(environ, start_response):
     return [module_content]
 
 
+_is_supervisor_started = False
+
+
 def application(environ, start_response):
-    """This is required by WSGI"""
+    """This is required by WSGI interface"""
+
+    global _is_supervisor_started
+    if not _is_supervisor_started:
+        # The daemon runs processes writing events to a database, which are later read by CGI or WSGI scripts.
+        daemon_factory.supervisor_startup()
+        _is_supervisor_started = True
+
     try:
         return application_ok(environ, start_response)
     except Exception as exc:
@@ -297,9 +302,6 @@ def wsgiserver_entry_point():
             sys.exit()
         else:
             assert False, "Unhandled option"
-
-    # Here, the server starts for good.
-    daemon_factory.supervisor_startup()
 
     curr_dir = os.getcwd()
     logging.debug("cwd=%s path=%s", curr_dir, str(sys.path))
