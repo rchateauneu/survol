@@ -69,7 +69,7 @@ def _fill_one_package(grph, node, good_pckg):
     # This might return location="c:\python27\lib\site-packages"
     clean_loca_dir = lib_util.standardized_file_path(good_pckg.location)
     node_location = lib_uris.gUriGen.DirectoryUri(clean_loca_dir)
-    grph.add((node, lib_uris.MakeProp("Location"), node_location))
+    grph.add((node, lib_common.MakeProp("Location"), node_location))
 
 
 # http://stackoverflow.com/questions/247770/retrieving-python-module-path
