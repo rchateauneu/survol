@@ -163,7 +163,7 @@ def _get_calling_module_doc():
             return "Caught when getting doc:" + str(exc)
     else:
         try:
-            # This does not work when in WSGI mode, nor when merging.
+            # FIXME: This does not work when in WSGI mode, nor when merging.
             main_modu = sys.modules['__main__']
             page_title = main_modu.__doc__
             if page_title:
@@ -369,6 +369,7 @@ class ScriptEnvironment():
 
         if mode == "edit":
             self.enter_edition_mode()
+            logging.critical("Should not be here because the HTML form is displayed.")
             assert False
 
         # Scripts which can run as events feeders must have their name starting with "events_feeder_".
@@ -415,10 +416,22 @@ class ScriptEnvironment():
             # Events are probably stored in the big events graph. The host and port are not used in the URL.
             lib_kbase.read_events_to_graph(self.m_url_without_mode, self.m_graph)
 
-            # TODO: IT SHOULD BE WITH THE PARAMETERS OF OutCgiRdf() IN THIS SCRIPT !!
-            # TODO: THESE LAYOUT PARAMETERS: dot_layout, collapsed_properties SHOULD BE IN THE CONSTRUCTOR.
-            # TODO: Or ... simply go on with the script in snapshot mode ??
+            # TODO: The layout parameters and any other display parameters of the calling script
+            # TODO: must be in the constructor.
+            # TODO: This, because the rest of the script is not executed.
             self.OutCgiRdf()
+
+            # The rest of the script must not be executed because daemon scripts are organised so that
+            # when the daemon is started, it writes all events in the database, to be read by the same script
+            # run in CGI or WSGI.
+            # The snapshot part of a daemon script is executed only when the deamon is not started.
+            logging.info("Events are read from the events database because the deamon is running.")
+            if _is_wsgi():
+                logging.info("Leaving the execution of the script run in a WSGI server.")
+                # This is not an error.
+            else:
+                logging.info("Exiting the process of the script run in snapshot mode and CGI server.")
+            # This raises SystemExit which can be handled.
             exit(0)
 
     def report_error_message(self, error_message):
@@ -754,6 +767,17 @@ def enable_error_message(flag):
     globalErrorMessageEnabled = flag
 
 
+def _is_wsgi():
+    # 'SERVER_SOFTWARE': 'SimpleHTTP/0.6 Python/2.7.10', 'WSGIServer/0.2'
+    try:
+        server_software = os.environ['SERVER_SOFTWARE']
+    except KeyError:
+        server_software = "Unknown_SERVER_SOFTWARE"
+    logging.debug("ErrorMessageHtml about to leave. server_software=%s" % server_software)
+
+    return server_software.find('WSGIServer') >= 0
+
+
 def ErrorMessageHtml(message):
     """
     This is called by CGI scripts to leave with an error message.
@@ -784,17 +808,11 @@ def ErrorMessageHtml(message):
         except KeyError:
             pass
 
-        # 'SERVER_SOFTWARE': 'SimpleHTTP/0.6 Python/2.7.10', 'WSGIServer/0.2'
-        try:
-            server_software = os.environ['SERVER_SOFTWARE']
-        except KeyError:
-            server_software = "Unknown_SERVER_SOFTWARE"
         lib_util.InfoMessageHtml(message)
-        logging.debug("ErrorMessageHtml about to leave. server_software=%s" % server_software)
 
-        if server_software.find('WSGIServer') >= 0:
+        if _is_wsgi():
             # WSGI server is persistent and should not exit.
-            raise RuntimeError("Server software=" + server_software)
+            raise RuntimeError("WSGI server should not exit")
         else:
             sys.exit(0)
     else:
