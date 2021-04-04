@@ -8,15 +8,19 @@ import getopt
 import socket
 import traceback
 import importlib
-import wsgiref.simple_server as server
+import wsgiref.validate
+import wsgiref.simple_server
 import webbrowser
 import logging
 import io
 
 if __package__:
     from . import daemon_factory
+    from . import wsgi_survol
 else:
     import daemon_factory
+    import wsgi_survol
+
 
 
 class OutputMachineWsgi:
@@ -185,7 +189,7 @@ def application_ok(environ, start_response):
 
         # Example: entity_type = "Azure.location"
         module_name = "." + split_path_info[-1]
-        logging.error("module_name=%s modules_prefix=%s", module_name, modules_prefix)
+        logging.debug("module_name=%s modules_prefix=%s", module_name, modules_prefix)
         try:
             the_module = importlib.import_module(module_name, modules_prefix)
         except Exception as exc:
@@ -194,7 +198,7 @@ def application_ok(environ, start_response):
 
         lib_util.globalOutMach = the_out_mach
     else:
-        logging.error("Not dot in path_info=%s" % path_info)
+        logging.debug("Not dot in path_info=%s" % path_info)
         the_module = importlib.import_module(path_info)
 
         lib_util.globalOutMach = the_out_mach
@@ -205,6 +209,12 @@ def application_ok(environ, start_response):
     try:
         # TODO: Rename this to a more visible name like MainEntryPoint.
         the_module.Main()
+    except SystemExit as exc:
+        if exc.code == 0:
+            logging.info("Normal exit, possibly at the end of the script:%s" % exc)
+        else:
+            logging.info("Exit with error:%s. Reraising." % exc)
+            raise
     except RuntimeError as exc:
         # Minor error thrown by ErrorMessageHtml
         logging.error("Caught %s in Main()" % exc)
@@ -253,12 +263,13 @@ _port_number_default = 9000
 
 
 def __print_wsgi_server_usage():
-    progNam = sys.argv[0]
-    print("Survol WSGI server: %s"%progNam)
+    prog_nam = sys.argv[0]
+    print("Survol WSGI server: %s" % prog_nam)
     print("    -a,--address=<IP address> TCP/IP address.")
     print("    -p,--port=<number>        TCP/IP port number. Default is %d." % _port_number_default)
     print("    -b,--browser              Starts a browser.")
-    print("    -l,--log                  Log level.")
+    print("    -v,--validate             Validate application.")
+    print("    -l,--log=<level>          Log level.")
     print("")
     print("Script must be started with command: survol/scripts/wsgiserver.py")
 
@@ -267,8 +278,8 @@ def wsgiserver_entry_point():
     try:
         opts, args = getopt.getopt(
             sys.argv[1:],
-            "ha:p:bl:",
-            ["help", "address=", "port=", "browser=", "log"])
+            "a:p:b:l:vh",
+            ["address=", "port=", "browser=", "log=", "validate", "help"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(err)  # will print something like "option -a not recognized"
@@ -286,6 +297,7 @@ def wsgiserver_entry_point():
 
     port_number = _port_number_default
     start_browser = False
+    validate_application = False
 
     for an_opt, a_val in opts:
         if an_opt in ("-l", "--log"):
@@ -297,6 +309,8 @@ def wsgiserver_entry_point():
             port_number = int(a_val)
         elif an_opt in ("-b", "--browser"):
             start_browser = True
+        elif an_opt in ("-v", "--validate"):
+            validate_application = True
         elif an_opt in ("-h", "--help"):
             __print_wsgi_server_usage()
             sys.exit()
@@ -317,12 +331,12 @@ def wsgiserver_entry_point():
         webbrowser.open(the_url, new=0, autoraise=True)
         print("Browser started to:" + the_url)
 
-    start_server_forever(server_name, port_number, current_dir="")
+    start_server_forever(server_name, port_number, validate_application)
 
 WsgiServerLogFileName = "wsgiserver.execution.log"
 
 
-def start_server_forever(server_name, port_number, current_dir=""):
+def start_server_forever(server_name, port_number, validate_application):
     logfil = open(WsgiServerLogFileName, "w")
     logfil.write(__file__ + " startup\n")
     logfil.flush()
@@ -350,7 +364,11 @@ def start_server_forever(server_name, port_number, current_dir=""):
 
     logfil.flush()
 
-    httpd = server.make_server('', port_number, application)
+    if validate_application:
+        validator_app = wsgiref.validate.validator(application)
+        httpd = wsgiref.simple_server.make_server('', port_number, validator_app)
+    else:
+        httpd = wsgiref.simple_server.make_server('', port_number, application)
     print("WSGI server running on port %i..." % port_number)
     # Respond to requests until process is killed
     httpd.serve_forever()
