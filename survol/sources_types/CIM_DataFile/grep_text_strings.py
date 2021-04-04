@@ -73,9 +73,8 @@ def Main():
 
 				# TODO: Add intermediary node, counts the number of occurrences.
 		opFil.close()
-	except Exception:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Error:%s. Protection ?"%str(exc))
+	except Exception as exc:
+		lib_common.ErrorMessageHtml("Error:%s. Protection ?" % str(exc))
 
 	logging.debug("cntLines=%d cntOccur=%d",cntLines,cntOccur)
 
