@@ -27,12 +27,9 @@ def Main():
 	grph = cgiEnv.GetGraph()
 
 	try:
-		#
 		lstOverview = cl.get_overview()
-	except:
-		#
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Caught:"+str(exc))
+	except Exception as exc:
+		lib_common.ErrorMessageHtml("Caught:" + str(exc))
 
 	for keyOverview in lstOverview:
 		valOverview = lstOverview[keyOverview]
@@ -41,10 +38,10 @@ def Main():
 		# Otherwise it does not work as these chars should be espaced.
 		# TODO: Nice display for Python lists and dicts.
 		valClean = str(valClean).replace("{","").replace("}","")
-		# sys.stderr.write("valClean=%s\n"%valClean)
-		grph.add( ( nodeManager, lib_common.MakeProp(keyOverview), lib_util.NodeLiteral(valClean) ) )
+		grph.add((nodeManager, lib_common.MakeProp(keyOverview), lib_util.NodeLiteral(valClean)))
 
 	cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
 	Main()

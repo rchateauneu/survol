@@ -32,12 +32,9 @@ def Main():
 	grph = cgiEnv.GetGraph()
 
 	try:
-		#
 		listExchanges = cl.get_exchanges()
-	except:
-		#
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Caught:"+str(exc))
+	except Exception as exc:
+		lib_common.ErrorMessageHtml("Caught:" + str(exc))
 
 	for objExchange in listExchanges:
 		namExchange = objExchange["name"]
