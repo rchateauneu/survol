@@ -34,8 +34,8 @@ def Graphic_is_rounded():
 # Tells if a file is a sqlite databse.
 def IsSqliteDatabase(fil_nam):
     # TODO: Checking the file extension may not be enough and we should check the content.
-    filExt = os.path.splitext(fil_nam)[1]
-    return filExt.upper() in [".SQLITE", ".SQLITE2", ".SQLITE3", ".DB"]
+    fil_ext = os.path.splitext(fil_nam)[1]
+    return fil_ext.upper() in [".SQLITE", ".SQLITE2", ".SQLITE3", ".DB"]
 
 
 # This basically returns a list of the sqlite files accessed by the process.
@@ -44,7 +44,7 @@ def DatabaseEnvParams(process_id):
     # This is imported here to avoid circular references.
     from sources_types import CIM_Process
 
-    logging.debug("\nDatabaseEnvParams process_id=%s", str(process_id))
+    logging.debug("process_id=%s", str(process_id))
     # Get the list of files open by the process.
     try:
         proc_obj = CIM_Process.PsutilGetProcObj(int(process_id))
@@ -58,11 +58,11 @@ def DatabaseEnvParams(process_id):
         logging.debug("DatabaseEnvParams process_id=%s fil_nam=%s", str(process_id), fil_nam)
         if IsSqliteDatabase(fil_nam):
             logging.debug("DatabaseEnvParams ADDING fil_nam=%s", fil_nam)
-            filNamClean = lib_util.standardized_file_path(fil_nam)
-            filDef = {"File": filNamClean}
-            list_args.append(filDef)
+            fil_nam_clean = lib_util.standardized_file_path(fil_nam)
+            fil_def = {"File": fil_nam_clean}
+            list_args.append(fil_def)
 
-    logging.debug("DatabaseEnvParams len=%d\n", len(list_args))
+    logging.debug("DatabaseEnvParams len=%d", len(list_args))
 
     return "sqlite/query", list_args
 
