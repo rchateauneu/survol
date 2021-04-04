@@ -19,7 +19,6 @@ from sources_types.Azure import subscription
 Usable = lib_util.UsableWindows
 
 
-
 def Main():
 	cgiEnv = lib_common.ScriptEnvironment()
 
@@ -28,7 +27,7 @@ def Main():
 	# subscriptionName=Azure.DefaultSubscription()
 	subscriptionName = cgiEnv.m_entity_id_dict["Subscription"]
 
-	(subscription_id,certificate_path) = lib_credentials.GetCredentials( "Azure", subscriptionName )
+	subscription_id, certificate_path = lib_credentials.GetCredentials( "Azure", subscriptionName )
 
 	sms = ServiceManagementService(subscription_id, certificate_path)
 
@@ -50,14 +49,14 @@ def Main():
 	try:
 		# This throws when running with Apache. OK with cgiserver.py
 		lstOSes = sms.list_operating_system_families()
-	except:
-		lib_common.ErrorMessageHtml("Unexpected error:" + str( sys.exc_info() ) )
+	except Exception as exc:
+		lib_common.ErrorMessageHtml("Unexpected error:" + str(exc))
 
 	for opsys in lstOSes:
-		# sys.stderr.write("opsys=%s\n"%str(dir(opsys)))
 		grph.add( ( subscriptionNode, propOperatingSystemFamily, lib_util.NodeLiteral(opsys.label)) )
 
 	cgiEnv.OutCgiRdf("LAYOUT_RECT",[propOperatingSystemFamily])
+
 
 if __name__ == '__main__':
 	Main()
