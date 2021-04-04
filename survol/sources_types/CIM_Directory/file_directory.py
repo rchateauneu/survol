@@ -85,7 +85,7 @@ def Main():
     else:
         is_top_directory = False
 
-    logging.debug("file_directory.py fil_nam=%s is_top_directory=%d", fil_nam, is_top_directory)
+    logging.debug("fil_nam=%s is_top_directory=%d", fil_nam, is_top_directory)
 
     if not is_top_directory:
         topdir = os.path.dirname(fil_nam)

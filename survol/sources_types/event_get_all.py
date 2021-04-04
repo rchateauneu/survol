@@ -20,13 +20,12 @@ def Main():
 
     # This can process remote hosts because it does not call any script, just shows them.
     cgiEnv = lib_common.ScriptEnvironment()
-    logging.debug("event_get_all.py")
+    logging.debug("Starting.")
 
     grph = cgiEnv.GetGraph()
 
-    logging.debug("event_get_all.py About to get events")
+    logging.debug("About to get events")
     num_triples = lib_kbase.retrieve_all_events_to_graph_then_clear(grph)
-    sys.stderr.write("%s num_triples=%d\n" % (__file__, num_triples))
 
     logging.debug("num_triples=%d" % num_triples)
     cgiEnv.OutCgiRdf()

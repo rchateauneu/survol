@@ -28,7 +28,7 @@ def Main():
 
     cimom_url = lib_wbem.HostnameToWbemServer(machine_name)
 
-    logging.debug("wbem_process_info.py currentHostname=%s pid=%d machine_name=%s cimom_url=%s",
+    logging.debug("currentHostname=%s pid=%d machine_name=%s cimom_url=%s",
           lib_util.currentHostname, pid, machine_name, cimom_url)
 
     try:

@@ -99,7 +99,7 @@ def Main():
     # entity_type might an empty string.
     root_node = _wbem_namespace_node(wbem_namespace, cimom_url, entity_type)
 
-    logging.debug("objtypes_wmi.py cimom_url=%s entity_type=%s", cimom_url, entity_type)
+    logging.debug("cimom_url=%s entity_type=%s", cimom_url, entity_type)
 
     tree_classes_filtered = lib_wbem.GetClassesTreeInstrumented(conn_wbem, wbem_namespace)
 

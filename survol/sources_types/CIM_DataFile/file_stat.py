@@ -23,7 +23,7 @@ def Main():
     cgiEnv = lib_common.ScriptEnvironment()
     file_name = cgiEnv.GetId()
 
-    logging.debug("file_stat.py file_name=%s", file_name)
+    logging.debug("file_name=%s", file_name)
 
     file_node = lib_uris.gUriGen.FileUri(file_name)
 

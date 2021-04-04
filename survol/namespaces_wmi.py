@@ -90,7 +90,7 @@ def Main():
 
     cimom_url = entity_host
 
-    logging.debug("namespaces_wmi.py cimom_url=%s", cimom_url)
+    logging.debug("cimom_url=%s", cimom_url)
 
     grph = cgiEnv.GetGraph()
 
