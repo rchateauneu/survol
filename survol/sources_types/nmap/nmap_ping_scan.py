@@ -63,14 +63,6 @@ def Main():
 
     # The program nmap must be in the PATH.
     p = lib_common.SubProcPOpen(args)
-    #except WindowsError: # On Windows, this cannot find "FileNotFoundError"
-    #    exc = sys.exc_info()[1]
-    #    lib_common.ErrorMessageHtml("Cannot find nmap:"+str(exc)+". Maybe a dependency problem")
-    #except FileNotFoundError:
-    #    lib_common.ErrorMessageHtml("Cannot find nmap")
-    #except : # On Windows, this cannot find "FileNotFoundError"
-    #    exc = sys.exc_info()
-    #    lib_common.ErrorMessageHtml("Cannot run nmap:"+str(exc))
 
     grph = cgiEnv.GetGraph()
 
