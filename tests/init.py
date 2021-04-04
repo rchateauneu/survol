@@ -117,6 +117,8 @@ RemoteRdf3TestServerPort = 8013
 RemoteRdf4TestServerPort = 8014
 RemoteMimeTestServerPort = 8020
 
+RemoteWsgi1TestServerPort = 9000
+RemoteWsgi2TestServerPort = 9001
 
 # Several Survol scripts return this executable among their results, so it can be tested.
 CurrentExecutable = lib_util.standardized_file_path(sys.executable)
@@ -136,11 +138,11 @@ def __dump_server_content(log_filename):
                 and log_lines[0].startswith(r"survol\scripts\cgiserver.py") \
                 and log_lines[1].startswith(r"survol\scripts\cgiserver.py startup"):
             return
-        sys.stdout.write("Agent log file: %s\n" % log_filename)
+        logging.debug("Agent log file: %s" % log_filename)
         for line_stream in log_lines:
             sys.stdout.write(">>> %s" % line_stream)
         agent_stream.close()
-        sys.stdout.write("Agent log file end\n")
+        logging.debug("Agent log file end")
     except Exception as exc:
         logging.error("No agent log file:%s" % exc)
 
@@ -381,10 +383,11 @@ def stop_cgiserver(agent_process):
         agent_process.join()
 
 
-def start_wsgiserver(agent_url, agent_port):
+def start_wsgiserver(agent_port):
     """This is used to start a WSGI HTTP server which runs cgiserver.py.
     This processes executes Python scripts on request from thet tests run by pytest.
     These Python scripts are imported as Python module and run in WSGI. """
+    agent_url = "http://%s:%d" % (CurrentMachine, agent_port)
     try:
         # No SVG because Travis might not have dot/Graphviz. Also, the script must be compatible with WSGI.
         agent_process = None
@@ -404,7 +407,7 @@ def start_wsgiserver(agent_url, agent_port):
 
         agent_process = multiprocessing.Process(
             target=scripts.wsgiserver.start_server_forever,
-            args=(agent_host, agent_port, current_dir))
+            args=(agent_host, agent_port, True))
         agent_process.start()
         atexit.register(__dump_server_content, scripts.wsgiserver.WsgiServerLogFileName)
         logging.info("Waiting for WSGI agent ready")
@@ -420,14 +423,16 @@ def start_wsgiserver(agent_url, agent_port):
 
     data = response.read().decode("utf-8")
     print("WSGI Survol agent OK")
-    return agent_process
+    return agent_process, agent_url
 
 
 def stop_wsgiserver(agent_process):
     print("tearDownModule")
     if agent_process:
+        logging.info("Killing WSGI process %d", agent_process.pid)
         agent_process.terminate()
         agent_process.join()
+        logging.info("Killed WSGI process %d", agent_process.pid)
 
 ################################################################################
 
