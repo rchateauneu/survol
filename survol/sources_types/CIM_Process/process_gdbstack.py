@@ -19,8 +19,8 @@ Usable = lib_util.UsableLinux
 
 
 # Runs a gdb command and returns the output with some cleanup.
-def RunGdbCommand(the_pid,command):
-	tmpGdb = lib_util.TmpFile("gdbstack","gdb")
+def RunGdbCommand(the_pid, command):
+	tmpGdb = lib_util.TmpFile("gdbstack", "gdb")
 	gdbFilNam = tmpGdb.Name
 
 	gdbFil = open(gdbFilNam,"w")
@@ -29,20 +29,19 @@ def RunGdbCommand(the_pid,command):
 	gdbFil.close()
 
 	# TODO: See python/__init__.py which also runs a gdb command.
-	gdb_cmd = [ "gdb", "-q", "-p", str(the_pid), "-x", gdbFilNam ]
-	logging.debug( "gdb command=%s", " ".join( gdb_cmd ) )
+	gdb_cmd = ["gdb", "-q", "-p", str(the_pid), "-x", gdbFilNam  ]
+	logging.debug("gdb command=%s", " ".join(gdb_cmd))
 
 	try:
 		gdb_pipe = lib_common.SubProcPOpen(gdb_cmd)
 	#except FileNotFoundError:
 	#	lib_common.ErrorMessageHtml("gdb is not available")
-	except Exception:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Gdb:"+ str(exc))
+	except Exception as exc:
+		lib_common.ErrorMessageHtml("Gdb:" + str(exc))
 
 	# TODO: How can we get the stderr message: "ptrace: Operation not permitted." which comes after "Attaching to process 6063" ????
 
-	( gdb_last_output, gdb_err ) = gdb_pipe.communicate()
+	gdb_last_output, gdb_err = gdb_pipe.communicate()
 
 	resu = []
 
@@ -54,22 +53,21 @@ def RunGdbCommand(the_pid,command):
 		if lib_util.is_py3:
 			# This return a bytes.
 			lin = lin.decode("utf-8")
-		logging.debug("rungdb:%s", lin )
+		logging.debug("rungdb:%s", lin)
 		# Not sure the prompt is displayed when in non-interactive mode.
 		if lin.startswith("(gdb)"): continue
 		if lin.startswith("Reading symbols "): continue
 		if lin.startswith("Loaded symbols "): continue
 		resu.append(lin)
 
-
 	if len(gdb_err) != 0:
 		logging.debug("Err:%s", gdb_err)
-		lib_common.ErrorMessageHtml("No gdb output:"+gdb_err)
+		lib_common.ErrorMessageHtml("No gdb output:" + gdb_err)
 
 	return resu
 
 
-def CallParse( execName, grph, procNode, callNodePrev, lin ):
+def CallParse(execName, grph, procNode, callNodePrev, lin):
 	# TODO: See the content of the parenthesis. Can it be the arguments?
 
 	funcName = None
@@ -82,29 +80,29 @@ def CallParse( execName, grph, procNode, callNodePrev, lin ):
 		fileName = mtch_call_lib.group(2)
 	else:
 		# #8  0x0804ebe9 in QGList::~QGList$delete ()
-		mtch_call_lib = re.match( r"^#[0-9]+ +0x[0-9a-f]+ in ([^ ]+) \([^)]*\)$", lin )
+		mtch_call_lib = re.match(r"^#[0-9]+ +0x[0-9a-f]+ in ([^ ]+) \([^)]*\)$", lin)
 		if mtch_call_lib:
 			funcName = mtch_call_lib.group(1)
 			fileName = execName
 
 	# TODO: Should add the address or the line number as last parameter.
-	return survol_symbol.AddFunctionCall( grph, callNodePrev, procNode, funcName, fileName )
+	return survol_symbol.AddFunctionCall(grph, callNodePrev, procNode, funcName, fileName)
 
 
 def PassThreads(the_pid, execName, grph, procNode):
 	currThr = -1
 	callNodePrev = None
 
-	lines = RunGdbCommand( the_pid, "thread apply all bt" )
+	lines = RunGdbCommand(the_pid, "thread apply all bt")
 
 	for lin in lines:
-		logging.debug("Gdb1:%s", lin )
+		logging.debug("Gdb1:%s", lin)
 
 		# TODO: On Linux, the light weight process is another process.
 		# Thread 1 (Thread -1237260592 (LWP 6513)):
-		mtch_thread = re.match("Thread *([0-9]+) .*", lin )
+		mtch_thread = re.match("Thread *([0-9]+) .*", lin)
 		if mtch_thread:
-			currThr = int( mtch_thread.group(1) )
+			currThr = int(mtch_thread.group(1))
 			callNodePrev = None
 			continue
 
@@ -146,12 +144,12 @@ def Main():
 
 	proc_obj = CIM_Process.PsutilGetProcObj(the_pid)
 
-	procNode = lib_uris.gUriGen.PidUri( the_pid )
-	CIM_Process.AddInfo( grph, procNode, [ str(the_pid) ] )
+	procNode = lib_uris.gUriGen.PidUri(the_pid)
+	CIM_Process.AddInfo(grph, procNode, [str(the_pid)])
 
-	( execName, execErrMsg ) = CIM_Process.PsutilProcToExe( proc_obj )
-	if( execName == "" ):
-		lib_common.ErrorMessageHtml("Cannot gdb:"+execErrMsg)
+	execName, execErrMsg = CIM_Process.PsutilProcToExe( proc_obj )
+	if execName == "":
+		lib_common.ErrorMessageHtml("Cannot gdb:" + execErrMsg)
 
 	PassThreads(the_pid, execName, grph, procNode)
 
