@@ -796,7 +796,7 @@ def ErrorMessageHtml(message):
             # is not set in minimal HTTP servers such as CGIHTTPServer.
             request_uri = lib_util.RequestUri()
             url_mode = lib_util.get_url_mode(request_uri)
-            logging.error("ErrorMessageHtml request_uri=%s url_mode=%s" % (request_uri, url_mode))
+            logging.error("request_uri=%s url_mode=%s" % (request_uri, url_mode))
             if url_mode == "json":
                 # If we are in Json mode, this returns a special json document with the error message.
                 lib_export_json.write_json_error(message)

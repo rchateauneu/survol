@@ -338,7 +338,7 @@ def Main():
     try:
         addr_remote = os.environ['REMOTE_ADDR']
     except KeyError:
-        logging.error("edit_credentials.py: Cannot get REMOTE_ADDR")
+        logging.error("Cannot get REMOTE_ADDR")
         raise
 
     # Hard-coded protection.

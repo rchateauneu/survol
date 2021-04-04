@@ -123,7 +123,7 @@ def Main():
     cimom_url = cgiEnv.GetHost()
 
     name_space, class_name = cgiEnv.get_namespace_type()
-    logging.debug("entity_wbem.py cimom_url=%s name_space=%s class_name=%s", cimom_url, name_space, class_name)
+    logging.debug("cimom_url=%s name_space=%s class_name=%s", cimom_url, name_space, class_name)
 
     if name_space == "":
         name_space = "root/cimv2"
@@ -157,7 +157,7 @@ def Main():
     # select * from CIM_Directory or CIM_DataFile does not return anything.
 
     inst_lists = WbemPlainExecQuery(conn, class_name, split_monik, name_space)
-    logging.debug("entity_wbem.py inst_lists=%s", str(inst_lists))
+    logging.debug("inst_lists=%s", str(inst_lists))
     if inst_lists is None:
         inst_lists = WbemNoQueryOneInst(conn, class_name, split_monik, name_space)
         if inst_lists is None:
