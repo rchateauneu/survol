@@ -54,14 +54,15 @@ def Main():
 			for propKey in rpmProps:
 				propRpm = rpmProps[propKey]
 				# The value might be None.
-				propVal = h[ propKey ] or ""
+				propVal = h[propKey] or ""
 				grph.add((nodeRpm, propRpm, lib_util.NodeLiteral(propVal)))
 
-			grph.add( ( lib_common.nodeMachine, rpmPropName, nodeRpm ) )
-	except Exception:
-		lib_common.ErrorMessageHtml("List of RPMs: Error %s" % ( str( sys.exc_info() ) ) )
+			grph.add((lib_common.nodeMachine, rpmPropName, nodeRpm))
+	except Exception as exc:
+		lib_common.ErrorMessageHtml("List of RPMs: Error %s" % str(exc))
 
 	cgiEnv.OutCgiRdf("LAYOUT_RECT", [rpmPropName])
+
 
 if __name__ == '__main__':
 	Main()

@@ -142,8 +142,7 @@ def Main():
             try:
                 send_events_once()
             except Exception as exc:
-                sys.stderr.write(__file__ + " caught: %s" % exc)
-                logging.warning("caught: %s\n" % exc)
+                logging.warning("caught: %s" % exc)
 
 
 if __name__ == '__main__':
