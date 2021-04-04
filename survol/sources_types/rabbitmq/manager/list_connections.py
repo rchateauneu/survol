@@ -15,8 +15,8 @@ from sources_types.rabbitmq import manager as survol_rabbitmq_manager
 from sources_types.rabbitmq import user as survol_rabbitmq_user
 from sources_types.rabbitmq import connection as survol_rabbitmq_connection
 
-def Main():
 
+def Main():
 	cgiEnv = lib_common.ScriptEnvironment()
 
 	configNam = cgiEnv.GetId()
@@ -47,14 +47,14 @@ def Main():
 
 	try:
 		listConnections = cl.get_connections()
-	except:
-		exc = sys.exc_info()[1]
-		lib_common.ErrorMessageHtml("Caught:"+str(exc))
+	except as exc:
+		lib_common.ErrorMessageHtml("Caught:" + str(exc))
 
 	if listConnections:
 		AddConnections(grph,listConnections,configNam,nodeManager)
 
 	cgiEnv.OutCgiRdf()
+
 
 def AddConnections(grph,listConnections,configNam,nodeManager):
 	for objConnect in listConnections:
@@ -65,12 +65,12 @@ def AddConnections(grph,listConnections,configNam,nodeManager):
 		nodeConnect = survol_rabbitmq_connection.MakeUri(configNam,namConnect)
 
 		try:
-			grph.add( ( nodeConnect, lib_common.MakeProp("Protocol"), lib_util.NodeLiteral(objConnect["protocol"]) ) )
+			grph.add((nodeConnect, lib_common.MakeProp("Protocol"), lib_util.NodeLiteral(objConnect["protocol"])))
 		except KeyError:
 			pass
 
 		try:
-			grph.add( ( nodeConnect, lib_common.MakeProp("Node"), lib_util.NodeLiteral(objConnect["node"]) ) )
+			grph.add((nodeConnect, lib_common.MakeProp("Node"), lib_util.NodeLiteral(objConnect["node"])))
 		except KeyError:
 			pass
 
@@ -82,13 +82,13 @@ def AddConnections(grph,listConnections,configNam,nodeManager):
 
 		# '127.0.0.1:51532 -> 127.0.0.1:5672'
 		# http://localhost:12345/#/connections/127.0.0.1%3A51532%20-%3E%20127.0.0.1%3A5672
-		namConnectCgi = namConnect.replace(">","&gt;")
-		logging.debug("namConnectCgi=%s",namConnectCgi)
-		managementUrl = rabbitmq.ManagementUrlPrefix(configNam,"connections",namConnectCgi)
+		namConnectCgi = namConnect.replace(">", "&gt;")
+		logging.debug("namConnectCgi=%s", namConnectCgi)
+		managementUrl = rabbitmq.ManagementUrlPrefix(configNam, "connections", namConnectCgi)
 
-		grph.add( ( nodeConnect, lib_common.MakeProp("Management"), lib_common.NodeUrl(managementUrl) ) )
+		grph.add((nodeConnect, lib_common.MakeProp("Management"), lib_common.NodeUrl(managementUrl)))
 
-		grph.add( ( nodeManager, lib_common.MakeProp("Connection"), nodeConnect ) )
+		grph.add((nodeManager, lib_common.MakeProp("Connection"), nodeConnect))
 
 
 if __name__ == '__main__':
