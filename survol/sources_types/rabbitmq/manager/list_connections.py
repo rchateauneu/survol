@@ -47,7 +47,7 @@ def Main():
 
 	try:
 		listConnections = cl.get_connections()
-	except as exc:
+	except Exception as exc:
 		lib_common.ErrorMessageHtml("Caught:" + str(exc))
 
 	if listConnections:
