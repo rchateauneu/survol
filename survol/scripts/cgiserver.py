@@ -42,7 +42,7 @@ except ImportError:
 
 
 def __run_server_forever(server):
-    logging.info("__run_server_forever\n")
+    logging.info("__run_server_forever.")
     server.serve_forever()
 
 
@@ -287,9 +287,6 @@ def start_server_forever(server_name, port_number, current_dir=""):
                 # So it always works.
                 uprs = urlparse(self.path)
                 path_only = uprs.path
-
-                # This interprets cr-nl.
-                #logging.info('\n')
 
                 file_name, file_extension = os.path.splitext(path_only)
                 return file_extension == ".py"

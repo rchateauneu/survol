@@ -132,7 +132,7 @@ def AddSurvolObjectFromWmi(grph, wmi_instance_node, conn_wmi, class_name, obj_li
 
 # All instances that are associated with a particular source instance.
 def DisplayObjectAssociators(grph, wmi_instance_node, obj_wmi, cgiMoniker):
-    logging.debug("DisplayObjectAssociators\n")
+    logging.debug("DisplayObjectAssociators.")
     # It is possible to restrict the associators to a specific class only.
     for an_assoc in obj_wmi.associators():
         # assoc_moniker=\\MYMACHINE\root\cimv2:Win32_ComputerSystem.Name="MYMACHINE"

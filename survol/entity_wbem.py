@@ -53,9 +53,8 @@ def WbemNoQueryOneInst(conn, class_name, split_monik, name_space):
         wbem_inst_obj = conn.GetInstance(wbem_inst_name)
 
         return [wbem_inst_obj]
-    except:
-        exc = sys.exc_info()[1]
-        logging.warning("WbemNoQueryOneInst className=" + str(class_name) + ". ns=" + name_space + ".\nCaught:" + str(exc))
+    except Exception as exc:
+        logging.warning("class_name=" + str(class_name) + ". ns=" + name_space + ". Caught:" + str(exc))
         return None
 
 
@@ -65,8 +64,7 @@ def WbemNoQueryFilterInstances(conn, class_name, split_monik, name_space):
         # TODO: namespace is hard-coded.
         name_space = "root/CIMv2"
         inst_names_list = conn.EnumerateInstanceNames(ClassName=class_name, namespace=name_space)
-    except Exception:
-        exc = sys.exc_info()[1]
+    except Exception as exc:
         lib_common.ErrorMessageHtml("EnumerateInstanceNames: nameSpace=" + name_space
                                   + " className=" + class_name + ". Caught:" + str(exc))
 
@@ -129,7 +127,7 @@ def Main():
 
     if name_space == "":
         name_space = "root/cimv2"
-        logging.info("Setting namespace to default value\n")
+        logging.info("Setting namespace to default value.")
 
     if class_name == "":
         lib_common.ErrorMessageHtml("No class name. entity_id=%s" % entity_id)
