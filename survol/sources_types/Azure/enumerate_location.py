@@ -29,13 +29,13 @@ def EnumLoca(grph,subscriptionName):
 	try:
 		# This throws when running with Apache. OK with cgiserver.py
 		lstLocas = sms.list_locations()
-	except:
-		lib_common.ErrorMessageHtml("Unexpected error:" + str( sys.exc_info() ) )
+	except Exception as exc:
+		lib_common.ErrorMessageHtml("Unexpected error:" + str(exc))
 
 	for loca in lstLocas:
 		locaNode = location.MakeUri( loca.name, subscriptionName )
+		grph.add((subscriptionNode, lib_common.MakeProp("Location"), locaNode))
 
-		grph.add( ( subscriptionNode, lib_common.MakeProp("Location"), locaNode ) )
 
 def Main():
 	cgiEnv = lib_common.ScriptEnvironment()

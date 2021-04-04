@@ -48,8 +48,8 @@ def Main():
 	try:
 		# This throws when running with Apache. OK with cgiserver.py
 		lstDisks = sms.list_disks()
-	except:
-		lib_common.ErrorMessageHtml("Unexpected error:" + str( sys.exc_info() ) )
+	except Exception as exc:
+		lib_common.ErrorMessageHtml("Unexpected error:" + str(exc))
 
 	for dsk in lstDisks:
 		logging.debug("dsk=%s",str(dir(dsk)))

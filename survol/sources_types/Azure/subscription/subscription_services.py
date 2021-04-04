@@ -37,20 +37,21 @@ def Main():
 	try:
 		# This throws when running with Apache. OK with cgiserver.py
 		lstSrvs = sms.list_hosted_services()
-	except:
-		lib_common.ErrorMessageHtml("Unexpected error:" + str( sys.exc_info() ) )
+	except Exception as exc:
+		lib_common.ErrorMessageHtml("Unexpected error:" + str(exc))
 
 	for srv in lstSrvs:
 		servNode = service.MakeUri( srv.service_name, subscriptionName )
-		grph.add( ( subscriptionNode, lib_common.MakeProp("Service"), servNode ) )
+		grph.add((subscriptionNode, lib_common.MakeProp("Service"), servNode))
 
 		# There will be duplicates.
 		locaNode = location.MakeUri( srv.hosted_service_properties.location, subscriptionName )
-		grph.add( ( servNode, lib_common.MakeProp("Location"), locaNode ) )
+		grph.add((servNode, lib_common.MakeProp("Location"), locaNode))
 
-		grph.add( ( servNode, pc.property_rdf_data_nolist1, lib_common.NodeUrl(srv.url) ) )
+		grph.add((servNode, pc.property_rdf_data_nolist1, lib_common.NodeUrl(srv.url)))
 
 	cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
 	Main()

@@ -36,16 +36,16 @@ def Main():
 	try:
 		# This throws when running with Apache. OK with cgiserver.py
 		lstLocations = sms.list_locations()
-	except:
-		lib_common.ErrorMessageHtml("Unexpected error:" + str( sys.exc_info() ) )
+	except Exception as exc:
+		lib_common.ErrorMessageHtml("Unexpected error:" + str(exc))
 
 	result = lstLocations
 	for loca in result:
-		locaNode = location.MakeUri( loca.name, subscriptionName )
-
-		grph.add( ( subscriptionNode, lib_common.MakeProp("Location"), locaNode ) )
+		locaNode = location.MakeUri(loca.name, subscriptionName)
+		grph.add((subscriptionNode, lib_common.MakeProp("Location"), locaNode))
 
 	cgiEnv.OutCgiRdf()
+
 
 if __name__ == '__main__':
 	Main()
