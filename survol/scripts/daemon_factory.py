@@ -358,7 +358,7 @@ def _display_configuration_file(configuration_file_name):
             config_content = "".join(config_file.readlines())
         logging.info("_display_configuration_file: _survol_group_name=%s" % _survol_group_name)
         logging.info("_display_configuration_file: Configuration start ================================")
-        logging.info("%s\n" % config_content)
+        logging.info("%s" % config_content)
         logging.info("_display_configuration_file: Configuration end   ================================")
     except Exception as exc:
         logging.error("_display_configuration_file: Cannot read configuration exc=%s" % str(exc))

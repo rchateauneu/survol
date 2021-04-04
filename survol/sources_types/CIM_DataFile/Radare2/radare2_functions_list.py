@@ -25,15 +25,15 @@ def Main():
     node_exe_or_dll = lib_uris.gUriGen.FileUri(file_exe_or_dll)
 
     cmd_r2 = ['radare2','-A','-q','-c','"aflj"', file_exe_or_dll]
-    logging.debug("cmd_r2=%s\n" % str(cmd_r2))
+    logging.debug("cmd_r2=%s" % str(cmd_r2))
 
     r2_pipe = subprocess.Popen(cmd_r2, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     r2_output, r2_err = r2_pipe.communicate()
     rc = r2_pipe.returncode
 
-    logging.debug("r2_err=%s\n" % r2_err)
-    logging.debug("rc=%s\n" % rc)
-    logging.debug("r2_output=%s\n" % r2_output)
+    logging.debug("r2_err=%s" % r2_err)
+    logging.debug("rc=%s" % rc)
+    logging.debug("r2_output=%s" % r2_output)
 
     # {
     #     "offset":6442455744,

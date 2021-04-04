@@ -2097,7 +2097,7 @@ class GenericTraceTracer:
         if external_command:
             logging.info("Command " + " ".join(external_command))
         else:
-            logging.info("Process %s\n" % process_id)
+            logging.info("Process %s" % process_id)
         return _generate_linux_stream_from_command(trace_command, process_id)
 
     def logfile_pathname_to_stream(self, input_log_file):
