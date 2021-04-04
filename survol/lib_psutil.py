@@ -107,9 +107,9 @@ def PsutilProcCwd(proc):
     try:
         proc_cwd = proc.cwd()
         proc_msg = None
-    except AccessDenied:
+    except AccessDenied as exc:
         proc_cwd = None
-        proc_msg = "Process %d: Cannot get current working directory: %s" % (proc.pid, str(sys.exc_info()))
+        proc_msg = "Process %d: Cannot get current working directory: %s" % (proc.pid, str(exc))
 
     return proc_cwd, proc_msg
 
