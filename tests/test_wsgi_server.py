@@ -14,8 +14,8 @@ update_test_path()
 
 # TODO: This should be a parameter.
 # It points to the Survol adhoc WSGI server: "http://rchateau-hp:9000"
-_remote_wsgi_test_port = 9000
-_remote_wsgi_test_agent = "http://%s:%d" % (CurrentMachine, _remote_wsgi_test_port)
+_remote_wsgi_test_port = RemoteWsgi1TestServerPort
+#_remote_wsgi_test_agent = "http://%s:%d" % (CurrentMachine, _remote_wsgi_test_port)
 
 # If the Survol agent does not exist, this script starts a local one.
 _remote_wsgi_agent_process = None
@@ -23,7 +23,7 @@ _remote_wsgi_agent_process = None
 
 def setUpModule():
     global _remote_wsgi_agent_process
-    _remote_wsgi_agent_process = start_wsgiserver(_remote_wsgi_test_agent, _remote_wsgi_test_port)
+    _remote_wsgi_agent_process, _remote_wsgi_test_agent = start_wsgiserver(_remote_wsgi_test_port)
 
 
 def tearDownModule():
