@@ -15,7 +15,7 @@ def Graphic_colorbg():
 
 # We do not know if CIM_Process.EntityOntology() is available.
 def EntityOntology():
-    return (["Query","File"],)
+    return (["Query", "File"],)
 
 
 # The SQL query is encoded in base 64 because it contains many special characters which would be too complicated to
@@ -31,7 +31,7 @@ def AddInfo(grph, node, entity_ids_arr):
     grph.add((node, lib_common.MakeProp("Path"), node_file))
 
     db_nod = sqlite_file.MakeUri(file_name)
-    grph.add( ( node, lib_common.MakeProp("Sqlite database"), db_nod))
+    grph.add((node, lib_common.MakeProp("Sqlite database"), db_nod))
 
 
 # It receives a query and the list of tables or views it depends on,
