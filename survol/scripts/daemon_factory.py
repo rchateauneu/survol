@@ -124,7 +124,7 @@ def _get_parsed_configuration():
     if not config_status:
         raise Exception("config_status should be True")
     logging.info("config_status=%s" % config_status)
-    logging.info("Sections=\n" % parsed_config.sections())
+    logging.info("Sections=" % parsed_config.sections())
     return parsed_config
 
 
