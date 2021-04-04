@@ -25,7 +25,7 @@ def Main():
     entity_ids_arr = lib_util.EntityIdToArray(entity_type, entity_id)
 
     mode_disp = lib_util.GuessDisplayMode()
-    logging.debug("entity_mime.py entity_type=%s mode_disp=%s", entity_type, mode_disp)
+    logging.debug("entity_type=%s mode_disp=%s", entity_type, mode_disp)
 
     if not entity_type:
         lib_common.ErrorMessageHtml("entity_mime.py needs an object")

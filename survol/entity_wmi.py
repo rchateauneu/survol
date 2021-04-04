@@ -255,7 +255,7 @@ def Main():
 
     # Try to read the moniker, which is much faster, but it does not always work if we do not have all the properties.
     cgi_moniker = cgiEnv.get_parameters("xid")
-    logging.debug("entity_wmi.py cgi_moniker=[%s]", cgi_moniker)
+    logging.debug("cgi_moniker=[%s]", cgi_moniker)
 
     obj_list = WmiReadWithMoniker(cgiEnv, cgi_moniker)
     if obj_list is None:
@@ -281,7 +281,7 @@ def Main():
             try:
                 DispWmiReferences(grph,wmi_instance_node, obj_wmi, cgi_moniker)
             except Exception as exc:
-                logging.warning("entity_wmi.py Exception=%s", str(exc) )
+                logging.warning("Exception=%s", str(exc) )
         else:
             # Prefix with a dot so it is displayed first.
             grph.add((wmi_instance_node, lib_common.MakeProp(".REFERENCES"), lib_util.NodeLiteral("DISABLED")))

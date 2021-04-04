@@ -234,7 +234,7 @@ def recursive_walk_on_scripts(callback_grph_add, parent_node, entity_type, entit
         return (rdf_node is not None) | contains_something
 
     if entity_host:
-        logging.debug("entity_dir_menu.py DirToMenu entity_host=%s", entity_host)
+        logging.debug("DirToMenu entity_host=%s", entity_host)
     encoded_entity_id = lib_util.EncodeUri(entity_id)
     entity_ids_arr = lib_util.EntityIdToArray(entity_type, entity_id)
 
