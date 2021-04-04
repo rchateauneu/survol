@@ -85,8 +85,8 @@ def Main():
         logging.debug("Explicit WMI connection machine_name=%s", mach_name_not_none)
 
         cnnct = lib_wmi.WmiConnect(mach_name_not_none, "/root/cimv2")
-    except Exception:
-        lib_common.ErrorMessageHtml("WMI " + machine_name + " processes. Caught:" + str(sys.exc_info()))
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("WMI " + machine_name + " processes. Caught:" + str(exc))
 
     # With a dictionary so node are created once only.
     Main.dictPidToNode = {}
