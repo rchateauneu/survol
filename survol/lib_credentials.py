@@ -58,7 +58,8 @@ def credentials_filename():
         current_dir = os.getcwd()
         if current_dir.startswith("/mnt/c/Users"):
             split_cwd = os.path.split(current_dir)
-            cred_name = os.path.join(*split_cwd[:5], credentials_basname)
+            cred_name_path = split_cwd[:5] + [credentials_basname]
+            cred_name = os.path.join(*cred_name_path)
             logging.debug("cred_name=%s" % cred_name)
             if os.path.isfile(cred_name):
                 return cred_name
