@@ -17,6 +17,7 @@ from scripts import daemon_factory
 
 from init import *
 
+
 class SupervisorTest(unittest.TestCase):
 
     def test_supervisor_startup(self):
@@ -37,16 +38,14 @@ class SupervisorTest(unittest.TestCase):
         self.assertFalse(psutil.pid_exists(supervisor_pid))
 
     def test_supervisor_running(self):
-        sys.stdout.write("Before supervisor_startup\n")
-        #sys.stdout.write("daemon_factory._xmlrpc_server_proxy=%s\n" % daemon_factory._xmlrpc_server_proxy)
+        print("Before supervisor_startup")
         try:
             supervisor_pid = daemon_factory.supervisor_startup()
         except Exception as exc:
-            raise
             print("Caught:", exc)
-            supervisor_pid = None
-            # self.fail(exc)
+            raise
 
+        print("supervisor_pid:", supervisor_pid)
         self.assertTrue(supervisor_pid is not None)
         self.assertTrue(psutil.pid_exists(supervisor_pid))
 
@@ -56,7 +55,7 @@ class SupervisorTest(unittest.TestCase):
         print("Checking existence of supervisor pid=", supervisor_pid)
         try:
             status_running = daemon_factory.is_supervisor_running()
-        except:
+        except Exception:
             pass
         else:
             self.assertTrue(status_running)
@@ -92,7 +91,7 @@ class UserProcessTest(unittest.TestCase):
         """Starts a process and checks that its PID is there, and that it can be detected."""
         process_name = "test_generic_process_present_%d" % os.getpid()
         python_command = '"%s" -c "import time;print(123456);time.sleep(10)"' % sys.executable
-        sys.stderr.write("python_command=%s\n" % python_command)
+        print("python_command=", python_command)
         created_process_id = daemon_factory.start_user_process(process_name, python_command)
         self.assertTrue(created_process_id)
         self.assertTrue(psutil.pid_exists(created_process_id))
@@ -119,7 +118,7 @@ time.sleep(1)
         temporary_python_file.close()
 
         python_command = '"%s" "%s"' % (sys.executable, temporary_python_file.name)
-        sys.stderr.write("python_command=%s\n" % python_command)
+        print("python_command=", python_command)
         created_process_id = daemon_factory.start_user_process(process_name, python_command)
 
         self.assertTrue(created_process_id is not None)
