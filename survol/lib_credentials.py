@@ -25,7 +25,7 @@ def credentials_filename():
         else:
             try:
                 home_drive = os.environ["HOMEDRIVE"]
-            except:
+            except Exception:
                 home_drive = "C:"
             try:
                 # This is not defined on Travis.
@@ -44,12 +44,24 @@ def credentials_filename():
     home_directory = _get_home_directory()
     logging.debug("home_directory=%s" % home_directory)
 
+
     if home_directory:
         # Important: On Travis, the username is "travis" and we have no control on its home directory.
         cred_name = os.path.join(home_directory, credentials_basname).strip()
+        logging.debug("cred_name=%s" % cred_name)
         if os.path.isfile(cred_name):
-            logging.debug("cred_name=%s" % cred_name)
             return cred_name
+
+    # If WSL (Windows Subsystem for Linux), see the Windows home directory.
+    if lib_util.isPlatformWsl:
+        # If the WSL directory is in a Windows user directory, check it. Rule of thumb.
+        current_dir = os.getcwd()
+        if current_dir.startswith("/mnt/c/Users"):
+            split_cwd = os.path.split(current_dir)
+            cred_name = os.path.join(*split_cwd[:5], credentials_basname)
+            logging.debug("cred_name=%s" % cred_name)
+            if os.path.isfile(cred_name):
+                return cred_name
 
     if "TRAVIS" in os.environ:
         # The Travis tests do not store the credential file on the user's home directory
