@@ -42,6 +42,9 @@ import lib_credentials
 
 is_platform_windows = lib_util.isPlatformWindows
 is_platform_linux = lib_util.isPlatformLinux
+# uname() is something like: uname_result(system='Linux', node='LAPTOP-R89KG6V1', release='4.4.0-18362-Microsoft',
+# version='#1049-Microsoft Thu Aug 14 12:01:00 PST 2020', machine='x86_64', processor='x86_64')
+is_platform_wsl = "microsoft" in platform.uname()[3].lower()
 
 # Another possible test is: pkgutil.find_loader('win32file')
 pytest_pypy = platform.python_implementation() == "PyPy"
