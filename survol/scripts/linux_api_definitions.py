@@ -2030,7 +2030,16 @@ def _create_flows_from_generic_linux_log(log_stream, tracer):
                 # "Cannot attach to pid 11111: No such process"
                 if one_new_line.find("No such process") >= 0:
                     raise Exception("Invalid process id: %s" % exc)
-            logging.error("ERROR '%s' Caught invalid line %d:%s" % (exc, line_number, one_new_line))
+
+            # Possible error with strace:
+            # "strace: operation not permitted, ptrace_scope incorrect"
+            # See: https://ma.ttias.be/strace-operation-not-permitted-ptrace_scope-incorrect/
+            # and explanations at: /etc/sysctl.d/10-ptrace.conf
+            # and file to update: /proc/sys/kernel/yama/ptrace_scope
+            # Or possibly set CAP_SYS_PTRACE for the user running strace..
+            logging.error("Caught %s" % exc)
+            logging.error("ERROR at %d" % line_number)
+            logging.error("Faulty line:%s" % one_new_line)
             continue
 
         # Maybe the line cannot be parsed.

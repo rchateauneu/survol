@@ -707,6 +707,7 @@ class SurvolLocalTest(unittest.TestCase):
         proc_open.communicate()
 
     @unittest.skipIf(is_travis_machine() and is_platform_windows, "Cannot get users on Travis and Windows.")
+    @unittest.skipIf(is_platform_wsl, "Cannot get users on WSL.")
     def test_enumerate_users(self):
         """List detectable users. Security might hide some of them"""
 
@@ -1131,24 +1132,28 @@ class SurvolLocalLinuxTest(unittest.TestCase):
             CurrentProcessPath,
             CurrentUserPath,
             'CIM_Directory.Name=/',
-            'Linux/cgroup.Name=name=systemd',
-            'Linux/cgroup.Name=cpuacct',
-            'Linux/cgroup.Name=net_cls',
-            'Linux/cgroup.Name=hugetlb',
-            'Linux/cgroup.Name=blkio',
-            'Linux/cgroup.Name=net_prio',
-            'Linux/cgroup.Name=devices',
-            'Linux/cgroup.Name=perf_event',
-            'Linux/cgroup.Name=freezer',
-            'Linux/cgroup.Name=cpu',
-            'Linux/cgroup.Name=pids',
-            'Linux/cgroup.Name=memory',
-            'Linux/cgroup.Name=cpuset',
+            'Linux/cgroup.Name=devices',  # The only one present on Windows WSL.
         ]
 
+        if not is_platform_wsl:
+            list_required += [
+                'Linux/cgroup.Name=name=systemd',
+                'Linux/cgroup.Name=cpuacct',
+                'Linux/cgroup.Name=net_cls',
+                'Linux/cgroup.Name=hugetlb',
+                'Linux/cgroup.Name=blkio',
+                'Linux/cgroup.Name=net_prio',
+                'Linux/cgroup.Name=perf_event',
+                'Linux/cgroup.Name=freezer',
+                'Linux/cgroup.Name=cpu',
+                'Linux/cgroup.Name=pids',
+                'Linux/cgroup.Name=memory',
+                'Linux/cgroup.Name=cpuset',
+        ]
+
+        print("str_instances_set=", str_instances_set)
         for one_str in list_required:
             self.assertTrue(one_str in str_instances_set)
-
 
     def test_account_groups(self):
         """Groups of a Linux account"""
@@ -1619,6 +1624,7 @@ class SurvolSocketsTest(unittest.TestCase):
             raise Exception("Hostname %s not ok. Status=%d, reason=%s." % (http_host_name, resp.status, resp.reason))
         return conn_http
 
+    @unittest.skipIf(is_platform_wsl, "Does not work on WSL")
     def test_netstat_sockets(self):
 
         # Not many web sites in HTTP these days. This one is very stable.
@@ -1644,6 +1650,7 @@ class SurvolSocketsTest(unittest.TestCase):
 
         conn_http.close()
 
+    @unittest.skipIf(is_platform_wsl, "Does not work on WSL")
     def test_enumerate_sockets(self):
         """List of sockets opened on the host machine"""
 
@@ -1661,6 +1668,8 @@ class SurvolSocketsTest(unittest.TestCase):
         str_instances_list = [str(one_inst) for one_inst in lst_instances]
 
         logging.debug("peer_host=%s", peer_host)
+        print("peer_host=", peer_host)
+        print("str_instances_list=", str_instances_list)
 
         found_socket = False
         for one_instance in str_instances_list:
@@ -1674,6 +1683,7 @@ class SurvolSocketsTest(unittest.TestCase):
                     instance_addr = socket.gethostbyname(instance_host)
                     logging.debug("host=%s port=%s addr=%s", instance_host, instance_port, instance_addr)
                     found_socket = instance_addr == peer_host
+                    print("instance_addr=", instance_addr)
                     if found_socket:
                         break
                 except socket.gaierror:
@@ -1681,6 +1691,7 @@ class SurvolSocketsTest(unittest.TestCase):
 
         self.assertTrue(found_socket)
 
+    @unittest.skipIf(is_platform_wsl, "Does not work on WSL")
     def test_socket_connected_processes(self):
         """List of processes connected to a given socket"""
 
@@ -1912,6 +1923,7 @@ class SurvolRemoteTest(unittest.TestCase):
 
     # Cannot run /sbin/arp -an
     @unittest.skipIf(is_travis_machine(), "Cannot run this test on TravisCI because arp is not available.")
+    @unittest.skipIf(is_platform_wsl, "Cannot run on WSL.")
     def test_remote_instances_arp(self):
         """Loads machines visible with ARP. There must be at least one CIM_ComputerSystem"""
 

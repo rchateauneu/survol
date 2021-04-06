@@ -11,6 +11,7 @@ import time
 import datetime
 import tempfile
 import logging
+import traceback
 from rdflib.namespace import RDF, RDFS, XSD
 from rdflib import URIRef
 
@@ -439,10 +440,11 @@ def set_storage_style(*storage_style_tuple):
             try:
                 _events_conjunctive_graph.close()
             except Exception as exc:
-                logging.error("set_storage_style Exception=%s" % exc)
+                logging.error("Exception=%s" % exc)
         del _events_conjunctive_graph
         _events_conjunctive_graph = None
 
+    logging.debug("_events_storage_style=%s", str(_events_storage_style))
     _events_storage_style = storage_style_tuple
 
     _log_db_access("set_storage_style", "", "1", str(_events_storage_style))
@@ -497,7 +499,9 @@ def _setup_global_graph():
                 _log_db_access("_setup_global_graph", "O", "1", sqlite_uri)
                 rt = _events_conjunctive_graph.open(sqlite_uri, create=False)
             except Exception as exc:
-                logging.error("sqlite_uri=%s. Exception=%s" % (sqlite_uri, exc))
+                logging.error("sqlite_uri=%s. Exception=%s", sqlite_uri, exc)
+                logging.error("Trace=%s" % traceback.format_exc())
+                logging.error("Stack=%s" % traceback.format_stack())
 
                 # According to the documentation, it should rather return this value instead of throwing.
                 rt = rdflib.store.NO_STORE
