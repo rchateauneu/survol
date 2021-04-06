@@ -12,6 +12,7 @@ import cgi
 import json
 import time
 import rdflib
+import logging
 import traceback
 import lib_util
 import lib_common
@@ -52,10 +53,11 @@ def _get_graph_from_stdin(http_content_length):
             # event_put.py chunk_length=24820
             # ...
             # event_put.py too many loops rest_to_read=725492
-            raise Exception(__file__ + " too many loops. read_bytes_number=%d" % read_bytes_number)
+            logging.error("Too many loops. read_bytes_number=%d" % read_bytes_number)
+            raise Exception("Too many loops. read_bytes_number=%d" % read_bytes_number)
 
     if loop_counter > 1:
-        sys.stderr.write("event_put.py BEWARE loop_counter=%d\n" % loop_counter)
+        logging.warning("BEWARE loop_counter=%d", loop_counter)
 
     if len(loaded_bytes) != http_content_length:
         raise Exception("len(loaded_bytes)=%d http_content_length=%d" %(len(loaded_bytes), http_content_length))
@@ -67,7 +69,8 @@ def _get_graph_from_stdin(http_content_length):
     rdflib_graph.parse(bytes_stream, format="application/rdf+xml")
     return rdflib_graph
 
-# Tested with Win7 py2.7
+# TODO: Tested with Win7 py2.7
+# TODO: The goal is to read a rdflib document without an intermediate string.
 def _get_graph_from_stdin_DRAFT(http_content_length):
     """This reads stdin from the HTTP client and returns a rdflib graph."""
     if lib_util.is_py3:
@@ -82,6 +85,8 @@ def _get_graph_from_stdin_DRAFT(http_content_length):
 
 
 def Main():
+    logging.getLogger().setLevel(logging.DEBUG)
+
     lib_common.set_events_credentials()
 
     time_start = time.time()
@@ -89,7 +94,7 @@ def Main():
 
     # https://stackoverflow.com/questions/49171591/inets-httpd-cgi-script-how-do-you-retrieve-json-data
     # The script MUST NOT attempt to read more than CONTENT_LENGTH bytes, even if more data is available.
-    sys.stderr.write("event_put.py http_content_length=%d time_start=%f\n" % (http_content_length, time_start))
+    logging.debug("http_content_length=%d time_start=%f", http_content_length, time_start)
 
     extra_error_status = ""
     try:
@@ -100,7 +105,7 @@ def Main():
         files_updates_total_number = lib_kbase.write_graph_to_events(None, rdflib_graph)
 
         time_stored = time.time()
-        sys.stderr.write("event_put.py time_stored=%f files_updates_total_number=%d\n" % (time_stored, files_updates_total_number))
+        logging.debug("time_stored=%f files_updates_total_number=%d", time_stored, files_updates_total_number)
 
         server_result = {
             'success': 'true',
@@ -109,7 +114,7 @@ def Main():
             'time_stored': '%f' % time_stored,
             'triples_number': '%d' % triples_number}
     except Exception as exc:
-        sys.stderr.write("event_put.py Exception=%s\n" % str(exc))
+        logging.error("Exception=%s", exc)
 
         server_result = {
             'success': 'false',
