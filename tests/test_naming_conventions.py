@@ -44,6 +44,7 @@ class StandardizedFilePathLinuxTest(unittest.TestCase):
     def test_filenames_linux_non_existent(self):
         self.assertEqual(_sfp("/this_does_not_exist"), "/this_does_not_exist")
 
+    @unittest.skipIf(is_platform_wsl, "TODO: Not working on WSL yet")
     def test_filenames_linux_symlinks(self):
         # /home/travis/build/rchateauneu/survol/SampleDirSymbolicLinks
         symlinks_dir = "SampleDirSymbolicLinks"
