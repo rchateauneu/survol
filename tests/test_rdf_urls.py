@@ -115,6 +115,7 @@ class RdfLocalAgentTest(unittest.TestCase):
     #     symlink_to_subphysical_file
 
     @unittest.skipIf(not is_platform_linux, "Linux only")
+    @unittest.skipIf(is_platform_wsl, "Not WSL")
     def test_rdf_file_symlinks(self):
         test_dir_path = os.path.join(
             os.path.dirname(__file__),
@@ -238,6 +239,7 @@ class RdfLocalAgentTest(unittest.TestCase):
     # Surprisingly, it fails only in this case.
     # @unittest.skipIf(is_travis_machine() and not is_py3, "Not implemented yet")
     @unittest.skipIf(not is_platform_linux, "Linux only")
+    @unittest.skipIf(is_platform_wsl, "Not on WSL")
     def test_module_deps(self):
         """Linux modules dependencies"""
 
@@ -279,7 +281,9 @@ class RdfLocalAgentTest(unittest.TestCase):
 
         print("ldd_depends=", ldd_depends)
 
-    @unittest.skipIf(is_platform_windows or is_travis_machine(), "Linux only but not on Travis yet")
+    @unittest.skipIf(is_platform_windows, "Linux only")
+    @unittest.skipIf(is_travis_machine(), "Not on Travis yet nor WSL")
+    @unittest.skipIf(is_platform_wsl, "Not on WSL")
     def test_elftools_parse_classes(self):
         """
         Classes in an ELF file
