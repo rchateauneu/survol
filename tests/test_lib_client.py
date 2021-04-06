@@ -383,7 +383,7 @@ class SurvolLocalTest(unittest.TestCase):
 
         triple_open_files = my_source_sql_queries.get_triplestore()
         lst_instances = triple_open_files.get_instances()
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
         print("str_instances_set=", str_instances_set)
 
         # Some instances are required.
@@ -426,7 +426,7 @@ class SurvolLocalTest(unittest.TestCase):
 
         triple_open_files = my_source_sql_queries.get_triplestore()
         lst_instances = triple_open_files.get_instances()
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
         print("str_instances_set=", str_instances_set)
 
         # Some instances are required.
@@ -471,13 +471,13 @@ class SurvolLocalTest(unittest.TestCase):
         triple_processes = my_source_processes.get_triplestore()
 
         lst_instances = triple_processes.get_instances()
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         # Some instances are required.
         lst_mandatory_instances = [
             CurrentProcessPath, # This is the parent process.
             "CIM_Process.Handle=%d"%proc_open.pid,
-            CurrentUserPath ]
+            CurrentUserPath]
         if is_platform_windows:
             lst_mandatory_instances += [
                     "CIM_DataFile.Name=%s" % mandatory_cmd_exe]
@@ -503,7 +503,7 @@ class SurvolLocalTest(unittest.TestCase):
             stderr=subprocess.STDOUT,
             bufsize=0)
 
-        print("Started process:",exec_list," pid=",proc_open.pid)
+        print("Started process:", exec_list, "pid=", proc_open.pid)
 
         # Give a bit of time so the process is fully init.
         time.sleep(1)
@@ -516,14 +516,13 @@ class SurvolLocalTest(unittest.TestCase):
         triple_mem_maps = my_source_mem_maps.get_triplestore()
 
         lst_instances = triple_mem_maps.get_instances()
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
-        print("Instances=",str_instances_set)
+        print("Instances=", str_instances_set)
 
         # Some instances are required.
         lst_mandatory_instances = [
-            'CIM_Process.Handle=%s'%proc_open.pid]
-        lst_mandatory_regex = []
+            'CIM_Process.Handle=%s' % proc_open.pid]
 
         if is_platform_windows:
             # This is common to Windows 7 and Windows 8.
@@ -536,40 +535,37 @@ class SurvolLocalTest(unittest.TestCase):
                 'memmap.Id=C:/Windows/System32/msvcrt.dll',
                 'memmap.Id=C:/Windows/System32/cmd.exe',
                 ]
-        else:
+            lst_mandatory_regex = []
+        elif is_platform_linux or is_platform_wsl:
             lst_mandatory_instances += [
-                        'memmap.Id=[heap]',
-                        'memmap.Id=[vdso]',
-                        'memmap.Id=[vsyscall]',
-                        'memmap.Id=[anon]',
-                        'memmap.Id=[vvar]',
-                        'memmap.Id=[stack]',
-                        # Not on Travis
-                        # 'memmap.Id=%s' % execPath,
-                        # 'memmap.Id=/usr/lib/locale/locale-archive',
-                ]
-
+                'memmap.Id=[heap]',
+                'memmap.Id=[vdso]',
+                'memmap.Id=[anon]',
+                'memmap.Id=[stack]',
+            ]
             # Depending on the machine, the root can be "/usr/lib64" or "/lib/x86_64-linux-gnu"
-            lst_mandatory_regex += [
+            lst_mandatory_regex = [
                 r'memmap.Id=.*/ld-.*\.so.*',
                 r'memmap.Id=.*/libc-.*\.so.*',
             ]
+        else:
+            raise Exception("Test not available for this platform")
 
-            for one_str in lst_mandatory_instances:
-                if one_str not in str_instances_set:
-                    WARNING("Cannot find %s in %s", one_str, str(str_instances_set))
-                self.assertTrue(one_str in str_instances_set)
+        for one_str in lst_mandatory_instances:
+            if one_str not in str_instances_set:
+                logging.warning("Cannot find %s in %s", one_str, str(str_instances_set))
+            self.assertTrue(one_str in str_instances_set)
 
-            # This is much slower, beware.
-            for oneRegex in lst_mandatory_regex:
-                re_prog = re.compile(oneRegex)
-                for one_str in str_instances_set:
-                    result = re_prog.match(one_str)
-                    if result:
-                        break
-                if not result:
-                    WARNING("Cannot find regex %s in %s", oneRegex, str(str_instances_set))
-                self.assertTrue(result is not None)
+        # This is much slower, beware.
+        for one_regex in lst_mandatory_regex:
+            re_prog = re.compile(one_regex)
+            for one_str in str_instances_set:
+                result = re_prog.match(one_str)
+                if result:
+                    break
+            if not result:
+                logging.warning("Cannot find regex %s in %s", one_regex, str(str_instances_set))
+            self.assertTrue(result is not None)
 
         proc_open.communicate()
 
@@ -581,7 +577,7 @@ class SurvolLocalTest(unittest.TestCase):
 
         triple_env_vars = my_source_env_vars.get_triplestore()
 
-        print("triple_env_vars:",triple_env_vars)
+        print("triple_env_vars:", triple_env_vars)
 
         # The environment variables are returned in various ways,
         # but it is guaranteed that some of them are always present.
@@ -590,11 +586,11 @@ class SurvolLocalTest(unittest.TestCase):
         print("set_env_vars:", set_env_vars)
 
         if is_platform_windows:
-            mandatory_env_vars = ['COMPUTERNAME','OS','PATH']
+            mandatory_env_vars = ['COMPUTERNAME', 'OS', 'PATH']
         else:
-            mandatory_env_vars = ['HOME','PATH']
+            mandatory_env_vars = ['HOME', 'PATH']
 
-        print("set_env_vars:",set_env_vars)
+        print("set_env_vars:", set_env_vars)
 
         for one_var in mandatory_env_vars:
             self.assertTrue(one_var in set_env_vars)
@@ -619,9 +615,9 @@ class SurvolLocalTest(unittest.TestCase):
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT)
 
-        print("Started process:",exec_list," pid=",proc_open.pid)
+        print("Started process:", exec_list, "pid=", proc_open.pid)
 
-        (child_stdin, child_stdout_and_stderr) = (proc_open.stdin, proc_open.stdout)
+        child_stdin, child_stdout_and_stderr = proc_open.stdin, proc_open.stdout
 
         self._check_environment_variables(proc_open.pid)
 
@@ -646,17 +642,17 @@ class SurvolLocalTest(unittest.TestCase):
         triple_python_package = my_source_python_package.get_triplestore()
 
         lst_instances = triple_python_package.get_instances()
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances ])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         logging.debug("str_instances_set=%s", str_instances_set)
 
         # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
         for one_str in [
             'CIM_ComputerSystem.Name=%s' % CurrentMachine,
-            'python/package.Id=isodate',
-            'python/package.Id=pyparsing',
+            #'python/package.Id=isodate',
+            #'python/package.Id=pyparsing',
             'python/package.Id=rdflib',
-            CurrentUserPath ]:
+            CurrentUserPath]:
             logging.debug("one_str=%s", one_str)
             self.assertTrue(one_str in str_instances_set)
 
@@ -676,7 +672,7 @@ class SurvolLocalTest(unittest.TestCase):
             stderr=subprocess.STDOUT,
             bufsize=0)
 
-        print("Started process:", exec_list," pid=", proc_open.pid)
+        print("Started process:", exec_list, "pid=", proc_open.pid)
 
         # Give a bit of time so the process is fully init.
         time.sleep(1)
@@ -731,7 +727,7 @@ class SurvolLocalTest(unittest.TestCase):
 
         triple_processes = my_source_processes.get_triplestore()
         instances_processes = triple_processes.get_instances()
-        str_instances_set = set([str(oneInst) for oneInst in instances_processes])
+        str_instances_set = set([str(one_inst) for one_inst in instances_processes])
 
         # At least the current process must be found.
         for one_str in [CurrentProcessPath]:
@@ -778,7 +774,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=CurrentPid)
 
-        str_instances_set = set([str(oneInst) for oneInst in my_source.get_triplestore().get_instances() ])
+        str_instances_set = set([str(one_inst) for one_inst in my_source.get_triplestore().get_instances()])
 
         # The result is empty but the script worked.
         print(str_instances_set)
@@ -792,7 +788,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=CurrentPid)
 
-        str_instances_set = set([str(oneInst) for oneInst in my_source.get_triplestore().get_instances()])
+        str_instances_set = set([str(one_inst) for one_inst in my_source.get_triplestore().get_instances()])
 
         # The result is empty but the script worked.
         print("Connections=", str_instances_set)
@@ -806,7 +802,7 @@ class SurvolLocalTest(unittest.TestCase):
             "CIM_Process",
             Handle=CurrentPid)
 
-        str_instances_set = set([str(oneInst) for oneInst in my_source.get_triplestore().get_instances()])
+        str_instances_set = set([str(one_inst) for one_inst in my_source.get_triplestore().get_instances()])
         print("test_process_cwd: str_instances_set:", str_instances_set)
 
         print("test_process_cwd: CurrentExecutablePath:", CurrentExecutablePath)
@@ -817,7 +813,7 @@ class SurvolLocalTest(unittest.TestCase):
             CurrentUserPath,
         ]:
             if one_str not in str_instances_set:
-                WARNING("one_str=%s str_instances_set=%s", one_str, str(str_instances_set) )
+                WARNING("one_str=%s str_instances_set=%s", one_str, str(str_instances_set))
                 # assert 'CIM_DataFile.Name=c:/python27/python.exe' in set(['CIM_DataFile.Name=C:/Python27/python.exe'
                 self.assertTrue(one_str in str_instances_set)
 
@@ -882,14 +878,14 @@ class SurvolRemoteWbemTest(unittest.TestCase):
 
         computer_triple_store = computer_source.get_triplestore()
         instances_list = computer_triple_store.get_instances()
-        str_instances_set = set( [str(oneInst) for oneInst in instances_list ])
+        str_instances_set = set([str(one_inst) for one_inst in instances_list])
 
         # ['CIM_Process.Handle=10', 'CIM_Process.Handle=816', 'CIM_Process.Handle=12' etc...
         print("test_wbem_hostname_processes_remote: str_instances_set:", str_instances_set)
         for one_str in str_instances_set:
             self.assertTrue(one_str.startswith('CIM_Process.Handle='))
 
-        pids_list = [oneInst.Handle for oneInst in instances_list ]
+        pids_list = [one_inst.Handle for one_inst in instances_list]
         print("test_wbem_hostname_processes_remote: pids_list:", pids_list)
 
         remote_url = SurvolServerAgent + "/survol/sources_types/CIM_ComputerSystem/wbem_hostname_processes.py"
@@ -922,7 +918,7 @@ class SurvolRemoteWbemTest(unittest.TestCase):
                 WARNING("test_wbem_info_processes_remote: Process %s exit." % remote_pid)
                 num_exit_processes += 1
                 continue
-            instances_str = [str(oneInst) for oneInst in instances_list ]
+            instances_str = [str(one_inst) for one_inst in instances_list]
             print("instances_str=", instances_str)
             self.assertTrue(instances_str[0] == 'CIM_Process.Handle=%s' % remote_pid)
         # Rule of thumb: Not too many processes should have left in such a short time.
@@ -1026,7 +1022,7 @@ class SurvolLocalJavaTest(unittest.TestCase):
         print("list_required=", list_required)
         for one_str in list_required:
             if one_str not in str_instances_set:
-                print("Not there:",one_str)
+                print("Not there:", one_str)
             self.assertTrue(one_str in str_instances_set, "test_java_system_properties: Not there:%s" % str(one_str))
 
     def test_java_jdk_jstack(self):
@@ -1112,6 +1108,7 @@ class SurvolLocalOntologiesTest(unittest.TestCase):
         self.assertTrue(missing_triples == [], "Missing triples:%s" % str(missing_triples))
 
 # TODO: Test namespaces etc... etc classes wmi etc...
+
 
 @unittest.skipIf(not is_platform_linux, "Linux tests only.")
 class SurvolLocalLinuxTest(unittest.TestCase):
@@ -1247,7 +1244,7 @@ class SurvolLocalGdbTest(unittest.TestCase):
                 'CIM_DataFile.Name=/lib64/libc.so.6',
         ]
 
-        str_instances_set = set([str(oneInst) for oneInst in my_source.get_triplestore().get_instances() ])
+        str_instances_set = set([str(one_inst) for one_inst in my_source.get_triplestore().get_instances()])
 
         for one_str in list_required:
             self.assertTrue(one_str in str_instances_set)
@@ -1271,7 +1268,7 @@ class SurvolLocalGdbTest(unittest.TestCase):
             stderr=subprocess.STDOUT,
             bufsize=0)
 
-        print("Started process:", exec_list, " pid=", proc_open.pid)
+        print("Started process:", exec_list, "pid=", proc_open.pid)
 
         # Give a bit of time so the process is fully init.
         time.sleep(1)
@@ -1284,8 +1281,8 @@ class SurvolLocalGdbTest(unittest.TestCase):
         triple_py_stack = my_source_py_stack.get_triplestore()
 
         lst_instances = triple_py_stack.get_instances()
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
-        print("str_instances_set=",str_instances_set)
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
+        print("str_instances_set=", str_instances_set)
 
         py_path_name_absolute = os.path.abspath(py_path_name)
         py_path_name_clean = lib_util.standardized_file_path(py_path_name_absolute)
@@ -1314,7 +1311,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
         lst_instances = _client_object_instances_from_script(
             "sources_types/win32/enumerate_Win32_Service.py")
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances ])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         # print(str_instances_set)
         # Some services must be on any Windpws machine.
@@ -1330,7 +1327,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
             "CIM_Process",
             Handle=CurrentPid)
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         # This checks the presence of the current process and its parent.
         self.assertTrue('CIM_Process.Handle=%s' % CurrentPid in str_instances_set)
@@ -1395,7 +1392,7 @@ class SurvolLocalWindowsTest(unittest.TestCase):
             if one_instance.startswith('Win32_Product.IdentifyingNumber='):
                 products_count += 1
 
-        print("Some products: lst_instances=",str_instances_lst[:3])
+        print("Some products: lst_instances=", str_instances_lst[:3])
 
         # Certainly, there a more that five products or any other small number.
         self.assertTrue(products_count > 5)
@@ -1521,10 +1518,9 @@ class SurvolPyODBCTest(unittest.TestCase):
             Dsn="DSN~MS%20Access%20Database")
 
         list_scripts = instance_local_odbc.get_scripts()
-        if _is_verbose:
-            sys.stdout.write("Scripts:\n")
-            for one_scr in list_scripts:
-                sys.stdout.write("    %s\n" % one_scr)
+        logging.debug("Scripts:")
+        for one_scr in list_scripts:
+            logging.debug("    %s" % one_scr)
         # There should be at least a couple of scripts.
         self.assertTrue(len(list_scripts) > 0)
 
@@ -1535,7 +1531,7 @@ class SurvolPyODBCTest(unittest.TestCase):
         lst_instances = _client_object_instances_from_script(
             "sources_types/Databases/win32_sqldatasources_pyodbc.py")
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances ])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         # At least these instances must be present.
         for one_str in [
@@ -1560,7 +1556,7 @@ class SurvolPyODBCTest(unittest.TestCase):
             "odbc/dsn",
             Dsn="DSN~SysDataSourceSQLServer")
 
-        strInstancesSet = set([str(oneInst) for oneInst in lst_instances])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
         for one_str in [
@@ -1575,7 +1571,7 @@ class SurvolPyODBCTest(unittest.TestCase):
             'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=server_audits',
             'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=sysusers',
             ]:
-            self.assertTrue(one_str in strInstancesSet)
+            self.assertTrue(one_str in str_instances_set)
 
     @unittest.skipIf(not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
     def test_pyodbc_dsn_one_table_columns(self):
@@ -1587,7 +1583,7 @@ class SurvolPyODBCTest(unittest.TestCase):
             Dsn="DSN~SysDataSourceSQLServer",
             Table="dm_os_windows_info")
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
         for one_str in [
@@ -1706,7 +1702,7 @@ class SurvolSocketsTest(unittest.TestCase):
         peer_name = conn_http.sock.getpeername()
         peer_host = peer_name[0]
 
-        print("Peer name of connection socket:",conn_http.sock.getpeername())
+        print("Peer name of connection socket:", conn_http.sock.getpeername())
 
         lst_instances = _client_object_instances_from_script(
             "sources_types/addr/socket_connected_processes.py",
@@ -1737,7 +1733,7 @@ class SurvolSocketsTest(unittest.TestCase):
         peer_name = conn_http.sock.getpeername()
         peer_host = peer_name[0]
 
-        print("Peer name of connection socket:",conn_http.sock.getpeername())
+        print("Peer name of connection socket:", conn_http.sock.getpeername())
 
         lst_instances = _client_object_instances_from_script(
             "sources_types/addr/socket_host.py",
@@ -1843,10 +1839,12 @@ class SurvolRemoteTest(unittest.TestCase):
     scripts on different machines."""
 
     def test_InstanceUrlToAgentUrl(self):
-        agent1 = lib_client.instance_url_to_agent_url("http://LOCALHOST:80/LocalExecution/entity.py?xid=addr.Id=127.0.0.1:427")
+        agent1 = lib_client.instance_url_to_agent_url(
+            "http://LOCALHOST:80/LocalExecution/entity.py?xid=addr.Id=127.0.0.1:427")
         print("agent1=", agent1)
         self.assertEqual(agent1, None )
-        agent2 = lib_client.instance_url_to_agent_url(_remote_general_test_agent + "/survol/sources_types/java/java_processes.py")
+        agent2 = lib_client.instance_url_to_agent_url(
+            _remote_general_test_agent + "/survol/sources_types/java/java_processes.py")
         print("agent2=", agent2)
         self.assertEqual(agent2, _remote_general_test_agent )
 
@@ -1856,8 +1854,8 @@ class SurvolRemoteTest(unittest.TestCase):
             _remote_general_test_agent + "/survol/sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
             Name=always_present_file)
-        print("urlFileStatRemote=",my_source_file_stat_remote.Url())
-        print("qryFileStatRemote=",my_source_file_stat_remote.create_url_query())
+        print("urlFileStatRemote=", my_source_file_stat_remote.Url())
+        print("qryFileStatRemote=", my_source_file_stat_remote.create_url_query())
         json_content = my_source_file_stat_remote.content_json()
 
         found_file = False
@@ -1867,7 +1865,7 @@ class SurvolRemoteTest(unittest.TestCase):
                 found_file = one_node['entity_class'] == 'CIM_DataFile' and one_node['name'] == always_present_basename
                 if found_file:
                     break
-            except:
+            except Exception:
                 pass
 
         self.assertTrue(found_file)
@@ -1902,7 +1900,7 @@ class SurvolRemoteTest(unittest.TestCase):
         instances_python_package_remote = triple_python_package_remote.get_instances()
         len_instances = len(instances_python_package_remote)
         # This Python module must be there because it is needed by Survol.
-        self.assertTrue(len_instances>=1)
+        self.assertTrue(len_instances >= 1)
 
     @unittest.skipIf(not pkgutil.find_loader('jpype'), "jpype cannot be imported.")
     def test_remote_instances_java(self):
@@ -1948,14 +1946,16 @@ class SurvolRemoteTest(unittest.TestCase):
             "CIM_LogicalDisk",
             DeviceID=AnyLogicalDisk)
         if is_platform_windows:
-            my_source2 = lib_client.SourceRemote(_remote_general_test_agent + "/survol/sources_types/win32/tcp_sockets_windows.py")
+            my_source2 = lib_client.SourceRemote(
+                _remote_general_test_agent + "/survol/sources_types/win32/tcp_sockets_windows.py")
         else:
-            my_source2 = lib_client.SourceRemote(_remote_general_test_agent + "/survol/sources_types/Linux/tcp_sockets.py")
+            my_source2 = lib_client.SourceRemote(
+                _remote_general_test_agent + "/survol/sources_types/Linux/tcp_sockets.py")
 
         my_src_merge_plus = my_source1 + my_source2
-        print("Merge plus:",str(my_src_merge_plus.content_rdf())[:30])
+        print("Merge plus:", str(my_src_merge_plus.content_rdf())[:30])
         triple_plus = my_src_merge_plus.get_triplestore()
-        print("Len triple_plus:",len(triple_plus))
+        print("Len triple_plus:", len(triple_plus))
 
         len_source1 = len(my_source1.get_triplestore().get_instances())
         len_source2 = len(my_source2.get_triplestore().get_instances())
@@ -1972,9 +1972,11 @@ class SurvolRemoteTest(unittest.TestCase):
             "CIM_LogicalDisk",
             DeviceID=AnyLogicalDisk)
         if is_platform_windows:
-            my_source2 = lib_client.SourceRemote(_remote_general_test_agent + "/survol/sources_types/win32/win32_local_groups.py")
+            my_source2 = lib_client.SourceRemote(
+                _remote_general_test_agent + "/survol/sources_types/win32/win32_local_groups.py")
         else:
-            my_source2 = lib_client.SourceRemote(_remote_general_test_agent + "/survol/sources_types/Linux/etc_group.py")
+            my_source2 = lib_client.SourceRemote(
+                _remote_general_test_agent + "/survol/sources_types/Linux/etc_group.py")
 
         my_src_merge_minus = my_source1 - my_source2
         print("Merge Minus:",str(my_src_merge_minus.content_rdf())[:30])
@@ -2000,9 +2002,8 @@ class SurvolRemoteTest(unittest.TestCase):
         my_instances_remote_dir = my_agent.CIM_Directory(Name=AnyLogicalDisk)
         list_scripts_dir = my_instances_remote_dir.get_scripts()
 
-        if _is_verbose:
-            for key_script in list_scripts_dir:
-                sys.stdout.write("    %s\n"%key_script)
+        for key_script in list_scripts_dir:
+            logging.debug("    %s" % key_script)
         # There should be at least a couple of scripts.
         self.assertTrue(len(list_scripts_dir) > 0)
 
@@ -2034,40 +2035,40 @@ class SurvolAzureTest(unittest.TestCase):
         return None
 
     @decorator_azure_subscription
-    def test_azure_subscriptions(self, azureSubscription):
-        print("Azure subscription:", azureSubscription)
+    def test_azure_subscriptions(self, azure_subscription):
+        print("Azure subscription:", azure_subscription)
 
     @decorator_azure_subscription
     @unittest.skip("Azure test disabled")
-    def test_azure_locations(self, azureSubscription):
+    def test_azure_locations(self, azure_subscription):
         """This checks Azure locations."""
 
         lst_instances = _client_object_instances_from_script(
             "sources_types/Azure/subscription/subscription_locations.py",
             "Azure/subscription",
-            Subscription=azureSubscription)
+            Subscription=azure_subscription)
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances ])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         # Some locations are very common.
         for location_name in [
                 'UK South',
                 'West Central US',
                 'West Europe']:
-            entity_subscription = 'Azure/location.Subscription=%s,Location=%s' % (azureSubscription, location_name)
+            entity_subscription = 'Azure/location.Subscription=%s,Location=%s' % (azure_subscription, location_name)
             self.assertTrue(entity_subscription in str_instances_set)
 
     @decorator_azure_subscription
     @unittest.skip("Azure test disabled")
-    def test_azure_subscription_disk(self, azureSubscription):
+    def test_azure_subscription_disk(self, azure_subscription):
         """This checks Azure disks."""
 
         lst_instances = _client_object_instances_from_script(
             "sources_types/Azure/subscription/subscription_disk.py",
             "Azure/subscription",
-            Subscription=azureSubscription)
+            Subscription=azure_subscription)
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances ])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         print(str_instances_set)
 
@@ -2107,19 +2108,19 @@ class SurvolRabbitMQTest(unittest.TestCase):
         return None
 
     @decorator_rabbitmq_subscription
-    def test_rabbitmq_subscriptions(self,rabbitmqManager):
-        print("RabbitMQ:", rabbitmqManager)
+    def test_rabbitmq_subscriptions(self, rabbitmq_manager):
+        print("RabbitMQ:", rabbitmq_manager)
 
     @decorator_rabbitmq_subscription
-    def test_rabbitmq_connections(self,rabbitmqManager):
-        print("RabbitMQ:", rabbitmqManager)
+    def test_rabbitmq_connections(self, rabbitmq_manager):
+        print("RabbitMQ:", rabbitmq_manager)
 
         lst_instances = _client_object_instances_from_script(
             "sources_types/rabbitmq/manager/list_connections.py",
             "rabbitmq/manager",
-            Url=rabbitmqManager)
+            Url=rabbitmq_manager)
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances ])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
         print(str_instances_set)
 
         # Typical content:
@@ -2130,8 +2131,8 @@ class SurvolRabbitMQTest(unittest.TestCase):
 
         # Typical content
         for one_str in [
-            'rabbitmq/manager.Url=%s' % rabbitmqManager,
-            'rabbitmq/user.Url=%s,User=guest' % rabbitmqManager,
+            'rabbitmq/manager.Url=%s' % rabbitmq_manager,
+            'rabbitmq/user.Url=%s,User=guest' % rabbitmq_manager,
         ]:
             self.assertTrue(one_str in str_instances_set)
 
@@ -2144,7 +2145,7 @@ class SurvolRabbitMQTest(unittest.TestCase):
             "rabbitmq/manager",
             Url=rabbitmq_manager)
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
         print(str_instances_set)
 
         # Typical content
@@ -2260,7 +2261,7 @@ class SurvolOracleTest(unittest.TestCase):
             "oracle/db",
             Db=self._oracle_db)
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         print(str_instances_set)
 
@@ -2335,7 +2336,7 @@ class SurvolOracleTest(unittest.TestCase):
             Db=self._oracle_db,
             Schema='SYS')
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         print(str_instances_set)
 
@@ -2355,7 +2356,7 @@ class SurvolOracleTest(unittest.TestCase):
             Db=self._oracle_db,
             Schema='SYS')
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         print(str_instances_set)
 
@@ -2375,7 +2376,7 @@ class SurvolOracleTest(unittest.TestCase):
             Db=self._oracle_db,
             Schema='SYS')
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         print(str_instances_set)
 
@@ -2395,7 +2396,7 @@ class SurvolOracleTest(unittest.TestCase):
             Db=self._oracle_db,
             Schema='SYS')
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         print(str_instances_set)
 
@@ -2415,7 +2416,7 @@ class SurvolOracleTest(unittest.TestCase):
             Db=self._oracle_db,
             Schema='SYS')
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         print(str_instances_set)
 
@@ -2435,7 +2436,7 @@ class SurvolOracleTest(unittest.TestCase):
             Db=self._oracle_db,
             Schema='SYS')
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         print(str_instances_set)
 
@@ -2455,7 +2456,7 @@ class SurvolOracleTest(unittest.TestCase):
             Db=self._oracle_db,
             Schema='SYS')
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         print(str_instances_set)
 
@@ -2475,7 +2476,7 @@ class SurvolOracleTest(unittest.TestCase):
             Db=self._oracle_db,
             Schema='SYS')
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         print(str_instances_set)
 
@@ -2495,7 +2496,7 @@ class SurvolOracleTest(unittest.TestCase):
             Db=self._oracle_db,
             Schema='SYS')
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         print(str_instances_set)
 
@@ -2515,7 +2516,7 @@ class SurvolOracleTest(unittest.TestCase):
             Db=self._oracle_db,
             Schema='SYS')
 
-        str_instances_set = set([str(oneInst) for oneInst in lst_instances])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         print(str_instances_set)
 
