@@ -841,8 +841,11 @@ class CIM_ComputerSystem(CIM_XmlMarshaller):
                     self.CpuCurrent = cf[0]
                     self.CpuMinimum = cf[1]
                     self.CpuMaximum = cf[2]
-            except AttributeError:
-                pass
+            except AttributeError as exc:
+                logging.warning("AttributeError:%s" % exc)
+            except NotImplementedError as exc:
+                # cpu_freq is not implemented on WSL.
+                logging.warning("AttributeError:%s" % exc)
 
     cim_ontology_list = ['Name']
 

@@ -30,6 +30,7 @@ import logging
 import inspect
 import rdflib
 import subprocess
+import platform
 
 # This minimizes changes because it is used everywhere.
 from scripts.naming_conventions import standardized_file_path
@@ -45,6 +46,7 @@ if is_py3:
 
     import html
     import html.parser
+
     def survol_unescape(s):
         return html.parser.unescape(s)
 
@@ -59,6 +61,7 @@ else:
 
     # TODO: html might be present, so it might be worth testing.
     import HTMLParser
+
     def survol_unescape(s):
         return HTMLParser.HTMLParser().unescape(s)
 
@@ -85,18 +88,14 @@ SetLoggingConfig(logging.WARNING)
 
 # Avoid this message:
 # 2018-09-18 21:57:54,868  WARNING rdflib.term term.py 207: http://L... does not look like a valid URI, trying to serialize this will break.
-loggerRdflib = logging.getLogger("rdflib.term")
-loggerRdflib.setLevel(logging.WARNING)
+_logger_rdflib = logging.getLogger("rdflib.term")
+_logger_rdflib.setLevel(logging.WARNING)
 
-# This is the general purpose logger.
-logger_name = "survol_logger"
 
-gblLogger = logging.getLogger(logger_name)
-
-################################################################################
-
-# Returns None even if jinja2 is available but configuration does not use it.
 def GetJinja2():
+    """
+    Returns None even if jinja2 is available but configuration does not use it.
+    """
     try:
         import jinja2
         return jinja2
@@ -924,7 +923,7 @@ def InfoMessageHtml(message):
     WrtAsUtf("""
     </body></html>
     """)
-    gblLogger.debug("InfoMessageHtml:Leaving")
+    logging.debug("InfoMessageHtml:Leaving")
 
 ################################################################################
 
@@ -967,6 +966,7 @@ def ObjectTypes():
 # These functions are used in scripts, to tell if it is usable or not.
 
 isPlatformLinux = 'linux' in sys.platform
+isPlatformWsl = "microsoft" in platform.uname()[3].lower()
 isPlatformDarwin = 'darwin' in sys.platform
 isPlatformWindows = 'win32' in sys.platform
 
@@ -1229,7 +1229,7 @@ def EntityIdToArray(entity_type, entity_id):
                 return urllib_unquote(a_val_raw)
         return [decode_cgi_arg(a_key) for a_key in onto_keys]
     except KeyError:
-        gblLogger.error("EntityIdToArray missing key: type=%s id=%s onto=%s", entity_type, entity_id, str(onto_keys))
+        logging.error("missing key: type=%s id=%s onto=%s", entity_type, entity_id, str(onto_keys))
         raise
 
 
@@ -1395,7 +1395,7 @@ def SplitMonikToWQL(moniker_to_split, class_name):
     """Builds a WQL (WMI Query Language) query from a Moniker.
     This allows to search for an object in the CIM repository,
     whatever the attribute values are, or if it is a Survol object."""
-    gblLogger.debug("SplitMonikToWQL splitMonik=[%s]", str(moniker_to_split))
+    logging.debug("splitMonik=[%s]", str(moniker_to_split))
     a_qry = 'select * from %s' % class_name
     qry_delim = "where"
     for qry_key in moniker_to_split:
@@ -1434,7 +1434,7 @@ def Base64Decode(input_text):
             resu = base64.urlsafe_b64decode(str(input_text))
         return resu
     except Exception as exc:
-        gblLogger.error("CANNOT DECODE: symbol=(%s):%s", input_text, str(exc))
+        logging.error("CANNOT DECODE: symbol=(%s):%s", input_text, str(exc))
         return input_text + ":" + str(exc)
 
 
@@ -1477,7 +1477,7 @@ class OutputMachineCgi:
         pass
 
     def HeaderWriter(self, mime_type, extra_arguments=None):
-        gblLogger.debug("OutputMachineCgi.WriteHeadContentType:%s", mime_type)
+        logging.debug("OutputMachineCgi.HeaderWriter:%s", mime_type)
         _http_header_classic(_output_http, mime_type, extra_arguments)
 
     def OutStream(self):
@@ -1620,7 +1620,7 @@ def _get_entity_module_without_cache(entity_type):
     try:
         return _get_entity_module_without_cache_no_catch(entity_type)
     except ImportError as exc:
-        gblLogger.error("_get_entity_module_without_cache entity_type=%s Caught:%s", entity_type, exc)
+        logging.error("entity_type=%s Caught:%s", entity_type, exc)
         return None
 
 
@@ -1743,7 +1743,7 @@ def _append_not_none_hostname(script, hostname):
 def UrlPortalWbem(hostname=None):
     """Point to the WBEM portal for a given machine."""
     str_url = _append_not_none_hostname('/portal_wbem.py', hostname)
-    gblLogger.debug("UrlPortalWbem str_url=%s", str_url)
+    logging.debug("str_url=%s", str_url)
     node_portal = NodeUrl(str_url)
     return node_portal
 

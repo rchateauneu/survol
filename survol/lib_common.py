@@ -820,7 +820,7 @@ def ErrorMessageHtml(message):
         logging.debug("ErrorMessageHtml DISABLED")
         # It might be displayed in a HTML document.
         message_clean = lib_util.html_escape(message)
-        raise Exception("ErrorMessageHtml raised:%s\n" % message_clean)
+        raise Exception("ErrorMessageHtml raised:%s" % message_clean)
 
 ################################################################################
 
