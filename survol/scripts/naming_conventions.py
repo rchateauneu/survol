@@ -116,21 +116,18 @@ def _standardized_file_path_nocache(file_path):
                     try:
                         file_path = os.path._getfinalpathname(file_path).lstrip(r'\?')
                         assert isinstance(file_path, str)
-                        sys.stderr.write(__file__ + " _getfinalpathname:%s\n" % file_path)
                     except AttributeError:
                         # Here we cannot do anything.
-                        sys.stderr.write(__file__ + " Cannot use _getfinalpathname:%s\n" % file_path)
+                        logging.warning("Cannot use _getfinalpathname:%s" % file_path)
             except Exception as exc:
                 # pywintypes.error: (5, 'GetShortPathNameW', 'Access is denied.')
-                sys.stderr.write(__file__ + " file_path:%s caught:%s\n" % (file_path, str(exc)))
+                logging.warning("file_path:%s caught:%s", file_path, str(exc))
                 # Leave the file name as it is.
 
         # FIXME: The drive must be in uppercase too. WHY ??
         if len(file_path) > 1 and file_path[1] == ':':
             file_path = file_path[0].upper() + file_path[1:]
-        # sys.stderr.write(__file__ + " Fixed sys.executable:%s\n" % CurrentExecutable)
-
-        file_path = file_path.replace("\\","/")
+        file_path = file_path.replace("\\", "/")
     else:
         # Eliminates symbolic links.
         file_path = os.path.realpath(file_path)
