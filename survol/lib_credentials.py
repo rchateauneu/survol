@@ -56,10 +56,10 @@ def credentials_filename():
     if lib_util.isPlatformWsl:
         # If the WSL directory is in a Windows user directory, check it. Rule of thumb.
         current_dir = os.getcwd()
-        if current_dir.startswith("/mnt/c/Users"):
-            split_cwd = os.path.split(current_dir)
-            cred_name_path = split_cwd[:5] + [credentials_basname]
-            cred_name = os.path.join(*cred_name_path)
+        if current_dir.startswith("/mnt/c/Users/"):
+            split_cwd = current_dir.split("/")
+            cred_name_path = split_cwd[:5] + [credentials_basname,]
+            cred_name = "/" + os.path.join(*cred_name_path)
             logging.debug("cred_name=%s" % cred_name)
             if os.path.isfile(cred_name):
                 return cred_name
