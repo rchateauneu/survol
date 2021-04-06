@@ -707,6 +707,7 @@ class SurvolLocalTest(unittest.TestCase):
         proc_open.communicate()
 
     @unittest.skipIf(is_travis_machine() and is_platform_windows, "Cannot get users on Travis and Windows.")
+    @unittest.skipIf(is_platform_wsl, "Cannot get users on WSL.")
     def test_enumerate_users(self):
         """List detectable users. Security might hide some of them"""
 
