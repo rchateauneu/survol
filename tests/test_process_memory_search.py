@@ -40,6 +40,7 @@ def _start_subprocess(*command_args):
     return proc_open
 
 
+@unittest.skipIf(is_platform_wsl, "TODO: Not working on WSL yet")
 class ProcessMemorySqlQueryTest(unittest.TestCase):
     """This searches with regular expressions in the memory of a running process.
     It does not need a Survol agent"""
@@ -135,7 +136,7 @@ class ProcessMemorySqlQueryTest(unittest.TestCase):
         proc_open.communicate()
 
 
-@unittest.skipIf(is_platform_linux, "No COM classes on Linux")
+@unittest.skipIf(is_platform_linux or is_platform_wsl, "No COM classes on Linux")
 class ProcessMemoryCOMClassesTest(unittest.TestCase):
     """This searches with regular expressions in the memory of a running process.
     It does not need a Survol agent"""
@@ -271,6 +272,7 @@ class ProcessMemoryFilenamesTest(unittest.TestCase):
         proc_open.communicate()
 
 
+@unittest.skipIf(is_platform_wsl, "TODO: Not working on WSL yet")
 class ProcessMemoryUrlsTest(unittest.TestCase):
     """This searches with regular expressions in the memory of a running process.
     It does not need a Survol agent"""
@@ -315,7 +317,6 @@ class ProcessMemoryUrlsTest(unittest.TestCase):
                     self.assertTrue("http://www.gnu.org" in urls_set)
 
                 break
-
 
         tst_stdout, tst_stderr = proc_open.communicate()
         self.assertEqual(tst_stderr, None)
