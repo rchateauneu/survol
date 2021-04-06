@@ -10,12 +10,13 @@ import os
 import re
 import sys
 import time
+import logging
+import subprocess
 
 import lib_uris
 import lib_util
 import lib_common
 from lib_properties import pc
-import subprocess
 
 
 # This parses the output of "tcpdump" or "WinDump.exe" if on Windows.
