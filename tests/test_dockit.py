@@ -587,7 +587,7 @@ class CommandLineLiveLinuxTest(unittest.TestCase):
     This test checks the script dockit.py from from command lines, and not from the internal function."""
     def test_run_linux_ls(self):
 
-        output_basename_prefix = "test_linux_ls"
+        output_basename_prefix = "output_test_linux_ls"
         output_prefix = _path_prefix_output_result(output_basename_prefix)
         command_result = _run_dockit_command("-D -f JSON -F TXT -l %s ls" % output_prefix)
 
@@ -601,7 +601,7 @@ class CommandLineLiveLinuxTest(unittest.TestCase):
 
     def test_run_linux_touch_rdf(self):
         """This touch a new file. An RDF event must be created."""
-        output_basename_prefix = "test_linux_touch"
+        output_basename_prefix = "output_test_linux_touch"
         created_rdf_file = _path_prefix_output_result(output_basename_prefix + ".rdf")
         created_temp_file = _path_prefix_output_result(output_basename_prefix + ".tmp")
 
@@ -911,7 +911,7 @@ class CommandLineLivePythonTest(unittest.TestCase):
 
     def test_run_python_rdf_print_hello(self):
         """This runs a minimal Python script."""
-        output_basename_prefix = "test_run_python_rdf_print_hello"
+        output_basename_prefix = "output_test_run_python_rdf_print_hello"
 
         python_script = """
 print("Hello")
@@ -1003,7 +1003,7 @@ os.system(r'"%s" -c print(123456789) > %s')
     @unittest.skipIf(is_platform_linux, "These tests are for Windows only.")
     def test_run_python_rdf_os_system_dir(self):
         """This creates a subprocess running dir."""
-        output_basename_prefix = "test_run_python_rdf_os_system_dir"
+        output_basename_prefix = "output_test_run_python_rdf_os_system_dir"
 
         python_script = """
 import os
@@ -1501,7 +1501,7 @@ class EventsServerTest(unittest.TestCase):
                 if rdf_triple not in total_events_graph:
                     total_events_graph.add(rdf_triple)
                 else:
-                    print("Found duplicate")
+                    print("Found duplicate of", rdf_triple)
 
             for event_subject, event_predicate, event_object in total_events_graph:
                 # Given the input filename, this expects some specific data.
