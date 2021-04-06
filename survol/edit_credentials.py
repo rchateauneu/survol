@@ -10,6 +10,7 @@ import sys
 import cgi
 import socket
 import logging
+import collections
 
 import lib_uris
 import lib_common
@@ -258,15 +259,15 @@ def _cred_definitions():
         node_instance = survol_mysql_instance.MakeUri(instance_my_sql)
         return node_instance
 
-    def CredUrlWBEM(cimomUrl):
+    def CredUrlWBEM(cimom_url):
         # Example: urlWbem = "http://192.168.0.17:5989"
         if False:
-            hostname = cimomUrl[7:]
-            node_wbem = lib_util.UrlPortalWbem(cimomUrl)
+            hostname = cimom_url[7:]
+            node_wbem = lib_util.UrlPortalWbem(cimom_url)
             return node_wbem
         else:
             import lib_wbem
-            the_cimom = lib_credentials.key_url_cgi_encode(cimomUrl)
+            the_cimom = lib_credentials.key_url_cgi_encode(cimom_url)
             node_wbem = lib_wbem.WbemAllNamespacesUrl(the_cimom)
             return node_wbem
 
@@ -287,7 +288,7 @@ def _cred_definitions():
 
     def CredUrlODBC(dsn):
         from sources_types.odbc import dsn as survol_odbc_dsn
-        node_dsn = survol_odbc_dsn.MakeUri( "DSN=" + dsn )
+        node_dsn = survol_odbc_dsn.MakeUri("DSN=" + dsn)
         return node_dsn
 
     # This hard-coded list allows also to create credentials for the first time.
@@ -387,8 +388,6 @@ def Main():
         jinja2 = lib_util.GetJinja2()
         jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(THIS_DIR), trim_blocks=True)
         jinja_template = jinja_env.get_template(template_file_name)
-
-        import collections
 
         ordered_map = collections.OrderedDict()
         for cred_type in sorted(cred_map):

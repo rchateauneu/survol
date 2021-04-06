@@ -44,7 +44,6 @@ def credentials_filename():
     home_directory = _get_home_directory()
     logging.debug("home_directory=%s" % home_directory)
 
-
     if home_directory:
         # Important: On Travis, the username is "travis" and we have no control on its home directory.
         cred_name = os.path.join(home_directory, credentials_basname).strip()
@@ -136,7 +135,7 @@ def GetCredentials(cred_type, cred_name):
     # We must convert the machine names to uppercase because this is "sometimes" done by Windows.
     # Might be a problem if several entries are identical except the case.
     key_val = credentials[cred_type]
-    arr_type_upper = {subKey.upper(): key_val[subKey] for subKey in arr_type}
+    arr_type_upper = {sub_key.upper(): key_val[sub_key] for sub_key in arr_type}
 
     cred_name_upper = cred_name.upper()
     try:
