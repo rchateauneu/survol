@@ -324,12 +324,13 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
         result_snapshot = self._run_script_as_snapshot(url_suffix)
         _check_events_feeder_psutil_processes_perf(self, "Snapshot only", result_snapshot)
 
+    @unittest.skipIf(is_platform_wsl, "Not for WSL because psutil needs vmstat")
     def test_events_feeder_psutil_system_counters(self):
         url_suffix = "events_feeder_psutil_system_counters.py"
         result_snapshot = self._run_script_as_snapshot(url_suffix)
         _check_events_feeder_psutil_system_counters(self, "Snapshot only", result_snapshot)
 
-    @unittest.skipIf(is_platform_windows and is_travis_machine(), "Windows and Travis do not work. WHY ? FIXME.")
+    @unittest.skipIf(is_platform_windows and is_travis_machine(), "Windows and Travis do not work. WHY ?")
     def test_events_feeder_sockets_promiscuous_mode(self):
         url_suffix = "events_feeder_sockets_promiscuous_mode.py"
         result_snapshot = self._run_script_as_snapshot(url_suffix)
@@ -460,6 +461,7 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
         _check_events_feeder_psutil_processes_perf(self, "Events", result_events)
 
     @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
+    @unittest.skipIf(is_platform_wsl, "Not for WSL because of psutil limitations.")
     def test_events_feeder_psutil_system_counters(self):
         """This script is already tested, as a snapshot."""
         url_suffix = "events_feeder_psutil_system_counters.py"
