@@ -5,52 +5,52 @@ Java world
 import os
 import sys
 import logging
-import jpype
-import lib_util
-import lib_common
 
 # Module JPype1
-# For Python2, pip2 install jpype1==0.6.2 , but 1.1.2 does not install.
+import jpype
 from jpype import java
 from jpype import javax
 
+import lib_util
+import lib_common
 
-globJavaJVM = None
+
+glob_java_jvm = None
 
 
 # It is possible to return a similar object, but on a remote machine.
 def JPypeLocalStartJVM():
-    global globJavaJVM
-    if globJavaJVM:
-        return globJavaJVM
+    global glob_java_jvm
+    if glob_java_jvm:
+        return glob_java_jvm
 
     try:
         if lib_util.isPlatformLinux:
-            globJavaJVM = JPypeLocalStartJVMLinux()
+            glob_java_jvm = _jpype_local_start_jvm_linux()
 
         elif lib_util.isPlatformWindows:
-            globJavaJVM = JPypeLocalStartJVMWindows()
+            glob_java_jvm = _jpype_local_start_jvm_windows()
         else:
-            lib_common.ErrorMessageHtml("Uknown operating system")
+            lib_common.ErrorMessageHtml("Unknown operating system")
 
     except Exception as exc:
         lib_common.ErrorMessageHtml("JavaJmxSystemProperties caught:" + str(exc))
 
-    return globJavaJVM
+    return glob_java_jvm
 
 
-def JPypeLocalStartJVMLinux():
+def _jpype_local_start_jvm_linux():
     # Example: '/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.91-2.b14.fc22.x86_64/jre/lib/amd64/server/libjvm.so'
     dflt_path = jpype.getDefaultJVMPath()
 
     # getDefaultJVMPath=C:\Program Files\Java\jre1.8.0_121\bin\server\jvm.dll
-    logging.debug("getDefaultJVMPath=%s", dflt_path)
+    logging.debug("dflt_path=%s", dflt_path)
 
     # Now extracts the version, which will be used for the JDK directionary.
-    baseDfltJVM = os.path.dirname(dflt_path)
-    baseJreRelative = os.path.join( baseDfltJVM, "..", ".." )
+    base_dflt_jvm = os.path.dirname(dflt_path)
+    base_jre_relative = os.path.join( base_dflt_jvm, "..", "..")
 
-    base_jre_abs = os.path.abspath(baseJreRelative)
+    base_jre_abs = os.path.abspath(base_jre_relative)
     # base_jre_abs=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.91-2.b14.fc22.x86_64/jre/lib
     logging.debug("base_jre_abs=%s", base_jre_abs)
 
@@ -66,7 +66,7 @@ def JPypeLocalStartJVMLinux():
     return virtual_machine
 
 
-def JPypeLocalStartJVMWindows():
+def _jpype_local_start_jvm_windows():
     # u'C:\\Program Files\\Java\\jre1.8.0_121\\bin\\server\\jvm.dll'
     dflt_path = jpype.getDefaultJVMPath()
 
@@ -74,8 +74,8 @@ def JPypeLocalStartJVMWindows():
     logging.debug("getDefaultJVMPath=%s", dflt_path)
 
     # Now extracts the version, which will be used for the JDK directionary.
-    baseDfltJVM = os.path.dirname(dflt_path)
-    base_jre_relative = os.path.join(baseDfltJVM, "..", "..")
+    base_dflt_jvm = os.path.dirname(dflt_path)
+    base_jre_relative = os.path.join(base_dflt_jvm, "..", "..")
 
     base_jre_abs = os.path.abspath(base_jre_relative)
     # base_jre_abs=C:\Program Files\Java\jre1.8.0_121
@@ -103,8 +103,6 @@ def JPypeLocalStartJVMWindows():
     # java_dir_prefix = "C:\\Program Files\\Java\\jdk1.8.0_121"
 
     # "attach.dll" is not in the jre.
-    #sys.stdout.write("PATH=%s\n"%os_path)
-    # path_attach_dll = "C:\\Program Files\\Java\\jdk1.8.0_121\\jre\\bin"
     path_attach_dll = java_dir_prefix + "\\jre\\bin"
 
     path_original = os.environ["PATH"]
@@ -117,21 +115,23 @@ def JPypeLocalStartJVMWindows():
     jpype.startJVM(dflt_path, "-Djava.class.path=" + java_dir_prefix + "\\lib\\tools.jar")
 
     #jvPck = jpype.JPackage('sun').tools.attach.WindowsVirtualMachine
-    VirtualMachine = jpype.JPackage('com').sun.tools.attach.VirtualMachine
+    virtual_machine = jpype.JPackage('com').sun.tools.attach.VirtualMachine
 
     os.environ["PATH"] = path_original
 
-    return VirtualMachine
+    return virtual_machine
 
 
-# Attaching to a process is riskier, so we do not do it when listing all Java processes.
-# This procedure needs to attache and might fail sometimes.
-def JavaJmxPidMBeansAttach(pid, jvPckVM, mbean_obj_nam=None):
+def _java_jmx_pid_mbeans_attach(pid, jv_pck_vm, mbean_obj_nam=None):
+    """
+    Attaching to a process is riskier, so we do not do it when listing all Java processes.
+    This procedure needs to attache and might fail sometimes.
+    """
     CONNECTOR_ADDRESS = "com.sun.management.jmxremote.localConnectorAddress"
 
     dict_result = {}
 
-    logging.debug("JavaJmxPidMBeansAttach Attaching to pid=%s type=%s", pid, type(pid))
+    logging.debug("Attaching to pid=%s type=%s", pid, type(pid))
     # jpype._jexception.AttachNotSupportedExceptionPyRaisable:
     # com.sun.tools.attach.AttachNotSupportedException:
     # Unable to attach to 32-bit process running under WOW64
@@ -139,15 +139,15 @@ def JavaJmxPidMBeansAttach(pid, jvPckVM, mbean_obj_nam=None):
     # This exception is caught with pytest and many tests.
     # It works fine with few tests or with PyCharm.
     try:
-        virt_mach = jvPckVM.attach(str(pid))
+        virt_mach = jv_pck_vm.attach(str(pid))
     except Exception as exc:
         logging.warning("Exception:%s", str(exc))
         return dict_result
 
     logging.debug("Attached to pid=%s", pid)
-    connectorAddress = virt_mach.getAgentProperties().getProperty(CONNECTOR_ADDRESS)
+    connector_address = virt_mach.getAgentProperties().getProperty(CONNECTOR_ADDRESS)
 
-    if not connectorAddress:
+    if not connector_address:
         # fileSeparator = "\\"
         # agent=C:\Program Files\Java\jre1.8.0_121\lib\management-agent.jar
         # agent = virt_mach.getSystemProperties().getProperty("java.home") + fileSeparator + "lib" + fileSeparator + "management-agent.jar"
@@ -157,19 +157,19 @@ def JavaJmxPidMBeansAttach(pid, jvPckVM, mbean_obj_nam=None):
         logging.debug("agent=%s", str(agent))
         virt_mach.loadAgent(agent)
         # agent is started, get the connector address
-        connectorAddress = virt_mach.getAgentProperties().getProperty(CONNECTOR_ADDRESS)
+        connector_address = virt_mach.getAgentProperties().getProperty(CONNECTOR_ADDRESS)
 
-    dict_result["connector"] = connectorAddress
+    dict_result["connector"] = connector_address
 
     # "service:jmx:rmi://127.0.0.1/stub/rO0ABXN9AAAAAQ..."
 
-    jmx_url = javax.management.remote.JMXServiceURL(connectorAddress)
+    jmx_url = javax.management.remote.JMXServiceURL(connector_address)
     jmx_soc = javax.management.remote.JMXConnectorFactory.connect(jmx_url)
     # This interface represents a way to talk to an MBean server, whether local or remote.
     # The MBeanServer interface, representing a local MBean server, extends this interface.
-    connectMBean = jmx_soc.getMBeanServerConnection()
+    connect_m_bean = jmx_soc.getMBeanServerConnection()
 
-    # connectMBean=['addNotificationListener', 'class', 'createMBean', 'defaultDomain',
+    # connect_m_bean=['addNotificationListener', 'class', 'createMBean', 'defaultDomain',
     #  'delegationSubject', 'domains', 'equals', 'getAttribute', 'getAttributes', 'getClass',
     #  'getDefaultDomain', 'getDomains', 'getMBeanCount', 'getMBeanInfo', 'getObjectInstance',
     #  'hashCode', 'invoke', 'isInstanceOf', 'isRegistered', 'mBeanCount', 'notify', 'notifyAll',
@@ -179,62 +179,62 @@ def JavaJmxPidMBeansAttach(pid, jvPckVM, mbean_obj_nam=None):
     # mbeanObjNam = "com.sun.management:type=HotSpotDiagnostic"
     if mbean_obj_nam:
         logging.debug("mbeanObjNam=%s", mbean_obj_nam)
-        jvxObjNam = javax.management.ObjectName(mbean_obj_nam)
+        jvx_obj_nam = javax.management.ObjectName(mbean_obj_nam)
     else:
-        jvxObjNam = None
+        jvx_obj_nam = None
 
     # jpype._jexception.MalformedObjectNameExceptionPyRaisable: javax.management.MalformedObjectNameException: Key properties cannot be empty
-    allMBeans = connectMBean.queryMBeans(jvxObjNam, None)
+    all_mbeans = connect_m_bean.queryMBeans(jvx_obj_nam, None)
 
-    # allMBeans=[sun.management.OperatingSystemImpl[java.lang:type=OperatingSystem], sun.management.MemoryManagerImpl[java.
-    logging.debug("allMBeans=%s", str(allMBeans))
+    # all_mbeans=[sun.management.OperatingSystemImpl[java.lang:type=OperatingSystem], sun.management.MemoryManagerImpl[java.
+    logging.debug("all_mbeans=%s", str(all_mbeans))
 
-    vectMBeans = []
+    vect_mbeans = []
 
     # Gets as much information as possible about this MBean.
-    for eltMBean in allMBeans:
-        mbeanObjectName = eltMBean.getObjectName()
-        oneMBean = {
-            "className": eltMBean.getClassName(),
-            "objectName": str(mbeanObjectName)
+    for elt_mbean in all_mbeans:
+        mbean_object_name = elt_mbean.getObjectName()
+        one_mbean = {
+            "className": elt_mbean.getClassName(),
+            "objectName": str(mbean_object_name)
         }
 
         # TODO: To save time, we could do that only if mbeanObjNam is not None.
-        oneMBeanInfo = connectMBean.getMBeanInfo(mbeanObjectName)
+        one_mbean_info = connect_m_bean.getMBeanInfo(mbean_object_name)
 
-        descrMBeanInfo = oneMBeanInfo.getDescriptor()
-        dictMBeanInfoDescr = {}
-        for keyMBeanInfo in descrMBeanInfo.getFieldNames():
-            valMBeanInfo = descrMBeanInfo.getFieldValue(keyMBeanInfo)
-            dictMBeanInfoDescr[keyMBeanInfo] = valMBeanInfo
-        oneMBean["info"] = dictMBeanInfoDescr
+        descr_mbean_info = one_mbean_info.getDescriptor()
+        dict_mbean_info_descr = {}
+        for key_mbean_info in descr_mbean_info.getFieldNames():
+            val_m_bean_info = descr_mbean_info.getFieldValue(key_mbean_info)
+            dict_mbean_info_descr[key_mbean_info] = val_m_bean_info
+        one_mbean["info"] = dict_mbean_info_descr
 
-        for attr in oneMBeanInfo.getAttributes():
+        for attr in one_mbean_info.getAttributes():
             logging.debug("attr=%s", str(attr))
             logging.debug("attr.getName()=%s", attr.getName())
             logging.debug("attr.getType()=%s", attr.getType())
             logging.debug("attr.getDescription()=%s", attr.getDescription())
 
-        attrsMBeanInfo = oneMBeanInfo.getAttributes()
-        dictMBeanInfo = {}
-        for one_attr in attrsMBeanInfo:
+        attrs_mbean_info = one_mbean_info.getAttributes()
+        dict_mbean_info = {}
+        for one_attr in attrs_mbean_info:
             key_attr = one_attr.getName()
             # int=<class'jpype._jclass.java.lang.Integer'>\
             get_tp = one_attr.getType()
             try:
-                get_attr = connectMBean.getAttribute(mbeanObjectName, key_attr)
+                get_attr = connect_m_bean.getAttribute(mbean_object_name, key_attr)
                 # Without a concatenation, it prints "1" instead of boolean True.
                 val_attr = str(get_attr) + " (%s)" % get_tp
             except:
                 val_attr = "N/A"
-            dictMBeanInfo[key_attr] = val_attr
-        oneMBean["attrs"] = dictMBeanInfo
+            dict_mbean_info[key_attr] = val_attr
+        one_mbean["attrs"] = dict_mbean_info
 
-        vectMBeans.append(oneMBean)
+        vect_mbeans.append(one_mbean)
 
-    dict_result["allMBeans"] = vectMBeans
+    dict_result["all_mbeans"] = vect_mbeans
 
-    # When detaching, all the intermediary objects created by connectMBean are deleted.
+    # When detaching, all the intermediary objects created by connect_m_bean are deleted.
     # This is why their content must be stored.
     virt_mach.detach()
 
@@ -244,15 +244,15 @@ def JavaJmxPidMBeansAttach(pid, jvPckVM, mbean_obj_nam=None):
 
 
 def JavaJmxSystemProperties(pid):
-    jvPckVM = JPypeLocalStartJVM()
+    jv_pck_vm = JPypeLocalStartJVM()
 
     try:
-        virt_mach = jvPckVM.attach(str(pid))
+        virt_mach = jv_pck_vm.attach(str(pid))
     except Exception as exc:
         vm_sys_props = {
-            "jvPckVM": str(jvPckVM),
+            "jv_pck_vm": str(jv_pck_vm),
             "JMX error": str(exc),
-            "Pid": str(pid) }
+            "Pid": str(pid)}
         return vm_sys_props
 
     try:
@@ -276,47 +276,49 @@ def JavaJmxSystemProperties(pid):
         vm_sys_props = {
             "VM": str(virt_mach),
             "JMX error": str(exc),
-            "Pid": str(pid) }
+            "Pid": str(pid)}
 
     # Shutdown the VM at the end
-    QuietShutdown()
+    _quiet_shutdown()
     return vm_sys_props
 
 
-# This returns a list of processes without attaching to them,
-# so it is simpler and faster.
-# The result is a map indexed by pids.
-def JPypeListVMs(jvPckVM):
+def JPypeListVMs(jv_pck_vm):
+    """
+    This returns a list of processes without attaching to them,
+    so it is simpler and faster.
+    The result is a map indexed by pids.
+    """
     resu_procs = dict()
-    if not jvPckVM:
+    if not jv_pck_vm:
         return resu_procs
 
-    listVMs = jvPckVM.list()
+    list_vms = jv_pck_vm.list()
 
-    logging.debug("VirtualMachine.dir=%s", str(dir(listVMs)))
-    for oneVM in listVMs:
+    logging.debug("VirtualMachine.dir=%s", str(dir(list_vms)))
+    for one_vm in list_vms:
         dic_by_props = dict()
-        logging.debug("%s", oneVM)
-        logging.debug("%s", str(dir(oneVM)))
-        logging.debug("id=%s", str(oneVM.id()))
-        logging.debug("displayName=%s", str(oneVM.displayName()))
-        logging.debug("getClass=%s", str(oneVM.getClass()))
-        logging.debug("provider=%s", str(oneVM.provider()))
-        logging.debug("isAttachable=%s", str(oneVM.isAttachable()))
-        logging.debug("toString=%s", str(oneVM.toString()))
-        # JavaJmxPidMBeansAttach(oneVM.id(),jvPckVM)
+        logging.debug("%s", one_vm)
+        logging.debug("%s", str(dir(one_vm)))
+        logging.debug("id=%s", str(one_vm.id()))
+        logging.debug("displayName=%s", str(one_vm.displayName()))
+        logging.debug("getClass=%s", str(one_vm.getClass()))
+        logging.debug("provider=%s", str(one_vm.provider()))
+        logging.debug("isAttachable=%s", str(one_vm.isAttachable()))
+        logging.debug("toString=%s", str(one_vm.toString()))
+        # JavaJmxPidMBeansAttach(one_vm.id(),jvPckVM)
 
-        dic_by_props["class"] = oneVM.getClass()
-        dic_by_props["provider"] = oneVM.provider()
-        dic_by_props["isAttachable"] = oneVM.isAttachable()
+        dic_by_props["class"] = one_vm.getClass()
+        dic_by_props["provider"] = one_vm.provider()
+        dic_by_props["isAttachable"] = one_vm.isAttachable()
 
         # sun.tools.attach.WindowsAttachProvider@3f99bd52: 8084 sun.tools.jconsole.JConsole
-        dic_by_props["toString"] = oneVM.toString()
+        dic_by_props["toString"] = one_vm.toString()
 
         # Same as "toString"
-        # dic_by_props["str"] = str(oneVM)
+        # dic_by_props["str"] = str(one_vm)
 
-        resu_procs[oneVM.id()] = dic_by_props
+        resu_procs[one_vm.id()] = dic_by_props
 
     return resu_procs
 
@@ -324,7 +326,7 @@ def JPypeListVMs(jvPckVM):
 # This fails on Linux.
 # Better not stopping it because there might be several calls.
 # On Windows, better reusing the same JVM.
-def QuietShutdown():
+def _quiet_shutdown():
     return
     # Must redirect the Java output
     # Shutdown the VM at the end
@@ -334,29 +336,29 @@ def QuietShutdown():
 
 # TODO: This could work on a remote machine if we have the Java RMI port number and user/pass.
 def ListJavaProcesses():
-    jvPckVM = JPypeLocalStartJVM()
+    jv_pck_vm = JPypeLocalStartJVM()
 
-    listVMs = JPypeListVMs(jvPckVM)
+    list_vms = JPypeListVMs(jv_pck_vm)
 
     # Shutdown the VM at the end
-    QuietShutdown()
+    _quiet_shutdown()
 
-    return listVMs
+    return list_vms
 
 
 # TODO: This could work on a remote machine if we have the Java RMI port number and user/pass.
 # If mbeanObjNam is None, returns data for all MBeans.
 def GetJavaDataFromJmx(the_pid, mbean_obj_nam=None):
-    jvPckVM = JPypeLocalStartJVM()
+    jv_pck_vm = JPypeLocalStartJVM()
 
-    java_results = JavaJmxPidMBeansAttach(the_pid, jvPckVM, mbean_obj_nam)
+    java_results = _java_jmx_pid_mbeans_attach(the_pid, jv_pck_vm, mbean_obj_nam)
 
     # Some extra data to add ??
-    # jvValDict = jvPckVM[thePid]
-    # for jvKey in jvPckVM:
+    # jvValDict = jv_pck_vm[thePid]
+    # for jvKey in jv_pck_vm:
 
     # Shutdown the VM at the end
-    QuietShutdown()
+    _quiet_shutdown()
 
     return java_results
 
