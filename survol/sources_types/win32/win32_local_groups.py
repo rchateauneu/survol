@@ -5,13 +5,14 @@ Windows local groups
 """
 
 from __future__ import generators
+
+import win32net
+import win32security
+
 import lib_util
 import lib_uris
 import lib_common
 from lib_properties import pc
-
-import win32net
-import win32security
 from sources_types import Win32_Group as survol_Win32_Group
 from sources_types import Win32_UserAccount as survol_Win32_UserAccount
 
@@ -41,8 +42,6 @@ def Main():
 		level = 1
 		data, total, resume = win32net.NetLocalGroupEnum(serv_name_or_none, level, resume)
 		for group in data:
-			# sys.stderr.write("Group %(name)s:%(comment)s\n" % group)
-
 			# TODO: Not sure about the groupname syntax.
 			group_name = group['name']
 			node_group = survol_Win32_Group.MakeUri(group_name, serv_name_not_none)
@@ -64,7 +63,6 @@ def Main():
 					# Converts Sid to username
 					userName, domain, type = win32security.LookupAccountSid(serv_name_or_none, member['sid'])
 					num_members = num_members + 1
-					# sys.stderr.write("    Member: %s: %s\n" % (userName, member['domainandname']))
 					node_user = survol_Win32_UserAccount.MakeUri(userName, serv_name_not_none)
 
 					# TODO: Not sure about the property.

@@ -42,21 +42,21 @@ def _get_daemons_data():
 
     urls_daemons_dict = lib_daemon.get_running_daemons()
     for daemon_url, daemon_object in urls_daemons_dict.items():
-        sys.stderr.write("daemon_url=%s\n" % daemon_url)
+        logging.debug("daemon_url=%s" % daemon_url)
 
         url_label, entity_type, entity_id = lib_naming.ParseEntityUri(daemon_url, long_display=True)
-        sys.stderr.write("url_label=%s\n" % url_label)
-        sys.stderr.write("entity_type=%s\n" % entity_type)
-        sys.stderr.write("entity_id=%s\n" % entity_id)
+        logging.debug("url_label=%s" % url_label)
+        logging.debug("entity_type=%s" % entity_type)
+        logging.debug("entity_id=%s" % entity_id)
 
         daemon_object['url_title'] = url_label
 
         # Now that we have the class and the key-value pairs of the object related to the script, builds its url.
         entity_url = lib_util.EntityUriFromMoniker(entity_type, entity_id)
-        sys.stderr.write("entity_url=%s\n" % entity_url)
+        logging.debug("entity_url=%s" % entity_url)
         daemon_object['object_url'] = entity_url
         entity_label = lib_naming.EntityToLabel(entity_type, entity_id, lib_util.HostName())
-        sys.stderr.write("entity_label=%s\n" % entity_label)
+        logging.debug("entity_label=%s" % entity_label)
         daemon_object['object_title'] = entity_label
         daemon_object['triples_number'] = lib_kbase.context_events_count(daemon_url)
         daemon_object['start_time'] = datetime.datetime.fromtimestamp(daemon_object['start']).strftime("%m/%d/%Y, %H:%M:%S")

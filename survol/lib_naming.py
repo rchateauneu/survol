@@ -76,7 +76,6 @@ def EntityToLabel(entity_type, entity_ids_concat, force_entity_ip_addr):
         entity_label = _entity_array_to_alias(entity_type, entity_ids_arr, force_entity_ip_addr)
     else:
         entity_label = _entity_array_to_label(entity_type, entity_ids_arr)
-    # sys.stderr.write("EntityToLabel entity_label=%s\n" % entity_label )
 
     # There might be extra properties which are not in our ontology.
     # This happens if duplicates from WBEM or WMI. MAKE THIS FASTER ?

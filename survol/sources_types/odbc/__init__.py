@@ -4,8 +4,9 @@ Open Database Connectivity concepts
 
 import re
 import sys
-import lib_util
 import logging
+
+import lib_util
 
 # ('C:\\Program Files (x86)\\Microsoft Visual Studio 8\\Crystal Reports\\Samples\\en\\Databases\\xtreme', None, 'MSysAccessObjects', 'SYSTEM TABLE', None)
 # connectString = 'Driver={Microdsoft ODBC for Oracle};Server=<host>:<port>/<db>.<host>;uid= <username>;pwd=<password>'
@@ -260,7 +261,6 @@ class CgiPropertyDsn(str):
                 a_val = token_local_decode(a_val) # SHOULD BE CRYPTED
             elif a_key_wrd not in _odbc_keys_uncoded:
                 a_val = token_local_decode(a_val)
-            # sys.stderr.write("token_decode a_val=%s\n"%a_val)
             return a_key_wrd + "=" + a_val
 
         return ";".join(token_decode(a_tok) for a_tok in vec_tok_pairs)

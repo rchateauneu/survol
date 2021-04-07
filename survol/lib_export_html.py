@@ -4,6 +4,7 @@
 import os
 import sys
 import logging
+
 import lib_util
 import lib_mime
 import lib_exports
@@ -421,11 +422,11 @@ def _display_class_objects_no_jinja(dict_subj_prop_obj):
         if subj_title:
             # The intention is to detect a specific test case with accented characters.
             if subj_title[0] == 'Y' and subj_title.find("Boulogne"):
-                sys.stderr.write("_display_class_objects_no_jinja subj_str=%s\n" % subj_str)
-                sys.stderr.write("_display_class_objects_no_jinja subj_title=%s\n" % subj_title)
+                logging.debug("_display_class_objects_no_jinja subj_str=%s" % subj_str)
+                logging.debug("_display_class_objects_no_jinja subj_title=%s" % subj_title)
                 continue
         else:
-            sys.stderr.write("NO TITLE FOR %s\n" % subj_str)
+            logging.debug("NO TITLE FOR %s" % subj_str)
         tuples_subjects_list.append((a_subj, subj_str, subj_title, entity_graphic_class, entity_id))
 
     # Sorted by the title of the subject, which is the third value of the tuple.
@@ -441,9 +442,9 @@ def _display_class_objects_no_jinja(dict_subj_prop_obj):
     for a_subj, subj_str, subj_title, entity_graphic_class, entity_id in tuples_subjects_list:
         # FIXME: This is a specific test to catch a specific condition...
         if a_subj.find("Boulogne") >= 0 or subj_str.find("Boulogne") >= 0 or subj_title.find("Boulogne") >= 0:
-            sys.stderr.write("a_subj=%s\n" % a_subj)
-            sys.stderr.write("subj_str=%s\n" % subj_str)
-            sys.stderr.write("subj_title=%s\n" % subj_title)
+            logging.debug("a_subj=%s" % a_subj)
+            logging.debug("subj_str=%s" % subj_str)
+            logging.debug("subj_title=%s" % subj_title)
             continue
 
         dict_pred = dict_subj_prop_obj[a_subj]
@@ -481,9 +482,9 @@ def _display_class_objects_no_jinja(dict_subj_prop_obj):
             for an_obj, obj_str, obj_title in lst_tuples_objs:
                 # FIXME: This is a specific test to catch a specific condition...
                 if an_obj.find("Boulogne") >= 0 or obj_str.find("Boulogne") >= 0 or obj_title.find("Boulogne") >= 0:
-                    sys.stderr.write("an_obj=%s\n"%an_obj)
-                    sys.stderr.write("obj_str=%s\n"%obj_str)
-                    sys.stderr.write("obj_title=%s\n"%obj_title)
+                    logging.debug("an_obj=%s" % an_obj)
+                    logging.debug("obj_str=%s" % obj_str)
+                    logging.debug("obj_title=%s" % obj_title)
                     continue
 
                 # Nasty encoding errors. Probably the string should have been encoded before.
@@ -491,7 +492,7 @@ def _display_class_objects_no_jinja(dict_subj_prop_obj):
                     try:
                         dummy_str = obj_title.decode('ascii')
                     except UnicodeDecodeError as exc:
-                        sys.stderr.write("UnicodeDecodeError obj_title=%s\n" % obj_title)
+                        logging.debug("obj_title=%s" % obj_title)
                         obj_title = obj_title.decode('cp1252')
 
                 yield '<tr>'

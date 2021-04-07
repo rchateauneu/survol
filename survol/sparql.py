@@ -119,7 +119,6 @@ def Main():
     # in Wrapper.py.
     # See modules CGIHTTPServer, BaseHTTPServer, CGIHTTPRequestHandler
     # 'HTTP_USER_AGENT': 'sparqlwrapper 1.8.4 (rdflib.github.io/sparqlwrapper)'
-    # sys.stderr.write("Environ=%s\n"%str(os.environ))
     # QUERY_STRING='query=%0A++++++++++++++++PREFIX+wmi%3A++%3Chttp%3A/www.primhillcomputers.com/ontology/wmi%23%3E%0A++++++++++++++++PREFIX+survol%3A++%3Chttp%3A/primhillcomputers.com/survol%23%3E%0A++++++++++++++++PREFIX+rdfs%3A++++%3Chttp%3A/www.w3.org/2000/01/rdf-schema%
     # 23%3E%0A++++++++++++++++SELECT+%3Fcaption%0A++++++++++++++++WHERE%0A++++++++++++++++%7B%0A++++++++++++++++++++%3Furl_user+rdf%3Atype+survol%3AWin32_UserAccount+.%0A++++++++++++++++++++%3Furl_user+survol%3AName+%27rchateau%27+.%0A++++++++++++++++++++%3Furl_user+sur
     # vol%3ACaption+%3Fcaption+.%0A++++++++++++++++++++%3Furl_user+rdfs%3AseeAlso+%22WMI%22+.%0A++++++++++++++++%7D%0A++++++++++++++++&output=json&results=json&format=json'
@@ -127,27 +126,25 @@ def Main():
 
     # 'SERVER_SOFTWARE': 'SimpleHTTP/0.6 Python/2.7.10'
     # 'SERVER_SOFTWARE': 'SimpleHTTP/0.6 Python/3.6.3'
-    sys.stderr.write("SERVER_SOFTWARE=%s\n" % os.environ['SERVER_SOFTWARE'])
+    logging.debug("SERVER_SOFTWARE=%s" % os.environ['SERVER_SOFTWARE'])
     if os.environ['SERVER_SOFTWARE'].startswith("SimpleHTTP"):
         # Beware, only with Python2. Not needed on Linux and Python 3.
         # Maybe because the Python class processes the CGI arguments like filenames.
         if not lib_util.is_py3 and lib_util.isPlatformWindows:
             sparql_query = re.sub("([^a-z]*)http:/([^a-z]*)", r"\1http://\2", sparql_query)
-            sys.stderr.write("Substitution 'http://' and 'http:///'\n")
+            logging.debug("Substitution 'http://' and 'http:///'")
 
-    sys.stderr.write("sparql_server sparql_query=%s\n" % sparql_query.replace(" ","="))
+    logging.debug("sparql_server sparql_query=%s" % sparql_query.replace(" ", "="))
 
     try:
         result_format = arguments["format"].value
     except KeyError:
         result_format = "HTML*"
 
-    sys.stderr.write("\n")
-
     query_result = __run_sparql_query(sparql_query)
 
-    sys.stderr.write("sparql_server After query len(query_result)=%d\n" % len(query_result))
-    sys.stderr.write("sparql_server After query query_result=%s\n" % str(query_result))
+    logging.debug("After query len(query_result)=%d" % len(query_result))
+    logging.debug("After query query_result=%s" % str(query_result))
 
     # TODO: This does not work "select *", so maybe should read the first row.
     row_header = __query_header(sparql_query)
@@ -183,7 +180,7 @@ def Main():
                 dict_row[one_variable] = json_element
 
             bindings_list.append(dict_row)
-        sys.stderr.write("bindings_list=%s\n"%str(bindings_list))
+        logging.debug("bindings_list=%s" % str(bindings_list))
 
         json_output = {
             "head": {"vars": row_header},
@@ -219,12 +216,12 @@ def Main():
                 ET.SubElement(result, "binding", name=one_variable).text = one_row[ix]
 
         str_output = ET.tostring(root, encoding='utf8', method='xml')
-        sys.stderr.write("sparql_server str_output=%s\n"%str_output)
+        logging.debug("str_output=%s" % str_output)
 
     else:
-        raise Exception("Results format %s not implemented yet"%result_format)
+        raise Exception("Results format %s not implemented yet" % result_format)
 
-    sys.stderr.write("sparql_server result_format=%s str_output=%s\n"%(result_format, str_output))
+    logging.debug("result_format=%s str_output=%s", result_format, str_output)
 
     lib_util.WrtHeader(mime_format)
     lib_util.WrtAsUtf(str_output)

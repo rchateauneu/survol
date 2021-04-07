@@ -7,12 +7,12 @@ Registered COM type libraries
 import os
 import sys
 import logging
-import lib_common
-from lib_properties import pc
 
 import win32api
 import win32con
 
+import lib_common
+from lib_properties import pc
 import lib_com_type_lib
 
 
@@ -36,7 +36,6 @@ def Main():
 
             # Name of the last version.
             best_typ_lib_name, best_version = lib_com_type_lib.ComKeyLastName(versions)
-            # sys.stderr.write("best_typ_lib_name=%s\n" % best_typ_lib_name)
 
             # The name will be awful. First we must experiment a bit.
             lib_com_type_lib.CreateComRegisteredTypeLibNode(grph, key_name, best_typ_lib_name, best_version)

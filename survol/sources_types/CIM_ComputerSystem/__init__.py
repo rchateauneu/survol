@@ -88,7 +88,6 @@ def AddWmiServers(entity_host, name_space, entity_type, entity_id):
     if lib_wmi.ValidClassWmi(entity_type):
         # TODO: This could loop on all machines possibly describing this object. How ?
         wmiurl = lib_wmi.GetWmiUrl(entity_host, name_space, entity_type, entity_id)
-        # sys.stderr.write("wmiurl=%s\n" % str(wmiurl))
         if wmiurl:
             wmi_node = lib_common.NodeUrl(wmiurl)
             if entity_host:

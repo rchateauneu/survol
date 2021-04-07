@@ -14,11 +14,8 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-# lib_util.GlobalGetHostByName(lib_util.currentHostname) Renvoie "127.0.0.1"
-
 # http://stackoverflow.com/questions/3698901/retrieving-netmask-for-interfaces-with-multiple-ip-addresses-using-python
 #
-#import fcntl
 #
 #SIOCGIFNETMASK = 0x891b
 #
@@ -111,7 +108,6 @@ def Main():
         
         for dhostname in dhost.getElementsByTagName('hostname'):
             hostnam = dhostname.getAttributeNode('name').value
-            # sys.stderr.write("    hostnam=%s\n"%hostnam)
             grph.add((node_host, pc.property_hostname, lib_util.NodeLiteral(hostnam)))
 
     cgiEnv.OutCgiRdf()

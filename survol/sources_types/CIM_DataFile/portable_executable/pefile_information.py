@@ -11,7 +11,6 @@ import logging
 import lib_uris
 import lib_util
 import lib_common
-
 from sources_types.CIM_DataFile.portable_executable import section as survol_pe_section
 
 
@@ -88,7 +87,6 @@ def Main():
             # NumberOfRelocations: 0x0 0x19A 0x22
             # NumberOfLinenumbers: 0x0 0x19C 0x24
             # Characteristics: 0x60000020>
-            # sys.stderr.write("pe_sect.Name=%s\n"%pe_sect.Name)
 
             # Without the string: "Section=.data\0\0\0"
             node_sect = survol_pe_section.MakeUri(win_module,pe_sect.Name.rstrip(b"\0"))

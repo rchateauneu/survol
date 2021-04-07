@@ -4,12 +4,12 @@
 Linux modules dependencies
 """
 
-import lib_common
-import lib_util
 import sys
 import socket
-import lib_modules
 
+import lib_common
+import lib_util
+import lib_modules
 from lib_properties import pc
 
 #
@@ -44,7 +44,7 @@ def Main():
         # NOT TOO MUCH NODES: BEYOND THIS, IT IS FAR TOO SLOW, UNUSABLE. HARDCODE_LIMIT
         max_cnt += 1
         if max_cnt > 2000:
-            sys.stderr.write("Too many modules to display. Break.\n")
+            logging.error("Too many modules to display. Break.")
             break
 
         file_parent = lib_modules.ModuleToNode(module_name)

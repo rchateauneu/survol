@@ -1,5 +1,6 @@
 import os
 import sys
+import logging
 
 import lib_uris
 import lib_common
@@ -25,11 +26,11 @@ def recursive_symlink_analysis(grph, file_path):
     node_previous = None
     # The first element is empty because this is an absolute path.
     for one_dir in path_split[1:]:
-        sys.stderr.write("one_dir=%s\n" % one_dir)
+        logging.debug("one_dir=%s" % one_dir)
         accumulated_path.append(one_dir)
-        sys.stderr.write("accumulated_path=%s\n" % accumulated_path)
+        logging.debug("accumulated_path=%s" % accumulated_path)
         join_path = os.path.join(*accumulated_path)
-        sys.stderr.write("join_path=%s\n" % join_path)
+        logging.debug("join_path=%s" % join_path)
         node_join = _add_file_or_dir(grph, join_path)
 
         real_path = os.path.realpath(join_path)

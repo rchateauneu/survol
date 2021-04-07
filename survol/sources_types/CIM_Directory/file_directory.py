@@ -37,7 +37,6 @@ def Usable(entity_type, entity_ids_arr):
 #
 # TODO: This is hard-coded, and should be replaced by a Python CGI server serving this directory.
 def _url_to_directory(full_dir_path):
-    # sys.stderr.write("_url_to_directory full_dir_path=%s\n" % full_dir_path)
     dir_prefix = "C://Users/CurrentUser"
     if full_dir_path.startswith(dir_prefix):
         short_path = full_dir_path[len(dir_prefix):]
@@ -50,8 +49,6 @@ def _url_to_directory(full_dir_path):
 
 # Used only here.
 def _uri_directory_direct_script(dir_nam):
-    # sys.stderr.write("_uri_directory_direct_script=%s\n"%dir_nam)
-
     # This should rather have the property pc.property_script, but it must be listed with the files.
     return lib_uris.gUriGen.UriMakeFromScript(
         '/sources_types/CIM_Directory/file_directory.py',

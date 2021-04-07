@@ -45,11 +45,8 @@ def Main():
     for lin in asstr.split('\n')[4:]:
         try:
             sock_type = lin[25:36].strip()
-            # sys.stderr.write("sock_type %s\n"%sock_type)
             sock_state = lin[36:50].strip()
-            # sys.stderr.write("sock_state %s\n"%sock_state)
             sock_inode = lin[50:59].strip()
-            # sys.stderr.write("sock_inode %s\n"%sock_inode)
             sock_path = lin[80:].strip()
         except :
             logging.warning("Cannot parse:%s",lin)

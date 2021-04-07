@@ -10,7 +10,7 @@ if _is_windows:
         # Needed to properly capitalize a Windows path name which with incorrect casing.
         import win32api
     except ImportError:
-        sys.stderr.write(__file__ + " Cannot import win32api to capitalize pathes\n")
+        logging.debug("Cannot import win32api to capitalize pathes")
         win32api = None
 
 _standardized_file_path_cache = dict()

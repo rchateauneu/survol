@@ -6,6 +6,10 @@ import rdflib
 import time
 import logging
 
+# http://timgolden.me.uk/python/win32_how_do_i/watch_directory_for_changes.html#use_findfirstchange
+import win32file
+import win32con
+
 import lib_uris
 import lib_kbase
 import lib_util
@@ -14,10 +18,6 @@ import lib_properties
 from lib_properties import pc
 from sources_types import CIM_Directory
 
-# http://timgolden.me.uk/python/win32_how_do_i/watch_directory_for_changes.html#use_findfirstchange
-
-import win32file
-import win32con
 
 
 def Usable(entity_type, entity_ids_arr):
@@ -128,7 +128,6 @@ def send_events_once():
 
 
 def Main():
-    sys.stderr.write(__file__ + "\n")
     if lib_util.is_snapshot_behaviour():
         logger = logging.getLogger()
         logger.setLevel(logging.DEBUG)

@@ -43,7 +43,7 @@ try:
     import supervisor
     from supervisor.xmlrpc import Faults as SupervisorFaults
 except ImportError:
-    sys.stderr.write(__file__ + ": Cannot import supervisor\n")
+    logging.debug("Cannot import supervisor module")
     supervisor = None
 
 
@@ -180,7 +180,7 @@ def supervisorctl_url():
     # For example 'http://localhost:9001'
     control_url = _clean_config_value(parsed_config['supervisorctl']['serverurl'])
 
-    sys.stderr.write("control_url=%s\n" % control_url)
+    logging.debug("control_url=%s" % control_url)
     return control_url
 
 

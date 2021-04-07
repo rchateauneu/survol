@@ -7,6 +7,7 @@ import sys
 import six
 import logging
 import importlib
+
 import lib_common
 import lib_uris
 import lib_util
@@ -94,7 +95,6 @@ def _add_info_from_pip(grph, node, package_key):
                 _fill_one_package(grph, node, pckg)
             else:
                 for sub_req in pckg.requires():
-                    # sys.stderr.write("sub_req.key=%s pckg.key=%s\n"%(sub_req.key,packageKey))
                     if sub_req.key == package_key:
                         subNode = MakeUri( pckg.key )
                         # [('>=', '4.0.0')]+[]+[('>=','4.0')]+[]
@@ -196,10 +196,7 @@ def AddImportedModules(grph, node, fil_nam, max_depth, disp_packages, disp_files
 
     for modu_nam, mod in six.iteritems(finder.modules):
         split_nam = modu_nam.split(".")
-        # sys.stderr.write("split_nam=%s\n"%str(split_nam))
-        # sys.stderr.write("mod=%s\n"%str(mod))
         modu_fil = mod.__file__
-        # sys.stderr.write("modu_fil=%s\n"%modu_fil)
 
         if len(split_nam) > max_depth:
             continue

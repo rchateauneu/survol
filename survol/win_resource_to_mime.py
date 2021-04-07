@@ -15,6 +15,7 @@
 # import sys
 # import re
 # import cgi
+
 # import lib_common
 # import lib_util
 # import lib_win_resources
@@ -27,8 +28,6 @@
 # 	arguments = cgi.FieldStorage()
 # 	fileName = arguments["filename"].value
 # 	groupName = arguments["groupname"].value
-#
-# 	sys.stderr.write("fileName=%s groupName=%s\n" % (fileName, groupName ) )
 #
 # 	mime_type = survol_win32_resource.mimeType
 #

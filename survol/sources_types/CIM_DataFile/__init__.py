@@ -73,7 +73,7 @@ def AddStat(grph, file_node, file_name):
         # If there is an error, displays the message.
         # AddStat:[Error 2] The system cannot find the file specified: 'abc %2C def %2C jhi %28 klm %29 nop'
         msg = "AddStat:" + str(exc)
-        sys.stderr.write("Error os.stat file_name=%s\n" % file_name)
+        logging.error("Error os.stat file_name=%s" % file_name)
         grph.add((file_node, pc.property_information, lib_util.NodeLiteral(msg)))
         return
     AddStatNode(grph, file_node, stat_obj)
