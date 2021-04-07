@@ -665,7 +665,11 @@ def retrieve_all_events_to_graph_then_clear(output_graph):
     _log_db_access("retrieve_all_events_to_graph_then_clear", "R", "1", "")
 
     output_graph += _events_conjunctive_graph
-    _events_conjunctive_graph.remove((None, None, None))
+    try:
+        _events_conjunctive_graph.remove((None, None, None))
+    except Exception as exc:
+        logging.error("Caught:%s. Storage:%s", exc, _events_storage_style)
+        raise
 
     if _events_storage_style[0] == "SQLAlchemy":
         _events_conjunctive_graph.commit()
