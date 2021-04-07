@@ -159,6 +159,7 @@ class WsgiLinuxRemoteTest(unittest.TestCase):
         # This should not be empty.
         self.assertTrue(len(triple_file_stat_remote) >= 1)
 
+    @unittest.skipIf(is_platform_wsl, "Cannot get users on WSL.")
     def test_enumerate_user(self):
         my_source_file_stat_remote = lib_client.SourceRemote(
             _remote_wsgi_test_agent + "/survol/sources_types/Linux/enumerate_user.py")
@@ -208,6 +209,7 @@ class WsgiLinuxRemoteTest(unittest.TestCase):
         # This should not be empty.
         self.assertTrue(len(triple_file_stat_remote) >= 1)
 
+    @unittest.skipIf(not pkgutil.find_loader('rpm'), "test_rpm_packages needs rpm package.")
     def test_tcp_sockets(self):
         my_source_file_stat_remote = lib_client.SourceRemote(
             _remote_wsgi_test_agent + "/survol/sources_types/Linux/tcp_sockets.py")
@@ -216,6 +218,7 @@ class WsgiLinuxRemoteTest(unittest.TestCase):
         # This should not be empty.
         self.assertTrue(len(triple_file_stat_remote) >= 1)
 
+    @unittest.skipIf(not pkgutil.find_loader('rpm'), "test_rpm_packages needs rpm package.")
     def test_unix_domain_sockets(self):
         my_source_file_stat_remote = lib_client.SourceRemote(
             _remote_wsgi_test_agent + "/survol/sources_types/Linux/unix_domain_sockets.py")
