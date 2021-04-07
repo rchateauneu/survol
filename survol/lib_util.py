@@ -496,10 +496,10 @@ def EntHostToIp(entity_host):
 # TODO: Coalesce with EntHostToIp
 def EntHostToIpReally(entity_host):
     try:
-        hostOnly = EntHostToIp(entity_host)
-        return GlobalGetHostByName(hostOnly) # POSSIBLY VERY SLOW.
+        host_only = EntHostToIp(entity_host)
+        return GlobalGetHostByName(host_only) # POSSIBLY VERY SLOW.
     except Exception:
-        return hostOnly
+        return host_only
 
 ################################################################################
 
@@ -970,8 +970,7 @@ isPlatformWsl = "microsoft" in platform.uname()[3].lower()
 isPlatformDarwin = 'darwin' in sys.platform
 isPlatformWindows = 'win32' in sys.platform
 
-# If WSL is set, the Linux too, but not Windows.
-assert isPlatformWsl ^ isPlatformWindows
+# If WSL is set, then Linux too, but Linux can be set and not WSL.
 assert (isPlatformLinux and isPlatformWsl) or (not isPlatformWsl)
 
 def UsableLinux(entity_type, entity_ids_arr):
