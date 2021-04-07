@@ -581,7 +581,7 @@ class CommandLineLiveTest(unittest.TestCase):
         self.assertTrue(command_result.startswith(b"DockIT"))
 
 
-@unittest.skipIf(is_platform_windows, "These tests are for Linux only.")
+@unittest.skipIf(is_platform_windows, "These tests are for Linux and WSL only.")
 class CommandLineLiveLinuxTest(unittest.TestCase):
     """The script dockit.py can be used as a command line or as an imported module.
     This test checks the script dockit.py from from command lines, and not from the internal function."""
@@ -1548,12 +1548,14 @@ class EventsServerTest(unittest.TestCase):
         """This stores a graph, and reads its content, then check the result."""
         the_graph = rdflib.Graph()
 
-        sent_triples = self._create_data_set(triples_count=1000)
+        triples_number = 1000
+        sent_triples = self._create_data_set(triples_count=triples_number)
 
         for one_triple in sent_triples:
             the_graph.add(one_triple)
 
         sent_triples_number = len(the_graph)
+        self.assertEqual(sent_triples_number, triples_number)
         received_triples_number = cim_objects_definitions.send_graph_to_url(the_graph, _remote_events_database)
         self.assertEqual(received_triples_number, sent_triples_number)
 
