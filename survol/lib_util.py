@@ -970,6 +970,9 @@ isPlatformWsl = "microsoft" in platform.uname()[3].lower()
 isPlatformDarwin = 'darwin' in sys.platform
 isPlatformWindows = 'win32' in sys.platform
 
+# If WSL is set, the Linux too, but not Windows.
+assert isPlatformWsl ^ isPlatformWindows
+assert (isPlatformLinux and isPlatformWsl) or (not isPlatformWsl)
 
 def UsableLinux(entity_type, entity_ids_arr):
     """Linux only
