@@ -615,7 +615,11 @@ def read_events_to_graph(the_url, the_graph):
 
     the_graph += named_graph
 
-    named_graph.remove((None, None, None))
+    try:
+        named_graph.remove((None, None, None))
+    except Exception as exc:
+        logging.error("Caught:%s. Storage:%s", exc, _events_storage_style)
+        raise
 
     if _events_storage_style[0] == "SQLAlchemy":
         _events_conjunctive_graph.commit()
