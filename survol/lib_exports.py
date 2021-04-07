@@ -60,7 +60,6 @@ def NodeToUniversalAlias(an_object):
         lab_text, subj_entity_graphic_class, entity_id = lib_naming.ParseEntityUri(
             an_object_as_str, long_display=True, force_entity_ip_addr=entity_ip_addr)
 
-        # sys.stderr.write("make_universal_alias_no_cache anObject=%s lab_text=%s\n"%(str(anObject),lab_text))
         return lab_text
 
     try:

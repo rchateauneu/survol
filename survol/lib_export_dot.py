@@ -82,7 +82,6 @@ def external_url_to_title(ext_url):
         except:
             return py_nam.replace("_", " ").capitalize()
     else:
-        # sys.stderr.write("extUrl=%s\n"%extUrl)
         return "Literal:" + ext_url
 
 
@@ -282,7 +281,6 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
         try:
             dict_of_props = dict_collapsed_object_labels_to_subject_labels[obj_nam]
         except KeyError:
-            # sys.stderr.write("rdf_node_to_dot_label_extended prop_nam=%s obj_nam=%s\n"%(prop_nam,obj_nam) )
             return obj_nam
 
         # Let's hope there is only one collapsed property for this node. Otherwise, it means
@@ -448,8 +446,6 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
                 except UnicodeEncodeError:
                     logging.warning("UnicodeEncodeError error:%s", obj_uri)
                     sub_obj_nam, sub_entity_graphic_class, sub_entity_id = ("Utf err 1", "Utf err 2", "Utf err 3")
-
-                # sys.stderr.write("sub_entity_graphic_class=%s\n"%sub_entity_graphic_class)
 
                 # If this is a script, always displayed on white, even if related to a specific entity.
                 # THIS IS REALLY A SHAME BECAUSE WE JUST NEED THE ORIGINAL PROPERTY.

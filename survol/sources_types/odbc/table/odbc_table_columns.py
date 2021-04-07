@@ -6,6 +6,7 @@ ODBC table columns
 
 import sys
 import logging
+
 import lib_util
 import lib_common
 from lib_properties import pc
@@ -74,7 +75,6 @@ def Main():
         for row in rows:
             # TODO: What are the other properties ??
             tab_nam = row.table_name
-            # sys.stderr.write("tab_nam=%s\n" % tab_nam)
 
             nod_column = survol_odbc_column.MakeUri(dsn_nam, tab_nam, row[3])
             grph.add((nodTab, pc.property_odbc_column, nod_column))

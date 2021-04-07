@@ -1,6 +1,7 @@
 import os
 import sys
 import getopt
+import logging
 
 
 def command_line_to_cgi_args():
@@ -25,7 +26,7 @@ def command_line_to_cgi_args():
     # Possible values: "survol/entity.py", "survol/sources_types/enumerate_cgroup.py" or
     # "survol/sources_types/CIM_DataFile/file_stat.py"
     script_name = sys.argv[0]
-    sys.stderr.write("script_name=%s\n" % script_name)
+    logging.debug("script_name=%s" % script_name)
     split_script = os.path.split(script_name)
     class_name = None
     try:

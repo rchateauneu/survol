@@ -6,15 +6,16 @@ Installed Windows applications
 
 import sys
 import socket
+from collections import namedtuple
+from itertools import count
+from ctypes import byref, create_unicode_buffer, windll
+from ctypes.wintypes import DWORD
+
 import lib_common
 import lib_util
 from lib_properties import pc
 from sources_types import Win32_Product
 
-from collections import namedtuple
-from ctypes import byref, create_unicode_buffer, windll
-from ctypes.wintypes import DWORD
-from itertools import count
 
 # defined at http://msdn.microsoft.com/en-us/library/aa370101(v=VS.85).aspx
 UID_BUFFER_SIZE = 39
@@ -99,14 +100,9 @@ def Main():
     prop_identifying_number = lib_common.MakeProp("IdentifyingNumber")
 
     for puid in get_installed_products_uids():
-        #sys.stderr.write("puid=%s\n"%puid)
         win_prod = Win32_Product.populate_product(puid)
         # Must be encode("utf-8") before printing.
         # "win_prod.InstalledProductName=Visual Studio 2012 CARACTERES BIZARRES SDK - cht"
-        #try:
-        #    sys.stderr.write("win_prod.InstalledProductName=%s\n"%win_prod.InstalledProductName)
-        #except:
-        #    sys.stderr.write("win_prod.InstalledProductName=%s\n"%win_prod.InstalledProductName.encode("utf-8"))
 
         # BEWARE: WE STRIP THE "{}" AROUND THE PUID
         ############  NOT ANYMORE puid = puid[1:-1]

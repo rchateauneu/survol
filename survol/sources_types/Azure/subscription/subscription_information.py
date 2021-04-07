@@ -8,11 +8,12 @@ import sys
 import socket
 import lib_util
 import lib_common
-from lib_properties import pc
-import lib_credentials
+
 from azure import *
 from azure.servicemanagement import *
 
+from lib_properties import pc
+import lib_credentials
 from sources_types import Azure
 from sources_types.Azure import subscription
 
@@ -41,7 +42,6 @@ def Main():
 
 	#propOperatingSystem = lib_common.MakeProp("Operating System")
 	#for opsys in sms.list_operating_systems():
-	#	sys.stderr.write("opsys=%s\n"%str(dir(opsys)))
 	#	grph.add( ( subscriptionNode, propOperatingSystem, lib_util.NodeLiteral(opsys.family_label)) )
 
 	propOperatingSystemFamily = lib_common.MakeProp("Operating System Family")

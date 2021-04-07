@@ -75,10 +75,8 @@ class SparqlEnvironment:
     def __init__(self):
         import cgi
         self.m_arguments = cgi.FieldStorage()
-        sys.stderr.write("\n")
         for i in self.m_arguments.keys():
-            sys.stderr.write("%s => %s\n"%(i,self.m_arguments[i].value))
-        sys.stderr.write("\n")
+            logging.debug("%s => %s", i, self.m_arguments[i].value)
 
         self.m_query = self.m_arguments["query"].value
 
@@ -91,7 +89,7 @@ class SparqlEnvironment:
             # This is the only output type which works at the moment.
             output_type = "xml"
 
-        sys.stderr.write("output_type=%s\n"%output_type)
+        logging.debug("output_type=%s" % output_type)
 
         # Only "xml" works OK.
         if output_type == "json":
@@ -104,7 +102,7 @@ class SparqlEnvironment:
             self.m_mime_format = 'application/xml'
             self.m_rdflib_format='xml'
         else:
-            sys.stderr.write("Invalid output type:%s\n"%output_type)
+            logging.debug("Invalid output type:%s" % output_type)
             raise Exception("Invalid output type:"+output_type)
 
     def Query(self):

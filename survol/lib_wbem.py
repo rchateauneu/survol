@@ -92,7 +92,6 @@ def WbemGetClassKeysFromConnection(wbem_name_space, wbem_class, wbem_cnnct):
                                      IncludeQualifiers=False)
 
     keys = wbem_class.properties.keys()
-    # sys.stderr.write("WbemGetClassKeys keys=%s\n" % ( str(keys) ) )
     return keys
 
 ################################################################################
@@ -218,7 +217,6 @@ def GetWbemUrlsTyped(entity_host, name_space, entity_type, entity_id):
     If this is a CIM_ComputerSystem, it tries to connect to its WBEM server.
     This code is not really mature, but it does not harm."""
 
-    #sys.stderr.write("GetWbemUrlsTyped entity_host=%s nameSpace=%s entity_type=%s entity_id=%s\n"%( entity_host, nameSpace, entity_type, entity_id ))
     # When displaying the WBEM of a computer, this attempts to point to the server of this distant machine.
     # The coding of another machine looks dodgy but is simply a CIM path.
     if entity_type == 'CIM_ComputerSystem':
@@ -486,7 +484,6 @@ def GetClassesTreeInstrumented(conn, the_nam_space):
 
     try:
         in_tree_class = GetClassesTree(conn, the_nam_space)
-        # sys.stderr.write("After GetClassesTree inTreeClass = %d elements\n" % len(inTreeClass))
         out_tree_class = dict()
         instr_cla = GetCapabilitiesForInstrumentation(conn, the_nam_space)
         MakeInstrumentedRecu(in_tree_class, out_tree_class, None, the_nam_space, instr_cla)
@@ -513,7 +510,6 @@ def ValidClassWbem(class_name):
 # Due to performance problems, consider using a cache.
 # Or a default value for some "expensive" classes.
 def EntityToLabelWbem(namSpac, entity_type_NoNS, entity_id, entity_host):
-    # sys.stderr.write("EntityToLabelWbem\n")
     return None
 
 

@@ -144,7 +144,6 @@ def DisplayObjectAssociators(grph, wmi_instance_node, obj_wmi, cgiMoniker):
         assoc_derivation = an_assoc.derivation()
 
         logging.debug("DisplayObjectAssociators an_assoc derivation=%s", str(assoc_derivation))
-        # sys.stderr.write("DisplayObjectAssociators an_assoc=%s\n"%str(dir(an_assoc)))
 
         # TODO: Consider these methods: associated_classes, associators, derivation,
         # id, keys, methods, ole_object, path, properties, property_map, put,

@@ -6,10 +6,10 @@ Oracle packages
 
 import sys
 import logging
+
 from lib_properties import pc
 import lib_oracle
 import lib_common
-
 from sources_types.oracle import schema as oracle_schema
 from sources_types.oracle import package as oracle_package
 
@@ -31,7 +31,6 @@ def Main():
 
     for row in result:
         package_name = str(row[0])
-        # sys.stderr.write("tableName=%s\n" % tableName )
         node_package = oracle_package.MakeUri(cgiEnv.m_oraDatabase, ora_schema, package_name)
         grph.add((node_oraschema, pc.property_oracle_package, node_package))
 
