@@ -233,6 +233,7 @@ def UriRootHelper():
             root = script_nam[:idx] + 'survol'
         else:
             # Should not happen.
+            logging.error("script_nam='%s' should contain '/survol' as a prefix." % script_nam)
             root = "/NON_SURVOL_URL/" + script_nam
 
     except KeyError:
@@ -1465,16 +1466,29 @@ def split_url_to_entity(calling_url_node):
 
 
 # Different stream behaviour due to string vs binary.
-if is_py3:
-    _output_http = sys.stdout.buffer
-else:
-    _output_http = sys.stdout
+
+# When in WSGI, sys.stdout is logging.LoggingFile, but is not CGI output
+# where the result must be written.
+try:
+    if is_py3:
+        # When run with the command:
+        # twistd3 web --listen=tcp:9000 --wsgi=survol.scripts.wsgi_survol.application
+        _output_http = sys.stdout.buffer
+    else:
+        _output_http = sys.stdout
+except:
+    logging.warning("type(sys.stdout)=%s. OK if WSGI.", str(type(sys.stdout)))
 
 ################################################################################
 
 
 class OutputMachineCgi:
-    """This is for WSGI compatibility."""
+    """
+    This is for WSGI compatibility. CGI writes its result to stdout,
+    whereas WSGI application must return a string.
+    This is why a similar class OutputMachineWSGI provides the same interface
+    but instead accumulates the resut in a BytesIO.
+    """
     def __init__(self):
         pass
 
