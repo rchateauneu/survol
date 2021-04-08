@@ -5,15 +5,15 @@ Azure subscription disks
 """
 
 import sys
-import socket
 import logging
+
+from azure import *
+from azure.servicemanagement import *
+
 import lib_util
 import lib_common
 from lib_properties import pc
 import lib_credentials
-from azure import *
-from azure.servicemanagement import *
-
 from sources_types import Azure
 from sources_types.Azure import subscription
 from sources_types.Azure import disk
@@ -23,67 +23,65 @@ Usable = lib_util.UsableWindows
 
 
 def Main():
-	cgiEnv = lib_common.ScriptEnvironment()
+    cgiEnv = lib_common.ScriptEnvironment()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	# subscriptionName=Azure.DefaultSubscription()
-	subscriptionName = cgiEnv.m_entity_id_dict["Subscription"]
+    subscription_name = cgiEnv.m_entity_id_dict["Subscription"]
 
-	(subscription_id,certificate_path) = lib_credentials.GetCredentials( "Azure", subscriptionName )
+    subscription_id, certificate_path = lib_credentials.GetCredentials( "Azure", subscription_name)
 
-	sms = ServiceManagementService(subscription_id, certificate_path)
+    sms = ServiceManagementService(subscription_id, certificate_path)
 
-	subscriptionNode = subscription.MakeUri( subscriptionName )
+    subscription_node = subscription.MakeUri(subscription_name)
 
-	# Some information printed
-	grph.add( ( subscriptionNode, lib_common.MakeProp(".requestid"), lib_util.NodeLiteral(sms.requestid)) )
-	grph.add( ( subscriptionNode, lib_common.MakeProp(".x_ms_version"), lib_util.NodeLiteral(sms.x_ms_version)) )
+    # Some information printed
+    grph.add((subscription_node, lib_common.MakeProp(".requestid"), lib_util.NodeLiteral(sms.requestid)))
+    grph.add((subscription_node, lib_common.MakeProp(".x_ms_version"), lib_util.NodeLiteral(sms.x_ms_version)))
 
-	propDisk = lib_common.MakeProp("Disk")
-	propDiskLabel = lib_common.MakeProp("Label")
-	propDiskLocation = lib_common.MakeProp("Location")
-	propMediaLink = lib_common.MakeProp("Media Link")
+    prop_disk = lib_common.MakeProp("Disk")
+    prop_disk_label = lib_common.MakeProp("Label")
+    prop_disk_location = lib_common.MakeProp("Location")
+    prop_media_link = lib_common.MakeProp("Media Link")
 
-	try:
-		# This throws when running with Apache. OK with cgiserver.py
-		lstDisks = sms.list_disks()
-	except Exception as exc:
-		lib_common.ErrorMessageHtml("Unexpected error:" + str(exc))
+    try:
+        lst_disks = sms.list_disks()
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("Unexpected error:" + str(exc))
 
-	for dsk in lstDisks:
-		logging.debug("dsk=%s",str(dir(dsk)))
-		nodeDisk = disk.MakeUri( dsk.name, subscriptionName )
-		grph.add( ( subscriptionNode, propDisk, nodeDisk ) )
-		grph.add( ( nodeDisk, lib_common.MakeProp("Size"), lib_util.NodeLiteral(dsk.logical_disk_size_in_gb )) )
+    for dsk in lst_disks:
+        logging.debug("dsk=%s", str(dir(dsk)))
+        node_disk = disk.MakeUri(dsk.name, subscription_name)
+        grph.add((subscription_node, prop_disk, node_disk))
+        grph.add((node_disk, lib_common.MakeProp("Size"), lib_util.NodeLiteral(dsk.logical_disk_size_in_gb)))
 
-		# TODO: This www url does not work. WHY ???
-		urlDisk = dsk.media_link
-		grph.add( ( nodeDisk, propMediaLink, lib_common.NodeUrl(urlDisk)) )
+        url_disk = dsk.media_link
+        grph.add((node_disk, prop_media_link, lib_common.NodeUrl(url_disk)))
 
-		if dsk.affinity_group:
-			affGroup = dsk.affinity_group
-			grph.add( ( nodeDisk, lib_common.MakeProp("Affinity group"), lib_util.NodeLiteral(affGroup)) )
+        if dsk.affinity_group:
+            aff_group = dsk.affinity_group
+            grph.add((node_disk, lib_common.MakeProp("Affinity group"), lib_util.NodeLiteral(aff_group)))
 
-		grph.add( ( nodeDisk, lib_common.MakeProp("Source image name"), lib_util.NodeLiteral(dsk.source_image_name)) )
-		grph.add( ( nodeDisk, lib_util.NodeLiteral("Operating System"), lib_util.NodeLiteral(dsk.os)) )
-		# grph.add( ( nodeDisk, lib_util.NodeLiteral("Hosted Service Name"), lib_util.NodeLiteral(dsk.hosted_service_name)) )
+        grph.add((node_disk, lib_common.MakeProp("Source image name"), lib_util.NodeLiteral(dsk.source_image_name)))
+        grph.add((node_disk, lib_util.NodeLiteral("Operating System"), lib_util.NodeLiteral(dsk.os)))
+        # grph.add((node_disk, lib_util.NodeLiteral("Hosted Service Name"),
+        #          lib_util.NodeLiteral(dsk.hosted_service_name)))
 
-		if dsk.is_corrupted:
-			grph.add( ( nodeDisk, lib_util.NodeLiteral("Corrupted"), lib_util.NodeLiteral(dsk.is_corrupted)) )
+        if dsk.is_corrupted:
+            grph.add((node_disk, lib_util.NodeLiteral("Corrupted"), lib_util.NodeLiteral(dsk.is_corrupted)))
 
-		grph.add( ( nodeDisk, lib_util.NodeLiteral("Label"), lib_util.NodeLiteral(dsk.label)) )
-		# grph.add( ( nodeDisk, lib_common.MakeProp("Affinity group"), lib_util.NodeLiteral("dsk.affinity_group")) )
-		logging.debug("dsk.attached_to=%s",str(dir(dsk.attached_to)))
+        grph.add((node_disk, lib_util.NodeLiteral("Label"), lib_util.NodeLiteral(dsk.label)))
+        # grph.add((node_disk, lib_common.MakeProp("Affinity group"), lib_util.NodeLiteral("dsk.affinity_group")))
+        logging.debug("dsk.attached_to=%s",str(dir(dsk.attached_to)))
 
-		nodeLocation = location.MakeUri( dsk.location, subscriptionName )
-		grph.add( ( nodeDisk, propDiskLocation, nodeLocation ) )
+        node_location = location.MakeUri(dsk.location, subscription_name)
+        grph.add((node_disk, prop_disk_location, node_location))
 
-	# cgiEnv.OutCgiRdf("LAYOUT_RECT",[propDisk,propDiskLocation,propMediaLink])
-	# cgiEnv.OutCgiRdf("LAYOUT_RECT",[propDisk,propDiskLocation])
-	# cgiEnv.OutCgiRdf("LAYOUT_RECT",[propDisk])
-	cgiEnv.OutCgiRdf("LAYOUT_RECT_TB")
+    # cgiEnv.OutCgiRdf("LAYOUT_RECT",[prop_disk,prop_disk_location,prop_media_link])
+    # cgiEnv.OutCgiRdf("LAYOUT_RECT",[prop_disk,prop_disk_location])
+    # cgiEnv.OutCgiRdf("LAYOUT_RECT",[prop_disk])
+    cgiEnv.OutCgiRdf("LAYOUT_RECT_TB")
 
 
 if __name__ == '__main__':
-	Main()
+    Main()

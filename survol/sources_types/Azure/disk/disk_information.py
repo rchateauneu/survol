@@ -5,14 +5,15 @@ Information about an Azure disk
 """
 
 import sys
-import socket
 import logging
+
+from azure import *
+from azure.servicemanagement import *
+
 import lib_util
 import lib_common
 from lib_properties import pc
 import lib_credentials
-from azure import *
-from azure.servicemanagement import *
 
 from sources_types import Azure
 from sources_types.Azure import subscription
@@ -22,55 +23,54 @@ from sources_types.Azure import disk
 
 Usable = lib_util.UsableWindows
 
+
 def Main():
-	cgiEnv = lib_common.ScriptEnvironment()
+    cgiEnv = lib_common.ScriptEnvironment()
 
-	# TODO: The subscription will become a parameter with a default value.
-	# serviceName = cgiEnv.GetId()
-	diskName = cgiEnv.m_entity_id_dict["Disk"]
+    disk_name = cgiEnv.m_entity_id_dict["Disk"]
 
-	# TODO: This should be a parameter.
-	subscriptionName = cgiEnv.m_entity_id_dict["Subscription"]
-	# subscriptionName=Azure.DefaultSubscription()
+    subscription_name = cgiEnv.m_entity_id_dict["Subscription"]
+    # subscription_name=Azure.DefaultSubscription()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	(subscription_id,certificate_path) = lib_credentials.GetCredentials( "Azure", subscriptionName )
+    subscription_id, certificate_path = lib_credentials.GetCredentials("Azure", subscription_name)
 
-	sms = ServiceManagementService(subscription_id, certificate_path)
+    sms = ServiceManagementService(subscription_id, certificate_path)
 
-	subscriptionNode = subscription.MakeUri( subscriptionName )
+    subscription_node = subscription.MakeUri(subscription_name)
 
-	dsk = sms.get_disk(diskName)
+    dsk = sms.get_disk(disk_name)
 
-	logging.debug("dsk=%s", str(dir(dsk)))
+    logging.debug("dsk=%s", str(dir(dsk)))
 
-	diskNode = disk.MakeUri( diskName, subscriptionName )
-	grph.add( ( subscriptionNode, lib_common.MakeProp("Service"), diskNode ) )
+    disk_node = disk.MakeUri(disk_name, subscription_name)
+    grph.add((subscription_node, lib_common.MakeProp("Service"), disk_node))
 
-	grph.add( ( diskNode, lib_common.MakeProp("affinity_group"), lib_util.NodeLiteral(dsk.affinity_group)))
-	# grph.add( ( diskNode, lib_common.MakeProp("attached_to"), lib_util.NodeLiteral(str(dir(dsk.attached_to)))) )
-	grph.add( ( diskNode, lib_common.MakeProp("has_operating_system"), lib_util.NodeLiteral(dsk.has_operating_system)))
-	grph.add( ( diskNode, lib_common.MakeProp("is_corrupted"), lib_util.NodeLiteral(dsk.is_corrupted)) )
-	grph.add( ( diskNode, lib_common.MakeProp("label"), lib_util.NodeLiteral(dsk.label)) )
-	grph.add( ( diskNode, lib_common.MakeProp("Size"), lib_util.NodeLiteral(dsk.logical_disk_size_in_gb)))
-	grph.add( ( diskNode, lib_common.MakeProp("name"), lib_util.NodeLiteral(dsk.name)))
-	grph.add( ( diskNode, lib_common.MakeProp("os"), lib_util.NodeLiteral(dsk.os)))
-	grph.add( ( diskNode, lib_common.MakeProp("source_image_name"), lib_util.NodeLiteral(dsk.source_image_name)))
-	grph.add( ( diskNode, lib_common.MakeProp("media link"), lib_common.NodeUrl(dsk.media_link)))
+    grph.add((disk_node, lib_common.MakeProp("affinity_group"), lib_util.NodeLiteral(dsk.affinity_group)))
+    # grph.add((disk_node, lib_common.MakeProp("attached_to"), lib_util.NodeLiteral(str(dir(dsk.attached_to)))))
+    grph.add((disk_node, lib_common.MakeProp("has_operating_system"), lib_util.NodeLiteral(dsk.has_operating_system)))
+    grph.add((disk_node, lib_common.MakeProp("is_corrupted"), lib_util.NodeLiteral(dsk.is_corrupted)))
+    grph.add((disk_node, lib_common.MakeProp("label"), lib_util.NodeLiteral(dsk.label)))
+    grph.add((disk_node, lib_common.MakeProp("Size"), lib_util.NodeLiteral(dsk.logical_disk_size_in_gb)))
+    grph.add((disk_node, lib_common.MakeProp("name"), lib_util.NodeLiteral(dsk.name)))
+    grph.add((disk_node, lib_common.MakeProp("os"), lib_util.NodeLiteral(dsk.os)))
+    grph.add((disk_node, lib_common.MakeProp("source_image_name"), lib_util.NodeLiteral(dsk.source_image_name)))
+    grph.add((disk_node, lib_common.MakeProp("media link"), lib_common.NodeUrl(dsk.media_link)))
 
-	locaNode = location.MakeUri( dsk.location, subscriptionName )
-	grph.add( ( diskNode, lib_common.MakeProp("Location"), locaNode ) )
+    loca_node = location.MakeUri( dsk.location, subscription_name)
+    grph.add((disk_node, lib_common.MakeProp("Location"), loca_node))
 
-	srvNode = service.MakeUri( dsk.attached_to.hosted_service_name, subscriptionName )
-	grph.add( ( srvNode, lib_common.MakeProp("Role"), lib_util.NodeLiteral(dsk.attached_to.role_name) ) )
-	grph.add( ( srvNode, lib_common.MakeProp("Deployment"), lib_util.NodeLiteral(dsk.attached_to.deployment_name) ) )
-	grph.add( ( diskNode, lib_common.MakeProp("Service"), srvNode ) )
+    srv_node = service.MakeUri( dsk.attached_to.hosted_service_name, subscription_name)
+    grph.add((srv_node, lib_common.MakeProp("Role"), lib_util.NodeLiteral(dsk.attached_to.role_name)))
+    grph.add((srv_node, lib_common.MakeProp("Deployment"), lib_util.NodeLiteral(dsk.attached_to.deployment_name)))
+    grph.add((disk_node, lib_common.MakeProp("Service"), srv_node))
 
-	# media_link
+    # media_link
 
-	cgiEnv.OutCgiRdf("LAYOUT_RECT_TB")
+    cgiEnv.OutCgiRdf("LAYOUT_RECT_TB")
+
 
 if __name__ == '__main__':
-	Main()
+    Main()
 
