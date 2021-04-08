@@ -14,8 +14,8 @@ import psutil
 import logging
 
 from six.moves import builtins
-from sources_types import CIM_Process
 
+from sources_types import CIM_Process
 import lib_util
 
 is_py3 = sys.version_info >= (3,)
@@ -660,14 +660,15 @@ elif sys.platform.startswith("linux"):
     def _linux_get_process_memory(pidint, addr_beg, addr_end, mem_proc_functor):
         logging.debug("_linux_get_process_memory pidint=" + str(pidint))
         _linux_call_ptrace(True, pidint)
+
+        # http://unix.stackexchange.com/questions/6301/how-do-i-read-from-proc-pid-mem-under-linux
+        filnam = "/proc/%d/mem" % pidint
+
+        # If /proc/mem cannot be opended, maybe WSL ?
+        statinfo = os.stat(filnam)
+        logging.debug("filnam=" + filnam + " stats=" + str(statinfo))
+
         try:
-            # http://unix.stackexchange.com/questions/6301/how-do-i-read-from-proc-pid-mem-under-linux
-            # waitpid(pid, NULL, 0);
-            # time.sleep(0.1)
-            filnam = "/proc/%d/mem" % pidint
-            statinfo = os.stat(filnam)
-            logging.debug("filnam=" + filnam + " stats=" + str(statinfo))
-            # mem_file = open(filnam, 'r+b', 0)
             if is_py3:
                 # With Python 3, buffering would fail with "ValueError: can't have unbuffered text I/O"
                 mem_file = open(filnam, 'rb', 0)
@@ -694,7 +695,7 @@ elif sys.platform.startswith("linux"):
             # TODO: Close the file.
 
         except Exception as exc:
-            logging.error("_linux_get_process_memory len_addr=%d Exception:%s", len_addr, str(exc))
+            logging.error("len_addr=%d Exception:%s", len_addr, str(exc))
             mem_proc_functor.error_count += 1
         _linux_call_ptrace(False, pidint)
 
@@ -709,10 +710,10 @@ elif sys.platform.startswith("linux"):
             # New version.
             return p.memory_maps(grouped=False)
 
-    def MemMachine(pidint, lstStructs, re_flags):
+    def MemMachine(pidint, lst_structs, re_flags):
         # TODO: 64 bits by default :):):) ... Fix this !
         logging.debug("MemMachine pidint=%d", pidint)
-        mem_proc_functor = MemoryProcessor(True, lstStructs, re_flags)
+        mem_proc_functor = MemoryProcessor(True, lst_structs, re_flags)
         memmaps = _linux_get_memory_maps(pidint)
         # Typical content for map.path
         #
@@ -754,13 +755,11 @@ elif sys.platform.startswith("linux"):
         # p = private (copy on write)
 
         for one_map in memmaps:
-
             logging.debug("MemMachine map.path=%s" % str(one_map.path))
 
             if one_map.path in ["[heap]", ""] or one_map.path.startswith("[stack"):
                 addr_beg, addr_end = (int(ad, 16) for ad in one_map.addr.split("-"))
                 logging.debug("MemMachine addr_beg=%d addr_end=%d" % (addr_beg, addr_end))
-                # sys.stderr.write("MemMachine %d %d %s\n" % (addr_beg, addr_end, map.path) )
                 _linux_get_process_memory(pidint, addr_beg, addr_end, mem_proc_functor)
         logging.debug("MemMachine pidint=%d leaving", pidint)
         return mem_proc_functor
@@ -787,7 +786,6 @@ def CTypesStructToDict(struct):
                     ar += chr(gvv)
                 # Optionaly extends the string
                 ar += " " * (strLen - len(ar))
-                # return "[" + ar + "]"
                 return ar
             else:
                 return [get_value(elt) for elt in value]
@@ -806,11 +804,11 @@ def CTypesStructToDict(struct):
 
     result = {}
     for fld in struct._fields_:
-        fieldNam = fld[0]
-        valAttr = getattr(struct, fieldNam)
+        field_nam = fld[0]
+        val_attr = getattr(struct, field_nam)
         # if the type is not a primitive and it evaluates to False ...
-        value = get_value(valAttr)
-        result[fieldNam] = value
+        value = get_value(val_attr)
+        result[field_nam] = value
     return result
 
 ################################################################################
@@ -841,7 +839,6 @@ def _process_memory_scan_non_verbose(pidint, lst_structs, max_display, re_flags=
 
     dict_by_structs = dict()
 
-    # sys.stderr.write("Keys number:%d\n" % len(by_struct))
     for key_str in by_struct:
         struct_definition = by_struct[key_str]
         objs_set = struct_definition.m_foundStructs
@@ -852,7 +849,7 @@ def _process_memory_scan_non_verbose(pidint, lst_structs, max_display, re_flags=
         # Sorted by address.
         dict_by_addrs = dict()
         for addr_obj in sorted(objs_set):
-            # In case of too many data.
+            # In case of too much data.
             max_cnt -= 1
             if max_cnt == 0:
                 break
@@ -873,7 +870,6 @@ def _process_memory_scan_verbose(pidint, lst_structs, max_display, re_flags=0):
     mem_proc_functor = MemMachine(pidint, lst_structs, re_flags)
     by_struct = mem_proc_functor.m_byStruct
 
-    # print("Keys number:%d" % len(by_struct) )
     for key_str in by_struct:
         struct_definition = by_struct[key_str]
         objs_set = struct_definition.m_foundStructs
@@ -903,30 +899,29 @@ def _process_memory_scan_verbose(pidint, lst_structs, max_display, re_flags=0):
 
             # TODO: Should be done before creating the object.
             if struct_definition.ValidDict(obj_dict):
-                # print("Valid")
                 print("Address:%0.16X" % addr_obj)
                 print_dict("      ", obj_dict)
 
 ################################################################################
 
 
-def DoAll(lstStructs, verbose=True):
+def DoAll(lst_structs, verbose=True):
     """Entry point for testing scripts."""
     print("Starting")
     if len(sys.argv) > 1:
-        maxDisplay = int(sys.argv[2])
+        max_display = int(sys.argv[2])
     else:
-        maxDisplay = 10
+        max_display = 10
 
     # python -m cProfile mmapregex.py
     if len(sys.argv) > 2:
         pidint = int(sys.argv[1])
-        _process_memory_scan(pidint, lstStructs, maxDisplay, verbose)
+        _process_memory_scan(pidint, lst_structs, max_display, verbose)
     else:
         for i in psutil.process_iter():
             print("Pid=%d name=%s" % (i.pid, i.name()))
             try:
-                _process_memory_scan(i.pid, lstStructs, maxDisplay, verbose)
+                _process_memory_scan(i.pid, lst_structs, max_display, verbose)
                 print("")
             except Exception:
                 t, e = sys.exc_info()[:2]

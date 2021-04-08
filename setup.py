@@ -312,10 +312,11 @@ with open('README.txt') as readme_file:
 
 # FIXME: Cleanup the doc strings, for example survol.__doc__ = '\nSurvol library\n' ...
 
-
+# These packages are mandatory.
 required_packages = ['psutil', 'rdflib']
 if is_py2:
     required_packages.append("configparser")
+# Other very useful packages: "wmi", "pywbem", "rdflib-sqlalchemy".
 
 setup_options = dict(
     name='survol',
