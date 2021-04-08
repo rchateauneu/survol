@@ -8,16 +8,17 @@ import lib_common
 
 
 def Graphic_colorbg():
-	return "#FF3333"
+    return "#FF3333"
 
 
 def EntityOntology():
-	return (["Subscription", "Location"],)
+    return (["Subscription", "Location"],)
 
 
-def MakeUri(locaName, subscriptionName):
-	# TODO: Because the input parameters could contain a sspace, derive from str() and define ValueDecode()
-	subscriptionName = lib_util.urllib_quote(subscriptionName)
-	locaName = lib_util.urllib_quote(locaName)
-	return lib_uris.gUriGen.UriMakeFromDict("Azure/location", {"Subscription": subscriptionName, "Location": locaName})
+def MakeUri(loca_name, subscription_name):
+    # TODO: Because the input parameters could contain a sspace, derive from str() and define ValueDecode()
+    subscription_name = lib_util.urllib_quote(subscription_name)
+    loca_name = lib_util.urllib_quote(loca_name)
+    return lib_uris.gUriGen.UriMakeFromDict(
+        "Azure/location", {"Subscription": subscription_name, "Location": loca_name})
 

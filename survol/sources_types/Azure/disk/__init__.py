@@ -4,20 +4,18 @@ Azure cloud disk
 
 import lib_uris
 import lib_util
-import lib_common
 
 
 def Graphic_colorbg():
-	return "#FF66FF"
+    return "#FF66FF"
 
 
 def EntityOntology():
-	return (["Subscription","Disk"],)
+    return (["Subscription", "Disk"],)
 
 
-def MakeUri(diskName, subscriptionName):
-	# TODO: Because the input parameters could contain a sspace, derive from str() and define ValueDecode()
-	subscriptionName = lib_util.urllib_quote(subscriptionName)
-	diskName = lib_util.urllib_quote(diskName)
-	return lib_uris.gUriGen.UriMakeFromDict("Azure/disk", {"Subscription": subscriptionName, "Disk": diskName})
+def MakeUri(disk_name, subscription_name):
+    subscription_name = lib_util.urllib_quote(subscription_name)
+    disk_name = lib_util.urllib_quote(disk_name)
+    return lib_uris.gUriGen.UriMakeFromDict("Azure/disk", {"Subscription": subscription_name, "Disk": disk_name})
 

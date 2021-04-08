@@ -5,13 +5,12 @@ Azure subscription informations
 """
 
 import sys
-import socket
-import lib_util
-import lib_common
 
 from azure import *
 from azure.servicemanagement import *
 
+import lib_util
+import lib_common
 from lib_properties import pc
 import lib_credentials
 from sources_types import Azure
@@ -21,42 +20,41 @@ Usable = lib_util.UsableWindows
 
 
 def Main():
-	cgiEnv = lib_common.ScriptEnvironment()
+    cgiEnv = lib_common.ScriptEnvironment()
 
-	grph = cgiEnv.GetGraph()
+    grph = cgiEnv.GetGraph()
 
-	# subscriptionName=Azure.DefaultSubscription()
-	subscriptionName = cgiEnv.m_entity_id_dict["Subscription"]
+    subscription_name = cgiEnv.m_entity_id_dict["Subscription"]
 
-	subscription_id, certificate_path = lib_credentials.GetCredentials( "Azure", subscriptionName )
+    subscription_id, certificate_path = lib_credentials.GetCredentials("Azure", subscription_name)
 
-	sms = ServiceManagementService(subscription_id, certificate_path)
+    sms = ServiceManagementService(subscription_id, certificate_path)
 
-	subscriptionNode = subscription.MakeUri( subscriptionName )
+    subscription_node = subscription.MakeUri(subscription_name)
 
-	# There are a lot of informations
-	grph.add( ( subscriptionNode, lib_common.MakeProp(".cert_file"), lib_util.NodeLiteral(sms.cert_file)) )
-	grph.add( ( subscriptionNode, lib_common.MakeProp(".requestid"), lib_util.NodeLiteral(sms.requestid)) )
-	grph.add( ( subscriptionNode, lib_common.MakeProp(".x_ms_version"), lib_util.NodeLiteral(sms.x_ms_version)) )
-	grph.add( ( subscriptionNode, lib_common.MakeProp("Azure"), lib_util.NodeLiteral(str(dir(sms))) ) )
+    # There are a lot of informations
+    grph.add((subscription_node, lib_common.MakeProp(".cert_file"), lib_util.NodeLiteral(sms.cert_file)))
+    grph.add((subscription_node, lib_common.MakeProp(".requestid"), lib_util.NodeLiteral(sms.requestid)))
+    grph.add((subscription_node, lib_common.MakeProp(".x_ms_version"), lib_util.NodeLiteral(sms.x_ms_version)))
+    grph.add((subscription_node, lib_common.MakeProp("Azure"), lib_util.NodeLiteral(str(dir(sms)))))
 
-	#propOperatingSystem = lib_common.MakeProp("Operating System")
-	#for opsys in sms.list_operating_systems():
-	#	grph.add( ( subscriptionNode, propOperatingSystem, lib_util.NodeLiteral(opsys.family_label)) )
+    #propOperatingSystem = lib_common.MakeProp("Operating System")
+    #for opsys in sms.list_operating_systems():
+    #    grph.add((subscription_node, propOperatingSystem, lib_util.NodeLiteral(opsys.family_label)))
 
-	propOperatingSystemFamily = lib_common.MakeProp("Operating System Family")
+    prop_operating_system_family = lib_common.MakeProp("Operating System Family")
 
-	try:
-		# This throws when running with Apache. OK with cgiserver.py
-		lstOSes = sms.list_operating_system_families()
-	except Exception as exc:
-		lib_common.ErrorMessageHtml("Unexpected error:" + str(exc))
+    try:
+        # This throws when running with Apache. OK with cgiserver.py
+        lst_oses = sms.list_operating_system_families()
+    except Exception as exc:
+        lib_common.ErrorMessageHtml("Unexpected error:" + str(exc))
 
-	for opsys in lstOSes:
-		grph.add( ( subscriptionNode, propOperatingSystemFamily, lib_util.NodeLiteral(opsys.label)) )
+    for opsys in lst_oses:
+        grph.add((subscription_node, prop_operating_system_family, lib_util.NodeLiteral(opsys.label)))
 
-	cgiEnv.OutCgiRdf("LAYOUT_RECT",[propOperatingSystemFamily])
+    cgiEnv.OutCgiRdf("LAYOUT_RECT", [prop_operating_system_family])
 
 
 if __name__ == '__main__':
-	Main()
+    Main()
