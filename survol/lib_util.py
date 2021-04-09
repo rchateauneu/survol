@@ -1576,7 +1576,6 @@ def WrtAsUtf(input_str):
 
 # contentType = "text/rdf", "text/html", "image/svg+xml", "application/json" etc...
 def _http_header_classic(out_dest, content_type, extra_args=None):
-    # sys.stderr.write("HttpHeader:%s\n"%content_type)
     # TODO: out_dest should always be the default output.
 
     stri = "Content-Type: " + content_type + "; charset=utf-8\n"
@@ -1675,7 +1674,7 @@ def GetEntityModule(entity_type):
 
 def GetScriptModule(current_module, fil):
     """This loads a script as a module. Example:
-    currentModule="sources_types.win32" fil="enumerate_top_level_windows.py" """
+    current_module="sources_types.win32" fil="enumerate_top_level_windows.py" """
     logging.debug("current_module=%s fil=%s", current_module, fil)
     if not fil.endswith(".py"):
         logging.error("GetScriptModule module=%s fil=%s not a Python script", current_module, fil)
