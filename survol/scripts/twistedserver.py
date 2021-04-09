@@ -1,8 +1,14 @@
 #!/usr/bin/env python
-
+#
+# THIS IS A WORK IN PROGRESS.
+#
 # The intention is to implement another server using the Python module twisted.
 # The benefit is that it is probably faster and more powerful that the builtins class.
 # This uses CGI scripts as they are, just like Apache or cgiserver.py
+#
+# WSGI needs an intermediary bytes strings retuened by a function called application().
+# The intention is to avoid this temporary variable which can be big,
+# but instead directly wroites to the output network socket.
 #
 # https://jcalderone.livejournal.com/tag/sixty%20seconds
 
