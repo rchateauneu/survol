@@ -74,6 +74,10 @@ class SourceBase (object):
 class SourceCgi(SourceBase):
     """If it has a class, then it has CGI arguments."""
     def __init__(self, class_name=None, **kwargs):
+        """
+        :param class_name: It is a class name, possibly hierarchical, whose levels are separated by a slash "/"
+        :param kwargs: The keys must be defined in the ontology of the class.
+        """
         self.m_className = class_name
         self.m_kwargs = kwargs
         super(SourceCgi, self).__init__()
