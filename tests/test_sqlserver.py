@@ -34,7 +34,7 @@ class SqlServerLocalTest(unittest.TestCase):
             "sqlserver/dsn",
             Dsn=always_present_file)
         the_content_json = my_source_file_stat_local.content_json()
-        print("test_create_source_local_json: Json content=%s ..."%str(the_content_json)[:100])
+        print("test_create_source_local_json: Json content=%s ..." % str(the_content_json)[:100])
 
     def test_dsn_queries_json(self):
         """
@@ -45,7 +45,7 @@ class SqlServerLocalTest(unittest.TestCase):
             "sqlserver/dsn",
             Dsn=always_present_file)
         the_content_json = my_source_file_stat_local.content_json()
-        print("test_create_source_local_json: Json content=%s ..."%str(the_content_json)[:100])
+        print("test_create_source_local_json: Json content=%s ..." % str(the_content_json)[:100])
 
     def test_dsn_sessions_json(self):
         """
@@ -56,7 +56,7 @@ class SqlServerLocalTest(unittest.TestCase):
             "sqlserver/dsn",
             Dsn=always_present_file)
         the_content_json = my_source_file_stat_local.content_json()
-        print("test_create_source_local_json: Json content=%s ..."%str(the_content_json)[:100])
+        print("test_create_source_local_json: Json content=%s ..." % str(the_content_json)[:100])
 
     def test_query_dependencies_json(self):
         """
@@ -68,7 +68,7 @@ class SqlServerLocalTest(unittest.TestCase):
             Dsn=always_present_file,
             Query=always_present_file)
         the_content_json = my_source_file_stat_local.content_json()
-        print("test_create_source_local_json: Json content=%s ..."%str(the_content_json)[:100])
+        print("test_create_source_local_json: Json content=%s ..." % str(the_content_json)[:100])
 
     def test_session_informations_json(self):
         """
@@ -80,7 +80,7 @@ class SqlServerLocalTest(unittest.TestCase):
             Dsn=always_present_file,
             Query=always_present_file)
         the_content_json = my_source_file_stat_local.content_json()
-        print("test_create_source_local_json: Json content=%s ..."%str(the_content_json)[:100])
+        print("test_create_source_local_json: Json content=%s ..." % str(the_content_json)[:100])
 
 
 if __name__ == '__main__':
