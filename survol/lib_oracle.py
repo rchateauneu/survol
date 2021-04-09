@@ -41,7 +41,7 @@ def GetOraConnect(conn_str):
 # TODO: Check that there is only one query, and exclusively a select, to avoid SQL injections.
 def _execute_safe_query(a_cursor, sql_query):
     if not sql_query.strip().upper().startswith("SELECT "):
-        raise Exception("Unsafe query:%s"%sql_query)
+        raise Exception("Unsafe query:%s" % sql_query)
     a_cursor.execute(sql_query)
 
 
@@ -56,7 +56,7 @@ def OracleConnectionClose(conn):
             logging.warning("OracleConnectionClose LOBs exist: exception:%s.", err_msg)
             pass
         else:
-            lib_common.ErrorMessageHtml("OracleConnectionClose caught:%s."% (err_msg))
+            lib_common.ErrorMessageHtml("OracleConnectionClose caught:%s." % err_msg)
 
 
 def ExecuteQueryThrow(conn_str, sql_query):
