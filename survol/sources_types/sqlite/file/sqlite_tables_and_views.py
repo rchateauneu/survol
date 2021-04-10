@@ -4,6 +4,8 @@
 Tables and views in a Sqlite database
 """
 
+import logging
+
 import lib_uris
 import lib_common
 from sources_types import sqlite
@@ -20,7 +22,8 @@ def Usable(entity_type, entity_ids_arr):
 def Main():
     cgiEnv = lib_common.ScriptEnvironment()
 
-    db_fil_nam = cgiEnv.GetId()
+    db_fil_nam = cgiEnv.m_entity_id_dict["File"]
+    logging.debug("db_fil_nam=", db_fil_nam)
 
     grph = cgiEnv.GetGraph()
 
