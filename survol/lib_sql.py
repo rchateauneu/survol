@@ -235,6 +235,8 @@ CROSS APPLY sys.dm_exec_sql_text(sql_handle) AS sqltext
 # ne pas s interdire de les exploiter a partir de RDF.
 
 import re
+import logging
+
 import sqlparse
 
 
@@ -256,7 +258,6 @@ def _parse_append(tok, result, margin):
     for rgx in regex_tab_nam:
         remtch = re.match(rgx, tok.value, re.IGNORECASE)
         if remtch:
-            #print(margin+"Match "+rgx)
             result.append(remtch.group(1))
             return True
     return False
@@ -270,8 +271,6 @@ def _process_select_tokens(sql_obj, depth=0):
     result = []
     depth += 1
     if hasattr(sql_obj, "tokens"):
-        #print(margin.replace("=","*")+str(sqlObj.value)+" => " +str(sqlObj.ttype))
-
         in_from = False
         was_from = False
         sql_keywords = ["FROM", "FULL JOIN", "INNER JOIN", "LEFT OUTER JOIN", "LEFT JOIN", "JOIN", "FULL OUTER JOIN"]
@@ -282,16 +281,11 @@ def _process_select_tokens(sql_obj, depth=0):
             if in_from:
                 was_from = True
 
-            #print(margin+"val="+tok.value.strip()+" "+str(tok.ttype)+" in_from="+str(in_from)+" type="+str(type(tok)))
-            #continue
-
             if was_from:
-                #print(tok.ttype)
                 if tok.ttype is not None:
                     was_from = False
 
             if was_from:
-                #print(margin+"FROM:"+tok.value.strip()+" => "+str(tok.ttype)+" type="+str(type(tok)))
                 if isinstance(tok, sqlparse.sql.Identifier):
                     if _parse_append(tok, result, depth):
                         continue
@@ -299,13 +293,12 @@ def _process_select_tokens(sql_obj, depth=0):
                     for subtok in tok.tokens:
                         if _is_noise(subtok):
                             continue
-                        #print(margin+"subtok="+subtok.value)
                         if not _parse_append(subtok, result, depth):
                             # Subselect ???
                             result += _process_select_tokens(subtok, depth)
                     continue
                 else:
-                    #print("WHAT CAN I DO")
+                    logging.warning("TODO: Case not implemented.")
                     pass
 
             in_from = (tok.ttype == sqlparse.tokens.Keyword) and tok.value.upper() in sql_keywords
@@ -326,7 +319,6 @@ def _process_update_tokens(sql_obj, depth=0):
         if keywrd_found:
             result = _process_select_tokens(sql_obj)
 
-            #print("updtok="+tok.value)
             if isinstance(tok,sqlparse.sql.Identifier):
                 if _parse_append(tok, result, depth):
                     return result
@@ -334,7 +326,6 @@ def _process_update_tokens(sql_obj, depth=0):
                 for subtok in tok.tokens:
                     if _is_noise(subtok):
                         continue
-                    # print(margin+"subtok="+subtok.value)
                     if not _parse_append(subtok, result, depth):
                         # Subselect ???
                         result += _process_select_tokens(subtok, depth)
@@ -348,19 +339,19 @@ def _process_update_tokens(sql_obj, depth=0):
     return ["Nothing"]
 
 
-def _process_delete_tokens(sqlObj, depth=0):
+def _process_delete_tokens(sql_obj, depth=0):
     # TODO: This is not finished.
-    return _process_select_tokens(sqlObj, depth + 1)
+    return _process_select_tokens(sql_obj, depth + 1)
 
 
-def _process_insert_tokens(sqlObj, depth=0):
+def _process_insert_tokens(sql_obj, depth=0):
     # TODO: This is not finished.
-    return _process_select_tokens(sqlObj, depth + 1)
+    return _process_select_tokens(sql_obj, depth + 1)
 
 
-def _process_create_tokens(sqlObj, depth=0):
+def _process_create_tokens(sql_obj, depth=0):
     # TODO: This is not finished.
-    return _process_select_tokens(sqlObj, depth + 1)
+    return _process_select_tokens(sql_obj, depth + 1)
 
 
 statement_to_func = {
@@ -383,6 +374,7 @@ def _get_statement_type(sql_qry):
 
 def TableDependencies(sql_query):
     """This returns the list of tables that a query depends on."""
+    logging.debug("sql_query=", sql_query)
     statements = list(sqlparse.parse(sql_query))
     all_tabs = []
     for sql_obj in statements:
@@ -414,21 +406,19 @@ def _is_sub_select(parsed):
     return False
 
 
-def _sql_query_walk_nodes_recurs(parent_node, sql_obj, Func, depth):
+def _sql_query_walk_nodes_recurs(parent_node, sql_obj, the_function, depth):
     """It calls a function on each node, and recursively calls itself.
     For debugging purpose, so we can display the nodes with a text margin
     whose length is proportional to the node depth."""
 
     is_sub = _is_sub_select(sql_obj)
-    #print("Q="+sqlObj.value+" is_sub="+str(is_sub))
     if is_sub:
         str_qry = sql_obj.value
         par_first = str_qry.find("(")
         if par_first >= 0:
             par_last = str_qry.rfind(")")
             str_qry = str_qry[par_first+1:par_last]
-        # Func( parentNode, str_qry + " " + str(sqlObj.ttype), depth )
-        Func(parent_node, str_qry, depth)
+        the_function(parent_node, str_qry, depth)
         actual_parent = sql_obj.value
         depth += 1
     else:
@@ -436,20 +426,17 @@ def _sql_query_walk_nodes_recurs(parent_node, sql_obj, Func, depth):
 
     if hasattr(sql_obj, "tokens"):
         for tok in sql_obj.tokens:
-            #if _is_noise(tok):
-            #    continue
-
-            _sql_query_walk_nodes_recurs(actual_parent, tok, Func, depth)
+            _sql_query_walk_nodes_recurs(actual_parent, tok, the_function, depth)
 
 
-def SqlQueryWalkNodes(sql_query, Func):
+def SqlQueryWalkNodes(sql_query, the_function):
     """For debugging purpose only. It allows to visit each node
     of the SQL query and display it."""
     statements = list(sqlparse.parse(sql_query))
     for sql_obj in statements:
         if sql_obj.value.strip() == "":
             continue
-        _sql_query_walk_nodes_recurs("", sql_obj, Func, 0)
+        _sql_query_walk_nodes_recurs("", sql_obj, the_function, 0)
 
 
 ################################################################################
@@ -464,13 +451,14 @@ def SqlQueryWalkNodes(sql_query, Func):
 # They must be used with re.IGNORECASE
 # TODO: Maybe have one regular expression only,
 # TODO: so we would scan the memory or file content, once only.
-printables = r"[ ,a-z_0-9\.='\"\+\-\*\$\(\)%]*"
+_printables = r"[ ,a-z_0-9\.='\"\+\-\*\$\(\)%]*"
 _the_reg_exs = {
-    r"SELECT": r"select\s+" + printables + r"\s+from\s+" + printables,
-    r"INSERT": r"insert\s+" + printables + r"\s+into\s+" + printables,
-    r"UPDATE": r"update\s+" + printables + r"\s+set\s+" + printables,
+    r"SELECT": r"select\s+" + _printables + r"\s+from\s+" + _printables,
+    r"INSERT": r"insert\s+" + _printables + r"\s+into\s+" + _printables,
+    r"UPDATE": r"update\s+" + _printables + r"\s+set\s+" + _printables,
 }
-#
+
+
 def SqlRegularExpressions():
     return _the_reg_exs
 
@@ -487,11 +475,11 @@ def SqlRegularExpressions():
 # TODO: les credentials.
 # TODO: Voir aussi si ce type de BDD fonctionne sur la machine en question, bien entendu.
 listModulesUsingSqlQueries = [
-    ("sources_types.oracle","__init__.py"),
-    ("sources_types.sqlserver","__init__.py"),
-    ("sources_types.sqlite","__init__.py"),
-    ("sources_types.odbc.dsn","__init__.py"),
-    ("sources_types.CIM_Process.memory_regex_search","search_connection_strings.py")
+    ("sources_types.oracle", "__init__.py"),
+    ("sources_types.sqlserver", "__init__.py"),
+    ("sources_types.sqlite", "__init__.py"),
+    ("sources_types.odbc.dsn", "__init__.py"),
+    ("sources_types.CIM_Process.memory_regex_search", "search_connection_strings.py")
 ]
 
 ################################################################################
