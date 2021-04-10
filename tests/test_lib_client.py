@@ -60,9 +60,9 @@ class SurvolLocalTest(unittest.TestCase):
             "sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
             Name=always_present_file)
-        print("test_create_source_local_json: query==%s" % my_source_file_stat_local.create_url_query())
+        print("test_create_source_local_json: query=%s" % my_source_file_stat_local.create_url_query())
         the_content_json = my_source_file_stat_local.content_json()
-        print("test_create_source_local_json: Json content=%s ..."%str(the_content_json)[:100])
+        print("test_create_source_local_json: Json content=%s ..." % str(the_content_json)[:100])
         self.assertTrue(the_content_json['page_title'].startswith("File stat information"))
 
     def test_create_source_local_rdf(self):
