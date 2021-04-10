@@ -73,7 +73,7 @@ def AddNodesTablesViews(grph, fil_node, db_fil_nam):
     from sources_types.sqlite import table as sqlite_table
     from sources_types.sqlite import view as sqlite_view
 
-    logging.debug("AddNodesTablesViews db_fil_nam=%s", db_fil_nam)
+    logging.debug("db_fil_nam=%s", db_fil_nam)
     try:
         con = sqlite3.connect(db_fil_nam)
         cursor = con.cursor()
@@ -98,8 +98,8 @@ def AddNodesTablesViews(grph, fil_node, db_fil_nam):
             else:
                 continue
 
-            theRootpage = the_row[3]
-            grph.add((name_nod, lib_common.MakeProp("Root page"), lib_util.NodeLiteral(theRootpage)))
+            the_rootpage = the_row[3]
+            grph.add((name_nod, lib_common.MakeProp("Root page"), lib_util.NodeLiteral(the_rootpage)))
             grph.add((name_nod, lib_common.MakeProp("Type"), lib_util.NodeLiteral(the_type)))
 
             # Do not print too much information in case there are too many tables.

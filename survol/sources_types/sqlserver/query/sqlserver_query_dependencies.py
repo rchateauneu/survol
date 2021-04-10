@@ -31,7 +31,7 @@ def Main():
 
     # What is the schema ??
     list_of_nodes = sqlserver_query.QueryToNodesList(
-        sql_query, {"Dsn": dsn_nam}, list_of_table_names, dsn_nam + ":SqlServerSchema")
+        {"Dsn": dsn_nam}, list_of_table_names, dsn_nam + ":SqlServerSchema")
 
     for nod_tab in list_of_nodes:
         grph.add((node_sql_query, propSheetToQuery, nod_tab))

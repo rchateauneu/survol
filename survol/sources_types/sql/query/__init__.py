@@ -4,6 +4,7 @@ Abstract SQL query
 
 import re
 import sys
+import logging
 
 import lib_uris
 import lib_util
@@ -33,7 +34,7 @@ class CgiPropertyB64(str):
         return lib_util.html_escape(value_clear)
 
 
-# TODO: This is probably not the proper solution.
+# TODO: Use Base64 encoding for all parameters when they cannot be part of an url.
 class CgiPropertyQuery(CgiPropertyB64):
     def __new__(cls):
         return super(CgiPropertyQuery, cls).__new__(cls, "Query")
@@ -45,20 +46,20 @@ def EntityOntology():
     return ([CgiPropertyQuery(),],)
 
 
-def MakeUri(strQuery, derivedEntity="sql/query", **kwargs):
+def MakeUri(str_query, derived_entity="sql/query", **kwargs):
     """The SQL query is encoded in base 64 because it contains many special characters which are too complicated to
     encode as HTML entities. This is not visible as EntityName() does the reverse decoding."""
 
     # TODO: This is called from other classes like that: sql_query.MakeUri( strQuery, "oracle/query", Db = theDb )
     # TODO: This should rather rely on CgiPropertyB64, or have a fully generic solution for CGI-incompatible strings.
-    str_query_encoded = lib_util.Base64Encode(strQuery)
+    str_query_encoded = lib_util.Base64Encode(str_query)
     # The result might be: { "Query" : str_query_encoded, "Pid" : thePid  }
 
     # Rather CgiPropertyQuery() instead of "Query"
     all_keyed_args = {"Query": str_query_encoded}
     all_keyed_args.update(kwargs)
     # Maybe we could take the calling module as derived entity ?
-    return lib_uris.gUriGen.UriMakeFromDict(derivedEntity, all_keyed_args)
+    return lib_uris.gUriGen.UriMakeFromDict(derived_entity, all_keyed_args)
 
 
 def AddInfo(grph, node, entity_ids_arr):
