@@ -374,18 +374,18 @@ def _get_statement_type(sql_qry):
 
 def TableDependencies(sql_query):
     """This returns the list of tables that a query depends on."""
-    logging.debug("sql_query=", sql_query)
+    logging.debug("sql_query=%s", sql_query)
     statements = list(sqlparse.parse(sql_query))
     all_tabs = []
     for sql_obj in statements:
         if sql_obj.value.strip() == "":
             continue
-        # print(sqlQry.value)
         query_type = _get_statement_type(sql_obj)
-        #print("XX="+query_type)
         func = statement_to_func[query_type]
         result = func(sql_obj)
-        uniq_res = sorted(set( res.upper() for res in result))
+        # Table names might be case-sensitive, it is database dependent.
+        # https://stackoverflow.com/questions/153944/is-sql-syntax-case-sensitive
+        uniq_res = sorted(set(res for res in result))
         all_tabs.extend(uniq_res)
 
     return all_tabs

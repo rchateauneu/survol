@@ -39,7 +39,7 @@ def AddInfo(grph,node, entity_ids_arr):
 
 # For the moment, we assume that these are all table names, without checking.
 # TODO: Find a quick way to check if these are tables or views.
-def QueryToNodesList(sqlQuery, connection_kw, list_of_tables, default_schema_name=None):
+def QueryToNodesList(connection_kw, list_of_tables, default_schema_name=None):
     nodes_list = []
     # This should be taken from the credentials.
     if not default_schema_name:

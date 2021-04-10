@@ -43,13 +43,12 @@ def AddInfo(grph, node, entity_ids_arr):
 # This function must have the same signature for all databases.
 # For the moment, we assume that these are all table names, without checking.
 # TODO: Find a quick way to check if these are tables or views.
-def QueryToNodesList(sql_query, connection_kw, list_of_tables, default_schema_name=None):
-    logging.debug("QueryToNodesList entering sqlQuery=%s", sql_query)
+def QueryToNodesList(connection_kw, list_of_tables, default_schema_name=None):
     nodes_list = []
     if not default_schema_name:
         default_schema_name = "SqlServerDefaultSchema"
     for tab_nam in list_of_tables:
-        logging.debug("QueryToNodesList tab_nam=%s", tab_nam)
+        logging.debug("tab_nam=%s", tab_nam)
         splt_tab_nam = tab_nam.split(".")
         if len(splt_tab_nam) == 2:
             schema_name = splt_tab_nam[0]
@@ -57,11 +56,8 @@ def QueryToNodesList(sql_query, connection_kw, list_of_tables, default_schema_na
         else:
             schema_name = default_schema_name
             table_name_no_schema = tab_nam
-        logging.debug("QueryToNodesList tab_nam=%s before MakeUri", tab_nam)
         tmp_node = sqlserver_table.MakeUri(connection_kw["Dsn"], schema_name, table_name_no_schema)
-        logging.debug("QueryToNodesList tab_nam=%s after MakeUri",tab_nam)
         nodes_list.append(tmp_node)
-    logging.debug("QueryToNodesList leaving sqlQuery=%s", sql_query)
     return nodes_list
 
 

@@ -24,7 +24,7 @@ def Main():
 
     list_of_table_names = lib_sql.TableDependencies(sql_query)
 
-    list_of_nodes = sql_query_module.QueryToNodesList(sql_query, {"File": fil_nam}, list_of_table_names)
+    list_of_nodes = sql_query_module.QueryToNodesList({"File": fil_nam}, list_of_table_names)
 
     for nod_tab in list_of_nodes:
         grph.add((node_sql_query, prop_sheet_to_query, nod_tab))

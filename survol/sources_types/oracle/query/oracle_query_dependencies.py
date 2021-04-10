@@ -28,7 +28,7 @@ def Main():
 
     list_of_table_names = lib_sql.TableDependencies(sql_query)
 
-    list_of_nodes = oracle_query.QueryToNodesList(sql_query, {"Db": db_nam}, list_of_table_names, ora_schema)
+    list_of_nodes = oracle_query.QueryToNodesList({"Db": db_nam}, list_of_table_names, ora_schema)
 
     for nod_tab in list_of_nodes:
         grph.add((node_sql_query, prop_sheet_to_query, nod_tab))

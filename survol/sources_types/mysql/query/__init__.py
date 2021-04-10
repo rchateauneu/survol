@@ -37,7 +37,7 @@ def AddInfo(grph,node, entity_ids_arr):
 # TODO: Find a quick way to check if these are tables or views.
 # TODO: This is not tested.
 # FIXME: This is not tested.
-def QueryToNodesList(sqlQuery, connectionKW, list_of_tables, defaultSchemaName=None):
+def QueryToNodesList(connectionKW, list_of_tables, defaultSchemaName=None):
     nodes_list = []
     for tab_nam in list_of_tables:
         tmp_node = mysql_table.MakeUri(connectionKW["Instance"], tab_nam)

@@ -29,12 +29,7 @@ class SqliteTest(unittest.TestCase):
 
     _chinook_db = os.path.join(os.path.dirname(__file__), "input_test_data", "chinook.db")
 
-    def test_sqlite_tables_and_views(self):
-        my_source = lib_client.SourceLocal(
-            "sources_types/sqlite/file/sqlite_tables_and_views.py",
-            "sqlite/file",
-            File=self._chinook_db)
-        the_graph = my_source.get_graph()
+    def _get_column_names_from_graph(self, the_graph):
         table_class_node = lib_kbase.class_node_uriref("sqlite/table")
         table_nodes = [table_node
                        for table_node, _, _ in the_graph.triples((None, rdflib.namespace.RDF.type, table_class_node))]
@@ -46,6 +41,15 @@ class SqliteTest(unittest.TestCase):
                 for table_node in table_nodes
             ]
         )
+        return table_names
+
+    def test_sqlite_tables_and_views(self):
+        my_source = lib_client.SourceLocal(
+            "sources_types/sqlite/file/sqlite_tables_and_views.py",
+            "sqlite/file",
+            File=self._chinook_db)
+        the_graph = my_source.get_graph()
+        table_names = self._get_column_names_from_graph(the_graph)
         print("table_names=", table_names)
         self.assertEqual(
             table_names,
@@ -56,17 +60,6 @@ class SqliteTest(unittest.TestCase):
                 'sqlite_sequence@chinook.db'
             }
         )
-
-    @unittest.skip("Not implemented yet")
-    def test_sqlite_query_dependencies(self):
-        my_source = lib_client.SourceLocal(
-            "sources_types/sqlite/query/sqlite_query_dependencies.py",
-            "sqlite/query",
-            File=self._chinook_db,
-            Query=always_present_file)
-        print("query=%s" % my_source.create_url_query())
-        the_graph = my_source.get_graph()
-        print("RDF content=%s ..." % str(the_graph)[:100])
 
     def test_sqlite_table_fields(self):
         my_source = lib_client.SourceLocal(
@@ -98,4 +91,38 @@ class SqliteTest(unittest.TestCase):
                 'invoices.CustomerId@chinook.db', 'invoices.InvoiceDate@chinook.db'
             }
         )
+
+    def test_sqlite_query_dependencies_simple_select(self):
+        query_clear = "select * from invoices"
+        query_encoded = lib_util.Base64Encode(query_clear)
+        my_source = lib_client.SourceLocal(
+            "sources_types/sqlite/query/sqlite_query_dependencies.py",
+            "sqlite/query",
+            File=self._chinook_db,
+            Query=query_encoded)
+        the_graph = my_source.get_graph()
+        for one_triple in the_graph.triples((None, None, None)):
+            print("    ", one_triple)
+        table_names = self._get_column_names_from_graph(the_graph)
+        print("table_names=", table_names)
+        self.assertEqual(
+            table_names,
+            {'invoices@chinook.db'})
+
+    def test_sqlite_query_dependencies_select_case_insensitive(self):
+        query_clear = "select * from Invoices, INVOICE_ITEMS where INVOICES.InvoiceId = Invoice_Items.InvoiceId"
+        query_encoded = lib_util.Base64Encode(query_clear)
+        my_source = lib_client.SourceLocal(
+            "sources_types/sqlite/query/sqlite_query_dependencies.py",
+            "sqlite/query",
+            File=self._chinook_db,
+            Query=query_encoded)
+        the_graph = my_source.get_graph()
+        for one_triple in the_graph.triples((None, None, None)):
+            print("    ", one_triple)
+        table_names = self._get_column_names_from_graph(the_graph)
+        print("table_names=", table_names)
+        self.assertEqual(
+            table_names,
+            {'invoices@chinook.db', 'invoice_items@chinook.db'})
 

@@ -39,7 +39,7 @@ def AddInfo(grph, node, entity_ids_arr):
 # This must return a list of nodes to be displayed, or None.
 # For the moment, we assume that these are all table names, without checking.
 # TODO: Find a quick way to check if these are tables or views.
-def QueryToNodesList(sqlQuery, connection_kw, list_of_tables, defaultSchemaName=None):
+def QueryToNodesList(connection_kw, list_of_tables, defaultSchemaName=None):
     nodes_list = []
     for tab_nam in list_of_tables:
         tmp_node = sqlite_table.MakeUri(connection_kw["File"], tab_nam)

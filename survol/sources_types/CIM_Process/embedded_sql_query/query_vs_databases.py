@@ -82,7 +82,7 @@ def Main():
             # For example ( "oracle/query", ( { "Db":"XE" } ) )
             for connection_kw in list_args:
                 try:
-                    list_table_nodes = module_query_entity.QueryToNodesList(sql_query,connection_kw, list_of_tables)
+                    list_table_nodes = module_query_entity.QueryToNodesList(connection_kw, list_of_tables)
                 except Exception as exc:
                     logging.warning("query_entity=%s Caught %s", query_entity,str(exc))
                     continue
