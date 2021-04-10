@@ -1437,7 +1437,7 @@ def Base64Decode(input_text):
             resu = base64.urlsafe_b64decode(str(input_text))
         return resu
     except Exception as exc:
-        logging.error("CANNOT DECODE: symbol=(%s):%s", input_text, str(exc))
+        logging.error("Cannot base64 decode: input_text=%s:%s", input_text, str(exc))
         return input_text + ":" + str(exc)
 
 
