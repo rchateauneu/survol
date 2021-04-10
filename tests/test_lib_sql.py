@@ -1249,47 +1249,45 @@ INSERT OR REPLACE INTO daily_counters VALUES ()
 @unittest.skipIf(not pkgutil.find_loader('sqlparse'), "sqlparse is needed.")
 class SqlParse_Test(unittest.TestCase):
     @staticmethod
-    def DispSqlNode(parentNode, sqlNode, depth):
+    def _disp_sql_node(parent_node, sql_node, depth):
         if depth == 0:
-            print(("\t" * depth) + "DISPN=" + sqlNode)
+            print(("\t" * depth) + "DISPN=" + sql_node)
         else:
-            print(("\t" * depth) + "PARNT=" + parentNode.replace("\n", " ").replace("  ", " ").replace("  ", " "))
-            print(("\t" * depth) + "DISPN=" + sqlNode.replace("\n", " ").replace("  ", " ").replace("  ", " "))
+            print(("\t" * depth) + "PARNT=" + parent_node.replace("\n", " ").replace("  ", " ").replace("  ", " "))
+            print(("\t" * depth) + "DISPN=" + sql_node.replace("\n", " ").replace("  ", " ").replace("  ", " "))
 
-    def DisplayTablesAny(self, theDictNam, theDict):
+    def _display_tables_any(self, the_dict_nam, the_dict):
         errnum = 0
 
-        for sqlQry in theDict:
+        for sql_qry in the_dict:
             print("_" * 40)
-            expectedTables = theDict[sqlQry]
-            sqlQry = sqlQry.replace("\n", " ").replace("  ", " ").replace("  ", " ")
+            expected_tables = the_dict[sql_qry]
+            sql_qry = sql_qry.replace("\n", " ").replace("  ", " ").replace("  ", " ")
 
-            print("\nQUERY=" + sqlQry + "\n")
-            lib_sql.SqlQueryWalkNodes(sqlQry, SqlParse_Test.DispSqlNode)
+            print("\nQUERY=" + sql_qry + "\n")
+            lib_sql.SqlQueryWalkNodes(sql_qry, SqlParse_Test._disp_sql_node)
             print("")
 
-            resVec = lib_sql.TableDependencies(sqlQry)
-            resVec = [s.upper() for s in resVec]
-            vecUp = resVec
-            vecUp.sort()
-            if expectedTables != vecUp:
+            res_vec = lib_sql.TableDependencies(sql_qry)
+            res_vec = [s.upper() for s in res_vec]
+            vec_up = res_vec
+            vec_up.sort()
+            if expected_tables != vec_up:
                 errnum += 1
-                print("\nQUERY=" + sqlQry + "\n")
-                print("Should be=" + str(expectedTables))
-                # print("Actual is="+str(resVec))
-                print("Result is=" + str(vecUp))
+                print("\nQUERY=" + sql_qry + "\n")
+                print("Should be=" + str(expected_tables))
+                print("Result is=" + str(vec_up))
                 print("")
-                print("")
-                self.assertTrue(expectedTables == vecUp)
+                self.assertEqual(expected_tables, vec_up)
 
-        lenTot = len(theDict)
-        print("Finished " + theDictNam + " with " + str(errnum) + " errors out of " + str(lenTot))
+        len_tot = len(the_dict)
+        print("Finished " + the_dict_nam + " with " + str(errnum) + " errors out of " + str(len_tot))
 
     def sql_parse_test_keyword(self, keyword):
-        self.DisplayTablesAny(keyword, query_examples[keyword])
+        self._display_tables_any(keyword, query_examples[keyword])
 
     def test_sql_parse_good(self):
-        self.assertTrue(sorted(query_examples.keys()) == ["Bad", "Focus", "Good", "NoSelect"])
+        self.assertEqual(sorted(query_examples.keys()), ["Bad", "Focus", "Good", "NoSelect"])
         self.sql_parse_test_keyword("Good")
 
     @unittest.skip("FIXME: Not finished yet")
