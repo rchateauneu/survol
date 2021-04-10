@@ -52,12 +52,17 @@ class SourceBase (object):
         url_content = json.loads(str_json)
         return url_content
 
+    def get_graph(self):
+        doc_xml_rdf = self.get_content_moded("rdf")
+
+        return lib_kbase.triplestore_from_rdf_xml(doc_xml_rdf)
+        return TripleStore(grph_k_base)
+
     def get_triplestore(self):
         """In the general case, it gets the content in RDF format and converts it
         again to a triplestore. This always works if this is a remote host."""
-        doc_xml_rdf = self.get_content_moded("rdf")
 
-        grph_k_base = lib_kbase.triplestore_from_rdf_xml(doc_xml_rdf)
+        grph_k_base = self.get_graph()
         return TripleStore(grph_k_base)
 
     def is_very_slow(self):
@@ -724,8 +729,10 @@ def instance_url_to_agent_url(instance_url):
 
 
 class TripleStore:
-    """This wraps rdflib triplestore.
-    rdflib objects and subjects can be handled as WMI or WBEM objects."""
+    """
+    This wraps rdflib triplestore.
+    rdflib objects and subjects can be handled as WMI or WBEM objects.
+    """
 
     # In this context, this is a rdflib graph.
     def __init__(self, grph_k_base=None):
