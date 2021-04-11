@@ -312,11 +312,13 @@ def _start_cgiserver_subprocess(agent_port):
         current_dir = ".."
     except KeyError:
         current_dir = ""
-    if is_platform_windows and pkgutil.find_loader('pywin32'):
-        return _start_cgiserver_subprocess_windows(agent_port, current_dir)
-    else:
-        # pywin32 is not available for Pypy on Windows.
-        return _start_cgiserver_subprocess_portable(agent_port, current_dir)
+
+    return _start_cgiserver_subprocess_portable(agent_port, current_dir)
+    #if is_platform_windows and pkgutil.find_loader('pywin32'):
+    #    return _start_cgiserver_subprocess_windows(agent_port, current_dir)
+    #else:
+    #    # pywin32 is not available for Pypy on Windows.
+    #    return _start_cgiserver_subprocess_portable(agent_port, current_dir)
 
 
 def start_cgiserver(agent_port):
