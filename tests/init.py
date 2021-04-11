@@ -120,8 +120,12 @@ RemoteRdf3TestServerPort = 8013
 RemoteRdf4TestServerPort = 8014
 RemoteMimeTestServerPort = 8020
 
+# This is used for test of Survol wsgiserver based on wsgiref
 RemoteWsgi1TestServerPort = 9000
 RemoteWsgi2TestServerPort = 9001
+
+# This is used for testing Twisted WSGI server.
+RemoteTwistedWsgi1TestServerPort = 9100
 
 # Several Survol scripts return this executable among their results, so it can be tested.
 CurrentExecutable = lib_util.standardized_file_path(sys.executable)
@@ -244,67 +248,11 @@ except ImportError:
     from urllib2 import urlopen as portable_urlopen
 
 
-# FIXME: BEWARE: The subprocess should not inherit the handles because
-# FIXME: ... with Python 3, when communicating with sockets, it does not work,
-# FIXME: ... losing characters...
-def _start_cgiserver_subprocess_windows(agent_port, current_dir):
-    """This start cgiserver.py in a separate process by importing it as a module.
-    This module is therefore not started form the command line."""
-    import win32process
-    import win32con
-
-    print("_start_cgiserver_subprocess_windows: agent_port=%d hostname=%s" % (agent_port, agent_host))
-
-    cgiserver_module = "survol.scripts.cgiserver"
-    cgi_command_str = sys.executable + ' -c "import %s as ssc;ssc.start_server_forever(True,\'%s\',%d,\'%s\')"' % (
-            cgiserver_module, agent_host, agent_port, current_dir)
-    print("cgi_command=", cgi_command_str)
-
-    start_info = win32process.STARTUPINFO()
-    start_info.dwFlags = win32con.STARTF_USESHOWWINDOW
-
-    current_abs_dir = os.path.abspath(current_dir)
-
-    hProcess, hThread, dwProcessId, dwThreadId = win32process.CreateProcess(
-        None,  # appName
-        cgi_command_str,  # commandLine
-        None,  # processAttributes
-        None,  # threadAttributes
-        False,  # bInheritHandles
-        win32con.CREATE_NEW_CONSOLE,  # dwCreationFlags
-        None,  # newEnvironment
-        current_abs_dir,  # currentDirectory
-        start_info)  # startupinfo
-
-    class AgentProcess(object):
-        def __init__(self, hProcess):
-            self._process_handle = hProcess
-
-        def terminate(self):
-            win32process.TerminateProcess(self._process_handle, 0)
-
-        def join(self):
-            pass
-
-    agent_process = AgentProcess(hProcess)
-    return agent_process
-
-
-def _start_cgiserver_subprocess_portable(agent_port, current_dir):
-    """This start cgiserver.py in a separate process by importing it as a module.
-    This module is therefore not started form the command line.
-    It is theoretically portable. """
-    agent_process = multiprocessing.Process(
-        target=scripts.cgiserver.start_server_forever,
-        args=(agent_host, agent_port, current_dir))
-    agent_process.start()
-
-    print("agent_process.pid=", agent_process.pid)
-
-    return agent_process
-
-
 def _start_cgiserver_subprocess(agent_port):
+    """
+    This start cgiserver.py in a separate process by importing it as a module.
+    This module is therefore not started form the command line.
+    """
     print("_start_cgiserver_subprocess: agent_port=%d hostname=%s" % (agent_port, agent_host))
     try:
         # PyCharm runs test scripts from the current directory, therefore this change.
@@ -313,12 +261,14 @@ def _start_cgiserver_subprocess(agent_port):
     except KeyError:
         current_dir = ""
 
-    return _start_cgiserver_subprocess_portable(agent_port, current_dir)
-    #if is_platform_windows and pkgutil.find_loader('pywin32'):
-    #    return _start_cgiserver_subprocess_windows(agent_port, current_dir)
-    #else:
-    #    # pywin32 is not available for Pypy on Windows.
-    #    return _start_cgiserver_subprocess_portable(agent_port, current_dir)
+    agent_process = multiprocessing.Process(
+        target=scripts.cgiserver.start_server_forever,
+        args=(agent_host, agent_port, current_dir))
+    agent_process.start()
+
+    print("agent_process.pid=", agent_process.pid)
+
+    return agent_process
 
 
 def start_cgiserver(agent_port):
@@ -432,7 +382,6 @@ def start_wsgiserver(agent_port):
 
 
 def stop_wsgiserver(agent_process):
-    print("tearDownModule")
     if agent_process:
         logging.info("Killing WSGI process %d", agent_process.pid)
         agent_process.terminate()
