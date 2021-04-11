@@ -11,10 +11,10 @@ import sys
 import lib_util
 
 internal_data = {
-	"uriRoot":lib_util.uriRoot,
-	"HttpPrefix" : lib_util.HttpPrefix(),
-	"RootUri" : lib_util.RootUri(),
-	"RequestUri" : lib_util.RequestUri()
+    "uriRoot": lib_util.uriRoot,
+    "HttpPrefix": lib_util.HttpPrefix(),
+    "RootUri": lib_util.RootUri(),
+    "RequestUri": lib_util.RequestUri()
 }
 json_data = json.dumps(internal_data)
 
@@ -28,11 +28,11 @@ Content-Length: %d
 """ % len(json_data)
 )
 
-retDict = {
-	"uriRoot":lib_util.uriRoot,
-	"HttpPrefix" : lib_util.HttpPrefix(),
-	"RootUri" : lib_util.RootUri(),
-	"RequestUri" : lib_util.RequestUri()
+ret_dict = {
+    "uriRoot": lib_util.uriRoot,
+    "HttpPrefix": lib_util.HttpPrefix(),
+    "RootUri": lib_util.RootUri(),
+    "RequestUri": lib_util.RequestUri()
 }
 
 sys.stdout.write(json_data)
