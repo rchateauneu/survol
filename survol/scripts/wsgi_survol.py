@@ -1,4 +1,14 @@
-
+# This module can be used by Survol WSGI server survol/scripts/wsguiserver.py which is based in wsgiref.
+# It can also be used by twisted, and is run by the command typically like:
+# twistd3 web --listen=tcp:9000 --logfile=toto.log --wsgi=survol.scripts.wsgi_survol.application
+#
+# https://jcalderone.livejournal.com/51888.html
+#
+# Each script of Survol can be imprted as a module. They can be used several ways:
+# - As a plan Pythn script which eases debugging.
+# - As a CGI script, which avoids side-effects between scripts because they are run in their own process.
+# - In a WSGI server which is much faster.
+#
 
 import os
 import sys
@@ -6,6 +16,8 @@ import traceback
 import importlib
 import logging
 import io
+
+import six
 
 if __package__:
     from . import daemon_factory
@@ -34,16 +46,15 @@ class OutputMachineWsgi:
         self.m_output.close()
 
     def Content(self):
+        """
+        This is specific to this class and returns a bytes containing the result sent to the HTTP client.
+        :return:
+        """
         if not self.m_header_called:
             logging.error("Warning OutputMachineWsgi.Content HeaderWriter not called.")
         self.m_header_called = False
         str_value = self.m_output.getvalue()
-        if sys.version_info >= (3,):
-            if type(str_value) == str:
-                str_value = str_value.encode()
-        else:
-            if type(str_value) == unicode:
-                str_value = str_value.encode()
+        assert isinstance(str_value, six.binary_type)
         return str_value
 
     def HeaderWriter(self, mime_type, extraArgs= None):
@@ -52,6 +63,7 @@ class OutputMachineWsgi:
         """
         if self.m_header_called:
             logging.error("OutputMachineWsgi.HeaderWriter already called: mimeType=%s. RETURNING." % mime_type)
+            # If this happens, store the callstack of each caller.
             return
         self.m_header_called = True
         status = '200 OK'
@@ -62,9 +74,9 @@ class OutputMachineWsgi:
         return self.m_output
 
 
-def app_serve_file(path_info, start_response):
+def _app_serve_file(path_info, start_response):
     file_name = path_info[1:]
-    logging.debug("app_serve_file file_name:%s cwd=%s", file_name, os.getcwd())
+    logging.debug("file_name:%s cwd=%s", file_name, os.getcwd())
     # Just serve a plain HTML or CSS file.
     response_headers = [('Content-type', 'text/html')]
 
@@ -72,7 +84,6 @@ def app_serve_file(path_info, start_response):
         of = open(file_name, "rb")
         file_content = of.read()
         of.close()
-        logging.debug("app_serve_file file read OK")
         logging.debug("Writing type=%s" % type(file_content))
 
         start_response('200 OK', response_headers)
@@ -82,7 +93,7 @@ def app_serve_file(path_info, start_response):
         return [file_content]
     except Exception as exc:
         start_response('200 OK', response_headers)
-        logging.error("app_serve_file caught %s" % exc)
+        logging.error("Caught %s" % exc)
         return ["<html><head></head><body>app_serve_file file_name=%s: Caught:%s</body></html>" % (file_name, exc)]
 
 
@@ -102,12 +113,12 @@ _global_module = None
 def application_ok(environ, start_response):
     global _global_module
 
-    logging.debug("environ")
+    logging.debug("Input environ variables")
     for key in sorted(environ.keys()):
         logging.debug("environ[%-20s]=%-20s", key, environ[key])
 
     # Must be done BEFORE IMPORTING, so the modules can have the good environment at init time.
-    for key in ["QUERY_STRING","SERVER_PORT"]:
+    for key in ["QUERY_STRING", "SERVER_PORT"]:
         os.environ[key] = environ[key]
 
     # This is necessary for security reasons.
@@ -117,18 +128,34 @@ def application_ok(environ, start_response):
     # and before the content.
     # environ["SERVER_PROTOCOL"] = "HTTP/1.1"
     # environ["SERVER_SOFTWARE"] = "WSGIServer/0.2"
-    os.environ["SERVER_SOFTWARE"] = environ["SERVER_SOFTWARE"]
+    try:
+        os.environ["SERVER_SOFTWARE"] = environ["SERVER_SOFTWARE"]
+    except KeyError as exc:
+        logging.warning("SERVER_SOFTWARE is not set:%s.", exc)
+        if "wsgi.input" in environ:
+            # Just a guess: environ[wsgi.input]=<twisted.web.wsgi._InputStream object at 0x7fef8da5b250>
+            os.environ["SERVER_SOFTWARE"] = "Twisted WSGI"
+        else:
+            raise Exception("Cannot find SERVER_SOFTWARE")
 
-    # The wsgi Python module sets a value for SERVER_NAME that we do not want.
-    os.environ["SERVER_NAME"] = os.environ["SURVOL_SERVER_NAME"]
+    # The wsgiref.simple_server Python module sets a value for SERVER_NAME that we do not want.
+    try:
+        os.environ["SERVER_NAME"] = os.environ["SURVOL_SERVER_NAME"]
+    except KeyError:
+        logging.info("SURVOL_SERVER_NAME is not set. Maybe Twisted WSGI but not wsgiref.simple_server")
+        os.environ["SERVER_NAME"] = environ["SERVER_NAME"]
 
     os.environ["PYTHONPATH"] = "survol" # Not needed if the package is installed.
 
-    # FIXME: Is this needed on all platforms.
+    # FIXME: Is this needed on all platforms ?
     os.environ.copy()
 
-    # Example: "/survol/entity_dirmenu_only.py"
+    # wsgiref.simple_server: "/survol/entity_dirmenu_only.py"
+    # By default, with Twisted: "/entity.py".
+    # FIXME: Urls must always contain the string "/survol" before the scripts,
+    # FIXME: and reflect the script files tree.
     path_info = environ['PATH_INFO']
+    logging.debug("path_info=%s", path_info)
 
     # This environment variable is parsed in UriRootHelper
     # os.environ["SCRIPT_NAME"] = "/survol/see_wsgiserver"
@@ -136,6 +163,7 @@ def application_ok(environ, start_response):
     # REQUEST_URI=/survol/print_environment_variables.py?d=s
     # QUERY_STRING=d=s
     os.environ["SCRIPT_NAME"] = path_info
+    logging.debug("Setting SCRIPT_NAME to %s", path_info)
 
     # All modules must be explicitly loaded, because importing is not recursive:
     # The path is imported but if it tries to import another module, the initialisation code
@@ -153,7 +181,7 @@ def application_ok(environ, start_response):
     if path_info.find("/survol/www/") >= 0 \
             or path_info.find("/ui/css") >= 0 \
             or path_info == '/favicon.ico':
-        return app_serve_file(path_info, start_response)
+        return _app_serve_file(path_info, start_response)
 
     path_info = path_info.replace("/", ".")
 
@@ -174,6 +202,7 @@ def application_ok(environ, start_response):
     # This is the needed interface so all our Python machinery can write to the WSGI server.
     the_out_mach = OutputMachineWsgi(start_response)
 
+    logging.debug("path_info=%s", path_info)
     if len(split_path_info) > 1:
         modules_prefix = ".".join(split_path_info[:-1])
 
@@ -230,8 +259,11 @@ _is_supervisor_started = False
 
 
 def application(environ, start_response):
-    """This is required by WSGI interface"""
-
+    """
+    This is required by WSGI interface.
+    BEWARE: The url must start with "/survol" like "http://127.0.0.1:9000/survol/entity.py"
+    """
+    logging.debug("Starting application")
     global _is_supervisor_started
     if not _is_supervisor_started:
         # The daemon runs processes writing events to a database, which are later read by CGI or WSGI scripts.
@@ -241,6 +273,8 @@ def application(environ, start_response):
     try:
         return application_ok(environ, start_response)
     except Exception as exc:
+        logging.error("Caught:%s", exc)
+        logging.error("Exception stack:%s", traceback.format_exc())
 
         import lib_util
 
