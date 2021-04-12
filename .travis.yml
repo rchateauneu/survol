@@ -47,6 +47,7 @@ install:
   - pip install pywbem               # Optional
   - pip install sqlparse             # Optional
   - pip install natsort              # Optional, needed for nicer sorts.
+  - pip install twisted              # Optional
 script:
   - pwd
   - pytest -v --durations=30 tests
