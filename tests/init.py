@@ -271,6 +271,40 @@ def _start_cgiserver_subprocess(agent_port):
     return agent_process
 
 
+#def _read_display_server_internal_data(response):
+#    internal_data = response.read().decode("utf-8")
+#    json_internal_data = json.loads(internal_data)
+
+    # RootUri    "http://rchateau-hp:8000/survol/print_internal_data_as_json.py"
+    # uriRoot    "http://rchateau-hp:8000/survol"
+    # HttpPrefix "http://rchateau-hp:8000"
+    # RequestUri "/survol/print_internal_data_as_json.py"
+#    root_uri = json_internal_data['RootUri']
+#    uri_root = json_internal_data['uriRoot']
+#    http_prefix = json_internal_data['HttpPrefix']
+#    request_uri = json_internal_data['RequestUri']
+
+#    print("Survol agent OK:", root_uri, uri_root, http_prefix, request_uri)
+
+
+def check_existing_server(agent_url):
+    returned_exception = None
+    try:
+        # Maybe a server with this port number is already running ?
+        # response = portable_urlopen(agent_url + "/survol/entity.py", timeout=2)
+
+        # Any URL is OK as long as it returns JSON data.
+        response = portable_urlopen(agent_url + "/survol/entity.py?mode=json", timeout=2)
+        logging.info("Testing agent at %s", agent_url)
+        internal_data = response.read().decode("utf-8")
+        json_internal_data = json.loads(internal_data)
+        logging.info("Existing server at %s", agent_url)
+    except Exception as exc:
+        logging.info("No existing server at %s:%s", agent_url, exc)
+        returned_exception = exc
+    return returned_exception
+
+
 def start_cgiserver(agent_port):
     """This is used to start a CGI HTTP server which runs cgiserver.py.
     This processes executes Python scripts on request from the tests run by pytest.
@@ -286,107 +320,97 @@ def start_cgiserver(agent_port):
         except Exception as exc:
             print("Cannot remove", logfile_name, exc)
 
-    def _read_display_server_internal_data(response):
-        internal_data = response.read().decode("utf-8")
-        json_internal_data = json.loads(internal_data)
+    returned_exception = check_existing_server(agent_url)
+    if returned_exception is None:
+        return None, agent_url
 
-        # RootUri    "http://rchateau-hp:8000/survol/print_internal_data_as_json.py"
-        # uriRoot    "http://rchateau-hp:8000/survol"
-        # HttpPrefix "http://rchateau-hp:8000"
-        # RequestUri "/survol/print_internal_data_as_json.py"
-        root_uri = json_internal_data['RootUri']
-        uri_root = json_internal_data['uriRoot']
-        http_prefix = json_internal_data['HttpPrefix']
-        request_uri = json_internal_data['RequestUri']
+    # No server with this port number, so there is o server, so this creates a process.
+    agent_process = _start_cgiserver_subprocess(agent_port)
+    print("_start_cgiserver_subprocess: Waiting for CGI agent to start")
+    # This delay for the server to warmup.
+    # TODO: A better solution would be to override server_bind()
+    time.sleep(0.5)
+    atexit.register(__dump_server_content, logfile_name)
 
-        print("CGI Survol agent OK:", root_uri, uri_root, http_prefix, request_uri)
+    # An optional extra test to ensure that the server is ready.
+    if is_travis_machine():
+        print("start_cgiserver local_agent_url=", agent_url)
 
-    try:
-        agent_process = None
-        # Maybe a server with this port number is already running ?
-        response = portable_urlopen(agent_url + "/survol/print_internal_data_as_json.py", timeout=2)
-        print("start_cgiserver: Using existing CGI Survol agent")
-        _read_display_server_internal_data(response)
-    except:
-        # No server with this port number, so there is o server, so this creates a process.
-        agent_process = _start_cgiserver_subprocess(agent_port)
-        print("_start_cgiserver_subprocess: Waiting for CGI agent to start")
-        # This delay for the server to warmup.
-        # TODO: A better solution would be to override server_bind()
-        time.sleep(0.5)
-        atexit.register(__dump_server_content, logfile_name)
-
-        # An optional extra test to ensure that the server is ready.
-        if is_travis_machine():
-            # It was using "entity.py" in the past, but it is slower.
-            local_agent_url = "http://%s:%s/survol/print_internal_data_as_json.py" % (agent_host, agent_port)
-            print("start_cgiserver local_agent_url=", local_agent_url)
-            try:
-                response = portable_urlopen(local_agent_url, timeout=5)
-                _read_display_server_internal_data(response)
-            except Exception as exc:
-                print("Caught:%s", exc)
-                __dump_server_content(logfile_name)
-                raise
+        returned_exception = check_existing_server(agent_url)
+        if returned_exception is not None:
+            logging.error("Could not start server")
+            __dump_server_content(logfile_name)
+            raise returned_exception
 
     return agent_process, agent_url
 
 
 def stop_cgiserver(agent_process):
-    if agent_process:
-        agent_process.terminate()
-        agent_process.join()
+    stop_agent_process(agent_process)
 
 
 def start_wsgiserver(agent_port):
-    """This is used to start a WSGI HTTP server which runs cgiserver.py.
-    This processes executes Python scripts on request from thet tests run by pytest.
+    """This is used to start a WSGI HTTP server which runs wsgiserver.py.
+    This processes executes Python scripts on request from the tests run by pytest.
     These Python scripts are imported as Python module and run in WSGI. """
     agent_url = "http://%s:%d" % (CurrentMachine, agent_port)
+
+    returned_exception = check_existing_server(agent_url)
+    if returned_exception is None:
+        return None, agent_url
+
     try:
-        # No SVG because Travis might not have dot/Graphviz. Also, the script must be compatible with WSGI.
-        agent_process = None
-        response = portable_urlopen(agent_url + "/survol/entity.py?mode=json", timeout=5)
-        logging.info("start_wsgiserver: Using existing WSGI Survol agent")
-    except:
-        logging.info("Starting test survol agent_url=%s hostnqme=%s", agent_url, agent_host)
+        # Running the tests scripts from PyCharm is from the current directory.
+        os.environ["PYCHARM_HELPERS_DIR"]
+        current_dir = ".."
+    except KeyError:
+        current_dir = ""
+    logging.info("current_dir=%s", current_dir)
+    logging.info("sys.path=%s", str(sys.path))
 
-        try:
-            # Running the tests scripts from PyCharm is from the current directory.
-            os.environ["PYCHARM_HELPERS_DIR"]
-            current_dir = ".."
-        except KeyError:
-            current_dir = ""
-        logging.info("current_dir=%s", current_dir)
-        logging.info("sys.path=%s", str(sys.path))
+    agent_process = multiprocessing.Process(
+        target=scripts.wsgiserver.start_server_forever,
+        args=(agent_host, agent_port, True))
+    agent_process.start()
+    atexit.register(__dump_server_content, scripts.wsgiserver.WsgiServerLogFileName)
+    logging.info("Waiting for WSGI agent ready")
+    time.sleep(8.0)
 
-        agent_process = multiprocessing.Process(
-            target=scripts.wsgiserver.start_server_forever,
-            args=(agent_host, agent_port, True))
-        agent_process.start()
-        atexit.register(__dump_server_content, scripts.wsgiserver.WsgiServerLogFileName)
-        logging.info("Waiting for WSGI agent ready")
-        time.sleep(8.0)
-        # Check again if the server is started. This can be done only with scripts compatible with WSGI.
-        local_agent_url = "http://%s:%s/survol/entity.py?mode=json" % (agent_host, agent_port)
-        try:
-            response = portable_urlopen(local_agent_url, timeout=5)
-        except Exception as exc:
-            logging.error("Caught:%s", exc)
-            __dump_server_content(scripts.wsgiserver.WsgiServerLogFileName)
-            raise
+    # Check again if the server is started. This can be done only with scripts compatible with WSGI.
+    #local_agent_url = "http://%s:%s/survol/entity.py?mode=json" % (agent_host, agent_port)
+    #returned_exception = _check_existing_server(local_agent_url)
+    returned_exception = check_existing_server(agent_url)
+    if returned_exception is not None:
+        logging.error("Could not start server")
+        __dump_server_content(scripts.wsgiserver.WsgiServerLogFileName)
+        raise returned_exception
 
-    data = response.read().decode("utf-8")
+    #local_agent_url = "http://%s:%s/survol/entity.py?mode=json" % (agent_host, agent_port)
+    #try:
+    #    response = portable_urlopen(local_agent_url, timeout=5)
+    #except Exception as exc:
+    #    logging.error("Caught:%s", exc)
+    #    __dump_server_content(scripts.wsgiserver.WsgiServerLogFileName)
+    #    raise
+
+    #data = response.read().decode("utf-8")
     print("WSGI Survol agent OK")
     return agent_process, agent_url
 
 
 def stop_wsgiserver(agent_process):
+    stop_agent_process(agent_process)
+
+def stop_agent_process(agent_process):
     if agent_process:
-        logging.info("Killing WSGI process %d", agent_process.pid)
+        assert isinstance(agent_process, multiprocessing.Process)
+        logging.info("Killing agent process %d", agent_process.pid)
         agent_process.terminate()
         agent_process.join()
-        logging.info("Killed WSGI process %d", agent_process.pid)
+        logging.info("Killed agent process %d", agent_process.pid)
+    else:
+        logging.info("Agent was already started")
+
 
 ################################################################################
 
@@ -400,8 +424,6 @@ def __queries_entities_to_value_pairs(iter_entities_dicts):
 
         one_entities_dict_qname = {}
         for variable_name, one_entity in one_entities_dict.items():
-            #print("__queries_entities_to_value_pairs one_entity=", one_entity)
-
             # Special attribute for debugging.
             dict_qname_value = {"__class__": one_entity.m_entity_class_name}
             for key_node, val_node in one_entity.m_predicate_object_dict.items():
@@ -413,7 +435,7 @@ def __queries_entities_to_value_pairs(iter_entities_dicts):
 
 
 def query_see_also_key_value_pairs(grph, sparql_query):
-    logging.warning("query_see_also_key_value_pairs")
+    logging.debug("query_see_also_key_value_pairs")
     iter_entities_dicts = lib_sparql.QuerySeeAlsoEntities(grph, sparql_query)
     iter_dict_objects = __queries_entities_to_value_pairs(iter_entities_dicts)
     list_dict_objects = list(iter_dict_objects)
