@@ -17,7 +17,6 @@ else:
     import wsgi_survol
 
 
-
 _port_number_default = 9000
 
 
