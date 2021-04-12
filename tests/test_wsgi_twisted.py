@@ -16,7 +16,7 @@ import lib_client
 # Otherwise, Python callstack would be displayed in HTML.
 cgitb.enable(format="txt")
 
-def start_twisted_wsgiserver(agent_port):
+def start_twisted_wsgiserver(agent_port, output_log):
     agent_url = "http://%s:%d" % (CurrentMachine, agent_port)
 
     returned_exception = check_existing_server(agent_url)
@@ -35,11 +35,10 @@ def start_twisted_wsgiserver(agent_port):
 
     # "-n": Not started in daemon mode so the behaviour is the same on Windows and Linux.
     cmd = ["twistd", "web", "--listen=tcp:%d" % agent_port,
-           "--logfile=survol_twistd.log",
+           "--logfile=%s" % output_log,
            "-n",
            "--wsgi=scripts.wsgi_survol.application"]
            #"--wsgi=survol.scripts.wsgi_survol.application"]
-    logging.debug("cmd=%s", str(cmd))
     logging.debug("cmd=%s", " ".join(cmd))
     logging.debug("Cwd=%s", os.getcwd())
 
@@ -54,8 +53,8 @@ def start_twisted_wsgiserver(agent_port):
                                 stderr=subprocess.PIPE)
 
     if sub_proc is None:
-        raise Exception("Cound not start WSGI twisted process")
-    logging.info("Started process is:%d", sub_proc.pid)
+        raise Exception("Could not start WSGI twisted process")
+    print("Started twistd process is:%d\n" % sub_proc.pid)
 
     time.sleep(2.0)
 
@@ -64,27 +63,38 @@ def start_twisted_wsgiserver(agent_port):
 
 def stop_twisted_wsgiserver(sub_proc):
     assert isinstance(sub_proc, subprocess.Popen)
-    twisted_out, twisted_err = sub_proc.communicate()
-    if twisted_err:
-        for one_line in twisted_out.split(b'\n'):
-            logging.debug("twisted_out=%s", one_line)
-        for one_line in twisted_err.split(b'\n'):
-            logging.debug("twisted_err=%s", one_line)
+    if False:
+        twisted_out, twisted_err = sub_proc.communicate()
+        if twisted_err:
+            for one_line in twisted_out.split(b'\n'):
+                logging.debug("twisted_out=%s", one_line)
+            for one_line in twisted_err.split(b'\n'):
+                logging.debug("twisted_err=%s", one_line)
 
+    print("Terminating process %d" % sub_proc.pid)
     sub_proc.terminate()
 
 
 @unittest.skipIf(not pkgutil.find_loader('twisted'), "twisted must be installed.")
 class WsgiTwistedTest(unittest.TestCase):
+    _output_log = "survol_twistd.log"
     def setUp(self):
         self.m_remote_wsgi_agent_process, self.m_remote_wsgi_test_agent = start_twisted_wsgiserver(
-            RemoteTwistedWsgi1TestServerPort)
+            RemoteTwistedWsgi1TestServerPort, self._output_log)
         logging.info("Agent=%s", self.m_remote_wsgi_test_agent)
         logging.info("Agent process=%d", self.m_remote_wsgi_agent_process.pid)
 
     def tearDown(self):
-        logging.info("Stopping: %s", self.m_remote_wsgi_test_agent)
-        stop_twisted_wsgiserver(self.m_remote_wsgi_agent_process)
+        if self.m_remote_wsgi_agent_process:
+            logging.info("Stopping: %s", self.m_remote_wsgi_test_agent)
+            stop_twisted_wsgiserver(self.m_remote_wsgi_agent_process)
+            with open(self._output_log) as output_fd:
+                print("Twistd server output start")
+                for one_line in output_fd.readlines():
+                    sys.stdout.write("%s" % one_line)
+                print("Twistd server output end")
+        else:
+            logging.info("Was already started: %s", self.m_remote_wsgi_test_agent)
 
     def test_twisted_wsgi_file_directory(self):
         my_source_file_stat_remote = lib_client.SourceRemote(
