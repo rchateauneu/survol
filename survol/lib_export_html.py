@@ -190,7 +190,7 @@ def _scripts_tree_html_iterator(theCgi):
         return
 
     flag_val = theCgi.get_parameters(lib_util.paramkeyShowAll)
-    logging.debug("WriteScriptsTree flagVal=%s", flag_val)
+    logging.debug("flag_val=%s", flag_val)
     # This happens when merging scripts.
     if flag_val == "":
         flag_show_all = 0
@@ -217,7 +217,7 @@ def _scripts_tree_html_iterator(theCgi):
         except KeyError:
             dict_scripts[subj] = {prop: [obj]}
 
-    logging.debug("WriteScriptsTree entity_type=%s flag_show_all=%d", theCgi.m_entity_type, flag_show_all)
+    logging.debug("entity_type=%s flag_show_all=%d", theCgi.m_entity_type, flag_show_all)
     entity_dirmenu_only.recursive_walk_on_scripts(
         callback_grph_add,
         root_node,
