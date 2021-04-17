@@ -661,6 +661,7 @@ class WbemSparqlCallbackApi:
             predicate_prefix,
             associator_key_name,
             subject_path):
+        logging.critical("THIS IS DEPRECATED")
         logging.info("WbemSparqlCallbackApi.CallbackAssociator subject_path=%s result_class_name=%s associator_key_name=%s",
                 subject_path,
                 result_class_name,
