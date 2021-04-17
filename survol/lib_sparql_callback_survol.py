@@ -115,6 +115,8 @@ class SurvolSparqlCallbackApi:
         associator_key_name,
         subject_path):
 
+        logging.critical("THIS IS DEPRECATED")
+
         logging.debug("SurvolCallbackAssociator result_class_name=%s "
             + "predicate_prefix=%s associator_key_name=%s subject_path=%s.",
               result_class_name,
