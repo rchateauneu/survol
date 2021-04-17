@@ -147,7 +147,7 @@ def __dump_server_content(log_filename):
             return
         logging.debug("Agent log file: %s" % log_filename)
         for line_stream in log_lines:
-            sys.stdout.write(">>> %s" % line_stream)
+            sys.stdout.write("Dump >>> %s" % line_stream)
         agent_stream.close()
         logging.debug("Agent log file end")
     except Exception as exc:
@@ -269,22 +269,6 @@ def _start_cgiserver_subprocess(agent_port):
     print("agent_process.pid=", agent_process.pid)
 
     return agent_process
-
-
-#def _read_display_server_internal_data(response):
-#    internal_data = response.read().decode("utf-8")
-#    json_internal_data = json.loads(internal_data)
-
-    # RootUri    "http://rchateau-hp:8000/survol/print_internal_data_as_json.py"
-    # uriRoot    "http://rchateau-hp:8000/survol"
-    # HttpPrefix "http://rchateau-hp:8000"
-    # RequestUri "/survol/print_internal_data_as_json.py"
-#    root_uri = json_internal_data['RootUri']
-#    uri_root = json_internal_data['uriRoot']
-#    http_prefix = json_internal_data['HttpPrefix']
-#    request_uri = json_internal_data['RequestUri']
-
-#    print("Survol agent OK:", root_uri, uri_root, http_prefix, request_uri)
 
 
 def check_existing_server(agent_url):

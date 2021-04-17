@@ -63,7 +63,12 @@ def start_twisted_wsgiserver(agent_port, output_log):
 
 def stop_twisted_wsgiserver(sub_proc):
     assert isinstance(sub_proc, subprocess.Popen)
-    if False:
+
+    # Maybe the twisted server exited with an error.
+    if psutil.pid_exists(sub_proc.pid):
+        print("Twisted WSGI process %d still running" % sub_proc.pid)
+    else:
+        print("Twisted WSGI process %d has exited" % sub_proc.pid)
         twisted_out, twisted_err = sub_proc.communicate()
         if twisted_err:
             for one_line in twisted_out.split(b'\n'):
@@ -71,11 +76,13 @@ def stop_twisted_wsgiserver(sub_proc):
             for one_line in twisted_err.split(b'\n'):
                 logging.debug("twisted_err=%s", one_line)
 
-    print("Terminating process %d" % sub_proc.pid)
+    print("Terminating Twisted WSGI process %d" % sub_proc.pid)
     sub_proc.terminate()
 
 
+@unittest.skipIf(is_travis_machine(), "TODO: Does not work on Travis yet.")
 @unittest.skipIf(not pkgutil.find_loader('twisted'), "twisted must be installed.")
+@unittest.skipIf(not check_program_exists("twistd"), "twistd executable must be available.")
 class WsgiTwistedTest(unittest.TestCase):
     _output_log = "survol_twistd.log"
     def setUp(self):
@@ -89,7 +96,7 @@ class WsgiTwistedTest(unittest.TestCase):
             logging.info("Stopping: %s", self.m_remote_wsgi_test_agent)
             stop_twisted_wsgiserver(self.m_remote_wsgi_agent_process)
             with open(self._output_log) as output_fd:
-                print("Twistd server output start")
+                print("Twistd server output %s start" % self._output_log)
                 for one_line in output_fd.readlines():
                     sys.stdout.write("%s" % one_line)
                 print("Twistd server output end")
