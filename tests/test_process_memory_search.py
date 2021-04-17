@@ -50,14 +50,14 @@ class ProcessMemorySqlQueryTest(unittest.TestCase):
         """This searches the content of a process memory which contains a SQL memory."""
         proc_open = _start_subprocess(sample_batch_script)
 
-        (child_stdin, child_stdout_and_stderr) = (proc_open.stdin, proc_open.stdout)
+        child_stdin, child_stdout_and_stderr = (proc_open.stdin, proc_open.stdout)
 
-        mySourceSqlQueries = lib_client.SourceLocal(
+        my_source_sql_queries = lib_client.SourceLocal(
             "sources_types/CIM_Process/memory_regex_search/scan_sql_queries.py",
             "CIM_Process",
             Handle=proc_open.pid)
 
-        triple_sql_queries = mySourceSqlQueries.get_triplestore()
+        triple_sql_queries = my_source_sql_queries.get_triplestore()
         print(len(triple_sql_queries))
         #self.assertEqual(len(triple_sql_queries.m_triplestore), 190)
 
