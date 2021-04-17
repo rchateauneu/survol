@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""The intention is to test the capability to search for specific strigns in the memory of a running process."""
+"""The intention is to test the capability to search for specific strings in the memory of a running process."""
 
 from __future__ import print_function
 
