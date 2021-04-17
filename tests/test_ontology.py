@@ -149,7 +149,7 @@ class RdfOntologyConformanceSurvolLocaTest(unittest.TestCase):
         errors_list = self._check_rdf_url_ontology(the_content_rdf)
         self.assertEqual(errors_list, [])
 
-    @unittest.skipIf(socket.gethostname() == "LAPTOP-R89KG6V1", "Tactical test")
+    @unittest.skipIf(not is_platform_windows or socket.gethostname() == "LAPTOP-R89KG6V1", "Tactical test")
     def test_conformance_win32_NetLocalGroupGetMembers(self):
         """Test of win32_NetLocalGroupGetMembers.py and the correctness of the ontology of classes and attributes."""
 
