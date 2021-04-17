@@ -50,7 +50,7 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    subscriptions = lib_credentials.get_credentials_names( "Azure" )
+    subscriptions = lib_credentials.get_credentials_names("Azure")
 
     for subscription_name in subscriptions:
         _enumerate_services(grph, subscription_name)
