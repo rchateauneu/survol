@@ -13,21 +13,21 @@ from lib_properties import pc
 ################################################################################
 
 
-def FlushOrSaveRdfGraph(grph, output_rdf_filename):
+def flush_or_save_rdf_graph(grph, output_rdf_filename):
     """This dumps the triplestore graph to the current output socket if called in a HTTP server.
     Otherwise it saves the result to a text file, for testing or debugging."""
-    logging.info("FlushOrSaveRdfGraph l=%s sys.argv=%s", len(sys.argv), str(sys.argv))
+    logging.info("l=%s sys.argv=%s", len(sys.argv), str(sys.argv))
 
     try:
         os.environ["QUERY_STRING"]
-        logging.info("FlushOrSaveRdfGraph to stream")
+        logging.info("Writing to stream")
         lib_util.WrtHeader('text/html')
 
         out_dest = lib_util.get_default_output_destination()
         lib_kbase.triplestore_to_stream_xml(grph,out_dest, 'xml')
 
     except KeyError:
-        logging.info("FlushOrSaveRdfGraph onto_filnam=%s", output_rdf_filename)
+        logging.info("onto_filnam=%s", output_rdf_filename)
         outfil = open(output_rdf_filename, "w")
         lib_kbase.triplestore_to_stream_xml(grph,outfil, 'xml')
         outfil.close()
