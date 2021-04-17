@@ -812,6 +812,13 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             ('%s="%s"' % (prop_key, prop_value) for prop_key, prop_value in entity_id_dict.items())
         )
 
+        # Typical values:
+        # associator_path=CIM_Process.Handle="9332"
+        # shortened_path=CIM_Process.Handle=9332
+        #
+        # associator_path=CIM_DataFile.Name="C:/Windows/System32/ntdll.dll"
+        # shortened_path=CIM_DataFile.Name=C:/Windows/System32/ntdll.dll
+
         return associator_path
 
     def CreateAssociatorObjects(self, graph, variables_context):
