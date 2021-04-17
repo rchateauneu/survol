@@ -22,6 +22,14 @@ Usable = lib_util.UsableWindows
 
 
 def _enumerate_locations(grph, subscription_name):
+    #   "Azure": {
+    #     "Visual Studio Professional": [
+    #       "hexahexa-hexa-hexa-hexa-hexahexahexa",
+    #       "AzureCertificate"
+    #     ]
+    #   },
+
+    # "hexahexa-hexa-hexa-hexa-hexahexahexa", "AzureCertificate"
     subscription_id, certificate_path = lib_credentials.GetCredentials("Azure", subscription_name)
 
     sms = ServiceManagementService(subscription_id, certificate_path)
@@ -44,7 +52,7 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    subscriptions = lib_credentials.get_credentials_names( "Azure" )
+    subscriptions = lib_credentials.get_credentials_names("Azure")
 
     for subscription_name in subscriptions:
         _enumerate_locations(grph, subscription_name)
