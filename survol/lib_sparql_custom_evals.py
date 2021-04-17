@@ -855,7 +855,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             associated_variable_value = variables_context[associated_variable]
             assert isinstance(associated_variable_value, rdflib.URIRef)
 
-            associator_path = associated_instance.BuildWmiPathFromSurvolPath(variables_context)
+            associator_path = associated_instance._build_wmi_path_from_survol_path(variables_context)
 
             iterator_objects = Sparql_WMI_GenericObject.wmi_executor.SelectBidirectionalAssociatorsFromObject(
                 self.m_class_name, associator_name, associator_path, role_index)
