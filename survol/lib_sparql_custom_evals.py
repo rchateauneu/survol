@@ -414,17 +414,12 @@ class Sparql_CIM_Directory(Sparql_CIM_DataFile):
                 # Loop on first level only.
                 break
 
-            #sys.stderr.write("Sparql_CIM_Directory.FetchAll return_values_list=%s\n" % return_values_list)
             if isinstance(dir_path_variable, rdflib.term.Variable):
-                #sys.stderr.write("Sparql_CIM_Directory.fetch_all_variables Returning variables pair:%s\n" % associated_instance.m_variable)
                 returned_variables[(associated_instance.m_variable, dir_path_variable)] = return_values_list
                 check_returned_variables(returned_variables)
             else:
-                #sys.stderr.write("Sparql_CIM_Directory.fetch_all_variables Returning variable:%s\n" % associated_instance.m_variable)
                 returned_variables[(associated_instance.m_variable,)] = return_values_list
                 check_returned_variables(returned_variables)
-
-            #sys.stderr.write("Sparql_CIM_Directory.fetch_all_variables returned_variables=%s\n" % returned_variables)
 
         # TODO: If there are no properties and no directory and no sub-files or sub-directories,
         # TODO: this should return ALL DIRECTORIES OF THE FILE SYSTEM.
@@ -587,19 +582,16 @@ class Sparql_CIM_Process(Sparql_CIM_Object):
                 process_url = self._create_uri_ref(
                     graph, "CIM_Process", class_CIM_Process,
                     {predicate_Handle: rdflib.term.Literal(one_process.pid)})
-                #sys.stderr.write("Adding process %s\n" % str(process_url))
                 graph.add((process_url, associator_CIM_ProcessExecutable, associated_executable_node))
                 process_urls_list.append(process_url)
         return process_urls_list
 
     def fetch_all_variables(self, graph, variables_context):
-        #sys.stderr.write("Sparql_CIM_Process.fetch_all_variables variables_context=%s\n" % str(variables_context))
         properties_tuple, url_nodes_list = self._get_list_of_ontology_properties(variables_context)
 
         returned_variables = {}
 
         if isinstance(url_nodes_list, list) and len(url_nodes_list) == 0:
-            #sys.stderr.write("fetch_all_variables No such process with self.m_properties:%s\n" % str(self.m_properties))
             # No such process.
             return returned_variables
 
@@ -736,7 +728,6 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
                 # The first object is used to create the list of attributes.
                 list_variables.append(self.m_variable)
                 for wql_key_node, wql_value_dummy in dict_key_values.items():
-                    #sys.stderr.write("_iterator_to_objects wql_key_node=%s\n" % wql_key_node)
                     assert isinstance(wql_key_node, rdflib.term.URIRef)
                     if wql_key_node not in self.m_properties:
                         continue
@@ -788,7 +779,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         assert all([isinstance(one_class_key, six.text_type) for one_class_key in wmi_class_keys])
         return wmi_class_keys
 
-    def SelectWmiObjectFromProperties(self, graph, variables_context, filtered_where_key_values):
+    def _select_wmi_object_from_properties(self, graph, variables_context, filtered_where_key_values):
         logging.debug("class=%s filtered_where_key_values=%s" % (self.m_class_name, str(filtered_where_key_values)))
         iterator_objects = Sparql_WMI_GenericObject.wmi_executor.SelectObjectFromProperties(
             self.m_class_name, filtered_where_key_values)
@@ -797,9 +788,18 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         check_returned_variables(returned_variables)
         return returned_variables
 
-    def BuildWmiPathFromSurvolPath(self, variables_context):
-        """ This parses the Survol path to build WMI path which is very similar but not completely."""
-        # survol_path = 'http://mymachine:80/LocalExecution/entity.py?xid=CIM_Directory.Name=c:/a/b/c.txt'
+    def _build_wmi_path_from_survol_path(self, variables_context):
+        """ This parses the Survol path to build WMI path which is very similar but not completely:
+        survol_path = 'http://mymachine:80/LocalExecution/entity.py?xid=CIM_Directory.Name=c:/a/b/c.txt'
+
+        Typical transformation of the path:
+        associator_path=CIM_Process.Handle="9332"
+        shortened_path=CIM_Process.Handle=9332
+
+        associator_path=CIM_DataFile.Name="C:/Windows/System32/ntdll.dll"
+        shortened_path=CIM_DataFile.Name=C:/Windows/System32/ntdll.dll
+        """
+
         survol_path = variables_context[self.m_variable]
         _, _, shortened_path = survol_path.partition("?xid=")
         class_name, _, kw_pairs_as_str = shortened_path.partition(".")
@@ -808,27 +808,23 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
 
         entity_id_dict = lib_util.SplitMoniker(kw_pairs_as_str)
 
+        # This rebuilds a path for WMI with arguments enclosed in double-quotes.
         associator_path = self.m_class_name + "." + ",".join(
             ('%s="%s"' % (prop_key, prop_value) for prop_key, prop_value in entity_id_dict.items())
         )
 
-        # Typical values:
-        # associator_path=CIM_Process.Handle="9332"
-        # shortened_path=CIM_Process.Handle=9332
-        #
-        # associator_path=CIM_DataFile.Name="C:/Windows/System32/ntdll.dll"
-        # shortened_path=CIM_DataFile.Name=C:/Windows/System32/ntdll.dll
-
         return associator_path
 
-    def CreateAssociatorObjects(self, graph, variables_context):
+    def _create_associator_objects(self, graph, variables_context):
         if self.m_associated:
-            returned_variables = self.CreateAssociatorObjectsBidirectional(graph, variables_context, self.m_associated, 0)
+            returned_variables = self._create_associator_objects_bidirectional(
+                graph, variables_context, self.m_associated, 0)
             if returned_variables:
                 check_returned_variables(returned_variables)
                 return returned_variables
         if self.m_associators:
-            returned_variables = self.CreateAssociatorObjectsBidirectional(graph, variables_context, self.m_associators, 1)
+            returned_variables = self._create_associator_objects_bidirectional(
+                graph, variables_context, self.m_associators, 1)
             if returned_variables:
                 check_returned_variables(returned_variables)
                 return returned_variables
@@ -836,7 +832,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
 
         # FIXME: What if both return values ???
 
-    def CreateAssociatorObjectsBidirectional(self, graph, variables_context, assoc_list, role_index):
+    def _create_associator_objects_bidirectional(self, graph, variables_context, assoc_list, role_index):
 
         # We might have several associators for one object.
         associator_urls_set = set()
@@ -885,7 +881,6 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
             assert first_key[index_url_key] == self.m_variable
 
             urls_list = returned_variables_one[first_key]
-            #sys.stderr.write("CreateAssociatorObjectsBidirectional urls_list=%s\n" % urls_list)
             assert isinstance(urls_list, list)
 
             # Now add the triples specifying the associator relation.
@@ -899,24 +894,20 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
                 else:
                     graph.add((object_url, associator_predicate, associated_variable_value))
 
-            #sys.stderr.write("CreateAssociatorObjectsBidirectional returned_variables_one=%s\n" % returned_variables_one)
-
             if not associator_urls_set:
                 associator_urls_set.update(urls_list)
             else:
                 associator_urls_set = associator_urls_set.intersection(set(urls_list))
-            #sys.stderr.write("CreateAssociatorObjectsBidirectional returned_variables_set=%s\n" % associator_urls_set)
             # Because the variable is in the context, it is defined and its path is available.
             # Therefore, it is possible to fetch its associators only from the path.
 
-        # sys.stderr.write("CreateAssociatorObjectsBidirectional associator_urls_set=%s\n" % associator_urls_set)
         associator_urls_list = list(associator_urls_set)
         if keys_set_first_associator:
             returned_variables = {keys_set_first_associator: associator_urls_list}
             check_returned_variables(returned_variables)
         else:
             returned_variables = {}
-            sys.stderr.write("Nothing found in associators")
+            logging.debug("Nothing found in associators")
         return returned_variables
 
     def fetch_all_variables(self, graph, variables_context):
@@ -925,24 +916,23 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         for predicate_node in self.m_properties:
             predicate_name = lib_properties.PropToQName(predicate_node)
             value_node = self.get_node_value(predicate_node, variables_context)
-            #sys.stderr.write("fetch_all_variables predicate_node=%s\n" % predicate_node)
             if value_node:
                 filtered_where_key_values[predicate_name] = str(value_node)
 
         if filtered_where_key_values:
-            returned_variables = self.SelectWmiObjectFromProperties(graph, variables_context, filtered_where_key_values)
+            returned_variables = self._select_wmi_object_from_properties(
+                graph, variables_context, filtered_where_key_values)
             check_returned_variables(returned_variables)
             return returned_variables
-
-        #sys.stderr.write("associated:%d associators:%d\n" % (len(self.m_associated), len(self.m_associators)))
 
         if not filtered_where_key_values and not self.m_associated and not self.m_associators:
             logging.warning("fetch_all_variables BEWARE FULL SELECT: %s" % self.m_class_name)
-            returned_variables = self.SelectWmiObjectFromProperties(graph, variables_context, filtered_where_key_values)
+            returned_variables = self._select_wmi_object_from_properties(
+                graph, variables_context, filtered_where_key_values)
             check_returned_variables(returned_variables)
             return returned_variables
 
-        returned_variables = self.CreateAssociatorObjects(graph, variables_context)
+        returned_variables = self._create_associator_objects(graph, variables_context)
         check_returned_variables(returned_variables)
         return returned_variables
 
@@ -1076,32 +1066,27 @@ def product_variables_lists(returned_variables, iter_keys=None):
         first_key, values_list = next(iter_keys)
         assert isinstance(values_list, list)
 
-        #sys.stderr.write("product_variables_lists LOOP BEFORE\n")
         for one_dict in product_variables_lists(returned_variables, iter_keys):
-            # sys.stderr.write("product_variables_lists len(values_list)=%d\n" % len(values_list))
             for one_value in values_list:
                 new_dict = one_dict.copy()
                 # This is one variable, or a tuple of variables of attributes of the same object.
 
                 # Maybe, several correlated variables of attributes of the same object.
                 assert isinstance(one_value, tuple)
-                #sys.stderr.write("len(first_key)=%d\n" % len(first_key))
-                #sys.stderr.write("len(one_value)=%d\n" % len(one_value))
 
                 assert len(first_key) == len(one_value)
                 # Each key is a tuple of variables matched by each of the tuples of the list of values.
                 assert all((isinstance(single_key, rdflib.term.Variable) for single_key in first_key))
-                #sys.stderr.write("one_value.types:%s\n" % str([type(single_value) for single_value in one_value]))
-                assert all((isinstance(single_value, (rdflib.term.Literal, rdflib.term.URIRef)) for single_value in one_value))
+                assert all(
+                    (isinstance(single_value, (rdflib.term.Literal, rdflib.term.URIRef))
+                     for single_value
+                     in one_value))
 
                 # This receives new values for some variables only. The other variables are not touched.
                 # A possible optimisation would be to avoid the copy of untouched key-value paris.
                 new_dict.update(zip(first_key, one_value))
 
-                #sys.stderr.write("product_variables_lists first_key=%s\n" % str(first_key))
-
                 yield new_dict
-        #sys.stderr.write("product_variables_lists LOOP AFTER\n")
     except StopIteration:
         # Raised by next() and an iterator __next__() method to signal the end of iteration.
         yield {}
