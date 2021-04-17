@@ -25,7 +25,7 @@ def Main():
 
     # "Survol_RDFS_DL.rdfs"
     onto_filnam = os.path.splitext(__file__)[0] + ".rdfs"
-    lib_export_ontology.FlushOrSaveRdfGraph(graph, onto_filnam)
+    lib_export_ontology.flush_or_save_rdf_graph(graph, onto_filnam)
 
 
 if __name__ == '__main__':
