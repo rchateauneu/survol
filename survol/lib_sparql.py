@@ -593,6 +593,7 @@ def _run_callback_on_entities(
         grph,
         lst_input_object_key_values,
         query_callback_object):
+    logging.critical("THIS IS DEPRECATED")
 
     def _evaluate_current_entity(index, known_variables, tuple_result_input):
         logging.warning("_evaluate_current_entity index=%d known_variables=%s tuple_result_input=%s", index, known_variables, tuple_result_input)
@@ -824,6 +825,16 @@ def _run_callback_on_entities(
 # of the Sparql query, only subject variables (possibly also used as objects).
 # The values are dictionary of key-value pairs which define the variable.
 def QueryEntities(grph, sparql_query):
+    # This solution is deprecated.
+    # The idea was to run a "seeAlso" script and then apply the Sparql result.
+    # This does not really match the logic of Sparql execution,
+    # because it implicitly load the content of a seeAlso script,
+    # but it should not be implicit.
+    # There is not clearly better solution at the moment.
+    # Maybe a seeAlso could be a context, a named graph ?
+    # FROM NAMED <http://example.org/alice>
+    # ... but it would need to be dynamic.
+    logging.critical("THIS IS DEPRECATED")
     # This returns a list of ObjectKeyValues
     object_key_values = _parse_query_to_key_value_pairs_list(sparql_query)
 
@@ -852,6 +863,7 @@ def QueryEntities(grph, sparql_query):
 
 
 def QuerySeeAlsoEntities(grph, sparql_query):
+    logging.critical("THIS IS DEPRECATED")
     return QueryEntities(grph, sparql_query)
 
 ##################################################################################
@@ -859,6 +871,7 @@ def QuerySeeAlsoEntities(grph, sparql_query):
 # This runs a Sparql callback and transforms the returned objects into RDF triples.
 def QueryToGraph(grph, sparql_query):
 
+    logging.critical("THIS IS DEPRECATED")
     iter_entities_dicts = QueryEntities(grph, sparql_query)
 
     # FIXME: Survol scripts are not able to return objects,
@@ -898,6 +911,7 @@ class SwitchCallbackApi:
         return callback_object.CallbackSelect(grph, class_name, see_also, where_key_values)
 
     def CallbackAssociator(self, grph, result_class_name, see_also, associator_key_name, subject_path):
+        logging.critical("THIS IS DEPRECATED")
         predicate_prefix, colon, see_also_script = see_also.partition(":")
         callback_object = self.m_prefix_to_callbacks[predicate_prefix]
         return callback_object.CallbackAssociator(grph, result_class_name, see_also, associator_key_name, subject_path)
