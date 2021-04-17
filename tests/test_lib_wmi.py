@@ -130,6 +130,7 @@ class LibWmiTest(unittest.TestCase):
     # TODO: DEPRECATED
     # ASSOCIATORS OF {CIM_Process.Handle=32360} WHERE AssocClass=CIM_ProcessExecutable ResultClass=CIM_DataFile
     def test_sparql_callback_associator_process(self):
+        logging.critical("THIS IS DEPRECATED")
         callback_object = lib_wmi.WmiSparqlCallbackApi()
         grph = rdflib.Graph()
         iterator_objects = callback_object.CallbackAssociator(
@@ -175,6 +176,7 @@ class LibWmiTest(unittest.TestCase):
     # TODO: DEPRECATED
     # ASSOCIATORS OF {Win32_LogicalDisk.DeviceID="C:"} WHERE AssocClass = Win32_SystemDevices
     def test_sparql_callback_associator_logical_disk(self):
+        logging.critical("THIS IS DEPRECATED")
         callback_object = lib_wmi.WmiSparqlCallbackApi()
         grph = rdflib.Graph()
         iterator_objects = callback_object.CallbackAssociator(
@@ -227,28 +229,28 @@ class WmiSparqlExecutorTest(unittest.TestCase):
 
     # The output order is always the same for all platforms, in alphabetical order.
     def test_AssociatorKeys(self):
-        wmiExecutor = lib_wmi.WmiSparqlExecutor()
-        lst_CIM_ProcessExecutable = wmiExecutor.AssociatorKeys("CIM_ProcessExecutable")
+        wmi_executor = lib_wmi.WmiSparqlExecutor()
+        lst_CIM_ProcessExecutable = wmi_executor.AssociatorKeys("CIM_ProcessExecutable")
         print("lst_CIM_ProcessExecutable=", lst_CIM_ProcessExecutable)
         self.assertTrue(lst_CIM_ProcessExecutable == [('CIM_DataFile', 'Antecedent'), ('CIM_Process', 'Dependent')])
 
-        lst_CIM_DirectoryContainsFile = wmiExecutor.AssociatorKeys("CIM_DirectoryContainsFile")
+        lst_CIM_DirectoryContainsFile = wmi_executor.AssociatorKeys("CIM_DirectoryContainsFile")
         print("lst_CIM_DirectoryContainsFile=", lst_CIM_DirectoryContainsFile)
         self.assertTrue(lst_CIM_DirectoryContainsFile == [('CIM_Directory', 'GroupComponent'), ('CIM_DataFile', 'PartComponent')])
 
-        lst_Win32_SubDirectory = wmiExecutor.AssociatorKeys("Win32_SubDirectory")
+        lst_Win32_SubDirectory = wmi_executor.AssociatorKeys("Win32_SubDirectory")
         print("lst_Win32_SubDirectory=", lst_Win32_SubDirectory)
         self.assertTrue(lst_Win32_SubDirectory == [('Win32_Directory', 'GroupComponent'), ('Win32_Directory', 'PartComponent')])
 
     def test_BidirectionalAssociatorsFromObject_file_to_dir(self):
-        wmiExecutor = lib_wmi.WmiSparqlExecutor()
+        wmi_executor = lib_wmi.WmiSparqlExecutor()
 
         file_name = always_present_file.replace("\\", "/").lower()
         wmi_path_file = 'CIM_DataFile.Name="%s"' % file_name
 
         directory_name = always_present_dir.replace("\\", "/").lower()
 
-        iter_results = wmiExecutor.SelectBidirectionalAssociatorsFromObject(
+        iter_results = wmi_executor.SelectBidirectionalAssociatorsFromObject(
             "CIM_Directory", "CIM_DirectoryContainsFile", wmi_path_file, 0)
         list_results = list(iter_results)
         directory_path = 'Win32_Directory.Name="%s"' % directory_name
@@ -260,7 +262,7 @@ class WmiSparqlExecutorTest(unittest.TestCase):
             self.assertTrue(actual_filename_clean==directory_path)
 
     def test_BidirectionalAssociatorsFromObject_dir_to_file(self):
-        wmiExecutor = lib_wmi.WmiSparqlExecutor()
+        wmi_executor = lib_wmi.WmiSparqlExecutor()
 
         file_name = always_present_file.replace("\\", "/").lower()
         directory_name = always_present_dir.replace("\\", "/").lower()
@@ -271,7 +273,7 @@ class WmiSparqlExecutorTest(unittest.TestCase):
         wmi_path_directory = 'CIM_Directory.Name="%s"' % directory_name
 
         # CIM_DirectoryContainsFile.GroupComponent or CIM_DirectoryContainsFile.PartComponent
-        iter_results = wmiExecutor.SelectBidirectionalAssociatorsFromObject(
+        iter_results = wmi_executor.SelectBidirectionalAssociatorsFromObject(
             "CIM_DataFile", "CIM_DirectoryContainsFile", wmi_path_directory, 1)
         list_results = list(iter_results)
         paths_list = []
@@ -285,14 +287,14 @@ class WmiSparqlExecutorTest(unittest.TestCase):
         self.assertTrue(expected_file_path.lower() in paths_list)
 
     def test_BidirectionalAssociatorsFromObject_dir_to_subdir(self):
-        wmiExecutor = lib_wmi.WmiSparqlExecutor()
+        wmi_executor = lib_wmi.WmiSparqlExecutor()
 
         sub_dir_name = always_present_sub_dir.replace("\\", "/").lower()
         directory_name = always_present_dir.replace("\\", "/").lower()
 
         wmi_path_directory = 'CIM_Directory.Name="%s"' % directory_name
 
-        iter_results = wmiExecutor.SelectBidirectionalAssociatorsFromObject(
+        iter_results = wmi_executor.SelectBidirectionalAssociatorsFromObject(
             "Win32_Directory", "Win32_SubDirectory", wmi_path_directory, 1)
         list_results = list(iter_results)
         paths_list = []
@@ -307,14 +309,14 @@ class WmiSparqlExecutorTest(unittest.TestCase):
         self.assertTrue(expected_subdir_path.lower() in paths_list)
 
     def test_BidirectionalAssociatorsFromObject_subdir_to_dir(self):
-        wmiExecutor = lib_wmi.WmiSparqlExecutor()
+        wmi_executor = lib_wmi.WmiSparqlExecutor()
 
         sub_dir_name = always_present_sub_dir.replace("\\", "/").lower()
         directory_name = always_present_dir.replace("\\", "/").lower()
 
         wmi_path_sub_dir = 'CIM_Directory.Name="%s"' % sub_dir_name
 
-        iter_results = wmiExecutor.SelectBidirectionalAssociatorsFromObject(
+        iter_results = wmi_executor.SelectBidirectionalAssociatorsFromObject(
             "Win32_Directory", "Win32_SubDirectory", wmi_path_sub_dir, 0)
         list_results = list(iter_results)
         paths_list = []

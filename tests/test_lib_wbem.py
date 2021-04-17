@@ -148,6 +148,7 @@ class LibWbemTest(unittest.TestCase):
 
     def test_sparql_callback_associator(self):
         grph = rdflib.Graph()
+        logging.critical("THIS IS DEPRECATED")
         iterator_objects = callback_object.CallbackAssociator(
                 grph,
                 result_class_name="CIM_Process",
