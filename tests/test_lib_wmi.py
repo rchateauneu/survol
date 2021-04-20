@@ -230,15 +230,15 @@ class WmiSparqlExecutorTest(unittest.TestCase):
     # The output order is always the same for all platforms, in alphabetical order.
     def test_AssociatorKeys(self):
         wmi_executor = lib_wmi.WmiSparqlExecutor()
-        lst_CIM_ProcessExecutable = wmi_executor.AssociatorKeys("CIM_ProcessExecutable")
+        lst_CIM_ProcessExecutable = wmi_executor.associator_keys("CIM_ProcessExecutable")
         print("lst_CIM_ProcessExecutable=", lst_CIM_ProcessExecutable)
         self.assertTrue(lst_CIM_ProcessExecutable == [('CIM_DataFile', 'Antecedent'), ('CIM_Process', 'Dependent')])
 
-        lst_CIM_DirectoryContainsFile = wmi_executor.AssociatorKeys("CIM_DirectoryContainsFile")
+        lst_CIM_DirectoryContainsFile = wmi_executor.associator_keys("CIM_DirectoryContainsFile")
         print("lst_CIM_DirectoryContainsFile=", lst_CIM_DirectoryContainsFile)
         self.assertTrue(lst_CIM_DirectoryContainsFile == [('CIM_Directory', 'GroupComponent'), ('CIM_DataFile', 'PartComponent')])
 
-        lst_Win32_SubDirectory = wmi_executor.AssociatorKeys("Win32_SubDirectory")
+        lst_Win32_SubDirectory = wmi_executor.associator_keys("Win32_SubDirectory")
         print("lst_Win32_SubDirectory=", lst_Win32_SubDirectory)
         self.assertTrue(lst_Win32_SubDirectory == [('Win32_Directory', 'GroupComponent'), ('Win32_Directory', 'PartComponent')])
 
