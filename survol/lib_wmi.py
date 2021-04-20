@@ -1228,7 +1228,7 @@ class WmiSparqlExecutor:
 
         wmi_path = self._cleanup_wmi_path(wmi_path)
 
-        reference_class_properties = self.AssociatorKeys(associator_key_name)
+        reference_class_properties = self.associator_keys(associator_key_name)
 
         # If reference_class_name="CIM_DirectoryContainsFile", then ['GroupComponent', 'PartComponent']
         logging.debug("reference_class_properties=%s" % str(reference_class_properties))
@@ -1265,7 +1265,12 @@ class WmiSparqlExecutor:
             # logging.debug("WmiCallbackAssociator dict_key_values=%s", dict_key_values)
             yield (object_path, dict_key_values)
 
-    def AssociatorKeys(self, associator_name):
+    def associator_keys(self, associator_name):
+        """
+        This returns the list of roles and classes which define this associator.
+        :param associator_name: For example "CIM_DirectoryContainsFile"
+        :return: For example [('CIM_Directory', 'GroupComponent'), ('CIM_DataFile', 'PartComponent')]
+        """
         is_associator = getattr(self.m_wmi_connection, associator_name).qualifiers.get('Association', False)
         assert is_associator
 
