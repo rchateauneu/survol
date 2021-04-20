@@ -31,6 +31,7 @@ is_platform_windows_and_wmi = is_platform_windows and pkgutil.find_loader('wmi')
 
 mandatory_cmd_exe = "C:/Windows/SysWOW64/cmd.exe" if is_32_bits else r'C:/Windows/System32/cmd.exe'
 
+
 def setUpModule():
     global RemoteAgentProcess
     RemoteAgentProcess, _agent_url = start_cgiserver(RemoteGeneralTestServerPort)
@@ -40,8 +41,6 @@ def tearDownModule():
     global RemoteAgentProcess
     stop_cgiserver(RemoteAgentProcess)
 
-
-_is_verbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 
 _client_object_instances_from_script = lib_client.SourceLocal.get_object_instances_from_script
 
@@ -243,10 +242,9 @@ class SurvolLocalTest(unittest.TestCase):
             Name=CurrentUsername)
 
         list_scripts = my_instances_local.get_scripts()
-        if _is_verbose:
-            sys.stdout.write("Scripts:\n")
-            for one_scr in list_scripts:
-                sys.stdout.write("    %s\n"%one_scr)
+        logging.debug("Scripts:")
+        for one_scr in list_scripts:
+            logging.debug("    %s" % one_scr)
         # There should be at least a couple of scripts.
         self.assertTrue(len(list_scripts) > 0)
 
@@ -305,10 +303,9 @@ class SurvolLocalTest(unittest.TestCase):
 
         list_scripts = my_instance_local.get_scripts()
 
-        if _is_verbose:
-            sys.stdout.write("Scripts:\n")
-            for one_scr in list_scripts:
-                sys.stdout.write("    %s\n"%one_scr)
+        logging.debug("Scripts:")
+        for one_scr in list_scripts:
+            logging.debug("    %s" % one_scr)
         # There should be at least a couple of scripts.
         self.assertTrue(len(list_scripts) > 0)
         # TODO: Maybe this script will not come first in the future.
@@ -319,11 +316,10 @@ class SurvolLocalTest(unittest.TestCase):
         instance_a = lib_client.Agent().CIM_Directory(Name="C:/Windows")
         instance_b = lib_client.Agent().CIM_Directory(Name="C:/Windows")
         instance_c = lib_client.create_CIM_class(None, "CIM_Directory", Name="C:/Windows")
-        if _is_verbose:
-            sys.stdout.write("Class=%s\n" % instance_c.__class__.__name__)
-            sys.stdout.write("Module=%s\n" % instance_c.__module__)
-            sys.stdout.write("Dir=%s\n\n" % str(dir(lib_client)))
-            sys.stdout.write("Dir=%s\n" % str(sorted(globals())))
+        logging.debug("Class=%s" % instance_c.__class__.__name__)
+        logging.debug("Module=%s" % instance_c.__module__)
+        logging.debug("Dir=%s" % str(dir(lib_client)))
+        logging.debug("Dir=%s" % str(sorted(globals())))
 
         self.assertTrue(instance_a is instance_b)
         self.assertTrue(instance_a is instance_c)
@@ -342,15 +338,13 @@ class SurvolLocalTest(unittest.TestCase):
             Name=sql_path_name)
 
         triple_sql_queries = mySourceSqlQueries.get_triplestore()
-        if _is_verbose:
-            print("Len triple_sql_queries=",len(triple_sql_queries.m_triplestore))
+        logging.debug("Len triple_sql_queries=%d" , len(triple_sql_queries.m_triplestore))
 
         matching_triples = triple_sql_queries.get_all_strings_triples()
 
         lst_queries_only = sorted(matching_triples)
 
-        if _is_verbose:
-            print("lst_queries_only:",lst_queries_only)
+        logging.debug("lst_queries_only:%s", str(lst_queries_only))
 
         # TODO: Eliminate the last double-quote.
         lst_qries_present = [
