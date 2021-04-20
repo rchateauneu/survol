@@ -28,7 +28,7 @@ def TruncateHostname(host_dns):
 
 
 class LocalBox:
-    def _create_entity_node(self, entity_type, entity_id):
+    def create_entity_node(self, entity_type, entity_id):
         return self.MakeTheNodeFromScript("/entity.py", entity_type, entity_id)
 
     def RootUrl(self):
@@ -54,7 +54,7 @@ class LocalBox:
 
     def UriMake(self, entity_type, *entity_id_arr):
         entity_id = self.BuildEntity(entity_type, *entity_id_arr)
-        return self._create_entity_node(entity_type, entity_id)
+        return self.create_entity_node(entity_type, entity_id)
 
     def UriMakeFromScript(self, path, entity_type, *entity_id_arr):
         entity_id = self.BuildEntity(entity_type, *entity_id_arr)
@@ -82,7 +82,7 @@ class LocalBox:
                 return key_it, val_it
 
         entity_id = ",".join("%s=%s" % uri_pair_encode(*kw_items) for kw_items in entity_id_dict.items())
-        return self._create_entity_node(entity_type, entity_id)
+        return self.create_entity_node(entity_type, entity_id)
 
     def TypeMake(self):
         # TODO: This virtual method deprecated and not reliable: Better relying on the Survol, WMI or WBEM agent url
