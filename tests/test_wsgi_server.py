@@ -58,7 +58,7 @@ class WsgiRemoteTest(unittest.TestCase):
             _remote_wsgi_test_agent + "/survol/sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
             Name=always_present_file)
-        print("URL=", my_source_file_stat_remote.Url())
+        print("URL=", my_source_file_stat_remote.source_url())
         print("Query=", my_source_file_stat_remote.create_url_query())
         json_content = my_source_file_stat_remote.content_json()
 
@@ -115,7 +115,7 @@ class WsgiRemoteTest(unittest.TestCase):
         clean_file_always_there = lib_util.standardized_file_path(always_present_file)
         dir_file_always_there = lib_util.standardized_file_path(always_present_dir)
 
-        print("URL=", my_source_file_stat_remote.Url())
+        print("URL=", my_source_file_stat_remote.source_url())
         print("Query=", my_source_file_stat_remote.create_url_query())
         data_triplestore = my_source_file_stat_remote.get_triplestore()
 

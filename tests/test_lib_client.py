@@ -1854,7 +1854,7 @@ class SurvolRemoteTest(unittest.TestCase):
             _remote_general_test_agent + "/survol/sources_types/CIM_DataFile/file_stat.py",
             "CIM_DataFile",
             Name=always_present_file)
-        print("urlFileStatRemote=", my_source_file_stat_remote.Url())
+        print("urlFileStatRemote=", my_source_file_stat_remote.source_url())
         print("qryFileStatRemote=", my_source_file_stat_remote.create_url_query())
         json_content = my_source_file_stat_remote.content_json()
 
@@ -2101,7 +2101,7 @@ class SurvolRabbitMQTest(unittest.TestCase):
             # This returns the first subscription found.
             if one_inst.__class__.__name__ == "rabbitmq/manager":
                 def wrapper(self):
-                    test_func(self, one_inst.Url)
+                    test_func(self, one_inst.source_url)
                 return wrapper
 
         print("No Azure subscription available")

@@ -67,7 +67,7 @@ def AddInfo(grph, node, entity_ids_arr):
 
 
 # TODO: It should not strip blanks between simple-quotes.
-def stripblanks(text):
+def _stripblanks(text):
     lst = text.split('"')
     for i, item in enumerate(lst):
         if not i % 2:
@@ -82,7 +82,7 @@ def EntityName(entity_ids_arr):
     # TODO: Problem, this is not compatible with variable arguments.
     resu = lib_util.Base64Decode(entity_ids_arr[0])
     resu = lib_util.html_escape(resu)
-    resu = stripblanks(resu)
+    resu = _stripblanks(resu)
     return resu
 
 
@@ -97,7 +97,7 @@ def EntityNameUtil(text_prefix, sql_query):
     """Only cosmetic reasons: The displayed text should not be too long, when used as a title."""
     resu = lib_util.Base64Decode(sql_query)
     resu = lib_util.html_escape(resu)
-    resu = stripblanks(resu)
+    resu = _stripblanks(resu)
 
     len_fil_nam = len(text_prefix)
     len_resu = len(resu)
