@@ -105,10 +105,7 @@ class SourceCgi(SourceBase):
 
     def create_url_query_with_question_mark(self, mode=None):
         url_qry = self.create_url_query(mode)
-        if url_qry:
-            return "?" + url_qry
-        else:
-            return ""
+        return "?" + url_qry
 
     # TODO: For the moment, this assumes that all CGI arguments are there.
     def is_cgi_complete(self):
@@ -139,16 +136,13 @@ class SourceRemote (SourceCgi):
         super(SourceRemote, self).__init__(class_name, **kwargs_ontology)
 
     def __str__(self):
-        return "URL=" + self.Url()
+        return "URL=" + self.source_url()
 
-    def Url(self):
-        return self.m_url + self.create_url_query_with_question_mark()
-
-    def __url_with_mode(self, mode):
+    def source_url(self, mode):
         return self.m_url + self.create_url_query_with_question_mark(mode)
 
     def get_content_moded(self, mode):
-        the_url = self.__url_with_mode(mode)
+        the_url = self.source_url(mode)
         data = _load_moded_urls(the_url)
         assert isinstance(data, six.binary_type)
         return data
