@@ -138,7 +138,7 @@ class SourceRemote (SourceCgi):
     def __str__(self):
         return "URL=" + self.source_url()
 
-    def source_url(self, mode):
+    def source_url(self, mode=None):
         return self.m_url + self.create_url_query_with_question_mark(mode)
 
     def get_content_moded(self, mode):
