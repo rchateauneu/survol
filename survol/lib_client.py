@@ -105,10 +105,7 @@ class SourceCgi(SourceBase):
 
     def create_url_query_with_question_mark(self, mode=None):
         url_qry = self.create_url_query(mode)
-        if url_qry:
-            return "?" + url_qry
-        else:
-            return ""
+        return "?" + url_qry
 
     # TODO: For the moment, this assumes that all CGI arguments are there.
     def is_cgi_complete(self):
