@@ -70,11 +70,6 @@ class SourceBase (object):
         This helps avoiding scripts which are very slow and not usable in a loop."""
         return False
 
-    def is_cgi_complete(self):
-        """If it does not have the necessary CGI args, then loop on the existing objects of this class.
-        It is always True for merged sources, because they do not have CGI arguments."""
-        return True
-
 
 class SourceCgi(SourceBase):
     """If it has a class, then it has CGI arguments."""
@@ -106,10 +101,6 @@ class SourceCgi(SourceBase):
     def create_url_query_with_question_mark(self, mode=None):
         url_qry = self.create_url_query(mode)
         return "?" + url_qry
-
-    # TODO: For the moment, this assumes that all CGI arguments are there.
-    def is_cgi_complete(self):
-        return True
 
     def get_script_bag_of_words(self):
         raise Exception("GetScriptBag Not implemented yet")
@@ -281,8 +272,6 @@ class SourceLocal (SourceCgi):
 
 class SourceMerge (SourceBase):
     def __init__(self, src_a, src_b, operator_triple_store):
-        if not src_a.is_cgi_complete():
-            raise Exception("Left-hand-side URL must be complete")
         self.m_srcA = src_a
         self.m_srcB = src_b
         # Plus or minus
@@ -291,25 +280,9 @@ class SourceMerge (SourceBase):
 
     def get_triplestore(self):
         triplestore_a = self.m_srcA.get_triplestore()
-        if self.is_cgi_complete():
-            triplestore_b = self.m_srcB.get_triplestore()
+        triplestore_b = self.m_srcB.get_triplestore()
 
-            return self.m_operatorTripleStore(triplestore_a, triplestore_b)
-
-        else:
-            # TODO: Was it ever used ?
-            # The class cannot be None because the url is not complete
-
-            objs_list = triplestore_a.enumerate_urls()
-
-            # TODO: Not optimal because it processes not only instances urls but also scripts urls.
-            for instance_url in objs_list:
-                entity_label, entity_graphic_class, entity_id = lib_naming.ParseEntityUri(instance_url)
-                if entity_label == self.m_srcB.m_class:
-                    url_derived = url_to_instance(instance_url)
-                    triplestore_b = url_derived.get_triplestore()
-                    triplestore_a = self.m_operatorTripleStore(triplestore_a,triplestore_b)
-            return TripleStore(triplestore_a)
+        return self.m_operatorTripleStore(triplestore_a, triplestore_b)
 
     def get_content_moded(self, mode):
         tripstore = self.get_triplestore()
