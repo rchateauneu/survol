@@ -78,7 +78,7 @@ def mode_to_mime_type(url_mode):
     return url_mode[5:]
 
 
-def GetMimeTypeFromUrl(url):
+def get_mime_type_from_url(url):
     """
     This deduces the mime type of the document returned by an URL.
     This is intended for Survol urls only.
