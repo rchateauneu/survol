@@ -6,21 +6,21 @@ import lib_util
 ################################################################################
 
 # This assumes that class names are unique: For WBEM and WMI, it always assumes namespace=root/cimv2:
-# The other CIM namespaces have no interest for our usage.
+# The other CIM namespaces are not needed here.
 
 
 def TruncateHostname(host_dns):
-    """See lib_util.HostName()
+    """
+    This "fixes" the host name which is not correct in some circumstances.
     WMI wants only the first part of the address on Windows (Same string for OpenPegasus and WMI).
     On Linux apparently, Name="Unknown-30-b5-c2-02-0c-b5-2.home"
     Beware of a normal address such as: "wb-in-f95.1e100.net"
-    Similar problem on "darwin" with ".local" . See cgiserver.py
+    Similar problem on "darwin" with ".local" .
+    See cgiserver.py and also lib_util.HostName()
     """
 
-    # TODO: Fix this !
     host_split = host_dns.split(".")
     if len(host_split) == 2 and host_split[1] == "home":
-        # if isPlatformLinux:
         host_name = host_split[0]
     else:
         host_name = host_dns
@@ -28,19 +28,25 @@ def TruncateHostname(host_dns):
 
 
 class LocalBox:
+    """
+    This contains several similar function which create a node from a class name and several arguments.
+    These arguments may be passed as a key-value dictionary, or a list of values in the ontology order.
+    The script could be "entity.py" and explicitly specified etc...
+    """
+
     def create_entity_node(self, entity_type, entity_id):
         return self.MakeTheNodeFromScript("/entity.py", entity_type, entity_id)
 
     def RootUrl(self):
         return lib_util.uriRoot
 
-    def MakeTheNodeFromScript(self, path, entity_type, entity_id):
-        url = self.RootUrl() + path + lib_util.xidCgiDelimiter + self.TypeMake() + entity_type + "." + entity_id
+    def MakeTheNodeFromScript(self, script_path, entity_type, entity_id):
+        url = self.RootUrl() + script_path + lib_util.xidCgiDelimiter + self.host_path_prefix() + entity_type + "." + entity_id
         # Depending on the code path, NodeUrl might be called on the result of NodeUrl,
         # and this is not detected because it does not harm, just a waste of CPU.
         return lib_util.NodeUrl(url)
 
-    def BuildEntity(self, entity_type, *entity_id_arr):
+    def _build_entity_id(self, entity_type, *entity_id_arr):
         """This works only if the attribute values are in the same order as the ontology."""
         keys = lib_util.OntologyClassKeys(entity_type)
 
@@ -53,11 +59,11 @@ class LocalBox:
         return entity_id
 
     def UriMake(self, entity_type, *entity_id_arr):
-        entity_id = self.BuildEntity(entity_type, *entity_id_arr)
+        entity_id = self._build_entity_id(entity_type, *entity_id_arr)
         return self.create_entity_node(entity_type, entity_id)
 
     def UriMakeFromScript(self, path, entity_type, *entity_id_arr):
-        entity_id = self.BuildEntity(entity_type, *entity_id_arr)
+        entity_id = self._build_entity_id(entity_type, *entity_id_arr)
         return self.MakeTheNodeFromScript(path, entity_type, entity_id)
 
     def UriMakeFromDict(self, entity_type, entity_id_dict):
@@ -84,8 +90,12 @@ class LocalBox:
         entity_id = ",".join("%s=%s" % uri_pair_encode(*kw_items) for kw_items in entity_id_dict.items())
         return self.create_entity_node(entity_type, entity_id)
 
-    def TypeMake(self):
-        # TODO: This virtual method deprecated and not reliable: Better relying on the Survol, WMI or WBEM agent url
+    def host_path_prefix(self):
+        """
+        If the instance is on a remote machine, it returns a prefix containing the host name,
+        and this prefix goes before the class name.
+        :return:
+        """
         return ""
 
     ###################################################################################
@@ -436,7 +446,7 @@ class RemoteBox (LocalBox):
     def __init__(self,mach):
         self.m_mach = mach
 
-    def TypeMake(self):
+    def host_path_prefix(self):
         """This indicates the machine name as a prefix."""
         # TODO: This is deprecated and not reliable: Better relying on the Survol, WMI or WBEM agent url
 
