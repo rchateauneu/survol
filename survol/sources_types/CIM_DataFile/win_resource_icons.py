@@ -37,7 +37,7 @@ def Main():
     for group_name in icon_groups:
         # TODO: Is it sorted in lib_export_html.py ??
         # When clicking on these links, it typically displays an image.
-        lib_mime.AddMimeUrl(grph, fil_node, "win32/resource", survol_win32_resource.mimeTypeResource, [path_name, group_name])
+        lib_mime.add_mime_url(grph, fil_node, "win32/resource", survol_win32_resource.mimeTypeResource, [path_name, group_name])
 
     # This displays a list of images file names.
     cgiEnv.OutCgiRdf("LAYOUT_RECT", [pc.property_rdf_data_nolist2] )
