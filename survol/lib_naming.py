@@ -121,7 +121,7 @@ def _known_script_to_title(fil_script, uri_mode, entity_host=None, entity_suffix
         if not entity_suffix:
             entity_suffix = "None"
         # The Mime type is embedded into the mode, after a "mime:" prefix.
-        entity_label = entity_suffix + " (" + lib_mime.ModeToMimeType(uri_mode) + ")"
+        entity_label = entity_suffix + " (" + lib_mime.mode_to_mime_type(uri_mode) + ")"
         return entity_label
 
     # The label is a Survol module name which is a class (With an EntityOntology() function),
