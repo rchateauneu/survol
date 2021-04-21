@@ -84,7 +84,7 @@ def AddHtml(grph, file_node, file_name):
     """Get the mime type, maybe with Magic. Then return a URL with for this mime type.
     This is a separated script because it returns HTML data, not RDF."""
 
-    mime_stuff = lib_mime.FilenameToMime(file_name)
+    mime_stuff = lib_mime.filename_to_mime(file_name)
     mime_type = mime_stuff[0]
 
     if mime_type:
@@ -173,7 +173,7 @@ def AddFileProperties(grph, current_node, current_filename):
     except ImportError:
         pass
 
-    file_mime_type = lib_mime.FilenameToMime(current_filename)
+    file_mime_type = lib_mime.filename_to_mime(current_filename)
     if file_mime_type:
         if file_mime_type[0]:
             grph.add((current_node, lib_common.MakeProp("Mime type"), lib_util.NodeLiteral(str(file_mime_type))))
@@ -303,7 +303,7 @@ def AddInfo(grph, node, entity_ids_arr):
 def DisplayAsMime(grph,node, entity_ids_arr):
     file_name = entity_ids_arr[0]
 
-    mime_stuff = lib_mime.FilenameToMime(file_name)
+    mime_stuff = lib_mime.filename_to_mime(file_name)
 
     logging.debug("DisplayAsMime fileName=%s MIME:%s", file_name, str(mime_stuff))
 

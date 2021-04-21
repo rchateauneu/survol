@@ -11,7 +11,7 @@ except ImportError:
     mimelib_present = False
 
 
-def FilenameToMime(path_name):
+def filename_to_mime(path_name):
     """
     This returns the MIME type of a file
     """
@@ -59,13 +59,7 @@ _mime_mode_prefix = "mime:"
 
 
 def AddMimeUrl(grph, fil_node, entity_type, mime_type, entity_id_arr):
-    entity_host = None
-    if entity_host:
-        gen_obj = lib_uris.RemoteBox(entity_host)
-    else:
-        gen_obj = lib_uris.gUriGen
-
-    mime_node = gen_obj.UriMakeFromScript('/entity_mime.py', entity_type, *entity_id_arr)
+    mime_node = lib_uris.gUriGen.UriMakeFromScript('/entity_mime.py', entity_type, *entity_id_arr)
 
     # So that the MIME type is known without loading the URLs.
     # Also, it allows to force a specific MIME type.
