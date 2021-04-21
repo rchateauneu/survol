@@ -88,7 +88,7 @@ def AddHtml(grph, file_node, file_name):
     mime_type = mime_stuff[0]
 
     if mime_type:
-        lib_mime.AddMimeUrl(grph, file_node, "CIM_DataFile", mime_type, [file_name])
+        lib_mime.add_mime_url(grph, file_node, "CIM_DataFile", mime_type, [file_name])
 
 
 def _add_parent_dir(grph, file_node, file_name):
