@@ -519,7 +519,7 @@ def _display_class_objects_no_jinja(dict_subj_prop_obj):
                 if disp_mime_urls:
                     if lib_kbase.IsLink(an_obj):
                         obj_str_clean = lib_util.UrlNoAmp(obj_str)
-                        mimeType = lib_mime.GetMimeTypeFromUrl(obj_str_clean)
+                        mimeType = lib_mime.get_mime_type_from_url(obj_str_clean)
                         if mimeType:
                             if mimeType.startswith("image/"):
                                 yield(
