@@ -71,6 +71,16 @@ class SourceBase (object):
         return False
 
 
+def create_instance_path(class_name, key_value_dict):
+    # v might be an integer, a double, a string.
+    suffix = ",".join(["%s=%s" % (k, lib_util.urllib_quote(str(v))) for k, v in key_value_dict.items()])
+    if class_name:
+        rest_qry = class_name + "." + suffix
+    else:
+        rest_qry = suffix
+    return rest_qry
+
+
 class SourceCgi(SourceBase):
     """If it has a class, then it has CGI arguments."""
     def __init__(self, class_name=None, **kwargs):
@@ -83,13 +93,7 @@ class SourceCgi(SourceBase):
         super(SourceCgi, self).__init__()
 
     def create_url_query(self, mode=None):
-        # v might be an integer, a double, a string.
-        suffix = ",".join(["%s=%s" % (k, lib_util.urllib_quote(str(v))) for k,v in self.m_kwargs.items()])
-        if self.m_className:
-            rest_qry = self.m_className + "." + suffix
-        else:
-            rest_qry = suffix
-        quoted_rest = rest_qry
+        quoted_rest = create_instance_path(self.m_className, self.m_kwargs)
 
         # TODO: See lib_util.xidCgiDelimiter = "?xid="
         qry_args = "xid=" + quoted_rest
