@@ -235,6 +235,8 @@ def recursive_walk_on_scripts(callback_grph_add, parent_node, entity_type, entit
 
     if entity_host:
         logging.debug("entity_host=%s", entity_host)
+    encoded_entity_id = lib_util.EncodeUri(entity_id)
+    entity_ids_arr = lib_util.EntityIdToArray(entity_type, entity_id)
 
     if entity_type:
         # entity_type might contain a slash, for example: "sqlite/table"
