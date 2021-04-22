@@ -101,7 +101,7 @@ def _check_rdf_ontology_conformance(rdf_graph):
     return errors_list
 
 
-class RdfOntologyConformanceSurvolLocaTest(unittest.TestCase):
+class RdfOntologyConformanceSurvolLocalTest(unittest.TestCase):
     """
     These tests do not need a Survol agent because they import directly the module.
     They use all sorts of URL to have a reasonably general coverage.
@@ -131,7 +131,9 @@ class RdfOntologyConformanceSurvolLocaTest(unittest.TestCase):
         self.assertEqual(errors_list, [])
 
     def test_conformance_enumerate_CIM_LogicalDisk(self):
-        """Test of enumerate_CIM_LogicalDisk.py"""
+        """
+        Test of enumerate_CIM_LogicalDisk.py
+        """
         my_source_local = lib_client.SourceLocal(
             "sources_types/enumerate_CIM_LogicalDisk.py")
         print("test_conformance_enumerate_CIM_LogicalDisk: query=%s" % my_source_local.create_url_query())
@@ -141,7 +143,9 @@ class RdfOntologyConformanceSurvolLocaTest(unittest.TestCase):
 
     @unittest.skipIf(not is_platform_windows, "Windows only")
     def test_conformance_enumerate_Win32_UserAccount(self):
-        """Test of enumerate_Win32_UserAccount.py and corrected of attached ontology"""
+        """
+        Test of enumerate_Win32_UserAccount.py and corrected of attached ontology
+        """
         my_source_local = lib_client.SourceLocal(
             "sources_types/win32/enumerate_Win32_UserAccount.py")
         print("test_conformance_enumerate_Win32_UserAccount: query=%s" % my_source_local.create_url_query())
@@ -151,7 +155,9 @@ class RdfOntologyConformanceSurvolLocaTest(unittest.TestCase):
 
     @unittest.skipIf(not is_platform_windows or socket.gethostname() == "LAPTOP-R89KG6V1", "Tactical test")
     def test_conformance_win32_NetLocalGroupGetMembers(self):
-        """Test of win32_NetLocalGroupGetMembers.py and the correctness of the ontology of classes and attributes."""
+        """
+        Test of win32_NetLocalGroupGetMembers.py and the correctness of the ontology of classes and attributes.
+        """
 
         # The group "Users" is always here.
         my_source_local = lib_client.SourceLocal(
