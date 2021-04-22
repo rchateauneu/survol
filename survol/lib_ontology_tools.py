@@ -3,6 +3,7 @@ import datetime
 import json
 import logging
 import rdflib
+
 import lib_util
 import lib_kbase
 
@@ -10,8 +11,11 @@ import lib_kbase
 # - One for the classes,
 # - another one for the attributes,
 # - then the RDF graph.
+#
+# Examples:
 # classes_map[class_name] = {"base_class": base_class_name, "class_description": text_descr}
 # map_attributes[prop_obj.name] = { "predicate_type": prop_obj.type,"predicate_domain": class_name}
+
 _cache_ontologies = {}
 
 
@@ -41,6 +45,60 @@ def serialize_ontology_to_graph(ontology_name, ontology_extractor, rdf_graph):
     # Copy all triples.
     # https://stackoverflow.com/questions/47058642/rdflib-add-triples-to-graph-in-bulk?rq=1
     rdf_graph += ontology_graph
+
+
+def class_associators(ontology_name, ontology_extractor, entity_type):
+    """
+    This returns the attributes names, that is, associator + result role,
+    returning associated instances to this class.
+    :param ontology_name: wmi", "wbem", "survol". "survol" inherits of "wmi" or "wbem" ontology.
+    :param ontology_extractor: Function to fetch the ontology if it is not in the cache.
+    :param entity_type: An instance class "CIM_DataFile" etc...
+    :return: "CIM_ProcessExecutable.Antecedent" etc...
+    """
+    # CIM_ProcessExecutable.Antecedent:
+    #     predicate_type:	"ref:CIM_DataFile"
+    #     predicate_domain: ["CIM_Process"]
+    # CIM_ProcessExecutable.Dependent:
+    #     predicate_type:	"ref:CIM_Process"
+    #     predicate_domain: ["CIM_DataFile"]
+    _, attributes_map, _ = get_named_ontology(ontology_name, ontology_extractor)
+
+    ref_entity_type = "ref:" + entity_type
+    for attribute_name, attribute_properties in attributes_map.items():
+        predicate_type = attribute_properties["predicate_type"]
+        # Most of times, it returns a single attribute, except when the two roles have the same time,
+        # which happens for the WMI associator Win32_SubDirectory.
+        if predicate_type == ref_entity_type:
+            yield attribute_name
+
+
+def get_associated_attribute(ontology_name, ontology_extractor, attribute_name):
+    """
+    Each associator has two roles which are represented as the concatenation of the associator and the role name,
+    such as CIM_ProcessExecutable.Antecedent CIM_ProcessExecutable.Dependent which are called attribute names.
+    This function receives an attribute name and returns properties the other leg of the associator,
+    that is, the other role name and its class type.
+    """
+    _, attributes_map, _ = get_named_ontology(ontology_name, ontology_extractor)
+
+    # TODO: This pass could be faster by storing a dictionary indexed by the associator name.
+
+    the_associator_name, the_role = attribute_name.split(".")
+    logging.debug("the_associator_name=%s the_role=%s", the_associator_name, the_role)
+
+    for one_attribute_name, one_attribute_properties in attributes_map.items():
+        logging.debug("one_attribute_name=%s" % one_attribute_name)
+        one_associator_name, associator_separator, one_role = one_attribute_name.partition(".")
+        if associator_separator == "":
+            # This attribute is not an associator followed by a role.
+            continue
+        if one_associator_name == the_associator_name and one_role != the_role:
+            predicate_type = one_attribute_properties["predicate_type"]
+            assert predicate_type.startswith("ref:")
+            _, _, result_class = predicate_type.partition(":")
+            return result_class, one_role
+    raise Exception("No associated role for %s" % attribute_name)
 
 
 def _get_named_ontology_from_file(ontology_name, ontology_extractor):
