@@ -37,14 +37,19 @@ class LocalBox:
     def create_entity_node(self, entity_type, entity_id):
         return self.MakeTheNodeFromScript("/entity.py", entity_type, entity_id)
 
+    def create_entity_path(self, script_path, entity_type, entity_id):
+        url_path = self.RootUrl() + script_path + \
+                   lib_util.xidCgiDelimiter + self.host_path_prefix() + entity_type + "." + entity_id
+        return url_path
+
     def RootUrl(self):
         return lib_util.uriRoot
 
     def MakeTheNodeFromScript(self, script_path, entity_type, entity_id):
-        url = self.RootUrl() + script_path + lib_util.xidCgiDelimiter + self.host_path_prefix() + entity_type + "." + entity_id
+        url_path = self.create_entity_path(script_path, entity_type, entity_id)
         # Depending on the code path, NodeUrl might be called on the result of NodeUrl,
         # and this is not detected because it does not harm, just a waste of CPU.
-        return lib_util.NodeUrl(url)
+        return lib_util.NodeUrl(url_path)
 
     def _build_entity_id(self, entity_type, *entity_id_arr):
         """This works only if the attribute values are in the same order as the ontology."""
