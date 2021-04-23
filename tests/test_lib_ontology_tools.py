@@ -40,12 +40,18 @@ class OntologyToolsFunctionsWMITest(unittest.TestCase):
     def test_class_associators_wmi(self):
         """This checks that associators and roles are properly returned."""
         test_data = [
-            ("CIM_Process", [])
+            ("CIM_Process", ["CIM_ProcessExecutable.Dependent"]),
+            ("CIM_DataFile", ["CIM_ProcessExecutable.Antecedent", "CIM_DirectoryContainsFile.PartComponent"]),
+            ("CIM_Directory", ["CIM_DirectoryContainsFile.GroupComponent"]),
+            ("Win32_Directory", ["Win32_SubDirectory.GroupComponent", "Win32_SubDirectory.PartComponent"]),
         ]
 
         for entity_type, expected_attribute_names in test_data:
-            attributes_names_list = lib_ontology_tools.class_associators(
-                "wmi", lib_wmi.extract_specific_ontology_wmi, entity_type)
+            print("entity_type=", entity_type)
+            print("expected_attribute_names=", expected_attribute_names)
+            attributes_names_list = list(lib_ontology_tools.class_associators(
+                "wmi", lib_wmi.extract_specific_ontology_wmi, entity_type))
+            print("attributes_names_list=", attributes_names_list)
 
             self.assertTrue(
                 set(expected_attribute_names).issubset(set(attributes_names_list))
