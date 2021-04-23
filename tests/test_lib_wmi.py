@@ -15,6 +15,7 @@ update_test_path()
 
 # This is what we want to test.
 import lib_wmi
+import lib_client
 import lib_properties
 
 
@@ -228,7 +229,7 @@ class WmiSparqlExecutorTest(unittest.TestCase):
         return object_path.partition(":")[2].replace("\\", "/").replace("//", "/")
 
     # The output order is always the same for all platforms, in alphabetical order.
-    def test_AssociatorKeys(self):
+    def test_associator_keys(self):
         wmi_executor = lib_wmi.WmiSparqlExecutor()
         lst_CIM_ProcessExecutable = wmi_executor.associator_keys("CIM_ProcessExecutable")
         print("lst_CIM_ProcessExecutable=", lst_CIM_ProcessExecutable)
@@ -328,6 +329,53 @@ class WmiSparqlExecutorTest(unittest.TestCase):
         expected_dir_path = 'Win32_Directory.Name="%s"' % directory_name
         print("expected_dir_path=", expected_dir_path)
         self.assertTrue(expected_dir_path in paths_list)
+
+    def test_enumerate_associated_instances_CIM_ProcessExecutable_Antecedent(self):
+        wmi_executor = lib_wmi.WmiSparqlExecutor()
+        wmi_path = lib_client.create_instance_path("CIM_DataFile", Name=sys.executable)
+        dict_key_values = wmi_executor.enumerate_associated_instances(
+            wmi_path,
+            "CIM_ProcessExecutable", "CIM_DataFile", "Antecedent")
+        print("dict_key_values=", dict_key_values)
+
+    def test_enumerate_associated_instances_CIM_ProcessExecutable_Dependent(self):
+        wmi_executor = lib_wmi.WmiSparqlExecutor()
+        wmi_path = lib_client.create_instance_path("CIM_Process", Handle=CurrentPid)
+        dict_key_values = wmi_executor.enumerate_associated_instances(
+            wmi_path,
+            "CIM_ProcessExecutable", "CIM_Process", "Dependent")
+        print("dict_key_values=", dict_key_values)
+
+    def test_enumerate_associated_instances_CIM_DirectoryContainsFile_GroupComponent(self):
+        wmi_executor = lib_wmi.WmiSparqlExecutor()
+        wmi_path = lib_client.create_instance_path("CIM_Directory", Name=always_present_dir)
+        dict_key_values = wmi_executor.enumerate_associated_instances(
+            wmi_path,
+            "CIM_DirectoryContainsFile", "CIM_Directory", "GroupComponent")
+        print("dict_key_values=", dict_key_values)
+
+    def test_enumerate_associated_instances_CIM_DirectoryContainsFile_PartComponent(self):
+        wmi_executor = lib_wmi.WmiSparqlExecutor()
+        wmi_path = lib_client.create_instance_path("CIM_DataFile", Name=always_present_file)
+        dict_key_values = wmi_executor.enumerate_associated_instances(
+            wmi_path,
+            "CIM_DirectoryContainsFile", "CIM_DataFile", "PartComponent")
+
+    def test_enumerate_associated_instances_Win32_SubDirectory_GroupComponent(self):
+        wmi_executor = lib_wmi.WmiSparqlExecutor()
+        wmi_path = lib_client.create_instance_path("Win32_Directory", Name=always_present_sub_dir)
+        dict_key_values = wmi_executor.enumerate_associated_instances(
+            wmi_path,
+            "Win32_SubDirectory", "Win32_Directory", "GroupComponent")
+        print("dict_key_values=", dict_key_values)
+
+    def test_enumerate_associated_instances_Win32_SubDirectory_PartComponent(self):
+        wmi_executor = lib_wmi.WmiSparqlExecutor()
+        wmi_path = lib_client.create_instance_path("Win32_Directory", Name=always_present_dir)
+        dict_key_values = wmi_executor.enumerate_associated_instances(
+            wmi_path,
+            "Win32_SubDirectory", "Win32_Directory", "PartComponent")
+        print("dict_key_values=", dict_key_values)
 
 
 if __name__ == '__main__':
