@@ -70,6 +70,15 @@ def class_associators(ontology_name, ontology_extractor, entity_type):
         # Most of times, it returns a single attribute, except when the two roles have the same time,
         # which happens for the WMI associator Win32_SubDirectory.
         if predicate_type == ref_entity_type:
+            if attribute_name.find(".") <= 0:
+                # Some members type is a class, but they have nothign to do with associators.
+                # For example attribute_name=Client ...
+                # ... with typed member:{
+                #   u'predicate_type': u'ref:CIM_DataFile',
+                #   u'predicate_domain': [u'Win32_PerfFormattedData_Tcpip_IPv4']}
+                logging.warning("Non-associator attribute_name=%s with typed member:%s",
+                                attribute_name, str(attribute_properties))
+                continue
             yield attribute_name
 
 
