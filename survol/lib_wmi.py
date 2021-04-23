@@ -997,6 +997,7 @@ class WmiSparqlCallbackApi:
             predicate_prefix,
             associator_key_name,
             subject_path):
+        logging.critical("THIS IS DEPRECATED")
         # subject_path_node as previously returned by WmiCallbackSelect
         logging.warning("WmiCallbackAssociator subject_path=%s result_class_name=%s associator_key_name=%s",
                         subject_path,
@@ -1221,18 +1222,22 @@ class WmiSparqlExecutor:
         :return: An iterator on url + key-value pairs.
         """
 
-        wmi_path = self._cleanup_wmi_path(wmi_path)
-
         # 0 if wmi_path is subject, like ASSOCIATOR OF. Otherwise 1.
         assert role_index in [0, 1]
-
-        wmi_path = self._cleanup_wmi_path(wmi_path)
 
         reference_class_properties = self.associator_keys(associator_key_name)
 
         # If reference_class_name="CIM_DirectoryContainsFile", then ['GroupComponent', 'PartComponent']
         logging.debug("reference_class_properties=%s" % str(reference_class_properties))
         chosen_role = reference_class_properties[role_index][1]
+
+        return self.select_bidirectional_associators_from_object_generic(
+            result_class_name, associator_key_name, wmi_path, chosen_role)
+
+    def select_bidirectional_associators_from_object_generic(
+            self, result_class_name, associator_key_name, wmi_path, chosen_role):
+
+        wmi_path = self._cleanup_wmi_path(wmi_path)
 
         # Examples:
         # 'ASSOCIATORS OF {Win32_Process.Handle="1780"} WHERE AssocClass=CIM_ProcessExecutable ResultClass=CIM_DataFile'
@@ -1263,13 +1268,18 @@ class WmiSparqlExecutor:
             dict_key_values[lib_kbase.PredicateType] = lib_properties.MakeNodeForSparql(result_class_name)
 
             # logging.debug("WmiCallbackAssociator dict_key_values=%s", dict_key_values)
-            yield (object_path, dict_key_values)
+            yield object_path, dict_key_values
 
     def associator_keys(self, associator_name):
         """
         This returns the list of roles and classes which define this associator.
+        Example:
+        "CIM_ProcessExecutable" => [('CIM_DataFile', 'Antecedent'), ('CIM_Process', 'Dependent')])
+
         :param associator_name: For example "CIM_DirectoryContainsFile"
         :return: For example [('CIM_Directory', 'GroupComponent'), ('CIM_DataFile', 'PartComponent')]
+
+        TODO: This should probably be removed when role indices will not be used, but rather role names.
         """
         is_associator = getattr(self.m_wmi_connection, associator_name).qualifiers.get('Association', False)
         assert is_associator
@@ -1283,3 +1293,9 @@ class WmiSparqlExecutor:
             if match_property:
                 list_keys.append((match_property.group(1), match_property.group(2)))
         return list_keys
+
+    def enumerate_associated_instances(self, wmi_path, associator_name, result_class, result_role):
+        iter_objects = self.select_bidirectional_associators_from_object_generic(
+            wmi_path, associator_name, result_class, result_role)
+        for _, dict_key_values in iter_objects:
+            yield dict_key_values
