@@ -12,9 +12,10 @@ import lib_wmi
 import lib_ontology_tools
 
 
-class OntologyToolsFunctionsTest(unittest.TestCase):
+@unittest.skipIf(is_platform_linux, "WMI test only")
+class OntologyToolsFunctionsWMITest(unittest.TestCase):
 
-    def test_get_associated_attribute(self):
+    def test_get_associated_attribute_wmi(self):
         input_data = [
             ("CIM_ProcessExecutable", [('CIM_DataFile', 'Antecedent'), ('CIM_Process', 'Dependent')]),
             ("CIM_DirectoryContainsFile", [('CIM_Directory', 'GroupComponent'), ('CIM_DataFile', 'PartComponent')]),
@@ -36,7 +37,7 @@ class OntologyToolsFunctionsTest(unittest.TestCase):
             self.assertEqual(result_class, calculated_result_class)
             self.assertEqual(result_role, calculated_result_role)
 
-    def test_class_associators(self):
+    def test_class_associators_wmi(self):
         """This checks that associators and roles are properly returned."""
         test_data = [
             ("CIM_Process", [])
