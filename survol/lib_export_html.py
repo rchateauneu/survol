@@ -616,7 +616,7 @@ def _output_rdf_graph_as_html_no_jinja(theCgi, top_url, error_msg, gbl_cgi_env_l
     # Scripts do not apply when displaying a class.
     # TODO: When in a enumerate script such as enumerate_CIM_LogicalDisk.py,
     # it should assume the same: No id but a class.
-    if(theCgi.m_entity_type == "") or (theCgi.m_entity_id!=""):
+    if(theCgi.m_entity_type == "") or (theCgi.m_entity_id != ""):
         WrtAsUtf("<h2>Related data scripts</h2>")
         WrtAsUtf("".join(_scripts_tree_html_iterator(theCgi)))
 
