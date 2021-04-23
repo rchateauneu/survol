@@ -71,7 +71,7 @@ class SourceBase (object):
         return False
 
 
-def create_instance_path(class_name, key_value_dict):
+def create_instance_path(class_name, **key_value_dict):
     # v might be an integer, a double, a string.
     suffix = ",".join(["%s=%s" % (k, lib_util.urllib_quote(str(v))) for k, v in key_value_dict.items()])
     if class_name:
@@ -93,7 +93,7 @@ class SourceCgi(SourceBase):
         super(SourceCgi, self).__init__()
 
     def create_url_query(self, mode=None):
-        quoted_rest = create_instance_path(self.m_className, self.m_kwargs)
+        quoted_rest = create_instance_path(self.m_className, **self.m_kwargs)
 
         # TODO: See lib_util.xidCgiDelimiter = "?xid="
         qry_args = "xid=" + quoted_rest
