@@ -40,9 +40,9 @@ class OntologyToolsFunctionsWMITest(unittest.TestCase):
     def test_class_associators_wmi(self):
         """This checks that associators and roles are properly returned."""
         test_data = [
-            ("CIM_Process", ["CIM_ProcessExecutable.Dependent"]),
-            ("CIM_DataFile", ["CIM_ProcessExecutable.Antecedent", "CIM_DirectoryContainsFile.PartComponent"]),
-            ("CIM_Directory", ["CIM_DirectoryContainsFile.GroupComponent"]),
+            ("CIM_Process", ["CIM_ProcessExecutable.Antecedent"]),
+            ("CIM_DataFile", ["CIM_ProcessExecutable.Dependent", "CIM_DirectoryContainsFile.GroupComponent"]),
+            ("CIM_Directory", ["CIM_DirectoryContainsFile.PartComponent"]),
             ("Win32_Directory", ["Win32_SubDirectory.GroupComponent", "Win32_SubDirectory.PartComponent"]),
         ]
 
