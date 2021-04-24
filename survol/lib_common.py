@@ -537,7 +537,7 @@ class ScriptEnvironment():
             # Same problem if the same argument appears several times: This will be a list.
             param_val = self.m_arguments[paramkey].value
         except KeyError:
-            logging.debug("get_parameters paramkey='%s' not as CGI", paramkey )
+            logging.info("paramkey='%s' is not an editable parameter", paramkey)
             has_arg_value = False
 
         # Now converts it to the type of the default value. Otherwise untouched.
