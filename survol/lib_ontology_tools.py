@@ -2,6 +2,8 @@ import sys
 import datetime
 import json
 import logging
+import collections
+
 import rdflib
 
 import lib_util
@@ -16,23 +18,30 @@ import lib_kbase
 # classes_map[class_name] = {"base_class": base_class_name, "class_description": text_descr}
 # map_attributes[prop_obj.name] = { "predicate_type": prop_obj.type,"predicate_domain": class_name}
 
-_cache_ontologies = {}
+_cache_ontologies = collections.defaultdict(dict)
 
 
-def get_named_ontology(ontology_name, ontology_extractor):
-    """
-    Returns the pair of dicts defining an ontology.
-    """
-
+def _get_ontology_component(ontology_name, ontology_extractor, component_name):
     # Most of times, there should be only one ontology in this cache: "wmi", "wbem" or "survol".
     try:
-        return _cache_ontologies[ontology_name]
+        return _cache_ontologies[ontology_name][component_name]
     except KeyError:
-        ontology_triple = _get_named_ontology_from_file(ontology_name, ontology_extractor)
-        assert len(ontology_triple) == 3
+        ontology_dict = _get_named_ontology_from_file(ontology_name, ontology_extractor, component_name)
         logging.info("Adding ontology %s to cache" % ontology_name)
-        _cache_ontologies[ontology_name] = ontology_triple
-        return ontology_triple
+        _cache_ontologies[ontology_name].update(ontology_dict)
+        return ontology_dict[component_name]
+
+
+def get_ontology_classes(ontology_name, ontology_extractor):
+    return _get_ontology_component(ontology_name, ontology_extractor, "classes")
+
+
+def get_ontology_attributes(ontology_name, ontology_extractor):
+    return _get_ontology_component(ontology_name, ontology_extractor, "attributes")
+
+
+def get_ontology_rdf(ontology_name, ontology_extractor):
+    return _get_ontology_component(ontology_name, ontology_extractor, "rdf_graph")
 
 
 def serialize_ontology_to_graph(ontology_name, ontology_extractor, rdf_graph):
@@ -41,7 +50,7 @@ def serialize_ontology_to_graph(ontology_name, ontology_extractor, rdf_graph):
     It is always done before returning a graph when executing a Sparql query,
     so all classes and properties are defined.
     """
-    _, _, ontology_graph = get_named_ontology(ontology_name, ontology_extractor)
+    ontology_graph = get_ontology_rdf(ontology_name, ontology_extractor)
     # Copy all triples.
     # https://stackoverflow.com/questions/47058642/rdflib-add-triples-to-graph-in-bulk?rq=1
     rdf_graph += ontology_graph
@@ -56,30 +65,59 @@ def class_associators(ontology_name, ontology_extractor, entity_type):
     :param entity_type: An instance class "CIM_DataFile" etc...
     :return: "CIM_ProcessExecutable.Antecedent" etc...
     """
+
     # CIM_ProcessExecutable.Antecedent:
     #     predicate_type:	"ref:CIM_DataFile"
     #     predicate_domain: ["CIM_Process"]
     # CIM_ProcessExecutable.Dependent:
     #     predicate_type:	"ref:CIM_Process"
     #     predicate_domain: ["CIM_DataFile"]
-    _, attributes_map, _ = get_named_ontology(ontology_name, ontology_extractor)
+    logging.debug("entity_type=%s", entity_type)
+    map_classes = get_ontology_classes(ontology_name, ontology_extractor)
 
-    ref_entity_type = "ref:" + entity_type
-    for attribute_name, attribute_properties in attributes_map.items():
-        predicate_type = attribute_properties["predicate_type"]
-        # Most of times, it returns a single attribute, except when the two roles have the same time,
-        # which happens for the WMI associator Win32_SubDirectory.
-        if predicate_type == ref_entity_type:
-            if attribute_name.find(".") <= 0:
-                # Some members type is a class, but they have nothign to do with associators.
-                # For example attribute_name=Client ...
-                # ... with typed member:{
-                #   u'predicate_type': u'ref:CIM_DataFile',
-                #   u'predicate_domain': [u'Win32_PerfFormattedData_Tcpip_IPv4']}
-                logging.warning("Non-associator attribute_name=%s with typed member:%s",
-                                attribute_name, str(attribute_properties))
-                continue
+    class_attributes = map_classes[entity_type]
+
+    # Now select the non-keys attributes which are associators. Typically less than ten attributes.
+    for attribute_name in class_attributes['non_key_properties_list']:
+        if attribute_name.find(".") > 0:
+            # Most of times, for a given accessor. it returns a single attribute,
+            # except when the two roles have the same type,
+            # which happens for example with the WMI associator Win32_SubDirectory.
             yield attribute_name
+
+
+    #         # This is a plain attribute, not an associator, and has probably a literal value (But not always).
+    #         # For example attribute_name=Client ...
+    #         # ... with typed member:{
+    #         #   u'predicate_type': u'ref:CIM_DataFile',
+    #         #   u'predicate_domain': [u'Win32_PerfFormattedData_Tcpip_IPv4']}
+    #         continue
+    #
+    #     # Now, lookup in the dict of attributes.
+    #     attribute_properties = attributes_map[attribute_name]
+    #
+    #
+    # ref_entity_type = "ref:" + entity_type
+    # for attribute_name, attribute_properties in attributes_map.items():
+    #     # It must be a role of an associator.
+    #     # Some members type is a class, but they have nothing to do with associators.
+    #     # For example attribute_name=Client ...
+    #     # ... with typed member:{
+    #     #   u'predicate_type': u'ref:CIM_DataFile',
+    #     #   u'predicate_domain': [u'Win32_PerfFormattedData_Tcpip_IPv4']}
+    #     if attribute_name.find(".") <= 0:
+    #         continue
+    #
+    #     predicate_type = attribute_properties["predicate_type"]
+    #     if not predicate_type.startswith("ref:"):
+    #         # Just in case the range would not be a proper class.
+    #         logging.warning("Non-associator attribute_name=%s with typed member:%s",
+    #                         attribute_name, str(attribute_properties))
+    #     attribute_domain = attribute_properties["predicate_domain"]
+    #     if entity_type in attribute_domain:
+    #         # Most of times, it returns a single attribute, except when the two roles have the same time,
+    #         # which happens for the WMI associator Win32_SubDirectory.
+    #         yield attribute_name
 
 
 def get_associated_attribute(ontology_name, ontology_extractor, attribute_name):
@@ -89,7 +127,7 @@ def get_associated_attribute(ontology_name, ontology_extractor, attribute_name):
     This function receives an attribute name and returns properties the other leg of the associator,
     that is, the other role name and its class type.
     """
-    _, attributes_map, _ = get_named_ontology(ontology_name, ontology_extractor)
+    attributes_map = get_ontology_attributes(ontology_name, ontology_extractor)
 
     # TODO: This pass could be faster by storing a dictionary indexed by the associator name.
 
@@ -110,7 +148,7 @@ def get_associated_attribute(ontology_name, ontology_extractor, attribute_name):
     raise Exception("No associated role for %s" % attribute_name)
 
 
-def _get_named_ontology_from_file(ontology_name, ontology_extractor):
+def _get_named_ontology_from_file(ontology_name, ontology_extractor, component_name):
     """
     This caches an ontology in files for performance,
     because extracting the entire ontology takes time for example WMI ontology.
@@ -131,50 +169,49 @@ def _get_named_ontology_from_file(ontology_name, ontology_extractor):
     # These files contain the ontology are a valid for one month.
     path_classes = "%s/survol_ontology_classes.%s.%s.json" % (tmp_dir, ontology_name, date_string)
     path_attributes = "%s/survol_ontology_attributes.%s.%s.json" % (tmp_dir, ontology_name, date_string)
-    path_rdf_ontology = "%s/survol_ontology_rdf.%s.%s.xml" % (tmp_dir, ontology_name, date_string)
+    path_rdf_graph = "%s/survol_ontology_rdf.%s.%s.xml" % (tmp_dir, ontology_name, date_string)
 
     try:
-        logging.info("ManageOntologyCache %s: Loading cached ontology from %s and %s",
-                     ontology_name, path_classes, path_attributes)
-        fd_classes = open(path_classes)
-        map_classes = json.load(fd_classes)
-        fd_classes.close()
+        logging.info("Loading ontology_name=%s from cache file")
+        if component_name == "classes":
+            with open(path_classes) as fd_classes:
+                map_classes = json.load(fd_classes)
+                logging.info("loaded path_classes=%s", path_classes)
+                return {"classes": map_classes}
 
-        fd_attributes = open(path_attributes)
-        map_attributes = json.load(fd_attributes)
-        fd_attributes.close()
+        if component_name == "attributes":
+            with open(path_attributes) as fd_attributes:
+                map_attributes = json.load(fd_attributes)
+                logging.info("loaded path_attributes=%s", path_attributes)
+                return {"attributes": map_attributes}
 
-        ontology_graph = rdflib.Graph()
-        with open(path_rdf_ontology) as rdf_fd:
-            ontology_graph.parse(rdf_fd, format='xml')
+        if component_name == "rdf_graph":
+            with open(path_rdf_graph) as rdf_fd:
+                ontology_graph = rdflib.Graph()
+                ontology_graph.parse(rdf_fd, format='xml')
+                logging.info("loaded path_rdf_graph=%s", path_rdf_graph)
 
-        logging.info("ExtractWmiOntology %s: Loaded cached ontology from %s, %s and %s",
-                     ontology_name, path_classes, path_attributes, path_rdf_ontology)
-
-        return map_classes, map_attributes, ontology_graph
+        raise Exception("Invalid component_name=%s" % component_name)
     except Exception as exc:
         logging.info("ManageOntologyCache %s: Caught: %s. Creating cache file.", ontology_name, exc)
 
     map_classes, map_attributes = ontology_extractor()
-    logging.info("ManageOntologyCache %s: Saving ontology to %s and %s",
-                 ontology_name, path_classes, path_attributes)
+    logging.info("ontology_name=%s saved to %s, %s, %s", ontology_name, path_classes, path_attributes, path_rdf_graph)
 
-    fd_classes = open(path_classes, "w")
-    json.dump(map_classes, fd_classes)
-    fd_classes.close()
+    with open(path_classes, "w") as fd_classes:
+        json.dump(map_classes, fd_classes)
 
-    fd_attributes = open(path_attributes, "w")
-    json.dump(map_attributes, fd_attributes)
-    fd_attributes.close()
+    with open(path_attributes, "w") as fd_attributes:
+        json.dump(map_attributes, fd_attributes)
 
     # Also, regenerate the file containing the ontology in RDF format.
     ontology_graph = rdflib.Graph()
     _convert_ontology_to_rdf(map_classes, map_attributes, ontology_graph)
-    logging.info("ManageOntologyCache %s: Saving RDF ontology to %s", ontology_name, path_rdf_ontology)
-    ontology_graph.serialize(destination=path_rdf_ontology, format='xml')
+    logging.info("ManageOntologyCache %s: Saving RDF ontology to %s", ontology_name, path_rdf_graph)
+    ontology_graph.serialize(destination=path_rdf_graph, format='xml')
     logging.info("ManageOntologyCache %s: Ontology caches recreated.", ontology_name)
 
-    return map_classes, map_attributes, ontology_graph
+    return {"classes": map_classes, "attributes": map_attributes, "rdf_graph": ontology_graph}
 
 
 def _convert_ontology_to_rdf(map_classes, map_attributes, rdf_graph):
