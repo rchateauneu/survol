@@ -19,3 +19,9 @@ python -m cProfile -s tottime `which py.test` tests/test_dockit.py::ReplaySessio
 python -m cProfile -o profile.all_trace.tottime.3.prof -s tottime `which py.test` tests/test_dockit.py::ReplaySessionsTest::test_replay_all_trace_files
 gprof2dot -f pstats profile.all_trace.tottime.3.prof | dot -Tpng -o output.3.png
 
+# Windows, Python 3.8
+# This creates a prof binary file
+python -m cProfile -o pytest.prof -s tottime -m pytest tests\test_lib_ontology_tools.py::OntologyToolsFunctionsWMITest::test_serialize_ontology_to_graph_wmi
+
+# This prints the output
+python -m cProfile -s tottime -m pytest tests\test_lib_ontology_tools.py::OntologyToolsFunctionsWMITest::test_serialize_ontology_to_graph_wmi
