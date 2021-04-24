@@ -739,7 +739,8 @@ def KWArgsToEntityId(class_name, **kwargs_ontology):
             logging.error("KWArgsToEntityId className=%s. No key %s", class_name, arg_key)
             raise
 
-        # TODO: The values should be encoded when needed, probably with B64 !!!
+        # TODO: See lib_util.EntityUri which does something similar.
+        # TODO: Encode the value in base64.
         entity_id += delim + "%s=%s" % (arg_key, arg_val)
         delim = ","
     # The values might come from many different origins
@@ -763,34 +764,12 @@ def EntityUri(entity_type, *entity_ids):
     if len(keys) != len(entity_ids):
         logging.warning("EntityUri entity_type=%s Different lens:%s and %s", entity_type, str(keys), str(entity_ids))
 
+    # TODO: See lib_util.EntityUri which does something similar.
     # TODO: Base64 encoding is needed in the general case.
     entity_id = ",".join("%s=%s" % pair_kw for pair_kw in zip(keys, entity_ids))
     
     url = Scriptize("/entity.py", entity_type, entity_id)
     return NodeUrl(url)
-
-
-def EntityUriFromMoniker(entity_type, entity_id):
-    """
-    This helper function is needed because the key-value pairs defining an object
-    are stored in different ways, depending on the context:
-    * As a moniker, like on a URL.
-    * As a list of values, ordered by the ontology (list of attributes).
-    * As a dict of key-value pairs.
-
-    :param entity_type: The class of the object
-    :param entity_id: The key-value pairs concatenated into a single moniker string.
-    :return: The URL of the object.
-    """
-
-    # TODO: Some simplification could be done:
-    # TODO: * Use a moniker only when close to an URL.
-    # TODO: * Replace list of values by list of key-value pairs.
-    # TODO: * Use a dict of key-value pairs only when a lookup is needed.
-
-    entity_ids_arr = EntityIdToArray(entity_type, entity_id)
-    entity_url = EntityUri(entity_type, *entity_ids_arr)
-    return entity_url
 
 
 ################################################################################

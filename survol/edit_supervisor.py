@@ -52,7 +52,10 @@ def _get_daemons_data():
         daemon_object['url_title'] = url_label
 
         # Now that we have the class and the key-value pairs of the object related to the script, builds its url.
-        entity_url = lib_util.EntityUriFromMoniker(entity_type, entity_id)
+        # TODO: Simplify this, because it splits the id path to join it afterwards.
+        # It might help to reorder properly the key-value pairs.
+        entity_ids_arr = lib_util.EntityIdToArray(entity_type, entity_id)
+        entity_url = lib_util.EntityUri(entity_type, *entity_ids_arr)
         logging.debug("entity_url=%s" % entity_url)
         daemon_object['object_url'] = entity_url
         entity_label = lib_naming.EntityToLabel(entity_type, entity_id, lib_util.HostName())
