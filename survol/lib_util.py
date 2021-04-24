@@ -841,13 +841,13 @@ def ComposeTypes(*hierarchical_entity_types):
 ################################################################################
 
 
-def CopyFile(mime_type, file_name):
+def copy_mime_file_to_output(mime_type, file_name):
     """
     This copies the content of a file to standard output.
     It is used to display files as MIME content.
 
     Read and write by chunks, so that it does not use all memory."""
-    logging.debug("CopyFile type globalOutMach=%s" % type(globalOutMach))
+    logging.debug("globalOutMach=%s" % type(globalOutMach))
 
     fil_des = open(file_name, "rb")
 

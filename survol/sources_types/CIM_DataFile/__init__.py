@@ -318,9 +318,9 @@ def DisplayAsMime(grph,node, entity_ids_arr):
 
     try:
         # TODO: Change this with WSGI.
-        lib_util.CopyFile(mime_type, file_name)
+        lib_util.copy_mime_file_to_output(mime_type, file_name)
     except Exception as exc:
-        lib_common.ErrorMessageHtml("file_to_mime.py Reading fileName=%s, caught:%s" % (file_name, str(exc)))
+        lib_common.ErrorMessageHtml("Reading fileName=%s, caught:%s" % (file_name, str(exc)))
 
 
 # TODO: Some files in /proc filesystem, on Linux, could be displayed

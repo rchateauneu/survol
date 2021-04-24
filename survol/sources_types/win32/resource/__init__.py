@@ -156,7 +156,7 @@ def DisplayAsMime(grph, node, entity_ids_arr):
     rsrc_fil_nam = obj_temp_file.Name
 
     try:
-        lib_util.CopyFile(mimeTypeResource, rsrc_fil_nam)
+        lib_util.copy_mime_file_to_output(mimeTypeResource, rsrc_fil_nam)
     except Exception as exc:
         logging.error("Copy rsrc_fil_nam=%s FAILED", rsrc_fil_nam)
         lib_common.ErrorMessageHtml("DisplayAsMime rsrc_fil_nam=%s, caught:%s" % (rsrc_fil_nam, str(exc)))
