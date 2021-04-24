@@ -948,7 +948,7 @@ def _object_types_no_cache():
 _gbl_object_types = None
 
 
-def ObjectTypes():
+def object_types_list():
     """This returns the list of objects types defined as directories.
     Many of them are CIM types, as described by DMTF: https://www.dmtf.org/standards/cim/cim_schema_v2510
     Many types are added, because CIM does not cover all the types needed by Survol.
@@ -958,7 +958,6 @@ def ObjectTypes():
 
     if _gbl_object_types is None:
         _gbl_object_types = set(_object_types_no_cache())
-        # sys.stderr.write("ObjectTypes glbObjectTypes="+str(glbObjectTypes)+"\n")
 
     return _gbl_object_types
 
@@ -1879,7 +1878,7 @@ def extract_specific_ontology_survol():
     map_classes = {}
     map_attributes = {}
 
-    for entity_type in ObjectTypes():
+    for entity_type in object_types_list():
         AppendClassSurvolOntology(entity_type, map_classes, map_attributes)
 
     return map_classes, map_attributes

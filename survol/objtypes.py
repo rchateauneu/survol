@@ -26,7 +26,7 @@ def Main():
     root_node = lib_util.RootUri()
 
     # This assumes that we have no namespace.
-    for entity_type in lib_util.ObjectTypes():
+    for entity_type in lib_util.object_types_list():
 
         tmp_node = root_node
         idx = 0
