@@ -697,8 +697,7 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
         wmi_executor = lib_wmi.WmiSparqlExecutor()
 
         # The list of attributes of classes is needed.
-        classes_map, _, _ = lib_ontology_tools.get_named_ontology(
-            "wmi", lib_wmi.extract_specific_ontology_wmi)
+        classes_map = lib_ontology_tools.get_ontology_classes("wmi", lib_wmi.extract_specific_ontology_wmi)
 
     def __init__(self, class_name, node):
         assert isinstance(node, rdflib.term.Variable)
