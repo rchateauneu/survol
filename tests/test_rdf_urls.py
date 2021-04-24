@@ -19,6 +19,7 @@ from init import *
 
 _current_machine = socket.gethostname()
 
+
 def _check_script_rdf(agent_url, script_suffix):
     """This runs a URL and returns the result as a rdflib graph"""
     full_url = agent_url + script_suffix
@@ -28,7 +29,7 @@ def _check_script_rdf(agent_url, script_suffix):
         full_url += "?mode=rdf"
     print("full_url=", full_url)
     # Some scripts take a long time to run.
-    rdf_url_response = portable_urlopen(full_url, timeout=30)
+    rdf_url_response = portable_urlopen(full_url, timeout=60)
     rdf_content = rdf_url_response.read()  # Py3:bytes, Py2:str
     result_graph = rdflib.Graph().parse(data=rdf_content, format="application/rdf+xml")
 
