@@ -59,6 +59,7 @@ class LocalBox:
         len_ent_ids = len(entity_id_arr)
 
         assert len_keys == len_ent_ids
+        # TODO: See lib_util.EntityUri which does something similar.
         entity_id = ",".join("%s=%s" % kw_items for kw_items in zip(keys, entity_id_arr))
 
         return entity_id
@@ -92,6 +93,7 @@ class LocalBox:
                 # This is a plain string, no value encoding needed.
                 return key_it, val_it
 
+        # TODO: See lib_util.EntityUri which does something similar.
         entity_id = ",".join("%s=%s" % uri_pair_encode(*kw_items) for kw_items in entity_id_dict.items())
         return self.create_entity_node(entity_type, entity_id)
 
