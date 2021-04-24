@@ -51,6 +51,7 @@ def serialize_ontology_to_graph(ontology_name, ontology_extractor, rdf_graph):
     so all classes and properties are defined.
     """
     ontology_graph = get_ontology_rdf(ontology_name, ontology_extractor)
+    logging.debug("copy to graph")
     # Copy all triples.
     # https://stackoverflow.com/questions/47058642/rdflib-add-triples-to-graph-in-bulk?rq=1
     rdf_graph += ontology_graph
@@ -84,40 +85,6 @@ def class_associators(ontology_name, ontology_extractor, entity_type):
             # except when the two roles have the same type,
             # which happens for example with the WMI associator Win32_SubDirectory.
             yield attribute_name
-
-
-    #         # This is a plain attribute, not an associator, and has probably a literal value (But not always).
-    #         # For example attribute_name=Client ...
-    #         # ... with typed member:{
-    #         #   u'predicate_type': u'ref:CIM_DataFile',
-    #         #   u'predicate_domain': [u'Win32_PerfFormattedData_Tcpip_IPv4']}
-    #         continue
-    #
-    #     # Now, lookup in the dict of attributes.
-    #     attribute_properties = attributes_map[attribute_name]
-    #
-    #
-    # ref_entity_type = "ref:" + entity_type
-    # for attribute_name, attribute_properties in attributes_map.items():
-    #     # It must be a role of an associator.
-    #     # Some members type is a class, but they have nothing to do with associators.
-    #     # For example attribute_name=Client ...
-    #     # ... with typed member:{
-    #     #   u'predicate_type': u'ref:CIM_DataFile',
-    #     #   u'predicate_domain': [u'Win32_PerfFormattedData_Tcpip_IPv4']}
-    #     if attribute_name.find(".") <= 0:
-    #         continue
-    #
-    #     predicate_type = attribute_properties["predicate_type"]
-    #     if not predicate_type.startswith("ref:"):
-    #         # Just in case the range would not be a proper class.
-    #         logging.warning("Non-associator attribute_name=%s with typed member:%s",
-    #                         attribute_name, str(attribute_properties))
-    #     attribute_domain = attribute_properties["predicate_domain"]
-    #     if entity_type in attribute_domain:
-    #         # Most of times, it returns a single attribute, except when the two roles have the same time,
-    #         # which happens for the WMI associator Win32_SubDirectory.
-    #         yield attribute_name
 
 
 def get_associated_attribute(ontology_name, ontology_extractor, attribute_name):
@@ -172,7 +139,7 @@ def _get_named_ontology_from_file(ontology_name, ontology_extractor, component_n
     path_rdf_graph = "%s/survol_ontology_rdf.%s.%s.xml" % (tmp_dir, ontology_name, date_string)
 
     try:
-        logging.info("Loading ontology_name=%s from cache file")
+        logging.info("Loading ontology_name=%s from cache file", ontology_name)
         if component_name == "classes":
             with open(path_classes) as fd_classes:
                 map_classes = json.load(fd_classes)
@@ -190,6 +157,7 @@ def _get_named_ontology_from_file(ontology_name, ontology_extractor, component_n
                 ontology_graph = rdflib.Graph()
                 ontology_graph.parse(rdf_fd, format='xml')
                 logging.info("loaded path_rdf_graph=%s", path_rdf_graph)
+                return {"rdf_graph": ontology_graph}
 
         raise Exception("Invalid component_name=%s" % component_name)
     except Exception as exc:
