@@ -28,50 +28,50 @@ def _decode_port_number(pck, offset):
 
 def _bytes_to_addr(pck, offset):
     try:
-        ip = "%d.%d.%d.%d" % ( pck[offset+12],pck[offset+13],pck[offset+14],pck[offset+15] )
+        ip = "%d.%d.%d.%d" % (pck[offset+12], pck[offset+13], pck[offset+14], pck[offset+15])
         addr = socket.gethostbyaddr(ip)[0]
         return addr
     except socket.herror:
         return ""
 
 
-def _insert_packet(grph, protoc , sourceAddr, sourcePort, destinationAddr, destinationPort):
+def _insert_packet(grph, protoc, source_addr, source_port, destination_addr, destination_port):
     if protoc == 6:
-        lsocketNode = lib_uris.gUriGen.AddrUri(sourceAddr, sourcePort )
-        rsocketNode = lib_uris.gUriGen.AddrUri(destinationAddr, destinationPort )
-        grph.add((lsocketNode, pc.property_socket_end, rsocketNode))
+        lsocket_node = lib_uris.gUriGen.AddrUri(source_addr, source_port)
+        rsocket_node = lib_uris.gUriGen.AddrUri(destination_addr, destination_port)
+        grph.add((lsocket_node, pc.property_socket_end, rsocket_node))
 
 ################################################################################
 
 
-def _process_frame(grph, receivedPacket):
+def _process_frame(grph, received_packet):
 
-    protoc = receivedPacket[9]
+    protoc = received_packet[9]
     # 6 = TCP
     # 17 = UDP
     # 103 = PIM
     if protoc != 6: # TCP
         return
 
-    ihl = receivedPacket[0] % 16
+    ihl = received_packet[0] % 16
     # Cannot go further.
     if ihl <= 6 :
         return
 
-    sourceAddr = _bytes_to_addr(receivedPacket, 12)
-    destinationAddr = _bytes_to_addr(receivedPacket, 16)
+    source_addr = _bytes_to_addr(received_packet, 12)
+    destination_addr = _bytes_to_addr(received_packet, 16)
 
-    lenall = len(receivedPacket)
+    lenall = len(received_packet)
     if lenall >= 24:
-        offBase = ihl * 4
+        off_base = ihl * 4
 
-        sourcePort = _decode_port_number(receivedPacket, offBase)
-        destinationPort = _decode_port_number(receivedPacket, offBase + 2)
+        source_port = _decode_port_number(received_packet, off_base)
+        destination_port = _decode_port_number(received_packet, off_base + 2)
     else:
-        sourcePort = 0
-        destinationPort = 0
+        source_port = 0
+        destination_port = 0
 
-    _insert_packet(grph, protoc, sourceAddr, sourcePort, destinationAddr, destinationPort)
+    _insert_packet(grph, protoc, source_addr, source_port, destination_addr, destination_port)
 
 
 # The communication queue is made of protocol+addr+port+addr+port.
@@ -89,13 +89,13 @@ def _promiscuous_win(loop_number):
     
     s.ioctl(socket.SIO_RCVALL, socket.RCVALL_ON)
 
-    bufferSize=4096
+    buffer_size = 4096
     cgiEnv = lib_common.ScriptEnvironment()
     while loop_number:
         loop_number -= 1
         grph = cgiEnv.ReinitGraph()
         # TODO: Avoid an allocation.
-        package=s.recv(bufferSize)
+        package = s.recv(buffer_size)
         _process_frame(grph, package)
         # Less data otherwise it is not sustainable.
         time.sleep(0.2)
@@ -109,7 +109,7 @@ def _promiscuous_win(loop_number):
 
 
 def _promiscuous_linux(loop_number):
-    rawSocket=socket.socket(socket.PF_PACKET,socket.SOCK_RAW,socket.htons(0x0800))
+    raw_socket=socket.socket(socket.PF_PACKET, socket.SOCK_RAW, socket.htons(0x0800))
 
     cgiEnv = lib_common.ScriptEnvironment()
     while loop_number:
@@ -118,30 +118,30 @@ def _promiscuous_linux(loop_number):
         grph = cgiEnv.ReinitGraph()
 
         #ifconfig eth0 promisc up
-        receivedPacket=rawSocket.recv(2048)
+        received_packet = raw_socket.recv(2048)
     
         #Ethernet Header...
-        ethernetHeader=receivedPacket[0:14]
-        ethrheader=struct.unpack("!6s6s2s",ethernetHeader)
-        #destinationIP= binascii.hexlify(ethrheader[0])
-        #sourceIP= binascii.hexlify(ethrheader[1])
+        ethernet_header = received_packet[0:14]
+        ethrheader = struct.unpack("!6s6s2s", ethernet_header)
+        #destination_ip= binascii.hexlify(ethrheader[0])
+        #source_ip= binascii.hexlify(ethrheader[1])
         protoc = binascii.hexlify(ethrheader[2])
     
         #IP Header... 
-        ipHeader=receivedPacket[14:34]
-        ipHdr=struct.unpack("!12s4s4s",ipHeader)
-        destinationIP=socket.inet_ntoa(ipHdr[2])
-        sourceIP=socket.inet_ntoa(ipHdr[1])
+        ip_header = received_packet[14:34]
+        ip_hdr = struct.unpack("!12s4s4s", ip_header)
+        destination_ip = socket.inet_ntoa(ip_hdr[2])
+        source_ip=socket.inet_ntoa(ip_hdr[1])
     
         #TCP Header...
-        tcpHeader=receivedPacket[34:54]
-        tcpHdr=struct.unpack("!2s2s16s",tcpHeader)
-        sourcePort = _decode_port_number(tcpHdr[0], 0)
+        tcp_header = received_packet[34:54]
+        tcp_hdr = struct.unpack("!2s2s16s", tcp_header)
+        source_port = _decode_port_number(tcp_hdr[0], 0)
 
-        destinationPort = _decode_port_number(tcpHdr[1], 0)
+        destination_port = _decode_port_number(tcp_hdr[1], 0)
         time.sleep(0.2)
 
-        _insert_packet(grph, protoc, sourceIP, sourcePort, destinationIP, destinationPort)
+        _insert_packet(grph, protoc, source_ip, source_port, destination_ip, destination_port)
 
         cgiEnv.OutCgiRdf()
 
