@@ -4,6 +4,7 @@
 
 from __future__ import print_function
 
+import rdflib
 import unittest
 
 from init import *
@@ -56,3 +57,8 @@ class OntologyToolsFunctionsWMITest(unittest.TestCase):
             self.assertTrue(
                 set(expected_attribute_names).issubset(set(attributes_names_list))
             )
+
+    def test_serialize_ontology_to_graph_wmi(self):
+        graph = rdflib.Graph()
+        lib_ontology_tools.serialize_ontology_to_graph("wmi", lib_wmi.extract_specific_ontology_wmi, graph)
+
