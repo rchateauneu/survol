@@ -19,6 +19,7 @@ from init import *
 
 _current_machine = socket.gethostname()
 
+
 def _check_script_rdf(agent_url, script_suffix):
     """This runs a URL and returns the result as a rdflib graph"""
     full_url = agent_url + script_suffix
