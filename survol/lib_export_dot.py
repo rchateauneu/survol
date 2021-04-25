@@ -94,7 +94,7 @@ def is_flat_property(key):
     return key in _flat_properties_list
 
 
-def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
+def _rdf_graph_to_dot_stream(grph, logfil, stream, collapsed_properties, commutative_properties):
     """Used for transforming into SVG format.
     If from entity.py, collapsed_properties = pc.property_directory,pc.property_script """
     fields_set = collections.defaultdict(list)
@@ -870,7 +870,7 @@ def output_rdf_graph_as_svg(
     _write_dot_legend(page_title, top_url, error_msg,
                       parameters, parameterized_links, rdfoutfil, grph)
     logfil.write(lib_util.TimeStamp() + " Legend written\n")
-    Rdf2Dot(grph, logfil, rdfoutfil, collapsed_properties, commutative_properties)
+    _rdf_graph_to_dot_stream(grph, logfil, rdfoutfil, collapsed_properties, commutative_properties)
     logfil.write(lib_util.TimeStamp() + " About to close dot file\n")
 
     # BEWARE: Do this because the file is about to be reopened from another process.
