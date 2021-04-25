@@ -1,13 +1,14 @@
-import lib_kbase
-import lib_patterns
-import lib_naming
-import lib_util
-from lib_properties import pc
 import sys
 import six
 import os
 import json
 import logging
+
+import lib_kbase
+import lib_patterns
+import lib_naming
+import lib_util
+from lib_properties import pc
 import lib_exports
 
 _node_json_number = 0
@@ -329,4 +330,3 @@ def output_rdf_graph_as_json_menu(page_title, error_msg, parameters, grph):
 
     # Writes the content to the HTTP client.
     _write_json_header(json.dumps(one_menu_val, sort_keys=True, indent=2))
-
