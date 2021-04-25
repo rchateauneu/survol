@@ -570,7 +570,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
                 # TODO: This is not the right criteria. Must select if we are listing scripts.
                 elt_nam = "script"
 
-            elt_nam_plural = lib_grammar.ToPlural(elt_nam, num_nod_lst)
+            elt_nam_plural = lib_grammar.to_plural(elt_nam, num_nod_lst)
             txt_elements = "%d %s" % (num_nod_lst, elt_nam_plural)
             header = '<td border="1">%s</td>' % _dot_bold(txt_elements)
 
@@ -593,7 +593,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
 
             # The rows of this HTML table could belong to different classes:
             # What the shared is the predicate. Hence, the predicate, property name is used as a title.
-            prop_nam_plural = lib_grammar.ToPlural(prop_nam, None)
+            prop_nam_plural = lib_grammar.to_plural(prop_nam, None)
             help_text = "List of " + prop_nam_plural + " in " + lab_text
 
             # TODO: The title and the content are not necessarily of the same class.
@@ -673,7 +673,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
             elif not lab_text_no_amp.startswith(obj_entity_graph_class.replace(":", " ")):
                 if obj_entity_graph_class:
                     # "is a" or "is an"
-                    the_article = lib_grammar.IndefiniteArticle(obj_entity_graph_class)
+                    the_article = lib_grammar.indefinite_article(obj_entity_graph_class)
                     help_text += " is %s %s" % (the_article, obj_entity_graph_class)
         else:
             if lab_text_clean.startswith("http"):
