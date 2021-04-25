@@ -323,7 +323,7 @@ class ScriptEnvironment():
         self.m_calling_url = lib_util.RequestUri()
         self.m_url_without_mode = lib_util.url_mode_replace(self.m_calling_url, "")
 
-        full_title, entity_class, entity_id, entity_host = lib_naming.ParseEntityUriWithHost(
+        full_title, entity_class, entity_id, entity_host = lib_naming.parse_entity_uri_with_host(
             self.m_calling_url,
             long_display=False,
             force_entity_ip_addr=None)

@@ -58,7 +58,7 @@ def _get_daemons_data():
         entity_url = lib_util.EntityUri(entity_type, *entity_ids_arr)
         logging.debug("entity_url=%s" % entity_url)
         daemon_object['object_url'] = entity_url
-        entity_label = lib_naming.EntityToLabel(entity_type, entity_id, lib_util.HostName())
+        entity_label = lib_naming.entity_to_label(entity_type, entity_id, lib_util.HostName())
         logging.debug("entity_label=%s" % entity_label)
         daemon_object['object_title'] = entity_label
         daemon_object['triples_number'] = lib_kbase.context_events_count(daemon_url)

@@ -50,7 +50,7 @@ def _entity_array_to_alias(entity_type, entity_ids_arr, force_entity_ip_addr):
     return univ_alias
 
 
-def EntityToLabel(entity_type, entity_ids_concat, force_entity_ip_addr):
+def entity_to_label(entity_type, entity_ids_concat, force_entity_ip_addr):
     """
     This returns the label of an URL which is a script plus CGI arguments defining an object.
 
@@ -169,7 +169,7 @@ def _calc_label(entity_host, entity_type, entity_id, force_entity_ip_addr, fil_s
                 # Fallback to Survol label.
                 actual_host = lib_util.EntHostToIp(entity_host)
 
-                entity_label = EntityToLabel(entity_type_no_ns, entity_id, actual_host)
+                entity_label = entity_to_label(entity_type_no_ns, entity_id, actual_host)
         elif fil_script == "entity_wmi.py":
             import lib_wmi
             # For WMI, the hostname is a NETBIOS machine name.
@@ -177,13 +177,13 @@ def _calc_label(entity_host, entity_type, entity_id, force_entity_ip_addr, fil_s
             if not entity_label:
                 # Fallback to Survol label.
                 actual_host = lib_util.EntHostToIp(entity_host)
-                entity_label = EntityToLabel(entity_type_no_ns, entity_id, actual_host)
+                entity_label = entity_to_label(entity_type_no_ns, entity_id, actual_host)
         else:
             # filScript in [ "class_type_all.py", "entity.py" ], or if no result from WMI or WBEM.
-            entity_label = EntityToLabel(entity_type_no_ns, entity_id, entity_host)
+            entity_label = entity_to_label(entity_type_no_ns, entity_id, entity_host)
 
     elif entity_type_no_ns or entity_id:
-        entity_label = EntityToLabel(entity_type_no_ns, entity_id, force_entity_ip_addr)
+        entity_label = entity_to_label(entity_type_no_ns, entity_id, force_entity_ip_addr)
     else:
         # Only possibility to print something meaningful.
         entity_label = nam_spac
@@ -195,8 +195,9 @@ def _calc_label(entity_host, entity_type, entity_id, force_entity_ip_addr, fil_s
     return entity_label
 
 
-def ParseEntityUriWithHost(uri_with_mode, long_display=True, force_entity_ip_addr=None):
-    """Extracts the entity type and id from a URI, coming from a RDF document.
+def parse_entity_uri_with_host(uri_with_mode, long_display=True, force_entity_ip_addr=None):
+    """
+    Extracts the entity type and id from a URI, coming from a RDF document.
     This is used notably when transforming RDF into dot documents.
     The returned entity type is used for choosing graphic attributes
     and gives more information than the simple entity type.
@@ -303,11 +304,17 @@ def ParseEntityUriWithHost(uri_with_mode, long_display=True, force_entity_ip_add
 
 
 def ParseEntityUri(uri_with_mode, long_display=True, force_entity_ip_addr=None):
-    """Nost of times, the host is not needed."""
-    entity_label, entity_graphic_class, entity_id, entity_host = ParseEntityUriWithHost(
+    """
+    This receives the URL of an instance and returns a triples which contains:
+    - The label, which is a displayable string for this instance.
+    - The class of the instance.
+    - A concatenation of key-value pairs of the key parameters of the instance.
+    Most of times, the host is not needed, so this function does not use it.
+    """
+    entity_label, entity_graphic_class, entity_id, entity_host = parse_entity_uri_with_host(
         uri_with_mode, long_display=long_display, force_entity_ip_addr=force_entity_ip_addr)
     return entity_label, entity_graphic_class, entity_id
 
 
-def ParseEntityUriShort(uri):
+def parse_entity_uri_short(uri):
     return ParseEntityUri(uri, long_display=False, force_entity_ip_addr=None)
