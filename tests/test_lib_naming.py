@@ -20,7 +20,7 @@ class ParseEntityUriWithHostTest(unittest.TestCase):
 
     def test_plain_url(self):
         input_url = "/survol/entity.py?xid=CIM_ComputerSystem.Name=my_machine"
-        full_title, entity_class, entity_id, entity_host = lib_naming.ParseEntityUriWithHost(
+        full_title, entity_class, entity_id, entity_host = lib_naming.parse_entity_uri_with_host(
                     input_url,
                     long_display=False,
                     force_entity_ip_addr=None)
@@ -35,7 +35,7 @@ class ParseEntityUriWithHostTest(unittest.TestCase):
 
     def test_after_edit_url(self):
         input_url = "/survol/entity.py?edimodargs_Domain=my_machine&edimodargs_Name=INTERACTIVE&Show+all+scripts=True&edimodtype=Win32_Group&xid=Win32_Group.Domain%3Drchateau-hp%2CName%3DINTERACTIVE"
-        full_title, entity_class, entity_id, entity_host = lib_naming.ParseEntityUriWithHost(
+        full_title, entity_class, entity_id, entity_host = lib_naming.parse_entity_uri_with_host(
                     input_url,
                     long_display=False,
                     force_entity_ip_addr=None)

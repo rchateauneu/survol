@@ -442,7 +442,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
                 sub_nod_uri = obj_uri.replace('&', '&amp;')
 
                 try:
-                    sub_obj_nam, sub_entity_graphic_class, sub_entity_id = lib_naming.ParseEntityUriShort(obj_uri)
+                    sub_obj_nam, sub_entity_graphic_class, sub_entity_id = lib_naming.parse_entity_uri_short(obj_uri)
                 except UnicodeEncodeError:
                     logging.warning("UnicodeEncodeError error:%s", obj_uri)
                     sub_obj_nam, sub_entity_graphic_class, sub_entity_id = ("Utf err 1", "Utf err 2", "Utf err 3")
@@ -490,7 +490,7 @@ def Rdf2Dot(grph, logfil, stream, collapsed_properties, commutative_properties):
                         else:
                             # This displays objects in a table: The top-level object must be
                             # in the same host, so there is no need to display a long label.
-                            val_title = lib_naming.ParseEntityUriShort(val)[0]
+                            val_title = lib_naming.parse_entity_uri_short(val)[0]
 
                             assert isinstance(val_title, (six.text_type, six.binary_type))
 
