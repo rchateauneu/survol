@@ -51,7 +51,7 @@ def _get_arp_entries_windows():
         # Network interface.
         lin_split.append("")
 
-        yield( lin_split )
+        yield lin_split
 
 
 # /sbin/arp -an
@@ -90,7 +90,7 @@ def _get_arp_entries_linux():
 
         logging.debug("Split=%s", str(lin_split))
 
-        yield( lin_split )
+        yield lin_split
 
 
 def GetArpEntries():
@@ -110,5 +110,5 @@ def GetArpHostAliases(hst_addr):
         host_name = hst_addr
         aliases = []
 
-    return (hst_addr, host_name, aliases)
+    return hst_addr, host_name, aliases
 
