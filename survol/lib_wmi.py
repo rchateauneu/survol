@@ -557,6 +557,7 @@ def extract_specific_ontology_wmi():
             assert isinstance(wmi_string, str)
         return wmi_string
 
+    logging.info("first pass on classes")
     for class_name in cnn.classes:
         logging.debug("class_name=%s" % class_name)
         wmi_class_obj = getattr(cnn, class_name)
@@ -575,6 +576,7 @@ def extract_specific_ontology_wmi():
     map_classes = {}
     map_attributes = {}
 
+    logging.info("second pass on classes")
     for class_name, wmi_class_obj in list_plain_classes.items():
         logging.debug("class_name=%s" % class_name)
         drv_list = wmi_class_obj.derivation()
@@ -696,6 +698,7 @@ def extract_specific_ontology_wmi():
     This is possible only if there are two classes in the associator, which is always the case (or zero classes).
     """
 
+    logging.info("pass on associators")
     for associator_name, wmi_class_obj in list_associations.items():
 
         def key_to_dotted_property(the_key):
