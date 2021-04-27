@@ -714,7 +714,8 @@ def copy_to_output_destination(logfil, svg_out_filnam, out_dest):
         # Python 3 and wsgiref.simple_server: string argument expected, got 'bytes'
         nb_out = out_dest.write(str_in_read.decode('latin1'))
 
-    logfil.write(lib_util.TimeStamp() + " End of output without conversion: %d chars\n" % nb_out)
+    # The variable nb_out is converted to string because it might be None.
+    logfil.write(lib_util.TimeStamp() + " End of output without conversion: %s chars\n" % str(nb_out))
     infil.close()
 
 
