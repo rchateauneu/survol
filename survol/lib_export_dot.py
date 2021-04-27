@@ -634,7 +634,7 @@ def _rdf_graph_to_dot_stream(grph, logfil, stream, collapsed_properties, commuta
     # Now, display the normal nodes, which are not displayed in tables.
     for obj_rdf_node, obj_label in six.iteritems(dict_rdf2_dot):
         # TODO: Avoids this lookup.
-        if obj_label in dict_collapsed_object_labels_to_subject_labels :
+        if obj_label in dict_collapsed_object_labels_to_subject_labels:
             continue
 
         obj_props_as_html = fields_to_html_vertical(grph, fields_set[obj_rdf_node])
@@ -714,7 +714,7 @@ def copy_to_output_destination(logfil, svg_out_filnam, out_dest):
         # Python 3 and wsgiref.simple_server: string argument expected, got 'bytes'
         nb_out = out_dest.write(str_in_read.decode('latin1'))
 
-    logfil.write(lib_util.TimeStamp() + " End of output without conversion: %s chars\n" % str(nb_out))
+    logfil.write(lib_util.TimeStamp() + " End of output without conversion: %d chars\n" % nb_out)
     infil.close()
 
 
