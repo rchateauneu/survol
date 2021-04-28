@@ -17,7 +17,10 @@ from rdflib import URIRef
 
 # This will change soon after rdflib 5.0.0
 # from rdflib.plugins.stores.memory import Memory
-from rdflib.plugins.memory import IOMemory
+try:
+    from rdflib.plugins.memory import IOMemory
+except ImportError:
+    from rdflib.plugins.stores.memory import Memory as IOMemory
 import rdflib.plugins
 import rdflib.plugins.stores
 import rdflib.plugins.stores.concurrent
