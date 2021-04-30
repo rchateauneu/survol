@@ -33,18 +33,18 @@ _dflt_graph_params =                              ("none", "#FFFFFF", "#99BB88",
 def EntityClassToColor(sub_entity_graphic_class):
     """This color is used to generate HTML code in DOT."""
     if sub_entity_graphic_class:
-        arrAttrs = TypeToGraphParams(sub_entity_graphic_class)
-        bgCol = arrAttrs[1]
-        return bgCol
+        arr_attrs = TypeToGraphParams(sub_entity_graphic_class)
+        bg_col = arr_attrs[1]
+        return bg_col
     else:
         # If this is a script.
         return "#FFFFFF"
 
 
-def ColorLighter(obj_color):
+def color_lighter(obj_color):
     """This returns a RGB color slightly lighter than the input.
     It is used for tables where lines are alternatively lighter/darker."""
-    def color_lighter_nocache(objColor):
+    def color_lighter_nocache(obj_color):
         def lighter_byte(X):
             dec = int(X,16)
             if dec < 13:
@@ -55,25 +55,25 @@ def ColorLighter(obj_color):
 
         chars_list = [
             "#",
-            lighter_byte(objColor[1]),
-            objColor[2],
-            lighter_byte(objColor[3]),
-            objColor[4],
-            lighter_byte(objColor[5]),
-            objColor[6]]
+            lighter_byte(obj_color[1]),
+            obj_color[2],
+            lighter_byte(obj_color[3]),
+            obj_color[4],
+            lighter_byte(obj_color[5]),
+            obj_color[6]]
 
         obj_color_light = "".join(chars_list)
         return obj_color_light
 
     try:
-        return ColorLighter.CacheMap[obj_color]
+        return color_lighter.CacheMap[obj_color]
     except KeyError:
         lig = color_lighter_nocache(obj_color)
-        ColorLighter.CacheMap[obj_color] = lig
+        color_lighter.CacheMap[obj_color] = lig
         return lig
 
 
-ColorLighter.CacheMap = dict()
+color_lighter.CacheMap = dict()
 
 
 # Returns graphic parameters given a type without namespace.
@@ -128,7 +128,6 @@ def _build_pattern_node(tp):
     border = tp[3]
     is_rounded = tp[4]
 
-    # TODO: La premiere ligne est moche. Celle par defaut est mieux remplie.
     if is_rounded:
         style = 'style="rounded,filled"'
     else:

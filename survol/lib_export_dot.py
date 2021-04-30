@@ -453,8 +453,8 @@ def _rdf_graph_to_dot_stream(grph, logfil, stream, collapsed_properties, commuta
                     obj_color_plain = "#FFFFFF"
                 else:
                     obj_color_plain = lib_patterns.EntityClassToColor(sub_entity_graphic_class)
-                # This lighter cololor for the first column.
-                obj_color_light = lib_patterns.ColorLighter(obj_color_plain)
+                # This lighter color for the first column.
+                obj_color_light = lib_patterns.color_lighter(obj_color_plain)
 
                 # Some colors a bit clearer ? Or take the original color of the class ?
                 td_bgcolor_plain = '<td BGCOLOR="%s" ' % obj_color_plain
