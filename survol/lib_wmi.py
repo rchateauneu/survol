@@ -473,10 +473,38 @@ def EntityToLabelWmi(nam_spac, entity_type_NoNS, entity_id, entity_host):
     For example, the name of a process when the PID (Handle) is given.
     Due to performance problems, consider using a cache.
     Or a default value for some "expensive" classes.
+
+    At the moment, a default value is used.
     """
 
     logging.warning("Implement this: entity_id=%s" % entity_id)
     return None
+
+
+# _build_wmi_path_from_survol_path
+def reformat_path_for_wmi(survol_path):
+    """
+    Paths for Survol and WMI have basically the same structure: 'class.key=value,key=value' etc...
+    WMI is a bit more picky because the arguments must be enclosed in double-quotes.
+    It would be possible to have the same constraints in Survol, but the important information
+    are the classes, the keys and the unquoted values, so this reformatting just
+    reformats the unchanged existing information about the instances.
+    It is used in SelectBidirectionalAssociatorsFromObject.
+    """
+    class_name, _, kw_pairs_as_str = survol_path.partition(".")
+
+    # reformat_path_for_wmi
+
+    # key-value pairs are separated by commas.
+
+    entity_id_dict = lib_util.SplitMoniker(kw_pairs_as_str)
+
+    # This rebuilds a path for WMI with arguments enclosed in double-quotes.
+    wmi_path = class_name + "." + ",".join(
+        ('%s="%s"' % (prop_key, prop_value) for prop_key, prop_value in entity_id_dict.items())
+    )
+    return wmi_path
+
 
 
 def _convert_wmi_type_to_xsd_type(predicate_type_name):
@@ -1202,13 +1230,13 @@ class WmiSparqlExecutor:
         # TODO: We must quadruple backslashes in Sparql queries.
         if "CIM_DataFile.Name" in wmi_path:
             wmi_path = wmi_path.replace("\\\\", "\\").replace("/", "\\")
-            logging.debug("_cleanup_wmi_path wmi_path=%s REPLACED", wmi_path)
+            logging.debug("wmi_path=%s REPLACED", wmi_path)
         elif "CIM_Directory.Name" in wmi_path:
             wmi_path = wmi_path.replace("\\\\", "\\").replace("/", "\\")
-            logging.debug("_cleanup_wmi_path wmi_path=%s REPLACED", wmi_path)
+            logging.debug("wmi_path=%s REPLACED", wmi_path)
         elif "Win32_Directory.Name" in wmi_path:
             wmi_path = wmi_path.replace("\\\\", "\\").replace("/", "\\")
-            logging.debug("_cleanup_wmi_path wmi_path=%s REPLACED", wmi_path)
+            logging.debug("wmi_path=%s REPLACED", wmi_path)
         assert wmi_path
         return wmi_path
 
@@ -1235,10 +1263,10 @@ class WmiSparqlExecutor:
         chosen_role = reference_class_properties[role_index][1]
 
         return self.select_bidirectional_associators_from_object_generic(
-            result_class_name, associator_key_name, wmi_path, chosen_role)
+            result_class_name, associator_key_name, wmi_path, chosen_role, wmi_keys_only=False)
 
     def select_bidirectional_associators_from_object_generic(
-            self, result_class_name, associator_key_name, wmi_path, chosen_role):
+            self, result_class_name, associator_key_name, wmi_path, chosen_role, wmi_keys_only):
 
         wmi_path = self._cleanup_wmi_path(wmi_path)
 
@@ -1248,14 +1276,16 @@ class WmiSparqlExecutor:
         #  WHERE AssocClass = CIM_ProcessExecutable ResultClass = CIM_Process'
         wmi_query = "ASSOCIATORS OF {%s} WHERE AssocClass=%s ResultClass=%s ResultRole=%s" % (
             wmi_path, associator_key_name, result_class_name, chosen_role)
+        if wmi_keys_only:
+            wmi_query += " KeysOnly"
 
-        # logging.debug("WmiCallbackAssociator wmi_query=%s", wmi_query)
+        logging.debug("WmiCallbackAssociator wmi_query=%s", wmi_query)
 
         try:
             wmi_objects = self.m_wmi_connection.query(wmi_query)
         except Exception as exc:
             # Probably com_error
-            logging.error("WmiCallbackAssociator Caught: %s" % exc)
+            logging.error("WmiCallbackAssociator Caught: %s wmi_query=%s", exc, wmi_query)
             return
 
         for one_wmi_object in wmi_objects:
@@ -1297,8 +1327,20 @@ class WmiSparqlExecutor:
                 list_keys.append((match_property.group(1), match_property.group(2)))
         return list_keys
 
-    def enumerate_associated_instances(self, wmi_path, associator_name, result_class, result_role):
+    def enumerate_associated_instances(self, survol_path, associator_name, result_class, result_role):
+        """
+        For each instance associated to the current one, it returns properties and values,
+        for the WMI keys of this class.
+        Documentation says:
+        "If the KeysOnly keyword is being used in ASSOCIATORS OF and REFERENCES OF queries,
+        only the key properties of resulting CIM instances MUST be populated."
+
+        So it reduces the amount of data.
+        """
+        wmi_path = reformat_path_for_wmi(survol_path)
+
         iter_objects = self.select_bidirectional_associators_from_object_generic(
-            wmi_path, associator_name, result_class, result_role)
-        for _, dict_key_values in iter_objects:
+            result_class, associator_name, wmi_path, result_role, wmi_keys_only=True)
+        for wmi_path, dict_key_values in iter_objects:
+            logging.debug("wmi_path=%s", wmi_path)
             yield dict_key_values
