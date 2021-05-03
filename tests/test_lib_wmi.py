@@ -221,6 +221,17 @@ class LibWmiTest(unittest.TestCase):
             print(object_path)
             print(dict_key_values)
 
+
+    def text_build_wmi_path_from_survol_path(self):
+        test_data = [
+            ('CIM_Directory.Name=abc.def', 'CIM_Directory.Name="abc.def"')
+        ]
+
+        for input_path, expected_wmi_path in test_data:
+            actual_wmi_path = lib_wmi.reformat_path_for_wmi(input_path)
+            self.assertEqual(actual_wmi_path, expected_wmi_path)
+
+
 @unittest.skipIf(not pkgutil.find_loader('wmi'), "WmiSparqlExecutorTest needs wmi package.")
 class WmiSparqlExecutorTest(unittest.TestCase):
     @staticmethod
@@ -271,6 +282,7 @@ class WmiSparqlExecutorTest(unittest.TestCase):
         print("file_name=", file_name)
         print("os.getcwd()=", os.getcwd())
 
+        # WMI needs parameters enclosed in double-quotes.
         wmi_path_directory = 'CIM_Directory.Name="%s"' % directory_name
 
         # CIM_DirectoryContainsFile.GroupComponent or CIM_DirectoryContainsFile.PartComponent
@@ -293,6 +305,7 @@ class WmiSparqlExecutorTest(unittest.TestCase):
         sub_dir_name = always_present_sub_dir.replace("\\", "/").lower()
         directory_name = always_present_dir.replace("\\", "/").lower()
 
+        # WMI needs parameters enclosed in double-quotes.
         wmi_path_directory = 'CIM_Directory.Name="%s"' % directory_name
 
         iter_results = wmi_executor.SelectBidirectionalAssociatorsFromObject(
