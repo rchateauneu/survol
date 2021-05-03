@@ -1234,7 +1234,8 @@ def UrlNoAmp(url):
 
 
 def request_uri_with_mode(other_mode):
-    """In an URL, this replace the CGI parameter "http://....?mode=XXX" by "mode=YYY".
+    """
+    In an URL, this replaces the CGI parameter "http://....?mode=XXX" by "mode=YYY".
     If there is no such parameter, then it is removed. If the input parameter is
     an empty string, then it is removed from the URLs.
     Used for example as the root in entity.py, obj_types.py and class_type_all.py.
@@ -1255,16 +1256,29 @@ def request_uri_with_mode(other_mode):
 
 
 def url_mode_replace(script, other_mode):
-    """ In an url, replaces, removes or adds the value of the argument "mode".
-    This is a key argument for CGI scripts. """
+    """
+    In an url, replaces, removes or adds the value of the argument "mode".
+    This is a key argument for CGI scripts.
+    """
+    return _strip_or_replace_cgi_argument(script, "mode=", other_mode)
 
-    mtch_url = re.match(r"(.*)([\?\&])mode=[^\&]*(.*)", script)
 
-    if other_mode:
+def _strip_or_replace_cgi_argument(script, cgi_argument_with_equal, other_value):
+    """
+    The CGI argument must be appended with equal sign to simplify the code.
+
+    :param script: A URL with CGI arguments.
+    :param cgi_argument_with_equal: The CGI argument appended with equal sign.
+    :param other_value: The new value for this argument. If empty, the argument is removed.
+    :return: The same URL with the updated or removed CGI argument.
+    """
+    mtch_url = re.match(r"(.*)([\?\&])%s[^\&]*(.*)" % cgi_argument_with_equal, script)
+
+    if other_value:
         if mtch_url:
-            updated_url = mtch_url.group(1) + mtch_url.group(2) + "mode=" + other_mode + mtch_url.group(3)
+            updated_url = mtch_url.group(1) + mtch_url.group(2) + cgi_argument_with_equal + other_value + mtch_url.group(3)
         else:
-            updated_url = _concatenate_cgi_argument(script, "mode=" + other_mode)
+            updated_url = _concatenate_cgi_argument(script, cgi_argument_with_equal + other_value)
     else:
         # We want to remove the mode.
         if mtch_url:
@@ -1287,7 +1301,21 @@ def url_mode_replace(script, other_mode):
 
 
 def RootUri():
+    """
+    This takes the calling URL from a CGI environment variable or any other input and returns
+    a RDF node which uniquely represent an instance, which is the "xid" CGI parameter.
+    Other CGI parameters such as the display mode ("rdf" etc...) are removed.
+
+    If the CGI script needs other CGI arguments than "xid", they must be taken separately.
+    :return: The RDF node uniquely representing the instance.
+    """
     calling_url = request_uri_with_mode("")
+
+    # This argument does not define the instance but simply indicates that associators instances
+    # must be displayed. Practically, it occurs only for entity.py because for other scripts,
+    # it is not needed (but it could perhaps be useful).
+    calling_url = _strip_or_replace_cgi_argument(calling_url, "__associator_attribute__=", "")
+
     calling_url = calling_url.replace("&", "&amp;")
     logging.debug("RootUri calling_url=%s", calling_url)
     return NodeUrl(calling_url)
