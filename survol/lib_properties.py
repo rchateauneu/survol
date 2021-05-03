@@ -55,6 +55,8 @@ def PropToQName(property_node):
     """
     property_node is a <class 'rdflib.term.URIRef'>,
     ex "rdflib.term.URIRef(u'http://primhillcomputers.com/survol/QuotaPagedPoolUsage')"
+
+    See also lib_kbase.qname
     TODO: Should call compute_qname ?
     """
     str_prop = str(property_node).rpartition("/")[2]
