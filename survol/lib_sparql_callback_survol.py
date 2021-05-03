@@ -77,7 +77,6 @@ class SurvolSparqlCallbackApi:
                 return
 
             iter_enumeration = enumerate_function( filtered_where_key_values )
-            # for one_key_value_dict in iter_enumeration:
             for one_key_value_dict_nodes in iter_enumeration:
                 class_ontology = lib_util.OntologyClassKeys(class_name)
                 ontology_key_values = {}
@@ -89,7 +88,6 @@ class SurvolSparqlCallbackApi:
                 # This reorders the attributes if needed.
                 key_value_path = lib_util.KWArgsToEntityId(class_name, **ontology_key_values)
 
-                # key_value_path = ".".join( '%s="%s"' % ( lib_properties.PropToQName(key), str(value) ) for key, value in one_key_value_dict_nodes.items() )
                 object_path = "SurvolLocalHost:" + class_name + "." + key_value_path
 
                 one_key_value_dict_nodes[lib_kbase.PredicateIsDefinedBy] = lib_util.NodeLiteral(predicate_prefix)
