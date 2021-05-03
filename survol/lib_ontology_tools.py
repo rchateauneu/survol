@@ -115,6 +115,21 @@ def get_associated_attribute(ontology_name, ontology_extractor, attribute_name):
     raise Exception("No associated role for %s" % attribute_name)
 
 
+
+def get_associated_class_role(ontology_name, ontology_extractor, attribute_name):
+    attributes_map = get_ontology_attributes(ontology_name, ontology_extractor)
+
+    # TODO: This pass could be faster by storing a dictionary indexed by the associator name.
+
+    the_associator_name, the_role = attribute_name.split(".")
+    logging.debug("the_associator_name=%s the_role=%s", the_associator_name, the_role)
+    attribute_properties = attributes_map[attribute_name]
+    predicate_type = attribute_properties["predicate_type"]
+    assert predicate_type.startswith("ref:")
+    _, _, result_class = predicate_type.partition(":")
+    return result_class, the_role
+
+
 def _get_named_ontology_from_file(ontology_name, ontology_extractor, component_name):
     """
     This caches an ontology in files for performance,
