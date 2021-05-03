@@ -1,9 +1,14 @@
-import lib_util
-import lib_mime
 import sys
 import os
 import re
+import logging
+import rdflib
+
+import six
+
 import lib_patterns
+import lib_util
+import lib_mime
 
 
 def _entity_array_to_label(entity_type, entity_ids_arr):
@@ -157,10 +162,13 @@ def _known_script_to_title(fil_script, uri_mode, entity_host=None, entity_suffix
 
 
 def _calc_label(entity_host, entity_type, entity_id, force_entity_ip_addr, fil_script):
+    """
+    This calculates the label of an instance, also taking into account the script.
+    """
     nam_spac, entity_type_no_ns = lib_util.parse_namespace_type(entity_type)
 
     if not force_entity_ip_addr and not lib_util.is_local_address(entity_host):
-        entity_label = None
+        entity_label = "Unset entity_label"
         if fil_script == "entity_wbem.py":
             import lib_wbem
             # Because of WBEM, entity_host is a CIMOM url, like "http://vps516494.ovh.net:5988"
@@ -197,13 +205,18 @@ def _calc_label(entity_host, entity_type, entity_id, force_entity_ip_addr, fil_s
 
 def parse_entity_uri_with_host(uri_with_mode, long_display=True, force_entity_ip_addr=None):
     """
-    Extracts the entity type and id from a URI, coming from a RDF document.
+    This does two different things from an instance URI:
+    - Split an URL into its class, key-value params and host.
+    - And calculate a displayable string for this instance.
+
     This is used notably when transforming RDF into dot documents.
-    The returned entity type is used for choosing graphic attributes
+    The returned entity type is used for example choosing graphic attributes
     and gives more information than the simple entity type.
 
     Example:
     (labText, entity_graphic_class, entity_id) = lib_naming.ParseEntityUri(the_url)
+
+    TODO: It could be split into two different functions.
     """
 
     # Maybe there is a host name before the entity type. It can contain letters, numbers,
@@ -211,9 +224,13 @@ def parse_entity_uri_with_host(uri_with_mode, long_display=True, force_entity_ip
     # THIS CANNOT WORK WITH IPV6 ADDRESSES...
     # WE MAY USE SCP SYNTAX: scp -6 osis@\[2001:db8:0:1\]:/home/osis/test.file ./test.file
 
-    # This conversion because it might be called with rdflib.term.URIRef
-    if not isinstance(uri_with_mode, str):
+    # This conversion because it might be called with rdflib.term.URIRef or rdflib.term.Literal
+    # without explicit conversion, or unicode if py2.
+    # This is not really in issue since this conversion is straightforward.
+    non_str_type = six.binary_type if lib_util.is_py3 else six.text_type
+    if isinstance(uri_with_mode, (rdflib.term.Literal, rdflib.term.URIRef, non_str_type)):
         uri_with_mode = str(uri_with_mode)
+    assert isinstance(uri_with_mode, str)
 
     # This replaces "&amp;" by "&" up to two times if needed.
     uri_with_mode_clean = lib_util.UrlNoAmp(uri_with_mode)
@@ -222,13 +239,10 @@ def parse_entity_uri_with_host(uri_with_mode, long_display=True, force_entity_ip
 
     uprs_query = uprs.query
     uprs_query_split_cgi = uprs_query.split("&")
-    cgi_arg_xid = None
-    uri_mode = ""
-    for one_cgi_arg in uprs_query_split_cgi:
-        if one_cgi_arg.startswith("xid="):
-            cgi_arg_xid = one_cgi_arg[4:]
-        elif one_cgi_arg.startswith("mode="):
-            uri_mode = one_cgi_arg[5:]
+    uprs_query_dict = {k: v for k, _, v in (l.partition("=") for l in uprs_query_split_cgi)}
+    cgi_arg_xid = uprs_query_dict.get("xid", None)
+    uri_mode = uprs_query_dict.get("mode", "")
+    associator_attribute = uprs_query_dict.get("__associator_attribute__", None)
 
     # Default value.
     entity_host = ""
@@ -300,6 +314,10 @@ def parse_entity_uri_with_host(uri_with_mode, long_display=True, force_entity_ip
         entity_label = entity_label.replace("%20", " ")
 
     assert isinstance(entity_graphic_class, str)
+
+    if associator_attribute:
+        entity_label = associator_attribute.replace(".", " ") + " of " + entity_label
+
     return entity_label, entity_graphic_class, entity_id, entity_host
 
 
