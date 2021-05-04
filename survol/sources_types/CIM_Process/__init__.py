@@ -228,7 +228,7 @@ def Usable(entity_type, entity_ids_arr):
     they should not be displayed by entity.py . The process must be running"""
 
     pid_proc = entity_ids_arr[0]
-    return psutil.pid_exists(pid_proc)
+    return psutil.pid_exists(int(pid_proc))
 
 
 def SelectFromWhere(where_key_values):

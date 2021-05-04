@@ -157,7 +157,7 @@ def Usable(entity_type, entity_ids_arr):
     """Java processes"""
 
     pid_proc = entity_ids_arr[0]
-    proc_obj = CIM_Process.PsutilGetProcObj(pid_proc)
+    proc_obj = CIM_Process.PsutilGetProcObj(int(pid_proc))
 
     argv_array = CIM_Process.PsutilProcToCmdlineArray(proc_obj)
 
