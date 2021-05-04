@@ -801,17 +801,11 @@ class Sparql_WMI_GenericObject(Sparql_CIM_Object):
 
         survol_path = variables_context[self.m_variable]
         _, _, shortened_path = survol_path.partition("?xid=")
-        class_name, _, kw_pairs_as_str = shortened_path.partition(".")
-        assert class_name == self.m_class_name
+
         # key-value pairs are separated by commas.
 
-        entity_id_dict = lib_util.SplitMoniker(kw_pairs_as_str)
 
-        # This rebuilds a path for WMI with arguments enclosed in double-quotes.
-        associator_path = self.m_class_name + "." + ",".join(
-            ('%s="%s"' % (prop_key, prop_value) for prop_key, prop_value in entity_id_dict.items())
-        )
-
+        associator_path = lib_wmi.reformat_path_for_wmi(shortened_path)
         return associator_path
 
     def _create_associator_objects(self, graph, variables_context):
