@@ -121,8 +121,10 @@ RemoteRdf4TestServerPort = 8014
 RemoteMimeTestServerPort = 8020
 
 # This is used for test of Survol wsgiserver based on wsgiref
-RemoteWsgi1TestServerPort = 9000
-RemoteWsgi2TestServerPort = 9001
+RemoteWsgi1TestServerPort = 8500
+RemoteWsgi2TestServerPort = 8501
+
+# Beware of supervisord.conf and port=localhost:9001
 
 # This is used for testing Twisted WSGI server.
 RemoteTwistedWsgi1TestServerPort = 9100
