@@ -35,9 +35,9 @@ except ImportError:
 
 def _add_cim_links(callback_grph_add, parent_node, entity_type, entity_id, gen_obj):
     # This does not take into account WBEM running on Windows, or WMI on Linux, because this is not realistic.
-    if lib_wmi:
+    if lib_util.isPlatformWindows and lib_wmi:
         _add_wmi_links(callback_grph_add, parent_node, entity_type, entity_id, gen_obj)
-    if lib_wbem:
+    if lib_util.isPlatformLinux and lib_wbem:
         _add_wbem_links(callback_grph_add, parent_node, entity_type, entity_id, gen_obj)
 
 
