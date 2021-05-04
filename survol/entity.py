@@ -6,9 +6,12 @@ Overview
 
 import sys
 import logging
+import traceback
+
 import lib_util
 import lib_uris
 import lib_common
+import lib_associators
 from lib_properties import pc
 import entity_dirmenu_only # Also used with the CGI parameter mode=menu
 from sources_types import CIM_Process
@@ -53,12 +56,14 @@ def _add_default_scripts(grph, root_node, entity_host):
 
 
 def _add_wbem_wmi_servers(grph, root_node, entity_host, name_space, entity_type, entity_id):
-    """This adds the WBEM and WMI urls related to the entity:
+    """
+    This adds the WBEM and WMI urls related to the entity:
     URLs pointing to the class, to the object itself etc...
     This is used to add as muich informaton as possible about an object.
-    A possible difficulty is the correct escaping of special characters in the definition. """
+    A possible difficulty is the correct escaping of special characters in the definition.
+    """
 
-    # Beware that commas and special characteres should be properly escaped.
+    # Beware that commas and special characters should be properly escaped.
 
     if entity_host:
         host_wbem_wmi = entity_host
@@ -80,7 +85,6 @@ def _add_wbem_wmi_servers(grph, root_node, entity_host, name_space, entity_type,
     add_w_map(map_wmi, pc.property_wmi_data)
     map_survol = CIM_ComputerSystem.AddSurvolServers(host_wbem_wmi, name_space, entity_type, entity_id)
     add_w_map(map_survol, pc.property_survol_agent)
-
 
 
 # Under the directory sources_types, each module is defined by its ontology,
@@ -106,6 +110,14 @@ def Main():
     logging.debug("entity_host=%s", entity_host)
     flag_show_all = int(cgiEnv.get_parameters(lib_util.paramkeyShowAll))
 
+    # This optional parameter must not be edited.
+    # It contains the name of an associator, and the associated objects must be displayed.
+    associator_attribute = cgiEnv.get_parameters("__associator_attribute__")
+    logging.debug("associator_attribute=%s", associator_attribute)
+    if associator_attribute and associator_attribute.find(".") <= 0:
+        lib_common.ErrorMessageHtml(
+            "Associator attribute '%s' should be 'associator.role'" % associator_attribute)
+
     name_space, entity_type = cgiEnv.get_namespace_type()
 
     grph = cgiEnv.GetGraph()
@@ -126,7 +138,12 @@ def Main():
                 logging.info("No AddInfo for %s %s: %s", entity_type, entity_id, str(exc))
             except Exception as exc:
                 logging.info("Unexpected exception for %s %s: %s", entity_type, entity_id, str(exc))
+
+        if associator_attribute:
+            # Should we display the associated instances for this associator and role ?
+            lib_associators.add_associated_instances(grph, root_node, entity_type, entity_id, associator_attribute)
     else:
+        # This behaves as the top-level page, without instances to display.
         logging.info("No lib_entities for %s %s", entity_type, entity_id)
 
     # When displaying in json mode, the scripts are shown with a contextual menu, not with D3 modes..
@@ -144,11 +161,14 @@ def Main():
                 raise
 
         try:
-            entity_dirmenu_only.recursive_walk_on_scripts(callback_grph_add, root_node, entity_type, entity_id, entity_host, flag_show_all)
+            # This displays the scripts associated to this instance.
+            entity_dirmenu_only.recursive_walk_on_scripts(
+                callback_grph_add, root_node, entity_type, entity_id, entity_host, flag_show_all)
         except Exception as exc:
-            logging.error("Caught in recursive_walk_on_scripts:%s", exc)
+            logging.error("Caught in recursive_walk_on_scripts:%s. Trace=%s", exc, traceback.format_exc())
 
         # This adds WBEM and WMI urls related to the current object.
+        # They can display more information about this instance.
         if entity_type != "":
             # This solves the case where one of the values of the ontology predicates contains commas.
             # These commands were quoted, then separated of other arguments by a comma.
