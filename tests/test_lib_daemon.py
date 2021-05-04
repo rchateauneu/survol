@@ -70,13 +70,13 @@ class CgiScriptTest(unittest.TestCase):
         result_url_b = lib_daemon._process_name_to_url(process_name_b)
         self.assertEqual(test_url_b, result_url_b)
 
-    def test_is_events_feeder_daemon_not_running(self):
+    def test_is_events_feeder_daemon_not_running_cgi(self):
         test_url = self._dummy_url_prefix + "non_existent_url.py?arg=%d" % os.getpid()
         status_running = lib_daemon.is_events_feeder_daemon_running(test_url)
         self.assertTrue(not status_running)
 
     @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: This hangs")
-    def test_start_events_feeder_daemon(self):
+    def test_start_events_feeder_daemon_cgi(self):
         # http://vps516494.ovh.net/Survol/survol/sources_types/enumerate_CIM_Process.py?xid=.
         test_url = self._dummy_url_prefix + "/survol/sources_types/events_feeder_one_tick_per_second.py?parama=123&paramb=START"
 
@@ -131,12 +131,42 @@ class CgiScriptTest(unittest.TestCase):
         time.sleep(3)
         self.assertFalse(psutil.pid_exists(created_process_id))
 
-    def test_start_events_feeder_non_daemon(self):
+    def test_start_events_feeder_non_daemon_cgi(self):
         """Events generator must return something even if started in non-daemon mode."""
         # http://vps516494.ovh.net/Survol/survol/sources_types/enumerate_CIM_Process.py?xid=.
 
         script_suffix = "events_feeder_one_tick_per_second.py?parama=456&paramb=START&mode=html"
         test_url = self._agent_url + "/survol/sources_types/" + script_suffix
+        html_url_response = portable_urlopen(test_url, timeout=10)
+        html_content = html_url_response.read()  # Py3:bytes, Py2:str
+        # The format is not important, this just tests that the script started.
+
+        self.assertTrue(html_content)
+
+
+class WsgiScriptTest(unittest.TestCase):
+    _dummy_url_prefix = "http://any.machine/any_directory/"
+
+    def setUp(self):
+        # If a Survol agent does not run on this machine with this port, this script starts a local one.
+        self._rdf_test_agent, self._agent_url = start_wsgiserver(RemoteWsgi2TestServerPort)
+
+    def tearDown(self):
+        stop_wsgiserver(self._rdf_test_agent)
+
+    def test_is_events_feeder_daemon_not_running_wsgi(self):
+        """The WSGI server must start the daemon."""
+        test_url = self._dummy_url_prefix + "non_existent_url.py?arg=%d" % os.getpid()
+        status_running = lib_daemon.is_events_feeder_daemon_running(test_url)
+        self.assertTrue(not status_running)
+
+    def test_start_events_feeder_non_daemon_wsgi(self):
+        """Events generator must return something even if started in non-daemon mode."""
+        # http://vps516494.ovh.net/Survol/survol/sources_types/enumerate_CIM_Process.py?xid=.
+
+        script_suffix = "events_feeder_one_tick_per_second.py?parama=456&paramb=START&mode=html"
+        test_url = self._agent_url + "/survol/sources_types/" + script_suffix
+        time.sleep(3)
         html_url_response = portable_urlopen(test_url, timeout=10)
         html_content = html_url_response.read()  # Py3:bytes, Py2:str
         # The format is not important, this just tests that the script started.
