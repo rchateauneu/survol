@@ -10,16 +10,118 @@ It is never displayed directly.
 """
 
 import os
-import re
 import sys
 import logging
 
 import lib_uris
 import lib_util
 import lib_common
+import lib_naming
+import lib_ontology_tools
 from lib_properties import pc
 
+try:
+    import lib_wmi
+except ImportError:
+    lib_wmi = None
+
+try:
+    import lib_wbem
+except ImportError:
+    lib_wbem = None
+
 # TODO: When converted in RDF, the URL should use see_also, PredicateSeeAlso, RDFS.seeAlso
+
+
+def _add_cim_links(callback_grph_add, parent_node, entity_type, entity_id, gen_obj):
+    # This does not take into account WBEM running on Windows, or WMI on Linux, because this is not realistic.
+    if lib_wmi:
+        _add_wmi_links(callback_grph_add, parent_node, entity_type, entity_id, gen_obj)
+    if lib_wbem:
+        _add_wbem_links(callback_grph_add, parent_node, entity_type, entity_id, gen_obj)
+
+
+def _add_wmi_links(callback_grph_add, parent_node, entity_type, entity_id, gen_obj):
+
+    """
+    wmi_associators_list(entity_type, entity_id) = ["ASSOC1", "ASSOC2"]
+
+    This applies only if this class is defined in WMI or WBEM respectively, as Survol classes have no associators.
+
+    # This creates a menu like:
+    # "WMI associators" =>
+
+    :param callback_grph_add:
+    :param parent_node:
+    :param entity_type:
+    :param entity_id:
+    :return:
+    """
+
+    # Get the list of associators names and field names, from the ontology, in WMI or WBEM.
+    # It is possible to have both types of accessors, or none.
+
+    # From survol_ontology_attributes.wmi.202104.json
+    # CIM_ProcessExecutable.Antecedent
+    #                    predicate_type	"ref:CIM_DataFile"
+    #                    predicate_domai ["CIM_Process"]
+    # CIM_ProcessExecutable.Dependent
+    #                    predicate_type	"ref:CIM_Process"
+    #                    predicate_domain ["CIM_DataFile"]
+
+    # Get the list of attributes, like "accessor name.field name" which have a predicate type of the given class.
+    # See terminology: https://docs.microsoft.com/en-us/windows/win32/wmisdk/associators-of-statement
+    # ASSOCIATORS OF {ObjectPath} WHERE
+    #     AssocClass = AssocClassName
+    #     ClassDefsOnly
+    #     RequiredAssocQualifier = QualifierName
+    #     RequiredQualifier = QualifierName
+    #     ResultClass = ClassName
+    #     ResultRole = PropertyName
+    #     Role = PropertyName
+    # For each of these attributes, create a URL like:
+    # associators_wmi.py?xid=<the-xid>&__result_class__=<class name>&__result_role__=<xyz>
+
+    logging.debug("entity_type=%s entity_id=%s", entity_type, entity_id)
+    depth_call = 1
+    wmi_associators_node = None
+
+    attributes_list = lib_ontology_tools.class_associators("wmi", lib_wmi.extract_specific_ontology_wmi, entity_type)
+    for attribute_name in attributes_list:
+        logging.debug("attribute_name=%s", attribute_name)
+        # It must have the syntax "associator.role"
+        assert attribute_name.find(".") > 0
+        if wmi_associators_node is None:
+            # Add the parent node only if there is at least one associator.
+            wmi_associators_node = lib_util.NodeLiteral("WMI associators")
+            callback_grph_add((parent_node, pc.property_script, wmi_associators_node), depth_call)
+
+        # The CGI parameter "xid" is normally the only CGI parameter related to data.
+        # Extra CGI parameters are used for display mode (RDF, SVG etc...) or for parameters edition,
+        # that is, for "technical" things.
+        # Here, this is the only place where an extra CGI parameters related to data is used.
+        # This is why no function is created in lib_urls for this purpose.
+        # This might change if, in the future, all parameters of the instances are passed
+        # as plain CGI parameters, like the technical parameters which will be prefixed and suffixed with "__".
+        # url_path = gen_obj.create_entity_path("/entity.py", entity_type, entity_id.replace("/", ""))
+        url_path = gen_obj.create_entity_path("/entity.py", entity_type, entity_id)
+        url_path += "&amp;__associator_attribute__=" + attribute_name
+        script_node = lib_util.NodeUrl(url_path)
+
+        associator_name, _, _ = attribute_name.partition(".")
+        callback_grph_add((wmi_associators_node, pc.property_script, script_node), depth_call + 1)
+        script_label, _, _ = lib_naming.ParseEntityUri(url_path)
+        callback_grph_add((script_node, pc.property_information, lib_util.NodeLiteral(script_label)), depth_call + 1)
+
+    # TODO: It is possible to enumerate all objects of a given class.
+    # TODO: However, it might return too many objects, and it is not possible to set the field values,
+    # TODO: so it is a poor usage of SELECT query.
+    # TODO: Therefore it is much better to have a form for entering values for each field.
+    # add_enumeration_of_objects_of_this_class(parent_node)
+
+
+def _add_wbem_links(callback_grph_add, parent_node, entity_type, entity_id, gen_obj):
+    logging.warning("entity_type=%s entity_id=%s wbem not implemented yet", entity_type, entity_id)
 
 
 def _test_usability(imported_module, entity_type, entity_ids_arr):
@@ -34,7 +136,13 @@ def _test_usability(imported_module, entity_type, entity_ids_arr):
     # except if a special flag is given, and in this case these error messages are displayed.
     try:
         is_usable = imported_module.Usable(entity_type, entity_ids_arr)
-    except:
+    except AttributeError as exc:
+        logging.info("entity_type=%s entity_ids_arr=%s module %s has no Usable attribute: Caught %s",
+                        entity_type, str(entity_ids_arr), imported_module.__name__, exc)
+        return None
+    except Exception as exc:
+        logging.error("entity_type=%s entity_ids_arr=%s module %s: Caught %s",
+                        entity_type, str(entity_ids_arr), imported_module.__name__, exc)
         return None
 
     if is_usable:
@@ -173,7 +281,7 @@ def recursive_walk_on_scripts(callback_grph_add, parent_node, entity_type, entit
 
             script_path = relative_dir_sub_path + "/" + fil
 
-            url_rdf = gen_obj.MakeTheNodeFromScript(script_path, entity_type, encoded_entity_id)
+            rdf_node = gen_obj.MakeTheNodeFromScript(script_path, entity_type, encoded_entity_id)
 
             error_msg = None
 
@@ -219,11 +327,14 @@ def recursive_walk_on_scripts(callback_grph_add, parent_node, entity_type, entit
 
             # Here, we are sure that the script is added.
             # TODO: If no script is added, should not add the directory?
-            rdf_node = lib_common.NodeUrl(url_rdf)
             callback_grph_add((a_parent_node, pc.property_script, rdf_node), depth_call)
 
             # Default doc text is file name minus the ".py" extension.
             nod_modu = lib_util.module_doc_string(imported_mod, fil[:-3])
+
+            # nod_modu contains a literal of a str.
+            if not isinstance(nod_modu, str):
+                logging.error("nod_modu=%s should be str instead of %s", nod_modu, type(nod_modu))
 
             callback_grph_add((rdf_node, pc.property_information, nod_modu), depth_call)
 
@@ -235,6 +346,8 @@ def recursive_walk_on_scripts(callback_grph_add, parent_node, entity_type, entit
 
     if entity_host:
         logging.debug("entity_host=%s", entity_host)
+    # This will not be needed anymore when MakeTheNodeFromScript properly encode chars like UriMakeFromDict.
+    # TODO: Use base64 for urls, everywhere. Use appropriate encoding for XML, SVG or HTML text.
     encoded_entity_id = lib_util.EncodeUri(entity_id)
     entity_ids_arr = lib_util.EntityIdToArray(entity_type, entity_id)
 
@@ -249,6 +362,9 @@ def recursive_walk_on_scripts(callback_grph_add, parent_node, entity_type, entit
     gen_obj = lib_uris.MachineBox(entity_host)
 
     recursive_walk_aux(parent_node, None, directory, relative_dir, depth_call=1)
+
+    if entity_type:
+        _add_cim_links(callback_grph_add, parent_node, entity_type, entity_id, gen_obj)
 
 
 def Main():
