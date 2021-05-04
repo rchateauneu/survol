@@ -393,7 +393,6 @@ class BaseCIMClass(object):
         def _append_to_sources(json_tree, title_prefix):
             for one_scr, its_tree in json_tree.items():
                 try:
-                    assert isinstance(one_scr, str)
                     url_to_source = script_url_to_source(one_scr)
                     list_sources.append(url_to_source)
                     assert one_scr.find("xid") >= 0
