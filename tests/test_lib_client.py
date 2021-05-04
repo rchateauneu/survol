@@ -2001,6 +2001,17 @@ class SurvolRemoteTest(unittest.TestCase):
         # There should be at least a couple of scripts.
         self.assertTrue(len(list_scripts_dir) > 0)
 
+    def test_remote_scripts_CIM_Process(self):
+        my_agent = lib_client.Agent(_remote_general_test_agent)
+
+        my_instances_remote_dir = my_agent.CIM_Process(Handle=CurrentPid)
+        list_scripts_dir = my_instances_remote_dir.get_scripts()
+
+        for key_script in list_scripts_dir:
+            logging.debug("    %s" % key_script)
+        # There should be at least a couple of scripts.
+        self.assertTrue(len(list_scripts_dir) > 0)
+
 
 class SurvolAzureTest(unittest.TestCase):
     """Testing Azure discovery"""

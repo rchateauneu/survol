@@ -373,7 +373,7 @@ class BaseCIMClass(object):
                     + "?xid=" + self.__class__.__name__ \
                     + "." + self.m_entity_id + "&mode=menu"
 
-        # Typical content:
+        # Typical content of the tree of scripts:
         # {
         #     "http://mymachine:8000/survol/sources_types/CIM_Directory/dir_stat.py?xid=CIM_Directory.Name%3DD%3A": {
         #         "name": "Directory stat information",
@@ -388,7 +388,21 @@ class BaseCIMClass(object):
         data_json = json.loads(data_json_str)
 
         # The scripts urls are the keys of the Json object.
-        list_sources = [script_url_to_source(str(one_scr)) for one_scr in data_json]
+        list_sources = []
+
+        def _append_to_sources(json_tree, title_prefix):
+            for one_scr, its_tree in json_tree.items():
+                try:
+                    assert isinstance(one_scr, str)
+                    url_to_source = script_url_to_source(one_scr)
+                    list_sources.append(url_to_source)
+                    assert one_scr.find("xid") >= 0
+                except KeyError:
+                    # Maybe this is not a URL but a string labelling a subset of other urls.
+                    assert one_scr.find("xid") < 0
+                    _append_to_sources(its_tree["items"], one_scr + "/" + title_prefix)
+
+        _append_to_sources(data_json, "")
         return list_sources
 
     def __get_scripts_local(self):
