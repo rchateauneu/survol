@@ -16,12 +16,12 @@ def EntityOntology():
 
 
 # Ambiguity with tables, oracle or normal users.
-def MakeUri(dbName,schemaName,libraryName):
+def MakeUri(db_name, schema_name, library_name):
     return lib_uris.gUriGen.UriMakeFromDict(
-        "oracle/library", {"Db" : dbName, "Schema": schemaName, "Library": libraryName})
+        "oracle/library", {"Db" : db_name, "Schema": schema_name, "Library": library_name})
 
 
-def AddInfo(grph,node,entity_ids_arr):
+def AddInfo(grph,node, entity_ids_arr):
     # TODO: SPECIAL. Imported here to avoid circular inclusions, see oracle/package_body/__init__.py
     from sources_types.oracle import schema as oracle_schema
 
