@@ -68,7 +68,7 @@ class LocalBox:
         entity_id = self._build_entity_id(entity_type, *entity_id_arr)
         return self.create_entity_node(entity_type, entity_id)
 
-    def UriMakeFromScript(self, path, entity_type, *entity_id_arr):
+    def uri_make_from_script(self, path, entity_type, *entity_id_arr):
         entity_id = self._build_entity_id(entity_type, *entity_id_arr)
         return self.MakeTheNodeFromScript(path, entity_type, entity_id)
 
