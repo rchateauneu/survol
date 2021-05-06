@@ -17,7 +17,7 @@ def EntityOntology():
 
 
 def MakeUri(dsn_name, proc_nam):
-    return lib_uris.gUriGen.UriMakeFromDict(
+    return lib_uris.gUriGen.node_from_dict(
         "odbc/procedure", {survol_odbc.CgiPropertyDsn(): dsn_name, "Procedure": proc_nam})
 
 

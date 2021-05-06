@@ -19,7 +19,7 @@ def EntityOntology():
 
 
 def MakeUri(dsn_name, table_nam):
-    return lib_uris.gUriGen.UriMakeFromDict("odbc/table", {survol_odbc.CgiPropertyDsn(): dsn_name, "Table": table_nam})
+    return lib_uris.gUriGen.node_from_dict("odbc/table", {survol_odbc.CgiPropertyDsn(): dsn_name, "Table": table_nam})
 
 
 def EntityName(entity_ids_arr):

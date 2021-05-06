@@ -17,7 +17,7 @@ def EntityOntology():
 
 # Ambiguity with tables, oracle or normal users.
 def MakeUri(db_name, schema_name, library_name):
-    return lib_uris.gUriGen.UriMakeFromDict(
+    return lib_uris.gUriGen.node_from_dict(
         "oracle/library", {"Db" : db_name, "Schema": schema_name, "Library": library_name})
 
 

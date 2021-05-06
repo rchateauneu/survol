@@ -94,7 +94,7 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
             print("    ", s_p_o)
         self.assertTrue( len(query_result) == 1)
 
-        process_node = lib_uris.gUriGen.UriMakeFromDict("CIM_Process", {"Handle": CurrentPid})
+        process_node = lib_uris.gUriGen.node_from_dict("CIM_Process", {"Handle": CurrentPid})
         print("Expected process_node=", process_node)
         self.assertTrue(process_node == list(query_result)[0][0])
 
@@ -112,7 +112,7 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("query_result=", query_result, len(query_result))
-        directory_node = lib_uris.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": "C:"})
+        directory_node = lib_uris.gUriGen.node_from_dict("CIM_Directory", {"Name": "C:"})
         self.assertEqual(directory_node, query_result[0][0])
 
     def test_wmi_query_directory_caption(self):
@@ -149,7 +149,7 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
-        directory_node = lib_uris.gUriGen.UriMakeFromDict("Win32_LogicalDisk", {"DeviceID": "C:"})
+        directory_node = lib_uris.gUriGen.node_from_dict("Win32_LogicalDisk", {"DeviceID": "C:"})
         self.assertEqual(directory_node, query_result[0][0])
 
     def test_Win32_LogicalDisk_all(self):
@@ -165,7 +165,7 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
-        directory_node = lib_uris.gUriGen.UriMakeFromDict("Win32_LogicalDisk", {"DeviceID": "C:"})
+        directory_node = lib_uris.gUriGen.node_from_dict("Win32_LogicalDisk", {"DeviceID": "C:"})
         self.assertTrue(directory_node in [one_query[0] for one_query in query_result])
 
     def test_wmi_query_user_account_url(self):
@@ -482,7 +482,7 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
         self.assertEqual(len(query_result), 1)
-        datafile_node = lib_uris.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name})
+        datafile_node = lib_uris.gUriGen.node_from_dict("CIM_DataFile", {"Name": file_name})
         self.assertEqual(query_result[0][0], datafile_node)
 
     def test_CIM_Directory_Name(self):
@@ -499,7 +499,7 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
         self.assertEqual(len(query_result), 1)
-        directory_node = lib_uris.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": directory_name})
+        directory_node = lib_uris.gUriGen.node_from_dict("CIM_Directory", {"Name": directory_name})
         self.assertEqual(query_result[0][0], directory_node)
 
     def test_Win32_UserAccount_to_caption(self):
@@ -568,13 +568,13 @@ class SparqlWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         print("query_str_only=", query_str_only)
 
         file_name_python_exe = lib_util.standardized_file_path(sys.executable)
-        node_python_exe = lib_uris.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name_python_exe})
+        node_python_exe = lib_uris.gUriGen.node_from_dict("CIM_DataFile", {"Name": file_name_python_exe})
         print("node_python_exe=", node_python_exe)
         self.assertTrue(str(node_python_exe) in query_str_only)
 
         # u'http://rchateau-hp:80/LocalExecution/entity.py?xid=CIM_DataFile.Name=c:/windows/system32/iphlpapi.dll' etc
         file_name_gdi32 = lib_util.standardized_file_path("c:/windows/system32/gdi32.dll")
-        datafile_node_gdi32 = lib_uris.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name_gdi32})
+        datafile_node_gdi32 = lib_uris.gUriGen.node_from_dict("CIM_DataFile", {"Name": file_name_gdi32})
         self.assertTrue(str(datafile_node_gdi32) in query_str_only)
 
     def test_associator_CIM_Process_executable_node(self):
@@ -595,12 +595,12 @@ class SparqlWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         print("filenames_only=", filenames_only)
 
         file_name_python_exe = lib_util.standardized_file_path(sys.executable)
-        node_python_exe = lib_uris.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name_python_exe})
+        node_python_exe = lib_uris.gUriGen.node_from_dict("CIM_DataFile", {"Name": file_name_python_exe})
         print("node_python_exe=", node_python_exe)
         self.assertTrue(str(node_python_exe) in filenames_only)
 
         file_name_ntdll = lib_util.standardized_file_path("c:/windows/system32/ntdll.dll")
-        datafile_node_ntdll = lib_uris.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name_ntdll})
+        datafile_node_ntdll = lib_uris.gUriGen.node_from_dict("CIM_DataFile", {"Name": file_name_ntdll})
         self.assertTrue(str(datafile_node_ntdll) in filenames_only)
 
     def test_associator_CIM_Process_executable_name(self):
@@ -705,7 +705,7 @@ class SparqlWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
             for proc in psutil.Process(CurrentParentPid).children(recursive=False)]
         print("expected_sibling_exe_names=", expected_sibling_exe_names)
         expected_sibling_exe_nodes = set(
-            lib_uris.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": exe_name})
+            lib_uris.gUriGen.node_from_dict("CIM_DataFile", {"Name": exe_name})
             for exe_name in expected_sibling_exe_names)
         print("expected_sibling_exe_nodes=", expected_sibling_exe_nodes)
 
@@ -765,7 +765,7 @@ class SparqlWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
             "c:/windows/system32",
             "c:/windows/system32/wbem"]:
             standard_dir_path = lib_util.standardized_file_path(dir_path)
-            node_dir = str(lib_uris.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": standard_dir_path}))
+            node_dir = str(lib_uris.gUriGen.node_from_dict("CIM_Directory", {"Name": standard_dir_path}))
             print("Path=", dir_path)
             print("Node=", node_dir)
             self.assertTrue(node_dir in dirnodes_only)
@@ -785,7 +785,7 @@ class SparqlWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
 
-        computer_node = lib_uris.gUriGen.UriMakeFromDict("Win32_ComputerSystem", {"Name": CurrentDomainWin32.upper()})
+        computer_node = lib_uris.gUriGen.node_from_dict("Win32_ComputerSystem", {"Name": CurrentDomainWin32.upper()})
         print("computer_node=", computer_node)
 
         self.assertTrue(computer_node == query_result[0][0])
@@ -819,7 +819,7 @@ class SparqlWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
-        computer_node = lib_uris.gUriGen.UriMakeFromDict("Win32_ComputerSystem", {"Name": CurrentDomainWin32.upper()})
+        computer_node = lib_uris.gUriGen.node_from_dict("Win32_ComputerSystem", {"Name": CurrentDomainWin32.upper()})
         self.assertTrue([(computer_node,)] == query_result)
 
     def test_associator_computer_name_to_CIM_Process_ids(self):
@@ -870,7 +870,7 @@ class SparqlWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         ]
         for one_path in mandatory_file_paths:
             standard_path = lib_util.standardized_file_path(one_path)
-            node_file = lib_uris.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": standard_path})
+            node_file = lib_uris.gUriGen.node_from_dict("CIM_DataFile", {"Name": standard_path})
             print("standard_path=", standard_path)
             self.assertTrue(str(node_file) in query_as_str)
         print("Number of files:", len(query_as_str))
@@ -916,7 +916,7 @@ class SparqlWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
         # ASSOCIATOR INVERSION !!!!!!!!!!
 
-        node_url = lib_uris.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": file_name})
+        node_url = lib_uris.gUriGen.node_from_dict("CIM_DataFile", {"Name": file_name})
         node_file_name = str(node_url)
         print("node_file_name=", node_file_name)
         self.assertTrue(node_file_name in query_urls)
@@ -971,7 +971,7 @@ class SparqlWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
         # The file belongs to one directory.
         self.assertEqual(len(query_result), 1)
-        node_directory = lib_uris.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": directory_name})
+        node_directory = lib_uris.gUriGen.node_from_dict("CIM_Directory", {"Name": directory_name})
         self.assertTrue((node_directory,) in query_result)
 
     def test_associator_directory_to_sub_directory_node(self):
@@ -995,7 +995,7 @@ class SparqlWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         for dir_root, dir_dirs, dir_files in os.walk(directory_name):
             for one_dir in dir_dirs:
                 dir_path = lib_util.standardized_file_path(os.path.join(dir_root, one_dir))
-                dir_node = lib_uris.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": dir_path})
+                dir_node = lib_uris.gUriGen.node_from_dict("CIM_Directory", {"Name": dir_path})
                 expected_dir_nodes.add(str(dir_node))
             break
         print("expected_dir_nodes=%s\n" % expected_dir_nodes)
@@ -1018,7 +1018,7 @@ class SparqlWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         print("Result=", query_result)
-        directory_node = lib_uris.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": directory_name})
+        directory_node = lib_uris.gUriGen.node_from_dict("CIM_Directory", {"Name": directory_name})
         print("directory_node=", directory_node)
         self.assertEqual([(directory_node,)], query_result)
 
@@ -1045,7 +1045,7 @@ class SparqlWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
 
         # The file belongs to one directory.
         self.assertEqual(len(query_result), 1)
-        node_directory_of_directory = lib_uris.gUriGen.UriMakeFromDict("CIM_Directory", {"Name": directory_of_directory_name})
+        node_directory_of_directory = lib_uris.gUriGen.node_from_dict("CIM_Directory", {"Name": directory_of_directory_name})
         self.assertEqual([(node_directory_of_directory,)], query_result)
 
     def test_associator_datafile_to_directory_of_directory_name(self):
@@ -1100,7 +1100,7 @@ class SparqlWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         ]
         # Conversions to lowercase because of inconsistent behaviour in previous WMI and Windows versions.
         expect_nodes = sorted([
-            str(lib_uris.gUriGen.UriMakeFromDict("CIM_DataFile", {"Name": path_name}))
+            str(lib_uris.gUriGen.node_from_dict("CIM_DataFile", {"Name": path_name}))
             for path_name in expect_pathnames
         ])
         print("expect_nodes=",expect_nodes)

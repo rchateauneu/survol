@@ -18,7 +18,7 @@ def EntityOntology():
 
 def MakeUri(file_name, table_name):
     # sqlite table names are case-insensitive.
-    return lib_uris.gUriGen.UriMakeFromDict("sqlite/table", {"File": file_name, "Table": table_name.lower()})
+    return lib_uris.gUriGen.node_from_dict("sqlite/table", {"File": file_name, "Table": table_name.lower()})
 
 
 def EntityName(entity_ids_arr):

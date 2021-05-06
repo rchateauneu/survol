@@ -11,4 +11,4 @@ def EntityOntology():
 
 
 def MakeUri(na_nam):
-    return lib_uris.gUriGen.UriMakeFromDict("CIM_NetworkAdapter", {"Name": na_nam})
+    return lib_uris.gUriGen.node_from_dict("CIM_NetworkAdapter", {"Name": na_nam})

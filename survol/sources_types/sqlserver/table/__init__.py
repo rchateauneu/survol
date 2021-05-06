@@ -24,7 +24,7 @@ def EntityOntology():
 
 # Beware of the possible confusion with normal users.
 def MakeUri(dsn_nam, schema_name, table_name):
-    return lib_uris.gUriGen.UriMakeFromDict("sqlserver/table", {
+    return lib_uris.gUriGen.node_from_dict("sqlserver/table", {
         sqlserver_dsn.CgiPropertyDsn(): dsn_nam,
         "Schema": schema_name,
         "Table": table_name})

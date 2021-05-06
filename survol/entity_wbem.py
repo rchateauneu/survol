@@ -191,7 +191,7 @@ def Main():
             dict_props = split_monik
 
         host_only = lib_util.EntHostToIp(cimom_url)
-        uri_inst = lib_common.MachineBox(host_only).UriMakeFromDict(class_name, dict_props)
+        uri_inst = lib_common.MachineBox(host_only).node_from_dict(class_name, dict_props)
 
         grph.add((root_node, lib_common.MakeProp(class_name), uri_inst))
 

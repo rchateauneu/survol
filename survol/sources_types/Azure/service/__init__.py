@@ -17,6 +17,6 @@ def EntityOntology():
 def MakeUri(service_name, subscription_name):
     subscription_name = lib_util.urllib_quote(subscription_name)
     service_name = lib_util.urllib_quote(service_name)
-    return lib_uris.gUriGen.UriMakeFromDict(
+    return lib_uris.gUriGen.node_from_dict(
         "Azure/service", {"Subscription": subscription_name, "Service": service_name})
 
