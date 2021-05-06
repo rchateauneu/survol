@@ -68,7 +68,7 @@ def Main():
     try:
         init_fil_nam = the_module.__file__
         fil_node = lib_uris.gUriGen.FileUri(init_fil_nam)
-        grph.add((package_node, survol_python_package.propPythonPackage, fil_node))
+        grph.add((package_node, survol_python_package.prop_python_package, fil_node))
 
         try:
             survol_python.AddAssociatedFiles(grph,fil_node, init_fil_nam)
