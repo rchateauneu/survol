@@ -23,7 +23,7 @@ def EntityName(entity_ids_arr):
     return entity_ids_arr[0]
 
 
-def RpmProps():
+def rpm_properties():
     list_props = ["epoch", "version", "release", "arch"]
 
     # Add a dot, so they come first.
@@ -35,7 +35,7 @@ def RpmProps():
 def AddInfo(grph, node, entity_ids_arr):
     rpm_name = entity_ids_arr[0]
 
-    rpm_props = RpmProps()
+    rpm_props = rpm_properties()
 
     ts = rpm.TransactionSet()
     mi = ts.dbMatch('name',rpm_name)
