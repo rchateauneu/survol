@@ -16,7 +16,7 @@ def EntityOntology():
 
 
 def MakeUri(url_name, vhost_name):
-    return lib_uris.gUriGen.UriMakeFromDict("rabbitmq/vhost", {"Url": url_name, "VHost": vhost_name})
+    return lib_uris.gUriGen.node_from_dict("rabbitmq/vhost", {"Url": url_name, "VHost": vhost_name})
 
 
 # According to the API documentation:

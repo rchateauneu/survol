@@ -15,7 +15,7 @@ def EntityOntology():
 
 
 def MakeUri(db_name):
-    return lib_uris.gUriGen.UriMakeFromDict("oracle/db", {"Db": db_name})
+    return lib_uris.gUriGen.node_from_dict("oracle/db", {"Db": db_name})
 
 
 def EntityName(entity_ids_arr):

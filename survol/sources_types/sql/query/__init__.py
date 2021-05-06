@@ -59,7 +59,7 @@ def MakeUri(str_query, derived_entity="sql/query", **kwargs):
     all_keyed_args = {"Query": str_query_encoded}
     all_keyed_args.update(kwargs)
     # Maybe we could take the calling module as derived entity ?
-    return lib_uris.gUriGen.UriMakeFromDict(derived_entity, all_keyed_args)
+    return lib_uris.gUriGen.node_from_dict(derived_entity, all_keyed_args)
 
 
 def AddInfo(grph, node, entity_ids_arr):

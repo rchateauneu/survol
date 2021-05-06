@@ -220,7 +220,7 @@ def _check_events_feeder_psutil_processes_perf(test_object, text_message, result
         # There should be at least one sample. Normally only one if this is a snapshot,
         # but this is not an important constraint.
         print(text_message, "Checking process", process_id)
-        process_node = test_object._agent_box().UriMakeFromDict("CIM_Process", {"Handle": process_id})
+        process_node = test_object._agent_box().node_from_dict("CIM_Process", {"Handle": process_id})
         samples_number = 0
         for _, _, sample_root_node in result_graph.triples((process_node, property_process_perf, None)):
             def check_present(property_name):
@@ -403,7 +403,7 @@ class CgiScriptIOMemoryStartOnlyTest(unittest.TestCase):
 
             # This node must be in the result. Dockit is run within a temporary agent,
             # therefore this agent is used as a URL for the created nodes.
-            created_process_node = self._agent_box().UriMakeFromDict("CIM_Process", {"Handle": proc_popen.pid})
+            created_process_node = self._agent_box().node_from_dict("CIM_Process", {"Handle": proc_popen.pid})
             literal_pid = rdflib.Literal(proc_popen.pid)
 
             url_suffix = "CIM_Process/events_feeder_system_calls.py?xid=CIM_Process.Handle=%d" % proc_popen.pid
@@ -563,7 +563,7 @@ print("cwd=", os.getcwd())
             # This node must be in the result. Dockit is run within a temporary agent,
             # therefore this agent is used as a URL for the created nodes.
             agent_prefix = self._agent_url + "/survol"
-            created_process_node = lib_common.OtherAgentBox(agent_prefix).UriMakeFromDict(
+            created_process_node = lib_common.OtherAgentBox(agent_prefix).node_from_dict(
                 "CIM_Process", {"Handle": proc_popen.pid})
             literal_pid = rdflib.Literal(proc_popen.pid)
 

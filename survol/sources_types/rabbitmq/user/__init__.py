@@ -14,7 +14,7 @@ def EntityOntology():
 
 
 def MakeUri(url_name, user_name):
-    return lib_uris.gUriGen.UriMakeFromDict("rabbitmq/user", {"Url": url_name, "User": user_name})
+    return lib_uris.gUriGen.node_from_dict("rabbitmq/user", {"Url": url_name, "User": user_name})
 
 
 def EntityName(entity_ids_arr):

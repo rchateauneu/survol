@@ -10,5 +10,5 @@ def EntityOntology():
 
 
 def MakeUri(sheet_nam):
-    return lib_uris.gUriGen.UriMakeFromDict("sql/sheet", {"Name": sheet_nam})
+    return lib_uris.gUriGen.node_from_dict("sql/sheet", {"Name": sheet_nam})
 

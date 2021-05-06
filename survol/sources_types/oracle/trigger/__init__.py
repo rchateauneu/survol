@@ -15,7 +15,7 @@ def EntityOntology():
 
 
 def MakeUri(db_name, schema_name, trigger_name):
-    return lib_uris.gUriGen.UriMakeFromDict(
+    return lib_uris.gUriGen.node_from_dict(
         "oracle/trigger", {"Db": db_name, "Schema": schema_name, "Trigger": trigger_name})
 
 

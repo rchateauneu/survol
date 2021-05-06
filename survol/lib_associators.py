@@ -55,7 +55,7 @@ def add_associated_instances(grph, root_node, entity_type, entity_id, associator
             else:
                 logging.debug("Class %s, key %s is not in the ontology", result_class, property_key_name)
 
-        script_node = lib_uris.LocalBox().UriMakeFromDict(result_class, converted_key_value_dict)
+        script_node = lib_uris.LocalBox().node_from_dict(result_class, converted_key_value_dict)
         property_node = lib_properties.MakeProp(result_role)
         logging.debug("script_node=%s", script_node)
         grph.add((root_node, property_node, script_node))

@@ -19,4 +19,4 @@ def EntityName(entity_ids_arr):
 
 
 def MakeUri(cgroup_nam):
-    return lib_uris.gUriGen.UriMakeFromDict("Linux/cgroup", {"Name": cgroup_nam})
+    return lib_uris.gUriGen.node_from_dict("Linux/cgroup", {"Name": cgroup_nam})
