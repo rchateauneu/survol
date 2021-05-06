@@ -21,9 +21,9 @@ except ImportError:
 
 
 # TODO: Should do that only when executing ?? How to make the difference ??
-propPythonVersion = lib_common.MakeProp("Version")
-propPythonRequires = lib_common.MakeProp("Requires")
-propPythonPackage = lib_common.MakeProp("Package")
+prop_python_version = lib_common.MakeProp("Version")
+prop_python_requires = lib_common.MakeProp("Requires")
+prop_python_package = lib_common.MakeProp("Package")
 
 
 def EntityOntology():
@@ -46,7 +46,7 @@ def _fill_one_package(grph, node, good_pckg):
     # s', 'from_filename', 'from_location', 'get_entry_info', 'get_entry_map', 'has_version', 'hashcmp', 'insert_on', 'key', 'load_entry_p
     # oint', 'location', 'parsed_version', 'platform', 'precedence', 'project_name', 'py_version', 'requires', 'version']
 
-    grph.add((node, propPythonVersion, lib_util.NodeLiteral(good_pckg.version)))
+    grph.add((node, prop_python_version, lib_util.NodeLiteral(good_pckg.version)))
     grph.add((node, lib_common.MakeProp("Platform"), lib_util.NodeLiteral(good_pckg.platform)))
     grph.add((node, lib_common.MakeProp("project_name"), lib_util.NodeLiteral(good_pckg.project_name)))
 
@@ -105,7 +105,7 @@ def _add_info_from_pip(grph, node, package_key):
                                 node,
                                 lib_common.MakeProp("Condition " + pckg.key),
                                 lib_util.NodeLiteral(str(a_specs))))
-                        grph.add((subNode, propPythonRequires, node))
+                        grph.add((subNode, prop_python_requires, node))
                         break
 
     except Exception as exc:
@@ -122,7 +122,7 @@ def _add_info_from_import(grph, package_node, package_key):
     try:
         init_fil_nam = the_module.__file__
         fil_node = lib_uris.gUriGen.FileUri(init_fil_nam)
-        grph.add((package_node, propPythonPackage, fil_node))
+        grph.add((package_node, prop_python_package, fil_node))
     except AttributeError:
         pass
 
@@ -210,12 +210,12 @@ def AddImportedModules(grph, node, fil_nam, max_depth, disp_packages, disp_files
                 grph.add((modu_nod, pc.property_rdf_data_nolist2, node_file))
 
             if len(split_nam) == 1:
-                grph.add((node, propPythonPackage, modu_nod))
+                grph.add((node, prop_python_package, modu_nod))
                 logging.debug("No parent: modu_nam=%s", (modu_nam))
             else:
                 parent_modu_nam = ".".join(split_nam[:-1])
                 parent_modu_nod = get_modu_node(parent_modu_nam)
-                grph.add((parent_modu_nod, propPythonRequires, modu_nod))
+                grph.add((parent_modu_nod, prop_python_requires, modu_nod))
                 logging.debug("parent_modu_nam=%s modu_nam=%s", parent_modu_nam, modu_nam)
 
         if disp_files and not disp_packages:
@@ -223,8 +223,8 @@ def AddImportedModules(grph, node, fil_nam, max_depth, disp_packages, disp_files
                 node_file = get_file_node(modu_fil)
                 if len(split_nam) == 1:
                     # TODO: Should be connected to the module.
-                    grph.add((node, propPythonPackage, node_file))
+                    grph.add((node, prop_python_package, node_file))
                 else:
                     parent_modu_nam = ".".join(split_nam[:-1])
                     parent_modu_nod = get_modu_node(parent_modu_nam)
-                    grph.add((parent_modu_nod, propPythonRequires, node_file))
+                    grph.add((parent_modu_nod, prop_python_requires, node_file))

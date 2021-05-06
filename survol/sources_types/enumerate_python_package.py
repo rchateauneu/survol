@@ -60,7 +60,7 @@ def Main():
             continue
 
         package_node = key_to_pckg_node(pckg.key)
-        grph.add((package_node, package.propPythonVersion, lib_util.NodeLiteral(pckg.version)))
+        grph.add((package_node, package.prop_python_version, lib_util.NodeLiteral(pckg.version)))
 
         req_pckg = pckg.requires()
         if req_pckg:
@@ -73,9 +73,9 @@ def Main():
                 # if aSpecs:
                 #    grph.add( (sub_node, lib_common.MakeProp("Condition"), lib_util.NodeLiteral( str(aSpecs) ) ) )
 
-                grph.add((package_node, package.propPythonRequires, sub_node))
+                grph.add((package_node, package.prop_python_requires, sub_node))
         else:
-            grph.add((lib_common.nodeMachine, package.propPythonPackage, package_node))
+            grph.add((lib_common.nodeMachine, package.prop_python_package, package_node))
 
     cgiEnv.OutCgiRdf("LAYOUT_SPLINE")
 
