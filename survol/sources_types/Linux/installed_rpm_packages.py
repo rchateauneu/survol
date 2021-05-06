@@ -37,7 +37,7 @@ def Main():
 
 	grph = cgiEnv.GetGraph()
 
-	rpmProps = survol_rpm.RpmProps()
+	rpmProps = survol_rpm.rpm_properties()
 
 	rpmPropName = lib_common.MakeProp("rpm")
 
