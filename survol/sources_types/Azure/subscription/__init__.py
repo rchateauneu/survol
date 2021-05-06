@@ -24,7 +24,7 @@ def EntityOntology():
 
 def MakeUri(subscription_name):
     subscription_name = lib_util.urllib_quote(subscription_name)
-    return lib_uris.gUriGen.UriMakeFromDict("Azure/subscription", {"Subscription" : subscription_name})
+    return lib_uris.gUriGen.node_from_dict("Azure/subscription", {"Subscription" : subscription_name})
 
 
 # This display extra information about a subscription.

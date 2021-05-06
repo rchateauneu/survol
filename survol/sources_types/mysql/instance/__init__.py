@@ -17,7 +17,7 @@ def EntityOntology():
 
 
 def MakeUri(instance_name):
-    return lib_uris.gUriGen.UriMakeFromDict("mysql/instance", {"Instance": instance_name})
+    return lib_uris.gUriGen.node_from_dict("mysql/instance", {"Instance": instance_name})
 
 
 def AddInfo(grph, node, entity_ids_arr):

@@ -18,7 +18,7 @@ def EntityOntology():
 
 
 def MakeUri(dsn_name, table_nam, column_nam):
-    return lib_uris.gUriGen.UriMakeFromDict(
+    return lib_uris.gUriGen.node_from_dict(
         "odbc/column", {survol_odbc.CgiPropertyDsn(): dsn_name, "Table": table_nam, "Column": column_nam})
 
 

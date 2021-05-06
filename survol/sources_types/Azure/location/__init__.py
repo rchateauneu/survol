@@ -19,6 +19,6 @@ def MakeUri(loca_name, subscription_name):
     # TODO: Because the input parameters could contain a sspace, derive from str() and define ValueDecode()
     subscription_name = lib_util.urllib_quote(subscription_name)
     loca_name = lib_util.urllib_quote(loca_name)
-    return lib_uris.gUriGen.UriMakeFromDict(
+    return lib_uris.gUriGen.node_from_dict(
         "Azure/location", {"Subscription": subscription_name, "Location": loca_name})
 

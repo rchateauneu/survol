@@ -13,7 +13,7 @@ def EntityOntology():
 
 
 def MakeUri(instance_name, db_name):
-    return lib_uris.gUriGen.UriMakeFromDict("mysql/database", {"Instance": instance_name, "Database" : db_name})
+    return lib_uris.gUriGen.node_from_dict("mysql/database", {"Instance": instance_name, "Database" : db_name})
 
 
 def EntityName(entity_ids_arr):

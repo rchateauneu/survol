@@ -16,7 +16,7 @@ def EntityOntology():
 
 # Ambiguity with tables, oracle or normal users.
 def MakeUri(db_name, schema_name, package_name):
-    return lib_uris.gUriGen.UriMakeFromDict(
+    return lib_uris.gUriGen.node_from_dict(
         "oracle/package", {"Db" : db_name, "Schema": schema_name, "Package": package_name})
 
 # Each package body has a package: This displays the package body node,

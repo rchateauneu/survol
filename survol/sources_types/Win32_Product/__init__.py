@@ -112,7 +112,7 @@ def EntityOntology():
 
 # TODO: Is the caption the best key ?
 def MakeUri(product_identifying_number):
-    return lib_uris.gUriGen.UriMake("Win32_Product", product_identifying_number)
+    return lib_uris.gUriGen.node_from_args("Win32_Product", product_identifying_number)
 
 
 _prop_product_install_source = lib_common.MakeProp("InstallSource")

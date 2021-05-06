@@ -59,7 +59,7 @@ _mime_mode_prefix = "mime:"
 
 
 def add_mime_url(grph, fil_node, entity_type, mime_type, entity_id_arr):
-    mime_node = lib_uris.gUriGen.uri_make_from_script('/entity_mime.py', entity_type, *entity_id_arr)
+    mime_node = lib_uris.gUriGen.node_from_script_args('/entity_mime.py', entity_type, *entity_id_arr)
 
     # So that the MIME type is known without loading the URLs.
     # Also, it allows to force a specific MIME type.

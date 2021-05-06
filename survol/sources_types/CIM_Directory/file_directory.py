@@ -50,7 +50,7 @@ def _url_to_directory(full_dir_path):
 # Used only here.
 def _uri_directory_direct_script(dir_nam):
     # This should rather have the property pc.property_script, but it must be listed with the files.
-    return lib_uris.gUriGen.uri_make_from_script(
+    return lib_uris.gUriGen.node_from_script_args(
         '/sources_types/CIM_Directory/file_directory.py',
         "CIM_Directory", # TODO: NOT SURE: lib_util.ComposeTypes("file","dir"),
         # pc.property_script,

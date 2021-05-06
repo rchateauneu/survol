@@ -13,7 +13,7 @@ def EntityOntology():
 
 
 def MakeUri(instance_name, session_id):
-    return lib_uris.gUriGen.UriMakeFromDict("mysql/session", {"Instance": instance_name, "Id": session_id})
+    return lib_uris.gUriGen.node_from_dict("mysql/session", {"Instance": instance_name, "Id": session_id})
 
 
 def EntityName(entity_ids_arr):

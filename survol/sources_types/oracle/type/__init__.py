@@ -16,7 +16,7 @@ def EntityOntology():
 
 
 def MakeUri(db_name, schema_name, type_name):
-    return lib_uris.gUriGen.UriMakeFromDict("oracle/type", {"Db": db_name, "Schema": schema_name, "Type": type_name})
+    return lib_uris.gUriGen.node_from_dict("oracle/type", {"Db": db_name, "Schema": schema_name, "Type": type_name})
 
 
 def AddInfo(grph,node, entity_ids_arr):

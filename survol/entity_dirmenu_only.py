@@ -281,7 +281,7 @@ def recursive_walk_on_scripts(callback_grph_add, parent_node, entity_type, entit
 
             script_path = relative_dir_sub_path + "/" + fil
 
-            rdf_node = gen_obj.MakeTheNodeFromScript(script_path, entity_type, encoded_entity_id)
+            rdf_node = gen_obj.node_from_script_path(script_path, entity_type, encoded_entity_id)
 
             error_msg = None
 
@@ -346,7 +346,7 @@ def recursive_walk_on_scripts(callback_grph_add, parent_node, entity_type, entit
 
     if entity_host:
         logging.debug("entity_host=%s", entity_host)
-    # This will not be needed anymore when MakeTheNodeFromScript properly encode chars like UriMakeFromDict.
+    # This will not be needed anymore when node_from_script_path properly encode chars like node_from_dict.
     # TODO: Use base64 for urls, everywhere. Use appropriate encoding for XML, SVG or HTML text.
     encoded_entity_id = lib_util.EncodeUri(entity_id)
     entity_ids_arr = lib_util.EntityIdToArray(entity_type, entity_id)

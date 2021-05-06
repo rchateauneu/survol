@@ -25,7 +25,7 @@ def _json_moniker_to_entity_class_and_dict(entity_type, entity_attributes_dict):
     entity_ids_dict = {ontology_attribute_name: entity_attributes_dict[ontology_attribute_name]
                        for ontology_attribute_name in ontology_list}
 
-    rdf_url = lib_uris.gUriGen.UriMakeFromDict(entity_type, entity_ids_dict)
+    rdf_url = lib_uris.gUriGen.node_from_dict(entity_type, entity_ids_dict)
     return rdf_url
 
 

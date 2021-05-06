@@ -53,9 +53,9 @@ def _member_name_to_node(sid_usage, member_name, serv_name):
 def _member_to_node_remote(sid_usage, member_name, serv_name, server_box):
     serv_name = serv_name.lower() # RFC4343
     if sid_usage == 1 or sid_usage == 6:
-        member_node = server_box.UriMakeFromDict("Win32_UserAccount", {"Name": member_name, "Domain": serv_name})
+        member_node = server_box.node_from_dict("Win32_UserAccount", {"Name": member_name, "Domain": serv_name})
     elif sid_usage == 5 or sid_usage == 2:
-        member_node = server_box.UriMakeFromDict("Win32_Group", {"Name": member_name, "Domain": serv_name})
+        member_node = server_box.node_from_dict("Win32_Group", {"Name": member_name, "Domain": serv_name})
     else:
         member_node = server_box.HostnameUri(member_name)
     return member_node

@@ -24,7 +24,7 @@ def MakeUri(url_name, connection_name):
     # Needed because RabbitMQ connecton names are like:
     # "Url=LOCALHOST:12345,Connection=127.0.0.1:51748 -> 127.0.0.1:5672"
     connection_name = connection_name.replace(">", "&gt;")
-    return lib_uris.gUriGen.UriMakeFromDict("rabbitmq/connection", {"Url": url_name, "Connection": connection_name})
+    return lib_uris.gUriGen.node_from_dict("rabbitmq/connection", {"Url": url_name, "Connection": connection_name})
 
 
 # '127.0.0.1:51532 -> 127.0.0.1:5672'

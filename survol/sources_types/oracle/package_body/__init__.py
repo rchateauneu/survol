@@ -18,7 +18,7 @@ def EntityOntology():
 
 
 def MakeUri(db_name, schema_name, package_body_name):
-    return lib_uris.gUriGen.UriMakeFromDict(
+    return lib_uris.gUriGen.node_from_dict(
         "oracle/package_body",
         {"Db": db_name, "Schema" :schema_name, "PackageBody": package_body_name})
 

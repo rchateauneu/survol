@@ -264,7 +264,7 @@ if __name__ == '__main__':
 # Mais aussi l idee de sous-objets.
 #
 # Il faudrait que l'association de deux objets se fasse avec un MakeUri
-# ameliore, et base sur UriMakeFromDict.
+# ameliore, et base sur node_from_dict.
 #
 # D un autre cote on ne veut pas disperser ce qui concerne Oracle par example.
 # Une query SQL est une sorte de type generique, qui ne depend pas
