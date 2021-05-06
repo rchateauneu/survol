@@ -16,7 +16,7 @@ def EntityOntology():
 
 
 def MakeUri(rpm_name):
-    return lib_uris.gUriGen.UriMakeFromDict("rpm", {"Rpm": rpm_name})
+    return lib_uris.gUriGen.node_from_dict("rpm", {"Rpm": rpm_name})
 
 
 def EntityName(entity_ids_arr):

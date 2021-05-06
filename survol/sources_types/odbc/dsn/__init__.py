@@ -33,7 +33,7 @@ def EntityOntology():
 
 
 def MakeUri(dsn_name):
-    return lib_uris.gUriGen.UriMakeFromDict("odbc/dsn", {survol_odbc.CgiPropertyDsn(): dsn_name})
+    return lib_uris.gUriGen.node_from_dict("odbc/dsn", {survol_odbc.CgiPropertyDsn(): dsn_name})
 
 
 def EntityName(entity_ids_arr):

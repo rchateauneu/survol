@@ -29,7 +29,7 @@ def EntityName(entity_ids_arr):
 
 def MakeUri(pid, mbean_object_name):
     mbean_object_name = mbean_object_name.replace("=", "-").replace(",", "*")
-    return lib_uris.gUriGen.UriMakeFromDict("java/mbean", {"Handle": pid, "Name": mbean_object_name})
+    return lib_uris.gUriGen.node_from_dict("java/mbean", {"Handle": pid, "Name": mbean_object_name})
 
 
 #def AddInfo(grph,node,entity_ids_arr):

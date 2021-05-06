@@ -34,9 +34,6 @@ class LocalBox:
     The script could be "entity.py" and explicitly specified etc...
     """
 
-    def create_entity_node(self, entity_type, entity_id):
-        return self.MakeTheNodeFromScript("/entity.py", entity_type, entity_id)
-
     def create_entity_path(self, script_path, entity_type, entity_id):
         url_path = self.RootUrl() + script_path + \
                    lib_util.xidCgiDelimiter + self.host_path_prefix() + entity_type + "." + entity_id
@@ -44,12 +41,6 @@ class LocalBox:
 
     def RootUrl(self):
         return lib_util.uriRoot
-
-    def MakeTheNodeFromScript(self, script_path, entity_type, entity_id):
-        url_path = self.create_entity_path(script_path, entity_type, entity_id)
-        # Depending on the code path, NodeUrl might be called on the result of NodeUrl,
-        # and this is not detected because it does not harm, just a waste of CPU.
-        return lib_util.NodeUrl(url_path)
 
     def _build_entity_id(self, entity_type, *entity_id_arr):
         """This works only if the attribute values are in the same order as the ontology."""
@@ -64,18 +55,36 @@ class LocalBox:
 
         return entity_id
 
-    def UriMake(self, entity_type, *entity_id_arr):
-        entity_id = self._build_entity_id(entity_type, *entity_id_arr)
-        return self.create_entity_node(entity_type, entity_id)
+    def host_path_prefix(self):
+        """
+        If the instance is on a remote machine, it returns a prefix containing the host name,
+        and this prefix goes before the class name.
+        :return:
+        """
+        return ""
 
-    def uri_make_from_script(self, path, entity_type, *entity_id_arr):
-        entity_id = self._build_entity_id(entity_type, *entity_id_arr)
-        return self.MakeTheNodeFromScript(path, entity_type, entity_id)
+    ###################################################################################
+    def node_from_script_path(self, script_path, entity_type, entity_id):
+        url_path = self.create_entity_path(script_path, entity_type, entity_id)
+        # Depending on the code path, NodeUrl might be called on the result of NodeUrl,
+        # and this is not detected because it does not harm, just a waste of CPU.
+        return lib_util.NodeUrl(url_path)
 
-    def UriMakeFromDict(self, entity_type, entity_id_dict):
+    def node_from_path(self, entity_type, entity_id):
+        return self.node_from_script_path("/entity.py", entity_type, entity_id)
+
+    def node_from_args(self, entity_type, *entity_id_arr):
+        entity_id = self._build_entity_id(entity_type, *entity_id_arr)
+        return self.node_from_path(entity_type, entity_id)
+
+    def node_from_script_args(self, path, entity_type, *entity_id_arr):
+        entity_id = self._build_entity_id(entity_type, *entity_id_arr)
+        return self.node_from_script_path(path, entity_type, entity_id)
+
+    def node_from_dict(self, entity_type, entity_id_dict):
         """
         Example of call
-        UriMakeFromDict("CIM_Datafile/portable_executable/section", {"Name": fileName, "Section": sectionName})
+        node_from_dict("CIM_Datafile/portable_executable/section", {"Name": fileName, "Section": sectionName})
         TODO: It would help to specific the entity_type from the current directory.
         So that, when the script is moved, it would not need to be changed.
         For example: UriMakeFromDictCurrentPackage({ "Name" : fileName, "Section" : sectionName })
@@ -95,15 +104,7 @@ class LocalBox:
 
         # TODO: See lib_util.EntityUri which does something similar.
         entity_id = ",".join("%s=%s" % uri_pair_encode(*kw_items) for kw_items in entity_id_dict.items())
-        return self.create_entity_node(entity_type, entity_id)
-
-    def host_path_prefix(self):
-        """
-        If the instance is on a remote machine, it returns a prefix containing the host name,
-        and this prefix goes before the class name.
-        :return:
-        """
-        return ""
+        return self.node_from_path(entity_type, entity_id)
 
     ###################################################################################
     # TODO: All the following methods return an Uri given the parameters of a class.
@@ -130,7 +131,7 @@ class LocalBox:
     # |    |    |    |    |--- PG_UnixProcess     Instance Names     Instances
     #
     def PidUri(self,pid):
-        return self.UriMake('CIM_Process', str(pid))
+        return self.node_from_args('CIM_Process', str(pid))
 
     # TODO: Necessaire car CIM_ComputerSystem veut un nom de machine.
     # socket.gethostbyaddr("192.168.1.83")     => ('mymachine.home', [], ['192.168.1.83'])
@@ -145,7 +146,7 @@ class LocalBox:
         # Hostnames are case-insensitive, RFC4343 https://tools.ietf.org/html/rfc4343
         host_name = host_name.lower()
 
-        return self.UriMake("CIM_ComputerSystem", host_name)
+        return self.node_from_args("CIM_ComputerSystem", host_name)
 
     # TODO: THIS WILL NOT WORK IF REMOTE LIB, BECAUSE IT WRAPS A RemoteXXX
     #
@@ -181,7 +182,7 @@ class LocalBox:
     def SharedLibUri(self, soname):
         """This method should be in a module dedicated to this class, but it is used very often,
         so it is convenient to have it here."""
-        return self.UriMake("CIM_DataFile", lib_util.EncodeUri(soname))
+        return self.node_from_args("CIM_DataFile", lib_util.EncodeUri(soname))
 
     # For a partition. Display the mount point and IO performance.
     # WMI
@@ -201,7 +202,7 @@ class LocalBox:
     def DiskPartitionUri(self, disk_name):
         """This method should be in a module dedicated to this class, but it is used very often,
         so it is convenient to have it here."""
-        return self.UriMake("CIM_DiskPartition", disk_name)
+        return self.node_from_args("CIM_DiskPartition", disk_name)
 
     # For a hard-disk.
     # WMI
@@ -229,7 +230,7 @@ class LocalBox:
     def DiskUri(self, disk_name):
         """This method should be in a module dedicated to this class, but it is used very often,
         so it is convenient to have it here."""
-        return self.UriMake("CIM_DiskDrive", disk_name)
+        return self.node_from_args("CIM_DiskDrive", disk_name)
 
     # smbshare has the form "//HOST/SHARE" ... but there is a bug in the test HTTP server
     # we are using, as it collapses duplicated slashes "//" into one,
@@ -243,33 +244,33 @@ class LocalBox:
         #if smbshare[0:2] == "//":
         #    # Maybe we should cgiescape the whole string.
         #    smbshare = "%2F%2F" + smbshare[2:]
-        return self.UriMake("Win32_Share", smbshare)
+        return self.node_from_args("Win32_Share", smbshare)
 
     def Win32_NetworkConnectionUri(self, disk_name):
         """This method should be in a module dedicated to this class, but it is used very often,
         so it is convenient to have it here."""
-        return self.UriMake("Win32_NetworkConnection", disk_name)
+        return self.node_from_args("Win32_NetworkConnection", disk_name)
 
         # TODO: IN FACT THIS IS SIMPLY A MACHINE. MAYBE WE SHOULD SUBCLASS TYPES ?????
     # OR MAYBE ADD SEVERAL CLASS NAMES ??? "smbserver+hostname" ?
     # OR MAYBE THE ABSTRACT CONCEPT OF A SERVER, POINTING TO THE MACHINE ITSELF?
     def SmbServerUri(self,smbserver):
-        return self.UriMake("smbserver", smbserver)
+        return self.node_from_args("smbserver", smbserver)
 
     def SmbFileUri(self, smbshare, smbfile):
         if smbfile and smbfile[0] != "/":
             fullnam = smbshare + "/" + smbfile
         else:
             fullnam = smbshare + smbfile
-        return self.UriMake("smbfile", fullnam)
+        return self.node_from_args("smbfile", fullnam)
 
     # TODO: Services are also a process. Also, put this in its module.
     def ServiceUri(self, service):
-        return self.UriMake("Win32_Service", service)
+        return self.node_from_args("Win32_Service", service)
 
     # TODO: This function should be moved to its module.
     def SmbDomainUri(self, smbdomain):
-        return self.UriMake("smbdomain", smbdomain)
+        return self.node_from_args("smbdomain", smbdomain)
 
     # This class does not represent a physical concept, because a symbol can be defined in several libraries.
     # The use of this logical concept depends on the behaviour of the dynamic linker if it is defined several
@@ -282,7 +283,7 @@ class LocalBox:
         # TODO: Move that to linker_symbol/__init__.py and see sources_types.sql.query.MakeUri
         # TODO: Alphabetical order !!!!
         path = lib_util.standardized_file_path(path)
-        return self.UriMakeFromDict("linker_symbol", {"Name": symbol_name, "File": lib_util.EncodeUri(path)})
+        return self.node_from_dict("linker_symbol", {"Name": symbol_name, "File": lib_util.EncodeUri(path)})
 
     # Might be a C++ class or a namespace, as there is no way to differentiate from ELF symbols.
     # This can also be a Pythonor Perl class: This is a logical concept, whose implementation
@@ -292,7 +293,7 @@ class LocalBox:
         # The URL should never contain the chars "<" or ">".
         class_name = lib_util.Base64Encode(class_name)
         path = lib_util.standardized_file_path(path)
-        return self.UriMakeFromDict("class", {"Name": class_name, "File": lib_util.EncodeUri(path)})
+        return self.node_from_dict("class", {"Name": class_name, "File": lib_util.EncodeUri(path)})
 
     # CIM_DeviceFile is common to WMI and WBEM.
 
@@ -301,7 +302,7 @@ class LocalBox:
     # XML Parsing Error: not well-formed
     def FileUri(self, path):
         path = lib_util.standardized_file_path(path)
-        return self.UriMake("CIM_DataFile", lib_util.EncodeUri(path))
+        return self.node_from_args("CIM_DataFile", lib_util.EncodeUri(path))
 
         # TODO: Consider this might be even be more powerful.
         # u'some string'.encode('ascii', 'xmlcharrefreplace')
@@ -320,7 +321,7 @@ class LocalBox:
         # If needed, they can always be replaced by a normal slash.
         #
         path = lib_util.standardized_file_path(path)
-        return self.UriMake("CIM_Directory", lib_util.EncodeUri(path))
+        return self.node_from_args("CIM_Directory", lib_util.EncodeUri(path))
 
     # This creates a node for a socket, so later it can be merged with the same socket.
     #
@@ -352,7 +353,7 @@ class LocalBox:
             # This will happen rarely.
             url += ":" + transport
         # TODO: THIS IS WHERE WE SHOULD MAYBE ALWAYS USE A RemoteBox().
-        return self.UriMake("addr", url)
+        return self.node_from_args("addr", url)
 
     # TODO: Maybe this should be a file, nothing else.
     # TODO: This function should be moved to its module.
@@ -360,7 +361,7 @@ class LocalBox:
         # Because DOT replace "\L" by "<TABLE>".
         # Probably must do that for files also.
         # "xid=memmap:C:\Program Files (x86)Memory mapsoogle\Chrome\Application\39.0.2171.95<TABLE>ocales\fr.pak"
-        return self.UriMake("memmap", lib_util.standardized_memmap_path(memmap_path))
+        return self.node_from_args("memmap", lib_util.standardized_memmap_path(memmap_path))
 
     # TODO: This function should be moved to its module.
     # Win32_Account:    Domain    Name
@@ -422,14 +423,14 @@ class LocalBox:
             user_only = username
         user_host = user_host.lower() # RFC4343
         # BEWARE: "Name","Domain"
-        # UriMake must take into account the order of the ontology
-        usr_uri = self.UriMake(user_tp, user_only, user_host)
+        # node_from_args must take into account the order of the ontology
+        usr_uri = self.node_from_args(user_tp, user_only, user_host)
         return usr_uri
 
     # TODO: This function should be moved to the module of the "group" class.
     def GroupUri(self, groupname):
         if lib_util.isPlatformLinux:
-            return self.UriMake("LMI_Group", groupname)
+            return self.node_from_args("LMI_Group", groupname)
         else:
             return None
 
@@ -438,11 +439,11 @@ class LocalBox:
     # But we need a string to loop in the registry: win32con.HKEY_CLASSES_ROOT, "TypeLib".
     # What about the other thnigs in combrowse.py ? "Registered Categories" and "Running Objects" ?
     def ComRegisteredTypeLibUri(self, key_name):
-        return self.UriMake("com/registered_type_lib", lib_util.EncodeUri(key_name))
+        return self.node_from_args("com/registered_type_lib", lib_util.EncodeUri(key_name))
 
     # TODO: This function should be moved to its module.
     def ComTypeLibUri(self, file_name):
-        return self.UriMake("com/type_lib", lib_util.EncodeUri(file_name))
+        return self.node_from_args("com/type_lib", lib_util.EncodeUri(file_name))
 
 
 gUriGen = LocalBox()

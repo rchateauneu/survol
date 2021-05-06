@@ -32,7 +32,7 @@ def EntityOntology():
 
 # TODO: Is the caption the best key ? Also: It should dependd on the Python version.
 def MakeUri(package_key):
-    return lib_uris.gUriGen.UriMake("python/package", package_key)
+    return lib_uris.gUriGen.node_from_args("python/package", package_key)
 
 
 def _fill_one_package(grph, node, good_pckg):

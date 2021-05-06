@@ -18,7 +18,7 @@ def EntityOntology():
 
 def MakeUri(url_name, vhost_name, queue_name):
     vhost_name = vhost_name.lower() # RFC4343
-    return lib_uris.gUriGen.UriMakeFromDict(
+    return lib_uris.gUriGen.node_from_dict(
         "rabbitmq/queue", {"Url": url_name, "VHost": vhost_name, "Queue": queue_name})
 
 

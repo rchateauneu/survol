@@ -16,7 +16,7 @@ def EntityOntology():
 
 
 def MakeUri(file_name):
-    return lib_uris.gUriGen.UriMakeFromDict("sqlite/file", {"File": file_name})
+    return lib_uris.gUriGen.node_from_dict("sqlite/file", {"File": file_name})
 
 
 def EntityName(entity_ids_arr):

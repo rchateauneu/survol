@@ -14,7 +14,7 @@ def EntityOntology():
 
 
 def MakeUri(dsn_name):
-    return lib_uris.gUriGen.UriMakeFromDict("sqlserver/dsn", {survol_odbc.CgiPropertyDsn(): dsn_name})
+    return lib_uris.gUriGen.node_from_dict("sqlserver/dsn", {survol_odbc.CgiPropertyDsn(): dsn_name})
 
 
 # So the values of keys "PWD" and "PASSWORD" are replaced by "xxx" etc...

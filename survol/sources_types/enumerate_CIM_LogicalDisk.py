@@ -73,7 +73,7 @@ def Main():
             partition_name = part.device.replace('\\', '')
 
             # We could as well take "Win32_LogicalDisk" because it inherits from "CIM_LogicalDisk"
-            node_partition = lib_uris.gUriGen.UriMake("CIM_LogicalDisk", partition_name)
+            node_partition = lib_uris.gUriGen.node_from_args("CIM_LogicalDisk", partition_name)
         else:
             # The class CIM_LogicalDisk represents a contiguous range of logical blocks
             # that is identifiable by a FileSystem via the Disk's DeviceId (key) field.

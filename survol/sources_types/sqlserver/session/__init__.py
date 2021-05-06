@@ -26,7 +26,7 @@ def EntityOntology():
 
 
 def MakeUri(dsn, session_id):
-    return lib_uris.gUriGen.UriMake("sqlserver/session", dsn, session_id)
+    return lib_uris.gUriGen.node_from_args("sqlserver/session", dsn, session_id)
 
 
 def AddInfo(grph, node, entity_ids_arr):

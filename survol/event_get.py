@@ -30,7 +30,7 @@ def Main():
 	if entity_type:
 		lib_common.ErrorMessageHtml(__file__ + " objects events retrieval not supported yet.")
 
-	entity_node = lib_uris.gUriGen.UriMake(entity_type, *entity_id)
+	entity_node = lib_uris.gUriGen.node_from_args(entity_type, *entity_id)
 
 	num_triples = lib_kbase.retrieve_events_to_graph(grph, entity_node)
 	logging.debug("num_triples=%d", num_triples)

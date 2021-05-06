@@ -107,7 +107,7 @@ def AddSurvolObjectFromWmi(grph, wmi_instance_node, conn_wmi, class_name, obj_li
             url_survol = entity_module.MakeUri(*prop_values_array)
         except:
             # Otherwise, general case.
-            url_survol = lib_uris.gUriGen.UriMake(survol_equivalent_class, *prop_values_array)
+            url_survol = lib_uris.gUriGen.node_from_args(survol_equivalent_class, *prop_values_array)
 
         set_survol_urls.add(url_survol)
 

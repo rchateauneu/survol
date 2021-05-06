@@ -22,5 +22,5 @@ def EntityName(entity_ids_arr):
 
 
 def MakeUri(file_name, section_name):
-    return lib_uris.gUriGen.UriMakeFromDict(
+    return lib_uris.gUriGen.node_from_dict(
         "CIM_DataFile/portable_executable/section", {"Name" : file_name, "Section": section_name})
