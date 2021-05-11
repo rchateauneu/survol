@@ -206,6 +206,29 @@ pc.property_argv                 = MakeProp("argv")
 pc.meta_property_commutative     = MakeProp("commutative_property")
 pc.meta_property_collapsed       = MakeProp("collapsed_property")
 
+# Q21126229 Wikidata property for software
+#
+# wdt:P1547 subject software depends on object software
+# wd:P277	programming language
+# wd:P306	operating system : operating system (OS) on which a software works or the OS installed on hardware
+# wd:P348	software version identifier
+# wd:P400	platform
+# wd:P4809	sets environment variable
+# wd:P4810	reads environment variable
+# wd:P4837	has command line option
+
+# Wikidata property related to computing (Q47512165)
+# Windows service (Q1370727)
+# debug symbol (Q1181673)
+# software library (Q188860)
+# command-line interpreter (Q1368899)
+#  systemd (Q286124)
+
+# Wikidata items with an equivalent in CIM.
+# They should be mapped with a static RDF file.
+#  operating system (Q9135) : software that manages computer hardware resources
+
+
 _dict_properties_graph_attributes = {
     pc.property_script: "GREEN",
     pc.property_rdf_data_nolist1: "BLUE",
