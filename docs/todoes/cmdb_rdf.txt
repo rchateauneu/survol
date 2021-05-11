@@ -1,0 +1,28 @@
+
+https://en.wikipedia.org/wiki/Configuration_management_database
+
+"CMDB schematic structures, also known as database schemas, take on multiple forms.
+Two of the most common forms are those of a relational data model and a semantic data model.
+...
+Semantic data models typically rely on the resource description framework (RDF)
+that maps the relation between a number of things through the use of relationship descriptors,
+giving context to how things are related to each other."
+
+Application:
+https://hpl.hp.com/techreports/2009/HPL-2009-349.html
+
+
+https://github.com/archerslaw/pycmdb
+"Step by step guide to building a configuration management database(CMDB) using python and django,
+CMDB is a repository of information related to all the components of an information system.
+Then we can use the post_hardwave_and_softwave_infos_to_cmdb.py script to get the hardwave & softwave info
+from host and post the info data to CMDB automatically."
+
+https://repository.uinjkt.ac.id/dspace/bitstream/123456789/49085/1/8.%20The%20Ontology%20of%20IT%20Service%20Management%20by%20Using%20ITIL%20v3%20Framework.pdf
+The Ontology of IT Service Management  by Using ITILv.3 Framework : A Case Study for Incident Management
+
+https://github.com/atextor/cobit5-ontology
+"This OWL ontology models core concepts and relationships of COBIT 5,
+the leading framework for the governance and management of enterprise IT."
+https://www.isaca.org/resources/cobit
+
