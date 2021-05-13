@@ -31,8 +31,6 @@
 
 import pyodbc
 
-curr_dir = "C:\\Users\\rchateau\\Developpement\\ReverseEngineeringApps\\PythonStyle\\Experimental\\"
-
 # https://www.connectionstrings.com/microsoft-text-odbc-driver/
 
 def test_text_odbc_driver():
@@ -42,7 +40,7 @@ def test_text_odbc_driver():
 
     c = conn.cursor()
 
-    sql_query = "select * from A"
+    sql_query = "select * from AssetItems"
 
     c.execute(sql_query)
 
@@ -76,6 +74,8 @@ def test_text_file():
 # ['SQL Server', 'ODBC Driver 17 for SQL Server', 'Microsoft Access Driver (*.mdb, *.accdb)',
 # 'Microsoft Excel Driver (*.xls, *.xlsx, *.xlsm, *.xlsb)', 'Microsoft Access Text Driver (*.txt, *.csv)']
 
+import os
+
 # Other possibility
 def test_access_database():
     # File taken from https://www.599cd.com/access/studentdatabases/
@@ -90,8 +90,8 @@ def test_access_database():
     #                    + curr_dir + 'PCResale_Customer_Database.accdb;Provider=MSDASQL;'
 
     # Maybe this is Python in 64 accessing a 32 bits driver.
-    connection_string = r'Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=' \
-                        + curr_dir + 'PCResale_Customer_Database.accdb;Uid=;Pwd=;'
+    accdb_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Test_ODBC_SampleFile.accdb')
+    connection_string = r'Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=' + accdb_file
 
     # Provider=MSDASQL
     print("connection_string=" + connection_string)
@@ -99,7 +99,7 @@ def test_access_database():
 
     c = conn.cursor()
 
-    sql_query = "select * from CustomerT"
+    sql_query = "select * from FirstTable"
 
     c.execute(sql_query)
 
