@@ -6,6 +6,8 @@ import re
 import sys
 import logging
 
+import six
+
 import lib_util
 
 # ('C:\\Program Files (x86)\\Microsoft Visual Studio 8\\Crystal Reports\\Samples\\en\\Databases\\xtreme', None, 'MSysAccessObjects', 'SYSTEM TABLE', None)
@@ -64,9 +66,10 @@ _rgx_true_false = "[a-zA-Z01]*"
 
 _rgx_user = r"\w+"
 
-# TODO: Will not work if "=" in the password, even if it is escaped.
-# Should reasonably contain more than four or five chars.
-_rgx_password = ".+"
+# TODO: Check if "=" in the password, possibly escaped.
+# HINT: Should reasonably contain more than four or five chars.
+# This does not work if it contains an escaped double-quote between double-quotes.
+_rgx_password = '([^ "=;]+|"[^"]*")'
 
 # Hexadecimal number
 _rgx_hexa = "[0-9a-fA-F]+"
@@ -78,17 +81,24 @@ _rgx_alpha = "[a-zA-Z]+"
 # Unfortunately it is not able to filter escaped equal signs.
 _rgx_anything = "[^=]+"
 
-_rgx_file_name = _rgx_anything
+_rgx_file_name = r"[^;=]+"
+
+# For example:
+# SERVER=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=MyHost)(PORT=MyPort))(CONNECT_DATA=(SERVICE_NAME=MyOracleSID)));
+# Data Source=(DESCRIPTION=(CID=GTU_APP)(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=myHost)(PORT=myPort)))(CONNECT_DATA=(SID=MyOracleSID)(SERVER=DEDICATED)));
+# Specific difficulty here: Some keywords in Oracle descriptions are also ODBC keywords: "PROTOCOL" and "SERVER".
+_rgx_oracle_description = r'\([^;]*\)'
 
 # The individual regular expressions do not contain the pipe character,
 # because it is already used between each regular expression.
 
 # https://www.connectionstrings.com/oracle/
 
-mapRgxODBC = {
+_map_rgx_odbc_heavy = {
     "ALLOWBATCH"                  : _rgx_true_false,             #
     "ALLOWUSERVARIABLES"          : _rgx_true_false,             #
     "ALLOWZERODATETIME"           : _rgx_true_false,             #
+    "ATTACHDBFILENAME"            : _rgx_file_name,              #
     "AUTOENLIST"                  : _rgx_true_false,             #
     "CACHESERVERPROPERTIES"       : _rgx_true_false,             #
     "CACHETYPE"                   : _rgx_alpha,                  # "File"
@@ -103,9 +113,16 @@ mapRgxODBC = {
     "CONNECTION TIMEOUT"          : _rgx_number,                 #
     "CONNECTIONRESET"             : _rgx_true_false,             #
     "CONVERTZERODATETIME"         : _rgx_true_false,             #
-    "DATA SOURCE"                 : "[a-zA-Z_0-9\\/]+",          # "C:\myFolder\myAccessFile.accdb"
+    # "DATA SOURCE"                 : _rgx_file_name,              # "C:\myFolder\myAccessFile.accdb"
+    # FIXME: It cannot start with a open parenthesis because this would be taken as an Oracle description.
+    # It can be a file name such as "
+    "DATA SOURCE"                 : r"([^\(]%s|%s)" % (_rgx_file_name, _rgx_oracle_description),
+    # "DATA SOURCE": "[a-zA-Z_0-9\\/]+",  # "C:\myFolder\myAccessFile.accdb"
                                                                  # "|DataDirectory|\myAccessFile.accdb"
                                                                  # "\\server\share\folder\myAccessFile.accdb"
+
+
+
     "DATABASE"                    : "[ a-zA-Z0-9._]+",
     "DB"                          : "[a-zA-Z0-9._]*",
     "DBA PRIVILEGE"               : _rgx_anything,               # "SYSDBA", "SYSOPER"
@@ -118,12 +135,12 @@ mapRgxODBC = {
     "ENCRYPT"                     : _rgx_true_false,             # "true"
     "EXCLUSIVE"                   : _rgx_true_false,             # "1"
     "EXTENDEDANSISQL"             : _rgx_true_false,             # "1"
-    "EXTENDED PROPERTIES"         : _rgx_anything,               #
+    "EXTENDED PROPERTIES"         : '"[^"*]"',
     "FILEDSN"                     : _rgx_file_name,
     "IGNORE PREPARE"              : _rgx_true_false,             #
     "INCR POOL SIZE"              : _rgx_number,                 #
-    "INITIAL CATALOG"             : _rgx_anything,               # "myDataBase"
-    "INTEGRATEDSECURITY"          : _rgx_true_false,             #
+    "INITIAL CATALOG"             : "[a-zA-Z0-9_ ]+",            # "myDataBase"
+    "INTEGRATED SECURITY"         : _rgx_true_false,             #
     "JET OLEDB:DATABASE PASSWORD" : _rgx_password,
     "KEEPALIVE"                   : _rgx_number,                 #
     "LOCALE IDENTIFIER"           : r"\d+",                      # "2057" is en-gb locale identifier
@@ -133,6 +150,7 @@ mapRgxODBC = {
     "MAXIMUMPOOLSIZE"             : _rgx_number,                 #
     "MINIMUMPOOLSIZE"             : _rgx_number,                 #
     "MODE"                        : "[a-zA-Z ]+",                # "Share Exclusive"
+    "NETWORK LIBRARY"             : "[a-zA-Z ]+",                #
     "ODBCKEY[12]"                 : _rgx_anything,
     "OLDGUIDS"                    : _rgx_true_false,             #
     "OLEDBKEY[12]"                : _rgx_anything,
@@ -148,8 +166,10 @@ mapRgxODBC = {
     "PROVIDER"                    : "[ a-zA-Z0-9._]+",           # "Microsoft.ACE.OLEDB.12.0"
     "PWD"                         : _rgx_password,
     "REMOTE SERVER"               : _rgx_anything,               # "http://server.adress.com"
-    "SERVER"                      : r"[- a-zA-Z0-9\._\\\]+",     # "serverAddress1, serverAddress2, serverAddress3"
-                                                                 # This Oracle omission of tnsnames.ora is not taken into account.
+    "SERVER": r"([- a-zA-Z0-9\._\\]+|\(localdb\)\\[0-9a-zA-Z\.\\]*|%s)" % _rgx_oracle_description,
+                                                                 # "serverAddress"
+                                                                 # (localdb)\v11.0
+                                                                 # Server=(localdb)\.\MyInstanceShare
                                                                  # "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=MyHost)(PORT=MyPort))(CONNECT_DATA=(SERVICE_NAME=MyOracleSID)))"
     "SHARED MEMORY NAME"          : r"\w+",                      # "MYSQL" for example. If "Protocol" = "memory".
     "SOCKET"                      : _rgx_anything,               #
@@ -174,13 +194,13 @@ mapRgxODBC = {
 
 # Keys which are specifically coded as passwords.
 # Should be ["PWD","PASSWORD","JET OLEDB:DATABASE PASSWORD"]
-_odbc_keys_confidential = [key_wrd for key_wrd in mapRgxODBC if mapRgxODBC[key_wrd] == _rgx_password]
+_odbc_keys_confidential = [key_wrd for key_wrd in _map_rgx_odbc_heavy if _map_rgx_odbc_heavy[key_wrd] == _rgx_password]
 
 # Values which do not need to be encoded, making things easier to understand.
 _odbc_keys_uncoded = [
     key_wrd
-    for key_wrd in mapRgxODBC
-    if mapRgxODBC[key_wrd] in [_rgx_alpha, _rgx_user, _rgx_true_false, _rgx_hexa, _rgx_number]]
+    for key_wrd in _map_rgx_odbc_heavy
+    if _map_rgx_odbc_heavy[key_wrd] in [_rgx_alpha, _rgx_user, _rgx_true_false, _rgx_hexa, _rgx_number]]
 
 # This contains the most often used keys in DSN connection strings.
 restrict_rgx_odbc_keys = [
@@ -204,10 +224,70 @@ restrict_rgx_odbc_keys = [
 ]
 
 # Only the commonest parameters, to make memory scans faster.
-mapRgxODBC_Light = {key : mapRgxODBC[key] for key in restrict_rgx_odbc_keys}
+_map_rgx_odbc_light = {key: _map_rgx_odbc_heavy[key] for key in restrict_rgx_odbc_keys}
 
 # This need a to be not-too-reserved character.
 _delimiter_connection_string_odbc = "/" # "-"
+
+_rgx_before_keyword = "[; ]*"
+_rgx_after_keyword = " *[;\n\r\t\0x00]"
+
+def _concatenate_regex_dict(map_rgx):
+    """
+    This builds a regular expression for finding ODBC connection strings.
+    The input is a dict of ODBC character key. mapped to the regular expression for finding it.
+    This might be very slow.
+    """
+    # Not letter, then the keyword, then "=", then the value regex, then possibly the delimiter.
+    rgx_dsn = "|".join([_rgx_before_keyword + key + " *= *" + map_rgx[key] + " *" for key in map_rgx])
+
+    # This works also. Both are very slow.
+    #rgx_dsn = "|".join([ ";? *" + key + " *= *" + survol_odbc.mapRgxODBC[key] + " *" for key in survol_odbc.mapRgxODBC ])
+    return rgx_dsn
+
+
+regex_odbc_heavy = _concatenate_regex_dict(_map_rgx_odbc_heavy)
+
+regex_odbc_light = _concatenate_regex_dict(_map_rgx_odbc_light)
+
+
+def aggregate_dsn_pieces(resu_matches):
+    """
+    This aggregates contiguous, or nearly contiguous, mactked tokens, in bigger strings.
+    This is useful when matching a regular expression made as an OR of possible tokens.
+    :param resu_matches: A dict of offsets to matched strings. Each matched string is an individual detected token.
+    :return: A similar dict, but contiguous matched strings are concatenated
+    """
+
+    sorted_keys = sorted(resu_matches.keys())
+    aggreg_dsns = dict()
+    curr_offset = -1
+    for the_off in sorted_keys:
+        curr_mtch = resu_matches[the_off]
+        assert isinstance(curr_mtch, six.binary_type)
+        if curr_offset == -1:
+            curr_offset = the_off
+            aggreg_dsns[curr_offset] = curr_mtch
+        elif the_off == next_offset:
+            # The current string comes just after the last one.
+            # Concatenation of the current string.
+            # Maybe we can tolerate a small difference for spaces.
+            aggreg_dsns[curr_offset] += curr_mtch
+        else:
+            # This starts a new DSN string because the current match comes far after the previous one.
+            curr_offset = the_off
+            aggreg_dsns[curr_offset] = curr_mtch
+        next_offset = the_off + len(curr_mtch)
+
+    # TODO: Eliminate aggregated strings containing one or two tokens,
+    # because they cannot be genuine DSNs.
+    # 29812569: SERVER=\MYMACHINE
+    # 34515016: Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes
+    # 34801013: SERVER=\MYMACHINE
+    # 35634904: Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes
+
+    return aggreg_dsns
+
 
 # This behaves like a string plus some properties for serialization.
 # So it can be used as a keyword for encoding parameters in the id of an object,
