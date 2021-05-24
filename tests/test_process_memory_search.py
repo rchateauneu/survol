@@ -5,10 +5,6 @@
 from __future__ import print_function
 
 import unittest
-import subprocess
-import sys
-import os
-import time
 
 from init import *
 
