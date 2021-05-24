@@ -14,7 +14,7 @@ import lib_util
 import lib_common
 from lib_properties import pc
 
-from sources_types import CIM_Process
+#from sources_types import CIM_Process
 from sources_types.CIM_Process import memory_regex_search
 from sources_types import odbc as survol_odbc
 from sources_types.odbc import dsn as survol_odbc_dsn
@@ -46,20 +46,27 @@ SlowScript = True
 #  *= *[a-zA-Z01]* *|[; ]*INTEGRATEDSECURITY *= *[a-zA-Z01]* *|[; ]*CONNECTION ?LIFETIME *= *\d+ *
 
 
-def _get_aggreg_dsns(pidint, map_rgx):
-# "Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes;"
-# 34515015 = "Driver={SQL Server}"
-# 34515035 = "Server=.\SQLEXPRESS"
-# 34515055 = "Database=ExpressDB"
-# 34515074 = "Trusted_Connection=yes"
-# 35634903 = "Driver={SQL Server}"
-# 35634923 = "Server=.\SQLEXPRESS"
-# 35634943 = "Database=ExpressDB"
-# 35634962 = "Trusted_Connection=yes"
+def _get_aggreg_dsns(pidint, rgx_dsn):
+    """
+    The input is a process id and a regular expression for finding ODBC connection strings.
+
+    Example of ODBC connection string:
+        "Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes;"
+
+    Example of offset=>match dict:
+        34515015: "Driver={SQL Server}"
+        34515035: "Server=.\SQLEXPRESS"
+        34515055: "Database=ExpressDB"
+        34515074: "Trusted_Connection=yes"
+        35634903: "Driver={SQL Server}"
+        35634923: "Server=.\SQLEXPRESS"
+        35634943: "Database=ExpressDB"
+        35634962: "Trusted_Connection=yes"
+    """
 
     try:
         # Not letter, then the keyword, then "=", then the value regex, then possibly the delimiter.
-        rgx_dsn = "|".join(["[; ]*" + key + " *= *" + map_rgx[key] + " *" for key in map_rgx])
+        #rgx_dsn = "|".join(["[; ]*" + key + " *= *" + map_rgx[key] + " *" for key in map_rgx])
         # This works also. Both are very slow.
         # rgx_dsn = "|".join([ ";? *" + key + " *= *" + survol_odbc.mapRgxODBC[key] + " *" for key in survol_odbc.mapRgxODBC ])
         logging.debug("rgx_dsn=%s", rgx_dsn)
@@ -75,42 +82,8 @@ def _get_aggreg_dsns(pidint, map_rgx):
         # (2) Try to extensively scan the memory (All DSN keywords) in the interval of detected common keywords.
         resu_matches = memory_regex_search.GetRegexMatches(pidint, rgx_dsn, re.IGNORECASE)
 
-        for matched_offset in resu_matches:
-            matched_str = resu_matches[matched_offset]
-            # This should contain Ascii, convertible to UTF-8, but if the regular expression catch something else,
-            # this decode throw: 'utf-8' codec can't decode bytes in position 3768-3769: invalid continuation byte.
-            matched_str = matched_str.decode("utf-8", "ignore")
-            dsn_token = str(matched_offset) + " = " + matched_str + " = " + str(matched_offset + len(matched_str))
-            logging.debug("dsnODBC=%s", dsn_token)
+        aggreg_dsns = survol_odbc.aggregate_dsn_pieces(resu_matches)
 
-        sorted_keys = sorted(resu_matches.keys())
-        aggreg_dsns = dict()
-        last_offset = 0
-        curr_offset = 0
-        for the_off in sorted_keys:
-            curr_mtch = resu_matches[the_off]
-            next_offset = the_off + len(curr_mtch)
-            logging.debug("lastOffset=%d next_offset=%d curr_mtch=%s", last_offset, next_offset, curr_mtch)
-            #if lastOffset == 0:
-            #    lastOffset = next_offset
-            #    aggregDsns[lastOffset] = curr_mtch
-            #    continue
-            if last_offset == the_off:
-                aggreg_dsns[curr_offset] += curr_mtch
-            else:
-                # This starts a new DSN string.
-                curr_offset = the_off
-                aggreg_dsns[curr_offset] = curr_mtch
-            last_offset = next_offset
-
-        # TODO: Eliminate aggrehated strings containing one or two tokens,
-        # because they cannot be genuine DSNs.
-        # 29812569: SERVER=\MYMACHINE
-        # 34515016: Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes
-        # 34801013: SERVER=\MYMACHINE
-        # 35634904: Driver={SQL Server};Server=.\SQLEXPRESS;Database=ExpressDB;Trusted_Connection=yes
-
-        return aggreg_dsns
 
         # Last pass after aggregation:
         # If several tokens were aggregated and are still separated by a few chars (20, 30 etc...),
@@ -124,7 +97,7 @@ def _get_aggreg_dsns(pidint, map_rgx):
         # http://www.dofactory.com/reference/connection-strings
 
         # TODO: Instead of just displaying the DSN, connect to it, list tables etc...
-
+        return aggreg_dsns
     except Exception as exc:
         lib_common.ErrorMessageHtml("Error:%s. Protection ?" % str(exc))
 
@@ -144,11 +117,11 @@ def Main():
     # By default, uses a small map of possible connection strings keyword.
     # Otherwise it is very slow to scan the whole process memory.
     if paramExtensiveScan:
-        map_rgx = survol_odbc.mapRgxODBC
+        rgx_dsn = survol_odbc.regex_odbc_heavy
     else:
-        map_rgx = survol_odbc.mapRgxODBC_Light
+        rgx_dsn = survol_odbc.regex_odbc_light
 
-    aggreg_dsns = _get_aggreg_dsns(pidint, map_rgx)
+    aggreg_dsns = _get_aggreg_dsns(pidint, rgx_dsn)
 
     node_process = lib_uris.gUriGen.PidUri(pidint)
 
