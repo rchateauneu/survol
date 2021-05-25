@@ -67,9 +67,9 @@ _rgx_true_false = "[a-zA-Z01]*"
 _rgx_user = r"\w+"
 
 # TODO: Check if "=" in the password, possibly escaped.
-# HINT: Should reasonably contain more than four or five chars.
+# The password might be empty.
 # This does not work if it contains an escaped double-quote between double-quotes.
-_rgx_password = '([^ "=;]+|"[^"]*")'
+_rgx_password = '([^ "=;]*|"[^"]*")'
 
 # Hexadecimal number
 _rgx_hexa = "[0-9a-fA-F]+"
@@ -112,31 +112,31 @@ _map_rgx_odbc_heavy = {
     "CONNECTION ?LIFETIME"        : _rgx_number,                 # " " character is optional.
     "CONNECTION TIMEOUT"          : _rgx_number,                 #
     "CONNECTIONRESET"             : _rgx_true_false,             #
+    "CONNECTIONTYPE"              : r"[a-zA-Z]+",                # "Direct"
     "CONVERTZERODATETIME"         : _rgx_true_false,             #
-    # "DATA SOURCE"                 : _rgx_file_name,              # "C:\myFolder\myAccessFile.accdb"
     # FIXME: It cannot start with a open parenthesis because this would be taken as an Oracle description.
     # It can be a file name such as "
     "DATA SOURCE"                 : r"([^\(]%s|%s)" % (_rgx_file_name, _rgx_oracle_description),
-    # "DATA SOURCE": "[a-zA-Z_0-9\\/]+",  # "C:\myFolder\myAccessFile.accdb"
+                                                                 # "C:\myFolder\myAccessFile.accdb"
                                                                  # "|DataDirectory|\myAccessFile.accdb"
                                                                  # "\\server\share\folder\myAccessFile.accdb"
-
-
-
     "DATABASE"                    : "[ a-zA-Z0-9._]+",
-    "DB"                          : "[a-zA-Z0-9._]*",
-    "DBA PRIVILEGE"               : _rgx_anything,               # "SYSDBA", "SYSOPER"
-    "DBQ"                         : _rgx_anything,               # "C:\mydatabase.accdb", "111.21.31.99:1521/XE", "myTNSServiceName"
+    "DB"                          : r"[a-zA-Z0-9\._]*",
+    "DBA PRIVILEGE"               : "[a-zA-Z0-9_]*",             # "SYSDBA", "SYSOPER"
+    "DBQ"                         : _rgx_file_name,              # "C:\mydatabase.accdb", "111.21.31.99:1521/XE", "myTNSServiceName"
     "DECR POOL SIZE"              : _rgx_number,                 #
     "DEFAULT COMMAND TIMEOUT"     : _rgx_number,                 #
     "DEFAULTTABLECACHEAGE"        : _rgx_number,                 #
-    "DRIVER"                      : r"\{[^}]*\}",                # "{Microsoft Access Driver (*.mdb, *.accdb)}"
+    "DRIVER"                      : r"(\{[^}]*\}|[a-zA-Z0-9 ]+)",                # "{Microsoft Access Driver (*.mdb, *.accdb)}"
+                                                                 # "Driver=MapR Drill ODBC Driver"
     "DSN"                         : r"\w+",                      # "MY_DSN_ORA12"
     "ENCRYPT"                     : _rgx_true_false,             # "true"
     "EXCLUSIVE"                   : _rgx_true_false,             # "1"
     "EXTENDEDANSISQL"             : _rgx_true_false,             # "1"
-    "EXTENDED PROPERTIES"         : '"[^"*]"',
+    "EXTENDED PROPERTIES"         : '"[^"]*"',
+    "EXTENSIONS"                  : r"[a-zA-Z0-9,]+",            # "Extensions=asc,csv,tab,txt"
     "FILEDSN"                     : _rgx_file_name,
+    "HOST"                        : r"[0-9\.]+",                 # "Host=192.168.222.160"
     "IGNORE PREPARE"              : _rgx_true_false,             #
     "INCR POOL SIZE"              : _rgx_number,                 #
     "INITIAL CATALOG"             : "[a-zA-Z0-9_ ]+",            # "myDataBase"
@@ -166,11 +166,12 @@ _map_rgx_odbc_heavy = {
     "PROVIDER"                    : "[ a-zA-Z0-9._]+",           # "Microsoft.ACE.OLEDB.12.0"
     "PWD"                         : _rgx_password,
     "REMOTE SERVER"               : _rgx_anything,               # "http://server.adress.com"
-    "SERVER": r"([- a-zA-Z0-9\._\\]+|\(localdb\)\\[0-9a-zA-Z\.\\]*|%s)" % _rgx_oracle_description,
+    "SERVER": r"([- a-zA-Z0-9\._\\#:]+|\(localdb\)\\[0-9a-zA-Z\.\\]*|%s)" % _rgx_oracle_description,
                                                                  # "serverAddress"
-                                                                 # (localdb)\v11.0
-                                                                 # Server=(localdb)\.\MyInstanceShare
+                                                                 # "(localdb)\v11.0"
+                                                                 # "Server=(localdb)\.\MyInstanceShare"
                                                                  # "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=MyHost)(PORT=MyPort))(CONNECT_DATA=(SERVICE_NAME=MyOracleSID)))"
+                                                                 # "Server=np:\\.\pipe\LOCALDB#F365A78E\tsql\query"
     "SHARED MEMORY NAME"          : r"\w+",                      # "MYSQL" for example. If "Protocol" = "memory".
     "SOCKET"                      : _rgx_anything,               #
     "SQLSERVERMODE"               : _rgx_true_false,             #
