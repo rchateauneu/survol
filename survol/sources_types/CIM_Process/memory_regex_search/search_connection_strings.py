@@ -174,7 +174,7 @@ def DatabaseEnvParams(processId):
 
         # TODO: Passwords are not crypted here, so decrypting will not work.
 
-        dsn_list.append({survol_odbc.CgiPropertyDsn(): agg_dsn})
+        dsn_list.append({"Dsn": agg_dsn})
 
     # Should be odbc.
     return "sqlserver/query", dsn_list
