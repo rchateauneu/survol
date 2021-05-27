@@ -76,7 +76,11 @@ def class_associators(ontology_name, ontology_extractor, entity_type):
     logging.debug("entity_type=%s", entity_type)
     map_classes = get_ontology_classes(ontology_name, ontology_extractor)
 
-    class_attributes = map_classes[entity_type]
+    try:
+        class_attributes = map_classes[entity_type]
+    except KeyError:
+        logging.warning("Class %s is not defined in this ontology" % entity_type)
+        return
 
     # Now select the non-keys attributes which are associators. Typically less than ten attributes.
     for attribute_name in class_attributes['non_key_properties_list']:
@@ -113,7 +117,6 @@ def get_associated_attribute(ontology_name, ontology_extractor, attribute_name):
             _, _, result_class = predicate_type.partition(":")
             return result_class, one_role
     raise Exception("No associated role for %s" % attribute_name)
-
 
 
 def get_associated_class_role(ontology_name, ontology_extractor, attribute_name):
