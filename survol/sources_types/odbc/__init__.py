@@ -290,82 +290,17 @@ def aggregate_dsn_pieces(resu_matches):
     return aggreg_dsns
 
 
-# This behaves like a string plus some properties for serialization.
-# So it can be used as a keyword for encoding parameters in the id of an object,
-# but also it contains serialization methods.
-# Therefore, it can be mixed with plain string keywords, which is the most common case.
-class CgiPropertyDsn(str):
-    # Python 2
-    def __new__(cls):
-        return super(CgiPropertyDsn, cls).__new__(cls, "Dsn")
-
-    def ValueEncode(self, connect_str_clear):
-        # TODO: Also split the string with non-ascii characters such as these samples:
-        # 'PWD=C:/Users/travis/build\\x00\\x00\\x92\\x00\\x03\\x00TRAVIS_ENABLE_INFRA_DETECTIO...00\\x00\\x00\\x00\\t\\x00TRAVIS_ROOT=C:/program files/git/\\x00\\x00\u0455\\x00'
-        # 'PWD=C:/Users/travis/build\x00OS=Windows_NT\x00PAGER=cat\x00PATH=c:\\python37\\lib\\site-packages\\pywin32_system32'
-        vec_keywrd = re.split(" *; *", connect_str_clear)
-
-        def key_value_pair_encode(kv_pair):
-            try:
-                # partition() is more robust than split(), if the value contains "=" equal signs.
-                # Also, the string might contain non-Ascii characters.
-                a_key_wrd, _, a_val = kv_pair.partition("=")
-
-                if a_key_wrd in _odbc_keys_confidential:
-                    a_val = lib_util.html_escape(a_val) # SHOULD BE CRYPTED
-                elif a_key_wrd not in _odbc_keys_uncoded:
-                    a_val = lib_util.html_escape(a_val)
-                return a_key_wrd.upper() + "~" + a_val
-            except Exception as exc:
-                logging.error("%s: Cannot process: %s", exc, str(kv_pair))
-                raise
-
-        # Cannot use the separator "-" as it can be used in server names.
-        return _delimiter_connection_string_odbc.join(key_value_pair_encode(kv_pair) for kv_pair in vec_keywrd)
-
-    def ValueDecode(self, connect_str_coded):
-        # PROBLEM "SERVER=\MY_MACHINE"
-        # SERVER=\\MY_MACHINE;Key=Cannot decode:HP
-
-        vec_tok_pairs = re.split(_delimiter_connection_string_odbc, connect_str_coded)
-
-        def token_decode(a_tok):
-            def token_local_decode(aVal):
-                return aVal
-
-            try:
-                a_key_wrd, a_val = a_tok.split("~")
-            except ValueError:
-                return "Key=Cannot decode:"+str(a_tok)
-
-            if a_key_wrd in _odbc_keys_confidential:
-                a_val = token_local_decode(a_val) # SHOULD BE CRYPTED
-            elif a_key_wrd not in _odbc_keys_uncoded:
-                a_val = token_local_decode(a_val)
-            return a_key_wrd + "=" + a_val
-
-        return ";".join(token_decode(a_tok) for a_tok in vec_tok_pairs)
-
-    # Same thing as displaying but the password must be hidden.
-    def ValueDisplay(self, connect_str_coded):
-        connect_str_clear = self.ValueDecode(connect_str_coded)
-        connect_str_hidden = connect_str_clear
-        connect_str_hidden = re.sub("PWD=[^;]+", "PWD=xxxxxxx", connect_str_hidden, re.IGNORECASE)
-        connect_str_hidden = re.sub("PASSWORD=[^;]+", "PASSWORD=xxxxxxx", connect_str_hidden, re.IGNORECASE)
-        return connect_str_hidden
-
-    def ValueShortDisplay(self, connect_str_coded):
-        """
-        This must be very fast because used in loops.
-        It abbreviates the DSN especially if this is a connection string.
-        """
-        connect_str_clear = self.ValueDecode(connect_str_coded)
-        mtch_dsn = re.match(".*DSN=([^;]+).*", connect_str_clear, re.IGNORECASE)
-        if mtch_dsn:
-            return mtch_dsn.group(1)
-        mtch_dsn = re.match(".*SERVER=([^;]+).*", connect_str_clear, re.IGNORECASE)
-        if mtch_dsn:
-            return mtch_dsn.group(1)
-        return connect_str_clear
+def ShortenDsn(connect_str_clear):
+    """
+    This must be very fast because used in loops.
+    It abbreviates the DSN especially if this is a connection string.
+    """
+    mtch_dsn = re.match(".*DSN=([^;]+).*", connect_str_clear, re.IGNORECASE)
+    if mtch_dsn:
+        return mtch_dsn.group(1)
+    mtch_dsn = re.match(".*SERVER=([^;]+).*", connect_str_clear, re.IGNORECASE)
+    if mtch_dsn:
+        return mtch_dsn.group(1)
+    return connect_str_clear
 
 

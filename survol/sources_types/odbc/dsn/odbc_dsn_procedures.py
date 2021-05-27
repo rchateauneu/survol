@@ -6,16 +6,14 @@ Procedures for ODBC DSN
 
 import sys
 import logging
+
+import pyodbc
+
 import lib_util
 import lib_common
 from lib_properties import pc
 from sources_types.odbc import dsn as survol_odbc_dsn
 from sources_types.odbc import procedure as survol_odbc_procedure
-
-try:
-    import pyodbc
-except ImportError:
-    lib_common.ErrorMessageHtml("pyodbc Python library not installed")
 
 
 def Main():

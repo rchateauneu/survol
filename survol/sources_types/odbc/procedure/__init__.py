@@ -18,15 +18,15 @@ def EntityOntology():
 
 def MakeUri(dsn_name, proc_nam):
     return lib_uris.gUriGen.node_from_dict(
-        "odbc/procedure", {survol_odbc.CgiPropertyDsn(): dsn_name, "Procedure": proc_nam})
+        "odbc/procedure", {"Dsn": dsn_name, "Procedure": proc_nam})
 
 
 def EntityOntology():
-    return ([survol_odbc.CgiPropertyDsn(), "Procedure"],)
+    return (["Dsn", "Procedure"],)
 
 
 def EntityName(entity_ids_arr):
-    return survol_odbc.CgiPropertyDsn().ValueShortDisplay(entity_ids_arr[0]) + "::" + entity_ids_arr[1]
+    return survol_odbc.ShortenDsn(entity_ids_arr[0]) + "::" + entity_ids_arr[1]
 
 
 def AddInfo(grph, node, entity_ids_arr):

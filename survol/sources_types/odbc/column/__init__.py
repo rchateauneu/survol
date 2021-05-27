@@ -14,12 +14,12 @@ def Graphic_colorbg():
 
 
 def EntityOntology():
-    return ([survol_odbc.CgiPropertyDsn(), "Table", "Column"],)
+    return (["Dsn", "Table", "Column"],)
 
 
 def MakeUri(dsn_name, table_nam, column_nam):
     return lib_uris.gUriGen.node_from_dict(
-        "odbc/column", {survol_odbc.CgiPropertyDsn(): dsn_name, "Table": table_nam, "Column": column_nam})
+        "odbc/column", {"Dsn": dsn_name, "Table": table_nam, "Column": column_nam})
 
 
 def AddInfo(grph, node, entity_ids_arr):
@@ -30,5 +30,5 @@ def AddInfo(grph, node, entity_ids_arr):
 
 
 def EntityName(entity_ids_arr):
-    return survol_odbc.CgiPropertyDsn().ValueShortDisplay(
+    return survol_odbc.ShortenDsn(
         entity_ids_arr[0]) + "::" + entity_ids_arr[1] + "." + entity_ids_arr[2]
