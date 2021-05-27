@@ -6,7 +6,6 @@ from sources_types.sql import query as sql_query_module
 from sources_types.sqlserver import dsn as sqlserver_dsn
 from sources_types.sqlserver import table as sqlserver_table
 from sources_types.sqlserver import view as sqlserver_view
-from sources_types import odbc as survol_odbc
 
 import sys
 import logging
@@ -22,8 +21,7 @@ import lib_common
 # We do not know if CIM_Process.EntityOntology() is available.
 def EntityOntology():
     logging.debug("sql_query_module.CgiPropertyQuery()=%s", str(sql_query_module.CgiPropertyQuery()))
-    logging.debug("survol_odbc.CgiPropertyDsn()=%s" % str(survol_odbc.CgiPropertyDsn()))
-    return ([sql_query_module.CgiPropertyQuery(),survol_odbc.CgiPropertyDsn()],)
+    return ([sql_query_module.CgiPropertyQuery(),"Dsn"],)
 
 
 # The SQL query is encoded in base 64 because it contains many special characters which would be too complicated to
