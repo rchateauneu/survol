@@ -20,6 +20,15 @@ from sources_types.oracle import db as oracle_db
 # https://stackoverflow.com/questions/31353137/sql-h-not-found-when-installing-pyodbc-on-heroku
 
 
+def Usable(entity_type, entity_ids_arr):
+    try:
+        import pyodbc
+        return True
+    except ImportError:
+        logging.debug("pyodbc not installed")
+        return False
+
+
 def Graphic_colorfill():
     return "#CCFF11"
 
@@ -29,15 +38,16 @@ def Graphic_colorbg():
 
 
 def EntityOntology():
-    return ([survol_odbc.CgiPropertyDsn()],)
+    return (["Dsn"],)
 
 
 def MakeUri(dsn_name):
-    return lib_uris.gUriGen.node_from_dict("odbc/dsn", {survol_odbc.CgiPropertyDsn(): dsn_name})
+    return lib_uris.gUriGen.node_from_dict("odbc/dsn", {"Dsn": dsn_name})
 
 
 def EntityName(entity_ids_arr):
-    return survol_odbc.CgiPropertyDsn().ValueDisplay(entity_ids_arr[0])
+    #return "Dsn".ValueDisplay(entity_ids_arr[0])
+    return survol_odbc.ShortenDsn(entity_ids_arr[0])
 
 
 # This expects a DSN as a simple string.
@@ -129,9 +139,11 @@ def AddInfo(grph, node, entity_ids_arr):
 
 # TODO: Maybe should decode ????
 def GetDsnNameFromCgi(cgiEnv):
-    key_word_dsn = survol_odbc.CgiPropertyDsn()
+    key_word_dsn = "Dsn"
     dsn_coded = cgiEnv.m_entity_id_dict[key_word_dsn]
-    dsn_decoded = key_word_dsn.ValueDecode(dsn_coded)
+    # Maintenant, on suppose que tous les arguments sont proprement decodes.
+    dsn_decoded = dsn_coded
+    # dsn_decoded = key_word_dsn.ValueDecode(dsn_coded)
 
     return dsn_decoded
 
@@ -156,6 +168,6 @@ def DatabaseEnvParams(processId):
     #     'MS Access Database': 'Microsoft Access Driver (*.mdb, *.accdb)'
     # }
 
-    dsn_list = ({survol_odbc.CgiPropertyDsn(): "DSN=" + dsn } for dsn in sources_data)
+    dsn_list = ({"Dsn": "DSN=" + dsn } for dsn in sources_data)
 
     return "sqlserver/query", dsn_list
