@@ -27,6 +27,26 @@ def TruncateHostname(host_dns):
     return host_name
 
 
+class PathFactory:
+    """
+        lib_uris.PathFactory().CIM_ComputerSystem(Name="abc.txt"),
+        => 'CIM_ComputerSystem.Name=%s' % "abc.txt",
+        lib_uris.PathFactory().odbc.dsn(Dsn="DSN=MS Access Database"),
+        => 'odbc/dsn.Dsn=DSN~MS Access Database'
+    """
+
+    def __init__(self, class_name=None):
+        self.m_class_name = class_name
+
+    def __call__(self, *args_call, **kwargs_call):
+        entity_id = self.m_class_name + "." + ",".join("%s=%s" % kv_pair for kv_pair in kwargs_call.items())
+        return entity_id
+
+    def __getattr__(self, attribute_name):
+        concat_class_name = self.m_class_name + "/" + attribute_name if self.m_class_name else attribute_name
+        return PathFactory(concat_class_name)
+
+
 class LocalBox:
     """
     This contains several similar function which create a node from a class name and several arguments.
@@ -105,6 +125,48 @@ class LocalBox:
         # TODO: See lib_util.EntityUri which does something similar.
         entity_id = ",".join("%s=%s" % uri_pair_encode(*kw_items) for kw_items in entity_id_dict.items())
         return self.node_from_path(entity_type, entity_id)
+
+
+    #class NodeFactory:
+    #    def __init__(self, local_box):
+    #        self.m_local_box = local_box
+
+
+    #    def CIM_Process(self, pid):
+    #        return self.node_from_args('CIM_Process', str(pid))
+
+    #    def __get_attr__(self, class_name_as_attr):
+    #        # attr_name is a class name. THIS DOES NOT WORK IF SEPARATED BY DOTS.
+    #        def instance_create(*args):
+
+    #            class_module = importlib.import(class_name_as_attr)
+    #            class_module.MakeFunc(*args)
+    #        return instance_create
+
+
+    # VOIR la classe lib_client.Agent() qui fait exactement ce qu'on veut:
+    # instance_origin = lib_client.Agent().CIM_DataFile(Name=sample_file)
+    # instance_local_odbc = lib_client.Agent().odbc.dsn(Dsn="DSN~MS%20Access%20Database")
+    # my_instances_local = lib_client.Agent().Win32_UserAccount(Domain=CurrentMachine, Name=CurrentUsername)
+    # Agent peut recevoir:
+    # _remote_general_test_agent = "http://%s:%d" % (CurrentMachine, RemoteGeneralTestServerPort)
+    # Mais Agent cree une instance, un objet, alors qu'ici on veut juste creer un URL.
+    # On peut peut etre y dupliquer __getattr__ et CallDispatcher ?
+    # Agent() veut que les arguments soient nommes.
+    # Ce serait bien de faire la meme chose mais il faudrait remplacer beaucoup de code.
+    # Mais ce serait bien plus clair.
+    # Dommage de faire la meme chose que pywbem.
+    # Au lieu de LocalBox.PidUri(123), on aurait:
+    # LocalBox().CIM_Process(Handle=123)
+    # Pour etre logique, il faudrait renommer Agent() en InstanceFactory()
+    # et LocalBox() en LocalUrlFactory().
+    # Mais on se fout des classes: lib_client doit rester en dehors des trucs importants.
+
+
+
+
+
+
 
     ###################################################################################
     # TODO: All the following methods return an Uri given the parameters of a class.
