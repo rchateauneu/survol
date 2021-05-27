@@ -6,7 +6,6 @@ SqlServer objects
 # List all database files in a SQL Server instance with Python and pyodbc
 
 import pyodbc
-from sources_types import odbc as survol_odbc
 
 
 def Graphic_shape():
@@ -57,7 +56,7 @@ def DatabaseEnvParams(processId):
     #     'MS Access Database': 'Microsoft Access Driver (*.mdb, *.accdb)'
     # }
 
-    dsn_list = ({survol_odbc.CgiPropertyDsn(): "DSN=" + dsn} for dsn in sources)
+    dsn_list = ({"Dsn": "DSN=" + dsn} for dsn in sources)
 
     # Maybe this must be adjusted as key-value pairs ??
     return "sqlserver/query", dsn_list
