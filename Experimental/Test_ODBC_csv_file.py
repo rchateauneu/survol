@@ -63,8 +63,14 @@ def test_access_database():
     print("Finished")
     print("")
 
+# Win 7, Python 2.7 and Python 3.6
+#   SQL Server
+#   SQL Server Native Client 11.0
+#   Oracle in XE
+#   MySQL ODBC 5.3 ANSI Driver
+#   MySQL ODBC 5.3 Unicode Driver
 
 print("Drivers", "\n" + "\n".join(pyodbc.drivers()))
 print("")
-test_access_database()
 test_text_odbc_driver()
+test_access_database()
