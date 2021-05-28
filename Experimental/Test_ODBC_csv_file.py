@@ -8,10 +8,6 @@
 import os
 import pyodbc
 
-# Present on both machines:
-# Dsn="DSN=Excel Files"
-# Dsn="DSN=MS Access Database"
-
 def test_text_odbc_driver():
     text_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Test_ODBC_SampleFile.csv')
     print("text_file=" + text_file)
@@ -63,14 +59,33 @@ def test_access_database():
     print("Finished")
     print("")
 
+# Data Source=(LocalDb)\v11.0;Initial Catalog=Data1;Integrated Security=true;AttachDBFilename=data1.mdf
+#
+# Data Source=(LocalDb)\v11.0;Initial Catalog=Data2;Integrated Security=true;AttachDBFilename=data2.mdf
+def test_attach_db_filename():
+    return
+
+
 # Win 7, Python 2.7 and Python 3.6
 #   SQL Server
 #   SQL Server Native Client 11.0
 #   Oracle in XE
 #   MySQL ODBC 5.3 ANSI Driver
 #   MySQL ODBC 5.3 Unicode Driver
+# Win 10, Python 3.8
+#   SQL Server
+#   ODBC Driver 17 for SQL Server
+#   Microsoft Access Driver (*.mdb, *.accdb)
+#   Microsoft Excel Driver (*.xls, *.xlsx, *.xlsm, *.xlsb)
+#   Microsoft Access Text Driver (*.txt, *.csv)
+
+# Present on both machines, with sources = pyodbc.dataSources():
+# Dsn="DSN=Excel Files"
+# Dsn="DSN=MS Access Database"
+
 
 print("Drivers", "\n" + "\n".join(pyodbc.drivers()))
 print("")
+test_attach_db_filename()
 test_text_odbc_driver()
 test_access_database()
