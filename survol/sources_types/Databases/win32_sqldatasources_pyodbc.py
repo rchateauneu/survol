@@ -15,12 +15,15 @@ from sources_types.odbc import dsn as survol_odbc_dsn
 
 Usable = lib_util.UsableWindows
 
-# TODO: Maybe it should be called enumerate_odbc_something ?
 
 # http://code.activestate.com/recipes/578815-printing-list-of-odbc-data-sources-with-pyodbc-mod/
 
 
 def display_data_sources(grph):
+	# https://stackoverflow.com/questions/41591287/driver-not-found-even-though-its-listed-in-pyodbc-datasources
+	# The list produced by pyodbc.dataSources() is misleading because it shows the results
+	# from both the 32-bit and 64-bit "Platform".
+	# A more reliable way to get the list of available drivers is to use pyodbc.drivers()
 	sources = pyodbc.dataSources()
 
 	for dsn in sources:
