@@ -18,6 +18,7 @@ from init import *
 # This loads the module from the source, so no need to install it, and no need of virtualenv.
 update_test_path()
 
+import lib_uris
 import lib_util
 import lib_client
 import lib_common
@@ -1501,15 +1502,26 @@ if CurrentMachine.lower() == "laptop-r89kg6v1":
     pyodbc = None
 
 
+def _aux_encode_dsn(input_dsn):
+    """
+    This is a temporary function until the encoding of DSNs in urls is cleaned up.
+    See: survol_odbc_dsn.MakeUri("DSN=" + dsn)
+    """
+    return input_dsn.replace(" ", "%20")
+
 class SurvolPyODBCTest(unittest.TestCase):
 
     @unittest.skipIf(not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
     def test_local_scripts_odbc_dsn(self):
-        """This instantiates an instance of a subclass"""
+        """
+        This lists the scripts associated to ODBC dsns.
+        The package pyodbc does not need to be here because it just lists Python files.
+        :return:
+        """
 
         # The url is "http://rchateau-hp:8000/survol/entity.py?xid=odbc/dsn.Dsn=DSN~MS%20Access%20Database"
         instance_local_odbc = lib_client.Agent().odbc.dsn(
-            Dsn="DSN~MS%20Access%20Database")
+            Dsn="DSN=MS Access Database")
 
         list_scripts = instance_local_odbc.get_scripts()
         logging.debug("Scripts:")
@@ -1527,18 +1539,22 @@ class SurvolPyODBCTest(unittest.TestCase):
 
         str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
+        # 'CIM_ComputerSystem.Name=%s' % CurrentMachine,
+        # 'odbc/dsn.Dsn=DSN~MS Access Database'
+
         # At least these instances must be present.
         for one_str in [
-            'CIM_ComputerSystem.Name=%s' % CurrentMachine,
-            'odbc/dsn.Dsn=DSN~Excel Files',
-            'odbc/dsn.Dsn=DSN~MS Access Database',
-            'odbc/dsn.Dsn=DSN~MyNativeSqlServerDataSrc',
-            'odbc/dsn.Dsn=DSN~MyOracleDataSource',
-            'odbc/dsn.Dsn=DSN~OraSysDataSrc',
-            'odbc/dsn.Dsn=DSN~SysDataSourceSQLServer',
-            'odbc/dsn.Dsn=DSN~dBASE Files',
-            'odbc/dsn.Dsn=DSN~mySqlServerDataSource',
-            'odbc/dsn.Dsn=DSN~SqlSrvNativeDataSource']:
+            lib_uris.PathFactory().CIM_ComputerSystem(Name=CurrentMachine),
+            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=Excel Files"),
+            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=MS Access Database"),
+            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=MyNativeSqlServerDataSrc"),
+            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=MyOracleDataSource"),
+            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=OraSysDataSrc"),
+            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=SysDataSourceSQLServer"),
+            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=dBASE Files"),
+            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=mySqlServerDataSource"),
+            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=SqlSrvNativeDataSource"),
+        ]:
             self.assertTrue(one_str in str_instances_set)
 
     @unittest.skipIf(not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
@@ -1548,22 +1564,22 @@ class SurvolPyODBCTest(unittest.TestCase):
         lst_instances = _client_object_instances_from_script(
             "sources_types/odbc/dsn/odbc_dsn_tables.py",
             "odbc/dsn",
-            Dsn="DSN~SysDataSourceSQLServer")
+            Dsn="DSN=SysDataSourceSQLServer")
 
         str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
         for one_str in [
-            'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=all_columns',
-            'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=assembly_files',
-            'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=change_tracking_tables',
-            'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=dm_broker_queue_monitors',
-            'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=dm_hadr_availability_group_states',
-            'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=dm_hadr_database_replica_cluster_states',
-            'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=dm_hadr_instance_node_map',
-            'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=server_audit_specifications',
-            'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=server_audits',
-            'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=sysusers',
+            lib_uris.PathFactory().odbc.table(Dsn="DSN=SysDataSourceSQLServer", Table='all_columns'),
+            lib_uris.PathFactory().odbc.table(Dsn="DSN=SysDataSourceSQLServer", Table='assembly_files'),
+            lib_uris.PathFactory().odbc.table(Dsn="DSN=SysDataSourceSQLServer", Table='change_tracking_tables'),
+            lib_uris.PathFactory().odbc.table(Dsn="DSN=SysDataSourceSQLServer", Table='dm_broker_queue_monitors'),
+            lib_uris.PathFactory().odbc.table(Dsn="DSN=SysDataSourceSQLServer", Table='dm_hadr_availability_group_states'),
+            lib_uris.PathFactory().odbc.table(Dsn="DSN=SysDataSourceSQLServer", Table='dm_hadr_database_replica_cluster_states'),
+            lib_uris.PathFactory().odbc.table(Dsn="DSN=SysDataSourceSQLServer", Table='dm_hadr_instance_node_map'),
+            lib_uris.PathFactory().odbc.table(Dsn="DSN=SysDataSourceSQLServer", Table='server_audit_specifications'),
+            lib_uris.PathFactory().odbc.table(Dsn="DSN=SysDataSourceSQLServer", Table='server_audits'),
+            lib_uris.PathFactory().odbc.table(Dsn="DSN=SysDataSourceSQLServer", Table='sysusers'),
             ]:
             self.assertTrue(one_str in str_instances_set)
 
@@ -1574,18 +1590,19 @@ class SurvolPyODBCTest(unittest.TestCase):
         lst_instances = _client_object_instances_from_script(
             "sources_types/odbc/table/odbc_table_columns.py",
             "odbc/table",
-            Dsn="DSN~SysDataSourceSQLServer",
+            Dsn="DSN=SysDataSourceSQLServer",
             Table="dm_os_windows_info")
 
+        # !!!
         str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
         # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
         for one_str in [
-            'odbc/column.Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info,Column=windows_service_pack_level',
-            'odbc/column.Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info,Column=os_language_version',
-            'odbc/column.Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info,Column=windows_release',
-            'odbc/column.Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info,Column=windows_sku',
-            'odbc/table.Dsn=DSN~SysDataSourceSQLServer,Table=dm_os_windows_info'
+            lib_uris.PathFactory().odbc.column(Dsn="DSN=SysDataSourceSQLServer", Table='dm_os_windows_info', Column='windows_service_pack_level'),
+            lib_uris.PathFactory().odbc.column(Dsn="DSN=SysDataSourceSQLServer", Table='dm_os_windows_info', Column='os_language_version'),
+            lib_uris.PathFactory().odbc.column(Dsn="DSN=SysDataSourceSQLServer", Table='dm_os_windows_info', Column='windows_release'),
+            lib_uris.PathFactory().odbc.column(Dsn="DSN=SysDataSourceSQLServer", Table='dm_os_windows_info', Column='windows_sku'),
+            lib_uris.PathFactory().odbc.table(Dsn="DSN=SysDataSourceSQLServer", Table='dm_os_windows_info'),
         ]:
             self.assertTrue(one_str in str_instances_set)
 
