@@ -4,9 +4,11 @@
 # be not only compressed with base64 but also processed by extracting user/password
 # from ODBC connection strings.
 
-
 import os
+import socket
+
 import pyodbc
+
 
 def test_text_odbc_driver():
     text_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Test_ODBC_SampleFile.csv')
@@ -255,7 +257,8 @@ def test_attach_db_filename():
 
 
 def test_sql_server():
-    connection_string = r'Driver={SQL Server};Server=localhost'
+    # connection_string = r'Driver={SQL Server};Server=localhost'
+    connection_string = r'Driver={SQL Server};Server=%s\SQLEXPRESS' % socket.gethostname()
     print("connection_string=" + connection_string)
     conn = pyodbc.connect(connection_string)
 
