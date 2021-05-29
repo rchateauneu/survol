@@ -1,0 +1,45 @@
+HP Insight has a SQL Server database, with one table for each CIM class.
+
+Query example as seen in Sql Server Studio:
+
+/****** Script for SelectTopNRows command from SSMS  ******/
+SELECT TOP 1000 [Process_LUID]
+      ,[NodeID]
+      ,[SnapshotID]
+      ,[CSCreationClassName]
+      ,[CSName]
+      ,[OSCreationClassName]
+      ,[OSName]
+      ,[Handle]
+      ,[CreationClassName]
+      ,[Name]
+      ,[ExecutionState]
+      ,[Priority]
+      ,[UnixProcess_ParentProcessID]
+      ,[UnixProcess_ProcessGroupID]
+      ,[UnixProcess_RealUserID]
+      ,[UnixProcess_ProcessTTY]
+      ,[UnixProcess_ModulePath]
+      ,[OtherExecutionDescription]
+      ,[UnixProcess_Parameters]
+      ,[UnixProcess_ProcessNiceValue]
+      ,[UxPrStatInf_RealStack]
+      ,[UxPrStatInf_VirText]
+      ,[UxPrStatInf_VirData]
+      ,[UxPrStatInf_VirStack]
+      ,[UxPrStatInf_VirSharedMem]
+      ,[UxPrStatInf_VirMemMapFileSize]
+  FROM [Insight_v50_0_81912336].[dbo].[CIM_Process]
+
+
+It does not seem there is a specific ODBC driver.
+
+These data do not come from "WMI Mapper" because this service is stopped.
+
+https://community.hpe.com/t5/Server-Management-Systems/Migrating-HP-SIM-Database-into-new-SQL-Server/td-p/4759571
+"Migrating HP SIM Database into new SQL Server"
+
+HP urls do not seem to be maintained.
+
+Database fed with polling.
+
