@@ -14,15 +14,47 @@ import re
 
 import six
 
+import lib_uris
+import lib_client
 from sources_types import odbc as survol_odbc
+
+from init import *
+
+import pyodbc
+
+#try:
+#    import pyodbc
+#    # This is temporary until ODBC is setup on this machine.
+#    # FIXME: The correct solution might be to check ODBC credentials.
+#    if not has_credentials("ODBC"): # CurrentMachine in ["laptop-r89kg6v1", "desktop-ny99v8e"]:
+#        pyodbc = None
+#except ImportError as exc:
+#    pyodbc = None
+#    print("Detected ImportError:", exc)
+
+
+# FIXME: Because there is no database (Temporary).
+#if CurrentMachine.lower() == "laptop-r89kg6v1":
+#    logging.warning("Disabling odbc tests")
+#    pyodbc = None
 
 
 class MatchesAggregationTest(unittest.TestCase):
+    """
+    This tests the function which aggregates small key-value paris of ODBC connecitons strings,
+    detected in a text buffer with regular expressions.
+    These key-value pairs come in a map with their offest in the text.
+    They are sorted based on this offset then concatenated when they are consecutive.
+    It is faster than having a single regular expression with a sequence of kv pairs joined with a "|" pipe.
+    """
     # Things to test:
     # - From bytes.
     # - From UTF8, on one, two or four bytes.
 
     def test_aggregate_dsn_pieces(self):
+        # These test data are pairs:
+        # - The first element contains the input dict of offset => token,
+        # - The second element is the expected output.
         test_data = [
             (
                 {
@@ -74,6 +106,7 @@ class MatchesAggregationTest(unittest.TestCase):
 
 
 # Many examples of connection strings here: https://www.connectionstrings.com/
+# This list uses only the most common keywords found in ODBC connection strings.
 connection_strings_light = [
     r'Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\AnyDir\AnyFile.tmp;',
     r'Provider=Microsoft.Jet.OLEDB.4.0;Data Source=c:\txtFilesFolder\;',
@@ -82,6 +115,7 @@ connection_strings_light = [
     r'Provider=Microsoft.ACE.OLEDB.12.0;Data Source=c:\myFolder\myBinaryExcel2007file.xlsb;',
 ]
 
+# More examples with more keywords.
 connection_strings_heavy = connection_strings_light + [
     r'Data Source=MyOracleDB;User Id=myUsername;Password=myPassword;Integrated Security=no;',
     r'Data Source=myOracleDB;User Id=myUsername;Password=myPassword;Min Pool Size=10;Connection Lifetime=120;Connection Timeout=60;Incr Pool Size=5;Decr Pool Size=2;',
@@ -110,7 +144,8 @@ connection_strings_heavy = connection_strings_light + [
     r'Server=(localdb)\.\MyInstanceShare;Integrated Security=true;',
 ]
 
-# Various text strings to be added before and after.
+# Various text strings to be added before and after a connectino string which is then analysed
+# with a resular expression.
 noise_text = [
     " lksdj;laksjdf;lkajsdf",
     " 9087sdva98uvohj.134mn5.23m4 ",
@@ -121,12 +156,26 @@ noise_text = [
 
 
 class DetectConnectionStringTest(unittest.TestCase):
+    """
+    This tests the detection of a ODBC connection string hidden in text.
+    """
 
     # Things to test:
     # - From bytes.
     # - From UTF8, on one, two or four bytes.
 
     def _aux_test_from_python_bytes(self, text_display, the_odbc_regex, various_connections):
+        """
+        This tests the detection of a ODBC connection string hidden in text.
+        It uses a big regular expression.
+        There are two regular expressiosn to detect them, based on the ODBC connecitons strigns keywords:
+        A light one with just a handfull of keywords, the most common ones.
+        A heavy regex, with all known keywords: The detection is then much slower.
+        :param text_display: A small text to display, for information..
+        :param the_odbc_regex:  Regex.
+        :param various_connections: A list of connection strings, which will be hidden in random text, the detect.
+        :return:
+        """
         print(text_display, "=", the_odbc_regex)
         compiled_regex = re.compile(the_odbc_regex.encode('utf-8'), re.IGNORECASE)
 
@@ -141,7 +190,6 @@ class DetectConnectionStringTest(unittest.TestCase):
                     full_line = one_prefix + one_connect_str + one_suffix
                     bytes_array = full_line.encode('utf-8')
                     self.assertTrue(isinstance(bytes_array, six.binary_type))
-                    #matched_connect = compiled_regex.findall(bytes_array)
 
                     resu_matches = {}
                     for mtch in compiled_regex.finditer(bytes_array):
@@ -169,3 +217,207 @@ class DetectConnectionStringTest(unittest.TestCase):
 
     def test_from_python_heavy_bytes(self):
         self._aux_test_from_python_bytes("regex_odbc_heavy", survol_odbc.regex_odbc_heavy, connection_strings_heavy)
+
+
+_client_object_instances_from_script = lib_client.SourceLocal.get_object_instances_from_script
+
+
+#def _aux_encode_dsn(input_dsn):
+#    """
+#    This is a temporary function until the encoding of DSNs in urls is cleaned up.
+#    See: survol_odbc_dsn.MakeUri("DSN=" + dsn)
+#    """
+#    return input_dsn.replace(" ", "%20")
+
+
+@unittest.skipIf(CurrentMachine != "rchateau-hp", "Local test only.")
+class SurvolOraclePyodbcTest(unittest.TestCase):
+    def test_local_scripts_odbc_dsn(self):
+        """
+        This lists the scripts associated to ODBC dsns.
+        The package pyodbc does not need to be here because it just lists Python files.
+        :return:
+        """
+
+        # The url is "http://rchateau-hp:8000/survol/entity.py?xid=odbc/dsn.Dsn=DSN~MS%20Access%20Database"
+        instance_local_odbc = lib_client.Agent().odbc.dsn(
+            Dsn="DSN=MS Access Database")
+
+        list_scripts = instance_local_odbc.get_scripts()
+        logging.debug("Scripts:")
+        for one_scr in list_scripts:
+            logging.debug("    %s" % one_scr)
+        # There should be at least a couple of scripts.
+        self.assertTrue(len(list_scripts) > 0)
+
+    def test_all_sqldatasources(self):
+        """Tests ODBC data sources"""
+
+        lst_instances = _client_object_instances_from_script(
+            "sources_types/Databases/win32_sqldatasources_pyodbc.py")
+
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
+
+        # 'CIM_ComputerSystem.Name=%s' % CurrentMachine,
+        # 'odbc/dsn.Dsn=DSN~MS Access Database'
+
+        # At least these instances must be present.
+        for one_str in [
+            lib_uris.PathFactory().CIM_ComputerSystem(Name=CurrentMachine),
+            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=Excel Files"),
+            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=MS Access Database"),
+            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=MyNativeSqlServerDataSrc"),
+            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=MyOracleDataSource"),
+            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=OraSysDataSrc"),
+            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=SysDataSourceSQLServer"),
+            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=dBASE Files"),
+            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=mySqlServerDataSource"),
+            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=SqlSrvNativeDataSource"),
+        ]:
+            self.assertTrue(one_str in str_instances_set)
+
+
+
+@unittest.skipIf(CurrentMachine != "rchateau-hp", "Local test only.")
+class SurvolOraclePyodbcTest(unittest.TestCase):
+    # This is the connection string of an Oracle DSN.
+    oracle_dsn = "DSN=SysDataSourceSQLServer"
+
+    def test_oracle_sqldatasources(self):
+        """Tests ODBC data sources"""
+
+        lst_instances = _client_object_instances_from_script(
+            "sources_types/Databases/win32_sqldatasources_pyodbc.py")
+
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
+
+        # At least these instances must be present, especially the Oracle DSN used for these tests.
+        for one_str in [
+            lib_uris.PathFactory().CIM_ComputerSystem(Name=CurrentMachine),
+            lib_uris.PathFactory().odbc.dsn(Dsn=self.oracle_dsn),
+        ]:
+            self.assertTrue(one_str in str_instances_set)
+
+    def test_oracle_dsn_tables(self):
+        """Tests ODBC data sources"""
+
+        lst_instances = _client_object_instances_from_script(
+            "sources_types/odbc/dsn/odbc_dsn_tables.py",
+            "odbc/dsn",
+            Dsn=self.oracle_dsn)
+
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
+
+        # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
+        for one_str in [
+            lib_uris.PathFactory().odbc.table(Dsn=self.oracle_dsn, Table='all_columns'),
+            lib_uris.PathFactory().odbc.table(Dsn=self.oracle_dsn, Table='assembly_files'),
+            lib_uris.PathFactory().odbc.table(Dsn=self.oracle_dsn, Table='change_tracking_tables'),
+            lib_uris.PathFactory().odbc.table(Dsn=self.oracle_dsn, Table='dm_broker_queue_monitors'),
+            lib_uris.PathFactory().odbc.table(Dsn=self.oracle_dsn, Table='dm_hadr_availability_group_states'),
+            lib_uris.PathFactory().odbc.table(Dsn=self.oracle_dsn, Table='dm_hadr_database_replica_cluster_states'),
+            lib_uris.PathFactory().odbc.table(Dsn=self.oracle_dsn, Table='dm_hadr_instance_node_map'),
+            lib_uris.PathFactory().odbc.table(Dsn=self.oracle_dsn, Table='server_audit_specifications'),
+            lib_uris.PathFactory().odbc.table(Dsn=self.oracle_dsn, Table='server_audits'),
+            lib_uris.PathFactory().odbc.table(Dsn=self.oracle_dsn, Table='sysusers'),
+            ]:
+            self.assertTrue(one_str in str_instances_set)
+
+    def test_oracle_dsn_one_table_columns(self):
+        """Tests ODBC table columns"""
+
+        lst_instances = _client_object_instances_from_script(
+            "sources_types/odbc/table/odbc_table_columns.py",
+            "odbc/table",
+            Dsn=self.oracle_dsn,
+            Table="dm_os_windows_info")
+
+        # !!!
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
+
+        # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
+        for one_str in [
+            lib_uris.PathFactory().odbc.column(Dsn=self.oracle_dsn, Table='dm_os_windows_info', Column='windows_service_pack_level'),
+            lib_uris.PathFactory().odbc.column(Dsn=self.oracle_dsn, Table='dm_os_windows_info', Column='os_language_version'),
+            lib_uris.PathFactory().odbc.column(Dsn=self.oracle_dsn, Table='dm_os_windows_info', Column='windows_release'),
+            lib_uris.PathFactory().odbc.column(Dsn=self.oracle_dsn, Table='dm_os_windows_info', Column='windows_sku'),
+            lib_uris.PathFactory().odbc.table(Dsn=self.oracle_dsn, Table='dm_os_windows_info'),
+        ]:
+            self.assertTrue(one_str in str_instances_set)
+
+
+
+@unittest.skipIf(CurrentMachine != "rchateau-hp", "Local test only.")
+class SurvolSqlServerPyodbcTest(unittest.TestCase):
+    # This is the connection string used for all tests.
+    _connection_string = r'Driver={SQL Server};Server=%s\SQLEXPRESS' % socket.gethostname()
+
+    @unittest.skipIf(not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
+    def test_local_scripts_odbc_dsn(self):
+        """
+        This lists the scripts associated to ODBC dsns.
+        """
+
+        # The url is "http://rchateau-hp:8000/survol/entity.py?xid=odbc/dsn.Dsn=DSN~MS%20Access%20Database"
+        instance_local_odbc = lib_client.Agent().odbc.dsn(
+            Dsn=self._connection_string)
+
+        list_scripts = instance_local_odbc.get_scripts()
+        logging.debug("Scripts:")
+        for one_scr in list_scripts:
+            logging.debug("    %s" % one_scr)
+        # There should be at least a couple of scripts.
+        self.assertTrue(len(list_scripts) > 0)
+
+    def test_sql_server_sqldatasources(self):
+        """Tests ODBC data sources"""
+
+        lst_instances = _client_object_instances_from_script(
+            "sources_types/Databases/win32_sqldatasources_pyodbc.py")
+
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
+
+        # At least these instances must be present.
+        for one_str in [
+            lib_uris.PathFactory().CIM_ComputerSystem(Name=CurrentMachine),
+            lib_uris.PathFactory().odbc.dsn(Dsn=self._connection_string),
+        ]:
+            self.assertTrue(one_str in str_instances_set)
+
+    def test_sql_server_dsn_tables(self):
+        """Tests ODBC data sources"""
+
+        lst_instances = _client_object_instances_from_script(
+            "sources_types/odbc/dsn/odbc_dsn_tables.py",
+            "odbc/dsn",
+            Dsn=self._connection_string)
+
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
+
+        # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
+        for one_str in [
+            lib_uris.PathFactory().odbc.table(Dsn=self._connection_string, Table='sys.all_views'),
+            ]:
+            self.assertTrue(one_str in str_instances_set)
+
+    def test_sql_server_dsn_one_table_columns(self):
+        """Tests ODBC table columns"""
+
+        lst_instances = _client_object_instances_from_script(
+            "sources_types/odbc/table/odbc_table_columns.py",
+            "odbc/table",
+            Dsn=self._connection_string,
+            Table="sys.all_views")
+
+        # !!!
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
+
+        # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
+        for one_str in [
+            lib_uris.PathFactory().odbc.column(Dsn=self._connection_string, Table='sys.all_views', Column='windows_service_pack_level'),
+            lib_uris.PathFactory().odbc.column(Dsn=self._connection_string, Table='sys.all_views', Column='os_language_version'),
+            lib_uris.PathFactory().odbc.table(Dsn=self._connection_string, Table='sys.all_views'),
+        ]:
+            self.assertTrue(one_str in str_instances_set)
+
+
