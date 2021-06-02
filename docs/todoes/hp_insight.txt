@@ -43,3 +43,5 @@ HP urls do not seem to be maintained.
 
 Database fed with polling.
 
+TODO: Load the database content to RDF or vice-versa.
+
