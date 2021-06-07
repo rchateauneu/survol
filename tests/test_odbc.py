@@ -22,19 +22,9 @@ from init import *
 
 try:
     import pyodbc
-#    # This is temporary until ODBC is setup on this machine.
-#    # FIXME: The correct solution might be to check ODBC credentials.
-#    if not has_credentials("ODBC"): # CurrentMachine in ["laptop-r89kg6v1", "desktop-ny99v8e"]:
-#        pyodbc = None
 except ImportError as exc:
     # Some tests can be done even if pyodbc is not installed.
     pyodbc = None
-
-
-# FIXME: Because there is no database (Temporary).
-#if CurrentMachine.lower() == "laptop-r89kg6v1":
-#    logging.warning("Disabling odbc tests")
-#    pyodbc = None
 
 
 class MatchesAggregationTest(unittest.TestCase):
@@ -221,22 +211,16 @@ class DetectConnectionStringTest(unittest.TestCase):
 _client_object_instances_from_script = lib_client.SourceLocal.get_object_instances_from_script
 
 
-#def _aux_encode_dsn(input_dsn):
-#    """
-#    This is a temporary function until the encoding of DSNs in urls is cleaned up.
-#    See: survol_odbc_dsn.MakeUri("DSN=" + dsn)
-#    """
-#    return input_dsn.replace(" ", "%20")
-
-
 @unittest.skipIf(pyodbc is None, "pyodbc must be installed")
-@unittest.skipIf(CurrentMachine != "rchateau-hp", "Local test only.")
-class SurvolOraclePyodbcTest(unittest.TestCase):
-    def test_local_scripts_odbc_dsn(self):
+@unittest.skipIf(is_platform_linux, "Windows test only.")
+class SurvolWindowsPyodbcTest(unittest.TestCase):
+    """
+    Generic ODBC tests for Windows.
+    """
+    def test_local_scripts_odbc_ms_access_dsn(self):
         """
         This lists the scripts associated to ODBC dsns.
         The package pyodbc does not need to be here because it just lists Python files.
-        :return:
         """
 
         # The url is "http://rchateau-hp:8000/survol/entity.py?xid=odbc/dsn.Dsn=DSN~MS%20Access%20Database"
@@ -258,21 +242,11 @@ class SurvolOraclePyodbcTest(unittest.TestCase):
 
         str_instances_set = set([str(one_inst) for one_inst in lst_instances])
 
-        # 'CIM_ComputerSystem.Name=%s' % CurrentMachine,
-        # 'odbc/dsn.Dsn=DSN~MS Access Database'
-
-        # At least these instances must be present.
+        # At least these instances must be present. Other are possible such as "DSN=dBASE Files"
         for one_str in [
             lib_uris.PathFactory().CIM_ComputerSystem(Name=CurrentMachine),
             lib_uris.PathFactory().odbc.dsn(Dsn="DSN=Excel Files"),
             lib_uris.PathFactory().odbc.dsn(Dsn="DSN=MS Access Database"),
-            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=MyNativeSqlServerDataSrc"),
-            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=MyOracleDataSource"),
-            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=OraSysDataSrc"),
-            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=SysDataSourceSQLServer"),
-            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=dBASE Files"),
-            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=mySqlServerDataSource"),
-            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=SqlSrvNativeDataSource"),
         ]:
             self.assertTrue(one_str in str_instances_set)
 
@@ -281,6 +255,7 @@ class SurvolOraclePyodbcTest(unittest.TestCase):
 @unittest.skipIf(CurrentMachine != "rchateau-hp", "Local test only.")
 class SurvolOraclePyodbcTest(unittest.TestCase):
     # This is the connection string of an Oracle DSN.
+    # It runs on a single machine yet, specifically configured.
     oracle_dsn = "DSN=SysDataSourceSQLServer"
 
     def test_oracle_sqldatasources(self):
@@ -347,7 +322,7 @@ class SurvolOraclePyodbcTest(unittest.TestCase):
 
 
 @unittest.skipIf(pyodbc is None, "pyodbc must be installed")
-@unittest.skipIf(CurrentMachine != "rchateau-hp", "Local test only.")
+@unittest.skipIf(is_platform_linux, "Windows test only.")
 class SurvolSqlServerPyodbcTest(unittest.TestCase):
     # This is the connection string used for all tests.
     _connection_string = r'Driver={SQL Server};Server=%s\SQLEXPRESS' % socket.gethostname()
@@ -369,12 +344,6 @@ class SurvolSqlServerPyodbcTest(unittest.TestCase):
         # There should be at least a couple of scripts.
         self.assertTrue(len(list_scripts) > 0)
 
-    # str_instances_set= {'odbc/dsn.Dsn=DSN=mySqlServerDataSource', 'odbc/dsn.Dsn=DSN=dBASE Files', 'odbc/dsn.Dsn=DSN=MyOracleDataSource',
-    #  'odbc/dsn.Dsn=DSN=MS Access Database', 'odbc/dsn.Dsn=DSN=MyNativeSqlServerDataSrc', 'odbc/dsn.Dsn=DSN=OraSysDataSrc', 'odbc/dsn.Dsn
-    # =DSN=Excel Files', 'odbc/dsn.Dsn=DSN=SqlSrvNativeDataSource', 'odbc/dsn.Dsn=DSN=SysDataSourceSQLServer', 'CIM_ComputerSystem.Name=rc
-    # hateau-hp'}
-    # one_str= CIM_ComputerSystem.Name=rchateau-hp
-    # one_str= odbc/dsn.Dsn=Driver={SQL Server};Server=rchateau-HP\SQLEXPRESS
     @unittest.skip("Maybe confusion between sources and servers ? Or maybe the test does not make sense ?")
     def test_sql_server_sqldatasources(self):
         """Tests ODBC data sources"""
@@ -417,7 +386,6 @@ class SurvolSqlServerPyodbcTest(unittest.TestCase):
             "odbc/table",
             Dsn=self._connection_string,
             Table="all_views")
-            # Table = "sys.all_views")
 
         # !!!
         str_instances_set = set([str(one_inst) for one_inst in lst_instances])
@@ -431,5 +399,3 @@ class SurvolSqlServerPyodbcTest(unittest.TestCase):
             lib_uris.PathFactory().odbc.table(Dsn=self._connection_string, Table='all_views'),
         ]:
             self.assertTrue(one_str in str_instances_set)
-
-
