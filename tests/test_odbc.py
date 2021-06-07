@@ -20,17 +20,15 @@ from sources_types import odbc as survol_odbc
 
 from init import *
 
-import pyodbc
-
-#try:
-#    import pyodbc
+try:
+    import pyodbc
 #    # This is temporary until ODBC is setup on this machine.
 #    # FIXME: The correct solution might be to check ODBC credentials.
 #    if not has_credentials("ODBC"): # CurrentMachine in ["laptop-r89kg6v1", "desktop-ny99v8e"]:
 #        pyodbc = None
-#except ImportError as exc:
-#    pyodbc = None
-#    print("Detected ImportError:", exc)
+except ImportError as exc:
+    # Some tests can be done even if pyodbc is not installed.
+    pyodbc = None
 
 
 # FIXME: Because there is no database (Temporary).
