@@ -13,6 +13,8 @@ import os
 import sys
 import logging
 
+import rdflib
+
 import lib_uris
 import lib_util
 import lib_common
@@ -333,8 +335,8 @@ def recursive_walk_on_scripts(callback_grph_add, parent_node, entity_type, entit
             nod_modu = lib_util.module_doc_string(imported_mod, fil[:-3])
 
             # nod_modu contains a literal of a str.
-            if not isinstance(nod_modu, str):
-                logging.error("nod_modu=%s should be str instead of %s", nod_modu, type(nod_modu))
+            if not isinstance(nod_modu, rdflib.term.Literal):
+                logging.error("nod_modu=%s should be Literal instead of %s", nod_modu, type(nod_modu))
 
             callback_grph_add((rdf_node, pc.property_information, nod_modu), depth_call)
 
