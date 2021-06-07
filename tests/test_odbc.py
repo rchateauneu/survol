@@ -153,6 +153,7 @@ noise_text = [
 ]
 
 
+@unittest.skipIf(pyodbc is None, "pyodbc must be installed")
 class DetectConnectionStringTest(unittest.TestCase):
     """
     This tests the detection of a ODBC connection string hidden in text.
@@ -228,6 +229,7 @@ _client_object_instances_from_script = lib_client.SourceLocal.get_object_instanc
 #    return input_dsn.replace(" ", "%20")
 
 
+@unittest.skipIf(pyodbc is None, "pyodbc must be installed")
 @unittest.skipIf(CurrentMachine != "rchateau-hp", "Local test only.")
 class SurvolOraclePyodbcTest(unittest.TestCase):
     def test_local_scripts_odbc_dsn(self):
@@ -275,6 +277,7 @@ class SurvolOraclePyodbcTest(unittest.TestCase):
             self.assertTrue(one_str in str_instances_set)
 
 
+@unittest.skipIf(pyodbc is None, "pyodbc must be installed")
 @unittest.skipIf(CurrentMachine != "rchateau-hp", "Local test only.")
 class SurvolOraclePyodbcTest(unittest.TestCase):
     # This is the connection string of an Oracle DSN.
@@ -343,6 +346,7 @@ class SurvolOraclePyodbcTest(unittest.TestCase):
             self.assertTrue(one_str in str_instances_set)
 
 
+@unittest.skipIf(pyodbc is None, "pyodbc must be installed")
 @unittest.skipIf(CurrentMachine != "rchateau-hp", "Local test only.")
 class SurvolSqlServerPyodbcTest(unittest.TestCase):
     # This is the connection string used for all tests.
