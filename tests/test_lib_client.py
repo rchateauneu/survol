@@ -1505,28 +1505,26 @@ class SurvolSocketsTest(unittest.TestCase):
         print("Connection to %s OK" % http_host_name)
         # Legacy and backward compatibility.
         conn_http.request("GET", url_query)
-        resp = conn_http.getresponse()
-        if (resp.status, resp.reason) not in [(200, "OK"), (302, "Found")]:
-            raise Exception("Hostname %s not ok. Status=%d, reason=%s." % (http_host_name, resp.status, resp.reason))
         return conn_http
 
     @unittest.skipIf(is_platform_wsl, "Does not work on WSL")
     def test_netstat_sockets(self):
 
         # Not many web sites in HTTP these days. This one is very stable.
-        # http://w2.vatican.va/content/vatican/it.html is on port 80=http
-        http_host_name = 'w2.vatican.va'
+        http_host_name = 'portquiz.net'
 
-        conn_http = self._create_socket_connection(http_host_name, "/latin/latin_index.html")
-        peer_name = conn_http.sock.getpeername()
-        peer_host = peer_name[0]
+        conn_http = self._create_socket_connection(http_host_name, "")
+        peer_host = socket.gethostbyname(http_host_name)
 
-        print("Peer name of connection socket:", conn_http.sock.getpeername())
-
+        # Get the list of sockets before this one is closed.
         if is_platform_windows:
             lst_instances = _client_object_instances_from_script("sources_types/win32/tcp_sockets_windows.py")
         else:
             lst_instances = _client_object_instances_from_script("sources_types/Linux/tcp_sockets.py")
+
+        resp = conn_http.getresponse()
+        if (resp.status, resp.reason) not in [(200, "OK"), (302, "Found")]:
+            raise Exception("Hostname %s not ok. Status=%d, reason=%s." % (http_host_name, resp.status, resp.reason))
 
         str_instances_set = set([str(one_inst) for one_inst in lst_instances ])
 
