@@ -221,7 +221,6 @@ class LibWmiTest(unittest.TestCase):
             print(object_path)
             print(dict_key_values)
 
-
     def text_build_wmi_path_from_survol_path(self):
         test_data = [
             ('CIM_Directory.Name=abc.def', 'CIM_Directory.Name="abc.def"')
