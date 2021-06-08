@@ -61,7 +61,6 @@ query_examples["Good"] = {
 "select cola from tab11 alias1, (select colb from tab22) alias2":["TAB11","TAB22"],
 "select alias1.cola,alias2.colb from tab11 alias1, (select colb from tab22) alias2":["TAB11","TAB22"],
 "select cola from tab11, (select colb from tab22) alias2":["TAB11","TAB22"],
-"select cola,colc,colb from tab14,tab24 alias24":["TAB14","TAB24"],
 "select tab1.cola,tab2.colb,tab3.colc from (select cola from tab1),(select colb from tab2),(select colc from tab3)":["TAB1","TAB2","TAB3"],
 "select cola,tab2.colb,tab3.colc from (select cola from tab1),(select colb from tab2),(select colc from tab3)":["TAB1","TAB2","TAB3"],
 "select ca,tab2.cb,tab3.cc from tab1,(select cb from tab2),(select cc from tab3)":["TAB1","TAB2","TAB3"],
@@ -117,15 +116,6 @@ SELECT *
   FROM tutorial.sf_crime_incidents_2014_01
  WHERE Date = (SELECT MIN(date)
                  FROM tutorial.sf_crime_incidents_2014_01
-              )
-""": ["TUTORIAL.SF_CRIME_INCIDENTS_2014_01"],
-"""
-SELECT *
-  FROM tutorial.sf_crime_incidents_2014_01
- WHERE Date IN (SELECT date
-                 FROM tutorial.sf_crime_incidents_2014_01
-                ORDER BY date
-                LIMIT 5
               )
 """: ["TUTORIAL.SF_CRIME_INCIDENTS_2014_01"],
 """
@@ -387,13 +377,6 @@ SELECT SalesOrderID, OrderDate,
 FROM AdventureWorks2008R2.Sales.SalesOrderHeader
 """:["ADVENTUREWORKS.SALES.SALESORDERDETAIL","ADVENTUREWORKS2008R2.SALES.SALESORDERHEADER"],
 """
-SELECT AlbumInfo.album_name, album_tracks,
-(SELECT COUNT(*) FROM Album
-WHERE Album.album_name = AlbumInfo.album_name)
-FROM  AlbumInfo
-WHERE AlbumInfo.band_name = 'Metallica'
-""":["ALBUM","ALBUMINFO"],
-"""
 SELECT SalesOrderID,
 LineTotal,
 (SELECT AVG(LineTotal) FROM   Sales.SalesOrderDetail) AS AverageLineTotal, LineTotal - (SELECT AVG(LineTotal) FROM   Sales.SalesOrderDetail) AS Variance
@@ -484,18 +467,6 @@ where a.UnitPrice =
 )
 order by a.ProductID
 """:["ORDER_DETAILS","PRODUCTS"],
-"""
-select distinct a.ProductID, a.UnitPrice as Max_unit_price_sold
-from order_details as a
-inner join
-(
-    select ProductID, max(UnitPrice) as Max_unit_price_sold
-    from order_details
-    group by ProductID
-) as b
-on a.ProductID=b.ProductID and a.UnitPrice=b.Max_unit_price_sold
-order by a.ProductID
-""":["ORDER_DETAILS"],
 """
 SELECT Ord.SalesOrderID, Ord.OrderDate,
     (SELECT MAX(OrdDet.UnitPrice)
@@ -624,18 +595,6 @@ where a.UnitPrice =
 )
 order by a.ProductID
 """:["ORDER_DETAILS"],
-"""
-SELECT SUM (Sales) FROM Store_Information
-WHERE Store_Name IN
-(SELECT Store_Name FROM Geography
-WHERE Region_Name = 'West')
-""" : ["GEOGRAPHY","STORE_INFORMATION"],
-"""
-SELECT SUM (a1.Sales) FROM Store_Information a1
-WHERE a1.Store_Name IN
-(SELECT Store_Name FROM Geography a2
-WHERE a2.Store_Name = a1.Store_Name)
-""" : ["GEOGRAPHY","STORE_INFORMATION"],
 """
 SELECT DECODE (Store_Name,
   'Los Angeles', 'LA',
@@ -792,13 +751,6 @@ SELECT COUNT(*) AS total_rows
           FROM tutorial.crunchbase_investments_part2
        ) sub
 """: ["TUTORIAL.CRUNCHBASE_INVESTMENTS_PART1","TUTORIAL.CRUNCHBASE_INVESTMENTS_PART2"],
-"""
-SELECT A1.Store_Name, SUM(A2.Sales) SALES
-FROM Geography A1, Store_Information A2
-WHERE A1.Store_Name = A2.Store_Name (+)
-GROUP BY A1.Store_Name
-""" : ["GEOGRAPHY","STORE_INFORMATION"],
-"select cola,colb from (select colb from tab22) alias25,tab11 alias15":["TAB11","TAB22"],
 """
 SELECT *
   FROM tutorial.crunchbase_investments_part1
