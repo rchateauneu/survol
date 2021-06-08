@@ -50,9 +50,9 @@ matrix:
         - powershell -Command "Set-ExecutionPolicy Bypass"
       env:
         - PATH=/c/Python37:/c/Python37/Scripts:$PATH
-      script:
+      #script:
         # This is for SQL Server LocalDB
-        - powershell -File build.ps1
+        #- powershell -File mssql_travis_load.ps1
 install:
   - pip install psutil               # Mandatory
   - pip install rdflib               # Mandatory
