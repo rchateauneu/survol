@@ -39,7 +39,15 @@ class PathFactory:
         self.m_class_name = class_name
 
     def __call__(self, *args_call, **kwargs_call):
-        entity_id = self.m_class_name + "." + ",".join("%s=%s" % kv_pair for kv_pair in kwargs_call.items())
+        """
+        This reorders keys to the ontology order.
+        This is not strictly necessary because the information is the same, but helps for testing,
+        because the resulting string is always the same.
+        Notably, it avoids the problem of Python2 which does not preserve the order of **kwargs in a function.
+        It also detects if a key is missing.
+        """
+        class_keys = lib_util.OntologyClassKeys(self.m_class_name)
+        entity_id = self.m_class_name + "." + ",".join("%s=%s" % (key, kwargs_call[key]) for key in class_keys)
         return entity_id
 
     def __getattr__(self, attribute_name):

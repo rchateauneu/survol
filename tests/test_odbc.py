@@ -241,6 +241,10 @@ class SurvolWindowsPyodbcTest(unittest.TestCase):
             "sources_types/Databases/win32_sqldatasources_pyodbc.py")
 
         str_instances_set = set([str(one_inst) for one_inst in lst_instances])
+        print("Instances")
+        for one_instance in sorted(str_instances_set):
+            print("    one_instance=", one_instance)
+
 
         # At least these instances must be present. Other are possible such as "DSN=dBASE Files"
         for one_str in [
@@ -248,6 +252,7 @@ class SurvolWindowsPyodbcTest(unittest.TestCase):
             lib_uris.PathFactory().odbc.dsn(Dsn="DSN=Excel Files"),
             lib_uris.PathFactory().odbc.dsn(Dsn="DSN=MS Access Database"),
         ]:
+            print("one_str=", one_str)
             self.assertTrue(one_str in str_instances_set)
 
 
@@ -307,8 +312,11 @@ class SurvolOraclePyodbcTest(unittest.TestCase):
             Dsn=self.oracle_dsn,
             Table="dm_os_windows_info")
 
-        # !!!
         str_instances_set = set([str(one_inst) for one_inst in lst_instances])
+
+        print("Instances")
+        for one_instance in sorted(str_instances_set):
+            print("    one_instance=", one_instance)
 
         # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
         for one_str in [
@@ -318,6 +326,7 @@ class SurvolOraclePyodbcTest(unittest.TestCase):
             lib_uris.PathFactory().odbc.column(Dsn=self.oracle_dsn, Table='dm_os_windows_info', Column='windows_sku'),
             lib_uris.PathFactory().odbc.table(Dsn=self.oracle_dsn, Table='dm_os_windows_info'),
         ]:
+            print("one_str=", one_str)
             self.assertTrue(one_str in str_instances_set)
 
 
@@ -345,6 +354,7 @@ class SurvolSqlServerPyodbcTest(unittest.TestCase):
         self.assertTrue(len(list_scripts) > 0)
 
     @unittest.skip("Maybe confusion between sources and servers ? Or maybe the test does not make sense ?")
+    @unittest.skipIf(is_travis_machine(), "Travis doesn't support SQL Server as a service..")
     def test_sql_server_sqldatasources(self):
         """Tests ODBC data sources"""
 
@@ -362,6 +372,7 @@ class SurvolSqlServerPyodbcTest(unittest.TestCase):
             print("one_str=", one_str)
             self.assertTrue(one_str in str_instances_set)
 
+    @unittest.skipIf(is_travis_machine(), "Travis doesn't support SQL Server as a service..")
     def test_sql_server_dsn_tables(self):
         """Tests ODBC data sources"""
 
@@ -378,6 +389,7 @@ class SurvolSqlServerPyodbcTest(unittest.TestCase):
             ]:
             self.assertTrue(one_str in str_instances_set)
 
+    @unittest.skipIf(is_travis_machine(), "Travis doesn't support SQL Server as a service..")
     def test_sql_server_dsn_one_table_columns(self):
         """Tests ODBC table columns"""
 
