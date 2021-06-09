@@ -56,6 +56,10 @@ matrix:
       #script:
         # This is for SQL Server LocalDB
         #- powershell -File mssql_travis_load.ps1
+      service:
+        # https://docs:travis-ci.com/user/database-setup/
+        - MSSQLServer
+
 install:
   - pip install psutil               # Mandatory
   - pip install rdflib               # Mandatory
