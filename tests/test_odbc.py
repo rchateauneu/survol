@@ -415,7 +415,7 @@ class SqlServerPyodbcTest(unittest.TestCase):
 
 
 @unittest.skipIf(pyodbc is None, "pyodbc must be installed")
-@unittest.skipIf(is_platform_linux, "Windows test only.")
+@unittest.skip("Not ready.")
 class SqlServerLocalDbTest(unittest.TestCase):
     # This is the connection string of an Oracle DSN.
     # It runs on a single machine yet, specifically configured.
