@@ -213,7 +213,7 @@ _client_object_instances_from_script = lib_client.SourceLocal.get_object_instanc
 
 @unittest.skipIf(pyodbc is None, "pyodbc must be installed")
 @unittest.skipIf(is_platform_linux, "Windows test only.")
-class SurvolWindowsPyodbcTest(unittest.TestCase):
+class WindowsPyodbcTest(unittest.TestCase):
     """
     Generic ODBC tests for Windows.
     """
@@ -234,6 +234,7 @@ class SurvolWindowsPyodbcTest(unittest.TestCase):
         # There should be at least a couple of scripts.
         self.assertTrue(len(list_scripts) > 0)
 
+    @unittest.skipIf(is_travis_machine(), "No data sources on Travis - yet.")
     def test_all_sqldatasources(self):
         """Tests ODBC data sources"""
 
@@ -258,7 +259,7 @@ class SurvolWindowsPyodbcTest(unittest.TestCase):
 
 @unittest.skipIf(pyodbc is None, "pyodbc must be installed")
 @unittest.skipIf(CurrentMachine != "rchateau-hp", "Local test only.")
-class SurvolOraclePyodbcTest(unittest.TestCase):
+class OraclePyodbcTest(unittest.TestCase):
     # This is the connection string of an Oracle DSN.
     # It runs on a single machine yet, specifically configured.
     oracle_dsn = "DSN=SysDataSourceSQLServer"
@@ -332,7 +333,7 @@ class SurvolOraclePyodbcTest(unittest.TestCase):
 
 @unittest.skipIf(pyodbc is None, "pyodbc must be installed")
 @unittest.skipIf(is_platform_linux, "Windows test only.")
-class SurvolSqlServerPyodbcTest(unittest.TestCase):
+class SqlServerPyodbcTest(unittest.TestCase):
     # This is the connection string used for all tests.
     _connection_string = r'Driver={SQL Server};Server=%s\SQLEXPRESS' % socket.gethostname()
 
@@ -354,7 +355,7 @@ class SurvolSqlServerPyodbcTest(unittest.TestCase):
         self.assertTrue(len(list_scripts) > 0)
 
     @unittest.skip("Maybe confusion between sources and servers ? Or maybe the test does not make sense ?")
-    @unittest.skipIf(is_travis_machine(), "Travis doesn't support SQL Server as a service..")
+    @unittest.skipIf(is_travis_machine(), "Travis doesn't support SQL Server as a service.")
     def test_sql_server_sqldatasources(self):
         """Tests ODBC data sources"""
 
@@ -372,7 +373,7 @@ class SurvolSqlServerPyodbcTest(unittest.TestCase):
             print("one_str=", one_str)
             self.assertTrue(one_str in str_instances_set)
 
-    @unittest.skipIf(is_travis_machine(), "Travis doesn't support SQL Server as a service..")
+    @unittest.skipIf(is_travis_machine(), "Travis doesn't support SQL Server as a service.")
     def test_sql_server_dsn_tables(self):
         """Tests ODBC data sources"""
 
@@ -389,7 +390,7 @@ class SurvolSqlServerPyodbcTest(unittest.TestCase):
             ]:
             self.assertTrue(one_str in str_instances_set)
 
-    @unittest.skipIf(is_travis_machine(), "Travis doesn't support SQL Server as a service..")
+    @unittest.skipIf(is_travis_machine(), "Travis doesn't support SQL Server as a service.")
     def test_sql_server_dsn_one_table_columns(self):
         """Tests ODBC table columns"""
 
@@ -411,3 +412,50 @@ class SurvolSqlServerPyodbcTest(unittest.TestCase):
             lib_uris.PathFactory().odbc.table(Dsn=self._connection_string, Table='all_views'),
         ]:
             self.assertTrue(one_str in str_instances_set)
+
+
+@unittest.skipIf(pyodbc is None, "pyodbc must be installed")
+@unittest.skipIf(is_platform_linux, "Windows test only.")
+class SqlServerLocalDbTest(unittest.TestCase):
+    # This is the connection string of an Oracle DSN.
+    # It runs on a single machine yet, specifically configured.
+    mdf_file = r'C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\tests\ExpressDB.mdf'
+    # localdb_dsn = "Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=aspnet-MvcMovie;Integrated Security=SSPI;AttachDBFilename=|DataDirectory|\Movies.mdf"
+    localdb_dsn = "Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=aspnet-MvcMovie;Integrated Security=SSPI;AttachDBFilename=%s" % mdf_file
+
+    def test_localdb_tables(self):
+        lst_instances = _client_object_instances_from_script(
+            "sources_types/odbc/dsn/odbc_dsn_tables.py",
+            "odbc/dsn",
+            Dsn=self.localdb_dsn)
+
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
+
+        # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
+        for one_str in [
+            lib_uris.PathFactory().odbc.table(Dsn=self.oracle_dsn, Table='sysusers'),
+            ]:
+            self.assertTrue(one_str in str_instances_set)
+
+    def test_localdb_one_table_columns(self):
+        lst_instances = _client_object_instances_from_script(
+            "sources_types/odbc/table/odbc_table_columns.py",
+            "odbc/table",
+            Dsn=self.localdb_dsn,
+            Table="dm_os_windows_info")
+
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
+
+        print("Instances")
+        for one_instance in sorted(str_instances_set):
+            print("    one_instance=", one_instance)
+
+        # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
+        for one_str in [
+            lib_uris.PathFactory().odbc.column(Dsn=self.localdb_dsn, Table='dm_os_windows_info', Column='windows_sku'),
+            lib_uris.PathFactory().odbc.table(Dsn=self.localdb_dsn, Table='dm_os_windows_info'),
+        ]:
+            print("one_str=", one_str)
+            self.assertTrue(one_str in str_instances_set)
+
+

@@ -47,7 +47,7 @@ SlowScript = True
 
 
 def _get_aggreg_dsns(pidint, rgx_dsn):
-    """
+    r"""
     The input is a process id and a regular expression for finding ODBC connection strings.
 
     Example of ODBC connection string:
