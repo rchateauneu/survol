@@ -333,7 +333,7 @@ class OraclePyodbcTest(unittest.TestCase):
 
 @unittest.skipIf(pyodbc is None, "pyodbc must be installed")
 @unittest.skipIf(is_platform_linux, "Windows test only.")
-class SqlServerPyodbcTest(unittest.TestCase):
+class SqlServerExpressPyodbcTest(unittest.TestCase):
     # This is the connection string used for all tests.
     _connection_string = r'Driver={SQL Server};Server=%s\SQLEXPRESS' % socket.gethostname()
 
@@ -413,20 +413,113 @@ class SqlServerPyodbcTest(unittest.TestCase):
         ]:
             self.assertTrue(one_str in str_instances_set)
 
+# Service names:
+# ... there are two standard names which are MSSQLSERVER for the default instance
+# and SQLEXPRESS for the SQL Server Express edition.
+# Travis starts MSSQLServer. See .travis.yml
 
 @unittest.skipIf(pyodbc is None, "pyodbc must be installed")
+@unittest.skipIf(is_platform_linux, "Windows test only.")
+class SqlServerNotExpressPyodbcTest(unittest.TestCase):
+    # This is the connection string used for all tests.
+    _connection_string = r'Driver={SQL Server};Server=%s' % socket.gethostname()
+
+    @unittest.skipIf(not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
+    def test_local_scripts_odbc_dsn(self):
+        """
+        This lists the scripts associated to ODBC dsns.
+        """
+
+        # The url is "http://rchateau-hp:8000/survol/entity.py?xid=odbc/dsn.Dsn=DSN~MS%20Access%20Database"
+        instance_local_odbc = lib_client.Agent().odbc.dsn(
+            Dsn=self._connection_string)
+
+        list_scripts = instance_local_odbc.get_scripts()
+        logging.debug("Scripts:")
+        for one_scr in list_scripts:
+            logging.debug("    %s" % one_scr)
+        # There should be at least a couple of scripts.
+        self.assertTrue(len(list_scripts) > 0)
+
+    @unittest.skip("Maybe confusion between sources and servers ? Or maybe the test does not make sense ?")
+    ###@unittest.skipIf(is_travis_machine(), "Travis doesn't support SQL Server as a service.")
+    def test_sql_server_sqldatasources(self):
+        """Tests ODBC data sources"""
+
+        lst_instances = _client_object_instances_from_script(
+            "sources_types/Databases/win32_sqldatasources_pyodbc.py")
+
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
+        print("str_instances_set=", str_instances_set)
+
+        # At least these instances must be present.
+        for one_str in [
+            lib_uris.PathFactory().CIM_ComputerSystem(Name=CurrentMachine),
+            lib_uris.PathFactory().odbc.dsn(Dsn=self._connection_string),
+        ]:
+            print("one_str=", one_str)
+            self.assertTrue(one_str in str_instances_set)
+
+    ###@unittest.skipIf(is_travis_machine(), "Travis doesn't support SQL Server as a service.")
+    def test_sql_server_dsn_tables(self):
+        """Tests ODBC data sources"""
+
+        lst_instances = _client_object_instances_from_script(
+            "sources_types/odbc/dsn/odbc_dsn_tables.py",
+            "odbc/dsn",
+            Dsn=self._connection_string)
+
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
+
+        # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
+        for one_str in [
+            lib_uris.PathFactory().odbc.table(Dsn=self._connection_string, Table='all_views'),
+            ]:
+            self.assertTrue(one_str in str_instances_set)
+
+    ###@unittest.skipIf(is_travis_machine(), "Travis doesn't support SQL Server as a service.")
+    def test_sql_server_dsn_one_table_columns(self):
+        """Tests ODBC table columns"""
+
+        lst_instances = _client_object_instances_from_script(
+            "sources_types/odbc/table/odbc_table_columns.py",
+            "odbc/table",
+            Dsn=self._connection_string,
+            Table="all_views")
+
+        # !!!
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
+        print("str_instances_set=", str_instances_set)
+
+        # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
+        for one_str in [
+            # check a couple of columns.
+            lib_uris.PathFactory().odbc.column(Dsn=self._connection_string, Table='all_views', Column='type_desc'),
+            lib_uris.PathFactory().odbc.column(Dsn=self._connection_string, Table='all_views', Column='parent_object_id'),
+            lib_uris.PathFactory().odbc.table(Dsn=self._connection_string, Table='all_views'),
+        ]:
+            self.assertTrue(one_str in str_instances_set)
+
+
+@unittest.skipIf(pyodbc is None, "pyodbc must be installed")
+@unittest.skip("This is only for debugging purpose")
 class PyOdbcBasicsTest(unittest.TestCase):
 
+    # Local test machine, Windows 7.
     # one_driver= SQL Server
     # one_driver= SQL Server Native Client 11.0
     # one_driver= Oracle in XE
     # one_driver= MySQL ODBC 5.3 ANSI Driver
     # one_driver= MySQL ODBC 5.3 Unicode Driver
+
+    # Travis Win10:
+    # one_driver= SQL Server
     def test_drivers_list(self):
         for one_driver in pyodbc.drivers():
             print("one_driver=", one_driver)
-        self.assertTrue(False)
+            self.assertTrue(False)
 
+    # Local test machine, Windows 7.
     # one_data_source= MyNativeSqlServerDataSrc
     # one_data_source= Excel Files
     # one_data_source= SqlSrvNativeDataSource
@@ -436,6 +529,9 @@ class PyOdbcBasicsTest(unittest.TestCase):
     # one_data_source= dBASE Files
     # one_data_source= OraSysDataSrc
     # one_data_source= MS Access Database
+
+    # Travis Win10:
+    # (nothing)
     def test_data_sources_list(self):
         for one_data_source in pyodbc.dataSources():
             print("one_data_source=", one_data_source)
