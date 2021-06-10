@@ -50,6 +50,7 @@ matrix:
         # TODO: Must be tested.
         #
         - choco install mssqlserver2014-sqllocaldb
+        - choco install sql-server-express
         - powershell -Command "Set-ExecutionPolicy Bypass"
       env:
         - PATH=/c/Python37:/c/Python37/Scripts:$PATH
@@ -59,6 +60,7 @@ matrix:
       service:
         # https://docs:travis-ci.com/user/database-setup/
         - MSSQLServer
+        - SQLEXPRESS
 
 install:
   - pip install psutil               # Mandatory

@@ -425,7 +425,11 @@ class SqlServerNotExpressPyodbcTest(unittest.TestCase):
     # This failed: node_dsn=Driver={SQL Server};Server=packer-5ef00961-da3d-8a7b-ba55-4a1e83cb951c
     # _connection_string = r'Driver={SQL Server};Server=%s' % socket.gethostname()
 
-    _connection_string = r'Driver={SQL Server};Server=%s\MSSQLSERVER' % socket.gethostname()
+    # [08001] [Microsoft][ODBC SQL Server Driver][DBNETLIB]Invalid connection
+    #_connection_string = r'Driver={SQL Server};Server=%s\MSSQLSERVER' % socket.gethostname()
+
+    # Now travis.yml also installs sqlserver and starts the service.
+    _connection_string = r'Driver={SQL Server};Server=%s\SQLEXPRESS' % socket.gethostname()
 
     @unittest.skipIf(not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
     def test_local_scripts_odbc_dsn(self):
