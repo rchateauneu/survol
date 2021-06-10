@@ -45,3 +45,5 @@ Database fed with polling.
 
 TODO: Load the database content to RDF or vice-versa.
 
+https://hpl.hp.com/techreports/2009/HPL-2009-349.pdf
+The HP Universal CMDB SPARQL Adapter
