@@ -422,7 +422,10 @@ class SqlServerExpressPyodbcTest(unittest.TestCase):
 @unittest.skipIf(is_platform_linux, "Windows test only.")
 class SqlServerNotExpressPyodbcTest(unittest.TestCase):
     # This is the connection string used for all tests.
-    _connection_string = r'Driver={SQL Server};Server=%s' % socket.gethostname()
+    # This failed: node_dsn=Driver={SQL Server};Server=packer-5ef00961-da3d-8a7b-ba55-4a1e83cb951c
+    # _connection_string = r'Driver={SQL Server};Server=%s' % socket.gethostname()
+
+    _connection_string = r'Driver={SQL Server};Server=%s\MSSQLSERVER' % socket.gethostname()
 
     @unittest.skipIf(not pyodbc, "pyodbc cannot be imported. SurvolPyODBCTest not executed.")
     def test_local_scripts_odbc_dsn(self):
@@ -460,6 +463,16 @@ class SqlServerNotExpressPyodbcTest(unittest.TestCase):
             print("one_str=", one_str)
             self.assertTrue(one_str in str_instances_set)
 
+    def test_sql_server_dsn_tables_pre_test(self):
+        # If this does not work, no point going further
+        # This failed: node_dsn=Driver={SQL Server};Server=packer-5ef00961-da3d-8a7b-ba55-4a1e83cb951c
+        cnxn = pyodbc.connect(self._connection_string)
+        self.assertTrue(cnxn is not None)
+        cursor = cnxn.cursor()
+        for row in cursor.tables():
+            print("row.table_name=", row.table_name)
+            self.assertTrue(row.table_name is not None)
+
     ###@unittest.skipIf(is_travis_machine(), "Travis doesn't support SQL Server as a service.")
     def test_sql_server_dsn_tables(self):
         """Tests ODBC data sources"""
@@ -478,6 +491,7 @@ class SqlServerNotExpressPyodbcTest(unittest.TestCase):
             self.assertTrue(one_str in str_instances_set)
 
     ###@unittest.skipIf(is_travis_machine(), "Travis doesn't support SQL Server as a service.")
+    @unittest.skip("NOT YET")
     def test_sql_server_dsn_one_table_columns(self):
         """Tests ODBC table columns"""
 
