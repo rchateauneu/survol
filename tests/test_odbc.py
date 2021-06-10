@@ -415,47 +415,30 @@ class SqlServerPyodbcTest(unittest.TestCase):
 
 
 @unittest.skipIf(pyodbc is None, "pyodbc must be installed")
-@unittest.skip("Not ready.")
-class SqlServerLocalDbTest(unittest.TestCase):
-    # This is the connection string of an Oracle DSN.
-    # It runs on a single machine yet, specifically configured.
-    mdf_file = r'C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\tests\ExpressDB.mdf'
-    # localdb_dsn = "Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=aspnet-MvcMovie;Integrated Security=SSPI;AttachDBFilename=|DataDirectory|\Movies.mdf"
-    localdb_dsn = "Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=aspnet-MvcMovie;Integrated Security=SSPI;AttachDBFilename=%s" % mdf_file
+class PyOdbcBasicsTest(unittest.TestCase):
 
-    def test_localdb_tables(self):
-        lst_instances = _client_object_instances_from_script(
-            "sources_types/odbc/dsn/odbc_dsn_tables.py",
-            "odbc/dsn",
-            Dsn=self.localdb_dsn)
+    # one_driver= SQL Server
+    # one_driver= SQL Server Native Client 11.0
+    # one_driver= Oracle in XE
+    # one_driver= MySQL ODBC 5.3 ANSI Driver
+    # one_driver= MySQL ODBC 5.3 Unicode Driver
+    def test_drivers_list(self):
+        for one_driver in pyodbc.drivers():
+            print("one_driver=", one_driver)
+        self.assertTrue(False)
 
-        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
-
-        # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
-        for one_str in [
-            lib_uris.PathFactory().odbc.table(Dsn=self.oracle_dsn, Table='sysusers'),
-            ]:
-            self.assertTrue(one_str in str_instances_set)
-
-    def test_localdb_one_table_columns(self):
-        lst_instances = _client_object_instances_from_script(
-            "sources_types/odbc/table/odbc_table_columns.py",
-            "odbc/table",
-            Dsn=self.localdb_dsn,
-            Table="dm_os_windows_info")
-
-        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
-
-        print("Instances")
-        for one_instance in sorted(str_instances_set):
-            print("    one_instance=", one_instance)
-
-        # Checks the presence of some Python dependencies, true for all Python versions and OS platforms.
-        for one_str in [
-            lib_uris.PathFactory().odbc.column(Dsn=self.localdb_dsn, Table='dm_os_windows_info', Column='windows_sku'),
-            lib_uris.PathFactory().odbc.table(Dsn=self.localdb_dsn, Table='dm_os_windows_info'),
-        ]:
-            print("one_str=", one_str)
-            self.assertTrue(one_str in str_instances_set)
+    # one_data_source= MyNativeSqlServerDataSrc
+    # one_data_source= Excel Files
+    # one_data_source= SqlSrvNativeDataSource
+    # one_data_source= mySqlServerDataSource
+    # one_data_source= MyOracleDataSource
+    # one_data_source= SysDataSourceSQLServer
+    # one_data_source= dBASE Files
+    # one_data_source= OraSysDataSrc
+    # one_data_source= MS Access Database
+    def test_data_sources_list(self):
+        for one_data_source in pyodbc.dataSources():
+            print("one_data_source=", one_data_source)
+        self.assertTrue(False)
 
 
