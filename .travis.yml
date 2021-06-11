@@ -77,15 +77,17 @@ matrix:
         #- choco install sqlserver2014express
         #- choco install mssqlserver2012expressadv
         #- choco install mssqlserver2014-sqllocaldb
+        #
+        - powershell Start-Service 'MSSQL$SQLEXPRESS'
       env:
         - PATH=/c/Python37:/c/Python37/Scripts:$PATH
       #script:
         # This is for SQL Server LocalDB
         #- powershell -File mssql_travis_load.ps1
-      services:
+      #services:
         # https://docs:travis-ci.com/user/database-setup/
-        - MSSQLServer
-        - SQLEXPRESS
+        #- MSSQLServer
+        #- SQLEXPRESS
 
 install:
   - pip install psutil               # Mandatory
