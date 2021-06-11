@@ -82,7 +82,7 @@ matrix:
       #script:
         # This is for SQL Server LocalDB
         #- powershell -File mssql_travis_load.ps1
-      service:
+      services:
         # https://docs:travis-ci.com/user/database-setup/
         - MSSQLServer
         - SQLEXPRESS
