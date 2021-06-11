@@ -60,7 +60,8 @@ matrix:
         #
         # Many various attempts:
         - choco install sqlserver-odbcdriver
-        - choco install mssqlserver-compact4.0
+        # The install of mssqlserver-compact4.0 was NOT successful.
+        #### - choco install mssqlserver-compact4.0
         - choco install sqlserverlocaldb
         - choco install sqlserverexpress
         - choco install sqlserver2008r2express
@@ -68,6 +69,7 @@ matrix:
         - choco install sqlserver2008r2express-engine
         - choco install sqlserver2014express
         - choco install mssqlserver2012expressadv
+        - choco install mssqlserver2014-sqllocaldb
       env:
         - PATH=/c/Python37:/c/Python37/Scripts:$PATH
       #script:
