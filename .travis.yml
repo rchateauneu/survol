@@ -66,13 +66,17 @@ matrix:
         #
         # The remote file either doesn't exist, is unauthorized, or is forbidden for url
         ####- choco install sqlserverlocaldb
+        #
         - choco install sqlserverexpress
-        - choco install sqlserver2008r2express
-        - choco install mssql2014express-defaultinstance
-        - choco install sqlserver2008r2express-engine
-        - choco install sqlserver2014express
-        - choco install mssqlserver2012expressadv
-        - choco install mssqlserver2014-sqllocaldb
+        #
+        # The install of sqlserver2008r2express was NOT successful.
+        #- choco install sqlserver2008r2express
+        #
+        #- choco install mssql2014express-defaultinstance
+        #- choco install sqlserver2008r2express-engine
+        #- choco install sqlserver2014express
+        #- choco install mssqlserver2012expressadv
+        #- choco install mssqlserver2014-sqllocaldb
       env:
         - PATH=/c/Python37:/c/Python37/Scripts:$PATH
       #script:
