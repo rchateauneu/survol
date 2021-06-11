@@ -60,9 +60,12 @@ matrix:
         #
         # Many various attempts:
         - choco install sqlserver-odbcdriver
+        #
         # The install of mssqlserver-compact4.0 was NOT successful.
         #### - choco install mssqlserver-compact4.0
-        - choco install sqlserverlocaldb
+        #
+        # The remote file either doesn't exist, is unauthorized, or is forbidden for url
+        ####- choco install sqlserverlocaldb
         - choco install sqlserverexpress
         - choco install sqlserver2008r2express
         - choco install mssql2014express-defaultinstance
