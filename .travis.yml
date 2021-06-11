@@ -50,10 +50,13 @@ matrix:
         # TODO: Must be tested.
         #
         # https://community.chocolatey.org/packages?q=SqlServer
-        # - choco install mssqlserver2014-sqllocaldb
-        # - choco install sql-server-express -y
-        - choco install sqlserver2014express
+        #
+        # OK: choco install mssqlserver2014-sqllocaldb
+        # "was not successful. Exit code was '-2146233079'": choco install sql-server-express -y
+        # No output has been received in the last 10m0s
+        # - choco install sqlserver2014express
         - powershell -Command "Set-ExecutionPolicy Bypass"
+        - choco install sqlserver2014express -v -y
       env:
         - PATH=/c/Python37:/c/Python37/Scripts:$PATH
       #script:
