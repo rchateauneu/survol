@@ -78,7 +78,10 @@ matrix:
         #- choco install mssqlserver2012expressadv
         #- choco install mssqlserver2014-sqllocaldb
         #
-        - powershell Start-Service 'MSSQL$SQLEXPRESS'
+        # Cannot find any service with service name 'MSSQL'
+        # - powershell Start-Service 'MSSQL$SQLEXPRESS'
+        #
+        - powershell Start-Service MSSQL`$SQLEXPRESS
       env:
         - PATH=/c/Python37:/c/Python37/Scripts:$PATH
       #script:
