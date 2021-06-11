@@ -55,8 +55,19 @@ matrix:
         # "was not successful. Exit code was '-2146233079'": choco install sql-server-express -y
         # No output has been received in the last 10m0s
         # - choco install sqlserver2014express
-        - powershell -Command "Set-ExecutionPolicy Bypass"
-        - choco install sqlserver2014express -v -y
+        #- powershell -Command "Set-ExecutionPolicy Bypass"
+        #- choco install sqlserver2014express -v -y
+        #
+        # Many various attempts:
+        - choco install sqlserver-odbcdriver
+        - choco install mssqlserver-compact4.0
+        - choco install sqlserverlocaldb
+        - choco install sqlserverexpress
+        - choco install sqlserver2008r2express
+        - choco install mssql2014express-defaultinstance
+        - choco install sqlserver2008r2express-engine
+        - choco install sqlserver2014express
+        - choco install mssqlserver2012expressadv
       env:
         - PATH=/c/Python37:/c/Python37/Scripts:$PATH
       #script:
