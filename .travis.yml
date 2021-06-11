@@ -84,7 +84,10 @@ matrix:
         # unexpected EOF while looking for matching
         # powershell Start-Service MSSQL BACK-TICK $SQLEXPRESS
         #
-        - powershell Start-Service 'MSSQL\$SQLEXPRESS'
+        # Cannot find any service with service name 'MSSQL\'
+        # powershell Start-Service 'MSSQL\$SQLEXPRESS'
+        #
+        - powershell Start-Service MSSQL\$SQLEXPRESS
       env:
         - PATH=/c/Python37:/c/Python37/Scripts:$PATH
       #script:
