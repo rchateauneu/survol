@@ -49,8 +49,10 @@ matrix:
         #
         # TODO: Must be tested.
         #
+        # https://community.chocolatey.org/packages?q=SqlServer
         # - choco install mssqlserver2014-sqllocaldb
-        - choco install sql-server-express -y
+        # - choco install sql-server-express -y
+        - choco install sqlserver2014express
         - powershell -Command "Set-ExecutionPolicy Bypass"
       env:
         - PATH=/c/Python37:/c/Python37/Scripts:$PATH
