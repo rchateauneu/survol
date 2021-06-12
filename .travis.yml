@@ -93,9 +93,12 @@ matrix:
         # Cannot find any service with service name 'MSSQL1912SQLEXPRESS'
         # powershell Start-Service MSSQL$$SQLEXPRESS
         #
-        - powershell Start-Service MSSQL\\\$SQLEXPRESS
+        # Cannot find any service with service name 'MSSQL\'
+        #- powershell Start-Service MSSQL\\\$SQLEXPRESS
         #
-      env:
+        #
+        - powershell Start-Service "MSSQL$SQLEXPRESS"
+        #      env:
         - PATH=/c/Python37:/c/Python37/Scripts:$PATH
       #script:
         # This is for SQL Server LocalDB
