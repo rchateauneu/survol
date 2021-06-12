@@ -30,7 +30,8 @@ matrix:
         # https://travis-ci.community/t/windows-python-pip-module-not-found/5480/4
         - choco install python  --version 3.7.5
         - python -m ensurepip
-        - python -m pip install --upgrade pip
+        # Suddenly: "python -m pip install --upgrade pip" failed and exited with 1 during"
+        ### - python -m pip install --upgrade pip
         - python -m pip install pytest         # Optional
         - python -m pip install pefile         # Optional
         - python -m pip install wmi            # Optional
