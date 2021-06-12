@@ -34,6 +34,7 @@ matrix:
         # No module named pip
         ### - python -m pip install --upgrade pip
         - choco install python  --version 3.7.5
+        - refreshenv
         - python -V
         - python -m ensurepip
         #- choco install pip
