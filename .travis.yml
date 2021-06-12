@@ -34,6 +34,9 @@ matrix:
         # No module named pip
         ### - python -m pip install --upgrade pip
         - choco install python  --version 3.8.0
+        - python -V
+        - python -m ensurepip
+        - choco install pip
         - python -m pip install --upgrade pip
         - python -m pip install pytest         # Optional
         - python -m pip install pefile         # Optional
