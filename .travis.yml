@@ -28,10 +28,13 @@ matrix:
       # python: 3.7         # 'python:' is ignored on Travis CI Windows
       before_install:
         # https://travis-ci.community/t/windows-python-pip-module-not-found/5480/4
-        - choco install python  --version 3.7.5
-        - python -m ensurepip
+        ##- choco install python  --version 3.7.5
+        ##- python -m ensurepip
         # Suddenly: "python -m pip install --upgrade pip" failed and exited with 1 during"
+        # No module named pip
         ### - python -m pip install --upgrade pip
+        - choco install python  --version 3.8.0
+        - python -m pip install --upgrade pip
         - python -m pip install pytest         # Optional
         - python -m pip install pefile         # Optional
         - python -m pip install wmi            # Optional
