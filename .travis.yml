@@ -29,6 +29,7 @@ matrix:
       before_install:
         # https://travis-ci.community/t/windows-python-pip-module-not-found/5480/4
         - choco install python  --version 3.7.5
+        - python -m ensurepip
         - python -m pip install --upgrade pip
         - python -m pip install pytest         # Optional
         - python -m pip install pefile         # Optional
