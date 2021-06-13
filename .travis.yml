@@ -123,7 +123,7 @@ matrix:
         ### - powershell Start-Service MSSQL\\\$SQLEXPRESS
         #
         # STOPS AFTER 50 seconds: "No module named pip"
-        ###  powershell Start-Service "MSSQL$SQLEXPRESS"
+        powershell Start-Service "MSSQL$SQLEXPRESS"
         #
         # STOPS AFTER 50 seconds: "No module named pip"
         ### - powershell Start-Service 'MSSQL\\$SQLEXPRESS'
@@ -158,11 +158,11 @@ matrix:
         # Do it elsewhere than Linux.
         - pytest -v --durations=30 tests
         #
-      services:
-        # https://docs:travis-ci.com/user/database-setup/
-        #- MSSQLServer
-        #- SQLEXPRESS
-        - MSSQL$SQLEXPRESS
+      #services:
+      #  # https://docs:travis-ci.com/user/database-setup/
+      #  #- MSSQLServer
+      #  #- SQLEXPRESS
+      #  - MSSQL$SQLEXPRESS
 
 install:
   # TODO: For all platforms but overriden by Windows configuration.
