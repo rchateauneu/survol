@@ -34,8 +34,9 @@ matrix:
         # No module named pip
         ### - python -m pip install --upgrade pip
         - choco install python  --version 3.7.5
-        - echo %CD%
-        - .\chocolatey_refreshenv # Copy here because it is not in the path yet.
+        - pwd
+        - which python
+        - dir `which python`
         - python -V
         - python -m ensurepip
         #- choco install pip
