@@ -40,8 +40,9 @@ matrix:
         # /c/ProgramData/chocolatey/bin/python
         - which python
         - dir `which python`
+        # Python 2.7.9
         - python -V
-        - which python3
+        #- which python3
         #- python -m ensurepip
         #- choco install pip
         #- pip install pytest
