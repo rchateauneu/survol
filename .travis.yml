@@ -41,7 +41,8 @@ matrix:
         - which python
         - dir `which python`
         - python -V
-        - python -m ensurepip
+        - which python3
+        #- python -m ensurepip
         #- choco install pip
         #- pip install pytest
         #- python -m pip install pytest
@@ -55,6 +56,7 @@ matrix:
       install:
         # Is it possible to have an install step specific to a platform ?
         - which python
+        - python -V
         - python -m pip install pytest
         #
         # https://kendaleiv.com/using-sql-server-localdb-with-travis-ci-windows-builds/
