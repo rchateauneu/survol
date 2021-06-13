@@ -123,7 +123,7 @@ matrix:
         ### - powershell Start-Service MSSQL\\\$SQLEXPRESS
         #
         # STOPS AFTER 50 seconds: "No module named pip"
-        powershell Start-Service "MSSQL$SQLEXPRESS"
+        - powershell Start-Service "MSSQL$SQLEXPRESS"
         #
         # STOPS AFTER 50 seconds: "No module named pip"
         ### - powershell Start-Service 'MSSQL\\$SQLEXPRESS'
@@ -135,7 +135,7 @@ matrix:
         - python -V
         - powershell python -V
         #
-        #- python -m pip install --upgrade pip
+        - python -m pip install --upgrade pip
         # Specific to Windows.
         - pip install pytest
         - pip install pefile         # Optional
