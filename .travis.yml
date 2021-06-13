@@ -134,6 +134,15 @@ matrix:
         - echo "In script"
         - python -V
         - powershell python -V
+        #
+        - python -m pip install pytest
+        #- python -m pip install --upgrade pip
+        - python -m pip install pefile         # Optional
+        - python -m pip install wmi            # Optional
+        - python -m pip install pywin32        # Optional
+        - python -m pip install pyodbc         # Optional
+        - python -m pip install supervisor-win # Optional, needed for events generators.
+        #
         # This is for SQL Server LocalDB
         #- powershell -File mssql_travis_load.ps1
       #services:
