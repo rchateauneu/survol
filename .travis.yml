@@ -34,6 +34,7 @@ matrix:
         # No module named pip
         ### - python -m pip install --upgrade pip
         # This seems to run on Linux.
+        - echo "In before_install"
         - choco install python  --version 3.7.5
         # /c/Users/travis/build/rchateauneu/survol
         - pwd
@@ -56,9 +57,11 @@ matrix:
         #- python -m pip install supervisor-win # Optional, needed for events generators.
       install:
         # Is it possible to have an install step specific to a platform ?
+        - echo "In install"
         - which python
         - python -V
-        - python -m pip install pytest
+        - powershell python -V
+        #- python -m pip install pytest
         #
         # https://kendaleiv.com/using-sql-server-localdb-with-travis-ci-windows-builds/
         # Travis CI now includes support for Windows builds.
@@ -127,7 +130,10 @@ matrix:
         #
         #      env:
         - PATH=/c/Python37:/c/Python37/Scripts:$PATH
-      #script:
+      script:
+        - echo "In script"
+        - python -V
+        - powershell python -V
         # This is for SQL Server LocalDB
         #- powershell -File mssql_travis_load.ps1
       #services:
