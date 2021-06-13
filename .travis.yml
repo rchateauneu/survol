@@ -142,6 +142,8 @@ matrix:
         - python -m pip install pywin32        # Optional
         - python -m pip install pyodbc         # Optional
         - python -m pip install supervisor-win # Optional, needed for events generators.
+        # Do it elsewhere than Linux.
+        - pytest -v --durations=30 tests
         #
         # This is for SQL Server LocalDB
         #- powershell -File mssql_travis_load.ps1
