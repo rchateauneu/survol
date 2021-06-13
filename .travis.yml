@@ -33,22 +33,29 @@ matrix:
         # Suddenly: "python -m pip install --upgrade pip" failed and exited with 1 during"
         # No module named pip
         ### - python -m pip install --upgrade pip
+        # This seems to run on Linux.
         - choco install python  --version 3.7.5
+        # /c/Users/travis/build/rchateauneu/survol
         - pwd
+        # /c/ProgramData/chocolatey/bin/python
         - which python
         - dir `which python`
         - python -V
         - python -m ensurepip
         #- choco install pip
         #- pip install pytest
+        #- python -m pip install pytest
+        #- python -m pip install --upgrade pip
+        #- python -m pip install pytest         # Optional
+        #- python -m pip install pefile         # Optional
+        #- python -m pip install wmi            # Optional
+        #- python -m pip install pywin32        # Optional
+        #- python -m pip install pyodbc         # Optional
+        #- python -m pip install supervisor-win # Optional, needed for events generators.
+      install:
+        # Is it possible to have an install step specific to a platform ?
+        - which python
         - python -m pip install pytest
-        - python -m pip install --upgrade pip
-        - python -m pip install pytest         # Optional
-        - python -m pip install pefile         # Optional
-        - python -m pip install wmi            # Optional
-        - python -m pip install pywin32        # Optional
-        - python -m pip install pyodbc         # Optional
-        - python -m pip install supervisor-win # Optional, needed for events generators.
         #
         # https://kendaleiv.com/using-sql-server-localdb-with-travis-ci-windows-builds/
         # Travis CI now includes support for Windows builds.
@@ -126,6 +133,7 @@ matrix:
         #- SQLEXPRESS
 
 install:
+  # TODO: Why pytest is not installed for all platforms ?
   - pip install psutil               # Mandatory
   - pip install rdflib               # Mandatory
   - pip install SQLAlchemy==1.3.23   # 1.4 does not work with rdflib-sqlalchemy:0.4.0
