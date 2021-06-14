@@ -93,7 +93,11 @@ matrix:
         # The remote file either doesn't exist, is unauthorized, or is forbidden for url
         ####- choco install sqlserverlocaldb
         #
-        - choco install sqlserverexpress
+        # Does not work:
+        # - choco install sqlserverexpress
+        #
+        - choco install sql-server-express
+        #
         #
         # The install of sqlserver2008r2express was NOT successful.
         #- choco install sqlserver2008r2express
@@ -128,7 +132,7 @@ matrix:
         # Cannot find any service with service name 'MSSQL\\'
         # powershell Start-Service 'MSSQL\\$SQLEXPRESS'
         #
-      # Start-Service : Cannot find any service with service name 'MSSQL$SQLEXPRESS'.
+        # Start-Service : Cannot find any service with service name 'MSSQL$SQLEXPRESS'.
         #
         #At line:1 char:1
         #
