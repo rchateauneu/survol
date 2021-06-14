@@ -61,6 +61,8 @@ matrix:
         - which python
         - python -V
         - powershell python -V
+        - choco list --local-only
+        - choco list
         #- python -m pip install pytest
         #
         # https://kendaleiv.com/using-sql-server-localdb-with-travis-ci-windows-builds/
