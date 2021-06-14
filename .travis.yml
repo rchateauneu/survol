@@ -128,11 +128,36 @@ matrix:
         # Cannot find any service with service name 'MSSQL\\'
         # powershell Start-Service 'MSSQL\\$SQLEXPRESS'
         #
-        # This works but the service does not exist.
-        # Cannot find any service with service name 'MSSQL$SQLEXPRESS'
-        # powershell Start-Service 'MSSQL`$SQLEXPRESS'
+      # Start-Service : Cannot find any service with service name 'MSSQL$SQLEXPRESS'.
         #
-        - powershell Start-Service SQLEXPRESS
+        #At line:1 char:1
+        #
+        #+ Start-Service MSSQL`$SQLEXPRESS
+        #
+        #+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        #
+        #    + CategoryInfo          : ObjectNotFound: (MSSQL$SQLEXPRESS:String) [Start-Service], ServiceCommandException
+        #
+        #    + FullyQualifiedErrorId : NoServiceFoundForGivenName,Microsoft.PowerShell.Commands.StartServiceCommand
+        #### powershell Start-Service 'MSSQL`$SQLEXPRESS'
+        #
+        # Start-Service : Cannot find any service with service name 'SQLEXPRESS'.
+        #
+        #At line:1 char:1
+        #
+        #+ Start-Service SQLEXPRESS
+        #
+        #+ ~~~~~~~~~~~~~~~~~~~~~~~~
+        #
+        #    + CategoryInfo          : ObjectNotFound: (SQLEXPRESS:String) [Start-Service], ServiceCommandException
+        #
+        #    + FullyQualifiedErrorId : NoServiceFoundForGivenName,Microsoft.PowerShell.Commands.StartServiceCommand
+        ### powershell Start-Service SQLEXPRESS
+        #
+        #
+        # List of services
+        - powershell Get-Service
+        #
         #
         #      env:
         - PATH=/c/Python37:/c/Python37/Scripts:$PATH
