@@ -96,7 +96,7 @@ matrix:
         #
         # https://stackoverflow.com/questions/51840565/error-there-was-an-error-generating-the-xml-document-while-trying-to-install-s
         # To fix: "There was an error generating the XML document"
-        - Enable-WSManCredSSP -Role "Server"
+        - powershell Enable-WSManCredSSP -Role "Server"
         - choco install MsSqlServer2014Express --verbose --trace
         # - choco install SqlServer2008R2Express
         # - choco install mssqlexpress2014sp1wt
