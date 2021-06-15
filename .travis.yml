@@ -147,8 +147,13 @@ matrix:
         # - choco install sqlserverexpress
         #
         ##- choco install sql-server-express
-        - choco install sqlserver2008r2express-engine
+        # choco install sqlserver2008r2express-engine
+        - choco install sqlserver2012express-engine
+        # - choco install MsSqlServer2014Express
+        # - choco install SqlServer2008R2Express
+        # - choco install mssqlexpress2014sp1wt
         #
+        # Maybe should do that, to investigate error cause: type C:\ProgramData\chocolatey\logs\chocolatey.log
         #
         # The install of sqlserver2008r2express was NOT successful.
         #- choco install sqlserver2008r2express
