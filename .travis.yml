@@ -148,8 +148,8 @@ matrix:
         #
         ##- choco install sql-server-express
         # choco install sqlserver2008r2express-engine
-        - choco install sqlserver2012express-engine
-        # - choco install MsSqlServer2014Express
+        # - choco install sqlserver2012express-engine # sqlserver2012express-engine was NOT successful
+        - choco install MsSqlServer2014Express
         # - choco install SqlServer2008R2Express
         # - choco install mssqlexpress2014sp1wt
         #
