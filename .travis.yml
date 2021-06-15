@@ -92,7 +92,8 @@ matrix:
         # choco install sqlserver2008r2express-engine
         # - choco install sqlserver2012express-engine # sqlserver2012express-engine was NOT successful
         # - choco install MsSqlServer2014Express --cachelocation c:\temp\choco
-        - `$ErrorActionPreference = 'SilentlyContinue' ; choco install MsSqlServer2014Express --cachelocation c:\temp\choco ; cat C:\ProgramData\chocolatey\logs\chocolatey.log
+        # Backtick does not work
+        - \\$ErrorActionPreference = 'SilentlyContinue' ; choco install MsSqlServer2014Express --cachelocation c:\temp\choco ; cat C:\ProgramData\chocolatey\logs\chocolatey.log
         - choco install MsSqlServer2014Express # Fail but this is OK.
         # - choco install SqlServer2008R2Express
         # - choco install mssqlexpress2014sp1wt
