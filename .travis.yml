@@ -96,10 +96,13 @@ matrix:
         #
         # https://stackoverflow.com/questions/51840565/error-there-was-an-error-generating-the-xml-document-while-trying-to-install-s
         # To fix: "There was an error generating the XML document"
-        - powershell Enable-WSManCredSSP -Role "Server"
+        # This hangs.
+        # - powershell Enable-WSManCredSSP -Role "Server"
         # Timeout
         #- choco install MsSqlServer2014Express --verbose --trace
-        - choco install SqlServer2008R2Express
+        - powershell -Command "Set-ExecutionPolicy Bypass"
+        - choco install sqlserverexpress -- verbose --trace
+        # - choco install SqlServer2008R2Express -- verbose --trace
         # - choco install mssqlexpress2014sp1wt
         #
         # Cannot find any service with service name 'MSSQL'
