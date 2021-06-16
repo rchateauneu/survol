@@ -520,7 +520,7 @@ class SqlServerNotExpressPyodbcTest(unittest.TestCase):
 
 
 @unittest.skipIf(pyodbc is None, "pyodbc must be installed")
-@unittest.skip("This is only for debugging purpose")
+## @unittest.skip("This is only for debugging purpose")
 class PyOdbcBasicsTest(unittest.TestCase):
 
     # Local test machine, Windows 7.
