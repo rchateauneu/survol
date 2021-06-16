@@ -84,7 +84,7 @@ matrix:
         #- choco install sqlserver2014express -v -y
         #
         # Many various attempts:
-        ##- choco install sqlserver-odbcdriver
+        - choco install sqlserver-odbcdriver
         #### - choco install mssqlserver-compact4.0
         ####- choco install sqlserverlocaldb
         # - choco install sqlserverexpress
@@ -109,7 +109,7 @@ matrix:
         # - choco install SqlServer2008R2Express --verbose --trace
         # Make the command always successful
         # - powershell "choco install SqlServer2008R2Express --verbose --trace; type C:\ProgramData\chocolatey\logs\chocolatey.log"
-        - powershell "choco install SqlServer2008R2Express --verbose; type C:\ProgramData\chocolatey\logs\chocolatey.log"
+        #- powershell "choco install SqlServer2008R2Express --verbose; type C:\ProgramData\chocolatey\logs\chocolatey.log"
         # - choco install mssqlexpress2014sp1wt
         #
         # Cannot find any service with service name 'MSSQL'
