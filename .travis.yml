@@ -106,7 +106,9 @@ matrix:
         # Partly not found
         #- choco install sqlserverexpress -- verbose --trace
         #
-        - choco install SqlServer2008R2Express --verbose --trace
+        # - choco install SqlServer2008R2Express --verbose --trace
+        # Make the command always successful
+        - (choco install SqlServer2008R2Express --verbose --trace); type C:\ProgramData\chocolatey\logs\chocolatey.log
         # - choco install mssqlexpress2014sp1wt
         #
         # Cannot find any service with service name 'MSSQL'
