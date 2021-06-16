@@ -108,7 +108,7 @@ matrix:
         #
         # - choco install SqlServer2008R2Express --verbose --trace
         # Make the command always successful
-        - powershell (choco install SqlServer2008R2Express --verbose --trace); type C:\ProgramData\chocolatey\logs\chocolatey.log
+        - powershell "choco install SqlServer2008R2Express --verbose --trace; type C:\ProgramData\chocolatey\logs\chocolatey.log"
         # - choco install mssqlexpress2014sp1wt
         #
         # Cannot find any service with service name 'MSSQL'
