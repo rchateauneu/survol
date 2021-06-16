@@ -58,9 +58,9 @@ matrix:
       install:
         # Is it possible to have an install step specific to a platform ?
         - echo "In install"
-        - which python
-        - python -V
-        - powershell python -V
+        #- which python
+        #- python -V
+        #- powershell python -V
         #
         # https://kendaleiv.com/using-sql-server-localdb-with-travis-ci-windows-builds/
         # Travis CI now includes support for Windows builds.
@@ -101,14 +101,15 @@ matrix:
         #
         # Timeout with Enable-WSManCredSSP -Role "Server"
         #- choco install MsSqlServer2014Express --verbose --trace
-        - powershell -Command "Set-ExecutionPolicy Bypass"
+        #- powershell -Command "Set-ExecutionPolicy Bypass"
         #
         # Partly not found
         #- choco install sqlserverexpress -- verbose --trace
         #
         # - choco install SqlServer2008R2Express --verbose --trace
         # Make the command always successful
-        - powershell "choco install SqlServer2008R2Express --verbose --trace; type C:\ProgramData\chocolatey\logs\chocolatey.log"
+        # - powershell "choco install SqlServer2008R2Express --verbose --trace; type C:\ProgramData\chocolatey\logs\chocolatey.log"
+        - powershell "choco install SqlServer2008R2Express --verbose; type C:\ProgramData\chocolatey\logs\chocolatey.log"
         # - choco install mssqlexpress2014sp1wt
         #
         # Cannot find any service with service name 'MSSQL'
