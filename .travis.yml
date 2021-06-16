@@ -98,11 +98,15 @@ matrix:
         # To fix: "There was an error generating the XML document"
         # This hangs.
         # - powershell Enable-WSManCredSSP -Role "Server"
-        # Timeout
+        #
+        # Timeout with Enable-WSManCredSSP -Role "Server"
         #- choco install MsSqlServer2014Express --verbose --trace
         - powershell -Command "Set-ExecutionPolicy Bypass"
-        - choco install sqlserverexpress -- verbose --trace
-        # - choco install SqlServer2008R2Express -- verbose --trace
+        #
+        # Partly not found
+        #- choco install sqlserverexpress -- verbose --trace
+        #
+        - choco install SqlServer2008R2Express -- verbose --trace
         # - choco install mssqlexpress2014sp1wt
         #
         # Cannot find any service with service name 'MSSQL'
