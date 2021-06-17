@@ -449,7 +449,7 @@ class SqlServerNotExpressPyodbcTest(unittest.TestCase):
         self.assertTrue(len(list_scripts) > 0)
 
     @unittest.skip("Maybe confusion between sources and servers ? Or maybe the test does not make sense ?")
-    ###@unittest.skipIf(is_travis_machine(), "Travis doesn't support SQL Server as a service.")
+    @unittest.skipIf(is_travis_machine(), "Travis doesn't support SQL Server as a service.")
     def test_sql_server_sqldatasources(self):
         """Tests ODBC data sources"""
 
@@ -477,7 +477,7 @@ class SqlServerNotExpressPyodbcTest(unittest.TestCase):
             print("row.table_name=", row.table_name)
             self.assertTrue(row.table_name is not None)
 
-    ###@unittest.skipIf(is_travis_machine(), "Travis doesn't support SQL Server as a service.")
+    @unittest.skipIf(is_travis_machine(), "Travis doesn't support SQL Server as a service.")
     def test_sql_server_dsn_tables(self):
         """Tests ODBC data sources"""
 
@@ -494,7 +494,7 @@ class SqlServerNotExpressPyodbcTest(unittest.TestCase):
             ]:
             self.assertTrue(one_str in str_instances_set)
 
-    ###@unittest.skipIf(is_travis_machine(), "Travis doesn't support SQL Server as a service.")
+    @unittest.skipIf(is_travis_machine(), "Travis doesn't support SQL Server as a service.")
     @unittest.skip("NOT YET")
     def test_sql_server_dsn_one_table_columns(self):
         """Tests ODBC table columns"""
@@ -535,7 +535,7 @@ class PyOdbcBasicsTest(unittest.TestCase):
     def test_drivers_list(self):
         for one_driver in pyodbc.drivers():
             print("one_driver=", one_driver)
-            self.assertTrue(False)
+        self.assertTrue(False)
 
     # Local test machine, Windows 7.
     # one_data_source= MyNativeSqlServerDataSrc
