@@ -400,7 +400,6 @@ class SqlServerExpressPyodbcTest(unittest.TestCase):
             Dsn=self._connection_string,
             Table="all_views")
 
-        # !!!
         str_instances_set = set([str(one_inst) for one_inst in lst_instances])
         print("str_instances_set=", str_instances_set)
 
@@ -418,6 +417,7 @@ class SqlServerExpressPyodbcTest(unittest.TestCase):
 # and SQLEXPRESS for the SQL Server Express edition.
 # Travis starts MSSQLServer. See .travis.ymltest_sql_server_dsn_tables_pre_test
 
+
 @unittest.skipIf(pyodbc is None, "pyodbc must be installed")
 @unittest.skipIf(is_platform_linux, "Windows test only.")
 class SqlServerNotExpressPyodbcTest(unittest.TestCase):
@@ -426,7 +426,7 @@ class SqlServerNotExpressPyodbcTest(unittest.TestCase):
     # _connection_string = r'Driver={SQL Server};Server=%s' % socket.gethostname()
 
     # [08001] [Microsoft][ODBC SQL Server Driver][DBNETLIB]Invalid connection
-    #_connection_string = r'Driver={SQL Server};Server=%s\MSSQLSERVER' % socket.gethostname()
+    # _connection_string = r'Driver={SQL Server};Server=%s\MSSQLSERVER' % socket.gethostname()
 
     # Now travis.yml also installs sqlserver and starts the service.
     _connection_string = r'Driver={SQL Server};Server=%s\SQLEXPRESS' % socket.gethostname()
