@@ -11,7 +11,11 @@ from sources_types import sql
 from sources_types.sql import query as sql_query_module
 from sources_types.sql import sheet
 
-# Maybe not used except as a "base class".
+# FIXME: This is not tested yet.
+# FIXME: The idea is to manipulate a query without a process nor a database.
+# FIXME: This would return "abstract" tables and views, syntactically correct but with no connection
+# FIXME: to a real database, not any possibilty to know of these are tables and views.
+# FIXME: Therefore, the "abstract" type "sql/sheet" represents such an abstract table.
 
 
 def Main():
