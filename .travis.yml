@@ -83,58 +83,15 @@ matrix:
         #- powershell -Command "Set-ExecutionPolicy Bypass"
         #- choco install sqlserver2014express -v -y
         #
-        # Many various attempts:
+        # This installs a couple of drivers but these are not used yet,
+        # despite many attempts to install an ODBC-based databse on Windows.
         - choco install sqlserver-odbcdriver
-        #### - choco install mssqlserver-compact4.0
-        ####- choco install sqlserverlocaldb
-        # - choco install sqlserverexpress
-        ##- choco install sql-server-express
-        # choco install sqlserver2008r2express-engine
-        # - choco install sqlserver2012express-engine # sqlserver2012express-engine was NOT successful
-        # - choco install MsSqlServer2014Express --cachelocation c:\temp\choco
-        # - choco install MsSqlServer2014Express --verbose
-        #
-        # https://stackoverflow.com/questions/51840565/error-there-was-an-error-generating-the-xml-document-while-trying-to-install-s
-        # To fix: "There was an error generating the XML document"
-        # This hangs.
-        # - powershell Enable-WSManCredSSP -Role "Server"
-        #
-        # Timeout with Enable-WSManCredSSP -Role "Server"
-        #- choco install MsSqlServer2014Express --verbose --trace
-        #- powershell -Command "Set-ExecutionPolicy Bypass"
-        #
-        # Partly not found
-        #- choco install sqlserverexpress -- verbose --trace
-        #
-        # - choco install SqlServer2008R2Express --verbose --trace
-        # Make the command always successful
-        # - powershell "choco install SqlServer2008R2Express --verbose --trace; type C:\ProgramData\chocolatey\logs\chocolatey.log"
-        #- powershell "choco install SqlServer2008R2Express --verbose; type C:\ProgramData\chocolatey\logs\chocolatey.log"
-        # - choco install mssqlexpress2014sp1wt
-        #
-        # Cannot find any service with service name 'MSSQL'
-        ### - powershell Start-Service "MSSQL$SQLEXPRESS"
-        #
-        # Cannot find any service with service name 'MSSQL\\'
-        # powershell Start-Service 'MSSQL\\$SQLEXPRESS'
-        #
-        # Start-Service : Cannot find any service with service name 'MSSQL$SQLEXPRESS'.
-        #
-        #At line:1 char:1
-        #
-        #+ Start-Service MSSQL`$SQLEXPRESS
-        #
-        ### powershell Start-Service SQLEXPRESS
-        #
-        #
         # List of services
         - powershell Get-Service
         #
         #
         #      env:
         - PATH=/c/Python37:/c/Python37/Scripts:$PATH
-      #after_failure:
-      #  - cat C:\ProgramData\chocolatey\logs\chocolatey.log
       script:
         - echo "In script"
         - python -V

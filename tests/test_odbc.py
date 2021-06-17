@@ -416,7 +416,7 @@ class SqlServerExpressPyodbcTest(unittest.TestCase):
 # Service names:
 # ... there are two standard names which are MSSQLSERVER for the default instance
 # and SQLEXPRESS for the SQL Server Express edition.
-# Travis starts MSSQLServer. See .travis.yml
+# Travis starts MSSQLServer. See .travis.ymltest_sql_server_dsn_tables_pre_test
 
 @unittest.skipIf(pyodbc is None, "pyodbc must be installed")
 @unittest.skipIf(is_platform_linux, "Windows test only.")
@@ -467,6 +467,7 @@ class SqlServerNotExpressPyodbcTest(unittest.TestCase):
             print("one_str=", one_str)
             self.assertTrue(one_str in str_instances_set)
 
+    @unittest.skipIf(is_travis_machine(), "Travis doesn't support SQL Server as a service.")
     def test_sql_server_dsn_tables_pre_test(self):
         # If this does not work, no point going further
         # This failed: node_dsn=Driver={SQL Server};Server=packer-5ef00961-da3d-8a7b-ba55-4a1e83cb951c
@@ -520,7 +521,7 @@ class SqlServerNotExpressPyodbcTest(unittest.TestCase):
 
 
 @unittest.skipIf(pyodbc is None, "pyodbc must be installed")
-## @unittest.skip("This is only for debugging purpose")
+@unittest.skip("This is only for debugging purpose")
 class PyOdbcBasicsTest(unittest.TestCase):
 
     # Local test machine, Windows 7.
@@ -532,6 +533,8 @@ class PyOdbcBasicsTest(unittest.TestCase):
 
     # Travis Win10:
     # one_driver= SQL Server
+    # and with: choco install sqlserver-odbcdriver :
+    # one_driver= ODBC Driver 17 for SQL Server
     def test_drivers_list(self):
         for one_driver in pyodbc.drivers():
             print("one_driver=", one_driver)
