@@ -133,8 +133,8 @@ matrix:
         #
         #      env:
         - PATH=/c/Python37:/c/Python37/Scripts:$PATH
-      after_failure:
-        - cat C:\ProgramData\chocolatey\logs\chocolatey.log
+      #after_failure:
+      #  - cat C:\ProgramData\chocolatey\logs\chocolatey.log
       script:
         - echo "In script"
         - python -V
