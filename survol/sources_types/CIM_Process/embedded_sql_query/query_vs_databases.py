@@ -2,6 +2,9 @@
 
 """
 SQL query checked against available databases.
+
+This is highly speculative because it must detect the databases currently used in this process.
+There might be several of them, or none etc...
 """
 
 import sys
@@ -25,6 +28,10 @@ def Main():
 
     node_process_query = embedded_sql_query.MakeUri(sql_query, process_id)
 
+    # This returns the list of tables and views used by this query.
+    # They will be associated to the databases possibly accessed by this process.
+    # Then, another filtering is possible given the database content etc...
+    # This is still experimental.
     list_of_tables = lib_sql.TableDependencies(sql_query)
 
     prop_type_db = lib_common.MakeProp("Database type")
