@@ -21,6 +21,9 @@ def EntityOntology():
 
 
 def EntityName(entity_ids_arr):
+    """
+    This returns a nice string to display the object identity.
+    """
     entity_id = entity_ids_arr[0]
     # A file name can be very long, so it is truncated.
     file_basename = os.path.basename(entity_id)
@@ -314,7 +317,7 @@ def DisplayAsMime(grph,node, entity_ids_arr):
         lib_common.ErrorMessageHtml("No mime type for %s" % file_name)
 
     # TODO: Find a solution for JSON files such as:
-    # "No mime type for C:\Users\rchateau\AppData\Roaming\Mozilla\Firefox\Profiles\gciw4sok.default/dh-ldata.json"
+    # "No mime type for C:\Users\jsmith\AppData\Roaming\Mozilla\Firefox\Profiles\gciw4sok.default/dh-ldata.json"
 
     try:
         # TODO: Change this with WSGI.
