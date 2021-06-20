@@ -1,0 +1,45 @@
+def SelectEnumerationFromAttributes(key_value_pairs, where_clause_tree=None):
+    """
+    The intention is to use special commands in place of a WMI statement.
+    For example, for a file, the commands "ls" and "find" in Linux, or "dir" on Windows,
+    are much faster than "SELECT FROM CIM_DataFile WHERE ...",
+    but this is not always possible.
+
+    https://docs.microsoft.com/en-us/windows/win32/wmisdk/where-clause
+
+    If it returns an empty list (or iterator), the query could be executed but found nothing.
+    This receives a expression which can be used as is in a CMI WHERE expression.
+    If it returns None, it means that this expression cannot be processed,
+    so we have to fall back to a WMI SELECT statement which is probably much slower.
+
+    SURVOL uniquely specifies its objects with a list of key-value pairs: This is the same representation
+    as a CIM path.
+    This list also models a subset of a CQL (CIM query language expression) and it is the common core
+    of CIM and SPARQL queries.
+
+    However, in the general case, the SELECT expression of a CIM query is a tree of boolean operators
+    joining triples of the form:
+    attribute-operator-value.
+
+    SPARQL queries are made of two components:
+    - The WHERE clause which can be mapped, in a certain extent, to a list of key-value pairs
+    when restricted to the object of interest.
+    This expression can always be built for a list of key-value pairs made of CIM attributes
+    and their values, represented as:
+    attribute=value AND attribute=value AND etc ...
+    - The FILTER clause which is a tree of boolean expression whose terms are literals or attribute values.
+    In specific cases, it can be partly or fully mapped to a CQL expression, and also be used in a adhoc expression.
+    Partly mapping a SPARQL filter means that it will return more data than expected,
+    but less than the same query without filter.
+    So, the original SPARQL filter must still be applied to the output graph.
+    There is a benefit if this partly-mapped filter is efficient, therefore reducing the amount of data.
+
+    For the moment, this is not implemented, because the transformation of a FILTER expression is not straightforward.
+
+    See also CallbackSelect() which is a first and similar attempt.
+
+    """
+    assert isinstance(key_value_pairs, list)
+    assert where_clause_tree is None
+    raise NotImplementedError("Not implemented yet")
+    return None
