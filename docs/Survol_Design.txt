@@ -1492,19 +1492,6 @@ Et voit s'il faut decoder tel ou tel argument. Sinon valeur existante.
 Meme logique d'import que l'affichage donc ca devrait marcher.
 
 ============================================================================================================
-ENCODAGE TRANSPARENT DES ARGUMENTS CGI
-
-On veut qu un parametre CGI soit encode/decode de facon transparente.
-On ajoute une fonction speciale ? Mais il faudrait la mettre dans tous
-Les modules qui utilisent "dsn=" : "odbc/table", "odbc/view", "sqlserver/table" etc...
-
-Voir sources_types/sql/query/__init__.py la classe class CgiPropertyQuery(CgiPropertyB64)
-
-Mais il serait peut-etre plus simple de convenir d'un prefixe pour le parametre dans la chaine CGI:
-b64 etc... On pourrait dynamiquement tester si le parametre peut etre encode dans du CGI.
-
-
-============================================================================================================
 Database web admin. Urls permettant d'acceder a une base de donnees.
 
 https://docs.oracle.com/cd/B25329_01/doc/admin.102/b25107/getstart.htm#BABHJAGE
