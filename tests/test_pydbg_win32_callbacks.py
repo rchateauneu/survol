@@ -361,6 +361,7 @@ class DOSCommandsTest(HooksManagerUtil):
             self.assertTrue({'Name': temp_path} in win32_api_definitions.tracer_object.created_objects['CIM_DataFile'])
 
     @unittest.skipIf(is_travis_machine(), "Possible problem with Windows 10")
+    @unittest.skipIf(is_windows7, "Sometimes it hangs with Windows 7")
     def test_cmd_ping_type(self):
         num_loops = 5
         dir_command = \

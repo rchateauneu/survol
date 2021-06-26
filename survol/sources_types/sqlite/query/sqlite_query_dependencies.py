@@ -16,7 +16,7 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    sql_query = sql_query_module.GetEnvArgs(cgiEnv)
+    sql_query = cgiEnv.m_entity_id_dict["Query"]
     logging.debug("sql_query=%s", sql_query)
     fil_nam = cgiEnv.m_entity_id_dict["File"]
 

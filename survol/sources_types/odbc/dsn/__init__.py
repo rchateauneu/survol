@@ -46,7 +46,6 @@ def MakeUri(dsn_name):
 
 
 def EntityName(entity_ids_arr):
-    #return "Dsn".ValueDisplay(entity_ids_arr[0])
     return survol_odbc.ShortenDsn(entity_ids_arr[0])
 
 
@@ -135,17 +134,6 @@ def AddInfo(grph, node, entity_ids_arr):
 
         grph.add((node, pc.property_sqlserver_db, node_sqlserverdb))
         logging.debug("AddInfo db_entity_type=%s ADDING NODE", db_entity_type)
-
-
-# TODO: Maybe should decode ????
-def GetDsnNameFromCgi(cgiEnv):
-    key_word_dsn = "Dsn"
-    dsn_coded = cgiEnv.m_entity_id_dict[key_word_dsn]
-    # Maintenant, on suppose que tous les arguments sont proprement decodes.
-    dsn_decoded = dsn_coded
-    # dsn_decoded = key_word_dsn.ValueDecode(dsn_coded)
-
-    return dsn_decoded
 
 
 def DatabaseEnvParams(processId):

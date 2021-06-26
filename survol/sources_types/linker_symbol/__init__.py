@@ -19,11 +19,7 @@ def EntityOntology():
 def EntityName(entity_ids_arr):
     entity_id = entity_ids_arr[0]
     try:
-        # Trailing padding.
-        resu = lib_util.Base64Decode(entity_id)
-        # TODO: Should have a more generic solution: i.e. always b64 encode CGI-incompatible strings.
-        # See lib_uris.SymbolUri which does the encoding.
-        resu = lib_util.html_escape(resu)
+        resu = lib_util.html_escape(entity_id)
         return resu
     except TypeError as exc:
         logging.error("CANNOT DECODE: symbol=(%s):%s", entity_id, str(exc))

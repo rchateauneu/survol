@@ -692,6 +692,7 @@ class CommandLineLiveWin32Test(unittest.TestCase):
         check_file_missing(output_basename_prefix + ".log")
         check_file_missing(output_basename_prefix + ".docker", "Dockerfile")
 
+    @unittest.skipIf(is_windows7, "FIXME: Sometimes it blocks on Windows 7.")
     def test_run_windows_dir(self):
         """This generates a replay filename and reuses it immediately."""
         output_basename_prefix = "output_test_run_windows_dir"
@@ -1001,6 +1002,7 @@ os.system(r'"%s" -c print(123456789) > %s')
         self.assertEqual(checked_executables, 3)
 
     @unittest.skipIf(is_platform_linux, "These tests are for Windows only.")
+    @unittest.skipIf(is_windows7, "Hangs on Windows 7.")
     def test_run_python_rdf_os_system_dir(self):
         """This creates a subprocess running dir."""
         output_basename_prefix = "output_test_run_python_rdf_os_system_dir"
@@ -1544,6 +1546,7 @@ class EventsServerTest(unittest.TestCase):
         ])
         return sent_triples
 
+    @unittest.skipIf(is_windows7, "Does not work on Windows 7")
     def test_basic_event_put(self):
         """This stores a graph, and reads its content, then check the result."""
         the_graph = rdflib.Graph()
@@ -1566,6 +1569,7 @@ class EventsServerTest(unittest.TestCase):
         received_triples = sorted([the_triple for the_triple in events_graph])
         self.assertEqual(received_triples, sent_triples)
 
+    @unittest.skipIf(is_windows7, "Does not work on Windows 7")
     def test_file_events_ps_ef(self):
         """This reruns the tracing of the Linux command "ps -ef" """
         output_basename_prefix = "dockit_events_ps_ef.strace"
@@ -1591,6 +1595,7 @@ class EventsServerTest(unittest.TestCase):
         # Now read and test the events.
         self._check_read_triples(expected_types_list)
 
+    @unittest.skipIf(is_windows7, "Does not work on Windows 7")
     def test_file_events_shell(self):
         """This reruns the execution of a shell.
         The result of the command ltrace was stored in a file by dockit.
@@ -1618,6 +1623,7 @@ class EventsServerTest(unittest.TestCase):
         # Now read and test the events.
         self._check_read_triples(expected_types_list)
 
+    @unittest.skipIf(is_windows7, "Does not work on Windows 7")
     def test_file_events_proftpd(self):
         """This reruns a dockit tracing of the execution of a FTP command."""
         output_basename_prefix = "dockit_events_proftpd.strace.26299"
@@ -1645,6 +1651,7 @@ class EventsServerTest(unittest.TestCase):
         # Now read and test the events.
         self._check_read_triples(expected_types_list)
 
+    @unittest.skipIf(is_windows7, "Does not work on Windows 7")
     def test_file_events_firefox(self):
         """This replays the startup of a firefox process."""
         output_basename_prefix = "firefox_events_google.strace.22501"

@@ -106,6 +106,16 @@ class SurvolLibUtilTest(unittest.TestCase):
         self.assertFalse(lib_util.is_local_address("1.2.3.4"))
         self.assertFalse(lib_util.is_local_address("www.google.com"))
 
+    def test_encode_base64(self):
+        self.assertEqual(lib_util.Base64EncodeConditional("abc"), "abc")
+        self.assertEqual(lib_util.Base64EncodeConditional("DSN=Excel Files"), "B64_RFNOPUV4Y2VsIEZpbGVz")
+        self.assertEqual(lib_util.Base64EncodeConditional("B64_abcdefgh"), "B64_QjY0X2FiY2RlZmdo")
+
+    def test_decode_base64(self):
+        self.assertEqual(lib_util.Base64DecodeConditional("abc"), "abc")
+        self.assertEqual(lib_util.Base64DecodeConditional("B64_RFNOPUV4Y2VsIEZpbGVz"), "DSN=Excel Files")
+        self.assertEqual(lib_util.Base64DecodeConditional("B64_QjY0X2FiY2RlZmdo"), "B64_abcdefgh")
+
 
 if __name__ == '__main__':
     unittest.main()

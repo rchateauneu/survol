@@ -17,11 +17,8 @@ import lib_common
 # TODO: are what is instantiated with a path of subdirectories.
 
 
-# The result should be ["Query","Dsn"]
-# We do not know if CIM_Process.EntityOntology() is available.
 def EntityOntology():
-    logging.debug("sql_query_module.CgiPropertyQuery()=%s", str(sql_query_module.CgiPropertyQuery()))
-    return ([sql_query_module.CgiPropertyQuery(),"Dsn"],)
+    return (["Query","Dsn"],)
 
 
 # The SQL query is encoded in base 64 because it contains many special characters which would be too complicated to

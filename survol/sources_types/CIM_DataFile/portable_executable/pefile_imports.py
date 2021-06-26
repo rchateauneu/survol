@@ -62,8 +62,9 @@ class EnvPeFile:
                         self.grph.add((root_node, pc.property_library_depends, sub_node))
 
                         for imp in entry.imports:
+                            # FIXME: Why displaying one entry only ?
                             if imp.name is not None:
-                                sym_node = lib_uris.gUriGen.SymbolUri(imp.name, dll_path)
+                                sym_node = lib_uris.gUriGen.SymbolUri(imp.name.encode(), dll_path)
                                 self.grph.add((sub_node, pc.property_symbol_declared, sym_node))
                             break
         except AttributeError as exc:

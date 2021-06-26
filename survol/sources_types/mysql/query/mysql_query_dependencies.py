@@ -15,7 +15,7 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    sql_query = sql_query_module.GetEnvArgs(cgiEnv)
+    sql_query = cgiEnv.m_entity_id_dict["Query"]
     fil_nam = cgiEnv.m_entity_id_dict["File"]
 
     node_sql_query = sql_query_module.MakeUri(sql_query, fil_nam)

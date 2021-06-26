@@ -5,8 +5,10 @@ PEFile information
 """
 
 import sys
-import pefile
+import six
 import logging
+
+import pefile
 
 import lib_uris
 import lib_util
@@ -89,7 +91,10 @@ def Main():
             # Characteristics: 0x60000020>
 
             # Without the string: "Section=.data\0\0\0"
-            node_sect = survol_pe_section.MakeUri(win_module,pe_sect.Name.rstrip(b"\0"))
+            section_name_bytes = pe_sect.Name.rstrip(b"\0")
+            assert isinstance(section_name_bytes, six.binary_type)
+            section_name = section_name_bytes.decode()
+            node_sect = survol_pe_section.MakeUri(win_module, section_name)
 
             grph.add((fil_node, prop_section, node_sect))
             grph.add((node_sect, prop_virtual_address, lib_util.NodeLiteral(pe_sect.VirtualAddress)))

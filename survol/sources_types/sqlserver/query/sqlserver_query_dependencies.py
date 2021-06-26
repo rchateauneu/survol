@@ -18,8 +18,8 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    sql_query = sql_query_module.GetEnvArgs(cgiEnv)
-    dsn_nam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
+    sql_query = cgiEnv.m_entity_id_dict["Query"]
+    dsn_nam = cgiEnv.m_entity_id_dict["Dsn"]
 
     node_sql_query = sqlserver_query.MakeUri(sql_query, dsn_nam)
 

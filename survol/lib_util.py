@@ -27,7 +27,6 @@ import socket
 import base64
 import importlib
 import logging
-import inspect
 import rdflib
 import subprocess
 import platform
@@ -740,8 +739,7 @@ def KWArgsToEntityId(class_name, **kwargs_ontology):
             raise
 
         # TODO: See lib_util.EntityUri which does something similar.
-        # TODO: Encode the value in base64.
-        entity_id += delim + "%s=%s" % (arg_key, arg_val)
+        entity_id += delim + "%s=%s" % (arg_key, Base64EncodeConditional(arg_val))
         delim = ","
     # The values might come from many different origins
     if not is_py3:
@@ -1377,26 +1375,26 @@ def GuessDisplayMode():
 
 
 def SplitMoniker(xid):
-    """The input string is an entity_id: "key1=val1&key2=val2&key3=val3",
+    """
+    The input string is an entity_id: "key1=val1,key2=val2,key3=val3",
     i.e. what comes after "xid=<class>." in an object URL.
+    These are key=value pairs separeted by a comma.
+    Values might be encoded in base64.
     This returns a dictionary of key-values.
     """
 
+    class_name, _, key_value_pairs = xid.partition(".")
     splt_lst = re.findall(r'(?:[^,"]|"(?:\\.|[^"])*")+', xid)
-
-    # sys.stderr.write("SplitMoniker splt_lst=%s\n" % ";".join(splt_lst) )
 
     resu = dict()
     for splt_wrd in splt_lst:
-        mtch_equal_quote = re.match(r'([A-Z0-9a-z_]+)="(.*)"', splt_wrd)
-        if mtch_equal_quote:
-            # If there are quotes, they are dropped.
-            resu[mtch_equal_quote.group(1)] = mtch_equal_quote.group(2)
-        else:
-            mtch_equal_no_quote = re.match(r'([A-Z0-9a-z_]+)=(.*)', splt_wrd)
-            if mtch_equal_no_quote:
-                resu[mtch_equal_no_quote.group(1)] = mtch_equal_no_quote.group(2)
-
+        key_token, _, value_token = splt_wrd.partition("=")
+        if value_token.startswith('"') and value_token.endswith('"'):
+            # Special processing because this string might come from WMI or WBEM.
+            value_token = value_token[1:-1]
+        # Maybe the value is base64-encoded.
+        value_token = Base64DecodeConditional(value_token)
+        resu[key_token] = value_token
     return resu
 
 
@@ -1420,9 +1418,41 @@ def Base64Encode(input_text):
             txt_to_b64_encode = input_text
         else:
             txt_to_b64_encode = input_text.encode('utf-8')
-        return base64.urlsafe_b64encode(txt_to_b64_encode).decode('utf-8')
+        assert isinstance(txt_to_b64_encode, six.binary_type)
+        b64_line =  base64.urlsafe_b64encode(txt_to_b64_encode)
     else:
-        return base64.urlsafe_b64encode(input_text)
+        b64_line = base64.urlsafe_b64encode(input_text)
+    assert isinstance(b64_line, six.binary_type)
+    # Strips the terminating '=' so there is not ambiguity with the key=value pairs.
+    b64_line = b64_line.decode('utf-8')
+    assert isinstance(b64_line, six.text_type)
+    stripped_b64, _, _ = b64_line.partition('=')
+    assert isinstance(stripped_b64, six.text_type)
+    return stripped_b64
+
+
+# These are all characters which are accepted in values.
+# It must at least accept filenames. "," commas are NOT accepted.
+r_cgi_vars_char_set = re.compile(r"^[-A-Za-z0-9_/:=\.]*$")
+
+base64_prefix = "B64_"
+
+
+def Base64EncodeConditional(input_text):
+    """
+    Values which can be
+    :param input_text:
+    :return:
+    """
+
+    if not isinstance(input_text, str):
+        raise Exception("input_text should not be %s", type(input_text))
+
+    if r_cgi_vars_char_set.search(input_text) and not input_text.startswith(base64_prefix):
+        # So it the string is in base64 charset, it is not encoded.
+        return input_text
+    else:
+        return base64_prefix + Base64Encode(input_text)
 
 
 def Base64Decode(input_text):
@@ -1432,19 +1462,29 @@ def Base64Decode(input_text):
     """
     missing_padding = len(input_text) % 4
 
+    # The leading '=' chars were stripped.
     try:
         if is_py3:
             if missing_padding != 0:
+                # Add padding so it can be decoded. TODO: Maybe not needed ?
                 input_text += '=' * (4 - missing_padding)
             resu = base64.urlsafe_b64decode(input_text.encode('utf-8')).decode('utf-8')
         else:
             if missing_padding != 0:
+                # Add padding so it can be decoded. TODO: Maybe not needed ?
                 input_text += b'=' * (4 - missing_padding)
             resu = base64.urlsafe_b64decode(str(input_text))
         return resu
     except Exception as exc:
         logging.error("Cannot base64 decode: input_text=%s:%s", input_text, str(exc))
         return input_text + ":" + str(exc)
+
+
+def Base64DecodeConditional(input_text):
+    if input_text.startswith(base64_prefix):
+        return Base64Decode(input_text[len(base64_prefix):])
+    else:
+        return input_text
 
 
 def split_url_to_entity(calling_url_node):

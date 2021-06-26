@@ -94,7 +94,7 @@ class ProcessMemorySqlQueryTest(unittest.TestCase):
         for one_instance in triple_sql_queries.get_instances():
             if type(one_instance).__name__ == 'CIM_Process/embedded_sql_query':
                 self.assertEqual(one_instance.Handle, str(proc_open.pid))
-                decoded_query = lib_util.Base64Decode(one_instance.Query)
+                decoded_query = one_instance.Query
                 queries_set.add(decoded_query)
 
         print("queries_set=", queries_set)
@@ -121,7 +121,7 @@ class ProcessMemorySqlQueryTest(unittest.TestCase):
         for one_instance in triple_sql_queries.get_instances():
             if type(one_instance).__name__ == 'CIM_Process/embedded_sql_query':
                 self.assertEqual(one_instance.Handle, str(proc_open.pid))
-                decoded_query = lib_util.Base64Decode(one_instance.Query)
+                decoded_query = one_instance.Query
                 queries_set.add(decoded_query)
 
         print("queries_set=", queries_set)

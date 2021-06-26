@@ -21,7 +21,7 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    sql_query = sql_query_module.GetEnvArgs(cgiEnv)
+    sql_query = cgiEnv.m_entity_id_dict["Query"]
 
     # TODO: It would be nicer to use a new function CIM_Process.GetEnvArgs.
     process_id = cgiEnv.m_entity_id_dict["Handle"]

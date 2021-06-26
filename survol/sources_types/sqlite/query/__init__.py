@@ -21,7 +21,7 @@ def EntityOntology():
 # The SQL query is encoded in base 64 because it contains many special characters which would be too complicated to
 # encode as HTML entities. This is not visible as EntityName() does the reverse decoding.
 def MakeUri(str_query, file_name):
-    return sql_query_module.MakeUri(str_query, "sqlite/query", Path=file_name)
+    return sql_query_module.MakeUri(str_query, "sqlite/query", File=file_name)
 
 
 # TODO: This could maybe receive a dictionary instead of a list.
@@ -50,5 +50,5 @@ def QueryToNodesList(connection_kw, list_of_tables, defaultSchemaName=None):
 def EntityName(entity_ids_arr):
     sql_query = entity_ids_arr[0]
     file_name = entity_ids_arr[1]
-    return sql_query_module.EntityNameUtil( "File " + file_name, sql_query)
+    return sql_query_module.EntityNameUtil("File " + file_name, sql_query)
 

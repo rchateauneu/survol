@@ -16,7 +16,7 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    sql_query = sql_query_module.GetEnvArgs(cgiEnv)
+    sql_query = cgiEnv.m_entity_id_dict["Query"]
     db_nam = cgiEnv.m_entity_id_dict["Db"]
 
     # This is simply the user.

@@ -25,15 +25,10 @@ def MakeUri(str_query, the_pid):
     return sql_query_module.MakeUri(str_query, "CIM_Process/embedded_sql_query", Handle=the_pid)
 
 
-def AddInfo(grph, node, entity_ids_arr):
-    strQuery = entity_ids_arr[0]
-    pid = entity_ids_arr[1]
-
-
 def EntityName(entity_ids_arr):
     the_pid = entity_ids_arr[1]
     sql_query = entity_ids_arr[0]
-    resu = lib_util.Base64Decode(sql_query)
+    resu = sql_query
 
     # If the query contains double-quotes, it crashes Graphviz
     resu = resu.replace('"', "'")

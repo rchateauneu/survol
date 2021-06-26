@@ -23,17 +23,13 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    #pidNum = cgiEnv.m_entity_id_dict["Pid"]
-    #filNam = cgiEnv.m_entity_id_dict["File"]
-    #sqlQuery_encode = cgiEnv.m_entity_id_dict["Query"]
+    sql_query = cgiEnv.m_entity_id_dict["Query"]
 
-    the_sql_query = sql_query_module.GetEnvArgs(cgiEnv)
-
-    node_sql_query = sql_query_module.MakeUri(the_sql_query)
+    node_sql_query = sql_query_module.MakeUri(sql_query)
 
     prop_sheet_to_query = lib_common.MakeProp("Table dependency")
 
-    list_of_tables = lib_sql.TableDependencies(the_sql_query)
+    list_of_tables = lib_sql.TableDependencies(sql_query)
 
     # Based on the pid and the filnam, find which database connection it is.
     for tab_nam in list_of_tables:
