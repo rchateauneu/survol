@@ -47,7 +47,7 @@ class PathFactory:
         It also detects if a key is missing.
         """
         class_keys = lib_util.OntologyClassKeys(self.m_class_name)
-        entity_id = self.m_class_name + "." + ",".join("%s=%s" % (key, kwargs_call[key]) for key in class_keys)
+        entity_id = self.m_class_name + "." + ",".join("%s=%s" % (key, lib_util.Base64EncodeConditional(kwargs_call[key])) for key in class_keys)
         return entity_id
 
     def __getattr__(self, attribute_name):
@@ -79,7 +79,9 @@ class LocalBox:
 
         assert len_keys == len_ent_ids
         # TODO: See lib_util.EntityUri which does something similar.
-        entity_id = ",".join("%s=%s" % kw_items for kw_items in zip(keys, entity_id_arr))
+        entity_id = ",".join(
+            "%s=%s" % (key_it, lib_util.Base64EncodeConditional(str(val_it)))
+            for key_it, val_it in zip(keys, entity_id_arr))
 
         return entity_id
 
@@ -120,22 +122,12 @@ class LocalBox:
         Or even: UriMakeFromDictCurrentPackage(fileName,sectionName)
         """
 
-        def uri_pair_encode(key_it, val_it):
-            try:
-                # Maybe this is a derived type from str, encoding the value.
-                # TODO: This will be replaced by base64 encoding.
-                encoded_val = key_it.ValueEncode(val_it)
-                return key_it, encoded_val
-            except AttributeError:
-                # This is a plain string, no value encoding needed.
-                return key_it, val_it
 
         # TODO: See lib_util.EntityUri which does something similar.
-        entity_id = ",".join("%s=%s" % uri_pair_encode(*kw_items) for kw_items in entity_id_dict.items())
+        entity_id = ",".join(
+            "%s=%s" % (key_it, lib_util.Base64EncodeConditional(str(val_it)))
+            for key_it, val_it in entity_id_dict.items())
         return self.node_from_path(entity_type, entity_id)
-
-
-    # TODO: Use PathFactory
 
 
 
@@ -215,7 +207,7 @@ class LocalBox:
     def SharedLibUri(self, soname):
         """This method should be in a module dedicated to this class, but it is used very often,
         so it is convenient to have it here."""
-        return self.node_from_args("CIM_DataFile", lib_util.EncodeUri(soname))
+        return self.node_from_args("CIM_DataFile", soname)
 
     # For a partition. Display the mount point and IO performance.
     # WMI
@@ -312,11 +304,11 @@ class LocalBox:
     # TODO: DOES NOT WORK IF REMOTE SYMBOL.
     def SymbolUri(self, symbol_name, path=""):
         # The URL should never contain the chars "<" or ">".
-        symbol_name = lib_util.Base64Encode(symbol_name)
         # TODO: Move that to linker_symbol/__init__.py and see sources_types.sql.query.MakeUri
         # TODO: Alphabetical order !!!!
         path = lib_util.standardized_file_path(path)
-        return self.node_from_dict("linker_symbol", {"Name": symbol_name, "File": lib_util.EncodeUri(path)})
+        assert isinstance(symbol_name, str)
+        return self.node_from_dict("linker_symbol", {"Name": symbol_name, "File": path})
 
     # Might be a C++ class or a namespace, as there is no way to differentiate from ELF symbols.
     # This can also be a Pythonor Perl class: This is a logical concept, whose implementation
@@ -324,9 +316,11 @@ class LocalBox:
     # TODO: Move that to class/__init__.py and see sources_types.sql.query.MakeUri
     def ClassUri(self, class_name, path = ""):
         # The URL should never contain the chars "<" or ">".
-        class_name = lib_util.Base64Encode(class_name)
+        #class_name = lib_util.Base64Encode(class_name)
         path = lib_util.standardized_file_path(path)
-        return self.node_from_dict("class", {"Name": class_name, "File": lib_util.EncodeUri(path)})
+        # return self.node_from_dict("class", {"Name": class_name, "File": lib_util.EncodeUri(path)})
+        assert isinstance(class_name, str)
+        return self.node_from_dict("class", {"Name": class_name, "File": path})
 
     # CIM_DeviceFile is common to WMI and WBEM.
 
@@ -335,7 +329,7 @@ class LocalBox:
     # XML Parsing Error: not well-formed
     def FileUri(self, path):
         path = lib_util.standardized_file_path(path)
-        return self.node_from_args("CIM_DataFile", lib_util.EncodeUri(path))
+        return self.node_from_args("CIM_DataFile", path)
 
         # TODO: Consider this might be even be more powerful.
         # u'some string'.encode('ascii', 'xmlcharrefreplace')
@@ -354,7 +348,7 @@ class LocalBox:
         # If needed, they can always be replaced by a normal slash.
         #
         path = lib_util.standardized_file_path(path)
-        return self.node_from_args("CIM_Directory", lib_util.EncodeUri(path))
+        return self.node_from_args("CIM_Directory", path)
 
     # This creates a node for a socket, so later it can be merged with the same socket.
     #

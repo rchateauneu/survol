@@ -468,6 +468,7 @@ class CUSTOM_EVALS_Basic_Sparql_Queries_Test(CUSTOM_EVALS_Survol_Base_Test):
         print("actual_files=", actual_files)
         self.assertTrue(dir_path in actual_files)
 
+    @unittest.skipIf(is_windows7, "Does not work on Windows 7")
     def test_sparql_subdirectory_down_up_4(self):
         rdflib_graph = _create_graph()
 

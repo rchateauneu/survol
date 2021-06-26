@@ -14,6 +14,7 @@ from init import *
 
 update_test_path()
 
+import lib_util
 import lib_client
 import lib_kbase
 
@@ -44,6 +45,9 @@ class SqliteTest(unittest.TestCase):
         return table_names
 
     def test_sqlite_tables_and_views(self):
+        """
+        This extracts the tables and views of a sqllite database.
+        """
         my_source = lib_client.SourceLocal(
             "sources_types/sqlite/file/sqlite_tables_and_views.py",
             "sqlite/file",
@@ -62,6 +66,9 @@ class SqliteTest(unittest.TestCase):
         )
 
     def test_sqlite_table_fields(self):
+        """
+        This extracts the columns of a table in a sqlite database.
+        """
         my_source = lib_client.SourceLocal(
             "sources_types/sqlite/table/sqlite_table_fields.py",
             "sqlite/table",
@@ -93,13 +100,16 @@ class SqliteTest(unittest.TestCase):
         )
 
     def test_sqlite_query_dependencies_simple_select(self):
+        """
+        This extracts the dependencies of a SQL query on a sqlite database.
+        It also tests the correct encoding of a SQL query in a URL.
+        """
         query_clear = "select * from invoices"
-        query_encoded = lib_util.Base64Encode(query_clear)
         my_source = lib_client.SourceLocal(
             "sources_types/sqlite/query/sqlite_query_dependencies.py",
             "sqlite/query",
             File=self._chinook_db,
-            Query=query_encoded)
+            Query=query_clear)
         the_graph = my_source.get_graph()
         for one_triple in the_graph.triples((None, None, None)):
             print("    ", one_triple)
@@ -110,16 +120,18 @@ class SqliteTest(unittest.TestCase):
             {'invoices@chinook.db'})
 
     def test_sqlite_query_dependencies_select_case_insensitive(self):
+        """
+        This extracts the dependencies of a SQL query on a sqlite database.
+        The query must be case-insensitive.
+        It also tests the correct encoding of a SQL query in a URL.
+        """
         query_clear = "select * from Invoices, INVOICE_ITEMS where INVOICES.InvoiceId = Invoice_Items.InvoiceId"
-        query_encoded = lib_util.Base64Encode(query_clear)
         my_source = lib_client.SourceLocal(
             "sources_types/sqlite/query/sqlite_query_dependencies.py",
             "sqlite/query",
             File=self._chinook_db,
-            Query=query_encoded)
+            Query=query_clear)
         the_graph = my_source.get_graph()
-        for one_triple in the_graph.triples((None, None, None)):
-            print("    ", one_triple)
         table_names = self._get_column_names_from_graph(the_graph)
         print("table_names=", table_names)
         self.assertEqual(

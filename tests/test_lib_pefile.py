@@ -13,34 +13,6 @@ from init import *
 
 update_test_path()
 
-################################################################################
-
-# If this does not work, it returns the input string.
-# def UndecorateSymbol(strSym):
-#     def UndecorateRaw(strSym):
-#         undname = ctypes.windll.dbghelp.UnDecorateSymbolName
-#         undname.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint, ctypes.c_uint]
-#
-#         sizBuf = 50
-#         while True:
-#             ptrBuf = ctypes.create_string_buffer("Hello", sizBuf)
-#             sizActual = undname(strSym, ptrBuf, sizBuf, 0)
-#             if sizActual < sizBuf - 2:
-#                 return ptrBuf
-#             sizBuf *= 2
-#
-#     strRaw = UndecorateRaw(strSym).value
-#
-#     strRaw = strRaw.replace("__thiscall ", "")
-#
-#     for subStr in ["private: ", "public: ", "protected: "]:
-#         if strRaw.startswith(subStr):
-#             strRaw = strRaw[len(subStr):]
-#             break
-#
-#     return strRaw
-
-
 tests_symbols_ok = [
     (b"??$_Getvals@_W@?$time_get@DV?$istreambuf_iterator@DU?$char_traits@D@std@@@std@@@std@@IAEX_WABV_Locinfo@1@@Z",
      b"void std::time_get<char,std::istreambuf_iterator<char,std::char_traits<char> > >::_Getvals<wchar_t>(wchar_t,std::_Locinfo const &)"),
@@ -89,9 +61,10 @@ class PEFile_Test(unittest.TestCase):
         import lib_pefile
         for mangled_symbol, expected_output in tests_symbols_ok:
             undecorated_symbol = lib_pefile.UndecorateSymbol(mangled_symbol)
-            print("in = ", mangled_symbol)
-            print("out= ",undecorated_symbol)
-            self.assertTrue(expected_output == undecorated_symbol)
+            print("mangled_symbol=", mangled_symbol)
+            print("undecorated_symbol=", undecorated_symbol)
+            print("expected_output=", expected_output)
+            self.assertTrue(expected_output.decode() == undecorated_symbol)
 
     @unittest.skip("test_pefile_broken MUST BE FIXED.")
     def test_pefile_broken(self):

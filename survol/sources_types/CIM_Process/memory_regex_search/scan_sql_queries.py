@@ -15,6 +15,9 @@ Extract SQL queries from process heap memory
 
 import re
 import sys
+import traceback
+import logging
+import six
 
 import lib_uris
 import lib_sql
@@ -58,9 +61,11 @@ def _process_scanned_sql_query(raw_sql_query, queries_set):
 
 def _generate_from_sql_queries(grph, node_process, regex_predicate, queries_set, pid_as_integer):
 	for one_qry in queries_set:
+		assert isinstance(one_qry, six.binary_type)
+		one_qry_str = one_qry.decode()
 		try:
 			# TODO: The query must come with the PID, so later we can find which database connection it is.
-			node_sql_query = embedded_sql_query.MakeUri(one_qry, pid_as_integer)
+			node_sql_query = embedded_sql_query.MakeUri(one_qry_str, str(pid_as_integer))
 			grph.add((node_process, regex_predicate, node_sql_query))
 		except Exception as exc:
 			grph.add((node_process, regex_predicate, lib_util.NodeLiteral("_generate_from_sql_queries:" + str(exc))))

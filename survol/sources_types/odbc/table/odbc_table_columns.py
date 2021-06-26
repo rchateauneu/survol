@@ -25,7 +25,7 @@ def Main():
 
     grph = cgiEnv.GetGraph()
 
-    dsn_nam = survol_odbc_dsn.GetDsnNameFromCgi(cgiEnv)
+    dsn_nam = cgiEnv.m_entity_id_dict["Dsn"]
     tab_nam = cgiEnv.m_entity_id_dict["Table"]
 
     logging.debug("dsn=%s tab_nam=%s", dsn_nam, tab_nam)

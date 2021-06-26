@@ -14,6 +14,7 @@ import re
 
 import six
 
+import lib_util
 import lib_uris
 import lib_client
 from sources_types import odbc as survol_odbc
@@ -144,9 +145,9 @@ noise_text = [
 
 
 @unittest.skipIf(pyodbc is None, "pyodbc must be installed")
-class DetectConnectionStringTest(unittest.TestCase):
+class ConnectionStringTest(unittest.TestCase):
     """
-    This tests the detection of a ODBC connection string hidden in text.
+    This tests processing of an ODBC connection string.
     """
 
     # Things to test:
@@ -207,6 +208,18 @@ class DetectConnectionStringTest(unittest.TestCase):
     def test_from_python_heavy_bytes(self):
         self._aux_test_from_python_bytes("regex_odbc_heavy", survol_odbc.regex_odbc_heavy, connection_strings_heavy)
 
+    def test_connection_string_encoding(self):
+        """
+        This checks that all connection strings can be correctly encoded on a URL.
+        """
+        for one_connect_str in connection_strings_light + connection_strings_heavy:
+            connect_str_entity_id = lib_uris.PathFactory().odbc.dsn(Dsn=one_connect_str)
+            class_name, _, key_value_pairs = connect_str_entity_id.partition(".")
+            entity_id_dict = lib_util.SplitMoniker(key_value_pairs)
+            actual_dsn = entity_id_dict["Dsn"]
+            self.assertEqual(class_name, "odbc/dsn")
+            self.assertEqual(one_connect_str, actual_dsn)
+
 
 _client_object_instances_from_script = lib_client.SourceLocal.get_object_instances_from_script
 
@@ -234,7 +247,6 @@ class WindowsPyodbcTest(unittest.TestCase):
         # There should be at least a couple of scripts.
         self.assertTrue(len(list_scripts) > 0)
 
-    @unittest.skipIf(is_travis_machine(), "No data sources on Travis - yet.")
     def test_all_sqldatasources(self):
         """Tests ODBC data sources"""
 
@@ -246,12 +258,10 @@ class WindowsPyodbcTest(unittest.TestCase):
         for one_instance in sorted(str_instances_set):
             print("    one_instance=", one_instance)
 
-
         # At least these instances must be present. Other are possible such as "DSN=dBASE Files"
         for one_str in [
             lib_uris.PathFactory().CIM_ComputerSystem(Name=CurrentMachine),
             lib_uris.PathFactory().odbc.dsn(Dsn="DSN=Excel Files"),
-            lib_uris.PathFactory().odbc.dsn(Dsn="DSN=MS Access Database"),
         ]:
             print("one_str=", one_str)
             self.assertTrue(one_str in str_instances_set)

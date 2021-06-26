@@ -438,7 +438,11 @@ class SparqlWmiFromPropertiesTest(CUSTOM_EVALS_WMI_Base_Test):
         print("First disk=", first_disk)
         first_disk_device_id = str(first_disk[1])
         print("first_disk_device_id=", first_disk_device_id)
-        self.assertTrue(first_disk[0].endswith(r'xid=Win32_DiskDrive.DeviceID=\\\\.\\PHYSICALDRIVE0'))
+
+        #'http://rchateau-hp:80/LocalExecution/entity.py?xid=Win32_DiskDrive.DeviceID=B64_XFxcXC5cXFBIWVNJQ0FMRFJJVkUw'
+        _, entity_type, entity_id_dict = lib_util.split_url_to_entity(first_disk[0])
+        self.assertTrue(entity_type, 'Win32_DiskDrive')
+        self.assertTrue(entity_id_dict['DeviceID'], r'\\\\.\\PHYSICALDRIVE0')
         self.assertEqual(first_disk_device_id, r'\\\\.\\PHYSICALDRIVE0')
 
     def test_select_CIM_DiskDrive(self):
@@ -754,19 +758,17 @@ class SparqlWmiAssociatorsTest(CUSTOM_EVALS_WMI_Base_Test):
         rdflib_graph = rdflib.Graph()
         query_result = list(rdflib_graph.query(sparql_query))
         dirnodes_only = {str(one_result[0]) for one_result in query_result}
-        print("dirnodes_only=", dirnodes_only, "len=", len(dirnodes_only))
 
         current_executable_dir = os.path.dirname(CurrentExecutable)
         for dir_path in [
             current_executable_dir,
             current_executable_dir + "/lib/site-packages/win32",
-            current_executable_dir + "/lib/site-packages/psutil",
             current_executable_dir + "/dlls",
             "c:/windows/system32",
             "c:/windows/system32/wbem"]:
             standard_dir_path = lib_util.standardized_file_path(dir_path)
             node_dir = str(lib_uris.gUriGen.node_from_dict("CIM_Directory", {"Name": standard_dir_path}))
-            print("Path=", dir_path)
+            print("Path=", standard_dir_path)
             print("Node=", node_dir)
             self.assertTrue(node_dir in dirnodes_only)
 

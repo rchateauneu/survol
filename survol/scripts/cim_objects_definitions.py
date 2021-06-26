@@ -709,6 +709,7 @@ class CIM_XmlMarshaller(object):
                     attr_val = _timestamp_to_str(attr_val)
                 if attr_val:
                     # No need to write empty strings.
+                    # If attr_val is not an int, it is automatically converted to str.
                     strm.write("%s<%s>%s</%s>\n" % (sub_margin, attr, attr_val, attr))
 
     def http_update_request(self, the_subject, the_predicate, the_object):
@@ -955,12 +956,14 @@ class CIM_NetworkAdapter(CIM_XmlMarshaller):
 # };
 class CIM_Process(CIM_XmlMarshaller):
     def __init__(self, proc_id):
+        """
+        :param proc_id: Arguments of constructor. This is an int.
+        """
         super(CIM_Process, self).__init__()
 
-        # sys.stdout.write("CIM_Process proc_id=%s\n"%proc_id)
-
         # SOME MEMBERS MUST BE DISPLAYED AND FOLLOW CIM CONVENTION.
-        self.Handle = proc_id
+        # Key members must always be str.
+        self.Handle = str(proc_id)
         self.m_parentProcess = None
         self.m_subProcesses = set()
         self.CreationDate = None

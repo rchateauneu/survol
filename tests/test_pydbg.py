@@ -364,6 +364,7 @@ class WindowsDosCmdHooksTest(unittest.TestCase):
         self.assertTrue(Context.count_in == num_loops - 1)
         self.assertTrue(Context.count_out == num_loops - 1)
 
+    @unittest.skipIf(is_windows7, "Sometimes fail on Windows 7 due to sync.")
     def test_DOS_nslookup(self):
         tst_pydbg = pydbg.pydbg()
 

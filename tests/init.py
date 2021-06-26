@@ -33,7 +33,9 @@ update_test_path()
 
 import scripts.cgiserver
 import scripts.wsgiserver
+
 import lib_util
+import lib_uris
 import lib_properties
 import lib_sparql
 import lib_credentials
@@ -58,8 +60,10 @@ if is_platform_windows:
     # '7'
     # platform.win32_ver()
     # ('7', '6.1.7601', 'SP1', 'Multiprocessor Free')
+    is_windows7 = os.sys.getwindowsversion()[0] == 6
     is_windows10 = os.sys.getwindowsversion()[0] == 10
 else:
+    is_windows7 = None
     is_windows10 = None
 
 
@@ -132,7 +136,7 @@ RemoteTwistedWsgi1TestServerPort = 9100
 # Several Survol scripts return this executable among their results, so it can be tested.
 CurrentExecutable = lib_util.standardized_file_path(sys.executable)
 
-CurrentExecutablePath = 'CIM_DataFile.Name=%s' % CurrentExecutable
+CurrentExecutablePath = lib_uris.PathFactory().CIM_DataFile(Name=CurrentExecutable)
 
 
 def __dump_server_content(log_filename):

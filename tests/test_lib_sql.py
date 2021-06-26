@@ -7,6 +7,8 @@ import unittest
 
 from init import *
 
+import lib_uris
+
 update_test_path()
 
 if pkgutil.find_loader('sqlparse'):
@@ -1254,3 +1256,29 @@ class SqlParse_Test(unittest.TestCase):
     def test_sql_parse_noselect(self):
         self.sql_parse_test_keyword("NoSelect")
 
+
+class SqlQueryEncodingTest(unittest.TestCase):
+    def test_connection_string_encoding(self):
+        """
+        This checks that SQL queries can be correctly encoded on a URL.
+        """
+
+        def _get_query_from_path(rdf_path):
+            _, _, entity_id = rdf_path.partition(".")
+            entity_id_dict = lib_util.SplitMoniker(entity_id)
+            return entity_id_dict["Query"]
+
+        for query_class, query_array in query_examples.items():
+            for one_query in query_array:
+                # These three tests do the same but it allows to check all classes and possible customizations.
+                connect_str_url = lib_uris.PathFactory().oracle.query(Query=one_query, Db="XX")
+                actual_query = _get_query_from_path(connect_str_url)
+                self.assertEqual(one_query, actual_query)
+
+                connect_str_url = lib_uris.PathFactory().sqlite.query(Query=one_query, File="abc.sqlite")
+                actual_query = _get_query_from_path(connect_str_url)
+                self.assertEqual(one_query, actual_query)
+
+                connect_str_url = lib_uris.PathFactory().sql.query(Query=one_query)
+                actual_query = _get_query_from_path(connect_str_url)
+                self.assertEqual(one_query, actual_query)

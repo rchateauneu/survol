@@ -55,9 +55,7 @@ def Main():
     # Filename is optional.
 
     # The symbol is already demangled.
-    symbol_encode = cgiEnv.m_entity_id_dict["Name"]
-    # TODO: This should be packaged in lib_symbol.
-    symbol_nam = lib_util.Base64Decode(symbol_encode)
+    symbol_nam = cgiEnv.m_entity_id_dict["Name"]
     fil_nam = cgiEnv.m_entity_id_dict["File"]
 
     logging.debug("symbol=%s fil_nam=%s", symbol_nam, fil_nam)

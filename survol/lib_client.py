@@ -72,9 +72,15 @@ class SourceBase (object):
 
 
 def create_instance_path(class_name, **key_value_dict):
+    """
+
+    :param class_name:
+    :param key_value_dict:  The values in the dictionary might have any type.
+    :return:
+    """
     # v might be an integer, a double, a string.
     # TODO: See lib_util.EntityUri which does something similar.
-    suffix = ",".join(["%s=%s" % (k, lib_util.urllib_quote(str(v))) for k, v in key_value_dict.items()])
+    suffix = ",".join(["%s=%s" % (k, lib_util.Base64EncodeConditional(str(v))) for k, v in key_value_dict.items()])
     if class_name:
         rest_qry = class_name + "." + suffix
     else:
