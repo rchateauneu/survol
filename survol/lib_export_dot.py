@@ -21,6 +21,11 @@ import lib_properties
 from lib_properties import pc
 
 
+# FIXME: Graphviz error message "label: area too large for rtree":
+# FIXME: https://gitlab.com/graphviz/graphviz/-/issues/2088
+# FIXME: OK with Graphviz 2.38, broken with 2.47 and 2.47
+
+
 def _truncate_in_space(lab_text, max_len_lab):
     """
     This truncates a string to a given length but tries to cut
@@ -778,7 +783,8 @@ def _font_string():
     # stream.write("node [shape=plaintext fontpath=\"/usr/share/fonts\" fontname=\"DejaVuSans\" ]")
 
     if lib_util.isPlatformWindows:
-        return 'fontname="DejaVu Sans"'
+        # Default is "Times New Roman"
+        return ""
     else:
         # fontname: "DejaVuSans.ttf" resolved to: (PangoCairoFcFont) "DejaVu Sans, Book" /usr/share/fonts/dejavu/DejaVuSans.ttf
         return 'fontpath="/usr/share/fonts" fontname="DejaVuSans"'
@@ -881,7 +887,9 @@ def output_rdf_graph_as_svg(
 
     out_dest = lib_util.get_default_output_destination()
 
+    logfil.flush()
     _dot_to_svg(dot_filnam_after, logfil, dot_layout, out_dest)
+    logfil.flush()
     logfil.write(lib_util.TimeStamp() + " closing log file\n")
     logfil.close()
 
