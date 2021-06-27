@@ -24,6 +24,7 @@ def display_data_sources(grph):
 	# The list produced by pyodbc.dataSources() is misleading because it shows the results
 	# from both the 32-bit and 64-bit "Platform".
 	# A more reliable way to get the list of available drivers is to use pyodbc.drivers()
+	logging.debug("Before pyodbc.dataSources")
 	sources = pyodbc.dataSources()
 
 	for dsn in sources:
