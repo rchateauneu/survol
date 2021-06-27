@@ -18,6 +18,9 @@ from sources_types import CIM_ComputerSystem
 
 # TODO: Use descriptions provided by lib_bookmark.py
 
+# FIXME: If the __doc__ string of a script is identical to the __doc__ string of the Usable() function
+# FIXME: of this script, it recursively displays this same string.
+
 # TODO: Consider using _flat_properties_list
 _list_props_td_double_col_span = [pc.property_information, pc.property_rdf_data_nolist2, pc.property_rdf_data_nolist1]
 
@@ -270,7 +273,7 @@ def _scripts_tree_html_iterator(theCgi):
                 return str(ret_str)
             logging.critical("Should not be here. argument_map_props=%s", str(argument_map_props))
 
-        yield('<tr>')
+        yield '<tr>'
         depth_menu += 1
         if depth_menu > 10:
             logging.critical(
