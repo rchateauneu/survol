@@ -883,6 +883,9 @@ class CommandLineLivePythonTest(unittest.TestCase):
 
         triples_as_string = _rdf_file_to_triples(self, created_rdf_file)
 
+        for one_triple in triples_as_string:
+            print("one_triple=", one_triple)
+
         # This is the created process which runs dockit.py
         self.assertTrue((
                             ("CIM_Process", {"Handle": str(created_pid)}),
