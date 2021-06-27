@@ -1516,14 +1516,18 @@ class SurvolSocketsTest(unittest.TestCase):
     @unittest.skipIf(is_platform_wsl, "Does not work on WSL")
     @unittest.skipIf(is_windows7, "Sometimes fail on Windows 7 due to synchronization")
     def test_netstat_sockets(self):
+        """
+        Sometimes this test does not pass.
+        :return:
+        """
 
         # Not many web sites in HTTP these days. This one is very stable.
         http_host_name = 'portquiz.net'
 
-        conn_http = self._create_socket_connection(http_host_name, "")
         peer_host = socket.gethostbyname(http_host_name)
+        conn_http = self._create_socket_connection(http_host_name, "")
 
-        # Get the list of sockets before this one is closed.
+        # Get the list of sockets before this one is closed, as quickly as possible.
         if is_platform_windows:
             lst_instances = _client_object_instances_from_script("sources_types/win32/tcp_sockets_windows.py")
         else:
@@ -1533,7 +1537,9 @@ class SurvolSocketsTest(unittest.TestCase):
         if (resp.status, resp.reason) not in [(200, "OK"), (302, "Found")]:
             raise Exception("Hostname %s not ok. Status=%d, reason=%s." % (http_host_name, resp.status, resp.reason))
 
-        str_instances_set = set([str(one_inst) for one_inst in lst_instances ])
+        str_instances_set = set([str(one_inst) for one_inst in lst_instances])
+        for one_inst in sorted(str_instances_set):
+            print("one_inst=", one_inst)
 
         addr_expected = "addr.Id=%s:80" % peer_host
         print("addr_expected=", addr_expected)
