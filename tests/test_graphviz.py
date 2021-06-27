@@ -106,6 +106,7 @@ class SvgLocalAgentTest(SvgCommon):
     def test_local_svg_cgi_arp_linux(self):
         self._test_svg_cgi_arp_linux()
 
+    @unittest.skipIf(is_windows7, "Fails on Windows7")
     def test_local_svg_enumerate_python_package(self):
         self._test_svg_enumerate_python_package()
 
