@@ -913,6 +913,7 @@ class CommandLineLivePythonTest(unittest.TestCase):
 
         return triples_as_string, created_pid
 
+    @unittest.skipIf(is_travis_machine(), "Not Travis.")
     def test_run_python_rdf_print_hello(self):
         """This runs a minimal Python script."""
         output_basename_prefix = "output_test_run_python_rdf_print_hello"
