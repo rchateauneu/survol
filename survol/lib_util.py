@@ -1374,7 +1374,15 @@ def GuessDisplayMode():
 ################################################################################
 
 
-def SplitMoniker(xid):
+def SplitPath(entity_path):
+    """
+    The input string is an entity_id: "TheClass.key1=val1,key2=val2,key3=val3",
+    """
+    class_name, _, entity_id = entity_path.partition(".")
+    return class_name, SplitMoniker(entity_id)
+
+
+def SplitMoniker(entity_id):
     """
     The input string is an entity_id: "key1=val1,key2=val2,key3=val3",
     i.e. what comes after "xid=<class>." in an object URL.
@@ -1383,12 +1391,12 @@ def SplitMoniker(xid):
     This returns a dictionary of key-values.
     """
 
-    class_name, _, key_value_pairs = xid.partition(".")
-    splt_lst = re.findall(r'(?:[^,"]|"(?:\\.|[^"])*")+', xid)
+    splt_lst = re.findall(r'(?:[^,"]|"(?:\\.|[^"])*")+', entity_id)
 
     resu = dict()
     for splt_wrd in splt_lst:
         key_token, _, value_token = splt_wrd.partition("=")
+        assert "." not in key_token
         if value_token.startswith('"') and value_token.endswith('"'):
             # Special processing because this string might come from WMI or WBEM.
             value_token = value_token[1:-1]

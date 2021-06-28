@@ -47,10 +47,15 @@ class PathFactory:
         It also detects if a key is missing.
         """
         class_keys = lib_util.OntologyClassKeys(self.m_class_name)
-        entity_id = self.m_class_name + "." + ",".join("%s=%s" % (key, lib_util.Base64EncodeConditional(kwargs_call[key])) for key in class_keys)
+        entity_id = self.m_class_name + "." + ",".join(
+            "%s=%s" % (key, lib_util.Base64EncodeConditional(kwargs_call[key]))
+            for key in class_keys)
         return entity_id
 
     def __getattr__(self, attribute_name):
+        """
+        This is for a subclass.
+        """
         concat_class_name = self.m_class_name + "/" + attribute_name if self.m_class_name else attribute_name
         return PathFactory(concat_class_name)
 

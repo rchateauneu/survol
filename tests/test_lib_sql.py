@@ -1264,8 +1264,7 @@ class SqlQueryEncodingTest(unittest.TestCase):
         """
 
         def _get_query_from_path(rdf_path):
-            _, _, entity_id = rdf_path.partition(".")
-            entity_id_dict = lib_util.SplitMoniker(entity_id)
+            _, entity_id_dict = lib_util.SplitPath(rdf_path)
             return entity_id_dict["Query"]
 
         for query_class, query_array in query_examples.items():
