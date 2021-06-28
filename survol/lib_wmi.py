@@ -491,13 +491,9 @@ def reformat_path_for_wmi(survol_path):
     reformats the unchanged existing information about the instances.
     It is used in SelectBidirectionalAssociatorsFromObject.
     """
-    class_name, _, kw_pairs_as_str = survol_path.partition(".")
-
-    # reformat_path_for_wmi
 
     # key-value pairs are separated by commas.
-
-    entity_id_dict = lib_util.SplitMoniker(kw_pairs_as_str)
+    class_name, entity_id_dict = lib_util.SplitPath(survol_path)
 
     # This rebuilds a path for WMI with arguments enclosed in double-quotes.
     wmi_path = class_name + "." + ",".join(

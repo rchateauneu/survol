@@ -975,7 +975,6 @@ class SurvolLocalJavaTest(unittest.TestCase):
         for one_str in list_required:
             self.assertTrue(one_str in str_instances_set)
 
-    @unittest.skipIf(is_windows7, "Does not work on Windows 7")
     def test_java_system_properties(self):
         """Java system properties"""
 
@@ -986,36 +985,42 @@ class SurvolLocalJavaTest(unittest.TestCase):
 
         list_required = [
             CurrentUserPath,
-            #'CIM_Directory.Name=C:/windows/system32',
-            'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/charsets.jar',
-            'CIM_Directory.Name=C:/Program Files/nodejs',
-            'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121',
-            #'CIM_Directory.Name=C:/windows',
-            'CIM_Directory.Name=C:/windows/Sun/Java/lib/ext',
-            'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/classes',
-            'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/jsse.jar',
-            'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/resources.jar',
-            'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/jce.jar',
-            'CIM_Directory.Name=C:/Program Files/Java/jdk1.8.0_121/lib/tools.jar',
-            'CIM_Directory.Name=.',
-            'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/sunrsasign.jar',
-            'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/endorsed',
-            'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/bin',
-            'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/ext',
-            #'CIM_Directory.Name=C:/windows/System32/WindowsPowerShell/v1.0',
-            'CIM_Directory.Name=C:/Program Files/Java/jdk1.8.0_121/jre/bin',
-            'CIM_Directory.Name=C:/Program Files/Java/jre1.8.0_121/lib/rt.jar',
-            'CIM_Directory.Name=C:/Program Files/Java/jdk1.8.0_121/bin',
-            'CIM_Directory.Name=C:/windows/Sun/Java/bin',
-            'CIM_Directory.Name=C:/Python27',
+            CurrentProcessPath,
         ]
 
-        list_required.append(CurrentProcessPath)
+        required_files = [
+            'C:/Windows/System32',
+            'C:/Program Files/Java/jre1.8.0_121/lib/charsets.jar',
+            'C:/Program Files/nodejs',
+            'C:/Program Files/Java/jre1.8.0_121',
+            'C:/Windows',
+            'C:/windows/Sun/Java/lib/ext',
+            'C:/Program Files/Java/jre1.8.0_121/classes',
+            'C:/Program Files/Java/jre1.8.0_121/lib/jsse.jar',
+            'C:/Program Files/Java/jre1.8.0_121/lib/resources.jar',
+            'C:/Program Files/Java/jre1.8.0_121/lib/jce.jar',
+            'C:/Program Files/Java/jdk1.8.0_121/lib/tools.jar',
+            '.',
+            'C:/Program Files/Java/jre1.8.0_121/lib/sunrsasign.jar',
+            'C:/Program Files/Java/jre1.8.0_121/lib/endorsed',
+            'C:/Program Files/Java/jre1.8.0_121/bin',
+            'C:/Program Files/Java/jre1.8.0_121/lib/ext',
+            'C:/Windows/System32/WindowsPowerShell/v1.0',
+            'C:/Program Files/Java/jdk1.8.0_121/jre/bin',
+            'C:/Program Files/Java/jre1.8.0_121/lib/rt.jar',
+            'C:/Program Files/Java/jdk1.8.0_121/bin',
+            'C:/windows/Sun/Java/bin',
+            'C:/Python27',
+        ]
 
-        str_instances_set = set([str(one_inst) for one_inst in my_source.get_triplestore().get_instances()])
-        print("test_java_system_properties str_instances_set=", sorted(str_instances_set))
+        for one_file_path in required_files:
+            list_required.append(lib_uris.PathFactory().CIM_Directory(Name=one_file_path))
 
-        print("list_required=", list_required)
+        raw_instances = my_source.get_triplestore().get_instances()
+        str_instances_set = set([str(one_inst) for one_inst in raw_instances])
+        for one_inst_str in sorted(str_instances_set):
+            print("    one_inst_str=", lib_util.SplitPath(one_inst_str))
+
         for one_str in list_required:
             if one_str not in str_instances_set:
                 print("Not there:", one_str)
