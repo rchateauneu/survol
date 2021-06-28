@@ -214,8 +214,7 @@ class ConnectionStringTest(unittest.TestCase):
         """
         for one_connect_str in connection_strings_light + connection_strings_heavy:
             connect_str_entity_id = lib_uris.PathFactory().odbc.dsn(Dsn=one_connect_str)
-            class_name, _, key_value_pairs = connect_str_entity_id.partition(".")
-            entity_id_dict = lib_util.SplitMoniker(key_value_pairs)
+            class_name, entity_id_dict = lib_util.SplitPath(connect_str_entity_id)
             actual_dsn = entity_id_dict["Dsn"]
             self.assertEqual(class_name, "odbc/dsn")
             self.assertEqual(one_connect_str, actual_dsn)
@@ -247,6 +246,7 @@ class WindowsPyodbcTest(unittest.TestCase):
         # There should be at least a couple of scripts.
         self.assertTrue(len(list_scripts) > 0)
 
+    @unittest.skipIf(is_travis_machine(), "Not on Travis.")
     def test_all_sqldatasources(self):
         """Tests ODBC data sources"""
 
