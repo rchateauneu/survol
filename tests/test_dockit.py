@@ -865,7 +865,13 @@ class CommandLineLiveWin32Test(unittest.TestCase):
 class CommandLineLivePythonTest(unittest.TestCase):
 
     def _run_python_script_rdf(self, output_basename_prefix, python_script):
-        """This runs a Python script."""
+        """
+        This runs a Python script and analyses the system calls with dockit.
+
+        At least on WSL, it might fail with an error message involving strace: "operation not permitted".
+        Then, it is necessary to set /proc/sys/kernel/yama/ptrace_scope from 1 to 0.
+        See https://stackoverflow.com/questions/19215177/how-to-solve-ptrace-operation-not-permitted-when-trying-to-attach-gdb-to-a-pro
+        """
         created_rdf_file = _path_prefix_output_result(output_basename_prefix + "_%d.rdf" % os.getpid())
         # No Python files in the output directory, otherwise pytest interprets them as valid test scripts.
         python_script_file = os.path.join(tempfile.gettempdir(), output_basename_prefix + "_%d.py" % os.getpid())
