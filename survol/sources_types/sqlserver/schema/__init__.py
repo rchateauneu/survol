@@ -13,20 +13,13 @@ def AddInfo(grph, node, entity_ids_arr):
 
 
 def EntityOntology():
-    # TODO: Replace this first property by a plain string.
-    # This was an attempt to solve the problem of non-printable values of properties.
-    # The idea was to do this encoding only for specivif properties.
-    # The information about this encoding was described by using a derived class of string.
-    # But this is not compatible with CIM because attributes must be strig.
-    # This must be replaced by an option B64 encoding: Such encoded string have a special prefix.
-    # This can be done in any context.
-    return ([sqlserver_dsn.CgiPropertyDsn(), "Schema"],)
+    return (["Dsn", "Schema"],)
 
 
 # Beware of the possible confusion with normal users.
 def MakeUri(dsn_name, schema_name):
     return lib_uris.gUriGen.node_from_dict(
-        "sqlserver/schema", {sqlserver_dsn.CgiPropertyDsn(): dsn_name, "Schema": schema_name})
+        "sqlserver/schema", {"Dsn": dsn_name, "Schema": schema_name})
 
 
 def EntityName(entity_ids_arr):
