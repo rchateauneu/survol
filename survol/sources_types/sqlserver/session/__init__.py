@@ -20,9 +20,9 @@ except ImportError:
     pyodbcOk = False
 
 
-# This is called by OntologyClassKeys(entity_type) when it needs the parameters f an tneity type.
+# This is called by OntologyClassKeys(entity_type) when it needs the parameters of an entity type.
 def EntityOntology():
-    return ([survol_sqlserver_dsn.CgiPropertyDsn(), "SessionId"],)
+    return (["Dsn", "SessionId"],)
 
 
 def MakeUri(dsn, session_id):

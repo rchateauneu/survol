@@ -6,7 +6,6 @@ import sys
 
 import lib_uris
 import lib_common
-from sources_types.sqlserver  import dsn as sqlserver_dsn
 from sources_types.sqlserver import schema as sqlserver_schema
 
 
@@ -19,13 +18,13 @@ def AddInfo(grph,node, entity_ids_arr):
 
 
 def EntityOntology():
-    return ([sqlserver_dsn.CgiPropertyDsn(), "Schema", "Table"],)
+    return (["Dsn", "Schema", "Table"],)
 
 
-# Beware of the possible confusion with normal users.
+# Beware of a possible confusion with OS users.
 def MakeUri(dsn_nam, schema_name, table_name):
     return lib_uris.gUriGen.node_from_dict("sqlserver/table", {
-        sqlserver_dsn.CgiPropertyDsn(): dsn_nam,
+        "Dsn": dsn_nam,
         "Schema": schema_name,
         "Table": table_name})
 
