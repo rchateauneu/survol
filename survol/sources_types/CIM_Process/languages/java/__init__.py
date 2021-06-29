@@ -154,7 +154,7 @@ from sources_types import CIM_Process
 
 
 def Usable(entity_type, entity_ids_arr):
-    """Java processes"""
+    """Only for Java processes"""
 
     pid_proc = entity_ids_arr[0]
     proc_obj = CIM_Process.PsutilGetProcObj(int(pid_proc))

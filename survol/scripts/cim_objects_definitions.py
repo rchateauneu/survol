@@ -980,7 +980,7 @@ class CIM_Process(CIM_XmlMarshaller):
         if not G_ReplayMode:
             # Maybe this cannot be accessed.
             if is_platform_linux:
-                filnam_environ = "/proc/%d/environ" % self.Handle
+                filnam_environ = "/proc/%d/environ" % int(self.Handle)
                 try:
                     self.EnvironmentVariables = {}
                     with open(filnam_environ) as fd_env:
