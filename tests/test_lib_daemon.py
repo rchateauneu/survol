@@ -501,6 +501,7 @@ class CgiScriptStartThenEventsTest(unittest.TestCase):
 
     @unittest.skipIf(is_platform_windows and is_travis_machine(), "FIXME: Broken on Windows and Travis")
     @unittest.skipIf(is_platform_wsl, "Not for WSL because of psutil limitations.")
+    @unittest.skipIf(is_windows7, "Broken on Windows 7.")
     def test_events_feeder_psutil_system_counters(self):
         """This script is already tested, as a snapshot."""
         url_suffix = "events_feeder_psutil_system_counters.py"
