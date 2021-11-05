@@ -1,0 +1,142 @@
+# Pseudo-code and notes on how to setup a CGI or WSGI server.
+
+def get_apache_configuration_directory():
+    """
+    It expects an output similar to:
+    ...
+    Server compiled with....
+     -D HTTPD_ROOT="/Apache24"
+     -D SERVER_CONFIG_FILE="conf/httpd.conf"
+     ...
+     :return:
+    """
+    http_result = subprocess.check_output('httpd -V')
+    http_split = http_result.split('\n')
+
+    def line_to_pair(one_line):
+        partitioned_line = one_line.strip().partition("=")
+        param_key = partitioned_line[0].strip()
+        if param_key.startswith("-D") and len(partitioned_line) > 2:
+            param_value = partitioned_line[2]
+            if param_value[0] == '"' and param_value[-1] == -1:
+                param_value = param_value[1:-1]
+        else:
+            param_value = ""
+        return partitioned_line[0].strip(), param_value
+
+    lines_as_dict = {line_to_pair(one_line) for one_line in http_split}
+    httpd_root = lines_as_dict["-D HTTPD_ROOT"]
+    server_config_file = lines_as_dict["-D SERVER_CONFIG_FILE"]
+    configuration_dir = os.path.dirname(os.path.join(httpd_root, server_config_file))
+    return configuration_dir
+
+
+def setup_apache_cgi(apache_port_cgi):
+    # APPENDIX: Some tips about the installation of Survol under Apache.
+    #
+    # Two installations types are possible:
+    # (1) With the CGI scripts cgiserver, which just need to be accessible,
+    # and imports survol Python modules, installed by sdist.
+    # (2) Or if Apache runs the sources files from the development directory or from the installed packages.
+    # This is what is demonstrated here.
+
+    # Alias /Survol "C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle"
+    # <Directory "C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle" >
+    #    Options Indexes FollowSymLinks Includes ExecCGI
+    #    Allow from all
+    #    AddHandler cgi-script .py
+    #	# http://stackoverflow.com/questions/2036577/how-do-i-ignore-the-perl-shebang-on-windows-with-apache-2
+    #	ScriptInterpreterSource Registry-Strict
+    #	# SetEnv PYTHONPATH C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\survol\revlib
+    # </Directory>
+
+    apache_conf_cgi_content = """\
+Alias /Survol "C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle"
+<Directory "C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle" >
+    Options Indexes FollowSymLinks Includes ExecCGI
+    Allow from all
+    AddHandler cgi-script .py
+    # http://stackoverflow.com/questions/2036577/how-do-i-ignore-the-perl-shebang-on-windows-with-apache-2
+    ScriptInterpreterSource Registry-Strict
+    SetEnv PYTHONPATH C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\survol
+</Directory>
+"""
+    apache_conf_cgi_path = ""
+    with open(apache_conf_cgi_path, "w") as apache_conf_cgi_file:
+        apache_conf_cgi_file.write(apache_conf_cgi_content)
+
+
+def setup_apache_wsgi(apache_port_wsgi):
+    ## Appendix'appendix: How to install Yawn, which is an HTML navigator into OpenLmi (Pegasus) objects and classes.
+    ## apache's configuration file for yawn using wsgi
+    ## We could add this content in yawn.conf and incldue the content.
+    # WSGIScriptAlias /yawn "C:/Users/rchateau/Developpement/ReverseEngineeringApps/pywbem_all/pywbem_sourceforge/yawn2/trunk/mod_wsgi/yawn_wsgi.py"
+
+    ## For development convenience, no need to install anything because we point to the development files.
+    # <Directory "C:/Users/rchateau/Developpement/ReverseEngineeringApps/pywbem_all/pywbem_sourceforge/yawn2/trunk/mod_wsgi>
+    #    # Options Indexes FollowSymLinks Includes ExecCGI
+    #    Options ExecCGI
+    #    # Allow from all
+    #    WSGIPassAuthorization On
+    #    # AddHandler cgi-script .py
+    #	# http://stackoverflow.com/questions/2036577/how-do-i-ignore-the-perl-shebang-on-windows-with-apache-2
+    #	# ScriptInterpreterSource Registry-Strict
+    #	SetEnv PYTHONPATH C:\Users\rchateau\Developpement\ReverseEngineeringApps\pywbem_all\pywbem_sourceforge\yawn2\trunk\mod_wsgi\pywbem_yawn
+    # </Directory>
+    apache_conf_wsgi_content = """\
+# apache's configuration file for survol using wsgi
+#
+WSGIScriptAlias /yawn /var/www/yawn/index.wsgi
+#
+<Directory /var/www/yawn>
+    WSGIPassAuthorization On
+</Directory>
+
+# ex:et:ts=4:sw=4:ft=apache
+    """
+    apache_conf_wsgi_path = ""
+    with open(apache_conf_wsgi_path, "w") as apache_conf_wsgi_file:
+        apache_conf_wsgi_file.write(apache_conf_wsgi_content)
+
+
+################################################################################
+
+# APPENDIX: Some tips about the installation of Survol under Apache.
+#
+# Two installations types are possible:
+# (1) With the CGI scripts cgiserver, which just need to be accessible,
+# and imports survol Python modules, installed by sdist.
+# (2) Or if Apache runs the sources files from the development directory or from the installed packages.
+# This is what is demonstrated here.
+
+# Alias /Survol "C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle"
+# <Directory "C:/Users/rchateau/Developpement/ReverseEngineeringApps/PythonStyle" >
+#    Options Indexes FollowSymLinks Includes ExecCGI
+#    Allow from all
+#    AddHandler cgi-script .py
+#	# http://stackoverflow.com/questions/2036577/how-do-i-ignore-the-perl-shebang-on-windows-with-apache-2
+#	ScriptInterpreterSource Registry-Strict
+#	# SetEnv PYTHONPATH C:\Users\rchateau\Developpement\ReverseEngineeringApps\PythonStyle\survol\revlib
+# </Directory>
+
+################################################################################
+
+## Appendix'appendix: How to install Yawn, which is an HTML navigator into OpenLmi (Pegasus) objects and classes.
+## apache's configuration file for yawn using wsgi
+## We could add this content in yawn.conf and incldue the content.
+# WSGIScriptAlias /yawn "C:/Users/rchateau/Developpement/ReverseEngineeringApps/pywbem_all/pywbem_sourceforge/yawn2/trunk/mod_wsgi/yawn_wsgi.py"
+
+## For development convenience, no need to install anything because we point to the development files.
+# <Directory "C:/Users/rchateau/Developpement/ReverseEngineeringApps/pywbem_all/pywbem_sourceforge/yawn2/trunk/mod_wsgi>
+#    # Options Indexes FollowSymLinks Includes ExecCGI
+#    Options ExecCGI
+#    # Allow from all
+#    WSGIPassAuthorization On
+#    # AddHandler cgi-script .py
+#	# http://stackoverflow.com/questions/2036577/how-do-i-ignore-the-perl-shebang-on-windows-with-apache-2
+#	# ScriptInterpreterSource Registry-Strict
+#	SetEnv PYTHONPATH C:\Users\rchateau\Developpement\ReverseEngineeringApps\pywbem_all\pywbem_sourceforge\yawn2\trunk\mod_wsgi\pywbem_yawn
+# </Directory>
+
+################################################################################
+
