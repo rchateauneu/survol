@@ -1,0 +1,13 @@
+
+https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
+
+The Semantic Web uses the HTTP URI scheme to identify both documents and concepts in the real world,
+a distinction which has caused confusion as to how to distinguish the two.
+The TAG published an e-mail in 2005 on how to solve the problem, which became known as the httpRange-14 resolution.
+The W3C subsequently published an Interest Group Note titled Cool URIs for the Semantic Web,
+which explained the use of content negotiation and the HTTP 303 response code for redirections in more detail.
+
+https://www.w3.org/TR/cooluris/
+
+Consider using YAWN uris.
+Also, extend it to WMI.
