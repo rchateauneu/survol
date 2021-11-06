@@ -9,7 +9,11 @@ import rdflib
 # Probably needed to force rdflib to load its plugins ?
 # Apparently, this has to be loaded explicitly.
 # Surprisingly it was not needed until this commit.
-import rdflib.plugins.memory
+try:
+    # Before rdflib 6.0
+    import rdflib.plugins.memory
+except ImportError:
+    import rdflib.plugins.stores.memory
 import rdflib.plugins.sparql
 
 import lib_uris
