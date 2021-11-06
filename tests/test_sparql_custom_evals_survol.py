@@ -20,8 +20,12 @@ import lib_sparql_custom_evals
 
 survol_namespace = lib_kbase.LDT
 
+try:
+    from rdflib.plugins.memory import IOMemory
+except ImportError:
+    from rdflib.plugins.stores.memory import Memory as IOMemory
 
-class SurvolStore(rdflib.plugins.memory.IOMemory):
+class SurvolStore(IOMemory):
     """The derived class of a plain rdflib store helps debugging."""
     def __init__(self, configuration=None, identifier=None):
         super(SurvolStore, self).__init__(configuration)
