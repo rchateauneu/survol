@@ -1,0 +1,9 @@
+Create gdb scripts to log activity in RDF format.
+
+Writes RDF document to a HTTP server.
+
+Examples:
+set logging file my_god_object.log
+
+printf "D32: %Hf - D64: %Df - D128: %DDf\n",1.2345df,1.2E10dd,1.2E1dl
+
