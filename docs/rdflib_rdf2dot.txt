@@ -1,0 +1,10 @@
+Enhance rdf2dot with graphic information encoded in RDF
+
+At the moment, the tool rdf2dot transforms RDF files into Graphviz DOT format,
+and it would be great to add RDF statements for graphic metadata:
+
+* Color and size of edges. Dashed/solid/dotted style edges.
+* Color and shapes of nodes.
+* Edge arrows can be unidirectional or bidirectional (although it could be deduced if we have s-p-o and o-p-s)
+* DOT can group tabular data in HTML-like tables.
+
