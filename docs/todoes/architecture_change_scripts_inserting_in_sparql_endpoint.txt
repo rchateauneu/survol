@@ -1,0 +1,14 @@
+Change of architecture:
+At the moment, Survol architecture allows to start processes which insert data into a RDF database.
+The management of processes is OK because it matches the stcture of objects: Classes + key=value pairs.
+
+What is less satisfying is that we use RDFLIB library to insert RDF triples.
+We know that there are problems around SQLAlchemy. Also, not all semantic database have a plugin for RDFLIB.
+
+It would be more general and flexible that running processes use SPARQL to insert RDF triples in a semantic database.
+Survol would just need a SPARQL endpoint to insert and fetch RDF triples.
+http://docs.openlinksw.com/virtuoso/rdfindertmethodsparqlendpoint/
+
+Javascript is also able to fetch data from a SPARQL endpoint.
+
+This would completely decouple Survol code based on Python and RDFLIB from RDF triples storage.
