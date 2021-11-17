@@ -1,0 +1,10 @@
+How to create WMI provider.
+
+https://docs.microsoft.com/en-us/windows/win32/wmisdk/developing-a-wmi-provider
+
+"A provider consists of classes defined in the Managed Object Format (MOF) schema
+and a DLL file which carries out the functions of the provider."
+
+Consider using Cython to create this DLL (pyd),
+possibly compiling pywbem Python providers: https://pywbem.github.io/pyprov/index.html
+

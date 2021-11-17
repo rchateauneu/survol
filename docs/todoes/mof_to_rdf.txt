@@ -1,0 +1,72 @@
+https://www.omg.org/spec/MOF2RDF/1.0/About-MOF2RDF/
+
+MOF to RDF Mapping
+
+"This specification provides a lightweight approach to transform MOF-compliant metamodels into OWL Ontologies.
+The transformation is in principle bi-directional, however limitations imposed by MOF and/or OWL may apply.
+The primary transformation direction supported by this specification is from MOF to OWL
+and is made lossless through AnnotationProperties defined in the included MOF Support ontology."
+
+Change the repository:
+* The repository is defined with MOF files: Standard ones plus Survol ones.
+* A pass generates RDF definitions. Ontology is in RDF, and accessed as such by scripts and Survol code.
+* Possibly, this pass generates Python classes ? Prefer not to, so it does not rely on Python.
+* Scripts are associated to MOF classes. In fact, URLS: Their implementations, scripts or anything, is hidden.
+
+URL:
+xx.yy.zz/CIM_Class/?prop1=val1&prop2=val2
+xx.yy.zz/CIM_Class/a_script.py?prop1=val1&prop2=val2
+xx.yy.zz/CIM_Class/another_script.something?prop1=val1&prop2=val2
+
+This might help mixing different sorts of scripts: CGI or WSGI.
+
+===================================================
+Questions:
+===================================================
+Stackoverflow:
+I wish to convert MOF (Managed Object Format),
+a DMTF specification used to describe Common Information Model (CIM) classes,
+into RDF (Resource Description Framework),
+so data loaded from a WBEM server could be queried by semantic web tools such as SPARQL.
+
+This MOF2RDF specification provides an approach to convert MOF-compliant metamodels
+into OWL Ontologies and vice-versa.
+
+https://www.omg.org/spec/MOF2RDF/1.0/About-MOF2RDF/
+
+Although very assertive, it is quite abstract and does not states
+if it applies to MOF files compiled by Microsoft WMI (mofcomp.exe)
+and WBEM (cimmof, pywbem etc...), and does not say anythong about MOF input format
+(text file ? XML Metadata Interchange ?)
+
+As I am not used to this type of specification, I would like to know if I correctly understood this document:
+- Is it only a specification without for example a draft implementation ?
+- Where could I find concrete examples of input MOF files, in order to create an implementation
+following these specs ?
+
+===================================================
+Wikidata:
+Convert all RDF representation to MOF ?
+
+https://stackoverflow.com/questions/69988233/implementation-details-about-mof-to-rdf-mapping-specification
+
+
+
+===================================================
+Rdflib:
+Any interest into conversion to/from MOF ?
+
+===================================================
+Pywbem:
+
+2015 (It is a thesis)
+"A semantic wiki-based platform for IT service management"
+https://core.ac.uk/download/197537496.pdf
+Mentions WBEM many times.
+It mentions that MOF/CIM provides the best semantic expressiveness among network management models.
+compared with SNMP, CMIP and DMI.
+
+This is an extension to Mediawiki => It would allow to handle CIM data in mediawiki.
+
+2003
+https://www.researchgate.net/publication/221549324_A_proposal_for_management_of_RDF_and_RDF_schema_metadata_in_MOF
