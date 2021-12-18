@@ -1,0 +1,56 @@
+sparql BGP => WQL queries as a Python script => execution to fill a RDF triple => Sparql execution.
+
+RDF triples injection before Sparql execution:
+* BGP => WQL queries as a Python script + specialisation based on subject classes / predicates.
+(This speedup is necessary due to poor WQL performances in some cases.)
+
+SeeAlso scripts are not taken into account here.
+
+The Sparql engine must offer a hook for BGPs.
+https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html
+
+It is possible to separate Sparql processing with two separate Sparql engines:
+(1) The first step of Sparql pre-processing of BGPs can insert the new triples in any triple store.
+This sparql engine is used only for parsing.
+This insertion can be done by generating a Sparql INSERT statement.
+(2) Once the insertion of new triples is done, the Sparql query is executed on the triple store
+where the injection is done: It does not need to be the same Sparql engine.
+
+In other words, this processing just needs:
+(1) A Sparql parser (without a triple store)
+(2) A triplestore addressable with a Sparql query.
+
+The same logic is valid for any Sparql preprocessing on Survol context:
+(1) Transformation of Sparql into WQL.
+(2) Execution of specialised scripts instead of WQL queries.
+
+What is also needed is a Sparql endpoint skeleton, which does this preprocessing
+and redirects the query to the target triplestore (if needed).
+
+=== ARCHITECTURE ===
+Keep all ontologies distinct, for clarity.
+Calculate on the fly the ontology from WMI or WBEM, Survol Windows or Linux.
+Survol scripts and classes are exposed only with Sparql and RDF.
+Survol scripts are visible only with SeeAlso URLs.
+
+
+Tools like tracer etc... all get a Spqrql endpoint where they upload their RDF triples
+with a Sparql insert statement, This is also where they download a repository if need be.
+
+=== Sparql web server deployement ===
+Choose a standard framework, where deployment is obvious and immediate.
+
+https://pythonrepo.com/repo/vemonet-rdflib-endpoint-python-fastapi-utilities
+
+On genere a l'avance les ontologies a partir de WMI ou WBEM ce qui permet de les charger immediatement.
+
+=== Scripts and SeeAlso ===
+Each item has a SeeAlso URLs which returns the graph of scripts, exposed as SeeAlso.
+https://www.w3.org/wiki/UsingSeeAlso
+
+"It is reasonable to expect many (probably even "most") rdfs:seeAlso properties to reference to RDF/XML documents."
+
+Une fois que l'execution du Sparql est faite, on fait une nouvelle passe pour ajouter les SeeAlso.
+
+Bref: C'est ce qu'on fait deja: Mais il faudrait decouper pour que ce soit plus facile a deployer ?
+On voudrait un framework qui utilise les SeeAlso et permette de surfer d'un objet a l'autre.

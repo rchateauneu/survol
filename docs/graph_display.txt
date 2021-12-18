@@ -1,0 +1,41 @@
+Requirements of displaying graphs of RDF triples: Specific features etc...
+
+* Some edges might be bidirectional (Connection between machines, symetric RDF triples etc...).
+So, a useful feafture is to merge symetric edge into a bidirectional one. More generally,
+several edges between a pair of nodes should possibly be merged: This would make the resulting graph
+clearer and smaller.
+
+* Some subject nodes might have a zillion of objects nodes with a similar predicate:
+Examples: Files in a directory, processes on a machine etc...
+Very probably, theese object nodes might be of the same type (type in the RDF meaning)
+Displaying these object nodes as a plain graph is not the right thing to do:
+- The graph becomes obfuscated, and "star shaped".
+- More: These object nodes maybe intrinsically tabular : Files, nodes, sockets etc...
+It is part of their fundamental structure to be sorted by any of their property.
+Therefore, a RDF triple to indicate this property must be added:
+"Tabular-tag, predicate, object-class" or "Subject-class, tabular-tag, object-class"
+or "Subject-class, predicate, tabular-tag".
+Part of this feature is nicely implemented in DOT/Graphviz with HTML node and ports,
+but it does not offer column sorting. Ideally, tabular data should be displayed in a spreadsheet.
+
+* Display and rendering information could be carried in RDF triples:
+- Which object nodes of the same type and connected to the same subject node with predicates of the same property
+should be grouped in tables or not.
+- Which edges types (ie predicates)between an identical pair of nodes should be merged.
+- Graphic attributes: Color, font etc... based on CSS.
+See GSS Graph Style Sheet : https://www.w3.org/2001/11/IsaViz/gss/gssmanual.html
+"The GSS stylesheet for foaf does many things, including:
+grouping personal and contact information about each individual and organization in a table,"
+IsaViz is a visual RDF graph editor that uses GraphStyleSheets to present data.
+https://dl.acm.org/doi/10.1145/1148493.1148532 "Semantic web data visualization with graph style sheets"
+
+* Current Survol version displays scripts similarly to nodes. This makes sense because they are associated
+to items with SeaAlso predicate.
+
+https://stackoverflow.com/questions/66720/are-there-any-tools-to-visualize-a-rdf-graph-please-include-a-screenshot
+"Gephi can not just visualize graphs but also supports analyzing, layouting and further importing and exporting.
+There is a Semantic Web Import Extension that allows you to directly query (via SPARQL)
+or import RDF data. https://wiki.gephi.org/index.php/SemanticWebImport
+(You can install it directly within the program at Plugins."
+
+=> A la limite, on pourrait se concentrer sur Sparql.

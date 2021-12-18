@@ -1,0 +1,3 @@
+
+* Use Yawn urls and Yawn becomes the server.
+* Ideally change Survol so it uses same URLs ?

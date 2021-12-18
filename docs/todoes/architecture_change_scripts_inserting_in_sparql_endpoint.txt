@@ -1,9 +1,5 @@
-Change of architecture:
-At the moment, Survol architecture allows to start processes which insert data into a RDF database.
-The management of processes is OK because it matches the stcture of objects: Classes + key=value pairs.
-
-What is less satisfying is that we use RDFLIB library to insert RDF triples.
-We know that there are problems around SQLAlchemy. Also, not all semantic database have a plugin for RDFLIB.
+Survol usess RDFLIB library to insert RDF triples and depends for example on SQLAlchemy.
+Also, not all semantic database have a plugin for RDFLIB.
 
 It would be more general and flexible that running processes use SPARQL to insert RDF triples in a semantic database.
 Survol would just need a SPARQL endpoint to insert and fetch RDF triples.
@@ -12,3 +8,36 @@ http://docs.openlinksw.com/virtuoso/rdfindertmethodsparqlendpoint/
 Javascript is also able to fetch data from a SPARQL endpoint.
 
 This would completely decouple Survol code based on Python and RDFLIB from RDF triples storage.
+
+This does not show what is the clearest and most standard way to store a RDF document.
+https://github.com/RDFLib/rdflib/issues/1411
+
+"SPARQL INSERT" is a standard.
+
+For reading data, use only Sparql, even if it is slow.
+Again, it allows to use any semantic database with a Sparql end-point.
+
+Insert in a named graph:
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX ns: <http://example.org/ns#>
+INSERT DATA
+{ GRAPH <http://example/bookStore> { <http://example/book1>  ns:price  42 } }
+
+Example with Virtuoso:
+http://vos.openlinksw.com/owiki/wiki/VOS/VirtTipsAndTricksSPARQL11Insert#INSERT%20DATA%20Examples
+
+INSERT DATA
+  {
+    GRAPH <urn:sparql:tests:insert:data>
+      {
+        <#book1> <#price> 42
+      }
+  }
+
+  Now, to select from this named graph:
+  SELECT *
+FROM <urn:sparql:tests:insert:data>
+WHERE
+  {
+    ?s ?p ?o
+  }
