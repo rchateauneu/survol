@@ -1,0 +1,22 @@
+Survol architecture start processes which insert RDF triples into a RDF database.
+These processes are created in the "supervisor" framework.
+They are identified with a path name looking like a URL:
+This is one of the scripts followed by the parameters used to define an object.
+
+So, each process is one-to-one associated with the execution of a script for an object:
+This object is defined with a class and the key-value pairs of its ontology.
+
+(Little issue: "supervisor" does not accept too-long strings).
+
+Therefore, each object (class + key-value pairs) can have one process running a script of its directory.
+
+These processes return RDF data as if they are run from a HTTP site, in CGI or WSGI.
+But, instead of returning their data in RDF, HTML or JSON, they write their RDF triples
+in a RDF database, with the URL of the script as context key.
+These triples can later be retried with the URL of the script as a key.
+
+So, there is aalso a one-to-one association between a RDF context and a script executed
+for a specific object.
+
+The Python module "supervisor" is chosen because it integrates well in a Python franework.
+However, any process manager would work, as long as it associates a process with a string.

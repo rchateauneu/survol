@@ -2,7 +2,7 @@
 Quand il y a de longues listes d'objets, on peut les rassembler par ordre alphabetique mais aussi les
 classifier avec les distance de Levenshtein pour faire des gros clusters.
 Ou bien detecter un prefix identique.
-L idee est d amener de l'intelligence empirique:
+L idee est d'amener de l'intelligence empirique:
 - Reperer les chaines identiques aux chiffres pres (On parse en virant les chiffres).
 - Les fichiers identiques a l'extension pres.
 - Reperer les time-stamp dans les noms de fichiers.
@@ -64,11 +64,44 @@ ou tout simplement le host, comme container: subgraphes, clusters.
 # - Aux fichiers.
 # - Win32_Product.
 # - Memoire partagee.
-# - Users (Mais y a pas beaucoup)
+# - Users (Mais il n'y en a pas beaucoup)
 #
 
 La clusterization est une passe qui vient apres la creation du reseau
 mais avant la generation du json ou bien du DOT.
+Ca ne change pas les triples RDF existants, mais ajoute de nouveaux triples regroupant les items
+d'une facon differente, non pas "logique" mais "statistique".
+Ces triples ont des predicats specifiques qui n'ont en principe pas besoin d'etre affichés.
+Conceptuellement, ces predicats de clusterisations doivent etre affichés a la place
+des predicats d'origine.
+
+Exemple: Supposons qu'un directory contienne de milliers de fichiers qu'on puisse regrouper
+par extension: *.log, *.txt, *.exe etc.... Les triples d'origine seraient de la forme:
+    (subject-directory, predicate-file-in-directory, object-file-log-1)
+    (subject-directory, predicate-file-in-directory, object-file-txt-2)
+    (subject-directory, predicate-file-in-directory, object-file-exe-2)
+
+On pourrait ajouter des triples de la forme:
+    (subject-directory, predicate-file-in-directory, subject-directory-cluster-log)
+    (subject-directory, predicate-file-in-directory, subject-directory-cluster-txt)
+    (subject-directory, predicate-file-in-directory, subject-directory-cluster-exe)
+    (subject-directory-cluster-log, predicate-file-in-directory, object-file-log-1)
+    (subject-directory-cluster-txt, predicate-file-in-directory, object-file-txt-2)
+    (subject-directory-cluster-exe, predicate-file-in-directory, object-file-exe-3)
+    ...
+
+Ou bien:
+    (subject-directory, predicate-file-in-directory-cluster, subject-directory-cluster-log)
+    (subject-directory, predicate-file-in-directory-cluster, subject-directory-cluster-txt)
+    (subject-directory, predicate-file-in-directory-cluster, subject-directory-cluster-exe)
+    (subject-directory-cluster-log, predicate-file-in-directory-extension-log, object-file-log-1)
+    (subject-directory-cluster-txt, predicate-file-in-directory-extension-txt, object-file-txt-2)
+    (subject-directory-cluster-exe, predicate-file-in-directory-extension-exe, object-file-exe-3)
+    ...
+
+Plusieurs facons d'exprimer les predicats sont possibles mais il ne faut pas interferer
+avec l'affichage purement logique, et pouvoir modifier les clusters a la volee.
+Ca doit fonctionner sur plusieurs niveaux de clusterisation.
 
 La clusterisation dans DOT ne peut s'appliquer qu'au script courant. Dans D3,
 on peut garder la reference aux scripts qui ont cree un node.
@@ -79,6 +112,9 @@ les noeuds de cette classe qui satisfont cette propriete.
 Mais on va afficher les noeuds d'autres classes, probablement.
 Si pas de script, on va chercher le enumerate_<class>.py.
 A nouveau, on n'utilise pas WBEM et WMI comme sources de nodes, et c'est dommage.
+
+La clusterisation peut s'appliquer aussi aux scripts: En effet, actuellement on les regourpe en directory
+mais c'est un decoupage arbitraire, qui est faussement confondu avec les classes/sous-classes d'objets.
 
 Clusterization a la volee dans D3:
 ==================================

@@ -1,6 +1,7 @@
 Create gdb scripts to log activity in RDF format.
 
 Writes RDF document to a HTTP server.
+Possibly create SPQRL queries inserting RDF triples (This is a standard Api for a Sparql end-point).
 
 Examples:
 set logging file my_god_object.log
