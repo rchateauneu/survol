@@ -4,6 +4,11 @@
 Classes in ELF files
 """
 
+# It also generates records by detecting pair of setters/getters:
+# When two methods have the same name, without argument, one const returning a const reference,
+# the other one returning a non-const referece of the same, this can realistically be a property.
+# See linux_nm_records.py which does something similar based on the command nm.
+
 import os
 import sys
 
