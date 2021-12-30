@@ -39,3 +39,5 @@ or import RDF data. https://wiki.gephi.org/index.php/SemanticWebImport
 (You can install it directly within the program at Plugins."
 
 => A la limite, on pourrait se concentrer sur Sparql.
+
+Dans le fork de Wikidata GUI, ajouter aussi le drag'n'drop de liens.
