@@ -113,7 +113,7 @@ Mais on va afficher les noeuds d'autres classes, probablement.
 Si pas de script, on va chercher le enumerate_<class>.py.
 A nouveau, on n'utilise pas WBEM et WMI comme sources de nodes, et c'est dommage.
 
-La clusterisation peut s'appliquer aussi aux scripts: En effet, actuellement on les regourpe en directory
+La clusterisation peut s'appliquer aussi aux scripts: En effet, actuellement on les regroupe en directory
 mais c'est un decoupage arbitraire, qui est faussement confondu avec les classes/sous-classes d'objets.
 
 Clusterization a la volee dans D3:
