@@ -39,3 +39,31 @@ or import RDF data. https://wiki.gephi.org/index.php/SemanticWebImport
 (You can install it directly within the program at Plugins."
 
 => A la limite, on pourrait se concentrer sur Sparql.
+
+== Wikidata #defaultView:BubbleChart etc... ==
+https://en.wikibooks.org/wiki/SPARQL/Views
+Il faudrait ajouter notre propre view.
+#defaultView:Graph
+
+On a deja ce qu'il faut: Il faudrait juste ajouter le right-click pour charger davantage de triples.
+Ca le fait deja en partie !!!!!
+https://query.wikidata.org/#%23US%20presidents%20and%20spouses%0A%23defaultView%3AGraph%0ASELECT%20%3Fp%20%3FpLabel%20%3Fppicture%20%3Fw%20%3FwLabel%20%3Fwpicture%0AWHERE%20%0A%7B%0A%20%20%20wd%3AQ30%20p%3AP6%2Fps%3AP6%20%3Fp%20.%0A%20%20%20%3Fp%20wdt%3AP26%20%3Fw%20.%0A%20%20%20OPTIONAL%7B%0A%20%20%20%20%3Fp%20wdt%3AP18%20%3Fppicture%20.%0A%20%20%20%20%3Fw%20wdt%3AP18%20%3Fwpicture%20.%0A%20%20%20%7D%0A%20%20%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22en%22.%20%7D%0A%7D
+
+http://learningwikibase.com/install-wikibase/
+"The Wikibase Docker image repository contains an example docker compose file
+that can be used with the images also contained in this repo.
+Following these instructions, you’ll be able to install a stand-alone instance of Wikibase,
+as well as fully functional SPARQL endpoint and query service,
+complete with a data visualisation frontend and query helper (similar to the Wikidata Query Service)."
+
+Donc:
+- Installer Wikibase.
+- Creer un sparql end-point vers WMI ou WBEM.
+
+- Une passe ajoute les scripts en rdf:SeeAlso.
+- Serveur Sparql different pour aller chercher les scripts ? La clef serait le PATH.
+Ca serait plus lent. Mais permettrait de completement separer WMI/WBEM des scripts de Survol.
+
+
+Mise au point avec un editor RDF simple style RDF studio.
+

@@ -54,3 +54,9 @@ Une fois que l'execution du Sparql est faite, on fait une nouvelle passe pour aj
 
 Bref: C'est ce qu'on fait deja: Mais il faudrait decouper pour que ce soit plus facile a deployer ?
 On voudrait un framework qui utilise les SeeAlso et permette de surfer d'un objet a l'autre.
+Essai: Forker https://github.com/wikimedia/wikidata-query-gui et ajouter des menus contextuels.
+
+=== Scripts speciaux pour remplacer une requete WQL ===
+Indexes par la classe, les attributs en entree et en sortie.
+Si on doit executer une requete "select <attribut_sortie>* from <classe> where <attribut_entree>*"
+
