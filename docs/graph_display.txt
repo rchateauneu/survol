@@ -40,6 +40,7 @@ or import RDF data. https://wiki.gephi.org/index.php/SemanticWebImport
 
 => A la limite, on pourrait se concentrer sur Sparql.
 
+Dans le fork de Wikidata GUI, ajouter aussi le drag'n'drop de liens.
 == Wikidata #defaultView:BubbleChart etc... ==
 https://en.wikibooks.org/wiki/SPARQL/Views
 Il faudrait ajouter notre propre view.
@@ -52,7 +53,7 @@ https://query.wikidata.org/#%23US%20presidents%20and%20spouses%0A%23defaultView%
 http://learningwikibase.com/install-wikibase/
 "The Wikibase Docker image repository contains an example docker compose file
 that can be used with the images also contained in this repo.
-Following these instructions, youâ€™ll be able to install a stand-alone instance of Wikibase,
+Following these instructions, you’ll be able to install a stand-alone instance of Wikibase,
 as well as fully functional SPARQL endpoint and query service,
 complete with a data visualisation frontend and query helper (similar to the Wikidata Query Service)."
 

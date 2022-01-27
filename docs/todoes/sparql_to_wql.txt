@@ -54,6 +54,31 @@ Une fois que l'execution du Sparql est faite, on fait une nouvelle passe pour aj
 
 Bref: C'est ce qu'on fait deja: Mais il faudrait decouper pour que ce soit plus facile a deployer ?
 On voudrait un framework qui utilise les SeeAlso et permette de surfer d'un objet a l'autre.
+
+=== Parse BGP ===
+Not too difficult to do if rdflib not available.
+However, prefixes must be substitued.
+
+=== Tri des objets fabriques a partir du BGP ===
+On trie les objets en se basant sur les dependances des variables,
+et on les indexe mais il peut y avoir des dependances equivalentes,
+c'est en realite un arbre dans le cas general.
+Pour vraiment generaliser: Graphe de couverture de tous les objets,
+plusieurs parcours possibles avec des couts differents ?
+On peut souhaiter reordonner les boucles pour des raisons de performances.
+En pratique une liste conviendra.
+
+
+=== Implementation des overrides de WQL ===
+overrides['TheClass'][('inp1','inp2')]=
+{
+  possible_output_fields = ('out1', 'out2'),
+  estimated_perfs : 123, # optional if several functions are possible)
+  def xxx( input_values_dict, expected_attributes_list ):
+    return array_of output_values_dict
+}
+
+On voudrait un framework qui utilise les SeeAlso et permette de surfer d'un objet a l'autre.
 Essai: Forker https://github.com/wikimedia/wikidata-query-gui et ajouter des menus contextuels.
 
 === Scripts speciaux pour remplacer une requete WQL ===

@@ -59,7 +59,7 @@ def __query_header(sparql_query):
 
 # This is a SPARQL server which executes the query with WMI data.
 def Main():
-    lib_util.SetLoggingConfig(logging.ERROR)
+    lib_util.SetLoggingConfig(logging.DEBUG)
 
     # https://hhs.github.io/meshrdf/sparql-and-uri-requests
 
@@ -139,7 +139,7 @@ def Main():
     try:
         result_format = arguments["format"].value
     except KeyError:
-        result_format = "HTML*"
+        result_format = "JSON"
 
     query_result = __run_sparql_query(sparql_query)
 
@@ -223,7 +223,13 @@ def Main():
 
     logging.debug("result_format=%s str_output=%s", result_format, str_output)
 
-    lib_util.WrtHeader(mime_format)
+    arr_headers = [
+        ('Access-Control-Allow-Origin', '*'),
+        ('Access-Control-Allow-Methods', 'POST,GET,OPTIONS'),
+        ('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'),
+        ('Content-Length', str(str_output)),
+    ]
+    lib_util.WrtHeader(mime_format, arr_headers)
     lib_util.WrtAsUtf(str_output)
 
 if __name__ == '__main__':
