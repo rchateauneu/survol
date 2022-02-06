@@ -226,6 +226,11 @@ def WmiTooManyInstances(class_name):
 
 
 def _get_wmi_class_flag_use_amended_qualifiers(conn_wmi, class_nam):
+    """
+    This gets the amended qualifiers if this class by fetch the base class and getting its subclasses
+    with the flag wbemFlagUseAmendedQualifiers, and now het the original - now derived - class.
+    This is intricated but no other way to find the qualifiers of a class.
+    """
     cls_obj = getattr(conn_wmi, class_nam)
     drv = cls_obj.derivation()
     try:
@@ -347,6 +352,7 @@ def WmiDictPropertiesUnit(conn_wmi, class_name):
 
 def WmiAddClassQualifiers(grph, conn_wmi, wmi_class_node, class_name, with_props):
     """This adds information to a WMI class."""
+    logging.debug("class_name=%s", class_name)
     try:
         # No need to print this, at the moment.
         if False:
@@ -369,7 +375,12 @@ def WmiAddClassQualifiers(grph, conn_wmi, wmi_class_node, class_name, with_props
             # https://docs.microsoft.com/en-us/windows-hardware/drivers/kernel/wmi-class-qualifiers
             # Specifies a description of the block for the locale specified by the Locale qualifier.
             # If defined, WMI clients can display the description string to users.
-            klass_descr = the_cls.Qualifiers_("Description")
+            try:
+                klass_descr = the_cls.Qualifiers_("Description")
+            except Exception as wmi_exc:
+                klass_descr = "No description for class " + class_name + ":" + str(wmi_exc)
+                logging.warning("Caught:%s", wmi_exc)
+
             # Beware, klass_descr is of type "instance".
             str_klass_descr = six.text_type(klass_descr)
 
@@ -381,7 +392,11 @@ def WmiAddClassQualifiers(grph, conn_wmi, wmi_class_node, class_name, with_props
 
             if with_props:
                 for prop_obj in the_cls.Properties_:
-                    prop_dsc = six.text_type(prop_obj.Qualifiers_("Description"))
+                    try:
+                        prop_dsc = six.text_type(prop_obj.Qualifiers_("Description"))
+                    except Exception as wmi_exc:
+                        prop_dsc = "No description for property " + prop_obj.Name + ":" + str(wmi_exc)
+                        logging.warning("Caught:%s", wmi_exc)
 
                     # Properties of different origins should not be mixed.
                     # Prefixes the property with a dot, so sorting displays it at the end.
@@ -406,13 +421,13 @@ def WmiAddClassQualifiers(grph, conn_wmi, wmi_class_node, class_name, with_props
                 continue
 
             grph.add((wmi_class_node, lib_common.MakeProp(kla_qual_key), lib_util.NodeLiteral(kla_qual_val)))
-    except Exception as exc:
+    except Exception as wmi_exc:
         try:
             # Dumped in json so that lists can be appropriately deserialized then displayed.
-            err_str = json.dumps(list(exc))
+            err_str = json.dumps(list(wmi_exc))
         except:
             # Might have caught: 'com_error' object is not iterable
-            err_str = json.dumps("Non-iterable COM Error:" + str(exc))
+            err_str = json.dumps("Non-iterable COM Error:" + str(wmi_exc))
         grph.add((wmi_class_node, lib_common.MakeProp("WMI Error"), lib_util.NodeLiteral(err_str)))
 
 
@@ -612,15 +627,28 @@ def extract_specific_ontology_wmi():
             base_class_name = ""
 
         the_cls = _get_wmi_class_flag_use_amended_qualifiers_aux(cnn, class_name, base_class_name)
+
+        # Now, a pass to get the descriptions of the class and its properties. It does not always work.
         text_descr = ""
+        props_text_descr = {}
         if the_cls:
             try:
                 text_dsc = the_cls.Qualifiers_("Description")
                 text_descr = six.text_type(text_dsc)
                 # pywintypes.com_error: (-2147352567, 'Exception occurred.',
                 # (0, u'SWbemQualifierSet', u'Not found ', None, 0, -2147217406), None)
-            except pywintypes.com_error:
-                pass
+            except pywintypes.com_error as wmi_exc:
+                prop_dsc = "No WMI description for class " + class_name + ":" + str(wmi_exc)
+                logging.error("Caught: %s", wmi_exc)
+                #pass
+
+            for prop_obj in the_cls.Properties_:
+                try:
+                    prop_dsc = six.text_type(prop_obj.Qualifiers_("Description"))
+                except Exception as wmi_exc:
+                    prop_dsc = "No WMI description for property " + prop_obj.Name + ":" + str(wmi_exc)
+                    logging.error("Caught:%s", wmi_exc)
+                props_text_descr[prop_obj.Name] = prop_dsc
 
         map_classes[class_name] = {
             "base_class": base_class_name,
@@ -653,7 +681,15 @@ def extract_specific_ontology_wmi():
 
                 # At this stage, the type name is consistent for WMI, WBEM or Survol.
                 assert isinstance(clean_type_name, str)
-                prop_dict = {"predicate_type": clean_type_name, "predicate_domain": []}
+
+                try:
+                    prop_dsc = props_text_descr[prop_obj.name]
+                except KeyError:
+                    prop_dsc = "No description for property:" + prop_obj.name
+                prop_dict = {
+                    "predicate_type": clean_type_name,
+                    "predicate_domain": [],
+                    "predicate_description": prop_dsc}
                 map_attributes[prop_obj_name] = prop_dict
 
             assert isinstance(class_name, str)
@@ -744,7 +780,8 @@ def extract_specific_ontology_wmi():
             return class_name_as_type, referenced_class_name, full_property_name
 
         if len(wmi_class_obj.keys) != 2:
-            logging.warning("Non-standard keys number for class %s: %s" % (associator_name, str(wmi_class_obj.keys)))
+            # There should be two classes in the associator, but sometines it is empty.
+            logging.warning("Unexpected keys number for class %s: %s" % (associator_name, str(wmi_class_obj.keys)))
             continue
 
         try:

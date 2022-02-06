@@ -8,6 +8,7 @@ import rdflib
 
 import lib_util
 import lib_kbase
+import lib_linked_open_data_vocabularies
 
 # Internal ontologies are defined by two dicts and a RDF graph:
 # - One for the classes,
@@ -17,12 +18,23 @@ import lib_kbase
 # Examples:
 # classes_map[class_name] = {"base_class": base_class_name, "class_description": text_descr}
 # map_attributes[prop_obj.name] = { "predicate_type": prop_obj.type,"predicate_domain": class_name}
-
 _cache_ontologies = collections.defaultdict(dict)
+
+_key_classes = "classes"
+_key_attributes = "attributes"
+_key_rdf_graph = "rdf_graph"
 
 
 def _get_ontology_component(ontology_name, ontology_extractor, component_name):
-    # Most of times, there should be only one ontology in this cache: "wmi", "wbem" or "survol".
+    """
+    Most of times, there should be only one ontology in this cache: "wmi", "wbem" or "survol".
+    This is because Survol will normally work with a single ontology, depending on the platform it is running on.
+
+    :param ontology_name: wmi", "wbem", "survol". "survol" contains "wmi" or "wbem" ontology.
+    :param ontology_extractor: Function to fetch the ontology if it is not in the cache.
+    :param component_name: "classes", "attributes", "rdf_graph"
+    :return: "CIM_ProcessExecutable.Antecedent" etc...
+    """
     try:
         return _cache_ontologies[ontology_name][component_name]
     except KeyError:
@@ -33,15 +45,36 @@ def _get_ontology_component(ontology_name, ontology_extractor, component_name):
 
 
 def get_ontology_classes(ontology_name, ontology_extractor):
-    return _get_ontology_component(ontology_name, ontology_extractor, "classes")
+    """
+    This returns the dict of classes of an ontology, stored in a cache.
+
+    :param ontology_name: "WMI", "WBEM" etc...
+    :param ontology_extractor:
+    :return: A dict indexed by the class names.
+    """
+    return _get_ontology_component(ontology_name, ontology_extractor, _key_classes)
 
 
-def get_ontology_attributes(ontology_name, ontology_extractor):
-    return _get_ontology_component(ontology_name, ontology_extractor, "attributes")
+def _get_ontology_attributes(ontology_name, ontology_extractor):
+    """
+    This returns the dict of attributes of an ontology, stored in a cache.
+
+    :param ontology_name: "WMI", "WBEM" etc...
+    :param ontology_extractor:
+    :return: A dict indexed by the predicate names.
+    """
+    return _get_ontology_component(ontology_name, ontology_extractor, _key_attributes)
 
 
-def get_ontology_rdf(ontology_name, ontology_extractor):
-    return _get_ontology_component(ontology_name, ontology_extractor, "rdf_graph")
+def _get_ontology_rdf(ontology_name, ontology_extractor):
+    """
+    This returns the graph of an ontology, stored in a cache.
+
+    :param ontology_name: "WMI", "WBEM" etc...
+    :param ontology_extractor:
+    :return: A RDFLIB graph.
+    """
+    return _get_ontology_component(ontology_name, ontology_extractor, _key_rdf_graph)
 
 
 def serialize_ontology_to_graph(ontology_name, ontology_extractor, rdf_graph):
@@ -50,7 +83,7 @@ def serialize_ontology_to_graph(ontology_name, ontology_extractor, rdf_graph):
     It is always done before returning a graph when executing a Sparql query,
     so all classes and properties are defined.
     """
-    ontology_graph = get_ontology_rdf(ontology_name, ontology_extractor)
+    ontology_graph = _get_ontology_rdf(ontology_name, ontology_extractor)
     logging.debug("copy to graph")
     # Copy all triples.
     # https://stackoverflow.com/questions/47058642/rdflib-add-triples-to-graph-in-bulk?rq=1
@@ -98,7 +131,7 @@ def get_associated_attribute(ontology_name, ontology_extractor, attribute_name):
     This function receives an attribute name and returns properties the other leg of the associator,
     that is, the other role name and its class type.
     """
-    attributes_map = get_ontology_attributes(ontology_name, ontology_extractor)
+    attributes_map = _get_ontology_attributes(ontology_name, ontology_extractor)
 
     # TODO: This pass could be faster by storing a dictionary indexed by the associator name.
 
@@ -120,7 +153,7 @@ def get_associated_attribute(ontology_name, ontology_extractor, attribute_name):
 
 
 def get_associated_class_role(ontology_name, ontology_extractor, attribute_name):
-    attributes_map = get_ontology_attributes(ontology_name, ontology_extractor)
+    attributes_map = _get_ontology_attributes(ontology_name, ontology_extractor)
 
     # TODO: This pass could be faster by storing a dictionary indexed by the associator name.
 
@@ -143,6 +176,15 @@ def _get_named_ontology_from_file(ontology_name, ontology_extractor, component_n
     it does not need to be natively represented in RDF.
     However, this internal representation is converted to RDF to be returned in RDF graph.
     TODO: It should be stored at another place than the temporary directory, and possibly be encrypted.
+
+    There is a tricky and specific logic of returning only one key of the dict which defines an ontology,
+    when the cache is already filled. This is needed for performance only because there are conceptually
+    two levels of caching: In a dict, but also in files which are periodically refreshed (For example monthly)
+
+    :param ontology_name:
+    :param ontology_extractor:
+    :param component_name: "classes", "attributes" or "rdf_graph"
+    :return: A dict whose keys are "classes", "attributes" or "rdf_graph". Or the three if not in the cache
     """
     tmp_dir = lib_util.get_temporary_directory()
 
@@ -158,29 +200,32 @@ def _get_named_ontology_from_file(ontology_name, ontology_extractor, component_n
 
     try:
         logging.info("Loading ontology_name=%s from cache file", ontology_name)
-        if component_name == "classes":
+        if component_name == _key_classes:
             with open(path_classes) as fd_classes:
                 map_classes = json.load(fd_classes)
                 logging.info("loaded path_classes=%s", path_classes)
-                return {"classes": map_classes}
+                return {_key_classes: map_classes}
 
-        if component_name == "attributes":
+        if component_name == _key_attributes:
             with open(path_attributes) as fd_attributes:
                 map_attributes = json.load(fd_attributes)
                 logging.info("loaded path_attributes=%s", path_attributes)
-                return {"attributes": map_attributes}
+                return {_key_attributes: map_attributes}
 
-        if component_name == "rdf_graph":
+        if component_name == _key_rdf_graph:
             with open(path_rdf_graph) as rdf_fd:
                 ontology_graph = rdflib.Graph()
                 ontology_graph.parse(rdf_fd, format='xml')
                 logging.info("loaded path_rdf_graph=%s", path_rdf_graph)
-                return {"rdf_graph": ontology_graph}
+                return {_key_rdf_graph: ontology_graph}
 
         raise Exception("Invalid component_name=%s" % component_name)
     except Exception as exc:
         logging.info("ManageOntologyCache %s: Caught: %s. Creating cache file.", ontology_name, exc)
 
+    # The data are not in the cache, so it is fully recalculated, stored in three files and returned
+    # to be stored in a local dict.
+    # This typically happens once in a month and is very slow (several minutes) because of the number of classes.
     map_classes, map_attributes = ontology_extractor()
     logging.info("ontology_name=%s saved to %s, %s, %s", ontology_name, path_classes, path_attributes, path_rdf_graph)
 
@@ -197,23 +242,25 @@ def _get_named_ontology_from_file(ontology_name, ontology_extractor, component_n
     ontology_graph.serialize(destination=path_rdf_graph, format='xml')
     logging.info("ManageOntologyCache %s: Ontology caches recreated.", ontology_name)
 
-    return {"classes": map_classes, "attributes": map_attributes, "rdf_graph": ontology_graph}
+    return {_key_classes: map_classes, _key_attributes: map_attributes, _key_rdf_graph: ontology_graph}
 
 
 def _convert_ontology_to_rdf(map_classes, map_attributes, rdf_graph):
     """
-    TODO: Near duplicate of CreateRdfsOntology
-
     This creates a RDF graph containing the ontology described in Survol internal format
-    made of two dicts, one fpr the class, the other for the attributes.
+    made of two dicts, one for the class, the other for the attributes.
     This internal format works for WMI, WBEM and Survol ontology (which is much simpler).
+
+    :param map_classes: A dict of classes names. Each class is itself defined with a dict.
+    :param map_attributes: A dict of attributes. Each attribute is defined with a dict.
+    :param rdf_graph: Where the ontology is added to.
     """
 
     for class_name, class_dict in map_classes.items():
         class_node = lib_kbase.class_node_uriref(class_name)
         rdf_graph.add((class_node, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
         rdf_graph.add((class_node, rdflib.namespace.RDFS.label, rdflib.Literal(class_name)))
-        # TODO: The description "class_description" should be used.
+        rdf_graph.add((class_node, rdflib.namespace.RDFS.comment, rdflib.Literal(class_dict["class_description"])))
 
     for property_name, property_dict in map_attributes.items():
         property_node = lib_kbase.property_node_uriref(property_name)
@@ -252,5 +299,10 @@ def _convert_ontology_to_rdf(map_classes, map_attributes, rdf_graph):
                 raise
         rdf_graph.add((property_node, rdflib.namespace.RDFS.range, predicate_type))
         rdf_graph.add((property_node, rdflib.namespace.RDFS.label, rdflib.Literal(property_name)))
+        try:
+            pred_dsc = property_dict["predicate_description"]
+        except KeyError:
+            pred_dsc = "Description not found for predicate " + predicate_type_class_name
+        rdf_graph.add((property_node, rdflib.namespace.RDFS.comment, rdflib.Literal(pred_dsc)))
         # TODO: The description should be used.
 
