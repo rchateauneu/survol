@@ -31,7 +31,7 @@ def flush_or_save_rdf_graph(grph, output_rdf_filename):
         logging.info("onto_filnam=%s", output_rdf_filename)
         # With Python3, open in binary mode, otherwise it raises "TypeError: write() argument must be str, not bytes".
         # Maybe this is an issue with a specific rdflib version.
-        open_flag = "bw" if sys.version_info >= (3,) else "w"
+        open_flag = "bw" if lib_util.is_py3 else "w"
         outfil = open(output_rdf_filename, open_flag)
         lib_kbase.triplestore_to_stream_xml(grph, outfil, 'xml')
         outfil.close()
