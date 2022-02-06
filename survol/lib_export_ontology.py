@@ -19,17 +19,21 @@ def flush_or_save_rdf_graph(grph, output_rdf_filename):
     logging.info("l=%s sys.argv=%s", len(sys.argv), str(sys.argv))
 
     try:
+        # This is a hack to test if the caller is in command-line mode or runs in a web server.
         os.environ["QUERY_STRING"]
         logging.info("Writing to stream")
         lib_util.WrtHeader('text/html')
 
         out_dest = lib_util.get_default_output_destination()
         lib_kbase.triplestore_to_stream_xml(grph,out_dest, 'xml')
-
     except KeyError:
+        # Just write the content to a file, no HTTP header is needed.
         logging.info("onto_filnam=%s", output_rdf_filename)
-        outfil = open(output_rdf_filename, "w")
-        lib_kbase.triplestore_to_stream_xml(grph,outfil, 'xml')
+        # With Python3, open in binary mode, otherwise it raises "TypeError: write() argument must be str, not bytes".
+        # Maybe this is an issue with a specific rdflib version.
+        open_flag = "bw" if sys.version_info >= (3,) else "w"
+        outfil = open(output_rdf_filename, open_flag)
+        lib_kbase.triplestore_to_stream_xml(grph, outfil, 'xml')
         outfil.close()
 
 ################################################################################
