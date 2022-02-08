@@ -45,6 +45,12 @@ def __run_sparql_query(sparql_query):
 
 ################################################################################
 def __query_header(sparql_query):
+    """
+    Returns the variable names of an input sparql query.
+
+    :param sparql_query:
+    :return: A list of strings which are variable names.
+    """
     parsed = rdflib.plugins.sparql.parser.parseQuery(sparql_query)
 
     # parsed = rdflib.plugins.sparql.parser.parseQuery("select ?a ?b where { ?a a ?b . }")
