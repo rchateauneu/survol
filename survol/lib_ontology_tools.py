@@ -8,7 +8,6 @@ import rdflib
 
 import lib_util
 import lib_kbase
-import lib_linked_open_data_vocabularies
 
 # Internal ontologies are defined by two dicts and a RDF graph:
 # - One for the classes,
