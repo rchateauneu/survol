@@ -608,8 +608,10 @@ def extract_specific_ontology_wmi():
             is_association = False
 
         if is_association:
+            # Contains for example "Win32_SessionProcess", "Win32_System_Processes"
             list_associations[class_name] = wmi_class_obj
         else:
+            # For example "Win32_Process"
             list_plain_classes[class_name] = wmi_class_obj
 
     map_classes = {}
@@ -644,6 +646,7 @@ def extract_specific_ontology_wmi():
 
             for prop_obj in the_cls.Properties_:
                 try:
+                    # TODO: Get units with str(prop_obj.Qualifiers_("Units")) ??
                     prop_dsc = six.text_type(prop_obj.Qualifiers_("Description"))
                 except Exception as wmi_exc:
                     prop_dsc = "No WMI description for property " + prop_obj.Name + ":" + str(wmi_exc)
@@ -760,6 +763,7 @@ def extract_specific_ontology_wmi():
 
     logging.info("pass on associators")
     for associator_name, wmi_class_obj in list_associations.items():
+        # For example: associator_name="Win32_SessionProcess".
 
         def key_to_dotted_property(the_key):
             prop_obj = wmi_class_obj.wmi_property(the_key)
@@ -785,6 +789,7 @@ def extract_specific_ontology_wmi():
             continue
 
         try:
+            # For example, wmi_class_obj.keys = ["Antecedent", "Precedent"]
             class_as_type_a, class_name_a, property_a = key_to_dotted_property(wmi_class_obj.keys[0])
             class_as_type_b, class_name_b, property_b = key_to_dotted_property(wmi_class_obj.keys[1])
         except Exception as exc:
