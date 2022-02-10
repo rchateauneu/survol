@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/win32/enumerate_top_level_windows.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Top-level%20windows</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/neighborhood/cgi_arp_async.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>ARP%20address%20resolution%20protocol</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/nmap/nmap_broadcast_upnp_info.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Nmap%20broadcast%20UPNP%20information</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="Browse%20neighborhood%20services%20and%20agents?mode=cluster">
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/neighborhood/cgi_arp_async.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/neighborhood/wbem_neighborhood.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/neighborhood/survol_neighborhood.py?xid=.PLAINTEXTONLY"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="MS-DOS%20SMB%20commands.?mode=cluster">
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/SMB/net_use.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/SMB/net_view.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/SMB/net_share.py?xid=.PLAINTEXTONLY"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="Top-level%20scripts%20for%20databases%20detectio...?mode=cluster">
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/Databases/mysql_processlist.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/Databases/oracle_tnsnames.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/Databases/mysql_instances.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/Databases/win32_sqldatasources_pyodbc.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/Databases/win32_sqldatasources.py?xid=.PLAINTEXTONLY"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/entity_dirmenu_only.py">
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/enumerate_CIM_Process.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/events_feeder_sockets_promiscuous_mode.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/enumerate_socket.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/enumerate_user.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/enumerate_memmap.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/events_feeder_psutil_system_counters.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="Java%20world?mode=cluster"/>
+    <rdfs:seeAlso rdf:resource="Azure%20concepts?mode=cluster"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/event_get_all.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/events_feeder_tcpdump.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/events_feeder_one_tick_per_second.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/open_files.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/events_feeder_psutil_processes_perf.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/enumerate_CIM_LogicalDisk.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="Scripts%20using%20nmap?mode=cluster"/>
+    <rdfs:seeAlso rdf:resource="Top-level%20Windows%20scripts.?mode=cluster"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/enumerate_python_package.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="Top-level%20scripts%20for%20databases%20detectio...?mode=cluster"/>
+    <rdfs:seeAlso rdf:resource="MS-DOS%20SMB%20commands.?mode=cluster"/>
+    <rdfs:seeAlso rdf:resource="Browse%20neighborhood%20services%20and%20agents?mode=cluster"/>
+    <rdfs:seeAlso rdf:resource="RabbitMQ%20concepts?mode=cluster"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/enumerate_memmap.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Memory-mapped%20files.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/events_feeder_psutil_system_counters.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Continuous%20information%20about%20the%20operati...</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="Top-level%20Windows%20scripts.?mode=cluster">
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/win32/windows_network_devices.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/win32/win32_local_groups.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/win32/enumerate_com_type_lib.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/win32/enumerate_Win32_Service.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/win32/enumerate_top_level_windows.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/win32/enumerate_Win32_UserAccount.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/win32/win32_domain_machines.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/win32/ip_config.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/win32/enumerate_Win32_Product.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/win32/tcp_sockets_windows.py?xid=.PLAINTEXTONLY"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/events_feeder_one_tick_per_second.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Sends%20one%20event%20per%20second.%20Test%20purpose...</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="RabbitMQ%20concepts?mode=cluster">
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/rabbitmq/list_configurations.py?xid=.PLAINTEXTONLY"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/enumerate_user.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Users</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/enumerate_CIM_Process.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Processes%20tree</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/Databases/win32_sqldatasources.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>ODBC%20Data%20sources%20(ODBC%20module)</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/SMB/net_view.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>NET%20VIEW%20command</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/java/java_processes.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Java%20processes</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/win32/win32_local_groups.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Windows%20local%20groups</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/event_get_all.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Get%20all%20dynamic%20events</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/win32/win32_domain_machines.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Windows%20domain%20machines</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/win32/enumerate_Win32_UserAccount.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Windows%20users</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/SMB/net_share.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>NET%20SHARE%20command</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/Databases/mysql_processlist.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>mysql%20sessions</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/neighborhood/survol_neighborhood.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Neighboring%20Survol%20agents.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/win32/tcp_sockets_windows.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>TCP%20Windows%20sockets%20with%20netstat</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="Scripts%20using%20nmap?mode=cluster">
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/nmap/nmap_broadcast_upnp_info.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/nmap/nmap_broadcast_netbios_master_browser.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/nmap/nmap_run.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/nmap/nmap_ping_scan.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/nmap/nmap_broadcast_ms_sql_discover.py?xid=.PLAINTEXTONLY"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/win32/enumerate_Win32_Product.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Installed%20Windows%20applications</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/rabbitmq/list_configurations.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>List%20available%20RabbitMQ%20configurations</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/win32/windows_network_devices.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Windows%20network%20devices</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="Java%20world?mode=cluster">
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/java/java_processes.py?xid=.PLAINTEXTONLY"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/events_feeder_sockets_promiscuous_mode.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Sockets%20in%20promiscuous%20mode</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/nmap/nmap_run.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Nmap%20network%20exploration%20results</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/nmap/nmap_ping_scan.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Nmap%20ping%20scan</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/SMB/net_use.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>NET%20USE%20command</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/events_feeder_tcpdump.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>tcpdump%20and%20windump</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/enumerate_python_package.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Installed%20Python%20packages</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/Databases/mysql_instances.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>mysql%20instances</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="Azure%20concepts?mode=cluster">
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/Azure/enumerate_subscription.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/Azure/enumerate_service.py?xid=.PLAINTEXTONLY"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/Azure/enumerate_location.py?xid=.PLAINTEXTONLY"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/enumerate_CIM_LogicalDisk.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Disk%20partitions</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/Databases/win32_sqldatasources_pyodbc.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>ODBC%20Data%20sources%20(pyODBC%20module)</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/events_feeder_psutil_processes_perf.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Continuous%20information%20about%20running%20pro...</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/enumerate_socket.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>System-wide%20sockets</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/neighborhood/wbem_neighborhood.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Neighboring%20WBEM%20agents.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/nmap/nmap_broadcast_ms_sql_discover.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Nmap%20MS-SQL%20discovery</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/Databases/oracle_tnsnames.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>TNSNAMES%20file</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/open_files.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>System-wide%20open%20files</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/win32/enumerate_com_type_lib.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Registered%20COM%20type%20libraries</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/Azure/enumerate_service.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Azure%20services</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/nmap/nmap_broadcast_netbios_master_browser.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Nmap%20master%20browsers%20discovery</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/win32/enumerate_Win32_Service.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Windows%20services</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/Azure/enumerate_subscription.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Azure%20available%20subscriptions</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/win32/ip_config.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>IP%20configuration</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/Azure/enumerate_location.py?xid=.PLAINTEXTONLY">
+    <rdfs:comment>Azure%20locations</rdfs:comment>
+  </rdf:Description>
+</rdf:RDF>
