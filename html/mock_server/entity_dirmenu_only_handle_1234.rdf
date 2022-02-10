@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+>
+  <rdf:Description rdf:about="WMI%20associators?mode=cluster">
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/entity.py?xid=CIM_Process.Handle=25476&amp;amp;__associator_attribute__=CIM_ProcessExecutable.Antecedent"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="Regex%20matching%20in%20heap?mode=cluster">
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/CIM_Process/memory_regex_search/search_filenames.py?xid=CIM_Process.Handle%3D25476"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/CIM_Process/memory_regex_search/scan_sql_queries.py?xid=CIM_Process.Handle%3D25476"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/CIM_Process/memory_regex_search/search_com_classes.py?xid=CIM_Process.Handle%3D25476"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/CIM_Process/memory_regex_search/search_connection_strings.py?xid=CIM_Process.Handle%3D25476"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/CIM_Process/memory_regex_search/search_urls.py?xid=CIM_Process.Handle%3D25476"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/entity.py?xid=CIM_Process.Handle=25476&amp;amp;__associator_attribute__=CIM_ProcessExecutable.Antecedent">
+    <rdfs:comment>CIM_ProcessExecutable%20Antecedent%20of%20cmd</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="CDB%20Windows%20debugger?mode=cluster">
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/CIM_Process/CDB/win_cdb_modules.py?xid=CIM_Process.Handle%3D25476"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/CIM_Process/CDB/win_cdb_callstack.py?xid=CIM_Process.Handle%3D25476"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/CIM_Process/environment_variables.py?xid=CIM_Process.Handle%3D25476">
+    <rdfs:comment>Environment%20variables</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/entity_dirmenu_only.py?xid=CIM_Process.Handle=25476">
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/CIM_Process/events_feeder_system_calls.py?xid=CIM_Process.Handle%3D25476"/>
+    <rdfs:seeAlso rdf:resource="CDB%20Windows%20debugger?mode=cluster"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/CIM_Process/environment_variables.py?xid=CIM_Process.Handle%3D25476"/>
+    <rdfs:seeAlso rdf:resource="WMI%20associators?mode=cluster"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/CIM_Process/process_command_line.py?xid=CIM_Process.Handle%3D25476"/>
+    <rdfs:seeAlso rdf:resource="Regex%20matching%20in%20heap?mode=cluster"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/CIM_Process/single_pidstree.py?xid=CIM_Process.Handle%3D25476"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/CIM_Process/process_memmaps.py?xid=CIM_Process.Handle%3D25476"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/CIM_Process/process_cwd.py?xid=CIM_Process.Handle%3D25476"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/CIM_Process/wmi_process_info.py?xid=CIM_Process.Handle%3D25476"/>
+    <rdfs:seeAlso rdf:resource="Languages?mode=cluster"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/CIM_Process/process_open_files.py?xid=CIM_Process.Handle%3D25476"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/CIM_Process/process_connections.py?xid=CIM_Process.Handle%3D25476"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/CIM_Process/oracle_process_dbs.py?xid=CIM_Process.Handle%3D25476"/>
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/CIM_Process/win_process_modules.py?xid=CIM_Process.Handle%3D25476"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/CIM_Process/CDB/win_cdb_callstack.py?xid=CIM_Process.Handle%3D25476">
+    <rdfs:comment>Windows%20process%20call%20stack</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/CIM_Process/process_connections.py?xid=CIM_Process.Handle%3D25476">
+    <rdfs:comment>Sockets%20opened%20by%20the%20process</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/CIM_Process/wmi_process_info.py?xid=CIM_Process.Handle%3D25476">
+    <rdfs:comment>WMI%20CIM_Process%20information.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/CIM_Process/languages/msdos/current_batch.py?xid=CIM_Process.Handle%3D25476">
+    <rdfs:comment>Current%20batch%20file</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/CIM_Process/process_cwd.py?xid=CIM_Process.Handle%3D25476">
+    <rdfs:comment>Current%20working%20directory</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/CIM_Process/events_feeder_system_calls.py?xid=CIM_Process.Handle%3D25476">
+    <rdfs:comment>Monitor%20system%20calls%20with%20dockit.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/CIM_Process/process_command_line.py?xid=CIM_Process.Handle%3D25476">
+    <rdfs:comment>Command%20line</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/CIM_Process/memory_regex_search/search_connection_strings.py?xid=CIM_Process.Handle%3D25476">
+    <rdfs:comment>Scan%20process%20memory%20for%20ODBC%20connection%20...</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/CIM_Process/memory_regex_search/search_filenames.py?xid=CIM_Process.Handle%3D25476">
+    <rdfs:comment>File%20names%20in%20process%20memory.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/CIM_Process/memory_regex_search/search_com_classes.py?xid=CIM_Process.Handle%3D25476">
+    <rdfs:comment>Scan%20process%20for%20COM%20classes</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="Languages?mode=cluster">
+    <rdfs:seeAlso rdf:resource="Processes%20running%20MSDOS%20batches?mode=cluster"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/CIM_Process/win_process_modules.py?xid=CIM_Process.Handle%3D25476">
+    <rdfs:comment>Windows%20process%20modules</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/CIM_Process/single_pidstree.py?xid=CIM_Process.Handle%3D25476">
+    <rdfs:comment>Parent%20and%20sub-processes</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/CIM_Process/process_memmaps.py?xid=CIM_Process.Handle%3D25476">
+    <rdfs:comment>Shared%20memory%20segments</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/CIM_Process/CDB/win_cdb_modules.py?xid=CIM_Process.Handle%3D25476">
+    <rdfs:comment>Windows%20process%20loaded%20modules</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/CIM_Process/oracle_process_dbs.py?xid=CIM_Process.Handle%3D25476">
+    <rdfs:comment>Oracle%20databases%20accessed</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/CIM_Process/memory_regex_search/scan_sql_queries.py?xid=CIM_Process.Handle%3D25476">
+    <rdfs:comment>Extract%20SQL%20queries%20from%20process%20heap%20me...</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/CIM_Process/process_open_files.py?xid=CIM_Process.Handle%3D25476">
+    <rdfs:comment>Files%20opened%20by%20process</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="Processes%20running%20MSDOS%20batches?mode=cluster">
+    <rdfs:seeAlso rdf:resource="http://rchateau-hp:8000/survol/sources_types/CIM_Process/languages/msdos/current_batch.py?xid=CIM_Process.Handle%3D25476"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://rchateau-hp:8000/survol/sources_types/CIM_Process/memory_regex_search/search_urls.py?xid=CIM_Process.Handle%3D25476">
+    <rdfs:comment>Scan%20process%20for%20HTTP%20urls.</rdfs:comment>
+  </rdf:Description>
+</rdf:RDF>
