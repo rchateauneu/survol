@@ -35,12 +35,21 @@ LITT = rdflib.term.Literal
 
 
 def _strip_prefix(rdflib_node):
+    """
+    Helper function to display a short name of a node defined in a CIM ontology.
+    :param rdflib_node: rdlib term.
+    :return: A string
+    """
     if str(rdflib_node).startswith(survol_url_prefix):
         return rdflib_node[len(survol_url_prefix):]
     return str(rdflib_node)
 
 
 class _CimObject:
+    """
+    This models all properties related to the same subject, when the type of the subject is a CIM class.
+    Such an object is created by parsing a sparql query and grouping basic graph patterns with the same subject.
+    """
     def __init__(self, part_subject, class_short, properties_dict=dict()):
         assert isinstance(part_subject, VARI)
         assert isinstance(class_short, str)
@@ -58,10 +67,10 @@ class _CimObject:
 
 def _query_header(sparql_query):
     """
-    Returns the variable names of an input sparql query.
+    Returns the variable names of an sparql query given as input.
 
     :param sparql_query:
-    :return: A list of strings which are variable names.
+    :return: List of the names of the variables returned by a sparql query.
     """
     parsed_query = rdflib.plugins.sparql.parser.parseQuery(sparql_query)
 
@@ -70,24 +79,22 @@ def _query_header(sparql_query):
     return list_names
 
 
-def _part_triples_to_instances_list(part):
+def _part_triples_to_instances_list(part_triples):
     """
-    This takes the basic graph pattern (BGP), which is the list of triples patterns
-    extracted from the Sparql query, and returns a list of instances of CIM classes,
-    each of them containing the triples using its instances.
+    This takes as input the basic graph pattern (BGP) of a sparql query, which is the list of triples patterns
+    extracted from this query.
+    It returns a list of instances of CIM classes, each of them containing the triples using its instances.
     The association is done based on the variable representing the instance.
     There might be several instances of the same class.
 
-    Basically, this groups triple patterns by instances.
-    This requires that the class of instances is known,
-    which is reasonable because Sparql Survol queries are not abstract:
+    Basically, this groups triple patterns with the same subject.
+    This requires that the class of instances is known.
+    This is a reasonable requirement because CIM queries have to work on concrete objects:
     A file cannot be a process or a socket etc...
-
-    See lib_sparql_custom_eval.py which does something similar.
     """
     instances_dict = dict()
-    logging.debug("len(triples)=%d" % len(part.triples))
-    for part_subject, part_predicate, part_object in part.triples:
+    logging.debug("len(triples)=%d" % len(part_triples))
+    for part_subject, part_predicate, part_object in part_triples:
         logging.debug("    spo=%s %s %s" % (part_subject, part_predicate, part_object))
         if part_predicate == rdflib.namespace.RDF.type:
             if isinstance(part_subject, rdflib.term.Variable):
@@ -108,92 +115,130 @@ def _part_triples_to_instances_list(part):
     logging.debug("Created instances:%s" % instances_dict.keys())
 
     # Second pass on the BGP: The keys of instances_dict are URL variables whose values must be found.
-    for part_subject, part_predicate, part_object in part.triples:
+    for part_subject, part_predicate, part_object in part_triples:
         current_instance = instances_dict.get(part_subject, None)
         if not current_instance:
-            # This is not the pattern of a Survol instance,
-            # so we do not care because we cannot do anything with it.
+            # This is not the pattern of a Survol instance, and therefore is not usable here.
             continue
         assert isinstance(current_instance, _CimObject)
 
         predicate_as_str = str(part_predicate)
         if predicate_as_str.startswith(survol_url_prefix):
             # This applies only to CIM properties whcih can be used in a WQL query.
-            # print("Adding to %s prop=%s pred=%s" % (part_subject, _strip_prefix(predicate_as_str), part_object))
-            current_instance.m_properties[part_predicate] = part_object
+            current_instance.m_properties[_strip_prefix(part_predicate)] = part_object
 
-    return instances_dict.values()
+    return list(instances_dict.values())
 
 
-def _fetch_wmi_objects_in_graph(ctx, instances_list):
+class CustomEvalEnvironment:
     """
-    This executes WMI queries on the list of instances.
-    The order of input instances is not important because they must be sorted to find the most efficient
-    suite of WQL queries.
-
-    It inserts triples in the graph of the context.
-
-    :param ctx:
-    :param instances_dict:
-    :return: Nothing.
+    This contains utilities for the custom eval function passed to rdflib sparql qeury execution.
     """
-    print("instances_list")
-    for one_obj in instances_list:
-        print("    ", str(one_obj))
+    def __init__(self, sparql_query, expected_objects_list):
+        self.m_sparql_query = sparql_query
+        self.m_output_variables = _query_header(self.m_sparql_query)
+        self.m_expected_objects_list = expected_objects_list
+        print("Output variables=", self.m_output_variables)
 
+    def run_lst_objects(self, shuffled_lst_objects):
+        print("shuffled_lst_objects")
+        for one_obj in shuffled_lst_objects:
+            print("    ", one_obj)
+            assert isinstance(one_obj, _CimObject)
 
-def _wmi_custom_eval_function(ctx, part):
-    """
-    Inspired from https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html
-    """
+        my_stream = io.StringIO()
+        generate_wql_code(my_stream, self.m_output_variables, shuffled_lst_objects)
+        my_stream.seek(0)
+        result_as_str = my_stream.read()
+        print("Generated code:")
+        print(result_as_str)
+        # Tests if correct Python code.
+        ast.parse(result_as_str)
 
-    logging.debug("_wmi_custom_eval_function part.name=%s" % part.name)
-    # part.name = "SelectQuery", "Project", "BGP"
-    # BGP stands for "Basic Graph Pattern", which is a set of triple patterns.
-    # A triple pattern is a triple:
-    # RDF-term or value, IRI or value, RDF term or value.
-    if part.name == 'BGP':
-        # part.name = "SelectQuery", "Project", "BGP"
-        # BGP stands for "Basic Graph Pattern", which is a set of triple patterns.
-        # A triple pattern is a triple:
-        # RDF-term or value, IRI or value, RDF term or value.
+        eval_result = exec(result_as_str)
+        print("eval_result=", eval_result)
 
+    def _fetch_wmi_objects_in_graph(self, ctx_graph, instances_list):
+        """
+        This executes WMI queries on the list of instances.
+        It is indirectly called by rdflib custom eval functions when executing a sparql query.
+
+        It must first generate Python code with execution of WQL queries.
+        It tries different orders of the list of CIM objects, to find the most efficient one.
+
+        After that, the generated code must be executed and it inserts triples in the context.
+
+        :param ctx:
+        :param instances_dict:
+        :return: Nothing.
+        """
+        print("instances_list")
+        for one_obj in instances_list:
+            print("    ", str(one_obj))
+
+        # Several orders are tried: This is in test stage now.
+        self.run_lst_objects(instances_list)
+        if len(instances_list) > 1:
+            self.run_lst_objects(instances_list[1:] + instances_list[0:1])
+            self.run_lst_objects(instances_list[0:1] + instances_list[1:])
+
+    def my_evaluator(self, ctx_graph, part_triples):
         # Possibly add the ontology to ctx.graph
 
-        # This inserts triples in the graph.
         logging.debug("Instances:")
-        instances_list = _part_triples_to_instances_list(part)
+        # This extracts builds the list of objects from the BGPs, by grouping them by common subject,
+        # if this subject has a CIM class as rdf:type.
+        instances_list = _part_triples_to_instances_list(part_triples)
         for one_instance in instances_list:
             logging.debug("    Instance=%s" % one_instance)
 
         if instances_list:
-            _fetch_wmi_objects_in_graph(ctx, instances_list)
+            self._fetch_wmi_objects_in_graph(ctx_graph, instances_list)
         else:
             logging.warning("No instances. Maybe a meta-data query.")
 
-        # Normal execution of the Sparql engine on the graph with many more triples.
-        # <type 'generator'>
-        ret_BGP = rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
-        return ret_BGP
+    def run_tests(self):
+        def _wmi_custom_eval_function(ctx, part):
+            """
+            Inspired from https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html
 
-    raise NotImplementedError()
+            This is a callback given to rdflib sparql evaluation.
+            """
 
+            logging.debug("_wmi_custom_eval_function part.name=%s" % part.name)
+            # part.name = "SelectQuery", "Project", "BGP"
+            # BGP stands for "Basic Graph Pattern", which is a set of triple patterns.
+            # A triple pattern is a triple: RDF-term or value, IRI or value, RDF term or value.
+            if part.name == 'BGP':
+                # part.name = "SelectQuery", "Project", "BGP"
+                # BGP stands for "Basic Graph Pattern", which is a set of triple patterns.
+                # A triple pattern is a triple: RDF-term or value, IRI or value, RDF term or value.
+                self.my_evaluator(ctx.graph, part.triples)
 
-def __run_sparql_query(sparql_query):
-    grph = rdflib.Graph()
+                # Normal execution of the Sparql engine on the graph with many more triples.
+                ret_bgp = rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
+                return ret_bgp
 
-    # add function directly, normally we would use setuptools and entry_points
-    rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_function'] = _wmi_custom_eval_function
-    query_result = grph.query(sparql_query)
-    if 'custom_eval_function' in rdflib.plugins.sparql.CUSTOM_EVALS:
-        del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_function']
-    return query_result
+            raise NotImplementedError()
+
+        print("Run query")
+        print(self.m_sparql_query)
+
+        grph = rdflib.Graph()
+
+        # add function directly, normally we would use setuptools and entry_points
+        rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_function'] = _wmi_custom_eval_function
+        query_result = grph.query(self.m_sparql_query)
+        if 'custom_eval_function' in rdflib.plugins.sparql.CUSTOM_EVALS:
+            del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_function']
+        return query_result
 
 
 def get_wmi_class_properties(class_name):
     """
+    Given a WMI class name, it fetches its properties.
     FIXME: "Properties_", "Name", "Qualifiers", SubclassesOf" do not appear in dir()
-    :param class_name:
+    :param class_name: A WMI class name.
     :return: A dict containing the class names and types.
     """
     cls_obj = getattr(wmi_conn, class_name)
@@ -373,20 +418,22 @@ def generate_wql_code(output_stream, lst_output_variables, lst_objects):
             output_code_line("%s = %s.%s # %s" % assign_tuple)
         known_variables.add(node_variable)
 
+    # This is the last line of the generated code.
+    # It is called in the most nested loop.
     output_code_line(
-        "yield {"
+        "print({"
         + ", ".join(
             ["'%s': %s" % (output_variable, output_variable) for output_variable in lst_output_variables])
-        + "}"
+        + "})"
     )
 
     # print("known_variables=", known_variables)
 
 #################################################################################################
 
-test_data = {}
 
-#################################################################################################
+test_data = dict()
+
 test_data["CIM_ProcessExecutable simple"] = (
     """
     prefix cim:  <http://www.primhillcomputers.com/ontology/survol#>
@@ -402,16 +449,13 @@ test_data["CIM_ProcessExecutable simple"] = (
     ?my_file cim:Name ?my_file_name .
     }
     """,
-    ["my_file_name", "my_process_handle"],
     [
         _CimObject(VARI('my_assoc'), 'CIM_ProcessExecutable', {'Dependent': VARI('my_process'), 'Antecedent': VARI('my_file')}),
         _CimObject(VARI('my_process'), 'CIM_Process', {'Handle': VARI('my_process_handle')}),
         _CimObject(VARI('my_file'), 'CIM_DataFile', {'Name': VARI('my_file_name')}),
-    ],
-    []
+    ]
 )
 
-#################################################################################################
 test_data["CIM_ProcessExecutable CIM_DirectoryContainsFile"] = (
     """
     prefix cim:  <http://www.primhillcomputers.com/ontology/survol#>
@@ -431,17 +475,15 @@ test_data["CIM_ProcessExecutable CIM_DirectoryContainsFile"] = (
     ?my_dir cim:Name ?my_dir_name .
     }
     """,
-    ["my_dir_name"],
     [
         _CimObject(VARI('my_assoc'), 'CIM_ProcessExecutable', {'Dependent': VARI('my_process'), 'Antecedent': VARI('my_file')}),
         _CimObject(VARI('my_assoc_dir'), 'CIM_DirectoryContainsFile', {'GroupComponent': VARI('my_dir'), 'PartComponent': VARI('my_file')}),
         _CimObject(VARI('my_process'), 'CIM_Process', {}),
         _CimObject(VARI('my_file'), 'CIM_DataFile', {'Name': VARI('my_file_name')}),
         _CimObject(VARI('my_dir'), 'CIM_Directory', {'Name': VARI('my_dir_name')}),
-    ],
-    [])
+    ]
+)
 
-#################################################################################################
 test_data["CIM_Process"] = (
     """
     prefix cim:  <http://www.primhillcomputers.com/ontology/survol#>
@@ -453,13 +495,10 @@ test_data["CIM_Process"] = (
     ?my_process cim:Caption ?my_process_caption .
     }
     """,
-    ["my_process_caption"],
     [
         _CimObject(VARI('my_process'), 'CIM_Process', {'Handle': LITT(12345), 'Caption': VARI('my_process_caption')}),
-    ],
-    []
+    ]
 )
-#################################################################################################
 
 test_data["CIM_Process CIM_DataFile"] = (
     """
@@ -473,13 +512,12 @@ test_data["CIM_Process CIM_DataFile"] = (
     ?my_file cim:Caption ?same_caption .
     }
     """,
-    ["same_caption"],
     [
         _CimObject(VARI('my_process'), 'CIM_Process', {'Caption': VARI('same_caption')}),
         _CimObject(VARI('my_file'), 'CIM_DataFile', {'Caption': VARI('same_caption')}),
-    ],
-    [])
-#################################################################################################
+    ]
+)
+
 test_data["Win32_Directory CIM_DirectoryContainsFile CIM_DirectoryContainsFile"] = (
     """
     prefix cim:  <http://www.primhillcomputers.com/ontology/survol#>
@@ -499,52 +537,22 @@ test_data["Win32_Directory CIM_DirectoryContainsFile CIM_DirectoryContainsFile"]
     ?my_dir3 cim:Name ?my_dir_name3 .
     }
     """,
-    ["my_dir_name3"],
     [
-    ],
-    [])
+    ]
+)
 
 #################################################################################################
 
 
 def shuffle_lst_objects(test_details):
-    def run_lst_objects(lst_output_variables, shuffled_lst_objects, outputs_array, output_index):
-        print("shuffled_lst_objects")
-        for one_obj in shuffled_lst_objects:
-            assert isinstance(one_obj, _CimObject)
-            print("    ", one_obj)
-
-        my_stream = io.StringIO()
-        generate_wql_code(my_stream, lst_output_variables, shuffled_lst_objects)
-        my_stream.seek(0)
-        result_as_str = my_stream.read()
-        print("Generated code:")
-        print(result_as_str)
-        try:
-            ast.parse(result_as_str)
-        except SyntaxError:
-            raise
-
-        if output_index < len(outputs_array):
-            print("EXPECTED:", outputs_array[output_index])
 
     print("")
     print("#########################################################################################")
 
-    sparql_query = test_details[0]
-    print("Run query")
-    print(sparql_query)
-    __run_sparql_query(sparql_query)
-    output_variables = _query_header(sparql_query)
-    print("output_variables=", output_variables)
-    lst_output_variables = test_details[1]
-    lst_objects = test_details[2]
-    expected_output = test_details[3]
+    custom_eval = CustomEvalEnvironment(test_details[0], test_details[1])
 
-    run_lst_objects(lst_output_variables, lst_objects, expected_output, 0)
-    if len(lst_objects) > 1:
-        run_lst_objects(lst_output_variables, lst_objects[1:] + lst_objects[0:1], expected_output, 1)
-        run_lst_objects(lst_output_variables, lst_objects[0:1] + lst_objects[1:], expected_output, 2)
+    custom_eval.run_tests()
+
 
 
 for test_description, test_details in test_data.items():
