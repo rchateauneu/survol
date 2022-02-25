@@ -12,6 +12,8 @@ from rdflib.plugins import sparql
 
 logging.getLogger().setLevel(logging.DEBUG)
 
+debug_mode = True
+
 if False:
     import win32com.client
 
@@ -153,8 +155,8 @@ class CustomEvalEnvironment:
         self.m_sparql_query = sparql_query
         self.m_output_variables = _query_header(self.m_sparql_query)
         self.m_expected_objects_list = expected_objects_list
-        self.m_debug_mode = True
-        print("Output variables=", self.m_output_variables)
+        if debug_mode:
+            print("Output variables=", self.m_output_variables)
 
     def _run_lst_objects(self, shuffled_lst_objects):
         print("run_lst_objects")
@@ -217,18 +219,20 @@ class CustomEvalEnvironment:
 
         best_query_index = 0
         for query_index in range(1, len(all_queries)):
-            #print("all_queries[query_index][0]=", all_queries[best_query_index][0])
+            # print("all_queries[query_index][0]=", all_queries[best_query_index][0])
             if all_queries[best_query_index][0]["total_cost"] > all_queries[query_index][0]["total_cost"]:
                 best_query_index = query_index
 
-        print("best query:", self.m_test_description)
+        print("best query:", self.m_test_description, all_queries[best_query_index][0])
         result_as_str = all_queries[best_query_index][1]
-        print(result_as_str)
+        assert result_as_str
 
         # This works but it can be very slow.
         # TODO: Execute only if not too slow.
         # TODO: Execute in a sub-process.
         # Create performance statistics which are later used to choose the best enumeration.
+        print("Best query code:")
+        print(result_as_str)
         print("Execution")
 
         if False:
@@ -257,7 +261,7 @@ class CustomEvalEnvironment:
         # This extracts builds the list of objects from the BGPs, by grouping them by common subject,
         # if this subject has a CIM class as rdf:type.
         instances_list = _part_triples_to_instances_list(part_triples)
-        if self.m_debug_mode:
+        if debug_mode:
             self._check_objects_list(instances_list)
 
         if instances_list:
@@ -311,14 +315,51 @@ def _get_wmi_class_properties(class_name):
     """
     cls_obj = getattr(wmi_conn, class_name)
     class_props = {}
+    keys_list = []
     for prop_obj in cls_obj.Properties_:
-        # This is the conversion to str otherwise the value of 'CIMTYPE' is:
-        # <win32com.gen_py.Microsoft WMI Scripting V1.2 Library.ISWbemQualifier instance at 0x1400534310432>
-        class_props[prop_obj.Name] = str(prop_obj.Qualifiers_('CIMTYPE'))
         # It is possible to loop like this:
         #for qualifier in prop_obj.Qualifiers_:
         #    print("    qualifier.Name / Value=", qualifier.Name, qualifier.Value)
-    return class_props
+        # or:
+        # all_qualifiers = {one_qual.Name: one_qual.Value for one_qual in prop_obj.Qualifiers_}
+
+        # It is also possible to write: str(prop_obj.Qualifiers_('CIMTYPE'))
+        # This is the conversion to str otherwise the value of 'CIMTYPE' is:
+        # <win32com.gen_py.Microsoft WMI Scripting V1.2 Library.ISWbemQualifier instance at 0x1400534310432>
+
+        # Beware to this documentation, the keys are not valid when called from Python:
+        # https://docs.microsoft.com/en-us/windows/win32/wmisdk/standard-wmi-qualifiers
+
+        property_type = str(prop_obj.Qualifiers_('CIMTYPE'))
+        try:
+            is_key = prop_obj.Qualifiers_('key')
+        except Exception:
+            # (-2147352567, 'Exception occurred.', (0, 'SWbemQualifierSet', 'Not found ', None, 0, -2147217406), None)
+            is_key = False
+        if is_key:
+            keys_list.append(prop_obj.Name)
+
+        class_props[prop_obj.Name] = property_type
+    return class_props, keys_list
+
+
+# Calculer le path d'un objet qui est reference d'un associator,
+# si on connait toutes les keys de cet objet.
+# Notons que c'est conceptuellement la meme chose que boucler d'abord sur la class de cette reference,
+# ce qui devrait etre immediat si on en a toutes les keys.
+# Si, dans known_variables, on a toutes les clefs d'un node,
+# normallement, on ajouterai "select * from <class> where keys=".
+# Mais il suffit de reconstruire le path.
+# On met une boucle bidon: for x in [<path just recalculated>]
+
+
+def _keys_list_to_tuple(keys_list):
+    """
+    The keys of a class are in a specific order in stored in a tuple, used as a key.
+    :param keys_list: The input list of keys.
+    :return: A tuple containing the keys.
+    """
+    return tuple(sorted(keys_list))
 
 
 def _create_classes_dictionary():
@@ -328,18 +369,32 @@ def _create_classes_dictionary():
     #    'CIM_DataFile': {'AccessMask': 'uint32', 'Archive': 'boolean', 'Caption': 'string', 'Compressed': 'boolean', 'CompressionMethod': 'string', 'CreationClassName': 'string', 'CreationDate': 'datetime', 'CSCreationClassName': 'string', 'CSName': 'string', 'Description': 'string', 'Drive': 'string', 'EightDotThreeFileName': 'string', 'Encrypted': 'boolean', 'EncryptionMethod': 'string', 'Extension': 'string', 'FileName': 'string', 'FileSize': 'uint64', 'FileType': 'string', 'FSCreationClassName': 'string', 'FSName': 'string', 'Hidden': 'boolean', 'InstallDate': 'datetime', 'InUseCount': 'uint64', 'LastAccessed': 'datetime', 'LastModified': 'datetime', 'Manufacturer': 'string', 'Name': 'string', 'Path': 'string', 'Readable': 'boolean', 'Status': 'string', 'System': 'boolean', 'Version': 'string', 'Writeable': 'boolean'},
     #    'CIM_Process': {'Caption': 'string', 'CreationClassName': 'string', 'CreationDate': 'datetime', 'CSCreationClassName': 'string', 'CSName': 'string', 'Description': 'string', 'ExecutionState': 'uint16', 'Handle': 'string', 'InstallDate': 'datetime', 'KernelModeTime': 'uint64', 'Name': 'string', 'OSCreationClassName': 'string', 'OSName': 'string', 'Priority': 'uint32', 'Status': 'string', 'TerminationDate': 'datetime', 'UserModeTime': 'uint64', 'WorkingSetSize': 'uint64'},
     classes_dict = {}
+    keys_dict = {}
 
-    for one_class in ['CIM_ProcessExecutable', 'CIM_DirectoryContainsFile', 'CIM_DataFile', 'CIM_Process']:
-        the_properties = _get_wmi_class_properties(one_class)
-        print(one_class, "the_properties=", the_properties)
+    if debug_mode:
+        classes_list = ['CIM_ProcessExecutable', 'CIM_DirectoryContainsFile', 'CIM_DataFile', 'CIM_Process']
+    else:
+        classes_list = wmi_conn.classes
+
+    for one_class in classes_list:
+        the_properties, the_keys = _get_wmi_class_properties(one_class)
+        if debug_mode:
+            print(one_class, "the_properties=", the_properties)
+            print(one_class, "the_keys=", the_keys)
         classes_dict[one_class] = the_properties
-    return classes_dict
+        keys_dict[one_class] = _keys_list_to_tuple(the_keys)
+    return classes_dict, keys_dict
 
 
-if False:
-    # This is not needed yet.
-    classes_dictionary = _create_classes_dictionary()
+classes_dictionary, keys_dictionary = _create_classes_dictionary()
 
+if debug_mode:
+    # On-the-fly check of the classes dictionary.
+    print("CIM_ProcessExecutable=", classes_dictionary['CIM_ProcessExecutable'])
+    assert classes_dictionary['CIM_ProcessExecutable'] == {
+        'Antecedent': 'ref:CIM_DataFile', 'BaseAddress': 'uint64', 'Dependent': 'ref:CIM_Process',
+        'GlobalProcessCount': 'uint32', 'ModuleInstance': 'uint32', 'ProcessCount': 'uint32'}
+    assert keys_dictionary['CIM_DataFile'] == ('Name',)
 
 #################################################################################################
 
@@ -349,18 +404,18 @@ _generators_by_key = dict()
 
 class PseudoWmiObject:
     """
-    This behaves like an object returned by a wmi query.
+    This behaves like an object returned by a wmi query, but it is returned by a Python function.
     """
     def __init__(self, path, class_name, key_values):
-        self.m_path = path
-        for key, value in key_values:
+        self.m_path = path # '\\\\root\\cimv2\\%s.' % class_name
+        for key, value in key_values.items():
             setattr(self, key, value)
 
     def __str__(self):
         return self.m_path
 
 
-def _dir_to_files(class_name, where_clauses):
+def _dir_to_files(class_name, where_clause):
     """
     This returns the files and directories contained in a directory.
     It does the same as the WQL query: "select * from CIM_Directory where Name='xyz'", but much faster.
@@ -368,27 +423,57 @@ def _dir_to_files(class_name, where_clauses):
     :param where_clauses: {"Name": "xyz"}
     :return: A dictionary containing the files and dirs.
     """
-    dir_name = where_clauses["GroupComponent"].Name
+    assert class_name == 'CIM_DirectoryContainsFile'
+    dir_name = where_clause['GroupComponent'].Name
+    path_prefix = r"\\\\LAPTOP-R89KG6V1\\root\\cimv2:"
+
+    top_dir_subject = path_prefix + 'CIM_Directory.Name="%s"' % dir_name
+    group_component = PseudoWmiObject(top_dir_subject, "CIM_Directory", {"Name": dir_name})
 
     subobjects = []
-    for root, directories, files in os.walk(dir_name):
+
+    def _add_part_component(part_component):
+        associator_path = path_prefix \
+                          + 'CIM_DirectoryContainsFile.GroupComponent=%s,PartComponent=%s' \
+                          % (group_component.m_path, part_component.m_path)
+
+        associator = PseudoWmiObject(associator_path, "CIM_DirectoryContainsFile",
+                                     {"PartComponent": part_component, "GroupComponent": group_component})
+        # print("Adding", str(associator))
+        subobjects.append(associator)
+
+    logging.debug("dir_name=%s" % dir_name)
+    for root_dir, directories, files in os.walk(dir_name):
         break
 
     for one_dir in directories:
+        #print("one_dir=", one_dir)
         # The creation of the path is hard-coded because it depends on the class.
         # It would be possible to use the list of keys for each class,
         # but there are also formatting specific details.
         # So, because this function is specialised for a class, it makes sense to speciliase the path too.
-        dir_subject = '\\\\root\\cimv2\\CIM_Directory.Name="%s"' % one_dir
-        subobjects.append(PseudoWmiObject(dir_subject, "CIM_Directory", {"Name": one_dir}))
+        full_path = os.path.join(root_dir, one_dir)
+        dir_subject = path_prefix + 'CIM_Directory.Name="%s"' % full_path
+        part_component = PseudoWmiObject(dir_subject, "CIM_Directory", {"Name": full_path})
+        _add_part_component(part_component)
 
     for one_file in files:
+        #print("one_file=", one_file)
         # The creation of the path is hard-coded because it depends on the class.
         # It would be possible to use the list of keys for each class,
         # but there are also formatting specific details.
         # So, because this funciton is specialised for a class, it makes sense to speciliase the path too.
-        file_subject = '\\\\root\\cimv2\\CIM_DataFile.Name="%s"' % one_file
-        subobjects.append(PseudoWmiObject(file_subject, "CIM_DataFile", {"Name": one_file}))
+        full_path = os.path.join(root_dir, one_file)
+        file_subject = '\\\\root\\cimv2\\CIM_DataFile.Name="%s"' % full_path
+        part_component = PseudoWmiObject(file_subject, "CIM_DataFile", {"Name": full_path})
+        _add_part_component(part_component)
+
+    # This must return objects with the same interface as instances of CIM_DirectoryContainsFile
+    # TODO: Consider yield
+    #print("subobjects=")
+    #for one_obj in subobjects:
+    #    print("    ", str(one_obj))
+    return subobjects
 
 
 _generators_by_key[("CIM_DirectoryContainsFile", ("GroupComponent",))] = "_dir_to_files"
@@ -399,11 +484,7 @@ _generators_by_key[("CIM_DirectoryContainsFile", ("PartComponent",))] = "_file_t
 
 
 def _where_clauses_python(where_clauses):
-    if not where_clauses:
-        return ""
-
-    return ", " \
-           + ", ".join(["%s=%s" % where_clause for where_clause in where_clauses])
+    return ", ".join(["'%s': %s" % where_clause for where_clause in where_clauses.items()])
 
 
 def _where_clauses_wql(where_clauses):
@@ -415,47 +496,69 @@ def _where_clauses_wql(where_clauses):
     """
     if not where_clauses:
         return "\""
-    where_keys = [where_clause[0] for where_clause in where_clauses]
+    where_keys = where_clauses.keys()
 
-    def format_value(a_where_value):
-        if isinstance(a_where_value, VARI):
-            return str(a_where_value)
-        elif isinstance(a_where_value, LITT):
-            return "'%s'" % a_where_value
+    def _format_where_value(where_value):
+        if isinstance(where_value, VARI):
+            return where_value
+        elif isinstance(where_value, LITT):
+            return '"%s"' % where_value
         else:
-            raise Exception("Invalid where value type:%s" % a_where_value)
-
-    where_values = [format_value(where_clause[1]) for where_clause in where_clauses]
+            raise Exception("Invalid where value type:%s / %s" % (where_value, type(where_value)))
+    formatted_where_values = [_format_where_value(where_value) for where_value in where_clauses.values()]
 
     return " where " \
          + " and ".join(["%s='%%s'" % one_property for one_property in where_keys]) \
-         + "\" % (" + ", ".join(where_values) + ")"
+         + "\" % (" + ", ".join(formatted_where_values) + ")"
+
+
+def _wql_query_to_cost(class_name, where_clauses):
+    """
+    The execution cost of this query could be experimentally evaluated.
+    FIXME: This is just an estimate.
+    :param class_name:
+    :param where_clauses:
+    :return: The cost of the execution of the query, estimated in number of loops.
+    """
+
+    # If the where_clauses contain all the keys of this class, the cost is assumed
+    # to be immediate.
+    # Otherwise, there will potentially be a full scan on all objects.
+    if class_name in ["CIM_DataFile", "CIM_Directory", "Win32_Directory"]:
+        if "Name" in where_clauses:
+            # Queries based on the name are not too slow.
+            query_cost = 2
+        else:
+            # A query on a file executed on any other criteria is very slow.
+            query_cost = 10
+    else:
+        # Any value will do for the moment.
+        query_cost = 5
+    return query_cost
 
 
 def _build_query(class_name, where_clauses):
     # A tuple can be used as a key
-    where_keys = tuple(sorted(key for key, value in where_clauses))
+    where_keys = _keys_list_to_tuple(where_clauses.keys())
     query_key = (class_name, where_keys)
 
-    try:
-        generator_name = _generators_by_key[query_key]
-        created_query = "%s('%s'%s)" % (generator_name, class_name, _where_clauses_python(where_clauses))
-        query_origin = "customization"
+    if where_keys == getattr(keys_dictionary, class_name, None): # If all keys are defined in the where clauses.
+        # TODO: Implement this.
+        # This will produce for example: "for the_path in [_build_path_from_key('CIM_DataFile', Name='C:'})
+        created_query = "[ _build_path_from_key('%s', %s),]" % (class_name, where_clauses)
+        query_origin = "build_path_from_keys"
         query_cost = 1
-    except KeyError:
+    elif query_key in _generators_by_key:
+        # If there is a Python doing doing the same as a WQL query.
+        generator_name = _generators_by_key[query_key]
+        created_query = "%s('%s', {%s})" % (generator_name, class_name, _where_clauses_python(where_clauses))
+        query_origin = "customization"
+        # TODO: The cost of custom functions should be evaluated.
+        query_cost = 1
+    else:
         created_query = "wmi_conn.query(\"select * from %s%s)" % (class_name, _where_clauses_wql(where_clauses))
         query_origin = "wmi"
-        # The execution cost of this query could be experimentally evaluated.
-        if class_name in ["CIM_DataFile", "CIM_Directory", "Win32_Directory"]:
-            if "Name" in where_clauses:
-                # Queries based on the name are not too slow.
-                query_cost = 2
-            else:
-                # A query on a file executed on any other criteria is very slow.
-                query_cost = 10
-        else:
-            # Any value will do for the moment.
-            query_cost = 5
+        query_cost = _wql_query_to_cost(class_name, where_clauses)
 
     return {
         "query": created_query,
@@ -495,18 +598,18 @@ def _generate_wql_code(output_stream, lst_output_variables, lst_objects):
         else:
             # The object is not known: A query must be added which will iterate on its possible values.
             # Build the WHERE clause with literal values or known variables.
-            where_clauses = []
+            where_clauses = {}
             for one_property, one_variable in variables_map.items():
                 if isinstance(one_variable, VARI):
                     if one_variable in known_variables:
-                        where_clauses.append((one_property, one_variable))
+                        where_clauses[one_property] = one_variable
                     else:
                         # Now this variable will be known after the execution.
                         known_variables.add(one_variable)
                         assigns_list.append(
                             (one_variable, node_variable, one_property, " %s is now known" % one_variable))
                 elif isinstance(one_variable, LITT):
-                    where_clauses.append((one_property, one_variable))
+                    where_clauses[one_property] = one_variable
 
             output_code_line(
                 comment_prefix +
@@ -745,7 +848,7 @@ Creer une forme intermediaire pour exprimer ceci
 
 def shuffle_lst_objects(test_description, test_details):
     print("")
-    print("#########################################################################################")
+    print("#" * 50, test_description)
 
     custom_eval = CustomEvalEnvironment(test_description, test_details[0], test_details[1])
 
@@ -753,5 +856,7 @@ def shuffle_lst_objects(test_description, test_details):
 
 
 for test_description, test_details in test_data.items():
+    #if test_description != "CIM_DirectoryContainsFile":
+    #    continue
     shuffle_lst_objects(test_description, test_details)
 
