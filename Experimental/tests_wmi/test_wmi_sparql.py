@@ -4,6 +4,9 @@ import os
 import logging
 import pytest
 
+import rdflib
+import wmi
+
 import wmi_sparql
 from wmi_sparql import _CimObject
 from wmi_sparql import VARI
@@ -22,6 +25,12 @@ def test_classes_dictionary():
         'Antecedent': 'ref:CIM_DataFile', 'BaseAddress': 'uint64', 'Dependent': 'ref:CIM_Process',
         'GlobalProcessCount': 'uint32', 'ModuleInstance': 'uint32', 'ProcessCount': 'uint32'}
     assert wmi_sparql.keys_dictionary['CIM_DataFile'] == ('Name',)
+
+
+def test_create_ontology():
+    rdf_graph = rdflib.Graph()
+    wmi_sparql._convert_ontology_to_rdf(wmi.WMI(), rdf_graph)
+    rdf_graph.serialize(destination="wmi_ontology.xml", format='xml')
 
 
 def test_keys_lists():
@@ -51,6 +60,29 @@ def test_keys_lists():
 def no_check(query_results):
     return True
 
+
+#################################################################################################
+
+
+samples_list["Metadata1"] = (
+    """
+    prefix cim:  <http://www.primhillcomputers.com/ontology/survol#>
+    prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+    select ?same_caption
+    where {
+    ?my_process rdf:type cim:CIM_Process .
+    ?my_process ?cim_property ?same_caption .
+    ?cim_property rdf:name ?cim_property_name .
+    }
+    """,
+    [
+        _CimObject(VARI('my_process'), 'CIM_Process', {'Caption': VARI('same_caption')}),
+        _CimObject(VARI('my_file'), 'CIM_DataFile', {'Caption': VARI('same_caption')}),
+    ],
+    no_check
+)
+
+#################################################################################################
 
 samples_list["CIM_Directory"] = (
     """
@@ -326,6 +358,7 @@ samples_list["CIM_Process CIM_DataFile Same Caption"] = (
     no_check
 )
 
+#################################################################################################
 
 """
 Ajouter un test avec deux full scans mais au lieu de faire deux boucles imbriquees, on les fait separament:
@@ -365,8 +398,9 @@ def shuffle_lst_objects(test_description, test_details):
 
 def test_wmi():
     for test_description, test_details in samples_list.items():
-        #if test_description != "CIM_ProcessExecutable with Antecedent=KERNEL32.DLL":
-        #    continue
+        # CIM_ProcessExecutable full scan
+        if test_description != "CIM_ProcessExecutable CIM_DirectoryContainsFile":
+            continue
 
         shuffle_lst_objects(test_description, test_details)
 
@@ -377,6 +411,7 @@ In other words: What links two concepts.
 """
 
 if __name__ == '__main__':
-    test_classes_dictionary()
-    test_keys_lists()
-    test_wmi()
+    test_create_ontology()
+    #test_classes_dictionary()
+    #test_keys_lists()
+    #test_wmi()

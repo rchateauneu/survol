@@ -6,6 +6,10 @@ import itertools
 import logging
 
 import wmi
+import win32com
+import pywintypes
+import win32com.client
+
 import rdflib
 from rdflib import plugins
 from rdflib.plugins import sparql
@@ -14,14 +18,11 @@ logging.getLogger().setLevel(logging.DEBUG)
 
 debug_mode = True
 
-if False:
-    import win32com.client
-
-    # http://sawbuck.googlecode.com/svn/trunk/sawbuck/py/etw/generate_descriptor.py
-    # Generate symbols for the WbemScripting module so that we can have symbols
-    # for debugging and use constants throughout the file.
-    # Without this, win32com.client.constants are not available.
-    win32com.client.gencache.EnsureModule('{565783C6-CB41-11D1-8B02-00600806D9B6}', 0, 1, 1)
+# http://sawbuck.googlecode.com/svn/trunk/sawbuck/py/etw/generate_descriptor.py
+# Generate symbols for the WbemScripting module so that we can have symbols
+# for debugging and use constants throughout the file.
+# Without this, win32com.client.constants are not available.
+win32com.client.gencache.EnsureModule('{565783C6-CB41-11D1-8B02-00600806D9B6}', 0, 1, 1)
 
 # These queries work correctly. Please note how back-slashes are escaped.
 # select * from CIM_DirectoryContainsFile where GroupComponent="Win32_Directory.Name=\"C:\\\\Users\\\\rchat\""
@@ -32,6 +33,8 @@ if False:
 wmi_conn = wmi.WMI()
 
 survol_url_prefix = "http://www.primhillcomputers.com/ontology/survol#"
+
+LDT = rdflib.Namespace(survol_url_prefix)
 
 VARI = rdflib.term.Variable
 LITT = rdflib.term.Literal
@@ -327,6 +330,158 @@ class CustomEvalEnvironment:
         return query_result
 
 
+#################################################################################################
+
+def _convert_wmi_type_to_xsd_type(predicate_type_name):
+    """
+    This converts a WMI type name to RDF types.
+
+    WMI types: https://powershell.one/wmi/datatypes
+    RDF types: https://rdflib.readthedocs.io/en/stable/rdf_terms.html
+    """
+    wmi_type_to_xsd = {
+        'string': "rdflib.namespace.XSD.string",
+        'boolean': 'rdflib.namespace.XSD.boolean',
+        'datetime': 'rdflib.namespace.XSD.dateTime',
+        'sint64': 'rdflib.namespace.XSD.integer',
+        'sint32': 'rdflib.namespace.XSD.integer',
+        'sint16': 'rdflib.namespace.XSD.integer',
+        'sint8': 'rdflib.namespace.XSD.integer',
+        'uint64': 'rdflib.namespace.XSD.integer',
+        'uint32': 'rdflib.namespace.XSD.integer',
+        'uint16': 'rdflib.namespace.XSD.integer',
+        'uint8': 'rdflib.namespace.XSD.integer',
+        'real64': 'rdflib.namespace.XSD.double',
+        'real32': 'rdflib.namespace.XSD.double',
+    }
+    try:
+        return wmi_type_to_xsd[predicate_type_name.lower()]
+    except KeyError:
+        return None
+
+
+# L'objectif est de remplir le graph avec l'ontologie mais aussi de sortir les clefs
+# dont on a besoin pour trouver la meilleure query.
+# Est-ce que la meme property peut etre clef dans une classe et pas dans une autre ?
+# Le modele ne matche pas: Les proprietes dans WMI sont dependantes d'une classe.
+"""
+class_node rdflib.namespace.RDF.type rdflib.namespace.RDFS.Class
+class_node rdflib.namespace.RDFS.label "MyClasse"
+class_node rdflib.namespace.RDFS.comment "MyClasse is a classe"
+class_node cim.is_associator true
+
+property_node rdflib.namespace.RDF.type rdflib.namespace.RDF.Property
+property_node rdflib.namespace.RDFS.domain class_node
+property_node rdflib.namespace.RDFS.range [ rdflib.namespace.XSD.string, .integer, .boolean, .double, .dateTime ]
+property_node rdflib.namespace.RDFS.label "MyClasse.MyProp"
+property_node rdflib.namespace.RDFS.comment "MyProp belongs to MyClass"
+class_node cim.is_key true
+class_node cim.unit "meter"
+"""
+
+def _convert_ontology_to_rdf(wmi_conn, rdf_graph):
+    """
+    This creates a RDF graph containing the WMI ontology.
+    """
+
+    # Build dict of WMI objects for each class.
+    wmi_class_objects = dict()
+    for class_name in wmi_conn.classes:
+        wmi_class_obj = getattr(wmi_conn, class_name)
+        if class_name in wmi_class_objects:
+            # Maybe it is already done because of derivation.
+            continue
+        class_base_classes = wmi_class_obj.derivation()
+        try:
+            base_class = class_base_classes[0]
+        except IndexError:
+            base_class = ""
+
+        # wbemFlagUseAmendedQualifiers WMI to return class amendment data along with the base class definition.
+        try:
+            subclasses = wmi_conn.SubclassesOf(base_class, win32com.client.constants.wbemFlagUseAmendedQualifiers)
+            for subclass_obj in subclasses:
+                if subclass_obj.Path_.Class not in wmi_class_objects:
+                    wmi_class_objects[subclass_obj.Path_.Class] = subclass_obj
+        except pywintypes.com_error:
+            if class_name not in wmi_class_objects:
+                # If the current class could not be found, insert what we can.
+                wmi_class_objects[class_name] = wmi_class_obj
+
+    property_association_node = rdflib.URIRef(LDT["is_association"])
+    property_key_node = rdflib.URIRef(LDT["is_key"])
+    property_unit_node = rdflib.URIRef(LDT["unit"])
+
+    for class_name, wmi_class_obj in wmi_class_objects.items():
+        print("class_name=", class_name)
+        class_node = rdflib.URIRef(LDT[class_name])
+        rdf_graph.add((class_node, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
+        rdf_graph.add((class_node, rdflib.namespace.RDFS.label, rdflib.Literal(class_name)))
+
+        try:
+            class_description = str(wmi_class_obj.Qualifiers_("Description"))
+            rdf_graph.add((class_node, rdflib.namespace.RDFS.comment, rdflib.Literal(class_description)))
+        except:
+            pass
+
+        try:
+            is_association = wmi_class_obj.Qualifiers_['Association']
+            if is_association:
+                rdf_graph.add((class_node, property_association_node, rdflib.Literal(is_association)))
+        except:
+            pass
+
+        for wmi_property_obj in wmi_class_obj.Properties_:
+            property_name = wmi_property_obj.Name
+            # print("    property_name=", property_name)
+            full_property_name = "%s.%s" % (class_name, property_name)
+            property_node = rdflib.URIRef(LDT[full_property_name])
+
+            rdf_graph.add((property_node, rdflib.namespace.RDF.type, rdflib.namespace.RDF.Property))
+            # Several different WMI properties may have the same name.
+            rdf_graph.add((property_node, rdflib.namespace.RDFS.label, rdflib.Literal(full_property_name)))
+            try:
+                property_description = str(wmi_property_obj.Qualifiers_("Description"))
+                rdf_graph.add((property_node, rdflib.namespace.RDFS.comment, rdflib.Literal(property_description)))
+            except:
+                pass
+
+            rdf_graph.add((property_node, rdflib.namespace.RDFS.domain, class_node))
+
+            wmi_type_name = str(wmi_property_obj.Qualifiers_('CIMTYPE'))
+            if not wmi_type_name.startswith("ref:"):
+                predicate_type_class_name = wmi_type_name[4:]
+                # Then it can only be a class
+                predicate_type = rdflib.URIRef(LDT[predicate_type_class_name])
+            else:
+                # Other possible values: "ref:__Provider", "ref:Win32_LogicalFileSecuritySetting",
+                # "ref:Win32_ComputerSystem",
+                # "ref:CIM_DataFile", "ref:__EventConsumer", "ref:CIM_LogicalElement",
+                # "ref:CIM_Directory" but also "ref:Win32_Directory".
+                # "Win32_DataFile" never appears.
+
+                # Sometimes the datatype is wrongly cased: "string", "String, "STRING".
+                predicate_type = _convert_wmi_type_to_xsd_type(wmi_type_name)
+            if predicate_type:
+                rdf_graph.add((property_node, rdflib.namespace.RDFS.range, predicate_type))
+
+            try:
+                is_key = wmi_property_obj.Qualifiers_('key')
+                if is_key:
+                    rdf_graph.add((property_node, property_key_node, rdflib.Literal(True)))
+            except Exception:
+                # (-2147352567, 'Exception occurred.', (0, 'SWbemQualifierSet', 'Not found ', None, 0, -2147217406), None)
+                pass
+
+            # https://it.semweb.ch/lod/2016/12/unitsofmeasure.rdf
+            try:
+                unit_name = str(wmi_property_obj.Qualifiers_("Units"))
+                rdf_graph.add((property_node, property_key_node, rdflib.Literal(unit_name)))
+            except:
+                pass
+
+
+
 # https://docs.microsoft.com/en-us/windows/win32/wmisdk/key-qualifier
 # If more than one property has the Key qualifier, then all such properties collectively form the key (a compound key).
 # ou can use any property type except for the following:
@@ -335,10 +490,10 @@ class CustomEvalEnvironment:
 # - Embedded objects
 # - Characters lower than ASCII 32 (that is, white space characters)
 # - Character strings of type char16 or character strings that are defined as keys must contain values
-# greater than U+0020. This is because WMI uses key values in object paths,
-# and you cannot use nonprinting characters in an object path.
+# greater than U+0020. This is because WMI uses key values in object monikers,
+# and you cannot use nonprinting characters in an object moniker.
 #
-# Because paths use keys, they can be safely used in URLs, plus maybe some URL escaping.
+# Because monikers use keys, they can be safely used in URLs, plus maybe some URL escaping.
 #
 # But what about access speed ?
 
@@ -374,22 +529,22 @@ def _get_wmi_class_properties(class_name):
                 keys_list.append(prop_obj.Name)
         except Exception:
             # (-2147352567, 'Exception occurred.', (0, 'SWbemQualifierSet', 'Not found ', None, 0, -2147217406), None)
-            is_key = False
+            continue
 
         class_props[prop_obj.Name] = property_type
-    if debug_mode:
-        print("Keys:", class_name, keys_list)
+    #if debug_mode:
+    #    print("Keys:", class_name, keys_list)
     return class_props, keys_list
 
 
-# Calculer le path d'un objet qui est reference d'un associator,
+# Calculer le moniker d'un objet qui est reference d'un associator,
 # si on connait toutes les keys de cet objet.
 # Notons que c'est conceptuellement la meme chose que boucler d'abord sur la class de cette reference,
 # ce qui devrait etre immediat si on en a toutes les keys.
 # Si, dans known_variables, on a toutes les clefs d'un node,
 # normallement, on ajouterai "select * from <class> where keys=".
-# Mais il suffit de reconstruire le path.
-# On met une boucle bidon: for x in [<path just recalculated>]
+# Mais il suffit de reconstruire le moniker.
+# On met une boucle bidon: for x in [<moniker just recalculated>]
 
 
 def _keys_list_to_tuple(keys_list):
@@ -428,6 +583,9 @@ def _create_classes_dictionary():
 
 classes_dictionary, keys_dictionary = _create_classes_dictionary()
 
+
+#  _convert_ontology_to_rdf(classes_dictionary, map_attributes, rdf_graph)
+
 #################################################################################################
 
 # These functions are executed in place of a WQL query.
@@ -437,24 +595,26 @@ _generators_by_key = dict()
 class PseudoWmiObject:
     """
     This behaves like an object returned by a wmi query, but it is returned by a Python function.
+    TODO: It would be possible and cleaner to recreate the WMI object from the moniker with the syntax:
+    TODO:    the_object = wmi.WMI(moniker=the_path)
+    TODO: This ensures that no attribute is missing. Check performance.
     """
-
     def __init__(self, class_name, key_values):
-        self.m_wmi_path = _create_wmi_path(class_name, **key_values)
+        self.m_wmi_moniker = _create_wmi_moniker(class_name, **key_values)
         for key, value in key_values.items():
             setattr(self, key, value)
 
     def __str__(self):
-        return self.m_wmi_path
+        return self.m_wmi_moniker
 
 
-path_prefix = r"\\\\LAPTOP-R89KG6V1\\root\\cimv2:"
+moniker_prefix = r"\\\\LAPTOP-R89KG6V1\\root\\cimv2:"
 
 
-def _create_wmi_path(class_name, **kwargs):
+def _create_wmi_moniker(class_name, **kwargs):
     properties_as_str = ",".join('%s="%s"' % key_value for key_value in kwargs.items())
-    wmi_path = path_prefix + class_name + "." + properties_as_str
-    return wmi_path
+    wmi_moniker = moniker_prefix + class_name + "." + properties_as_str
+    return wmi_moniker
 
 
 def _dir_to_files(class_name, where_clause):
@@ -483,19 +643,11 @@ def _dir_to_files(class_name, where_clause):
     #    print("dir_name=%s" % dir_name)
     for root_dir, directories, files in os.walk(dir_name):
         for one_dir in directories:
-            # The creation of the path is hard-coded because it depends on the class.
-            # It would be possible to use the list of keys for each class,
-            # but there are also formatting specific details.
-            # So, because this function is specialised for a class, it makes sense to speciliase the path too.
             full_dir_path = os.path.join(root_dir, one_dir)
             part_component = PseudoWmiObject("CIM_Directory", {"Name": full_dir_path})
             _add_part_component(part_component)
 
         for one_file in files:
-            # The creation of the path is hard-coded because it depends on the class.
-            # It would be possible to use the list of keys for each class,
-            # but there are also formatting specific details.
-            # So, because this funciton is specialised for a class, it makes sense to speciliase the path too.
             full_file_path = os.path.join(root_dir, one_file)
             part_component = PseudoWmiObject("CIM_DataFile", {"Name": full_file_path})
             _add_part_component(part_component)
@@ -548,7 +700,7 @@ def _where_clauses_python(where_clauses):
     return ", ".join(["'%s': %s" % where_clause for where_clause in where_clauses.items()])
 
 
-# Typical path:
+# Typical moniker:
 # \\LAPTOP-R89KG6V1\root\cimv2:CIM_ProcessExecutable.Antecedent="\\\\LAPTOP-R89KG6V1\\root\\cimv2:CIM_DataFile.Name=\"C:\\\\WINDOWS\\\\System32\\\\DriverStore\\\\FileRepository\\\\iigd_dch.inf_amd64
 #                      _ea63d1eddd5853b5\\\\igdinfo64.dll\"",Dependent="\\\\LAPTOP-R89KG6V1\\root\\cimv2:Win32_Process.Handle=\"32308\""
 
@@ -558,6 +710,7 @@ def _where_clauses_python(where_clauses):
 
 def _dyn_format(where_variable):
     if isinstance(where_variable, wmi._wmi_object):
+        # The moniker is also called "path".
         return str(where_variable.path())
     else:
         return where_variable
@@ -630,7 +783,7 @@ def _contains_all_keys(class_name, where_clauses):
     This is probably not needed for sorting queries,
     because performance experimentally measured seem OK when measured with one key only.
 
-    However it is used to determine that the path of an instance can be calculated,
+    However it is used to determine that the moniker of an instance can be calculated,
     and therefore that no query is needed.
 
     :param class_name: The class
@@ -694,10 +847,20 @@ def _build_generator_wmi(class_name, where_clauses, needed_variables):
     # TODO: https://python-list.python.narkive.com/lCzvZyOh/speeding-up-python-when-using-wmi
     # TODO: Consider this speed up:
     # TODO: l=[x.Properties_("Antecedent").Value for x in win32com.client.GetObject("winmgmts:").InstancesOf("CIM_ProcessExecutable")]
+    # TODO: ... or:
+    # TODO: for os in win32com.client.GetObject ("winmgmts:").InstancesOf("Win32_OperatingSystem"):
+    # TODO:     my_caption = os.Properties_ ("Caption").Value
 
-    generic_column = ", ".join(needed_variables) if needed_variables else "*"
-    query_generator = "wmi_conn.query(\"select %s from %s%s)" % (
-        generic_column, class_name, _where_clauses_wql(where_clauses))
+    if where_clauses: #  or True:
+        # TODO: For better performance, consider this syntax which might be faster:
+        # TODO: for myTime in myWMI.Win32_LocalTime ():
+        # TODO: for s in c.Win32_Service(StartMode="Auto", State="Stopped"):
+
+        generic_column = ", ".join(needed_variables) if needed_variables else "*"
+        query_generator = "wmi_conn.query(\"select %s from %s%s)" % (
+            generic_column, class_name, _where_clauses_wql(where_clauses))
+    else:
+        query_generator = "win32com.client.GetObject('winmgmts:').InstancesOf('%s')" % class_name
 
     query_cost = _wql_query_to_cost(class_name, where_clauses)
     return query_generator, query_cost
@@ -708,12 +871,12 @@ def _build_generator(class_name, where_clauses, needed_variables):
     generator_key = (class_name, where_keys)
 
     if False and _contains_one_key(class_name, where_clauses):
-        # If all keys are defined in the where clauses, then the path can be recalculated.
+        # If all keys are defined in the where clauses, then the moniker can be recalculated.
         # This avoids a call to wmi.
         # TODO: Implement this.
-        # This will produce for example: "for the_path in [_build_path_from_key('CIM_DataFile', Name='C:'})
-        created_generator = "[ _build_path_from_key('%s', %s),]" % (class_name, where_clauses)
-        generator_origin = "build_path_from_keys"
+        # This will produce for example: "for the_moniker in [_build_moniker_from_key('CIM_DataFile', Name='C:'})
+        created_generator = "[ _build_moniker_from_key('%s', %s),]" % (class_name, where_clauses)
+        generator_origin = "build_moniker_from_keys"
         generator_cost = 1
     elif generator_key in _generators_by_key:
         # If there is a Python function doing the same as a WQL query.
@@ -746,6 +909,8 @@ def _generate_wql_code(output_stream, lst_output_variables, lst_objects):
     def output_code_line(code_string):
         margin = "    " * generated_loop_counter
         output_stream.write("%s%s\n" % (margin, code_string))
+
+    #output_code_line("cnt = 0")
 
     for one_obj in lst_objects:
         obj_subject, obj_class, obj_properties = one_obj.m_subject, one_obj.m_class, one_obj.m_properties
@@ -817,12 +982,20 @@ def _generate_wql_code(output_stream, lst_output_variables, lst_objects):
         objects_loop_counter += 1
 
         if assigns_list:
+            # The variable is just a moniker if it is created by a loop using win32com.
+            # If so, transforms this moniker into a WMI object.
+            for input_variable in set(assign_tuple[1] for assign_tuple in assigns_list):
+                output_code_line("if isinstance(%s, str): %s = wmi.WMI(moniker=%s)" % (input_variable, input_variable, input_variable))
+
             # The assignment might throw "OLE error 0x80041002"
             output_code_line("try:")
             for assign_tuple in assigns_list:
                 output_code_line("    %s = %s.%s # %s" % assign_tuple)
             output_code_line("except Exception as exc:")
+            # TODO : Store the exception somewhere.
             output_code_line("    print('EXCEPTION:', exc)")
+        #output_code_line("cnt += 1")
+        #output_code_line("if cnt == 1000: raise Exception('Finito')")
         known_variables.add(obj_subject)
 
     # This is the last line of the generated code.
