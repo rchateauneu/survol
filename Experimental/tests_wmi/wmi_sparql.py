@@ -4,6 +4,7 @@ import io
 import ast
 import itertools
 import logging
+#import traceback
 
 import wmi
 import win32com
@@ -35,6 +36,10 @@ wmi_conn = wmi.WMI()
 survol_url_prefix = "http://www.primhillcomputers.com/ontology/survol#"
 
 LDT = rdflib.Namespace(survol_url_prefix)
+
+property_association_node = rdflib.URIRef(LDT["is_association"])
+property_key_node = rdflib.URIRef(LDT["is_key"])
+property_unit_node = rdflib.URIRef(LDT["unit"])
 
 VARI = rdflib.term.Variable
 LITT = rdflib.term.Literal
@@ -174,26 +179,6 @@ class CustomEvalEnvironment:
         if debug_mode:
             print("Output variables=", self.m_output_variables)
 
-    def _run_lst_objects(self, shuffled_lst_objects):
-        print("run_lst_objects")
-        for one_obj in shuffled_lst_objects:
-            print("    ", one_obj)
-            assert isinstance(one_obj, _CimObject)
-
-        my_stream = io.StringIO()
-
-        # The returned dict gives criterias to compare different implementations of the nested loops
-        # enumerating WQL objects. The performance can be completely different.
-        code_description = _generate_wql_code(my_stream, self.m_output_variables, shuffled_lst_objects)
-        my_stream.seek(0)
-        result_as_str = my_stream.read()
-        print("Generated code:", code_description)
-        print(result_as_str)
-        # Tests if correct Python code.
-        ast.parse(result_as_str)
-
-        return code_description, result_as_str
-
     def _fetch_wmi_objects_in_graph(self, ctx_graph, instances_list):
         """
         This executes WMI queries on the list of instances.
@@ -228,9 +213,12 @@ class CustomEvalEnvironment:
         # such as {"CIM_ComputerSystem": 1, "CIM_Process": 100, "CIM_DataFile": 1000000}
         # For the moment, all iterations are done, for testing purpose.
 
+        # Name of the function which is about to be generated.
+        function_name = "my_results_generator"
         all_queries = []
         for one_permutation in itertools.permutations(instances_list):
-            code_description, result_as_str = self._run_lst_objects(one_permutation)
+            code_description, result_as_str = objects_list_to_python_code(
+                self.m_output_variables, one_permutation, function_name)
             all_queries.append((code_description, result_as_str))
 
         best_query_index = 0
@@ -240,27 +228,24 @@ class CustomEvalEnvironment:
                 best_query_index = query_index
 
         print("best query:", self.m_test_description, all_queries[best_query_index][0])
-        result_as_str = all_queries[best_query_index][1]
-        assert result_as_str
+        best_generated_python_code = all_queries[best_query_index][1]
+        assert best_generated_python_code
 
         # This works but it can be very slow.
         # TODO: Execute only if not too slow.
         # TODO: Execute in a sub-process.
         # Create performance statistics which are later used to choose the best enumeration.
         print("Best query code:")
-        print(result_as_str)
+        print(best_generated_python_code)
         print("Execution")
 
-        if False:
-            for my_assoc in wmi_conn.query("select * from CIM_ProcessExecutable"):
-                my_file = my_assoc.Antecedent  # my_file is now known
-                my_process = my_assoc.Dependent  # my_process is now known
-                my_file_name = my_file.Name  # my_file_name is known
-                my_process_handle = my_process.Handle  # my_process_handle is known
-                print({'my_file_name': my_file_name, 'my_process_handle': my_process_handle})
-
-        eval_result = exec(result_as_str)
+        #my_results_generator = None
+        eval_result = exec(best_generated_python_code, globals())
         print("eval_result=", eval_result)
+        assert my_results_generator
+        eval_result = my_results_generator()
+        for one_tuple in eval_result:
+            print("one_tuple=", one_tuple)
 
     def _check_objects_list(self, instances_list):
         # Any order will do for this comparison, as long as it is consistent.
@@ -274,7 +259,7 @@ class CustomEvalEnvironment:
         #    print("    ", i)
         assert ordered_actual_instances == ordered_expected_instances
 
-    def my_evaluator(self, ctx_graph, part_triples):
+    def custom_eval_bgp(self, ctx_graph, part_triples):
         # Possibly add the ontology to ctx.graph
 
         logging.debug("Instances:")
@@ -289,7 +274,7 @@ class CustomEvalEnvironment:
         else:
             logging.warning("No instances. Maybe a meta-data query.")
 
-    def run_tests(self):
+    def run_query_in_rdflib(self):
         def _wmi_custom_eval_function(ctx, part):
             """
             Inspired from https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html
@@ -305,7 +290,7 @@ class CustomEvalEnvironment:
                 # part.name = "SelectQuery", "Project", "BGP"
                 # BGP stands for "Basic Graph Pattern", which is a set of triple patterns.
                 # A triple pattern is a triple: RDF-term or value, IRI or value, RDF term or value.
-                self.my_evaluator(ctx.graph, part.triples)
+                self.custom_eval_bgp(ctx.graph, part.triples)
 
                 # Normal execution of the Sparql engine on the graph with many more triples.
                 ret_bgp = rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
@@ -340,19 +325,19 @@ def _convert_wmi_type_to_xsd_type(predicate_type_name):
     RDF types: https://rdflib.readthedocs.io/en/stable/rdf_terms.html
     """
     wmi_type_to_xsd = {
-        'string': "rdflib.namespace.XSD.string",
-        'boolean': 'rdflib.namespace.XSD.boolean',
-        'datetime': 'rdflib.namespace.XSD.dateTime',
-        'sint64': 'rdflib.namespace.XSD.integer',
-        'sint32': 'rdflib.namespace.XSD.integer',
-        'sint16': 'rdflib.namespace.XSD.integer',
-        'sint8': 'rdflib.namespace.XSD.integer',
-        'uint64': 'rdflib.namespace.XSD.integer',
-        'uint32': 'rdflib.namespace.XSD.integer',
-        'uint16': 'rdflib.namespace.XSD.integer',
-        'uint8': 'rdflib.namespace.XSD.integer',
-        'real64': 'rdflib.namespace.XSD.double',
-        'real32': 'rdflib.namespace.XSD.double',
+        'string': rdflib.namespace.XSD.string,
+        'boolean': rdflib.namespace.XSD.boolean,
+        'datetime': rdflib.namespace.XSD.dateTime,
+        'sint64': rdflib.namespace.XSD.integer,
+        'sint32': rdflib.namespace.XSD.integer,
+        'sint16': rdflib.namespace.XSD.integer,
+        'sint8': rdflib.namespace.XSD.integer,
+        'uint64': rdflib.namespace.XSD.integer,
+        'uint32': rdflib.namespace.XSD.integer,
+        'uint16': rdflib.namespace.XSD.integer,
+        'uint8': rdflib.namespace.XSD.integer,
+        'real64': rdflib.namespace.XSD.double,
+        'real32': rdflib.namespace.XSD.double,
     }
     try:
         return wmi_type_to_xsd[predicate_type_name.lower()]
@@ -378,6 +363,7 @@ property_node rdflib.namespace.RDFS.comment "MyProp belongs to MyClass"
 class_node cim.is_key true
 class_node cim.unit "meter"
 """
+
 
 def _convert_ontology_to_rdf(wmi_conn, rdf_graph):
     """
@@ -408,12 +394,8 @@ def _convert_ontology_to_rdf(wmi_conn, rdf_graph):
                 # If the current class could not be found, insert what we can.
                 wmi_class_objects[class_name] = wmi_class_obj
 
-    property_association_node = rdflib.URIRef(LDT["is_association"])
-    property_key_node = rdflib.URIRef(LDT["is_key"])
-    property_unit_node = rdflib.URIRef(LDT["unit"])
-
     for class_name, wmi_class_obj in wmi_class_objects.items():
-        print("class_name=", class_name)
+        # print("class_name=", class_name)
         class_node = rdflib.URIRef(LDT[class_name])
         rdf_graph.add((class_node, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
         rdf_graph.add((class_node, rdflib.namespace.RDFS.label, rdflib.Literal(class_name)))
@@ -425,8 +407,9 @@ def _convert_ontology_to_rdf(wmi_conn, rdf_graph):
             pass
 
         try:
-            is_association = wmi_class_obj.Qualifiers_['Association']
+            is_association = wmi_class_obj.Qualifiers_('Association')
             if is_association:
+                print("association class_name=%s is_association=%s" % (class_name, is_association))
                 rdf_graph.add((class_node, property_association_node, rdflib.Literal(is_association)))
         except:
             pass
@@ -449,10 +432,10 @@ def _convert_ontology_to_rdf(wmi_conn, rdf_graph):
             rdf_graph.add((property_node, rdflib.namespace.RDFS.domain, class_node))
 
             wmi_type_name = str(wmi_property_obj.Qualifiers_('CIMTYPE'))
-            if not wmi_type_name.startswith("ref:"):
+            if wmi_type_name.startswith("ref:"):
                 predicate_type_class_name = wmi_type_name[4:]
                 # Then it can only be a class
-                predicate_type = rdflib.URIRef(LDT[predicate_type_class_name])
+                predicate_type_node = rdflib.URIRef(LDT[predicate_type_class_name])
             else:
                 # Other possible values: "ref:__Provider", "ref:Win32_LogicalFileSecuritySetting",
                 # "ref:Win32_ComputerSystem",
@@ -461,9 +444,12 @@ def _convert_ontology_to_rdf(wmi_conn, rdf_graph):
                 # "Win32_DataFile" never appears.
 
                 # Sometimes the datatype is wrongly cased: "string", "String, "STRING".
-                predicate_type = _convert_wmi_type_to_xsd_type(wmi_type_name)
-            if predicate_type:
-                rdf_graph.add((property_node, rdflib.namespace.RDFS.range, predicate_type))
+                predicate_type_node = _convert_wmi_type_to_xsd_type(wmi_type_name)
+            if predicate_type_node:
+                rdf_graph.add((property_node, rdflib.namespace.RDFS.range, predicate_type_node))
+            else:
+                # Example: Unknown XSD type: object / Representative / __AggregateEvent
+                logging.error("Unknown XSD type: %s / %s / %s", wmi_type_name, property_name, class_name)
 
             try:
                 is_key = wmi_property_obj.Qualifiers_('key')
@@ -529,7 +515,7 @@ def _get_wmi_class_properties(class_name):
                 keys_list.append(prop_obj.Name)
         except Exception:
             # (-2147352567, 'Exception occurred.', (0, 'SWbemQualifierSet', 'Not found ', None, 0, -2147217406), None)
-            continue
+            pass
 
         class_props[prop_obj.Name] = property_type
     #if debug_mode:
@@ -573,9 +559,9 @@ def _create_classes_dictionary():
 
     for one_class in classes_list:
         the_properties, the_keys = _get_wmi_class_properties(one_class)
-        if debug_mode:
-            print(one_class, "the_properties=", the_properties)
-            print(one_class, "the_keys=", the_keys)
+        #if debug_mode:
+        #    print(one_class, "the_properties=", the_properties)
+        #    print(one_class, "the_keys=", the_keys)
         classes_dict[one_class] = the_properties
         keys_dict[one_class] = _keys_list_to_tuple(the_keys)
     return classes_dict, keys_dict
@@ -598,6 +584,8 @@ class PseudoWmiObject:
     TODO: It would be possible and cleaner to recreate the WMI object from the moniker with the syntax:
     TODO:    the_object = wmi.WMI(moniker=the_path)
     TODO: This ensures that no attribute is missing. Check performance.
+
+    TODO: Get only the needed properties. See ISWbemObject_to_value and its extractor.
     """
     def __init__(self, class_name, key_values):
         self.m_wmi_moniker = _create_wmi_moniker(class_name, **key_values)
@@ -612,12 +600,18 @@ moniker_prefix = r"\\\\LAPTOP-R89KG6V1\\root\\cimv2:"
 
 
 def _create_wmi_moniker(class_name, **kwargs):
+    """
+    This recreates the moiker of an objet, given the values of its keys.
+    :param class_name:
+    :param kwargs: key-value pairs of its keys.
+    :return: The moniker as a string.
+    """
     properties_as_str = ",".join('%s="%s"' % key_value for key_value in kwargs.items())
     wmi_moniker = moniker_prefix + class_name + "." + properties_as_str
     return wmi_moniker
 
 
-def _dir_to_files(class_name, where_clause):
+def _specialization_dir_to_files(class_name, where_clause):
     """
     This returns the files and directories contained in a directory.
     It does the same as the WQL query: "select * from CIM_Directory where Name='xyz'", but much faster.
@@ -660,7 +654,7 @@ def _dir_to_files(class_name, where_clause):
     return subobjects
 
 
-def _file_to_dir(class_name, where_clause):
+def _specialization_file_to_dir(class_name, where_clause):
     """
     This returns the files and directories contained in a directory.
     It does the same as the WQL query: "select * from CIM_Directory where Name='xyz'", but much faster.
@@ -689,8 +683,8 @@ def _file_to_dir(class_name, where_clause):
     return subobjects
 
 
-_generators_by_key[("CIM_DirectoryContainsFile", ("GroupComponent",))] = "_dir_to_files"
-_generators_by_key[("CIM_DirectoryContainsFile", ("PartComponent",))] = "_file_to_dir"
+_generators_by_key[("CIM_DirectoryContainsFile", ("GroupComponent",))] = "_specialization_dir_to_files"
+_generators_by_key[("CIM_DirectoryContainsFile", ("PartComponent",))] = "_specialization_file_to_dir"
 
 
 #################################################################################################
@@ -749,6 +743,19 @@ def _where_clauses_wql(where_clauses):
            + "\" % (" + ", ".join(formatted_where_values) + ")"
 
 
+# This might be a full scan, so it depends on the estimated number of elements.
+# Unusual numbers, easier to find in debug logs.
+cost_per_class_dict = {
+    'CIM_ProcessExecutable': 999,
+    'CIM_DirectoryContainsFile': 999999,
+    'Win32_Directory': 9999,
+    'CIM_Directory': 9999,
+    'CIM_DataFile': 88888,
+    'CIM_Process': 111,
+    'Win32_Process': 111,
+}
+
+
 def _wql_query_to_cost(class_name, where_clauses):
     """
     The execution cost of this query could be experimentally evaluated.
@@ -761,17 +768,7 @@ def _wql_query_to_cost(class_name, where_clauses):
     if _contains_one_key(class_name, where_clauses):
         return 10
     else:
-        # This might be a full scan, so it depends on the estimated number of elements.
-        # Unusual numbers, easier to find in debug logs.
-        cost_dict = {
-            'CIM_ProcessExecutable': 999,
-            'CIM_DirectoryContainsFile': 999999,
-            'Win32_Directory': 9999,
-            'CIM_Directory': 9999,
-            'CIM_DataFile': 88888,
-            'CIM_Process': 111
-        }
-        return cost_dict.get(class_name, 999)
+        return cost_per_class_dict.get(class_name, 999)
 
 
 def _contains_all_keys(class_name, where_clauses):
@@ -816,6 +813,30 @@ def _contains_one_key(class_name, where_clauses):
 
     return len(keys_intersection) > 0
 
+##############################################################################################################
+
+def python_property_extractor(python_object, class_name, property_name):
+    return "%s.%s # Python object" % (python_object, property_name)
+
+
+def pseudo_object_property_extractor(pseudo_wmi_object, class_name, property_name):
+    return "%s.%s # PseudoObject" % (pseudo_wmi_object, property_name)
+
+
+def wmi_object_property_extractor(wmi_object, class_name, property_name):
+    return "%s.%s # WMI object" % (wmi_object, property_name)
+
+
+def ISWbemObject_to_value(win32com_object, class_name, property_name):
+    # win32com_object type is something like win32com.gen_py.565783C6-CB41-11D1-8B02-00600806D9B6x0x1x2.ISWbemObject
+    if classes_dictionary[class_name][property_name].startswith("ref:"):
+        # If this is a reference, then rebuild the WMI object, because later, its properties are needed.
+        # TODO: Get only the needed properties.
+        return "wmi.WMI(moniker=%s.Properties_('%s').Value)" % (win32com_object, property_name)
+    else:
+        return "%s.Properties_('%s').Value" % (win32com_object, property_name)
+
+##############################################################################################################
 
 def _build_generator_wmi(class_name, where_clauses, needed_variables):
     # TODO: https://techgenix.com/UsingWMIfiltersinGroupPolicy/
@@ -851,7 +872,8 @@ def _build_generator_wmi(class_name, where_clauses, needed_variables):
     # TODO: for os in win32com.client.GetObject ("winmgmts:").InstancesOf("Win32_OperatingSystem"):
     # TODO:     my_caption = os.Properties_ ("Caption").Value
 
-    if where_clauses: #  or True:
+    query_cost = _wql_query_to_cost(class_name, where_clauses)
+    if where_clauses:
         # TODO: For better performance, consider this syntax which might be faster:
         # TODO: for myTime in myWMI.Win32_LocalTime ():
         # TODO: for s in c.Win32_Service(StartMode="Auto", State="Stopped"):
@@ -859,11 +881,15 @@ def _build_generator_wmi(class_name, where_clauses, needed_variables):
         generic_column = ", ".join(needed_variables) if needed_variables else "*"
         query_generator = "wmi_conn.query(\"select %s from %s%s)" % (
             generic_column, class_name, _where_clauses_wql(where_clauses))
+        property_extractor = wmi_object_property_extractor
+        query_cost = _wql_query_to_cost(class_name, where_clauses)
     else:
         query_generator = "win32com.client.GetObject('winmgmts:').InstancesOf('%s')" % class_name
+        property_extractor = ISWbemObject_to_value
+        # The cost should be lower : This is an estimate.
+        query_cost /= 10
 
-    query_cost = _wql_query_to_cost(class_name, where_clauses)
-    return query_generator, query_cost
+    return query_generator, query_cost, property_extractor
 
 
 def _build_generator(class_name, where_clauses, needed_variables):
@@ -885,18 +911,20 @@ def _build_generator(class_name, where_clauses, needed_variables):
         generator_origin = "customization"
         # TODO: The cost of custom functions should be evaluated.
         generator_cost = 1
+        property_extractor = pseudo_object_property_extractor
     else:
-        created_generator, generator_cost = _build_generator_wmi(class_name, where_clauses, needed_variables)
+        created_generator, generator_cost , property_extractor = _build_generator_wmi(class_name, where_clauses, needed_variables)
         generator_origin = "wmi"
 
     return {
         "generator": created_generator,
         "origin": generator_origin,
-        "cost": generator_cost
+        "cost": generator_cost,
+        "property_extractor_name": property_extractor
     }
 
 
-def _generate_wql_code(output_stream, lst_output_variables, lst_objects):
+def _generate_wql_code(output_stream, lst_output_variables, lst_objects, function_name):
     known_variables = set()
     total_cost = 1
 
@@ -910,7 +938,13 @@ def _generate_wql_code(output_stream, lst_output_variables, lst_objects):
         margin = "    " * generated_loop_counter
         output_stream.write("%s%s\n" % (margin, code_string))
 
+    def output_comment(comment_string):
+        output_code_line(comment_prefix + comment_string)
+
     #output_code_line("cnt = 0")
+    output_code_line("def %s():" % function_name)
+    generated_loop_counter = 1
+    #new_nested_loop = True
 
     for one_obj in lst_objects:
         obj_subject, obj_class, obj_properties = one_obj.m_subject, one_obj.m_class, one_obj.m_properties
@@ -920,16 +954,16 @@ def _generate_wql_code(output_stream, lst_output_variables, lst_objects):
             # The object is known: We just need to assign the value of its properties,
             # if they are variables (not literals) and their value is not known.
             # There is no need to insert a query to iterate on the possible values of the object.
-            # output_code_line(comment_prefix + "Variable %s is known" % node_variable)
+            # output_comment("Variable %s is known" % node_variable)
             # The node is known:
             #     var1 = the_node.Member1
             #     var2 = the_node.Member2
             # No query is generated.
             for one_property, one_variable in obj_properties.items():
                 if isinstance(one_variable, VARI) and one_variable not in known_variables:
-                    assigns_list.append(
-                        (one_variable, obj_subject, one_property, "%s is known" % one_variable))
+                    assigns_list.append((one_variable, obj_subject, one_property, "%s is known" % one_variable))
                     known_variables.add(one_variable)
+            property_extractor = python_property_extractor
         else:
             # The object is not known: A query must be added which will iterate on its possible values.
             # Build the WHERE clause with literal values or known variables.
@@ -946,9 +980,7 @@ def _generate_wql_code(output_stream, lst_output_variables, lst_objects):
                 elif isinstance(one_variable, LITT):
                     where_clauses[one_property] = one_variable
 
-            output_code_line(
-                comment_prefix +
-                "known_variables=%s" % ", ".join([str(one_var) for one_var in known_variables]))
+            output_comment("known_variables=%s" % ", ".join([str(one_var) for one_var in known_variables]))
 
             # TODO: Use the syntax offered by wmi Python module, for example:
             # TODO:      fixed_disks = wmi.WMI ().Win32_LogicalDisk (DriveType=3)
@@ -959,41 +991,44 @@ def _generate_wql_code(output_stream, lst_output_variables, lst_objects):
             known_variables_as_str = set(str(one_var) for one_var in known_variables)
             where_clauses_keys = set(where_clauses.keys())
             needed_variables = variable_properties.difference(known_variables_as_str, where_clauses_keys)
-            # print("variable_properties=", variable_properties)
-            # print("known_variables_as_str=", known_variables_as_str)
-            # print("where_clauses_keys=", where_clauses_keys)
-            # print("needed_variables=", needed_variables)
 
             loops_report.append((obj_class, where_clauses))
             instances_generator_description = _build_generator(obj_class, where_clauses, needed_variables)
             generator_cost = instances_generator_description["cost"]
-            output_code_line(comment_prefix + "Cost: %d" % generator_cost)
-            total_cost *= generator_cost
+            property_extractor = instances_generator_description["property_extractor_name"]
+            # The total cost is the product of each individual loop.
+            # A small number is added to model the cost of the overhead of the loop.
+            # It prioritizes small loops first.
+            total_cost = total_cost * (1 + generator_cost)
+            output_comment("Cost: %d, total: %d" % (generator_cost, total_cost))
             loop_line = "for %s in %s:" % (obj_subject, instances_generator_description["generator"])
             output_code_line(loop_line)
             generated_loop_counter += 1
 
             # Now, assign the variables which now are known.
-            for one_property, one_variable in obj_properties.items():
-                pass
-                if isinstance(one_variable, VARI):
-                    if not one_variable in known_variables:
-                        known_variables.add(one_variable)
+            #for one_property, one_variable in obj_properties.items():
+            #    pass # ??????
+            #    if isinstance(one_variable, VARI):
+            #        if not one_variable in known_variables:
+            #            known_variables.add(one_variable)
         objects_loop_counter += 1
 
         if assigns_list:
             # The variable is just a moniker if it is created by a loop using win32com.
             # If so, transforms this moniker into a WMI object.
-            for input_variable in set(assign_tuple[1] for assign_tuple in assigns_list):
-                output_code_line("if isinstance(%s, str): %s = wmi.WMI(moniker=%s)" % (input_variable, input_variable, input_variable))
+            #for input_variable in set(assign_tuple[1] for assign_tuple in assigns_list):
+            #    output_code_line("if isinstance(%s, str): %s = wmi.WMI(moniker=%s)" % (input_variable, input_variable, input_variable))
 
             # The assignment might throw "OLE error 0x80041002"
             output_code_line("try:")
             for assign_tuple in assigns_list:
-                output_code_line("    %s = %s.%s # %s" % assign_tuple)
+                assign_expression = property_extractor(assign_tuple[1], obj_class, assign_tuple[2])
+                output_code_line("    %s = %s # %s" % (assign_tuple[0], assign_expression, assign_tuple[3]))
             output_code_line("except Exception as exc:")
             # TODO : Store the exception somewhere.
             output_code_line("    print('EXCEPTION:', exc)")
+            # output_code_line("    traceback.print_exc()")
+            output_code_line("    continue")
         #output_code_line("cnt += 1")
         #output_code_line("if cnt == 1000: raise Exception('Finito')")
         known_variables.add(obj_subject)
@@ -1001,17 +1036,41 @@ def _generate_wql_code(output_stream, lst_output_variables, lst_objects):
     # This is the last line of the generated code.
     # It is called in the most nested loop.
     output_code_line(
-        "print({"
+        "yield {"
         + ", ".join(
             ["'%s': %s" % (output_variable, output_variable) for output_variable in lst_output_variables])
-        + "})"
+        + "}"
     )
+    generated_loop_counter = 1
+    output_comment("end of generated code")
 
     # This dict evaluates the efficiency of the generated code,
     # so it is possible to choose between different implementations.
     code_description = {"total_cost": total_cost, "depth": generated_loop_counter, "loops": loops_report}
 
     return code_description
+
+
+def objects_list_to_python_code(output_variables, shuffled_lst_objects, function_name):
+    print("run_lst_objects")
+    for one_obj in shuffled_lst_objects:
+        print("    ", one_obj)
+        assert isinstance(one_obj, _CimObject)
+
+    my_stream = io.StringIO()
+
+    # The returned dict gives criterias to compare different implementations of the nested loops
+    # enumerating WQL objects. The performance can be completely different.
+    code_description = _generate_wql_code(my_stream, output_variables, shuffled_lst_objects, function_name)
+    my_stream.seek(0)
+    result_as_str = my_stream.read()
+    print("Generated code:", code_description)
+    print(result_as_str)
+    # Tests if the generated Python code is correct.
+    ast.parse(result_as_str)
+
+    return code_description, result_as_str
+
 
 
 #################################################################################################
