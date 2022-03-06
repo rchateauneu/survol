@@ -306,11 +306,6 @@ def test_keys_lists():
 
 #    code_description = _generate_wql_code(my_stream, self.m_output_variables, shuffled_lst_objects)
 
-
-def no_check(query_results):
-    return True
-
-
 #################################################################################################
 
 if False:
@@ -334,8 +329,24 @@ if False:
 
 #################################################################################################
 
-samples_list["CIM_Directory"] = (
-    """
+class TestBase(type):
+    subclasses = dict()
+
+    # def __new__(cls, name, bases, dct):
+    #def __new__(cls, name, bases, dct):
+    #    #    #x = super().__new__(cls, name, bases, dct)
+    #    x = super().__new__(cls, name, bases, dct)
+    #    #    cls.subclasses[cls.label] = x
+    #    print("New", name, type(x), type(cls))
+    #    return x
+
+    def __init__(cls, name, bases, dct):
+        print("Init", name, type(cls))
+        cls.subclasses[cls.label] = cls
+
+class Testing_CIM_Directory(metaclass=TestBase):
+    label = "CIM_Directory"
+    query = """
     prefix cim:  <http://www.primhillcomputers.com/ontology/survol#>
     prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
     select ?my_directory
@@ -343,15 +354,21 @@ samples_list["CIM_Directory"] = (
     ?my_directory rdf:type cim:CIM_Directory .
     ?my_directory cim:Name "C:" .
     }
-    """,
-    [
-        _CimObject(VARI('my_directory'), 'CIM_Directory', {'Name': LITT('C:')}),
-    ],
-    no_check
-)
-
-samples_list["CIM_Process"] = (
     """
+    expected_objects = [
+        _CimObject(VARI('my_directory'), 'CIM_Directory', {'Name': LITT('C:')}),
+    ]
+
+    def checker(query_results):
+        assert len(query_results) == 1
+
+
+class Testing_CIM_Process(metaclass=TestBase):
+    """
+    This selects all process ids and their names.
+    """
+    label = "CIM_Process"
+    query = """
     prefix cim:  <http://www.primhillcomputers.com/ontology/survol#>
     prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
     select ?my_process_name ?my_process_handle
@@ -360,15 +377,24 @@ samples_list["CIM_Process"] = (
     ?my_process cim:Handle ?my_process_handle .
     ?my_process cim:Name ?my_process_name .
     }
-    """,
-    [
-        _CimObject(VARI('my_process'), 'CIM_Process', {'Handle': VARI('my_process_handle'), 'Name': VARI('my_process_name')}),
-    ],
-    no_check
-)
-
-samples_list["CIM_DirectoryContainsFile with Directory=C:"] = (
     """
+    expected_objects = [
+        _CimObject(VARI('my_process'), 'CIM_Process', {'Handle': VARI('my_process_handle'), 'Name': VARI('my_process_name')}),
+    ]
+
+    def checker(query_results):
+        """
+        It must contain at least the current process.
+        :return:
+        """
+        # This should be something like "python.exe"
+        process_name = os.path.basename(sys.executable)
+        assert (rdflib.term.Literal(process_name), rdflib.term.Literal(str(current_pid))) in query_results
+
+
+class Testing_CIM_DirectoryContainsFile_WithDir(metaclass=TestBase):
+    label = "CIM_DirectoryContainsFile with Directory=C:"
+    query = """
     prefix cim:  <http://www.primhillcomputers.com/ontology/survol#>
     prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
     select ?my_file_name
@@ -381,17 +407,28 @@ samples_list["CIM_DirectoryContainsFile with Directory=C:"] = (
     ?my_dir rdf:type cim:Win32_Directory .
     ?my_dir cim:Name 'C:' .
     }
-    """,
-    [
+    """
+    expected_objects = [
         _CimObject(VARI('my_assoc_dir'), 'CIM_DirectoryContainsFile', {'GroupComponent': VARI('my_dir'), 'PartComponent': VARI('my_file')}),
         _CimObject(VARI('my_file'), 'CIM_DataFile', {'Name': VARI('my_file_name')}),
         _CimObject(VARI('my_dir'), 'CIM_Directory', {'Name': LITT('C:')}),
-    ],
-    no_check
-)
+    ]
 
-samples_list["CIM_DirectoryContainsFile with File=KERNEL32.DLL"] = (
-    """
+    def checker(query_results):
+        # one_result_dict= {'my_file': <wmi_sparql.PseudoWmiObject object at 0x000002094C304820>,
+        # 'my_dir': <_wmi_object: b'\\\\LAPTOP-R89KG6V1\\root\\cimv2:Win32_Directory.Name="C:"'>,
+        # 'my_file_name': 'C:\\swapfile.sys',
+        # 'my_assoc_dir': <wmi_sparql.PseudoWmiObject object at 0x000002094C3049D0>}
+
+        # This checks that all variables are present in all results.
+        expected_keys = set(['my_dir_name', 'my_assoc_dir', 'my_file', 'my_dir', 'my_file_name'])
+        for one_result in query_results:
+            assert set(one_result.keys()) == expected_keys
+
+
+class Testing_CIM_DirectoryContainsFile_WithFile(metaclass=TestBase):
+    label = "CIM_DirectoryContainsFile with File=KERNEL32.DLL"
+    query = """
     prefix cim:  <http://www.primhillcomputers.com/ontology/survol#>
     prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
     select ?my_dir_name
@@ -404,17 +441,23 @@ samples_list["CIM_DirectoryContainsFile with File=KERNEL32.DLL"] = (
     ?my_dir rdf:type cim:Win32_Directory .
     ?my_dir cim:Name ?my_dir_name .
     }
-    """,
-    [
+    """
+    expected_objects = [
         _CimObject(VARI('my_assoc_dir'), 'CIM_DirectoryContainsFile', {'GroupComponent': VARI('my_dir'), 'PartComponent': VARI('my_file')}),
         _CimObject(VARI('my_dir'), 'CIM_Directory', {'Name': VARI('my_dir_name')}),
         _CimObject(VARI('my_file'), 'CIM_DataFile', {'Name': LITT("C:\\\\WINDOWS\\\\System32\\\\KERNEL32.DLL")}),
-    ],
-    no_check
-)
+    ]
 
-samples_list["CIM_ProcessExecutable with Antecedent=KERNEL32.DLL"] = (
-    """
+    def checker(query_results):
+        # This checks that all variables are present.
+        expected_keys = set(['my_dir_name', 'my_assoc_dir', 'my_file', 'my_dir'])
+        for one_result in query_results:
+            assert set(one_result.keys()) == expected_keys
+
+
+class Testing_CIM_ProcessExecutable_WithAntecedent(metaclass=TestBase):
+    label = "CIM_ProcessExecutable with Antecedent=KERNEL32.DLL"
+    query = """
     prefix cim:  <http://www.primhillcomputers.com/ontology/survol#>
     prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
     select ?my_process_handle
@@ -427,19 +470,25 @@ samples_list["CIM_ProcessExecutable with Antecedent=KERNEL32.DLL"] = (
     ?my_file rdf:type cim:CIM_DataFile .
     ?my_file cim:Name "C:\\\\WINDOWS\\\\System32\\\\KERNEL32.DLL" .
     }
-    """,
-    [
+    """
+    expected_objects = [
         _CimObject(VARI('my_assoc'), 'CIM_ProcessExecutable', {'Dependent': VARI('my_process'), 'Antecedent': VARI('my_file')}),
         _CimObject(VARI('my_process'), 'CIM_Process', {'Handle': VARI('my_process_handle')}),
         _CimObject(VARI('my_file'), 'CIM_DataFile', {'Name': LITT(r'C:\\WINDOWS\\System32\\KERNEL32.DLL')}),
-    ],
-    no_check
-)
+    ]
+
+    def checker(query_results):
+        # This checks that all variables are present.
+        expected_keys = set(['my_assoc', 'my_process', 'my_file', 'my_process_handle'])
+        for one_result in query_results:
+            assert set(one_result.keys()) == expected_keys
+
 
 current_pid = os.getpid()
 
-samples_list["CIM_ProcessExecutable with Dependent=current process"] = (
-    """
+class Testing_CIM_ProcessExecutable_WithDependent(metaclass=TestBase):
+    label = "CIM_ProcessExecutable with Dependent=current process"
+    query = """
     prefix cim:  <http://www.primhillcomputers.com/ontology/survol#>
     prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
     select ?my_file_name
@@ -452,17 +501,23 @@ samples_list["CIM_ProcessExecutable with Dependent=current process"] = (
     ?my_file rdf:type cim:CIM_DataFile .
     ?my_file cim:Name ?my_file_name .
     }
-    """ % current_pid,
-    [
+    """ % current_pid
+    expected_objects = [
         _CimObject(VARI('my_assoc'), 'CIM_ProcessExecutable', {'Dependent': VARI('my_process'), 'Antecedent': VARI('my_file')}),
         _CimObject(VARI('my_process'), 'CIM_Process', {'Handle': LITT('%d' % current_pid)}),
         _CimObject(VARI('my_file'), 'CIM_DataFile', {'Name': VARI('my_file_name')}),
-    ],
-    no_check
-)
+    ]
 
-samples_list["CIM_Process with Handle= current process"] = (
-    """
+    def checker(query_results):
+        # This checks that all variables are present.
+        expected_keys = set(['my_assoc', 'my_process', 'my_file', 'my_file_name'])
+        for one_result in query_results:
+            assert set(one_result.keys()) == expected_keys
+
+
+class Testing_CIM_Process_WithHandle(metaclass=TestBase):
+    label = "CIM_Process with Handle= current process"
+    query = """
     prefix cim:  <http://www.primhillcomputers.com/ontology/survol#>
     prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
     select ?my_process_caption
@@ -471,15 +526,18 @@ samples_list["CIM_Process with Handle= current process"] = (
     ?my_process cim:Handle %s .
     ?my_process cim:Caption ?my_process_caption .
     }
-    """ % current_pid,
-    [
+    """ % current_pid
+    expected_objects = [
         _CimObject(VARI('my_process'), 'CIM_Process', {'Handle': LITT(current_pid), 'Caption': VARI('my_process_caption')}),
-    ],
-    no_check
-)
+    ]
 
-samples_list["Win32_Directory CIM_DirectoryContainsFile CIM_DirectoryContainsFile"] = (
-    """
+    def checker(query_results):
+        assert False
+
+
+class Testing_Win32_Directory_CIM_DirectoryContainsFile_CIM_DirectoryContainsFile(metaclass=TestBase):
+    label = "Win32_Directory CIM_DirectoryContainsFile CIM_DirectoryContainsFile"
+    query = """
     prefix cim:  <http://www.primhillcomputers.com/ontology/survol#>
     prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
     select ?my_dir_name3
@@ -496,19 +554,22 @@ samples_list["Win32_Directory CIM_DirectoryContainsFile CIM_DirectoryContainsFil
     ?my_dir3 rdf:type cim:Win32_Directory .
     ?my_dir3 cim:Name ?my_dir_name3 .
     }
-    """,
-    [
+    """
+    expected_objects = [
         _CimObject(VARI('my_assoc_dir1'), 'CIM_DirectoryContainsFile', {'GroupComponent': VARI('my_dir1'), 'PartComponent': VARI('my_dir2')}),
         _CimObject(VARI('my_assoc_dir2'), 'CIM_DirectoryContainsFile', {'GroupComponent': VARI('my_dir2'), 'PartComponent': VARI('my_dir3')}),
         _CimObject(VARI('my_dir1'), 'Win32_Directory', {'Name': LITT('C:')}),
         _CimObject(VARI('my_dir2'), 'Win32_Directory', {}),
         _CimObject(VARI('my_dir3'), 'Win32_Directory', {'Name': VARI('my_dir_name3')}),
-    ],
-    no_check
-)
+    ]
 
-samples_list["CIM_ProcessExecutable CIM_DirectoryContainsFile Handle=current_pid"] = (
-    """
+    def checker(query_results):
+        assert False
+
+
+class Testing_CIM_ProcessExecutable_CIM_DirectoryContainsFile_WithHandle(metaclass=TestBase):
+    label = "CIM_ProcessExecutable CIM_DirectoryContainsFile Handle=current_pid"
+    query = """
     prefix cim:  <http://www.primhillcomputers.com/ontology/survol#>
     prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
     select ?my_dir_name
@@ -526,19 +587,22 @@ samples_list["CIM_ProcessExecutable CIM_DirectoryContainsFile Handle=current_pid
     ?my_dir rdf:type cim:Win32_Directory .
     ?my_dir cim:Name ?my_dir_name .
     }
-    """ % current_pid,
-    [
+    """ % current_pid
+    expected_objects = [
         _CimObject(VARI('my_assoc'), 'CIM_ProcessExecutable', {'Dependent': VARI('my_process'), 'Antecedent': VARI('my_file')}),
         _CimObject(VARI('my_assoc_dir'), 'CIM_DirectoryContainsFile', {'GroupComponent': VARI('my_dir'), 'PartComponent': VARI('my_file')}),
         _CimObject(VARI('my_process'), 'CIM_Process', {'Handle': LITT(current_pid)}),
         _CimObject(VARI('my_file'), 'CIM_DataFile', {'Name': VARI('my_file_name')}),
         _CimObject(VARI('my_dir'), 'CIM_Directory', {'Name': VARI('my_dir_name')}),
-    ],
-    no_check
-)
+    ]
 
-samples_list["CIM_ProcessExecutable full scan"] = (
-    """
+    def checker(query_results):
+        assert False
+
+
+class Testing_CIM_ProcessExecutable_FullScan(metaclass=TestBase):
+    label = "CIM_ProcessExecutable full scan"
+    query = """
     prefix cim:  <http://www.primhillcomputers.com/ontology/survol#>
     prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
     select ?my_file_name ?my_process_handle
@@ -551,17 +615,20 @@ samples_list["CIM_ProcessExecutable full scan"] = (
     ?my_file rdf:type cim:CIM_DataFile .
     ?my_file cim:Name ?my_file_name .
     }
-    """,
-    [
+    """
+    expected_objects = [
         _CimObject(VARI('my_assoc'), 'CIM_ProcessExecutable', {'Dependent': VARI('my_process'), 'Antecedent': VARI('my_file')}),
         _CimObject(VARI('my_process'), 'CIM_Process', {'Handle': VARI('my_process_handle')}),
         _CimObject(VARI('my_file'), 'CIM_DataFile', {'Name': VARI('my_file_name')}),
-    ],
-    no_check
-)
+    ]
 
-samples_list["CIM_ProcessExecutable CIM_DirectoryContainsFile"] = (
-    """
+    def checker(query_results):
+        assert False
+
+
+class Testing_CIM_ProcessExecutable_CIM_DirectoryContainsFile(metaclass=TestBase):
+    label = "CIM_ProcessExecutable CIM_DirectoryContainsFile"
+    query = """
     prefix cim:  <http://www.primhillcomputers.com/ontology/survol#>
     prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
     select ?my_dir_name
@@ -578,19 +645,22 @@ samples_list["CIM_ProcessExecutable CIM_DirectoryContainsFile"] = (
     ?my_dir rdf:type cim:Win32_Directory .
     ?my_dir cim:Name ?my_dir_name .
     }
-    """,
-    [
+    """
+    expected_objects = [
         _CimObject(VARI('my_assoc'), 'CIM_ProcessExecutable', {'Dependent': VARI('my_process'), 'Antecedent': VARI('my_file')}),
         _CimObject(VARI('my_assoc_dir'), 'CIM_DirectoryContainsFile', {'GroupComponent': VARI('my_dir'), 'PartComponent': VARI('my_file')}),
         _CimObject(VARI('my_process'), 'CIM_Process', {}),
         _CimObject(VARI('my_file'), 'CIM_DataFile', {'Name': VARI('my_file_name')}),
         _CimObject(VARI('my_dir'), 'CIM_Directory', {'Name': VARI('my_dir_name')}),
     ],
-    no_check
-)
 
-samples_list["CIM_Process CIM_DataFile Same Caption"] = (
-    """
+    def checker(query_results):
+        assert False
+
+
+class Testing_CIM_Process_CIM_DataFile_SameCaption(metaclass=TestBase):
+    label = "CIM_Process CIM_DataFile Same Caption"
+    query = """
     prefix cim:  <http://www.primhillcomputers.com/ontology/survol#>
     prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
     select ?same_caption
@@ -600,13 +670,18 @@ samples_list["CIM_Process CIM_DataFile Same Caption"] = (
     ?my_file rdf:type cim:CIM_DataFile .
     ?my_file cim:Caption ?same_caption .
     }
-    """,
-    [
+    """
+    expected_objects = [
         _CimObject(VARI('my_process'), 'CIM_Process', {'Caption': VARI('same_caption')}),
         _CimObject(VARI('my_file'), 'CIM_DataFile', {'Caption': VARI('same_caption')}),
-    ],
-    no_check
-)
+    ]
+
+    def checker(query_results):
+        assert False
+
+
+# CHERCHER DES PROPERTIES QUI EXISTENT AIILLEURS POUR FAIRE DES FEDEREATED QUERIES:
+# EMAIL <=> FOAF ETC...
 
 #################################################################################################
 
@@ -641,13 +716,15 @@ def shuffle_lst_objects(test_description, test_details):
     print("#" * 50, test_description)
     sys.stdout.flush()
 
-    custom_eval = wmi_sparql.CustomEvalEnvironment(test_description, test_details[0], test_details[1])
+    custom_eval = wmi_sparql.CustomEvalEnvironment(test_description, test_details.query, test_details.expected_objects)
 
-    custom_eval.run_query_in_rdflib()
+    query_results = custom_eval.run_query_in_rdflib()
+    print("query_results", query_results)
+    test_details.checker(query_results)
 
 
 def test_sparql_data():
-    for test_description, test_details in samples_list.items():
+    for test_description, test_details in TestBase.subclasses.items():
         # CIM_ProcessExecutable full scan
         #if test_description != "CIM_Process CIM_DataFile Same Caption":
         #    continue
