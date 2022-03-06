@@ -94,6 +94,10 @@ class _CimObject:
         return str(self.m_subject) == str(other.m_subject)
 
     def variable_properties(self):
+        """
+        This returns a set of the property names whose value is a vatiable.
+        :return: A set of strings.
+        """
         return set(key for key, value in self.m_properties.items() if isinstance(value, VARI))
 
 
@@ -160,7 +164,7 @@ def _part_triples_to_instances_list(part_triples):
 
         predicate_as_str = str(part_predicate)
         if predicate_as_str.startswith(survol_url_prefix):
-            # This applies only to CIM properties whcih can be used in a WQL query.
+            # This applies only to CIM properties which can be used in a WQL query.
             current_instance.m_properties[_strip_prefix(part_predicate)] = part_object
 
     return list(instances_dict.values())
@@ -179,20 +183,7 @@ class CustomEvalEnvironment:
         if debug_mode:
             print("Output variables=", self.m_output_variables)
 
-    def _fetch_wmi_objects_in_graph(self, ctx_graph, instances_list):
-        """
-        This executes WMI queries on the list of instances.
-        It is indirectly called by rdflib custom eval functions when executing a sparql query.
-
-        It must first generate Python code with execution of WQL queries.
-        It tries different orders of the list of CIM objects, to find the most efficient one.
-
-        After that, the generated code must be executed and it inserts triples in the context.
-
-        :param ctx:
-        :param instances_dict:
-        :return: Nothing.
-        """
+    def _best_snippet(self, function_name, instances_list):
         # The order of objects in the instances list gives the order of enumerations of WMI objects
         # with WQL queries or WQL-like loops.
         # These enumerations should all return the same instances but their performances can be drastically different.
@@ -213,50 +204,113 @@ class CustomEvalEnvironment:
         # such as {"CIM_ComputerSystem": 1, "CIM_Process": 100, "CIM_DataFile": 1000000}
         # For the moment, all iterations are done, for testing purpose.
 
-        # Name of the function which is about to be generated.
-        function_name = "my_results_generator"
-        all_queries = []
+        all_snippets = []
         for one_permutation in itertools.permutations(instances_list):
             code_description, result_as_str = objects_list_to_python_code(
                 self.m_output_variables, one_permutation, function_name)
-            all_queries.append((code_description, result_as_str))
+            all_snippets.append((code_description, result_as_str))
 
-        best_query_index = 0
-        for query_index in range(1, len(all_queries)):
-            # print("all_queries[query_index][0]=", all_queries[best_query_index][0])
-            if all_queries[best_query_index][0]["total_cost"] > all_queries[query_index][0]["total_cost"]:
-                best_query_index = query_index
+        best_snippet_index = 0
+        for snippet_index in range(1, len(all_snippets)):
+            # print("all_snippets[snippet_index][0]=", all_snippets[best_snippet_index][0])
+            if all_snippets[best_snippet_index][0]["total_cost"] > all_snippets[snippet_index][0]["total_cost"]:
+                best_snippet_index = snippet_index
 
-        print("best query:", self.m_test_description, all_queries[best_query_index][0])
-        best_generated_python_code = all_queries[best_query_index][1]
+        print("best query:", self.m_test_description, all_snippets[best_snippet_index][0])
+        best_generated_python_code = all_snippets[best_snippet_index][1]
         assert best_generated_python_code
-
         # This works but it can be very slow.
         # TODO: Execute only if not too slow.
         # TODO: Execute in a sub-process.
         # Create performance statistics which are later used to choose the best enumeration.
         print("Best query code:")
         print(best_generated_python_code)
-        print("Execution")
+        return best_generated_python_code
 
-        #my_results_generator = None
+
+    def _insert_wmi_results_in_graph(self, ctx_graph, instances_list, eval_results):
+        # These results are now used to generate triples inserted in the triplestore.
+        # This triplestore is later used to run the Sparql query.
+        for one_result_dict in eval_results:
+            #print("one_result_dict=", one_result_dict)
+
+            def evaluated_value(property_value):
+                if isinstance(property_value, VARI):
+                    return one_result_dict[str(property_value)]
+                else:
+                    return property_value
+
+            for one_instance in instances_list:
+                assert isinstance(one_instance, _CimObject)
+
+                evaluated_key_values = {
+                    property_key : evaluated_value(property_value)
+                    for property_key, property_value in one_instance.m_properties.items()
+                }
+
+                assert isinstance(one_instance.m_class, str)
+                new_object_moniker = _create_wmi_moniker(one_instance.m_class, **evaluated_key_values)
+                new_object_node = rdflib.URIRef(LDT[new_object_moniker])
+
+                class_node = rdflib.URIRef(LDT[one_instance.m_class])
+                ctx_graph.add((new_object_node, rdflib.namespace.RDF.type, class_node))
+
+                for property_key, property_value in one_instance.m_properties.items():
+                    assert isinstance(property_key, str)
+                    evaluated_value = evaluated_value(property_value)
+                    property_node = rdflib.URIRef(LDT[property_key])
+                    value_node = LITT(evaluated_value)
+                    assert isinstance(new_object_node, rdflib.term.URIRef)
+                    assert isinstance(property_node, rdflib.term.URIRef)
+                    ctx_graph.add((new_object_node, property_node, value_node))
+
+        """
+        Verifier si toutes les variables sont la, y compris les variables intermediaires,
+        et pas seulement les variables selectionnees par la query sparql.
+
+        Ca serait peut-etre plus rapide si on reordonnait avec une liste par variable.
+        Ensuite, on boucle en premier lieu sur les triples.    
+        Autrement dit, les snippets, au lieu de faire yield, vont remplir une liste par variable.
+        Mais ca complique le parallelisme. Sauf si on agrege plusieurs listes a la fin.
+        On pourrait aussi avoir des arbres pour eviter la redondance des variables sur lesquelles on boucle.
+        Mais ca aussi gene le parallelisme et force a stocker explictement.
+        Ne pas recalculer les class_node et property_node.
+        En premier lieu ... PROFILER !
+        Ca pourrait aussi appeler une callback.
+        Bref: Pour le moment, on fait au plus simple: Ca yield des dictionnaires de key-values.
+        """
+
+    def _fetch_wmi_objects_in_graph(self, ctx_graph, instances_list):
+        """
+        This executes WMI queries on the list of instances.
+        It is indirectly called by rdflib custom eval functions when executing a sparql query.
+
+        It must first generate Python code with execution of WQL queries.
+        It tries different orders of the list of CIM objects, to find the most efficient one.
+
+        After that, the generated code must be executed and it inserts triples in the context.
+
+        :param ctx:
+        :param instances_dict:
+        :return: Nothing.
+        """
+
+        # Name of the function which is about to be generated.
+        best_generated_python_code = self._best_snippet("my_results_generator", instances_list)
+
+        print("Execution")
         eval_result = exec(best_generated_python_code, globals())
-        print("eval_result=", eval_result)
+        assert eval_result is None
+        # This is the name of the created Python function which returns variables calculated from WMI
         assert my_results_generator
-        eval_result = my_results_generator()
-        for one_tuple in eval_result:
-            print("one_tuple=", one_tuple)
+        eval_results = my_results_generator()
+        self._insert_wmi_results_in_graph(ctx_graph, instances_list, eval_results)
+
 
     def _check_objects_list(self, instances_list):
         # Any order will do for this comparison, as long as it is consistent.
         ordered_actual_instances = sorted(instances_list)
         ordered_expected_instances = sorted(self.m_expected_objects_list)
-        #print("ordered_actual_instances")
-        #for i in ordered_actual_instances:
-        #    print("    ", i)
-        #print("ordered_expected_instances")
-        #for i in ordered_expected_instances:
-        #    print("    ", i)
         assert ordered_actual_instances == ordered_expected_instances
 
     def custom_eval_bgp(self, ctx_graph, part_triples):
@@ -306,13 +360,13 @@ class CustomEvalEnvironment:
         # add function directly, normally we would use setuptools and entry_points
         rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_function'] = _wmi_custom_eval_function
         try:
-            query_result = grph.query(self.m_sparql_query)
+            query_results = grph.query(self.m_sparql_query)
         except Exception:
             print("Error self.m_sparql_query=", self.m_sparql_query)
             raise
         if 'custom_eval_function' in rdflib.plugins.sparql.CUSTOM_EVALS:
             del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_function']
-        return query_result
+        return list(query_results)
 
 
 #################################################################################################
@@ -601,7 +655,7 @@ moniker_prefix = r"\\\\LAPTOP-R89KG6V1\\root\\cimv2:"
 
 def _create_wmi_moniker(class_name, **kwargs):
     """
-    This recreates the moiker of an objet, given the values of its keys.
+    This recreates the moniker of an objet, given the values of its keys.
     :param class_name:
     :param kwargs: key-value pairs of its keys.
     :return: The moniker as a string.
@@ -1035,12 +1089,24 @@ def _generate_wql_code(output_stream, lst_output_variables, lst_objects, functio
 
     # This is the last line of the generated code.
     # It is called in the most nested loop.
-    output_code_line(
-        "yield {"
-        + ", ".join(
-            ["'%s': %s" % (output_variable, output_variable) for output_variable in lst_output_variables])
-        + "}"
-    )
+
+    # FIXME: No, it must be all variables, and we can list these explicitely.
+
+    if False:
+        output_code_line(
+            "yield {"
+            + ", ".join(
+                ["'%s': %s" % (output_variable, output_variable) for output_variable in lst_output_variables])
+            + "}"
+        )
+    else:
+        resulting_variables = [str(one_var) for one_var in known_variables]
+        output_code_line(
+            "yield {"
+            + ", ".join(
+                ["'%s': %s" % (output_variable, output_variable) for output_variable in resulting_variables])
+            + "}"
+        )
     generated_loop_counter = 1
     output_comment("end of generated code")
 
