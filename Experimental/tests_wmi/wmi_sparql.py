@@ -4,7 +4,7 @@ import io
 import ast
 import itertools
 import logging
-#import traceback
+import urllib
 
 import wmi
 import win32com
@@ -25,7 +25,7 @@ debug_mode = True
 # Without this, win32com.client.constants are not available.
 win32com.client.gencache.EnsureModule('{565783C6-CB41-11D1-8B02-00600806D9B6}', 0, 1, 1)
 
-# These queries work correctly. Please note how back-slashes are escaped.
+# These queries work correctly. Please note how back-slashes are escaped. They are doubled between quotes.
 # select * from CIM_DirectoryContainsFile where GroupComponent="Win32_Directory.Name=\"C:\\\\Users\\\\rchat\""
 # select * from CIM_DirectoryContainsFile where PartComponent="CIM_DataFile.Name=\"C:\\\\Users\\\\desktop.ini\""
 # select * from CIM_DirectoryContainsFile where PartComponent="CIM_DataFile.Name=\"\\\\\\\\LAPTOP-R89KG6V1\\\\root\\\\cimv2:C:\\\\Users\\\\desktop.ini\""
@@ -35,11 +35,11 @@ wmi_conn = wmi.WMI()
 
 survol_url_prefix = "http://www.primhillcomputers.com/ontology/survol#"
 
-LDT = rdflib.Namespace(survol_url_prefix)
+SURVOLNS = rdflib.Namespace(survol_url_prefix)
 
-property_association_node = rdflib.URIRef(LDT["is_association"])
-property_key_node = rdflib.URIRef(LDT["is_key"])
-property_unit_node = rdflib.URIRef(LDT["unit"])
+property_association_node = rdflib.URIRef(SURVOLNS["is_association"])
+property_key_node = rdflib.URIRef(SURVOLNS["is_key"])
+property_unit_node = rdflib.URIRef(SURVOLNS["unit"])
 
 VARI = rdflib.term.Variable
 LITT = rdflib.term.Literal
@@ -180,6 +180,8 @@ class CustomEvalEnvironment:
         self.m_sparql_query = sparql_query
         self.m_output_variables = _query_header(self.m_sparql_query)
         self.m_expected_objects_list = expected_objects_list
+        self.m_graph = rdflib.Graph()
+
         if debug_mode:
             print("Output variables=", self.m_output_variables)
 
@@ -223,46 +225,112 @@ class CustomEvalEnvironment:
         # TODO: Execute only if not too slow.
         # TODO: Execute in a sub-process.
         # Create performance statistics which are later used to choose the best enumeration.
-        print("Best query code:")
+        print("Best code snippet:")
         print(best_generated_python_code)
         return best_generated_python_code
-
 
     def _insert_wmi_results_in_graph(self, ctx_graph, instances_list, eval_results):
         # These results are now used to generate triples inserted in the triplestore.
         # This triplestore is later used to run the Sparql query.
+        counter = 0
+        length_before = len(ctx_graph)
         for one_result_dict in eval_results:
-            #print("one_result_dict=", one_result_dict)
+            # FIXME: This is temporary logging.
+            if counter % 100 == 0:
+                print("one_result_dict=", one_result_dict)
+            counter += 1
+            # FIXME: Finish earlier to ease profiling.
+            if counter == 500:
+                print("FINITO")
+                break
 
-            def evaluated_value(property_value):
+            def _evaluate_value_to_node(property_value):
+                """
+                This is used to build a node which os added as-is in a graph.
+                :param property_value: Property of an object.
+                :return: A rdflib term
+                """
                 if isinstance(property_value, VARI):
-                    return one_result_dict[str(property_value)]
+                    eval_val = one_result_dict[str(property_value)]
+
+                    # Maybe these are not litteral data, but objects like CIM_Process, Win32_Directory etc...
+                    #print("_evaluate_value_to_node VVV ", eval_val)
+                    if isinstance(eval_val, PseudoWmiObject):
+                        # This is a node which was created by a specialised generator in _specialised_generators_dict.
+                        as_node = _wmi_moniker_to_rdf_node(eval_val.m_wmi_moniker)
+                    elif isinstance(eval_val, wmi._wmi_object):
+                        # This is a WMI object, its WMI moniker is available.
+                        #print("WWW ", str(eval_val.path()))
+                        as_node = _wmi_moniker_to_rdf_node(str(eval_val.path()))
+                    else:
+                        assert isinstance(eval_val, (bool, int, float, str))
+                        as_node = LITT(eval_val)
                 else:
-                    return property_value
+                    #print("_evaluate_value_to_node TTT ", property_value)
+                    assert isinstance(property_value, (bool, int, float, str))
+                    as_node = LITT(property_value)
+                assert isinstance(as_node, (rdflib.term.URIRef, LITT)), "as_node=%s type=%s should be a node" \
+                                                                        "" % (as_node, type(as_node))
+                return as_node
+
+            def _evaluate_value_to_moniker(property_value):
+                """
+                This is used to build another moniker.
+                :param property_value: Property of an object.
+                :return: A string
+                """
+                if isinstance(property_value, VARI):
+                    eval_val = one_result_dict[str(property_value)]
+
+                    #print("_evaluate_value_to_moniker VVV ", eval_val)
+
+                    # Maybe these are not litteral data, but objects like CIM_Process, Win32_Directory etc...
+                    if isinstance(eval_val, PseudoWmiObject):
+                        # This is a node which was created by a specialised generator in _specialised_generators_dict.
+                        as_str = eval_val.m_wmi_moniker
+                    elif isinstance(eval_val, wmi._wmi_object):
+                        # This is a WMI object, its WMI moniker is available.
+                        as_str = str(eval_val.path())
+                        #print("eval_val.path()=", eval_val.path())
+                    else:
+                        assert isinstance(eval_val, (bool, int, float, str))
+                        as_str = str(eval_val)
+                else:
+                    #print("_evaluate_value_to_moniker TTT ", property_value)
+                    assert isinstance(property_value, (bool, int, float, str))
+                    as_str = property_value
+                assert isinstance(as_str, str), "as_str=%s type=%s should be a str" % (as_str, type(as_str))
+                return as_str
 
             for one_instance in instances_list:
                 assert isinstance(one_instance, _CimObject)
 
-                evaluated_key_values = {
-                    property_key : evaluated_value(property_value)
+                # Some values might be nodes. Their monikers is needed to build monikers of associations.
+                #print("one_instance.m_properties.items()=", one_instance.m_properties.items())
+                #print("one_result_dict=", one_result_dict)
+                evaluated_key_values_to_monikers = {
+                    property_key : _evaluate_value_to_moniker(property_value)
                     for property_key, property_value in one_instance.m_properties.items()
                 }
 
                 assert isinstance(one_instance.m_class, str)
-                new_object_moniker = _create_wmi_moniker(one_instance.m_class, **evaluated_key_values)
-                new_object_node = rdflib.URIRef(LDT[new_object_moniker])
+                #print("evaluated_key_values_to_monikers=", evaluated_key_values_to_monikers)
+                new_object_node = wmi_attributes_to_rdf_node(one_instance.m_class, **evaluated_key_values_to_monikers)
+                # print("new_object_node=", new_object_node)
 
-                class_node = rdflib.URIRef(LDT[one_instance.m_class])
+                class_node = rdflib.URIRef(SURVOLNS[one_instance.m_class])
                 ctx_graph.add((new_object_node, rdflib.namespace.RDF.type, class_node))
 
                 for property_key, property_value in one_instance.m_properties.items():
                     assert isinstance(property_key, str)
-                    evaluated_value = evaluated_value(property_value)
-                    property_node = rdflib.URIRef(LDT[property_key])
-                    value_node = LITT(evaluated_value)
+                    value_node = _evaluate_value_to_node(property_value)
+                    property_node = rdflib.URIRef(SURVOLNS[property_key])
+                    # value_node = LITT(evaluated_value)
                     assert isinstance(new_object_node, rdflib.term.URIRef)
                     assert isinstance(property_node, rdflib.term.URIRef)
                     ctx_graph.add((new_object_node, property_node, value_node))
+        length_after = len(ctx_graph)
+        print("length_before=", length_before, "length_after=", length_after)
 
         """
         Verifier si toutes les variables sont la, y compris les variables intermediaires,
@@ -305,6 +373,8 @@ class CustomEvalEnvironment:
         assert my_results_generator
         eval_results = my_results_generator()
         self._insert_wmi_results_in_graph(ctx_graph, instances_list, eval_results)
+        #for s, p, o in ctx_graph.triples((None, None, None)):
+        #    print(s, p, o)
 
 
     def _check_objects_list(self, instances_list):
@@ -355,18 +425,18 @@ class CustomEvalEnvironment:
         print("Run query")
         print(self.m_sparql_query)
 
-        grph = rdflib.Graph()
-
         # add function directly, normally we would use setuptools and entry_points
         rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_function'] = _wmi_custom_eval_function
         try:
-            query_results = grph.query(self.m_sparql_query)
+            query_results = self.m_graph.query(self.m_sparql_query)
         except Exception:
             print("Error self.m_sparql_query=", self.m_sparql_query)
             raise
         if 'custom_eval_function' in rdflib.plugins.sparql.CUSTOM_EVALS:
             del rdflib.plugins.sparql.CUSTOM_EVALS['custom_eval_function']
-        return list(query_results)
+        query_results_as_list = list(query_results)
+        print("run_query_in_rdflib returning %d elements" % len(query_results_as_list))
+        return query_results_as_list
 
 
 #################################################################################################
@@ -450,7 +520,7 @@ def _convert_ontology_to_rdf(wmi_conn, rdf_graph):
 
     for class_name, wmi_class_obj in wmi_class_objects.items():
         # print("class_name=", class_name)
-        class_node = rdflib.URIRef(LDT[class_name])
+        class_node = rdflib.URIRef(SURVOLNS[class_name])
         rdf_graph.add((class_node, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
         rdf_graph.add((class_node, rdflib.namespace.RDFS.label, rdflib.Literal(class_name)))
 
@@ -472,7 +542,7 @@ def _convert_ontology_to_rdf(wmi_conn, rdf_graph):
             property_name = wmi_property_obj.Name
             # print("    property_name=", property_name)
             full_property_name = "%s.%s" % (class_name, property_name)
-            property_node = rdflib.URIRef(LDT[full_property_name])
+            property_node = rdflib.URIRef(SURVOLNS[full_property_name])
 
             rdf_graph.add((property_node, rdflib.namespace.RDF.type, rdflib.namespace.RDF.Property))
             # Several different WMI properties may have the same name.
@@ -489,7 +559,7 @@ def _convert_ontology_to_rdf(wmi_conn, rdf_graph):
             if wmi_type_name.startswith("ref:"):
                 predicate_type_class_name = wmi_type_name[4:]
                 # Then it can only be a class
-                predicate_type_node = rdflib.URIRef(LDT[predicate_type_class_name])
+                predicate_type_node = rdflib.URIRef(SURVOLNS[predicate_type_class_name])
             else:
                 # Other possible values: "ref:__Provider", "ref:Win32_LogicalFileSecuritySetting",
                 # "ref:Win32_ComputerSystem",
@@ -607,7 +677,7 @@ def _create_classes_dictionary():
 
     if debug_mode:
         classes_list = ['CIM_ProcessExecutable', 'CIM_DirectoryContainsFile',
-                        'Win32_Directory', 'CIM_Directory', 'CIM_DataFile', 'CIM_Process']
+                        'Win32_Directory', 'CIM_Directory', 'CIM_DataFile', 'CIM_Process', 'Win32_Process']
     else:
         classes_list = wmi_conn.classes
 
@@ -628,8 +698,69 @@ classes_dictionary, keys_dictionary = _create_classes_dictionary()
 
 #################################################################################################
 
+moniker_prefix = r"\\LAPTOP-R89KG6V1\root\cimv2:"
+
+
+def _create_wmi_moniker(class_name, **kwargs):
+    """
+    This recreates the moniker of an objet, given the values of its keys.
+    :param class_name:
+    :param kwargs: key-value pairs of its keys.
+    :return: The moniker as a string.
+    """
+    valid_keys = keys_dictionary[class_name]
+
+    def _value_to_str(the_value):
+        # The values passed as parameter are plain literal values for non-associator classes.
+        # But for associator classes, such as CIM_DirectoryContainsFile, the values of the two keys
+        # GroupComponent and PartComponent are also objects. These values are passed as PseudoWmiObject
+        # or possibly wmi._wmi_object.
+        if isinstance(the_value, PseudoWmiObject):
+            # Validity check, to avoid confusion with a node.
+            assert not the_value.m_wmi_moniker.startswith("http")
+
+            # FIXME: This is not necessary because PseudoWmiObject.__str__ returns m_wmi_moniker anyway.
+            return the_value.m_wmi_moniker
+        else:
+            assert isinstance(the_value, (bool, int, float, str))
+
+            # Validity check, to avoid confusion with a node.
+            assert not str(the_value).startswith("http"), "%s should not be a node" % the_value
+
+            # This conversion to str would be done anyway.
+            # BEWARE: Backslahes must be escaped in arguments of WMI monikers !!!
+            return str(the_value).replace("\\", "\\\\")
+
+    # The keys must be sorted.
+    # FIXME: Which order is used by WMI ?
+    # FIXME: Maybe the monikers should always be rebuilt for this reason.
+    properties_as_str = ",".join(
+        '%s="%s"' % (key, _value_to_str(value))
+        for key, value in sorted(kwargs.items())
+        if key in valid_keys)
+    # print("properties_as_str=", properties_as_str)
+    # This is just to ensure that only key properties are used. "Caption" is never a key property.
+    assert properties_as_str.find("Caption") < 0
+    wmi_moniker = moniker_prefix + class_name + "." + properties_as_str
+    return wmi_moniker
+
+
+def _wmi_moniker_to_rdf_node(object_wmi_moniker):
+    quoted_moniker = urllib.parse.quote(object_wmi_moniker)
+    # quoted_moniker = urllib.parse.quote(urllib.parse.unquote(object_wmi_moniker))
+    rdf_node = rdflib.URIRef(SURVOLNS[quoted_moniker])
+
+    #rdf_node = rdflib.URIRef(SURVOLNS[object_wmi_moniker])
+    return rdf_node
+
+
+def wmi_attributes_to_rdf_node(class_name, **kwargs):
+    return _wmi_moniker_to_rdf_node(_create_wmi_moniker(class_name, **kwargs))
+
+#################################################################################################
+
 # These functions are executed in place of a WQL query.
-_generators_by_key = dict()
+_specialised_generators_dict = dict()
 
 
 class PseudoWmiObject:
@@ -637,7 +768,7 @@ class PseudoWmiObject:
     This behaves like an object returned by a wmi query, but it is returned by a Python function.
     TODO: It would be possible and cleaner to recreate the WMI object from the moniker with the syntax:
     TODO:    the_object = wmi.WMI(moniker=the_path)
-    TODO: This ensures that no attribute is missing. Check performance.
+    TODO: This would be simpler and ensure that no attribute is missing. Check performance.
 
     TODO: Get only the needed properties. See ISWbemObject_to_value and its extractor.
     """
@@ -650,22 +781,8 @@ class PseudoWmiObject:
         return self.m_wmi_moniker
 
 
-moniker_prefix = r"\\\\LAPTOP-R89KG6V1\\root\\cimv2:"
 
-
-def _create_wmi_moniker(class_name, **kwargs):
-    """
-    This recreates the moniker of an objet, given the values of its keys.
-    :param class_name:
-    :param kwargs: key-value pairs of its keys.
-    :return: The moniker as a string.
-    """
-    properties_as_str = ",".join('%s="%s"' % key_value for key_value in kwargs.items())
-    wmi_moniker = moniker_prefix + class_name + "." + properties_as_str
-    return wmi_moniker
-
-
-def _specialization_dir_to_files(class_name, where_clause):
+def _specialised_generator_dir_to_files(class_name, where_clause):
     """
     This returns the files and directories contained in a directory.
     It does the same as the WQL query: "select * from CIM_Directory where Name='xyz'", but much faster.
@@ -708,7 +825,7 @@ def _specialization_dir_to_files(class_name, where_clause):
     return subobjects
 
 
-def _specialization_file_to_dir(class_name, where_clause):
+def _specialised_generator_file_to_dir(class_name, where_clause):
     """
     This returns the files and directories contained in a directory.
     It does the same as the WQL query: "select * from CIM_Directory where Name='xyz'", but much faster.
@@ -719,7 +836,7 @@ def _specialization_file_to_dir(class_name, where_clause):
     assert class_name == 'CIM_DirectoryContainsFile'
     file_name = where_clause['PartComponent'].Name
 
-    part_component = PseudoWmiObject("CIM_Directory", {"Name": file_name})
+    part_component = PseudoWmiObject("Win32_Directory", {"Name": file_name})
 
     subobjects = []
 
@@ -730,15 +847,15 @@ def _specialization_file_to_dir(class_name, where_clause):
 
     base_dir_name = os.path.dirname(file_name)
 
-    part_component = PseudoWmiObject("CIM_Directory", {"Name": base_dir_name})
+    part_component = PseudoWmiObject("Win32_Directory", {"Name": base_dir_name})
     _add_group_component(part_component)
 
     # This must return objects with the same interface as instances of CIM_DirectoryContainsFile
     return subobjects
 
 
-_generators_by_key[("CIM_DirectoryContainsFile", ("GroupComponent",))] = "_specialization_dir_to_files"
-_generators_by_key[("CIM_DirectoryContainsFile", ("PartComponent",))] = "_specialization_file_to_dir"
+_specialised_generators_dict[("CIM_DirectoryContainsFile", ("GroupComponent",))] = "_specialised_generator_dir_to_files"
+_specialised_generators_dict[("CIM_DirectoryContainsFile", ("PartComponent",))] = "_specialised_generator_file_to_dir"
 
 
 #################################################################################################
@@ -809,6 +926,30 @@ cost_per_class_dict = {
     'Win32_Process': 111,
 }
 
+"""
+Pour le cost, on va faire comme ca.
+Chaque classe a un nombre estime qui est le cout d un full-scan.
+Si on a une clef, le cost devient 1.
+Si on a un champ qui n est pas une clef, sqrt(num elements).
+
+Pour les associations, ca devrait etre num-elts-classA * num-elts-class-B = num-elts-assoc
+mais en pratique, ca serait idiot d avoir le prdt cartesien complet.
+
+Donc on dit sqrt(num-elts-classA * num-elts-class-B) = num-elts-assoc
+A la place de sqrt, on pourrait avoir LOG. L idee est de reduire "proprtionnellement".
+
+Si on a une clef de la table A de l'assoc, le cost devient sqrt(num-elts-class-B).
+Si on a les deux clefs, ca devient 1.
+Pour les specialized et wincom32 on applique simplement un ratio.
+Et puis le cost devient un double, ca evitera les arrondis.
+
+Donc on va ajouter une passe qui calcule le cost des assoc.
+
+VERIFIER SI CA A DU SENS:
+
+
+"""
+
 
 def _wql_query_to_cost(class_name, where_clauses):
     """
@@ -827,28 +968,18 @@ def _wql_query_to_cost(class_name, where_clauses):
 
 def _contains_all_keys(class_name, where_clauses):
     """
-    This tries all possible combinations of the list of properties to see if all keys are defined.
-    If all keys are defined, then the object is uniquely defined too and will be found quickly.
-    There are not many keys, 1, 2 or 3 typically. So, performance is not an issue.
+    This checks that the keys of "where" clauses are a subset of the clauses.
 
-    This is probably not needed for sorting queries,
-    because performance experimentally measured seem OK when measured with one key only.
-
-    However it is used to determine that the moniker of an instance can be calculated,
+    It is used to determine that the moniker of an instance can be calculated,
     and therefore that no query is needed.
 
     :param class_name: The class
     :param where_clauses: Key value pairs. Only the keys are important.
     :return: True or False.
     """
-    all_keys = list(where_clauses.keys())
-    all_combinations = itertools.chain(*[itertools.combinations(all_keys, i + 1) for i, _ in enumerate(all_keys)])
-    for one_properties_combination in all_combinations:
-        # A tuple can be used as a key
-        where_keys = _keys_list_to_tuple(one_properties_combination)
-        if where_keys == keys_dictionary.get(class_name, None):
-            return True
-    return False
+    where_keys = set(where_clauses.keys())
+    class_keys = set(keys_dictionary.get(class_name, tuple()))
+    return class_keys.issubset(where_keys)
 
 
 def _contains_one_key(class_name, where_clauses):
@@ -870,15 +1001,15 @@ def _contains_one_key(class_name, where_clauses):
 ##############################################################################################################
 
 def python_property_extractor(python_object, class_name, property_name):
-    return "%s.%s # Python object" % (python_object, property_name)
+    return "%s.%s" % (python_object, property_name)
 
 
 def pseudo_object_property_extractor(pseudo_wmi_object, class_name, property_name):
-    return "%s.%s # PseudoObject" % (pseudo_wmi_object, property_name)
+    return "%s.%s" % (pseudo_wmi_object, property_name)
 
 
 def wmi_object_property_extractor(wmi_object, class_name, property_name):
-    return "%s.%s # WMI object" % (wmi_object, property_name)
+    return "%s.%s" % (wmi_object, property_name)
 
 
 def ISWbemObject_to_value(win32com_object, class_name, property_name):
@@ -898,27 +1029,6 @@ def _build_generator_wmi(class_name, where_clauses, needed_variables):
     # TODO: Instead of selecting everythin with a "*", it is faster to select only named properties,
     # TODO: and even faster a key property.
     #
-    # TODO: Significant difference:
-    # python -m timeit -r 1 "import wmi;print([str(x.Handle) for x in wmi.WMI().query('select * from CIM_Process')])"
-    # 6 seconds.
-    #
-    # python -m timeit -r 1 "import wmi;print([str(x.Handle) for x in wmi.WMI().query('select Handle from CIM_Process')])"
-    # 2.40 secs
-    #
-    # python -m timeit -r 1 "import wmi;print([str(x.Handle) for x in wmi.WMI().query('select Caption from CIM_Process')])"
-    # 2.50 secs
-    #
-    # python -m timeit -r 1 "import wmi;print([str(x.path) for x in wmi.WMI().query('select Handle from CIM_Process')])"
-    # 2.00 secs
-    #
-    # python -m timeit -r 1 "import wmi;print([str(x.Caption) for x in wmi.WMI().query('select Handle from CIM_Process')])"
-    # AttributeError: <unknown>.Caption
-    #
-    # python -m timeit -r 1 "import wmi;print([str(x.Name) for x in wmi.WMI().query('select Caption from CIM_Process')])"
-    # AttributeError: <unknown>.Name
-    #
-    # Conclusion: The path and the key seem to be always available.
-
     # TODO: https://python-list.python.narkive.com/lCzvZyOh/speeding-up-python-when-using-wmi
     # TODO: Consider this speed up:
     # TODO: l=[x.Properties_("Antecedent").Value for x in win32com.client.GetObject("winmgmts:").InstancesOf("CIM_ProcessExecutable")]
@@ -927,6 +1037,7 @@ def _build_generator_wmi(class_name, where_clauses, needed_variables):
     # TODO:     my_caption = os.Properties_ ("Caption").Value
 
     query_cost = _wql_query_to_cost(class_name, where_clauses)
+    print("where_clauses=", where_clauses)
     if where_clauses:
         # TODO: For better performance, consider this syntax which might be faster:
         # TODO: for myTime in myWMI.Win32_LocalTime ():
@@ -938,10 +1049,11 @@ def _build_generator_wmi(class_name, where_clauses, needed_variables):
         property_extractor = wmi_object_property_extractor
         query_cost = _wql_query_to_cost(class_name, where_clauses)
     else:
+        print("QUERY win32com")
         query_generator = "win32com.client.GetObject('winmgmts:').InstancesOf('%s')" % class_name
         property_extractor = ISWbemObject_to_value
         # The cost should be lower : This is an estimate.
-        query_cost /= 10
+        query_cost /= 5
 
     return query_generator, query_cost, property_extractor
 
@@ -950,7 +1062,9 @@ def _build_generator(class_name, where_clauses, needed_variables):
     where_keys = _keys_list_to_tuple(where_clauses.keys())
     generator_key = (class_name, where_keys)
 
-    if False and _contains_one_key(class_name, where_clauses):
+    if False and _contains_all_keys(class_name, where_clauses):
+        print("TODO: SI TOUTES LES CLEFS SONT LA, CONSTRUIRE LE MONIKER ET SIMPLEMENT: '[wmi.WMI(moniker='bla bla bla')]' ")
+
         # If all keys are defined in the where clauses, then the moniker can be recalculated.
         # This avoids a call to wmi.
         # TODO: Implement this.
@@ -958,12 +1072,12 @@ def _build_generator(class_name, where_clauses, needed_variables):
         created_generator = "[ _build_moniker_from_key('%s', %s),]" % (class_name, where_clauses)
         generator_origin = "build_moniker_from_keys"
         generator_cost = 1
-    elif generator_key in _generators_by_key:
+    elif generator_key in _specialised_generators_dict:
         # If there is a Python function doing the same as a WQL query.
-        generator_name = _generators_by_key[generator_key]
+        generator_name = _specialised_generators_dict[generator_key]
         created_generator = "%s('%s', {%s})" % (generator_name, class_name, _where_clauses_python(where_clauses))
         generator_origin = "customization"
-        # TODO: The cost of custom functions should be evaluated.
+        # TODO: The cost of specialized generators should be evaluated.
         generator_cost = 1
         property_extractor = pseudo_object_property_extractor
     else:
@@ -1004,6 +1118,7 @@ def _generate_wql_code(output_stream, lst_output_variables, lst_objects, functio
         obj_subject, obj_class, obj_properties = one_obj.m_subject, one_obj.m_class, one_obj.m_properties
         comment_prefix = "# %d : " % objects_loop_counter
         assigns_list = []
+        filters_list = []
         if obj_subject in known_variables:
             # The object is known: We just need to assign the value of its properties,
             # if they are variables (not literals) and their value is not known.
@@ -1014,9 +1129,22 @@ def _generate_wql_code(output_stream, lst_output_variables, lst_objects, functio
             #     var2 = the_node.Member2
             # No query is generated.
             for one_property, one_variable in obj_properties.items():
-                if isinstance(one_variable, VARI) and one_variable not in known_variables:
-                    assigns_list.append((one_variable, obj_subject, one_property, "%s is known" % one_variable))
-                    known_variables.add(one_variable)
+                if isinstance(one_variable, VARI):
+                    if one_variable in known_variables:
+                        # No need to assign this variable.
+                        # FIXME: Add a restriction ?
+                        print("ADD FILTER ???")
+                        pass
+                    else:
+                        assigns_list.append((one_variable, obj_subject, one_property, "%s is known" % one_variable))
+                        known_variables.add(one_variable)
+                elif isinstance(one_variable, LITT):
+                    # This is not a variable
+                    print("ADD FILTER ???")
+                    filters_list.append((one_variable, obj_subject, one_property, "%s is filtered" % one_variable))
+                    pass
+                else:
+                    raise Exception("Invalid type for variable %s / %s" % (one_variable, type(one_variable)))
             property_extractor = python_property_extractor
         else:
             # The object is not known: A query must be added which will iterate on its possible values.
@@ -1033,6 +1161,8 @@ def _generate_wql_code(output_stream, lst_output_variables, lst_objects, functio
                             (one_variable, obj_subject, one_property, " %s is now known" % one_variable))
                 elif isinstance(one_variable, LITT):
                     where_clauses[one_property] = one_variable
+                else:
+                    raise Exception("Invalid type: %s / %s" % (one_variable, type(one_variable)))
 
             output_comment("known_variables=%s" % ", ".join([str(one_var) for one_var in known_variables]))
 
@@ -1073,16 +1203,33 @@ def _generate_wql_code(output_stream, lst_output_variables, lst_objects, functio
             #for input_variable in set(assign_tuple[1] for assign_tuple in assigns_list):
             #    output_code_line("if isinstance(%s, str): %s = wmi.WMI(moniker=%s)" % (input_variable, input_variable, input_variable))
 
-            # The assignment might throw "OLE error 0x80041002"
+            # Getting the value might throw "OLE error 0x80041002"
             output_code_line("try:")
             for assign_tuple in assigns_list:
-                assign_expression = property_extractor(assign_tuple[1], obj_class, assign_tuple[2])
-                output_code_line("    %s = %s # %s" % (assign_tuple[0], assign_expression, assign_tuple[3]))
+                property_expression = property_extractor(assign_tuple[1], obj_class, assign_tuple[2])
+                #output_code_line("    print('XXX=', str(%s))" % (assign_tuple[1]))
+                output_code_line("    %s = %s # %s" % (assign_tuple[0], property_expression, assign_tuple[3]))
             output_code_line("except Exception as exc:")
             # TODO : Store the exception somewhere.
             output_code_line("    print('EXCEPTION:', exc)")
             # output_code_line("    traceback.print_exc()")
             output_code_line("    continue")
+
+        if filters_list:
+            # Getting the value might throw "OLE error 0x80041002"
+            output_comment("Filters")
+            output_code_line("try:")
+            for filter_tuple in filters_list:
+                property_expression = property_extractor(filter_tuple[1], obj_class, filter_tuple[2])
+                output_code_line("    if '%s' != %s : # %s" % (filter_tuple[0], property_expression, filter_tuple[3]))
+                output_code_line("        print('Filter %%s', %s)" % property_expression)
+                output_code_line("        continue")
+            output_code_line("except Exception as exc:")
+            # TODO : Store the exception somewhere.
+            output_code_line("    print('EXCEPTION:', exc)")
+            # output_code_line("    traceback.print_exc()")
+            output_code_line("    continue")
+
         #output_code_line("cnt += 1")
         #output_code_line("if cnt == 1000: raise Exception('Finito')")
         known_variables.add(obj_subject)
@@ -1092,21 +1239,20 @@ def _generate_wql_code(output_stream, lst_output_variables, lst_objects, functio
 
     # FIXME: No, it must be all variables, and we can list these explicitely.
 
-    if False:
-        output_code_line(
-            "yield {"
-            + ", ".join(
-                ["'%s': %s" % (output_variable, output_variable) for output_variable in lst_output_variables])
-            + "}"
-        )
-    else:
-        resulting_variables = [str(one_var) for one_var in known_variables]
-        output_code_line(
-            "yield {"
-            + ", ".join(
-                ["'%s': %s" % (output_variable, output_variable) for output_variable in resulting_variables])
-            + "}"
-        )
+    resulting_variables = [str(one_var) for one_var in known_variables]
+    output_code_line(
+        "yield {"
+        + ", ".join(
+            ["'%s': %s" % (output_variable, output_variable) for output_variable in resulting_variables])
+        + "}"
+    )
+    resulting_variables = [str(one_var) for one_var in known_variables]
+    #output_code_line(
+    #    "print('ZZZ ', {"
+    #    + ", ".join(
+    #        ["'%s': %s" % (output_variable, output_variable) for output_variable in resulting_variables])
+    #    + "})"
+    #)
     generated_loop_counter = 1
     output_comment("end of generated code")
 
