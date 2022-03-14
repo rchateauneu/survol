@@ -56,7 +56,7 @@ def _strip_prefix(rdflib_node):
     return str(rdflib_node)
 
 
-class _CimObject:
+class _CimPattern:
     """
     This models all properties related to the same subject, when the type of the subject is a CIM class.
     Such an object is created by parsing a sparql query and grouping basic graph patterns with the same subject.
@@ -86,12 +86,18 @@ class _CimObject:
             return True
         elif str(self.m_subject) > str(other.m_subject):
             return False
+        if str(self.m_class) < str(other.m_class):
+            return True
+        elif str(self.m_class) > str(other.m_class):
+            return False
         if str(self.m_properties) < str(other.m_properties):
             return True
         return False
 
     def __eq__(self, other):
-        return str(self.m_subject) == str(other.m_subject)
+        return str(self.m_subject) == str(other.m_subject) \
+            and self.m_class == other.m_class \
+            and self.m_properties == other.m_properties
 
     def variable_properties(self):
         """
@@ -143,7 +149,7 @@ def _part_triples_to_instances_list(part_triples):
                     # This is the class name without the Survol prefix which is not useful here.
                     class_short = class_as_str[len(survol_url_prefix):]
                     # object_factory can also tell the difference between an associator and a property
-                    instances_dict[part_subject] = _CimObject(part_subject, class_short)
+                    instances_dict[part_subject] = _CimPattern(part_subject, class_short)
 
     if not instances_dict:
         # If it does not contain any instance defined by a type which can be mapped to a WMI class,
@@ -160,7 +166,7 @@ def _part_triples_to_instances_list(part_triples):
         if not current_instance:
             # This is not the pattern of a Survol instance, and therefore is not usable here.
             continue
-        assert isinstance(current_instance, _CimObject)
+        assert isinstance(current_instance, _CimPattern)
 
         predicate_as_str = str(part_predicate)
         if predicate_as_str.startswith(survol_url_prefix):
@@ -175,11 +181,11 @@ class CustomEvalEnvironment:
     This contains utilities for the custom eval function passed to rdflib sparql query execution.
     """
 
-    def __init__(self, test_description, sparql_query, expected_objects_list):
+    def __init__(self, test_description, sparql_query, expected_patterns):
         self.m_test_description = test_description
         self.m_sparql_query = sparql_query
         self.m_output_variables = _query_header(self.m_sparql_query)
-        self.m_expected_objects_list = expected_objects_list
+        self.m_expected_patterns = expected_patterns
         self.m_graph = rdflib.Graph()
 
         if debug_mode:
@@ -214,7 +220,6 @@ class CustomEvalEnvironment:
 
         best_snippet_index = 0
         for snippet_index in range(1, len(all_snippets)):
-            # print("all_snippets[snippet_index][0]=", all_snippets[best_snippet_index][0])
             if all_snippets[best_snippet_index][0]["total_cost"] > all_snippets[snippet_index][0]["total_cost"]:
                 best_snippet_index = snippet_index
 
@@ -237,11 +242,11 @@ class CustomEvalEnvironment:
         for one_result_dict in eval_results:
             # FIXME: This is temporary logging.
             if counter % 100 == 0:
-                print("one_result_dict=", one_result_dict)
+                print("one_result_dict=", ",".join(["%s=>%s" % one_result for one_result in one_result_dict.items()]))
             counter += 1
             # FIXME: Finish earlier to ease profiling.
-            if counter == 500:
-                print("FINITO")
+            if counter == 1000:
+                print("FINITO @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
                 break
 
             def _evaluate_value_to_node(property_value):
@@ -258,10 +263,12 @@ class CustomEvalEnvironment:
                     if isinstance(eval_val, PseudoWmiObject):
                         # This is a node which was created by a specialised generator in _specialised_generators_dict.
                         as_node = _wmi_moniker_to_rdf_node(eval_val.m_wmi_moniker)
+                        #print("From PseudoWmiObject:", eval_val.m_wmi_moniker, as_node)
                     elif isinstance(eval_val, wmi._wmi_object):
                         # This is a WMI object, its WMI moniker is available.
                         #print("WWW ", str(eval_val.path()))
                         as_node = _wmi_moniker_to_rdf_node(str(eval_val.path()))
+                        #print("From _wmi_object:", str(eval_val.path()), as_node)
                     else:
                         assert isinstance(eval_val, (bool, int, float, str))
                         as_node = LITT(eval_val)
@@ -288,10 +295,11 @@ class CustomEvalEnvironment:
                     if isinstance(eval_val, PseudoWmiObject):
                         # This is a node which was created by a specialised generator in _specialised_generators_dict.
                         as_str = eval_val.m_wmi_moniker
+                        #print("XYZ as_str=", as_str)
                     elif isinstance(eval_val, wmi._wmi_object):
                         # This is a WMI object, its WMI moniker is available.
                         as_str = str(eval_val.path())
-                        #print("eval_val.path()=", eval_val.path())
+                        #print("XYZ eval_val.path()=", eval_val.path())
                     else:
                         assert isinstance(eval_val, (bool, int, float, str))
                         as_str = str(eval_val)
@@ -303,7 +311,8 @@ class CustomEvalEnvironment:
                 return as_str
 
             for one_instance in instances_list:
-                assert isinstance(one_instance, _CimObject)
+                assert isinstance(one_instance, _CimPattern)
+                print("CimPattern=", one_instance)
 
                 # Some values might be nodes. Their monikers is needed to build monikers of associations.
                 #print("one_instance.m_properties.items()=", one_instance.m_properties.items())
@@ -314,9 +323,9 @@ class CustomEvalEnvironment:
                 }
 
                 assert isinstance(one_instance.m_class, str)
-                #print("evaluated_key_values_to_monikers=", evaluated_key_values_to_monikers)
+                print("one_instance.m_class=", one_instance.m_class, "type=", type(one_instance), "evaluated_key_values_to_monikers=", evaluated_key_values_to_monikers)
                 new_object_node = wmi_attributes_to_rdf_node(one_instance.m_class, **evaluated_key_values_to_monikers)
-                # print("new_object_node=", new_object_node)
+                print("new_object_node=", new_object_node)
 
                 class_node = rdflib.URIRef(SURVOLNS[one_instance.m_class])
                 ctx_graph.add((new_object_node, rdflib.namespace.RDF.type, class_node))
@@ -372,15 +381,24 @@ class CustomEvalEnvironment:
         # This is the name of the created Python function which returns variables calculated from WMI
         assert my_results_generator
         eval_results = my_results_generator()
+        print("INSTANCES_LIST START ========================")
+        for one_pattern in instances_list:
+            print("    ", one_pattern)
+        print("INSTANCES_LIST END   ========================")
         self._insert_wmi_results_in_graph(ctx_graph, instances_list, eval_results)
         #for s, p, o in ctx_graph.triples((None, None, None)):
         #    print(s, p, o)
 
-
     def _check_objects_list(self, instances_list):
         # Any order will do for this comparison, as long as it is consistent.
         ordered_actual_instances = sorted(instances_list)
-        ordered_expected_instances = sorted(self.m_expected_objects_list)
+        ordered_expected_instances = sorted(self.m_expected_patterns)
+        print("ACTUAL PATTERNS")
+        for one_pattern in ordered_actual_instances:
+            print("    ", one_pattern)
+        print("EXPECTED PATTERNS")
+        for one_pattern in ordered_expected_instances:
+            print("    ", one_pattern)
         assert ordered_actual_instances == ordered_expected_instances
 
     def custom_eval_bgp(self, ctx_graph, part_triples):
@@ -390,6 +408,10 @@ class CustomEvalEnvironment:
         # This extracts builds the list of objects from the BGPs, by grouping them by common subject,
         # if this subject has a CIM class as rdf:type.
         instances_list = _part_triples_to_instances_list(part_triples)
+        #print("INSTANCES_LIST A START ========================")
+        #for one_pattern in instances_list:
+        #    print("    ", one_pattern)
+        #print("INSTANCES_LIST A END   ========================")
         if debug_mode:
             self._check_objects_list(instances_list)
 
@@ -676,7 +698,7 @@ def _create_classes_dictionary():
     keys_dict = {}
 
     if debug_mode:
-        classes_list = ['CIM_ProcessExecutable', 'CIM_DirectoryContainsFile',
+        classes_list = ['CIM_ProcessExecutable', 'CIM_DirectoryContainsFile', 'Win32_SubDirectory',
                         'Win32_Directory', 'CIM_Directory', 'CIM_DataFile', 'CIM_Process', 'Win32_Process']
     else:
         classes_list = wmi_conn.classes
@@ -781,14 +803,69 @@ class PseudoWmiObject:
         return self.m_wmi_moniker
 
 
+def _specialised_generator_dir_to_subdirs(class_name, where_clause):
+    """
+    This returns the files contained in a directory.
+    Similar to the WQL query: "select * from Win32_SubDirectory where GroupComponent='xyz'", but faster.
+    :param class_name: Should be CIM_Directory or Win32_Directory.
+    :param where_clauses: {"Name": "xyz"}
+    :return: A dictionary containing the sub-directories.
+    """
+    assert class_name == 'Win32_SubDirectory'
+    dir_name = where_clause['GroupComponent'].Name
+
+    group_component = PseudoWmiObject("CIM_Directory", {"Name": dir_name})
+
+    subobjects = []
+
+    if dir_name.endswith(":"):
+        dir_name += "\\"
+    for root_dir, directories, files in os.walk(dir_name):
+        for one_dir in directories:
+            full_dir_path = os.path.join(root_dir, one_dir)
+            part_component = PseudoWmiObject("Win32_Directory", {"Name": full_dir_path})
+            associator = PseudoWmiObject("Win32_SubDirectory",
+                                         {"PartComponent": part_component, "GroupComponent": group_component})
+            print("Adding associator", str(associator))
+            subobjects.append(associator)
+        # Then stop at first level.
+        break
+
+    # This must return objects with the same interface as instances of Win32_SubDirectory
+    return subobjects
+
+
+def _specialised_generator_subdir_to_dir(class_name, where_clause):
+    """
+    This returns the directory containing a directory.
+    Similar to the WQL query: "select * from Win32_SubDirectory where PartComponent='xyz'", but faster.
+    :param class_name: Should be CIM_Directory or Win32_Directory.
+    :param where_clauses: {"Name": "xyz"}
+    :return: A single-element dictionary containing the directory containing the input dir.
+    """
+    assert class_name == 'Win32_SubDirectory', "Class should not be %s" % class_name
+    file_name = where_clause['PartComponent'].Name
+
+    part_component = PseudoWmiObject("Win32_Directory", {"Name": file_name})
+
+    base_dir_name = os.path.dirname(file_name)
+
+    group_component = PseudoWmiObject("Win32_Directory", {"Name": base_dir_name})
+    associator = PseudoWmiObject("Win32_SubDirectory",
+                                 {"PartComponent": part_component, "GroupComponent": group_component})
+    subobjects = [associator]
+
+    # This must return one object with the same interface as instances of Win32_SubDirectory
+    return subobjects
+
 
 def _specialised_generator_dir_to_files(class_name, where_clause):
     """
-    This returns the files and directories contained in a directory.
-    It does the same as the WQL query: "select * from CIM_Directory where Name='xyz'", but much faster.
-    :param class_name: Should be CIM_Directory.
+    This returns the files contained in a directory.
+    Similar to the WQL query: "select * from CIM_DirectoryContainsFile where GroupComponent='xyz'", but faster.
+    :param class_name: Should be CIM_Directory or Win32_Directory.
     :param where_clauses: {"Name": "xyz"}
-    :return: A dictionary containing the files and dirs.
+    :return: A dictionary containing the files.
     """
     assert class_name == 'CIM_DirectoryContainsFile'
     dir_name = where_clause['GroupComponent'].Name
@@ -797,63 +874,50 @@ def _specialised_generator_dir_to_files(class_name, where_clause):
 
     subobjects = []
 
-    def _add_part_component(part_component):
-        associator = PseudoWmiObject("CIM_DirectoryContainsFile",
-                                     {"PartComponent": part_component, "GroupComponent": group_component})
-        subobjects.append(associator)
-
     if dir_name.endswith(":"):
         dir_name += "\\"
-    #if debug_mode:
-    #    print("dir_name=%s" % dir_name)
     for root_dir, directories, files in os.walk(dir_name):
-        for one_dir in directories:
-            full_dir_path = os.path.join(root_dir, one_dir)
-            part_component = PseudoWmiObject("CIM_Directory", {"Name": full_dir_path})
-            _add_part_component(part_component)
-
         for one_file in files:
             full_file_path = os.path.join(root_dir, one_file)
             part_component = PseudoWmiObject("CIM_DataFile", {"Name": full_file_path})
-            _add_part_component(part_component)
+
+            associator = PseudoWmiObject("CIM_DirectoryContainsFile",
+                                         {"PartComponent": part_component, "GroupComponent": group_component})
+            print("Adding associator", str(associator))
+            subobjects.append(associator)
 
         # Then stop at first level.
         break
 
     # This must return objects with the same interface as instances of CIM_DirectoryContainsFile
-    # TODO: Consider yield
     return subobjects
 
 
 def _specialised_generator_file_to_dir(class_name, where_clause):
     """
     This returns the files and directories contained in a directory.
-    It does the same as the WQL query: "select * from CIM_Directory where Name='xyz'", but much faster.
-    :param class_name: Should be CIM_Directory.
+    Similar to the WQL query: "select * from CIM_DirectoryContainsFile where PartComponent='xyz'", but faster.
+    :param class_name: Should be CIM_DataFile.
     :param where_clauses: {"Name": "xyz"}
-    :return: A dictionary containing the files and dirs.
+    :return: A single-element dictionary containing the directory of the file.
     """
     assert class_name == 'CIM_DirectoryContainsFile'
     file_name = where_clause['PartComponent'].Name
 
-    part_component = PseudoWmiObject("Win32_Directory", {"Name": file_name})
-
-    subobjects = []
-
-    def _add_group_component(group_component):
-        associator = PseudoWmiObject("CIM_DirectoryContainsFile",
-                                     {"PartComponent": part_component, "GroupComponent": group_component})
-        subobjects.append(associator)
+    part_component = PseudoWmiObject("CIM_DataFile", {"Name": file_name})
 
     base_dir_name = os.path.dirname(file_name)
 
-    part_component = PseudoWmiObject("Win32_Directory", {"Name": base_dir_name})
-    _add_group_component(part_component)
+    group_component = PseudoWmiObject("Win32_Directory", {"Name": base_dir_name})
+    associator = PseudoWmiObject("CIM_DirectoryContainsFile",
+                                 {"PartComponent": part_component, "GroupComponent": group_component})
+    subobjects = [associator]
 
     # This must return objects with the same interface as instances of CIM_DirectoryContainsFile
     return subobjects
 
-
+_specialised_generators_dict[("Win32_SubDirectory", ("GroupComponent",))] = "_specialised_generator_dir_to_subdirs"
+_specialised_generators_dict[("Win32_SubDirectory", ("PartComponent",))] = "_specialised_generator_subdir_to_dir"
 _specialised_generators_dict[("CIM_DirectoryContainsFile", ("GroupComponent",))] = "_specialised_generator_dir_to_files"
 _specialised_generators_dict[("CIM_DirectoryContainsFile", ("PartComponent",))] = "_specialised_generator_file_to_dir"
 
@@ -919,6 +983,7 @@ def _where_clauses_wql(where_clauses):
 cost_per_class_dict = {
     'CIM_ProcessExecutable': 999,
     'CIM_DirectoryContainsFile': 999999,
+    'Win32_SubDirectory': 999999,
     'Win32_Directory': 9999,
     'CIM_Directory': 9999,
     'CIM_DataFile': 88888,
@@ -992,7 +1057,7 @@ def _contains_one_key(class_name, where_clauses):
     :return: True or False.
     """
     all_keys = set(where_clauses.keys())
-    class_keys = set(keys_dictionary.get(class_name, None))
+    class_keys = keys_dictionary[class_name]
 
     keys_intersection = all_keys.intersection(class_keys)
 
@@ -1188,26 +1253,16 @@ def _generate_wql_code(output_stream, lst_output_variables, lst_objects, functio
             loop_line = "for %s in %s:" % (obj_subject, instances_generator_description["generator"])
             output_code_line(loop_line)
             generated_loop_counter += 1
-
-            # Now, assign the variables which now are known.
-            #for one_property, one_variable in obj_properties.items():
-            #    pass # ??????
-            #    if isinstance(one_variable, VARI):
-            #        if not one_variable in known_variables:
-            #            known_variables.add(one_variable)
         objects_loop_counter += 1
 
         if assigns_list:
             # The variable is just a moniker if it is created by a loop using win32com.
             # If so, transforms this moniker into a WMI object.
-            #for input_variable in set(assign_tuple[1] for assign_tuple in assigns_list):
-            #    output_code_line("if isinstance(%s, str): %s = wmi.WMI(moniker=%s)" % (input_variable, input_variable, input_variable))
 
             # Getting the value might throw "OLE error 0x80041002"
             output_code_line("try:")
             for assign_tuple in assigns_list:
                 property_expression = property_extractor(assign_tuple[1], obj_class, assign_tuple[2])
-                #output_code_line("    print('XXX=', str(%s))" % (assign_tuple[1]))
                 output_code_line("    %s = %s # %s" % (assign_tuple[0], property_expression, assign_tuple[3]))
             output_code_line("except Exception as exc:")
             # TODO : Store the exception somewhere.
@@ -1227,11 +1282,8 @@ def _generate_wql_code(output_stream, lst_output_variables, lst_objects, functio
             output_code_line("except Exception as exc:")
             # TODO : Store the exception somewhere.
             output_code_line("    print('EXCEPTION:', exc)")
-            # output_code_line("    traceback.print_exc()")
             output_code_line("    continue")
 
-        #output_code_line("cnt += 1")
-        #output_code_line("if cnt == 1000: raise Exception('Finito')")
         known_variables.add(obj_subject)
 
     # This is the last line of the generated code.
@@ -1246,7 +1298,7 @@ def _generate_wql_code(output_stream, lst_output_variables, lst_objects, functio
             ["'%s': %s" % (output_variable, output_variable) for output_variable in resulting_variables])
         + "}"
     )
-    resulting_variables = [str(one_var) for one_var in known_variables]
+    #resulting_variables = [str(one_var) for one_var in known_variables]
     #output_code_line(
     #    "print('ZZZ ', {"
     #    + ", ".join(
@@ -1267,7 +1319,7 @@ def objects_list_to_python_code(output_variables, shuffled_lst_objects, function
     print("run_lst_objects")
     for one_obj in shuffled_lst_objects:
         print("    ", one_obj)
-        assert isinstance(one_obj, _CimObject)
+        assert isinstance(one_obj, _CimPattern)
 
     my_stream = io.StringIO()
 
