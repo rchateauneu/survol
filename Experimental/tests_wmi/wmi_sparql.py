@@ -259,26 +259,62 @@ class CustomEvalEnvironment:
                     eval_val = one_result_dict[str(property_value)]
 
                     # Maybe these are not litteral data, but objects like CIM_Process, Win32_Directory etc...
-                    #print("_evaluate_value_to_node VVV ", eval_val)
                     if isinstance(eval_val, PseudoWmiObject):
                         # This is a node which was created by a specialised generator in _specialised_generators_dict.
-                        as_node = _wmi_moniker_to_rdf_node(eval_val.m_wmi_moniker)
-                        #print("From PseudoWmiObject:", eval_val.m_wmi_moniker, as_node)
+                        as_node = _wmi_moniker_to_rdf_node(eval_val.m_wmi_moniker.upper())
                     elif isinstance(eval_val, wmi._wmi_object):
                         # This is a WMI object, its WMI moniker is available.
-                        #print("WWW ", str(eval_val.path()))
-                        as_node = _wmi_moniker_to_rdf_node(str(eval_val.path()))
-                        #print("From _wmi_object:", str(eval_val.path()), as_node)
+                        as_node = _wmi_moniker_to_rdf_node(str(eval_val.path()).upper())
                     else:
                         assert isinstance(eval_val, (bool, int, float, str))
                         as_node = LITT(eval_val)
                 else:
-                    #print("_evaluate_value_to_node TTT ", property_value)
                     assert isinstance(property_value, (bool, int, float, str))
                     as_node = LITT(property_value)
                 assert isinstance(as_node, (rdflib.term.URIRef, LITT)), "as_node=%s type=%s should be a node" \
                                                                         "" % (as_node, type(as_node))
                 return as_node
+
+            def _pattern_instance_to_moniker(the_pattern_instance):
+                if isinstance(the_pattern_instance, PseudoWmiObject):
+                    # This is a node which was created by a specialised generator in _specialised_generators_dict.
+                    the_moniker = the_pattern_instance.m_wmi_moniker.upper()
+                    print("Moniker from PseudoWmiObject:", the_moniker)
+                    assert isinstance(the_moniker, str)
+                elif isinstance(the_pattern_instance, wmi._wmi_object):
+                    # This is a WMI object, its WMI moniker is available.
+                    the_moniker = str(the_pattern_instance.path()).upper()
+                    print("Moniker from wmi._wmi_object:", the_moniker)
+                    assert isinstance(the_moniker, str)
+                elif issubclass(the_pattern_instance.__class__, win32com.client.DispatchBaseClass):
+                    # Class= <class 'win32com.gen_py.565783C6-CB41-11D1-8B02-00600806D9B6x0x1x2.ISWbemObject'>
+                    # Base classes= (<class 'win32com.client.DispatchBaseClass'>,)
+                    # return the_pattern_instance.Path()
+                    # return the_pattern_instance.path()
+                    the_moniker = str(the_pattern_instance.Path_).upper()
+                    print("Moniker from win32com.client.DispatchBaseClass:", the_moniker)
+                    assert isinstance(the_moniker, str), "Moniker is %s" % type(the_moniker)
+                    #the_moniker = the_moniker.decode()
+                else:
+                    raise Exception("Type %s has no moniker" % type(the_pattern_instance))
+
+                assert isinstance(the_moniker, str)
+                #alt_moniker = alt_moniker.decode()
+                return the_moniker
+
+
+                """
+                Moniker from wmi._wmi_object: \\LAPTOP-R89KG6V1\root\cimv2:CIM_DataFile.Name="C:\\WINDOWS\\System32\\KERNEL32.DLL"
+                
+                Moniker from wmi._wmi_object: \\LAPTOP-R89KG6V1\root\cimv2:CIM_ProcessExecutable.Antecedent="\\\\LAPTOP-R89KG6V1\\root\\cimv2:CIM_DataFile.Name=\"C:\\\\WINDOWS\\\\System32\\\\KERNEL32.DLL\"",Dependent="\\\\LAPTOP-R89KG6V1\\root\\cimv2:Win32_Process.Handle=\"10104\""
+                Moniker from PseudoWmiObject: \\LAPTOP-R89KG6V1\root\cimv2:CIM_DirectoryContainsFile.GroupComponent="\\LAPTOP-R89KG6V1\root\cimv2:Win32_Directory.Name=\"C:\\WINDOWS\\System32\"",PartComponent="\\LAPTOP-R89KG6V1\root\cimv2:CIM_DataFile.Name=\"C:\\WINDOWS\\System32\\KERNEL32.DLL\""
+                
+                C est PseudoWmiObject qui devrait dupliquer.
+                
+                DIFFERENT:     alt_moniker= \\LAPTOP-R89KG6V1\root\cimv2:CIM_DirectoryContainsFile.GroupComponent="\\LAPTOP-R89KG6V1\root\cimv2:Win32_Directory.Name=\"C:\\WINDOWS\\System32\"",PartComponent="\\LAPTOP-R89KG6V1\root\cimv2:CIM_DataFile.Name=\"C:\\WINDOWS\\System32\\KERNEL32.DLL\""
+                         : rebuilt_moniker= \\LAPTOP-R89KG6V1\root\cimv2:CIM_DirectoryContainsFile.GroupComponent="\\\\LAPTOP-R89KG6V1\\root\\cimv2:Win32_Directory.Name=\"C:\\\\WINDOWS\\\\System32\"",PartComponent="\\\\LAPTOP-R89KG6V1\\root\\cimv2:CIM_DataFile.Name=\"C:\\\\WINDOWS\\\\System32\\\\KERNEL32.DLL\""
+                
+                """
 
             def _evaluate_value_to_moniker(property_value):
                 """
@@ -289,22 +325,11 @@ class CustomEvalEnvironment:
                 if isinstance(property_value, VARI):
                     eval_val = one_result_dict[str(property_value)]
 
-                    #print("_evaluate_value_to_moniker VVV ", eval_val)
-
-                    # Maybe these are not litteral data, but objects like CIM_Process, Win32_Directory etc...
-                    if isinstance(eval_val, PseudoWmiObject):
-                        # This is a node which was created by a specialised generator in _specialised_generators_dict.
-                        as_str = eval_val.m_wmi_moniker
-                        #print("XYZ as_str=", as_str)
-                    elif isinstance(eval_val, wmi._wmi_object):
-                        # This is a WMI object, its WMI moniker is available.
-                        as_str = str(eval_val.path())
-                        #print("XYZ eval_val.path()=", eval_val.path())
-                    else:
-                        assert isinstance(eval_val, (bool, int, float, str))
+                    if isinstance(eval_val, (bool, int, float, str)):
                         as_str = str(eval_val)
+                    else:
+                        as_str = _pattern_instance_to_moniker(eval_val)
                 else:
-                    #print("_evaluate_value_to_moniker TTT ", property_value)
                     assert isinstance(property_value, (bool, int, float, str))
                     as_str = property_value
                 assert isinstance(as_str, str), "as_str=%s type=%s should be a str" % (as_str, type(as_str))
@@ -312,23 +337,68 @@ class CustomEvalEnvironment:
 
             for one_instance in instances_list:
                 assert isinstance(one_instance, _CimPattern)
-                print("CimPattern=", one_instance)
 
                 # Some values might be nodes. Their monikers is needed to build monikers of associations.
                 #print("one_instance.m_properties.items()=", one_instance.m_properties.items())
                 #print("one_result_dict=", one_result_dict)
                 evaluated_key_values_to_monikers = {
-                    property_key : _evaluate_value_to_moniker(property_value)
+                    property_key: _evaluate_value_to_moniker(property_value)
                     for property_key, property_value in one_instance.m_properties.items()
                 }
 
                 assert isinstance(one_instance.m_class, str)
+
+                # FIXME: Mais si l'object est donne par un des iterateurs, on a quand meme le moniker ???
+                # FIXME: CREER UN TEST OU ON AFFICHE DES OBJECTS UNIQUEMENT DEFINIS PAR DES ASSOCIATORS ...
+                # FIXME: ... OU BIEN SI ON N'A PAS LES KEYS.
+                """
+                Donc, si la variable de one_instance est dans one_result_dict, alors ca nous donne
+                le moniker deja calcule, et meme en principe l'objet, donc il ne faut PAS recalculer 
+                le moniker.
+                N est ce pas que les iterateurs ne renvoient que des objets ???
+                
+                VERIFIONS CETTE ASSERTION:
+                """
+                assert str(one_instance.m_subject) in  one_result_dict, "%s not in %s" % (one_instance.m_subject, str(one_result_dict))
+                # win32com.gen_py.Microsoft WMI Scripting V1.2 Library.ISWbemObject
+                print("Class=",  one_result_dict[str(one_instance.m_subject)].__class__)
+                print("Base classes=",  one_result_dict[str(one_instance.m_subject)].__class__.__bases__)
+                # Class= <class 'win32com.gen_py.565783C6-CB41-11D1-8B02-00600806D9B6x0x1x2.ISWbemObject'>
+                # Base classes= (<class 'win32com.client.DispatchBaseClass'>,)
+                the_instance = one_result_dict[str(one_instance.m_subject)]
+                assert isinstance(the_instance, (PseudoWmiObject, wmi._wmi_object)) or issubclass(the_instance.__class__, win32com.client.DispatchBaseClass), "Wrong type for %s:%s" % (one_instance.m_subject, the_instance)
+
+                alt_moniker = _pattern_instance_to_moniker(the_instance)
+                rebuilt_moniker = _create_wmi_moniker(one_instance.m_class, **evaluated_key_values_to_monikers)
+
                 print("one_instance.m_class=", one_instance.m_class, "type=", type(one_instance), "evaluated_key_values_to_monikers=", evaluated_key_values_to_monikers)
                 new_object_node = wmi_attributes_to_rdf_node(one_instance.m_class, **evaluated_key_values_to_monikers)
+
+                print("type(rebuilt_moniker)=", type(rebuilt_moniker))
+                if rebuilt_moniker:
+                    assert isinstance(rebuilt_moniker, str)
+                #assert isinstance(alt_moniker, bytes)
+                #alt_moniker = alt_moniker.decode()
+                assert isinstance(alt_moniker, str)
+
+                if rebuilt_moniker and alt_moniker != rebuilt_moniker:
+                    print("DIFFERENT:     alt_moniker=", alt_moniker)
+                    print("         : rebuilt_moniker=", rebuilt_moniker)
+                # assert alt_moniker == rebuilt_moniker, "Monikers %s != %s" % (alt_moniker, rebuilt_moniker)
+
+                # CA EVITE DE RECREER LE MONIKER.
+                new_object_node = _wmi_moniker_to_rdf_node(alt_moniker)
+
+                if not new_object_node:
+                    # Keys are not available to create the moniker and hence the node of this object.
+                    print("WARNING: No keys to build an object for CimPattern=", one_instance)
+                    continue
+
                 print("new_object_node=", new_object_node)
 
                 class_node = rdflib.URIRef(SURVOLNS[one_instance.m_class])
                 ctx_graph.add((new_object_node, rdflib.namespace.RDF.type, class_node))
+                print("ADDING:", new_object_node, class_node)
 
                 for property_key, property_value in one_instance.m_properties.items():
                     assert isinstance(property_key, str)
@@ -405,7 +475,7 @@ class CustomEvalEnvironment:
         # Possibly add the ontology to ctx.graph
 
         logging.debug("Instances:")
-        # This extracts builds the list of objects from the BGPs, by grouping them by common subject,
+        # This extracts the list of object patterns from the BGPs, by grouping them by common subject,
         # if this subject has a CIM class as rdf:type.
         instances_list = _part_triples_to_instances_list(part_triples)
         #print("INSTANCES_LIST A START ========================")
@@ -732,6 +802,17 @@ def _create_wmi_moniker(class_name, **kwargs):
     """
     valid_keys = keys_dictionary[class_name]
 
+    """
+    Les monikers sont en principe case-insensitive.
+    https://docs.microsoft.com/en-us/windows/win32/wmisdk/constructing-a-moniker-string
+    "select * from CIM_DirectoryContainsFile" renvoie "kernel32.dll" ce qui est exact.
+    Mais "select Antecedent from CIM_ProcessExecutable" renvoie CIM_Datafile.Name="KERNEL32.DLL" ce qui est faux
+    Et "select * from CIM_DataFile where Name="C:\\windows\\system32\\kernel32.DLL"'" renvoie ce qu'on a mis.
+    Donc il faut convertir a priori les monikers en majuscules.
+    """
+
+
+
     def _value_to_str(the_value):
         # The values passed as parameter are plain literal values for non-associator classes.
         # But for associator classes, such as CIM_DirectoryContainsFile, the values of the two keys
@@ -742,48 +823,78 @@ def _create_wmi_moniker(class_name, **kwargs):
             assert not the_value.m_wmi_moniker.startswith("http")
 
             # FIXME: This is not necessary because PseudoWmiObject.__str__ returns m_wmi_moniker anyway.
-            return the_value.m_wmi_moniker
+            #assert the_value.m_wmi_moniker.find(r"\\") <= 0
+            return the_value.m_wmi_moniker.replace("\\", "\\\\").upper()
+
+            # Pas bon: Faut traiter le moniker comme une string. C est ce que fait WMI.
+
         else:
+            #Probleme : Le traiter differement si c'est un moniker car les backslashes ont deja ete escape.'
+            #Ou on cree un PseudoWmiObject
+
             assert isinstance(the_value, (bool, int, float, str))
+            assert not isinstance(the_value, wmi._wmi_object)
+            assert not issubclass(the_value.__class__, win32com.client.DispatchBaseClass)
 
             # Validity check, to avoid confusion with a node.
             assert not str(the_value).startswith("http"), "%s should not be a node" % the_value
 
             # This conversion to str would be done anyway.
             # BEWARE: Backslahes must be escaped in arguments of WMI monikers !!!
-            return str(the_value).replace("\\", "\\\\")
+            print("str(the_value)=", str(the_value))
+            #assert str(the_value).find(r"\\") < 0
+            result = str(the_value).replace("\\", "\\\\") # .replace('"', '\\"')
+            #assert str(the_value).find(r"\\\\") < 0
+            print("result=", result)
+            return result
+            # return str(the_value)
 
     # The keys must be sorted.
     # FIXME: Which order is used by WMI ?
     # FIXME: Maybe the monikers should always be rebuilt for this reason.
-    properties_as_str = ",".join(
-        '%s="%s"' % (key, _value_to_str(value))
-        for key, value in sorted(kwargs.items())
-        if key in valid_keys)
+    if False:
+        properties_as_str = ",".join(
+            '%s="%s"' % (key, _value_to_str(value))
+            for key, value in sorted(kwargs.items())
+            if key in valid_keys)
+
+    #print("kwargs2=", kwargs)
+    try:
+        properties_as_str = ",".join(
+            '%s="%s"' % (key, _value_to_str(kwargs[key]).replace('"', '\\"'))
+            for key in sorted(valid_keys))
+    except KeyError:
+        # Maybe some keys are missing.
+        print("WARNING: Missing keys from %s" % valid_keys)
+        return None
+    print("properties_as_str=", properties_as_str)
+
     # print("properties_as_str=", properties_as_str)
     # This is just to ensure that only key properties are used. "Caption" is never a key property.
     assert properties_as_str.find("Caption") < 0
     wmi_moniker = moniker_prefix + class_name + "." + properties_as_str
-    return wmi_moniker
+    return wmi_moniker.upper()
 
 
 def _wmi_moniker_to_rdf_node(object_wmi_moniker):
+    # This transforms non-alphanumeric chars (roughly) into %hexa pairs.
     quoted_moniker = urllib.parse.quote(object_wmi_moniker)
-    # quoted_moniker = urllib.parse.quote(urllib.parse.unquote(object_wmi_moniker))
     rdf_node = rdflib.URIRef(SURVOLNS[quoted_moniker])
-
-    #rdf_node = rdflib.URIRef(SURVOLNS[object_wmi_moniker])
     return rdf_node
 
 
 def wmi_attributes_to_rdf_node(class_name, **kwargs):
-    return _wmi_moniker_to_rdf_node(_create_wmi_moniker(class_name, **kwargs))
+    #print("kwargs1=", kwargs)
+    #for k, v in kwargs.items():
+    #    print("    ", k, v, len(v), type(v))
+    unquoted_moniker = _create_wmi_moniker(class_name, **kwargs)
+    print("unquoted_moniker=", unquoted_moniker)
+    if not unquoted_moniker:
+        print("WARNING: Missing keys from %s" % list(kwargs.keys()))
+        return None
+    return _wmi_moniker_to_rdf_node(unquoted_moniker)
 
 #################################################################################################
-
-# These functions are executed in place of a WQL query.
-_specialised_generators_dict = dict()
-
 
 class PseudoWmiObject:
     """
@@ -800,7 +911,38 @@ class PseudoWmiObject:
             setattr(self, key, value)
 
     def __str__(self):
-        return self.m_wmi_moniker
+        return self.m_wmi_moniker.upper()
+
+    def get_node(self):
+        assert False
+
+#################################################################################################
+
+
+
+# https://marketplace.atlassian.com/apps/1216286/gitlab-connector?tab=overview&hosting=datacenter
+
+
+"""
+Integrer d autres classes.
+Si on prend du recul, on mappe le modele de donnees WMI dans Sparql.
+On pourrait generaliser ca en mappant les classes d'autres packages Python dans Sparql aussi.
+Ca donnerait une approche generale plus simple a comprendre.
+Ca donnerait aussi le prefixe de maniere naturelle.
+Et l URL pointerait peut-etre sur Pypi.
+Les scripts sont differents de ceux qui existent, et ne seront pas la que pour accelerer.
+Plus rapide que de faire des federated queries sur un serveur par package.
+
+Mais encore faut-il que les packages s'y pretent.
+psutil
+pyelf
+sqlite
+
+
+"""
+
+# These functions are executed in place of a WQL query.
+_specialised_generators_dict = dict()
 
 
 def _specialised_generator_dir_to_subdirs(class_name, where_clause):
@@ -814,7 +956,7 @@ def _specialised_generator_dir_to_subdirs(class_name, where_clause):
     assert class_name == 'Win32_SubDirectory'
     dir_name = where_clause['GroupComponent'].Name
 
-    group_component = PseudoWmiObject("CIM_Directory", {"Name": dir_name})
+    group_component = PseudoWmiObject("Win32_Directory", {"Name": dir_name})
 
     subobjects = []
 
@@ -870,7 +1012,7 @@ def _specialised_generator_dir_to_files(class_name, where_clause):
     assert class_name == 'CIM_DirectoryContainsFile'
     dir_name = where_clause['GroupComponent'].Name
 
-    group_component = PseudoWmiObject("CIM_Directory", {"Name": dir_name})
+    group_component = PseudoWmiObject("Win32_Directory", {"Name": dir_name})
 
     subobjects = []
 
@@ -940,7 +1082,7 @@ def _where_clauses_python(where_clauses):
 def _dyn_format(where_variable):
     if isinstance(where_variable, wmi._wmi_object):
         # The moniker is also called "path".
-        return str(where_variable.path())
+        return str(where_variable.path()).upper()
     else:
         return where_variable
 
@@ -1065,28 +1207,31 @@ def _contains_one_key(class_name, where_clauses):
 
 ##############################################################################################################
 
-def python_property_extractor(python_object, class_name, property_name):
-    return "%s.%s" % (python_object, property_name)
+
+def python_property_extractor(python_object_name, class_name, property_name):
+    return "%s.%s" % (python_object_name, property_name)
 
 
-def pseudo_object_property_extractor(pseudo_wmi_object, class_name, property_name):
-    return "%s.%s" % (pseudo_wmi_object, property_name)
+def pseudo_object_property_extractor(pseudo_wmi_object_name, class_name, property_name):
+    return "%s.%s" % (pseudo_wmi_object_name, property_name)
 
 
-def wmi_object_property_extractor(wmi_object, class_name, property_name):
-    return "%s.%s" % (wmi_object, property_name)
+def wmi_object_property_extractor(wmi_object_name, class_name, property_name):
+    return "%s.%s" % (wmi_object_name, property_name)
 
 
-def ISWbemObject_to_value(win32com_object, class_name, property_name):
-    # win32com_object type is something like win32com.gen_py.565783C6-CB41-11D1-8B02-00600806D9B6x0x1x2.ISWbemObject
+def ISWbemObject_to_value(win32com_object_name, class_name, property_name):
+    # win32com_object type is something like win32com.gen_py.565783C6-CB41-11D1-8B02-00600806D9B6x0x1x2.ISWbemObject,
+    # Base class is <class 'win32com.client.DispatchBaseClass'>
     if classes_dictionary[class_name][property_name].startswith("ref:"):
         # If this is a reference, then rebuild the WMI object, because later, its properties are needed.
         # TODO: Get only the needed properties.
-        return "wmi.WMI(moniker=%s.Properties_('%s').Value)" % (win32com_object, property_name)
+        return "wmi.WMI(moniker=%s.Properties_('%s').Value.upper())" % (win32com_object_name, property_name)
     else:
-        return "%s.Properties_('%s').Value" % (win32com_object, property_name)
+        return "%s.Properties_('%s').Value" % (win32com_object_name, property_name)
 
 ##############################################################################################################
+
 
 def _build_generator_wmi(class_name, where_clauses, needed_variables):
     # TODO: https://techgenix.com/UsingWMIfiltersinGroupPolicy/
@@ -1298,13 +1443,6 @@ def _generate_wql_code(output_stream, lst_output_variables, lst_objects, functio
             ["'%s': %s" % (output_variable, output_variable) for output_variable in resulting_variables])
         + "}"
     )
-    #resulting_variables = [str(one_var) for one_var in known_variables]
-    #output_code_line(
-    #    "print('ZZZ ', {"
-    #    + ", ".join(
-    #        ["'%s': %s" % (output_variable, output_variable) for output_variable in resulting_variables])
-    #    + "})"
-    #)
     generated_loop_counter = 1
     output_comment("end of generated code")
 

@@ -24,6 +24,11 @@ samples_list = dict()
 current_pid = os.getpid()
 
 
+def split_all(path):
+    p, f = os.path.split(path)
+    return split_all(p) + [f] if f else [os.path.splitdrive(p)[0]]
+
+
 def test_classes_dictionary():
     # On-the-fly check of the classes dictionary.
     print("")
@@ -305,8 +310,8 @@ def test_moniker():
     assert _create_wmi_moniker("CIM_Directory", Name="C:") == \
            machine_root_cimv2 + r'CIM_Directory.Name="C:"'
     # "C:\Windows\System32\kernel32.dll"
-    assert _create_wmi_moniker("CIM_DataFile", Name=r"C:\WINDOWS\System32\KERNEL32.DLL") == \
-           machine_root_cimv2 + r'CIM_DataFile.Name="C:\\WINDOWS\\System32\\KERNEL32.DLL"'
+    assert _create_wmi_moniker("CIM_DataFile", Name=r"C:\WINDOWS\System32\kernel32.dll") == \
+           machine_root_cimv2 + r'CIM_DataFile.Name="C:\\WINDOWS\\System32\\kernel32.dll"'
 
     moniker_partcomponent = _create_wmi_moniker("CIM_Directory", Name=r"C:\Windows")
     assert moniker_partcomponent == \
@@ -327,10 +332,10 @@ def test_moniker_to_rdf():
     # http://www.primhillcomputers.com/ontology/survol#%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5Croot%5C%5Ccimv2%3ACIM_Directory.Name%3D%22C%3A%22
     assert str(wmi_attributes_to_rdf_node("CIM_Directory", Name="C:")) == \
         "http://www.primhillcomputers.com/ontology/survol#%5C%5CLAPTOP-R89KG6V1%5Croot%5Ccimv2%3ACIM_Directory.Name%3D%22C%3A%22"
-    actual_node= str(wmi_attributes_to_rdf_node("CIM_DataFile", Name=r"C:\WINDOWS\System32\KERNEL32.DLL"))
+    actual_node= str(wmi_attributes_to_rdf_node("CIM_DataFile", Name=r"C:\WINDOWS\System32\kernel32.dll"))
     print("actual_node=", actual_node)
     assert actual_node == \
-        "http://www.primhillcomputers.com/ontology/survol#%5C%5CLAPTOP-R89KG6V1%5Croot%5Ccimv2%3ACIM_DataFile.Name%3D%22C%3A%5C%5CWINDOWS%5C%5CSystem32%5C%5CKERNEL32.DLL%22"
+        "http://www.primhillcomputers.com/ontology/survol#%5C%5CLAPTOP-R89KG6V1%5Croot%5Ccimv2%3ACIM_DataFile.Name%3D%22C%3A%5C%5CWINDOWS%5C%5CSystem32%5C%5Ckernel32.dll%22"
 
     moniker_partcomponent = _create_wmi_moniker("CIM_Directory", Name=r"C:\Windows")
     print("moniker_partcomponent=", moniker_partcomponent)
@@ -437,12 +442,12 @@ class Testing_CIM_Directory(metaclass=TestBase):
         prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
         select ?my_directory
         where {
-        ?my_directory rdf:type cim:CIM_Directory .
+        ?my_directory rdf:type cim:Win32_Directory .
         ?my_directory cim:Name "C:" .
         }
     """
     expected_patterns = [
-        _CimPattern(VARI('my_directory'), 'CIM_Directory', {'Name': LITT('C:')}),
+        _CimPattern(VARI('my_directory'), 'Win32_Directory', {'Name': LITT('C:')}),
     ]
 
     def check_graph(rdflib_graph):
@@ -451,8 +456,9 @@ class Testing_CIM_Directory(metaclass=TestBase):
     def check_query_results(query_results):
         assert len(query_results) == 1
 
+        print("query_results=", query_results)
         assert query_results == [(
-                wmi_attributes_to_rdf_node("CIM_Directory", Name="C:"),
+                wmi_attributes_to_rdf_node("Win32_Directory", Name="C:"),
         )]
 
 
@@ -522,12 +528,12 @@ class Testing_CIM_Directory_WithName(metaclass=TestBase):
         prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
         select ?my_dir
         where {
-        ?my_dir rdf:type cim:CIM_Directory .
+        ?my_dir rdf:type cim:Win32_Directory .
         ?my_dir cim:Name 'C:' .
         }
     """
     expected_patterns = [
-        _CimPattern(VARI('my_dir'), 'CIM_Directory', {'Name': LITT('C:'), }),
+        _CimPattern(VARI('my_dir'), 'Win32_Directory', {'Name': LITT('C:'), }),
     ]
 
     def check_graph(rdflib_graph):
@@ -535,7 +541,7 @@ class Testing_CIM_Directory_WithName(metaclass=TestBase):
 
     def check_query_results(query_results):
         assert query_results == [(
-            wmi_attributes_to_rdf_node("CIM_Directory", Name='C:'),
+            wmi_attributes_to_rdf_node("Win32_Directory", Name='C:'),
         )]
 
 
@@ -549,20 +555,22 @@ class Testing_CIM_Directory_SubDirWithName(metaclass=TestBase):
         prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
         select ?my_subdir
         where {
-        ?my_subdir rdf:type cim:CIM_Directory .
+        ?my_subdir rdf:type cim:Win32_Directory .
         ?my_subdir cim:Name 'C:\\\\Windows' .
         }
     """
     expected_patterns = [
-        _CimPattern(VARI('my_subdir'), 'CIM_Directory', {'Name': LITT(r'C:\Windows'),}),
+        _CimPattern(VARI('my_subdir'), 'Win32_Directory', {'Name': LITT(r'C:\Windows'),}),
     ]
 
     def check_graph(rdflib_graph):
         return
 
     def check_query_results(query_results):
+        print("         query_results=", query_results)
+        print("expected query_results=", wmi_attributes_to_rdf_node("Win32_Directory", Name=r'C:\Windows'))
         assert query_results == [(
-            wmi_attributes_to_rdf_node("CIM_Directory", Name=r'C:\Windows'),
+            wmi_attributes_to_rdf_node("Win32_Directory", Name=r'C:\Windows'),
         )]
 
 
@@ -594,7 +602,7 @@ class Testing_CIM_ProcessExecutable_WithDependent(metaclass=TestBase):
     def check_graph(rdflib_graph):
         moniker_dependent = _create_wmi_moniker("Win32_Process", Handle=current_pid)
         #print("moniker_dependent=", moniker_dependent)
-        assert moniker_dependent == machine_root_cimv2 + r'Win32_Process.Handle="%s"' % current_pid
+        assert moniker_dependent == (machine_root_cimv2 + r'Win32_Process.Handle="%s"' % current_pid).upper()
         node_dependent = _wmi_moniker_to_rdf_node(moniker_dependent)
 
         #print("node_dependent=", node_dependent)
@@ -603,7 +611,7 @@ class Testing_CIM_ProcessExecutable_WithDependent(metaclass=TestBase):
 
         moniker_antecedent = _create_wmi_moniker("CIM_DataFile", Name=r"C:\WINDOWS\System32\CRYPT32.dll")
         #print("moniker_antecedent=", moniker_antecedent)
-        assert moniker_antecedent == machine_root_cimv2 + r'CIM_DataFile.Name="C:\\WINDOWS\\System32\\CRYPT32.dll"'
+        assert moniker_antecedent == (machine_root_cimv2 + r'CIM_DataFile.Name="C:\\WINDOWS\\System32\\CRYPT32.dll"').upper()
         node_antecedent = _wmi_moniker_to_rdf_node(moniker_antecedent)
         #print("node_antecedent    =", node_antecedent)
 
@@ -632,8 +640,8 @@ class Testing_CIM_ProcessExecutable_WithDependent(metaclass=TestBase):
 
 
 class Testing_CIM_ProcessExecutable_WithAntecedent(metaclass=TestBase):
-    label = "CIM_ProcessExecutable with Antecedent=KERNEL32.DLL"
-    query = """
+    label = "CIM_ProcessExecutable with Antecedent=kernel32.dll"
+    query = r"""
         prefix cim:  <http://www.primhillcomputers.com/ontology/survol#>
         prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
         select ?my_process_handle
@@ -644,34 +652,34 @@ class Testing_CIM_ProcessExecutable_WithAntecedent(metaclass=TestBase):
         ?my_process rdf:type cim:Win32_Process .
         ?my_process cim:Handle ?my_process_handle .
         ?my_file rdf:type cim:CIM_DataFile .
-        ?my_file cim:Name "C:\\\\WINDOWS\\\\System32\\\\KERNEL32.DLL" .
+        ?my_file cim:Name "C:\\WINDOWS\\System32\\kernel32.dll" .
         }
     """
     expected_patterns = [
         _CimPattern(VARI('my_assoc'), 'CIM_ProcessExecutable', {'Dependent': VARI('my_process'), 'Antecedent': VARI('my_file')}),
         _CimPattern(VARI('my_process'), 'Win32_Process', {'Handle': VARI('my_process_handle')}),
-        _CimPattern(VARI('my_file'), 'CIM_DataFile', {'Name': LITT(r'C:\WINDOWS\System32\KERNEL32.DLL')}),
+        _CimPattern(VARI('my_file'), 'CIM_DataFile', {'Name': LITT(r'C:\WINDOWS\System32\kernel32.dll')}),
     ]
 
     def check_graph(rdflib_graph):
         # The current process must be in the graph.
         moniker_current_process = _create_wmi_moniker("Win32_Process", Handle=current_pid)
         #print("moniker_current_process=", moniker_current_process)
-        assert moniker_current_process == machine_root_cimv2 + r'Win32_Process.Handle="%s"' % current_pid
+        assert moniker_current_process == (machine_root_cimv2 + r'Win32_Process.Handle="%s"' % current_pid).upper()
         node_current_process = _wmi_moniker_to_rdf_node(moniker_current_process)
 
         assert (node_current_process, rdflib.namespace.RDF.type, rdflib.URIRef(SURVOLNS["Win32_Process"]),) in rdflib_graph.triples((None, None, None))
         assert (node_current_process, rdflib.URIRef(SURVOLNS["Handle"]), LITT(str(current_pid)),) in rdflib_graph.triples((None, None, None))
 
         # The dll Kernel32 must be in the graph.
-        moniker_kernel32_dll = _create_wmi_moniker("CIM_DataFile", Name=r"C:\WINDOWS\System32\KERNEL32.DLL")
+        moniker_kernel32_dll = _create_wmi_moniker("CIM_DataFile", Name=r"C:\WINDOWS\System32\kernel32.dll")
         #print("moniker_kernel32_dll=", moniker_kernel32_dll)
-        assert moniker_kernel32_dll == machine_root_cimv2 + r'CIM_DataFile.Name="C:\\WINDOWS\\System32\\KERNEL32.DLL"'
+        assert moniker_kernel32_dll == (machine_root_cimv2 + r'CIM_DataFile.Name="C:\\WINDOWS\\System32\\kernel32.dll"').upper()
         node_kernel32_dll = _wmi_moniker_to_rdf_node(moniker_kernel32_dll)
 
         assert (node_kernel32_dll, rdflib.namespace.RDF.type, rdflib.URIRef(SURVOLNS["CIM_DataFile"]),) \
                in rdflib_graph.triples((None, None, None))
-        assert (node_kernel32_dll, rdflib.URIRef(SURVOLNS["Name"]), LITT(r"C:\WINDOWS\System32\KERNEL32.DLL"),) \
+        assert (node_kernel32_dll, rdflib.URIRef(SURVOLNS["Name"]), LITT(r"C:\WINDOWS\System32\kernel32.dll"),) \
                in rdflib_graph.triples((None, None, None))
 
         # The associator also, must be in the graph.
@@ -681,14 +689,17 @@ class Testing_CIM_ProcessExecutable_WithAntecedent(metaclass=TestBase):
             Antecedent=moniker_kernel32_dll)
         print("node_processexecutable=", node_processexecutable)
 
-        #print("Recherche")
-        #for s, p, o in rdflib_graph.triples((None, rdflib.namespace.RDF.type, rdflib.URIRef(SURVOLNS["CIM_ProcessExecutable"]))):
-        #    if str(s).find("CIM_ProcessExecutable") > 0 and str(s).find("KERN") > 0 :
-        #        print("AAA", s)
-        #        print("BBB", node_processexecutable)
+        print("Recherche")
+        for s, p, o in rdflib_graph.triples((None, rdflib.namespace.RDF.type, rdflib.URIRef(SURVOLNS["CIM_ProcessExecutable"]))):
+            if str(s).find("CIM_ProcessExecutable") > 0 and str(s).upper().find("KERN") > 0 :
+                print("AAA", s)
+                print("BBB", node_processexecutable)
 
         assert (node_processexecutable, rdflib.namespace.RDF.type, rdflib.URIRef(SURVOLNS["CIM_ProcessExecutable"]),) \
                in rdflib_graph.triples((None, None, None))
+
+        # Ici ca deconne de la meme facon mais ca ne gene pas.
+        #exit(0)
 
     def check_query_results(query_results):
         # The current process uses "KERNEL32" and must be in the result.
@@ -699,8 +710,8 @@ class Testing_CIM_DirectoryContainsFile_WithFile(metaclass=TestBase):
     """
     This returns the directory of a given file.
     """
-    label = "CIM_DirectoryContainsFile with File=KERNEL32.DLL"
-    query = """
+    label = "CIM_DirectoryContainsFile with File=kernel32.dll"
+    query = r"""
         prefix cim:  <http://www.primhillcomputers.com/ontology/survol#>
         prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
         select ?my_dir_name
@@ -709,7 +720,7 @@ class Testing_CIM_DirectoryContainsFile_WithFile(metaclass=TestBase):
         ?my_assoc_dir cim:GroupComponent ?my_dir .
         ?my_assoc_dir cim:PartComponent ?my_file .
         ?my_file rdf:type cim:CIM_DataFile .
-        ?my_file cim:Name "C:\\\\WINDOWS\\\\System32\\\\KERNEL32.DLL" .
+        ?my_file cim:Name "C:\\WINDOWS\\System32\\kernel32.dll" .
         ?my_dir rdf:type cim:Win32_Directory .
         ?my_dir cim:Name ?my_dir_name .
         }
@@ -717,15 +728,15 @@ class Testing_CIM_DirectoryContainsFile_WithFile(metaclass=TestBase):
     expected_patterns = [
         _CimPattern(VARI('my_assoc_dir'), 'CIM_DirectoryContainsFile', {'GroupComponent': VARI('my_dir'), 'PartComponent': VARI('my_file')}),
         _CimPattern(VARI('my_dir'), 'Win32_Directory', {'Name': VARI('my_dir_name')}),
-        _CimPattern(VARI('my_file'), 'CIM_DataFile', {'Name': LITT(r"C:\WINDOWS\System32\KERNEL32.DLL")}),
+        _CimPattern(VARI('my_file'), 'CIM_DataFile', {'Name': LITT(r"C:\WINDOWS\System32\kernel32.dll")}),
     ]
 
     def check_graph(rdflib_graph):
         print("len(rdflib_graph)=", len(rdflib_graph))
 
-        moniker_partcomponent = _create_wmi_moniker("CIM_DataFile", Name=r"C:\WINDOWS\System32\KERNEL32.DLL")
+        moniker_partcomponent = _create_wmi_moniker("CIM_DataFile", Name=r"C:\WINDOWS\System32\kernel32.dll")
         print("moniker_partcomponent=", moniker_partcomponent)
-        assert moniker_partcomponent == machine_root_cimv2 + r'CIM_DataFile.Name="C:\\WINDOWS\\System32\\KERNEL32.DLL"'
+        assert moniker_partcomponent == (machine_root_cimv2 + r'CIM_DataFile.Name="C:\\WINDOWS\\System32\\kernel32.dll"').upper()
         node_partcomponent = _wmi_moniker_to_rdf_node(moniker_partcomponent)
 
         print("node_partcomponent=", node_partcomponent)
@@ -734,7 +745,7 @@ class Testing_CIM_DirectoryContainsFile_WithFile(metaclass=TestBase):
 
         moniker_groupcomponent = _create_wmi_moniker("Win32_Directory", Name=r"C:\WINDOWS\System32")
         print("moniker_groupcomponent=", moniker_groupcomponent)
-        assert moniker_groupcomponent == machine_root_cimv2 + r'Win32_Directory.Name="C:\\WINDOWS\\System32"'
+        assert moniker_groupcomponent == (machine_root_cimv2 + r'Win32_Directory.Name="C:\\WINDOWS\\System32"').upper()
         node_groupcomponent = _wmi_moniker_to_rdf_node(moniker_groupcomponent)
         print("node_groupcomponent=", node_groupcomponent)
 
@@ -743,6 +754,8 @@ class Testing_CIM_DirectoryContainsFile_WithFile(metaclass=TestBase):
 
         # It is NOT possible to build the node of an association class from the nodes of the referenced objects.
         # Only monikers are accepted.
+        print("moniker_partcomponent=", moniker_partcomponent, len(moniker_partcomponent), type(moniker_partcomponent))
+        print("moniker_groupcomponent=", moniker_groupcomponent, len(moniker_groupcomponent), type(moniker_groupcomponent))
         node_containsfile_from_monikers = wmi_attributes_to_rdf_node(
             "CIM_DirectoryContainsFile",
             PartComponent=moniker_partcomponent,
@@ -765,8 +778,12 @@ class Testing_CIM_DirectoryContainsFile_WithFile(metaclass=TestBase):
         #                    f_amd64_ea63d1eddd5853b5\"",PartComponent="\\\\LAPTOP-R89KG6V1\\root\\cimv2:CIM_DataFile.Name=\"C:\\
         #                    \\WINDOWS\\\\System32\\\\DriverStore\\\\FileRepository\\\\iigd_dch.inf_amd64_ea63d1eddd5853b5\\\\igd
         #                    info64.dll\""
-        assert str(node_containsfile_from_monikers) == \
-            'http://www.primhillcomputers.com/ontology/survol#%5C%5CLAPTOP-R89KG6V1%5Croot%5Ccimv2%3ACIM_DirectoryContainsFile.GroupComponent%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5Croot%5C%5Ccimv2%3AWin32_Directory.Name%3D%22C%3A%5C%5C%5C%5CWINDOWS%5C%5C%5C%5CSystem32%22%22%2CPartComponent%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5Croot%5C%5Ccimv2%3ACIM_DataFile.Name%3D%22C%3A%5C%5C%5C%5CWINDOWS%5C%5C%5C%5CSystem32%5C%5C%5C%5CKERNEL32.DLL%22%22'
+        assert str(node_containsfile_from_monikers).upper() == \
+            'http://www.primhillcomputers.com/ontology/survol#%5C%5CLAPTOP-R89KG6V1%5Croot%5Ccimv2%3ACIM_DirectoryContainsFile.GroupComponent%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5Croot%5C%5Ccimv2%3AWin32_Directory.Name%3D%5C%22C%3A%5C%5C%5C%5CWINDOWS%5C%5C%5C%5CSystem32%5C%22%22%2CPartComponent%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5Croot%5C%5Ccimv2%3ACIM_DataFile.Name%3D%5C%22C%3A%5C%5C%5C%5CWINDOWS%5C%5C%5C%5CSystem32%5C%5C%5C%5Ckernel32.dll%5C%22%22'.upper()
+    #        'http://www.primhillcomputers.com/ontology/survol#%5C%5CLAPTOP-R89KG6V1%5Croot%5Ccimv2%3ACIM_DirectoryContainsFile.GroupComponent%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5Croot%5C%5Ccimv2%3AWin32_Directory.Name%3D%22C%3A%5C%5C%5C%5CWINDOWS%5C%5C%5C%5CSystem32%22%22%2CPartComponent%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5Croot%5C%5Ccimv2%3ACIM_DataFile.Name%3D%22C%3A%5C%5C%5C%5CWINDOWS%5C%5C%5C%5CSystem32%5C%5C%5C%5CKERNEL32.DLL%22%22'
+
+        for s, p, o in rdflib_graph.triples((None, rdflib.namespace.RDF.type, rdflib.URIRef(SURVOLNS["CIM_DirectoryContainsFile"]))):
+            print("                              s=", s)
 
         assert (node_containsfile_from_monikers, rdflib.namespace.RDF.type, rdflib.URIRef(SURVOLNS["CIM_DirectoryContainsFile"])) \
                in rdflib_graph.triples((None, None, None))
@@ -844,7 +861,7 @@ class Testing_Win32_SubDirectory_WithFile(metaclass=TestBase):
     """
     label = "Win32_SubDirectory_WithFile with File=Windows/System32"
 
-    query = """
+    query = r"""
         prefix cim:  <http://www.primhillcomputers.com/ontology/survol#>
         prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
         select ?my_dir_name
@@ -853,7 +870,7 @@ class Testing_Win32_SubDirectory_WithFile(metaclass=TestBase):
         ?my_assoc_dir cim:GroupComponent ?my_dir .
         ?my_assoc_dir cim:PartComponent ?my_subdir .
         ?my_subdir rdf:type cim:Win32_Directory .
-        ?my_subdir cim:Name "C:\\\\WINDOWS\\\\System32" .
+        ?my_subdir cim:Name "C:\\WINDOWS\\System32" .
         ?my_dir rdf:type cim:Win32_Directory .
         ?my_dir cim:Name ?my_dir_name .
         }
@@ -869,7 +886,7 @@ class Testing_Win32_SubDirectory_WithFile(metaclass=TestBase):
 
         moniker_partcomponent = _create_wmi_moniker("Win32_Directory", Name=r"C:\WINDOWS\System32")
         print("moniker_partcomponent=", moniker_partcomponent)
-        assert moniker_partcomponent == machine_root_cimv2 + r'Win32_Directory.Name="C:\\WINDOWS\\System32"'
+        assert moniker_partcomponent == (machine_root_cimv2 + r'Win32_Directory.Name="C:\\WINDOWS\\System32"').upper()
         node_partcomponent = _wmi_moniker_to_rdf_node(moniker_partcomponent)
 
         print("node_partcomponent=", node_partcomponent)
@@ -878,7 +895,7 @@ class Testing_Win32_SubDirectory_WithFile(metaclass=TestBase):
 
         moniker_groupcomponent = _create_wmi_moniker("Win32_Directory", Name=r"C:\WINDOWS")
         print("moniker_groupcomponent=", moniker_groupcomponent)
-        assert moniker_groupcomponent == machine_root_cimv2 + r'Win32_Directory.Name="C:\\WINDOWS"'
+        assert moniker_groupcomponent == (machine_root_cimv2 + r'Win32_Directory.Name="C:\\WINDOWS"').upper()
         node_groupcomponent = _wmi_moniker_to_rdf_node(moniker_groupcomponent)
         print("node_groupcomponent=", node_groupcomponent)
 
@@ -894,7 +911,9 @@ class Testing_Win32_SubDirectory_WithFile(metaclass=TestBase):
         print("node_containsfile_from_monikers=", node_containsfile_from_monikers)
 
         assert str(node_containsfile_from_monikers) == \
-            'http://www.primhillcomputers.com/ontology/survol#%5C%5CLAPTOP-R89KG6V1%5Croot%5Ccimv2%3AWin32_SubDirectory.GroupComponent%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5Croot%5C%5Ccimv2%3AWin32_Directory.Name%3D%22C%3A%5C%5C%5C%5CWINDOWS%22%22%2CPartComponent%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5Croot%5C%5Ccimv2%3AWin32_Directory.Name%3D%22C%3A%5C%5C%5C%5CWINDOWS%5C%5C%5C%5CSystem32%22%22'
+            'http://www.primhillcomputers.com/ontology/survol#%5C%5CLAPTOP-R89KG6V1%5CROOT%5CCIMV2%3AWIN32_SUBDIRECTORY.GROUPCOMPONENT%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5CROOT%5C%5CCIMV2%3AWIN32_DIRECTORY.NAME%3D%5C%22C%3A%5C%5C%5C%5CWINDOWS%5C%22%22%2CPARTCOMPONENT%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5CROOT%5C%5CCIMV2%3AWIN32_DIRECTORY.NAME%3D%5C%22C%3A%5C%5C%5C%5CWINDOWS%5C%5C%5C%5CSYSTEM32%5C%22%22'
+            #'http://www.primhillcomputers.com/ontology/survol#%5C%5CLAPTOP-R89KG6V1%5CROOT%5CCIMV2%3AWIN32_SUBDIRECTORY.GROUPCOMPONENT%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5CROOT%5C%5CCIMV2%3AWIN32_DIRECTORY.NAME%3D%5C%22C%3A%5C%5C%5C%5CWINDOWS%5C%22%22%2CPARTCOMPONENT%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5CROOT%5C%5CCIMV2%3AWIN32_DIRECTORY.NAME%3D%5C%22C%3A%5C%5C%5C%5CWINDOWS%5C%5C%5C%5CSYSTEM32%5C%22%22'
+            #'http://www.primhillcomputers.com/ontology/survol#%5C%5CLAPTOP-R89KG6V1%5Croot%5Ccimv2%3AWin32_SubDirectory.GroupComponent%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5Croot%5C%5Ccimv2%3AWin32_Directory.Name%3D%22C%3A%5C%5C%5C%5CWINDOWS%22%22%2CPartComponent%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5Croot%5C%5Ccimv2%3AWin32_Directory.Name%3D%22C%3A%5C%5C%5C%5CWINDOWS%5C%5C%5C%5CSystem32%22%22'.upper()
         assert (node_containsfile_from_monikers, rdflib.namespace.RDF.type, rdflib.URIRef(SURVOLNS["Win32_SubDirectory"])) \
                in rdflib_graph.triples((None, None, None))
 
@@ -963,11 +982,11 @@ class Testing_Win32_SubDirectory_WithDir(metaclass=TestBase):
         assert c_paths_nodes == sorted(query_results)
 
 
-class Testing_Win32_Directory_CIM_DirectoryContainsFile_CIM_DirectoryContainsFile(metaclass=TestBase):
+class Testing_Win32_Directory_Win32_SubDirectory_Win32_SubDirectory(metaclass=TestBase):
     """
     This displays the sub-sub-directories of C:.
     """
-    label = "Win32_Directory CIM_DirectoryContainsFile CIM_DirectoryContainsFile"
+    label = "Win32_Directory Win32_SubDirectory Win32_SubDirectory"
     query = """
         prefix cim:  <http://www.primhillcomputers.com/ontology/survol#>
         prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
@@ -975,11 +994,11 @@ class Testing_Win32_Directory_CIM_DirectoryContainsFile_CIM_DirectoryContainsFil
         where {
         ?my_dir1 rdf:type cim:Win32_Directory .
         ?my_dir1 cim:Name "C:" .
-        ?my_assoc_dir1 rdf:type cim:CIM_DirectoryContainsFile .
+        ?my_assoc_dir1 rdf:type cim:Win32_SubDirectory .
         ?my_assoc_dir1 cim:GroupComponent ?my_dir1 .
         ?my_assoc_dir1 cim:PartComponent ?my_dir2 .
         ?my_dir2 rdf:type cim:Win32_Directory .
-        ?my_assoc_dir2 rdf:type cim:CIM_DirectoryContainsFile .
+        ?my_assoc_dir2 rdf:type cim:Win32_SubDirectory .
         ?my_assoc_dir2 cim:GroupComponent ?my_dir2 .
         ?my_assoc_dir2 cim:PartComponent ?my_dir3 .
         ?my_dir3 rdf:type cim:Win32_Directory .
@@ -987,60 +1006,60 @@ class Testing_Win32_Directory_CIM_DirectoryContainsFile_CIM_DirectoryContainsFil
         }
     """
     expected_patterns = [
-        _CimPattern(VARI('my_assoc_dir1'), 'CIM_DirectoryContainsFile', {'GroupComponent': VARI('my_dir1'), 'PartComponent': VARI('my_dir2')}),
-        _CimPattern(VARI('my_assoc_dir2'), 'CIM_DirectoryContainsFile', {'GroupComponent': VARI('my_dir2'), 'PartComponent': VARI('my_dir3')}),
+        _CimPattern(VARI('my_assoc_dir1'), 'Win32_SubDirectory', {'GroupComponent': VARI('my_dir1'), 'PartComponent': VARI('my_dir2')}),
+        _CimPattern(VARI('my_assoc_dir2'), 'Win32_SubDirectory', {'GroupComponent': VARI('my_dir2'), 'PartComponent': VARI('my_dir3')}),
         _CimPattern(VARI('my_dir1'), 'Win32_Directory', {'Name': LITT('C:')}),
         _CimPattern(VARI('my_dir2'), 'Win32_Directory', {}),
         _CimPattern(VARI('my_dir3'), 'Win32_Directory', {'Name': VARI('my_dir_name3')}),
     ]
-
-    def top_level_dirs():
-        for root_dir, c_dirs, c_files in os.walk("C:\\"):
-            break
-
-        # On Windows 10, this should be something like:
-        # ['C:\\DumpStack.log', 'C:\\swapfile.sys', 'C:\\hiberfil.sys', 'C:\\DumpStack.log.tmp' 'C:\\pagefile.sys'
-        expected_c_paths = [os.path.join(root_dir, one_dir) for one_dir in c_dirs]
-        return expected_c_paths
 
     def check_graph(rdflib_graph):
         #print("Triples:")
         #for s, p, o in rdflib_graph:
         #    print("    ", s, p, o)
 
-        # The graph should not contain files.
-        list_plain_files = list(rdflib_graph.triples((None, rdflib.namespace.RDF.type, rdflib.URIRef(SURVOLNS["CIM_DataFile"]))))
-        print("list_triples")
-        for one_file_node, p, o in list_plain_files:
-            print("    ", one_file_node)
-        assert not list_plain_files
-
-        print("Some subjects from Testing_Win32_Directory_CIM_DirectoryContainsFile_CIM_DirectoryContainsFile")
+        print("Some subjects from Testing_Win32_Directory_Win32_SubDirectory_Win32_SubDirectory")
         for s, p, o in rdflib_graph:
-            if s.find("notepad") >= 0:
+            if str(s).upper().find(r"DEFENDER") >= 0:
                 print("    ", s)
 
-        expected_c_dir_paths = Testing_Win32_Directory_CIM_DirectoryContainsFile_CIM_DirectoryContainsFile.top_level_dirs()
+        # The graph should conytain only sub-sub-directories of "C:"
+        list_directories = list(rdflib_graph.triples((None, rdflib.namespace.RDF.type, rdflib.URIRef(SURVOLNS["Win32_Directory"]))))
+        print("Loop on directories ============================================================================")
+        for one_dir_node, p, o in list_directories:
+            # Get its name, maybe not here.
+            names_list = list(rdflib_graph.triples((one_dir_node, rdflib.URIRef(SURVOLNS["Name"]), None)))
+            print("one_dir_node=", one_dir_node)
+            print("names_list=", names_list)
+            #print("len(names_list)=", len(names_list))
 
-        for one_c_path in expected_c_dir_paths:
-            # print("one_c_path=", one_c_path)
-            moniker_partcomponent = _create_wmi_moniker("CIM_DataFile", Name=one_c_path)
-            # print("moniker_partcomponent=", moniker_partcomponent)
-            node_partcomponent = _wmi_moniker_to_rdf_node(moniker_partcomponent)
-
-            print("node_partcomponent=", node_partcomponent)
-            assert (node_partcomponent, rdflib.namespace.RDF.type, rdflib.URIRef(SURVOLNS["Win32_Directory"])) \
-                   in rdflib_graph.triples((None, None, None))
+            # If the name is here, then it is a top-level or second-level sub directory
+            if len(names_list) == 1:
+                path_str = str(names_list[0][2])
+                print("path_str=", path_str)
+                path_split = split_all(path_str)
+                print("path_split=", path_split)
+                # This is a sub-sub-directory of C:.
+                assert len(path_split) == 3 or len(path_split) == 1
+                assert path_split[0] == "C:"
+            else:
+                # Then it is a first-level directory.
+                assert len(names_list) == 0
 
     def check_query_results(query_results):
         # Should not be empty.
         assert query_results
 
-        # This checks that all variables are present.
-        expected_keys = set(['my_dir1', 'my_assoc_dir1', 'my_dir2', 'my_assoc_dir2', 'my_dir3', 'my_dir_name3'])
-        for one_result in query_results:
-            assert set(one_result.keys()) == expected_keys
-
+        # This checks the validity of each returned directory.
+        print("query_results=", query_results)
+        for one_path_litt in query_results:
+            path_str = str(one_path_litt[0])
+            path_split = split_all(path_str)
+            print("path_split=", path_split)
+            # This is a sub-sub-directory of C:.
+            assert len(path_split) == 3
+            assert path_split[0] == "C:"
+            assert os.path.isdir(path_str)
 
 class Testing_CIM_ProcessExecutable_CIM_DirectoryContainsFile_WithHandle(metaclass=TestBase):
     label = "CIM_ProcessExecutable CIM_DirectoryContainsFile Handle=current_pid"
@@ -1068,7 +1087,7 @@ class Testing_CIM_ProcessExecutable_CIM_DirectoryContainsFile_WithHandle(metacla
         _CimPattern(VARI('my_assoc_dir'), 'CIM_DirectoryContainsFile', {'GroupComponent': VARI('my_dir'), 'PartComponent': VARI('my_file')}),
         _CimPattern(VARI('my_process'), 'CIM_Process', {'Handle': LITT(current_pid)}),
         _CimPattern(VARI('my_file'), 'CIM_DataFile', {'Name': VARI('my_file_name')}),
-        _CimPattern(VARI('my_dir'), 'CIM_Directory', {'Name': VARI('my_dir_name')}),
+        _CimPattern(VARI('my_dir'), 'Win32_Directory', {'Name': VARI('my_dir_name')}),
     ]
 
     def check_graph(rdflib_graph):
@@ -1077,10 +1096,6 @@ class Testing_CIM_ProcessExecutable_CIM_DirectoryContainsFile_WithHandle(metacla
     def check_query_results(query_results):
         # Should not be empty.
         assert query_results
-
-        expected_keys = set(['my_assoc', 'my_process', 'my_file', 'my_assoc_dir', 'my_file_name', 'my_dir', 'my_dir_name'])
-        for one_result in query_results:
-            assert set(one_result.keys()) == expected_keys
 
 
 class Testing_CIM_ProcessExecutable_FullScan(metaclass=TestBase):
@@ -1112,9 +1127,6 @@ class Testing_CIM_ProcessExecutable_FullScan(metaclass=TestBase):
         # Should not be empty.
         assert query_results
 
-        expected_keys = set(['my_assoc', 'my_process', 'my_file', 'my_process_handle', 'my_file_name'])
-        for one_result in query_results:
-            assert set(one_result.keys()) == expected_keys
 
 
 class Testing_CIM_ProcessExecutable_CIM_DirectoryContainsFile(metaclass=TestBase):
@@ -1152,10 +1164,6 @@ class Testing_CIM_ProcessExecutable_CIM_DirectoryContainsFile(metaclass=TestBase
         # Should not be empty.
         assert query_results
 
-        expected_keys = set(['my_assoc', 'my_process', 'my_file', 'my_assoc_dir', 'my_dir', 'my_process_handle', 'my_file_name', 'my_dir_name'])
-        for one_result in query_results:
-            assert set(one_result.keys()) == expected_keys
-
 
 class Testing_CIM_Process_CIM_DataFile_SameCaption(metaclass=TestBase):
     label = "CIM_Process CIM_DataFile Same Caption"
@@ -1182,9 +1190,14 @@ class Testing_CIM_Process_CIM_DataFile_SameCaption(metaclass=TestBase):
         # Should not be empty.
         assert query_results
 
-        expected_keys = set(['my_process', 'my_file', 'same_caption'])
-        for one_result in query_results:
-            assert set(one_result.keys()) == expected_keys
+
+"""
+Ajouter un test qui retrouen des objects qu'on a trouve uniquement avec des proprietes qui ne sont pas des clefs.
+
+Ajouter un test qui retourne des objets uniquement trouves avec l'objet,
+pas les proprietes (clefs ou pas)
+"""
+
 
 
 # CHERCHER DES PROPERTIES QUI EXISTENT AIILLEURS POUR FAIRE DES FEDEREATED QUERIES:
@@ -1243,7 +1256,8 @@ def test_sparql_data():
         # CIM_ProcessExecutable with Dependent=current process
         # Win32_Directory CIM_DirectoryContainsFile CIM_DirectoryContainsFile
         # Win32_SubDirectory with GroupComponent = Directory=C:
-        if test_description != "Win32_SubDirectory with GroupComponent = Directory=C:":
+        # Win32_Directory Win32_SubDirectory Win32_SubDirectory
+        if test_description != "Win32_Directory Win32_SubDirectory Win32_SubDirectory":
             pass # continue
 
         shuffle_lst_objects(test_description, test_details)
@@ -1271,9 +1285,9 @@ if __name__ == '__main__':
     if False:
         test_content_ontology(ontology_filename)
 
-    test_moniker()
-    test_moniker_to_rdf()
-    test_node_insertion()
-    test_classes_dictionary()
-    test_keys_lists()
+    #test_moniker()
+    #test_moniker_to_rdf()
+    #test_node_insertion()
+    #test_classes_dictionary()
+    #test_keys_lists()
     test_sparql_data()
