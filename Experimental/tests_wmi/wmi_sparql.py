@@ -248,7 +248,7 @@ class CustomEvalEnvironment:
                 print("one_result_dict=", ",".join(["%s=>%s" % one_result for one_result in one_result_dict.items()]))
             counter += 1
             # FIXME: Finish earlier to ease profiling.
-            if counter == 100000:
+            if counter == 1000000:
                 print("FINITO @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
                 print("FINITO @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
                 print("FINITO @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
@@ -297,7 +297,7 @@ class CustomEvalEnvironment:
                     # Class= <class 'win32com.gen_py.565783C6-CB41-11D1-8B02-00600806D9B6x0x1x2.ISWbemObject'>
                     # Base classes= (<class 'win32com.client.DispatchBaseClass'>,)
                     the_moniker = str(the_pattern_instance.Path_).upper()
-                    print("Moniker from win32com.client.DispatchBaseClass:", the_moniker)
+                    #print("Moniker from win32com.client.DispatchBaseClass:", the_moniker)
                     assert isinstance(the_moniker, str), "Moniker is %s" % type(the_moniker)
                 else:
                     raise Exception("Type %s has no moniker" % type(the_pattern_instance))
@@ -328,27 +328,14 @@ class CustomEvalEnvironment:
                 assert isinstance(one_instance, _CimPattern)
 
                 # Some values might be nodes. Their monikers is needed to build monikers of associations.
-                #print("one_instance.m_properties.items()=", one_instance.m_properties.items())
-                #print("one_result_dict=", one_result_dict)
-                evaluated_key_values_to_monikers = {
-                    property_key: _evaluate_value_to_moniker(property_value)
-                    for property_key, property_value in one_instance.m_properties.items()
-                }
+                #evaluated_key_values_to_monikers = {
+                #    property_key: _evaluate_value_to_moniker(property_value)
+                #    for property_key, property_value in one_instance.m_properties.items()
+                #}
 
                 assert isinstance(one_instance.m_class, str)
 
-                # FIXME: Mais si l'object est donne par un des iterateurs, on a quand meme le moniker ???
-                # FIXME: CREER UN TEST OU ON AFFICHE DES OBJECTS UNIQUEMENT DEFINIS PAR DES ASSOCIATORS ...
-                # FIXME: ... OU BIEN SI ON N'A PAS LES KEYS.
-                """
-                Donc, si la variable de one_instance est dans one_result_dict, alors ca nous donne
-                le moniker deja calcule, et meme en principe l'objet, donc il ne faut PAS recalculer 
-                le moniker.
-                N est ce pas que les iterateurs ne renvoient que des objets ???
-                
-                VERIFIONS CETTE ASSERTION:
-                """
-                assert str(one_instance.m_subject) in  one_result_dict, "%s not in %s" % (one_instance.m_subject, str(one_result_dict))
+                assert str(one_instance.m_subject) in one_result_dict, "%s not in %s" % (one_instance.m_subject, str(one_result_dict))
                 # win32com.gen_py.Microsoft WMI Scripting V1.2 Library.ISWbemObject
                 # Class= <class 'win32com.gen_py.565783C6-CB41-11D1-8B02-00600806D9B6x0x1x2.ISWbemObject'>
                 # Base classes= (<class 'win32com.client.DispatchBaseClass'>,)
@@ -356,15 +343,15 @@ class CustomEvalEnvironment:
                 assert isinstance(the_instance, (PseudoWmiObject, wmi._wmi_object)) or issubclass(the_instance.__class__, win32com.client.DispatchBaseClass), "Wrong type for %s:%s" % (one_instance.m_subject, the_instance)
 
                 alt_moniker = _pattern_instance_to_moniker(the_instance)
-                rebuilt_moniker = _create_wmi_moniker(one_instance.m_class, **evaluated_key_values_to_monikers)
+                #rebuilt_moniker = _create_wmi_moniker(one_instance.m_class, **evaluated_key_values_to_monikers)
 
-                if rebuilt_moniker:
-                    assert isinstance(rebuilt_moniker, str)
+                #if rebuilt_moniker:
+                #    assert isinstance(rebuilt_moniker, str)
                 assert isinstance(alt_moniker, str)
 
-                if rebuilt_moniker and alt_moniker != rebuilt_moniker:
-                    print("DIFFERENT:     alt_moniker=", alt_moniker)
-                    print("         : rebuilt_moniker=", rebuilt_moniker)
+                #if rebuilt_moniker and alt_moniker != rebuilt_moniker:
+                #    print("DIFFERENT:     alt_moniker=", alt_moniker)
+                #    print("         : rebuilt_moniker=", rebuilt_moniker)
 
                 # CA EVITE DE RECREER LE MONIKER.
                 new_object_node = _wmi_moniker_to_rdf_node(alt_moniker)
@@ -381,7 +368,6 @@ class CustomEvalEnvironment:
                     assert isinstance(property_key, str)
                     value_node = _evaluate_value_to_node(property_value)
                     property_node = rdflib.URIRef(SURVOLNS[property_key])
-                    # value_node = LITT(evaluated_value)
                     assert isinstance(new_object_node, rdflib.term.URIRef)
                     assert isinstance(property_node, rdflib.term.URIRef)
                     ctx_graph.add((new_object_node, property_node, value_node))
@@ -849,7 +835,7 @@ def _create_wmi_moniker(class_name, **kwargs):
             for key in sorted(valid_keys))
     except KeyError:
         # Maybe some keys are missing.
-        print("WARNING: Missing keys from %s" % valid_keys)
+        print("WARNING: Missing keys for %s from %s" % (class_name, valid_keys))
         return None
     #print("properties_as_str=", properties_as_str)
 
@@ -874,7 +860,7 @@ def wmi_attributes_to_rdf_node(class_name, **kwargs):
     unquoted_moniker = _create_wmi_moniker(class_name, **kwargs)
     print("unquoted_moniker=", unquoted_moniker)
     if not unquoted_moniker:
-        print("WARNING: Missing keys from %s" % list(kwargs.keys()))
+        print("WARNING: Missing keys for %s in %s" % (class_name, list(kwargs.keys())))
         return None
     return _wmi_moniker_to_rdf_node(unquoted_moniker)
 
@@ -1204,6 +1190,18 @@ def wmi_object_property_extractor(wmi_object_name, class_name, property_name):
     return "%s.%s" % (wmi_object_name, property_name)
 
 
+_moniker_to_wmi_object_cache = dict()
+
+
+def _moniker_to_wmi_object(wmi_moniker):
+    try:
+        return _moniker_to_wmi_object_cache[wmi_moniker]
+    except KeyError:
+        wmi_object = wmi.WMI(moniker=wmi_moniker)
+        _moniker_to_wmi_object_cache[wmi_moniker] = wmi_object
+        return wmi_object
+
+
 def ISWbemObject_to_value(win32com_object_name, class_name, property_name):
     # win32com_object type is something like win32com.gen_py.565783C6-CB41-11D1-8B02-00600806D9B6x0x1x2.ISWbemObject,
     # Base class is <class 'win32com.client.DispatchBaseClass'>
@@ -1212,7 +1210,8 @@ def ISWbemObject_to_value(win32com_object_name, class_name, property_name):
         # TODO: Get only the needed properties.
         # FIXME: This takes all WMI properties, but most of them are not needed.
         # FIXME; Consider a cache if the same objet is built several times because of nested loops.
-        return "wmi.WMI(moniker=%s.Properties_('%s').Value.upper())" % (win32com_object_name, property_name)
+        # return "wmi.WMI(moniker=%s.Properties_('%s').Value.upper())" % (win32com_object_name, property_name)
+        return "_moniker_to_wmi_object(%s.Properties_('%s').Value.upper())" % (win32com_object_name, property_name)
     else:
         return "%s.Properties_('%s').Value" % (win32com_object_name, property_name)
 

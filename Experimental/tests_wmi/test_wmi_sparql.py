@@ -1114,6 +1114,9 @@ class Testing_CIM_ProcessExecutable_FullScan(metaclass=TestBase):
         assert query_results
 
         print("query_results=", query_results)
+        # FIXME: Why in uppercase ???
+        assert (LITT(sys.executable.upper()), LITT(str(current_pid)),) in query_results
+
 
 class Testing_CIM_ProcessExecutable_CIM_DirectoryContainsFile(metaclass=TestBase):
     label = "CIM_ProcessExecutable CIM_DirectoryContainsFile"
@@ -1149,7 +1152,10 @@ class Testing_CIM_ProcessExecutable_CIM_DirectoryContainsFile(metaclass=TestBase
     def check_query_results(query_results):
         # Should not be empty.
         assert query_results
-        exit(0)
+
+        assert (LITT(r'C:\WINDOWS\SYSTEM32'),) in query_results
+        assert (LITT(r'C:\WINDOWS\SHELLEXPERIENCES'),) in query_results
+        assert (LITT(r'C:\WINDOWS\SYSTEM32\WBEM'),) in query_results
 
 
 class Testing_CIM_Process_CIM_DataFile_SameCaption(metaclass=TestBase):
@@ -1176,6 +1182,7 @@ class Testing_CIM_Process_CIM_DataFile_SameCaption(metaclass=TestBase):
     def check_query_results(query_results):
         # Should not be empty.
         assert query_results
+        exit(0)
 
 
 """
@@ -1255,12 +1262,16 @@ def test_sparql_data():
             # CIM_ProcessExecutable CIM_DirectoryContainsFile
             if test_description != "CIM_ProcessExecutable CIM_DirectoryContainsFile":
                 pass # continue
+            if test_description == "CIM_Process CIM_DataFile Same Caption":
+                # Not yet.
+                print("DO NOT RUN")
+                continue
             shuffle_lst_objects(test_description, test_details)
             end_time = time.time()
             elapsed_seconds = end_time - start_time
             summary_file.write("%f\n" % elapsed_seconds)
             summary_file.flush()
-
+    print("Test OK")
 
 """
 Queries to test:
