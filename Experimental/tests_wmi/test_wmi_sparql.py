@@ -1,6 +1,6 @@
 import sys
-import io
 import os
+import time
 import logging
 import pytest
 
@@ -22,6 +22,8 @@ from wmi_sparql import wmi_attributes_to_rdf_node
 samples_list = dict()
 
 current_pid = os.getpid()
+
+summary_path = "summary.txt"
 
 
 def split_all(path):
@@ -391,12 +393,6 @@ def test_node_insertion():
     assert str(triple_to_insert[2]) == str(inserted_triple[2])
 
 
-#def test_code_generation():
-#    my_stream = io.StringIO()
-#    shuffled_lst_objects = "LKJ:LKJ"
-
-#    code_description = _generate_wql_code(my_stream, self.m_output_variables, shuffled_lst_objects)
-
 #################################################################################################
 
 if False:
@@ -422,14 +418,6 @@ if False:
 
 class TestBase(type):
     subclasses = dict()
-
-    # def __new__(cls, name, bases, dct):
-    #def __new__(cls, name, bases, dct):
-    #    #    #x = super().__new__(cls, name, bases, dct)
-    #    x = super().__new__(cls, name, bases, dct)
-    #    #    cls.subclasses[cls.label] = x
-    #    print("New", name, type(x), type(cls))
-    #    return x
 
     def __init__(cls, name, bases, dct):
         print("Init", name, type(cls))
@@ -564,6 +552,10 @@ class Testing_CIM_Directory_SubDirWithName(metaclass=TestBase):
     ]
 
     def check_graph(rdflib_graph):
+        """
+        This checks some important triples in the graph.
+        This intermediary checks helps to understand the result of the query.
+        """
         return
 
     def check_query_results(query_results):
@@ -698,9 +690,6 @@ class Testing_CIM_ProcessExecutable_WithAntecedent(metaclass=TestBase):
         assert (node_processexecutable, rdflib.namespace.RDF.type, rdflib.URIRef(SURVOLNS["CIM_ProcessExecutable"]),) \
                in rdflib_graph.triples((None, None, None))
 
-        # Ici ca deconne de la meme facon mais ca ne gene pas.
-        #exit(0)
-
     def check_query_results(query_results):
         # The current process uses "KERNEL32" and must be in the result.
         assert (LITT(str(current_pid)), ) in query_results
@@ -780,18 +769,11 @@ class Testing_CIM_DirectoryContainsFile_WithFile(metaclass=TestBase):
         #                    info64.dll\""
         assert str(node_containsfile_from_monikers).upper() == \
             'http://www.primhillcomputers.com/ontology/survol#%5C%5CLAPTOP-R89KG6V1%5Croot%5Ccimv2%3ACIM_DirectoryContainsFile.GroupComponent%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5Croot%5C%5Ccimv2%3AWin32_Directory.Name%3D%5C%22C%3A%5C%5C%5C%5CWINDOWS%5C%5C%5C%5CSystem32%5C%22%22%2CPartComponent%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5Croot%5C%5Ccimv2%3ACIM_DataFile.Name%3D%5C%22C%3A%5C%5C%5C%5CWINDOWS%5C%5C%5C%5CSystem32%5C%5C%5C%5Ckernel32.dll%5C%22%22'.upper()
-    #        'http://www.primhillcomputers.com/ontology/survol#%5C%5CLAPTOP-R89KG6V1%5Croot%5Ccimv2%3ACIM_DirectoryContainsFile.GroupComponent%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5Croot%5C%5Ccimv2%3AWin32_Directory.Name%3D%22C%3A%5C%5C%5C%5CWINDOWS%5C%5C%5C%5CSystem32%22%22%2CPartComponent%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5Croot%5C%5Ccimv2%3ACIM_DataFile.Name%3D%22C%3A%5C%5C%5C%5CWINDOWS%5C%5C%5C%5CSystem32%5C%5C%5C%5CKERNEL32.DLL%22%22'
-
-        for s, p, o in rdflib_graph.triples((None, rdflib.namespace.RDF.type, rdflib.URIRef(SURVOLNS["CIM_DirectoryContainsFile"]))):
-            print("                              s=", s)
 
         assert (node_containsfile_from_monikers, rdflib.namespace.RDF.type, rdflib.URIRef(SURVOLNS["CIM_DirectoryContainsFile"])) \
                in rdflib_graph.triples((None, None, None))
 
     def check_query_results(query_results):
-        print("+++++++++++++++++++++++++++++++++++++++++++")
-        print("query_results=", query_results)
-
         assert [(LITT('C:\\WINDOWS\\System32'),)] == query_results
 
 
@@ -830,21 +812,11 @@ class Testing_CIM_DirectoryContainsFile_WithDir(metaclass=TestBase):
         return expected_c_paths
 
     def check_graph(rdflib_graph):
-        subjects_only = set([sub for sub, prop, obj in rdflib_graph.triples((None, None, None))])
-        #for one_subject in subjects_only:
-        #    if one_subject.find("Dump") >= 0:
-        #        print("one_subject=", one_subject)
-        # print("subjects_only=", subjects_only)
-
         expected_c_paths = Testing_CIM_DirectoryContainsFile_WithDir.top_level_files()
 
         for one_c_path in expected_c_paths:
-            #print("one_c_path=", one_c_path)
             moniker_partcomponent = _create_wmi_moniker("CIM_DataFile", Name=one_c_path)
-            #print("moniker_partcomponent=", moniker_partcomponent)
             node_partcomponent = _wmi_moniker_to_rdf_node(moniker_partcomponent)
-
-            print("node_partcomponent=", node_partcomponent)
             assert (node_partcomponent, rdflib.namespace.RDF.type, rdflib.URIRef(SURVOLNS["CIM_DataFile"])) \
                    in rdflib_graph.triples((None, None, None))
 
@@ -912,15 +884,10 @@ class Testing_Win32_SubDirectory_WithFile(metaclass=TestBase):
 
         assert str(node_containsfile_from_monikers) == \
             'http://www.primhillcomputers.com/ontology/survol#%5C%5CLAPTOP-R89KG6V1%5CROOT%5CCIMV2%3AWIN32_SUBDIRECTORY.GROUPCOMPONENT%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5CROOT%5C%5CCIMV2%3AWIN32_DIRECTORY.NAME%3D%5C%22C%3A%5C%5C%5C%5CWINDOWS%5C%22%22%2CPARTCOMPONENT%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5CROOT%5C%5CCIMV2%3AWIN32_DIRECTORY.NAME%3D%5C%22C%3A%5C%5C%5C%5CWINDOWS%5C%5C%5C%5CSYSTEM32%5C%22%22'
-            #'http://www.primhillcomputers.com/ontology/survol#%5C%5CLAPTOP-R89KG6V1%5CROOT%5CCIMV2%3AWIN32_SUBDIRECTORY.GROUPCOMPONENT%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5CROOT%5C%5CCIMV2%3AWIN32_DIRECTORY.NAME%3D%5C%22C%3A%5C%5C%5C%5CWINDOWS%5C%22%22%2CPARTCOMPONENT%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5CROOT%5C%5CCIMV2%3AWIN32_DIRECTORY.NAME%3D%5C%22C%3A%5C%5C%5C%5CWINDOWS%5C%5C%5C%5CSYSTEM32%5C%22%22'
-            #'http://www.primhillcomputers.com/ontology/survol#%5C%5CLAPTOP-R89KG6V1%5Croot%5Ccimv2%3AWin32_SubDirectory.GroupComponent%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5Croot%5C%5Ccimv2%3AWin32_Directory.Name%3D%22C%3A%5C%5C%5C%5CWINDOWS%22%22%2CPartComponent%3D%22%5C%5C%5C%5CLAPTOP-R89KG6V1%5C%5Croot%5C%5Ccimv2%3AWin32_Directory.Name%3D%22C%3A%5C%5C%5C%5CWINDOWS%5C%5C%5C%5CSystem32%22%22'.upper()
         assert (node_containsfile_from_monikers, rdflib.namespace.RDF.type, rdflib.URIRef(SURVOLNS["Win32_SubDirectory"])) \
                in rdflib_graph.triples((None, None, None))
 
     def check_query_results(query_results):
-        print("+++++++++++++++++++++++++++++++++++++++++++")
-        print("query_results=", query_results)
-
         assert [(LITT('C:\\WINDOWS'),)] == query_results
 
 
@@ -966,9 +933,7 @@ class Testing_Win32_SubDirectory_WithDir(metaclass=TestBase):
         expected_c_paths = Testing_Win32_SubDirectory_WithDir.top_level_dirs()
 
         for one_c_path in expected_c_paths:
-            #print("one_c_path=", one_c_path)
             moniker_partcomponent = _create_wmi_moniker("Win32_Directory", Name=one_c_path)
-            #print("moniker_partcomponent=", moniker_partcomponent)
             node_partcomponent = _wmi_moniker_to_rdf_node(moniker_partcomponent)
 
             print("node_partcomponent=", node_partcomponent)
@@ -1014,31 +979,17 @@ class Testing_Win32_Directory_Win32_SubDirectory_Win32_SubDirectory(metaclass=Te
     ]
 
     def check_graph(rdflib_graph):
-        #print("Triples:")
-        #for s, p, o in rdflib_graph:
-        #    print("    ", s, p, o)
-
-        print("Some subjects from Testing_Win32_Directory_Win32_SubDirectory_Win32_SubDirectory")
-        for s, p, o in rdflib_graph:
-            if str(s).upper().find(r"DEFENDER") >= 0:
-                print("    ", s)
-
         # The graph should conytain only sub-sub-directories of "C:"
         list_directories = list(rdflib_graph.triples((None, rdflib.namespace.RDF.type, rdflib.URIRef(SURVOLNS["Win32_Directory"]))))
         print("Loop on directories ============================================================================")
         for one_dir_node, p, o in list_directories:
             # Get its name, maybe not here.
             names_list = list(rdflib_graph.triples((one_dir_node, rdflib.URIRef(SURVOLNS["Name"]), None)))
-            print("one_dir_node=", one_dir_node)
-            print("names_list=", names_list)
-            #print("len(names_list)=", len(names_list))
 
             # If the name is here, then it is a top-level or second-level sub directory
             if len(names_list) == 1:
                 path_str = str(names_list[0][2])
-                print("path_str=", path_str)
                 path_split = split_all(path_str)
-                print("path_split=", path_split)
                 # This is a sub-sub-directory of C:.
                 assert len(path_split) == 3 or len(path_split) == 1
                 assert path_split[0] == "C:"
@@ -1051,15 +1002,14 @@ class Testing_Win32_Directory_Win32_SubDirectory_Win32_SubDirectory(metaclass=Te
         assert query_results
 
         # This checks the validity of each returned directory.
-        print("query_results=", query_results)
         for one_path_litt in query_results:
             path_str = str(one_path_litt[0])
             path_split = split_all(path_str)
-            print("path_split=", path_split)
             # This is a sub-sub-directory of C:.
             assert len(path_split) == 3
             assert path_split[0] == "C:"
             assert os.path.isdir(path_str)
+
 
 class Testing_CIM_ProcessExecutable_CIM_DirectoryContainsFile_WithHandle(metaclass=TestBase):
     label = "CIM_ProcessExecutable CIM_DirectoryContainsFile Handle=current_pid"
@@ -1074,7 +1024,7 @@ class Testing_CIM_ProcessExecutable_CIM_DirectoryContainsFile_WithHandle(metacla
         ?my_assoc_dir rdf:type cim:CIM_DirectoryContainsFile .
         ?my_assoc_dir cim:GroupComponent ?my_dir .
         ?my_assoc_dir cim:PartComponent ?my_file .
-        ?my_process rdf:type cim:CIM_Process .
+        ?my_process rdf:type cim:Win32_Process .
         ?my_process cim:Handle "%d" .
         ?my_file rdf:type cim:CIM_DataFile .
         ?my_file cim:Name ?my_file_name .
@@ -1083,22 +1033,43 @@ class Testing_CIM_ProcessExecutable_CIM_DirectoryContainsFile_WithHandle(metacla
         }
     """ % current_pid
     expected_patterns = [
-        _CimPattern(VARI('my_assoc'), 'CIM_ProcessExecutable', {'Dependent': VARI('my_process'), 'Antecedent': VARI('my_file')}),
-        _CimPattern(VARI('my_assoc_dir'), 'CIM_DirectoryContainsFile', {'GroupComponent': VARI('my_dir'), 'PartComponent': VARI('my_file')}),
-        _CimPattern(VARI('my_process'), 'CIM_Process', {'Handle': LITT(current_pid)}),
+        _CimPattern(VARI('my_assoc'), 'CIM_ProcessExecutable', {'Antecedent': VARI('my_file'), 'Dependent': VARI('my_process')}),
+        _CimPattern(VARI('my_assoc_dir'), 'CIM_DirectoryContainsFile', {'PartComponent': VARI('my_file'), 'GroupComponent': VARI('my_dir')}),
+        _CimPattern(VARI('my_process'), 'Win32_Process', {'Handle': LITT(current_pid)}),
         _CimPattern(VARI('my_file'), 'CIM_DataFile', {'Name': VARI('my_file_name')}),
         _CimPattern(VARI('my_dir'), 'Win32_Directory', {'Name': VARI('my_dir_name')}),
     ]
 
     def check_graph(rdflib_graph):
-        return
+        process_tuples = list(rdflib_graph.triples((None, rdflib.namespace.RDF.type, rdflib.URIRef(SURVOLNS["CIM_Process"]))))
+        assert len(process_tuples) == 0
+
+        # The current process must be in the graph and only this one.
+        process_tuples = list(rdflib_graph.triples((None, rdflib.namespace.RDF.type, rdflib.URIRef(SURVOLNS["Win32_Process"]))))
+        assert len(process_tuples) == 1
+        current_process_node = wmi_attributes_to_rdf_node("Win32_Process", Handle=current_pid)
+        print("process_tuples[0][0]=", process_tuples[0][0])
+        print("current_process_node=", current_process_node)
+        assert process_tuples[0][0] == current_process_node
 
     def check_query_results(query_results):
         # Should not be empty.
         assert query_results
+        #print("query_results=", query_results)
+
+        dirs_set = set([str(one_tuple[0]) for one_tuple in query_results])
+        print("dirs_set=", dirs_set)
+        # This is Windows'fault that we have three cases for the same directory name.
+        assert 'C:\\WINDOWS\\System32' in dirs_set
+        assert 'C:\\WINDOWS\\SYSTEM32' in dirs_set
+        assert 'C:\\WINDOWS\\system32' in dirs_set
+        assert os.path.dirname(sys.executable) in dirs_set
 
 
 class Testing_CIM_ProcessExecutable_FullScan(metaclass=TestBase):
+    """
+    This gets the directories of all executables and libraries of all processes.
+    """
     label = "CIM_ProcessExecutable full scan"
     query = """
         prefix cim:  <http://www.primhillcomputers.com/ontology/survol#>
@@ -1108,7 +1079,7 @@ class Testing_CIM_ProcessExecutable_FullScan(metaclass=TestBase):
         ?my_assoc rdf:type cim:CIM_ProcessExecutable .
         ?my_assoc cim:Dependent ?my_process .
         ?my_assoc cim:Antecedent ?my_file .
-        ?my_process rdf:type cim:CIM_Process .
+        ?my_process rdf:type cim:Win32_Process .
         ?my_process cim:Handle ?my_process_handle .
         ?my_file rdf:type cim:CIM_DataFile .
         ?my_file cim:Name ?my_file_name .
@@ -1116,18 +1087,33 @@ class Testing_CIM_ProcessExecutable_FullScan(metaclass=TestBase):
     """
     expected_patterns = [
         _CimPattern(VARI('my_assoc'), 'CIM_ProcessExecutable', {'Dependent': VARI('my_process'), 'Antecedent': VARI('my_file')}),
-        _CimPattern(VARI('my_process'), 'CIM_Process', {'Handle': VARI('my_process_handle')}),
+        _CimPattern(VARI('my_process'), 'Win32_Process', {'Handle': VARI('my_process_handle')}),
         _CimPattern(VARI('my_file'), 'CIM_DataFile', {'Name': VARI('my_file_name')}),
     ]
 
     def check_graph(rdflib_graph):
-        return
+        # All processes.
+        processes_set = set([s for s, p, o in rdflib_graph.triples((None, rdflib.namespace.RDF.type, rdflib.URIRef(SURVOLNS["Win32_Process"])))])
+        print("processes_set=", processes_set)
+
+        # The current process must be in the graph.
+        current_process_node = wmi_attributes_to_rdf_node("Win32_Process", Handle=current_pid)
+        assert current_process_node in processes_set
+        process_tuples = list(rdflib_graph.triples((current_process_node, rdflib.namespace.RDF.type, rdflib.URIRef(SURVOLNS["Win32_Process"]))))
+        print("current_process_node=", current_process_node)
+        print("len(process_tuples)=", len(process_tuples))
+        assert len(process_tuples) == 1
+
+        # The executable of Python must be in the triples.
+        current_executable_node = wmi_attributes_to_rdf_node("CIM_DataFile", Name=sys.executable)
+        execs_tuples = list(rdflib_graph.triples((current_executable_node, rdflib.namespace.RDF.type, rdflib.URIRef(SURVOLNS["CIM_DataFile"]))))
+        assert len(execs_tuples) >= 1
 
     def check_query_results(query_results):
         # Should not be empty.
         assert query_results
 
-
+        print("query_results=", query_results)
 
 class Testing_CIM_ProcessExecutable_CIM_DirectoryContainsFile(metaclass=TestBase):
     label = "CIM_ProcessExecutable CIM_DirectoryContainsFile"
@@ -1142,7 +1128,7 @@ class Testing_CIM_ProcessExecutable_CIM_DirectoryContainsFile(metaclass=TestBase
         ?my_assoc_dir rdf:type cim:CIM_DirectoryContainsFile .
         ?my_assoc_dir cim:GroupComponent ?my_dir .
         ?my_assoc_dir cim:PartComponent ?my_file .
-        ?my_process rdf:type cim:CIM_Process .
+        ?my_process rdf:type cim:Win32_Process .
         ?my_file rdf:type cim:CIM_DataFile .
         ?my_file cim:Name ?my_file_name .
         ?my_dir rdf:type cim:Win32_Directory .
@@ -1152,10 +1138,10 @@ class Testing_CIM_ProcessExecutable_CIM_DirectoryContainsFile(metaclass=TestBase
     expected_patterns = [
         _CimPattern(VARI('my_assoc'), 'CIM_ProcessExecutable', {'Dependent': VARI('my_process'), 'Antecedent': VARI('my_file')}),
         _CimPattern(VARI('my_assoc_dir'), 'CIM_DirectoryContainsFile', {'GroupComponent': VARI('my_dir'), 'PartComponent': VARI('my_file')}),
-        _CimPattern(VARI('my_process'), 'CIM_Process', {}),
+        _CimPattern(VARI('my_process'), 'Win32_Process', {}),
         _CimPattern(VARI('my_file'), 'CIM_DataFile', {'Name': VARI('my_file_name')}),
-        _CimPattern(VARI('my_dir'), 'CIM_Directory', {'Name': VARI('my_dir_name')}),
-    ],
+        _CimPattern(VARI('my_dir'), 'Win32_Directory', {'Name': VARI('my_dir_name')}),
+    ]
 
     def check_graph(rdflib_graph):
         return
@@ -1163,6 +1149,7 @@ class Testing_CIM_ProcessExecutable_CIM_DirectoryContainsFile(metaclass=TestBase
     def check_query_results(query_results):
         # Should not be empty.
         assert query_results
+        exit(0)
 
 
 class Testing_CIM_Process_CIM_DataFile_SameCaption(metaclass=TestBase):
@@ -1234,33 +1221,46 @@ Creer une forme intermediaire pour exprimer ceci
 def shuffle_lst_objects(test_description, test_details):
     print("")
     print("#" * 50, test_description)
-    sys.stdout.flush()
 
-    custom_eval = wmi_sparql.CustomEvalEnvironment(test_description, test_details.query, test_details.expected_patterns)
+    print("PATTERNS START ========================", len(test_details.expected_patterns))
+    for one_pattern in test_details.expected_patterns:
+        print("    ", one_pattern)
+    print("PATTERNS END   ========================")
 
-    query_results = custom_eval.run_query_in_rdflib()
+    custom_eval = wmi_sparql.CustomEvalEnvironment(
+        test_description, test_details.query, test_details.expected_patterns)
+
+    query_results = custom_eval.run_query_in_rdflib("snippet_" + test_details.__name__)
     print("run_query_in_rdflib query_results", query_results)
-    #print("PATTERNS START ========================")
-    #for one_pattern in test_details.expected_patterns:
-    #    print("    ", one_pattern)
-    #print("PATTERNS END   ========================")
     test_details.check_graph(custom_eval.m_graph)
     test_details.check_query_results(query_results)
 
 
 def test_sparql_data():
-    for test_description, test_details in TestBase.subclasses.items():
-        # CIM_ProcessExecutable full scan
-        # CIM_Process with Handle=current process
-        # CIM_Process CIM_DataFile Same Caption
-        # CIM_ProcessExecutable with Dependent=current process
-        # Win32_Directory CIM_DirectoryContainsFile CIM_DirectoryContainsFile
-        # Win32_SubDirectory with GroupComponent = Directory=C:
-        # Win32_Directory Win32_SubDirectory Win32_SubDirectory
-        if test_description != "Win32_Directory Win32_SubDirectory Win32_SubDirectory":
-            pass # continue
+    with open(summary_path, "w") as summary_file :
+        for test_description, test_details in TestBase.subclasses.items():
+            start_time = time.time()
 
-        shuffle_lst_objects(test_description, test_details)
+            summary_file.write("%s : " % test_details.__name__)
+            # Flushes in case the test hangs.
+            summary_file.flush()
+
+            # CIM_ProcessExecutable full scan
+            # CIM_Process with Handle=current process
+            # CIM_Process CIM_DataFile Same Caption
+            # CIM_ProcessExecutable with Dependent=current process
+            # Win32_Directory CIM_DirectoryContainsFile CIM_DirectoryContainsFile
+            # Win32_SubDirectory with GroupComponent = Directory=C:
+            # Win32_Directory Win32_SubDirectory Win32_SubDirectory
+            # CIM_ProcessExecutable CIM_DirectoryContainsFile
+            if test_description != "CIM_ProcessExecutable CIM_DirectoryContainsFile":
+                pass # continue
+            shuffle_lst_objects(test_description, test_details)
+            end_time = time.time()
+            elapsed_seconds = end_time - start_time
+            summary_file.write("%f\n" % elapsed_seconds)
+            summary_file.flush()
+
 
 """
 Queries to test:
