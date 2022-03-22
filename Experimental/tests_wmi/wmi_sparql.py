@@ -2,6 +2,7 @@ import sys
 import os
 import io
 import ast
+import time
 import itertools
 import logging
 import urllib
@@ -95,9 +96,11 @@ class _CimPattern:
         return False
 
     def __eq__(self, other):
+        # Properties are converted to strings because of values.
+        # Do not worry about performance because this is used for tests only.
         return str(self.m_subject) == str(other.m_subject) \
             and self.m_class == other.m_class \
-            and self.m_properties == other.m_properties
+            and str(sorted(self.m_properties)) == str(sorted(other.m_properties))
 
     def variable_properties(self):
         """
@@ -245,7 +248,13 @@ class CustomEvalEnvironment:
                 print("one_result_dict=", ",".join(["%s=>%s" % one_result for one_result in one_result_dict.items()]))
             counter += 1
             # FIXME: Finish earlier to ease profiling.
-            if counter == 1000:
+            if counter == 100000:
+                print("FINITO @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+                print("FINITO @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+                print("FINITO @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+                print("FINITO @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+                print("FINITO @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+                print("FINITO @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
                 print("FINITO @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
                 break
 
@@ -279,42 +288,22 @@ class CustomEvalEnvironment:
                 if isinstance(the_pattern_instance, PseudoWmiObject):
                     # This is a node which was created by a specialised generator in _specialised_generators_dict.
                     the_moniker = the_pattern_instance.m_wmi_moniker.upper()
-                    print("Moniker from PseudoWmiObject:", the_moniker)
                     assert isinstance(the_moniker, str)
                 elif isinstance(the_pattern_instance, wmi._wmi_object):
                     # This is a WMI object, its WMI moniker is available.
                     the_moniker = str(the_pattern_instance.path()).upper()
-                    print("Moniker from wmi._wmi_object:", the_moniker)
                     assert isinstance(the_moniker, str)
                 elif issubclass(the_pattern_instance.__class__, win32com.client.DispatchBaseClass):
                     # Class= <class 'win32com.gen_py.565783C6-CB41-11D1-8B02-00600806D9B6x0x1x2.ISWbemObject'>
                     # Base classes= (<class 'win32com.client.DispatchBaseClass'>,)
-                    # return the_pattern_instance.Path()
-                    # return the_pattern_instance.path()
                     the_moniker = str(the_pattern_instance.Path_).upper()
                     print("Moniker from win32com.client.DispatchBaseClass:", the_moniker)
                     assert isinstance(the_moniker, str), "Moniker is %s" % type(the_moniker)
-                    #the_moniker = the_moniker.decode()
                 else:
                     raise Exception("Type %s has no moniker" % type(the_pattern_instance))
 
                 assert isinstance(the_moniker, str)
-                #alt_moniker = alt_moniker.decode()
                 return the_moniker
-
-
-                """
-                Moniker from wmi._wmi_object: \\LAPTOP-R89KG6V1\root\cimv2:CIM_DataFile.Name="C:\\WINDOWS\\System32\\KERNEL32.DLL"
-                
-                Moniker from wmi._wmi_object: \\LAPTOP-R89KG6V1\root\cimv2:CIM_ProcessExecutable.Antecedent="\\\\LAPTOP-R89KG6V1\\root\\cimv2:CIM_DataFile.Name=\"C:\\\\WINDOWS\\\\System32\\\\KERNEL32.DLL\"",Dependent="\\\\LAPTOP-R89KG6V1\\root\\cimv2:Win32_Process.Handle=\"10104\""
-                Moniker from PseudoWmiObject: \\LAPTOP-R89KG6V1\root\cimv2:CIM_DirectoryContainsFile.GroupComponent="\\LAPTOP-R89KG6V1\root\cimv2:Win32_Directory.Name=\"C:\\WINDOWS\\System32\"",PartComponent="\\LAPTOP-R89KG6V1\root\cimv2:CIM_DataFile.Name=\"C:\\WINDOWS\\System32\\KERNEL32.DLL\""
-                
-                C est PseudoWmiObject qui devrait dupliquer.
-                
-                DIFFERENT:     alt_moniker= \\LAPTOP-R89KG6V1\root\cimv2:CIM_DirectoryContainsFile.GroupComponent="\\LAPTOP-R89KG6V1\root\cimv2:Win32_Directory.Name=\"C:\\WINDOWS\\System32\"",PartComponent="\\LAPTOP-R89KG6V1\root\cimv2:CIM_DataFile.Name=\"C:\\WINDOWS\\System32\\KERNEL32.DLL\""
-                         : rebuilt_moniker= \\LAPTOP-R89KG6V1\root\cimv2:CIM_DirectoryContainsFile.GroupComponent="\\\\LAPTOP-R89KG6V1\\root\\cimv2:Win32_Directory.Name=\"C:\\\\WINDOWS\\\\System32\"",PartComponent="\\\\LAPTOP-R89KG6V1\\root\\cimv2:CIM_DataFile.Name=\"C:\\\\WINDOWS\\\\System32\\\\KERNEL32.DLL\""
-                
-                """
 
             def _evaluate_value_to_moniker(property_value):
                 """
@@ -361,8 +350,6 @@ class CustomEvalEnvironment:
                 """
                 assert str(one_instance.m_subject) in  one_result_dict, "%s not in %s" % (one_instance.m_subject, str(one_result_dict))
                 # win32com.gen_py.Microsoft WMI Scripting V1.2 Library.ISWbemObject
-                print("Class=",  one_result_dict[str(one_instance.m_subject)].__class__)
-                print("Base classes=",  one_result_dict[str(one_instance.m_subject)].__class__.__bases__)
                 # Class= <class 'win32com.gen_py.565783C6-CB41-11D1-8B02-00600806D9B6x0x1x2.ISWbemObject'>
                 # Base classes= (<class 'win32com.client.DispatchBaseClass'>,)
                 the_instance = one_result_dict[str(one_instance.m_subject)]
@@ -371,20 +358,13 @@ class CustomEvalEnvironment:
                 alt_moniker = _pattern_instance_to_moniker(the_instance)
                 rebuilt_moniker = _create_wmi_moniker(one_instance.m_class, **evaluated_key_values_to_monikers)
 
-                print("one_instance.m_class=", one_instance.m_class, "type=", type(one_instance), "evaluated_key_values_to_monikers=", evaluated_key_values_to_monikers)
-                new_object_node = wmi_attributes_to_rdf_node(one_instance.m_class, **evaluated_key_values_to_monikers)
-
-                print("type(rebuilt_moniker)=", type(rebuilt_moniker))
                 if rebuilt_moniker:
                     assert isinstance(rebuilt_moniker, str)
-                #assert isinstance(alt_moniker, bytes)
-                #alt_moniker = alt_moniker.decode()
                 assert isinstance(alt_moniker, str)
 
                 if rebuilt_moniker and alt_moniker != rebuilt_moniker:
                     print("DIFFERENT:     alt_moniker=", alt_moniker)
                     print("         : rebuilt_moniker=", rebuilt_moniker)
-                # assert alt_moniker == rebuilt_moniker, "Monikers %s != %s" % (alt_moniker, rebuilt_moniker)
 
                 # CA EVITE DE RECREER LE MONIKER.
                 new_object_node = _wmi_moniker_to_rdf_node(alt_moniker)
@@ -394,11 +374,8 @@ class CustomEvalEnvironment:
                     print("WARNING: No keys to build an object for CimPattern=", one_instance)
                     continue
 
-                print("new_object_node=", new_object_node)
-
                 class_node = rdflib.URIRef(SURVOLNS[one_instance.m_class])
                 ctx_graph.add((new_object_node, rdflib.namespace.RDF.type, class_node))
-                print("ADDING:", new_object_node, class_node)
 
                 for property_key, property_value in one_instance.m_properties.items():
                     assert isinstance(property_key, str)
@@ -427,7 +404,7 @@ class CustomEvalEnvironment:
         Bref: Pour le moment, on fait au plus simple: Ca yield des dictionnaires de key-values.
         """
 
-    def _fetch_wmi_objects_in_graph(self, ctx_graph, instances_list):
+    def _fetch_wmi_objects_in_graph(self, ctx_graph, instances_list, snippet_name):
         """
         This executes WMI queries on the list of instances.
         It is indirectly called by rdflib custom eval functions when executing a sparql query.
@@ -443,35 +420,63 @@ class CustomEvalEnvironment:
         """
 
         # Name of the function which is about to be generated.
-        best_generated_python_code = self._best_snippet("my_results_generator", instances_list)
+        # best_generated_python_code = self._best_snippet("my_results_generator", instances_list)
+        start_time = time.time()
+        best_generated_python_code = self._best_snippet(snippet_name, instances_list)
+        optim_time = time.time()
+        optim_seconds = optim_time - start_time
 
-        print("Execution")
-        eval_result = exec(best_generated_python_code, globals())
-        assert eval_result is None
+        snippet_headers = []
+
+        def log_snippet_details(extra_line):
+            if debug_mode:
+                snippet_headers.append(extra_line)
+                with open(snippet_name + ".py", "w") as snippet_log:
+                    for one_line in snippet_headers:
+                        snippet_log.write(one_line)
+                    snippet_log.write(best_generated_python_code)
+
+        # It is written once in case it would be too slow to finish.
+        log_snippet_details("# Optimisation time %f\n" % optim_seconds)
+
+        print("Definition of", snippet_name)
+        exec_result = exec(best_generated_python_code, globals())
+        assert exec_result is None
         # This is the name of the created Python function which returns variables calculated from WMI
-        assert my_results_generator
-        eval_results = my_results_generator()
-        print("INSTANCES_LIST START ========================")
-        for one_pattern in instances_list:
-            print("    ", one_pattern)
-        print("INSTANCES_LIST END   ========================")
-        self._insert_wmi_results_in_graph(ctx_graph, instances_list, eval_results)
-        #for s, p, o in ctx_graph.triples((None, None, None)):
-        #    print(s, p, o)
+        assert globals()[snippet_name]
+        print("Execution of", snippet_name)
+        snippet_results = globals()[snippet_name]()
+
+        exec_time = time.time()
+        exec_seconds = exec_time - optim_time
+
+        # It is rewritten in case it is too slow to be finished.
+        log_snippet_details("# Execution time : %f\n" % exec_seconds)
+
+        self._insert_wmi_results_in_graph(ctx_graph, instances_list, snippet_results)
+        # Log file written again for performance testing.
+        log_snippet_details("# Graph size : %d\n" % len(ctx_graph))
+        insertion_time = time.time()
+        insertion_seconds = insertion_time - exec_time
+        log_snippet_details("# Insertion time : %f\n" % insertion_seconds)
 
     def _check_objects_list(self, instances_list):
         # Any order will do for this comparison, as long as it is consistent.
         ordered_actual_instances = sorted(instances_list)
         ordered_expected_instances = sorted(self.m_expected_patterns)
-        print("ACTUAL PATTERNS")
+        print("ACTUAL PATTERNS", type(ordered_actual_instances), len(ordered_actual_instances))
         for one_pattern in ordered_actual_instances:
             print("    ", one_pattern)
-        print("EXPECTED PATTERNS")
+        print("EXPECTED PATTERNS", type(ordered_expected_instances), len(ordered_expected_instances))
         for one_pattern in ordered_expected_instances:
             print("    ", one_pattern)
+        for left, right in zip(ordered_actual_instances, ordered_expected_instances):
+            print("left=", left)
+            print("right=", right)
+            assert left == right
         assert ordered_actual_instances == ordered_expected_instances
 
-    def custom_eval_bgp(self, ctx_graph, part_triples):
+    def _custom_eval_bgp(self, ctx_graph, part_triples, snippet_name):
         # Possibly add the ontology to ctx.graph
 
         logging.debug("Instances:")
@@ -486,11 +491,11 @@ class CustomEvalEnvironment:
             self._check_objects_list(instances_list)
 
         if instances_list:
-            self._fetch_wmi_objects_in_graph(ctx_graph, instances_list)
+            self._fetch_wmi_objects_in_graph(ctx_graph, instances_list, snippet_name)
         else:
             logging.warning("No instances. Maybe a meta-data query.")
 
-    def run_query_in_rdflib(self):
+    def run_query_in_rdflib(self, snippet_name):
         def _wmi_custom_eval_function(ctx, part):
             """
             Inspired from https://rdflib.readthedocs.io/en/stable/_modules/examples/custom_eval.html
@@ -506,7 +511,7 @@ class CustomEvalEnvironment:
                 # part.name = "SelectQuery", "Project", "BGP"
                 # BGP stands for "Basic Graph Pattern", which is a set of triple patterns.
                 # A triple pattern is a triple: RDF-term or value, IRI or value, RDF term or value.
-                self.custom_eval_bgp(ctx.graph, part.triples)
+                self._custom_eval_bgp(ctx.graph, part.triples, snippet_name)
 
                 # Normal execution of the Sparql engine on the graph with many more triples.
                 ret_bgp = rdflib.plugins.sparql.evaluate.evalBGP(ctx, part.triples)
@@ -683,7 +688,6 @@ def _convert_ontology_to_rdf(wmi_conn, rdf_graph):
                 pass
 
 
-
 # https://docs.microsoft.com/en-us/windows/win32/wmisdk/key-qualifier
 # If more than one property has the Key qualifier, then all such properties collectively form the key (a compound key).
 # ou can use any property type except for the following:
@@ -698,6 +702,7 @@ def _convert_ontology_to_rdf(wmi_conn, rdf_graph):
 # Because monikers use keys, they can be safely used in URLs, plus maybe some URL escaping.
 #
 # But what about access speed ?
+
 
 def _get_wmi_class_properties(class_name):
     """
@@ -734,8 +739,6 @@ def _get_wmi_class_properties(class_name):
             pass
 
         class_props[prop_obj.Name] = property_type
-    #if debug_mode:
-    #    print("Keys:", class_name, keys_list)
     return class_props, keys_list
 
 
@@ -811,8 +814,6 @@ def _create_wmi_moniker(class_name, **kwargs):
     Donc il faut convertir a priori les monikers en majuscules.
     """
 
-
-
     def _value_to_str(the_value):
         # The values passed as parameter are plain literal values for non-associator classes.
         # But for associator classes, such as CIM_DirectoryContainsFile, the values of the two keys
@@ -823,15 +824,9 @@ def _create_wmi_moniker(class_name, **kwargs):
             assert not the_value.m_wmi_moniker.startswith("http")
 
             # FIXME: This is not necessary because PseudoWmiObject.__str__ returns m_wmi_moniker anyway.
-            #assert the_value.m_wmi_moniker.find(r"\\") <= 0
             return the_value.m_wmi_moniker.replace("\\", "\\\\").upper()
-
-            # Pas bon: Faut traiter le moniker comme une string. C est ce que fait WMI.
-
+        # FIXME: IS IT CALLED ?
         else:
-            #Probleme : Le traiter differement si c'est un moniker car les backslashes ont deja ete escape.'
-            #Ou on cree un PseudoWmiObject
-
             assert isinstance(the_value, (bool, int, float, str))
             assert not isinstance(the_value, wmi._wmi_object)
             assert not issubclass(the_value.__class__, win32com.client.DispatchBaseClass)
@@ -841,24 +836,13 @@ def _create_wmi_moniker(class_name, **kwargs):
 
             # This conversion to str would be done anyway.
             # BEWARE: Backslahes must be escaped in arguments of WMI monikers !!!
-            print("str(the_value)=", str(the_value))
-            #assert str(the_value).find(r"\\") < 0
             result = str(the_value).replace("\\", "\\\\") # .replace('"', '\\"')
-            #assert str(the_value).find(r"\\\\") < 0
-            print("result=", result)
+            # print("_value_to_str result=", result)
             return result
-            # return str(the_value)
 
     # The keys must be sorted.
     # FIXME: Which order is used by WMI ?
     # FIXME: Maybe the monikers should always be rebuilt for this reason.
-    if False:
-        properties_as_str = ",".join(
-            '%s="%s"' % (key, _value_to_str(value))
-            for key, value in sorted(kwargs.items())
-            if key in valid_keys)
-
-    #print("kwargs2=", kwargs)
     try:
         properties_as_str = ",".join(
             '%s="%s"' % (key, _value_to_str(kwargs[key]).replace('"', '\\"'))
@@ -867,7 +851,7 @@ def _create_wmi_moniker(class_name, **kwargs):
         # Maybe some keys are missing.
         print("WARNING: Missing keys from %s" % valid_keys)
         return None
-    print("properties_as_str=", properties_as_str)
+    #print("properties_as_str=", properties_as_str)
 
     # print("properties_as_str=", properties_as_str)
     # This is just to ensure that only key properties are used. "Caption" is never a key property.
@@ -1226,6 +1210,8 @@ def ISWbemObject_to_value(win32com_object_name, class_name, property_name):
     if classes_dictionary[class_name][property_name].startswith("ref:"):
         # If this is a reference, then rebuild the WMI object, because later, its properties are needed.
         # TODO: Get only the needed properties.
+        # FIXME: This takes all WMI properties, but most of them are not needed.
+        # FIXME; Consider a cache if the same objet is built several times because of nested loops.
         return "wmi.WMI(moniker=%s.Properties_('%s').Value.upper())" % (win32com_object_name, property_name)
     else:
         return "%s.Properties_('%s').Value" % (win32com_object_name, property_name)
