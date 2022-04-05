@@ -255,8 +255,19 @@ def _convert_ontology_to_rdf(map_classes, map_attributes, rdf_graph):
     :param rdf_graph: Where the ontology is added to.
     """
 
+    # This first pass ensures that each class has a node.
+    class_nodes = dict()
     for class_name, class_dict in map_classes.items():
-        class_node = lib_kbase.class_node_uriref(class_name)
+        class_nodes[class_name] = lib_kbase.class_node_uriref(class_name)
+
+    for class_name, class_dict in map_classes.items():
+        class_node = class_nodes[class_name]
+        if 'base_class' in class_dict:
+            base_class_name = class_dict['base_class']
+            # This must be defined because all nodes for each classes are defined in a previous loo.
+            base_class_node = class_nodes[base_class_name]
+            rdf_graph.add((class_node, rdflib.namespace.RDFS.subClassOf, base_class_node))
+
         rdf_graph.add((class_node, rdflib.namespace.RDF.type, rdflib.namespace.RDFS.Class))
         rdf_graph.add((class_node, rdflib.namespace.RDFS.label, rdflib.Literal(class_name)))
         rdf_graph.add((class_node, rdflib.namespace.RDFS.comment, rdflib.Literal(class_dict["class_description"])))
@@ -265,6 +276,7 @@ def _convert_ontology_to_rdf(map_classes, map_attributes, rdf_graph):
         property_node = lib_kbase.property_node_uriref(property_name)
         rdf_graph.add((property_node, rdflib.namespace.RDFS.label, rdflib.Literal(property_name)))
 
+        # Therer are no sub-properties in WMI.
         rdf_graph.add((property_node, rdflib.namespace.RDF.type, rdflib.namespace.RDF.Property))
         attribute_domain = property_dict['predicate_domain']
         assert isinstance(attribute_domain, list)

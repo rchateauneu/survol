@@ -624,6 +624,7 @@ def extract_specific_ontology_wmi():
         # If this is a top-level class, the derivation list is empty.
         # Otherwise, it is the list of base classes names going to the top.
         if drv_list:
+            # No meed to add all base classes, because they can be explored by going from one base class to the next.
             base_class_name = drv_list[0]
         else:
             base_class_name = ""
@@ -650,15 +651,17 @@ def extract_specific_ontology_wmi():
                     prop_dsc = six.text_type(prop_obj.Qualifiers_("Description"))
                 except Exception as wmi_exc:
                     prop_dsc = "No WMI description for property " + prop_obj.Name + ":" + str(wmi_exc)
-                    logging.error("Caught:%s", wmi_exc)
+                    logging.error("Property:%s Caught:%s", prop_obj.Name, wmi_exc)
                 props_text_descr[prop_obj.Name] = prop_dsc
 
         map_classes[class_name] = {
-            "base_class": base_class_name,
             "class_description": text_descr,
             "class_keys_list": [], # These are the WMI keys
             "non_key_properties_list": [] # These are the WMI properties
         }
+        if base_class_name:
+            # Maybe this is an empty string, then do not add it,.
+            map_classes[class_name]["base_class"] = base_class_name
 
         def store_prop_name(prop_obj):
             prop_obj_name = wmi_string_to_str(prop_obj.name)
