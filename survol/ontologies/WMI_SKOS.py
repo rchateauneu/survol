@@ -19,74 +19,55 @@ import lib_common
 
 def _convert_ontology_to_skos(input_graph):
 
+    skos_graph = rdflib.Graph()
+
+    skos = rdflib.Namespace('http://www.w3.org/2004/02/skos/core#')
+    skos_graph.bind('skos', skos)
+
+    survol = rdflib.Namespace('http://www.primhillcomputers.com/survol#')
+    skos_graph.bind('survol', survol)
+
+    skos_graph.add((survol['classesScheme'], rdflib.namespace.RDF.type, skos['ConceptScheme']))
+    skos_graph.add((survol['propertiesScheme'], rdflib.namespace.RDF.type, skos['ConceptScheme']))
+
+    # First pass to get top classes and derived classes, and all properties.
     all_classes = set()
-    derived_classes = set()
+    derived_classes = dict()
     all_properties = set()
 
-    # First pass to get the top classes.
     for rdf_subject, rdf_property, rdf_object in input_graph:
         if rdf_property == rdflib.namespace.RDF.type and rdf_object == rdflib.namespace.RDFS.Class:
             all_classes.add(rdf_subject)
         if rdf_property == rdflib.namespace.RDF.type and rdf_object == rdflib.namespace.RDF.Property:
             all_properties.add(rdf_subject)
         elif rdf_property == rdflib.namespace.RDFS.subClassOf:
-            derived_classes.add(rdf_subject)
+            derived_classes[rdf_subject] = rdf_object
 
-    top_classes = all_classes - derived_classes
+    top_classes = all_classes - set(derived_classes.keys())
 
-    skos_graph = rdflib.Graph()
+    for derived_class_node, base_class_node in derived_classes.items():
+        skos_graph.add((derived_class_node, skos['broader'], base_class_node))
 
-    skos = rdflib.Namespace('http://www.w3.org/2004/02/skos/core#')
-    skos_graph.bind('skos', skos)
+    for top_class_node in top_classes:
+        skos_graph.add((top_class_node, skos['topConceptOf'], survol['classesScheme']))
 
+    for one_class_node in all_classes:
+        skos_graph.add((one_class_node, rdflib.namespace.RDF.type, skos['Concept']))
+        skos_graph.add((one_class_node, skos['inScheme'], survol['classesScheme']))
+
+    for one_property_node in all_properties:
+        skos_graph.add((one_property_node, rdflib.namespace.RDF.type, skos['Concept']))
+        skos_graph.add((one_property_node, skos['topConceptOf'], survol['propertiesScheme']))
+        skos_graph.add((one_property_node, skos['inScheme'], survol['propertiesScheme']))
+
+    # Now scan all triples for comments and labels.
     for rdf_subject, rdf_property, rdf_object in input_graph:
-        # if rdf_property == rdflib.namespace.RDF.type:
-        #     if rdf_object == rdflib.namespace.XSD.string:
-        #         pass
-        #     elif rdf_object == rdflib.namespace.XSD.integer:
-        #         pass
-        #     elif rdf_object == rdflib.namespace.XSD.boolean:
-        #         pass
-        #     elif rdf_object == rdflib.namespace.XSD.double:
-        #         pass
-        #     elif rdf_object == rdflib.namespace.XSD.dateTime:
-        #         pass
-        #     else:
-        #         pass
-        #     rdf_property = skos_prefix + "Concept"
-        # elif rdf_property == rdflib.namespace.RDFS.label:
-        #     rdf_property = skos_prefix + "prefLabel"
-        # elif rdf_property == rdflib.namespace.RDFS.comment:
-        #     rdf_property = skos_prefix + "altLabel"
-        # elif rdf_property == rdflib.namespace.RDFS.domain:
-        #     pass
-        # elif rdf_property == rdflib.namespace.RDFS.range:
-        #     pass
-        # else:
-        #     pass
-        #
-        # if rdf_object == rdflib.namespace.RDFS.Property:
-        #     pass
-        # elif rdf_property == rdflib.namespace.RDFS.Class:
-        #     pass
-        # else:
-        #     pass
-        # Add the original triple anyway.
         skos_graph.add((rdf_subject, rdf_property, rdf_object))
 
-        if rdf_property == rdflib.namespace.RDF.type and rdf_object == rdflib.namespace.RDFS.Class:
-            skos_graph.add((rdf_subject, rdflib.namespace.RDF.type, skos['Concept']))
-        elif rdf_property == rdflib.namespace.RDFS.label:
+        if rdf_property == rdflib.namespace.RDFS.label:
             skos_graph.add((rdf_subject, skos['prefLabel'], rdf_object))
         elif rdf_property == rdflib.namespace.RDFS.comment:
             skos_graph.add((rdf_subject, skos['altLabel'], rdf_object))
-        elif rdf_property == rdflib.namespace.RDFS.subClassOf:
-            skos_graph.add((rdf_subject, skos['broader'], rdf_object))
-
-    for one_class_node in top_classes:
-        skos_graph.add((one_class_node, skos['inScheme'], skos['topConceptOf']))
-
-    # all_properties????
 
     return skos_graph
 
