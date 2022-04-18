@@ -13,10 +13,11 @@ from lib_properties import pc
 ################################################################################
 
 
-def flush_or_save_rdf_graph(grph, output_rdf_filename):
+def flush_or_save_rdf_graph(grph, output_rdf_filename, output_format='xml'):
     """This dumps the triplestore graph to the current output socket if called in a HTTP server.
     Otherwise it saves the result to a text file, for testing or debugging."""
     logging.info("l=%s sys.argv=%s", len(sys.argv), str(sys.argv))
+    sys.stderr.write("output_rdf_filename=%s output_format=%s\n" % (output_rdf_filename, output_format))
 
     try:
         # This is a hack to test if the caller is in command-line mode or runs in a web server.
@@ -25,7 +26,7 @@ def flush_or_save_rdf_graph(grph, output_rdf_filename):
         lib_util.WrtHeader('text/html')
 
         out_dest = lib_util.get_default_output_destination()
-        lib_kbase.triplestore_to_stream_xml(grph,out_dest, 'xml')
+        lib_kbase.triplestore_to_stream_xml(grph, out_dest, output_format)
     except KeyError:
         # Just write the content to a file, no HTTP header is needed.
         logging.info("onto_filnam=%s", output_rdf_filename)
@@ -33,7 +34,7 @@ def flush_or_save_rdf_graph(grph, output_rdf_filename):
         # Maybe this is an issue with a specific rdflib version.
         open_flag = "bw" if lib_util.is_py3 else "w"
         outfil = open(output_rdf_filename, open_flag)
-        lib_kbase.triplestore_to_stream_xml(grph, outfil, 'xml')
+        lib_kbase.triplestore_to_stream_xml(grph, outfil, output_format)
         outfil.close()
 
 ################################################################################
