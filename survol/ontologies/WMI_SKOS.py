@@ -94,6 +94,10 @@ def Main():
     onto_filnam = os.path.splitext(__file__)[0] + ".rdfs"
     lib_export_ontology.flush_or_save_rdf_graph(skos_graph, onto_filnam)
 
+    # Writes the same content in turtle format.
+    onto_filnam_turtle = os.path.splitext(__file__)[0] + ".ttl"
+    lib_export_ontology.flush_or_save_rdf_graph(graph, onto_filnam_turtle, 'ttl')
+
 
 if __name__ == '__main__':
     Main()
