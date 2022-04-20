@@ -93,12 +93,18 @@ def Main():
 
     path_base = os.path.splitext(__file__)[0]
 
-    onto_filnam = path_base + ".rdfs"
-    lib_export_ontology.flush_or_save_rdf_graph(skos_graph, onto_filnam)
+    lib_export_ontology.flush_or_save_rdf_graph(skos_graph, path_base + ".rdfs")
 
     # Writes the same content in turtle format.
-    onto_filnam_turtle = path_base + ".ttl"
-    lib_export_ontology.flush_or_save_rdf_graph(graph, onto_filnam_turtle, 'ttl')
+    lib_export_ontology.flush_or_save_rdf_graph(graph, path_base + "_DUPL.ttl", 'ttl')
+
+    graph.namespace_manager.bind('survol', rdflib.Namespace('http://www.primhillcomputers.com/survol#'), override=True)
+    lib_export_ontology.flush_or_save_rdf_graph(graph, path_base + "_DUPL_BIND.ttl", 'ttl')
+
+    g = rdflib.Graph()
+    g.parse(path_base + ".rdfs", format='xml')
+    g.namespace_manager.bind('survol', rdflib.Namespace('http://www.primhillcomputers.com/survol#'), override=True)
+    g.serialize(destination=path_base + "_RELOAD.ttl", format='turtle')
 
 
 if __name__ == '__main__':
