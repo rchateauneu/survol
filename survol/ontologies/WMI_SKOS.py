@@ -19,15 +19,93 @@ import lib_export_ontology
 import lib_wmi
 import lib_common
 
+pav = rdflib.Namespace('http://purl.org/pav/')
+survol = rdflib.Namespace('http://www.primhillcomputers.com/survol#')
 
-def _convert_ontology_to_skos(input_graph):
+
+def _create_properties_hierarchy(skos_graph: rdflib.Graph, input_graph: rdflib.Graph):
+    """
+    This creates an hierarchy of properties based on their domains.
+    :param The two graphes, input and output:
+    :return: Nothing
+    """
+
+    # Create a concept of class property for each class.
+    all_classes = set()
+    for rdf_subject, rdf_property, rdf_object in input_graph:
+        if rdf_property == rdflib.namespace.RDF.type and rdf_object == rdflib.namespace.RDFS.Class:
+            all_classes.add(rdf_subject)
+
+    classes_to_label = dict()
+    for rdf_subject, rdf_property, rdf_object in input_graph:
+        if rdf_property == rdflib.namespace.RDFS.label and rdf_subject in all_classes:
+            classes_to_label[rdf_subject] = str(rdf_object)
+
+    classes_to_base_class = dict()
+    for rdf_subject, rdf_property, rdf_object in input_graph:
+        if rdf_property == rdflib.namespace.RDFS.subClassOf and rdf_subject in all_classes:
+            classes_to_base_class[rdf_subject] = rdf_object
+
+    # Now create one new concept, SKOS-only, for each class, to represent the properties of this class.
+    class_to_concept_class = dict()
+    for class_node, class_label in classes_to_label.items():
+        concept_class_properties_name = class_label + ".SKOS.properties"
+        concept_class_properties_node = rdflib.URIRef(survol[concept_class_properties_name])
+        class_to_concept_class[class_node] = concept_class_properties_node
+
+        concept_class_properties_label = rdflib.Literal(class_label + " SKOS properties")
+        skos_graph.add((concept_class_properties_node, rdflib.namespace.RDFS.label, concept_class_properties_label))
+
+        skos_graph.add((concept_class_properties_node, rdflib.namespace.SKOS.prefLabel, concept_class_properties_label))
+        skos_graph.add((concept_class_properties_node, rdflib.namespace.SKOS.altLabel, concept_class_properties_label))
+
+        skos_graph.add((concept_class_properties_node, rdflib.namespace.RDF.type, rdflib.namespace.SKOS.Concept))
+        skos_graph.add((concept_class_properties_node, rdflib.namespace.SKOS.inScheme, survol['propertiesScheme']))
+
+    # Here, each class has its SKOS concept.
+    print("len(class_to_concept_class)=", len(class_to_concept_class))
+    for class_node, concept_class_properties_node in class_to_concept_class.items():
+        if class_node in classes_to_base_class:
+            base_concept = class_to_concept_class[classes_to_base_class[class_node]]
+            skos_graph.add((concept_class_properties_node, rdflib.namespace.SKOS.broader, base_concept))
+        else:
+            skos_graph.add((concept_class_properties_node, rdflib.namespace.SKOS.topConceptOf, survol['propertiesScheme']))
+
+    # Properties to their class
+    all_properties = dict()
+    for rdf_subject, rdf_property, rdf_object in input_graph:
+        if rdf_property == rdflib.namespace.RDF.type and rdf_object == rdflib.namespace.RDF.Property:
+            all_properties[rdf_subject] = set()
+
+    properties_to_label = dict()
+    for rdf_subject, rdf_property, rdf_object in input_graph:
+        if rdf_property == rdflib.namespace.RDFS.label and rdf_subject in all_properties:
+            properties_to_label[rdf_subject] = str(rdf_object)
+
+    # Now add the classes.
+    for rdf_subject, rdf_property, rdf_object in input_graph:
+        if rdf_property == rdflib.namespace.RDFS.domain and rdf_subject in all_properties:
+            all_properties[rdf_subject].add(rdf_object)
+
+    for one_property_node, domain_classes in all_properties.items():
+        print("one_property_node", one_property_node)
+        for one_domain_class in domain_classes:
+            concept_class = class_to_concept_class[one_domain_class]
+            # It would be better to have only one base class.
+            # TODO: Use only the base class, common to all domains of this property.
+            skos_graph.add((one_property_node, rdflib.namespace.SKOS.broader, concept_class))
+        property_label = rdflib.Literal(properties_to_label[one_property_node])
+        skos_graph.add((one_property_node, rdflib.namespace.SKOS.prefLabel, property_label))
+        skos_graph.add((one_property_node, rdflib.namespace.RDF.type, rdflib.namespace.SKOS.Concept))
+        skos_graph.add((one_property_node, rdflib.namespace.SKOS.inScheme, survol['propertiesScheme']))
+
+
+def _convert_ontology_to_skos(input_graph: rdflib.Graph) -> rdflib.Graph:
 
     skos_graph = rdflib.Graph()
 
-    pav = rdflib.Namespace('http://purl.org/pav/')
     skos_graph.bind('pav', pav)
 
-    survol = rdflib.Namespace('http://www.primhillcomputers.com/survol#')
     skos_graph.bind('survol', survol)
 
     # Something like '10.0.19041' for Windows 10.
@@ -43,17 +121,16 @@ def _convert_ontology_to_skos(input_graph):
     # First pass to get top classes and derived classes, and all properties.
     all_classes = set()
     derived_classes = dict()
-    all_properties = set()
 
     for rdf_subject, rdf_property, rdf_object in input_graph:
         if rdf_property == rdflib.namespace.RDF.type and rdf_object == rdflib.namespace.RDFS.Class:
             all_classes.add(rdf_subject)
-        if rdf_property == rdflib.namespace.RDF.type and rdf_object == rdflib.namespace.RDF.Property:
-            all_properties.add(rdf_subject)
         elif rdf_property == rdflib.namespace.RDFS.subClassOf:
             derived_classes[rdf_subject] = rdf_object
 
     top_classes = all_classes - set(derived_classes.keys())
+
+    _create_properties_hierarchy(skos_graph, input_graph)
 
     for derived_class_node, base_class_node in derived_classes.items():
         skos_graph.add((derived_class_node, rdflib.namespace.SKOS.broader, base_class_node))
@@ -64,11 +141,6 @@ def _convert_ontology_to_skos(input_graph):
     for one_class_node in all_classes:
         skos_graph.add((one_class_node, rdflib.namespace.RDF.type, rdflib.namespace.SKOS.Concept))
         skos_graph.add((one_class_node, rdflib.namespace.SKOS.inScheme, survol['classesScheme']))
-
-    for one_property_node in all_properties:
-        skos_graph.add((one_property_node, rdflib.namespace.RDF.type, rdflib.namespace.SKOS.Concept))
-        skos_graph.add((one_property_node, rdflib.namespace.SKOS.topConceptOf, survol['propertiesScheme']))
-        skos_graph.add((one_property_node, rdflib.namespace.SKOS.inScheme, survol['propertiesScheme']))
 
     # Now scan all triples for comments and labels.
     for rdf_subject, rdf_property, rdf_object in input_graph:
@@ -96,15 +168,17 @@ def Main():
     lib_export_ontology.flush_or_save_rdf_graph(skos_graph, path_base + ".rdfs")
 
     # Writes the same content in turtle format.
-    lib_export_ontology.flush_or_save_rdf_graph(graph, path_base + "_DUPL.ttl", 'ttl')
+    lib_export_ontology.flush_or_save_rdf_graph(skos_graph, path_base + "_DUPL.ttl", 'ttl')
+    #skos_graph.serialize(destination=path_base + "_DUPL2.ttl", format='turtle')
 
-    graph.namespace_manager.bind('survol', rdflib.Namespace('http://www.primhillcomputers.com/survol#'), override=True)
-    lib_export_ontology.flush_or_save_rdf_graph(graph, path_base + "_DUPL_BIND.ttl", 'ttl')
+    #skos_graph.namespace_manager.bind('survol', rdflib.Namespace('http://www.primhillcomputers.com/survol#'), override=True)
+    #lib_export_ontology.flush_or_save_rdf_graph(skos_graph, path_base + "_DUPL_BIND.ttl", 'ttl')
+    #skos_graph.serialize(destination=path_base + "_DUPL_BIND2.ttl", format='turtle')
 
-    g = rdflib.Graph()
-    g.parse(path_base + ".rdfs", format='xml')
-    g.namespace_manager.bind('survol', rdflib.Namespace('http://www.primhillcomputers.com/survol#'), override=True)
-    g.serialize(destination=path_base + "_RELOAD.ttl", format='turtle')
+    #g = rdflib.Graph()
+    #g.parse(path_base + ".rdfs", format='xml')
+    #g.namespace_manager.bind('survol', rdflib.Namespace('http://www.primhillcomputers.com/survol#'), override=True)
+    #g.serialize(destination=path_base + "_RELOAD.ttl", format='turtle')
 
 
 if __name__ == '__main__':
