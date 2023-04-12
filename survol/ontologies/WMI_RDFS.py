@@ -4,10 +4,6 @@
 
 # This creates an RDFS ontology out of the WMI classes of a Windows machine.
 
-# It does not depend on a Survol installation.
-# However, its classes and properties will overlap Survol's if it is installed.
-# Also, because they use rdflib and wmi, it is simpler to share the same code.
-
 # https://stackoverflow.com/questions/24017320/using-owlclass-prefix-with-rdflib-and-xml-serialization
 
 import os
