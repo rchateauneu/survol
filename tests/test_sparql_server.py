@@ -164,7 +164,7 @@ class SparqlServerSurvolTest(unittest.TestCase):
 
     def test_server_CIM_Process_xml(self):
         """
-        This gets the pif of the current process and gets the result in RDF-XML.
+        This gets the pid of the current process and gets the result in RDF-XML.
         """
         sparql_query = """
             PREFIX survol:  <http://www.primhillcomputers.com/survol#>
