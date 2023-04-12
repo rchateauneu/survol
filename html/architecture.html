@@ -120,9 +120,8 @@
             <div class="about-img"><img src="images/about-line.png"></div>
             <div class="par p-t-0">
               <p class="infotxt">Survol needs to run one agent per machine: a
-                plain HTTP server runs <a href="https://en.wikipedia.org/wiki/Common_Gateway_Interface"
-
-                  class="a-link">Common Gateway Interface</a> (CGI) Python
+                plain HTTP server runs <a href="https://en.wikipedia.org/wiki/Common_Gateway_Interface" 
+                                          class="a-link">Common Gateway Interface</a> (CGI) Python
                 scripts. This agent and its port number define the identity of
                 each object of this machine, that Survol is able to provide
                 information about. This is the same concept as with WMI and
@@ -208,8 +207,7 @@
                 the client-side graphic library is D3, with projects to use also
                 <a href="http://www.cytoscape.org/" class="a-link"> Cytoscape</a>,
                 another software platform for visualizing complex network.
-                Survol is extremely modular, and adding a new front-end is a
-                totally independent task.</li>
+                Survol is extremely modular, and adding a new front-end is an independent task of the application core.</li>
             </ul>
           </div>
         </div>
@@ -277,60 +275,88 @@
     <section class="architecture grey-sec">
       <div class="container">
         <div class="row">
-          <div class="col-md-12">
-            <h2 class="sec-head2 text-left clearfix">SURVOL DATA MODEL</h2>
-            <p class="infotxt">One of the core aspects of Survol is its data
-              model which attempts to take the best of the worlds it is working
-              in. A first approach is WBEM. However, the data description
-              offered by WBEM suffers from several drawbacks:</p>
-            <ul class="datalist">
-              <li>It does not define all the objects we need, because CIM is
-                very neutral, not oriented to applications management. For
-                example, database tables, or sockets, or Python packages or
-                Samba™ servers have no definition. It is indeed possible to add
-                new classes into WIM or WMI, but not in a portable way, and it
-                requires C++ code compilation etc... this is quite a heavy
-                process.</li>
-              <li>Also: WQL, the CIM query language, has some limitations: It
-                does not allow joins between several classes, and a query can
-                return objects of a single class only. Whereas some information
-                snapshot would require of all sorts of objects to completely
-                describe a situation: Some examples which cannot be described by
-                WQL queries could be: All network files accessed by a process,
-                plus their sockets. Or linkable symbols from a DLL file. Or SQL
-                queries detected in a process memory, plus their tables. These
-                are quite common situations when investigating an application.
-                However, it can be represented with WBEM.</li>
-              <li>On top of that, WMI and WBEM suffer from several specific
-                performance problems which are difficult to overcome. These
-                problems come from the indistinct processing of objects,
-                whatever their behaviour. For example, selecting all
-                CMI_Datafile objects will return all files on a given machine:
-                This is obviously very difficult to handle.</li>
-            </ul>
-            <p class="sec-subhead">Despite this, building a software on an
-              industrial standard is invaluably convenient. Therefore, Survol
-              attempts to combine the best of both worlds:</p>
-            <ul class="datalist">
-              <li>Existing WBEM classes are always reused. When the classes are
-                different in Linux and Windows, but a common base class exist,
-                this base class is chosen. Survol uses only a subset of WBEM
-                ontologies: That is, it uses only the minimal number of WBEM
-                class properties which are necessary to uniquely define an
-                object. However, all detected properties are displayed, when
-                available.</li>
-              <li>Survol comes with a lightweight ontology and data definition
-                where a class is only defined by a directory in a Python source
-                code tree.</li>
-              <li>When an object is defined by Survol, its equivalent link into
-                WBEM or WMI is calculated and accessible. WBEM, WMI and Survol
-                use the same moniker strings (Object path).</li>
-              <li>It is possible to display any WMI or WBEM object and navigate
-                into their repository. Survol is -also- a complete read-only
-                WBEM objects browser. Notably, Survol can "talk" with WBEM or
-                WMI running on distant machines.</li>
-            </ul>
-          </div>
+            <div class="col-md-12">
+                <h2 class="sec-head2 text-left clearfix">SURVOL DATA MODEL</h2>
+                <p class="infotxt">
+                    One of the core aspects of Survol is its data
+                    model which attempts to take the best of the worlds it is working
+                    in. A first approach is WBEM. However, the data description
+                    offered by WBEM suffers from several drawbacks:
+                </p>
+                <ul class="datalist">
+                    <li>
+                        It does not define all the objects we need, because CIM is
+                        very neutral, not oriented to applications management. For
+                        example, database tables, or sockets, or Python packages or
+                        Samba™ servers have no definition. It is indeed possible to add
+                        new classes into WIM or WMI, but not in a portable way, and it
+                        requires C++ code compilation etc... this is quite a heavy
+                        process.
+                    </li>
+                    <li>
+                        Also: WQL, the CIM query language, has some limitations: It
+                        does not allow joins between several classes, and a query can
+                        return objects of a single class only. Whereas some information
+                        snapshot would require of all sorts of objects to completely
+                        describe a situation: Some examples which cannot be described by
+                        WQL queries could be: All network files accessed by a process,
+                        plus their sockets. Or linkable symbols from a DLL file. Or SQL
+                        queries detected in a process memory, plus their tables. These
+                        are quite common situations when investigating an application.
+                        However, it can be represented with WBEM.
+                    </li>
+                    <li>
+                        On top of that, WMI and WBEM suffer from several specific
+                        performance problems which are difficult to overcome. These
+                        problems come from the indistinct processing of objects,
+                        whatever their behaviour. For example, selecting all
+                        CMI_Datafile objects will return all files on a given machine:
+                        This is obviously very difficult to handle.
+                    </li>
+                </ul>
+                <p class="sec-subhead">
+                    Despite this, building a software on an
+                    industrial standard is invaluably convenient. Therefore, Survol
+                    attempts to combine the best of both worlds:
+                </p>
+                <ul class="datalist">
+                    <li>
+                        Existing WBEM classes are always reused. When the classes are
+                        different in Linux and Windows, but a common base class exist,
+                        this base class is chosen. Survol uses only a subset of WBEM
+                        ontologies: That is, it uses only the minimal number of WBEM
+                        class properties which are necessary to uniquely define an
+                        object. However, all detected properties are displayed, when
+                        available.
+                    </li>
+                    <li>
+                        Survol comes with a lightweight ontology and data definition
+                        where a class is only defined by a directory in a Python source
+                        code tree.
+                    </li>
+                    <li>
+                        When an object is defined by Survol, its equivalent link into
+                        WBEM or WMI is calculated and accessible. WBEM, WMI and Survol
+                        use the same moniker strings (Object path).
+                    </li>
+                    <li>
+                        It is possible to display any WMI or WBEM object and navigate
+                        into their repository. Survol is -also- a complete read-only
+                        WBEM objects browser. Notably, Survol can "talk" with WBEM or
+                        WMI running on distant machines.
+                    </li>
+                </ul>
+                <p class="sec-subhead">
+                    The ontologies describing the data model of WMI and WBEM are automatically created and completed by the Survol'specific classes.
+                    Primhill Computers freely rovides these ontologies which can be used by any ontology editor.
+                    Being created automatically, they are the most accurate semantic model of the internal architecture of the operating system.
+                </p>
+                <ul class="datalist">
+                    <li><a href="ontologies/WMI_RDFS.rdfs">WMI</a></li>
+                    <li>WBEM <i>(not available yet)</i></i></li>
+                    <li>Survol <i>(not available yet)</i></li>
+                </ul>
+            </div>
         </div>
       </div>
     </section>
@@ -501,9 +527,7 @@
                   <tr>
                     <td>Visual Studio Professional</td>
                     <td>8532-42f4-a66a-c5da7acd</td>
-                    <td><input name="Azure_Visual Studio Professional_8eae3913-8532-42f4-a66a-c5da7acdedd7_UPDATE_PASSWORD"
-
-                        value="****"></td>
+                    <td><input name="Azure_Visual_Studio_UPDATE_PASSWORD" value="****"></td>
                   </tr>
                   <tr class="table-subhead">
                     <td colspan="3">Login</td>
@@ -511,14 +535,12 @@
                   <tr>
                     <td>DESKTOP-NI99V8E</td>
                     <td>johnwin</td>
-                    <td><input name="Login_DESKTOP-NI99V8E_rchateauneu@hotmail.com_UPDATE_PASSWORD"
-
-                        value="****"></td>
+                    <td><input name="Login_UPDATE_PASSWORD" value="****"></td>
                   </tr>
                   <tr>
                     <td>fedora22</td>
                     <td>mary</td>
-                    <td><input name="Login_fedora22_rchateau_UPDATE_PASSWORD" value="****"></td>
+                    <td><input name="Login_rc_UPDATE_PASSWORD" value="****"></td>
                   </tr>
                   <tr class="table-subhead">
                     <td colspan="3">MySql</td>
@@ -526,9 +548,7 @@
                   <tr>
                     <td>sqlusertcsrvdb1.mysql.db</td>
                     <td>sqlusertcsrvdb1</td>
-                    <td><input name="MySql_primhilltcsrvdb1.mysql.db_primhilltcsrvdb1_UPDATE_PASSWORD"
-
-                        value="****"></td>
+                    <td><input name="MySql_primhilltcsrvdb1_UPDATE_PASSWORD" value="****"></td>
                   </tr>
                   <tr class="table-subhead">
                     <td colspan="3">ODBC</td>
@@ -536,9 +556,7 @@
                   <tr>
                     <td>MyOracleDataSource</td>
                     <td>system</td>
-                    <td><input name="ODBC_MyOracleDataSource_system_UPDATE_PASSWORD"
-
-                        value="****"></td>
+                    <td><input name="ODBC_MyOracleDataSource_system_UPDATE_PASSWORD" value="****"></td>
                   </tr>
                   <tr class="table-subhead">
                     <td colspan="3">Oracle</td>
@@ -554,9 +572,7 @@
                   <tr>
                     <td>localhost:12345</td>
                     <td>guest</td>
-                    <td><input name="RabbitMQ_localhost:12345_guest_UPDATE_PASSWORD"
-
-                        value="****"></td>
+                    <td><input name="RabbitMQ_UPDATE_PASSWORD" value="****"></td>
                   </tr>
                   <tr class="table-subhead">
                     <td colspan="3">SqlExpress</td>
@@ -564,9 +580,7 @@
                   <tr>
                     <td>192.168.0.14\SQLEXPRESS</td>
                     <td>jamessql</td>
-                    <td><input name="SqlExpress_192.168.0.14\SQLEXPRESS_essaisql_UPDATE_PASSWORD"
-
-                        value="****"></td>
+                    <td><input name="SqlExpress_essaisql_UPDATE_PASSWORD" value="****"></td>
                   </tr>
                   <tr class="table-subhead">
                     <td colspan="3">Survol</td>
@@ -575,13 +589,13 @@
                     <td>http://desktop-ni99v8e/Survol/survol/entity.py</td>
                     <td><br>
                     </td>
-                    <td><input name="Survol_http://desktop-ni99v8e/Survol/survol/entity.py__UPDATE_PASSWORD"></td>
+                    <td><input name="Survol_ni99v8e_UPDATE_PASSWORD"></td>
                   </tr>
                   <tr>
                     <td>http://win7-hp:8000/survol/entity.py</td>
                     <td><br>
                     </td>
-                    <td><input name="Survol_http://rchateau-hp:8000/survol/entity.py__UPDATE_PASSWORD"></td>
+                    <td><input name="Survol_entity.py__UPDATE_PASSWORD"></td>
                   </tr>
                   <tr class="table-subhead">
                     <td colspan="3">WBEM</td>
@@ -589,16 +603,12 @@
                   <tr>
                     <td>http://192.168.0.17:5988</td>
                     <td>pegasus</td>
-                    <td><input name="WBEM_http://192.168.0.17:5988_pegasus_UPDATE_PASSWORD"
-
-                        value="****"></td>
+                    <td><input name="WBEM_pegasus_UPDATE_PASSWORD" value="****"></td>
                   </tr>
                   <tr>
                     <td>http://WIN7-HP:5988</td>
                     <td>william</td>
-                    <td><input name="WBEM_http://rchateau-HP:5988_rchateau_UPDATE_PASSWORD"
-
-                        value="****"></td>
+                    <td><input name="WBEM_http://rchateau_UPDATE_PASSWORD" value="****"></td>
                   </tr>
                   <tr class="table-subhead">
                     <td colspan="3">WMI</td>
@@ -606,9 +616,7 @@
                   <tr>
                     <td>LAPTOP-B2HEHHF6</td>
                     <td>user</td>
-                    <td><input name="WMI_LAPTOP-B2HEHHF6_emmanuel_UPDATE_PASSWORD"
-
-                        value="****"></td>
+                    <td><input name="WMI_LAPTOP-B2HEHHF6_em_UPDATE_PASSWORD" value="****"></td>
                   </tr>
                 </tbody>
                 <tbody>
