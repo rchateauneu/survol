@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 __author__      = "Remi Chateauneu"
-__copyright__   = "Primhill Computers, 2018-2021"
+__copyright__   = "Primhill Computers, 2018-2023"
 __credits__ = ["","",""]
 __license__ = "GPL"
 __version__ = "0.0.1"
@@ -818,6 +818,7 @@ def _open_flag_to_letter(open_flag):
     dict_flag_to_letter = {
         # ltrace values
         '0x80000': "R", # O_RDONLY|O_CLOEXEC
+        '0x90800': "R", # ??
         '0': "R", # O_RDONLY
         '0x100': "R", # O_CREAT
         '0x241': "W", # O_EXCL | O_WRONLY | ??
@@ -2147,7 +2148,12 @@ class STraceTracer(GenericTraceTracer):
         if external_command:
             # Run tracer process as a detached grandchild, not as parent of the tracee. This reduces the visible
             # effect of strace by keeping the tracee a direct child of the calling process.
-            trace_command += ["-D"]
+            # It might fail with the error:
+            # strace: Could not attach to process. If your uid matches the uid of the target process,
+            # check the setting of /proc/sys/kernel/yama/ptrace_scope, or try again as the root user.
+            # For more details, see /etc/sysctl.d/10-ptrace.conf: Operation not permitted
+            # strace: attach: ptrace(PTRACE_ATTACH, 498): Operation not permitted
+            ### trace_command += ["-D"]
             trace_command += external_command
         else:
             trace_command += ["-p", a_pid]
