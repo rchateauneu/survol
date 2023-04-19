@@ -11,6 +11,7 @@ import tempfile
 import unittest
 import shutil
 import rdflib
+import rdflib.compare
 import subprocess
 import collections
 import difflib
@@ -150,14 +151,38 @@ def _filter_content(dockerfile_path, file_type):
     return dockerfile_content
 
 
-def _compare_file_with_expected(test_object, actual_file_path, expected_file_path, file_type=None):
+def _compare_file_with_expected_rdf(test_object, actual_file_path, expected_file_path):
+    actual_content = rdflib.Graph()
+    actual_content.parse(actual_file_path)
+    expected_content = rdflib.Graph()
+    expected_content.parse(expected_file_path)
+
+    in_both, in_first, in_second = rdflib.compare.graph_diff(actual_content, expected_content)
+    # compare extra triples in first graph to second
+    for (s, p, o) in in_first:
+        v = in_second.value(subject=s, predicate=p)
+        test_object.assertEqual(o.eq(v), True)
+    # compare extra triples in second graph to first
+    for (s, p, o) in in_second:
+        v = in_first.value(subject=s, predicate=p)
+        test_object.assertEqual(o.eq(v), True)
+    # if no checks have failed to this point, the graphs are equal
+
+
+def _compare_file_with_expected(test_object, actual_file_path, expected_file_path):
     """Compare this file with the expected one, if it is here."""
     print("Comparing actual:", actual_file_path, "to expected", expected_file_path)
-    try:
-        actual_content = _filter_content(actual_file_path, file_type)
-        expected_content = _filter_content(expected_file_path, file_type)
+    file_type = "Dockerfile" if actual_file_path.endswith("Dockerfile") else actual_file_path.split(".")[-1]
 
-        _compare_lines_with_expected(test_object, actual_content, expected_content)
+    print("file_type:", file_type)
+
+    try:
+        if file_type == "rdf":
+            _compare_file_with_expected_rdf(test_object, actual_file_path, expected_file_path)
+        else:
+            actual_content = _filter_content(actual_file_path, file_type)
+            expected_content = _filter_content(expected_file_path, file_type)
+            _compare_lines_with_expected(test_object, actual_content, expected_content)
         print("Comparison OK with ", actual_file_path)
     except IOError:
         print("INFO: No comparison file:", expected_file_path)
@@ -172,7 +197,7 @@ def _check_file_content(test_object, *file_path):
     actual_file_path = _path_prefix_output_result(*file_path)
     expected_file_path = os.path.join(dockit_output_files_path_expected, *file_path)
 
-    _compare_file_with_expected(test_object, actual_file_path, expected_file_path, file_path[-1])
+    _compare_file_with_expected(test_object, actual_file_path, expected_file_path)
 
     # On top of the content comparison, it also checks the file structure, just in case.
     return _check_file_validity(test_object, actual_file_path)
@@ -600,7 +625,7 @@ class CommandLineLiveLinuxTest(unittest.TestCase):
         check_file_missing(output_basename_prefix + ".log")
 
     def test_run_linux_touch_rdf(self):
-        """This touch a new file. An RDF event must be created."""
+        """This touches a new file. An RDF event must be created."""
         output_basename_prefix = "output_test_linux_touch"
         created_rdf_file = _path_prefix_output_result(output_basename_prefix + ".rdf")
         created_temp_file = _path_prefix_output_result(output_basename_prefix + ".tmp")
@@ -1465,6 +1490,16 @@ class StoreToRDFTest(unittest.TestCase):
         _check_file_content(self, output_basename_prefix + ".summary.txt")
         _check_file_content(self, output_basename_prefix + ".rdf")
 
+    def test_replay_ls_lr_ltrace(self):
+        output_basename_prefix = "ls_lr_21366_ltrace_tst_create_RDF"
+        dockit.test_from_file(
+            input_log_file=path_prefix_input_file("ls_lr.ltrace.21366.log"),
+            tracer="ltrace",
+            output_files_prefix=_path_prefix_output_result(output_basename_prefix),
+            verbose=True,
+            update_server= _path_prefix_output_result("ls_lr_21366_ltrace_tst_create_RDF.rdf"))
+
+        _check_file_content(self, output_basename_prefix + ".rdf")
 
 class EventsServerTest(unittest.TestCase):
     """
