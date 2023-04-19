@@ -8,7 +8,7 @@
 from __future__ import print_function
 
 __author__      = "Remi Chateauneu"
-__copyright__   = "Primhill Computers, 2018-2021"
+__copyright__   = "Primhill Computers, 2018-2023"
 __credits__ = ["","",""]
 __license__ = "GPL"
 __version__ = "0.0.1"
@@ -954,6 +954,8 @@ def dockit_entry_point():
     for an_option, a_value in command_options:
         if an_option in ("-v", "--verbose"):
             G_parameters.verbose += 1
+            # CRITICAL=50, NOTSET=0
+            logging.getLogger().setLevel(50 - G_parameters.verbose * 10)
         elif an_option in ("-w", "--warning"):
             G_parameters.with_warning += 1
         elif an_option in ("-s", "--summary"):
