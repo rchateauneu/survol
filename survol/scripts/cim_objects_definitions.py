@@ -675,7 +675,9 @@ class CIM_XmlMarshaller(object):
         # TODO: Must set the class with rdfs:Class
         # TODO: Possibly self.__class__.__name__
         # TODO: See https://www.w3.org/TR/rdf-schema/#ch_class
-        pass
+        # Attributes starting with "_" are processed normally.
+        # The others are CIM properties.
+        self._is_written = False
 
     def plain_to_XML(self, strm, sub_margin):
         try:
@@ -728,6 +730,14 @@ class CIM_XmlMarshaller(object):
         # of the properties of the ontology.
         the_subj_moniker = self.get_survol_moniker()
 
+        if not self._is_written:
+            subject_node = lib_event.json_moniker_to_node(*the_subj_moniker)
+            object_text = "http://www.primhillcomputers.com/survol#" + self.__class__.__name__
+            object_node = rdflib.term.URIRef(object_text)
+            rdf_triple = (subject_node, rdflib.RDF.type, object_node)
+            G_httpClient.enqueue_rdf_triple(rdf_triple)
+            self._is_written = True
+
         # TODO: If the attribute is part of the ontology, just inform about the object creation.
         # TODO: Some attributes could be the moniker of another object.
         # TODO: AND THEREFORE, SEND LINKS, NOT ONLY LITERALS !!!
@@ -760,6 +770,10 @@ class CIM_XmlMarshaller(object):
             old_attr_val = None
 
         self.__dict__[attr_nam] = attr_val
+
+        if attr_nam.startswith("_"):
+            # This is not a CIM property.
+            return
 
         if G_UpdateServer:
             # If the value did not change, no need to send an update.
